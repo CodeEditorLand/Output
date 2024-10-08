@@ -1,11 +1,36 @@
 {
-  "name": "output",
-  "version": "0.0.1",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Source/Open <Source/Open@Editor.Land> (https://editor.land/)",
-  "license": "SEE LICENSE IN LICENSE",
-  "description": ""
+	"name": "@codeeditorland/output",
+	"version": "0.0.1",
+	"private": false,
+	"description": "⚫ Output —",
+	"homepage": "HTTPS://GitHub.Com/CodeEditorLand/Output#readme",
+	"bugs": {
+		"url": "HTTPS://GitHub.Com/CodeEditorLand/Output/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/CodeEditorLand/Output.git"
+	},
+	"license": "SEE LICENSE IN LICENSE",
+	"author": {
+		"name": "🖋️ Source — 👐🏻 Open —",
+		"email": "Source/Open@Editor.Land",
+		"url": "HTTPS://Editor.Land"
+	},
+	"type": "module",
+	"scripts": {
+		"Build": "cross-env NODE_ENV=development Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.json",
+		"Run": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json --Watch",
+		"TypeScript": "tsc -p Source/Notation/CodeEditorLand/Editor/tsconfig.compile.json",
+		"prepublishOnly": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
+	},
+	"devDependencies": {
+		"@playform/build": "0.1.7",
+		"cross-env": "7.0.3",
+		"deepmerge-ts": "7.1.3"
+	},
+	"publishConfig": {
+		"access": "public",
+		"provenance": true
+	}
 }

@@ -1,1 +1,90 @@
-var c=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var l=(n,e,s,o)=>{for(var r=o>1?void 0:o?u(e,s):e,t=n.length-1,a;t>=0;t--)(a=n[t])&&(r=(o?a(e,s,r):a(r))||r);return o&&r&&c(e,s,r),r},p=(n,e)=>(s,o)=>e(s,o,n);import{ILogService as d}from"../../../../log/common/log.js";import{TerminalAutoResponder as m}from"./terminalAutoResponder.js";let i=class{constructor(e){this._logService=e}_autoReplies=new Map;_terminalProcesses=new Map;_autoResponders=new Map;async installAutoReply(e,s){this._autoReplies.set(e,s);for(const o of this._autoResponders.keys()){const r=this._terminalProcesses.get(o);if(!r){this._logService.error("Could not find terminal process to install auto reply");continue}this._processInstallAutoReply(o,r,e,s)}}async uninstallAllAutoReplies(){for(const e of this._autoReplies.keys())for(const s of this._autoResponders.values())s.get(e)?.dispose(),s.delete(e)}handleProcessReady(e,s){this._terminalProcesses.set(e,s),this._autoResponders.set(e,new Map);for(const[o,r]of this._autoReplies.entries())this._processInstallAutoReply(e,s,o,r)}handleProcessDispose(e){const s=this._autoResponders.get(e);if(s){for(const o of s.values())o.dispose();s.clear()}}handleProcessInput(e,s){const o=this._autoResponders.get(e);if(o)for(const r of o.values())r.handleInput()}handleProcessResize(e,s,o){const r=this._autoResponders.get(e);if(r)for(const t of r.values())t.handleResize()}_processInstallAutoReply(e,s,o,r){const t=this._autoResponders.get(e);t&&(t.get(o)?.dispose(),t.set(o,new m(s,o,r,this._logService)))}};i=l([p(0,d)],i);export{i as AutoRepliesPtyServiceContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ILogService } from "../../../../log/common/log.js";
+import { TerminalAutoResponder } from "./terminalAutoResponder.js";
+let AutoRepliesPtyServiceContribution = class {
+  constructor(_logService) {
+    this._logService = _logService;
+  }
+  static {
+    __name(this, "AutoRepliesPtyServiceContribution");
+  }
+  _autoReplies = /* @__PURE__ */ new Map();
+  _terminalProcesses = /* @__PURE__ */ new Map();
+  _autoResponders = /* @__PURE__ */ new Map();
+  async installAutoReply(match, reply) {
+    this._autoReplies.set(match, reply);
+    for (const persistentProcessId of this._autoResponders.keys()) {
+      const process = this._terminalProcesses.get(persistentProcessId);
+      if (!process) {
+        this._logService.error("Could not find terminal process to install auto reply");
+        continue;
+      }
+      this._processInstallAutoReply(persistentProcessId, process, match, reply);
+    }
+  }
+  async uninstallAllAutoReplies() {
+    for (const match of this._autoReplies.keys()) {
+      for (const processAutoResponders of this._autoResponders.values()) {
+        processAutoResponders.get(match)?.dispose();
+        processAutoResponders.delete(match);
+      }
+    }
+  }
+  handleProcessReady(persistentProcessId, process) {
+    this._terminalProcesses.set(persistentProcessId, process);
+    this._autoResponders.set(persistentProcessId, /* @__PURE__ */ new Map());
+    for (const [match, reply] of this._autoReplies.entries()) {
+      this._processInstallAutoReply(persistentProcessId, process, match, reply);
+    }
+  }
+  handleProcessDispose(persistentProcessId) {
+    const processAutoResponders = this._autoResponders.get(persistentProcessId);
+    if (processAutoResponders) {
+      for (const e of processAutoResponders.values()) {
+        e.dispose();
+      }
+      processAutoResponders.clear();
+    }
+  }
+  handleProcessInput(persistentProcessId, data) {
+    const processAutoResponders = this._autoResponders.get(persistentProcessId);
+    if (processAutoResponders) {
+      for (const listener of processAutoResponders.values()) {
+        listener.handleInput();
+      }
+    }
+  }
+  handleProcessResize(persistentProcessId, cols, rows) {
+    const processAutoResponders = this._autoResponders.get(persistentProcessId);
+    if (processAutoResponders) {
+      for (const listener of processAutoResponders.values()) {
+        listener.handleResize();
+      }
+    }
+  }
+  _processInstallAutoReply(persistentProcessId, terminalProcess, match, reply) {
+    const processAutoResponders = this._autoResponders.get(persistentProcessId);
+    if (processAutoResponders) {
+      processAutoResponders.get(match)?.dispose();
+      processAutoResponders.set(match, new TerminalAutoResponder(terminalProcess, match, reply, this._logService));
+    }
+  }
+};
+AutoRepliesPtyServiceContribution = __decorateClass([
+  __decorateParam(0, ILogService)
+], AutoRepliesPtyServiceContribution);
+export {
+  AutoRepliesPtyServiceContribution
+};
+//# sourceMappingURL=autoRepliesContribController.js.map

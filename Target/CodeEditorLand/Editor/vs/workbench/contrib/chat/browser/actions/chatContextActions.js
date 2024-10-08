@@ -1,1 +1,492 @@
-import{CancellationToken as Z}from"../../../../../base/common/cancellation.js";import{Codicon as x}from"../../../../../base/common/codicons.js";import{KeyCode as ee,KeyMod as ie}from"../../../../../base/common/keyCodes.js";import{Schemas as Q}from"../../../../../base/common/network.js";import{compare as te}from"../../../../../base/common/strings.js";import{ThemeIcon as g}from"../../../../../base/common/themables.js";import{URI as G}from"../../../../../base/common/uri.js";import"../../../../../editor/browser/editorExtensions.js";import"../../../../../editor/common/core/range.js";import{EditorType as K}from"../../../../../editor/common/editorCommon.js";import"../../../../../editor/common/languages.js";import{AbstractGotoSymbolQuickAccessProvider as oe}from"../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";import{localize as C,localize2 as N}from"../../../../../nls.js";import{Action2 as F,MenuId as A,registerAction2 as V}from"../../../../../platform/actions/common/actions.js";import{IClipboardService as re}from"../../../../../platform/clipboard/common/clipboardService.js";import{ICommandService as ne}from"../../../../../platform/commands/common/commands.js";import{IConfigurationService as ae}from"../../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as s,IContextKeyService as ce}from"../../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as se}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{ILabelService as le}from"../../../../../platform/label/common/label.js";import"../../../../../platform/quickinput/common/quickAccess.js";import{IQuickInputService as ue}from"../../../../../platform/quickinput/common/quickInput.js";import{ActiveEditorContext as M}from"../../../../common/contextkeys.js";import{IEditorService as D}from"../../../../services/editor/common/editorService.js";import{IViewsService as _}from"../../../../services/views/common/viewsService.js";import{AnythingQuickAccessProvider as me}from"../../../search/browser/anythingQuickAccess.js";import{SymbolsQuickAccessProvider as j}from"../../../search/browser/symbolsQuickAccess.js";import{SearchContext as de}from"../../../search/common/constants.js";import{VIEW_ID as Ie}from"../../../../services/search/common/search.js";import{ChatAgentLocation as m,IChatAgentService as ke}from"../../common/chatAgents.js";import{CONTEXT_CHAT_LOCATION as v,CONTEXT_IN_CHAT_INPUT as fe}from"../../common/chatContextKeys.js";import{IChatEditingService as he}from"../../common/chatEditingService.js";import"../../common/chatModel.js";import{ChatRequestAgentPart as $}from"../../common/chatParserTypes.js";import{IChatVariablesService as q}from"../../common/chatVariables.js";import{ILanguageModelToolsService as ge}from"../../common/languageModelToolsService.js";import{imageToHash as H,isImage as pe}from"../chatPasteProviders.js";import{IChatWidgetService as be,IQuickChatService as Ce,showChatView as X}from"../chat.js";import{isQuickChat as ve}from"../chatWidget.js";import{CHAT_CATEGORY as W}from"./chatActions.js";import"../../../search/browser/searchView.js";function Ei(){V(T),V(O),V(L)}function ye(n){return typeof n=="object"&&typeof n.symbolName=="string"&&!!n.uri&&!!n.range}function Pe(n){return typeof n=="object"&&typeof n.symbol=="object"&&!!n.symbol}function Se(n){return typeof n=="object"&&typeof n.resource=="object"&&G.isUri(n.resource)}function B(n){return typeof n=="object"&&n.id==="open-editors"}function Qe(n){return typeof n=="object"&&n.kind==="search-results"}class O extends F{static ID="workbench.action.chat.attachFile";constructor(){super({id:O.ID,title:N("workbench.action.chat.attachFile.label","Add File to Chat"),category:W,f1:!1,precondition:M.isEqualTo("workbench.editors.files.textFileEditor"),menu:{id:A.ChatCommandCenter,group:"a_chat",order:10}})}async run(i,...y){const d=i.get(q),l=i.get(D),u=l.activeEditor?.resource;l.activeTextEditorControl?.getEditorType()===K.ICodeEditor&&u&&[Q.file,Q.vscodeRemote,Q.untitled].includes(u.scheme)&&((await X(i.get(_)))?.focusInput(),d.attachContext("file",u,m.Panel))}}class L extends F{static ID="workbench.action.chat.attachSelection";constructor(){super({id:L.ID,title:N("workbench.action.chat.attachSelection.label","Add Selection to Chat"),category:W,f1:!1,precondition:M.isEqualTo("workbench.editors.files.textFileEditor"),menu:{id:A.ChatCommandCenter,group:"a_chat",order:11}})}async run(i,...y){const d=i.get(q),l=i.get(D),u=l.activeTextEditorControl,h=l.activeEditor?.resource;if(l.activeTextEditorControl?.getEditorType()===K.ICodeEditor&&h&&[Q.file,Q.vscodeRemote,Q.untitled].includes(h.scheme)){const I=u?.getSelection();I&&((await X(i.get(_)))?.focusInput(),d.attachContext("file",{uri:h,range:I},m.Panel))}}}class T extends F{static ID="workbench.action.chat.attachContext";static _cdt=s.or(s.and(v.isEqualTo(m.Panel)),s.and(v.isEqualTo(m.Editor),s.equals("config.chat.experimental.variables.editor",!0)),s.and(v.isEqualTo(m.Notebook),s.equals("config.chat.experimental.variables.notebook",!0)),s.and(v.isEqualTo(m.Terminal),s.equals("config.chat.experimental.variables.terminal",!0)));constructor(){super({id:T.ID,title:N("workbench.action.chat.attachContext.label","Attach Context"),icon:x.attach,category:W,precondition:s.or(T._cdt,s.and(v.isEqualTo(m.EditingSession))),keybinding:{when:fe,primary:ie.CtrlCmd|ee.Slash,weight:se.EditorContrib},menu:[{when:s.or(s.and(v.isEqualTo(m.EditingSession)),s.and(s.or(v.isEqualTo(m.Panel),v.isEqualTo(m.EditingSession)),T._cdt)),id:A.ChatInput,group:"navigation",order:2},{when:s.and(v.isEqualTo(m.Panel).negate(),T._cdt),id:A.ChatExecute,group:"navigation",order:1}]})}_getFileContextId(i){return"resource"in i?i.resource.toString():i.uri.toString()+(i.range.startLineNumber!==i.range.endLineNumber?`:${i.range.startLineNumber}-${i.range.endLineNumber}`:`:${i.range.startLineNumber}`)}async _attachContext(i,y,d,l,u,h,I,...E){const c=[];for(const e of E)if(Pe(e)&&e.symbol)c.push({id:this._getFileContextId(e.symbol.location),value:e.symbol.location,fullName:e.label,name:e.symbol.name,isDynamic:!0});else if(Se(e)&&e.resource)/\.(png|jpg|jpeg|bmp|gif|tiff)$/i.test(e.resource.path)?c.push({id:e.resource.toString(),name:e.label,fullName:e.label,value:e.resource,isDynamic:!0,isImage:!0}):(c.push({id:this._getFileContextId({resource:e.resource}),value:e.resource,name:e.label,isFile:!0,isDynamic:!0}),I?.addFileToWorkingSet(e.resource));else if(ye(e)&&e.uri&&e.range)c.push({range:void 0,id:this._getFileContextId({uri:e.uri,range:e.range.decoration}),value:{uri:e.uri,range:e.range.decoration},fullName:e.label,name:e.symbolName,isDynamic:!0});else if(B(e))for(const o of l.editors)o.resource&&(c.push({id:this._getFileContextId({resource:o.resource}),value:o.resource,name:u.getUriBasenameLabel(o.resource),isFile:!0,isDynamic:!0}),I?.addFileToWorkingSet(o.resource));else if(Qe(e)){const o=h.getViewWithId(Ie);for(const a of o.model.searchResult.matches())c.push({id:this._getFileContextId({resource:a.resource}),value:a.resource,name:u.getUriBasenameLabel(a.resource),isFile:!0,isDynamic:!0}),I?.addFileToWorkingSet(a.resource)}else{const o=e;if(o.kind==="command"){const a=await y.executeCommand(o.command.id,...o.command.arguments??[]);if(!a)continue;c.push({...o,isDynamic:o.isDynamic,value:o.value,name:`${typeof o.value=="string"&&o.value.startsWith("#")?o.value.slice(1):""}${a}`,fullName:a})}else if(o.kind==="tool")c.push({id:o.id,name:o.label,fullName:o.label,value:void 0,icon:o.icon,isTool:!0});else if(o.kind==="image"){const a=await d.readImage();c.push({id:await H(a),name:C("pastedImage","Pasted Image"),fullName:C("pastedImage","Pasted Image"),value:a,isDynamic:!0,isImage:!0})}else o.kind==="variable"&&c.push({range:void 0,id:e.id??"",value:void 0,fullName:e.label,name:o.variable.name,icon:o.variable.icon})}i.attachmentModel.addContext(...c)}async run(i,...y){const d=i.get(ue),l=i.get(ke),u=i.get(q),h=i.get(ne),I=i.get(be),E=i.get(ge),c=i.get(Ce),e=i.get(re),o=i.get(ae),a=i.get(D),R=i.get(le),r=i.get(ce),P=i.get(_),S=y[0],p=S?.widget??I.lastFocusedWidget;if(!p)return;const z=p.location===m.EditingSession?i.get(he):void 0,w=p.parsedInput.parts.find(t=>t instanceof $),Y=w?w.agent.metadata.supportsSlowVariables:!0,b=[];if(!S||!S.showFilesOnly){for(const t of u.getVariables(p.location))t.fullName&&(!t.isSlow||Y)&&b.push({kind:"variable",variable:t,label:t.fullName,id:t.id,iconClass:t.icon?g.asClassName(t.icon):void 0});if(o.getValue("chat.experimental.imageAttachments")){const t=await e.readImage();pe(t)&&b.push({kind:"image",id:await H(t),label:C("imageFromClipboard","Image from Clipboard"),iconClass:g.asClassName(x.fileMedia)})}if(p.viewModel?.sessionId){const t=p.parsedInput.parts.find(k=>k instanceof $);if(t){const k=await l.getAgentCompletionItems(t.agent.id,"",Z.None);for(const f of k)f.fullName&&f.command&&b.push({kind:"command",label:f.fullName,id:f.id,command:f.command,icon:f.icon,iconClass:f.icon?g.asClassName(f.icon):void 0,value:f.value,isDynamic:!0,name:f.name})}}if(!w||w.agent.supportsToolReferences){for(const t of E.getTools())if(t.canBeInvokedManually){const k={kind:"tool",label:t.displayName??t.name??"",id:t.id,icon:g.isThemeIcon(t.icon)?t.icon:void 0};g.isThemeIcon(t.icon)?k.iconClass=g.asClassName(t.icon):t.icon&&(k.iconPath=t.icon),b.push(k)}}b.push({kind:"quickaccess",label:C("chatContext.symbol","Symbol..."),iconClass:g.asClassName(x.symbolField),prefix:j.PREFIX,id:"symbol"}),p.location===m.Notebook&&b.push({kind:"command",id:"chatContext.notebook.kernelVariable",isDynamic:!0,icon:g.fromId(x.serverEnvironment.id),iconClass:g.asClassName(x.serverEnvironment),value:"kernelVariable",label:C("chatContext.notebook.kernelVariable","Kernel Variable..."),command:{id:"notebook.chat.selectAndInsertKernelVariable",title:C("chatContext.notebook.selectkernelVariable","Select and Insert Kernel Variable"),arguments:[{widget:p,range:void 0}]}})}else S.showFilesOnly&&(a.count>0&&b.push({kind:"open-editors",id:"open-editors",label:C("chatContext.editors","Open Editors"),iconClass:g.asClassName(x.files)}),de.HasSearchResults.getValue(r)&&b.push({kind:"search-results",id:"search-results",label:C("chatContext.searchResults","Search Results"),iconClass:g.asClassName(x.search)}));function U(t){if(!t)return"";const k=t.match(/\$\([^\)]+\)\s*(.+)/);return k?k[1]:t}this._show(d,h,p,c,b.sort(function(t,k){const f=U(t.label).toUpperCase(),J=U(k.label).toUpperCase();return te(f,J)}),e,a,R,P,z,"",S?.placeholder)}_show(i,y,d,l,u,h,I,E,c,e,o="",a){const R={handleAccept:r=>{if("prefix"in r)this._show(i,y,d,l,u,h,I,E,c,e,r.prefix,a);else{if(!h)return;this._attachContext(d,y,h,I,E,c,e,r),ve(d)&&l.open()}},additionPicks:u,filter:r=>{const P=d.attachmentModel.getAttachmentIDs();if(B(r)){for(const S of I.editors)if(S.resource&&!P.has(this._getFileContextId({resource:S.resource})))return!0;return!1}return"kind"in r&&r.kind==="image"?!P.has(r.id):"symbol"in r&&r.symbol?!P.has(this._getFileContextId(r.symbol.location)):r&&typeof r=="object"&&"resource"in r&&G.isUri(r.resource)?[Q.file,Q.vscodeRemote].includes(r.resource.scheme)&&!P.has(this._getFileContextId({resource:r.resource})):r&&typeof r=="object"&&"uri"in r&&r.uri&&r.range?!P.has(this._getFileContextId({uri:r.uri,range:r.range.decoration})):!("command"in r)&&r.id?!P.has(r.id):!0}};i.quickAccess.show(o,{enabledProviderPrefixes:[me.PREFIX,j.PREFIX,oe.PREFIX],placeholder:a??C("chatContext.attach.placeholder","Search attachments"),providerOptions:R})}}export{T as AttachContextAction,Ei as registerChatContextActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { compare } from "../../../../../base/common/strings.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
+import { EditorType } from "../../../../../editor/common/editorCommon.js";
+import { Command } from "../../../../../editor/common/languages.js";
+import { AbstractGotoSymbolQuickAccessProvider, IGotoSymbolQuickPickItem } from "../../../../../editor/contrib/quickAccess/browser/gotoSymbolQuickAccess.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { AnythingQuickAccessProviderRunOptions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { IQuickInputService, IQuickPickItem, IQuickPickItemWithResource, IQuickPickSeparator, QuickPickItem } from "../../../../../platform/quickinput/common/quickInput.js";
+import { ActiveEditorContext } from "../../../../common/contextkeys.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { AnythingQuickAccessProvider } from "../../../search/browser/anythingQuickAccess.js";
+import { ISymbolQuickPickItem, SymbolsQuickAccessProvider } from "../../../search/browser/symbolsQuickAccess.js";
+import { SearchContext } from "../../../search/common/constants.js";
+import { VIEW_ID as SEARCH_VIEW_ID } from "../../../../services/search/common/search.js";
+import { ChatAgentLocation, IChatAgentService } from "../../common/chatAgents.js";
+import { CONTEXT_CHAT_LOCATION, CONTEXT_IN_CHAT_INPUT } from "../../common/chatContextKeys.js";
+import { IChatEditingService } from "../../common/chatEditingService.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
+import { ChatRequestAgentPart } from "../../common/chatParserTypes.js";
+import { IChatVariableData, IChatVariablesService } from "../../common/chatVariables.js";
+import { ILanguageModelToolsService } from "../../common/languageModelToolsService.js";
+import { imageToHash, isImage } from "../chatPasteProviders.js";
+import { IChatWidget, IChatWidgetService, IQuickChatService, showChatView } from "../chat.js";
+import { isQuickChat } from "../chatWidget.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+import { SearchView } from "../../../search/browser/searchView.js";
+function registerChatContextActions() {
+  registerAction2(AttachContextAction);
+  registerAction2(AttachFileAction);
+  registerAction2(AttachSelectionAction);
+}
+__name(registerChatContextActions, "registerChatContextActions");
+function isIGotoSymbolQuickPickItem(obj) {
+  return typeof obj === "object" && typeof obj.symbolName === "string" && !!obj.uri && !!obj.range;
+}
+__name(isIGotoSymbolQuickPickItem, "isIGotoSymbolQuickPickItem");
+function isISymbolQuickPickItem(obj) {
+  return typeof obj === "object" && typeof obj.symbol === "object" && !!obj.symbol;
+}
+__name(isISymbolQuickPickItem, "isISymbolQuickPickItem");
+function isIQuickPickItemWithResource(obj) {
+  return typeof obj === "object" && typeof obj.resource === "object" && URI.isUri(obj.resource);
+}
+__name(isIQuickPickItemWithResource, "isIQuickPickItemWithResource");
+function isIOpenEditorsQuickPickItem(obj) {
+  return typeof obj === "object" && obj.id === "open-editors";
+}
+__name(isIOpenEditorsQuickPickItem, "isIOpenEditorsQuickPickItem");
+function isISearchResultsQuickPickItem(obj) {
+  return typeof obj === "object" && obj.kind === "search-results";
+}
+__name(isISearchResultsQuickPickItem, "isISearchResultsQuickPickItem");
+class AttachFileAction extends Action2 {
+  static {
+    __name(this, "AttachFileAction");
+  }
+  static ID = "workbench.action.chat.attachFile";
+  constructor() {
+    super({
+      id: AttachFileAction.ID,
+      title: localize2("workbench.action.chat.attachFile.label", "Add File to Chat"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ActiveEditorContext.isEqualTo("workbench.editors.files.textFileEditor"),
+      menu: {
+        id: MenuId.ChatCommandCenter,
+        group: "a_chat",
+        order: 10
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const variablesService = accessor.get(IChatVariablesService);
+    const textEditorService = accessor.get(IEditorService);
+    const activeUri = textEditorService.activeEditor?.resource;
+    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(activeUri.scheme)) {
+      (await showChatView(accessor.get(IViewsService)))?.focusInput();
+      variablesService.attachContext("file", activeUri, ChatAgentLocation.Panel);
+    }
+  }
+}
+class AttachSelectionAction extends Action2 {
+  static {
+    __name(this, "AttachSelectionAction");
+  }
+  static ID = "workbench.action.chat.attachSelection";
+  constructor() {
+    super({
+      id: AttachSelectionAction.ID,
+      title: localize2("workbench.action.chat.attachSelection.label", "Add Selection to Chat"),
+      category: CHAT_CATEGORY,
+      f1: false,
+      precondition: ActiveEditorContext.isEqualTo("workbench.editors.files.textFileEditor"),
+      menu: {
+        id: MenuId.ChatCommandCenter,
+        group: "a_chat",
+        order: 11
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const variablesService = accessor.get(IChatVariablesService);
+    const textEditorService = accessor.get(IEditorService);
+    const activeEditor = textEditorService.activeTextEditorControl;
+    const activeUri = textEditorService.activeEditor?.resource;
+    if (textEditorService.activeTextEditorControl?.getEditorType() === EditorType.ICodeEditor && activeUri && [Schemas.file, Schemas.vscodeRemote, Schemas.untitled].includes(activeUri.scheme)) {
+      const selection = activeEditor?.getSelection();
+      if (selection) {
+        (await showChatView(accessor.get(IViewsService)))?.focusInput();
+        variablesService.attachContext("file", { uri: activeUri, range: selection }, ChatAgentLocation.Panel);
+      }
+    }
+  }
+}
+class AttachContextAction extends Action2 {
+  static {
+    __name(this, "AttachContextAction");
+  }
+  static ID = "workbench.action.chat.attachContext";
+  // used to enable/disable the keybinding and defined menu containment
+  static _cdt = ContextKeyExpr.or(
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel)),
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Editor), ContextKeyExpr.equals("config.chat.experimental.variables.editor", true)),
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Notebook), ContextKeyExpr.equals("config.chat.experimental.variables.notebook", true)),
+    ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Terminal), ContextKeyExpr.equals("config.chat.experimental.variables.terminal", true))
+  );
+  constructor() {
+    super({
+      id: AttachContextAction.ID,
+      title: localize2("workbench.action.chat.attachContext.label", "Attach Context"),
+      icon: Codicon.attach,
+      category: CHAT_CATEGORY,
+      precondition: ContextKeyExpr.or(AttachContextAction._cdt, ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.EditingSession))),
+      keybinding: {
+        when: CONTEXT_IN_CHAT_INPUT,
+        primary: KeyMod.CtrlCmd | KeyCode.Slash,
+        weight: KeybindingWeight.EditorContrib
+      },
+      menu: [
+        {
+          when: ContextKeyExpr.or(ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.EditingSession)), ContextKeyExpr.and(ContextKeyExpr.or(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel), CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.EditingSession)), AttachContextAction._cdt)),
+          id: MenuId.ChatInput,
+          group: "navigation",
+          order: 2
+        },
+        {
+          when: ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel).negate(), AttachContextAction._cdt),
+          id: MenuId.ChatExecute,
+          group: "navigation",
+          order: 1
+        }
+      ]
+    });
+  }
+  _getFileContextId(item) {
+    if ("resource" in item) {
+      return item.resource.toString();
+    }
+    return item.uri.toString() + (item.range.startLineNumber !== item.range.endLineNumber ? `:${item.range.startLineNumber}-${item.range.endLineNumber}` : `:${item.range.startLineNumber}`);
+  }
+  async _attachContext(widget, commandService, clipboardService, editorService, labelService, viewsService, chatEditingService, ...picks) {
+    const toAttach = [];
+    for (const pick of picks) {
+      if (isISymbolQuickPickItem(pick) && pick.symbol) {
+        toAttach.push({
+          id: this._getFileContextId(pick.symbol.location),
+          value: pick.symbol.location,
+          fullName: pick.label,
+          name: pick.symbol.name,
+          isDynamic: true
+        });
+      } else if (isIQuickPickItemWithResource(pick) && pick.resource) {
+        if (/\.(png|jpg|jpeg|bmp|gif|tiff)$/i.test(pick.resource.path)) {
+          toAttach.push({
+            id: pick.resource.toString(),
+            name: pick.label,
+            fullName: pick.label,
+            value: pick.resource,
+            isDynamic: true,
+            isImage: true
+          });
+        } else {
+          toAttach.push({
+            id: this._getFileContextId({ resource: pick.resource }),
+            value: pick.resource,
+            name: pick.label,
+            isFile: true,
+            isDynamic: true
+          });
+          chatEditingService?.addFileToWorkingSet(pick.resource);
+        }
+      } else if (isIGotoSymbolQuickPickItem(pick) && pick.uri && pick.range) {
+        toAttach.push({
+          range: void 0,
+          id: this._getFileContextId({ uri: pick.uri, range: pick.range.decoration }),
+          value: { uri: pick.uri, range: pick.range.decoration },
+          fullName: pick.label,
+          name: pick.symbolName,
+          isDynamic: true
+        });
+      } else if (isIOpenEditorsQuickPickItem(pick)) {
+        for (const editor of editorService.editors) {
+          if (editor.resource) {
+            toAttach.push({
+              id: this._getFileContextId({ resource: editor.resource }),
+              value: editor.resource,
+              name: labelService.getUriBasenameLabel(editor.resource),
+              isFile: true,
+              isDynamic: true
+            });
+            chatEditingService?.addFileToWorkingSet(editor.resource);
+          }
+        }
+      } else if (isISearchResultsQuickPickItem(pick)) {
+        const searchView = viewsService.getViewWithId(SEARCH_VIEW_ID);
+        for (const result of searchView.model.searchResult.matches()) {
+          toAttach.push({
+            id: this._getFileContextId({ resource: result.resource }),
+            value: result.resource,
+            name: labelService.getUriBasenameLabel(result.resource),
+            isFile: true,
+            isDynamic: true
+          });
+          chatEditingService?.addFileToWorkingSet(result.resource);
+        }
+      } else {
+        const attachmentPick = pick;
+        if (attachmentPick.kind === "command") {
+          const selection = await commandService.executeCommand(attachmentPick.command.id, ...attachmentPick.command.arguments ?? []);
+          if (!selection) {
+            continue;
+          }
+          toAttach.push({
+            ...attachmentPick,
+            isDynamic: attachmentPick.isDynamic,
+            value: attachmentPick.value,
+            name: `${typeof attachmentPick.value === "string" && attachmentPick.value.startsWith("#") ? attachmentPick.value.slice(1) : ""}${selection}`,
+            // Apply the original icon with the new name
+            fullName: selection
+          });
+        } else if (attachmentPick.kind === "tool") {
+          toAttach.push({
+            id: attachmentPick.id,
+            name: attachmentPick.label,
+            fullName: attachmentPick.label,
+            value: void 0,
+            icon: attachmentPick.icon,
+            isTool: true
+          });
+        } else if (attachmentPick.kind === "image") {
+          const fileBuffer = await clipboardService.readImage();
+          toAttach.push({
+            id: await imageToHash(fileBuffer),
+            name: localize("pastedImage", "Pasted Image"),
+            fullName: localize("pastedImage", "Pasted Image"),
+            value: fileBuffer,
+            isDynamic: true,
+            isImage: true
+          });
+        } else if (attachmentPick.kind === "variable") {
+          toAttach.push({
+            range: void 0,
+            id: pick.id ?? "",
+            value: void 0,
+            fullName: pick.label,
+            name: attachmentPick.variable.name,
+            icon: attachmentPick.variable.icon
+          });
+        }
+      }
+    }
+    widget.attachmentModel.addContext(...toAttach);
+  }
+  async run(accessor, ...args) {
+    const quickInputService = accessor.get(IQuickInputService);
+    const chatAgentService = accessor.get(IChatAgentService);
+    const chatVariablesService = accessor.get(IChatVariablesService);
+    const commandService = accessor.get(ICommandService);
+    const widgetService = accessor.get(IChatWidgetService);
+    const languageModelToolsService = accessor.get(ILanguageModelToolsService);
+    const quickChatService = accessor.get(IQuickChatService);
+    const clipboardService = accessor.get(IClipboardService);
+    const configurationService = accessor.get(IConfigurationService);
+    const editorService = accessor.get(IEditorService);
+    const labelService = accessor.get(ILabelService);
+    const contextKeyService = accessor.get(IContextKeyService);
+    const viewsService = accessor.get(IViewsService);
+    const context = args[0];
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const chatEditingService = widget.location === ChatAgentLocation.EditingSession ? accessor.get(IChatEditingService) : void 0;
+    const usedAgent = widget.parsedInput.parts.find((p) => p instanceof ChatRequestAgentPart);
+    const slowSupported = usedAgent ? usedAgent.agent.metadata.supportsSlowVariables : true;
+    const quickPickItems = [];
+    if (!context || !context.showFilesOnly) {
+      for (const variable of chatVariablesService.getVariables(widget.location)) {
+        if (variable.fullName && (!variable.isSlow || slowSupported)) {
+          quickPickItems.push({
+            kind: "variable",
+            variable,
+            label: variable.fullName,
+            id: variable.id,
+            iconClass: variable.icon ? ThemeIcon.asClassName(variable.icon) : void 0
+          });
+        }
+      }
+      if (configurationService.getValue("chat.experimental.imageAttachments")) {
+        const imageData = await clipboardService.readImage();
+        if (isImage(imageData)) {
+          quickPickItems.push({
+            kind: "image",
+            id: await imageToHash(imageData),
+            label: localize("imageFromClipboard", "Image from Clipboard"),
+            iconClass: ThemeIcon.asClassName(Codicon.fileMedia)
+          });
+        }
+      }
+      if (widget.viewModel?.sessionId) {
+        const agentPart = widget.parsedInput.parts.find((part) => part instanceof ChatRequestAgentPart);
+        if (agentPart) {
+          const completions = await chatAgentService.getAgentCompletionItems(agentPart.agent.id, "", CancellationToken.None);
+          for (const variable of completions) {
+            if (variable.fullName && variable.command) {
+              quickPickItems.push({
+                kind: "command",
+                label: variable.fullName,
+                id: variable.id,
+                command: variable.command,
+                icon: variable.icon,
+                iconClass: variable.icon ? ThemeIcon.asClassName(variable.icon) : void 0,
+                value: variable.value,
+                isDynamic: true,
+                name: variable.name
+              });
+            } else {
+            }
+          }
+        }
+      }
+      if (!usedAgent || usedAgent.agent.supportsToolReferences) {
+        for (const tool of languageModelToolsService.getTools()) {
+          if (tool.canBeInvokedManually) {
+            const item = {
+              kind: "tool",
+              label: tool.displayName ?? tool.name ?? "",
+              id: tool.id,
+              icon: ThemeIcon.isThemeIcon(tool.icon) ? tool.icon : void 0
+              // TODO need to support icon path?
+            };
+            if (ThemeIcon.isThemeIcon(tool.icon)) {
+              item.iconClass = ThemeIcon.asClassName(tool.icon);
+            } else if (tool.icon) {
+              item.iconPath = tool.icon;
+            }
+            quickPickItems.push(item);
+          }
+        }
+      }
+      quickPickItems.push({
+        kind: "quickaccess",
+        label: localize("chatContext.symbol", "Symbol..."),
+        iconClass: ThemeIcon.asClassName(Codicon.symbolField),
+        prefix: SymbolsQuickAccessProvider.PREFIX,
+        id: "symbol"
+      });
+      if (widget.location === ChatAgentLocation.Notebook) {
+        quickPickItems.push({
+          kind: "command",
+          id: "chatContext.notebook.kernelVariable",
+          isDynamic: true,
+          icon: ThemeIcon.fromId(Codicon.serverEnvironment.id),
+          iconClass: ThemeIcon.asClassName(Codicon.serverEnvironment),
+          value: "kernelVariable",
+          label: localize("chatContext.notebook.kernelVariable", "Kernel Variable..."),
+          command: {
+            id: "notebook.chat.selectAndInsertKernelVariable",
+            title: localize("chatContext.notebook.selectkernelVariable", "Select and Insert Kernel Variable"),
+            arguments: [{ widget, range: void 0 }]
+          }
+        });
+      }
+    } else if (context.showFilesOnly) {
+      if (editorService.count > 0) {
+        quickPickItems.push({
+          kind: "open-editors",
+          id: "open-editors",
+          label: localize("chatContext.editors", "Open Editors"),
+          iconClass: ThemeIcon.asClassName(Codicon.files)
+        });
+      }
+      if (SearchContext.HasSearchResults.getValue(contextKeyService)) {
+        quickPickItems.push({
+          kind: "search-results",
+          id: "search-results",
+          label: localize("chatContext.searchResults", "Search Results"),
+          iconClass: ThemeIcon.asClassName(Codicon.search)
+        });
+      }
+    }
+    function extractTextFromIconLabel(label) {
+      if (!label) {
+        return "";
+      }
+      const match = label.match(/\$\([^\)]+\)\s*(.+)/);
+      return match ? match[1] : label;
+    }
+    __name(extractTextFromIconLabel, "extractTextFromIconLabel");
+    this._show(quickInputService, commandService, widget, quickChatService, quickPickItems.sort(function(a, b) {
+      const first = extractTextFromIconLabel(a.label).toUpperCase();
+      const second = extractTextFromIconLabel(b.label).toUpperCase();
+      return compare(first, second);
+    }), clipboardService, editorService, labelService, viewsService, chatEditingService, "", context?.placeholder);
+  }
+  _show(quickInputService, commandService, widget, quickChatService, quickPickItems, clipboardService, editorService, labelService, viewsService, chatEditingService, query = "", placeholder) {
+    const providerOptions = {
+      handleAccept: /* @__PURE__ */ __name((item) => {
+        if ("prefix" in item) {
+          this._show(quickInputService, commandService, widget, quickChatService, quickPickItems, clipboardService, editorService, labelService, viewsService, chatEditingService, item.prefix, placeholder);
+        } else {
+          if (!clipboardService) {
+            return;
+          }
+          this._attachContext(widget, commandService, clipboardService, editorService, labelService, viewsService, chatEditingService, item);
+          if (isQuickChat(widget)) {
+            quickChatService.open();
+          }
+        }
+      }, "handleAccept"),
+      additionPicks: quickPickItems,
+      filter: /* @__PURE__ */ __name((item) => {
+        const attachedContext = widget.attachmentModel.getAttachmentIDs();
+        if (isIOpenEditorsQuickPickItem(item)) {
+          for (const editor of editorService.editors) {
+            if (editor.resource && !attachedContext.has(this._getFileContextId({ resource: editor.resource }))) {
+              return true;
+            }
+          }
+          return false;
+        }
+        if ("kind" in item && item.kind === "image") {
+          return !attachedContext.has(item.id);
+        }
+        if ("symbol" in item && item.symbol) {
+          return !attachedContext.has(this._getFileContextId(item.symbol.location));
+        }
+        if (item && typeof item === "object" && "resource" in item && URI.isUri(item.resource)) {
+          return [Schemas.file, Schemas.vscodeRemote].includes(item.resource.scheme) && !attachedContext.has(this._getFileContextId({ resource: item.resource }));
+        }
+        if (item && typeof item === "object" && "uri" in item && item.uri && item.range) {
+          return !attachedContext.has(this._getFileContextId({ uri: item.uri, range: item.range.decoration }));
+        }
+        if (!("command" in item) && item.id) {
+          return !attachedContext.has(item.id);
+        }
+        return true;
+      }, "filter")
+    };
+    quickInputService.quickAccess.show(query, {
+      enabledProviderPrefixes: [
+        AnythingQuickAccessProvider.PREFIX,
+        SymbolsQuickAccessProvider.PREFIX,
+        AbstractGotoSymbolQuickAccessProvider.PREFIX
+      ],
+      placeholder: placeholder ?? localize("chatContext.attach.placeholder", "Search attachments"),
+      providerOptions
+    });
+  }
+}
+export {
+  AttachContextAction,
+  registerChatContextActions
+};
+//# sourceMappingURL=chatContextActions.js.map

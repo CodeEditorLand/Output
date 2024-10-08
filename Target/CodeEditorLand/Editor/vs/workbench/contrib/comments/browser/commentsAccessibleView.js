@@ -1,3 +1,201 @@
-var w=Object.defineProperty;var S=Object.getOwnPropertyDescriptor;var l=(m,o,e,t)=>{for(var n=t>1?void 0:t?S(o,e):o,i=m.length-1,r;i>=0;i--)(r=m[i])&&(n=(t?r(o,e,n):r(n))||n);return t&&n&&w(o,e,n),n},d=(m,o)=>(e,t)=>o(e,t,m);import{Disposable as a}from"../../../../base/common/lifecycle.js";import{MarshalledId as g}from"../../../../base/common/marshallingIds.js";import"../../../../editor/browser/editorExtensions.js";import{AccessibleViewProviderId as u,AccessibleViewType as v}from"../../../../platform/accessibility/browser/accessibleView.js";import"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{IMenuService as V}from"../../../../platform/actions/common/actions.js";import{IContextKeyService as N}from"../../../../platform/contextkey/common/contextkey.js";import{AccessibilityVerbositySettingId as p}from"../../accessibility/browser/accessibilityConfiguration.js";import{COMMENTS_VIEW_ID as b,CommentsMenus as x}from"./commentsTreeViewer.js";import{CONTEXT_KEY_COMMENT_FOCUSED as A}from"./commentsView.js";import{IViewsService as T}from"../../../services/views/common/viewsService.js";import{ICommentService as h}from"./commentService.js";import{CommentContextKeys as E}from"../common/commentContextKeys.js";import{moveToNextCommentInThread as I,revealCommentThread as P}from"./commentsController.js";import{IEditorService as y}from"../../../services/editor/common/editorService.js";import{IUriIdentityService as _}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{isCodeEditor as M}from"../../../../editor/browser/editorBrowser.js";import{URI as K}from"../../../../base/common/uri.js";import"../../../../editor/common/languages.js";import"../../../../editor/common/core/range.js";class de extends a{priority=90;name="comment";when=A;type=v.View;getProvider(o){const e=o.get(N),t=o.get(T),n=o.get(V),i=t.getActiveViewWithId(b),r=i?.focusedCommentNode;if(!i||!r)return;const c=this._register(new x(n));return c.setContextKeyService(e),new R(i,r,c)}constructor(){super()}}class ae extends a{priority=85;name="commentThread";when=E.commentFocused;type=v.View;getProvider(o){const e=o.get(h),t=o.get(y),n=o.get(_);if(e.commentsModel.hasCommentThreads())return new s(e,t,n)}constructor(){super()}}class R extends a{constructor(e,t,n){super();this._commentsView=e;this._focusedCommentNode=t;this._menus=n}id=u.Comments;verbositySettingKey=p.Comments;options={type:v.View};actions=[...this._menus.getResourceContextActions(this._focusedCommentNode)].filter(e=>e.enabled).map(e=>({...e,run:()=>{this._commentsView.focus(),e.run({thread:this._focusedCommentNode.thread,$mid:g.CommentThread,commentControlHandle:this._focusedCommentNode.controllerHandle,commentThreadHandle:this._focusedCommentNode.threadHandle})}}));provideContent(){const e=this._commentsView.focusedCommentNode,t=this._commentsView.focusedCommentInfo?.toString();if(!e||!t)throw new Error("Comment tree is focused but no comment is selected");return t}onClose(){this._commentsView.focus()}provideNextContent(){return this._commentsView.focusNextNode(),this.provideContent()}providePreviousContent(){return this._commentsView.focusPreviousNode(),this.provideContent()}}let s=class extends a{constructor(e,t,n){super();this._commentService=e;this._editorService=t;this._uriIdentityService=n}id=u.CommentThread;verbositySettingKey=p.Comments;options={type:v.View};_activeCommentInfo;get activeCommentInfo(){return!this._activeCommentInfo&&this._commentService.lastActiveCommentcontroller&&(this._activeCommentInfo=this._commentService.lastActiveCommentcontroller.activeComment),this._activeCommentInfo}provideContent(){if(!this.activeCommentInfo)throw new Error("No current comment thread");const e=this.activeCommentInfo.comment?.body,t=typeof e=="string"?e:e?.value??"",n=this.activeCommentInfo.thread.resource,i=this.activeCommentInfo.thread.range;let r="";if(n&&i){const c=this._editorService.findEditors(K.parse(n))||[],C=this._editorService.activeEditorPane?.getControl();if(c?.length&&M(C)){const f=C.getModel()?.getValueInRange(i);f&&(r=`
-Corresponding code: 
-`+f)}}return t+r}onClose(){const e=this._activeCommentInfo;this._activeCommentInfo=void 0,e&&P(this._commentService,this._editorService,this._uriIdentityService,e.thread,e.comment)}provideNextContent(){const e=I(this._activeCommentInfo,"next");if(e)return this._activeCommentInfo=e,this.provideContent()}providePreviousContent(){const e=I(this._activeCommentInfo,"previous");if(e)return this._activeCommentInfo=e,this.provideContent()}};s=l([d(0,h),d(1,y),d(2,_)],s);export{ae as CommentThreadAccessibleView,de as CommentsAccessibleView};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { MarshalledId } from "../../../../base/common/marshallingIds.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { COMMENTS_VIEW_ID, CommentsMenus } from "./commentsTreeViewer.js";
+import { CommentsPanel, CONTEXT_KEY_COMMENT_FOCUSED } from "./commentsView.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ICommentService } from "./commentService.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
+import { moveToNextCommentInThread as findNextCommentInThread, revealCommentThread } from "./commentsController.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { URI } from "../../../../base/common/uri.js";
+import { CommentThread, Comment } from "../../../../editor/common/languages.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+class CommentsAccessibleView extends Disposable {
+  static {
+    __name(this, "CommentsAccessibleView");
+  }
+  priority = 90;
+  name = "comment";
+  when = CONTEXT_KEY_COMMENT_FOCUSED;
+  type = AccessibleViewType.View;
+  getProvider(accessor) {
+    const contextKeyService = accessor.get(IContextKeyService);
+    const viewsService = accessor.get(IViewsService);
+    const menuService = accessor.get(IMenuService);
+    const commentsView = viewsService.getActiveViewWithId(COMMENTS_VIEW_ID);
+    const focusedCommentNode = commentsView?.focusedCommentNode;
+    if (!commentsView || !focusedCommentNode) {
+      return;
+    }
+    const menus = this._register(new CommentsMenus(menuService));
+    menus.setContextKeyService(contextKeyService);
+    return new CommentsAccessibleContentProvider(commentsView, focusedCommentNode, menus);
+  }
+  constructor() {
+    super();
+  }
+}
+class CommentThreadAccessibleView extends Disposable {
+  static {
+    __name(this, "CommentThreadAccessibleView");
+  }
+  priority = 85;
+  name = "commentThread";
+  when = CommentContextKeys.commentFocused;
+  type = AccessibleViewType.View;
+  getProvider(accessor) {
+    const commentService = accessor.get(ICommentService);
+    const editorService = accessor.get(IEditorService);
+    const uriIdentityService = accessor.get(IUriIdentityService);
+    const threads = commentService.commentsModel.hasCommentThreads();
+    if (!threads) {
+      return;
+    }
+    return new CommentsThreadWidgetAccessibleContentProvider(commentService, editorService, uriIdentityService);
+  }
+  constructor() {
+    super();
+  }
+}
+class CommentsAccessibleContentProvider extends Disposable {
+  constructor(_commentsView, _focusedCommentNode, _menus) {
+    super();
+    this._commentsView = _commentsView;
+    this._focusedCommentNode = _focusedCommentNode;
+    this._menus = _menus;
+  }
+  static {
+    __name(this, "CommentsAccessibleContentProvider");
+  }
+  id = AccessibleViewProviderId.Comments;
+  verbositySettingKey = AccessibilityVerbositySettingId.Comments;
+  options = { type: AccessibleViewType.View };
+  actions = [...this._menus.getResourceContextActions(this._focusedCommentNode)].filter((i) => i.enabled).map((action) => {
+    return {
+      ...action,
+      run: /* @__PURE__ */ __name(() => {
+        this._commentsView.focus();
+        action.run({
+          thread: this._focusedCommentNode.thread,
+          $mid: MarshalledId.CommentThread,
+          commentControlHandle: this._focusedCommentNode.controllerHandle,
+          commentThreadHandle: this._focusedCommentNode.threadHandle
+        });
+      }, "run")
+    };
+  });
+  provideContent() {
+    const commentNode = this._commentsView.focusedCommentNode;
+    const content = this._commentsView.focusedCommentInfo?.toString();
+    if (!commentNode || !content) {
+      throw new Error("Comment tree is focused but no comment is selected");
+    }
+    return content;
+  }
+  onClose() {
+    this._commentsView.focus();
+  }
+  provideNextContent() {
+    this._commentsView.focusNextNode();
+    return this.provideContent();
+  }
+  providePreviousContent() {
+    this._commentsView.focusPreviousNode();
+    return this.provideContent();
+  }
+}
+let CommentsThreadWidgetAccessibleContentProvider = class extends Disposable {
+  constructor(_commentService, _editorService, _uriIdentityService) {
+    super();
+    this._commentService = _commentService;
+    this._editorService = _editorService;
+    this._uriIdentityService = _uriIdentityService;
+  }
+  static {
+    __name(this, "CommentsThreadWidgetAccessibleContentProvider");
+  }
+  id = AccessibleViewProviderId.CommentThread;
+  verbositySettingKey = AccessibilityVerbositySettingId.Comments;
+  options = { type: AccessibleViewType.View };
+  _activeCommentInfo;
+  get activeCommentInfo() {
+    if (!this._activeCommentInfo && this._commentService.lastActiveCommentcontroller) {
+      this._activeCommentInfo = this._commentService.lastActiveCommentcontroller.activeComment;
+    }
+    return this._activeCommentInfo;
+  }
+  provideContent() {
+    if (!this.activeCommentInfo) {
+      throw new Error("No current comment thread");
+    }
+    const comment = this.activeCommentInfo.comment?.body;
+    const commentLabel = typeof comment === "string" ? comment : comment?.value ?? "";
+    const resource = this.activeCommentInfo.thread.resource;
+    const range = this.activeCommentInfo.thread.range;
+    let contentLabel = "";
+    if (resource && range) {
+      const editor = this._editorService.findEditors(URI.parse(resource)) || [];
+      const codeEditor = this._editorService.activeEditorPane?.getControl();
+      if (editor?.length && isCodeEditor(codeEditor)) {
+        const content = codeEditor.getModel()?.getValueInRange(range);
+        if (content) {
+          contentLabel = "\nCorresponding code: \n" + content;
+        }
+      }
+    }
+    return commentLabel + contentLabel;
+  }
+  onClose() {
+    const lastComment = this._activeCommentInfo;
+    this._activeCommentInfo = void 0;
+    if (lastComment) {
+      revealCommentThread(this._commentService, this._editorService, this._uriIdentityService, lastComment.thread, lastComment.comment);
+    }
+  }
+  provideNextContent() {
+    const newCommentInfo = findNextCommentInThread(this._activeCommentInfo, "next");
+    if (newCommentInfo) {
+      this._activeCommentInfo = newCommentInfo;
+      return this.provideContent();
+    }
+    return void 0;
+  }
+  providePreviousContent() {
+    const newCommentInfo = findNextCommentInThread(this._activeCommentInfo, "previous");
+    if (newCommentInfo) {
+      this._activeCommentInfo = newCommentInfo;
+      return this.provideContent();
+    }
+    return void 0;
+  }
+};
+CommentsThreadWidgetAccessibleContentProvider = __decorateClass([
+  __decorateParam(0, ICommentService),
+  __decorateParam(1, IEditorService),
+  __decorateParam(2, IUriIdentityService)
+], CommentsThreadWidgetAccessibleContentProvider);
+export {
+  CommentThreadAccessibleView,
+  CommentsAccessibleView
+};
+//# sourceMappingURL=commentsAccessibleView.js.map

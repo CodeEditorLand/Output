@@ -1,2 +1,1039 @@
-var dt=Object.defineProperty;var lt=Object.getOwnPropertyDescriptor;var H=(y,E,t,n)=>{for(var o=n>1?void 0:n?lt(E,t):E,e=y.length-1,i;e>=0;e--)(i=y[e])&&(o=(n?i(E,t,o):i(o))||o);return n&&o&&dt(E,t,o),o},c=(y,E)=>(t,n)=>E(t,n,y);import*as s from"../../../../base/browser/dom.js";import{DEFAULT_FONT_FAMILY as ht}from"../../../../base/browser/fonts.js";import"../../../../base/browser/history.js";import{StandardKeyboardEvent as $}from"../../../../base/browser/keyboardEvent.js";import*as ct from"../../../../base/browser/ui/aria/aria.js";import{Button as T}from"../../../../base/browser/ui/button/button.js";import"../../../../base/browser/ui/hover/hoverDelegate.js";import{createInstantHoverDelegate as q}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{renderLabelWithIcons as ut}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{ProgressBar as pt}from"../../../../base/browser/ui/progressbar/progressbar.js";import"../../../../base/common/actions.js";import{Codicon as N}from"../../../../base/common/codicons.js";import{Emitter as L}from"../../../../base/common/event.js";import{HistoryNavigator2 as z}from"../../../../base/common/history.js";import{KeyCode as P}from"../../../../base/common/keyCodes.js";import{Disposable as gt,DisposableStore as F,MutableDisposable as mt}from"../../../../base/common/lifecycle.js";import{ResourceSet as ft}from"../../../../base/common/map.js";import{basename as vt,dirname as Ct}from"../../../../base/common/path.js";import{isMacintosh as bt}from"../../../../base/common/platform.js";import{URI as _}from"../../../../base/common/uri.js";import"../../../../editor/browser/config/editorConfiguration.js";import{EditorExtensionsRegistry as It}from"../../../../editor/browser/editorExtensions.js";import{CodeEditorWidget as yt}from"../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{EditorOptions as St}from"../../../../editor/common/config/editorOptions.js";import"../../../../editor/common/core/dimension.js";import"../../../../editor/common/core/position.js";import{Range as Et}from"../../../../editor/common/core/range.js";import"../../../../editor/common/model.js";import{IModelService as _t}from"../../../../editor/common/services/model.js";import{CopyPasteController as Mt}from"../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";import{ContentHoverController as Lt}from"../../../../editor/contrib/hover/browser/contentHoverController.js";import{GlyphHoverController as Dt}from"../../../../editor/contrib/hover/browser/glyphHoverController.js";import{SuggestController as xt}from"../../../../editor/contrib/suggest/browser/suggestController.js";import{localize as C}from"../../../../nls.js";import{IAccessibilityService as k}from"../../../../platform/accessibility/common/accessibility.js";import{DropdownWithPrimaryActionViewItem as wt}from"../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";import{createAndFillInActionBarActions as At,MenuEntryActionViewItem as Ht}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{HiddenItemStrategy as j,MenuWorkbenchToolBar as O}from"../../../../platform/actions/browser/toolbar.js";import{IMenuService as Tt,MenuId as U,MenuItemAction as B}from"../../../../platform/actions/common/actions.js";import{ICommandService as Pt}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as Ft}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as W}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as X}from"../../../../platform/contextview/browser/contextView.js";import{FileKind as Wt,IFileService as Vt}from"../../../../platform/files/common/files.js";import{registerAndCreateHistoryNavigationContext as Nt}from"../../../../platform/history/browser/contextScopedHistoryWidget.js";import{IHoverService as kt}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as Ot}from"../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as Ut}from"../../../../platform/instantiation/common/serviceCollection.js";import{IKeybindingService as R}from"../../../../platform/keybinding/common/keybinding.js";import"../../../../platform/list/browser/listService.js";import{ILogService as Bt}from"../../../../platform/log/common/log.js";import{INotificationService as G}from"../../../../platform/notification/common/notification.js";import{IThemeService as J}from"../../../../platform/theme/common/themeService.js";import{ResourceLabels as Rt}from"../../../browser/labels.js";import{IEditorService as Kt}from"../../../services/editor/common/editorService.js";import{AccessibilityVerbositySettingId as Q}from"../../accessibility/browser/accessibilityConfiguration.js";import{AccessibilityCommandId as $t}from"../../accessibility/common/accessibilityCommands.js";import{getSimpleCodeEditorWidgetOptions as qt,getSimpleEditorOptions as zt,setupSimpleEditorSelectionStyling as jt}from"../../codeEditor/browser/simpleEditorOptions.js";import{ChatAgentLocation as Y,IChatAgentService as Xt}from"../common/chatAgents.js";import{CONTEXT_CHAT_INPUT_CURSOR_AT_TOP as Gt,CONTEXT_CHAT_INPUT_HAS_FOCUS as Jt,CONTEXT_CHAT_INPUT_HAS_TEXT as Qt,CONTEXT_IN_CHAT_INPUT as Yt}from"../common/chatContextKeys.js";import{ChatEditingSessionState as K,WorkingSetEntryState as V}from"../common/chatEditingService.js";import"../common/chatModel.js";import"../common/chatService.js";import"../common/chatViewModel.js";import{IChatWidgetHistoryService as Zt}from"../common/chatWidgetHistoryService.js";import{ILanguageModelsService as Z}from"../common/languageModels.js";import{CancelAction as te,ChatModelPickerActionId as ee,ChatSubmitSecondaryAgentAction as ie,SubmitAction as oe}from"./actions/chatExecuteActions.js";import"./chat.js";import{ChatAttachmentModel as ne}from"./chatAttachmentModel.js";import"./chatContentParts/chatCollections.js";import{CollapsibleListPool as se}from"./chatContentParts/chatReferencesContentPart.js";import{ChatEditingAcceptAllAction as tt,ChatEditingDiscardAllAction as et,ChatEditingShowChangesAction as it}from"./chatEditingActions.js";import{ChatFollowups as re}from"./chatFollowups.js";import"./chatWidget.js";const D=s.$,ot=250;let x=class extends gt{constructor(t,n,o,e,i,a,d,p,u,b,I,m,l,v,r,g){super();this.location=t;this.options=n;this.historyService=e;this.modelService=i;this.instantiationService=a;this.contextKeyService=d;this.configurationService=p;this.keybindingService=u;this.accessibilityService=b;this.languageModelsService=I;this.logService=m;this.hoverService=l;this.fileService=v;this.commandService=r;this.editorService=g;this._attachmentModel=this._register(new ne),this.getInputState=()=>({...o(),chatContextAttachments:this._attachmentModel.attachments}),this.inputEditorMaxHeight=this.options.renderStyle==="compact"?ot/3:ot,this.inputEditorHasText=Qt.bindTo(d),this.chatCursorAtTop=Gt.bindTo(d),this.inputEditorHasFocus=Jt.bindTo(d),this.history=this.loadHistory(),this._register(this.historyService.onDidClearHistory(()=>this.history=new z([{text:""}],50,nt))),this._register(this.configurationService.onDidChangeConfiguration(S=>{S.affectsConfiguration(Q.Chat)&&this.inputEditor.updateOptions({ariaLabel:this._getAriaLabel()})})),this._chatEditsListPool=this._register(this.instantiationService.createInstance(se,this._onDidChangeVisibility.event,U.ChatEditingSessionWidgetToolbar))}static INPUT_SCHEME="chatSessionInput";static _counter=0;_onDidLoadInputState=this._register(new L);onDidLoadInputState=this._onDidLoadInputState.event;_onDidChangeHeight=this._register(new L);onDidChangeHeight=this._onDidChangeHeight.event;_onDidFocus=this._register(new L);onDidFocus=this._onDidFocus.event;_onDidBlur=this._register(new L);onDidBlur=this._onDidBlur.event;_onDidChangeContext=this._register(new L);onDidChangeContext=this._onDidChangeContext.event;_onDidAcceptFollowup=this._register(new L);onDidAcceptFollowup=this._onDidAcceptFollowup.event;_attachmentModel;get attachmentModel(){return this._attachmentModel}_indexOfLastAttachedContextDeletedWithKeyboard=-1;_onDidChangeVisibility=this._register(new L);_contextResourceLabels=this.instantiationService.createInstance(Rt,{onDidChangeVisibility:this._onDidChangeVisibility.event});inputEditorMaxHeight;inputEditorHeight=0;container;inputSideToolbarContainer;followupsContainer;followupsDisposables=this._register(new F);attachedContextContainer;attachedContextDisposables=this._register(new F);chatEditingSessionWidgetContainer;_inputPartHeight=0;get inputPartHeight(){return this._inputPartHeight}_followupsHeight=0;get followupsHeight(){return this._followupsHeight}_inputEditor;_inputEditorElement;executeToolbar;inputActionsToolbar;get inputEditor(){return this._inputEditor}history;historyNavigationBackwardsEnablement;historyNavigationForewardsEnablement;inputModel;inputEditorHasText;chatCursorAtTop;inputEditorHasFocus;_waitForPersistedLanguageModel=this._register(new mt);_onDidChangeCurrentLanguageModel=new L;_currentLanguageModel;get currentLanguageModel(){return this._currentLanguageModel}cachedDimensions;cachedExecuteToolbarWidth;cachedInputToolbarWidth;inputUri=_.parse(`${x.INPUT_SCHEME}:input-${x._counter++}`);_chatEditsActionsDisposables=this._register(new F);_chatEditsDisposables=this._register(new F);_chatEditsProgress;_chatEditsListPool;_chatEditList;get selectedElements(){const t=[],o=this._chatEditList?.object?.getSelectedElements()??[];for(const e of o)e.kind==="reference"&&_.isUri(e.reference)&&t.push(e.reference);return t}getInputState;setCurrentLanguageModelToDefault(){const t=this.languageModelsService.getLanguageModelIds().find(o=>this.languageModelsService.lookupLanguageModel(o)?.isDefault),n=this.languageModelsService.getLanguageModelIds().find(o=>{const e=this.languageModelsService.lookupLanguageModel(o);return e?.isUserSelectable&&!e.isDefault});this._currentLanguageModel=n?t:void 0}setCurrentLanguageModelByUser(t){this._currentLanguageModel=t,this._waitForPersistedLanguageModel.clear(),this.cachedDimensions&&this.layout(this.cachedDimensions.height,this.cachedDimensions.width)}loadHistory(){const t=this.historyService.getHistory(this.location);return t.length===0&&t.push({text:""}),new z(t,50,nt)}_getAriaLabel(){if(this.configurationService.getValue(Q.Chat)){const n=this.keybindingService.lookupKeybinding($t.OpenAccessibilityHelp)?.getLabel();return n?C("actions.chat.accessibiltyHelp","Chat Input,  Type to ask questions or type / for topics, press enter to send out the request. Use {0} for Chat Accessibility Help.",n):C("chatInput.accessibilityHelpNoKb","Chat Input,  Type code here and press Enter to run. Use the Chat Accessibility Help command for more information.")}return C("chatInput","Chat Input")}initForNewChatModel(t){this.history=this.loadHistory(),this.history.add({text:t.inputValue??this.history.current().text,state:t.inputState??this.getInputState()});const n=t.inputState?.chatContextAttachments??[];this._attachmentModel.clearAndSetContext(...n),t.inputValue&&this.setValue(t.inputValue,!1),t.selectedLanguageModelId&&(this.languageModelsService.lookupLanguageModel(t.selectedLanguageModelId)?(this._currentLanguageModel=t.selectedLanguageModelId,this._onDidChangeCurrentLanguageModel.fire(this._currentLanguageModel)):this._waitForPersistedLanguageModel.value=this.languageModelsService.onDidChangeLanguageModels(e=>{const i=e.added?.find(a=>a.identifier===t.selectedLanguageModelId);i&&(this._waitForPersistedLanguageModel.clear(),i.metadata.isUserSelectable&&(this._currentLanguageModel=t.selectedLanguageModelId,this._onDidChangeCurrentLanguageModel.fire(this._currentLanguageModel)))}))}logInputHistory(){const t=[...this.history].map(n=>JSON.stringify(n)).join(`
-`);this.logService.info(`[${this.location}] Chat input history:`,t)}setVisible(t){this._onDidChangeVisibility.fire(t)}get element(){return this.container}showPreviousValue(){const t=this.getInputState();this.history.isAtEnd()?this.saveCurrentValue(t):this.history.has({text:this._inputEditor.getValue(),state:t})||(this.saveCurrentValue(t),this.history.resetCursor()),this.navigateHistory(!0)}showNextValue(){const t=this.getInputState();this.history.isAtEnd()||(this.history.has({text:this._inputEditor.getValue(),state:t})||(this.saveCurrentValue(t),this.history.resetCursor()),this.navigateHistory(!1))}navigateHistory(t){const n=t?this.history.previous():this.history.next(),o=n.state?.chatContextAttachments??[];this._attachmentModel.clearAndSetContext(...o),ct.status(n.text),this.setValue(n.text,!0),this._onDidLoadInputState.fire(n.state);const e=this._inputEditor.getModel();if(e)if(t){const i=this._inputEditor._getViewModel()?.getLineLength(1)??1,a=e.getLineLength(1);i===a?this._inputEditor.setPosition({lineNumber:1,column:i+1}):this._inputEditor.setPosition({lineNumber:1,column:i})}else this._inputEditor.setPosition(st(e))}setValue(t,n){this.inputEditor.setValue(t),this.inputEditor.setPosition({lineNumber:1,column:t.length+1}),n||this.saveCurrentValue(this.getInputState())}saveCurrentValue(t){const n={text:this._inputEditor.getValue(),state:t};this.history.replaceLast(n)}focus(){this._inputEditor.focus()}hasFocus(){return this._inputEditor.hasWidgetFocus()}async acceptInput(t){if(t){const o={text:this._inputEditor.getValue(),state:this.getInputState()};this.history.replaceLast(o),this.history.add({text:""})}this.attachmentModel.clear(),this._onDidLoadInputState.fire({}),this.accessibilityService.isScreenReaderOptimized()&&bt?this._acceptInputForVoiceover():(this._inputEditor.focus(),this._inputEditor.setValue(""))}_acceptInputForVoiceover(){const t=this._inputEditor.getDomNode();t&&(t.remove(),this._inputEditor.setValue(""),this._inputEditorElement.appendChild(t),this._inputEditor.focus())}render(t,n,o){let e;this.options.renderStyle==="compact"?e=s.h(".interactive-input-part",[s.h(".interactive-input-and-edit-session",[s.h(".chat-editing-session@chatEditingSessionWidgetContainer"),s.h(".interactive-input-and-side-toolbar@inputAndSideToolbar",[s.h(".chat-input-container@inputContainer",[s.h(".chat-editor-container@editorContainer"),s.h(".chat-input-toolbars@inputToolbars")])]),s.h(".chat-attached-context@attachedContextContainer"),s.h(".interactive-input-followups@followupsContainer")])]):e=s.h(".interactive-input-part",[s.h(".interactive-input-followups@followupsContainer"),s.h(".chat-editing-session@chatEditingSessionWidgetContainer"),s.h(".interactive-input-and-side-toolbar@inputAndSideToolbar",[s.h(".chat-input-container@inputContainer",[s.h(".chat-editor-container@editorContainer"),s.h(".chat-attached-context@attachedContextContainer"),s.h(".chat-input-toolbars@inputToolbars")])])]),this.container=e.root,t.append(this.container),this.container.classList.toggle("compact",this.options.renderStyle==="compact"),this.followupsContainer=e.followupsContainer;const i=e.inputAndSideToolbar,a=e.inputContainer,d=e.editorContainer;this.attachedContextContainer=e.attachedContextContainer;const p=e.inputToolbars;this.chatEditingSessionWidgetContainer=e.chatEditingSessionWidgetContainer,this.initAttachedContext(this.attachedContextContainer),this._register(this._attachmentModel.onDidChangeContext(()=>this.initAttachedContext(this.attachedContextContainer))),this.renderChatEditingSessionState(null,o);const u=this._register(this.contextKeyService.createScoped(a));Yt.bindTo(u).set(!0);const b=this._register(this.instantiationService.createChild(new Ut([W,u]))),{historyNavigationBackwardsEnablement:I,historyNavigationForwardsEnablement:m}=this._register(Nt(u,this));this.historyNavigationBackwardsEnablement=I,this.historyNavigationForewardsEnablement=m;const l=zt(this.configurationService);l.overflowWidgetsDomNode=this.options.editorOverflowWidgetsDomNode,l.pasteAs=St.pasteAs.defaultValue,l.readOnly=!1,l.ariaLabel=this._getAriaLabel(),l.fontFamily=ht,l.fontSize=13,l.lineHeight=20,l.padding=this.options.renderStyle==="compact"?{top:2,bottom:2}:{top:8,bottom:8},l.cursorWidth=1,l.wrappingStrategy="advanced",l.bracketPairColorization={enabled:!1},l.suggest={showIcons:!1,showSnippets:!1,showWords:!0,showStatusBar:!1,insertMode:"replace"},l.scrollbar={...l.scrollbar??{},vertical:"hidden"},l.stickyScroll={enabled:!1},this._inputEditorElement=s.append(d,D(rt));const v=qt();v.contributions?.push(...It.getSomeEditorContributions([Lt.ID,Dt.ID,Mt.ID])),this._inputEditor=this._register(b.createInstance(yt,this._inputEditorElement,l,v)),xt.get(this._inputEditor)?.forceRenderingAbove(),this._register(this._inputEditor.onDidChangeModelContent(()=>{const h=Math.min(this._inputEditor.getContentHeight(),this.inputEditorMaxHeight);h!==this.inputEditorHeight&&(this.inputEditorHeight=h,this._onDidChangeHeight.fire());const f=this._inputEditor.getModel(),M=!!f&&f.getValue().trim().length>0;this.inputEditorHasText.set(M)})),this._register(this._inputEditor.onDidFocusEditorText(()=>{this.inputEditorHasFocus.set(!0),this._onDidFocus.fire(),a.classList.toggle("focused",!0)})),this._register(this._inputEditor.onDidBlurEditorText(()=>{this.inputEditorHasFocus.set(!1),a.classList.toggle("focused",!1),this._onDidBlur.fire()}));const r=this._register(q());if(this._register(s.addStandardDisposableListener(p,s.EventType.CLICK,h=>this.inputEditor.focus())),this.inputActionsToolbar=this._register(this.instantiationService.createInstance(O,p,U.ChatInput,{telemetrySource:this.options.menus.telemetrySource,menuOptions:{shouldForwardArgs:!0},hiddenItemStrategy:j.Ignore,hoverDelegate:r})),this.inputActionsToolbar.context={widget:o},this._register(this.inputActionsToolbar.onDidChangeMenuItems(()=>{this.cachedDimensions&&typeof this.cachedInputToolbarWidth=="number"&&this.cachedInputToolbarWidth!==this.inputActionsToolbar.getItemsWidth()&&this.layout(this.cachedDimensions.height,this.cachedDimensions.width)})),this.executeToolbar=this._register(this.instantiationService.createInstance(O,p,this.options.menus.executeToolbar,{telemetrySource:this.options.menus.telemetrySource,menuOptions:{shouldForwardArgs:!0},hoverDelegate:r,hiddenItemStrategy:j.Ignore,actionViewItemProvider:(h,f)=>{if(this.location===Y.Panel&&(h.id===oe.ID||h.id===te.ID)&&h instanceof B){const M=this.instantiationService.createInstance(B,{id:"chat.moreExecuteActions",title:C("notebook.moreExecuteActionsLabel","More..."),icon:N.chevronDown},void 0,void 0,void 0,void 0);return this.instantiationService.createInstance(w,h,M,f)}if(h.id===ee&&h instanceof B&&(this._currentLanguageModel||this.setCurrentLanguageModelToDefault(),this._currentLanguageModel)){const M={onDidChangeModel:this._onDidChangeCurrentLanguageModel.event,setModel:at=>{this.setCurrentLanguageModelByUser(at)}};return this.instantiationService.createInstance(A,h,this._currentLanguageModel,M,{hoverDelegate:f.hoverDelegate,keybinding:f.keybinding??void 0})}}})),this.executeToolbar.context={widget:o},this._register(this.executeToolbar.onDidChangeMenuItems(()=>{this.cachedDimensions&&typeof this.cachedExecuteToolbarWidth=="number"&&this.cachedExecuteToolbarWidth!==this.executeToolbar.getItemsWidth()&&this.layout(this.cachedDimensions.height,this.cachedDimensions.width)})),this.options.menus.inputSideToolbar){const h=this._register(this.instantiationService.createInstance(O,i,this.options.menus.inputSideToolbar,{telemetrySource:this.options.menus.telemetrySource,menuOptions:{shouldForwardArgs:!0},hoverDelegate:r}));this.inputSideToolbarContainer=h.getElement(),h.getElement().classList.add("chat-side-toolbar"),h.context={widget:o}}let g=this.modelService.getModel(this.inputUri);if(g||(g=this.modelService.createModel("",null,this.inputUri,!0),this._register(g)),this.inputModel=g,this.inputModel.updateOptions({bracketColorizationOptions:{enabled:!1,independentColorPoolPerBracketType:!1}}),this._inputEditor.setModel(this.inputModel),n){this.inputModel.setValue(n);const h=this.inputModel.getLineCount();this._inputEditor.setPosition({lineNumber:h,column:this.inputModel.getLineMaxColumn(h)})}const S=()=>{const h=this._inputEditor.getModel();if(!h)return;const f=this._inputEditor.getPosition();if(!f)return;const M=f.lineNumber===1&&f.column-1<=(this._inputEditor._getViewModel()?.getLineLength(1)??0);this.chatCursorAtTop.set(M),this.historyNavigationBackwardsEnablement.set(M),this.historyNavigationForewardsEnablement.set(f.equals(st(h)))};this._register(this._inputEditor.onDidChangeCursorPosition(h=>S())),S()}initAttachedContext(t,n=!1){const o=t.offsetHeight;s.clearNode(t),this.attachedContextDisposables.clear();const e=this.attachedContextDisposables.add(q());s.setVisibility(!!this.attachmentModel.size,this.attachedContextContainer),this.attachmentModel.size||(this._indexOfLastAttachedContextDeletedWithKeyboard=-1),this.attachmentModel.attachments.forEach(async(i,a)=>{if(i.isFile&&this.location===Y.EditingSession)return;const d=s.append(t,D(".chat-attached-context-attachment.show-file-icons")),p=this._contextResourceLabels.create(d,{supportIcons:!0,hoverDelegate:e,hoverTargetOverrride:d});let u;const b=_.isUri(i.value)?i.value:i.value&&typeof i.value=="object"&&"uri"in i.value&&_.isUri(i.value.uri)?i.value.uri:void 0,I=i.value&&typeof i.value=="object"&&"range"in i.value&&Et.isIRange(i.value.range)?i.value.range:void 0;if(b&&i.isFile){const m=vt(b.path),l=Ct(b.path),v=`${m} ${l}`;u=I?C("chat.fileAttachmentWithRange","Attached file, {0}, line {1} to line {2}",v,I.startLineNumber,I.endLineNumber):C("chat.fileAttachment","Attached file, {0}",v),p.setFile(b,{fileKind:Wt.FILE,hidePath:!0,range:I}),this.attachButtonAndDisposables(d,a,i,e)}else if(i.isImage){u=C("chat.imageAttachment","Attached image, {0}",i.name);const m=s.$("div.chat-attached-context-hover");m.setAttribute("aria-label",u);const l=s.$("div.chat-attached-context-pill",{},s.$("span.codicon.codicon-file-media")),v=s.$("span.chat-attached-context-custom-text",{},i.name);d.appendChild(l),d.appendChild(v);let r;try{this.attachButtonAndDisposables(d,a,i,e),i.value instanceof _?r=(await this.fileService.readFile(i.value)).value.buffer:r=i.value,this.createImageElements(r,d,m)}catch{}d.style.position="relative",this.attachedContextDisposables.isDisposed||this.attachedContextDisposables.add(this.hoverService.setupManagedHover(e,d,m,{trapFocus:!1}))}else{const m=i.fullName??i.name,l=i.icon?.id?`$(${i.icon.id}) ${m}`:m;p.setLabel(l,void 0),u=C("chat.attachment","Attached context, {0}",i.name),this.attachButtonAndDisposables(d,a,i,e)}d.tabIndex=0,d.ariaLabel=u}),o!==t.offsetHeight&&!n&&this._onDidChangeHeight.fire()}attachButtonAndDisposables(t,n,o,e){const i=new T(t,{supportIcons:!0,hoverDelegate:e,title:C("chat.attachment.clearButton","Remove from context")});n===Math.min(this._indexOfLastAttachedContextDeletedWithKeyboard,this.attachmentModel.size-1)&&i.focus(),this.attachedContextDisposables.add(i),i.icon=N.close;const a=i.onDidClick(d=>{if(this._attachmentModel.delete(o.id),a.dispose(),s.isKeyboardEvent(d)){const p=new $(d);(p.equals(P.Enter)||p.equals(P.Space))&&(this._indexOfLastAttachedContextDeletedWithKeyboard=n)}this._attachmentModel.size===0&&this.focus(),this._onDidChangeHeight.fire(),this._onDidChangeContext.fire({removed:[o]})});this.attachedContextDisposables.add(a)}createImageElements(t,n,o){const e=new Blob([t],{type:"image/png"}),i=URL.createObjectURL(e),a=s.$("img.chat-attached-context-pill-image",{src:i,alt:""}),d=s.$("div.chat-attached-context-pill",{},a),p=n.querySelector(".chat-attached-context-pill");p&&p.replaceWith(d);const u=s.$("img.chat-attached-context-image",{src:i,alt:""});o.appendChild(u),u.onload=()=>{URL.revokeObjectURL(i)}}async renderChatEditingSessionState(t,n){if(s.setVisibility(!!t,this.chatEditingSessionWidgetContainer),!t){s.clearNode(this.chatEditingSessionWidgetContainer),this._chatEditsDisposables.clear(),this._chatEditList=void 0,this._chatEditsProgress?.dispose();return}const o=t.state.get();this._chatEditList&&!n?.viewModel?.requestInProgress&&(o===K.Idle||o===K.Initial)&&this._chatEditsProgress?.stop();const e=this.chatEditingSessionWidgetContainer.querySelector(".chat-editing-session-container.show-file-icons")??s.append(this.chatEditingSessionWidgetContainer,D(".chat-editing-session-container.show-file-icons")),i=new ft,a=t?.entries.get().map(r=>(i.add(r.modifiedURI),{reference:r.modifiedURI,state:r.state.get(),kind:"reference"}))??[];for(const r of this.attachmentModel.attachments)r.isFile&&_.isUri(r.value)&&!i.has(r.value)&&(a.unshift({reference:r.value,state:V.Attached,kind:"reference"}),i.add(r.value));t?.workingSet.get().forEach(r=>{i.has(r)||a.unshift({reference:r,state:V.Attached,kind:"reference"})}),a.sort((r,g)=>r.kind==="reference"&&g.kind==="reference"?r.state===g.state||r.state===void 0||g.state===void 0?r.reference.toString().localeCompare(g.reference.toString()):r.state-g.state:0);const d=e.querySelector(".chat-editing-session-overview")??s.append(e,D(".chat-editing-session-overview"));if(a.length!==this._chatEditList?.object.length){const r=d.querySelector("span")??s.append(d,D("span"));r.textContent=C("chatEditingSession.workingSet","Working Set"),a.length===1?r.textContent+=" "+C("chatEditingSession.oneFile","(1 file)"):a.length>1&&(r.textContent+=" "+C("chatEditingSession.manyFiles","({0} files)",a.length))}this._chatEditsActionsDisposables.clear();const p=e.querySelector(".chat-editing-session-toolbar-actions")??s.append(d,D(".chat-editing-session-toolbar-actions")),u=this._chatEditsActionsDisposables.add(new T(p,{supportIcons:!1,secondary:!0}));u.label=C("chatAddFiles","Add Files..."),this._chatEditsActionsDisposables.add(u.onDidClick(()=>{this.commandService.executeCommand("workbench.action.chat.attachContext",{widget:n,showFilesOnly:!0,placeholder:C("chatAttachFiles","Search for files to add to your working set")})})),s.append(p,u.element);const b=this._chatEditsActionsDisposables.add(new T(p,{supportIcons:!0}));if(b.icon=N.close,this._chatEditsActionsDisposables.add(b.onDidClick(r=>{this.commandService.executeCommand("workbench.action.chat.newEditSession")})),s.append(p,b.element),!t)return;if((o===K.StreamingEdits||n?.viewModel?.requestInProgress)&&(this._chatEditsProgress??=new pt(e),this._chatEditsProgress?.infinite().show(500)),!this._chatEditList){this._chatEditList=this._chatEditsListPool.get();const r=this._chatEditList.object;this._chatEditsDisposables.add(this._chatEditList),this._chatEditsActionsDisposables.add(r.onDidFocus(()=>{this._onDidFocus.fire()})),this._chatEditsDisposables.add(r.onDidOpen(g=>{if(g.element?.kind==="reference"&&_.isUri(g.element.reference)){const S=g.element.reference,h=t.entries.get().find(f=>f.modifiedURI.toString()===S.toString());h?.state.get()===V.Modified?this.editorService.openEditor({original:{resource:_.from(h.originalURI,!0)},modified:{resource:_.from(h.modifiedURI,!0)}}):this.editorService.openEditor({resource:S})}})),s.append(e,r.getHTMLElement())}const l=Math.min(a.length,6)*22,v=this._chatEditList.object;v.layout(l),v.getHTMLElement().style.height=`${l}px`,v.splice(0,v.length,a);{const r=e.querySelector(".chat-editing-session-actions")??s.append(e,D(".chat-editing-session-actions"));s.clearNode(r);const g=r.querySelector(".chat-editing-session-actions-group")??D(".chat-editing-session-actions-group");if(t.entries.get().find(S=>S.state.get()===V.Modified)){const S=[];S.push({command:it.ID,label:it.LABEL,isSecondary:!0},{command:et.ID,label:et.LABEL,isSecondary:!0,container:g},{command:tt.ID,label:tt.LABEL,isSecondary:!1,container:g});for(const h of S){const f=this._chatEditsActionsDisposables.add(new T(h.container??r,{supportIcons:!1,secondary:h.isSecondary}));f.label=h.label,this._chatEditsActionsDisposables.add(f.onDidClick(()=>{this.commandService.executeCommand(h.command)})),s.append(h.container??r,f.element)}s.append(r,g)}}}async renderFollowups(t,n){this.options.renderFollowups&&(this.followupsDisposables.clear(),s.clearNode(this.followupsContainer),t&&t.length>0&&this.followupsDisposables.add(this.instantiationService.createInstance(re,this.followupsContainer,t,this.location,void 0,o=>this._onDidAcceptFollowup.fire({followup:o,response:n}))),this._onDidChangeHeight.fire())}get contentHeight(){const t=this.getLayoutData();return t.followupsHeight+t.inputPartEditorHeight+t.inputPartVerticalPadding+t.inputEditorBorder+t.attachmentsHeight+t.toolbarsHeight+t.chatEditingStateHeight}layout(t,n){return this.cachedDimensions=new s.Dimension(n,t),this._layout(t,n)}previousInputEditorDimension;_layout(t,n,o=!0){this.initAttachedContext(this.attachedContextContainer,!0);const e=this.getLayoutData(),i=Math.min(e.inputPartEditorHeight,t-e.followupsHeight-e.attachmentsHeight-e.inputPartVerticalPadding-e.toolbarsHeight),a=n-e.inputPartHorizontalPadding;this.followupsContainer.style.width=`${a}px`,this._inputPartHeight=e.inputPartVerticalPadding+e.followupsHeight+i+e.inputEditorBorder+e.attachmentsHeight+e.toolbarsHeight+e.chatEditingStateHeight,this._followupsHeight=e.followupsHeight;const d=this._inputEditor.getScrollWidth(),u={width:n-e.inputPartHorizontalPadding-e.editorBorder-e.inputPartHorizontalPaddingInside-e.toolbarsWidth-e.sideToolbarWidth,height:i};if((!this.previousInputEditorDimension||this.previousInputEditorDimension.width!==u.width||this.previousInputEditorDimension.height!==u.height)&&(this._inputEditor.layout(u),this.previousInputEditorDimension=u),o&&d<10)return this._layout(t,n,!1)}getLayoutData(){const t=this.cachedExecuteToolbarWidth=this.executeToolbar.getItemsWidth(),n=this.cachedInputToolbarWidth=this.inputActionsToolbar.getItemsWidth(),o=(this.executeToolbar.getItemsLength()-1)*4,e=this.inputActionsToolbar.getItemsLength()?(this.inputActionsToolbar.getItemsLength()-1)*4:0;return{inputEditorBorder:2,followupsHeight:this.followupsContainer.offsetHeight,inputPartEditorHeight:Math.min(this._inputEditor.getContentHeight(),this.inputEditorMaxHeight),inputPartHorizontalPadding:this.options.renderStyle==="compact"?16:32,inputPartVerticalPadding:this.options.renderStyle==="compact"?12:28,attachmentsHeight:this.attachedContextContainer.offsetHeight,editorBorder:2,inputPartHorizontalPaddingInside:12,toolbarsWidth:this.options.renderStyle==="compact"?t+o+n+e:0,toolbarsHeight:this.options.renderStyle==="compact"?0:22,chatEditingStateHeight:this.chatEditingSessionWidgetContainer.offsetHeight,sideToolbarWidth:this.inputSideToolbarContainer?s.getTotalWidth(this.inputSideToolbarContainer)+4:0}}getViewState(){return this.getInputState()}saveState(){this.saveCurrentValue(this.getInputState());const t=[...this.history];this.historyService.saveHistory(this.location,t)}};x=H([c(3,Zt),c(4,_t),c(5,Ot),c(6,W),c(7,Ft),c(8,R),c(9,k),c(10,Z),c(11,Bt),c(12,kt),c(13,Vt),c(14,Pt),c(15,Kt)],x);const nt=y=>JSON.stringify(y);function st(y){return{lineNumber:y.getLineCount(),column:y.getLineLength(y.getLineCount())+1}}let w=class extends wt{constructor(E,t,n,o,e,i,a,d,p,u,b){super(E,t,[],"",{...n,getKeyBinding:l=>d.lookupKeybinding(l.id,a)},e,d,p,a,u,b);const I=o.createMenu(U.ChatExecuteSecondary,a),m=()=>{const l=[];At(I,{shouldForwardArgs:!0},l);const v=i.getSecondaryAgent();v&&l.forEach(r=>(r.id===ie.ID&&(r.label=C("chat.submitToSecondaryAgent","Send to @{0}",v.name)),r)),this.update(t,l)};m(),this._register(I.onDidChange(()=>m()))}};w=H([c(3,Tt),c(4,X),c(5,Xt),c(6,W),c(7,R),c(8,G),c(9,J),c(10,k)],w);let A=class extends Ht{constructor(t,n,o,e,i,a,d,p,u,b,I){super(t,e,i,a,d,p,u,I);this.currentLanguageModel=n;this.delegate=o;this._languageModelsService=b;this._register(o.onDidChangeModel(m=>{this.currentLanguageModel=m,this.updateLabel()}))}async onClick(t){this._openContextMenu()}render(t){super.render(t),t.classList.add("chat-modelPicker-item"),this._register(s.addDisposableListener(t,s.EventType.KEY_UP,n=>{const o=new $(n);(o.equals(P.Enter)||o.equals(P.Space))&&this._openContextMenu()}))}updateLabel(){if(this.label){const t=this._languageModelsService.lookupLanguageModel(this.currentLanguageModel);t&&(this.label.textContent=t.name,s.reset(this.label,...ut(`${t.name}$(chevron-down)`)))}}_openContextMenu(){const t=(o,e)=>({id:o,label:e.name,tooltip:"",class:void 0,enabled:!0,checked:o===this.currentLanguageModel,run:()=>{this.currentLanguageModel=o,this.updateLabel(),this.delegate.setModel(o)}}),n=this._languageModelsService.getLanguageModelIds().map(o=>({id:o,model:this._languageModelsService.lookupLanguageModel(o)})).filter(o=>o.model?.isUserSelectable);this._contextMenuService.showContextMenu({getAnchor:()=>this.element,getActions:()=>n.map(o=>t(o.id,o.model))})}};A=H([c(4,R),c(5,G),c(6,W),c(7,J),c(8,X),c(9,Z),c(10,k)],A);const rt=".interactive-input-editor";jt(rt);export{x as ChatInputPart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../base/browser/dom.js";
+import { DEFAULT_FONT_FAMILY } from "../../../../base/browser/fonts.js";
+import { IHistoryNavigationWidget } from "../../../../base/browser/history.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import * as aria from "../../../../base/browser/ui/aria/aria.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import { createInstantHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { ProgressBar } from "../../../../base/browser/ui/progressbar/progressbar.js";
+import { IAction } from "../../../../base/common/actions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { HistoryNavigator2 } from "../../../../base/common/history.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../base/common/map.js";
+import { basename, dirname } from "../../../../base/common/path.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IEditorConstructionOptions } from "../../../../editor/browser/config/editorConfiguration.js";
+import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { EditorOptions } from "../../../../editor/common/config/editorOptions.js";
+import { IDimension } from "../../../../editor/common/core/dimension.js";
+import { IPosition } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { CopyPasteController } from "../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";
+import { ContentHoverController } from "../../../../editor/contrib/hover/browser/contentHoverController.js";
+import { GlyphHoverController } from "../../../../editor/contrib/hover/browser/glyphHoverController.js";
+import { SuggestController } from "../../../../editor/contrib/suggest/browser/suggestController.js";
+import { localize } from "../../../../nls.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { DropdownWithPrimaryActionViewItem, IDropdownWithPrimaryActionViewItemOptions } from "../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
+import { createAndFillInActionBarActions, IMenuEntryActionViewItemOptions, MenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { HiddenItemStrategy, MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { IMenuService, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { FileKind, IFileService } from "../../../../platform/files/common/files.js";
+import { registerAndCreateHistoryNavigationContext } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ResourceLabels } from "../../../browser/labels.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { AccessibilityCommandId } from "../../accessibility/common/accessibilityCommands.js";
+import { getSimpleCodeEditorWidgetOptions, getSimpleEditorOptions, setupSimpleEditorSelectionStyling } from "../../codeEditor/browser/simpleEditorOptions.js";
+import { ChatAgentLocation, IChatAgentService } from "../common/chatAgents.js";
+import { CONTEXT_CHAT_INPUT_CURSOR_AT_TOP, CONTEXT_CHAT_INPUT_HAS_FOCUS, CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_IN_CHAT_INPUT } from "../common/chatContextKeys.js";
+import { ChatEditingSessionState, IChatEditingSession, WorkingSetEntryState } from "../common/chatEditingService.js";
+import { IChatRequestVariableEntry } from "../common/chatModel.js";
+import { IChatFollowup } from "../common/chatService.js";
+import { IChatResponseViewModel } from "../common/chatViewModel.js";
+import { IChatHistoryEntry, IChatInputState, IChatWidgetHistoryService } from "../common/chatWidgetHistoryService.js";
+import { ILanguageModelChatMetadata, ILanguageModelsService } from "../common/languageModels.js";
+import { CancelAction, ChatModelPickerActionId, ChatSubmitSecondaryAgentAction, IChatExecuteActionContext, SubmitAction } from "./actions/chatExecuteActions.js";
+import { IChatWidget } from "./chat.js";
+import { ChatAttachmentModel } from "./chatAttachmentModel.js";
+import { IDisposableReference } from "./chatContentParts/chatCollections.js";
+import { CollapsibleListPool, IChatCollapsibleListItem } from "./chatContentParts/chatReferencesContentPart.js";
+import { ChatEditingAcceptAllAction, ChatEditingDiscardAllAction, ChatEditingShowChangesAction } from "./chatEditingActions.js";
+import { ChatFollowups } from "./chatFollowups.js";
+import { IChatViewState } from "./chatWidget.js";
+const $ = dom.$;
+const INPUT_EDITOR_MAX_HEIGHT = 250;
+let ChatInputPart = class extends Disposable {
+  constructor(location, options, getContribsInputState, historyService, modelService, instantiationService, contextKeyService, configurationService, keybindingService, accessibilityService, languageModelsService, logService, hoverService, fileService, commandService, editorService) {
+    super();
+    this.location = location;
+    this.options = options;
+    this.historyService = historyService;
+    this.modelService = modelService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+    this.configurationService = configurationService;
+    this.keybindingService = keybindingService;
+    this.accessibilityService = accessibilityService;
+    this.languageModelsService = languageModelsService;
+    this.logService = logService;
+    this.hoverService = hoverService;
+    this.fileService = fileService;
+    this.commandService = commandService;
+    this.editorService = editorService;
+    this._attachmentModel = this._register(new ChatAttachmentModel());
+    this.getInputState = () => {
+      return {
+        ...getContribsInputState(),
+        chatContextAttachments: this._attachmentModel.attachments
+      };
+    };
+    this.inputEditorMaxHeight = this.options.renderStyle === "compact" ? INPUT_EDITOR_MAX_HEIGHT / 3 : INPUT_EDITOR_MAX_HEIGHT;
+    this.inputEditorHasText = CONTEXT_CHAT_INPUT_HAS_TEXT.bindTo(contextKeyService);
+    this.chatCursorAtTop = CONTEXT_CHAT_INPUT_CURSOR_AT_TOP.bindTo(contextKeyService);
+    this.inputEditorHasFocus = CONTEXT_CHAT_INPUT_HAS_FOCUS.bindTo(contextKeyService);
+    this.history = this.loadHistory();
+    this._register(this.historyService.onDidClearHistory(() => this.history = new HistoryNavigator2([{ text: "" }], 50, historyKeyFn)));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(AccessibilityVerbositySettingId.Chat)) {
+        this.inputEditor.updateOptions({ ariaLabel: this._getAriaLabel() });
+      }
+    }));
+    this._chatEditsListPool = this._register(this.instantiationService.createInstance(CollapsibleListPool, this._onDidChangeVisibility.event, MenuId.ChatEditingSessionWidgetToolbar));
+  }
+  static {
+    __name(this, "ChatInputPart");
+  }
+  static INPUT_SCHEME = "chatSessionInput";
+  static _counter = 0;
+  _onDidLoadInputState = this._register(new Emitter());
+  onDidLoadInputState = this._onDidLoadInputState.event;
+  _onDidChangeHeight = this._register(new Emitter());
+  onDidChangeHeight = this._onDidChangeHeight.event;
+  _onDidFocus = this._register(new Emitter());
+  onDidFocus = this._onDidFocus.event;
+  _onDidBlur = this._register(new Emitter());
+  onDidBlur = this._onDidBlur.event;
+  _onDidChangeContext = this._register(new Emitter());
+  onDidChangeContext = this._onDidChangeContext.event;
+  _onDidAcceptFollowup = this._register(new Emitter());
+  onDidAcceptFollowup = this._onDidAcceptFollowup.event;
+  _attachmentModel;
+  get attachmentModel() {
+    return this._attachmentModel;
+  }
+  _indexOfLastAttachedContextDeletedWithKeyboard = -1;
+  _onDidChangeVisibility = this._register(new Emitter());
+  _contextResourceLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility.event });
+  inputEditorMaxHeight;
+  inputEditorHeight = 0;
+  container;
+  inputSideToolbarContainer;
+  followupsContainer;
+  followupsDisposables = this._register(new DisposableStore());
+  attachedContextContainer;
+  attachedContextDisposables = this._register(new DisposableStore());
+  chatEditingSessionWidgetContainer;
+  _inputPartHeight = 0;
+  get inputPartHeight() {
+    return this._inputPartHeight;
+  }
+  _followupsHeight = 0;
+  get followupsHeight() {
+    return this._followupsHeight;
+  }
+  _inputEditor;
+  _inputEditorElement;
+  executeToolbar;
+  inputActionsToolbar;
+  get inputEditor() {
+    return this._inputEditor;
+  }
+  history;
+  historyNavigationBackwardsEnablement;
+  historyNavigationForewardsEnablement;
+  inputModel;
+  inputEditorHasText;
+  chatCursorAtTop;
+  inputEditorHasFocus;
+  _waitForPersistedLanguageModel = this._register(new MutableDisposable());
+  _onDidChangeCurrentLanguageModel = new Emitter();
+  _currentLanguageModel;
+  get currentLanguageModel() {
+    return this._currentLanguageModel;
+  }
+  cachedDimensions;
+  cachedExecuteToolbarWidth;
+  cachedInputToolbarWidth;
+  inputUri = URI.parse(`${ChatInputPart.INPUT_SCHEME}:input-${ChatInputPart._counter++}`);
+  _chatEditsActionsDisposables = this._register(new DisposableStore());
+  _chatEditsDisposables = this._register(new DisposableStore());
+  _chatEditsProgress;
+  _chatEditsListPool;
+  _chatEditList;
+  get selectedElements() {
+    const edits = [];
+    const editsList = this._chatEditList?.object;
+    const selectedElements = editsList?.getSelectedElements() ?? [];
+    for (const element of selectedElements) {
+      if (element.kind === "reference" && URI.isUri(element.reference)) {
+        edits.push(element.reference);
+      }
+    }
+    return edits;
+  }
+  getInputState;
+  setCurrentLanguageModelToDefault() {
+    const defaultLanguageModel = this.languageModelsService.getLanguageModelIds().find((id) => this.languageModelsService.lookupLanguageModel(id)?.isDefault);
+    const hasUserSelectableLanguageModels = this.languageModelsService.getLanguageModelIds().find((id) => {
+      const model = this.languageModelsService.lookupLanguageModel(id);
+      return model?.isUserSelectable && !model.isDefault;
+    });
+    this._currentLanguageModel = hasUserSelectableLanguageModels ? defaultLanguageModel : void 0;
+  }
+  setCurrentLanguageModelByUser(modelId) {
+    this._currentLanguageModel = modelId;
+    this._waitForPersistedLanguageModel.clear();
+    if (this.cachedDimensions) {
+      this.layout(this.cachedDimensions.height, this.cachedDimensions.width);
+    }
+  }
+  loadHistory() {
+    const history = this.historyService.getHistory(this.location);
+    if (history.length === 0) {
+      history.push({ text: "" });
+    }
+    return new HistoryNavigator2(history, 50, historyKeyFn);
+  }
+  _getAriaLabel() {
+    const verbose = this.configurationService.getValue(AccessibilityVerbositySettingId.Chat);
+    if (verbose) {
+      const kbLabel = this.keybindingService.lookupKeybinding(AccessibilityCommandId.OpenAccessibilityHelp)?.getLabel();
+      return kbLabel ? localize("actions.chat.accessibiltyHelp", "Chat Input,  Type to ask questions or type / for topics, press enter to send out the request. Use {0} for Chat Accessibility Help.", kbLabel) : localize("chatInput.accessibilityHelpNoKb", "Chat Input,  Type code here and press Enter to run. Use the Chat Accessibility Help command for more information.");
+    }
+    return localize("chatInput", "Chat Input");
+  }
+  initForNewChatModel(state) {
+    this.history = this.loadHistory();
+    this.history.add({
+      text: state.inputValue ?? this.history.current().text,
+      state: state.inputState ?? this.getInputState()
+    });
+    const attachments = state.inputState?.chatContextAttachments ?? [];
+    this._attachmentModel.clearAndSetContext(...attachments);
+    if (state.inputValue) {
+      this.setValue(state.inputValue, false);
+    }
+    if (state.selectedLanguageModelId) {
+      const model = this.languageModelsService.lookupLanguageModel(state.selectedLanguageModelId);
+      if (model) {
+        this._currentLanguageModel = state.selectedLanguageModelId;
+        this._onDidChangeCurrentLanguageModel.fire(this._currentLanguageModel);
+      } else {
+        this._waitForPersistedLanguageModel.value = this.languageModelsService.onDidChangeLanguageModels((e) => {
+          const persistedModel = e.added?.find((m) => m.identifier === state.selectedLanguageModelId);
+          if (persistedModel) {
+            this._waitForPersistedLanguageModel.clear();
+            if (persistedModel.metadata.isUserSelectable) {
+              this._currentLanguageModel = state.selectedLanguageModelId;
+              this._onDidChangeCurrentLanguageModel.fire(this._currentLanguageModel);
+            }
+          }
+        });
+      }
+    }
+  }
+  logInputHistory() {
+    const historyStr = [...this.history].map((entry) => JSON.stringify(entry)).join("\n");
+    this.logService.info(`[${this.location}] Chat input history:`, historyStr);
+  }
+  setVisible(visible) {
+    this._onDidChangeVisibility.fire(visible);
+  }
+  get element() {
+    return this.container;
+  }
+  showPreviousValue() {
+    const inputState = this.getInputState();
+    if (this.history.isAtEnd()) {
+      this.saveCurrentValue(inputState);
+    } else {
+      if (!this.history.has({ text: this._inputEditor.getValue(), state: inputState })) {
+        this.saveCurrentValue(inputState);
+        this.history.resetCursor();
+      }
+    }
+    this.navigateHistory(true);
+  }
+  showNextValue() {
+    const inputState = this.getInputState();
+    if (this.history.isAtEnd()) {
+      return;
+    } else {
+      if (!this.history.has({ text: this._inputEditor.getValue(), state: inputState })) {
+        this.saveCurrentValue(inputState);
+        this.history.resetCursor();
+      }
+    }
+    this.navigateHistory(false);
+  }
+  navigateHistory(previous) {
+    const historyEntry = previous ? this.history.previous() : this.history.next();
+    const historyAttachments = historyEntry.state?.chatContextAttachments ?? [];
+    this._attachmentModel.clearAndSetContext(...historyAttachments);
+    aria.status(historyEntry.text);
+    this.setValue(historyEntry.text, true);
+    this._onDidLoadInputState.fire(historyEntry.state);
+    const model = this._inputEditor.getModel();
+    if (!model) {
+      return;
+    }
+    if (previous) {
+      const endOfFirstViewLine = this._inputEditor._getViewModel()?.getLineLength(1) ?? 1;
+      const endOfFirstModelLine = model.getLineLength(1);
+      if (endOfFirstViewLine === endOfFirstModelLine) {
+        this._inputEditor.setPosition({ lineNumber: 1, column: endOfFirstViewLine + 1 });
+      } else {
+        this._inputEditor.setPosition({ lineNumber: 1, column: endOfFirstViewLine });
+      }
+    } else {
+      this._inputEditor.setPosition(getLastPosition(model));
+    }
+  }
+  setValue(value, transient) {
+    this.inputEditor.setValue(value);
+    this.inputEditor.setPosition({ lineNumber: 1, column: value.length + 1 });
+    if (!transient) {
+      this.saveCurrentValue(this.getInputState());
+    }
+  }
+  saveCurrentValue(inputState) {
+    const newEntry = { text: this._inputEditor.getValue(), state: inputState };
+    this.history.replaceLast(newEntry);
+  }
+  focus() {
+    this._inputEditor.focus();
+  }
+  hasFocus() {
+    return this._inputEditor.hasWidgetFocus();
+  }
+  /**
+   * Reset the input and update history.
+   * @param userQuery If provided, this will be added to the history. Followups and programmatic queries should not be passed.
+   */
+  async acceptInput(isUserQuery) {
+    if (isUserQuery) {
+      const userQuery = this._inputEditor.getValue();
+      const entry = { text: userQuery, state: this.getInputState() };
+      this.history.replaceLast(entry);
+      this.history.add({ text: "" });
+    }
+    this.attachmentModel.clear();
+    this._onDidLoadInputState.fire({});
+    if (this.accessibilityService.isScreenReaderOptimized() && isMacintosh) {
+      this._acceptInputForVoiceover();
+    } else {
+      this._inputEditor.focus();
+      this._inputEditor.setValue("");
+    }
+  }
+  _acceptInputForVoiceover() {
+    const domNode = this._inputEditor.getDomNode();
+    if (!domNode) {
+      return;
+    }
+    domNode.remove();
+    this._inputEditor.setValue("");
+    this._inputEditorElement.appendChild(domNode);
+    this._inputEditor.focus();
+  }
+  render(container, initialValue, widget) {
+    let elements;
+    if (this.options.renderStyle === "compact") {
+      elements = dom.h(".interactive-input-part", [
+        dom.h(".interactive-input-and-edit-session", [
+          dom.h(".chat-editing-session@chatEditingSessionWidgetContainer"),
+          dom.h(".interactive-input-and-side-toolbar@inputAndSideToolbar", [
+            dom.h(".chat-input-container@inputContainer", [
+              dom.h(".chat-editor-container@editorContainer"),
+              dom.h(".chat-input-toolbars@inputToolbars")
+            ])
+          ]),
+          dom.h(".chat-attached-context@attachedContextContainer"),
+          dom.h(".interactive-input-followups@followupsContainer")
+        ])
+      ]);
+    } else {
+      elements = dom.h(".interactive-input-part", [
+        dom.h(".interactive-input-followups@followupsContainer"),
+        dom.h(".chat-editing-session@chatEditingSessionWidgetContainer"),
+        dom.h(".interactive-input-and-side-toolbar@inputAndSideToolbar", [
+          dom.h(".chat-input-container@inputContainer", [
+            dom.h(".chat-editor-container@editorContainer"),
+            dom.h(".chat-attached-context@attachedContextContainer"),
+            dom.h(".chat-input-toolbars@inputToolbars")
+          ])
+        ])
+      ]);
+    }
+    this.container = elements.root;
+    container.append(this.container);
+    this.container.classList.toggle("compact", this.options.renderStyle === "compact");
+    this.followupsContainer = elements.followupsContainer;
+    const inputAndSideToolbar = elements.inputAndSideToolbar;
+    const inputContainer = elements.inputContainer;
+    const editorContainer = elements.editorContainer;
+    this.attachedContextContainer = elements.attachedContextContainer;
+    const toolbarsContainer = elements.inputToolbars;
+    this.chatEditingSessionWidgetContainer = elements.chatEditingSessionWidgetContainer;
+    this.initAttachedContext(this.attachedContextContainer);
+    this._register(this._attachmentModel.onDidChangeContext(() => this.initAttachedContext(this.attachedContextContainer)));
+    this.renderChatEditingSessionState(null, widget);
+    const inputScopedContextKeyService = this._register(this.contextKeyService.createScoped(inputContainer));
+    CONTEXT_IN_CHAT_INPUT.bindTo(inputScopedContextKeyService).set(true);
+    const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, inputScopedContextKeyService])));
+    const { historyNavigationBackwardsEnablement, historyNavigationForwardsEnablement } = this._register(registerAndCreateHistoryNavigationContext(inputScopedContextKeyService, this));
+    this.historyNavigationBackwardsEnablement = historyNavigationBackwardsEnablement;
+    this.historyNavigationForewardsEnablement = historyNavigationForwardsEnablement;
+    const options = getSimpleEditorOptions(this.configurationService);
+    options.overflowWidgetsDomNode = this.options.editorOverflowWidgetsDomNode;
+    options.pasteAs = EditorOptions.pasteAs.defaultValue;
+    options.readOnly = false;
+    options.ariaLabel = this._getAriaLabel();
+    options.fontFamily = DEFAULT_FONT_FAMILY;
+    options.fontSize = 13;
+    options.lineHeight = 20;
+    options.padding = this.options.renderStyle === "compact" ? { top: 2, bottom: 2 } : { top: 8, bottom: 8 };
+    options.cursorWidth = 1;
+    options.wrappingStrategy = "advanced";
+    options.bracketPairColorization = { enabled: false };
+    options.suggest = {
+      showIcons: false,
+      showSnippets: false,
+      showWords: true,
+      showStatusBar: false,
+      insertMode: "replace"
+    };
+    options.scrollbar = { ...options.scrollbar ?? {}, vertical: "hidden" };
+    options.stickyScroll = { enabled: false };
+    this._inputEditorElement = dom.append(editorContainer, $(chatInputEditorContainerSelector));
+    const editorOptions = getSimpleCodeEditorWidgetOptions();
+    editorOptions.contributions?.push(...EditorExtensionsRegistry.getSomeEditorContributions([ContentHoverController.ID, GlyphHoverController.ID, CopyPasteController.ID]));
+    this._inputEditor = this._register(scopedInstantiationService.createInstance(CodeEditorWidget, this._inputEditorElement, options, editorOptions));
+    SuggestController.get(this._inputEditor)?.forceRenderingAbove();
+    this._register(this._inputEditor.onDidChangeModelContent(() => {
+      const currentHeight = Math.min(this._inputEditor.getContentHeight(), this.inputEditorMaxHeight);
+      if (currentHeight !== this.inputEditorHeight) {
+        this.inputEditorHeight = currentHeight;
+        this._onDidChangeHeight.fire();
+      }
+      const model = this._inputEditor.getModel();
+      const inputHasText = !!model && model.getValue().trim().length > 0;
+      this.inputEditorHasText.set(inputHasText);
+    }));
+    this._register(this._inputEditor.onDidFocusEditorText(() => {
+      this.inputEditorHasFocus.set(true);
+      this._onDidFocus.fire();
+      inputContainer.classList.toggle("focused", true);
+    }));
+    this._register(this._inputEditor.onDidBlurEditorText(() => {
+      this.inputEditorHasFocus.set(false);
+      inputContainer.classList.toggle("focused", false);
+      this._onDidBlur.fire();
+    }));
+    const hoverDelegate = this._register(createInstantHoverDelegate());
+    this._register(dom.addStandardDisposableListener(toolbarsContainer, dom.EventType.CLICK, (e) => this.inputEditor.focus()));
+    this.inputActionsToolbar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, toolbarsContainer, MenuId.ChatInput, {
+      telemetrySource: this.options.menus.telemetrySource,
+      menuOptions: { shouldForwardArgs: true },
+      hiddenItemStrategy: HiddenItemStrategy.Ignore,
+      hoverDelegate
+    }));
+    this.inputActionsToolbar.context = { widget };
+    this._register(this.inputActionsToolbar.onDidChangeMenuItems(() => {
+      if (this.cachedDimensions && typeof this.cachedInputToolbarWidth === "number" && this.cachedInputToolbarWidth !== this.inputActionsToolbar.getItemsWidth()) {
+        this.layout(this.cachedDimensions.height, this.cachedDimensions.width);
+      }
+    }));
+    this.executeToolbar = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, toolbarsContainer, this.options.menus.executeToolbar, {
+      telemetrySource: this.options.menus.telemetrySource,
+      menuOptions: {
+        shouldForwardArgs: true
+      },
+      hoverDelegate,
+      hiddenItemStrategy: HiddenItemStrategy.Ignore,
+      // keep it lean when hiding items and avoid a "..." overflow menu
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options2) => {
+        if (this.location === ChatAgentLocation.Panel) {
+          if ((action.id === SubmitAction.ID || action.id === CancelAction.ID) && action instanceof MenuItemAction) {
+            const dropdownAction = this.instantiationService.createInstance(MenuItemAction, { id: "chat.moreExecuteActions", title: localize("notebook.moreExecuteActionsLabel", "More..."), icon: Codicon.chevronDown }, void 0, void 0, void 0, void 0);
+            return this.instantiationService.createInstance(ChatSubmitDropdownActionItem, action, dropdownAction, options2);
+          }
+        }
+        if (action.id === ChatModelPickerActionId && action instanceof MenuItemAction) {
+          if (!this._currentLanguageModel) {
+            this.setCurrentLanguageModelToDefault();
+          }
+          if (this._currentLanguageModel) {
+            const itemDelegate = {
+              onDidChangeModel: this._onDidChangeCurrentLanguageModel.event,
+              setModel: /* @__PURE__ */ __name((modelId) => {
+                this.setCurrentLanguageModelByUser(modelId);
+              }, "setModel")
+            };
+            return this.instantiationService.createInstance(ModelPickerActionViewItem, action, this._currentLanguageModel, itemDelegate, { hoverDelegate: options2.hoverDelegate, keybinding: options2.keybinding ?? void 0 });
+          }
+        }
+        return void 0;
+      }, "actionViewItemProvider")
+    }));
+    this.executeToolbar.context = { widget };
+    this._register(this.executeToolbar.onDidChangeMenuItems(() => {
+      if (this.cachedDimensions && typeof this.cachedExecuteToolbarWidth === "number" && this.cachedExecuteToolbarWidth !== this.executeToolbar.getItemsWidth()) {
+        this.layout(this.cachedDimensions.height, this.cachedDimensions.width);
+      }
+    }));
+    if (this.options.menus.inputSideToolbar) {
+      const toolbarSide = this._register(this.instantiationService.createInstance(MenuWorkbenchToolBar, inputAndSideToolbar, this.options.menus.inputSideToolbar, {
+        telemetrySource: this.options.menus.telemetrySource,
+        menuOptions: {
+          shouldForwardArgs: true
+        },
+        hoverDelegate
+      }));
+      this.inputSideToolbarContainer = toolbarSide.getElement();
+      toolbarSide.getElement().classList.add("chat-side-toolbar");
+      toolbarSide.context = { widget };
+    }
+    let inputModel = this.modelService.getModel(this.inputUri);
+    if (!inputModel) {
+      inputModel = this.modelService.createModel("", null, this.inputUri, true);
+      this._register(inputModel);
+    }
+    this.inputModel = inputModel;
+    this.inputModel.updateOptions({ bracketColorizationOptions: { enabled: false, independentColorPoolPerBracketType: false } });
+    this._inputEditor.setModel(this.inputModel);
+    if (initialValue) {
+      this.inputModel.setValue(initialValue);
+      const lineNumber = this.inputModel.getLineCount();
+      this._inputEditor.setPosition({ lineNumber, column: this.inputModel.getLineMaxColumn(lineNumber) });
+    }
+    const onDidChangeCursorPosition = /* @__PURE__ */ __name(() => {
+      const model = this._inputEditor.getModel();
+      if (!model) {
+        return;
+      }
+      const position = this._inputEditor.getPosition();
+      if (!position) {
+        return;
+      }
+      const atTop = position.lineNumber === 1 && position.column - 1 <= (this._inputEditor._getViewModel()?.getLineLength(1) ?? 0);
+      this.chatCursorAtTop.set(atTop);
+      this.historyNavigationBackwardsEnablement.set(atTop);
+      this.historyNavigationForewardsEnablement.set(position.equals(getLastPosition(model)));
+    }, "onDidChangeCursorPosition");
+    this._register(this._inputEditor.onDidChangeCursorPosition((e) => onDidChangeCursorPosition()));
+    onDidChangeCursorPosition();
+  }
+  initAttachedContext(container, isLayout = false) {
+    const oldHeight = container.offsetHeight;
+    dom.clearNode(container);
+    this.attachedContextDisposables.clear();
+    const hoverDelegate = this.attachedContextDisposables.add(createInstantHoverDelegate());
+    dom.setVisibility(Boolean(this.attachmentModel.size), this.attachedContextContainer);
+    if (!this.attachmentModel.size) {
+      this._indexOfLastAttachedContextDeletedWithKeyboard = -1;
+    }
+    this.attachmentModel.attachments.forEach(async (attachment, index) => {
+      if (attachment.isFile && this.location === ChatAgentLocation.EditingSession) {
+        return;
+      }
+      const widget = dom.append(container, $(".chat-attached-context-attachment.show-file-icons"));
+      const label = this._contextResourceLabels.create(widget, { supportIcons: true, hoverDelegate, hoverTargetOverrride: widget });
+      let ariaLabel;
+      const file = URI.isUri(attachment.value) ? attachment.value : attachment.value && typeof attachment.value === "object" && "uri" in attachment.value && URI.isUri(attachment.value.uri) ? attachment.value.uri : void 0;
+      const range = attachment.value && typeof attachment.value === "object" && "range" in attachment.value && Range.isIRange(attachment.value.range) ? attachment.value.range : void 0;
+      if (file && attachment.isFile) {
+        const fileBasename = basename(file.path);
+        const fileDirname = dirname(file.path);
+        const friendlyName = `${fileBasename} ${fileDirname}`;
+        ariaLabel = range ? localize("chat.fileAttachmentWithRange", "Attached file, {0}, line {1} to line {2}", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.fileAttachment", "Attached file, {0}", friendlyName);
+        label.setFile(file, {
+          fileKind: FileKind.FILE,
+          hidePath: true,
+          range
+        });
+        this.attachButtonAndDisposables(widget, index, attachment, hoverDelegate);
+      } else if (attachment.isImage) {
+        ariaLabel = localize("chat.imageAttachment", "Attached image, {0}", attachment.name);
+        const hoverElement = dom.$("div.chat-attached-context-hover");
+        hoverElement.setAttribute("aria-label", ariaLabel);
+        const pillIcon = dom.$("div.chat-attached-context-pill", {}, dom.$("span.codicon.codicon-file-media"));
+        const textLabel = dom.$("span.chat-attached-context-custom-text", {}, attachment.name);
+        widget.appendChild(pillIcon);
+        widget.appendChild(textLabel);
+        let buffer;
+        try {
+          this.attachButtonAndDisposables(widget, index, attachment, hoverDelegate);
+          if (attachment.value instanceof URI) {
+            const readFile = await this.fileService.readFile(attachment.value);
+            buffer = readFile.value.buffer;
+          } else {
+            buffer = attachment.value;
+          }
+          this.createImageElements(buffer, widget, hoverElement);
+        } catch (error) {
+          console.error("Error processing attachment:", error);
+        }
+        widget.style.position = "relative";
+        if (!this.attachedContextDisposables.isDisposed) {
+          this.attachedContextDisposables.add(this.hoverService.setupManagedHover(hoverDelegate, widget, hoverElement, { trapFocus: false }));
+        }
+      } else {
+        const attachmentLabel = attachment.fullName ?? attachment.name;
+        const withIcon = attachment.icon?.id ? `$(${attachment.icon.id}) ${attachmentLabel}` : attachmentLabel;
+        label.setLabel(withIcon, void 0);
+        ariaLabel = localize("chat.attachment", "Attached context, {0}", attachment.name);
+        this.attachButtonAndDisposables(widget, index, attachment, hoverDelegate);
+      }
+      widget.tabIndex = 0;
+      widget.ariaLabel = ariaLabel;
+    });
+    if (oldHeight !== container.offsetHeight && !isLayout) {
+      this._onDidChangeHeight.fire();
+    }
+  }
+  attachButtonAndDisposables(widget, index, attachment, hoverDelegate) {
+    const clearButton = new Button(widget, {
+      supportIcons: true,
+      hoverDelegate,
+      title: localize("chat.attachment.clearButton", "Remove from context")
+    });
+    if (index === Math.min(this._indexOfLastAttachedContextDeletedWithKeyboard, this.attachmentModel.size - 1)) {
+      clearButton.focus();
+    }
+    this.attachedContextDisposables.add(clearButton);
+    clearButton.icon = Codicon.close;
+    const disp = clearButton.onDidClick((e) => {
+      this._attachmentModel.delete(attachment.id);
+      disp.dispose();
+      if (dom.isKeyboardEvent(e)) {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
+          this._indexOfLastAttachedContextDeletedWithKeyboard = index;
+        }
+      }
+      if (this._attachmentModel.size === 0) {
+        this.focus();
+      }
+      this._onDidChangeHeight.fire();
+      this._onDidChangeContext.fire({ removed: [attachment] });
+    });
+    this.attachedContextDisposables.add(disp);
+  }
+  // Helper function to create and replace image
+  createImageElements(buffer, widget, hoverElement) {
+    const blob = new Blob([buffer], { type: "image/png" });
+    const url = URL.createObjectURL(blob);
+    const pillImg = dom.$("img.chat-attached-context-pill-image", { src: url, alt: "" });
+    const pill = dom.$("div.chat-attached-context-pill", {}, pillImg);
+    const existingPill = widget.querySelector(".chat-attached-context-pill");
+    if (existingPill) {
+      existingPill.replaceWith(pill);
+    }
+    const hoverImage = dom.$("img.chat-attached-context-image", { src: url, alt: "" });
+    hoverElement.appendChild(hoverImage);
+    hoverImage.onload = () => {
+      URL.revokeObjectURL(url);
+    };
+  }
+  async renderChatEditingSessionState(chatEditingSession, chatWidget) {
+    dom.setVisibility(Boolean(chatEditingSession), this.chatEditingSessionWidgetContainer);
+    if (!chatEditingSession) {
+      dom.clearNode(this.chatEditingSessionWidgetContainer);
+      this._chatEditsDisposables.clear();
+      this._chatEditList = void 0;
+      this._chatEditsProgress?.dispose();
+      return;
+    }
+    const currentChatEditingState = chatEditingSession.state.get();
+    if (this._chatEditList && !chatWidget?.viewModel?.requestInProgress && (currentChatEditingState === ChatEditingSessionState.Idle || currentChatEditingState === ChatEditingSessionState.Initial)) {
+      this._chatEditsProgress?.stop();
+    }
+    const innerContainer = this.chatEditingSessionWidgetContainer.querySelector(".chat-editing-session-container.show-file-icons") ?? dom.append(this.chatEditingSessionWidgetContainer, $(".chat-editing-session-container.show-file-icons"));
+    const modifiedFiles = new ResourceSet();
+    const entries = chatEditingSession?.entries.get().map((entry) => {
+      modifiedFiles.add(entry.modifiedURI);
+      return {
+        reference: entry.modifiedURI,
+        state: entry.state.get(),
+        kind: "reference"
+      };
+    }) ?? [];
+    for (const attachment of this.attachmentModel.attachments) {
+      if (attachment.isFile && URI.isUri(attachment.value) && !modifiedFiles.has(attachment.value)) {
+        entries.unshift({
+          reference: attachment.value,
+          state: WorkingSetEntryState.Attached,
+          kind: "reference"
+        });
+        modifiedFiles.add(attachment.value);
+      }
+    }
+    chatEditingSession?.workingSet.get().forEach((file) => {
+      if (!modifiedFiles.has(file)) {
+        entries.unshift({
+          reference: file,
+          state: WorkingSetEntryState.Attached,
+          kind: "reference"
+        });
+      }
+    });
+    entries.sort((a, b) => {
+      if (a.kind === "reference" && b.kind === "reference") {
+        if (a.state === b.state || a.state === void 0 || b.state === void 0) {
+          return a.reference.toString().localeCompare(b.reference.toString());
+        }
+        return a.state - b.state;
+      }
+      return 0;
+    });
+    const overviewRegion = innerContainer.querySelector(".chat-editing-session-overview") ?? dom.append(innerContainer, $(".chat-editing-session-overview"));
+    if (entries.length !== this._chatEditList?.object.length) {
+      const overviewText = overviewRegion.querySelector("span") ?? dom.append(overviewRegion, $("span"));
+      overviewText.textContent = localize("chatEditingSession.workingSet", "Working Set");
+      if (entries.length === 1) {
+        overviewText.textContent += " " + localize("chatEditingSession.oneFile", "(1 file)");
+      } else if (entries.length > 1) {
+        overviewText.textContent += " " + localize("chatEditingSession.manyFiles", "({0} files)", entries.length);
+      }
+    }
+    this._chatEditsActionsDisposables.clear();
+    const actionsContainer = innerContainer.querySelector(".chat-editing-session-toolbar-actions") ?? dom.append(overviewRegion, $(".chat-editing-session-toolbar-actions"));
+    const button = this._chatEditsActionsDisposables.add(new Button(actionsContainer, {
+      supportIcons: false,
+      secondary: true
+    }));
+    button.label = localize("chatAddFiles", "Add Files...");
+    this._chatEditsActionsDisposables.add(button.onDidClick(() => {
+      this.commandService.executeCommand("workbench.action.chat.attachContext", { widget: chatWidget, showFilesOnly: true, placeholder: localize("chatAttachFiles", "Search for files to add to your working set") });
+    }));
+    dom.append(actionsContainer, button.element);
+    const clearButton = this._chatEditsActionsDisposables.add(new Button(actionsContainer, { supportIcons: true }));
+    clearButton.icon = Codicon.close;
+    this._chatEditsActionsDisposables.add(clearButton.onDidClick((e) => {
+      this.commandService.executeCommand("workbench.action.chat.newEditSession");
+    }));
+    dom.append(actionsContainer, clearButton.element);
+    if (!chatEditingSession) {
+      return;
+    }
+    if (currentChatEditingState === ChatEditingSessionState.StreamingEdits || chatWidget?.viewModel?.requestInProgress) {
+      this._chatEditsProgress ??= new ProgressBar(innerContainer);
+      this._chatEditsProgress?.infinite().show(500);
+    }
+    if (!this._chatEditList) {
+      this._chatEditList = this._chatEditsListPool.get();
+      const list2 = this._chatEditList.object;
+      this._chatEditsDisposables.add(this._chatEditList);
+      this._chatEditsActionsDisposables.add(list2.onDidFocus(() => {
+        this._onDidFocus.fire();
+      }));
+      this._chatEditsDisposables.add(list2.onDidOpen((e) => {
+        if (e.element?.kind === "reference" && URI.isUri(e.element.reference)) {
+          const modifiedFileUri = e.element.reference;
+          const editedFile = chatEditingSession.entries.get().find((e2) => e2.modifiedURI.toString() === modifiedFileUri.toString());
+          if (editedFile?.state.get() === WorkingSetEntryState.Modified) {
+            void this.editorService.openEditor({
+              original: { resource: URI.from(editedFile.originalURI, true) },
+              modified: { resource: URI.from(editedFile.modifiedURI, true) }
+            });
+          } else {
+            void this.editorService.openEditor({ resource: modifiedFileUri });
+          }
+        }
+      }));
+      dom.append(innerContainer, list2.getHTMLElement());
+    }
+    const maxItemsShown = 6;
+    const itemsShown = Math.min(entries.length, maxItemsShown);
+    const height = itemsShown * 22;
+    const list = this._chatEditList.object;
+    list.layout(height);
+    list.getHTMLElement().style.height = `${height}px`;
+    list.splice(0, list.length, entries);
+    {
+      const actionsContainer2 = innerContainer.querySelector(".chat-editing-session-actions") ?? dom.append(innerContainer, $(".chat-editing-session-actions"));
+      dom.clearNode(actionsContainer2);
+      const actionsContainerRight = actionsContainer2.querySelector(".chat-editing-session-actions-group") ?? $(".chat-editing-session-actions-group");
+      if (chatEditingSession.entries.get().find((e) => e.state.get() === WorkingSetEntryState.Modified)) {
+        const actions = [];
+        actions.push(
+          {
+            command: ChatEditingShowChangesAction.ID,
+            label: ChatEditingShowChangesAction.LABEL,
+            isSecondary: true
+          },
+          {
+            command: ChatEditingDiscardAllAction.ID,
+            label: ChatEditingDiscardAllAction.LABEL,
+            isSecondary: true,
+            container: actionsContainerRight
+          },
+          {
+            command: ChatEditingAcceptAllAction.ID,
+            label: ChatEditingAcceptAllAction.LABEL,
+            isSecondary: false,
+            container: actionsContainerRight
+          }
+        );
+        for (const action of actions) {
+          const button2 = this._chatEditsActionsDisposables.add(new Button(action.container ?? actionsContainer2, {
+            supportIcons: false,
+            secondary: action.isSecondary
+          }));
+          button2.label = action.label;
+          this._chatEditsActionsDisposables.add(button2.onDidClick(() => {
+            this.commandService.executeCommand(action.command);
+          }));
+          dom.append(action.container ?? actionsContainer2, button2.element);
+        }
+        dom.append(actionsContainer2, actionsContainerRight);
+      }
+    }
+  }
+  async renderFollowups(items, response) {
+    if (!this.options.renderFollowups) {
+      return;
+    }
+    this.followupsDisposables.clear();
+    dom.clearNode(this.followupsContainer);
+    if (items && items.length > 0) {
+      this.followupsDisposables.add(this.instantiationService.createInstance(ChatFollowups, this.followupsContainer, items, this.location, void 0, (followup) => this._onDidAcceptFollowup.fire({ followup, response })));
+    }
+    this._onDidChangeHeight.fire();
+  }
+  get contentHeight() {
+    const data = this.getLayoutData();
+    return data.followupsHeight + data.inputPartEditorHeight + data.inputPartVerticalPadding + data.inputEditorBorder + data.attachmentsHeight + data.toolbarsHeight + data.chatEditingStateHeight;
+  }
+  layout(height, width) {
+    this.cachedDimensions = new dom.Dimension(width, height);
+    return this._layout(height, width);
+  }
+  previousInputEditorDimension;
+  _layout(height, width, allowRecurse = true) {
+    this.initAttachedContext(this.attachedContextContainer, true);
+    const data = this.getLayoutData();
+    const inputEditorHeight = Math.min(data.inputPartEditorHeight, height - data.followupsHeight - data.attachmentsHeight - data.inputPartVerticalPadding - data.toolbarsHeight);
+    const followupsWidth = width - data.inputPartHorizontalPadding;
+    this.followupsContainer.style.width = `${followupsWidth}px`;
+    this._inputPartHeight = data.inputPartVerticalPadding + data.followupsHeight + inputEditorHeight + data.inputEditorBorder + data.attachmentsHeight + data.toolbarsHeight + data.chatEditingStateHeight;
+    this._followupsHeight = data.followupsHeight;
+    const initialEditorScrollWidth = this._inputEditor.getScrollWidth();
+    const newEditorWidth = width - data.inputPartHorizontalPadding - data.editorBorder - data.inputPartHorizontalPaddingInside - data.toolbarsWidth - data.sideToolbarWidth;
+    const newDimension = { width: newEditorWidth, height: inputEditorHeight };
+    if (!this.previousInputEditorDimension || (this.previousInputEditorDimension.width !== newDimension.width || this.previousInputEditorDimension.height !== newDimension.height)) {
+      this._inputEditor.layout(newDimension);
+      this.previousInputEditorDimension = newDimension;
+    }
+    if (allowRecurse && initialEditorScrollWidth < 10) {
+      return this._layout(height, width, false);
+    }
+  }
+  getLayoutData() {
+    const executeToolbarWidth = this.cachedExecuteToolbarWidth = this.executeToolbar.getItemsWidth();
+    const inputToolbarWidth = this.cachedInputToolbarWidth = this.inputActionsToolbar.getItemsWidth();
+    const executeToolbarPadding = (this.executeToolbar.getItemsLength() - 1) * 4;
+    const inputToolbarPadding = this.inputActionsToolbar.getItemsLength() ? (this.inputActionsToolbar.getItemsLength() - 1) * 4 : 0;
+    return {
+      inputEditorBorder: 2,
+      followupsHeight: this.followupsContainer.offsetHeight,
+      inputPartEditorHeight: Math.min(this._inputEditor.getContentHeight(), this.inputEditorMaxHeight),
+      inputPartHorizontalPadding: this.options.renderStyle === "compact" ? 16 : 32,
+      inputPartVerticalPadding: this.options.renderStyle === "compact" ? 12 : 28,
+      attachmentsHeight: this.attachedContextContainer.offsetHeight,
+      editorBorder: 2,
+      inputPartHorizontalPaddingInside: 12,
+      toolbarsWidth: this.options.renderStyle === "compact" ? executeToolbarWidth + executeToolbarPadding + inputToolbarWidth + inputToolbarPadding : 0,
+      toolbarsHeight: this.options.renderStyle === "compact" ? 0 : 22,
+      chatEditingStateHeight: this.chatEditingSessionWidgetContainer.offsetHeight,
+      sideToolbarWidth: this.inputSideToolbarContainer ? dom.getTotalWidth(this.inputSideToolbarContainer) + 4 : 0
+    };
+  }
+  getViewState() {
+    return this.getInputState();
+  }
+  saveState() {
+    this.saveCurrentValue(this.getInputState());
+    const inputHistory = [...this.history];
+    this.historyService.saveHistory(this.location, inputHistory);
+  }
+};
+ChatInputPart = __decorateClass([
+  __decorateParam(3, IChatWidgetHistoryService),
+  __decorateParam(4, IModelService),
+  __decorateParam(5, IInstantiationService),
+  __decorateParam(6, IContextKeyService),
+  __decorateParam(7, IConfigurationService),
+  __decorateParam(8, IKeybindingService),
+  __decorateParam(9, IAccessibilityService),
+  __decorateParam(10, ILanguageModelsService),
+  __decorateParam(11, ILogService),
+  __decorateParam(12, IHoverService),
+  __decorateParam(13, IFileService),
+  __decorateParam(14, ICommandService),
+  __decorateParam(15, IEditorService)
+], ChatInputPart);
+const historyKeyFn = /* @__PURE__ */ __name((entry) => JSON.stringify(entry), "historyKeyFn");
+function getLastPosition(model) {
+  return { lineNumber: model.getLineCount(), column: model.getLineLength(model.getLineCount()) + 1 };
+}
+__name(getLastPosition, "getLastPosition");
+let ChatSubmitDropdownActionItem = class extends DropdownWithPrimaryActionViewItem {
+  static {
+    __name(this, "ChatSubmitDropdownActionItem");
+  }
+  constructor(action, dropdownAction, options, menuService, contextMenuService, chatAgentService, contextKeyService, keybindingService, notificationService, themeService, accessibilityService) {
+    super(
+      action,
+      dropdownAction,
+      [],
+      "",
+      {
+        ...options,
+        getKeyBinding: /* @__PURE__ */ __name((action2) => keybindingService.lookupKeybinding(action2.id, contextKeyService), "getKeyBinding")
+      },
+      contextMenuService,
+      keybindingService,
+      notificationService,
+      contextKeyService,
+      themeService,
+      accessibilityService
+    );
+    const menu = menuService.createMenu(MenuId.ChatExecuteSecondary, contextKeyService);
+    const setActions = /* @__PURE__ */ __name(() => {
+      const secondary = [];
+      createAndFillInActionBarActions(menu, { shouldForwardArgs: true }, secondary);
+      const secondaryAgent = chatAgentService.getSecondaryAgent();
+      if (secondaryAgent) {
+        secondary.forEach((a) => {
+          if (a.id === ChatSubmitSecondaryAgentAction.ID) {
+            a.label = localize("chat.submitToSecondaryAgent", "Send to @{0}", secondaryAgent.name);
+          }
+          return a;
+        });
+      }
+      this.update(dropdownAction, secondary);
+    }, "setActions");
+    setActions();
+    this._register(menu.onDidChange(() => setActions()));
+  }
+};
+ChatSubmitDropdownActionItem = __decorateClass([
+  __decorateParam(3, IMenuService),
+  __decorateParam(4, IContextMenuService),
+  __decorateParam(5, IChatAgentService),
+  __decorateParam(6, IContextKeyService),
+  __decorateParam(7, IKeybindingService),
+  __decorateParam(8, INotificationService),
+  __decorateParam(9, IThemeService),
+  __decorateParam(10, IAccessibilityService)
+], ChatSubmitDropdownActionItem);
+let ModelPickerActionViewItem = class extends MenuEntryActionViewItem {
+  constructor(action, currentLanguageModel, delegate, options, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, _languageModelsService, _accessibilityService) {
+    super(action, options, keybindingService, notificationService, contextKeyService, themeService, contextMenuService, _accessibilityService);
+    this.currentLanguageModel = currentLanguageModel;
+    this.delegate = delegate;
+    this._languageModelsService = _languageModelsService;
+    this._register(delegate.onDidChangeModel((modelId) => {
+      this.currentLanguageModel = modelId;
+      this.updateLabel();
+    }));
+  }
+  static {
+    __name(this, "ModelPickerActionViewItem");
+  }
+  async onClick(event) {
+    this._openContextMenu();
+  }
+  render(container) {
+    super.render(container);
+    container.classList.add("chat-modelPicker-item");
+    this._register(dom.addDisposableListener(container, dom.EventType.KEY_UP, (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
+        this._openContextMenu();
+      }
+    }));
+  }
+  updateLabel() {
+    if (this.label) {
+      const model = this._languageModelsService.lookupLanguageModel(this.currentLanguageModel);
+      if (model) {
+        this.label.textContent = model.name;
+        dom.reset(this.label, ...renderLabelWithIcons(`${model.name}$(chevron-down)`));
+      }
+    }
+  }
+  _openContextMenu() {
+    const setLanguageModelAction = /* @__PURE__ */ __name((id, modelMetadata) => {
+      return {
+        id,
+        label: modelMetadata.name,
+        tooltip: "",
+        class: void 0,
+        enabled: true,
+        checked: id === this.currentLanguageModel,
+        run: /* @__PURE__ */ __name(() => {
+          this.currentLanguageModel = id;
+          this.updateLabel();
+          this.delegate.setModel(id);
+        }, "run")
+      };
+    }, "setLanguageModelAction");
+    const models = this._languageModelsService.getLanguageModelIds().map((modelId) => ({ id: modelId, model: this._languageModelsService.lookupLanguageModel(modelId) })).filter((entry) => entry.model?.isUserSelectable);
+    this._contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => this.element, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => models.map((entry) => setLanguageModelAction(entry.id, entry.model)), "getActions")
+    });
+  }
+};
+ModelPickerActionViewItem = __decorateClass([
+  __decorateParam(4, IKeybindingService),
+  __decorateParam(5, INotificationService),
+  __decorateParam(6, IContextKeyService),
+  __decorateParam(7, IThemeService),
+  __decorateParam(8, IContextMenuService),
+  __decorateParam(9, ILanguageModelsService),
+  __decorateParam(10, IAccessibilityService)
+], ModelPickerActionViewItem);
+const chatInputEditorContainerSelector = ".interactive-input-editor";
+setupSimpleEditorSelectionStyling(chatInputEditorContainerSelector);
+export {
+  ChatInputPart
+};
+//# sourceMappingURL=chatInputPart.js.map

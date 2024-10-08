@@ -1,1 +1,163 @@
-var y=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var g=(d,a,r,t)=>{for(var o=t>1?void 0:t?w(a,r):a,n=d.length-1,i;n>=0;n--)(i=d[n])&&(o=(t?i(a,r,o):i(o))||o);return t&&o&&y(a,r,o),o},b=(d,a)=>(r,t)=>a(r,t,d);import{coalesce as I}from"../../../../base/common/arrays.js";import"../../../../base/common/cancellation.js";import{onUnexpectedExternalError as v}from"../../../../base/common/errors.js";import{Iterable as V}from"../../../../base/common/iterator.js";import{toDisposable as D}from"../../../../base/common/lifecycle.js";import{ThemeIcon as p}from"../../../../base/common/themables.js";import{URI as P}from"../../../../base/common/uri.js";import"../../../../editor/common/languages.js";import{IViewsService as q}from"../../../services/views/common/viewsService.js";import{ChatAgentLocation as R}from"../common/chatAgents.js";import"../common/chatModel.js";import{ChatRequestDynamicVariablePart as L,ChatRequestToolPart as _,ChatRequestVariablePart as E}from"../common/chatParserTypes.js";import"../common/chatService.js";import"../common/chatVariables.js";import{IChatWidgetService as N,showChatView as S}from"./chat.js";import{ChatDynamicVariableModel as x}from"./contrib/chatDynamicVariables.js";let C=class{constructor(a,r){this.chatWidgetService=a;this.viewsService=r}_resolver=new Map;async resolveVariables(a,r,t,o,n){let i=[];const h=[];a.parts.forEach((e,c)=>{if(e instanceof E){const l=this._resolver.get(e.variableName.toLowerCase());if(l){const m=[],u=s=>{if(s.kind==="reference"){m.push(s);return}o(s)};h.push(l.resolver(a.text,e.variableArg,t,u,n).then(s=>{s&&(i[c]={id:l.data.id,modelDescription:l.data.modelDescription,name:e.variableName,range:e.range,value:s,references:m,fullName:l.data.fullName,icon:l.data.icon})}).catch(v))}}else e instanceof L?i[c]={id:e.id,name:e.referenceText,range:e.range,value:e.data,fullName:e.fullName,icon:e.icon}:e instanceof _&&(i[c]={id:e.toolId,name:e.toolName,range:e.range,value:void 0,isTool:!0,icon:p.isThemeIcon(e.icon)?e.icon:void 0,fullName:e.displayName})});const f=[];return r?.forEach((e,c)=>{const l=this._resolver.get(e.name?.toLowerCase());if(l){const m=[],u=s=>{if(s.kind==="reference"){m.push(s);return}o(s)};h.push(l.resolver(a.text,"",t,u,n).then(s=>{s&&(f[c]={id:l.data.id,modelDescription:l.data.modelDescription,name:e.name,fullName:e.fullName,range:e.range,value:s,references:m,icon:e.icon})}).catch(v))}else(e.isDynamic||e.isTool)&&(f[c]={...e})}),await Promise.allSettled(h),i=I(i),i.sort((e,c)=>c.range.start-e.range.start),i.push(...I(f)),{variables:i}}async resolveVariable(a,r,t,o,n){const i=this._resolver.get(a.toLowerCase());if(i)return await i.resolver(r,void 0,t,o,n)}hasVariable(a){return this._resolver.has(a.toLowerCase())}getVariable(a){return this._resolver.get(a.toLowerCase())?.data}getVariables(a){const r=V.map(this._resolver.values(),t=>t.data);return V.filter(r,t=>a!==R.Editor||!new Set(["selection","editor"]).has(t.name))}getDynamicVariables(a){const r=this.chatWidgetService.getWidgetBySessionId(a);if(!r||!r.viewModel||!r.supportsFileReferences)return[];const t=r.getContrib(x.ID);return t?t.variables:[]}registerVariable(a,r){const t=a.name.toLowerCase();if(this._resolver.has(t))throw new Error(`A chat variable with the name '${a.name}' already exists.`);return this._resolver.set(t,{data:a,resolver:r}),D(()=>{this._resolver.delete(t)})}async attachContext(a,r,t){if(t!==R.Panel)return;const o=this.chatWidgetService.lastFocusedWidget??await S(this.viewsService);if(!o||!o.viewModel)return;const n=a.toLowerCase();if(n==="file"&&typeof r!="string"){const h=P.isUri(r)?r:r.uri,f="range"in r?r.range:void 0;o.attachmentModel.addFile(h,f);return}const i=this._resolver.get(n);i&&o.attachmentModel.addContext({...i.data,value:r})}};C=g([b(0,N),b(1,q)],C);export{C as ChatVariablesService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ChatAgentLocation } from "../common/chatAgents.js";
+import { IChatModel, IChatRequestVariableData, IChatRequestVariableEntry } from "../common/chatModel.js";
+import { ChatRequestDynamicVariablePart, ChatRequestToolPart, ChatRequestVariablePart, IParsedChatRequest } from "../common/chatParserTypes.js";
+import { IChatContentReference } from "../common/chatService.js";
+import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolver, IChatVariableResolverProgress, IChatVariablesService, IDynamicVariable } from "../common/chatVariables.js";
+import { IChatWidgetService, showChatView } from "./chat.js";
+import { ChatDynamicVariableModel } from "./contrib/chatDynamicVariables.js";
+let ChatVariablesService = class {
+  constructor(chatWidgetService, viewsService) {
+    this.chatWidgetService = chatWidgetService;
+    this.viewsService = viewsService;
+  }
+  static {
+    __name(this, "ChatVariablesService");
+  }
+  _resolver = /* @__PURE__ */ new Map();
+  async resolveVariables(prompt, attachedContextVariables, model, progress, token) {
+    let resolvedVariables = [];
+    const jobs = [];
+    prompt.parts.forEach((part, i) => {
+      if (part instanceof ChatRequestVariablePart) {
+        const data = this._resolver.get(part.variableName.toLowerCase());
+        if (data) {
+          const references = [];
+          const variableProgressCallback = /* @__PURE__ */ __name((item) => {
+            if (item.kind === "reference") {
+              references.push(item);
+              return;
+            }
+            progress(item);
+          }, "variableProgressCallback");
+          jobs.push(data.resolver(prompt.text, part.variableArg, model, variableProgressCallback, token).then((value) => {
+            if (value) {
+              resolvedVariables[i] = { id: data.data.id, modelDescription: data.data.modelDescription, name: part.variableName, range: part.range, value, references, fullName: data.data.fullName, icon: data.data.icon };
+            }
+          }).catch(onUnexpectedExternalError));
+        }
+      } else if (part instanceof ChatRequestDynamicVariablePart) {
+        resolvedVariables[i] = { id: part.id, name: part.referenceText, range: part.range, value: part.data, fullName: part.fullName, icon: part.icon };
+      } else if (part instanceof ChatRequestToolPart) {
+        resolvedVariables[i] = { id: part.toolId, name: part.toolName, range: part.range, value: void 0, isTool: true, icon: ThemeIcon.isThemeIcon(part.icon) ? part.icon : void 0, fullName: part.displayName };
+      }
+    });
+    const resolvedAttachedContext = [];
+    attachedContextVariables?.forEach((attachment, i) => {
+      const data = this._resolver.get(attachment.name?.toLowerCase());
+      if (data) {
+        const references = [];
+        const variableProgressCallback = /* @__PURE__ */ __name((item) => {
+          if (item.kind === "reference") {
+            references.push(item);
+            return;
+          }
+          progress(item);
+        }, "variableProgressCallback");
+        jobs.push(data.resolver(prompt.text, "", model, variableProgressCallback, token).then((value) => {
+          if (value) {
+            resolvedAttachedContext[i] = { id: data.data.id, modelDescription: data.data.modelDescription, name: attachment.name, fullName: attachment.fullName, range: attachment.range, value, references, icon: attachment.icon };
+          }
+        }).catch(onUnexpectedExternalError));
+      } else if (attachment.isDynamic || attachment.isTool) {
+        resolvedAttachedContext[i] = { ...attachment };
+      }
+    });
+    await Promise.allSettled(jobs);
+    resolvedVariables = coalesce(resolvedVariables);
+    resolvedVariables.sort((a, b) => b.range.start - a.range.start);
+    resolvedVariables.push(...coalesce(resolvedAttachedContext));
+    return {
+      variables: resolvedVariables
+    };
+  }
+  async resolveVariable(variableName, promptText, model, progress, token) {
+    const data = this._resolver.get(variableName.toLowerCase());
+    if (!data) {
+      return void 0;
+    }
+    return await data.resolver(promptText, void 0, model, progress, token);
+  }
+  hasVariable(name) {
+    return this._resolver.has(name.toLowerCase());
+  }
+  getVariable(name) {
+    return this._resolver.get(name.toLowerCase())?.data;
+  }
+  getVariables(location) {
+    const all = Iterable.map(this._resolver.values(), (data) => data.data);
+    return Iterable.filter(all, (data) => {
+      return location !== ChatAgentLocation.Editor || !(/* @__PURE__ */ new Set(["selection", "editor"])).has(data.name);
+    });
+  }
+  getDynamicVariables(sessionId) {
+    const widget = this.chatWidgetService.getWidgetBySessionId(sessionId);
+    if (!widget || !widget.viewModel || !widget.supportsFileReferences) {
+      return [];
+    }
+    const model = widget.getContrib(ChatDynamicVariableModel.ID);
+    if (!model) {
+      return [];
+    }
+    return model.variables;
+  }
+  registerVariable(data, resolver) {
+    const key = data.name.toLowerCase();
+    if (this._resolver.has(key)) {
+      throw new Error(`A chat variable with the name '${data.name}' already exists.`);
+    }
+    this._resolver.set(key, { data, resolver });
+    return toDisposable(() => {
+      this._resolver.delete(key);
+    });
+  }
+  async attachContext(name, value, location) {
+    if (location !== ChatAgentLocation.Panel) {
+      return;
+    }
+    const widget = this.chatWidgetService.lastFocusedWidget ?? await showChatView(this.viewsService);
+    if (!widget || !widget.viewModel) {
+      return;
+    }
+    const key = name.toLowerCase();
+    if (key === "file" && typeof value !== "string") {
+      const uri = URI.isUri(value) ? value : value.uri;
+      const range = "range" in value ? value.range : void 0;
+      widget.attachmentModel.addFile(uri, range);
+      return;
+    }
+    const resolved = this._resolver.get(key);
+    if (!resolved) {
+      return;
+    }
+    widget.attachmentModel.addContext({ ...resolved.data, value });
+  }
+};
+ChatVariablesService = __decorateClass([
+  __decorateParam(0, IChatWidgetService),
+  __decorateParam(1, IViewsService)
+], ChatVariablesService);
+export {
+  ChatVariablesService
+};
+//# sourceMappingURL=chatVariables.js.map

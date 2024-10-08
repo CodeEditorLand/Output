@@ -1,1 +1,36 @@
-import{FileAccess as i}from"../common/network.js";import"../common/uri.js";function u(r,n){if(r!==void 0){const e=r.match(/^\s*var\((.+)\)$/);if(e){const t=e[1].split(",",2);return t.length===2&&(n=u(t[1].trim(),n)),`var(${t[0]}, ${n})`}return r}return n}function f(r){return`'${r.replace(/'/g,"%27")}'`}function g(r){return r?`url('${i.uriToBrowserUri(r).toString(!0).replace(/'/g,"%27")}')`:"url('')"}export{f as asCSSPropertyValue,g as asCSSUrl,u as asCssValueWithDefault};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FileAccess } from "../common/network.js";
+import { URI } from "../common/uri.js";
+function asCssValueWithDefault(cssPropertyValue, dflt) {
+  if (cssPropertyValue !== void 0) {
+    const variableMatch = cssPropertyValue.match(/^\s*var\((.+)\)$/);
+    if (variableMatch) {
+      const varArguments = variableMatch[1].split(",", 2);
+      if (varArguments.length === 2) {
+        dflt = asCssValueWithDefault(varArguments[1].trim(), dflt);
+      }
+      return `var(${varArguments[0]}, ${dflt})`;
+    }
+    return cssPropertyValue;
+  }
+  return dflt;
+}
+__name(asCssValueWithDefault, "asCssValueWithDefault");
+function asCSSPropertyValue(value) {
+  return `'${value.replace(/'/g, "%27")}'`;
+}
+__name(asCSSPropertyValue, "asCSSPropertyValue");
+function asCSSUrl(uri) {
+  if (!uri) {
+    return `url('')`;
+  }
+  return `url('${FileAccess.uriToBrowserUri(uri).toString(true).replace(/'/g, "%27")}')`;
+}
+__name(asCSSUrl, "asCSSUrl");
+export {
+  asCSSPropertyValue,
+  asCSSUrl,
+  asCssValueWithDefault
+};
+//# sourceMappingURL=cssValue.js.map

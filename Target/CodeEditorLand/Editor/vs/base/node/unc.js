@@ -1,1 +1,94 @@
-function u(){const t=i();return t?Array.from(t):[]}function i(){return process.uncHostAllowlist}function f(t){if(process.platform!=="win32")return;const n=i();if(n)if(typeof t=="string")n.add(t.toLowerCase());else for(const s of c(t))f(s)}function c(t){const n=new Set;if(Array.isArray(t))for(const s of t)typeof s=="string"&&n.add(s);return Array.from(n)}function d(t){if(typeof t!="string")return;const n=["\\\\.\\UNC\\","\\\\?\\UNC\\","\\\\"];let s;for(const o of n){if(t.indexOf(o)!==0)continue;const r=t.indexOf("\\",o.length);if(r===-1)continue;const e=t.substring(o.length,r);if(e){s=e;break}}return s}function a(){process.platform==="win32"&&(process.restrictUNCAccess=!1)}function p(){return process.platform!=="win32"?!0:process.restrictUNCAccess===!1}export{f as addUNCHostToAllowlist,a as disableUNCAccessRestrictions,d as getUNCHost,u as getUNCHostAllowlist,p as isUNCAccessRestrictionsDisabled};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function getUNCHostAllowlist() {
+  const allowlist = processUNCHostAllowlist();
+  if (allowlist) {
+    return Array.from(allowlist);
+  }
+  return [];
+}
+__name(getUNCHostAllowlist, "getUNCHostAllowlist");
+function processUNCHostAllowlist() {
+  return process.uncHostAllowlist;
+}
+__name(processUNCHostAllowlist, "processUNCHostAllowlist");
+function addUNCHostToAllowlist(allowedHost) {
+  if (process.platform !== "win32") {
+    return;
+  }
+  const allowlist = processUNCHostAllowlist();
+  if (allowlist) {
+    if (typeof allowedHost === "string") {
+      allowlist.add(allowedHost.toLowerCase());
+    } else {
+      for (const host of toSafeStringArray(allowedHost)) {
+        addUNCHostToAllowlist(host);
+      }
+    }
+  }
+}
+__name(addUNCHostToAllowlist, "addUNCHostToAllowlist");
+function toSafeStringArray(arg0) {
+  const allowedUNCHosts = /* @__PURE__ */ new Set();
+  if (Array.isArray(arg0)) {
+    for (const host of arg0) {
+      if (typeof host === "string") {
+        allowedUNCHosts.add(host);
+      }
+    }
+  }
+  return Array.from(allowedUNCHosts);
+}
+__name(toSafeStringArray, "toSafeStringArray");
+function getUNCHost(maybeUNCPath) {
+  if (typeof maybeUNCPath !== "string") {
+    return void 0;
+  }
+  const uncRoots = [
+    "\\\\.\\UNC\\",
+    // DOS Device paths (https://learn.microsoft.com/en-us/dotnet/standard/io/file-path-formats)
+    "\\\\?\\UNC\\",
+    "\\\\"
+    // standard UNC path
+  ];
+  let host = void 0;
+  for (const uncRoot of uncRoots) {
+    const indexOfUNCRoot = maybeUNCPath.indexOf(uncRoot);
+    if (indexOfUNCRoot !== 0) {
+      continue;
+    }
+    const indexOfUNCPath = maybeUNCPath.indexOf("\\", uncRoot.length);
+    if (indexOfUNCPath === -1) {
+      continue;
+    }
+    const hostCandidate = maybeUNCPath.substring(uncRoot.length, indexOfUNCPath);
+    if (hostCandidate) {
+      host = hostCandidate;
+      break;
+    }
+  }
+  return host;
+}
+__name(getUNCHost, "getUNCHost");
+function disableUNCAccessRestrictions() {
+  if (process.platform !== "win32") {
+    return;
+  }
+  process.restrictUNCAccess = false;
+}
+__name(disableUNCAccessRestrictions, "disableUNCAccessRestrictions");
+function isUNCAccessRestrictionsDisabled() {
+  if (process.platform !== "win32") {
+    return true;
+  }
+  return process.restrictUNCAccess === false;
+}
+__name(isUNCAccessRestrictionsDisabled, "isUNCAccessRestrictionsDisabled");
+export {
+  addUNCHostToAllowlist,
+  disableUNCAccessRestrictions,
+  getUNCHost,
+  getUNCHostAllowlist,
+  isUNCAccessRestrictionsDisabled
+};
+//# sourceMappingURL=unc.js.map

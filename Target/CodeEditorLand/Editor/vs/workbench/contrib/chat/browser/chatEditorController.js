@@ -1,1 +1,168 @@
-var M=Object.defineProperty;var y=Object.getOwnPropertyDescriptor;var p=(d,s,e,t)=>{for(var i=t>1?void 0:t?y(s,e):s,o=d.length-1,n;o>=0;o--)(n=d[o])&&(i=(t?n(s,e,i):n(i))||i);return t&&i&&M(s,e,i),i},f=(d,s)=>(e,t)=>s(e,t,d);import{Disposable as R,DisposableStore as C,toDisposable as L}from"../../../../base/common/lifecycle.js";import{Constants as w}from"../../../../base/common/uint.js";import"../../../../editor/browser/editorBrowser.js";import{LineSource as Z,renderLines as T,RenderOptions as b}from"../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";import{diffAddDecoration as N,diffDeleteDecoration as k,diffWholeLineAddDecoration as W}from"../../../../editor/browser/widget/diffEditor/registrations.contribution.js";import{EditorOption as u}from"../../../../editor/common/config/editorOptions.js";import"../../../../editor/common/diff/documentDiffProvider.js";import"../../../../editor/common/editorCommon.js";import"../../../../editor/common/model.js";import{IEditorWorkerService as x}from"../../../../editor/common/services/editorWorker.js";import{InlineDecoration as A,InlineDecorationType as O}from"../../../../editor/common/viewModel.js";import{IChatEditingService as z,WorkingSetEntryState as F}from"../common/chatEditingService.js";let h=class extends R{constructor(e,t,i){super();this._editor=e;this._chatEditingService=t;this._editorWorkerService=i;this._register(this._editor.onDidChangeModel(()=>this._update())),this._register(this._chatEditingService.onDidChangeEditingSession(()=>this._updateSessionDecorations())),this._register(L(()=>this._clearRendering()))}static ID="editor.contrib.chatEditorController";_sessionStore=this._register(new C);_decorations=this._editor.createDecorationsCollection();_viewZones=[];_update(){if(this._sessionStore.clear(),!this._editor.hasModel()||this._editor.getOption(u.inDiffEditor))return;const e=this._editor.getModel();if(this._editor.getOption(u.inDiffEditor)){this._clearRendering();return}this._sessionStore.add(e.onDidChangeContent(()=>this._updateSessionDecorations())),this._updateSessionDecorations()}_updateSessionDecorations(){if(!this._editor.hasModel()){this._clearRendering();return}const e=this._editor.getModel(),t=this._chatEditingService.getEditingSession(e.uri),i=this._getEntry(t,e);if(!i||i.state.get()!==F.Modified){this._clearRendering();return}this._editorWorkerService.computeDiff(i.originalURI,e.uri,{ignoreTrimWhitespace:!1,maxComputationTimeMs:w.MAX_SAFE_SMALL_INTEGER,computeMoves:!1},"advanced").then(o=>{if(!this._editor.hasModel()){this._clearRendering();return}const n=this._editor.getModel(),a=this._chatEditingService.getEditingSession(n.uri),c=this._getEntry(a,n);if(!c){this._clearRendering();return}this._updateWithDiff(n,c,o)})}_getEntry(e,t){return e&&e.entries.get().find(i=>i.modifiedURI.toString()===t.uri.toString())||null}_clearRendering(){this._editor.changeViewZones(e=>{for(const t of this._viewZones)e.removeZone(t)}),this._viewZones=[],this._decorations.clear()}_updateWithDiff(e,t,i){if(!i){this._clearRendering();return}const o=t.originalModel;this._editor.changeViewZones(n=>{for(const r of this._viewZones)n.removeZone(r);this._viewZones=[];const a=[],c=o.mightContainNonBasicASCII(),v=o.mightContainRTL(),I=b.fromEditor(this._editor);for(const r of i.changes){const m=r.original;o.tokenization.forceTokenization(m.endLineNumberExclusive-1);const D=new Z(m.mapToLineArray(l=>o.tokenization.getLineTokens(l)),[],c,v),_=[];for(const l of r.innerChanges||[])_.push(new A(l.originalRange.delta(-(r.original.startLineNumber-1)),k.className,O.Regular)),a.push({range:l.modifiedRange,options:N});r.modified.isEmpty||a.push({range:r.modified.toInclusiveRange(),options:W});const g=document.createElement("div");g.className="chat-editing-original-zone line-delete";const E=T(D,I,_,g),S={afterLineNumber:r.modified.startLineNumber-1,heightInLines:E.heightInLines,domNode:g,ordinal:50002};this._viewZones.push(n.addZone(S))}this._decorations.set(a)})}};h=p([f(1,z),f(2,x)],h);export{h as ChatEditorController};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Constants } from "../../../../base/common/uint.js";
+import { ICodeEditor, IViewZone } from "../../../../editor/browser/editorBrowser.js";
+import { LineSource, renderLines, RenderOptions } from "../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
+import { diffAddDecoration, diffDeleteDecoration, diffWholeLineAddDecoration } from "../../../../editor/browser/widget/diffEditor/registrations.contribution.js";
+import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
+import { IDocumentDiff } from "../../../../editor/common/diff/documentDiffProvider.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { IModelDeltaDecoration, ITextModel } from "../../../../editor/common/model.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { InlineDecoration, InlineDecorationType } from "../../../../editor/common/viewModel.js";
+import { IChatEditingService, IChatEditingSession, IModifiedFileEntry, WorkingSetEntryState } from "../common/chatEditingService.js";
+let ChatEditorController = class extends Disposable {
+  constructor(_editor, _chatEditingService, _editorWorkerService) {
+    super();
+    this._editor = _editor;
+    this._chatEditingService = _chatEditingService;
+    this._editorWorkerService = _editorWorkerService;
+    this._register(this._editor.onDidChangeModel(() => this._update()));
+    this._register(this._chatEditingService.onDidChangeEditingSession(() => this._updateSessionDecorations()));
+    this._register(toDisposable(() => this._clearRendering()));
+  }
+  static {
+    __name(this, "ChatEditorController");
+  }
+  static ID = "editor.contrib.chatEditorController";
+  _sessionStore = this._register(new DisposableStore());
+  _decorations = this._editor.createDecorationsCollection();
+  _viewZones = [];
+  _update() {
+    this._sessionStore.clear();
+    if (!this._editor.hasModel()) {
+      return;
+    }
+    if (this._editor.getOption(EditorOption.inDiffEditor)) {
+      return;
+    }
+    const model = this._editor.getModel();
+    if (this._editor.getOption(EditorOption.inDiffEditor)) {
+      this._clearRendering();
+      return;
+    }
+    this._sessionStore.add(model.onDidChangeContent(() => this._updateSessionDecorations()));
+    this._updateSessionDecorations();
+  }
+  _updateSessionDecorations() {
+    if (!this._editor.hasModel()) {
+      this._clearRendering();
+      return;
+    }
+    const model = this._editor.getModel();
+    const editingSession = this._chatEditingService.getEditingSession(model.uri);
+    const entry = this._getEntry(editingSession, model);
+    if (!entry || entry.state.get() !== WorkingSetEntryState.Modified) {
+      this._clearRendering();
+      return;
+    }
+    this._editorWorkerService.computeDiff(
+      entry.originalURI,
+      model.uri,
+      {
+        ignoreTrimWhitespace: false,
+        maxComputationTimeMs: Constants.MAX_SAFE_SMALL_INTEGER,
+        computeMoves: false
+      },
+      "advanced"
+    ).then((diff) => {
+      if (!this._editor.hasModel()) {
+        this._clearRendering();
+        return;
+      }
+      const model2 = this._editor.getModel();
+      const editingSession2 = this._chatEditingService.getEditingSession(model2.uri);
+      const entry2 = this._getEntry(editingSession2, model2);
+      if (!entry2) {
+        this._clearRendering();
+        return;
+      }
+      this._updateWithDiff(model2, entry2, diff);
+    });
+  }
+  _getEntry(editingSession, model) {
+    if (!editingSession) {
+      return null;
+    }
+    return editingSession.entries.get().find((e) => e.modifiedURI.toString() === model.uri.toString()) || null;
+  }
+  _clearRendering() {
+    this._editor.changeViewZones((viewZoneChangeAccessor) => {
+      for (const id of this._viewZones) {
+        viewZoneChangeAccessor.removeZone(id);
+      }
+    });
+    this._viewZones = [];
+    this._decorations.clear();
+  }
+  _updateWithDiff(model, entry, diff) {
+    if (!diff) {
+      this._clearRendering();
+      return;
+    }
+    const originalModel = entry.originalModel;
+    this._editor.changeViewZones((viewZoneChangeAccessor) => {
+      for (const id of this._viewZones) {
+        viewZoneChangeAccessor.removeZone(id);
+      }
+      this._viewZones = [];
+      const modifiedDecorations = [];
+      const mightContainNonBasicASCII = originalModel.mightContainNonBasicASCII();
+      const mightContainRTL = originalModel.mightContainRTL();
+      const renderOptions = RenderOptions.fromEditor(this._editor);
+      for (const diffEntry of diff.changes) {
+        const originalRange = diffEntry.original;
+        originalModel.tokenization.forceTokenization(originalRange.endLineNumberExclusive - 1);
+        const source = new LineSource(
+          originalRange.mapToLineArray((l) => originalModel.tokenization.getLineTokens(l)),
+          [],
+          mightContainNonBasicASCII,
+          mightContainRTL
+        );
+        const decorations = [];
+        for (const i of diffEntry.innerChanges || []) {
+          decorations.push(new InlineDecoration(
+            i.originalRange.delta(-(diffEntry.original.startLineNumber - 1)),
+            diffDeleteDecoration.className,
+            InlineDecorationType.Regular
+          ));
+          modifiedDecorations.push({ range: i.modifiedRange, options: diffAddDecoration });
+        }
+        if (!diffEntry.modified.isEmpty) {
+          modifiedDecorations.push({ range: diffEntry.modified.toInclusiveRange(), options: diffWholeLineAddDecoration });
+        }
+        const domNode = document.createElement("div");
+        domNode.className = "chat-editing-original-zone line-delete";
+        const result = renderLines(source, renderOptions, decorations, domNode);
+        const viewZoneData = {
+          afterLineNumber: diffEntry.modified.startLineNumber - 1,
+          heightInLines: result.heightInLines,
+          domNode,
+          ordinal: 5e4 + 2
+          // more than https://github.com/microsoft/vscode/blob/bf52a5cfb2c75a7327c9adeaefbddc06d529dcad/src/vs/workbench/contrib/inlineChat/browser/inlineChatZoneWidget.ts#L42
+        };
+        this._viewZones.push(viewZoneChangeAccessor.addZone(viewZoneData));
+      }
+      this._decorations.set(modifiedDecorations);
+    });
+  }
+};
+ChatEditorController = __decorateClass([
+  __decorateParam(1, IChatEditingService),
+  __decorateParam(2, IEditorWorkerService)
+], ChatEditorController);
+export {
+  ChatEditorController
+};
+//# sourceMappingURL=chatEditorController.js.map

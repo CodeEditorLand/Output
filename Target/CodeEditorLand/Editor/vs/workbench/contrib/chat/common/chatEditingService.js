@@ -1,1 +1,43 @@
-import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import"../../../../base/common/observable.js";import"../../../../base/common/uri.js";import"../../../../editor/common/languages.js";import"../../../../editor/common/model.js";import{localize as o}from"../../../../nls.js";import{RawContextKey as i}from"../../../../platform/contextkey/common/contextkey.js";import{createDecorator as n}from"../../../../platform/instantiation/common/instantiation.js";import"./chatModel.js";const b=n("chatEditingService");var t=(e=>(e[e.Modified=0]="Modified",e[e.Accepted=1]="Accepted",e[e.Rejected=2]="Rejected",e[e.Attached=3]="Attached",e))(t||{}),d=(e=>(e[e.Initial=0]="Initial",e[e.StreamingEdits=1]="StreamingEdits",e[e.Idle=2]="Idle",e[e.Disposed=3]="Disposed",e))(d||{});const T="chat-editing-multi-diff-source",U=new i("chatEditingWidgetFileState",void 0,o("chatEditingWidgetFileState","The current state of the file in the chat editing widget")),M=new i("decidedChatEditingResource",[]),w=new i("chatEditingResource",void 0),D=new i("inChatEditingSession",void 0),O=new i("isApplyingChatEdits",void 0);export{T as CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME,d as ChatEditingSessionState,b as IChatEditingService,t as WorkingSetEntryState,O as applyingChatEditsContextKey,w as chatEditingResourceContextKey,U as chatEditingWidgetFileStateContextKey,M as decidedChatEditingResourceContextKey,D as inChatEditingSessionContextKey};
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { IObservable, ITransaction } from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
+import { TextEdit } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { localize } from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IChatResponseModel } from "./chatModel.js";
+const IChatEditingService = createDecorator("chatEditingService");
+var WorkingSetEntryState = /* @__PURE__ */ ((WorkingSetEntryState2) => {
+  WorkingSetEntryState2[WorkingSetEntryState2["Modified"] = 0] = "Modified";
+  WorkingSetEntryState2[WorkingSetEntryState2["Accepted"] = 1] = "Accepted";
+  WorkingSetEntryState2[WorkingSetEntryState2["Rejected"] = 2] = "Rejected";
+  WorkingSetEntryState2[WorkingSetEntryState2["Attached"] = 3] = "Attached";
+  return WorkingSetEntryState2;
+})(WorkingSetEntryState || {});
+var ChatEditingSessionState = /* @__PURE__ */ ((ChatEditingSessionState2) => {
+  ChatEditingSessionState2[ChatEditingSessionState2["Initial"] = 0] = "Initial";
+  ChatEditingSessionState2[ChatEditingSessionState2["StreamingEdits"] = 1] = "StreamingEdits";
+  ChatEditingSessionState2[ChatEditingSessionState2["Idle"] = 2] = "Idle";
+  ChatEditingSessionState2[ChatEditingSessionState2["Disposed"] = 3] = "Disposed";
+  return ChatEditingSessionState2;
+})(ChatEditingSessionState || {});
+const CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME = "chat-editing-multi-diff-source";
+const chatEditingWidgetFileStateContextKey = new RawContextKey("chatEditingWidgetFileState", void 0, localize("chatEditingWidgetFileState", "The current state of the file in the chat editing widget"));
+const decidedChatEditingResourceContextKey = new RawContextKey("decidedChatEditingResource", []);
+const chatEditingResourceContextKey = new RawContextKey("chatEditingResource", void 0);
+const inChatEditingSessionContextKey = new RawContextKey("inChatEditingSession", void 0);
+const applyingChatEditsContextKey = new RawContextKey("isApplyingChatEdits", void 0);
+export {
+  CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME,
+  ChatEditingSessionState,
+  IChatEditingService,
+  WorkingSetEntryState,
+  applyingChatEditsContextKey,
+  chatEditingResourceContextKey,
+  chatEditingWidgetFileStateContextKey,
+  decidedChatEditingResourceContextKey,
+  inChatEditingSessionContextKey
+};
+//# sourceMappingURL=chatEditingService.js.map

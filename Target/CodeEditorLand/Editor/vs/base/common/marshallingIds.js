@@ -1,1 +1,26 @@
-var o=(t=>(t[t.Uri=1]="Uri",t[t.Regexp=2]="Regexp",t[t.ScmResource=3]="ScmResource",t[t.ScmResourceGroup=4]="ScmResourceGroup",t[t.ScmProvider=5]="ScmProvider",t[t.CommentController=6]="CommentController",t[t.CommentThread=7]="CommentThread",t[t.CommentThreadInstance=8]="CommentThreadInstance",t[t.CommentThreadReply=9]="CommentThreadReply",t[t.CommentNode=10]="CommentNode",t[t.CommentThreadNode=11]="CommentThreadNode",t[t.TimelineActionContext=12]="TimelineActionContext",t[t.NotebookCellActionContext=13]="NotebookCellActionContext",t[t.NotebookActionContext=14]="NotebookActionContext",t[t.TerminalContext=15]="TerminalContext",t[t.TestItemContext=16]="TestItemContext",t[t.Date=17]="Date",t[t.TestMessageMenuArgs=18]="TestMessageMenuArgs",t[t.ChatViewContext=19]="ChatViewContext",t))(o||{});export{o as MarshalledId};
+var MarshalledId = /* @__PURE__ */ ((MarshalledId2) => {
+  MarshalledId2[MarshalledId2["Uri"] = 1] = "Uri";
+  MarshalledId2[MarshalledId2["Regexp"] = 2] = "Regexp";
+  MarshalledId2[MarshalledId2["ScmResource"] = 3] = "ScmResource";
+  MarshalledId2[MarshalledId2["ScmResourceGroup"] = 4] = "ScmResourceGroup";
+  MarshalledId2[MarshalledId2["ScmProvider"] = 5] = "ScmProvider";
+  MarshalledId2[MarshalledId2["CommentController"] = 6] = "CommentController";
+  MarshalledId2[MarshalledId2["CommentThread"] = 7] = "CommentThread";
+  MarshalledId2[MarshalledId2["CommentThreadInstance"] = 8] = "CommentThreadInstance";
+  MarshalledId2[MarshalledId2["CommentThreadReply"] = 9] = "CommentThreadReply";
+  MarshalledId2[MarshalledId2["CommentNode"] = 10] = "CommentNode";
+  MarshalledId2[MarshalledId2["CommentThreadNode"] = 11] = "CommentThreadNode";
+  MarshalledId2[MarshalledId2["TimelineActionContext"] = 12] = "TimelineActionContext";
+  MarshalledId2[MarshalledId2["NotebookCellActionContext"] = 13] = "NotebookCellActionContext";
+  MarshalledId2[MarshalledId2["NotebookActionContext"] = 14] = "NotebookActionContext";
+  MarshalledId2[MarshalledId2["TerminalContext"] = 15] = "TerminalContext";
+  MarshalledId2[MarshalledId2["TestItemContext"] = 16] = "TestItemContext";
+  MarshalledId2[MarshalledId2["Date"] = 17] = "Date";
+  MarshalledId2[MarshalledId2["TestMessageMenuArgs"] = 18] = "TestMessageMenuArgs";
+  MarshalledId2[MarshalledId2["ChatViewContext"] = 19] = "ChatViewContext";
+  return MarshalledId2;
+})(MarshalledId || {});
+export {
+  MarshalledId
+};
+//# sourceMappingURL=marshallingIds.js.map

@@ -1,12 +1,304 @@
-var G=Object.defineProperty;var U=Object.getOwnPropertyDescriptor;var w=(f,n,l,r)=>{for(var a=r>1?void 0:r?U(n,l):n,g=f.length-1,S;g>=0;g--)(S=f[g])&&(a=(r?S(n,l,a):S(a))||a);return r&&a&&G(n,l,a),a},m=(f,n)=>(l,r)=>n(l,r,f);import{timeout as J}from"../../../../base/common/async.js";import{MarkdownString as d,isMarkdownString as E}from"../../../../base/common/htmlContent.js";import{Disposable as P}from"../../../../base/common/lifecycle.js";import{Schemas as A}from"../../../../base/common/network.js";import{isMacintosh as K}from"../../../../base/common/platform.js";import{registerEditorFeature as X}from"../../../../editor/common/editorFeatures.js";import*as i from"../../../../nls.js";import{AccessibleViewRegistry as D}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{ICommandService as Y}from"../../../../platform/commands/common/commands.js";import{Extensions as Z}from"../../../../platform/configuration/common/configurationRegistry.js";import{SyncDescriptor as ee}from"../../../../platform/instantiation/common/descriptors.js";import{InstantiationType as e,registerSingleton as t}from"../../../../platform/instantiation/common/extensions.js";import{IInstantiationService as T}from"../../../../platform/instantiation/common/instantiation.js";import{Registry as I}from"../../../../platform/registry/common/platform.js";import{EditorPaneDescriptor as te}from"../../../browser/editor.js";import{Extensions as ie,WorkbenchPhase as p,registerWorkbenchContribution2 as h}from"../../../common/contributions.js";import{EditorExtensions as z}from"../../../common/editor.js";import{IEditorResolverService as re,RegisteredEditorPriority as oe}from"../../../services/editor/common/editorResolverService.js";import{LifecyclePhase as ae}from"../../../services/lifecycle/common/lifecycle.js";import{ChatAgentLocation as v,ChatAgentNameService as ne,ChatAgentService as ce,IChatAgentNameService as se,IChatAgentService as R}from"../common/chatAgents.js";import{CodeMapperService as le,ICodeMapperService as me}from"../common/chatCodeMapperService.js";import"../common/chatColors.js";import{IChatEditingService as de}from"../common/chatEditingService.js";import{chatVariableLeader as pe}from"../common/chatParserTypes.js";import{IChatService as he}from"../common/chatService.js";import{ChatService as fe}from"../common/chatServiceImpl.js";import{ChatSlashCommandService as Ce,IChatSlashCommandService as M}from"../common/chatSlashCommands.js";import{IChatVariablesService as W}from"../common/chatVariables.js";import{ChatWidgetHistoryService as ge,IChatWidgetHistoryService as ue}from"../common/chatWidgetHistoryService.js";import{ILanguageModelsService as ve,LanguageModelsService as be}from"../common/languageModels.js";import{ILanguageModelStatsService as ye,LanguageModelStatsService as Se}from"../common/languageModelStats.js";import{ILanguageModelToolsService as Ie}from"../common/languageModelToolsService.js";import{LanguageModelToolsExtensionPointHandler as V}from"../common/tools/languageModelToolsContribution.js";import{IVoiceChatService as ke,VoiceChatService as xe}from"../common/voiceChatService.js";import{PanelChatAccessibilityHelp as we,QuickChatAccessibilityHelp as Ee}from"./actions/chatAccessibilityHelp.js";import{ChatCommandCenterRendering as L,registerChatActions as De}from"./actions/chatActions.js";import{ACTION_ID_NEW_CHAT as Pe,registerNewChatActions as Ae}from"./actions/chatClearActions.js";import{registerChatCodeBlockActions as Te,registerChatCodeCompareBlockActions as ze}from"./actions/chatCodeblockActions.js";import{registerChatContextActions as Re}from"./actions/chatContextActions.js";import{registerChatCopyActions as Me}from"./actions/chatCopyActions.js";import{registerChatDeveloperActions as We}from"./actions/chatDeveloperActions.js";import{SubmitAction as Ve,registerChatExecuteActions as Le}from"./actions/chatExecuteActions.js";import{registerChatFileTreeActions as $e}from"./actions/chatFileTreeActions.js";import{registerChatExportActions as Fe}from"./actions/chatImportExport.js";import{registerMoveActions as He}from"./actions/chatMoveActions.js";import{registerQuickChatActions as _e}from"./actions/chatQuickInputActions.js";import{registerChatTitleActions as Be}from"./actions/chatTitleActions.js";import{IChatAccessibilityService as Ne,IChatCodeBlockContextProviderService as je,IChatWidgetService as Qe,IQuickChatService as Oe}from"./chat.js";import{ChatAccessibilityService as qe}from"./chatAccessibilityService.js";import{ChatMarkdownAnchorService as Ge,IChatMarkdownAnchorService as Ue}from"./chatContentParts/chatMarkdownAnchorService.js";import{ChatEditingService as Je}from"./chatEditingService.js";import{ChatEditor as Ke}from"./chatEditor.js";import{ChatEditorInput as b,ChatEditorInputSerializer as Xe}from"./chatEditorInput.js";import{ChatGettingStartedContribution as $}from"./chatGettingStarted.js";import{agentSlashCommandToMarkdown as Ye,agentToMarkdown as Ze}from"./chatMarkdownDecorationsRenderer.js";import{ChatCompatibilityNotifier as F,ChatExtensionPointHandler as H}from"./chatParticipantContributions.js";import{ChatPasteProvidersFeature as et}from"./chatPasteProviders.js";import{QuickChatService as tt}from"./chatQuick.js";import{ChatResponseAccessibleView as it}from"./chatResponseAccessibleView.js";import{ChatVariablesService as rt}from"./chatVariables.js";import{ChatWidgetService as ot}from"./chatWidget.js";import{ChatCodeBlockContextProviderService as at}from"./codeBlockContextProviderService.js";import"./chatAttachmentModel.js";import"./contrib/chatInputCompletions.js";import"./contrib/chatInputEditorContrib.js";import"./contrib/chatInputEditorHover.js";import{EditorContributionInstantiation as nt,registerEditorContribution as ct}from"../../../../editor/browser/editorExtensions.js";import{ChatEditorController as _}from"./chatEditorController.js";import{LanguageModelToolsService as st}from"./languageModelToolsService.js";import{ChatEditorSaving as B}from"./chatEditorSaving.js";const lt=I.as(Z.Configuration);lt.registerConfiguration({id:"chatSidebar",title:i.localize("interactiveSessionConfigurationTitle","Chat"),type:"object",properties:{"chat.editor.fontSize":{type:"number",description:i.localize("interactiveSession.editor.fontSize","Controls the font size in pixels in chat codeblocks."),default:K?12:14},"chat.editor.fontFamily":{type:"string",description:i.localize("interactiveSession.editor.fontFamily","Controls the font family in chat codeblocks."),default:"default"},"chat.editor.fontWeight":{type:"string",description:i.localize("interactiveSession.editor.fontWeight","Controls the font weight in chat codeblocks."),default:"default"},"chat.editor.wordWrap":{type:"string",description:i.localize("interactiveSession.editor.wordWrap","Controls whether lines should wrap in chat codeblocks."),default:"off",enum:["on","off"]},"chat.editor.lineHeight":{type:"number",description:i.localize("interactiveSession.editor.lineHeight","Controls the line height in pixels in chat codeblocks. Use 0 to compute the line height from the font size."),default:0},"chat.commandCenter.enabled":{type:"boolean",tags:["experimental"],markdownDescription:i.localize("chat.commandCenter.enabled","Controls whether the command center shows a menu for chat actions (requires {0}).","`#window.commandCenter#`"),default:!1},"chat.experimental.variables.editor":{type:"boolean",description:i.localize("chat.experimental.variables.editor","Enables variables for editor chat."),default:!0},"chat.experimental.variables.notebook":{type:"boolean",description:i.localize("chat.experimental.variables.notebook","Enables variables for notebook chat."),default:!0},"chat.experimental.variables.terminal":{type:"boolean",description:i.localize("chat.experimental.variables.terminal","Enables variables for terminal chat."),default:!1},"chat.experimental.detectParticipant.enabled":{type:"boolean",description:i.localize("chat.experimental.detectParticipant.enabled","Enables chat participant autodetection for panel chat."),default:null}}}),I.as(z.EditorPane).registerEditorPane(te.create(Ke,b.EditorID,i.localize("chat","Chat")),[new ee(b)]);let C=class extends P{static ID="workbench.contrib.chatResolver";constructor(n,l){super(),this._register(n.registerEditor(`${A.vscodeChatSesssion}:**/**`,{id:b.EditorID,label:i.localize("chat","Chat"),priority:oe.builtin},{singlePerResource:!0,canSupportResource:r=>r.scheme===A.vscodeChatSesssion},{createEditorInput:({resource:r,options:a})=>({editor:l.createInstance(b,r,a),options:a})}))}};C=w([m(0,re),m(1,T)],C),D.register(new it),D.register(new we),D.register(new Ee);let y=class extends P{constructor(n,l,r,a,g){super(),this._store.add(n.registerSlashCommand({command:"clear",detail:i.localize("clear","Start a new chat"),sortText:"z2_clear",executeImmediately:!0,locations:[v.Panel]},async()=>{l.executeCommand(Pe)})),this._store.add(n.registerSlashCommand({command:"help",detail:"",sortText:"z1_help",executeImmediately:!0,locations:[v.Panel]},async(S,c)=>{const o=r.getDefaultAgent(v.Panel),N=r.getAgents();o?.metadata.helpTextPrefix&&(E(o.metadata.helpTextPrefix)?c.report({content:o.metadata.helpTextPrefix,kind:"markdownContent"}):c.report({content:new d(o.metadata.helpTextPrefix),kind:"markdownContent"}),c.report({content:new d(`
-
-`),kind:"markdownContent"}));const j=(await Promise.all(N.filter(s=>s.id!==o?.id).filter(s=>s.locations.includes(v.Panel)).map(async s=>{const k=s.description?`- ${s.description}`:"",Q=`- ${g.invokeFunction(u=>Ze(s,!0,u))} ${k}`,O=s.slashCommands.map(u=>{const q=u.description?`- ${u.description}`:"";return`	* ${Ye(s,u)} ${q}`}).join(`
-`);return(Q+`
-`+O).trim()}))).join(`
-`);if(c.report({content:new d(j,{isTrusted:{enabledCommands:[Ve.ID]}}),kind:"markdownContent"}),o?.metadata.helpTextVariablesPrefix){c.report({content:new d(`
-
-`),kind:"markdownContent"}),E(o.metadata.helpTextVariablesPrefix)?c.report({content:o.metadata.helpTextVariablesPrefix,kind:"markdownContent"}):c.report({content:new d(o.metadata.helpTextVariablesPrefix),kind:"markdownContent"});const k=[...a.getVariables(v.Panel),{name:"file",description:i.localize("file","Choose a file in the workspace")}].map(x=>`* \`${pe}${x.name}\` - ${x.description}`).join(`
-`);c.report({content:new d(`
-`+k),kind:"markdownContent"})}o?.metadata.helpTextPostfix&&(c.report({content:new d(`
-
-`),kind:"markdownContent"}),E(o.metadata.helpTextPostfix)?c.report({content:o.metadata.helpTextPostfix,kind:"markdownContent"}):c.report({content:new d(o.metadata.helpTextPostfix),kind:"markdownContent"})),await J(200)}))}};y=w([m(0,M),m(1,Y),m(2,R),m(3,W),m(4,T)],y);const mt=I.as(ie.Workbench);h(C.ID,C,p.BlockStartup),mt.registerWorkbenchContribution(y,ae.Eventually),I.as(z.EditorFactory).registerEditorSerializer(b.TypeID,Xe),h(H.ID,H,p.BlockStartup),h(V.ID,V,p.BlockRestore),h(F.ID,F,p.Eventually),h($.ID,$,p.Eventually),h(L.ID,L,p.AfterRestored),h(B.ID,B,p.AfterRestored),De(),Me(),Te(),ze(),$e(),Be(),Le(),_e(),Fe(),He(),Ae(),Re(),We(),X(et),ct(_.ID,_,nt.Eventually),t(he,fe,e.Delayed),t(Qe,ot,e.Delayed),t(Oe,tt,e.Delayed),t(Ne,qe,e.Delayed),t(ue,ge,e.Delayed),t(ve,be,e.Delayed),t(ye,Se,e.Delayed),t(M,Ce,e.Delayed),t(R,ce,e.Delayed),t(se,ne,e.Delayed),t(W,rt,e.Delayed),t(Ie,st,e.Delayed),t(ke,xe,e.Delayed),t(je,at,e.Delayed),t(me,le,e.Delayed),t(de,Je,e.Delayed),t(Ue,Ge,e.Delayed);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { timeout } from "../../../../base/common/async.js";
+import { MarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { registerEditorFeature } from "../../../../editor/common/editorFeatures.js";
+import * as nls from "../../../../nls.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { Extensions as ConfigurationExtensions, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor, IEditorPaneRegistry } from "../../../browser/editor.js";
+import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions, IEditorFactoryRegistry } from "../../../common/editor.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { ChatAgentLocation, ChatAgentNameService, ChatAgentService, IChatAgentNameService, IChatAgentService } from "../common/chatAgents.js";
+import { CodeMapperService, ICodeMapperService } from "../common/chatCodeMapperService.js";
+import "../common/chatColors.js";
+import { IChatEditingService } from "../common/chatEditingService.js";
+import { chatVariableLeader } from "../common/chatParserTypes.js";
+import { IChatService } from "../common/chatService.js";
+import { ChatService } from "../common/chatServiceImpl.js";
+import { ChatSlashCommandService, IChatSlashCommandService } from "../common/chatSlashCommands.js";
+import { IChatVariablesService } from "../common/chatVariables.js";
+import { ChatWidgetHistoryService, IChatWidgetHistoryService } from "../common/chatWidgetHistoryService.js";
+import { ILanguageModelsService, LanguageModelsService } from "../common/languageModels.js";
+import { ILanguageModelStatsService, LanguageModelStatsService } from "../common/languageModelStats.js";
+import { ILanguageModelToolsService } from "../common/languageModelToolsService.js";
+import { LanguageModelToolsExtensionPointHandler } from "../common/tools/languageModelToolsContribution.js";
+import { IVoiceChatService, VoiceChatService } from "../common/voiceChatService.js";
+import { PanelChatAccessibilityHelp, QuickChatAccessibilityHelp } from "./actions/chatAccessibilityHelp.js";
+import { ChatCommandCenterRendering, registerChatActions } from "./actions/chatActions.js";
+import { ACTION_ID_NEW_CHAT, registerNewChatActions } from "./actions/chatClearActions.js";
+import { registerChatCodeBlockActions, registerChatCodeCompareBlockActions } from "./actions/chatCodeblockActions.js";
+import { registerChatContextActions } from "./actions/chatContextActions.js";
+import { registerChatCopyActions } from "./actions/chatCopyActions.js";
+import { registerChatDeveloperActions } from "./actions/chatDeveloperActions.js";
+import { SubmitAction, registerChatExecuteActions } from "./actions/chatExecuteActions.js";
+import { registerChatFileTreeActions } from "./actions/chatFileTreeActions.js";
+import { registerChatExportActions } from "./actions/chatImportExport.js";
+import { registerMoveActions } from "./actions/chatMoveActions.js";
+import { registerQuickChatActions } from "./actions/chatQuickInputActions.js";
+import { registerChatTitleActions } from "./actions/chatTitleActions.js";
+import { IChatAccessibilityService, IChatCodeBlockContextProviderService, IChatWidgetService, IQuickChatService } from "./chat.js";
+import { ChatAccessibilityService } from "./chatAccessibilityService.js";
+import { ChatMarkdownAnchorService, IChatMarkdownAnchorService } from "./chatContentParts/chatMarkdownAnchorService.js";
+import { ChatEditingService } from "./chatEditingService.js";
+import { ChatEditor, IChatEditorOptions } from "./chatEditor.js";
+import { ChatEditorInput, ChatEditorInputSerializer } from "./chatEditorInput.js";
+import { ChatGettingStartedContribution } from "./chatGettingStarted.js";
+import { agentSlashCommandToMarkdown, agentToMarkdown } from "./chatMarkdownDecorationsRenderer.js";
+import { ChatCompatibilityNotifier, ChatExtensionPointHandler } from "./chatParticipantContributions.js";
+import { ChatPasteProvidersFeature } from "./chatPasteProviders.js";
+import { QuickChatService } from "./chatQuick.js";
+import { ChatResponseAccessibleView } from "./chatResponseAccessibleView.js";
+import { ChatVariablesService } from "./chatVariables.js";
+import { ChatWidgetService } from "./chatWidget.js";
+import { ChatCodeBlockContextProviderService } from "./codeBlockContextProviderService.js";
+import "./chatAttachmentModel.js";
+import "./contrib/chatInputCompletions.js";
+import "./contrib/chatInputEditorContrib.js";
+import "./contrib/chatInputEditorHover.js";
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { ChatEditorController } from "./chatEditorController.js";
+import { LanguageModelToolsService } from "./languageModelToolsService.js";
+import { ChatEditorSaving } from "./chatEditorSaving.js";
+const configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+configurationRegistry.registerConfiguration({
+  id: "chatSidebar",
+  title: nls.localize("interactiveSessionConfigurationTitle", "Chat"),
+  type: "object",
+  properties: {
+    "chat.editor.fontSize": {
+      type: "number",
+      description: nls.localize("interactiveSession.editor.fontSize", "Controls the font size in pixels in chat codeblocks."),
+      default: isMacintosh ? 12 : 14
+    },
+    "chat.editor.fontFamily": {
+      type: "string",
+      description: nls.localize("interactiveSession.editor.fontFamily", "Controls the font family in chat codeblocks."),
+      default: "default"
+    },
+    "chat.editor.fontWeight": {
+      type: "string",
+      description: nls.localize("interactiveSession.editor.fontWeight", "Controls the font weight in chat codeblocks."),
+      default: "default"
+    },
+    "chat.editor.wordWrap": {
+      type: "string",
+      description: nls.localize("interactiveSession.editor.wordWrap", "Controls whether lines should wrap in chat codeblocks."),
+      default: "off",
+      enum: ["on", "off"]
+    },
+    "chat.editor.lineHeight": {
+      type: "number",
+      description: nls.localize("interactiveSession.editor.lineHeight", "Controls the line height in pixels in chat codeblocks. Use 0 to compute the line height from the font size."),
+      default: 0
+    },
+    "chat.commandCenter.enabled": {
+      type: "boolean",
+      tags: ["experimental"],
+      markdownDescription: nls.localize("chat.commandCenter.enabled", "Controls whether the command center shows a menu for chat actions (requires {0}).", "`#window.commandCenter#`"),
+      default: false
+    },
+    "chat.experimental.variables.editor": {
+      type: "boolean",
+      description: nls.localize("chat.experimental.variables.editor", "Enables variables for editor chat."),
+      default: true
+    },
+    "chat.experimental.variables.notebook": {
+      type: "boolean",
+      description: nls.localize("chat.experimental.variables.notebook", "Enables variables for notebook chat."),
+      default: true
+    },
+    "chat.experimental.variables.terminal": {
+      type: "boolean",
+      description: nls.localize("chat.experimental.variables.terminal", "Enables variables for terminal chat."),
+      default: false
+    },
+    "chat.experimental.detectParticipant.enabled": {
+      type: "boolean",
+      description: nls.localize("chat.experimental.detectParticipant.enabled", "Enables chat participant autodetection for panel chat."),
+      default: null
+    }
+  }
+});
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(
+  EditorPaneDescriptor.create(
+    ChatEditor,
+    ChatEditorInput.EditorID,
+    nls.localize("chat", "Chat")
+  ),
+  [
+    new SyncDescriptor(ChatEditorInput)
+  ]
+);
+let ChatResolverContribution = class extends Disposable {
+  static {
+    __name(this, "ChatResolverContribution");
+  }
+  static ID = "workbench.contrib.chatResolver";
+  constructor(editorResolverService, instantiationService) {
+    super();
+    this._register(editorResolverService.registerEditor(
+      `${Schemas.vscodeChatSesssion}:**/**`,
+      {
+        id: ChatEditorInput.EditorID,
+        label: nls.localize("chat", "Chat"),
+        priority: RegisteredEditorPriority.builtin
+      },
+      {
+        singlePerResource: true,
+        canSupportResource: /* @__PURE__ */ __name((resource) => resource.scheme === Schemas.vscodeChatSesssion, "canSupportResource")
+      },
+      {
+        createEditorInput: /* @__PURE__ */ __name(({ resource, options }) => {
+          return { editor: instantiationService.createInstance(ChatEditorInput, resource, options), options };
+        }, "createEditorInput")
+      }
+    ));
+  }
+};
+ChatResolverContribution = __decorateClass([
+  __decorateParam(0, IEditorResolverService),
+  __decorateParam(1, IInstantiationService)
+], ChatResolverContribution);
+AccessibleViewRegistry.register(new ChatResponseAccessibleView());
+AccessibleViewRegistry.register(new PanelChatAccessibilityHelp());
+AccessibleViewRegistry.register(new QuickChatAccessibilityHelp());
+let ChatSlashStaticSlashCommandsContribution = class extends Disposable {
+  static {
+    __name(this, "ChatSlashStaticSlashCommandsContribution");
+  }
+  constructor(slashCommandService, commandService, chatAgentService, chatVariablesService, instantiationService) {
+    super();
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "clear",
+      detail: nls.localize("clear", "Start a new chat"),
+      sortText: "z2_clear",
+      executeImmediately: true,
+      locations: [ChatAgentLocation.Panel]
+    }, async () => {
+      commandService.executeCommand(ACTION_ID_NEW_CHAT);
+    }));
+    this._store.add(slashCommandService.registerSlashCommand({
+      command: "help",
+      detail: "",
+      sortText: "z1_help",
+      executeImmediately: true,
+      locations: [ChatAgentLocation.Panel]
+    }, async (prompt, progress) => {
+      const defaultAgent = chatAgentService.getDefaultAgent(ChatAgentLocation.Panel);
+      const agents = chatAgentService.getAgents();
+      if (defaultAgent?.metadata.helpTextPrefix) {
+        if (isMarkdownString(defaultAgent.metadata.helpTextPrefix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextPrefix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPrefix), kind: "markdownContent" });
+        }
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+      }
+      const agentText = (await Promise.all(agents.filter((a) => a.id !== defaultAgent?.id).filter((a) => a.locations.includes(ChatAgentLocation.Panel)).map(async (a) => {
+        const description = a.description ? `- ${a.description}` : "";
+        const agentMarkdown = instantiationService.invokeFunction((accessor) => agentToMarkdown(a, true, accessor));
+        const agentLine = `- ${agentMarkdown} ${description}`;
+        const commandText = a.slashCommands.map((c) => {
+          const description2 = c.description ? `- ${c.description}` : "";
+          return `	* ${agentSlashCommandToMarkdown(a, c)} ${description2}`;
+        }).join("\n");
+        return (agentLine + "\n" + commandText).trim();
+      }))).join("\n");
+      progress.report({ content: new MarkdownString(agentText, { isTrusted: { enabledCommands: [SubmitAction.ID] } }), kind: "markdownContent" });
+      if (defaultAgent?.metadata.helpTextVariablesPrefix) {
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+        if (isMarkdownString(defaultAgent.metadata.helpTextVariablesPrefix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextVariablesPrefix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextVariablesPrefix), kind: "markdownContent" });
+        }
+        const variables = [
+          ...chatVariablesService.getVariables(ChatAgentLocation.Panel),
+          { name: "file", description: nls.localize("file", "Choose a file in the workspace") }
+        ];
+        const variableText = variables.map((v) => `* \`${chatVariableLeader}${v.name}\` - ${v.description}`).join("\n");
+        progress.report({ content: new MarkdownString("\n" + variableText), kind: "markdownContent" });
+      }
+      if (defaultAgent?.metadata.helpTextPostfix) {
+        progress.report({ content: new MarkdownString("\n\n"), kind: "markdownContent" });
+        if (isMarkdownString(defaultAgent.metadata.helpTextPostfix)) {
+          progress.report({ content: defaultAgent.metadata.helpTextPostfix, kind: "markdownContent" });
+        } else {
+          progress.report({ content: new MarkdownString(defaultAgent.metadata.helpTextPostfix), kind: "markdownContent" });
+        }
+      }
+      await timeout(200);
+    }));
+  }
+};
+ChatSlashStaticSlashCommandsContribution = __decorateClass([
+  __decorateParam(0, IChatSlashCommandService),
+  __decorateParam(1, ICommandService),
+  __decorateParam(2, IChatAgentService),
+  __decorateParam(3, IChatVariablesService),
+  __decorateParam(4, IInstantiationService)
+], ChatSlashStaticSlashCommandsContribution);
+const workbenchContributionsRegistry = Registry.as(WorkbenchExtensions.Workbench);
+registerWorkbenchContribution2(ChatResolverContribution.ID, ChatResolverContribution, WorkbenchPhase.BlockStartup);
+workbenchContributionsRegistry.registerWorkbenchContribution(ChatSlashStaticSlashCommandsContribution, LifecyclePhase.Eventually);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(ChatEditorInput.TypeID, ChatEditorInputSerializer);
+registerWorkbenchContribution2(ChatExtensionPointHandler.ID, ChatExtensionPointHandler, WorkbenchPhase.BlockStartup);
+registerWorkbenchContribution2(LanguageModelToolsExtensionPointHandler.ID, LanguageModelToolsExtensionPointHandler, WorkbenchPhase.BlockRestore);
+registerWorkbenchContribution2(ChatCompatibilityNotifier.ID, ChatCompatibilityNotifier, WorkbenchPhase.Eventually);
+registerWorkbenchContribution2(ChatGettingStartedContribution.ID, ChatGettingStartedContribution, WorkbenchPhase.Eventually);
+registerWorkbenchContribution2(ChatCommandCenterRendering.ID, ChatCommandCenterRendering, WorkbenchPhase.AfterRestored);
+registerWorkbenchContribution2(ChatEditorSaving.ID, ChatEditorSaving, WorkbenchPhase.AfterRestored);
+registerChatActions();
+registerChatCopyActions();
+registerChatCodeBlockActions();
+registerChatCodeCompareBlockActions();
+registerChatFileTreeActions();
+registerChatTitleActions();
+registerChatExecuteActions();
+registerQuickChatActions();
+registerChatExportActions();
+registerMoveActions();
+registerNewChatActions();
+registerChatContextActions();
+registerChatDeveloperActions();
+registerEditorFeature(ChatPasteProvidersFeature);
+registerEditorContribution(ChatEditorController.ID, ChatEditorController, EditorContributionInstantiation.Eventually);
+registerSingleton(IChatService, ChatService, InstantiationType.Delayed);
+registerSingleton(IChatWidgetService, ChatWidgetService, InstantiationType.Delayed);
+registerSingleton(IQuickChatService, QuickChatService, InstantiationType.Delayed);
+registerSingleton(IChatAccessibilityService, ChatAccessibilityService, InstantiationType.Delayed);
+registerSingleton(IChatWidgetHistoryService, ChatWidgetHistoryService, InstantiationType.Delayed);
+registerSingleton(ILanguageModelsService, LanguageModelsService, InstantiationType.Delayed);
+registerSingleton(ILanguageModelStatsService, LanguageModelStatsService, InstantiationType.Delayed);
+registerSingleton(IChatSlashCommandService, ChatSlashCommandService, InstantiationType.Delayed);
+registerSingleton(IChatAgentService, ChatAgentService, InstantiationType.Delayed);
+registerSingleton(IChatAgentNameService, ChatAgentNameService, InstantiationType.Delayed);
+registerSingleton(IChatVariablesService, ChatVariablesService, InstantiationType.Delayed);
+registerSingleton(ILanguageModelToolsService, LanguageModelToolsService, InstantiationType.Delayed);
+registerSingleton(IVoiceChatService, VoiceChatService, InstantiationType.Delayed);
+registerSingleton(IChatCodeBlockContextProviderService, ChatCodeBlockContextProviderService, InstantiationType.Delayed);
+registerSingleton(ICodeMapperService, CodeMapperService, InstantiationType.Delayed);
+registerSingleton(IChatEditingService, ChatEditingService, InstantiationType.Delayed);
+registerSingleton(IChatMarkdownAnchorService, ChatMarkdownAnchorService, InstantiationType.Delayed);
+//# sourceMappingURL=chat.contribution.js.map

@@ -451,6 +451,7 @@ function readCookie(name) {
   return void 0;
 }
 __name(readCookie, "readCookie");
+alert(5);
 (function() {
   const configElement = mainWindow.document.getElementById("vscode-workbench-web-configuration");
   const configElementAttribute = configElement ? configElement.getAttribute("data-settings") : void 0;

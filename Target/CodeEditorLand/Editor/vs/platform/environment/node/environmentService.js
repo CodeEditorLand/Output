@@ -1,34 +1,22 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { homedir, tmpdir } from "os";
-import { NativeParsedArgs } from "../common/argv.js";
-import { IDebugParams } from "../common/environment.js";
-import { AbstractNativeEnvironmentService, parseDebugParams } from "../common/environmentService.js";
-import { getUserDataPath } from "./userDataPath.js";
-import { IProductService } from "../../product/common/productService.js";
-class NativeEnvironmentService extends AbstractNativeEnvironmentService {
-  static {
-    __name(this, "NativeEnvironmentService");
-  }
-  constructor(args, productService) {
-    super(args, {
-      homeDir: homedir(),
-      tmpDir: tmpdir(),
-      userDataDir: getUserDataPath(args, productService.nameShort)
-    }, productService);
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { homedir, tmpdir } from 'os';
+import { AbstractNativeEnvironmentService, parseDebugParams } from '../common/environmentService.js';
+import { getUserDataPath } from './userDataPath.js';
+export class NativeEnvironmentService extends AbstractNativeEnvironmentService {
+    constructor(args, productService) {
+        super(args, {
+            homeDir: homedir(),
+            tmpDir: tmpdir(),
+            userDataDir: getUserDataPath(args, productService.nameShort)
+        }, productService);
+    }
 }
-function parsePtyHostDebugPort(args, isBuilt) {
-  return parseDebugParams(args["inspect-ptyhost"], args["inspect-brk-ptyhost"], 5877, isBuilt, args.extensionEnvironment);
+export function parsePtyHostDebugPort(args, isBuilt) {
+    return parseDebugParams(args['inspect-ptyhost'], args['inspect-brk-ptyhost'], 5877, isBuilt, args.extensionEnvironment);
 }
-__name(parsePtyHostDebugPort, "parsePtyHostDebugPort");
-function parseSharedProcessDebugPort(args, isBuilt) {
-  return parseDebugParams(args["inspect-sharedprocess"], args["inspect-brk-sharedprocess"], 5879, isBuilt, args.extensionEnvironment);
+export function parseSharedProcessDebugPort(args, isBuilt) {
+    return parseDebugParams(args['inspect-sharedprocess'], args['inspect-brk-sharedprocess'], 5879, isBuilt, args.extensionEnvironment);
 }
-__name(parseSharedProcessDebugPort, "parseSharedProcessDebugPort");
-export {
-  NativeEnvironmentService,
-  parsePtyHostDebugPort,
-  parseSharedProcessDebugPort
-};
-//# sourceMappingURL=environmentService.js.map

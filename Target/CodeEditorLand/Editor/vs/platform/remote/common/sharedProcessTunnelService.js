@@ -1,9 +1,7 @@
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IAddress } from "./remoteAgentConnection.js";
-const ISharedProcessTunnelService = createDecorator("sharedProcessTunnelService");
-const ipcSharedProcessTunnelChannelName = "sharedProcessTunnel";
-export {
-  ISharedProcessTunnelService,
-  ipcSharedProcessTunnelChannelName
-};
-//# sourceMappingURL=sharedProcessTunnelService.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export const ISharedProcessTunnelService = createDecorator('sharedProcessTunnelService');
+export const ipcSharedProcessTunnelChannelName = 'sharedProcessTunnel';

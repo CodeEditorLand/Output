@@ -1,16 +1,5 @@
-var TerminalStorageKeys = /* @__PURE__ */ ((TerminalStorageKeys2) => {
-  TerminalStorageKeys2["SuggestedRendererType"] = "terminal.integrated.suggestedRendererType";
-  TerminalStorageKeys2["TabsListWidthHorizontal"] = "tabs-list-width-horizontal";
-  TerminalStorageKeys2["TabsListWidthVertical"] = "tabs-list-width-vertical";
-  TerminalStorageKeys2["DeprecatedEnvironmentVariableCollections"] = "terminal.integrated.environmentVariableCollections";
-  TerminalStorageKeys2["EnvironmentVariableCollections"] = "terminal.integrated.environmentVariableCollectionsV2";
-  TerminalStorageKeys2["TerminalBufferState"] = "terminal.integrated.bufferState";
-  TerminalStorageKeys2["TerminalLayoutInfo"] = "terminal.integrated.layoutInfo";
-  TerminalStorageKeys2["PinnedRecentCommandsPrefix"] = "terminal.pinnedRecentCommands";
-  TerminalStorageKeys2["TerminalSuggestSize"] = "terminal.integrated.suggestSize";
-  return TerminalStorageKeys2;
-})(TerminalStorageKeys || {});
-export {
-  TerminalStorageKeys
-};
-//# sourceMappingURL=terminalStorageKeys.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export {};

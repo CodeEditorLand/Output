@@ -1,22 +1,27 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 let baseHoverDelegate = {
-  showHover: /* @__PURE__ */ __name(() => void 0, "showHover"),
-  hideHover: /* @__PURE__ */ __name(() => void 0, "hideHover"),
-  showAndFocusLastHover: /* @__PURE__ */ __name(() => void 0, "showAndFocusLastHover"),
-  setupManagedHover: /* @__PURE__ */ __name(() => null, "setupManagedHover"),
-  showManagedHover: /* @__PURE__ */ __name(() => void 0, "showManagedHover")
+    showHover: () => undefined,
+    hideHover: () => undefined,
+    showAndFocusLastHover: () => undefined,
+    setupManagedHover: () => null,
+    showManagedHover: () => undefined
 };
-function setBaseLayerHoverDelegate(hoverDelegate) {
-  baseHoverDelegate = hoverDelegate;
+/**
+ * Sets the hover delegate for use **only in the `base/` layer**.
+ */
+export function setBaseLayerHoverDelegate(hoverDelegate) {
+    baseHoverDelegate = hoverDelegate;
 }
-__name(setBaseLayerHoverDelegate, "setBaseLayerHoverDelegate");
-function getBaseLayerHoverDelegate() {
-  return baseHoverDelegate;
+/**
+ * Gets the hover delegate for use **only in the `base/` layer**.
+ *
+ * Since the hover service depends on various platform services, this delegate essentially bypasses
+ * the standard dependency injection mechanism by injecting a global hover service at start up. The
+ * only reason this should be used is if `IHoverService` is not available.
+ */
+export function getBaseLayerHoverDelegate() {
+    return baseHoverDelegate;
 }
-__name(getBaseLayerHoverDelegate, "getBaseLayerHoverDelegate");
-export {
-  getBaseLayerHoverDelegate,
-  setBaseLayerHoverDelegate
-};
-//# sourceMappingURL=hoverDelegate2.js.map

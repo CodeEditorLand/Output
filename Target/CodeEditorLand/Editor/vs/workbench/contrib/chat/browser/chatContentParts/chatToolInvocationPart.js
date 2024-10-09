@@ -1,100 +1,93 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as dom from "../../../../../base/browser/dom.js";
-import { Codicon } from "../../../../../base/common/codicons.js";
-import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
-import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import { localize } from "../../../../../nls.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IChatProgressMessage, IChatToolInvocation, IChatToolInvocationSerialized } from "../../common/chatService.js";
-import { IChatRendererContent } from "../../common/chatViewModel.js";
-import { ChatTreeItem } from "../chat.js";
-import { ChatConfirmationWidget } from "./chatConfirmationWidget.js";
-import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
-import { ChatProgressContentPart } from "./chatProgressContentPart.js";
-let ChatToolInvocationPart = class extends Disposable {
-  static {
-    __name(this, "ChatToolInvocationPart");
-  }
-  domNode;
-  _onDidChangeHeight = this._register(new Emitter());
-  onDidChangeHeight = this._onDidChangeHeight.event;
-  constructor(toolInvocation, context, renderer, instantiationService) {
-    super();
-    this.domNode = dom.$(".chat-tool-invocation-part");
-    const partStore = this._register(new DisposableStore());
-    const render = /* @__PURE__ */ __name(() => {
-      dom.clearNode(this.domNode);
-      const subPart = partStore.add(instantiationService.createInstance(ChatToolInvocationSubPart, toolInvocation, context, renderer));
-      this.domNode.appendChild(subPart.domNode);
-      partStore.add(subPart.onNeedsRerender(() => {
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as dom from '../../../../../base/browser/dom.js';
+import { Codicon } from '../../../../../base/common/codicons.js';
+import { Emitter } from '../../../../../base/common/event.js';
+import { Disposable, DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { MarkdownRenderer } from '../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js';
+import { localize } from '../../../../../nls.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { ChatConfirmationWidget } from './chatConfirmationWidget.js';
+import { ChatProgressContentPart } from './chatProgressContentPart.js';
+let ChatToolInvocationPart = class ChatToolInvocationPart extends Disposable {
+    constructor(toolInvocation, context, renderer, instantiationService) {
+        super();
+        this._onDidChangeHeight = this._register(new Emitter());
+        this.onDidChangeHeight = this._onDidChangeHeight.event;
+        this.domNode = dom.$('.chat-tool-invocation-part');
+        // This part is a bit different, since IChatToolInvocation is not an immutable model object. So this part is able to rerender itself.
+        // If this turns out to be a typical pattern, we could come up with a more reusable pattern, like telling the list to rerender an element
+        // when the model changes, or trying to make the model immutable and swap out one content part for a new one based on user actions in the view.
+        const partStore = this._register(new DisposableStore());
+        const render = () => {
+            dom.clearNode(this.domNode);
+            const subPart = partStore.add(instantiationService.createInstance(ChatToolInvocationSubPart, toolInvocation, context, renderer));
+            this.domNode.appendChild(subPart.domNode);
+            partStore.add(subPart.onNeedsRerender(() => {
+                render();
+                this._onDidChangeHeight.fire();
+            }));
+        };
         render();
-        this._onDidChangeHeight.fire();
-      }));
-    }, "render");
-    render();
-  }
-  hasSameContent(other, followingContent, element) {
-    return other.kind === "toolInvocation" || other.kind === "toolInvocationSerialized";
-  }
-  addDisposable(disposable) {
-    this._register(disposable);
-  }
-};
-ChatToolInvocationPart = __decorateClass([
-  __decorateParam(3, IInstantiationService)
-], ChatToolInvocationPart);
-let ChatToolInvocationSubPart = class extends Disposable {
-  static {
-    __name(this, "ChatToolInvocationSubPart");
-  }
-  domNode;
-  _onNeedsRerender = this._register(new Emitter());
-  onNeedsRerender = this._onNeedsRerender.event;
-  constructor(toolInvocation, context, renderer, instantiationService) {
-    super();
-    if (toolInvocation.kind === "toolInvocation" && toolInvocation.confirmationMessages) {
-      const title = toolInvocation.confirmationMessages.title;
-      const message = toolInvocation.confirmationMessages.message;
-      const confirmWidget = this._register(instantiationService.createInstance(
-        ChatConfirmationWidget,
-        title,
-        message,
-        [{ label: localize("continue", "Continue"), data: true }, { label: localize("cancel", "Cancel"), data: false, isSecondary: true }]
-      ));
-      this.domNode = confirmWidget.domNode;
-      this._register(confirmWidget.onDidClick((button) => {
-        toolInvocation.confirmed.complete(button.data);
-      }));
-      toolInvocation.confirmed.p.then(() => this._onNeedsRerender.fire());
-      toolInvocation.isCompleteDeferred.p.then(() => this._onNeedsRerender.fire());
-    } else {
-      const message = toolInvocation.invocationMessage + "\u2026";
-      const progressMessage = {
-        kind: "progressMessage",
-        content: { value: message }
-      };
-      const iconOverride = toolInvocation.isConfirmed === false ? Codicon.error : toolInvocation.isComplete ? Codicon.check : void 0;
-      const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, progressMessage, renderer, context, void 0, true, iconOverride));
-      this.domNode = progressPart.domNode;
     }
-  }
+    hasSameContent(other, followingContent, element) {
+        return other.kind === 'toolInvocation' || other.kind === 'toolInvocationSerialized';
+    }
+    addDisposable(disposable) {
+        this._register(disposable);
+    }
 };
-ChatToolInvocationSubPart = __decorateClass([
-  __decorateParam(3, IInstantiationService)
+ChatToolInvocationPart = __decorate([
+    __param(3, IInstantiationService),
+    __metadata("design:paramtypes", [Object, Object, MarkdownRenderer, Object])
+], ChatToolInvocationPart);
+export { ChatToolInvocationPart };
+let ChatToolInvocationSubPart = class ChatToolInvocationSubPart extends Disposable {
+    constructor(toolInvocation, context, renderer, instantiationService) {
+        super();
+        this._onNeedsRerender = this._register(new Emitter());
+        this.onNeedsRerender = this._onNeedsRerender.event;
+        if (toolInvocation.kind === 'toolInvocation' && toolInvocation.confirmationMessages) {
+            const title = toolInvocation.confirmationMessages.title;
+            const message = toolInvocation.confirmationMessages.message;
+            const confirmWidget = this._register(instantiationService.createInstance(ChatConfirmationWidget, title, message, [{ label: localize('continue', "Continue"), data: true }, { label: localize('cancel', "Cancel"), data: false, isSecondary: true }]));
+            this.domNode = confirmWidget.domNode;
+            this._register(confirmWidget.onDidClick(button => {
+                toolInvocation.confirmed.complete(button.data);
+            }));
+            toolInvocation.confirmed.p.then(() => this._onNeedsRerender.fire());
+            toolInvocation.isCompleteDeferred.p.then(() => this._onNeedsRerender.fire());
+        }
+        else {
+            const message = toolInvocation.invocationMessage + '…';
+            const progressMessage = {
+                kind: 'progressMessage',
+                content: { value: message }
+            };
+            const iconOverride = toolInvocation.isConfirmed === false ?
+                Codicon.error :
+                toolInvocation.isComplete ?
+                    Codicon.check : undefined;
+            const progressPart = this._register(instantiationService.createInstance(ChatProgressContentPart, progressMessage, renderer, context, undefined, true, iconOverride));
+            this.domNode = progressPart.domNode;
+        }
+    }
+};
+ChatToolInvocationSubPart = __decorate([
+    __param(3, IInstantiationService),
+    __metadata("design:paramtypes", [Object, Object, MarkdownRenderer, Object])
 ], ChatToolInvocationSubPart);
-export {
-  ChatToolInvocationPart
-};
-//# sourceMappingURL=chatToolInvocationPart.js.map

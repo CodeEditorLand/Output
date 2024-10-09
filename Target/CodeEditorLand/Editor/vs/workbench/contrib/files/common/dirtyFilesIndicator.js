@@ -1,70 +1,67 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { VIEWLET_ID } from "./files.js";
-import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
-import { IActivityService, NumberBadge } from "../../../services/activity/common/activity.js";
-import { IWorkingCopyService } from "../../../services/workingCopy/common/workingCopyService.js";
-import { IWorkingCopy, WorkingCopyCapabilities } from "../../../services/workingCopy/common/workingCopy.js";
-import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
-let DirtyFilesIndicator = class extends Disposable {
-  constructor(activityService, workingCopyService, filesConfigurationService) {
-    super();
-    this.activityService = activityService;
-    this.workingCopyService = workingCopyService;
-    this.filesConfigurationService = filesConfigurationService;
-    this.updateActivityBadge();
-    this.registerListeners();
-  }
-  static {
-    __name(this, "DirtyFilesIndicator");
-  }
-  static ID = "workbench.contrib.dirtyFilesIndicator";
-  badgeHandle = this._register(new MutableDisposable());
-  lastKnownDirtyCount = 0;
-  registerListeners() {
-    this._register(this.workingCopyService.onDidChangeDirty((workingCopy) => this.onWorkingCopyDidChangeDirty(workingCopy)));
-  }
-  onWorkingCopyDidChangeDirty(workingCopy) {
-    const gotDirty = workingCopy.isDirty();
-    if (gotDirty && !(workingCopy.capabilities & WorkingCopyCapabilities.Untitled) && this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource)) {
-      return;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as nls from '../../../../nls.js';
+import { VIEWLET_ID } from './files.js';
+import { Disposable, MutableDisposable } from '../../../../base/common/lifecycle.js';
+import { IActivityService, NumberBadge } from '../../../services/activity/common/activity.js';
+import { IWorkingCopyService } from '../../../services/workingCopy/common/workingCopyService.js';
+import { IFilesConfigurationService } from '../../../services/filesConfiguration/common/filesConfigurationService.js';
+let DirtyFilesIndicator = class DirtyFilesIndicator extends Disposable {
+    static { this.ID = 'workbench.contrib.dirtyFilesIndicator'; }
+    constructor(activityService, workingCopyService, filesConfigurationService) {
+        super();
+        this.activityService = activityService;
+        this.workingCopyService = workingCopyService;
+        this.filesConfigurationService = filesConfigurationService;
+        this.badgeHandle = this._register(new MutableDisposable());
+        this.lastKnownDirtyCount = 0;
+        this.updateActivityBadge();
+        this.registerListeners();
     }
-    if (gotDirty || this.lastKnownDirtyCount > 0) {
-      this.updateActivityBadge();
+    registerListeners() {
+        // Working copy dirty indicator
+        this._register(this.workingCopyService.onDidChangeDirty(workingCopy => this.onWorkingCopyDidChangeDirty(workingCopy)));
     }
-  }
-  updateActivityBadge() {
-    const dirtyCount = this.lastKnownDirtyCount = this.workingCopyService.dirtyCount;
-    if (dirtyCount > 0) {
-      this.badgeHandle.value = this.activityService.showViewContainerActivity(
-        VIEWLET_ID,
-        {
-          badge: new NumberBadge(dirtyCount, (num) => num === 1 ? nls.localize("dirtyFile", "1 unsaved file") : nls.localize("dirtyFiles", "{0} unsaved files", dirtyCount))
+    onWorkingCopyDidChangeDirty(workingCopy) {
+        const gotDirty = workingCopy.isDirty();
+        if (gotDirty && !(workingCopy.capabilities & 2 /* WorkingCopyCapabilities.Untitled */) && this.filesConfigurationService.hasShortAutoSaveDelay(workingCopy.resource)) {
+            return; // do not indicate dirty of working copies that are auto saved after short delay
         }
-      );
-    } else {
-      this.badgeHandle.clear();
+        if (gotDirty || this.lastKnownDirtyCount > 0) {
+            this.updateActivityBadge();
+        }
     }
-  }
+    updateActivityBadge() {
+        const dirtyCount = this.lastKnownDirtyCount = this.workingCopyService.dirtyCount;
+        // Indicate dirty count in badge if any
+        if (dirtyCount > 0) {
+            this.badgeHandle.value = this.activityService.showViewContainerActivity(VIEWLET_ID, {
+                badge: new NumberBadge(dirtyCount, num => num === 1 ? nls.localize('dirtyFile', "1 unsaved file") : nls.localize('dirtyFiles', "{0} unsaved files", dirtyCount)),
+            });
+        }
+        else {
+            this.badgeHandle.clear();
+        }
+    }
 };
-DirtyFilesIndicator = __decorateClass([
-  __decorateParam(0, IActivityService),
-  __decorateParam(1, IWorkingCopyService),
-  __decorateParam(2, IFilesConfigurationService)
+DirtyFilesIndicator = __decorate([
+    __param(0, IActivityService),
+    __param(1, IWorkingCopyService),
+    __param(2, IFilesConfigurationService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], DirtyFilesIndicator);
-export {
-  DirtyFilesIndicator
-};
-//# sourceMappingURL=dirtyFilesIndicator.js.map
+export { DirtyFilesIndicator };

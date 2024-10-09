@@ -1,23 +1,20 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var ColorScheme = /* @__PURE__ */ ((ColorScheme2) => {
-  ColorScheme2["DARK"] = "dark";
-  ColorScheme2["LIGHT"] = "light";
-  ColorScheme2["HIGH_CONTRAST_DARK"] = "hcDark";
-  ColorScheme2["HIGH_CONTRAST_LIGHT"] = "hcLight";
-  return ColorScheme2;
-})(ColorScheme || {});
-function isHighContrast(scheme) {
-  return scheme === "hcDark" /* HIGH_CONTRAST_DARK */ || scheme === "hcLight" /* HIGH_CONTRAST_LIGHT */;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+/**
+ * Color scheme used by the OS and by color themes.
+ */
+export var ColorScheme;
+(function (ColorScheme) {
+    ColorScheme["DARK"] = "dark";
+    ColorScheme["LIGHT"] = "light";
+    ColorScheme["HIGH_CONTRAST_DARK"] = "hcDark";
+    ColorScheme["HIGH_CONTRAST_LIGHT"] = "hcLight";
+})(ColorScheme || (ColorScheme = {}));
+export function isHighContrast(scheme) {
+    return scheme === ColorScheme.HIGH_CONTRAST_DARK || scheme === ColorScheme.HIGH_CONTRAST_LIGHT;
 }
-__name(isHighContrast, "isHighContrast");
-function isDark(scheme) {
-  return scheme === "dark" /* DARK */ || scheme === "hcDark" /* HIGH_CONTRAST_DARK */;
+export function isDark(scheme) {
+    return scheme === ColorScheme.DARK || scheme === ColorScheme.HIGH_CONTRAST_DARK;
 }
-__name(isDark, "isDark");
-export {
-  ColorScheme,
-  isDark,
-  isHighContrast
-};
-//# sourceMappingURL=theme.js.map

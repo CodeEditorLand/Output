@@ -1,35 +1,30 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable, Disposable } from "../../../../../base/common/lifecycle.js";
-class ResourcePool extends Disposable {
-  constructor(_itemFactory) {
-    super();
-    this._itemFactory = _itemFactory;
-  }
-  static {
-    __name(this, "ResourcePool");
-  }
-  pool = [];
-  _inUse = /* @__PURE__ */ new Set();
-  get inUse() {
-    return this._inUse;
-  }
-  get() {
-    if (this.pool.length > 0) {
-      const item2 = this.pool.pop();
-      this._inUse.add(item2);
-      return item2;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+export class ResourcePool extends Disposable {
+    get inUse() {
+        return this._inUse;
     }
-    const item = this._register(this._itemFactory());
-    this._inUse.add(item);
-    return item;
-  }
-  release(item) {
-    this._inUse.delete(item);
-    this.pool.push(item);
-  }
+    constructor(_itemFactory) {
+        super();
+        this._itemFactory = _itemFactory;
+        this.pool = [];
+        this._inUse = new Set;
+    }
+    get() {
+        if (this.pool.length > 0) {
+            const item = this.pool.pop();
+            this._inUse.add(item);
+            return item;
+        }
+        const item = this._register(this._itemFactory());
+        this._inUse.add(item);
+        return item;
+    }
+    release(item) {
+        this._inUse.delete(item);
+        this.pool.push(item);
+    }
 }
-export {
-  ResourcePool
-};
-//# sourceMappingURL=chatCollections.js.map

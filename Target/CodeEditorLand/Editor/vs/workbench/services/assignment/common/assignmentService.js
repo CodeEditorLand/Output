@@ -1,137 +1,122 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { MementoObject, Memento } from "../../../common/memento.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { ITelemetryData } from "../../../../base/common/actions.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IAssignmentService } from "../../../../platform/assignment/common/assignment.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { BaseAssignmentService } from "../../../../platform/assignment/common/assignmentService.js";
-import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
-import { IConfigurationRegistry, Extensions as ConfigurationExtensions, ConfigurationScope } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-const IWorkbenchAssignmentService = createDecorator("WorkbenchAssignmentService");
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { localize } from '../../../../nls.js';
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+import { Memento } from '../../../common/memento.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { BaseAssignmentService } from '../../../../platform/assignment/common/assignmentService.js';
+import { workbenchConfigurationNodeBase } from '../../../common/configuration.js';
+import { Extensions as ConfigurationExtensions } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { IEnvironmentService } from '../../../../platform/environment/common/environment.js';
+export const IWorkbenchAssignmentService = createDecorator('WorkbenchAssignmentService');
 class MementoKeyValueStorage {
-  constructor(memento) {
-    this.memento = memento;
-    this.mementoObj = memento.getMemento(StorageScope.APPLICATION, StorageTarget.MACHINE);
-  }
-  static {
-    __name(this, "MementoKeyValueStorage");
-  }
-  mementoObj;
-  async getValue(key, defaultValue) {
-    const value = await this.mementoObj[key];
-    return value || defaultValue;
-  }
-  setValue(key, value) {
-    this.mementoObj[key] = value;
-    this.memento.saveMemento();
-  }
+    constructor(memento) {
+        this.memento = memento;
+        this.mementoObj = memento.getMemento(-1 /* StorageScope.APPLICATION */, 1 /* StorageTarget.MACHINE */);
+    }
+    async getValue(key, defaultValue) {
+        const value = await this.mementoObj[key];
+        return value || defaultValue;
+    }
+    setValue(key, value) {
+        this.mementoObj[key] = value;
+        this.memento.saveMemento();
+    }
 }
 class WorkbenchAssignmentServiceTelemetry {
-  constructor(telemetryService, productService) {
-    this.telemetryService = telemetryService;
-    this.productService = productService;
-  }
-  static {
-    __name(this, "WorkbenchAssignmentServiceTelemetry");
-  }
-  _lastAssignmentContext;
-  get assignmentContext() {
-    return this._lastAssignmentContext?.split(";");
-  }
-  // __GDPR__COMMON__ "abexp.assignmentcontext" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
-  setSharedProperty(name, value) {
-    if (name === this.productService.tasConfig?.assignmentContextTelemetryPropertyName) {
-      this._lastAssignmentContext = value;
+    constructor(telemetryService, productService) {
+        this.telemetryService = telemetryService;
+        this.productService = productService;
     }
-    this.telemetryService.setExperimentProperty(name, value);
-  }
-  postEvent(eventName, props) {
-    const data = {};
-    for (const [key, value] of props.entries()) {
-      data[key] = value;
+    get assignmentContext() {
+        return this._lastAssignmentContext?.split(';');
     }
-    this.telemetryService.publicLog(eventName, data);
-  }
+    // __GDPR__COMMON__ "abexp.assignmentcontext" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
+    setSharedProperty(name, value) {
+        if (name === this.productService.tasConfig?.assignmentContextTelemetryPropertyName) {
+            this._lastAssignmentContext = value;
+        }
+        this.telemetryService.setExperimentProperty(name, value);
+    }
+    postEvent(eventName, props) {
+        const data = {};
+        for (const [key, value] of props.entries()) {
+            data[key] = value;
+        }
+        /* __GDPR__
+            "query-expfeature" : {
+                "owner": "sbatten",
+                "comment": "Logs queries to the experiment service by feature for metric calculations",
+                "ABExp.queriedFeature": { "classification": "SystemMetaData", "purpose": "FeatureInsight", "comment": "The experimental feature being queried" }
+            }
+        */
+        this.telemetryService.publicLog(eventName, data);
+    }
 }
-let WorkbenchAssignmentService = class extends BaseAssignmentService {
-  constructor(telemetryService, storageService, configurationService, productService, environmentService) {
-    super(
-      telemetryService.machineId,
-      configurationService,
-      productService,
-      environmentService,
-      new WorkbenchAssignmentServiceTelemetry(telemetryService, productService),
-      new MementoKeyValueStorage(new Memento("experiment.service.memento", storageService))
-    );
-    this.telemetryService = telemetryService;
-  }
-  static {
-    __name(this, "WorkbenchAssignmentService");
-  }
-  get experimentsEnabled() {
-    return this.configurationService.getValue("workbench.enableExperiments") === true;
-  }
-  async getTreatment(name) {
-    const result = await super.getTreatment(name);
-    this.telemetryService.publicLog2(
-      "tasClientReadTreatmentComplete",
-      { treatmentName: name, treatmentValue: JSON.stringify(result) }
-    );
-    return result;
-  }
-  async getCurrentExperiments() {
-    if (!this.tasClient) {
-      return void 0;
+let WorkbenchAssignmentService = class WorkbenchAssignmentService extends BaseAssignmentService {
+    constructor(telemetryService, storageService, configurationService, productService, environmentService) {
+        super(telemetryService.machineId, configurationService, productService, environmentService, new WorkbenchAssignmentServiceTelemetry(telemetryService, productService), new MementoKeyValueStorage(new Memento('experiment.service.memento', storageService)));
+        this.telemetryService = telemetryService;
     }
-    if (!this.experimentsEnabled) {
-      return void 0;
+    get experimentsEnabled() {
+        return this.configurationService.getValue('workbench.enableExperiments') === true;
     }
-    await this.tasClient;
-    return this.telemetry?.assignmentContext;
-  }
+    async getTreatment(name) {
+        const result = await super.getTreatment(name);
+        this.telemetryService.publicLog2('tasClientReadTreatmentComplete', { treatmentName: name, treatmentValue: JSON.stringify(result) });
+        return result;
+    }
+    async getCurrentExperiments() {
+        if (!this.tasClient) {
+            return undefined;
+        }
+        if (!this.experimentsEnabled) {
+            return undefined;
+        }
+        await this.tasClient;
+        return this.telemetry?.assignmentContext;
+    }
 };
-WorkbenchAssignmentService = __decorateClass([
-  __decorateParam(0, ITelemetryService),
-  __decorateParam(1, IStorageService),
-  __decorateParam(2, IConfigurationService),
-  __decorateParam(3, IProductService),
-  __decorateParam(4, IEnvironmentService)
+WorkbenchAssignmentService = __decorate([
+    __param(0, ITelemetryService),
+    __param(1, IStorageService),
+    __param(2, IConfigurationService),
+    __param(3, IProductService),
+    __param(4, IEnvironmentService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], WorkbenchAssignmentService);
-registerSingleton(IWorkbenchAssignmentService, WorkbenchAssignmentService, InstantiationType.Delayed);
+export { WorkbenchAssignmentService };
+registerSingleton(IWorkbenchAssignmentService, WorkbenchAssignmentService, 1 /* InstantiationType.Delayed */);
 const registry = Registry.as(ConfigurationExtensions.Configuration);
 registry.registerConfiguration({
-  ...workbenchConfigurationNodeBase,
-  "properties": {
-    "workbench.enableExperiments": {
-      "type": "boolean",
-      "description": localize("workbench.enableExperiments", "Fetches experiments to run from a Microsoft online service."),
-      "default": true,
-      "scope": ConfigurationScope.APPLICATION,
-      "restricted": true,
-      "tags": ["usesOnlineServices"]
+    ...workbenchConfigurationNodeBase,
+    'properties': {
+        'workbench.enableExperiments': {
+            'type': 'boolean',
+            'description': localize('workbench.enableExperiments', "Fetches experiments to run from a Microsoft online service."),
+            'default': true,
+            'scope': 1 /* ConfigurationScope.APPLICATION */,
+            'restricted': true,
+            'tags': ['usesOnlineServices']
+        }
     }
-  }
 });
-export {
-  IWorkbenchAssignmentService,
-  WorkbenchAssignmentService
-};
-//# sourceMappingURL=assignmentService.js.map

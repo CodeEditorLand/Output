@@ -1,4 +1,5 @@
-import { Event } from "../../../base/common/event.js";
-import { Range } from "../core/range.js";
-import { IModelDecoration } from "../model.js";
-//# sourceMappingURL=decorationProvider.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export {};

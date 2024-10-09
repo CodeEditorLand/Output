@@ -1,22 +1,14 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IUserDataSyncEnablementService, SyncResource } from "../../../../platform/userDataSync/common/userDataSync.js";
-import { UserDataSyncEnablementService as BaseUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSyncEnablementService.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-class UserDataSyncEnablementService extends BaseUserDataSyncEnablementService {
-  static {
-    __name(this, "UserDataSyncEnablementService");
-  }
-  get workbenchEnvironmentService() {
-    return this.environmentService;
-  }
-  getResourceSyncStateVersion(resource) {
-    return resource === SyncResource.Extensions ? this.workbenchEnvironmentService.options?.settingsSyncOptions?.extensionsSyncStateVersion : void 0;
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IUserDataSyncEnablementService } from '../../../../platform/userDataSync/common/userDataSync.js';
+import { UserDataSyncEnablementService as BaseUserDataSyncEnablementService } from '../../../../platform/userDataSync/common/userDataSyncEnablementService.js';
+export class UserDataSyncEnablementService extends BaseUserDataSyncEnablementService {
+    get workbenchEnvironmentService() { return this.environmentService; }
+    getResourceSyncStateVersion(resource) {
+        return resource === "extensions" /* SyncResource.Extensions */ ? this.workbenchEnvironmentService.options?.settingsSyncOptions?.extensionsSyncStateVersion : undefined;
+    }
 }
-registerSingleton(IUserDataSyncEnablementService, UserDataSyncEnablementService, InstantiationType.Delayed);
-export {
-  UserDataSyncEnablementService
-};
-//# sourceMappingURL=userDataSyncEnablementService.js.map
+registerSingleton(IUserDataSyncEnablementService, UserDataSyncEnablementService, 1 /* InstantiationType.Delayed */);

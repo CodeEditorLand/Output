@@ -1,99 +1,73 @@
-import { localize } from "../../../../nls.js";
-import { ContextKeyExpr, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { TerminalSettingId } from "../../../../platform/terminal/common/terminal.js";
-import { TERMINAL_VIEW_ID } from "./terminal.js";
-var TerminalContextKeyStrings = /* @__PURE__ */ ((TerminalContextKeyStrings2) => {
-  TerminalContextKeyStrings2["IsOpen"] = "terminalIsOpen";
-  TerminalContextKeyStrings2["Count"] = "terminalCount";
-  TerminalContextKeyStrings2["GroupCount"] = "terminalGroupCount";
-  TerminalContextKeyStrings2["TabsNarrow"] = "isTerminalTabsNarrow";
-  TerminalContextKeyStrings2["HasFixedWidth"] = "terminalHasFixedWidth";
-  TerminalContextKeyStrings2["ProcessSupported"] = "terminalProcessSupported";
-  TerminalContextKeyStrings2["Focus"] = "terminalFocus";
-  TerminalContextKeyStrings2["FocusInAny"] = "terminalFocusInAny";
-  TerminalContextKeyStrings2["AccessibleBufferFocus"] = "terminalAccessibleBufferFocus";
-  TerminalContextKeyStrings2["AccessibleBufferOnLastLine"] = "terminalAccessibleBufferOnLastLine";
-  TerminalContextKeyStrings2["EditorFocus"] = "terminalEditorFocus";
-  TerminalContextKeyStrings2["TabsFocus"] = "terminalTabsFocus";
-  TerminalContextKeyStrings2["WebExtensionContributedProfile"] = "terminalWebExtensionContributedProfile";
-  TerminalContextKeyStrings2["TerminalHasBeenCreated"] = "terminalHasBeenCreated";
-  TerminalContextKeyStrings2["TerminalEditorActive"] = "terminalEditorActive";
-  TerminalContextKeyStrings2["TabsMouse"] = "terminalTabsMouse";
-  TerminalContextKeyStrings2["AltBufferActive"] = "terminalAltBufferActive";
-  TerminalContextKeyStrings2["SuggestWidgetVisible"] = "terminalSuggestWidgetVisible";
-  TerminalContextKeyStrings2["A11yTreeFocus"] = "terminalA11yTreeFocus";
-  TerminalContextKeyStrings2["ViewShowing"] = "terminalViewShowing";
-  TerminalContextKeyStrings2["TextSelected"] = "terminalTextSelected";
-  TerminalContextKeyStrings2["TextSelectedInFocused"] = "terminalTextSelectedInFocused";
-  TerminalContextKeyStrings2["FindVisible"] = "terminalFindVisible";
-  TerminalContextKeyStrings2["FindInputFocused"] = "terminalFindInputFocused";
-  TerminalContextKeyStrings2["FindFocused"] = "terminalFindFocused";
-  TerminalContextKeyStrings2["TabsSingularSelection"] = "terminalTabsSingularSelection";
-  TerminalContextKeyStrings2["SplitTerminal"] = "terminalSplitTerminal";
-  TerminalContextKeyStrings2["ShellType"] = "terminalShellType";
-  TerminalContextKeyStrings2["InTerminalRunCommandPicker"] = "inTerminalRunCommandPicker";
-  TerminalContextKeyStrings2["TerminalShellIntegrationEnabled"] = "terminalShellIntegrationEnabled";
-  return TerminalContextKeyStrings2;
-})(TerminalContextKeyStrings || {});
-var TerminalContextKeys;
-((TerminalContextKeys2) => {
-  TerminalContextKeys2.isOpen = new RawContextKey("terminalIsOpen" /* IsOpen */, false, true);
-  TerminalContextKeys2.focus = new RawContextKey("terminalFocus" /* Focus */, false, localize("terminalFocusContextKey", "Whether the terminal is focused."));
-  TerminalContextKeys2.focusInAny = new RawContextKey("terminalFocusInAny" /* FocusInAny */, false, localize("terminalFocusInAnyContextKey", "Whether any terminal is focused, including detached terminals used in other UI."));
-  TerminalContextKeys2.editorFocus = new RawContextKey("terminalEditorFocus" /* EditorFocus */, false, localize("terminalEditorFocusContextKey", "Whether a terminal in the editor area is focused."));
-  TerminalContextKeys2.count = new RawContextKey("terminalCount" /* Count */, 0, localize("terminalCountContextKey", "The current number of terminals."));
-  TerminalContextKeys2.groupCount = new RawContextKey("terminalGroupCount" /* GroupCount */, 0, true);
-  TerminalContextKeys2.tabsNarrow = new RawContextKey("isTerminalTabsNarrow" /* TabsNarrow */, false, true);
-  TerminalContextKeys2.terminalHasFixedWidth = new RawContextKey("terminalHasFixedWidth" /* HasFixedWidth */, false, true);
-  TerminalContextKeys2.tabsFocus = new RawContextKey("terminalTabsFocus" /* TabsFocus */, false, localize("terminalTabsFocusContextKey", "Whether the terminal tabs widget is focused."));
-  TerminalContextKeys2.webExtensionContributedProfile = new RawContextKey("terminalWebExtensionContributedProfile" /* WebExtensionContributedProfile */, false, true);
-  TerminalContextKeys2.terminalHasBeenCreated = new RawContextKey("terminalHasBeenCreated" /* TerminalHasBeenCreated */, false, true);
-  TerminalContextKeys2.terminalEditorActive = new RawContextKey("terminalEditorActive" /* TerminalEditorActive */, false, true);
-  TerminalContextKeys2.tabsMouse = new RawContextKey("terminalTabsMouse" /* TabsMouse */, false, true);
-  TerminalContextKeys2.shellType = new RawContextKey("terminalShellType" /* ShellType */, void 0, { type: "string", description: localize("terminalShellTypeContextKey", "The shell type of the active terminal, this is set if the type can be detected.") });
-  TerminalContextKeys2.altBufferActive = new RawContextKey("terminalAltBufferActive" /* AltBufferActive */, false, localize("terminalAltBufferActive", "Whether the terminal's alt buffer is active."));
-  TerminalContextKeys2.suggestWidgetVisible = new RawContextKey("terminalSuggestWidgetVisible" /* SuggestWidgetVisible */, false, localize("terminalSuggestWidgetVisible", "Whether the terminal's suggest widget is visible."));
-  TerminalContextKeys2.notFocus = TerminalContextKeys2.focus.toNegated();
-  TerminalContextKeys2.viewShowing = new RawContextKey("terminalViewShowing" /* ViewShowing */, false, localize("terminalViewShowing", "Whether the terminal view is showing"));
-  TerminalContextKeys2.textSelected = new RawContextKey("terminalTextSelected" /* TextSelected */, false, localize("terminalTextSelectedContextKey", "Whether text is selected in the active terminal."));
-  TerminalContextKeys2.textSelectedInFocused = new RawContextKey("terminalTextSelectedInFocused" /* TextSelectedInFocused */, false, localize("terminalTextSelectedInFocusedContextKey", "Whether text is selected in a focused terminal."));
-  TerminalContextKeys2.notTextSelected = TerminalContextKeys2.textSelected.toNegated();
-  TerminalContextKeys2.findVisible = new RawContextKey("terminalFindVisible" /* FindVisible */, false, true);
-  TerminalContextKeys2.notFindVisible = TerminalContextKeys2.findVisible.toNegated();
-  TerminalContextKeys2.findInputFocus = new RawContextKey("terminalFindInputFocused" /* FindInputFocused */, false, true);
-  TerminalContextKeys2.findFocus = new RawContextKey("terminalFindFocused" /* FindFocused */, false, true);
-  TerminalContextKeys2.notFindFocus = TerminalContextKeys2.findInputFocus.toNegated();
-  TerminalContextKeys2.processSupported = new RawContextKey("terminalProcessSupported" /* ProcessSupported */, false, localize("terminalProcessSupportedContextKey", "Whether terminal processes can be launched in the current workspace."));
-  TerminalContextKeys2.tabsSingularSelection = new RawContextKey("terminalTabsSingularSelection" /* TabsSingularSelection */, false, localize("terminalTabsSingularSelectedContextKey", "Whether one terminal is selected in the terminal tabs list."));
-  TerminalContextKeys2.splitTerminal = new RawContextKey("terminalSplitTerminal" /* SplitTerminal */, false, localize("isSplitTerminalContextKey", "Whether the focused tab's terminal is a split terminal."));
-  TerminalContextKeys2.inTerminalRunCommandPicker = new RawContextKey("inTerminalRunCommandPicker" /* InTerminalRunCommandPicker */, false, localize("inTerminalRunCommandPickerContextKey", "Whether the terminal run command picker is currently open."));
-  TerminalContextKeys2.terminalShellIntegrationEnabled = new RawContextKey("terminalShellIntegrationEnabled" /* TerminalShellIntegrationEnabled */, false, localize("terminalShellIntegrationEnabled", "Whether shell integration is enabled in the active terminal"));
-  TerminalContextKeys2.shouldShowViewInlineActions = ContextKeyExpr.and(
-    ContextKeyExpr.equals("view", TERMINAL_VIEW_ID),
-    ContextKeyExpr.notEquals(`config.${TerminalSettingId.TabsHideCondition}`, "never"),
-    ContextKeyExpr.or(
-      ContextKeyExpr.not(`config.${TerminalSettingId.TabsEnabled}`),
-      ContextKeyExpr.and(
-        ContextKeyExpr.equals(`config.${TerminalSettingId.TabsShowActions}`, "singleTerminal"),
-        ContextKeyExpr.equals("terminalGroupCount" /* GroupCount */, 1)
-      ),
-      ContextKeyExpr.and(
-        ContextKeyExpr.equals(`config.${TerminalSettingId.TabsShowActions}`, "singleTerminalOrNarrow"),
-        ContextKeyExpr.or(
-          ContextKeyExpr.equals("terminalGroupCount" /* GroupCount */, 1),
-          ContextKeyExpr.has("isTerminalTabsNarrow" /* TabsNarrow */)
-        )
-      ),
-      ContextKeyExpr.and(
-        ContextKeyExpr.equals(`config.${TerminalSettingId.TabsShowActions}`, "singleGroup"),
-        ContextKeyExpr.equals("terminalGroupCount" /* GroupCount */, 1)
-      ),
-      ContextKeyExpr.equals(`config.${TerminalSettingId.TabsShowActions}`, "always")
-    )
-  );
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { localize } from '../../../../nls.js';
+import { ContextKeyExpr, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { TERMINAL_VIEW_ID } from './terminal.js';
+export var TerminalContextKeys;
+(function (TerminalContextKeys) {
+    /** Whether there is at least one opened terminal. */
+    TerminalContextKeys.isOpen = new RawContextKey("terminalIsOpen" /* TerminalContextKeyStrings.IsOpen */, false, true);
+    /** Whether the terminal is focused. */
+    TerminalContextKeys.focus = new RawContextKey("terminalFocus" /* TerminalContextKeyStrings.Focus */, false, localize('terminalFocusContextKey', "Whether the terminal is focused."));
+    /** Whether any terminal is focused, including detached terminals used in other UI. */
+    TerminalContextKeys.focusInAny = new RawContextKey("terminalFocusInAny" /* TerminalContextKeyStrings.FocusInAny */, false, localize('terminalFocusInAnyContextKey', "Whether any terminal is focused, including detached terminals used in other UI."));
+    /** Whether a terminal in the editor area is focused. */
+    TerminalContextKeys.editorFocus = new RawContextKey("terminalEditorFocus" /* TerminalContextKeyStrings.EditorFocus */, false, localize('terminalEditorFocusContextKey', "Whether a terminal in the editor area is focused."));
+    /** The current number of terminals. */
+    TerminalContextKeys.count = new RawContextKey("terminalCount" /* TerminalContextKeyStrings.Count */, 0, localize('terminalCountContextKey', "The current number of terminals."));
+    /** The current number of terminal groups. */
+    TerminalContextKeys.groupCount = new RawContextKey("terminalGroupCount" /* TerminalContextKeyStrings.GroupCount */, 0, true);
+    /** Whether the terminal tabs view is narrow. */
+    TerminalContextKeys.tabsNarrow = new RawContextKey("isTerminalTabsNarrow" /* TerminalContextKeyStrings.TabsNarrow */, false, true);
+    /** Whether the terminal tabs view is narrow. */
+    TerminalContextKeys.terminalHasFixedWidth = new RawContextKey("terminalHasFixedWidth" /* TerminalContextKeyStrings.HasFixedWidth */, false, true);
+    /** Whether the terminal tabs widget is focused. */
+    TerminalContextKeys.tabsFocus = new RawContextKey("terminalTabsFocus" /* TerminalContextKeyStrings.TabsFocus */, false, localize('terminalTabsFocusContextKey', "Whether the terminal tabs widget is focused."));
+    /** Whether a web extension has contributed a profile */
+    TerminalContextKeys.webExtensionContributedProfile = new RawContextKey("terminalWebExtensionContributedProfile" /* TerminalContextKeyStrings.WebExtensionContributedProfile */, false, true);
+    /** Whether at least one terminal has been created */
+    TerminalContextKeys.terminalHasBeenCreated = new RawContextKey("terminalHasBeenCreated" /* TerminalContextKeyStrings.TerminalHasBeenCreated */, false, true);
+    /** Whether at least one terminal has been created */
+    TerminalContextKeys.terminalEditorActive = new RawContextKey("terminalEditorActive" /* TerminalContextKeyStrings.TerminalEditorActive */, false, true);
+    /** Whether the mouse is within the terminal tabs list. */
+    TerminalContextKeys.tabsMouse = new RawContextKey("terminalTabsMouse" /* TerminalContextKeyStrings.TabsMouse */, false, true);
+    /** The shell type of the active terminal, this is set if the type can be detected. */
+    TerminalContextKeys.shellType = new RawContextKey("terminalShellType" /* TerminalContextKeyStrings.ShellType */, undefined, { type: 'string', description: localize('terminalShellTypeContextKey', "The shell type of the active terminal, this is set if the type can be detected.") });
+    /** Whether the terminal's alt buffer is active. */
+    TerminalContextKeys.altBufferActive = new RawContextKey("terminalAltBufferActive" /* TerminalContextKeyStrings.AltBufferActive */, false, localize('terminalAltBufferActive', "Whether the terminal's alt buffer is active."));
+    /** Whether the terminal's suggest widget is visible. */
+    TerminalContextKeys.suggestWidgetVisible = new RawContextKey("terminalSuggestWidgetVisible" /* TerminalContextKeyStrings.SuggestWidgetVisible */, false, localize('terminalSuggestWidgetVisible', "Whether the terminal's suggest widget is visible."));
+    /** Whether the terminal is NOT focused. */
+    TerminalContextKeys.notFocus = TerminalContextKeys.focus.toNegated();
+    /** Whether the terminal view is showing. */
+    TerminalContextKeys.viewShowing = new RawContextKey("terminalViewShowing" /* TerminalContextKeyStrings.ViewShowing */, false, localize('terminalViewShowing', "Whether the terminal view is showing"));
+    /** Whether text is selected in the active terminal. */
+    TerminalContextKeys.textSelected = new RawContextKey("terminalTextSelected" /* TerminalContextKeyStrings.TextSelected */, false, localize('terminalTextSelectedContextKey', "Whether text is selected in the active terminal."));
+    /** Whether text is selected in a focused terminal. `textSelected` counts text selected in an active in a terminal view or an editor, where `textSelectedInFocused` simply counts text in an element with DOM focus. */
+    TerminalContextKeys.textSelectedInFocused = new RawContextKey("terminalTextSelectedInFocused" /* TerminalContextKeyStrings.TextSelectedInFocused */, false, localize('terminalTextSelectedInFocusedContextKey', "Whether text is selected in a focused terminal."));
+    /** Whether text is NOT selected in the active terminal. */
+    TerminalContextKeys.notTextSelected = TerminalContextKeys.textSelected.toNegated();
+    /** Whether the active terminal's find widget is visible. */
+    TerminalContextKeys.findVisible = new RawContextKey("terminalFindVisible" /* TerminalContextKeyStrings.FindVisible */, false, true);
+    /** Whether the active terminal's find widget is NOT visible. */
+    TerminalContextKeys.notFindVisible = TerminalContextKeys.findVisible.toNegated();
+    /** Whether the active terminal's find widget text input is focused. */
+    TerminalContextKeys.findInputFocus = new RawContextKey("terminalFindInputFocused" /* TerminalContextKeyStrings.FindInputFocused */, false, true);
+    /** Whether an element within the active terminal's find widget is focused. */
+    TerminalContextKeys.findFocus = new RawContextKey("terminalFindFocused" /* TerminalContextKeyStrings.FindFocused */, false, true);
+    /** Whether NO elements within the active terminal's find widget is focused. */
+    TerminalContextKeys.notFindFocus = TerminalContextKeys.findInputFocus.toNegated();
+    /** Whether terminal processes can be launched in the current workspace. */
+    TerminalContextKeys.processSupported = new RawContextKey("terminalProcessSupported" /* TerminalContextKeyStrings.ProcessSupported */, false, localize('terminalProcessSupportedContextKey', "Whether terminal processes can be launched in the current workspace."));
+    /** Whether one terminal is selected in the terminal tabs list. */
+    TerminalContextKeys.tabsSingularSelection = new RawContextKey("terminalTabsSingularSelection" /* TerminalContextKeyStrings.TabsSingularSelection */, false, localize('terminalTabsSingularSelectedContextKey', "Whether one terminal is selected in the terminal tabs list."));
+    /** Whether the focused tab's terminal is a split terminal. */
+    TerminalContextKeys.splitTerminal = new RawContextKey("terminalSplitTerminal" /* TerminalContextKeyStrings.SplitTerminal */, false, localize('isSplitTerminalContextKey', "Whether the focused tab's terminal is a split terminal."));
+    /** Whether the terminal run command picker is currently open. */
+    TerminalContextKeys.inTerminalRunCommandPicker = new RawContextKey("inTerminalRunCommandPicker" /* TerminalContextKeyStrings.InTerminalRunCommandPicker */, false, localize('inTerminalRunCommandPickerContextKey', "Whether the terminal run command picker is currently open."));
+    /** Whether shell integration is enabled in the active terminal. This only considers full VS Code shell integration. */
+    TerminalContextKeys.terminalShellIntegrationEnabled = new RawContextKey("terminalShellIntegrationEnabled" /* TerminalContextKeyStrings.TerminalShellIntegrationEnabled */, false, localize('terminalShellIntegrationEnabled', "Whether shell integration is enabled in the active terminal"));
+    TerminalContextKeys.shouldShowViewInlineActions = ContextKeyExpr.and(ContextKeyExpr.equals('view', TERMINAL_VIEW_ID), ContextKeyExpr.notEquals(`config.${"terminal.integrated.tabs.hideCondition" /* TerminalSettingId.TabsHideCondition */}`, 'never'), ContextKeyExpr.or(ContextKeyExpr.not(`config.${"terminal.integrated.tabs.enabled" /* TerminalSettingId.TabsEnabled */}`), ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.tabs.showActions" /* TerminalSettingId.TabsShowActions */}`, 'singleTerminal'), ContextKeyExpr.equals("terminalGroupCount" /* TerminalContextKeyStrings.GroupCount */, 1)), ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.tabs.showActions" /* TerminalSettingId.TabsShowActions */}`, 'singleTerminalOrNarrow'), ContextKeyExpr.or(ContextKeyExpr.equals("terminalGroupCount" /* TerminalContextKeyStrings.GroupCount */, 1), ContextKeyExpr.has("isTerminalTabsNarrow" /* TerminalContextKeyStrings.TabsNarrow */))), ContextKeyExpr.and(ContextKeyExpr.equals(`config.${"terminal.integrated.tabs.showActions" /* TerminalSettingId.TabsShowActions */}`, 'singleGroup'), ContextKeyExpr.equals("terminalGroupCount" /* TerminalContextKeyStrings.GroupCount */, 1)), ContextKeyExpr.equals(`config.${"terminal.integrated.tabs.showActions" /* TerminalSettingId.TabsShowActions */}`, 'always')));
 })(TerminalContextKeys || (TerminalContextKeys = {}));
-export {
-  TerminalContextKeyStrings,
-  TerminalContextKeys
-};
-//# sourceMappingURL=terminalContextKey.js.map

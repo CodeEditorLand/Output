@@ -1,91 +1,124 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IQuickAccessController } from "./quickAccess.js";
-import { IMatch } from "../../../base/common/filters.js";
-import { IItemAccessor } from "../../../base/common/fuzzyScorer.js";
-import { ResolvedKeybinding } from "../../../base/common/keybindings.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { Schemas } from "../../../base/common/network.js";
-import Severity from "../../../base/common/severity.js";
-import { URI } from "../../../base/common/uri.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-const NO_KEY_MODS = { ctrlCmd: false, alt: false };
-var QuickInputHideReason = /* @__PURE__ */ ((QuickInputHideReason2) => {
-  QuickInputHideReason2[QuickInputHideReason2["Blur"] = 1] = "Blur";
-  QuickInputHideReason2[QuickInputHideReason2["Gesture"] = 2] = "Gesture";
-  QuickInputHideReason2[QuickInputHideReason2["Other"] = 3] = "Other";
-  return QuickInputHideReason2;
-})(QuickInputHideReason || {});
-var QuickInputType = /* @__PURE__ */ ((QuickInputType2) => {
-  QuickInputType2["QuickPick"] = "quickPick";
-  QuickInputType2["InputBox"] = "inputBox";
-  QuickInputType2["QuickWidget"] = "quickWidget";
-  return QuickInputType2;
-})(QuickInputType || {});
-var ItemActivation = /* @__PURE__ */ ((ItemActivation2) => {
-  ItemActivation2[ItemActivation2["NONE"] = 0] = "NONE";
-  ItemActivation2[ItemActivation2["FIRST"] = 1] = "FIRST";
-  ItemActivation2[ItemActivation2["SECOND"] = 2] = "SECOND";
-  ItemActivation2[ItemActivation2["LAST"] = 3] = "LAST";
-  return ItemActivation2;
-})(ItemActivation || {});
-var QuickPickFocus = /* @__PURE__ */ ((QuickPickFocus2) => {
-  QuickPickFocus2[QuickPickFocus2["First"] = 1] = "First";
-  QuickPickFocus2[QuickPickFocus2["Second"] = 2] = "Second";
-  QuickPickFocus2[QuickPickFocus2["Last"] = 3] = "Last";
-  QuickPickFocus2[QuickPickFocus2["Next"] = 4] = "Next";
-  QuickPickFocus2[QuickPickFocus2["Previous"] = 5] = "Previous";
-  QuickPickFocus2[QuickPickFocus2["NextPage"] = 6] = "NextPage";
-  QuickPickFocus2[QuickPickFocus2["PreviousPage"] = 7] = "PreviousPage";
-  QuickPickFocus2[QuickPickFocus2["NextSeparator"] = 8] = "NextSeparator";
-  QuickPickFocus2[QuickPickFocus2["PreviousSeparator"] = 9] = "PreviousSeparator";
-  return QuickPickFocus2;
-})(QuickPickFocus || {});
-var QuickInputButtonLocation = /* @__PURE__ */ ((QuickInputButtonLocation2) => {
-  QuickInputButtonLocation2[QuickInputButtonLocation2["Title"] = 1] = "Title";
-  QuickInputButtonLocation2[QuickInputButtonLocation2["Inline"] = 2] = "Inline";
-  return QuickInputButtonLocation2;
-})(QuickInputButtonLocation || {});
-class QuickPickItemScorerAccessor {
-  constructor(options) {
-    this.options = options;
-  }
-  static {
-    __name(this, "QuickPickItemScorerAccessor");
-  }
-  getItemLabel(entry) {
-    return entry.label;
-  }
-  getItemDescription(entry) {
-    if (this.options?.skipDescription) {
-      return void 0;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+import { Schemas } from '../../../base/common/network.js';
+export const NO_KEY_MODS = { ctrlCmd: false, alt: false };
+export var QuickInputHideReason;
+(function (QuickInputHideReason) {
+    /**
+     * Focus moved away from the quick input.
+     */
+    QuickInputHideReason[QuickInputHideReason["Blur"] = 1] = "Blur";
+    /**
+     * An explicit user gesture, e.g. pressing Escape key.
+     */
+    QuickInputHideReason[QuickInputHideReason["Gesture"] = 2] = "Gesture";
+    /**
+     * Anything else.
+     */
+    QuickInputHideReason[QuickInputHideReason["Other"] = 3] = "Other";
+})(QuickInputHideReason || (QuickInputHideReason = {}));
+/**
+ * Represents the activation behavior for items in a quick input. This means which item will be
+ * "active" (aka focused).
+ */
+export var ItemActivation;
+(function (ItemActivation) {
+    /**
+     * No item will be active.
+     */
+    ItemActivation[ItemActivation["NONE"] = 0] = "NONE";
+    /**
+     * First item will be active.
+     */
+    ItemActivation[ItemActivation["FIRST"] = 1] = "FIRST";
+    /**
+     * Second item will be active.
+     */
+    ItemActivation[ItemActivation["SECOND"] = 2] = "SECOND";
+    /**
+     * Last item will be active.
+     */
+    ItemActivation[ItemActivation["LAST"] = 3] = "LAST";
+})(ItemActivation || (ItemActivation = {}));
+/**
+ * Represents the focus options for a quick pick.
+ */
+export var QuickPickFocus;
+(function (QuickPickFocus) {
+    /**
+     * Focus the first item in the list.
+     */
+    QuickPickFocus[QuickPickFocus["First"] = 1] = "First";
+    /**
+     * Focus the second item in the list.
+     */
+    QuickPickFocus[QuickPickFocus["Second"] = 2] = "Second";
+    /**
+     * Focus the last item in the list.
+     */
+    QuickPickFocus[QuickPickFocus["Last"] = 3] = "Last";
+    /**
+     * Focus the next item in the list.
+     */
+    QuickPickFocus[QuickPickFocus["Next"] = 4] = "Next";
+    /**
+     * Focus the previous item in the list.
+     */
+    QuickPickFocus[QuickPickFocus["Previous"] = 5] = "Previous";
+    /**
+     * Focus the next page in the list.
+     */
+    QuickPickFocus[QuickPickFocus["NextPage"] = 6] = "NextPage";
+    /**
+     * Focus the previous page in the list.
+     */
+    QuickPickFocus[QuickPickFocus["PreviousPage"] = 7] = "PreviousPage";
+    /**
+     * Focus the first item under the next separator.
+     */
+    QuickPickFocus[QuickPickFocus["NextSeparator"] = 8] = "NextSeparator";
+    /**
+     * Focus the first item under the current separator.
+     */
+    QuickPickFocus[QuickPickFocus["PreviousSeparator"] = 9] = "PreviousSeparator";
+})(QuickPickFocus || (QuickPickFocus = {}));
+export var QuickInputButtonLocation;
+(function (QuickInputButtonLocation) {
+    /**
+     * In the title bar.
+     */
+    QuickInputButtonLocation[QuickInputButtonLocation["Title"] = 1] = "Title";
+    /**
+     * To the right of the input box.
+     */
+    QuickInputButtonLocation[QuickInputButtonLocation["Inline"] = 2] = "Inline";
+})(QuickInputButtonLocation || (QuickInputButtonLocation = {}));
+export class QuickPickItemScorerAccessor {
+    constructor(options) {
+        this.options = options;
     }
-    return entry.description;
-  }
-  getItemPath(entry) {
-    if (this.options?.skipPath) {
-      return void 0;
+    getItemLabel(entry) {
+        return entry.label;
     }
-    if (entry.resource?.scheme === Schemas.file) {
-      return entry.resource.fsPath;
+    getItemDescription(entry) {
+        if (this.options?.skipDescription) {
+            return undefined;
+        }
+        return entry.description;
     }
-    return entry.resource?.path;
-  }
+    getItemPath(entry) {
+        if (this.options?.skipPath) {
+            return undefined;
+        }
+        if (entry.resource?.scheme === Schemas.file) {
+            return entry.resource.fsPath;
+        }
+        return entry.resource?.path;
+    }
 }
-const quickPickItemScorerAccessor = new QuickPickItemScorerAccessor();
-const IQuickInputService = createDecorator("quickInputService");
-export {
-  IQuickInputService,
-  ItemActivation,
-  NO_KEY_MODS,
-  QuickInputButtonLocation,
-  QuickInputHideReason,
-  QuickInputType,
-  QuickPickFocus,
-  QuickPickItemScorerAccessor,
-  quickPickItemScorerAccessor
-};
-//# sourceMappingURL=quickInput.js.map
+export const quickPickItemScorerAccessor = new QuickPickItemScorerAccessor();
+//#endregion
+export const IQuickInputService = createDecorator('quickInputService');

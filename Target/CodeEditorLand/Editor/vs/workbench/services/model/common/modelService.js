@@ -1,45 +1,44 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ModelService } from "../../../../editor/common/services/modelService.js";
-import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IUndoRedoService } from "../../../../platform/undoRedo/common/undoRedo.js";
-import { IPathService } from "../../path/common/pathService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-let WorkbenchModelService = class extends ModelService {
-  constructor(configurationService, resourcePropertiesService, undoRedoService, _pathService, instantiationService) {
-    super(configurationService, resourcePropertiesService, undoRedoService, instantiationService);
-    this._pathService = _pathService;
-  }
-  static {
-    __name(this, "WorkbenchModelService");
-  }
-  _schemaShouldMaintainUndoRedoElements(resource) {
-    return super._schemaShouldMaintainUndoRedoElements(resource) || resource.scheme === this._pathService.defaultUriScheme;
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-WorkbenchModelService = __decorateClass([
-  __decorateParam(0, IConfigurationService),
-  __decorateParam(1, ITextResourcePropertiesService),
-  __decorateParam(2, IUndoRedoService),
-  __decorateParam(3, IPathService),
-  __decorateParam(4, IInstantiationService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ModelService } from '../../../../editor/common/services/modelService.js';
+import { ITextResourcePropertiesService } from '../../../../editor/common/services/textResourceConfiguration.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IUndoRedoService } from '../../../../platform/undoRedo/common/undoRedo.js';
+import { IPathService } from '../../path/common/pathService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+let WorkbenchModelService = class WorkbenchModelService extends ModelService {
+    constructor(configurationService, resourcePropertiesService, undoRedoService, _pathService, instantiationService) {
+        super(configurationService, resourcePropertiesService, undoRedoService, instantiationService);
+        this._pathService = _pathService;
+    }
+    _schemaShouldMaintainUndoRedoElements(resource) {
+        return (super._schemaShouldMaintainUndoRedoElements(resource)
+            || resource.scheme === this._pathService.defaultUriScheme);
+    }
+};
+WorkbenchModelService = __decorate([
+    __param(0, IConfigurationService),
+    __param(1, ITextResourcePropertiesService),
+    __param(2, IUndoRedoService),
+    __param(3, IPathService),
+    __param(4, IInstantiationService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], WorkbenchModelService);
-registerSingleton(IModelService, WorkbenchModelService, InstantiationType.Delayed);
-export {
-  WorkbenchModelService
-};
-//# sourceMappingURL=modelService.js.map
+export { WorkbenchModelService };
+registerSingleton(IModelService, WorkbenchModelService, 1 /* InstantiationType.Delayed */);

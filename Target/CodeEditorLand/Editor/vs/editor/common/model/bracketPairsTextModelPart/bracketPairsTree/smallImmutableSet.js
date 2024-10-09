@@ -1,139 +1,143 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 const emptyArr = [];
-class SmallImmutableSet {
-  constructor(items, additionalItems) {
-    this.items = items;
-    this.additionalItems = additionalItems;
-  }
-  static {
-    __name(this, "SmallImmutableSet");
-  }
-  static cache = new Array(129);
-  static create(items, additionalItems) {
-    if (items <= 128 && additionalItems.length === 0) {
-      let cached = SmallImmutableSet.cache[items];
-      if (!cached) {
-        cached = new SmallImmutableSet(items, additionalItems);
-        SmallImmutableSet.cache[items] = cached;
-      }
-      return cached;
+/**
+ * Represents an immutable set that works best for a small number of elements (less than 32).
+ * It uses bits to encode element membership efficiently.
+*/
+export class SmallImmutableSet {
+    static { this.cache = new Array(129); }
+    static create(items, additionalItems) {
+        if (items <= 128 && additionalItems.length === 0) {
+            // We create a cache of 128=2^7 elements to cover all sets with up to 7 (dense) elements.
+            let cached = SmallImmutableSet.cache[items];
+            if (!cached) {
+                cached = new SmallImmutableSet(items, additionalItems);
+                SmallImmutableSet.cache[items] = cached;
+            }
+            return cached;
+        }
+        return new SmallImmutableSet(items, additionalItems);
     }
-    return new SmallImmutableSet(items, additionalItems);
-  }
-  static empty = SmallImmutableSet.create(0, emptyArr);
-  static getEmpty() {
-    return this.empty;
-  }
-  add(value, keyProvider) {
-    const key = keyProvider.getKey(value);
-    let idx = key >> 5;
-    if (idx === 0) {
-      const newItem = 1 << key | this.items;
-      if (newItem === this.items) {
-        return this;
-      }
-      return SmallImmutableSet.create(newItem, this.additionalItems);
+    static { this.empty = SmallImmutableSet.create(0, emptyArr); }
+    static getEmpty() {
+        return this.empty;
     }
-    idx--;
-    const newItems = this.additionalItems.slice(0);
-    while (newItems.length < idx) {
-      newItems.push(0);
+    constructor(items, additionalItems) {
+        this.items = items;
+        this.additionalItems = additionalItems;
     }
-    newItems[idx] |= 1 << (key & 31);
-    return SmallImmutableSet.create(this.items, newItems);
-  }
-  has(value, keyProvider) {
-    const key = keyProvider.getKey(value);
-    let idx = key >> 5;
-    if (idx === 0) {
-      return (this.items & 1 << key) !== 0;
+    add(value, keyProvider) {
+        const key = keyProvider.getKey(value);
+        let idx = key >> 5; // divided by 32
+        if (idx === 0) {
+            // fast path
+            const newItem = (1 << key) | this.items;
+            if (newItem === this.items) {
+                return this;
+            }
+            return SmallImmutableSet.create(newItem, this.additionalItems);
+        }
+        idx--;
+        const newItems = this.additionalItems.slice(0);
+        while (newItems.length < idx) {
+            newItems.push(0);
+        }
+        newItems[idx] |= 1 << (key & 31);
+        return SmallImmutableSet.create(this.items, newItems);
     }
-    idx--;
-    return ((this.additionalItems[idx] || 0) & 1 << (key & 31)) !== 0;
-  }
-  merge(other) {
-    const merged = this.items | other.items;
-    if (this.additionalItems === emptyArr && other.additionalItems === emptyArr) {
-      if (merged === this.items) {
-        return this;
-      }
-      if (merged === other.items) {
-        return other;
-      }
-      return SmallImmutableSet.create(merged, emptyArr);
+    has(value, keyProvider) {
+        const key = keyProvider.getKey(value);
+        let idx = key >> 5; // divided by 32
+        if (idx === 0) {
+            // fast path
+            return (this.items & (1 << key)) !== 0;
+        }
+        idx--;
+        return ((this.additionalItems[idx] || 0) & (1 << (key & 31))) !== 0;
     }
-    const newItems = [];
-    for (let i = 0; i < Math.max(this.additionalItems.length, other.additionalItems.length); i++) {
-      const item1 = this.additionalItems[i] || 0;
-      const item2 = other.additionalItems[i] || 0;
-      newItems.push(item1 | item2);
+    merge(other) {
+        const merged = this.items | other.items;
+        if (this.additionalItems === emptyArr && other.additionalItems === emptyArr) {
+            // fast path
+            if (merged === this.items) {
+                return this;
+            }
+            if (merged === other.items) {
+                return other;
+            }
+            return SmallImmutableSet.create(merged, emptyArr);
+        }
+        // This can be optimized, but it's not a common case
+        const newItems = [];
+        for (let i = 0; i < Math.max(this.additionalItems.length, other.additionalItems.length); i++) {
+            const item1 = this.additionalItems[i] || 0;
+            const item2 = other.additionalItems[i] || 0;
+            newItems.push(item1 | item2);
+        }
+        return SmallImmutableSet.create(merged, newItems);
     }
-    return SmallImmutableSet.create(merged, newItems);
-  }
-  intersects(other) {
-    if ((this.items & other.items) !== 0) {
-      return true;
-    }
-    for (let i = 0; i < Math.min(this.additionalItems.length, other.additionalItems.length); i++) {
-      if ((this.additionalItems[i] & other.additionalItems[i]) !== 0) {
-        return true;
-      }
-    }
-    return false;
-  }
-  equals(other) {
-    if (this.items !== other.items) {
-      return false;
-    }
-    if (this.additionalItems.length !== other.additionalItems.length) {
-      return false;
-    }
-    for (let i = 0; i < this.additionalItems.length; i++) {
-      if (this.additionalItems[i] !== other.additionalItems[i]) {
+    intersects(other) {
+        if ((this.items & other.items) !== 0) {
+            return true;
+        }
+        for (let i = 0; i < Math.min(this.additionalItems.length, other.additionalItems.length); i++) {
+            if ((this.additionalItems[i] & other.additionalItems[i]) !== 0) {
+                return true;
+            }
+        }
         return false;
-      }
     }
-    return true;
-  }
+    equals(other) {
+        if (this.items !== other.items) {
+            return false;
+        }
+        if (this.additionalItems.length !== other.additionalItems.length) {
+            return false;
+        }
+        for (let i = 0; i < this.additionalItems.length; i++) {
+            if (this.additionalItems[i] !== other.additionalItems[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
-const identityKeyProvider = {
-  getKey(value) {
-    return value;
-  }
+export const identityKeyProvider = {
+    getKey(value) {
+        return value;
+    }
 };
-class DenseKeyProvider {
-  static {
-    __name(this, "DenseKeyProvider");
-  }
-  items = /* @__PURE__ */ new Map();
-  getKey(value) {
-    let existing = this.items.get(value);
-    if (existing === void 0) {
-      existing = this.items.size;
-      this.items.set(value, existing);
+/**
+ * Assigns values a unique incrementing key.
+*/
+export class DenseKeyProvider {
+    constructor() {
+        this.items = new Map();
     }
-    return existing;
-  }
-  reverseLookup(value) {
-    return [...this.items].find(([_key, v]) => v === value)?.[0];
-  }
-  reverseLookupSet(set) {
-    const result = [];
-    for (const [key] of this.items) {
-      if (set.has(key, this)) {
-        result.push(key);
-      }
+    getKey(value) {
+        let existing = this.items.get(value);
+        if (existing === undefined) {
+            existing = this.items.size;
+            this.items.set(value, existing);
+        }
+        return existing;
     }
-    return result;
-  }
-  keys() {
-    return this.items.keys();
-  }
+    reverseLookup(value) {
+        return [...this.items].find(([_key, v]) => v === value)?.[0];
+    }
+    reverseLookupSet(set) {
+        const result = [];
+        for (const [key] of this.items) {
+            if (set.has(key, this)) {
+                result.push(key);
+            }
+        }
+        return result;
+    }
+    keys() {
+        return this.items.keys();
+    }
 }
-export {
-  DenseKeyProvider,
-  SmallImmutableSet,
-  identityKeyProvider
-};
-//# sourceMappingURL=smallImmutableSet.js.map

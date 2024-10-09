@@ -1,218 +1,182 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { IWorkbenchEditorConfiguration, IEditorIdentifier, EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IFilesConfiguration as PlatformIFilesConfiguration, FileChangeType, IFileService } from "../../../../platform/files/common/files.js";
-import { ContextKeyExpr, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ITextModelContentProvider } from "../../../../editor/common/services/resolverService.js";
-import { Disposable, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ILanguageService, ILanguageSelection } from "../../../../editor/common/languages/language.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { InputFocusedContextKey } from "../../../../platform/contextkey/common/contextkeys.js";
-import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
-import { Event } from "../../../../base/common/event.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { localize } from "../../../../nls.js";
-import { IExpression } from "../../../../base/common/glob.js";
-const VIEWLET_ID = "workbench.view.explorer";
-const VIEW_ID = "workbench.explorer.fileView";
-const ExplorerViewletVisibleContext = new RawContextKey("explorerViewletVisible", true, { type: "boolean", description: localize("explorerViewletVisible", "True when the EXPLORER viewlet is visible.") });
-const FoldersViewVisibleContext = new RawContextKey("foldersViewVisible", true, { type: "boolean", description: localize("foldersViewVisible", "True when the FOLDERS view (the file tree within the explorer view container) is visible.") });
-const ExplorerFolderContext = new RawContextKey("explorerResourceIsFolder", false, { type: "boolean", description: localize("explorerResourceIsFolder", "True when the focused item in the EXPLORER is a folder.") });
-const ExplorerResourceReadonlyContext = new RawContextKey("explorerResourceReadonly", false, { type: "boolean", description: localize("explorerResourceReadonly", "True when the focused item in the EXPLORER is read-only.") });
-const ExplorerResourceNotReadonlyContext = ExplorerResourceReadonlyContext.toNegated();
-const ExplorerResourceAvailableEditorIdsContext = new RawContextKey("explorerResourceAvailableEditorIds", "");
-const ExplorerRootContext = new RawContextKey("explorerResourceIsRoot", false, { type: "boolean", description: localize("explorerResourceIsRoot", "True when the focused item in the EXPLORER is a root folder.") });
-const ExplorerResourceCut = new RawContextKey("explorerResourceCut", false, { type: "boolean", description: localize("explorerResourceCut", "True when an item in the EXPLORER has been cut for cut and paste.") });
-const ExplorerResourceMoveableToTrash = new RawContextKey("explorerResourceMoveableToTrash", false, { type: "boolean", description: localize("explorerResourceMoveableToTrash", "True when the focused item in the EXPLORER can be moved to trash.") });
-const FilesExplorerFocusedContext = new RawContextKey("filesExplorerFocus", true, { type: "boolean", description: localize("filesExplorerFocus", "True when the focus is inside the EXPLORER view.") });
-const OpenEditorsFocusedContext = new RawContextKey("openEditorsFocus", true, { type: "boolean", description: localize("openEditorsFocus", "True when the focus is inside the OPEN EDITORS view.") });
-const ExplorerFocusedContext = new RawContextKey("explorerViewletFocus", true, { type: "boolean", description: localize("explorerViewletFocus", "True when the focus is inside the EXPLORER viewlet.") });
-const ExplorerCompressedFocusContext = new RawContextKey("explorerViewletCompressedFocus", true, { type: "boolean", description: localize("explorerViewletCompressedFocus", "True when the focused item in the EXPLORER view is a compact item.") });
-const ExplorerCompressedFirstFocusContext = new RawContextKey("explorerViewletCompressedFirstFocus", true, { type: "boolean", description: localize("explorerViewletCompressedFirstFocus", "True when the focus is inside a compact item's first part in the EXPLORER view.") });
-const ExplorerCompressedLastFocusContext = new RawContextKey("explorerViewletCompressedLastFocus", true, { type: "boolean", description: localize("explorerViewletCompressedLastFocus", "True when the focus is inside a compact item's last part in the EXPLORER view.") });
-const ViewHasSomeCollapsibleRootItemContext = new RawContextKey("viewHasSomeCollapsibleItem", false, { type: "boolean", description: localize("viewHasSomeCollapsibleItem", "True when a workspace in the EXPLORER view has some collapsible root child.") });
-const FilesExplorerFocusCondition = ContextKeyExpr.and(FoldersViewVisibleContext, FilesExplorerFocusedContext, ContextKeyExpr.not(InputFocusedContextKey));
-const ExplorerFocusCondition = ContextKeyExpr.and(FoldersViewVisibleContext, ExplorerFocusedContext, ContextKeyExpr.not(InputFocusedContextKey));
-const TEXT_FILE_EDITOR_ID = "workbench.editors.files.textFileEditor";
-const FILE_EDITOR_INPUT_ID = "workbench.editors.files.fileEditorInput";
-const BINARY_FILE_EDITOR_ID = "workbench.editors.files.binaryFileEditor";
-const BINARY_TEXT_FILE_MODE = "code-text-binary";
-var SortOrder = /* @__PURE__ */ ((SortOrder2) => {
-  SortOrder2["Default"] = "default";
-  SortOrder2["Mixed"] = "mixed";
-  SortOrder2["FilesFirst"] = "filesFirst";
-  SortOrder2["Type"] = "type";
-  SortOrder2["Modified"] = "modified";
-  SortOrder2["FoldersNestsFiles"] = "foldersNestsFiles";
-  return SortOrder2;
-})(SortOrder || {});
-var UndoConfirmLevel = /* @__PURE__ */ ((UndoConfirmLevel2) => {
-  UndoConfirmLevel2["Verbose"] = "verbose";
-  UndoConfirmLevel2["Default"] = "default";
-  UndoConfirmLevel2["Light"] = "light";
-  return UndoConfirmLevel2;
-})(UndoConfirmLevel || {});
-var LexicographicOptions = /* @__PURE__ */ ((LexicographicOptions2) => {
-  LexicographicOptions2["Default"] = "default";
-  LexicographicOptions2["Upper"] = "upper";
-  LexicographicOptions2["Lower"] = "lower";
-  LexicographicOptions2["Unicode"] = "unicode";
-  return LexicographicOptions2;
-})(LexicographicOptions || {});
-let TextFileContentProvider = class extends Disposable {
-  constructor(textFileService, fileService, languageService, modelService) {
-    super();
-    this.textFileService = textFileService;
-    this.fileService = fileService;
-    this.languageService = languageService;
-    this.modelService = modelService;
-  }
-  static {
-    __name(this, "TextFileContentProvider");
-  }
-  fileWatcherDisposable = this._register(new MutableDisposable());
-  static async open(resource, scheme, label, editorService, options) {
-    await editorService.openEditor({
-      original: { resource: TextFileContentProvider.resourceToTextFile(scheme, resource) },
-      modified: { resource },
-      label,
-      options
-    });
-  }
-  static resourceToTextFile(scheme, resource) {
-    return resource.with({ scheme, query: JSON.stringify({ scheme: resource.scheme, query: resource.query }) });
-  }
-  static textFileToResource(resource) {
-    const { scheme, query } = JSON.parse(resource.query);
-    return resource.with({ scheme, query });
-  }
-  async provideTextContent(resource) {
-    if (!resource.query) {
-      return null;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var TextFileContentProvider_1;
+import { EditorResourceAccessor, SideBySideEditor } from '../../../common/editor.js';
+import { IFileService } from '../../../../platform/files/common/files.js';
+import { ContextKeyExpr, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { Disposable, DisposableStore, MutableDisposable } from '../../../../base/common/lifecycle.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { ITextFileService } from '../../../services/textfile/common/textfiles.js';
+import { InputFocusedContextKey } from '../../../../platform/contextkey/common/contextkeys.js';
+import { Event } from '../../../../base/common/event.js';
+import { localize } from '../../../../nls.js';
+/**
+ * Explorer viewlet id.
+ */
+export const VIEWLET_ID = 'workbench.view.explorer';
+/**
+ * Explorer file view id.
+ */
+export const VIEW_ID = 'workbench.explorer.fileView';
+/**
+ * Context Keys to use with keybindings for the Explorer and Open Editors view
+ */
+export const ExplorerViewletVisibleContext = new RawContextKey('explorerViewletVisible', true, { type: 'boolean', description: localize('explorerViewletVisible', "True when the EXPLORER viewlet is visible.") });
+export const FoldersViewVisibleContext = new RawContextKey('foldersViewVisible', true, { type: 'boolean', description: localize('foldersViewVisible', "True when the FOLDERS view (the file tree within the explorer view container) is visible.") });
+export const ExplorerFolderContext = new RawContextKey('explorerResourceIsFolder', false, { type: 'boolean', description: localize('explorerResourceIsFolder', "True when the focused item in the EXPLORER is a folder.") });
+export const ExplorerResourceReadonlyContext = new RawContextKey('explorerResourceReadonly', false, { type: 'boolean', description: localize('explorerResourceReadonly', "True when the focused item in the EXPLORER is read-only.") });
+export const ExplorerResourceNotReadonlyContext = ExplorerResourceReadonlyContext.toNegated();
+/**
+ * Comma separated list of editor ids that can be used for the selected explorer resource.
+ */
+export const ExplorerResourceAvailableEditorIdsContext = new RawContextKey('explorerResourceAvailableEditorIds', '');
+export const ExplorerRootContext = new RawContextKey('explorerResourceIsRoot', false, { type: 'boolean', description: localize('explorerResourceIsRoot', "True when the focused item in the EXPLORER is a root folder.") });
+export const ExplorerResourceCut = new RawContextKey('explorerResourceCut', false, { type: 'boolean', description: localize('explorerResourceCut', "True when an item in the EXPLORER has been cut for cut and paste.") });
+export const ExplorerResourceMoveableToTrash = new RawContextKey('explorerResourceMoveableToTrash', false, { type: 'boolean', description: localize('explorerResourceMoveableToTrash', "True when the focused item in the EXPLORER can be moved to trash.") });
+export const FilesExplorerFocusedContext = new RawContextKey('filesExplorerFocus', true, { type: 'boolean', description: localize('filesExplorerFocus', "True when the focus is inside the EXPLORER view.") });
+export const OpenEditorsFocusedContext = new RawContextKey('openEditorsFocus', true, { type: 'boolean', description: localize('openEditorsFocus', "True when the focus is inside the OPEN EDITORS view.") });
+export const ExplorerFocusedContext = new RawContextKey('explorerViewletFocus', true, { type: 'boolean', description: localize('explorerViewletFocus', "True when the focus is inside the EXPLORER viewlet.") });
+// compressed nodes
+export const ExplorerCompressedFocusContext = new RawContextKey('explorerViewletCompressedFocus', true, { type: 'boolean', description: localize('explorerViewletCompressedFocus', "True when the focused item in the EXPLORER view is a compact item.") });
+export const ExplorerCompressedFirstFocusContext = new RawContextKey('explorerViewletCompressedFirstFocus', true, { type: 'boolean', description: localize('explorerViewletCompressedFirstFocus', "True when the focus is inside a compact item's first part in the EXPLORER view.") });
+export const ExplorerCompressedLastFocusContext = new RawContextKey('explorerViewletCompressedLastFocus', true, { type: 'boolean', description: localize('explorerViewletCompressedLastFocus', "True when the focus is inside a compact item's last part in the EXPLORER view.") });
+export const ViewHasSomeCollapsibleRootItemContext = new RawContextKey('viewHasSomeCollapsibleItem', false, { type: 'boolean', description: localize('viewHasSomeCollapsibleItem', "True when a workspace in the EXPLORER view has some collapsible root child.") });
+export const FilesExplorerFocusCondition = ContextKeyExpr.and(FoldersViewVisibleContext, FilesExplorerFocusedContext, ContextKeyExpr.not(InputFocusedContextKey));
+export const ExplorerFocusCondition = ContextKeyExpr.and(FoldersViewVisibleContext, ExplorerFocusedContext, ContextKeyExpr.not(InputFocusedContextKey));
+/**
+ * Text file editor id.
+ */
+export const TEXT_FILE_EDITOR_ID = 'workbench.editors.files.textFileEditor';
+/**
+ * File editor input id.
+ */
+export const FILE_EDITOR_INPUT_ID = 'workbench.editors.files.fileEditorInput';
+/**
+ * Binary file editor id.
+ */
+export const BINARY_FILE_EDITOR_ID = 'workbench.editors.files.binaryFileEditor';
+/**
+ * Language identifier for binary files opened as text.
+ */
+export const BINARY_TEXT_FILE_MODE = 'code-text-binary';
+let TextFileContentProvider = TextFileContentProvider_1 = class TextFileContentProvider extends Disposable {
+    constructor(textFileService, fileService, languageService, modelService) {
+        super();
+        this.textFileService = textFileService;
+        this.fileService = fileService;
+        this.languageService = languageService;
+        this.modelService = modelService;
+        this.fileWatcherDisposable = this._register(new MutableDisposable());
     }
-    const savedFileResource = TextFileContentProvider.textFileToResource(resource);
-    const codeEditorModel = await this.resolveEditorModel(resource);
-    if (!this.fileWatcherDisposable.value) {
-      const disposables = new DisposableStore();
-      this.fileWatcherDisposable.value = disposables;
-      disposables.add(this.fileService.onDidFilesChange((changes) => {
-        if (changes.contains(savedFileResource, FileChangeType.UPDATED)) {
-          this.resolveEditorModel(
-            resource,
-            false
-            /* do not create if missing */
-          );
+    static async open(resource, scheme, label, editorService, options) {
+        await editorService.openEditor({
+            original: { resource: TextFileContentProvider_1.resourceToTextFile(scheme, resource) },
+            modified: { resource },
+            label,
+            options
+        });
+    }
+    static resourceToTextFile(scheme, resource) {
+        return resource.with({ scheme, query: JSON.stringify({ scheme: resource.scheme, query: resource.query }) });
+    }
+    static textFileToResource(resource) {
+        const { scheme, query } = JSON.parse(resource.query);
+        return resource.with({ scheme, query });
+    }
+    async provideTextContent(resource) {
+        if (!resource.query) {
+            // We require the URI to use the `query` to transport the original scheme and query
+            // as done by `resourceToTextFile`
+            return null;
         }
-      }));
-      if (codeEditorModel) {
-        disposables.add(Event.once(codeEditorModel.onWillDispose)(() => this.fileWatcherDisposable.clear()));
-      }
+        const savedFileResource = TextFileContentProvider_1.textFileToResource(resource);
+        // Make sure our text file is resolved up to date
+        const codeEditorModel = await this.resolveEditorModel(resource);
+        // Make sure to keep contents up to date when it changes
+        if (!this.fileWatcherDisposable.value) {
+            const disposables = new DisposableStore();
+            this.fileWatcherDisposable.value = disposables;
+            disposables.add(this.fileService.onDidFilesChange(changes => {
+                if (changes.contains(savedFileResource, 0 /* FileChangeType.UPDATED */)) {
+                    this.resolveEditorModel(resource, false /* do not create if missing */); // update model when resource changes
+                }
+            }));
+            if (codeEditorModel) {
+                disposables.add(Event.once(codeEditorModel.onWillDispose)(() => this.fileWatcherDisposable.clear()));
+            }
+        }
+        return codeEditorModel;
     }
-    return codeEditorModel;
-  }
-  async resolveEditorModel(resource, createAsNeeded = true) {
-    const savedFileResource = TextFileContentProvider.textFileToResource(resource);
-    const content = await this.textFileService.readStream(savedFileResource);
-    let codeEditorModel = this.modelService.getModel(resource);
-    if (codeEditorModel) {
-      this.modelService.updateModel(codeEditorModel, content.value);
-    } else if (createAsNeeded) {
-      const textFileModel = this.modelService.getModel(savedFileResource);
-      let languageSelector;
-      if (textFileModel) {
-        languageSelector = this.languageService.createById(textFileModel.getLanguageId());
-      } else {
-        languageSelector = this.languageService.createByFilepathOrFirstLine(savedFileResource);
-      }
-      codeEditorModel = this.modelService.createModel(content.value, languageSelector, resource);
+    async resolveEditorModel(resource, createAsNeeded = true) {
+        const savedFileResource = TextFileContentProvider_1.textFileToResource(resource);
+        const content = await this.textFileService.readStream(savedFileResource);
+        let codeEditorModel = this.modelService.getModel(resource);
+        if (codeEditorModel) {
+            this.modelService.updateModel(codeEditorModel, content.value);
+        }
+        else if (createAsNeeded) {
+            const textFileModel = this.modelService.getModel(savedFileResource);
+            let languageSelector;
+            if (textFileModel) {
+                languageSelector = this.languageService.createById(textFileModel.getLanguageId());
+            }
+            else {
+                languageSelector = this.languageService.createByFilepathOrFirstLine(savedFileResource);
+            }
+            codeEditorModel = this.modelService.createModel(content.value, languageSelector, resource);
+        }
+        return codeEditorModel;
     }
-    return codeEditorModel;
-  }
 };
-TextFileContentProvider = __decorateClass([
-  __decorateParam(0, ITextFileService),
-  __decorateParam(1, IFileService),
-  __decorateParam(2, ILanguageService),
-  __decorateParam(3, IModelService)
+TextFileContentProvider = TextFileContentProvider_1 = __decorate([
+    __param(0, ITextFileService),
+    __param(1, IFileService),
+    __param(2, ILanguageService),
+    __param(3, IModelService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], TextFileContentProvider);
-class OpenEditor {
-  constructor(_editor, _group) {
-    this._editor = _editor;
-    this._group = _group;
-    this.id = OpenEditor.COUNTER++;
-  }
-  static {
-    __name(this, "OpenEditor");
-  }
-  id;
-  static COUNTER = 0;
-  get editor() {
-    return this._editor;
-  }
-  get group() {
-    return this._group;
-  }
-  get groupId() {
-    return this._group.id;
-  }
-  getId() {
-    return `openeditor:${this.groupId}:${this.id}`;
-  }
-  isPreview() {
-    return !this._group.isPinned(this.editor);
-  }
-  isSticky() {
-    return this._group.isSticky(this.editor);
-  }
-  getResource() {
-    return EditorResourceAccessor.getOriginalUri(this.editor, { supportSideBySide: SideBySideEditor.PRIMARY });
-  }
+export { TextFileContentProvider };
+export class OpenEditor {
+    static { this.COUNTER = 0; }
+    constructor(_editor, _group) {
+        this._editor = _editor;
+        this._group = _group;
+        this.id = OpenEditor.COUNTER++;
+    }
+    get editor() {
+        return this._editor;
+    }
+    get group() {
+        return this._group;
+    }
+    get groupId() {
+        return this._group.id;
+    }
+    getId() {
+        return `openeditor:${this.groupId}:${this.id}`;
+    }
+    isPreview() {
+        return !this._group.isPinned(this.editor);
+    }
+    isSticky() {
+        return this._group.isSticky(this.editor);
+    }
+    getResource() {
+        return EditorResourceAccessor.getOriginalUri(this.editor, { supportSideBySide: SideBySideEditor.PRIMARY });
+    }
 }
-export {
-  BINARY_FILE_EDITOR_ID,
-  BINARY_TEXT_FILE_MODE,
-  ExplorerCompressedFirstFocusContext,
-  ExplorerCompressedFocusContext,
-  ExplorerCompressedLastFocusContext,
-  ExplorerFocusCondition,
-  ExplorerFocusedContext,
-  ExplorerFolderContext,
-  ExplorerResourceAvailableEditorIdsContext,
-  ExplorerResourceCut,
-  ExplorerResourceMoveableToTrash,
-  ExplorerResourceNotReadonlyContext,
-  ExplorerResourceReadonlyContext,
-  ExplorerRootContext,
-  ExplorerViewletVisibleContext,
-  FILE_EDITOR_INPUT_ID,
-  FilesExplorerFocusCondition,
-  FilesExplorerFocusedContext,
-  FoldersViewVisibleContext,
-  LexicographicOptions,
-  OpenEditor,
-  OpenEditorsFocusedContext,
-  SortOrder,
-  TEXT_FILE_EDITOR_ID,
-  TextFileContentProvider,
-  UndoConfirmLevel,
-  VIEWLET_ID,
-  VIEW_ID,
-  ViewHasSomeCollapsibleRootItemContext
-};
-//# sourceMappingURL=files.js.map

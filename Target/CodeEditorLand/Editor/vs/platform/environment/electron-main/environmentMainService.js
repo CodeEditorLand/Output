@@ -1,102 +1,103 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { memoize } from "../../../base/common/decorators.js";
-import { join } from "../../../base/common/path.js";
-import { isLinux } from "../../../base/common/platform.js";
-import { createStaticIPCHandle } from "../../../base/parts/ipc/node/ipc.net.js";
-import { IEnvironmentService, INativeEnvironmentService } from "../common/environment.js";
-import { NativeEnvironmentService } from "../node/environmentService.js";
-import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
-const IEnvironmentMainService = refineServiceDecorator(IEnvironmentService);
-class EnvironmentMainService extends NativeEnvironmentService {
-  static {
-    __name(this, "EnvironmentMainService");
-  }
-  _snapEnv = {};
-  get backupHome() {
-    return join(this.userDataPath, "Backups");
-  }
-  get mainIPCHandle() {
-    return createStaticIPCHandle(this.userDataPath, "main", this.productService.version);
-  }
-  get mainLockfile() {
-    return join(this.userDataPath, "code.lock");
-  }
-  get disableUpdates() {
-    return !!this.args["disable-updates"];
-  }
-  get crossOriginIsolated() {
-    return !!this.args["enable-coi"];
-  }
-  get codeCachePath() {
-    return process.env["VSCODE_CODE_CACHE_PATH"] || void 0;
-  }
-  get useCodeCache() {
-    return !!this.codeCachePath;
-  }
-  unsetSnapExportedVariables() {
-    if (!isLinux) {
-      return;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+import { memoize } from '../../../base/common/decorators.js';
+import { join } from '../../../base/common/path.js';
+import { isLinux } from '../../../base/common/platform.js';
+import { createStaticIPCHandle } from '../../../base/parts/ipc/node/ipc.net.js';
+import { IEnvironmentService } from '../common/environment.js';
+import { NativeEnvironmentService } from '../node/environmentService.js';
+import { refineServiceDecorator } from '../../instantiation/common/instantiation.js';
+export const IEnvironmentMainService = refineServiceDecorator(IEnvironmentService);
+export class EnvironmentMainService extends NativeEnvironmentService {
+    constructor() {
+        super(...arguments);
+        this._snapEnv = {};
     }
-    for (const key in process.env) {
-      if (key.endsWith("_VSCODE_SNAP_ORIG")) {
-        const originalKey = key.slice(0, -17);
-        if (this._snapEnv[originalKey]) {
-          continue;
+    get backupHome() { return join(this.userDataPath, 'Backups'); }
+    get mainIPCHandle() { return createStaticIPCHandle(this.userDataPath, 'main', this.productService.version); }
+    get mainLockfile() { return join(this.userDataPath, 'code.lock'); }
+    get disableUpdates() { return !!this.args['disable-updates']; }
+    get crossOriginIsolated() { return !!this.args['enable-coi']; }
+    get codeCachePath() { return process.env['VSCODE_CODE_CACHE_PATH'] || undefined; }
+    get useCodeCache() { return !!this.codeCachePath; }
+    unsetSnapExportedVariables() {
+        if (!isLinux) {
+            return;
         }
-        if (process.env[originalKey]) {
-          this._snapEnv[originalKey] = process.env[originalKey];
+        for (const key in process.env) {
+            if (key.endsWith('_VSCODE_SNAP_ORIG')) {
+                const originalKey = key.slice(0, -17); // Remove the _VSCODE_SNAP_ORIG suffix
+                if (this._snapEnv[originalKey]) {
+                    continue;
+                }
+                // Preserve the original value in case the snap env is re-entered
+                if (process.env[originalKey]) {
+                    this._snapEnv[originalKey] = process.env[originalKey];
+                }
+                // Copy the original value from before entering the snap env if available,
+                // if not delete the env variable.
+                if (process.env[key]) {
+                    process.env[originalKey] = process.env[key];
+                }
+                else {
+                    delete process.env[originalKey];
+                }
+            }
         }
-        if (process.env[key]) {
-          process.env[originalKey] = process.env[key];
-        } else {
-          delete process.env[originalKey];
+    }
+    restoreSnapExportedVariables() {
+        if (!isLinux) {
+            return;
         }
-      }
+        for (const key in this._snapEnv) {
+            process.env[key] = this._snapEnv[key];
+            delete this._snapEnv[key];
+        }
     }
-  }
-  restoreSnapExportedVariables() {
-    if (!isLinux) {
-      return;
-    }
-    for (const key in this._snapEnv) {
-      process.env[key] = this._snapEnv[key];
-      delete this._snapEnv[key];
-    }
-  }
 }
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "backupHome", 1);
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "mainIPCHandle", 1);
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "mainLockfile", 1);
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "disableUpdates", 1);
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "crossOriginIsolated", 1);
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "codeCachePath", 1);
-__decorateClass([
-  memoize
-], EnvironmentMainService.prototype, "useCodeCache", 1);
-export {
-  EnvironmentMainService,
-  IEnvironmentMainService
-};
-//# sourceMappingURL=environmentMainService.js.map
+__decorate([
+    memoize,
+    __metadata("design:type", String),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "backupHome", null);
+__decorate([
+    memoize,
+    __metadata("design:type", String),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "mainIPCHandle", null);
+__decorate([
+    memoize,
+    __metadata("design:type", String),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "mainLockfile", null);
+__decorate([
+    memoize,
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "disableUpdates", null);
+__decorate([
+    memoize,
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "crossOriginIsolated", null);
+__decorate([
+    memoize,
+    __metadata("design:type", Object),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "codeCachePath", null);
+__decorate([
+    memoize,
+    __metadata("design:type", Boolean),
+    __metadata("design:paramtypes", [])
+], EnvironmentMainService.prototype, "useCodeCache", null);

@@ -1,47 +1,57 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-function isResolvedEditorModel(model) {
-  const candidate = model;
-  return typeof candidate?.resolve === "function" && typeof candidate?.isResolved === "function";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export function isResolvedEditorModel(model) {
+    const candidate = model;
+    return typeof candidate?.resolve === 'function'
+        && typeof candidate?.isResolved === 'function';
 }
-__name(isResolvedEditorModel, "isResolvedEditorModel");
-var EditorActivation = /* @__PURE__ */ ((EditorActivation2) => {
-  EditorActivation2[EditorActivation2["ACTIVATE"] = 1] = "ACTIVATE";
-  EditorActivation2[EditorActivation2["RESTORE"] = 2] = "RESTORE";
-  EditorActivation2[EditorActivation2["PRESERVE"] = 3] = "PRESERVE";
-  return EditorActivation2;
-})(EditorActivation || {});
-var EditorResolution = /* @__PURE__ */ ((EditorResolution2) => {
-  EditorResolution2[EditorResolution2["PICK"] = 0] = "PICK";
-  EditorResolution2[EditorResolution2["EXCLUSIVE_ONLY"] = 1] = "EXCLUSIVE_ONLY";
-  return EditorResolution2;
-})(EditorResolution || {});
-var EditorOpenSource = /* @__PURE__ */ ((EditorOpenSource2) => {
-  EditorOpenSource2[EditorOpenSource2["API"] = 0] = "API";
-  EditorOpenSource2[EditorOpenSource2["USER"] = 1] = "USER";
-  return EditorOpenSource2;
-})(EditorOpenSource || {});
-var TextEditorSelectionRevealType = /* @__PURE__ */ ((TextEditorSelectionRevealType2) => {
-  TextEditorSelectionRevealType2[TextEditorSelectionRevealType2["Center"] = 0] = "Center";
-  TextEditorSelectionRevealType2[TextEditorSelectionRevealType2["CenterIfOutsideViewport"] = 1] = "CenterIfOutsideViewport";
-  TextEditorSelectionRevealType2[TextEditorSelectionRevealType2["NearTop"] = 2] = "NearTop";
-  TextEditorSelectionRevealType2[TextEditorSelectionRevealType2["NearTopIfOutsideViewport"] = 3] = "NearTopIfOutsideViewport";
-  return TextEditorSelectionRevealType2;
-})(TextEditorSelectionRevealType || {});
-var TextEditorSelectionSource = /* @__PURE__ */ ((TextEditorSelectionSource2) => {
-  TextEditorSelectionSource2["PROGRAMMATIC"] = "api";
-  TextEditorSelectionSource2["NAVIGATION"] = "code.navigation";
-  TextEditorSelectionSource2["JUMP"] = "code.jump";
-  return TextEditorSelectionSource2;
-})(TextEditorSelectionSource || {});
-export {
-  EditorActivation,
-  EditorOpenSource,
-  EditorResolution,
-  TextEditorSelectionRevealType,
-  TextEditorSelectionSource,
-  isResolvedEditorModel
-};
-//# sourceMappingURL=editor.js.map
+export var EditorActivation;
+(function (EditorActivation) {
+    /**
+     * Activate the editor after it opened. This will automatically restore
+     * the editor if it is minimized.
+     */
+    EditorActivation[EditorActivation["ACTIVATE"] = 1] = "ACTIVATE";
+    /**
+     * Only restore the editor if it is minimized but do not activate it.
+     *
+     * Note: will only work in combination with the `preserveFocus: true` option.
+     * Otherwise, if focus moves into the editor, it will activate and restore
+     * automatically.
+     */
+    EditorActivation[EditorActivation["RESTORE"] = 2] = "RESTORE";
+    /**
+     * Preserve the current active editor.
+     *
+     * Note: will only work in combination with the `preserveFocus: true` option.
+     * Otherwise, if focus moves into the editor, it will activate and restore
+     * automatically.
+     */
+    EditorActivation[EditorActivation["PRESERVE"] = 3] = "PRESERVE";
+})(EditorActivation || (EditorActivation = {}));
+export var EditorResolution;
+(function (EditorResolution) {
+    /**
+     * Displays a picker and allows the user to decide which editor to use.
+     */
+    EditorResolution[EditorResolution["PICK"] = 0] = "PICK";
+    /**
+     * Only exclusive editors are considered.
+     */
+    EditorResolution[EditorResolution["EXCLUSIVE_ONLY"] = 1] = "EXCLUSIVE_ONLY";
+})(EditorResolution || (EditorResolution = {}));
+export var EditorOpenSource;
+(function (EditorOpenSource) {
+    /**
+     * Default: the editor is opening via a programmatic call
+     * to the editor service API.
+     */
+    EditorOpenSource[EditorOpenSource["API"] = 0] = "API";
+    /**
+     * Indicates that a user action triggered the opening, e.g.
+     * via mouse or keyboard use.
+     */
+    EditorOpenSource[EditorOpenSource["USER"] = 1] = "USER";
+})(EditorOpenSource || (EditorOpenSource = {}));

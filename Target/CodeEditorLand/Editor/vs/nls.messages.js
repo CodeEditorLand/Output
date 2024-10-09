@@ -1,15 +1,16 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-function getNLSMessages() {
-  return globalThis._VSCODE_NLS_MESSAGES;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+/*
+ * This module exists so that the AMD build of the monaco editor can replace this with an async loader plugin.
+ * If you add new functions to this module make sure that they are also provided in the AMD build of the monaco editor.
+ *
+ * TODO@esm remove me once we no longer ship an AMD build.
+ */
+export function getNLSMessages() {
+    return globalThis._VSCODE_NLS_MESSAGES;
 }
-__name(getNLSMessages, "getNLSMessages");
-function getNLSLanguage() {
-  return globalThis._VSCODE_NLS_LANGUAGE;
+export function getNLSLanguage() {
+    return globalThis._VSCODE_NLS_LANGUAGE;
 }
-__name(getNLSLanguage, "getNLSLanguage");
-export {
-  getNLSLanguage,
-  getNLSMessages
-};
-//# sourceMappingURL=nls.messages.js.map

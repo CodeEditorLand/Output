@@ -1,56 +1,43 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { AnyStackFrame, CallStackFrame, CallStackWidget } from "../../../debug/browser/callStackWidget.js";
-import { ITestMessageStackFrame } from "../../common/testTypes.js";
-let TestResultStackWidget = class extends Disposable {
-  constructor(container, containingEditor, instantiationService) {
-    super();
-    this.container = container;
-    this.widget = this._register(instantiationService.createInstance(
-      CallStackWidget,
-      container,
-      containingEditor
-    ));
-  }
-  static {
-    __name(this, "TestResultStackWidget");
-  }
-  widget;
-  get onDidScroll() {
-    return this.widget.onDidScroll;
-  }
-  collapseAll() {
-    this.widget.collapseAll();
-  }
-  update(messageFrame, stack) {
-    this.widget.setFrames([messageFrame, ...stack.map((frame) => new CallStackFrame(
-      frame.label,
-      frame.uri,
-      frame.position?.lineNumber,
-      frame.position?.column
-    ))]);
-  }
-  layout(height, width) {
-    this.widget.layout(height ?? this.container.clientHeight, width);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-TestResultStackWidget = __decorateClass([
-  __decorateParam(2, IInstantiationService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../../../../platform/instantiation/common/instantiation.js';
+import { CallStackFrame, CallStackWidget } from '../../../debug/browser/callStackWidget.js';
+let TestResultStackWidget = class TestResultStackWidget extends Disposable {
+    get onDidScroll() {
+        return this.widget.onDidScroll;
+    }
+    constructor(container, containingEditor, instantiationService) {
+        super();
+        this.container = container;
+        this.widget = this._register(instantiationService.createInstance(CallStackWidget, container, containingEditor));
+    }
+    collapseAll() {
+        this.widget.collapseAll();
+    }
+    update(messageFrame, stack) {
+        this.widget.setFrames([messageFrame, ...stack.map(frame => new CallStackFrame(frame.label, frame.uri, frame.position?.lineNumber, frame.position?.column))]);
+    }
+    layout(height, width) {
+        this.widget.layout(height ?? this.container.clientHeight, width);
+    }
+};
+TestResultStackWidget = __decorate([
+    __param(2, IInstantiationService),
+    __metadata("design:paramtypes", [HTMLElement, Object, Object])
 ], TestResultStackWidget);
-export {
-  TestResultStackWidget
-};
-//# sourceMappingURL=testMessageStack.js.map
+export { TestResultStackWidget };

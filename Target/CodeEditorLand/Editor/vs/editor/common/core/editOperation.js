@@ -1,39 +1,33 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Position } from "./position.js";
-import { IRange, Range } from "./range.js";
-class EditOperation {
-  static {
-    __name(this, "EditOperation");
-  }
-  static insert(position, text) {
-    return {
-      range: new Range(position.lineNumber, position.column, position.lineNumber, position.column),
-      text,
-      forceMoveMarkers: true
-    };
-  }
-  static delete(range) {
-    return {
-      range,
-      text: null
-    };
-  }
-  static replace(range, text) {
-    return {
-      range,
-      text
-    };
-  }
-  static replaceMove(range, text) {
-    return {
-      range,
-      text,
-      forceMoveMarkers: true
-    };
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Range } from './range.js';
+export class EditOperation {
+    static insert(position, text) {
+        return {
+            range: new Range(position.lineNumber, position.column, position.lineNumber, position.column),
+            text: text,
+            forceMoveMarkers: true
+        };
+    }
+    static delete(range) {
+        return {
+            range: range,
+            text: null
+        };
+    }
+    static replace(range, text) {
+        return {
+            range: range,
+            text: text
+        };
+    }
+    static replaceMove(range, text) {
+        return {
+            range: range,
+            text: text,
+            forceMoveMarkers: true
+        };
+    }
 }
-export {
-  EditOperation
-};
-//# sourceMappingURL=editOperation.js.map

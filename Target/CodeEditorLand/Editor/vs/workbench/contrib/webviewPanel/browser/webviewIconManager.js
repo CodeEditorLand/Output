@@ -1,79 +1,76 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as dom from "../../../../base/browser/dom.js";
-import * as cssJs from "../../../../base/browser/cssValue.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILifecycleService, LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-let WebviewIconManager = class extends Disposable {
-  constructor(_lifecycleService, _configService) {
-    super();
-    this._lifecycleService = _lifecycleService;
-    this._configService = _configService;
-    this._register(this._configService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("workbench.iconTheme")) {
-        this.updateStyleSheet();
-      }
-    }));
-  }
-  static {
-    __name(this, "WebviewIconManager");
-  }
-  _icons = /* @__PURE__ */ new Map();
-  _styleElement;
-  dispose() {
-    super.dispose();
-    this._styleElement = void 0;
-  }
-  get styleElement() {
-    if (!this._styleElement) {
-      this._styleElement = dom.createStyleSheet(void 0, void 0, this._store);
-      this._styleElement.className = "webview-icons";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as dom from '../../../../base/browser/dom.js';
+import * as cssJs from '../../../../base/browser/cssValue.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { ILifecycleService } from '../../../services/lifecycle/common/lifecycle.js';
+let WebviewIconManager = class WebviewIconManager extends Disposable {
+    constructor(_lifecycleService, _configService) {
+        super();
+        this._lifecycleService = _lifecycleService;
+        this._configService = _configService;
+        this._icons = new Map();
+        this._register(this._configService.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration('workbench.iconTheme')) {
+                this.updateStyleSheet();
+            }
+        }));
     }
-    return this._styleElement;
-  }
-  setIcons(webviewId, iconPath) {
-    if (iconPath) {
-      this._icons.set(webviewId, iconPath);
-    } else {
-      this._icons.delete(webviewId);
+    dispose() {
+        super.dispose();
+        this._styleElement = undefined;
     }
-    this.updateStyleSheet();
-  }
-  async updateStyleSheet() {
-    await this._lifecycleService.when(LifecyclePhase.Starting);
-    const cssRules = [];
-    if (this._configService.getValue("workbench.iconTheme") !== null) {
-      for (const [key, value] of this._icons) {
-        const webviewSelector = `.show-file-icons .webview-${key}-name-file-icon::before`;
-        try {
-          cssRules.push(
-            `.monaco-workbench.vs ${webviewSelector}, .monaco-workbench.hc-light ${webviewSelector} { content: ""; background-image: ${cssJs.asCSSUrl(value.light)}; }`,
-            `.monaco-workbench.vs-dark ${webviewSelector}, .monaco-workbench.hc-black ${webviewSelector} { content: ""; background-image: ${cssJs.asCSSUrl(value.dark)}; }`
-          );
-        } catch {
+    get styleElement() {
+        if (!this._styleElement) {
+            this._styleElement = dom.createStyleSheet(undefined, undefined, this._store);
+            this._styleElement.className = 'webview-icons';
         }
-      }
+        return this._styleElement;
     }
-    this.styleElement.textContent = cssRules.join("\n");
-  }
+    setIcons(webviewId, iconPath) {
+        if (iconPath) {
+            this._icons.set(webviewId, iconPath);
+        }
+        else {
+            this._icons.delete(webviewId);
+        }
+        this.updateStyleSheet();
+    }
+    async updateStyleSheet() {
+        await this._lifecycleService.when(1 /* LifecyclePhase.Starting */);
+        const cssRules = [];
+        if (this._configService.getValue('workbench.iconTheme') !== null) {
+            for (const [key, value] of this._icons) {
+                const webviewSelector = `.show-file-icons .webview-${key}-name-file-icon::before`;
+                try {
+                    cssRules.push(`.monaco-workbench.vs ${webviewSelector}, .monaco-workbench.hc-light ${webviewSelector} { content: ""; background-image: ${cssJs.asCSSUrl(value.light)}; }`, `.monaco-workbench.vs-dark ${webviewSelector}, .monaco-workbench.hc-black ${webviewSelector} { content: ""; background-image: ${cssJs.asCSSUrl(value.dark)}; }`);
+                }
+                catch {
+                    // noop
+                }
+            }
+        }
+        this.styleElement.textContent = cssRules.join('\n');
+    }
 };
-WebviewIconManager = __decorateClass([
-  __decorateParam(0, ILifecycleService),
-  __decorateParam(1, IConfigurationService)
+WebviewIconManager = __decorate([
+    __param(0, ILifecycleService),
+    __param(1, IConfigurationService),
+    __metadata("design:paramtypes", [Object, Object])
 ], WebviewIconManager);
-export {
-  WebviewIconManager
-};
-//# sourceMappingURL=webviewIconManager.js.map
+export { WebviewIconManager };

@@ -1,32 +1,28 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { SerializedError, onUnexpectedError, transformErrorFromSerialization } from "../../../base/common/errors.js";
-import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-import { MainContext, MainThreadErrorsShape } from "../common/extHost.protocol.js";
-let MainThreadErrors = class {
-  dispose() {
-  }
-  $onUnexpectedError(err) {
-    if (err && err.$isError) {
-      err = transformErrorFromSerialization(err);
+import { onUnexpectedError, transformErrorFromSerialization } from '../../../base/common/errors.js';
+import { extHostNamedCustomer } from '../../services/extensions/common/extHostCustomers.js';
+import { MainContext } from '../common/extHost.protocol.js';
+let MainThreadErrors = class MainThreadErrors {
+    dispose() {
+        //
     }
-    onUnexpectedError(err);
-  }
+    $onUnexpectedError(err) {
+        if (err && err.$isError) {
+            err = transformErrorFromSerialization(err);
+        }
+        onUnexpectedError(err);
+    }
 };
-__name(MainThreadErrors, "MainThreadErrors");
-MainThreadErrors = __decorateClass([
-  extHostNamedCustomer(MainContext.MainThreadErrors)
+MainThreadErrors = __decorate([
+    extHostNamedCustomer(MainContext.MainThreadErrors)
 ], MainThreadErrors);
-export {
-  MainThreadErrors
-};
-//# sourceMappingURL=mainThreadErrors.js.map
+export { MainThreadErrors };

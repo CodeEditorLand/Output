@@ -1,151 +1,185 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ShutdownReason, ILifecycleService, StartupKind } from "../common/lifecycle.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { AbstractLifecycleService } from "../common/lifecycleService.js";
-import { localize } from "../../../../nls.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { addDisposableListener, EventType } from "../../../../base/browser/dom.js";
-import { IStorageService, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { mainWindow } from "../../../../base/browser/window.js";
-let BrowserLifecycleService = class extends AbstractLifecycleService {
-  static {
-    __name(this, "BrowserLifecycleService");
-  }
-  beforeUnloadListener = void 0;
-  unloadListener = void 0;
-  ignoreBeforeUnload = false;
-  didUnload = false;
-  constructor(logService, storageService) {
-    super(logService, storageService);
-    this.registerListeners();
-  }
-  registerListeners() {
-    this.beforeUnloadListener = addDisposableListener(mainWindow, EventType.BEFORE_UNLOAD, (e) => this.onBeforeUnload(e));
-    this.unloadListener = addDisposableListener(mainWindow, EventType.PAGE_HIDE, () => this.onUnload());
-  }
-  onBeforeUnload(event) {
-    if (this.ignoreBeforeUnload) {
-      this.logService.info("[lifecycle] onBeforeUnload triggered but ignored once");
-      this.ignoreBeforeUnload = false;
-    } else {
-      this.logService.info("[lifecycle] onBeforeUnload triggered and handled with veto support");
-      this.doShutdown(() => this.vetoBeforeUnload(event));
-    }
-  }
-  vetoBeforeUnload(event) {
-    event.preventDefault();
-    event.returnValue = localize("lifecycleVeto", "Changes that you made may not be saved. Please check press 'Cancel' and try again.");
-  }
-  withExpectedShutdown(reason, callback) {
-    if (typeof reason === "number") {
-      this.shutdownReason = reason;
-      return this.storageService.flush(WillSaveStateReason.SHUTDOWN);
-    } else {
-      this.ignoreBeforeUnload = true;
-      try {
-        callback?.();
-      } finally {
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { ILifecycleService } from '../common/lifecycle.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+import { AbstractLifecycleService } from '../common/lifecycleService.js';
+import { localize } from '../../../../nls.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { addDisposableListener, EventType } from '../../../../base/browser/dom.js';
+import { IStorageService, WillSaveStateReason } from '../../../../platform/storage/common/storage.js';
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { mainWindow } from '../../../../base/browser/window.js';
+let BrowserLifecycleService = class BrowserLifecycleService extends AbstractLifecycleService {
+    constructor(logService, storageService) {
+        super(logService, storageService);
+        this.beforeUnloadListener = undefined;
+        this.unloadListener = undefined;
         this.ignoreBeforeUnload = false;
-      }
+        this.didUnload = false;
+        this.registerListeners();
     }
-  }
-  async shutdown() {
-    this.logService.info("[lifecycle] shutdown triggered");
-    this.beforeUnloadListener?.dispose();
-    this.unloadListener?.dispose();
-    await this.storageService.flush(WillSaveStateReason.SHUTDOWN);
-    this.doShutdown();
-  }
-  doShutdown(vetoShutdown) {
-    const logService = this.logService;
-    this.storageService.flush(WillSaveStateReason.SHUTDOWN);
-    let veto = false;
-    function handleVeto(vetoResult, id) {
-      if (typeof vetoShutdown !== "function") {
-        return;
-      }
-      if (vetoResult instanceof Promise) {
-        logService.error(`[lifecycle] Long running operations before shutdown are unsupported in the web (id: ${id})`);
-        veto = true;
-      }
-      if (vetoResult === true) {
-        logService.info(`[lifecycle]: Unload was prevented (id: ${id})`);
-        veto = true;
-      }
+    registerListeners() {
+        // Listen to `beforeUnload` to support to veto
+        this.beforeUnloadListener = addDisposableListener(mainWindow, EventType.BEFORE_UNLOAD, (e) => this.onBeforeUnload(e));
+        // Listen to `pagehide` to support orderly shutdown
+        // We explicitly do not listen to `unload` event
+        // which would disable certain browser caching.
+        // We currently do not handle the `persisted` property
+        // (https://github.com/microsoft/vscode/issues/136216)
+        this.unloadListener = addDisposableListener(mainWindow, EventType.PAGE_HIDE, () => this.onUnload());
     }
-    __name(handleVeto, "handleVeto");
-    this._onBeforeShutdown.fire({
-      reason: ShutdownReason.QUIT,
-      veto(value, id) {
-        handleVeto(value, id);
-      },
-      finalVeto(valueFn, id) {
-        handleVeto(valueFn(), id);
-      }
-    });
-    if (veto && typeof vetoShutdown === "function") {
-      return vetoShutdown();
+    onBeforeUnload(event) {
+        // Before unload ignored (once)
+        if (this.ignoreBeforeUnload) {
+            this.logService.info('[lifecycle] onBeforeUnload triggered but ignored once');
+            this.ignoreBeforeUnload = false;
+        }
+        // Before unload with veto support
+        else {
+            this.logService.info('[lifecycle] onBeforeUnload triggered and handled with veto support');
+            this.doShutdown(() => this.vetoBeforeUnload(event));
+        }
     }
-    return this.onUnload();
-  }
-  onUnload() {
-    if (this.didUnload) {
-      return;
+    vetoBeforeUnload(event) {
+        event.preventDefault();
+        event.returnValue = localize('lifecycleVeto', "Changes that you made may not be saved. Please check press 'Cancel' and try again.");
     }
-    this.didUnload = true;
-    this._register(addDisposableListener(mainWindow, EventType.PAGE_SHOW, (e) => this.onLoadAfterUnload(e)));
-    const logService = this.logService;
-    this._onWillShutdown.fire({
-      reason: ShutdownReason.QUIT,
-      joiners: /* @__PURE__ */ __name(() => [], "joiners"),
-      // Unsupported in web
-      token: CancellationToken.None,
-      // Unsupported in web
-      join(promise, joiner) {
-        logService.error(`[lifecycle] Long running operations during shutdown are unsupported in the web (id: ${joiner.id})`);
-      },
-      force: /* @__PURE__ */ __name(() => {
-      }, "force")
-    });
-    this._onDidShutdown.fire();
-  }
-  onLoadAfterUnload(event) {
-    const wasRestoredFromCache = event.persisted;
-    if (!wasRestoredFromCache) {
-      return;
+    withExpectedShutdown(reason, callback) {
+        // Standard shutdown
+        if (typeof reason === 'number') {
+            this.shutdownReason = reason;
+            // Ensure UI state is persisted
+            return this.storageService.flush(WillSaveStateReason.SHUTDOWN);
+        }
+        // Before unload handling ignored for duration of callback
+        else {
+            this.ignoreBeforeUnload = true;
+            try {
+                callback?.();
+            }
+            finally {
+                this.ignoreBeforeUnload = false;
+            }
+        }
     }
-    this.withExpectedShutdown({ disableShutdownHandling: true }, () => mainWindow.location.reload());
-  }
-  doResolveStartupKind() {
-    let startupKind = super.doResolveStartupKind();
-    if (typeof startupKind !== "number") {
-      const timing = performance.getEntriesByType("navigation").at(0);
-      if (timing?.type === "reload") {
-        startupKind = StartupKind.ReloadedWindow;
-      }
+    async shutdown() {
+        this.logService.info('[lifecycle] shutdown triggered');
+        // An explicit shutdown renders our unload
+        // event handlers disabled, so dispose them.
+        this.beforeUnloadListener?.dispose();
+        this.unloadListener?.dispose();
+        // Ensure UI state is persisted
+        await this.storageService.flush(WillSaveStateReason.SHUTDOWN);
+        // Handle shutdown without veto support
+        this.doShutdown();
     }
-    return startupKind;
-  }
+    doShutdown(vetoShutdown) {
+        const logService = this.logService;
+        // Optimistically trigger a UI state flush
+        // without waiting for it. The browser does
+        // not guarantee that this is being executed
+        // but if a dialog opens, we have a chance
+        // to succeed.
+        this.storageService.flush(WillSaveStateReason.SHUTDOWN);
+        let veto = false;
+        function handleVeto(vetoResult, id) {
+            if (typeof vetoShutdown !== 'function') {
+                return; // veto handling disabled
+            }
+            if (vetoResult instanceof Promise) {
+                logService.error(`[lifecycle] Long running operations before shutdown are unsupported in the web (id: ${id})`);
+                veto = true; // implicitly vetos since we cannot handle promises in web
+            }
+            if (vetoResult === true) {
+                logService.info(`[lifecycle]: Unload was prevented (id: ${id})`);
+                veto = true;
+            }
+        }
+        // Before Shutdown
+        this._onBeforeShutdown.fire({
+            reason: 2 /* ShutdownReason.QUIT */,
+            veto(value, id) {
+                handleVeto(value, id);
+            },
+            finalVeto(valueFn, id) {
+                handleVeto(valueFn(), id); // in browser, trigger instantly because we do not support async anyway
+            }
+        });
+        // Veto: handle if provided
+        if (veto && typeof vetoShutdown === 'function') {
+            return vetoShutdown();
+        }
+        // No veto, continue to shutdown
+        return this.onUnload();
+    }
+    onUnload() {
+        if (this.didUnload) {
+            return; // only once
+        }
+        this.didUnload = true;
+        // Register a late `pageshow` listener specifically on unload
+        this._register(addDisposableListener(mainWindow, EventType.PAGE_SHOW, (e) => this.onLoadAfterUnload(e)));
+        // First indicate will-shutdown
+        const logService = this.logService;
+        this._onWillShutdown.fire({
+            reason: 2 /* ShutdownReason.QUIT */,
+            joiners: () => [], // Unsupported in web
+            token: CancellationToken.None, // Unsupported in web
+            join(promise, joiner) {
+                logService.error(`[lifecycle] Long running operations during shutdown are unsupported in the web (id: ${joiner.id})`);
+            },
+            force: () => { },
+        });
+        // Finally end with did-shutdown
+        this._onDidShutdown.fire();
+    }
+    onLoadAfterUnload(event) {
+        // We only really care about page-show events
+        // where the browser indicates to us that the
+        // page was restored from cache and not freshly
+        // loaded.
+        const wasRestoredFromCache = event.persisted;
+        if (!wasRestoredFromCache) {
+            return;
+        }
+        // At this point, we know that the page was restored from
+        // cache even though it was unloaded before,
+        // so in order to get back to a functional workbench, we
+        // currently can only reload the window
+        // Docs: https://web.dev/bfcache/#optimize-your-pages-for-bfcache
+        // Refs: https://github.com/microsoft/vscode/issues/136035
+        this.withExpectedShutdown({ disableShutdownHandling: true }, () => mainWindow.location.reload());
+    }
+    doResolveStartupKind() {
+        let startupKind = super.doResolveStartupKind();
+        if (typeof startupKind !== 'number') {
+            const timing = performance.getEntriesByType('navigation').at(0);
+            if (timing?.type === 'reload') {
+                // MDN: https://developer.mozilla.org/en-US/docs/Web/API/PerformanceNavigationTiming/type#value
+                startupKind = 3 /* StartupKind.ReloadedWindow */;
+            }
+        }
+        return startupKind;
+    }
 };
-BrowserLifecycleService = __decorateClass([
-  __decorateParam(0, ILogService),
-  __decorateParam(1, IStorageService)
+BrowserLifecycleService = __decorate([
+    __param(0, ILogService),
+    __param(1, IStorageService),
+    __metadata("design:paramtypes", [Object, Object])
 ], BrowserLifecycleService);
-registerSingleton(ILifecycleService, BrowserLifecycleService, InstantiationType.Eager);
-export {
-  BrowserLifecycleService
-};
-//# sourceMappingURL=lifecycleService.js.map
+export { BrowserLifecycleService };
+registerSingleton(ILifecycleService, BrowserLifecycleService, 0 /* InstantiationType.Eager */);

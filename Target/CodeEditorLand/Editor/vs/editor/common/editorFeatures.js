@@ -1,17 +1,15 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { BrandedService, IConstructorSignature } from "../../platform/instantiation/common/instantiation.js";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 const editorFeatures = [];
-function registerEditorFeature(ctor) {
-  editorFeatures.push(ctor);
+/**
+ * Registers an editor feature. Editor features will be instantiated only once, as soon as
+ * the first code editor is instantiated.
+ */
+export function registerEditorFeature(ctor) {
+    editorFeatures.push(ctor);
 }
-__name(registerEditorFeature, "registerEditorFeature");
-function getEditorFeatures() {
-  return editorFeatures.slice(0);
+export function getEditorFeatures() {
+    return editorFeatures.slice(0);
 }
-__name(getEditorFeatures, "getEditorFeatures");
-export {
-  getEditorFeatures,
-  registerEditorFeature
-};
-//# sourceMappingURL=editorFeatures.js.map

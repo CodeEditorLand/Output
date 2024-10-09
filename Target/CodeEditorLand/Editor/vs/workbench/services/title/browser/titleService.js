@@ -1,8 +1,6 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IAuxiliaryTitlebarPart, ITitlebarPart } from "../../../browser/parts/titlebar/titlebarPart.js";
-import { IEditorGroupsContainer } from "../../editor/common/editorGroupsService.js";
-const ITitleService = createDecorator("titleService");
-export {
-  ITitleService
-};
-//# sourceMappingURL=titleService.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export const ITitleService = createDecorator('titleService');

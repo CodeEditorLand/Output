@@ -1,45 +1,39 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { ITerminalWidget } from "./widgets.js";
-class TerminalWidgetManager {
-  static {
-    __name(this, "TerminalWidgetManager");
-  }
-  _container;
-  _attached = /* @__PURE__ */ new Map();
-  attachToElement(terminalWrapper) {
-    if (!this._container) {
-      this._container = document.createElement("div");
-      this._container.classList.add("terminal-widget-container");
-      terminalWrapper.appendChild(this._container);
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class TerminalWidgetManager {
+    constructor() {
+        this._attached = new Map();
     }
-  }
-  dispose() {
-    if (this._container) {
-      this._container.remove();
-      this._container = void 0;
-    }
-  }
-  attachWidget(widget) {
-    if (!this._container) {
-      return;
-    }
-    this._attached.get(widget.id)?.dispose();
-    widget.attach(this._container);
-    this._attached.set(widget.id, widget);
-    return {
-      dispose: /* @__PURE__ */ __name(() => {
-        const current = this._attached.get(widget.id);
-        if (current === widget) {
-          this._attached.delete(widget.id);
-          widget.dispose();
+    attachToElement(terminalWrapper) {
+        if (!this._container) {
+            this._container = document.createElement('div');
+            this._container.classList.add('terminal-widget-container');
+            terminalWrapper.appendChild(this._container);
         }
-      }, "dispose")
-    };
-  }
+    }
+    dispose() {
+        if (this._container) {
+            this._container.remove();
+            this._container = undefined;
+        }
+    }
+    attachWidget(widget) {
+        if (!this._container) {
+            return;
+        }
+        this._attached.get(widget.id)?.dispose();
+        widget.attach(this._container);
+        this._attached.set(widget.id, widget);
+        return {
+            dispose: () => {
+                const current = this._attached.get(widget.id);
+                if (current === widget) {
+                    this._attached.delete(widget.id);
+                    widget.dispose();
+                }
+            }
+        };
+    }
 }
-export {
-  TerminalWidgetManager
-};
-//# sourceMappingURL=widgetManager.js.map

@@ -1,74 +1,67 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
-import { CountTokensCallback, ILanguageModelToolsService, IToolData, IToolInvocation, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
-import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-import { ExtHostContext, ExtHostLanguageModelToolsShape, MainContext, MainThreadLanguageModelToolsShape } from "../common/extHost.protocol.js";
-let MainThreadLanguageModelTools = class extends Disposable {
-  constructor(extHostContext, _languageModelToolsService) {
-    super();
-    this._languageModelToolsService = _languageModelToolsService;
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageModelTools);
-    this._register(this._languageModelToolsService.onDidChangeTools((e) => this._proxy.$onDidChangeTools([...this._languageModelToolsService.getTools()])));
-  }
-  _proxy;
-  _tools = this._register(new DisposableMap());
-  _countTokenCallbacks = /* @__PURE__ */ new Map();
-  async $getTools() {
-    return Array.from(this._languageModelToolsService.getTools());
-  }
-  async $invokeTool(dto, token) {
-    return await this._languageModelToolsService.invokeTool(
-      dto,
-      (input, token2) => this._proxy.$countTokensForInvocation(dto.callId, input, token2),
-      token
-    );
-  }
-  $countTokensForInvocation(callId, input, token) {
-    const fn = this._countTokenCallbacks.get(callId);
-    if (!fn) {
-      throw new Error(`Tool invocation call ${callId} not found`);
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable, DisposableMap } from '../../../base/common/lifecycle.js';
+import { ILanguageModelToolsService } from '../../contrib/chat/common/languageModelToolsService.js';
+import { extHostNamedCustomer } from '../../services/extensions/common/extHostCustomers.js';
+import { ExtHostContext, MainContext } from '../common/extHost.protocol.js';
+let MainThreadLanguageModelTools = class MainThreadLanguageModelTools extends Disposable {
+    constructor(extHostContext, _languageModelToolsService) {
+        super();
+        this._languageModelToolsService = _languageModelToolsService;
+        this._tools = this._register(new DisposableMap());
+        this._countTokenCallbacks = new Map();
+        this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageModelTools);
+        this._register(this._languageModelToolsService.onDidChangeTools(e => this._proxy.$onDidChangeTools([...this._languageModelToolsService.getTools()])));
     }
-    return fn(input, token);
-  }
-  $registerTool(id) {
-    const disposable = this._languageModelToolsService.registerToolImplementation(
-      id,
-      {
-        invoke: /* @__PURE__ */ __name(async (dto, countTokens, token) => {
-          try {
-            this._countTokenCallbacks.set(dto.callId, countTokens);
-            return await this._proxy.$invokeTool(dto, token);
-          } finally {
-            this._countTokenCallbacks.delete(dto.callId);
-          }
-        }, "invoke"),
-        prepareToolInvocation: /* @__PURE__ */ __name((participantName, parameters, token) => this._proxy.$prepareToolInvocation(id, participantName, parameters, token), "prepareToolInvocation")
-      }
-    );
-    this._tools.set(id, disposable);
-  }
-  $unregisterTool(name) {
-    this._tools.deleteAndDispose(name);
-  }
+    async $getTools() {
+        return Array.from(this._languageModelToolsService.getTools());
+    }
+    async $invokeTool(dto, token) {
+        return await this._languageModelToolsService.invokeTool(dto, (input, token) => this._proxy.$countTokensForInvocation(dto.callId, input, token), token);
+    }
+    $countTokensForInvocation(callId, input, token) {
+        const fn = this._countTokenCallbacks.get(callId);
+        if (!fn) {
+            throw new Error(`Tool invocation call ${callId} not found`);
+        }
+        return fn(input, token);
+    }
+    $registerTool(id) {
+        const disposable = this._languageModelToolsService.registerToolImplementation(id, {
+            invoke: async (dto, countTokens, token) => {
+                try {
+                    this._countTokenCallbacks.set(dto.callId, countTokens);
+                    return await this._proxy.$invokeTool(dto, token);
+                }
+                finally {
+                    this._countTokenCallbacks.delete(dto.callId);
+                }
+            },
+            prepareToolInvocation: (participantName, parameters, token) => this._proxy.$prepareToolInvocation(id, participantName, parameters, token),
+        });
+        this._tools.set(id, disposable);
+    }
+    $unregisterTool(name) {
+        this._tools.deleteAndDispose(name);
+    }
 };
-__name(MainThreadLanguageModelTools, "MainThreadLanguageModelTools");
-MainThreadLanguageModelTools = __decorateClass([
-  extHostNamedCustomer(MainContext.MainThreadLanguageModelTools),
-  __decorateParam(1, ILanguageModelToolsService)
+MainThreadLanguageModelTools = __decorate([
+    extHostNamedCustomer(MainContext.MainThreadLanguageModelTools),
+    __param(1, ILanguageModelToolsService),
+    __metadata("design:paramtypes", [Object, Object])
 ], MainThreadLanguageModelTools);
-export {
-  MainThreadLanguageModelTools
-};
-//# sourceMappingURL=mainThreadLanguageModelTools.js.map
+export { MainThreadLanguageModelTools };

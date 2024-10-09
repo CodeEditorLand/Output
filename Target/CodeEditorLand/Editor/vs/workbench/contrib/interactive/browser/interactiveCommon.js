@@ -1,12 +1,11 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-const INTERACTIVE_INPUT_CURSOR_BOUNDARY = new RawContextKey("interactiveInputCursorAtBoundary", "none");
-const InteractiveWindowSetting = {
-  interactiveWindowAlwaysScrollOnNewCell: "interactiveWindow.alwaysScrollOnNewCell",
-  executeWithShiftEnter: "interactiveWindow.executeWithShiftEnter",
-  showExecutionHint: "interactiveWindow.showExecutionHint"
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+export const INTERACTIVE_INPUT_CURSOR_BOUNDARY = new RawContextKey('interactiveInputCursorAtBoundary', 'none');
+export const InteractiveWindowSetting = {
+    interactiveWindowAlwaysScrollOnNewCell: 'interactiveWindow.alwaysScrollOnNewCell',
+    executeWithShiftEnter: 'interactiveWindow.executeWithShiftEnter',
+    showExecutionHint: 'interactiveWindow.showExecutionHint'
 };
-export {
-  INTERACTIVE_INPUT_CURSOR_BOUNDARY,
-  InteractiveWindowSetting
-};
-//# sourceMappingURL=interactiveCommon.js.map

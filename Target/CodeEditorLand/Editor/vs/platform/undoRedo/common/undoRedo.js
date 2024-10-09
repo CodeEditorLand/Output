@@ -1,66 +1,40 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IUndoRedoService = createDecorator("undoRedoService");
-var UndoRedoElementType = /* @__PURE__ */ ((UndoRedoElementType2) => {
-  UndoRedoElementType2[UndoRedoElementType2["Resource"] = 0] = "Resource";
-  UndoRedoElementType2[UndoRedoElementType2["Workspace"] = 1] = "Workspace";
-  return UndoRedoElementType2;
-})(UndoRedoElementType || {});
-class ResourceEditStackSnapshot {
-  constructor(resource, elements) {
-    this.resource = resource;
-    this.elements = elements;
-  }
-  static {
-    __name(this, "ResourceEditStackSnapshot");
-  }
-}
-class UndoRedoGroup {
-  static {
-    __name(this, "UndoRedoGroup");
-  }
-  static _ID = 0;
-  id;
-  order;
-  constructor() {
-    this.id = UndoRedoGroup._ID++;
-    this.order = 1;
-  }
-  nextOrder() {
-    if (this.id === 0) {
-      return 0;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export const IUndoRedoService = createDecorator('undoRedoService');
+export class ResourceEditStackSnapshot {
+    constructor(resource, elements) {
+        this.resource = resource;
+        this.elements = elements;
     }
-    return this.order++;
-  }
-  static None = new UndoRedoGroup();
 }
-class UndoRedoSource {
-  static {
-    __name(this, "UndoRedoSource");
-  }
-  static _ID = 0;
-  id;
-  order;
-  constructor() {
-    this.id = UndoRedoSource._ID++;
-    this.order = 1;
-  }
-  nextOrder() {
-    if (this.id === 0) {
-      return 0;
+export class UndoRedoGroup {
+    static { this._ID = 0; }
+    constructor() {
+        this.id = UndoRedoGroup._ID++;
+        this.order = 1;
     }
-    return this.order++;
-  }
-  static None = new UndoRedoSource();
+    nextOrder() {
+        if (this.id === 0) {
+            return 0;
+        }
+        return this.order++;
+    }
+    static { this.None = new UndoRedoGroup(); }
 }
-export {
-  IUndoRedoService,
-  ResourceEditStackSnapshot,
-  UndoRedoElementType,
-  UndoRedoGroup,
-  UndoRedoSource
-};
-//# sourceMappingURL=undoRedo.js.map
+export class UndoRedoSource {
+    static { this._ID = 0; }
+    constructor() {
+        this.id = UndoRedoSource._ID++;
+        this.order = 1;
+    }
+    nextOrder() {
+        if (this.id === 0) {
+            return 0;
+        }
+        return this.order++;
+    }
+    static { this.None = new UndoRedoSource(); }
+}

@@ -1,24 +1,14 @@
-import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-var OutlineSortOrder = /* @__PURE__ */ ((OutlineSortOrder2) => {
-  OutlineSortOrder2[OutlineSortOrder2["ByPosition"] = 0] = "ByPosition";
-  OutlineSortOrder2[OutlineSortOrder2["ByName"] = 1] = "ByName";
-  OutlineSortOrder2[OutlineSortOrder2["ByKind"] = 2] = "ByKind";
-  return OutlineSortOrder2;
-})(OutlineSortOrder || {});
-var IOutlinePane;
-((IOutlinePane2) => {
-  IOutlinePane2.Id = "outline";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+export var IOutlinePane;
+(function (IOutlinePane) {
+    IOutlinePane.Id = 'outline';
 })(IOutlinePane || (IOutlinePane = {}));
-const ctxFollowsCursor = new RawContextKey("outlineFollowsCursor", false);
-const ctxFilterOnType = new RawContextKey("outlineFiltersOnType", false);
-const ctxSortMode = new RawContextKey("outlineSortMode", 0 /* ByPosition */);
-const ctxAllCollapsed = new RawContextKey("outlineAllCollapsed", false);
-export {
-  IOutlinePane,
-  OutlineSortOrder,
-  ctxAllCollapsed,
-  ctxFilterOnType,
-  ctxFollowsCursor,
-  ctxSortMode
-};
-//# sourceMappingURL=outline.js.map
+// --- context keys
+export const ctxFollowsCursor = new RawContextKey('outlineFollowsCursor', false);
+export const ctxFilterOnType = new RawContextKey('outlineFiltersOnType', false);
+export const ctxSortMode = new RawContextKey('outlineSortMode', 0 /* OutlineSortOrder.ByPosition */);
+export const ctxAllCollapsed = new RawContextKey('outlineAllCollapsed', false);

@@ -1,59 +1,60 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { extUriBiasedIgnorePathCase } from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
-import { ICodeWindow } from "../../window/electron-main/window.js";
-import { IResolvedWorkspace, ISingleFolderWorkspaceIdentifier, isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
-async function findWindowOnFile(windows, fileUri, localWorkspaceResolver) {
-  for (const window of windows) {
-    const workspace = window.openedWorkspace;
-    if (isWorkspaceIdentifier(workspace)) {
-      const resolvedWorkspace = await localWorkspaceResolver(workspace);
-      if (resolvedWorkspace) {
-        if (resolvedWorkspace.folders.some((folder) => extUriBiasedIgnorePathCase.isEqualOrParent(fileUri, folder.uri))) {
-          return window;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { extUriBiasedIgnorePathCase } from '../../../base/common/resources.js';
+import { URI } from '../../../base/common/uri.js';
+import { isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier } from '../../workspace/common/workspace.js';
+export async function findWindowOnFile(windows, fileUri, localWorkspaceResolver) {
+    // First check for windows with workspaces that have a parent folder of the provided path opened
+    for (const window of windows) {
+        const workspace = window.openedWorkspace;
+        if (isWorkspaceIdentifier(workspace)) {
+            const resolvedWorkspace = await localWorkspaceResolver(workspace);
+            // resolved workspace: folders are known and can be compared with
+            if (resolvedWorkspace) {
+                if (resolvedWorkspace.folders.some(folder => extUriBiasedIgnorePathCase.isEqualOrParent(fileUri, folder.uri))) {
+                    return window;
+                }
+            }
+            // unresolved: can only compare with workspace location
+            else {
+                if (extUriBiasedIgnorePathCase.isEqualOrParent(fileUri, workspace.configPath)) {
+                    return window;
+                }
+            }
         }
-      } else {
-        if (extUriBiasedIgnorePathCase.isEqualOrParent(fileUri, workspace.configPath)) {
-          return window;
+    }
+    // Then go with single folder windows that are parent of the provided file path
+    const singleFolderWindowsOnFilePath = windows.filter(window => isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqualOrParent(fileUri, window.openedWorkspace.uri));
+    if (singleFolderWindowsOnFilePath.length) {
+        return singleFolderWindowsOnFilePath.sort((windowA, windowB) => -(windowA.openedWorkspace.uri.path.length - windowB.openedWorkspace.uri.path.length))[0];
+    }
+    return undefined;
+}
+export function findWindowOnWorkspaceOrFolder(windows, folderOrWorkspaceConfigUri) {
+    for (const window of windows) {
+        // check for workspace config path
+        if (isWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.configPath, folderOrWorkspaceConfigUri)) {
+            return window;
         }
-      }
+        // check for folder path
+        if (isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.uri, folderOrWorkspaceConfigUri)) {
+            return window;
+        }
     }
-  }
-  const singleFolderWindowsOnFilePath = windows.filter((window) => isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqualOrParent(fileUri, window.openedWorkspace.uri));
-  if (singleFolderWindowsOnFilePath.length) {
-    return singleFolderWindowsOnFilePath.sort((windowA, windowB) => -(windowA.openedWorkspace.uri.path.length - windowB.openedWorkspace.uri.path.length))[0];
-  }
-  return void 0;
+    return undefined;
 }
-__name(findWindowOnFile, "findWindowOnFile");
-function findWindowOnWorkspaceOrFolder(windows, folderOrWorkspaceConfigUri) {
-  for (const window of windows) {
-    if (isWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.configPath, folderOrWorkspaceConfigUri)) {
-      return window;
+export function findWindowOnExtensionDevelopmentPath(windows, extensionDevelopmentPaths) {
+    const matches = (uriString) => {
+        return extensionDevelopmentPaths.some(path => extUriBiasedIgnorePathCase.isEqual(URI.file(path), URI.file(uriString)));
+    };
+    for (const window of windows) {
+        // match on extension development path. the path can be one or more paths
+        // so we check if any of the paths match on any of the provided ones
+        if (window.config?.extensionDevelopmentPath?.some(path => matches(path))) {
+            return window;
+        }
     }
-    if (isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && extUriBiasedIgnorePathCase.isEqual(window.openedWorkspace.uri, folderOrWorkspaceConfigUri)) {
-      return window;
-    }
-  }
-  return void 0;
+    return undefined;
 }
-__name(findWindowOnWorkspaceOrFolder, "findWindowOnWorkspaceOrFolder");
-function findWindowOnExtensionDevelopmentPath(windows, extensionDevelopmentPaths) {
-  const matches = /* @__PURE__ */ __name((uriString) => {
-    return extensionDevelopmentPaths.some((path) => extUriBiasedIgnorePathCase.isEqual(URI.file(path), URI.file(uriString)));
-  }, "matches");
-  for (const window of windows) {
-    if (window.config?.extensionDevelopmentPath?.some((path) => matches(path))) {
-      return window;
-    }
-  }
-  return void 0;
-}
-__name(findWindowOnExtensionDevelopmentPath, "findWindowOnExtensionDevelopmentPath");
-export {
-  findWindowOnExtensionDevelopmentPath,
-  findWindowOnFile,
-  findWindowOnWorkspaceOrFolder
-};
-//# sourceMappingURL=windowsFinder.js.map

@@ -1,33 +1,25 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-class TreeViewsDnDService {
-  static {
-    __name(this, "TreeViewsDnDService");
-  }
-  _serviceBrand;
-  _dragOperations = /* @__PURE__ */ new Map();
-  removeDragOperationTransfer(uuid) {
-    if (uuid && this._dragOperations.has(uuid)) {
-      const operation = this._dragOperations.get(uuid);
-      this._dragOperations.delete(uuid);
-      return operation;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class TreeViewsDnDService {
+    constructor() {
+        this._dragOperations = new Map();
     }
-    return void 0;
-  }
-  addDragOperationTransfer(uuid, transferPromise) {
-    this._dragOperations.set(uuid, transferPromise);
-  }
+    removeDragOperationTransfer(uuid) {
+        if ((uuid && this._dragOperations.has(uuid))) {
+            const operation = this._dragOperations.get(uuid);
+            this._dragOperations.delete(uuid);
+            return operation;
+        }
+        return undefined;
+    }
+    addDragOperationTransfer(uuid, transferPromise) {
+        this._dragOperations.set(uuid, transferPromise);
+    }
 }
-class DraggedTreeItemsIdentifier {
-  constructor(identifier) {
-    this.identifier = identifier;
-  }
-  static {
-    __name(this, "DraggedTreeItemsIdentifier");
-  }
+export class DraggedTreeItemsIdentifier {
+    constructor(identifier) {
+        this.identifier = identifier;
+    }
 }
-export {
-  DraggedTreeItemsIdentifier,
-  TreeViewsDnDService
-};
-//# sourceMappingURL=treeViewsDnd.js.map

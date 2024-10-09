@@ -1,27 +1,14 @@
-import { UriComponents } from "../../../../base/common/uri.js";
-import { ISandboxConfiguration } from "../../../../base/parts/sandbox/common/sandboxTypes.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { OldIssueReporterData } from "../../../../platform/issue/common/issue.js";
-var IssueType = /* @__PURE__ */ ((IssueType2) => {
-  IssueType2[IssueType2["Bug"] = 0] = "Bug";
-  IssueType2[IssueType2["PerformanceIssue"] = 1] = "PerformanceIssue";
-  IssueType2[IssueType2["FeatureRequest"] = 2] = "FeatureRequest";
-  return IssueType2;
-})(IssueType || {});
-var IssueSource = /* @__PURE__ */ ((IssueSource2) => {
-  IssueSource2["VSCode"] = "vscode";
-  IssueSource2["Extension"] = "extension";
-  IssueSource2["Marketplace"] = "marketplace";
-  return IssueSource2;
-})(IssueSource || {});
-const IIssueFormService = createDecorator("issueFormService");
-const IWorkbenchIssueService = createDecorator("workbenchIssueService");
-const IWorkbenchProcessService = createDecorator("workbenchProcessService");
-export {
-  IIssueFormService,
-  IWorkbenchIssueService,
-  IWorkbenchProcessService,
-  IssueSource,
-  IssueType
-};
-//# sourceMappingURL=issue.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export var IssueSource;
+(function (IssueSource) {
+    IssueSource["VSCode"] = "vscode";
+    IssueSource["Extension"] = "extension";
+    IssueSource["Marketplace"] = "marketplace";
+})(IssueSource || (IssueSource = {}));
+export const IIssueFormService = createDecorator('issueFormService');
+export const IWorkbenchIssueService = createDecorator('workbenchIssueService');
+export const IWorkbenchProcessService = createDecorator('workbenchProcessService');

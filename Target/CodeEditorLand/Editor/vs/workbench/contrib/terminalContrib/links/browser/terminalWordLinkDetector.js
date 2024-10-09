@@ -1,125 +1,117 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { escapeRegExpCharacters } from "../../../../../base/common/strings.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { matchesScheme } from "../../../../../base/common/network.js";
-import { IProductService } from "../../../../../platform/product/common/productService.js";
-import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
-import { ITerminalSimpleLink, ITerminalLinkDetector, TerminalBuiltinLinkType } from "./links.js";
-import { convertLinkRangeToBuffer, getXtermLineContent } from "./terminalLinkHelpers.js";
-import { ITerminalConfiguration, TERMINAL_CONFIG_SECTION } from "../../../terminal/common/terminal.js";
-var Constants = /* @__PURE__ */ ((Constants2) => {
-  Constants2[Constants2["MaxLineLength"] = 2e3] = "MaxLineLength";
-  return Constants2;
-})(Constants || {});
-let TerminalWordLinkDetector = class extends Disposable {
-  constructor(xterm, _configurationService, _productService) {
-    super();
-    this.xterm = xterm;
-    this._configurationService = _configurationService;
-    this._productService = _productService;
-    this._refreshSeparatorCodes();
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalSettingId.WordSeparators)) {
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable } from '../../../../../base/common/lifecycle.js';
+import { escapeRegExpCharacters } from '../../../../../base/common/strings.js';
+import { URI } from '../../../../../base/common/uri.js';
+import { IConfigurationService } from '../../../../../platform/configuration/common/configuration.js';
+import { matchesScheme } from '../../../../../base/common/network.js';
+import { IProductService } from '../../../../../platform/product/common/productService.js';
+import { convertLinkRangeToBuffer, getXtermLineContent } from './terminalLinkHelpers.js';
+import { TERMINAL_CONFIG_SECTION } from '../../../terminal/common/terminal.js';
+let TerminalWordLinkDetector = class TerminalWordLinkDetector extends Disposable {
+    static { this.id = 'word'; }
+    constructor(xterm, _configurationService, _productService) {
+        super();
+        this.xterm = xterm;
+        this._configurationService = _configurationService;
+        this._productService = _productService;
+        // Word links typically search the workspace so it makes sense that their maximum link length is
+        // quite small.
+        this.maxLinkLength = 100;
         this._refreshSeparatorCodes();
-      }
-    }));
-  }
-  static {
-    __name(this, "TerminalWordLinkDetector");
-  }
-  static id = "word";
-  // Word links typically search the workspace so it makes sense that their maximum link length is
-  // quite small.
-  maxLinkLength = 100;
-  _separatorRegex;
-  detect(lines, startLine, endLine) {
-    const links = [];
-    const text = getXtermLineContent(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
-    if (text === "" || text.length > 2e3 /* MaxLineLength */) {
-      return [];
+        this._register(this._configurationService.onDidChangeConfiguration(e => {
+            if (e.affectsConfiguration("terminal.integrated.wordSeparators" /* TerminalSettingId.WordSeparators */)) {
+                this._refreshSeparatorCodes();
+            }
+        }));
     }
-    const words = this._parseWords(text);
-    for (const word of words) {
-      if (word.text === "") {
-        continue;
-      }
-      if (word.text.length > 0 && word.text.charAt(word.text.length - 1) === ":") {
-        word.text = word.text.slice(0, -1);
-        word.endIndex--;
-      }
-      const bufferRange = convertLinkRangeToBuffer(
-        lines,
-        this.xterm.cols,
-        {
-          startColumn: word.startIndex + 1,
-          startLineNumber: 1,
-          endColumn: word.endIndex + 1,
-          endLineNumber: 1
-        },
-        startLine
-      );
-      if (matchesScheme(word.text, this._productService.urlProtocol)) {
-        const uri = URI.parse(word.text);
-        if (uri) {
-          links.push({
-            text: word.text,
-            uri,
-            bufferRange,
-            type: TerminalBuiltinLinkType.Url
-          });
+    detect(lines, startLine, endLine) {
+        const links = [];
+        // Get the text representation of the wrapped line
+        const text = getXtermLineContent(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
+        if (text === '' || text.length > 2000 /* Constants.MaxLineLength */) {
+            return [];
         }
-        continue;
-      }
-      links.push({
-        text: word.text,
-        bufferRange,
-        type: TerminalBuiltinLinkType.Search,
-        contextLine: text
-      });
+        // Parse out all words from the wrapped line
+        const words = this._parseWords(text);
+        // Map the words to ITerminalLink objects
+        for (const word of words) {
+            if (word.text === '') {
+                continue;
+            }
+            if (word.text.length > 0 && word.text.charAt(word.text.length - 1) === ':') {
+                word.text = word.text.slice(0, -1);
+                word.endIndex--;
+            }
+            const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+                startColumn: word.startIndex + 1,
+                startLineNumber: 1,
+                endColumn: word.endIndex + 1,
+                endLineNumber: 1
+            }, startLine);
+            // Support this product's URL protocol
+            if (matchesScheme(word.text, this._productService.urlProtocol)) {
+                const uri = URI.parse(word.text);
+                if (uri) {
+                    links.push({
+                        text: word.text,
+                        uri,
+                        bufferRange,
+                        type: "Url" /* TerminalBuiltinLinkType.Url */
+                    });
+                }
+                continue;
+            }
+            // Search links
+            links.push({
+                text: word.text,
+                bufferRange,
+                type: "Search" /* TerminalBuiltinLinkType.Search */,
+                contextLine: text
+            });
+        }
+        return links;
     }
-    return links;
-  }
-  _parseWords(text) {
-    const words = [];
-    const splitWords = text.split(this._separatorRegex);
-    let runningIndex = 0;
-    for (let i = 0; i < splitWords.length; i++) {
-      words.push({
-        text: splitWords[i],
-        startIndex: runningIndex,
-        endIndex: runningIndex + splitWords[i].length
-      });
-      runningIndex += splitWords[i].length + 1;
+    _parseWords(text) {
+        const words = [];
+        const splitWords = text.split(this._separatorRegex);
+        let runningIndex = 0;
+        for (let i = 0; i < splitWords.length; i++) {
+            words.push({
+                text: splitWords[i],
+                startIndex: runningIndex,
+                endIndex: runningIndex + splitWords[i].length
+            });
+            runningIndex += splitWords[i].length + 1;
+        }
+        return words;
     }
-    return words;
-  }
-  _refreshSeparatorCodes() {
-    const separators = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).wordSeparators;
-    let powerlineSymbols = "";
-    for (let i = 57520; i <= 57535; i++) {
-      powerlineSymbols += String.fromCharCode(i);
+    _refreshSeparatorCodes() {
+        const separators = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).wordSeparators;
+        let powerlineSymbols = '';
+        for (let i = 0xe0b0; i <= 0xe0bf; i++) {
+            powerlineSymbols += String.fromCharCode(i);
+        }
+        this._separatorRegex = new RegExp(`[${escapeRegExpCharacters(separators)}${powerlineSymbols}]`, 'g');
     }
-    this._separatorRegex = new RegExp(`[${escapeRegExpCharacters(separators)}${powerlineSymbols}]`, "g");
-  }
 };
-TerminalWordLinkDetector = __decorateClass([
-  __decorateParam(1, IConfigurationService),
-  __decorateParam(2, IProductService)
+TerminalWordLinkDetector = __decorate([
+    __param(1, IConfigurationService),
+    __param(2, IProductService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], TerminalWordLinkDetector);
-export {
-  TerminalWordLinkDetector
-};
-//# sourceMappingURL=terminalWordLinkDetector.js.map
+export { TerminalWordLinkDetector };

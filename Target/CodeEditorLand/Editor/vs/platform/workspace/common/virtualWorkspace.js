@@ -1,38 +1,26 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Schemas } from "../../../base/common/network.js";
-import { URI } from "../../../base/common/uri.js";
-import { IWorkspace } from "./workspace.js";
-function isVirtualResource(resource) {
-  return resource.scheme !== Schemas.file && resource.scheme !== Schemas.vscodeRemote;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Schemas } from '../../../base/common/network.js';
+export function isVirtualResource(resource) {
+    return resource.scheme !== Schemas.file && resource.scheme !== Schemas.vscodeRemote;
 }
-__name(isVirtualResource, "isVirtualResource");
-function getVirtualWorkspaceLocation(workspace) {
-  if (workspace.folders.length) {
-    return workspace.folders.every((f) => isVirtualResource(f.uri)) ? workspace.folders[0].uri : void 0;
-  } else if (workspace.configuration && isVirtualResource(workspace.configuration)) {
-    return workspace.configuration;
-  }
-  return void 0;
+export function getVirtualWorkspaceLocation(workspace) {
+    if (workspace.folders.length) {
+        return workspace.folders.every(f => isVirtualResource(f.uri)) ? workspace.folders[0].uri : undefined;
+    }
+    else if (workspace.configuration && isVirtualResource(workspace.configuration)) {
+        return workspace.configuration;
+    }
+    return undefined;
 }
-__name(getVirtualWorkspaceLocation, "getVirtualWorkspaceLocation");
-function getVirtualWorkspaceScheme(workspace) {
-  return getVirtualWorkspaceLocation(workspace)?.scheme;
+export function getVirtualWorkspaceScheme(workspace) {
+    return getVirtualWorkspaceLocation(workspace)?.scheme;
 }
-__name(getVirtualWorkspaceScheme, "getVirtualWorkspaceScheme");
-function getVirtualWorkspaceAuthority(workspace) {
-  return getVirtualWorkspaceLocation(workspace)?.authority;
+export function getVirtualWorkspaceAuthority(workspace) {
+    return getVirtualWorkspaceLocation(workspace)?.authority;
 }
-__name(getVirtualWorkspaceAuthority, "getVirtualWorkspaceAuthority");
-function isVirtualWorkspace(workspace) {
-  return getVirtualWorkspaceLocation(workspace) !== void 0;
+export function isVirtualWorkspace(workspace) {
+    return getVirtualWorkspaceLocation(workspace) !== undefined;
 }
-__name(isVirtualWorkspace, "isVirtualWorkspace");
-export {
-  getVirtualWorkspaceAuthority,
-  getVirtualWorkspaceLocation,
-  getVirtualWorkspaceScheme,
-  isVirtualResource,
-  isVirtualWorkspace
-};
-//# sourceMappingURL=virtualWorkspace.js.map

@@ -1,65 +1,61 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as objects from "../../../../base/common/objects.js";
-import { ICodeEditor } from "../../editorBrowser.js";
-import { ICodeEditorService } from "../../services/codeEditorService.js";
-import { CodeEditorWidget, ICodeEditorWidgetOptions } from "./codeEditorWidget.js";
-import { ConfigurationChangedEvent, IEditorOptions } from "../../../common/config/editorOptions.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-let EmbeddedCodeEditorWidget = class extends CodeEditorWidget {
-  static {
-    __name(this, "EmbeddedCodeEditorWidget");
-  }
-  _parentEditor;
-  _overwriteOptions;
-  constructor(domElement, options, codeEditorWidgetOptions, parentEditor, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
-    super(domElement, { ...parentEditor.getRawOptions(), overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode() }, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
-    this._parentEditor = parentEditor;
-    this._overwriteOptions = options;
-    super.updateOptions(this._overwriteOptions);
-    this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
-  }
-  getParentEditor() {
-    return this._parentEditor;
-  }
-  _onParentConfigurationChanged(e) {
-    super.updateOptions(this._parentEditor.getRawOptions());
-    super.updateOptions(this._overwriteOptions);
-  }
-  updateOptions(newOptions) {
-    objects.mixin(this._overwriteOptions, newOptions, true);
-    super.updateOptions(this._overwriteOptions);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-EmbeddedCodeEditorWidget = __decorateClass([
-  __decorateParam(4, IInstantiationService),
-  __decorateParam(5, ICodeEditorService),
-  __decorateParam(6, ICommandService),
-  __decorateParam(7, IContextKeyService),
-  __decorateParam(8, IThemeService),
-  __decorateParam(9, INotificationService),
-  __decorateParam(10, IAccessibilityService),
-  __decorateParam(11, ILanguageConfigurationService),
-  __decorateParam(12, ILanguageFeaturesService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as objects from '../../../../base/common/objects.js';
+import { ICodeEditorService } from '../../services/codeEditorService.js';
+import { CodeEditorWidget } from './codeEditorWidget.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { IAccessibilityService } from '../../../../platform/accessibility/common/accessibility.js';
+import { ICommandService } from '../../../../platform/commands/common/commands.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { INotificationService } from '../../../../platform/notification/common/notification.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+let EmbeddedCodeEditorWidget = class EmbeddedCodeEditorWidget extends CodeEditorWidget {
+    constructor(domElement, options, codeEditorWidgetOptions, parentEditor, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
+        super(domElement, { ...parentEditor.getRawOptions(), overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode() }, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
+        this._parentEditor = parentEditor;
+        this._overwriteOptions = options;
+        // Overwrite parent's options
+        super.updateOptions(this._overwriteOptions);
+        this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
+    }
+    getParentEditor() {
+        return this._parentEditor;
+    }
+    _onParentConfigurationChanged(e) {
+        super.updateOptions(this._parentEditor.getRawOptions());
+        super.updateOptions(this._overwriteOptions);
+    }
+    updateOptions(newOptions) {
+        objects.mixin(this._overwriteOptions, newOptions, true);
+        super.updateOptions(this._overwriteOptions);
+    }
+};
+EmbeddedCodeEditorWidget = __decorate([
+    __param(4, IInstantiationService),
+    __param(5, ICodeEditorService),
+    __param(6, ICommandService),
+    __param(7, IContextKeyService),
+    __param(8, IThemeService),
+    __param(9, INotificationService),
+    __param(10, IAccessibilityService),
+    __param(11, ILanguageConfigurationService),
+    __param(12, ILanguageFeaturesService),
+    __metadata("design:paramtypes", [HTMLElement, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object, Object])
 ], EmbeddedCodeEditorWidget);
-export {
-  EmbeddedCodeEditorWidget
-};
-//# sourceMappingURL=embeddedCodeEditorWidget.js.map
+export { EmbeddedCodeEditorWidget };

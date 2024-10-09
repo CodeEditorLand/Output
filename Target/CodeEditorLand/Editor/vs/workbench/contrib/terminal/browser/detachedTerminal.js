@@ -1,132 +1,121 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as dom from "../../../../base/browser/dom.js";
-import { Delayer } from "../../../../base/common/async.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OperatingSystem } from "../../../../base/common/platform.js";
-import { MicrotaskDelay } from "../../../../base/common/symbols.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
-import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import { ITerminalBackend } from "../../../../platform/terminal/common/terminal.js";
-import { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from "./terminal.js";
-import { TerminalExtensionsRegistry } from "./terminalExtensions.js";
-import { TerminalWidgetManager } from "./widgets/widgetManager.js";
-import { XtermTerminal } from "./xterm/xtermTerminal.js";
-import { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
-import { ITerminalProcessInfo, ProcessState } from "../common/terminal.js";
-let DetachedTerminal = class extends Disposable {
-  constructor(_xterm, options, instantiationService) {
-    super();
-    this._xterm = _xterm;
-    this._register(_xterm);
-    const contributionDescs = TerminalExtensionsRegistry.getTerminalContributions();
-    for (const desc of contributionDescs) {
-      if (this._contributions.has(desc.id)) {
-        onUnexpectedError(new Error(`Cannot have two terminal contributions with the same id ${desc.id}`));
-        continue;
-      }
-      if (desc.canRunInDetachedTerminals === false) {
-        continue;
-      }
-      let contribution;
-      try {
-        contribution = instantiationService.createInstance(desc.ctor, {
-          instance: this,
-          processManager: options.processInfo,
-          widgetManager: this._widgets
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as dom from '../../../../base/browser/dom.js';
+import { Delayer } from '../../../../base/common/async.js';
+import { onUnexpectedError } from '../../../../base/common/errors.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { MicrotaskDelay } from '../../../../base/common/symbols.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { TerminalCapabilityStore } from '../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js';
+import { TerminalExtensionsRegistry } from './terminalExtensions.js';
+import { TerminalWidgetManager } from './widgets/widgetManager.js';
+import { XtermTerminal } from './xterm/xtermTerminal.js';
+let DetachedTerminal = class DetachedTerminal extends Disposable {
+    get xterm() {
+        return this._xterm;
+    }
+    constructor(_xterm, options, instantiationService) {
+        super();
+        this._xterm = _xterm;
+        this._widgets = this._register(new TerminalWidgetManager());
+        this.capabilities = new TerminalCapabilityStore();
+        this._contributions = new Map();
+        this._register(_xterm);
+        // Initialize contributions
+        const contributionDescs = TerminalExtensionsRegistry.getTerminalContributions();
+        for (const desc of contributionDescs) {
+            if (this._contributions.has(desc.id)) {
+                onUnexpectedError(new Error(`Cannot have two terminal contributions with the same id ${desc.id}`));
+                continue;
+            }
+            if (desc.canRunInDetachedTerminals === false) {
+                continue;
+            }
+            let contribution;
+            try {
+                contribution = instantiationService.createInstance(desc.ctor, {
+                    instance: this,
+                    processManager: options.processInfo,
+                    widgetManager: this._widgets
+                });
+                this._contributions.set(desc.id, contribution);
+                this._register(contribution);
+            }
+            catch (err) {
+                onUnexpectedError(err);
+            }
+        }
+        // xterm is already by the time DetachedTerminal is created, so trigger everything
+        // on the next microtask, allowing the caller to do any extra initialization
+        this._register(new Delayer(MicrotaskDelay)).trigger(() => {
+            for (const contr of this._contributions.values()) {
+                contr.xtermReady?.(this._xterm);
+            }
         });
-        this._contributions.set(desc.id, contribution);
-        this._register(contribution);
-      } catch (err) {
-        onUnexpectedError(err);
-      }
     }
-    this._register(new Delayer(MicrotaskDelay)).trigger(() => {
-      for (const contr of this._contributions.values()) {
-        contr.xtermReady?.(this._xterm);
-      }
-    });
-  }
-  static {
-    __name(this, "DetachedTerminal");
-  }
-  _widgets = this._register(new TerminalWidgetManager());
-  capabilities = new TerminalCapabilityStore();
-  _contributions = /* @__PURE__ */ new Map();
-  domElement;
-  get xterm() {
-    return this._xterm;
-  }
-  get selection() {
-    return this._xterm && this.hasSelection() ? this._xterm.raw.getSelection() : void 0;
-  }
-  hasSelection() {
-    return this._xterm.hasSelection();
-  }
-  clearSelection() {
-    this._xterm.clearSelection();
-  }
-  focus(force) {
-    if (force || !dom.getActiveWindow().getSelection()?.toString()) {
-      this.xterm.focus();
+    get selection() {
+        return this._xterm && this.hasSelection() ? this._xterm.raw.getSelection() : undefined;
     }
-  }
-  attachToElement(container, options) {
-    this.domElement = container;
-    const screenElement = this._xterm.attachToElement(container, options);
-    this._widgets.attachToElement(screenElement);
-  }
-  forceScrollbarVisibility() {
-    this.domElement?.classList.add("force-scrollbar");
-  }
-  resetScrollbarVisibility() {
-    this.domElement?.classList.remove("force-scrollbar");
-  }
-  getContribution(id) {
-    return this._contributions.get(id);
-  }
+    hasSelection() {
+        return this._xterm.hasSelection();
+    }
+    clearSelection() {
+        this._xterm.clearSelection();
+    }
+    focus(force) {
+        if (force || !dom.getActiveWindow().getSelection()?.toString()) {
+            this.xterm.focus();
+        }
+    }
+    attachToElement(container, options) {
+        this.domElement = container;
+        const screenElement = this._xterm.attachToElement(container, options);
+        this._widgets.attachToElement(screenElement);
+    }
+    forceScrollbarVisibility() {
+        this.domElement?.classList.add('force-scrollbar');
+    }
+    resetScrollbarVisibility() {
+        this.domElement?.classList.remove('force-scrollbar');
+    }
+    getContribution(id) {
+        return this._contributions.get(id);
+    }
 };
-DetachedTerminal = __decorateClass([
-  __decorateParam(2, IInstantiationService)
+DetachedTerminal = __decorate([
+    __param(2, IInstantiationService),
+    __metadata("design:paramtypes", [XtermTerminal, Object, Object])
 ], DetachedTerminal);
-class DetachedProcessInfo {
-  static {
-    __name(this, "DetachedProcessInfo");
-  }
-  processState = ProcessState.Running;
-  ptyProcessReady = Promise.resolve();
-  shellProcessId;
-  remoteAuthority;
-  os;
-  userHome;
-  initialCwd = "";
-  environmentVariableInfo;
-  persistentProcessId;
-  shouldPersist = false;
-  hasWrittenData = false;
-  hasChildProcesses = false;
-  backend;
-  capabilities = new TerminalCapabilityStore();
-  shellIntegrationNonce = "";
-  extEnvironmentVariableCollection;
-  constructor(initialValues) {
-    Object.assign(this, initialValues);
-  }
+export { DetachedTerminal };
+/**
+ * Implements {@link ITerminalProcessInfo} for a detached terminal where most
+ * properties are stubbed. Properties are mutable and can be updated by
+ * the instantiator.
+ */
+export class DetachedProcessInfo {
+    constructor(initialValues) {
+        this.processState = 3 /* ProcessState.Running */;
+        this.ptyProcessReady = Promise.resolve();
+        this.initialCwd = '';
+        this.shouldPersist = false;
+        this.hasWrittenData = false;
+        this.hasChildProcesses = false;
+        this.capabilities = new TerminalCapabilityStore();
+        this.shellIntegrationNonce = '';
+        Object.assign(this, initialValues);
+    }
 }
-export {
-  DetachedProcessInfo,
-  DetachedTerminal
-};
-//# sourceMappingURL=detachedTerminal.js.map

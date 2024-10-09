@@ -1,42 +1,42 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
-import { Action } from "../../../../base/common/actions.js";
-import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { IWorkbenchIssueService } from "../../issue/common/issue.js";
-let ReportExtensionIssueAction = class extends Action {
-  // TODO: Consider passing in IExtensionStatus or IExtensionHostProfile for additional data
-  constructor(extension, issueService) {
-    super(ReportExtensionIssueAction._id, ReportExtensionIssueAction._label, "extension-action report-issue");
-    this.extension = extension;
-    this.issueService = issueService;
-    this.enabled = extension.isBuiltin || !!extension.repository && !!extension.repository.url;
-  }
-  static {
-    __name(this, "ReportExtensionIssueAction");
-  }
-  static _id = "workbench.extensions.action.reportExtensionIssue";
-  static _label = nls.localize("reportExtensionIssue", "Report Issue");
-  async run() {
-    await this.issueService.openReporter({
-      extensionId: this.extension.identifier.value
-    });
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-ReportExtensionIssueAction = __decorateClass([
-  __decorateParam(1, IWorkbenchIssueService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var ReportExtensionIssueAction_1;
+import * as nls from '../../../../nls.js';
+import { Action } from '../../../../base/common/actions.js';
+import { IWorkbenchIssueService } from '../../issue/common/issue.js';
+let ReportExtensionIssueAction = class ReportExtensionIssueAction extends Action {
+    static { ReportExtensionIssueAction_1 = this; }
+    static { this._id = 'workbench.extensions.action.reportExtensionIssue'; }
+    static { this._label = nls.localize('reportExtensionIssue', "Report Issue"); }
+    // TODO: Consider passing in IExtensionStatus or IExtensionHostProfile for additional data
+    constructor(extension, issueService) {
+        super(ReportExtensionIssueAction_1._id, ReportExtensionIssueAction_1._label, 'extension-action report-issue');
+        this.extension = extension;
+        this.issueService = issueService;
+        this.enabled = extension.isBuiltin || (!!extension.repository && !!extension.repository.url);
+    }
+    async run() {
+        await this.issueService.openReporter({
+            extensionId: this.extension.identifier.value,
+        });
+    }
+};
+ReportExtensionIssueAction = ReportExtensionIssueAction_1 = __decorate([
+    __param(1, IWorkbenchIssueService),
+    __metadata("design:paramtypes", [Object, Object])
 ], ReportExtensionIssueAction);
-export {
-  ReportExtensionIssueAction
-};
-//# sourceMappingURL=reportExtensionIssueAction.js.map
+export { ReportExtensionIssueAction };

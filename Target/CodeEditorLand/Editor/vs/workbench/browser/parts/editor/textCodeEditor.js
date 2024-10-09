@@ -1,91 +1,86 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../../../nls.js";
-import { URI } from "../../../../base/common/uri.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
-import { ITextEditorPane } from "../../../common/editor.js";
-import { applyTextEditorOptions } from "../../../common/editor/editorOptions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { isEqual } from "../../../../base/common/resources.js";
-import { IEditorOptions as ICodeEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { CodeEditorWidget, ICodeEditorWidgetOptions } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import { IEditorViewState, ScrollType } from "../../../../editor/common/editorCommon.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { AbstractTextEditor } from "./textEditor.js";
-import { Dimension } from "../../../../base/browser/dom.js";
-class AbstractTextCodeEditor extends AbstractTextEditor {
-  static {
-    __name(this, "AbstractTextCodeEditor");
-  }
-  editorControl = void 0;
-  get scopedContextKeyService() {
-    return this.editorControl?.invokeWithinContext((accessor) => accessor.get(IContextKeyService));
-  }
-  getTitle() {
-    if (this.input) {
-      return this.input.getName();
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { localize } from '../../../../nls.js';
+import { assertIsDefined } from '../../../../base/common/types.js';
+import { applyTextEditorOptions } from '../../../common/editor/editorOptions.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { isEqual } from '../../../../base/common/resources.js';
+import { CodeEditorWidget } from '../../../../editor/browser/widget/codeEditor/codeEditorWidget.js';
+import { AbstractTextEditor } from './textEditor.js';
+/**
+ * A text editor using the code editor widget.
+ */
+export class AbstractTextCodeEditor extends AbstractTextEditor {
+    constructor() {
+        super(...arguments);
+        this.editorControl = undefined;
     }
-    return localize("textEditor", "Text Editor");
-  }
-  createEditorControl(parent, initialOptions) {
-    this.editorControl = this._register(this.instantiationService.createInstance(CodeEditorWidget, parent, initialOptions, this.getCodeEditorWidgetOptions()));
-  }
-  getCodeEditorWidgetOptions() {
-    return /* @__PURE__ */ Object.create(null);
-  }
-  updateEditorControlOptions(options) {
-    this.editorControl?.updateOptions(options);
-  }
-  getMainControl() {
-    return this.editorControl;
-  }
-  getControl() {
-    return this.editorControl;
-  }
-  computeEditorViewState(resource) {
-    if (!this.editorControl) {
-      return void 0;
+    get scopedContextKeyService() {
+        return this.editorControl?.invokeWithinContext(accessor => accessor.get(IContextKeyService));
     }
-    const model = this.editorControl.getModel();
-    if (!model) {
-      return void 0;
+    getTitle() {
+        if (this.input) {
+            return this.input.getName();
+        }
+        return localize('textEditor', "Text Editor");
     }
-    const modelUri = model.uri;
-    if (!modelUri) {
-      return void 0;
+    createEditorControl(parent, initialOptions) {
+        this.editorControl = this._register(this.instantiationService.createInstance(CodeEditorWidget, parent, initialOptions, this.getCodeEditorWidgetOptions()));
     }
-    if (!isEqual(modelUri, resource)) {
-      return void 0;
+    getCodeEditorWidgetOptions() {
+        return Object.create(null);
     }
-    return this.editorControl.saveViewState() ?? void 0;
-  }
-  setOptions(options) {
-    super.setOptions(options);
-    if (options) {
-      applyTextEditorOptions(options, assertIsDefined(this.editorControl), ScrollType.Smooth);
+    updateEditorControlOptions(options) {
+        this.editorControl?.updateOptions(options);
     }
-  }
-  focus() {
-    super.focus();
-    this.editorControl?.focus();
-  }
-  hasFocus() {
-    return this.editorControl?.hasTextFocus() || super.hasFocus();
-  }
-  setEditorVisible(visible) {
-    super.setEditorVisible(visible);
-    if (visible) {
-      this.editorControl?.onVisible();
-    } else {
-      this.editorControl?.onHide();
+    getMainControl() {
+        return this.editorControl;
     }
-  }
-  layout(dimension) {
-    this.editorControl?.layout(dimension);
-  }
+    getControl() {
+        return this.editorControl;
+    }
+    computeEditorViewState(resource) {
+        if (!this.editorControl) {
+            return undefined;
+        }
+        const model = this.editorControl.getModel();
+        if (!model) {
+            return undefined; // view state always needs a model
+        }
+        const modelUri = model.uri;
+        if (!modelUri) {
+            return undefined; // model URI is needed to make sure we save the view state correctly
+        }
+        if (!isEqual(modelUri, resource)) {
+            return undefined; // prevent saving view state for a model that is not the expected one
+        }
+        return this.editorControl.saveViewState() ?? undefined;
+    }
+    setOptions(options) {
+        super.setOptions(options);
+        if (options) {
+            applyTextEditorOptions(options, assertIsDefined(this.editorControl), 0 /* ScrollType.Smooth */);
+        }
+    }
+    focus() {
+        super.focus();
+        this.editorControl?.focus();
+    }
+    hasFocus() {
+        return this.editorControl?.hasTextFocus() || super.hasFocus();
+    }
+    setEditorVisible(visible) {
+        super.setEditorVisible(visible);
+        if (visible) {
+            this.editorControl?.onVisible();
+        }
+        else {
+            this.editorControl?.onHide();
+        }
+    }
+    layout(dimension) {
+        this.editorControl?.layout(dimension);
+    }
 }
-export {
-  AbstractTextCodeEditor
-};
-//# sourceMappingURL=textCodeEditor.js.map

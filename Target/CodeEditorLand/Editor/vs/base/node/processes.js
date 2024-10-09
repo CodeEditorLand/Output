@@ -1,106 +1,110 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
-import { Stats, promises } from "fs";
-import * as path from "../common/path.js";
-import * as Platform from "../common/platform.js";
-import * as process from "../common/process.js";
-import { CommandOptions, ForkOptions, Source, SuccessData, TerminateResponse, TerminateResponseCode } from "../common/processes.js";
-import * as Types from "../common/types.js";
-import * as pfs from "./pfs.js";
-function getWindowsShell(env = process.env) {
-  return env["comspec"] || "cmd.exe";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { promises } from 'fs';
+import * as path from '../common/path.js';
+import * as Platform from '../common/platform.js';
+import * as process from '../common/process.js';
+import * as Types from '../common/types.js';
+import * as pfs from './pfs.js';
+export function getWindowsShell(env = process.env) {
+    return env['comspec'] || 'cmd.exe';
 }
-__name(getWindowsShell, "getWindowsShell");
-function createQueuedSender(childProcess) {
-  let msgQueue = [];
-  let useQueue = false;
-  const send = /* @__PURE__ */ __name(function(msg) {
-    if (useQueue) {
-      msgQueue.push(msg);
-      return;
-    }
-    const result = childProcess.send(msg, (error) => {
-      if (error) {
-        console.error(error);
-      }
-      useQueue = false;
-      if (msgQueue.length > 0) {
-        const msgQueueCopy = msgQueue.slice(0);
-        msgQueue = [];
-        msgQueueCopy.forEach((entry) => send(entry));
-      }
-    });
-    if (!result || Platform.isWindows) {
-      useQueue = true;
-    }
-  }, "send");
-  return { send };
-}
-__name(createQueuedSender, "createQueuedSender");
-var win32;
-((win322) => {
-  async function findExecutable(command, cwd, paths) {
-    if (path.isAbsolute(command)) {
-      return command;
-    }
-    if (cwd === void 0) {
-      cwd = process.cwd();
-    }
-    const dir = path.dirname(command);
-    if (dir !== ".") {
-      return path.join(cwd, command);
-    }
-    if (paths === void 0 && Types.isString(process.env["PATH"])) {
-      paths = process.env["PATH"].split(path.delimiter);
-    }
-    if (paths === void 0 || paths.length === 0) {
-      return path.join(cwd, command);
-    }
-    async function fileExists(path2) {
-      if (await pfs.Promises.exists(path2)) {
-        let statValue;
-        try {
-          statValue = await promises.stat(path2);
-        } catch (e) {
-          if (e.message.startsWith("EACCES")) {
-            statValue = await promises.lstat(path2);
-          }
+// Wrapper around process.send() that will queue any messages if the internal node.js
+// queue is filled with messages and only continue sending messages when the internal
+// queue is free again to consume messages.
+// On Windows we always wait for the send() method to return before sending the next message
+// to workaround https://github.com/nodejs/node/issues/7657 (IPC can freeze process)
+export function createQueuedSender(childProcess) {
+    let msgQueue = [];
+    let useQueue = false;
+    const send = function (msg) {
+        if (useQueue) {
+            msgQueue.push(msg); // add to the queue if the process cannot handle more messages
+            return;
         }
-        return statValue ? !statValue.isDirectory() : false;
-      }
-      return false;
+        const result = childProcess.send(msg, (error) => {
+            if (error) {
+                console.error(error); // unlikely to happen, best we can do is log this error
+            }
+            useQueue = false; // we are good again to send directly without queue
+            // now send all the messages that we have in our queue and did not send yet
+            if (msgQueue.length > 0) {
+                const msgQueueCopy = msgQueue.slice(0);
+                msgQueue = [];
+                msgQueueCopy.forEach(entry => send(entry));
+            }
+        });
+        if (!result || Platform.isWindows /* workaround https://github.com/nodejs/node/issues/7657 */) {
+            useQueue = true;
+        }
+    };
+    return { send };
+}
+export var win32;
+(function (win32) {
+    async function findExecutable(command, cwd, paths) {
+        // If we have an absolute path then we take it.
+        if (path.isAbsolute(command)) {
+            return command;
+        }
+        if (cwd === undefined) {
+            cwd = process.cwd();
+        }
+        const dir = path.dirname(command);
+        if (dir !== '.') {
+            // We have a directory and the directory is relative (see above). Make the path absolute
+            // to the current working directory.
+            return path.join(cwd, command);
+        }
+        if (paths === undefined && Types.isString(process.env['PATH'])) {
+            paths = process.env['PATH'].split(path.delimiter);
+        }
+        // No PATH environment. Make path absolute to the cwd.
+        if (paths === undefined || paths.length === 0) {
+            return path.join(cwd, command);
+        }
+        async function fileExists(path) {
+            if (await pfs.Promises.exists(path)) {
+                let statValue;
+                try {
+                    statValue = await promises.stat(path);
+                }
+                catch (e) {
+                    if (e.message.startsWith('EACCES')) {
+                        // it might be symlink
+                        statValue = await promises.lstat(path);
+                    }
+                }
+                return statValue ? !statValue.isDirectory() : false;
+            }
+            return false;
+        }
+        // We have a simple file name. We get the path variable from the env
+        // and try to find the executable on the path.
+        for (const pathEntry of paths) {
+            // The path entry is absolute.
+            let fullPath;
+            if (path.isAbsolute(pathEntry)) {
+                fullPath = path.join(pathEntry, command);
+            }
+            else {
+                fullPath = path.join(cwd, pathEntry, command);
+            }
+            if (await fileExists(fullPath)) {
+                return fullPath;
+            }
+            let withExtension = fullPath + '.com';
+            if (await fileExists(withExtension)) {
+                return withExtension;
+            }
+            withExtension = fullPath + '.exe';
+            if (await fileExists(withExtension)) {
+                return withExtension;
+            }
+        }
+        return path.join(cwd, command);
     }
-    __name(fileExists, "fileExists");
-    for (const pathEntry of paths) {
-      let fullPath;
-      if (path.isAbsolute(pathEntry)) {
-        fullPath = path.join(pathEntry, command);
-      } else {
-        fullPath = path.join(cwd, pathEntry, command);
-      }
-      if (await fileExists(fullPath)) {
-        return fullPath;
-      }
-      let withExtension = fullPath + ".com";
-      if (await fileExists(withExtension)) {
-        return withExtension;
-      }
-      withExtension = fullPath + ".exe";
-      if (await fileExists(withExtension)) {
-        return withExtension;
-      }
-    }
-    return path.join(cwd, command);
-  }
-  win322.findExecutable = findExecutable;
-  __name(findExecutable, "findExecutable");
+    win32.findExecutable = findExecutable;
 })(win32 || (win32 = {}));
-export {
-  Source,
-  TerminateResponseCode,
-  createQueuedSender,
-  getWindowsShell,
-  win32
-};
-//# sourceMappingURL=processes.js.map

@@ -1,749 +1,665 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { asPromise } from "../../../base/common/async.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { debounce } from "../../../base/common/decorators.js";
-import { Emitter } from "../../../base/common/event.js";
-import { DisposableStore, MutableDisposable } from "../../../base/common/lifecycle.js";
-import { MarshalledId } from "../../../base/common/marshallingIds.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { IRange } from "../../../editor/common/core/range.js";
-import * as languages from "../../../editor/common/languages.js";
-import { ExtensionIdentifierMap, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostDocuments } from "./extHostDocuments.js";
-import * as extHostTypeConverter from "./extHostTypeConverters.js";
-import * as types from "./extHostTypes.js";
-import { ExtHostCommentsShape, IMainContext, MainContext, CommentThreadChanges, CommentChanges } from "./extHost.protocol.js";
-import { ExtHostCommands } from "./extHostCommands.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import { MarshalledCommentThread } from "../../common/comments.js";
-function createExtHostComments(mainContext, commands, documents) {
-  const proxy = mainContext.getProxy(MainContext.MainThreadComments);
-  class ExtHostCommentsImpl {
-    static {
-      __name(this, "ExtHostCommentsImpl");
-    }
-    static handlePool = 0;
-    _commentControllers = /* @__PURE__ */ new Map();
-    _commentControllersByExtension = new ExtensionIdentifierMap();
-    constructor() {
-      commands.registerArgumentProcessor({
-        processArgument: /* @__PURE__ */ __name((arg) => {
-          if (arg && arg.$mid === MarshalledId.CommentController) {
-            const commentController = this._commentControllers.get(arg.handle);
-            if (!commentController) {
-              return arg;
-            }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+import { asPromise } from '../../../base/common/async.js';
+import { debounce } from '../../../base/common/decorators.js';
+import { Emitter } from '../../../base/common/event.js';
+import { DisposableStore, MutableDisposable } from '../../../base/common/lifecycle.js';
+import { URI } from '../../../base/common/uri.js';
+import * as languages from '../../../editor/common/languages.js';
+import { ExtensionIdentifierMap } from '../../../platform/extensions/common/extensions.js';
+import * as extHostTypeConverter from './extHostTypeConverters.js';
+import * as types from './extHostTypes.js';
+import { MainContext } from './extHost.protocol.js';
+import { checkProposedApiEnabled } from '../../services/extensions/common/extensions.js';
+export function createExtHostComments(mainContext, commands, documents) {
+    const proxy = mainContext.getProxy(MainContext.MainThreadComments);
+    class ExtHostCommentsImpl {
+        static { this.handlePool = 0; }
+        constructor() {
+            this._commentControllers = new Map();
+            this._commentControllersByExtension = new ExtensionIdentifierMap();
+            commands.registerArgumentProcessor({
+                processArgument: arg => {
+                    if (arg && arg.$mid === 6 /* MarshalledId.CommentController */) {
+                        const commentController = this._commentControllers.get(arg.handle);
+                        if (!commentController) {
+                            return arg;
+                        }
+                        return commentController.value;
+                    }
+                    else if (arg && arg.$mid === 7 /* MarshalledId.CommentThread */) {
+                        const marshalledCommentThread = arg;
+                        const commentController = this._commentControllers.get(marshalledCommentThread.commentControlHandle);
+                        if (!commentController) {
+                            return marshalledCommentThread;
+                        }
+                        const commentThread = commentController.getCommentThread(marshalledCommentThread.commentThreadHandle);
+                        if (!commentThread) {
+                            return marshalledCommentThread;
+                        }
+                        return commentThread.value;
+                    }
+                    else if (arg && (arg.$mid === 9 /* MarshalledId.CommentThreadReply */ || arg.$mid === 8 /* MarshalledId.CommentThreadInstance */)) {
+                        const commentController = this._commentControllers.get(arg.thread.commentControlHandle);
+                        if (!commentController) {
+                            return arg;
+                        }
+                        const commentThread = commentController.getCommentThread(arg.thread.commentThreadHandle);
+                        if (!commentThread) {
+                            return arg;
+                        }
+                        if (arg.$mid === 8 /* MarshalledId.CommentThreadInstance */) {
+                            return commentThread.value;
+                        }
+                        return {
+                            thread: commentThread.value,
+                            text: arg.text
+                        };
+                    }
+                    else if (arg && arg.$mid === 10 /* MarshalledId.CommentNode */) {
+                        const commentController = this._commentControllers.get(arg.thread.commentControlHandle);
+                        if (!commentController) {
+                            return arg;
+                        }
+                        const commentThread = commentController.getCommentThread(arg.thread.commentThreadHandle);
+                        if (!commentThread) {
+                            return arg;
+                        }
+                        const commentUniqueId = arg.commentUniqueId;
+                        const comment = commentThread.getCommentByUniqueId(commentUniqueId);
+                        if (!comment) {
+                            return arg;
+                        }
+                        return comment;
+                    }
+                    else if (arg && arg.$mid === 11 /* MarshalledId.CommentThreadNode */) {
+                        const commentController = this._commentControllers.get(arg.thread.commentControlHandle);
+                        if (!commentController) {
+                            return arg;
+                        }
+                        const commentThread = commentController.getCommentThread(arg.thread.commentThreadHandle);
+                        if (!commentThread) {
+                            return arg;
+                        }
+                        const body = arg.text;
+                        const commentUniqueId = arg.commentUniqueId;
+                        const comment = commentThread.getCommentByUniqueId(commentUniqueId);
+                        if (!comment) {
+                            return arg;
+                        }
+                        // If the old comment body was a markdown string, use a markdown string here too.
+                        if (typeof comment.body === 'string') {
+                            comment.body = body;
+                        }
+                        else {
+                            comment.body = new types.MarkdownString(body);
+                        }
+                        return comment;
+                    }
+                    return arg;
+                }
+            });
+        }
+        createCommentController(extension, id, label) {
+            const handle = ExtHostCommentsImpl.handlePool++;
+            const commentController = new ExtHostCommentController(extension, handle, id, label);
+            this._commentControllers.set(commentController.handle, commentController);
+            const commentControllers = this._commentControllersByExtension.get(extension.identifier) || [];
+            commentControllers.push(commentController);
+            this._commentControllersByExtension.set(extension.identifier, commentControllers);
             return commentController.value;
-          } else if (arg && arg.$mid === MarshalledId.CommentThread) {
-            const marshalledCommentThread = arg;
-            const commentController = this._commentControllers.get(marshalledCommentThread.commentControlHandle);
-            if (!commentController) {
-              return marshalledCommentThread;
-            }
-            const commentThread = commentController.getCommentThread(marshalledCommentThread.commentThreadHandle);
-            if (!commentThread) {
-              return marshalledCommentThread;
-            }
-            return commentThread.value;
-          } else if (arg && (arg.$mid === MarshalledId.CommentThreadReply || arg.$mid === MarshalledId.CommentThreadInstance)) {
-            const commentController = this._commentControllers.get(arg.thread.commentControlHandle);
-            if (!commentController) {
-              return arg;
-            }
-            const commentThread = commentController.getCommentThread(arg.thread.commentThreadHandle);
-            if (!commentThread) {
-              return arg;
-            }
-            if (arg.$mid === MarshalledId.CommentThreadInstance) {
-              return commentThread.value;
-            }
-            return {
-              thread: commentThread.value,
-              text: arg.text
-            };
-          } else if (arg && arg.$mid === MarshalledId.CommentNode) {
-            const commentController = this._commentControllers.get(arg.thread.commentControlHandle);
-            if (!commentController) {
-              return arg;
-            }
-            const commentThread = commentController.getCommentThread(arg.thread.commentThreadHandle);
-            if (!commentThread) {
-              return arg;
-            }
-            const commentUniqueId = arg.commentUniqueId;
-            const comment = commentThread.getCommentByUniqueId(commentUniqueId);
-            if (!comment) {
-              return arg;
-            }
-            return comment;
-          } else if (arg && arg.$mid === MarshalledId.CommentThreadNode) {
-            const commentController = this._commentControllers.get(arg.thread.commentControlHandle);
-            if (!commentController) {
-              return arg;
-            }
-            const commentThread = commentController.getCommentThread(arg.thread.commentThreadHandle);
-            if (!commentThread) {
-              return arg;
-            }
-            const body = arg.text;
-            const commentUniqueId = arg.commentUniqueId;
-            const comment = commentThread.getCommentByUniqueId(commentUniqueId);
-            if (!comment) {
-              return arg;
-            }
-            if (typeof comment.body === "string") {
-              comment.body = body;
-            } else {
-              comment.body = new types.MarkdownString(body);
-            }
-            return comment;
-          }
-          return arg;
-        }, "processArgument")
-      });
-    }
-    createCommentController(extension, id, label) {
-      const handle = ExtHostCommentsImpl.handlePool++;
-      const commentController = new ExtHostCommentController(extension, handle, id, label);
-      this._commentControllers.set(commentController.handle, commentController);
-      const commentControllers = this._commentControllersByExtension.get(extension.identifier) || [];
-      commentControllers.push(commentController);
-      this._commentControllersByExtension.set(extension.identifier, commentControllers);
-      return commentController.value;
-    }
-    async $createCommentThreadTemplate(commentControllerHandle, uriComponents, range, editorId) {
-      const commentController = this._commentControllers.get(commentControllerHandle);
-      if (!commentController) {
-        return;
-      }
-      commentController.$createCommentThreadTemplate(uriComponents, range, editorId);
-    }
-    async $setActiveComment(controllerHandle, commentInfo) {
-      const commentController = this._commentControllers.get(controllerHandle);
-      if (!commentController) {
-        return;
-      }
-      commentController.$setActiveComment(commentInfo ?? void 0);
-    }
-    async $updateCommentThreadTemplate(commentControllerHandle, threadHandle, range) {
-      const commentController = this._commentControllers.get(commentControllerHandle);
-      if (!commentController) {
-        return;
-      }
-      commentController.$updateCommentThreadTemplate(threadHandle, range);
-    }
-    $deleteCommentThread(commentControllerHandle, commentThreadHandle) {
-      const commentController = this._commentControllers.get(commentControllerHandle);
-      commentController?.$deleteCommentThread(commentThreadHandle);
-    }
-    async $updateCommentThread(commentControllerHandle, commentThreadHandle, changes) {
-      const commentController = this._commentControllers.get(commentControllerHandle);
-      commentController?.$updateCommentThread(commentThreadHandle, changes);
-    }
-    async $provideCommentingRanges(commentControllerHandle, uriComponents, token) {
-      const commentController = this._commentControllers.get(commentControllerHandle);
-      if (!commentController || !commentController.commentingRangeProvider) {
-        return Promise.resolve(void 0);
-      }
-      const document = await documents.ensureDocumentData(URI.revive(uriComponents));
-      return asPromise(async () => {
-        const rangesResult = await commentController.commentingRangeProvider.provideCommentingRanges(document.document, token);
-        let ranges;
-        if (Array.isArray(rangesResult)) {
-          ranges = {
-            ranges: rangesResult,
-            fileComments: false
-          };
-        } else if (rangesResult) {
-          ranges = {
-            ranges: rangesResult.ranges || [],
-            fileComments: rangesResult.enableFileComments || false
-          };
-        } else {
-          ranges = rangesResult ?? void 0;
         }
-        return ranges;
-      }).then((ranges) => {
-        let convertedResult = void 0;
-        if (ranges) {
-          convertedResult = {
-            ranges: ranges.ranges.map((x) => extHostTypeConverter.Range.from(x)),
-            fileComments: ranges.fileComments
-          };
-        }
-        return convertedResult;
-      });
-    }
-    $toggleReaction(commentControllerHandle, threadHandle, uri, comment, reaction) {
-      const commentController = this._commentControllers.get(commentControllerHandle);
-      if (!commentController || !commentController.reactionHandler) {
-        return Promise.resolve(void 0);
-      }
-      return asPromise(() => {
-        const commentThread = commentController.getCommentThread(threadHandle);
-        if (commentThread) {
-          const vscodeComment = commentThread.getCommentByUniqueId(comment.uniqueIdInThread);
-          if (commentController !== void 0 && vscodeComment) {
-            if (commentController.reactionHandler) {
-              return commentController.reactionHandler(vscodeComment, convertFromReaction(reaction));
+        async $createCommentThreadTemplate(commentControllerHandle, uriComponents, range, editorId) {
+            const commentController = this._commentControllers.get(commentControllerHandle);
+            if (!commentController) {
+                return;
             }
-          }
+            commentController.$createCommentThreadTemplate(uriComponents, range, editorId);
         }
-        return Promise.resolve(void 0);
-      });
+        async $setActiveComment(controllerHandle, commentInfo) {
+            const commentController = this._commentControllers.get(controllerHandle);
+            if (!commentController) {
+                return;
+            }
+            commentController.$setActiveComment(commentInfo ?? undefined);
+        }
+        async $updateCommentThreadTemplate(commentControllerHandle, threadHandle, range) {
+            const commentController = this._commentControllers.get(commentControllerHandle);
+            if (!commentController) {
+                return;
+            }
+            commentController.$updateCommentThreadTemplate(threadHandle, range);
+        }
+        $deleteCommentThread(commentControllerHandle, commentThreadHandle) {
+            const commentController = this._commentControllers.get(commentControllerHandle);
+            commentController?.$deleteCommentThread(commentThreadHandle);
+        }
+        async $updateCommentThread(commentControllerHandle, commentThreadHandle, changes) {
+            const commentController = this._commentControllers.get(commentControllerHandle);
+            commentController?.$updateCommentThread(commentThreadHandle, changes);
+        }
+        async $provideCommentingRanges(commentControllerHandle, uriComponents, token) {
+            const commentController = this._commentControllers.get(commentControllerHandle);
+            if (!commentController || !commentController.commentingRangeProvider) {
+                return Promise.resolve(undefined);
+            }
+            const document = await documents.ensureDocumentData(URI.revive(uriComponents));
+            return asPromise(async () => {
+                const rangesResult = await commentController.commentingRangeProvider.provideCommentingRanges(document.document, token);
+                let ranges;
+                if (Array.isArray(rangesResult)) {
+                    ranges = {
+                        ranges: rangesResult,
+                        fileComments: false
+                    };
+                }
+                else if (rangesResult) {
+                    ranges = {
+                        ranges: rangesResult.ranges || [],
+                        fileComments: rangesResult.enableFileComments || false
+                    };
+                }
+                else {
+                    ranges = rangesResult ?? undefined;
+                }
+                return ranges;
+            }).then(ranges => {
+                let convertedResult = undefined;
+                if (ranges) {
+                    convertedResult = {
+                        ranges: ranges.ranges.map(x => extHostTypeConverter.Range.from(x)),
+                        fileComments: ranges.fileComments
+                    };
+                }
+                return convertedResult;
+            });
+        }
+        $toggleReaction(commentControllerHandle, threadHandle, uri, comment, reaction) {
+            const commentController = this._commentControllers.get(commentControllerHandle);
+            if (!commentController || !commentController.reactionHandler) {
+                return Promise.resolve(undefined);
+            }
+            return asPromise(() => {
+                const commentThread = commentController.getCommentThread(threadHandle);
+                if (commentThread) {
+                    const vscodeComment = commentThread.getCommentByUniqueId(comment.uniqueIdInThread);
+                    if (commentController !== undefined && vscodeComment) {
+                        if (commentController.reactionHandler) {
+                            return commentController.reactionHandler(vscodeComment, convertFromReaction(reaction));
+                        }
+                    }
+                }
+                return Promise.resolve(undefined);
+            });
+        }
     }
-  }
-  const _ExtHostCommentThread = class _ExtHostCommentThread {
-    constructor(commentControllerId, _commentControllerHandle, _id, _uri, _range, _comments, extensionDescription, _isTemplate, editorId) {
-      this._commentControllerHandle = _commentControllerHandle;
-      this._id = _id;
-      this._uri = _uri;
-      this._range = _range;
-      this._comments = _comments;
-      this.extensionDescription = extensionDescription;
-      this._isTemplate = _isTemplate;
-      this._acceptInputDisposables.value = new DisposableStore();
-      if (this._id === void 0) {
-        this._id = `${commentControllerId}.${this.handle}`;
-      }
-      proxy.$createCommentThread(
-        _commentControllerHandle,
-        this.handle,
-        this._id,
-        this._uri,
-        extHostTypeConverter.Range.from(this._range),
-        this._comments.map((cmt) => convertToDTOComment(this, cmt, this._commentsMap, this.extensionDescription)),
-        extensionDescription.identifier,
-        this._isTemplate,
-        editorId
-      );
-      this._localDisposables = [];
-      this._isDiposed = false;
-      this._localDisposables.push(this.onDidUpdateCommentThread(() => {
-        this.eventuallyUpdateCommentThread();
-      }));
-      this._localDisposables.push({
-        dispose: /* @__PURE__ */ __name(() => {
-          proxy.$deleteCommentThread(
-            _commentControllerHandle,
-            this.handle
-          );
-        }, "dispose")
-      });
-      const that = this;
-      this.value = {
+    class ExtHostCommentThread {
+        static { this._handlePool = 0; }
+        set threadId(id) {
+            this._id = id;
+        }
+        get threadId() {
+            return this._id;
+        }
+        get id() {
+            return this._id;
+        }
+        get resource() {
+            return this._uri;
+        }
         get uri() {
-          return that.uri;
-        },
-        get range() {
-          return that.range;
-        },
-        set range(value) {
-          that.range = value;
-        },
-        get comments() {
-          return that.comments;
-        },
-        set comments(value) {
-          that.comments = value;
-        },
-        get collapsibleState() {
-          return that.collapsibleState;
-        },
-        set collapsibleState(value) {
-          that.collapsibleState = value;
-        },
-        get canReply() {
-          return that.canReply;
-        },
-        set canReply(state) {
-          that.canReply = state;
-        },
-        get contextValue() {
-          return that.contextValue;
-        },
-        set contextValue(value) {
-          that.contextValue = value;
-        },
-        get label() {
-          return that.label;
-        },
-        set label(value) {
-          that.label = value;
-        },
-        get state() {
-          return that.state;
-        },
-        set state(value) {
-          that.state = value;
-        },
-        reveal: /* @__PURE__ */ __name((comment, options) => that.reveal(comment, options), "reveal"),
-        hide: /* @__PURE__ */ __name(() => that.hide(), "hide"),
-        dispose: /* @__PURE__ */ __name(() => {
-          that.dispose();
-        }, "dispose")
-      };
-    }
-    static {
-      __name(this, "ExtHostCommentThread");
-    }
-    static _handlePool = 0;
-    handle = _ExtHostCommentThread._handlePool++;
-    commentHandle = 0;
-    modifications = /* @__PURE__ */ Object.create(null);
-    set threadId(id) {
-      this._id = id;
-    }
-    get threadId() {
-      return this._id;
-    }
-    get id() {
-      return this._id;
-    }
-    get resource() {
-      return this._uri;
-    }
-    get uri() {
-      return this._uri;
-    }
-    _onDidUpdateCommentThread = new Emitter();
-    onDidUpdateCommentThread = this._onDidUpdateCommentThread.event;
-    set range(range) {
-      if (range === void 0 !== (this._range === void 0) || (!range || !this._range || !range.isEqual(this._range))) {
-        this._range = range;
-        this.modifications.range = range;
-        this._onDidUpdateCommentThread.fire();
-      }
-    }
-    get range() {
-      return this._range;
-    }
-    _canReply = true;
-    set canReply(state) {
-      if (this._canReply !== state) {
-        this._canReply = state;
-        this.modifications.canReply = state;
-        this._onDidUpdateCommentThread.fire();
-      }
-    }
-    get canReply() {
-      return this._canReply;
-    }
-    _label;
-    get label() {
-      return this._label;
-    }
-    set label(label) {
-      this._label = label;
-      this.modifications.label = label;
-      this._onDidUpdateCommentThread.fire();
-    }
-    _contextValue;
-    get contextValue() {
-      return this._contextValue;
-    }
-    set contextValue(context) {
-      this._contextValue = context;
-      this.modifications.contextValue = context;
-      this._onDidUpdateCommentThread.fire();
-    }
-    get comments() {
-      return this._comments;
-    }
-    set comments(newComments) {
-      this._comments = newComments;
-      this.modifications.comments = newComments;
-      this._onDidUpdateCommentThread.fire();
-    }
-    _collapseState;
-    get collapsibleState() {
-      return this._collapseState;
-    }
-    set collapsibleState(newState) {
-      this._collapseState = newState;
-      this.modifications.collapsibleState = newState;
-      this._onDidUpdateCommentThread.fire();
-    }
-    _state;
-    get state() {
-      return this._state;
-    }
-    set state(newState) {
-      this._state = newState;
-      if (typeof newState === "object") {
-        checkProposedApiEnabled(this.extensionDescription, "commentThreadApplicability");
-        this.modifications.state = newState.resolved;
-        this.modifications.applicability = newState.applicability;
-      } else {
-        this.modifications.state = newState;
-      }
-      this._onDidUpdateCommentThread.fire();
-    }
-    _localDisposables;
-    _isDiposed;
-    get isDisposed() {
-      return this._isDiposed;
-    }
-    _commentsMap = /* @__PURE__ */ new Map();
-    _acceptInputDisposables = new MutableDisposable();
-    value;
-    updateIsTemplate() {
-      if (this._isTemplate) {
-        this._isTemplate = false;
-        this.modifications.isTemplate = false;
-      }
-    }
-    eventuallyUpdateCommentThread() {
-      if (this._isDiposed) {
-        return;
-      }
-      this.updateIsTemplate();
-      if (!this._acceptInputDisposables.value) {
-        this._acceptInputDisposables.value = new DisposableStore();
-      }
-      const modified = /* @__PURE__ */ __name((value) => Object.prototype.hasOwnProperty.call(this.modifications, value), "modified");
-      const formattedModifications = {};
-      if (modified("range")) {
-        formattedModifications.range = extHostTypeConverter.Range.from(this._range);
-      }
-      if (modified("label")) {
-        formattedModifications.label = this.label;
-      }
-      if (modified("contextValue")) {
-        formattedModifications.contextValue = this.contextValue ?? null;
-      }
-      if (modified("comments")) {
-        formattedModifications.comments = this._comments.map((cmt) => convertToDTOComment(this, cmt, this._commentsMap, this.extensionDescription));
-      }
-      if (modified("collapsibleState")) {
-        formattedModifications.collapseState = convertToCollapsibleState(this._collapseState);
-      }
-      if (modified("canReply")) {
-        formattedModifications.canReply = this.canReply;
-      }
-      if (modified("state")) {
-        formattedModifications.state = convertToState(this._state);
-      }
-      if (modified("applicability")) {
-        formattedModifications.applicability = convertToRelevance(this._state);
-      }
-      if (modified("isTemplate")) {
-        formattedModifications.isTemplate = this._isTemplate;
-      }
-      this.modifications = {};
-      proxy.$updateCommentThread(
-        this._commentControllerHandle,
-        this.handle,
-        this._id,
-        this._uri,
-        formattedModifications
-      );
-    }
-    getCommentByUniqueId(uniqueId) {
-      for (const key of this._commentsMap) {
-        const comment = key[0];
-        const id = key[1];
-        if (uniqueId === id) {
-          return comment;
+            return this._uri;
         }
-      }
-      return;
+        set range(range) {
+            if (((range === undefined) !== (this._range === undefined)) || (!range || !this._range || !range.isEqual(this._range))) {
+                this._range = range;
+                this.modifications.range = range;
+                this._onDidUpdateCommentThread.fire();
+            }
+        }
+        get range() {
+            return this._range;
+        }
+        set canReply(state) {
+            if (this._canReply !== state) {
+                this._canReply = state;
+                this.modifications.canReply = state;
+                this._onDidUpdateCommentThread.fire();
+            }
+        }
+        get canReply() {
+            return this._canReply;
+        }
+        get label() {
+            return this._label;
+        }
+        set label(label) {
+            this._label = label;
+            this.modifications.label = label;
+            this._onDidUpdateCommentThread.fire();
+        }
+        get contextValue() {
+            return this._contextValue;
+        }
+        set contextValue(context) {
+            this._contextValue = context;
+            this.modifications.contextValue = context;
+            this._onDidUpdateCommentThread.fire();
+        }
+        get comments() {
+            return this._comments;
+        }
+        set comments(newComments) {
+            this._comments = newComments;
+            this.modifications.comments = newComments;
+            this._onDidUpdateCommentThread.fire();
+        }
+        get collapsibleState() {
+            return this._collapseState;
+        }
+        set collapsibleState(newState) {
+            this._collapseState = newState;
+            this.modifications.collapsibleState = newState;
+            this._onDidUpdateCommentThread.fire();
+        }
+        get state() {
+            return this._state;
+        }
+        set state(newState) {
+            this._state = newState;
+            if (typeof newState === 'object') {
+                checkProposedApiEnabled(this.extensionDescription, 'commentThreadApplicability');
+                this.modifications.state = newState.resolved;
+                this.modifications.applicability = newState.applicability;
+            }
+            else {
+                this.modifications.state = newState;
+            }
+            this._onDidUpdateCommentThread.fire();
+        }
+        get isDisposed() {
+            return this._isDiposed;
+        }
+        constructor(commentControllerId, _commentControllerHandle, _id, _uri, _range, _comments, extensionDescription, _isTemplate, editorId) {
+            this._commentControllerHandle = _commentControllerHandle;
+            this._id = _id;
+            this._uri = _uri;
+            this._range = _range;
+            this._comments = _comments;
+            this.extensionDescription = extensionDescription;
+            this._isTemplate = _isTemplate;
+            this.handle = ExtHostCommentThread._handlePool++;
+            this.commentHandle = 0;
+            this.modifications = Object.create(null);
+            this._onDidUpdateCommentThread = new Emitter();
+            this.onDidUpdateCommentThread = this._onDidUpdateCommentThread.event;
+            this._canReply = true;
+            this._commentsMap = new Map();
+            this._acceptInputDisposables = new MutableDisposable();
+            this._acceptInputDisposables.value = new DisposableStore();
+            if (this._id === undefined) {
+                this._id = `${commentControllerId}.${this.handle}`;
+            }
+            proxy.$createCommentThread(_commentControllerHandle, this.handle, this._id, this._uri, extHostTypeConverter.Range.from(this._range), this._comments.map(cmt => convertToDTOComment(this, cmt, this._commentsMap, this.extensionDescription)), extensionDescription.identifier, this._isTemplate, editorId);
+            this._localDisposables = [];
+            this._isDiposed = false;
+            this._localDisposables.push(this.onDidUpdateCommentThread(() => {
+                this.eventuallyUpdateCommentThread();
+            }));
+            this._localDisposables.push({
+                dispose: () => {
+                    proxy.$deleteCommentThread(_commentControllerHandle, this.handle);
+                }
+            });
+            const that = this;
+            this.value = {
+                get uri() { return that.uri; },
+                get range() { return that.range; },
+                set range(value) { that.range = value; },
+                get comments() { return that.comments; },
+                set comments(value) { that.comments = value; },
+                get collapsibleState() { return that.collapsibleState; },
+                set collapsibleState(value) { that.collapsibleState = value; },
+                get canReply() { return that.canReply; },
+                set canReply(state) { that.canReply = state; },
+                get contextValue() { return that.contextValue; },
+                set contextValue(value) { that.contextValue = value; },
+                get label() { return that.label; },
+                set label(value) { that.label = value; },
+                get state() { return that.state; },
+                set state(value) { that.state = value; },
+                reveal: (comment, options) => that.reveal(comment, options),
+                hide: () => that.hide(),
+                dispose: () => {
+                    that.dispose();
+                }
+            };
+        }
+        updateIsTemplate() {
+            if (this._isTemplate) {
+                this._isTemplate = false;
+                this.modifications.isTemplate = false;
+            }
+        }
+        eventuallyUpdateCommentThread() {
+            if (this._isDiposed) {
+                return;
+            }
+            this.updateIsTemplate();
+            if (!this._acceptInputDisposables.value) {
+                this._acceptInputDisposables.value = new DisposableStore();
+            }
+            const modified = (value) => Object.prototype.hasOwnProperty.call(this.modifications, value);
+            const formattedModifications = {};
+            if (modified('range')) {
+                formattedModifications.range = extHostTypeConverter.Range.from(this._range);
+            }
+            if (modified('label')) {
+                formattedModifications.label = this.label;
+            }
+            if (modified('contextValue')) {
+                /*
+                 * null -> cleared contextValue
+                 * undefined -> no change
+                 */
+                formattedModifications.contextValue = this.contextValue ?? null;
+            }
+            if (modified('comments')) {
+                formattedModifications.comments =
+                    this._comments.map(cmt => convertToDTOComment(this, cmt, this._commentsMap, this.extensionDescription));
+            }
+            if (modified('collapsibleState')) {
+                formattedModifications.collapseState = convertToCollapsibleState(this._collapseState);
+            }
+            if (modified('canReply')) {
+                formattedModifications.canReply = this.canReply;
+            }
+            if (modified('state')) {
+                formattedModifications.state = convertToState(this._state);
+            }
+            if (modified('applicability')) {
+                formattedModifications.applicability = convertToRelevance(this._state);
+            }
+            if (modified('isTemplate')) {
+                formattedModifications.isTemplate = this._isTemplate;
+            }
+            this.modifications = {};
+            proxy.$updateCommentThread(this._commentControllerHandle, this.handle, this._id, this._uri, formattedModifications);
+        }
+        getCommentByUniqueId(uniqueId) {
+            for (const key of this._commentsMap) {
+                const comment = key[0];
+                const id = key[1];
+                if (uniqueId === id) {
+                    return comment;
+                }
+            }
+            return;
+        }
+        async reveal(commentOrOptions, options) {
+            checkProposedApiEnabled(this.extensionDescription, 'commentReveal');
+            let comment;
+            if (commentOrOptions && commentOrOptions.body !== undefined) {
+                comment = commentOrOptions;
+            }
+            else {
+                options = options ?? commentOrOptions;
+            }
+            let commentToReveal = comment ? this._commentsMap.get(comment) : undefined;
+            commentToReveal ??= this._commentsMap.get(this._comments[0]);
+            let preserveFocus = true;
+            let focusReply = false;
+            if (options?.focus === types.CommentThreadFocus.Reply) {
+                focusReply = true;
+                preserveFocus = false;
+            }
+            else if (options?.focus === types.CommentThreadFocus.Comment) {
+                preserveFocus = false;
+            }
+            return proxy.$revealCommentThread(this._commentControllerHandle, this.handle, commentToReveal, { preserveFocus, focusReply });
+        }
+        async hide() {
+            return proxy.$hideCommentThread(this._commentControllerHandle, this.handle);
+        }
+        dispose() {
+            this._isDiposed = true;
+            this._acceptInputDisposables.dispose();
+            this._localDisposables.forEach(disposable => disposable.dispose());
+        }
     }
-    async reveal(commentOrOptions, options) {
-      checkProposedApiEnabled(this.extensionDescription, "commentReveal");
-      let comment;
-      if (commentOrOptions && commentOrOptions.body !== void 0) {
-        comment = commentOrOptions;
-      } else {
-        options = options ?? commentOrOptions;
-      }
-      let commentToReveal = comment ? this._commentsMap.get(comment) : void 0;
-      commentToReveal ??= this._commentsMap.get(this._comments[0]);
-      let preserveFocus = true;
-      let focusReply = false;
-      if (options?.focus === types.CommentThreadFocus.Reply) {
-        focusReply = true;
-        preserveFocus = false;
-      } else if (options?.focus === types.CommentThreadFocus.Comment) {
-        preserveFocus = false;
-      }
-      return proxy.$revealCommentThread(this._commentControllerHandle, this.handle, commentToReveal, { preserveFocus, focusReply });
-    }
-    async hide() {
-      return proxy.$hideCommentThread(this._commentControllerHandle, this.handle);
-    }
-    dispose() {
-      this._isDiposed = true;
-      this._acceptInputDisposables.dispose();
-      this._localDisposables.forEach((disposable) => disposable.dispose());
-    }
-  };
-  __decorateClass([
-    debounce(100)
-  ], _ExtHostCommentThread.prototype, "eventuallyUpdateCommentThread", 1);
-  let ExtHostCommentThread = _ExtHostCommentThread;
-  class ExtHostCommentController {
-    constructor(_extension, _handle, _id, _label) {
-      this._extension = _extension;
-      this._handle = _handle;
-      this._id = _id;
-      this._label = _label;
-      proxy.$registerCommentController(this.handle, _id, _label, this._extension.identifier.value);
-      const that = this;
-      this.value = Object.freeze({
-        id: that.id,
-        label: that.label,
-        get options() {
-          return that.options;
-        },
-        set options(options) {
-          that.options = options;
-        },
+    __decorate([
+        debounce(100),
+        __metadata("design:type", Function),
+        __metadata("design:paramtypes", []),
+        __metadata("design:returntype", void 0)
+    ], ExtHostCommentThread.prototype, "eventuallyUpdateCommentThread", null);
+    class ExtHostCommentController {
+        get id() {
+            return this._id;
+        }
+        get label() {
+            return this._label;
+        }
+        get handle() {
+            return this._handle;
+        }
         get commentingRangeProvider() {
-          return that.commentingRangeProvider;
-        },
-        set commentingRangeProvider(commentingRangeProvider) {
-          that.commentingRangeProvider = commentingRangeProvider;
-        },
+            return this._commentingRangeProvider;
+        }
+        set commentingRangeProvider(provider) {
+            this._commentingRangeProvider = provider;
+            if (provider?.resourceHints) {
+                checkProposedApiEnabled(this._extension, 'commentingRangeHint');
+            }
+            proxy.$updateCommentingRanges(this.handle, provider?.resourceHints);
+        }
         get reactionHandler() {
-          return that.reactionHandler;
-        },
+            return this._reactionHandler;
+        }
         set reactionHandler(handler) {
-          that.reactionHandler = handler;
-        },
-        // get activeComment(): vscode.Comment | undefined { return that.activeComment; },
+            this._reactionHandler = handler;
+            proxy.$updateCommentControllerFeatures(this.handle, { reactionHandler: !!handler });
+        }
+        get options() {
+            return this._options;
+        }
+        set options(options) {
+            this._options = options;
+            proxy.$updateCommentControllerFeatures(this.handle, { options: this._options });
+        }
+        get activeComment() {
+            checkProposedApiEnabled(this._extension, 'activeComment');
+            return this._activeComment;
+        }
         get activeCommentThread() {
-          return that.activeCommentThread;
-        },
-        createCommentThread(uri, range, comments) {
-          return that.createCommentThread(uri, range, comments).value;
-        },
-        dispose: /* @__PURE__ */ __name(() => {
-          that.dispose();
-        }, "dispose")
-      });
-      this._localDisposables = [];
-      this._localDisposables.push({
-        dispose: /* @__PURE__ */ __name(() => {
-          proxy.$unregisterCommentController(this.handle);
-        }, "dispose")
-      });
+            checkProposedApiEnabled(this._extension, 'activeComment');
+            return this._activeThread?.value;
+        }
+        constructor(_extension, _handle, _id, _label) {
+            this._extension = _extension;
+            this._handle = _handle;
+            this._id = _id;
+            this._label = _label;
+            this._threads = new Map();
+            proxy.$registerCommentController(this.handle, _id, _label, this._extension.identifier.value);
+            const that = this;
+            this.value = Object.freeze({
+                id: that.id,
+                label: that.label,
+                get options() { return that.options; },
+                set options(options) { that.options = options; },
+                get commentingRangeProvider() { return that.commentingRangeProvider; },
+                set commentingRangeProvider(commentingRangeProvider) { that.commentingRangeProvider = commentingRangeProvider; },
+                get reactionHandler() { return that.reactionHandler; },
+                set reactionHandler(handler) { that.reactionHandler = handler; },
+                // get activeComment(): vscode.Comment | undefined { return that.activeComment; },
+                get activeCommentThread() { return that.activeCommentThread; },
+                createCommentThread(uri, range, comments) {
+                    return that.createCommentThread(uri, range, comments).value;
+                },
+                dispose: () => { that.dispose(); },
+            }); // TODO @alexr00 remove this cast when the proposed API is stable
+            this._localDisposables = [];
+            this._localDisposables.push({
+                dispose: () => {
+                    proxy.$unregisterCommentController(this.handle);
+                }
+            });
+        }
+        createCommentThread(resource, range, comments) {
+            if (range === undefined) {
+                checkProposedApiEnabled(this._extension, 'fileComments');
+            }
+            const commentThread = new ExtHostCommentThread(this.id, this.handle, undefined, resource, range, comments, this._extension, false);
+            this._threads.set(commentThread.handle, commentThread);
+            return commentThread;
+        }
+        $setActiveComment(commentInfo) {
+            if (!commentInfo) {
+                this._activeComment = undefined;
+                this._activeThread = undefined;
+                return;
+            }
+            const thread = this._threads.get(commentInfo.commentThreadHandle);
+            if (thread) {
+                this._activeComment = commentInfo.uniqueIdInThread ? thread.getCommentByUniqueId(commentInfo.uniqueIdInThread) : undefined;
+                this._activeThread = thread;
+            }
+        }
+        $createCommentThreadTemplate(uriComponents, range, editorId) {
+            const commentThread = new ExtHostCommentThread(this.id, this.handle, undefined, URI.revive(uriComponents), extHostTypeConverter.Range.to(range), [], this._extension, true, editorId);
+            commentThread.collapsibleState = languages.CommentThreadCollapsibleState.Expanded;
+            this._threads.set(commentThread.handle, commentThread);
+            return commentThread;
+        }
+        $updateCommentThreadTemplate(threadHandle, range) {
+            const thread = this._threads.get(threadHandle);
+            if (thread) {
+                thread.range = extHostTypeConverter.Range.to(range);
+            }
+        }
+        $updateCommentThread(threadHandle, changes) {
+            const thread = this._threads.get(threadHandle);
+            if (!thread) {
+                return;
+            }
+            const modified = (value) => Object.prototype.hasOwnProperty.call(changes, value);
+            if (modified('collapseState')) {
+                thread.collapsibleState = convertToCollapsibleState(changes.collapseState);
+            }
+        }
+        $deleteCommentThread(threadHandle) {
+            const thread = this._threads.get(threadHandle);
+            thread?.dispose();
+            this._threads.delete(threadHandle);
+        }
+        getCommentThread(handle) {
+            return this._threads.get(handle);
+        }
+        dispose() {
+            this._threads.forEach(value => {
+                value.dispose();
+            });
+            this._localDisposables.forEach(disposable => disposable.dispose());
+        }
     }
-    static {
-      __name(this, "ExtHostCommentController");
+    function convertToDTOComment(thread, vscodeComment, commentsMap, extension) {
+        let commentUniqueId = commentsMap.get(vscodeComment);
+        if (!commentUniqueId) {
+            commentUniqueId = ++thread.commentHandle;
+            commentsMap.set(vscodeComment, commentUniqueId);
+        }
+        if (vscodeComment.state !== undefined) {
+            checkProposedApiEnabled(extension, 'commentsDraftState');
+        }
+        if (vscodeComment.reactions?.some(reaction => reaction.reactors !== undefined)) {
+            checkProposedApiEnabled(extension, 'commentReactor');
+        }
+        return {
+            mode: vscodeComment.mode,
+            contextValue: vscodeComment.contextValue,
+            uniqueIdInThread: commentUniqueId,
+            body: (typeof vscodeComment.body === 'string') ? vscodeComment.body : extHostTypeConverter.MarkdownString.from(vscodeComment.body),
+            userName: vscodeComment.author.name,
+            userIconPath: vscodeComment.author.iconPath,
+            label: vscodeComment.label,
+            commentReactions: vscodeComment.reactions ? vscodeComment.reactions.map(reaction => convertToReaction(reaction)) : undefined,
+            state: vscodeComment.state,
+            timestamp: vscodeComment.timestamp?.toJSON()
+        };
     }
-    get id() {
-      return this._id;
+    function convertToReaction(reaction) {
+        return {
+            label: reaction.label,
+            iconPath: reaction.iconPath ? extHostTypeConverter.pathOrURIToURI(reaction.iconPath) : undefined,
+            count: reaction.count,
+            hasReacted: reaction.authorHasReacted,
+            reactors: ((reaction.reactors && (reaction.reactors.length > 0) && (typeof reaction.reactors[0] !== 'string')) ? reaction.reactors.map(reactor => reactor.name) : reaction.reactors)
+        };
     }
-    get label() {
-      return this._label;
+    function convertFromReaction(reaction) {
+        return {
+            label: reaction.label || '',
+            count: reaction.count || 0,
+            iconPath: reaction.iconPath ? URI.revive(reaction.iconPath) : '',
+            authorHasReacted: reaction.hasReacted || false,
+            reactors: reaction.reactors?.map(reactor => ({ name: reactor }))
+        };
     }
-    get handle() {
-      return this._handle;
+    function convertToCollapsibleState(kind) {
+        if (kind !== undefined) {
+            switch (kind) {
+                case types.CommentThreadCollapsibleState.Expanded:
+                    return languages.CommentThreadCollapsibleState.Expanded;
+                case types.CommentThreadCollapsibleState.Collapsed:
+                    return languages.CommentThreadCollapsibleState.Collapsed;
+            }
+        }
+        return languages.CommentThreadCollapsibleState.Collapsed;
     }
-    _threads = /* @__PURE__ */ new Map();
-    _commentingRangeProvider;
-    get commentingRangeProvider() {
-      return this._commentingRangeProvider;
+    function convertToState(kind) {
+        let resolvedKind;
+        if (typeof kind === 'object') {
+            resolvedKind = kind.resolved;
+        }
+        else {
+            resolvedKind = kind;
+        }
+        if (resolvedKind !== undefined) {
+            switch (resolvedKind) {
+                case types.CommentThreadState.Unresolved:
+                    return languages.CommentThreadState.Unresolved;
+                case types.CommentThreadState.Resolved:
+                    return languages.CommentThreadState.Resolved;
+            }
+        }
+        return languages.CommentThreadState.Unresolved;
     }
-    set commentingRangeProvider(provider) {
-      this._commentingRangeProvider = provider;
-      if (provider?.resourceHints) {
-        checkProposedApiEnabled(this._extension, "commentingRangeHint");
-      }
-      proxy.$updateCommentingRanges(this.handle, provider?.resourceHints);
+    function convertToRelevance(kind) {
+        let applicabilityKind = undefined;
+        if (typeof kind === 'object') {
+            applicabilityKind = kind.applicability;
+        }
+        if (applicabilityKind !== undefined) {
+            switch (applicabilityKind) {
+                case types.CommentThreadApplicability.Current:
+                    return languages.CommentThreadApplicability.Current;
+                case types.CommentThreadApplicability.Outdated:
+                    return languages.CommentThreadApplicability.Outdated;
+            }
+        }
+        return languages.CommentThreadApplicability.Current;
     }
-    _reactionHandler;
-    get reactionHandler() {
-      return this._reactionHandler;
-    }
-    set reactionHandler(handler) {
-      this._reactionHandler = handler;
-      proxy.$updateCommentControllerFeatures(this.handle, { reactionHandler: !!handler });
-    }
-    _options;
-    get options() {
-      return this._options;
-    }
-    set options(options) {
-      this._options = options;
-      proxy.$updateCommentControllerFeatures(this.handle, { options: this._options });
-    }
-    _activeComment;
-    get activeComment() {
-      checkProposedApiEnabled(this._extension, "activeComment");
-      return this._activeComment;
-    }
-    _activeThread;
-    get activeCommentThread() {
-      checkProposedApiEnabled(this._extension, "activeComment");
-      return this._activeThread?.value;
-    }
-    _localDisposables;
-    value;
-    createCommentThread(resource, range, comments) {
-      if (range === void 0) {
-        checkProposedApiEnabled(this._extension, "fileComments");
-      }
-      const commentThread = new ExtHostCommentThread(this.id, this.handle, void 0, resource, range, comments, this._extension, false);
-      this._threads.set(commentThread.handle, commentThread);
-      return commentThread;
-    }
-    $setActiveComment(commentInfo) {
-      if (!commentInfo) {
-        this._activeComment = void 0;
-        this._activeThread = void 0;
-        return;
-      }
-      const thread = this._threads.get(commentInfo.commentThreadHandle);
-      if (thread) {
-        this._activeComment = commentInfo.uniqueIdInThread ? thread.getCommentByUniqueId(commentInfo.uniqueIdInThread) : void 0;
-        this._activeThread = thread;
-      }
-    }
-    $createCommentThreadTemplate(uriComponents, range, editorId) {
-      const commentThread = new ExtHostCommentThread(this.id, this.handle, void 0, URI.revive(uriComponents), extHostTypeConverter.Range.to(range), [], this._extension, true, editorId);
-      commentThread.collapsibleState = languages.CommentThreadCollapsibleState.Expanded;
-      this._threads.set(commentThread.handle, commentThread);
-      return commentThread;
-    }
-    $updateCommentThreadTemplate(threadHandle, range) {
-      const thread = this._threads.get(threadHandle);
-      if (thread) {
-        thread.range = extHostTypeConverter.Range.to(range);
-      }
-    }
-    $updateCommentThread(threadHandle, changes) {
-      const thread = this._threads.get(threadHandle);
-      if (!thread) {
-        return;
-      }
-      const modified = /* @__PURE__ */ __name((value) => Object.prototype.hasOwnProperty.call(changes, value), "modified");
-      if (modified("collapseState")) {
-        thread.collapsibleState = convertToCollapsibleState(changes.collapseState);
-      }
-    }
-    $deleteCommentThread(threadHandle) {
-      const thread = this._threads.get(threadHandle);
-      thread?.dispose();
-      this._threads.delete(threadHandle);
-    }
-    getCommentThread(handle) {
-      return this._threads.get(handle);
-    }
-    dispose() {
-      this._threads.forEach((value) => {
-        value.dispose();
-      });
-      this._localDisposables.forEach((disposable) => disposable.dispose());
-    }
-  }
-  function convertToDTOComment(thread, vscodeComment, commentsMap, extension) {
-    let commentUniqueId = commentsMap.get(vscodeComment);
-    if (!commentUniqueId) {
-      commentUniqueId = ++thread.commentHandle;
-      commentsMap.set(vscodeComment, commentUniqueId);
-    }
-    if (vscodeComment.state !== void 0) {
-      checkProposedApiEnabled(extension, "commentsDraftState");
-    }
-    if (vscodeComment.reactions?.some((reaction) => reaction.reactors !== void 0)) {
-      checkProposedApiEnabled(extension, "commentReactor");
-    }
-    return {
-      mode: vscodeComment.mode,
-      contextValue: vscodeComment.contextValue,
-      uniqueIdInThread: commentUniqueId,
-      body: typeof vscodeComment.body === "string" ? vscodeComment.body : extHostTypeConverter.MarkdownString.from(vscodeComment.body),
-      userName: vscodeComment.author.name,
-      userIconPath: vscodeComment.author.iconPath,
-      label: vscodeComment.label,
-      commentReactions: vscodeComment.reactions ? vscodeComment.reactions.map((reaction) => convertToReaction(reaction)) : void 0,
-      state: vscodeComment.state,
-      timestamp: vscodeComment.timestamp?.toJSON()
-    };
-  }
-  __name(convertToDTOComment, "convertToDTOComment");
-  function convertToReaction(reaction) {
-    return {
-      label: reaction.label,
-      iconPath: reaction.iconPath ? extHostTypeConverter.pathOrURIToURI(reaction.iconPath) : void 0,
-      count: reaction.count,
-      hasReacted: reaction.authorHasReacted,
-      reactors: reaction.reactors && reaction.reactors.length > 0 && typeof reaction.reactors[0] !== "string" ? reaction.reactors.map((reactor) => reactor.name) : reaction.reactors
-    };
-  }
-  __name(convertToReaction, "convertToReaction");
-  function convertFromReaction(reaction) {
-    return {
-      label: reaction.label || "",
-      count: reaction.count || 0,
-      iconPath: reaction.iconPath ? URI.revive(reaction.iconPath) : "",
-      authorHasReacted: reaction.hasReacted || false,
-      reactors: reaction.reactors?.map((reactor) => ({ name: reactor }))
-    };
-  }
-  __name(convertFromReaction, "convertFromReaction");
-  function convertToCollapsibleState(kind) {
-    if (kind !== void 0) {
-      switch (kind) {
-        case types.CommentThreadCollapsibleState.Expanded:
-          return languages.CommentThreadCollapsibleState.Expanded;
-        case types.CommentThreadCollapsibleState.Collapsed:
-          return languages.CommentThreadCollapsibleState.Collapsed;
-      }
-    }
-    return languages.CommentThreadCollapsibleState.Collapsed;
-  }
-  __name(convertToCollapsibleState, "convertToCollapsibleState");
-  function convertToState(kind) {
-    let resolvedKind;
-    if (typeof kind === "object") {
-      resolvedKind = kind.resolved;
-    } else {
-      resolvedKind = kind;
-    }
-    if (resolvedKind !== void 0) {
-      switch (resolvedKind) {
-        case types.CommentThreadState.Unresolved:
-          return languages.CommentThreadState.Unresolved;
-        case types.CommentThreadState.Resolved:
-          return languages.CommentThreadState.Resolved;
-      }
-    }
-    return languages.CommentThreadState.Unresolved;
-  }
-  __name(convertToState, "convertToState");
-  function convertToRelevance(kind) {
-    let applicabilityKind = void 0;
-    if (typeof kind === "object") {
-      applicabilityKind = kind.applicability;
-    }
-    if (applicabilityKind !== void 0) {
-      switch (applicabilityKind) {
-        case types.CommentThreadApplicability.Current:
-          return languages.CommentThreadApplicability.Current;
-        case types.CommentThreadApplicability.Outdated:
-          return languages.CommentThreadApplicability.Outdated;
-      }
-    }
-    return languages.CommentThreadApplicability.Current;
-  }
-  __name(convertToRelevance, "convertToRelevance");
-  return new ExtHostCommentsImpl();
+    return new ExtHostCommentsImpl();
 }
-__name(createExtHostComments, "createExtHostComments");
-export {
-  createExtHostComments
-};
-//# sourceMappingURL=extHostComments.js.map

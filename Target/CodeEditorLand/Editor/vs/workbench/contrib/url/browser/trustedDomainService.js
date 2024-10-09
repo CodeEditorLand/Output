@@ -1,99 +1,104 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { WindowIdleValue } from "../../../../base/browser/dom.js";
-import { mainWindow } from "../../../../base/browser/window.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
-import { TRUSTED_DOMAINS_STORAGE_KEY, readStaticTrustedDomains } from "./trustedDomains.js";
-import { testUrlMatchesGlob } from "../common/urlGlob.js";
-const ITrustedDomainService = createDecorator("ITrustedDomainService");
-let TrustedDomainService = class extends Disposable {
-  constructor(_instantiationService, _storageService) {
-    super();
-    this._instantiationService = _instantiationService;
-    this._storageService = _storageService;
-    const initStaticDomainsResult = /* @__PURE__ */ __name(() => {
-      return new WindowIdleValue(mainWindow, () => {
-        const { defaultTrustedDomains, trustedDomains } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
-        return [
-          ...defaultTrustedDomains,
-          ...trustedDomains
-        ];
-      });
-    }, "initStaticDomainsResult");
-    this._staticTrustedDomainsResult = initStaticDomainsResult();
-    this._register(this._storageService.onDidChangeValue(StorageScope.APPLICATION, TRUSTED_DOMAINS_STORAGE_KEY, this._register(new DisposableStore()))(() => {
-      this._staticTrustedDomainsResult?.dispose();
-      this._staticTrustedDomainsResult = initStaticDomainsResult();
-    }));
-  }
-  static {
-    __name(this, "TrustedDomainService");
-  }
-  _serviceBrand;
-  _staticTrustedDomainsResult;
-  isValid(resource) {
-    const { defaultTrustedDomains, trustedDomains } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
-    const allTrustedDomains = [...defaultTrustedDomains, ...trustedDomains];
-    return isURLDomainTrusted(resource, allTrustedDomains);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-TrustedDomainService = __decorateClass([
-  __decorateParam(0, IInstantiationService),
-  __decorateParam(1, IStorageService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { WindowIdleValue } from '../../../../base/browser/dom.js';
+import { mainWindow } from '../../../../base/browser/window.js';
+import { Disposable, DisposableStore } from '../../../../base/common/lifecycle.js';
+import { URI } from '../../../../base/common/uri.js';
+import { IInstantiationService, createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { TRUSTED_DOMAINS_STORAGE_KEY, readStaticTrustedDomains } from './trustedDomains.js';
+import { testUrlMatchesGlob } from '../common/urlGlob.js';
+export const ITrustedDomainService = createDecorator('ITrustedDomainService');
+let TrustedDomainService = class TrustedDomainService extends Disposable {
+    constructor(_instantiationService, _storageService) {
+        super();
+        this._instantiationService = _instantiationService;
+        this._storageService = _storageService;
+        const initStaticDomainsResult = () => {
+            return new WindowIdleValue(mainWindow, () => {
+                const { defaultTrustedDomains, trustedDomains, } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
+                return [
+                    ...defaultTrustedDomains,
+                    ...trustedDomains
+                ];
+            });
+        };
+        this._staticTrustedDomainsResult = initStaticDomainsResult();
+        this._register(this._storageService.onDidChangeValue(-1 /* StorageScope.APPLICATION */, TRUSTED_DOMAINS_STORAGE_KEY, this._register(new DisposableStore()))(() => {
+            this._staticTrustedDomainsResult?.dispose();
+            this._staticTrustedDomainsResult = initStaticDomainsResult();
+        }));
+    }
+    isValid(resource) {
+        const { defaultTrustedDomains, trustedDomains, } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
+        const allTrustedDomains = [...defaultTrustedDomains, ...trustedDomains];
+        return isURLDomainTrusted(resource, allTrustedDomains);
+    }
+};
+TrustedDomainService = __decorate([
+    __param(0, IInstantiationService),
+    __param(1, IStorageService),
+    __metadata("design:paramtypes", [Object, Object])
 ], TrustedDomainService);
+export { TrustedDomainService };
 const rLocalhost = /^localhost(:\d+)?$/i;
 const r127 = /^127.0.0.1(:\d+)?$/;
 function isLocalhostAuthority(authority) {
-  return rLocalhost.test(authority) || r127.test(authority);
+    return rLocalhost.test(authority) || r127.test(authority);
 }
-__name(isLocalhostAuthority, "isLocalhostAuthority");
+/**
+ * Case-normalize some case-insensitive URLs, such as github.
+ */
 function normalizeURL(url) {
-  const caseInsensitiveAuthorities = ["github.com"];
-  try {
-    const parsed = typeof url === "string" ? URI.parse(url, true) : url;
-    if (caseInsensitiveAuthorities.includes(parsed.authority)) {
-      return parsed.with({ path: parsed.path.toLowerCase() }).toString(true);
-    } else {
-      return parsed.toString(true);
+    const caseInsensitiveAuthorities = ['github.com'];
+    try {
+        const parsed = typeof url === 'string' ? URI.parse(url, true) : url;
+        if (caseInsensitiveAuthorities.includes(parsed.authority)) {
+            return parsed.with({ path: parsed.path.toLowerCase() }).toString(true);
+        }
+        else {
+            return parsed.toString(true);
+        }
     }
-  } catch {
-    return url.toString();
-  }
+    catch {
+        return url.toString();
+    }
 }
-__name(normalizeURL, "normalizeURL");
-function isURLDomainTrusted(url, trustedDomains) {
-  url = URI.parse(normalizeURL(url));
-  trustedDomains = trustedDomains.map(normalizeURL);
-  if (isLocalhostAuthority(url.authority)) {
-    return true;
-  }
-  for (let i = 0; i < trustedDomains.length; i++) {
-    if (trustedDomains[i] === "*") {
-      return true;
+/**
+ * Check whether a domain like https://www.microsoft.com matches
+ * the list of trusted domains.
+ *
+ * - Schemes must match
+ * - There's no subdomain matching. For example https://microsoft.com doesn't match https://www.microsoft.com
+ * - Star matches all subdomains. For example https://*.microsoft.com matches https://www.microsoft.com and https://foo.bar.microsoft.com
+ */
+export function isURLDomainTrusted(url, trustedDomains) {
+    url = URI.parse(normalizeURL(url));
+    trustedDomains = trustedDomains.map(normalizeURL);
+    if (isLocalhostAuthority(url.authority)) {
+        return true;
     }
-    if (testUrlMatchesGlob(url, trustedDomains[i])) {
-      return true;
+    for (let i = 0; i < trustedDomains.length; i++) {
+        if (trustedDomains[i] === '*') {
+            return true;
+        }
+        if (testUrlMatchesGlob(url, trustedDomains[i])) {
+            return true;
+        }
     }
-  }
-  return false;
+    return false;
 }
-__name(isURLDomainTrusted, "isURLDomainTrusted");
-export {
-  ITrustedDomainService,
-  TrustedDomainService,
-  isURLDomainTrusted
-};
-//# sourceMappingURL=trustedDomainService.js.map

@@ -1,37 +1,35 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX } from "../../../../platform/accessibility/common/accessibility.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope } from "../../../../platform/storage/common/storage.js";
-const IAccessibleViewInformationService = createDecorator("accessibleViewInformationService");
-let AccessibleViewInformationService = class extends Disposable {
-  constructor(_storageService) {
-    super();
-    this._storageService = _storageService;
-  }
-  static {
-    __name(this, "AccessibleViewInformationService");
-  }
-  hasShownAccessibleView(viewId) {
-    return this._storageService.getBoolean(`${ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX}${viewId}`, StorageScope.APPLICATION, false) === true;
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-AccessibleViewInformationService = __decorateClass([
-  __decorateParam(0, IStorageService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX } from '../../../../platform/accessibility/common/accessibility.js';
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+export const IAccessibleViewInformationService = createDecorator('accessibleViewInformationService');
+let AccessibleViewInformationService = class AccessibleViewInformationService extends Disposable {
+    constructor(_storageService) {
+        super();
+        this._storageService = _storageService;
+    }
+    hasShownAccessibleView(viewId) {
+        return this._storageService.getBoolean(`${ACCESSIBLE_VIEW_SHOWN_STORAGE_PREFIX}${viewId}`, -1 /* StorageScope.APPLICATION */, false) === true;
+    }
+};
+AccessibleViewInformationService = __decorate([
+    __param(0, IStorageService),
+    __metadata("design:paramtypes", [Object])
 ], AccessibleViewInformationService);
-export {
-  AccessibleViewInformationService,
-  IAccessibleViewInformationService
-};
-//# sourceMappingURL=accessibleViewInformationService.js.map
+export { AccessibleViewInformationService };

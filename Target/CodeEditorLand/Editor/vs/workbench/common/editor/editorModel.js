@@ -1,41 +1,44 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-class EditorModel extends Disposable {
-  static {
-    __name(this, "EditorModel");
-  }
-  _onWillDispose = this._register(new Emitter());
-  onWillDispose = this._onWillDispose.event;
-  resolved = false;
-  /**
-   * Causes this model to resolve returning a promise when loading is completed.
-   */
-  async resolve() {
-    this.resolved = true;
-  }
-  /**
-   * Returns whether this model was loaded or not.
-   */
-  isResolved() {
-    return this.resolved;
-  }
-  /**
-   * Find out if this model has been disposed.
-   */
-  isDisposed() {
-    return this._store.isDisposed;
-  }
-  /**
-   * Subclasses should implement to free resources that have been claimed through loading.
-   */
-  dispose() {
-    this._onWillDispose.fire();
-    super.dispose();
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Emitter } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+/**
+ * The editor model is the heavyweight counterpart of editor input. Depending on the editor input, it
+ * resolves from a file system retrieve content and may allow for saving it back or reverting it.
+ * Editor models are typically cached for some while because they are expensive to construct.
+ */
+export class EditorModel extends Disposable {
+    constructor() {
+        super(...arguments);
+        this._onWillDispose = this._register(new Emitter());
+        this.onWillDispose = this._onWillDispose.event;
+        this.resolved = false;
+    }
+    /**
+     * Causes this model to resolve returning a promise when loading is completed.
+     */
+    async resolve() {
+        this.resolved = true;
+    }
+    /**
+     * Returns whether this model was loaded or not.
+     */
+    isResolved() {
+        return this.resolved;
+    }
+    /**
+     * Find out if this model has been disposed.
+     */
+    isDisposed() {
+        return this._store.isDisposed;
+    }
+    /**
+     * Subclasses should implement to free resources that have been claimed through loading.
+     */
+    dispose() {
+        this._onWillDispose.fire();
+        super.dispose();
+    }
 }
-export {
-  EditorModel
-};
-//# sourceMappingURL=editorModel.js.map

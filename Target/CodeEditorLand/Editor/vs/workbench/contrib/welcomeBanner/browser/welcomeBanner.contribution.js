@@ -1,57 +1,61 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
-import { IBannerService } from "../../../services/banner/browser/bannerService.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-let WelcomeBannerContribution = class {
-  static {
-    __name(this, "WelcomeBannerContribution");
-  }
-  static WELCOME_BANNER_DISMISSED_KEY = "workbench.banner.welcome.dismissed";
-  constructor(bannerService, storageService, environmentService) {
-    const welcomeBanner = environmentService.options?.welcomeBanner;
-    if (!welcomeBanner) {
-      return;
-    }
-    if (storageService.getBoolean(WelcomeBannerContribution.WELCOME_BANNER_DISMISSED_KEY, StorageScope.PROFILE, false)) {
-      return;
-    }
-    let icon = void 0;
-    if (typeof welcomeBanner.icon === "string") {
-      icon = ThemeIcon.fromId(welcomeBanner.icon);
-    } else if (welcomeBanner.icon) {
-      icon = URI.revive(welcomeBanner.icon);
-    }
-    bannerService.show({
-      id: "welcome.banner",
-      message: welcomeBanner.message,
-      icon,
-      actions: welcomeBanner.actions,
-      onClose: /* @__PURE__ */ __name(() => {
-        storageService.store(WelcomeBannerContribution.WELCOME_BANNER_DISMISSED_KEY, true, StorageScope.PROFILE, StorageTarget.MACHINE);
-      }, "onClose")
-    });
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-WelcomeBannerContribution = __decorateClass([
-  __decorateParam(0, IBannerService),
-  __decorateParam(1, IStorageService),
-  __decorateParam(2, IBrowserWorkbenchEnvironmentService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var WelcomeBannerContribution_1;
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { Extensions as WorkbenchExtensions } from '../../../common/contributions.js';
+import { IBannerService } from '../../../services/banner/browser/bannerService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../../services/environment/browser/environmentService.js';
+import { URI } from '../../../../base/common/uri.js';
+import { ThemeIcon } from '../../../../base/common/themables.js';
+let WelcomeBannerContribution = class WelcomeBannerContribution {
+    static { WelcomeBannerContribution_1 = this; }
+    static { this.WELCOME_BANNER_DISMISSED_KEY = 'workbench.banner.welcome.dismissed'; }
+    constructor(bannerService, storageService, environmentService) {
+        const welcomeBanner = environmentService.options?.welcomeBanner;
+        if (!welcomeBanner) {
+            return; // welcome banner is not enabled
+        }
+        if (storageService.getBoolean(WelcomeBannerContribution_1.WELCOME_BANNER_DISMISSED_KEY, 0 /* StorageScope.PROFILE */, false)) {
+            return; // welcome banner dismissed
+        }
+        let icon = undefined;
+        if (typeof welcomeBanner.icon === 'string') {
+            icon = ThemeIcon.fromId(welcomeBanner.icon);
+        }
+        else if (welcomeBanner.icon) {
+            icon = URI.revive(welcomeBanner.icon);
+        }
+        bannerService.show({
+            id: 'welcome.banner',
+            message: welcomeBanner.message,
+            icon,
+            actions: welcomeBanner.actions,
+            onClose: () => {
+                storageService.store(WelcomeBannerContribution_1.WELCOME_BANNER_DISMISSED_KEY, true, 0 /* StorageScope.PROFILE */, 1 /* StorageTarget.MACHINE */);
+            }
+        });
+    }
+};
+WelcomeBannerContribution = WelcomeBannerContribution_1 = __decorate([
+    __param(0, IBannerService),
+    __param(1, IStorageService),
+    __param(2, IBrowserWorkbenchEnvironmentService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], WelcomeBannerContribution);
-Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(WelcomeBannerContribution, LifecyclePhase.Restored);
-//# sourceMappingURL=welcomeBanner.contribution.js.map
+Registry.as(WorkbenchExtensions.Workbench)
+    .registerWorkbenchContribution(WelcomeBannerContribution, 3 /* LifecyclePhase.Restored */);

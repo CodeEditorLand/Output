@@ -1,63 +1,57 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { IEditorContribution, ScrollType } from "../../../../editor/common/editorCommon.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextModelContentProvider, ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { ITextResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import { applyTextEditorOptions } from "../../../common/editor/editorOptions.js";
-import { SimpleCommentEditor } from "./simpleCommentEditor.js";
-let CommentsInputContentProvider = class extends Disposable {
-  constructor(textModelService, codeEditorService, _modelService, _languageService) {
-    super();
-    this._modelService = _modelService;
-    this._languageService = _languageService;
-    this._register(textModelService.registerTextModelContentProvider(Schemas.commentsInput, this));
-    this._register(codeEditorService.registerCodeEditorOpenHandler(async (input, editor, _sideBySide) => {
-      if (!(editor instanceof SimpleCommentEditor)) {
-        return null;
-      }
-      if (editor.getModel()?.uri.toString() !== input.resource.toString()) {
-        return null;
-      }
-      if (input.options) {
-        applyTextEditorOptions(input.options, editor, ScrollType.Immediate);
-      }
-      return editor;
-    }));
-  }
-  static {
-    __name(this, "CommentsInputContentProvider");
-  }
-  static ID = "comments.input.contentProvider";
-  async provideTextContent(resource) {
-    const existing = this._modelService.getModel(resource);
-    return existing ?? this._modelService.createModel("", this._languageService.createById("markdown"), resource);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-CommentsInputContentProvider = __decorateClass([
-  __decorateParam(0, ITextModelService),
-  __decorateParam(1, ICodeEditorService),
-  __decorateParam(2, IModelService),
-  __decorateParam(3, ILanguageService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Schemas } from '../../../../base/common/network.js';
+import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
+import { ILanguageService } from '../../../../editor/common/languages/language.js';
+import { IModelService } from '../../../../editor/common/services/model.js';
+import { ITextModelService } from '../../../../editor/common/services/resolverService.js';
+import { applyTextEditorOptions } from '../../../common/editor/editorOptions.js';
+import { SimpleCommentEditor } from './simpleCommentEditor.js';
+let CommentsInputContentProvider = class CommentsInputContentProvider extends Disposable {
+    static { this.ID = 'comments.input.contentProvider'; }
+    constructor(textModelService, codeEditorService, _modelService, _languageService) {
+        super();
+        this._modelService = _modelService;
+        this._languageService = _languageService;
+        this._register(textModelService.registerTextModelContentProvider(Schemas.commentsInput, this));
+        this._register(codeEditorService.registerCodeEditorOpenHandler(async (input, editor, _sideBySide) => {
+            if (!(editor instanceof SimpleCommentEditor)) {
+                return null;
+            }
+            if (editor.getModel()?.uri.toString() !== input.resource.toString()) {
+                return null;
+            }
+            if (input.options) {
+                applyTextEditorOptions(input.options, editor, 1 /* ScrollType.Immediate */);
+            }
+            return editor;
+        }));
+    }
+    async provideTextContent(resource) {
+        const existing = this._modelService.getModel(resource);
+        return existing ?? this._modelService.createModel('', this._languageService.createById('markdown'), resource);
+    }
+};
+CommentsInputContentProvider = __decorate([
+    __param(0, ITextModelService),
+    __param(1, ICodeEditorService),
+    __param(2, IModelService),
+    __param(3, ILanguageService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], CommentsInputContentProvider);
-export {
-  CommentsInputContentProvider
-};
-//# sourceMappingURL=commentsInputContentProvider.js.map
+export { CommentsInputContentProvider };

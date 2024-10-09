@@ -1,39 +1,37 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { URI } from "../../../../base/common/uri.js";
-class StickyRange {
-  constructor(startLineNumber, endLineNumber) {
-    this.startLineNumber = startLineNumber;
-    this.endLineNumber = endLineNumber;
-  }
-  static {
-    __name(this, "StickyRange");
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class StickyRange {
+    constructor(startLineNumber, endLineNumber) {
+        this.startLineNumber = startLineNumber;
+        this.endLineNumber = endLineNumber;
+    }
 }
-class StickyElement {
-  constructor(range, children, parent) {
-    this.range = range;
-    this.children = children;
-    this.parent = parent;
-  }
-  static {
-    __name(this, "StickyElement");
-  }
+export class StickyElement {
+    constructor(
+    /**
+     * Range of line numbers spanned by the current scope
+     */
+    range, 
+    /**
+     * Must be sorted by start line number
+    */
+    children, 
+    /**
+     * Parent sticky outline element
+     */
+    parent) {
+        this.range = range;
+        this.children = children;
+        this.parent = parent;
+    }
 }
-class StickyModel {
-  constructor(uri, version, element, outlineProviderId) {
-    this.uri = uri;
-    this.version = version;
-    this.element = element;
-    this.outlineProviderId = outlineProviderId;
-  }
-  static {
-    __name(this, "StickyModel");
-  }
+export class StickyModel {
+    constructor(uri, version, element, outlineProviderId) {
+        this.uri = uri;
+        this.version = version;
+        this.element = element;
+        this.outlineProviderId = outlineProviderId;
+    }
 }
-export {
-  StickyElement,
-  StickyModel,
-  StickyRange
-};
-//# sourceMappingURL=stickyScrollElement.js.map

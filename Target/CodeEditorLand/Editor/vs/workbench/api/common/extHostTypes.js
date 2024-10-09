@@ -1,4560 +1,3957 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __typeError = (msg) => {
-  throw TypeError(msg);
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
-var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
-var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
-var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
-var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
-var _callOnDispose, _delegate, _items, _DataTransfer_instances, normalizeMime_fn;
-import { asArray, coalesceInPlace, equals } from "../../../base/common/arrays.js";
-import { illegalArgument } from "../../../base/common/errors.js";
-import { IRelativePattern } from "../../../base/common/glob.js";
-import { MarkdownString as BaseMarkdownString, MarkdownStringTrustedOptions } from "../../../base/common/htmlContent.js";
-import { ResourceMap } from "../../../base/common/map.js";
-import { Mimes, normalizeMimeType } from "../../../base/common/mime.js";
-import { nextCharLength } from "../../../base/common/strings.js";
-import { isNumber, isObject, isString, isStringArray } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import { generateUuid } from "../../../base/common/uuid.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from "../../../platform/files/common/files.js";
-import { RemoteAuthorityResolverErrorCode } from "../../../platform/remote/common/remoteAuthorityResolver.js";
-import { IRelativePatternDto } from "./extHost.protocol.js";
-import { CellEditType, ICellMetadataEdit, IDocumentMetadataEdit, isTextStreamMime } from "../../contrib/notebook/common/notebookCommon.js";
+var Disposable_1, Position_1, Range_1, Selection_1, TextEdit_1, NotebookEdit_1, SnippetString_1, Location_1, SymbolInformation_1, DocumentSymbol_1, CodeActionKind_1, MarkdownString_1, TaskGroup_1, Task_1, TreeItem_1, FileSystemError_1, TestMessage_1;
+/* eslint-disable local/code-no-native-private */
+import { asArray, coalesceInPlace, equals } from '../../../base/common/arrays.js';
+import { illegalArgument } from '../../../base/common/errors.js';
+import { MarkdownString as BaseMarkdownString } from '../../../base/common/htmlContent.js';
+import { ResourceMap } from '../../../base/common/map.js';
+import { Mimes, normalizeMimeType } from '../../../base/common/mime.js';
+import { nextCharLength } from '../../../base/common/strings.js';
+import { isNumber, isObject, isString, isStringArray } from '../../../base/common/types.js';
+import { URI } from '../../../base/common/uri.js';
+import { generateUuid } from '../../../base/common/uuid.js';
+import { ExtensionIdentifier } from '../../../platform/extensions/common/extensions.js';
+import { FileSystemProviderErrorCode, markAsFileSystemProviderError } from '../../../platform/files/common/files.js';
+import { RemoteAuthorityResolverErrorCode } from '../../../platform/remote/common/remoteAuthorityResolver.js';
+import { isTextStreamMime } from '../../contrib/notebook/common/notebookCommon.js';
+/**
+ * @deprecated
+ *
+ * This utility ensures that old JS code that uses functions for classes still works. Existing usages cannot be removed
+ * but new ones must not be added
+ * */
 function es5ClassCompat(target) {
-  const interceptFunctions = {
-    apply: /* @__PURE__ */ __name(function(...args) {
-      if (args.length === 0) {
-        return Reflect.construct(target, []);
-      } else {
-        const argsList = args.length === 1 ? [] : args[1];
-        return Reflect.construct(target, argsList, args[0].constructor);
-      }
-    }, "apply"),
-    call: /* @__PURE__ */ __name(function(...args) {
-      if (args.length === 0) {
-        return Reflect.construct(target, []);
-      } else {
-        const [thisArg, ...restArgs] = args;
-        return Reflect.construct(target, restArgs, thisArg.constructor);
-      }
-    }, "call")
-  };
-  return Object.assign(target, interceptFunctions);
-}
-__name(es5ClassCompat, "es5ClassCompat");
-var TerminalOutputAnchor = /* @__PURE__ */ ((TerminalOutputAnchor2) => {
-  TerminalOutputAnchor2[TerminalOutputAnchor2["Top"] = 0] = "Top";
-  TerminalOutputAnchor2[TerminalOutputAnchor2["Bottom"] = 1] = "Bottom";
-  return TerminalOutputAnchor2;
-})(TerminalOutputAnchor || {});
-var TerminalQuickFixType = /* @__PURE__ */ ((TerminalQuickFixType2) => {
-  TerminalQuickFixType2[TerminalQuickFixType2["TerminalCommand"] = 0] = "TerminalCommand";
-  TerminalQuickFixType2[TerminalQuickFixType2["Opener"] = 1] = "Opener";
-  TerminalQuickFixType2[TerminalQuickFixType2["Command"] = 3] = "Command";
-  return TerminalQuickFixType2;
-})(TerminalQuickFixType || {});
-let Disposable = class {
-  constructor(callOnDispose) {
-    __privateAdd(this, _callOnDispose);
-    __privateSet(this, _callOnDispose, callOnDispose);
-  }
-  static from(...inDisposables) {
-    let disposables = inDisposables;
-    return new Disposable(function() {
-      if (disposables) {
-        for (const disposable of disposables) {
-          if (disposable && typeof disposable.dispose === "function") {
-            disposable.dispose();
-          }
-        }
-        disposables = void 0;
-      }
-    });
-  }
-  dispose() {
-    if (typeof __privateGet(this, _callOnDispose) === "function") {
-      __privateGet(this, _callOnDispose).call(this);
-      __privateSet(this, _callOnDispose, void 0);
-    }
-  }
-};
-_callOnDispose = new WeakMap();
-__name(Disposable, "Disposable");
-Disposable = __decorateClass([
-  es5ClassCompat
-], Disposable);
-let Position = class {
-  static Min(...positions) {
-    if (positions.length === 0) {
-      throw new TypeError();
-    }
-    let result = positions[0];
-    for (let i = 1; i < positions.length; i++) {
-      const p = positions[i];
-      if (p.isBefore(result)) {
-        result = p;
-      }
-    }
-    return result;
-  }
-  static Max(...positions) {
-    if (positions.length === 0) {
-      throw new TypeError();
-    }
-    let result = positions[0];
-    for (let i = 1; i < positions.length; i++) {
-      const p = positions[i];
-      if (p.isAfter(result)) {
-        result = p;
-      }
-    }
-    return result;
-  }
-  static isPosition(other) {
-    if (!other) {
-      return false;
-    }
-    if (other instanceof Position) {
-      return true;
-    }
-    const { line, character } = other;
-    if (typeof line === "number" && typeof character === "number") {
-      return true;
-    }
-    return false;
-  }
-  static of(obj) {
-    if (obj instanceof Position) {
-      return obj;
-    } else if (this.isPosition(obj)) {
-      return new Position(obj.line, obj.character);
-    }
-    throw new Error("Invalid argument, is NOT a position-like object");
-  }
-  _line;
-  _character;
-  get line() {
-    return this._line;
-  }
-  get character() {
-    return this._character;
-  }
-  constructor(line, character) {
-    if (line < 0) {
-      throw illegalArgument("line must be non-negative");
-    }
-    if (character < 0) {
-      throw illegalArgument("character must be non-negative");
-    }
-    this._line = line;
-    this._character = character;
-  }
-  isBefore(other) {
-    if (this._line < other._line) {
-      return true;
-    }
-    if (other._line < this._line) {
-      return false;
-    }
-    return this._character < other._character;
-  }
-  isBeforeOrEqual(other) {
-    if (this._line < other._line) {
-      return true;
-    }
-    if (other._line < this._line) {
-      return false;
-    }
-    return this._character <= other._character;
-  }
-  isAfter(other) {
-    return !this.isBeforeOrEqual(other);
-  }
-  isAfterOrEqual(other) {
-    return !this.isBefore(other);
-  }
-  isEqual(other) {
-    return this._line === other._line && this._character === other._character;
-  }
-  compareTo(other) {
-    if (this._line < other._line) {
-      return -1;
-    } else if (this._line > other.line) {
-      return 1;
-    } else {
-      if (this._character < other._character) {
-        return -1;
-      } else if (this._character > other._character) {
-        return 1;
-      } else {
-        return 0;
-      }
-    }
-  }
-  translate(lineDeltaOrChange, characterDelta = 0) {
-    if (lineDeltaOrChange === null || characterDelta === null) {
-      throw illegalArgument();
-    }
-    let lineDelta;
-    if (typeof lineDeltaOrChange === "undefined") {
-      lineDelta = 0;
-    } else if (typeof lineDeltaOrChange === "number") {
-      lineDelta = lineDeltaOrChange;
-    } else {
-      lineDelta = typeof lineDeltaOrChange.lineDelta === "number" ? lineDeltaOrChange.lineDelta : 0;
-      characterDelta = typeof lineDeltaOrChange.characterDelta === "number" ? lineDeltaOrChange.characterDelta : 0;
-    }
-    if (lineDelta === 0 && characterDelta === 0) {
-      return this;
-    }
-    return new Position(this.line + lineDelta, this.character + characterDelta);
-  }
-  with(lineOrChange, character = this.character) {
-    if (lineOrChange === null || character === null) {
-      throw illegalArgument();
-    }
-    let line;
-    if (typeof lineOrChange === "undefined") {
-      line = this.line;
-    } else if (typeof lineOrChange === "number") {
-      line = lineOrChange;
-    } else {
-      line = typeof lineOrChange.line === "number" ? lineOrChange.line : this.line;
-      character = typeof lineOrChange.character === "number" ? lineOrChange.character : this.character;
-    }
-    if (line === this.line && character === this.character) {
-      return this;
-    }
-    return new Position(line, character);
-  }
-  toJSON() {
-    return { line: this.line, character: this.character };
-  }
-  [Symbol.for("debug.description")]() {
-    return `(${this.line}:${this.character})`;
-  }
-};
-__name(Position, "Position");
-Position = __decorateClass([
-  es5ClassCompat
-], Position);
-let Range = class {
-  static isRange(thing) {
-    if (thing instanceof Range) {
-      return true;
-    }
-    if (!thing) {
-      return false;
-    }
-    return Position.isPosition(thing.start) && Position.isPosition(thing.end);
-  }
-  static of(obj) {
-    if (obj instanceof Range) {
-      return obj;
-    }
-    if (this.isRange(obj)) {
-      return new Range(obj.start, obj.end);
-    }
-    throw new Error("Invalid argument, is NOT a range-like object");
-  }
-  _start;
-  _end;
-  get start() {
-    return this._start;
-  }
-  get end() {
-    return this._end;
-  }
-  constructor(startLineOrStart, startColumnOrEnd, endLine, endColumn) {
-    let start;
-    let end;
-    if (typeof startLineOrStart === "number" && typeof startColumnOrEnd === "number" && typeof endLine === "number" && typeof endColumn === "number") {
-      start = new Position(startLineOrStart, startColumnOrEnd);
-      end = new Position(endLine, endColumn);
-    } else if (Position.isPosition(startLineOrStart) && Position.isPosition(startColumnOrEnd)) {
-      start = Position.of(startLineOrStart);
-      end = Position.of(startColumnOrEnd);
-    }
-    if (!start || !end) {
-      throw new Error("Invalid arguments");
-    }
-    if (start.isBefore(end)) {
-      this._start = start;
-      this._end = end;
-    } else {
-      this._start = end;
-      this._end = start;
-    }
-  }
-  contains(positionOrRange) {
-    if (Range.isRange(positionOrRange)) {
-      return this.contains(positionOrRange.start) && this.contains(positionOrRange.end);
-    } else if (Position.isPosition(positionOrRange)) {
-      if (Position.of(positionOrRange).isBefore(this._start)) {
-        return false;
-      }
-      if (this._end.isBefore(positionOrRange)) {
-        return false;
-      }
-      return true;
-    }
-    return false;
-  }
-  isEqual(other) {
-    return this._start.isEqual(other._start) && this._end.isEqual(other._end);
-  }
-  intersection(other) {
-    const start = Position.Max(other.start, this._start);
-    const end = Position.Min(other.end, this._end);
-    if (start.isAfter(end)) {
-      return void 0;
-    }
-    return new Range(start, end);
-  }
-  union(other) {
-    if (this.contains(other)) {
-      return this;
-    } else if (other.contains(this)) {
-      return other;
-    }
-    const start = Position.Min(other.start, this._start);
-    const end = Position.Max(other.end, this.end);
-    return new Range(start, end);
-  }
-  get isEmpty() {
-    return this._start.isEqual(this._end);
-  }
-  get isSingleLine() {
-    return this._start.line === this._end.line;
-  }
-  with(startOrChange, end = this.end) {
-    if (startOrChange === null || end === null) {
-      throw illegalArgument();
-    }
-    let start;
-    if (!startOrChange) {
-      start = this.start;
-    } else if (Position.isPosition(startOrChange)) {
-      start = startOrChange;
-    } else {
-      start = startOrChange.start || this.start;
-      end = startOrChange.end || this.end;
-    }
-    if (start.isEqual(this._start) && end.isEqual(this.end)) {
-      return this;
-    }
-    return new Range(start, end);
-  }
-  toJSON() {
-    return [this.start, this.end];
-  }
-  [Symbol.for("debug.description")]() {
-    return getDebugDescriptionOfRange(this);
-  }
-};
-__name(Range, "Range");
-Range = __decorateClass([
-  es5ClassCompat
-], Range);
-let Selection = class extends Range {
-  static isSelection(thing) {
-    if (thing instanceof Selection) {
-      return true;
-    }
-    if (!thing) {
-      return false;
-    }
-    return Range.isRange(thing) && Position.isPosition(thing.anchor) && Position.isPosition(thing.active) && typeof thing.isReversed === "boolean";
-  }
-  _anchor;
-  get anchor() {
-    return this._anchor;
-  }
-  _active;
-  get active() {
-    return this._active;
-  }
-  constructor(anchorLineOrAnchor, anchorColumnOrActive, activeLine, activeColumn) {
-    let anchor;
-    let active;
-    if (typeof anchorLineOrAnchor === "number" && typeof anchorColumnOrActive === "number" && typeof activeLine === "number" && typeof activeColumn === "number") {
-      anchor = new Position(anchorLineOrAnchor, anchorColumnOrActive);
-      active = new Position(activeLine, activeColumn);
-    } else if (Position.isPosition(anchorLineOrAnchor) && Position.isPosition(anchorColumnOrActive)) {
-      anchor = Position.of(anchorLineOrAnchor);
-      active = Position.of(anchorColumnOrActive);
-    }
-    if (!anchor || !active) {
-      throw new Error("Invalid arguments");
-    }
-    super(anchor, active);
-    this._anchor = anchor;
-    this._active = active;
-  }
-  get isReversed() {
-    return this._anchor === this._end;
-  }
-  toJSON() {
-    return {
-      start: this.start,
-      end: this.end,
-      active: this.active,
-      anchor: this.anchor
-    };
-  }
-  [Symbol.for("debug.description")]() {
-    return getDebugDescriptionOfSelection(this);
-  }
-};
-__name(Selection, "Selection");
-Selection = __decorateClass([
-  es5ClassCompat
-], Selection);
-function getDebugDescriptionOfRange(range) {
-  return range.isEmpty ? `[${range.start.line}:${range.start.character})` : `[${range.start.line}:${range.start.character} -> ${range.end.line}:${range.end.character})`;
-}
-__name(getDebugDescriptionOfRange, "getDebugDescriptionOfRange");
-function getDebugDescriptionOfSelection(selection) {
-  let rangeStr = getDebugDescriptionOfRange(selection);
-  if (!selection.isEmpty) {
-    if (selection.active.isEqual(selection.start)) {
-      rangeStr = `|${rangeStr}`;
-    } else {
-      rangeStr = `${rangeStr}|`;
-    }
-  }
-  return rangeStr;
-}
-__name(getDebugDescriptionOfSelection, "getDebugDescriptionOfSelection");
-const validateConnectionToken = /* @__PURE__ */ __name((connectionToken) => {
-  if (typeof connectionToken !== "string" || connectionToken.length === 0 || !/^[0-9A-Za-z_\-]+$/.test(connectionToken)) {
-    throw illegalArgument("connectionToken");
-  }
-}, "validateConnectionToken");
-class ResolvedAuthority {
-  static {
-    __name(this, "ResolvedAuthority");
-  }
-  static isResolvedAuthority(resolvedAuthority) {
-    return resolvedAuthority && typeof resolvedAuthority === "object" && typeof resolvedAuthority.host === "string" && typeof resolvedAuthority.port === "number" && (resolvedAuthority.connectionToken === void 0 || typeof resolvedAuthority.connectionToken === "string");
-  }
-  host;
-  port;
-  connectionToken;
-  constructor(host, port, connectionToken) {
-    if (typeof host !== "string" || host.length === 0) {
-      throw illegalArgument("host");
-    }
-    if (typeof port !== "number" || port === 0 || Math.round(port) !== port) {
-      throw illegalArgument("port");
-    }
-    if (typeof connectionToken !== "undefined") {
-      validateConnectionToken(connectionToken);
-    }
-    this.host = host;
-    this.port = Math.round(port);
-    this.connectionToken = connectionToken;
-  }
-}
-class ManagedResolvedAuthority {
-  constructor(makeConnection, connectionToken) {
-    this.makeConnection = makeConnection;
-    this.connectionToken = connectionToken;
-    if (typeof connectionToken !== "undefined") {
-      validateConnectionToken(connectionToken);
-    }
-  }
-  static {
-    __name(this, "ManagedResolvedAuthority");
-  }
-  static isManagedResolvedAuthority(resolvedAuthority) {
-    return resolvedAuthority && typeof resolvedAuthority === "object" && typeof resolvedAuthority.makeConnection === "function" && (resolvedAuthority.connectionToken === void 0 || typeof resolvedAuthority.connectionToken === "string");
-  }
-}
-class RemoteAuthorityResolverError extends Error {
-  static {
-    __name(this, "RemoteAuthorityResolverError");
-  }
-  static NotAvailable(message, handled) {
-    return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.NotAvailable, handled);
-  }
-  static TemporarilyNotAvailable(message) {
-    return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.TemporarilyNotAvailable);
-  }
-  _message;
-  _code;
-  _detail;
-  constructor(message, code = RemoteAuthorityResolverErrorCode.Unknown, detail) {
-    super(message);
-    this._message = message;
-    this._code = code;
-    this._detail = detail;
-    Object.setPrototypeOf(this, RemoteAuthorityResolverError.prototype);
-  }
-}
-var EndOfLine = /* @__PURE__ */ ((EndOfLine2) => {
-  EndOfLine2[EndOfLine2["LF"] = 1] = "LF";
-  EndOfLine2[EndOfLine2["CRLF"] = 2] = "CRLF";
-  return EndOfLine2;
-})(EndOfLine || {});
-var EnvironmentVariableMutatorType = /* @__PURE__ */ ((EnvironmentVariableMutatorType2) => {
-  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Replace"] = 1] = "Replace";
-  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Append"] = 2] = "Append";
-  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Prepend"] = 3] = "Prepend";
-  return EnvironmentVariableMutatorType2;
-})(EnvironmentVariableMutatorType || {});
-let TextEdit = class {
-  static isTextEdit(thing) {
-    if (thing instanceof TextEdit) {
-      return true;
-    }
-    if (!thing) {
-      return false;
-    }
-    return Range.isRange(thing) && typeof thing.newText === "string";
-  }
-  static replace(range, newText) {
-    return new TextEdit(range, newText);
-  }
-  static insert(position, newText) {
-    return TextEdit.replace(new Range(position, position), newText);
-  }
-  static delete(range) {
-    return TextEdit.replace(range, "");
-  }
-  static setEndOfLine(eol) {
-    const ret = new TextEdit(new Range(new Position(0, 0), new Position(0, 0)), "");
-    ret.newEol = eol;
-    return ret;
-  }
-  _range;
-  _newText;
-  _newEol;
-  get range() {
-    return this._range;
-  }
-  set range(value) {
-    if (value && !Range.isRange(value)) {
-      throw illegalArgument("range");
-    }
-    this._range = value;
-  }
-  get newText() {
-    return this._newText || "";
-  }
-  set newText(value) {
-    if (value && typeof value !== "string") {
-      throw illegalArgument("newText");
-    }
-    this._newText = value;
-  }
-  get newEol() {
-    return this._newEol;
-  }
-  set newEol(value) {
-    if (value && typeof value !== "number") {
-      throw illegalArgument("newEol");
-    }
-    this._newEol = value;
-  }
-  constructor(range, newText) {
-    this._range = range;
-    this._newText = newText;
-  }
-  toJSON() {
-    return {
-      range: this.range,
-      newText: this.newText,
-      newEol: this._newEol
-    };
-  }
-};
-__name(TextEdit, "TextEdit");
-TextEdit = __decorateClass([
-  es5ClassCompat
-], TextEdit);
-let NotebookEdit = class {
-  static isNotebookCellEdit(thing) {
-    if (thing instanceof NotebookEdit) {
-      return true;
-    }
-    if (!thing) {
-      return false;
-    }
-    return NotebookRange.isNotebookRange(thing) && Array.isArray(thing.newCells);
-  }
-  static replaceCells(range, newCells) {
-    return new NotebookEdit(range, newCells);
-  }
-  static insertCells(index, newCells) {
-    return new NotebookEdit(new NotebookRange(index, index), newCells);
-  }
-  static deleteCells(range) {
-    return new NotebookEdit(range, []);
-  }
-  static updateCellMetadata(index, newMetadata) {
-    const edit = new NotebookEdit(new NotebookRange(index, index), []);
-    edit.newCellMetadata = newMetadata;
-    return edit;
-  }
-  static updateNotebookMetadata(newMetadata) {
-    const edit = new NotebookEdit(new NotebookRange(0, 0), []);
-    edit.newNotebookMetadata = newMetadata;
-    return edit;
-  }
-  range;
-  newCells;
-  newCellMetadata;
-  newNotebookMetadata;
-  constructor(range, newCells) {
-    this.range = range;
-    this.newCells = newCells;
-  }
-};
-__name(NotebookEdit, "NotebookEdit");
-NotebookEdit = __decorateClass([
-  es5ClassCompat
-], NotebookEdit);
-class SnippetTextEdit {
-  static {
-    __name(this, "SnippetTextEdit");
-  }
-  static isSnippetTextEdit(thing) {
-    if (thing instanceof SnippetTextEdit) {
-      return true;
-    }
-    if (!thing) {
-      return false;
-    }
-    return Range.isRange(thing.range) && SnippetString.isSnippetString(thing.snippet);
-  }
-  static replace(range, snippet) {
-    return new SnippetTextEdit(range, snippet);
-  }
-  static insert(position, snippet) {
-    return SnippetTextEdit.replace(new Range(position, position), snippet);
-  }
-  range;
-  snippet;
-  constructor(range, snippet) {
-    this.range = range;
-    this.snippet = snippet;
-  }
-}
-var FileEditType = /* @__PURE__ */ ((FileEditType2) => {
-  FileEditType2[FileEditType2["File"] = 1] = "File";
-  FileEditType2[FileEditType2["Text"] = 2] = "Text";
-  FileEditType2[FileEditType2["Cell"] = 3] = "Cell";
-  FileEditType2[FileEditType2["CellReplace"] = 5] = "CellReplace";
-  FileEditType2[FileEditType2["Snippet"] = 6] = "Snippet";
-  return FileEditType2;
-})(FileEditType || {});
-let WorkspaceEdit = class {
-  _edits = [];
-  _allEntries() {
-    return this._edits;
-  }
-  // --- file
-  renameFile(from, to, options, metadata) {
-    this._edits.push({ _type: 1 /* File */, from, to, options, metadata });
-  }
-  createFile(uri, options, metadata) {
-    this._edits.push({ _type: 1 /* File */, from: void 0, to: uri, options, metadata });
-  }
-  deleteFile(uri, options, metadata) {
-    this._edits.push({ _type: 1 /* File */, from: uri, to: void 0, options, metadata });
-  }
-  // --- notebook
-  replaceNotebookMetadata(uri, value, metadata) {
-    this._edits.push({ _type: 3 /* Cell */, metadata, uri, edit: { editType: CellEditType.DocumentMetadata, metadata: value } });
-  }
-  replaceNotebookCells(uri, startOrRange, cellData, metadata) {
-    const start = startOrRange.start;
-    const end = startOrRange.end;
-    if (start !== end || cellData.length > 0) {
-      this._edits.push({ _type: 5 /* CellReplace */, uri, index: start, count: end - start, cells: cellData, metadata });
-    }
-  }
-  replaceNotebookCellMetadata(uri, index, cellMetadata, metadata) {
-    this._edits.push({ _type: 3 /* Cell */, metadata, uri, edit: { editType: CellEditType.Metadata, index, metadata: cellMetadata } });
-  }
-  // --- text
-  replace(uri, range, newText, metadata) {
-    this._edits.push({ _type: 2 /* Text */, uri, edit: new TextEdit(range, newText), metadata });
-  }
-  insert(resource, position, newText, metadata) {
-    this.replace(resource, new Range(position, position), newText, metadata);
-  }
-  delete(resource, range, metadata) {
-    this.replace(resource, range, "", metadata);
-  }
-  // --- text (Maplike)
-  has(uri) {
-    return this._edits.some((edit) => edit._type === 2 /* Text */ && edit.uri.toString() === uri.toString());
-  }
-  set(uri, edits) {
-    if (!edits) {
-      for (let i = 0; i < this._edits.length; i++) {
-        const element = this._edits[i];
-        switch (element._type) {
-          case 2 /* Text */:
-          case 6 /* Snippet */:
-          case 3 /* Cell */:
-          case 5 /* CellReplace */:
-            if (element.uri.toString() === uri.toString()) {
-              this._edits[i] = void 0;
+    const interceptFunctions = {
+        apply: function (...args) {
+            if (args.length === 0) {
+                return Reflect.construct(target, []);
             }
-            break;
+            else {
+                const argsList = args.length === 1 ? [] : args[1];
+                return Reflect.construct(target, argsList, args[0].constructor);
+            }
+        },
+        call: function (...args) {
+            if (args.length === 0) {
+                return Reflect.construct(target, []);
+            }
+            else {
+                const [thisArg, ...restArgs] = args;
+                return Reflect.construct(target, restArgs, thisArg.constructor);
+            }
         }
-      }
-      coalesceInPlace(this._edits);
-    } else {
-      for (const editOrTuple of edits) {
-        if (!editOrTuple) {
-          continue;
-        }
-        let edit;
-        let metadata;
-        if (Array.isArray(editOrTuple)) {
-          edit = editOrTuple[0];
-          metadata = editOrTuple[1];
-        } else {
-          edit = editOrTuple;
-        }
-        if (NotebookEdit.isNotebookCellEdit(edit)) {
-          if (edit.newCellMetadata) {
-            this.replaceNotebookCellMetadata(uri, edit.range.start, edit.newCellMetadata, metadata);
-          } else if (edit.newNotebookMetadata) {
-            this.replaceNotebookMetadata(uri, edit.newNotebookMetadata, metadata);
-          } else {
-            this.replaceNotebookCells(uri, edit.range, edit.newCells, metadata);
-          }
-        } else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
-          this._edits.push({ _type: 6 /* Snippet */, uri, range: edit.range, edit: edit.snippet, metadata });
-        } else {
-          this._edits.push({ _type: 2 /* Text */, uri, edit, metadata });
-        }
-      }
+    };
+    return Object.assign(target, interceptFunctions);
+}
+export var TerminalOutputAnchor;
+(function (TerminalOutputAnchor) {
+    TerminalOutputAnchor[TerminalOutputAnchor["Top"] = 0] = "Top";
+    TerminalOutputAnchor[TerminalOutputAnchor["Bottom"] = 1] = "Bottom";
+})(TerminalOutputAnchor || (TerminalOutputAnchor = {}));
+export var TerminalQuickFixType;
+(function (TerminalQuickFixType) {
+    TerminalQuickFixType[TerminalQuickFixType["TerminalCommand"] = 0] = "TerminalCommand";
+    TerminalQuickFixType[TerminalQuickFixType["Opener"] = 1] = "Opener";
+    TerminalQuickFixType[TerminalQuickFixType["Command"] = 3] = "Command";
+})(TerminalQuickFixType || (TerminalQuickFixType = {}));
+let Disposable = Disposable_1 = class Disposable {
+    static from(...inDisposables) {
+        let disposables = inDisposables;
+        return new Disposable_1(function () {
+            if (disposables) {
+                for (const disposable of disposables) {
+                    if (disposable && typeof disposable.dispose === 'function') {
+                        disposable.dispose();
+                    }
+                }
+                disposables = undefined;
+            }
+        });
     }
-  }
-  get(uri) {
-    const res = [];
-    for (const candidate of this._edits) {
-      if (candidate._type === 2 /* Text */ && candidate.uri.toString() === uri.toString()) {
-        res.push(candidate.edit);
-      }
+    #callOnDispose;
+    constructor(callOnDispose) {
+        this.#callOnDispose = callOnDispose;
     }
-    return res;
-  }
-  entries() {
-    const textEdits = new ResourceMap();
-    for (const candidate of this._edits) {
-      if (candidate._type === 2 /* Text */) {
-        let textEdit = textEdits.get(candidate.uri);
-        if (!textEdit) {
-          textEdit = [candidate.uri, []];
-          textEdits.set(candidate.uri, textEdit);
+    dispose() {
+        if (typeof this.#callOnDispose === 'function') {
+            this.#callOnDispose();
+            this.#callOnDispose = undefined;
         }
-        textEdit[1].push(candidate.edit);
-      }
     }
-    return [...textEdits.values()];
-  }
-  get size() {
-    return this.entries().length;
-  }
-  toJSON() {
-    return this.entries();
-  }
 };
-__name(WorkspaceEdit, "WorkspaceEdit");
-WorkspaceEdit = __decorateClass([
-  es5ClassCompat
+Disposable = Disposable_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Function])
+], Disposable);
+export { Disposable };
+let Position = Position_1 = class Position {
+    static Min(...positions) {
+        if (positions.length === 0) {
+            throw new TypeError();
+        }
+        let result = positions[0];
+        for (let i = 1; i < positions.length; i++) {
+            const p = positions[i];
+            if (p.isBefore(result)) {
+                result = p;
+            }
+        }
+        return result;
+    }
+    static Max(...positions) {
+        if (positions.length === 0) {
+            throw new TypeError();
+        }
+        let result = positions[0];
+        for (let i = 1; i < positions.length; i++) {
+            const p = positions[i];
+            if (p.isAfter(result)) {
+                result = p;
+            }
+        }
+        return result;
+    }
+    static isPosition(other) {
+        if (!other) {
+            return false;
+        }
+        if (other instanceof Position_1) {
+            return true;
+        }
+        const { line, character } = other;
+        if (typeof line === 'number' && typeof character === 'number') {
+            return true;
+        }
+        return false;
+    }
+    static of(obj) {
+        if (obj instanceof Position_1) {
+            return obj;
+        }
+        else if (this.isPosition(obj)) {
+            return new Position_1(obj.line, obj.character);
+        }
+        throw new Error('Invalid argument, is NOT a position-like object');
+    }
+    get line() {
+        return this._line;
+    }
+    get character() {
+        return this._character;
+    }
+    constructor(line, character) {
+        if (line < 0) {
+            throw illegalArgument('line must be non-negative');
+        }
+        if (character < 0) {
+            throw illegalArgument('character must be non-negative');
+        }
+        this._line = line;
+        this._character = character;
+    }
+    isBefore(other) {
+        if (this._line < other._line) {
+            return true;
+        }
+        if (other._line < this._line) {
+            return false;
+        }
+        return this._character < other._character;
+    }
+    isBeforeOrEqual(other) {
+        if (this._line < other._line) {
+            return true;
+        }
+        if (other._line < this._line) {
+            return false;
+        }
+        return this._character <= other._character;
+    }
+    isAfter(other) {
+        return !this.isBeforeOrEqual(other);
+    }
+    isAfterOrEqual(other) {
+        return !this.isBefore(other);
+    }
+    isEqual(other) {
+        return this._line === other._line && this._character === other._character;
+    }
+    compareTo(other) {
+        if (this._line < other._line) {
+            return -1;
+        }
+        else if (this._line > other.line) {
+            return 1;
+        }
+        else {
+            // equal line
+            if (this._character < other._character) {
+                return -1;
+            }
+            else if (this._character > other._character) {
+                return 1;
+            }
+            else {
+                // equal line and character
+                return 0;
+            }
+        }
+    }
+    translate(lineDeltaOrChange, characterDelta = 0) {
+        if (lineDeltaOrChange === null || characterDelta === null) {
+            throw illegalArgument();
+        }
+        let lineDelta;
+        if (typeof lineDeltaOrChange === 'undefined') {
+            lineDelta = 0;
+        }
+        else if (typeof lineDeltaOrChange === 'number') {
+            lineDelta = lineDeltaOrChange;
+        }
+        else {
+            lineDelta = typeof lineDeltaOrChange.lineDelta === 'number' ? lineDeltaOrChange.lineDelta : 0;
+            characterDelta = typeof lineDeltaOrChange.characterDelta === 'number' ? lineDeltaOrChange.characterDelta : 0;
+        }
+        if (lineDelta === 0 && characterDelta === 0) {
+            return this;
+        }
+        return new Position_1(this.line + lineDelta, this.character + characterDelta);
+    }
+    with(lineOrChange, character = this.character) {
+        if (lineOrChange === null || character === null) {
+            throw illegalArgument();
+        }
+        let line;
+        if (typeof lineOrChange === 'undefined') {
+            line = this.line;
+        }
+        else if (typeof lineOrChange === 'number') {
+            line = lineOrChange;
+        }
+        else {
+            line = typeof lineOrChange.line === 'number' ? lineOrChange.line : this.line;
+            character = typeof lineOrChange.character === 'number' ? lineOrChange.character : this.character;
+        }
+        if (line === this.line && character === this.character) {
+            return this;
+        }
+        return new Position_1(line, character);
+    }
+    toJSON() {
+        return { line: this.line, character: this.character };
+    }
+    [Symbol.for('debug.description')]() {
+        return `(${this.line}:${this.character})`;
+    }
+};
+Position = Position_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Number, Number])
+], Position);
+export { Position };
+let Range = Range_1 = class Range {
+    static isRange(thing) {
+        if (thing instanceof Range_1) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return Position.isPosition(thing.start)
+            && Position.isPosition(thing.end);
+    }
+    static of(obj) {
+        if (obj instanceof Range_1) {
+            return obj;
+        }
+        if (this.isRange(obj)) {
+            return new Range_1(obj.start, obj.end);
+        }
+        throw new Error('Invalid argument, is NOT a range-like object');
+    }
+    get start() {
+        return this._start;
+    }
+    get end() {
+        return this._end;
+    }
+    constructor(startLineOrStart, startColumnOrEnd, endLine, endColumn) {
+        let start;
+        let end;
+        if (typeof startLineOrStart === 'number' && typeof startColumnOrEnd === 'number' && typeof endLine === 'number' && typeof endColumn === 'number') {
+            start = new Position(startLineOrStart, startColumnOrEnd);
+            end = new Position(endLine, endColumn);
+        }
+        else if (Position.isPosition(startLineOrStart) && Position.isPosition(startColumnOrEnd)) {
+            start = Position.of(startLineOrStart);
+            end = Position.of(startColumnOrEnd);
+        }
+        if (!start || !end) {
+            throw new Error('Invalid arguments');
+        }
+        if (start.isBefore(end)) {
+            this._start = start;
+            this._end = end;
+        }
+        else {
+            this._start = end;
+            this._end = start;
+        }
+    }
+    contains(positionOrRange) {
+        if (Range_1.isRange(positionOrRange)) {
+            return this.contains(positionOrRange.start)
+                && this.contains(positionOrRange.end);
+        }
+        else if (Position.isPosition(positionOrRange)) {
+            if (Position.of(positionOrRange).isBefore(this._start)) {
+                return false;
+            }
+            if (this._end.isBefore(positionOrRange)) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    isEqual(other) {
+        return this._start.isEqual(other._start) && this._end.isEqual(other._end);
+    }
+    intersection(other) {
+        const start = Position.Max(other.start, this._start);
+        const end = Position.Min(other.end, this._end);
+        if (start.isAfter(end)) {
+            // this happens when there is no overlap:
+            // |-----|
+            //          |----|
+            return undefined;
+        }
+        return new Range_1(start, end);
+    }
+    union(other) {
+        if (this.contains(other)) {
+            return this;
+        }
+        else if (other.contains(this)) {
+            return other;
+        }
+        const start = Position.Min(other.start, this._start);
+        const end = Position.Max(other.end, this.end);
+        return new Range_1(start, end);
+    }
+    get isEmpty() {
+        return this._start.isEqual(this._end);
+    }
+    get isSingleLine() {
+        return this._start.line === this._end.line;
+    }
+    with(startOrChange, end = this.end) {
+        if (startOrChange === null || end === null) {
+            throw illegalArgument();
+        }
+        let start;
+        if (!startOrChange) {
+            start = this.start;
+        }
+        else if (Position.isPosition(startOrChange)) {
+            start = startOrChange;
+        }
+        else {
+            start = startOrChange.start || this.start;
+            end = startOrChange.end || this.end;
+        }
+        if (start.isEqual(this._start) && end.isEqual(this.end)) {
+            return this;
+        }
+        return new Range_1(start, end);
+    }
+    toJSON() {
+        return [this.start, this.end];
+    }
+    [Symbol.for('debug.description')]() {
+        return getDebugDescriptionOfRange(this);
+    }
+};
+Range = Range_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Object, Number, Number])
+], Range);
+export { Range };
+let Selection = Selection_1 = class Selection extends Range {
+    static isSelection(thing) {
+        if (thing instanceof Selection_1) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return Range.isRange(thing)
+            && Position.isPosition(thing.anchor)
+            && Position.isPosition(thing.active)
+            && typeof thing.isReversed === 'boolean';
+    }
+    get anchor() {
+        return this._anchor;
+    }
+    get active() {
+        return this._active;
+    }
+    constructor(anchorLineOrAnchor, anchorColumnOrActive, activeLine, activeColumn) {
+        let anchor;
+        let active;
+        if (typeof anchorLineOrAnchor === 'number' && typeof anchorColumnOrActive === 'number' && typeof activeLine === 'number' && typeof activeColumn === 'number') {
+            anchor = new Position(anchorLineOrAnchor, anchorColumnOrActive);
+            active = new Position(activeLine, activeColumn);
+        }
+        else if (Position.isPosition(anchorLineOrAnchor) && Position.isPosition(anchorColumnOrActive)) {
+            anchor = Position.of(anchorLineOrAnchor);
+            active = Position.of(anchorColumnOrActive);
+        }
+        if (!anchor || !active) {
+            throw new Error('Invalid arguments');
+        }
+        super(anchor, active);
+        this._anchor = anchor;
+        this._active = active;
+    }
+    get isReversed() {
+        return this._anchor === this._end;
+    }
+    toJSON() {
+        return {
+            start: this.start,
+            end: this.end,
+            active: this.active,
+            anchor: this.anchor
+        };
+    }
+    [Symbol.for('debug.description')]() {
+        return getDebugDescriptionOfSelection(this);
+    }
+};
+Selection = Selection_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Object, Number, Number])
+], Selection);
+export { Selection };
+export function getDebugDescriptionOfRange(range) {
+    return range.isEmpty
+        ? `[${range.start.line}:${range.start.character})`
+        : `[${range.start.line}:${range.start.character} -> ${range.end.line}:${range.end.character})`;
+}
+export function getDebugDescriptionOfSelection(selection) {
+    let rangeStr = getDebugDescriptionOfRange(selection);
+    if (!selection.isEmpty) {
+        if (selection.active.isEqual(selection.start)) {
+            rangeStr = `|${rangeStr}`;
+        }
+        else {
+            rangeStr = `${rangeStr}|`;
+        }
+    }
+    return rangeStr;
+}
+const validateConnectionToken = (connectionToken) => {
+    if (typeof connectionToken !== 'string' || connectionToken.length === 0 || !/^[0-9A-Za-z_\-]+$/.test(connectionToken)) {
+        throw illegalArgument('connectionToken');
+    }
+};
+export class ResolvedAuthority {
+    static isResolvedAuthority(resolvedAuthority) {
+        return resolvedAuthority
+            && typeof resolvedAuthority === 'object'
+            && typeof resolvedAuthority.host === 'string'
+            && typeof resolvedAuthority.port === 'number'
+            && (resolvedAuthority.connectionToken === undefined || typeof resolvedAuthority.connectionToken === 'string');
+    }
+    constructor(host, port, connectionToken) {
+        if (typeof host !== 'string' || host.length === 0) {
+            throw illegalArgument('host');
+        }
+        if (typeof port !== 'number' || port === 0 || Math.round(port) !== port) {
+            throw illegalArgument('port');
+        }
+        if (typeof connectionToken !== 'undefined') {
+            validateConnectionToken(connectionToken);
+        }
+        this.host = host;
+        this.port = Math.round(port);
+        this.connectionToken = connectionToken;
+    }
+}
+export class ManagedResolvedAuthority {
+    static isManagedResolvedAuthority(resolvedAuthority) {
+        return resolvedAuthority
+            && typeof resolvedAuthority === 'object'
+            && typeof resolvedAuthority.makeConnection === 'function'
+            && (resolvedAuthority.connectionToken === undefined || typeof resolvedAuthority.connectionToken === 'string');
+    }
+    constructor(makeConnection, connectionToken) {
+        this.makeConnection = makeConnection;
+        this.connectionToken = connectionToken;
+        if (typeof connectionToken !== 'undefined') {
+            validateConnectionToken(connectionToken);
+        }
+    }
+}
+export class RemoteAuthorityResolverError extends Error {
+    static NotAvailable(message, handled) {
+        return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.NotAvailable, handled);
+    }
+    static TemporarilyNotAvailable(message) {
+        return new RemoteAuthorityResolverError(message, RemoteAuthorityResolverErrorCode.TemporarilyNotAvailable);
+    }
+    constructor(message, code = RemoteAuthorityResolverErrorCode.Unknown, detail) {
+        super(message);
+        this._message = message;
+        this._code = code;
+        this._detail = detail;
+        // workaround when extending builtin objects and when compiling to ES5, see:
+        // https://github.com/microsoft/TypeScript-wiki/blob/master/Breaking-Changes.md#extending-built-ins-like-error-array-and-map-may-no-longer-work
+        Object.setPrototypeOf(this, RemoteAuthorityResolverError.prototype);
+    }
+}
+export var EndOfLine;
+(function (EndOfLine) {
+    EndOfLine[EndOfLine["LF"] = 1] = "LF";
+    EndOfLine[EndOfLine["CRLF"] = 2] = "CRLF";
+})(EndOfLine || (EndOfLine = {}));
+export var EnvironmentVariableMutatorType;
+(function (EnvironmentVariableMutatorType) {
+    EnvironmentVariableMutatorType[EnvironmentVariableMutatorType["Replace"] = 1] = "Replace";
+    EnvironmentVariableMutatorType[EnvironmentVariableMutatorType["Append"] = 2] = "Append";
+    EnvironmentVariableMutatorType[EnvironmentVariableMutatorType["Prepend"] = 3] = "Prepend";
+})(EnvironmentVariableMutatorType || (EnvironmentVariableMutatorType = {}));
+let TextEdit = TextEdit_1 = class TextEdit {
+    static isTextEdit(thing) {
+        if (thing instanceof TextEdit_1) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return Range.isRange(thing)
+            && typeof thing.newText === 'string';
+    }
+    static replace(range, newText) {
+        return new TextEdit_1(range, newText);
+    }
+    static insert(position, newText) {
+        return TextEdit_1.replace(new Range(position, position), newText);
+    }
+    static delete(range) {
+        return TextEdit_1.replace(range, '');
+    }
+    static setEndOfLine(eol) {
+        const ret = new TextEdit_1(new Range(new Position(0, 0), new Position(0, 0)), '');
+        ret.newEol = eol;
+        return ret;
+    }
+    get range() {
+        return this._range;
+    }
+    set range(value) {
+        if (value && !Range.isRange(value)) {
+            throw illegalArgument('range');
+        }
+        this._range = value;
+    }
+    get newText() {
+        return this._newText || '';
+    }
+    set newText(value) {
+        if (value && typeof value !== 'string') {
+            throw illegalArgument('newText');
+        }
+        this._newText = value;
+    }
+    get newEol() {
+        return this._newEol;
+    }
+    set newEol(value) {
+        if (value && typeof value !== 'number') {
+            throw illegalArgument('newEol');
+        }
+        this._newEol = value;
+    }
+    constructor(range, newText) {
+        this._range = range;
+        this._newText = newText;
+    }
+    toJSON() {
+        return {
+            range: this.range,
+            newText: this.newText,
+            newEol: this._newEol
+        };
+    }
+};
+TextEdit = TextEdit_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, Object])
+], TextEdit);
+export { TextEdit };
+let NotebookEdit = NotebookEdit_1 = class NotebookEdit {
+    static isNotebookCellEdit(thing) {
+        if (thing instanceof NotebookEdit_1) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return NotebookRange.isNotebookRange(thing)
+            && Array.isArray(thing.newCells);
+    }
+    static replaceCells(range, newCells) {
+        return new NotebookEdit_1(range, newCells);
+    }
+    static insertCells(index, newCells) {
+        return new NotebookEdit_1(new NotebookRange(index, index), newCells);
+    }
+    static deleteCells(range) {
+        return new NotebookEdit_1(range, []);
+    }
+    static updateCellMetadata(index, newMetadata) {
+        const edit = new NotebookEdit_1(new NotebookRange(index, index), []);
+        edit.newCellMetadata = newMetadata;
+        return edit;
+    }
+    static updateNotebookMetadata(newMetadata) {
+        const edit = new NotebookEdit_1(new NotebookRange(0, 0), []);
+        edit.newNotebookMetadata = newMetadata;
+        return edit;
+    }
+    constructor(range, newCells) {
+        this.range = range;
+        this.newCells = newCells;
+    }
+};
+NotebookEdit = NotebookEdit_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [NotebookRange, Array])
+], NotebookEdit);
+export { NotebookEdit };
+export class SnippetTextEdit {
+    static isSnippetTextEdit(thing) {
+        if (thing instanceof SnippetTextEdit) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return Range.isRange(thing.range)
+            && SnippetString.isSnippetString(thing.snippet);
+    }
+    static replace(range, snippet) {
+        return new SnippetTextEdit(range, snippet);
+    }
+    static insert(position, snippet) {
+        return SnippetTextEdit.replace(new Range(position, position), snippet);
+    }
+    constructor(range, snippet) {
+        this.range = range;
+        this.snippet = snippet;
+    }
+}
+let WorkspaceEdit = class WorkspaceEdit {
+    constructor() {
+        this._edits = [];
+    }
+    _allEntries() {
+        return this._edits;
+    }
+    // --- file
+    renameFile(from, to, options, metadata) {
+        this._edits.push({ _type: 1 /* FileEditType.File */, from, to, options, metadata });
+    }
+    createFile(uri, options, metadata) {
+        this._edits.push({ _type: 1 /* FileEditType.File */, from: undefined, to: uri, options, metadata });
+    }
+    deleteFile(uri, options, metadata) {
+        this._edits.push({ _type: 1 /* FileEditType.File */, from: uri, to: undefined, options, metadata });
+    }
+    // --- notebook
+    replaceNotebookMetadata(uri, value, metadata) {
+        this._edits.push({ _type: 3 /* FileEditType.Cell */, metadata, uri, edit: { editType: 5 /* CellEditType.DocumentMetadata */, metadata: value } });
+    }
+    replaceNotebookCells(uri, startOrRange, cellData, metadata) {
+        const start = startOrRange.start;
+        const end = startOrRange.end;
+        if (start !== end || cellData.length > 0) {
+            this._edits.push({ _type: 5 /* FileEditType.CellReplace */, uri, index: start, count: end - start, cells: cellData, metadata });
+        }
+    }
+    replaceNotebookCellMetadata(uri, index, cellMetadata, metadata) {
+        this._edits.push({ _type: 3 /* FileEditType.Cell */, metadata, uri, edit: { editType: 3 /* CellEditType.Metadata */, index, metadata: cellMetadata } });
+    }
+    // --- text
+    replace(uri, range, newText, metadata) {
+        this._edits.push({ _type: 2 /* FileEditType.Text */, uri, edit: new TextEdit(range, newText), metadata });
+    }
+    insert(resource, position, newText, metadata) {
+        this.replace(resource, new Range(position, position), newText, metadata);
+    }
+    delete(resource, range, metadata) {
+        this.replace(resource, range, '', metadata);
+    }
+    // --- text (Maplike)
+    has(uri) {
+        return this._edits.some(edit => edit._type === 2 /* FileEditType.Text */ && edit.uri.toString() === uri.toString());
+    }
+    set(uri, edits) {
+        if (!edits) {
+            // remove all text, snippet, or notebook edits for `uri`
+            for (let i = 0; i < this._edits.length; i++) {
+                const element = this._edits[i];
+                switch (element._type) {
+                    case 2 /* FileEditType.Text */:
+                    case 6 /* FileEditType.Snippet */:
+                    case 3 /* FileEditType.Cell */:
+                    case 5 /* FileEditType.CellReplace */:
+                        if (element.uri.toString() === uri.toString()) {
+                            this._edits[i] = undefined; // will be coalesced down below
+                        }
+                        break;
+                }
+            }
+            coalesceInPlace(this._edits);
+        }
+        else {
+            // append edit to the end
+            for (const editOrTuple of edits) {
+                if (!editOrTuple) {
+                    continue;
+                }
+                let edit;
+                let metadata;
+                if (Array.isArray(editOrTuple)) {
+                    edit = editOrTuple[0];
+                    metadata = editOrTuple[1];
+                }
+                else {
+                    edit = editOrTuple;
+                }
+                if (NotebookEdit.isNotebookCellEdit(edit)) {
+                    if (edit.newCellMetadata) {
+                        this.replaceNotebookCellMetadata(uri, edit.range.start, edit.newCellMetadata, metadata);
+                    }
+                    else if (edit.newNotebookMetadata) {
+                        this.replaceNotebookMetadata(uri, edit.newNotebookMetadata, metadata);
+                    }
+                    else {
+                        this.replaceNotebookCells(uri, edit.range, edit.newCells, metadata);
+                    }
+                }
+                else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
+                    this._edits.push({ _type: 6 /* FileEditType.Snippet */, uri, range: edit.range, edit: edit.snippet, metadata });
+                }
+                else {
+                    this._edits.push({ _type: 2 /* FileEditType.Text */, uri, edit, metadata });
+                }
+            }
+        }
+    }
+    get(uri) {
+        const res = [];
+        for (const candidate of this._edits) {
+            if (candidate._type === 2 /* FileEditType.Text */ && candidate.uri.toString() === uri.toString()) {
+                res.push(candidate.edit);
+            }
+        }
+        return res;
+    }
+    entries() {
+        const textEdits = new ResourceMap();
+        for (const candidate of this._edits) {
+            if (candidate._type === 2 /* FileEditType.Text */) {
+                let textEdit = textEdits.get(candidate.uri);
+                if (!textEdit) {
+                    textEdit = [candidate.uri, []];
+                    textEdits.set(candidate.uri, textEdit);
+                }
+                textEdit[1].push(candidate.edit);
+            }
+        }
+        return [...textEdits.values()];
+    }
+    get size() {
+        return this.entries().length;
+    }
+    toJSON() {
+        return this.entries();
+    }
+};
+WorkspaceEdit = __decorate([
+    es5ClassCompat
 ], WorkspaceEdit);
-let SnippetString = class {
-  static isSnippetString(thing) {
-    if (thing instanceof SnippetString) {
-      return true;
+export { WorkspaceEdit };
+let SnippetString = SnippetString_1 = class SnippetString {
+    static isSnippetString(thing) {
+        if (thing instanceof SnippetString_1) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return typeof thing.value === 'string';
     }
-    if (!thing) {
-      return false;
+    static _escape(value) {
+        return value.replace(/\$|}|\\/g, '\\$&');
     }
-    return typeof thing.value === "string";
-  }
-  static _escape(value) {
-    return value.replace(/\$|}|\\/g, "\\$&");
-  }
-  _tabstop = 1;
-  value;
-  constructor(value) {
-    this.value = value || "";
-  }
-  appendText(string) {
-    this.value += SnippetString._escape(string);
-    return this;
-  }
-  appendTabstop(number = this._tabstop++) {
-    this.value += "$";
-    this.value += number;
-    return this;
-  }
-  appendPlaceholder(value, number = this._tabstop++) {
-    if (typeof value === "function") {
-      const nested = new SnippetString();
-      nested._tabstop = this._tabstop;
-      value(nested);
-      this._tabstop = nested._tabstop;
-      value = nested.value;
-    } else {
-      value = SnippetString._escape(value);
+    constructor(value) {
+        this._tabstop = 1;
+        this.value = value || '';
     }
-    this.value += "${";
-    this.value += number;
-    this.value += ":";
-    this.value += value;
-    this.value += "}";
-    return this;
-  }
-  appendChoice(values, number = this._tabstop++) {
-    const value = values.map((s) => s.replaceAll(/[|\\,]/g, "\\$&")).join(",");
-    this.value += "${";
-    this.value += number;
-    this.value += "|";
-    this.value += value;
-    this.value += "|}";
-    return this;
-  }
-  appendVariable(name, defaultValue) {
-    if (typeof defaultValue === "function") {
-      const nested = new SnippetString();
-      nested._tabstop = this._tabstop;
-      defaultValue(nested);
-      this._tabstop = nested._tabstop;
-      defaultValue = nested.value;
-    } else if (typeof defaultValue === "string") {
-      defaultValue = defaultValue.replace(/\$|}/g, "\\$&");
+    appendText(string) {
+        this.value += SnippetString_1._escape(string);
+        return this;
     }
-    this.value += "${";
-    this.value += name;
-    if (defaultValue) {
-      this.value += ":";
-      this.value += defaultValue;
+    appendTabstop(number = this._tabstop++) {
+        this.value += '$';
+        this.value += number;
+        return this;
     }
-    this.value += "}";
-    return this;
-  }
+    appendPlaceholder(value, number = this._tabstop++) {
+        if (typeof value === 'function') {
+            const nested = new SnippetString_1();
+            nested._tabstop = this._tabstop;
+            value(nested);
+            this._tabstop = nested._tabstop;
+            value = nested.value;
+        }
+        else {
+            value = SnippetString_1._escape(value);
+        }
+        this.value += '${';
+        this.value += number;
+        this.value += ':';
+        this.value += value;
+        this.value += '}';
+        return this;
+    }
+    appendChoice(values, number = this._tabstop++) {
+        const value = values.map(s => s.replaceAll(/[|\\,]/g, '\\$&')).join(',');
+        this.value += '${';
+        this.value += number;
+        this.value += '|';
+        this.value += value;
+        this.value += '|}';
+        return this;
+    }
+    appendVariable(name, defaultValue) {
+        if (typeof defaultValue === 'function') {
+            const nested = new SnippetString_1();
+            nested._tabstop = this._tabstop;
+            defaultValue(nested);
+            this._tabstop = nested._tabstop;
+            defaultValue = nested.value;
+        }
+        else if (typeof defaultValue === 'string') {
+            defaultValue = defaultValue.replace(/\$|}/g, '\\$&'); // CodeQL [SM02383] I do not want to escape backslashes here
+        }
+        this.value += '${';
+        this.value += name;
+        if (defaultValue) {
+            this.value += ':';
+            this.value += defaultValue;
+        }
+        this.value += '}';
+        return this;
+    }
 };
-__name(SnippetString, "SnippetString");
-SnippetString = __decorateClass([
-  es5ClassCompat
+SnippetString = SnippetString_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
 ], SnippetString);
-var DiagnosticTag = /* @__PURE__ */ ((DiagnosticTag2) => {
-  DiagnosticTag2[DiagnosticTag2["Unnecessary"] = 1] = "Unnecessary";
-  DiagnosticTag2[DiagnosticTag2["Deprecated"] = 2] = "Deprecated";
-  return DiagnosticTag2;
-})(DiagnosticTag || {});
-var DiagnosticSeverity = /* @__PURE__ */ ((DiagnosticSeverity2) => {
-  DiagnosticSeverity2[DiagnosticSeverity2["Hint"] = 3] = "Hint";
-  DiagnosticSeverity2[DiagnosticSeverity2["Information"] = 2] = "Information";
-  DiagnosticSeverity2[DiagnosticSeverity2["Warning"] = 1] = "Warning";
-  DiagnosticSeverity2[DiagnosticSeverity2["Error"] = 0] = "Error";
-  return DiagnosticSeverity2;
-})(DiagnosticSeverity || {});
-let Location = class {
-  static isLocation(thing) {
-    if (thing instanceof Location) {
-      return true;
+export { SnippetString };
+export var DiagnosticTag;
+(function (DiagnosticTag) {
+    DiagnosticTag[DiagnosticTag["Unnecessary"] = 1] = "Unnecessary";
+    DiagnosticTag[DiagnosticTag["Deprecated"] = 2] = "Deprecated";
+})(DiagnosticTag || (DiagnosticTag = {}));
+export var DiagnosticSeverity;
+(function (DiagnosticSeverity) {
+    DiagnosticSeverity[DiagnosticSeverity["Hint"] = 3] = "Hint";
+    DiagnosticSeverity[DiagnosticSeverity["Information"] = 2] = "Information";
+    DiagnosticSeverity[DiagnosticSeverity["Warning"] = 1] = "Warning";
+    DiagnosticSeverity[DiagnosticSeverity["Error"] = 0] = "Error";
+})(DiagnosticSeverity || (DiagnosticSeverity = {}));
+let Location = Location_1 = class Location {
+    static isLocation(thing) {
+        if (thing instanceof Location_1) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return Range.isRange(thing.range)
+            && URI.isUri(thing.uri);
     }
-    if (!thing) {
-      return false;
+    constructor(uri, rangeOrPosition) {
+        this.uri = uri;
+        if (!rangeOrPosition) {
+            //that's OK
+        }
+        else if (Range.isRange(rangeOrPosition)) {
+            this.range = Range.of(rangeOrPosition);
+        }
+        else if (Position.isPosition(rangeOrPosition)) {
+            this.range = new Range(rangeOrPosition, rangeOrPosition);
+        }
+        else {
+            throw new Error('Illegal argument');
+        }
     }
-    return Range.isRange(thing.range) && URI.isUri(thing.uri);
-  }
-  uri;
-  range;
-  constructor(uri, rangeOrPosition) {
-    this.uri = uri;
-    if (!rangeOrPosition) {
-    } else if (Range.isRange(rangeOrPosition)) {
-      this.range = Range.of(rangeOrPosition);
-    } else if (Position.isPosition(rangeOrPosition)) {
-      this.range = new Range(rangeOrPosition, rangeOrPosition);
-    } else {
-      throw new Error("Illegal argument");
+    toJSON() {
+        return {
+            uri: this.uri,
+            range: this.range
+        };
     }
-  }
-  toJSON() {
-    return {
-      uri: this.uri,
-      range: this.range
-    };
-  }
 };
-__name(Location, "Location");
-Location = __decorateClass([
-  es5ClassCompat
+Location = Location_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [URI, Object])
 ], Location);
-let DiagnosticRelatedInformation = class {
-  static is(thing) {
-    if (!thing) {
-      return false;
+export { Location };
+let DiagnosticRelatedInformation = class DiagnosticRelatedInformation {
+    static is(thing) {
+        if (!thing) {
+            return false;
+        }
+        return typeof thing.message === 'string'
+            && thing.location
+            && Range.isRange(thing.location.range)
+            && URI.isUri(thing.location.uri);
     }
-    return typeof thing.message === "string" && thing.location && Range.isRange(thing.location.range) && URI.isUri(thing.location.uri);
-  }
-  location;
-  message;
-  constructor(location, message) {
-    this.location = location;
-    this.message = message;
-  }
-  static isEqual(a, b) {
-    if (a === b) {
-      return true;
+    constructor(location, message) {
+        this.location = location;
+        this.message = message;
     }
-    if (!a || !b) {
-      return false;
+    static isEqual(a, b) {
+        if (a === b) {
+            return true;
+        }
+        if (!a || !b) {
+            return false;
+        }
+        return a.message === b.message
+            && a.location.range.isEqual(b.location.range)
+            && a.location.uri.toString() === b.location.uri.toString();
     }
-    return a.message === b.message && a.location.range.isEqual(b.location.range) && a.location.uri.toString() === b.location.uri.toString();
-  }
 };
-__name(DiagnosticRelatedInformation, "DiagnosticRelatedInformation");
-DiagnosticRelatedInformation = __decorateClass([
-  es5ClassCompat
+DiagnosticRelatedInformation = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Location, String])
 ], DiagnosticRelatedInformation);
-let Diagnostic = class {
-  range;
-  message;
-  severity;
-  source;
-  code;
-  relatedInformation;
-  tags;
-  constructor(range, message, severity = 0 /* Error */) {
-    if (!Range.isRange(range)) {
-      throw new TypeError("range must be set");
+export { DiagnosticRelatedInformation };
+let Diagnostic = class Diagnostic {
+    constructor(range, message, severity = DiagnosticSeverity.Error) {
+        if (!Range.isRange(range)) {
+            throw new TypeError('range must be set');
+        }
+        if (!message) {
+            throw new TypeError('message must be set');
+        }
+        this.range = range;
+        this.message = message;
+        this.severity = severity;
     }
-    if (!message) {
-      throw new TypeError("message must be set");
+    toJSON() {
+        return {
+            severity: DiagnosticSeverity[this.severity],
+            message: this.message,
+            range: this.range,
+            source: this.source,
+            code: this.code,
+        };
     }
-    this.range = range;
-    this.message = message;
-    this.severity = severity;
-  }
-  toJSON() {
-    return {
-      severity: DiagnosticSeverity[this.severity],
-      message: this.message,
-      range: this.range,
-      source: this.source,
-      code: this.code
-    };
-  }
-  static isEqual(a, b) {
-    if (a === b) {
-      return true;
+    static isEqual(a, b) {
+        if (a === b) {
+            return true;
+        }
+        if (!a || !b) {
+            return false;
+        }
+        return a.message === b.message
+            && a.severity === b.severity
+            && a.code === b.code
+            && a.severity === b.severity
+            && a.source === b.source
+            && a.range.isEqual(b.range)
+            && equals(a.tags, b.tags)
+            && equals(a.relatedInformation, b.relatedInformation, DiagnosticRelatedInformation.isEqual);
     }
-    if (!a || !b) {
-      return false;
-    }
-    return a.message === b.message && a.severity === b.severity && a.code === b.code && a.severity === b.severity && a.source === b.source && a.range.isEqual(b.range) && equals(a.tags, b.tags) && equals(a.relatedInformation, b.relatedInformation, DiagnosticRelatedInformation.isEqual);
-  }
 };
-__name(Diagnostic, "Diagnostic");
-Diagnostic = __decorateClass([
-  es5ClassCompat
+Diagnostic = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, String, Number])
 ], Diagnostic);
-let Hover = class {
-  contents;
-  range;
-  constructor(contents, range) {
-    if (!contents) {
-      throw new Error("Illegal argument, contents must be defined");
+export { Diagnostic };
+let Hover = class Hover {
+    constructor(contents, range) {
+        if (!contents) {
+            throw new Error('Illegal argument, contents must be defined');
+        }
+        if (Array.isArray(contents)) {
+            this.contents = contents;
+        }
+        else {
+            this.contents = [contents];
+        }
+        this.range = range;
     }
-    if (Array.isArray(contents)) {
-      this.contents = contents;
-    } else {
-      this.contents = [contents];
-    }
-    this.range = range;
-  }
 };
-__name(Hover, "Hover");
-Hover = __decorateClass([
-  es5ClassCompat
+Hover = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Range])
 ], Hover);
-let VerboseHover = class extends Hover {
-  canIncreaseVerbosity;
-  canDecreaseVerbosity;
-  constructor(contents, range, canIncreaseVerbosity, canDecreaseVerbosity) {
-    super(contents, range);
-    this.canIncreaseVerbosity = canIncreaseVerbosity;
-    this.canDecreaseVerbosity = canDecreaseVerbosity;
-  }
+export { Hover };
+let VerboseHover = class VerboseHover extends Hover {
+    constructor(contents, range, canIncreaseVerbosity, canDecreaseVerbosity) {
+        super(contents, range);
+        this.canIncreaseVerbosity = canIncreaseVerbosity;
+        this.canDecreaseVerbosity = canDecreaseVerbosity;
+    }
 };
-__name(VerboseHover, "VerboseHover");
-VerboseHover = __decorateClass([
-  es5ClassCompat
+VerboseHover = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Range, Boolean, Boolean])
 ], VerboseHover);
-var HoverVerbosityAction = /* @__PURE__ */ ((HoverVerbosityAction2) => {
-  HoverVerbosityAction2[HoverVerbosityAction2["Increase"] = 0] = "Increase";
-  HoverVerbosityAction2[HoverVerbosityAction2["Decrease"] = 1] = "Decrease";
-  return HoverVerbosityAction2;
-})(HoverVerbosityAction || {});
-var DocumentHighlightKind = /* @__PURE__ */ ((DocumentHighlightKind2) => {
-  DocumentHighlightKind2[DocumentHighlightKind2["Text"] = 0] = "Text";
-  DocumentHighlightKind2[DocumentHighlightKind2["Read"] = 1] = "Read";
-  DocumentHighlightKind2[DocumentHighlightKind2["Write"] = 2] = "Write";
-  return DocumentHighlightKind2;
-})(DocumentHighlightKind || {});
-let DocumentHighlight = class {
-  range;
-  kind;
-  constructor(range, kind = 0 /* Text */) {
-    this.range = range;
-    this.kind = kind;
-  }
-  toJSON() {
-    return {
-      range: this.range,
-      kind: DocumentHighlightKind[this.kind]
-    };
-  }
+export { VerboseHover };
+export var HoverVerbosityAction;
+(function (HoverVerbosityAction) {
+    HoverVerbosityAction[HoverVerbosityAction["Increase"] = 0] = "Increase";
+    HoverVerbosityAction[HoverVerbosityAction["Decrease"] = 1] = "Decrease";
+})(HoverVerbosityAction || (HoverVerbosityAction = {}));
+export var DocumentHighlightKind;
+(function (DocumentHighlightKind) {
+    DocumentHighlightKind[DocumentHighlightKind["Text"] = 0] = "Text";
+    DocumentHighlightKind[DocumentHighlightKind["Read"] = 1] = "Read";
+    DocumentHighlightKind[DocumentHighlightKind["Write"] = 2] = "Write";
+})(DocumentHighlightKind || (DocumentHighlightKind = {}));
+let DocumentHighlight = class DocumentHighlight {
+    constructor(range, kind = DocumentHighlightKind.Text) {
+        this.range = range;
+        this.kind = kind;
+    }
+    toJSON() {
+        return {
+            range: this.range,
+            kind: DocumentHighlightKind[this.kind]
+        };
+    }
 };
-__name(DocumentHighlight, "DocumentHighlight");
-DocumentHighlight = __decorateClass([
-  es5ClassCompat
+DocumentHighlight = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, Number])
 ], DocumentHighlight);
-let MultiDocumentHighlight = class {
-  uri;
-  highlights;
-  constructor(uri, highlights) {
-    this.uri = uri;
-    this.highlights = highlights;
-  }
-  toJSON() {
-    return {
-      uri: this.uri,
-      highlights: this.highlights.map((h) => h.toJSON())
-    };
-  }
+export { DocumentHighlight };
+let MultiDocumentHighlight = class MultiDocumentHighlight {
+    constructor(uri, highlights) {
+        this.uri = uri;
+        this.highlights = highlights;
+    }
+    toJSON() {
+        return {
+            uri: this.uri,
+            highlights: this.highlights.map(h => h.toJSON())
+        };
+    }
 };
-__name(MultiDocumentHighlight, "MultiDocumentHighlight");
-MultiDocumentHighlight = __decorateClass([
-  es5ClassCompat
+MultiDocumentHighlight = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [URI, Array])
 ], MultiDocumentHighlight);
-var SymbolKind = /* @__PURE__ */ ((SymbolKind2) => {
-  SymbolKind2[SymbolKind2["File"] = 0] = "File";
-  SymbolKind2[SymbolKind2["Module"] = 1] = "Module";
-  SymbolKind2[SymbolKind2["Namespace"] = 2] = "Namespace";
-  SymbolKind2[SymbolKind2["Package"] = 3] = "Package";
-  SymbolKind2[SymbolKind2["Class"] = 4] = "Class";
-  SymbolKind2[SymbolKind2["Method"] = 5] = "Method";
-  SymbolKind2[SymbolKind2["Property"] = 6] = "Property";
-  SymbolKind2[SymbolKind2["Field"] = 7] = "Field";
-  SymbolKind2[SymbolKind2["Constructor"] = 8] = "Constructor";
-  SymbolKind2[SymbolKind2["Enum"] = 9] = "Enum";
-  SymbolKind2[SymbolKind2["Interface"] = 10] = "Interface";
-  SymbolKind2[SymbolKind2["Function"] = 11] = "Function";
-  SymbolKind2[SymbolKind2["Variable"] = 12] = "Variable";
-  SymbolKind2[SymbolKind2["Constant"] = 13] = "Constant";
-  SymbolKind2[SymbolKind2["String"] = 14] = "String";
-  SymbolKind2[SymbolKind2["Number"] = 15] = "Number";
-  SymbolKind2[SymbolKind2["Boolean"] = 16] = "Boolean";
-  SymbolKind2[SymbolKind2["Array"] = 17] = "Array";
-  SymbolKind2[SymbolKind2["Object"] = 18] = "Object";
-  SymbolKind2[SymbolKind2["Key"] = 19] = "Key";
-  SymbolKind2[SymbolKind2["Null"] = 20] = "Null";
-  SymbolKind2[SymbolKind2["EnumMember"] = 21] = "EnumMember";
-  SymbolKind2[SymbolKind2["Struct"] = 22] = "Struct";
-  SymbolKind2[SymbolKind2["Event"] = 23] = "Event";
-  SymbolKind2[SymbolKind2["Operator"] = 24] = "Operator";
-  SymbolKind2[SymbolKind2["TypeParameter"] = 25] = "TypeParameter";
-  return SymbolKind2;
-})(SymbolKind || {});
-var SymbolTag = /* @__PURE__ */ ((SymbolTag2) => {
-  SymbolTag2[SymbolTag2["Deprecated"] = 1] = "Deprecated";
-  return SymbolTag2;
-})(SymbolTag || {});
-let SymbolInformation = class {
-  static validate(candidate) {
-    if (!candidate.name) {
-      throw new Error("name must not be falsy");
+export { MultiDocumentHighlight };
+export var SymbolKind;
+(function (SymbolKind) {
+    SymbolKind[SymbolKind["File"] = 0] = "File";
+    SymbolKind[SymbolKind["Module"] = 1] = "Module";
+    SymbolKind[SymbolKind["Namespace"] = 2] = "Namespace";
+    SymbolKind[SymbolKind["Package"] = 3] = "Package";
+    SymbolKind[SymbolKind["Class"] = 4] = "Class";
+    SymbolKind[SymbolKind["Method"] = 5] = "Method";
+    SymbolKind[SymbolKind["Property"] = 6] = "Property";
+    SymbolKind[SymbolKind["Field"] = 7] = "Field";
+    SymbolKind[SymbolKind["Constructor"] = 8] = "Constructor";
+    SymbolKind[SymbolKind["Enum"] = 9] = "Enum";
+    SymbolKind[SymbolKind["Interface"] = 10] = "Interface";
+    SymbolKind[SymbolKind["Function"] = 11] = "Function";
+    SymbolKind[SymbolKind["Variable"] = 12] = "Variable";
+    SymbolKind[SymbolKind["Constant"] = 13] = "Constant";
+    SymbolKind[SymbolKind["String"] = 14] = "String";
+    SymbolKind[SymbolKind["Number"] = 15] = "Number";
+    SymbolKind[SymbolKind["Boolean"] = 16] = "Boolean";
+    SymbolKind[SymbolKind["Array"] = 17] = "Array";
+    SymbolKind[SymbolKind["Object"] = 18] = "Object";
+    SymbolKind[SymbolKind["Key"] = 19] = "Key";
+    SymbolKind[SymbolKind["Null"] = 20] = "Null";
+    SymbolKind[SymbolKind["EnumMember"] = 21] = "EnumMember";
+    SymbolKind[SymbolKind["Struct"] = 22] = "Struct";
+    SymbolKind[SymbolKind["Event"] = 23] = "Event";
+    SymbolKind[SymbolKind["Operator"] = 24] = "Operator";
+    SymbolKind[SymbolKind["TypeParameter"] = 25] = "TypeParameter";
+})(SymbolKind || (SymbolKind = {}));
+export var SymbolTag;
+(function (SymbolTag) {
+    SymbolTag[SymbolTag["Deprecated"] = 1] = "Deprecated";
+})(SymbolTag || (SymbolTag = {}));
+let SymbolInformation = SymbolInformation_1 = class SymbolInformation {
+    static validate(candidate) {
+        if (!candidate.name) {
+            throw new Error('name must not be falsy');
+        }
     }
-  }
-  name;
-  location;
-  kind;
-  tags;
-  containerName;
-  constructor(name, kind, rangeOrContainer, locationOrUri, containerName) {
-    this.name = name;
-    this.kind = kind;
-    this.containerName = containerName;
-    if (typeof rangeOrContainer === "string") {
-      this.containerName = rangeOrContainer;
+    constructor(name, kind, rangeOrContainer, locationOrUri, containerName) {
+        this.name = name;
+        this.kind = kind;
+        this.containerName = containerName;
+        if (typeof rangeOrContainer === 'string') {
+            this.containerName = rangeOrContainer;
+        }
+        if (locationOrUri instanceof Location) {
+            this.location = locationOrUri;
+        }
+        else if (rangeOrContainer instanceof Range) {
+            this.location = new Location(locationOrUri, rangeOrContainer);
+        }
+        SymbolInformation_1.validate(this);
     }
-    if (locationOrUri instanceof Location) {
-      this.location = locationOrUri;
-    } else if (rangeOrContainer instanceof Range) {
-      this.location = new Location(locationOrUri, rangeOrContainer);
+    toJSON() {
+        return {
+            name: this.name,
+            kind: SymbolKind[this.kind],
+            location: this.location,
+            containerName: this.containerName
+        };
     }
-    SymbolInformation.validate(this);
-  }
-  toJSON() {
-    return {
-      name: this.name,
-      kind: SymbolKind[this.kind],
-      location: this.location,
-      containerName: this.containerName
-    };
-  }
 };
-__name(SymbolInformation, "SymbolInformation");
-SymbolInformation = __decorateClass([
-  es5ClassCompat
+SymbolInformation = SymbolInformation_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Number, Object, Object, String])
 ], SymbolInformation);
-let DocumentSymbol = class {
-  static validate(candidate) {
-    if (!candidate.name) {
-      throw new Error("name must not be falsy");
+export { SymbolInformation };
+let DocumentSymbol = DocumentSymbol_1 = class DocumentSymbol {
+    static validate(candidate) {
+        if (!candidate.name) {
+            throw new Error('name must not be falsy');
+        }
+        if (!candidate.range.contains(candidate.selectionRange)) {
+            throw new Error('selectionRange must be contained in fullRange');
+        }
+        candidate.children?.forEach(DocumentSymbol_1.validate);
     }
-    if (!candidate.range.contains(candidate.selectionRange)) {
-      throw new Error("selectionRange must be contained in fullRange");
+    constructor(name, detail, kind, range, selectionRange) {
+        this.name = name;
+        this.detail = detail;
+        this.kind = kind;
+        this.range = range;
+        this.selectionRange = selectionRange;
+        this.children = [];
+        DocumentSymbol_1.validate(this);
     }
-    candidate.children?.forEach(DocumentSymbol.validate);
-  }
-  name;
-  detail;
-  kind;
-  tags;
-  range;
-  selectionRange;
-  children;
-  constructor(name, detail, kind, range, selectionRange) {
-    this.name = name;
-    this.detail = detail;
-    this.kind = kind;
-    this.range = range;
-    this.selectionRange = selectionRange;
-    this.children = [];
-    DocumentSymbol.validate(this);
-  }
 };
-__name(DocumentSymbol, "DocumentSymbol");
-DocumentSymbol = __decorateClass([
-  es5ClassCompat
+DocumentSymbol = DocumentSymbol_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, String, Number, Range, Range])
 ], DocumentSymbol);
-var CodeActionTriggerKind = /* @__PURE__ */ ((CodeActionTriggerKind2) => {
-  CodeActionTriggerKind2[CodeActionTriggerKind2["Invoke"] = 1] = "Invoke";
-  CodeActionTriggerKind2[CodeActionTriggerKind2["Automatic"] = 2] = "Automatic";
-  return CodeActionTriggerKind2;
-})(CodeActionTriggerKind || {});
-let CodeAction = class {
-  title;
-  command;
-  edit;
-  diagnostics;
-  kind;
-  isPreferred;
-  constructor(title, kind) {
-    this.title = title;
-    this.kind = kind;
-  }
+export { DocumentSymbol };
+export var CodeActionTriggerKind;
+(function (CodeActionTriggerKind) {
+    CodeActionTriggerKind[CodeActionTriggerKind["Invoke"] = 1] = "Invoke";
+    CodeActionTriggerKind[CodeActionTriggerKind["Automatic"] = 2] = "Automatic";
+})(CodeActionTriggerKind || (CodeActionTriggerKind = {}));
+let CodeAction = class CodeAction {
+    constructor(title, kind) {
+        this.title = title;
+        this.kind = kind;
+    }
 };
-__name(CodeAction, "CodeAction");
-CodeAction = __decorateClass([
-  es5ClassCompat
+CodeAction = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, CodeActionKind])
 ], CodeAction);
-let CodeActionKind = class {
-  constructor(value) {
-    this.value = value;
-  }
-  append(parts) {
-    return new CodeActionKind(this.value ? this.value + CodeActionKind.sep + parts : parts);
-  }
-  intersects(other) {
-    return this.contains(other) || other.contains(this);
-  }
-  contains(other) {
-    return this.value === other.value || other.value.startsWith(this.value + CodeActionKind.sep);
-  }
+export { CodeAction };
+let CodeActionKind = class CodeActionKind {
+    static { CodeActionKind_1 = this; }
+    static { this.sep = '.'; }
+    constructor(value) {
+        this.value = value;
+    }
+    append(parts) {
+        return new CodeActionKind_1(this.value ? this.value + CodeActionKind_1.sep + parts : parts);
+    }
+    intersects(other) {
+        return this.contains(other) || other.contains(this);
+    }
+    contains(other) {
+        return this.value === other.value || other.value.startsWith(this.value + CodeActionKind_1.sep);
+    }
 };
-__name(CodeActionKind, "CodeActionKind");
-__publicField(CodeActionKind, "sep", ".");
-__publicField(CodeActionKind, "Empty");
-__publicField(CodeActionKind, "QuickFix");
-__publicField(CodeActionKind, "Refactor");
-__publicField(CodeActionKind, "RefactorExtract");
-__publicField(CodeActionKind, "RefactorInline");
-__publicField(CodeActionKind, "RefactorMove");
-__publicField(CodeActionKind, "RefactorRewrite");
-__publicField(CodeActionKind, "Source");
-__publicField(CodeActionKind, "SourceOrganizeImports");
-__publicField(CodeActionKind, "SourceFixAll");
-__publicField(CodeActionKind, "Notebook");
-CodeActionKind = __decorateClass([
-  es5ClassCompat
+CodeActionKind = CodeActionKind_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
 ], CodeActionKind);
-CodeActionKind.Empty = new CodeActionKind("");
-CodeActionKind.QuickFix = CodeActionKind.Empty.append("quickfix");
-CodeActionKind.Refactor = CodeActionKind.Empty.append("refactor");
-CodeActionKind.RefactorExtract = CodeActionKind.Refactor.append("extract");
-CodeActionKind.RefactorInline = CodeActionKind.Refactor.append("inline");
-CodeActionKind.RefactorMove = CodeActionKind.Refactor.append("move");
-CodeActionKind.RefactorRewrite = CodeActionKind.Refactor.append("rewrite");
-CodeActionKind.Source = CodeActionKind.Empty.append("source");
-CodeActionKind.SourceOrganizeImports = CodeActionKind.Source.append("organizeImports");
-CodeActionKind.SourceFixAll = CodeActionKind.Source.append("fixAll");
-CodeActionKind.Notebook = CodeActionKind.Empty.append("notebook");
-let SelectionRange = class {
-  range;
-  parent;
-  constructor(range, parent) {
-    this.range = range;
-    this.parent = parent;
-    if (parent && !parent.range.contains(this.range)) {
-      throw new Error("Invalid argument: parent must contain this range");
+export { CodeActionKind };
+CodeActionKind.Empty = new CodeActionKind('');
+CodeActionKind.QuickFix = CodeActionKind.Empty.append('quickfix');
+CodeActionKind.Refactor = CodeActionKind.Empty.append('refactor');
+CodeActionKind.RefactorExtract = CodeActionKind.Refactor.append('extract');
+CodeActionKind.RefactorInline = CodeActionKind.Refactor.append('inline');
+CodeActionKind.RefactorMove = CodeActionKind.Refactor.append('move');
+CodeActionKind.RefactorRewrite = CodeActionKind.Refactor.append('rewrite');
+CodeActionKind.Source = CodeActionKind.Empty.append('source');
+CodeActionKind.SourceOrganizeImports = CodeActionKind.Source.append('organizeImports');
+CodeActionKind.SourceFixAll = CodeActionKind.Source.append('fixAll');
+CodeActionKind.Notebook = CodeActionKind.Empty.append('notebook');
+let SelectionRange = class SelectionRange {
+    constructor(range, parent) {
+        this.range = range;
+        this.parent = parent;
+        if (parent && !parent.range.contains(this.range)) {
+            throw new Error('Invalid argument: parent must contain this range');
+        }
     }
-  }
 };
-__name(SelectionRange, "SelectionRange");
-SelectionRange = __decorateClass([
-  es5ClassCompat
+SelectionRange = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, SelectionRange])
 ], SelectionRange);
-class CallHierarchyItem {
-  static {
-    __name(this, "CallHierarchyItem");
-  }
-  _sessionId;
-  _itemId;
-  kind;
-  tags;
-  name;
-  detail;
-  uri;
-  range;
-  selectionRange;
-  constructor(kind, name, detail, uri, range, selectionRange) {
-    this.kind = kind;
-    this.name = name;
-    this.detail = detail;
-    this.uri = uri;
-    this.range = range;
-    this.selectionRange = selectionRange;
-  }
+export { SelectionRange };
+export class CallHierarchyItem {
+    constructor(kind, name, detail, uri, range, selectionRange) {
+        this.kind = kind;
+        this.name = name;
+        this.detail = detail;
+        this.uri = uri;
+        this.range = range;
+        this.selectionRange = selectionRange;
+    }
 }
-class CallHierarchyIncomingCall {
-  static {
-    __name(this, "CallHierarchyIncomingCall");
-  }
-  from;
-  fromRanges;
-  constructor(item, fromRanges) {
-    this.fromRanges = fromRanges;
-    this.from = item;
-  }
+export class CallHierarchyIncomingCall {
+    constructor(item, fromRanges) {
+        this.fromRanges = fromRanges;
+        this.from = item;
+    }
 }
-class CallHierarchyOutgoingCall {
-  static {
-    __name(this, "CallHierarchyOutgoingCall");
-  }
-  to;
-  fromRanges;
-  constructor(item, fromRanges) {
-    this.fromRanges = fromRanges;
-    this.to = item;
-  }
+export class CallHierarchyOutgoingCall {
+    constructor(item, fromRanges) {
+        this.fromRanges = fromRanges;
+        this.to = item;
+    }
 }
-var LanguageStatusSeverity = /* @__PURE__ */ ((LanguageStatusSeverity2) => {
-  LanguageStatusSeverity2[LanguageStatusSeverity2["Information"] = 0] = "Information";
-  LanguageStatusSeverity2[LanguageStatusSeverity2["Warning"] = 1] = "Warning";
-  LanguageStatusSeverity2[LanguageStatusSeverity2["Error"] = 2] = "Error";
-  return LanguageStatusSeverity2;
-})(LanguageStatusSeverity || {});
-let CodeLens = class {
-  range;
-  command;
-  constructor(range, command) {
-    this.range = range;
-    this.command = command;
-  }
-  get isResolved() {
-    return !!this.command;
-  }
+export var LanguageStatusSeverity;
+(function (LanguageStatusSeverity) {
+    LanguageStatusSeverity[LanguageStatusSeverity["Information"] = 0] = "Information";
+    LanguageStatusSeverity[LanguageStatusSeverity["Warning"] = 1] = "Warning";
+    LanguageStatusSeverity[LanguageStatusSeverity["Error"] = 2] = "Error";
+})(LanguageStatusSeverity || (LanguageStatusSeverity = {}));
+let CodeLens = class CodeLens {
+    constructor(range, command) {
+        this.range = range;
+        this.command = command;
+    }
+    get isResolved() {
+        return !!this.command;
+    }
 };
-__name(CodeLens, "CodeLens");
-CodeLens = __decorateClass([
-  es5ClassCompat
+CodeLens = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, Object])
 ], CodeLens);
-let MarkdownString = class {
-  constructor(value, supportThemeIcons = false) {
-    __privateAdd(this, _delegate);
-    __privateSet(this, _delegate, new BaseMarkdownString(value, { supportThemeIcons }));
-  }
-  static isMarkdownString(thing) {
-    if (thing instanceof MarkdownString) {
-      return true;
+export { CodeLens };
+let MarkdownString = MarkdownString_1 = class MarkdownString {
+    #delegate;
+    static isMarkdownString(thing) {
+        if (thing instanceof MarkdownString_1) {
+            return true;
+        }
+        return thing && thing.appendCodeblock && thing.appendMarkdown && thing.appendText && (thing.value !== undefined);
     }
-    return thing && thing.appendCodeblock && thing.appendMarkdown && thing.appendText && thing.value !== void 0;
-  }
-  get value() {
-    return __privateGet(this, _delegate).value;
-  }
-  set value(value) {
-    __privateGet(this, _delegate).value = value;
-  }
-  get isTrusted() {
-    return __privateGet(this, _delegate).isTrusted;
-  }
-  set isTrusted(value) {
-    __privateGet(this, _delegate).isTrusted = value;
-  }
-  get supportThemeIcons() {
-    return __privateGet(this, _delegate).supportThemeIcons;
-  }
-  set supportThemeIcons(value) {
-    __privateGet(this, _delegate).supportThemeIcons = value;
-  }
-  get supportHtml() {
-    return __privateGet(this, _delegate).supportHtml;
-  }
-  set supportHtml(value) {
-    __privateGet(this, _delegate).supportHtml = value;
-  }
-  get baseUri() {
-    return __privateGet(this, _delegate).baseUri;
-  }
-  set baseUri(value) {
-    __privateGet(this, _delegate).baseUri = value;
-  }
-  appendText(value) {
-    __privateGet(this, _delegate).appendText(value);
-    return this;
-  }
-  appendMarkdown(value) {
-    __privateGet(this, _delegate).appendMarkdown(value);
-    return this;
-  }
-  appendCodeblock(value, language) {
-    __privateGet(this, _delegate).appendCodeblock(language ?? "", value);
-    return this;
-  }
+    constructor(value, supportThemeIcons = false) {
+        this.#delegate = new BaseMarkdownString(value, { supportThemeIcons });
+    }
+    get value() {
+        return this.#delegate.value;
+    }
+    set value(value) {
+        this.#delegate.value = value;
+    }
+    get isTrusted() {
+        return this.#delegate.isTrusted;
+    }
+    set isTrusted(value) {
+        this.#delegate.isTrusted = value;
+    }
+    get supportThemeIcons() {
+        return this.#delegate.supportThemeIcons;
+    }
+    set supportThemeIcons(value) {
+        this.#delegate.supportThemeIcons = value;
+    }
+    get supportHtml() {
+        return this.#delegate.supportHtml;
+    }
+    set supportHtml(value) {
+        this.#delegate.supportHtml = value;
+    }
+    get baseUri() {
+        return this.#delegate.baseUri;
+    }
+    set baseUri(value) {
+        this.#delegate.baseUri = value;
+    }
+    appendText(value) {
+        this.#delegate.appendText(value);
+        return this;
+    }
+    appendMarkdown(value) {
+        this.#delegate.appendMarkdown(value);
+        return this;
+    }
+    appendCodeblock(value, language) {
+        this.#delegate.appendCodeblock(language ?? '', value);
+        return this;
+    }
 };
-_delegate = new WeakMap();
-__name(MarkdownString, "MarkdownString");
-MarkdownString = __decorateClass([
-  es5ClassCompat
+MarkdownString = MarkdownString_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Boolean])
 ], MarkdownString);
-let ParameterInformation = class {
-  label;
-  documentation;
-  constructor(label, documentation) {
-    this.label = label;
-    this.documentation = documentation;
-  }
+export { MarkdownString };
+let ParameterInformation = class ParameterInformation {
+    constructor(label, documentation) {
+        this.label = label;
+        this.documentation = documentation;
+    }
 };
-__name(ParameterInformation, "ParameterInformation");
-ParameterInformation = __decorateClass([
-  es5ClassCompat
+ParameterInformation = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Object])
 ], ParameterInformation);
-let SignatureInformation = class {
-  label;
-  documentation;
-  parameters;
-  activeParameter;
-  constructor(label, documentation) {
-    this.label = label;
-    this.documentation = documentation;
-    this.parameters = [];
-  }
+export { ParameterInformation };
+let SignatureInformation = class SignatureInformation {
+    constructor(label, documentation) {
+        this.label = label;
+        this.documentation = documentation;
+        this.parameters = [];
+    }
 };
-__name(SignatureInformation, "SignatureInformation");
-SignatureInformation = __decorateClass([
-  es5ClassCompat
+SignatureInformation = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Object])
 ], SignatureInformation);
-let SignatureHelp = class {
-  signatures;
-  activeSignature = 0;
-  activeParameter = 0;
-  constructor() {
-    this.signatures = [];
-  }
+export { SignatureInformation };
+let SignatureHelp = class SignatureHelp {
+    constructor() {
+        this.activeSignature = 0;
+        this.activeParameter = 0;
+        this.signatures = [];
+    }
 };
-__name(SignatureHelp, "SignatureHelp");
-SignatureHelp = __decorateClass([
-  es5ClassCompat
+SignatureHelp = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [])
 ], SignatureHelp);
-var SignatureHelpTriggerKind = /* @__PURE__ */ ((SignatureHelpTriggerKind2) => {
-  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["Invoke"] = 1] = "Invoke";
-  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["TriggerCharacter"] = 2] = "TriggerCharacter";
-  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["ContentChange"] = 3] = "ContentChange";
-  return SignatureHelpTriggerKind2;
-})(SignatureHelpTriggerKind || {});
-var InlayHintKind = /* @__PURE__ */ ((InlayHintKind2) => {
-  InlayHintKind2[InlayHintKind2["Type"] = 1] = "Type";
-  InlayHintKind2[InlayHintKind2["Parameter"] = 2] = "Parameter";
-  return InlayHintKind2;
-})(InlayHintKind || {});
-let InlayHintLabelPart = class {
-  value;
-  tooltip;
-  location;
-  command;
-  constructor(value) {
-    this.value = value;
-  }
+export { SignatureHelp };
+export var SignatureHelpTriggerKind;
+(function (SignatureHelpTriggerKind) {
+    SignatureHelpTriggerKind[SignatureHelpTriggerKind["Invoke"] = 1] = "Invoke";
+    SignatureHelpTriggerKind[SignatureHelpTriggerKind["TriggerCharacter"] = 2] = "TriggerCharacter";
+    SignatureHelpTriggerKind[SignatureHelpTriggerKind["ContentChange"] = 3] = "ContentChange";
+})(SignatureHelpTriggerKind || (SignatureHelpTriggerKind = {}));
+export var InlayHintKind;
+(function (InlayHintKind) {
+    InlayHintKind[InlayHintKind["Type"] = 1] = "Type";
+    InlayHintKind[InlayHintKind["Parameter"] = 2] = "Parameter";
+})(InlayHintKind || (InlayHintKind = {}));
+let InlayHintLabelPart = class InlayHintLabelPart {
+    constructor(value) {
+        this.value = value;
+    }
 };
-__name(InlayHintLabelPart, "InlayHintLabelPart");
-InlayHintLabelPart = __decorateClass([
-  es5ClassCompat
+InlayHintLabelPart = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
 ], InlayHintLabelPart);
-let InlayHint = class {
-  label;
-  tooltip;
-  position;
-  textEdits;
-  kind;
-  paddingLeft;
-  paddingRight;
-  constructor(position, label, kind) {
-    this.position = position;
-    this.label = label;
-    this.kind = kind;
-  }
+export { InlayHintLabelPart };
+let InlayHint = class InlayHint {
+    constructor(position, label, kind) {
+        this.position = position;
+        this.label = label;
+        this.kind = kind;
+    }
 };
-__name(InlayHint, "InlayHint");
-InlayHint = __decorateClass([
-  es5ClassCompat
+InlayHint = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Position, Object, Number])
 ], InlayHint);
-var CompletionTriggerKind = /* @__PURE__ */ ((CompletionTriggerKind2) => {
-  CompletionTriggerKind2[CompletionTriggerKind2["Invoke"] = 0] = "Invoke";
-  CompletionTriggerKind2[CompletionTriggerKind2["TriggerCharacter"] = 1] = "TriggerCharacter";
-  CompletionTriggerKind2[CompletionTriggerKind2["TriggerForIncompleteCompletions"] = 2] = "TriggerForIncompleteCompletions";
-  return CompletionTriggerKind2;
-})(CompletionTriggerKind || {});
-var CompletionItemKind = /* @__PURE__ */ ((CompletionItemKind2) => {
-  CompletionItemKind2[CompletionItemKind2["Text"] = 0] = "Text";
-  CompletionItemKind2[CompletionItemKind2["Method"] = 1] = "Method";
-  CompletionItemKind2[CompletionItemKind2["Function"] = 2] = "Function";
-  CompletionItemKind2[CompletionItemKind2["Constructor"] = 3] = "Constructor";
-  CompletionItemKind2[CompletionItemKind2["Field"] = 4] = "Field";
-  CompletionItemKind2[CompletionItemKind2["Variable"] = 5] = "Variable";
-  CompletionItemKind2[CompletionItemKind2["Class"] = 6] = "Class";
-  CompletionItemKind2[CompletionItemKind2["Interface"] = 7] = "Interface";
-  CompletionItemKind2[CompletionItemKind2["Module"] = 8] = "Module";
-  CompletionItemKind2[CompletionItemKind2["Property"] = 9] = "Property";
-  CompletionItemKind2[CompletionItemKind2["Unit"] = 10] = "Unit";
-  CompletionItemKind2[CompletionItemKind2["Value"] = 11] = "Value";
-  CompletionItemKind2[CompletionItemKind2["Enum"] = 12] = "Enum";
-  CompletionItemKind2[CompletionItemKind2["Keyword"] = 13] = "Keyword";
-  CompletionItemKind2[CompletionItemKind2["Snippet"] = 14] = "Snippet";
-  CompletionItemKind2[CompletionItemKind2["Color"] = 15] = "Color";
-  CompletionItemKind2[CompletionItemKind2["File"] = 16] = "File";
-  CompletionItemKind2[CompletionItemKind2["Reference"] = 17] = "Reference";
-  CompletionItemKind2[CompletionItemKind2["Folder"] = 18] = "Folder";
-  CompletionItemKind2[CompletionItemKind2["EnumMember"] = 19] = "EnumMember";
-  CompletionItemKind2[CompletionItemKind2["Constant"] = 20] = "Constant";
-  CompletionItemKind2[CompletionItemKind2["Struct"] = 21] = "Struct";
-  CompletionItemKind2[CompletionItemKind2["Event"] = 22] = "Event";
-  CompletionItemKind2[CompletionItemKind2["Operator"] = 23] = "Operator";
-  CompletionItemKind2[CompletionItemKind2["TypeParameter"] = 24] = "TypeParameter";
-  CompletionItemKind2[CompletionItemKind2["User"] = 25] = "User";
-  CompletionItemKind2[CompletionItemKind2["Issue"] = 26] = "Issue";
-  return CompletionItemKind2;
-})(CompletionItemKind || {});
-var CompletionItemTag = /* @__PURE__ */ ((CompletionItemTag2) => {
-  CompletionItemTag2[CompletionItemTag2["Deprecated"] = 1] = "Deprecated";
-  return CompletionItemTag2;
-})(CompletionItemTag || {});
-let CompletionItem = class {
-  label;
-  kind;
-  tags;
-  detail;
-  documentation;
-  sortText;
-  filterText;
-  preselect;
-  insertText;
-  keepWhitespace;
-  range;
-  commitCharacters;
-  textEdit;
-  additionalTextEdits;
-  command;
-  constructor(label, kind) {
-    this.label = label;
-    this.kind = kind;
-  }
-  toJSON() {
-    return {
-      label: this.label,
-      kind: this.kind && CompletionItemKind[this.kind],
-      detail: this.detail,
-      documentation: this.documentation,
-      sortText: this.sortText,
-      filterText: this.filterText,
-      preselect: this.preselect,
-      insertText: this.insertText,
-      textEdit: this.textEdit
-    };
-  }
+export { InlayHint };
+export var CompletionTriggerKind;
+(function (CompletionTriggerKind) {
+    CompletionTriggerKind[CompletionTriggerKind["Invoke"] = 0] = "Invoke";
+    CompletionTriggerKind[CompletionTriggerKind["TriggerCharacter"] = 1] = "TriggerCharacter";
+    CompletionTriggerKind[CompletionTriggerKind["TriggerForIncompleteCompletions"] = 2] = "TriggerForIncompleteCompletions";
+})(CompletionTriggerKind || (CompletionTriggerKind = {}));
+export var CompletionItemKind;
+(function (CompletionItemKind) {
+    CompletionItemKind[CompletionItemKind["Text"] = 0] = "Text";
+    CompletionItemKind[CompletionItemKind["Method"] = 1] = "Method";
+    CompletionItemKind[CompletionItemKind["Function"] = 2] = "Function";
+    CompletionItemKind[CompletionItemKind["Constructor"] = 3] = "Constructor";
+    CompletionItemKind[CompletionItemKind["Field"] = 4] = "Field";
+    CompletionItemKind[CompletionItemKind["Variable"] = 5] = "Variable";
+    CompletionItemKind[CompletionItemKind["Class"] = 6] = "Class";
+    CompletionItemKind[CompletionItemKind["Interface"] = 7] = "Interface";
+    CompletionItemKind[CompletionItemKind["Module"] = 8] = "Module";
+    CompletionItemKind[CompletionItemKind["Property"] = 9] = "Property";
+    CompletionItemKind[CompletionItemKind["Unit"] = 10] = "Unit";
+    CompletionItemKind[CompletionItemKind["Value"] = 11] = "Value";
+    CompletionItemKind[CompletionItemKind["Enum"] = 12] = "Enum";
+    CompletionItemKind[CompletionItemKind["Keyword"] = 13] = "Keyword";
+    CompletionItemKind[CompletionItemKind["Snippet"] = 14] = "Snippet";
+    CompletionItemKind[CompletionItemKind["Color"] = 15] = "Color";
+    CompletionItemKind[CompletionItemKind["File"] = 16] = "File";
+    CompletionItemKind[CompletionItemKind["Reference"] = 17] = "Reference";
+    CompletionItemKind[CompletionItemKind["Folder"] = 18] = "Folder";
+    CompletionItemKind[CompletionItemKind["EnumMember"] = 19] = "EnumMember";
+    CompletionItemKind[CompletionItemKind["Constant"] = 20] = "Constant";
+    CompletionItemKind[CompletionItemKind["Struct"] = 21] = "Struct";
+    CompletionItemKind[CompletionItemKind["Event"] = 22] = "Event";
+    CompletionItemKind[CompletionItemKind["Operator"] = 23] = "Operator";
+    CompletionItemKind[CompletionItemKind["TypeParameter"] = 24] = "TypeParameter";
+    CompletionItemKind[CompletionItemKind["User"] = 25] = "User";
+    CompletionItemKind[CompletionItemKind["Issue"] = 26] = "Issue";
+})(CompletionItemKind || (CompletionItemKind = {}));
+export var CompletionItemTag;
+(function (CompletionItemTag) {
+    CompletionItemTag[CompletionItemTag["Deprecated"] = 1] = "Deprecated";
+})(CompletionItemTag || (CompletionItemTag = {}));
+let CompletionItem = class CompletionItem {
+    constructor(label, kind) {
+        this.label = label;
+        this.kind = kind;
+    }
+    toJSON() {
+        return {
+            label: this.label,
+            kind: this.kind && CompletionItemKind[this.kind],
+            detail: this.detail,
+            documentation: this.documentation,
+            sortText: this.sortText,
+            filterText: this.filterText,
+            preselect: this.preselect,
+            insertText: this.insertText,
+            textEdit: this.textEdit
+        };
+    }
 };
-__name(CompletionItem, "CompletionItem");
-CompletionItem = __decorateClass([
-  es5ClassCompat
+CompletionItem = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Number])
 ], CompletionItem);
-let CompletionList = class {
-  isIncomplete;
-  items;
-  constructor(items = [], isIncomplete = false) {
-    this.items = items;
-    this.isIncomplete = isIncomplete;
-  }
+export { CompletionItem };
+let CompletionList = class CompletionList {
+    constructor(items = [], isIncomplete = false) {
+        this.items = items;
+        this.isIncomplete = isIncomplete;
+    }
 };
-__name(CompletionList, "CompletionList");
-CompletionList = __decorateClass([
-  es5ClassCompat
+CompletionList = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Array, Boolean])
 ], CompletionList);
-let InlineSuggestion = class {
-  filterText;
-  insertText;
-  range;
-  command;
-  constructor(insertText, range, command) {
-    this.insertText = insertText;
-    this.range = range;
-    this.command = command;
-  }
+export { CompletionList };
+let InlineSuggestion = class InlineSuggestion {
+    constructor(insertText, range, command) {
+        this.insertText = insertText;
+        this.range = range;
+        this.command = command;
+    }
 };
-__name(InlineSuggestion, "InlineSuggestion");
-InlineSuggestion = __decorateClass([
-  es5ClassCompat
+InlineSuggestion = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Range, Object])
 ], InlineSuggestion);
-let InlineSuggestionList = class {
-  items;
-  commands = void 0;
-  suppressSuggestions = void 0;
-  constructor(items) {
-    this.items = items;
-  }
+export { InlineSuggestion };
+let InlineSuggestionList = class InlineSuggestionList {
+    constructor(items) {
+        this.commands = undefined;
+        this.suppressSuggestions = undefined;
+        this.items = items;
+    }
 };
-__name(InlineSuggestionList, "InlineSuggestionList");
-InlineSuggestionList = __decorateClass([
-  es5ClassCompat
+InlineSuggestionList = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Array])
 ], InlineSuggestionList);
-var PartialAcceptTriggerKind = /* @__PURE__ */ ((PartialAcceptTriggerKind2) => {
-  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Unknown"] = 0] = "Unknown";
-  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Word"] = 1] = "Word";
-  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Line"] = 2] = "Line";
-  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Suggest"] = 3] = "Suggest";
-  return PartialAcceptTriggerKind2;
-})(PartialAcceptTriggerKind || {});
-var ViewColumn = /* @__PURE__ */ ((ViewColumn2) => {
-  ViewColumn2[ViewColumn2["Active"] = -1] = "Active";
-  ViewColumn2[ViewColumn2["Beside"] = -2] = "Beside";
-  ViewColumn2[ViewColumn2["One"] = 1] = "One";
-  ViewColumn2[ViewColumn2["Two"] = 2] = "Two";
-  ViewColumn2[ViewColumn2["Three"] = 3] = "Three";
-  ViewColumn2[ViewColumn2["Four"] = 4] = "Four";
-  ViewColumn2[ViewColumn2["Five"] = 5] = "Five";
-  ViewColumn2[ViewColumn2["Six"] = 6] = "Six";
-  ViewColumn2[ViewColumn2["Seven"] = 7] = "Seven";
-  ViewColumn2[ViewColumn2["Eight"] = 8] = "Eight";
-  ViewColumn2[ViewColumn2["Nine"] = 9] = "Nine";
-  return ViewColumn2;
-})(ViewColumn || {});
-var StatusBarAlignment = /* @__PURE__ */ ((StatusBarAlignment2) => {
-  StatusBarAlignment2[StatusBarAlignment2["Left"] = 1] = "Left";
-  StatusBarAlignment2[StatusBarAlignment2["Right"] = 2] = "Right";
-  return StatusBarAlignment2;
-})(StatusBarAlignment || {});
-function asStatusBarItemIdentifier(extension, id) {
-  return `${ExtensionIdentifier.toKey(extension)}.${id}`;
+export { InlineSuggestionList };
+export var PartialAcceptTriggerKind;
+(function (PartialAcceptTriggerKind) {
+    PartialAcceptTriggerKind[PartialAcceptTriggerKind["Unknown"] = 0] = "Unknown";
+    PartialAcceptTriggerKind[PartialAcceptTriggerKind["Word"] = 1] = "Word";
+    PartialAcceptTriggerKind[PartialAcceptTriggerKind["Line"] = 2] = "Line";
+    PartialAcceptTriggerKind[PartialAcceptTriggerKind["Suggest"] = 3] = "Suggest";
+})(PartialAcceptTriggerKind || (PartialAcceptTriggerKind = {}));
+export var ViewColumn;
+(function (ViewColumn) {
+    ViewColumn[ViewColumn["Active"] = -1] = "Active";
+    ViewColumn[ViewColumn["Beside"] = -2] = "Beside";
+    ViewColumn[ViewColumn["One"] = 1] = "One";
+    ViewColumn[ViewColumn["Two"] = 2] = "Two";
+    ViewColumn[ViewColumn["Three"] = 3] = "Three";
+    ViewColumn[ViewColumn["Four"] = 4] = "Four";
+    ViewColumn[ViewColumn["Five"] = 5] = "Five";
+    ViewColumn[ViewColumn["Six"] = 6] = "Six";
+    ViewColumn[ViewColumn["Seven"] = 7] = "Seven";
+    ViewColumn[ViewColumn["Eight"] = 8] = "Eight";
+    ViewColumn[ViewColumn["Nine"] = 9] = "Nine";
+})(ViewColumn || (ViewColumn = {}));
+export var StatusBarAlignment;
+(function (StatusBarAlignment) {
+    StatusBarAlignment[StatusBarAlignment["Left"] = 1] = "Left";
+    StatusBarAlignment[StatusBarAlignment["Right"] = 2] = "Right";
+})(StatusBarAlignment || (StatusBarAlignment = {}));
+export function asStatusBarItemIdentifier(extension, id) {
+    return `${ExtensionIdentifier.toKey(extension)}.${id}`;
 }
-__name(asStatusBarItemIdentifier, "asStatusBarItemIdentifier");
-var TextEditorLineNumbersStyle = /* @__PURE__ */ ((TextEditorLineNumbersStyle2) => {
-  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Off"] = 0] = "Off";
-  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["On"] = 1] = "On";
-  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Relative"] = 2] = "Relative";
-  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Interval"] = 3] = "Interval";
-  return TextEditorLineNumbersStyle2;
-})(TextEditorLineNumbersStyle || {});
-var TextDocumentSaveReason = /* @__PURE__ */ ((TextDocumentSaveReason2) => {
-  TextDocumentSaveReason2[TextDocumentSaveReason2["Manual"] = 1] = "Manual";
-  TextDocumentSaveReason2[TextDocumentSaveReason2["AfterDelay"] = 2] = "AfterDelay";
-  TextDocumentSaveReason2[TextDocumentSaveReason2["FocusOut"] = 3] = "FocusOut";
-  return TextDocumentSaveReason2;
-})(TextDocumentSaveReason || {});
-var TextEditorRevealType = /* @__PURE__ */ ((TextEditorRevealType2) => {
-  TextEditorRevealType2[TextEditorRevealType2["Default"] = 0] = "Default";
-  TextEditorRevealType2[TextEditorRevealType2["InCenter"] = 1] = "InCenter";
-  TextEditorRevealType2[TextEditorRevealType2["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
-  TextEditorRevealType2[TextEditorRevealType2["AtTop"] = 3] = "AtTop";
-  return TextEditorRevealType2;
-})(TextEditorRevealType || {});
-var TextEditorSelectionChangeKind = /* @__PURE__ */ ((TextEditorSelectionChangeKind2) => {
-  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Keyboard"] = 1] = "Keyboard";
-  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Mouse"] = 2] = "Mouse";
-  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Command"] = 3] = "Command";
-  return TextEditorSelectionChangeKind2;
-})(TextEditorSelectionChangeKind || {});
-var TextDocumentChangeReason = /* @__PURE__ */ ((TextDocumentChangeReason2) => {
-  TextDocumentChangeReason2[TextDocumentChangeReason2["Undo"] = 1] = "Undo";
-  TextDocumentChangeReason2[TextDocumentChangeReason2["Redo"] = 2] = "Redo";
-  return TextDocumentChangeReason2;
-})(TextDocumentChangeReason || {});
-var DecorationRangeBehavior = /* @__PURE__ */ ((DecorationRangeBehavior2) => {
-  DecorationRangeBehavior2[DecorationRangeBehavior2["OpenOpen"] = 0] = "OpenOpen";
-  DecorationRangeBehavior2[DecorationRangeBehavior2["ClosedClosed"] = 1] = "ClosedClosed";
-  DecorationRangeBehavior2[DecorationRangeBehavior2["OpenClosed"] = 2] = "OpenClosed";
-  DecorationRangeBehavior2[DecorationRangeBehavior2["ClosedOpen"] = 3] = "ClosedOpen";
-  return DecorationRangeBehavior2;
-})(DecorationRangeBehavior || {});
-((TextEditorSelectionChangeKind2) => {
-  function fromValue(s) {
-    switch (s) {
-      case "keyboard":
-        return 1 /* Keyboard */;
-      case "mouse":
-        return 2 /* Mouse */;
-      case "api":
-        return 3 /* Command */;
-    }
-    return void 0;
-  }
-  TextEditorSelectionChangeKind2.fromValue = fromValue;
-  __name(fromValue, "fromValue");
+export var TextEditorLineNumbersStyle;
+(function (TextEditorLineNumbersStyle) {
+    TextEditorLineNumbersStyle[TextEditorLineNumbersStyle["Off"] = 0] = "Off";
+    TextEditorLineNumbersStyle[TextEditorLineNumbersStyle["On"] = 1] = "On";
+    TextEditorLineNumbersStyle[TextEditorLineNumbersStyle["Relative"] = 2] = "Relative";
+    TextEditorLineNumbersStyle[TextEditorLineNumbersStyle["Interval"] = 3] = "Interval";
+})(TextEditorLineNumbersStyle || (TextEditorLineNumbersStyle = {}));
+export var TextDocumentSaveReason;
+(function (TextDocumentSaveReason) {
+    TextDocumentSaveReason[TextDocumentSaveReason["Manual"] = 1] = "Manual";
+    TextDocumentSaveReason[TextDocumentSaveReason["AfterDelay"] = 2] = "AfterDelay";
+    TextDocumentSaveReason[TextDocumentSaveReason["FocusOut"] = 3] = "FocusOut";
+})(TextDocumentSaveReason || (TextDocumentSaveReason = {}));
+export var TextEditorRevealType;
+(function (TextEditorRevealType) {
+    TextEditorRevealType[TextEditorRevealType["Default"] = 0] = "Default";
+    TextEditorRevealType[TextEditorRevealType["InCenter"] = 1] = "InCenter";
+    TextEditorRevealType[TextEditorRevealType["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
+    TextEditorRevealType[TextEditorRevealType["AtTop"] = 3] = "AtTop";
+})(TextEditorRevealType || (TextEditorRevealType = {}));
+export var TextEditorSelectionChangeKind;
+(function (TextEditorSelectionChangeKind) {
+    TextEditorSelectionChangeKind[TextEditorSelectionChangeKind["Keyboard"] = 1] = "Keyboard";
+    TextEditorSelectionChangeKind[TextEditorSelectionChangeKind["Mouse"] = 2] = "Mouse";
+    TextEditorSelectionChangeKind[TextEditorSelectionChangeKind["Command"] = 3] = "Command";
 })(TextEditorSelectionChangeKind || (TextEditorSelectionChangeKind = {}));
-var SyntaxTokenType = /* @__PURE__ */ ((SyntaxTokenType2) => {
-  SyntaxTokenType2[SyntaxTokenType2["Other"] = 0] = "Other";
-  SyntaxTokenType2[SyntaxTokenType2["Comment"] = 1] = "Comment";
-  SyntaxTokenType2[SyntaxTokenType2["String"] = 2] = "String";
-  SyntaxTokenType2[SyntaxTokenType2["RegEx"] = 3] = "RegEx";
-  return SyntaxTokenType2;
-})(SyntaxTokenType || {});
-((SyntaxTokenType2) => {
-  function toString(v) {
-    switch (v) {
-      case 0 /* Other */:
-        return "other";
-      case 1 /* Comment */:
-        return "comment";
-      case 2 /* String */:
-        return "string";
-      case 3 /* RegEx */:
-        return "regex";
+export var TextDocumentChangeReason;
+(function (TextDocumentChangeReason) {
+    TextDocumentChangeReason[TextDocumentChangeReason["Undo"] = 1] = "Undo";
+    TextDocumentChangeReason[TextDocumentChangeReason["Redo"] = 2] = "Redo";
+})(TextDocumentChangeReason || (TextDocumentChangeReason = {}));
+/**
+ * These values match very carefully the values of `TrackedRangeStickiness`
+ */
+export var DecorationRangeBehavior;
+(function (DecorationRangeBehavior) {
+    /**
+     * TrackedRangeStickiness.AlwaysGrowsWhenTypingAtEdges
+     */
+    DecorationRangeBehavior[DecorationRangeBehavior["OpenOpen"] = 0] = "OpenOpen";
+    /**
+     * TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+     */
+    DecorationRangeBehavior[DecorationRangeBehavior["ClosedClosed"] = 1] = "ClosedClosed";
+    /**
+     * TrackedRangeStickiness.GrowsOnlyWhenTypingBefore
+     */
+    DecorationRangeBehavior[DecorationRangeBehavior["OpenClosed"] = 2] = "OpenClosed";
+    /**
+     * TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
+     */
+    DecorationRangeBehavior[DecorationRangeBehavior["ClosedOpen"] = 3] = "ClosedOpen";
+})(DecorationRangeBehavior || (DecorationRangeBehavior = {}));
+(function (TextEditorSelectionChangeKind) {
+    function fromValue(s) {
+        switch (s) {
+            case 'keyboard': return TextEditorSelectionChangeKind.Keyboard;
+            case 'mouse': return TextEditorSelectionChangeKind.Mouse;
+            case 'api': return TextEditorSelectionChangeKind.Command;
+        }
+        return undefined;
     }
-    return "other";
-  }
-  SyntaxTokenType2.toString = toString;
-  __name(toString, "toString");
+    TextEditorSelectionChangeKind.fromValue = fromValue;
+})(TextEditorSelectionChangeKind || (TextEditorSelectionChangeKind = {}));
+export var SyntaxTokenType;
+(function (SyntaxTokenType) {
+    SyntaxTokenType[SyntaxTokenType["Other"] = 0] = "Other";
+    SyntaxTokenType[SyntaxTokenType["Comment"] = 1] = "Comment";
+    SyntaxTokenType[SyntaxTokenType["String"] = 2] = "String";
+    SyntaxTokenType[SyntaxTokenType["RegEx"] = 3] = "RegEx";
 })(SyntaxTokenType || (SyntaxTokenType = {}));
-let DocumentLink = class {
-  range;
-  target;
-  tooltip;
-  constructor(range, target) {
-    if (target && !URI.isUri(target)) {
-      throw illegalArgument("target");
+(function (SyntaxTokenType) {
+    function toString(v) {
+        switch (v) {
+            case SyntaxTokenType.Other: return 'other';
+            case SyntaxTokenType.Comment: return 'comment';
+            case SyntaxTokenType.String: return 'string';
+            case SyntaxTokenType.RegEx: return 'regex';
+        }
+        return 'other';
     }
-    if (!Range.isRange(range) || range.isEmpty) {
-      throw illegalArgument("range");
+    SyntaxTokenType.toString = toString;
+})(SyntaxTokenType || (SyntaxTokenType = {}));
+let DocumentLink = class DocumentLink {
+    constructor(range, target) {
+        if (target && !(URI.isUri(target))) {
+            throw illegalArgument('target');
+        }
+        if (!Range.isRange(range) || range.isEmpty) {
+            throw illegalArgument('range');
+        }
+        this.range = range;
+        this.target = target;
     }
-    this.range = range;
-    this.target = target;
-  }
 };
-__name(DocumentLink, "DocumentLink");
-DocumentLink = __decorateClass([
-  es5ClassCompat
+DocumentLink = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, Object])
 ], DocumentLink);
-let Color = class {
-  red;
-  green;
-  blue;
-  alpha;
-  constructor(red, green, blue, alpha) {
-    this.red = red;
-    this.green = green;
-    this.blue = blue;
-    this.alpha = alpha;
-  }
+export { DocumentLink };
+let Color = class Color {
+    constructor(red, green, blue, alpha) {
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
+        this.alpha = alpha;
+    }
 };
-__name(Color, "Color");
-Color = __decorateClass([
-  es5ClassCompat
+Color = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Number, Number, Number, Number])
 ], Color);
-let ColorInformation = class {
-  range;
-  color;
-  constructor(range, color) {
-    if (color && !(color instanceof Color)) {
-      throw illegalArgument("color");
+export { Color };
+let ColorInformation = class ColorInformation {
+    constructor(range, color) {
+        if (color && !(color instanceof Color)) {
+            throw illegalArgument('color');
+        }
+        if (!Range.isRange(range) || range.isEmpty) {
+            throw illegalArgument('range');
+        }
+        this.range = range;
+        this.color = color;
     }
-    if (!Range.isRange(range) || range.isEmpty) {
-      throw illegalArgument("range");
-    }
-    this.range = range;
-    this.color = color;
-  }
 };
-__name(ColorInformation, "ColorInformation");
-ColorInformation = __decorateClass([
-  es5ClassCompat
+ColorInformation = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, Color])
 ], ColorInformation);
-let ColorPresentation = class {
-  label;
-  textEdit;
-  additionalTextEdits;
-  constructor(label) {
-    if (!label || typeof label !== "string") {
-      throw illegalArgument("label");
+export { ColorInformation };
+let ColorPresentation = class ColorPresentation {
+    constructor(label) {
+        if (!label || typeof label !== 'string') {
+            throw illegalArgument('label');
+        }
+        this.label = label;
     }
-    this.label = label;
-  }
 };
-__name(ColorPresentation, "ColorPresentation");
-ColorPresentation = __decorateClass([
-  es5ClassCompat
+ColorPresentation = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
 ], ColorPresentation);
-var ColorFormat = /* @__PURE__ */ ((ColorFormat2) => {
-  ColorFormat2[ColorFormat2["RGB"] = 0] = "RGB";
-  ColorFormat2[ColorFormat2["HEX"] = 1] = "HEX";
-  ColorFormat2[ColorFormat2["HSL"] = 2] = "HSL";
-  return ColorFormat2;
-})(ColorFormat || {});
-var SourceControlInputBoxValidationType = /* @__PURE__ */ ((SourceControlInputBoxValidationType2) => {
-  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Error"] = 0] = "Error";
-  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Warning"] = 1] = "Warning";
-  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Information"] = 2] = "Information";
-  return SourceControlInputBoxValidationType2;
-})(SourceControlInputBoxValidationType || {});
-var TerminalExitReason = /* @__PURE__ */ ((TerminalExitReason2) => {
-  TerminalExitReason2[TerminalExitReason2["Unknown"] = 0] = "Unknown";
-  TerminalExitReason2[TerminalExitReason2["Shutdown"] = 1] = "Shutdown";
-  TerminalExitReason2[TerminalExitReason2["Process"] = 2] = "Process";
-  TerminalExitReason2[TerminalExitReason2["User"] = 3] = "User";
-  TerminalExitReason2[TerminalExitReason2["Extension"] = 4] = "Extension";
-  return TerminalExitReason2;
-})(TerminalExitReason || {});
-var TerminalShellExecutionCommandLineConfidence = /* @__PURE__ */ ((TerminalShellExecutionCommandLineConfidence2) => {
-  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["Low"] = 0] = "Low";
-  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["Medium"] = 1] = "Medium";
-  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["High"] = 2] = "High";
-  return TerminalShellExecutionCommandLineConfidence2;
-})(TerminalShellExecutionCommandLineConfidence || {});
-class TerminalLink {
-  constructor(startIndex, length, tooltip) {
-    this.startIndex = startIndex;
-    this.length = length;
-    this.tooltip = tooltip;
-    if (typeof startIndex !== "number" || startIndex < 0) {
-      throw illegalArgument("startIndex");
+export { ColorPresentation };
+export var ColorFormat;
+(function (ColorFormat) {
+    ColorFormat[ColorFormat["RGB"] = 0] = "RGB";
+    ColorFormat[ColorFormat["HEX"] = 1] = "HEX";
+    ColorFormat[ColorFormat["HSL"] = 2] = "HSL";
+})(ColorFormat || (ColorFormat = {}));
+export var SourceControlInputBoxValidationType;
+(function (SourceControlInputBoxValidationType) {
+    SourceControlInputBoxValidationType[SourceControlInputBoxValidationType["Error"] = 0] = "Error";
+    SourceControlInputBoxValidationType[SourceControlInputBoxValidationType["Warning"] = 1] = "Warning";
+    SourceControlInputBoxValidationType[SourceControlInputBoxValidationType["Information"] = 2] = "Information";
+})(SourceControlInputBoxValidationType || (SourceControlInputBoxValidationType = {}));
+export var TerminalExitReason;
+(function (TerminalExitReason) {
+    TerminalExitReason[TerminalExitReason["Unknown"] = 0] = "Unknown";
+    TerminalExitReason[TerminalExitReason["Shutdown"] = 1] = "Shutdown";
+    TerminalExitReason[TerminalExitReason["Process"] = 2] = "Process";
+    TerminalExitReason[TerminalExitReason["User"] = 3] = "User";
+    TerminalExitReason[TerminalExitReason["Extension"] = 4] = "Extension";
+})(TerminalExitReason || (TerminalExitReason = {}));
+export var TerminalShellExecutionCommandLineConfidence;
+(function (TerminalShellExecutionCommandLineConfidence) {
+    TerminalShellExecutionCommandLineConfidence[TerminalShellExecutionCommandLineConfidence["Low"] = 0] = "Low";
+    TerminalShellExecutionCommandLineConfidence[TerminalShellExecutionCommandLineConfidence["Medium"] = 1] = "Medium";
+    TerminalShellExecutionCommandLineConfidence[TerminalShellExecutionCommandLineConfidence["High"] = 2] = "High";
+})(TerminalShellExecutionCommandLineConfidence || (TerminalShellExecutionCommandLineConfidence = {}));
+export class TerminalLink {
+    constructor(startIndex, length, tooltip) {
+        this.startIndex = startIndex;
+        this.length = length;
+        this.tooltip = tooltip;
+        if (typeof startIndex !== 'number' || startIndex < 0) {
+            throw illegalArgument('startIndex');
+        }
+        if (typeof length !== 'number' || length < 1) {
+            throw illegalArgument('length');
+        }
+        if (tooltip !== undefined && typeof tooltip !== 'string') {
+            throw illegalArgument('tooltip');
+        }
     }
-    if (typeof length !== "number" || length < 1) {
-      throw illegalArgument("length");
-    }
-    if (tooltip !== void 0 && typeof tooltip !== "string") {
-      throw illegalArgument("tooltip");
-    }
-  }
-  static {
-    __name(this, "TerminalLink");
-  }
 }
-class TerminalQuickFixOpener {
-  static {
-    __name(this, "TerminalQuickFixOpener");
-  }
-  uri;
-  constructor(uri) {
-    this.uri = uri;
-  }
+export class TerminalQuickFixOpener {
+    constructor(uri) {
+        this.uri = uri;
+    }
 }
-class TerminalQuickFixCommand {
-  static {
-    __name(this, "TerminalQuickFixCommand");
-  }
-  terminalCommand;
-  constructor(terminalCommand) {
-    this.terminalCommand = terminalCommand;
-  }
+export class TerminalQuickFixCommand {
+    constructor(terminalCommand) {
+        this.terminalCommand = terminalCommand;
+    }
 }
-var TerminalLocation = /* @__PURE__ */ ((TerminalLocation2) => {
-  TerminalLocation2[TerminalLocation2["Panel"] = 1] = "Panel";
-  TerminalLocation2[TerminalLocation2["Editor"] = 2] = "Editor";
-  return TerminalLocation2;
-})(TerminalLocation || {});
-class TerminalProfile {
-  constructor(options) {
-    this.options = options;
-    if (typeof options !== "object") {
-      throw illegalArgument("options");
+export var TerminalLocation;
+(function (TerminalLocation) {
+    TerminalLocation[TerminalLocation["Panel"] = 1] = "Panel";
+    TerminalLocation[TerminalLocation["Editor"] = 2] = "Editor";
+})(TerminalLocation || (TerminalLocation = {}));
+export class TerminalProfile {
+    constructor(options) {
+        this.options = options;
+        if (typeof options !== 'object') {
+            throw illegalArgument('options');
+        }
     }
-  }
-  static {
-    __name(this, "TerminalProfile");
-  }
 }
-var TaskRevealKind = /* @__PURE__ */ ((TaskRevealKind2) => {
-  TaskRevealKind2[TaskRevealKind2["Always"] = 1] = "Always";
-  TaskRevealKind2[TaskRevealKind2["Silent"] = 2] = "Silent";
-  TaskRevealKind2[TaskRevealKind2["Never"] = 3] = "Never";
-  return TaskRevealKind2;
-})(TaskRevealKind || {});
-var TaskPanelKind = /* @__PURE__ */ ((TaskPanelKind2) => {
-  TaskPanelKind2[TaskPanelKind2["Shared"] = 1] = "Shared";
-  TaskPanelKind2[TaskPanelKind2["Dedicated"] = 2] = "Dedicated";
-  TaskPanelKind2[TaskPanelKind2["New"] = 3] = "New";
-  return TaskPanelKind2;
-})(TaskPanelKind || {});
-let TaskGroup = class {
-  constructor(id, label) {
-    this.label = label;
-    if (typeof id !== "string") {
-      throw illegalArgument("name");
+export var TaskRevealKind;
+(function (TaskRevealKind) {
+    TaskRevealKind[TaskRevealKind["Always"] = 1] = "Always";
+    TaskRevealKind[TaskRevealKind["Silent"] = 2] = "Silent";
+    TaskRevealKind[TaskRevealKind["Never"] = 3] = "Never";
+})(TaskRevealKind || (TaskRevealKind = {}));
+export var TaskPanelKind;
+(function (TaskPanelKind) {
+    TaskPanelKind[TaskPanelKind["Shared"] = 1] = "Shared";
+    TaskPanelKind[TaskPanelKind["Dedicated"] = 2] = "Dedicated";
+    TaskPanelKind[TaskPanelKind["New"] = 3] = "New";
+})(TaskPanelKind || (TaskPanelKind = {}));
+let TaskGroup = class TaskGroup {
+    static { TaskGroup_1 = this; }
+    static { this.Clean = new TaskGroup_1('clean', 'Clean'); }
+    static { this.Build = new TaskGroup_1('build', 'Build'); }
+    static { this.Rebuild = new TaskGroup_1('rebuild', 'Rebuild'); }
+    static { this.Test = new TaskGroup_1('test', 'Test'); }
+    static from(value) {
+        switch (value) {
+            case 'clean':
+                return TaskGroup_1.Clean;
+            case 'build':
+                return TaskGroup_1.Build;
+            case 'rebuild':
+                return TaskGroup_1.Rebuild;
+            case 'test':
+                return TaskGroup_1.Test;
+            default:
+                return undefined;
+        }
     }
-    if (typeof label !== "string") {
-      throw illegalArgument("name");
+    constructor(id, label) {
+        this.label = label;
+        if (typeof id !== 'string') {
+            throw illegalArgument('name');
+        }
+        if (typeof label !== 'string') {
+            throw illegalArgument('name');
+        }
+        this._id = id;
     }
-    this._id = id;
-  }
-  isDefault;
-  _id;
-  static from(value) {
-    switch (value) {
-      case "clean":
-        return TaskGroup.Clean;
-      case "build":
-        return TaskGroup.Build;
-      case "rebuild":
-        return TaskGroup.Rebuild;
-      case "test":
-        return TaskGroup.Test;
-      default:
-        return void 0;
+    get id() {
+        return this._id;
     }
-  }
-  get id() {
-    return this._id;
-  }
 };
-__name(TaskGroup, "TaskGroup");
-__publicField(TaskGroup, "Clean", new TaskGroup("clean", "Clean"));
-__publicField(TaskGroup, "Build", new TaskGroup("build", "Build"));
-__publicField(TaskGroup, "Rebuild", new TaskGroup("rebuild", "Rebuild"));
-__publicField(TaskGroup, "Test", new TaskGroup("test", "Test"));
-TaskGroup = __decorateClass([
-  es5ClassCompat
+TaskGroup = TaskGroup_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, String])
 ], TaskGroup);
+export { TaskGroup };
 function computeTaskExecutionId(values) {
-  let id = "";
-  for (let i = 0; i < values.length; i++) {
-    id += values[i].replace(/,/g, ",,") + ",";
-  }
-  return id;
+    let id = '';
+    for (let i = 0; i < values.length; i++) {
+        id += values[i].replace(/,/g, ',,') + ',';
+    }
+    return id;
 }
-__name(computeTaskExecutionId, "computeTaskExecutionId");
-let ProcessExecution = class {
-  _process;
-  _args;
-  _options;
-  constructor(process, varg1, varg2) {
-    if (typeof process !== "string") {
-      throw illegalArgument("process");
+let ProcessExecution = class ProcessExecution {
+    constructor(process, varg1, varg2) {
+        if (typeof process !== 'string') {
+            throw illegalArgument('process');
+        }
+        this._args = [];
+        this._process = process;
+        if (varg1 !== undefined) {
+            if (Array.isArray(varg1)) {
+                this._args = varg1;
+                this._options = varg2;
+            }
+            else {
+                this._options = varg1;
+            }
+        }
     }
-    this._args = [];
-    this._process = process;
-    if (varg1 !== void 0) {
-      if (Array.isArray(varg1)) {
-        this._args = varg1;
-        this._options = varg2;
-      } else {
-        this._options = varg1;
-      }
+    get process() {
+        return this._process;
     }
-  }
-  get process() {
-    return this._process;
-  }
-  set process(value) {
-    if (typeof value !== "string") {
-      throw illegalArgument("process");
+    set process(value) {
+        if (typeof value !== 'string') {
+            throw illegalArgument('process');
+        }
+        this._process = value;
     }
-    this._process = value;
-  }
-  get args() {
-    return this._args;
-  }
-  set args(value) {
-    if (!Array.isArray(value)) {
-      value = [];
+    get args() {
+        return this._args;
     }
-    this._args = value;
-  }
-  get options() {
-    return this._options;
-  }
-  set options(value) {
-    this._options = value;
-  }
-  computeId() {
-    const props = [];
-    props.push("process");
-    if (this._process !== void 0) {
-      props.push(this._process);
+    set args(value) {
+        if (!Array.isArray(value)) {
+            value = [];
+        }
+        this._args = value;
     }
-    if (this._args && this._args.length > 0) {
-      for (const arg of this._args) {
-        props.push(arg);
-      }
+    get options() {
+        return this._options;
     }
-    return computeTaskExecutionId(props);
-  }
+    set options(value) {
+        this._options = value;
+    }
+    computeId() {
+        const props = [];
+        props.push('process');
+        if (this._process !== undefined) {
+            props.push(this._process);
+        }
+        if (this._args && this._args.length > 0) {
+            for (const arg of this._args) {
+                props.push(arg);
+            }
+        }
+        return computeTaskExecutionId(props);
+    }
 };
-__name(ProcessExecution, "ProcessExecution");
-ProcessExecution = __decorateClass([
-  es5ClassCompat
+ProcessExecution = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Object, Object])
 ], ProcessExecution);
-let ShellExecution = class {
-  _commandLine;
-  _command;
-  _args = [];
-  _options;
-  constructor(arg0, arg1, arg2) {
-    if (Array.isArray(arg1)) {
-      if (!arg0) {
-        throw illegalArgument("command can't be undefined or null");
-      }
-      if (typeof arg0 !== "string" && typeof arg0.value !== "string") {
-        throw illegalArgument("command");
-      }
-      this._command = arg0;
-      this._args = arg1;
-      this._options = arg2;
-    } else {
-      if (typeof arg0 !== "string") {
-        throw illegalArgument("commandLine");
-      }
-      this._commandLine = arg0;
-      this._options = arg1;
+export { ProcessExecution };
+let ShellExecution = class ShellExecution {
+    constructor(arg0, arg1, arg2) {
+        this._args = [];
+        if (Array.isArray(arg1)) {
+            if (!arg0) {
+                throw illegalArgument('command can\'t be undefined or null');
+            }
+            if (typeof arg0 !== 'string' && typeof arg0.value !== 'string') {
+                throw illegalArgument('command');
+            }
+            this._command = arg0;
+            this._args = arg1;
+            this._options = arg2;
+        }
+        else {
+            if (typeof arg0 !== 'string') {
+                throw illegalArgument('commandLine');
+            }
+            this._commandLine = arg0;
+            this._options = arg1;
+        }
     }
-  }
-  get commandLine() {
-    return this._commandLine;
-  }
-  set commandLine(value) {
-    if (typeof value !== "string") {
-      throw illegalArgument("commandLine");
+    get commandLine() {
+        return this._commandLine;
     }
-    this._commandLine = value;
-  }
-  get command() {
-    return this._command ? this._command : "";
-  }
-  set command(value) {
-    if (typeof value !== "string" && typeof value.value !== "string") {
-      throw illegalArgument("command");
+    set commandLine(value) {
+        if (typeof value !== 'string') {
+            throw illegalArgument('commandLine');
+        }
+        this._commandLine = value;
     }
-    this._command = value;
-  }
-  get args() {
-    return this._args;
-  }
-  set args(value) {
-    this._args = value || [];
-  }
-  get options() {
-    return this._options;
-  }
-  set options(value) {
-    this._options = value;
-  }
-  computeId() {
-    const props = [];
-    props.push("shell");
-    if (this._commandLine !== void 0) {
-      props.push(this._commandLine);
+    get command() {
+        return this._command ? this._command : '';
     }
-    if (this._command !== void 0) {
-      props.push(typeof this._command === "string" ? this._command : this._command.value);
+    set command(value) {
+        if (typeof value !== 'string' && typeof value.value !== 'string') {
+            throw illegalArgument('command');
+        }
+        this._command = value;
     }
-    if (this._args && this._args.length > 0) {
-      for (const arg of this._args) {
-        props.push(typeof arg === "string" ? arg : arg.value);
-      }
+    get args() {
+        return this._args;
     }
-    return computeTaskExecutionId(props);
-  }
+    set args(value) {
+        this._args = value || [];
+    }
+    get options() {
+        return this._options;
+    }
+    set options(value) {
+        this._options = value;
+    }
+    computeId() {
+        const props = [];
+        props.push('shell');
+        if (this._commandLine !== undefined) {
+            props.push(this._commandLine);
+        }
+        if (this._command !== undefined) {
+            props.push(typeof this._command === 'string' ? this._command : this._command.value);
+        }
+        if (this._args && this._args.length > 0) {
+            for (const arg of this._args) {
+                props.push(typeof arg === 'string' ? arg : arg.value);
+            }
+        }
+        return computeTaskExecutionId(props);
+    }
 };
-__name(ShellExecution, "ShellExecution");
-ShellExecution = __decorateClass([
-  es5ClassCompat
+ShellExecution = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], ShellExecution);
-var ShellQuoting = /* @__PURE__ */ ((ShellQuoting2) => {
-  ShellQuoting2[ShellQuoting2["Escape"] = 1] = "Escape";
-  ShellQuoting2[ShellQuoting2["Strong"] = 2] = "Strong";
-  ShellQuoting2[ShellQuoting2["Weak"] = 3] = "Weak";
-  return ShellQuoting2;
-})(ShellQuoting || {});
-var TaskScope = /* @__PURE__ */ ((TaskScope2) => {
-  TaskScope2[TaskScope2["Global"] = 1] = "Global";
-  TaskScope2[TaskScope2["Workspace"] = 2] = "Workspace";
-  return TaskScope2;
-})(TaskScope || {});
-class CustomExecution {
-  static {
-    __name(this, "CustomExecution");
-  }
-  _callback;
-  constructor(callback) {
-    this._callback = callback;
-  }
-  computeId() {
-    return "customExecution" + generateUuid();
-  }
-  set callback(value) {
-    this._callback = value;
-  }
-  get callback() {
-    return this._callback;
-  }
+export { ShellExecution };
+export var ShellQuoting;
+(function (ShellQuoting) {
+    ShellQuoting[ShellQuoting["Escape"] = 1] = "Escape";
+    ShellQuoting[ShellQuoting["Strong"] = 2] = "Strong";
+    ShellQuoting[ShellQuoting["Weak"] = 3] = "Weak";
+})(ShellQuoting || (ShellQuoting = {}));
+export var TaskScope;
+(function (TaskScope) {
+    TaskScope[TaskScope["Global"] = 1] = "Global";
+    TaskScope[TaskScope["Workspace"] = 2] = "Workspace";
+})(TaskScope || (TaskScope = {}));
+export class CustomExecution {
+    constructor(callback) {
+        this._callback = callback;
+    }
+    computeId() {
+        return 'customExecution' + generateUuid();
+    }
+    set callback(value) {
+        this._callback = value;
+    }
+    get callback() {
+        return this._callback;
+    }
 }
-let Task = class {
-  __id;
-  __deprecated = false;
-  _definition;
-  _scope;
-  _name;
-  _execution;
-  _problemMatchers;
-  _hasDefinedMatchers;
-  _isBackground;
-  _source;
-  _group;
-  _presentationOptions;
-  _runOptions;
-  _detail;
-  constructor(definition, arg2, arg3, arg4, arg5, arg6) {
-    this._definition = this.definition = definition;
-    let problemMatchers;
-    if (typeof arg2 === "string") {
-      this._name = this.name = arg2;
-      this._source = this.source = arg3;
-      this.execution = arg4;
-      problemMatchers = arg5;
-      this.__deprecated = true;
-    } else if (arg2 === 1 /* Global */ || arg2 === 2 /* Workspace */) {
-      this.target = arg2;
-      this._name = this.name = arg3;
-      this._source = this.source = arg4;
-      this.execution = arg5;
-      problemMatchers = arg6;
-    } else {
-      this.target = arg2;
-      this._name = this.name = arg3;
-      this._source = this.source = arg4;
-      this.execution = arg5;
-      problemMatchers = arg6;
+let Task = class Task {
+    static { Task_1 = this; }
+    static { this.ExtensionCallbackType = 'customExecution'; }
+    static { this.ProcessType = 'process'; }
+    static { this.ShellType = 'shell'; }
+    static { this.EmptyType = '$empty'; }
+    constructor(definition, arg2, arg3, arg4, arg5, arg6) {
+        this.__deprecated = false;
+        this._definition = this.definition = definition;
+        let problemMatchers;
+        if (typeof arg2 === 'string') {
+            this._name = this.name = arg2;
+            this._source = this.source = arg3;
+            this.execution = arg4;
+            problemMatchers = arg5;
+            this.__deprecated = true;
+        }
+        else if (arg2 === TaskScope.Global || arg2 === TaskScope.Workspace) {
+            this.target = arg2;
+            this._name = this.name = arg3;
+            this._source = this.source = arg4;
+            this.execution = arg5;
+            problemMatchers = arg6;
+        }
+        else {
+            this.target = arg2;
+            this._name = this.name = arg3;
+            this._source = this.source = arg4;
+            this.execution = arg5;
+            problemMatchers = arg6;
+        }
+        if (typeof problemMatchers === 'string') {
+            this._problemMatchers = [problemMatchers];
+            this._hasDefinedMatchers = true;
+        }
+        else if (Array.isArray(problemMatchers)) {
+            this._problemMatchers = problemMatchers;
+            this._hasDefinedMatchers = true;
+        }
+        else {
+            this._problemMatchers = [];
+            this._hasDefinedMatchers = false;
+        }
+        this._isBackground = false;
+        this._presentationOptions = Object.create(null);
+        this._runOptions = Object.create(null);
     }
-    if (typeof problemMatchers === "string") {
-      this._problemMatchers = [problemMatchers];
-      this._hasDefinedMatchers = true;
-    } else if (Array.isArray(problemMatchers)) {
-      this._problemMatchers = problemMatchers;
-      this._hasDefinedMatchers = true;
-    } else {
-      this._problemMatchers = [];
-      this._hasDefinedMatchers = false;
+    get _id() {
+        return this.__id;
     }
-    this._isBackground = false;
-    this._presentationOptions = /* @__PURE__ */ Object.create(null);
-    this._runOptions = /* @__PURE__ */ Object.create(null);
-  }
-  get _id() {
-    return this.__id;
-  }
-  set _id(value) {
-    this.__id = value;
-  }
-  get _deprecated() {
-    return this.__deprecated;
-  }
-  clear() {
-    if (this.__id === void 0) {
-      return;
+    set _id(value) {
+        this.__id = value;
     }
-    this.__id = void 0;
-    this._scope = void 0;
-    this.computeDefinitionBasedOnExecution();
-  }
-  computeDefinitionBasedOnExecution() {
-    if (this._execution instanceof ProcessExecution) {
-      this._definition = {
-        type: Task.ProcessType,
-        id: this._execution.computeId()
-      };
-    } else if (this._execution instanceof ShellExecution) {
-      this._definition = {
-        type: Task.ShellType,
-        id: this._execution.computeId()
-      };
-    } else if (this._execution instanceof CustomExecution) {
-      this._definition = {
-        type: Task.ExtensionCallbackType,
-        id: this._execution.computeId()
-      };
-    } else {
-      this._definition = {
-        type: Task.EmptyType,
-        id: generateUuid()
-      };
+    get _deprecated() {
+        return this.__deprecated;
     }
-  }
-  get definition() {
-    return this._definition;
-  }
-  set definition(value) {
-    if (value === void 0 || value === null) {
-      throw illegalArgument("Kind can't be undefined or null");
+    clear() {
+        if (this.__id === undefined) {
+            return;
+        }
+        this.__id = undefined;
+        this._scope = undefined;
+        this.computeDefinitionBasedOnExecution();
     }
-    this.clear();
-    this._definition = value;
-  }
-  get scope() {
-    return this._scope;
-  }
-  set target(value) {
-    this.clear();
-    this._scope = value;
-  }
-  get name() {
-    return this._name;
-  }
-  set name(value) {
-    if (typeof value !== "string") {
-      throw illegalArgument("name");
+    computeDefinitionBasedOnExecution() {
+        if (this._execution instanceof ProcessExecution) {
+            this._definition = {
+                type: Task_1.ProcessType,
+                id: this._execution.computeId()
+            };
+        }
+        else if (this._execution instanceof ShellExecution) {
+            this._definition = {
+                type: Task_1.ShellType,
+                id: this._execution.computeId()
+            };
+        }
+        else if (this._execution instanceof CustomExecution) {
+            this._definition = {
+                type: Task_1.ExtensionCallbackType,
+                id: this._execution.computeId()
+            };
+        }
+        else {
+            this._definition = {
+                type: Task_1.EmptyType,
+                id: generateUuid()
+            };
+        }
     }
-    this.clear();
-    this._name = value;
-  }
-  get execution() {
-    return this._execution;
-  }
-  set execution(value) {
-    if (value === null) {
-      value = void 0;
+    get definition() {
+        return this._definition;
     }
-    this.clear();
-    this._execution = value;
-    const type = this._definition.type;
-    if (Task.EmptyType === type || Task.ProcessType === type || Task.ShellType === type || Task.ExtensionCallbackType === type) {
-      this.computeDefinitionBasedOnExecution();
+    set definition(value) {
+        if (value === undefined || value === null) {
+            throw illegalArgument('Kind can\'t be undefined or null');
+        }
+        this.clear();
+        this._definition = value;
     }
-  }
-  get problemMatchers() {
-    return this._problemMatchers;
-  }
-  set problemMatchers(value) {
-    if (!Array.isArray(value)) {
-      this.clear();
-      this._problemMatchers = [];
-      this._hasDefinedMatchers = false;
-      return;
-    } else {
-      this.clear();
-      this._problemMatchers = value;
-      this._hasDefinedMatchers = true;
+    get scope() {
+        return this._scope;
     }
-  }
-  get hasDefinedMatchers() {
-    return this._hasDefinedMatchers;
-  }
-  get isBackground() {
-    return this._isBackground;
-  }
-  set isBackground(value) {
-    if (value !== true && value !== false) {
-      value = false;
+    set target(value) {
+        this.clear();
+        this._scope = value;
     }
-    this.clear();
-    this._isBackground = value;
-  }
-  get source() {
-    return this._source;
-  }
-  set source(value) {
-    if (typeof value !== "string" || value.length === 0) {
-      throw illegalArgument("source must be a string of length > 0");
+    get name() {
+        return this._name;
     }
-    this.clear();
-    this._source = value;
-  }
-  get group() {
-    return this._group;
-  }
-  set group(value) {
-    if (value === null) {
-      value = void 0;
+    set name(value) {
+        if (typeof value !== 'string') {
+            throw illegalArgument('name');
+        }
+        this.clear();
+        this._name = value;
     }
-    this.clear();
-    this._group = value;
-  }
-  get detail() {
-    return this._detail;
-  }
-  set detail(value) {
-    if (value === null) {
-      value = void 0;
+    get execution() {
+        return this._execution;
     }
-    this._detail = value;
-  }
-  get presentationOptions() {
-    return this._presentationOptions;
-  }
-  set presentationOptions(value) {
-    if (value === null || value === void 0) {
-      value = /* @__PURE__ */ Object.create(null);
+    set execution(value) {
+        if (value === null) {
+            value = undefined;
+        }
+        this.clear();
+        this._execution = value;
+        const type = this._definition.type;
+        if (Task_1.EmptyType === type || Task_1.ProcessType === type || Task_1.ShellType === type || Task_1.ExtensionCallbackType === type) {
+            this.computeDefinitionBasedOnExecution();
+        }
     }
-    this.clear();
-    this._presentationOptions = value;
-  }
-  get runOptions() {
-    return this._runOptions;
-  }
-  set runOptions(value) {
-    if (value === null || value === void 0) {
-      value = /* @__PURE__ */ Object.create(null);
+    get problemMatchers() {
+        return this._problemMatchers;
     }
-    this.clear();
-    this._runOptions = value;
-  }
+    set problemMatchers(value) {
+        if (!Array.isArray(value)) {
+            this.clear();
+            this._problemMatchers = [];
+            this._hasDefinedMatchers = false;
+            return;
+        }
+        else {
+            this.clear();
+            this._problemMatchers = value;
+            this._hasDefinedMatchers = true;
+        }
+    }
+    get hasDefinedMatchers() {
+        return this._hasDefinedMatchers;
+    }
+    get isBackground() {
+        return this._isBackground;
+    }
+    set isBackground(value) {
+        if (value !== true && value !== false) {
+            value = false;
+        }
+        this.clear();
+        this._isBackground = value;
+    }
+    get source() {
+        return this._source;
+    }
+    set source(value) {
+        if (typeof value !== 'string' || value.length === 0) {
+            throw illegalArgument('source must be a string of length > 0');
+        }
+        this.clear();
+        this._source = value;
+    }
+    get group() {
+        return this._group;
+    }
+    set group(value) {
+        if (value === null) {
+            value = undefined;
+        }
+        this.clear();
+        this._group = value;
+    }
+    get detail() {
+        return this._detail;
+    }
+    set detail(value) {
+        if (value === null) {
+            value = undefined;
+        }
+        this._detail = value;
+    }
+    get presentationOptions() {
+        return this._presentationOptions;
+    }
+    set presentationOptions(value) {
+        if (value === null || value === undefined) {
+            value = Object.create(null);
+        }
+        this.clear();
+        this._presentationOptions = value;
+    }
+    get runOptions() {
+        return this._runOptions;
+    }
+    set runOptions(value) {
+        if (value === null || value === undefined) {
+            value = Object.create(null);
+        }
+        this.clear();
+        this._runOptions = value;
+    }
 };
-__name(Task, "Task");
-__publicField(Task, "ExtensionCallbackType", "customExecution");
-__publicField(Task, "ProcessType", "process");
-__publicField(Task, "ShellType", "shell");
-__publicField(Task, "EmptyType", "$empty");
-Task = __decorateClass([
-  es5ClassCompat
+Task = Task_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
 ], Task);
-var ProgressLocation = /* @__PURE__ */ ((ProgressLocation2) => {
-  ProgressLocation2[ProgressLocation2["SourceControl"] = 1] = "SourceControl";
-  ProgressLocation2[ProgressLocation2["Window"] = 10] = "Window";
-  ProgressLocation2[ProgressLocation2["Notification"] = 15] = "Notification";
-  return ProgressLocation2;
-})(ProgressLocation || {});
-var ViewBadge;
-((ViewBadge2) => {
-  function isViewBadge(thing) {
-    const viewBadgeThing = thing;
-    if (!isNumber(viewBadgeThing.value)) {
-      console.log("INVALID view badge, invalid value", viewBadgeThing.value);
-      return false;
+export { Task };
+export var ProgressLocation;
+(function (ProgressLocation) {
+    ProgressLocation[ProgressLocation["SourceControl"] = 1] = "SourceControl";
+    ProgressLocation[ProgressLocation["Window"] = 10] = "Window";
+    ProgressLocation[ProgressLocation["Notification"] = 15] = "Notification";
+})(ProgressLocation || (ProgressLocation = {}));
+export var ViewBadge;
+(function (ViewBadge) {
+    function isViewBadge(thing) {
+        const viewBadgeThing = thing;
+        if (!isNumber(viewBadgeThing.value)) {
+            console.log('INVALID view badge, invalid value', viewBadgeThing.value);
+            return false;
+        }
+        if (viewBadgeThing.tooltip && !isString(viewBadgeThing.tooltip)) {
+            console.log('INVALID view badge, invalid tooltip', viewBadgeThing.tooltip);
+            return false;
+        }
+        return true;
     }
-    if (viewBadgeThing.tooltip && !isString(viewBadgeThing.tooltip)) {
-      console.log("INVALID view badge, invalid tooltip", viewBadgeThing.tooltip);
-      return false;
-    }
-    return true;
-  }
-  ViewBadge2.isViewBadge = isViewBadge;
-  __name(isViewBadge, "isViewBadge");
+    ViewBadge.isViewBadge = isViewBadge;
 })(ViewBadge || (ViewBadge = {}));
-let TreeItem = class {
-  constructor(arg1, collapsibleState = 0 /* None */) {
-    this.collapsibleState = collapsibleState;
-    if (URI.isUri(arg1)) {
-      this.resourceUri = arg1;
-    } else {
-      this.label = arg1;
+let TreeItem = TreeItem_1 = class TreeItem {
+    static isTreeItem(thing, extension) {
+        const treeItemThing = thing;
+        if (treeItemThing.checkboxState !== undefined) {
+            const checkbox = isNumber(treeItemThing.checkboxState) ? treeItemThing.checkboxState :
+                isObject(treeItemThing.checkboxState) && isNumber(treeItemThing.checkboxState.state) ? treeItemThing.checkboxState.state : undefined;
+            const tooltip = !isNumber(treeItemThing.checkboxState) && isObject(treeItemThing.checkboxState) ? treeItemThing.checkboxState.tooltip : undefined;
+            if (checkbox === undefined || (checkbox !== TreeItemCheckboxState.Checked && checkbox !== TreeItemCheckboxState.Unchecked) || (tooltip !== undefined && !isString(tooltip))) {
+                console.log('INVALID tree item, invalid checkboxState', treeItemThing.checkboxState);
+                return false;
+            }
+        }
+        if (thing instanceof TreeItem_1) {
+            return true;
+        }
+        if (treeItemThing.label !== undefined && !isString(treeItemThing.label) && !(treeItemThing.label?.label)) {
+            console.log('INVALID tree item, invalid label', treeItemThing.label);
+            return false;
+        }
+        if ((treeItemThing.id !== undefined) && !isString(treeItemThing.id)) {
+            console.log('INVALID tree item, invalid id', treeItemThing.id);
+            return false;
+        }
+        if ((treeItemThing.iconPath !== undefined) && !isString(treeItemThing.iconPath) && !URI.isUri(treeItemThing.iconPath) && (!treeItemThing.iconPath || !isString(treeItemThing.iconPath.id))) {
+            const asLightAndDarkThing = treeItemThing.iconPath;
+            if (!asLightAndDarkThing || (!isString(asLightAndDarkThing.light) && !URI.isUri(asLightAndDarkThing.light) && !isString(asLightAndDarkThing.dark) && !URI.isUri(asLightAndDarkThing.dark))) {
+                console.log('INVALID tree item, invalid iconPath', treeItemThing.iconPath);
+                return false;
+            }
+        }
+        if ((treeItemThing.description !== undefined) && !isString(treeItemThing.description) && (typeof treeItemThing.description !== 'boolean')) {
+            console.log('INVALID tree item, invalid description', treeItemThing.description);
+            return false;
+        }
+        if ((treeItemThing.resourceUri !== undefined) && !URI.isUri(treeItemThing.resourceUri)) {
+            console.log('INVALID tree item, invalid resourceUri', treeItemThing.resourceUri);
+            return false;
+        }
+        if ((treeItemThing.tooltip !== undefined) && !isString(treeItemThing.tooltip) && !(treeItemThing.tooltip instanceof MarkdownString)) {
+            console.log('INVALID tree item, invalid tooltip', treeItemThing.tooltip);
+            return false;
+        }
+        if ((treeItemThing.command !== undefined) && !treeItemThing.command.command) {
+            console.log('INVALID tree item, invalid command', treeItemThing.command);
+            return false;
+        }
+        if ((treeItemThing.collapsibleState !== undefined) && (treeItemThing.collapsibleState < TreeItemCollapsibleState.None) && (treeItemThing.collapsibleState > TreeItemCollapsibleState.Expanded)) {
+            console.log('INVALID tree item, invalid collapsibleState', treeItemThing.collapsibleState);
+            return false;
+        }
+        if ((treeItemThing.contextValue !== undefined) && !isString(treeItemThing.contextValue)) {
+            console.log('INVALID tree item, invalid contextValue', treeItemThing.contextValue);
+            return false;
+        }
+        if ((treeItemThing.accessibilityInformation !== undefined) && !treeItemThing.accessibilityInformation?.label) {
+            console.log('INVALID tree item, invalid accessibilityInformation', treeItemThing.accessibilityInformation);
+            return false;
+        }
+        return true;
     }
-  }
-  label;
-  resourceUri;
-  iconPath;
-  command;
-  contextValue;
-  tooltip;
-  checkboxState;
-  static isTreeItem(thing, extension) {
-    const treeItemThing = thing;
-    if (treeItemThing.checkboxState !== void 0) {
-      const checkbox = isNumber(treeItemThing.checkboxState) ? treeItemThing.checkboxState : isObject(treeItemThing.checkboxState) && isNumber(treeItemThing.checkboxState.state) ? treeItemThing.checkboxState.state : void 0;
-      const tooltip = !isNumber(treeItemThing.checkboxState) && isObject(treeItemThing.checkboxState) ? treeItemThing.checkboxState.tooltip : void 0;
-      if (checkbox === void 0 || checkbox !== 1 /* Checked */ && checkbox !== 0 /* Unchecked */ || tooltip !== void 0 && !isString(tooltip)) {
-        console.log("INVALID tree item, invalid checkboxState", treeItemThing.checkboxState);
-        return false;
-      }
+    constructor(arg1, collapsibleState = TreeItemCollapsibleState.None) {
+        this.collapsibleState = collapsibleState;
+        if (URI.isUri(arg1)) {
+            this.resourceUri = arg1;
+        }
+        else {
+            this.label = arg1;
+        }
     }
-    if (thing instanceof TreeItem) {
-      return true;
-    }
-    if (treeItemThing.label !== void 0 && !isString(treeItemThing.label) && !treeItemThing.label?.label) {
-      console.log("INVALID tree item, invalid label", treeItemThing.label);
-      return false;
-    }
-    if (treeItemThing.id !== void 0 && !isString(treeItemThing.id)) {
-      console.log("INVALID tree item, invalid id", treeItemThing.id);
-      return false;
-    }
-    if (treeItemThing.iconPath !== void 0 && !isString(treeItemThing.iconPath) && !URI.isUri(treeItemThing.iconPath) && (!treeItemThing.iconPath || !isString(treeItemThing.iconPath.id))) {
-      const asLightAndDarkThing = treeItemThing.iconPath;
-      if (!asLightAndDarkThing || !isString(asLightAndDarkThing.light) && !URI.isUri(asLightAndDarkThing.light) && !isString(asLightAndDarkThing.dark) && !URI.isUri(asLightAndDarkThing.dark)) {
-        console.log("INVALID tree item, invalid iconPath", treeItemThing.iconPath);
-        return false;
-      }
-    }
-    if (treeItemThing.description !== void 0 && !isString(treeItemThing.description) && typeof treeItemThing.description !== "boolean") {
-      console.log("INVALID tree item, invalid description", treeItemThing.description);
-      return false;
-    }
-    if (treeItemThing.resourceUri !== void 0 && !URI.isUri(treeItemThing.resourceUri)) {
-      console.log("INVALID tree item, invalid resourceUri", treeItemThing.resourceUri);
-      return false;
-    }
-    if (treeItemThing.tooltip !== void 0 && !isString(treeItemThing.tooltip) && !(treeItemThing.tooltip instanceof MarkdownString)) {
-      console.log("INVALID tree item, invalid tooltip", treeItemThing.tooltip);
-      return false;
-    }
-    if (treeItemThing.command !== void 0 && !treeItemThing.command.command) {
-      console.log("INVALID tree item, invalid command", treeItemThing.command);
-      return false;
-    }
-    if (treeItemThing.collapsibleState !== void 0 && treeItemThing.collapsibleState < 0 /* None */ && treeItemThing.collapsibleState > 2 /* Expanded */) {
-      console.log("INVALID tree item, invalid collapsibleState", treeItemThing.collapsibleState);
-      return false;
-    }
-    if (treeItemThing.contextValue !== void 0 && !isString(treeItemThing.contextValue)) {
-      console.log("INVALID tree item, invalid contextValue", treeItemThing.contextValue);
-      return false;
-    }
-    if (treeItemThing.accessibilityInformation !== void 0 && !treeItemThing.accessibilityInformation?.label) {
-      console.log("INVALID tree item, invalid accessibilityInformation", treeItemThing.accessibilityInformation);
-      return false;
-    }
-    return true;
-  }
 };
-__name(TreeItem, "TreeItem");
-TreeItem = __decorateClass([
-  es5ClassCompat
+TreeItem = TreeItem_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Number])
 ], TreeItem);
-var TreeItemCollapsibleState = /* @__PURE__ */ ((TreeItemCollapsibleState2) => {
-  TreeItemCollapsibleState2[TreeItemCollapsibleState2["None"] = 0] = "None";
-  TreeItemCollapsibleState2[TreeItemCollapsibleState2["Collapsed"] = 1] = "Collapsed";
-  TreeItemCollapsibleState2[TreeItemCollapsibleState2["Expanded"] = 2] = "Expanded";
-  return TreeItemCollapsibleState2;
-})(TreeItemCollapsibleState || {});
-var TreeItemCheckboxState = /* @__PURE__ */ ((TreeItemCheckboxState2) => {
-  TreeItemCheckboxState2[TreeItemCheckboxState2["Unchecked"] = 0] = "Unchecked";
-  TreeItemCheckboxState2[TreeItemCheckboxState2["Checked"] = 1] = "Checked";
-  return TreeItemCheckboxState2;
-})(TreeItemCheckboxState || {});
-let DataTransferItem = class {
-  constructor(value) {
-    this.value = value;
-  }
-  async asString() {
-    return typeof this.value === "string" ? this.value : JSON.stringify(this.value);
-  }
-  asFile() {
-    return void 0;
-  }
+export { TreeItem };
+export var TreeItemCollapsibleState;
+(function (TreeItemCollapsibleState) {
+    TreeItemCollapsibleState[TreeItemCollapsibleState["None"] = 0] = "None";
+    TreeItemCollapsibleState[TreeItemCollapsibleState["Collapsed"] = 1] = "Collapsed";
+    TreeItemCollapsibleState[TreeItemCollapsibleState["Expanded"] = 2] = "Expanded";
+})(TreeItemCollapsibleState || (TreeItemCollapsibleState = {}));
+export var TreeItemCheckboxState;
+(function (TreeItemCheckboxState) {
+    TreeItemCheckboxState[TreeItemCheckboxState["Unchecked"] = 0] = "Unchecked";
+    TreeItemCheckboxState[TreeItemCheckboxState["Checked"] = 1] = "Checked";
+})(TreeItemCheckboxState || (TreeItemCheckboxState = {}));
+let DataTransferItem = class DataTransferItem {
+    async asString() {
+        return typeof this.value === 'string' ? this.value : JSON.stringify(this.value);
+    }
+    asFile() {
+        return undefined;
+    }
+    constructor(value) {
+        this.value = value;
+    }
 };
-__name(DataTransferItem, "DataTransferItem");
-DataTransferItem = __decorateClass([
-  es5ClassCompat
+DataTransferItem = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object])
 ], DataTransferItem);
-class InternalDataTransferItem extends DataTransferItem {
-  static {
-    __name(this, "InternalDataTransferItem");
-  }
+export { DataTransferItem };
+/**
+ * A data transfer item that has been created by VS Code instead of by a extension.
+ *
+ * Intentionally not exported to extensions.
+ */
+export class InternalDataTransferItem extends DataTransferItem {
 }
-class InternalFileDataTransferItem extends InternalDataTransferItem {
-  static {
-    __name(this, "InternalFileDataTransferItem");
-  }
-  #file;
-  constructor(file) {
-    super("");
-    this.#file = file;
-  }
-  asFile() {
-    return this.#file;
-  }
+/**
+ * A data transfer item for a file.
+ *
+ * Intentionally not exported to extensions as only we can create these.
+ */
+export class InternalFileDataTransferItem extends InternalDataTransferItem {
+    #file;
+    constructor(file) {
+        super('');
+        this.#file = file;
+    }
+    asFile() {
+        return this.#file;
+    }
 }
-class DataTransferFile {
-  static {
-    __name(this, "DataTransferFile");
-  }
-  name;
-  uri;
-  _itemId;
-  _getData;
-  constructor(name, uri, itemId, getData) {
-    this.name = name;
-    this.uri = uri;
-    this._itemId = itemId;
-    this._getData = getData;
-  }
-  data() {
-    return this._getData();
-  }
+/**
+ * Intentionally not exported to extensions
+ */
+export class DataTransferFile {
+    constructor(name, uri, itemId, getData) {
+        this.name = name;
+        this.uri = uri;
+        this._itemId = itemId;
+        this._getData = getData;
+    }
+    data() {
+        return this._getData();
+    }
 }
-let DataTransfer = class {
-  constructor(init) {
-    __privateAdd(this, _DataTransfer_instances);
-    __privateAdd(this, _items, /* @__PURE__ */ new Map());
-    for (const [mime, item] of init ?? []) {
-      const existing = __privateGet(this, _items).get(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mime));
-      if (existing) {
-        existing.push(item);
-      } else {
-        __privateGet(this, _items).set(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mime), [item]);
-      }
+let DataTransfer = class DataTransfer {
+    #items = new Map();
+    constructor(init) {
+        for (const [mime, item] of init ?? []) {
+            const existing = this.#items.get(this.#normalizeMime(mime));
+            if (existing) {
+                existing.push(item);
+            }
+            else {
+                this.#items.set(this.#normalizeMime(mime), [item]);
+            }
+        }
     }
-  }
-  get(mimeType) {
-    return __privateGet(this, _items).get(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mimeType))?.[0];
-  }
-  set(mimeType, value) {
-    __privateGet(this, _items).set(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mimeType), [value]);
-  }
-  forEach(callbackfn, thisArg) {
-    for (const [mime, items] of __privateGet(this, _items)) {
-      for (const item of items) {
-        callbackfn.call(thisArg, item, mime, this);
-      }
+    get(mimeType) {
+        return this.#items.get(this.#normalizeMime(mimeType))?.[0];
     }
-  }
-  *[Symbol.iterator]() {
-    for (const [mime, items] of __privateGet(this, _items)) {
-      for (const item of items) {
-        yield [mime, item];
-      }
+    set(mimeType, value) {
+        // This intentionally overwrites all entries for a given mimetype.
+        // This is similar to how the DOM DataTransfer type works
+        this.#items.set(this.#normalizeMime(mimeType), [value]);
     }
-  }
+    forEach(callbackfn, thisArg) {
+        for (const [mime, items] of this.#items) {
+            for (const item of items) {
+                callbackfn.call(thisArg, item, mime, this);
+            }
+        }
+    }
+    *[Symbol.iterator]() {
+        for (const [mime, items] of this.#items) {
+            for (const item of items) {
+                yield [mime, item];
+            }
+        }
+    }
+    #normalizeMime(mimeType) {
+        return mimeType.toLowerCase();
+    }
 };
-_items = new WeakMap();
-_DataTransfer_instances = new WeakSet();
-normalizeMime_fn = /* @__PURE__ */ __name(function(mimeType) {
-  return mimeType.toLowerCase();
-}, "#normalizeMime");
-__name(DataTransfer, "DataTransfer");
-DataTransfer = __decorateClass([
-  es5ClassCompat
+DataTransfer = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object])
 ], DataTransfer);
-let DocumentDropEdit = class {
-  title;
-  id;
-  insertText;
-  additionalEdit;
-  kind;
-  constructor(insertText, title, kind) {
-    this.insertText = insertText;
-    this.title = title;
-    this.kind = kind;
-  }
+export { DataTransfer };
+let DocumentDropEdit = class DocumentDropEdit {
+    constructor(insertText, title, kind) {
+        this.insertText = insertText;
+        this.title = title;
+        this.kind = kind;
+    }
 };
-__name(DocumentDropEdit, "DocumentDropEdit");
-DocumentDropEdit = __decorateClass([
-  es5ClassCompat
+DocumentDropEdit = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, String, DocumentDropOrPasteEditKind])
 ], DocumentDropEdit);
-var DocumentPasteTriggerKind = /* @__PURE__ */ ((DocumentPasteTriggerKind2) => {
-  DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["Automatic"] = 0] = "Automatic";
-  DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["PasteAs"] = 1] = "PasteAs";
-  return DocumentPasteTriggerKind2;
-})(DocumentPasteTriggerKind || {});
-class DocumentDropOrPasteEditKind {
-  constructor(value) {
-    this.value = value;
-  }
-  static {
-    __name(this, "DocumentDropOrPasteEditKind");
-  }
-  static Empty;
-  static sep = ".";
-  append(...parts) {
-    return new DocumentDropOrPasteEditKind((this.value ? [this.value, ...parts] : parts).join(DocumentDropOrPasteEditKind.sep));
-  }
-  intersects(other) {
-    return this.contains(other) || other.contains(this);
-  }
-  contains(other) {
-    return this.value === other.value || other.value.startsWith(this.value + DocumentDropOrPasteEditKind.sep);
-  }
-}
-DocumentDropOrPasteEditKind.Empty = new DocumentDropOrPasteEditKind("");
-class DocumentPasteEdit {
-  static {
-    __name(this, "DocumentPasteEdit");
-  }
-  title;
-  insertText;
-  additionalEdit;
-  kind;
-  constructor(insertText, title, kind) {
-    this.title = title;
-    this.insertText = insertText;
-    this.kind = kind;
-  }
-}
-let ThemeIcon = class {
-  id;
-  color;
-  constructor(id, color) {
-    this.id = id;
-    this.color = color;
-  }
-  static isThemeIcon(thing) {
-    if (typeof thing.id !== "string") {
-      console.log("INVALID ThemeIcon, invalid id", thing.id);
-      return false;
+export { DocumentDropEdit };
+export var DocumentPasteTriggerKind;
+(function (DocumentPasteTriggerKind) {
+    DocumentPasteTriggerKind[DocumentPasteTriggerKind["Automatic"] = 0] = "Automatic";
+    DocumentPasteTriggerKind[DocumentPasteTriggerKind["PasteAs"] = 1] = "PasteAs";
+})(DocumentPasteTriggerKind || (DocumentPasteTriggerKind = {}));
+export class DocumentDropOrPasteEditKind {
+    static { this.sep = '.'; }
+    constructor(value) {
+        this.value = value;
     }
-    return true;
-  }
+    append(...parts) {
+        return new DocumentDropOrPasteEditKind((this.value ? [this.value, ...parts] : parts).join(DocumentDropOrPasteEditKind.sep));
+    }
+    intersects(other) {
+        return this.contains(other) || other.contains(this);
+    }
+    contains(other) {
+        return this.value === other.value || other.value.startsWith(this.value + DocumentDropOrPasteEditKind.sep);
+    }
+}
+DocumentDropOrPasteEditKind.Empty = new DocumentDropOrPasteEditKind('');
+export class DocumentPasteEdit {
+    constructor(insertText, title, kind) {
+        this.title = title;
+        this.insertText = insertText;
+        this.kind = kind;
+    }
+}
+let ThemeIcon = class ThemeIcon {
+    constructor(id, color) {
+        this.id = id;
+        this.color = color;
+    }
+    static isThemeIcon(thing) {
+        if (typeof thing.id !== 'string') {
+            console.log('INVALID ThemeIcon, invalid id', thing.id);
+            return false;
+        }
+        return true;
+    }
 };
-__name(ThemeIcon, "ThemeIcon");
-__publicField(ThemeIcon, "File");
-__publicField(ThemeIcon, "Folder");
-ThemeIcon = __decorateClass([
-  es5ClassCompat
+ThemeIcon = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, ThemeColor])
 ], ThemeIcon);
-ThemeIcon.File = new ThemeIcon("file");
-ThemeIcon.Folder = new ThemeIcon("folder");
-let ThemeColor = class {
-  id;
-  constructor(id) {
-    this.id = id;
-  }
+export { ThemeIcon };
+ThemeIcon.File = new ThemeIcon('file');
+ThemeIcon.Folder = new ThemeIcon('folder');
+let ThemeColor = class ThemeColor {
+    constructor(id) {
+        this.id = id;
+    }
 };
-__name(ThemeColor, "ThemeColor");
-ThemeColor = __decorateClass([
-  es5ClassCompat
+ThemeColor = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
 ], ThemeColor);
-var ConfigurationTarget = /* @__PURE__ */ ((ConfigurationTarget2) => {
-  ConfigurationTarget2[ConfigurationTarget2["Global"] = 1] = "Global";
-  ConfigurationTarget2[ConfigurationTarget2["Workspace"] = 2] = "Workspace";
-  ConfigurationTarget2[ConfigurationTarget2["WorkspaceFolder"] = 3] = "WorkspaceFolder";
-  return ConfigurationTarget2;
-})(ConfigurationTarget || {});
-let RelativePattern = class {
-  pattern;
-  _base;
-  get base() {
-    return this._base;
-  }
-  set base(base) {
-    this._base = base;
-    this._baseUri = URI.file(base);
-  }
-  _baseUri;
-  get baseUri() {
-    return this._baseUri;
-  }
-  set baseUri(baseUri) {
-    this._baseUri = baseUri;
-    this._base = baseUri.fsPath;
-  }
-  constructor(base, pattern) {
-    if (typeof base !== "string") {
-      if (!base || !URI.isUri(base) && !URI.isUri(base.uri)) {
-        throw illegalArgument("base");
-      }
+export { ThemeColor };
+export var ConfigurationTarget;
+(function (ConfigurationTarget) {
+    ConfigurationTarget[ConfigurationTarget["Global"] = 1] = "Global";
+    ConfigurationTarget[ConfigurationTarget["Workspace"] = 2] = "Workspace";
+    ConfigurationTarget[ConfigurationTarget["WorkspaceFolder"] = 3] = "WorkspaceFolder";
+})(ConfigurationTarget || (ConfigurationTarget = {}));
+let RelativePattern = class RelativePattern {
+    get base() {
+        return this._base;
     }
-    if (typeof pattern !== "string") {
-      throw illegalArgument("pattern");
+    set base(base) {
+        this._base = base;
+        this._baseUri = URI.file(base);
     }
-    if (typeof base === "string") {
-      this.baseUri = URI.file(base);
-    } else if (URI.isUri(base)) {
-      this.baseUri = base;
-    } else {
-      this.baseUri = base.uri;
+    get baseUri() {
+        return this._baseUri;
     }
-    this.pattern = pattern;
-  }
-  toJSON() {
-    return {
-      pattern: this.pattern,
-      base: this.base,
-      baseUri: this.baseUri.toJSON()
-    };
-  }
+    set baseUri(baseUri) {
+        this._baseUri = baseUri;
+        this._base = baseUri.fsPath;
+    }
+    constructor(base, pattern) {
+        if (typeof base !== 'string') {
+            if (!base || !URI.isUri(base) && !URI.isUri(base.uri)) {
+                throw illegalArgument('base');
+            }
+        }
+        if (typeof pattern !== 'string') {
+            throw illegalArgument('pattern');
+        }
+        if (typeof base === 'string') {
+            this.baseUri = URI.file(base);
+        }
+        else if (URI.isUri(base)) {
+            this.baseUri = base;
+        }
+        else {
+            this.baseUri = base.uri;
+        }
+        this.pattern = pattern;
+    }
+    toJSON() {
+        return {
+            pattern: this.pattern,
+            base: this.base,
+            baseUri: this.baseUri.toJSON()
+        };
+    }
 };
-__name(RelativePattern, "RelativePattern");
-RelativePattern = __decorateClass([
-  es5ClassCompat
+RelativePattern = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, String])
 ], RelativePattern);
-const breakpointIds = /* @__PURE__ */ new WeakMap();
-function setBreakpointId(bp, id) {
-  breakpointIds.set(bp, id);
+export { RelativePattern };
+const breakpointIds = new WeakMap();
+/**
+ * We want to be able to construct Breakpoints internally that have a particular id, but we don't want extensions to be
+ * able to do this with the exposed Breakpoint classes in extension API.
+ * We also want "instanceof" to work with debug.breakpoints and the exposed breakpoint classes.
+ * And private members will be renamed in the built js, so casting to any and setting a private member is not safe.
+ * So, we store internal breakpoint IDs in a WeakMap. This function must be called after constructing a Breakpoint
+ * with a known id.
+ */
+export function setBreakpointId(bp, id) {
+    breakpointIds.set(bp, id);
 }
-__name(setBreakpointId, "setBreakpointId");
-let Breakpoint = class {
-  _id;
-  enabled;
-  condition;
-  hitCondition;
-  logMessage;
-  mode;
-  constructor(enabled, condition, hitCondition, logMessage, mode) {
-    this.enabled = typeof enabled === "boolean" ? enabled : true;
-    if (typeof condition === "string") {
-      this.condition = condition;
+let Breakpoint = class Breakpoint {
+    constructor(enabled, condition, hitCondition, logMessage, mode) {
+        this.enabled = typeof enabled === 'boolean' ? enabled : true;
+        if (typeof condition === 'string') {
+            this.condition = condition;
+        }
+        if (typeof hitCondition === 'string') {
+            this.hitCondition = hitCondition;
+        }
+        if (typeof logMessage === 'string') {
+            this.logMessage = logMessage;
+        }
+        if (typeof mode === 'string') {
+            this.mode = mode;
+        }
     }
-    if (typeof hitCondition === "string") {
-      this.hitCondition = hitCondition;
+    get id() {
+        if (!this._id) {
+            this._id = breakpointIds.get(this) ?? generateUuid();
+        }
+        return this._id;
     }
-    if (typeof logMessage === "string") {
-      this.logMessage = logMessage;
-    }
-    if (typeof mode === "string") {
-      this.mode = mode;
-    }
-  }
-  get id() {
-    if (!this._id) {
-      this._id = breakpointIds.get(this) ?? generateUuid();
-    }
-    return this._id;
-  }
 };
-__name(Breakpoint, "Breakpoint");
-Breakpoint = __decorateClass([
-  es5ClassCompat
+Breakpoint = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Boolean, String, String, String, String])
 ], Breakpoint);
-let SourceBreakpoint = class extends Breakpoint {
-  location;
-  constructor(location, enabled, condition, hitCondition, logMessage, mode) {
-    super(enabled, condition, hitCondition, logMessage, mode);
-    if (location === null) {
-      throw illegalArgument("location");
+export { Breakpoint };
+let SourceBreakpoint = class SourceBreakpoint extends Breakpoint {
+    constructor(location, enabled, condition, hitCondition, logMessage, mode) {
+        super(enabled, condition, hitCondition, logMessage, mode);
+        if (location === null) {
+            throw illegalArgument('location');
+        }
+        this.location = location;
     }
-    this.location = location;
-  }
 };
-__name(SourceBreakpoint, "SourceBreakpoint");
-SourceBreakpoint = __decorateClass([
-  es5ClassCompat
+SourceBreakpoint = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Location, Boolean, String, String, String, String])
 ], SourceBreakpoint);
-let FunctionBreakpoint = class extends Breakpoint {
-  functionName;
-  constructor(functionName, enabled, condition, hitCondition, logMessage, mode) {
-    super(enabled, condition, hitCondition, logMessage, mode);
-    this.functionName = functionName;
-  }
+export { SourceBreakpoint };
+let FunctionBreakpoint = class FunctionBreakpoint extends Breakpoint {
+    constructor(functionName, enabled, condition, hitCondition, logMessage, mode) {
+        super(enabled, condition, hitCondition, logMessage, mode);
+        this.functionName = functionName;
+    }
 };
-__name(FunctionBreakpoint, "FunctionBreakpoint");
-FunctionBreakpoint = __decorateClass([
-  es5ClassCompat
+FunctionBreakpoint = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Boolean, String, String, String, String])
 ], FunctionBreakpoint);
-let DataBreakpoint = class extends Breakpoint {
-  label;
-  dataId;
-  canPersist;
-  constructor(label, dataId, canPersist, enabled, condition, hitCondition, logMessage, mode) {
-    super(enabled, condition, hitCondition, logMessage, mode);
-    if (!dataId) {
-      throw illegalArgument("dataId");
+export { FunctionBreakpoint };
+let DataBreakpoint = class DataBreakpoint extends Breakpoint {
+    constructor(label, dataId, canPersist, enabled, condition, hitCondition, logMessage, mode) {
+        super(enabled, condition, hitCondition, logMessage, mode);
+        if (!dataId) {
+            throw illegalArgument('dataId');
+        }
+        this.label = label;
+        this.dataId = dataId;
+        this.canPersist = canPersist;
     }
-    this.label = label;
-    this.dataId = dataId;
-    this.canPersist = canPersist;
-  }
 };
-__name(DataBreakpoint, "DataBreakpoint");
-DataBreakpoint = __decorateClass([
-  es5ClassCompat
+DataBreakpoint = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, String, Boolean, Boolean, String, String, String, String])
 ], DataBreakpoint);
-let DebugAdapterExecutable = class {
-  command;
-  args;
-  options;
-  constructor(command, args, options) {
-    this.command = command;
-    this.args = args || [];
-    this.options = options;
-  }
-};
-__name(DebugAdapterExecutable, "DebugAdapterExecutable");
-DebugAdapterExecutable = __decorateClass([
-  es5ClassCompat
-], DebugAdapterExecutable);
-let DebugAdapterServer = class {
-  port;
-  host;
-  constructor(port, host) {
-    this.port = port;
-    this.host = host;
-  }
-};
-__name(DebugAdapterServer, "DebugAdapterServer");
-DebugAdapterServer = __decorateClass([
-  es5ClassCompat
-], DebugAdapterServer);
-let DebugAdapterNamedPipeServer = class {
-  constructor(path) {
-    this.path = path;
-  }
-};
-__name(DebugAdapterNamedPipeServer, "DebugAdapterNamedPipeServer");
-DebugAdapterNamedPipeServer = __decorateClass([
-  es5ClassCompat
-], DebugAdapterNamedPipeServer);
-let DebugAdapterInlineImplementation = class {
-  implementation;
-  constructor(impl) {
-    this.implementation = impl;
-  }
-};
-__name(DebugAdapterInlineImplementation, "DebugAdapterInlineImplementation");
-DebugAdapterInlineImplementation = __decorateClass([
-  es5ClassCompat
-], DebugAdapterInlineImplementation);
-class DebugStackFrame {
-  constructor(session, threadId, frameId) {
-    this.session = session;
-    this.threadId = threadId;
-    this.frameId = frameId;
-  }
-  static {
-    __name(this, "DebugStackFrame");
-  }
-}
-class DebugThread {
-  constructor(session, threadId) {
-    this.session = session;
-    this.threadId = threadId;
-  }
-  static {
-    __name(this, "DebugThread");
-  }
-}
-let EvaluatableExpression = class {
-  range;
-  expression;
-  constructor(range, expression) {
-    this.range = range;
-    this.expression = expression;
-  }
-};
-__name(EvaluatableExpression, "EvaluatableExpression");
-EvaluatableExpression = __decorateClass([
-  es5ClassCompat
-], EvaluatableExpression);
-var InlineCompletionTriggerKind = /* @__PURE__ */ ((InlineCompletionTriggerKind2) => {
-  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Invoke"] = 0] = "Invoke";
-  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Automatic"] = 1] = "Automatic";
-  return InlineCompletionTriggerKind2;
-})(InlineCompletionTriggerKind || {});
-let InlineValueText = class {
-  range;
-  text;
-  constructor(range, text) {
-    this.range = range;
-    this.text = text;
-  }
-};
-__name(InlineValueText, "InlineValueText");
-InlineValueText = __decorateClass([
-  es5ClassCompat
-], InlineValueText);
-let InlineValueVariableLookup = class {
-  range;
-  variableName;
-  caseSensitiveLookup;
-  constructor(range, variableName, caseSensitiveLookup = true) {
-    this.range = range;
-    this.variableName = variableName;
-    this.caseSensitiveLookup = caseSensitiveLookup;
-  }
-};
-__name(InlineValueVariableLookup, "InlineValueVariableLookup");
-InlineValueVariableLookup = __decorateClass([
-  es5ClassCompat
-], InlineValueVariableLookup);
-let InlineValueEvaluatableExpression = class {
-  range;
-  expression;
-  constructor(range, expression) {
-    this.range = range;
-    this.expression = expression;
-  }
-};
-__name(InlineValueEvaluatableExpression, "InlineValueEvaluatableExpression");
-InlineValueEvaluatableExpression = __decorateClass([
-  es5ClassCompat
-], InlineValueEvaluatableExpression);
-let InlineValueContext = class {
-  frameId;
-  stoppedLocation;
-  constructor(frameId, range) {
-    this.frameId = frameId;
-    this.stoppedLocation = range;
-  }
-};
-__name(InlineValueContext, "InlineValueContext");
-InlineValueContext = __decorateClass([
-  es5ClassCompat
-], InlineValueContext);
-var NewSymbolNameTag = /* @__PURE__ */ ((NewSymbolNameTag2) => {
-  NewSymbolNameTag2[NewSymbolNameTag2["AIGenerated"] = 1] = "AIGenerated";
-  return NewSymbolNameTag2;
-})(NewSymbolNameTag || {});
-var NewSymbolNameTriggerKind = /* @__PURE__ */ ((NewSymbolNameTriggerKind2) => {
-  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Invoke"] = 0] = "Invoke";
-  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Automatic"] = 1] = "Automatic";
-  return NewSymbolNameTriggerKind2;
-})(NewSymbolNameTriggerKind || {});
-class NewSymbolName {
-  static {
-    __name(this, "NewSymbolName");
-  }
-  newSymbolName;
-  tags;
-  constructor(newSymbolName, tags) {
-    this.newSymbolName = newSymbolName;
-    this.tags = tags;
-  }
-}
-var FileChangeType = /* @__PURE__ */ ((FileChangeType2) => {
-  FileChangeType2[FileChangeType2["Changed"] = 1] = "Changed";
-  FileChangeType2[FileChangeType2["Created"] = 2] = "Created";
-  FileChangeType2[FileChangeType2["Deleted"] = 3] = "Deleted";
-  return FileChangeType2;
-})(FileChangeType || {});
-let FileSystemError = class extends Error {
-  static FileExists(messageOrUri) {
-    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileExists, FileSystemError.FileExists);
-  }
-  static FileNotFound(messageOrUri) {
-    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileNotFound, FileSystemError.FileNotFound);
-  }
-  static FileNotADirectory(messageOrUri) {
-    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileNotADirectory, FileSystemError.FileNotADirectory);
-  }
-  static FileIsADirectory(messageOrUri) {
-    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.FileIsADirectory, FileSystemError.FileIsADirectory);
-  }
-  static NoPermissions(messageOrUri) {
-    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.NoPermissions, FileSystemError.NoPermissions);
-  }
-  static Unavailable(messageOrUri) {
-    return new FileSystemError(messageOrUri, FileSystemProviderErrorCode.Unavailable, FileSystemError.Unavailable);
-  }
-  code;
-  constructor(uriOrMessage, code = FileSystemProviderErrorCode.Unknown, terminator) {
-    super(URI.isUri(uriOrMessage) ? uriOrMessage.toString(true) : uriOrMessage);
-    this.code = terminator?.name ?? "Unknown";
-    markAsFileSystemProviderError(this, code);
-    Object.setPrototypeOf(this, FileSystemError.prototype);
-    if (typeof Error.captureStackTrace === "function" && typeof terminator === "function") {
-      Error.captureStackTrace(this, terminator);
+export { DataBreakpoint };
+let DebugAdapterExecutable = class DebugAdapterExecutable {
+    constructor(command, args, options) {
+        this.command = command;
+        this.args = args || [];
+        this.options = options;
     }
-  }
 };
-__name(FileSystemError, "FileSystemError");
-FileSystemError = __decorateClass([
-  es5ClassCompat
+DebugAdapterExecutable = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Array, Object])
+], DebugAdapterExecutable);
+export { DebugAdapterExecutable };
+let DebugAdapterServer = class DebugAdapterServer {
+    constructor(port, host) {
+        this.port = port;
+        this.host = host;
+    }
+};
+DebugAdapterServer = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Number, String])
+], DebugAdapterServer);
+export { DebugAdapterServer };
+let DebugAdapterNamedPipeServer = class DebugAdapterNamedPipeServer {
+    constructor(path) {
+        this.path = path;
+    }
+};
+DebugAdapterNamedPipeServer = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
+], DebugAdapterNamedPipeServer);
+export { DebugAdapterNamedPipeServer };
+let DebugAdapterInlineImplementation = class DebugAdapterInlineImplementation {
+    constructor(impl) {
+        this.implementation = impl;
+    }
+};
+DebugAdapterInlineImplementation = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object])
+], DebugAdapterInlineImplementation);
+export { DebugAdapterInlineImplementation };
+export class DebugStackFrame {
+    constructor(session, threadId, frameId) {
+        this.session = session;
+        this.threadId = threadId;
+        this.frameId = frameId;
+    }
+}
+export class DebugThread {
+    constructor(session, threadId) {
+        this.session = session;
+        this.threadId = threadId;
+    }
+}
+let EvaluatableExpression = class EvaluatableExpression {
+    constructor(range, expression) {
+        this.range = range;
+        this.expression = expression;
+    }
+};
+EvaluatableExpression = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Function, String])
+], EvaluatableExpression);
+export { EvaluatableExpression };
+export var InlineCompletionTriggerKind;
+(function (InlineCompletionTriggerKind) {
+    InlineCompletionTriggerKind[InlineCompletionTriggerKind["Invoke"] = 0] = "Invoke";
+    InlineCompletionTriggerKind[InlineCompletionTriggerKind["Automatic"] = 1] = "Automatic";
+})(InlineCompletionTriggerKind || (InlineCompletionTriggerKind = {}));
+let InlineValueText = class InlineValueText {
+    constructor(range, text) {
+        this.range = range;
+        this.text = text;
+    }
+};
+InlineValueText = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, String])
+], InlineValueText);
+export { InlineValueText };
+let InlineValueVariableLookup = class InlineValueVariableLookup {
+    constructor(range, variableName, caseSensitiveLookup = true) {
+        this.range = range;
+        this.variableName = variableName;
+        this.caseSensitiveLookup = caseSensitiveLookup;
+    }
+};
+InlineValueVariableLookup = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, String, Boolean])
+], InlineValueVariableLookup);
+export { InlineValueVariableLookup };
+let InlineValueEvaluatableExpression = class InlineValueEvaluatableExpression {
+    constructor(range, expression) {
+        this.range = range;
+        this.expression = expression;
+    }
+};
+InlineValueEvaluatableExpression = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Range, String])
+], InlineValueEvaluatableExpression);
+export { InlineValueEvaluatableExpression };
+let InlineValueContext = class InlineValueContext {
+    constructor(frameId, range) {
+        this.frameId = frameId;
+        this.stoppedLocation = range;
+    }
+};
+InlineValueContext = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Number, Function])
+], InlineValueContext);
+export { InlineValueContext };
+export var NewSymbolNameTag;
+(function (NewSymbolNameTag) {
+    NewSymbolNameTag[NewSymbolNameTag["AIGenerated"] = 1] = "AIGenerated";
+})(NewSymbolNameTag || (NewSymbolNameTag = {}));
+export var NewSymbolNameTriggerKind;
+(function (NewSymbolNameTriggerKind) {
+    NewSymbolNameTriggerKind[NewSymbolNameTriggerKind["Invoke"] = 0] = "Invoke";
+    NewSymbolNameTriggerKind[NewSymbolNameTriggerKind["Automatic"] = 1] = "Automatic";
+})(NewSymbolNameTriggerKind || (NewSymbolNameTriggerKind = {}));
+export class NewSymbolName {
+    constructor(newSymbolName, tags) {
+        this.newSymbolName = newSymbolName;
+        this.tags = tags;
+    }
+}
+//#region file api
+export var FileChangeType;
+(function (FileChangeType) {
+    FileChangeType[FileChangeType["Changed"] = 1] = "Changed";
+    FileChangeType[FileChangeType["Created"] = 2] = "Created";
+    FileChangeType[FileChangeType["Deleted"] = 3] = "Deleted";
+})(FileChangeType || (FileChangeType = {}));
+let FileSystemError = FileSystemError_1 = class FileSystemError extends Error {
+    static FileExists(messageOrUri) {
+        return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileExists, FileSystemError_1.FileExists);
+    }
+    static FileNotFound(messageOrUri) {
+        return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileNotFound, FileSystemError_1.FileNotFound);
+    }
+    static FileNotADirectory(messageOrUri) {
+        return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileNotADirectory, FileSystemError_1.FileNotADirectory);
+    }
+    static FileIsADirectory(messageOrUri) {
+        return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.FileIsADirectory, FileSystemError_1.FileIsADirectory);
+    }
+    static NoPermissions(messageOrUri) {
+        return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.NoPermissions, FileSystemError_1.NoPermissions);
+    }
+    static Unavailable(messageOrUri) {
+        return new FileSystemError_1(messageOrUri, FileSystemProviderErrorCode.Unavailable, FileSystemError_1.Unavailable);
+    }
+    constructor(uriOrMessage, code = FileSystemProviderErrorCode.Unknown, terminator) {
+        super(URI.isUri(uriOrMessage) ? uriOrMessage.toString(true) : uriOrMessage);
+        this.code = terminator?.name ?? 'Unknown';
+        // mark the error as file system provider error so that
+        // we can extract the error code on the receiving side
+        markAsFileSystemProviderError(this, code);
+        // workaround when extending builtin objects and when compiling to ES5, see:
+        // https://github.com/microsoft/TypeScript-wiki/blob/master/Breaking-Changes.md#extending-built-ins-like-error-array-and-map-may-no-longer-work
+        Object.setPrototypeOf(this, FileSystemError_1.prototype);
+        if (typeof Error.captureStackTrace === 'function' && typeof terminator === 'function') {
+            // nice stack traces
+            Error.captureStackTrace(this, terminator);
+        }
+    }
+};
+FileSystemError = FileSystemError_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, String, Function])
 ], FileSystemError);
-let FoldingRange = class {
-  start;
-  end;
-  kind;
-  constructor(start, end, kind) {
-    this.start = start;
-    this.end = end;
-    this.kind = kind;
-  }
+export { FileSystemError };
+//#endregion
+//#region folding api
+let FoldingRange = class FoldingRange {
+    constructor(start, end, kind) {
+        this.start = start;
+        this.end = end;
+        this.kind = kind;
+    }
 };
-__name(FoldingRange, "FoldingRange");
-FoldingRange = __decorateClass([
-  es5ClassCompat
+FoldingRange = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Number, Number, Number])
 ], FoldingRange);
-var FoldingRangeKind = /* @__PURE__ */ ((FoldingRangeKind2) => {
-  FoldingRangeKind2[FoldingRangeKind2["Comment"] = 1] = "Comment";
-  FoldingRangeKind2[FoldingRangeKind2["Imports"] = 2] = "Imports";
-  FoldingRangeKind2[FoldingRangeKind2["Region"] = 3] = "Region";
-  return FoldingRangeKind2;
-})(FoldingRangeKind || {});
-var CommentThreadCollapsibleState = /* @__PURE__ */ ((CommentThreadCollapsibleState2) => {
-  CommentThreadCollapsibleState2[CommentThreadCollapsibleState2["Collapsed"] = 0] = "Collapsed";
-  CommentThreadCollapsibleState2[CommentThreadCollapsibleState2["Expanded"] = 1] = "Expanded";
-  return CommentThreadCollapsibleState2;
-})(CommentThreadCollapsibleState || {});
-var CommentMode = /* @__PURE__ */ ((CommentMode2) => {
-  CommentMode2[CommentMode2["Editing"] = 0] = "Editing";
-  CommentMode2[CommentMode2["Preview"] = 1] = "Preview";
-  return CommentMode2;
-})(CommentMode || {});
-var CommentState = /* @__PURE__ */ ((CommentState2) => {
-  CommentState2[CommentState2["Published"] = 0] = "Published";
-  CommentState2[CommentState2["Draft"] = 1] = "Draft";
-  return CommentState2;
-})(CommentState || {});
-var CommentThreadState = /* @__PURE__ */ ((CommentThreadState2) => {
-  CommentThreadState2[CommentThreadState2["Unresolved"] = 0] = "Unresolved";
-  CommentThreadState2[CommentThreadState2["Resolved"] = 1] = "Resolved";
-  return CommentThreadState2;
-})(CommentThreadState || {});
-var CommentThreadApplicability = /* @__PURE__ */ ((CommentThreadApplicability2) => {
-  CommentThreadApplicability2[CommentThreadApplicability2["Current"] = 0] = "Current";
-  CommentThreadApplicability2[CommentThreadApplicability2["Outdated"] = 1] = "Outdated";
-  return CommentThreadApplicability2;
-})(CommentThreadApplicability || {});
-var CommentThreadFocus = /* @__PURE__ */ ((CommentThreadFocus2) => {
-  CommentThreadFocus2[CommentThreadFocus2["Reply"] = 1] = "Reply";
-  CommentThreadFocus2[CommentThreadFocus2["Comment"] = 2] = "Comment";
-  return CommentThreadFocus2;
-})(CommentThreadFocus || {});
-class SemanticTokensLegend {
-  static {
-    __name(this, "SemanticTokensLegend");
-  }
-  tokenTypes;
-  tokenModifiers;
-  constructor(tokenTypes, tokenModifiers = []) {
-    this.tokenTypes = tokenTypes;
-    this.tokenModifiers = tokenModifiers;
-  }
+export { FoldingRange };
+export var FoldingRangeKind;
+(function (FoldingRangeKind) {
+    FoldingRangeKind[FoldingRangeKind["Comment"] = 1] = "Comment";
+    FoldingRangeKind[FoldingRangeKind["Imports"] = 2] = "Imports";
+    FoldingRangeKind[FoldingRangeKind["Region"] = 3] = "Region";
+})(FoldingRangeKind || (FoldingRangeKind = {}));
+//#endregion
+//#region Comment
+export var CommentThreadCollapsibleState;
+(function (CommentThreadCollapsibleState) {
+    /**
+     * Determines an item is collapsed
+     */
+    CommentThreadCollapsibleState[CommentThreadCollapsibleState["Collapsed"] = 0] = "Collapsed";
+    /**
+     * Determines an item is expanded
+     */
+    CommentThreadCollapsibleState[CommentThreadCollapsibleState["Expanded"] = 1] = "Expanded";
+})(CommentThreadCollapsibleState || (CommentThreadCollapsibleState = {}));
+export var CommentMode;
+(function (CommentMode) {
+    CommentMode[CommentMode["Editing"] = 0] = "Editing";
+    CommentMode[CommentMode["Preview"] = 1] = "Preview";
+})(CommentMode || (CommentMode = {}));
+export var CommentState;
+(function (CommentState) {
+    CommentState[CommentState["Published"] = 0] = "Published";
+    CommentState[CommentState["Draft"] = 1] = "Draft";
+})(CommentState || (CommentState = {}));
+export var CommentThreadState;
+(function (CommentThreadState) {
+    CommentThreadState[CommentThreadState["Unresolved"] = 0] = "Unresolved";
+    CommentThreadState[CommentThreadState["Resolved"] = 1] = "Resolved";
+})(CommentThreadState || (CommentThreadState = {}));
+export var CommentThreadApplicability;
+(function (CommentThreadApplicability) {
+    CommentThreadApplicability[CommentThreadApplicability["Current"] = 0] = "Current";
+    CommentThreadApplicability[CommentThreadApplicability["Outdated"] = 1] = "Outdated";
+})(CommentThreadApplicability || (CommentThreadApplicability = {}));
+export var CommentThreadFocus;
+(function (CommentThreadFocus) {
+    CommentThreadFocus[CommentThreadFocus["Reply"] = 1] = "Reply";
+    CommentThreadFocus[CommentThreadFocus["Comment"] = 2] = "Comment";
+})(CommentThreadFocus || (CommentThreadFocus = {}));
+//#endregion
+//#region Semantic Coloring
+export class SemanticTokensLegend {
+    constructor(tokenTypes, tokenModifiers = []) {
+        this.tokenTypes = tokenTypes;
+        this.tokenModifiers = tokenModifiers;
+    }
 }
 function isStrArrayOrUndefined(arg) {
-  return typeof arg === "undefined" || isStringArray(arg);
+    return ((typeof arg === 'undefined') || isStringArray(arg));
 }
-__name(isStrArrayOrUndefined, "isStrArrayOrUndefined");
-class SemanticTokensBuilder {
-  static {
-    __name(this, "SemanticTokensBuilder");
-  }
-  _prevLine;
-  _prevChar;
-  _dataIsSortedAndDeltaEncoded;
-  _data;
-  _dataLen;
-  _tokenTypeStrToInt;
-  _tokenModifierStrToInt;
-  _hasLegend;
-  constructor(legend) {
-    this._prevLine = 0;
-    this._prevChar = 0;
-    this._dataIsSortedAndDeltaEncoded = true;
-    this._data = [];
-    this._dataLen = 0;
-    this._tokenTypeStrToInt = /* @__PURE__ */ new Map();
-    this._tokenModifierStrToInt = /* @__PURE__ */ new Map();
-    this._hasLegend = false;
-    if (legend) {
-      this._hasLegend = true;
-      for (let i = 0, len = legend.tokenTypes.length; i < len; i++) {
-        this._tokenTypeStrToInt.set(legend.tokenTypes[i], i);
-      }
-      for (let i = 0, len = legend.tokenModifiers.length; i < len; i++) {
-        this._tokenModifierStrToInt.set(legend.tokenModifiers[i], i);
-      }
-    }
-  }
-  push(arg0, arg1, arg2, arg3, arg4) {
-    if (typeof arg0 === "number" && typeof arg1 === "number" && typeof arg2 === "number" && typeof arg3 === "number" && (typeof arg4 === "number" || typeof arg4 === "undefined")) {
-      if (typeof arg4 === "undefined") {
-        arg4 = 0;
-      }
-      return this._pushEncoded(arg0, arg1, arg2, arg3, arg4);
-    }
-    if (Range.isRange(arg0) && typeof arg1 === "string" && isStrArrayOrUndefined(arg2)) {
-      return this._push(arg0, arg1, arg2);
-    }
-    throw illegalArgument();
-  }
-  _push(range, tokenType, tokenModifiers) {
-    if (!this._hasLegend) {
-      throw new Error("Legend must be provided in constructor");
-    }
-    if (range.start.line !== range.end.line) {
-      throw new Error("`range` cannot span multiple lines");
-    }
-    if (!this._tokenTypeStrToInt.has(tokenType)) {
-      throw new Error("`tokenType` is not in the provided legend");
-    }
-    const line = range.start.line;
-    const char = range.start.character;
-    const length = range.end.character - range.start.character;
-    const nTokenType = this._tokenTypeStrToInt.get(tokenType);
-    let nTokenModifiers = 0;
-    if (tokenModifiers) {
-      for (const tokenModifier of tokenModifiers) {
-        if (!this._tokenModifierStrToInt.has(tokenModifier)) {
-          throw new Error("`tokenModifier` is not in the provided legend");
+export class SemanticTokensBuilder {
+    constructor(legend) {
+        this._prevLine = 0;
+        this._prevChar = 0;
+        this._dataIsSortedAndDeltaEncoded = true;
+        this._data = [];
+        this._dataLen = 0;
+        this._tokenTypeStrToInt = new Map();
+        this._tokenModifierStrToInt = new Map();
+        this._hasLegend = false;
+        if (legend) {
+            this._hasLegend = true;
+            for (let i = 0, len = legend.tokenTypes.length; i < len; i++) {
+                this._tokenTypeStrToInt.set(legend.tokenTypes[i], i);
+            }
+            for (let i = 0, len = legend.tokenModifiers.length; i < len; i++) {
+                this._tokenModifierStrToInt.set(legend.tokenModifiers[i], i);
+            }
         }
-        const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier);
-        nTokenModifiers |= 1 << nTokenModifier >>> 0;
-      }
     }
-    this._pushEncoded(line, char, length, nTokenType, nTokenModifiers);
-  }
-  _pushEncoded(line, char, length, tokenType, tokenModifiers) {
-    if (this._dataIsSortedAndDeltaEncoded && (line < this._prevLine || line === this._prevLine && char < this._prevChar)) {
-      this._dataIsSortedAndDeltaEncoded = false;
-      const tokenCount = this._data.length / 5 | 0;
-      let prevLine = 0;
-      let prevChar = 0;
-      for (let i = 0; i < tokenCount; i++) {
-        let line2 = this._data[5 * i];
-        let char2 = this._data[5 * i + 1];
-        if (line2 === 0) {
-          line2 = prevLine;
-          char2 += prevChar;
-        } else {
-          line2 += prevLine;
+    push(arg0, arg1, arg2, arg3, arg4) {
+        if (typeof arg0 === 'number' && typeof arg1 === 'number' && typeof arg2 === 'number' && typeof arg3 === 'number' && (typeof arg4 === 'number' || typeof arg4 === 'undefined')) {
+            if (typeof arg4 === 'undefined') {
+                arg4 = 0;
+            }
+            // 1st overload
+            return this._pushEncoded(arg0, arg1, arg2, arg3, arg4);
         }
-        this._data[5 * i] = line2;
-        this._data[5 * i + 1] = char2;
-        prevLine = line2;
-        prevChar = char2;
-      }
+        if (Range.isRange(arg0) && typeof arg1 === 'string' && isStrArrayOrUndefined(arg2)) {
+            // 2nd overload
+            return this._push(arg0, arg1, arg2);
+        }
+        throw illegalArgument();
     }
-    let pushLine = line;
-    let pushChar = char;
-    if (this._dataIsSortedAndDeltaEncoded && this._dataLen > 0) {
-      pushLine -= this._prevLine;
-      if (pushLine === 0) {
-        pushChar -= this._prevChar;
-      }
+    _push(range, tokenType, tokenModifiers) {
+        if (!this._hasLegend) {
+            throw new Error('Legend must be provided in constructor');
+        }
+        if (range.start.line !== range.end.line) {
+            throw new Error('`range` cannot span multiple lines');
+        }
+        if (!this._tokenTypeStrToInt.has(tokenType)) {
+            throw new Error('`tokenType` is not in the provided legend');
+        }
+        const line = range.start.line;
+        const char = range.start.character;
+        const length = range.end.character - range.start.character;
+        const nTokenType = this._tokenTypeStrToInt.get(tokenType);
+        let nTokenModifiers = 0;
+        if (tokenModifiers) {
+            for (const tokenModifier of tokenModifiers) {
+                if (!this._tokenModifierStrToInt.has(tokenModifier)) {
+                    throw new Error('`tokenModifier` is not in the provided legend');
+                }
+                const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier);
+                nTokenModifiers |= (1 << nTokenModifier) >>> 0;
+            }
+        }
+        this._pushEncoded(line, char, length, nTokenType, nTokenModifiers);
     }
-    this._data[this._dataLen++] = pushLine;
-    this._data[this._dataLen++] = pushChar;
-    this._data[this._dataLen++] = length;
-    this._data[this._dataLen++] = tokenType;
-    this._data[this._dataLen++] = tokenModifiers;
-    this._prevLine = line;
-    this._prevChar = char;
-  }
-  static _sortAndDeltaEncode(data) {
-    const pos = [];
-    const tokenCount = data.length / 5 | 0;
-    for (let i = 0; i < tokenCount; i++) {
-      pos[i] = i;
+    _pushEncoded(line, char, length, tokenType, tokenModifiers) {
+        if (this._dataIsSortedAndDeltaEncoded && (line < this._prevLine || (line === this._prevLine && char < this._prevChar))) {
+            // push calls were ordered and are no longer ordered
+            this._dataIsSortedAndDeltaEncoded = false;
+            // Remove delta encoding from data
+            const tokenCount = (this._data.length / 5) | 0;
+            let prevLine = 0;
+            let prevChar = 0;
+            for (let i = 0; i < tokenCount; i++) {
+                let line = this._data[5 * i];
+                let char = this._data[5 * i + 1];
+                if (line === 0) {
+                    // on the same line as previous token
+                    line = prevLine;
+                    char += prevChar;
+                }
+                else {
+                    // on a different line than previous token
+                    line += prevLine;
+                }
+                this._data[5 * i] = line;
+                this._data[5 * i + 1] = char;
+                prevLine = line;
+                prevChar = char;
+            }
+        }
+        let pushLine = line;
+        let pushChar = char;
+        if (this._dataIsSortedAndDeltaEncoded && this._dataLen > 0) {
+            pushLine -= this._prevLine;
+            if (pushLine === 0) {
+                pushChar -= this._prevChar;
+            }
+        }
+        this._data[this._dataLen++] = pushLine;
+        this._data[this._dataLen++] = pushChar;
+        this._data[this._dataLen++] = length;
+        this._data[this._dataLen++] = tokenType;
+        this._data[this._dataLen++] = tokenModifiers;
+        this._prevLine = line;
+        this._prevChar = char;
     }
-    pos.sort((a, b) => {
-      const aLine = data[5 * a];
-      const bLine = data[5 * b];
-      if (aLine === bLine) {
-        const aChar = data[5 * a + 1];
-        const bChar = data[5 * b + 1];
-        return aChar - bChar;
-      }
-      return aLine - bLine;
-    });
-    const result = new Uint32Array(data.length);
-    let prevLine = 0;
-    let prevChar = 0;
-    for (let i = 0; i < tokenCount; i++) {
-      const srcOffset = 5 * pos[i];
-      const line = data[srcOffset + 0];
-      const char = data[srcOffset + 1];
-      const length = data[srcOffset + 2];
-      const tokenType = data[srcOffset + 3];
-      const tokenModifiers = data[srcOffset + 4];
-      const pushLine = line - prevLine;
-      const pushChar = pushLine === 0 ? char - prevChar : char;
-      const dstOffset = 5 * i;
-      result[dstOffset + 0] = pushLine;
-      result[dstOffset + 1] = pushChar;
-      result[dstOffset + 2] = length;
-      result[dstOffset + 3] = tokenType;
-      result[dstOffset + 4] = tokenModifiers;
-      prevLine = line;
-      prevChar = char;
+    static _sortAndDeltaEncode(data) {
+        const pos = [];
+        const tokenCount = (data.length / 5) | 0;
+        for (let i = 0; i < tokenCount; i++) {
+            pos[i] = i;
+        }
+        pos.sort((a, b) => {
+            const aLine = data[5 * a];
+            const bLine = data[5 * b];
+            if (aLine === bLine) {
+                const aChar = data[5 * a + 1];
+                const bChar = data[5 * b + 1];
+                return aChar - bChar;
+            }
+            return aLine - bLine;
+        });
+        const result = new Uint32Array(data.length);
+        let prevLine = 0;
+        let prevChar = 0;
+        for (let i = 0; i < tokenCount; i++) {
+            const srcOffset = 5 * pos[i];
+            const line = data[srcOffset + 0];
+            const char = data[srcOffset + 1];
+            const length = data[srcOffset + 2];
+            const tokenType = data[srcOffset + 3];
+            const tokenModifiers = data[srcOffset + 4];
+            const pushLine = line - prevLine;
+            const pushChar = (pushLine === 0 ? char - prevChar : char);
+            const dstOffset = 5 * i;
+            result[dstOffset + 0] = pushLine;
+            result[dstOffset + 1] = pushChar;
+            result[dstOffset + 2] = length;
+            result[dstOffset + 3] = tokenType;
+            result[dstOffset + 4] = tokenModifiers;
+            prevLine = line;
+            prevChar = char;
+        }
+        return result;
     }
-    return result;
-  }
-  build(resultId) {
-    if (!this._dataIsSortedAndDeltaEncoded) {
-      return new SemanticTokens(SemanticTokensBuilder._sortAndDeltaEncode(this._data), resultId);
+    build(resultId) {
+        if (!this._dataIsSortedAndDeltaEncoded) {
+            return new SemanticTokens(SemanticTokensBuilder._sortAndDeltaEncode(this._data), resultId);
+        }
+        return new SemanticTokens(new Uint32Array(this._data), resultId);
     }
-    return new SemanticTokens(new Uint32Array(this._data), resultId);
-  }
 }
-class SemanticTokens {
-  static {
-    __name(this, "SemanticTokens");
-  }
-  resultId;
-  data;
-  constructor(data, resultId) {
-    this.resultId = resultId;
-    this.data = data;
-  }
+export class SemanticTokens {
+    constructor(data, resultId) {
+        this.resultId = resultId;
+        this.data = data;
+    }
 }
-class SemanticTokensEdit {
-  static {
-    __name(this, "SemanticTokensEdit");
-  }
-  start;
-  deleteCount;
-  data;
-  constructor(start, deleteCount, data) {
-    this.start = start;
-    this.deleteCount = deleteCount;
-    this.data = data;
-  }
+export class SemanticTokensEdit {
+    constructor(start, deleteCount, data) {
+        this.start = start;
+        this.deleteCount = deleteCount;
+        this.data = data;
+    }
 }
-class SemanticTokensEdits {
-  static {
-    __name(this, "SemanticTokensEdits");
-  }
-  resultId;
-  edits;
-  constructor(edits, resultId) {
-    this.resultId = resultId;
-    this.edits = edits;
-  }
+export class SemanticTokensEdits {
+    constructor(edits, resultId) {
+        this.resultId = resultId;
+        this.edits = edits;
+    }
 }
-var DebugConsoleMode = /* @__PURE__ */ ((DebugConsoleMode2) => {
-  DebugConsoleMode2[DebugConsoleMode2["Separate"] = 0] = "Separate";
-  DebugConsoleMode2[DebugConsoleMode2["MergeWithParent"] = 1] = "MergeWithParent";
-  return DebugConsoleMode2;
-})(DebugConsoleMode || {});
-class DebugVisualization {
-  constructor(name) {
-    this.name = name;
-  }
-  static {
-    __name(this, "DebugVisualization");
-  }
-  iconPath;
-  visualization;
+//#endregion
+//#region debug
+export var DebugConsoleMode;
+(function (DebugConsoleMode) {
+    /**
+     * Debug session should have a separate debug console.
+     */
+    DebugConsoleMode[DebugConsoleMode["Separate"] = 0] = "Separate";
+    /**
+     * Debug session should share debug console with its parent session.
+     * This value has no effect for sessions which do not have a parent session.
+     */
+    DebugConsoleMode[DebugConsoleMode["MergeWithParent"] = 1] = "MergeWithParent";
+})(DebugConsoleMode || (DebugConsoleMode = {}));
+export class DebugVisualization {
+    constructor(name) {
+        this.name = name;
+    }
 }
-var QuickInputButtonLocation = /* @__PURE__ */ ((QuickInputButtonLocation2) => {
-  QuickInputButtonLocation2[QuickInputButtonLocation2["Title"] = 1] = "Title";
-  QuickInputButtonLocation2[QuickInputButtonLocation2["Inline"] = 2] = "Inline";
-  return QuickInputButtonLocation2;
-})(QuickInputButtonLocation || {});
-let QuickInputButtons = class {
-  constructor() {
-  }
+//#endregion
+export var QuickInputButtonLocation;
+(function (QuickInputButtonLocation) {
+    QuickInputButtonLocation[QuickInputButtonLocation["Title"] = 1] = "Title";
+    QuickInputButtonLocation[QuickInputButtonLocation["Inline"] = 2] = "Inline";
+})(QuickInputButtonLocation || (QuickInputButtonLocation = {}));
+let QuickInputButtons = class QuickInputButtons {
+    static { this.Back = { iconPath: new ThemeIcon('arrow-left') }; }
+    constructor() { }
 };
-__name(QuickInputButtons, "QuickInputButtons");
-__publicField(QuickInputButtons, "Back", { iconPath: new ThemeIcon("arrow-left") });
-QuickInputButtons = __decorateClass([
-  es5ClassCompat
+QuickInputButtons = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [])
 ], QuickInputButtons);
-var QuickPickItemKind = /* @__PURE__ */ ((QuickPickItemKind2) => {
-  QuickPickItemKind2[QuickPickItemKind2["Separator"] = -1] = "Separator";
-  QuickPickItemKind2[QuickPickItemKind2["Default"] = 0] = "Default";
-  return QuickPickItemKind2;
-})(QuickPickItemKind || {});
-var InputBoxValidationSeverity = /* @__PURE__ */ ((InputBoxValidationSeverity2) => {
-  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Info"] = 1] = "Info";
-  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Warning"] = 2] = "Warning";
-  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Error"] = 3] = "Error";
-  return InputBoxValidationSeverity2;
-})(InputBoxValidationSeverity || {});
-var ExtensionKind = /* @__PURE__ */ ((ExtensionKind2) => {
-  ExtensionKind2[ExtensionKind2["UI"] = 1] = "UI";
-  ExtensionKind2[ExtensionKind2["Workspace"] = 2] = "Workspace";
-  return ExtensionKind2;
-})(ExtensionKind || {});
-class FileDecoration {
-  static {
-    __name(this, "FileDecoration");
-  }
-  static validate(d) {
-    if (typeof d.badge === "string") {
-      let len = nextCharLength(d.badge, 0);
-      if (len < d.badge.length) {
-        len += nextCharLength(d.badge, len);
-      }
-      if (d.badge.length > len) {
-        throw new Error(`The 'badge'-property must be undefined or a short character`);
-      }
-    } else if (d.badge) {
-      if (!ThemeIcon.isThemeIcon(d.badge)) {
-        throw new Error(`The 'badge'-property is not a valid ThemeIcon`);
-      }
-    }
-    if (!d.color && !d.badge && !d.tooltip) {
-      throw new Error(`The decoration is empty`);
-    }
-    return true;
-  }
-  badge;
-  tooltip;
-  color;
-  propagate;
-  constructor(badge, tooltip, color) {
-    this.badge = badge;
-    this.tooltip = tooltip;
-    this.color = color;
-  }
-}
-let ColorTheme = class {
-  constructor(kind) {
-    this.kind = kind;
-  }
-};
-__name(ColorTheme, "ColorTheme");
-ColorTheme = __decorateClass([
-  es5ClassCompat
-], ColorTheme);
-var ColorThemeKind = /* @__PURE__ */ ((ColorThemeKind2) => {
-  ColorThemeKind2[ColorThemeKind2["Light"] = 1] = "Light";
-  ColorThemeKind2[ColorThemeKind2["Dark"] = 2] = "Dark";
-  ColorThemeKind2[ColorThemeKind2["HighContrast"] = 3] = "HighContrast";
-  ColorThemeKind2[ColorThemeKind2["HighContrastLight"] = 4] = "HighContrastLight";
-  return ColorThemeKind2;
-})(ColorThemeKind || {});
-class NotebookRange {
-  static {
-    __name(this, "NotebookRange");
-  }
-  static isNotebookRange(thing) {
-    if (thing instanceof NotebookRange) {
-      return true;
-    }
-    if (!thing) {
-      return false;
-    }
-    return typeof thing.start === "number" && typeof thing.end === "number";
-  }
-  _start;
-  _end;
-  get start() {
-    return this._start;
-  }
-  get end() {
-    return this._end;
-  }
-  get isEmpty() {
-    return this._start === this._end;
-  }
-  constructor(start, end) {
-    if (start < 0) {
-      throw illegalArgument("start must be positive");
-    }
-    if (end < 0) {
-      throw illegalArgument("end must be positive");
-    }
-    if (start <= end) {
-      this._start = start;
-      this._end = end;
-    } else {
-      this._start = end;
-      this._end = start;
-    }
-  }
-  with(change) {
-    let start = this._start;
-    let end = this._end;
-    if (change.start !== void 0) {
-      start = change.start;
-    }
-    if (change.end !== void 0) {
-      end = change.end;
-    }
-    if (start === this._start && end === this._end) {
-      return this;
-    }
-    return new NotebookRange(start, end);
-  }
-}
-class NotebookCellData {
-  static {
-    __name(this, "NotebookCellData");
-  }
-  static validate(data) {
-    if (typeof data.kind !== "number") {
-      throw new Error("NotebookCellData MUST have 'kind' property");
-    }
-    if (typeof data.value !== "string") {
-      throw new Error("NotebookCellData MUST have 'value' property");
-    }
-    if (typeof data.languageId !== "string") {
-      throw new Error("NotebookCellData MUST have 'languageId' property");
-    }
-  }
-  static isNotebookCellDataArray(value) {
-    return Array.isArray(value) && value.every((elem) => NotebookCellData.isNotebookCellData(elem));
-  }
-  static isNotebookCellData(value) {
-    return true;
-  }
-  kind;
-  value;
-  languageId;
-  mime;
-  outputs;
-  metadata;
-  executionSummary;
-  constructor(kind, value, languageId, mime, outputs, metadata, executionSummary) {
-    this.kind = kind;
-    this.value = value;
-    this.languageId = languageId;
-    this.mime = mime;
-    this.outputs = outputs ?? [];
-    this.metadata = metadata;
-    this.executionSummary = executionSummary;
-    NotebookCellData.validate(this);
-  }
-}
-class NotebookData {
-  static {
-    __name(this, "NotebookData");
-  }
-  cells;
-  metadata;
-  constructor(cells) {
-    this.cells = cells;
-  }
-}
-class NotebookCellOutputItem {
-  constructor(data, mime) {
-    this.data = data;
-    this.mime = mime;
-    const mimeNormalized = normalizeMimeType(mime, true);
-    if (!mimeNormalized) {
-      throw new Error(`INVALID mime type: ${mime}. Must be in the format "type/subtype[;optionalparameter]"`);
-    }
-    this.mime = mimeNormalized;
-  }
-  static {
-    __name(this, "NotebookCellOutputItem");
-  }
-  static isNotebookCellOutputItem(obj) {
-    if (obj instanceof NotebookCellOutputItem) {
-      return true;
-    }
-    if (!obj) {
-      return false;
-    }
-    return typeof obj.mime === "string" && obj.data instanceof Uint8Array;
-  }
-  static error(err) {
-    const obj = {
-      name: err.name,
-      message: err.message,
-      stack: err.stack
-    };
-    return NotebookCellOutputItem.json(obj, "application/vnd.code.notebook.error");
-  }
-  static stdout(value) {
-    return NotebookCellOutputItem.text(value, "application/vnd.code.notebook.stdout");
-  }
-  static stderr(value) {
-    return NotebookCellOutputItem.text(value, "application/vnd.code.notebook.stderr");
-  }
-  static bytes(value, mime = "application/octet-stream") {
-    return new NotebookCellOutputItem(value, mime);
-  }
-  static #encoder = new TextEncoder();
-  static text(value, mime = Mimes.text) {
-    const bytes = NotebookCellOutputItem.#encoder.encode(String(value));
-    return new NotebookCellOutputItem(bytes, mime);
-  }
-  static json(value, mime = "text/x-json") {
-    const rawStr = JSON.stringify(value, void 0, "	");
-    return NotebookCellOutputItem.text(rawStr, mime);
-  }
-}
-class NotebookCellOutput {
-  static {
-    __name(this, "NotebookCellOutput");
-  }
-  static isNotebookCellOutput(candidate) {
-    if (candidate instanceof NotebookCellOutput) {
-      return true;
-    }
-    if (!candidate || typeof candidate !== "object") {
-      return false;
-    }
-    return typeof candidate.id === "string" && Array.isArray(candidate.items);
-  }
-  static ensureUniqueMimeTypes(items, warn = false) {
-    const seen = /* @__PURE__ */ new Set();
-    const removeIdx = /* @__PURE__ */ new Set();
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const normalMime = normalizeMimeType(item.mime);
-      if (!seen.has(normalMime) || isTextStreamMime(normalMime)) {
-        seen.add(normalMime);
-        continue;
-      }
-      removeIdx.add(i);
-      if (warn) {
-        console.warn(`DUPLICATED mime type '${item.mime}' will be dropped`);
-      }
-    }
-    if (removeIdx.size === 0) {
-      return items;
-    }
-    return items.filter((_item, index) => !removeIdx.has(index));
-  }
-  id;
-  items;
-  metadata;
-  constructor(items, idOrMetadata, metadata) {
-    this.items = NotebookCellOutput.ensureUniqueMimeTypes(items, true);
-    if (typeof idOrMetadata === "string") {
-      this.id = idOrMetadata;
-      this.metadata = metadata;
-    } else {
-      this.id = generateUuid();
-      this.metadata = idOrMetadata ?? metadata;
-    }
-  }
-}
-var NotebookCellKind = /* @__PURE__ */ ((NotebookCellKind2) => {
-  NotebookCellKind2[NotebookCellKind2["Markup"] = 1] = "Markup";
-  NotebookCellKind2[NotebookCellKind2["Code"] = 2] = "Code";
-  return NotebookCellKind2;
-})(NotebookCellKind || {});
-var NotebookCellExecutionState = /* @__PURE__ */ ((NotebookCellExecutionState2) => {
-  NotebookCellExecutionState2[NotebookCellExecutionState2["Idle"] = 1] = "Idle";
-  NotebookCellExecutionState2[NotebookCellExecutionState2["Pending"] = 2] = "Pending";
-  NotebookCellExecutionState2[NotebookCellExecutionState2["Executing"] = 3] = "Executing";
-  return NotebookCellExecutionState2;
-})(NotebookCellExecutionState || {});
-var NotebookCellStatusBarAlignment = /* @__PURE__ */ ((NotebookCellStatusBarAlignment2) => {
-  NotebookCellStatusBarAlignment2[NotebookCellStatusBarAlignment2["Left"] = 1] = "Left";
-  NotebookCellStatusBarAlignment2[NotebookCellStatusBarAlignment2["Right"] = 2] = "Right";
-  return NotebookCellStatusBarAlignment2;
-})(NotebookCellStatusBarAlignment || {});
-var NotebookEditorRevealType = /* @__PURE__ */ ((NotebookEditorRevealType2) => {
-  NotebookEditorRevealType2[NotebookEditorRevealType2["Default"] = 0] = "Default";
-  NotebookEditorRevealType2[NotebookEditorRevealType2["InCenter"] = 1] = "InCenter";
-  NotebookEditorRevealType2[NotebookEditorRevealType2["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
-  NotebookEditorRevealType2[NotebookEditorRevealType2["AtTop"] = 3] = "AtTop";
-  return NotebookEditorRevealType2;
-})(NotebookEditorRevealType || {});
-class NotebookCellStatusBarItem {
-  constructor(text, alignment) {
-    this.text = text;
-    this.alignment = alignment;
-  }
-  static {
-    __name(this, "NotebookCellStatusBarItem");
-  }
-}
-var NotebookControllerAffinity = /* @__PURE__ */ ((NotebookControllerAffinity3) => {
-  NotebookControllerAffinity3[NotebookControllerAffinity3["Default"] = 1] = "Default";
-  NotebookControllerAffinity3[NotebookControllerAffinity3["Preferred"] = 2] = "Preferred";
-  return NotebookControllerAffinity3;
-})(NotebookControllerAffinity || {});
-var NotebookControllerAffinity2 = /* @__PURE__ */ ((NotebookControllerAffinity22) => {
-  NotebookControllerAffinity22[NotebookControllerAffinity22["Default"] = 1] = "Default";
-  NotebookControllerAffinity22[NotebookControllerAffinity22["Preferred"] = 2] = "Preferred";
-  NotebookControllerAffinity22[NotebookControllerAffinity22["Hidden"] = -1] = "Hidden";
-  return NotebookControllerAffinity22;
-})(NotebookControllerAffinity2 || {});
-class NotebookRendererScript {
-  constructor(uri, provides = []) {
-    this.uri = uri;
-    this.provides = asArray(provides);
-  }
-  static {
-    __name(this, "NotebookRendererScript");
-  }
-  provides;
-}
-class NotebookKernelSourceAction {
-  constructor(label) {
-    this.label = label;
-  }
-  static {
-    __name(this, "NotebookKernelSourceAction");
-  }
-  description;
-  detail;
-  command;
-}
-var NotebookVariablesRequestKind = /* @__PURE__ */ ((NotebookVariablesRequestKind2) => {
-  NotebookVariablesRequestKind2[NotebookVariablesRequestKind2["Named"] = 1] = "Named";
-  NotebookVariablesRequestKind2[NotebookVariablesRequestKind2["Indexed"] = 2] = "Indexed";
-  return NotebookVariablesRequestKind2;
-})(NotebookVariablesRequestKind || {});
-let TimelineItem = class {
-  constructor(label, timestamp) {
-    this.label = label;
-    this.timestamp = timestamp;
-  }
-};
-__name(TimelineItem, "TimelineItem");
-TimelineItem = __decorateClass([
-  es5ClassCompat
-], TimelineItem);
-var ExtensionMode = /* @__PURE__ */ ((ExtensionMode2) => {
-  ExtensionMode2[ExtensionMode2["Production"] = 1] = "Production";
-  ExtensionMode2[ExtensionMode2["Development"] = 2] = "Development";
-  ExtensionMode2[ExtensionMode2["Test"] = 3] = "Test";
-  return ExtensionMode2;
-})(ExtensionMode || {});
-var ExtensionRuntime = /* @__PURE__ */ ((ExtensionRuntime2) => {
-  ExtensionRuntime2[ExtensionRuntime2["Node"] = 1] = "Node";
-  ExtensionRuntime2[ExtensionRuntime2["Webworker"] = 2] = "Webworker";
-  return ExtensionRuntime2;
-})(ExtensionRuntime || {});
-var StandardTokenType = /* @__PURE__ */ ((StandardTokenType2) => {
-  StandardTokenType2[StandardTokenType2["Other"] = 0] = "Other";
-  StandardTokenType2[StandardTokenType2["Comment"] = 1] = "Comment";
-  StandardTokenType2[StandardTokenType2["String"] = 2] = "String";
-  StandardTokenType2[StandardTokenType2["RegEx"] = 3] = "RegEx";
-  return StandardTokenType2;
-})(StandardTokenType || {});
-class LinkedEditingRanges {
-  constructor(ranges, wordPattern) {
-    this.ranges = ranges;
-    this.wordPattern = wordPattern;
-  }
-  static {
-    __name(this, "LinkedEditingRanges");
-  }
-}
-class PortAttributes {
-  static {
-    __name(this, "PortAttributes");
-  }
-  _autoForwardAction;
-  constructor(autoForwardAction) {
-    this._autoForwardAction = autoForwardAction;
-  }
-  get autoForwardAction() {
-    return this._autoForwardAction;
-  }
-}
-var TestResultState = /* @__PURE__ */ ((TestResultState2) => {
-  TestResultState2[TestResultState2["Queued"] = 1] = "Queued";
-  TestResultState2[TestResultState2["Running"] = 2] = "Running";
-  TestResultState2[TestResultState2["Passed"] = 3] = "Passed";
-  TestResultState2[TestResultState2["Failed"] = 4] = "Failed";
-  TestResultState2[TestResultState2["Skipped"] = 5] = "Skipped";
-  TestResultState2[TestResultState2["Errored"] = 6] = "Errored";
-  return TestResultState2;
-})(TestResultState || {});
-var TestRunProfileKind = /* @__PURE__ */ ((TestRunProfileKind2) => {
-  TestRunProfileKind2[TestRunProfileKind2["Run"] = 1] = "Run";
-  TestRunProfileKind2[TestRunProfileKind2["Debug"] = 2] = "Debug";
-  TestRunProfileKind2[TestRunProfileKind2["Coverage"] = 3] = "Coverage";
-  return TestRunProfileKind2;
-})(TestRunProfileKind || {});
-let TestRunRequest = class {
-  constructor(include = void 0, exclude = void 0, profile = void 0, continuous = false, preserveFocus = true) {
-    this.include = include;
-    this.exclude = exclude;
-    this.profile = profile;
-    this.continuous = continuous;
-    this.preserveFocus = preserveFocus;
-  }
-};
-__name(TestRunRequest, "TestRunRequest");
-TestRunRequest = __decorateClass([
-  es5ClassCompat
-], TestRunRequest);
-let TestMessage = class {
-  constructor(message) {
-    this.message = message;
-  }
-  expectedOutput;
-  actualOutput;
-  location;
-  contextValue;
-  /** proposed: */
-  stackTrace;
-  static diff(message, expected, actual) {
-    const msg = new TestMessage(message);
-    msg.expectedOutput = expected;
-    msg.actualOutput = actual;
-    return msg;
-  }
-};
-__name(TestMessage, "TestMessage");
-TestMessage = __decorateClass([
-  es5ClassCompat
-], TestMessage);
-let TestTag = class {
-  constructor(id) {
-    this.id = id;
-  }
-};
-__name(TestTag, "TestTag");
-TestTag = __decorateClass([
-  es5ClassCompat
-], TestTag);
-class TestMessageStackFrame {
-  /**
-   * @param label The name of the stack frame
-   * @param file The file URI of the stack frame
-   * @param position The position of the stack frame within the file
-   */
-  constructor(label, uri, position) {
-    this.label = label;
-    this.uri = uri;
-    this.position = position;
-  }
-  static {
-    __name(this, "TestMessageStackFrame");
-  }
-}
-class TestCoverageCount {
-  constructor(covered, total) {
-    this.covered = covered;
-    this.total = total;
-    validateTestCoverageCount(this);
-  }
-  static {
-    __name(this, "TestCoverageCount");
-  }
-}
-function validateTestCoverageCount(cc) {
-  if (!cc) {
-    return;
-  }
-  if (cc.covered > cc.total) {
-    throw new Error(`The total number of covered items (${cc.covered}) cannot be greater than the total (${cc.total})`);
-  }
-  if (cc.total < 0) {
-    throw new Error(`The number of covered items (${cc.total}) cannot be negative`);
-  }
-}
-__name(validateTestCoverageCount, "validateTestCoverageCount");
-class FileCoverage {
-  constructor(uri, statementCoverage, branchCoverage, declarationCoverage, fromTests = []) {
-    this.uri = uri;
-    this.statementCoverage = statementCoverage;
-    this.branchCoverage = branchCoverage;
-    this.declarationCoverage = declarationCoverage;
-    this.fromTests = fromTests;
-  }
-  static {
-    __name(this, "FileCoverage");
-  }
-  static fromDetails(uri, details) {
-    const statements = new TestCoverageCount(0, 0);
-    const branches = new TestCoverageCount(0, 0);
-    const decl = new TestCoverageCount(0, 0);
-    for (const detail of details) {
-      if ("branches" in detail) {
-        statements.total += 1;
-        statements.covered += detail.executed ? 1 : 0;
-        for (const branch of detail.branches) {
-          branches.total += 1;
-          branches.covered += branch.executed ? 1 : 0;
+export { QuickInputButtons };
+export var QuickPickItemKind;
+(function (QuickPickItemKind) {
+    QuickPickItemKind[QuickPickItemKind["Separator"] = -1] = "Separator";
+    QuickPickItemKind[QuickPickItemKind["Default"] = 0] = "Default";
+})(QuickPickItemKind || (QuickPickItemKind = {}));
+export var InputBoxValidationSeverity;
+(function (InputBoxValidationSeverity) {
+    InputBoxValidationSeverity[InputBoxValidationSeverity["Info"] = 1] = "Info";
+    InputBoxValidationSeverity[InputBoxValidationSeverity["Warning"] = 2] = "Warning";
+    InputBoxValidationSeverity[InputBoxValidationSeverity["Error"] = 3] = "Error";
+})(InputBoxValidationSeverity || (InputBoxValidationSeverity = {}));
+export var ExtensionKind;
+(function (ExtensionKind) {
+    ExtensionKind[ExtensionKind["UI"] = 1] = "UI";
+    ExtensionKind[ExtensionKind["Workspace"] = 2] = "Workspace";
+})(ExtensionKind || (ExtensionKind = {}));
+export class FileDecoration {
+    static validate(d) {
+        if (typeof d.badge === 'string') {
+            let len = nextCharLength(d.badge, 0);
+            if (len < d.badge.length) {
+                len += nextCharLength(d.badge, len);
+            }
+            if (d.badge.length > len) {
+                throw new Error(`The 'badge'-property must be undefined or a short character`);
+            }
         }
-      } else {
-        decl.total += 1;
-        decl.covered += detail.executed ? 1 : 0;
-      }
+        else if (d.badge) {
+            if (!ThemeIcon.isThemeIcon(d.badge)) {
+                throw new Error(`The 'badge'-property is not a valid ThemeIcon`);
+            }
+        }
+        if (!d.color && !d.badge && !d.tooltip) {
+            throw new Error(`The decoration is empty`);
+        }
+        return true;
     }
-    const coverage = new FileCoverage(
-      uri,
-      statements,
-      branches.total > 0 ? branches : void 0,
-      decl.total > 0 ? decl : void 0
-    );
-    coverage.detailedCoverage = details;
-    return coverage;
-  }
-  detailedCoverage;
-}
-class StatementCoverage {
-  constructor(executed, location, branches = []) {
-    this.executed = executed;
-    this.location = location;
-    this.branches = branches;
-  }
-  static {
-    __name(this, "StatementCoverage");
-  }
-  // back compat until finalization:
-  get executionCount() {
-    return +this.executed;
-  }
-  set executionCount(n) {
-    this.executed = n;
-  }
-}
-class BranchCoverage {
-  constructor(executed, location, label) {
-    this.executed = executed;
-    this.location = location;
-    this.label = label;
-  }
-  static {
-    __name(this, "BranchCoverage");
-  }
-  // back compat until finalization:
-  get executionCount() {
-    return +this.executed;
-  }
-  set executionCount(n) {
-    this.executed = n;
-  }
-}
-class DeclarationCoverage {
-  constructor(name, executed, location) {
-    this.name = name;
-    this.executed = executed;
-    this.location = location;
-  }
-  static {
-    __name(this, "DeclarationCoverage");
-  }
-  // back compat until finalization:
-  get executionCount() {
-    return +this.executed;
-  }
-  set executionCount(n) {
-    this.executed = n;
-  }
-}
-var ExternalUriOpenerPriority = /* @__PURE__ */ ((ExternalUriOpenerPriority2) => {
-  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["None"] = 0] = "None";
-  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Option"] = 1] = "Option";
-  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Default"] = 2] = "Default";
-  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Preferred"] = 3] = "Preferred";
-  return ExternalUriOpenerPriority2;
-})(ExternalUriOpenerPriority || {});
-var WorkspaceTrustState = /* @__PURE__ */ ((WorkspaceTrustState2) => {
-  WorkspaceTrustState2[WorkspaceTrustState2["Untrusted"] = 0] = "Untrusted";
-  WorkspaceTrustState2[WorkspaceTrustState2["Trusted"] = 1] = "Trusted";
-  WorkspaceTrustState2[WorkspaceTrustState2["Unspecified"] = 2] = "Unspecified";
-  return WorkspaceTrustState2;
-})(WorkspaceTrustState || {});
-var PortAutoForwardAction = /* @__PURE__ */ ((PortAutoForwardAction2) => {
-  PortAutoForwardAction2[PortAutoForwardAction2["Notify"] = 1] = "Notify";
-  PortAutoForwardAction2[PortAutoForwardAction2["OpenBrowser"] = 2] = "OpenBrowser";
-  PortAutoForwardAction2[PortAutoForwardAction2["OpenPreview"] = 3] = "OpenPreview";
-  PortAutoForwardAction2[PortAutoForwardAction2["Silent"] = 4] = "Silent";
-  PortAutoForwardAction2[PortAutoForwardAction2["Ignore"] = 5] = "Ignore";
-  PortAutoForwardAction2[PortAutoForwardAction2["OpenBrowserOnce"] = 6] = "OpenBrowserOnce";
-  return PortAutoForwardAction2;
-})(PortAutoForwardAction || {});
-class TypeHierarchyItem {
-  static {
-    __name(this, "TypeHierarchyItem");
-  }
-  _sessionId;
-  _itemId;
-  kind;
-  tags;
-  name;
-  detail;
-  uri;
-  range;
-  selectionRange;
-  constructor(kind, name, detail, uri, range, selectionRange) {
-    this.kind = kind;
-    this.name = name;
-    this.detail = detail;
-    this.uri = uri;
-    this.range = range;
-    this.selectionRange = selectionRange;
-  }
-}
-class TextTabInput {
-  constructor(uri) {
-    this.uri = uri;
-  }
-  static {
-    __name(this, "TextTabInput");
-  }
-}
-class TextDiffTabInput {
-  constructor(original, modified) {
-    this.original = original;
-    this.modified = modified;
-  }
-  static {
-    __name(this, "TextDiffTabInput");
-  }
-}
-class TextMergeTabInput {
-  constructor(base, input1, input2, result) {
-    this.base = base;
-    this.input1 = input1;
-    this.input2 = input2;
-    this.result = result;
-  }
-  static {
-    __name(this, "TextMergeTabInput");
-  }
-}
-class CustomEditorTabInput {
-  constructor(uri, viewType) {
-    this.uri = uri;
-    this.viewType = viewType;
-  }
-  static {
-    __name(this, "CustomEditorTabInput");
-  }
-}
-class WebviewEditorTabInput {
-  constructor(viewType) {
-    this.viewType = viewType;
-  }
-  static {
-    __name(this, "WebviewEditorTabInput");
-  }
-}
-class NotebookEditorTabInput {
-  constructor(uri, notebookType) {
-    this.uri = uri;
-    this.notebookType = notebookType;
-  }
-  static {
-    __name(this, "NotebookEditorTabInput");
-  }
-}
-class NotebookDiffEditorTabInput {
-  constructor(original, modified, notebookType) {
-    this.original = original;
-    this.modified = modified;
-    this.notebookType = notebookType;
-  }
-  static {
-    __name(this, "NotebookDiffEditorTabInput");
-  }
-}
-class TerminalEditorTabInput {
-  static {
-    __name(this, "TerminalEditorTabInput");
-  }
-  constructor() {
-  }
-}
-class InteractiveWindowInput {
-  constructor(uri, inputBoxUri) {
-    this.uri = uri;
-    this.inputBoxUri = inputBoxUri;
-  }
-  static {
-    __name(this, "InteractiveWindowInput");
-  }
-}
-class ChatEditorTabInput {
-  static {
-    __name(this, "ChatEditorTabInput");
-  }
-  constructor() {
-  }
-}
-class TextMultiDiffTabInput {
-  constructor(textDiffs) {
-    this.textDiffs = textDiffs;
-  }
-  static {
-    __name(this, "TextMultiDiffTabInput");
-  }
-}
-var InteractiveSessionVoteDirection = /* @__PURE__ */ ((InteractiveSessionVoteDirection2) => {
-  InteractiveSessionVoteDirection2[InteractiveSessionVoteDirection2["Down"] = 0] = "Down";
-  InteractiveSessionVoteDirection2[InteractiveSessionVoteDirection2["Up"] = 1] = "Up";
-  return InteractiveSessionVoteDirection2;
-})(InteractiveSessionVoteDirection || {});
-var ChatCopyKind = /* @__PURE__ */ ((ChatCopyKind2) => {
-  ChatCopyKind2[ChatCopyKind2["Action"] = 1] = "Action";
-  ChatCopyKind2[ChatCopyKind2["Toolbar"] = 2] = "Toolbar";
-  return ChatCopyKind2;
-})(ChatCopyKind || {});
-var ChatVariableLevel = /* @__PURE__ */ ((ChatVariableLevel2) => {
-  ChatVariableLevel2[ChatVariableLevel2["Short"] = 1] = "Short";
-  ChatVariableLevel2[ChatVariableLevel2["Medium"] = 2] = "Medium";
-  ChatVariableLevel2[ChatVariableLevel2["Full"] = 3] = "Full";
-  return ChatVariableLevel2;
-})(ChatVariableLevel || {});
-class ChatCompletionItem {
-  static {
-    __name(this, "ChatCompletionItem");
-  }
-  id;
-  label;
-  fullName;
-  icon;
-  insertText;
-  values;
-  detail;
-  documentation;
-  command;
-  constructor(id, label, values) {
-    this.id = id;
-    this.label = label;
-    this.values = values;
-  }
-}
-var ChatEditingSessionActionOutcome = /* @__PURE__ */ ((ChatEditingSessionActionOutcome2) => {
-  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Accepted"] = 1] = "Accepted";
-  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Rejected"] = 2] = "Rejected";
-  return ChatEditingSessionActionOutcome2;
-})(ChatEditingSessionActionOutcome || {});
-var InteractiveEditorResponseFeedbackKind = /* @__PURE__ */ ((InteractiveEditorResponseFeedbackKind2) => {
-  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Unhelpful"] = 0] = "Unhelpful";
-  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Helpful"] = 1] = "Helpful";
-  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Undone"] = 2] = "Undone";
-  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Accepted"] = 3] = "Accepted";
-  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Bug"] = 4] = "Bug";
-  return InteractiveEditorResponseFeedbackKind2;
-})(InteractiveEditorResponseFeedbackKind || {});
-var ChatResultFeedbackKind = /* @__PURE__ */ ((ChatResultFeedbackKind2) => {
-  ChatResultFeedbackKind2[ChatResultFeedbackKind2["Unhelpful"] = 0] = "Unhelpful";
-  ChatResultFeedbackKind2[ChatResultFeedbackKind2["Helpful"] = 1] = "Helpful";
-  return ChatResultFeedbackKind2;
-})(ChatResultFeedbackKind || {});
-class ChatResponseMarkdownPart {
-  static {
-    __name(this, "ChatResponseMarkdownPart");
-  }
-  value;
-  constructor(value) {
-    if (typeof value !== "string" && value.isTrusted === true) {
-      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
+    constructor(badge, tooltip, color) {
+        this.badge = badge;
+        this.tooltip = tooltip;
+        this.color = color;
     }
-    this.value = typeof value === "string" ? new MarkdownString(value) : value;
-  }
 }
-class ChatResponseMarkdownWithVulnerabilitiesPart {
-  static {
-    __name(this, "ChatResponseMarkdownWithVulnerabilitiesPart");
-  }
-  value;
-  vulnerabilities;
-  constructor(value, vulnerabilities) {
-    if (typeof value !== "string" && value.isTrusted === true) {
-      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
+//#region Theming
+let ColorTheme = class ColorTheme {
+    constructor(kind) {
+        this.kind = kind;
     }
-    this.value = typeof value === "string" ? new MarkdownString(value) : value;
-    this.vulnerabilities = vulnerabilities;
-  }
-}
-class ChatResponseDetectedParticipantPart {
-  static {
-    __name(this, "ChatResponseDetectedParticipantPart");
-  }
-  participant;
-  // TODO@API validate this against statically-declared slash commands?
-  command;
-  constructor(participant, command) {
-    this.participant = participant;
-    this.command = command;
-  }
-}
-class ChatResponseConfirmationPart {
-  static {
-    __name(this, "ChatResponseConfirmationPart");
-  }
-  title;
-  message;
-  data;
-  buttons;
-  constructor(title, message, data, buttons) {
-    this.title = title;
-    this.message = message;
-    this.data = data;
-    this.buttons = buttons;
-  }
-}
-class ChatResponseFileTreePart {
-  static {
-    __name(this, "ChatResponseFileTreePart");
-  }
-  value;
-  baseUri;
-  constructor(value, baseUri) {
-    this.value = value;
-    this.baseUri = baseUri;
-  }
-}
-class ChatResponseAnchorPart {
-  static {
-    __name(this, "ChatResponseAnchorPart");
-  }
-  value;
-  title;
-  value2;
-  constructor(value, title) {
-    this.value = value;
-    this.value2 = value;
-    this.title = title;
-  }
-}
-class ChatResponseProgressPart {
-  static {
-    __name(this, "ChatResponseProgressPart");
-  }
-  value;
-  constructor(value) {
-    this.value = value;
-  }
-}
-class ChatResponseProgressPart2 {
-  static {
-    __name(this, "ChatResponseProgressPart2");
-  }
-  value;
-  task;
-  constructor(value, task) {
-    this.value = value;
-    this.task = task;
-  }
-}
-class ChatResponseWarningPart {
-  static {
-    __name(this, "ChatResponseWarningPart");
-  }
-  value;
-  constructor(value) {
-    if (typeof value !== "string" && value.isTrusted === true) {
-      throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");
-    }
-    this.value = typeof value === "string" ? new MarkdownString(value) : value;
-  }
-}
-class ChatResponseCommandButtonPart {
-  static {
-    __name(this, "ChatResponseCommandButtonPart");
-  }
-  value;
-  constructor(value) {
-    this.value = value;
-  }
-}
-class ChatResponseReferencePart {
-  static {
-    __name(this, "ChatResponseReferencePart");
-  }
-  value;
-  iconPath;
-  options;
-  constructor(value, iconPath, options) {
-    this.value = value;
-    this.iconPath = iconPath;
-    this.options = options;
-  }
-}
-class ChatResponseCodeblockUriPart {
-  static {
-    __name(this, "ChatResponseCodeblockUriPart");
-  }
-  value;
-  constructor(value) {
-    this.value = value;
-  }
-}
-class ChatResponseCodeCitationPart {
-  static {
-    __name(this, "ChatResponseCodeCitationPart");
-  }
-  value;
-  license;
-  snippet;
-  constructor(value, license, snippet) {
-    this.value = value;
-    this.license = license;
-    this.snippet = snippet;
-  }
-}
-class ChatResponseMovePart {
-  constructor(uri, range) {
-    this.uri = uri;
-    this.range = range;
-  }
-  static {
-    __name(this, "ChatResponseMovePart");
-  }
-}
-class ChatResponseTextEditPart {
-  static {
-    __name(this, "ChatResponseTextEditPart");
-  }
-  uri;
-  edits;
-  constructor(uri, edits) {
-    this.uri = uri;
-    this.edits = Array.isArray(edits) ? edits : [edits];
-  }
-}
-class ChatRequestTurn {
-  constructor(prompt, command, references, participant) {
-    this.prompt = prompt;
-    this.command = command;
-    this.references = references;
-    this.participant = participant;
-  }
-  static {
-    __name(this, "ChatRequestTurn");
-  }
-  toolReferences;
-}
-class ChatResponseTurn {
-  constructor(response, result, participant, command) {
-    this.response = response;
-    this.result = result;
-    this.participant = participant;
-    this.command = command;
-  }
-  static {
-    __name(this, "ChatResponseTurn");
-  }
-}
-var ChatLocation = /* @__PURE__ */ ((ChatLocation2) => {
-  ChatLocation2[ChatLocation2["Panel"] = 1] = "Panel";
-  ChatLocation2[ChatLocation2["Terminal"] = 2] = "Terminal";
-  ChatLocation2[ChatLocation2["Notebook"] = 3] = "Notebook";
-  ChatLocation2[ChatLocation2["Editor"] = 4] = "Editor";
-  ChatLocation2[ChatLocation2["EditingSession"] = 5] = "EditingSession";
-  return ChatLocation2;
-})(ChatLocation || {});
-var ChatResponseReferencePartStatusKind = /* @__PURE__ */ ((ChatResponseReferencePartStatusKind2) => {
-  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Complete"] = 1] = "Complete";
-  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Partial"] = 2] = "Partial";
-  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Omitted"] = 3] = "Omitted";
-  return ChatResponseReferencePartStatusKind2;
-})(ChatResponseReferencePartStatusKind || {});
-class ChatRequestEditorData {
-  constructor(document, selection, wholeRange) {
-    this.document = document;
-    this.selection = selection;
-    this.wholeRange = wholeRange;
-  }
-  static {
-    __name(this, "ChatRequestEditorData");
-  }
-}
-class ChatRequestNotebookData {
-  constructor(cell) {
-    this.cell = cell;
-  }
-  static {
-    __name(this, "ChatRequestNotebookData");
-  }
-}
-class ChatReferenceBinaryData {
-  static {
-    __name(this, "ChatReferenceBinaryData");
-  }
-  mimeType;
-  data;
-  constructor(mimeType, data) {
-    this.mimeType = mimeType;
-    this.data = data;
-  }
-}
-var LanguageModelChatMessageRole = /* @__PURE__ */ ((LanguageModelChatMessageRole2) => {
-  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["User"] = 1] = "User";
-  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["Assistant"] = 2] = "Assistant";
-  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["System"] = 3] = "System";
-  return LanguageModelChatMessageRole2;
-})(LanguageModelChatMessageRole || {});
-class LanguageModelToolResultPart {
-  static {
-    __name(this, "LanguageModelToolResultPart");
-  }
-  toolCallId;
-  content;
-  isError;
-  constructor(toolCallId, content, isError) {
-    this.toolCallId = toolCallId;
-    this.content = content;
-    this.isError = isError ?? false;
-  }
-}
-class LanguageModelChatMessage {
-  static {
-    __name(this, "LanguageModelChatMessage");
-  }
-  static User(content, name) {
-    const value = new LanguageModelChatMessage(1 /* User */, typeof content === "string" ? content : "", name);
-    value.content2 = [content];
-    return value;
-  }
-  static Assistant(content, name) {
-    return new LanguageModelChatMessage(2 /* Assistant */, content, name);
-  }
-  role;
-  content;
-  content2;
-  name;
-  constructor(role, content, name) {
-    this.role = role;
-    this.content = content;
-    this.content2 = [content];
-    this.name = name;
-  }
-}
-class LanguageModelToolCallPart {
-  static {
-    __name(this, "LanguageModelToolCallPart");
-  }
-  name;
-  toolCallId;
-  parameters;
-  constructor(name, toolCallId, parameters) {
-    this.name = name;
-    this.toolCallId = toolCallId;
-    this.parameters = parameters;
-  }
-}
-class LanguageModelTextPart {
-  static {
-    __name(this, "LanguageModelTextPart");
-  }
-  value;
-  constructor(value) {
-    this.value = value;
-  }
-}
-class LanguageModelChatSystemMessage {
-  static {
-    __name(this, "LanguageModelChatSystemMessage");
-  }
-  content;
-  constructor(content) {
-    this.content = content;
-  }
-}
-class LanguageModelChatUserMessage {
-  static {
-    __name(this, "LanguageModelChatUserMessage");
-  }
-  content;
-  name;
-  constructor(content, name) {
-    this.content = content;
-    this.name = name;
-  }
-}
-class LanguageModelChatAssistantMessage {
-  static {
-    __name(this, "LanguageModelChatAssistantMessage");
-  }
-  content;
-  name;
-  constructor(content, name) {
-    this.content = content;
-    this.name = name;
-  }
-}
-class LanguageModelError extends Error {
-  static {
-    __name(this, "LanguageModelError");
-  }
-  static NotFound(message) {
-    return new LanguageModelError(message, LanguageModelError.NotFound.name);
-  }
-  static NoPermissions(message) {
-    return new LanguageModelError(message, LanguageModelError.NoPermissions.name);
-  }
-  static Blocked(message) {
-    return new LanguageModelError(message, LanguageModelError.Blocked.name);
-  }
-  code;
-  constructor(message, code, cause) {
-    super(message, { cause });
-    this.name = "LanguageModelError";
-    this.code = code ?? "";
-  }
-}
-var RelatedInformationType = /* @__PURE__ */ ((RelatedInformationType2) => {
-  RelatedInformationType2[RelatedInformationType2["SymbolInformation"] = 1] = "SymbolInformation";
-  RelatedInformationType2[RelatedInformationType2["CommandInformation"] = 2] = "CommandInformation";
-  RelatedInformationType2[RelatedInformationType2["SearchInformation"] = 3] = "SearchInformation";
-  RelatedInformationType2[RelatedInformationType2["SettingInformation"] = 4] = "SettingInformation";
-  return RelatedInformationType2;
-})(RelatedInformationType || {});
-var SpeechToTextStatus = /* @__PURE__ */ ((SpeechToTextStatus2) => {
-  SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
-  SpeechToTextStatus2[SpeechToTextStatus2["Recognizing"] = 2] = "Recognizing";
-  SpeechToTextStatus2[SpeechToTextStatus2["Recognized"] = 3] = "Recognized";
-  SpeechToTextStatus2[SpeechToTextStatus2["Stopped"] = 4] = "Stopped";
-  SpeechToTextStatus2[SpeechToTextStatus2["Error"] = 5] = "Error";
-  return SpeechToTextStatus2;
-})(SpeechToTextStatus || {});
-var TextToSpeechStatus = /* @__PURE__ */ ((TextToSpeechStatus2) => {
-  TextToSpeechStatus2[TextToSpeechStatus2["Started"] = 1] = "Started";
-  TextToSpeechStatus2[TextToSpeechStatus2["Stopped"] = 2] = "Stopped";
-  TextToSpeechStatus2[TextToSpeechStatus2["Error"] = 3] = "Error";
-  return TextToSpeechStatus2;
-})(TextToSpeechStatus || {});
-var KeywordRecognitionStatus = /* @__PURE__ */ ((KeywordRecognitionStatus2) => {
-  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Recognized"] = 1] = "Recognized";
-  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Stopped"] = 2] = "Stopped";
-  return KeywordRecognitionStatus2;
-})(KeywordRecognitionStatus || {});
-class InlineEdit {
-  constructor(text, range) {
-    this.text = text;
-    this.range = range;
-  }
-  static {
-    __name(this, "InlineEdit");
-  }
-}
-var InlineEditTriggerKind = /* @__PURE__ */ ((InlineEditTriggerKind2) => {
-  InlineEditTriggerKind2[InlineEditTriggerKind2["Invoke"] = 0] = "Invoke";
-  InlineEditTriggerKind2[InlineEditTriggerKind2["Automatic"] = 1] = "Automatic";
-  return InlineEditTriggerKind2;
-})(InlineEditTriggerKind || {});
-export {
-  BranchCoverage,
-  Breakpoint,
-  CallHierarchyIncomingCall,
-  CallHierarchyItem,
-  CallHierarchyOutgoingCall,
-  ChatCompletionItem,
-  ChatCopyKind,
-  ChatEditingSessionActionOutcome,
-  ChatEditorTabInput,
-  ChatLocation,
-  ChatReferenceBinaryData,
-  ChatRequestEditorData,
-  ChatRequestNotebookData,
-  ChatRequestTurn,
-  ChatResponseAnchorPart,
-  ChatResponseCodeCitationPart,
-  ChatResponseCodeblockUriPart,
-  ChatResponseCommandButtonPart,
-  ChatResponseConfirmationPart,
-  ChatResponseDetectedParticipantPart,
-  ChatResponseFileTreePart,
-  ChatResponseMarkdownPart,
-  ChatResponseMarkdownWithVulnerabilitiesPart,
-  ChatResponseMovePart,
-  ChatResponseProgressPart,
-  ChatResponseProgressPart2,
-  ChatResponseReferencePart,
-  ChatResponseReferencePartStatusKind,
-  ChatResponseTextEditPart,
-  ChatResponseTurn,
-  ChatResponseWarningPart,
-  ChatResultFeedbackKind,
-  ChatVariableLevel,
-  CodeAction,
-  CodeActionKind,
-  CodeActionTriggerKind,
-  CodeLens,
-  Color,
-  ColorFormat,
-  ColorInformation,
-  ColorPresentation,
-  ColorTheme,
-  ColorThemeKind,
-  CommentMode,
-  CommentState,
-  CommentThreadApplicability,
-  CommentThreadCollapsibleState,
-  CommentThreadFocus,
-  CommentThreadState,
-  CompletionItem,
-  CompletionItemKind,
-  CompletionItemTag,
-  CompletionList,
-  CompletionTriggerKind,
-  ConfigurationTarget,
-  CustomEditorTabInput,
-  CustomExecution,
-  DataBreakpoint,
-  DataTransfer,
-  DataTransferFile,
-  DataTransferItem,
-  DebugAdapterExecutable,
-  DebugAdapterInlineImplementation,
-  DebugAdapterNamedPipeServer,
-  DebugAdapterServer,
-  DebugConsoleMode,
-  DebugStackFrame,
-  DebugThread,
-  DebugVisualization,
-  DeclarationCoverage,
-  DecorationRangeBehavior,
-  Diagnostic,
-  DiagnosticRelatedInformation,
-  DiagnosticSeverity,
-  DiagnosticTag,
-  Disposable,
-  DocumentDropEdit,
-  DocumentDropOrPasteEditKind,
-  DocumentHighlight,
-  DocumentHighlightKind,
-  DocumentLink,
-  DocumentPasteEdit,
-  DocumentPasteTriggerKind,
-  DocumentSymbol,
-  EndOfLine,
-  EnvironmentVariableMutatorType,
-  EvaluatableExpression,
-  ExtensionKind,
-  ExtensionMode,
-  ExtensionRuntime,
-  ExternalUriOpenerPriority,
-  FileChangeType,
-  FileCoverage,
-  FileDecoration,
-  FileEditType,
-  FileSystemError,
-  FoldingRange,
-  FoldingRangeKind,
-  FunctionBreakpoint,
-  Hover,
-  HoverVerbosityAction,
-  InlayHint,
-  InlayHintKind,
-  InlayHintLabelPart,
-  InlineCompletionTriggerKind,
-  InlineEdit,
-  InlineEditTriggerKind,
-  InlineSuggestion,
-  InlineSuggestionList,
-  InlineValueContext,
-  InlineValueEvaluatableExpression,
-  InlineValueText,
-  InlineValueVariableLookup,
-  InputBoxValidationSeverity,
-  InteractiveEditorResponseFeedbackKind,
-  InteractiveSessionVoteDirection,
-  InteractiveWindowInput,
-  InternalDataTransferItem,
-  InternalFileDataTransferItem,
-  KeywordRecognitionStatus,
-  LanguageModelChatAssistantMessage,
-  LanguageModelChatMessage,
-  LanguageModelChatMessageRole,
-  LanguageModelChatSystemMessage,
-  LanguageModelChatUserMessage,
-  LanguageModelError,
-  LanguageModelTextPart,
-  LanguageModelToolCallPart,
-  LanguageModelToolResultPart,
-  LanguageStatusSeverity,
-  LinkedEditingRanges,
-  Location,
-  ManagedResolvedAuthority,
-  MarkdownString,
-  MultiDocumentHighlight,
-  NewSymbolName,
-  NewSymbolNameTag,
-  NewSymbolNameTriggerKind,
-  NotebookCellData,
-  NotebookCellExecutionState,
-  NotebookCellKind,
-  NotebookCellOutput,
-  NotebookCellOutputItem,
-  NotebookCellStatusBarAlignment,
-  NotebookCellStatusBarItem,
-  NotebookControllerAffinity,
-  NotebookControllerAffinity2,
-  NotebookData,
-  NotebookDiffEditorTabInput,
-  NotebookEdit,
-  NotebookEditorRevealType,
-  NotebookEditorTabInput,
-  NotebookKernelSourceAction,
-  NotebookRange,
-  NotebookRendererScript,
-  NotebookVariablesRequestKind,
-  ParameterInformation,
-  PartialAcceptTriggerKind,
-  PortAttributes,
-  PortAutoForwardAction,
-  Position,
-  ProcessExecution,
-  ProgressLocation,
-  QuickInputButtonLocation,
-  QuickInputButtons,
-  QuickPickItemKind,
-  Range,
-  RelatedInformationType,
-  RelativePattern,
-  RemoteAuthorityResolverError,
-  ResolvedAuthority,
-  Selection,
-  SelectionRange,
-  SemanticTokens,
-  SemanticTokensBuilder,
-  SemanticTokensEdit,
-  SemanticTokensEdits,
-  SemanticTokensLegend,
-  ShellExecution,
-  ShellQuoting,
-  SignatureHelp,
-  SignatureHelpTriggerKind,
-  SignatureInformation,
-  SnippetString,
-  SnippetTextEdit,
-  SourceBreakpoint,
-  SourceControlInputBoxValidationType,
-  SpeechToTextStatus,
-  StandardTokenType,
-  StatementCoverage,
-  StatusBarAlignment,
-  SymbolInformation,
-  SymbolKind,
-  SymbolTag,
-  SyntaxTokenType,
-  Task,
-  TaskGroup,
-  TaskPanelKind,
-  TaskRevealKind,
-  TaskScope,
-  TerminalEditorTabInput,
-  TerminalExitReason,
-  TerminalLink,
-  TerminalLocation,
-  TerminalOutputAnchor,
-  TerminalProfile,
-  TerminalQuickFixCommand,
-  TerminalQuickFixOpener,
-  TerminalQuickFixType,
-  TerminalShellExecutionCommandLineConfidence,
-  TestCoverageCount,
-  TestMessage,
-  TestMessageStackFrame,
-  TestResultState,
-  TestRunProfileKind,
-  TestRunRequest,
-  TestTag,
-  TextDiffTabInput,
-  TextDocumentChangeReason,
-  TextDocumentSaveReason,
-  TextEdit,
-  TextEditorLineNumbersStyle,
-  TextEditorRevealType,
-  TextEditorSelectionChangeKind,
-  TextMergeTabInput,
-  TextMultiDiffTabInput,
-  TextTabInput,
-  TextToSpeechStatus,
-  ThemeColor,
-  ThemeIcon,
-  TimelineItem,
-  TreeItem,
-  TreeItemCheckboxState,
-  TreeItemCollapsibleState,
-  TypeHierarchyItem,
-  VerboseHover,
-  ViewBadge,
-  ViewColumn,
-  WebviewEditorTabInput,
-  WorkspaceEdit,
-  WorkspaceTrustState,
-  asStatusBarItemIdentifier,
-  getDebugDescriptionOfRange,
-  getDebugDescriptionOfSelection,
-  setBreakpointId,
-  validateTestCoverageCount
 };
-//# sourceMappingURL=extHostTypes.js.map
+ColorTheme = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Number])
+], ColorTheme);
+export { ColorTheme };
+export var ColorThemeKind;
+(function (ColorThemeKind) {
+    ColorThemeKind[ColorThemeKind["Light"] = 1] = "Light";
+    ColorThemeKind[ColorThemeKind["Dark"] = 2] = "Dark";
+    ColorThemeKind[ColorThemeKind["HighContrast"] = 3] = "HighContrast";
+    ColorThemeKind[ColorThemeKind["HighContrastLight"] = 4] = "HighContrastLight";
+})(ColorThemeKind || (ColorThemeKind = {}));
+//#endregion Theming
+//#region Notebook
+export class NotebookRange {
+    static isNotebookRange(thing) {
+        if (thing instanceof NotebookRange) {
+            return true;
+        }
+        if (!thing) {
+            return false;
+        }
+        return typeof thing.start === 'number'
+            && typeof thing.end === 'number';
+    }
+    get start() {
+        return this._start;
+    }
+    get end() {
+        return this._end;
+    }
+    get isEmpty() {
+        return this._start === this._end;
+    }
+    constructor(start, end) {
+        if (start < 0) {
+            throw illegalArgument('start must be positive');
+        }
+        if (end < 0) {
+            throw illegalArgument('end must be positive');
+        }
+        if (start <= end) {
+            this._start = start;
+            this._end = end;
+        }
+        else {
+            this._start = end;
+            this._end = start;
+        }
+    }
+    with(change) {
+        let start = this._start;
+        let end = this._end;
+        if (change.start !== undefined) {
+            start = change.start;
+        }
+        if (change.end !== undefined) {
+            end = change.end;
+        }
+        if (start === this._start && end === this._end) {
+            return this;
+        }
+        return new NotebookRange(start, end);
+    }
+}
+export class NotebookCellData {
+    static validate(data) {
+        if (typeof data.kind !== 'number') {
+            throw new Error('NotebookCellData MUST have \'kind\' property');
+        }
+        if (typeof data.value !== 'string') {
+            throw new Error('NotebookCellData MUST have \'value\' property');
+        }
+        if (typeof data.languageId !== 'string') {
+            throw new Error('NotebookCellData MUST have \'languageId\' property');
+        }
+    }
+    static isNotebookCellDataArray(value) {
+        return Array.isArray(value) && value.every(elem => NotebookCellData.isNotebookCellData(elem));
+    }
+    static isNotebookCellData(value) {
+        // return value instanceof NotebookCellData;
+        return true;
+    }
+    constructor(kind, value, languageId, mime, outputs, metadata, executionSummary) {
+        this.kind = kind;
+        this.value = value;
+        this.languageId = languageId;
+        this.mime = mime;
+        this.outputs = outputs ?? [];
+        this.metadata = metadata;
+        this.executionSummary = executionSummary;
+        NotebookCellData.validate(this);
+    }
+}
+export class NotebookData {
+    constructor(cells) {
+        this.cells = cells;
+    }
+}
+export class NotebookCellOutputItem {
+    static isNotebookCellOutputItem(obj) {
+        if (obj instanceof NotebookCellOutputItem) {
+            return true;
+        }
+        if (!obj) {
+            return false;
+        }
+        return typeof obj.mime === 'string'
+            && obj.data instanceof Uint8Array;
+    }
+    static error(err) {
+        const obj = {
+            name: err.name,
+            message: err.message,
+            stack: err.stack
+        };
+        return NotebookCellOutputItem.json(obj, 'application/vnd.code.notebook.error');
+    }
+    static stdout(value) {
+        return NotebookCellOutputItem.text(value, 'application/vnd.code.notebook.stdout');
+    }
+    static stderr(value) {
+        return NotebookCellOutputItem.text(value, 'application/vnd.code.notebook.stderr');
+    }
+    static bytes(value, mime = 'application/octet-stream') {
+        return new NotebookCellOutputItem(value, mime);
+    }
+    static #encoder = new TextEncoder();
+    static text(value, mime = Mimes.text) {
+        const bytes = NotebookCellOutputItem.#encoder.encode(String(value));
+        return new NotebookCellOutputItem(bytes, mime);
+    }
+    static json(value, mime = 'text/x-json') {
+        const rawStr = JSON.stringify(value, undefined, '\t');
+        return NotebookCellOutputItem.text(rawStr, mime);
+    }
+    constructor(data, mime) {
+        this.data = data;
+        this.mime = mime;
+        const mimeNormalized = normalizeMimeType(mime, true);
+        if (!mimeNormalized) {
+            throw new Error(`INVALID mime type: ${mime}. Must be in the format "type/subtype[;optionalparameter]"`);
+        }
+        this.mime = mimeNormalized;
+    }
+}
+export class NotebookCellOutput {
+    static isNotebookCellOutput(candidate) {
+        if (candidate instanceof NotebookCellOutput) {
+            return true;
+        }
+        if (!candidate || typeof candidate !== 'object') {
+            return false;
+        }
+        return typeof candidate.id === 'string' && Array.isArray(candidate.items);
+    }
+    static ensureUniqueMimeTypes(items, warn = false) {
+        const seen = new Set();
+        const removeIdx = new Set();
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const normalMime = normalizeMimeType(item.mime);
+            // We can have multiple text stream mime types in the same output.
+            if (!seen.has(normalMime) || isTextStreamMime(normalMime)) {
+                seen.add(normalMime);
+                continue;
+            }
+            // duplicated mime types... first has won
+            removeIdx.add(i);
+            if (warn) {
+                console.warn(`DUPLICATED mime type '${item.mime}' will be dropped`);
+            }
+        }
+        if (removeIdx.size === 0) {
+            return items;
+        }
+        return items.filter((_item, index) => !removeIdx.has(index));
+    }
+    constructor(items, idOrMetadata, metadata) {
+        this.items = NotebookCellOutput.ensureUniqueMimeTypes(items, true);
+        if (typeof idOrMetadata === 'string') {
+            this.id = idOrMetadata;
+            this.metadata = metadata;
+        }
+        else {
+            this.id = generateUuid();
+            this.metadata = idOrMetadata ?? metadata;
+        }
+    }
+}
+export var NotebookCellKind;
+(function (NotebookCellKind) {
+    NotebookCellKind[NotebookCellKind["Markup"] = 1] = "Markup";
+    NotebookCellKind[NotebookCellKind["Code"] = 2] = "Code";
+})(NotebookCellKind || (NotebookCellKind = {}));
+export var NotebookCellExecutionState;
+(function (NotebookCellExecutionState) {
+    NotebookCellExecutionState[NotebookCellExecutionState["Idle"] = 1] = "Idle";
+    NotebookCellExecutionState[NotebookCellExecutionState["Pending"] = 2] = "Pending";
+    NotebookCellExecutionState[NotebookCellExecutionState["Executing"] = 3] = "Executing";
+})(NotebookCellExecutionState || (NotebookCellExecutionState = {}));
+export var NotebookCellStatusBarAlignment;
+(function (NotebookCellStatusBarAlignment) {
+    NotebookCellStatusBarAlignment[NotebookCellStatusBarAlignment["Left"] = 1] = "Left";
+    NotebookCellStatusBarAlignment[NotebookCellStatusBarAlignment["Right"] = 2] = "Right";
+})(NotebookCellStatusBarAlignment || (NotebookCellStatusBarAlignment = {}));
+export var NotebookEditorRevealType;
+(function (NotebookEditorRevealType) {
+    NotebookEditorRevealType[NotebookEditorRevealType["Default"] = 0] = "Default";
+    NotebookEditorRevealType[NotebookEditorRevealType["InCenter"] = 1] = "InCenter";
+    NotebookEditorRevealType[NotebookEditorRevealType["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
+    NotebookEditorRevealType[NotebookEditorRevealType["AtTop"] = 3] = "AtTop";
+})(NotebookEditorRevealType || (NotebookEditorRevealType = {}));
+export class NotebookCellStatusBarItem {
+    constructor(text, alignment) {
+        this.text = text;
+        this.alignment = alignment;
+    }
+}
+export var NotebookControllerAffinity;
+(function (NotebookControllerAffinity) {
+    NotebookControllerAffinity[NotebookControllerAffinity["Default"] = 1] = "Default";
+    NotebookControllerAffinity[NotebookControllerAffinity["Preferred"] = 2] = "Preferred";
+})(NotebookControllerAffinity || (NotebookControllerAffinity = {}));
+export var NotebookControllerAffinity2;
+(function (NotebookControllerAffinity2) {
+    NotebookControllerAffinity2[NotebookControllerAffinity2["Default"] = 1] = "Default";
+    NotebookControllerAffinity2[NotebookControllerAffinity2["Preferred"] = 2] = "Preferred";
+    NotebookControllerAffinity2[NotebookControllerAffinity2["Hidden"] = -1] = "Hidden";
+})(NotebookControllerAffinity2 || (NotebookControllerAffinity2 = {}));
+export class NotebookRendererScript {
+    constructor(uri, provides = []) {
+        this.uri = uri;
+        this.provides = asArray(provides);
+    }
+}
+export class NotebookKernelSourceAction {
+    constructor(label) {
+        this.label = label;
+    }
+}
+export var NotebookVariablesRequestKind;
+(function (NotebookVariablesRequestKind) {
+    NotebookVariablesRequestKind[NotebookVariablesRequestKind["Named"] = 1] = "Named";
+    NotebookVariablesRequestKind[NotebookVariablesRequestKind["Indexed"] = 2] = "Indexed";
+})(NotebookVariablesRequestKind || (NotebookVariablesRequestKind = {}));
+//#endregion
+//#region Timeline
+let TimelineItem = class TimelineItem {
+    constructor(label, timestamp) {
+        this.label = label;
+        this.timestamp = timestamp;
+    }
+};
+TimelineItem = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String, Number])
+], TimelineItem);
+export { TimelineItem };
+//#endregion Timeline
+//#region ExtensionContext
+export var ExtensionMode;
+(function (ExtensionMode) {
+    /**
+     * The extension is installed normally (for example, from the marketplace
+     * or VSIX) in VS Code.
+     */
+    ExtensionMode[ExtensionMode["Production"] = 1] = "Production";
+    /**
+     * The extension is running from an `--extensionDevelopmentPath` provided
+     * when launching VS Code.
+     */
+    ExtensionMode[ExtensionMode["Development"] = 2] = "Development";
+    /**
+     * The extension is running from an `--extensionDevelopmentPath` and
+     * the extension host is running unit tests.
+     */
+    ExtensionMode[ExtensionMode["Test"] = 3] = "Test";
+})(ExtensionMode || (ExtensionMode = {}));
+export var ExtensionRuntime;
+(function (ExtensionRuntime) {
+    /**
+     * The extension is running in a NodeJS extension host. Runtime access to NodeJS APIs is available.
+     */
+    ExtensionRuntime[ExtensionRuntime["Node"] = 1] = "Node";
+    /**
+     * The extension is running in a Webworker extension host. Runtime access is limited to Webworker APIs.
+     */
+    ExtensionRuntime[ExtensionRuntime["Webworker"] = 2] = "Webworker";
+})(ExtensionRuntime || (ExtensionRuntime = {}));
+//#endregion ExtensionContext
+export var StandardTokenType;
+(function (StandardTokenType) {
+    StandardTokenType[StandardTokenType["Other"] = 0] = "Other";
+    StandardTokenType[StandardTokenType["Comment"] = 1] = "Comment";
+    StandardTokenType[StandardTokenType["String"] = 2] = "String";
+    StandardTokenType[StandardTokenType["RegEx"] = 3] = "RegEx";
+})(StandardTokenType || (StandardTokenType = {}));
+export class LinkedEditingRanges {
+    constructor(ranges, wordPattern) {
+        this.ranges = ranges;
+        this.wordPattern = wordPattern;
+    }
+}
+//#region ports
+export class PortAttributes {
+    constructor(autoForwardAction) {
+        this._autoForwardAction = autoForwardAction;
+    }
+    get autoForwardAction() {
+        return this._autoForwardAction;
+    }
+}
+//#endregion ports
+//#region Testing
+export var TestResultState;
+(function (TestResultState) {
+    TestResultState[TestResultState["Queued"] = 1] = "Queued";
+    TestResultState[TestResultState["Running"] = 2] = "Running";
+    TestResultState[TestResultState["Passed"] = 3] = "Passed";
+    TestResultState[TestResultState["Failed"] = 4] = "Failed";
+    TestResultState[TestResultState["Skipped"] = 5] = "Skipped";
+    TestResultState[TestResultState["Errored"] = 6] = "Errored";
+})(TestResultState || (TestResultState = {}));
+export var TestRunProfileKind;
+(function (TestRunProfileKind) {
+    TestRunProfileKind[TestRunProfileKind["Run"] = 1] = "Run";
+    TestRunProfileKind[TestRunProfileKind["Debug"] = 2] = "Debug";
+    TestRunProfileKind[TestRunProfileKind["Coverage"] = 3] = "Coverage";
+})(TestRunProfileKind || (TestRunProfileKind = {}));
+let TestRunRequest = class TestRunRequest {
+    constructor(include = undefined, exclude = undefined, profile = undefined, continuous = false, preserveFocus = true) {
+        this.include = include;
+        this.exclude = exclude;
+        this.profile = profile;
+        this.continuous = continuous;
+        this.preserveFocus = preserveFocus;
+    }
+};
+TestRunRequest = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
+], TestRunRequest);
+export { TestRunRequest };
+let TestMessage = TestMessage_1 = class TestMessage {
+    static diff(message, expected, actual) {
+        const msg = new TestMessage_1(message);
+        msg.expectedOutput = expected;
+        msg.actualOutput = actual;
+        return msg;
+    }
+    constructor(message) {
+        this.message = message;
+    }
+};
+TestMessage = TestMessage_1 = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [Object])
+], TestMessage);
+export { TestMessage };
+let TestTag = class TestTag {
+    constructor(id) {
+        this.id = id;
+    }
+};
+TestTag = __decorate([
+    es5ClassCompat,
+    __metadata("design:paramtypes", [String])
+], TestTag);
+export { TestTag };
+export class TestMessageStackFrame {
+    /**
+     * @param label The name of the stack frame
+     * @param file The file URI of the stack frame
+     * @param position The position of the stack frame within the file
+     */
+    constructor(label, uri, position) {
+        this.label = label;
+        this.uri = uri;
+        this.position = position;
+    }
+}
+//#endregion
+//#region Test Coverage
+export class TestCoverageCount {
+    constructor(covered, total) {
+        this.covered = covered;
+        this.total = total;
+        validateTestCoverageCount(this);
+    }
+}
+export function validateTestCoverageCount(cc) {
+    if (!cc) {
+        return;
+    }
+    if (cc.covered > cc.total) {
+        throw new Error(`The total number of covered items (${cc.covered}) cannot be greater than the total (${cc.total})`);
+    }
+    if (cc.total < 0) {
+        throw new Error(`The number of covered items (${cc.total}) cannot be negative`);
+    }
+}
+export class FileCoverage {
+    static fromDetails(uri, details) {
+        const statements = new TestCoverageCount(0, 0);
+        const branches = new TestCoverageCount(0, 0);
+        const decl = new TestCoverageCount(0, 0);
+        for (const detail of details) {
+            if ('branches' in detail) {
+                statements.total += 1;
+                statements.covered += detail.executed ? 1 : 0;
+                for (const branch of detail.branches) {
+                    branches.total += 1;
+                    branches.covered += branch.executed ? 1 : 0;
+                }
+            }
+            else {
+                decl.total += 1;
+                decl.covered += detail.executed ? 1 : 0;
+            }
+        }
+        const coverage = new FileCoverage(uri, statements, branches.total > 0 ? branches : undefined, decl.total > 0 ? decl : undefined);
+        coverage.detailedCoverage = details;
+        return coverage;
+    }
+    constructor(uri, statementCoverage, branchCoverage, declarationCoverage, fromTests = []) {
+        this.uri = uri;
+        this.statementCoverage = statementCoverage;
+        this.branchCoverage = branchCoverage;
+        this.declarationCoverage = declarationCoverage;
+        this.fromTests = fromTests;
+    }
+}
+export class StatementCoverage {
+    // back compat until finalization:
+    get executionCount() { return +this.executed; }
+    set executionCount(n) { this.executed = n; }
+    constructor(executed, location, branches = []) {
+        this.executed = executed;
+        this.location = location;
+        this.branches = branches;
+    }
+}
+export class BranchCoverage {
+    // back compat until finalization:
+    get executionCount() { return +this.executed; }
+    set executionCount(n) { this.executed = n; }
+    constructor(executed, location, label) {
+        this.executed = executed;
+        this.location = location;
+        this.label = label;
+    }
+}
+export class DeclarationCoverage {
+    // back compat until finalization:
+    get executionCount() { return +this.executed; }
+    set executionCount(n) { this.executed = n; }
+    constructor(name, executed, location) {
+        this.name = name;
+        this.executed = executed;
+        this.location = location;
+    }
+}
+//#endregion
+export var ExternalUriOpenerPriority;
+(function (ExternalUriOpenerPriority) {
+    ExternalUriOpenerPriority[ExternalUriOpenerPriority["None"] = 0] = "None";
+    ExternalUriOpenerPriority[ExternalUriOpenerPriority["Option"] = 1] = "Option";
+    ExternalUriOpenerPriority[ExternalUriOpenerPriority["Default"] = 2] = "Default";
+    ExternalUriOpenerPriority[ExternalUriOpenerPriority["Preferred"] = 3] = "Preferred";
+})(ExternalUriOpenerPriority || (ExternalUriOpenerPriority = {}));
+export var WorkspaceTrustState;
+(function (WorkspaceTrustState) {
+    WorkspaceTrustState[WorkspaceTrustState["Untrusted"] = 0] = "Untrusted";
+    WorkspaceTrustState[WorkspaceTrustState["Trusted"] = 1] = "Trusted";
+    WorkspaceTrustState[WorkspaceTrustState["Unspecified"] = 2] = "Unspecified";
+})(WorkspaceTrustState || (WorkspaceTrustState = {}));
+export var PortAutoForwardAction;
+(function (PortAutoForwardAction) {
+    PortAutoForwardAction[PortAutoForwardAction["Notify"] = 1] = "Notify";
+    PortAutoForwardAction[PortAutoForwardAction["OpenBrowser"] = 2] = "OpenBrowser";
+    PortAutoForwardAction[PortAutoForwardAction["OpenPreview"] = 3] = "OpenPreview";
+    PortAutoForwardAction[PortAutoForwardAction["Silent"] = 4] = "Silent";
+    PortAutoForwardAction[PortAutoForwardAction["Ignore"] = 5] = "Ignore";
+    PortAutoForwardAction[PortAutoForwardAction["OpenBrowserOnce"] = 6] = "OpenBrowserOnce";
+})(PortAutoForwardAction || (PortAutoForwardAction = {}));
+export class TypeHierarchyItem {
+    constructor(kind, name, detail, uri, range, selectionRange) {
+        this.kind = kind;
+        this.name = name;
+        this.detail = detail;
+        this.uri = uri;
+        this.range = range;
+        this.selectionRange = selectionRange;
+    }
+}
+//#region Tab Inputs
+export class TextTabInput {
+    constructor(uri) {
+        this.uri = uri;
+    }
+}
+export class TextDiffTabInput {
+    constructor(original, modified) {
+        this.original = original;
+        this.modified = modified;
+    }
+}
+export class TextMergeTabInput {
+    constructor(base, input1, input2, result) {
+        this.base = base;
+        this.input1 = input1;
+        this.input2 = input2;
+        this.result = result;
+    }
+}
+export class CustomEditorTabInput {
+    constructor(uri, viewType) {
+        this.uri = uri;
+        this.viewType = viewType;
+    }
+}
+export class WebviewEditorTabInput {
+    constructor(viewType) {
+        this.viewType = viewType;
+    }
+}
+export class NotebookEditorTabInput {
+    constructor(uri, notebookType) {
+        this.uri = uri;
+        this.notebookType = notebookType;
+    }
+}
+export class NotebookDiffEditorTabInput {
+    constructor(original, modified, notebookType) {
+        this.original = original;
+        this.modified = modified;
+        this.notebookType = notebookType;
+    }
+}
+export class TerminalEditorTabInput {
+    constructor() { }
+}
+export class InteractiveWindowInput {
+    constructor(uri, inputBoxUri) {
+        this.uri = uri;
+        this.inputBoxUri = inputBoxUri;
+    }
+}
+export class ChatEditorTabInput {
+    constructor() { }
+}
+export class TextMultiDiffTabInput {
+    constructor(textDiffs) {
+        this.textDiffs = textDiffs;
+    }
+}
+//#endregion
+//#region Chat
+export var InteractiveSessionVoteDirection;
+(function (InteractiveSessionVoteDirection) {
+    InteractiveSessionVoteDirection[InteractiveSessionVoteDirection["Down"] = 0] = "Down";
+    InteractiveSessionVoteDirection[InteractiveSessionVoteDirection["Up"] = 1] = "Up";
+})(InteractiveSessionVoteDirection || (InteractiveSessionVoteDirection = {}));
+export var ChatCopyKind;
+(function (ChatCopyKind) {
+    ChatCopyKind[ChatCopyKind["Action"] = 1] = "Action";
+    ChatCopyKind[ChatCopyKind["Toolbar"] = 2] = "Toolbar";
+})(ChatCopyKind || (ChatCopyKind = {}));
+export var ChatVariableLevel;
+(function (ChatVariableLevel) {
+    ChatVariableLevel[ChatVariableLevel["Short"] = 1] = "Short";
+    ChatVariableLevel[ChatVariableLevel["Medium"] = 2] = "Medium";
+    ChatVariableLevel[ChatVariableLevel["Full"] = 3] = "Full";
+})(ChatVariableLevel || (ChatVariableLevel = {}));
+export class ChatCompletionItem {
+    constructor(id, label, values) {
+        this.id = id;
+        this.label = label;
+        this.values = values;
+    }
+}
+export var ChatEditingSessionActionOutcome;
+(function (ChatEditingSessionActionOutcome) {
+    ChatEditingSessionActionOutcome[ChatEditingSessionActionOutcome["Accepted"] = 1] = "Accepted";
+    ChatEditingSessionActionOutcome[ChatEditingSessionActionOutcome["Rejected"] = 2] = "Rejected";
+})(ChatEditingSessionActionOutcome || (ChatEditingSessionActionOutcome = {}));
+//#endregion
+//#region Interactive Editor
+export var InteractiveEditorResponseFeedbackKind;
+(function (InteractiveEditorResponseFeedbackKind) {
+    InteractiveEditorResponseFeedbackKind[InteractiveEditorResponseFeedbackKind["Unhelpful"] = 0] = "Unhelpful";
+    InteractiveEditorResponseFeedbackKind[InteractiveEditorResponseFeedbackKind["Helpful"] = 1] = "Helpful";
+    InteractiveEditorResponseFeedbackKind[InteractiveEditorResponseFeedbackKind["Undone"] = 2] = "Undone";
+    InteractiveEditorResponseFeedbackKind[InteractiveEditorResponseFeedbackKind["Accepted"] = 3] = "Accepted";
+    InteractiveEditorResponseFeedbackKind[InteractiveEditorResponseFeedbackKind["Bug"] = 4] = "Bug";
+})(InteractiveEditorResponseFeedbackKind || (InteractiveEditorResponseFeedbackKind = {}));
+export var ChatResultFeedbackKind;
+(function (ChatResultFeedbackKind) {
+    ChatResultFeedbackKind[ChatResultFeedbackKind["Unhelpful"] = 0] = "Unhelpful";
+    ChatResultFeedbackKind[ChatResultFeedbackKind["Helpful"] = 1] = "Helpful";
+})(ChatResultFeedbackKind || (ChatResultFeedbackKind = {}));
+export class ChatResponseMarkdownPart {
+    constructor(value) {
+        if (typeof value !== 'string' && value.isTrusted === true) {
+            throw new Error('The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.');
+        }
+        this.value = typeof value === 'string' ? new MarkdownString(value) : value;
+    }
+}
+/**
+ * TODO if 'vulnerabilities' is finalized, this should be merged with the base ChatResponseMarkdownPart. I just don't see how to do that while keeping
+ * vulnerabilities in a seperate API proposal in a clean way.
+ */
+export class ChatResponseMarkdownWithVulnerabilitiesPart {
+    constructor(value, vulnerabilities) {
+        if (typeof value !== 'string' && value.isTrusted === true) {
+            throw new Error('The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.');
+        }
+        this.value = typeof value === 'string' ? new MarkdownString(value) : value;
+        this.vulnerabilities = vulnerabilities;
+    }
+}
+export class ChatResponseDetectedParticipantPart {
+    constructor(participant, command) {
+        this.participant = participant;
+        this.command = command;
+    }
+}
+export class ChatResponseConfirmationPart {
+    constructor(title, message, data, buttons) {
+        this.title = title;
+        this.message = message;
+        this.data = data;
+        this.buttons = buttons;
+    }
+}
+export class ChatResponseFileTreePart {
+    constructor(value, baseUri) {
+        this.value = value;
+        this.baseUri = baseUri;
+    }
+}
+export class ChatResponseAnchorPart {
+    constructor(value, title) {
+        this.value = value;
+        this.value2 = value;
+        this.title = title;
+    }
+}
+export class ChatResponseProgressPart {
+    constructor(value) {
+        this.value = value;
+    }
+}
+export class ChatResponseProgressPart2 {
+    constructor(value, task) {
+        this.value = value;
+        this.task = task;
+    }
+}
+export class ChatResponseWarningPart {
+    constructor(value) {
+        if (typeof value !== 'string' && value.isTrusted === true) {
+            throw new Error('The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.');
+        }
+        this.value = typeof value === 'string' ? new MarkdownString(value) : value;
+    }
+}
+export class ChatResponseCommandButtonPart {
+    constructor(value) {
+        this.value = value;
+    }
+}
+export class ChatResponseReferencePart {
+    constructor(value, iconPath, options) {
+        this.value = value;
+        this.iconPath = iconPath;
+        this.options = options;
+    }
+}
+export class ChatResponseCodeblockUriPart {
+    constructor(value) {
+        this.value = value;
+    }
+}
+export class ChatResponseCodeCitationPart {
+    constructor(value, license, snippet) {
+        this.value = value;
+        this.license = license;
+        this.snippet = snippet;
+    }
+}
+export class ChatResponseMovePart {
+    constructor(uri, range) {
+        this.uri = uri;
+        this.range = range;
+    }
+}
+export class ChatResponseTextEditPart {
+    constructor(uri, edits) {
+        this.uri = uri;
+        this.edits = Array.isArray(edits) ? edits : [edits];
+    }
+}
+export class ChatRequestTurn {
+    constructor(prompt, command, references, participant) {
+        this.prompt = prompt;
+        this.command = command;
+        this.references = references;
+        this.participant = participant;
+    }
+}
+export class ChatResponseTurn {
+    constructor(response, result, participant, command) {
+        this.response = response;
+        this.result = result;
+        this.participant = participant;
+        this.command = command;
+    }
+}
+export var ChatLocation;
+(function (ChatLocation) {
+    ChatLocation[ChatLocation["Panel"] = 1] = "Panel";
+    ChatLocation[ChatLocation["Terminal"] = 2] = "Terminal";
+    ChatLocation[ChatLocation["Notebook"] = 3] = "Notebook";
+    ChatLocation[ChatLocation["Editor"] = 4] = "Editor";
+    ChatLocation[ChatLocation["EditingSession"] = 5] = "EditingSession";
+})(ChatLocation || (ChatLocation = {}));
+export var ChatResponseReferencePartStatusKind;
+(function (ChatResponseReferencePartStatusKind) {
+    ChatResponseReferencePartStatusKind[ChatResponseReferencePartStatusKind["Complete"] = 1] = "Complete";
+    ChatResponseReferencePartStatusKind[ChatResponseReferencePartStatusKind["Partial"] = 2] = "Partial";
+    ChatResponseReferencePartStatusKind[ChatResponseReferencePartStatusKind["Omitted"] = 3] = "Omitted";
+})(ChatResponseReferencePartStatusKind || (ChatResponseReferencePartStatusKind = {}));
+export class ChatRequestEditorData {
+    constructor(document, selection, wholeRange) {
+        this.document = document;
+        this.selection = selection;
+        this.wholeRange = wholeRange;
+    }
+}
+export class ChatRequestNotebookData {
+    constructor(cell) {
+        this.cell = cell;
+    }
+}
+export class ChatReferenceBinaryData {
+    constructor(mimeType, data) {
+        this.mimeType = mimeType;
+        this.data = data;
+    }
+}
+export var LanguageModelChatMessageRole;
+(function (LanguageModelChatMessageRole) {
+    LanguageModelChatMessageRole[LanguageModelChatMessageRole["User"] = 1] = "User";
+    LanguageModelChatMessageRole[LanguageModelChatMessageRole["Assistant"] = 2] = "Assistant";
+    LanguageModelChatMessageRole[LanguageModelChatMessageRole["System"] = 3] = "System";
+})(LanguageModelChatMessageRole || (LanguageModelChatMessageRole = {}));
+export class LanguageModelToolResultPart {
+    constructor(toolCallId, content, isError) {
+        this.toolCallId = toolCallId;
+        this.content = content;
+        this.isError = isError ?? false;
+    }
+}
+export class LanguageModelChatMessage {
+    static User(content, name) {
+        const value = new LanguageModelChatMessage(LanguageModelChatMessageRole.User, typeof content === 'string' ? content : '', name);
+        value.content2 = [content];
+        return value;
+    }
+    static Assistant(content, name) {
+        return new LanguageModelChatMessage(LanguageModelChatMessageRole.Assistant, content, name);
+    }
+    constructor(role, content, name) {
+        this.role = role;
+        this.content = content;
+        this.content2 = [content];
+        this.name = name;
+    }
+}
+export class LanguageModelToolCallPart {
+    constructor(name, toolCallId, parameters) {
+        this.name = name;
+        this.toolCallId = toolCallId;
+        this.parameters = parameters;
+    }
+}
+export class LanguageModelTextPart {
+    constructor(value) {
+        this.value = value;
+    }
+}
+/**
+ * @deprecated
+ */
+export class LanguageModelChatSystemMessage {
+    constructor(content) {
+        this.content = content;
+    }
+}
+/**
+ * @deprecated
+ */
+export class LanguageModelChatUserMessage {
+    constructor(content, name) {
+        this.content = content;
+        this.name = name;
+    }
+}
+/**
+ * @deprecated
+ */
+export class LanguageModelChatAssistantMessage {
+    constructor(content, name) {
+        this.content = content;
+        this.name = name;
+    }
+}
+export class LanguageModelError extends Error {
+    static NotFound(message) {
+        return new LanguageModelError(message, LanguageModelError.NotFound.name);
+    }
+    static NoPermissions(message) {
+        return new LanguageModelError(message, LanguageModelError.NoPermissions.name);
+    }
+    static Blocked(message) {
+        return new LanguageModelError(message, LanguageModelError.Blocked.name);
+    }
+    constructor(message, code, cause) {
+        super(message, { cause });
+        this.name = 'LanguageModelError';
+        this.code = code ?? '';
+    }
+}
+//#endregion
+//#region ai
+export var RelatedInformationType;
+(function (RelatedInformationType) {
+    RelatedInformationType[RelatedInformationType["SymbolInformation"] = 1] = "SymbolInformation";
+    RelatedInformationType[RelatedInformationType["CommandInformation"] = 2] = "CommandInformation";
+    RelatedInformationType[RelatedInformationType["SearchInformation"] = 3] = "SearchInformation";
+    RelatedInformationType[RelatedInformationType["SettingInformation"] = 4] = "SettingInformation";
+})(RelatedInformationType || (RelatedInformationType = {}));
+//#endregion
+//#region Speech
+export var SpeechToTextStatus;
+(function (SpeechToTextStatus) {
+    SpeechToTextStatus[SpeechToTextStatus["Started"] = 1] = "Started";
+    SpeechToTextStatus[SpeechToTextStatus["Recognizing"] = 2] = "Recognizing";
+    SpeechToTextStatus[SpeechToTextStatus["Recognized"] = 3] = "Recognized";
+    SpeechToTextStatus[SpeechToTextStatus["Stopped"] = 4] = "Stopped";
+    SpeechToTextStatus[SpeechToTextStatus["Error"] = 5] = "Error";
+})(SpeechToTextStatus || (SpeechToTextStatus = {}));
+export var TextToSpeechStatus;
+(function (TextToSpeechStatus) {
+    TextToSpeechStatus[TextToSpeechStatus["Started"] = 1] = "Started";
+    TextToSpeechStatus[TextToSpeechStatus["Stopped"] = 2] = "Stopped";
+    TextToSpeechStatus[TextToSpeechStatus["Error"] = 3] = "Error";
+})(TextToSpeechStatus || (TextToSpeechStatus = {}));
+export var KeywordRecognitionStatus;
+(function (KeywordRecognitionStatus) {
+    KeywordRecognitionStatus[KeywordRecognitionStatus["Recognized"] = 1] = "Recognized";
+    KeywordRecognitionStatus[KeywordRecognitionStatus["Stopped"] = 2] = "Stopped";
+})(KeywordRecognitionStatus || (KeywordRecognitionStatus = {}));
+//#endregion
+//#region InlineEdit
+export class InlineEdit {
+    constructor(text, range) {
+        this.text = text;
+        this.range = range;
+    }
+}
+export var InlineEditTriggerKind;
+(function (InlineEditTriggerKind) {
+    InlineEditTriggerKind[InlineEditTriggerKind["Invoke"] = 0] = "Invoke";
+    InlineEditTriggerKind[InlineEditTriggerKind["Automatic"] = 1] = "Automatic";
+})(InlineEditTriggerKind || (InlineEditTriggerKind = {}));
+//#endregion

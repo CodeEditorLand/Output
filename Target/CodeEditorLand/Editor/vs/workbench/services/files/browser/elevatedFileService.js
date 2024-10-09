@@ -1,24 +1,18 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileStatWithMetadata, IWriteFileOptions } from "../../../../platform/files/common/files.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IElevatedFileService } from "../common/elevatedFileService.js";
-class BrowserElevatedFileService {
-  static {
-    __name(this, "BrowserElevatedFileService");
-  }
-  _serviceBrand;
-  isSupported(resource) {
-    return false;
-  }
-  async writeFileElevated(resource, value, options) {
-    throw new Error("Unsupported");
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IElevatedFileService } from '../common/elevatedFileService.js';
+export class BrowserElevatedFileService {
+    isSupported(resource) {
+        // Saving elevated is currently not supported in web for as
+        // long as we have no generic support from the file service
+        // (https://github.com/microsoft/vscode/issues/48659)
+        return false;
+    }
+    async writeFileElevated(resource, value, options) {
+        throw new Error('Unsupported');
+    }
 }
-registerSingleton(IElevatedFileService, BrowserElevatedFileService, InstantiationType.Delayed);
-export {
-  BrowserElevatedFileService
-};
-//# sourceMappingURL=elevatedFileService.js.map
+registerSingleton(IElevatedFileService, BrowserElevatedFileService, 1 /* InstantiationType.Delayed */);

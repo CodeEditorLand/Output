@@ -1,21 +1,21 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { TestId } from "../../common/testId.js";
-function isCollapsedInSerializedTestTree(serialized, id) {
-  if (!(id instanceof TestId)) {
-    id = TestId.fromString(id);
-  }
-  let node = serialized;
-  for (const part of id.path) {
-    if (!node.children?.hasOwnProperty(part)) {
-      return void 0;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { TestId } from '../../common/testId.js';
+/**
+ * Gets whether the given test ID is collapsed.
+ */
+export function isCollapsedInSerializedTestTree(serialized, id) {
+    if (!(id instanceof TestId)) {
+        id = TestId.fromString(id);
     }
-    node = node.children[part];
-  }
-  return node.collapsed;
+    let node = serialized;
+    for (const part of id.path) {
+        if (!node.children?.hasOwnProperty(part)) {
+            return undefined;
+        }
+        node = node.children[part];
+    }
+    return node.collapsed;
 }
-__name(isCollapsedInSerializedTestTree, "isCollapsedInSerializedTestTree");
-export {
-  isCollapsedInSerializedTestTree
-};
-//# sourceMappingURL=testingViewState.js.map

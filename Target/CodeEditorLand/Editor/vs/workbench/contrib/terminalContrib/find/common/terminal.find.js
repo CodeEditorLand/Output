@@ -1,26 +1,14 @@
-var TerminalFindCommandId = /* @__PURE__ */ ((TerminalFindCommandId2) => {
-  TerminalFindCommandId2["FindFocus"] = "workbench.action.terminal.focusFind";
-  TerminalFindCommandId2["FindHide"] = "workbench.action.terminal.hideFind";
-  TerminalFindCommandId2["FindNext"] = "workbench.action.terminal.findNext";
-  TerminalFindCommandId2["FindPrevious"] = "workbench.action.terminal.findPrevious";
-  TerminalFindCommandId2["ToggleFindRegex"] = "workbench.action.terminal.toggleFindRegex";
-  TerminalFindCommandId2["ToggleFindWholeWord"] = "workbench.action.terminal.toggleFindWholeWord";
-  TerminalFindCommandId2["ToggleFindCaseSensitive"] = "workbench.action.terminal.toggleFindCaseSensitive";
-  TerminalFindCommandId2["SearchWorkspace"] = "workbench.action.terminal.searchWorkspace";
-  return TerminalFindCommandId2;
-})(TerminalFindCommandId || {});
-const defaultTerminalFindCommandToSkipShell = [
-  "workbench.action.terminal.focusFind" /* FindFocus */,
-  "workbench.action.terminal.hideFind" /* FindHide */,
-  "workbench.action.terminal.findNext" /* FindNext */,
-  "workbench.action.terminal.findPrevious" /* FindPrevious */,
-  "workbench.action.terminal.toggleFindRegex" /* ToggleFindRegex */,
-  "workbench.action.terminal.toggleFindWholeWord" /* ToggleFindWholeWord */,
-  "workbench.action.terminal.toggleFindCaseSensitive" /* ToggleFindCaseSensitive */,
-  "workbench.action.terminal.searchWorkspace" /* SearchWorkspace */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export const defaultTerminalFindCommandToSkipShell = [
+    "workbench.action.terminal.focusFind" /* TerminalFindCommandId.FindFocus */,
+    "workbench.action.terminal.hideFind" /* TerminalFindCommandId.FindHide */,
+    "workbench.action.terminal.findNext" /* TerminalFindCommandId.FindNext */,
+    "workbench.action.terminal.findPrevious" /* TerminalFindCommandId.FindPrevious */,
+    "workbench.action.terminal.toggleFindRegex" /* TerminalFindCommandId.ToggleFindRegex */,
+    "workbench.action.terminal.toggleFindWholeWord" /* TerminalFindCommandId.ToggleFindWholeWord */,
+    "workbench.action.terminal.toggleFindCaseSensitive" /* TerminalFindCommandId.ToggleFindCaseSensitive */,
+    "workbench.action.terminal.searchWorkspace" /* TerminalFindCommandId.SearchWorkspace */,
 ];
-export {
-  TerminalFindCommandId,
-  defaultTerminalFindCommandToSkipShell
-};
-//# sourceMappingURL=terminal.find.js.map

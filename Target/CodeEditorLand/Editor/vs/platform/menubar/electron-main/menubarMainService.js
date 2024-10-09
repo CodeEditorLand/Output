@@ -1,50 +1,47 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createDecorator, IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { ILifecycleMainService, LifecycleMainPhase } from "../../lifecycle/electron-main/lifecycleMainService.js";
-import { ILogService } from "../../log/common/log.js";
-import { ICommonMenubarService, IMenubarData } from "../common/menubar.js";
-import { Menubar } from "./menubar.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-const IMenubarMainService = createDecorator("menubarMainService");
-let MenubarMainService = class extends Disposable {
-  constructor(instantiationService, lifecycleMainService, logService) {
-    super();
-    this.instantiationService = instantiationService;
-    this.lifecycleMainService = lifecycleMainService;
-    this.logService = logService;
-  }
-  static {
-    __name(this, "MenubarMainService");
-  }
-  menubar = this.installMenuBarAfterWindowOpen();
-  async installMenuBarAfterWindowOpen() {
-    await this.lifecycleMainService.when(LifecycleMainPhase.AfterWindowOpen);
-    return this._register(this.instantiationService.createInstance(Menubar));
-  }
-  async updateMenubar(windowId, menus) {
-    this.logService.trace("menubarService#updateMenubar", windowId);
-    const menubar = await this.menubar;
-    menubar.updateMenu(menus, windowId);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-MenubarMainService = __decorateClass([
-  __decorateParam(0, IInstantiationService),
-  __decorateParam(1, ILifecycleMainService),
-  __decorateParam(2, ILogService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { createDecorator, IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { ILifecycleMainService } from '../../lifecycle/electron-main/lifecycleMainService.js';
+import { ILogService } from '../../log/common/log.js';
+import { Menubar } from './menubar.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+export const IMenubarMainService = createDecorator('menubarMainService');
+let MenubarMainService = class MenubarMainService extends Disposable {
+    constructor(instantiationService, lifecycleMainService, logService) {
+        super();
+        this.instantiationService = instantiationService;
+        this.lifecycleMainService = lifecycleMainService;
+        this.logService = logService;
+        this.menubar = this.installMenuBarAfterWindowOpen();
+    }
+    async installMenuBarAfterWindowOpen() {
+        await this.lifecycleMainService.when(3 /* LifecycleMainPhase.AfterWindowOpen */);
+        return this._register(this.instantiationService.createInstance(Menubar));
+    }
+    async updateMenubar(windowId, menus) {
+        this.logService.trace('menubarService#updateMenubar', windowId);
+        const menubar = await this.menubar;
+        menubar.updateMenu(menus, windowId);
+    }
+};
+MenubarMainService = __decorate([
+    __param(0, IInstantiationService),
+    __param(1, ILifecycleMainService),
+    __param(2, ILogService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], MenubarMainService);
-export {
-  IMenubarMainService,
-  MenubarMainService
-};
-//# sourceMappingURL=menubarMainService.js.map
+export { MenubarMainService };

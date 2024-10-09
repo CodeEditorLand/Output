@@ -1,37 +1,27 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { FuzzyScore } from "../../../../base/common/filters.js";
-import { isWindows } from "../../../../base/common/platform.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-class SimpleCompletionItem {
-  constructor(completion) {
-    this.completion = completion;
-    this.labelLow = this.completion.label.toLowerCase();
-    this.labelLowExcludeFileExt = this.labelLow;
-    if (completion.isFile) {
-      if (isWindows) {
-        this.labelLow = this.labelLow.replaceAll("/", "\\");
-      }
-      const extIndex = this.labelLow.lastIndexOf(".");
-      if (extIndex !== -1) {
-        this.labelLowExcludeFileExt = this.labelLow.substring(0, extIndex);
-        this.fileExtLow = this.labelLow.substring(extIndex + 1);
-      }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { FuzzyScore } from '../../../../base/common/filters.js';
+import { isWindows } from '../../../../base/common/platform.js';
+export class SimpleCompletionItem {
+    constructor(completion) {
+        this.completion = completion;
+        this.fileExtLow = '';
+        // sorting, filtering
+        this.score = FuzzyScore.Default;
+        // ensure lower-variants (perf)
+        this.labelLow = this.completion.label.toLowerCase();
+        this.labelLowExcludeFileExt = this.labelLow;
+        if (completion.isFile) {
+            if (isWindows) {
+                this.labelLow = this.labelLow.replaceAll('/', '\\');
+            }
+            const extIndex = this.labelLow.lastIndexOf('.');
+            if (extIndex !== -1) {
+                this.labelLowExcludeFileExt = this.labelLow.substring(0, extIndex);
+                this.fileExtLow = this.labelLow.substring(extIndex + 1);
+            }
+        }
     }
-  }
-  static {
-    __name(this, "SimpleCompletionItem");
-  }
-  // perf
-  labelLow;
-  labelLowExcludeFileExt;
-  fileExtLow = "";
-  // sorting, filtering
-  score = FuzzyScore.Default;
-  idx;
-  word;
 }
-export {
-  SimpleCompletionItem
-};
-//# sourceMappingURL=simpleCompletionItem.js.map

@@ -1,26 +1,13 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-var WorkspaceTrustScope = /* @__PURE__ */ ((WorkspaceTrustScope2) => {
-  WorkspaceTrustScope2[WorkspaceTrustScope2["Local"] = 0] = "Local";
-  WorkspaceTrustScope2[WorkspaceTrustScope2["Remote"] = 1] = "Remote";
-  return WorkspaceTrustScope2;
-})(WorkspaceTrustScope || {});
-const IWorkspaceTrustEnablementService = createDecorator("workspaceTrustEnablementService");
-const IWorkspaceTrustManagementService = createDecorator("workspaceTrustManagementService");
-var WorkspaceTrustUriResponse = /* @__PURE__ */ ((WorkspaceTrustUriResponse2) => {
-  WorkspaceTrustUriResponse2[WorkspaceTrustUriResponse2["Open"] = 1] = "Open";
-  WorkspaceTrustUriResponse2[WorkspaceTrustUriResponse2["OpenInNewWindow"] = 2] = "OpenInNewWindow";
-  WorkspaceTrustUriResponse2[WorkspaceTrustUriResponse2["Cancel"] = 3] = "Cancel";
-  return WorkspaceTrustUriResponse2;
-})(WorkspaceTrustUriResponse || {});
-const IWorkspaceTrustRequestService = createDecorator("workspaceTrustRequestService");
-export {
-  IWorkspaceTrustEnablementService,
-  IWorkspaceTrustManagementService,
-  IWorkspaceTrustRequestService,
-  WorkspaceTrustScope,
-  WorkspaceTrustUriResponse
-};
-//# sourceMappingURL=workspaceTrust.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export var WorkspaceTrustScope;
+(function (WorkspaceTrustScope) {
+    WorkspaceTrustScope[WorkspaceTrustScope["Local"] = 0] = "Local";
+    WorkspaceTrustScope[WorkspaceTrustScope["Remote"] = 1] = "Remote";
+})(WorkspaceTrustScope || (WorkspaceTrustScope = {}));
+export const IWorkspaceTrustEnablementService = createDecorator('workspaceTrustEnablementService');
+export const IWorkspaceTrustManagementService = createDecorator('workspaceTrustManagementService');
+export const IWorkspaceTrustRequestService = createDecorator('workspaceTrustRequestService');

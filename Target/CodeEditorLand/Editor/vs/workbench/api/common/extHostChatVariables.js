@@ -1,118 +1,107 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { onUnexpectedExternalError } from "../../../base/common/errors.js";
-import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostChatVariablesShape, IChatVariableResolverProgressDto, IMainContext, MainContext, MainThreadChatVariablesShape } from "./extHost.protocol.js";
-import * as typeConvert from "./extHostTypeConverters.js";
-import * as extHostTypes from "./extHostTypes.js";
-import { IChatRequestVariableValue, IChatVariableData } from "../../contrib/chat/common/chatVariables.js";
-import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-class ExtHostChatVariables {
-  static {
-    __name(this, "ExtHostChatVariables");
-  }
-  static _idPool = 0;
-  _resolver = /* @__PURE__ */ new Map();
-  _proxy;
-  constructor(mainContext) {
-    this._proxy = mainContext.getProxy(MainContext.MainThreadChatVariables);
-  }
-  async $resolveVariable(handle, requestId, messageText, token) {
-    const item = this._resolver.get(handle);
-    if (!item) {
-      return void 0;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { onUnexpectedExternalError } from '../../../base/common/errors.js';
+import { toDisposable } from '../../../base/common/lifecycle.js';
+import { ThemeIcon } from '../../../base/common/themables.js';
+import { MainContext } from './extHost.protocol.js';
+import * as typeConvert from './extHostTypeConverters.js';
+import * as extHostTypes from './extHostTypes.js';
+import { checkProposedApiEnabled } from '../../services/extensions/common/extensions.js';
+export class ExtHostChatVariables {
+    static { this._idPool = 0; }
+    constructor(mainContext) {
+        this._resolver = new Map();
+        this._proxy = mainContext.getProxy(MainContext.MainThreadChatVariables);
     }
-    try {
-      if (item.resolver.resolve2) {
-        checkProposedApiEnabled(item.extension, "chatParticipantAdditions");
-        const stream = new ChatVariableResolverResponseStream(requestId, this._proxy);
-        const value = await item.resolver.resolve2(item.data.name, { prompt: messageText }, stream.apiObject, token);
-        if (value && value[0]) {
-          return value[0].value;
+    async $resolveVariable(handle, requestId, messageText, token) {
+        const item = this._resolver.get(handle);
+        if (!item) {
+            return undefined;
         }
-      } else {
-        const value = await item.resolver.resolve(item.data.name, { prompt: messageText }, token);
-        if (value && value[0]) {
-          return value[0].value;
+        try {
+            if (item.resolver.resolve2) {
+                checkProposedApiEnabled(item.extension, 'chatParticipantAdditions');
+                const stream = new ChatVariableResolverResponseStream(requestId, this._proxy);
+                const value = await item.resolver.resolve2(item.data.name, { prompt: messageText }, stream.apiObject, token);
+                // Temp, ignoring other returned values to convert the array into a single value
+                if (value && value[0]) {
+                    return value[0].value;
+                }
+            }
+            else {
+                const value = await item.resolver.resolve(item.data.name, { prompt: messageText }, token);
+                if (value && value[0]) {
+                    return value[0].value;
+                }
+            }
         }
-      }
-    } catch (err) {
-      onUnexpectedExternalError(err);
+        catch (err) {
+            onUnexpectedExternalError(err);
+        }
+        return undefined;
     }
-    return void 0;
-  }
-  registerVariableResolver(extension, id, name, userDescription, modelDescription, isSlow, resolver, fullName, themeIconId) {
-    const handle = ExtHostChatVariables._idPool++;
-    const icon = themeIconId ? ThemeIcon.fromId(themeIconId) : void 0;
-    this._resolver.set(handle, { extension, data: { id, name, description: userDescription, modelDescription, icon }, resolver });
-    this._proxy.$registerVariable(handle, { id, name, description: userDescription, modelDescription, isSlow, fullName, icon });
-    return toDisposable(() => {
-      this._resolver.delete(handle);
-      this._proxy.$unregisterVariable(handle);
-    });
-  }
+    registerVariableResolver(extension, id, name, userDescription, modelDescription, isSlow, resolver, fullName, themeIconId) {
+        const handle = ExtHostChatVariables._idPool++;
+        const icon = themeIconId ? ThemeIcon.fromId(themeIconId) : undefined;
+        this._resolver.set(handle, { extension, data: { id, name, description: userDescription, modelDescription, icon }, resolver: resolver });
+        this._proxy.$registerVariable(handle, { id, name, description: userDescription, modelDescription, isSlow, fullName, icon });
+        return toDisposable(() => {
+            this._resolver.delete(handle);
+            this._proxy.$unregisterVariable(handle);
+        });
+    }
 }
 class ChatVariableResolverResponseStream {
-  constructor(_requestId, _proxy) {
-    this._requestId = _requestId;
-    this._proxy = _proxy;
-  }
-  static {
-    __name(this, "ChatVariableResolverResponseStream");
-  }
-  _isClosed = false;
-  _apiObject;
-  close() {
-    this._isClosed = true;
-  }
-  get apiObject() {
-    if (!this._apiObject) {
-      let throwIfDone2 = function(source) {
-        if (that._isClosed) {
-          const err = new Error("Response stream has been closed");
-          Error.captureStackTrace(err, source);
-          throw err;
-        }
-      };
-      var throwIfDone = throwIfDone2;
-      __name(throwIfDone2, "throwIfDone");
-      const that = this;
-      const _report = /* @__PURE__ */ __name((progress) => {
-        this._proxy.$handleProgressChunk(this._requestId, progress);
-      }, "_report");
-      this._apiObject = {
-        progress(value) {
-          throwIfDone2(this.progress);
-          const part = new extHostTypes.ChatResponseProgressPart(value);
-          const dto = typeConvert.ChatResponseProgressPart.from(part);
-          _report(dto);
-          return this;
-        },
-        reference(value) {
-          throwIfDone2(this.reference);
-          const part = new extHostTypes.ChatResponseReferencePart(value);
-          const dto = typeConvert.ChatResponseReferencePart.from(part);
-          _report(dto);
-          return this;
-        },
-        push(part) {
-          throwIfDone2(this.push);
-          if (part instanceof extHostTypes.ChatResponseReferencePart) {
-            _report(typeConvert.ChatResponseReferencePart.from(part));
-          } else if (part instanceof extHostTypes.ChatResponseProgressPart) {
-            _report(typeConvert.ChatResponseProgressPart.from(part));
-          }
-          return this;
-        }
-      };
+    constructor(_requestId, _proxy) {
+        this._requestId = _requestId;
+        this._proxy = _proxy;
+        this._isClosed = false;
     }
-    return this._apiObject;
-  }
+    close() {
+        this._isClosed = true;
+    }
+    get apiObject() {
+        if (!this._apiObject) {
+            const that = this;
+            function throwIfDone(source) {
+                if (that._isClosed) {
+                    const err = new Error('Response stream has been closed');
+                    Error.captureStackTrace(err, source);
+                    throw err;
+                }
+            }
+            const _report = (progress) => {
+                this._proxy.$handleProgressChunk(this._requestId, progress);
+            };
+            this._apiObject = {
+                progress(value) {
+                    throwIfDone(this.progress);
+                    const part = new extHostTypes.ChatResponseProgressPart(value);
+                    const dto = typeConvert.ChatResponseProgressPart.from(part);
+                    _report(dto);
+                    return this;
+                },
+                reference(value) {
+                    throwIfDone(this.reference);
+                    const part = new extHostTypes.ChatResponseReferencePart(value);
+                    const dto = typeConvert.ChatResponseReferencePart.from(part);
+                    _report(dto);
+                    return this;
+                },
+                push(part) {
+                    throwIfDone(this.push);
+                    if (part instanceof extHostTypes.ChatResponseReferencePart) {
+                        _report(typeConvert.ChatResponseReferencePart.from(part));
+                    }
+                    else if (part instanceof extHostTypes.ChatResponseProgressPart) {
+                        _report(typeConvert.ChatResponseProgressPart.from(part));
+                    }
+                    return this;
+                }
+            };
+        }
+        return this._apiObject;
+    }
 }
-export {
-  ExtHostChatVariables
-};
-//# sourceMappingURL=extHostChatVariables.js.map

@@ -1,82 +1,62 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../base/common/event.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IUpdateService, State } from "./update.js";
-class UpdateChannel {
-  constructor(service) {
-    this.service = service;
-  }
-  static {
-    __name(this, "UpdateChannel");
-  }
-  listen(_, event) {
-    switch (event) {
-      case "onStateChange":
-        return this.service.onStateChange;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Emitter } from '../../../base/common/event.js';
+import { State } from './update.js';
+export class UpdateChannel {
+    constructor(service) {
+        this.service = service;
     }
-    throw new Error(`Event not found: ${event}`);
-  }
-  call(_, command, arg) {
-    switch (command) {
-      case "checkForUpdates":
-        return this.service.checkForUpdates(arg);
-      case "downloadUpdate":
-        return this.service.downloadUpdate();
-      case "applyUpdate":
-        return this.service.applyUpdate();
-      case "quitAndInstall":
-        return this.service.quitAndInstall();
-      case "_getInitialState":
-        return Promise.resolve(this.service.state);
-      case "isLatestVersion":
-        return this.service.isLatestVersion();
-      case "_applySpecificUpdate":
-        return this.service._applySpecificUpdate(arg);
+    listen(_, event) {
+        switch (event) {
+            case 'onStateChange': return this.service.onStateChange;
+        }
+        throw new Error(`Event not found: ${event}`);
     }
-    throw new Error(`Call not found: ${command}`);
-  }
+    call(_, command, arg) {
+        switch (command) {
+            case 'checkForUpdates': return this.service.checkForUpdates(arg);
+            case 'downloadUpdate': return this.service.downloadUpdate();
+            case 'applyUpdate': return this.service.applyUpdate();
+            case 'quitAndInstall': return this.service.quitAndInstall();
+            case '_getInitialState': return Promise.resolve(this.service.state);
+            case 'isLatestVersion': return this.service.isLatestVersion();
+            case '_applySpecificUpdate': return this.service._applySpecificUpdate(arg);
+        }
+        throw new Error(`Call not found: ${command}`);
+    }
 }
-class UpdateChannelClient {
-  constructor(channel) {
-    this.channel = channel;
-    this.channel.listen("onStateChange")((state) => this.state = state);
-    this.channel.call("_getInitialState").then((state) => this.state = state);
-  }
-  static {
-    __name(this, "UpdateChannelClient");
-  }
-  _onStateChange = new Emitter();
-  onStateChange = this._onStateChange.event;
-  _state = State.Uninitialized;
-  get state() {
-    return this._state;
-  }
-  set state(state) {
-    this._state = state;
-    this._onStateChange.fire(state);
-  }
-  checkForUpdates(explicit) {
-    return this.channel.call("checkForUpdates", explicit);
-  }
-  downloadUpdate() {
-    return this.channel.call("downloadUpdate");
-  }
-  applyUpdate() {
-    return this.channel.call("applyUpdate");
-  }
-  quitAndInstall() {
-    return this.channel.call("quitAndInstall");
-  }
-  isLatestVersion() {
-    return this.channel.call("isLatestVersion");
-  }
-  _applySpecificUpdate(packagePath) {
-    return this.channel.call("_applySpecificUpdate", packagePath);
-  }
+export class UpdateChannelClient {
+    get state() { return this._state; }
+    set state(state) {
+        this._state = state;
+        this._onStateChange.fire(state);
+    }
+    constructor(channel) {
+        this.channel = channel;
+        this._onStateChange = new Emitter();
+        this.onStateChange = this._onStateChange.event;
+        this._state = State.Uninitialized;
+        this.channel.listen('onStateChange')(state => this.state = state);
+        this.channel.call('_getInitialState').then(state => this.state = state);
+    }
+    checkForUpdates(explicit) {
+        return this.channel.call('checkForUpdates', explicit);
+    }
+    downloadUpdate() {
+        return this.channel.call('downloadUpdate');
+    }
+    applyUpdate() {
+        return this.channel.call('applyUpdate');
+    }
+    quitAndInstall() {
+        return this.channel.call('quitAndInstall');
+    }
+    isLatestVersion() {
+        return this.channel.call('isLatestVersion');
+    }
+    _applySpecificUpdate(packagePath) {
+        return this.channel.call('_applySpecificUpdate', packagePath);
+    }
 }
-export {
-  UpdateChannel,
-  UpdateChannelClient
-};
-//# sourceMappingURL=updateIpc.js.map

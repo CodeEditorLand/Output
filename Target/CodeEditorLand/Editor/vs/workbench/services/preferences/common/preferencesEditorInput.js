@@ -1,64 +1,61 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import * as nls from "../../../../nls.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import { IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IPreferencesService } from "./preferences.js";
-import { Settings2EditorModel } from "./preferencesModels.js";
-const SettingsEditorIcon = registerIcon("settings-editor-label-icon", Codicon.settings, nls.localize("settingsEditorLabelIcon", "Icon of the settings editor label."));
-let SettingsEditor2Input = class extends EditorInput {
-  static {
-    __name(this, "SettingsEditor2Input");
-  }
-  static ID = "workbench.input.settings2";
-  _settingsModel;
-  resource = URI.from({
-    scheme: Schemas.vscodeSettings,
-    path: `settingseditor`
-  });
-  constructor(_preferencesService) {
-    super();
-    this._settingsModel = _preferencesService.createSettings2EditorModel();
-  }
-  matches(otherInput) {
-    return super.matches(otherInput) || otherInput instanceof SettingsEditor2Input;
-  }
-  get typeId() {
-    return SettingsEditor2Input.ID;
-  }
-  getName() {
-    return nls.localize("settingsEditor2InputName", "Settings");
-  }
-  getIcon() {
-    return SettingsEditorIcon;
-  }
-  async resolve() {
-    return this._settingsModel;
-  }
-  dispose() {
-    this._settingsModel.dispose();
-    super.dispose();
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-SettingsEditor2Input = __decorateClass([
-  __decorateParam(0, IPreferencesService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var SettingsEditor2Input_1;
+import { Codicon } from '../../../../base/common/codicons.js';
+import { Schemas } from '../../../../base/common/network.js';
+import { URI } from '../../../../base/common/uri.js';
+import * as nls from '../../../../nls.js';
+import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { IPreferencesService } from './preferences.js';
+const SettingsEditorIcon = registerIcon('settings-editor-label-icon', Codicon.settings, nls.localize('settingsEditorLabelIcon', 'Icon of the settings editor label.'));
+let SettingsEditor2Input = class SettingsEditor2Input extends EditorInput {
+    static { SettingsEditor2Input_1 = this; }
+    static { this.ID = 'workbench.input.settings2'; }
+    constructor(_preferencesService) {
+        super();
+        this.resource = URI.from({
+            scheme: Schemas.vscodeSettings,
+            path: `settingseditor`
+        });
+        this._settingsModel = _preferencesService.createSettings2EditorModel();
+    }
+    matches(otherInput) {
+        return super.matches(otherInput) || otherInput instanceof SettingsEditor2Input_1;
+    }
+    get typeId() {
+        return SettingsEditor2Input_1.ID;
+    }
+    getName() {
+        return nls.localize('settingsEditor2InputName', "Settings");
+    }
+    getIcon() {
+        return SettingsEditorIcon;
+    }
+    async resolve() {
+        return this._settingsModel;
+    }
+    dispose() {
+        this._settingsModel.dispose();
+        super.dispose();
+    }
+};
+SettingsEditor2Input = SettingsEditor2Input_1 = __decorate([
+    __param(0, IPreferencesService),
+    __metadata("design:paramtypes", [Object])
 ], SettingsEditor2Input);
-export {
-  SettingsEditor2Input
-};
-//# sourceMappingURL=preferencesEditorInput.js.map
+export { SettingsEditor2Input };

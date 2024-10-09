@@ -1,55 +1,55 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DisposableMap } from "../../../base/common/lifecycle.js";
-import { revive } from "../../../base/common/marshalling.js";
-import { ExtHostChatVariablesShape, ExtHostContext, IChatVariableResolverProgressDto, MainContext, MainThreadChatVariablesShape } from "../common/extHost.protocol.js";
-import { IChatRequestVariableValue, IChatVariableData, IChatVariableResolverProgress, IChatVariablesService } from "../../contrib/chat/common/chatVariables.js";
-import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-let MainThreadChatVariables = class {
-  constructor(extHostContext, _chatVariablesService) {
-    this._chatVariablesService = _chatVariablesService;
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChatVariables);
-  }
-  _proxy;
-  _variables = new DisposableMap();
-  _pendingProgress = /* @__PURE__ */ new Map();
-  dispose() {
-    this._variables.clearAndDisposeAll();
-  }
-  $registerVariable(handle, data) {
-    const registration = this._chatVariablesService.registerVariable(data, async (messageText, _arg, model, progress, token) => {
-      const varRequestId = `${model.sessionId}-${handle}`;
-      this._pendingProgress.set(varRequestId, progress);
-      const result = revive(await this._proxy.$resolveVariable(handle, varRequestId, messageText, token));
-      this._pendingProgress.delete(varRequestId);
-      return result;
-    });
-    this._variables.set(handle, registration);
-  }
-  async $handleProgressChunk(requestId, progress) {
-    const revivedProgress = revive(progress);
-    this._pendingProgress.get(requestId)?.(revivedProgress);
-  }
-  $unregisterVariable(handle) {
-    this._variables.deleteAndDispose(handle);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-__name(MainThreadChatVariables, "MainThreadChatVariables");
-MainThreadChatVariables = __decorateClass([
-  extHostNamedCustomer(MainContext.MainThreadChatVariables),
-  __decorateParam(1, IChatVariablesService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { DisposableMap } from '../../../base/common/lifecycle.js';
+import { revive } from '../../../base/common/marshalling.js';
+import { ExtHostContext, MainContext } from '../common/extHost.protocol.js';
+import { IChatVariablesService } from '../../contrib/chat/common/chatVariables.js';
+import { extHostNamedCustomer } from '../../services/extensions/common/extHostCustomers.js';
+let MainThreadChatVariables = class MainThreadChatVariables {
+    constructor(extHostContext, _chatVariablesService) {
+        this._chatVariablesService = _chatVariablesService;
+        this._variables = new DisposableMap();
+        this._pendingProgress = new Map();
+        this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChatVariables);
+    }
+    dispose() {
+        this._variables.clearAndDisposeAll();
+    }
+    $registerVariable(handle, data) {
+        const registration = this._chatVariablesService.registerVariable(data, async (messageText, _arg, model, progress, token) => {
+            const varRequestId = `${model.sessionId}-${handle}`;
+            this._pendingProgress.set(varRequestId, progress);
+            const result = revive(await this._proxy.$resolveVariable(handle, varRequestId, messageText, token));
+            this._pendingProgress.delete(varRequestId);
+            return result; // 'revive' type signature doesn't like this type for some reason
+        });
+        this._variables.set(handle, registration);
+    }
+    async $handleProgressChunk(requestId, progress) {
+        const revivedProgress = revive(progress);
+        this._pendingProgress.get(requestId)?.(revivedProgress);
+    }
+    $unregisterVariable(handle) {
+        this._variables.deleteAndDispose(handle);
+    }
+};
+MainThreadChatVariables = __decorate([
+    extHostNamedCustomer(MainContext.MainThreadChatVariables),
+    __param(1, IChatVariablesService),
+    __metadata("design:paramtypes", [Object, Object])
 ], MainThreadChatVariables);
-export {
-  MainThreadChatVariables
-};
-//# sourceMappingURL=mainThreadChatVariables.js.map
+export { MainThreadChatVariables };

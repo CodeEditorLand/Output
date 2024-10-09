@@ -1,23 +1,16 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../common/lifecycle.js";
-const nullScopedAccessibilityProgressSignalFactory = /* @__PURE__ */ __name(() => ({
-  msLoopTime: -1,
-  msDelayTime: -1,
-  dispose: /* @__PURE__ */ __name(() => {
-  }, "dispose")
-}), "nullScopedAccessibilityProgressSignalFactory");
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+const nullScopedAccessibilityProgressSignalFactory = () => ({
+    msLoopTime: -1,
+    msDelayTime: -1,
+    dispose: () => { },
+});
 let progressAccessibilitySignalSchedulerFactory = nullScopedAccessibilityProgressSignalFactory;
-function setProgressAcccessibilitySignalScheduler(progressAccessibilitySignalScheduler) {
-  progressAccessibilitySignalSchedulerFactory = progressAccessibilitySignalScheduler;
+export function setProgressAcccessibilitySignalScheduler(progressAccessibilitySignalScheduler) {
+    progressAccessibilitySignalSchedulerFactory = progressAccessibilitySignalScheduler;
 }
-__name(setProgressAcccessibilitySignalScheduler, "setProgressAcccessibilitySignalScheduler");
-function getProgressAcccessibilitySignalScheduler(msDelayTime, msLoopTime) {
-  return progressAccessibilitySignalSchedulerFactory(msDelayTime, msLoopTime);
+export function getProgressAcccessibilitySignalScheduler(msDelayTime, msLoopTime) {
+    return progressAccessibilitySignalSchedulerFactory(msDelayTime, msLoopTime);
 }
-__name(getProgressAcccessibilitySignalScheduler, "getProgressAcccessibilitySignalScheduler");
-export {
-  getProgressAcccessibilitySignalScheduler,
-  setProgressAcccessibilitySignalScheduler
-};
-//# sourceMappingURL=progressAccessibilitySignal.js.map

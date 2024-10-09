@@ -1,8 +1,7 @@
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IStateReadService = createDecorator("stateReadService");
-const IStateService = createDecorator("stateService");
-export {
-  IStateReadService,
-  IStateService
-};
-//# sourceMappingURL=state.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export const IStateReadService = createDecorator('stateReadService');
+export const IStateService = createDecorator('stateService');

@@ -1,192 +1,211 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
-import { ThemeIcon } from "../../../base/common/themables.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { basename } from "../../../base/common/resources.js";
-import Severity from "../../../base/common/severity.js";
-import { URI } from "../../../base/common/uri.js";
-import { localize } from "../../../nls.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { ITelemetryData } from "../../telemetry/common/telemetry.js";
-import { MessageBoxOptions } from "../../../base/parts/sandbox/common/electronTypes.js";
-import { mnemonicButtonLabel } from "../../../base/common/labels.js";
-import { isLinux, isMacintosh, isWindows } from "../../../base/common/platform.js";
-import { IProductService } from "../../product/common/productService.js";
-import { deepClone } from "../../../base/common/objects.js";
-const IDialogService = createDecorator("dialogService");
-var DialogKind = /* @__PURE__ */ ((DialogKind2) => {
-  DialogKind2[DialogKind2["Confirmation"] = 1] = "Confirmation";
-  DialogKind2[DialogKind2["Prompt"] = 2] = "Prompt";
-  DialogKind2[DialogKind2["Input"] = 3] = "Input";
-  return DialogKind2;
-})(DialogKind || {});
-class AbstractDialogHandler {
-  static {
-    __name(this, "AbstractDialogHandler");
-  }
-  getConfirmationButtons(dialog) {
-    return this.getButtons(dialog, 1 /* Confirmation */);
-  }
-  getPromptButtons(dialog) {
-    return this.getButtons(dialog, 2 /* Prompt */);
-  }
-  getInputButtons(dialog) {
-    return this.getButtons(dialog, 3 /* Input */);
-  }
-  getButtons(dialog, kind) {
-    const buttons = [];
-    switch (kind) {
-      case 1 /* Confirmation */: {
-        const confirmationDialog = dialog;
-        if (confirmationDialog.primaryButton) {
-          buttons.push(confirmationDialog.primaryButton);
-        } else {
-          buttons.push(localize({ key: "yesButton", comment: ["&& denotes a mnemonic"] }, "&&Yes"));
-        }
-        if (confirmationDialog.cancelButton) {
-          buttons.push(confirmationDialog.cancelButton);
-        } else {
-          buttons.push(localize("cancelButton", "Cancel"));
-        }
-        break;
-      }
-      case 2 /* Prompt */: {
-        const promptDialog = dialog;
-        if (Array.isArray(promptDialog.buttons) && promptDialog.buttons.length > 0) {
-          buttons.push(...promptDialog.buttons.map((button) => button.label));
-        }
-        if (promptDialog.cancelButton) {
-          if (promptDialog.cancelButton === true) {
-            buttons.push(localize("cancelButton", "Cancel"));
-          } else if (typeof promptDialog.cancelButton === "string") {
-            buttons.push(promptDialog.cancelButton);
-          } else {
-            if (promptDialog.cancelButton.label) {
-              buttons.push(promptDialog.cancelButton.label);
-            } else {
-              buttons.push(localize("cancelButton", "Cancel"));
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { basename } from '../../../base/common/resources.js';
+import Severity from '../../../base/common/severity.js';
+import { localize } from '../../../nls.js';
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+import { mnemonicButtonLabel } from '../../../base/common/labels.js';
+import { isLinux, isMacintosh, isWindows } from '../../../base/common/platform.js';
+import { deepClone } from '../../../base/common/objects.js';
+export const IDialogService = createDecorator('dialogService');
+var DialogKind;
+(function (DialogKind) {
+    DialogKind[DialogKind["Confirmation"] = 1] = "Confirmation";
+    DialogKind[DialogKind["Prompt"] = 2] = "Prompt";
+    DialogKind[DialogKind["Input"] = 3] = "Input";
+})(DialogKind || (DialogKind = {}));
+export class AbstractDialogHandler {
+    getConfirmationButtons(dialog) {
+        return this.getButtons(dialog, DialogKind.Confirmation);
+    }
+    getPromptButtons(dialog) {
+        return this.getButtons(dialog, DialogKind.Prompt);
+    }
+    getInputButtons(dialog) {
+        return this.getButtons(dialog, DialogKind.Input);
+    }
+    getButtons(dialog, kind) {
+        // We put buttons in the order of "default" button first and "cancel"
+        // button last. There maybe later processing when presenting the buttons
+        // based on OS standards.
+        const buttons = [];
+        switch (kind) {
+            case DialogKind.Confirmation: {
+                const confirmationDialog = dialog;
+                if (confirmationDialog.primaryButton) {
+                    buttons.push(confirmationDialog.primaryButton);
+                }
+                else {
+                    buttons.push(localize({ key: 'yesButton', comment: ['&& denotes a mnemonic'] }, "&&Yes"));
+                }
+                if (confirmationDialog.cancelButton) {
+                    buttons.push(confirmationDialog.cancelButton);
+                }
+                else {
+                    buttons.push(localize('cancelButton', "Cancel"));
+                }
+                break;
             }
-          }
+            case DialogKind.Prompt: {
+                const promptDialog = dialog;
+                if (Array.isArray(promptDialog.buttons) && promptDialog.buttons.length > 0) {
+                    buttons.push(...promptDialog.buttons.map(button => button.label));
+                }
+                if (promptDialog.cancelButton) {
+                    if (promptDialog.cancelButton === true) {
+                        buttons.push(localize('cancelButton', "Cancel"));
+                    }
+                    else if (typeof promptDialog.cancelButton === 'string') {
+                        buttons.push(promptDialog.cancelButton);
+                    }
+                    else {
+                        if (promptDialog.cancelButton.label) {
+                            buttons.push(promptDialog.cancelButton.label);
+                        }
+                        else {
+                            buttons.push(localize('cancelButton', "Cancel"));
+                        }
+                    }
+                }
+                if (buttons.length === 0) {
+                    buttons.push(localize({ key: 'okButton', comment: ['&& denotes a mnemonic'] }, "&&OK"));
+                }
+                break;
+            }
+            case DialogKind.Input: {
+                const inputDialog = dialog;
+                if (inputDialog.primaryButton) {
+                    buttons.push(inputDialog.primaryButton);
+                }
+                else {
+                    buttons.push(localize({ key: 'okButton', comment: ['&& denotes a mnemonic'] }, "&&OK"));
+                }
+                if (inputDialog.cancelButton) {
+                    buttons.push(inputDialog.cancelButton);
+                }
+                else {
+                    buttons.push(localize('cancelButton', "Cancel"));
+                }
+                break;
+            }
         }
-        if (buttons.length === 0) {
-          buttons.push(localize({ key: "okButton", comment: ["&& denotes a mnemonic"] }, "&&OK"));
+        return buttons;
+    }
+    getDialogType(type) {
+        if (typeof type === 'string') {
+            return type;
         }
-        break;
-      }
-      case 3 /* Input */: {
-        const inputDialog = dialog;
-        if (inputDialog.primaryButton) {
-          buttons.push(inputDialog.primaryButton);
-        } else {
-          buttons.push(localize({ key: "okButton", comment: ["&& denotes a mnemonic"] }, "&&OK"));
+        if (typeof type === 'number') {
+            return (type === Severity.Info) ? 'info' : (type === Severity.Error) ? 'error' : (type === Severity.Warning) ? 'warning' : 'none';
         }
-        if (inputDialog.cancelButton) {
-          buttons.push(inputDialog.cancelButton);
-        } else {
-          buttons.push(localize("cancelButton", "Cancel"));
+        return undefined;
+    }
+    getPromptResult(prompt, buttonIndex, checkboxChecked) {
+        const promptButtons = [...(prompt.buttons ?? [])];
+        if (prompt.cancelButton && typeof prompt.cancelButton !== 'string' && typeof prompt.cancelButton !== 'boolean') {
+            promptButtons.push(prompt.cancelButton);
         }
-        break;
-      }
+        let result = promptButtons[buttonIndex]?.run({ checkboxChecked });
+        if (!(result instanceof Promise)) {
+            result = Promise.resolve(result);
+        }
+        return { result, checkboxChecked };
     }
-    return buttons;
-  }
-  getDialogType(type) {
-    if (typeof type === "string") {
-      return type;
-    }
-    if (typeof type === "number") {
-      return type === Severity.Info ? "info" : type === Severity.Error ? "error" : type === Severity.Warning ? "warning" : "none";
-    }
-    return void 0;
-  }
-  getPromptResult(prompt, buttonIndex, checkboxChecked) {
-    const promptButtons = [...prompt.buttons ?? []];
-    if (prompt.cancelButton && typeof prompt.cancelButton !== "string" && typeof prompt.cancelButton !== "boolean") {
-      promptButtons.push(prompt.cancelButton);
-    }
-    let result = promptButtons[buttonIndex]?.run({ checkboxChecked });
-    if (!(result instanceof Promise)) {
-      result = Promise.resolve(result);
-    }
-    return { result, checkboxChecked };
-  }
 }
-const IFileDialogService = createDecorator("fileDialogService");
-var ConfirmResult = /* @__PURE__ */ ((ConfirmResult2) => {
-  ConfirmResult2[ConfirmResult2["SAVE"] = 0] = "SAVE";
-  ConfirmResult2[ConfirmResult2["DONT_SAVE"] = 1] = "DONT_SAVE";
-  ConfirmResult2[ConfirmResult2["CANCEL"] = 2] = "CANCEL";
-  return ConfirmResult2;
-})(ConfirmResult || {});
+export const IFileDialogService = createDecorator('fileDialogService');
 const MAX_CONFIRM_FILES = 10;
-function getFileNamesMessage(fileNamesOrResources) {
-  const message = [];
-  message.push(...fileNamesOrResources.slice(0, MAX_CONFIRM_FILES).map((fileNameOrResource) => typeof fileNameOrResource === "string" ? fileNameOrResource : basename(fileNameOrResource)));
-  if (fileNamesOrResources.length > MAX_CONFIRM_FILES) {
-    if (fileNamesOrResources.length - MAX_CONFIRM_FILES === 1) {
-      message.push(localize("moreFile", "...1 additional file not shown"));
-    } else {
-      message.push(localize("moreFiles", "...{0} additional files not shown", fileNamesOrResources.length - MAX_CONFIRM_FILES));
-    }
-  }
-  message.push("");
-  return message.join("\n");
-}
-__name(getFileNamesMessage, "getFileNamesMessage");
-function massageMessageBoxOptions(options, productService) {
-  const massagedOptions = deepClone(options);
-  let buttons = (massagedOptions.buttons ?? []).map((button) => mnemonicButtonLabel(button));
-  let buttonIndeces = (options.buttons || []).map((button, index) => index);
-  let defaultId = 0;
-  let cancelId = massagedOptions.cancelId ?? buttons.length - 1;
-  if (buttons.length > 1) {
-    const cancelButton = typeof cancelId === "number" ? buttons[cancelId] : void 0;
-    if (isLinux || isMacintosh) {
-      if (typeof cancelButton === "string" && buttons.length > 1 && cancelId !== 1) {
-        buttons.splice(cancelId, 1);
-        buttons.splice(1, 0, cancelButton);
-        const cancelButtonIndex = buttonIndeces[cancelId];
-        buttonIndeces.splice(cancelId, 1);
-        buttonIndeces.splice(1, 0, cancelButtonIndex);
-        cancelId = 1;
-      }
-      if (isLinux && buttons.length > 1) {
-        buttons = buttons.reverse();
-        buttonIndeces = buttonIndeces.reverse();
-        defaultId = buttons.length - 1;
-        if (typeof cancelButton === "string") {
-          cancelId = defaultId - 1;
+export function getFileNamesMessage(fileNamesOrResources) {
+    const message = [];
+    message.push(...fileNamesOrResources.slice(0, MAX_CONFIRM_FILES).map(fileNameOrResource => typeof fileNameOrResource === 'string' ? fileNameOrResource : basename(fileNameOrResource)));
+    if (fileNamesOrResources.length > MAX_CONFIRM_FILES) {
+        if (fileNamesOrResources.length - MAX_CONFIRM_FILES === 1) {
+            message.push(localize('moreFile', "...1 additional file not shown"));
         }
-      }
-    } else if (isWindows) {
-      if (typeof cancelButton === "string" && buttons.length > 1 && cancelId !== buttons.length - 1) {
-        buttons.splice(cancelId, 1);
-        buttons.push(cancelButton);
-        const buttonIndex = buttonIndeces[cancelId];
-        buttonIndeces.splice(cancelId, 1);
-        buttonIndeces.push(buttonIndex);
-        cancelId = buttons.length - 1;
-      }
+        else {
+            message.push(localize('moreFiles', "...{0} additional files not shown", fileNamesOrResources.length - MAX_CONFIRM_FILES));
+        }
     }
-  }
-  massagedOptions.buttons = buttons;
-  massagedOptions.defaultId = defaultId;
-  massagedOptions.cancelId = cancelId;
-  massagedOptions.noLink = true;
-  massagedOptions.title = massagedOptions.title || productService.nameLong;
-  return {
-    options: massagedOptions,
-    buttonIndeces
-  };
+    message.push('');
+    return message.join('\n');
 }
-__name(massageMessageBoxOptions, "massageMessageBoxOptions");
-export {
-  AbstractDialogHandler,
-  ConfirmResult,
-  IDialogService,
-  IFileDialogService,
-  getFileNamesMessage,
-  massageMessageBoxOptions
-};
-//# sourceMappingURL=dialogs.js.map
+/**
+ * A utility method to ensure the options for the message box dialog
+ * are using properties that are consistent across all platforms and
+ * specific to the platform where necessary.
+ */
+export function massageMessageBoxOptions(options, productService) {
+    const massagedOptions = deepClone(options);
+    let buttons = (massagedOptions.buttons ?? []).map(button => mnemonicButtonLabel(button));
+    let buttonIndeces = (options.buttons || []).map((button, index) => index);
+    let defaultId = 0; // by default the first button is default button
+    let cancelId = massagedOptions.cancelId ?? buttons.length - 1; // by default the last button is cancel button
+    // Apply HIG per OS when more than one button is used
+    if (buttons.length > 1) {
+        const cancelButton = typeof cancelId === 'number' ? buttons[cancelId] : undefined;
+        if (isLinux || isMacintosh) {
+            // Linux: the GNOME HIG (https://developer.gnome.org/hig/patterns/feedback/dialogs.html?highlight=dialog)
+            // recommend the following:
+            // "Always ensure that the cancel button appears first, before the affirmative button. In left-to-right
+            //  locales, this is on the left. This button order ensures that users become aware of, and are reminded
+            //  of, the ability to cancel prior to encountering the affirmative button."
+            //
+            // Electron APIs do not reorder buttons for us, so we ensure a reverse order of buttons and a position
+            // of the cancel button (if provided) that matches the HIG
+            // macOS: the HIG (https://developer.apple.com/design/human-interface-guidelines/components/presentation/alerts)
+            // recommend the following:
+            // "Place buttons where people expect. In general, place the button people are most likely to choose on the trailing side in a
+            //  row of buttons or at the top in a stack of buttons. Always place the default button on the trailing side of a row or at the
+            //  top of a stack. Cancel buttons are typically on the leading side of a row or at the bottom of a stack."
+            //
+            // However: it seems that older macOS versions where 3 buttons were presented in a row differ from this
+            // recommendation. In fact, cancel buttons were placed to the left of the default button and secondary
+            // buttons on the far left. To support these older macOS versions we have to manually shuffle the cancel
+            // button in the same way as we do on Linux. This will not have any impact on newer macOS versions where
+            // shuffling is done for us.
+            if (typeof cancelButton === 'string' && buttons.length > 1 && cancelId !== 1) {
+                buttons.splice(cancelId, 1);
+                buttons.splice(1, 0, cancelButton);
+                const cancelButtonIndex = buttonIndeces[cancelId];
+                buttonIndeces.splice(cancelId, 1);
+                buttonIndeces.splice(1, 0, cancelButtonIndex);
+                cancelId = 1;
+            }
+            if (isLinux && buttons.length > 1) {
+                buttons = buttons.reverse();
+                buttonIndeces = buttonIndeces.reverse();
+                defaultId = buttons.length - 1;
+                if (typeof cancelButton === 'string') {
+                    cancelId = defaultId - 1;
+                }
+            }
+        }
+        else if (isWindows) {
+            // Windows: the HIG (https://learn.microsoft.com/en-us/windows/win32/uxguide/win-dialog-box)
+            // recommend the following:
+            // "One of the following sets of concise commands: Yes/No, Yes/No/Cancel, [Do it]/Cancel,
+            //  [Do it]/[Don't do it], [Do it]/[Don't do it]/Cancel."
+            //
+            // Electron APIs do not reorder buttons for us, so we ensure the position of the cancel button
+            // (if provided) that matches the HIG
+            if (typeof cancelButton === 'string' && buttons.length > 1 && cancelId !== buttons.length - 1 /* last action */) {
+                buttons.splice(cancelId, 1);
+                buttons.push(cancelButton);
+                const buttonIndex = buttonIndeces[cancelId];
+                buttonIndeces.splice(cancelId, 1);
+                buttonIndeces.push(buttonIndex);
+                cancelId = buttons.length - 1;
+            }
+        }
+    }
+    massagedOptions.buttons = buttons;
+    massagedOptions.defaultId = defaultId;
+    massagedOptions.cancelId = cancelId;
+    massagedOptions.noLink = true;
+    massagedOptions.title = massagedOptions.title || productService.nameLong;
+    return {
+        options: massagedOptions,
+        buttonIndeces
+    };
+}

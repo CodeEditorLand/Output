@@ -1,43 +1,43 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { RunOnceScheduler } from "../../../base/common/async.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { AccessibilitySignal, IAccessibilitySignalService } from "./accessibilitySignalService.js";
-const PROGRESS_SIGNAL_LOOP_DELAY = 5e3;
-let AccessibilityProgressSignalScheduler = class extends Disposable {
-  constructor(msDelayTime, msLoopTime, _accessibilitySignalService) {
-    super();
-    this._accessibilitySignalService = _accessibilitySignalService;
-    this._scheduler = new RunOnceScheduler(() => {
-      this._signalLoop = this._accessibilitySignalService.playSignalLoop(AccessibilitySignal.progress, msLoopTime ?? PROGRESS_SIGNAL_LOOP_DELAY);
-    }, msDelayTime);
-    this._scheduler.schedule();
-  }
-  static {
-    __name(this, "AccessibilityProgressSignalScheduler");
-  }
-  _scheduler;
-  _signalLoop;
-  dispose() {
-    super.dispose();
-    this._signalLoop?.dispose();
-    this._scheduler.dispose();
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-AccessibilityProgressSignalScheduler = __decorateClass([
-  __decorateParam(2, IAccessibilitySignalService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { RunOnceScheduler } from '../../../base/common/async.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { AccessibilitySignal, IAccessibilitySignalService } from './accessibilitySignalService.js';
+const PROGRESS_SIGNAL_LOOP_DELAY = 5000;
+/**
+ * Schedules a signal to play while progress is happening.
+ */
+let AccessibilityProgressSignalScheduler = class AccessibilityProgressSignalScheduler extends Disposable {
+    constructor(msDelayTime, msLoopTime, _accessibilitySignalService) {
+        super();
+        this._accessibilitySignalService = _accessibilitySignalService;
+        this._scheduler = new RunOnceScheduler(() => {
+            this._signalLoop = this._accessibilitySignalService.playSignalLoop(AccessibilitySignal.progress, msLoopTime ?? PROGRESS_SIGNAL_LOOP_DELAY);
+        }, msDelayTime);
+        this._scheduler.schedule();
+    }
+    dispose() {
+        super.dispose();
+        this._signalLoop?.dispose();
+        this._scheduler.dispose();
+    }
+};
+AccessibilityProgressSignalScheduler = __decorate([
+    __param(2, IAccessibilitySignalService),
+    __metadata("design:paramtypes", [Number, Object, Object])
 ], AccessibilityProgressSignalScheduler);
-export {
-  AccessibilityProgressSignalScheduler
-};
-//# sourceMappingURL=progressAccessibilitySignalScheduler.js.map
+export { AccessibilityProgressSignalScheduler };

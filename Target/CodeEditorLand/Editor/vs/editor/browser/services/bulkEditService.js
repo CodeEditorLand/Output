@@ -1,87 +1,73 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ICodeEditor } from "../editorBrowser.js";
-import { TextEdit, WorkspaceEdit, WorkspaceEditMetadata, IWorkspaceFileEdit, WorkspaceFileEditOptions, IWorkspaceTextEdit } from "../../common/languages.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { IProgress, IProgressStep } from "../../../platform/progress/common/progress.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { isObject } from "../../../base/common/types.js";
-import { UndoRedoSource } from "../../../platform/undoRedo/common/undoRedo.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-const IBulkEditService = createDecorator("IWorkspaceEditService");
-class ResourceEdit {
-  constructor(metadata) {
-    this.metadata = metadata;
-  }
-  static {
-    __name(this, "ResourceEdit");
-  }
-  static convert(edit) {
-    return edit.edits.map((edit2) => {
-      if (ResourceTextEdit.is(edit2)) {
-        return ResourceTextEdit.lift(edit2);
-      }
-      if (ResourceFileEdit.is(edit2)) {
-        return ResourceFileEdit.lift(edit2);
-      }
-      throw new Error("Unsupported edit");
-    });
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../platform/instantiation/common/instantiation.js';
+import { URI } from '../../../base/common/uri.js';
+import { isObject } from '../../../base/common/types.js';
+export const IBulkEditService = createDecorator('IWorkspaceEditService');
+export class ResourceEdit {
+    constructor(metadata) {
+        this.metadata = metadata;
+    }
+    static convert(edit) {
+        return edit.edits.map(edit => {
+            if (ResourceTextEdit.is(edit)) {
+                return ResourceTextEdit.lift(edit);
+            }
+            if (ResourceFileEdit.is(edit)) {
+                return ResourceFileEdit.lift(edit);
+            }
+            throw new Error('Unsupported edit');
+        });
+    }
 }
-class ResourceTextEdit extends ResourceEdit {
-  constructor(resource, textEdit, versionId = void 0, metadata) {
-    super(metadata);
-    this.resource = resource;
-    this.textEdit = textEdit;
-    this.versionId = versionId;
-  }
-  static {
-    __name(this, "ResourceTextEdit");
-  }
-  static is(candidate) {
-    if (candidate instanceof ResourceTextEdit) {
-      return true;
+export class ResourceTextEdit extends ResourceEdit {
+    static is(candidate) {
+        if (candidate instanceof ResourceTextEdit) {
+            return true;
+        }
+        return isObject(candidate)
+            && URI.isUri(candidate.resource)
+            && isObject(candidate.textEdit);
     }
-    return isObject(candidate) && URI.isUri(candidate.resource) && isObject(candidate.textEdit);
-  }
-  static lift(edit) {
-    if (edit instanceof ResourceTextEdit) {
-      return edit;
-    } else {
-      return new ResourceTextEdit(edit.resource, edit.textEdit, edit.versionId, edit.metadata);
+    static lift(edit) {
+        if (edit instanceof ResourceTextEdit) {
+            return edit;
+        }
+        else {
+            return new ResourceTextEdit(edit.resource, edit.textEdit, edit.versionId, edit.metadata);
+        }
     }
-  }
+    constructor(resource, textEdit, versionId = undefined, metadata) {
+        super(metadata);
+        this.resource = resource;
+        this.textEdit = textEdit;
+        this.versionId = versionId;
+    }
 }
-class ResourceFileEdit extends ResourceEdit {
-  constructor(oldResource, newResource, options = {}, metadata) {
-    super(metadata);
-    this.oldResource = oldResource;
-    this.newResource = newResource;
-    this.options = options;
-  }
-  static {
-    __name(this, "ResourceFileEdit");
-  }
-  static is(candidate) {
-    if (candidate instanceof ResourceFileEdit) {
-      return true;
-    } else {
-      return isObject(candidate) && (Boolean(candidate.newResource) || Boolean(candidate.oldResource));
+export class ResourceFileEdit extends ResourceEdit {
+    static is(candidate) {
+        if (candidate instanceof ResourceFileEdit) {
+            return true;
+        }
+        else {
+            return isObject(candidate)
+                && (Boolean(candidate.newResource) || Boolean(candidate.oldResource));
+        }
     }
-  }
-  static lift(edit) {
-    if (edit instanceof ResourceFileEdit) {
-      return edit;
-    } else {
-      return new ResourceFileEdit(edit.oldResource, edit.newResource, edit.options, edit.metadata);
+    static lift(edit) {
+        if (edit instanceof ResourceFileEdit) {
+            return edit;
+        }
+        else {
+            return new ResourceFileEdit(edit.oldResource, edit.newResource, edit.options, edit.metadata);
+        }
     }
-  }
+    constructor(oldResource, newResource, options = {}, metadata) {
+        super(metadata);
+        this.oldResource = oldResource;
+        this.newResource = newResource;
+        this.options = options;
+    }
 }
-export {
-  IBulkEditService,
-  ResourceEdit,
-  ResourceFileEdit,
-  ResourceTextEdit
-};
-//# sourceMappingURL=bulkEditService.js.map

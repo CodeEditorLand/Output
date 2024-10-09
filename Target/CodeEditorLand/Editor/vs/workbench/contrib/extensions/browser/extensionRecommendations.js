@@ -1,24 +1,18 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-class ExtensionRecommendations extends Disposable {
-  static {
-    __name(this, "ExtensionRecommendations");
-  }
-  _activationPromise = null;
-  get activated() {
-    return this._activationPromise !== null;
-  }
-  activate() {
-    if (!this._activationPromise) {
-      this._activationPromise = this.doActivate();
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Disposable } from '../../../../base/common/lifecycle.js';
+export class ExtensionRecommendations extends Disposable {
+    constructor() {
+        super(...arguments);
+        this._activationPromise = null;
     }
-    return this._activationPromise;
-  }
+    get activated() { return this._activationPromise !== null; }
+    activate() {
+        if (!this._activationPromise) {
+            this._activationPromise = this.doActivate();
+        }
+        return this._activationPromise;
+    }
 }
-export {
-  ExtensionRecommendations
-};
-//# sourceMappingURL=extensionRecommendations.js.map

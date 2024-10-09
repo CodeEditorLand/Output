@@ -1,4 +1,5 @@
-import { Event } from "../../../base/common/event.js";
-import { DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
-import { IChannelClient } from "../../../base/parts/ipc/common/ipc.js";
-//# sourceMappingURL=ptyHost.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export {};

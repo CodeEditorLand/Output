@@ -1,92 +1,87 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../../../../base/common/event.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { INotebookFindScope, NotebookFindScopeType } from "../../../common/notebookCommon.js";
-class NotebookFindFilters extends Disposable {
-  static {
-    __name(this, "NotebookFindFilters");
-  }
-  _onDidChange = this._register(new Emitter());
-  onDidChange = this._onDidChange.event;
-  _markupInput = true;
-  get markupInput() {
-    return this._markupInput;
-  }
-  set markupInput(value) {
-    if (this._markupInput !== value) {
-      this._markupInput = value;
-      this._onDidChange.fire({ markupInput: value });
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Emitter } from '../../../../../../base/common/event.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { NotebookFindScopeType } from '../../../common/notebookCommon.js';
+export class NotebookFindFilters extends Disposable {
+    get markupInput() {
+        return this._markupInput;
     }
-  }
-  _markupPreview = true;
-  get markupPreview() {
-    return this._markupPreview;
-  }
-  set markupPreview(value) {
-    if (this._markupPreview !== value) {
-      this._markupPreview = value;
-      this._onDidChange.fire({ markupPreview: value });
+    set markupInput(value) {
+        if (this._markupInput !== value) {
+            this._markupInput = value;
+            this._onDidChange.fire({ markupInput: value });
+        }
     }
-  }
-  _codeInput = true;
-  get codeInput() {
-    return this._codeInput;
-  }
-  set codeInput(value) {
-    if (this._codeInput !== value) {
-      this._codeInput = value;
-      this._onDidChange.fire({ codeInput: value });
+    get markupPreview() {
+        return this._markupPreview;
     }
-  }
-  _codeOutput = true;
-  get codeOutput() {
-    return this._codeOutput;
-  }
-  set codeOutput(value) {
-    if (this._codeOutput !== value) {
-      this._codeOutput = value;
-      this._onDidChange.fire({ codeOutput: value });
+    set markupPreview(value) {
+        if (this._markupPreview !== value) {
+            this._markupPreview = value;
+            this._onDidChange.fire({ markupPreview: value });
+        }
     }
-  }
-  _findScope = { findScopeType: NotebookFindScopeType.None };
-  get findScope() {
-    return this._findScope;
-  }
-  set findScope(value) {
-    if (this._findScope !== value) {
-      this._findScope = value;
-      this._onDidChange.fire({ findScope: true });
+    get codeInput() {
+        return this._codeInput;
     }
-  }
-  _initialMarkupInput;
-  _initialMarkupPreview;
-  _initialCodeInput;
-  _initialCodeOutput;
-  constructor(markupInput, markupPreview, codeInput, codeOutput, findScope) {
-    super();
-    this._markupInput = markupInput;
-    this._markupPreview = markupPreview;
-    this._codeInput = codeInput;
-    this._codeOutput = codeOutput;
-    this._findScope = findScope;
-    this._initialMarkupInput = markupInput;
-    this._initialMarkupPreview = markupPreview;
-    this._initialCodeInput = codeInput;
-    this._initialCodeOutput = codeOutput;
-  }
-  isModified() {
-    return this._markupInput !== this._initialMarkupInput || this._markupPreview !== this._initialMarkupPreview || this._codeInput !== this._initialCodeInput || this._codeOutput !== this._initialCodeOutput;
-  }
-  update(v) {
-    this._markupInput = v.markupInput;
-    this._markupPreview = v.markupPreview;
-    this._codeInput = v.codeInput;
-    this._codeOutput = v.codeOutput;
-    this._findScope = v.findScope;
-  }
+    set codeInput(value) {
+        if (this._codeInput !== value) {
+            this._codeInput = value;
+            this._onDidChange.fire({ codeInput: value });
+        }
+    }
+    get codeOutput() {
+        return this._codeOutput;
+    }
+    set codeOutput(value) {
+        if (this._codeOutput !== value) {
+            this._codeOutput = value;
+            this._onDidChange.fire({ codeOutput: value });
+        }
+    }
+    get findScope() {
+        return this._findScope;
+    }
+    set findScope(value) {
+        if (this._findScope !== value) {
+            this._findScope = value;
+            this._onDidChange.fire({ findScope: true });
+        }
+    }
+    constructor(markupInput, markupPreview, codeInput, codeOutput, findScope) {
+        super();
+        this._onDidChange = this._register(new Emitter());
+        this.onDidChange = this._onDidChange.event;
+        this._markupInput = true;
+        this._markupPreview = true;
+        this._codeInput = true;
+        this._codeOutput = true;
+        this._findScope = { findScopeType: NotebookFindScopeType.None };
+        this._markupInput = markupInput;
+        this._markupPreview = markupPreview;
+        this._codeInput = codeInput;
+        this._codeOutput = codeOutput;
+        this._findScope = findScope;
+        this._initialMarkupInput = markupInput;
+        this._initialMarkupPreview = markupPreview;
+        this._initialCodeInput = codeInput;
+        this._initialCodeOutput = codeOutput;
+    }
+    isModified() {
+        // do not include findInSelection or either selectedRanges in the check. This will incorrectly mark the filter icon as modified
+        return (this._markupInput !== this._initialMarkupInput
+            || this._markupPreview !== this._initialMarkupPreview
+            || this._codeInput !== this._initialCodeInput
+            || this._codeOutput !== this._initialCodeOutput);
+    }
+    update(v) {
+        this._markupInput = v.markupInput;
+        this._markupPreview = v.markupPreview;
+        this._codeInput = v.codeInput;
+        this._codeOutput = v.codeOutput;
+        this._findScope = v.findScope;
+    }
 }
-export {
-  NotebookFindFilters
-};
-//# sourceMappingURL=findFilters.js.map

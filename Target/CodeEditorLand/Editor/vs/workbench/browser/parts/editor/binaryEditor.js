@@ -1,75 +1,77 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { BinaryEditorModel } from "../../../common/editor/binaryEditorModel.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { ByteSize } from "../../../../platform/files/common/files.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { EditorPlaceholder, IEditorPlaceholderContents } from "./editorPlaceholder.js";
-import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
-let BaseBinaryResourceEditor = class extends EditorPlaceholder {
-  constructor(id, group, callbacks, telemetryService, themeService, storageService) {
-    super(id, group, telemetryService, themeService, storageService);
-    this.callbacks = callbacks;
-  }
-  static {
-    __name(this, "BaseBinaryResourceEditor");
-  }
-  _onDidChangeMetadata = this._register(new Emitter());
-  onDidChangeMetadata = this._onDidChangeMetadata.event;
-  _onDidOpenInPlace = this._register(new Emitter());
-  onDidOpenInPlace = this._onDidOpenInPlace.event;
-  metadata;
-  getTitle() {
-    return this.input ? this.input.getName() : localize("binaryEditor", "Binary Viewer");
-  }
-  async getContents(input, options) {
-    const model = await input.resolve();
-    if (!(model instanceof BinaryEditorModel)) {
-      throw new Error("Unable to open file as binary");
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { localize } from '../../../../nls.js';
+import { Emitter } from '../../../../base/common/event.js';
+import { BinaryEditorModel } from '../../../common/editor/binaryEditorModel.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { ByteSize } from '../../../../platform/files/common/files.js';
+import { EditorPlaceholder } from './editorPlaceholder.js';
+/*
+ * This class is only intended to be subclassed and not instantiated.
+ */
+let BaseBinaryResourceEditor = class BaseBinaryResourceEditor extends EditorPlaceholder {
+    constructor(id, group, callbacks, telemetryService, themeService, storageService) {
+        super(id, group, telemetryService, themeService, storageService);
+        this.callbacks = callbacks;
+        this._onDidChangeMetadata = this._register(new Emitter());
+        this.onDidChangeMetadata = this._onDidChangeMetadata.event;
+        this._onDidOpenInPlace = this._register(new Emitter());
+        this.onDidOpenInPlace = this._onDidOpenInPlace.event;
     }
-    const size = model.getSize();
-    this.handleMetadataChanged(typeof size === "number" ? ByteSize.formatSize(size) : "");
-    return {
-      icon: "$(warning)",
-      label: localize("binaryError", "The file is not displayed in the text editor because it is either binary or uses an unsupported text encoding."),
-      actions: [
-        {
-          label: localize("openAnyway", "Open Anyway"),
-          run: /* @__PURE__ */ __name(async () => {
-            await this.callbacks.openInternal(input, options);
-            this._onDidOpenInPlace.fire();
-          }, "run")
+    getTitle() {
+        return this.input ? this.input.getName() : localize('binaryEditor', "Binary Viewer");
+    }
+    async getContents(input, options) {
+        const model = await input.resolve();
+        // Assert Model instance
+        if (!(model instanceof BinaryEditorModel)) {
+            throw new Error('Unable to open file as binary');
         }
-      ]
-    };
-  }
-  handleMetadataChanged(meta) {
-    this.metadata = meta;
-    this._onDidChangeMetadata.fire();
-  }
-  getMetadata() {
-    return this.metadata;
-  }
+        // Update metadata
+        const size = model.getSize();
+        this.handleMetadataChanged(typeof size === 'number' ? ByteSize.formatSize(size) : '');
+        return {
+            icon: '$(warning)',
+            label: localize('binaryError', "The file is not displayed in the text editor because it is either binary or uses an unsupported text encoding."),
+            actions: [
+                {
+                    label: localize('openAnyway', "Open Anyway"),
+                    run: async () => {
+                        // Open in place
+                        await this.callbacks.openInternal(input, options);
+                        // Signal to listeners that the binary editor has been opened in-place
+                        this._onDidOpenInPlace.fire();
+                    }
+                }
+            ]
+        };
+    }
+    handleMetadataChanged(meta) {
+        this.metadata = meta;
+        this._onDidChangeMetadata.fire();
+    }
+    getMetadata() {
+        return this.metadata;
+    }
 };
-BaseBinaryResourceEditor = __decorateClass([
-  __decorateParam(5, IStorageService)
+BaseBinaryResourceEditor = __decorate([
+    __param(5, IStorageService),
+    __metadata("design:paramtypes", [String, Object, Object, Object, Object, Object])
 ], BaseBinaryResourceEditor);
-export {
-  BaseBinaryResourceEditor
-};
-//# sourceMappingURL=binaryEditor.js.map
+export { BaseBinaryResourceEditor };

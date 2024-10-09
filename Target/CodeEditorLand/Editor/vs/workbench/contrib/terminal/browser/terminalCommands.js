@@ -1,29 +1,25 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { KeybindingsRegistry, KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ITerminalGroupService } from "./terminal.js";
-function setupTerminalCommands() {
-  registerOpenTerminalAtIndexCommands();
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { KeybindingsRegistry } from '../../../../platform/keybinding/common/keybindingsRegistry.js';
+import { ITerminalGroupService } from './terminal.js';
+export function setupTerminalCommands() {
+    registerOpenTerminalAtIndexCommands();
 }
-__name(setupTerminalCommands, "setupTerminalCommands");
 function registerOpenTerminalAtIndexCommands() {
-  for (let i = 0; i < 9; i++) {
-    const terminalIndex = i;
-    const visibleIndex = i + 1;
-    KeybindingsRegistry.registerCommandAndKeybindingRule({
-      id: `workbench.action.terminal.focusAtIndex${visibleIndex}`,
-      weight: KeybindingWeight.WorkbenchContrib,
-      when: void 0,
-      primary: 0,
-      handler: /* @__PURE__ */ __name((accessor) => {
-        accessor.get(ITerminalGroupService).setActiveInstanceByIndex(terminalIndex);
-        return accessor.get(ITerminalGroupService).showPanel(true);
-      }, "handler")
-    });
-  }
+    for (let i = 0; i < 9; i++) {
+        const terminalIndex = i;
+        const visibleIndex = i + 1;
+        KeybindingsRegistry.registerCommandAndKeybindingRule({
+            id: `workbench.action.terminal.focusAtIndex${visibleIndex}`,
+            weight: 200 /* KeybindingWeight.WorkbenchContrib */,
+            when: undefined,
+            primary: 0,
+            handler: accessor => {
+                accessor.get(ITerminalGroupService).setActiveInstanceByIndex(terminalIndex);
+                return accessor.get(ITerminalGroupService).showPanel(true);
+            }
+        });
+    }
 }
-__name(registerOpenTerminalAtIndexCommands, "registerOpenTerminalAtIndexCommands");
-export {
-  setupTerminalCommands
-};
-//# sourceMappingURL=terminalCommands.js.map

@@ -1,9 +1,7 @@
-import { IProductConfiguration } from "../../../base/common/product.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IProductService = createDecorator("productService");
-const productSchemaId = "vscode://schemas/vscode-product";
-export {
-  IProductService,
-  productSchemaId
-};
-//# sourceMappingURL=productService.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export const IProductService = createDecorator('productService');
+export const productSchemaId = 'vscode://schemas/vscode-product';

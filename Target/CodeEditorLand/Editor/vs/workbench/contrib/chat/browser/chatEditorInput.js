@@ -1,193 +1,181 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import * as nls from "../../../../nls.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import { EditorInputCapabilities, IEditorSerializer, IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { ChatAgentLocation } from "../common/chatAgents.js";
-import { IChatModel } from "../common/chatModel.js";
-import { IChatService } from "../common/chatService.js";
-const ChatEditorIcon = registerIcon("chat-editor-label-icon", Codicon.commentDiscussion, nls.localize("chatEditorLabelIcon", "Icon of the chat editor label."));
-let ChatEditorInput = class extends EditorInput {
-  constructor(resource, options, chatService) {
-    super();
-    this.resource = resource;
-    this.options = options;
-    this.chatService = chatService;
-    const parsed = ChatUri.parse(resource);
-    if (typeof parsed?.handle !== "number") {
-      throw new Error("Invalid chat URI");
-    }
-    this.sessionId = options.target && "sessionId" in options.target ? options.target.sessionId : void 0;
-    this.inputCount = ChatEditorInput.getNextCount();
-    ChatEditorInput.countsInUse.add(this.inputCount);
-    this._register(toDisposable(() => ChatEditorInput.countsInUse.delete(this.inputCount)));
-  }
-  static {
-    __name(this, "ChatEditorInput");
-  }
-  static countsInUse = /* @__PURE__ */ new Set();
-  static TypeID = "workbench.input.chatSession";
-  static EditorID = "workbench.editor.chatSession";
-  inputCount;
-  sessionId;
-  model;
-  static getNewEditorUri() {
-    const handle = Math.floor(Math.random() * 1e9);
-    return ChatUri.generate(handle);
-  }
-  static getNextCount() {
-    let count = 0;
-    while (ChatEditorInput.countsInUse.has(count)) {
-      count++;
-    }
-    return count;
-  }
-  get editorId() {
-    return ChatEditorInput.EditorID;
-  }
-  get capabilities() {
-    return super.capabilities | EditorInputCapabilities.Singleton;
-  }
-  matches(otherInput) {
-    return otherInput instanceof ChatEditorInput && otherInput.resource.toString() === this.resource.toString();
-  }
-  get typeId() {
-    return ChatEditorInput.TypeID;
-  }
-  getName() {
-    return this.model?.title || nls.localize("chatEditorName", "Chat") + (this.inputCount > 0 ? ` ${this.inputCount + 1}` : "");
-  }
-  getIcon() {
-    return ChatEditorIcon;
-  }
-  async resolve() {
-    if (typeof this.sessionId === "string") {
-      this.model = this.chatService.getOrRestoreSession(this.sessionId);
-    } else if (!this.options.target) {
-      this.model = this.chatService.startSession(ChatAgentLocation.Panel, CancellationToken.None);
-    } else if ("data" in this.options.target) {
-      this.model = this.chatService.loadSessionFromContent(this.options.target.data);
-    }
-    if (!this.model) {
-      return null;
-    }
-    this.sessionId = this.model.sessionId;
-    this._register(this.model.onDidChange(() => this._onDidChangeLabel.fire()));
-    return this._register(new ChatEditorModel(this.model));
-  }
-  dispose() {
-    super.dispose();
-    if (this.sessionId) {
-      this.chatService.clearSession(this.sessionId);
-    }
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-ChatEditorInput = __decorateClass([
-  __decorateParam(2, IChatService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var ChatEditorInput_1;
+import { CancellationToken } from '../../../../base/common/cancellation.js';
+import { Codicon } from '../../../../base/common/codicons.js';
+import { Emitter } from '../../../../base/common/event.js';
+import { Disposable, toDisposable } from '../../../../base/common/lifecycle.js';
+import { Schemas } from '../../../../base/common/network.js';
+import { URI } from '../../../../base/common/uri.js';
+import * as nls from '../../../../nls.js';
+import { registerIcon } from '../../../../platform/theme/common/iconRegistry.js';
+import { EditorInput } from '../../../common/editor/editorInput.js';
+import { ChatAgentLocation } from '../common/chatAgents.js';
+import { IChatService } from '../common/chatService.js';
+const ChatEditorIcon = registerIcon('chat-editor-label-icon', Codicon.commentDiscussion, nls.localize('chatEditorLabelIcon', 'Icon of the chat editor label.'));
+let ChatEditorInput = class ChatEditorInput extends EditorInput {
+    static { ChatEditorInput_1 = this; }
+    static { this.countsInUse = new Set(); }
+    static { this.TypeID = 'workbench.input.chatSession'; }
+    static { this.EditorID = 'workbench.editor.chatSession'; }
+    static getNewEditorUri() {
+        const handle = Math.floor(Math.random() * 1e9);
+        return ChatUri.generate(handle);
+    }
+    static getNextCount() {
+        let count = 0;
+        while (ChatEditorInput_1.countsInUse.has(count)) {
+            count++;
+        }
+        return count;
+    }
+    constructor(resource, options, chatService) {
+        super();
+        this.resource = resource;
+        this.options = options;
+        this.chatService = chatService;
+        const parsed = ChatUri.parse(resource);
+        if (typeof parsed?.handle !== 'number') {
+            throw new Error('Invalid chat URI');
+        }
+        this.sessionId = (options.target && 'sessionId' in options.target) ?
+            options.target.sessionId :
+            undefined;
+        this.inputCount = ChatEditorInput_1.getNextCount();
+        ChatEditorInput_1.countsInUse.add(this.inputCount);
+        this._register(toDisposable(() => ChatEditorInput_1.countsInUse.delete(this.inputCount)));
+    }
+    get editorId() {
+        return ChatEditorInput_1.EditorID;
+    }
+    get capabilities() {
+        return super.capabilities | 8 /* EditorInputCapabilities.Singleton */;
+    }
+    matches(otherInput) {
+        return otherInput instanceof ChatEditorInput_1 && otherInput.resource.toString() === this.resource.toString();
+    }
+    get typeId() {
+        return ChatEditorInput_1.TypeID;
+    }
+    getName() {
+        return this.model?.title || nls.localize('chatEditorName', "Chat") + (this.inputCount > 0 ? ` ${this.inputCount + 1}` : '');
+    }
+    getIcon() {
+        return ChatEditorIcon;
+    }
+    async resolve() {
+        if (typeof this.sessionId === 'string') {
+            this.model = this.chatService.getOrRestoreSession(this.sessionId);
+        }
+        else if (!this.options.target) {
+            this.model = this.chatService.startSession(ChatAgentLocation.Panel, CancellationToken.None);
+        }
+        else if ('data' in this.options.target) {
+            this.model = this.chatService.loadSessionFromContent(this.options.target.data);
+        }
+        if (!this.model) {
+            return null;
+        }
+        this.sessionId = this.model.sessionId;
+        this._register(this.model.onDidChange(() => this._onDidChangeLabel.fire()));
+        return this._register(new ChatEditorModel(this.model));
+    }
+    dispose() {
+        super.dispose();
+        if (this.sessionId) {
+            this.chatService.clearSession(this.sessionId);
+        }
+    }
+};
+ChatEditorInput = ChatEditorInput_1 = __decorate([
+    __param(2, IChatService),
+    __metadata("design:paramtypes", [URI, Object, Object])
 ], ChatEditorInput);
-class ChatEditorModel extends Disposable {
-  constructor(model) {
-    super();
-    this.model = model;
-  }
-  static {
-    __name(this, "ChatEditorModel");
-  }
-  _onWillDispose = this._register(new Emitter());
-  onWillDispose = this._onWillDispose.event;
-  _isDisposed = false;
-  _isResolved = false;
-  async resolve() {
-    this._isResolved = true;
-  }
-  isResolved() {
-    return this._isResolved;
-  }
-  isDisposed() {
-    return this._isDisposed;
-  }
-  dispose() {
-    super.dispose();
-    this._isDisposed = true;
-  }
+export { ChatEditorInput };
+export class ChatEditorModel extends Disposable {
+    constructor(model) {
+        super();
+        this.model = model;
+        this._onWillDispose = this._register(new Emitter());
+        this.onWillDispose = this._onWillDispose.event;
+        this._isDisposed = false;
+        this._isResolved = false;
+    }
+    async resolve() {
+        this._isResolved = true;
+    }
+    isResolved() {
+        return this._isResolved;
+    }
+    isDisposed() {
+        return this._isDisposed;
+    }
+    dispose() {
+        super.dispose();
+        this._isDisposed = true;
+    }
 }
-var ChatUri;
-((ChatUri2) => {
-  ChatUri2.scheme = Schemas.vscodeChatSesssion;
-  function generate(handle) {
-    return URI.from({ scheme: ChatUri2.scheme, path: `chat-${handle}` });
-  }
-  ChatUri2.generate = generate;
-  __name(generate, "generate");
-  function parse(resource) {
-    if (resource.scheme !== ChatUri2.scheme) {
-      return void 0;
+export var ChatUri;
+(function (ChatUri) {
+    ChatUri.scheme = Schemas.vscodeChatSesssion;
+    function generate(handle) {
+        return URI.from({ scheme: ChatUri.scheme, path: `chat-${handle}` });
     }
-    const match = resource.path.match(/chat-(\d+)/);
-    const handleStr = match?.[1];
-    if (typeof handleStr !== "string") {
-      return void 0;
+    ChatUri.generate = generate;
+    function parse(resource) {
+        if (resource.scheme !== ChatUri.scheme) {
+            return undefined;
+        }
+        const match = resource.path.match(/chat-(\d+)/);
+        const handleStr = match?.[1];
+        if (typeof handleStr !== 'string') {
+            return undefined;
+        }
+        const handle = parseInt(handleStr);
+        if (isNaN(handle)) {
+            return undefined;
+        }
+        return { handle };
     }
-    const handle = parseInt(handleStr);
-    if (isNaN(handle)) {
-      return void 0;
-    }
-    return { handle };
-  }
-  ChatUri2.parse = parse;
-  __name(parse, "parse");
+    ChatUri.parse = parse;
 })(ChatUri || (ChatUri = {}));
-class ChatEditorInputSerializer {
-  static {
-    __name(this, "ChatEditorInputSerializer");
-  }
-  canSerialize(input) {
-    return input instanceof ChatEditorInput && typeof input.sessionId === "string";
-  }
-  serialize(input) {
-    if (!this.canSerialize(input)) {
-      return void 0;
+export class ChatEditorInputSerializer {
+    canSerialize(input) {
+        return input instanceof ChatEditorInput && typeof input.sessionId === 'string';
     }
-    const obj = {
-      options: input.options,
-      sessionId: input.sessionId,
-      resource: input.resource
-    };
-    return JSON.stringify(obj);
-  }
-  deserialize(instantiationService, serializedEditor) {
-    try {
-      const parsed = JSON.parse(serializedEditor);
-      const resource = URI.revive(parsed.resource);
-      return instantiationService.createInstance(ChatEditorInput, resource, { ...parsed.options, target: { sessionId: parsed.sessionId } });
-    } catch (err) {
-      return void 0;
+    serialize(input) {
+        if (!this.canSerialize(input)) {
+            return undefined;
+        }
+        const obj = {
+            options: input.options,
+            sessionId: input.sessionId,
+            resource: input.resource
+        };
+        return JSON.stringify(obj);
     }
-  }
+    deserialize(instantiationService, serializedEditor) {
+        try {
+            const parsed = JSON.parse(serializedEditor);
+            const resource = URI.revive(parsed.resource);
+            return instantiationService.createInstance(ChatEditorInput, resource, { ...parsed.options, target: { sessionId: parsed.sessionId } });
+        }
+        catch (err) {
+            return undefined;
+        }
+    }
 }
-export {
-  ChatEditorInput,
-  ChatEditorInputSerializer,
-  ChatEditorModel,
-  ChatUri
-};
-//# sourceMappingURL=chatEditorInput.js.map

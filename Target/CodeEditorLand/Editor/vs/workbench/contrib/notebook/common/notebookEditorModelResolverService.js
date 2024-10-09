@@ -1,11 +1,6 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IResolvedNotebookEditorModel, NotebookEditorModelCreationOptions } from "./notebookCommon.js";
-import { IReference } from "../../../../base/common/lifecycle.js";
-import { Event, IWaitUntil } from "../../../../base/common/event.js";
-import { NotebookTextModel } from "./model/notebookTextModel.js";
-const INotebookEditorModelResolverService = createDecorator("INotebookModelResolverService");
-export {
-  INotebookEditorModelResolverService
-};
-//# sourceMappingURL=notebookEditorModelResolverService.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export const INotebookEditorModelResolverService = createDecorator('INotebookModelResolverService');

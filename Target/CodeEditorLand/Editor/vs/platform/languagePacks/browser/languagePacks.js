@@ -1,80 +1,84 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationTokenSource } from "../../../base/common/cancellation.js";
-import { URI } from "../../../base/common/uri.js";
-import { IExtensionGalleryService } from "../../extensionManagement/common/extensionManagement.js";
-import { IExtensionResourceLoaderService } from "../../extensionResourceLoader/common/extensionResourceLoader.js";
-import { ILanguagePackItem, LanguagePackBaseService } from "../common/languagePacks.js";
-import { ILogService } from "../../log/common/log.js";
-let WebLanguagePacksService = class extends LanguagePackBaseService {
-  constructor(extensionResourceLoaderService, extensionGalleryService, logService) {
-    super(extensionGalleryService);
-    this.extensionResourceLoaderService = extensionResourceLoaderService;
-    this.logService = logService;
-  }
-  static {
-    __name(this, "WebLanguagePacksService");
-  }
-  async getBuiltInExtensionTranslationsUri(id, language) {
-    const queryTimeout = new CancellationTokenSource();
-    setTimeout(() => queryTimeout.cancel(), 1e3);
-    let result;
-    try {
-      result = await this.extensionGalleryService.query({
-        text: `tag:"lp-${language}"`,
-        pageSize: 5
-      }, queryTimeout.token);
-    } catch (err) {
-      this.logService.error(err);
-      return void 0;
-    }
-    const languagePackExtensions = result.firstPage.find((e) => e.properties.localizedLanguages?.length);
-    if (!languagePackExtensions) {
-      this.logService.trace(`No language pack found for language ${language}`);
-      return void 0;
-    }
-    const manifestTimeout = new CancellationTokenSource();
-    setTimeout(() => queryTimeout.cancel(), 1e3);
-    const manifest = await this.extensionGalleryService.getManifest(languagePackExtensions, manifestTimeout.token);
-    const localization = manifest?.contributes?.localizations?.find((l) => l.languageId === language);
-    const translation = localization?.translations.find((t) => t.id === id);
-    if (!translation) {
-      this.logService.trace(`No translation found for id '${id}, in ${manifest?.name}`);
-      return void 0;
-    }
-    const uri = this.extensionResourceLoaderService.getExtensionGalleryResourceURL({
-      // If translation is defined then manifest should have been defined.
-      name: manifest.name,
-      publisher: manifest.publisher,
-      version: manifest.version
-    });
-    if (!uri) {
-      this.logService.trace("Gallery does not provide extension resources.");
-      return void 0;
-    }
-    return URI.joinPath(uri, translation.path);
-  }
-  // Web doesn't have a concept of language packs, so we just return an empty array
-  getInstalledLanguages() {
-    return Promise.resolve([]);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-WebLanguagePacksService = __decorateClass([
-  __decorateParam(0, IExtensionResourceLoaderService),
-  __decorateParam(1, IExtensionGalleryService),
-  __decorateParam(2, ILogService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { CancellationTokenSource } from '../../../base/common/cancellation.js';
+import { URI } from '../../../base/common/uri.js';
+import { IExtensionGalleryService } from '../../extensionManagement/common/extensionManagement.js';
+import { IExtensionResourceLoaderService } from '../../extensionResourceLoader/common/extensionResourceLoader.js';
+import { LanguagePackBaseService } from '../common/languagePacks.js';
+import { ILogService } from '../../log/common/log.js';
+let WebLanguagePacksService = class WebLanguagePacksService extends LanguagePackBaseService {
+    constructor(extensionResourceLoaderService, extensionGalleryService, logService) {
+        super(extensionGalleryService);
+        this.extensionResourceLoaderService = extensionResourceLoaderService;
+        this.logService = logService;
+    }
+    async getBuiltInExtensionTranslationsUri(id, language) {
+        const queryTimeout = new CancellationTokenSource();
+        setTimeout(() => queryTimeout.cancel(), 1000);
+        // First get the extensions that supports the language (there should only be one but just in case let's include more results)
+        let result;
+        try {
+            result = await this.extensionGalleryService.query({
+                text: `tag:"lp-${language}"`,
+                pageSize: 5
+            }, queryTimeout.token);
+        }
+        catch (err) {
+            this.logService.error(err);
+            return undefined;
+        }
+        const languagePackExtensions = result.firstPage.find(e => e.properties.localizedLanguages?.length);
+        if (!languagePackExtensions) {
+            this.logService.trace(`No language pack found for language ${language}`);
+            return undefined;
+        }
+        // Then get the manifest for that extension
+        const manifestTimeout = new CancellationTokenSource();
+        setTimeout(() => queryTimeout.cancel(), 1000);
+        const manifest = await this.extensionGalleryService.getManifest(languagePackExtensions, manifestTimeout.token);
+        // Find the translation from the language pack
+        const localization = manifest?.contributes?.localizations?.find(l => l.languageId === language);
+        const translation = localization?.translations.find(t => t.id === id);
+        if (!translation) {
+            this.logService.trace(`No translation found for id '${id}, in ${manifest?.name}`);
+            return undefined;
+        }
+        // get the resource uri and return it
+        const uri = this.extensionResourceLoaderService.getExtensionGalleryResourceURL({
+            // If translation is defined then manifest should have been defined.
+            name: manifest.name,
+            publisher: manifest.publisher,
+            version: manifest.version
+        });
+        if (!uri) {
+            this.logService.trace('Gallery does not provide extension resources.');
+            return undefined;
+        }
+        return URI.joinPath(uri, translation.path);
+    }
+    // Web doesn't have a concept of language packs, so we just return an empty array
+    getInstalledLanguages() {
+        return Promise.resolve([]);
+    }
+};
+WebLanguagePacksService = __decorate([
+    __param(0, IExtensionResourceLoaderService),
+    __param(1, IExtensionGalleryService),
+    __param(2, ILogService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], WebLanguagePacksService);
-export {
-  WebLanguagePacksService
-};
-//# sourceMappingURL=languagePacks.js.map
+export { WebLanguagePacksService };

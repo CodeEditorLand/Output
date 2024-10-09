@@ -1,74 +1,76 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IAction } from "../../../base/common/actions.js";
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import BaseSeverity from "../../../base/common/severity.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const Severity = BaseSeverity;
-const INotificationService = createDecorator("notificationService");
-var NotificationPriority = /* @__PURE__ */ ((NotificationPriority2) => {
-  NotificationPriority2[NotificationPriority2["DEFAULT"] = 0] = "DEFAULT";
-  NotificationPriority2[NotificationPriority2["SILENT"] = 1] = "SILENT";
-  NotificationPriority2[NotificationPriority2["URGENT"] = 2] = "URGENT";
-  return NotificationPriority2;
-})(NotificationPriority || {});
-var NeverShowAgainScope = /* @__PURE__ */ ((NeverShowAgainScope2) => {
-  NeverShowAgainScope2[NeverShowAgainScope2["WORKSPACE"] = 0] = "WORKSPACE";
-  NeverShowAgainScope2[NeverShowAgainScope2["PROFILE"] = 1] = "PROFILE";
-  NeverShowAgainScope2[NeverShowAgainScope2["APPLICATION"] = 2] = "APPLICATION";
-  return NeverShowAgainScope2;
-})(NeverShowAgainScope || {});
-function isNotificationSource(thing) {
-  if (thing) {
-    const candidate = thing;
-    return typeof candidate.id === "string" && typeof candidate.label === "string";
-  }
-  return false;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { Event } from '../../../base/common/event.js';
+import BaseSeverity from '../../../base/common/severity.js';
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export var Severity = BaseSeverity;
+export const INotificationService = createDecorator('notificationService');
+export var NotificationPriority;
+(function (NotificationPriority) {
+    /**
+     * Default priority: notification will be visible unless do not disturb mode is enabled.
+     */
+    NotificationPriority[NotificationPriority["DEFAULT"] = 0] = "DEFAULT";
+    /**
+     * Silent priority: notification will only be visible from the notifications center.
+     */
+    NotificationPriority[NotificationPriority["SILENT"] = 1] = "SILENT";
+    /**
+     * Urgent priority: notification will be visible even when do not disturb mode is enabled.
+     */
+    NotificationPriority[NotificationPriority["URGENT"] = 2] = "URGENT";
+})(NotificationPriority || (NotificationPriority = {}));
+export var NeverShowAgainScope;
+(function (NeverShowAgainScope) {
+    /**
+     * Will never show this notification on the current workspace again.
+     */
+    NeverShowAgainScope[NeverShowAgainScope["WORKSPACE"] = 0] = "WORKSPACE";
+    /**
+     * Will never show this notification on any workspace of the same
+     * profile again.
+     */
+    NeverShowAgainScope[NeverShowAgainScope["PROFILE"] = 1] = "PROFILE";
+    /**
+     * Will never show this notification on any workspace across all
+     * profiles again.
+     */
+    NeverShowAgainScope[NeverShowAgainScope["APPLICATION"] = 2] = "APPLICATION";
+})(NeverShowAgainScope || (NeverShowAgainScope = {}));
+export function isNotificationSource(thing) {
+    if (thing) {
+        const candidate = thing;
+        return typeof candidate.id === 'string' && typeof candidate.label === 'string';
+    }
+    return false;
 }
-__name(isNotificationSource, "isNotificationSource");
-var NotificationsFilter = /* @__PURE__ */ ((NotificationsFilter2) => {
-  NotificationsFilter2[NotificationsFilter2["OFF"] = 0] = "OFF";
-  NotificationsFilter2[NotificationsFilter2["ERROR"] = 1] = "ERROR";
-  return NotificationsFilter2;
-})(NotificationsFilter || {});
-class NoOpNotification {
-  static {
-    __name(this, "NoOpNotification");
-  }
-  progress = new NoOpProgress();
-  onDidClose = Event.None;
-  onDidChangeVisibility = Event.None;
-  updateSeverity(severity) {
-  }
-  updateMessage(message) {
-  }
-  updateActions(actions) {
-  }
-  close() {
-  }
+export var NotificationsFilter;
+(function (NotificationsFilter) {
+    /**
+     * No filter is enabled.
+     */
+    NotificationsFilter[NotificationsFilter["OFF"] = 0] = "OFF";
+    /**
+     * All notifications are silent except error notifications.
+    */
+    NotificationsFilter[NotificationsFilter["ERROR"] = 1] = "ERROR";
+})(NotificationsFilter || (NotificationsFilter = {}));
+export class NoOpNotification {
+    constructor() {
+        this.progress = new NoOpProgress();
+        this.onDidClose = Event.None;
+        this.onDidChangeVisibility = Event.None;
+    }
+    updateSeverity(severity) { }
+    updateMessage(message) { }
+    updateActions(actions) { }
+    close() { }
 }
-class NoOpProgress {
-  static {
-    __name(this, "NoOpProgress");
-  }
-  infinite() {
-  }
-  done() {
-  }
-  total(value) {
-  }
-  worked(value) {
-  }
+export class NoOpProgress {
+    infinite() { }
+    done() { }
+    total(value) { }
+    worked(value) { }
 }
-export {
-  INotificationService,
-  NeverShowAgainScope,
-  NoOpNotification,
-  NoOpProgress,
-  NotificationPriority,
-  NotificationsFilter,
-  Severity,
-  isNotificationSource
-};
-//# sourceMappingURL=notification.js.map

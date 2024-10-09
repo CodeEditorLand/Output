@@ -1,259 +1,247 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { illegalArgument } from "../../../base/common/errors.js";
-import { IDisposable, dispose, DisposableStore } from "../../../base/common/lifecycle.js";
-import { equals as objectEquals } from "../../../base/common/objects.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { ICodeEditorService } from "../../../editor/browser/services/codeEditorService.js";
-import { IRange } from "../../../editor/common/core/range.js";
-import { ISelection } from "../../../editor/common/core/selection.js";
-import { IDecorationOptions, IDecorationRenderOptions } from "../../../editor/common/editorCommon.js";
-import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
-import { CommandsRegistry } from "../../../platform/commands/common/commands.js";
-import { ITextEditorOptions, IResourceEditorInput, EditorActivation, EditorResolution } from "../../../platform/editor/common/editor.js";
-import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
-import { MainThreadTextEditor } from "./mainThreadEditor.js";
-import { ExtHostContext, ExtHostEditorsShape, IApplyEditsOptions, ITextDocumentShowOptions, ITextEditorConfigurationUpdate, ITextEditorPositionData, IUndoStopOptions, MainThreadTextEditorsShape, TextEditorRevealType } from "../common/extHost.protocol.js";
-import { editorGroupToColumn, columnToEditorGroup, EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
-import { IEditorService } from "../../services/editor/common/editorService.js";
-import { IEditorGroupsService } from "../../services/editor/common/editorGroupsService.js";
-import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
-import { IWorkingCopyService } from "../../services/workingCopy/common/workingCopyService.js";
-import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
-import { IChange } from "../../../editor/common/diff/legacyLinesDiffComputer.js";
-import { IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IEditorControl } from "../../common/editor.js";
-import { getCodeEditor, ICodeEditor } from "../../../editor/browser/editorBrowser.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { DirtyDiffContribution } from "../../contrib/scm/browser/dirtydiffDecorator.js";
-let MainThreadTextEditors = class {
-  constructor(_editorLocator, extHostContext, _codeEditorService, _editorService, _editorGroupService, _configurationService) {
-    this._editorLocator = _editorLocator;
-    this._codeEditorService = _codeEditorService;
-    this._editorService = _editorService;
-    this._editorGroupService = _editorGroupService;
-    this._configurationService = _configurationService;
-    this._instanceId = String(++MainThreadTextEditors.INSTANCE_COUNT);
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostEditors);
-    this._textEditorsListenersMap = /* @__PURE__ */ Object.create(null);
-    this._editorPositionData = null;
-    this._toDispose.add(this._editorService.onDidVisibleEditorsChange(() => this._updateActiveAndVisibleTextEditors()));
-    this._toDispose.add(this._editorGroupService.onDidRemoveGroup(() => this._updateActiveAndVisibleTextEditors()));
-    this._toDispose.add(this._editorGroupService.onDidMoveGroup(() => this._updateActiveAndVisibleTextEditors()));
-    this._registeredDecorationTypes = /* @__PURE__ */ Object.create(null);
-  }
-  static {
-    __name(this, "MainThreadTextEditors");
-  }
-  static INSTANCE_COUNT = 0;
-  _instanceId;
-  _proxy;
-  _toDispose = new DisposableStore();
-  _textEditorsListenersMap;
-  _editorPositionData;
-  _registeredDecorationTypes;
-  dispose() {
-    Object.keys(this._textEditorsListenersMap).forEach((editorId) => {
-      dispose(this._textEditorsListenersMap[editorId]);
-    });
-    this._textEditorsListenersMap = /* @__PURE__ */ Object.create(null);
-    this._toDispose.dispose();
-    for (const decorationType in this._registeredDecorationTypes) {
-      this._codeEditorService.removeDecorationType(decorationType);
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var MainThreadTextEditors_1;
+import { illegalArgument } from '../../../base/common/errors.js';
+import { dispose, DisposableStore } from '../../../base/common/lifecycle.js';
+import { equals as objectEquals } from '../../../base/common/objects.js';
+import { URI } from '../../../base/common/uri.js';
+import { ICodeEditorService } from '../../../editor/browser/services/codeEditorService.js';
+import { CommandsRegistry } from '../../../platform/commands/common/commands.js';
+import { EditorActivation, EditorResolution } from '../../../platform/editor/common/editor.js';
+import { ExtHostContext } from '../common/extHost.protocol.js';
+import { editorGroupToColumn, columnToEditorGroup } from '../../services/editor/common/editorGroupColumn.js';
+import { IEditorService } from '../../services/editor/common/editorService.js';
+import { IEditorGroupsService } from '../../services/editor/common/editorGroupsService.js';
+import { IEnvironmentService } from '../../../platform/environment/common/environment.js';
+import { IWorkingCopyService } from '../../services/workingCopy/common/workingCopyService.js';
+import { getCodeEditor } from '../../../editor/browser/editorBrowser.js';
+import { IConfigurationService } from '../../../platform/configuration/common/configuration.js';
+let MainThreadTextEditors = class MainThreadTextEditors {
+    static { MainThreadTextEditors_1 = this; }
+    static { this.INSTANCE_COUNT = 0; }
+    constructor(_editorLocator, extHostContext, _codeEditorService, _editorService, _editorGroupService, _configurationService) {
+        this._editorLocator = _editorLocator;
+        this._codeEditorService = _codeEditorService;
+        this._editorService = _editorService;
+        this._editorGroupService = _editorGroupService;
+        this._configurationService = _configurationService;
+        this._toDispose = new DisposableStore();
+        this._instanceId = String(++MainThreadTextEditors_1.INSTANCE_COUNT);
+        this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostEditors);
+        this._textEditorsListenersMap = Object.create(null);
+        this._editorPositionData = null;
+        this._toDispose.add(this._editorService.onDidVisibleEditorsChange(() => this._updateActiveAndVisibleTextEditors()));
+        this._toDispose.add(this._editorGroupService.onDidRemoveGroup(() => this._updateActiveAndVisibleTextEditors()));
+        this._toDispose.add(this._editorGroupService.onDidMoveGroup(() => this._updateActiveAndVisibleTextEditors()));
+        this._registeredDecorationTypes = Object.create(null);
     }
-    this._registeredDecorationTypes = /* @__PURE__ */ Object.create(null);
-  }
-  handleTextEditorAdded(textEditor) {
-    const id = textEditor.getId();
-    const toDispose = [];
-    toDispose.push(textEditor.onPropertiesChanged((data) => {
-      this._proxy.$acceptEditorPropertiesChanged(id, data);
-    }));
-    this._textEditorsListenersMap[id] = toDispose;
-  }
-  handleTextEditorRemoved(id) {
-    dispose(this._textEditorsListenersMap[id]);
-    delete this._textEditorsListenersMap[id];
-  }
-  _updateActiveAndVisibleTextEditors() {
-    const editorPositionData = this._getTextEditorPositionData();
-    if (!objectEquals(this._editorPositionData, editorPositionData)) {
-      this._editorPositionData = editorPositionData;
-      this._proxy.$acceptEditorPositionData(this._editorPositionData);
-    }
-  }
-  _getTextEditorPositionData() {
-    const result = /* @__PURE__ */ Object.create(null);
-    for (const editorPane of this._editorService.visibleEditorPanes) {
-      const id = this._editorLocator.findTextEditorIdFor(editorPane);
-      if (id) {
-        result[id] = editorGroupToColumn(this._editorGroupService, editorPane.group);
-      }
-    }
-    return result;
-  }
-  // --- from extension host process
-  async $tryShowTextDocument(resource, options) {
-    const uri = URI.revive(resource);
-    const editorOptions = {
-      preserveFocus: options.preserveFocus,
-      pinned: options.pinned,
-      selection: options.selection,
-      // preserve pre 1.38 behaviour to not make group active when preserveFocus: true
-      // but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
-      activation: options.preserveFocus ? EditorActivation.RESTORE : void 0,
-      override: EditorResolution.EXCLUSIVE_ONLY
-    };
-    const input = {
-      resource: uri,
-      options: editorOptions
-    };
-    const editor = await this._editorService.openEditor(input, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
-    if (!editor) {
-      return void 0;
-    }
-    const editorControl = editor.getControl();
-    const codeEditor = getCodeEditor(editorControl);
-    return codeEditor ? this._editorLocator.getIdOfCodeEditor(codeEditor) : void 0;
-  }
-  async $tryShowEditor(id, position) {
-    const mainThreadEditor = this._editorLocator.getEditor(id);
-    if (mainThreadEditor) {
-      const model = mainThreadEditor.getModel();
-      await this._editorService.openEditor({
-        resource: model.uri,
-        options: { preserveFocus: false }
-      }, columnToEditorGroup(this._editorGroupService, this._configurationService, position));
-      return;
-    }
-  }
-  async $tryHideEditor(id) {
-    const mainThreadEditor = this._editorLocator.getEditor(id);
-    if (mainThreadEditor) {
-      const editorPanes = this._editorService.visibleEditorPanes;
-      for (const editorPane of editorPanes) {
-        if (mainThreadEditor.matches(editorPane)) {
-          await editorPane.group.closeEditor(editorPane.input);
-          return;
+    dispose() {
+        Object.keys(this._textEditorsListenersMap).forEach((editorId) => {
+            dispose(this._textEditorsListenersMap[editorId]);
+        });
+        this._textEditorsListenersMap = Object.create(null);
+        this._toDispose.dispose();
+        for (const decorationType in this._registeredDecorationTypes) {
+            this._codeEditorService.removeDecorationType(decorationType);
         }
-      }
+        this._registeredDecorationTypes = Object.create(null);
     }
-  }
-  $trySetSelections(id, selections) {
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    handleTextEditorAdded(textEditor) {
+        const id = textEditor.getId();
+        const toDispose = [];
+        toDispose.push(textEditor.onPropertiesChanged((data) => {
+            this._proxy.$acceptEditorPropertiesChanged(id, data);
+        }));
+        this._textEditorsListenersMap[id] = toDispose;
     }
-    editor.setSelections(selections);
-    return Promise.resolve(void 0);
-  }
-  $trySetDecorations(id, key, ranges) {
-    key = `${this._instanceId}-${key}`;
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    handleTextEditorRemoved(id) {
+        dispose(this._textEditorsListenersMap[id]);
+        delete this._textEditorsListenersMap[id];
     }
-    editor.setDecorations(key, ranges);
-    return Promise.resolve(void 0);
-  }
-  $trySetDecorationsFast(id, key, ranges) {
-    key = `${this._instanceId}-${key}`;
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    _updateActiveAndVisibleTextEditors() {
+        // editor columns
+        const editorPositionData = this._getTextEditorPositionData();
+        if (!objectEquals(this._editorPositionData, editorPositionData)) {
+            this._editorPositionData = editorPositionData;
+            this._proxy.$acceptEditorPositionData(this._editorPositionData);
+        }
     }
-    editor.setDecorationsFast(key, ranges);
-    return Promise.resolve(void 0);
-  }
-  $tryRevealRange(id, range, revealType) {
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    _getTextEditorPositionData() {
+        const result = Object.create(null);
+        for (const editorPane of this._editorService.visibleEditorPanes) {
+            const id = this._editorLocator.findTextEditorIdFor(editorPane);
+            if (id) {
+                result[id] = editorGroupToColumn(this._editorGroupService, editorPane.group);
+            }
+        }
+        return result;
     }
-    editor.revealRange(range, revealType);
-    return Promise.resolve();
-  }
-  $trySetOptions(id, options) {
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    // --- from extension host process
+    async $tryShowTextDocument(resource, options) {
+        const uri = URI.revive(resource);
+        const editorOptions = {
+            preserveFocus: options.preserveFocus,
+            pinned: options.pinned,
+            selection: options.selection,
+            // preserve pre 1.38 behaviour to not make group active when preserveFocus: true
+            // but make sure to restore the editor to fix https://github.com/microsoft/vscode/issues/79633
+            activation: options.preserveFocus ? EditorActivation.RESTORE : undefined,
+            override: EditorResolution.EXCLUSIVE_ONLY
+        };
+        const input = {
+            resource: uri,
+            options: editorOptions
+        };
+        const editor = await this._editorService.openEditor(input, columnToEditorGroup(this._editorGroupService, this._configurationService, options.position));
+        if (!editor) {
+            return undefined;
+        }
+        // Composite editors are made up of many editors so we return the active one at the time of opening
+        const editorControl = editor.getControl();
+        const codeEditor = getCodeEditor(editorControl);
+        return codeEditor ? this._editorLocator.getIdOfCodeEditor(codeEditor) : undefined;
     }
-    editor.setConfiguration(options);
-    return Promise.resolve(void 0);
-  }
-  $tryApplyEdits(id, modelVersionId, edits, opts) {
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    async $tryShowEditor(id, position) {
+        const mainThreadEditor = this._editorLocator.getEditor(id);
+        if (mainThreadEditor) {
+            const model = mainThreadEditor.getModel();
+            await this._editorService.openEditor({
+                resource: model.uri,
+                options: { preserveFocus: false }
+            }, columnToEditorGroup(this._editorGroupService, this._configurationService, position));
+            return;
+        }
     }
-    return Promise.resolve(editor.applyEdits(modelVersionId, edits, opts));
-  }
-  $tryInsertSnippet(id, modelVersionId, template, ranges, opts) {
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(illegalArgument(`TextEditor(${id})`));
+    async $tryHideEditor(id) {
+        const mainThreadEditor = this._editorLocator.getEditor(id);
+        if (mainThreadEditor) {
+            const editorPanes = this._editorService.visibleEditorPanes;
+            for (const editorPane of editorPanes) {
+                if (mainThreadEditor.matches(editorPane)) {
+                    await editorPane.group.closeEditor(editorPane.input);
+                    return;
+                }
+            }
+        }
     }
-    return Promise.resolve(editor.insertSnippet(modelVersionId, template, ranges, opts));
-  }
-  $registerTextEditorDecorationType(extensionId, key, options) {
-    key = `${this._instanceId}-${key}`;
-    this._registeredDecorationTypes[key] = true;
-    this._codeEditorService.registerDecorationType(`exthost-api-${extensionId}`, key, options);
-  }
-  $removeTextEditorDecorationType(key) {
-    key = `${this._instanceId}-${key}`;
-    delete this._registeredDecorationTypes[key];
-    this._codeEditorService.removeDecorationType(key);
-  }
-  $getDiffInformation(id) {
-    const editor = this._editorLocator.getEditor(id);
-    if (!editor) {
-      return Promise.reject(new Error("No such TextEditor"));
+    $trySetSelections(id, selections) {
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        editor.setSelections(selections);
+        return Promise.resolve(undefined);
     }
-    const codeEditor = editor.getCodeEditor();
-    if (!codeEditor) {
-      return Promise.reject(new Error("No such CodeEditor"));
+    $trySetDecorations(id, key, ranges) {
+        key = `${this._instanceId}-${key}`;
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        editor.setDecorations(key, ranges);
+        return Promise.resolve(undefined);
     }
-    const codeEditorId = codeEditor.getId();
-    const diffEditors = this._codeEditorService.listDiffEditors();
-    const [diffEditor] = diffEditors.filter((d) => d.getOriginalEditor().getId() === codeEditorId || d.getModifiedEditor().getId() === codeEditorId);
-    if (diffEditor) {
-      return Promise.resolve(diffEditor.getLineChanges() || []);
+    $trySetDecorationsFast(id, key, ranges) {
+        key = `${this._instanceId}-${key}`;
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        editor.setDecorationsFast(key, ranges);
+        return Promise.resolve(undefined);
     }
-    const dirtyDiffContribution = codeEditor.getContribution("editor.contrib.dirtydiff");
-    if (dirtyDiffContribution) {
-      return Promise.resolve(dirtyDiffContribution.getChanges());
+    $tryRevealRange(id, range, revealType) {
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        editor.revealRange(range, revealType);
+        return Promise.resolve();
     }
-    return Promise.resolve([]);
-  }
+    $trySetOptions(id, options) {
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        editor.setConfiguration(options);
+        return Promise.resolve(undefined);
+    }
+    $tryApplyEdits(id, modelVersionId, edits, opts) {
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        return Promise.resolve(editor.applyEdits(modelVersionId, edits, opts));
+    }
+    $tryInsertSnippet(id, modelVersionId, template, ranges, opts) {
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(illegalArgument(`TextEditor(${id})`));
+        }
+        return Promise.resolve(editor.insertSnippet(modelVersionId, template, ranges, opts));
+    }
+    $registerTextEditorDecorationType(extensionId, key, options) {
+        key = `${this._instanceId}-${key}`;
+        this._registeredDecorationTypes[key] = true;
+        this._codeEditorService.registerDecorationType(`exthost-api-${extensionId}`, key, options);
+    }
+    $removeTextEditorDecorationType(key) {
+        key = `${this._instanceId}-${key}`;
+        delete this._registeredDecorationTypes[key];
+        this._codeEditorService.removeDecorationType(key);
+    }
+    $getDiffInformation(id) {
+        const editor = this._editorLocator.getEditor(id);
+        if (!editor) {
+            return Promise.reject(new Error('No such TextEditor'));
+        }
+        const codeEditor = editor.getCodeEditor();
+        if (!codeEditor) {
+            return Promise.reject(new Error('No such CodeEditor'));
+        }
+        const codeEditorId = codeEditor.getId();
+        const diffEditors = this._codeEditorService.listDiffEditors();
+        const [diffEditor] = diffEditors.filter(d => d.getOriginalEditor().getId() === codeEditorId || d.getModifiedEditor().getId() === codeEditorId);
+        if (diffEditor) {
+            return Promise.resolve(diffEditor.getLineChanges() || []);
+        }
+        const dirtyDiffContribution = codeEditor.getContribution('editor.contrib.dirtydiff');
+        if (dirtyDiffContribution) {
+            return Promise.resolve(dirtyDiffContribution.getChanges());
+        }
+        return Promise.resolve([]);
+    }
 };
-MainThreadTextEditors = __decorateClass([
-  __decorateParam(2, ICodeEditorService),
-  __decorateParam(3, IEditorService),
-  __decorateParam(4, IEditorGroupsService),
-  __decorateParam(5, IConfigurationService)
+MainThreadTextEditors = MainThreadTextEditors_1 = __decorate([
+    __param(2, ICodeEditorService),
+    __param(3, IEditorService),
+    __param(4, IEditorGroupsService),
+    __param(5, IConfigurationService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
 ], MainThreadTextEditors);
-CommandsRegistry.registerCommand("_workbench.revertAllDirty", async function(accessor) {
-  const environmentService = accessor.get(IEnvironmentService);
-  if (!environmentService.extensionTestsLocationURI) {
-    throw new Error("Command is only available when running extension tests.");
-  }
-  const workingCopyService = accessor.get(IWorkingCopyService);
-  for (const workingCopy of workingCopyService.dirtyWorkingCopies) {
-    await workingCopy.revert({ soft: true });
-  }
+export { MainThreadTextEditors };
+// --- commands
+CommandsRegistry.registerCommand('_workbench.revertAllDirty', async function (accessor) {
+    const environmentService = accessor.get(IEnvironmentService);
+    if (!environmentService.extensionTestsLocationURI) {
+        throw new Error('Command is only available when running extension tests.');
+    }
+    const workingCopyService = accessor.get(IWorkingCopyService);
+    for (const workingCopy of workingCopyService.dirtyWorkingCopies) {
+        await workingCopy.revert({ soft: true });
+    }
 });
-export {
-  MainThreadTextEditors
-};
-//# sourceMappingURL=mainThreadEditors.js.map

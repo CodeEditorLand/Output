@@ -1,34 +1,34 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { FontMeasurements } from "../../../../editor/browser/config/fontMeasurements.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions as WorkbenchExtensions, IWorkbenchContribution, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-let DisplayChangeRemeasureFonts = class extends Disposable {
-  static {
-    __name(this, "DisplayChangeRemeasureFonts");
-  }
-  constructor(nativeHostService) {
-    super();
-    this._register(nativeHostService.onDidChangeDisplay(() => {
-      FontMeasurements.clearAllFontInfos();
-    }));
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-DisplayChangeRemeasureFonts = __decorateClass([
-  __decorateParam(0, INativeHostService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { FontMeasurements } from '../../../../editor/browser/config/fontMeasurements.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { Extensions as WorkbenchExtensions } from '../../../common/contributions.js';
+let DisplayChangeRemeasureFonts = class DisplayChangeRemeasureFonts extends Disposable {
+    constructor(nativeHostService) {
+        super();
+        this._register(nativeHostService.onDidChangeDisplay(() => {
+            FontMeasurements.clearAllFontInfos();
+        }));
+    }
+};
+DisplayChangeRemeasureFonts = __decorate([
+    __param(0, INativeHostService),
+    __metadata("design:paramtypes", [Object])
 ], DisplayChangeRemeasureFonts);
-Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(DisplayChangeRemeasureFonts, LifecyclePhase.Eventually);
-//# sourceMappingURL=displayChangeRemeasureFonts.js.map
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(DisplayChangeRemeasureFonts, 4 /* LifecyclePhase.Eventually */);

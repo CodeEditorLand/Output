@@ -1,25 +1,27 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { VSBuffer } from "../common/buffer.js";
 import { StringSHA1, toHexString } from "../common/hash.js";
-async function sha1Hex(str) {
-  if (globalThis?.crypto?.subtle) {
-    const buffer = VSBuffer.fromString(str, {
-      dontUseNodeBuffer: true
-    }).buffer;
-    const hash = await globalThis.crypto.subtle.digest(
-      { name: "sha-1" },
-      buffer
-    );
-    return toHexString(hash);
-  } else {
-    const computer = new StringSHA1();
-    computer.update(str);
-    return computer.digest();
-  }
+export async function sha1Hex(str) {
+    // Prefer to use browser's crypto module
+    if (globalThis?.crypto?.subtle) {
+        // Careful to use `dontUseNodeBuffer` when passing the
+        // buffer to the browser `crypto` API. Users reported
+        // native crashes in certain cases that we could trace
+        // back to passing node.js `Buffer` around
+        // (https://github.com/microsoft/vscode/issues/114227)
+        const buffer = VSBuffer.fromString(str, {
+            dontUseNodeBuffer: true,
+        }).buffer;
+        const hash = await globalThis.crypto.subtle.digest({ name: "sha-1" }, buffer);
+        return toHexString(hash);
+    }
+    // Otherwise fallback to `StringSHA1`
+    else {
+        const computer = new StringSHA1();
+        computer.update(str);
+        return computer.digest();
+    }
 }
-__name(sha1Hex, "sha1Hex");
-export {
-  sha1Hex
-};
-//# sourceMappingURL=hash.js.map

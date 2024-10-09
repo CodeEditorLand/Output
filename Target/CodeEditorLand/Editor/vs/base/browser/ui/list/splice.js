@@ -1,18 +1,12 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ISpliceable } from "../../../common/sequence.js";
-class CombinedSpliceable {
-  constructor(spliceables) {
-    this.spliceables = spliceables;
-  }
-  static {
-    __name(this, "CombinedSpliceable");
-  }
-  splice(start, deleteCount, elements) {
-    this.spliceables.forEach((s) => s.splice(start, deleteCount, elements));
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class CombinedSpliceable {
+    constructor(spliceables) {
+        this.spliceables = spliceables;
+    }
+    splice(start, deleteCount, elements) {
+        this.spliceables.forEach(s => s.splice(start, deleteCount, elements));
+    }
 }
-export {
-  CombinedSpliceable
-};
-//# sourceMappingURL=splice.js.map

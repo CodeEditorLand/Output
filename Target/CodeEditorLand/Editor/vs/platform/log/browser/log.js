@@ -1,70 +1,66 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { mainWindow } from "../../../base/browser/window.js";
-import { relativePath } from "../../../base/common/resources.js";
-import { URI } from "../../../base/common/uri.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { AdapterLogger, DEFAULT_LOG_LEVEL, ILogger, LogLevel } from "../common/log.js";
-async function getLogs(fileService, environmentService) {
-  const result = [];
-  await doGetLogs(fileService, result, environmentService.logsHome, environmentService.logsHome);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { mainWindow } from '../../../base/browser/window.js';
+import { relativePath } from '../../../base/common/resources.js';
+import { AdapterLogger, DEFAULT_LOG_LEVEL, LogLevel } from '../common/log.js';
+/**
+ * Only used in browser contexts where the log files are not stored on disk
+ * but in IndexedDB. A method to get all logs with their contents so that
+ * CI automation can persist them.
+ */
+export async function getLogs(fileService, environmentService) {
+    const result = [];
+    await doGetLogs(fileService, result, environmentService.logsHome, environmentService.logsHome);
+    return result;
 }
-__name(getLogs, "getLogs");
 async function doGetLogs(fileService, logs, curFolder, logsHome) {
-  const stat = await fileService.resolve(curFolder);
-  for (const { resource, isDirectory } of stat.children || []) {
-    if (isDirectory) {
-      await doGetLogs(fileService, logs, resource, logsHome);
-    } else {
-      const contents = (await fileService.readFile(resource)).value.toString();
-      if (contents) {
-        const path = relativePath(logsHome, resource);
-        if (path) {
-          logs.push({ relativePath: path, contents });
+    const stat = await fileService.resolve(curFolder);
+    for (const { resource, isDirectory } of stat.children || []) {
+        if (isDirectory) {
+            await doGetLogs(fileService, logs, resource, logsHome);
         }
-      }
+        else {
+            const contents = (await fileService.readFile(resource)).value.toString();
+            if (contents) {
+                const path = relativePath(logsHome, resource);
+                if (path) {
+                    logs.push({ relativePath: path, contents });
+                }
+            }
+        }
     }
-  }
 }
-__name(doGetLogs, "doGetLogs");
 function logLevelToString(level) {
-  switch (level) {
-    case LogLevel.Trace:
-      return "trace";
-    case LogLevel.Debug:
-      return "debug";
-    case LogLevel.Info:
-      return "info";
-    case LogLevel.Warning:
-      return "warn";
-    case LogLevel.Error:
-      return "error";
-  }
-  return "info";
-}
-__name(logLevelToString, "logLevelToString");
-class ConsoleLogInAutomationLogger extends AdapterLogger {
-  static {
-    __name(this, "ConsoleLogInAutomationLogger");
-  }
-  constructor(logLevel = DEFAULT_LOG_LEVEL) {
-    super({ log: /* @__PURE__ */ __name((level, args) => this.consoleLog(logLevelToString(level), args), "log") }, logLevel);
-  }
-  consoleLog(type, args) {
-    const automatedWindow = mainWindow;
-    if (typeof automatedWindow.codeAutomationLog === "function") {
-      try {
-        automatedWindow.codeAutomationLog(type, args);
-      } catch (err) {
-        console.error("Problems writing to codeAutomationLog", err);
-      }
+    switch (level) {
+        case LogLevel.Trace: return 'trace';
+        case LogLevel.Debug: return 'debug';
+        case LogLevel.Info: return 'info';
+        case LogLevel.Warning: return 'warn';
+        case LogLevel.Error: return 'error';
     }
-  }
+    return 'info';
 }
-export {
-  ConsoleLogInAutomationLogger,
-  getLogs
-};
-//# sourceMappingURL=log.js.map
+/**
+ * A logger that is used when VSCode is running in the web with
+ * an automation such as playwright. We expect a global codeAutomationLog
+ * to be defined that we can use to log to.
+ */
+export class ConsoleLogInAutomationLogger extends AdapterLogger {
+    constructor(logLevel = DEFAULT_LOG_LEVEL) {
+        super({ log: (level, args) => this.consoleLog(logLevelToString(level), args) }, logLevel);
+    }
+    consoleLog(type, args) {
+        const automatedWindow = mainWindow;
+        if (typeof automatedWindow.codeAutomationLog === 'function') {
+            try {
+                automatedWindow.codeAutomationLog(type, args);
+            }
+            catch (err) {
+                // see https://github.com/microsoft/vscode-test-web/issues/69
+                console.error('Problems writing to codeAutomationLog', err);
+            }
+        }
+    }
+}

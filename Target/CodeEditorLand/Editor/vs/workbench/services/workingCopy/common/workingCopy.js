@@ -1,17 +1,9 @@
-import { Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ISaveOptions, IRevertOptions, SaveReason, SaveSource } from "../../../common/editor.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-var WorkingCopyCapabilities = /* @__PURE__ */ ((WorkingCopyCapabilities2) => {
-  WorkingCopyCapabilities2[WorkingCopyCapabilities2["None"] = 0] = "None";
-  WorkingCopyCapabilities2[WorkingCopyCapabilities2["Untitled"] = 2] = "Untitled";
-  WorkingCopyCapabilities2[WorkingCopyCapabilities2["Scratchpad"] = 4] = "Scratchpad";
-  return WorkingCopyCapabilities2;
-})(WorkingCopyCapabilities || {});
-const NO_TYPE_ID = "";
-export {
-  NO_TYPE_ID,
-  WorkingCopyCapabilities
-};
-//# sourceMappingURL=workingCopy.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+/**
+ * @deprecated it is important to provide a type identifier
+ * for working copies to enable all capabilities.
+ */
+export const NO_TYPE_ID = '';

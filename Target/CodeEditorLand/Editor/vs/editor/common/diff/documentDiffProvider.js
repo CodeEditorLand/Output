@@ -1,6 +1,5 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { MovedText } from "./linesDiffComputer.js";
-import { DetailedLineRangeMapping } from "./rangeMapping.js";
-import { ITextModel } from "../model.js";
-//# sourceMappingURL=documentDiffProvider.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export {};

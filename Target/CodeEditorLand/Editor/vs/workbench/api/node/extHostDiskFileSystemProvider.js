@@ -1,81 +1,76 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IExtHostConsumerFileSystem } from "../common/extHostFileSystemConsumer.js";
-import { Schemas } from "../../../base/common/network.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { DiskFileSystemProvider } from "../../../platform/files/node/diskFileSystemProvider.js";
-import { FilePermission } from "../../../platform/files/common/files.js";
-import { isLinux } from "../../../base/common/platform.js";
-let ExtHostDiskFileSystemProvider = class {
-  static {
-    __name(this, "ExtHostDiskFileSystemProvider");
-  }
-  constructor(extHostConsumerFileSystem, logService) {
-    extHostConsumerFileSystem.addFileSystemProvider(Schemas.file, new DiskFileSystemProviderAdapter(logService), { isCaseSensitive: isLinux });
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-ExtHostDiskFileSystemProvider = __decorateClass([
-  __decorateParam(0, IExtHostConsumerFileSystem),
-  __decorateParam(1, ILogService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IExtHostConsumerFileSystem } from '../common/extHostFileSystemConsumer.js';
+import { Schemas } from '../../../base/common/network.js';
+import { ILogService } from '../../../platform/log/common/log.js';
+import { DiskFileSystemProvider } from '../../../platform/files/node/diskFileSystemProvider.js';
+import { FilePermission } from '../../../platform/files/common/files.js';
+import { isLinux } from '../../../base/common/platform.js';
+let ExtHostDiskFileSystemProvider = class ExtHostDiskFileSystemProvider {
+    constructor(extHostConsumerFileSystem, logService) {
+        // Register disk file system provider so that certain
+        // file operations can execute fast within the extension
+        // host without roundtripping.
+        extHostConsumerFileSystem.addFileSystemProvider(Schemas.file, new DiskFileSystemProviderAdapter(logService), { isCaseSensitive: isLinux });
+    }
+};
+ExtHostDiskFileSystemProvider = __decorate([
+    __param(0, IExtHostConsumerFileSystem),
+    __param(1, ILogService),
+    __metadata("design:paramtypes", [Object, Object])
 ], ExtHostDiskFileSystemProvider);
+export { ExtHostDiskFileSystemProvider };
 class DiskFileSystemProviderAdapter {
-  constructor(logService) {
-    this.logService = logService;
-  }
-  static {
-    __name(this, "DiskFileSystemProviderAdapter");
-  }
-  impl = new DiskFileSystemProvider(this.logService);
-  async stat(uri) {
-    const stat = await this.impl.stat(uri);
-    return {
-      type: stat.type,
-      ctime: stat.ctime,
-      mtime: stat.mtime,
-      size: stat.size,
-      permissions: stat.permissions === FilePermission.Readonly ? 1 : void 0
-    };
-  }
-  readDirectory(uri) {
-    return this.impl.readdir(uri);
-  }
-  createDirectory(uri) {
-    return this.impl.mkdir(uri);
-  }
-  readFile(uri) {
-    return this.impl.readFile(uri);
-  }
-  writeFile(uri, content, options) {
-    return this.impl.writeFile(uri, content, { ...options, unlock: false, atomic: false });
-  }
-  delete(uri, options) {
-    return this.impl.delete(uri, { ...options, useTrash: false, atomic: false });
-  }
-  rename(oldUri, newUri, options) {
-    return this.impl.rename(oldUri, newUri, options);
-  }
-  copy(source, destination, options) {
-    return this.impl.copy(source, destination, options);
-  }
-  // --- Not Implemented ---
-  get onDidChangeFile() {
-    throw new Error("Method not implemented.");
-  }
-  watch(uri, options) {
-    throw new Error("Method not implemented.");
-  }
+    constructor(logService) {
+        this.logService = logService;
+        this.impl = new DiskFileSystemProvider(this.logService);
+    }
+    async stat(uri) {
+        const stat = await this.impl.stat(uri);
+        return {
+            type: stat.type,
+            ctime: stat.ctime,
+            mtime: stat.mtime,
+            size: stat.size,
+            permissions: stat.permissions === FilePermission.Readonly ? 1 : undefined
+        };
+    }
+    readDirectory(uri) {
+        return this.impl.readdir(uri);
+    }
+    createDirectory(uri) {
+        return this.impl.mkdir(uri);
+    }
+    readFile(uri) {
+        return this.impl.readFile(uri);
+    }
+    writeFile(uri, content, options) {
+        return this.impl.writeFile(uri, content, { ...options, unlock: false, atomic: false });
+    }
+    delete(uri, options) {
+        return this.impl.delete(uri, { ...options, useTrash: false, atomic: false });
+    }
+    rename(oldUri, newUri, options) {
+        return this.impl.rename(oldUri, newUri, options);
+    }
+    copy(source, destination, options) {
+        return this.impl.copy(source, destination, options);
+    }
+    // --- Not Implemented ---
+    get onDidChangeFile() { throw new Error('Method not implemented.'); }
+    watch(uri, options) { throw new Error('Method not implemented.'); }
 }
-export {
-  ExtHostDiskFileSystemProvider
-};
-//# sourceMappingURL=extHostDiskFileSystemProvider.js.map

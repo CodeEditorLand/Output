@@ -1,72 +1,66 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IURLService } from "../../../../platform/url/common/url.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { AbstractURLService } from "../../../../platform/url/common/urlService.js";
-import { Event } from "../../../../base/common/event.js";
-import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
-import { IOpenerService, IOpener, OpenExternalOptions, OpenInternalOptions } from "../../../../platform/opener/common/opener.js";
-import { matchesScheme } from "../../../../base/common/network.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IURLService } from '../../../../platform/url/common/url.js';
+import { URI } from '../../../../base/common/uri.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { AbstractURLService } from '../../../../platform/url/common/urlService.js';
+import { IBrowserWorkbenchEnvironmentService } from '../../environment/browser/environmentService.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { matchesScheme } from '../../../../base/common/network.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
 class BrowserURLOpener {
-  constructor(urlService, productService) {
-    this.urlService = urlService;
-    this.productService = productService;
-  }
-  static {
-    __name(this, "BrowserURLOpener");
-  }
-  async open(resource, options) {
-    if (options?.openExternal) {
-      return false;
+    constructor(urlService, productService) {
+        this.urlService = urlService;
+        this.productService = productService;
     }
-    if (!matchesScheme(resource, this.productService.urlProtocol)) {
-      return false;
+    async open(resource, options) {
+        if (options?.openExternal) {
+            return false;
+        }
+        if (!matchesScheme(resource, this.productService.urlProtocol)) {
+            return false;
+        }
+        if (typeof resource === 'string') {
+            resource = URI.parse(resource);
+        }
+        return this.urlService.open(resource, { trusted: true });
     }
-    if (typeof resource === "string") {
-      resource = URI.parse(resource);
-    }
-    return this.urlService.open(resource, { trusted: true });
-  }
 }
-let BrowserURLService = class extends AbstractURLService {
-  static {
-    __name(this, "BrowserURLService");
-  }
-  provider;
-  constructor(environmentService, openerService, productService) {
-    super();
-    this.provider = environmentService.options?.urlCallbackProvider;
-    if (this.provider) {
-      this._register(this.provider.onCallback((uri) => this.open(uri, { trusted: true })));
+let BrowserURLService = class BrowserURLService extends AbstractURLService {
+    constructor(environmentService, openerService, productService) {
+        super();
+        this.provider = environmentService.options?.urlCallbackProvider;
+        if (this.provider) {
+            this._register(this.provider.onCallback(uri => this.open(uri, { trusted: true })));
+        }
+        this._register(openerService.registerOpener(new BrowserURLOpener(this, productService)));
     }
-    this._register(openerService.registerOpener(new BrowserURLOpener(this, productService)));
-  }
-  create(options) {
-    if (this.provider) {
-      return this.provider.create(options);
+    create(options) {
+        if (this.provider) {
+            return this.provider.create(options);
+        }
+        return URI.parse('unsupported://');
     }
-    return URI.parse("unsupported://");
-  }
 };
-BrowserURLService = __decorateClass([
-  __decorateParam(0, IBrowserWorkbenchEnvironmentService),
-  __decorateParam(1, IOpenerService),
-  __decorateParam(2, IProductService)
+BrowserURLService = __decorate([
+    __param(0, IBrowserWorkbenchEnvironmentService),
+    __param(1, IOpenerService),
+    __param(2, IProductService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], BrowserURLService);
-registerSingleton(IURLService, BrowserURLService, InstantiationType.Delayed);
-export {
-  BrowserURLService
-};
-//# sourceMappingURL=urlService.js.map
+export { BrowserURLService };
+registerSingleton(IURLService, BrowserURLService, 1 /* InstantiationType.Delayed */);

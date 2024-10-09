@@ -1,175 +1,160 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ThrottledDelayer } from "../../../base/common/async.js";
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { isUndefined, isUndefinedOrNull } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { FileOperationError, FileOperationResult, IFileService } from "../../files/common/files.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStateReadService, IStateService } from "./state.js";
-var SaveStrategy = /* @__PURE__ */ ((SaveStrategy2) => {
-  SaveStrategy2[SaveStrategy2["IMMEDIATE"] = 0] = "IMMEDIATE";
-  SaveStrategy2[SaveStrategy2["DELAYED"] = 1] = "DELAYED";
-  return SaveStrategy2;
-})(SaveStrategy || {});
-class FileStorage extends Disposable {
-  constructor(storagePath, saveStrategy, logService, fileService) {
-    super();
-    this.storagePath = storagePath;
-    this.saveStrategy = saveStrategy;
-    this.logService = logService;
-    this.fileService = fileService;
-  }
-  static {
-    __name(this, "FileStorage");
-  }
-  storage = /* @__PURE__ */ Object.create(null);
-  lastSavedStorageContents = "";
-  flushDelayer = this._register(new ThrottledDelayer(
-    this.saveStrategy === 0 /* IMMEDIATE */ ? 0 : 100
-    /* buffer saves over a short time */
-  ));
-  initializing = void 0;
-  closing = void 0;
-  init() {
-    if (!this.initializing) {
-      this.initializing = this.doInit();
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { ThrottledDelayer } from '../../../base/common/async.js';
+import { VSBuffer } from '../../../base/common/buffer.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { isUndefined, isUndefinedOrNull } from '../../../base/common/types.js';
+import { IEnvironmentService } from '../../environment/common/environment.js';
+import { IFileService } from '../../files/common/files.js';
+import { ILogService } from '../../log/common/log.js';
+export class FileStorage extends Disposable {
+    constructor(storagePath, saveStrategy, logService, fileService) {
+        super();
+        this.storagePath = storagePath;
+        this.saveStrategy = saveStrategy;
+        this.logService = logService;
+        this.fileService = fileService;
+        this.storage = Object.create(null);
+        this.lastSavedStorageContents = '';
+        this.flushDelayer = this._register(new ThrottledDelayer(this.saveStrategy === 0 /* SaveStrategy.IMMEDIATE */ ? 0 : 100 /* buffer saves over a short time */));
+        this.initializing = undefined;
+        this.closing = undefined;
     }
-    return this.initializing;
-  }
-  async doInit() {
-    try {
-      this.lastSavedStorageContents = (await this.fileService.readFile(this.storagePath)).value.toString();
-      this.storage = JSON.parse(this.lastSavedStorageContents);
-    } catch (error) {
-      if (error.fileOperationResult !== FileOperationResult.FILE_NOT_FOUND) {
-        this.logService.error(error);
-      }
-    }
-  }
-  getItem(key, defaultValue) {
-    const res = this.storage[key];
-    if (isUndefinedOrNull(res)) {
-      return defaultValue;
-    }
-    return res;
-  }
-  setItem(key, data) {
-    this.setItems([{ key, data }]);
-  }
-  setItems(items) {
-    let save = false;
-    for (const { key, data } of items) {
-      if (this.storage[key] === data) {
-        continue;
-      }
-      if (isUndefinedOrNull(data)) {
-        if (!isUndefined(this.storage[key])) {
-          this.storage[key] = void 0;
-          save = true;
+    init() {
+        if (!this.initializing) {
+            this.initializing = this.doInit();
         }
-      } else {
-        this.storage[key] = data;
-        save = true;
-      }
+        return this.initializing;
     }
-    if (save) {
-      this.save();
+    async doInit() {
+        try {
+            this.lastSavedStorageContents = (await this.fileService.readFile(this.storagePath)).value.toString();
+            this.storage = JSON.parse(this.lastSavedStorageContents);
+        }
+        catch (error) {
+            if (error.fileOperationResult !== 1 /* FileOperationResult.FILE_NOT_FOUND */) {
+                this.logService.error(error);
+            }
+        }
     }
-  }
-  removeItem(key) {
-    if (!isUndefined(this.storage[key])) {
-      this.storage[key] = void 0;
-      this.save();
+    getItem(key, defaultValue) {
+        const res = this.storage[key];
+        if (isUndefinedOrNull(res)) {
+            return defaultValue;
+        }
+        return res;
     }
-  }
-  async save() {
-    if (this.closing) {
-      return;
+    setItem(key, data) {
+        this.setItems([{ key, data }]);
     }
-    return this.flushDelayer.trigger(() => this.doSave());
-  }
-  async doSave() {
-    if (!this.initializing) {
-      return;
+    setItems(items) {
+        let save = false;
+        for (const { key, data } of items) {
+            // Shortcut for data that did not change
+            if (this.storage[key] === data) {
+                continue;
+            }
+            // Remove items when they are undefined or null
+            if (isUndefinedOrNull(data)) {
+                if (!isUndefined(this.storage[key])) {
+                    this.storage[key] = undefined;
+                    save = true;
+                }
+            }
+            // Otherwise add an item
+            else {
+                this.storage[key] = data;
+                save = true;
+            }
+        }
+        if (save) {
+            this.save();
+        }
     }
-    await this.initializing;
-    const serializedDatabase = JSON.stringify(this.storage, null, 4);
-    if (serializedDatabase === this.lastSavedStorageContents) {
-      return;
+    removeItem(key) {
+        // Only update if the key is actually present (not undefined)
+        if (!isUndefined(this.storage[key])) {
+            this.storage[key] = undefined;
+            this.save();
+        }
     }
-    try {
-      await this.fileService.writeFile(this.storagePath, VSBuffer.fromString(serializedDatabase), { atomic: { postfix: ".vsctmp" } });
-      this.lastSavedStorageContents = serializedDatabase;
-    } catch (error) {
-      this.logService.error(error);
+    async save() {
+        if (this.closing) {
+            return; // already about to close
+        }
+        return this.flushDelayer.trigger(() => this.doSave());
     }
-  }
-  async close() {
-    if (!this.closing) {
-      this.closing = this.flushDelayer.trigger(
-        () => this.doSave(),
-        0
-        /* as soon as possible */
-      );
+    async doSave() {
+        if (!this.initializing) {
+            return; // if we never initialized, we should not save our state
+        }
+        // Make sure to wait for init to finish first
+        await this.initializing;
+        // Return early if the database has not changed
+        const serializedDatabase = JSON.stringify(this.storage, null, 4);
+        if (serializedDatabase === this.lastSavedStorageContents) {
+            return;
+        }
+        // Write to disk
+        try {
+            await this.fileService.writeFile(this.storagePath, VSBuffer.fromString(serializedDatabase), { atomic: { postfix: '.vsctmp' } });
+            this.lastSavedStorageContents = serializedDatabase;
+        }
+        catch (error) {
+            this.logService.error(error);
+        }
     }
-    return this.closing;
-  }
+    async close() {
+        if (!this.closing) {
+            this.closing = this.flushDelayer.trigger(() => this.doSave(), 0 /* as soon as possible */);
+        }
+        return this.closing;
+    }
 }
-let StateReadonlyService = class extends Disposable {
-  static {
-    __name(this, "StateReadonlyService");
-  }
-  fileStorage;
-  constructor(saveStrategy, environmentService, logService, fileService) {
-    super();
-    this.fileStorage = this._register(new FileStorage(environmentService.stateResource, saveStrategy, logService, fileService));
-  }
-  async init() {
-    await this.fileStorage.init();
-  }
-  getItem(key, defaultValue) {
-    return this.fileStorage.getItem(key, defaultValue);
-  }
+let StateReadonlyService = class StateReadonlyService extends Disposable {
+    constructor(saveStrategy, environmentService, logService, fileService) {
+        super();
+        this.fileStorage = this._register(new FileStorage(environmentService.stateResource, saveStrategy, logService, fileService));
+    }
+    async init() {
+        await this.fileStorage.init();
+    }
+    getItem(key, defaultValue) {
+        return this.fileStorage.getItem(key, defaultValue);
+    }
 };
-StateReadonlyService = __decorateClass([
-  __decorateParam(1, IEnvironmentService),
-  __decorateParam(2, ILogService),
-  __decorateParam(3, IFileService)
+StateReadonlyService = __decorate([
+    __param(1, IEnvironmentService),
+    __param(2, ILogService),
+    __param(3, IFileService),
+    __metadata("design:paramtypes", [Number, Object, Object, Object])
 ], StateReadonlyService);
-class StateService extends StateReadonlyService {
-  static {
-    __name(this, "StateService");
-  }
-  setItem(key, data) {
-    this.fileStorage.setItem(key, data);
-  }
-  setItems(items) {
-    this.fileStorage.setItems(items);
-  }
-  removeItem(key) {
-    this.fileStorage.removeItem(key);
-  }
-  close() {
-    return this.fileStorage.close();
-  }
+export { StateReadonlyService };
+export class StateService extends StateReadonlyService {
+    setItem(key, data) {
+        this.fileStorage.setItem(key, data);
+    }
+    setItems(items) {
+        this.fileStorage.setItems(items);
+    }
+    removeItem(key) {
+        this.fileStorage.removeItem(key);
+    }
+    close() {
+        return this.fileStorage.close();
+    }
 }
-export {
-  FileStorage,
-  SaveStrategy,
-  StateReadonlyService,
-  StateService
-};
-//# sourceMappingURL=stateService.js.map

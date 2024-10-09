@@ -1,41 +1,29 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-class ProxyIdentifier {
-  static {
-    __name(this, "ProxyIdentifier");
-  }
-  static count = 0;
-  _proxyIdentifierBrand = void 0;
-  sid;
-  nid;
-  constructor(sid) {
-    this.sid = sid;
-    this.nid = ++ProxyIdentifier.count;
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class ProxyIdentifier {
+    static { this.count = 0; }
+    constructor(sid) {
+        this._proxyIdentifierBrand = undefined;
+        this.sid = sid;
+        this.nid = (++ProxyIdentifier.count);
+    }
 }
 const identifiers = [];
-function createProxyIdentifier(identifier) {
-  const result = new ProxyIdentifier(identifier);
-  identifiers[result.nid] = result;
-  return result;
+export function createProxyIdentifier(identifier) {
+    const result = new ProxyIdentifier(identifier);
+    identifiers[result.nid] = result;
+    return result;
 }
-__name(createProxyIdentifier, "createProxyIdentifier");
-function getStringIdentifierForProxy(nid) {
-  return identifiers[nid].sid;
+export function getStringIdentifierForProxy(nid) {
+    return identifiers[nid].sid;
 }
-__name(getStringIdentifierForProxy, "getStringIdentifierForProxy");
-class SerializableObjectWithBuffers {
-  constructor(value) {
-    this.value = value;
-  }
-  static {
-    __name(this, "SerializableObjectWithBuffers");
-  }
+/**
+ * Marks the object as containing buffers that should be serialized more efficiently.
+ */
+export class SerializableObjectWithBuffers {
+    constructor(value) {
+        this.value = value;
+    }
 }
-export {
-  ProxyIdentifier,
-  SerializableObjectWithBuffers,
-  createProxyIdentifier,
-  getStringIdentifierForProxy
-};
-//# sourceMappingURL=proxyIdentifier.js.map

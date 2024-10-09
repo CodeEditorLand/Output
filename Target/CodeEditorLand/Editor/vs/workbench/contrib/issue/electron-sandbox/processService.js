@@ -1,75 +1,73 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getZoomLevel } from "../../../../base/browser/browser.js";
-import { platform } from "../../../../base/common/process.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IProcessMainService, ProcessExplorerData } from "../../../../platform/issue/common/issue.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { activeContrastBorder, editorBackground, editorForeground, listActiveSelectionBackground, listActiveSelectionForeground, listFocusBackground, listFocusForeground, listFocusOutline, listHoverBackground, listHoverForeground, scrollbarShadow, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground } from "../../../../platform/theme/common/colorRegistry.js";
-import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
-import { IWorkbenchProcessService } from "../common/issue.js";
-import { mainWindow } from "../../../../base/browser/window.js";
-let ProcessService = class {
-  constructor(processMainService, themeService, environmentService, productService) {
-    this.processMainService = processMainService;
-    this.themeService = themeService;
-    this.environmentService = environmentService;
-    this.productService = productService;
-  }
-  static {
-    __name(this, "ProcessService");
-  }
-  openProcessExplorer() {
-    const theme = this.themeService.getColorTheme();
-    const data = {
-      pid: this.environmentService.mainPid,
-      zoomLevel: getZoomLevel(mainWindow),
-      styles: {
-        backgroundColor: getColor(theme, editorBackground),
-        color: getColor(theme, editorForeground),
-        listHoverBackground: getColor(theme, listHoverBackground),
-        listHoverForeground: getColor(theme, listHoverForeground),
-        listFocusBackground: getColor(theme, listFocusBackground),
-        listFocusForeground: getColor(theme, listFocusForeground),
-        listFocusOutline: getColor(theme, listFocusOutline),
-        listActiveSelectionBackground: getColor(theme, listActiveSelectionBackground),
-        listActiveSelectionForeground: getColor(theme, listActiveSelectionForeground),
-        listHoverOutline: getColor(theme, activeContrastBorder),
-        scrollbarShadowColor: getColor(theme, scrollbarShadow),
-        scrollbarSliderActiveBackgroundColor: getColor(theme, scrollbarSliderActiveBackground),
-        scrollbarSliderBackgroundColor: getColor(theme, scrollbarSliderBackground),
-        scrollbarSliderHoverBackgroundColor: getColor(theme, scrollbarSliderHoverBackground)
-      },
-      platform,
-      applicationName: this.productService.applicationName
-    };
-    return this.processMainService.openProcessExplorer(data);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-ProcessService = __decorateClass([
-  __decorateParam(0, IProcessMainService),
-  __decorateParam(1, IThemeService),
-  __decorateParam(2, INativeWorkbenchEnvironmentService),
-  __decorateParam(3, IProductService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { getZoomLevel } from '../../../../base/browser/browser.js';
+import { platform } from '../../../../base/common/process.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IProcessMainService } from '../../../../platform/issue/common/issue.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { activeContrastBorder, editorBackground, editorForeground, listActiveSelectionBackground, listActiveSelectionForeground, listFocusBackground, listFocusForeground, listFocusOutline, listHoverBackground, listHoverForeground, scrollbarShadow, scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground } from '../../../../platform/theme/common/colorRegistry.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { INativeWorkbenchEnvironmentService } from '../../../services/environment/electron-sandbox/environmentService.js';
+import { IWorkbenchProcessService } from '../common/issue.js';
+import { mainWindow } from '../../../../base/browser/window.js';
+let ProcessService = class ProcessService {
+    constructor(processMainService, themeService, environmentService, productService) {
+        this.processMainService = processMainService;
+        this.themeService = themeService;
+        this.environmentService = environmentService;
+        this.productService = productService;
+    }
+    openProcessExplorer() {
+        const theme = this.themeService.getColorTheme();
+        const data = {
+            pid: this.environmentService.mainPid,
+            zoomLevel: getZoomLevel(mainWindow),
+            styles: {
+                backgroundColor: getColor(theme, editorBackground),
+                color: getColor(theme, editorForeground),
+                listHoverBackground: getColor(theme, listHoverBackground),
+                listHoverForeground: getColor(theme, listHoverForeground),
+                listFocusBackground: getColor(theme, listFocusBackground),
+                listFocusForeground: getColor(theme, listFocusForeground),
+                listFocusOutline: getColor(theme, listFocusOutline),
+                listActiveSelectionBackground: getColor(theme, listActiveSelectionBackground),
+                listActiveSelectionForeground: getColor(theme, listActiveSelectionForeground),
+                listHoverOutline: getColor(theme, activeContrastBorder),
+                scrollbarShadowColor: getColor(theme, scrollbarShadow),
+                scrollbarSliderActiveBackgroundColor: getColor(theme, scrollbarSliderActiveBackground),
+                scrollbarSliderBackgroundColor: getColor(theme, scrollbarSliderBackground),
+                scrollbarSliderHoverBackgroundColor: getColor(theme, scrollbarSliderHoverBackground),
+            },
+            platform: platform,
+            applicationName: this.productService.applicationName
+        };
+        return this.processMainService.openProcessExplorer(data);
+    }
+};
+ProcessService = __decorate([
+    __param(0, IProcessMainService),
+    __param(1, IThemeService),
+    __param(2, INativeWorkbenchEnvironmentService),
+    __param(3, IProductService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], ProcessService);
+export { ProcessService };
 function getColor(theme, key) {
-  const color = theme.getColor(key);
-  return color ? color.toString() : void 0;
+    const color = theme.getColor(key);
+    return color ? color.toString() : undefined;
 }
-__name(getColor, "getColor");
-registerSingleton(IWorkbenchProcessService, ProcessService, InstantiationType.Delayed);
-export {
-  ProcessService
-};
-//# sourceMappingURL=processService.js.map
+registerSingleton(IWorkbenchProcessService, ProcessService, 1 /* InstantiationType.Delayed */);

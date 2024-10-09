@@ -1,25 +1,20 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBufferReadableStream } from "../../../common/buffer.js";
-const offlineName = "Offline";
-function isOfflineError(error) {
-  if (error instanceof OfflineError) {
-    return true;
-  }
-  return error instanceof Error && error.name === offlineName && error.message === offlineName;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+const offlineName = 'Offline';
+/**
+ * Checks if the given error is offline error
+ */
+export function isOfflineError(error) {
+    if (error instanceof OfflineError) {
+        return true;
+    }
+    return error instanceof Error && error.name === offlineName && error.message === offlineName;
 }
-__name(isOfflineError, "isOfflineError");
-class OfflineError extends Error {
-  static {
-    __name(this, "OfflineError");
-  }
-  constructor() {
-    super(offlineName);
-    this.name = this.message;
-  }
+export class OfflineError extends Error {
+    constructor() {
+        super(offlineName);
+        this.name = this.message;
+    }
 }
-export {
-  OfflineError,
-  isOfflineError
-};
-//# sourceMappingURL=request.js.map

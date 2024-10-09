@@ -1,74 +1,65 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IChannel, ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { SyncDescriptor } from "../../instantiation/common/descriptors.js";
-import { registerSingleton } from "../../instantiation/common/extensions.js";
-import { createDecorator, IInstantiationService, ServiceIdentifier } from "../../instantiation/common/instantiation.js";
-import { IMainProcessService } from "../common/mainProcessService.js";
-import { IRemoteService } from "../common/services.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { ProxyChannel } from '../../../base/parts/ipc/common/ipc.js';
+import { SyncDescriptor } from '../../instantiation/common/descriptors.js';
+import { registerSingleton } from '../../instantiation/common/extensions.js';
+import { createDecorator, IInstantiationService } from '../../instantiation/common/instantiation.js';
+import { IMainProcessService } from '../common/mainProcessService.js';
 class RemoteServiceStub {
-  static {
-    __name(this, "RemoteServiceStub");
-  }
-  constructor(channelName, options, remote, instantiationService) {
-    const channel = remote.getChannel(channelName);
-    if (isRemoteServiceWithChannelClientOptions(options)) {
-      return instantiationService.createInstance(new SyncDescriptor(options.channelClientCtor, [channel]));
+    constructor(channelName, options, remote, instantiationService) {
+        const channel = remote.getChannel(channelName);
+        if (isRemoteServiceWithChannelClientOptions(options)) {
+            return instantiationService.createInstance(new SyncDescriptor(options.channelClientCtor, [channel]));
+        }
+        return ProxyChannel.toService(channel, options?.proxyOptions);
     }
-    return ProxyChannel.toService(channel, options?.proxyOptions);
-  }
 }
 function isRemoteServiceWithChannelClientOptions(obj) {
-  const candidate = obj;
-  return !!candidate?.channelClientCtor;
+    const candidate = obj;
+    return !!candidate?.channelClientCtor;
 }
-__name(isRemoteServiceWithChannelClientOptions, "isRemoteServiceWithChannelClientOptions");
-let MainProcessRemoteServiceStub = class extends RemoteServiceStub {
-  static {
-    __name(this, "MainProcessRemoteServiceStub");
-  }
-  constructor(channelName, options, ipcService, instantiationService) {
-    super(channelName, options, ipcService, instantiationService);
-  }
+//#region Main Process
+let MainProcessRemoteServiceStub = class MainProcessRemoteServiceStub extends RemoteServiceStub {
+    constructor(channelName, options, ipcService, instantiationService) {
+        super(channelName, options, ipcService, instantiationService);
+    }
 };
-MainProcessRemoteServiceStub = __decorateClass([
-  __decorateParam(2, IMainProcessService),
-  __decorateParam(3, IInstantiationService)
+MainProcessRemoteServiceStub = __decorate([
+    __param(2, IMainProcessService),
+    __param(3, IInstantiationService),
+    __metadata("design:paramtypes", [String, Object, Object, Object])
 ], MainProcessRemoteServiceStub);
-function registerMainProcessRemoteService(id, channelName, options) {
-  registerSingleton(id, new SyncDescriptor(MainProcessRemoteServiceStub, [channelName, options], true));
+export function registerMainProcessRemoteService(id, channelName, options) {
+    registerSingleton(id, new SyncDescriptor(MainProcessRemoteServiceStub, [channelName, options], true));
 }
-__name(registerMainProcessRemoteService, "registerMainProcessRemoteService");
-const ISharedProcessService = createDecorator("sharedProcessService");
-let SharedProcessRemoteServiceStub = class extends RemoteServiceStub {
-  static {
-    __name(this, "SharedProcessRemoteServiceStub");
-  }
-  constructor(channelName, options, ipcService, instantiationService) {
-    super(channelName, options, ipcService, instantiationService);
-  }
+//#endregion
+//#region Shared Process
+export const ISharedProcessService = createDecorator('sharedProcessService');
+let SharedProcessRemoteServiceStub = class SharedProcessRemoteServiceStub extends RemoteServiceStub {
+    constructor(channelName, options, ipcService, instantiationService) {
+        super(channelName, options, ipcService, instantiationService);
+    }
 };
-SharedProcessRemoteServiceStub = __decorateClass([
-  __decorateParam(2, ISharedProcessService),
-  __decorateParam(3, IInstantiationService)
+SharedProcessRemoteServiceStub = __decorate([
+    __param(2, ISharedProcessService),
+    __param(3, IInstantiationService),
+    __metadata("design:paramtypes", [String, Object, Object, Object])
 ], SharedProcessRemoteServiceStub);
-function registerSharedProcessRemoteService(id, channelName, options) {
-  registerSingleton(id, new SyncDescriptor(SharedProcessRemoteServiceStub, [channelName, options], true));
+export function registerSharedProcessRemoteService(id, channelName, options) {
+    registerSingleton(id, new SyncDescriptor(SharedProcessRemoteServiceStub, [channelName, options], true));
 }
-__name(registerSharedProcessRemoteService, "registerSharedProcessRemoteService");
-export {
-  ISharedProcessService,
-  registerMainProcessRemoteService,
-  registerSharedProcessRemoteService
-};
-//# sourceMappingURL=services.js.map
+//#endregion

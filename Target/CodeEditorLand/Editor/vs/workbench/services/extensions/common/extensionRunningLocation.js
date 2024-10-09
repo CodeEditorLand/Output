@@ -1,58 +1,46 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ExtensionHostKind } from "./extensionHostKind.js";
-class LocalProcessRunningLocation {
-  constructor(affinity) {
-    this.affinity = affinity;
-  }
-  static {
-    __name(this, "LocalProcessRunningLocation");
-  }
-  kind = ExtensionHostKind.LocalProcess;
-  equals(other) {
-    return this.kind === other.kind && this.affinity === other.affinity;
-  }
-  asString() {
-    if (this.affinity === 0) {
-      return "LocalProcess";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class LocalProcessRunningLocation {
+    constructor(affinity) {
+        this.affinity = affinity;
+        this.kind = 1 /* ExtensionHostKind.LocalProcess */;
     }
-    return `LocalProcess${this.affinity}`;
-  }
-}
-class LocalWebWorkerRunningLocation {
-  constructor(affinity) {
-    this.affinity = affinity;
-  }
-  static {
-    __name(this, "LocalWebWorkerRunningLocation");
-  }
-  kind = ExtensionHostKind.LocalWebWorker;
-  equals(other) {
-    return this.kind === other.kind && this.affinity === other.affinity;
-  }
-  asString() {
-    if (this.affinity === 0) {
-      return "LocalWebWorker";
+    equals(other) {
+        return (this.kind === other.kind && this.affinity === other.affinity);
     }
-    return `LocalWebWorker${this.affinity}`;
-  }
+    asString() {
+        if (this.affinity === 0) {
+            return 'LocalProcess';
+        }
+        return `LocalProcess${this.affinity}`;
+    }
 }
-class RemoteRunningLocation {
-  static {
-    __name(this, "RemoteRunningLocation");
-  }
-  kind = ExtensionHostKind.Remote;
-  affinity = 0;
-  equals(other) {
-    return this.kind === other.kind;
-  }
-  asString() {
-    return "Remote";
-  }
+export class LocalWebWorkerRunningLocation {
+    constructor(affinity) {
+        this.affinity = affinity;
+        this.kind = 2 /* ExtensionHostKind.LocalWebWorker */;
+    }
+    equals(other) {
+        return (this.kind === other.kind && this.affinity === other.affinity);
+    }
+    asString() {
+        if (this.affinity === 0) {
+            return 'LocalWebWorker';
+        }
+        return `LocalWebWorker${this.affinity}`;
+    }
 }
-export {
-  LocalProcessRunningLocation,
-  LocalWebWorkerRunningLocation,
-  RemoteRunningLocation
-};
-//# sourceMappingURL=extensionRunningLocation.js.map
+export class RemoteRunningLocation {
+    constructor() {
+        this.kind = 3 /* ExtensionHostKind.Remote */;
+        this.affinity = 0;
+    }
+    equals(other) {
+        return (this.kind === other.kind);
+    }
+    asString() {
+        return 'Remote';
+    }
+}

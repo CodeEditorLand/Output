@@ -1,279 +1,178 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ScrollEvent } from "../../base/common/scrollable.js";
-import { ConfigurationChangedEvent, EditorOption } from "./config/editorOptions.js";
-import { Range } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { CursorChangeReason } from "./cursorEvents.js";
-import { ScrollType } from "./editorCommon.js";
-import { IModelDecorationsChangedEvent } from "./textModelEvents.js";
-import { IColorTheme } from "../../platform/theme/common/themeService.js";
-var ViewEventType = /* @__PURE__ */ ((ViewEventType2) => {
-  ViewEventType2[ViewEventType2["ViewCompositionStart"] = 0] = "ViewCompositionStart";
-  ViewEventType2[ViewEventType2["ViewCompositionEnd"] = 1] = "ViewCompositionEnd";
-  ViewEventType2[ViewEventType2["ViewConfigurationChanged"] = 2] = "ViewConfigurationChanged";
-  ViewEventType2[ViewEventType2["ViewCursorStateChanged"] = 3] = "ViewCursorStateChanged";
-  ViewEventType2[ViewEventType2["ViewDecorationsChanged"] = 4] = "ViewDecorationsChanged";
-  ViewEventType2[ViewEventType2["ViewFlushed"] = 5] = "ViewFlushed";
-  ViewEventType2[ViewEventType2["ViewFocusChanged"] = 6] = "ViewFocusChanged";
-  ViewEventType2[ViewEventType2["ViewLanguageConfigurationChanged"] = 7] = "ViewLanguageConfigurationChanged";
-  ViewEventType2[ViewEventType2["ViewLineMappingChanged"] = 8] = "ViewLineMappingChanged";
-  ViewEventType2[ViewEventType2["ViewLinesChanged"] = 9] = "ViewLinesChanged";
-  ViewEventType2[ViewEventType2["ViewLinesDeleted"] = 10] = "ViewLinesDeleted";
-  ViewEventType2[ViewEventType2["ViewLinesInserted"] = 11] = "ViewLinesInserted";
-  ViewEventType2[ViewEventType2["ViewRevealRangeRequest"] = 12] = "ViewRevealRangeRequest";
-  ViewEventType2[ViewEventType2["ViewScrollChanged"] = 13] = "ViewScrollChanged";
-  ViewEventType2[ViewEventType2["ViewThemeChanged"] = 14] = "ViewThemeChanged";
-  ViewEventType2[ViewEventType2["ViewTokensChanged"] = 15] = "ViewTokensChanged";
-  ViewEventType2[ViewEventType2["ViewTokensColorsChanged"] = 16] = "ViewTokensColorsChanged";
-  ViewEventType2[ViewEventType2["ViewZonesChanged"] = 17] = "ViewZonesChanged";
-  return ViewEventType2;
-})(ViewEventType || {});
-class ViewCompositionStartEvent {
-  static {
-    __name(this, "ViewCompositionStartEvent");
-  }
-  type = 0 /* ViewCompositionStart */;
-  constructor() {
-  }
-}
-class ViewCompositionEndEvent {
-  static {
-    __name(this, "ViewCompositionEndEvent");
-  }
-  type = 1 /* ViewCompositionEnd */;
-  constructor() {
-  }
-}
-class ViewConfigurationChangedEvent {
-  static {
-    __name(this, "ViewConfigurationChangedEvent");
-  }
-  type = 2 /* ViewConfigurationChanged */;
-  _source;
-  constructor(source) {
-    this._source = source;
-  }
-  hasChanged(id) {
-    return this._source.hasChanged(id);
-  }
-}
-class ViewCursorStateChangedEvent {
-  constructor(selections, modelSelections, reason) {
-    this.selections = selections;
-    this.modelSelections = modelSelections;
-    this.reason = reason;
-  }
-  static {
-    __name(this, "ViewCursorStateChangedEvent");
-  }
-  type = 3 /* ViewCursorStateChanged */;
-}
-class ViewDecorationsChangedEvent {
-  static {
-    __name(this, "ViewDecorationsChangedEvent");
-  }
-  type = 4 /* ViewDecorationsChanged */;
-  affectsMinimap;
-  affectsOverviewRuler;
-  affectsGlyphMargin;
-  affectsLineNumber;
-  constructor(source) {
-    if (source) {
-      this.affectsMinimap = source.affectsMinimap;
-      this.affectsOverviewRuler = source.affectsOverviewRuler;
-      this.affectsGlyphMargin = source.affectsGlyphMargin;
-      this.affectsLineNumber = source.affectsLineNumber;
-    } else {
-      this.affectsMinimap = true;
-      this.affectsOverviewRuler = true;
-      this.affectsGlyphMargin = true;
-      this.affectsLineNumber = true;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class ViewCompositionStartEvent {
+    constructor() {
+        this.type = 0 /* ViewEventType.ViewCompositionStart */;
     }
-  }
 }
-class ViewFlushedEvent {
-  static {
-    __name(this, "ViewFlushedEvent");
-  }
-  type = 5 /* ViewFlushed */;
-  constructor() {
-  }
+export class ViewCompositionEndEvent {
+    constructor() {
+        this.type = 1 /* ViewEventType.ViewCompositionEnd */;
+    }
 }
-class ViewFocusChangedEvent {
-  static {
-    __name(this, "ViewFocusChangedEvent");
-  }
-  type = 6 /* ViewFocusChanged */;
-  isFocused;
-  constructor(isFocused) {
-    this.isFocused = isFocused;
-  }
+export class ViewConfigurationChangedEvent {
+    constructor(source) {
+        this.type = 2 /* ViewEventType.ViewConfigurationChanged */;
+        this._source = source;
+    }
+    hasChanged(id) {
+        return this._source.hasChanged(id);
+    }
 }
-class ViewLanguageConfigurationEvent {
-  static {
-    __name(this, "ViewLanguageConfigurationEvent");
-  }
-  type = 7 /* ViewLanguageConfigurationChanged */;
+export class ViewCursorStateChangedEvent {
+    constructor(selections, modelSelections, reason) {
+        this.selections = selections;
+        this.modelSelections = modelSelections;
+        this.reason = reason;
+        this.type = 3 /* ViewEventType.ViewCursorStateChanged */;
+    }
 }
-class ViewLineMappingChangedEvent {
-  static {
-    __name(this, "ViewLineMappingChangedEvent");
-  }
-  type = 8 /* ViewLineMappingChanged */;
-  constructor() {
-  }
+export class ViewDecorationsChangedEvent {
+    constructor(source) {
+        this.type = 4 /* ViewEventType.ViewDecorationsChanged */;
+        if (source) {
+            this.affectsMinimap = source.affectsMinimap;
+            this.affectsOverviewRuler = source.affectsOverviewRuler;
+            this.affectsGlyphMargin = source.affectsGlyphMargin;
+            this.affectsLineNumber = source.affectsLineNumber;
+        }
+        else {
+            this.affectsMinimap = true;
+            this.affectsOverviewRuler = true;
+            this.affectsGlyphMargin = true;
+            this.affectsLineNumber = true;
+        }
+    }
 }
-class ViewLinesChangedEvent {
-  constructor(fromLineNumber, count) {
-    this.fromLineNumber = fromLineNumber;
-    this.count = count;
-  }
-  static {
-    __name(this, "ViewLinesChangedEvent");
-  }
-  type = 9 /* ViewLinesChanged */;
+export class ViewFlushedEvent {
+    constructor() {
+        this.type = 5 /* ViewEventType.ViewFlushed */;
+        // Nothing to do
+    }
 }
-class ViewLinesDeletedEvent {
-  static {
-    __name(this, "ViewLinesDeletedEvent");
-  }
-  type = 10 /* ViewLinesDeleted */;
-  /**
-   * At what line the deletion began (inclusive).
-   */
-  fromLineNumber;
-  /**
-   * At what line the deletion stopped (inclusive).
-   */
-  toLineNumber;
-  constructor(fromLineNumber, toLineNumber) {
-    this.fromLineNumber = fromLineNumber;
-    this.toLineNumber = toLineNumber;
-  }
+export class ViewFocusChangedEvent {
+    constructor(isFocused) {
+        this.type = 6 /* ViewEventType.ViewFocusChanged */;
+        this.isFocused = isFocused;
+    }
 }
-class ViewLinesInsertedEvent {
-  static {
-    __name(this, "ViewLinesInsertedEvent");
-  }
-  type = 11 /* ViewLinesInserted */;
-  /**
-   * Before what line did the insertion begin
-   */
-  fromLineNumber;
-  /**
-   * `toLineNumber` - `fromLineNumber` + 1 denotes the number of lines that were inserted
-   */
-  toLineNumber;
-  constructor(fromLineNumber, toLineNumber) {
-    this.fromLineNumber = fromLineNumber;
-    this.toLineNumber = toLineNumber;
-  }
+export class ViewLanguageConfigurationEvent {
+    constructor() {
+        this.type = 7 /* ViewEventType.ViewLanguageConfigurationChanged */;
+    }
 }
-var VerticalRevealType = /* @__PURE__ */ ((VerticalRevealType2) => {
-  VerticalRevealType2[VerticalRevealType2["Simple"] = 0] = "Simple";
-  VerticalRevealType2[VerticalRevealType2["Center"] = 1] = "Center";
-  VerticalRevealType2[VerticalRevealType2["CenterIfOutsideViewport"] = 2] = "CenterIfOutsideViewport";
-  VerticalRevealType2[VerticalRevealType2["Top"] = 3] = "Top";
-  VerticalRevealType2[VerticalRevealType2["Bottom"] = 4] = "Bottom";
-  VerticalRevealType2[VerticalRevealType2["NearTop"] = 5] = "NearTop";
-  VerticalRevealType2[VerticalRevealType2["NearTopIfOutsideViewport"] = 6] = "NearTopIfOutsideViewport";
-  return VerticalRevealType2;
-})(VerticalRevealType || {});
-class ViewRevealRangeRequestEvent {
-  constructor(source, minimalReveal, range, selections, verticalType, revealHorizontal, scrollType) {
-    this.source = source;
-    this.minimalReveal = minimalReveal;
-    this.range = range;
-    this.selections = selections;
-    this.verticalType = verticalType;
-    this.revealHorizontal = revealHorizontal;
-    this.scrollType = scrollType;
-  }
-  static {
-    __name(this, "ViewRevealRangeRequestEvent");
-  }
-  type = 12 /* ViewRevealRangeRequest */;
+export class ViewLineMappingChangedEvent {
+    constructor() {
+        this.type = 8 /* ViewEventType.ViewLineMappingChanged */;
+        // Nothing to do
+    }
 }
-class ViewScrollChangedEvent {
-  static {
-    __name(this, "ViewScrollChangedEvent");
-  }
-  type = 13 /* ViewScrollChanged */;
-  scrollWidth;
-  scrollLeft;
-  scrollHeight;
-  scrollTop;
-  scrollWidthChanged;
-  scrollLeftChanged;
-  scrollHeightChanged;
-  scrollTopChanged;
-  constructor(source) {
-    this.scrollWidth = source.scrollWidth;
-    this.scrollLeft = source.scrollLeft;
-    this.scrollHeight = source.scrollHeight;
-    this.scrollTop = source.scrollTop;
-    this.scrollWidthChanged = source.scrollWidthChanged;
-    this.scrollLeftChanged = source.scrollLeftChanged;
-    this.scrollHeightChanged = source.scrollHeightChanged;
-    this.scrollTopChanged = source.scrollTopChanged;
-  }
+export class ViewLinesChangedEvent {
+    constructor(
+    /**
+     * The first line that has changed.
+     */
+    fromLineNumber, 
+    /**
+     * The number of lines that have changed.
+     */
+    count) {
+        this.fromLineNumber = fromLineNumber;
+        this.count = count;
+        this.type = 9 /* ViewEventType.ViewLinesChanged */;
+    }
 }
-class ViewThemeChangedEvent {
-  constructor(theme) {
-    this.theme = theme;
-  }
-  static {
-    __name(this, "ViewThemeChangedEvent");
-  }
-  type = 14 /* ViewThemeChanged */;
+export class ViewLinesDeletedEvent {
+    constructor(fromLineNumber, toLineNumber) {
+        this.type = 10 /* ViewEventType.ViewLinesDeleted */;
+        this.fromLineNumber = fromLineNumber;
+        this.toLineNumber = toLineNumber;
+    }
 }
-class ViewTokensChangedEvent {
-  static {
-    __name(this, "ViewTokensChangedEvent");
-  }
-  type = 15 /* ViewTokensChanged */;
-  ranges;
-  constructor(ranges) {
-    this.ranges = ranges;
-  }
+export class ViewLinesInsertedEvent {
+    constructor(fromLineNumber, toLineNumber) {
+        this.type = 11 /* ViewEventType.ViewLinesInserted */;
+        this.fromLineNumber = fromLineNumber;
+        this.toLineNumber = toLineNumber;
+    }
 }
-class ViewTokensColorsChangedEvent {
-  static {
-    __name(this, "ViewTokensColorsChangedEvent");
-  }
-  type = 16 /* ViewTokensColorsChanged */;
-  constructor() {
-  }
+export class ViewRevealRangeRequestEvent {
+    constructor(
+    /**
+     * Source of the call that caused the event.
+     */
+    source, 
+    /**
+     * Reduce the revealing to a minimum (e.g. avoid scrolling if the bounding box is visible and near the viewport edge).
+     */
+    minimalReveal, 
+    /**
+     * Range to be reavealed.
+     */
+    range, 
+    /**
+     * Selections to be revealed.
+     */
+    selections, 
+    /**
+     * The vertical reveal strategy.
+     */
+    verticalType, 
+    /**
+     * If true: there should be a horizontal & vertical revealing.
+     * If false: there should be just a vertical revealing.
+     */
+    revealHorizontal, 
+    /**
+     * The scroll type.
+     */
+    scrollType) {
+        this.source = source;
+        this.minimalReveal = minimalReveal;
+        this.range = range;
+        this.selections = selections;
+        this.verticalType = verticalType;
+        this.revealHorizontal = revealHorizontal;
+        this.scrollType = scrollType;
+        this.type = 12 /* ViewEventType.ViewRevealRangeRequest */;
+    }
 }
-class ViewZonesChangedEvent {
-  static {
-    __name(this, "ViewZonesChangedEvent");
-  }
-  type = 17 /* ViewZonesChanged */;
-  constructor() {
-  }
+export class ViewScrollChangedEvent {
+    constructor(source) {
+        this.type = 13 /* ViewEventType.ViewScrollChanged */;
+        this.scrollWidth = source.scrollWidth;
+        this.scrollLeft = source.scrollLeft;
+        this.scrollHeight = source.scrollHeight;
+        this.scrollTop = source.scrollTop;
+        this.scrollWidthChanged = source.scrollWidthChanged;
+        this.scrollLeftChanged = source.scrollLeftChanged;
+        this.scrollHeightChanged = source.scrollHeightChanged;
+        this.scrollTopChanged = source.scrollTopChanged;
+    }
 }
-export {
-  VerticalRevealType,
-  ViewCompositionEndEvent,
-  ViewCompositionStartEvent,
-  ViewConfigurationChangedEvent,
-  ViewCursorStateChangedEvent,
-  ViewDecorationsChangedEvent,
-  ViewEventType,
-  ViewFlushedEvent,
-  ViewFocusChangedEvent,
-  ViewLanguageConfigurationEvent,
-  ViewLineMappingChangedEvent,
-  ViewLinesChangedEvent,
-  ViewLinesDeletedEvent,
-  ViewLinesInsertedEvent,
-  ViewRevealRangeRequestEvent,
-  ViewScrollChangedEvent,
-  ViewThemeChangedEvent,
-  ViewTokensChangedEvent,
-  ViewTokensColorsChangedEvent,
-  ViewZonesChangedEvent
-};
-//# sourceMappingURL=viewEvents.js.map
+export class ViewThemeChangedEvent {
+    constructor(theme) {
+        this.theme = theme;
+        this.type = 14 /* ViewEventType.ViewThemeChanged */;
+    }
+}
+export class ViewTokensChangedEvent {
+    constructor(ranges) {
+        this.type = 15 /* ViewEventType.ViewTokensChanged */;
+        this.ranges = ranges;
+    }
+}
+export class ViewTokensColorsChangedEvent {
+    constructor() {
+        this.type = 16 /* ViewEventType.ViewTokensColorsChanged */;
+        // Nothing to do
+    }
+}
+export class ViewZonesChangedEvent {
+    constructor() {
+        this.type = 17 /* ViewEventType.ViewZonesChanged */;
+        // Nothing to do
+    }
+}

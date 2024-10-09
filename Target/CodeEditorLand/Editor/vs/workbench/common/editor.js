@@ -1,564 +1,448 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../nls.js";
-import { Event } from "../../base/common/event.js";
-import { DeepRequiredNonNullable, assertIsDefined } from "../../base/common/types.js";
-import { URI } from "../../base/common/uri.js";
-import { Disposable, IDisposable, toDisposable } from "../../base/common/lifecycle.js";
-import { ICodeEditorViewState, IDiffEditor, IDiffEditorViewState, IEditor, IEditorViewState } from "../../editor/common/editorCommon.js";
-import { IEditorOptions, IResourceEditorInput, ITextResourceEditorInput, IBaseTextResourceEditorInput, IBaseUntypedEditorInput, ITextEditorOptions } from "../../platform/editor/common/editor.js";
-import { IInstantiationService, IConstructorSignature, ServicesAccessor, BrandedService } from "../../platform/instantiation/common/instantiation.js";
-import { IContextKeyService } from "../../platform/contextkey/common/contextkey.js";
-import { Registry } from "../../platform/registry/common/platform.js";
-import { IEncodingSupport, ILanguageSupport } from "../services/textfile/common/textfiles.js";
-import { IEditorGroup } from "../services/editor/common/editorGroupsService.js";
-import { ICompositeControl, IComposite } from "./composite.js";
-import { FileType, IFileReadLimits, IFileService } from "../../platform/files/common/files.js";
-import { IPathData } from "../../platform/window/common/window.js";
-import { IExtUri } from "../../base/common/resources.js";
-import { Schemas } from "../../base/common/network.js";
-import { IEditorService } from "../services/editor/common/editorService.js";
-import { ILogService } from "../../platform/log/common/log.js";
-import { IErrorWithActions, createErrorWithActions, isErrorWithActions } from "../../base/common/errorMessage.js";
-import { IAction, toAction } from "../../base/common/actions.js";
-import Severity from "../../base/common/severity.js";
-import { IPreferencesService } from "../services/preferences/common/preferences.js";
-import { IReadonlyEditorGroupModel } from "./editor/editorGroupModel.js";
-const EditorExtensions = {
-  EditorPane: "workbench.contributions.editors",
-  EditorFactory: "workbench.contributions.editor.inputFactories"
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { localize } from '../../nls.js';
+import { assertIsDefined } from '../../base/common/types.js';
+import { URI } from '../../base/common/uri.js';
+import { Disposable, toDisposable } from '../../base/common/lifecycle.js';
+import { IInstantiationService } from '../../platform/instantiation/common/instantiation.js';
+import { Registry } from '../../platform/registry/common/platform.js';
+import { FileType } from '../../platform/files/common/files.js';
+import { Schemas } from '../../base/common/network.js';
+import { createErrorWithActions, isErrorWithActions } from '../../base/common/errorMessage.js';
+import { toAction } from '../../base/common/actions.js';
+import Severity from '../../base/common/severity.js';
+// Static values for editor contributions
+export const EditorExtensions = {
+    EditorPane: 'workbench.contributions.editors',
+    EditorFactory: 'workbench.contributions.editor.inputFactories'
 };
-const DEFAULT_EDITOR_ASSOCIATION = {
-  id: "default",
-  displayName: localize("promptOpenWith.defaultEditor.displayName", "Text Editor"),
-  providerDisplayName: localize("builtinProviderDisplayName", "Built-in")
+// Static information regarding the text editor
+export const DEFAULT_EDITOR_ASSOCIATION = {
+    id: 'default',
+    displayName: localize('promptOpenWith.defaultEditor.displayName', "Text Editor"),
+    providerDisplayName: localize('builtinProviderDisplayName', "Built-in")
 };
-const SIDE_BY_SIDE_EDITOR_ID = "workbench.editor.sidebysideEditor";
-const TEXT_DIFF_EDITOR_ID = "workbench.editors.textDiffEditor";
-const BINARY_DIFF_EDITOR_ID = "workbench.editors.binaryResourceDiffEditor";
-var EditorPaneSelectionChangeReason = /* @__PURE__ */ ((EditorPaneSelectionChangeReason2) => {
-  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["PROGRAMMATIC"] = 1] = "PROGRAMMATIC";
-  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["USER"] = 2] = "USER";
-  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["EDIT"] = 3] = "EDIT";
-  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["NAVIGATION"] = 4] = "NAVIGATION";
-  EditorPaneSelectionChangeReason2[EditorPaneSelectionChangeReason2["JUMP"] = 5] = "JUMP";
-  return EditorPaneSelectionChangeReason2;
-})(EditorPaneSelectionChangeReason || {});
-var EditorPaneSelectionCompareResult = /* @__PURE__ */ ((EditorPaneSelectionCompareResult2) => {
-  EditorPaneSelectionCompareResult2[EditorPaneSelectionCompareResult2["IDENTICAL"] = 1] = "IDENTICAL";
-  EditorPaneSelectionCompareResult2[EditorPaneSelectionCompareResult2["SIMILAR"] = 2] = "SIMILAR";
-  EditorPaneSelectionCompareResult2[EditorPaneSelectionCompareResult2["DIFFERENT"] = 3] = "DIFFERENT";
-  return EditorPaneSelectionCompareResult2;
-})(EditorPaneSelectionCompareResult || {});
-function isEditorPaneWithSelection(editorPane) {
-  const candidate = editorPane;
-  return !!candidate && typeof candidate.getSelection === "function" && !!candidate.onDidChangeSelection;
+/**
+ * Side by side editor id.
+ */
+export const SIDE_BY_SIDE_EDITOR_ID = 'workbench.editor.sidebysideEditor';
+/**
+ * Text diff editor id.
+ */
+export const TEXT_DIFF_EDITOR_ID = 'workbench.editors.textDiffEditor';
+/**
+ * Binary diff editor id.
+ */
+export const BINARY_DIFF_EDITOR_ID = 'workbench.editors.binaryResourceDiffEditor';
+export function isEditorPaneWithSelection(editorPane) {
+    const candidate = editorPane;
+    return !!candidate && typeof candidate.getSelection === 'function' && !!candidate.onDidChangeSelection;
 }
-__name(isEditorPaneWithSelection, "isEditorPaneWithSelection");
-function isEditorPaneWithScrolling(editorPane) {
-  const candidate = editorPane;
-  return !!candidate && typeof candidate.getScrollPosition === "function" && typeof candidate.setScrollPosition === "function" && !!candidate.onDidChangeScroll;
+export function isEditorPaneWithScrolling(editorPane) {
+    const candidate = editorPane;
+    return !!candidate && typeof candidate.getScrollPosition === 'function' && typeof candidate.setScrollPosition === 'function' && !!candidate.onDidChangeScroll;
 }
-__name(isEditorPaneWithScrolling, "isEditorPaneWithScrolling");
-function findViewStateForEditor(input, group, editorService) {
-  for (const editorPane of editorService.visibleEditorPanes) {
-    if (editorPane.group.id === group && input.matches(editorPane.input)) {
-      return editorPane.getViewState();
+/**
+ * Try to retrieve the view state for the editor pane that
+ * has the provided editor input opened, if at all.
+ *
+ * This method will return `undefined` if the editor input
+ * is not visible in any of the opened editor panes.
+ */
+export function findViewStateForEditor(input, group, editorService) {
+    for (const editorPane of editorService.visibleEditorPanes) {
+        if (editorPane.group.id === group && input.matches(editorPane.input)) {
+            return editorPane.getViewState();
+        }
     }
-  }
-  return void 0;
+    return undefined;
 }
-__name(findViewStateForEditor, "findViewStateForEditor");
-function isResourceEditorInput(editor) {
-  if (isEditorInput(editor)) {
-    return false;
-  }
-  const candidate = editor;
-  return URI.isUri(candidate?.resource);
+export function isResourceEditorInput(editor) {
+    if (isEditorInput(editor)) {
+        return false; // make sure to not accidentally match on typed editor inputs
+    }
+    const candidate = editor;
+    return URI.isUri(candidate?.resource);
 }
-__name(isResourceEditorInput, "isResourceEditorInput");
-function isResourceDiffEditorInput(editor) {
-  if (isEditorInput(editor)) {
-    return false;
-  }
-  const candidate = editor;
-  return candidate?.original !== void 0 && candidate.modified !== void 0;
+export function isResourceDiffEditorInput(editor) {
+    if (isEditorInput(editor)) {
+        return false; // make sure to not accidentally match on typed editor inputs
+    }
+    const candidate = editor;
+    return candidate?.original !== undefined && candidate.modified !== undefined;
 }
-__name(isResourceDiffEditorInput, "isResourceDiffEditorInput");
-function isResourceMultiDiffEditorInput(editor) {
-  if (isEditorInput(editor)) {
-    return false;
-  }
-  const candidate = editor;
-  if (!candidate) {
-    return false;
-  }
-  if (candidate.resources && !Array.isArray(candidate.resources)) {
-    return false;
-  }
-  return !!candidate.resources || !!candidate.multiDiffSource;
+export function isResourceMultiDiffEditorInput(editor) {
+    if (isEditorInput(editor)) {
+        return false; // make sure to not accidentally match on typed editor inputs
+    }
+    const candidate = editor;
+    if (!candidate) {
+        return false;
+    }
+    if (candidate.resources && !Array.isArray(candidate.resources)) {
+        return false;
+    }
+    return !!candidate.resources || !!candidate.multiDiffSource;
 }
-__name(isResourceMultiDiffEditorInput, "isResourceMultiDiffEditorInput");
-function isResourceSideBySideEditorInput(editor) {
-  if (isEditorInput(editor)) {
-    return false;
-  }
-  if (isResourceDiffEditorInput(editor)) {
-    return false;
-  }
-  const candidate = editor;
-  return candidate?.primary !== void 0 && candidate.secondary !== void 0;
+export function isResourceSideBySideEditorInput(editor) {
+    if (isEditorInput(editor)) {
+        return false; // make sure to not accidentally match on typed editor inputs
+    }
+    if (isResourceDiffEditorInput(editor)) {
+        return false; // make sure to not accidentally match on diff editors
+    }
+    const candidate = editor;
+    return candidate?.primary !== undefined && candidate.secondary !== undefined;
 }
-__name(isResourceSideBySideEditorInput, "isResourceSideBySideEditorInput");
-function isUntitledResourceEditorInput(editor) {
-  if (isEditorInput(editor)) {
-    return false;
-  }
-  const candidate = editor;
-  if (!candidate) {
-    return false;
-  }
-  return candidate.resource === void 0 || candidate.resource.scheme === Schemas.untitled || candidate.forceUntitled === true;
+export function isUntitledResourceEditorInput(editor) {
+    if (isEditorInput(editor)) {
+        return false; // make sure to not accidentally match on typed editor inputs
+    }
+    const candidate = editor;
+    if (!candidate) {
+        return false;
+    }
+    return candidate.resource === undefined || candidate.resource.scheme === Schemas.untitled || candidate.forceUntitled === true;
 }
-__name(isUntitledResourceEditorInput, "isUntitledResourceEditorInput");
-function isResourceMergeEditorInput(editor) {
-  if (isEditorInput(editor)) {
-    return false;
-  }
-  const candidate = editor;
-  return URI.isUri(candidate?.base?.resource) && URI.isUri(candidate?.input1?.resource) && URI.isUri(candidate?.input2?.resource) && URI.isUri(candidate?.result?.resource);
+export function isResourceMergeEditorInput(editor) {
+    if (isEditorInput(editor)) {
+        return false; // make sure to not accidentally match on typed editor inputs
+    }
+    const candidate = editor;
+    return URI.isUri(candidate?.base?.resource) && URI.isUri(candidate?.input1?.resource) && URI.isUri(candidate?.input2?.resource) && URI.isUri(candidate?.result?.resource);
 }
-__name(isResourceMergeEditorInput, "isResourceMergeEditorInput");
-var Verbosity = /* @__PURE__ */ ((Verbosity2) => {
-  Verbosity2[Verbosity2["SHORT"] = 0] = "SHORT";
-  Verbosity2[Verbosity2["MEDIUM"] = 1] = "MEDIUM";
-  Verbosity2[Verbosity2["LONG"] = 2] = "LONG";
-  return Verbosity2;
-})(Verbosity || {});
-var SaveReason = /* @__PURE__ */ ((SaveReason2) => {
-  SaveReason2[SaveReason2["EXPLICIT"] = 1] = "EXPLICIT";
-  SaveReason2[SaveReason2["AUTO"] = 2] = "AUTO";
-  SaveReason2[SaveReason2["FOCUS_CHANGE"] = 3] = "FOCUS_CHANGE";
-  SaveReason2[SaveReason2["WINDOW_CHANGE"] = 4] = "WINDOW_CHANGE";
-  return SaveReason2;
-})(SaveReason || {});
 class SaveSourceFactory {
-  static {
-    __name(this, "SaveSourceFactory");
-  }
-  mapIdToSaveSource = /* @__PURE__ */ new Map();
-  /**
-   * Registers a `SaveSource` with an identifier and label
-   * to the registry so that it can be used in save operations.
-   */
-  registerSource(id, label) {
-    let sourceDescriptor = this.mapIdToSaveSource.get(id);
-    if (!sourceDescriptor) {
-      sourceDescriptor = { source: id, label };
-      this.mapIdToSaveSource.set(id, sourceDescriptor);
+    constructor() {
+        this.mapIdToSaveSource = new Map();
     }
-    return sourceDescriptor.source;
-  }
-  getSourceLabel(source) {
-    return this.mapIdToSaveSource.get(source)?.label ?? source;
-  }
+    /**
+     * Registers a `SaveSource` with an identifier and label
+     * to the registry so that it can be used in save operations.
+     */
+    registerSource(id, label) {
+        let sourceDescriptor = this.mapIdToSaveSource.get(id);
+        if (!sourceDescriptor) {
+            sourceDescriptor = { source: id, label };
+            this.mapIdToSaveSource.set(id, sourceDescriptor);
+        }
+        return sourceDescriptor.source;
+    }
+    getSourceLabel(source) {
+        return this.mapIdToSaveSource.get(source)?.label ?? source;
+    }
 }
-const SaveSourceRegistry = new SaveSourceFactory();
-var EditorInputCapabilities = /* @__PURE__ */ ((EditorInputCapabilities2) => {
-  EditorInputCapabilities2[EditorInputCapabilities2["None"] = 0] = "None";
-  EditorInputCapabilities2[EditorInputCapabilities2["Readonly"] = 2] = "Readonly";
-  EditorInputCapabilities2[EditorInputCapabilities2["Untitled"] = 4] = "Untitled";
-  EditorInputCapabilities2[EditorInputCapabilities2["Singleton"] = 8] = "Singleton";
-  EditorInputCapabilities2[EditorInputCapabilities2["RequiresTrust"] = 16] = "RequiresTrust";
-  EditorInputCapabilities2[EditorInputCapabilities2["CanSplitInGroup"] = 32] = "CanSplitInGroup";
-  EditorInputCapabilities2[EditorInputCapabilities2["ForceDescription"] = 64] = "ForceDescription";
-  EditorInputCapabilities2[EditorInputCapabilities2["CanDropIntoEditor"] = 128] = "CanDropIntoEditor";
-  EditorInputCapabilities2[EditorInputCapabilities2["MultipleEditors"] = 256] = "MultipleEditors";
-  EditorInputCapabilities2[EditorInputCapabilities2["Scratchpad"] = 512] = "Scratchpad";
-  return EditorInputCapabilities2;
-})(EditorInputCapabilities || {});
-class AbstractEditorInput extends Disposable {
-  static {
-    __name(this, "AbstractEditorInput");
-  }
-  // Marker class for implementing `isEditorInput`
+export const SaveSourceRegistry = new SaveSourceFactory();
+export class AbstractEditorInput extends Disposable {
 }
-function isEditorInput(editor) {
-  return editor instanceof AbstractEditorInput;
+export function isEditorInput(editor) {
+    return editor instanceof AbstractEditorInput;
 }
-__name(isEditorInput, "isEditorInput");
 function isEditorInputWithPreferredResource(editor) {
-  const candidate = editor;
-  return URI.isUri(candidate?.preferredResource);
+    const candidate = editor;
+    return URI.isUri(candidate?.preferredResource);
 }
-__name(isEditorInputWithPreferredResource, "isEditorInputWithPreferredResource");
-function isSideBySideEditorInput(editor) {
-  const candidate = editor;
-  return isEditorInput(candidate?.primary) && isEditorInput(candidate?.secondary);
+export function isSideBySideEditorInput(editor) {
+    const candidate = editor;
+    return isEditorInput(candidate?.primary) && isEditorInput(candidate?.secondary);
 }
-__name(isSideBySideEditorInput, "isSideBySideEditorInput");
-function isDiffEditorInput(editor) {
-  const candidate = editor;
-  return isEditorInput(candidate?.modified) && isEditorInput(candidate?.original);
+export function isDiffEditorInput(editor) {
+    const candidate = editor;
+    return isEditorInput(candidate?.modified) && isEditorInput(candidate?.original);
 }
-__name(isDiffEditorInput, "isDiffEditorInput");
-function createTooLargeFileError(group, input, options, message, preferencesService) {
-  return createEditorOpenError(message, [
-    toAction({
-      id: "workbench.action.openLargeFile",
-      label: localize("openLargeFile", "Open Anyway"),
-      run: /* @__PURE__ */ __name(() => {
-        const fileEditorOptions = {
-          ...options,
-          limits: {
-            size: Number.MAX_VALUE
-          }
-        };
-        group.openEditor(input, fileEditorOptions);
-      }, "run")
-    }),
-    toAction({
-      id: "workbench.action.configureEditorLargeFileConfirmation",
-      label: localize("configureEditorLargeFileConfirmation", "Configure Limit"),
-      run: /* @__PURE__ */ __name(() => {
-        return preferencesService.openUserSettings({ query: "workbench.editorLargeFileConfirmation" });
-      }, "run")
-    })
-  ], {
-    forceMessage: true,
-    forceSeverity: Severity.Warning
-  });
-}
-__name(createTooLargeFileError, "createTooLargeFileError");
-function isEditorInputWithOptions(editor) {
-  const candidate = editor;
-  return isEditorInput(candidate?.editor);
-}
-__name(isEditorInputWithOptions, "isEditorInputWithOptions");
-function isEditorInputWithOptionsAndGroup(editor) {
-  const candidate = editor;
-  return isEditorInputWithOptions(editor) && candidate?.group !== void 0;
-}
-__name(isEditorInputWithOptionsAndGroup, "isEditorInputWithOptionsAndGroup");
-function isEditorIdentifier(identifier) {
-  const candidate = identifier;
-  return typeof candidate?.groupId === "number" && isEditorInput(candidate.editor);
-}
-__name(isEditorIdentifier, "isEditorIdentifier");
-function isEditorCommandsContext(context) {
-  const candidate = context;
-  return typeof candidate?.groupId === "number";
-}
-__name(isEditorCommandsContext, "isEditorCommandsContext");
-var EditorCloseContext = /* @__PURE__ */ ((EditorCloseContext2) => {
-  EditorCloseContext2[EditorCloseContext2["UNKNOWN"] = 0] = "UNKNOWN";
-  EditorCloseContext2[EditorCloseContext2["REPLACE"] = 1] = "REPLACE";
-  EditorCloseContext2[EditorCloseContext2["MOVE"] = 2] = "MOVE";
-  EditorCloseContext2[EditorCloseContext2["UNPIN"] = 3] = "UNPIN";
-  return EditorCloseContext2;
-})(EditorCloseContext || {});
-var GroupModelChangeKind = /* @__PURE__ */ ((GroupModelChangeKind2) => {
-  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_ACTIVE"] = 0] = "GROUP_ACTIVE";
-  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_INDEX"] = 1] = "GROUP_INDEX";
-  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_LABEL"] = 2] = "GROUP_LABEL";
-  GroupModelChangeKind2[GroupModelChangeKind2["GROUP_LOCKED"] = 3] = "GROUP_LOCKED";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITORS_SELECTION"] = 4] = "EDITORS_SELECTION";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_OPEN"] = 5] = "EDITOR_OPEN";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_CLOSE"] = 6] = "EDITOR_CLOSE";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_MOVE"] = 7] = "EDITOR_MOVE";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_ACTIVE"] = 8] = "EDITOR_ACTIVE";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_LABEL"] = 9] = "EDITOR_LABEL";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_CAPABILITIES"] = 10] = "EDITOR_CAPABILITIES";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_PIN"] = 11] = "EDITOR_PIN";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_TRANSIENT"] = 12] = "EDITOR_TRANSIENT";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_STICKY"] = 13] = "EDITOR_STICKY";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_DIRTY"] = 14] = "EDITOR_DIRTY";
-  GroupModelChangeKind2[GroupModelChangeKind2["EDITOR_WILL_DISPOSE"] = 15] = "EDITOR_WILL_DISPOSE";
-  return GroupModelChangeKind2;
-})(GroupModelChangeKind || {});
-var SideBySideEditor = /* @__PURE__ */ ((SideBySideEditor2) => {
-  SideBySideEditor2[SideBySideEditor2["PRIMARY"] = 1] = "PRIMARY";
-  SideBySideEditor2[SideBySideEditor2["SECONDARY"] = 2] = "SECONDARY";
-  SideBySideEditor2[SideBySideEditor2["BOTH"] = 3] = "BOTH";
-  SideBySideEditor2[SideBySideEditor2["ANY"] = 4] = "ANY";
-  return SideBySideEditor2;
-})(SideBySideEditor || {});
-class EditorResourceAccessorImpl {
-  static {
-    __name(this, "EditorResourceAccessorImpl");
-  }
-  getOriginalUri(editor, options) {
-    if (!editor) {
-      return void 0;
-    }
-    if (isResourceMergeEditorInput(editor)) {
-      return EditorResourceAccessor.getOriginalUri(editor.result, options);
-    }
-    if (options?.supportSideBySide) {
-      const { primary, secondary } = this.getSideEditors(editor);
-      if (primary && secondary) {
-        if (options?.supportSideBySide === 3 /* BOTH */) {
-          return {
-            primary: this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }),
-            secondary: this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme })
-          };
-        } else if (options?.supportSideBySide === 4 /* ANY */) {
-          return this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme });
-        }
-        editor = options.supportSideBySide === 1 /* PRIMARY */ ? primary : secondary;
-      }
-    }
-    if (isResourceDiffEditorInput(editor) || isResourceMultiDiffEditorInput(editor) || isResourceSideBySideEditorInput(editor) || isResourceMergeEditorInput(editor)) {
-      return void 0;
-    }
-    const originalResource = isEditorInputWithPreferredResource(editor) ? editor.preferredResource : editor.resource;
-    if (!originalResource || !options || !options.filterByScheme) {
-      return originalResource;
-    }
-    return this.filterUri(originalResource, options.filterByScheme);
-  }
-  getSideEditors(editor) {
-    if (isSideBySideEditorInput(editor) || isResourceSideBySideEditorInput(editor)) {
-      return { primary: editor.primary, secondary: editor.secondary };
-    }
-    if (isDiffEditorInput(editor) || isResourceDiffEditorInput(editor)) {
-      return { primary: editor.modified, secondary: editor.original };
-    }
-    return { primary: void 0, secondary: void 0 };
-  }
-  getCanonicalUri(editor, options) {
-    if (!editor) {
-      return void 0;
-    }
-    if (isResourceMergeEditorInput(editor)) {
-      return EditorResourceAccessor.getCanonicalUri(editor.result, options);
-    }
-    if (options?.supportSideBySide) {
-      const { primary, secondary } = this.getSideEditors(editor);
-      if (primary && secondary) {
-        if (options?.supportSideBySide === 3 /* BOTH */) {
-          return {
-            primary: this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }),
-            secondary: this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme })
-          };
-        } else if (options?.supportSideBySide === 4 /* ANY */) {
-          return this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme });
-        }
-        editor = options.supportSideBySide === 1 /* PRIMARY */ ? primary : secondary;
-      }
-    }
-    if (isResourceDiffEditorInput(editor) || isResourceMultiDiffEditorInput(editor) || isResourceSideBySideEditorInput(editor) || isResourceMergeEditorInput(editor)) {
-      return void 0;
-    }
-    const canonicalResource = editor.resource;
-    if (!canonicalResource || !options || !options.filterByScheme) {
-      return canonicalResource;
-    }
-    return this.filterUri(canonicalResource, options.filterByScheme);
-  }
-  filterUri(resource, filter) {
-    if (Array.isArray(filter)) {
-      if (filter.some((scheme) => resource.scheme === scheme)) {
-        return resource;
-      }
-    } else {
-      if (filter === resource.scheme) {
-        return resource;
-      }
-    }
-    return void 0;
-  }
-}
-var EditorCloseMethod = /* @__PURE__ */ ((EditorCloseMethod2) => {
-  EditorCloseMethod2[EditorCloseMethod2["UNKNOWN"] = 0] = "UNKNOWN";
-  EditorCloseMethod2[EditorCloseMethod2["KEYBOARD"] = 1] = "KEYBOARD";
-  EditorCloseMethod2[EditorCloseMethod2["MOUSE"] = 2] = "MOUSE";
-  return EditorCloseMethod2;
-})(EditorCloseMethod || {});
-function preventEditorClose(group, editor, method, configuration) {
-  if (!group.isSticky(editor)) {
-    return false;
-  }
-  switch (configuration.preventPinnedEditorClose) {
-    case "keyboardAndMouse":
-      return method === 2 /* MOUSE */ || method === 1 /* KEYBOARD */;
-    case "mouse":
-      return method === 2 /* MOUSE */;
-    case "keyboard":
-      return method === 1 /* KEYBOARD */;
-  }
-  return false;
-}
-__name(preventEditorClose, "preventEditorClose");
-const EditorResourceAccessor = new EditorResourceAccessorImpl();
-var CloseDirection = /* @__PURE__ */ ((CloseDirection2) => {
-  CloseDirection2[CloseDirection2["LEFT"] = 0] = "LEFT";
-  CloseDirection2[CloseDirection2["RIGHT"] = 1] = "RIGHT";
-  return CloseDirection2;
-})(CloseDirection || {});
-class EditorFactoryRegistry {
-  static {
-    __name(this, "EditorFactoryRegistry");
-  }
-  instantiationService;
-  fileEditorFactory;
-  editorSerializerConstructors = /* @__PURE__ */ new Map();
-  editorSerializerInstances = /* @__PURE__ */ new Map();
-  start(accessor) {
-    const instantiationService = this.instantiationService = accessor.get(IInstantiationService);
-    for (const [key, ctor] of this.editorSerializerConstructors) {
-      this.createEditorSerializer(key, ctor, instantiationService);
-    }
-    this.editorSerializerConstructors.clear();
-  }
-  createEditorSerializer(editorTypeId, ctor, instantiationService) {
-    const instance = instantiationService.createInstance(ctor);
-    this.editorSerializerInstances.set(editorTypeId, instance);
-  }
-  registerFileEditorFactory(factory) {
-    if (this.fileEditorFactory) {
-      throw new Error("Can only register one file editor factory.");
-    }
-    this.fileEditorFactory = factory;
-  }
-  getFileEditorFactory() {
-    return assertIsDefined(this.fileEditorFactory);
-  }
-  registerEditorSerializer(editorTypeId, ctor) {
-    if (this.editorSerializerConstructors.has(editorTypeId) || this.editorSerializerInstances.has(editorTypeId)) {
-      throw new Error(`A editor serializer with type ID '${editorTypeId}' was already registered.`);
-    }
-    if (!this.instantiationService) {
-      this.editorSerializerConstructors.set(editorTypeId, ctor);
-    } else {
-      this.createEditorSerializer(editorTypeId, ctor, this.instantiationService);
-    }
-    return toDisposable(() => {
-      this.editorSerializerConstructors.delete(editorTypeId);
-      this.editorSerializerInstances.delete(editorTypeId);
+export function createTooLargeFileError(group, input, options, message, preferencesService) {
+    return createEditorOpenError(message, [
+        toAction({
+            id: 'workbench.action.openLargeFile', label: localize('openLargeFile', "Open Anyway"), run: () => {
+                const fileEditorOptions = {
+                    ...options,
+                    limits: {
+                        size: Number.MAX_VALUE
+                    }
+                };
+                group.openEditor(input, fileEditorOptions);
+            }
+        }),
+        toAction({
+            id: 'workbench.action.configureEditorLargeFileConfirmation', label: localize('configureEditorLargeFileConfirmation', "Configure Limit"), run: () => {
+                return preferencesService.openUserSettings({ query: 'workbench.editorLargeFileConfirmation' });
+            }
+        }),
+    ], {
+        forceMessage: true,
+        forceSeverity: Severity.Warning
     });
-  }
-  getEditorSerializer(arg1) {
-    return this.editorSerializerInstances.get(typeof arg1 === "string" ? arg1 : arg1.typeId);
-  }
+}
+export function isEditorInputWithOptions(editor) {
+    const candidate = editor;
+    return isEditorInput(candidate?.editor);
+}
+export function isEditorInputWithOptionsAndGroup(editor) {
+    const candidate = editor;
+    return isEditorInputWithOptions(editor) && candidate?.group !== undefined;
+}
+export function isEditorIdentifier(identifier) {
+    const candidate = identifier;
+    return typeof candidate?.groupId === 'number' && isEditorInput(candidate.editor);
+}
+export function isEditorCommandsContext(context) {
+    const candidate = context;
+    return typeof candidate?.groupId === 'number';
+}
+/**
+ * More information around why an editor was closed in the model.
+ */
+export var EditorCloseContext;
+(function (EditorCloseContext) {
+    /**
+     * No specific context for closing (e.g. explicit user gesture).
+     */
+    EditorCloseContext[EditorCloseContext["UNKNOWN"] = 0] = "UNKNOWN";
+    /**
+     * The editor closed because it was replaced with another editor.
+     * This can either happen via explicit replace call or when an
+     * editor is in preview mode and another editor opens.
+     */
+    EditorCloseContext[EditorCloseContext["REPLACE"] = 1] = "REPLACE";
+    /**
+     * The editor closed as a result of moving it to another group.
+     */
+    EditorCloseContext[EditorCloseContext["MOVE"] = 2] = "MOVE";
+    /**
+     * The editor closed because another editor turned into preview
+     * and this used to be the preview editor before.
+     */
+    EditorCloseContext[EditorCloseContext["UNPIN"] = 3] = "UNPIN";
+})(EditorCloseContext || (EditorCloseContext = {}));
+export var SideBySideEditor;
+(function (SideBySideEditor) {
+    SideBySideEditor[SideBySideEditor["PRIMARY"] = 1] = "PRIMARY";
+    SideBySideEditor[SideBySideEditor["SECONDARY"] = 2] = "SECONDARY";
+    SideBySideEditor[SideBySideEditor["BOTH"] = 3] = "BOTH";
+    SideBySideEditor[SideBySideEditor["ANY"] = 4] = "ANY";
+})(SideBySideEditor || (SideBySideEditor = {}));
+class EditorResourceAccessorImpl {
+    getOriginalUri(editor, options) {
+        if (!editor) {
+            return undefined;
+        }
+        // Merge editors are handled with `merged` result editor
+        if (isResourceMergeEditorInput(editor)) {
+            return EditorResourceAccessor.getOriginalUri(editor.result, options);
+        }
+        // Optionally support side-by-side editors
+        if (options?.supportSideBySide) {
+            const { primary, secondary } = this.getSideEditors(editor);
+            if (primary && secondary) {
+                if (options?.supportSideBySide === SideBySideEditor.BOTH) {
+                    return {
+                        primary: this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }),
+                        secondary: this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme })
+                    };
+                }
+                else if (options?.supportSideBySide === SideBySideEditor.ANY) {
+                    return this.getOriginalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getOriginalUri(secondary, { filterByScheme: options.filterByScheme });
+                }
+                editor = options.supportSideBySide === SideBySideEditor.PRIMARY ? primary : secondary;
+            }
+        }
+        if (isResourceDiffEditorInput(editor) || isResourceMultiDiffEditorInput(editor) || isResourceSideBySideEditorInput(editor) || isResourceMergeEditorInput(editor)) {
+            return undefined;
+        }
+        // Original URI is the `preferredResource` of an editor if any
+        const originalResource = isEditorInputWithPreferredResource(editor) ? editor.preferredResource : editor.resource;
+        if (!originalResource || !options || !options.filterByScheme) {
+            return originalResource;
+        }
+        return this.filterUri(originalResource, options.filterByScheme);
+    }
+    getSideEditors(editor) {
+        if (isSideBySideEditorInput(editor) || isResourceSideBySideEditorInput(editor)) {
+            return { primary: editor.primary, secondary: editor.secondary };
+        }
+        if (isDiffEditorInput(editor) || isResourceDiffEditorInput(editor)) {
+            return { primary: editor.modified, secondary: editor.original };
+        }
+        return { primary: undefined, secondary: undefined };
+    }
+    getCanonicalUri(editor, options) {
+        if (!editor) {
+            return undefined;
+        }
+        // Merge editors are handled with `merged` result editor
+        if (isResourceMergeEditorInput(editor)) {
+            return EditorResourceAccessor.getCanonicalUri(editor.result, options);
+        }
+        // Optionally support side-by-side editors
+        if (options?.supportSideBySide) {
+            const { primary, secondary } = this.getSideEditors(editor);
+            if (primary && secondary) {
+                if (options?.supportSideBySide === SideBySideEditor.BOTH) {
+                    return {
+                        primary: this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }),
+                        secondary: this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme })
+                    };
+                }
+                else if (options?.supportSideBySide === SideBySideEditor.ANY) {
+                    return this.getCanonicalUri(primary, { filterByScheme: options.filterByScheme }) ?? this.getCanonicalUri(secondary, { filterByScheme: options.filterByScheme });
+                }
+                editor = options.supportSideBySide === SideBySideEditor.PRIMARY ? primary : secondary;
+            }
+        }
+        if (isResourceDiffEditorInput(editor) || isResourceMultiDiffEditorInput(editor) || isResourceSideBySideEditorInput(editor) || isResourceMergeEditorInput(editor)) {
+            return undefined;
+        }
+        // Canonical URI is the `resource` of an editor
+        const canonicalResource = editor.resource;
+        if (!canonicalResource || !options || !options.filterByScheme) {
+            return canonicalResource;
+        }
+        return this.filterUri(canonicalResource, options.filterByScheme);
+    }
+    filterUri(resource, filter) {
+        // Multiple scheme filter
+        if (Array.isArray(filter)) {
+            if (filter.some(scheme => resource.scheme === scheme)) {
+                return resource;
+            }
+        }
+        // Single scheme filter
+        else {
+            if (filter === resource.scheme) {
+                return resource;
+            }
+        }
+        return undefined;
+    }
+}
+export var EditorCloseMethod;
+(function (EditorCloseMethod) {
+    EditorCloseMethod[EditorCloseMethod["UNKNOWN"] = 0] = "UNKNOWN";
+    EditorCloseMethod[EditorCloseMethod["KEYBOARD"] = 1] = "KEYBOARD";
+    EditorCloseMethod[EditorCloseMethod["MOUSE"] = 2] = "MOUSE";
+})(EditorCloseMethod || (EditorCloseMethod = {}));
+export function preventEditorClose(group, editor, method, configuration) {
+    if (!group.isSticky(editor)) {
+        return false; // only interested in sticky editors
+    }
+    switch (configuration.preventPinnedEditorClose) {
+        case 'keyboardAndMouse': return method === EditorCloseMethod.MOUSE || method === EditorCloseMethod.KEYBOARD;
+        case 'mouse': return method === EditorCloseMethod.MOUSE;
+        case 'keyboard': return method === EditorCloseMethod.KEYBOARD;
+    }
+    return false;
+}
+export const EditorResourceAccessor = new EditorResourceAccessorImpl();
+class EditorFactoryRegistry {
+    constructor() {
+        this.editorSerializerConstructors = new Map();
+        this.editorSerializerInstances = new Map();
+    }
+    start(accessor) {
+        const instantiationService = this.instantiationService = accessor.get(IInstantiationService);
+        for (const [key, ctor] of this.editorSerializerConstructors) {
+            this.createEditorSerializer(key, ctor, instantiationService);
+        }
+        this.editorSerializerConstructors.clear();
+    }
+    createEditorSerializer(editorTypeId, ctor, instantiationService) {
+        const instance = instantiationService.createInstance(ctor);
+        this.editorSerializerInstances.set(editorTypeId, instance);
+    }
+    registerFileEditorFactory(factory) {
+        if (this.fileEditorFactory) {
+            throw new Error('Can only register one file editor factory.');
+        }
+        this.fileEditorFactory = factory;
+    }
+    getFileEditorFactory() {
+        return assertIsDefined(this.fileEditorFactory);
+    }
+    registerEditorSerializer(editorTypeId, ctor) {
+        if (this.editorSerializerConstructors.has(editorTypeId) || this.editorSerializerInstances.has(editorTypeId)) {
+            throw new Error(`A editor serializer with type ID '${editorTypeId}' was already registered.`);
+        }
+        if (!this.instantiationService) {
+            this.editorSerializerConstructors.set(editorTypeId, ctor);
+        }
+        else {
+            this.createEditorSerializer(editorTypeId, ctor, this.instantiationService);
+        }
+        return toDisposable(() => {
+            this.editorSerializerConstructors.delete(editorTypeId);
+            this.editorSerializerInstances.delete(editorTypeId);
+        });
+    }
+    getEditorSerializer(arg1) {
+        return this.editorSerializerInstances.get(typeof arg1 === 'string' ? arg1 : arg1.typeId);
+    }
 }
 Registry.add(EditorExtensions.EditorFactory, new EditorFactoryRegistry());
-async function pathsToEditors(paths, fileService, logService) {
-  if (!paths || !paths.length) {
-    return [];
-  }
-  return await Promise.all(paths.map(async (path) => {
-    const resource = URI.revive(path.fileUri);
-    if (!resource) {
-      logService.info("Cannot resolve the path because it is not valid.", path);
-      return void 0;
+export async function pathsToEditors(paths, fileService, logService) {
+    if (!paths || !paths.length) {
+        return [];
     }
-    const canHandleResource = await fileService.canHandleResource(resource);
-    if (!canHandleResource) {
-      logService.info("Cannot resolve the path because it cannot be handled", path);
-      return void 0;
-    }
-    let exists = path.exists;
-    let type = path.type;
-    if (typeof exists !== "boolean" || typeof type !== "number") {
-      try {
-        type = (await fileService.stat(resource)).isDirectory ? FileType.Directory : FileType.Unknown;
-        exists = true;
-      } catch (error) {
-        logService.error(error);
-        exists = false;
-      }
-    }
-    if (!exists && path.openOnlyIfExists) {
-      logService.info("Cannot resolve the path because it does not exist", path);
-      return void 0;
-    }
-    if (type === FileType.Directory) {
-      logService.info("Cannot resolve the path because it is a directory", path);
-      return void 0;
-    }
-    const options = {
-      ...path.options,
-      pinned: true
-    };
-    if (!exists) {
-      return { resource, options, forceUntitled: true };
-    }
-    return { resource, options };
-  }));
+    return await Promise.all(paths.map(async (path) => {
+        const resource = URI.revive(path.fileUri);
+        if (!resource) {
+            logService.info('Cannot resolve the path because it is not valid.', path);
+            return undefined;
+        }
+        const canHandleResource = await fileService.canHandleResource(resource);
+        if (!canHandleResource) {
+            logService.info('Cannot resolve the path because it cannot be handled', path);
+            return undefined;
+        }
+        let exists = path.exists;
+        let type = path.type;
+        if (typeof exists !== 'boolean' || typeof type !== 'number') {
+            try {
+                type = (await fileService.stat(resource)).isDirectory ? FileType.Directory : FileType.Unknown;
+                exists = true;
+            }
+            catch (error) {
+                logService.error(error);
+                exists = false;
+            }
+        }
+        if (!exists && path.openOnlyIfExists) {
+            logService.info('Cannot resolve the path because it does not exist', path);
+            return undefined;
+        }
+        if (type === FileType.Directory) {
+            logService.info('Cannot resolve the path because it is a directory', path);
+            return undefined;
+        }
+        const options = {
+            ...path.options,
+            pinned: true
+        };
+        if (!exists) {
+            return { resource, options, forceUntitled: true };
+        }
+        return { resource, options };
+    }));
 }
-__name(pathsToEditors, "pathsToEditors");
-var EditorsOrder = /* @__PURE__ */ ((EditorsOrder2) => {
-  EditorsOrder2[EditorsOrder2["MOST_RECENTLY_ACTIVE"] = 0] = "MOST_RECENTLY_ACTIVE";
-  EditorsOrder2[EditorsOrder2["SEQUENTIAL"] = 1] = "SEQUENTIAL";
-  return EditorsOrder2;
-})(EditorsOrder || {});
-function isTextEditorViewState(candidate) {
-  const viewState = candidate;
-  if (!viewState) {
-    return false;
-  }
-  const diffEditorViewState = viewState;
-  if (diffEditorViewState.modified) {
-    return isTextEditorViewState(diffEditorViewState.modified);
-  }
-  const codeEditorViewState = viewState;
-  return !!(codeEditorViewState.contributionsState && codeEditorViewState.viewState && Array.isArray(codeEditorViewState.cursorState));
+export function isTextEditorViewState(candidate) {
+    const viewState = candidate;
+    if (!viewState) {
+        return false;
+    }
+    const diffEditorViewState = viewState;
+    if (diffEditorViewState.modified) {
+        return isTextEditorViewState(diffEditorViewState.modified);
+    }
+    const codeEditorViewState = viewState;
+    return !!(codeEditorViewState.contributionsState && codeEditorViewState.viewState && Array.isArray(codeEditorViewState.cursorState));
 }
-__name(isTextEditorViewState, "isTextEditorViewState");
-function isEditorOpenError(obj) {
-  return isErrorWithActions(obj);
+export function isEditorOpenError(obj) {
+    return isErrorWithActions(obj);
 }
-__name(isEditorOpenError, "isEditorOpenError");
-function createEditorOpenError(messageOrError, actions, options) {
-  const error = createErrorWithActions(messageOrError, actions);
-  error.forceMessage = options?.forceMessage;
-  error.forceSeverity = options?.forceSeverity;
-  error.allowDialog = options?.allowDialog;
-  return error;
+export function createEditorOpenError(messageOrError, actions, options) {
+    const error = createErrorWithActions(messageOrError, actions);
+    error.forceMessage = options?.forceMessage;
+    error.forceSeverity = options?.forceSeverity;
+    error.allowDialog = options?.allowDialog;
+    return error;
 }
-__name(createEditorOpenError, "createEditorOpenError");
-export {
-  AbstractEditorInput,
-  BINARY_DIFF_EDITOR_ID,
-  CloseDirection,
-  DEFAULT_EDITOR_ASSOCIATION,
-  EditorCloseContext,
-  EditorCloseMethod,
-  EditorExtensions,
-  EditorInputCapabilities,
-  EditorPaneSelectionChangeReason,
-  EditorPaneSelectionCompareResult,
-  EditorResourceAccessor,
-  EditorsOrder,
-  GroupModelChangeKind,
-  SIDE_BY_SIDE_EDITOR_ID,
-  SaveReason,
-  SaveSourceRegistry,
-  SideBySideEditor,
-  TEXT_DIFF_EDITOR_ID,
-  Verbosity,
-  createEditorOpenError,
-  createTooLargeFileError,
-  findViewStateForEditor,
-  isDiffEditorInput,
-  isEditorCommandsContext,
-  isEditorIdentifier,
-  isEditorInput,
-  isEditorInputWithOptions,
-  isEditorInputWithOptionsAndGroup,
-  isEditorOpenError,
-  isEditorPaneWithScrolling,
-  isEditorPaneWithSelection,
-  isResourceDiffEditorInput,
-  isResourceEditorInput,
-  isResourceMergeEditorInput,
-  isResourceMultiDiffEditorInput,
-  isResourceSideBySideEditorInput,
-  isSideBySideEditorInput,
-  isTextEditorViewState,
-  isUntitledResourceEditorInput,
-  pathsToEditors,
-  preventEditorClose
-};
-//# sourceMappingURL=editor.js.map

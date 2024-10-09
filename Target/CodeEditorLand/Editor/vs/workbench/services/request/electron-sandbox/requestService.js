@@ -1,58 +1,55 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../../../../platform/request/common/request.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { request } from "../../../../base/parts/request/browser/request.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-let NativeRequestService = class extends AbstractRequestService {
-  constructor(nativeHostService, configurationService, logService) {
-    super(logService);
-    this.nativeHostService = nativeHostService;
-    this.configurationService = configurationService;
-  }
-  static {
-    __name(this, "NativeRequestService");
-  }
-  async request(options, token) {
-    if (!options.proxyAuthorization) {
-      options.proxyAuthorization = this.configurationService.getValue("http.proxyAuthorization");
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { AbstractRequestService, IRequestService } from '../../../../platform/request/common/request.js';
+import { INativeHostService } from '../../../../platform/native/common/native.js';
+import { request } from '../../../../base/parts/request/browser/request.js';
+import { ILogService } from '../../../../platform/log/common/log.js';
+let NativeRequestService = class NativeRequestService extends AbstractRequestService {
+    constructor(nativeHostService, configurationService, logService) {
+        super(logService);
+        this.nativeHostService = nativeHostService;
+        this.configurationService = configurationService;
     }
-    return this.logAndRequest(options, () => request(options, token));
-  }
-  async resolveProxy(url) {
-    return this.nativeHostService.resolveProxy(url);
-  }
-  async lookupAuthorization(authInfo) {
-    return this.nativeHostService.lookupAuthorization(authInfo);
-  }
-  async lookupKerberosAuthorization(url) {
-    return this.nativeHostService.lookupKerberosAuthorization(url);
-  }
-  async loadCertificates() {
-    return this.nativeHostService.loadCertificates();
-  }
+    async request(options, token) {
+        if (!options.proxyAuthorization) {
+            options.proxyAuthorization = this.configurationService.getValue('http.proxyAuthorization');
+        }
+        return this.logAndRequest(options, () => request(options, token));
+    }
+    async resolveProxy(url) {
+        return this.nativeHostService.resolveProxy(url);
+    }
+    async lookupAuthorization(authInfo) {
+        return this.nativeHostService.lookupAuthorization(authInfo);
+    }
+    async lookupKerberosAuthorization(url) {
+        return this.nativeHostService.lookupKerberosAuthorization(url);
+    }
+    async loadCertificates() {
+        return this.nativeHostService.loadCertificates();
+    }
 };
-NativeRequestService = __decorateClass([
-  __decorateParam(0, INativeHostService),
-  __decorateParam(1, IConfigurationService),
-  __decorateParam(2, ILogService)
+NativeRequestService = __decorate([
+    __param(0, INativeHostService),
+    __param(1, IConfigurationService),
+    __param(2, ILogService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], NativeRequestService);
-registerSingleton(IRequestService, NativeRequestService, InstantiationType.Delayed);
-export {
-  NativeRequestService
-};
-//# sourceMappingURL=requestService.js.map
+export { NativeRequestService };
+registerSingleton(IRequestService, NativeRequestService, 1 /* InstantiationType.Delayed */);

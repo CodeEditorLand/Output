@@ -1,73 +1,67 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { ExtensionInstallLocation, IExtensionManagementServer, IExtensionManagementServerService } from "../common/extensionManagement.js";
-import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
-import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
-import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { NativeRemoteExtensionManagementService } from "./remoteExtensionManagementService.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { IExtension } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { NativeExtensionManagementService } from "./nativeExtensionManagementService.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-let ExtensionManagementServerService = class extends Disposable {
-  static {
-    __name(this, "ExtensionManagementServerService");
-  }
-  localExtensionManagementServer;
-  remoteExtensionManagementServer = null;
-  webExtensionManagementServer = null;
-  constructor(sharedProcessService, remoteAgentService, labelService, instantiationService) {
-    super();
-    const localExtensionManagementService = this._register(instantiationService.createInstance(NativeExtensionManagementService, sharedProcessService.getChannel("extensions")));
-    this.localExtensionManagementServer = { extensionManagementService: localExtensionManagementService, id: "local", label: localize("local", "Local") };
-    const remoteAgentConnection = remoteAgentService.getConnection();
-    if (remoteAgentConnection) {
-      const extensionManagementService = instantiationService.createInstance(NativeRemoteExtensionManagementService, remoteAgentConnection.getChannel("extensions"), this.localExtensionManagementServer);
-      this.remoteExtensionManagementServer = {
-        id: "remote",
-        extensionManagementService,
-        get label() {
-          return labelService.getHostLabel(Schemas.vscodeRemote, remoteAgentConnection.remoteAuthority) || localize("remote", "Remote");
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { localize } from '../../../../nls.js';
+import { Schemas } from '../../../../base/common/network.js';
+import { IExtensionManagementServerService } from '../common/extensionManagement.js';
+import { IRemoteAgentService } from '../../remote/common/remoteAgentService.js';
+import { ISharedProcessService } from '../../../../platform/ipc/electron-sandbox/services.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { NativeRemoteExtensionManagementService } from './remoteExtensionManagementService.js';
+import { ILabelService } from '../../../../platform/label/common/label.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { NativeExtensionManagementService } from './nativeExtensionManagementService.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+let ExtensionManagementServerService = class ExtensionManagementServerService extends Disposable {
+    constructor(sharedProcessService, remoteAgentService, labelService, instantiationService) {
+        super();
+        this.remoteExtensionManagementServer = null;
+        this.webExtensionManagementServer = null;
+        const localExtensionManagementService = this._register(instantiationService.createInstance(NativeExtensionManagementService, sharedProcessService.getChannel('extensions')));
+        this.localExtensionManagementServer = { extensionManagementService: localExtensionManagementService, id: 'local', label: localize('local', "Local") };
+        const remoteAgentConnection = remoteAgentService.getConnection();
+        if (remoteAgentConnection) {
+            const extensionManagementService = instantiationService.createInstance(NativeRemoteExtensionManagementService, remoteAgentConnection.getChannel('extensions'), this.localExtensionManagementServer);
+            this.remoteExtensionManagementServer = {
+                id: 'remote',
+                extensionManagementService,
+                get label() { return labelService.getHostLabel(Schemas.vscodeRemote, remoteAgentConnection.remoteAuthority) || localize('remote', "Remote"); },
+            };
         }
-      };
     }
-  }
-  getExtensionManagementServer(extension) {
-    if (extension.location.scheme === Schemas.file) {
-      return this.localExtensionManagementServer;
+    getExtensionManagementServer(extension) {
+        if (extension.location.scheme === Schemas.file) {
+            return this.localExtensionManagementServer;
+        }
+        if (this.remoteExtensionManagementServer && extension.location.scheme === Schemas.vscodeRemote) {
+            return this.remoteExtensionManagementServer;
+        }
+        throw new Error(`Invalid Extension ${extension.location}`);
     }
-    if (this.remoteExtensionManagementServer && extension.location.scheme === Schemas.vscodeRemote) {
-      return this.remoteExtensionManagementServer;
+    getExtensionInstallLocation(extension) {
+        const server = this.getExtensionManagementServer(extension);
+        return server === this.remoteExtensionManagementServer ? 2 /* ExtensionInstallLocation.Remote */ : 1 /* ExtensionInstallLocation.Local */;
     }
-    throw new Error(`Invalid Extension ${extension.location}`);
-  }
-  getExtensionInstallLocation(extension) {
-    const server = this.getExtensionManagementServer(extension);
-    return server === this.remoteExtensionManagementServer ? ExtensionInstallLocation.Remote : ExtensionInstallLocation.Local;
-  }
 };
-ExtensionManagementServerService = __decorateClass([
-  __decorateParam(0, ISharedProcessService),
-  __decorateParam(1, IRemoteAgentService),
-  __decorateParam(2, ILabelService),
-  __decorateParam(3, IInstantiationService)
+ExtensionManagementServerService = __decorate([
+    __param(0, ISharedProcessService),
+    __param(1, IRemoteAgentService),
+    __param(2, ILabelService),
+    __param(3, IInstantiationService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object])
 ], ExtensionManagementServerService);
-registerSingleton(IExtensionManagementServerService, ExtensionManagementServerService, InstantiationType.Delayed);
-export {
-  ExtensionManagementServerService
-};
-//# sourceMappingURL=extensionManagementServerService.js.map
+export { ExtensionManagementServerService };
+registerSingleton(IExtensionManagementServerService, ExtensionManagementServerService, 1 /* InstantiationType.Delayed */);

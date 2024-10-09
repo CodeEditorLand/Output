@@ -1,7 +1,6 @@
-const windowLogId = "rendererLog";
-const showWindowLogActionId = "workbench.action.showWindowLog";
-export {
-  showWindowLogActionId,
-  windowLogId
-};
-//# sourceMappingURL=logConstants.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export const windowLogId = 'rendererLog';
+export const showWindowLogActionId = 'workbench.action.showWindowLog';

@@ -1,54 +1,54 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { Extensions as ConfigurationExtensions, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
-import { IssueFormService } from "./issueFormService.js";
-import { BrowserIssueService } from "./issueService.js";
-import "./issueTroubleshoot.js";
-import { IIssueFormService, IWorkbenchIssueService } from "../common/issue.js";
-import { BaseIssueContribution } from "../common/issue.contribution.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-let WebIssueContribution = class extends BaseIssueContribution {
-  static {
-    __name(this, "WebIssueContribution");
-  }
-  constructor(productService, configurationService) {
-    super(productService, configurationService);
-    Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
-      properties: {
-        "issueReporter.experimental.webReporter": {
-          type: "boolean",
-          default: productService.quality !== "stable",
-          description: "Enable experimental issue reporter for web."
-        }
-      }
-    });
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-WebIssueContribution = __decorateClass([
-  __decorateParam(0, IProductService),
-  __decorateParam(1, IConfigurationService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as nls from '../../../../nls.js';
+import { CommandsRegistry } from '../../../../platform/commands/common/commands.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { Extensions as ConfigurationExtensions } from '../../../../platform/configuration/common/configurationRegistry.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { Extensions } from '../../../common/contributions.js';
+import { IssueFormService } from './issueFormService.js';
+import { BrowserIssueService } from './issueService.js';
+import './issueTroubleshoot.js';
+import { IIssueFormService, IWorkbenchIssueService } from '../common/issue.js';
+import { BaseIssueContribution } from '../common/issue.contribution.js';
+let WebIssueContribution = class WebIssueContribution extends BaseIssueContribution {
+    constructor(productService, configurationService) {
+        super(productService, configurationService);
+        Registry.as(ConfigurationExtensions.Configuration).registerConfiguration({
+            properties: {
+                'issueReporter.experimental.webReporter': {
+                    type: 'boolean',
+                    default: productService.quality !== 'stable',
+                    description: 'Enable experimental issue reporter for web.',
+                },
+            }
+        });
+    }
+};
+WebIssueContribution = __decorate([
+    __param(0, IProductService),
+    __param(1, IConfigurationService),
+    __metadata("design:paramtypes", [Object, Object])
 ], WebIssueContribution);
-Registry.as(Extensions.Workbench).registerWorkbenchContribution(WebIssueContribution, LifecyclePhase.Restored);
-registerSingleton(IWorkbenchIssueService, BrowserIssueService, InstantiationType.Delayed);
-registerSingleton(IIssueFormService, IssueFormService, InstantiationType.Delayed);
-CommandsRegistry.registerCommand("_issues.getSystemStatus", (accessor) => {
-  return nls.localize("statusUnsupported", "The --status argument is not yet supported in browsers.");
+Registry.as(Extensions.Workbench).registerWorkbenchContribution(WebIssueContribution, 3 /* LifecyclePhase.Restored */);
+registerSingleton(IWorkbenchIssueService, BrowserIssueService, 1 /* InstantiationType.Delayed */);
+registerSingleton(IIssueFormService, IssueFormService, 1 /* InstantiationType.Delayed */);
+CommandsRegistry.registerCommand('_issues.getSystemStatus', (accessor) => {
+    return nls.localize('statusUnsupported', "The --status argument is not yet supported in browsers.");
 });
-//# sourceMappingURL=issue.contribution.js.map

@@ -1,35 +1,35 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { ListResizeColumnAction } from "./listResizeColumnAction.js";
-let ListContext = class {
-  static {
-    __name(this, "ListContext");
-  }
-  static ID = "workbench.contrib.listContext";
-  constructor(contextKeyService) {
-    contextKeyService.createKey("listSupportsTypeNavigation", true);
-    contextKeyService.createKey("listSupportsKeyboardNavigation", true);
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-ListContext = __decorateClass([
-  __decorateParam(0, IContextKeyService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { registerWorkbenchContribution2 } from '../../../common/contributions.js';
+import { registerAction2 } from '../../../../platform/actions/common/actions.js';
+import { ListResizeColumnAction } from './listResizeColumnAction.js';
+let ListContext = class ListContext {
+    static { this.ID = 'workbench.contrib.listContext'; }
+    constructor(contextKeyService) {
+        contextKeyService.createKey('listSupportsTypeNavigation', true);
+        // @deprecated in favor of listSupportsTypeNavigation
+        contextKeyService.createKey('listSupportsKeyboardNavigation', true);
+    }
+};
+ListContext = __decorate([
+    __param(0, IContextKeyService),
+    __metadata("design:paramtypes", [Object])
 ], ListContext);
-registerWorkbenchContribution2(ListContext.ID, ListContext, WorkbenchPhase.BlockStartup);
+export { ListContext };
+registerWorkbenchContribution2(ListContext.ID, ListContext, 1 /* WorkbenchPhase.BlockStartup */);
 registerAction2(ListResizeColumnAction);
-export {
-  ListContext
-};
-//# sourceMappingURL=list.contribution.js.map

@@ -1,43 +1,40 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createHash } from "crypto";
-import { listenStream } from "../../../base/common/stream.js";
-import { URI } from "../../../base/common/uri.js";
-import { IChecksumService } from "../common/checksumService.js";
-import { IFileService } from "../../files/common/files.js";
-let ChecksumService = class {
-  constructor(fileService) {
-    this.fileService = fileService;
-  }
-  static {
-    __name(this, "ChecksumService");
-  }
-  async checksum(resource) {
-    const stream = (await this.fileService.readFileStream(resource)).value;
-    return new Promise((resolve, reject) => {
-      const hash = createHash("sha256");
-      listenStream(stream, {
-        onData: /* @__PURE__ */ __name((data) => hash.update(data.buffer), "onData"),
-        onError: /* @__PURE__ */ __name((error) => reject(error), "onError"),
-        onEnd: /* @__PURE__ */ __name(() => resolve(hash.digest("base64").replace(/=+$/, "")), "onEnd")
-      });
-    });
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-ChecksumService = __decorateClass([
-  __decorateParam(0, IFileService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { createHash } from 'crypto';
+import { listenStream } from '../../../base/common/stream.js';
+import { IFileService } from '../../files/common/files.js';
+let ChecksumService = class ChecksumService {
+    constructor(fileService) {
+        this.fileService = fileService;
+    }
+    async checksum(resource) {
+        const stream = (await this.fileService.readFileStream(resource)).value;
+        return new Promise((resolve, reject) => {
+            const hash = createHash('sha256');
+            listenStream(stream, {
+                onData: data => hash.update(data.buffer),
+                onError: error => reject(error),
+                onEnd: () => resolve(hash.digest('base64').replace(/=+$/, ''))
+            });
+        });
+    }
+};
+ChecksumService = __decorate([
+    __param(0, IFileService),
+    __metadata("design:paramtypes", [Object])
 ], ChecksumService);
-export {
-  ChecksumService
-};
-//# sourceMappingURL=checksumService.js.map
+export { ChecksumService };

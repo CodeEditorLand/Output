@@ -1,82 +1,77 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as dom from "../../../base/browser/dom.js";
-import { mainWindow } from "../../../base/browser/window.js";
-import { coalesce } from "../../../base/common/arrays.js";
-import { Event } from "../../../base/common/event.js";
-import { ICodeEditorService } from "../../browser/services/codeEditorService.js";
-import { InstantiationType, registerSingleton } from "../../../platform/instantiation/common/extensions.js";
-import { ILayoutOffsetInfo, ILayoutService } from "../../../platform/layout/browser/layoutService.js";
-let StandaloneLayoutService = class {
-  constructor(_codeEditorService) {
-    this._codeEditorService = _codeEditorService;
-  }
-  static {
-    __name(this, "StandaloneLayoutService");
-  }
-  onDidLayoutMainContainer = Event.None;
-  onDidLayoutActiveContainer = Event.None;
-  onDidLayoutContainer = Event.None;
-  onDidChangeActiveContainer = Event.None;
-  onDidAddContainer = Event.None;
-  get mainContainer() {
-    return this._codeEditorService.listCodeEditors().at(0)?.getContainerDomNode() ?? mainWindow.document.body;
-  }
-  get activeContainer() {
-    const activeCodeEditor = this._codeEditorService.getFocusedCodeEditor() ?? this._codeEditorService.getActiveCodeEditor();
-    return activeCodeEditor?.getContainerDomNode() ?? this.mainContainer;
-  }
-  get mainContainerDimension() {
-    return dom.getClientArea(this.mainContainer);
-  }
-  get activeContainerDimension() {
-    return dom.getClientArea(this.activeContainer);
-  }
-  mainContainerOffset = { top: 0, quickPickTop: 0 };
-  activeContainerOffset = { top: 0, quickPickTop: 0 };
-  get containers() {
-    return coalesce(this._codeEditorService.listCodeEditors().map((codeEditor) => codeEditor.getContainerDomNode()));
-  }
-  getContainer() {
-    return this.activeContainer;
-  }
-  whenContainerStylesLoaded() {
-    return void 0;
-  }
-  focus() {
-    this._codeEditorService.getFocusedCodeEditor()?.focus();
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-StandaloneLayoutService = __decorateClass([
-  __decorateParam(0, ICodeEditorService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as dom from '../../../base/browser/dom.js';
+import { mainWindow } from '../../../base/browser/window.js';
+import { coalesce } from '../../../base/common/arrays.js';
+import { Event } from '../../../base/common/event.js';
+import { ICodeEditorService } from '../../browser/services/codeEditorService.js';
+import { registerSingleton } from '../../../platform/instantiation/common/extensions.js';
+import { ILayoutService } from '../../../platform/layout/browser/layoutService.js';
+let StandaloneLayoutService = class StandaloneLayoutService {
+    get mainContainer() {
+        return this._codeEditorService.listCodeEditors().at(0)?.getContainerDomNode() ?? mainWindow.document.body;
+    }
+    get activeContainer() {
+        const activeCodeEditor = this._codeEditorService.getFocusedCodeEditor() ?? this._codeEditorService.getActiveCodeEditor();
+        return activeCodeEditor?.getContainerDomNode() ?? this.mainContainer;
+    }
+    get mainContainerDimension() {
+        return dom.getClientArea(this.mainContainer);
+    }
+    get activeContainerDimension() {
+        return dom.getClientArea(this.activeContainer);
+    }
+    get containers() {
+        return coalesce(this._codeEditorService.listCodeEditors().map(codeEditor => codeEditor.getContainerDomNode()));
+    }
+    getContainer() {
+        return this.activeContainer;
+    }
+    whenContainerStylesLoaded() { return undefined; }
+    focus() {
+        this._codeEditorService.getFocusedCodeEditor()?.focus();
+    }
+    constructor(_codeEditorService) {
+        this._codeEditorService = _codeEditorService;
+        this.onDidLayoutMainContainer = Event.None;
+        this.onDidLayoutActiveContainer = Event.None;
+        this.onDidLayoutContainer = Event.None;
+        this.onDidChangeActiveContainer = Event.None;
+        this.onDidAddContainer = Event.None;
+        this.mainContainerOffset = { top: 0, quickPickTop: 0 };
+        this.activeContainerOffset = { top: 0, quickPickTop: 0 };
+    }
+};
+StandaloneLayoutService = __decorate([
+    __param(0, ICodeEditorService),
+    __metadata("design:paramtypes", [Object])
 ], StandaloneLayoutService);
-let EditorScopedLayoutService = class extends StandaloneLayoutService {
-  constructor(_container, codeEditorService) {
-    super(codeEditorService);
-    this._container = _container;
-  }
-  static {
-    __name(this, "EditorScopedLayoutService");
-  }
-  get mainContainer() {
-    return this._container;
-  }
+let EditorScopedLayoutService = class EditorScopedLayoutService extends StandaloneLayoutService {
+    get mainContainer() {
+        return this._container;
+    }
+    constructor(_container, codeEditorService) {
+        super(codeEditorService);
+        this._container = _container;
+    }
 };
-EditorScopedLayoutService = __decorateClass([
-  __decorateParam(1, ICodeEditorService)
+EditorScopedLayoutService = __decorate([
+    __param(1, ICodeEditorService),
+    __metadata("design:paramtypes", [HTMLElement, Object])
 ], EditorScopedLayoutService);
-registerSingleton(ILayoutService, StandaloneLayoutService, InstantiationType.Delayed);
-export {
-  EditorScopedLayoutService
-};
-//# sourceMappingURL=standaloneLayoutService.js.map
+export { EditorScopedLayoutService };
+registerSingleton(ILayoutService, StandaloneLayoutService, 1 /* InstantiationType.Delayed */);

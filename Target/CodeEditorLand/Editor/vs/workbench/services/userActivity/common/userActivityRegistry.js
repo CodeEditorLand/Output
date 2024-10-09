@@ -1,23 +1,18 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IUserActivityService } from "./userActivityService.js";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 class UserActivityRegistry {
-  static {
-    __name(this, "UserActivityRegistry");
-  }
-  todo = [];
-  add = /* @__PURE__ */ __name((ctor) => {
-    this.todo.push(ctor);
-  }, "add");
-  take(userActivityService, instantiation) {
-    this.add = (ctor) => instantiation.createInstance(ctor, userActivityService);
-    this.todo.forEach(this.add);
-    this.todo = [];
-  }
+    constructor() {
+        this.todo = [];
+        this.add = (ctor) => {
+            this.todo.push(ctor);
+        };
+    }
+    take(userActivityService, instantiation) {
+        this.add = ctor => instantiation.createInstance(ctor, userActivityService);
+        this.todo.forEach(this.add);
+        this.todo = [];
+    }
 }
-const userActivityRegistry = new UserActivityRegistry();
-export {
-  userActivityRegistry
-};
-//# sourceMappingURL=userActivityRegistry.js.map
+export const userActivityRegistry = new UserActivityRegistry();

@@ -1,236 +1,226 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { basename } from "../../../../base/common/resources.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { VIEW_PANE_ID, ISCMService, ISCMRepository, ISCMViewService } from "../common/scm.js";
-import { IActivityService, NumberBadge } from "../../../services/activity/common/activity.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IStatusbarEntry, IStatusbarService, StatusbarAlignment as MainThreadStatusBarAlignment } from "../../../services/statusbar/browser/statusbar.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { EditorResourceAccessor } from "../../../common/editor.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import { ITitleService } from "../../../services/title/browser/titleService.js";
-import { IEditorGroupContextKeyProvider, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { getRepositoryResourceCount } from "./util.js";
-import { autorun, autorunWithStore, derived, IObservable, observableFromEvent } from "../../../../base/common/observable.js";
-import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
-import { Command } from "../../../../editor/common/languages.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { localize } from '../../../../nls.js';
+import { basename } from '../../../../base/common/resources.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Emitter, Event } from '../../../../base/common/event.js';
+import { VIEW_PANE_ID, ISCMService, ISCMViewService } from '../common/scm.js';
+import { IActivityService, NumberBadge } from '../../../services/activity/common/activity.js';
+import { IContextKeyService, RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { IStatusbarService } from '../../../services/statusbar/browser/statusbar.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { EditorResourceAccessor } from '../../../common/editor.js';
+import { IUriIdentityService } from '../../../../platform/uriIdentity/common/uriIdentity.js';
+import { Iterable } from '../../../../base/common/iterator.js';
+import { ITitleService } from '../../../services/title/browser/titleService.js';
+import { IEditorGroupsService } from '../../../services/editor/common/editorGroupsService.js';
+import { getRepositoryResourceCount } from './util.js';
+import { autorun, autorunWithStore, derived, observableFromEvent } from '../../../../base/common/observable.js';
+import { observableConfigValue } from '../../../../platform/observable/common/platformObservableUtils.js';
 const ActiveRepositoryContextKeys = {
-  ActiveRepositoryName: new RawContextKey("scmActiveRepositoryName", ""),
-  ActiveRepositoryBranchName: new RawContextKey("scmActiveRepositoryBranchName", "")
+    ActiveRepositoryName: new RawContextKey('scmActiveRepositoryName', ''),
+    ActiveRepositoryBranchName: new RawContextKey('scmActiveRepositoryBranchName', ''),
 };
-let SCMActiveRepositoryController = class extends Disposable {
-  constructor(activityService, configurationService, contextKeyService, scmService, scmViewService, statusbarService, titleService) {
-    super();
-    this.activityService = activityService;
-    this.configurationService = configurationService;
-    this.contextKeyService = contextKeyService;
-    this.scmService = scmService;
-    this.scmViewService = scmViewService;
-    this.statusbarService = statusbarService;
-    this.titleService = titleService;
-    this._activeRepositoryNameContextKey = ActiveRepositoryContextKeys.ActiveRepositoryName.bindTo(this.contextKeyService);
-    this._activeRepositoryBranchNameContextKey = ActiveRepositoryContextKeys.ActiveRepositoryBranchName.bindTo(this.contextKeyService);
-    this.titleService.registerVariables([
-      { name: "activeRepositoryName", contextKey: ActiveRepositoryContextKeys.ActiveRepositoryName.key },
-      { name: "activeRepositoryBranchName", contextKey: ActiveRepositoryContextKeys.ActiveRepositoryBranchName.key }
-    ]);
-    this._register(autorunWithStore((reader, store) => {
-      this._updateActivityCountBadge(this._countBadge.read(reader), store);
-    }));
-    this._register(autorunWithStore((reader, store) => {
-      const repository = this.scmViewService.activeRepository.read(reader);
-      const commands = repository?.provider.statusBarCommands.read(reader);
-      this._updateStatusBar(repository, commands ?? [], store);
-    }));
-    this._register(autorun((reader) => {
-      const repository = this.scmViewService.activeRepository.read(reader);
-      const historyItemRefName = this._activeRepositoryHistoryItemRefName.read(reader);
-      this._updateActiveRepositoryContextKeys(repository?.provider.name, historyItemRefName);
-    }));
-  }
-  static {
-    __name(this, "SCMActiveRepositoryController");
-  }
-  _countBadgeConfig = observableConfigValue("scm.countBadge", "all", this.configurationService);
-  _repositories = observableFromEvent(
-    this,
-    Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository),
-    () => this.scmService.repositories
-  );
-  _activeRepositoryHistoryItemRefName = derived((reader) => {
-    const repository = this.scmViewService.activeRepository.read(reader);
-    const historyProvider = repository?.provider.historyProvider.read(reader);
-    const historyItemRef = historyProvider?.historyItemRef.read(reader);
-    return historyItemRef?.name;
-  });
-  _countBadgeRepositories = derived(this, (reader) => {
-    switch (this._countBadgeConfig.read(reader)) {
-      case "all": {
-        const repositories = this._repositories.read(reader);
-        return [...Iterable.map(repositories, (r) => ({ provider: r.provider, resourceCount: this._getRepositoryResourceCount(r) }))];
-      }
-      case "focused": {
-        const repository = this.scmViewService.activeRepository.read(reader);
-        return repository ? [{ provider: repository.provider, resourceCount: this._getRepositoryResourceCount(repository) }] : [];
-      }
-      case "off":
-        return [];
-      default:
-        throw new Error("Invalid countBadge setting");
-    }
-  });
-  _countBadge = derived(this, (reader) => {
-    let total = 0;
-    for (const repository of this._countBadgeRepositories.read(reader)) {
-      const count = repository.provider.count?.read(reader);
-      const resourceCount = repository.resourceCount.read(reader);
-      total = total + (count ?? resourceCount);
-    }
-    return total;
-  });
-  _activeRepositoryNameContextKey;
-  _activeRepositoryBranchNameContextKey;
-  _getRepositoryResourceCount(repository) {
-    return observableFromEvent(this, repository.provider.onDidChangeResources, () => (
-      /** @description repositoryResourceCount */
-      getRepositoryResourceCount(repository.provider)
-    ));
-  }
-  _updateActivityCountBadge(count, store) {
-    if (count === 0) {
-      return;
-    }
-    const badge = new NumberBadge(count, (num) => localize("scmPendingChangesBadge", "{0} pending changes", num));
-    store.add(this.activityService.showViewActivity(VIEW_PANE_ID, { badge }));
-  }
-  _updateStatusBar(repository, commands, store) {
-    if (!repository) {
-      return;
-    }
-    const label = repository.provider.rootUri ? `${basename(repository.provider.rootUri)} (${repository.provider.label})` : repository.provider.label;
-    for (let index = 0; index < commands.length; index++) {
-      const command = commands[index];
-      const tooltip = `${label}${command.tooltip ? ` - ${command.tooltip}` : ""}`;
-      let repoAgnosticActionName = command.arguments?.[0];
-      if (repoAgnosticActionName && typeof repoAgnosticActionName === "string") {
-        repoAgnosticActionName = repoAgnosticActionName.substring(0, repoAgnosticActionName.lastIndexOf("/")).replace(/^git\./, "");
-        if (repoAgnosticActionName.length > 1) {
-          repoAgnosticActionName = repoAgnosticActionName[0].toLocaleUpperCase() + repoAgnosticActionName.slice(1);
-        }
-      } else {
-        repoAgnosticActionName = "";
-      }
-      const statusbarEntry = {
-        name: localize("status.scm", "Source Control") + (repoAgnosticActionName ? ` ${repoAgnosticActionName}` : ""),
-        text: command.title,
-        ariaLabel: tooltip,
-        tooltip,
-        command: command.id ? command : void 0
-      };
-      store.add(
-        index === 0 ? this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, MainThreadStatusBarAlignment.LEFT, 1e4) : this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, MainThreadStatusBarAlignment.LEFT, { id: `status.scm.${index - 1}`, alignment: MainThreadStatusBarAlignment.RIGHT, compact: true })
-      );
-    }
-  }
-  _updateActiveRepositoryContextKeys(repositoryName, branchName) {
-    this._activeRepositoryNameContextKey.set(repositoryName ?? "");
-    this._activeRepositoryBranchNameContextKey.set(branchName ?? "");
-  }
-};
-SCMActiveRepositoryController = __decorateClass([
-  __decorateParam(0, IActivityService),
-  __decorateParam(1, IConfigurationService),
-  __decorateParam(2, IContextKeyService),
-  __decorateParam(3, ISCMService),
-  __decorateParam(4, ISCMViewService),
-  __decorateParam(5, IStatusbarService),
-  __decorateParam(6, ITitleService)
-], SCMActiveRepositoryController);
-let SCMActiveResourceContextKeyController = class extends Disposable {
-  constructor(editorGroupsService, scmService, uriIdentityService) {
-    super();
-    this.scmService = scmService;
-    this.uriIdentityService = uriIdentityService;
-    const activeResourceHasChangesContextKey = new RawContextKey("scmActiveResourceHasChanges", false, localize("scmActiveResourceHasChanges", "Whether the active resource has changes"));
-    const activeResourceRepositoryContextKey = new RawContextKey("scmActiveResourceRepository", void 0, localize("scmActiveResourceRepository", "The active resource's repository"));
-    this._store.add(autorunWithStore((reader, store) => {
-      for (const repository of this._repositories.read(reader)) {
-        store.add(Event.runAndSubscribe(repository.provider.onDidChangeResources, () => {
-          this._onDidRepositoryChange.fire();
+let SCMActiveRepositoryController = class SCMActiveRepositoryController extends Disposable {
+    constructor(activityService, configurationService, contextKeyService, scmService, scmViewService, statusbarService, titleService) {
+        super();
+        this.activityService = activityService;
+        this.configurationService = configurationService;
+        this.contextKeyService = contextKeyService;
+        this.scmService = scmService;
+        this.scmViewService = scmViewService;
+        this.statusbarService = statusbarService;
+        this.titleService = titleService;
+        this._countBadgeConfig = observableConfigValue('scm.countBadge', 'all', this.configurationService);
+        this._repositories = observableFromEvent(this, Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository), () => this.scmService.repositories);
+        this._activeRepositoryHistoryItemRefName = derived(reader => {
+            const repository = this.scmViewService.activeRepository.read(reader);
+            const historyProvider = repository?.provider.historyProvider.read(reader);
+            const historyItemRef = historyProvider?.historyItemRef.read(reader);
+            return historyItemRef?.name;
+        });
+        this._countBadgeRepositories = derived(this, reader => {
+            switch (this._countBadgeConfig.read(reader)) {
+                case 'all': {
+                    const repositories = this._repositories.read(reader);
+                    return [...Iterable.map(repositories, r => ({ provider: r.provider, resourceCount: this._getRepositoryResourceCount(r) }))];
+                }
+                case 'focused': {
+                    const repository = this.scmViewService.activeRepository.read(reader);
+                    return repository ? [{ provider: repository.provider, resourceCount: this._getRepositoryResourceCount(repository) }] : [];
+                }
+                case 'off':
+                    return [];
+                default:
+                    throw new Error('Invalid countBadge setting');
+            }
+        });
+        this._countBadge = derived(this, reader => {
+            let total = 0;
+            for (const repository of this._countBadgeRepositories.read(reader)) {
+                const count = repository.provider.count?.read(reader);
+                const resourceCount = repository.resourceCount.read(reader);
+                total = total + (count ?? resourceCount);
+            }
+            return total;
+        });
+        this._activeRepositoryNameContextKey = ActiveRepositoryContextKeys.ActiveRepositoryName.bindTo(this.contextKeyService);
+        this._activeRepositoryBranchNameContextKey = ActiveRepositoryContextKeys.ActiveRepositoryBranchName.bindTo(this.contextKeyService);
+        this.titleService.registerVariables([
+            { name: 'activeRepositoryName', contextKey: ActiveRepositoryContextKeys.ActiveRepositoryName.key },
+            { name: 'activeRepositoryBranchName', contextKey: ActiveRepositoryContextKeys.ActiveRepositoryBranchName.key, }
+        ]);
+        this._register(autorunWithStore((reader, store) => {
+            this._updateActivityCountBadge(this._countBadge.read(reader), store);
         }));
-      }
-    }));
-    const hasChangesContextKeyProvider = {
-      contextKey: activeResourceHasChangesContextKey,
-      getGroupContextKeyValue: /* @__PURE__ */ __name((group) => this._getEditorHasChanges(group.activeEditor), "getGroupContextKeyValue"),
-      onDidChange: this._onDidRepositoryChange.event
-    };
-    const repositoryContextKeyProvider = {
-      contextKey: activeResourceRepositoryContextKey,
-      getGroupContextKeyValue: /* @__PURE__ */ __name((group) => this._getEditorRepositoryId(group.activeEditor), "getGroupContextKeyValue"),
-      onDidChange: this._onDidRepositoryChange.event
-    };
-    this._store.add(editorGroupsService.registerContextKeyProvider(hasChangesContextKeyProvider));
-    this._store.add(editorGroupsService.registerContextKeyProvider(repositoryContextKeyProvider));
-  }
-  static {
-    __name(this, "SCMActiveResourceContextKeyController");
-  }
-  _repositories = observableFromEvent(
-    this,
-    Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository),
-    () => this.scmService.repositories
-  );
-  _onDidRepositoryChange = new Emitter();
-  _getEditorHasChanges(activeEditor) {
-    const activeResource = EditorResourceAccessor.getOriginalUri(activeEditor);
-    if (!activeResource) {
-      return false;
+        this._register(autorunWithStore((reader, store) => {
+            const repository = this.scmViewService.activeRepository.read(reader);
+            const commands = repository?.provider.statusBarCommands.read(reader);
+            this._updateStatusBar(repository, commands ?? [], store);
+        }));
+        this._register(autorun(reader => {
+            const repository = this.scmViewService.activeRepository.read(reader);
+            const historyItemRefName = this._activeRepositoryHistoryItemRefName.read(reader);
+            this._updateActiveRepositoryContextKeys(repository?.provider.name, historyItemRefName);
+        }));
     }
-    const activeResourceRepository = this.scmService.getRepository(activeResource);
-    for (const resourceGroup of activeResourceRepository?.provider.groups ?? []) {
-      if (resourceGroup.resources.some((scmResource) => this.uriIdentityService.extUri.isEqual(activeResource, scmResource.sourceUri))) {
-        return true;
-      }
+    _getRepositoryResourceCount(repository) {
+        return observableFromEvent(this, repository.provider.onDidChangeResources, () => /** @description repositoryResourceCount */ getRepositoryResourceCount(repository.provider));
     }
-    return false;
-  }
-  _getEditorRepositoryId(activeEditor) {
-    const activeResource = EditorResourceAccessor.getOriginalUri(activeEditor);
-    if (!activeResource) {
-      return void 0;
+    _updateActivityCountBadge(count, store) {
+        if (count === 0) {
+            return;
+        }
+        const badge = new NumberBadge(count, num => localize('scmPendingChangesBadge', '{0} pending changes', num));
+        store.add(this.activityService.showViewActivity(VIEW_PANE_ID, { badge }));
     }
-    const activeResourceRepository = this.scmService.getRepository(activeResource);
-    return activeResourceRepository?.id;
-  }
-  dispose() {
-    this._onDidRepositoryChange.dispose();
-    super.dispose();
-  }
+    _updateStatusBar(repository, commands, store) {
+        if (!repository) {
+            return;
+        }
+        const label = repository.provider.rootUri
+            ? `${basename(repository.provider.rootUri)} (${repository.provider.label})`
+            : repository.provider.label;
+        for (let index = 0; index < commands.length; index++) {
+            const command = commands[index];
+            const tooltip = `${label}${command.tooltip ? ` - ${command.tooltip}` : ''}`;
+            // Get a repository agnostic name for the status bar action, derive this from the
+            // first command argument which is in the form "git.<command>/<number>"
+            let repoAgnosticActionName = command.arguments?.[0];
+            if (repoAgnosticActionName && typeof repoAgnosticActionName === 'string') {
+                repoAgnosticActionName = repoAgnosticActionName
+                    .substring(0, repoAgnosticActionName.lastIndexOf('/'))
+                    .replace(/^git\./, '');
+                if (repoAgnosticActionName.length > 1) {
+                    repoAgnosticActionName = repoAgnosticActionName[0].toLocaleUpperCase() + repoAgnosticActionName.slice(1);
+                }
+            }
+            else {
+                repoAgnosticActionName = '';
+            }
+            const statusbarEntry = {
+                name: localize('status.scm', "Source Control") + (repoAgnosticActionName ? ` ${repoAgnosticActionName}` : ''),
+                text: command.title,
+                ariaLabel: tooltip,
+                tooltip,
+                command: command.id ? command : undefined
+            };
+            store.add(index === 0 ?
+                this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, 0 /* MainThreadStatusBarAlignment.LEFT */, 10000) :
+                this.statusbarService.addEntry(statusbarEntry, `status.scm.${index}`, 0 /* MainThreadStatusBarAlignment.LEFT */, { id: `status.scm.${index - 1}`, alignment: 1 /* MainThreadStatusBarAlignment.RIGHT */, compact: true }));
+        }
+    }
+    _updateActiveRepositoryContextKeys(repositoryName, branchName) {
+        this._activeRepositoryNameContextKey.set(repositoryName ?? '');
+        this._activeRepositoryBranchNameContextKey.set(branchName ?? '');
+    }
 };
-SCMActiveResourceContextKeyController = __decorateClass([
-  __decorateParam(0, IEditorGroupsService),
-  __decorateParam(1, ISCMService),
-  __decorateParam(2, IUriIdentityService)
+SCMActiveRepositoryController = __decorate([
+    __param(0, IActivityService),
+    __param(1, IConfigurationService),
+    __param(2, IContextKeyService),
+    __param(3, ISCMService),
+    __param(4, ISCMViewService),
+    __param(5, IStatusbarService),
+    __param(6, ITitleService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object, Object])
+], SCMActiveRepositoryController);
+export { SCMActiveRepositoryController };
+let SCMActiveResourceContextKeyController = class SCMActiveResourceContextKeyController extends Disposable {
+    constructor(editorGroupsService, scmService, uriIdentityService) {
+        super();
+        this.scmService = scmService;
+        this.uriIdentityService = uriIdentityService;
+        this._repositories = observableFromEvent(this, Event.any(this.scmService.onDidAddRepository, this.scmService.onDidRemoveRepository), () => this.scmService.repositories);
+        this._onDidRepositoryChange = new Emitter();
+        const activeResourceHasChangesContextKey = new RawContextKey('scmActiveResourceHasChanges', false, localize('scmActiveResourceHasChanges', "Whether the active resource has changes"));
+        const activeResourceRepositoryContextKey = new RawContextKey('scmActiveResourceRepository', undefined, localize('scmActiveResourceRepository', "The active resource's repository"));
+        this._store.add(autorunWithStore((reader, store) => {
+            for (const repository of this._repositories.read(reader)) {
+                store.add(Event.runAndSubscribe(repository.provider.onDidChangeResources, () => {
+                    this._onDidRepositoryChange.fire();
+                }));
+            }
+        }));
+        // Create context key providers which will update the context keys based on each groups active editor
+        const hasChangesContextKeyProvider = {
+            contextKey: activeResourceHasChangesContextKey,
+            getGroupContextKeyValue: (group) => this._getEditorHasChanges(group.activeEditor),
+            onDidChange: this._onDidRepositoryChange.event
+        };
+        const repositoryContextKeyProvider = {
+            contextKey: activeResourceRepositoryContextKey,
+            getGroupContextKeyValue: (group) => this._getEditorRepositoryId(group.activeEditor),
+            onDidChange: this._onDidRepositoryChange.event
+        };
+        this._store.add(editorGroupsService.registerContextKeyProvider(hasChangesContextKeyProvider));
+        this._store.add(editorGroupsService.registerContextKeyProvider(repositoryContextKeyProvider));
+    }
+    _getEditorHasChanges(activeEditor) {
+        const activeResource = EditorResourceAccessor.getOriginalUri(activeEditor);
+        if (!activeResource) {
+            return false;
+        }
+        const activeResourceRepository = this.scmService.getRepository(activeResource);
+        for (const resourceGroup of activeResourceRepository?.provider.groups ?? []) {
+            if (resourceGroup.resources
+                .some(scmResource => this.uriIdentityService.extUri.isEqual(activeResource, scmResource.sourceUri))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    _getEditorRepositoryId(activeEditor) {
+        const activeResource = EditorResourceAccessor.getOriginalUri(activeEditor);
+        if (!activeResource) {
+            return undefined;
+        }
+        const activeResourceRepository = this.scmService.getRepository(activeResource);
+        return activeResourceRepository?.id;
+    }
+    dispose() {
+        this._onDidRepositoryChange.dispose();
+        super.dispose();
+    }
+};
+SCMActiveResourceContextKeyController = __decorate([
+    __param(0, IEditorGroupsService),
+    __param(1, ISCMService),
+    __param(2, IUriIdentityService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], SCMActiveResourceContextKeyController);
-export {
-  SCMActiveRepositoryController,
-  SCMActiveResourceContextKeyController
-};
-//# sourceMappingURL=activity.js.map
+export { SCMActiveResourceContextKeyController };

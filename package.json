@@ -19,10 +19,9 @@
 	},
 	"type": "module",
 	"scripts": {
-		"Build": "cross-env NODE_ENV=development Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.json",
-		"Run": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json --Watch",
+		"Run": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --Watch",
 		"TypeScript": "tsc -p Source/Notation/CodeEditorLand/Editor/tsconfig.compile.json",
-		"prepublishOnly": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --TypeScript Source/Notation/CodeEditorLand/Editor/tsconfig.no-types.json"
+		"prepublishOnly": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts"
 	},
 	"devDependencies": {
 		"@playform/build": "0.1.7",

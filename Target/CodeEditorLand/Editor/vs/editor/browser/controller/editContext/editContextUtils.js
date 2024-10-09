@@ -1,15 +1,7 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { FastDomNode } from "../../../../base/browser/fastDomNode.js";
-import { Position } from "../../../common/core/position.js";
-import { IEditorAriaOptions } from "../../editorBrowser.js";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 import { ViewPart } from "../../view/viewPart.js";
-class AbstractEditContext extends ViewPart {
-  static {
-    __name(this, "AbstractEditContext");
-  }
+export class AbstractEditContext extends ViewPart {
 }
-export {
-  AbstractEditContext
-};
-//# sourceMappingURL=editContextUtils.js.map

@@ -1,53 +1,49 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as strings from "./strings.js";
-var Severity = /* @__PURE__ */ ((Severity2) => {
-  Severity2[Severity2["Ignore"] = 0] = "Ignore";
-  Severity2[Severity2["Info"] = 1] = "Info";
-  Severity2[Severity2["Warning"] = 2] = "Warning";
-  Severity2[Severity2["Error"] = 3] = "Error";
-  return Severity2;
-})(Severity || {});
-((Severity2) => {
-  const _error = "error";
-  const _warning = "warning";
-  const _warn = "warn";
-  const _info = "info";
-  const _ignore = "ignore";
-  function fromValue(value) {
-    if (!value) {
-      return 0 /* Ignore */;
-    }
-    if (strings.equalsIgnoreCase(_error, value)) {
-      return 3 /* Error */;
-    }
-    if (strings.equalsIgnoreCase(_warning, value) || strings.equalsIgnoreCase(_warn, value)) {
-      return 2 /* Warning */;
-    }
-    if (strings.equalsIgnoreCase(_info, value)) {
-      return 1 /* Info */;
-    }
-    return 0 /* Ignore */;
-  }
-  Severity2.fromValue = fromValue;
-  __name(fromValue, "fromValue");
-  function toString(severity) {
-    switch (severity) {
-      case 3 /* Error */:
-        return _error;
-      case 2 /* Warning */:
-        return _warning;
-      case 1 /* Info */:
-        return _info;
-      default:
-        return _ignore;
-    }
-  }
-  Severity2.toString = toString;
-  __name(toString, "toString");
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import * as strings from './strings.js';
+var Severity;
+(function (Severity) {
+    Severity[Severity["Ignore"] = 0] = "Ignore";
+    Severity[Severity["Info"] = 1] = "Info";
+    Severity[Severity["Warning"] = 2] = "Warning";
+    Severity[Severity["Error"] = 3] = "Error";
 })(Severity || (Severity = {}));
-var severity_default = Severity;
-export {
-  severity_default as default
-};
-//# sourceMappingURL=severity.js.map
+(function (Severity) {
+    const _error = 'error';
+    const _warning = 'warning';
+    const _warn = 'warn';
+    const _info = 'info';
+    const _ignore = 'ignore';
+    /**
+     * Parses 'error', 'warning', 'warn', 'info' in call casings
+     * and falls back to ignore.
+     */
+    function fromValue(value) {
+        if (!value) {
+            return Severity.Ignore;
+        }
+        if (strings.equalsIgnoreCase(_error, value)) {
+            return Severity.Error;
+        }
+        if (strings.equalsIgnoreCase(_warning, value) || strings.equalsIgnoreCase(_warn, value)) {
+            return Severity.Warning;
+        }
+        if (strings.equalsIgnoreCase(_info, value)) {
+            return Severity.Info;
+        }
+        return Severity.Ignore;
+    }
+    Severity.fromValue = fromValue;
+    function toString(severity) {
+        switch (severity) {
+            case Severity.Error: return _error;
+            case Severity.Warning: return _warning;
+            case Severity.Info: return _info;
+            default: return _ignore;
+        }
+    }
+    Severity.toString = toString;
+})(Severity || (Severity = {}));
+export default Severity;

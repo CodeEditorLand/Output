@@ -1,16 +1,11 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { homedir } from "os";
-import { ExtHostVariableResolverProviderService } from "../common/extHostVariableResolverService.js";
-class NodeExtHostVariableResolverProviderService extends ExtHostVariableResolverProviderService {
-  static {
-    __name(this, "NodeExtHostVariableResolverProviderService");
-  }
-  homeDir() {
-    return homedir();
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { homedir } from 'os';
+import { ExtHostVariableResolverProviderService } from '../common/extHostVariableResolverService.js';
+export class NodeExtHostVariableResolverProviderService extends ExtHostVariableResolverProviderService {
+    homeDir() {
+        return homedir();
+    }
 }
-export {
-  NodeExtHostVariableResolverProviderService
-};
-//# sourceMappingURL=extHostVariableResolverService.js.map

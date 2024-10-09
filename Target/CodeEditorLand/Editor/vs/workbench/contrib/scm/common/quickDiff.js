@@ -1,10 +1,6 @@
-import { URI } from "../../../../base/common/uri.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { LanguageSelector } from "../../../../editor/common/languageSelector.js";
-import { Event } from "../../../../base/common/event.js";
-const IQuickDiffService = createDecorator("quickDiff");
-export {
-  IQuickDiffService
-};
-//# sourceMappingURL=quickDiff.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export const IQuickDiffService = createDecorator('quickDiff');

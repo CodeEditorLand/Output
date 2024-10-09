@@ -1,94 +1,93 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { WebContents, webContents, WebFrameMain } from "electron";
-import { Emitter } from "../../../base/common/event.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { FindInFrameOptions, FoundInFrameResult, IWebviewManagerService, WebviewWebContentsId, WebviewWindowId } from "../common/webviewManagerService.js";
-import { WebviewProtocolProvider } from "./webviewProtocolProvider.js";
-import { IWindowsMainService } from "../../windows/electron-main/windows.js";
-let WebviewMainService = class extends Disposable {
-  constructor(windowsMainService) {
-    super();
-    this.windowsMainService = windowsMainService;
-    this._register(new WebviewProtocolProvider());
-  }
-  static {
-    __name(this, "WebviewMainService");
-  }
-  _onFoundInFrame = this._register(new Emitter());
-  onFoundInFrame = this._onFoundInFrame.event;
-  async setIgnoreMenuShortcuts(id, enabled) {
-    let contents;
-    if (typeof id.windowId === "number") {
-      const { windowId } = id;
-      const window = this.windowsMainService.getWindowById(windowId);
-      if (!window?.win) {
-        throw new Error(`Invalid windowId: ${windowId}`);
-      }
-      contents = window.win.webContents;
-    } else {
-      const { webContentsId } = id;
-      contents = webContents.fromId(webContentsId);
-      if (!contents) {
-        throw new Error(`Invalid webContentsId: ${webContentsId}`);
-      }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { webContents } from 'electron';
+import { Emitter } from '../../../base/common/event.js';
+import { Disposable } from '../../../base/common/lifecycle.js';
+import { WebviewProtocolProvider } from './webviewProtocolProvider.js';
+import { IWindowsMainService } from '../../windows/electron-main/windows.js';
+let WebviewMainService = class WebviewMainService extends Disposable {
+    constructor(windowsMainService) {
+        super();
+        this.windowsMainService = windowsMainService;
+        this._onFoundInFrame = this._register(new Emitter());
+        this.onFoundInFrame = this._onFoundInFrame.event;
+        this._register(new WebviewProtocolProvider());
     }
-    if (!contents.isDestroyed()) {
-      contents.setIgnoreMenuShortcuts(enabled);
-    }
-  }
-  async findInFrame(windowId, frameName, text, options) {
-    const initialFrame = this.getFrameByName(windowId, frameName);
-    const frame = initialFrame;
-    if (typeof frame.findInFrame === "function") {
-      frame.findInFrame(text, {
-        findNext: options.findNext,
-        forward: options.forward
-      });
-      const foundInFrameHandler = /* @__PURE__ */ __name((_, result) => {
-        if (result.finalUpdate) {
-          this._onFoundInFrame.fire(result);
-          frame.removeListener("found-in-frame", foundInFrameHandler);
+    async setIgnoreMenuShortcuts(id, enabled) {
+        let contents;
+        if (typeof id.windowId === 'number') {
+            const { windowId } = id;
+            const window = this.windowsMainService.getWindowById(windowId);
+            if (!window?.win) {
+                throw new Error(`Invalid windowId: ${windowId}`);
+            }
+            contents = window.win.webContents;
         }
-      }, "foundInFrameHandler");
-      frame.on("found-in-frame", foundInFrameHandler);
+        else {
+            const { webContentsId } = id;
+            contents = webContents.fromId(webContentsId);
+            if (!contents) {
+                throw new Error(`Invalid webContentsId: ${webContentsId}`);
+            }
+        }
+        if (!contents.isDestroyed()) {
+            contents.setIgnoreMenuShortcuts(enabled);
+        }
     }
-  }
-  async stopFindInFrame(windowId, frameName, options) {
-    const initialFrame = this.getFrameByName(windowId, frameName);
-    const frame = initialFrame;
-    if (typeof frame.stopFindInFrame === "function") {
-      frame.stopFindInFrame(options.keepSelection ? "keepSelection" : "clearSelection");
+    async findInFrame(windowId, frameName, text, options) {
+        const initialFrame = this.getFrameByName(windowId, frameName);
+        const frame = initialFrame;
+        if (typeof frame.findInFrame === 'function') {
+            frame.findInFrame(text, {
+                findNext: options.findNext,
+                forward: options.forward,
+            });
+            const foundInFrameHandler = (_, result) => {
+                if (result.finalUpdate) {
+                    this._onFoundInFrame.fire(result);
+                    frame.removeListener('found-in-frame', foundInFrameHandler);
+                }
+            };
+            frame.on('found-in-frame', foundInFrameHandler);
+        }
     }
-  }
-  getFrameByName(windowId, frameName) {
-    const window = this.windowsMainService.getWindowById(windowId.windowId);
-    if (!window?.win) {
-      throw new Error(`Invalid windowId: ${windowId}`);
+    async stopFindInFrame(windowId, frameName, options) {
+        const initialFrame = this.getFrameByName(windowId, frameName);
+        const frame = initialFrame;
+        if (typeof frame.stopFindInFrame === 'function') {
+            frame.stopFindInFrame(options.keepSelection ? 'keepSelection' : 'clearSelection');
+        }
     }
-    const frame = window.win.webContents.mainFrame.framesInSubtree.find((frame2) => {
-      return frame2.name === frameName;
-    });
-    if (!frame) {
-      throw new Error(`Unknown frame: ${frameName}`);
+    getFrameByName(windowId, frameName) {
+        const window = this.windowsMainService.getWindowById(windowId.windowId);
+        if (!window?.win) {
+            throw new Error(`Invalid windowId: ${windowId}`);
+        }
+        const frame = window.win.webContents.mainFrame.framesInSubtree.find(frame => {
+            return frame.name === frameName;
+        });
+        if (!frame) {
+            throw new Error(`Unknown frame: ${frameName}`);
+        }
+        return frame;
     }
-    return frame;
-  }
 };
-WebviewMainService = __decorateClass([
-  __decorateParam(0, IWindowsMainService)
+WebviewMainService = __decorate([
+    __param(0, IWindowsMainService),
+    __metadata("design:paramtypes", [Object])
 ], WebviewMainService);
-export {
-  WebviewMainService
-};
-//# sourceMappingURL=webviewMainService.js.map
+export { WebviewMainService };

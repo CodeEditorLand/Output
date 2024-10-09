@@ -1,102 +1,109 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ICodeEditor, isCodeEditor, isDiffEditor, isCompositeEditor, getCodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { AbstractCodeEditorService } from "../../../../editor/browser/services/abstractCodeEditorService.js";
-import { ScrollType } from "../../../../editor/common/editorCommon.js";
-import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IWorkbenchEditorConfiguration } from "../../../common/editor.js";
-import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../common/editorService.js";
-import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { isEqual } from "../../../../base/common/resources.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { applyTextEditorOptions } from "../../../common/editor/editorOptions.js";
-let CodeEditorService = class extends AbstractCodeEditorService {
-  constructor(editorService, themeService, configurationService) {
-    super(themeService);
-    this.editorService = editorService;
-    this.configurationService = configurationService;
-    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditor.bind(this)));
-    this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditorFromDiff.bind(this)));
-  }
-  static {
-    __name(this, "CodeEditorService");
-  }
-  getActiveCodeEditor() {
-    const activeTextEditorControl = this.editorService.activeTextEditorControl;
-    if (isCodeEditor(activeTextEditorControl)) {
-      return activeTextEditorControl;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { isCodeEditor, isDiffEditor, isCompositeEditor, getCodeEditor } from '../../../../editor/browser/editorBrowser.js';
+import { AbstractCodeEditorService } from '../../../../editor/browser/services/abstractCodeEditorService.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from '../common/editorService.js';
+import { ICodeEditorService } from '../../../../editor/browser/services/codeEditorService.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { isEqual } from '../../../../base/common/resources.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { applyTextEditorOptions } from '../../../common/editor/editorOptions.js';
+let CodeEditorService = class CodeEditorService extends AbstractCodeEditorService {
+    constructor(editorService, themeService, configurationService) {
+        super(themeService);
+        this.editorService = editorService;
+        this.configurationService = configurationService;
+        this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditor.bind(this)));
+        this._register(this.registerCodeEditorOpenHandler(this.doOpenCodeEditorFromDiff.bind(this)));
     }
-    if (isDiffEditor(activeTextEditorControl)) {
-      return activeTextEditorControl.getModifiedEditor();
-    }
-    const activeControl = this.editorService.activeEditorPane?.getControl();
-    if (isCompositeEditor(activeControl) && isCodeEditor(activeControl.activeCodeEditor)) {
-      return activeControl.activeCodeEditor;
-    }
-    return null;
-  }
-  async doOpenCodeEditorFromDiff(input, source, sideBySide) {
-    const activeTextEditorControl = this.editorService.activeTextEditorControl;
-    if (!sideBySide && // we need the current active group to be the target
-    isDiffEditor(activeTextEditorControl) && // we only support this for active text diff editors
-    input.options && // we need options to apply
-    input.resource && // we need a request resource to compare with
-    source === activeTextEditorControl.getModifiedEditor() && // we need the source of this request to be the modified side of the diff editor
-    activeTextEditorControl.getModel() && // we need a target model to compare with
-    isEqual(input.resource, activeTextEditorControl.getModel()?.modified.uri)) {
-      const targetEditor = activeTextEditorControl.getModifiedEditor();
-      applyTextEditorOptions(input.options, targetEditor, ScrollType.Smooth);
-      return targetEditor;
-    }
-    return null;
-  }
-  // Open using our normal editor service
-  async doOpenCodeEditor(input, source, sideBySide) {
-    const enablePreviewFromCodeNavigation = this.configurationService.getValue().workbench?.editor?.enablePreviewFromCodeNavigation;
-    if (!enablePreviewFromCodeNavigation && // we only need to do this if the configuration requires it
-    source && // we need to know the origin of the navigation
-    !input.options?.pinned && // we only need to look at preview editors that open
-    !sideBySide && // we only need to care if editor opens in same group
-    !isEqual(source.getModel()?.uri, input.resource)) {
-      for (const visiblePane of this.editorService.visibleEditorPanes) {
-        if (getCodeEditor(visiblePane.getControl()) === source) {
-          visiblePane.group.pinEditor();
-          break;
+    getActiveCodeEditor() {
+        const activeTextEditorControl = this.editorService.activeTextEditorControl;
+        if (isCodeEditor(activeTextEditorControl)) {
+            return activeTextEditorControl;
         }
-      }
+        if (isDiffEditor(activeTextEditorControl)) {
+            return activeTextEditorControl.getModifiedEditor();
+        }
+        const activeControl = this.editorService.activeEditorPane?.getControl();
+        if (isCompositeEditor(activeControl) && isCodeEditor(activeControl.activeCodeEditor)) {
+            return activeControl.activeCodeEditor;
+        }
+        return null;
     }
-    const control = await this.editorService.openEditor(input, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
-    if (control) {
-      const widget = control.getControl();
-      if (isCodeEditor(widget)) {
-        return widget;
-      }
-      if (isCompositeEditor(widget) && isCodeEditor(widget.activeCodeEditor)) {
-        return widget.activeCodeEditor;
-      }
+    async doOpenCodeEditorFromDiff(input, source, sideBySide) {
+        // Special case: If the active editor is a diff editor and the request to open originates and
+        // targets the modified side of it, we just apply the request there to prevent opening the modified
+        // side as separate editor.
+        const activeTextEditorControl = this.editorService.activeTextEditorControl;
+        if (!sideBySide && // we need the current active group to be the target
+            isDiffEditor(activeTextEditorControl) && // we only support this for active text diff editors
+            input.options && // we need options to apply
+            input.resource && // we need a request resource to compare with
+            source === activeTextEditorControl.getModifiedEditor() && // we need the source of this request to be the modified side of the diff editor
+            activeTextEditorControl.getModel() && // we need a target model to compare with
+            isEqual(input.resource, activeTextEditorControl.getModel()?.modified.uri) // we need the input resources to match with modified side
+        ) {
+            const targetEditor = activeTextEditorControl.getModifiedEditor();
+            applyTextEditorOptions(input.options, targetEditor, 0 /* ScrollType.Smooth */);
+            return targetEditor;
+        }
+        return null;
     }
-    return null;
-  }
+    // Open using our normal editor service
+    async doOpenCodeEditor(input, source, sideBySide) {
+        // Special case: we want to detect the request to open an editor that
+        // is different from the current one to decide whether the current editor
+        // should be pinned or not. This ensures that the source of a navigation
+        // is not being replaced by the target. An example is "Goto definition"
+        // that otherwise would replace the editor everytime the user navigates.
+        const enablePreviewFromCodeNavigation = this.configurationService.getValue().workbench?.editor?.enablePreviewFromCodeNavigation;
+        if (!enablePreviewFromCodeNavigation && // we only need to do this if the configuration requires it
+            source && // we need to know the origin of the navigation
+            !input.options?.pinned && // we only need to look at preview editors that open
+            !sideBySide && // we only need to care if editor opens in same group
+            !isEqual(source.getModel()?.uri, input.resource) // we only need to do this if the editor is about to change
+        ) {
+            for (const visiblePane of this.editorService.visibleEditorPanes) {
+                if (getCodeEditor(visiblePane.getControl()) === source) {
+                    visiblePane.group.pinEditor();
+                    break;
+                }
+            }
+        }
+        // Open as editor
+        const control = await this.editorService.openEditor(input, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+        if (control) {
+            const widget = control.getControl();
+            if (isCodeEditor(widget)) {
+                return widget;
+            }
+            if (isCompositeEditor(widget) && isCodeEditor(widget.activeCodeEditor)) {
+                return widget.activeCodeEditor;
+            }
+        }
+        return null;
+    }
 };
-CodeEditorService = __decorateClass([
-  __decorateParam(0, IEditorService),
-  __decorateParam(1, IThemeService),
-  __decorateParam(2, IConfigurationService)
+CodeEditorService = __decorate([
+    __param(0, IEditorService),
+    __param(1, IThemeService),
+    __param(2, IConfigurationService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], CodeEditorService);
-registerSingleton(ICodeEditorService, CodeEditorService, InstantiationType.Delayed);
-export {
-  CodeEditorService
-};
-//# sourceMappingURL=codeEditorService.js.map
+export { CodeEditorService };
+registerSingleton(ICodeEditorService, CodeEditorService, 1 /* InstantiationType.Delayed */);

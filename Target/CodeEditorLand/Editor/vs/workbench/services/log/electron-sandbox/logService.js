@@ -1,30 +1,26 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ConsoleLogger, ILogger } from "../../../../platform/log/common/log.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
-import { LoggerChannelClient } from "../../../../platform/log/common/logIpc.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { localize } from "../../../../nls.js";
-import { windowLogId } from "../common/logConstants.js";
-import { LogService } from "../../../../platform/log/common/logService.js";
-class NativeLogService extends LogService {
-  static {
-    __name(this, "NativeLogService");
-  }
-  constructor(loggerService, environmentService) {
-    const disposables = new DisposableStore();
-    const fileLogger = disposables.add(loggerService.createLogger(environmentService.logFile, { id: windowLogId, name: localize("rendererLog", "Window") }));
-    let consoleLogger;
-    if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
-      consoleLogger = loggerService.createConsoleMainLogger();
-    } else {
-      consoleLogger = new ConsoleLogger(fileLogger.getLevel());
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { ConsoleLogger } from '../../../../platform/log/common/log.js';
+import { DisposableStore } from '../../../../base/common/lifecycle.js';
+import { localize } from '../../../../nls.js';
+import { windowLogId } from '../common/logConstants.js';
+import { LogService } from '../../../../platform/log/common/logService.js';
+export class NativeLogService extends LogService {
+    constructor(loggerService, environmentService) {
+        const disposables = new DisposableStore();
+        const fileLogger = disposables.add(loggerService.createLogger(environmentService.logFile, { id: windowLogId, name: localize('rendererLog', "Window") }));
+        let consoleLogger;
+        if (environmentService.isExtensionDevelopment && !!environmentService.extensionTestsLocationURI) {
+            // Extension development test CLI: forward everything to main side
+            consoleLogger = loggerService.createConsoleMainLogger();
+        }
+        else {
+            // Normal mode: Log to console
+            consoleLogger = new ConsoleLogger(fileLogger.getLevel());
+        }
+        super(fileLogger, [consoleLogger]);
+        this._register(disposables);
     }
-    super(fileLogger, [consoleLogger]);
-    this._register(disposables);
-  }
 }
-export {
-  NativeLogService
-};
-//# sourceMappingURL=logService.js.map

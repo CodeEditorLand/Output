@@ -1,352 +1,335 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { OutlineElement, OutlineGroup, OutlineModel } from "../../documentSymbols/browser/outlineModel.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { CancelablePromise, createCancelablePromise, Delayer } from "../../../../base/common/async.js";
-import { FoldingController, RangesLimitReporter } from "../../folding/browser/folding.js";
-import { SyntaxRangeProvider } from "../../folding/browser/syntaxRangeProvider.js";
-import { IndentRangeProvider } from "../../folding/browser/indentRangeProvider.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { FoldingRegions } from "../../folding/browser/foldingRanges.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { StickyElement, StickyModel, StickyRange } from "./stickyScrollElement.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-var ModelProvider = /* @__PURE__ */ ((ModelProvider2) => {
-  ModelProvider2["OUTLINE_MODEL"] = "outlineModel";
-  ModelProvider2["FOLDING_PROVIDER_MODEL"] = "foldingProviderModel";
-  ModelProvider2["INDENTATION_MODEL"] = "indentationModel";
-  return ModelProvider2;
-})(ModelProvider || {});
-var Status = /* @__PURE__ */ ((Status2) => {
-  Status2[Status2["VALID"] = 0] = "VALID";
-  Status2[Status2["INVALID"] = 1] = "INVALID";
-  Status2[Status2["CANCELED"] = 2] = "CANCELED";
-  return Status2;
-})(Status || {});
-let StickyModelProvider = class extends Disposable {
-  constructor(_editor, onProviderUpdate, _languageConfigurationService, _languageFeaturesService) {
-    super();
-    this._editor = _editor;
-    switch (this._editor.getOption(EditorOption.stickyScroll).defaultModel) {
-      case "outlineModel" /* OUTLINE_MODEL */:
-        this._modelProviders.push(new StickyModelFromCandidateOutlineProvider(this._editor, _languageFeaturesService));
-      // fall through
-      case "foldingProviderModel" /* FOLDING_PROVIDER_MODEL */:
-        this._modelProviders.push(new StickyModelFromCandidateSyntaxFoldingProvider(this._editor, onProviderUpdate, _languageFeaturesService));
-      // fall through
-      case "indentationModel" /* INDENTATION_MODEL */:
-        this._modelProviders.push(new StickyModelFromCandidateIndentationFoldingProvider(this._editor, _languageConfigurationService));
-        break;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Disposable, DisposableStore } from '../../../../base/common/lifecycle.js';
+import { ILanguageFeaturesService } from '../../../common/services/languageFeatures.js';
+import { OutlineElement, OutlineGroup, OutlineModel } from '../../documentSymbols/browser/outlineModel.js';
+import { createCancelablePromise, Delayer } from '../../../../base/common/async.js';
+import { FoldingController, RangesLimitReporter } from '../../folding/browser/folding.js';
+import { SyntaxRangeProvider } from '../../folding/browser/syntaxRangeProvider.js';
+import { IndentRangeProvider } from '../../folding/browser/indentRangeProvider.js';
+import { ILanguageConfigurationService } from '../../../common/languages/languageConfigurationRegistry.js';
+import { onUnexpectedError } from '../../../../base/common/errors.js';
+import { StickyElement, StickyModel, StickyRange } from './stickyScrollElement.js';
+import { Iterable } from '../../../../base/common/iterator.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+var ModelProvider;
+(function (ModelProvider) {
+    ModelProvider["OUTLINE_MODEL"] = "outlineModel";
+    ModelProvider["FOLDING_PROVIDER_MODEL"] = "foldingProviderModel";
+    ModelProvider["INDENTATION_MODEL"] = "indentationModel";
+})(ModelProvider || (ModelProvider = {}));
+var Status;
+(function (Status) {
+    Status[Status["VALID"] = 0] = "VALID";
+    Status[Status["INVALID"] = 1] = "INVALID";
+    Status[Status["CANCELED"] = 2] = "CANCELED";
+})(Status || (Status = {}));
+let StickyModelProvider = class StickyModelProvider extends Disposable {
+    constructor(_editor, onProviderUpdate, _languageConfigurationService, _languageFeaturesService) {
+        super();
+        this._editor = _editor;
+        this._modelProviders = [];
+        this._modelPromise = null;
+        this._updateScheduler = this._register(new Delayer(300));
+        this._updateOperation = this._register(new DisposableStore());
+        switch (this._editor.getOption(119 /* EditorOption.stickyScroll */).defaultModel) {
+            case ModelProvider.OUTLINE_MODEL:
+                this._modelProviders.push(new StickyModelFromCandidateOutlineProvider(this._editor, _languageFeaturesService));
+            // fall through
+            case ModelProvider.FOLDING_PROVIDER_MODEL:
+                this._modelProviders.push(new StickyModelFromCandidateSyntaxFoldingProvider(this._editor, onProviderUpdate, _languageFeaturesService));
+            // fall through
+            case ModelProvider.INDENTATION_MODEL:
+                this._modelProviders.push(new StickyModelFromCandidateIndentationFoldingProvider(this._editor, _languageConfigurationService));
+                break;
+        }
     }
-  }
-  static {
-    __name(this, "StickyModelProvider");
-  }
-  _modelProviders = [];
-  _modelPromise = null;
-  _updateScheduler = this._register(new Delayer(300));
-  _updateOperation = this._register(new DisposableStore());
-  dispose() {
-    this._modelProviders.forEach((provider) => provider.dispose());
-    this._updateOperation.clear();
-    this._cancelModelPromise();
-    super.dispose();
-  }
-  _cancelModelPromise() {
-    if (this._modelPromise) {
-      this._modelPromise.cancel();
-      this._modelPromise = null;
-    }
-  }
-  async update(token) {
-    this._updateOperation.clear();
-    this._updateOperation.add({
-      dispose: /* @__PURE__ */ __name(() => {
+    dispose() {
+        this._modelProviders.forEach(provider => provider.dispose());
+        this._updateOperation.clear();
         this._cancelModelPromise();
-        this._updateScheduler.cancel();
-      }, "dispose")
-    });
-    this._cancelModelPromise();
-    return await this._updateScheduler.trigger(async () => {
-      for (const modelProvider of this._modelProviders) {
-        const { statusPromise, modelPromise } = modelProvider.computeStickyModel(token);
-        this._modelPromise = modelPromise;
-        const status = await statusPromise;
-        if (this._modelPromise !== modelPromise) {
-          return null;
+        super.dispose();
+    }
+    _cancelModelPromise() {
+        if (this._modelPromise) {
+            this._modelPromise.cancel();
+            this._modelPromise = null;
         }
-        switch (status) {
-          case 2 /* CANCELED */:
-            this._updateOperation.clear();
+    }
+    async update(token) {
+        this._updateOperation.clear();
+        this._updateOperation.add({
+            dispose: () => {
+                this._cancelModelPromise();
+                this._updateScheduler.cancel();
+            }
+        });
+        this._cancelModelPromise();
+        return await this._updateScheduler.trigger(async () => {
+            for (const modelProvider of this._modelProviders) {
+                const { statusPromise, modelPromise } = modelProvider.computeStickyModel(token);
+                this._modelPromise = modelPromise;
+                const status = await statusPromise;
+                if (this._modelPromise !== modelPromise) {
+                    return null;
+                }
+                switch (status) {
+                    case Status.CANCELED:
+                        this._updateOperation.clear();
+                        return null;
+                    case Status.VALID:
+                        return modelProvider.stickyModel;
+                }
+            }
             return null;
-          case 0 /* VALID */:
-            return modelProvider.stickyModel;
-        }
-      }
-      return null;
-    }).catch((error) => {
-      onUnexpectedError(error);
-      return null;
-    });
-  }
+        }).catch((error) => {
+            onUnexpectedError(error);
+            return null;
+        });
+    }
 };
-StickyModelProvider = __decorateClass([
-  __decorateParam(2, IInstantiationService),
-  __decorateParam(3, ILanguageFeaturesService)
+StickyModelProvider = __decorate([
+    __param(2, IInstantiationService),
+    __param(3, ILanguageFeaturesService),
+    __metadata("design:paramtypes", [Object, Function, Object, Object])
 ], StickyModelProvider);
+export { StickyModelProvider };
 class StickyModelCandidateProvider extends Disposable {
-  constructor(_editor) {
-    super();
-    this._editor = _editor;
-  }
-  static {
-    __name(this, "StickyModelCandidateProvider");
-  }
-  _stickyModel = null;
-  get stickyModel() {
-    return this._stickyModel;
-  }
-  _invalid() {
-    this._stickyModel = null;
-    return 1 /* INVALID */;
-  }
-  computeStickyModel(token) {
-    if (token.isCancellationRequested || !this.isProviderValid()) {
-      return { statusPromise: this._invalid(), modelPromise: null };
+    constructor(_editor) {
+        super();
+        this._editor = _editor;
+        this._stickyModel = null;
     }
-    const providerModelPromise = createCancelablePromise((token2) => this.createModelFromProvider(token2));
-    return {
-      statusPromise: providerModelPromise.then((providerModel) => {
-        if (!this.isModelValid(providerModel)) {
-          return this._invalid();
+    get stickyModel() {
+        return this._stickyModel;
+    }
+    _invalid() {
+        this._stickyModel = null;
+        return Status.INVALID;
+    }
+    computeStickyModel(token) {
+        if (token.isCancellationRequested || !this.isProviderValid()) {
+            return { statusPromise: this._invalid(), modelPromise: null };
         }
-        if (token.isCancellationRequested) {
-          return 2 /* CANCELED */;
-        }
-        this._stickyModel = this.createStickyModel(token, providerModel);
-        return 0 /* VALID */;
-      }).then(void 0, (err) => {
-        onUnexpectedError(err);
-        return 2 /* CANCELED */;
-      }),
-      modelPromise: providerModelPromise
-    };
-  }
-  /**
-   * Method which checks whether the model returned by the provider is valid and can be used to compute a sticky model.
-   * This method by default returns true.
-   * @param model model returned by the provider
-   * @returns boolean indicating whether the model is valid
-   */
-  isModelValid(model) {
-    return true;
-  }
-  /**
-   * Method which checks whether the provider is valid before applying it to find the provider model.
-   * This method by default returns true.
-   * @returns boolean indicating whether the provider is valid
-   */
-  isProviderValid() {
-    return true;
-  }
+        const providerModelPromise = createCancelablePromise(token => this.createModelFromProvider(token));
+        return {
+            statusPromise: providerModelPromise.then(providerModel => {
+                if (!this.isModelValid(providerModel)) {
+                    return this._invalid();
+                }
+                if (token.isCancellationRequested) {
+                    return Status.CANCELED;
+                }
+                this._stickyModel = this.createStickyModel(token, providerModel);
+                return Status.VALID;
+            }).then(undefined, (err) => {
+                onUnexpectedError(err);
+                return Status.CANCELED;
+            }),
+            modelPromise: providerModelPromise
+        };
+    }
+    /**
+     * Method which checks whether the model returned by the provider is valid and can be used to compute a sticky model.
+     * This method by default returns true.
+     * @param model model returned by the provider
+     * @returns boolean indicating whether the model is valid
+     */
+    isModelValid(model) {
+        return true;
+    }
+    /**
+     * Method which checks whether the provider is valid before applying it to find the provider model.
+     * This method by default returns true.
+     * @returns boolean indicating whether the provider is valid
+     */
+    isProviderValid() {
+        return true;
+    }
 }
-let StickyModelFromCandidateOutlineProvider = class extends StickyModelCandidateProvider {
-  constructor(_editor, _languageFeaturesService) {
-    super(_editor);
-    this._languageFeaturesService = _languageFeaturesService;
-  }
-  static {
-    __name(this, "StickyModelFromCandidateOutlineProvider");
-  }
-  createModelFromProvider(token) {
-    return OutlineModel.create(this._languageFeaturesService.documentSymbolProvider, this._editor.getModel(), token);
-  }
-  createStickyModel(token, model) {
-    const { stickyOutlineElement, providerID } = this._stickyModelFromOutlineModel(model, this._stickyModel?.outlineProviderId);
-    const textModel = this._editor.getModel();
-    return new StickyModel(textModel.uri, textModel.getVersionId(), stickyOutlineElement, providerID);
-  }
-  isModelValid(model) {
-    return model && model.children.size > 0;
-  }
-  _stickyModelFromOutlineModel(outlineModel, preferredProvider) {
-    let outlineElements;
-    if (Iterable.first(outlineModel.children.values()) instanceof OutlineGroup) {
-      const provider = Iterable.find(outlineModel.children.values(), (outlineGroupOfModel) => outlineGroupOfModel.id === preferredProvider);
-      if (provider) {
-        outlineElements = provider.children;
-      } else {
-        let tempID = "";
-        let maxTotalSumOfRanges = -1;
-        let optimalOutlineGroup = void 0;
-        for (const [_key, outlineGroup] of outlineModel.children.entries()) {
-          const totalSumRanges = this._findSumOfRangesOfGroup(outlineGroup);
-          if (totalSumRanges > maxTotalSumOfRanges) {
-            optimalOutlineGroup = outlineGroup;
-            maxTotalSumOfRanges = totalSumRanges;
-            tempID = outlineGroup.id;
-          }
+let StickyModelFromCandidateOutlineProvider = class StickyModelFromCandidateOutlineProvider extends StickyModelCandidateProvider {
+    constructor(_editor, _languageFeaturesService) {
+        super(_editor);
+        this._languageFeaturesService = _languageFeaturesService;
+    }
+    createModelFromProvider(token) {
+        return OutlineModel.create(this._languageFeaturesService.documentSymbolProvider, this._editor.getModel(), token);
+    }
+    createStickyModel(token, model) {
+        const { stickyOutlineElement, providerID } = this._stickyModelFromOutlineModel(model, this._stickyModel?.outlineProviderId);
+        const textModel = this._editor.getModel();
+        return new StickyModel(textModel.uri, textModel.getVersionId(), stickyOutlineElement, providerID);
+    }
+    isModelValid(model) {
+        return model && model.children.size > 0;
+    }
+    _stickyModelFromOutlineModel(outlineModel, preferredProvider) {
+        let outlineElements;
+        // When several possible outline providers
+        if (Iterable.first(outlineModel.children.values()) instanceof OutlineGroup) {
+            const provider = Iterable.find(outlineModel.children.values(), outlineGroupOfModel => outlineGroupOfModel.id === preferredProvider);
+            if (provider) {
+                outlineElements = provider.children;
+            }
+            else {
+                let tempID = '';
+                let maxTotalSumOfRanges = -1;
+                let optimalOutlineGroup = undefined;
+                for (const [_key, outlineGroup] of outlineModel.children.entries()) {
+                    const totalSumRanges = this._findSumOfRangesOfGroup(outlineGroup);
+                    if (totalSumRanges > maxTotalSumOfRanges) {
+                        optimalOutlineGroup = outlineGroup;
+                        maxTotalSumOfRanges = totalSumRanges;
+                        tempID = outlineGroup.id;
+                    }
+                }
+                preferredProvider = tempID;
+                outlineElements = optimalOutlineGroup.children;
+            }
         }
-        preferredProvider = tempID;
-        outlineElements = optimalOutlineGroup.children;
-      }
-    } else {
-      outlineElements = outlineModel.children;
-    }
-    const stickyChildren = [];
-    const outlineElementsArray = Array.from(outlineElements.values()).sort((element1, element2) => {
-      const range1 = new StickyRange(element1.symbol.range.startLineNumber, element1.symbol.range.endLineNumber);
-      const range2 = new StickyRange(element2.symbol.range.startLineNumber, element2.symbol.range.endLineNumber);
-      return this._comparator(range1, range2);
-    });
-    for (const outlineElement of outlineElementsArray) {
-      stickyChildren.push(this._stickyModelFromOutlineElement(outlineElement, outlineElement.symbol.selectionRange.startLineNumber));
-    }
-    const stickyOutlineElement = new StickyElement(void 0, stickyChildren, void 0);
-    return {
-      stickyOutlineElement,
-      providerID: preferredProvider
-    };
-  }
-  _stickyModelFromOutlineElement(outlineElement, previousStartLine) {
-    const children = [];
-    for (const child of outlineElement.children.values()) {
-      if (child.symbol.selectionRange.startLineNumber !== child.symbol.range.endLineNumber) {
-        if (child.symbol.selectionRange.startLineNumber !== previousStartLine) {
-          children.push(this._stickyModelFromOutlineElement(child, child.symbol.selectionRange.startLineNumber));
-        } else {
-          for (const subchild of child.children.values()) {
-            children.push(this._stickyModelFromOutlineElement(subchild, child.symbol.selectionRange.startLineNumber));
-          }
+        else {
+            outlineElements = outlineModel.children;
         }
-      }
+        const stickyChildren = [];
+        const outlineElementsArray = Array.from(outlineElements.values()).sort((element1, element2) => {
+            const range1 = new StickyRange(element1.symbol.range.startLineNumber, element1.symbol.range.endLineNumber);
+            const range2 = new StickyRange(element2.symbol.range.startLineNumber, element2.symbol.range.endLineNumber);
+            return this._comparator(range1, range2);
+        });
+        for (const outlineElement of outlineElementsArray) {
+            stickyChildren.push(this._stickyModelFromOutlineElement(outlineElement, outlineElement.symbol.selectionRange.startLineNumber));
+        }
+        const stickyOutlineElement = new StickyElement(undefined, stickyChildren, undefined);
+        return {
+            stickyOutlineElement: stickyOutlineElement,
+            providerID: preferredProvider
+        };
     }
-    children.sort((child1, child2) => this._comparator(child1.range, child2.range));
-    const range = new StickyRange(outlineElement.symbol.selectionRange.startLineNumber, outlineElement.symbol.range.endLineNumber);
-    return new StickyElement(range, children, void 0);
-  }
-  _comparator(range1, range2) {
-    if (range1.startLineNumber !== range2.startLineNumber) {
-      return range1.startLineNumber - range2.startLineNumber;
-    } else {
-      return range2.endLineNumber - range1.endLineNumber;
+    _stickyModelFromOutlineElement(outlineElement, previousStartLine) {
+        const children = [];
+        for (const child of outlineElement.children.values()) {
+            if (child.symbol.selectionRange.startLineNumber !== child.symbol.range.endLineNumber) {
+                if (child.symbol.selectionRange.startLineNumber !== previousStartLine) {
+                    children.push(this._stickyModelFromOutlineElement(child, child.symbol.selectionRange.startLineNumber));
+                }
+                else {
+                    for (const subchild of child.children.values()) {
+                        children.push(this._stickyModelFromOutlineElement(subchild, child.symbol.selectionRange.startLineNumber));
+                    }
+                }
+            }
+        }
+        children.sort((child1, child2) => this._comparator(child1.range, child2.range));
+        const range = new StickyRange(outlineElement.symbol.selectionRange.startLineNumber, outlineElement.symbol.range.endLineNumber);
+        return new StickyElement(range, children, undefined);
     }
-  }
-  _findSumOfRangesOfGroup(outline) {
-    let res = 0;
-    for (const child of outline.children.values()) {
-      res += this._findSumOfRangesOfGroup(child);
+    _comparator(range1, range2) {
+        if (range1.startLineNumber !== range2.startLineNumber) {
+            return range1.startLineNumber - range2.startLineNumber;
+        }
+        else {
+            return range2.endLineNumber - range1.endLineNumber;
+        }
     }
-    if (outline instanceof OutlineElement) {
-      return res + outline.symbol.range.endLineNumber - outline.symbol.selectionRange.startLineNumber;
-    } else {
-      return res;
+    _findSumOfRangesOfGroup(outline) {
+        let res = 0;
+        for (const child of outline.children.values()) {
+            res += this._findSumOfRangesOfGroup(child);
+        }
+        if (outline instanceof OutlineElement) {
+            return res + outline.symbol.range.endLineNumber - outline.symbol.selectionRange.startLineNumber;
+        }
+        else {
+            return res;
+        }
     }
-  }
 };
-StickyModelFromCandidateOutlineProvider = __decorateClass([
-  __decorateParam(1, ILanguageFeaturesService)
+StickyModelFromCandidateOutlineProvider = __decorate([
+    __param(1, ILanguageFeaturesService),
+    __metadata("design:paramtypes", [Object, Object])
 ], StickyModelFromCandidateOutlineProvider);
 class StickyModelFromCandidateFoldingProvider extends StickyModelCandidateProvider {
-  static {
-    __name(this, "StickyModelFromCandidateFoldingProvider");
-  }
-  _foldingLimitReporter;
-  constructor(editor) {
-    super(editor);
-    this._foldingLimitReporter = new RangesLimitReporter(editor);
-  }
-  createStickyModel(token, model) {
-    const foldingElement = this._fromFoldingRegions(model);
-    const textModel = this._editor.getModel();
-    return new StickyModel(textModel.uri, textModel.getVersionId(), foldingElement, void 0);
-  }
-  isModelValid(model) {
-    return model !== null;
-  }
-  _fromFoldingRegions(foldingRegions) {
-    const length = foldingRegions.length;
-    const orderedStickyElements = [];
-    const stickyOutlineElement = new StickyElement(
-      void 0,
-      [],
-      void 0
-    );
-    for (let i = 0; i < length; i++) {
-      const parentIndex = foldingRegions.getParentIndex(i);
-      let parentNode;
-      if (parentIndex !== -1) {
-        parentNode = orderedStickyElements[parentIndex];
-      } else {
-        parentNode = stickyOutlineElement;
-      }
-      const child = new StickyElement(
-        new StickyRange(foldingRegions.getStartLineNumber(i), foldingRegions.getEndLineNumber(i) + 1),
-        [],
-        parentNode
-      );
-      parentNode.children.push(child);
-      orderedStickyElements.push(child);
+    constructor(editor) {
+        super(editor);
+        this._foldingLimitReporter = new RangesLimitReporter(editor);
     }
-    return stickyOutlineElement;
-  }
+    createStickyModel(token, model) {
+        const foldingElement = this._fromFoldingRegions(model);
+        const textModel = this._editor.getModel();
+        return new StickyModel(textModel.uri, textModel.getVersionId(), foldingElement, undefined);
+    }
+    isModelValid(model) {
+        return model !== null;
+    }
+    _fromFoldingRegions(foldingRegions) {
+        const length = foldingRegions.length;
+        const orderedStickyElements = [];
+        // The root sticky outline element
+        const stickyOutlineElement = new StickyElement(undefined, [], undefined);
+        for (let i = 0; i < length; i++) {
+            // Finding the parent index of the current range
+            const parentIndex = foldingRegions.getParentIndex(i);
+            let parentNode;
+            if (parentIndex !== -1) {
+                // Access the reference of the parent node
+                parentNode = orderedStickyElements[parentIndex];
+            }
+            else {
+                // In that case the parent node is the root node
+                parentNode = stickyOutlineElement;
+            }
+            const child = new StickyElement(new StickyRange(foldingRegions.getStartLineNumber(i), foldingRegions.getEndLineNumber(i) + 1), [], parentNode);
+            parentNode.children.push(child);
+            orderedStickyElements.push(child);
+        }
+        return stickyOutlineElement;
+    }
 }
-let StickyModelFromCandidateIndentationFoldingProvider = class extends StickyModelFromCandidateFoldingProvider {
-  constructor(editor, _languageConfigurationService) {
-    super(editor);
-    this._languageConfigurationService = _languageConfigurationService;
-    this.provider = this._register(new IndentRangeProvider(editor.getModel(), this._languageConfigurationService, this._foldingLimitReporter));
-  }
-  static {
-    __name(this, "StickyModelFromCandidateIndentationFoldingProvider");
-  }
-  provider;
-  async createModelFromProvider(token) {
-    return this.provider.compute(token);
-  }
-};
-StickyModelFromCandidateIndentationFoldingProvider = __decorateClass([
-  __decorateParam(1, ILanguageConfigurationService)
-], StickyModelFromCandidateIndentationFoldingProvider);
-let StickyModelFromCandidateSyntaxFoldingProvider = class extends StickyModelFromCandidateFoldingProvider {
-  constructor(editor, onProviderUpdate, _languageFeaturesService) {
-    super(editor);
-    this._languageFeaturesService = _languageFeaturesService;
-    const selectedProviders = FoldingController.getFoldingRangeProviders(this._languageFeaturesService, editor.getModel());
-    if (selectedProviders.length > 0) {
-      this.provider = this._register(new SyntaxRangeProvider(editor.getModel(), selectedProviders, onProviderUpdate, this._foldingLimitReporter, void 0));
+let StickyModelFromCandidateIndentationFoldingProvider = class StickyModelFromCandidateIndentationFoldingProvider extends StickyModelFromCandidateFoldingProvider {
+    constructor(editor, _languageConfigurationService) {
+        super(editor);
+        this._languageConfigurationService = _languageConfigurationService;
+        this.provider = this._register(new IndentRangeProvider(editor.getModel(), this._languageConfigurationService, this._foldingLimitReporter));
     }
-  }
-  static {
-    __name(this, "StickyModelFromCandidateSyntaxFoldingProvider");
-  }
-  provider;
-  isProviderValid() {
-    return this.provider !== void 0;
-  }
-  async createModelFromProvider(token) {
-    return this.provider?.compute(token) ?? null;
-  }
+    async createModelFromProvider(token) {
+        return this.provider.compute(token);
+    }
 };
-StickyModelFromCandidateSyntaxFoldingProvider = __decorateClass([
-  __decorateParam(2, ILanguageFeaturesService)
+StickyModelFromCandidateIndentationFoldingProvider = __decorate([
+    __param(1, ILanguageConfigurationService),
+    __metadata("design:paramtypes", [Object, Object])
+], StickyModelFromCandidateIndentationFoldingProvider);
+let StickyModelFromCandidateSyntaxFoldingProvider = class StickyModelFromCandidateSyntaxFoldingProvider extends StickyModelFromCandidateFoldingProvider {
+    constructor(editor, onProviderUpdate, _languageFeaturesService) {
+        super(editor);
+        this._languageFeaturesService = _languageFeaturesService;
+        const selectedProviders = FoldingController.getFoldingRangeProviders(this._languageFeaturesService, editor.getModel());
+        if (selectedProviders.length > 0) {
+            this.provider = this._register(new SyntaxRangeProvider(editor.getModel(), selectedProviders, onProviderUpdate, this._foldingLimitReporter, undefined));
+        }
+    }
+    isProviderValid() {
+        return this.provider !== undefined;
+    }
+    async createModelFromProvider(token) {
+        return this.provider?.compute(token) ?? null;
+    }
+};
+StickyModelFromCandidateSyntaxFoldingProvider = __decorate([
+    __param(2, ILanguageFeaturesService),
+    __metadata("design:paramtypes", [Object, Function, Object])
 ], StickyModelFromCandidateSyntaxFoldingProvider);
-export {
-  StickyModelProvider
-};
-//# sourceMappingURL=stickyScrollModelProvider.js.map

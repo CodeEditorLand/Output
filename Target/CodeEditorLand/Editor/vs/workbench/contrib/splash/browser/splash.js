@@ -1,7 +1,6 @@
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IPartsSplash } from "../../../../platform/theme/common/themeService.js";
-const ISplashStorageService = createDecorator("ISplashStorageService");
-export {
-  ISplashStorageService
-};
-//# sourceMappingURL=splash.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export const ISplashStorageService = createDecorator('ISplashStorageService');

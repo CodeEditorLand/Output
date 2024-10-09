@@ -1,10 +1,6 @@
-import { Event } from "../../../../base/common/event.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IProgressIndicator } from "../../../../platform/progress/common/progress.js";
-import { IPaneComposite } from "../../../common/panecomposite.js";
-import { IView, IViewPaneContainer, ViewContainer, ViewContainerLocation } from "../../../common/views.js";
-const IViewsService = createDecorator("viewsService");
-export {
-  IViewsService
-};
-//# sourceMappingURL=viewsService.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export const IViewsService = createDecorator('viewsService');

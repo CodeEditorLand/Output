@@ -1,107 +1,102 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { NotSupportedError } from "../../../../base/common/errors.js";
-import { IDisposable, Disposable } from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
-import { FileChangeType, FilePermission, FileSystemProviderCapabilities, FileSystemProviderErrorCode, FileType, IFileChange, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import * as JSONContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { ILogService, LogLevel } from "../../../../platform/log/common/log.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var SettingsFileSystemProvider_1;
+import { NotSupportedError } from '../../../../base/common/errors.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { Schemas } from '../../../../base/common/network.js';
+import { URI } from '../../../../base/common/uri.js';
+import { FilePermission, FileSystemProviderErrorCode, FileType } from '../../../../platform/files/common/files.js';
+import { IPreferencesService } from '../../../services/preferences/common/preferences.js';
+import { Event, Emitter } from '../../../../base/common/event.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import * as JSONContributionRegistry from '../../../../platform/jsonschemas/common/jsonContributionRegistry.js';
+import { VSBuffer } from '../../../../base/common/buffer.js';
+import { ILogService, LogLevel } from '../../../../platform/log/common/log.js';
 const schemaRegistry = Registry.as(JSONContributionRegistry.Extensions.JSONContribution);
-let SettingsFileSystemProvider = class extends Disposable {
-  constructor(preferencesService, logService) {
-    super();
-    this.preferencesService = preferencesService;
-    this.logService = logService;
-    this._register(schemaRegistry.onDidChangeSchema((schemaUri) => {
-      this._onDidChangeFile.fire([{ resource: URI.parse(schemaUri), type: FileChangeType.UPDATED }]);
-    }));
-    this._register(preferencesService.onDidDefaultSettingsContentChanged((uri) => {
-      this._onDidChangeFile.fire([{ resource: uri, type: FileChangeType.UPDATED }]);
-    }));
-  }
-  static {
-    __name(this, "SettingsFileSystemProvider");
-  }
-  static SCHEMA = Schemas.vscode;
-  _onDidChangeFile = this._register(new Emitter());
-  onDidChangeFile = this._onDidChangeFile.event;
-  capabilities = FileSystemProviderCapabilities.Readonly + FileSystemProviderCapabilities.FileReadWrite;
-  async readFile(uri) {
-    if (uri.scheme !== SettingsFileSystemProvider.SCHEMA) {
-      throw new NotSupportedError();
+let SettingsFileSystemProvider = class SettingsFileSystemProvider extends Disposable {
+    static { SettingsFileSystemProvider_1 = this; }
+    static { this.SCHEMA = Schemas.vscode; }
+    constructor(preferencesService, logService) {
+        super();
+        this.preferencesService = preferencesService;
+        this.logService = logService;
+        this._onDidChangeFile = this._register(new Emitter());
+        this.onDidChangeFile = this._onDidChangeFile.event;
+        this.capabilities = 2048 /* FileSystemProviderCapabilities.Readonly */ + 2 /* FileSystemProviderCapabilities.FileReadWrite */;
+        this.onDidChangeCapabilities = Event.None;
+        this._register(schemaRegistry.onDidChangeSchema(schemaUri => {
+            this._onDidChangeFile.fire([{ resource: URI.parse(schemaUri), type: 0 /* FileChangeType.UPDATED */ }]);
+        }));
+        this._register(preferencesService.onDidDefaultSettingsContentChanged(uri => {
+            this._onDidChangeFile.fire([{ resource: uri, type: 0 /* FileChangeType.UPDATED */ }]);
+        }));
     }
-    let content;
-    if (uri.authority === "schemas") {
-      content = this.getSchemaContent(uri);
-    } else if (uri.authority === "defaultsettings") {
-      content = this.preferencesService.getDefaultSettingsContent(uri);
+    async readFile(uri) {
+        if (uri.scheme !== SettingsFileSystemProvider_1.SCHEMA) {
+            throw new NotSupportedError();
+        }
+        let content;
+        if (uri.authority === 'schemas') {
+            content = this.getSchemaContent(uri);
+        }
+        else if (uri.authority === 'defaultsettings') {
+            content = this.preferencesService.getDefaultSettingsContent(uri);
+        }
+        if (content) {
+            return VSBuffer.fromString(content).buffer;
+        }
+        throw FileSystemProviderErrorCode.FileNotFound;
     }
-    if (content) {
-      return VSBuffer.fromString(content).buffer;
+    async stat(uri) {
+        if (schemaRegistry.hasSchemaContent(uri.toString()) || this.preferencesService.hasDefaultSettingsContent(uri)) {
+            const currentTime = Date.now();
+            return {
+                type: FileType.File,
+                permissions: FilePermission.Readonly,
+                mtime: currentTime,
+                ctime: currentTime,
+                size: 0
+            };
+        }
+        throw FileSystemProviderErrorCode.FileNotFound;
     }
-    throw FileSystemProviderErrorCode.FileNotFound;
-  }
-  async stat(uri) {
-    if (schemaRegistry.hasSchemaContent(uri.toString()) || this.preferencesService.hasDefaultSettingsContent(uri)) {
-      const currentTime = Date.now();
-      return {
-        type: FileType.File,
-        permissions: FilePermission.Readonly,
-        mtime: currentTime,
-        ctime: currentTime,
-        size: 0
-      };
+    watch(resource, opts) { return Disposable.None; }
+    async mkdir(resource) { }
+    async readdir(resource) { return []; }
+    async rename(from, to, opts) { }
+    async delete(resource, opts) { }
+    async writeFile() {
+        throw new NotSupportedError();
     }
-    throw FileSystemProviderErrorCode.FileNotFound;
-  }
-  onDidChangeCapabilities = Event.None;
-  watch(resource, opts) {
-    return Disposable.None;
-  }
-  async mkdir(resource) {
-  }
-  async readdir(resource) {
-    return [];
-  }
-  async rename(from, to, opts) {
-  }
-  async delete(resource, opts) {
-  }
-  async writeFile() {
-    throw new NotSupportedError();
-  }
-  getSchemaContent(uri) {
-    const startTime = Date.now();
-    const content = schemaRegistry.getSchemaContent(uri.toString()) ?? "{}";
-    const logLevel = this.logService.getLevel();
-    if (logLevel === LogLevel.Debug || logLevel === LogLevel.Trace) {
-      const endTime = Date.now();
-      const uncompressed = JSON.stringify(schemaRegistry.getSchemaContributions().schemas[uri.toString()]);
-      this.logService.debug(`${uri.toString()}: ${uncompressed.length} -> ${content.length} (${Math.round((uncompressed.length - content.length) / uncompressed.length * 100)}%) Took ${endTime - startTime}ms`);
+    getSchemaContent(uri) {
+        const startTime = Date.now();
+        const content = schemaRegistry.getSchemaContent(uri.toString()) ?? '{}' /* Use empty schema if not yet registered */;
+        const logLevel = this.logService.getLevel();
+        if (logLevel === LogLevel.Debug || logLevel === LogLevel.Trace) {
+            const endTime = Date.now();
+            const uncompressed = JSON.stringify(schemaRegistry.getSchemaContributions().schemas[uri.toString()]);
+            this.logService.debug(`${uri.toString()}: ${uncompressed.length} -> ${content.length} (${Math.round((uncompressed.length - content.length) / uncompressed.length * 100)}%) Took ${endTime - startTime}ms`);
+        }
+        return content;
     }
-    return content;
-  }
 };
-SettingsFileSystemProvider = __decorateClass([
-  __decorateParam(0, IPreferencesService),
-  __decorateParam(1, ILogService)
+SettingsFileSystemProvider = SettingsFileSystemProvider_1 = __decorate([
+    __param(0, IPreferencesService),
+    __param(1, ILogService),
+    __metadata("design:paramtypes", [Object, Object])
 ], SettingsFileSystemProvider);
-export {
-  SettingsFileSystemProvider
-};
-//# sourceMappingURL=settingsFilesystemProvider.js.map
+export { SettingsFileSystemProvider };

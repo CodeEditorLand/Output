@@ -1,10 +1,6 @@
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
-import { URI } from "../../../../base/common/uri.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { ILinkDescriptor } from "../../../../platform/opener/browser/link.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-const IBannerService = createDecorator("bannerService");
-export {
-  IBannerService
-};
-//# sourceMappingURL=bannerService.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
+export const IBannerService = createDecorator('bannerService');

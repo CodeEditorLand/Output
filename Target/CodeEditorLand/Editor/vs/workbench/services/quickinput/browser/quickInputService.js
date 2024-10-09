@@ -1,57 +1,55 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { QuickInputController } from "../../../../platform/quickinput/browser/quickInputController.js";
-import { QuickInputService as BaseQuickInputService } from "../../../../platform/quickinput/browser/quickInputService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { InQuickPickContextKey } from "../../../browser/quickaccess.js";
-let QuickInputService = class extends BaseQuickInputService {
-  constructor(configurationService, instantiationService, keybindingService, contextKeyService, themeService, layoutService) {
-    super(instantiationService, contextKeyService, themeService, layoutService, configurationService);
-    this.keybindingService = keybindingService;
-    this.registerListeners();
-  }
-  static {
-    __name(this, "QuickInputService");
-  }
-  inQuickInputContext = InQuickPickContextKey.bindTo(this.contextKeyService);
-  registerListeners() {
-    this._register(this.onShow(() => this.inQuickInputContext.set(true)));
-    this._register(this.onHide(() => this.inQuickInputContext.set(false)));
-  }
-  createController() {
-    return super.createController(this.layoutService, {
-      ignoreFocusOut: /* @__PURE__ */ __name(() => !this.configurationService.getValue("workbench.quickOpen.closeOnFocusLost"), "ignoreFocusOut"),
-      backKeybindingLabel: /* @__PURE__ */ __name(() => this.keybindingService.lookupKeybinding("workbench.action.quickInputBack")?.getLabel() || void 0, "backKeybindingLabel")
-    });
-  }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-QuickInputService = __decorateClass([
-  __decorateParam(0, IConfigurationService),
-  __decorateParam(1, IInstantiationService),
-  __decorateParam(2, IKeybindingService),
-  __decorateParam(3, IContextKeyService),
-  __decorateParam(4, IThemeService),
-  __decorateParam(5, ILayoutService)
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { ILayoutService } from '../../../../platform/layout/browser/layoutService.js';
+import { IInstantiationService } from '../../../../platform/instantiation/common/instantiation.js';
+import { IThemeService } from '../../../../platform/theme/common/themeService.js';
+import { IConfigurationService } from '../../../../platform/configuration/common/configuration.js';
+import { IContextKeyService } from '../../../../platform/contextkey/common/contextkey.js';
+import { IKeybindingService } from '../../../../platform/keybinding/common/keybinding.js';
+import { QuickInputService as BaseQuickInputService } from '../../../../platform/quickinput/browser/quickInputService.js';
+import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
+import { IQuickInputService } from '../../../../platform/quickinput/common/quickInput.js';
+import { InQuickPickContextKey } from '../../../browser/quickaccess.js';
+let QuickInputService = class QuickInputService extends BaseQuickInputService {
+    constructor(configurationService, instantiationService, keybindingService, contextKeyService, themeService, layoutService) {
+        super(instantiationService, contextKeyService, themeService, layoutService, configurationService);
+        this.keybindingService = keybindingService;
+        this.inQuickInputContext = InQuickPickContextKey.bindTo(this.contextKeyService);
+        this.registerListeners();
+    }
+    registerListeners() {
+        this._register(this.onShow(() => this.inQuickInputContext.set(true)));
+        this._register(this.onHide(() => this.inQuickInputContext.set(false)));
+    }
+    createController() {
+        return super.createController(this.layoutService, {
+            ignoreFocusOut: () => !this.configurationService.getValue('workbench.quickOpen.closeOnFocusLost'),
+            backKeybindingLabel: () => this.keybindingService.lookupKeybinding('workbench.action.quickInputBack')?.getLabel() || undefined,
+        });
+    }
+};
+QuickInputService = __decorate([
+    __param(0, IConfigurationService),
+    __param(1, IInstantiationService),
+    __param(2, IKeybindingService),
+    __param(3, IContextKeyService),
+    __param(4, IThemeService),
+    __param(5, ILayoutService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object, Object])
 ], QuickInputService);
-registerSingleton(IQuickInputService, QuickInputService, InstantiationType.Delayed);
-export {
-  QuickInputService
-};
-//# sourceMappingURL=quickInputService.js.map
+export { QuickInputService };
+registerSingleton(IQuickInputService, QuickInputService, 1 /* InstantiationType.Delayed */);

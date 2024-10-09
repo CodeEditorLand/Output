@@ -1,42 +1,17 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const IEncryptionService = createDecorator("encryptionService");
-const IEncryptionMainService = createDecorator("encryptionMainService");
-var PasswordStoreCLIOption = /* @__PURE__ */ ((PasswordStoreCLIOption2) => {
-  PasswordStoreCLIOption2["kwallet"] = "kwallet";
-  PasswordStoreCLIOption2["kwallet5"] = "kwallet5";
-  PasswordStoreCLIOption2["gnomeLibsecret"] = "gnome-libsecret";
-  PasswordStoreCLIOption2["basic"] = "basic";
-  return PasswordStoreCLIOption2;
-})(PasswordStoreCLIOption || {});
-var KnownStorageProvider = /* @__PURE__ */ ((KnownStorageProvider2) => {
-  KnownStorageProvider2["unknown"] = "unknown";
-  KnownStorageProvider2["basicText"] = "basic_text";
-  KnownStorageProvider2["gnomeAny"] = "gnome_any";
-  KnownStorageProvider2["gnomeLibsecret"] = "gnome_libsecret";
-  KnownStorageProvider2["gnomeKeyring"] = "gnome_keyring";
-  KnownStorageProvider2["kwallet"] = "kwallet";
-  KnownStorageProvider2["kwallet5"] = "kwallet5";
-  KnownStorageProvider2["kwallet6"] = "kwallet6";
-  KnownStorageProvider2["dplib"] = "dpapi";
-  KnownStorageProvider2["keychainAccess"] = "keychain_access";
-  return KnownStorageProvider2;
-})(KnownStorageProvider || {});
-function isKwallet(backend) {
-  return backend === "kwallet" /* kwallet */ || backend === "kwallet5" /* kwallet5 */ || backend === "kwallet6" /* kwallet6 */;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { createDecorator } from '../../instantiation/common/instantiation.js';
+export const IEncryptionService = createDecorator('encryptionService');
+export const IEncryptionMainService = createDecorator('encryptionMainService');
+export function isKwallet(backend) {
+    return backend === "kwallet" /* KnownStorageProvider.kwallet */
+        || backend === "kwallet5" /* KnownStorageProvider.kwallet5 */
+        || backend === "kwallet6" /* KnownStorageProvider.kwallet6 */;
 }
-__name(isKwallet, "isKwallet");
-function isGnome(backend) {
-  return backend === "gnome_any" /* gnomeAny */ || backend === "gnome_libsecret" /* gnomeLibsecret */ || backend === "gnome_keyring" /* gnomeKeyring */;
+export function isGnome(backend) {
+    return backend === "gnome_any" /* KnownStorageProvider.gnomeAny */
+        || backend === "gnome_libsecret" /* KnownStorageProvider.gnomeLibsecret */
+        || backend === "gnome_keyring" /* KnownStorageProvider.gnomeKeyring */;
 }
-__name(isGnome, "isGnome");
-export {
-  IEncryptionMainService,
-  IEncryptionService,
-  KnownStorageProvider,
-  PasswordStoreCLIOption,
-  isGnome,
-  isKwallet
-};
-//# sourceMappingURL=encryptionService.js.map

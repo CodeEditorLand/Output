@@ -1,84 +1,83 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IMarkerService, IMarkerData } from "../../../platform/markers/common/markers.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { MainThreadDiagnosticsShape, MainContext, ExtHostDiagnosticsShape, ExtHostContext } from "../common/extHost.protocol.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
-let MainThreadDiagnostics = class {
-  constructor(extHostContext, _markerService, _uriIdentService) {
-    this._markerService = _markerService;
-    this._uriIdentService = _uriIdentService;
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDiagnostics);
-    this._markerListener = this._markerService.onMarkerChanged(this._forwardMarkers, this);
-  }
-  _activeOwners = /* @__PURE__ */ new Set();
-  _proxy;
-  _markerListener;
-  dispose() {
-    this._markerListener.dispose();
-    this._activeOwners.forEach((owner) => this._markerService.changeAll(owner, []));
-    this._activeOwners.clear();
-  }
-  _forwardMarkers(resources) {
-    const data = [];
-    for (const resource of resources) {
-      const allMarkerData = this._markerService.read({ resource });
-      if (allMarkerData.length === 0) {
-        data.push([resource, []]);
-      } else {
-        const forgeinMarkerData = allMarkerData.filter((marker) => !this._activeOwners.has(marker.owner));
-        if (forgeinMarkerData.length > 0) {
-          data.push([resource, forgeinMarkerData]);
-        }
-      }
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IMarkerService } from '../../../platform/markers/common/markers.js';
+import { URI } from '../../../base/common/uri.js';
+import { MainContext, ExtHostContext } from '../common/extHost.protocol.js';
+import { extHostNamedCustomer } from '../../services/extensions/common/extHostCustomers.js';
+import { IUriIdentityService } from '../../../platform/uriIdentity/common/uriIdentity.js';
+let MainThreadDiagnostics = class MainThreadDiagnostics {
+    constructor(extHostContext, _markerService, _uriIdentService) {
+        this._markerService = _markerService;
+        this._uriIdentService = _uriIdentService;
+        this._activeOwners = new Set();
+        this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostDiagnostics);
+        this._markerListener = this._markerService.onMarkerChanged(this._forwardMarkers, this);
     }
-    if (data.length > 0) {
-      this._proxy.$acceptMarkersChange(data);
+    dispose() {
+        this._markerListener.dispose();
+        this._activeOwners.forEach(owner => this._markerService.changeAll(owner, []));
+        this._activeOwners.clear();
     }
-  }
-  $changeMany(owner, entries) {
-    for (const entry of entries) {
-      const [uri, markers] = entry;
-      if (markers) {
-        for (const marker of markers) {
-          if (marker.relatedInformation) {
-            for (const relatedInformation of marker.relatedInformation) {
-              relatedInformation.resource = URI.revive(relatedInformation.resource);
+    _forwardMarkers(resources) {
+        const data = [];
+        for (const resource of resources) {
+            const allMarkerData = this._markerService.read({ resource });
+            if (allMarkerData.length === 0) {
+                data.push([resource, []]);
             }
-          }
-          if (marker.code && typeof marker.code !== "string") {
-            marker.code.target = URI.revive(marker.code.target);
-          }
+            else {
+                const forgeinMarkerData = allMarkerData.filter(marker => !this._activeOwners.has(marker.owner));
+                if (forgeinMarkerData.length > 0) {
+                    data.push([resource, forgeinMarkerData]);
+                }
+            }
         }
-      }
-      this._markerService.changeOne(owner, this._uriIdentService.asCanonicalUri(URI.revive(uri)), markers);
+        if (data.length > 0) {
+            this._proxy.$acceptMarkersChange(data);
+        }
     }
-    this._activeOwners.add(owner);
-  }
-  $clear(owner) {
-    this._markerService.changeAll(owner, []);
-    this._activeOwners.delete(owner);
-  }
+    $changeMany(owner, entries) {
+        for (const entry of entries) {
+            const [uri, markers] = entry;
+            if (markers) {
+                for (const marker of markers) {
+                    if (marker.relatedInformation) {
+                        for (const relatedInformation of marker.relatedInformation) {
+                            relatedInformation.resource = URI.revive(relatedInformation.resource);
+                        }
+                    }
+                    if (marker.code && typeof marker.code !== 'string') {
+                        marker.code.target = URI.revive(marker.code.target);
+                    }
+                }
+            }
+            this._markerService.changeOne(owner, this._uriIdentService.asCanonicalUri(URI.revive(uri)), markers);
+        }
+        this._activeOwners.add(owner);
+    }
+    $clear(owner) {
+        this._markerService.changeAll(owner, []);
+        this._activeOwners.delete(owner);
+    }
 };
-__name(MainThreadDiagnostics, "MainThreadDiagnostics");
-MainThreadDiagnostics = __decorateClass([
-  extHostNamedCustomer(MainContext.MainThreadDiagnostics),
-  __decorateParam(1, IMarkerService),
-  __decorateParam(2, IUriIdentityService)
+MainThreadDiagnostics = __decorate([
+    extHostNamedCustomer(MainContext.MainThreadDiagnostics),
+    __param(1, IMarkerService),
+    __param(2, IUriIdentityService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], MainThreadDiagnostics);
-export {
-  MainThreadDiagnostics
-};
-//# sourceMappingURL=mainThreadDiagnostics.js.map
+export { MainThreadDiagnostics };

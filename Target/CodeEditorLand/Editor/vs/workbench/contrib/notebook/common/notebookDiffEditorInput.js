@@ -1,125 +1,119 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IResourceDiffEditorInput, IResourceSideBySideEditorInput, isResourceDiffEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorModel } from "../../../common/editor/editorModel.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotebookDiffEditorModel, IResolvedNotebookEditorModel } from "./notebookCommon.js";
-import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
-import { NotebookEditorInput } from "./notebookEditorInput.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+var NotebookDiffEditorInput_1;
+import { isResourceDiffEditorInput } from '../../../common/editor.js';
+import { EditorModel } from '../../../common/editor/editorModel.js';
+import { DiffEditorInput } from '../../../common/editor/diffEditorInput.js';
+import { NotebookEditorInput } from './notebookEditorInput.js';
+import { IEditorService } from '../../../services/editor/common/editorService.js';
 class NotebookDiffEditorModel extends EditorModel {
-  constructor(original, modified) {
-    super();
-    this.original = original;
-    this.modified = modified;
-  }
-  static {
-    __name(this, "NotebookDiffEditorModel");
-  }
+    constructor(original, modified) {
+        super();
+        this.original = original;
+        this.modified = modified;
+    }
 }
-let NotebookDiffEditorInput = class extends DiffEditorInput {
-  constructor(name, description, original, modified, viewType, editorService) {
-    super(
-      name,
-      description,
-      original,
-      modified,
-      void 0,
-      editorService
-    );
-    this.original = original;
-    this.modified = modified;
-    this.viewType = viewType;
-  }
-  static {
-    __name(this, "NotebookDiffEditorInput");
-  }
-  static create(instantiationService, resource, name, description, originalResource, viewType) {
-    const original = NotebookEditorInput.getOrCreate(instantiationService, originalResource, void 0, viewType);
-    const modified = NotebookEditorInput.getOrCreate(instantiationService, resource, void 0, viewType);
-    return instantiationService.createInstance(NotebookDiffEditorInput, name, description, original, modified, viewType);
-  }
-  static ID = "workbench.input.diffNotebookInput";
-  _modifiedTextModel = null;
-  _originalTextModel = null;
-  get resource() {
-    return this.modified.resource;
-  }
-  get editorId() {
-    return this.viewType;
-  }
-  _cachedModel = void 0;
-  get typeId() {
-    return NotebookDiffEditorInput.ID;
-  }
-  async resolve() {
-    const [originalEditorModel, modifiedEditorModel] = await Promise.all([
-      this.original.resolve(),
-      this.modified.resolve()
-    ]);
-    this._cachedModel?.dispose();
-    if (!modifiedEditorModel) {
-      throw new Error(`Fail to resolve modified editor model for resource ${this.modified.resource} with notebookType ${this.viewType}`);
+let NotebookDiffEditorInput = class NotebookDiffEditorInput extends DiffEditorInput {
+    static { NotebookDiffEditorInput_1 = this; }
+    static create(instantiationService, resource, name, description, originalResource, viewType) {
+        const original = NotebookEditorInput.getOrCreate(instantiationService, originalResource, undefined, viewType);
+        const modified = NotebookEditorInput.getOrCreate(instantiationService, resource, undefined, viewType);
+        return instantiationService.createInstance(NotebookDiffEditorInput_1, name, description, original, modified, viewType);
     }
-    if (!originalEditorModel) {
-      throw new Error(`Fail to resolve original editor model for resource ${this.original.resource} with notebookType ${this.viewType}`);
+    static { this.ID = 'workbench.input.diffNotebookInput'; }
+    get resource() {
+        return this.modified.resource;
     }
-    this._originalTextModel = originalEditorModel;
-    this._modifiedTextModel = modifiedEditorModel;
-    this._cachedModel = new NotebookDiffEditorModel(this._originalTextModel, this._modifiedTextModel);
-    return this._cachedModel;
-  }
-  toUntyped() {
-    const original = { resource: this.original.resource };
-    const modified = { resource: this.resource };
-    return {
-      original,
-      modified,
-      primary: modified,
-      secondary: original,
-      options: {
-        override: this.viewType
-      }
-    };
-  }
-  matches(otherInput) {
-    if (this === otherInput) {
-      return true;
+    get editorId() {
+        return this.viewType;
     }
-    if (otherInput instanceof NotebookDiffEditorInput) {
-      return this.modified.matches(otherInput.modified) && this.original.matches(otherInput.original) && this.viewType === otherInput.viewType;
+    constructor(name, description, original, modified, viewType, editorService) {
+        super(name, description, original, modified, undefined, editorService);
+        this.original = original;
+        this.modified = modified;
+        this.viewType = viewType;
+        this._modifiedTextModel = null;
+        this._originalTextModel = null;
+        this._cachedModel = undefined;
     }
-    if (isResourceDiffEditorInput(otherInput)) {
-      return this.modified.matches(otherInput.modified) && this.original.matches(otherInput.original) && this.editorId !== void 0 && (this.editorId === otherInput.options?.override || otherInput.options?.override === void 0);
+    get typeId() {
+        return NotebookDiffEditorInput_1.ID;
     }
-    return false;
-  }
-  dispose() {
-    super.dispose();
-    this._cachedModel?.dispose();
-    this._cachedModel = void 0;
-    this.original.dispose();
-    this.modified.dispose();
-    this._originalTextModel = null;
-    this._modifiedTextModel = null;
-  }
+    async resolve() {
+        const [originalEditorModel, modifiedEditorModel] = await Promise.all([
+            this.original.resolve(),
+            this.modified.resolve(),
+        ]);
+        this._cachedModel?.dispose();
+        // TODO@rebornix check how we restore the editor in text diff editor
+        if (!modifiedEditorModel) {
+            throw new Error(`Fail to resolve modified editor model for resource ${this.modified.resource} with notebookType ${this.viewType}`);
+        }
+        if (!originalEditorModel) {
+            throw new Error(`Fail to resolve original editor model for resource ${this.original.resource} with notebookType ${this.viewType}`);
+        }
+        this._originalTextModel = originalEditorModel;
+        this._modifiedTextModel = modifiedEditorModel;
+        this._cachedModel = new NotebookDiffEditorModel(this._originalTextModel, this._modifiedTextModel);
+        return this._cachedModel;
+    }
+    toUntyped() {
+        const original = { resource: this.original.resource };
+        const modified = { resource: this.resource };
+        return {
+            original,
+            modified,
+            primary: modified,
+            secondary: original,
+            options: {
+                override: this.viewType
+            }
+        };
+    }
+    matches(otherInput) {
+        if (this === otherInput) {
+            return true;
+        }
+        if (otherInput instanceof NotebookDiffEditorInput_1) {
+            return this.modified.matches(otherInput.modified)
+                && this.original.matches(otherInput.original)
+                && this.viewType === otherInput.viewType;
+        }
+        if (isResourceDiffEditorInput(otherInput)) {
+            return this.modified.matches(otherInput.modified)
+                && this.original.matches(otherInput.original)
+                && this.editorId !== undefined
+                && (this.editorId === otherInput.options?.override || otherInput.options?.override === undefined);
+        }
+        return false;
+    }
+    dispose() {
+        super.dispose();
+        this._cachedModel?.dispose();
+        this._cachedModel = undefined;
+        this.original.dispose();
+        this.modified.dispose();
+        this._originalTextModel = null;
+        this._modifiedTextModel = null;
+    }
 };
-NotebookDiffEditorInput = __decorateClass([
-  __decorateParam(5, IEditorService)
+NotebookDiffEditorInput = NotebookDiffEditorInput_1 = __decorate([
+    __param(5, IEditorService),
+    __metadata("design:paramtypes", [Object, Object, NotebookEditorInput,
+        NotebookEditorInput, String, Object])
 ], NotebookDiffEditorInput);
-export {
-  NotebookDiffEditorInput
-};
-//# sourceMappingURL=notebookDiffEditorInput.js.map
+export { NotebookDiffEditorInput };

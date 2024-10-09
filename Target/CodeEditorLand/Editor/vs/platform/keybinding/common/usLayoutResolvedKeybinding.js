@@ -1,228 +1,175 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { KeyCode, KeyCodeUtils, IMMUTABLE_CODE_TO_KEY_CODE, ScanCode } from "../../../base/common/keyCodes.js";
-import { SingleModifierChord, Chord, KeyCodeChord, Keybinding } from "../../../base/common/keybindings.js";
-import { OperatingSystem } from "../../../base/common/platform.js";
-import { BaseResolvedKeybinding } from "./baseResolvedKeybinding.js";
-import { toEmptyArrayIfContainsNull } from "./resolvedKeybindingItem.js";
-class USLayoutResolvedKeybinding extends BaseResolvedKeybinding {
-  static {
-    __name(this, "USLayoutResolvedKeybinding");
-  }
-  constructor(chords, os) {
-    super(os, chords);
-  }
-  _keyCodeToUILabel(keyCode) {
-    if (this._os === OperatingSystem.Macintosh) {
-      switch (keyCode) {
-        case KeyCode.LeftArrow:
-          return "\u2190";
-        case KeyCode.UpArrow:
-          return "\u2191";
-        case KeyCode.RightArrow:
-          return "\u2192";
-        case KeyCode.DownArrow:
-          return "\u2193";
-      }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { KeyCodeUtils, IMMUTABLE_CODE_TO_KEY_CODE } from '../../../base/common/keyCodes.js';
+import { KeyCodeChord } from '../../../base/common/keybindings.js';
+import { BaseResolvedKeybinding } from './baseResolvedKeybinding.js';
+import { toEmptyArrayIfContainsNull } from './resolvedKeybindingItem.js';
+/**
+ * Do not instantiate. Use KeybindingService to get a ResolvedKeybinding seeded with information about the current kb layout.
+ */
+export class USLayoutResolvedKeybinding extends BaseResolvedKeybinding {
+    constructor(chords, os) {
+        super(os, chords);
     }
-    return KeyCodeUtils.toString(keyCode);
-  }
-  _getLabel(chord) {
-    if (chord.isDuplicateModifierCase()) {
-      return "";
+    _keyCodeToUILabel(keyCode) {
+        if (this._os === 2 /* OperatingSystem.Macintosh */) {
+            switch (keyCode) {
+                case 15 /* KeyCode.LeftArrow */:
+                    return '←';
+                case 16 /* KeyCode.UpArrow */:
+                    return '↑';
+                case 17 /* KeyCode.RightArrow */:
+                    return '→';
+                case 18 /* KeyCode.DownArrow */:
+                    return '↓';
+            }
+        }
+        return KeyCodeUtils.toString(keyCode);
     }
-    return this._keyCodeToUILabel(chord.keyCode);
-  }
-  _getAriaLabel(chord) {
-    if (chord.isDuplicateModifierCase()) {
-      return "";
+    _getLabel(chord) {
+        if (chord.isDuplicateModifierCase()) {
+            return '';
+        }
+        return this._keyCodeToUILabel(chord.keyCode);
     }
-    return KeyCodeUtils.toString(chord.keyCode);
-  }
-  _getElectronAccelerator(chord) {
-    return KeyCodeUtils.toElectronAccelerator(chord.keyCode);
-  }
-  _getUserSettingsLabel(chord) {
-    if (chord.isDuplicateModifierCase()) {
-      return "";
+    _getAriaLabel(chord) {
+        if (chord.isDuplicateModifierCase()) {
+            return '';
+        }
+        return KeyCodeUtils.toString(chord.keyCode);
     }
-    const result = KeyCodeUtils.toUserSettingsUS(chord.keyCode);
-    return result ? result.toLowerCase() : result;
-  }
-  _isWYSIWYG() {
-    return true;
-  }
-  _getChordDispatch(chord) {
-    return USLayoutResolvedKeybinding.getDispatchStr(chord);
-  }
-  static getDispatchStr(chord) {
-    if (chord.isModifierKey()) {
-      return null;
+    _getElectronAccelerator(chord) {
+        return KeyCodeUtils.toElectronAccelerator(chord.keyCode);
     }
-    let result = "";
-    if (chord.ctrlKey) {
-      result += "ctrl+";
+    _getUserSettingsLabel(chord) {
+        if (chord.isDuplicateModifierCase()) {
+            return '';
+        }
+        const result = KeyCodeUtils.toUserSettingsUS(chord.keyCode);
+        return (result ? result.toLowerCase() : result);
     }
-    if (chord.shiftKey) {
-      result += "shift+";
+    _isWYSIWYG() {
+        return true;
     }
-    if (chord.altKey) {
-      result += "alt+";
+    _getChordDispatch(chord) {
+        return USLayoutResolvedKeybinding.getDispatchStr(chord);
     }
-    if (chord.metaKey) {
-      result += "meta+";
+    static getDispatchStr(chord) {
+        if (chord.isModifierKey()) {
+            return null;
+        }
+        let result = '';
+        if (chord.ctrlKey) {
+            result += 'ctrl+';
+        }
+        if (chord.shiftKey) {
+            result += 'shift+';
+        }
+        if (chord.altKey) {
+            result += 'alt+';
+        }
+        if (chord.metaKey) {
+            result += 'meta+';
+        }
+        result += KeyCodeUtils.toString(chord.keyCode);
+        return result;
     }
-    result += KeyCodeUtils.toString(chord.keyCode);
-    return result;
-  }
-  _getSingleModifierChordDispatch(keybinding) {
-    if (keybinding.keyCode === KeyCode.Ctrl && !keybinding.shiftKey && !keybinding.altKey && !keybinding.metaKey) {
-      return "ctrl";
+    _getSingleModifierChordDispatch(keybinding) {
+        if (keybinding.keyCode === 5 /* KeyCode.Ctrl */ && !keybinding.shiftKey && !keybinding.altKey && !keybinding.metaKey) {
+            return 'ctrl';
+        }
+        if (keybinding.keyCode === 4 /* KeyCode.Shift */ && !keybinding.ctrlKey && !keybinding.altKey && !keybinding.metaKey) {
+            return 'shift';
+        }
+        if (keybinding.keyCode === 6 /* KeyCode.Alt */ && !keybinding.ctrlKey && !keybinding.shiftKey && !keybinding.metaKey) {
+            return 'alt';
+        }
+        if (keybinding.keyCode === 57 /* KeyCode.Meta */ && !keybinding.ctrlKey && !keybinding.shiftKey && !keybinding.altKey) {
+            return 'meta';
+        }
+        return null;
     }
-    if (keybinding.keyCode === KeyCode.Shift && !keybinding.ctrlKey && !keybinding.altKey && !keybinding.metaKey) {
-      return "shift";
+    /**
+     * *NOTE*: Check return value for `KeyCode.Unknown`.
+     */
+    static _scanCodeToKeyCode(scanCode) {
+        const immutableKeyCode = IMMUTABLE_CODE_TO_KEY_CODE[scanCode];
+        if (immutableKeyCode !== -1 /* KeyCode.DependsOnKbLayout */) {
+            return immutableKeyCode;
+        }
+        switch (scanCode) {
+            case 10 /* ScanCode.KeyA */: return 31 /* KeyCode.KeyA */;
+            case 11 /* ScanCode.KeyB */: return 32 /* KeyCode.KeyB */;
+            case 12 /* ScanCode.KeyC */: return 33 /* KeyCode.KeyC */;
+            case 13 /* ScanCode.KeyD */: return 34 /* KeyCode.KeyD */;
+            case 14 /* ScanCode.KeyE */: return 35 /* KeyCode.KeyE */;
+            case 15 /* ScanCode.KeyF */: return 36 /* KeyCode.KeyF */;
+            case 16 /* ScanCode.KeyG */: return 37 /* KeyCode.KeyG */;
+            case 17 /* ScanCode.KeyH */: return 38 /* KeyCode.KeyH */;
+            case 18 /* ScanCode.KeyI */: return 39 /* KeyCode.KeyI */;
+            case 19 /* ScanCode.KeyJ */: return 40 /* KeyCode.KeyJ */;
+            case 20 /* ScanCode.KeyK */: return 41 /* KeyCode.KeyK */;
+            case 21 /* ScanCode.KeyL */: return 42 /* KeyCode.KeyL */;
+            case 22 /* ScanCode.KeyM */: return 43 /* KeyCode.KeyM */;
+            case 23 /* ScanCode.KeyN */: return 44 /* KeyCode.KeyN */;
+            case 24 /* ScanCode.KeyO */: return 45 /* KeyCode.KeyO */;
+            case 25 /* ScanCode.KeyP */: return 46 /* KeyCode.KeyP */;
+            case 26 /* ScanCode.KeyQ */: return 47 /* KeyCode.KeyQ */;
+            case 27 /* ScanCode.KeyR */: return 48 /* KeyCode.KeyR */;
+            case 28 /* ScanCode.KeyS */: return 49 /* KeyCode.KeyS */;
+            case 29 /* ScanCode.KeyT */: return 50 /* KeyCode.KeyT */;
+            case 30 /* ScanCode.KeyU */: return 51 /* KeyCode.KeyU */;
+            case 31 /* ScanCode.KeyV */: return 52 /* KeyCode.KeyV */;
+            case 32 /* ScanCode.KeyW */: return 53 /* KeyCode.KeyW */;
+            case 33 /* ScanCode.KeyX */: return 54 /* KeyCode.KeyX */;
+            case 34 /* ScanCode.KeyY */: return 55 /* KeyCode.KeyY */;
+            case 35 /* ScanCode.KeyZ */: return 56 /* KeyCode.KeyZ */;
+            case 36 /* ScanCode.Digit1 */: return 22 /* KeyCode.Digit1 */;
+            case 37 /* ScanCode.Digit2 */: return 23 /* KeyCode.Digit2 */;
+            case 38 /* ScanCode.Digit3 */: return 24 /* KeyCode.Digit3 */;
+            case 39 /* ScanCode.Digit4 */: return 25 /* KeyCode.Digit4 */;
+            case 40 /* ScanCode.Digit5 */: return 26 /* KeyCode.Digit5 */;
+            case 41 /* ScanCode.Digit6 */: return 27 /* KeyCode.Digit6 */;
+            case 42 /* ScanCode.Digit7 */: return 28 /* KeyCode.Digit7 */;
+            case 43 /* ScanCode.Digit8 */: return 29 /* KeyCode.Digit8 */;
+            case 44 /* ScanCode.Digit9 */: return 30 /* KeyCode.Digit9 */;
+            case 45 /* ScanCode.Digit0 */: return 21 /* KeyCode.Digit0 */;
+            case 51 /* ScanCode.Minus */: return 88 /* KeyCode.Minus */;
+            case 52 /* ScanCode.Equal */: return 86 /* KeyCode.Equal */;
+            case 53 /* ScanCode.BracketLeft */: return 92 /* KeyCode.BracketLeft */;
+            case 54 /* ScanCode.BracketRight */: return 94 /* KeyCode.BracketRight */;
+            case 55 /* ScanCode.Backslash */: return 93 /* KeyCode.Backslash */;
+            case 56 /* ScanCode.IntlHash */: return 0 /* KeyCode.Unknown */; // missing
+            case 57 /* ScanCode.Semicolon */: return 85 /* KeyCode.Semicolon */;
+            case 58 /* ScanCode.Quote */: return 95 /* KeyCode.Quote */;
+            case 59 /* ScanCode.Backquote */: return 91 /* KeyCode.Backquote */;
+            case 60 /* ScanCode.Comma */: return 87 /* KeyCode.Comma */;
+            case 61 /* ScanCode.Period */: return 89 /* KeyCode.Period */;
+            case 62 /* ScanCode.Slash */: return 90 /* KeyCode.Slash */;
+            case 106 /* ScanCode.IntlBackslash */: return 97 /* KeyCode.IntlBackslash */;
+        }
+        return 0 /* KeyCode.Unknown */;
     }
-    if (keybinding.keyCode === KeyCode.Alt && !keybinding.ctrlKey && !keybinding.shiftKey && !keybinding.metaKey) {
-      return "alt";
+    static _toKeyCodeChord(chord) {
+        if (!chord) {
+            return null;
+        }
+        if (chord instanceof KeyCodeChord) {
+            return chord;
+        }
+        const keyCode = this._scanCodeToKeyCode(chord.scanCode);
+        if (keyCode === 0 /* KeyCode.Unknown */) {
+            return null;
+        }
+        return new KeyCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, keyCode);
     }
-    if (keybinding.keyCode === KeyCode.Meta && !keybinding.ctrlKey && !keybinding.shiftKey && !keybinding.altKey) {
-      return "meta";
+    static resolveKeybinding(keybinding, os) {
+        const chords = toEmptyArrayIfContainsNull(keybinding.chords.map(chord => this._toKeyCodeChord(chord)));
+        if (chords.length > 0) {
+            return [new USLayoutResolvedKeybinding(chords, os)];
+        }
+        return [];
     }
-    return null;
-  }
-  /**
-   * *NOTE*: Check return value for `KeyCode.Unknown`.
-   */
-  static _scanCodeToKeyCode(scanCode) {
-    const immutableKeyCode = IMMUTABLE_CODE_TO_KEY_CODE[scanCode];
-    if (immutableKeyCode !== KeyCode.DependsOnKbLayout) {
-      return immutableKeyCode;
-    }
-    switch (scanCode) {
-      case ScanCode.KeyA:
-        return KeyCode.KeyA;
-      case ScanCode.KeyB:
-        return KeyCode.KeyB;
-      case ScanCode.KeyC:
-        return KeyCode.KeyC;
-      case ScanCode.KeyD:
-        return KeyCode.KeyD;
-      case ScanCode.KeyE:
-        return KeyCode.KeyE;
-      case ScanCode.KeyF:
-        return KeyCode.KeyF;
-      case ScanCode.KeyG:
-        return KeyCode.KeyG;
-      case ScanCode.KeyH:
-        return KeyCode.KeyH;
-      case ScanCode.KeyI:
-        return KeyCode.KeyI;
-      case ScanCode.KeyJ:
-        return KeyCode.KeyJ;
-      case ScanCode.KeyK:
-        return KeyCode.KeyK;
-      case ScanCode.KeyL:
-        return KeyCode.KeyL;
-      case ScanCode.KeyM:
-        return KeyCode.KeyM;
-      case ScanCode.KeyN:
-        return KeyCode.KeyN;
-      case ScanCode.KeyO:
-        return KeyCode.KeyO;
-      case ScanCode.KeyP:
-        return KeyCode.KeyP;
-      case ScanCode.KeyQ:
-        return KeyCode.KeyQ;
-      case ScanCode.KeyR:
-        return KeyCode.KeyR;
-      case ScanCode.KeyS:
-        return KeyCode.KeyS;
-      case ScanCode.KeyT:
-        return KeyCode.KeyT;
-      case ScanCode.KeyU:
-        return KeyCode.KeyU;
-      case ScanCode.KeyV:
-        return KeyCode.KeyV;
-      case ScanCode.KeyW:
-        return KeyCode.KeyW;
-      case ScanCode.KeyX:
-        return KeyCode.KeyX;
-      case ScanCode.KeyY:
-        return KeyCode.KeyY;
-      case ScanCode.KeyZ:
-        return KeyCode.KeyZ;
-      case ScanCode.Digit1:
-        return KeyCode.Digit1;
-      case ScanCode.Digit2:
-        return KeyCode.Digit2;
-      case ScanCode.Digit3:
-        return KeyCode.Digit3;
-      case ScanCode.Digit4:
-        return KeyCode.Digit4;
-      case ScanCode.Digit5:
-        return KeyCode.Digit5;
-      case ScanCode.Digit6:
-        return KeyCode.Digit6;
-      case ScanCode.Digit7:
-        return KeyCode.Digit7;
-      case ScanCode.Digit8:
-        return KeyCode.Digit8;
-      case ScanCode.Digit9:
-        return KeyCode.Digit9;
-      case ScanCode.Digit0:
-        return KeyCode.Digit0;
-      case ScanCode.Minus:
-        return KeyCode.Minus;
-      case ScanCode.Equal:
-        return KeyCode.Equal;
-      case ScanCode.BracketLeft:
-        return KeyCode.BracketLeft;
-      case ScanCode.BracketRight:
-        return KeyCode.BracketRight;
-      case ScanCode.Backslash:
-        return KeyCode.Backslash;
-      case ScanCode.IntlHash:
-        return KeyCode.Unknown;
-      // missing
-      case ScanCode.Semicolon:
-        return KeyCode.Semicolon;
-      case ScanCode.Quote:
-        return KeyCode.Quote;
-      case ScanCode.Backquote:
-        return KeyCode.Backquote;
-      case ScanCode.Comma:
-        return KeyCode.Comma;
-      case ScanCode.Period:
-        return KeyCode.Period;
-      case ScanCode.Slash:
-        return KeyCode.Slash;
-      case ScanCode.IntlBackslash:
-        return KeyCode.IntlBackslash;
-    }
-    return KeyCode.Unknown;
-  }
-  static _toKeyCodeChord(chord) {
-    if (!chord) {
-      return null;
-    }
-    if (chord instanceof KeyCodeChord) {
-      return chord;
-    }
-    const keyCode = this._scanCodeToKeyCode(chord.scanCode);
-    if (keyCode === KeyCode.Unknown) {
-      return null;
-    }
-    return new KeyCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, keyCode);
-  }
-  static resolveKeybinding(keybinding, os) {
-    const chords = toEmptyArrayIfContainsNull(keybinding.chords.map((chord) => this._toKeyCodeChord(chord)));
-    if (chords.length > 0) {
-      return [new USLayoutResolvedKeybinding(chords, os)];
-    }
-    return [];
-  }
 }
-export {
-  USLayoutResolvedKeybinding
-};
-//# sourceMappingURL=usLayoutResolvedKeybinding.js.map

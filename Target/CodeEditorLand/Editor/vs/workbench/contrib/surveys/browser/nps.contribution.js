@@ -1,94 +1,90 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
-import { language } from "../../../../base/common/platform.js";
-import { IWorkbenchContributionsRegistry, IWorkbenchContribution, Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { Severity, INotificationService, NotificationPriority } from "../../../../platform/notification/common/notification.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { URI } from "../../../../base/common/uri.js";
-import { platform } from "../../../../base/common/process.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as nls from '../../../../nls.js';
+import { language } from '../../../../base/common/platform.js';
+import { Extensions as WorkbenchExtensions } from '../../../common/contributions.js';
+import { Registry } from '../../../../platform/registry/common/platform.js';
+import { ITelemetryService } from '../../../../platform/telemetry/common/telemetry.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { IProductService } from '../../../../platform/product/common/productService.js';
+import { Severity, INotificationService, NotificationPriority } from '../../../../platform/notification/common/notification.js';
+import { IOpenerService } from '../../../../platform/opener/common/opener.js';
+import { URI } from '../../../../base/common/uri.js';
+import { platform } from '../../../../base/common/process.js';
 const PROBABILITY = 0.15;
-const SESSION_COUNT_KEY = "nps/sessionCount";
-const LAST_SESSION_DATE_KEY = "nps/lastSessionDate";
-const SKIP_VERSION_KEY = "nps/skipVersion";
-const IS_CANDIDATE_KEY = "nps/isCandidate";
-let NPSContribution = class {
-  static {
-    __name(this, "NPSContribution");
-  }
-  constructor(storageService, notificationService, telemetryService, openerService, productService) {
-    if (!productService.npsSurveyUrl) {
-      return;
+const SESSION_COUNT_KEY = 'nps/sessionCount';
+const LAST_SESSION_DATE_KEY = 'nps/lastSessionDate';
+const SKIP_VERSION_KEY = 'nps/skipVersion';
+const IS_CANDIDATE_KEY = 'nps/isCandidate';
+let NPSContribution = class NPSContribution {
+    constructor(storageService, notificationService, telemetryService, openerService, productService) {
+        if (!productService.npsSurveyUrl) {
+            return;
+        }
+        const skipVersion = storageService.get(SKIP_VERSION_KEY, -1 /* StorageScope.APPLICATION */, '');
+        if (skipVersion) {
+            return;
+        }
+        const date = new Date().toDateString();
+        const lastSessionDate = storageService.get(LAST_SESSION_DATE_KEY, -1 /* StorageScope.APPLICATION */, new Date(0).toDateString());
+        if (date === lastSessionDate) {
+            return;
+        }
+        const sessionCount = (storageService.getNumber(SESSION_COUNT_KEY, -1 /* StorageScope.APPLICATION */, 0) || 0) + 1;
+        storageService.store(LAST_SESSION_DATE_KEY, date, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+        storageService.store(SESSION_COUNT_KEY, sessionCount, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+        if (sessionCount < 9) {
+            return;
+        }
+        const isCandidate = storageService.getBoolean(IS_CANDIDATE_KEY, -1 /* StorageScope.APPLICATION */, false)
+            || Math.random() < PROBABILITY;
+        storageService.store(IS_CANDIDATE_KEY, isCandidate, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+        if (!isCandidate) {
+            storageService.store(SKIP_VERSION_KEY, productService.version, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+            return;
+        }
+        notificationService.prompt(Severity.Info, nls.localize('surveyQuestion', "Do you mind taking a quick feedback survey?"), [{
+                label: nls.localize('takeSurvey', "Take Survey"),
+                run: () => {
+                    openerService.open(URI.parse(`${productService.npsSurveyUrl}?o=${encodeURIComponent(platform)}&v=${encodeURIComponent(productService.version)}&m=${encodeURIComponent(telemetryService.machineId)}`));
+                    storageService.store(IS_CANDIDATE_KEY, false, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+                    storageService.store(SKIP_VERSION_KEY, productService.version, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+                }
+            }, {
+                label: nls.localize('remindLater', "Remind Me Later"),
+                run: () => storageService.store(SESSION_COUNT_KEY, sessionCount - 3, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */)
+            }, {
+                label: nls.localize('neverAgain', "Don't Show Again"),
+                run: () => {
+                    storageService.store(IS_CANDIDATE_KEY, false, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+                    storageService.store(SKIP_VERSION_KEY, productService.version, -1 /* StorageScope.APPLICATION */, 0 /* StorageTarget.USER */);
+                }
+            }], { sticky: true, priority: NotificationPriority.URGENT });
     }
-    const skipVersion = storageService.get(SKIP_VERSION_KEY, StorageScope.APPLICATION, "");
-    if (skipVersion) {
-      return;
-    }
-    const date = (/* @__PURE__ */ new Date()).toDateString();
-    const lastSessionDate = storageService.get(LAST_SESSION_DATE_KEY, StorageScope.APPLICATION, (/* @__PURE__ */ new Date(0)).toDateString());
-    if (date === lastSessionDate) {
-      return;
-    }
-    const sessionCount = (storageService.getNumber(SESSION_COUNT_KEY, StorageScope.APPLICATION, 0) || 0) + 1;
-    storageService.store(LAST_SESSION_DATE_KEY, date, StorageScope.APPLICATION, StorageTarget.USER);
-    storageService.store(SESSION_COUNT_KEY, sessionCount, StorageScope.APPLICATION, StorageTarget.USER);
-    if (sessionCount < 9) {
-      return;
-    }
-    const isCandidate = storageService.getBoolean(IS_CANDIDATE_KEY, StorageScope.APPLICATION, false) || Math.random() < PROBABILITY;
-    storageService.store(IS_CANDIDATE_KEY, isCandidate, StorageScope.APPLICATION, StorageTarget.USER);
-    if (!isCandidate) {
-      storageService.store(SKIP_VERSION_KEY, productService.version, StorageScope.APPLICATION, StorageTarget.USER);
-      return;
-    }
-    notificationService.prompt(
-      Severity.Info,
-      nls.localize("surveyQuestion", "Do you mind taking a quick feedback survey?"),
-      [{
-        label: nls.localize("takeSurvey", "Take Survey"),
-        run: /* @__PURE__ */ __name(() => {
-          openerService.open(URI.parse(`${productService.npsSurveyUrl}?o=${encodeURIComponent(platform)}&v=${encodeURIComponent(productService.version)}&m=${encodeURIComponent(telemetryService.machineId)}`));
-          storageService.store(IS_CANDIDATE_KEY, false, StorageScope.APPLICATION, StorageTarget.USER);
-          storageService.store(SKIP_VERSION_KEY, productService.version, StorageScope.APPLICATION, StorageTarget.USER);
-        }, "run")
-      }, {
-        label: nls.localize("remindLater", "Remind Me Later"),
-        run: /* @__PURE__ */ __name(() => storageService.store(SESSION_COUNT_KEY, sessionCount - 3, StorageScope.APPLICATION, StorageTarget.USER), "run")
-      }, {
-        label: nls.localize("neverAgain", "Don't Show Again"),
-        run: /* @__PURE__ */ __name(() => {
-          storageService.store(IS_CANDIDATE_KEY, false, StorageScope.APPLICATION, StorageTarget.USER);
-          storageService.store(SKIP_VERSION_KEY, productService.version, StorageScope.APPLICATION, StorageTarget.USER);
-        }, "run")
-      }],
-      { sticky: true, priority: NotificationPriority.URGENT }
-    );
-  }
 };
-NPSContribution = __decorateClass([
-  __decorateParam(0, IStorageService),
-  __decorateParam(1, INotificationService),
-  __decorateParam(2, ITelemetryService),
-  __decorateParam(3, IOpenerService),
-  __decorateParam(4, IProductService)
+NPSContribution = __decorate([
+    __param(0, IStorageService),
+    __param(1, INotificationService),
+    __param(2, ITelemetryService),
+    __param(3, IOpenerService),
+    __param(4, IProductService),
+    __metadata("design:paramtypes", [Object, Object, Object, Object, Object])
 ], NPSContribution);
-if (language === "en") {
-  const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
-  workbenchRegistry.registerWorkbenchContribution(NPSContribution, LifecyclePhase.Restored);
+if (language === 'en') {
+    const workbenchRegistry = Registry.as(WorkbenchExtensions.Workbench);
+    workbenchRegistry.registerWorkbenchContribution(NPSContribution, 3 /* LifecyclePhase.Restored */);
 }
-//# sourceMappingURL=nps.contribution.js.map

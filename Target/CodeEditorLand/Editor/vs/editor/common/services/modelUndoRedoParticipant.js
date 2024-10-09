@@ -1,72 +1,76 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IModelService } from "./model.js";
-import { ITextModelService } from "./resolverService.js";
-import { Disposable, IDisposable, dispose } from "../../../base/common/lifecycle.js";
-import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
-import { IUndoRedoDelegate, MultiModelEditStackElement } from "../model/editStack.js";
-let ModelUndoRedoParticipant = class extends Disposable {
-  constructor(_modelService, _textModelService, _undoRedoService) {
-    super();
-    this._modelService = _modelService;
-    this._textModelService = _textModelService;
-    this._undoRedoService = _undoRedoService;
-    this._register(this._modelService.onModelRemoved((model) => {
-      const elements = this._undoRedoService.getElements(model.uri);
-      if (elements.past.length === 0 && elements.future.length === 0) {
-        return;
-      }
-      for (const element of elements.past) {
-        if (element instanceof MultiModelEditStackElement) {
-          element.setDelegate(this);
-        }
-      }
-      for (const element of elements.future) {
-        if (element instanceof MultiModelEditStackElement) {
-          element.setDelegate(this);
-        }
-      }
-    }));
-  }
-  static {
-    __name(this, "ModelUndoRedoParticipant");
-  }
-  prepareUndoRedo(element) {
-    const missingModels = element.getMissingModels();
-    if (missingModels.length === 0) {
-      return Disposable.None;
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { IModelService } from './model.js';
+import { ITextModelService } from './resolverService.js';
+import { Disposable, dispose } from '../../../base/common/lifecycle.js';
+import { IUndoRedoService } from '../../../platform/undoRedo/common/undoRedo.js';
+import { MultiModelEditStackElement } from '../model/editStack.js';
+let ModelUndoRedoParticipant = class ModelUndoRedoParticipant extends Disposable {
+    constructor(_modelService, _textModelService, _undoRedoService) {
+        super();
+        this._modelService = _modelService;
+        this._textModelService = _textModelService;
+        this._undoRedoService = _undoRedoService;
+        this._register(this._modelService.onModelRemoved((model) => {
+            // a model will get disposed, so let's check if the undo redo stack is maintained
+            const elements = this._undoRedoService.getElements(model.uri);
+            if (elements.past.length === 0 && elements.future.length === 0) {
+                return;
+            }
+            for (const element of elements.past) {
+                if (element instanceof MultiModelEditStackElement) {
+                    element.setDelegate(this);
+                }
+            }
+            for (const element of elements.future) {
+                if (element instanceof MultiModelEditStackElement) {
+                    element.setDelegate(this);
+                }
+            }
+        }));
     }
-    const disposablesPromises = missingModels.map(async (uri) => {
-      try {
-        const reference = await this._textModelService.createModelReference(uri);
-        return reference;
-      } catch (err) {
-        return Disposable.None;
-      }
-    });
-    return Promise.all(disposablesPromises).then((disposables) => {
-      return {
-        dispose: /* @__PURE__ */ __name(() => dispose(disposables), "dispose")
-      };
-    });
-  }
+    prepareUndoRedo(element) {
+        // Load all the needed text models
+        const missingModels = element.getMissingModels();
+        if (missingModels.length === 0) {
+            // All models are available!
+            return Disposable.None;
+        }
+        const disposablesPromises = missingModels.map(async (uri) => {
+            try {
+                const reference = await this._textModelService.createModelReference(uri);
+                return reference;
+            }
+            catch (err) {
+                // This model could not be loaded, maybe it was deleted in the meantime?
+                return Disposable.None;
+            }
+        });
+        return Promise.all(disposablesPromises).then(disposables => {
+            return {
+                dispose: () => dispose(disposables)
+            };
+        });
+    }
 };
-ModelUndoRedoParticipant = __decorateClass([
-  __decorateParam(0, IModelService),
-  __decorateParam(1, ITextModelService),
-  __decorateParam(2, IUndoRedoService)
+ModelUndoRedoParticipant = __decorate([
+    __param(0, IModelService),
+    __param(1, ITextModelService),
+    __param(2, IUndoRedoService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], ModelUndoRedoParticipant);
-export {
-  ModelUndoRedoParticipant
-};
-//# sourceMappingURL=modelUndoRedoParticipant.js.map
+export { ModelUndoRedoParticipant };

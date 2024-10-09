@@ -1,3 +1,5 @@
-import { IView, IViewPaneContainer } from "./views.js";
-import { IComposite } from "./composite.js";
-//# sourceMappingURL=panecomposite.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export {};

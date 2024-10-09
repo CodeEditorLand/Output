@@ -1,52 +1,64 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { OperatingSystem, OS } from "../../../base/common/platform.js";
-function escapeNonWindowsPath(path) {
-  let newPath = path;
-  if (newPath.includes("\\")) {
-    newPath = newPath.replace(/\\/g, "\\\\");
-  }
-  const bannedChars = /[\`\$\|\&\>\~\#\!\^\*\;\<\"\']/g;
-  newPath = newPath.replace(bannedChars, "");
-  return `'${newPath}'`;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { OS } from '../../../base/common/platform.js';
+/**
+ * Aggressively escape non-windows paths to prepare for being sent to a shell. This will do some
+ * escaping inaccurately to be careful about possible script injection via the file path. For
+ * example, we're trying to prevent this sort of attack: `/foo/file$(echo evil)`.
+ */
+export function escapeNonWindowsPath(path) {
+    let newPath = path;
+    if (newPath.includes('\\')) {
+        newPath = newPath.replace(/\\/g, '\\\\');
+    }
+    const bannedChars = /[\`\$\|\&\>\~\#\!\^\*\;\<\"\']/g;
+    newPath = newPath.replace(bannedChars, '');
+    return `'${newPath}'`;
 }
-__name(escapeNonWindowsPath, "escapeNonWindowsPath");
-function collapseTildePath(path, userHome, separator) {
-  if (!path) {
-    return "";
-  }
-  if (!userHome) {
-    return path;
-  }
-  if (userHome.match(/[\/\\]$/)) {
-    userHome = userHome.slice(0, userHome.length - 1);
-  }
-  const normalizedPath = path.replace(/\\/g, "/").toLowerCase();
-  const normalizedUserHome = userHome.replace(/\\/g, "/").toLowerCase();
-  if (!normalizedPath.includes(normalizedUserHome)) {
-    return path;
-  }
-  return `~${separator}${path.slice(userHome.length + 1)}`;
+/**
+ * Collapses the user's home directory into `~` if it exists within the path, this gives a shorter
+ * path that is more suitable within the context of a terminal.
+ */
+export function collapseTildePath(path, userHome, separator) {
+    if (!path) {
+        return '';
+    }
+    if (!userHome) {
+        return path;
+    }
+    // Trim the trailing separator from the end if it exists
+    if (userHome.match(/[\/\\]$/)) {
+        userHome = userHome.slice(0, userHome.length - 1);
+    }
+    const normalizedPath = path.replace(/\\/g, '/').toLowerCase();
+    const normalizedUserHome = userHome.replace(/\\/g, '/').toLowerCase();
+    if (!normalizedPath.includes(normalizedUserHome)) {
+        return path;
+    }
+    return `~${separator}${path.slice(userHome.length + 1)}`;
 }
-__name(collapseTildePath, "collapseTildePath");
-function sanitizeCwd(cwd) {
-  if (cwd.match(/^['"].*['"]$/)) {
-    cwd = cwd.substring(1, cwd.length - 1);
-  }
-  if (OS === OperatingSystem.Windows && cwd && cwd[1] === ":") {
-    return cwd[0].toUpperCase() + cwd.substring(1);
-  }
-  return cwd;
+/**
+ * Sanitizes a cwd string, removing any wrapping quotes and making the Windows drive letter
+ * uppercase.
+ * @param cwd The directory to sanitize.
+ */
+export function sanitizeCwd(cwd) {
+    // Sanity check that the cwd is not wrapped in quotes (see #160109)
+    if (cwd.match(/^['"].*['"]$/)) {
+        cwd = cwd.substring(1, cwd.length - 1);
+    }
+    // Make the drive letter uppercase on Windows (see #9448)
+    if (OS === 1 /* OperatingSystem.Windows */ && cwd && cwd[1] === ':') {
+        return cwd[0].toUpperCase() + cwd.substring(1);
+    }
+    return cwd;
 }
-__name(sanitizeCwd, "sanitizeCwd");
-function shouldUseEnvironmentVariableCollection(slc) {
-  return !slc.strictEnv;
+/**
+ * Determines whether the given shell launch config should use the environment variable collection.
+ * @param slc The shell launch config to check.
+ */
+export function shouldUseEnvironmentVariableCollection(slc) {
+    return !slc.strictEnv;
 }
-__name(shouldUseEnvironmentVariableCollection, "shouldUseEnvironmentVariableCollection");
-export {
-  collapseTildePath,
-  escapeNonWindowsPath,
-  sanitizeCwd,
-  shouldUseEnvironmentVariableCollection
-};
-//# sourceMappingURL=terminalEnvironment.js.map

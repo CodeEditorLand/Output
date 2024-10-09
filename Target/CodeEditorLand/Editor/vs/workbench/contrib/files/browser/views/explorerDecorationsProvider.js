@@ -1,91 +1,85 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../base/common/uri.js";
-import { Event, Emitter } from "../../../../../base/common/event.js";
-import { localize } from "../../../../../nls.js";
-import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import { IDecorationsProvider, IDecorationData } from "../../../../services/decorations/common/decorations.js";
-import { listInvalidItemForeground, listDeemphasizedForeground } from "../../../../../platform/theme/common/colorRegistry.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { explorerRootErrorEmitter } from "./explorerViewer.js";
-import { ExplorerItem } from "../../common/explorerModel.js";
-import { IExplorerService } from "../files.js";
-import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
-function provideDecorations(fileStat) {
-  if (fileStat.isRoot && fileStat.error) {
-    return {
-      tooltip: localize("canNotResolve", "Unable to resolve workspace folder ({0})", toErrorMessage(fileStat.error)),
-      letter: "!",
-      color: listInvalidItemForeground
-    };
-  }
-  if (fileStat.isSymbolicLink) {
-    return {
-      tooltip: localize("symbolicLlink", "Symbolic Link"),
-      letter: "\u2937"
-    };
-  }
-  if (fileStat.isUnknown) {
-    return {
-      tooltip: localize("unknown", "Unknown File Type"),
-      letter: "?"
-    };
-  }
-  if (fileStat.isExcluded) {
-    return {
-      color: listDeemphasizedForeground
-    };
-  }
-  return void 0;
-}
-__name(provideDecorations, "provideDecorations");
-let ExplorerDecorationsProvider = class {
-  constructor(explorerService, contextService) {
-    this.explorerService = explorerService;
-    this.toDispose.add(this._onDidChange);
-    this.toDispose.add(contextService.onDidChangeWorkspaceFolders((e) => {
-      this._onDidChange.fire(e.changed.concat(e.added).map((wf) => wf.uri));
-    }));
-    this.toDispose.add(explorerRootErrorEmitter.event((resource) => {
-      this._onDidChange.fire([resource]);
-    }));
-  }
-  static {
-    __name(this, "ExplorerDecorationsProvider");
-  }
-  label = localize("label", "Explorer");
-  _onDidChange = new Emitter();
-  toDispose = new DisposableStore();
-  get onDidChange() {
-    return this._onDidChange.event;
-  }
-  async provideDecorations(resource) {
-    const fileStat = this.explorerService.findClosest(resource);
-    if (!fileStat) {
-      throw new Error("ExplorerItem not found");
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Emitter } from '../../../../../base/common/event.js';
+import { localize } from '../../../../../nls.js';
+import { IWorkspaceContextService } from '../../../../../platform/workspace/common/workspace.js';
+import { listInvalidItemForeground, listDeemphasizedForeground } from '../../../../../platform/theme/common/colorRegistry.js';
+import { DisposableStore } from '../../../../../base/common/lifecycle.js';
+import { explorerRootErrorEmitter } from './explorerViewer.js';
+import { IExplorerService } from '../files.js';
+import { toErrorMessage } from '../../../../../base/common/errorMessage.js';
+export function provideDecorations(fileStat) {
+    if (fileStat.isRoot && fileStat.error) {
+        return {
+            tooltip: localize('canNotResolve', "Unable to resolve workspace folder ({0})", toErrorMessage(fileStat.error)),
+            letter: '!',
+            color: listInvalidItemForeground,
+        };
     }
-    return provideDecorations(fileStat);
-  }
-  dispose() {
-    this.toDispose.dispose();
-  }
+    if (fileStat.isSymbolicLink) {
+        return {
+            tooltip: localize('symbolicLlink', "Symbolic Link"),
+            letter: '\u2937'
+        };
+    }
+    if (fileStat.isUnknown) {
+        return {
+            tooltip: localize('unknown', "Unknown File Type"),
+            letter: '?'
+        };
+    }
+    if (fileStat.isExcluded) {
+        return {
+            color: listDeemphasizedForeground,
+        };
+    }
+    return undefined;
+}
+let ExplorerDecorationsProvider = class ExplorerDecorationsProvider {
+    constructor(explorerService, contextService) {
+        this.explorerService = explorerService;
+        this.label = localize('label', "Explorer");
+        this._onDidChange = new Emitter();
+        this.toDispose = new DisposableStore();
+        this.toDispose.add(this._onDidChange);
+        this.toDispose.add(contextService.onDidChangeWorkspaceFolders(e => {
+            this._onDidChange.fire(e.changed.concat(e.added).map(wf => wf.uri));
+        }));
+        this.toDispose.add(explorerRootErrorEmitter.event((resource => {
+            this._onDidChange.fire([resource]);
+        })));
+    }
+    get onDidChange() {
+        return this._onDidChange.event;
+    }
+    async provideDecorations(resource) {
+        const fileStat = this.explorerService.findClosest(resource);
+        if (!fileStat) {
+            throw new Error('ExplorerItem not found');
+        }
+        return provideDecorations(fileStat);
+    }
+    dispose() {
+        this.toDispose.dispose();
+    }
 };
-ExplorerDecorationsProvider = __decorateClass([
-  __decorateParam(0, IExplorerService),
-  __decorateParam(1, IWorkspaceContextService)
+ExplorerDecorationsProvider = __decorate([
+    __param(0, IExplorerService),
+    __param(1, IWorkspaceContextService),
+    __metadata("design:paramtypes", [Object, Object])
 ], ExplorerDecorationsProvider);
-export {
-  ExplorerDecorationsProvider,
-  provideDecorations
-};
-//# sourceMappingURL=explorerDecorationsProvider.js.map
+export { ExplorerDecorationsProvider };

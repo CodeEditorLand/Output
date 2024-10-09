@@ -1,62 +1,61 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as DOM from "../../../../../../base/browser/dom.js";
-import { Codicon } from "../../../../../../base/common/codicons.js";
-import { ThemeIcon } from "../../../../../../base/common/themables.js";
-import { localize } from "../../../../../../nls.js";
-import { IKeybindingService } from "../../../../../../platform/keybinding/common/keybinding.js";
-import { EXPAND_CELL_OUTPUT_COMMAND_ID, INotebookEditor } from "../../notebookBrowser.js";
-import { CellContentPart } from "../cellPart.js";
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import * as DOM from '../../../../../../base/browser/dom.js';
+import { Codicon } from '../../../../../../base/common/codicons.js';
+import { ThemeIcon } from '../../../../../../base/common/themables.js';
+import { localize } from '../../../../../../nls.js';
+import { IKeybindingService } from '../../../../../../platform/keybinding/common/keybinding.js';
+import { EXPAND_CELL_OUTPUT_COMMAND_ID } from '../../notebookBrowser.js';
+import { CellContentPart } from '../cellPart.js';
 const $ = DOM.$;
-let CollapsedCellOutput = class extends CellContentPart {
-  constructor(notebookEditor, cellOutputCollapseContainer, keybindingService) {
-    super();
-    this.notebookEditor = notebookEditor;
-    const placeholder = DOM.append(cellOutputCollapseContainer, $("span.expandOutputPlaceholder"));
-    placeholder.textContent = localize("cellOutputsCollapsedMsg", "Outputs are collapsed");
-    const expandIcon = DOM.append(cellOutputCollapseContainer, $("span.expandOutputIcon"));
-    expandIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.more));
-    const keybinding = keybindingService.lookupKeybinding(EXPAND_CELL_OUTPUT_COMMAND_ID);
-    if (keybinding) {
-      placeholder.title = localize("cellExpandOutputButtonLabelWithDoubleClick", "Double-click to expand cell output ({0})", keybinding.getLabel());
-      cellOutputCollapseContainer.title = localize("cellExpandOutputButtonLabel", "Expand Cell Output (${0})", keybinding.getLabel());
+let CollapsedCellOutput = class CollapsedCellOutput extends CellContentPart {
+    constructor(notebookEditor, cellOutputCollapseContainer, keybindingService) {
+        super();
+        this.notebookEditor = notebookEditor;
+        const placeholder = DOM.append(cellOutputCollapseContainer, $('span.expandOutputPlaceholder'));
+        placeholder.textContent = localize('cellOutputsCollapsedMsg', "Outputs are collapsed");
+        const expandIcon = DOM.append(cellOutputCollapseContainer, $('span.expandOutputIcon'));
+        expandIcon.classList.add(...ThemeIcon.asClassNameArray(Codicon.more));
+        const keybinding = keybindingService.lookupKeybinding(EXPAND_CELL_OUTPUT_COMMAND_ID);
+        if (keybinding) {
+            placeholder.title = localize('cellExpandOutputButtonLabelWithDoubleClick', "Double-click to expand cell output ({0})", keybinding.getLabel());
+            cellOutputCollapseContainer.title = localize('cellExpandOutputButtonLabel', "Expand Cell Output (${0})", keybinding.getLabel());
+        }
+        DOM.hide(cellOutputCollapseContainer);
+        this._register(DOM.addDisposableListener(expandIcon, DOM.EventType.CLICK, () => this.expand()));
+        this._register(DOM.addDisposableListener(cellOutputCollapseContainer, DOM.EventType.DBLCLICK, () => this.expand()));
     }
-    DOM.hide(cellOutputCollapseContainer);
-    this._register(DOM.addDisposableListener(expandIcon, DOM.EventType.CLICK, () => this.expand()));
-    this._register(DOM.addDisposableListener(cellOutputCollapseContainer, DOM.EventType.DBLCLICK, () => this.expand()));
-  }
-  static {
-    __name(this, "CollapsedCellOutput");
-  }
-  expand() {
-    if (!this.currentCell) {
-      return;
+    expand() {
+        if (!this.currentCell) {
+            return;
+        }
+        if (!this.currentCell) {
+            return;
+        }
+        const textModel = this.notebookEditor.textModel;
+        const index = textModel.cells.indexOf(this.currentCell.model);
+        if (index < 0) {
+            return;
+        }
+        this.currentCell.isOutputCollapsed = !this.currentCell.isOutputCollapsed;
     }
-    if (!this.currentCell) {
-      return;
-    }
-    const textModel = this.notebookEditor.textModel;
-    const index = textModel.cells.indexOf(this.currentCell.model);
-    if (index < 0) {
-      return;
-    }
-    this.currentCell.isOutputCollapsed = !this.currentCell.isOutputCollapsed;
-  }
 };
-CollapsedCellOutput = __decorateClass([
-  __decorateParam(2, IKeybindingService)
+CollapsedCellOutput = __decorate([
+    __param(2, IKeybindingService),
+    __metadata("design:paramtypes", [Object, HTMLElement, Object])
 ], CollapsedCellOutput);
-export {
-  CollapsedCellOutput
-};
-//# sourceMappingURL=collapsedCellOutput.js.map
+export { CollapsedCellOutput };

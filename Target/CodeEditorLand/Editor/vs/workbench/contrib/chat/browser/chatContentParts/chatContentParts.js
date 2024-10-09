@@ -1,4 +1,5 @@
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { ChatTreeItem } from "../chat.js";
-import { IChatRendererContent } from "../../common/chatViewModel.js";
-//# sourceMappingURL=chatContentParts.js.map
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export {};

@@ -1,84 +1,80 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../base/common/event.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { MutableObservableValue } from "./observableValue.js";
-import { StoredValue } from "./storedValue.js";
-import { InternalTestItem } from "./testTypes.js";
-let TestExclusions = class extends Disposable {
-  constructor(storageService) {
-    super();
-    this.storageService = storageService;
-  }
-  static {
-    __name(this, "TestExclusions");
-  }
-  excluded = this._register(
-    MutableObservableValue.stored(new StoredValue({
-      key: "excludedTestItems",
-      scope: StorageScope.WORKSPACE,
-      target: StorageTarget.MACHINE,
-      serialization: {
-        deserialize: /* @__PURE__ */ __name((v) => new Set(JSON.parse(v)), "deserialize"),
-        serialize: /* @__PURE__ */ __name((v) => JSON.stringify([...v]), "serialize")
-      }
-    }, this.storageService), /* @__PURE__ */ new Set())
-  );
-  /**
-   * Event that fires when the excluded tests change.
-   */
-  onTestExclusionsChanged = this.excluded.onDidChange;
-  /**
-   * Gets whether there's any excluded tests.
-   */
-  get hasAny() {
-    return this.excluded.value.size > 0;
-  }
-  /**
-   * Gets all excluded tests.
-   */
-  get all() {
-    return this.excluded.value;
-  }
-  /**
-   * Sets whether a test is excluded.
-   */
-  toggle(test, exclude) {
-    if (exclude !== true && this.excluded.value.has(test.item.extId)) {
-      this.excluded.value = new Set(Iterable.filter(this.excluded.value, (e) => e !== test.item.extId));
-    } else if (exclude !== false && !this.excluded.value.has(test.item.extId)) {
-      this.excluded.value = /* @__PURE__ */ new Set([...this.excluded.value, test.item.extId]);
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { Iterable } from '../../../../base/common/iterator.js';
+import { Disposable } from '../../../../base/common/lifecycle.js';
+import { IStorageService } from '../../../../platform/storage/common/storage.js';
+import { MutableObservableValue } from './observableValue.js';
+import { StoredValue } from './storedValue.js';
+let TestExclusions = class TestExclusions extends Disposable {
+    constructor(storageService) {
+        super();
+        this.storageService = storageService;
+        this.excluded = this._register(MutableObservableValue.stored(new StoredValue({
+            key: 'excludedTestItems',
+            scope: 1 /* StorageScope.WORKSPACE */,
+            target: 1 /* StorageTarget.MACHINE */,
+            serialization: {
+                deserialize: v => new Set(JSON.parse(v)),
+                serialize: v => JSON.stringify([...v])
+            },
+        }, this.storageService), new Set()));
+        /**
+         * Event that fires when the excluded tests change.
+         */
+        this.onTestExclusionsChanged = this.excluded.onDidChange;
     }
-  }
-  /**
-   * Gets whether a test is excluded.
-   */
-  contains(test) {
-    return this.excluded.value.has(test.item.extId);
-  }
-  /**
-   * Removes all test exclusions.
-   */
-  clear() {
-    this.excluded.value = /* @__PURE__ */ new Set();
-  }
+    /**
+     * Gets whether there's any excluded tests.
+     */
+    get hasAny() {
+        return this.excluded.value.size > 0;
+    }
+    /**
+     * Gets all excluded tests.
+     */
+    get all() {
+        return this.excluded.value;
+    }
+    /**
+     * Sets whether a test is excluded.
+     */
+    toggle(test, exclude) {
+        if (exclude !== true && this.excluded.value.has(test.item.extId)) {
+            this.excluded.value = new Set(Iterable.filter(this.excluded.value, e => e !== test.item.extId));
+        }
+        else if (exclude !== false && !this.excluded.value.has(test.item.extId)) {
+            this.excluded.value = new Set([...this.excluded.value, test.item.extId]);
+        }
+    }
+    /**
+     * Gets whether a test is excluded.
+     */
+    contains(test) {
+        return this.excluded.value.has(test.item.extId);
+    }
+    /**
+     * Removes all test exclusions.
+     */
+    clear() {
+        this.excluded.value = new Set();
+    }
 };
-TestExclusions = __decorateClass([
-  __decorateParam(0, IStorageService)
+TestExclusions = __decorate([
+    __param(0, IStorageService),
+    __metadata("design:paramtypes", [Object])
 ], TestExclusions);
-export {
-  TestExclusions
-};
-//# sourceMappingURL=testExclusions.js.map
+export { TestExclusions };

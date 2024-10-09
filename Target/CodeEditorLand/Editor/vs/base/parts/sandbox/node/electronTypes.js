@@ -1,10 +1,7 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-function isUtilityProcess(process) {
-  return !!process.parentPort;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export function isUtilityProcess(process) {
+    return !!process.parentPort;
 }
-__name(isUtilityProcess, "isUtilityProcess");
-export {
-  isUtilityProcess
-};
-//# sourceMappingURL=electronTypes.js.map

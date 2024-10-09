@@ -1,161 +1,148 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var Iterable;
-((Iterable2) => {
-  function is(thing) {
-    return thing && typeof thing === "object" && typeof thing[Symbol.iterator] === "function";
-  }
-  Iterable2.is = is;
-  __name(is, "is");
-  const _empty = Object.freeze([]);
-  function empty() {
-    return _empty;
-  }
-  Iterable2.empty = empty;
-  __name(empty, "empty");
-  function* single(element) {
-    yield element;
-  }
-  Iterable2.single = single;
-  __name(single, "single");
-  function wrap(iterableOrElement) {
-    if (is(iterableOrElement)) {
-      return iterableOrElement;
-    } else {
-      return single(iterableOrElement);
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export var Iterable;
+(function (Iterable) {
+    function is(thing) {
+        return thing && typeof thing === 'object' && typeof thing[Symbol.iterator] === 'function';
     }
-  }
-  Iterable2.wrap = wrap;
-  __name(wrap, "wrap");
-  function from(iterable) {
-    return iterable || _empty;
-  }
-  Iterable2.from = from;
-  __name(from, "from");
-  function* reverse(array) {
-    for (let i = array.length - 1; i >= 0; i--) {
-      yield array[i];
+    Iterable.is = is;
+    const _empty = Object.freeze([]);
+    function empty() {
+        return _empty;
     }
-  }
-  Iterable2.reverse = reverse;
-  __name(reverse, "reverse");
-  function isEmpty(iterable) {
-    return !iterable || iterable[Symbol.iterator]().next().done === true;
-  }
-  Iterable2.isEmpty = isEmpty;
-  __name(isEmpty, "isEmpty");
-  function first(iterable) {
-    return iterable[Symbol.iterator]().next().value;
-  }
-  Iterable2.first = first;
-  __name(first, "first");
-  function some(iterable, predicate) {
-    let i = 0;
-    for (const element of iterable) {
-      if (predicate(element, i++)) {
-        return true;
-      }
-    }
-    return false;
-  }
-  Iterable2.some = some;
-  __name(some, "some");
-  function find(iterable, predicate) {
-    for (const element of iterable) {
-      if (predicate(element)) {
-        return element;
-      }
-    }
-    return void 0;
-  }
-  Iterable2.find = find;
-  __name(find, "find");
-  function* filter(iterable, predicate) {
-    for (const element of iterable) {
-      if (predicate(element)) {
+    Iterable.empty = empty;
+    function* single(element) {
         yield element;
-      }
     }
-  }
-  Iterable2.filter = filter;
-  __name(filter, "filter");
-  function* map(iterable, fn) {
-    let index = 0;
-    for (const element of iterable) {
-      yield fn(element, index++);
+    Iterable.single = single;
+    function wrap(iterableOrElement) {
+        if (is(iterableOrElement)) {
+            return iterableOrElement;
+        }
+        else {
+            return single(iterableOrElement);
+        }
     }
-  }
-  Iterable2.map = map;
-  __name(map, "map");
-  function* flatMap(iterable, fn) {
-    let index = 0;
-    for (const element of iterable) {
-      yield* fn(element, index++);
+    Iterable.wrap = wrap;
+    function from(iterable) {
+        return iterable || _empty;
     }
-  }
-  Iterable2.flatMap = flatMap;
-  __name(flatMap, "flatMap");
-  function* concat(...iterables) {
-    for (const iterable of iterables) {
-      yield* iterable;
+    Iterable.from = from;
+    function* reverse(array) {
+        for (let i = array.length - 1; i >= 0; i--) {
+            yield array[i];
+        }
     }
-  }
-  Iterable2.concat = concat;
-  __name(concat, "concat");
-  function reduce(iterable, reducer, initialValue) {
-    let value = initialValue;
-    for (const element of iterable) {
-      value = reducer(value, element);
+    Iterable.reverse = reverse;
+    function isEmpty(iterable) {
+        return !iterable || iterable[Symbol.iterator]().next().done === true;
     }
-    return value;
-  }
-  Iterable2.reduce = reduce;
-  __name(reduce, "reduce");
-  function* slice(arr, from2, to = arr.length) {
-    if (from2 < 0) {
-      from2 += arr.length;
+    Iterable.isEmpty = isEmpty;
+    function first(iterable) {
+        return iterable[Symbol.iterator]().next().value;
     }
-    if (to < 0) {
-      to += arr.length;
-    } else if (to > arr.length) {
-      to = arr.length;
+    Iterable.first = first;
+    function some(iterable, predicate) {
+        let i = 0;
+        for (const element of iterable) {
+            if (predicate(element, i++)) {
+                return true;
+            }
+        }
+        return false;
     }
-    for (; from2 < to; from2++) {
-      yield arr[from2];
+    Iterable.some = some;
+    function find(iterable, predicate) {
+        for (const element of iterable) {
+            if (predicate(element)) {
+                return element;
+            }
+        }
+        return undefined;
     }
-  }
-  Iterable2.slice = slice;
-  __name(slice, "slice");
-  function consume(iterable, atMost = Number.POSITIVE_INFINITY) {
-    const consumed = [];
-    if (atMost === 0) {
-      return [consumed, iterable];
+    Iterable.find = find;
+    function* filter(iterable, predicate) {
+        for (const element of iterable) {
+            if (predicate(element)) {
+                yield element;
+            }
+        }
     }
-    const iterator = iterable[Symbol.iterator]();
-    for (let i = 0; i < atMost; i++) {
-      const next = iterator.next();
-      if (next.done) {
-        return [consumed, Iterable2.empty()];
-      }
-      consumed.push(next.value);
+    Iterable.filter = filter;
+    function* map(iterable, fn) {
+        let index = 0;
+        for (const element of iterable) {
+            yield fn(element, index++);
+        }
     }
-    return [consumed, { [Symbol.iterator]() {
-      return iterator;
-    } }];
-  }
-  Iterable2.consume = consume;
-  __name(consume, "consume");
-  async function asyncToArray(iterable) {
-    const result = [];
-    for await (const item of iterable) {
-      result.push(item);
+    Iterable.map = map;
+    function* flatMap(iterable, fn) {
+        let index = 0;
+        for (const element of iterable) {
+            yield* fn(element, index++);
+        }
     }
-    return Promise.resolve(result);
-  }
-  Iterable2.asyncToArray = asyncToArray;
-  __name(asyncToArray, "asyncToArray");
+    Iterable.flatMap = flatMap;
+    function* concat(...iterables) {
+        for (const iterable of iterables) {
+            yield* iterable;
+        }
+    }
+    Iterable.concat = concat;
+    function reduce(iterable, reducer, initialValue) {
+        let value = initialValue;
+        for (const element of iterable) {
+            value = reducer(value, element);
+        }
+        return value;
+    }
+    Iterable.reduce = reduce;
+    /**
+     * Returns an iterable slice of the array, with the same semantics as `array.slice()`.
+     */
+    function* slice(arr, from, to = arr.length) {
+        if (from < 0) {
+            from += arr.length;
+        }
+        if (to < 0) {
+            to += arr.length;
+        }
+        else if (to > arr.length) {
+            to = arr.length;
+        }
+        for (; from < to; from++) {
+            yield arr[from];
+        }
+    }
+    Iterable.slice = slice;
+    /**
+     * Consumes `atMost` elements from iterable and returns the consumed elements,
+     * and an iterable for the rest of the elements.
+     */
+    function consume(iterable, atMost = Number.POSITIVE_INFINITY) {
+        const consumed = [];
+        if (atMost === 0) {
+            return [consumed, iterable];
+        }
+        const iterator = iterable[Symbol.iterator]();
+        for (let i = 0; i < atMost; i++) {
+            const next = iterator.next();
+            if (next.done) {
+                return [consumed, Iterable.empty()];
+            }
+            consumed.push(next.value);
+        }
+        return [consumed, { [Symbol.iterator]() { return iterator; } }];
+    }
+    Iterable.consume = consume;
+    async function asyncToArray(iterable) {
+        const result = [];
+        for await (const item of iterable) {
+            result.push(item);
+        }
+        return Promise.resolve(result);
+    }
+    Iterable.asyncToArray = asyncToArray;
 })(Iterable || (Iterable = {}));
-export {
-  Iterable
-};
-//# sourceMappingURL=iterator.js.map

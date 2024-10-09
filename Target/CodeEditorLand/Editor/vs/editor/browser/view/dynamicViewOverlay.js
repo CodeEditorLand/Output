@@ -1,13 +1,7 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { RenderingContext } from "./renderingContext.js";
-import { ViewEventHandler } from "../../common/viewEventHandler.js";
-class DynamicViewOverlay extends ViewEventHandler {
-  static {
-    __name(this, "DynamicViewOverlay");
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { ViewEventHandler } from '../../common/viewEventHandler.js';
+export class DynamicViewOverlay extends ViewEventHandler {
 }
-export {
-  DynamicViewOverlay
-};
-//# sourceMappingURL=dynamicViewOverlay.js.map

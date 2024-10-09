@@ -1,116 +1,87 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IProgress } from "../../../../platform/progress/common/progress.js";
-class Position {
-  constructor(line, character) {
-    this.line = line;
-    this.character = character;
-  }
-  static {
-    __name(this, "Position");
-  }
-  isBefore(other) {
-    return false;
-  }
-  isBeforeOrEqual(other) {
-    return false;
-  }
-  isAfter(other) {
-    return false;
-  }
-  isAfterOrEqual(other) {
-    return false;
-  }
-  isEqual(other) {
-    return false;
-  }
-  compareTo(other) {
-    return 0;
-  }
-  translate(_, _2) {
-    return new Position(0, 0);
-  }
-  with(_) {
-    return new Position(0, 0);
-  }
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+export class Position {
+    constructor(line, character) {
+        this.line = line;
+        this.character = character;
+    }
+    isBefore(other) { return false; }
+    isBeforeOrEqual(other) { return false; }
+    isAfter(other) { return false; }
+    isAfterOrEqual(other) { return false; }
+    isEqual(other) { return false; }
+    compareTo(other) { return 0; }
+    translate(_, _2) { return new Position(0, 0); }
+    with(_) { return new Position(0, 0); }
 }
-class Range {
-  static {
-    __name(this, "Range");
-  }
-  start;
-  end;
-  constructor(startLine, startCol, endLine, endCol) {
-    this.start = new Position(startLine, startCol);
-    this.end = new Position(endLine, endCol);
-  }
-  isEmpty = false;
-  isSingleLine = false;
-  contains(positionOrRange) {
-    return false;
-  }
-  isEqual(other) {
-    return false;
-  }
-  intersection(range) {
-    return void 0;
-  }
-  union(other) {
-    return new Range(0, 0, 0, 0);
-  }
-  with(_) {
-    return new Range(0, 0, 0, 0);
-  }
+export class Range {
+    constructor(startLine, startCol, endLine, endCol) {
+        this.isEmpty = false;
+        this.isSingleLine = false;
+        this.start = new Position(startLine, startCol);
+        this.end = new Position(endLine, endCol);
+    }
+    contains(positionOrRange) { return false; }
+    isEqual(other) { return false; }
+    intersection(range) { return undefined; }
+    union(other) { return new Range(0, 0, 0, 0); }
+    with(_) { return new Range(0, 0, 0, 0); }
 }
-class TextSearchMatchNew {
-  /**
-   * @param uri The uri for the matching document.
-   * @param ranges The ranges associated with this match.
-   * @param previewText The text that is used to preview the match. The highlighted range in `previewText` is specified in `ranges`.
-   */
-  constructor(uri, ranges, previewText) {
-    this.uri = uri;
-    this.ranges = ranges;
-    this.previewText = previewText;
-  }
-  static {
-    __name(this, "TextSearchMatchNew");
-  }
+/**
+ * The main match information for a {@link TextSearchResultNew}.
+ */
+export class TextSearchMatchNew {
+    /**
+     * @param uri The uri for the matching document.
+     * @param ranges The ranges associated with this match.
+     * @param previewText The text that is used to preview the match. The highlighted range in `previewText` is specified in `ranges`.
+     */
+    constructor(uri, ranges, previewText) {
+        this.uri = uri;
+        this.ranges = ranges;
+        this.previewText = previewText;
+    }
 }
-class TextSearchContextNew {
-  /**
-   * @param uri The uri for the matching document.
-   * @param text The line of context text.
-   * @param lineNumber The line number of this line of context.
-   */
-  constructor(uri, text, lineNumber) {
-    this.uri = uri;
-    this.text = text;
-    this.lineNumber = lineNumber;
-  }
-  static {
-    __name(this, "TextSearchContextNew");
-  }
+/**
+ * The potential context information for a {@link TextSearchResultNew}.
+ */
+export class TextSearchContextNew {
+    /**
+     * @param uri The uri for the matching document.
+     * @param text The line of context text.
+     * @param lineNumber The line number of this line of context.
+     */
+    constructor(uri, text, lineNumber) {
+        this.uri = uri;
+        this.text = text;
+        this.lineNumber = lineNumber;
+    }
 }
-var ExcludeSettingOptions = /* @__PURE__ */ ((ExcludeSettingOptions2) => {
-  ExcludeSettingOptions2[ExcludeSettingOptions2["None"] = 1] = "None";
-  ExcludeSettingOptions2[ExcludeSettingOptions2["FilesExclude"] = 2] = "FilesExclude";
-  ExcludeSettingOptions2[ExcludeSettingOptions2["SearchAndFilesExclude"] = 3] = "SearchAndFilesExclude";
-  return ExcludeSettingOptions2;
-})(ExcludeSettingOptions || {});
-var TextSearchCompleteMessageType = /* @__PURE__ */ ((TextSearchCompleteMessageType2) => {
-  TextSearchCompleteMessageType2[TextSearchCompleteMessageType2["Information"] = 1] = "Information";
-  TextSearchCompleteMessageType2[TextSearchCompleteMessageType2["Warning"] = 2] = "Warning";
-  return TextSearchCompleteMessageType2;
-})(TextSearchCompleteMessageType || {});
-export {
-  ExcludeSettingOptions,
-  Position,
-  Range,
-  TextSearchCompleteMessageType,
-  TextSearchContextNew,
-  TextSearchMatchNew
-};
-//# sourceMappingURL=searchExtTypes.js.map
+/**
+ * Options for following search.exclude and files.exclude settings.
+ */
+export var ExcludeSettingOptions;
+(function (ExcludeSettingOptions) {
+    /*
+     * Don't use any exclude settings.
+     */
+    ExcludeSettingOptions[ExcludeSettingOptions["None"] = 1] = "None";
+    /*
+     * Use:
+     * - files.exclude setting
+     */
+    ExcludeSettingOptions[ExcludeSettingOptions["FilesExclude"] = 2] = "FilesExclude";
+    /*
+     * Use:
+     * - files.exclude setting
+     * - search.exclude setting
+     */
+    ExcludeSettingOptions[ExcludeSettingOptions["SearchAndFilesExclude"] = 3] = "SearchAndFilesExclude";
+})(ExcludeSettingOptions || (ExcludeSettingOptions = {}));
+export var TextSearchCompleteMessageType;
+(function (TextSearchCompleteMessageType) {
+    TextSearchCompleteMessageType[TextSearchCompleteMessageType["Information"] = 1] = "Information";
+    TextSearchCompleteMessageType[TextSearchCompleteMessageType["Warning"] = 2] = "Warning";
+})(TextSearchCompleteMessageType || (TextSearchCompleteMessageType = {}));

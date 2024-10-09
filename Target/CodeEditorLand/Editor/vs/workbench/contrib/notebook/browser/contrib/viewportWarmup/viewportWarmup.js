@@ -1,108 +1,112 @@
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-var __decorateClass = (decorators, target, key, kind) => {
-  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
-  for (var i = decorators.length - 1, decorator; i >= 0; i--)
-    if (decorator = decorators[i])
-      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
-  if (kind && result) __defProp(target, key, result);
-  return result;
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { RunOnceScheduler } from "../../../../../../base/common/async.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IAccessibilityService } from "../../../../../../platform/accessibility/common/accessibility.js";
-import { CellEditState, IInsetRenderOutput, INotebookEditor, INotebookEditorContribution, INotebookEditorDelegate, RenderOutputType } from "../../notebookBrowser.js";
-import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
-import { CodeCellViewModel, outputDisplayLimit } from "../../viewModel/codeCellViewModel.js";
-import { CellKind } from "../../../common/notebookCommon.js";
-import { cellRangesToIndexes } from "../../../common/notebookRange.js";
-import { INotebookService } from "../../../common/notebookService.js";
-let NotebookViewportContribution = class extends Disposable {
-  constructor(_notebookEditor, _notebookService, accessibilityService) {
-    super();
-    this._notebookEditor = _notebookEditor;
-    this._notebookService = _notebookService;
-    this._warmupViewport = new RunOnceScheduler(() => this._warmupViewportNow(), 200);
-    this._register(this._warmupViewport);
-    this._register(this._notebookEditor.onDidScroll(() => {
-      this._warmupViewport.schedule();
-    }));
-    this._warmupDocument = new RunOnceScheduler(() => this._warmupDocumentNow(), 200);
-    this._register(this._warmupDocument);
-    this._register(this._notebookEditor.onDidAttachViewModel(() => {
-      if (this._notebookEditor.hasModel()) {
-        this._warmupDocument?.schedule();
-      }
-    }));
-    if (this._notebookEditor.hasModel()) {
-      this._warmupDocument?.schedule();
-    }
-  }
-  static {
-    __name(this, "NotebookViewportContribution");
-  }
-  static id = "workbench.notebook.viewportWarmup";
-  _warmupViewport;
-  _warmupDocument = null;
-  _warmupDocumentNow() {
-    if (this._notebookEditor.hasModel()) {
-      for (let i = 0; i < this._notebookEditor.getLength(); i++) {
-        const cell = this._notebookEditor.cellAt(i);
-        if (cell?.cellKind === CellKind.Markup && cell?.getEditState() === CellEditState.Preview && !cell.isInputCollapsed) {
-        } else if (cell?.cellKind === CellKind.Code) {
-          this._warmupCodeCell(cell);
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+import { RunOnceScheduler } from '../../../../../../base/common/async.js';
+import { Disposable } from '../../../../../../base/common/lifecycle.js';
+import { IAccessibilityService } from '../../../../../../platform/accessibility/common/accessibility.js';
+import { CellEditState } from '../../notebookBrowser.js';
+import { registerNotebookContribution } from '../../notebookEditorExtensions.js';
+import { outputDisplayLimit } from '../../viewModel/codeCellViewModel.js';
+import { CellKind } from '../../../common/notebookCommon.js';
+import { cellRangesToIndexes } from '../../../common/notebookRange.js';
+import { INotebookService } from '../../../common/notebookService.js';
+let NotebookViewportContribution = class NotebookViewportContribution extends Disposable {
+    static { this.id = 'workbench.notebook.viewportWarmup'; }
+    constructor(_notebookEditor, _notebookService, accessibilityService) {
+        super();
+        this._notebookEditor = _notebookEditor;
+        this._notebookService = _notebookService;
+        this._warmupDocument = null;
+        this._warmupViewport = new RunOnceScheduler(() => this._warmupViewportNow(), 200);
+        this._register(this._warmupViewport);
+        this._register(this._notebookEditor.onDidScroll(() => {
+            this._warmupViewport.schedule();
+        }));
+        this._warmupDocument = new RunOnceScheduler(() => this._warmupDocumentNow(), 200);
+        this._register(this._warmupDocument);
+        this._register(this._notebookEditor.onDidAttachViewModel(() => {
+            if (this._notebookEditor.hasModel()) {
+                this._warmupDocument?.schedule();
+            }
+        }));
+        if (this._notebookEditor.hasModel()) {
+            this._warmupDocument?.schedule();
         }
-      }
     }
-  }
-  _warmupViewportNow() {
-    if (this._notebookEditor.isDisposed) {
-      return;
+    _warmupDocumentNow() {
+        if (this._notebookEditor.hasModel()) {
+            for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+                const cell = this._notebookEditor.cellAt(i);
+                if (cell?.cellKind === CellKind.Markup && cell?.getEditState() === CellEditState.Preview && !cell.isInputCollapsed) {
+                    // TODO@rebornix currently we disable markdown cell rendering in webview for accessibility
+                    // this._notebookEditor.createMarkupPreview(cell);
+                }
+                else if (cell?.cellKind === CellKind.Code) {
+                    this._warmupCodeCell(cell);
+                }
+            }
+        }
     }
-    if (!this._notebookEditor.hasModel()) {
-      return;
+    _warmupViewportNow() {
+        if (this._notebookEditor.isDisposed) {
+            return;
+        }
+        if (!this._notebookEditor.hasModel()) {
+            return;
+        }
+        const visibleRanges = this._notebookEditor.getVisibleRangesPlusViewportAboveAndBelow();
+        cellRangesToIndexes(visibleRanges).forEach(index => {
+            const cell = this._notebookEditor.cellAt(index);
+            if (cell?.cellKind === CellKind.Markup && cell?.getEditState() === CellEditState.Preview && !cell.isInputCollapsed) {
+                this._notebookEditor.createMarkupPreview(cell);
+            }
+            else if (cell?.cellKind === CellKind.Code) {
+                this._warmupCodeCell(cell);
+            }
+        });
     }
-    const visibleRanges = this._notebookEditor.getVisibleRangesPlusViewportAboveAndBelow();
-    cellRangesToIndexes(visibleRanges).forEach((index) => {
-      const cell = this._notebookEditor.cellAt(index);
-      if (cell?.cellKind === CellKind.Markup && cell?.getEditState() === CellEditState.Preview && !cell.isInputCollapsed) {
-        this._notebookEditor.createMarkupPreview(cell);
-      } else if (cell?.cellKind === CellKind.Code) {
-        this._warmupCodeCell(cell);
-      }
-    });
-  }
-  _warmupCodeCell(viewCell) {
-    if (viewCell.isOutputCollapsed) {
-      return;
+    _warmupCodeCell(viewCell) {
+        if (viewCell.isOutputCollapsed) {
+            return;
+        }
+        const outputs = viewCell.outputsViewModels;
+        for (const output of outputs.slice(0, outputDisplayLimit)) {
+            const [mimeTypes, pick] = output.resolveMimeTypes(this._notebookEditor.textModel, undefined);
+            if (!mimeTypes.find(mimeType => mimeType.isTrusted) || mimeTypes.length === 0) {
+                continue;
+            }
+            const pickedMimeTypeRenderer = mimeTypes[pick];
+            if (!pickedMimeTypeRenderer) {
+                return;
+            }
+            if (!this._notebookEditor.hasModel()) {
+                return;
+            }
+            const renderer = this._notebookService.getRendererInfo(pickedMimeTypeRenderer.rendererId);
+            if (!renderer) {
+                return;
+            }
+            const result = { type: 1 /* RenderOutputType.Extension */, renderer, source: output, mimeType: pickedMimeTypeRenderer.mimeType };
+            this._notebookEditor.createOutput(viewCell, result, 0, true);
+        }
     }
-    const outputs = viewCell.outputsViewModels;
-    for (const output of outputs.slice(0, outputDisplayLimit)) {
-      const [mimeTypes, pick] = output.resolveMimeTypes(this._notebookEditor.textModel, void 0);
-      if (!mimeTypes.find((mimeType) => mimeType.isTrusted) || mimeTypes.length === 0) {
-        continue;
-      }
-      const pickedMimeTypeRenderer = mimeTypes[pick];
-      if (!pickedMimeTypeRenderer) {
-        return;
-      }
-      if (!this._notebookEditor.hasModel()) {
-        return;
-      }
-      const renderer = this._notebookService.getRendererInfo(pickedMimeTypeRenderer.rendererId);
-      if (!renderer) {
-        return;
-      }
-      const result = { type: RenderOutputType.Extension, renderer, source: output, mimeType: pickedMimeTypeRenderer.mimeType };
-      this._notebookEditor.createOutput(viewCell, result, 0, true);
-    }
-  }
 };
-NotebookViewportContribution = __decorateClass([
-  __decorateParam(1, INotebookService),
-  __decorateParam(2, IAccessibilityService)
+NotebookViewportContribution = __decorate([
+    __param(1, INotebookService),
+    __param(2, IAccessibilityService),
+    __metadata("design:paramtypes", [Object, Object, Object])
 ], NotebookViewportContribution);
 registerNotebookContribution(NotebookViewportContribution.id, NotebookViewportContribution);
-//# sourceMappingURL=viewportWarmup.js.map

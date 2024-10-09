@@ -1,60 +1,63 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { coalesce } from "../../../base/common/arrays.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { ItemActivation, IQuickNavigateConfiguration, IQuickPick, IQuickPickItem, QuickPickItem, IQuickPickSeparator } from "./quickInput.js";
-import { Registry } from "../../registry/common/platform.js";
-var DefaultQuickAccessFilterValue = /* @__PURE__ */ ((DefaultQuickAccessFilterValue2) => {
-  DefaultQuickAccessFilterValue2[DefaultQuickAccessFilterValue2["PRESERVE"] = 0] = "PRESERVE";
-  DefaultQuickAccessFilterValue2[DefaultQuickAccessFilterValue2["LAST"] = 1] = "LAST";
-  return DefaultQuickAccessFilterValue2;
-})(DefaultQuickAccessFilterValue || {});
-const Extensions = {
-  Quickaccess: "workbench.contributions.quickaccess"
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+import { coalesce } from '../../../base/common/arrays.js';
+import { toDisposable } from '../../../base/common/lifecycle.js';
+import { Registry } from '../../registry/common/platform.js';
+export var DefaultQuickAccessFilterValue;
+(function (DefaultQuickAccessFilterValue) {
+    /**
+     * Keep the value as it is given to quick access.
+     */
+    DefaultQuickAccessFilterValue[DefaultQuickAccessFilterValue["PRESERVE"] = 0] = "PRESERVE";
+    /**
+     * Use the value that was used last time something was accepted from the picker.
+     */
+    DefaultQuickAccessFilterValue[DefaultQuickAccessFilterValue["LAST"] = 1] = "LAST";
+})(DefaultQuickAccessFilterValue || (DefaultQuickAccessFilterValue = {}));
+export const Extensions = {
+    Quickaccess: 'workbench.contributions.quickaccess'
 };
-class QuickAccessRegistry {
-  static {
-    __name(this, "QuickAccessRegistry");
-  }
-  providers = [];
-  defaultProvider = void 0;
-  registerQuickAccessProvider(provider) {
-    if (provider.prefix.length === 0) {
-      this.defaultProvider = provider;
-    } else {
-      this.providers.push(provider);
+export class QuickAccessRegistry {
+    constructor() {
+        this.providers = [];
+        this.defaultProvider = undefined;
     }
-    this.providers.sort((providerA, providerB) => providerB.prefix.length - providerA.prefix.length);
-    return toDisposable(() => {
-      this.providers.splice(this.providers.indexOf(provider), 1);
-      if (this.defaultProvider === provider) {
-        this.defaultProvider = void 0;
-      }
-    });
-  }
-  getQuickAccessProviders() {
-    return coalesce([this.defaultProvider, ...this.providers]);
-  }
-  getQuickAccessProvider(prefix) {
-    const result = prefix ? this.providers.find((provider) => prefix.startsWith(provider.prefix)) || void 0 : void 0;
-    return result || this.defaultProvider;
-  }
-  clear() {
-    const providers = [...this.providers];
-    const defaultProvider = this.defaultProvider;
-    this.providers = [];
-    this.defaultProvider = void 0;
-    return () => {
-      this.providers = providers;
-      this.defaultProvider = defaultProvider;
-    };
-  }
+    registerQuickAccessProvider(provider) {
+        // Extract the default provider when no prefix is present
+        if (provider.prefix.length === 0) {
+            this.defaultProvider = provider;
+        }
+        else {
+            this.providers.push(provider);
+        }
+        // sort the providers by decreasing prefix length, such that longer
+        // prefixes take priority: 'ext' vs 'ext install' - the latter should win
+        this.providers.sort((providerA, providerB) => providerB.prefix.length - providerA.prefix.length);
+        return toDisposable(() => {
+            this.providers.splice(this.providers.indexOf(provider), 1);
+            if (this.defaultProvider === provider) {
+                this.defaultProvider = undefined;
+            }
+        });
+    }
+    getQuickAccessProviders() {
+        return coalesce([this.defaultProvider, ...this.providers]);
+    }
+    getQuickAccessProvider(prefix) {
+        const result = prefix ? (this.providers.find(provider => prefix.startsWith(provider.prefix)) || undefined) : undefined;
+        return result || this.defaultProvider;
+    }
+    clear() {
+        const providers = [...this.providers];
+        const defaultProvider = this.defaultProvider;
+        this.providers = [];
+        this.defaultProvider = undefined;
+        return () => {
+            this.providers = providers;
+            this.defaultProvider = defaultProvider;
+        };
+    }
 }
 Registry.add(Extensions.Quickaccess, new QuickAccessRegistry());
-export {
-  DefaultQuickAccessFilterValue,
-  Extensions,
-  QuickAccessRegistry
-};
-//# sourceMappingURL=quickAccess.js.map

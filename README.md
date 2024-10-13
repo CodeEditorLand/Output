@@ -4,9 +4,9 @@
 
 Output is the `ESM` build of all of `VSCode`. It includes two builds:
 
-🎁 [VSCode (CodeEditorLand/Editor)][CodeEditorLand] —
+🎁 [`VSCode (CodeEditorLand/Editor)`][CodeEditorLand] —
 
-🎁 [VSCode (Microsoft/VSCode)][Microsoft] —
+🎁 [`VSCode (Microsoft/VSCode)`][Microsoft] —
 
 [Output]: HTTPS://NPMJS.Org/@codeeditorland/output
 [CodeEditorLand]: HTTPS://GitHub.Com/CodeEditorLand/Editor.git

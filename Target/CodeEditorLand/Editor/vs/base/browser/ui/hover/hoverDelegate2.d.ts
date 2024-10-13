@@ -1,8 +1,11 @@
-import type { IHoverDelegate2 } from './hover.js';
+import type { IHoverDelegate2 } from "./hover.js";
+
 /**
  * Sets the hover delegate for use **only in the `base/` layer**.
  */
-export declare function setBaseLayerHoverDelegate(hoverDelegate: IHoverDelegate2): void;
+export declare function setBaseLayerHoverDelegate(
+	hoverDelegate: IHoverDelegate2,
+): void;
 /**
  * Gets the hover delegate for use **only in the `base/` layer**.
  *

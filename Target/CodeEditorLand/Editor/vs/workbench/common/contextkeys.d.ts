@@ -1,10 +1,15 @@
-import { URI } from '../../base/common/uri.js';
-import { IContextKeyService, IContextKey, RawContextKey } from '../../platform/contextkey/common/contextkey.js';
-import { ILanguageService } from '../../editor/common/languages/language.js';
-import { IFileService } from '../../platform/files/common/files.js';
-import { IModelService } from '../../editor/common/services/model.js';
-import { EditorInput } from './editor/editorInput.js';
-import { IEditorResolverService } from '../services/editor/common/editorResolverService.js';
+import { URI } from "../../base/common/uri.js";
+import { ILanguageService } from "../../editor/common/languages/language.js";
+import { IModelService } from "../../editor/common/services/model.js";
+import {
+	IContextKey,
+	IContextKeyService,
+	RawContextKey,
+} from "../../platform/contextkey/common/contextkey.js";
+import { IFileService } from "../../platform/files/common/files.js";
+import { IEditorResolverService } from "../services/editor/common/editorResolverService.js";
+import { EditorInput } from "./editor/editorInput.js";
+
 export declare const WorkbenchStateContext: RawContextKey<string>;
 export declare const WorkspaceFolderCountContext: RawContextKey<number>;
 export declare const OpenFolderWorkspaceSupportContext: RawContextKey<boolean>;
@@ -17,7 +22,9 @@ export declare const TemporaryWorkspaceContext: RawContextKey<boolean>;
 export declare const IsMainWindowFullscreenContext: RawContextKey<boolean>;
 export declare const IsAuxiliaryWindowFocusedContext: RawContextKey<boolean>;
 export declare const HasWebFileSystemAccess: RawContextKey<boolean>;
-export declare const EmbedderIdentifierContext: RawContextKey<string | undefined>;
+export declare const EmbedderIdentifierContext: RawContextKey<
+	string | undefined
+>;
 export declare const ActiveEditorDirtyContext: RawContextKey<boolean>;
 export declare const ActiveEditorPinnedContext: RawContextKey<boolean>;
 export declare const ActiveEditorFirstInGroupContext: RawContextKey<boolean>;
@@ -75,36 +82,45 @@ export declare const PanelMaximizedContext: RawContextKey<boolean>;
 export declare const FocusedViewContext: RawContextKey<string>;
 export declare function getVisbileViewContextKey(viewId: string): string;
 export declare class ResourceContextKey {
-    private readonly _contextKeyService;
-    private readonly _fileService;
-    private readonly _languageService;
-    private readonly _modelService;
-    static readonly Scheme: RawContextKey<string>;
-    static readonly Filename: RawContextKey<string>;
-    static readonly Dirname: RawContextKey<string>;
-    static readonly Path: RawContextKey<string>;
-    static readonly LangId: RawContextKey<string>;
-    static readonly Resource: RawContextKey<string>;
-    static readonly Extension: RawContextKey<string>;
-    static readonly HasResource: RawContextKey<boolean>;
-    static readonly IsFileSystemResource: RawContextKey<boolean>;
-    private readonly _disposables;
-    private _value;
-    private readonly _resourceKey;
-    private readonly _schemeKey;
-    private readonly _filenameKey;
-    private readonly _dirnameKey;
-    private readonly _pathKey;
-    private readonly _langIdKey;
-    private readonly _extensionKey;
-    private readonly _hasResource;
-    private readonly _isFileSystemResource;
-    constructor(_contextKeyService: IContextKeyService, _fileService: IFileService, _languageService: ILanguageService, _modelService: IModelService);
-    dispose(): void;
-    private _setLangId;
-    set(value: URI | null | undefined): void;
-    private uriToPath;
-    reset(): void;
-    get(): URI | undefined;
+	private readonly _contextKeyService;
+	private readonly _fileService;
+	private readonly _languageService;
+	private readonly _modelService;
+	static readonly Scheme: RawContextKey<string>;
+	static readonly Filename: RawContextKey<string>;
+	static readonly Dirname: RawContextKey<string>;
+	static readonly Path: RawContextKey<string>;
+	static readonly LangId: RawContextKey<string>;
+	static readonly Resource: RawContextKey<string>;
+	static readonly Extension: RawContextKey<string>;
+	static readonly HasResource: RawContextKey<boolean>;
+	static readonly IsFileSystemResource: RawContextKey<boolean>;
+	private readonly _disposables;
+	private _value;
+	private readonly _resourceKey;
+	private readonly _schemeKey;
+	private readonly _filenameKey;
+	private readonly _dirnameKey;
+	private readonly _pathKey;
+	private readonly _langIdKey;
+	private readonly _extensionKey;
+	private readonly _hasResource;
+	private readonly _isFileSystemResource;
+	constructor(
+		_contextKeyService: IContextKeyService,
+		_fileService: IFileService,
+		_languageService: ILanguageService,
+		_modelService: IModelService,
+	);
+	dispose(): void;
+	private _setLangId;
+	set(value: URI | null | undefined): void;
+	private uriToPath;
+	reset(): void;
+	get(): URI | undefined;
 }
-export declare function applyAvailableEditorIds(contextKey: IContextKey<string>, editor: EditorInput | undefined | null, editorResolverService: IEditorResolverService): void;
+export declare function applyAvailableEditorIds(
+	contextKey: IContextKey<string>,
+	editor: EditorInput | undefined | null,
+	editorResolverService: IEditorResolverService,
+): void;

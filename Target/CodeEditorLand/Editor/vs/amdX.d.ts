@@ -5,5 +5,12 @@ export declare const canASAR = false;
  *
  * e.g. pass in `vscode-textmate/release/main.js`
  */
-export declare function importAMDNodeModule<T>(nodeModuleName: string, pathInsideNodeModule: string, isBuilt?: boolean): Promise<T>;
-export declare function resolveAmdNodeModulePath(nodeModuleName: string, pathInsideNodeModule: string): string;
+export declare function importAMDNodeModule<T>(
+	nodeModuleName: string,
+	pathInsideNodeModule: string,
+	isBuilt?: boolean,
+): Promise<T>;
+export declare function resolveAmdNodeModulePath(
+	nodeModuleName: string,
+	pathInsideNodeModule: string,
+): string;

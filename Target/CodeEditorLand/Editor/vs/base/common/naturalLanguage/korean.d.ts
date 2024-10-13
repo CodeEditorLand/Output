@@ -6,4 +6,6 @@
  *
  * @param code The character code to get alternate characters for
  */
-export declare function getKoreanAltChars(code: number): ArrayLike<number> | undefined;
+export declare function getKoreanAltChars(
+	code: number,
+): ArrayLike<number> | undefined;

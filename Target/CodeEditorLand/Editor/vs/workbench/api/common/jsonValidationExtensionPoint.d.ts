@@ -1,3 +1,3 @@
 export declare class JSONValidationExtensionPoint {
-    constructor();
+	constructor();
 }

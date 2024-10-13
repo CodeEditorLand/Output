@@ -1,5 +1,9 @@
-import { URI } from '../common/uri.js';
-export declare function asCssValueWithDefault(cssPropertyValue: string | undefined, dflt: string): string;
+import { URI } from "../common/uri.js";
+
+export declare function asCssValueWithDefault(
+	cssPropertyValue: string | undefined,
+	dflt: string,
+): string;
 export declare function asCSSPropertyValue(value: string): string;
 /**
  * returns url('...')

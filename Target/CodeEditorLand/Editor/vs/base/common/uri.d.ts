@@ -15,38 +15,45 @@
  * ```
  */
 export declare class URI implements UriComponents {
-    static isUri(thing: any): thing is URI;
-    /**
-     * scheme is the 'http' part of 'http://www.example.com/some/path?query#fragment'.
-     * The part before the first colon.
-     */
-    readonly scheme: string;
-    /**
-     * authority is the 'www.example.com' part of 'http://www.example.com/some/path?query#fragment'.
-     * The part between the first double slashes and the next slash.
-     */
-    readonly authority: string;
-    /**
-     * path is the '/some/path' part of 'http://www.example.com/some/path?query#fragment'.
-     */
-    readonly path: string;
-    /**
-     * query is the 'query' part of 'http://www.example.com/some/path?query#fragment'.
-     */
-    readonly query: string;
-    /**
-     * fragment is the 'fragment' part of 'http://www.example.com/some/path?query#fragment'.
-     */
-    readonly fragment: string;
-    /**
-     * @internal
-     */
-    protected constructor(scheme: string, authority?: string, path?: string, query?: string, fragment?: string, _strict?: boolean);
-    /**
-     * @internal
-     */
-    protected constructor(components: UriComponents);
-    /**
+	static isUri(thing: any): thing is URI;
+	/**
+	 * scheme is the 'http' part of 'http://www.example.com/some/path?query#fragment'.
+	 * The part before the first colon.
+	 */
+	readonly scheme: string;
+	/**
+	 * authority is the 'www.example.com' part of 'http://www.example.com/some/path?query#fragment'.
+	 * The part between the first double slashes and the next slash.
+	 */
+	readonly authority: string;
+	/**
+	 * path is the '/some/path' part of 'http://www.example.com/some/path?query#fragment'.
+	 */
+	readonly path: string;
+	/**
+	 * query is the 'query' part of 'http://www.example.com/some/path?query#fragment'.
+	 */
+	readonly query: string;
+	/**
+	 * fragment is the 'fragment' part of 'http://www.example.com/some/path?query#fragment'.
+	 */
+	readonly fragment: string;
+	/**
+	 * @internal
+	 */
+	protected constructor(
+		scheme: string,
+		authority?: string,
+		path?: string,
+		query?: string,
+		fragment?: string,
+		_strict?: boolean,
+	);
+	/**
+	 * @internal
+	 */
+	protected constructor(components: UriComponents);
+	/**
      * Returns a string representing the corresponding file system path of this URI.
      * Will handle UNC paths, normalizes windows drive letters to lower-case, and uses the
      * platform specific path separator.
@@ -70,22 +77,22 @@ export declare class URI implements UriComponents {
      * namely the server name, would be missing. Therefore `URI#fsPath` exists - it's sugar to ease working
      * with URIs that represent files on disk (`file` scheme).
      */
-    get fsPath(): string;
-    with(change: {
-        scheme?: string;
-        authority?: string | null;
-        path?: string | null;
-        query?: string | null;
-        fragment?: string | null;
-    }): URI;
-    /**
-     * Creates a new URI from a string, e.g. `http://www.example.com/some/path`,
-     * `file:///usr/home`, or `scheme:with/path`.
-     *
-     * @param value A string which represents an URI (see `URI#toString`).
-     */
-    static parse(value: string, _strict?: boolean): URI;
-    /**
+	get fsPath(): string;
+	with(change: {
+		scheme?: string;
+		authority?: string | null;
+		path?: string | null;
+		query?: string | null;
+		fragment?: string | null;
+	}): URI;
+	/**
+	 * Creates a new URI from a string, e.g. `http://www.example.com/some/path`,
+	 * `file:///usr/home`, or `scheme:with/path`.
+	 *
+	 * @param value A string which represents an URI (see `URI#toString`).
+	 */
+	static parse(value: string, _strict?: boolean): URI;
+	/**
      * Creates a new URI from a file system path, e.g. `c:\my\files`,
      * `/usr/home`, or `\\server\share\some\path`.
      *
@@ -106,66 +113,71 @@ export declare class URI implements UriComponents {
      *
      * @param path A file system path (see `URI#fsPath`)
      */
-    static file(path: string): URI;
-    /**
-     * Creates new URI from uri components.
-     *
-     * Unless `strict` is `true` the scheme is defaults to be `file`. This function performs
-     * validation and should be used for untrusted uri components retrieved from storage,
-     * user input, command arguments etc
-     */
-    static from(components: UriComponents, strict?: boolean): URI;
-    /**
-     * Join a URI path with path fragments and normalizes the resulting path.
-     *
-     * @param uri The input URI.
-     * @param pathFragment The path fragment to add to the URI path.
-     * @returns The resulting URI.
-     */
-    static joinPath(uri: URI, ...pathFragment: string[]): URI;
-    /**
-     * Creates a string representation for this URI. It's guaranteed that calling
-     * `URI.parse` with the result of this function creates an URI which is equal
-     * to this URI.
-     *
-     * * The result shall *not* be used for display purposes but for externalization or transport.
-     * * The result will be encoded using the percentage encoding and encoding happens mostly
-     * ignore the scheme-specific encoding rules.
-     *
-     * @param skipEncoding Do not encode the result, default is `false`
-     */
-    toString(skipEncoding?: boolean): string;
-    toJSON(): UriComponents;
-    /**
-     * A helper function to revive URIs.
-     *
-     * **Note** that this function should only be used when receiving URI#toJSON generated data
-     * and that it doesn't do any validation. Use {@link URI.from} when received "untrusted"
-     * uri components such as command arguments or data from storage.
-     *
-     * @param data The URI components or URI to revive.
-     * @returns The revived URI or undefined or null.
-     */
-    static revive(data: UriComponents | URI): URI;
-    static revive(data: UriComponents | URI | undefined): URI | undefined;
-    static revive(data: UriComponents | URI | null): URI | null;
-    static revive(data: UriComponents | URI | undefined | null): URI | undefined | null;
+	static file(path: string): URI;
+	/**
+	 * Creates new URI from uri components.
+	 *
+	 * Unless `strict` is `true` the scheme is defaults to be `file`. This function performs
+	 * validation and should be used for untrusted uri components retrieved from storage,
+	 * user input, command arguments etc
+	 */
+	static from(components: UriComponents, strict?: boolean): URI;
+	/**
+	 * Join a URI path with path fragments and normalizes the resulting path.
+	 *
+	 * @param uri The input URI.
+	 * @param pathFragment The path fragment to add to the URI path.
+	 * @returns The resulting URI.
+	 */
+	static joinPath(uri: URI, ...pathFragment: string[]): URI;
+	/**
+	 * Creates a string representation for this URI. It's guaranteed that calling
+	 * `URI.parse` with the result of this function creates an URI which is equal
+	 * to this URI.
+	 *
+	 * * The result shall *not* be used for display purposes but for externalization or transport.
+	 * * The result will be encoded using the percentage encoding and encoding happens mostly
+	 * ignore the scheme-specific encoding rules.
+	 *
+	 * @param skipEncoding Do not encode the result, default is `false`
+	 */
+	toString(skipEncoding?: boolean): string;
+	toJSON(): UriComponents;
+	/**
+	 * A helper function to revive URIs.
+	 *
+	 * **Note** that this function should only be used when receiving URI#toJSON generated data
+	 * and that it doesn't do any validation. Use {@link URI.from} when received "untrusted"
+	 * uri components such as command arguments or data from storage.
+	 *
+	 * @param data The URI components or URI to revive.
+	 * @returns The revived URI or undefined or null.
+	 */
+	static revive(data: UriComponents | URI): URI;
+	static revive(data: UriComponents | URI | undefined): URI | undefined;
+	static revive(data: UriComponents | URI | null): URI | null;
+	static revive(
+		data: UriComponents | URI | undefined | null,
+	): URI | undefined | null;
 }
 export interface UriComponents {
-    scheme: string;
-    authority?: string;
-    path?: string;
-    query?: string;
-    fragment?: string;
+	scheme: string;
+	authority?: string;
+	path?: string;
+	query?: string;
+	fragment?: string;
 }
 export declare function isUriComponents(thing: any): thing is UriComponents;
 /**
  * Compute `fsPath` for the given uri
  */
-export declare function uriToFsPath(uri: URI, keepDriveLetterCasing: boolean): string;
+export declare function uriToFsPath(
+	uri: URI,
+	keepDriveLetterCasing: boolean,
+): string;
 /**
  * Mapped-type that replaces all occurrences of URI with UriComponents
  */
 export type UriDto<T> = {
-    [K in keyof T]: T[K] extends URI ? UriComponents : UriDto<T[K]>;
+	[K in keyof T]: T[K] extends URI ? UriComponents : UriDto<T[K]>;
 };

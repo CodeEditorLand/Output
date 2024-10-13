@@ -1,6 +1,11 @@
-import { IExtensionGalleryService, IExtensionManagementService, IGlobalExtensionEnablementService } from './extensionManagement.js';
-import { IExtensionStorageService } from './extensionStorage.js';
-import { ILogService } from '../../log/common/log.js';
+import { ILogService } from "../../log/common/log.js";
+import {
+	IExtensionGalleryService,
+	IExtensionManagementService,
+	IGlobalExtensionEnablementService,
+} from "./extensionManagement.js";
+import { IExtensionStorageService } from "./extensionStorage.js";
+
 /**
  * Migrates the installed unsupported nightly extension to a supported pre-release extension. It includes following:
  * 	- Uninstall the Unsupported extension
@@ -8,4 +13,10 @@ import { ILogService } from '../../log/common/log.js';
  * 		- the extension is not installed
  * 		- or it is a release version and the unsupported extension is enabled.
  */
-export declare function migrateUnsupportedExtensions(extensionManagementService: IExtensionManagementService, galleryService: IExtensionGalleryService, extensionStorageService: IExtensionStorageService, extensionEnablementService: IGlobalExtensionEnablementService, logService: ILogService): Promise<void>;
+export declare function migrateUnsupportedExtensions(
+	extensionManagementService: IExtensionManagementService,
+	galleryService: IExtensionGalleryService,
+	extensionStorageService: IExtensionStorageService,
+	extensionEnablementService: IGlobalExtensionEnablementService,
+	logService: ILogService,
+): Promise<void>;

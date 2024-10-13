@@ -15,40 +15,52 @@
  * **NOTE**: These methods work and make sense both on the model and on the view model.
  */
 export declare class CursorColumns {
-    private static _nextVisibleColumn;
-    /**
-     * Returns a visible column from a column.
-     * @see {@link CursorColumns}
-     */
-    static visibleColumnFromColumn(lineContent: string, column: number, tabSize: number): number;
-    /**
-     * Returns the value to display as "Col" in the status bar.
-     * @see {@link CursorColumns}
-     */
-    static toStatusbarColumn(lineContent: string, column: number, tabSize: number): number;
-    /**
-     * Returns a column from a visible column.
-     * @see {@link CursorColumns}
-     */
-    static columnFromVisibleColumn(lineContent: string, visibleColumn: number, tabSize: number): number;
-    /**
-     * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
-     * @see {@link CursorColumns}
-     */
-    static nextRenderTabStop(visibleColumn: number, tabSize: number): number;
-    /**
-     * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
-     * @see {@link CursorColumns}
-     */
-    static nextIndentTabStop(visibleColumn: number, indentSize: number): number;
-    /**
-     * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
-     * @see {@link CursorColumns}
-     */
-    static prevRenderTabStop(column: number, tabSize: number): number;
-    /**
-     * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
-     * @see {@link CursorColumns}
-     */
-    static prevIndentTabStop(column: number, indentSize: number): number;
+	private static _nextVisibleColumn;
+	/**
+	 * Returns a visible column from a column.
+	 * @see {@link CursorColumns}
+	 */
+	static visibleColumnFromColumn(
+		lineContent: string,
+		column: number,
+		tabSize: number,
+	): number;
+	/**
+	 * Returns the value to display as "Col" in the status bar.
+	 * @see {@link CursorColumns}
+	 */
+	static toStatusbarColumn(
+		lineContent: string,
+		column: number,
+		tabSize: number,
+	): number;
+	/**
+	 * Returns a column from a visible column.
+	 * @see {@link CursorColumns}
+	 */
+	static columnFromVisibleColumn(
+		lineContent: string,
+		visibleColumn: number,
+		tabSize: number,
+	): number;
+	/**
+	 * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+	 * @see {@link CursorColumns}
+	 */
+	static nextRenderTabStop(visibleColumn: number, tabSize: number): number;
+	/**
+	 * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+	 * @see {@link CursorColumns}
+	 */
+	static nextIndentTabStop(visibleColumn: number, indentSize: number): number;
+	/**
+	 * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+	 * @see {@link CursorColumns}
+	 */
+	static prevRenderTabStop(column: number, tabSize: number): number;
+	/**
+	 * ATTENTION: This works with 0-based columns (as opposed to the regular 1-based columns)
+	 * @see {@link CursorColumns}
+	 */
+	static prevIndentTabStop(column: number, indentSize: number): number;
 }

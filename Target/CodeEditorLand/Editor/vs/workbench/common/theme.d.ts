@@ -1,5 +1,6 @@
-import { IColorTheme } from '../../platform/theme/common/themeService.js';
-import { Color } from '../../base/common/color.js';
+import { Color } from "../../base/common/color.js";
+import { IColorTheme } from "../../platform/theme/common/themeService.js";
+
 export declare function WORKBENCH_BACKGROUND(theme: IColorTheme): Color;
 export declare const TAB_ACTIVE_BACKGROUND: string;
 export declare const TAB_UNFOCUSED_ACTIVE_BACKGROUND: string;

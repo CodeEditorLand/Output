@@ -1,5 +1,6 @@
-import BaseErrorTelemetry from '../common/errorTelemetry.js';
+import BaseErrorTelemetry from "../common/errorTelemetry.js";
+
 export default class ErrorTelemetry extends BaseErrorTelemetry {
-    protected installErrorListeners(): void;
-    private _onUncaughtError;
+	protected installErrorListeners(): void;
+	private _onUncaughtError;
 }

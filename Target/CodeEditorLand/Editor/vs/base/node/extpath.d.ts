@@ -1,4 +1,5 @@
-import { CancellationToken } from '../common/cancellation.js';
+import { CancellationToken } from "../common/cancellation.js";
+
 /**
  * Copied from: https://github.com/microsoft/vscode-node-debug/blob/master/src/node/pathUtilities.ts#L83
  *
@@ -9,6 +10,9 @@ import { CancellationToken } from '../common/cancellation.js';
  * realcaseSync does not handle '..' or '.' path segments and it does not take the locale into account.
  */
 export declare function realcaseSync(path: string): string | null;
-export declare function realcase(path: string, token?: CancellationToken): Promise<string | null>;
+export declare function realcase(
+	path: string,
+	token?: CancellationToken,
+): Promise<string | null>;
 export declare function realpath(path: string): Promise<string>;
 export declare function realpathSync(path: string): string;

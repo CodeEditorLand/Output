@@ -1,10 +1,11 @@
-import { Event } from '../../../base/common/event.js';
+import { Event } from "../../../base/common/event.js";
+
 declare class TabFocusImpl {
-    private _tabFocus;
-    private readonly _onDidChangeTabFocus;
-    readonly onDidChangeTabFocus: Event<boolean>;
-    getTabFocusMode(): boolean;
-    setTabFocusMode(tabFocusMode: boolean): void;
+	private _tabFocus;
+	private readonly _onDidChangeTabFocus;
+	readonly onDidChangeTabFocus: Event<boolean>;
+	getTabFocusMode(): boolean;
+	setTabFocusMode(tabFocusMode: boolean): void;
 }
 /**
  * Control what pressing Tab does.

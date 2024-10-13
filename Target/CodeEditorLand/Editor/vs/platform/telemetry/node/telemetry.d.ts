@@ -1,1 +1,4 @@
-export declare function buildTelemetryMessage(appRoot: string, extensionsPath?: string): Promise<string>;
+export declare function buildTelemetryMessage(
+	appRoot: string,
+	extensionsPath?: string,
+): Promise<string>;

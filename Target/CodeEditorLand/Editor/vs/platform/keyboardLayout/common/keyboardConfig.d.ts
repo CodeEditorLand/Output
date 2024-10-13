@@ -1,10 +1,13 @@
-import { IConfigurationService } from '../../configuration/common/configuration.js';
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+
 export declare const enum DispatchConfig {
-    Code = 0,
-    KeyCode = 1
+	Code = 0,
+	KeyCode = 1,
 }
 export interface IKeyboardConfig {
-    dispatch: DispatchConfig;
-    mapAltGrToCtrlAlt: boolean;
+	dispatch: DispatchConfig;
+	mapAltGrToCtrlAlt: boolean;
 }
-export declare function readKeyboardConfig(configurationService: IConfigurationService): IKeyboardConfig;
+export declare function readKeyboardConfig(
+	configurationService: IConfigurationService,
+): IKeyboardConfig;

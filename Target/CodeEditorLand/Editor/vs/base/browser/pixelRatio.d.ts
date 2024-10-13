@@ -1,12 +1,13 @@
-import { Event } from '../common/event.js';
+import { Event } from "../common/event.js";
+
 export interface IPixelRatioMonitor {
-    readonly value: number;
-    readonly onDidChange: Event<number>;
+	readonly value: number;
+	readonly onDidChange: Event<number>;
 }
 declare class PixelRatioMonitorFacade {
-    private readonly mapWindowIdToPixelRatioMonitor;
-    private _getOrCreatePixelRatioMonitor;
-    getInstance(targetWindow: Window): IPixelRatioMonitor;
+	private readonly mapWindowIdToPixelRatioMonitor;
+	private _getOrCreatePixelRatioMonitor;
+	getInstance(targetWindow: Window): IPixelRatioMonitor;
 }
 /**
  * Returns the pixel ratio.

@@ -1,18 +1,30 @@
-import { IEditorOptions } from '../../common/config/editorOptions.js';
+import { IEditorOptions } from "../../common/config/editorOptions.js";
+
 export interface ISettingsReader {
-    (key: string): any;
+	(key: string): any;
 }
 export interface ISettingsWriter {
-    (key: string, value: any): void;
+	(key: string, value: any): void;
 }
 export declare class EditorSettingMigration {
-    readonly key: string;
-    readonly migrate: (value: any, read: ISettingsReader, write: ISettingsWriter) => void;
-    static items: EditorSettingMigration[];
-    constructor(key: string, migrate: (value: any, read: ISettingsReader, write: ISettingsWriter) => void);
-    apply(options: any): void;
-    private static _read;
-    private static _write;
+	readonly key: string;
+	readonly migrate: (
+		value: any,
+		read: ISettingsReader,
+		write: ISettingsWriter,
+	) => void;
+	static items: EditorSettingMigration[];
+	constructor(
+		key: string,
+		migrate: (
+			value: any,
+			read: ISettingsReader,
+			write: ISettingsWriter,
+		) => void,
+	);
+	apply(options: any): void;
+	private static _read;
+	private static _write;
 }
 /**
  * Compatibility with old options

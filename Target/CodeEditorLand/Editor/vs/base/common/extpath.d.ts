@@ -1,5 +1,8 @@
-import { CharCode } from './charCode.js';
-export declare function isPathSeparator(code: number): code is CharCode.Slash | CharCode.Backslash;
+import { CharCode } from "./charCode.js";
+
+export declare function isPathSeparator(
+	code: number,
+): code is CharCode.Slash | CharCode.Backslash;
 /**
  * Takes a Windows OS path and changes backward slashes to forward slashes.
  * This should only be done for OS paths from Windows (or user provided paths potentially from Windows).
@@ -28,30 +31,61 @@ export declare function getRoot(path: string, sep?: string): string;
  * always false.
  */
 export declare function isUNC(path: string): boolean;
-export declare function isValidBasename(name: string | null | undefined, isWindowsOS?: boolean): boolean;
+export declare function isValidBasename(
+	name: string | null | undefined,
+	isWindowsOS?: boolean,
+): boolean;
 /**
  * @deprecated please use `IUriIdentityService.extUri.isEqual` instead. If you are
  * in a context without services, consider to pass down the `extUri` from the outside
  * or use `extUriBiasedIgnorePathCase` if you know what you are doing.
  */
-export declare function isEqual(pathA: string, pathB: string, ignoreCase?: boolean): boolean;
+export declare function isEqual(
+	pathA: string,
+	pathB: string,
+	ignoreCase?: boolean,
+): boolean;
 /**
  * @deprecated please use `IUriIdentityService.extUri.isEqualOrParent` instead. If
  * you are in a context without services, consider to pass down the `extUri` from the
  * outside, or use `extUriBiasedIgnorePathCase` if you know what you are doing.
  */
-export declare function isEqualOrParent(base: string, parentCandidate: string, ignoreCase?: boolean, separator?: "/" | "\\"): boolean;
+export declare function isEqualOrParent(
+	base: string,
+	parentCandidate: string,
+	ignoreCase?: boolean,
+	separator?: "/" | "\\",
+): boolean;
 export declare function isWindowsDriveLetter(char0: number): boolean;
-export declare function sanitizeFilePath(candidate: string, cwd: string): string;
+export declare function sanitizeFilePath(
+	candidate: string,
+	cwd: string,
+): string;
 export declare function removeTrailingPathSeparator(candidate: string): string;
 export declare function isRootOrDriveLetter(path: string): boolean;
-export declare function hasDriveLetter(path: string, isWindowsOS?: boolean): boolean;
-export declare function getDriveLetter(path: string, isWindowsOS?: boolean): string | undefined;
-export declare function indexOfPath(path: string, candidate: string, ignoreCase?: boolean): number;
+export declare function hasDriveLetter(
+	path: string,
+	isWindowsOS?: boolean,
+): boolean;
+export declare function getDriveLetter(
+	path: string,
+	isWindowsOS?: boolean,
+): string | undefined;
+export declare function indexOfPath(
+	path: string,
+	candidate: string,
+	ignoreCase?: boolean,
+): number;
 export interface IPathWithLineAndColumn {
-    path: string;
-    line?: number;
-    column?: number;
+	path: string;
+	line?: number;
+	column?: number;
 }
-export declare function parseLineAndColumnAware(rawPath: string): IPathWithLineAndColumn;
-export declare function randomPath(parent?: string, prefix?: string, randomLength?: number): string;
+export declare function parseLineAndColumnAware(
+	rawPath: string,
+): IPathWithLineAndColumn;
+export declare function randomPath(
+	parent?: string,
+	prefix?: string,
+	randomLength?: number,
+): string;

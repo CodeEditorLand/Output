@@ -6,7 +6,7 @@
  *
  * @param content the content to strip comments from
  * @returns the content without comments
-*/
+ */
 export declare function stripComments(content: string): string;
 /**
  * A drop-in replacement for JSON.parse that can parse
@@ -14,5 +14,5 @@ export declare function stripComments(content: string): string;
  *
  * @param content the content to strip comments from
  * @returns the parsed content as JSON
-*/
+ */
 export declare function parse<T>(content: string): T;

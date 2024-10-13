@@ -1,6 +1,6 @@
 export interface IPowerShellExeDetails {
-    readonly displayName: string;
-    readonly exePath: string;
+	readonly displayName: string;
+	readonly exePath: string;
 }
 /**
  * Iterates through PowerShell installations on the machine according
@@ -10,6 +10,6 @@ export interface IPowerShellExeDetails {
  */
 export declare function enumeratePowerShellInstallations(): AsyncIterable<IPowerShellExeDetails>;
 /**
-* Returns the first available PowerShell executable found in the search order.
-*/
+ * Returns the first available PowerShell executable found in the search order.
+ */
 export declare function getFirstAvailablePowerShellInstallation(): Promise<IPowerShellExeDetails | null>;

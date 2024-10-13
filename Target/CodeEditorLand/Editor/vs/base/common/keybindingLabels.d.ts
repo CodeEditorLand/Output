@@ -1,19 +1,28 @@
-import { Modifiers } from './keybindings.js';
-import { OperatingSystem } from './platform.js';
+import { Modifiers } from "./keybindings.js";
+import { OperatingSystem } from "./platform.js";
+
 export interface ModifierLabels {
-    readonly ctrlKey: string;
-    readonly shiftKey: string;
-    readonly altKey: string;
-    readonly metaKey: string;
-    readonly separator: string;
+	readonly ctrlKey: string;
+	readonly shiftKey: string;
+	readonly altKey: string;
+	readonly metaKey: string;
+	readonly separator: string;
 }
 export interface KeyLabelProvider<T extends Modifiers> {
-    (keybinding: T): string | null;
+	(keybinding: T): string | null;
 }
 export declare class ModifierLabelProvider {
-    readonly modifierLabels: ModifierLabels[];
-    constructor(mac: ModifierLabels, windows: ModifierLabels, linux?: ModifierLabels);
-    toLabel<T extends Modifiers>(OS: OperatingSystem, chords: readonly T[], keyLabelProvider: KeyLabelProvider<T>): string | null;
+	readonly modifierLabels: ModifierLabels[];
+	constructor(
+		mac: ModifierLabels,
+		windows: ModifierLabels,
+		linux?: ModifierLabels,
+	);
+	toLabel<T extends Modifiers>(
+		OS: OperatingSystem,
+		chords: readonly T[],
+		keyLabelProvider: KeyLabelProvider<T>,
+	): string | null;
 }
 /**
  * A label provider that prints modifiers in a suitable format for displaying in the UI.

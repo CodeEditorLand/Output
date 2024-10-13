@@ -1,1 +1,3 @@
-export declare function resolveTerminalEncoding(verbose?: boolean): Promise<string>;
+export declare function resolveTerminalEncoding(
+	verbose?: boolean,
+): Promise<string>;

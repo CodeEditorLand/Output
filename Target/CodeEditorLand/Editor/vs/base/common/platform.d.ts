@@ -1,6 +1,6 @@
 export declare const LANGUAGE_DEFAULT = "en";
 export interface IProcessEnvironment {
-    [key: string]: string | undefined;
+	[key: string]: string | undefined;
 }
 /**
  * This interface is intentionally not identical to node.js
@@ -10,24 +10,24 @@ export interface IProcessEnvironment {
  * to work and nothing else.
  */
 export interface INodeProcess {
-    platform: string;
-    arch: string;
-    env: IProcessEnvironment;
-    versions?: {
-        node?: string;
-        electron?: string;
-        chrome?: string;
-    };
-    type?: string;
-    cwd: () => string;
+	platform: string;
+	arch: string;
+	env: IProcessEnvironment;
+	versions?: {
+		node?: string;
+		electron?: string;
+		chrome?: string;
+	};
+	type?: string;
+	cwd: () => string;
 }
 export declare const enum Platform {
-    Web = 0,
-    Mac = 1,
-    Linux = 2,
-    Windows = 3
+	Web = 0,
+	Mac = 1,
+	Linux = 2,
+	Windows = 3,
 }
-export type PlatformName = 'Web' | 'Windows' | 'Mac' | 'Linux';
+export type PlatformName = "Web" | "Windows" | "Mac" | "Linux";
 export declare function PlatformToString(platform: Platform): PlatformName;
 export declare const isWindows: boolean;
 export declare const isMacintosh: boolean;
@@ -54,9 +54,9 @@ export declare const userAgent: string | undefined;
  */
 export declare const language: string;
 export declare namespace Language {
-    function value(): string;
-    function isDefaultVariant(): boolean;
-    function isDefault(): boolean;
+	function value(): string;
+	function isDefaultVariant(): boolean;
+	function isDefault(): boolean;
 }
 /**
  * Desktop: The OS locale or the locale specified by --locale or `argv.json`.
@@ -85,9 +85,9 @@ export declare const setTimeout0IsFaster: boolean;
  */
 export declare const setTimeout0: (callback: () => void) => void;
 export declare const enum OperatingSystem {
-    Windows = 1,
-    Macintosh = 2,
-    Linux = 3
+	Windows = 1,
+	Macintosh = 2,
+	Linux = 3,
 }
 export declare const OS: OperatingSystem;
 export declare function isLittleEndian(): boolean;

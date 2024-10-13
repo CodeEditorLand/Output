@@ -1,4 +1,5 @@
-import { RawContextKey } from './contextkey.js';
+import { RawContextKey } from "./contextkey.js";
+
 export declare const IsMacContext: RawContextKey<boolean>;
 export declare const IsLinuxContext: RawContextKey<boolean>;
 export declare const IsWindowsContext: RawContextKey<boolean>;

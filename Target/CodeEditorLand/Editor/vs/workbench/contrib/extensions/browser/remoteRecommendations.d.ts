@@ -1,9 +1,13 @@
-import { ExtensionRecommendations, GalleryExtensionRecommendation } from './extensionRecommendations.js';
-import { IProductService } from '../../../../platform/product/common/productService.js';
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import {
+	ExtensionRecommendations,
+	GalleryExtensionRecommendation,
+} from "./extensionRecommendations.js";
+
 export declare class RemoteRecommendations extends ExtensionRecommendations {
-    private readonly productService;
-    private _recommendations;
-    get recommendations(): ReadonlyArray<GalleryExtensionRecommendation>;
-    constructor(productService: IProductService);
-    protected doActivate(): Promise<void>;
+	private readonly productService;
+	private _recommendations;
+	get recommendations(): ReadonlyArray<GalleryExtensionRecommendation>;
+	constructor(productService: IProductService);
+	protected doActivate(): Promise<void>;
 }

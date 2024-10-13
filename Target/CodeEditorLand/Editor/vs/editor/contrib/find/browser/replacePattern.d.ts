@@ -1,22 +1,25 @@
 export declare class ReplacePattern {
-    static fromStaticValue(value: string): ReplacePattern;
-    private readonly _state;
-    get hasReplacementPatterns(): boolean;
-    constructor(pieces: ReplacePiece[] | null);
-    buildReplaceString(matches: string[] | null, preserveCase?: boolean): string;
-    private static _substitute;
+	static fromStaticValue(value: string): ReplacePattern;
+	private readonly _state;
+	get hasReplacementPatterns(): boolean;
+	constructor(pieces: ReplacePiece[] | null);
+	buildReplaceString(
+		matches: string[] | null,
+		preserveCase?: boolean,
+	): string;
+	private static _substitute;
 }
 /**
  * A replace piece can either be a static string or an index to a specific match.
  */
 export declare class ReplacePiece {
-    static staticValue(value: string): ReplacePiece;
-    static matchIndex(index: number): ReplacePiece;
-    static caseOps(index: number, caseOps: string[]): ReplacePiece;
-    readonly staticValue: string | null;
-    readonly matchIndex: number;
-    readonly caseOps: string[] | null;
-    private constructor();
+	static staticValue(value: string): ReplacePiece;
+	static matchIndex(index: number): ReplacePiece;
+	static caseOps(index: number, caseOps: string[]): ReplacePiece;
+	readonly staticValue: string | null;
+	readonly matchIndex: number;
+	readonly caseOps: string[] | null;
+	private constructor();
 }
 /**
  * \n			=> inserts a LF
@@ -33,4 +36,6 @@ export declare class ReplacePiece {
  *
  * Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace#Specifying_a_string_as_a_parameter
  */
-export declare function parseReplaceString(replaceString: string): ReplacePattern;
+export declare function parseReplaceString(
+	replaceString: string,
+): ReplacePattern;

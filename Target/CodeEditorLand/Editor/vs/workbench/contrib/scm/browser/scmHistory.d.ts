@@ -1,5 +1,11 @@
-import { ColorIdentifier } from '../../../../platform/theme/common/colorUtils.js';
-import { ISCMHistoryItem, ISCMHistoryItemGraphNode, ISCMHistoryItemRef, ISCMHistoryItemViewModel } from '../common/history.js';
+import { ColorIdentifier } from "../../../../platform/theme/common/colorUtils.js";
+import {
+	ISCMHistoryItem,
+	ISCMHistoryItemGraphNode,
+	ISCMHistoryItemRef,
+	ISCMHistoryItemViewModel,
+} from "../common/history.js";
+
 export declare const SWIMLANE_HEIGHT = 22;
 export declare const SWIMLANE_WIDTH = 11;
 /**
@@ -20,6 +26,16 @@ export declare const historyItemHoverDeletionsForeground: string;
  * History graph color registry
  */
 export declare const colorRegistry: ColorIdentifier[];
-export declare function renderSCMHistoryItemGraph(historyItemViewModel: ISCMHistoryItemViewModel): SVGElement;
-export declare function renderSCMHistoryGraphPlaceholder(columns: ISCMHistoryItemGraphNode[]): HTMLElement;
-export declare function toISCMHistoryItemViewModelArray(historyItems: ISCMHistoryItem[], colorMap?: Map<string, string | undefined>, currentHistoryItemRef?: ISCMHistoryItemRef, currentHistoryItemRemoteRef?: ISCMHistoryItemRef, currentHistoryItemBaseRef?: ISCMHistoryItemRef): ISCMHistoryItemViewModel[];
+export declare function renderSCMHistoryItemGraph(
+	historyItemViewModel: ISCMHistoryItemViewModel,
+): SVGElement;
+export declare function renderSCMHistoryGraphPlaceholder(
+	columns: ISCMHistoryItemGraphNode[],
+): HTMLElement;
+export declare function toISCMHistoryItemViewModelArray(
+	historyItems: ISCMHistoryItem[],
+	colorMap?: Map<string, string | undefined>,
+	currentHistoryItemRef?: ISCMHistoryItemRef,
+	currentHistoryItemRemoteRef?: ISCMHistoryItemRef,
+	currentHistoryItemBaseRef?: ISCMHistoryItemRef,
+): ISCMHistoryItemViewModel[];

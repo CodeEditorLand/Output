@@ -1,4 +1,8 @@
-import { ColorIdentifier, ColorDefaults } from '../../../../platform/theme/common/colorRegistry.js';
+import {
+	ColorDefaults,
+	ColorIdentifier,
+} from "../../../../platform/theme/common/colorRegistry.js";
+
 /**
  * The color identifiers for the terminal's ansi colors. The index in the array corresponds to the index
  * of the color in the terminal color table.
@@ -27,9 +31,9 @@ export declare const TERMINAL_DRAG_AND_DROP_BACKGROUND: string;
 export declare const TERMINAL_TAB_ACTIVE_BORDER: string;
 export declare const TERMINAL_INITIAL_HINT_FOREGROUND: string;
 export declare const ansiColorMap: {
-    [key: string]: {
-        index: number;
-        defaults: ColorDefaults;
-    };
+	[key: string]: {
+		index: number;
+		defaults: ColorDefaults;
+	};
 };
 export declare function registerColors(): void;

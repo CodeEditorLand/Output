@@ -1,15 +1,23 @@
-import * as cp from 'child_process';
-import * as glob from '../../../../base/common/glob.js';
-import { IFileQuery, IFolderQuery } from '../common/search.js';
-export declare function spawnRipgrepCmd(config: IFileQuery, folderQuery: IFolderQuery, includePattern?: glob.IExpression, excludePattern?: glob.IExpression, numThreads?: number): {
-    cmd: cp.ChildProcessWithoutNullStreams;
-    rgDiskPath: any;
-    siblingClauses: glob.IExpression;
-    rgArgs: {
-        args: string[];
-        siblingClauses: glob.IExpression;
-    };
-    cwd: string;
+import * as cp from "child_process";
+
+import * as glob from "../../../../base/common/glob.js";
+import { IFileQuery, IFolderQuery } from "../common/search.js";
+
+export declare function spawnRipgrepCmd(
+	config: IFileQuery,
+	folderQuery: IFolderQuery,
+	includePattern?: glob.IExpression,
+	excludePattern?: glob.IExpression,
+	numThreads?: number,
+): {
+	cmd: cp.ChildProcessWithoutNullStreams;
+	rgDiskPath: any;
+	siblingClauses: glob.IExpression;
+	rgArgs: {
+		args: string[];
+		siblingClauses: glob.IExpression;
+	};
+	cwd: string;
 };
 /**
  * Resolves a glob like "node_modules/**" in "/foo/bar" to "/foo/bar/node_modules/**".

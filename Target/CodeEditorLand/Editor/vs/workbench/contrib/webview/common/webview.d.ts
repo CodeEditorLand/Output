@@ -1,7 +1,8 @@
-import { URI } from '../../../../base/common/uri.js';
+import { URI } from "../../../../base/common/uri.js";
+
 export interface WebviewRemoteInfo {
-    readonly isRemote: boolean;
-    readonly authority: string | undefined;
+	readonly isRemote: boolean;
+	readonly authority: string | undefined;
 }
 /**
  * Root from which resources in webviews are loaded.
@@ -10,8 +11,10 @@ export interface WebviewRemoteInfo {
  * should always go to a service worker.
  */
 export declare const webviewResourceBaseHost = "vscode-cdn.net";
-export declare const webviewRootResourceAuthority = "vscode-resource.vscode-cdn.net";
-export declare const webviewGenericCspSource = "'self' https://*.vscode-cdn.net";
+export declare const webviewRootResourceAuthority =
+	"vscode-resource.vscode-cdn.net";
+export declare const webviewGenericCspSource =
+	"'self' https://*.vscode-cdn.net";
 /**
  * Construct a uri that can load resources inside a webview
  *
@@ -25,5 +28,8 @@ export declare const webviewGenericCspSource = "'self' https://*.vscode-cdn.net"
  * @param resource Uri of the resource to load.
  * @param remoteInfo Optional information about the remote that specifies where `resource` should be resolved from.
  */
-export declare function asWebviewUri(resource: URI, remoteInfo?: WebviewRemoteInfo): URI;
+export declare function asWebviewUri(
+	resource: URI,
+	remoteInfo?: WebviewRemoteInfo,
+): URI;
 export declare function decodeAuthority(authority: string): string;

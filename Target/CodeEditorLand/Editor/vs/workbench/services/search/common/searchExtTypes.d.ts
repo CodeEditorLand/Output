@@ -1,64 +1,68 @@
-import { CancellationToken } from '../../../../base/common/cancellation.js';
-import { URI } from '../../../../base/common/uri.js';
-import { IProgress } from '../../../../platform/progress/common/progress.js';
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IProgress } from "../../../../platform/progress/common/progress.js";
+
 export declare class Position {
-    readonly line: number;
-    readonly character: number;
-    constructor(line: number, character: number);
-    isBefore(other: Position): boolean;
-    isBeforeOrEqual(other: Position): boolean;
-    isAfter(other: Position): boolean;
-    isAfterOrEqual(other: Position): boolean;
-    isEqual(other: Position): boolean;
-    compareTo(other: Position): number;
-    translate(lineDelta?: number, characterDelta?: number): Position;
-    translate(change: {
-        lineDelta?: number;
-        characterDelta?: number;
-    }): Position;
-    with(line?: number, character?: number): Position;
-    with(change: {
-        line?: number;
-        character?: number;
-    }): Position;
+	readonly line: number;
+	readonly character: number;
+	constructor(line: number, character: number);
+	isBefore(other: Position): boolean;
+	isBeforeOrEqual(other: Position): boolean;
+	isAfter(other: Position): boolean;
+	isAfterOrEqual(other: Position): boolean;
+	isEqual(other: Position): boolean;
+	compareTo(other: Position): number;
+	translate(lineDelta?: number, characterDelta?: number): Position;
+	translate(change: {
+		lineDelta?: number;
+		characterDelta?: number;
+	}): Position;
+	with(line?: number, character?: number): Position;
+	with(change: { line?: number; character?: number }): Position;
 }
 export declare class Range {
-    readonly start: Position;
-    readonly end: Position;
-    constructor(startLine: number, startCol: number, endLine: number, endCol: number);
-    isEmpty: boolean;
-    isSingleLine: boolean;
-    contains(positionOrRange: Position | Range): boolean;
-    isEqual(other: Range): boolean;
-    intersection(range: Range): Range | undefined;
-    union(other: Range): Range;
-    with(start?: Position, end?: Position): Range;
-    with(change: {
-        start?: Position;
-        end?: Position;
-    }): Range;
+	readonly start: Position;
+	readonly end: Position;
+	constructor(
+		startLine: number,
+		startCol: number,
+		endLine: number,
+		endCol: number,
+	);
+	isEmpty: boolean;
+	isSingleLine: boolean;
+	contains(positionOrRange: Position | Range): boolean;
+	isEqual(other: Range): boolean;
+	intersection(range: Range): Range | undefined;
+	union(other: Range): Range;
+	with(start?: Position, end?: Position): Range;
+	with(change: { start?: Position; end?: Position }): Range;
 }
-export type ProviderResult<T> = T | undefined | null | Thenable<T | undefined | null>;
+export type ProviderResult<T> =
+	| T
+	| undefined
+	| null
+	| Thenable<T | undefined | null>;
 /**
  * A relative pattern is a helper to construct glob patterns that are matched
  * relatively to a base path. The base path can either be an absolute file path
  * or a [workspace folder](#WorkspaceFolder).
  */
 export interface RelativePattern {
-    /**
-     * A base file path to which this pattern will be matched against relatively. The
-     * file path must be absolute, should not have any trailing path separators and
-     * not include any relative segments (`.` or `..`).
-     */
-    baseUri: URI;
-    /**
-     * A file glob pattern like `*.{ts,js}` that will be matched on file paths
-     * relative to the base path.
-     *
-     * Example: Given a base of `/home/work/folder` and a file path of `/home/work/folder/index.js`,
-     * the file glob pattern will match on `index.js`.
-     */
-    pattern: string;
+	/**
+	 * A base file path to which this pattern will be matched against relatively. The
+	 * file path must be absolute, should not have any trailing path separators and
+	 * not include any relative segments (`.` or `..`).
+	 */
+	baseUri: URI;
+	/**
+	 * A file glob pattern like `*.{ts,js}` that will be matched on file paths
+	 * relative to the base path.
+	 *
+	 * Example: Given a base of `/home/work/folder` and a file path of `/home/work/folder/index.js`,
+	 * the file glob pattern will match on `index.js`.
+	 */
+	pattern: string;
 }
 /**
  * A file glob pattern to match file paths against. This can either be a glob pattern string
@@ -82,199 +86,203 @@ export type GlobPattern = string | RelativePattern;
  * The parameters of a query for text search.
  */
 export interface TextSearchQueryNew {
-    /**
-     * The text pattern to search for.
-     */
-    pattern: string;
-    /**
-     * Whether or not `pattern` should match multiple lines of text.
-     */
-    isMultiline?: boolean;
-    /**
-     * Whether or not `pattern` should be interpreted as a regular expression.
-     */
-    isRegExp?: boolean;
-    /**
-     * Whether or not the search should be case-sensitive.
-     */
-    isCaseSensitive?: boolean;
-    /**
-     * Whether or not to search for whole word matches only.
-     */
-    isWordMatch?: boolean;
+	/**
+	 * The text pattern to search for.
+	 */
+	pattern: string;
+	/**
+	 * Whether or not `pattern` should match multiple lines of text.
+	 */
+	isMultiline?: boolean;
+	/**
+	 * Whether or not `pattern` should be interpreted as a regular expression.
+	 */
+	isRegExp?: boolean;
+	/**
+	 * Whether or not the search should be case-sensitive.
+	 */
+	isCaseSensitive?: boolean;
+	/**
+	 * Whether or not to search for whole word matches only.
+	 */
+	isWordMatch?: boolean;
 }
 export interface TextSearchProviderFolderOptions {
-    /**
-     * The root folder to search within.
-     */
-    folder: URI;
-    /**
-     * Files that match an `includes` glob pattern should be included in the search.
-     */
-    includes: string[];
-    /**
-     * Files that match an `excludes` glob pattern should be excluded from the search.
-     */
-    excludes: GlobPattern[];
-    /**
-     * Whether symlinks should be followed while searching.
-     * For more info, see the setting description for `search.followSymlinks`.
-     */
-    followSymlinks: boolean;
-    /**
-     * Which file locations we should look for ignore (.gitignore or .ignore) files to respect.
-     */
-    useIgnoreFiles: {
-        /**
-         * Use ignore files at the current workspace root.
-         */
-        local: boolean;
-        /**
-         * Use ignore files at the parent directory. If set, {@link TextSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
-         */
-        parent: boolean;
-        /**
-         * Use global ignore files. If set, {@link TextSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
-         */
-        global: boolean;
-    };
-    /**
-     * Interpret files using this encoding.
-     * See the vscode setting `"files.encoding"`
-     */
-    encoding: string;
+	/**
+	 * The root folder to search within.
+	 */
+	folder: URI;
+	/**
+	 * Files that match an `includes` glob pattern should be included in the search.
+	 */
+	includes: string[];
+	/**
+	 * Files that match an `excludes` glob pattern should be excluded from the search.
+	 */
+	excludes: GlobPattern[];
+	/**
+	 * Whether symlinks should be followed while searching.
+	 * For more info, see the setting description for `search.followSymlinks`.
+	 */
+	followSymlinks: boolean;
+	/**
+	 * Which file locations we should look for ignore (.gitignore or .ignore) files to respect.
+	 */
+	useIgnoreFiles: {
+		/**
+		 * Use ignore files at the current workspace root.
+		 */
+		local: boolean;
+		/**
+		 * Use ignore files at the parent directory. If set, {@link TextSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
+		 */
+		parent: boolean;
+		/**
+		 * Use global ignore files. If set, {@link TextSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
+		 */
+		global: boolean;
+	};
+	/**
+	 * Interpret files using this encoding.
+	 * See the vscode setting `"files.encoding"`
+	 */
+	encoding: string;
 }
 /**
  * Options that apply to text search.
  */
 export interface TextSearchProviderOptions {
-    folderOptions: TextSearchProviderFolderOptions[];
-    /**
-     * The maximum number of results to be returned.
-     */
-    maxResults: number;
-    /**
-     * Options to specify the size of the result text preview.
-     */
-    previewOptions: {
-        /**
-         * The maximum number of lines in the preview.
-         * Only search providers that support multiline search will ever return more than one line in the match.
-         * Defaults to 100.
-         */
-        matchLines: number;
-        /**
-         * The maximum number of characters included per line.
-         * Defaults to 10000.
-         */
-        charsPerLine: number;
-    };
-    /**
-     * Exclude files larger than `maxFileSize` in bytes.
-     */
-    maxFileSize: number | undefined;
-    /**
-     * Number of lines of context to include before and after each match.
-     */
-    surroundingContext: number;
+	folderOptions: TextSearchProviderFolderOptions[];
+	/**
+	 * The maximum number of results to be returned.
+	 */
+	maxResults: number;
+	/**
+	 * Options to specify the size of the result text preview.
+	 */
+	previewOptions: {
+		/**
+		 * The maximum number of lines in the preview.
+		 * Only search providers that support multiline search will ever return more than one line in the match.
+		 * Defaults to 100.
+		 */
+		matchLines: number;
+		/**
+		 * The maximum number of characters included per line.
+		 * Defaults to 10000.
+		 */
+		charsPerLine: number;
+	};
+	/**
+	 * Exclude files larger than `maxFileSize` in bytes.
+	 */
+	maxFileSize: number | undefined;
+	/**
+	 * Number of lines of context to include before and after each match.
+	 */
+	surroundingContext: number;
 }
 /**
  * Information collected when text search is complete.
  */
 export interface TextSearchCompleteNew {
-    /**
-     * Whether the search hit the limit on the maximum number of search results.
-     * `maxResults` on [`TextSearchOptions`](#TextSearchOptions) specifies the max number of results.
-     * - If exactly that number of matches exist, this should be false.
-     * - If `maxResults` matches are returned and more exist, this should be true.
-     * - If search hits an internal limit which is less than `maxResults`, this should be true.
-     */
-    limitHit?: boolean;
+	/**
+	 * Whether the search hit the limit on the maximum number of search results.
+	 * `maxResults` on [`TextSearchOptions`](#TextSearchOptions) specifies the max number of results.
+	 * - If exactly that number of matches exist, this should be false.
+	 * - If `maxResults` matches are returned and more exist, this should be true.
+	 * - If search hits an internal limit which is less than `maxResults`, this should be true.
+	 */
+	limitHit?: boolean;
 }
 export interface FileSearchProviderFolderOptions {
-    /**
-     * The root folder to search within.
-     */
-    folder: URI;
-    /**
-     * Files that match an `includes` glob pattern should be included in the search.
-     */
-    includes: string[];
-    /**
-     * Files that match an `excludes` glob pattern should be excluded from the search.
-     */
-    excludes: GlobPattern[];
-    /**
-     * Whether symlinks should be followed while searching.
-     * For more info, see the setting description for `search.followSymlinks`.
-     */
-    followSymlinks: boolean;
-    /**
-     * Which file locations we should look for ignore (.gitignore or .ignore) files to respect.
-     */
-    useIgnoreFiles: {
-        /**
-         * Use ignore files at the current workspace root.
-         */
-        local: boolean;
-        /**
-         * Use ignore files at the parent directory. If set, {@link FileSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
-         */
-        parent: boolean;
-        /**
-         * Use global ignore files. If set, {@link FileSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
-         */
-        global: boolean;
-    };
+	/**
+	 * The root folder to search within.
+	 */
+	folder: URI;
+	/**
+	 * Files that match an `includes` glob pattern should be included in the search.
+	 */
+	includes: string[];
+	/**
+	 * Files that match an `excludes` glob pattern should be excluded from the search.
+	 */
+	excludes: GlobPattern[];
+	/**
+	 * Whether symlinks should be followed while searching.
+	 * For more info, see the setting description for `search.followSymlinks`.
+	 */
+	followSymlinks: boolean;
+	/**
+	 * Which file locations we should look for ignore (.gitignore or .ignore) files to respect.
+	 */
+	useIgnoreFiles: {
+		/**
+		 * Use ignore files at the current workspace root.
+		 */
+		local: boolean;
+		/**
+		 * Use ignore files at the parent directory. If set, {@link FileSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
+		 */
+		parent: boolean;
+		/**
+		 * Use global ignore files. If set, {@link FileSearchProviderOptions.useIgnoreFiles.local} should also be `true`.
+		 */
+		global: boolean;
+	};
 }
 /**
  * Options that apply to file search.
  */
 export interface FileSearchProviderOptions {
-    folderOptions: FileSearchProviderFolderOptions[];
-    /**
-     * An object with a lifespan that matches the session's lifespan. If the provider chooses to, this object can be used as the key for a cache,
-     * and searches with the same session object can search the same cache. When the token is cancelled, the session is complete and the cache can be cleared.
-     */
-    session: unknown;
-    /**
-     * The maximum number of results to be returned.
-     */
-    maxResults: number;
+	folderOptions: FileSearchProviderFolderOptions[];
+	/**
+	 * An object with a lifespan that matches the session's lifespan. If the provider chooses to, this object can be used as the key for a cache,
+	 * and searches with the same session object can search the same cache. When the token is cancelled, the session is complete and the cache can be cleared.
+	 */
+	session: unknown;
+	/**
+	 * The maximum number of results to be returned.
+	 */
+	maxResults: number;
 }
 /**
  * The main match information for a {@link TextSearchResultNew}.
  */
 export declare class TextSearchMatchNew {
-    uri: URI;
-    ranges: {
-        sourceRange: Range;
-        previewRange: Range;
-    }[];
-    previewText: string;
-    /**
-     * @param uri The uri for the matching document.
-     * @param ranges The ranges associated with this match.
-     * @param previewText The text that is used to preview the match. The highlighted range in `previewText` is specified in `ranges`.
-     */
-    constructor(uri: URI, ranges: {
-        sourceRange: Range;
-        previewRange: Range;
-    }[], previewText: string);
+	uri: URI;
+	ranges: {
+		sourceRange: Range;
+		previewRange: Range;
+	}[];
+	previewText: string;
+	/**
+	 * @param uri The uri for the matching document.
+	 * @param ranges The ranges associated with this match.
+	 * @param previewText The text that is used to preview the match. The highlighted range in `previewText` is specified in `ranges`.
+	 */
+	constructor(
+		uri: URI,
+		ranges: {
+			sourceRange: Range;
+			previewRange: Range;
+		}[],
+		previewText: string,
+	);
 }
 /**
  * The potential context information for a {@link TextSearchResultNew}.
  */
 export declare class TextSearchContextNew {
-    uri: URI;
-    text: string;
-    lineNumber: number;
-    /**
-     * @param uri The uri for the matching document.
-     * @param text The line of context text.
-     * @param lineNumber The line number of this line of context.
-     */
-    constructor(uri: URI, text: string, lineNumber: number);
+	uri: URI;
+	text: string;
+	lineNumber: number;
+	/**
+	 * @param uri The uri for the matching document.
+	 * @param text The line of context text.
+	 * @param lineNumber The line number of this line of context.
+	 */
+	constructor(uri: URI, text: string, lineNumber: number);
 }
 /**
  * A result payload for a text search, pertaining to matches within a single file.
@@ -290,68 +298,77 @@ export type TextSearchResultNew = TextSearchMatchNew | TextSearchContextNew;
  * and in that case, every file in the folder should be returned.
  */
 export interface FileSearchProviderNew {
-    /**
-     * Provide the set of files that match a certain file path pattern.
-     * @param query The parameters for this query.
-     * @param options A set of options to consider while searching files.
-     * @param progress A progress callback that must be invoked for all results.
-     * @param token A cancellation token.
-     */
-    provideFileSearchResults(pattern: string, options: FileSearchProviderOptions, token: CancellationToken): ProviderResult<URI[]>;
+	/**
+	 * Provide the set of files that match a certain file path pattern.
+	 * @param query The parameters for this query.
+	 * @param options A set of options to consider while searching files.
+	 * @param progress A progress callback that must be invoked for all results.
+	 * @param token A cancellation token.
+	 */
+	provideFileSearchResults(
+		pattern: string,
+		options: FileSearchProviderOptions,
+		token: CancellationToken,
+	): ProviderResult<URI[]>;
 }
 /**
  * A TextSearchProvider provides search results for text results inside files in the workspace.
  */
 export interface TextSearchProviderNew {
-    /**
-     * Provide results that match the given text pattern.
-     * @param query The parameters for this query.
-     * @param options A set of options to consider while searching.
-     * @param progress A progress callback that must be invoked for all results.
-     * @param token A cancellation token.
-     */
-    provideTextSearchResults(query: TextSearchQueryNew, options: TextSearchProviderOptions, progress: IProgress<TextSearchResultNew>, token: CancellationToken): ProviderResult<TextSearchCompleteNew>;
+	/**
+	 * Provide results that match the given text pattern.
+	 * @param query The parameters for this query.
+	 * @param options A set of options to consider while searching.
+	 * @param progress A progress callback that must be invoked for all results.
+	 * @param token A cancellation token.
+	 */
+	provideTextSearchResults(
+		query: TextSearchQueryNew,
+		options: TextSearchProviderOptions,
+		progress: IProgress<TextSearchResultNew>,
+		token: CancellationToken,
+	): ProviderResult<TextSearchCompleteNew>;
 }
 /**
  * Information collected when text search is complete.
  */
 export interface TextSearchCompleteNew {
-    /**
-     * Whether the search hit the limit on the maximum number of search results.
-     * `maxResults` on {@linkcode TextSearchOptions} specifies the max number of results.
-     * - If exactly that number of matches exist, this should be false.
-     * - If `maxResults` matches are returned and more exist, this should be true.
-     * - If search hits an internal limit which is less than `maxResults`, this should be true.
-     */
-    limitHit?: boolean;
-    /**
-     * Additional information regarding the state of the completed search.
-     *
-     * Messages with "Information" style support links in markdown syntax:
-     * - Click to [run a command](command:workbench.action.OpenQuickPick)
-     * - Click to [open a website](https://aka.ms)
-     *
-     * Commands may optionally return { triggerSearch: true } to signal to the editor that the original search should run be again.
-     */
-    message?: TextSearchCompleteMessageNew[];
+	/**
+	 * Whether the search hit the limit on the maximum number of search results.
+	 * `maxResults` on {@linkcode TextSearchOptions} specifies the max number of results.
+	 * - If exactly that number of matches exist, this should be false.
+	 * - If `maxResults` matches are returned and more exist, this should be true.
+	 * - If search hits an internal limit which is less than `maxResults`, this should be true.
+	 */
+	limitHit?: boolean;
+	/**
+	 * Additional information regarding the state of the completed search.
+	 *
+	 * Messages with "Information" style support links in markdown syntax:
+	 * - Click to [run a command](command:workbench.action.OpenQuickPick)
+	 * - Click to [open a website](https://aka.ms)
+	 *
+	 * Commands may optionally return { triggerSearch: true } to signal to the editor that the original search should run be again.
+	 */
+	message?: TextSearchCompleteMessageNew[];
 }
 /**
  * A message regarding a completed search.
  */
 export interface TextSearchCompleteMessageNew {
-    /**
-     * Markdown text of the message.
-     */
-    text: string;
-    /**
-     * Whether the source of the message is trusted, command links are disabled for untrusted message sources.
-     * Messaged are untrusted by default.
-     */
-    trusted?: boolean;
-    /**
-     * The message type, this affects how the message will be rendered.
-     */
-    type: TextSearchCompleteMessageType;
+	/**
+	 * Markdown text of the message.
+	 */
+	text: string;
+	/**
+	 * Whether the source of the message is trusted, command links are disabled for untrusted message sources.
+	 * Messaged are untrusted by default.
+	 */
+	trusted?: boolean;
+	/**
+	 * The message type, this affects how the message will be rendered.
+	 */
+	type: TextSearchCompleteMessageType;
 }
 /**
  * A FileSearchProvider provides search results for files in the given folder that match a query string. It can be invoked by quickaccess or other extensions.
@@ -363,114 +380,128 @@ export interface TextSearchCompleteMessageNew {
  * and in that case, every file in the folder should be returned.
  */
 export interface FileSearchProviderNew {
-    /**
-     * Provide the set of files that match a certain file path pattern.
-     * @param query The parameters for this query.
-     * @param options A set of options to consider while searching files.
-     * @param progress A progress callback that must be invoked for all results.
-     * @param token A cancellation token.
-     */
-    provideFileSearchResults(pattern: string, options: FileSearchProviderOptions, token: CancellationToken): ProviderResult<URI[]>;
+	/**
+	 * Provide the set of files that match a certain file path pattern.
+	 * @param query The parameters for this query.
+	 * @param options A set of options to consider while searching files.
+	 * @param progress A progress callback that must be invoked for all results.
+	 * @param token A cancellation token.
+	 */
+	provideFileSearchResults(
+		pattern: string,
+		options: FileSearchProviderOptions,
+		token: CancellationToken,
+	): ProviderResult<URI[]>;
 }
 /**
  * A TextSearchProvider provides search results for text results inside files in the workspace.
  */
 export interface TextSearchProviderNew {
-    /**
-     * Provide results that match the given text pattern.
-     * @param query The parameters for this query.
-     * @param options A set of options to consider while searching.
-     * @param progress A progress callback that must be invoked for all results.
-     * @param token A cancellation token.
-     */
-    provideTextSearchResults(query: TextSearchQueryNew, options: TextSearchProviderOptions, progress: IProgress<TextSearchResultNew>, token: CancellationToken): ProviderResult<TextSearchCompleteNew>;
+	/**
+	 * Provide results that match the given text pattern.
+	 * @param query The parameters for this query.
+	 * @param options A set of options to consider while searching.
+	 * @param progress A progress callback that must be invoked for all results.
+	 * @param token A cancellation token.
+	 */
+	provideTextSearchResults(
+		query: TextSearchQueryNew,
+		options: TextSearchProviderOptions,
+		progress: IProgress<TextSearchResultNew>,
+		token: CancellationToken,
+	): ProviderResult<TextSearchCompleteNew>;
 }
 /**
  * Information collected when text search is complete.
  */
 export interface TextSearchCompleteNew {
-    /**
-     * Whether the search hit the limit on the maximum number of search results.
-     * `maxResults` on {@linkcode TextSearchOptions} specifies the max number of results.
-     * - If exactly that number of matches exist, this should be false.
-     * - If `maxResults` matches are returned and more exist, this should be true.
-     * - If search hits an internal limit which is less than `maxResults`, this should be true.
-     */
-    limitHit?: boolean;
-    /**
-     * Additional information regarding the state of the completed search.
-     *
-     * Messages with "Information" style support links in markdown syntax:
-     * - Click to [run a command](command:workbench.action.OpenQuickPick)
-     * - Click to [open a website](https://aka.ms)
-     *
-     * Commands may optionally return { triggerSearch: true } to signal to the editor that the original search should run be again.
-     */
-    message?: TextSearchCompleteMessageNew[];
+	/**
+	 * Whether the search hit the limit on the maximum number of search results.
+	 * `maxResults` on {@linkcode TextSearchOptions} specifies the max number of results.
+	 * - If exactly that number of matches exist, this should be false.
+	 * - If `maxResults` matches are returned and more exist, this should be true.
+	 * - If search hits an internal limit which is less than `maxResults`, this should be true.
+	 */
+	limitHit?: boolean;
+	/**
+	 * Additional information regarding the state of the completed search.
+	 *
+	 * Messages with "Information" style support links in markdown syntax:
+	 * - Click to [run a command](command:workbench.action.OpenQuickPick)
+	 * - Click to [open a website](https://aka.ms)
+	 *
+	 * Commands may optionally return { triggerSearch: true } to signal to the editor that the original search should run be again.
+	 */
+	message?: TextSearchCompleteMessageNew[];
 }
 /**
  * A message regarding a completed search.
  */
 export interface TextSearchCompleteMessageNew {
-    /**
-     * Markdown text of the message.
-     */
-    text: string;
-    /**
-     * Whether the source of the message is trusted, command links are disabled for untrusted message sources.
-     * Messaged are untrusted by default.
-     */
-    trusted?: boolean;
-    /**
-     * The message type, this affects how the message will be rendered.
-     */
-    type: TextSearchCompleteMessageType;
+	/**
+	 * Markdown text of the message.
+	 */
+	text: string;
+	/**
+	 * Whether the source of the message is trusted, command links are disabled for untrusted message sources.
+	 * Messaged are untrusted by default.
+	 */
+	trusted?: boolean;
+	/**
+	 * The message type, this affects how the message will be rendered.
+	 */
+	type: TextSearchCompleteMessageType;
 }
 /**
  * Options for following search.exclude and files.exclude settings.
  */
 export declare enum ExcludeSettingOptions {
-    None = 1,
-    FilesExclude = 2,
-    SearchAndFilesExclude = 3
+	None = 1,
+	FilesExclude = 2,
+	SearchAndFilesExclude = 3,
 }
 export declare enum TextSearchCompleteMessageType {
-    Information = 1,
-    Warning = 2
+	Information = 1,
+	Warning = 2,
 }
 /**
  * A message regarding a completed search.
  */
 export interface TextSearchCompleteMessage {
-    /**
-     * Markdown text of the message.
-     */
-    text: string;
-    /**
-     * Whether the source of the message is trusted, command links are disabled for untrusted message sources.
-     */
-    trusted?: boolean;
-    /**
-     * The message type, this affects how the message will be rendered.
-     */
-    type: TextSearchCompleteMessageType;
+	/**
+	 * Markdown text of the message.
+	 */
+	text: string;
+	/**
+	 * Whether the source of the message is trusted, command links are disabled for untrusted message sources.
+	 */
+	trusted?: boolean;
+	/**
+	 * The message type, this affects how the message will be rendered.
+	 */
+	type: TextSearchCompleteMessageType;
 }
 /**
  * An AITextSearchProvider provides additional AI text search results in the workspace.
  */
 export interface AITextSearchProviderNew {
-    /**
-     * The name of the AI searcher. Will be displayed as `{name} Results` in the Search View.
-     */
-    readonly name?: string;
-    /**
-     * WARNING: VERY EXPERIMENTAL.
-     *
-     * Provide results that match the given text pattern.
-     * @param query The parameter for this query.
-     * @param options A set of options to consider while searching.
-     * @param progress A progress callback that must be invoked for all results.
-     * @param token A cancellation token.
-     */
-    provideAITextSearchResults(query: string, options: TextSearchProviderOptions, progress: IProgress<TextSearchResultNew>, token: CancellationToken): ProviderResult<TextSearchCompleteNew>;
+	/**
+	 * The name of the AI searcher. Will be displayed as `{name} Results` in the Search View.
+	 */
+	readonly name?: string;
+	/**
+	 * WARNING: VERY EXPERIMENTAL.
+	 *
+	 * Provide results that match the given text pattern.
+	 * @param query The parameter for this query.
+	 * @param options A set of options to consider while searching.
+	 * @param progress A progress callback that must be invoked for all results.
+	 * @param token A cancellation token.
+	 */
+	provideAITextSearchResults(
+		query: string,
+		options: TextSearchProviderOptions,
+		progress: IProgress<TextSearchResultNew>,
+		token: CancellationToken,
+	): ProviderResult<TextSearchCompleteNew>;
 }

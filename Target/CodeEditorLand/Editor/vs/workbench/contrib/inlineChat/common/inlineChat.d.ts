@@ -1,24 +1,26 @@
-import { MenuId } from '../../../../platform/actions/common/actions.js';
-import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+
 export declare const enum InlineChatConfigKeys {
-    Mode = "inlineChat.mode",
-    FinishOnType = "inlineChat.finishOnType",
-    AcceptedOrDiscardBeforeSave = "inlineChat.acceptedOrDiscardBeforeSave",
-    StartWithOverlayWidget = "inlineChat.startWithOverlayWidget",
-    ZoneToolbar = "inlineChat.experimental.enableZoneToolbar",
-    HoldToSpeech = "inlineChat.holdToSpeech",
-    AccessibleDiffView = "inlineChat.accessibleDiffView"
+	Mode = "inlineChat.mode",
+	FinishOnType = "inlineChat.finishOnType",
+	AcceptedOrDiscardBeforeSave = "inlineChat.acceptedOrDiscardBeforeSave",
+	StartWithOverlayWidget = "inlineChat.startWithOverlayWidget",
+	ZoneToolbar = "inlineChat.experimental.enableZoneToolbar",
+	HoldToSpeech = "inlineChat.holdToSpeech",
+	AccessibleDiffView = "inlineChat.accessibleDiffView",
 }
 export declare const enum EditMode {
-    Live = "live",
-    Preview = "preview"
+	Live = "live",
+	Preview = "preview",
 }
 export declare const INLINE_CHAT_ID = "interactiveEditor";
-export declare const INTERACTIVE_EDITOR_ACCESSIBILITY_HELP_ID = "interactiveEditorAccessiblityHelp";
+export declare const INTERACTIVE_EDITOR_ACCESSIBILITY_HELP_ID =
+	"interactiveEditorAccessiblityHelp";
 export declare const enum InlineChatResponseType {
-    None = "none",
-    Messages = "messages",
-    MessagesAndEdits = "messagesAndEdits"
+	None = "none",
+	Messages = "messages",
+	MessagesAndEdits = "messagesAndEdits",
 }
 export declare const CTX_INLINE_CHAT_POSSIBLE: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_HAS_AGENT: RawContextKey<boolean>;
@@ -31,7 +33,9 @@ export declare const CTX_INLINE_CHAT_INNER_CURSOR_FIRST: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_INNER_CURSOR_LAST: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_INNER_CURSOR_START: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_INNER_CURSOR_END: RawContextKey<boolean>;
-export declare const CTX_INLINE_CHAT_OUTER_CURSOR_POSITION: RawContextKey<"" | "above" | "below">;
+export declare const CTX_INLINE_CHAT_OUTER_CURSOR_POSITION: RawContextKey<
+	"" | "above" | "below"
+>;
 export declare const CTX_INLINE_CHAT_HAS_STASHED_SESSION: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_USER_DID_EDIT: RawContextKey<boolean>;
 export declare const CTX_INLINE_CHAT_DOCUMENT_CHANGED: RawContextKey<boolean>;

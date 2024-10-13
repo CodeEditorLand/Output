@@ -1,1 +1,2 @@
-export declare const PreventDefaultContextMenuItemsContextKeyName = "preventDefaultContextMenuItems";
+export declare const PreventDefaultContextMenuItemsContextKeyName =
+	"preventDefaultContextMenuItems";

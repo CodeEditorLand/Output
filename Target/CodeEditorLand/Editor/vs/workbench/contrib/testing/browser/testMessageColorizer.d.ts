@@ -1,8 +1,13 @@
-import { IMarkdownString } from '../../../../base/common/htmlContent.js';
-import { IDisposable } from '../../../../base/common/lifecycle.js';
-import './media/testMessageColorizer.css';
-import { CodeEditorWidget } from '../../../../editor/browser/widget/codeEditor/codeEditorWidget.js';
-export declare const renderTestMessageAsText: (tm: string | IMarkdownString) => any;
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+
+import "./media/testMessageColorizer.css";
+
+import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+
+export declare const renderTestMessageAsText: (
+	tm: string | IMarkdownString,
+) => any;
 /**
  * Applies decorations based on ANSI styles from the test message in the editor.
  * ANSI sequences are stripped from the text displayed in editor, and this
@@ -14,4 +19,7 @@ export declare const renderTestMessageAsText: (tm: string | IMarkdownString) => 
  *
  * Note: does not support TrueColor.
  */
-export declare const colorizeTestMessageInEditor: (message: string, editor: CodeEditorWidget) => IDisposable;
+export declare const colorizeTestMessageInEditor: (
+	message: string,
+	editor: CodeEditorWidget,
+) => IDisposable;

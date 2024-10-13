@@ -1,3 +1,3 @@
 export declare const minimumTranslatedStrings: {
-    [key: string]: string;
+	[key: string]: string;
 };

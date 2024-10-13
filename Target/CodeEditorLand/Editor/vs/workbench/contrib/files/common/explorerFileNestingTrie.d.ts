@@ -1,7 +1,7 @@
 type FilenameAttributes = {
-    basename: string;
-    extname: string;
-    dirname: string;
+	basename: string;
+	extname: string;
+	dirname: string;
 };
 /**
  * A sort of double-ended trie, used to efficiently query for matches to "star" patterns, where
@@ -21,30 +21,30 @@ type FilenameAttributes = {
  * - b.min.ts => [ ]
  */
 export declare class ExplorerFileNestingTrie {
-    private root;
-    constructor(config: [string, string[]][]);
-    toString(): string;
-    private getAttributes;
-    nest(files: string[], dirname: string): Map<string, Set<string>>;
+	private root;
+	constructor(config: [string, string[]][]);
+	toString(): string;
+	private getAttributes;
+	nest(files: string[], dirname: string): Map<string, Set<string>>;
 }
 /** Export for test only. */
 export declare class PreTrie {
-    private value;
-    private map;
-    constructor();
-    add(key: string, value: string): void;
-    get(key: string, attributes: FilenameAttributes): string[];
-    toString(indentation?: string): string;
+	private value;
+	private map;
+	constructor();
+	add(key: string, value: string): void;
+	get(key: string, attributes: FilenameAttributes): string[];
+	toString(indentation?: string): string;
 }
 /** Export for test only. */
 export declare class SufTrie {
-    private star;
-    private epsilon;
-    private map;
-    hasItems: boolean;
-    constructor();
-    add(key: string, value: string): void;
-    get(key: string, attributes: FilenameAttributes): string[];
-    toString(indentation?: string): string;
+	private star;
+	private epsilon;
+	private map;
+	hasItems: boolean;
+	constructor();
+	add(key: string, value: string): void;
+	get(key: string, attributes: FilenameAttributes): string[];
+	toString(indentation?: string): string;
 }
 export {};

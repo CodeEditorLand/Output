@@ -1,5 +1,6 @@
-import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
-import { ChatAgentLocation } from './chatAgents.js';
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ChatAgentLocation } from "./chatAgents.js";
+
 export declare const CONTEXT_RESPONSE_VOTE: RawContextKey<string>;
 export declare const CONTEXT_RESPONSE_DETECTED_AGENT_COMMAND: RawContextKey<boolean>;
 export declare const CONTEXT_CHAT_RESPONSE_SUPPORT_ISSUE_REPORTING: RawContextKey<boolean>;

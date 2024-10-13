@@ -6,37 +6,37 @@ export declare const callStackViewIcon: import("../../../../base/common/themable
 export declare const breakpointsViewIcon: import("../../../../base/common/themables.js").ThemeIcon;
 export declare const loadedScriptsViewIcon: import("../../../../base/common/themables.js").ThemeIcon;
 export declare const breakpoint: {
-    regular: import("../../../../base/common/themables.js").ThemeIcon;
-    disabled: import("../../../../base/common/themables.js").ThemeIcon;
-    unverified: import("../../../../base/common/themables.js").ThemeIcon;
-    pending: import("../../../../base/common/themables.js").ThemeIcon;
+	regular: import("../../../../base/common/themables.js").ThemeIcon;
+	disabled: import("../../../../base/common/themables.js").ThemeIcon;
+	unverified: import("../../../../base/common/themables.js").ThemeIcon;
+	pending: import("../../../../base/common/themables.js").ThemeIcon;
 };
 export declare const functionBreakpoint: {
-    regular: import("../../../../base/common/themables.js").ThemeIcon;
-    disabled: import("../../../../base/common/themables.js").ThemeIcon;
-    unverified: import("../../../../base/common/themables.js").ThemeIcon;
+	regular: import("../../../../base/common/themables.js").ThemeIcon;
+	disabled: import("../../../../base/common/themables.js").ThemeIcon;
+	unverified: import("../../../../base/common/themables.js").ThemeIcon;
 };
 export declare const conditionalBreakpoint: {
-    regular: import("../../../../base/common/themables.js").ThemeIcon;
-    disabled: import("../../../../base/common/themables.js").ThemeIcon;
-    unverified: import("../../../../base/common/themables.js").ThemeIcon;
+	regular: import("../../../../base/common/themables.js").ThemeIcon;
+	disabled: import("../../../../base/common/themables.js").ThemeIcon;
+	unverified: import("../../../../base/common/themables.js").ThemeIcon;
 };
 export declare const dataBreakpoint: {
-    regular: import("../../../../base/common/themables.js").ThemeIcon;
-    disabled: import("../../../../base/common/themables.js").ThemeIcon;
-    unverified: import("../../../../base/common/themables.js").ThemeIcon;
+	regular: import("../../../../base/common/themables.js").ThemeIcon;
+	disabled: import("../../../../base/common/themables.js").ThemeIcon;
+	unverified: import("../../../../base/common/themables.js").ThemeIcon;
 };
 export declare const logBreakpoint: {
-    regular: import("../../../../base/common/themables.js").ThemeIcon;
-    disabled: import("../../../../base/common/themables.js").ThemeIcon;
-    unverified: import("../../../../base/common/themables.js").ThemeIcon;
+	regular: import("../../../../base/common/themables.js").ThemeIcon;
+	disabled: import("../../../../base/common/themables.js").ThemeIcon;
+	unverified: import("../../../../base/common/themables.js").ThemeIcon;
 };
 export declare const debugBreakpointHint: import("../../../../base/common/themables.js").ThemeIcon;
 export declare const debugBreakpointUnsupported: import("../../../../base/common/themables.js").ThemeIcon;
 export declare const allBreakpoints: {
-    regular: import("../../../../base/common/themables.js").ThemeIcon;
-    disabled: import("../../../../base/common/themables.js").ThemeIcon;
-    unverified: import("../../../../base/common/themables.js").ThemeIcon;
+	regular: import("../../../../base/common/themables.js").ThemeIcon;
+	disabled: import("../../../../base/common/themables.js").ThemeIcon;
+	unverified: import("../../../../base/common/themables.js").ThemeIcon;
 }[];
 export declare const debugStackframe: import("../../../../base/common/themables.js").ThemeIcon;
 export declare const debugStackframeFocused: import("../../../../base/common/themables.js").ThemeIcon;

@@ -1,4 +1,5 @@
-import { RawContextKey } from '../../../../platform/contextkey/common/contextkey.js';
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+
 export declare const HAS_OPENED_NOTEBOOK: RawContextKey<boolean>;
 export declare const KEYBINDING_CONTEXT_NOTEBOOK_FIND_WIDGET_FOCUSED: RawContextKey<boolean>;
 export declare const InteractiveWindowOpen: RawContextKey<boolean>;
@@ -15,7 +16,9 @@ export declare const NOTEBOOK_HAS_RUNNING_CELL: RawContextKey<boolean>;
 export declare const NOTEBOOK_HAS_SOMETHING_RUNNING: RawContextKey<boolean>;
 export declare const NOTEBOOK_USE_CONSOLIDATED_OUTPUT_BUTTON: RawContextKey<boolean>;
 export declare const NOTEBOOK_BREAKPOINT_MARGIN_ACTIVE: RawContextKey<boolean>;
-export declare const NOTEBOOK_CELL_TOOLBAR_LOCATION: RawContextKey<"left" | "right" | "hidden">;
+export declare const NOTEBOOK_CELL_TOOLBAR_LOCATION: RawContextKey<
+	"left" | "right" | "hidden"
+>;
 export declare const NOTEBOOK_CURSOR_NAVIGATION_MODE: RawContextKey<boolean>;
 export declare const NOTEBOOK_LAST_CELL_FAILED: RawContextKey<boolean>;
 export declare const NOTEBOOK_VIEW_TYPE: RawContextKey<string>;
@@ -24,8 +27,15 @@ export declare const NOTEBOOK_CELL_EDITABLE: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_FOCUSED: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_EDITOR_FOCUSED: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_MARKDOWN_EDIT_MODE: RawContextKey<boolean>;
-export declare const NOTEBOOK_CELL_LINE_NUMBERS: RawContextKey<"on" | "off" | "inherit">;
-export type NotebookCellExecutionStateContext = 'idle' | 'pending' | 'executing' | 'succeeded' | 'failed';
+export declare const NOTEBOOK_CELL_LINE_NUMBERS: RawContextKey<
+	"on" | "off" | "inherit"
+>;
+export type NotebookCellExecutionStateContext =
+	| "idle"
+	| "pending"
+	| "executing"
+	| "succeeded"
+	| "failed";
 export declare const NOTEBOOK_CELL_EXECUTION_STATE: RawContextKey<NotebookCellExecutionStateContext>;
 export declare const NOTEBOOK_CELL_EXECUTING: RawContextKey<boolean>;
 export declare const NOTEBOOK_CELL_HAS_OUTPUTS: RawContextKey<boolean>;

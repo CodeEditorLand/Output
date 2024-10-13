@@ -1,5 +1,5 @@
 interface ILocalHistoryDateFormatter {
-    format: (timestamp: number) => string;
+	format: (timestamp: number) => string;
 }
 export declare function getLocalHistoryDateFormatter(): ILocalHistoryDateFormatter;
 export declare const LOCAL_HISTORY_MENU_CONTEXT_VALUE = "localHistory:item";

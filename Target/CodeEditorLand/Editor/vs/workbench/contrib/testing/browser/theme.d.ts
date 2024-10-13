@@ -1,4 +1,5 @@
-import { TestResultState } from '../common/testTypes.js';
+import { TestResultState } from "../common/testTypes.js";
+
 export declare const testingColorIconFailed: string;
 export declare const testingColorIconErrored: string;
 export declare const testingColorIconPassed: string;
@@ -20,7 +21,7 @@ export declare const testingUncoveredGutterBackground: string;
 export declare const testingCoverCountBadgeBackground: string;
 export declare const testingCoverCountBadgeForeground: string;
 export declare const testStatesToIconColors: {
-    [K in TestResultState]?: string;
+	[K in TestResultState]?: string;
 };
 export declare const testingRetiredColorIconErrored: string;
 export declare const testingRetiredColorIconFailed: string;
@@ -29,5 +30,5 @@ export declare const testingRetiredColorIconQueued: string;
 export declare const testingRetiredColorIconUnset: string;
 export declare const testingRetiredColorIconSkipped: string;
 export declare const testStatesToRetiredIconColors: {
-    [K in TestResultState]?: string;
+	[K in TestResultState]?: string;
 };

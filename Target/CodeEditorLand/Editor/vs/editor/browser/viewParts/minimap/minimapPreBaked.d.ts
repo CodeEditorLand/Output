@@ -4,5 +4,5 @@
  * is use-configurable.
  */
 export declare const prebakedMiniMaps: {
-    [scale: number]: () => Uint8ClampedArray;
+	[scale: number]: () => Uint8ClampedArray;
 };

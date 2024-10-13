@@ -1,6 +1,9 @@
-import { MarshalledId } from '../../../../base/common/marshallingIds.js';
+import { MarshalledId } from "../../../../base/common/marshallingIds.js";
+
 export interface IChatViewTitleActionContext {
-    $mid: MarshalledId.ChatViewContext;
-    sessionId: string;
+	$mid: MarshalledId.ChatViewContext;
+	sessionId: string;
 }
-export declare function isChatViewTitleActionContext(obj: unknown): obj is IChatViewTitleActionContext;
+export declare function isChatViewTitleActionContext(
+	obj: unknown,
+): obj is IChatViewTitleActionContext;

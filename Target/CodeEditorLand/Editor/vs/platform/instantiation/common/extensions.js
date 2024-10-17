@@ -1,15 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { SyncDescriptor } from './descriptors.js';
-const _registry = [];
-export function registerSingleton(id, ctorOrDescriptor, supportsDelayedInstantiation) {
-    if (!(ctorOrDescriptor instanceof SyncDescriptor)) {
-        ctorOrDescriptor = new SyncDescriptor(ctorOrDescriptor, [], Boolean(supportsDelayedInstantiation));
-    }
-    _registry.push([id, ctorOrDescriptor]);
-}
-export function getSingletonServiceDescriptors() {
-    return _registry;
-}
+import{SyncDescriptor as r}from"./descriptors.js";import"./instantiation.js";const n=[];var c=(e=>(e[e.Eager=0]="Eager",e[e.Delayed=1]="Delayed",e))(c||{});function v(t,i,e){i instanceof r||(i=new r(i,[],!!e)),n.push([t,i])}function a(){return n}export{c as InstantiationType,a as getSingletonServiceDescriptors,v as registerSingleton};

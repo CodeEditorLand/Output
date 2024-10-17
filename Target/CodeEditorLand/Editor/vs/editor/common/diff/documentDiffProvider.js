@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+import"../../../base/common/cancellation.js";import"../../../base/common/event.js";import"./linesDiffComputer.js";import"./rangeMapping.js";import"../model.js";const c=Object.freeze({identical:!0,quitEarly:!1,changes:Object.freeze([]),moves:Object.freeze([])});export{c as nullDocumentDiff};

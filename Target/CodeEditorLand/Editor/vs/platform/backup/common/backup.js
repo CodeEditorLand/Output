@@ -1,10 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export function isFolderBackupInfo(curr) {
-    return curr && curr.hasOwnProperty('folderUri');
-}
-export function isWorkspaceBackupInfo(curr) {
-    return curr && curr.hasOwnProperty('workspace');
-}
+import"../../../base/common/uri.js";import"../../workspace/common/workspace.js";function p(e){return e&&e.hasOwnProperty("folderUri")}function I(e){return e&&e.hasOwnProperty("workspace")}export{p as isFolderBackupInfo,I as isWorkspaceBackupInfo};

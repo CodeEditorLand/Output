@@ -1,9 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-/**
- * @deprecated it is important to provide a type identifier
- * for working copies to enable all capabilities.
- */
-export const NO_TYPE_ID = '';
+import"../../../../base/common/event.js";import"../../../../base/common/uri.js";import"../../../common/editor.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/buffer.js";var o=(e=>(e[e.None=0]="None",e[e.Untitled=2]="Untitled",e[e.Scratchpad=4]="Scratchpad",e))(o||{});const s="";export{s as NO_TYPE_ID,o as WorkingCopyCapabilities};

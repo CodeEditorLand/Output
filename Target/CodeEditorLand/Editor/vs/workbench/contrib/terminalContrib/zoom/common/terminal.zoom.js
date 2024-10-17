@@ -1,15 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { isMacintosh } from '../../../../../base/common/platform.js';
-import { localize } from '../../../../../nls.js';
-export const terminalZoomConfiguration = {
-    ["terminal.integrated.mouseWheelZoom" /* TerminalZoomSettingId.MouseWheelZoom */]: {
-        markdownDescription: isMacintosh
-            ? localize('terminal.integrated.mouseWheelZoom.mac', "Zoom the font of the terminal when using mouse wheel and holding `Cmd`.")
-            : localize('terminal.integrated.mouseWheelZoom', "Zoom the font of the terminal when using mouse wheel and holding `Ctrl`."),
-        type: 'boolean',
-        default: false
-    },
-};
+import{isMacintosh as n}from"../../../../../base/common/platform.js";import{localize as e}from"../../../../../nls.js";var i=(o=>(o.FontZoomIn="workbench.action.terminal.fontZoomIn",o.FontZoomOut="workbench.action.terminal.fontZoomOut",o.FontZoomReset="workbench.action.terminal.fontZoomReset",o))(i||{}),r=(t=>(t.MouseWheelZoom="terminal.integrated.mouseWheelZoom",t))(r||{});const l={"terminal.integrated.mouseWheelZoom":{markdownDescription:n?e("terminal.integrated.mouseWheelZoom.mac","Zoom the font of the terminal when using mouse wheel and holding `Cmd`."):e("terminal.integrated.mouseWheelZoom","Zoom the font of the terminal when using mouse wheel and holding `Ctrl`."),type:"boolean",default:!1}};export{i as TerminalZoomCommandId,r as TerminalZoomSettingId,l as terminalZoomConfiguration};

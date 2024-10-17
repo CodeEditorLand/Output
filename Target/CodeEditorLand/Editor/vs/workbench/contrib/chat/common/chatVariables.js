@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const IChatVariablesService = createDecorator('IChatVariablesService');
+import"../../../../base/common/cancellation.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/themables.js";import"../../../../base/common/uri.js";import"../../../../editor/common/core/range.js";import"../../../../editor/common/languages.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./chatAgents.js";import"./chatModel.js";import"./chatParserTypes.js";import"./chatService.js";const y=e("IChatVariablesService");export{y as IChatVariablesService};

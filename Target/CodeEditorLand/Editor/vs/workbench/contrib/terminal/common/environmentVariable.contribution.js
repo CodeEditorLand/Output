@@ -1,8 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { EnvironmentVariableService } from './environmentVariableService.js';
-import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
-import { IEnvironmentVariableService } from './environmentVariable.js';
-registerSingleton(IEnvironmentVariableService, EnvironmentVariableService, 1 /* InstantiationType.Delayed */);
+import{EnvironmentVariableService as e}from"./environmentVariableService.js";import{InstantiationType as r,registerSingleton as i}from"../../../../platform/instantiation/common/extensions.js";import{IEnvironmentVariableService as n}from"./environmentVariable.js";i(n,e,r.Delayed);

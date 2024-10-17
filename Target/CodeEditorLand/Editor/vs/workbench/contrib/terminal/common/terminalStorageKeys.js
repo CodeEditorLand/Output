@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+var e=(t=>(t.SuggestedRendererType="terminal.integrated.suggestedRendererType",t.TabsListWidthHorizontal="tabs-list-width-horizontal",t.TabsListWidthVertical="tabs-list-width-vertical",t.DeprecatedEnvironmentVariableCollections="terminal.integrated.environmentVariableCollections",t.EnvironmentVariableCollections="terminal.integrated.environmentVariableCollectionsV2",t.TerminalBufferState="terminal.integrated.bufferState",t.TerminalLayoutInfo="terminal.integrated.layoutInfo",t.PinnedRecentCommandsPrefix="terminal.pinnedRecentCommands",t.TerminalSuggestSize="terminal.integrated.suggestSize",t))(e||{});export{e as TerminalStorageKeys};

@@ -1,9 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export class TableError extends Error {
-    constructor(user, message) {
-        super(`TableError [${user}] ${message}`);
-    }
-}
+import"../list/list.js";import"../../../common/event.js";class I extends Error{constructor(e,t){super(`TableError [${e}] ${t}`)}}export{I as TableError};

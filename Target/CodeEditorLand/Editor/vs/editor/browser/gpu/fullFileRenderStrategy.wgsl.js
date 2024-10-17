@@ -1,8 +1,4 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export const fullFileRenderStrategyWgsl = /*wgsl*/ `
+import{BindingId as e}from"./gpu.js";const o=`
 struct GlyphInfo {
 	position: vec2f,
 	size: vec2f,
@@ -37,14 +33,14 @@ struct VSOutput {
 };
 
 // Uniforms
-@group(0) @binding(${5 /* BindingId.LayoutInfoUniform */})       var<uniform>       layoutInfo:      LayoutInfo;
-@group(0) @binding(${6 /* BindingId.AtlasDimensionsUniform */})  var<uniform>       atlasDims:       vec2f;
-@group(0) @binding(${7 /* BindingId.ScrollOffset */})            var<uniform>       scrollOffset:    ScrollOffset;
+@group(0) @binding(${e.LayoutInfoUniform})       var<uniform>       layoutInfo:      LayoutInfo;
+@group(0) @binding(${e.AtlasDimensionsUniform})  var<uniform>       atlasDims:       vec2f;
+@group(0) @binding(${e.ScrollOffset})            var<uniform>       scrollOffset:    ScrollOffset;
 
 // Storage buffers
-@group(0) @binding(${0 /* BindingId.GlyphInfo0 */})              var<storage, read> glyphInfo0:      array<GlyphInfo>;
-@group(0) @binding(${1 /* BindingId.GlyphInfo1 */})              var<storage, read> glyphInfo1:      array<GlyphInfo>;
-@group(0) @binding(${2 /* BindingId.Cells */})                   var<storage, read> cells:           array<Cell>;
+@group(0) @binding(${e.GlyphInfo0})              var<storage, read> glyphInfo0:      array<GlyphInfo>;
+@group(0) @binding(${e.GlyphInfo1})              var<storage, read> glyphInfo1:      array<GlyphInfo>;
+@group(0) @binding(${e.Cells})                   var<storage, read> cells:           array<Cell>;
 
 @vertex fn vs(
 	vert: Vertex,
@@ -82,10 +78,10 @@ struct VSOutput {
 	return vsOut;
 }
 
-@group(0) @binding(${3 /* BindingId.TextureSampler */}) var ourSampler: sampler;
-@group(0) @binding(${4 /* BindingId.Texture */})        var ourTexture: texture_2d_array<f32>;
+@group(0) @binding(${e.TextureSampler}) var ourSampler: sampler;
+@group(0) @binding(${e.Texture})        var ourTexture: texture_2d_array<f32>;
 
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
 	return textureSample(ourTexture, ourSampler, vsOut.texcoord, u32(vsOut.layerIndex));
 }
-`;
+`;export{o as fullFileRenderStrategyWgsl};

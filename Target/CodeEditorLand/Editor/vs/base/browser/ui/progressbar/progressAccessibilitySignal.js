@@ -1,16 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-const nullScopedAccessibilityProgressSignalFactory = () => ({
-    msLoopTime: -1,
-    msDelayTime: -1,
-    dispose: () => { },
-});
-let progressAccessibilitySignalSchedulerFactory = nullScopedAccessibilityProgressSignalFactory;
-export function setProgressAcccessibilitySignalScheduler(progressAccessibilitySignalScheduler) {
-    progressAccessibilitySignalSchedulerFactory = progressAccessibilitySignalScheduler;
-}
-export function getProgressAcccessibilitySignalScheduler(msDelayTime, msLoopTime) {
-    return progressAccessibilitySignalSchedulerFactory(msDelayTime, msLoopTime);
-}
+import"../../../common/lifecycle.js";const r=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let s=r;function l(e){s=e}function t(e,i){return s(e,i)}export{t as getProgressAcccessibilitySignalScheduler,l as setProgressAcccessibilitySignalScheduler};

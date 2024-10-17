@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IProductService = createDecorator('productService');
-export const productSchemaId = 'vscode://schemas/vscode-product';
+import"../../../base/common/product.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const t=e("productService"),d="vscode://schemas/vscode-product";export{t as IProductService,d as productSchemaId};

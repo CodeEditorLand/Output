@@ -36,7 +36,7 @@ export declare class StandaloneColorPickerWidget
 	private _colorHover;
 	private _selectionSetInEditor;
 	private readonly _onResult;
-	readonly onResult: import("../../../../../workbench/workbench.web.main.internal").Event<StandaloneColorPickerResult>;
+	readonly onResult: import("../../../../../workbench/workbench.web.main.internal.js").Event<StandaloneColorPickerResult>;
 	constructor(
 		_editor: ICodeEditor,
 		_standaloneColorPickerVisible: IContextKey<boolean>,

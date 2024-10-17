@@ -1,15 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createStyleSheet2 } from './dom.js';
-import { DisposableStore } from '../common/lifecycle.js';
-import { autorun } from '../common/observable.js';
-export function createStyleSheetFromObservable(css) {
-    const store = new DisposableStore();
-    const w = store.add(createStyleSheet2());
-    store.add(autorun(reader => {
-        w.setStyle(css.read(reader));
-    }));
-    return store;
-}
+import{createStyleSheet2 as s}from"./dom.js";import{DisposableStore as a}from"../common/lifecycle.js";import{autorun as b}from"../common/observable.js";function S(r){const e=new a,t=e.add(s());return e.add(b(o=>{t.setStyle(r.read(o))})),e}export{S as createStyleSheetFromObservable};

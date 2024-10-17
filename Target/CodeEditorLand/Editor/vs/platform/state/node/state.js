@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IStateReadService = createDecorator('stateReadService');
-export const IStateService = createDecorator('stateService');
+import{createDecorator as e}from"../../instantiation/common/instantiation.js";const r=e("stateReadService"),a=e("stateService");export{r as IStateReadService,a as IStateService};

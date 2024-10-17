@@ -49,7 +49,7 @@ export declare class CommentThreadWidget<T extends IRange | ICellRange = IRange>
 	private _commentThreadContextValue;
 	private _focusedContextKey;
 	private _onDidResize;
-	onDidResize: import("../../../workbench.web.main.internal").Event<dom.Dimension>;
+	onDidResize: import("../../../workbench.web.main.internal.js").Event<dom.Dimension>;
 	private _commentThreadState;
 	get commentThread(): languages.CommentThread<T>;
 	constructor(

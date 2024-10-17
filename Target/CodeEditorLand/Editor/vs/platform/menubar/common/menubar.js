@@ -1,16 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export function isMenubarMenuItemSubmenu(menuItem) {
-    return menuItem.submenu !== undefined;
-}
-export function isMenubarMenuItemSeparator(menuItem) {
-    return menuItem.id === 'vscode.menubar.separator';
-}
-export function isMenubarMenuItemRecentAction(menuItem) {
-    return menuItem.uri !== undefined;
-}
-export function isMenubarMenuItemAction(menuItem) {
-    return !isMenubarMenuItemSubmenu(menuItem) && !isMenubarMenuItemSeparator(menuItem) && !isMenubarMenuItemRecentAction(menuItem);
-}
+import"../../../base/common/uri.js";function n(e){return e.submenu!==void 0}function r(e){return e.id==="vscode.menubar.separator"}function t(e){return e.uri!==void 0}function i(e){return!n(e)&&!r(e)&&!t(e)}export{i as isMenubarMenuItemAction,t as isMenubarMenuItemRecentAction,r as isMenubarMenuItemSeparator,n as isMenubarMenuItemSubmenu};

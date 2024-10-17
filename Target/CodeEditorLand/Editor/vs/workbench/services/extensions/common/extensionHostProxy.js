@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+import"../../../../base/common/buffer.js";import"../../../../base/common/uri.js";import"../../../../platform/extensions/common/extensions.js";import"../../../../platform/remote/common/remoteAuthorityResolver.js";import"./extensionHostProtocol.js";import"./extensions.js";

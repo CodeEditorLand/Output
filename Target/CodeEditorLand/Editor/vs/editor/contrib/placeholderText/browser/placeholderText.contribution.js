@@ -1,13 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import './placeholderText.css';
-import { registerEditorContribution } from '../../../browser/editorExtensions.js';
-import { ghostTextForeground } from '../../../common/core/editorColorRegistry.js';
-import { localize } from '../../../../nls.js';
-import { registerColor } from '../../../../platform/theme/common/colorUtils.js';
-import { PlaceholderTextContribution } from './placeholderTextContribution.js';
-import { wrapInReloadableClass1 } from '../../../../platform/observable/common/wrapInReloadableClass.js';
-registerEditorContribution(PlaceholderTextContribution.ID, wrapInReloadableClass1(() => PlaceholderTextContribution), 0 /* EditorContributionInstantiation.Eager */);
-registerColor('editor.placeholder.foreground', ghostTextForeground, localize('placeholderForeground', 'Foreground color of the placeholder text in the editor.'));
+import"./placeholderText.css";import{EditorContributionInstantiation as r,registerEditorContribution as t}from"../../../browser/editorExtensions.js";import{ghostTextForeground as e}from"../../../common/core/editorColorRegistry.js";import{localize as i}from"../../../../nls.js";import{registerColor as l}from"../../../../platform/theme/common/colorUtils.js";import{PlaceholderTextContribution as o}from"./placeholderTextContribution.js";import{wrapInReloadableClass1 as n}from"../../../../platform/observable/common/wrapInReloadableClass.js";t(o.ID,n(()=>o),r.Eager),l("editor.placeholder.foreground",e,i("placeholderForeground","Foreground color of the placeholder text in the editor."));

@@ -21,7 +21,7 @@ export declare class BannerPart extends Part implements IBannerService {
 	get minimumHeight(): number;
 	get maximumHeight(): number;
 	private _onDidChangeSize;
-	get onDidChange(): import("../../../workbench.web.main.internal").Event<
+	get onDidChange(): import("../../../workbench.web.main.internal.js").Event<
 		| {
 				width: number;
 				height: number;

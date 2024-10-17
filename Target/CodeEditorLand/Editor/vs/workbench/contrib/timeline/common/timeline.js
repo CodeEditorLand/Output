@@ -1,12 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { ExtensionIdentifier } from '../../../../platform/extensions/common/extensions.js';
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export function toKey(extension, source) {
-    return `${typeof extension === 'string' ? extension : ExtensionIdentifier.toKey(extension)}|${source}`;
-}
-export const TimelinePaneId = 'timeline';
-const TIMELINE_SERVICE_ID = 'timeline';
-export const ITimelineService = createDecorator(TIMELINE_SERVICE_ID);
+import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import"../../../../editor/common/languages.js";import{ExtensionIdentifier as n}from"../../../../platform/extensions/common/extensions.js";import{createDecorator as r}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/accessibility/common/accessibility.js";import"../../../../base/common/themables.js";import"../../../../base/common/htmlContent.js";function y(e,i){return`${typeof e=="string"?e:n.toKey(e)}|${i}`}const R="timeline",o="timeline",S=r(o);export{S as ITimelineService,R as TimelinePaneId,y as toKey};

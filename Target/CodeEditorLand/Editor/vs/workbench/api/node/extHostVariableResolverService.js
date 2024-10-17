@@ -1,11 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { homedir } from 'os';
-import { ExtHostVariableResolverProviderService } from '../common/extHostVariableResolverService.js';
-export class NodeExtHostVariableResolverProviderService extends ExtHostVariableResolverProviderService {
-    homeDir() {
-        return homedir();
-    }
-}
+import{homedir as e}from"os";import{ExtHostVariableResolverProviderService as r}from"../common/extHostVariableResolverService.js";class d extends r{homeDir(){return e()}}export{d as NodeExtHostVariableResolverProviderService};

@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export const defaultTerminalAccessibilityCommandsToSkipShell = [
-    "workbench.action.terminal.focusAccessibleBuffer" /* TerminalAccessibilityCommandId.FocusAccessibleBuffer */
-];
+var o=(e=>(e.FocusAccessibleBuffer="workbench.action.terminal.focusAccessibleBuffer",e.AccessibleBufferGoToNextCommand="workbench.action.terminal.accessibleBufferGoToNextCommand",e.AccessibleBufferGoToPreviousCommand="workbench.action.terminal.accessibleBufferGoToPreviousCommand",e.ScrollToBottomAccessibleView="workbench.action.terminal.scrollToBottomAccessibleView",e.ScrollToTopAccessibleView="workbench.action.terminal.scrollToTopAccessibleView",e))(o||{});const c=["workbench.action.terminal.focusAccessibleBuffer"];export{o as TerminalAccessibilityCommandId,c as defaultTerminalAccessibilityCommandsToSkipShell};

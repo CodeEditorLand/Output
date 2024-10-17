@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { registerSharedProcessRemoteService } from '../../ipc/electron-sandbox/services.js';
-import { IV8InspectProfilingService } from '../common/profiling.js';
-registerSharedProcessRemoteService(IV8InspectProfilingService, 'v8InspectProfiling');
+import{registerSharedProcessRemoteService as e}from"../../ipc/electron-sandbox/services.js";import{IV8InspectProfilingService as r}from"../common/profiling.js";e(r,"v8InspectProfiling");

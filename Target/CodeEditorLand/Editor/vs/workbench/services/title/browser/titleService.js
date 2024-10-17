@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const ITitleService = createDecorator('titleService');
+import{createDecorator as r}from"../../../../platform/instantiation/common/instantiation.js";import"../../../browser/parts/titlebar/titlebarPart.js";import"../../editor/common/editorGroupsService.js";const l=r("titleService");export{l as ITitleService};

@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export { CancellationError } from '../../errors.js';
-export { CancellationToken, CancellationTokenSource } from '../../cancellation.js';
+import{CancellationError as n}from"../../errors.js";import{CancellationToken as a,CancellationTokenSource as l}from"../../cancellation.js";export{n as CancellationError,a as CancellationToken,l as CancellationTokenSource};

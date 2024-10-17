@@ -1,18 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { MainContext } from './extHost.protocol.js';
-export class ExtHostClipboard {
-    constructor(mainContext) {
-        const proxy = mainContext.getProxy(MainContext.MainThreadClipboard);
-        this.value = Object.freeze({
-            readText() {
-                return proxy.$readText();
-            },
-            writeText(value) {
-                return proxy.$writeText(value);
-            }
-        });
-    }
-}
+import{MainContext as o}from"./extHost.protocol.js";class s{value;constructor(t){const e=t.getProxy(o.MainThreadClipboard);this.value=Object.freeze({readText(){return e.$readText()},writeText(r){return e.$writeText(r)}})}}export{s as ExtHostClipboard};

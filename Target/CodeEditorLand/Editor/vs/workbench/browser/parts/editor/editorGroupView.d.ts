@@ -115,23 +115,23 @@ export declare class EditorGroupView
 	 */
 	readonly scopedContextKeyService: IContextKeyService;
 	private readonly _onDidFocus;
-	readonly onDidFocus: import("../../../workbench.web.main.internal").Event<void>;
+	readonly onDidFocus: import("../../../workbench.web.main.internal.js").Event<void>;
 	private readonly _onWillDispose;
-	readonly onWillDispose: import("../../../workbench.web.main.internal").Event<void>;
+	readonly onWillDispose: import("../../../workbench.web.main.internal.js").Event<void>;
 	private readonly _onDidModelChange;
-	readonly onDidModelChange: import("../../../workbench.web.main.internal").Event<IGroupModelChangeEvent>;
+	readonly onDidModelChange: import("../../../workbench.web.main.internal.js").Event<IGroupModelChangeEvent>;
 	private readonly _onDidActiveEditorChange;
-	readonly onDidActiveEditorChange: import("../../../workbench.web.main.internal").Event<IActiveEditorChangeEvent>;
+	readonly onDidActiveEditorChange: import("../../../workbench.web.main.internal.js").Event<IActiveEditorChangeEvent>;
 	private readonly _onDidOpenEditorFail;
-	readonly onDidOpenEditorFail: import("../../../workbench.web.main.internal").Event<EditorInput>;
+	readonly onDidOpenEditorFail: import("../../../workbench.web.main.internal.js").Event<EditorInput>;
 	private readonly _onWillCloseEditor;
-	readonly onWillCloseEditor: import("../../../workbench.web.main.internal").Event<IEditorCloseEvent>;
+	readonly onWillCloseEditor: import("../../../workbench.web.main.internal.js").Event<IEditorCloseEvent>;
 	private readonly _onDidCloseEditor;
-	readonly onDidCloseEditor: import("../../../workbench.web.main.internal").Event<IEditorCloseEvent>;
+	readonly onDidCloseEditor: import("../../../workbench.web.main.internal.js").Event<IEditorCloseEvent>;
 	private readonly _onWillMoveEditor;
-	readonly onWillMoveEditor: import("../../../workbench.web.main.internal").Event<IEditorWillMoveEvent>;
+	readonly onWillMoveEditor: import("../../../workbench.web.main.internal.js").Event<IEditorWillMoveEvent>;
 	private readonly _onWillOpenEditor;
-	readonly onWillOpenEditor: import("../../../workbench.web.main.internal").Event<IEditorWillOpenEvent>;
+	readonly onWillOpenEditor: import("../../../workbench.web.main.internal.js").Event<IEditorWillOpenEvent>;
 	private readonly model;
 	private active;
 	private lastLayout;
@@ -317,7 +317,7 @@ export declare class EditorGroupView
 	get maximumHeight(): number;
 	get proportionalLayout(): boolean;
 	private _onDidChange;
-	readonly onDidChange: import("../../../workbench.web.main.internal").Event<
+	readonly onDidChange: import("../../../workbench.web.main.internal.js").Event<
 		| {
 				width: number;
 				height: number;

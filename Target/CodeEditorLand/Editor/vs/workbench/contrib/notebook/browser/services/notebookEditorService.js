@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../../platform/instantiation/common/instantiation.js';
-export const INotebookEditorService = createDecorator('INotebookEditorWidgetService');
+import"../../../../../base/browser/window.js";import{createDecorator as o}from"../../../../../platform/instantiation/common/instantiation.js";import"../../common/notebookEditorInput.js";import"../notebookBrowser.js";import"../../../../../base/common/event.js";import"../../../../../base/browser/dom.js";import"../notebookEditorWidget.js";import"../../../../../base/common/uri.js";const u=o("INotebookEditorWidgetService");export{u as INotebookEditorService};

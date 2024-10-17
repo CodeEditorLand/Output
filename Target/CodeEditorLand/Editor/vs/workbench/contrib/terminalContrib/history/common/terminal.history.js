@@ -1,17 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { localize } from '../../../../../nls.js';
-export const defaultTerminalHistoryCommandsToSkipShell = [
-    "workbench.action.terminal.goToRecentDirectory" /* TerminalHistoryCommandId.GoToRecentDirectory */,
-    "workbench.action.terminal.runRecentCommand" /* TerminalHistoryCommandId.RunRecentCommand */
-];
-export const terminalHistoryConfiguration = {
-    ["terminal.integrated.shellIntegration.history" /* TerminalHistorySettingId.ShellIntegrationCommandHistory */]: {
-        restricted: true,
-        markdownDescription: localize('terminal.integrated.shellIntegration.history', "Controls the number of recently used commands to keep in the terminal command history. Set to 0 to disable terminal command history."),
-        type: 'number',
-        default: 100
-    },
-};
+import{localize as e}from"../../../../../nls.js";var n=(o=>(o.ClearPreviousSessionHistory="workbench.action.terminal.clearPreviousSessionHistory",o.GoToRecentDirectory="workbench.action.terminal.goToRecentDirectory",o.RunRecentCommand="workbench.action.terminal.runRecentCommand",o))(n||{});const a=["workbench.action.terminal.goToRecentDirectory","workbench.action.terminal.runRecentCommand"];var r=(t=>(t.ShellIntegrationCommandHistory="terminal.integrated.shellIntegration.history",t))(r||{});const m={"terminal.integrated.shellIntegration.history":{restricted:!0,markdownDescription:e("terminal.integrated.shellIntegration.history","Controls the number of recently used commands to keep in the terminal command history. Set to 0 to disable terminal command history."),type:"number",default:100}};export{n as TerminalHistoryCommandId,r as TerminalHistorySettingId,a as defaultTerminalHistoryCommandsToSkipShell,m as terminalHistoryConfiguration};

@@ -1,16 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { registerEditorAction, registerEditorContribution } from '../../../browser/editorExtensions.js';
-// import { HoverParticipantRegistry } from 'vs/editor/contrib/hover/browser/hoverTypes';
-import { AcceptInlineEdit, JumpBackInlineEdit, JumpToInlineEdit, RejectInlineEdit, TriggerInlineEdit } from './commands.js';
-// import { InlineEditHoverParticipant } from 'vs/editor/contrib/inlineEdit/browser/hoverParticipant';
-import { InlineEditController } from './inlineEditController.js';
-registerEditorAction(AcceptInlineEdit);
-registerEditorAction(RejectInlineEdit);
-registerEditorAction(JumpToInlineEdit);
-registerEditorAction(JumpBackInlineEdit);
-registerEditorAction(TriggerInlineEdit);
-registerEditorContribution(InlineEditController.ID, InlineEditController, 3 /* EditorContributionInstantiation.Eventually */);
-// HoverParticipantRegistry.register(InlineEditHoverParticipant);
+import{EditorContributionInstantiation as n,registerEditorAction as i,registerEditorContribution as r}from"../../../browser/editorExtensions.js";import{AcceptInlineEdit as o,JumpBackInlineEdit as e,JumpToInlineEdit as l,RejectInlineEdit as E,TriggerInlineEdit as d}from"./commands.js";import{InlineEditController as t}from"./inlineEditController.js";i(o),i(E),i(l),i(e),i(d),r(t.ID,t,n.Eventually);

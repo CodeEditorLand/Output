@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IRemoteExtensionsScannerService = createDecorator('IRemoteExtensionsScannerService');
-export const RemoteExtensionsScannerChannelName = 'remoteExtensionsScanner';
+import"../../extensions/common/extensions.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const t=e("IRemoteExtensionsScannerService"),i="remoteExtensionsScanner";export{t as IRemoteExtensionsScannerService,i as RemoteExtensionsScannerChannelName};

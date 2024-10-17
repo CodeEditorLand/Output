@@ -31,7 +31,7 @@ export declare class StandaloneQuickInputService implements IQuickInputService {
 	get currentQuickInput():
 		| import("../../../../platform/quickinput/common/quickInput.js").IQuickInput
 		| undefined;
-	get quickAccess(): import("../../../../platform/quickinput/common/quickAccess").IQuickAccessController;
+	get quickAccess(): import("../../../../platform/quickinput/common/quickAccess.js").IQuickAccessController;
 	get backButton(): import("../../../../platform/quickinput/common/quickInput.js").IQuickInputButton;
 	get onShow(): Event<void>;
 	get onHide(): Event<void>;

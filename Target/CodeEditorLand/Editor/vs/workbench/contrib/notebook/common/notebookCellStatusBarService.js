@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const INotebookCellStatusBarService = createDecorator('notebookCellStatusBarService');
+import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"./notebookCommon.js";const C=e("notebookCellStatusBarService");export{C as INotebookCellStatusBarService};

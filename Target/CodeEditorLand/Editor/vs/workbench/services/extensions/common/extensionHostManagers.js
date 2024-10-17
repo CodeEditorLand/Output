@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+import"../../../../base/common/event.js";import"../../../../base/common/uri.js";import"../../../../platform/extensions/common/extensions.js";import"./extensionHostKind.js";import"./extensionHostProtocol.js";import"./extensionHostProxy.js";import"./extensionRunningLocation.js";import"./extensions.js";import"./rpcProtocol.js";

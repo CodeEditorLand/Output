@@ -52,7 +52,7 @@ export declare class CommentsPanel
 	private readonly viewState;
 	private readonly stateMemento;
 	private cachedFilterStats;
-	readonly onDidChangeVisibility: import("../../../workbench.web.main.internal").Event<boolean>;
+	readonly onDidChangeVisibility: import("../../../workbench.web.main.internal.js").Event<boolean>;
 	get focusedCommentNode(): CommentNode | undefined;
 	get focusedCommentInfo(): string | undefined;
 	focusNextNode(): void;

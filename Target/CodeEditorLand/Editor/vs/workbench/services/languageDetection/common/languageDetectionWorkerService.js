@@ -1,11 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const ILanguageDetectionService = createDecorator('ILanguageDetectionService');
-export const LanguageDetectionLanguageEventSource = 'languageDetection';
-//#region Telemetry events
-export const AutomaticLanguageDetectionLikelyWrongId = 'automaticlanguagedetection.likelywrong';
-export const LanguageDetectionStatsId = 'automaticlanguagedetection.stats';
-//#endregion
+import"../../../../base/common/uri.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("ILanguageDetectionService"),i="languageDetection",r="automaticlanguagedetection.likelywrong",s="automaticlanguagedetection.stats";export{r as AutomaticLanguageDetectionLikelyWrongId,o as ILanguageDetectionService,i as LanguageDetectionLanguageEventSource,s as LanguageDetectionStatsId};

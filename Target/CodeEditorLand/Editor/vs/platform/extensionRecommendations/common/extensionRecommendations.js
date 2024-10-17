@@ -1,13 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export function RecommendationSourceToString(source) {
-    switch (source) {
-        case 1 /* RecommendationSource.FILE */: return 'file';
-        case 2 /* RecommendationSource.WORKSPACE */: return 'workspace';
-        case 3 /* RecommendationSource.EXE */: return 'exe';
-    }
-}
-export const IExtensionRecommendationNotificationService = createDecorator('IExtensionRecommendationNotificationService');
+import"../../../base/common/uri.js";import{createDecorator as r}from"../../instantiation/common/instantiation.js";var t=(e=>(e[e.FILE=1]="FILE",e[e.WORKSPACE=2]="WORKSPACE",e[e.EXE=3]="EXE",e))(t||{});function m(o){switch(o){case 1:return"file";case 2:return"workspace";case 3:return"exe"}}var i=(n=>(n.Ignored="ignored",n.Cancelled="cancelled",n.TooMany="toomany",n.IncompatibleWindow="incompatibleWindow",n.Accepted="reacted",n))(i||{});const d=r("IExtensionRecommendationNotificationService");export{d as IExtensionRecommendationNotificationService,t as RecommendationSource,m as RecommendationSourceToString,i as RecommendationsNotificationResult};

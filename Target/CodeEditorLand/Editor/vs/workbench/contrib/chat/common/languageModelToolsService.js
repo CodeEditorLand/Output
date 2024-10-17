@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const ILanguageModelToolsService = createDecorator('ILanguageModelToolsService');
+import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import"../../../../base/common/htmlContent.js";import"../../../../base/common/jsonSchema.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/themables.js";import"../../../../base/common/uri.js";import"../../../../platform/contextkey/common/contextkey.js";import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";const k=o("ILanguageModelToolsService");export{k as ILanguageModelToolsService};

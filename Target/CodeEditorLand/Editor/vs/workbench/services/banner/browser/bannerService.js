@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const IBannerService = createDecorator('bannerService');
+import"../../../../base/common/htmlContent.js";import"../../../../base/common/uri.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/opener/browser/link.js";import"../../../../base/common/themables.js";const m=e("bannerService");export{m as IBannerService};

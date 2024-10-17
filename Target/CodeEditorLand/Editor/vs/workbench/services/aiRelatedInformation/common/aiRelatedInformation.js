@@ -1,13 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const IAiRelatedInformationService = createDecorator('IAiRelatedInformationService');
-export var RelatedInformationType;
-(function (RelatedInformationType) {
-    RelatedInformationType[RelatedInformationType["SymbolInformation"] = 1] = "SymbolInformation";
-    RelatedInformationType[RelatedInformationType["CommandInformation"] = 2] = "CommandInformation";
-    RelatedInformationType[RelatedInformationType["SearchInformation"] = 3] = "SearchInformation";
-    RelatedInformationType[RelatedInformationType["SettingInformation"] = 4] = "SettingInformation";
-})(RelatedInformationType || (RelatedInformationType = {}));
+import"../../../../base/common/cancellation.js";import"../../../../base/common/lifecycle.js";import{createDecorator as t}from"../../../../platform/instantiation/common/instantiation.js";const l=t("IAiRelatedInformationService");var o=(e=>(e[e.SymbolInformation=1]="SymbolInformation",e[e.CommandInformation=2]="CommandInformation",e[e.SearchInformation=3]="SearchInformation",e[e.SettingInformation=4]="SettingInformation",e))(o||{});export{l as IAiRelatedInformationService,o as RelatedInformationType};

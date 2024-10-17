@@ -1,14 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export const defaultTerminalFindCommandToSkipShell = [
-    "workbench.action.terminal.focusFind" /* TerminalFindCommandId.FindFocus */,
-    "workbench.action.terminal.hideFind" /* TerminalFindCommandId.FindHide */,
-    "workbench.action.terminal.findNext" /* TerminalFindCommandId.FindNext */,
-    "workbench.action.terminal.findPrevious" /* TerminalFindCommandId.FindPrevious */,
-    "workbench.action.terminal.toggleFindRegex" /* TerminalFindCommandId.ToggleFindRegex */,
-    "workbench.action.terminal.toggleFindWholeWord" /* TerminalFindCommandId.ToggleFindWholeWord */,
-    "workbench.action.terminal.toggleFindCaseSensitive" /* TerminalFindCommandId.ToggleFindCaseSensitive */,
-    "workbench.action.terminal.searchWorkspace" /* TerminalFindCommandId.SearchWorkspace */,
-];
+var n=(e=>(e.FindFocus="workbench.action.terminal.focusFind",e.FindHide="workbench.action.terminal.hideFind",e.FindNext="workbench.action.terminal.findNext",e.FindPrevious="workbench.action.terminal.findPrevious",e.ToggleFindRegex="workbench.action.terminal.toggleFindRegex",e.ToggleFindWholeWord="workbench.action.terminal.toggleFindWholeWord",e.ToggleFindCaseSensitive="workbench.action.terminal.toggleFindCaseSensitive",e.SearchWorkspace="workbench.action.terminal.searchWorkspace",e))(n||{});const i=["workbench.action.terminal.focusFind","workbench.action.terminal.hideFind","workbench.action.terminal.findNext","workbench.action.terminal.findPrevious","workbench.action.terminal.toggleFindRegex","workbench.action.terminal.toggleFindWholeWord","workbench.action.terminal.toggleFindCaseSensitive","workbench.action.terminal.searchWorkspace"];export{n as TerminalFindCommandId,i as defaultTerminalFindCommandToSkipShell};

@@ -1,4 +1,4 @@
-import type { IProductConfiguration } from "./vs/base/common/product";
+import type { IProductConfiguration } from "./vs/base/common/product.js";
 
 /**
  * Add support for redirecting the loading of node modules

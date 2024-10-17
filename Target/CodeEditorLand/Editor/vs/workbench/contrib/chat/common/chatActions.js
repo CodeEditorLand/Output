@@ -1,9 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export function isChatViewTitleActionContext(obj) {
-    return !!obj &&
-        typeof obj.sessionId === 'string'
-        && obj.$mid === 19 /* MarshalledId.ChatViewContext */;
-}
+import{MarshalledId as e}from"../../../../base/common/marshallingIds.js";function n(t){return!!t&&typeof t.sessionId=="string"&&t.$mid===e.ChatViewContext}export{n as isChatViewTitleActionContext};

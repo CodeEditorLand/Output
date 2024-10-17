@@ -1,18 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { upcast } from '../../../base/common/types.js';
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const State = {
-    Uninitialized: upcast({ type: "uninitialized" /* StateType.Uninitialized */ }),
-    Disabled: (reason) => ({ type: "disabled" /* StateType.Disabled */, reason }),
-    Idle: (updateType, error) => ({ type: "idle" /* StateType.Idle */, updateType, error }),
-    CheckingForUpdates: (explicit) => ({ type: "checking for updates" /* StateType.CheckingForUpdates */, explicit }),
-    AvailableForDownload: (update) => ({ type: "available for download" /* StateType.AvailableForDownload */, update }),
-    Downloading: upcast({ type: "downloading" /* StateType.Downloading */ }),
-    Downloaded: (update) => ({ type: "downloaded" /* StateType.Downloaded */, update }),
-    Updating: (update) => ({ type: "updating" /* StateType.Updating */, update }),
-    Ready: (update) => ({ type: "ready" /* StateType.Ready */, update }),
-};
-export const IUpdateService = createDecorator('updateService');
+import"../../../base/common/event.js";import{upcast as o}from"../../../base/common/types.js";import{createDecorator as n}from"../../instantiation/common/instantiation.js";var p=(a=>(a.Uninitialized="uninitialized",a.Idle="idle",a.Disabled="disabled",a.CheckingForUpdates="checking for updates",a.AvailableForDownload="available for download",a.Downloading="downloading",a.Downloaded="downloaded",a.Updating="updating",a.Ready="ready",a))(p||{}),r=(d=>(d[d.Setup=0]="Setup",d[d.Archive=1]="Archive",d[d.Snap=2]="Snap",d))(r||{}),l=(t=>(t[t.NotBuilt=0]="NotBuilt",t[t.DisabledByEnvironment=1]="DisabledByEnvironment",t[t.ManuallyDisabled=2]="ManuallyDisabled",t[t.MissingConfiguration=3]="MissingConfiguration",t[t.InvalidConfiguration=4]="InvalidConfiguration",t[t.RunningAsAdmin=5]="RunningAsAdmin",t))(l||{});const c={Uninitialized:o({type:"uninitialized"}),Disabled:e=>({type:"disabled",reason:e}),Idle:(e,i)=>({type:"idle",updateType:e,error:i}),CheckingForUpdates:e=>({type:"checking for updates",explicit:e}),AvailableForDownload:e=>({type:"available for download",update:e}),Downloading:o({type:"downloading"}),Downloaded:e=>({type:"downloaded",update:e}),Updating:e=>({type:"updating",update:e}),Ready:e=>({type:"ready",update:e})},v=n("updateService");export{l as DisablementReason,v as IUpdateService,c as State,p as StateType,r as UpdateType};

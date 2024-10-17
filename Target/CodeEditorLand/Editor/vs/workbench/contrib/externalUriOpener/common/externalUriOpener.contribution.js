@@ -1,12 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { Extensions as ConfigurationExtensions } from '../../../../platform/configuration/common/configurationRegistry.js';
-import { registerSingleton } from '../../../../platform/instantiation/common/extensions.js';
-import { Registry } from '../../../../platform/registry/common/platform.js';
-import { externalUriOpenersConfigurationNode } from './configuration.js';
-import { ExternalUriOpenerService, IExternalUriOpenerService } from './externalUriOpenerService.js';
-registerSingleton(IExternalUriOpenerService, ExternalUriOpenerService, 1 /* InstantiationType.Delayed */);
-Registry.as(ConfigurationExtensions.Configuration)
-    .registerConfiguration(externalUriOpenersConfigurationNode);
+import{Extensions as r}from"../../../../platform/configuration/common/configurationRegistry.js";import{InstantiationType as i,registerSingleton as e}from"../../../../platform/instantiation/common/extensions.js";import{Registry as n}from"../../../../platform/registry/common/platform.js";import{externalUriOpenersConfigurationNode as o}from"./configuration.js";import{ExternalUriOpenerService as t,IExternalUriOpenerService as a}from"./externalUriOpenerService.js";e(a,t,i.Delayed),n.as(r.Configuration).registerConfiguration(o);

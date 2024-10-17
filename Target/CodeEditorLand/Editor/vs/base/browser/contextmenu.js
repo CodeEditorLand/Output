@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+import"./mouseEvent.js";import"./ui/actionbar/actionViewItems.js";import"./ui/actionbar/actionbar.js";import"./ui/contextview/contextview.js";import"../common/actions.js";import"../common/keybindings.js";import"../common/types.js";

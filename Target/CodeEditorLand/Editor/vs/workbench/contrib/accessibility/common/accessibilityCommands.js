@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+var i=(e=>(e.OpenAccessibleView="editor.action.accessibleView",e.OpenAccessibilityHelp="editor.action.accessibilityHelp",e.DisableVerbosityHint="editor.action.accessibleViewDisableHint",e.GoToSymbol="editor.action.accessibleViewGoToSymbol",e.ShowNext="editor.action.accessibleViewNext",e.ShowPrevious="editor.action.accessibleViewPrevious",e.AccessibleViewAcceptInlineCompletion="editor.action.accessibleViewAcceptInlineCompletion",e.NextCodeBlock="editor.action.accessibleViewNextCodeBlock",e.PreviousCodeBlock="editor.action.accessibleViewPreviousCodeBlock",e.AccessibilityHelpConfigureKeybindings="editor.action.accessibilityHelpConfigureKeybindings",e.AccessibilityHelpConfigureAssignedKeybindings="editor.action.accessibilityHelpConfigureAssignedKeybindings",e.AccessibilityHelpOpenHelpLink="editor.action.accessibilityHelpOpenHelpLink",e))(i||{});export{i as AccessibilityCommandId};

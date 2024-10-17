@@ -1,8 +1,4 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export const rectangleRendererWgsl = /*wgsl*/ `
+var o=(t=>(t[t.Shapes=0]="Shapes",t[t.LayoutInfoUniform=1]="LayoutInfoUniform",t[t.ScrollOffset=2]="ScrollOffset",t))(o||{});const e=`
 
 struct Vertex {
 	@location(0) position: vec2f,
@@ -30,11 +26,11 @@ struct VSOutput {
 };
 
 // Uniforms
-@group(0) @binding(${1 /* RectangleRendererBindingId.LayoutInfoUniform */}) var<uniform>       layoutInfo:      LayoutInfo;
+@group(0) @binding(1) var<uniform>       layoutInfo:      LayoutInfo;
 
 // Storage buffers
-@group(0) @binding(${0 /* RectangleRendererBindingId.Shapes */})            var<storage, read> shapes:          array<Shape>;
-@group(0) @binding(${2 /* RectangleRendererBindingId.ScrollOffset */})      var<uniform>       scrollOffset:    ScrollOffset;
+@group(0) @binding(0)            var<storage, read> shapes:          array<Shape>;
+@group(0) @binding(2)      var<uniform>       scrollOffset:    ScrollOffset;
 
 @vertex fn vs(
 	vert: Vertex,
@@ -63,4 +59,4 @@ struct VSOutput {
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
 	return vsOut.color;
 }
-`;
+`;export{o as RectangleRendererBindingId,e as rectangleRendererWgsl};

@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+var t=(e=>(e[e.GlyphInfo0=0]="GlyphInfo0",e[e.GlyphInfo1=1]="GlyphInfo1",e[e.Cells=2]="Cells",e[e.TextureSampler=3]="TextureSampler",e[e.Texture=4]="Texture",e[e.LayoutInfoUniform=5]="LayoutInfoUniform",e[e.AtlasDimensionsUniform=6]="AtlasDimensionsUniform",e[e.ScrollOffset=7]="ScrollOffset",e))(t||{});export{t as BindingId};

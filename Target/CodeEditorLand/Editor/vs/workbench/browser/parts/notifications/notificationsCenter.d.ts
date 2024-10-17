@@ -34,7 +34,7 @@ export declare class NotificationsCenter
 	private static readonly MAX_DIMENSIONS;
 	private static readonly MAX_NOTIFICATION_SOURCES;
 	private readonly _onDidChangeVisibility;
-	readonly onDidChangeVisibility: import("../../../workbench.web.main.internal").Event<void>;
+	readonly onDidChangeVisibility: import("../../../workbench.web.main.internal.js").Event<void>;
 	private notificationsCenterContainer;
 	private notificationsCenterHeader;
 	private notificationsCenterTitle;

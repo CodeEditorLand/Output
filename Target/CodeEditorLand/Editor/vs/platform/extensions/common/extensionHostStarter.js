@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IExtensionHostStarter = createDecorator('extensionHostStarter');
-export const ipcExtensionHostStarterChannelName = 'extensionHostStarter';
+import"../../../base/common/event.js";import{createDecorator as n}from"../../instantiation/common/instantiation.js";const i=n("extensionHostStarter"),s="extensionHostStarter";export{i as IExtensionHostStarter,s as ipcExtensionHostStarterChannelName};

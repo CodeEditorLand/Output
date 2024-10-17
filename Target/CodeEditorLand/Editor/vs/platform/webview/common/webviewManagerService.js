@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IWebviewManagerService = createDecorator('webviewManagerService');
+import"../../../base/common/event.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const a=e("webviewManagerService");export{a as IWebviewManagerService};

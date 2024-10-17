@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { ViewEventHandler } from '../../common/viewEventHandler.js';
-export class DynamicViewOverlay extends ViewEventHandler {
-}
+import"./renderingContext.js";import{ViewEventHandler as e}from"../../common/viewEventHandler.js";class a extends e{}export{a as DynamicViewOverlay};

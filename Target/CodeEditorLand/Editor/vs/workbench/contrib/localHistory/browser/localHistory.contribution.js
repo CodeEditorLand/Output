@@ -1,9 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import './localHistoryCommands.js';
-import { registerWorkbenchContribution2 } from '../../../common/contributions.js';
-import { LocalHistoryTimeline } from './localHistoryTimeline.js';
-// Register Local History Timeline
-registerWorkbenchContribution2(LocalHistoryTimeline.ID, LocalHistoryTimeline, 2 /* WorkbenchPhase.BlockRestore */);
+import"./localHistoryCommands.js";import{WorkbenchPhase as r,registerWorkbenchContribution2 as e}from"../../../common/contributions.js";import{LocalHistoryTimeline as o}from"./localHistoryTimeline.js";e(o.ID,o,r.BlockRestore);

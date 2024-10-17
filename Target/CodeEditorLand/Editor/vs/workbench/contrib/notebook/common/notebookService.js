@@ -1,13 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export const INotebookService = createDecorator('notebookService');
-export class SimpleNotebookProviderInfo {
-    constructor(viewType, serializer, extensionData) {
-        this.viewType = viewType;
-        this.serializer = serializer;
-        this.extensionData = extensionData;
-    }
-}
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../base/common/uri.js";import"./notebookProvider.js";import"../../../../base/common/event.js";import"./notebookCommon.js";import"./model/notebookTextModel.js";import"../../../../base/common/cancellation.js";import"./model/notebookCellTextModel.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/buffer.js";import"../../../../platform/configuration/common/configuration.js";import"../../../../platform/files/common/files.js";import"../../../services/search/common/search.js";import"../../search/common/search.js";import"../../search/common/searchNotebookHelpers.js";const H=e("notebookService");class _{constructor(t,r,i){this.viewType=t;this.serializer=r;this.extensionData=i}}export{H as INotebookService,_ as SimpleNotebookProviderInfo};

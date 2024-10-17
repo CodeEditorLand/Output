@@ -1,12 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export class CombinedSpliceable {
-    constructor(spliceables) {
-        this.spliceables = spliceables;
-    }
-    splice(start, deleteCount, elements) {
-        this.spliceables.forEach(s => s.splice(start, deleteCount, elements));
-    }
-}
+import"../../../common/sequence.js";class t{constructor(e){this.spliceables=e}splice(e,l,i){this.spliceables.forEach(p=>p.splice(e,l,i))}}export{t as CombinedSpliceable};

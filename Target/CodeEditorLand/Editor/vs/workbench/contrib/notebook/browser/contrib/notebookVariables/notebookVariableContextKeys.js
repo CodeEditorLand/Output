@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { RawContextKey } from '../../../../../../platform/contextkey/common/contextkey.js';
-export const NOTEBOOK_VARIABLE_VIEW_ENABLED = new RawContextKey('notebookVariableViewEnabled', false);
+import{RawContextKey as e}from"../../../../../../platform/contextkey/common/contextkey.js";const a=new e("notebookVariableViewEnabled",!1);export{a as NOTEBOOK_VARIABLE_VIEW_ENABLED};

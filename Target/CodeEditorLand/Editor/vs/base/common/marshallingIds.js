@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+var o=(t=>(t[t.Uri=1]="Uri",t[t.Regexp=2]="Regexp",t[t.ScmResource=3]="ScmResource",t[t.ScmResourceGroup=4]="ScmResourceGroup",t[t.ScmProvider=5]="ScmProvider",t[t.CommentController=6]="CommentController",t[t.CommentThread=7]="CommentThread",t[t.CommentThreadInstance=8]="CommentThreadInstance",t[t.CommentThreadReply=9]="CommentThreadReply",t[t.CommentNode=10]="CommentNode",t[t.CommentThreadNode=11]="CommentThreadNode",t[t.TimelineActionContext=12]="TimelineActionContext",t[t.NotebookCellActionContext=13]="NotebookCellActionContext",t[t.NotebookActionContext=14]="NotebookActionContext",t[t.TerminalContext=15]="TerminalContext",t[t.TestItemContext=16]="TestItemContext",t[t.Date=17]="Date",t[t.TestMessageMenuArgs=18]="TestMessageMenuArgs",t[t.ChatViewContext=19]="ChatViewContext",t))(o||{});export{o as MarshalledId};

@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"./editorOptions.js";import"../core/dimension.js";import"../../../platform/actions/common/actions.js";

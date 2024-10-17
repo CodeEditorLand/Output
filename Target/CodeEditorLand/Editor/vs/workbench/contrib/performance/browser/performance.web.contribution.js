@@ -1,10 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { Registry } from '../../../../platform/registry/common/platform.js';
-import { Extensions } from '../../../common/contributions.js';
-import { BrowserResourcePerformanceMarks, BrowserStartupTimings } from './startupTimings.js';
-// -- startup timings
-Registry.as(Extensions.Workbench).registerWorkbenchContribution(BrowserResourcePerformanceMarks, 4 /* LifecyclePhase.Eventually */);
-Registry.as(Extensions.Workbench).registerWorkbenchContribution(BrowserStartupTimings, 4 /* LifecyclePhase.Eventually */);
+import{LifecyclePhase as r}from"../../../services/lifecycle/common/lifecycle.js";import{Registry as o}from"../../../../platform/registry/common/platform.js";import{Extensions as e}from"../../../common/contributions.js";import{BrowserResourcePerformanceMarks as t,BrowserStartupTimings as i}from"./startupTimings.js";o.as(e.Workbench).registerWorkbenchContribution(t,r.Eventually),o.as(e.Workbench).registerWorkbenchContribution(i,r.Eventually);

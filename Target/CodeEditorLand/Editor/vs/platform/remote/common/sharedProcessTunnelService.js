@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const ISharedProcessTunnelService = createDecorator('sharedProcessTunnelService');
-export const ipcSharedProcessTunnelChannelName = 'sharedProcessTunnel';
+import{createDecorator as e}from"../../instantiation/common/instantiation.js";import"./remoteAgentConnection.js";const o=e("sharedProcessTunnelService"),t="sharedProcessTunnel";export{o as ISharedProcessTunnelService,t as ipcSharedProcessTunnelChannelName};

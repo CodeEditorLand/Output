@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { create } from "./extensionHostWorker.js";
-const data = create();
-self.onmessage = (e) => data.onmessage(e.data);
+import{create as e}from"./extensionHostWorker.js";const s=e();self.onmessage=a=>s.onmessage(a.data);

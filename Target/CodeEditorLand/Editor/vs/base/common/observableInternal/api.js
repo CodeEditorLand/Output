@@ -1,14 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { ObservableValue } from './base.js';
-import { DebugNameData } from './debugName.js';
-import { strictEquals } from './commonFacade/deps.js';
-import { LazyObservableValue } from './lazyObservableValue.js';
-export function observableValueOpts(options, initialValue) {
-    if (options.lazy) {
-        return new LazyObservableValue(new DebugNameData(options.owner, options.debugName, undefined), initialValue, options.equalsFn ?? strictEquals);
-    }
-    return new ObservableValue(new DebugNameData(options.owner, options.debugName, undefined), initialValue, options.equalsFn ?? strictEquals);
-}
+import{ObservableValue as u}from"./base.js";import{DebugNameData as r}from"./debugName.js";import{strictEquals as b}from"./commonFacade/deps.js";import{LazyObservableValue as l}from"./lazyObservableValue.js";function q(e,a){return e.lazy?new l(new r(e.owner,e.debugName,void 0),a,e.equalsFn??b):new u(new r(e.owner,e.debugName,void 0),a,e.equalsFn??b)}export{q as observableValueOpts};

@@ -1,11 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export class SyncDescriptor {
-    constructor(ctor, staticArguments = [], supportsDelayedInstantiation = false) {
-        this.ctor = ctor;
-        this.staticArguments = staticArguments;
-        this.supportsDelayedInstantiation = supportsDelayedInstantiation;
-    }
-}
+class o{ctor;staticArguments;supportsDelayedInstantiation;constructor(t,n=[],a=!1){this.ctor=t,this.staticArguments=n,this.supportsDelayedInstantiation=a}}export{o as SyncDescriptor};

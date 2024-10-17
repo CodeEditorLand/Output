@@ -1,6 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IKeybindingService = createDecorator('keybindingService');
+import"../../../base/common/event.js";import"../../../base/common/jsonSchema.js";import"../../../base/common/keyCodes.js";import"../../../base/common/keybindings.js";import"../../contextkey/common/contextkey.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";import"./keybindingResolver.js";import"./resolvedKeybindingItem.js";const I=e("keybindingService");export{I as IKeybindingService};

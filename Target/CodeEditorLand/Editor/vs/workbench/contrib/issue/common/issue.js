@@ -1,14 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../../../platform/instantiation/common/instantiation.js';
-export var IssueSource;
-(function (IssueSource) {
-    IssueSource["VSCode"] = "vscode";
-    IssueSource["Extension"] = "extension";
-    IssueSource["Marketplace"] = "marketplace";
-})(IssueSource || (IssueSource = {}));
-export const IIssueFormService = createDecorator('issueFormService');
-export const IWorkbenchIssueService = createDecorator('workbenchIssueService');
-export const IWorkbenchProcessService = createDecorator('workbenchProcessService');
+import"../../../../base/common/uri.js";import"../../../../base/parts/sandbox/common/sandboxTypes.js";import{createDecorator as r}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/issue/common/issue.js";var o=(e=>(e[e.Bug=0]="Bug",e[e.PerformanceIssue=1]="PerformanceIssue",e[e.FeatureRequest=2]="FeatureRequest",e))(o||{}),t=(e=>(e.VSCode="vscode",e.Extension="extension",e.Marketplace="marketplace",e))(t||{});const g=r("issueFormService"),u=r("workbenchIssueService"),p=r("workbenchProcessService");export{g as IIssueFormService,u as IWorkbenchIssueService,p as IWorkbenchProcessService,t as IssueSource,o as IssueType};

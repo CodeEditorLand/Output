@@ -1,10 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import * as nls from '../../../../nls.js';
-export function applyDeprecatedVariableMessage(schema) {
-    schema.pattern = schema.pattern || '^(?!.*\\$\\{(env|config|command)\\.)';
-    schema.patternErrorMessage = schema.patternErrorMessage ||
-        nls.localize('deprecatedVariables', "'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead.");
-}
+import*as a from"../../../../nls.js";import"../../../../base/common/jsonSchema.js";function t(e){e.pattern=e.pattern||"^(?!.*\\$\\{(env|config|command)\\.)",e.patternErrorMessage=e.patternErrorMessage||a.localize("deprecatedVariables","'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead.")}export{t as applyDeprecatedVariableMessage};

@@ -1,5 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-export {};
+var r=(t=>(t.WriteDataToTerminal="workbench.action.terminal.writeDataToTerminal",t.RecordSession="workbench.action.terminal.recordSession",t.ShowTextureAtlas="workbench.action.terminal.showTextureAtlas",t.RestartPtyHost="workbench.action.terminal.restartPtyHost",t))(r||{});export{r as TerminalDeveloperCommandId};

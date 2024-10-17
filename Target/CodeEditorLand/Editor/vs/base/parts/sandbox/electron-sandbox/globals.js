@@ -1,11 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-const vscodeGlobal = globalThis.vscode;
-export const ipcRenderer = vscodeGlobal.ipcRenderer;
-export const ipcMessagePort = vscodeGlobal.ipcMessagePort;
-export const webFrame = vscodeGlobal.webFrame;
-export const process = vscodeGlobal.process;
-export const context = vscodeGlobal.context;
-export const webUtils = vscodeGlobal.webUtils;
+import"../../../common/platform.js";import"../common/sandboxTypes.js";import"./electronTypes.js";const e=globalThis.vscode,l=e.ipcRenderer,b=e.ipcMessagePort,x=e.webFrame,m=e.process,I=e.context,g=e.webUtils;export{I as context,b as ipcMessagePort,l as ipcRenderer,m as process,x as webFrame,g as webUtils};

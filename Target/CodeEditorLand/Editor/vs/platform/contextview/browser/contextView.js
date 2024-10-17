@@ -1,7 +1,1 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
-import { createDecorator } from '../../instantiation/common/instantiation.js';
-export const IContextViewService = createDecorator('contextViewService');
-export const IContextMenuService = createDecorator('contextMenuService');
+import"../../../base/browser/contextmenu.js";import"../../../base/browser/mouseEvent.js";import"../../../base/browser/ui/contextview/contextview.js";import"../../../base/common/actions.js";import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"../../actions/common/actions.js";import"../../contextkey/common/contextkey.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const f=e("contextViewService"),h=e("contextMenuService");export{h as IContextMenuService,f as IContextViewService};

@@ -1,1 +1,350 @@
-import"../../../../base/browser/ui/tree/tree.js";import*as y from"../../../../nls.js";import{IConfigurationService as T}from"../../../../platform/configuration/common/configuration.js";import"../../../../platform/instantiation/common/instantiation.js";import{getSelectionKeyboardEvent as b}from"../../../../platform/list/browser/listService.js";import{IViewsService as V}from"../../../services/views/common/viewsService.js";import{searchRemoveIcon as O,searchReplaceIcon as F}from"./searchIcons.js";import"./searchView.js";import*as e from"../common/constants.js";import{IReplaceService as N}from"./replace.js";import{IEditorService as q}from"../../../services/editor/common/editorService.js";import"../../../services/search/common/search.js";import{IUriIdentityService as L}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{ContextKeyExpr as u}from"../../../../platform/contextkey/common/contextkey.js";import{Action2 as x,MenuId as f,registerAction2 as I}from"../../../../platform/actions/common/actions.js";import{KeybindingWeight as R}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{KeyCode as S,KeyMod as d}from"../../../../base/common/keyCodes.js";import{category as v,getElementsToOperateOn as P,getSearchView as k,shouldRefocus as U}from"./searchActionsBase.js";import{equals as H}from"../../../../base/common/arrays.js";import{arrayContainsElementOrParent as C,isSearchTreeFileMatch as g,isSearchTreeFolderMatch as A,isSearchTreeMatch as p,isSearchResult as K,isTextSearchHeading as W}from"./searchTreeModel/searchTreeCommon.js";import{MatchInNotebook as j}from"./notebookSearch/notebookSearchModel.js";I(class extends x{constructor(){super({id:e.SearchCommandIds.RemoveActionId,title:y.localize2("RemoveAction.label","Dismiss"),category:v,icon:O,keybinding:{weight:R.WorkbenchContrib,when:u.and(e.SearchContext.SearchViewVisibleKey,e.SearchContext.FileMatchOrMatchFocusKey),primary:S.Delete,mac:{primary:d.CtrlCmd|S.Backspace}},menu:[{id:f.SearchContext,group:"search",order:2},{id:f.SearchActionMenu,group:"inline",order:2}]})}async run(t,r){const o=t.get(V),l=t.get(T),a=k(o);if(!a)return;let m=r?.element,c=r?.viewer;c||(c=a.getControl()),m||(m=c.getFocus()[0]??void 0);const s=P(c,m,l.getValue("search"));let i=c.getFocus()[0]??void 0;if(s.length===0)return;(!i||K(i))&&(i=m);let h;const w=U(s,i);i&&w&&(h=await D(c,i,s));const M=a.searchResult;M&&M.batchRemove(s),await a.refreshTreePromiseSerializer,i&&w?(h||(h=await z(c,i)),h&&!C(h,s)&&(c.reveal(h),c.setFocus([h],b()),c.setSelection([h],b()))):H(c.getFocus(),c.getSelection())||c.setSelection(c.getFocus()),c.domFocus()}}),I(class extends x{constructor(){super({id:e.SearchCommandIds.ReplaceActionId,title:y.localize2("match.replace.label","Replace"),category:v,keybinding:{weight:R.WorkbenchContrib,when:u.and(e.SearchContext.SearchViewVisibleKey,e.SearchContext.ReplaceActiveKey,e.SearchContext.MatchFocusKey,e.SearchContext.IsEditableItemKey),primary:d.Shift|d.CtrlCmd|S.Digit1},icon:F,menu:[{id:f.SearchContext,when:u.and(e.SearchContext.ReplaceActiveKey,e.SearchContext.MatchFocusKey,e.SearchContext.IsEditableItemKey),group:"search",order:1},{id:f.SearchActionMenu,when:u.and(e.SearchContext.ReplaceActiveKey,e.SearchContext.MatchFocusKey,e.SearchContext.IsEditableItemKey),group:"inline",order:1}]})}async run(t,r){return E(t,r)}}),I(class extends x{constructor(){super({id:e.SearchCommandIds.ReplaceAllInFileActionId,title:y.localize2("file.replaceAll.label","Replace All"),category:v,keybinding:{weight:R.WorkbenchContrib,when:u.and(e.SearchContext.SearchViewVisibleKey,e.SearchContext.ReplaceActiveKey,e.SearchContext.FileFocusKey,e.SearchContext.IsEditableItemKey),primary:d.Shift|d.CtrlCmd|S.Digit1,secondary:[d.CtrlCmd|d.Shift|S.Enter]},icon:F,menu:[{id:f.SearchContext,when:u.and(e.SearchContext.ReplaceActiveKey,e.SearchContext.FileFocusKey,e.SearchContext.IsEditableItemKey),group:"search",order:1},{id:f.SearchActionMenu,when:u.and(e.SearchContext.ReplaceActiveKey,e.SearchContext.FileFocusKey,e.SearchContext.IsEditableItemKey),group:"inline",order:1}]})}async run(t,r){return E(t,r)}}),I(class extends x{constructor(){super({id:e.SearchCommandIds.ReplaceAllInFolderActionId,title:y.localize2("file.replaceAll.label","Replace All"),category:v,keybinding:{weight:R.WorkbenchContrib,when:u.and(e.SearchContext.SearchViewVisibleKey,e.SearchContext.ReplaceActiveKey,e.SearchContext.FolderFocusKey,e.SearchContext.IsEditableItemKey),primary:d.Shift|d.CtrlCmd|S.Digit1,secondary:[d.CtrlCmd|d.Shift|S.Enter]},icon:F,menu:[{id:f.SearchContext,when:u.and(e.SearchContext.ReplaceActiveKey,e.SearchContext.FolderFocusKey,e.SearchContext.IsEditableItemKey),group:"search",order:1},{id:f.SearchActionMenu,when:u.and(e.SearchContext.ReplaceActiveKey,e.SearchContext.FolderFocusKey,e.SearchContext.IsEditableItemKey),group:"inline",order:1}]})}async run(t,r){return E(t,r)}});async function E(n,t){const r=n.get(T),o=n.get(V),l=k(o),a=t?.viewer??l?.getControl();if(!a)return;const m=t?.element??a.getFocus()[0],c=P(a,m??void 0,r.getValue("search"));let s=a.getFocus()[0];if((!s||s&&!C(s,c)||K(s))&&(s=m),c.length===0)return;let i;s&&(i=await D(a,s,c));const h=l?.searchResult;h&&await h.batchReplace(c),await l?.refreshTreePromiseSerializer,s&&(i||(i=await z(a,s)),i&&(a.reveal(i),a.setFocus([i],b()),a.setSelection([i],b()),p(i)?!r.getValue().search.useReplacePreview||B(n,i)||i instanceof j?l?.open(i,!0):n.get(N).openReplacePreview(i,!0):g(i)&&l?.open(i,!0))),a.domFocus()}function B(n,t){if(!p(t))return!1;const o=n.get(q).activeEditor?.resource;return o?n.get(L).extUri.isEqual(o,t.parent().resource):!1}function G(n,t){return p(n)?p(t)?0:-1:g(n)?p(t)?1:g(t)?0:-1:A(n)?W(t)?-1:A(t)?0:1:W(t)?0:1}async function D(n,t,r){const o=n.navigate(t);if(A(t))for(;o.next()&&(!A(o.current())||C(o.current(),r)););else if(g(t))for(;o.next()&&(!g(o.current())||C(o.current(),r));)await n.expand(o.current());else for(;o.next()&&(!p(o.current())||C(o.current(),r));)await n.expand(o.current());return o.current()}async function z(n,t){let r=n.lastVisibleElement??null;for(;r;){const o=G(t,r);if(o===-1){if(!await n.expand(r))return r;r=n.lastVisibleElement}else if(o===1){const l=n.getParentElement(r);if(K(l))break;r=l}else return r}}export{D as getElementToFocusAfterRemoved,z as getLastNodeFromSameType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ITreeNavigator } from "../../../../base/browser/ui/tree/tree.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { getSelectionKeyboardEvent, WorkbenchCompressibleAsyncDataTree } from "../../../../platform/list/browser/listService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { searchRemoveIcon, searchReplaceIcon } from "./searchIcons.js";
+import { SearchView } from "./searchView.js";
+import * as Constants from "../common/constants.js";
+import { IReplaceService } from "./replace.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ISearchConfiguration, ISearchConfigurationProperties } from "../../../services/search/common/search.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { category, getElementsToOperateOn, getSearchView, shouldRefocus } from "./searchActionsBase.js";
+import { equals } from "../../../../base/common/arrays.js";
+import { arrayContainsElementOrParent, RenderableMatch, ISearchResult, isSearchTreeFileMatch, isSearchTreeFolderMatch, isSearchTreeMatch, isSearchResult, isTextSearchHeading } from "./searchTreeModel/searchTreeCommon.js";
+import { MatchInNotebook } from "./notebookSearch/notebookSearchModel.js";
+registerAction2(class RemoveAction extends Action2 {
+  static {
+    __name(this, "RemoveAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.RemoveActionId,
+      title: nls.localize2("RemoveAction.label", "Dismiss"),
+      category,
+      icon: searchRemoveIcon,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.FileMatchOrMatchFocusKey),
+        primary: KeyCode.Delete,
+        mac: {
+          primary: KeyMod.CtrlCmd | KeyCode.Backspace
+        }
+      },
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          group: "search",
+          order: 2
+        },
+        {
+          id: MenuId.SearchActionMenu,
+          group: "inline",
+          order: 2
+        }
+      ]
+    });
+  }
+  async run(accessor, context) {
+    const viewsService = accessor.get(IViewsService);
+    const configurationService = accessor.get(IConfigurationService);
+    const searchView = getSearchView(viewsService);
+    if (!searchView) {
+      return;
+    }
+    let element = context?.element;
+    let viewer = context?.viewer;
+    if (!viewer) {
+      viewer = searchView.getControl();
+    }
+    if (!element) {
+      element = viewer.getFocus()[0] ?? void 0;
+    }
+    const elementsToRemove = getElementsToOperateOn(viewer, element, configurationService.getValue("search"));
+    let focusElement = viewer.getFocus()[0] ?? void 0;
+    if (elementsToRemove.length === 0) {
+      return;
+    }
+    if (!focusElement || isSearchResult(focusElement)) {
+      focusElement = element;
+    }
+    let nextFocusElement;
+    const shouldRefocusMatch = shouldRefocus(elementsToRemove, focusElement);
+    if (focusElement && shouldRefocusMatch) {
+      nextFocusElement = await getElementToFocusAfterRemoved(viewer, focusElement, elementsToRemove);
+    }
+    const searchResult = searchView.searchResult;
+    if (searchResult) {
+      searchResult.batchRemove(elementsToRemove);
+    }
+    await searchView.refreshTreePromiseSerializer;
+    if (focusElement && shouldRefocusMatch) {
+      if (!nextFocusElement) {
+        nextFocusElement = await getLastNodeFromSameType(viewer, focusElement);
+      }
+      if (nextFocusElement && !arrayContainsElementOrParent(nextFocusElement, elementsToRemove)) {
+        viewer.reveal(nextFocusElement);
+        viewer.setFocus([nextFocusElement], getSelectionKeyboardEvent());
+        viewer.setSelection([nextFocusElement], getSelectionKeyboardEvent());
+      }
+    } else if (!equals(viewer.getFocus(), viewer.getSelection())) {
+      viewer.setSelection(viewer.getFocus());
+    }
+    viewer.domFocus();
+    return;
+  }
+});
+registerAction2(class ReplaceAction extends Action2 {
+  static {
+    __name(this, "ReplaceAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.ReplaceActionId,
+      title: nls.localize2("match.replace.label", "Replace"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.MatchFocusKey, Constants.SearchContext.IsEditableItemKey),
+        primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1
+      },
+      icon: searchReplaceIcon,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.MatchFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "search",
+          order: 1
+        },
+        {
+          id: MenuId.SearchActionMenu,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.MatchFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "inline",
+          order: 1
+        }
+      ]
+    });
+  }
+  async run(accessor, context) {
+    return performReplace(accessor, context);
+  }
+});
+registerAction2(class ReplaceAllAction extends Action2 {
+  static {
+    __name(this, "ReplaceAllAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.ReplaceAllInFileActionId,
+      title: nls.localize2("file.replaceAll.label", "Replace All"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FileFocusKey, Constants.SearchContext.IsEditableItemKey),
+        primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1,
+        secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter]
+      },
+      icon: searchReplaceIcon,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FileFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "search",
+          order: 1
+        },
+        {
+          id: MenuId.SearchActionMenu,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FileFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "inline",
+          order: 1
+        }
+      ]
+    });
+  }
+  async run(accessor, context) {
+    return performReplace(accessor, context);
+  }
+});
+registerAction2(class ReplaceAllInFolderAction extends Action2 {
+  static {
+    __name(this, "ReplaceAllInFolderAction");
+  }
+  constructor() {
+    super({
+      id: Constants.SearchCommandIds.ReplaceAllInFolderActionId,
+      title: nls.localize2("file.replaceAll.label", "Replace All"),
+      category,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: ContextKeyExpr.and(Constants.SearchContext.SearchViewVisibleKey, Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FolderFocusKey, Constants.SearchContext.IsEditableItemKey),
+        primary: KeyMod.Shift | KeyMod.CtrlCmd | KeyCode.Digit1,
+        secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter]
+      },
+      icon: searchReplaceIcon,
+      menu: [
+        {
+          id: MenuId.SearchContext,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FolderFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "search",
+          order: 1
+        },
+        {
+          id: MenuId.SearchActionMenu,
+          when: ContextKeyExpr.and(Constants.SearchContext.ReplaceActiveKey, Constants.SearchContext.FolderFocusKey, Constants.SearchContext.IsEditableItemKey),
+          group: "inline",
+          order: 1
+        }
+      ]
+    });
+  }
+  async run(accessor, context) {
+    return performReplace(accessor, context);
+  }
+});
+async function performReplace(accessor, context) {
+  const configurationService = accessor.get(IConfigurationService);
+  const viewsService = accessor.get(IViewsService);
+  const viewlet = getSearchView(viewsService);
+  const viewer = context?.viewer ?? viewlet?.getControl();
+  if (!viewer) {
+    return;
+  }
+  const element = context?.element ?? viewer.getFocus()[0];
+  const elementsToReplace = getElementsToOperateOn(viewer, element ?? void 0, configurationService.getValue("search"));
+  let focusElement = viewer.getFocus()[0];
+  if (!focusElement || focusElement && !arrayContainsElementOrParent(focusElement, elementsToReplace) || isSearchResult(focusElement)) {
+    focusElement = element;
+  }
+  if (elementsToReplace.length === 0) {
+    return;
+  }
+  let nextFocusElement;
+  if (focusElement) {
+    nextFocusElement = await getElementToFocusAfterRemoved(viewer, focusElement, elementsToReplace);
+  }
+  const searchResult = viewlet?.searchResult;
+  if (searchResult) {
+    await searchResult.batchReplace(elementsToReplace);
+  }
+  await viewlet?.refreshTreePromiseSerializer;
+  if (focusElement) {
+    if (!nextFocusElement) {
+      nextFocusElement = await getLastNodeFromSameType(viewer, focusElement);
+    }
+    if (nextFocusElement) {
+      viewer.reveal(nextFocusElement);
+      viewer.setFocus([nextFocusElement], getSelectionKeyboardEvent());
+      viewer.setSelection([nextFocusElement], getSelectionKeyboardEvent());
+      if (isSearchTreeMatch(nextFocusElement)) {
+        const useReplacePreview = configurationService.getValue().search.useReplacePreview;
+        if (!useReplacePreview || hasToOpenFile(accessor, nextFocusElement) || nextFocusElement instanceof MatchInNotebook) {
+          viewlet?.open(nextFocusElement, true);
+        } else {
+          accessor.get(IReplaceService).openReplacePreview(nextFocusElement, true);
+        }
+      } else if (isSearchTreeFileMatch(nextFocusElement)) {
+        viewlet?.open(nextFocusElement, true);
+      }
+    }
+  }
+  viewer.domFocus();
+}
+__name(performReplace, "performReplace");
+function hasToOpenFile(accessor, currBottomElem) {
+  if (!isSearchTreeMatch(currBottomElem)) {
+    return false;
+  }
+  const activeEditor = accessor.get(IEditorService).activeEditor;
+  const file = activeEditor?.resource;
+  if (file) {
+    return accessor.get(IUriIdentityService).extUri.isEqual(file, currBottomElem.parent().resource);
+  }
+  return false;
+}
+__name(hasToOpenFile, "hasToOpenFile");
+function compareLevels(elem1, elem2) {
+  if (isSearchTreeMatch(elem1)) {
+    if (isSearchTreeMatch(elem2)) {
+      return 0;
+    } else {
+      return -1;
+    }
+  } else if (isSearchTreeFileMatch(elem1)) {
+    if (isSearchTreeMatch(elem2)) {
+      return 1;
+    } else if (isSearchTreeFileMatch(elem2)) {
+      return 0;
+    } else {
+      return -1;
+    }
+  } else if (isSearchTreeFolderMatch(elem1)) {
+    if (isTextSearchHeading(elem2)) {
+      return -1;
+    } else if (isSearchTreeFolderMatch(elem2)) {
+      return 0;
+    } else {
+      return 1;
+    }
+  } else {
+    if (isTextSearchHeading(elem2)) {
+      return 0;
+    } else {
+      return 1;
+    }
+  }
+}
+__name(compareLevels, "compareLevels");
+async function getElementToFocusAfterRemoved(viewer, element, elementsToRemove) {
+  const navigator = viewer.navigate(element);
+  if (isSearchTreeFolderMatch(element)) {
+    while (!!navigator.next() && (!isSearchTreeFolderMatch(navigator.current()) || arrayContainsElementOrParent(navigator.current(), elementsToRemove))) {
+    }
+  } else if (isSearchTreeFileMatch(element)) {
+    while (!!navigator.next() && (!isSearchTreeFileMatch(navigator.current()) || arrayContainsElementOrParent(navigator.current(), elementsToRemove))) {
+      await viewer.expand(navigator.current());
+    }
+  } else {
+    while (navigator.next() && (!isSearchTreeMatch(navigator.current()) || arrayContainsElementOrParent(navigator.current(), elementsToRemove))) {
+      await viewer.expand(navigator.current());
+    }
+  }
+  return navigator.current();
+}
+__name(getElementToFocusAfterRemoved, "getElementToFocusAfterRemoved");
+async function getLastNodeFromSameType(viewer, element) {
+  let lastElem = viewer.lastVisibleElement ?? null;
+  while (lastElem) {
+    const compareVal = compareLevels(element, lastElem);
+    if (compareVal === -1) {
+      const expanded = await viewer.expand(lastElem);
+      if (!expanded) {
+        return lastElem;
+      }
+      lastElem = viewer.lastVisibleElement;
+    } else if (compareVal === 1) {
+      const potentialLastElem = viewer.getParentElement(lastElem);
+      if (isSearchResult(potentialLastElem)) {
+        break;
+      } else {
+        lastElem = potentialLastElem;
+      }
+    } else {
+      return lastElem;
+    }
+  }
+  return void 0;
+}
+__name(getLastNodeFromSameType, "getLastNodeFromSameType");
+export {
+  getElementToFocusAfterRemoved,
+  getLastNodeFromSameType
+};
+//# sourceMappingURL=searchActionsRemoveReplace.js.map

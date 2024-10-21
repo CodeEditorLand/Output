@@ -1,1 +1,103 @@
-import{Permutation as c,compareBy as d}from"../../../../base/common/arrays.js";import{BugIndicatingError as y}from"../../../../base/common/errors.js";import"../../../../base/common/lifecycle.js";import{observableValue as l,autorun as g,transaction as x}from"../../../../base/common/observable.js";import{splitLinesIncludeSeparators as p}from"../../../../base/common/strings.js";import"../../../../platform/contextkey/common/contextkey.js";import{bindContextKey as f}from"../../../../platform/observable/common/platformObservableUtils.js";import{Position as u}from"../../../common/core/position.js";import{Range as b}from"../../../common/core/range.js";import{TextEdit as v}from"../../../common/core/textEdit.js";const T=[];function F(){return T}class L{constructor(e,r){this.startColumn=e;this.endColumnExclusive=r;if(e>r)throw new y(`startColumn ${e} cannot be after endColumnExclusive ${r}`)}toRange(e){return new b(e,this.startColumn,e,this.endColumnExclusive)}equals(e){return this.startColumn===e.startColumn&&this.endColumnExclusive===e.endColumnExclusive}}function U(t,e){return new u(t.lineNumber+e.lineNumber-1,e.lineNumber===1?t.column+e.column-1:e.column)}function j(t,e){return new u(t.lineNumber-e.lineNumber+1,t.lineNumber-e.lineNumber===0?t.column-e.column+1:t.column)}function z(t,e){let r="";const n=p(t);for(let i=e.lineNumber-1;i<n.length;i++)r+=n[i].substring(i===e.lineNumber-1?e.column-1:0);return r}function G(t){const e=c.createSortPermutation(t,d(o=>o.range,b.compareRangesUsingStarts)),n=new v(e.apply(t)).getNewRanges();return e.inverse().apply(n).map(o=>o.getEndPosition())}function H(t,e){const r=l("result",[]),n=[];return e.add(g(i=>{const o=t.read(i);x(s=>{if(o.length!==n.length){n.length=o.length;for(let a=0;a<n.length;a++)n[a]||(n[a]=l("item",o[a]));r.set([...n],s)}n.forEach((a,m)=>a.set(o[m],s))})})),r}class J{constructor(e){this._contextKeyService=e}bind(e,r){return f(e,this._contextKeyService,r instanceof Function?r:n=>r.read(n))}}export{L as ColumnRange,J as ObservableContextKeyService,U as addPositions,H as convertItemsToStableObservables,G as getEndPositionsAfterApplying,F as getReadonlyEmptyArray,z as substringPos,j as subtractPositions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Permutation, compareBy } from "../../../../base/common/arrays.js";
+import { BugIndicatingError } from "../../../../base/common/errors.js";
+import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { IObservable, observableValue, ISettableObservable, autorun, transaction, IReader } from "../../../../base/common/observable.js";
+import { splitLinesIncludeSeparators } from "../../../../base/common/strings.js";
+import { ContextKeyValue, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { bindContextKey } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { SingleTextEdit, TextEdit } from "../../../common/core/textEdit.js";
+const array = [];
+function getReadonlyEmptyArray() {
+  return array;
+}
+__name(getReadonlyEmptyArray, "getReadonlyEmptyArray");
+class ColumnRange {
+  constructor(startColumn, endColumnExclusive) {
+    this.startColumn = startColumn;
+    this.endColumnExclusive = endColumnExclusive;
+    if (startColumn > endColumnExclusive) {
+      throw new BugIndicatingError(`startColumn ${startColumn} cannot be after endColumnExclusive ${endColumnExclusive}`);
+    }
+  }
+  static {
+    __name(this, "ColumnRange");
+  }
+  toRange(lineNumber) {
+    return new Range(lineNumber, this.startColumn, lineNumber, this.endColumnExclusive);
+  }
+  equals(other) {
+    return this.startColumn === other.startColumn && this.endColumnExclusive === other.endColumnExclusive;
+  }
+}
+function addPositions(pos1, pos2) {
+  return new Position(pos1.lineNumber + pos2.lineNumber - 1, pos2.lineNumber === 1 ? pos1.column + pos2.column - 1 : pos2.column);
+}
+__name(addPositions, "addPositions");
+function subtractPositions(pos1, pos2) {
+  return new Position(pos1.lineNumber - pos2.lineNumber + 1, pos1.lineNumber - pos2.lineNumber === 0 ? pos1.column - pos2.column + 1 : pos1.column);
+}
+__name(subtractPositions, "subtractPositions");
+function substringPos(text, pos) {
+  let subtext = "";
+  const lines = splitLinesIncludeSeparators(text);
+  for (let i = pos.lineNumber - 1; i < lines.length; i++) {
+    subtext += lines[i].substring(i === pos.lineNumber - 1 ? pos.column - 1 : 0);
+  }
+  return subtext;
+}
+__name(substringPos, "substringPos");
+function getEndPositionsAfterApplying(edits) {
+  const sortPerm = Permutation.createSortPermutation(edits, compareBy((e) => e.range, Range.compareRangesUsingStarts));
+  const edit = new TextEdit(sortPerm.apply(edits));
+  const sortedNewRanges = edit.getNewRanges();
+  const newRanges = sortPerm.inverse().apply(sortedNewRanges);
+  return newRanges.map((range) => range.getEndPosition());
+}
+__name(getEndPositionsAfterApplying, "getEndPositionsAfterApplying");
+function convertItemsToStableObservables(items, store) {
+  const result = observableValue("result", []);
+  const innerObservables = [];
+  store.add(autorun((reader) => {
+    const itemsValue = items.read(reader);
+    transaction((tx) => {
+      if (itemsValue.length !== innerObservables.length) {
+        innerObservables.length = itemsValue.length;
+        for (let i = 0; i < innerObservables.length; i++) {
+          if (!innerObservables[i]) {
+            innerObservables[i] = observableValue("item", itemsValue[i]);
+          }
+        }
+        result.set([...innerObservables], tx);
+      }
+      innerObservables.forEach((o, i) => o.set(itemsValue[i], tx));
+    });
+  }));
+  return result;
+}
+__name(convertItemsToStableObservables, "convertItemsToStableObservables");
+class ObservableContextKeyService {
+  constructor(_contextKeyService) {
+    this._contextKeyService = _contextKeyService;
+  }
+  static {
+    __name(this, "ObservableContextKeyService");
+  }
+  bind(key, obs) {
+    return bindContextKey(key, this._contextKeyService, obs instanceof Function ? obs : (reader) => obs.read(reader));
+  }
+}
+export {
+  ColumnRange,
+  ObservableContextKeyService,
+  addPositions,
+  convertItemsToStableObservables,
+  getEndPositionsAfterApplying,
+  getReadonlyEmptyArray,
+  substringPos,
+  subtractPositions
+};
+//# sourceMappingURL=utils.js.map

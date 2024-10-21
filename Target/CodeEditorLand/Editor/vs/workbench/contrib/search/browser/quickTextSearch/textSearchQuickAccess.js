@@ -1,1 +1,354 @@
-var F=Object.defineProperty;var O=Object.getOwnPropertyDescriptor;var T=(S,l,e,t)=>{for(var r=t>1?void 0:t?O(l,e):l,i=S.length-1,c;i>=0;i--)(c=S[i])&&(r=(t?c(l,e,r):c(r))||r);return t&&r&&F(l,e,r),r},u=(S,l)=>(e,t)=>l(e,t,S);import{CancellationTokenSource as x}from"../../../../../base/common/cancellation.js";import{DisposableStore as V}from"../../../../../base/common/lifecycle.js";import{ResourceSet as B}from"../../../../../base/common/map.js";import{basenameOrAuthority as D,dirname as L}from"../../../../../base/common/resources.js";import{ThemeIcon as I}from"../../../../../base/common/themables.js";import"../../../../../editor/common/core/range.js";import{localize as d}from"../../../../../nls.js";import{IConfigurationService as W}from"../../../../../platform/configuration/common/configuration.js";import"../../../../../platform/editor/common/editor.js";import{IInstantiationService as U}from"../../../../../platform/instantiation/common/instantiation.js";import{ILabelService as q}from"../../../../../platform/label/common/label.js";import{getSelectionKeyboardEvent as A}from"../../../../../platform/list/browser/listService.js";import{PickerQuickAccessProvider as H,TriggerAction as _}from"../../../../../platform/quickinput/browser/pickerQuickAccess.js";import{DefaultQuickAccessFilterValue as N}from"../../../../../platform/quickinput/common/quickAccess.js";import{QuickInputButtonLocation as K,QuickInputHideReason as X}from"../../../../../platform/quickinput/common/quickInput.js";import{IWorkspaceContextService as G}from"../../../../../platform/workspace/common/workspace.js";import"../../../../common/editor.js";import{searchDetailsIcon as w,searchOpenInFileIcon as $,searchActivityBarIcon as Y}from"../searchIcons.js";import{getEditorSelectionFromMatch as z}from"../searchView.js";import{getOutOfWorkspaceEditorResources as j}from"../../common/search.js";import{ACTIVE_GROUP as J,IEditorService as Z,SIDE_GROUP as ee}from"../../../../services/editor/common/editorService.js";import{QueryBuilder as te}from"../../../../services/search/common/queryBuilder.js";import{VIEW_ID as v}from"../../../../services/search/common/search.js";import{Event as k}from"../../../../../base/common/event.js";import{PickerEditorState as re}from"../../../../browser/quickaccess.js";import{IViewsService as ie}from"../../../../services/views/common/viewsService.js";import{Sequencer as se}from"../../../../../base/common/async.js";import"../../../../../base/common/uri.js";import{Codicon as oe}from"../../../../../base/common/codicons.js";import{SearchModelImpl as b}from"../searchTreeModel/searchModel.js";import{SearchModelLocation as y}from"../searchTreeModel/searchTreeCommon.js";import{searchComparer as ce}from"../searchCompare.js";import"../../../../../base/common/filters.js";const C="%",ae={_reason:"quickAccessSearch",disregardIgnoreFiles:!1,disregardExcludeSettings:!1,onlyOpenEditors:!1,expandPatterns:!0},M=30,ne=10,le=75;let f=class extends H{constructor(e,t,r,i,c,s){super(C,{canAcceptInBackground:!0,shouldSkipTrimPickFilter:!0});this._instantiationService=e;this._contextService=t;this._editorService=r;this._labelService=i;this._viewsService=c;this._configurationService=s;this.queryBuilder=this._instantiationService.createInstance(te),this.searchModel=this._register(this._instantiationService.createInstance(b)),this.editorViewState=this._register(this._instantiationService.createInstance(re)),this.searchModel.location=y.QUICK_ACCESS,this.editorSequencer=new se}editorSequencer;queryBuilder;searchModel;currentAsyncSearch=Promise.resolve({results:[],messages:[]});editorViewState;_getTextQueryBuilderOptions(e){return{...ae,extraFileResources:this._instantiationService.invokeFunction(j),maxResults:this.configuration.maxResults??void 0,isSmartCase:this.configuration.smartCase,previewOptions:{matchLines:1,charsPerLine:e}}}dispose(){this.searchModel.dispose(),super.dispose()}provide(e,t,r){const i=new V;C.length<e.value.length&&(e.valueSelection=[C.length,e.value.length]),e.buttons=[{location:K.Inline,iconClass:I.asClassName(oe.goToSearch),tooltip:d("goToSearch","See in Search Panel")}],this.editorViewState.reset(),i.add(e.onDidTriggerButton(async()=>{this.searchModel.searchResult.count()>0?await this.moveToSearchViewlet(void 0):this._viewsService.openView(v,!0),e.hide()}));const c=()=>{const[s]=e.activeItems;if(s?.match){this.editorViewState.set();const o=s.match;this.editorSequencer.queue(async()=>{await this.editorViewState.openTransientEditor({resource:o.parent().resource,options:{preserveFocus:!0,revealIfOpened:!0,ignoreError:!0,selection:o.range()}})})}};return i.add(k.debounce(e.onDidChangeActive,(s,o)=>o,le,!0)(c)),i.add(k.once(e.onWillHide)(({reason:s})=>{s===X.Gesture&&this.editorViewState.restore()})),i.add(k.once(e.onDidHide)(({reason:s})=>{this.searchModel.searchResult.toggleHighlights(!1)})),i.add(super.provide(e,t,r)),i.add(e.onDidAccept(()=>this.searchModel.searchResult.toggleHighlights(!1))),i}get configuration(){const e=this._configurationService.getValue().workbench?.editor,t=this._configurationService.getValue().search;return{openEditorPinned:!e?.enablePreviewFromQuickOpen||!e?.enablePreview,preserveInput:t.quickAccess.preserveInput,maxResults:t.maxResults,smartCase:t.smartCase,sortOrder:t.sortOrder}}get defaultFilterValue(){if(this.configuration.preserveInput)return N.LAST}doSearch(e,t){if(e==="")return;const r=this._contextService.getWorkspace().folders,i={pattern:e};this.searchModel.searchResult.toggleHighlights(!1);const c=i.isRegExp?1e4:1e3,s=this.queryBuilder.text(i,r.map(a=>a.uri),this._getTextQueryBuilderOptions(c)),o=this.searchModel.search(s,void 0,t),n=async()=>{this.currentAsyncSearch=o.asyncResults,await o.asyncResults;const a=new B(o.syncResults.map(p=>p.resource));return this.searchModel.searchResult.matches(!1).filter(p=>!a.has(p.resource))};return{syncResults:this.searchModel.searchResult.matches(!1),asyncResults:n()}}async moveToSearchViewlet(e){this._viewsService.openView(v,!1);const t=this._viewsService.getActiveViewWithId(v);await t.replaceSearchModel(this.searchModel,this.currentAsyncSearch),this.searchModel=this._instantiationService.createInstance(b),this.searchModel.location=y.QUICK_ACCESS;const r=t?.getControl();e?(r.setFocus([e],A()),r.setSelection([e],A()),r.reveal(e)):t.searchAndReplaceWidget.focus()}_getPicksFromMatches(e,t,r){e=e.sort((s,o)=>{if(r){if(r===s.resource)return-1;if(r===o.resource)return 1}return ce(s,o,this.configuration.sortOrder)});const i=e.length>t?e.slice(0,t):e,c=[];for(let s=0;s<e.length;s++){if(s===t){c.push({type:"separator"}),c.push({label:d("QuickSearchSeeMoreFiles","See More Files"),iconClass:I.asClassName(w),accept:async()=>{await this.moveToSearchViewlet(e[t])}});break}const o=i[s],n=D(o.resource),a=this._labelService.getUriLabel(L(o.resource),{relative:!0});c.push({label:n,type:"separator",description:a,buttons:[{iconClass:I.asClassName($),tooltip:d("QuickSearchOpenInFile","Open File")}],trigger:async()=>(await this.handleAccept(o,{}),_.CLOSE_PICKER)});const p=o.matches()??[];for(let g=0;g<p.length;g++){const h=p[g];if(g===ne){c.push({label:d("QuickSearchMore","More"),iconClass:I.asClassName(w),accept:async()=>{await this.moveToSearchViewlet(h)}});break}const m=h.preview(),P=(m.before+m.inside+m.after).trim().substring(0,999),E=[{start:m.before.length,end:m.before.length+m.inside.length}];c.push({label:`${P}`,highlights:{label:E},buttons:[{iconClass:I.asClassName(Y),tooltip:d("showMore","See in Search Panel")}],ariaLabel:`Match at location ${h.range().startLineNumber}:${h.range().startColumn} - ${P}`,accept:async(Q,R)=>{await this.handleAccept(o,{keyMods:Q,selection:z(h,this.searchModel),preserveFocus:R.inBackground,forcePinned:R.inBackground})},trigger:async()=>(await this.moveToSearchViewlet(h),_.CLOSE_PICKER),match:h})}}return c}async handleAccept(e,t){const r={preserveFocus:t.preserveFocus,pinned:t.keyMods?.ctrlCmd||t.forcePinned||this.configuration.openEditorPinned,selection:t.selection},i=t.keyMods?.alt||this.configuration.openEditorPinned&&t.keyMods?.ctrlCmd||t.forceOpenSideBySide?ee:J;await this._editorService.openEditor({resource:e.resource,options:r},i)}_getPicks(e,t,r){const i=this.searchModel;if(e==="")return this.searchModel.searchResult.clear(),[{label:d("enterSearchTerm","Enter a term to search for across your files.")}];const c=t.add(new x);t.add(r.onCancellationRequested(()=>{i.location===y.QUICK_ACCESS&&c.cancel()}));const s=this.doSearch(e,c.token);if(!s)return null;const o=s.syncResults,n=this._getPicksFromMatches(o,M,this._editorService.activeEditor?.resource);return n.length>0&&this.searchModel.searchResult.toggleHighlights(!0),o.length>=M?n:{picks:n,additionalPicks:s.asyncResults.then(a=>a.length+n.length===0?[{label:d("noAnythingResults","No matching results")}]:this._getPicksFromMatches(a,M-o.length)).then(a=>(a.length>0&&this.searchModel.searchResult.toggleHighlights(!0),a))}}};f=T([u(0,U),u(1,G),u(2,Z),u(3,q),u(4,ie),u(5,W)],f);export{C as TEXT_SEARCH_QUICK_ACCESS_PREFIX,f as TextSearchQuickAccess};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { basenameOrAuthority, dirname } from "../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { IRange } from "../../../../../editor/common/core/range.js";
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ITextEditorSelection } from "../../../../../platform/editor/common/editor.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { WorkbenchCompressibleAsyncDataTree, getSelectionKeyboardEvent } from "../../../../../platform/list/browser/listService.js";
+import { FastAndSlowPicks, IPickerQuickAccessItem, IPickerQuickAccessSeparator, PickerQuickAccessProvider, Picks, TriggerAction } from "../../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { DefaultQuickAccessFilterValue, IQuickAccessProviderRunOptions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { IKeyMods, IQuickPick, IQuickPickItem, QuickInputButtonLocation, QuickInputHideReason } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IWorkspaceContextService, IWorkspaceFolder } from "../../../../../platform/workspace/common/workspace.js";
+import { IWorkbenchEditorConfiguration } from "../../../../common/editor.js";
+import { searchDetailsIcon, searchOpenInFileIcon, searchActivityBarIcon } from "../searchIcons.js";
+import { SearchView, getEditorSelectionFromMatch } from "../searchView.js";
+import { IWorkbenchSearchConfiguration, getOutOfWorkspaceEditorResources } from "../../common/search.js";
+import { ACTIVE_GROUP, IEditorService, SIDE_GROUP } from "../../../../services/editor/common/editorService.js";
+import { ITextQueryBuilderOptions, QueryBuilder } from "../../../../services/search/common/queryBuilder.js";
+import { IPatternInfo, ISearchComplete, ITextQuery, VIEW_ID } from "../../../../services/search/common/search.js";
+import { Event } from "../../../../../base/common/event.js";
+import { PickerEditorState } from "../../../../browser/quickaccess.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { Sequencer } from "../../../../../base/common/async.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { SearchModelImpl } from "../searchTreeModel/searchModel.js";
+import { SearchModelLocation, RenderableMatch, ISearchTreeFileMatch, ISearchTreeMatch, ISearchResult } from "../searchTreeModel/searchTreeCommon.js";
+import { searchComparer } from "../searchCompare.js";
+import { IMatch } from "../../../../../base/common/filters.js";
+const TEXT_SEARCH_QUICK_ACCESS_PREFIX = "%";
+const DEFAULT_TEXT_QUERY_BUILDER_OPTIONS = {
+  _reason: "quickAccessSearch",
+  disregardIgnoreFiles: false,
+  disregardExcludeSettings: false,
+  onlyOpenEditors: false,
+  expandPatterns: true
+};
+const MAX_FILES_SHOWN = 30;
+const MAX_RESULTS_PER_FILE = 10;
+const DEBOUNCE_DELAY = 75;
+let TextSearchQuickAccess = class extends PickerQuickAccessProvider {
+  constructor(_instantiationService, _contextService, _editorService, _labelService, _viewsService, _configurationService) {
+    super(TEXT_SEARCH_QUICK_ACCESS_PREFIX, { canAcceptInBackground: true, shouldSkipTrimPickFilter: true });
+    this._instantiationService = _instantiationService;
+    this._contextService = _contextService;
+    this._editorService = _editorService;
+    this._labelService = _labelService;
+    this._viewsService = _viewsService;
+    this._configurationService = _configurationService;
+    this.queryBuilder = this._instantiationService.createInstance(QueryBuilder);
+    this.searchModel = this._register(this._instantiationService.createInstance(SearchModelImpl));
+    this.editorViewState = this._register(this._instantiationService.createInstance(PickerEditorState));
+    this.searchModel.location = SearchModelLocation.QUICK_ACCESS;
+    this.editorSequencer = new Sequencer();
+  }
+  static {
+    __name(this, "TextSearchQuickAccess");
+  }
+  editorSequencer;
+  queryBuilder;
+  searchModel;
+  currentAsyncSearch = Promise.resolve({
+    results: [],
+    messages: []
+  });
+  editorViewState;
+  _getTextQueryBuilderOptions(charsPerLine) {
+    return {
+      ...DEFAULT_TEXT_QUERY_BUILDER_OPTIONS,
+      ...{
+        extraFileResources: this._instantiationService.invokeFunction(getOutOfWorkspaceEditorResources),
+        maxResults: this.configuration.maxResults ?? void 0,
+        isSmartCase: this.configuration.smartCase
+      },
+      previewOptions: {
+        matchLines: 1,
+        charsPerLine
+      }
+    };
+  }
+  dispose() {
+    this.searchModel.dispose();
+    super.dispose();
+  }
+  provide(picker, token, runOptions) {
+    const disposables = new DisposableStore();
+    if (TEXT_SEARCH_QUICK_ACCESS_PREFIX.length < picker.value.length) {
+      picker.valueSelection = [TEXT_SEARCH_QUICK_ACCESS_PREFIX.length, picker.value.length];
+    }
+    picker.buttons = [{
+      location: QuickInputButtonLocation.Inline,
+      iconClass: ThemeIcon.asClassName(Codicon.goToSearch),
+      tooltip: localize("goToSearch", "See in Search Panel")
+    }];
+    this.editorViewState.reset();
+    disposables.add(picker.onDidTriggerButton(async () => {
+      if (this.searchModel.searchResult.count() > 0) {
+        await this.moveToSearchViewlet(void 0);
+      } else {
+        this._viewsService.openView(VIEW_ID, true);
+      }
+      picker.hide();
+    }));
+    const onDidChangeActive = /* @__PURE__ */ __name(() => {
+      const [item] = picker.activeItems;
+      if (item?.match) {
+        this.editorViewState.set();
+        const itemMatch = item.match;
+        this.editorSequencer.queue(async () => {
+          await this.editorViewState.openTransientEditor({
+            resource: itemMatch.parent().resource,
+            options: { preserveFocus: true, revealIfOpened: true, ignoreError: true, selection: itemMatch.range() }
+          });
+        });
+      }
+    }, "onDidChangeActive");
+    disposables.add(Event.debounce(picker.onDidChangeActive, (last, event) => event, DEBOUNCE_DELAY, true)(onDidChangeActive));
+    disposables.add(Event.once(picker.onWillHide)(({ reason }) => {
+      if (reason === QuickInputHideReason.Gesture) {
+        this.editorViewState.restore();
+      }
+    }));
+    disposables.add(Event.once(picker.onDidHide)(({ reason }) => {
+      this.searchModel.searchResult.toggleHighlights(false);
+    }));
+    disposables.add(super.provide(picker, token, runOptions));
+    disposables.add(picker.onDidAccept(() => this.searchModel.searchResult.toggleHighlights(false)));
+    return disposables;
+  }
+  get configuration() {
+    const editorConfig = this._configurationService.getValue().workbench?.editor;
+    const searchConfig = this._configurationService.getValue().search;
+    return {
+      openEditorPinned: !editorConfig?.enablePreviewFromQuickOpen || !editorConfig?.enablePreview,
+      preserveInput: searchConfig.quickAccess.preserveInput,
+      maxResults: searchConfig.maxResults,
+      smartCase: searchConfig.smartCase,
+      sortOrder: searchConfig.sortOrder
+    };
+  }
+  get defaultFilterValue() {
+    if (this.configuration.preserveInput) {
+      return DefaultQuickAccessFilterValue.LAST;
+    }
+    return void 0;
+  }
+  doSearch(contentPattern, token) {
+    if (contentPattern === "") {
+      return void 0;
+    }
+    const folderResources = this._contextService.getWorkspace().folders;
+    const content = {
+      pattern: contentPattern
+    };
+    this.searchModel.searchResult.toggleHighlights(false);
+    const charsPerLine = content.isRegExp ? 1e4 : 1e3;
+    const query = this.queryBuilder.text(content, folderResources.map((folder) => folder.uri), this._getTextQueryBuilderOptions(charsPerLine));
+    const result = this.searchModel.search(query, void 0, token);
+    const getAsyncResults = /* @__PURE__ */ __name(async () => {
+      this.currentAsyncSearch = result.asyncResults;
+      await result.asyncResults;
+      const syncResultURIs = new ResourceSet(result.syncResults.map((e) => e.resource));
+      return this.searchModel.searchResult.matches(false).filter((e) => !syncResultURIs.has(e.resource));
+    }, "getAsyncResults");
+    return {
+      syncResults: this.searchModel.searchResult.matches(false),
+      asyncResults: getAsyncResults()
+    };
+  }
+  async moveToSearchViewlet(currentElem) {
+    this._viewsService.openView(VIEW_ID, false);
+    const viewlet = this._viewsService.getActiveViewWithId(VIEW_ID);
+    await viewlet.replaceSearchModel(this.searchModel, this.currentAsyncSearch);
+    this.searchModel = this._instantiationService.createInstance(SearchModelImpl);
+    this.searchModel.location = SearchModelLocation.QUICK_ACCESS;
+    const viewer = viewlet?.getControl();
+    if (currentElem) {
+      viewer.setFocus([currentElem], getSelectionKeyboardEvent());
+      viewer.setSelection([currentElem], getSelectionKeyboardEvent());
+      viewer.reveal(currentElem);
+    } else {
+      viewlet.searchAndReplaceWidget.focus();
+    }
+  }
+  _getPicksFromMatches(matches, limit, firstFile) {
+    matches = matches.sort((a, b) => {
+      if (firstFile) {
+        if (firstFile === a.resource) {
+          return -1;
+        } else if (firstFile === b.resource) {
+          return 1;
+        }
+      }
+      return searchComparer(a, b, this.configuration.sortOrder);
+    });
+    const files = matches.length > limit ? matches.slice(0, limit) : matches;
+    const picks = [];
+    for (let fileIndex = 0; fileIndex < matches.length; fileIndex++) {
+      if (fileIndex === limit) {
+        picks.push({
+          type: "separator"
+        });
+        picks.push({
+          label: localize("QuickSearchSeeMoreFiles", "See More Files"),
+          iconClass: ThemeIcon.asClassName(searchDetailsIcon),
+          accept: /* @__PURE__ */ __name(async () => {
+            await this.moveToSearchViewlet(matches[limit]);
+          }, "accept")
+        });
+        break;
+      }
+      const iFileInstanceMatch = files[fileIndex];
+      const label = basenameOrAuthority(iFileInstanceMatch.resource);
+      const description = this._labelService.getUriLabel(dirname(iFileInstanceMatch.resource), { relative: true });
+      picks.push({
+        label,
+        type: "separator",
+        description,
+        buttons: [{
+          iconClass: ThemeIcon.asClassName(searchOpenInFileIcon),
+          tooltip: localize("QuickSearchOpenInFile", "Open File")
+        }],
+        trigger: /* @__PURE__ */ __name(async () => {
+          await this.handleAccept(iFileInstanceMatch, {});
+          return TriggerAction.CLOSE_PICKER;
+        }, "trigger")
+      });
+      const results = iFileInstanceMatch.matches() ?? [];
+      for (let matchIndex = 0; matchIndex < results.length; matchIndex++) {
+        const element = results[matchIndex];
+        if (matchIndex === MAX_RESULTS_PER_FILE) {
+          picks.push({
+            label: localize("QuickSearchMore", "More"),
+            iconClass: ThemeIcon.asClassName(searchDetailsIcon),
+            accept: /* @__PURE__ */ __name(async () => {
+              await this.moveToSearchViewlet(element);
+            }, "accept")
+          });
+          break;
+        }
+        const preview = element.preview();
+        const previewText = (preview.before + preview.inside + preview.after).trim().substring(0, 999);
+        const match = [{
+          start: preview.before.length,
+          end: preview.before.length + preview.inside.length
+        }];
+        picks.push({
+          label: `${previewText}`,
+          highlights: {
+            label: match
+          },
+          buttons: [{
+            iconClass: ThemeIcon.asClassName(searchActivityBarIcon),
+            tooltip: localize("showMore", "See in Search Panel")
+          }],
+          ariaLabel: `Match at location ${element.range().startLineNumber}:${element.range().startColumn} - ${previewText}`,
+          accept: /* @__PURE__ */ __name(async (keyMods, event) => {
+            await this.handleAccept(iFileInstanceMatch, {
+              keyMods,
+              selection: getEditorSelectionFromMatch(element, this.searchModel),
+              preserveFocus: event.inBackground,
+              forcePinned: event.inBackground
+            });
+          }, "accept"),
+          trigger: /* @__PURE__ */ __name(async () => {
+            await this.moveToSearchViewlet(element);
+            return TriggerAction.CLOSE_PICKER;
+          }, "trigger"),
+          match: element
+        });
+      }
+    }
+    return picks;
+  }
+  async handleAccept(iFileInstanceMatch, options) {
+    const editorOptions = {
+      preserveFocus: options.preserveFocus,
+      pinned: options.keyMods?.ctrlCmd || options.forcePinned || this.configuration.openEditorPinned,
+      selection: options.selection
+    };
+    const targetGroup = options.keyMods?.alt || this.configuration.openEditorPinned && options.keyMods?.ctrlCmd || options.forceOpenSideBySide ? SIDE_GROUP : ACTIVE_GROUP;
+    await this._editorService.openEditor({
+      resource: iFileInstanceMatch.resource,
+      options: editorOptions
+    }, targetGroup);
+  }
+  _getPicks(contentPattern, disposables, token) {
+    const searchModelAtTimeOfSearch = this.searchModel;
+    if (contentPattern === "") {
+      this.searchModel.searchResult.clear();
+      return [{
+        label: localize("enterSearchTerm", "Enter a term to search for across your files.")
+      }];
+    }
+    const conditionalTokenCts = disposables.add(new CancellationTokenSource());
+    disposables.add(token.onCancellationRequested(() => {
+      if (searchModelAtTimeOfSearch.location === SearchModelLocation.QUICK_ACCESS) {
+        conditionalTokenCts.cancel();
+      }
+    }));
+    const allMatches = this.doSearch(contentPattern, conditionalTokenCts.token);
+    if (!allMatches) {
+      return null;
+    }
+    const matches = allMatches.syncResults;
+    const syncResult = this._getPicksFromMatches(matches, MAX_FILES_SHOWN, this._editorService.activeEditor?.resource);
+    if (syncResult.length > 0) {
+      this.searchModel.searchResult.toggleHighlights(true);
+    }
+    if (matches.length >= MAX_FILES_SHOWN) {
+      return syncResult;
+    }
+    return {
+      picks: syncResult,
+      additionalPicks: allMatches.asyncResults.then((asyncResults) => asyncResults.length + syncResult.length === 0 ? [{
+        label: localize("noAnythingResults", "No matching results")
+      }] : this._getPicksFromMatches(asyncResults, MAX_FILES_SHOWN - matches.length)).then((picks) => {
+        if (picks.length > 0) {
+          this.searchModel.searchResult.toggleHighlights(true);
+        }
+        return picks;
+      })
+    };
+  }
+};
+TextSearchQuickAccess = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IWorkspaceContextService),
+  __decorateParam(2, IEditorService),
+  __decorateParam(3, ILabelService),
+  __decorateParam(4, IViewsService),
+  __decorateParam(5, IConfigurationService)
+], TextSearchQuickAccess);
+export {
+  TEXT_SEARCH_QUICK_ACCESS_PREFIX,
+  TextSearchQuickAccess
+};
+//# sourceMappingURL=textSearchQuickAccess.js.map

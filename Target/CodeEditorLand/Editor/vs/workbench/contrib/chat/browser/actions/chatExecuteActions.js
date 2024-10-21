@@ -1,1 +1,268 @@
-import{Codicon as O}from"../../../../../base/common/codicons.js";import{KeyCode as u,KeyMod as s}from"../../../../../base/common/keyCodes.js";import{URI as L}from"../../../../../base/common/uri.js";import"../../../../../editor/browser/editorExtensions.js";import{localize as y,localize2 as l}from"../../../../../nls.js";import{Action2 as m,MenuId as g,MenuRegistry as V,registerAction2 as S}from"../../../../../platform/actions/common/actions.js";import{ContextKeyExpr as e}from"../../../../../platform/contextkey/common/contextkey.js";import{IDialogService as X}from"../../../../../platform/dialogs/common/dialogs.js";import{KeybindingWeight as f}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{IViewsService as F}from"../../../../services/views/common/viewsService.js";import{ChatAgentLocation as r,IChatAgentService as W}from"../../common/chatAgents.js";import{CONTEXT_CHAT_EDITING_PARTICIPANT_REGISTERED as D,CONTEXT_CHAT_ENABLED as H,CONTEXT_CHAT_HAS_FILE_ATTACHMENTS as U,CONTEXT_CHAT_INPUT_HAS_AGENT as P,CONTEXT_CHAT_INPUT_HAS_TEXT as T,CONTEXT_CHAT_LOCATION as a,CONTEXT_CHAT_REQUEST_IN_PROGRESS as p,CONTEXT_IN_CHAT_INPUT as x,CONTEXT_LANGUAGE_MODELS_ARE_USER_SELECTABLE as G}from"../../common/chatContextKeys.js";import{applyingChatEditsContextKey as v,IChatEditingService as R}from"../../common/chatEditingService.js";import{chatAgentLeader as B,extractAgentAndCommand as K}from"../../common/chatParserTypes.js";import{IChatService as z}from"../../common/chatService.js";import{EDITS_VIEW_ID as Y,IChatWidgetService as A}from"../chat.js";import"../chatViewPane.js";import{CHAT_CATEGORY as I}from"./chatActions.js";class _ extends m{static ID="workbench.action.chat.submit";constructor(){super({id:_.ID,title:l("interactive.submit.label","Send"),f1:!1,category:I,icon:O.send,precondition:e.and(T,p.negate(),e.or(a.notEqualsTo(r.EditingSession),e.and(a.isEqualTo(r.EditingSession),v.toNegated()))),keybinding:{when:x,primary:u.Enter,weight:f.EditorContrib},menu:[{id:g.ChatExecuteSecondary,group:"group_1"},{id:g.ChatExecute,order:4,when:e.and(p.negate(),e.or(a.notEqualsTo(r.EditingSession),e.and(a.isEqualTo(r.EditingSession),v.toNegated()))),group:"navigation"}]})}run(n,...c){const i=c[0],d=n.get(A);(i?.widget??d.lastFocusedWidget)?.acceptInput(i?.inputValue)}}const $="workbench.action.chat.pickModel";V.appendMenuItem(g.ChatExecute,{command:{id:$,title:l("chat.pickModel.label","Pick Model")},order:3,group:"navigation",when:e.and(G,e.or(e.equals(a.key,"panel"),e.equals(a.key,r.EditingSession)))});class b extends m{static ID="workbench.action.chat.submitSecondaryAgent";constructor(){super({id:b.ID,title:l({key:"actions.chat.submitSecondaryAgent",comment:["Send input from the chat input box to the secondary agent"]},"Submit to Secondary Agent"),precondition:e.and(T,P.negate(),p.negate()),keybinding:{when:x,primary:s.CtrlCmd|u.Enter,weight:f.EditorContrib},menu:{id:g.ChatExecuteSecondary,group:"group_1"}})}run(n,...c){const i=c[0],t=n.get(W).getSecondaryAgent();if(!t)return;const C=n.get(A),o=i?.widget??C.lastFocusedWidget;o&&(K(o.parsedInput).agentPart?o.acceptInput():(o.lastSelectedAgent=t,o.acceptInputWithPrefix(`${B}${t.name}`)))}}class Q extends m{constructor(){super({id:"workbench.action.chat.sendToChatEditing",title:l("chat.sendToChatEditing.label","Send to Copilot Edits"),precondition:e.and(p.negate(),P.negate(),T,U),category:I,f1:!1,menu:{id:g.ChatExecuteSecondary,group:"group_1",order:3,when:e.and(H,D,a.notEqualsTo(r.EditingSession))},keybinding:{weight:f.WorkbenchContrib,primary:s.CtrlCmd|s.Alt|u.Enter,when:e.and(H,D,a.notEqualsTo(r.EditingSession))}})}async run(n,...c){if(!n.get(W).getDefaultAgent(r.EditingSession))return;const i=c[0],d=n.get(A),t=i?.widget??d.lastFocusedWidget;if(!t||t.viewModel?.model.initialLocation===r.EditingSession)return;const C=n.get(F),o=n.get(X),E=n.get(R),k=E.currentEditingSessionObs.get(),M=k?.entries.get().length;if(M){if(!(await o.confirm({title:y("chat.startEditing.confirmation.title","Start new editing session?"),message:y("chat.startEditing.confirmation.message","Starting a new editing session will end your current editing session and discard edits to {0} files. Do you wish to proceed?",M),type:"info",primaryButton:y("chat.startEditing.confirmation.primaryButton","Yes")})).confirmed)return;await k?.stop()}const{widget:w}=await C.openView(Y);for(const h of t.attachmentModel.attachments)h.isFile&&L.isUri(h.value)?await E.addFileToWorkingSet(h.value):w.attachmentModel.addContext(h);w.setInput(t.getInput()),t.setInput(""),t.attachmentModel.clear(),w.acceptInput(),w.focusInput()}}class j extends m{constructor(){super({id:"workbench.action.chat.sendToNewChat",title:l("chat.newChat.label","Send to New Chat"),precondition:e.and(p.negate(),T),category:I,f1:!1,menu:{id:g.ChatExecuteSecondary,group:"group_2"},keybinding:{weight:f.WorkbenchContrib,primary:s.CtrlCmd|s.Shift|u.Enter,when:x}})}async run(n,...c){const i=c[0],d=n.get(A),t=i?.widget??d.lastFocusedWidget;t&&(t.clear(),t.acceptInput(i?.inputValue))}}class N extends m{static ID="workbench.action.chat.cancel";constructor(){super({id:N.ID,title:l("interactive.cancel.label","Cancel"),f1:!1,category:I,icon:O.stopCircle,menu:{id:g.ChatExecute,when:e.or(p,e.and(a.isEqualTo(r.EditingSession),v)),order:4,group:"navigation"},keybinding:{weight:f.WorkbenchContrib,primary:s.CtrlCmd|u.Escape,win:{primary:s.Alt|u.Backspace}}})}run(n,...c){const i=c[0],d=n.get(A),t=i?.widget??d.lastFocusedWidget;if(!t)return;const C=n.get(z);t.viewModel&&C.cancelCurrentRequestForSession(t.viewModel.sessionId);const o=n.get(R),E=o.currentEditingSession;E&&E?.chatSessionId===t.viewModel?.sessionId&&o.currentAutoApplyOperation?.cancel()}}function ft(){S(_),S(N),S(j),S(b),S(Q)}export{N as CancelAction,$ as ChatModelPickerActionId,b as ChatSubmitSecondaryAgentAction,_ as SubmitAction,ft as registerChatExecuteActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Action2, MenuId, MenuRegistry, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { ChatAgentLocation, IChatAgentService } from "../../common/chatAgents.js";
+import { CONTEXT_CHAT_EDITING_PARTICIPANT_REGISTERED, CONTEXT_CHAT_ENABLED, CONTEXT_CHAT_HAS_FILE_ATTACHMENTS, CONTEXT_CHAT_INPUT_HAS_AGENT, CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_LOCATION, CONTEXT_CHAT_REQUEST_IN_PROGRESS, CONTEXT_IN_CHAT_INPUT, CONTEXT_LANGUAGE_MODELS_ARE_USER_SELECTABLE } from "../../common/chatContextKeys.js";
+import { applyingChatEditsContextKey, IChatEditingService } from "../../common/chatEditingService.js";
+import { chatAgentLeader, extractAgentAndCommand } from "../../common/chatParserTypes.js";
+import { IChatService } from "../../common/chatService.js";
+import { EDITS_VIEW_ID, IChatWidget, IChatWidgetService } from "../chat.js";
+import { ChatViewPane } from "../chatViewPane.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+class SubmitAction extends Action2 {
+  static {
+    __name(this, "SubmitAction");
+  }
+  static ID = "workbench.action.chat.submit";
+  constructor() {
+    super({
+      id: SubmitAction.ID,
+      title: localize2("interactive.submit.label", "Send"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      icon: Codicon.send,
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate(), ContextKeyExpr.or(CONTEXT_CHAT_LOCATION.notEqualsTo(ChatAgentLocation.EditingSession), ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.EditingSession), applyingChatEditsContextKey.toNegated()))),
+      keybinding: {
+        when: CONTEXT_IN_CHAT_INPUT,
+        primary: KeyCode.Enter,
+        weight: KeybindingWeight.EditorContrib
+      },
+      menu: [
+        {
+          id: MenuId.ChatExecuteSecondary,
+          group: "group_1"
+        },
+        {
+          id: MenuId.ChatExecute,
+          order: 4,
+          when: ContextKeyExpr.and(CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate(), ContextKeyExpr.or(CONTEXT_CHAT_LOCATION.notEqualsTo(ChatAgentLocation.EditingSession), ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.EditingSession), applyingChatEditsContextKey.toNegated()))),
+          group: "navigation"
+        }
+      ]
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    widget?.acceptInput(context?.inputValue);
+  }
+}
+const ChatModelPickerActionId = "workbench.action.chat.pickModel";
+MenuRegistry.appendMenuItem(MenuId.ChatExecute, {
+  command: {
+    id: ChatModelPickerActionId,
+    title: localize2("chat.pickModel.label", "Pick Model")
+  },
+  order: 3,
+  group: "navigation",
+  when: ContextKeyExpr.and(CONTEXT_LANGUAGE_MODELS_ARE_USER_SELECTABLE, ContextKeyExpr.or(ContextKeyExpr.equals(CONTEXT_CHAT_LOCATION.key, "panel"), ContextKeyExpr.equals(CONTEXT_CHAT_LOCATION.key, ChatAgentLocation.EditingSession)))
+});
+class ChatSubmitSecondaryAgentAction extends Action2 {
+  static {
+    __name(this, "ChatSubmitSecondaryAgentAction");
+  }
+  static ID = "workbench.action.chat.submitSecondaryAgent";
+  constructor() {
+    super({
+      id: ChatSubmitSecondaryAgentAction.ID,
+      title: localize2({ key: "actions.chat.submitSecondaryAgent", comment: ["Send input from the chat input box to the secondary agent"] }, "Submit to Secondary Agent"),
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_INPUT_HAS_AGENT.negate(), CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate()),
+      keybinding: {
+        when: CONTEXT_IN_CHAT_INPUT,
+        primary: KeyMod.CtrlCmd | KeyCode.Enter,
+        weight: KeybindingWeight.EditorContrib
+      },
+      menu: {
+        id: MenuId.ChatExecuteSecondary,
+        group: "group_1"
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const agentService = accessor.get(IChatAgentService);
+    const secondaryAgent = agentService.getSecondaryAgent();
+    if (!secondaryAgent) {
+      return;
+    }
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    if (extractAgentAndCommand(widget.parsedInput).agentPart) {
+      widget.acceptInput();
+    } else {
+      widget.lastSelectedAgent = secondaryAgent;
+      widget.acceptInputWithPrefix(`${chatAgentLeader}${secondaryAgent.name}`);
+    }
+  }
+}
+class SendToChatEditingAction extends Action2 {
+  static {
+    __name(this, "SendToChatEditingAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.sendToChatEditing",
+      title: localize2("chat.sendToChatEditing.label", "Send to Copilot Edits"),
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate(), CONTEXT_CHAT_INPUT_HAS_AGENT.negate(), CONTEXT_CHAT_INPUT_HAS_TEXT, CONTEXT_CHAT_HAS_FILE_ATTACHMENTS),
+      category: CHAT_CATEGORY,
+      f1: false,
+      menu: {
+        id: MenuId.ChatExecuteSecondary,
+        group: "group_1",
+        order: 3,
+        when: ContextKeyExpr.and(CONTEXT_CHAT_ENABLED, CONTEXT_CHAT_EDITING_PARTICIPANT_REGISTERED, CONTEXT_CHAT_LOCATION.notEqualsTo(ChatAgentLocation.EditingSession))
+      },
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.Enter,
+        when: ContextKeyExpr.and(CONTEXT_CHAT_ENABLED, CONTEXT_CHAT_EDITING_PARTICIPANT_REGISTERED, CONTEXT_CHAT_LOCATION.notEqualsTo(ChatAgentLocation.EditingSession))
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    if (!accessor.get(IChatAgentService).getDefaultAgent(ChatAgentLocation.EditingSession)) {
+      return;
+    }
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget || widget.viewModel?.model.initialLocation === ChatAgentLocation.EditingSession) {
+      return;
+    }
+    const viewsService = accessor.get(IViewsService);
+    const dialogService = accessor.get(IDialogService);
+    const chatEditingService = accessor.get(IChatEditingService);
+    const currentEditingSession = chatEditingService.currentEditingSessionObs.get();
+    const currentEditCount = currentEditingSession?.entries.get().length;
+    if (currentEditCount) {
+      const result = await dialogService.confirm({
+        title: localize("chat.startEditing.confirmation.title", "Start new editing session?"),
+        message: localize("chat.startEditing.confirmation.message", "Starting a new editing session will end your current editing session and discard edits to {0} files. Do you wish to proceed?", currentEditCount),
+        type: "info",
+        primaryButton: localize("chat.startEditing.confirmation.primaryButton", "Yes")
+      });
+      if (!result.confirmed) {
+        return;
+      }
+      await currentEditingSession?.stop();
+    }
+    const { widget: editingWidget } = await viewsService.openView(EDITS_VIEW_ID);
+    for (const attachment of widget.attachmentModel.attachments) {
+      if (attachment.isFile && URI.isUri(attachment.value)) {
+        await chatEditingService.addFileToWorkingSet(attachment.value);
+      } else {
+        editingWidget.attachmentModel.addContext(attachment);
+      }
+    }
+    editingWidget.setInput(widget.getInput());
+    widget.setInput("");
+    widget.attachmentModel.clear();
+    editingWidget.acceptInput();
+    editingWidget.focusInput();
+  }
+}
+class SendToNewChatAction extends Action2 {
+  static {
+    __name(this, "SendToNewChatAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.sendToNewChat",
+      title: localize2("chat.newChat.label", "Send to New Chat"),
+      precondition: ContextKeyExpr.and(CONTEXT_CHAT_REQUEST_IN_PROGRESS.negate(), CONTEXT_CHAT_INPUT_HAS_TEXT),
+      category: CHAT_CATEGORY,
+      f1: false,
+      menu: {
+        id: MenuId.ChatExecuteSecondary,
+        group: "group_2"
+      },
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Enter,
+        when: CONTEXT_IN_CHAT_INPUT
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    widget.clear();
+    widget.acceptInput(context?.inputValue);
+  }
+}
+class CancelAction extends Action2 {
+  static {
+    __name(this, "CancelAction");
+  }
+  static ID = "workbench.action.chat.cancel";
+  constructor() {
+    super({
+      id: CancelAction.ID,
+      title: localize2("interactive.cancel.label", "Cancel"),
+      f1: false,
+      category: CHAT_CATEGORY,
+      icon: Codicon.stopCircle,
+      menu: {
+        id: MenuId.ChatExecute,
+        when: ContextKeyExpr.or(CONTEXT_CHAT_REQUEST_IN_PROGRESS, ContextKeyExpr.and(CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.EditingSession), applyingChatEditsContextKey)),
+        order: 4,
+        group: "navigation"
+      },
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyCode.Escape,
+        win: { primary: KeyMod.Alt | KeyCode.Backspace }
+      }
+    });
+  }
+  run(accessor, ...args) {
+    const context = args[0];
+    const widgetService = accessor.get(IChatWidgetService);
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const chatService = accessor.get(IChatService);
+    if (widget.viewModel) {
+      chatService.cancelCurrentRequestForSession(widget.viewModel.sessionId);
+    }
+    const chatEditingService = accessor.get(IChatEditingService);
+    const currentEditingSession = chatEditingService.currentEditingSession;
+    if (currentEditingSession && currentEditingSession?.chatSessionId === widget.viewModel?.sessionId) {
+      chatEditingService.currentAutoApplyOperation?.cancel();
+    }
+  }
+}
+function registerChatExecuteActions() {
+  registerAction2(SubmitAction);
+  registerAction2(CancelAction);
+  registerAction2(SendToNewChatAction);
+  registerAction2(ChatSubmitSecondaryAgentAction);
+  registerAction2(SendToChatEditingAction);
+}
+__name(registerChatExecuteActions, "registerChatExecuteActions");
+export {
+  CancelAction,
+  ChatModelPickerActionId,
+  ChatSubmitSecondaryAgentAction,
+  SubmitAction,
+  registerChatExecuteActions
+};
+//# sourceMappingURL=chatExecuteActions.js.map

@@ -1,1 +1,231 @@
-var y=Object.defineProperty;var D=Object.getOwnPropertyDescriptor;var g=(n,o,e,t)=>{for(var r=t>1?void 0:t?D(o,e):o,a=n.length-1,i;a>=0;a--)(i=n[a])&&(r=(t?i(o,e,r):i(r))||r);return t&&r&&y(o,e,r),r},p=(n,o)=>(e,t)=>o(e,t,n);import{DataTransfers as l}from"../../../../base/browser/dnd.js";import{$ as h,DragAndDropObserver as I}from"../../../../base/browser/dom.js";import{renderLabelWithIcons as E}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{coalesce as x}from"../../../../base/common/arrays.js";import{Codicon as m}from"../../../../base/common/codicons.js";import{basename as v}from"../../../../base/common/resources.js";import"../../../../base/common/uri.js";import{localize as c}from"../../../../nls.js";import{IConfigurationService as T}from"../../../../platform/configuration/common/configuration.js";import{containsDragType as f,extractEditorsDropData as C}from"../../../../platform/dnd/browser/dnd.js";import{IThemeService as b,Themable as S}from"../../../../platform/theme/common/themeService.js";import"../../../common/editor/editorInput.js";import"../common/chatModel.js";import"./chatInputPart.js";import"./chatWidget.js";var A=(e=>(e[e.FILE=0]="FILE",e[e.IMAGE=1]="IMAGE",e))(A||{});let u=class extends S{constructor(e,t,r,a,i){super(a);this.contianer=e;this.inputPart=t;this.styles=r;this.configurationService=i;let d=!1;this._register(new I(this.contianer,{onDragEnter:s=>{d||(d=!0,this.onDragEnter(s))},onDragOver:s=>{s.stopPropagation()},onDragLeave:s=>{this.onDragLeave(s),d=!1},onDrop:s=>{this.onDrop(s),d=!1}})),this.overlay=document.createElement("div"),this.overlay.classList.add("chat-dnd-overlay"),this.contianer.appendChild(this.overlay),this.updateStyles()}overlay;overlayText;overlayTextBackground="";onDragEnter(e){const t=this.guessDropType(e);t!==void 0&&(e.stopPropagation(),e.preventDefault()),this.updateDropFeedback(e,t)}onDragLeave(e){this.updateDropFeedback(e,void 0)}onDrop(e){this.updateDropFeedback(e,void 0);const t=this.getAttachContext(e);if(t.length===0)return;e.stopPropagation(),e.preventDefault();const r=this.inputPart.attachmentModel.getAttachmentIDs(),a=[];for(const i of t)r.has(i.id)||(r.add(i.id),a.push(i));this.inputPart.attachmentModel.addContext(...a)}updateDropFeedback(e,t){const r=t!==void 0;e.dataTransfer&&(e.dataTransfer.dropEffect=r?"copy":"none"),this.setOverlay(t)}isImageDnd(e){if(f(e,"image"))return!0;if(f(e,l.FILES)){const t=e.dataTransfer?.files;if(t&&t.length>0)return t[0].type.startsWith("image/");const r=e.dataTransfer?.items;if(r&&r.length>0)return r[0].type.startsWith("image/")}return!1}guessDropType(e){if(this.isImageDnd(e))return this.configurationService.getValue("chat.experimental.imageAttachments")?1:void 0;if(f(e,l.FILES,l.INTERNAL_URI_LIST))return 0}isDragEventSupported(e){return this.guessDropType(e)!==void 0}getDropTypeName(e){switch(e){case 0:return c("file","File");case 1:return c("image","Image")}}getAttachContext(e){if(!this.isDragEventSupported(e))return[];const t=C(e);return x(t.map(r=>this.resolveAttachContext(r)))}resolveAttachContext(e){const t=R(e);return t?this.configurationService.getValue("chat.experimental.imageAttachments")?t:void 0:L(e)}setOverlay(e){if(this.overlayText?.remove(),this.overlayText=void 0,e!==void 0){const t=this.getDropTypeName(e),a=E(`$(${m.attach.id}) ${c("attach as context","Attach {0} as Context",t)}`).map(i=>typeof i=="string"?h("span.overlay-text",void 0,i):i);this.overlayText=h("span.attach-context-overlay-text",void 0,...a),this.overlayText.style.backgroundColor=this.overlayTextBackground,this.overlay.appendChild(this.overlayText)}this.overlay.classList.toggle("visible",e!==void 0)}updateStyles(){this.overlay.style.backgroundColor=this.getColor(this.styles.overlayBackground)||"",this.overlay.style.color=this.getColor(this.styles.listForeground)||"",this.overlayTextBackground=this.getColor(this.styles.listBackground)||""}};u=g([p(3,b),p(4,T)],u);function L(n){if(n.resource)return F(n.resource)}function F(n){return{value:n,id:n.toString(),name:v(n),isFile:!0,isDynamic:!0}}function R(n){if(n.resource&&/\.(png|jpg|jpeg|bmp|gif|tiff)$/i.test(n.resource.path)){const o=v(n.resource);return{id:n.resource.toString(),name:o,fullName:n.resource.path,value:n.resource,icon:m.fileMedia,isDynamic:!0,isImage:!0,isFile:!1}}}export{u as ChatDragAndDrop};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DataTransfers } from "../../../../base/browser/dnd.js";
+import { $, DragAndDropObserver } from "../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { containsDragType, extractEditorsDropData, IDraggedResourceEditorInput } from "../../../../platform/dnd/browser/dnd.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IChatRequestVariableEntry } from "../common/chatModel.js";
+import { ChatInputPart } from "./chatInputPart.js";
+import { IChatWidgetStyles } from "./chatWidget.js";
+var ChatDragAndDropType = /* @__PURE__ */ ((ChatDragAndDropType2) => {
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE"] = 0] = "FILE";
+  ChatDragAndDropType2[ChatDragAndDropType2["IMAGE"] = 1] = "IMAGE";
+  return ChatDragAndDropType2;
+})(ChatDragAndDropType || {});
+let ChatDragAndDrop = class extends Themable {
+  constructor(contianer, inputPart, styles, themeService, configurationService) {
+    super(themeService);
+    this.contianer = contianer;
+    this.inputPart = inputPart;
+    this.styles = styles;
+    this.configurationService = configurationService;
+    let mouseInside = false;
+    this._register(new DragAndDropObserver(this.contianer, {
+      onDragEnter: /* @__PURE__ */ __name((e) => {
+        if (!mouseInside) {
+          mouseInside = true;
+          this.onDragEnter(e);
+        }
+      }, "onDragEnter"),
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        this.onDragLeave(e);
+        mouseInside = false;
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        this.onDrop(e);
+        mouseInside = false;
+      }, "onDrop")
+    }));
+    this.overlay = document.createElement("div");
+    this.overlay.classList.add("chat-dnd-overlay");
+    this.contianer.appendChild(this.overlay);
+    this.updateStyles();
+  }
+  static {
+    __name(this, "ChatDragAndDrop");
+  }
+  overlay;
+  overlayText;
+  overlayTextBackground = "";
+  onDragEnter(e) {
+    const estimatedDropType = this.guessDropType(e);
+    if (estimatedDropType !== void 0) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    this.updateDropFeedback(e, estimatedDropType);
+  }
+  onDragLeave(e) {
+    this.updateDropFeedback(e, void 0);
+  }
+  onDrop(e) {
+    this.updateDropFeedback(e, void 0);
+    const contexts = this.getAttachContext(e);
+    if (contexts.length === 0) {
+      return;
+    }
+    e.stopPropagation();
+    e.preventDefault();
+    const currentContextIds = this.inputPart.attachmentModel.getAttachmentIDs();
+    const filteredContext = [];
+    for (const context of contexts) {
+      if (!currentContextIds.has(context.id)) {
+        currentContextIds.add(context.id);
+        filteredContext.push(context);
+      }
+    }
+    this.inputPart.attachmentModel.addContext(...filteredContext);
+  }
+  updateDropFeedback(e, dropType) {
+    const showOverlay = dropType !== void 0;
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = showOverlay ? "copy" : "none";
+    }
+    this.setOverlay(dropType);
+  }
+  isImageDnd(e) {
+    if (containsDragType(e, "image")) {
+      return true;
+    }
+    if (containsDragType(e, DataTransfers.FILES)) {
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        return file.type.startsWith("image/");
+      }
+      const items = e.dataTransfer?.items;
+      if (items && items.length > 0) {
+        const item = items[0];
+        return item.type.startsWith("image/");
+      }
+    }
+    return false;
+  }
+  guessDropType(e) {
+    if (this.isImageDnd(e)) {
+      const imageDndSupported = this.configurationService.getValue("chat.experimental.imageAttachments");
+      return imageDndSupported ? 1 /* IMAGE */ : void 0;
+    } else if (containsDragType(e, DataTransfers.FILES, DataTransfers.INTERNAL_URI_LIST)) {
+      return 0 /* FILE */;
+    }
+    return void 0;
+  }
+  isDragEventSupported(e) {
+    const dropType = this.guessDropType(e);
+    return dropType !== void 0;
+  }
+  getDropTypeName(type) {
+    switch (type) {
+      case 0 /* FILE */:
+        return localize("file", "File");
+      case 1 /* IMAGE */:
+        return localize("image", "Image");
+    }
+  }
+  getAttachContext(e) {
+    if (!this.isDragEventSupported(e)) {
+      return [];
+    }
+    const data = extractEditorsDropData(e);
+    return coalesce(data.map((editorInput) => {
+      return this.resolveAttachContext(editorInput);
+    }));
+  }
+  resolveAttachContext(editorInput) {
+    const imageContext = getImageAttachContext(editorInput);
+    if (imageContext) {
+      const isImageDndSupported = this.configurationService.getValue("chat.experimental.imageAttachments");
+      return isImageDndSupported ? imageContext : void 0;
+    }
+    return getEditorAttachContext(editorInput);
+  }
+  setOverlay(type) {
+    this.overlayText?.remove();
+    this.overlayText = void 0;
+    if (type !== void 0) {
+      const typeName = this.getDropTypeName(type);
+      const iconAndtextElements = renderLabelWithIcons(`$(${Codicon.attach.id}) ${localize("attach as context", "Attach {0} as Context", typeName)}`);
+      const htmlElements = iconAndtextElements.map((element) => {
+        if (typeof element === "string") {
+          return $("span.overlay-text", void 0, element);
+        }
+        return element;
+      });
+      this.overlayText = $("span.attach-context-overlay-text", void 0, ...htmlElements);
+      this.overlayText.style.backgroundColor = this.overlayTextBackground;
+      this.overlay.appendChild(this.overlayText);
+    }
+    this.overlay.classList.toggle("visible", type !== void 0);
+  }
+  updateStyles() {
+    this.overlay.style.backgroundColor = this.getColor(this.styles.overlayBackground) || "";
+    this.overlay.style.color = this.getColor(this.styles.listForeground) || "";
+    this.overlayTextBackground = this.getColor(this.styles.listBackground) || "";
+  }
+};
+ChatDragAndDrop = __decorateClass([
+  __decorateParam(3, IThemeService),
+  __decorateParam(4, IConfigurationService)
+], ChatDragAndDrop);
+function getEditorAttachContext(editor) {
+  if (!editor.resource) {
+    return void 0;
+  }
+  return getFileAttachContext(editor.resource);
+}
+__name(getEditorAttachContext, "getEditorAttachContext");
+function getFileAttachContext(resource) {
+  return {
+    value: resource,
+    id: resource.toString(),
+    name: basename(resource),
+    isFile: true,
+    isDynamic: true
+  };
+}
+__name(getFileAttachContext, "getFileAttachContext");
+function getImageAttachContext(editor) {
+  if (!editor.resource) {
+    return void 0;
+  }
+  if (/\.(png|jpg|jpeg|bmp|gif|tiff)$/i.test(editor.resource.path)) {
+    const fileName = basename(editor.resource);
+    return {
+      id: editor.resource.toString(),
+      name: fileName,
+      fullName: editor.resource.path,
+      value: editor.resource,
+      icon: Codicon.fileMedia,
+      isDynamic: true,
+      isImage: true,
+      isFile: false
+    };
+  }
+  return void 0;
+}
+__name(getImageAttachContext, "getImageAttachContext");
+export {
+  ChatDragAndDrop
+};
+//# sourceMappingURL=chatDragAndDrop.js.map

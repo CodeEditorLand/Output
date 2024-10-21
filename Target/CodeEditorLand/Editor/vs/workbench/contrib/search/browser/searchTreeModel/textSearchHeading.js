@@ -1,1 +1,294 @@
-var I=Object.defineProperty;var F=Object.getOwnPropertyDescriptor;var d=(a,o,e,t)=>{for(var r=t>1?void 0:t?F(o,e):o,i=a.length-1,h;i>=0;i--)(h=a[i])&&(r=(t?h(o,e,r):h(r))||r);return t&&r&&I(o,e,r),r},c=(a,o)=>(e,t)=>o(e,t,a);import{Emitter as S}from"../../../../../base/common/event.js";import{Disposable as _}from"../../../../../base/common/lifecycle.js";import{ResourceMap as m}from"../../../../../base/common/map.js";import{TernarySearchTree as g}from"../../../../../base/common/ternarySearchTree.js";import"../../../../../base/common/uri.js";import{IInstantiationService as p}from"../../../../../platform/instantiation/common/instantiation.js";import"../../../../../platform/progress/common/progress.js";import{IUriIdentityService as M}from"../../../../../platform/uriIdentity/common/uriIdentity.js";import{IReplaceService as v}from"../replace.js";import"../../../../services/search/common/search.js";import{RangeHighlightDecorations as R}from"./rangeDecorations.js";import{FolderMatchNoRootImpl as T,FolderMatchWorkspaceRootImpl as b}from"./folderMatch.js";import{isSearchTreeFileMatch as y,isSearchTreeFolderMatch as E,TEXT_SEARCH_HEADING_PREFIX as C,PLAIN_TEXT_SEARCH__RESULT_ID as H}from"./searchTreeCommon.js";import{isNotebookFileMatch as D}from"../notebookSearch/notebookSearchModelBase.js";let l=class extends _{constructor(e,t,r,i){super();this._allowOtherResults=e;this._parent=t;this.instantiationService=r;this.uriIdentityService=i;this._rangeHighlightDecorations=this.instantiationService.createInstance(R),this._register(this.onChange(h=>{h.removed&&(this._isDirty=!this.isEmpty())}))}_onChange=this._register(new S);onChange=this._onChange.event;_isDirty=!1;_showHighlights=!1;_query=null;_rangeHighlightDecorations;disposePastResults=()=>Promise.resolve();_folderMatches=[];_otherFilesMatch=null;_folderMatchesMap=g.forUris(e=>this.uriIdentityService.extUri.ignorePathCasing(e));resource=null;hidden=!1;cachedSearchComplete;hide(){this.hidden=!0,this.clear()}parent(){return this._parent}get hasChildren(){return this._folderMatches.length>0}get isDirty(){return this._isDirty}getFolderMatch(e){const t=this._folderMatchesMap.findSubstr(e);return!t&&this._allowOtherResults&&this._otherFilesMatch?this._otherFilesMatch:t}add(e,t,r=!1){const{byFolder:i,other:h}=this.groupFilesByFolder(e);i.forEach(s=>{if(!s.length)return;this.getFolderMatch(s[0].resource)?.addFileMatch(s,r,t)}),this.isAIContributed||this._otherFilesMatch?.addFileMatch(h,r,t),this.disposePastResults()}remove(e,t=!1){Array.isArray(e)||(e=[e]),e.forEach(s=>{E(s)&&s.clear()});const r=e.filter(s=>y(s)),{byFolder:i,other:h}=this.groupFilesByFolder(r);i.forEach(s=>{s.length&&this.getFolderMatch(s[0].resource)?.remove(s)}),h.length&&this.getFolderMatch(h[0].resource)?.remove(h)}groupFilesByFolder(e){const t=new m,r=[];return this._folderMatches.forEach(i=>t.set(i.resource,[])),e.forEach(i=>{const h=this.getFolderMatch(i.resource);if(!h)return;const s=h.resource;s?t.get(s).push(i):r.push(i)}),{byFolder:t,other:r}}isEmpty(){return this.folderMatches().every(e=>e.isEmpty())}findFolderSubstr(e){return this._folderMatchesMap.findSubstr(e)}get query(){return this._query}set query(e){const t=this.folderMatches();this.disposePastResults=async()=>{t.forEach(r=>r.clear()),t.forEach(r=>r.dispose()),this._isDirty=!1},this.cachedSearchComplete=void 0,this._rangeHighlightDecorations.removeHighlightRange(),this._folderMatchesMap=g.forUris(r=>this.uriIdentityService.extUri.ignorePathCasing(r)),e&&(this._folderMatches=(e&&e.folderQueries||[]).map(r=>r.folder).map((r,i)=>this._createBaseFolderMatch(r,r.toString(),i,e,this.isAIContributed)),this._folderMatches.forEach(r=>this._folderMatchesMap.set(r.resource,r)),this._allowOtherResults&&(this._otherFilesMatch=this._createBaseFolderMatch(null,"otherFiles",this._folderMatches.length+1,e,this.isAIContributed)),this._query=e)}_createBaseFolderMatch(e,t,r,i,h){let s;e?s=this._register(this.createWorkspaceRootWithResourceImpl(e,t,r,i)):s=this._register(this.instantiationService.createInstance(T,t,r,i,this));const u=s.onChange(f=>this._onChange.fire(f));return this._register(s.onDispose(()=>u.dispose())),s}folderMatches(){return this._otherFilesMatch&&this._allowOtherResults?[...this._folderMatches,this._otherFilesMatch]:this._folderMatches}disposeMatches(){this.folderMatches().forEach(e=>e.dispose()),this._folderMatches=[],this._folderMatchesMap=g.forUris(e=>this.uriIdentityService.extUri.ignorePathCasing(e)),this._rangeHighlightDecorations.removeHighlightRange()}matches(){const e=[];return this.folderMatches().forEach(t=>{e.push(t.allDownstreamFileMatches())}),[].concat(...e)}get showHighlights(){return this._showHighlights}toggleHighlights(e){if(this._showHighlights===e)return;this._showHighlights=e;let t=null;this.matches().forEach(r=>{r.updateHighlights(),D(r)&&r.updateNotebookHighlights(),t||(t=r.getSelectedMatch())}),this._showHighlights&&t?this._rangeHighlightDecorations.highlightRange(t.parent().resource,t.range()):this._rangeHighlightDecorations.removeHighlightRange()}get rangeHighlightDecorations(){return this._rangeHighlightDecorations}fileCount(){return this.folderMatches().reduce((e,t)=>e+t.recursiveFileCount(),0)}count(){return this.matches().reduce((e,t)=>e+t.count(),0)}clear(){this.folderMatches().forEach(e=>e.clear(!0)),this.disposeMatches(),this._folderMatches=[],this._otherFilesMatch=null,this.cachedSearchComplete=void 0}async dispose(){this._rangeHighlightDecorations.dispose(),this.disposeMatches(),super.dispose(),await this.disposePastResults()}};l=d([c(2,p),c(3,M)],l);let n=class extends l{constructor(e,t,r,i){super(!0,e,t,r);this.replaceService=i}id(){return C+H}get isAIContributed(){return!1}replace(e){return this.getFolderMatch(e.resource)?.replace(e)??Promise.resolve()}name(){return"Text"}replaceAll(e){return this.replacingAll=!0,this.replaceService.replace(this.matches(),e).then(()=>{this.replacingAll=!1,this.clear()},()=>{this.replacingAll=!1})}set replacingAll(e){this.folderMatches().forEach(t=>{t.replacingAll=e})}createWorkspaceRootWithResourceImpl(e,t,r,i){return this.instantiationService.createInstance(b,e,t,r,i,this)}};n=d([c(1,p),c(2,M),c(3,v)],n);export{n as PlainTextSearchHeadingImpl,l as TextSearchHeadingImpl};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { TernarySearchTree } from "../../../../../base/common/ternarySearchTree.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IProgress, IProgressStep } from "../../../../../platform/progress/common/progress.js";
+import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IReplaceService } from "../replace.js";
+import { IFileMatch, ISearchComplete, ITextQuery } from "../../../../services/search/common/search.js";
+import { RangeHighlightDecorations } from "./rangeDecorations.js";
+import { FolderMatchNoRootImpl, FolderMatchWorkspaceRootImpl } from "./folderMatch.js";
+import { IChangeEvent, ISearchTreeFileMatch, ISearchTreeFolderMatch, ISearchTreeFolderMatchWithResource, ISearchTreeFolderMatchWorkspaceRoot, IPlainTextSearchHeading, ISearchResult, isSearchTreeFileMatch, isSearchTreeFolderMatch, ITextSearchHeading, ISearchTreeMatch, TEXT_SEARCH_HEADING_PREFIX, PLAIN_TEXT_SEARCH__RESULT_ID } from "./searchTreeCommon.js";
+import { isNotebookFileMatch } from "../notebookSearch/notebookSearchModelBase.js";
+let TextSearchHeadingImpl = class extends Disposable {
+  constructor(_allowOtherResults, _parent, instantiationService, uriIdentityService) {
+    super();
+    this._allowOtherResults = _allowOtherResults;
+    this._parent = _parent;
+    this.instantiationService = instantiationService;
+    this.uriIdentityService = uriIdentityService;
+    this._rangeHighlightDecorations = this.instantiationService.createInstance(RangeHighlightDecorations);
+    this._register(this.onChange((e) => {
+      if (e.removed) {
+        this._isDirty = !this.isEmpty();
+      }
+    }));
+  }
+  static {
+    __name(this, "TextSearchHeadingImpl");
+  }
+  _onChange = this._register(new Emitter());
+  onChange = this._onChange.event;
+  _isDirty = false;
+  _showHighlights = false;
+  _query = null;
+  _rangeHighlightDecorations;
+  disposePastResults = /* @__PURE__ */ __name(() => Promise.resolve(), "disposePastResults");
+  _folderMatches = [];
+  _otherFilesMatch = null;
+  _folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+  resource = null;
+  hidden = false;
+  cachedSearchComplete;
+  hide() {
+    this.hidden = true;
+    this.clear();
+  }
+  parent() {
+    return this._parent;
+  }
+  get hasChildren() {
+    return this._folderMatches.length > 0;
+  }
+  get isDirty() {
+    return this._isDirty;
+  }
+  getFolderMatch(resource) {
+    const folderMatch = this._folderMatchesMap.findSubstr(resource);
+    if (!folderMatch && this._allowOtherResults && this._otherFilesMatch) {
+      return this._otherFilesMatch;
+    }
+    return folderMatch;
+  }
+  add(allRaw, searchInstanceID, silent = false) {
+    const { byFolder, other } = this.groupFilesByFolder(allRaw);
+    byFolder.forEach((raw) => {
+      if (!raw.length) {
+        return;
+      }
+      const folderMatch = this.getFolderMatch(raw[0].resource);
+      folderMatch?.addFileMatch(raw, silent, searchInstanceID);
+    });
+    if (!this.isAIContributed) {
+      this._otherFilesMatch?.addFileMatch(other, silent, searchInstanceID);
+    }
+    this.disposePastResults();
+  }
+  remove(matches, ai = false) {
+    if (!Array.isArray(matches)) {
+      matches = [matches];
+    }
+    matches.forEach((m) => {
+      if (isSearchTreeFolderMatch(m)) {
+        m.clear();
+      }
+    });
+    const fileMatches = matches.filter((m) => isSearchTreeFileMatch(m));
+    const { byFolder, other } = this.groupFilesByFolder(fileMatches);
+    byFolder.forEach((matches2) => {
+      if (!matches2.length) {
+        return;
+      }
+      this.getFolderMatch(matches2[0].resource)?.remove(matches2);
+    });
+    if (other.length) {
+      this.getFolderMatch(other[0].resource)?.remove(other);
+    }
+  }
+  groupFilesByFolder(fileMatches) {
+    const rawPerFolder = new ResourceMap();
+    const otherFileMatches = [];
+    this._folderMatches.forEach((fm) => rawPerFolder.set(fm.resource, []));
+    fileMatches.forEach((rawFileMatch) => {
+      const folderMatch = this.getFolderMatch(rawFileMatch.resource);
+      if (!folderMatch) {
+        return;
+      }
+      const resource = folderMatch.resource;
+      if (resource) {
+        rawPerFolder.get(resource).push(rawFileMatch);
+      } else {
+        otherFileMatches.push(rawFileMatch);
+      }
+    });
+    return {
+      byFolder: rawPerFolder,
+      other: otherFileMatches
+    };
+  }
+  isEmpty() {
+    return this.folderMatches().every((folderMatch) => folderMatch.isEmpty());
+  }
+  findFolderSubstr(resource) {
+    return this._folderMatchesMap.findSubstr(resource);
+  }
+  get query() {
+    return this._query;
+  }
+  set query(query) {
+    const oldFolderMatches = this.folderMatches();
+    this.disposePastResults = async () => {
+      oldFolderMatches.forEach((match) => match.clear());
+      oldFolderMatches.forEach((match) => match.dispose());
+      this._isDirty = false;
+    };
+    this.cachedSearchComplete = void 0;
+    this._rangeHighlightDecorations.removeHighlightRange();
+    this._folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+    if (!query) {
+      return;
+    }
+    this._folderMatches = (query && query.folderQueries || []).map((fq) => fq.folder).map((resource, index) => this._createBaseFolderMatch(resource, resource.toString(), index, query, this.isAIContributed));
+    this._folderMatches.forEach((fm) => this._folderMatchesMap.set(fm.resource, fm));
+    if (this._allowOtherResults) {
+      this._otherFilesMatch = this._createBaseFolderMatch(null, "otherFiles", this._folderMatches.length + 1, query, this.isAIContributed);
+    }
+    this._query = query;
+  }
+  _createBaseFolderMatch(resource, id, index, query, ai) {
+    let folderMatch;
+    if (resource) {
+      folderMatch = this._register(this.createWorkspaceRootWithResourceImpl(resource, id, index, query));
+    } else {
+      folderMatch = this._register(this.instantiationService.createInstance(FolderMatchNoRootImpl, id, index, query, this));
+    }
+    const disposable = folderMatch.onChange((event) => this._onChange.fire(event));
+    this._register(folderMatch.onDispose(() => disposable.dispose()));
+    return folderMatch;
+  }
+  folderMatches() {
+    return this._otherFilesMatch && this._allowOtherResults ? [
+      ...this._folderMatches,
+      this._otherFilesMatch
+    ] : this._folderMatches;
+  }
+  disposeMatches() {
+    this.folderMatches().forEach((folderMatch) => folderMatch.dispose());
+    this._folderMatches = [];
+    this._folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+    this._rangeHighlightDecorations.removeHighlightRange();
+  }
+  matches() {
+    const matches = [];
+    this.folderMatches().forEach((folderMatch) => {
+      matches.push(folderMatch.allDownstreamFileMatches());
+    });
+    return [].concat(...matches);
+  }
+  get showHighlights() {
+    return this._showHighlights;
+  }
+  toggleHighlights(value) {
+    if (this._showHighlights === value) {
+      return;
+    }
+    this._showHighlights = value;
+    let selectedMatch = null;
+    this.matches().forEach((fileMatch) => {
+      fileMatch.updateHighlights();
+      if (isNotebookFileMatch(fileMatch)) {
+        fileMatch.updateNotebookHighlights();
+      }
+      if (!selectedMatch) {
+        selectedMatch = fileMatch.getSelectedMatch();
+      }
+    });
+    if (this._showHighlights && selectedMatch) {
+      this._rangeHighlightDecorations.highlightRange(
+        selectedMatch.parent().resource,
+        selectedMatch.range()
+      );
+    } else {
+      this._rangeHighlightDecorations.removeHighlightRange();
+    }
+  }
+  get rangeHighlightDecorations() {
+    return this._rangeHighlightDecorations;
+  }
+  fileCount() {
+    return this.folderMatches().reduce((prev, match) => prev + match.recursiveFileCount(), 0);
+  }
+  count() {
+    return this.matches().reduce((prev, match) => prev + match.count(), 0);
+  }
+  clear() {
+    this.folderMatches().forEach((folderMatch) => folderMatch.clear(true));
+    this.disposeMatches();
+    this._folderMatches = [];
+    this._otherFilesMatch = null;
+    this.cachedSearchComplete = void 0;
+  }
+  async dispose() {
+    this._rangeHighlightDecorations.dispose();
+    this.disposeMatches();
+    super.dispose();
+    await this.disposePastResults();
+  }
+};
+TextSearchHeadingImpl = __decorateClass([
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, IUriIdentityService)
+], TextSearchHeadingImpl);
+let PlainTextSearchHeadingImpl = class extends TextSearchHeadingImpl {
+  constructor(parent, instantiationService, uriIdentityService, replaceService) {
+    super(true, parent, instantiationService, uriIdentityService);
+    this.replaceService = replaceService;
+  }
+  static {
+    __name(this, "PlainTextSearchHeadingImpl");
+  }
+  id() {
+    return TEXT_SEARCH_HEADING_PREFIX + PLAIN_TEXT_SEARCH__RESULT_ID;
+  }
+  get isAIContributed() {
+    return false;
+  }
+  replace(match) {
+    return this.getFolderMatch(match.resource)?.replace(match) ?? Promise.resolve();
+  }
+  name() {
+    return "Text";
+  }
+  replaceAll(progress) {
+    this.replacingAll = true;
+    const promise = this.replaceService.replace(this.matches(), progress);
+    return promise.then(() => {
+      this.replacingAll = false;
+      this.clear();
+    }, () => {
+      this.replacingAll = false;
+    });
+  }
+  set replacingAll(running) {
+    this.folderMatches().forEach((folderMatch) => {
+      folderMatch.replacingAll = running;
+    });
+  }
+  createWorkspaceRootWithResourceImpl(resource, id, index, query) {
+    return this.instantiationService.createInstance(FolderMatchWorkspaceRootImpl, resource, id, index, query, this);
+  }
+};
+PlainTextSearchHeadingImpl = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IUriIdentityService),
+  __decorateParam(3, IReplaceService)
+], PlainTextSearchHeadingImpl);
+export {
+  PlainTextSearchHeadingImpl,
+  TextSearchHeadingImpl
+};
+//# sourceMappingURL=textSearchHeading.js.map

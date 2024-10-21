@@ -1,1 +1,220 @@
-var U=Object.defineProperty;var V=Object.getOwnPropertyDescriptor;var F=(v,o,i,a)=>{for(var e=a>1?void 0:a?V(o,i):o,d=v.length-1,l;d>=0;d--)(l=v[d])&&(e=(a?l(o,i,e):l(e))||e);return a&&e&&U(o,i,e),e},f=(v,o)=>(i,a)=>o(i,a,v);import{Queue as P}from"../../../../base/common/async.js";import{CancellationError as W}from"../../../../base/common/errors.js";import{Disposable as q,DisposableMap as G,DisposableStore as D,MutableDisposable as H}from"../../../../base/common/lifecycle.js";import"../../../../editor/browser/editorExtensions.js";import{localize as t}from"../../../../nls.js";import{Action2 as O,MenuId as X,registerAction2 as z}from"../../../../platform/actions/common/actions.js";import{IConfigurationService as k}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as K}from"../../../../platform/contextkey/common/contextkey.js";import{IDialogService as L}from"../../../../platform/dialogs/common/dialogs.js";import{ILabelService as x}from"../../../../platform/label/common/label.js";import"../../../common/contributions.js";import{SaveReason as B}from"../../../common/editor.js";import{IEditorService as Q}from"../../../services/editor/common/editorService.js";import{IFilesConfigurationService as j}from"../../../services/filesConfiguration/common/filesConfigurationService.js";import{ITextFileService as J}from"../../../services/textfile/common/textfiles.js";import{ChatAgentLocation as M,IChatAgentService as N}from"../common/chatAgents.js";import{CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME as Y,IChatEditingService as T,WorkingSetEntryState as E}from"../common/chatEditingService.js";let c=class extends q{constructor(i,a,e,d,l,h,S){super();this._dialogService=h;this._fileConfigService=S;const r=this._store.add(new D),g=new P,I=()=>{r.clear(),!i.getValue(c._config)&&(a.currentEditingSession&&this._handleNewEditingSession(a.currentEditingSession,r),r.add(a.onDidCreateEditingSession(s=>this._handleNewEditingSession(s,r))),r.add(d.files.addSaveParticipant({participate:async(s,u,m,b)=>{if(u.reason!==B.EXPLICIT)return;const C=a.getEditingSession(s.resource);C&&C.entries.get().find(w=>w.state.get()===E.Modified&&w.modifiedURI.toString()===s.resource.toString())&&await g.queue(async()=>{if(i.getValue(c._config))return;const y=e.getDefaultAgent(M.EditingSession)?.fullName,A=l.getUriBasenameLabel(s.resource),R=y?t("message.1","Do you want to save the changes {0} made in {1}?",y,A):t("message.2","Do you want to save the changes chat made in {0}?",A),_=await this._dialogService.confirm({message:R,detail:t("detail2","AI-generated changes may be incorrect and should be reviewed before saving.",y),primaryButton:t("save","Save"),cancelButton:t("discard","Cancel"),checkbox:{label:t("config","Always save with AI-generated changes without asking"),checked:!1}});if(!_.confirmed)throw new W;_.checkboxChecked&&await i.updateValue(c._config,!0)})}})))};i.onDidChangeConfiguration(n=>{n.affectsConfiguration(c._config)&&I()}),I()}static ID="workbench.chat.editorSaving";static _config="chat.editing.alwaysSaveWithGeneratedChanges";_sessionStore=this._store.add(new G);_handleNewEditingSession(i,a){const e=new D;a.add(e);const d=e.add(new H),l=()=>{const h=new D,S=i.entries.get();for(const r of S)r.state.get()===E.Modified&&h.add(this._fileConfigService.disableAutoSave(r.modifiedURI));d.value=h};l(),this._sessionStore.set(i,e),e.add(i.onDidChange(()=>{l()})),e.add(i.onDidDispose(()=>{e.dispose(),a.delete(e)}))}};c=F([f(0,k),f(1,T),f(2,N),f(3,J),f(4,x),f(5,L),f(6,j)],c);class p extends O{static ID="chatEditing.saveAllFiles";static LABEL=t("save.allFiles","Save All");constructor(){super({id:p.ID,title:p.LABEL,menu:{when:K.equals("resourceScheme",Y),id:X.EditorTitle,order:0,group:"navigation"}})}async run(o,...i){const a=o.get(T),e=o.get(Q),d=o.get(k),l=o.get(N),h=o.get(L),S=o.get(x),r=a.currentEditingSession;if(!r)return;const g=[];for(const n of r.entries.get())if(n.state.get()===E.Modified){const s=n.modifiedURI,u=e.findEditors(s);if(u.length===0)continue;const m=u[0];m.editor.isDirty()&&g.push(m)}if(g.length===0)return;if(!d.getValue(c._config)){const n=l.getDefaultAgent(M.EditingSession)?.fullName;let s;if(g.length===1){const m=g[0].editor.resource;if(m){const b=S.getUriBasenameLabel(m);s=n?t("message.batched.oneFile.1","Do you want to save the changes {0} made in {1}?",n,b):t("message.batched.oneFile.2","Do you want to save the changes chat made in {0}?",b)}else s=n?t("message.batched.oneFile.3","Do you want to save the changes {0} made in 1 file?",n):t("message.batched.oneFile.4","Do you want to save the changes chat made in 1 file?")}else s=n?t("message.batched.multiFile.1","Do you want to save the changes {0} made in {1} files?",n,g.length):t("message.batched.multiFile.2","Do you want to save the changes chat made in {0} files?",g.length);const u=await h.confirm({message:s,detail:t("detail2","AI-generated changes may be incorrect and should be reviewed before saving.",n),primaryButton:t("save all","Save All"),cancelButton:t("discard","Cancel"),checkbox:{label:t("config","Always save with AI-generated changes without asking"),checked:!1}});if(!u.confirmed)return;u.checkboxChecked&&await d.updateValue(c._config,!0)}await e.save(g,{reason:B.EXPLICIT,skipSaveParticipants:!0})}}z(p);export{p as ChatEditingSaveAllAction,c as ChatEditorSaving};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Queue } from "../../../../base/common/async.js";
+import { CancellationError } from "../../../../base/common/errors.js";
+import { Disposable, DisposableMap, DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { localize } from "../../../../nls.js";
+import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IEditorIdentifier, SaveReason } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import { ChatAgentLocation, IChatAgentService } from "../common/chatAgents.js";
+import { CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME, IChatEditingService, IChatEditingSession, WorkingSetEntryState } from "../common/chatEditingService.js";
+let ChatEditorSaving = class extends Disposable {
+  constructor(configService, chatEditingService, chatAgentService, textFileService, labelService, _dialogService, _fileConfigService) {
+    super();
+    this._dialogService = _dialogService;
+    this._fileConfigService = _fileConfigService;
+    const store = this._store.add(new DisposableStore());
+    const queue = new Queue();
+    const update = /* @__PURE__ */ __name(() => {
+      store.clear();
+      const alwaysSave = configService.getValue(ChatEditorSaving._config);
+      if (alwaysSave) {
+        return;
+      }
+      if (chatEditingService.currentEditingSession) {
+        this._handleNewEditingSession(chatEditingService.currentEditingSession, store);
+      }
+      store.add(chatEditingService.onDidCreateEditingSession((e) => this._handleNewEditingSession(e, store)));
+      store.add(textFileService.files.addSaveParticipant({
+        participate: /* @__PURE__ */ __name(async (workingCopy, context, progress, token) => {
+          if (context.reason !== SaveReason.EXPLICIT) {
+            return;
+          }
+          const session = chatEditingService.getEditingSession(workingCopy.resource);
+          if (!session) {
+            return;
+          }
+          if (!session.entries.get().find((e) => e.state.get() === WorkingSetEntryState.Modified && e.modifiedURI.toString() === workingCopy.resource.toString())) {
+            return;
+          }
+          await queue.queue(async () => {
+            const alwaysSave2 = configService.getValue(ChatEditorSaving._config);
+            if (alwaysSave2) {
+              return;
+            }
+            const agentName = chatAgentService.getDefaultAgent(ChatAgentLocation.EditingSession)?.fullName;
+            const filelabel = labelService.getUriBasenameLabel(workingCopy.resource);
+            const message = agentName ? localize("message.1", "Do you want to save the changes {0} made in {1}?", agentName, filelabel) : localize("message.2", "Do you want to save the changes chat made in {0}?", filelabel);
+            const result = await this._dialogService.confirm({
+              message,
+              detail: localize("detail2", "AI-generated changes may be incorrect and should be reviewed before saving.", agentName),
+              primaryButton: localize("save", "Save"),
+              cancelButton: localize("discard", "Cancel"),
+              checkbox: {
+                label: localize("config", "Always save with AI-generated changes without asking"),
+                checked: false
+              }
+            });
+            if (!result.confirmed) {
+              throw new CancellationError();
+            }
+            if (result.checkboxChecked) {
+              await configService.updateValue(ChatEditorSaving._config, true);
+            }
+          });
+        }, "participate")
+      }));
+    }, "update");
+    configService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(ChatEditorSaving._config)) {
+        update();
+      }
+    });
+    update();
+  }
+  static {
+    __name(this, "ChatEditorSaving");
+  }
+  static ID = "workbench.chat.editorSaving";
+  static _config = "chat.editing.alwaysSaveWithGeneratedChanges";
+  _sessionStore = this._store.add(new DisposableMap());
+  _handleNewEditingSession(session, container) {
+    const store = new DisposableStore();
+    container.add(store);
+    const saveConfig = store.add(new MutableDisposable());
+    const update = /* @__PURE__ */ __name(() => {
+      const store2 = new DisposableStore();
+      const entries = session.entries.get();
+      for (const entry of entries) {
+        if (entry.state.get() === WorkingSetEntryState.Modified) {
+          store2.add(this._fileConfigService.disableAutoSave(entry.modifiedURI));
+        }
+      }
+      saveConfig.value = store2;
+    }, "update");
+    update();
+    this._sessionStore.set(session, store);
+    store.add(session.onDidChange(() => {
+      update();
+    }));
+    store.add(session.onDidDispose(() => {
+      store.dispose();
+      container.delete(store);
+    }));
+  }
+};
+ChatEditorSaving = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, IChatEditingService),
+  __decorateParam(2, IChatAgentService),
+  __decorateParam(3, ITextFileService),
+  __decorateParam(4, ILabelService),
+  __decorateParam(5, IDialogService),
+  __decorateParam(6, IFilesConfigurationService)
+], ChatEditorSaving);
+class ChatEditingSaveAllAction extends Action2 {
+  static {
+    __name(this, "ChatEditingSaveAllAction");
+  }
+  static ID = "chatEditing.saveAllFiles";
+  static LABEL = localize("save.allFiles", "Save All");
+  constructor() {
+    super({
+      id: ChatEditingSaveAllAction.ID,
+      title: ChatEditingSaveAllAction.LABEL,
+      menu: {
+        when: ContextKeyExpr.equals("resourceScheme", CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME),
+        id: MenuId.EditorTitle,
+        order: 0,
+        group: "navigation"
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const chatEditingService = accessor.get(IChatEditingService);
+    const editorService = accessor.get(IEditorService);
+    const configService = accessor.get(IConfigurationService);
+    const chatAgentService = accessor.get(IChatAgentService);
+    const dialogService = accessor.get(IDialogService);
+    const labelService = accessor.get(ILabelService);
+    const currentEditingSession = chatEditingService.currentEditingSession;
+    if (!currentEditingSession) {
+      return;
+    }
+    const editors = [];
+    for (const modifiedFileEntry of currentEditingSession.entries.get()) {
+      if (modifiedFileEntry.state.get() === WorkingSetEntryState.Modified) {
+        const modifiedFile = modifiedFileEntry.modifiedURI;
+        const matchingEditors = editorService.findEditors(modifiedFile);
+        if (matchingEditors.length === 0) {
+          continue;
+        }
+        const matchingEditor = matchingEditors[0];
+        if (matchingEditor.editor.isDirty()) {
+          editors.push(matchingEditor);
+        }
+      }
+    }
+    if (editors.length === 0) {
+      return;
+    }
+    const alwaysSave = configService.getValue(ChatEditorSaving._config);
+    if (!alwaysSave) {
+      const agentName = chatAgentService.getDefaultAgent(ChatAgentLocation.EditingSession)?.fullName;
+      let message;
+      if (editors.length === 1) {
+        const resource = editors[0].editor.resource;
+        if (resource) {
+          const filelabel = labelService.getUriBasenameLabel(resource);
+          message = agentName ? localize("message.batched.oneFile.1", "Do you want to save the changes {0} made in {1}?", agentName, filelabel) : localize("message.batched.oneFile.2", "Do you want to save the changes chat made in {0}?", filelabel);
+        } else {
+          message = agentName ? localize("message.batched.oneFile.3", "Do you want to save the changes {0} made in 1 file?", agentName) : localize("message.batched.oneFile.4", "Do you want to save the changes chat made in 1 file?");
+        }
+      } else {
+        message = agentName ? localize("message.batched.multiFile.1", "Do you want to save the changes {0} made in {1} files?", agentName, editors.length) : localize("message.batched.multiFile.2", "Do you want to save the changes chat made in {0} files?", editors.length);
+      }
+      const result = await dialogService.confirm({
+        message,
+        detail: localize("detail2", "AI-generated changes may be incorrect and should be reviewed before saving.", agentName),
+        primaryButton: localize("save all", "Save All"),
+        cancelButton: localize("discard", "Cancel"),
+        checkbox: {
+          label: localize("config", "Always save with AI-generated changes without asking"),
+          checked: false
+        }
+      });
+      if (!result.confirmed) {
+        return;
+      }
+      if (result.checkboxChecked) {
+        await configService.updateValue(ChatEditorSaving._config, true);
+      }
+    }
+    await editorService.save(editors, { reason: SaveReason.EXPLICIT, skipSaveParticipants: true });
+  }
+}
+registerAction2(ChatEditingSaveAllAction);
+export {
+  ChatEditingSaveAllAction,
+  ChatEditorSaving
+};
+//# sourceMappingURL=chatEditorSaving.js.map

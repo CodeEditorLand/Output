@@ -1,1 +1,480 @@
-var B=Object.defineProperty;var U=Object.getOwnPropertyDescriptor;var T=(l,r,e,i)=>{for(var n=i>1?void 0:i?U(r,e):r,a=l.length-1,t;a>=0;a--)(t=l[a])&&(n=(i?t(r,e,n):t(n))||n);return i&&n&&B(r,e,n),n},_=(l,r)=>(e,i)=>r(e,i,l);import{h as m,svgElem as S}from"../../../../../../base/browser/dom.js";import{renderIcon as V}from"../../../../../../base/browser/ui/iconLabel/iconLabels.js";import{numberComparator as H}from"../../../../../../base/common/arrays.js";import{findFirstMin as X}from"../../../../../../base/common/arraysFind.js";import{Codicon as G}from"../../../../../../base/common/codicons.js";import{createHotClass as z}from"../../../../../../base/common/hotReloadHelpers.js";import{Disposable as C}from"../../../../../../base/common/lifecycle.js";import{autorun as x,constObservable as R,derived as h,derivedDisposable as M,derivedWithCancellationToken as q,observableFromEvent as j,ObservablePromise as Q}from"../../../../../../base/common/observable.js";import{getIndentationLength as J,splitLines as K}from"../../../../../../base/common/strings.js";import{MenuWorkbenchToolBar as Y}from"../../../../../../platform/actions/browser/toolbar.js";import{MenuId as Z,MenuItemAction as ee}from"../../../../../../platform/actions/common/actions.js";import{IInstantiationService as O}from"../../../../../../platform/instantiation/common/instantiation.js";import"../../../../../browser/editorBrowser.js";import{observableCodeEditor as y}from"../../../../../browser/observableCodeEditor.js";import{EmbeddedCodeEditorWidget as ie}from"../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";import{IDiffProviderFactoryService as te}from"../../../../../browser/widget/diffEditor/diffProviderFactoryService.js";import{diffAddDecoration as oe,diffAddDecorationEmpty as ne,diffDeleteDecorationEmpty as re,diffWholeLineAddDecoration as se,diffWholeLineDeleteDecoration as ae}from"../../../../../browser/widget/diffEditor/registrations.contribution.js";import{appendRemoveOnDispose as de}from"../../../../../browser/widget/diffEditor/utils.js";import{EditorOption as le}from"../../../../../common/config/editorOptions.js";import{SingleLineEdit as ce}from"../../../../../common/core/lineEdit.js";import{LineRange as pe}from"../../../../../common/core/lineRange.js";import{OffsetRange as P}from"../../../../../common/core/offsetRange.js";import{Position as he}from"../../../../../common/core/position.js";import{Range as I}from"../../../../../common/core/range.js";import{SingleTextEdit as D,StringText as fe,TextEdit as W}from"../../../../../common/core/textEdit.js";import{TextLength as N}from"../../../../../common/core/textLength.js";import{lineRangeMappingFromRangeMappings as me,RangeMapping as ge}from"../../../../../common/diff/rangeMapping.js";import"../../../../../common/model.js";import{TextModel as $}from"../../../../../common/model/textModel.js";import{TextModelText as ue}from"../../../../../common/model/textModelText.js";import{IModelService as ve}from"../../../../../common/services/model.js";import"../../model/inlineEdit.js";import"./inlineEditsView.css";import{applyEditToModifiedRangeMappings as _e,maxLeftInRange as k,Point as g,StatusBarViewItem as ye,UniqueUriGenerator as be}from"./utils.js";let u=class extends C{constructor(e,i,n,a,t){super();this._editor=e;this._edit=i;this._instantiationService=n;this._diffProviderFactoryService=a;this._modelService=t;this._register(new b(this._editor,this._inlineEdit,this._instantiationService))}static hot=z(u);_modelUriGenerator=new be("inline-edits");_originalModel=M(()=>this._modelService.createModel("",null,this._modelUriGenerator.getUniqueUri())).keepObserved(this._store);_modifiedModel=M(()=>this._modelService.createModel("",null,this._modelUriGenerator.getUniqueUri())).keepObserved(this._store);_inlineEditPromise=q(this,(e,i)=>{const n=this._edit.read(e);if(!n)return;const a=new ue(this._editor.getModel()),t=n.edit.extendToFullLine(a);this._originalModel.get().setValue(this._editor.getModel().getValueInRange(t.range)),this._modifiedModel.get().setValue(t.text);const o=this._diffProviderFactoryService.createDiffProvider({diffAlgorithm:"advanced"});return Q.fromFn(async()=>{const s=await o.computeDiff(this._originalModel.get(),this._modifiedModel.get(),{computeMoves:!1,ignoreTrimWhitespace:!1,maxComputationTimeMs:1e3},i);if(s.identical)return;const p=t.range.getStartPosition(),c=s.changes.flatMap(f=>f.innerChanges);function d(f,v){const w=N.fromPosition(v.getStartPosition());return N.ofRange(v).createRange(w.addToPosition(f))}const E=c.map(f=>new D(d(p,f.originalRange),this._modifiedModel.get().getValueInRange(f.modifiedRange))),L=new W(E);return new we(a,L,n.isCollapsed)})});_inlineEdit=this._inlineEditPromise.map((e,i)=>e?.promiseResult?.read(i)?.data)};u=T([_(2,O),_(3,te),_(4,ve)],u);class we{constructor(r,e,i){this.originalText=r;this.edit=e;this.isCollapsed=i}lineEdit=ce.fromSingleTextEdit(this.edit.toSingle(this.originalText),this.originalText);originalLineRange=this.lineEdit.lineRange;modifiedLineRange=this.lineEdit.toLineEdit().getNewLineRanges()[0]}let b=class extends C{constructor(e,i,n){super();this._editor=e;this._edit=i;this._instantiationService=n;this._register(de(this._editor.getDomNode(),this._elements.root)),this._register(y(e).createOverlayWidget({domNode:this._elements.root,position:R(null),allowEditorOverflow:!1,minContentWidthInPx:h(t=>{const o=this._previewEditorLeft.read(t)?.left;if(o===void 0)return 0;const s=this._previewEditorWidth.read(t);return o+s})})),this._register(y(e).createOverlayWidget({domNode:this._indicator.root,position:R(null),allowEditorOverflow:!1,minContentWidthInPx:R(0)})),this._previewEditor.setModel(this._previewTextModel),this._register(this._previewEditorObs.setDecorations(this._decorations.map(t=>t?.modifiedDecorations??[]))),this._register(y(e).setDecorations(this._decorations.map(t=>t?.originalDecorations??[]))),this._register(x(t=>{const o=this._previewEditorLayoutInfo.read(t);if(!o){this._indicator.root.style.visibility="hidden";return}this._indicator.root.style.visibility="";const s=this._editorObs.layoutInfo.read(t),p=new P(0,s.height-30),c=o.edit1;this._indicator.root.classList.toggle("top",c.y<p.start),this._indicator.root.classList.toggle("bottom",c.y>p.endExclusive);const d=!this._diffViewInformation.read(t);this._indicator.root.classList.toggle("visible",d),this._indicator.root.classList.toggle("contained",p.contains(c.y)),this._indicator.root.style.top=`${p.clip(c.y)}px`,this._indicator.root.style.right=`${s.minimap.minimapWidth+s.verticalScrollbarWidth}px`})),this._register(x(t=>{const o=this._previewEditorLayoutInfo.read(t);if(!o){this._elements.path.style.visibility="hidden";return}this._elements.path.style.visibility="";const s=o.edit1,p=o.editHeight,c=this._previewEditorWidth.read(t)+10,d=new Te;d.moveTo(o.code1.deltaX(-5)),d.lineTo(o.code1),d.lineTo(o.edit1),d.lineTo(o.edit1.deltaX(c)),d.lineTo(o.edit2.deltaX(c)),d.lineTo(o.edit2),d.curveTo2(o.edit2.deltaX(-20),o.code2.deltaX(20),o.code2.deltaX(0)),d.lineTo(o.code2.deltaX(-5)),this._elements.path.setAttribute("d",d.build()),this._elements.path.style.fill="none",this._elements.path.style.stroke="var(--vscode-activityBarBadge-background)",this._elements.path.style.strokeWidth="1px",this._elements.editorContainer.style.top=`${s.y}px`,this._elements.editorContainer.style.left=`${s.x}px`,this._previewEditor.layout({height:p,width:c})}));const a=j(this,this._toolbar.onDidChangeDropdownVisibility,t=>t??!1);this._register(x(t=>{this._elements.root.classList.toggle("toolbarDropdownVisible",a.read(t))}))}_editorObs=y(this._editor);_elements=m("div.inline-edits-view",{style:{position:"absolute",overflow:"visible",top:"0px",left:"0px"}},[m("div.editorContainer@editorContainer",{style:{position:"absolute"}},[m("div.preview@editor",{style:{}}),m("div.toolbar@toolbar",{style:{}})]),S("svg",{style:{overflow:"visible",pointerEvents:"none",position:"absolute"}},[S("path@path",{d:""})])]);_indicator=m("div.inline-edits-view-indicator",{style:{position:"absolute",overflow:"visible"}},[m("div.icon",{},[V(G.arrowLeft)]),m("div.label",{},[" inline edit"])]);_diffViewInformation=h(this,e=>{const i=this._edit.read(e);if(!(!i||i.isCollapsed))return!0});_uiState=h(this,e=>{const i=this._edit.read(e);if(!i)return;let n=i.edit.apply(i.originalText);const a=Le(n,i.modifiedLineRange);n=a.applyToString(n);let t=ge.fromEdit(i.edit);t=_e(t,a);const o=me(t,i.originalText,new fe(n)),s=i.originalText.lineRange.intersect(pe.ofLength(i.originalLineRange.startLineNumber-1,i.lineEdit.newLines.length+2));return{diff:o,edit:i,newText:n,newTextLineCount:i.modifiedLineRange.length,originalDisplayRange:s}});_decorations=h(this,e=>{this._updatePreviewEditor.read(e);const i=this._uiState.read(e);if(!i)return;const n=i.diff,a=[],t=[];if(i.edit.originalLineRange.length!==0){for(const o of n)if(o.modified.isEmpty||o.original.isEmpty)o.original.isEmpty||a.push({range:o.original.toInclusiveRange(),options:ae}),o.modified.isEmpty||t.push({range:o.modified.toInclusiveRange(),options:se});else for(const s of o.innerChanges||[])o.original.contains(s.originalRange.startLineNumber)&&a.push({range:s.originalRange,options:s.originalRange.isEmpty()?re:{className:"char-delete",description:"char-delete",shouldFillLineOnLineBreak:!1}}),o.modified.contains(s.modifiedRange.startLineNumber)&&t.push({range:s.modifiedRange,options:s.modifiedRange.isEmpty()?ne:oe});return{originalDecorations:a,modifiedDecorations:t}}});_toolbar=this._register(this._instantiationService.createInstance(Y,this._elements.toolbar,Z.InlineEditsActions,{menuOptions:{renderShortTitle:!0},toolbarOptions:{primaryGroup:e=>e.startsWith("primary")},actionViewItemProvider:(e,i)=>{if(e instanceof ee)return this._instantiationService.createInstance(ye,e,void 0)}}));_previewTextModel=this._register(this._instantiationService.createInstance($,"",this._editor.getModel().getLanguageId(),{...$.DEFAULT_CREATION_OPTIONS,bracketPairColorizationOptions:{enabled:!0,independentColorPoolPerBracketType:!1}},null));_previewEditor=this._register(this._instantiationService.createInstance(ie,this._elements.editor,{glyphMargin:!1,lineNumbers:"off",minimap:{enabled:!1},guides:{indentation:!1,bracketPairs:!1,bracketPairsHorizontal:!1,highlightActiveIndentation:!1},folding:!1,selectOnLineNumbers:!1,selectionHighlight:!1,columnSelection:!1,overviewRulerBorder:!1,overviewRulerLanes:0,lineDecorationsWidth:0,lineNumbersMinChars:0,bracketPairColorization:{enabled:!0,independentColorPoolPerBracketType:!1},scrollBeyondLastLine:!1,scrollbar:{vertical:"hidden",horizontal:"hidden"},readOnly:!0,wordWrap:"off"},{contributions:[]},this._editor));_previewEditorObs=y(this._previewEditor);_rootVisibility=h(this,e=>this._diffViewInformation.read(e)?"block":"none");_updateRootVisibility=h(e=>{this._elements.root.style.display=this._rootVisibility.read(e)});_updatePreviewEditor=h(e=>{this._updateRootVisibility.read(e);const i=this._uiState.read(e);if(!i)return;this._previewTextModel.setValue(i.newText);const n=i.edit.originalLineRange;this._previewEditor.setHiddenAreas([new I(1,1,n.startLineNumber-1,1),new I(n.startLineNumber+i.newTextLineCount,1,this._previewTextModel.getLineCount()+1,1)],void 0,!0)}).recomputeInitiallyAndOnChange(this._store);_previewEditorWidth=h(this,e=>{const i=this._edit.read(e);return i?(this._updatePreviewEditor.read(e),k(this._previewEditorObs,i.modifiedLineRange,e)):0});_previewEditorLeft=h(this,e=>{const i=this._uiState.read(e);if(!i)return null;const n=k(this._editorObs,i.originalDisplayRange,e);return{left:this._editorObs.layoutInfoContentLeft.read(e)+n}});_previewEditorLayoutInfo=h(this,e=>{const i=this._edit.read(e);if(!i)return null;const n=i.originalLineRange,a=this._editorObs.scrollLeft.read(e),t=this._previewEditorLeft.read(e).left+20-a,o=this._editor.getTopForLineNumber(n.startLineNumber)-this._editorObs.scrollTop.read(e),s=this._editor.getTopForLineNumber(n.endLineNumberExclusive)-this._editorObs.scrollTop.read(e),p=this._editorObs.layoutInfoContentLeft.read(e),c=new g(t,o),d=new g(p,o),E=new g(t,s),L=new g(0,s),f=s-o,v=60,w=this._editor.getOption(le.lineHeight)*i.modifiedLineRange.length,A=new g(t+v,o),F=new g(t+v,o+w);return{code1:c,codeStart1:d,code2:E,codeStart2:L,codeHeight:f,edit1:A,edit2:F,editHeight:w}})};b=T([_(2,O)],b);function Ee(l,r){return new I(r.lineNumber,r.column+l.start,r.lineNumber,r.column+l.endExclusive)}function Le(l,r){const e=K(l),i=[],n=X(r.mapToLineArray(a=>J(e[a-1])),H);return r.forEach(a=>{i.push(new D(Ee(new P(0,n),new he(a,1)),""))}),new W(i)}class Te{_data="";moveTo(r){return this._data+=`M ${r.x} ${r.y} `,this}lineTo(r){return this._data+=`L ${r.x} ${r.y} `,this}curveTo(r,e){return this._data+=`Q ${r.x} ${r.y} ${e.x} ${e.y} `,this}curveTo2(r,e,i){return this._data+=`C ${r.x} ${r.y} ${e.x} ${e.y} ${i.x} ${i.y} `,this}build(){return this._data}}export{we as InlineEditWithChanges,b as InlineEditsView,u as InlineEditsViewAndDiffProducer};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { h, svgElem } from "../../../../../../base/browser/dom.js";
+import { renderIcon } from "../../../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { numberComparator } from "../../../../../../base/common/arrays.js";
+import { findFirstMin } from "../../../../../../base/common/arraysFind.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { createHotClass } from "../../../../../../base/common/hotReloadHelpers.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, derived, derivedDisposable, derivedWithCancellationToken, IObservable, observableFromEvent, ObservablePromise } from "../../../../../../base/common/observable.js";
+import { getIndentationLength, splitLines } from "../../../../../../base/common/strings.js";
+import { MenuWorkbenchToolBar } from "../../../../../../platform/actions/browser/toolbar.js";
+import { MenuId, MenuItemAction } from "../../../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../../../browser/editorBrowser.js";
+import { observableCodeEditor } from "../../../../../browser/observableCodeEditor.js";
+import { EmbeddedCodeEditorWidget } from "../../../../../browser/widget/codeEditor/embeddedCodeEditorWidget.js";
+import { IDiffProviderFactoryService } from "../../../../../browser/widget/diffEditor/diffProviderFactoryService.js";
+import { diffAddDecoration, diffAddDecorationEmpty, diffDeleteDecorationEmpty, diffWholeLineAddDecoration, diffWholeLineDeleteDecoration } from "../../../../../browser/widget/diffEditor/registrations.contribution.js";
+import { appendRemoveOnDispose } from "../../../../../browser/widget/diffEditor/utils.js";
+import { EditorOption } from "../../../../../common/config/editorOptions.js";
+import { SingleLineEdit } from "../../../../../common/core/lineEdit.js";
+import { LineRange } from "../../../../../common/core/lineRange.js";
+import { OffsetRange } from "../../../../../common/core/offsetRange.js";
+import { Position } from "../../../../../common/core/position.js";
+import { Range } from "../../../../../common/core/range.js";
+import { AbstractText, SingleTextEdit, StringText, TextEdit } from "../../../../../common/core/textEdit.js";
+import { TextLength } from "../../../../../common/core/textLength.js";
+import { lineRangeMappingFromRangeMappings, RangeMapping } from "../../../../../common/diff/rangeMapping.js";
+import { IModelDeltaDecoration } from "../../../../../common/model.js";
+import { TextModel } from "../../../../../common/model/textModel.js";
+import { TextModelText } from "../../../../../common/model/textModelText.js";
+import { IModelService } from "../../../../../common/services/model.js";
+import { InlineEdit } from "../../model/inlineEdit.js";
+import "./inlineEditsView.css";
+import { applyEditToModifiedRangeMappings, maxLeftInRange, Point, StatusBarViewItem, UniqueUriGenerator } from "./utils.js";
+let InlineEditsViewAndDiffProducer = class extends Disposable {
+  constructor(_editor, _edit, _instantiationService, _diffProviderFactoryService, _modelService) {
+    super();
+    this._editor = _editor;
+    this._edit = _edit;
+    this._instantiationService = _instantiationService;
+    this._diffProviderFactoryService = _diffProviderFactoryService;
+    this._modelService = _modelService;
+    this._register(new InlineEditsView(this._editor, this._inlineEdit, this._instantiationService));
+  }
+  static {
+    __name(this, "InlineEditsViewAndDiffProducer");
+  }
+  static hot = createHotClass(InlineEditsViewAndDiffProducer);
+  _modelUriGenerator = new UniqueUriGenerator("inline-edits");
+  _originalModel = derivedDisposable(() => this._modelService.createModel(
+    "",
+    null,
+    this._modelUriGenerator.getUniqueUri()
+  )).keepObserved(this._store);
+  _modifiedModel = derivedDisposable(() => this._modelService.createModel(
+    "",
+    null,
+    this._modelUriGenerator.getUniqueUri()
+  )).keepObserved(this._store);
+  _inlineEditPromise = derivedWithCancellationToken(this, (reader, token) => {
+    const inlineEdit = this._edit.read(reader);
+    if (!inlineEdit) {
+      return void 0;
+    }
+    const text = new TextModelText(this._editor.getModel());
+    const edit = inlineEdit.edit.extendToFullLine(text);
+    this._originalModel.get().setValue(this._editor.getModel().getValueInRange(edit.range));
+    this._modifiedModel.get().setValue(edit.text);
+    const diffAlgo = this._diffProviderFactoryService.createDiffProvider({ diffAlgorithm: "advanced" });
+    return ObservablePromise.fromFn(async () => {
+      const result = await diffAlgo.computeDiff(this._originalModel.get(), this._modifiedModel.get(), {
+        computeMoves: false,
+        ignoreTrimWhitespace: false,
+        maxComputationTimeMs: 1e3
+      }, token);
+      if (result.identical) {
+        return void 0;
+      }
+      const rangeStartPos = edit.range.getStartPosition();
+      const innerChanges = result.changes.flatMap((c) => c.innerChanges);
+      function addRangeToPos(pos, range) {
+        const start = TextLength.fromPosition(range.getStartPosition());
+        return TextLength.ofRange(range).createRange(start.addToPosition(pos));
+      }
+      __name(addRangeToPos, "addRangeToPos");
+      const edits = innerChanges.map((c) => new SingleTextEdit(
+        addRangeToPos(rangeStartPos, c.originalRange),
+        this._modifiedModel.get().getValueInRange(c.modifiedRange)
+      ));
+      const diffEdits = new TextEdit(edits);
+      return new InlineEditWithChanges(text, diffEdits, inlineEdit.isCollapsed);
+    });
+  });
+  _inlineEdit = this._inlineEditPromise.map((p, reader) => p?.promiseResult?.read(reader)?.data);
+};
+InlineEditsViewAndDiffProducer = __decorateClass([
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, IDiffProviderFactoryService),
+  __decorateParam(4, IModelService)
+], InlineEditsViewAndDiffProducer);
+class InlineEditWithChanges {
+  constructor(originalText, edit, isCollapsed) {
+    this.originalText = originalText;
+    this.edit = edit;
+    this.isCollapsed = isCollapsed;
+  }
+  static {
+    __name(this, "InlineEditWithChanges");
+  }
+  lineEdit = SingleLineEdit.fromSingleTextEdit(this.edit.toSingle(this.originalText), this.originalText);
+  originalLineRange = this.lineEdit.lineRange;
+  modifiedLineRange = this.lineEdit.toLineEdit().getNewLineRanges()[0];
+}
+let InlineEditsView = class extends Disposable {
+  constructor(_editor, _edit, _instantiationService) {
+    super();
+    this._editor = _editor;
+    this._edit = _edit;
+    this._instantiationService = _instantiationService;
+    this._register(appendRemoveOnDispose(this._editor.getDomNode(), this._elements.root));
+    this._register(observableCodeEditor(_editor).createOverlayWidget({
+      domNode: this._elements.root,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: derived((reader) => {
+        const x = this._previewEditorLeft.read(reader)?.left;
+        if (x === void 0) {
+          return 0;
+        }
+        const width = this._previewEditorWidth.read(reader);
+        return x + width;
+      })
+    }));
+    this._register(observableCodeEditor(_editor).createOverlayWidget({
+      domNode: this._indicator.root,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: constObservable(0)
+    }));
+    this._previewEditor.setModel(this._previewTextModel);
+    this._register(this._previewEditorObs.setDecorations(this._decorations.map((d) => d?.modifiedDecorations ?? [])));
+    this._register(observableCodeEditor(_editor).setDecorations(this._decorations.map((d) => d?.originalDecorations ?? [])));
+    this._register(autorun((reader) => {
+      const layoutInfo = this._previewEditorLayoutInfo.read(reader);
+      if (!layoutInfo) {
+        this._indicator.root.style.visibility = "hidden";
+        return;
+      }
+      this._indicator.root.style.visibility = "";
+      const i = this._editorObs.layoutInfo.read(reader);
+      const range = new OffsetRange(0, i.height - 30);
+      const topEdit = layoutInfo.edit1;
+      this._indicator.root.classList.toggle("top", topEdit.y < range.start);
+      this._indicator.root.classList.toggle("bottom", topEdit.y > range.endExclusive);
+      const showAnyway = !this._diffViewInformation.read(reader);
+      this._indicator.root.classList.toggle("visible", showAnyway);
+      this._indicator.root.classList.toggle("contained", range.contains(topEdit.y));
+      this._indicator.root.style.top = `${range.clip(topEdit.y)}px`;
+      this._indicator.root.style.right = `${i.minimap.minimapWidth + i.verticalScrollbarWidth}px`;
+    }));
+    this._register(autorun((reader) => {
+      const layoutInfo = this._previewEditorLayoutInfo.read(reader);
+      if (!layoutInfo) {
+        this._elements.path.style.visibility = "hidden";
+        return;
+      }
+      this._elements.path.style.visibility = "";
+      const topEdit = layoutInfo.edit1;
+      const editHeight = layoutInfo.editHeight;
+      const width = this._previewEditorWidth.read(reader) + 10;
+      const pathBuilder = new PathBuilder();
+      pathBuilder.moveTo(layoutInfo.code1.deltaX(-5));
+      pathBuilder.lineTo(layoutInfo.code1);
+      pathBuilder.lineTo(layoutInfo.edit1);
+      pathBuilder.lineTo(layoutInfo.edit1.deltaX(width));
+      pathBuilder.lineTo(layoutInfo.edit2.deltaX(width));
+      pathBuilder.lineTo(layoutInfo.edit2);
+      pathBuilder.curveTo2(layoutInfo.edit2.deltaX(-20), layoutInfo.code2.deltaX(20), layoutInfo.code2.deltaX(0));
+      pathBuilder.lineTo(layoutInfo.code2.deltaX(-5));
+      this._elements.path.setAttribute("d", pathBuilder.build());
+      this._elements.path.style.fill = "none";
+      this._elements.path.style.stroke = "var(--vscode-activityBarBadge-background)";
+      this._elements.path.style.strokeWidth = "1px";
+      this._elements.editorContainer.style.top = `${topEdit.y}px`;
+      this._elements.editorContainer.style.left = `${topEdit.x}px`;
+      this._previewEditor.layout({ height: editHeight, width });
+    }));
+    const toolbarDropdownVisible = observableFromEvent(this, this._toolbar.onDidChangeDropdownVisibility, (e) => e ?? false);
+    this._register(autorun((reader) => {
+      this._elements.root.classList.toggle("toolbarDropdownVisible", toolbarDropdownVisible.read(reader));
+    }));
+  }
+  static {
+    __name(this, "InlineEditsView");
+  }
+  _editorObs = observableCodeEditor(this._editor);
+  _elements = h("div.inline-edits-view", {
+    style: {
+      position: "absolute",
+      overflow: "visible",
+      top: "0px",
+      left: "0px"
+    }
+  }, [
+    h("div.editorContainer@editorContainer", { style: { position: "absolute" } }, [
+      h("div.preview@editor", { style: {} }),
+      h("div.toolbar@toolbar", { style: {} })
+    ]),
+    svgElem("svg", { style: { overflow: "visible", pointerEvents: "none", position: "absolute" } }, [
+      svgElem("path@path", {
+        d: ""
+      })
+    ])
+  ]);
+  _indicator = h("div.inline-edits-view-indicator", {
+    style: {
+      position: "absolute",
+      overflow: "visible"
+    }
+  }, [
+    h("div.icon", {}, [
+      renderIcon(Codicon.arrowLeft)
+    ]),
+    h("div.label", {}, [
+      " inline edit"
+    ])
+  ]);
+  _diffViewInformation = derived(this, (reader) => {
+    const edit = this._edit.read(reader);
+    if (!edit || edit.isCollapsed) {
+      return void 0;
+    }
+    return true;
+  });
+  _uiState = derived(this, (reader) => {
+    const edit = this._edit.read(reader);
+    if (!edit) {
+      return void 0;
+    }
+    let newText = edit.edit.apply(edit.originalText);
+    const indentationAdjustmentEdit = createReindentEdit(newText, edit.modifiedLineRange);
+    newText = indentationAdjustmentEdit.applyToString(newText);
+    let mappings = RangeMapping.fromEdit(edit.edit);
+    mappings = applyEditToModifiedRangeMappings(mappings, indentationAdjustmentEdit);
+    const diff = lineRangeMappingFromRangeMappings(mappings, edit.originalText, new StringText(newText));
+    const originalDisplayRange = edit.originalText.lineRange.intersect(
+      LineRange.ofLength(edit.originalLineRange.startLineNumber - 1, edit.lineEdit.newLines.length + 2)
+    );
+    return {
+      diff,
+      edit,
+      newText,
+      newTextLineCount: edit.modifiedLineRange.length,
+      originalDisplayRange
+    };
+  });
+  _decorations = derived(this, (reader) => {
+    this._updatePreviewEditor.read(reader);
+    const s = this._uiState.read(reader);
+    if (!s) {
+      return void 0;
+    }
+    const diff = s.diff;
+    const originalDecorations = [];
+    const modifiedDecorations = [];
+    if (s.edit.originalLineRange.length === 0) {
+      return void 0;
+    }
+    for (const m of diff) {
+      if (m.modified.isEmpty || m.original.isEmpty) {
+        if (!m.original.isEmpty) {
+          originalDecorations.push({ range: m.original.toInclusiveRange(), options: diffWholeLineDeleteDecoration });
+        }
+        if (!m.modified.isEmpty) {
+          modifiedDecorations.push({ range: m.modified.toInclusiveRange(), options: diffWholeLineAddDecoration });
+        }
+      } else {
+        for (const i of m.innerChanges || []) {
+          if (m.original.contains(i.originalRange.startLineNumber)) {
+            originalDecorations.push({
+              range: i.originalRange,
+              options: i.originalRange.isEmpty() ? diffDeleteDecorationEmpty : {
+                className: "char-delete",
+                description: "char-delete",
+                shouldFillLineOnLineBreak: false
+              }
+            });
+          }
+          if (m.modified.contains(i.modifiedRange.startLineNumber)) {
+            modifiedDecorations.push({ range: i.modifiedRange, options: i.modifiedRange.isEmpty() ? diffAddDecorationEmpty : diffAddDecoration });
+          }
+        }
+      }
+    }
+    return { originalDecorations, modifiedDecorations };
+  });
+  _toolbar = this._register(this._instantiationService.createInstance(MenuWorkbenchToolBar, this._elements.toolbar, MenuId.InlineEditsActions, {
+    menuOptions: { renderShortTitle: true },
+    toolbarOptions: {
+      primaryGroup: /* @__PURE__ */ __name((g) => g.startsWith("primary"), "primaryGroup")
+    },
+    actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+      if (action instanceof MenuItemAction) {
+        return this._instantiationService.createInstance(StatusBarViewItem, action, void 0);
+      }
+      return void 0;
+    }, "actionViewItemProvider")
+  }));
+  _previewTextModel = this._register(this._instantiationService.createInstance(
+    TextModel,
+    "",
+    this._editor.getModel().getLanguageId(),
+    { ...TextModel.DEFAULT_CREATION_OPTIONS, bracketPairColorizationOptions: { enabled: true, independentColorPoolPerBracketType: false } },
+    null
+  ));
+  _previewEditor = this._register(this._instantiationService.createInstance(
+    EmbeddedCodeEditorWidget,
+    this._elements.editor,
+    {
+      glyphMargin: false,
+      lineNumbers: "off",
+      minimap: { enabled: false },
+      guides: {
+        indentation: false,
+        bracketPairs: false,
+        bracketPairsHorizontal: false,
+        highlightActiveIndentation: false
+      },
+      folding: false,
+      selectOnLineNumbers: false,
+      selectionHighlight: false,
+      columnSelection: false,
+      overviewRulerBorder: false,
+      overviewRulerLanes: 0,
+      lineDecorationsWidth: 0,
+      lineNumbersMinChars: 0,
+      bracketPairColorization: { enabled: true, independentColorPoolPerBracketType: false },
+      scrollBeyondLastLine: false,
+      scrollbar: {
+        vertical: "hidden",
+        horizontal: "hidden"
+      },
+      readOnly: true,
+      wordWrap: "off"
+    },
+    { contributions: [] },
+    this._editor
+  ));
+  _previewEditorObs = observableCodeEditor(this._previewEditor);
+  _rootVisibility = derived(this, (reader) => !!this._diffViewInformation.read(reader) ? "block" : "none");
+  _updateRootVisibility = derived((reader) => {
+    this._elements.root.style.display = this._rootVisibility.read(reader);
+  });
+  _updatePreviewEditor = derived((reader) => {
+    this._updateRootVisibility.read(reader);
+    const uiState = this._uiState.read(reader);
+    if (!uiState) {
+      return;
+    }
+    this._previewTextModel.setValue(uiState.newText);
+    const range = uiState.edit.originalLineRange;
+    this._previewEditor.setHiddenAreas([
+      new Range(1, 1, range.startLineNumber - 1, 1),
+      new Range(range.startLineNumber + uiState.newTextLineCount, 1, this._previewTextModel.getLineCount() + 1, 1)
+    ], void 0, true);
+  }).recomputeInitiallyAndOnChange(this._store);
+  _previewEditorWidth = derived(this, (reader) => {
+    const edit = this._edit.read(reader);
+    if (!edit) {
+      return 0;
+    }
+    this._updatePreviewEditor.read(reader);
+    return maxLeftInRange(this._previewEditorObs, edit.modifiedLineRange, reader);
+  });
+  _previewEditorLeft = derived(this, (reader) => {
+    const state = this._uiState.read(reader);
+    if (!state) {
+      return null;
+    }
+    const maxLeft = maxLeftInRange(this._editorObs, state.originalDisplayRange, reader);
+    const contentLeft = this._editorObs.layoutInfoContentLeft.read(reader);
+    return { left: contentLeft + maxLeft };
+  });
+  _previewEditorLayoutInfo = derived(this, (reader) => {
+    const inlineEdit = this._edit.read(reader);
+    if (!inlineEdit) {
+      return null;
+    }
+    const range = inlineEdit.originalLineRange;
+    const scrollLeft = this._editorObs.scrollLeft.read(reader);
+    const left = this._previewEditorLeft.read(reader).left + 20 - scrollLeft;
+    const selectionTop = this._editor.getTopForLineNumber(range.startLineNumber) - this._editorObs.scrollTop.read(reader);
+    const selectionBottom = this._editor.getTopForLineNumber(range.endLineNumberExclusive) - this._editorObs.scrollTop.read(reader);
+    const codeLeft = this._editorObs.layoutInfoContentLeft.read(reader);
+    const code1 = new Point(left, selectionTop);
+    const codeStart1 = new Point(codeLeft, selectionTop);
+    const code2 = new Point(left, selectionBottom);
+    const codeStart2 = new Point(0, selectionBottom);
+    const codeHeight = selectionBottom - selectionTop;
+    const codeEditDist = 60;
+    const editHeight = this._editor.getOption(EditorOption.lineHeight) * inlineEdit.modifiedLineRange.length;
+    const edit1 = new Point(left + codeEditDist, selectionTop);
+    const edit2 = new Point(left + codeEditDist, selectionTop + editHeight);
+    return {
+      code1,
+      codeStart1,
+      code2,
+      codeStart2,
+      codeHeight,
+      edit1,
+      edit2,
+      editHeight
+    };
+  });
+};
+InlineEditsView = __decorateClass([
+  __decorateParam(2, IInstantiationService)
+], InlineEditsView);
+function offsetRangeToRange(columnOffsetRange, startPos) {
+  return new Range(
+    startPos.lineNumber,
+    startPos.column + columnOffsetRange.start,
+    startPos.lineNumber,
+    startPos.column + columnOffsetRange.endExclusive
+  );
+}
+__name(offsetRangeToRange, "offsetRangeToRange");
+function createReindentEdit(text, range) {
+  const newLines = splitLines(text);
+  const edits = [];
+  const minIndent = findFirstMin(range.mapToLineArray((l) => getIndentationLength(newLines[l - 1])), numberComparator);
+  range.forEach((lineNumber) => {
+    edits.push(new SingleTextEdit(offsetRangeToRange(new OffsetRange(0, minIndent), new Position(lineNumber, 1)), ""));
+  });
+  return new TextEdit(edits);
+}
+__name(createReindentEdit, "createReindentEdit");
+class PathBuilder {
+  static {
+    __name(this, "PathBuilder");
+  }
+  _data = "";
+  moveTo(point) {
+    this._data += `M ${point.x} ${point.y} `;
+    return this;
+  }
+  lineTo(point) {
+    this._data += `L ${point.x} ${point.y} `;
+    return this;
+  }
+  curveTo(cp, to) {
+    this._data += `Q ${cp.x} ${cp.y} ${to.x} ${to.y} `;
+    return this;
+  }
+  curveTo2(cp1, cp2, to) {
+    this._data += `C ${cp1.x} ${cp1.y} ${cp2.x} ${cp2.y} ${to.x} ${to.y} `;
+    return this;
+  }
+  build() {
+    return this._data;
+  }
+}
+export {
+  InlineEditWithChanges,
+  InlineEditsView,
+  InlineEditsViewAndDiffProducer
+};
+//# sourceMappingURL=inlineEditsView.js.map

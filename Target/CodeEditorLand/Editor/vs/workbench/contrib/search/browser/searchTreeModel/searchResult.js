@@ -1,1 +1,253 @@
-var g=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var c=(s,r,e,t)=>{for(var i=t>1?void 0:t?T(r,e):r,o=s.length-1,a;o>=0;o--)(a=s[o])&&(i=(t?a(r,e,i):a(i))||i);return t&&i&&g(r,e,i),i},h=(s,r)=>(e,t)=>r(e,t,s);import{PauseableEmitter as _}from"../../../../../base/common/event.js";import{Disposable as x}from"../../../../../base/common/lifecycle.js";import"../../../../../base/common/uri.js";import"../../../../../editor/common/model.js";import{IModelService as f}from"../../../../../editor/common/services/model.js";import{IInstantiationService as R}from"../../../../../platform/instantiation/common/instantiation.js";import"../../../../../platform/progress/common/progress.js";import{NotebookEditorWidget as v}from"../../../notebook/browser/notebookEditorWidget.js";import{INotebookEditorService as M}from"../../../notebook/browser/services/notebookEditorService.js";import"../../../../services/search/common/search.js";import{arrayContainsElementOrParent as S,isSearchTreeFileMatch as l,isSearchTreeFolderMatch as d,isSearchTreeFolderMatchWithResource as p,isSearchTreeMatch as u,isTextSearchHeading as I,mergeSearchResultEvents as b,SEARCH_RESULT_PREFIX as m}from"./searchTreeCommon.js";import"./rangeDecorations.js";import{PlainTextSearchHeadingImpl as C}from"./textSearchHeading.js";import{AITextSearchHeadingImpl as y}from"../AISearch/aiSearchModel.js";let n=class extends x{constructor(e,t,i,o){super();this.searchModel=e;this.instantiationService=t;this.modelService=i;this.notebookEditorService=o;this._plainTextSearchResult=this._register(this.instantiationService.createInstance(C,this)),this._aiTextSearchResult=this._register(this.instantiationService.createInstance(y,this)),this._register(this._plainTextSearchResult.onChange(a=>this._onChange.fire(a))),this._register(this._aiTextSearchResult.onChange(a=>this._onChange.fire(a))),this.modelService.getModels().forEach(a=>this.onModelAdded(a)),this._register(this.modelService.onModelAdded(a=>this.onModelAdded(a))),this._register(this.notebookEditorService.onDidAddNotebookEditor(a=>{a instanceof v&&this.onDidAddNotebookEditorWidget(a)})),this._id=m+Date.now().toString()}_onChange=this._register(new _({merge:b}));onChange=this._onChange.event;_onWillChangeModelListener;_onDidChangeModelListener;_plainTextSearchResult;_aiTextSearchResult;_id;id(){return this._id}get plainTextSearchResult(){return this._plainTextSearchResult}get aiTextSearchResult(){return this._aiTextSearchResult}get children(){return this.textSearchResults}get hasChildren(){return!0}get textSearchResults(){return[this._plainTextSearchResult,this._aiTextSearchResult]}async batchReplace(e){try{this._onChange.pause(),await Promise.all(e.map(async t=>{const i=t.parent();(d(i)||l(i))&&S(i,e)||(l(t)?await t.parent().replace(t):u(t)?await t.parent().replace(t):d(t)&&await t.replaceAll())}))}finally{this._onChange.resume()}}batchRemove(e){const t=[];try{this._onChange.pause(),e.forEach(i=>{S(i,t)||(I(i)?i.hide():(!d(i)||p(i))&&((l(i)||u(i)||p(i))&&i.parent().remove(i),t.push(i)))})}finally{this._onChange.resume()}}get isDirty(){return this._aiTextSearchResult.isDirty||this._plainTextSearchResult.isDirty}get query(){return this._plainTextSearchResult.query}set query(e){this._plainTextSearchResult.query=e,this._aiTextSearchResult.query=e}onDidAddNotebookEditorWidget(e){this._onWillChangeModelListener?.dispose(),this._onWillChangeModelListener=e.onWillChangeModel(t=>{t&&this.onNotebookEditorWidgetRemoved(e,t?.uri)}),this._onDidChangeModelListener?.dispose(),this._onDidChangeModelListener=e.onDidAttachViewModel(()=>{e.hasModel()&&this.onNotebookEditorWidgetAdded(e,e.textModel.uri)})}folderMatches(e=!1){return e?this._aiTextSearchResult.folderMatches():this._plainTextSearchResult.folderMatches()}onModelAdded(e){this._plainTextSearchResult.findFolderSubstr(e.uri)?.bindModel(e)}async onNotebookEditorWidgetAdded(e,t){await this._plainTextSearchResult.findFolderSubstr(t)?.bindNotebookEditorWidget(e,t)}onNotebookEditorWidgetRemoved(e,t){this._plainTextSearchResult.findFolderSubstr(t)?.unbindNotebookEditorWidget(e,t)}add(e,t,i,o=!1){this._plainTextSearchResult.hidden=!1,this._aiTextSearchResult.hidden=!1,i?this._aiTextSearchResult.add(e,t,o):this._plainTextSearchResult.add(e,t,o)}clear(){this._aiTextSearchResult.clear(),this._plainTextSearchResult.clear()}remove(e,t=!1){t&&this._aiTextSearchResult.remove(e,t),this._plainTextSearchResult.remove(e,t)}replace(e){return this._plainTextSearchResult.replace(e)}matches(e){return e===void 0?this._plainTextSearchResult.matches().concat(this._aiTextSearchResult.matches()):e===!0?this._aiTextSearchResult.matches():this._plainTextSearchResult.matches()}isEmpty(){return this._plainTextSearchResult.isEmpty()&&this._aiTextSearchResult.isEmpty()}fileCount(){return this._plainTextSearchResult.fileCount()+this._aiTextSearchResult.fileCount()}count(){return this._plainTextSearchResult.count()+this._aiTextSearchResult.count()}setCachedSearchComplete(e,t){t?this._aiTextSearchResult.cachedSearchComplete=e:this._plainTextSearchResult.cachedSearchComplete=e}getCachedSearchComplete(e){return e?this._aiTextSearchResult.cachedSearchComplete:this._plainTextSearchResult.cachedSearchComplete}toggleHighlights(e,t=!1){t?this._aiTextSearchResult.toggleHighlights(e):this._plainTextSearchResult.toggleHighlights(e)}getRangeHighlightDecorations(e=!1){return e?this._aiTextSearchResult.rangeHighlightDecorations:this._plainTextSearchResult.rangeHighlightDecorations}replaceAll(e){return this._plainTextSearchResult.replaceAll(e)}async dispose(){this._aiTextSearchResult?.dispose(),this._plainTextSearchResult?.dispose(),this._onWillChangeModelListener?.dispose(),this._onDidChangeModelListener?.dispose(),super.dispose()}};n=c([h(1,R),h(2,f),h(3,M)],n);export{n as SearchResultImpl};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Event, PauseableEmitter } from "../../../../../base/common/event.js";
+import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IProgress, IProgressStep } from "../../../../../platform/progress/common/progress.js";
+import { NotebookEditorWidget } from "../../../notebook/browser/notebookEditorWidget.js";
+import { INotebookEditorService } from "../../../notebook/browser/services/notebookEditorService.js";
+import { IFileMatch, ISearchComplete, ITextQuery } from "../../../../services/search/common/search.js";
+import { arrayContainsElementOrParent, IChangeEvent, ISearchTreeFileMatch, ISearchTreeFolderMatch, IPlainTextSearchHeading, ISearchModel, ISearchResult, isSearchTreeFileMatch, isSearchTreeFolderMatch, isSearchTreeFolderMatchWithResource, isSearchTreeMatch, isTextSearchHeading, ITextSearchHeading, mergeSearchResultEvents, RenderableMatch, SEARCH_RESULT_PREFIX } from "./searchTreeCommon.js";
+import { RangeHighlightDecorations } from "./rangeDecorations.js";
+import { PlainTextSearchHeadingImpl } from "./textSearchHeading.js";
+import { AITextSearchHeadingImpl } from "../AISearch/aiSearchModel.js";
+let SearchResultImpl = class extends Disposable {
+  constructor(searchModel, instantiationService, modelService, notebookEditorService) {
+    super();
+    this.searchModel = searchModel;
+    this.instantiationService = instantiationService;
+    this.modelService = modelService;
+    this.notebookEditorService = notebookEditorService;
+    this._plainTextSearchResult = this._register(this.instantiationService.createInstance(PlainTextSearchHeadingImpl, this));
+    this._aiTextSearchResult = this._register(this.instantiationService.createInstance(AITextSearchHeadingImpl, this));
+    this._register(this._plainTextSearchResult.onChange((e) => this._onChange.fire(e)));
+    this._register(this._aiTextSearchResult.onChange((e) => this._onChange.fire(e)));
+    this.modelService.getModels().forEach((model) => this.onModelAdded(model));
+    this._register(this.modelService.onModelAdded((model) => this.onModelAdded(model)));
+    this._register(this.notebookEditorService.onDidAddNotebookEditor((widget) => {
+      if (widget instanceof NotebookEditorWidget) {
+        this.onDidAddNotebookEditorWidget(widget);
+      }
+    }));
+    this._id = SEARCH_RESULT_PREFIX + Date.now().toString();
+  }
+  static {
+    __name(this, "SearchResultImpl");
+  }
+  _onChange = this._register(new PauseableEmitter({
+    merge: mergeSearchResultEvents
+  }));
+  onChange = this._onChange.event;
+  _onWillChangeModelListener;
+  _onDidChangeModelListener;
+  _plainTextSearchResult;
+  _aiTextSearchResult;
+  _id;
+  id() {
+    return this._id;
+  }
+  get plainTextSearchResult() {
+    return this._plainTextSearchResult;
+  }
+  get aiTextSearchResult() {
+    return this._aiTextSearchResult;
+  }
+  get children() {
+    return this.textSearchResults;
+  }
+  get hasChildren() {
+    return true;
+  }
+  get textSearchResults() {
+    return [this._plainTextSearchResult, this._aiTextSearchResult];
+  }
+  async batchReplace(elementsToReplace) {
+    try {
+      this._onChange.pause();
+      await Promise.all(elementsToReplace.map(async (elem) => {
+        const parent = elem.parent();
+        if ((isSearchTreeFolderMatch(parent) || isSearchTreeFileMatch(parent)) && arrayContainsElementOrParent(parent, elementsToReplace)) {
+          return;
+        }
+        if (isSearchTreeFileMatch(elem)) {
+          await elem.parent().replace(elem);
+        } else if (isSearchTreeMatch(elem)) {
+          await elem.parent().replace(elem);
+        } else if (isSearchTreeFolderMatch(elem)) {
+          await elem.replaceAll();
+        }
+      }));
+    } finally {
+      this._onChange.resume();
+    }
+  }
+  batchRemove(elementsToRemove) {
+    const removedElems = [];
+    try {
+      this._onChange.pause();
+      elementsToRemove.forEach(
+        (currentElement) => {
+          if (!arrayContainsElementOrParent(currentElement, removedElems)) {
+            if (isTextSearchHeading(currentElement)) {
+              currentElement.hide();
+            } else if (!isSearchTreeFolderMatch(currentElement) || isSearchTreeFolderMatchWithResource(currentElement)) {
+              if (isSearchTreeFileMatch(currentElement)) {
+                currentElement.parent().remove(currentElement);
+              } else if (isSearchTreeMatch(currentElement)) {
+                currentElement.parent().remove(currentElement);
+              } else if (isSearchTreeFolderMatchWithResource(currentElement)) {
+                currentElement.parent().remove(currentElement);
+              }
+              removedElems.push(currentElement);
+            }
+          }
+        }
+      );
+    } finally {
+      this._onChange.resume();
+    }
+  }
+  get isDirty() {
+    return this._aiTextSearchResult.isDirty || this._plainTextSearchResult.isDirty;
+  }
+  get query() {
+    return this._plainTextSearchResult.query;
+  }
+  set query(query) {
+    this._plainTextSearchResult.query = query;
+    this._aiTextSearchResult.query = query;
+  }
+  onDidAddNotebookEditorWidget(widget) {
+    this._onWillChangeModelListener?.dispose();
+    this._onWillChangeModelListener = widget.onWillChangeModel(
+      (model) => {
+        if (model) {
+          this.onNotebookEditorWidgetRemoved(widget, model?.uri);
+        }
+      }
+    );
+    this._onDidChangeModelListener?.dispose();
+    this._onDidChangeModelListener = widget.onDidAttachViewModel(
+      () => {
+        if (widget.hasModel()) {
+          this.onNotebookEditorWidgetAdded(widget, widget.textModel.uri);
+        }
+      }
+    );
+  }
+  folderMatches(ai = false) {
+    if (ai) {
+      return this._aiTextSearchResult.folderMatches();
+    }
+    return this._plainTextSearchResult.folderMatches();
+  }
+  onModelAdded(model) {
+    const folderMatch = this._plainTextSearchResult.findFolderSubstr(model.uri);
+    folderMatch?.bindModel(model);
+  }
+  async onNotebookEditorWidgetAdded(editor, resource) {
+    const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
+    await folderMatch?.bindNotebookEditorWidget(editor, resource);
+  }
+  onNotebookEditorWidgetRemoved(editor, resource) {
+    const folderMatch = this._plainTextSearchResult.findFolderSubstr(resource);
+    folderMatch?.unbindNotebookEditorWidget(editor, resource);
+  }
+  add(allRaw, searchInstanceID, ai, silent = false) {
+    this._plainTextSearchResult.hidden = false;
+    this._aiTextSearchResult.hidden = false;
+    if (ai) {
+      this._aiTextSearchResult.add(allRaw, searchInstanceID, silent);
+    } else {
+      this._plainTextSearchResult.add(allRaw, searchInstanceID, silent);
+    }
+  }
+  clear() {
+    this._aiTextSearchResult.clear();
+    this._plainTextSearchResult.clear();
+  }
+  remove(matches, ai = false) {
+    if (ai) {
+      this._aiTextSearchResult.remove(matches, ai);
+    }
+    this._plainTextSearchResult.remove(matches, ai);
+  }
+  replace(match) {
+    return this._plainTextSearchResult.replace(match);
+  }
+  matches(ai) {
+    if (ai === void 0) {
+      return this._plainTextSearchResult.matches().concat(this._aiTextSearchResult.matches());
+    } else if (ai === true) {
+      return this._aiTextSearchResult.matches();
+    }
+    return this._plainTextSearchResult.matches();
+  }
+  isEmpty() {
+    return this._plainTextSearchResult.isEmpty() && this._aiTextSearchResult.isEmpty();
+  }
+  fileCount() {
+    return this._plainTextSearchResult.fileCount() + this._aiTextSearchResult.fileCount();
+  }
+  count() {
+    return this._plainTextSearchResult.count() + this._aiTextSearchResult.count();
+  }
+  setCachedSearchComplete(cachedSearchComplete, ai) {
+    if (ai) {
+      this._aiTextSearchResult.cachedSearchComplete = cachedSearchComplete;
+    } else {
+      this._plainTextSearchResult.cachedSearchComplete = cachedSearchComplete;
+    }
+  }
+  getCachedSearchComplete(ai) {
+    if (ai) {
+      return this._aiTextSearchResult.cachedSearchComplete;
+    }
+    return this._plainTextSearchResult.cachedSearchComplete;
+  }
+  toggleHighlights(value, ai = false) {
+    if (ai) {
+      this._aiTextSearchResult.toggleHighlights(value);
+    } else {
+      this._plainTextSearchResult.toggleHighlights(value);
+    }
+  }
+  getRangeHighlightDecorations(ai = false) {
+    if (ai) {
+      return this._aiTextSearchResult.rangeHighlightDecorations;
+    }
+    return this._plainTextSearchResult.rangeHighlightDecorations;
+  }
+  replaceAll(progress) {
+    return this._plainTextSearchResult.replaceAll(progress);
+  }
+  async dispose() {
+    this._aiTextSearchResult?.dispose();
+    this._plainTextSearchResult?.dispose();
+    this._onWillChangeModelListener?.dispose();
+    this._onDidChangeModelListener?.dispose();
+    super.dispose();
+  }
+};
+SearchResultImpl = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IModelService),
+  __decorateParam(3, INotebookEditorService)
+], SearchResultImpl);
+export {
+  SearchResultImpl
+};
+//# sourceMappingURL=searchResult.js.map

@@ -1,1 +1,31 @@
-import*as o from"../../../../nls.js";import{RawContextKey as t}from"../../../../platform/contextkey/common/contextkey.js";var n;(e=>(e.activeCursorHasCommentingRange=new t("activeCursorHasCommentingRange",!1,{description:o.localize("hasCommentingRange","Whether the position at the active cursor has a commenting range"),type:"boolean"}),e.activeCursorHasComment=new t("activeCursorHasComment",!1,{description:o.localize("hasComment","Whether the position at the active cursor has a comment"),type:"boolean"}),e.activeEditorHasCommentingRange=new t("activeEditorHasCommentingRange",!1,{description:o.localize("editorHasCommentingRange","Whether the active editor has a commenting range"),type:"boolean"}),e.WorkspaceHasCommenting=new t("workspaceHasCommenting",!1,{description:o.localize("hasCommentingProvider","Whether the open workspace has either comments or commenting ranges."),type:"boolean"}),e.commentThreadIsEmpty=new t("commentThreadIsEmpty",!1,{type:"boolean",description:o.localize("commentThreadIsEmpty","Set when the comment thread has no comments")}),e.commentIsEmpty=new t("commentIsEmpty",!1,{type:"boolean",description:o.localize("commentIsEmpty","Set when the comment has no input")}),e.commentContext=new t("comment",void 0,{type:"string",description:o.localize("comment","The context value of the comment")}),e.commentThreadContext=new t("commentThread",void 0,{type:"string",description:o.localize("commentThread","The context value of the comment thread")}),e.commentControllerContext=new t("commentController",void 0,{type:"string",description:o.localize("commentController","The comment controller id associated with a comment thread")}),e.commentFocused=new t("commentFocused",!1,{type:"boolean",description:o.localize("commentFocused","Set when the comment is focused")})))(n||={});export{n as CommentContextKeys};
+import * as nls from "../../../../nls.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+var CommentContextKeys;
+((CommentContextKeys2) => {
+  CommentContextKeys2.activeCursorHasCommentingRange = new RawContextKey("activeCursorHasCommentingRange", false, {
+    description: nls.localize("hasCommentingRange", "Whether the position at the active cursor has a commenting range"),
+    type: "boolean"
+  });
+  CommentContextKeys2.activeCursorHasComment = new RawContextKey("activeCursorHasComment", false, {
+    description: nls.localize("hasComment", "Whether the position at the active cursor has a comment"),
+    type: "boolean"
+  });
+  CommentContextKeys2.activeEditorHasCommentingRange = new RawContextKey("activeEditorHasCommentingRange", false, {
+    description: nls.localize("editorHasCommentingRange", "Whether the active editor has a commenting range"),
+    type: "boolean"
+  });
+  CommentContextKeys2.WorkspaceHasCommenting = new RawContextKey("workspaceHasCommenting", false, {
+    description: nls.localize("hasCommentingProvider", "Whether the open workspace has either comments or commenting ranges."),
+    type: "boolean"
+  });
+  CommentContextKeys2.commentThreadIsEmpty = new RawContextKey("commentThreadIsEmpty", false, { type: "boolean", description: nls.localize("commentThreadIsEmpty", "Set when the comment thread has no comments") });
+  CommentContextKeys2.commentIsEmpty = new RawContextKey("commentIsEmpty", false, { type: "boolean", description: nls.localize("commentIsEmpty", "Set when the comment has no input") });
+  CommentContextKeys2.commentContext = new RawContextKey("comment", void 0, { type: "string", description: nls.localize("comment", "The context value of the comment") });
+  CommentContextKeys2.commentThreadContext = new RawContextKey("commentThread", void 0, { type: "string", description: nls.localize("commentThread", "The context value of the comment thread") });
+  CommentContextKeys2.commentControllerContext = new RawContextKey("commentController", void 0, { type: "string", description: nls.localize("commentController", "The comment controller id associated with a comment thread") });
+  CommentContextKeys2.commentFocused = new RawContextKey("commentFocused", false, { type: "boolean", description: nls.localize("commentFocused", "Set when the comment is focused") });
+})(CommentContextKeys || (CommentContextKeys = {}));
+export {
+  CommentContextKeys
+};
+//# sourceMappingURL=commentContextKeys.js.map

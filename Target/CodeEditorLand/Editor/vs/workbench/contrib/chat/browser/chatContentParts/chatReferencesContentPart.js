@@ -1,1 +1,466 @@
-var z=Object.defineProperty;var Y=Object.getOwnPropertyDescriptor;var x=(m,e,n,i)=>{for(var o=i>1?void 0:i?Y(e,n):e,t=m.length-1,s;t>=0;t--)(s=m[t])&&(o=(i?s(e,n,o):s(o))||o);return i&&o&&z(e,n,o),o},d=(m,e)=>(n,i)=>e(n,i,m);import*as K from"../../../../../base/browser/dom.js";import{Button as J}from"../../../../../base/browser/ui/button/button.js";import"../../../../../base/browser/ui/list/list.js";import"../../../../../base/common/actions.js";import{coalesce as W}from"../../../../../base/common/arrays.js";import{Codicon as v}from"../../../../../base/common/codicons.js";import{Emitter as Q}from"../../../../../base/common/event.js";import{Disposable as D,DisposableStore as X}from"../../../../../base/common/lifecycle.js";import{matchesSomeScheme as Z,Schemas as M}from"../../../../../base/common/network.js";import{basename as H}from"../../../../../base/common/path.js";import{basenameOrAuthority as P,isEqualAuthority as V}from"../../../../../base/common/resources.js";import{ThemeIcon as R}from"../../../../../base/common/themables.js";import{URI as S}from"../../../../../base/common/uri.js";import{localize as g,localize2 as ee}from"../../../../../nls.js";import{createAndFillInContextMenuActions as te}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{MenuWorkbenchToolBar as ie}from"../../../../../platform/actions/browser/toolbar.js";import{Action2 as ne,IMenuService as re,MenuId as B,registerAction2 as oe}from"../../../../../platform/actions/common/actions.js";import{IContextKeyService as O}from"../../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as se}from"../../../../../platform/contextview/browser/contextView.js";import{FileKind as ae}from"../../../../../platform/files/common/files.js";import{IInstantiationService as w}from"../../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as le}from"../../../../../platform/instantiation/common/serviceCollection.js";import{ILabelService as ce}from"../../../../../platform/label/common/label.js";import{WorkbenchList as de}from"../../../../../platform/list/browser/listService.js";import{IOpenerService as ue}from"../../../../../platform/opener/common/opener.js";import{IProductService as me}from"../../../../../platform/product/common/productService.js";import{IThemeService as $}from"../../../../../platform/theme/common/themeService.js";import{fillEditorsDragData as he}from"../../../../browser/dnd.js";import{ResourceLabels as pe}from"../../../../browser/labels.js";import{ColorScheme as fe}from"../../../../browser/web.api.js";import{ResourceContextKey as ge}from"../../../../common/contextkeys.js";import{SETTINGS_AUTHORITY as be}from"../../../../services/preferences/common/preferences.js";import{createFileIconThemableTreeContainerScope as Ie}from"../../../files/browser/views/explorerView.js";import{ExplorerFolderContext as ve}from"../../../files/common/files.js";import{chatEditingWidgetFileStateContextKey as Ce,WorkingSetEntryState as k}from"../../common/chatEditingService.js";import{ChatResponseReferencePartStatusKind as j}from"../../common/chatService.js";import{IChatVariablesService as q}from"../../common/chatVariables.js";import"../../common/chatViewModel.js";import{IChatWidgetService as Se}from"../chat.js";import{ResourcePool as ye}from"./chatCollections.js";import"./chatContentParts.js";const y=K.$;let T=class extends D{constructor(n,i,o,t,s,c,r,l){super();this.data=n;this.instantiationService=r;this.contextMenuService=l;const h=i??(n.length>1?g("usedReferencesPlural","Used {0} references",n.length):g("usedReferencesSingular","Used {0} reference",1)),b=y(".chat-used-context-icon"),A=a=>a.usedReferencesExpanded?v.chevronDown:v.chevronRight;b.classList.add(...R.asClassNameArray(A(o)));const _=y(".chat-used-context-label",void 0),C=this._register(new J(_,{buttonBackground:void 0,buttonBorder:void 0,buttonForeground:void 0,buttonHoverBackground:void 0,buttonSecondaryBackground:void 0,buttonSecondaryForeground:void 0,buttonSecondaryHoverBackground:void 0,buttonSeparator:void 0}));this.domNode=y(".chat-used-context",void 0,_),C.label=h,C.element.prepend(b),this.updateAriaLabel(C.element,h,o.usedReferencesExpanded),this.domNode.classList.toggle("chat-used-context-collapsed",!o.usedReferencesExpanded),this._register(C.onDidClick(()=>{b.classList.remove(...R.asClassNameArray(A(o))),o.usedReferencesExpanded=!o.usedReferencesExpanded,b.classList.add(...R.asClassNameArray(A(o))),this.domNode.classList.toggle("chat-used-context-collapsed",!o.usedReferencesExpanded),this._onDidChangeHeight.fire(),this.updateAriaLabel(C.element,h,o.usedReferencesExpanded)}));const p=this._register(t.get()).object;this.domNode.appendChild(p.getHTMLElement().parentElement),this._register(p.onDidOpen(a=>{if(a.element&&"reference"in a.element&&typeof a.element.reference=="object"){const u="variableName"in a.element.reference?a.element.reference.value:a.element.reference,I=S.isUri(u)?u:u?.uri;I&&s.open(I,{fromUserGesture:!0,editorOptions:{...a.editorOptions,selection:u&&"range"in u?u.range:void 0}})}})),this._register(p.onContextMenu(a=>{K.EventHelper.stop(a.browserEvent,!0);const u=a.element&&L(a.element);u&&this.contextMenuService.showContextMenu({getAnchor:()=>a.anchor,getActions:()=>{const I=c.getMenuActions(B.ChatAttachmentsContext,p.contextKeyService,{shouldForwardArgs:!0,arg:u}),F=[];return te(I,F),F}})}));const N=this._register(this.instantiationService.createInstance(ge));this._register(p.onDidChangeFocus(a=>{N.reset();const u=a.elements.length?a.elements[0]:void 0,I=u&&L(u);N.set(I??null)}));const U=Math.min(n.length,6)*22;p.layout(U),p.getHTMLElement().style.height=`${U}px`,p.splice(0,p.length,n)}domNode;_onDidChangeHeight=this._register(new Q);onDidChangeHeight=this._onDidChangeHeight.event;hasSameContent(n,i,o){return n.kind==="references"&&n.references.length===this.data.length||n.kind==="codeCitations"&&n.citations.length===this.data.length}updateAriaLabel(n,i,o){n.ariaLabel=o?g("usedReferencesExpanded","{0}, expanded",i):g("usedReferencesCollapsed","{0}, collapsed",i)}addDisposable(n){this._register(n)}};T=x([d(4,ue),d(5,re),d(6,w),d(7,se)],T);let E=class extends D{constructor(n,i,o,t,s){super();this._onDidChangeVisibility=n;this.menuId=i;this.instantiationService=o;this.themeService=t;this.labelService=s;this._pool=this._register(new ye(()=>this.listFactory()))}_pool;get inUse(){return this._pool.inUse}listFactory(){const n=this._register(this.instantiationService.createInstance(pe,{onDidChangeVisibility:this._onDidChangeVisibility})),i=y(".chat-used-context-list");return this._register(Ie(i,this.themeService)),this.instantiationService.createInstance(de,"ChatListRenderer",i,new Le,[this.instantiationService.createInstance(f,n,this.menuId)],{alwaysConsumeMouseWheel:!1,accessibilityProvider:{getAriaLabel:t=>{if(t.kind==="warning")return t.content.value;const s=t.reference;return typeof s=="string"?s:"variableName"in s?s.variableName:S.isUri(s)?H(s.path):H(s.uri.path)},getWidgetAriaLabel:()=>g("chatCollapsibleList","Collapsible Chat List")},dnd:{getDragURI:t=>L(t)?.toString()??null,getDragLabel:(t,s)=>{const c=W(t.map(L));if(c.length)return c.length===1?this.labelService.getUriLabel(c[0],{relative:!0}):`${c.length}`},dispose:()=>{},onDragOver:()=>!1,drop:()=>{},onDragStart:(t,s)=>{try{const c=t.getData(),r=W(c.map(L));this.instantiationService.invokeFunction(l=>he(l,r,s))}catch{}}}})}get(){const n=this._pool.get();let i=!1;return{object:n,isStale:()=>i,dispose:()=>{i=!0,this._pool.release(n)}}}};E=x([d(2,w),d(3,$),d(4,ce)],E);class Le{getHeight(e){return 22}getTemplateId(e){return f.TEMPLATE_ID}}let f=class{constructor(e,n,i,o,t,s,c){this.labels=e;this.menuId=n;this.themeService=i;this.chatVariablesService=o;this.productService=t;this.instantiationService=s;this.contextKeyService=c}static TEMPLATE_ID="chatCollapsibleListRenderer";templateId=f.TEMPLATE_ID;renderTemplate(e){const n=new X,i=n.add(this.labels.create(e,{supportHighlights:!0,supportIcons:!0}));let o,t,s;if(this.menuId){t=y(".chat-collapsible-list-action-bar"),s=n.add(this.contextKeyService.createScoped(t));const c=n.add(this.instantiationService.createChild(new le([O,s])));o=n.add(c.createInstance(ie,t,this.menuId,{menuOptions:{shouldForwardArgs:!0,arg:void 0}})),i.element.appendChild(t)}return{templateDisposables:n,label:i,toolbar:o,actionBarContainer:t,contextKeyService:s}}getReferenceIcon(e){return R.isThemeIcon(e.iconPath)?e.iconPath:this.themeService.getColorTheme().type===fe.DARK&&e.iconPath?.dark?e.iconPath?.dark:e.iconPath?.light}renderElement(e,n,i,o){if(e.kind==="warning"){i.label.setResource({name:e.content.value},{icon:v.warning});return}const t=e.reference,s=this.getReferenceIcon(e);i.label.element.style.display="flex";let c;if(typeof t=="object"&&"variableName"in t)if(t.value){const r=S.isUri(t.value)?t.value:t.value.uri;i.label.setResource({resource:r,name:P(r),description:`#${t.variableName}`,range:"range"in t.value?t.value.range:void 0},{icon:s,title:e.options?.status?.description??e.title})}else if(t.variableName.startsWith("kernelVariable")){const l=`${t.variableName.split(":")[1]}`;i.label.setLabel("Kernel variable",l,{title:e.options?.status?.description})}else{const r=this.chatVariablesService.getVariable(t.variableName),l=r?.icon?`$(${r.icon.id}) `:"",h=`#${t.variableName}`,b=`${l}${r?.fullName??h}`;i.label.setLabel(b,h,{title:e.options?.status?.description??r?.description})}else if(typeof t=="string")i.label.setLabel(t,void 0,{iconPath:S.isUri(s)?s:void 0,title:e.options?.status?.description??e.title});else{const r="uri"in t?t.uri:t;if(c=r,r.scheme==="https"&&V(r.authority,"github.com")&&r.path.includes("/tree/")){const l=r.path.split("/").slice(1,3).join("/"),h=r.path.split("/").slice(5).join("/");i.label.setResource({resource:r,name:l,description:h},{icon:v.github,title:e.title})}else if(r.scheme===this.productService.urlProtocol&&V(r.authority,be)){const l=r.path.substring(1);i.label.setResource({resource:r,name:l},{icon:v.settingsGear,title:g("setting.hover","Open setting '{0}'",l)})}else Z(r,M.mailto,M.http,M.https)?i.label.setResource({resource:r,name:r.toString()},{icon:s??v.globe,title:e.options?.status?.description??e.title??r.toString()}):e.state===k.Transient?i.label.setResource({resource:r,name:P(r),description:g("chat.openEditor","Open Editor"),range:"range"in t?t.range:void 0},{icon:s,title:e.options?.status?.description??e.title}):i.label.setFile(r,{fileKind:ae.FILE,fileDecorations:void 0,range:"range"in t?t.range:void 0,title:e.options?.status?.description??e.title})}for(const r of[".monaco-icon-suffix-container",".monaco-icon-name-container"]){const l=i.label.element.querySelector(r);l&&(e.options?.status?.kind===j.Omitted||e.options?.status?.kind===j.Partial?l.classList.add("warning"):l.classList.remove("warning"))}e.state!==void 0&&(i.actionBarContainer&&(e.state===k.Modified&&!i.actionBarContainer.classList.contains("modified")?(i.actionBarContainer.classList.add("modified"),i.label.element.querySelector(".monaco-icon-name-container")?.classList.add("modified")):e.state!==k.Modified&&(i.actionBarContainer.classList.remove("modified"),i.label.element.querySelector(".monaco-icon-name-container")?.classList.remove("modified"))),i.toolbar&&(i.toolbar.context=c),i.contextKeyService&&e.state!==void 0&&Ce.bindTo(i.contextKeyService).set(e.state))}disposeTemplate(e){e.templateDisposables.dispose()}};f=x([d(2,$),d(3,q),d(4,me),d(5,w),d(6,O)],f);function L(m){if(m.kind==="warning")return null;const{reference:e}=m;return typeof e=="string"||"variableName"in e?null:S.isUri(e)?e:e.uri}oe(class G extends ne{static id="workbench.action.chat.addToChatAction";constructor(){super({id:G.id,title:{...ee("addToChat","Add File to Chat")},f1:!1,menu:[{id:B.ChatAttachmentsContext,group:"chat",order:1,when:ve.negate()}]})}async run(e,n){const i=e.get(Se),o=e.get(q);if(!n)return;const t=i.lastFocusedWidget;t&&o.attachContext("file",n,t.location)}});export{T as ChatCollapsibleListContentPart,E as CollapsibleListPool};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../base/browser/dom.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { IListRenderer, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
+import { IAction } from "../../../../../base/common/actions.js";
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import { matchesSomeScheme, Schemas } from "../../../../../base/common/network.js";
+import { basename } from "../../../../../base/common/path.js";
+import { basenameOrAuthority, isEqualAuthority } from "../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { createAndFillInContextMenuActions } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuWorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { Action2, IMenuService, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { FileKind } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../../platform/instantiation/common/serviceCollection.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { WorkbenchList } from "../../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { fillEditorsDragData } from "../../../../browser/dnd.js";
+import { IResourceLabel, ResourceLabels } from "../../../../browser/labels.js";
+import { ColorScheme } from "../../../../browser/web.api.js";
+import { ResourceContextKey } from "../../../../common/contextkeys.js";
+import { SETTINGS_AUTHORITY } from "../../../../services/preferences/common/preferences.js";
+import { createFileIconThemableTreeContainerScope } from "../../../files/browser/views/explorerView.js";
+import { ExplorerFolderContext } from "../../../files/common/files.js";
+import { chatEditingWidgetFileStateContextKey, WorkingSetEntryState } from "../../common/chatEditingService.js";
+import { ChatResponseReferencePartStatusKind, IChatContentReference, IChatWarningMessage } from "../../common/chatService.js";
+import { IChatVariablesService } from "../../common/chatVariables.js";
+import { IChatRendererContent, IChatResponseViewModel } from "../../common/chatViewModel.js";
+import { ChatTreeItem, IChatWidgetService } from "../chat.js";
+import { IDisposableReference, ResourcePool } from "./chatCollections.js";
+import { IChatContentPart } from "./chatContentParts.js";
+const $ = dom.$;
+let ChatCollapsibleListContentPart = class extends Disposable {
+  constructor(data, labelOverride, element, contentReferencesListPool, openerService, menuService, instantiationService, contextMenuService) {
+    super();
+    this.data = data;
+    this.instantiationService = instantiationService;
+    this.contextMenuService = contextMenuService;
+    const referencesLabel = labelOverride ?? (data.length > 1 ? localize("usedReferencesPlural", "Used {0} references", data.length) : localize("usedReferencesSingular", "Used {0} reference", 1));
+    const iconElement = $(".chat-used-context-icon");
+    const icon = /* @__PURE__ */ __name((element2) => element2.usedReferencesExpanded ? Codicon.chevronDown : Codicon.chevronRight, "icon");
+    iconElement.classList.add(...ThemeIcon.asClassNameArray(icon(element)));
+    const buttonElement = $(".chat-used-context-label", void 0);
+    const collapseButton = this._register(new Button(buttonElement, {
+      buttonBackground: void 0,
+      buttonBorder: void 0,
+      buttonForeground: void 0,
+      buttonHoverBackground: void 0,
+      buttonSecondaryBackground: void 0,
+      buttonSecondaryForeground: void 0,
+      buttonSecondaryHoverBackground: void 0,
+      buttonSeparator: void 0
+    }));
+    this.domNode = $(".chat-used-context", void 0, buttonElement);
+    collapseButton.label = referencesLabel;
+    collapseButton.element.prepend(iconElement);
+    this.updateAriaLabel(collapseButton.element, referencesLabel, element.usedReferencesExpanded);
+    this.domNode.classList.toggle("chat-used-context-collapsed", !element.usedReferencesExpanded);
+    this._register(collapseButton.onDidClick(() => {
+      iconElement.classList.remove(...ThemeIcon.asClassNameArray(icon(element)));
+      element.usedReferencesExpanded = !element.usedReferencesExpanded;
+      iconElement.classList.add(...ThemeIcon.asClassNameArray(icon(element)));
+      this.domNode.classList.toggle("chat-used-context-collapsed", !element.usedReferencesExpanded);
+      this._onDidChangeHeight.fire();
+      this.updateAriaLabel(collapseButton.element, referencesLabel, element.usedReferencesExpanded);
+    }));
+    const ref = this._register(contentReferencesListPool.get());
+    const list = ref.object;
+    this.domNode.appendChild(list.getHTMLElement().parentElement);
+    this._register(list.onDidOpen((e) => {
+      if (e.element && "reference" in e.element && typeof e.element.reference === "object") {
+        const uriOrLocation = "variableName" in e.element.reference ? e.element.reference.value : e.element.reference;
+        const uri = URI.isUri(uriOrLocation) ? uriOrLocation : uriOrLocation?.uri;
+        if (uri) {
+          openerService.open(
+            uri,
+            {
+              fromUserGesture: true,
+              editorOptions: {
+                ...e.editorOptions,
+                ...{
+                  selection: uriOrLocation && "range" in uriOrLocation ? uriOrLocation.range : void 0
+                }
+              }
+            }
+          );
+        }
+      }
+    }));
+    this._register(list.onContextMenu((e) => {
+      dom.EventHelper.stop(e.browserEvent, true);
+      const uri = e.element && getResourceForElement(e.element);
+      if (!uri) {
+        return;
+      }
+      this.contextMenuService.showContextMenu({
+        getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
+        getActions: /* @__PURE__ */ __name(() => {
+          const menu = menuService.getMenuActions(MenuId.ChatAttachmentsContext, list.contextKeyService, { shouldForwardArgs: true, arg: uri });
+          const primary = [];
+          createAndFillInContextMenuActions(menu, primary);
+          return primary;
+        }, "getActions")
+      });
+    }));
+    const resourceContextKey = this._register(this.instantiationService.createInstance(ResourceContextKey));
+    this._register(list.onDidChangeFocus((e) => {
+      resourceContextKey.reset();
+      const element2 = e.elements.length ? e.elements[0] : void 0;
+      const uri = element2 && getResourceForElement(element2);
+      resourceContextKey.set(uri ?? null);
+    }));
+    const maxItemsShown = 6;
+    const itemsShown = Math.min(data.length, maxItemsShown);
+    const height = itemsShown * 22;
+    list.layout(height);
+    list.getHTMLElement().style.height = `${height}px`;
+    list.splice(0, list.length, data);
+  }
+  static {
+    __name(this, "ChatCollapsibleListContentPart");
+  }
+  domNode;
+  _onDidChangeHeight = this._register(new Emitter());
+  onDidChangeHeight = this._onDidChangeHeight.event;
+  hasSameContent(other, followingContent, element) {
+    return other.kind === "references" && other.references.length === this.data.length || other.kind === "codeCitations" && other.citations.length === this.data.length;
+  }
+  updateAriaLabel(element, label, expanded) {
+    element.ariaLabel = expanded ? localize("usedReferencesExpanded", "{0}, expanded", label) : localize("usedReferencesCollapsed", "{0}, collapsed", label);
+  }
+  addDisposable(disposable) {
+    this._register(disposable);
+  }
+};
+ChatCollapsibleListContentPart = __decorateClass([
+  __decorateParam(4, IOpenerService),
+  __decorateParam(5, IMenuService),
+  __decorateParam(6, IInstantiationService),
+  __decorateParam(7, IContextMenuService)
+], ChatCollapsibleListContentPart);
+let CollapsibleListPool = class extends Disposable {
+  constructor(_onDidChangeVisibility, menuId, instantiationService, themeService, labelService) {
+    super();
+    this._onDidChangeVisibility = _onDidChangeVisibility;
+    this.menuId = menuId;
+    this.instantiationService = instantiationService;
+    this.themeService = themeService;
+    this.labelService = labelService;
+    this._pool = this._register(new ResourcePool(() => this.listFactory()));
+  }
+  static {
+    __name(this, "CollapsibleListPool");
+  }
+  _pool;
+  get inUse() {
+    return this._pool.inUse;
+  }
+  listFactory() {
+    const resourceLabels = this._register(this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility }));
+    const container = $(".chat-used-context-list");
+    this._register(createFileIconThemableTreeContainerScope(container, this.themeService));
+    const list = this.instantiationService.createInstance(
+      WorkbenchList,
+      "ChatListRenderer",
+      container,
+      new CollapsibleListDelegate(),
+      [this.instantiationService.createInstance(CollapsibleListRenderer, resourceLabels, this.menuId)],
+      {
+        alwaysConsumeMouseWheel: false,
+        accessibilityProvider: {
+          getAriaLabel: /* @__PURE__ */ __name((element) => {
+            if (element.kind === "warning") {
+              return element.content.value;
+            }
+            const reference = element.reference;
+            if (typeof reference === "string") {
+              return reference;
+            } else if ("variableName" in reference) {
+              return reference.variableName;
+            } else if (URI.isUri(reference)) {
+              return basename(reference.path);
+            } else {
+              return basename(reference.uri.path);
+            }
+          }, "getAriaLabel"),
+          getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("chatCollapsibleList", "Collapsible Chat List"), "getWidgetAriaLabel")
+        },
+        dnd: {
+          getDragURI: /* @__PURE__ */ __name((element) => getResourceForElement(element)?.toString() ?? null, "getDragURI"),
+          getDragLabel: /* @__PURE__ */ __name((elements, originalEvent) => {
+            const uris = coalesce(elements.map(getResourceForElement));
+            if (!uris.length) {
+              return void 0;
+            } else if (uris.length === 1) {
+              return this.labelService.getUriLabel(uris[0], { relative: true });
+            } else {
+              return `${uris.length}`;
+            }
+          }, "getDragLabel"),
+          dispose: /* @__PURE__ */ __name(() => {
+          }, "dispose"),
+          onDragOver: /* @__PURE__ */ __name(() => false, "onDragOver"),
+          drop: /* @__PURE__ */ __name(() => {
+          }, "drop"),
+          onDragStart: /* @__PURE__ */ __name((data, originalEvent) => {
+            try {
+              const elements = data.getData();
+              const uris = coalesce(elements.map(getResourceForElement));
+              this.instantiationService.invokeFunction((accessor) => fillEditorsDragData(accessor, uris, originalEvent));
+            } catch {
+            }
+          }, "onDragStart")
+        }
+      }
+    );
+    return list;
+  }
+  get() {
+    const object = this._pool.get();
+    let stale = false;
+    return {
+      object,
+      isStale: /* @__PURE__ */ __name(() => stale, "isStale"),
+      dispose: /* @__PURE__ */ __name(() => {
+        stale = true;
+        this._pool.release(object);
+      }, "dispose")
+    };
+  }
+};
+CollapsibleListPool = __decorateClass([
+  __decorateParam(2, IInstantiationService),
+  __decorateParam(3, IThemeService),
+  __decorateParam(4, ILabelService)
+], CollapsibleListPool);
+class CollapsibleListDelegate {
+  static {
+    __name(this, "CollapsibleListDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return CollapsibleListRenderer.TEMPLATE_ID;
+  }
+}
+let CollapsibleListRenderer = class {
+  constructor(labels, menuId, themeService, chatVariablesService, productService, instantiationService, contextKeyService) {
+    this.labels = labels;
+    this.menuId = menuId;
+    this.themeService = themeService;
+    this.chatVariablesService = chatVariablesService;
+    this.productService = productService;
+    this.instantiationService = instantiationService;
+    this.contextKeyService = contextKeyService;
+  }
+  static {
+    __name(this, "CollapsibleListRenderer");
+  }
+  static TEMPLATE_ID = "chatCollapsibleListRenderer";
+  templateId = CollapsibleListRenderer.TEMPLATE_ID;
+  renderTemplate(container) {
+    const templateDisposables = new DisposableStore();
+    const label = templateDisposables.add(this.labels.create(container, { supportHighlights: true, supportIcons: true }));
+    let toolbar;
+    let actionBarContainer;
+    let contextKeyService;
+    if (this.menuId) {
+      actionBarContainer = $(".chat-collapsible-list-action-bar");
+      contextKeyService = templateDisposables.add(this.contextKeyService.createScoped(actionBarContainer));
+      const scopedInstantiationService = templateDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, contextKeyService])));
+      toolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, actionBarContainer, this.menuId, { menuOptions: { shouldForwardArgs: true, arg: void 0 } }));
+      label.element.appendChild(actionBarContainer);
+    }
+    return { templateDisposables, label, toolbar, actionBarContainer, contextKeyService };
+  }
+  getReferenceIcon(data) {
+    if (ThemeIcon.isThemeIcon(data.iconPath)) {
+      return data.iconPath;
+    } else {
+      return this.themeService.getColorTheme().type === ColorScheme.DARK && data.iconPath?.dark ? data.iconPath?.dark : data.iconPath?.light;
+    }
+  }
+  renderElement(data, index, templateData, height) {
+    if (data.kind === "warning") {
+      templateData.label.setResource({ name: data.content.value }, { icon: Codicon.warning });
+      return;
+    }
+    const reference = data.reference;
+    const icon = this.getReferenceIcon(data);
+    templateData.label.element.style.display = "flex";
+    let arg;
+    if (typeof reference === "object" && "variableName" in reference) {
+      if (reference.value) {
+        const uri = URI.isUri(reference.value) ? reference.value : reference.value.uri;
+        templateData.label.setResource(
+          {
+            resource: uri,
+            name: basenameOrAuthority(uri),
+            description: `#${reference.variableName}`,
+            range: "range" in reference.value ? reference.value.range : void 0
+          },
+          { icon, title: data.options?.status?.description ?? data.title }
+        );
+      } else if (reference.variableName.startsWith("kernelVariable")) {
+        const variable = reference.variableName.split(":")[1];
+        const asVariableName = `${variable}`;
+        const label = `Kernel variable`;
+        templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description });
+      } else {
+        const variable = this.chatVariablesService.getVariable(reference.variableName);
+        const asThemeIcon = variable?.icon ? `$(${variable.icon.id}) ` : "";
+        const asVariableName = `#${reference.variableName}`;
+        const label = `${asThemeIcon}${variable?.fullName ?? asVariableName}`;
+        templateData.label.setLabel(label, asVariableName, { title: data.options?.status?.description ?? variable?.description });
+      }
+    } else if (typeof reference === "string") {
+      templateData.label.setLabel(reference, void 0, { iconPath: URI.isUri(icon) ? icon : void 0, title: data.options?.status?.description ?? data.title });
+    } else {
+      const uri = "uri" in reference ? reference.uri : reference;
+      arg = uri;
+      if (uri.scheme === "https" && isEqualAuthority(uri.authority, "github.com") && uri.path.includes("/tree/")) {
+        const label = uri.path.split("/").slice(1, 3).join("/");
+        const description = uri.path.split("/").slice(5).join("/");
+        templateData.label.setResource({ resource: uri, name: label, description }, { icon: Codicon.github, title: data.title });
+      } else if (uri.scheme === this.productService.urlProtocol && isEqualAuthority(uri.authority, SETTINGS_AUTHORITY)) {
+        const settingId = uri.path.substring(1);
+        templateData.label.setResource({ resource: uri, name: settingId }, { icon: Codicon.settingsGear, title: localize("setting.hover", "Open setting '{0}'", settingId) });
+      } else if (matchesSomeScheme(uri, Schemas.mailto, Schemas.http, Schemas.https)) {
+        templateData.label.setResource({ resource: uri, name: uri.toString() }, { icon: icon ?? Codicon.globe, title: data.options?.status?.description ?? data.title ?? uri.toString() });
+      } else {
+        if (data.state === WorkingSetEntryState.Transient) {
+          templateData.label.setResource(
+            {
+              resource: uri,
+              name: basenameOrAuthority(uri),
+              description: localize("chat.openEditor", "Open Editor"),
+              range: "range" in reference ? reference.range : void 0
+            },
+            { icon, title: data.options?.status?.description ?? data.title }
+          );
+        } else {
+          templateData.label.setFile(uri, {
+            fileKind: FileKind.FILE,
+            // Should not have this live-updating data on a historical reference
+            fileDecorations: void 0,
+            range: "range" in reference ? reference.range : void 0,
+            title: data.options?.status?.description ?? data.title
+          });
+        }
+      }
+    }
+    for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
+      const element = templateData.label.element.querySelector(selector);
+      if (element) {
+        if (data.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted || data.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial) {
+          element.classList.add("warning");
+        } else {
+          element.classList.remove("warning");
+        }
+      }
+    }
+    if (data.state !== void 0) {
+      if (templateData.actionBarContainer) {
+        if (data.state === WorkingSetEntryState.Modified && !templateData.actionBarContainer.classList.contains("modified")) {
+          templateData.actionBarContainer.classList.add("modified");
+          templateData.label.element.querySelector(".monaco-icon-name-container")?.classList.add("modified");
+        } else if (data.state !== WorkingSetEntryState.Modified) {
+          templateData.actionBarContainer.classList.remove("modified");
+          templateData.label.element.querySelector(".monaco-icon-name-container")?.classList.remove("modified");
+        }
+      }
+      if (templateData.toolbar) {
+        templateData.toolbar.context = arg;
+      }
+      if (templateData.contextKeyService && data.state !== void 0) {
+        chatEditingWidgetFileStateContextKey.bindTo(templateData.contextKeyService).set(data.state);
+      }
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+};
+CollapsibleListRenderer = __decorateClass([
+  __decorateParam(2, IThemeService),
+  __decorateParam(3, IChatVariablesService),
+  __decorateParam(4, IProductService),
+  __decorateParam(5, IInstantiationService),
+  __decorateParam(6, IContextKeyService)
+], CollapsibleListRenderer);
+function getResourceForElement(element) {
+  if (element.kind === "warning") {
+    return null;
+  }
+  const { reference } = element;
+  if (typeof reference === "string" || "variableName" in reference) {
+    return null;
+  } else if (URI.isUri(reference)) {
+    return reference;
+  } else {
+    return reference.uri;
+  }
+}
+__name(getResourceForElement, "getResourceForElement");
+registerAction2(class AddToChatAction extends Action2 {
+  static {
+    __name(this, "AddToChatAction");
+  }
+  static id = "workbench.action.chat.addToChatAction";
+  constructor() {
+    super({
+      id: AddToChatAction.id,
+      title: {
+        ...localize2("addToChat", "Add File to Chat")
+      },
+      f1: false,
+      menu: [{
+        id: MenuId.ChatAttachmentsContext,
+        group: "chat",
+        order: 1,
+        when: ExplorerFolderContext.negate()
+      }]
+    });
+  }
+  async run(accessor, resource) {
+    const chatWidgetService = accessor.get(IChatWidgetService);
+    const variablesService = accessor.get(IChatVariablesService);
+    if (!resource) {
+      return;
+    }
+    const widget = chatWidgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    variablesService.attachContext("file", resource, widget.location);
+  }
+});
+export {
+  ChatCollapsibleListContentPart,
+  CollapsibleListPool
+};
+//# sourceMappingURL=chatReferencesContentPart.js.map

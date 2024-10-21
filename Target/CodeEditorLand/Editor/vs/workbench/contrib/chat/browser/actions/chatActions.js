@@ -1,1 +1,473 @@
-var z=Object.defineProperty;var Y=Object.getOwnPropertyDescriptor;var U=(r,e,t,o)=>{for(var n=o>1?void 0:o?Y(e,t):e,s=r.length-1,i;s>=0;s--)(i=r[s])&&(n=(o?i(e,t,n):i(n))||n);return o&&n&&z(e,t,n),n},O=(r,e)=>(t,o)=>e(t,o,r);import{toAction as j}from"../../../../../base/common/actions.js";import{coalesce as J}from"../../../../../base/common/arrays.js";import{Codicon as f}from"../../../../../base/common/codicons.js";import{fromNowByDay as Z}from"../../../../../base/common/date.js";import{KeyCode as w,KeyMod as l}from"../../../../../base/common/keyCodes.js";import{DisposableStore as L}from"../../../../../base/common/lifecycle.js";import{ThemeIcon as x}from"../../../../../base/common/themables.js";import"../../../../../editor/browser/editorBrowser.js";import{EditorAction2 as ee}from"../../../../../editor/browser/editorExtensions.js";import{Position as te}from"../../../../../editor/common/core/position.js";import{SuggestController as ie}from"../../../../../editor/contrib/suggest/browser/suggestController.js";import{localize as p,localize2 as C}from"../../../../../nls.js";import{IActionViewItemService as oe}from"../../../../../platform/actions/browser/actionViewItemService.js";import{DropdownWithPrimaryActionViewItem as re}from"../../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";import{Action2 as y,MenuId as v,MenuItemAction as ne,MenuRegistry as se,registerAction2 as g,SubmenuItemAction as ae}from"../../../../../platform/actions/common/actions.js";import{ContextKeyExpr as d}from"../../../../../platform/contextkey/common/contextkey.js";import{IsLinuxContext as ce,IsWindowsContext as de}from"../../../../../platform/contextkey/common/contextkeys.js";import{IInstantiationService as ue}from"../../../../../platform/instantiation/common/instantiation.js";import{KeybindingWeight as A}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{IQuickInputService as me}from"../../../../../platform/quickinput/common/quickInput.js";import{ToggleTitleBarConfigAction as pe}from"../../../../browser/parts/titlebar/titlebarActions.js";import"../../../../common/contributions.js";import{IEditorGroupsService as he}from"../../../../services/editor/common/editorGroupsService.js";import{ACTIVE_GROUP as le,IEditorService as K}from"../../../../services/editor/common/editorService.js";import{IViewsService as D}from"../../../../services/views/common/viewsService.js";import{ChatAgentLocation as F,IChatAgentService as Ce}from"../../common/chatAgents.js";import{CONTEXT_CHAT_ENABLED as E,CONTEXT_CHAT_INPUT_CURSOR_AT_TOP as ge,CONTEXT_CHAT_LOCATION as Ie,CONTEXT_IN_CHAT_INPUT as H,CONTEXT_IN_CHAT_SESSION as W,CONTEXT_IN_QUICK_CHAT as P}from"../../common/chatContextKeys.js";import{extractAgentAndCommand as fe}from"../../common/chatParserTypes.js";import{IChatService as N}from"../../common/chatService.js";import{isRequestVM as we}from"../../common/chatViewModel.js";import{IChatWidgetHistoryService as ye}from"../../common/chatWidgetHistoryService.js";import{CHAT_VIEW_ID as M,IChatWidgetService as q,showChatView as ve}from"../chat.js";import"../chatEditor.js";import{ChatEditorInput as R}from"../chatEditorInput.js";import"../chatViewPane.js";import{convertBufferToScreenshotVariable as Se}from"../contrib/screenshot.js";import{clearChatEditor as Ae}from"./chatClear.js";import{IHostService as Ee}from"../../../../services/host/browser/host.js";const S=C("chat.category","Chat"),X="workbench.action.chat.open";class V extends y{static TITLE=C("openChat","Open Chat");constructor(){super({id:X,title:V.TITLE,icon:f.commentDiscussion,f1:!0,category:S,keybinding:{weight:A.WorkbenchContrib,primary:l.CtrlCmd|l.Alt|w.KeyI,mac:{primary:l.CtrlCmd|l.WinCtrl|w.KeyI}},menu:{id:v.ChatCommandCenter,group:"a_chat",order:1}})}async run(e,t){t=typeof t=="string"?{query:t}:t;const o=e.get(N),n=e.get(D),s=e.get(Ee),i=await ve(n);if(i){if(t?.previousRequests?.length&&i.viewModel)for(const{request:a,response:c}of t.previousRequests)o.addCompleteRequest(i.viewModel.sessionId,a,void 0,0,{message:c});if(t?.attachScreenshot){const a=await s.getScreenshot();a&&i.attachmentModel.addContext(Se(a))}t?.query&&(t.isPartialQuery?i.setInput(t.query):i.acceptInput(t.query)),i.focusInput()}}}class Te extends y{constructor(){super({id:"workbench.action.chat.history",title:C("chat.history.label","Show Chats..."),menu:{id:v.ViewTitle,when:d.equals("view",M),group:"navigation",order:2},category:S,icon:f.history,f1:!0,precondition:E})}async run(e){const t=e.get(N),o=e.get(me),n=e.get(D),s=e.get(K),i=()=>{const a={iconClass:x.asClassName(f.file),tooltip:p("interactiveSession.history.editor","Open in Editor")},c={iconClass:x.asClassName(f.x),tooltip:p("interactiveSession.history.delete","Delete")},T={iconClass:x.asClassName(f.pencil),tooltip:p("chat.history.rename","Rename")},Q=()=>{const u=t.getHistory();u.sort((I,k)=>(k.lastMessageDate??0)-(I.lastMessageDate??0));let h;const B=u.flatMap(I=>{const k=Z(I.lastMessageDate,!0,!0),$=k!==h?{type:"separator",label:k}:void 0;return h=k,[$,{label:I.title,description:I.isActive?`(${p("currentChatLabel","current")})`:"",chat:I,buttons:I.isActive?[T]:[T,a,c]}]});return J(B)},b=new L,m=b.add(o.createQuickPick({useSeparators:!0}));m.placeholder=p("interactiveSession.history.pick","Switch to chat");const G=Q();m.items=G,b.add(m.onDidTriggerItemButton(async u=>{if(u.button===a){const h={target:{sessionId:u.item.chat.sessionId},pinned:!0};s.openEditor({resource:R.getNewEditorUri(),options:h},le),m.hide()}else if(u.button===c)t.removeHistoryEntry(u.item.chat.sessionId),m.items=Q();else if(u.button===T){const h=await o.input({title:p("newChatTitle","New chat title"),value:u.item.chat.title});h&&t.setChatSessionTitle(u.item.chat.sessionId,h),i()}})),b.add(m.onDidAccept(async()=>{try{const h=m.selectedItems[0].chat.sessionId;(await n.openView(M)).loadSession(h)}finally{m.hide()}})),b.add(m.onDidHide(()=>b.dispose())),m.show()};i()}}class be extends y{constructor(){super({id:"workbench.action.openChat",title:C("interactiveSession.open","Open Editor"),f1:!0,category:S,precondition:E})}async run(e){await e.get(K).openEditor({resource:R.getNewEditorUri(),options:{pinned:!0}})}}class ke extends y{constructor(){super({id:"workbench.action.chat.addParticipant",title:C("chatWith","Chat with Extension"),icon:f.mention,f1:!1,category:S,menu:{id:v.ChatInput,when:Ie.isEqualTo(F.Panel),group:"navigation",order:1}})}async run(e,...t){const o=e.get(q),s=t[0]?.widget??o.lastFocusedWidget;if(!s)return;const i=fe(s.parsedInput);if(i?.agentPart||i?.commandPart)return;const a=ie.get(s.inputEditor);if(a){const c=s.inputEditor.getValue(),T=c?`@ ${c}`:"@";c.startsWith("@")||s.inputEditor.setValue(T),s.inputEditor.setPosition(new te(1,2)),a.triggerSuggest(void 0,!0)}}}function Ot(){g(V),g(Te),g(be),g(ke),g(class extends y{constructor(){super({id:"workbench.action.chat.clearInputHistory",title:C("interactiveSession.clearHistory.label","Clear Input History"),precondition:E,category:S,f1:!0})}async run(e,...t){e.get(ye).clearHistory()}}),g(class extends y{constructor(){super({id:"workbench.action.chat.clearHistory",title:C("chat.clear.label","Clear All Workspace Chats"),precondition:E,category:S,f1:!0})}async run(e,...t){const o=e.get(he),n=e.get(D);e.get(N).clearAllHistoryEntries();const i=n.getViewWithId(M);i&&i.widget.clear(),o.groups.forEach(a=>{a.editors.forEach(c=>{c instanceof R&&Ae(e,c)})})}}),g(class extends ee{constructor(){super({id:"chat.action.focus",title:C("actions.interactiveSession.focus","Focus Chat List"),precondition:d.and(H),category:S,keybinding:[{when:d.and(ge,P.negate()),primary:l.CtrlCmd|w.UpArrow,weight:A.EditorContrib},{when:d.and(d.or(de,ce),P.negate()),primary:l.CtrlCmd|w.UpArrow,weight:A.EditorContrib},{when:d.and(W,P),primary:l.CtrlCmd|w.DownArrow,weight:A.WorkbenchContrib}]})}runEditorCommand(e,t){const o=t.getModel()?.uri;o&&e.get(q).getWidgetByInputUri(o)?.focusLastMessage()}}),g(class extends y{constructor(){super({id:"workbench.action.chat.focusInput",title:C("interactiveSession.focusInput.label","Focus Chat Input"),f1:!1,keybinding:[{primary:l.CtrlCmd|w.DownArrow,weight:A.WorkbenchContrib,when:d.and(W,H.negate(),P.negate())},{when:d.and(W,H.negate(),P),primary:l.CtrlCmd|w.UpArrow,weight:A.WorkbenchContrib}]})}run(e,...t){e.get(q).lastFocusedWidget?.focusInput()}})}function _t(r,e=!0){return we(r)?(e?`${r.username}: `:"")+r.messageText:(e?`${r.username}: `:"")+r.response.toString()}se.appendMenuItem(v.CommandCenter,{submenu:v.ChatCommandCenter,title:p("title4","Chat"),icon:f.commentDiscussion,when:d.and(E,d.has("config.chat.commandCenter.enabled")),order:10001}),g(class extends pe{constructor(){super("chat.commandCenter.enabled",p("toggle.chatControl","Chat Controls"),p("toggle.chatControlsDescription","Toggle visibility of the Chat Controls in title bar"),3,!1,d.and(E,d.has("config.window.commandCenter")))}});let _=class{static ID="chat.commandCenterRendering";_store=new L;constructor(e,t,o){this._store.add(e.register(v.CommandCenter,v.ChatCommandCenter,(n,s)=>{const i=t.getDefaultAgent(F.Panel);if(!i?.metadata.themeIcon||!(n instanceof ae))return;const a=j({id:i.id,label:p("more","More..."),run(){}}),c=o.createInstance(ne,{id:X,title:V.TITLE,icon:i.metadata.themeIcon},void 0,void 0,void 0,void 0);return o.createInstance(re,c,a,n.actions,"",{...s,skipTelemetry:!0})},t.onDidChangeAgents))}dispose(){this._store.dispose()}};_=U([O(0,oe),O(1,Ce),O(2,ue)],_);export{S as CHAT_CATEGORY,X as CHAT_OPEN_ACTION_ID,_ as ChatCommandCenterRendering,Ot as registerChatActions,_t as stringifyItem};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { toAction } from "../../../../../base/common/actions.js";
+import { coalesce } from "../../../../../base/common/arrays.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { fromNowByDay } from "../../../../../base/common/date.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { EditorAction2, ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { Position } from "../../../../../editor/common/core/position.js";
+import { SuggestController } from "../../../../../editor/contrib/suggest/browser/suggestController.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { IActionViewItemService } from "../../../../../platform/actions/browser/actionViewItemService.js";
+import { DropdownWithPrimaryActionViewItem } from "../../../../../platform/actions/browser/dropdownWithPrimaryActionViewItem.js";
+import { Action2, MenuId, MenuItemAction, MenuRegistry, registerAction2, SubmenuItemAction } from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IsLinuxContext, IsWindowsContext } from "../../../../../platform/contextkey/common/contextkeys.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IQuickInputButton, IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../../platform/quickinput/common/quickInput.js";
+import { ToggleTitleBarConfigAction } from "../../../../browser/parts/titlebar/titlebarActions.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { ACTIVE_GROUP, IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { ChatAgentLocation, IChatAgentService } from "../../common/chatAgents.js";
+import { CONTEXT_CHAT_ENABLED, CONTEXT_CHAT_INPUT_CURSOR_AT_TOP, CONTEXT_CHAT_LOCATION, CONTEXT_IN_CHAT_INPUT, CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_QUICK_CHAT } from "../../common/chatContextKeys.js";
+import { extractAgentAndCommand } from "../../common/chatParserTypes.js";
+import { IChatDetail, IChatService } from "../../common/chatService.js";
+import { IChatRequestViewModel, IChatResponseViewModel, isRequestVM } from "../../common/chatViewModel.js";
+import { IChatWidgetHistoryService } from "../../common/chatWidgetHistoryService.js";
+import { CHAT_VIEW_ID, IChatWidget, IChatWidgetService, showChatView } from "../chat.js";
+import { IChatEditorOptions } from "../chatEditor.js";
+import { ChatEditorInput } from "../chatEditorInput.js";
+import { ChatViewPane } from "../chatViewPane.js";
+import { convertBufferToScreenshotVariable } from "../contrib/screenshot.js";
+import { clearChatEditor } from "./chatClear.js";
+import { IHostService } from "../../../../services/host/browser/host.js";
+const CHAT_CATEGORY = localize2("chat.category", "Chat");
+const CHAT_OPEN_ACTION_ID = "workbench.action.chat.open";
+class OpenChatGlobalAction extends Action2 {
+  static {
+    __name(this, "OpenChatGlobalAction");
+  }
+  static TITLE = localize2("openChat", "Open Chat");
+  constructor() {
+    super({
+      id: CHAT_OPEN_ACTION_ID,
+      title: OpenChatGlobalAction.TITLE,
+      icon: Codicon.commentDiscussion,
+      f1: true,
+      category: CHAT_CATEGORY,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyI,
+        mac: {
+          primary: KeyMod.CtrlCmd | KeyMod.WinCtrl | KeyCode.KeyI
+        }
+      },
+      menu: {
+        id: MenuId.ChatCommandCenter,
+        group: "a_chat",
+        order: 1
+      }
+    });
+  }
+  async run(accessor, opts) {
+    opts = typeof opts === "string" ? { query: opts } : opts;
+    const chatService = accessor.get(IChatService);
+    const viewsService = accessor.get(IViewsService);
+    const hostService = accessor.get(IHostService);
+    const chatWidget = await showChatView(viewsService);
+    if (!chatWidget) {
+      return;
+    }
+    if (opts?.previousRequests?.length && chatWidget.viewModel) {
+      for (const { request, response } of opts.previousRequests) {
+        chatService.addCompleteRequest(chatWidget.viewModel.sessionId, request, void 0, 0, { message: response });
+      }
+    }
+    if (opts?.attachScreenshot) {
+      const screenshot = await hostService.getScreenshot();
+      if (screenshot) {
+        chatWidget.attachmentModel.addContext(convertBufferToScreenshotVariable(screenshot));
+      }
+    }
+    if (opts?.query) {
+      if (opts.isPartialQuery) {
+        chatWidget.setInput(opts.query);
+      } else {
+        chatWidget.acceptInput(opts.query);
+      }
+    }
+    chatWidget.focusInput();
+  }
+}
+class ChatHistoryAction extends Action2 {
+  static {
+    __name(this, "ChatHistoryAction");
+  }
+  constructor() {
+    super({
+      id: `workbench.action.chat.history`,
+      title: localize2("chat.history.label", "Show Chats..."),
+      menu: {
+        id: MenuId.ViewTitle,
+        when: ContextKeyExpr.equals("view", CHAT_VIEW_ID),
+        group: "navigation",
+        order: 2
+      },
+      category: CHAT_CATEGORY,
+      icon: Codicon.history,
+      f1: true,
+      precondition: CONTEXT_CHAT_ENABLED
+    });
+  }
+  async run(accessor) {
+    const chatService = accessor.get(IChatService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const viewsService = accessor.get(IViewsService);
+    const editorService = accessor.get(IEditorService);
+    const showPicker = /* @__PURE__ */ __name(() => {
+      const openInEditorButton = {
+        iconClass: ThemeIcon.asClassName(Codicon.file),
+        tooltip: localize("interactiveSession.history.editor", "Open in Editor")
+      };
+      const deleteButton = {
+        iconClass: ThemeIcon.asClassName(Codicon.x),
+        tooltip: localize("interactiveSession.history.delete", "Delete")
+      };
+      const renameButton = {
+        iconClass: ThemeIcon.asClassName(Codicon.pencil),
+        tooltip: localize("chat.history.rename", "Rename")
+      };
+      const getPicks = /* @__PURE__ */ __name(() => {
+        const items = chatService.getHistory();
+        items.sort((a, b) => (b.lastMessageDate ?? 0) - (a.lastMessageDate ?? 0));
+        let lastDate = void 0;
+        const picks2 = items.flatMap((i) => {
+          const timeAgoStr = fromNowByDay(i.lastMessageDate, true, true);
+          const separator = timeAgoStr !== lastDate ? {
+            type: "separator",
+            label: timeAgoStr
+          } : void 0;
+          lastDate = timeAgoStr;
+          return [
+            separator,
+            {
+              label: i.title,
+              description: i.isActive ? `(${localize("currentChatLabel", "current")})` : "",
+              chat: i,
+              buttons: i.isActive ? [renameButton] : [
+                renameButton,
+                openInEditorButton,
+                deleteButton
+              ]
+            }
+          ];
+        });
+        return coalesce(picks2);
+      }, "getPicks");
+      const store = new DisposableStore();
+      const picker = store.add(quickInputService.createQuickPick({ useSeparators: true }));
+      picker.placeholder = localize("interactiveSession.history.pick", "Switch to chat");
+      const picks = getPicks();
+      picker.items = picks;
+      store.add(picker.onDidTriggerItemButton(async (context) => {
+        if (context.button === openInEditorButton) {
+          const options = { target: { sessionId: context.item.chat.sessionId }, pinned: true };
+          editorService.openEditor({ resource: ChatEditorInput.getNewEditorUri(), options }, ACTIVE_GROUP);
+          picker.hide();
+        } else if (context.button === deleteButton) {
+          chatService.removeHistoryEntry(context.item.chat.sessionId);
+          picker.items = getPicks();
+        } else if (context.button === renameButton) {
+          const title = await quickInputService.input({ title: localize("newChatTitle", "New chat title"), value: context.item.chat.title });
+          if (title) {
+            chatService.setChatSessionTitle(context.item.chat.sessionId, title);
+          }
+          showPicker();
+        }
+      }));
+      store.add(picker.onDidAccept(async () => {
+        try {
+          const item = picker.selectedItems[0];
+          const sessionId = item.chat.sessionId;
+          const view = await viewsService.openView(CHAT_VIEW_ID);
+          view.loadSession(sessionId);
+        } finally {
+          picker.hide();
+        }
+      }));
+      store.add(picker.onDidHide(() => store.dispose()));
+      picker.show();
+    }, "showPicker");
+    showPicker();
+  }
+}
+class OpenChatEditorAction extends Action2 {
+  static {
+    __name(this, "OpenChatEditorAction");
+  }
+  constructor() {
+    super({
+      id: `workbench.action.openChat`,
+      title: localize2("interactiveSession.open", "Open Editor"),
+      f1: true,
+      category: CHAT_CATEGORY,
+      precondition: CONTEXT_CHAT_ENABLED
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    await editorService.openEditor({ resource: ChatEditorInput.getNewEditorUri(), options: { pinned: true } });
+  }
+}
+class ChatAddAction extends Action2 {
+  static {
+    __name(this, "ChatAddAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.chat.addParticipant",
+      title: localize2("chatWith", "Chat with Extension"),
+      icon: Codicon.mention,
+      f1: false,
+      category: CHAT_CATEGORY,
+      menu: {
+        id: MenuId.ChatInput,
+        when: CONTEXT_CHAT_LOCATION.isEqualTo(ChatAgentLocation.Panel),
+        group: "navigation",
+        order: 1
+      }
+    });
+  }
+  async run(accessor, ...args) {
+    const widgetService = accessor.get(IChatWidgetService);
+    const context = args[0];
+    const widget = context?.widget ?? widgetService.lastFocusedWidget;
+    if (!widget) {
+      return;
+    }
+    const hasAgentOrCommand = extractAgentAndCommand(widget.parsedInput);
+    if (hasAgentOrCommand?.agentPart || hasAgentOrCommand?.commandPart) {
+      return;
+    }
+    const suggestCtrl = SuggestController.get(widget.inputEditor);
+    if (suggestCtrl) {
+      const curText = widget.inputEditor.getValue();
+      const newValue = curText ? `@ ${curText}` : "@";
+      if (!curText.startsWith("@")) {
+        widget.inputEditor.setValue(newValue);
+      }
+      widget.inputEditor.setPosition(new Position(1, 2));
+      suggestCtrl.triggerSuggest(void 0, true);
+    }
+  }
+}
+function registerChatActions() {
+  registerAction2(OpenChatGlobalAction);
+  registerAction2(ChatHistoryAction);
+  registerAction2(OpenChatEditorAction);
+  registerAction2(ChatAddAction);
+  registerAction2(class ClearChatInputHistoryAction extends Action2 {
+    static {
+      __name(this, "ClearChatInputHistoryAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.clearInputHistory",
+        title: localize2("interactiveSession.clearHistory.label", "Clear Input History"),
+        precondition: CONTEXT_CHAT_ENABLED,
+        category: CHAT_CATEGORY,
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      const historyService = accessor.get(IChatWidgetHistoryService);
+      historyService.clearHistory();
+    }
+  });
+  registerAction2(class ClearChatHistoryAction extends Action2 {
+    static {
+      __name(this, "ClearChatHistoryAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.clearHistory",
+        title: localize2("chat.clear.label", "Clear All Workspace Chats"),
+        precondition: CONTEXT_CHAT_ENABLED,
+        category: CHAT_CATEGORY,
+        f1: true
+      });
+    }
+    async run(accessor, ...args) {
+      const editorGroupsService = accessor.get(IEditorGroupsService);
+      const viewsService = accessor.get(IViewsService);
+      const chatService = accessor.get(IChatService);
+      chatService.clearAllHistoryEntries();
+      const chatView = viewsService.getViewWithId(CHAT_VIEW_ID);
+      if (chatView) {
+        chatView.widget.clear();
+      }
+      editorGroupsService.groups.forEach((group) => {
+        group.editors.forEach((editor) => {
+          if (editor instanceof ChatEditorInput) {
+            clearChatEditor(accessor, editor);
+          }
+        });
+      });
+    }
+  });
+  registerAction2(class FocusChatAction extends EditorAction2 {
+    static {
+      __name(this, "FocusChatAction");
+    }
+    constructor() {
+      super({
+        id: "chat.action.focus",
+        title: localize2("actions.interactiveSession.focus", "Focus Chat List"),
+        precondition: ContextKeyExpr.and(CONTEXT_IN_CHAT_INPUT),
+        category: CHAT_CATEGORY,
+        keybinding: [
+          // On mac, require that the cursor is at the top of the input, to avoid stealing cmd+up to move the cursor to the top
+          {
+            when: ContextKeyExpr.and(CONTEXT_CHAT_INPUT_CURSOR_AT_TOP, CONTEXT_IN_QUICK_CHAT.negate()),
+            primary: KeyMod.CtrlCmd | KeyCode.UpArrow,
+            weight: KeybindingWeight.EditorContrib
+          },
+          // On win/linux, ctrl+up can always focus the chat list
+          {
+            when: ContextKeyExpr.and(ContextKeyExpr.or(IsWindowsContext, IsLinuxContext), CONTEXT_IN_QUICK_CHAT.negate()),
+            primary: KeyMod.CtrlCmd | KeyCode.UpArrow,
+            weight: KeybindingWeight.EditorContrib
+          },
+          {
+            when: ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_QUICK_CHAT),
+            primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
+            weight: KeybindingWeight.WorkbenchContrib
+          }
+        ]
+      });
+    }
+    runEditorCommand(accessor, editor) {
+      const editorUri = editor.getModel()?.uri;
+      if (editorUri) {
+        const widgetService = accessor.get(IChatWidgetService);
+        widgetService.getWidgetByInputUri(editorUri)?.focusLastMessage();
+      }
+    }
+  });
+  registerAction2(class FocusChatInputAction extends Action2 {
+    static {
+      __name(this, "FocusChatInputAction");
+    }
+    constructor() {
+      super({
+        id: "workbench.action.chat.focusInput",
+        title: localize2("interactiveSession.focusInput.label", "Focus Chat Input"),
+        f1: false,
+        keybinding: [
+          {
+            primary: KeyMod.CtrlCmd | KeyCode.DownArrow,
+            weight: KeybindingWeight.WorkbenchContrib,
+            when: ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_CHAT_INPUT.negate(), CONTEXT_IN_QUICK_CHAT.negate())
+          },
+          {
+            when: ContextKeyExpr.and(CONTEXT_IN_CHAT_SESSION, CONTEXT_IN_CHAT_INPUT.negate(), CONTEXT_IN_QUICK_CHAT),
+            primary: KeyMod.CtrlCmd | KeyCode.UpArrow,
+            weight: KeybindingWeight.WorkbenchContrib
+          }
+        ]
+      });
+    }
+    run(accessor, ...args) {
+      const widgetService = accessor.get(IChatWidgetService);
+      widgetService.lastFocusedWidget?.focusInput();
+    }
+  });
+}
+__name(registerChatActions, "registerChatActions");
+function stringifyItem(item, includeName = true) {
+  if (isRequestVM(item)) {
+    return (includeName ? `${item.username}: ` : "") + item.messageText;
+  } else {
+    return (includeName ? `${item.username}: ` : "") + item.response.toString();
+  }
+}
+__name(stringifyItem, "stringifyItem");
+MenuRegistry.appendMenuItem(MenuId.CommandCenter, {
+  submenu: MenuId.ChatCommandCenter,
+  title: localize("title4", "Chat"),
+  icon: Codicon.commentDiscussion,
+  when: ContextKeyExpr.and(CONTEXT_CHAT_ENABLED, ContextKeyExpr.has("config.chat.commandCenter.enabled")),
+  order: 10001
+});
+registerAction2(class ToggleChatControl extends ToggleTitleBarConfigAction {
+  static {
+    __name(this, "ToggleChatControl");
+  }
+  constructor() {
+    super("chat.commandCenter.enabled", localize("toggle.chatControl", "Chat Controls"), localize("toggle.chatControlsDescription", "Toggle visibility of the Chat Controls in title bar"), 3, false, ContextKeyExpr.and(CONTEXT_CHAT_ENABLED, ContextKeyExpr.has("config.window.commandCenter")));
+  }
+});
+let ChatCommandCenterRendering = class {
+  static {
+    __name(this, "ChatCommandCenterRendering");
+  }
+  static ID = "chat.commandCenterRendering";
+  _store = new DisposableStore();
+  constructor(actionViewItemService, agentService, instantiationService) {
+    this._store.add(actionViewItemService.register(MenuId.CommandCenter, MenuId.ChatCommandCenter, (action, options) => {
+      const agent = agentService.getDefaultAgent(ChatAgentLocation.Panel);
+      if (!agent?.metadata.themeIcon) {
+        return void 0;
+      }
+      if (!(action instanceof SubmenuItemAction)) {
+        return void 0;
+      }
+      const dropdownAction = toAction({
+        id: agent.id,
+        label: localize("more", "More..."),
+        run() {
+        }
+      });
+      const primaryAction = instantiationService.createInstance(MenuItemAction, {
+        id: CHAT_OPEN_ACTION_ID,
+        title: OpenChatGlobalAction.TITLE,
+        icon: agent.metadata.themeIcon
+      }, void 0, void 0, void 0, void 0);
+      return instantiationService.createInstance(
+        DropdownWithPrimaryActionViewItem,
+        primaryAction,
+        dropdownAction,
+        action.actions,
+        "",
+        {
+          ...options,
+          skipTelemetry: true
+          // already handled by the workbench action bar
+        }
+      );
+    }, agentService.onDidChangeAgents));
+  }
+  dispose() {
+    this._store.dispose();
+  }
+};
+ChatCommandCenterRendering = __decorateClass([
+  __decorateParam(0, IActionViewItemService),
+  __decorateParam(1, IChatAgentService),
+  __decorateParam(2, IInstantiationService)
+], ChatCommandCenterRendering);
+export {
+  CHAT_CATEGORY,
+  CHAT_OPEN_ACTION_ID,
+  ChatCommandCenterRendering,
+  registerChatActions,
+  stringifyItem
+};
+//# sourceMappingURL=chatActions.js.map

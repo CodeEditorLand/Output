@@ -1,1 +1,339 @@
-var w=Object.defineProperty;var D=Object.getOwnPropertyDescriptor;var P=(g,o,e,n)=>{for(var t=n>1?void 0:n?D(o,e):o,i=g.length-1,s;i>=0;i--)(s=g[i])&&(t=(n?s(o,e,t):s(t))||t);return n&&t&&w(o,e,t),t},m=(g,o)=>(e,n)=>o(e,n,g);import{DeferredPromise as T}from"../../../base/common/async.js";import"../../../base/common/cancellation.js";import{Emitter as k}from"../../../base/common/event.js";import"../../../base/common/htmlContent.js";import{Disposable as R,DisposableMap as I}from"../../../base/common/lifecycle.js";import{revive as C}from"../../../base/common/marshalling.js";import{escapeRegExpCharacters as M}from"../../../base/common/strings.js";import{ThemeIcon as $}from"../../../base/common/themables.js";import{URI as E}from"../../../base/common/uri.js";import"../../../editor/common/core/position.js";import{Range as f}from"../../../editor/common/core/range.js";import{getWordAtText as x}from"../../../editor/common/core/wordHelper.js";import{CompletionItemKind as N}from"../../../editor/common/languages.js";import"../../../editor/common/model.js";import{ILanguageFeaturesService as W}from"../../../editor/common/services/languageFeatures.js";import{ExtensionIdentifier as F}from"../../../platform/extensions/common/extensions.js";import{IInstantiationService as L}from"../../../platform/instantiation/common/instantiation.js";import{ILogService as H}from"../../../platform/log/common/log.js";import{IChatWidgetService as U}from"../../contrib/chat/browser/chat.js";import{ChatInputPart as V}from"../../contrib/chat/browser/chatInputPart.js";import{AddDynamicVariableAction as j}from"../../contrib/chat/browser/contrib/chatDynamicVariables.js";import{ChatAgentLocation as q,IChatAgentService as B}from"../../contrib/chat/common/chatAgents.js";import{ChatRequestAgentPart as Q}from"../../contrib/chat/common/chatParserTypes.js";import{ChatRequestParser as K}from"../../contrib/chat/common/chatRequestParser.js";import{IChatService as z}from"../../contrib/chat/common/chatService.js";import{extHostNamedCustomer as G}from"../../services/extensions/common/extHostCustomers.js";import{IExtensionService as J}from"../../services/extensions/common/extensions.js";import"../../services/extensions/common/proxyIdentifier.js";import{ExtHostContext as O,MainContext as X}from"../common/extHost.protocol.js";class Y{constructor(o){this.content=o}kind="progressTask";deferred=new T;_onDidAddProgress=new k;get onDidAddProgress(){return this._onDidAddProgress.event}progress=[];task(){return this.deferred.p}isSettled(){return this.deferred.isSettled}complete(o){this.deferred.complete(o)}add(o){this.progress.push(o),this._onDidAddProgress.fire(o)}}let _=class extends R{constructor(e,n,t,i,s,a,p,d){super();this._chatAgentService=n;this._chatService=t;this._languageFeaturesService=i;this._chatWidgetService=s;this._instantiationService=a;this._logService=p;this._extensionService=d;this._proxy=e.getProxy(O.ExtHostChatAgents2),this._register(this._chatService.onDidDisposeSession(r=>{this._proxy.$releaseSession(r.sessionId)})),this._register(this._chatService.onDidPerformUserAction(r=>{if(typeof r.agentId=="string"){for(const[l,h]of this._agents)if(h.id===r.agentId){r.action.kind==="vote"?this._proxy.$acceptFeedback(l,r.result??{},r.action):this._proxy.$acceptAction(l,r.result||{},r);break}}}))}_agents=this._register(new I);_agentCompletionProviders=this._register(new I);_agentIdsToCompletionProviders=this._register(new I);_chatParticipantDetectionProviders=this._register(new I);_pendingProgress=new Map;_proxy;_responsePartHandlePool=0;_activeTasks=new Map;_unresolvedAnchors=new Map;$unregisterAgent(e){this._agents.deleteAndDispose(e)}$transferActiveChatSession(e){const n=this._chatWidgetService.lastFocusedWidget,t=n?.viewModel?.model.sessionId;if(!t){this._logService.error("MainThreadChat#$transferActiveChatSession: No active chat session found");return}const i=n?.inputEditor.getValue()??"";this._chatService.transferChatSession({sessionId:t,inputValue:i},E.revive(e))}$registerAgent(e,n,t,i,s){const a=this._chatAgentService.getAgent(t);if(!a&&!s)throw this._chatAgentService.getAgentsByName(t).length?new Error(`chatParticipant must be declared with an ID in package.json. The "id" property may be missing! "${t}"`):new Error(`chatParticipant must be declared in package.json: ${t}`);const p={invoke:async(r,l,h,u)=>{this._pendingProgress.set(r.requestId,l);try{return await this._proxy.$invokeAgent(e,r,{history:h},u)??{}}finally{this._pendingProgress.delete(r.requestId)}},provideFollowups:async(r,l,h,u)=>this._agents.get(e)?.hasFollowups?this._proxy.$provideFollowups(r,e,l,{history:h},u):[],provideWelcomeMessage:r=>this._proxy.$provideWelcomeMessage(e,r),provideChatTitle:(r,l)=>this._proxy.$provideChatTitle(e,r,l),provideSampleQuestions:(r,l)=>this._proxy.$provideSampleQuestions(e,r,l)};let d;if(!a&&s){const r=this._extensionService.extensions.find(l=>F.equals(l.identifier,n));d=this._chatAgentService.registerDynamicAgent({id:t,name:s.name,description:s.description,extensionId:n,extensionDisplayName:r?.displayName??n.value,extensionPublisherId:r?.publisher??"",publisherDisplayName:s.publisherName,fullName:s.fullName,metadata:C(i),slashCommands:[],disambiguation:[],locations:[q.Panel]},p)}else d=this._chatAgentService.registerAgentImplementation(t,p);this._agents.set(e,{id:t,extensionId:n,dispose:d.dispose,hasFollowups:i.hasFollowups})}$updateAgent(e,n){const t=this._agents.get(e);if(!t){this._logService.error(`MainThreadChatAgents2#$updateAgent: No agent with handle ${e} registered`);return}t.hasFollowups=n.hasFollowups,this._chatAgentService.updateAgent(t.id,C(n))}async $handleProgressChunk(e,n,t){const i=C(n);if(i.kind==="progressTask"){const s=++this._responsePartHandlePool,a=`${e}_${s}`,p=new Y(i.content);return this._activeTasks.set(a,p),this._pendingProgress.get(e)?.(p),s}else if(t!==void 0){const s=`${e}_${t}`,a=this._activeTasks.get(s);switch(i.kind){case"progressTaskResult":return a&&i.content?(a.complete(i.content.value),this._activeTasks.delete(s)):a?.complete(void 0),t;case"warning":case"reference":a?.add(i);return}}i.kind==="inlineReference"&&i.resolveId&&(this._unresolvedAnchors.has(e)||this._unresolvedAnchors.set(e,new Map),this._unresolvedAnchors.get(e)?.set(i.resolveId,i)),this._pendingProgress.get(e)?.(i)}$handleAnchorResolve(e,n,t){const i=this._unresolvedAnchors.get(e)?.get(n);if(i&&(this._unresolvedAnchors.get(e)?.delete(n),t)){const s=C(t);i.inlineReference=s.inlineReference}}$registerAgentCompletionsProvider(e,n,t){const i=async(s,a)=>(await this._proxy.$invokeCompletionProvider(e,s,a)).map(d=>({...d,icon:d.icon?$.fromId(d.icon):void 0}));this._agentIdsToCompletionProviders.set(n,this._chatAgentService.registerAgentCompletionProvider(n,i)),this._agentCompletionProviders.set(e,this._languageFeaturesService.completionProvider.register({scheme:V.INPUT_SCHEME,hasAccessToAllModels:!0},{_debugDisplayName:"chatAgentCompletions:"+e,triggerCharacters:t,provideCompletionItems:async(s,a,p,d)=>{const r=this._chatWidgetService.getWidgetByInputUri(s.uri);if(!r||!r.viewModel)return;const l=t.map(c=>M(c)).join(""),h=new RegExp(`[${l}]\\S*`,"g"),u=x(a.column,h,s.getLineContent(a.lineNumber),0)?.word??"";if(u&&!t.some(c=>u.startsWith(c)))return;const b=this._instantiationService.createInstance(K).parseChatRequest(r.viewModel.sessionId,s.getValue()).parts.find(c=>c instanceof Q),y=this._agents.get(e)?.id;if(b?.agent.id!==y)return;const v=Z(s,a,h);return v?{suggestions:(await i(u,d)).map(c=>{const A=c.insertText??(typeof c.label=="string"?c.label:c.label.label),S=new f(v.insert.startLineNumber,v.insert.startColumn,v.insert.endLineNumber,v.insert.startColumn+A.length);return{label:c.label,range:v,insertText:A+" ",kind:N.Text,detail:c.detail,documentation:c.documentation,command:{id:j.ID,title:"",arguments:[{id:c.id,widget:r,range:S,variableData:C(c.value),command:c.command}]}}})}:null}}))}$unregisterAgentCompletionsProvider(e,n){this._agentCompletionProviders.deleteAndDispose(e),this._agentIdsToCompletionProviders.deleteAndDispose(n)}$registerChatParticipantDetectionProvider(e){this._chatParticipantDetectionProviders.set(e,this._chatAgentService.registerChatParticipantDetectionProvider(e,{provideParticipantDetection:async(n,t,i,s)=>await this._proxy.$detectChatParticipant(e,n,{history:t},i,s)}))}$unregisterChatParticipantDetectionProvider(e){this._chatParticipantDetectionProviders.deleteAndDispose(e)}};_=P([G(X.MainThreadChatAgents2),m(1,B),m(2,z),m(3,W),m(4,U),m(5,L),m(6,H),m(7,J)],_);function Z(g,o,e){const n=x(o.column,e,g.getLineContent(o.lineNumber),0);if(!n&&g.getWordUntilPosition(o).word)return;let t,i;return n?(t=new f(o.lineNumber,n.startColumn,o.lineNumber,o.column),i=new f(o.lineNumber,n.startColumn,o.lineNumber,n.endColumn)):t=i=f.fromPositions(o),{insert:t,replace:i}}export{_ as MainThreadChatAgents2,Y as MainThreadChatTask};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DeferredPromise } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { Disposable, DisposableMap, IDisposable } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { escapeRegExpCharacters } from "../../../base/common/strings.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { Position } from "../../../editor/common/core/position.js";
+import { Range } from "../../../editor/common/core/range.js";
+import { getWordAtText } from "../../../editor/common/core/wordHelper.js";
+import { CompletionContext, CompletionItem, CompletionItemKind, CompletionList } from "../../../editor/common/languages.js";
+import { ITextModel } from "../../../editor/common/model.js";
+import { ILanguageFeaturesService } from "../../../editor/common/services/languageFeatures.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IChatWidgetService } from "../../contrib/chat/browser/chat.js";
+import { ChatInputPart } from "../../contrib/chat/browser/chatInputPart.js";
+import { AddDynamicVariableAction, IAddDynamicVariableContext } from "../../contrib/chat/browser/contrib/chatDynamicVariables.js";
+import { ChatAgentLocation, IChatAgentHistoryEntry, IChatAgentImplementation, IChatAgentRequest, IChatAgentService } from "../../contrib/chat/common/chatAgents.js";
+import { ChatRequestAgentPart } from "../../contrib/chat/common/chatParserTypes.js";
+import { ChatRequestParser } from "../../contrib/chat/common/chatRequestParser.js";
+import { IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatProgress, IChatService, IChatTask, IChatWarningMessage } from "../../contrib/chat/common/chatService.js";
+import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { IExtensionService } from "../../services/extensions/common/extensions.js";
+import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
+import { ExtHostChatAgentsShape2, ExtHostContext, IChatParticipantMetadata, IChatProgressDto, IDynamicChatAgentProps, IExtensionChatAgentMetadata, MainContext, MainThreadChatAgentsShape2 } from "../common/extHost.protocol.js";
+class MainThreadChatTask {
+  constructor(content) {
+    this.content = content;
+  }
+  static {
+    __name(this, "MainThreadChatTask");
+  }
+  kind = "progressTask";
+  deferred = new DeferredPromise();
+  _onDidAddProgress = new Emitter();
+  get onDidAddProgress() {
+    return this._onDidAddProgress.event;
+  }
+  progress = [];
+  task() {
+    return this.deferred.p;
+  }
+  isSettled() {
+    return this.deferred.isSettled;
+  }
+  complete(v) {
+    this.deferred.complete(v);
+  }
+  add(progress) {
+    this.progress.push(progress);
+    this._onDidAddProgress.fire(progress);
+  }
+}
+let MainThreadChatAgents2 = class extends Disposable {
+  constructor(extHostContext, _chatAgentService, _chatService, _languageFeaturesService, _chatWidgetService, _instantiationService, _logService, _extensionService) {
+    super();
+    this._chatAgentService = _chatAgentService;
+    this._chatService = _chatService;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._chatWidgetService = _chatWidgetService;
+    this._instantiationService = _instantiationService;
+    this._logService = _logService;
+    this._extensionService = _extensionService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostChatAgents2);
+    this._register(this._chatService.onDidDisposeSession((e) => {
+      this._proxy.$releaseSession(e.sessionId);
+    }));
+    this._register(this._chatService.onDidPerformUserAction((e) => {
+      if (typeof e.agentId === "string") {
+        for (const [handle, agent] of this._agents) {
+          if (agent.id === e.agentId) {
+            if (e.action.kind === "vote") {
+              this._proxy.$acceptFeedback(handle, e.result ?? {}, e.action);
+            } else {
+              this._proxy.$acceptAction(handle, e.result || {}, e);
+            }
+            break;
+          }
+        }
+      }
+    }));
+  }
+  _agents = this._register(new DisposableMap());
+  _agentCompletionProviders = this._register(new DisposableMap());
+  _agentIdsToCompletionProviders = this._register(new DisposableMap());
+  _chatParticipantDetectionProviders = this._register(new DisposableMap());
+  _pendingProgress = /* @__PURE__ */ new Map();
+  _proxy;
+  _responsePartHandlePool = 0;
+  _activeTasks = /* @__PURE__ */ new Map();
+  _unresolvedAnchors = /* @__PURE__ */ new Map();
+  $unregisterAgent(handle) {
+    this._agents.deleteAndDispose(handle);
+  }
+  $transferActiveChatSession(toWorkspace) {
+    const widget = this._chatWidgetService.lastFocusedWidget;
+    const sessionId = widget?.viewModel?.model.sessionId;
+    if (!sessionId) {
+      this._logService.error(`MainThreadChat#$transferActiveChatSession: No active chat session found`);
+      return;
+    }
+    const inputValue = widget?.inputEditor.getValue() ?? "";
+    this._chatService.transferChatSession({ sessionId, inputValue }, URI.revive(toWorkspace));
+  }
+  $registerAgent(handle, extension, id, metadata, dynamicProps) {
+    const staticAgentRegistration = this._chatAgentService.getAgent(id);
+    if (!staticAgentRegistration && !dynamicProps) {
+      if (this._chatAgentService.getAgentsByName(id).length) {
+        throw new Error(`chatParticipant must be declared with an ID in package.json. The "id" property may be missing! "${id}"`);
+      }
+      throw new Error(`chatParticipant must be declared in package.json: ${id}`);
+    }
+    const impl = {
+      invoke: /* @__PURE__ */ __name(async (request, progress, history, token) => {
+        this._pendingProgress.set(request.requestId, progress);
+        try {
+          return await this._proxy.$invokeAgent(handle, request, { history }, token) ?? {};
+        } finally {
+          this._pendingProgress.delete(request.requestId);
+        }
+      }, "invoke"),
+      provideFollowups: /* @__PURE__ */ __name(async (request, result, history, token) => {
+        if (!this._agents.get(handle)?.hasFollowups) {
+          return [];
+        }
+        return this._proxy.$provideFollowups(request, handle, result, { history }, token);
+      }, "provideFollowups"),
+      provideWelcomeMessage: /* @__PURE__ */ __name((token) => {
+        return this._proxy.$provideWelcomeMessage(handle, token);
+      }, "provideWelcomeMessage"),
+      provideChatTitle: /* @__PURE__ */ __name((history, token) => {
+        return this._proxy.$provideChatTitle(handle, history, token);
+      }, "provideChatTitle"),
+      provideSampleQuestions: /* @__PURE__ */ __name((location, token) => {
+        return this._proxy.$provideSampleQuestions(handle, location, token);
+      }, "provideSampleQuestions")
+    };
+    let disposable;
+    if (!staticAgentRegistration && dynamicProps) {
+      const extensionDescription = this._extensionService.extensions.find((e) => ExtensionIdentifier.equals(e.identifier, extension));
+      disposable = this._chatAgentService.registerDynamicAgent(
+        {
+          id,
+          name: dynamicProps.name,
+          description: dynamicProps.description,
+          extensionId: extension,
+          extensionDisplayName: extensionDescription?.displayName ?? extension.value,
+          extensionPublisherId: extensionDescription?.publisher ?? "",
+          publisherDisplayName: dynamicProps.publisherName,
+          fullName: dynamicProps.fullName,
+          metadata: revive(metadata),
+          slashCommands: [],
+          disambiguation: [],
+          locations: [ChatAgentLocation.Panel]
+          // TODO all dynamic participants are panel only?
+        },
+        impl
+      );
+    } else {
+      disposable = this._chatAgentService.registerAgentImplementation(id, impl);
+    }
+    this._agents.set(handle, {
+      id,
+      extensionId: extension,
+      dispose: disposable.dispose,
+      hasFollowups: metadata.hasFollowups
+    });
+  }
+  $updateAgent(handle, metadataUpdate) {
+    const data = this._agents.get(handle);
+    if (!data) {
+      this._logService.error(`MainThreadChatAgents2#$updateAgent: No agent with handle ${handle} registered`);
+      return;
+    }
+    data.hasFollowups = metadataUpdate.hasFollowups;
+    this._chatAgentService.updateAgent(data.id, revive(metadataUpdate));
+  }
+  async $handleProgressChunk(requestId, progress, responsePartHandle) {
+    const revivedProgress = revive(progress);
+    if (revivedProgress.kind === "progressTask") {
+      const handle = ++this._responsePartHandlePool;
+      const responsePartId = `${requestId}_${handle}`;
+      const task = new MainThreadChatTask(revivedProgress.content);
+      this._activeTasks.set(responsePartId, task);
+      this._pendingProgress.get(requestId)?.(task);
+      return handle;
+    } else if (responsePartHandle !== void 0) {
+      const responsePartId = `${requestId}_${responsePartHandle}`;
+      const task = this._activeTasks.get(responsePartId);
+      switch (revivedProgress.kind) {
+        case "progressTaskResult":
+          if (task && revivedProgress.content) {
+            task.complete(revivedProgress.content.value);
+            this._activeTasks.delete(responsePartId);
+          } else {
+            task?.complete(void 0);
+          }
+          return responsePartHandle;
+        case "warning":
+        case "reference":
+          task?.add(revivedProgress);
+          return;
+      }
+    }
+    if (revivedProgress.kind === "inlineReference" && revivedProgress.resolveId) {
+      if (!this._unresolvedAnchors.has(requestId)) {
+        this._unresolvedAnchors.set(requestId, /* @__PURE__ */ new Map());
+      }
+      this._unresolvedAnchors.get(requestId)?.set(revivedProgress.resolveId, revivedProgress);
+    }
+    this._pendingProgress.get(requestId)?.(revivedProgress);
+  }
+  $handleAnchorResolve(requestId, handle, resolveAnchor) {
+    const anchor = this._unresolvedAnchors.get(requestId)?.get(handle);
+    if (!anchor) {
+      return;
+    }
+    this._unresolvedAnchors.get(requestId)?.delete(handle);
+    if (resolveAnchor) {
+      const revivedAnchor = revive(resolveAnchor);
+      anchor.inlineReference = revivedAnchor.inlineReference;
+    }
+  }
+  $registerAgentCompletionsProvider(handle, id, triggerCharacters) {
+    const provide = /* @__PURE__ */ __name(async (query, token) => {
+      const completions = await this._proxy.$invokeCompletionProvider(handle, query, token);
+      return completions.map((c) => ({ ...c, icon: c.icon ? ThemeIcon.fromId(c.icon) : void 0 }));
+    }, "provide");
+    this._agentIdsToCompletionProviders.set(id, this._chatAgentService.registerAgentCompletionProvider(id, provide));
+    this._agentCompletionProviders.set(handle, this._languageFeaturesService.completionProvider.register({ scheme: ChatInputPart.INPUT_SCHEME, hasAccessToAllModels: true }, {
+      _debugDisplayName: "chatAgentCompletions:" + handle,
+      triggerCharacters,
+      provideCompletionItems: /* @__PURE__ */ __name(async (model, position, _context, token) => {
+        const widget = this._chatWidgetService.getWidgetByInputUri(model.uri);
+        if (!widget || !widget.viewModel) {
+          return;
+        }
+        const triggerCharsPart = triggerCharacters.map((c) => escapeRegExpCharacters(c)).join("");
+        const wordRegex = new RegExp(`[${triggerCharsPart}]\\S*`, "g");
+        const query = getWordAtText(position.column, wordRegex, model.getLineContent(position.lineNumber), 0)?.word ?? "";
+        if (query && !triggerCharacters.some((c) => query.startsWith(c))) {
+          return;
+        }
+        const parsedRequest = this._instantiationService.createInstance(ChatRequestParser).parseChatRequest(widget.viewModel.sessionId, model.getValue()).parts;
+        const agentPart = parsedRequest.find((part) => part instanceof ChatRequestAgentPart);
+        const thisAgentId = this._agents.get(handle)?.id;
+        if (agentPart?.agent.id !== thisAgentId) {
+          return;
+        }
+        const range = computeCompletionRanges(model, position, wordRegex);
+        if (!range) {
+          return null;
+        }
+        const result = await provide(query, token);
+        const variableItems = result.map((v) => {
+          const insertText = v.insertText ?? (typeof v.label === "string" ? v.label : v.label.label);
+          const rangeAfterInsert = new Range(range.insert.startLineNumber, range.insert.startColumn, range.insert.endLineNumber, range.insert.startColumn + insertText.length);
+          return {
+            label: v.label,
+            range,
+            insertText: insertText + " ",
+            kind: CompletionItemKind.Text,
+            detail: v.detail,
+            documentation: v.documentation,
+            command: { id: AddDynamicVariableAction.ID, title: "", arguments: [{ id: v.id, widget, range: rangeAfterInsert, variableData: revive(v.value), command: v.command }] }
+          };
+        });
+        return {
+          suggestions: variableItems
+        };
+      }, "provideCompletionItems")
+    }));
+  }
+  $unregisterAgentCompletionsProvider(handle, id) {
+    this._agentCompletionProviders.deleteAndDispose(handle);
+    this._agentIdsToCompletionProviders.deleteAndDispose(id);
+  }
+  $registerChatParticipantDetectionProvider(handle) {
+    this._chatParticipantDetectionProviders.set(handle, this._chatAgentService.registerChatParticipantDetectionProvider(
+      handle,
+      {
+        provideParticipantDetection: /* @__PURE__ */ __name(async (request, history, options, token) => {
+          return await this._proxy.$detectChatParticipant(handle, request, { history }, options, token);
+        }, "provideParticipantDetection")
+      }
+    ));
+  }
+  $unregisterChatParticipantDetectionProvider(handle) {
+    this._chatParticipantDetectionProviders.deleteAndDispose(handle);
+  }
+};
+__name(MainThreadChatAgents2, "MainThreadChatAgents2");
+MainThreadChatAgents2 = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadChatAgents2),
+  __decorateParam(1, IChatAgentService),
+  __decorateParam(2, IChatService),
+  __decorateParam(3, ILanguageFeaturesService),
+  __decorateParam(4, IChatWidgetService),
+  __decorateParam(5, IInstantiationService),
+  __decorateParam(6, ILogService),
+  __decorateParam(7, IExtensionService)
+], MainThreadChatAgents2);
+function computeCompletionRanges(model, position, reg) {
+  const varWord = getWordAtText(position.column, reg, model.getLineContent(position.lineNumber), 0);
+  if (!varWord && model.getWordUntilPosition(position).word) {
+    return;
+  }
+  let insert;
+  let replace;
+  if (!varWord) {
+    insert = replace = Range.fromPositions(position);
+  } else {
+    insert = new Range(position.lineNumber, varWord.startColumn, position.lineNumber, position.column);
+    replace = new Range(position.lineNumber, varWord.startColumn, position.lineNumber, varWord.endColumn);
+  }
+  return { insert, replace };
+}
+__name(computeCompletionRanges, "computeCompletionRanges");
+export {
+  MainThreadChatAgents2,
+  MainThreadChatTask
+};
+//# sourceMappingURL=mainThreadChatAgents2.js.map

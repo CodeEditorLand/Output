@@ -1,1 +1,148 @@
-var T=Object.defineProperty;var R=Object.getOwnPropertyDescriptor;var f=(t,i,e,n)=>{for(var r=n>1?void 0:n?R(i,e):i,s=t.length-1,a;s>=0;s--)(a=t[s])&&(r=(n?a(i,e,r):a(r))||r);return n&&r&&T(i,e,r),r},p=(t,i)=>(e,n)=>i(e,n,t);import{KeyCode as d,KeyMod as m}from"../../../../../base/common/keyCodes.js";import{Disposable as S}from"../../../../../base/common/lifecycle.js";import{localize2 as y}from"../../../../../nls.js";import{AccessibleViewProviderId as k}from"../../../../../platform/accessibility/browser/accessibleView.js";import{CONTEXT_ACCESSIBILITY_MODE_ENABLED as g}from"../../../../../platform/accessibility/common/accessibility.js";import{ContextKeyExpr as l,IContextKeyService as D}from"../../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as A}from"../../../../../platform/instantiation/common/instantiation.js";import{KeybindingWeight as u}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{TerminalCapability as C}from"../../../../../platform/terminal/common/capabilities/capabilities.js";import{TerminalLocation as w}from"../../../../../platform/terminal/common/terminal.js";import{accessibleViewCurrentProviderId as K,accessibleViewIsShown as P}from"../../../accessibility/browser/accessibilityConfiguration.js";import{registerActiveInstanceAction as I,registerTerminalAction as E}from"../../../terminal/browser/terminalActions.js";import{registerTerminalContribution as x}from"../../../terminal/browser/terminalExtensions.js";import{TerminalContextKeys as c}from"../../../terminal/common/terminalContextKey.js";import{clearShellFileHistory as _,getCommandHistory as v,getDirectoryHistory as H}from"../common/history.js";import{TerminalHistoryCommandId as h}from"../common/terminal.history.js";import{showRunRecentQuickPick as F}from"./terminalRunRecentQuickPick.js";let o=class extends S{constructor(e,n,r){super();this._ctx=e;this._instantiationService=r;this._terminalInRunCommandPicker=c.inTerminalRunCommandPicker.bindTo(n),this._register(e.instance.capabilities.onDidAddCapabilityType(s=>{switch(s){case C.CwdDetection:{e.instance.capabilities.get(C.CwdDetection)?.onDidChangeCwd(a=>{this._instantiationService.invokeFunction(H)?.add(a,{remoteAuthority:e.instance.remoteAuthority})});break}case C.CommandDetection:{e.instance.capabilities.get(C.CommandDetection)?.onCommandFinished(a=>{a.command.trim().length>0&&this._instantiationService.invokeFunction(v)?.add(a.command,{shellType:e.instance.shellType})});break}}}))}static ID="terminal.history";static get(e){return e.getContribution(o.ID)}_terminalInRunCommandPicker;async runRecent(e,n,r){return this._instantiationService.invokeFunction(F,this._ctx.instance,this._terminalInRunCommandPicker,e,n,r)}};o=f([p(1,D),p(2,A)],o),x(o.ID,o);const b=l.or(c.processSupported,c.terminalHasBeenCreated);E({id:h.ClearPreviousSessionHistory,title:y("workbench.action.terminal.clearPreviousSessionHistory","Clear Previous Session History"),precondition:b,run:async(t,i)=>{v(i).clear(),_()}}),I({id:h.GoToRecentDirectory,title:y("workbench.action.terminal.goToRecentDirectory","Go to Recent Directory..."),metadata:{description:y("goToRecentDirectory.metadata","Goes to a recent folder")},precondition:b,keybinding:{primary:m.CtrlCmd|d.KeyG,when:c.focus,weight:u.WorkbenchContrib},run:async(t,i)=>{const e=o.get(t);e&&(await e.runRecent("cwd"),t?.target===w.Editor?await i.editorService.revealActiveEditor():await i.groupService.showPanel(!1))}}),I({id:h.RunRecentCommand,title:y("workbench.action.terminal.runRecentCommand","Run Recent Command..."),precondition:b,keybinding:[{primary:m.CtrlCmd|d.KeyR,when:l.and(g,l.or(c.focus,l.and(P,K.isEqualTo(k.Terminal)))),weight:u.WorkbenchContrib},{primary:m.CtrlCmd|m.Alt|d.KeyR,mac:{primary:m.WinCtrl|m.Alt|d.KeyR},when:l.and(c.focus,g.negate()),weight:u.WorkbenchContrib}],run:async(t,i)=>{const e=o.get(t);e&&(await e.runRecent("command"),t?.target===w.Editor?await i.editorService.revealActiveEditor():await i.groupService.showPanel(!1))}});
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../nls.js";
+import { AccessibleViewProviderId } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { CONTEXT_ACCESSIBILITY_MODE_ENABLED } from "../../../../../platform/accessibility/common/accessibility.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { TerminalLocation } from "../../../../../platform/terminal/common/terminal.js";
+import { accessibleViewCurrentProviderId, accessibleViewIsShown } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { registerActiveInstanceAction, registerTerminalAction } from "../../../terminal/browser/terminalActions.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { clearShellFileHistory, getCommandHistory, getDirectoryHistory } from "../common/history.js";
+import { TerminalHistoryCommandId } from "../common/terminal.history.js";
+import { showRunRecentQuickPick } from "./terminalRunRecentQuickPick.js";
+let TerminalHistoryContribution = class extends Disposable {
+  constructor(_ctx, contextKeyService, _instantiationService) {
+    super();
+    this._ctx = _ctx;
+    this._instantiationService = _instantiationService;
+    this._terminalInRunCommandPicker = TerminalContextKeys.inTerminalRunCommandPicker.bindTo(contextKeyService);
+    this._register(_ctx.instance.capabilities.onDidAddCapabilityType((e) => {
+      switch (e) {
+        case TerminalCapability.CwdDetection: {
+          _ctx.instance.capabilities.get(TerminalCapability.CwdDetection)?.onDidChangeCwd((e2) => {
+            this._instantiationService.invokeFunction(getDirectoryHistory)?.add(e2, { remoteAuthority: _ctx.instance.remoteAuthority });
+          });
+          break;
+        }
+        case TerminalCapability.CommandDetection: {
+          _ctx.instance.capabilities.get(TerminalCapability.CommandDetection)?.onCommandFinished((e2) => {
+            if (e2.command.trim().length > 0) {
+              this._instantiationService.invokeFunction(getCommandHistory)?.add(e2.command, { shellType: _ctx.instance.shellType });
+            }
+          });
+          break;
+        }
+      }
+    }));
+  }
+  static {
+    __name(this, "TerminalHistoryContribution");
+  }
+  static ID = "terminal.history";
+  static get(instance) {
+    return instance.getContribution(TerminalHistoryContribution.ID);
+  }
+  _terminalInRunCommandPicker;
+  /**
+   * Triggers a quick pick that displays recent commands or cwds. Selecting one will
+   * rerun it in the active terminal.
+   */
+  async runRecent(type, filterMode, value) {
+    return this._instantiationService.invokeFunction(
+      showRunRecentQuickPick,
+      this._ctx.instance,
+      this._terminalInRunCommandPicker,
+      type,
+      filterMode,
+      value
+    );
+  }
+};
+TerminalHistoryContribution = __decorateClass([
+  __decorateParam(1, IContextKeyService),
+  __decorateParam(2, IInstantiationService)
+], TerminalHistoryContribution);
+registerTerminalContribution(TerminalHistoryContribution.ID, TerminalHistoryContribution);
+const precondition = ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated);
+registerTerminalAction({
+  id: TerminalHistoryCommandId.ClearPreviousSessionHistory,
+  title: localize2("workbench.action.terminal.clearPreviousSessionHistory", "Clear Previous Session History"),
+  precondition,
+  run: /* @__PURE__ */ __name(async (c, accessor) => {
+    getCommandHistory(accessor).clear();
+    clearShellFileHistory();
+  }, "run")
+});
+registerActiveInstanceAction({
+  id: TerminalHistoryCommandId.GoToRecentDirectory,
+  title: localize2("workbench.action.terminal.goToRecentDirectory", "Go to Recent Directory..."),
+  metadata: {
+    description: localize2("goToRecentDirectory.metadata", "Goes to a recent folder")
+  },
+  precondition,
+  keybinding: {
+    primary: KeyMod.CtrlCmd | KeyCode.KeyG,
+    when: TerminalContextKeys.focus,
+    weight: KeybindingWeight.WorkbenchContrib
+  },
+  run: /* @__PURE__ */ __name(async (activeInstance, c) => {
+    const history = TerminalHistoryContribution.get(activeInstance);
+    if (!history) {
+      return;
+    }
+    await history.runRecent("cwd");
+    if (activeInstance?.target === TerminalLocation.Editor) {
+      await c.editorService.revealActiveEditor();
+    } else {
+      await c.groupService.showPanel(false);
+    }
+  }, "run")
+});
+registerActiveInstanceAction({
+  id: TerminalHistoryCommandId.RunRecentCommand,
+  title: localize2("workbench.action.terminal.runRecentCommand", "Run Recent Command..."),
+  precondition,
+  keybinding: [
+    {
+      primary: KeyMod.CtrlCmd | KeyCode.KeyR,
+      when: ContextKeyExpr.and(CONTEXT_ACCESSIBILITY_MODE_ENABLED, ContextKeyExpr.or(TerminalContextKeys.focus, ContextKeyExpr.and(accessibleViewIsShown, accessibleViewCurrentProviderId.isEqualTo(AccessibleViewProviderId.Terminal)))),
+      weight: KeybindingWeight.WorkbenchContrib
+    },
+    {
+      primary: KeyMod.CtrlCmd | KeyMod.Alt | KeyCode.KeyR,
+      mac: { primary: KeyMod.WinCtrl | KeyMod.Alt | KeyCode.KeyR },
+      when: ContextKeyExpr.and(TerminalContextKeys.focus, CONTEXT_ACCESSIBILITY_MODE_ENABLED.negate()),
+      weight: KeybindingWeight.WorkbenchContrib
+    }
+  ],
+  run: /* @__PURE__ */ __name(async (activeInstance, c) => {
+    const history = TerminalHistoryContribution.get(activeInstance);
+    if (!history) {
+      return;
+    }
+    await history.runRecent("command");
+    if (activeInstance?.target === TerminalLocation.Editor) {
+      await c.editorService.revealActiveEditor();
+    } else {
+      await c.groupService.showPanel(false);
+    }
+  }, "run")
+});
+//# sourceMappingURL=terminal.history.contribution.js.map

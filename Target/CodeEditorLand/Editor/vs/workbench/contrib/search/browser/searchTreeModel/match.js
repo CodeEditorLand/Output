@@ -1,5 +1,145 @@
-var o=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var c=(s,r,t,e)=>{for(var n=e>1?void 0:e?u(r,t):r,i=s.length-1,a;i>=0;i--)(a=s[i])&&(n=(e?a(r,t,n):a(n))||n);return e&&n&&o(r,t,n),n};import{memoize as g}from"../../../../../base/common/decorators.js";import{lcut as p}from"../../../../../base/common/strings.js";import{OneLineRange as f}from"../../../../services/search/common/search.js";import{MATCH_PREFIX as v}from"./searchTreeCommon.js";import{Range as m}from"../../../../../editor/common/core/range.js";function I(s,r,t){const e=s.previewText.split(`
-`);return s.rangeLocations.map(n=>{const i=n.preview;return new h(r,e,i,n.source,t)})}const l=class l{constructor(r,t,e,n,i=!1){this._parent=r;this._fullPreviewLines=t;this._isReadonly=i;this._oneLinePreviewText=t[e.startLineNumber];const a=e.startLineNumber===e.endLineNumber?e.endColumn:this._oneLinePreviewText.length;this._rangeInPreviewText=new f(1,e.startColumn+1,a+1),this._range=new m(n.startLineNumber+1,n.startColumn+1,n.endLineNumber+1,n.endColumn+1),this._fullPreviewRange=e,this._id=v+this._parent.resource.toString()+">"+this._range+this.getMatchString()}static MAX_PREVIEW_CHARS=250;_id;_range;_oneLinePreviewText;_rangeInPreviewText;_fullPreviewRange;id(){return this._id}parent(){return this._parent}text(){return this._oneLinePreviewText}range(){return this._range}preview(){const r=this._oneLinePreviewText.substring(0,this._rangeInPreviewText.startColumn-1),t=p(r,26,"\u2026");let e=this.getMatchString(),n=this._oneLinePreviewText.substring(this._rangeInPreviewText.endColumn-1),i=l.MAX_PREVIEW_CHARS-t.length;return e=e.substr(0,i),i-=e.length,n=n.substr(0,i),{before:t,fullBefore:r,inside:e,after:n}}get replaceString(){const r=this.parent().parent().searchModel;if(!r.replacePattern)throw new Error("searchModel.replacePattern must be set before accessing replaceString");const t=this.fullMatchText();let e=r.replacePattern.getReplaceString(t,r.preserveCase);if(e!==null)return e;const n=t.replace(/\r\n/g,`
-`);if(n!==t&&(e=r.replacePattern.getReplaceString(n,r.preserveCase),e!==null))return e;const i=this.fullMatchText(!0);if(e=r.replacePattern.getReplaceString(i,r.preserveCase),e!==null)return e;const a=i.replace(/\r\n/g,`
-`);return a!==i&&(e=r.replacePattern.getReplaceString(a,r.preserveCase),e!==null)?e:r.replacePattern.pattern}fullMatchText(r=!1){let t;return r?t=this._fullPreviewLines:(t=this._fullPreviewLines.slice(this._fullPreviewRange.startLineNumber,this._fullPreviewRange.endLineNumber+1),t[t.length-1]=t[t.length-1].slice(0,this._fullPreviewRange.endColumn),t[0]=t[0].slice(this._fullPreviewRange.startColumn)),t.join(`
-`)}rangeInPreview(){return{...this._fullPreviewRange,startColumn:this._fullPreviewRange.startColumn+1,endColumn:this._fullPreviewRange.endColumn+1}}fullPreviewLines(){return this._fullPreviewLines.slice(this._fullPreviewRange.startLineNumber,this._fullPreviewRange.endLineNumber+1)}getMatchString(){return this._oneLinePreviewText.substring(this._rangeInPreviewText.startColumn-1,this._rangeInPreviewText.endColumn-1)}get isReadonly(){return this._isReadonly}};c([g],l.prototype,"preview",1);let h=l;export{h as MatchImpl,I as textSearchResultToMatches};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+import { memoize } from "../../../../../base/common/decorators.js";
+import { lcut } from "../../../../../base/common/strings.js";
+import { ISearchRange, ITextSearchMatch, OneLineRange } from "../../../../services/search/common/search.js";
+import { ISearchTreeMatch, ISearchTreeFileMatch, MATCH_PREFIX } from "./searchTreeCommon.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+function textSearchResultToMatches(rawMatch, fileMatch, isAiContributed) {
+  const previewLines = rawMatch.previewText.split("\n");
+  return rawMatch.rangeLocations.map((rangeLocation) => {
+    const previewRange = rangeLocation.preview;
+    return new MatchImpl(fileMatch, previewLines, previewRange, rangeLocation.source, isAiContributed);
+  });
+}
+__name(textSearchResultToMatches, "textSearchResultToMatches");
+const _MatchImpl = class _MatchImpl {
+  constructor(_parent, _fullPreviewLines, _fullPreviewRange, _documentRange, _isReadonly = false) {
+    this._parent = _parent;
+    this._fullPreviewLines = _fullPreviewLines;
+    this._isReadonly = _isReadonly;
+    this._oneLinePreviewText = _fullPreviewLines[_fullPreviewRange.startLineNumber];
+    const adjustedEndCol = _fullPreviewRange.startLineNumber === _fullPreviewRange.endLineNumber ? _fullPreviewRange.endColumn : this._oneLinePreviewText.length;
+    this._rangeInPreviewText = new OneLineRange(1, _fullPreviewRange.startColumn + 1, adjustedEndCol + 1);
+    this._range = new Range(
+      _documentRange.startLineNumber + 1,
+      _documentRange.startColumn + 1,
+      _documentRange.endLineNumber + 1,
+      _documentRange.endColumn + 1
+    );
+    this._fullPreviewRange = _fullPreviewRange;
+    this._id = MATCH_PREFIX + this._parent.resource.toString() + ">" + this._range + this.getMatchString();
+  }
+  static {
+    __name(this, "MatchImpl");
+  }
+  static MAX_PREVIEW_CHARS = 250;
+  _id;
+  _range;
+  _oneLinePreviewText;
+  _rangeInPreviewText;
+  // For replace
+  _fullPreviewRange;
+  id() {
+    return this._id;
+  }
+  parent() {
+    return this._parent;
+  }
+  text() {
+    return this._oneLinePreviewText;
+  }
+  range() {
+    return this._range;
+  }
+  preview() {
+    const fullBefore = this._oneLinePreviewText.substring(0, this._rangeInPreviewText.startColumn - 1), before = lcut(fullBefore, 26, "\u2026");
+    let inside = this.getMatchString(), after = this._oneLinePreviewText.substring(this._rangeInPreviewText.endColumn - 1);
+    let charsRemaining = _MatchImpl.MAX_PREVIEW_CHARS - before.length;
+    inside = inside.substr(0, charsRemaining);
+    charsRemaining -= inside.length;
+    after = after.substr(0, charsRemaining);
+    return {
+      before,
+      fullBefore,
+      inside,
+      after
+    };
+  }
+  get replaceString() {
+    const searchModel = this.parent().parent().searchModel;
+    if (!searchModel.replacePattern) {
+      throw new Error("searchModel.replacePattern must be set before accessing replaceString");
+    }
+    const fullMatchText = this.fullMatchText();
+    let replaceString = searchModel.replacePattern.getReplaceString(fullMatchText, searchModel.preserveCase);
+    if (replaceString !== null) {
+      return replaceString;
+    }
+    const fullMatchTextWithoutCR = fullMatchText.replace(/\r\n/g, "\n");
+    if (fullMatchTextWithoutCR !== fullMatchText) {
+      replaceString = searchModel.replacePattern.getReplaceString(fullMatchTextWithoutCR, searchModel.preserveCase);
+      if (replaceString !== null) {
+        return replaceString;
+      }
+    }
+    const contextMatchTextWithSurroundingContent = this.fullMatchText(true);
+    replaceString = searchModel.replacePattern.getReplaceString(contextMatchTextWithSurroundingContent, searchModel.preserveCase);
+    if (replaceString !== null) {
+      return replaceString;
+    }
+    const contextMatchTextWithoutCR = contextMatchTextWithSurroundingContent.replace(/\r\n/g, "\n");
+    if (contextMatchTextWithoutCR !== contextMatchTextWithSurroundingContent) {
+      replaceString = searchModel.replacePattern.getReplaceString(contextMatchTextWithoutCR, searchModel.preserveCase);
+      if (replaceString !== null) {
+        return replaceString;
+      }
+    }
+    return searchModel.replacePattern.pattern;
+  }
+  fullMatchText(includeSurrounding = false) {
+    let thisMatchPreviewLines;
+    if (includeSurrounding) {
+      thisMatchPreviewLines = this._fullPreviewLines;
+    } else {
+      thisMatchPreviewLines = this._fullPreviewLines.slice(this._fullPreviewRange.startLineNumber, this._fullPreviewRange.endLineNumber + 1);
+      thisMatchPreviewLines[thisMatchPreviewLines.length - 1] = thisMatchPreviewLines[thisMatchPreviewLines.length - 1].slice(0, this._fullPreviewRange.endColumn);
+      thisMatchPreviewLines[0] = thisMatchPreviewLines[0].slice(this._fullPreviewRange.startColumn);
+    }
+    return thisMatchPreviewLines.join("\n");
+  }
+  rangeInPreview() {
+    return {
+      ...this._fullPreviewRange,
+      startColumn: this._fullPreviewRange.startColumn + 1,
+      endColumn: this._fullPreviewRange.endColumn + 1
+    };
+  }
+  fullPreviewLines() {
+    return this._fullPreviewLines.slice(this._fullPreviewRange.startLineNumber, this._fullPreviewRange.endLineNumber + 1);
+  }
+  getMatchString() {
+    return this._oneLinePreviewText.substring(this._rangeInPreviewText.startColumn - 1, this._rangeInPreviewText.endColumn - 1);
+  }
+  get isReadonly() {
+    return this._isReadonly;
+  }
+};
+__decorateClass([
+  memoize
+], _MatchImpl.prototype, "preview", 1);
+let MatchImpl = _MatchImpl;
+export {
+  MatchImpl,
+  textSearchResultToMatches
+};
+//# sourceMappingURL=match.js.map

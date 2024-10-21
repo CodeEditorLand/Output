@@ -1,2 +1,290 @@
-var _=Object.defineProperty;var P=Object.getOwnPropertyDescriptor;var w=(n,s,e,t)=>{for(var i=t>1?void 0:t?P(s,e):s,r=n.length-1,m;r>=0;r--)(m=n[r])&&(i=(t?m(s,e,i):m(i))||i);return t&&i&&_(s,e,i),i},h=(n,s)=>(e,t)=>s(e,t,n);import{Disposable as k,toDisposable as D}from"../../../../../base/common/lifecycle.js";import{IClipboardService as f}from"../../../../../platform/clipboard/common/clipboardService.js";import{IInstantiationService as A}from"../../../../../platform/instantiation/common/instantiation.js";import{ITerminalConfigurationService as K}from"../../../terminal/browser/terminal.js";import{registerTerminalContribution as L}from"../../../terminal/browser/terminalExtensions.js";import{shouldPasteTerminalText as O}from"./terminalClipboard.js";import{Emitter as x}from"../../../../../base/common/event.js";import{BrowserFeatures as S}from"../../../../../base/browser/canIUse.js";import{TerminalCapability as g}from"../../../../../platform/terminal/common/capabilities/capabilities.js";import{IConfigurationService as W}from"../../../../../platform/configuration/common/configuration.js";import{TerminalSettingId as F}from"../../../../../platform/terminal/common/terminal.js";import{isLinux as X,isMacintosh as I}from"../../../../../base/common/platform.js";import{INotificationService as M}from"../../../../../platform/notification/common/notification.js";import{registerActiveInstanceAction as C,registerActiveXtermAction as b}from"../../../terminal/browser/terminalActions.js";import{TerminalCommandId as d}from"../../../terminal/common/terminal.js";import{localize2 as p}from"../../../../../nls.js";import{ContextKeyExpr as a}from"../../../../../platform/contextkey/common/contextkey.js";import{TerminalContextKeys as o}from"../../../terminal/common/terminalContextKey.js";import{KeyCode as u,KeyMod as c}from"../../../../../base/common/keyCodes.js";import{KeybindingWeight as v}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{terminalStrings as V}from"../../../terminal/common/terminalStrings.js";import{isString as T}from"../../../../../base/common/types.js";let l=class extends k{constructor(e,t,i,r,m,B){super();this._ctx=e;this._clipboardService=t;this._configurationService=i;this._instantiationService=r;this._notificationService=m;this._terminalConfigurationService=B}static ID="terminal.clipboard";static get(e){return e.getContribution(l.ID)}_xterm;_overrideCopySelection=void 0;_onWillPaste=this._register(new x);onWillPaste=this._onWillPaste.event;_onDidPaste=this._register(new x);onDidPaste=this._onDidPaste.event;xtermReady(e){this._xterm=e,this._register(e.onDidRequestCopyAsHtml(t=>this.copySelection(!0,t.command))),this._register(e.raw.onSelectionChange(async()=>{if(this._configurationService.getValue(F.CopyOnSelection)){if(this._overrideCopySelection===!1)return;this._ctx.instance.hasSelection()&&await this.copySelection()}}))}async copySelection(e,t){this._xterm?.copySelection(e,t)}async paste(){await this._paste(await this._clipboardService.readText())}async pasteSelection(){await this._paste(await this._clipboardService.readText("selection"))}async _paste(e){if(!this._xterm)return;let t=e;const i=await this._instantiationService.invokeFunction(O,t,this._xterm?.raw.modes.bracketedPasteMode);i&&(typeof i=="object"&&(t=i.modifiedText),this._ctx.instance.focus(),this._onWillPaste.fire(t),this._xterm.raw.paste(t),this._onDidPaste.fire(t))}async handleMouseEvent(e){switch(e.button){case 1:{if(this._terminalConfigurationService.config.middleClickBehavior==="paste")return this.paste(),{handled:!0};break}case 2:{if(e.shiftKey)return;const t=this._terminalConfigurationService.config.rightClickBehavior;return t!=="copyPaste"&&t!=="paste"?void 0:(t==="copyPaste"&&this._ctx.instance.hasSelection()?(await this.copySelection(),this._ctx.instance.clearSelection()):S.clipboard.readText?this.paste():this._notificationService.info(`This browser doesn't support the clipboard.readText API needed to trigger a paste, try ${I?"\u2318":"Ctrl"}+V instead.`),I&&setTimeout(()=>this._ctx.instance.clearSelection(),0),{handled:!0})}}}overrideCopyOnSelection(e){if(this._overrideCopySelection!==void 0)throw new Error("Cannot set a copy on selection override multiple times");return this._overrideCopySelection=e,D(()=>this._overrideCopySelection=void 0)}};l=w([h(1,f),h(2,W),h(3,A),h(4,M),h(5,K)],l),L(l.ID,l,!1);const y=a.or(o.processSupported,o.terminalHasBeenCreated);C({id:d.CopyLastCommand,title:p("workbench.action.terminal.copyLastCommand","Copy Last Command"),precondition:y,run:async(n,s,e)=>{const t=e.get(f),i=n.capabilities.get(g.CommandDetection)?.commands;if(!i||i.length===0)return;const r=i[i.length-1];r.command&&await t.writeText(r.command)}}),C({id:d.CopyLastCommandOutput,title:p("workbench.action.terminal.copyLastCommandOutput","Copy Last Command Output"),precondition:y,run:async(n,s,e)=>{const t=e.get(f),i=n.capabilities.get(g.CommandDetection)?.commands;if(!i||i.length===0)return;const r=i[i.length-1];if(!r?.hasOutput())return;const m=r.getOutput();T(m)&&await t.writeText(m)}}),C({id:d.CopyLastCommandAndLastCommandOutput,title:p("workbench.action.terminal.copyLastCommandAndOutput","Copy Last Command and Output"),precondition:y,run:async(n,s,e)=>{const t=e.get(f),i=n.capabilities.get(g.CommandDetection)?.commands;if(!i||i.length===0)return;const r=i[i.length-1];if(!r?.hasOutput())return;const m=r.getOutput();T(m)&&await t.writeText(`${r.command!==""?r.command+`
-`:""}${m}`)}}),S.clipboard.writeText&&(b({id:d.CopySelection,title:p("workbench.action.terminal.copySelection","Copy Selection"),precondition:a.or(o.textSelectedInFocused,a.and(y,o.textSelected)),keybinding:[{primary:c.CtrlCmd|c.Shift|u.KeyC,mac:{primary:c.CtrlCmd|u.KeyC},weight:v.WorkbenchContrib,when:a.or(a.and(o.textSelected,o.focus),o.textSelectedInFocused)}],run:n=>n.copySelection()}),b({id:d.CopyAndClearSelection,title:p("workbench.action.terminal.copyAndClearSelection","Copy and Clear Selection"),precondition:a.or(o.textSelectedInFocused,a.and(y,o.textSelected)),keybinding:[{win:{primary:c.CtrlCmd|u.KeyC},weight:v.WorkbenchContrib,when:a.or(a.and(o.textSelected,o.focus),o.textSelectedInFocused)}],run:async n=>{await n.copySelection(),n.clearSelection()}}),b({id:d.CopySelectionAsHtml,title:p("workbench.action.terminal.copySelectionAsHtml","Copy Selection as HTML"),f1:!0,category:V.actionCategory,precondition:a.or(o.textSelectedInFocused,a.and(y,o.textSelected)),run:n=>n.copySelection(!0)})),S.clipboard.readText&&C({id:d.Paste,title:p("workbench.action.terminal.paste","Paste into Active Terminal"),precondition:y,keybinding:[{primary:c.CtrlCmd|u.KeyV,win:{primary:c.CtrlCmd|u.KeyV,secondary:[c.CtrlCmd|c.Shift|u.KeyV]},linux:{primary:c.CtrlCmd|c.Shift|u.KeyV},weight:v.WorkbenchContrib,when:o.focus}],run:n=>l.get(n)?.paste()}),S.clipboard.readText&&X&&C({id:d.PasteSelection,title:p("workbench.action.terminal.pasteSelection","Paste Selection into Active Terminal"),precondition:y,keybinding:[{linux:{primary:c.Shift|u.Insert},weight:v.WorkbenchContrib,when:o.focus}],run:n=>l.get(n)?.pasteSelection()});export{l as TerminalClipboardContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IDetachedTerminalInstance, ITerminalConfigurationService, ITerminalContribution, ITerminalInstance } from "../../../terminal/browser/terminal.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { shouldPasteTerminalText } from "./terminalClipboard.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { BrowserFeatures } from "../../../../../base/browser/canIUse.js";
+import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
+import { isLinux, isMacintosh } from "../../../../../base/common/platform.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { registerActiveInstanceAction, registerActiveXtermAction } from "../../../terminal/browser/terminalActions.js";
+import { TerminalCommandId } from "../../../terminal/common/terminal.js";
+import { localize2 } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { terminalStrings } from "../../../terminal/common/terminalStrings.js";
+import { isString } from "../../../../../base/common/types.js";
+let TerminalClipboardContribution = class extends Disposable {
+  constructor(_ctx, _clipboardService, _configurationService, _instantiationService, _notificationService, _terminalConfigurationService) {
+    super();
+    this._ctx = _ctx;
+    this._clipboardService = _clipboardService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._notificationService = _notificationService;
+    this._terminalConfigurationService = _terminalConfigurationService;
+  }
+  static {
+    __name(this, "TerminalClipboardContribution");
+  }
+  static ID = "terminal.clipboard";
+  static get(instance) {
+    return instance.getContribution(TerminalClipboardContribution.ID);
+  }
+  _xterm;
+  _overrideCopySelection = void 0;
+  _onWillPaste = this._register(new Emitter());
+  onWillPaste = this._onWillPaste.event;
+  _onDidPaste = this._register(new Emitter());
+  onDidPaste = this._onDidPaste.event;
+  xtermReady(xterm) {
+    this._xterm = xterm;
+    this._register(xterm.onDidRequestCopyAsHtml((e) => this.copySelection(true, e.command)));
+    this._register(xterm.raw.onSelectionChange(async () => {
+      if (this._configurationService.getValue(TerminalSettingId.CopyOnSelection)) {
+        if (this._overrideCopySelection === false) {
+          return;
+        }
+        if (this._ctx.instance.hasSelection()) {
+          await this.copySelection();
+        }
+      }
+    }));
+  }
+  async copySelection(asHtml, command) {
+    this._xterm?.copySelection(asHtml, command);
+  }
+  /**
+   * Focuses and pastes the contents of the clipboard into the terminal instance.
+   */
+  async paste() {
+    await this._paste(await this._clipboardService.readText());
+  }
+  /**
+   * Focuses and pastes the contents of the selection clipboard into the terminal instance.
+   */
+  async pasteSelection() {
+    await this._paste(await this._clipboardService.readText("selection"));
+  }
+  async _paste(value) {
+    if (!this._xterm) {
+      return;
+    }
+    let currentText = value;
+    const shouldPasteText = await this._instantiationService.invokeFunction(shouldPasteTerminalText, currentText, this._xterm?.raw.modes.bracketedPasteMode);
+    if (!shouldPasteText) {
+      return;
+    }
+    if (typeof shouldPasteText === "object") {
+      currentText = shouldPasteText.modifiedText;
+    }
+    this._ctx.instance.focus();
+    this._onWillPaste.fire(currentText);
+    this._xterm.raw.paste(currentText);
+    this._onDidPaste.fire(currentText);
+  }
+  async handleMouseEvent(event) {
+    switch (event.button) {
+      case 1: {
+        if (this._terminalConfigurationService.config.middleClickBehavior === "paste") {
+          this.paste();
+          return { handled: true };
+        }
+        break;
+      }
+      case 2: {
+        if (event.shiftKey) {
+          return;
+        }
+        const rightClickBehavior = this._terminalConfigurationService.config.rightClickBehavior;
+        if (rightClickBehavior !== "copyPaste" && rightClickBehavior !== "paste") {
+          return;
+        }
+        if (rightClickBehavior === "copyPaste" && this._ctx.instance.hasSelection()) {
+          await this.copySelection();
+          this._ctx.instance.clearSelection();
+        } else {
+          if (BrowserFeatures.clipboard.readText) {
+            this.paste();
+          } else {
+            this._notificationService.info(`This browser doesn't support the clipboard.readText API needed to trigger a paste, try ${isMacintosh ? "\u2318" : "Ctrl"}+V instead.`);
+          }
+        }
+        if (isMacintosh) {
+          setTimeout(() => this._ctx.instance.clearSelection(), 0);
+        }
+        return { handled: true };
+      }
+    }
+  }
+  /**
+   * Override the copy on selection feature with a custom value.
+   * @param value Whether to enable copySelection.
+   */
+  overrideCopyOnSelection(value) {
+    if (this._overrideCopySelection !== void 0) {
+      throw new Error("Cannot set a copy on selection override multiple times");
+    }
+    this._overrideCopySelection = value;
+    return toDisposable(() => this._overrideCopySelection = void 0);
+  }
+};
+TerminalClipboardContribution = __decorateClass([
+  __decorateParam(1, IClipboardService),
+  __decorateParam(2, IConfigurationService),
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, INotificationService),
+  __decorateParam(5, ITerminalConfigurationService)
+], TerminalClipboardContribution);
+registerTerminalContribution(TerminalClipboardContribution.ID, TerminalClipboardContribution, false);
+const terminalAvailableWhenClause = ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated);
+registerActiveInstanceAction({
+  id: TerminalCommandId.CopyLastCommand,
+  title: localize2("workbench.action.terminal.copyLastCommand", "Copy Last Command"),
+  precondition: terminalAvailableWhenClause,
+  run: /* @__PURE__ */ __name(async (instance, c, accessor) => {
+    const clipboardService = accessor.get(IClipboardService);
+    const commands = instance.capabilities.get(TerminalCapability.CommandDetection)?.commands;
+    if (!commands || commands.length === 0) {
+      return;
+    }
+    const command = commands[commands.length - 1];
+    if (!command.command) {
+      return;
+    }
+    await clipboardService.writeText(command.command);
+  }, "run")
+});
+registerActiveInstanceAction({
+  id: TerminalCommandId.CopyLastCommandOutput,
+  title: localize2("workbench.action.terminal.copyLastCommandOutput", "Copy Last Command Output"),
+  precondition: terminalAvailableWhenClause,
+  run: /* @__PURE__ */ __name(async (instance, c, accessor) => {
+    const clipboardService = accessor.get(IClipboardService);
+    const commands = instance.capabilities.get(TerminalCapability.CommandDetection)?.commands;
+    if (!commands || commands.length === 0) {
+      return;
+    }
+    const command = commands[commands.length - 1];
+    if (!command?.hasOutput()) {
+      return;
+    }
+    const output = command.getOutput();
+    if (isString(output)) {
+      await clipboardService.writeText(output);
+    }
+  }, "run")
+});
+registerActiveInstanceAction({
+  id: TerminalCommandId.CopyLastCommandAndLastCommandOutput,
+  title: localize2("workbench.action.terminal.copyLastCommandAndOutput", "Copy Last Command and Output"),
+  precondition: terminalAvailableWhenClause,
+  run: /* @__PURE__ */ __name(async (instance, c, accessor) => {
+    const clipboardService = accessor.get(IClipboardService);
+    const commands = instance.capabilities.get(TerminalCapability.CommandDetection)?.commands;
+    if (!commands || commands.length === 0) {
+      return;
+    }
+    const command = commands[commands.length - 1];
+    if (!command?.hasOutput()) {
+      return;
+    }
+    const output = command.getOutput();
+    if (isString(output)) {
+      await clipboardService.writeText(`${command.command !== "" ? command.command + "\n" : ""}${output}`);
+    }
+  }, "run")
+});
+if (BrowserFeatures.clipboard.writeText) {
+  registerActiveXtermAction({
+    id: TerminalCommandId.CopySelection,
+    title: localize2("workbench.action.terminal.copySelection", "Copy Selection"),
+    // TODO: Why is copy still showing up when text isn't selected?
+    precondition: ContextKeyExpr.or(TerminalContextKeys.textSelectedInFocused, ContextKeyExpr.and(terminalAvailableWhenClause, TerminalContextKeys.textSelected)),
+    keybinding: [{
+      primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyC,
+      mac: { primary: KeyMod.CtrlCmd | KeyCode.KeyC },
+      weight: KeybindingWeight.WorkbenchContrib,
+      when: ContextKeyExpr.or(
+        ContextKeyExpr.and(TerminalContextKeys.textSelected, TerminalContextKeys.focus),
+        TerminalContextKeys.textSelectedInFocused
+      )
+    }],
+    run: /* @__PURE__ */ __name((activeInstance) => activeInstance.copySelection(), "run")
+  });
+  registerActiveXtermAction({
+    id: TerminalCommandId.CopyAndClearSelection,
+    title: localize2("workbench.action.terminal.copyAndClearSelection", "Copy and Clear Selection"),
+    precondition: ContextKeyExpr.or(TerminalContextKeys.textSelectedInFocused, ContextKeyExpr.and(terminalAvailableWhenClause, TerminalContextKeys.textSelected)),
+    keybinding: [{
+      win: { primary: KeyMod.CtrlCmd | KeyCode.KeyC },
+      weight: KeybindingWeight.WorkbenchContrib,
+      when: ContextKeyExpr.or(
+        ContextKeyExpr.and(TerminalContextKeys.textSelected, TerminalContextKeys.focus),
+        TerminalContextKeys.textSelectedInFocused
+      )
+    }],
+    run: /* @__PURE__ */ __name(async (xterm) => {
+      await xterm.copySelection();
+      xterm.clearSelection();
+    }, "run")
+  });
+  registerActiveXtermAction({
+    id: TerminalCommandId.CopySelectionAsHtml,
+    title: localize2("workbench.action.terminal.copySelectionAsHtml", "Copy Selection as HTML"),
+    f1: true,
+    category: terminalStrings.actionCategory,
+    precondition: ContextKeyExpr.or(TerminalContextKeys.textSelectedInFocused, ContextKeyExpr.and(terminalAvailableWhenClause, TerminalContextKeys.textSelected)),
+    run: /* @__PURE__ */ __name((xterm) => xterm.copySelection(true), "run")
+  });
+}
+if (BrowserFeatures.clipboard.readText) {
+  registerActiveInstanceAction({
+    id: TerminalCommandId.Paste,
+    title: localize2("workbench.action.terminal.paste", "Paste into Active Terminal"),
+    precondition: terminalAvailableWhenClause,
+    keybinding: [{
+      primary: KeyMod.CtrlCmd | KeyCode.KeyV,
+      win: { primary: KeyMod.CtrlCmd | KeyCode.KeyV, secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyV] },
+      linux: { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyV },
+      weight: KeybindingWeight.WorkbenchContrib,
+      when: TerminalContextKeys.focus
+    }],
+    run: /* @__PURE__ */ __name((activeInstance) => TerminalClipboardContribution.get(activeInstance)?.paste(), "run")
+  });
+}
+if (BrowserFeatures.clipboard.readText && isLinux) {
+  registerActiveInstanceAction({
+    id: TerminalCommandId.PasteSelection,
+    title: localize2("workbench.action.terminal.pasteSelection", "Paste Selection into Active Terminal"),
+    precondition: terminalAvailableWhenClause,
+    keybinding: [{
+      linux: { primary: KeyMod.Shift | KeyCode.Insert },
+      weight: KeybindingWeight.WorkbenchContrib,
+      when: TerminalContextKeys.focus
+    }],
+    run: /* @__PURE__ */ __name((activeInstance) => TerminalClipboardContribution.get(activeInstance)?.pasteSelection(), "run")
+  });
+}
+export {
+  TerminalClipboardContribution
+};
+//# sourceMappingURL=terminal.clipboard.contribution.js.map

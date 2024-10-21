@@ -1,1 +1,25 @@
-import{AccessibleViewRegistry as r}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{registerAction2 as l}from"../../../../platform/actions/common/actions.js";import{wrapInHotClass1 as m}from"../../../../platform/observable/common/wrapInHotClass.js";import{EditorContributionInstantiation as o,registerEditorAction as i,registerEditorContribution as t}from"../../../browser/editorExtensions.js";import{HoverParticipantRegistry as p}from"../../hover/browser/hoverTypes.js";import{AcceptInlineCompletion as s,AcceptNextLineOfInlineCompletion as g,AcceptNextWordOfInlineCompletion as c,DevExtractReproSample as I,HideInlineCompletion as a,JumpToNextInlineEdit as f,ShowNextInlineSuggestionAction as A,ShowPreviousInlineSuggestionAction as C,ToggleAlwaysShowInlineSuggestionToolbar as u,TriggerInlineSuggestionAction as d}from"./controller/commands.js";import{InlineCompletionsController as e}from"./controller/inlineCompletionsController.js";import{InlineCompletionsHoverParticipant as w}from"./hintsWidget/hoverParticipant.js";import{InlineCompletionsAccessibleView as E}from"./inlineCompletionsAccessibleView.js";import{InlineEditsAdapterContribution as n}from"./model/inlineEditsAdapter.js";t(n.ID,n,o.Eventually),t(e.ID,m(e.hot),o.Eventually),i(d),i(A),i(C),i(c),i(g),i(s),i(a),i(f),l(u),i(I),p.register(w),r.register(new E);
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { wrapInHotClass1 } from "../../../../platform/observable/common/wrapInHotClass.js";
+import { EditorContributionInstantiation, registerEditorAction, registerEditorContribution } from "../../../browser/editorExtensions.js";
+import { HoverParticipantRegistry } from "../../hover/browser/hoverTypes.js";
+import { AcceptInlineCompletion, AcceptNextLineOfInlineCompletion, AcceptNextWordOfInlineCompletion, DevExtractReproSample, HideInlineCompletion, JumpToNextInlineEdit, ShowNextInlineSuggestionAction, ShowPreviousInlineSuggestionAction, ToggleAlwaysShowInlineSuggestionToolbar, TriggerInlineSuggestionAction } from "./controller/commands.js";
+import { InlineCompletionsController } from "./controller/inlineCompletionsController.js";
+import { InlineCompletionsHoverParticipant } from "./hintsWidget/hoverParticipant.js";
+import { InlineCompletionsAccessibleView } from "./inlineCompletionsAccessibleView.js";
+import { InlineEditsAdapterContribution } from "./model/inlineEditsAdapter.js";
+registerEditorContribution(InlineEditsAdapterContribution.ID, InlineEditsAdapterContribution, EditorContributionInstantiation.Eventually);
+registerEditorContribution(InlineCompletionsController.ID, wrapInHotClass1(InlineCompletionsController.hot), EditorContributionInstantiation.Eventually);
+registerEditorAction(TriggerInlineSuggestionAction);
+registerEditorAction(ShowNextInlineSuggestionAction);
+registerEditorAction(ShowPreviousInlineSuggestionAction);
+registerEditorAction(AcceptNextWordOfInlineCompletion);
+registerEditorAction(AcceptNextLineOfInlineCompletion);
+registerEditorAction(AcceptInlineCompletion);
+registerEditorAction(HideInlineCompletion);
+registerEditorAction(JumpToNextInlineEdit);
+registerAction2(ToggleAlwaysShowInlineSuggestionToolbar);
+registerEditorAction(DevExtractReproSample);
+HoverParticipantRegistry.register(InlineCompletionsHoverParticipant);
+AccessibleViewRegistry.register(new InlineCompletionsAccessibleView());
+//# sourceMappingURL=inlineCompletions.contribution.js.map

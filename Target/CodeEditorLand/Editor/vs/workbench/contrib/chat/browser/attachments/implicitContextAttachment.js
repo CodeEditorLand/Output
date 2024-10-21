@@ -1,2 +1,84 @@
-var S=Object.defineProperty;var H=Object.getOwnPropertyDescriptor;var p=(n,a,i,t)=>{for(var e=t>1?void 0:t?H(a,i):a,r=n.length-1,s;r>=0;r--)(s=n[r])&&(e=(t?s(a,i,e):s(e))||e);return t&&e&&S(a,i,e),e},d=(n,a)=>(i,t)=>a(i,t,n);import*as l from"../../../../../base/browser/dom.js";import{Button as E}from"../../../../../base/browser/ui/button/button.js";import{getDefaultHoverDelegate as $}from"../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{Codicon as u}from"../../../../../base/common/codicons.js";import{Disposable as F,DisposableStore as R}from"../../../../../base/common/lifecycle.js";import{basename as x,dirname as C}from"../../../../../base/common/resources.js";import{URI as f}from"../../../../../base/common/uri.js";import{localize as o}from"../../../../../nls.js";import{FileKind as U}from"../../../../../platform/files/common/files.js";import{IHoverService as w}from"../../../../../platform/hover/browser/hover.js";import{ILabelService as B}from"../../../../../platform/label/common/label.js";import"../../../../browser/labels.js";import"../../common/chatModel.js";let c=class extends F{constructor(i,t,e,r){super();this.attachment=i;this.resourceLabels=t;this.labelService=e;this.hoverService=r;this.domNode=l.$(".chat-attached-context-attachment.show-file-icons.implicit"),this.render()}domNode;renderDisposables=this._register(new R);render(){l.clearNode(this.domNode),this.renderDisposables.clear(),this.domNode.classList.toggle("disabled",!this.attachment.enabled);const i=this.resourceLabels.create(this.domNode,{supportIcons:!0}),t=f.isUri(this.attachment.value)?this.attachment.value:this.attachment.value.uri,e=f.isUri(this.attachment.value)?void 0:this.attachment.value.range,r=x(t),s=C(t),m=`${r} ${s}`,v=e?o("chat.fileAttachmentWithRange","Attached file, {0}, line {1} to line {2}",m,e.startLineNumber,e.endLineNumber):o("chat.fileAttachment","Attached file, {0}",m),L=this.labelService.getUriLabel(t,{relative:!0}),N=o("openEditor","Current file context"),g=o("enableHint","disabled"),h=`${N+(this.attachment.enabled?"":` (${g})`)}
-${L}`;i.setFile(t,{fileKind:U.FILE,hidePath:!0,range:e,title:h}),this.domNode.ariaLabel=v,this.domNode.tabIndex=0;const y=l.append(this.domNode,l.$("span.chat-implicit-hint",void 0,"Current file"));this._register(this.hoverService.setupManagedHover($("element"),y,h));const D=this.attachment.enabled?o("disable","Disable current file context"):o("enable","Enable current file context"),b=this.renderDisposables.add(new E(this.domNode,{supportIcons:!0,title:D}));b.icon=this.attachment.enabled?u.eye:u.eyeClosed,this.renderDisposables.add(b.onDidClick(I=>{I.stopPropagation(),this.attachment.enabled=!this.attachment.enabled}))}};c=p([d(2,B),d(3,w)],c);export{c as ImplicitContextAttachmentWidget};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../base/browser/dom.js";
+import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { getDefaultHoverDelegate } from "../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { basename, dirname } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
+import { FileKind } from "../../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { IChatRequestImplicitVariableEntry } from "../../common/chatModel.js";
+let ImplicitContextAttachmentWidget = class extends Disposable {
+  constructor(attachment, resourceLabels, labelService, hoverService) {
+    super();
+    this.attachment = attachment;
+    this.resourceLabels = resourceLabels;
+    this.labelService = labelService;
+    this.hoverService = hoverService;
+    this.domNode = dom.$(".chat-attached-context-attachment.show-file-icons.implicit");
+    this.render();
+  }
+  static {
+    __name(this, "ImplicitContextAttachmentWidget");
+  }
+  domNode;
+  renderDisposables = this._register(new DisposableStore());
+  render() {
+    dom.clearNode(this.domNode);
+    this.renderDisposables.clear();
+    this.domNode.classList.toggle("disabled", !this.attachment.enabled);
+    const label = this.resourceLabels.create(this.domNode, { supportIcons: true });
+    const file = URI.isUri(this.attachment.value) ? this.attachment.value : this.attachment.value.uri;
+    const range = URI.isUri(this.attachment.value) ? void 0 : this.attachment.value.range;
+    const fileBasename = basename(file);
+    const fileDirname = dirname(file);
+    const friendlyName = `${fileBasename} ${fileDirname}`;
+    const ariaLabel = range ? localize("chat.fileAttachmentWithRange", "Attached file, {0}, line {1} to line {2}", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.fileAttachment", "Attached file, {0}", friendlyName);
+    const uriLabel = this.labelService.getUriLabel(file, { relative: true });
+    const currentFile = localize("openEditor", "Current file context");
+    const inactive = localize("enableHint", "disabled");
+    const currentFileHint = currentFile + (this.attachment.enabled ? "" : ` (${inactive})`);
+    const title = `${currentFileHint}
+${uriLabel}`;
+    label.setFile(file, {
+      fileKind: FileKind.FILE,
+      hidePath: true,
+      range,
+      title
+    });
+    this.domNode.ariaLabel = ariaLabel;
+    this.domNode.tabIndex = 0;
+    const hintElement = dom.append(this.domNode, dom.$("span.chat-implicit-hint", void 0, "Current file"));
+    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), hintElement, title));
+    const buttonMsg = this.attachment.enabled ? localize("disable", "Disable current file context") : localize("enable", "Enable current file context");
+    const toggleButton = this.renderDisposables.add(new Button(this.domNode, { supportIcons: true, title: buttonMsg }));
+    toggleButton.icon = this.attachment.enabled ? Codicon.eye : Codicon.eyeClosed;
+    this.renderDisposables.add(toggleButton.onDidClick((e) => {
+      e.stopPropagation();
+      this.attachment.enabled = !this.attachment.enabled;
+    }));
+  }
+};
+ImplicitContextAttachmentWidget = __decorateClass([
+  __decorateParam(2, ILabelService),
+  __decorateParam(3, IHoverService)
+], ImplicitContextAttachmentWidget);
+export {
+  ImplicitContextAttachmentWidget
+};
+//# sourceMappingURL=implicitContextAttachment.js.map

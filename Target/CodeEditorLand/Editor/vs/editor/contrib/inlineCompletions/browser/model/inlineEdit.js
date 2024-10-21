@@ -1,1 +1,25 @@
-import"../../../../common/core/textEdit.js";class s{constructor(e,i){this.edit=e;this.isCollapsed=i}get range(){return this.edit.range}get text(){return this.edit.text}equals(e){return this.edit.equals(e.edit)&&this.isCollapsed===e.isCollapsed}}export{s as InlineEdit};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { SingleTextEdit } from "../../../../common/core/textEdit.js";
+class InlineEdit {
+  constructor(edit, isCollapsed) {
+    this.edit = edit;
+    this.isCollapsed = isCollapsed;
+  }
+  static {
+    __name(this, "InlineEdit");
+  }
+  get range() {
+    return this.edit.range;
+  }
+  get text() {
+    return this.edit.text;
+  }
+  equals(other) {
+    return this.edit.equals(other.edit) && this.isCollapsed === other.isCollapsed;
+  }
+}
+export {
+  InlineEdit
+};
+//# sourceMappingURL=inlineEdit.js.map

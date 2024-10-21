@@ -1,1 +1,236 @@
-var _=Object.defineProperty;var V=Object.getOwnPropertyDescriptor;var v=(c,r,e,t)=>{for(var i=t>1?void 0:t?V(r,e):r,o=c.length-1,n;o>=0;o--)(n=c[o])&&(i=(t?n(r,e,i):n(i))||i);return t&&i&&_(r,e,i),i},s=(c,r)=>(e,t)=>r(e,t,c);import{CancellationToken as y}from"../../../../base/common/cancellation.js";import{DisposableStore as D}from"../../../../base/common/lifecycle.js";import{MarshalledId as M}from"../../../../base/common/marshallingIds.js";import{IConfigurationService as A}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as g}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as P}from"../../../../platform/contextview/browser/contextView.js";import{IHoverService as O}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as E}from"../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as b}from"../../../../platform/instantiation/common/serviceCollection.js";import{IKeybindingService as R}from"../../../../platform/keybinding/common/keybinding.js";import{ILogService as B}from"../../../../platform/log/common/log.js";import{IOpenerService as x}from"../../../../platform/opener/common/opener.js";import{IStorageService as T,StorageScope as k,StorageTarget as W}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as F}from"../../../../platform/telemetry/common/telemetry.js";import{editorBackground as L}from"../../../../platform/theme/common/colorRegistry.js";import{IThemeService as H}from"../../../../platform/theme/common/themeService.js";import{ViewPane as U}from"../../../browser/parts/views/viewPane.js";import{Memento as $}from"../../../common/memento.js";import{SIDE_BAR_FOREGROUND as K}from"../../../common/theme.js";import{IViewDescriptorService as N}from"../../../common/views.js";import"../common/chatActions.js";import{ChatAgentLocation as a,IChatAgentService as z}from"../common/chatAgents.js";import{ChatModelInitState as G}from"../common/chatModel.js";import{CHAT_PROVIDER_ID as j}from"../common/chatParticipantContribTypes.js";import{IChatService as q}from"../common/chatService.js";import{ChatWidget as J}from"./chatWidget.js";import{ChatViewWelcomeController as Q}from"./viewsWelcome/chatViewWelcomeController.js";const xe="workbench.panel.chatSidebar",Te="workbench.panel.chatEditing";let h=class extends U{constructor(e,t={location:a.Panel},i,o,n,l,d,p,w,m,I,u,X,Y,Z,ee){super(e,i,o,n,l,d,p,w,m,I,u);this.chatOptions=t;this.storageService=X;this.chatService=Y;this.chatAgentService=Z;this.logService=ee;this.memento=new $("interactive-session-view-"+j+(this.chatOptions.location===a.EditingSession?"-edits":""),this.storageService),this.viewState=this.memento.getMemento(k.WORKSPACE,W.MACHINE),this._register(this.chatAgentService.onDidChangeAgents(()=>{if(this.chatAgentService.getDefaultAgent(this.chatOptions?.location)){if(!this._widget?.viewModel){const S=this.getSessionId(),f=S?this.chatService.getOrRestoreSession(S):void 0,C=this._widget.visible;try{this._widget.setVisible(!1),this.updateModel(f),this.defaultParticipantRegistrationFailed=!1,this.didUnregisterProvider=!1,this._onDidChangeViewWelcomeState.fire()}finally{this.widget.setVisible(C)}}}else this._widget?.viewModel?.initState===G.Initialized&&(this.didUnregisterProvider=!0);this._onDidChangeViewWelcomeState.fire()}))}_widget;get widget(){return this._widget}modelDisposables=this._register(new D);memento;viewState;defaultParticipantRegistrationFailed=!1;didUnregisterProvider=!1;getActionsContext(){return this.widget?.viewModel?{sessionId:this.widget.viewModel.sessionId,$mid:M.ChatViewContext}:void 0}updateModel(e,t){if(this.modelDisposables.clear(),e=e??(this.chatService.transferredSessionData?.sessionId?this.chatService.getOrRestoreSession(this.chatService.transferredSessionData.sessionId):this.chatService.startSession(this.chatOptions.location,y.None)),!e)throw new Error("Could not start chat session");t&&this.updateViewState(t),this.viewState.sessionId=e.sessionId,this._widget.setModel(e,{...this.viewState}),this.updateActions()}shouldShowWelcome(){const e=!this.chatService.hasSessions(),t=this.didUnregisterProvider||!this._widget?.viewModel&&e||this.defaultParticipantRegistrationFailed;return this.logService.trace(`ChatViewPane#shouldShowWelcome(${this.chatOptions.location}) = ${t}: didUnregister=${this.didUnregisterProvider} || noViewModel:${!this._widget?.viewModel} && noPersistedSessions=${e} || defaultParticipantRegistrationFailed=${this.defaultParticipantRegistrationFailed}`),t}getSessionId(){let e;return this.chatService.transferredSessionData?(e=this.chatService.transferredSessionData.sessionId,this.viewState.inputValue=this.chatService.transferredSessionData.inputValue):e=this.viewState.sessionId,e}renderBody(e){try{super.renderBody(e),this._register(this.instantiationService.createInstance(Q,e,this));const t=this._register(this.instantiationService.createChild(new b([g,this.scopedContextKeyService]))),i=this.getLocationBasedColors();this._widget=this._register(t.createInstance(J,this.chatOptions.location,{viewId:this.id},{autoScroll:this.chatOptions.location===a.EditingSession,renderFollowups:this.chatOptions.location===a.Panel,supportsFileReferences:!0,supportsAdditionalParticipants:this.chatOptions.location===a.Panel,rendererOptions:{renderCodeBlockPills:this.chatOptions.location===a.EditingSession,renderTextEditsAsSummary:d=>this.chatOptions.location===a.EditingSession}},{listForeground:K,listBackground:i.background,overlayBackground:i.overlayBackground,inputEditorBackground:i.background,resultEditorBackground:L})),this._register(this.onDidChangeBodyVisibility(d=>{this._widget.setVisible(d)})),this._register(this._widget.onDidClear(()=>this.clear())),this._widget.render(e);const o=this.getSessionId(),n=this._register(this.chatService.onDidDisposeSession(d=>{d.reason==="initializationFailed"&&(this.defaultParticipantRegistrationFailed=!0,n?.dispose(),this._onDidChangeViewWelcomeState.fire())})),l=o?this.chatService.getOrRestoreSession(o):void 0;this.updateModel(l)}catch(t){throw this.logService.error(t),t}}acceptInput(e){this._widget.acceptInput(e)}clear(){this.widget.viewModel&&this.chatService.clearSession(this.widget.viewModel.sessionId),this.updateViewState(),this.updateModel(void 0),this.updateActions()}loadSession(e,t){this.widget.viewModel&&this.chatService.clearSession(this.widget.viewModel.sessionId);const i=this.chatService.getOrRestoreSession(e);this.updateModel(i,t)}focusInput(){this._widget.focusInput()}focus(){super.focus(),this._widget.focusInput()}layoutBody(e,t){super.layoutBody(e,t),this._widget.layout(e,t)}saveState(){this._widget&&(this._widget.saveState(),this.updateViewState(),this.memento.saveMemento()),super.saveState()}updateViewState(e){const t=e??this._widget.getViewState();for(const[i,o]of Object.entries(t))this.viewState[i]=o}};h=v([s(2,R),s(3,P),s(4,A),s(5,g),s(6,N),s(7,E),s(8,x),s(9,H),s(10,F),s(11,O),s(12,T),s(13,q),s(14,z),s(15,B)],h);export{Te as CHAT_EDITING_SIDEBAR_PANEL_ID,xe as CHAT_SIDEBAR_PANEL_ID,h as ChatViewPane};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { MarshalledId } from "../../../../base/common/marshallingIds.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IViewPaneOptions, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { Memento } from "../../../common/memento.js";
+import { SIDE_BAR_FOREGROUND } from "../../../common/theme.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IChatViewTitleActionContext } from "../common/chatActions.js";
+import { ChatAgentLocation, IChatAgentService } from "../common/chatAgents.js";
+import { ChatModelInitState, IChatModel } from "../common/chatModel.js";
+import { CHAT_PROVIDER_ID } from "../common/chatParticipantContribTypes.js";
+import { IChatService } from "../common/chatService.js";
+import { ChatWidget, IChatViewState } from "./chatWidget.js";
+import { ChatViewWelcomeController, IViewWelcomeDelegate } from "./viewsWelcome/chatViewWelcomeController.js";
+const CHAT_SIDEBAR_PANEL_ID = "workbench.panel.chatSidebar";
+const CHAT_EDITING_SIDEBAR_PANEL_ID = "workbench.panel.chatEditing";
+let ChatViewPane = class extends ViewPane {
+  constructor(options, chatOptions = { location: ChatAgentLocation.Panel }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService, storageService, chatService, chatAgentService, logService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, telemetryService, hoverService);
+    this.chatOptions = chatOptions;
+    this.storageService = storageService;
+    this.chatService = chatService;
+    this.chatAgentService = chatAgentService;
+    this.logService = logService;
+    this.memento = new Memento("interactive-session-view-" + CHAT_PROVIDER_ID + (this.chatOptions.location === ChatAgentLocation.EditingSession ? `-edits` : ""), this.storageService);
+    this.viewState = this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
+    this._register(this.chatAgentService.onDidChangeAgents(() => {
+      if (this.chatAgentService.getDefaultAgent(this.chatOptions?.location)) {
+        if (!this._widget?.viewModel) {
+          const sessionId = this.getSessionId();
+          const model = sessionId ? this.chatService.getOrRestoreSession(sessionId) : void 0;
+          const wasVisible = this._widget.visible;
+          try {
+            this._widget.setVisible(false);
+            this.updateModel(model);
+            this.defaultParticipantRegistrationFailed = false;
+            this.didUnregisterProvider = false;
+            this._onDidChangeViewWelcomeState.fire();
+          } finally {
+            this.widget.setVisible(wasVisible);
+          }
+        }
+      } else if (this._widget?.viewModel?.initState === ChatModelInitState.Initialized) {
+        this.didUnregisterProvider = true;
+      }
+      this._onDidChangeViewWelcomeState.fire();
+    }));
+  }
+  static {
+    __name(this, "ChatViewPane");
+  }
+  _widget;
+  get widget() {
+    return this._widget;
+  }
+  modelDisposables = this._register(new DisposableStore());
+  memento;
+  viewState;
+  defaultParticipantRegistrationFailed = false;
+  didUnregisterProvider = false;
+  getActionsContext() {
+    return this.widget?.viewModel ? {
+      sessionId: this.widget.viewModel.sessionId,
+      $mid: MarshalledId.ChatViewContext
+    } : void 0;
+  }
+  updateModel(model, viewState) {
+    this.modelDisposables.clear();
+    model = model ?? (this.chatService.transferredSessionData?.sessionId ? this.chatService.getOrRestoreSession(this.chatService.transferredSessionData.sessionId) : this.chatService.startSession(this.chatOptions.location, CancellationToken.None));
+    if (!model) {
+      throw new Error("Could not start chat session");
+    }
+    if (viewState) {
+      this.updateViewState(viewState);
+    }
+    this.viewState.sessionId = model.sessionId;
+    this._widget.setModel(model, { ...this.viewState });
+    this.updateActions();
+  }
+  shouldShowWelcome() {
+    const noPersistedSessions = !this.chatService.hasSessions();
+    const shouldShow = this.didUnregisterProvider || !this._widget?.viewModel && noPersistedSessions || this.defaultParticipantRegistrationFailed;
+    this.logService.trace(`ChatViewPane#shouldShowWelcome(${this.chatOptions.location}) = ${shouldShow}: didUnregister=${this.didUnregisterProvider} || noViewModel:${!this._widget?.viewModel} && noPersistedSessions=${noPersistedSessions} || defaultParticipantRegistrationFailed=${this.defaultParticipantRegistrationFailed}`);
+    return shouldShow;
+  }
+  getSessionId() {
+    let sessionId;
+    if (this.chatService.transferredSessionData) {
+      sessionId = this.chatService.transferredSessionData.sessionId;
+      this.viewState.inputValue = this.chatService.transferredSessionData.inputValue;
+    } else {
+      sessionId = this.viewState.sessionId;
+    }
+    return sessionId;
+  }
+  renderBody(parent) {
+    try {
+      super.renderBody(parent);
+      this._register(this.instantiationService.createInstance(ChatViewWelcomeController, parent, this));
+      const scopedInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
+      const locationBasedColors = this.getLocationBasedColors();
+      this._widget = this._register(scopedInstantiationService.createInstance(
+        ChatWidget,
+        this.chatOptions.location,
+        { viewId: this.id },
+        {
+          autoScroll: this.chatOptions.location === ChatAgentLocation.EditingSession,
+          renderFollowups: this.chatOptions.location === ChatAgentLocation.Panel,
+          supportsFileReferences: true,
+          supportsAdditionalParticipants: this.chatOptions.location === ChatAgentLocation.Panel,
+          rendererOptions: {
+            renderCodeBlockPills: this.chatOptions.location === ChatAgentLocation.EditingSession,
+            renderTextEditsAsSummary: /* @__PURE__ */ __name((uri) => {
+              return this.chatOptions.location === ChatAgentLocation.EditingSession;
+            }, "renderTextEditsAsSummary")
+          }
+        },
+        {
+          listForeground: SIDE_BAR_FOREGROUND,
+          listBackground: locationBasedColors.background,
+          overlayBackground: locationBasedColors.overlayBackground,
+          inputEditorBackground: locationBasedColors.background,
+          resultEditorBackground: editorBackground
+        }
+      ));
+      this._register(this.onDidChangeBodyVisibility((visible) => {
+        this._widget.setVisible(visible);
+      }));
+      this._register(this._widget.onDidClear(() => this.clear()));
+      this._widget.render(parent);
+      const sessionId = this.getSessionId();
+      const disposeListener = this._register(this.chatService.onDidDisposeSession((e) => {
+        if (e.reason === "initializationFailed") {
+          this.defaultParticipantRegistrationFailed = true;
+          disposeListener?.dispose();
+          this._onDidChangeViewWelcomeState.fire();
+        }
+      }));
+      const model = sessionId ? this.chatService.getOrRestoreSession(sessionId) : void 0;
+      this.updateModel(model);
+    } catch (e) {
+      this.logService.error(e);
+      throw e;
+    }
+  }
+  acceptInput(query) {
+    this._widget.acceptInput(query);
+  }
+  clear() {
+    if (this.widget.viewModel) {
+      this.chatService.clearSession(this.widget.viewModel.sessionId);
+    }
+    this.updateViewState();
+    this.updateModel(void 0);
+    this.updateActions();
+  }
+  loadSession(sessionId, viewState) {
+    if (this.widget.viewModel) {
+      this.chatService.clearSession(this.widget.viewModel.sessionId);
+    }
+    const newModel = this.chatService.getOrRestoreSession(sessionId);
+    this.updateModel(newModel, viewState);
+  }
+  focusInput() {
+    this._widget.focusInput();
+  }
+  focus() {
+    super.focus();
+    this._widget.focusInput();
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this._widget.layout(height, width);
+  }
+  saveState() {
+    if (this._widget) {
+      this._widget.saveState();
+      this.updateViewState();
+      this.memento.saveMemento();
+    }
+    super.saveState();
+  }
+  updateViewState(viewState) {
+    const newViewState = viewState ?? this._widget.getViewState();
+    for (const [key, value] of Object.entries(newViewState)) {
+      this.viewState[key] = value;
+    }
+  }
+};
+ChatViewPane = __decorateClass([
+  __decorateParam(2, IKeybindingService),
+  __decorateParam(3, IContextMenuService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IContextKeyService),
+  __decorateParam(6, IViewDescriptorService),
+  __decorateParam(7, IInstantiationService),
+  __decorateParam(8, IOpenerService),
+  __decorateParam(9, IThemeService),
+  __decorateParam(10, ITelemetryService),
+  __decorateParam(11, IHoverService),
+  __decorateParam(12, IStorageService),
+  __decorateParam(13, IChatService),
+  __decorateParam(14, IChatAgentService),
+  __decorateParam(15, ILogService)
+], ChatViewPane);
+export {
+  CHAT_EDITING_SIDEBAR_PANEL_ID,
+  CHAT_SIDEBAR_PANEL_ID,
+  ChatViewPane
+};
+//# sourceMappingURL=chatViewPane.js.map

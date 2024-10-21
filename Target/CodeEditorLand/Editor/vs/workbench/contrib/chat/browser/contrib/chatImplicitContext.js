@@ -1,1 +1,129 @@
-var g=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var l=(a,e,n,t)=>{for(var i=t>1?void 0:t?f(e,n):e,r=a.length-1,o;r>=0;r--)(o=a[r])&&(i=(t?o(e,n,i):o(i))||i);return t&&i&&g(e,n,i),i},s=(a,e)=>(n,t)=>e(n,t,a);import{Emitter as C,Event as c}from"../../../../../base/common/event.js";import{Disposable as u,DisposableStore as I}from"../../../../../base/common/lifecycle.js";import{basename as h}from"../../../../../base/common/resources.js";import{URI as m}from"../../../../../base/common/uri.js";import{ICodeEditorService as D}from"../../../../../editor/browser/services/codeEditorService.js";import"../../../../../editor/common/languages.js";import"../../../../common/contributions.js";import{IEditorService as E}from"../../../../services/editor/common/editorService.js";import{ChatAgentLocation as b}from"../../common/chatAgents.js";import"../../common/chatModel.js";import{IChatWidgetService as y}from"../chat.js";let d=class extends u{constructor(n,t,i){super();this.codeEditorService=n;this.chatWidgetService=i;const r=this._register(new I);this._register(c.runAndSubscribe(t.onDidActiveEditorChange,()=>{r.clear();const o=n.getActiveCodeEditor();o&&(r.add(o.onDidChangeModel(()=>this.updateImplicitContext())),r.add(c.debounce(o.onDidChangeCursorSelection,()=>{},500)(()=>this.updateImplicitContext()))),this.updateImplicitContext()})),this._register(i.onDidAddWidget(o=>this.updateImplicitContext(o)))}static ID="chat.implicitContext";updateImplicitContext(n){const t=this.codeEditorService.getActiveCodeEditor(),i=t?.getModel(),r=t?.getSelection(),o=i?r&&!r?.isEmpty()?{uri:i.uri,range:r}:i.uri:void 0,p=n?[n]:this.chatWidgetService.getAllWidgets(b.Panel);for(const v of p)v.input.implicitContext.value=o}};d=l([s(0,D),s(1,E),s(2,y)],d);class j extends u{id="vscode.implicit";get name(){return m.isUri(this.value)?`file:${h(this.value)}`:this.value?`file:${h(this.value.uri)}`:"implicit"}kind="implicit";get modelDescription(){return m.isUri(this.value)?"User's active file":"User's active selection"}isDynamic=!0;isFile=!0;_onDidChangeValue=new C;onDidChangeValue=this._onDidChangeValue.event;_value;get value(){return this._value}set value(e){this._value=e,this._onDidChangeValue.fire()}_enabled=!0;get enabled(){return this._enabled}set enabled(e){this._enabled=e,this._onDidChangeValue.fire()}constructor(e){super(),this._value=e}setValue(e){this._value=e,this._onDidChangeValue.fire()}toBaseEntry(){return{id:this.id,name:this.name,value:this.value,isFile:!0,isDynamic:!0,modelDescription:this.modelDescription}}}export{j as ChatImplicitContext,d as ChatImplicitContextContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { Location } from "../../../../../editor/common/languages.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { ChatAgentLocation } from "../../common/chatAgents.js";
+import { IBaseChatRequestVariableEntry, IChatRequestImplicitVariableEntry } from "../../common/chatModel.js";
+import { IChatWidget, IChatWidgetService } from "../chat.js";
+let ChatImplicitContextContribution = class extends Disposable {
+  constructor(codeEditorService, editorService, chatWidgetService) {
+    super();
+    this.codeEditorService = codeEditorService;
+    this.chatWidgetService = chatWidgetService;
+    const activeEditorDisposables = this._register(new DisposableStore());
+    this._register(Event.runAndSubscribe(
+      editorService.onDidActiveEditorChange,
+      () => {
+        activeEditorDisposables.clear();
+        const codeEditor = codeEditorService.getActiveCodeEditor();
+        if (codeEditor) {
+          activeEditorDisposables.add(codeEditor.onDidChangeModel(() => this.updateImplicitContext()));
+          activeEditorDisposables.add(Event.debounce(codeEditor.onDidChangeCursorSelection, () => void 0, 500)(() => this.updateImplicitContext()));
+        }
+        this.updateImplicitContext();
+      }
+    ));
+    this._register(chatWidgetService.onDidAddWidget((widget) => this.updateImplicitContext(widget)));
+  }
+  static {
+    __name(this, "ChatImplicitContextContribution");
+  }
+  static ID = "chat.implicitContext";
+  updateImplicitContext(updateWidget) {
+    const codeEditor = this.codeEditorService.getActiveCodeEditor();
+    const model = codeEditor?.getModel();
+    const selection = codeEditor?.getSelection();
+    const newValue = model ? selection && !selection?.isEmpty() ? { uri: model.uri, range: selection } : model.uri : void 0;
+    const widgets = updateWidget ? [updateWidget] : this.chatWidgetService.getAllWidgets(ChatAgentLocation.Panel);
+    for (const widget of widgets) {
+      widget.input.implicitContext.value = newValue;
+    }
+  }
+};
+ChatImplicitContextContribution = __decorateClass([
+  __decorateParam(0, ICodeEditorService),
+  __decorateParam(1, IEditorService),
+  __decorateParam(2, IChatWidgetService)
+], ChatImplicitContextContribution);
+class ChatImplicitContext extends Disposable {
+  static {
+    __name(this, "ChatImplicitContext");
+  }
+  id = "vscode.implicit";
+  get name() {
+    if (URI.isUri(this.value)) {
+      return `file:${basename(this.value)}`;
+    } else if (this.value) {
+      return `file:${basename(this.value.uri)}`;
+    } else {
+      return "implicit";
+    }
+  }
+  kind = "implicit";
+  get modelDescription() {
+    if (URI.isUri(this.value)) {
+      return `User's active file`;
+    } else {
+      return `User's active selection`;
+    }
+  }
+  isDynamic = true;
+  isFile = true;
+  _onDidChangeValue = new Emitter();
+  onDidChangeValue = this._onDidChangeValue.event;
+  _value;
+  get value() {
+    return this._value;
+  }
+  set value(value) {
+    this._value = value;
+    this._onDidChangeValue.fire();
+  }
+  _enabled = true;
+  get enabled() {
+    return this._enabled;
+  }
+  set enabled(value) {
+    this._enabled = value;
+    this._onDidChangeValue.fire();
+  }
+  constructor(value) {
+    super();
+    this._value = value;
+  }
+  setValue(value) {
+    this._value = value;
+    this._onDidChangeValue.fire();
+  }
+  toBaseEntry() {
+    return {
+      id: this.id,
+      name: this.name,
+      value: this.value,
+      isFile: true,
+      isDynamic: true,
+      modelDescription: this.modelDescription
+    };
+  }
+}
+export {
+  ChatImplicitContext,
+  ChatImplicitContextContribution
+};
+//# sourceMappingURL=chatImplicitContext.js.map

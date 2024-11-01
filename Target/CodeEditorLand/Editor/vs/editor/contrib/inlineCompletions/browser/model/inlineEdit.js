@@ -1,0 +1,1 @@
+import"../../../../common/core/textEdit.js";import"../../../../common/languages.js";class s{constructor(e,l,t,n){this.edit=e;this.isCollapsed=l;this.showInlineIfPossible=t;this.commands=n}get range(){return this.edit.range}get text(){return this.edit.text}equals(e){return this.edit.equals(e.edit)&&this.isCollapsed===e.isCollapsed}}export{s as InlineEdit};

@@ -1,1 +1,20 @@
-import{localize as r}from"../../../../../nls.js";import"../../common/chatModel.js";const t="screenshot-focused-window";function i(e){return{id:t,name:r("screenshot","Screenshot"),value:new Uint8Array(e),isImage:!0,isDynamic:!0}}export{t as ScreenshotVariableId,i as convertBufferToScreenshotVariable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../../nls.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
+const ScreenshotVariableId = "screenshot-focused-window";
+function convertBufferToScreenshotVariable(buffer) {
+  return {
+    id: ScreenshotVariableId,
+    name: localize("screenshot", "Screenshot"),
+    value: new Uint8Array(buffer),
+    isImage: true,
+    isDynamic: true
+  };
+}
+__name(convertBufferToScreenshotVariable, "convertBufferToScreenshotVariable");
+export {
+  ScreenshotVariableId,
+  convertBufferToScreenshotVariable
+};
+//# sourceMappingURL=screenshot.js.map

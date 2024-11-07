@@ -1,1 +1,24 @@
-import{AbstractSignService as t}from"../common/abstractSignService.js";import"../common/sign.js";class d extends t{getValidator(){return this.vsda().then(r=>new r.validator)}signValue(r){return this.vsda().then(e=>new e.signer().sign(r))}async vsda(){const r="vsda",{default:e}=await import(r);return e}}export{d as SignService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { AbstractSignService, IVsdaValidator } from "../common/abstractSignService.js";
+import { ISignService } from "../common/sign.js";
+class SignService extends AbstractSignService {
+  static {
+    __name(this, "SignService");
+  }
+  getValidator() {
+    return this.vsda().then((vsda) => new vsda.validator());
+  }
+  signValue(arg) {
+    return this.vsda().then((vsda) => new vsda.signer().sign(arg));
+  }
+  async vsda() {
+    const mod = "vsda";
+    const { default: vsda } = await import(mod);
+    return vsda;
+  }
+}
+export {
+  SignService
+};
+//# sourceMappingURL=signService.js.map

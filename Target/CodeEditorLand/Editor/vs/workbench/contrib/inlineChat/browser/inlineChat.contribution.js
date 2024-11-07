@@ -1,1 +1,88 @@
-import{EditorContributionInstantiation as m,registerEditorContribution as s}from"../../../../editor/browser/editorExtensions.js";import{MenuRegistry as o,registerAction2 as e}from"../../../../platform/actions/common/actions.js";import{InlineChatController as g}from"./inlineChatController.js";import*as t from"./inlineChatActions.js";import{CTX_INLINE_CHAT_EDITING as c,CTX_INLINE_CHAT_REQUEST_IN_PROGRESS as i,INLINE_CHAT_ID as A,MENU_INLINE_CHAT_WIDGET_STATUS as r}from"../common/inlineChat.js";import{InstantiationType as I,registerSingleton as C}from"../../../../platform/instantiation/common/extensions.js";import{Registry as f}from"../../../../platform/registry/common/platform.js";import{LifecyclePhase as b}from"../../../services/lifecycle/common/lifecycle.js";import{InlineChatNotebookContribution as E}from"./inlineChatNotebook.js";import{registerWorkbenchContribution2 as S,Extensions as T,WorkbenchPhase as _}from"../../../common/contributions.js";import{InlineChatSavingServiceImpl as N}from"./inlineChatSavingServiceImpl.js";import{InlineChatAccessibleView as y}from"./inlineChatAccessibleView.js";import{IInlineChatSavingService as M}from"./inlineChatSavingService.js";import{IInlineChatSessionService as R}from"./inlineChatSessionService.js";import{InlineChatEnabler as l,InlineChatSessionServiceImpl as k}from"./inlineChatSessionServiceImpl.js";import{AccessibleViewRegistry as p}from"../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{CancelAction as w,SubmitAction as u}from"../../chat/browser/actions/chatExecuteActions.js";import{localize as n}from"../../../../nls.js";import{ChatContextKeys as d}from"../../chat/common/chatContextKeys.js";import{ContextKeyExpr as a}from"../../../../platform/contextkey/common/contextkey.js";import{InlineChatAccessibilityHelp as x}from"./inlineChatAccessibilityHelp.js";import{InlineChatExansionContextKey as h,InlineChatExpandLineAction as D}from"./inlineChatCurrentLine.js";C(R,k,I.Delayed),C(M,N,I.Delayed),s(A,g,m.Eager),s(h.Id,h,m.BeforeFirstInteraction),e(D);const H={group:"0_main",order:0,command:{id:u.ID,title:n("send.edit","Edit Code")},when:a.and(d.inputHasText,i.toNegated(),c)},v={group:"0_main",order:0,command:{id:u.ID,title:n("send.generate","Generate")},when:a.and(d.inputHasText,i.toNegated(),c.toNegated())};o.appendMenuItem(r,H),o.appendMenuItem(r,v);const W={group:"0_main",order:0,command:{id:w.ID,title:n("cancel","Cancel Request"),shortTitle:n("cancelShort","Cancel")},when:a.and(i)};o.appendMenuItem(r,W),e(t.StartSessionAction),e(t.CloseAction),e(t.ConfigureInlineChatAction),e(t.UnstashSessionAction),e(t.DiscardHunkAction),e(t.RerunAction),e(t.MoveToNextHunk),e(t.MoveToPreviousHunk),e(t.ArrowOutUpAction),e(t.ArrowOutDownAction),e(t.FocusInlineChat),e(t.ViewInChatAction),e(t.ToggleDiffForChange),e(t.AcceptChanges);const L=f.as(T.Workbench);L.registerWorkbenchContribution(E,b.Restored),S(l.Id,l,_.AfterRestored),p.register(new y),p.register(new x);
+import { EditorContributionInstantiation, registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { IMenuItem, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { InlineChatController } from "./inlineChatController.js";
+import * as InlineChatActions from "./inlineChatActions.js";
+import { CTX_INLINE_CHAT_EDITING, CTX_INLINE_CHAT_REQUEST_IN_PROGRESS, INLINE_CHAT_ID, MENU_INLINE_CHAT_WIDGET_STATUS } from "../common/inlineChat.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { InlineChatNotebookContribution } from "./inlineChatNotebook.js";
+import { IWorkbenchContributionsRegistry, registerWorkbenchContribution2, Extensions as WorkbenchExtensions, WorkbenchPhase } from "../../../common/contributions.js";
+import { InlineChatSavingServiceImpl } from "./inlineChatSavingServiceImpl.js";
+import { InlineChatAccessibleView } from "./inlineChatAccessibleView.js";
+import { IInlineChatSavingService } from "./inlineChatSavingService.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
+import { InlineChatEnabler, InlineChatSessionServiceImpl } from "./inlineChatSessionServiceImpl.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { CancelAction, SubmitAction } from "../../chat/browser/actions/chatExecuteActions.js";
+import { localize } from "../../../../nls.js";
+import { ChatContextKeys } from "../../chat/common/chatContextKeys.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { InlineChatAccessibilityHelp } from "./inlineChatAccessibilityHelp.js";
+import { InlineChatExansionContextKey, InlineChatExpandLineAction } from "./inlineChatCurrentLine.js";
+registerSingleton(IInlineChatSessionService, InlineChatSessionServiceImpl, InstantiationType.Delayed);
+registerSingleton(IInlineChatSavingService, InlineChatSavingServiceImpl, InstantiationType.Delayed);
+registerEditorContribution(INLINE_CHAT_ID, InlineChatController, EditorContributionInstantiation.Eager);
+registerEditorContribution(InlineChatExansionContextKey.Id, InlineChatExansionContextKey, EditorContributionInstantiation.BeforeFirstInteraction);
+registerAction2(InlineChatExpandLineAction);
+const editActionMenuItem = {
+  group: "0_main",
+  order: 0,
+  command: {
+    id: SubmitAction.ID,
+    title: localize("send.edit", "Edit Code")
+  },
+  when: ContextKeyExpr.and(
+    ChatContextKeys.inputHasText,
+    CTX_INLINE_CHAT_REQUEST_IN_PROGRESS.toNegated(),
+    CTX_INLINE_CHAT_EDITING
+  )
+};
+const generateActionMenuItem = {
+  group: "0_main",
+  order: 0,
+  command: {
+    id: SubmitAction.ID,
+    title: localize("send.generate", "Generate")
+  },
+  when: ContextKeyExpr.and(
+    ChatContextKeys.inputHasText,
+    CTX_INLINE_CHAT_REQUEST_IN_PROGRESS.toNegated(),
+    CTX_INLINE_CHAT_EDITING.toNegated()
+  )
+};
+MenuRegistry.appendMenuItem(MENU_INLINE_CHAT_WIDGET_STATUS, editActionMenuItem);
+MenuRegistry.appendMenuItem(MENU_INLINE_CHAT_WIDGET_STATUS, generateActionMenuItem);
+const cancelActionMenuItem = {
+  group: "0_main",
+  order: 0,
+  command: {
+    id: CancelAction.ID,
+    title: localize("cancel", "Cancel Request"),
+    shortTitle: localize("cancelShort", "Cancel")
+  },
+  when: ContextKeyExpr.and(
+    CTX_INLINE_CHAT_REQUEST_IN_PROGRESS
+  )
+};
+MenuRegistry.appendMenuItem(MENU_INLINE_CHAT_WIDGET_STATUS, cancelActionMenuItem);
+registerAction2(InlineChatActions.StartSessionAction);
+registerAction2(InlineChatActions.CloseAction);
+registerAction2(InlineChatActions.ConfigureInlineChatAction);
+registerAction2(InlineChatActions.UnstashSessionAction);
+registerAction2(InlineChatActions.DiscardHunkAction);
+registerAction2(InlineChatActions.RerunAction);
+registerAction2(InlineChatActions.MoveToNextHunk);
+registerAction2(InlineChatActions.MoveToPreviousHunk);
+registerAction2(InlineChatActions.ArrowOutUpAction);
+registerAction2(InlineChatActions.ArrowOutDownAction);
+registerAction2(InlineChatActions.FocusInlineChat);
+registerAction2(InlineChatActions.ViewInChatAction);
+registerAction2(InlineChatActions.ToggleDiffForChange);
+registerAction2(InlineChatActions.AcceptChanges);
+const workbenchContributionsRegistry = Registry.as(WorkbenchExtensions.Workbench);
+workbenchContributionsRegistry.registerWorkbenchContribution(InlineChatNotebookContribution, LifecyclePhase.Restored);
+registerWorkbenchContribution2(InlineChatEnabler.Id, InlineChatEnabler, WorkbenchPhase.AfterRestored);
+AccessibleViewRegistry.register(new InlineChatAccessibleView());
+AccessibleViewRegistry.register(new InlineChatAccessibilityHelp());
+//# sourceMappingURL=inlineChat.contribution.js.map

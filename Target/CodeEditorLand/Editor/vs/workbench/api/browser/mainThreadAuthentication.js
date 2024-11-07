@@ -1,1 +1,282 @@
-var y=Object.defineProperty;var E=Object.getOwnPropertyDescriptor;var d=(S,h,e,t)=>{for(var i=t>1?void 0:t?E(h,e):h,o=S.length-1,n;o>=0;o--)(n=S[o])&&(i=(t?n(h,e,i):n(i))||i);return t&&i&&y(h,e,i),i},u=(S,h)=>(e,t)=>h(e,t,S);import{Disposable as p,DisposableMap as b}from"../../../base/common/lifecycle.js";import*as l from"../../../nls.js";import{extHostNamedCustomer as x}from"../../services/extensions/common/extHostCustomers.js";import{IAuthenticationService as _,IAuthenticationExtensionsService as I,INTERNAL_AUTH_PROVIDER_PREFIX as C}from"../../services/authentication/common/authentication.js";import{ExtHostContext as N,MainContext as D}from"../common/extHost.protocol.js";import{IDialogService as O}from"../../../platform/dialogs/common/dialogs.js";import w from"../../../base/common/severity.js";import{INotificationService as T}from"../../../platform/notification/common/notification.js";import{ActivationKind as U,IExtensionService as M}from"../../services/extensions/common/extensions.js";import{ITelemetryService as R}from"../../../platform/telemetry/common/telemetry.js";import{Emitter as P}from"../../../base/common/event.js";import{IAuthenticationAccessService as $}from"../../services/authentication/browser/authenticationAccessService.js";import{IAuthenticationUsageService as z}from"../../services/authentication/browser/authenticationUsageService.js";import{getAuthenticationProviderActivationEvent as H}from"../../services/authentication/browser/authenticationService.js";import{URI as F}from"../../../base/common/uri.js";import{IOpenerService as B}from"../../../platform/opener/common/opener.js";import{CancellationError as G}from"../../../base/common/errors.js";class W extends p{constructor(e,t,i,o,n,s){super();this._proxy=e;this.id=t;this.label=i;this.supportsMultipleAccounts=o;this.notificationService=n;this.onDidChangeSessions=s.event}onDidChangeSessions;async getSessions(e,t){return this._proxy.$getSessions(this.id,e,t)}createSession(e,t){return this._proxy.$createSession(this.id,e,t)}async removeSession(e){await this._proxy.$removeSession(this.id,e),this.notificationService.info(l.localize("signedOut","Successfully signed out."))}}let A=class extends p{constructor(e,t,i,o,n,s,c,r,v,f){super();this.authenticationService=t;this.authenticationExtensionsService=i;this.authenticationAccessService=o;this.authenticationUsageService=n;this.dialogService=s;this.notificationService=c;this.extensionService=r;this.telemetryService=v;this.openerService=f;this._proxy=e.getProxy(N.ExtHostAuthentication),this._register(this.authenticationService.onDidChangeSessions(g=>{this._proxy.$onDidChangeAuthenticationSessions(g.providerId,g.label)})),this._register(this.authenticationExtensionsService.onDidChangeAccountPreference(g=>{const a=this.authenticationService.getProvider(g.providerId);this._proxy.$onDidChangeAuthenticationSessions(a.id,a.label,g.extensionIds)}))}_proxy;_registrations=this._register(new b);async $registerAuthenticationProvider(e,t,i){const o=new P;this._registrations.set(e,o);const n=new W(this._proxy,e,t,i,this.notificationService,o);this.authenticationService.registerAuthenticationProvider(e,n)}$unregisterAuthenticationProvider(e){this._registrations.deleteAndDispose(e),this.authenticationService.unregisterAuthenticationProvider(e)}async $ensureProvider(e){if(!this.authenticationService.isAuthenticationProviderRegistered(e))return await this.extensionService.activateByEvent(H(e),U.Immediate)}$sendDidChangeSessions(e,t){const i=this._registrations.get(e);i instanceof P&&i.fire(t)}$removeSession(e,t){return this.authenticationService.removeSession(e,t)}async loginPrompt(e,t,i,o){let n;e.id.startsWith(C)?n=l.localize("confirmModelAccess","The extension '{0}' wants to access the language models provided by {1}.",t,e.label):n=i?l.localize("confirmRelogin","The extension '{0}' wants you to sign in again using {1}.",t,e.label):l.localize("confirmLogin","The extension '{0}' wants to sign in using {1}.",t,e.label);const s=[{label:l.localize({key:"allow",comment:["&& denotes a mnemonic"]},"&&Allow"),run(){return!0}}];o?.learnMore&&s.push({label:l.localize("learnMore","Learn more"),run:async()=>{const r=this.loginPrompt(e,t,i,o);return await this.openerService.open(F.revive(o.learnMore),{allowCommands:!0}),await r}});const{result:c}=await this.dialogService.prompt({type:w.Info,message:n,buttons:s,detail:o?.detail,cancelButton:!0});return c??!1}async continueWithIncorrectAccountPrompt(e,t){const i=await this.dialogService.prompt({message:l.localize("incorrectAccount","Incorrect account detected"),detail:l.localize("incorrectAccountDetail","The chosen account, {0}, does not match the requested account, {1}.",e,t),type:w.Warning,cancelButton:!0,buttons:[{label:l.localize("keep","Keep {0}",e),run:()=>e},{label:l.localize("loginWith","Login with {0}",t),run:()=>t}]});if(!i.result)throw new G;return i.result===e}async doGetSession(e,t,i,o,n){const s=await this.authenticationService.getSessions(e,t,n.account,!0),c=this.authenticationService.getProvider(e);if(n.forceNewSession&&n.createIfNone)throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, createIfNone");if(n.forceNewSession&&n.silent)throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, silent");if(n.createIfNone&&n.silent)throw new Error("Invalid combination of options. Please remove one of the following: createIfNone, silent");n.clearSessionPreference&&this._removeAccountPreference(i,e,t);const r=n.account?s[0]:this._getAccountPreference(i,e,t,s);if(!n.forceNewSession&&s.length){if(r&&this.authenticationAccessService.isAccessAllowed(e,r.account.label,i))return r;if(!c.supportsMultipleAccounts&&this.authenticationAccessService.isAccessAllowed(e,s[0].account.label,i))return s[0]}if(n.createIfNone||n.forceNewSession){let v;typeof n.forceNewSession=="object"&&(v=n.forceNewSession);const f=!!(n.forceNewSession&&s.length);if(!await this.loginPrompt(c,o,f,v))throw new Error("User did not consent to login.");let a;if(s?.length&&!n.forceNewSession)a=c.supportsMultipleAccounts&&!n.account?await this.authenticationExtensionsService.selectSession(e,i,o,t,s):s[0];else{const m=n.account??r?.account;do a=await this.authenticationService.createSession(e,t,{activateImmediate:!0,account:m});while(m&&m.label!==a.account.label&&!await this.continueWithIncorrectAccountPrompt(a.account.label,m.label))}return this.authenticationAccessService.updateAllowedExtensions(e,a.account.label,[{id:i,name:o,allowed:!0}]),this._updateAccountPreference(i,e,a),a}if(!r&&!this.authenticationExtensionsService.getAccountPreference(i,e)){const v=s.find(f=>this.authenticationAccessService.isAccessAllowed(e,f.account.label,i));if(v)return v}n.silent||(s.length?this.authenticationExtensionsService.requestSessionAccess(e,i,o,t,s):await this.authenticationExtensionsService.requestNewSession(e,t,i,o))}async $getSession(e,t,i,o,n){const s=await this.doGetSession(e,t,i,o,n);return s&&(this.sendProviderUsageTelemetry(i,e),this.authenticationUsageService.addAccountUsage(e,s.account.label,t,i,o)),s}async $getAccounts(e){return await this.authenticationService.getAccounts(e)}sendProviderUsageTelemetry(e,t){this.telemetryService.publicLog2("authentication.providerUsage",{providerId:t,extensionId:e})}_getAccountPreference(e,t,i,o){if(o.length===0)return;const n=this.authenticationExtensionsService.getAccountPreference(e,t);if(n)return o.find(r=>r.account.label===n);const s=this.authenticationExtensionsService.getSessionPreference(t,e,i);if(s){const c=o.find(r=>r.id===s);if(c)return this.authenticationExtensionsService.updateAccountPreference(e,t,c.account),c}}_updateAccountPreference(e,t,i){this.authenticationExtensionsService.updateAccountPreference(e,t,i.account),this.authenticationExtensionsService.updateSessionPreference(t,e,i)}_removeAccountPreference(e,t,i){this.authenticationExtensionsService.removeAccountPreference(e,t),this.authenticationExtensionsService.removeSessionPreference(t,e,i)}};A=d([x(D.MainThreadAuthentication),u(1,_),u(2,I),u(3,$),u(4,z),u(5,O),u(6,T),u(7,M),u(8,R),u(9,B)],A);export{A as MainThreadAuthentication,W as MainThreadAuthenticationProvider};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import * as nls from "../../../nls.js";
+import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import { IAuthenticationCreateSessionOptions, AuthenticationSession, AuthenticationSessionsChangeEvent, IAuthenticationProvider, IAuthenticationService, IAuthenticationExtensionsService, INTERNAL_AUTH_PROVIDER_PREFIX as INTERNAL_MODEL_AUTH_PROVIDER_PREFIX, AuthenticationSessionAccount, IAuthenticationProviderSessionOptions } from "../../services/authentication/common/authentication.js";
+import { ExtHostAuthenticationShape, ExtHostContext, MainContext, MainThreadAuthenticationShape } from "../common/extHost.protocol.js";
+import { IDialogService, IPromptButton } from "../../../platform/dialogs/common/dialogs.js";
+import Severity from "../../../base/common/severity.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import { ActivationKind, IExtensionService } from "../../services/extensions/common/extensions.js";
+import { ITelemetryService } from "../../../platform/telemetry/common/telemetry.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { IAuthenticationAccessService } from "../../services/authentication/browser/authenticationAccessService.js";
+import { IAuthenticationUsageService } from "../../services/authentication/browser/authenticationUsageService.js";
+import { getAuthenticationProviderActivationEvent } from "../../services/authentication/browser/authenticationService.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { IOpenerService } from "../../../platform/opener/common/opener.js";
+import { CancellationError } from "../../../base/common/errors.js";
+class MainThreadAuthenticationProvider extends Disposable {
+  constructor(_proxy, id, label, supportsMultipleAccounts, notificationService, onDidChangeSessionsEmitter) {
+    super();
+    this._proxy = _proxy;
+    this.id = id;
+    this.label = label;
+    this.supportsMultipleAccounts = supportsMultipleAccounts;
+    this.notificationService = notificationService;
+    this.onDidChangeSessions = onDidChangeSessionsEmitter.event;
+  }
+  static {
+    __name(this, "MainThreadAuthenticationProvider");
+  }
+  onDidChangeSessions;
+  async getSessions(scopes, options) {
+    return this._proxy.$getSessions(this.id, scopes, options);
+  }
+  createSession(scopes, options) {
+    return this._proxy.$createSession(this.id, scopes, options);
+  }
+  async removeSession(sessionId) {
+    await this._proxy.$removeSession(this.id, sessionId);
+    this.notificationService.info(nls.localize("signedOut", "Successfully signed out."));
+  }
+}
+let MainThreadAuthentication = class extends Disposable {
+  constructor(extHostContext, authenticationService, authenticationExtensionsService, authenticationAccessService, authenticationUsageService, dialogService, notificationService, extensionService, telemetryService, openerService) {
+    super();
+    this.authenticationService = authenticationService;
+    this.authenticationExtensionsService = authenticationExtensionsService;
+    this.authenticationAccessService = authenticationAccessService;
+    this.authenticationUsageService = authenticationUsageService;
+    this.dialogService = dialogService;
+    this.notificationService = notificationService;
+    this.extensionService = extensionService;
+    this.telemetryService = telemetryService;
+    this.openerService = openerService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostAuthentication);
+    this._register(this.authenticationService.onDidChangeSessions((e) => {
+      this._proxy.$onDidChangeAuthenticationSessions(e.providerId, e.label);
+    }));
+    this._register(this.authenticationExtensionsService.onDidChangeAccountPreference((e) => {
+      const providerInfo = this.authenticationService.getProvider(e.providerId);
+      this._proxy.$onDidChangeAuthenticationSessions(providerInfo.id, providerInfo.label, e.extensionIds);
+    }));
+  }
+  _proxy;
+  _registrations = this._register(new DisposableMap());
+  async $registerAuthenticationProvider(id, label, supportsMultipleAccounts) {
+    const emitter = new Emitter();
+    this._registrations.set(id, emitter);
+    const provider = new MainThreadAuthenticationProvider(this._proxy, id, label, supportsMultipleAccounts, this.notificationService, emitter);
+    this.authenticationService.registerAuthenticationProvider(id, provider);
+  }
+  $unregisterAuthenticationProvider(id) {
+    this._registrations.deleteAndDispose(id);
+    this.authenticationService.unregisterAuthenticationProvider(id);
+  }
+  async $ensureProvider(id) {
+    if (!this.authenticationService.isAuthenticationProviderRegistered(id)) {
+      return await this.extensionService.activateByEvent(getAuthenticationProviderActivationEvent(id), ActivationKind.Immediate);
+    }
+  }
+  $sendDidChangeSessions(providerId, event) {
+    const obj = this._registrations.get(providerId);
+    if (obj instanceof Emitter) {
+      obj.fire(event);
+    }
+  }
+  $removeSession(providerId, sessionId) {
+    return this.authenticationService.removeSession(providerId, sessionId);
+  }
+  async loginPrompt(provider, extensionName, recreatingSession, options) {
+    let message;
+    if (provider.id.startsWith(INTERNAL_MODEL_AUTH_PROVIDER_PREFIX)) {
+      message = nls.localize("confirmModelAccess", "The extension '{0}' wants to access the language models provided by {1}.", extensionName, provider.label);
+    } else {
+      message = recreatingSession ? nls.localize("confirmRelogin", "The extension '{0}' wants you to sign in again using {1}.", extensionName, provider.label) : nls.localize("confirmLogin", "The extension '{0}' wants to sign in using {1}.", extensionName, provider.label);
+    }
+    const buttons = [
+      {
+        label: nls.localize({ key: "allow", comment: ["&& denotes a mnemonic"] }, "&&Allow"),
+        run() {
+          return true;
+        }
+      }
+    ];
+    if (options?.learnMore) {
+      buttons.push({
+        label: nls.localize("learnMore", "Learn more"),
+        run: /* @__PURE__ */ __name(async () => {
+          const result2 = this.loginPrompt(provider, extensionName, recreatingSession, options);
+          await this.openerService.open(URI.revive(options.learnMore), { allowCommands: true });
+          return await result2;
+        }, "run")
+      });
+    }
+    const { result } = await this.dialogService.prompt({
+      type: Severity.Info,
+      message,
+      buttons,
+      detail: options?.detail,
+      cancelButton: true
+    });
+    return result ?? false;
+  }
+  async continueWithIncorrectAccountPrompt(chosenAccountLabel, requestedAccountLabel) {
+    const result = await this.dialogService.prompt({
+      message: nls.localize("incorrectAccount", "Incorrect account detected"),
+      detail: nls.localize("incorrectAccountDetail", "The chosen account, {0}, does not match the requested account, {1}.", chosenAccountLabel, requestedAccountLabel),
+      type: Severity.Warning,
+      cancelButton: true,
+      buttons: [
+        {
+          label: nls.localize("keep", "Keep {0}", chosenAccountLabel),
+          run: /* @__PURE__ */ __name(() => chosenAccountLabel, "run")
+        },
+        {
+          label: nls.localize("loginWith", "Login with {0}", requestedAccountLabel),
+          run: /* @__PURE__ */ __name(() => requestedAccountLabel, "run")
+        }
+      ]
+    });
+    if (!result.result) {
+      throw new CancellationError();
+    }
+    return result.result === chosenAccountLabel;
+  }
+  async doGetSession(providerId, scopes, extensionId, extensionName, options) {
+    const sessions = await this.authenticationService.getSessions(providerId, scopes, options.account, true);
+    const provider = this.authenticationService.getProvider(providerId);
+    if (options.forceNewSession && options.createIfNone) {
+      throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, createIfNone");
+    }
+    if (options.forceNewSession && options.silent) {
+      throw new Error("Invalid combination of options. Please remove one of the following: forceNewSession, silent");
+    }
+    if (options.createIfNone && options.silent) {
+      throw new Error("Invalid combination of options. Please remove one of the following: createIfNone, silent");
+    }
+    if (options.clearSessionPreference) {
+      this._removeAccountPreference(extensionId, providerId, scopes);
+    }
+    const matchingAccountPreferenceSession = (
+      // If an account was passed in, that takes precedence over the account preference
+      options.account ? sessions[0] : this._getAccountPreference(extensionId, providerId, scopes, sessions)
+    );
+    if (!options.forceNewSession && sessions.length) {
+      if (matchingAccountPreferenceSession && this.authenticationAccessService.isAccessAllowed(providerId, matchingAccountPreferenceSession.account.label, extensionId)) {
+        return matchingAccountPreferenceSession;
+      }
+      if (!provider.supportsMultipleAccounts && this.authenticationAccessService.isAccessAllowed(providerId, sessions[0].account.label, extensionId)) {
+        return sessions[0];
+      }
+    }
+    if (options.createIfNone || options.forceNewSession) {
+      let uiOptions;
+      if (typeof options.forceNewSession === "object") {
+        uiOptions = options.forceNewSession;
+      }
+      const recreatingSession = !!(options.forceNewSession && sessions.length);
+      const isAllowed = await this.loginPrompt(provider, extensionName, recreatingSession, uiOptions);
+      if (!isAllowed) {
+        throw new Error("User did not consent to login.");
+      }
+      let session;
+      if (sessions?.length && !options.forceNewSession) {
+        session = provider.supportsMultipleAccounts && !options.account ? await this.authenticationExtensionsService.selectSession(providerId, extensionId, extensionName, scopes, sessions) : sessions[0];
+      } else {
+        const accountToCreate = options.account ?? matchingAccountPreferenceSession?.account;
+        do {
+          session = await this.authenticationService.createSession(providerId, scopes, { activateImmediate: true, account: accountToCreate });
+        } while (accountToCreate && accountToCreate.label !== session.account.label && !await this.continueWithIncorrectAccountPrompt(session.account.label, accountToCreate.label));
+      }
+      this.authenticationAccessService.updateAllowedExtensions(providerId, session.account.label, [{ id: extensionId, name: extensionName, allowed: true }]);
+      this._updateAccountPreference(extensionId, providerId, session);
+      return session;
+    }
+    if (!matchingAccountPreferenceSession && !this.authenticationExtensionsService.getAccountPreference(extensionId, providerId)) {
+      const validSession = sessions.find((session) => this.authenticationAccessService.isAccessAllowed(providerId, session.account.label, extensionId));
+      if (validSession) {
+        return validSession;
+      }
+    }
+    if (!options.silent) {
+      sessions.length ? this.authenticationExtensionsService.requestSessionAccess(providerId, extensionId, extensionName, scopes, sessions) : await this.authenticationExtensionsService.requestNewSession(providerId, scopes, extensionId, extensionName);
+    }
+    return void 0;
+  }
+  async $getSession(providerId, scopes, extensionId, extensionName, options) {
+    const session = await this.doGetSession(providerId, scopes, extensionId, extensionName, options);
+    if (session) {
+      this.sendProviderUsageTelemetry(extensionId, providerId);
+      this.authenticationUsageService.addAccountUsage(providerId, session.account.label, scopes, extensionId, extensionName);
+    }
+    return session;
+  }
+  async $getAccounts(providerId) {
+    const accounts = await this.authenticationService.getAccounts(providerId);
+    return accounts;
+  }
+  sendProviderUsageTelemetry(extensionId, providerId) {
+    this.telemetryService.publicLog2("authentication.providerUsage", { providerId, extensionId });
+  }
+  //#region Account Preferences
+  // TODO@TylerLeonhardt: Update this after a few iterations to no longer fallback to the session preference
+  _getAccountPreference(extensionId, providerId, scopes, sessions) {
+    if (sessions.length === 0) {
+      return void 0;
+    }
+    const accountNamePreference = this.authenticationExtensionsService.getAccountPreference(extensionId, providerId);
+    if (accountNamePreference) {
+      const session = sessions.find((session2) => session2.account.label === accountNamePreference);
+      return session;
+    }
+    const sessionIdPreference = this.authenticationExtensionsService.getSessionPreference(providerId, extensionId, scopes);
+    if (sessionIdPreference) {
+      const session = sessions.find((session2) => session2.id === sessionIdPreference);
+      if (session) {
+        this.authenticationExtensionsService.updateAccountPreference(extensionId, providerId, session.account);
+        return session;
+      }
+    }
+    return void 0;
+  }
+  _updateAccountPreference(extensionId, providerId, session) {
+    this.authenticationExtensionsService.updateAccountPreference(extensionId, providerId, session.account);
+    this.authenticationExtensionsService.updateSessionPreference(providerId, extensionId, session);
+  }
+  _removeAccountPreference(extensionId, providerId, scopes) {
+    this.authenticationExtensionsService.removeAccountPreference(extensionId, providerId);
+    this.authenticationExtensionsService.removeSessionPreference(providerId, extensionId, scopes);
+  }
+  //#endregion
+};
+__name(MainThreadAuthentication, "MainThreadAuthentication");
+MainThreadAuthentication = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadAuthentication),
+  __decorateParam(1, IAuthenticationService),
+  __decorateParam(2, IAuthenticationExtensionsService),
+  __decorateParam(3, IAuthenticationAccessService),
+  __decorateParam(4, IAuthenticationUsageService),
+  __decorateParam(5, IDialogService),
+  __decorateParam(6, INotificationService),
+  __decorateParam(7, IExtensionService),
+  __decorateParam(8, ITelemetryService),
+  __decorateParam(9, IOpenerService)
+], MainThreadAuthentication);
+export {
+  MainThreadAuthentication,
+  MainThreadAuthenticationProvider
+};
+//# sourceMappingURL=mainThreadAuthentication.js.map

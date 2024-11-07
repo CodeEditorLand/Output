@@ -1,1 +1,119 @@
-import{raceCancellation as l}from"../../../base/common/async.js";import{CancellationToken as c}from"../../../base/common/cancellation.js";import{CancellationError as g}from"../../../base/common/errors.js";import{toDisposable as p}from"../../../base/common/lifecycle.js";import{revive as T}from"../../../base/common/marshalling.js";import{generateUuid as u}from"../../../base/common/uuid.js";import"../../../platform/extensions/common/extensions.js";import{isToolInvocationContext as d}from"../../contrib/chat/common/languageModelToolsService.js";import{MainContext as m}from"./extHost.protocol.js";import*as s from"./extHostTypeConverters.js";class B{_registeredTools=new Map;_proxy;_tokenCountFuncs=new Map;_allTools=new Map;constructor(e){this._proxy=e.getProxy(m.MainThreadLanguageModelTools),this._proxy.$getTools().then(o=>{for(const n of o)this._allTools.set(n.id,T(n))})}async $countTokensForInvocation(e,o,n){const t=this._tokenCountFuncs.get(e);if(!t)throw new Error(`Tool invocation call ${e} not found`);return await t(o,n)}async invokeTool(e,o,n){const t=u();if(o.tokenizationOptions&&this._tokenCountFuncs.set(t,o.tokenizationOptions.countTokens),o.toolInvocationToken&&!d(o.toolInvocationToken))throw new Error("Invalid tool invocation token");try{const i=await this._proxy.$invokeTool({toolId:e,callId:t,parameters:o.input??o.parameters,tokenBudget:o.tokenizationOptions?.tokenBudget,context:o.toolInvocationToken},n);return s.LanguageModelToolResult.to(i)}finally{this._tokenCountFuncs.delete(t)}}$onDidChangeTools(e){this._allTools.clear();for(const o of e)this._allTools.set(o.id,o)}get tools(){return Array.from(this._allTools.values()).map(e=>s.LanguageModelToolDescription.to(e))}async $invokeTool(e,o){const n=this._registeredTools.get(e.toolId);if(!n)throw new Error(`Unknown tool ${e.toolId}`);const t={input:e.parameters,parameters:e.parameters,toolInvocationToken:e.context};e.tokenBudget!==void 0&&(t.tokenizationOptions={tokenBudget:e.tokenBudget,countTokens:this._tokenCountFuncs.get(e.callId)||((a,r=c.None)=>this._proxy.$countTokensForInvocation(e.callId,a,r))});const i=await l(Promise.resolve(n.tool.invoke(t,o)),o);if(!i)throw new g;return s.LanguageModelToolResult.from(i)}async $prepareToolInvocation(e,o,n){const t=this._registeredTools.get(e);if(!t)throw new Error(`Unknown tool ${e}`);if(!t.tool.prepareInvocation)return;const i={parameters:o,input:o},a=await t.tool.prepareInvocation(i,n);if(a)return{confirmationMessages:a.confirmationMessages?{title:a.confirmationMessages.title,message:typeof a.confirmationMessages.message=="string"?a.confirmationMessages.message:s.MarkdownString.from(a.confirmationMessages.message)}:void 0,invocationMessage:a.invocationMessage}}registerTool(e,o,n){return this._registeredTools.set(o,{extension:e,tool:n}),this._proxy.$registerTool(o),p(()=>{this._registeredTools.delete(o),this._proxy.$unregisterTool(o)})}}export{B as ExtHostLanguageModelTools};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { raceCancellation } from "../../../base/common/async.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { CancellationError } from "../../../base/common/errors.js";
+import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IPreparedToolInvocation, isToolInvocationContext, IToolInvocation, IToolInvocationContext, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
+import { ExtHostLanguageModelToolsShape, IMainContext, IToolDataDto, MainContext, MainThreadLanguageModelToolsShape } from "./extHost.protocol.js";
+import * as typeConvert from "./extHostTypeConverters.js";
+class ExtHostLanguageModelTools {
+  static {
+    __name(this, "ExtHostLanguageModelTools");
+  }
+  /** A map of tools that were registered in this EH */
+  _registeredTools = /* @__PURE__ */ new Map();
+  _proxy;
+  _tokenCountFuncs = /* @__PURE__ */ new Map();
+  /** A map of all known tools, from other EHs or registered in vscode core */
+  _allTools = /* @__PURE__ */ new Map();
+  constructor(mainContext) {
+    this._proxy = mainContext.getProxy(MainContext.MainThreadLanguageModelTools);
+    this._proxy.$getTools().then((tools) => {
+      for (const tool of tools) {
+        this._allTools.set(tool.id, revive(tool));
+      }
+    });
+  }
+  async $countTokensForInvocation(callId, input, token) {
+    const fn = this._tokenCountFuncs.get(callId);
+    if (!fn) {
+      throw new Error(`Tool invocation call ${callId} not found`);
+    }
+    return await fn(input, token);
+  }
+  async invokeTool(toolId, options, token) {
+    const callId = generateUuid();
+    if (options.tokenizationOptions) {
+      this._tokenCountFuncs.set(callId, options.tokenizationOptions.countTokens);
+    }
+    if (options.toolInvocationToken && !isToolInvocationContext(options.toolInvocationToken)) {
+      throw new Error(`Invalid tool invocation token`);
+    }
+    try {
+      const result = await this._proxy.$invokeTool({
+        toolId,
+        callId,
+        parameters: options.input ?? options.parameters,
+        tokenBudget: options.tokenizationOptions?.tokenBudget,
+        context: options.toolInvocationToken
+      }, token);
+      return typeConvert.LanguageModelToolResult.to(result);
+    } finally {
+      this._tokenCountFuncs.delete(callId);
+    }
+  }
+  $onDidChangeTools(tools) {
+    this._allTools.clear();
+    for (const tool of tools) {
+      this._allTools.set(tool.id, tool);
+    }
+  }
+  get tools() {
+    return Array.from(this._allTools.values()).map((tool) => typeConvert.LanguageModelToolDescription.to(tool));
+  }
+  async $invokeTool(dto, token) {
+    const item = this._registeredTools.get(dto.toolId);
+    if (!item) {
+      throw new Error(`Unknown tool ${dto.toolId}`);
+    }
+    const options = { input: dto.parameters, parameters: dto.parameters, toolInvocationToken: dto.context };
+    if (dto.tokenBudget !== void 0) {
+      options.tokenizationOptions = {
+        tokenBudget: dto.tokenBudget,
+        countTokens: this._tokenCountFuncs.get(dto.callId) || ((value, token2 = CancellationToken.None) => this._proxy.$countTokensForInvocation(dto.callId, value, token2))
+      };
+    }
+    const extensionResult = await raceCancellation(Promise.resolve(item.tool.invoke(options, token)), token);
+    if (!extensionResult) {
+      throw new CancellationError();
+    }
+    return typeConvert.LanguageModelToolResult.from(extensionResult);
+  }
+  async $prepareToolInvocation(toolId, parameters, token) {
+    const item = this._registeredTools.get(toolId);
+    if (!item) {
+      throw new Error(`Unknown tool ${toolId}`);
+    }
+    if (!item.tool.prepareInvocation) {
+      return void 0;
+    }
+    const options = { parameters, input: parameters };
+    const result = await item.tool.prepareInvocation(options, token);
+    if (!result) {
+      return void 0;
+    }
+    return {
+      confirmationMessages: result.confirmationMessages ? {
+        title: result.confirmationMessages.title,
+        message: typeof result.confirmationMessages.message === "string" ? result.confirmationMessages.message : typeConvert.MarkdownString.from(result.confirmationMessages.message)
+      } : void 0,
+      invocationMessage: result.invocationMessage
+    };
+  }
+  registerTool(extension, id, tool) {
+    this._registeredTools.set(id, { extension, tool });
+    this._proxy.$registerTool(id);
+    return toDisposable(() => {
+      this._registeredTools.delete(id);
+      this._proxy.$unregisterTool(id);
+    });
+  }
+}
+export {
+  ExtHostLanguageModelTools
+};
+//# sourceMappingURL=extHostLanguageModelTools.js.map

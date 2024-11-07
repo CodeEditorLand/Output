@@ -1,1 +1,168 @@
-var C=Object.defineProperty;var D=Object.getOwnPropertyDescriptor;var S=(v,m,s,o)=>{for(var e=o>1?void 0:o?D(m,s):m,a=v.length-1,t;a>=0;a--)(t=v[a])&&(e=(o?t(m,s,e):t(e))||e);return o&&e&&C(m,s,e),e},b=(v,m)=>(s,o)=>m(s,o,v);import*as n from"../../../../../base/browser/dom.js";import{createInstantHoverDelegate as $}from"../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{Emitter as E}from"../../../../../base/common/event.js";import{Disposable as F,DisposableStore as w}from"../../../../../base/common/lifecycle.js";import{basename as N,dirname as O}from"../../../../../base/common/path.js";import{URI as x}from"../../../../../base/common/uri.js";import{Range as U}from"../../../../../editor/common/core/range.js";import{localize as h}from"../../../../../nls.js";import{FileKind as H,IFileService as M}from"../../../../../platform/files/common/files.js";import{IHoverService as T}from"../../../../../platform/hover/browser/hover.js";import{IInstantiationService as V}from"../../../../../platform/instantiation/common/instantiation.js";import{IOpenerService as _}from"../../../../../platform/opener/common/opener.js";import{ResourceLabels as j}from"../../../../browser/labels.js";import"../../common/chatModel.js";import{ChatResponseReferencePartStatusKind as R}from"../../common/chatService.js";let g=class extends F{constructor(s,o=[],e=[],a=n.$(".chat-attached-context"),t,r,f,c){super();this.variables=s;this.contentReferences=o;this.workingSet=e;this.domNode=a;this.instantiationService=t;this.openerService=r;this.hoverService=f;this.fileService=c;this.initAttachedContext(a)}attachedContextDisposables=this._register(new w);_onDidChangeVisibility=this._register(new E);_contextResourceLabels=this.instantiationService.createInstance(j,{onDidChangeVisibility:this._onDidChangeVisibility.event});initAttachedContext(s){n.clearNode(s),this.attachedContextDisposables.clear(),n.setVisibility(!!this.variables.length,this.domNode);const o=this.attachedContextDisposables.add($());this.variables.forEach(async e=>{const a=x.isUri(e.value)?e.value:e.value&&typeof e.value=="object"&&"uri"in e.value&&x.isUri(e.value.uri)?e.value.uri:void 0,t=e.value&&typeof e.value=="object"&&"range"in e.value&&U.isIRange(e.value.range)?e.value.range:void 0;if(a&&e.isFile&&this.workingSet.find(i=>i.toString()===a.toString()))return;const r=n.append(s,n.$(".chat-attached-context-attachment.show-file-icons")),f=this._contextResourceLabels.create(r,{supportIcons:!0,hoverDelegate:o,hoverTargetOverrride:r}),c=this.contentReferences.find(i=>typeof i.reference=="object"&&"variableName"in i.reference&&i.reference.variableName===e.name),u=c?.options?.status?.kind===R.Omitted,y=u||c?.options?.status?.kind===R.Partial;let l;if(a&&e.isFile){const i=N(a.path),d=O(a.path),p=`${i} ${d}`;u?l=t?h("chat.omittedFileAttachmentWithRange","Omitted: {0}, line {1} to line {2}.",p,t.startLineNumber,t.endLineNumber):h("chat.omittedFileAttachment","Omitted: {0}.",p):y?l=t?h("chat.partialFileAttachmentWithRange","Partially attached: {0}, line {1} to line {2}.",p,t.startLineNumber,t.endLineNumber):h("chat.partialFileAttachment","Partially attached: {0}.",p):l=t?h("chat.fileAttachmentWithRange3","Attached: {0}, line {1} to line {2}.",p,t.startLineNumber,t.endLineNumber):h("chat.fileAttachment3","Attached: {0}.",p),f.setFile(a,{fileKind:H.FILE,hidePath:!0,range:t,title:c?.options?.status?.description})}else if(e.isImage){l=h("chat.imageAttachment","Attached image, {0}",e.name);const i=n.$("div.chat-attached-context-hover");i.setAttribute("aria-label",l);const d=n.$("div.chat-attached-context-pill",{},n.$("span.codicon.codicon-file-media")),p=n.$("span.chat-attached-context-custom-text",{},e.name);r.appendChild(d),r.appendChild(p);let I;try{e.value instanceof x?I=(await this.fileService.readFile(e.value)).value.buffer:I=e.value,await this.createImageElements(I,r,i)}catch{}r.style.position="relative",this.attachedContextDisposables.isDisposed||this.attachedContextDisposables.add(this.hoverService.setupManagedHover(o,r,i))}else{const i=e.fullName??e.name,d=e.icon?.id?`$(${e.icon.id}) ${i}`:i;f.setLabel(d,c?.options?.status?.description),l=h("chat.attachment3","Attached context: {0}.",e.name)}y&&r.classList.add("warning");const L=c?.options?.status?.description;if(y){l=`${l}${L?` ${L}`:""}`;for(const i of[".monaco-icon-suffix-container",".monaco-icon-name-container"]){const d=f.element.querySelector(i);d&&d.classList.add("warning")}}a&&(r.style.cursor="pointer",this.attachedContextDisposables.isDisposed||this.attachedContextDisposables.add(n.addDisposableListener(r,n.EventType.CLICK,async i=>{n.EventHelper.stop(i,!0),this.openerService.open(a,{fromUserGesture:!0,editorOptions:{selection:t}})}))),r.ariaLabel=l,r.tabIndex=0})}async createImageElements(s,o,e){const a=new Blob([s],{type:"image/png"}),t=URL.createObjectURL(a),r=n.$("img.chat-attached-context-image",{src:t,alt:""}),f=n.$("img.chat-attached-context-pill-image",{src:t,alt:""}),c=n.$("div.chat-attached-context-pill",{},f),u=o.querySelector(".chat-attached-context-pill");u&&u.replaceWith(c),e.appendChild(r)}};g=S([b(4,V),b(5,_),b(6,T),b(7,M)],g);export{g as ChatAttachmentsContentPart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../base/browser/dom.js";
+import { createInstantHoverDelegate } from "../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { basename, dirname } from "../../../../../base/common/path.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { localize } from "../../../../../nls.js";
+import { FileKind, IFileService } from "../../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { ResourceLabels } from "../../../../browser/labels.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
+import { ChatResponseReferencePartStatusKind, IChatContentReference } from "../../common/chatService.js";
+let ChatAttachmentsContentPart = class extends Disposable {
+  constructor(variables, contentReferences = [], workingSet = [], domNode = dom.$(".chat-attached-context"), instantiationService, openerService, hoverService, fileService) {
+    super();
+    this.variables = variables;
+    this.contentReferences = contentReferences;
+    this.workingSet = workingSet;
+    this.domNode = domNode;
+    this.instantiationService = instantiationService;
+    this.openerService = openerService;
+    this.hoverService = hoverService;
+    this.fileService = fileService;
+    this.initAttachedContext(domNode);
+  }
+  static {
+    __name(this, "ChatAttachmentsContentPart");
+  }
+  attachedContextDisposables = this._register(new DisposableStore());
+  _onDidChangeVisibility = this._register(new Emitter());
+  _contextResourceLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this._onDidChangeVisibility.event });
+  initAttachedContext(container) {
+    dom.clearNode(container);
+    this.attachedContextDisposables.clear();
+    dom.setVisibility(Boolean(this.variables.length), this.domNode);
+    const hoverDelegate = this.attachedContextDisposables.add(createInstantHoverDelegate());
+    this.variables.forEach(async (attachment) => {
+      const file = URI.isUri(attachment.value) ? attachment.value : attachment.value && typeof attachment.value === "object" && "uri" in attachment.value && URI.isUri(attachment.value.uri) ? attachment.value.uri : void 0;
+      const range = attachment.value && typeof attachment.value === "object" && "range" in attachment.value && Range.isIRange(attachment.value.range) ? attachment.value.range : void 0;
+      if (file && attachment.isFile && this.workingSet.find((entry) => entry.toString() === file.toString())) {
+        return;
+      }
+      const widget = dom.append(container, dom.$(".chat-attached-context-attachment.show-file-icons"));
+      const label = this._contextResourceLabels.create(widget, { supportIcons: true, hoverDelegate, hoverTargetOverrride: widget });
+      const correspondingContentReference = this.contentReferences.find((ref) => typeof ref.reference === "object" && "variableName" in ref.reference && ref.reference.variableName === attachment.name);
+      const isAttachmentOmitted = correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Omitted;
+      const isAttachmentPartialOrOmitted = isAttachmentOmitted || correspondingContentReference?.options?.status?.kind === ChatResponseReferencePartStatusKind.Partial;
+      let ariaLabel;
+      if (file && attachment.isFile) {
+        const fileBasename = basename(file.path);
+        const fileDirname = dirname(file.path);
+        const friendlyName = `${fileBasename} ${fileDirname}`;
+        if (isAttachmentOmitted) {
+          ariaLabel = range ? localize("chat.omittedFileAttachmentWithRange", "Omitted: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.omittedFileAttachment", "Omitted: {0}.", friendlyName);
+        } else if (isAttachmentPartialOrOmitted) {
+          ariaLabel = range ? localize("chat.partialFileAttachmentWithRange", "Partially attached: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.partialFileAttachment", "Partially attached: {0}.", friendlyName);
+        } else {
+          ariaLabel = range ? localize("chat.fileAttachmentWithRange3", "Attached: {0}, line {1} to line {2}.", friendlyName, range.startLineNumber, range.endLineNumber) : localize("chat.fileAttachment3", "Attached: {0}.", friendlyName);
+        }
+        label.setFile(file, {
+          fileKind: FileKind.FILE,
+          hidePath: true,
+          range,
+          title: correspondingContentReference?.options?.status?.description
+        });
+      } else if (attachment.isImage) {
+        ariaLabel = localize("chat.imageAttachment", "Attached image, {0}", attachment.name);
+        const hoverElement = dom.$("div.chat-attached-context-hover");
+        hoverElement.setAttribute("aria-label", ariaLabel);
+        const pillIcon = dom.$("div.chat-attached-context-pill", {}, dom.$("span.codicon.codicon-file-media"));
+        const textLabel = dom.$("span.chat-attached-context-custom-text", {}, attachment.name);
+        widget.appendChild(pillIcon);
+        widget.appendChild(textLabel);
+        let buffer;
+        try {
+          if (attachment.value instanceof URI) {
+            const readFile = await this.fileService.readFile(attachment.value);
+            buffer = readFile.value.buffer;
+          } else {
+            buffer = attachment.value;
+          }
+          await this.createImageElements(buffer, widget, hoverElement);
+        } catch (error) {
+          console.error("Error processing attachment:", error);
+        }
+        widget.style.position = "relative";
+        if (!this.attachedContextDisposables.isDisposed) {
+          this.attachedContextDisposables.add(this.hoverService.setupManagedHover(hoverDelegate, widget, hoverElement));
+        }
+      } else {
+        const attachmentLabel = attachment.fullName ?? attachment.name;
+        const withIcon = attachment.icon?.id ? `$(${attachment.icon.id}) ${attachmentLabel}` : attachmentLabel;
+        label.setLabel(withIcon, correspondingContentReference?.options?.status?.description);
+        ariaLabel = localize("chat.attachment3", "Attached context: {0}.", attachment.name);
+      }
+      if (isAttachmentPartialOrOmitted) {
+        widget.classList.add("warning");
+      }
+      const description = correspondingContentReference?.options?.status?.description;
+      if (isAttachmentPartialOrOmitted) {
+        ariaLabel = `${ariaLabel}${description ? ` ${description}` : ""}`;
+        for (const selector of [".monaco-icon-suffix-container", ".monaco-icon-name-container"]) {
+          const element = label.element.querySelector(selector);
+          if (element) {
+            element.classList.add("warning");
+          }
+        }
+      }
+      if (file) {
+        widget.style.cursor = "pointer";
+        if (!this.attachedContextDisposables.isDisposed) {
+          this.attachedContextDisposables.add(dom.addDisposableListener(widget, dom.EventType.CLICK, async (e) => {
+            dom.EventHelper.stop(e, true);
+            this.openerService.open(
+              file,
+              {
+                fromUserGesture: true,
+                editorOptions: {
+                  selection: range
+                }
+              }
+            );
+          }));
+        }
+      }
+      widget.ariaLabel = ariaLabel;
+      widget.tabIndex = 0;
+    });
+  }
+  // Helper function to create and replace image
+  async createImageElements(buffer, widget, hoverElement) {
+    const blob = new Blob([buffer], { type: "image/png" });
+    const url = URL.createObjectURL(blob);
+    const img = dom.$("img.chat-attached-context-image", { src: url, alt: "" });
+    const pillImg = dom.$("img.chat-attached-context-pill-image", { src: url, alt: "" });
+    const pill = dom.$("div.chat-attached-context-pill", {}, pillImg);
+    const existingPill = widget.querySelector(".chat-attached-context-pill");
+    if (existingPill) {
+      existingPill.replaceWith(pill);
+    }
+    hoverElement.appendChild(img);
+  }
+};
+ChatAttachmentsContentPart = __decorateClass([
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IOpenerService),
+  __decorateParam(6, IHoverService),
+  __decorateParam(7, IFileService)
+], ChatAttachmentsContentPart);
+export {
+  ChatAttachmentsContentPart
+};
+//# sourceMappingURL=chatAttachmentsContentPart.js.map

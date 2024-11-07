@@ -1,1 +1,146 @@
-var S=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var I=(i,e,r,t)=>{for(var n=t>1?void 0:t?v(e,r):e,a=i.length-1,s;a>=0;a--)(s=i[a])&&(n=(t?s(e,r,n):s(n))||n);return t&&n&&S(e,r,n),n},d=(i,e)=>(r,t)=>e(r,t,i);import"../../../../base/common/cancellation.js";import"../../../../base/common/dataTransfer.js";import{HierarchicalKind as C}from"../../../../base/common/hierarchicalKind.js";import"../../../../editor/common/core/range.js";import"../../../../editor/common/languages.js";import"../../../../editor/common/model.js";import{ILanguageFeaturesService as D}from"../../../../editor/common/services/languageFeatures.js";import{Disposable as A}from"../../../../base/common/lifecycle.js";import{ChatInputPart as b}from"./chatInputPart.js";import{IChatWidgetService as E}from"./chat.js";import{Codicon as T}from"../../../../base/common/codicons.js";import{localize as P}from"../../../../nls.js";import"../common/chatModel.js";import{IExtensionService as M,isProposedApiEnabled as R}from"../../../services/extensions/common/extensions.js";class w{constructor(e,r){this.chatWidgetService=e;this.extensionService=r}kind=new C("image");pasteMimeTypes=["image/*"];async provideDocumentPasteEdits(e,r,t,n,a){if(!this.extensionService.extensions.some(o=>R(o,"chatReferenceBinaryData")))return;const s=["image/png","image/jpeg","image/jpg","image/bmp","image/gif","image/tiff"];let p,m;for(const o of s)if(m=t.get(o),m){p=o;break}if(!m||!p)return;const g=await m.asFile()?.data();if(a.isCancellationRequested||!g)return;const c=this.chatWidgetService.getWidgetByInputUri(e.uri);if(!c)return;const y=c.attachmentModel.attachments,x=P("pastedImageName","Pasted Image");let u=x;for(let o=2;y.some(h=>h.name===u);o++)u=`${x} ${o}`;const f=await U(g,p,a,u);a.isCancellationRequested||!f||c.attachmentModel.getAttachmentIDs().has(f.id)||c.attachmentModel.addContext(f)}}async function U(i,e,r,t){const n=await V(i);if(!r.isCancellationRequested)return{value:i,id:n,name:t,isImage:!0,icon:T.fileMedia,isDynamic:!0,isFile:!1,mimeType:e}}async function V(i){const e=await crypto.subtle.digest("SHA-256",i);return Array.from(new Uint8Array(e)).map(t=>t.toString(16).padStart(2,"0")).join("")}function ae(i){return i.length<4?!1:Object.values({png:[137,80,78,71,13,10,26,10],jpeg:[255,216,255],bmp:[66,77],gif:[71,73,70,56],tiff:[73,73,42,0]}).some(r=>r.every((t,n)=>i[n]===t))}let l=class extends A{constructor(e,r,t){super(),this._register(e.documentPasteEditProvider.register({scheme:b.INPUT_SCHEME,pattern:"*",hasAccessToAllModels:!0},new w(r,t)))}};l=I([d(0,D),d(1,E),d(2,M)],l);export{l as ChatPasteProvidersFeature,w as PasteImageProvider,V as imageToHash,ae as isImage};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDataTransferItem, IReadonlyVSDataTransfer } from "../../../../base/common/dataTransfer.js";
+import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { DocumentPasteContext, DocumentPasteEditProvider, DocumentPasteEditsSession } from "../../../../editor/common/languages.js";
+import { ITextModel } from "../../../../editor/common/model.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ChatInputPart } from "./chatInputPart.js";
+import { IChatWidgetService } from "./chat.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { IChatRequestVariableEntry } from "../common/chatModel.js";
+import { IExtensionService, isProposedApiEnabled } from "../../../services/extensions/common/extensions.js";
+class PasteImageProvider {
+  constructor(chatWidgetService, extensionService) {
+    this.chatWidgetService = chatWidgetService;
+    this.extensionService = extensionService;
+  }
+  static {
+    __name(this, "PasteImageProvider");
+  }
+  kind = new HierarchicalKind("image");
+  pasteMimeTypes = ["image/*"];
+  async provideDocumentPasteEdits(_model, _ranges, dataTransfer, context, token) {
+    if (!this.extensionService.extensions.some((ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData"))) {
+      return;
+    }
+    const supportedMimeTypes = [
+      "image/png",
+      "image/jpeg",
+      "image/jpg",
+      "image/bmp",
+      "image/gif",
+      "image/tiff"
+    ];
+    let mimeType;
+    let imageItem;
+    for (const type of supportedMimeTypes) {
+      imageItem = dataTransfer.get(type);
+      if (imageItem) {
+        mimeType = type;
+        break;
+      }
+    }
+    if (!imageItem || !mimeType) {
+      return;
+    }
+    const currClipboard = await imageItem.asFile()?.data();
+    if (token.isCancellationRequested || !currClipboard) {
+      return;
+    }
+    const widget = this.chatWidgetService.getWidgetByInputUri(_model.uri);
+    if (!widget) {
+      return;
+    }
+    const attachedVariables = widget.attachmentModel.attachments;
+    const displayName = localize("pastedImageName", "Pasted Image");
+    let tempDisplayName = displayName;
+    for (let appendValue = 2; attachedVariables.some((attachment) => attachment.name === tempDisplayName); appendValue++) {
+      tempDisplayName = `${displayName} ${appendValue}`;
+    }
+    const imageContext = await getImageAttachContext(currClipboard, mimeType, token, tempDisplayName);
+    if (token.isCancellationRequested || !imageContext) {
+      return;
+    }
+    const currentContextIds = widget.attachmentModel.getAttachmentIDs();
+    if (currentContextIds.has(imageContext.id)) {
+      return;
+    }
+    widget.attachmentModel.addContext(imageContext);
+    return;
+  }
+}
+async function getImageAttachContext(data, mimeType, token, displayName) {
+  const imageHash = await imageToHash(data);
+  if (token.isCancellationRequested) {
+    return void 0;
+  }
+  return {
+    value: data,
+    id: imageHash,
+    name: displayName,
+    isImage: true,
+    icon: Codicon.fileMedia,
+    isDynamic: true,
+    isFile: false,
+    mimeType
+  };
+}
+__name(getImageAttachContext, "getImageAttachContext");
+async function imageToHash(data) {
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+__name(imageToHash, "imageToHash");
+function isImage(array) {
+  if (array.length < 4) {
+    return false;
+  }
+  const identifier = {
+    png: [137, 80, 78, 71, 13, 10, 26, 10],
+    jpeg: [255, 216, 255],
+    bmp: [66, 77],
+    gif: [71, 73, 70, 56],
+    tiff: [73, 73, 42, 0]
+  };
+  return Object.values(identifier).some(
+    (signature) => signature.every((byte, index) => array[index] === byte)
+  );
+}
+__name(isImage, "isImage");
+let ChatPasteProvidersFeature = class extends Disposable {
+  static {
+    __name(this, "ChatPasteProvidersFeature");
+  }
+  constructor(languageFeaturesService, chatWidgetService, extensionService) {
+    super();
+    this._register(languageFeaturesService.documentPasteEditProvider.register({ scheme: ChatInputPart.INPUT_SCHEME, pattern: "*", hasAccessToAllModels: true }, new PasteImageProvider(chatWidgetService, extensionService)));
+  }
+};
+ChatPasteProvidersFeature = __decorateClass([
+  __decorateParam(0, ILanguageFeaturesService),
+  __decorateParam(1, IChatWidgetService),
+  __decorateParam(2, IExtensionService)
+], ChatPasteProvidersFeature);
+export {
+  ChatPasteProvidersFeature,
+  PasteImageProvider,
+  imageToHash,
+  isImage
+};
+//# sourceMappingURL=chatPasteProviders.js.map

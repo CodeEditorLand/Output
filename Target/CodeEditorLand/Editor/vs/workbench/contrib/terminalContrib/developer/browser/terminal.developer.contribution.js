@@ -1,2 +1,357 @@
-var B=Object.defineProperty;var P=Object.getOwnPropertyDescriptor;var S=(d,o,a,i)=>{for(var n=i>1?void 0:i?P(o,a):o,e=d.length-1,r;e>=0;e--)(r=d[e])&&(n=(i?r(o,a,n):r(n))||n);return i&&n&&B(o,a,n),n},I=(d,o)=>(a,i)=>o(a,i,d);import{Delayer as L}from"../../../../../base/common/async.js";import{VSBuffer as F}from"../../../../../base/common/buffer.js";import{Event as _}from"../../../../../base/common/event.js";import{Disposable as W,DisposableMap as X,DisposableStore as T,MutableDisposable as k,combinedDisposable as E,dispose as $}from"../../../../../base/common/lifecycle.js";import{URI as H}from"../../../../../base/common/uri.js";import{localize as D,localize2 as g}from"../../../../../nls.js";import{Categories as b}from"../../../../../platform/action/common/actionCommonCategories.js";import{IClipboardService as q}from"../../../../../platform/clipboard/common/clipboardService.js";import{ICommandService as z}from"../../../../../platform/commands/common/commands.js";import{IConfigurationService as O}from"../../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as U}from"../../../../../platform/contextkey/common/contextkey.js";import{IFileService as V}from"../../../../../platform/files/common/files.js";import{IOpenerService as K}from"../../../../../platform/opener/common/opener.js";import{IQuickInputService as j}from"../../../../../platform/quickinput/common/quickInput.js";import{TerminalCapability as w}from"../../../../../platform/terminal/common/capabilities/capabilities.js";import{ITerminalLogService as J,TerminalSettingId as M}from"../../../../../platform/terminal/common/terminal.js";import{IWorkspaceContextService as N}from"../../../../../platform/workspace/common/workspace.js";import{IStatusbarService as A,StatusbarAlignment as R}from"../../../../services/statusbar/browser/statusbar.js";import"../../../terminal/browser/terminal.js";import{registerTerminalAction as f}from"../../../terminal/browser/terminalActions.js";import{registerTerminalContribution as Q}from"../../../terminal/browser/terminalExtensions.js";import{TerminalContextKeys as G}from"../../../terminal/common/terminalContextKey.js";import{TerminalDeveloperCommandId as x}from"../common/terminal.developer.js";import"./media/developer.css";f({id:x.ShowTextureAtlas,title:g("workbench.action.terminal.showTextureAtlas","Show Terminal Texture Atlas"),category:b.Developer,precondition:U.or(G.isOpen),run:async(d,o)=>{const a=o.get(V),i=o.get(K),n=o.get(N),e=await d.service.activeInstance?.xterm?.textureAtlas;if(!e)return;const r=n.getWorkspace().folders[0].uri,s=H.joinPath(r,"textureAtlas.png"),l=document.createElement("canvas");l.width=e.width,l.height=e.height;const t=l.getContext("bitmaprenderer");if(!t)return;t.transferFromImageBitmap(e);const c=await new Promise(p=>l.toBlob(p));c&&(await a.writeFile(s,F.wrap(new Uint8Array(await c.arrayBuffer()))),i.open(s))}}),f({id:x.WriteDataToTerminal,title:g("workbench.action.terminal.writeDataToTerminal","Write Data to Terminal"),category:b.Developer,run:async(d,o)=>{const a=o.get(j),i=await d.service.getActiveOrCreateInstance();if(await d.service.revealActiveTerminal(),await i.processReady,!i.xterm)throw new Error("Cannot write data to terminal if xterm isn't initialized");const n=await a.input({value:"",placeHolder:"Enter data, use \\x to escape",prompt:D("workbench.action.terminal.writeDataToTerminal.prompt","Enter data to write directly to the terminal, bypassing the pty")});if(!n)return;let e=n.replace(/\\n/g,`
-`).replace(/\\r/g,"\r");for(;;){const s=e.match(/\\x([0-9a-fA-F]{2})/);if(s===null||s.index===void 0||s.length<2)break;e=e.slice(0,s.index)+String.fromCharCode(parseInt(s[1],16))+e.slice(s.index+4)}i.xterm._writeText(e)}}),f({id:x.RecordSession,title:g("workbench.action.terminal.recordSession","Record Terminal Session"),category:b.Developer,run:async(d,o)=>{const a=o.get(q),i=o.get(z),n=o.get(A),e=new T,r=D("workbench.action.terminal.recordSession.recording","Recording terminal session..."),s={text:r,name:r,ariaLabel:r,showProgress:!0},l=n.addEntry(s,"recordSession",R.LEFT);e.add(l);const t=await d.service.createTerminal();return d.service.setActiveInstance(t),await d.service.revealActiveTerminal(),await Promise.all([t.processReady,t.focusWhenReady(!0)]),new Promise(c=>{const p=[],h=()=>{const m=JSON.stringify(p,null,2);a.writeText(m),e.dispose(),c()},v=e.add(new L(5e3));e.add(_.runAndSubscribe(t.onDimensionsChanged,()=>{p.push({type:"resize",cols:t.cols,rows:t.rows}),v.trigger(h)})),e.add(i.onWillExecuteCommand(m=>{p.push({type:"command",id:m.commandId}),v.trigger(h)})),e.add(t.onWillData(m=>{p.push({type:"output",data:m}),v.trigger(h)})),e.add(t.onDidSendText(m=>{p.push({type:"sendText",data:m}),v.trigger(h)})),e.add(t.xterm.raw.onData(m=>{p.push({type:"input",data:m}),v.trigger(h)}));let C=!1;e.add(_.runAndSubscribe(t.capabilities.onDidAddCapability,m=>{if(C)return;const y=t.capabilities.get(w.CommandDetection);y&&(e.add(y.promptInputModel.onDidChangeInput(Y=>{p.push({type:"promptInputChange",data:y.promptInputModel.getCombinedString()}),v.trigger(h)})),C=!0)}))})}}),f({id:x.RestartPtyHost,title:g("workbench.action.terminal.restartPtyHost","Restart Pty Host"),category:b.Developer,run:async(d,o)=>{const a=o.get(J),i=Array.from(d.instanceService.getRegisteredBackends()),n=i.filter(r=>!r.isResponsive),e=n.length>0?n:i;for(const r of e)a.warn(`Restarting pty host for authority "${r.remoteAuthority}"`),r.restartPtyHost()}});let u=class extends W{constructor(a,i,n){super();this._ctx=a;this._configurationService=i;this._statusbarService=n;this._register(this._configurationService.onDidChangeConfiguration(e=>{e.affectsConfiguration(M.DevMode)&&this._updateDevMode()}))}static ID="terminal.devMode";static get(a){return a.getContribution(u.ID)}_xterm;_activeDevModeDisposables=new k;_currentColor=0;_statusbarEntry;_statusbarEntryAccessor=this._register(new k);xtermReady(a){this._xterm=a,this._updateDevMode()}_updateDevMode(){const a=this._isEnabled();this._xterm?.raw.element?.classList.toggle("dev-mode",a);const i=this._ctx.instance.capabilities.get(w.CommandDetection);if(a)if(i){const n=new X,e=new T;this._activeDevModeDisposables.value=E(n,e,this._ctx.instance.onDidBlur(()=>this._updateDevMode()),this._ctx.instance.onDidFocus(()=>this._updateDevMode()),i.promptInputModel.onDidChangeInput(()=>this._updateDevMode()),i.onCommandFinished(r=>{const s=`color-${this._currentColor}`,l=[];if(n.set(r,E(...l)),r.promptStartMarker){const t=this._ctx.instance.xterm.raw?.registerDecoration({marker:r.promptStartMarker});t&&(l.push(t),e.add(t.onRender(c=>{c.textContent="A",c.classList.add("xterm-sequence-decoration","top","left",s)})))}if(r.marker){const t=this._ctx.instance.xterm.raw?.registerDecoration({marker:r.marker,x:r.startX});t&&(l.push(t),e.add(t.onRender(c=>{c.textContent="B",c.classList.add("xterm-sequence-decoration","top","right",s)})))}if(r.executedMarker){const t=this._ctx.instance.xterm.raw?.registerDecoration({marker:r.executedMarker,x:r.executedX});t&&(l.push(t),e.add(t.onRender(c=>{c.textContent="C",c.classList.add("xterm-sequence-decoration","bottom","left",s)})))}if(r.endMarker){const t=this._ctx.instance.xterm.raw?.registerDecoration({marker:r.endMarker});t&&(l.push(t),e.add(t.onRender(c=>{c.textContent="D",c.classList.add("xterm-sequence-decoration","bottom","right",s)})))}this._currentColor=(this._currentColor+1)%2}),i.onCommandInvalidated(r=>{for(const s of r){const l=n.get(s);l&&$(l),n.deleteAndDispose(s)}})),this._updatePromptInputStatusBar(i)}else this._activeDevModeDisposables.value=this._ctx.instance.capabilities.onDidAddCapabilityType(n=>{n===w.CommandDetection&&this._updateDevMode()});else this._activeDevModeDisposables.clear()}_isEnabled(){return this._configurationService.getValue(M.DevMode)||!1}_updatePromptInputStatusBar(a){const i=a.promptInputModel;if(i){const n=D("terminalDevMode","Terminal Dev Mode"),e=i.cursorIndex===-1;this._statusbarEntry={name:n,text:`$(${e?"loading~spin":"terminal"}) ${i.getCombinedString()}`,ariaLabel:n,tooltip:"The detected terminal prompt input",kind:"prominent"},this._statusbarEntryAccessor.value?this._statusbarEntryAccessor.value.update(this._statusbarEntry):this._statusbarEntryAccessor.value=this._statusbarService.addEntry(this._statusbarEntry,`terminal.promptInput.${this._ctx.instance.instanceId}`,R.LEFT),this._statusbarService.updateEntryVisibility(`terminal.promptInput.${this._ctx.instance.instanceId}`,this._ctx.instance.hasFocus)}}};u=S([I(1,O),I(2,A)],u),Q(u.ID,u);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Delayer } from "../../../../../base/common/async.js";
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { Event } from "../../../../../base/common/event.js";
+import { Disposable, DisposableMap, DisposableStore, IDisposable, MutableDisposable, combinedDisposable, dispose } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import { Categories } from "../../../../../platform/action/common/actionCommonCategories.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { ITerminalCommand, TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import { ITerminalLogService, TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IStatusbarService, StatusbarAlignment } from "../../../../services/statusbar/browser/statusbar.js";
+import { IInternalXtermTerminal, ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
+import { registerTerminalAction } from "../../../terminal/browser/terminalActions.js";
+import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { TerminalDeveloperCommandId } from "../common/terminal.developer.js";
+import "./media/developer.css";
+registerTerminalAction({
+  id: TerminalDeveloperCommandId.ShowTextureAtlas,
+  title: localize2("workbench.action.terminal.showTextureAtlas", "Show Terminal Texture Atlas"),
+  category: Categories.Developer,
+  precondition: ContextKeyExpr.or(TerminalContextKeys.isOpen),
+  run: /* @__PURE__ */ __name(async (c, accessor) => {
+    const fileService = accessor.get(IFileService);
+    const openerService = accessor.get(IOpenerService);
+    const workspaceContextService = accessor.get(IWorkspaceContextService);
+    const bitmap = await c.service.activeInstance?.xterm?.textureAtlas;
+    if (!bitmap) {
+      return;
+    }
+    const cwdUri = workspaceContextService.getWorkspace().folders[0].uri;
+    const fileUri = URI.joinPath(cwdUri, "textureAtlas.png");
+    const canvas = document.createElement("canvas");
+    canvas.width = bitmap.width;
+    canvas.height = bitmap.height;
+    const ctx = canvas.getContext("bitmaprenderer");
+    if (!ctx) {
+      return;
+    }
+    ctx.transferFromImageBitmap(bitmap);
+    const blob = await new Promise((res) => canvas.toBlob(res));
+    if (!blob) {
+      return;
+    }
+    await fileService.writeFile(fileUri, VSBuffer.wrap(new Uint8Array(await blob.arrayBuffer())));
+    openerService.open(fileUri);
+  }, "run")
+});
+registerTerminalAction({
+  id: TerminalDeveloperCommandId.WriteDataToTerminal,
+  title: localize2("workbench.action.terminal.writeDataToTerminal", "Write Data to Terminal"),
+  category: Categories.Developer,
+  run: /* @__PURE__ */ __name(async (c, accessor) => {
+    const quickInputService = accessor.get(IQuickInputService);
+    const instance = await c.service.getActiveOrCreateInstance();
+    await c.service.revealActiveTerminal();
+    await instance.processReady;
+    if (!instance.xterm) {
+      throw new Error("Cannot write data to terminal if xterm isn't initialized");
+    }
+    const data = await quickInputService.input({
+      value: "",
+      placeHolder: "Enter data, use \\x to escape",
+      prompt: localize("workbench.action.terminal.writeDataToTerminal.prompt", "Enter data to write directly to the terminal, bypassing the pty")
+    });
+    if (!data) {
+      return;
+    }
+    let escapedData = data.replace(/\\n/g, "\n").replace(/\\r/g, "\r");
+    while (true) {
+      const match = escapedData.match(/\\x([0-9a-fA-F]{2})/);
+      if (match === null || match.index === void 0 || match.length < 2) {
+        break;
+      }
+      escapedData = escapedData.slice(0, match.index) + String.fromCharCode(parseInt(match[1], 16)) + escapedData.slice(match.index + 4);
+    }
+    const xterm = instance.xterm;
+    xterm._writeText(escapedData);
+  }, "run")
+});
+registerTerminalAction({
+  id: TerminalDeveloperCommandId.RecordSession,
+  title: localize2("workbench.action.terminal.recordSession", "Record Terminal Session"),
+  category: Categories.Developer,
+  run: /* @__PURE__ */ __name(async (c, accessor) => {
+    const clipboardService = accessor.get(IClipboardService);
+    const commandService = accessor.get(ICommandService);
+    const statusbarService = accessor.get(IStatusbarService);
+    const store = new DisposableStore();
+    const text = localize("workbench.action.terminal.recordSession.recording", "Recording terminal session...");
+    const statusbarEntry = {
+      text,
+      name: text,
+      ariaLabel: text,
+      showProgress: true
+    };
+    const statusbarHandle = statusbarService.addEntry(statusbarEntry, "recordSession", StatusbarAlignment.LEFT);
+    store.add(statusbarHandle);
+    const instance = await c.service.createTerminal();
+    c.service.setActiveInstance(instance);
+    await c.service.revealActiveTerminal();
+    await Promise.all([
+      instance.processReady,
+      instance.focusWhenReady(true)
+    ]);
+    return new Promise((resolve) => {
+      const events = [];
+      const endRecording = /* @__PURE__ */ __name(() => {
+        const session = JSON.stringify(events, null, 2);
+        clipboardService.writeText(session);
+        store.dispose();
+        resolve();
+      }, "endRecording");
+      const timer = store.add(new Delayer(5e3));
+      store.add(Event.runAndSubscribe(instance.onDimensionsChanged, () => {
+        events.push({
+          type: "resize",
+          cols: instance.cols,
+          rows: instance.rows
+        });
+        timer.trigger(endRecording);
+      }));
+      store.add(commandService.onWillExecuteCommand((e) => {
+        events.push({
+          type: "command",
+          id: e.commandId
+        });
+        timer.trigger(endRecording);
+      }));
+      store.add(instance.onWillData((data) => {
+        events.push({
+          type: "output",
+          data
+        });
+        timer.trigger(endRecording);
+      }));
+      store.add(instance.onDidSendText((data) => {
+        events.push({
+          type: "sendText",
+          data
+        });
+        timer.trigger(endRecording);
+      }));
+      store.add(instance.xterm.raw.onData((data) => {
+        events.push({
+          type: "input",
+          data
+        });
+        timer.trigger(endRecording);
+      }));
+      let commandDetectedRegistered = false;
+      store.add(Event.runAndSubscribe(instance.capabilities.onDidAddCapability, (e) => {
+        if (commandDetectedRegistered) {
+          return;
+        }
+        const commandDetection = instance.capabilities.get(TerminalCapability.CommandDetection);
+        if (!commandDetection) {
+          return;
+        }
+        store.add(commandDetection.promptInputModel.onDidChangeInput((e2) => {
+          events.push({
+            type: "promptInputChange",
+            data: commandDetection.promptInputModel.getCombinedString()
+          });
+          timer.trigger(endRecording);
+        }));
+        commandDetectedRegistered = true;
+      }));
+    });
+  }, "run")
+});
+registerTerminalAction({
+  id: TerminalDeveloperCommandId.RestartPtyHost,
+  title: localize2("workbench.action.terminal.restartPtyHost", "Restart Pty Host"),
+  category: Categories.Developer,
+  run: /* @__PURE__ */ __name(async (c, accessor) => {
+    const logService = accessor.get(ITerminalLogService);
+    const backends = Array.from(c.instanceService.getRegisteredBackends());
+    const unresponsiveBackends = backends.filter((e) => !e.isResponsive);
+    const restartCandidates = unresponsiveBackends.length > 0 ? unresponsiveBackends : backends;
+    for (const backend of restartCandidates) {
+      logService.warn(`Restarting pty host for authority "${backend.remoteAuthority}"`);
+      backend.restartPtyHost();
+    }
+  }, "run")
+});
+let DevModeContribution = class extends Disposable {
+  constructor(_ctx, _configurationService, _statusbarService) {
+    super();
+    this._ctx = _ctx;
+    this._configurationService = _configurationService;
+    this._statusbarService = _statusbarService;
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(TerminalSettingId.DevMode)) {
+        this._updateDevMode();
+      }
+    }));
+  }
+  static {
+    __name(this, "DevModeContribution");
+  }
+  static ID = "terminal.devMode";
+  static get(instance) {
+    return instance.getContribution(DevModeContribution.ID);
+  }
+  _xterm;
+  _activeDevModeDisposables = new MutableDisposable();
+  _currentColor = 0;
+  _statusbarEntry;
+  _statusbarEntryAccessor = this._register(new MutableDisposable());
+  xtermReady(xterm) {
+    this._xterm = xterm;
+    this._updateDevMode();
+  }
+  _updateDevMode() {
+    const devMode = this._isEnabled();
+    this._xterm?.raw.element?.classList.toggle("dev-mode", devMode);
+    const commandDetection = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
+    if (devMode) {
+      if (commandDetection) {
+        const commandDecorations = new DisposableMap();
+        const otherDisposables = new DisposableStore();
+        this._activeDevModeDisposables.value = combinedDisposable(
+          commandDecorations,
+          otherDisposables,
+          // Prompt input
+          this._ctx.instance.onDidBlur(() => this._updateDevMode()),
+          this._ctx.instance.onDidFocus(() => this._updateDevMode()),
+          commandDetection.promptInputModel.onDidChangeInput(() => this._updateDevMode()),
+          // Sequence markers
+          commandDetection.onCommandFinished((command) => {
+            const colorClass = `color-${this._currentColor}`;
+            const decorations = [];
+            commandDecorations.set(command, combinedDisposable(...decorations));
+            if (command.promptStartMarker) {
+              const d = this._ctx.instance.xterm.raw?.registerDecoration({
+                marker: command.promptStartMarker
+              });
+              if (d) {
+                decorations.push(d);
+                otherDisposables.add(d.onRender((e) => {
+                  e.textContent = "A";
+                  e.classList.add("xterm-sequence-decoration", "top", "left", colorClass);
+                }));
+              }
+            }
+            if (command.marker) {
+              const d = this._ctx.instance.xterm.raw?.registerDecoration({
+                marker: command.marker,
+                x: command.startX
+              });
+              if (d) {
+                decorations.push(d);
+                otherDisposables.add(d.onRender((e) => {
+                  e.textContent = "B";
+                  e.classList.add("xterm-sequence-decoration", "top", "right", colorClass);
+                }));
+              }
+            }
+            if (command.executedMarker) {
+              const d = this._ctx.instance.xterm.raw?.registerDecoration({
+                marker: command.executedMarker,
+                x: command.executedX
+              });
+              if (d) {
+                decorations.push(d);
+                otherDisposables.add(d.onRender((e) => {
+                  e.textContent = "C";
+                  e.classList.add("xterm-sequence-decoration", "bottom", "left", colorClass);
+                }));
+              }
+            }
+            if (command.endMarker) {
+              const d = this._ctx.instance.xterm.raw?.registerDecoration({
+                marker: command.endMarker
+              });
+              if (d) {
+                decorations.push(d);
+                otherDisposables.add(d.onRender((e) => {
+                  e.textContent = "D";
+                  e.classList.add("xterm-sequence-decoration", "bottom", "right", colorClass);
+                }));
+              }
+            }
+            this._currentColor = (this._currentColor + 1) % 2;
+          }),
+          commandDetection.onCommandInvalidated((commands) => {
+            for (const c of commands) {
+              const decorations = commandDecorations.get(c);
+              if (decorations) {
+                dispose(decorations);
+              }
+              commandDecorations.deleteAndDispose(c);
+            }
+          })
+        );
+        this._updatePromptInputStatusBar(commandDetection);
+      } else {
+        this._activeDevModeDisposables.value = this._ctx.instance.capabilities.onDidAddCapabilityType((e) => {
+          if (e === TerminalCapability.CommandDetection) {
+            this._updateDevMode();
+          }
+        });
+      }
+    } else {
+      this._activeDevModeDisposables.clear();
+    }
+  }
+  _isEnabled() {
+    return this._configurationService.getValue(TerminalSettingId.DevMode) || false;
+  }
+  _updatePromptInputStatusBar(commandDetection) {
+    const promptInputModel = commandDetection.promptInputModel;
+    if (promptInputModel) {
+      const name = localize("terminalDevMode", "Terminal Dev Mode");
+      const isExecuting = promptInputModel.cursorIndex === -1;
+      this._statusbarEntry = {
+        name,
+        text: `$(${isExecuting ? "loading~spin" : "terminal"}) ${promptInputModel.getCombinedString()}`,
+        ariaLabel: name,
+        tooltip: "The detected terminal prompt input",
+        kind: "prominent"
+      };
+      if (!this._statusbarEntryAccessor.value) {
+        this._statusbarEntryAccessor.value = this._statusbarService.addEntry(this._statusbarEntry, `terminal.promptInput.${this._ctx.instance.instanceId}`, StatusbarAlignment.LEFT);
+      } else {
+        this._statusbarEntryAccessor.value.update(this._statusbarEntry);
+      }
+      this._statusbarService.updateEntryVisibility(`terminal.promptInput.${this._ctx.instance.instanceId}`, this._ctx.instance.hasFocus);
+    }
+  }
+};
+DevModeContribution = __decorateClass([
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, IStatusbarService)
+], DevModeContribution);
+registerTerminalContribution(DevModeContribution.ID, DevModeContribution);
+//# sourceMappingURL=terminal.developer.contribution.js.map

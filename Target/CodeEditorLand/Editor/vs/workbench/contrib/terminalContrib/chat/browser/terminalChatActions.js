@@ -1,1 +1,286 @@
-import{Codicon as h}from"../../../../../base/common/codicons.js";import{KeyCode as s,KeyMod as d}from"../../../../../base/common/keyCodes.js";import{localize2 as i}from"../../../../../nls.js";import{ContextKeyExpr as r}from"../../../../../platform/contextkey/common/contextkey.js";import{historyNavigationVisible as f}from"../../../../../platform/history/browser/contextScopedHistoryWidget.js";import{KeybindingWeight as p}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{AbstractInlineChatAction as A}from"../../../inlineChat/browser/inlineChatActions.js";import{CTX_INLINE_CHAT_EMPTY as k}from"../../../inlineChat/common/inlineChat.js";import{isDetachedTerminalInstance as c}from"../../../terminal/browser/terminal.js";import{registerActiveXtermAction as l}from"../../../terminal/browser/terminalActions.js";import{TerminalContextKeys as a}from"../../../terminal/common/terminalContextKey.js";import{MENU_TERMINAL_CHAT_WIDGET as _,MENU_TERMINAL_CHAT_WIDGET_STATUS as g,TerminalChatCommandId as C,TerminalChatContextKeys as e}from"./terminalChat.js";import{TerminalChatController as o}from"./terminalChatController.js";l({id:C.Start,title:i("startChat","Start in Terminal"),keybinding:{primary:d.CtrlCmd|s.KeyI,when:r.and(a.focusInAny),weight:p.ExternalExtension+1},f1:!0,category:A.category,precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.hasChatAgent),run:(m,u,t,n)=>{if(c(t))return;const y=o.activeChatController||o.get(t);n&&(n=typeof n=="string"?{query:n}:n,typeof n=="object"&&n!==null&&"query"in n&&typeof n.query=="string"&&(y?.updateInput(n.query,!1),"isPartialQuery"in n&&n.isPartialQuery||y?.terminalChatWidget?.acceptInput())),y?.terminalChatWidget?.reveal()}}),l({id:C.Close,title:i("closeChat","Close Chat"),keybinding:{primary:s.Escape,secondary:[d.Shift|s.Escape],when:r.and(e.focused,e.visible),weight:p.WorkbenchContrib},icon:h.close,menu:{id:_,group:"navigation",order:2},f1:!0,precondition:r.and(r.and(e.focused,e.visible)),run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.clear()}}),l({id:C.Discard,title:i("discard","Discard"),metadata:{description:i("discardDescription","Discards the terminal current chat response, hide the chat widget, and clear the chat input.")},icon:h.discard,menu:{id:g,group:"0_main",order:2,when:r.and(e.focused,e.responseContainsCodeBlock)},f1:!0,precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.focused,e.responseContainsCodeBlock),run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.clear()}}),l({id:C.RunCommand,title:i("runCommand","Run Chat Command"),shortTitle:i("run","Run"),precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.requestActive.negate(),e.responseContainsCodeBlock,e.responseContainsMultipleCodeBlocks.negate()),icon:h.play,keybinding:{when:e.requestActive.negate(),weight:p.WorkbenchContrib,primary:d.CtrlCmd|s.Enter},menu:{id:g,group:"0_main",order:0,when:r.and(e.responseContainsCodeBlock,e.responseContainsMultipleCodeBlocks.negate(),e.requestActive.negate())},run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.acceptCommand(!0)}}),l({id:C.RunFirstCommand,title:i("runFirstCommand","Run First Chat Command"),shortTitle:i("runFirst","Run First"),precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.requestActive.negate(),e.responseContainsMultipleCodeBlocks),icon:h.play,keybinding:{when:e.requestActive.negate(),weight:p.WorkbenchContrib,primary:d.CtrlCmd|s.Enter},menu:{id:g,group:"0_main",order:0,when:r.and(e.responseContainsMultipleCodeBlocks,e.requestActive.negate())},run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.acceptCommand(!0)}}),l({id:C.InsertCommand,title:i("insertCommand","Insert Chat Command"),shortTitle:i("insert","Insert"),icon:h.insert,precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.requestActive.negate(),e.responseContainsCodeBlock,e.responseContainsMultipleCodeBlocks.negate()),keybinding:{when:e.requestActive.negate(),weight:p.WorkbenchContrib,primary:d.Alt|s.Enter,secondary:[d.CtrlCmd|s.Enter|d.Alt]},menu:{id:g,group:"0_main",order:1,when:r.and(e.responseContainsCodeBlock,e.responseContainsMultipleCodeBlocks.negate(),e.requestActive.negate())},run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.acceptCommand(!1)}}),l({id:C.InsertFirstCommand,title:i("insertFirstCommand","Insert First Chat Command"),shortTitle:i("insertFirst","Insert First"),precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.requestActive.negate(),e.responseContainsMultipleCodeBlocks),keybinding:{when:e.requestActive.negate(),weight:p.WorkbenchContrib,primary:d.Alt|s.Enter,secondary:[d.CtrlCmd|s.Enter|d.Alt]},menu:{id:g,group:"0_main",order:1,when:r.and(e.responseContainsMultipleCodeBlocks,e.requestActive.negate())},run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.acceptCommand(!1)}}),l({id:C.ViewInChat,title:i("viewInChat","View in Chat"),precondition:r.and(r.or(a.processSupported,a.terminalHasBeenCreated),e.requestActive.negate()),icon:h.commentDiscussion,menu:[{id:g,group:"0_main",order:1,when:r.and(e.responseContainsCodeBlock,e.requestActive.negate())},{id:_,group:"navigation",order:1,when:r.and(k.negate(),e.responseContainsCodeBlock,e.requestActive.negate())}],run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.viewInChat()}}),l({id:C.PreviousFromHistory,title:i("previousFromHitory","Previous From History"),precondition:e.focused,keybinding:{when:r.and(e.focused,f.isEqualTo(!1)),weight:p.WorkbenchContrib,primary:s.UpArrow},run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.populateHistory(!0)}}),l({id:C.NextFromHistory,title:i("nextFromHitory","Next From History"),precondition:e.focused,keybinding:{when:r.and(e.focused,f.isEqualTo(!1)),weight:p.WorkbenchContrib,primary:s.DownArrow},run:(m,u,t)=>{if(c(t))return;(o.activeChatController||o.get(t))?.terminalChatWidget?.populateHistory(!1)}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { localize2 } from "../../../../../nls.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { historyNavigationVisible } from "../../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { AbstractInlineChatAction } from "../../../inlineChat/browser/inlineChatActions.js";
+import { CTX_INLINE_CHAT_EMPTY } from "../../../inlineChat/common/inlineChat.js";
+import { isDetachedTerminalInstance } from "../../../terminal/browser/terminal.js";
+import { registerActiveXtermAction } from "../../../terminal/browser/terminalActions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { MENU_TERMINAL_CHAT_WIDGET, MENU_TERMINAL_CHAT_WIDGET_STATUS, TerminalChatCommandId, TerminalChatContextKeys } from "./terminalChat.js";
+import { TerminalChatController } from "./terminalChatController.js";
+registerActiveXtermAction({
+  id: TerminalChatCommandId.Start,
+  title: localize2("startChat", "Start in Terminal"),
+  keybinding: {
+    primary: KeyMod.CtrlCmd | KeyCode.KeyI,
+    when: ContextKeyExpr.and(TerminalContextKeys.focusInAny),
+    // HACK: Force weight to be higher than the extension contributed keybinding to override it until it gets replaced
+    weight: KeybindingWeight.ExternalExtension + 1
+    // KeybindingWeight.WorkbenchContrib,
+  },
+  f1: true,
+  category: AbstractInlineChatAction.category,
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.hasChatAgent
+  ),
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance, opts) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    if (opts) {
+      opts = typeof opts === "string" ? { query: opts } : opts;
+      if (typeof opts === "object" && opts !== null && "query" in opts && typeof opts.query === "string") {
+        contr?.updateInput(opts.query, false);
+        if (!("isPartialQuery" in opts && opts.isPartialQuery)) {
+          contr?.terminalChatWidget?.acceptInput();
+        }
+      }
+    }
+    contr?.terminalChatWidget?.reveal();
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.Close,
+  title: localize2("closeChat", "Close Chat"),
+  keybinding: {
+    primary: KeyCode.Escape,
+    secondary: [KeyMod.Shift | KeyCode.Escape],
+    when: ContextKeyExpr.and(TerminalChatContextKeys.focused, TerminalChatContextKeys.visible),
+    weight: KeybindingWeight.WorkbenchContrib
+  },
+  icon: Codicon.close,
+  menu: {
+    id: MENU_TERMINAL_CHAT_WIDGET,
+    group: "navigation",
+    order: 2
+  },
+  f1: true,
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.and(TerminalChatContextKeys.focused, TerminalChatContextKeys.visible)
+  ),
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.clear();
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.Discard,
+  title: localize2("discard", "Discard"),
+  metadata: {
+    description: localize2("discardDescription", "Discards the terminal current chat response, hide the chat widget, and clear the chat input.")
+  },
+  icon: Codicon.discard,
+  menu: {
+    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+    group: "0_main",
+    order: 2,
+    when: ContextKeyExpr.and(TerminalChatContextKeys.focused, TerminalChatContextKeys.responseContainsCodeBlock)
+  },
+  f1: true,
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.focused,
+    TerminalChatContextKeys.responseContainsCodeBlock
+  ),
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.clear();
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.RunCommand,
+  title: localize2("runCommand", "Run Chat Command"),
+  shortTitle: localize2("run", "Run"),
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.requestActive.negate(),
+    TerminalChatContextKeys.responseContainsCodeBlock,
+    TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate()
+  ),
+  icon: Codicon.play,
+  keybinding: {
+    when: TerminalChatContextKeys.requestActive.negate(),
+    weight: KeybindingWeight.WorkbenchContrib,
+    primary: KeyMod.CtrlCmd | KeyCode.Enter
+  },
+  menu: {
+    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+    group: "0_main",
+    order: 0,
+    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate(), TerminalChatContextKeys.requestActive.negate())
+  },
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.acceptCommand(true);
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.RunFirstCommand,
+  title: localize2("runFirstCommand", "Run First Chat Command"),
+  shortTitle: localize2("runFirst", "Run First"),
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.requestActive.negate(),
+    TerminalChatContextKeys.responseContainsMultipleCodeBlocks
+  ),
+  icon: Codicon.play,
+  keybinding: {
+    when: TerminalChatContextKeys.requestActive.negate(),
+    weight: KeybindingWeight.WorkbenchContrib,
+    primary: KeyMod.CtrlCmd | KeyCode.Enter
+  },
+  menu: {
+    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+    group: "0_main",
+    order: 0,
+    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsMultipleCodeBlocks, TerminalChatContextKeys.requestActive.negate())
+  },
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.acceptCommand(true);
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.InsertCommand,
+  title: localize2("insertCommand", "Insert Chat Command"),
+  shortTitle: localize2("insert", "Insert"),
+  icon: Codicon.insert,
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.requestActive.negate(),
+    TerminalChatContextKeys.responseContainsCodeBlock,
+    TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate()
+  ),
+  keybinding: {
+    when: TerminalChatContextKeys.requestActive.negate(),
+    weight: KeybindingWeight.WorkbenchContrib,
+    primary: KeyMod.Alt | KeyCode.Enter,
+    secondary: [KeyMod.CtrlCmd | KeyCode.Enter | KeyMod.Alt]
+  },
+  menu: {
+    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+    group: "0_main",
+    order: 1,
+    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate(), TerminalChatContextKeys.requestActive.negate())
+  },
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.acceptCommand(false);
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.InsertFirstCommand,
+  title: localize2("insertFirstCommand", "Insert First Chat Command"),
+  shortTitle: localize2("insertFirst", "Insert First"),
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.requestActive.negate(),
+    TerminalChatContextKeys.responseContainsMultipleCodeBlocks
+  ),
+  keybinding: {
+    when: TerminalChatContextKeys.requestActive.negate(),
+    weight: KeybindingWeight.WorkbenchContrib,
+    primary: KeyMod.Alt | KeyCode.Enter,
+    secondary: [KeyMod.CtrlCmd | KeyCode.Enter | KeyMod.Alt]
+  },
+  menu: {
+    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+    group: "0_main",
+    order: 1,
+    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsMultipleCodeBlocks, TerminalChatContextKeys.requestActive.negate())
+  },
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.acceptCommand(false);
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.ViewInChat,
+  title: localize2("viewInChat", "View in Chat"),
+  precondition: ContextKeyExpr.and(
+    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    TerminalChatContextKeys.requestActive.negate()
+  ),
+  icon: Codicon.commentDiscussion,
+  menu: [
+    {
+      id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+      group: "0_main",
+      order: 1,
+      when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.requestActive.negate())
+    },
+    {
+      id: MENU_TERMINAL_CHAT_WIDGET,
+      group: "navigation",
+      order: 1,
+      when: ContextKeyExpr.and(CTX_INLINE_CHAT_EMPTY.negate(), TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.requestActive.negate())
+    }
+  ],
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.viewInChat();
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.PreviousFromHistory,
+  title: localize2("previousFromHitory", "Previous From History"),
+  precondition: TerminalChatContextKeys.focused,
+  keybinding: {
+    when: ContextKeyExpr.and(TerminalChatContextKeys.focused, historyNavigationVisible.isEqualTo(false)),
+    weight: KeybindingWeight.WorkbenchContrib,
+    primary: KeyCode.UpArrow
+  },
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.populateHistory(true);
+  }, "run")
+});
+registerActiveXtermAction({
+  id: TerminalChatCommandId.NextFromHistory,
+  title: localize2("nextFromHitory", "Next From History"),
+  precondition: TerminalChatContextKeys.focused,
+  keybinding: {
+    when: ContextKeyExpr.and(TerminalChatContextKeys.focused, historyNavigationVisible.isEqualTo(false)),
+    weight: KeybindingWeight.WorkbenchContrib,
+    primary: KeyCode.DownArrow
+  },
+  run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
+    if (isDetachedTerminalInstance(activeInstance)) {
+      return;
+    }
+    const contr = TerminalChatController.activeChatController || TerminalChatController.get(activeInstance);
+    contr?.terminalChatWidget?.populateHistory(false);
+  }, "run")
+});
+//# sourceMappingURL=terminalChatActions.js.map

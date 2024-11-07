@@ -1,5 +1,239 @@
-var L=Object.defineProperty;var A=Object.getOwnPropertyDescriptor;var b=(m,d,e,t)=>{for(var i=t>1?void 0:t?A(d,e):d,r=m.length-1,a;r>=0;r--)(a=m[r])&&(i=(t?a(d,e,i):a(i))||i);return t&&i&&L(d,e,i),i},n=(m,d)=>(e,t)=>d(e,t,m);import{Codicon as R}from"../../../../base/common/codicons.js";import{Disposable as B}from"../../../../base/common/lifecycle.js";import{URI as T}from"../../../../base/common/uri.js";import{localize as s,localize2 as E}from"../../../../nls.js";import{CommandsRegistry as V}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as _}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as p,IContextKeyService as H}from"../../../../platform/contextkey/common/contextkey.js";import{IExtensionManagementService as O}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{ExtensionIdentifier as N}from"../../../../platform/extensions/common/extensions.js";import{SyncDescriptor as M}from"../../../../platform/instantiation/common/descriptors.js";import"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as $}from"../../../../platform/keybinding/common/keybinding.js";import{KeybindingsRegistry as q,KeybindingWeight as z}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{IOpenerService as F}from"../../../../platform/opener/common/opener.js";import{IProductService as Y}from"../../../../platform/product/common/productService.js";import{Registry as S}from"../../../../platform/registry/common/platform.js";import{IStorageService as U,StorageScope as g,StorageTarget as j}from"../../../../platform/storage/common/storage.js";import{ViewPane as G}from"../../../browser/parts/views/viewPane.js";import{ViewPaneContainer as J}from"../../../browser/parts/views/viewPaneContainer.js";import{registerWorkbenchContribution2 as Q,WorkbenchPhase as X}from"../../../common/contributions.js";import{IViewDescriptorService as Z,ViewContainerLocation as x,Extensions as y}from"../../../common/views.js";import{IPaneCompositePartService as ee}from"../../../services/panecomposite/browser/panecomposite.js";import{IViewsService as I}from"../../../services/views/common/viewsService.js";import{ChatContextKeys as c}from"../common/chatContextKeys.js";import{CHAT_VIEW_ID as ie,showChatView as D}from"./chat.js";import{CHAT_SIDEBAR_OLD_VIEW_PANEL_ID as C,CHAT_SIDEBAR_PANEL_ID as f}from"./chatViewPane.js";class te extends G{shouldShowWelcome(){return!0}}let o=class extends B{constructor(e,t,i,r,a,l,k,w,h){super();this.contextKeyService=e;this.viewDescriptorService=t;this.extensionManagementService=i;this.productService=r;this.viewsService=a;this.paneCompositePartService=l;this.storageService=k;this.configurationService=w;this.keybindingService=h;this.initialize()}static ID="workbench.contrib.chatMovedViewWelcomeView";static hideMovedChatWelcomeViewStorageKey="workbench.chat.hideMovedChatWelcomeView";showWelcomeViewCtx=c.shouldShowMovedViewWelcome.bindTo(this.contextKeyService);async initialize(){if(this.storageService.getBoolean(o.hideMovedChatWelcomeViewStorageKey,g.APPLICATION,!1)){this.registerKeybindings();return}await this.hideViewIfCopilotIsNotInstalled(),this.updateContextKey(),this.registerListeners(),this.registerKeybindings(),this.registerCommands(),this.registerMovedChatWelcomeView(),this.hideViewIfOldViewIsMovedFromDefaultLocation()}markViewToHide(){this.storageService.store(o.hideMovedChatWelcomeViewStorageKey,!0,g.APPLICATION,j.USER),this.updateContextKey()}async hideViewIfCopilotIsNotInstalled(){(await this.extensionManagementService.getInstalled()).find(i=>N.equals(i.identifier.id,this.productService.gitHubEntitlement?.extensionId))||this.markViewToHide()}hideViewIfOldViewIsMovedFromDefaultLocation(){const e=this.viewDescriptorService.getViewContainerById(f);if(!e)return;if(this.viewDescriptorService.getViewContainerByViewId(ie)!==e){this.markViewToHide();return}const i=this.viewDescriptorService.getViewContainerById(C);if(!i)return;this.viewDescriptorService.getViewContainerLocation(i)===x.AuxiliaryBar&&this.markViewToHide()}updateContextKey(){const e=this.storageService.getBoolean(o.hideMovedChatWelcomeViewStorageKey,g.APPLICATION,!1);this.showWelcomeViewCtx.set(!e)}registerListeners(){this._register(this.storageService.onDidChangeValue(g.APPLICATION,o.hideMovedChatWelcomeViewStorageKey,this._store)(()=>this.updateContextKey()))}registerKeybindings(){q.registerCommandAndKeybindingRule({id:C,weight:z.WorkbenchContrib,when:c.panelParticipantRegistered,primary:0,handler:e=>D(e.get(I))})}registerCommands(){V.registerCommand({id:"_chatMovedViewWelcomeView.ok",handler:async e=>{D(e.get(I)),this.markViewToHide()}}),V.registerCommand({id:"_chatMovedViewWelcomeView.restore",handler:async()=>{const e=this.viewDescriptorService.getViewContainerById(C),t=this.viewDescriptorService.getViewContainerById(f);if(!e||!t){this.markViewToHide();return}const i=this.viewDescriptorService.getViewContainerLocation(e),r=this.viewDescriptorService.getViewContainerLocation(t);if(i===r||i===null||r===null){this.markViewToHide();return}const l=this.paneCompositePartService.getPaneCompositeIds(i).indexOf(e.id);this.viewDescriptorService.moveViewContainerToLocation(t,i,l),this.viewsService.openViewContainer(t.id,!0),this.markViewToHide()}}),V.registerCommand({id:"_chatMovedViewWelcomeView.learnMore",handler:async e=>{e.get(F).open(T.parse("https://aka.ms/vscode-secondary-sidebar"))}})}registerMovedChatWelcomeView(){const e=E("chat.viewContainer.movedChat.label","Chat (Old Location)"),t=R.commentDiscussion,i=C,r=S.as(y.ViewContainersRegistry).registerViewContainer({id:i,title:e,icon:t,ctorDescriptor:new M(J,[i,{mergeViewWithContainerWhenSingleView:!0}]),storageId:i,hideIfEmpty:!0,order:100},x.Sidebar,{doNotRegisterOpenCommand:!0}),a="workbench.chat.movedView.welcomeView",l={id:a,name:e,order:1,canToggleVisibility:!1,canMoveView:!1,when:p.and(c.shouldShowMovedViewWelcome,p.or(c.panelParticipantRegistered,c.extensionInvalid)),ctorDescriptor:new M(te,[{id:a}])};S.as(y.ViewsRegistry).registerViews([l],r);let w=this.configurationService.getValue("workbench.sideBar.location")!=="left"?s("chatMovedMainMessage1Left","Chat has been moved to the Secondary Side Bar on the left for a more integrated AI experience in your editor."):s("chatMovedMainMessage1Right","Chat has been moved to the Secondary Side Bar on the right for a more integrated AI experience in your editor.");const h=this.keybindingService.lookupKeybinding(f)?.getLabel(),u=`$(${this.productService.defaultChatAgent?.icon??"comment-discussion"})`;let v;this.hasCommandCenterChat()&&h?v=s("chatMovedCommandCenterAndKeybind","You can quickly access Chat via the new Copilot icon ({0}) in the editor title bar or with the keyboard shortcut {1}.",u,h):this.hasCommandCenterChat()?v=s("chatMovedCommandCenter","You can quickly access Chat via the new Copilot icon ({0}) in the editor title bar.",u):h&&(v=s("chatMovedKeybind","You can quickly access Chat with the keyboard shortcut {0}.",h)),v&&(w=`${w}
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { KeybindingsRegistry, KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { IWorkbenchContribution, registerWorkbenchContribution2, WorkbenchPhase } from "../../../common/contributions.js";
+import { IViewContainersRegistry, IViewDescriptor, IViewDescriptorService, IViewsRegistry, ViewContainer, ViewContainerLocation, Extensions as ViewExtensions } from "../../../common/views.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { ChatContextKeys } from "../common/chatContextKeys.js";
+import { CHAT_VIEW_ID, showChatView } from "./chat.js";
+import { CHAT_SIDEBAR_OLD_VIEW_PANEL_ID, CHAT_SIDEBAR_PANEL_ID } from "./chatViewPane.js";
+class MovedChatViewPane extends ViewPane {
+  static {
+    __name(this, "MovedChatViewPane");
+  }
+  shouldShowWelcome() {
+    return true;
+  }
+}
+let MoveChatViewContribution = class extends Disposable {
+  constructor(contextKeyService, viewDescriptorService, extensionManagementService, productService, viewsService, paneCompositePartService, storageService, configurationService, keybindingService) {
+    super();
+    this.contextKeyService = contextKeyService;
+    this.viewDescriptorService = viewDescriptorService;
+    this.extensionManagementService = extensionManagementService;
+    this.productService = productService;
+    this.viewsService = viewsService;
+    this.paneCompositePartService = paneCompositePartService;
+    this.storageService = storageService;
+    this.configurationService = configurationService;
+    this.keybindingService = keybindingService;
+    this.initialize();
+  }
+  static {
+    __name(this, "MoveChatViewContribution");
+  }
+  static ID = "workbench.contrib.chatMovedViewWelcomeView";
+  static hideMovedChatWelcomeViewStorageKey = "workbench.chat.hideMovedChatWelcomeView";
+  showWelcomeViewCtx = ChatContextKeys.shouldShowMovedViewWelcome.bindTo(this.contextKeyService);
+  async initialize() {
+    const hidden = this.storageService.getBoolean(MoveChatViewContribution.hideMovedChatWelcomeViewStorageKey, StorageScope.APPLICATION, false);
+    if (hidden) {
+      this.registerKeybindings();
+      return;
+    }
+    await this.hideViewIfCopilotIsNotInstalled();
+    this.updateContextKey();
+    this.registerListeners();
+    this.registerKeybindings();
+    this.registerCommands();
+    this.registerMovedChatWelcomeView();
+    this.hideViewIfOldViewIsMovedFromDefaultLocation();
+  }
+  markViewToHide() {
+    this.storageService.store(MoveChatViewContribution.hideMovedChatWelcomeViewStorageKey, true, StorageScope.APPLICATION, StorageTarget.USER);
+    this.updateContextKey();
+  }
+  async hideViewIfCopilotIsNotInstalled() {
+    const extensions = await this.extensionManagementService.getInstalled();
+    const installed = extensions.find((value) => ExtensionIdentifier.equals(value.identifier.id, this.productService.gitHubEntitlement?.extensionId));
+    if (!installed) {
+      this.markViewToHide();
+    }
+  }
+  hideViewIfOldViewIsMovedFromDefaultLocation() {
+    const newViewContainer = this.viewDescriptorService.getViewContainerById(CHAT_SIDEBAR_PANEL_ID);
+    if (!newViewContainer) {
+      return;
+    }
+    const currentChatViewContainer = this.viewDescriptorService.getViewContainerByViewId(CHAT_VIEW_ID);
+    if (currentChatViewContainer !== newViewContainer) {
+      this.markViewToHide();
+      return;
+    }
+    const oldViewContainer = this.viewDescriptorService.getViewContainerById(CHAT_SIDEBAR_OLD_VIEW_PANEL_ID);
+    if (!oldViewContainer) {
+      return;
+    }
+    const oldLocation = this.viewDescriptorService.getViewContainerLocation(oldViewContainer);
+    if (oldLocation === ViewContainerLocation.AuxiliaryBar) {
+      this.markViewToHide();
+    }
+  }
+  updateContextKey() {
+    const hidden = this.storageService.getBoolean(MoveChatViewContribution.hideMovedChatWelcomeViewStorageKey, StorageScope.APPLICATION, false);
+    this.showWelcomeViewCtx.set(!hidden);
+  }
+  registerListeners() {
+    this._register(this.storageService.onDidChangeValue(StorageScope.APPLICATION, MoveChatViewContribution.hideMovedChatWelcomeViewStorageKey, this._store)(() => this.updateContextKey()));
+  }
+  registerKeybindings() {
+    KeybindingsRegistry.registerCommandAndKeybindingRule({
+      id: CHAT_SIDEBAR_OLD_VIEW_PANEL_ID,
+      weight: KeybindingWeight.WorkbenchContrib,
+      when: ChatContextKeys.panelParticipantRegistered,
+      primary: 0,
+      handler: /* @__PURE__ */ __name((accessor) => showChatView(accessor.get(IViewsService)), "handler")
+    });
+  }
+  registerCommands() {
+    CommandsRegistry.registerCommand({
+      id: "_chatMovedViewWelcomeView.ok",
+      handler: /* @__PURE__ */ __name(async (accessor) => {
+        showChatView(accessor.get(IViewsService));
+        this.markViewToHide();
+      }, "handler")
+    });
+    CommandsRegistry.registerCommand({
+      id: "_chatMovedViewWelcomeView.restore",
+      handler: /* @__PURE__ */ __name(async () => {
+        const oldViewContainer = this.viewDescriptorService.getViewContainerById(CHAT_SIDEBAR_OLD_VIEW_PANEL_ID);
+        const newViewContainer = this.viewDescriptorService.getViewContainerById(CHAT_SIDEBAR_PANEL_ID);
+        if (!oldViewContainer || !newViewContainer) {
+          this.markViewToHide();
+          return;
+        }
+        const oldLocation = this.viewDescriptorService.getViewContainerLocation(oldViewContainer);
+        const newLocation = this.viewDescriptorService.getViewContainerLocation(newViewContainer);
+        if (oldLocation === newLocation || oldLocation === null || newLocation === null) {
+          this.markViewToHide();
+          return;
+        }
+        const viewContainerIds = this.paneCompositePartService.getPaneCompositeIds(oldLocation);
+        const targetIndex = viewContainerIds.indexOf(oldViewContainer.id);
+        this.viewDescriptorService.moveViewContainerToLocation(newViewContainer, oldLocation, targetIndex);
+        this.viewsService.openViewContainer(newViewContainer.id, true);
+        this.markViewToHide();
+      }, "handler")
+    });
+    CommandsRegistry.registerCommand({
+      id: "_chatMovedViewWelcomeView.learnMore",
+      handler: /* @__PURE__ */ __name(async (accessor) => {
+        const openerService = accessor.get(IOpenerService);
+        openerService.open(URI.parse("https://aka.ms/vscode-secondary-sidebar"));
+      }, "handler")
+    });
+  }
+  registerMovedChatWelcomeView() {
+    const title = localize2("chat.viewContainer.movedChat.label", "Chat (Old Location)");
+    const icon = Codicon.commentDiscussion;
+    const viewContainerId = CHAT_SIDEBAR_OLD_VIEW_PANEL_ID;
+    const viewContainer = Registry.as(ViewExtensions.ViewContainersRegistry).registerViewContainer({
+      id: viewContainerId,
+      title,
+      icon,
+      ctorDescriptor: new SyncDescriptor(ViewPaneContainer, [viewContainerId, { mergeViewWithContainerWhenSingleView: true }]),
+      storageId: viewContainerId,
+      hideIfEmpty: true,
+      order: 100
+    }, ViewContainerLocation.Sidebar, { doNotRegisterOpenCommand: true });
+    const viewId = "workbench.chat.movedView.welcomeView";
+    const viewDescriptor = {
+      id: viewId,
+      name: title,
+      order: 1,
+      canToggleVisibility: false,
+      canMoveView: false,
+      when: ContextKeyExpr.and(ChatContextKeys.shouldShowMovedViewWelcome, ContextKeyExpr.or(ChatContextKeys.panelParticipantRegistered, ChatContextKeys.extensionInvalid)),
+      ctorDescriptor: new SyncDescriptor(MovedChatViewPane, [{ id: viewId }])
+    };
+    Registry.as(ViewExtensions.ViewsRegistry).registerViews([viewDescriptor], viewContainer);
+    const secondarySideBarLeft = this.configurationService.getValue("workbench.sideBar.location") !== "left";
+    let welcomeViewMainMessage = secondarySideBarLeft ? localize("chatMovedMainMessage1Left", "Chat has been moved to the Secondary Side Bar on the left for a more integrated AI experience in your editor.") : localize("chatMovedMainMessage1Right", "Chat has been moved to the Secondary Side Bar on the right for a more integrated AI experience in your editor.");
+    const chatViewKeybinding = this.keybindingService.lookupKeybinding(CHAT_SIDEBAR_PANEL_ID)?.getLabel();
+    const copilotIcon = `$(${this.productService.defaultChatAgent?.icon ?? "comment-discussion"})`;
+    let quicklyAccessMessage = void 0;
+    if (this.hasCommandCenterChat() && chatViewKeybinding) {
+      quicklyAccessMessage = localize("chatMovedCommandCenterAndKeybind", "You can quickly access Chat via the new Copilot icon ({0}) in the editor title bar or with the keyboard shortcut {1}.", copilotIcon, chatViewKeybinding);
+    } else if (this.hasCommandCenterChat()) {
+      quicklyAccessMessage = localize("chatMovedCommandCenter", "You can quickly access Chat via the new Copilot icon ({0}) in the editor title bar.", copilotIcon);
+    } else if (chatViewKeybinding) {
+      quicklyAccessMessage = localize("chatMovedKeybind", "You can quickly access Chat with the keyboard shortcut {0}.", chatViewKeybinding);
+    }
+    if (quicklyAccessMessage) {
+      welcomeViewMainMessage = `${welcomeViewMainMessage}
 
-${v}`);const W=`[${s("ok","Got it")}](command:_chatMovedViewWelcomeView.ok)`,P=`[${s("restore","Restore Old Location")}](command:_chatMovedViewWelcomeView.restore)`,K=s("chatMovedFooterMessage","[Learn more](command:_chatMovedViewWelcomeView.learnMore) about the Secondary Side Bar.");return S.as(y.ViewsRegistry).registerViewWelcomeContent(a,{content:[w,W,P,K].join(`
-
-`),renderSecondaryButtons:!0,when:p.and(c.shouldShowMovedViewWelcome,p.or(c.panelParticipantRegistered,c.extensionInvalid))})}hasCommandCenterChat(){return!(this.configurationService.getValue("chat.commandCenter.enabled")===!1||this.configurationService.getValue("window.commandCenter")===!1)}};o=b([n(0,H),n(1,Z),n(2,O),n(3,Y),n(4,I),n(5,ee),n(6,U),n(7,_),n(8,$)],o),Q(o.ID,o,X.BlockStartup);export{o as MoveChatViewContribution,te as MovedChatViewPane};
+${quicklyAccessMessage}`;
+    }
+    const okButton = `[${localize("ok", "Got it")}](command:_chatMovedViewWelcomeView.ok)`;
+    const restoreButton = `[${localize("restore", "Restore Old Location")}](command:_chatMovedViewWelcomeView.restore)`;
+    const welcomeViewFooterMessage = localize("chatMovedFooterMessage", "[Learn more](command:_chatMovedViewWelcomeView.learnMore) about the Secondary Side Bar.");
+    const viewsRegistry = Registry.as(ViewExtensions.ViewsRegistry);
+    return viewsRegistry.registerViewWelcomeContent(viewId, {
+      content: [welcomeViewMainMessage, okButton, restoreButton, welcomeViewFooterMessage].join("\n\n"),
+      renderSecondaryButtons: true,
+      when: ContextKeyExpr.and(ChatContextKeys.shouldShowMovedViewWelcome, ContextKeyExpr.or(ChatContextKeys.panelParticipantRegistered, ChatContextKeys.extensionInvalid))
+    });
+  }
+  hasCommandCenterChat() {
+    if (this.configurationService.getValue("chat.commandCenter.enabled") === false || this.configurationService.getValue("window.commandCenter") === false) {
+      return false;
+    }
+    return true;
+  }
+};
+MoveChatViewContribution = __decorateClass([
+  __decorateParam(0, IContextKeyService),
+  __decorateParam(1, IViewDescriptorService),
+  __decorateParam(2, IExtensionManagementService),
+  __decorateParam(3, IProductService),
+  __decorateParam(4, IViewsService),
+  __decorateParam(5, IPaneCompositePartService),
+  __decorateParam(6, IStorageService),
+  __decorateParam(7, IConfigurationService),
+  __decorateParam(8, IKeybindingService)
+], MoveChatViewContribution);
+registerWorkbenchContribution2(MoveChatViewContribution.ID, MoveChatViewContribution, WorkbenchPhase.BlockStartup);
+export {
+  MoveChatViewContribution,
+  MovedChatViewPane
+};
+//# sourceMappingURL=chatMovedView.contribution.js.map

@@ -1,1 +1,334 @@
-var v=Object.defineProperty;var E=Object.getOwnPropertyDescriptor;var u=(l,d,e,t)=>{for(var i=t>1?void 0:t?E(d,e):d,o=l.length-1,r;o>=0;o--)(r=l[o])&&(i=(t?r(d,e,i):r(i))||i);return t&&i&&v(d,e,i),i},n=(l,d)=>(e,t)=>d(e,t,l);import{RunOnceScheduler as D,timeout as b}from"../../../../../base/common/async.js";import{Emitter as O}from"../../../../../base/common/event.js";import{Disposable as M,toDisposable as C}from"../../../../../base/common/lifecycle.js";import{observableValue as f,transaction as R}from"../../../../../base/common/observable.js";import{themeColorFromId as T}from"../../../../../base/common/themables.js";import"../../../../../base/common/uri.js";import{IBulkEditService as U}from"../../../../../editor/browser/services/bulkEditService.js";import{EditOperation as x}from"../../../../../editor/common/core/editOperation.js";import{OffsetEdit as V}from"../../../../../editor/common/core/offsetEdit.js";import{nullDocumentDiff as m}from"../../../../../editor/common/diff/documentDiffProvider.js";import{TextEdit as k}from"../../../../../editor/common/languages.js";import{ILanguageService as F}from"../../../../../editor/common/languages/language.js";import{OverviewRulerLane as q}from"../../../../../editor/common/model.js";import{SingleModelEditStackElement as w}from"../../../../../editor/common/model/editStack.js";import{ModelDecorationOptions as A,createTextBufferFactoryFromSnapshot as B}from"../../../../../editor/common/model/textModel.js";import{OffsetEdits as p}from"../../../../../editor/common/model/textModelOffsetEdit.js";import{IEditorWorkerService as L}from"../../../../../editor/common/services/editorWorker.js";import{IModelService as W}from"../../../../../editor/common/services/model.js";import{ITextModelService as P}from"../../../../../editor/common/services/resolverService.js";import"../../../../../editor/common/textModelEvents.js";import{localize as I}from"../../../../../nls.js";import{IFileService as j}from"../../../../../platform/files/common/files.js";import{editorSelectionBackground as N}from"../../../../../platform/theme/common/colorRegistry.js";import{IUndoRedoService as H}from"../../../../../platform/undoRedo/common/undoRedo.js";import"../../common/chatAgents.js";import{ChatEditKind as g,WorkingSetEntryState as s}from"../../common/chatEditingService.js";import{IChatService as K}from"../../common/chatService.js";import{ChatEditingSnapshotTextModelContentProvider as $,ChatEditingTextModelContentProvider as z}from"./chatEditingTextModelContentProviders.js";let a=class extends M{constructor(e,t,i,o,r,h,_,y,G,J,Q,X,Y){super();this.resource=e;this._multiDiffEntryDelegate=i;this._telemetryInfo=o;this.bulkEditService=G;this._chatService=J;this._editorWorkerService=Q;this._undoRedoService=X;this._fileService=Y;r===g.Created&&(this.createdInRequestId=this._telemetryInfo.requestId),this.doc=t.object.textEditorModel,this.originalContent=this.doc.getValue();const S=this.docSnapshot=this._register(h.createModel(B(this.doc.createSnapshot()),y.createById(this.doc.getLanguageId()),z.getFileURI(this.entryId,e.path),!1));(async()=>{const c=await _.createModelReference(S.uri);if(this._store.isDisposed){c.dispose();return}this._register(c)})(),this._register(t),this._register(this.doc.onDidChangeContent(c=>this._mirrorEdits(c))),this._register(this._fileService.watch(this.resource)),this._register(this._fileService.onDidFilesChange(c=>{c.affects(this.resource)&&r===g.Created&&c.gotDeleted()&&(this._onDidDelete.fire(),this.dispose())})),this._register(C(()=>{this._clearCurrentEditLineDecoration()}))}static scheme="modified-file-entry";static lastEntryId=0;entryId=`${a.scheme}::${++a.lastEntryId}`;docSnapshot;doc;originalContent;_onDidDelete=this._register(new O);get onDidDelete(){return this._onDidDelete.event}get originalURI(){return this.docSnapshot.uri}get originalModel(){return this.docSnapshot}get modifiedURI(){return this.doc.uri}get modifiedModel(){return this.doc}_stateObs=f(this,s.Modified);get state(){return this._stateObs}_isCurrentlyBeingModifiedObs=f(this,!1);get isCurrentlyBeingModified(){return this._isCurrentlyBeingModifiedObs}_isFirstEditAfterStartOrSnapshot=!0;_edit=V.empty;_isEditFromUs=!1;_diffOperation;_diffOperationIds=0;_diffInfo=f(this,m);get diffInfo(){return this._diffInfo}_editDecorationClear=this._register(new D(()=>{this._editDecorations=this.doc.deltaDecorations(this._editDecorations,[])},3e3));_editDecorations=[];static _editDecorationOptions=A.register({isWholeLine:!0,description:"chat-editing",className:"rangeHighlight",marginClassName:"rangeHighlight",overviewRuler:{position:q.Full,color:T(N)}});get telemetryInfo(){return this._telemetryInfo}createdInRequestId;get lastModifyingRequestId(){return this._telemetryInfo.requestId}_clearCurrentEditLineDecoration(){this._editDecorations=this.doc.deltaDecorations(this._editDecorations,[])}updateTelemetryInfo(e){this._telemetryInfo=e}createSnapshot(e){return this._isFirstEditAfterStartOrSnapshot=!0,{resource:this.modifiedURI,languageId:this.modifiedModel.getLanguageId(),snapshotUri:$.getSnapshotFileURI(e,this.modifiedURI.path),original:this.originalModel.getValue(),current:this.modifiedModel.getValue(),originalToCurrentEdit:this._edit,state:this.state.get(),telemetryInfo:this._telemetryInfo}}restoreFromSnapshot(e){this._stateObs.set(e.state,void 0),this.docSnapshot.setValue(e.original),this._setDocValue(e.current),this._edit=e.originalToCurrentEdit}resetToInitialValue(e){this._setDocValue(e)}acceptStreamingEditsStart(e){this._isCurrentlyBeingModifiedObs.set(!1,e),this._clearCurrentEditLineDecoration()}acceptStreamingEditsEnd(e){this._isCurrentlyBeingModifiedObs.set(!1,e),this._clearCurrentEditLineDecoration()}_mirrorEdits(e){const t=p.fromContentChanges(e.changes);if(this._isEditFromUs){const i=this._edit,o=t;this._edit=i.compose(o)}else{const i=this._edit,o=t,r=o.tryRebase(i.inverse(this.docSnapshot.getValue()),!0);if(r===void 0)this._edit=i.compose(o);else{const h=p.asEditOperations(r,this.docSnapshot);this.docSnapshot.applyEdits(h),this._edit=i.tryRebase(r)}}if(!this.isCurrentlyBeingModified.get()){const i=this.doc.getValue()===this.originalContent;switch(this._stateObs.get()){case s.Accepted:case s.Modified:if(i){this._stateObs.set(s.Rejected,void 0);break}case s.Rejected:if(e.isUndoing&&!i){this._stateObs.set(s.Modified,void 0);break}}}this._updateDiffInfoSeq(!this._isEditFromUs)}acceptAgentEdits(e){if(this._editDecorations=this.doc.deltaDecorations(this._editDecorations,e.map(t=>({options:a._editDecorationOptions,range:t.range}))),this._editDecorationClear.schedule(),this._isFirstEditAfterStartOrSnapshot){this._isFirstEditAfterStartOrSnapshot=!1;const t=this._chatService.getSession(this._telemetryInfo.sessionId)?.getRequests().at(-1),i=t?.message.text?I("chatEditing1","Chat Edit: '{0}'",t.message.text):I("chatEditing2","Chat Edit");this._undoRedoService.pushElement(new w(i,"chat.edit",this.doc,null))}this._applyEdits(e.map(k.asEditOperation)),R(t=>{this._stateObs.set(s.Modified,t),this._isCurrentlyBeingModifiedObs.set(!0,t)})}_applyEdits(e){this._isEditFromUs=!0;try{this.doc.pushEditOperations(null,e,()=>null)}finally{this._isEditFromUs=!1}}_updateDiffInfoSeq(e){const t=++this._diffOperationIds;Promise.resolve(this._diffOperation).then(()=>{this._diffOperationIds===t&&(this._diffOperation=this._updateDiffInfo(e))})}async _updateDiffInfo(e){const t=this.doc.getVersionId(),i=this.docSnapshot.getVersionId(),[o]=await Promise.all([this._editorWorkerService.computeDiff(this.docSnapshot.uri,this.doc.uri,{computeMoves:!0,ignoreTrimWhitespace:!1,maxComputationTimeMs:3e3},"advanced"),b(e?50:800)]);if(this.doc.getVersionId()===t&&this.docSnapshot.getVersionId()===i){const r=o??m;this._diffInfo.set(r,void 0),this._edit=p.fromLineRangeMapping(this.docSnapshot,this.doc,r.changes)}}async accept(e){this._stateObs.get()===s.Modified&&(this.docSnapshot.setValue(this.doc.createSnapshot()),this._stateObs.set(s.Accepted,e),await this.collapse(e),this._notifyAction("accepted"))}async reject(e){this._stateObs.get()===s.Modified&&(this._stateObs.set(s.Rejected,e),this._notifyAction("rejected"),this.createdInRequestId===this._telemetryInfo.requestId?(await this._fileService.del(this.resource),this._onDidDelete.fire(),this.dispose()):(this._setDocValue(this.docSnapshot.getValue()),await this.collapse(e)))}_setDocValue(e){this.doc.pushStackElement();const t=x.replace(this.doc.getFullModelRange(),e);this._applyEdits([t]),this.doc.pushStackElement()}async collapse(e){this._multiDiffEntryDelegate.collapse(e)}_notifyAction(e){this._chatService.notifyUserAction({action:{kind:"chatEditingSessionAction",uri:this.resource,hasRemainingEdits:!1,outcome:e},agentId:this._telemetryInfo.agentId,command:this._telemetryInfo.command,sessionId:this._telemetryInfo.sessionId,requestId:this._telemetryInfo.requestId,result:this._telemetryInfo.result})}};a=u([n(5,W),n(6,P),n(7,F),n(8,U),n(9,K),n(10,L),n(11,H),n(12,j)],a);export{a as ChatEditingModifiedFileEntry};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { RunOnceScheduler, timeout } from "../../../../../base/common/async.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable, IReference, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, ITransaction, observableValue, transaction } from "../../../../../base/common/observable.js";
+import { themeColorFromId } from "../../../../../base/common/themables.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IBulkEditService } from "../../../../../editor/browser/services/bulkEditService.js";
+import { EditOperation, ISingleEditOperation } from "../../../../../editor/common/core/editOperation.js";
+import { OffsetEdit } from "../../../../../editor/common/core/offsetEdit.js";
+import { IDocumentDiff, nullDocumentDiff } from "../../../../../editor/common/diff/documentDiffProvider.js";
+import { TextEdit } from "../../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { IModelDeltaDecoration, ITextModel, OverviewRulerLane } from "../../../../../editor/common/model.js";
+import { SingleModelEditStackElement } from "../../../../../editor/common/model/editStack.js";
+import { ModelDecorationOptions, createTextBufferFactoryFromSnapshot } from "../../../../../editor/common/model/textModel.js";
+import { OffsetEdits } from "../../../../../editor/common/model/textModelOffsetEdit.js";
+import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { IResolvedTextEditorModel, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { IModelContentChangedEvent } from "../../../../../editor/common/textModelEvents.js";
+import { localize } from "../../../../../nls.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { editorSelectionBackground } from "../../../../../platform/theme/common/colorRegistry.js";
+import { IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
+import { IChatAgentResult } from "../../common/chatAgents.js";
+import { ChatEditKind, IModifiedFileEntry, WorkingSetEntryState } from "../../common/chatEditingService.js";
+import { IChatService } from "../../common/chatService.js";
+import { ChatEditingSnapshotTextModelContentProvider, ChatEditingTextModelContentProvider } from "./chatEditingTextModelContentProviders.js";
+let ChatEditingModifiedFileEntry = class extends Disposable {
+  constructor(resource, resourceRef, _multiDiffEntryDelegate, _telemetryInfo, kind, modelService, textModelService, languageService, bulkEditService, _chatService, _editorWorkerService, _undoRedoService, _fileService) {
+    super();
+    this.resource = resource;
+    this._multiDiffEntryDelegate = _multiDiffEntryDelegate;
+    this._telemetryInfo = _telemetryInfo;
+    this.bulkEditService = bulkEditService;
+    this._chatService = _chatService;
+    this._editorWorkerService = _editorWorkerService;
+    this._undoRedoService = _undoRedoService;
+    this._fileService = _fileService;
+    if (kind === ChatEditKind.Created) {
+      this.createdInRequestId = this._telemetryInfo.requestId;
+    }
+    this.doc = resourceRef.object.textEditorModel;
+    this.originalContent = this.doc.getValue();
+    const docSnapshot = this.docSnapshot = this._register(
+      modelService.createModel(
+        createTextBufferFactoryFromSnapshot(this.doc.createSnapshot()),
+        languageService.createById(this.doc.getLanguageId()),
+        ChatEditingTextModelContentProvider.getFileURI(this.entryId, resource.path),
+        false
+      )
+    );
+    (async () => {
+      const reference = await textModelService.createModelReference(docSnapshot.uri);
+      if (this._store.isDisposed) {
+        reference.dispose();
+        return;
+      }
+      this._register(reference);
+    })();
+    this._register(resourceRef);
+    this._register(this.doc.onDidChangeContent((e) => this._mirrorEdits(e)));
+    this._register(this._fileService.watch(this.resource));
+    this._register(this._fileService.onDidFilesChange((e) => {
+      if (e.affects(this.resource) && kind === ChatEditKind.Created && e.gotDeleted()) {
+        this._onDidDelete.fire();
+        this.dispose();
+      }
+    }));
+    this._register(toDisposable(() => {
+      this._clearCurrentEditLineDecoration();
+    }));
+  }
+  static {
+    __name(this, "ChatEditingModifiedFileEntry");
+  }
+  static scheme = "modified-file-entry";
+  static lastEntryId = 0;
+  entryId = `${ChatEditingModifiedFileEntry.scheme}::${++ChatEditingModifiedFileEntry.lastEntryId}`;
+  docSnapshot;
+  doc;
+  originalContent;
+  _onDidDelete = this._register(new Emitter());
+  get onDidDelete() {
+    return this._onDidDelete.event;
+  }
+  get originalURI() {
+    return this.docSnapshot.uri;
+  }
+  get originalModel() {
+    return this.docSnapshot;
+  }
+  get modifiedURI() {
+    return this.doc.uri;
+  }
+  get modifiedModel() {
+    return this.doc;
+  }
+  _stateObs = observableValue(this, WorkingSetEntryState.Modified);
+  get state() {
+    return this._stateObs;
+  }
+  _isCurrentlyBeingModifiedObs = observableValue(this, false);
+  get isCurrentlyBeingModified() {
+    return this._isCurrentlyBeingModifiedObs;
+  }
+  _isFirstEditAfterStartOrSnapshot = true;
+  _edit = OffsetEdit.empty;
+  _isEditFromUs = false;
+  _diffOperation;
+  _diffOperationIds = 0;
+  _diffInfo = observableValue(this, nullDocumentDiff);
+  get diffInfo() {
+    return this._diffInfo;
+  }
+  _editDecorationClear = this._register(new RunOnceScheduler(() => {
+    this._editDecorations = this.doc.deltaDecorations(this._editDecorations, []);
+  }, 3e3));
+  _editDecorations = [];
+  static _editDecorationOptions = ModelDecorationOptions.register({
+    isWholeLine: true,
+    description: "chat-editing",
+    className: "rangeHighlight",
+    marginClassName: "rangeHighlight",
+    overviewRuler: {
+      position: OverviewRulerLane.Full,
+      color: themeColorFromId(editorSelectionBackground)
+    }
+  });
+  get telemetryInfo() {
+    return this._telemetryInfo;
+  }
+  createdInRequestId;
+  get lastModifyingRequestId() {
+    return this._telemetryInfo.requestId;
+  }
+  _clearCurrentEditLineDecoration() {
+    this._editDecorations = this.doc.deltaDecorations(this._editDecorations, []);
+  }
+  updateTelemetryInfo(telemetryInfo) {
+    this._telemetryInfo = telemetryInfo;
+  }
+  createSnapshot(requestId) {
+    this._isFirstEditAfterStartOrSnapshot = true;
+    return {
+      resource: this.modifiedURI,
+      languageId: this.modifiedModel.getLanguageId(),
+      snapshotUri: ChatEditingSnapshotTextModelContentProvider.getSnapshotFileURI(requestId, this.modifiedURI.path),
+      original: this.originalModel.getValue(),
+      current: this.modifiedModel.getValue(),
+      originalToCurrentEdit: this._edit,
+      state: this.state.get(),
+      telemetryInfo: this._telemetryInfo
+    };
+  }
+  restoreFromSnapshot(snapshot) {
+    this._stateObs.set(snapshot.state, void 0);
+    this.docSnapshot.setValue(snapshot.original);
+    this._setDocValue(snapshot.current);
+    this._edit = snapshot.originalToCurrentEdit;
+  }
+  resetToInitialValue(value) {
+    this._setDocValue(value);
+  }
+  acceptStreamingEditsStart(tx) {
+    this._isCurrentlyBeingModifiedObs.set(false, tx);
+    this._clearCurrentEditLineDecoration();
+  }
+  acceptStreamingEditsEnd(tx) {
+    this._isCurrentlyBeingModifiedObs.set(false, tx);
+    this._clearCurrentEditLineDecoration();
+  }
+  _mirrorEdits(event) {
+    const edit = OffsetEdits.fromContentChanges(event.changes);
+    if (this._isEditFromUs) {
+      const e_sum = this._edit;
+      const e_ai = edit;
+      this._edit = e_sum.compose(e_ai);
+    } else {
+      const e_ai = this._edit;
+      const e_user = edit;
+      const e_user_r = e_user.tryRebase(e_ai.inverse(this.docSnapshot.getValue()), true);
+      if (e_user_r === void 0) {
+        this._edit = e_ai.compose(e_user);
+      } else {
+        const edits = OffsetEdits.asEditOperations(e_user_r, this.docSnapshot);
+        this.docSnapshot.applyEdits(edits);
+        this._edit = e_ai.tryRebase(e_user_r);
+      }
+    }
+    if (!this.isCurrentlyBeingModified.get()) {
+      const didResetToOriginalContent = this.doc.getValue() === this.originalContent;
+      const currentState = this._stateObs.get();
+      switch (currentState) {
+        case WorkingSetEntryState.Accepted:
+        case WorkingSetEntryState.Modified:
+          if (didResetToOriginalContent) {
+            this._stateObs.set(WorkingSetEntryState.Rejected, void 0);
+            break;
+          }
+        case WorkingSetEntryState.Rejected:
+          if (event.isUndoing && !didResetToOriginalContent) {
+            this._stateObs.set(WorkingSetEntryState.Modified, void 0);
+            break;
+          }
+      }
+    }
+    this._updateDiffInfoSeq(!this._isEditFromUs);
+  }
+  acceptAgentEdits(textEdits) {
+    this._editDecorations = this.doc.deltaDecorations(this._editDecorations, textEdits.map((edit) => {
+      return {
+        options: ChatEditingModifiedFileEntry._editDecorationOptions,
+        range: edit.range
+      };
+    }));
+    this._editDecorationClear.schedule();
+    if (this._isFirstEditAfterStartOrSnapshot) {
+      this._isFirstEditAfterStartOrSnapshot = false;
+      const request = this._chatService.getSession(this._telemetryInfo.sessionId)?.getRequests().at(-1);
+      const label = request?.message.text ? localize("chatEditing1", "Chat Edit: '{0}'", request.message.text) : localize("chatEditing2", "Chat Edit");
+      this._undoRedoService.pushElement(new SingleModelEditStackElement(label, "chat.edit", this.doc, null));
+    }
+    this._applyEdits(textEdits.map(TextEdit.asEditOperation));
+    transaction((tx) => {
+      this._stateObs.set(WorkingSetEntryState.Modified, tx);
+      this._isCurrentlyBeingModifiedObs.set(true, tx);
+    });
+  }
+  _applyEdits(edits) {
+    this._isEditFromUs = true;
+    try {
+      this.doc.pushEditOperations(null, edits, () => null);
+    } finally {
+      this._isEditFromUs = false;
+    }
+  }
+  _updateDiffInfoSeq(fast) {
+    const myDiffOperationId = ++this._diffOperationIds;
+    Promise.resolve(this._diffOperation).then(() => {
+      if (this._diffOperationIds === myDiffOperationId) {
+        this._diffOperation = this._updateDiffInfo(fast);
+      }
+    });
+  }
+  async _updateDiffInfo(fast) {
+    const docVersionNow = this.doc.getVersionId();
+    const snapshotVersionNow = this.docSnapshot.getVersionId();
+    const [diff] = await Promise.all([
+      this._editorWorkerService.computeDiff(
+        this.docSnapshot.uri,
+        this.doc.uri,
+        { computeMoves: true, ignoreTrimWhitespace: false, maxComputationTimeMs: 3e3 },
+        "advanced"
+      ),
+      timeout(fast ? 50 : 800)
+      // DON't diff too fast
+    ]);
+    if (this.doc.getVersionId() === docVersionNow && this.docSnapshot.getVersionId() === snapshotVersionNow) {
+      const diff2 = diff ?? nullDocumentDiff;
+      this._diffInfo.set(diff2, void 0);
+      this._edit = OffsetEdits.fromLineRangeMapping(this.docSnapshot, this.doc, diff2.changes);
+    }
+  }
+  async accept(transaction2) {
+    if (this._stateObs.get() !== WorkingSetEntryState.Modified) {
+      return;
+    }
+    this.docSnapshot.setValue(this.doc.createSnapshot());
+    this._stateObs.set(WorkingSetEntryState.Accepted, transaction2);
+    await this.collapse(transaction2);
+    this._notifyAction("accepted");
+  }
+  async reject(transaction2) {
+    if (this._stateObs.get() !== WorkingSetEntryState.Modified) {
+      return;
+    }
+    this._stateObs.set(WorkingSetEntryState.Rejected, transaction2);
+    this._notifyAction("rejected");
+    if (this.createdInRequestId === this._telemetryInfo.requestId) {
+      await this._fileService.del(this.resource);
+      this._onDidDelete.fire();
+      this.dispose();
+    } else {
+      this._setDocValue(this.docSnapshot.getValue());
+      await this.collapse(transaction2);
+    }
+  }
+  _setDocValue(value) {
+    this.doc.pushStackElement();
+    const edit = EditOperation.replace(this.doc.getFullModelRange(), value);
+    this._applyEdits([edit]);
+    this.doc.pushStackElement();
+  }
+  async collapse(transaction2) {
+    this._multiDiffEntryDelegate.collapse(transaction2);
+  }
+  _notifyAction(outcome) {
+    this._chatService.notifyUserAction({
+      action: { kind: "chatEditingSessionAction", uri: this.resource, hasRemainingEdits: false, outcome },
+      agentId: this._telemetryInfo.agentId,
+      command: this._telemetryInfo.command,
+      sessionId: this._telemetryInfo.sessionId,
+      requestId: this._telemetryInfo.requestId,
+      result: this._telemetryInfo.result
+    });
+  }
+};
+ChatEditingModifiedFileEntry = __decorateClass([
+  __decorateParam(5, IModelService),
+  __decorateParam(6, ITextModelService),
+  __decorateParam(7, ILanguageService),
+  __decorateParam(8, IBulkEditService),
+  __decorateParam(9, IChatService),
+  __decorateParam(10, IEditorWorkerService),
+  __decorateParam(11, IUndoRedoService),
+  __decorateParam(12, IFileService)
+], ChatEditingModifiedFileEntry);
+export {
+  ChatEditingModifiedFileEntry
+};
+//# sourceMappingURL=chatEditingModifiedFileEntry.js.map

@@ -1,1 +1,117 @@
-var f=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var h=(c,o,n,t)=>{for(var i=t>1?void 0:t?u(o,n):o,a=c.length-1,s;a>=0;a--)(s=c[a])&&(i=(t?s(o,n,i):s(i))||i);return t&&i&&f(o,n,i),i},l=(c,o)=>(n,t)=>o(n,t,c);import*as g from"../../../nls.js";import{addDisposableListener as b,getActiveWindow as m}from"../../../base/browser/dom.js";import{createFastDomNode as D}from"../../../base/browser/fastDomNode.js";import{BugIndicatingError as x}from"../../../base/common/errors.js";import{Disposable as y}from"../../../base/common/lifecycle.js";import{observableValue as p,runOnChange as I}from"../../../base/common/observable.js";import{IInstantiationService as P}from"../../../platform/instantiation/common/instantiation.js";import{TextureAtlas as N}from"./atlas/textureAtlas.js";import{IConfigurationService as w}from"../../../platform/configuration/common/configuration.js";import{INotificationService as R,Severity as S}from"../../../platform/notification/common/notification.js";import{GPULifecycle as L}from"./gpuDisposable.js";import{ensureNonNullable as O,observeDevicePixelDimensions as C}from"./gpuUtils.js";import{RectangleRenderer as A}from"./rectangleRenderer.js";let e=class extends y{constructor(n,t,i,a){super();this._instantiationService=t;this._notificationService=i;this.configurationService=a;this.canvas=D(document.createElement("canvas")),this.canvas.setClassName("editorCanvas"),this.ctx=O(this.canvas.domNode.getContext("webgpu")),this.device=L.requestDevice(r=>{const d=[{label:g.localize("editor.dom.render","Use DOM-based rendering"),run:()=>this.configurationService.updateValue("editor.experimentalGpuAcceleration","off")}];this._notificationService.prompt(S.Warning,r,d)}).then(r=>this._register(r).object),this.device.then(r=>{e._atlas||(e._atlas=this._instantiationService.createInstance(N,r.limits.maxTextureDimension2D,void 0),I(this.devicePixelRatio,()=>e.atlas.clear()))}),this.rectangleRenderer=this._instantiationService.createInstance(A,n,this.canvas.domNode,this.ctx,this.device);const s=p(this,m().devicePixelRatio);this._register(b(m(),"resize",()=>{s.set(m().devicePixelRatio,void 0)})),this.devicePixelRatio=s;const v=p(this,{width:this.canvas.domNode.width,height:this.canvas.domNode.height});this._register(C(this.canvas.domNode,m(),(r,d)=>{this.canvas.domNode.width=r,this.canvas.domNode.height=d,v.set({width:r,height:d},void 0)})),this.canvasDevicePixelDimensions=v}canvas;ctx;device;rectangleRenderer;static _atlas;static get atlas(){if(!e._atlas)throw new x("Cannot call ViewGpuContext.textureAtlas before device is resolved");return e._atlas}get atlas(){return e.atlas}canvasDevicePixelDimensions;devicePixelRatio;static canRender(n,t,i){const a=t.getViewLineRenderingData(i);return!(a.containsRTL||a.maxColumn>200||a.continuesWithWrappedLine||a.inlineDecorations.length>0)}};e=h([l(1,P),l(2,R),l(3,w)],e);export{e as ViewGpuContext};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as nls from "../../../nls.js";
+import { addDisposableListener, getActiveWindow } from "../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../base/browser/fastDomNode.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { observableValue, runOnChange } from "../../../base/common/observable.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { TextureAtlas } from "./atlas/textureAtlas.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { INotificationService, IPromptChoice, Severity } from "../../../platform/notification/common/notification.js";
+import { GPULifecycle } from "./gpuDisposable.js";
+import { ensureNonNullable, observeDevicePixelDimensions } from "./gpuUtils.js";
+import { RectangleRenderer } from "./rectangleRenderer.js";
+let ViewGpuContext = class extends Disposable {
+  constructor(context, _instantiationService, _notificationService, configurationService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._notificationService = _notificationService;
+    this.configurationService = configurationService;
+    this.canvas = createFastDomNode(document.createElement("canvas"));
+    this.canvas.setClassName("editorCanvas");
+    this.ctx = ensureNonNullable(this.canvas.domNode.getContext("webgpu"));
+    this.device = GPULifecycle.requestDevice((message) => {
+      const choices = [{
+        label: nls.localize("editor.dom.render", "Use DOM-based rendering"),
+        run: /* @__PURE__ */ __name(() => this.configurationService.updateValue("editor.experimentalGpuAcceleration", "off"), "run")
+      }];
+      this._notificationService.prompt(Severity.Warning, message, choices);
+    }).then((ref) => this._register(ref).object);
+    this.device.then((device) => {
+      if (!ViewGpuContext._atlas) {
+        ViewGpuContext._atlas = this._instantiationService.createInstance(TextureAtlas, device.limits.maxTextureDimension2D, void 0);
+        runOnChange(this.devicePixelRatio, () => ViewGpuContext.atlas.clear());
+      }
+    });
+    this.rectangleRenderer = this._instantiationService.createInstance(RectangleRenderer, context, this.canvas.domNode, this.ctx, this.device);
+    const dprObs = observableValue(this, getActiveWindow().devicePixelRatio);
+    this._register(addDisposableListener(getActiveWindow(), "resize", () => {
+      dprObs.set(getActiveWindow().devicePixelRatio, void 0);
+    }));
+    this.devicePixelRatio = dprObs;
+    const canvasDevicePixelDimensions = observableValue(this, { width: this.canvas.domNode.width, height: this.canvas.domNode.height });
+    this._register(observeDevicePixelDimensions(
+      this.canvas.domNode,
+      getActiveWindow(),
+      (width, height) => {
+        this.canvas.domNode.width = width;
+        this.canvas.domNode.height = height;
+        canvasDevicePixelDimensions.set({ width, height }, void 0);
+      }
+    ));
+    this.canvasDevicePixelDimensions = canvasDevicePixelDimensions;
+  }
+  static {
+    __name(this, "ViewGpuContext");
+  }
+  canvas;
+  ctx;
+  device;
+  rectangleRenderer;
+  static _atlas;
+  /**
+   * The shared texture atlas to use across all views.
+   *
+   * @throws if called before the GPU device is resolved
+   */
+  static get atlas() {
+    if (!ViewGpuContext._atlas) {
+      throw new BugIndicatingError("Cannot call ViewGpuContext.textureAtlas before device is resolved");
+    }
+    return ViewGpuContext._atlas;
+  }
+  /**
+   * The shared texture atlas to use across all views. This is a convenience alias for
+   * {@link ViewGpuContext.atlas}.
+   *
+   * @throws if called before the GPU device is resolved
+   */
+  get atlas() {
+    return ViewGpuContext.atlas;
+  }
+  canvasDevicePixelDimensions;
+  devicePixelRatio;
+  /**
+   * This method determines which lines can be and are allowed to be rendered using the GPU
+   * renderer. Eventually this should trend all lines, except maybe exceptional cases like
+   * decorations that use class names.
+   */
+  static canRender(options, viewportData, lineNumber) {
+    const data = viewportData.getViewLineRenderingData(lineNumber);
+    if (data.containsRTL || data.maxColumn > 200 || data.continuesWithWrappedLine || data.inlineDecorations.length > 0) {
+      return false;
+    }
+    return true;
+  }
+};
+ViewGpuContext = __decorateClass([
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, INotificationService),
+  __decorateParam(3, IConfigurationService)
+], ViewGpuContext);
+export {
+  ViewGpuContext
+};
+//# sourceMappingURL=viewGpuContext.js.map

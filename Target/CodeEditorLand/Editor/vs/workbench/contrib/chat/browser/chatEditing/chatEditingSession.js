@@ -1,1 +1,537 @@
-var P=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var E=(p,l,e,t)=>{for(var i=t>1?void 0:t?T(l,e):l,r=p.length-1,s;r>=0;r--)(s=p[r])&&(i=(t?s(l,e,i):s(i))||i);return t&&i&&P(l,e,i),i},o=(p,l)=>(e,t)=>l(e,t,p);import{Sequencer as H}from"../../../../../base/common/async.js";import{BugIndicatingError as O}from"../../../../../base/common/errors.js";import{Emitter as w}from"../../../../../base/common/event.js";import{Disposable as U}from"../../../../../base/common/lifecycle.js";import{ResourceMap as f,ResourceSet as v}from"../../../../../base/common/map.js";import{autorun as F,derived as I,observableValue as _,transaction as y}from"../../../../../base/common/observable.js";import"../../../../../base/common/uri.js";import{isCodeEditor as W,isDiffEditor as A}from"../../../../../editor/browser/editorBrowser.js";import{IBulkEditService as q}from"../../../../../editor/browser/services/bulkEditService.js";import"../../../../../editor/common/languages.js";import{ILanguageService as N}from"../../../../../editor/common/languages/language.js";import"../../../../../editor/common/model.js";import{IModelService as G}from"../../../../../editor/common/services/model.js";import{ITextModelService as V}from"../../../../../editor/common/services/resolverService.js";import{localize as C}from"../../../../../nls.js";import{IFileDialogService as B}from"../../../../../platform/dialogs/common/dialogs.js";import{EditorActivation as D}from"../../../../../platform/editor/common/editor.js";import{IFileService as L}from"../../../../../platform/files/common/files.js";import{IInstantiationService as j}from"../../../../../platform/instantiation/common/instantiation.js";import{IWorkspaceContextService as z}from"../../../../../platform/workspace/common/workspace.js";import"../../../../common/editor.js";import{DiffEditorInput as K}from"../../../../common/editor/diffEditorInput.js";import{IEditorGroupsService as J}from"../../../../services/editor/common/editorGroupsService.js";import{IEditorService as Q}from"../../../../services/editor/common/editorService.js";import"../../../multiDiffEditor/browser/multiDiffEditor.js";import{MultiDiffEditorInput as k}from"../../../multiDiffEditor/browser/multiDiffEditorInput.js";import{ChatAgentLocation as X,IChatAgentService as Y}from"../../common/chatAgents.js";import{ChatEditingSessionState as a,ChatEditKind as b,WorkingSetEntryState as g}from"../../common/chatEditingService.js";import"../../common/chatModel.js";import{IChatWidgetService as Z}from"../chat.js";import{ChatEditingMultiDiffSourceResolver as $}from"./chatEditingService.js";import{ChatEditingModifiedFileEntry as M}from"./chatEditingModifiedFileEntry.js";import{ChatEditingTextModelContentProvider as ee}from"./chatEditingTextModelContentProviders.js";import{Schemas as te}from"../../../../../base/common/network.js";let m=class extends U{constructor(e,t,i,r,s,n,c,d,h,S,x,ie,re,se,ne){super();this.chatSessionId=e;this.editorPane=t;this.editingSessionFileLimitPromise=i;this._instantiationService=r;this._modelService=s;this._languageService=n;this._textModelService=c;this._bulkEditService=d;this._editorGroupsService=h;this._editorService=S;this._chatWidgetService=x;this._workspaceContextService=ie;this._fileService=re;this._dialogService=se;this._chatAgentService=ne;x.getWidgetBySessionId(e)&&(this._trackCurrentEditorsInWorkingSet(),this._register(this._editorService.onDidActiveEditorChange(()=>{this._trackCurrentEditorsInWorkingSet()})),this._register(this._editorService.onDidCloseEditor(u=>{this._trackCurrentEditorsInWorkingSet(u)})),this._register(F(u=>{this.entries.read(u).forEach(R=>{R.state.read(u)}),this._onDidChange.fire()})))}_state=_(this,a.Initial);_linearHistory=_(this,[]);_linearHistoryIndex=_(this,0);_initialFileContents=new f;_snapshots=new Map;_filesToSkipCreating=new v;_entriesObs=_(this,[]);get entries(){return this._assertNotDisposed(),this._entriesObs}_sequencer=new H;_workingSet=new f;get workingSet(){this._assertNotDisposed();const e=new f(this._workingSet);for(const t of this._entriesObs.get())e.set(t.modifiedURI,t.state.get());return e}get state(){return this._state}canUndo=I(e=>this.state.read(e)!==a.Idle?!1:this._linearHistoryIndex.read(e)>0);canRedo=I(e=>{if(this.state.read(e)!==a.Idle)return!1;const t=this._linearHistory.read(e);return this._linearHistoryIndex.read(e)<t.length});hiddenRequestIds=I(e=>{const t=this._linearHistory.read(e),i=this._linearHistoryIndex.read(e);return t.slice(i).map(r=>r.requestId).filter(r=>!!r)});_onDidChange=new w;get onDidChange(){return this._assertNotDisposed(),this._onDidChange.event}_onDidDispose=new w;get onDidDispose(){return this._assertNotDisposed(),this._onDidDispose.event}get isVisible(){return this._assertNotDisposed(),!!(this.editorPane&&this.editorPane.isVisible())}_trackCurrentEditorsInWorkingSet(e){const i=this._chatWidgetService.getWidgetBySessionId(this.chatSessionId)?.viewModel?.getItems();if(i&&i.length>0)return;const r=e?.editor.resource?.toString(),s=new v;for(const d of this._workingSet.keys())this._workingSet.get(d)===g.Transient&&s.add(d);if(s.size===0&&this._workingSet.size>0)return;const n=new v;this._editorGroupsService.groups.forEach(d=>{if(!d.activeEditorPane)return;let h=d.activeEditorPane.getControl();if(A(h)&&(h=h.getOriginalEditor().hasTextFocus()?h.getOriginalEditor():h.getModifiedEditor()),W(h)&&h.hasModel()){const S=h.getModel().uri;r===S.toString()||(s.has(S)?s.delete(S):n.add(S))}});let c=!1;for(const d of s)c=this._workingSet.delete(d)||c;for(const d of n)this._workingSet.set(d,g.Transient),c=!0;c&&this._onDidChange.fire()}createSnapshot(e){const t=this._createSnapshot(e);if(e){this._snapshots.set(e,t);for(const n of this._workingSet.keys())this._workingSet.set(n,g.Sent);const i=this._linearHistory.get(),r=this._linearHistoryIndex.get(),s=i.slice(0,r);s.push(t),y(n=>{this._linearHistory.set(s,n),this._linearHistoryIndex.set(s.length,n)})}else this._pendingSnapshot=t}_createSnapshot(e){const t=new f;for(const[r,s]of this._workingSet)t.set(r,s);const i=new f;for(const r of this._entriesObs.get())i.set(r.modifiedURI,r.createSnapshot(e));return{requestId:e,workingSet:t,entries:i}}async getSnapshotModel(e,t){const i=this._snapshots.get(e)?.entries;if(!i)return null;const r=[...i.values()].find(s=>s.snapshotUri.toString()===t.toString());return r?this._modelService.createModel(r.current,this._languageService.createById(r.languageId),t,!1):null}getSnapshot(e,t){return this._snapshots.get(e)?.entries?.get(t)}async restoreSnapshot(e){if(e!==void 0){const t=this._snapshots.get(e);t&&await this._restoreSnapshot(t)}else await this._restoreSnapshot(void 0)}_pendingSnapshot;async _restoreSnapshot(e){if(e)this._pendingSnapshot||this.createSnapshot(void 0);else{if(!this._pendingSnapshot)return;e=this._pendingSnapshot,this._pendingSnapshot=void 0}this._workingSet=new f,e.workingSet.forEach((i,r)=>this._workingSet.set(r,i));for(const i of this._entriesObs.get())if(!e.entries.get(i.modifiedURI)){const s=this._initialFileContents.get(i.modifiedURI);typeof s=="string"&&i.resetToInitialValue(s),i.dispose()}const t=[];for(const i of e.entries.values()){const r=await this._getOrCreateModifiedFileEntry(i.resource,i.telemetryInfo);r.restoreFromSnapshot(i),t.push(r)}this._entriesObs.set(t,void 0)}remove(...e){this._assertNotDisposed();let t=!1;for(const i of e)t=this._workingSet.delete(i)||t;t&&this._onDidChange.fire()}_assertNotDisposed(){if(this._state.get()===a.Disposed)throw new O("Cannot access a disposed editing session")}async accept(...e){this._assertNotDisposed(),e.length===0&&await Promise.all(this._entriesObs.get().map(t=>t.accept(void 0)));for(const t of e){const i=this._entriesObs.get().find(r=>r.modifiedURI.toString()===t.toString());i&&await i.accept(void 0)}this._onDidChange.fire()}async reject(...e){this._assertNotDisposed(),e.length===0&&await Promise.all(this._entriesObs.get().map(t=>t.reject(void 0)));for(const t of e){const i=this._entriesObs.get().find(r=>r.modifiedURI.toString()===t.toString());i&&await i.reject(void 0)}this._onDidChange.fire()}async show(){if(this._assertNotDisposed(),this.editorPane?.isVisible())return;if(this.editorPane?.input){await this._editorGroupsService.activeGroup.openEditor(this.editorPane.input,{pinned:!0,activation:D.ACTIVATE});return}const e=k.fromResourceMultiDiffEditorInput({multiDiffSource:$.getMultiDiffSourceUri(),label:C("multiDiffEditorInput.name","Suggested Edits")},this._instantiationService),t=await this._editorGroupsService.activeGroup.openEditor(e,{pinned:!0,activation:D.ACTIVATE});this.editorPane=t}async stop(){this._assertNotDisposed(),await Promise.allSettled(this._editorGroupsService.groups.map(async e=>Promise.allSettled(e.editors.map(async t=>{(t instanceof k||t instanceof K&&(t.original.resource?.scheme===M.scheme||t.original.resource?.scheme===ee.scheme))&&await e.closeEditor(t)})))),this._state.get()!==a.Disposed&&this.dispose()}dispose(){this._assertNotDisposed();for(const e of this._entriesObs.get())e.dispose();super.dispose(),this._state.set(a.Disposed,void 0),this._onDidDispose.fire()}getVirtualModel(e){return this._assertNotDisposed(),this._entriesObs.get().find(i=>i.entryId===e)?.docSnapshot??null}acceptStreamingEditsStart(){this._state.get()!==a.Disposed&&this._sequencer.queue(()=>this._acceptStreamingEditsStart())}acceptTextEdits(e,t,i){this._state.get()!==a.Disposed&&this._sequencer.queue(()=>this._acceptTextEdits(e,t,i))}resolve(){this._state.get()!==a.Disposed&&this._sequencer.queue(()=>this._resolve())}addFileToWorkingSet(e){if(!this._workingSet.has(e)){this._workingSet.set(e,g.Attached);for(const t of this._workingSet.keys())this._workingSet.get(t)===g.Transient&&this._workingSet.set(t,g.Attached);this._onDidChange.fire()}}async undoInteraction(){const e=this._linearHistory.get(),t=this._linearHistoryIndex.get();if(t<=0)return;const i=e[t-1];await this.restoreSnapshot(i.requestId),this._linearHistoryIndex.set(t-1,void 0)}async redoInteraction(){const e=this._linearHistory.get(),t=this._linearHistoryIndex.get();if(t>=e.length)return;const i=t+1<e.length?e[t+1]:this._pendingSnapshot;i&&(await this.restoreSnapshot(i.requestId),this._linearHistoryIndex.set(t+1,void 0))}async _acceptStreamingEditsStart(){y(e=>{this._state.set(a.StreamingEdits,e);for(const t of this._entriesObs.get())t.acceptStreamingEditsStart(e)})}async _acceptTextEdits(e,t,i){if(this._filesToSkipCreating.has(e)||!this._entriesObs.get().find(n=>n.resource.toString()===e.toString())&&this._entriesObs.get().length>=await this.editingSessionFileLimitPromise)return;if(e.scheme!==te.untitled&&!this._workspaceContextService.getWorkspaceFolder(e)&&!await this._fileService.exists(e)){const n=await this._dialogService.showSaveDialog({title:C("chatEditing.fileSave","{0} wants to create a file. Choose where it should be saved.",this._chatAgentService.getDefaultAgent(X.EditingSession)?.fullName??"Chat")});if(!n){this._filesToSkipCreating.add(e);return}e=n}const r=new class{get agentId(){return i.agent?.id}get command(){return i.slashCommand?.name}get sessionId(){return i.session.sessionId}get requestId(){return i.requestId}get result(){return i.result}};(await this._getOrCreateModifiedFileEntry(e,r)).acceptAgentEdits(t)}async _resolve(){y(e=>{for(const t of this._entriesObs.get())t.acceptStreamingEditsEnd(e);this._state.set(a.Idle,e)}),this._onDidChange.fire()}async _getOrCreateModifiedFileEntry(e,t){const i=this._entriesObs.get().find(n=>n.resource.toString()===e.toString());if(i)return t.requestId!==i.telemetryInfo.requestId&&i.updateTelemetryInfo(t),i;const r=await this._createModifiedFileEntry(e,t);this._initialFileContents.has(e)||this._initialFileContents.set(e,r.modifiedModel.getValue()),this._register(r.onDidDelete(()=>{const n=this._entriesObs.get().filter(c=>c.modifiedURI.toString()!==r.modifiedURI.toString());this._entriesObs.set(n,void 0),this._workingSet.delete(r.modifiedURI),this._onDidChange.fire()}));const s=[...this._entriesObs.get(),r];return this._entriesObs.set(s,void 0),this._onDidChange.fire(),r}async _createModifiedFileEntry(e,t,i=!1){try{const r=await this._textModelService.createModelReference(e);return this._instantiationService.createInstance(M,e,r,{collapse:s=>this._collapse(e,s)},t,i?b.Created:b.Modified)}catch(r){if(i)throw r;return await this._bulkEditService.apply({edits:[{newResource:e}]}),this._editorService.openEditor({resource:e,options:{inactive:!0,preserveFocus:!0,pinned:!0}}),this._createModifiedFileEntry(e,t,!0)}}_collapse(e,t){const i=this.editorPane?.findDocumentDiffItem(e);i&&this.editorPane?.viewModel?.items.get().find(r=>String(r.originalUri)===String(i.originalUri)&&String(r.modifiedUri)===String(i.modifiedUri))?.collapsed.set(!0,t)}};m=E([o(3,j),o(4,G),o(5,N),o(6,V),o(7,q),o(8,J),o(9,Q),o(10,Z),o(11,z),o(12,L),o(13,B),o(14,Y)],m);export{m as ChatEditingSession};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Sequencer } from "../../../../../base/common/async.js";
+import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap, ResourceSet } from "../../../../../base/common/map.js";
+import { autorun, derived, IObservable, ITransaction, observableValue, transaction } from "../../../../../base/common/observable.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { isCodeEditor, isDiffEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { IBulkEditService } from "../../../../../editor/browser/services/bulkEditService.js";
+import { TextEdit } from "../../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { ITextModel } from "../../../../../editor/common/model.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../../nls.js";
+import { IFileDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { EditorActivation } from "../../../../../platform/editor/common/editor.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
+import { IEditorCloseEvent } from "../../../../common/editor.js";
+import { DiffEditorInput } from "../../../../common/editor/diffEditorInput.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { MultiDiffEditor } from "../../../multiDiffEditor/browser/multiDiffEditor.js";
+import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
+import { ChatAgentLocation, IChatAgentService } from "../../common/chatAgents.js";
+import { ChatEditingSessionState, ChatEditKind, IChatEditingSession, WorkingSetEntryState } from "../../common/chatEditingService.js";
+import { IChatResponseModel } from "../../common/chatModel.js";
+import { IChatWidgetService } from "../chat.js";
+import { ChatEditingMultiDiffSourceResolver } from "./chatEditingService.js";
+import { ChatEditingModifiedFileEntry, IModifiedEntryTelemetryInfo, ISnapshotEntry } from "./chatEditingModifiedFileEntry.js";
+import { ChatEditingTextModelContentProvider } from "./chatEditingTextModelContentProviders.js";
+import { Schemas } from "../../../../../base/common/network.js";
+let ChatEditingSession = class extends Disposable {
+  constructor(chatSessionId, editorPane, editingSessionFileLimitPromise, _instantiationService, _modelService, _languageService, _textModelService, _bulkEditService, _editorGroupsService, _editorService, _chatWidgetService, _workspaceContextService, _fileService, _dialogService, _chatAgentService) {
+    super();
+    this.chatSessionId = chatSessionId;
+    this.editorPane = editorPane;
+    this.editingSessionFileLimitPromise = editingSessionFileLimitPromise;
+    this._instantiationService = _instantiationService;
+    this._modelService = _modelService;
+    this._languageService = _languageService;
+    this._textModelService = _textModelService;
+    this._bulkEditService = _bulkEditService;
+    this._editorGroupsService = _editorGroupsService;
+    this._editorService = _editorService;
+    this._chatWidgetService = _chatWidgetService;
+    this._workspaceContextService = _workspaceContextService;
+    this._fileService = _fileService;
+    this._dialogService = _dialogService;
+    this._chatAgentService = _chatAgentService;
+    const widget = _chatWidgetService.getWidgetBySessionId(chatSessionId);
+    if (!widget) {
+      return;
+    }
+    this._trackCurrentEditorsInWorkingSet();
+    this._register(this._editorService.onDidActiveEditorChange(() => {
+      this._trackCurrentEditorsInWorkingSet();
+    }));
+    this._register(this._editorService.onDidCloseEditor((e) => {
+      this._trackCurrentEditorsInWorkingSet(e);
+    }));
+    this._register(autorun((reader) => {
+      const entries = this.entries.read(reader);
+      entries.forEach((entry) => {
+        entry.state.read(reader);
+      });
+      this._onDidChange.fire();
+    }));
+  }
+  static {
+    __name(this, "ChatEditingSession");
+  }
+  _state = observableValue(this, ChatEditingSessionState.Initial);
+  _linearHistory = observableValue(this, []);
+  _linearHistoryIndex = observableValue(this, 0);
+  /**
+   * Contains the contents of a file when the AI first began doing edits to it.
+   */
+  _initialFileContents = new ResourceMap();
+  _snapshots = /* @__PURE__ */ new Map();
+  _filesToSkipCreating = new ResourceSet();
+  _entriesObs = observableValue(this, []);
+  get entries() {
+    this._assertNotDisposed();
+    return this._entriesObs;
+  }
+  _sequencer = new Sequencer();
+  _workingSet = new ResourceMap();
+  get workingSet() {
+    this._assertNotDisposed();
+    const result = new ResourceMap(this._workingSet);
+    for (const entry of this._entriesObs.get()) {
+      result.set(entry.modifiedURI, entry.state.get());
+    }
+    return result;
+  }
+  get state() {
+    return this._state;
+  }
+  canUndo = derived((r) => {
+    if (this.state.read(r) !== ChatEditingSessionState.Idle) {
+      return false;
+    }
+    const linearHistoryIndex = this._linearHistoryIndex.read(r);
+    return linearHistoryIndex > 0;
+  });
+  canRedo = derived((r) => {
+    if (this.state.read(r) !== ChatEditingSessionState.Idle) {
+      return false;
+    }
+    const linearHistory = this._linearHistory.read(r);
+    const linearHistoryIndex = this._linearHistoryIndex.read(r);
+    return linearHistoryIndex < linearHistory.length;
+  });
+  hiddenRequestIds = derived((r) => {
+    const linearHistory = this._linearHistory.read(r);
+    const linearHistoryIndex = this._linearHistoryIndex.read(r);
+    return linearHistory.slice(linearHistoryIndex).map((s) => s.requestId).filter((r2) => !!r2);
+  });
+  _onDidChange = new Emitter();
+  get onDidChange() {
+    this._assertNotDisposed();
+    return this._onDidChange.event;
+  }
+  _onDidDispose = new Emitter();
+  get onDidDispose() {
+    this._assertNotDisposed();
+    return this._onDidDispose.event;
+  }
+  get isVisible() {
+    this._assertNotDisposed();
+    return Boolean(this.editorPane && this.editorPane.isVisible());
+  }
+  _trackCurrentEditorsInWorkingSet(e) {
+    const widget = this._chatWidgetService.getWidgetBySessionId(this.chatSessionId);
+    const requests = widget?.viewModel?.getItems();
+    if (requests && requests.length > 0) {
+      return;
+    }
+    const closedEditor = e?.editor.resource?.toString();
+    const existingTransientEntries = new ResourceSet();
+    for (const file of this._workingSet.keys()) {
+      if (this._workingSet.get(file) === WorkingSetEntryState.Transient) {
+        existingTransientEntries.add(file);
+      }
+    }
+    if (existingTransientEntries.size === 0 && this._workingSet.size > 0) {
+      return;
+    }
+    const activeEditors = new ResourceSet();
+    this._editorGroupsService.groups.forEach((group) => {
+      if (!group.activeEditorPane) {
+        return;
+      }
+      let activeEditorControl = group.activeEditorPane.getControl();
+      if (isDiffEditor(activeEditorControl)) {
+        activeEditorControl = activeEditorControl.getOriginalEditor().hasTextFocus() ? activeEditorControl.getOriginalEditor() : activeEditorControl.getModifiedEditor();
+      }
+      if (isCodeEditor(activeEditorControl) && activeEditorControl.hasModel()) {
+        const uri = activeEditorControl.getModel().uri;
+        if (closedEditor === uri.toString()) {
+        } else if (existingTransientEntries.has(uri)) {
+          existingTransientEntries.delete(uri);
+        } else {
+          activeEditors.add(uri);
+        }
+      }
+    });
+    let didChange = false;
+    for (const entry of existingTransientEntries) {
+      didChange = this._workingSet.delete(entry) || didChange;
+    }
+    for (const entry of activeEditors) {
+      this._workingSet.set(entry, WorkingSetEntryState.Transient);
+      didChange = true;
+    }
+    if (didChange) {
+      this._onDidChange.fire();
+    }
+  }
+  createSnapshot(requestId) {
+    const snapshot = this._createSnapshot(requestId);
+    if (requestId) {
+      this._snapshots.set(requestId, snapshot);
+      for (const workingSetItem of this._workingSet.keys()) {
+        this._workingSet.set(workingSetItem, WorkingSetEntryState.Sent);
+      }
+      const linearHistory = this._linearHistory.get();
+      const linearHistoryIndex = this._linearHistoryIndex.get();
+      const newLinearHistory = linearHistory.slice(0, linearHistoryIndex);
+      newLinearHistory.push(snapshot);
+      transaction((tx) => {
+        this._linearHistory.set(newLinearHistory, tx);
+        this._linearHistoryIndex.set(newLinearHistory.length, tx);
+      });
+    } else {
+      this._pendingSnapshot = snapshot;
+    }
+  }
+  _createSnapshot(requestId) {
+    const workingSet = new ResourceMap();
+    for (const [file, state] of this._workingSet) {
+      workingSet.set(file, state);
+    }
+    const entries = new ResourceMap();
+    for (const entry of this._entriesObs.get()) {
+      entries.set(entry.modifiedURI, entry.createSnapshot(requestId));
+    }
+    return {
+      requestId,
+      workingSet,
+      entries
+    };
+  }
+  async getSnapshotModel(requestId, snapshotUri) {
+    const entries = this._snapshots.get(requestId)?.entries;
+    if (!entries) {
+      return null;
+    }
+    const snapshotEntry = [...entries.values()].find((e) => e.snapshotUri.toString() === snapshotUri.toString());
+    if (!snapshotEntry) {
+      return null;
+    }
+    return this._modelService.createModel(snapshotEntry.current, this._languageService.createById(snapshotEntry.languageId), snapshotUri, false);
+  }
+  getSnapshot(requestId, uri) {
+    const snapshot = this._snapshots.get(requestId);
+    const snapshotEntries = snapshot?.entries;
+    return snapshotEntries?.get(uri);
+  }
+  async restoreSnapshot(requestId) {
+    if (requestId !== void 0) {
+      const snapshot = this._snapshots.get(requestId);
+      if (snapshot) {
+        await this._restoreSnapshot(snapshot);
+      }
+    } else {
+      await this._restoreSnapshot(void 0);
+    }
+  }
+  /**
+   * A snapshot representing the state of the working set before a new request has been sent
+   */
+  _pendingSnapshot;
+  async _restoreSnapshot(snapshot) {
+    if (!snapshot) {
+      if (!this._pendingSnapshot) {
+        return;
+      }
+      snapshot = this._pendingSnapshot;
+      this._pendingSnapshot = void 0;
+    } else if (!this._pendingSnapshot) {
+      this.createSnapshot(void 0);
+    }
+    this._workingSet = new ResourceMap();
+    snapshot.workingSet.forEach((state, uri) => this._workingSet.set(uri, state));
+    for (const entry of this._entriesObs.get()) {
+      const snapshotEntry = snapshot.entries.get(entry.modifiedURI);
+      if (!snapshotEntry) {
+        const initialContents = this._initialFileContents.get(entry.modifiedURI);
+        if (typeof initialContents === "string") {
+          entry.resetToInitialValue(initialContents);
+        }
+        entry.dispose();
+      }
+    }
+    const entriesArr = [];
+    for (const snapshotEntry of snapshot.entries.values()) {
+      const entry = await this._getOrCreateModifiedFileEntry(snapshotEntry.resource, snapshotEntry.telemetryInfo);
+      entry.restoreFromSnapshot(snapshotEntry);
+      entriesArr.push(entry);
+    }
+    this._entriesObs.set(entriesArr, void 0);
+  }
+  remove(...uris) {
+    this._assertNotDisposed();
+    let didRemoveUris = false;
+    for (const uri of uris) {
+      didRemoveUris = this._workingSet.delete(uri) || didRemoveUris;
+    }
+    if (!didRemoveUris) {
+      return;
+    }
+    this._onDidChange.fire();
+  }
+  _assertNotDisposed() {
+    if (this._state.get() === ChatEditingSessionState.Disposed) {
+      throw new BugIndicatingError(`Cannot access a disposed editing session`);
+    }
+  }
+  async accept(...uris) {
+    this._assertNotDisposed();
+    if (uris.length === 0) {
+      await Promise.all(this._entriesObs.get().map((entry) => entry.accept(void 0)));
+    }
+    for (const uri of uris) {
+      const entry = this._entriesObs.get().find((e) => e.modifiedURI.toString() === uri.toString());
+      if (entry) {
+        await entry.accept(void 0);
+      }
+    }
+    this._onDidChange.fire();
+  }
+  async reject(...uris) {
+    this._assertNotDisposed();
+    if (uris.length === 0) {
+      await Promise.all(this._entriesObs.get().map((entry) => entry.reject(void 0)));
+    }
+    for (const uri of uris) {
+      const entry = this._entriesObs.get().find((e) => e.modifiedURI.toString() === uri.toString());
+      if (entry) {
+        await entry.reject(void 0);
+      }
+    }
+    this._onDidChange.fire();
+  }
+  async show() {
+    this._assertNotDisposed();
+    if (this.editorPane?.isVisible()) {
+      return;
+    } else if (this.editorPane?.input) {
+      await this._editorGroupsService.activeGroup.openEditor(this.editorPane.input, { pinned: true, activation: EditorActivation.ACTIVATE });
+      return;
+    }
+    const input = MultiDiffEditorInput.fromResourceMultiDiffEditorInput({
+      multiDiffSource: ChatEditingMultiDiffSourceResolver.getMultiDiffSourceUri(),
+      label: localize("multiDiffEditorInput.name", "Suggested Edits")
+    }, this._instantiationService);
+    const editorPane = await this._editorGroupsService.activeGroup.openEditor(input, { pinned: true, activation: EditorActivation.ACTIVATE });
+    this.editorPane = editorPane;
+  }
+  async stop() {
+    this._assertNotDisposed();
+    await Promise.allSettled(this._editorGroupsService.groups.map(async (g) => {
+      return Promise.allSettled(g.editors.map(async (e) => {
+        if (e instanceof MultiDiffEditorInput || e instanceof DiffEditorInput && (e.original.resource?.scheme === ChatEditingModifiedFileEntry.scheme || e.original.resource?.scheme === ChatEditingTextModelContentProvider.scheme)) {
+          await g.closeEditor(e);
+        }
+      }));
+    }));
+    if (this._state.get() !== ChatEditingSessionState.Disposed) {
+      this.dispose();
+    }
+  }
+  dispose() {
+    this._assertNotDisposed();
+    for (const entry of this._entriesObs.get()) {
+      entry.dispose();
+    }
+    super.dispose();
+    this._state.set(ChatEditingSessionState.Disposed, void 0);
+    this._onDidDispose.fire();
+  }
+  getVirtualModel(documentId) {
+    this._assertNotDisposed();
+    const entry = this._entriesObs.get().find((e) => e.entryId === documentId);
+    return entry?.docSnapshot ?? null;
+  }
+  acceptStreamingEditsStart() {
+    if (this._state.get() === ChatEditingSessionState.Disposed) {
+      return;
+    }
+    this._sequencer.queue(() => this._acceptStreamingEditsStart());
+  }
+  acceptTextEdits(resource, textEdits, responseModel) {
+    if (this._state.get() === ChatEditingSessionState.Disposed) {
+      return;
+    }
+    this._sequencer.queue(() => this._acceptTextEdits(resource, textEdits, responseModel));
+  }
+  resolve() {
+    if (this._state.get() === ChatEditingSessionState.Disposed) {
+      return;
+    }
+    this._sequencer.queue(() => this._resolve());
+  }
+  addFileToWorkingSet(resource) {
+    if (!this._workingSet.has(resource)) {
+      this._workingSet.set(resource, WorkingSetEntryState.Attached);
+      for (const file of this._workingSet.keys()) {
+        if (this._workingSet.get(file) === WorkingSetEntryState.Transient) {
+          this._workingSet.set(file, WorkingSetEntryState.Attached);
+        }
+      }
+      this._onDidChange.fire();
+    }
+  }
+  async undoInteraction() {
+    const linearHistory = this._linearHistory.get();
+    const linearHistoryIndex = this._linearHistoryIndex.get();
+    if (linearHistoryIndex <= 0) {
+      return;
+    }
+    const previousSnapshot = linearHistory[linearHistoryIndex - 1];
+    await this.restoreSnapshot(previousSnapshot.requestId);
+    this._linearHistoryIndex.set(linearHistoryIndex - 1, void 0);
+  }
+  async redoInteraction() {
+    const linearHistory = this._linearHistory.get();
+    const linearHistoryIndex = this._linearHistoryIndex.get();
+    if (linearHistoryIndex >= linearHistory.length) {
+      return;
+    }
+    const nextSnapshot = linearHistoryIndex + 1 < linearHistory.length ? linearHistory[linearHistoryIndex + 1] : this._pendingSnapshot;
+    if (!nextSnapshot) {
+      return;
+    }
+    await this.restoreSnapshot(nextSnapshot.requestId);
+    this._linearHistoryIndex.set(linearHistoryIndex + 1, void 0);
+  }
+  async _acceptStreamingEditsStart() {
+    transaction((tx) => {
+      this._state.set(ChatEditingSessionState.StreamingEdits, tx);
+      for (const entry of this._entriesObs.get()) {
+        entry.acceptStreamingEditsStart(tx);
+      }
+    });
+  }
+  async _acceptTextEdits(resource, textEdits, responseModel) {
+    if (this._filesToSkipCreating.has(resource)) {
+      return;
+    }
+    if (!this._entriesObs.get().find((e) => e.resource.toString() === resource.toString()) && this._entriesObs.get().length >= await this.editingSessionFileLimitPromise) {
+      return;
+    }
+    if (resource.scheme !== Schemas.untitled && !this._workspaceContextService.getWorkspaceFolder(resource) && !await this._fileService.exists(resource)) {
+      const saveLocation = await this._dialogService.showSaveDialog({ title: localize("chatEditing.fileSave", "{0} wants to create a file. Choose where it should be saved.", this._chatAgentService.getDefaultAgent(ChatAgentLocation.EditingSession)?.fullName ?? "Chat") });
+      if (!saveLocation) {
+        this._filesToSkipCreating.add(resource);
+        return;
+      }
+      resource = saveLocation;
+    }
+    const telemetryInfo = new class {
+      get agentId() {
+        return responseModel.agent?.id;
+      }
+      get command() {
+        return responseModel.slashCommand?.name;
+      }
+      get sessionId() {
+        return responseModel.session.sessionId;
+      }
+      get requestId() {
+        return responseModel.requestId;
+      }
+      get result() {
+        return responseModel.result;
+      }
+    }();
+    const entry = await this._getOrCreateModifiedFileEntry(resource, telemetryInfo);
+    entry.acceptAgentEdits(textEdits);
+  }
+  async _resolve() {
+    transaction((tx) => {
+      for (const entry of this._entriesObs.get()) {
+        entry.acceptStreamingEditsEnd(tx);
+      }
+      this._state.set(ChatEditingSessionState.Idle, tx);
+    });
+    this._onDidChange.fire();
+  }
+  async _getOrCreateModifiedFileEntry(resource, responseModel) {
+    const existingEntry = this._entriesObs.get().find((e) => e.resource.toString() === resource.toString());
+    if (existingEntry) {
+      if (responseModel.requestId !== existingEntry.telemetryInfo.requestId) {
+        existingEntry.updateTelemetryInfo(responseModel);
+      }
+      return existingEntry;
+    }
+    const entry = await this._createModifiedFileEntry(resource, responseModel);
+    if (!this._initialFileContents.has(resource)) {
+      this._initialFileContents.set(resource, entry.modifiedModel.getValue());
+    }
+    this._register(entry.onDidDelete(() => {
+      const newEntries = this._entriesObs.get().filter((e) => e.modifiedURI.toString() !== entry.modifiedURI.toString());
+      this._entriesObs.set(newEntries, void 0);
+      this._workingSet.delete(entry.modifiedURI);
+      this._onDidChange.fire();
+    }));
+    const entriesArr = [...this._entriesObs.get(), entry];
+    this._entriesObs.set(entriesArr, void 0);
+    this._onDidChange.fire();
+    return entry;
+  }
+  async _createModifiedFileEntry(resource, responseModel, mustExist = false) {
+    try {
+      const ref = await this._textModelService.createModelReference(resource);
+      return this._instantiationService.createInstance(ChatEditingModifiedFileEntry, resource, ref, { collapse: /* @__PURE__ */ __name((transaction2) => this._collapse(resource, transaction2), "collapse") }, responseModel, mustExist ? ChatEditKind.Created : ChatEditKind.Modified);
+    } catch (err) {
+      if (mustExist) {
+        throw err;
+      }
+      await this._bulkEditService.apply({ edits: [{ newResource: resource }] });
+      this._editorService.openEditor({ resource, options: { inactive: true, preserveFocus: true, pinned: true } });
+      return this._createModifiedFileEntry(resource, responseModel, true);
+    }
+  }
+  _collapse(resource, transaction2) {
+    const multiDiffItem = this.editorPane?.findDocumentDiffItem(resource);
+    if (multiDiffItem) {
+      this.editorPane?.viewModel?.items.get().find((documentDiffItem) => String(documentDiffItem.originalUri) === String(multiDiffItem.originalUri) && String(documentDiffItem.modifiedUri) === String(multiDiffItem.modifiedUri))?.collapsed.set(true, transaction2);
+    }
+  }
+};
+ChatEditingSession = __decorateClass([
+  __decorateParam(3, IInstantiationService),
+  __decorateParam(4, IModelService),
+  __decorateParam(5, ILanguageService),
+  __decorateParam(6, ITextModelService),
+  __decorateParam(7, IBulkEditService),
+  __decorateParam(8, IEditorGroupsService),
+  __decorateParam(9, IEditorService),
+  __decorateParam(10, IChatWidgetService),
+  __decorateParam(11, IWorkspaceContextService),
+  __decorateParam(12, IFileService),
+  __decorateParam(13, IFileDialogService),
+  __decorateParam(14, IChatAgentService)
+], ChatEditingSession);
+export {
+  ChatEditingSession
+};
+//# sourceMappingURL=chatEditingSession.js.map

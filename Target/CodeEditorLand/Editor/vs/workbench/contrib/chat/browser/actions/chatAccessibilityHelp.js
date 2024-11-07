@@ -1,2 +1,138 @@
-import"../../../../../editor/browser/editorBrowser.js";import"../../../../../editor/browser/editorExtensions.js";import{ICodeEditorService as h}from"../../../../../editor/browser/services/codeEditorService.js";import{AccessibleDiffViewerNext as m}from"../../../../../editor/browser/widget/diffEditor/commands.js";import{localize as t}from"../../../../../nls.js";import{AccessibleContentProvider as w,AccessibleViewProviderId as l,AccessibleViewType as u}from"../../../../../platform/accessibility/browser/accessibleView.js";import"../../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{ContextKeyExpr as d}from"../../../../../platform/contextkey/common/contextkey.js";import{IKeybindingService as k}from"../../../../../platform/keybinding/common/keybinding.js";import{AccessibilityVerbositySettingId as b}from"../../../accessibility/browser/accessibilityConfiguration.js";import{INLINE_CHAT_ID as y}from"../../../inlineChat/common/inlineChat.js";import{ChatAgentLocation as v}from"../../common/chatAgents.js";import{ChatContextKeys as a}from"../../common/chatContextKeys.js";import{IChatWidgetService as A}from"../chat.js";class _{priority=107;name="panelChat";type=u.Help;when=d.and(a.location.isEqualTo(v.Panel),a.inQuickChat.negate(),d.or(a.inChatSession,a.isResponse,a.isRequest));getProvider(i){const e=i.get(h).getActiveCodeEditor()||i.get(h).getFocusedCodeEditor();return f(i,e??void 0,"panelChat")}}class j{priority=107;name="quickChat";type=u.Help;when=d.and(a.inQuickChat,d.or(a.inChatSession,a.isResponse,a.isRequest));getProvider(i){const e=i.get(h).getActiveCodeEditor()||i.get(h).getFocusedCodeEditor();return f(i,e??void 0,"quickChat")}}function I(n,i){const e=[];return n==="panelChat"||n==="quickChat"?(e.push(t("chat.overview","The chat view is comprised of an input box and a request/response list. The input box is used to make requests and the list is used to display responses.")),e.push(t("chat.requestHistory","In the input box, use up and down arrows to navigate your request history. Edit input and use enter or the submit button to run a new request.")),e.push(t("chat.inspectResponse","In the input box, inspect the last response in the accessible view{0}.","<keybinding:editor.action.accessibleView>")),n==="panelChat"&&e.push(t("chat.followUp","In the input box, navigate to the suggested follow up question (Shift+Tab) and press Enter to run it.")),e.push(t("chat.announcement","Chat responses will be announced as they come in. A response will indicate the number of code blocks, if any, and then the rest of the response.")),e.push(t("workbench.action.chat.focus","To focus the chat request/response list, which can be navigated with up and down arrows, invoke the Focus Chat command{0}.",g(i,n,!1))),e.push(t("workbench.action.chat.focusInput","To focus the input box for chat requests, invoke the Focus Chat Input command{0}.",g(i,n,!0))),e.push(t("workbench.action.chat.nextCodeBlock","To focus the next code block within a response, invoke the Chat: Next Code Block command{0}.","<keybinding:workbench.action.chat.nextCodeBlock>")),n==="panelChat"&&e.push(t("workbench.action.chat.newChat","To create a new chat session, invoke the New Chat command{0}.","<keybinding:workbench.action.chat.new>"))):(e.push(t("inlineChat.overview","Inline chat occurs within a code editor and takes into account the current selection. It is useful for making changes to the current editor. For example, fixing diagnostics, documenting or refactoring code. Keep in mind that AI generated code may be incorrect.")),e.push(t("inlineChat.access","It can be activated via code actions or directly using the command: Inline Chat: Start Inline Chat{0}.","<keybinding:inlineChat.start>")),e.push(t("inlineChat.requestHistory","In the input box, use Show Previous{0} and Show Next{1} to navigate your request history. Edit input and use enter or the submit button to run a new request.","<keybinding:history.showPrevious>","<keybinding:history.showNext>")),e.push(t("inlineChat.inspectResponse","In the input box, inspect the response in the accessible view{0}.","<keybinding:editor.action.accessibleView>")),e.push(t("inlineChat.contextActions","Context menu actions may run a request prefixed with a /. Type / to discover such ready-made commands.")),e.push(t("inlineChat.fix","If a fix action is invoked, a response will indicate the problem with the current code. A diff editor will be rendered and can be reached by tabbing.")),e.push(t("inlineChat.diff","Once in the diff editor, enter review mode with{0}. Use up and down arrows to navigate lines with the proposed changes.",m.id)),e.push(t("inlineChat.toolbar","Use tab to reach conditional parts like commands, status, message responses and more."))),e.push(t("chat.signals","Accessibility Signals can be changed via settings with a prefix of signals.chat. By default, if a request takes more than 4 seconds, you will hear a sound indicating that progress is still occurring.")),e.join(`
-`)}function f(n,i,e){const s=n.get(A),c=n.get(k),o=e==="panelChat"||e==="quickChat"?s.lastFocusedWidget?.inputEditor:i;if(!o||!(o.getDomNode()??void 0))return;const p=o.getPosition();o.getSupportedActions();const C=I(e,c);return new w(e==="panelChat"?l.PanelChat:e==="inlineChat"?l.InlineChat:l.QuickChat,{type:u.Help},()=>C,()=>{e==="panelChat"&&p?(o.setPosition(p),o.focus()):e==="inlineChat"&&i?.getContribution(y)?.focus()},e==="panelChat"?b.Chat:b.InlineChat)}function g(n,i,e){let s;const c=" (unassigned keybinding)";if(e?s=n.lookupKeybindings("workbench.action.chat.focusInput"):s=n.lookupKeybindings("chat.action.focus"),!s?.length)return c;let o;return i==="panelChat"?e?o=s.find(r=>r.getAriaLabel()?.includes("DownArrow"))?.getAriaLabel():o=s.find(r=>r.getAriaLabel()?.includes("UpArrow"))?.getAriaLabel():e?o=s.find(r=>r.getAriaLabel()?.includes("UpArrow"))?.getAriaLabel():o=s.find(r=>r.getAriaLabel()?.includes("DownArrow"))?.getAriaLabel(),o?` (${o})`:c}export{_ as PanelChatAccessibilityHelp,j as QuickChatAccessibilityHelp,I as getAccessibilityHelpText,f as getChatAccessibilityHelpProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ICodeEditor } from "../../../../../editor/browser/editorBrowser.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../../../editor/browser/services/codeEditorService.js";
+import { AccessibleDiffViewerNext } from "../../../../../editor/browser/widget/diffEditor/commands.js";
+import { localize } from "../../../../../nls.js";
+import { AccessibleContentProvider, AccessibleViewProviderId, AccessibleViewType } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplentation } from "../../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { INLINE_CHAT_ID } from "../../../inlineChat/common/inlineChat.js";
+import { ChatAgentLocation } from "../../common/chatAgents.js";
+import { ChatContextKeys } from "../../common/chatContextKeys.js";
+import { IChatWidgetService } from "../chat.js";
+class PanelChatAccessibilityHelp {
+  static {
+    __name(this, "PanelChatAccessibilityHelp");
+  }
+  priority = 107;
+  name = "panelChat";
+  type = AccessibleViewType.Help;
+  when = ContextKeyExpr.and(ChatContextKeys.location.isEqualTo(ChatAgentLocation.Panel), ChatContextKeys.inQuickChat.negate(), ContextKeyExpr.or(ChatContextKeys.inChatSession, ChatContextKeys.isResponse, ChatContextKeys.isRequest));
+  getProvider(accessor) {
+    const codeEditor = accessor.get(ICodeEditorService).getActiveCodeEditor() || accessor.get(ICodeEditorService).getFocusedCodeEditor();
+    return getChatAccessibilityHelpProvider(accessor, codeEditor ?? void 0, "panelChat");
+  }
+}
+class QuickChatAccessibilityHelp {
+  static {
+    __name(this, "QuickChatAccessibilityHelp");
+  }
+  priority = 107;
+  name = "quickChat";
+  type = AccessibleViewType.Help;
+  when = ContextKeyExpr.and(ChatContextKeys.inQuickChat, ContextKeyExpr.or(ChatContextKeys.inChatSession, ChatContextKeys.isResponse, ChatContextKeys.isRequest));
+  getProvider(accessor) {
+    const codeEditor = accessor.get(ICodeEditorService).getActiveCodeEditor() || accessor.get(ICodeEditorService).getFocusedCodeEditor();
+    return getChatAccessibilityHelpProvider(accessor, codeEditor ?? void 0, "quickChat");
+  }
+}
+function getAccessibilityHelpText(type, keybindingService) {
+  const content = [];
+  if (type === "panelChat" || type === "quickChat") {
+    content.push(localize("chat.overview", "The chat view is comprised of an input box and a request/response list. The input box is used to make requests and the list is used to display responses."));
+    content.push(localize("chat.requestHistory", "In the input box, use up and down arrows to navigate your request history. Edit input and use enter or the submit button to run a new request."));
+    content.push(localize("chat.inspectResponse", "In the input box, inspect the last response in the accessible view{0}.", "<keybinding:editor.action.accessibleView>"));
+    if (type === "panelChat") {
+      content.push(localize("chat.followUp", "In the input box, navigate to the suggested follow up question (Shift+Tab) and press Enter to run it."));
+    }
+    content.push(localize("chat.announcement", "Chat responses will be announced as they come in. A response will indicate the number of code blocks, if any, and then the rest of the response."));
+    content.push(localize("workbench.action.chat.focus", "To focus the chat request/response list, which can be navigated with up and down arrows, invoke the Focus Chat command{0}.", getChatFocusKeybindingLabel(keybindingService, type, false)));
+    content.push(localize("workbench.action.chat.focusInput", "To focus the input box for chat requests, invoke the Focus Chat Input command{0}.", getChatFocusKeybindingLabel(keybindingService, type, true)));
+    content.push(localize("workbench.action.chat.nextCodeBlock", "To focus the next code block within a response, invoke the Chat: Next Code Block command{0}.", "<keybinding:workbench.action.chat.nextCodeBlock>"));
+    if (type === "panelChat") {
+      content.push(localize("workbench.action.chat.newChat", "To create a new chat session, invoke the New Chat command{0}.", "<keybinding:workbench.action.chat.new>"));
+    }
+  } else {
+    content.push(localize("inlineChat.overview", "Inline chat occurs within a code editor and takes into account the current selection. It is useful for making changes to the current editor. For example, fixing diagnostics, documenting or refactoring code. Keep in mind that AI generated code may be incorrect."));
+    content.push(localize("inlineChat.access", "It can be activated via code actions or directly using the command: Inline Chat: Start Inline Chat{0}.", "<keybinding:inlineChat.start>"));
+    content.push(localize("inlineChat.requestHistory", "In the input box, use Show Previous{0} and Show Next{1} to navigate your request history. Edit input and use enter or the submit button to run a new request.", "<keybinding:history.showPrevious>", "<keybinding:history.showNext>"));
+    content.push(localize("inlineChat.inspectResponse", "In the input box, inspect the response in the accessible view{0}.", "<keybinding:editor.action.accessibleView>"));
+    content.push(localize("inlineChat.contextActions", "Context menu actions may run a request prefixed with a /. Type / to discover such ready-made commands."));
+    content.push(localize("inlineChat.fix", "If a fix action is invoked, a response will indicate the problem with the current code. A diff editor will be rendered and can be reached by tabbing."));
+    content.push(localize("inlineChat.diff", "Once in the diff editor, enter review mode with{0}. Use up and down arrows to navigate lines with the proposed changes.", AccessibleDiffViewerNext.id));
+    content.push(localize("inlineChat.toolbar", "Use tab to reach conditional parts like commands, status, message responses and more."));
+  }
+  content.push(localize("chat.signals", "Accessibility Signals can be changed via settings with a prefix of signals.chat. By default, if a request takes more than 4 seconds, you will hear a sound indicating that progress is still occurring."));
+  return content.join("\n");
+}
+__name(getAccessibilityHelpText, "getAccessibilityHelpText");
+function getChatAccessibilityHelpProvider(accessor, editor, type) {
+  const widgetService = accessor.get(IChatWidgetService);
+  const keybindingService = accessor.get(IKeybindingService);
+  const inputEditor = type === "panelChat" || type === "quickChat" ? widgetService.lastFocusedWidget?.inputEditor : editor;
+  if (!inputEditor) {
+    return;
+  }
+  const domNode = inputEditor.getDomNode() ?? void 0;
+  if (!domNode) {
+    return;
+  }
+  const cachedPosition = inputEditor.getPosition();
+  inputEditor.getSupportedActions();
+  const helpText = getAccessibilityHelpText(type, keybindingService);
+  return new AccessibleContentProvider(
+    type === "panelChat" ? AccessibleViewProviderId.PanelChat : type === "inlineChat" ? AccessibleViewProviderId.InlineChat : AccessibleViewProviderId.QuickChat,
+    { type: AccessibleViewType.Help },
+    () => helpText,
+    () => {
+      if (type === "panelChat" && cachedPosition) {
+        inputEditor.setPosition(cachedPosition);
+        inputEditor.focus();
+      } else if (type === "inlineChat") {
+        const ctrl = editor?.getContribution(INLINE_CHAT_ID);
+        ctrl?.focus();
+      }
+    },
+    type === "panelChat" ? AccessibilityVerbositySettingId.Chat : AccessibilityVerbositySettingId.InlineChat
+  );
+}
+__name(getChatAccessibilityHelpProvider, "getChatAccessibilityHelpProvider");
+function getChatFocusKeybindingLabel(keybindingService, type, focusInput) {
+  let kbs;
+  const fallback = " (unassigned keybinding)";
+  if (focusInput) {
+    kbs = keybindingService.lookupKeybindings("workbench.action.chat.focusInput");
+  } else {
+    kbs = keybindingService.lookupKeybindings("chat.action.focus");
+  }
+  if (!kbs?.length) {
+    return fallback;
+  }
+  let kb;
+  if (type === "panelChat") {
+    if (focusInput) {
+      kb = kbs.find((kb2) => kb2.getAriaLabel()?.includes("DownArrow"))?.getAriaLabel();
+    } else {
+      kb = kbs.find((kb2) => kb2.getAriaLabel()?.includes("UpArrow"))?.getAriaLabel();
+    }
+  } else {
+    if (focusInput) {
+      kb = kbs.find((kb2) => kb2.getAriaLabel()?.includes("UpArrow"))?.getAriaLabel();
+    } else {
+      kb = kbs.find((kb2) => kb2.getAriaLabel()?.includes("DownArrow"))?.getAriaLabel();
+    }
+  }
+  return !!kb ? ` (${kb})` : fallback;
+}
+__name(getChatFocusKeybindingLabel, "getChatFocusKeybindingLabel");
+export {
+  PanelChatAccessibilityHelp,
+  QuickChatAccessibilityHelp,
+  getAccessibilityHelpText,
+  getChatAccessibilityHelpProvider
+};
+//# sourceMappingURL=chatAccessibilityHelp.js.map

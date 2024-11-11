@@ -26,7 +26,7 @@ export default {
 	bundle: false,
 	assetNames: "Asset/[name]-[hash]",
 	sourcemap: On,
-	drop: On ? [] : ["console", "debugger"],
+	drop: On ? [] : ["debugger"],
 	ignoreAnnotations: !On,
 	keepNames: On,
 	plugins: [

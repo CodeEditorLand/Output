@@ -1,0 +1,1 @@
+import"../../../../../base/common/lifecycle.js";class i{_textAreaMapping=new Map;registerTextArea(e,t){return this._textAreaMapping.set(e,t),{dispose:()=>{this._textAreaMapping.delete(e)}}}getTextArea(e){return this._textAreaMapping.get(e)}}const n=new i;export{n as NativeEditContextRegistry};

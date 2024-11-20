@@ -1,1 +1,1 @@
-//# sourceMappingURL=notebookAccessibility.js.map
+var r=(o,e)=>()=>(e||o((e={exports:{}}).exports,e),e.exports);var P=r(s=>{s.setPassword=()=>Promise.resolve(),s.getPassword=()=>Promise.resolve(),s.deletePassword=()=>Promise.resolve()});export default P();

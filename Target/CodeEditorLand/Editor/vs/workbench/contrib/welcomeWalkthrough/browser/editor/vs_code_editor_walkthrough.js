@@ -37,6 +37,7 @@ Visual Studio Code comes with the powerful IntelliSense for JavaScript and TypeS
 
 |||js
 const canvas = document.querySelector('canvas');
+
 const context = canvas.getContext('2d');
 
 context.strokeStyle = 'blue';

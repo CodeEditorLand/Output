@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/platform/remote/common/remoteExtensionsScanner.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport { IExtensionDescription } from \"../../extensions/common/extensions.js\";\nimport { createDecorator } from \"../../instantiation/common/instantiation.js\";\n\nexport const IRemoteExtensionsScannerService =\n\tcreateDecorator<IRemoteExtensionsScannerService>(\n\t\t\"IRemoteExtensionsScannerService\",\n\t);\nexport const RemoteExtensionsScannerChannelName = \"remoteExtensionsScanner\";\nexport interface IRemoteExtensionsScannerService {\n\treadonly _serviceBrand: undefined;\n\twhenExtensionsReady(): Promise<void>;\n\tscanExtensions(): Promise<IExtensionDescription[]>;\n}\n"],
+  "mappings": "AAIA,SAAS,6BAA6B;AACtC,SAAS,uBAAuB;AAEzB,MAAM,kCACZ;AAAA,EACC;AACD;AACM,MAAM,qCAAqC;",
+  "names": []
+}

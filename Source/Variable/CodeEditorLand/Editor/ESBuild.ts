@@ -5,6 +5,7 @@ export const On =
 	process.env["TAURI_ENV_DEBUG"] === "true";
 
 export const Dependency = "CodeEditorLand/Editor";
+
 export const TypeScript = `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`;
 
 /**

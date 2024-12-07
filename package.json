@@ -19,9 +19,9 @@
 	},
 	"type": "module",
 	"scripts": {
-		"Run": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --Watch",
+		"Run": "Build '../../Dependency/Microsoft/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts --Watch",
 		"TypeScript": "tsc -p Source/Notation/CodeEditorLand/Editor/tsconfig.compile.json",
-		"prepublishOnly": "Build '../../Dependency/Land/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts"
+		"prepublishOnly": "Build '../../Dependency/Microsoft/Dependency/Editor/Source/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}' --ESBuild Source/Variable/CodeEditorLand/Editor/ESBuild.ts"
 	},
 	"devDependencies": {
 		"@playform/build": "0.2.0",

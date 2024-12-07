@@ -1,8 +1,8 @@
 {
 	"compilerOptions": {
-		"baseUrl": "../../../../../../Dependency/Land/Dependency/Editor/Source",
+		"baseUrl": "../../../../../../Dependency/Microsoft/Dependency/Editor/Source",
 		"outDir": "../../../../Target/CodeEditorLand/Editor",
-		"rootDir": "../../../../../../Dependency/Land/Dependency/Editor/Source",
+		"rootDir": "../../../../../../Dependency/Microsoft/Dependency/Editor/Source",
 
 		"allowJs": true,
 		"checkJs": false,
@@ -24,6 +24,6 @@
 		"strict": false
 	},
 	"extends": "./tsconfig.json",
-	"include": ["../../../../../../Dependency/Land/Dependency/Editor/Source"],
+	"include": ["../../../../../../Dependency/Microsoft/Dependency/Editor/Source"],
 	"exclude": ["**/node_modules/**", "**/Target/**"]
 }

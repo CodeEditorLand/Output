@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/platform/externalTerminal/electron-main/externalTerminal.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport { createDecorator } from \"../../instantiation/common/instantiation.js\";\nimport { IExternalTerminalService } from \"../common/externalTerminal.js\";\n\nexport const IExternalTerminalMainService =\n\tcreateDecorator<IExternalTerminalMainService>(\"externalTerminal\");\nexport interface IExternalTerminalMainService extends IExternalTerminalService {\n\treadonly _serviceBrand: undefined;\n}\n"],
-  "mappings": "AAIA,SAAS,uBAAuB;AAChC,SAAS,gCAAgC;AAElC,MAAM,+BACZ,gBAA8C,kBAAkB;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/workbench/services/integrity/common/integrity.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport { URI } from \"../../../../base/common/uri.js\";\nimport { createDecorator } from \"../../../../platform/instantiation/common/instantiation.js\";\n\nexport const IIntegrityService =\n\tcreateDecorator<IIntegrityService>(\"integrityService\");\nexport interface ChecksumPair {\n\turi: URI;\n\tactual: string;\n\texpected: string;\n\tisPure: boolean;\n}\nexport interface IntegrityTestResult {\n\tisPure: boolean;\n\tproof: ChecksumPair[];\n}\nexport interface IIntegrityService {\n\treadonly _serviceBrand: undefined;\n\tisPure(): Promise<IntegrityTestResult>;\n}\n"],
-  "mappings": "AAIA,SAAS,WAAW;AACpB,SAAS,uBAAuB;AAEzB,MAAM,oBACZ,gBAAmC,kBAAkB;",
-  "names": []
-}

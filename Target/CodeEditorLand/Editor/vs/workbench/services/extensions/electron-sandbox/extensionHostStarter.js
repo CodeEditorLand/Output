@@ -1,1 +1,0 @@
-import{IExtensionHostStarter as e,ipcExtensionHostStarterChannelName as r}from"../../../../platform/extensions/common/extensionHostStarter.js";import{registerMainProcessRemoteService as t}from"../../../../platform/ipc/electron-sandbox/services.js";t(e,r);

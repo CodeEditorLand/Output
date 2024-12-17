@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/workbench/contrib/notebook/browser/notebookAccessibility.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nexports.setPassword = () => Promise.resolve();\nexports.getPassword = () => Promise.resolve();\nexports.deletePassword = () => Promise.resolve();\n"],
-  "mappings": ";;;;AAAA;AAAA;AAKA,YAAQ,cAAc,MAAM,QAAQ,QAAQ;AAC5C,YAAQ,cAAc,MAAM,QAAQ,QAAQ;AAC5C,YAAQ,iBAAiB,MAAM,QAAQ,QAAQ;AAAA;AAAA;",
-  "names": []
-}

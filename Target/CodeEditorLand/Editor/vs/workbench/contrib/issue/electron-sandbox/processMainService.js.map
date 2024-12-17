@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/workbench/contrib/issue/electron-sandbox/processMainService.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport { registerMainProcessRemoteService } from \"../../../../platform/ipc/electron-sandbox/services.js\";\nimport { IProcessMainService } from \"../../../../platform/process/common/process.js\";\n\nregisterMainProcessRemoteService(IProcessMainService, \"process\");\n"],
-  "mappings": "AAIA,SAAS,wCAAwC;AACjD,SAAS,2BAA2B;AAEpC,iCAAiC,qBAAqB,SAAS;",
-  "names": []
-}

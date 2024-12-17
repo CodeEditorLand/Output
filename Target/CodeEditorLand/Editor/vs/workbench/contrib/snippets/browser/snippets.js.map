@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/workbench/contrib/snippets/browser/snippets.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nimport { createDecorator } from \"../../../../platform/instantiation/common/instantiation.js\";\nimport { Snippet, SnippetFile } from \"./snippetsFile.js\";\n\nexport const ISnippetsService =\n\tcreateDecorator<ISnippetsService>(\"snippetService\");\nexport interface ISnippetGetOptions {\n\tincludeDisabledSnippets?: boolean;\n\tincludeNoPrefixSnippets?: boolean;\n\tnoRecencySort?: boolean;\n\tfileTemplateSnippets?: boolean;\n}\nexport interface ISnippetsService {\n\treadonly _serviceBrand: undefined;\n\n\tgetSnippetFiles(): Promise<Iterable<SnippetFile>>;\n\tisEnabled(snippet: Snippet): boolean;\n\tupdateEnablement(snippet: Snippet, enabled: boolean): void;\n\tupdateUsageTimestamp(snippet: Snippet): void;\n\n\tgetSnippets(\n\t\tlanguageId: string | undefined,\n\t\topt?: ISnippetGetOptions,\n\t): Promise<Snippet[]>;\n\n\tgetSnippetsSync(languageId: string, opt?: ISnippetGetOptions): Snippet[];\n}\n"],
-  "mappings": "AAIA,SAAS,uBAAuB;AAChC,SAAS,SAAS,mBAAmB;AAE9B,MAAM,mBACZ,gBAAkC,gBAAgB;",
-  "names": []
-}

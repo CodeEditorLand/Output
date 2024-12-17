@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../../Dependency/Land/Dependency/Editor/Source/vs/editor/browser/controller/editContext/native/editContextFactory.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\nexport namespace EditContext {\n\t/**\n\t * Checks if the EditContext is supported in the given window.\n\t */\n\texport function supported(obj: any & Window): boolean {\n\t\treturn typeof obj?.EditContext === \"function\";\n\t}\n\t/**\n\t * Create an edit context. Check that the EditContext is supported using the method {@link EditContext.supported}\n\t */\n\texport function create(\n\t\twindow: Window,\n\t\toptions?: EditContextInit,\n\t): EditContext {\n\t\treturn new (window as any).EditContext(options);\n\t}\n}\n"],
-  "mappings": ";;AAIO,IAAU;AAAA,CAAV,CAAUA,iBAAV;AAIC,WAAS,UAAU,KAA4B;AACrD,WAAO,OAAO,KAAK,gBAAgB;AAAA,EACpC;AAFO,EAAAA,aAAS;AAAA;AAMT,WAAS,OACf,QACA,SACc;AACd,WAAO,IAAK,OAAe,YAAY,OAAO;AAAA,EAC/C;AALO,EAAAA,aAAS;AAAA;AAAA,GAVA;",
-  "names": ["EditContext"]
-}

@@ -1,1 +1,0 @@
-import"../../../../base/common/event.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import"../../../../editor/common/languageSelector.js";import{createDecorator as i}from"../../../../platform/instantiation/common/instantiation.js";const u=i("quickDiff");export{u as IQuickDiffService};

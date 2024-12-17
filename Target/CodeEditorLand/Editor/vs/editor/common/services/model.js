@@ -1,1 +1,0 @@
-import"../../../base/common/event.js";import"../../../base/common/uri.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../languages.js";import"../languages/language.js";import"../model.js";const M=e("modelService");export{M as IModelService};

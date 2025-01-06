@@ -25,7 +25,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"@playform/build": "0.2.0",
+		"@playform/build": "0.2.1",
 		"cross-env": "7.0.3",
 		"deepmerge-ts": "7.1.3"
 	},

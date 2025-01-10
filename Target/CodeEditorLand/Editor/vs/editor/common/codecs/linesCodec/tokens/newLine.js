@@ -1,0 +1,2 @@
+import"./line.js";import{BaseToken as m}from"../../baseToken.js";import{VSBuffer as b}from"../../../../../base/common/buffer.js";import{Range as a}from"../../../../../editor/common/core/range.js";import{Position as e}from"../../../../../editor/common/core/position.js";class t extends m{static symbol=`
+`;static byte=b.fromString(t.symbol);get byte(){return t.byte}static newOnLine(i,n){const{range:r}=i,o=new e(r.startLineNumber,n),s=new e(r.startLineNumber,n+this.symbol.length);return new t(a.fromPositions(o,s))}toString(){return`newline${this.range}`}}export{t as NewLine};

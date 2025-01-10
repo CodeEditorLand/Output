@@ -1,0 +1,1 @@
+import{localize as o}from"../../../../../../nls.js";import{RawContextKey as t}from"../../../../../../platform/contextkey/common/contextkey.js";const a=new t("chat.hasNotebookEditorModifications",void 0,o("chat.hasNotebookEditorModifications","The current Notebook editor contains chat modifications"));export{a as ctxNotebookHasEditorModification};

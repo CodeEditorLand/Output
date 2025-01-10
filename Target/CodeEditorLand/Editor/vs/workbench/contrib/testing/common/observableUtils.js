@@ -1,0 +1,1 @@
+import"../../../../base/common/lifecycle.js";import"../../../../base/common/observable.js";function g(e,r){const a={beginUpdate(){},endUpdate(){},handlePossibleChange(n){n.reportChanges()},handleChange(n,s){r(s)}};return e.addObserver(a),{dispose(){e.removeObserver(a)}}}export{g as onObservableChange};

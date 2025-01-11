@@ -1,7 +1,6 @@
 export const On = process.env["NODE_ENV"] === "development" ||
     process.env["TAURI_ENV_DEBUG"] === "true";
 export const Dependency = "CodeEditorLand/Editor";
-export const TypeScript = `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`;
 /**
  * @module ESBuild
  *
@@ -15,7 +14,7 @@ export default {
     outdir: `Target/${Dependency}`,
     platform: "node",
     target: "esnext",
-    tsconfig: TypeScript,
+    tsconfig: `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`,
     write: true,
     legalComments: On ? "inline" : "none",
     bundle: false,

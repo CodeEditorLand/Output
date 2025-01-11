@@ -6,7 +6,6 @@ export const On =
 
 export const Dependency = "CodeEditorLand/Editor";
 
-export const TypeScript = `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`;
 
 /**
  * @module ESBuild
@@ -21,7 +20,7 @@ export default {
 	outdir: `Target/${Dependency}`,
 	platform: "node",
 	target: "esnext",
-	tsconfig: TypeScript,
+	tsconfig: `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`,
 	write: true,
 	legalComments: On ? "inline" : "none",
 	bundle: false,

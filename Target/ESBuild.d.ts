@@ -1,7 +1,6 @@
 import type { BuildOptions } from "./esbuild";
 export declare const On: boolean;
 export declare const Dependency = "CodeEditorLand/Editor";
-export declare const TypeScript: string;
 /**
  * @module ESBuild
  *

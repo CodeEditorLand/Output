@@ -1,4 +1,4 @@
-import type { BuildOptions } from "esbuild";
+import type { BuildOptions, Plugin } from "esbuild";
 
 export const On =
 	process.env["NODE_ENV"] === "development" ||
@@ -47,7 +47,7 @@ export default {
 		// 			}
 		// 		});
 		// 	},
-		// },
+		// } as Plugin,
 		{
 			name: "Exclude",
 			setup({ onLoad }) {

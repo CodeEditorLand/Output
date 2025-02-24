@@ -41,7 +41,7 @@ export default {
         // 			}
         // 		});
         // 	},
-        // },
+        // } as Plugin,
         {
             name: "Exclude",
             setup({ onLoad }) {

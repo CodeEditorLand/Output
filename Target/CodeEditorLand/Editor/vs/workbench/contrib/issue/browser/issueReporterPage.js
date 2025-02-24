@@ -66,6 +66,7 @@ import{escape as s}from"../../../../base/common/strings.js";import{localize as e
 				${t}
 				<span id="ext-loading" hidden></span>
 				<span class="ext-parens" hidden>(</span><a href="#" class="showInfo" id="extension-id">${s(e("show","show"))}</a><span class="ext-parens" hidden>)</span>
+				<a id="extension-data-download">${s(e("downloadExtensionData","Download Extension Data"))}</a>
 			</label>
 			<pre class="block-info" id="extension-data" placeholder="${s(e("extensionData","Extension does not have additional data to include."))}" style="white-space: pre-wrap; user-select: text;">
 				<!-- To be dynamically filled -->

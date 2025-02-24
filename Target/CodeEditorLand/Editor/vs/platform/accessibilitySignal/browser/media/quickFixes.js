@@ -1,1 +1,1 @@
-var P="../../../../../Asset/quickFixes-MP6KW24Y.mp3";export{P as default};
+var n="../../../../../Asset/quickFixes-FEUHEX72.mp3";export{n as default};

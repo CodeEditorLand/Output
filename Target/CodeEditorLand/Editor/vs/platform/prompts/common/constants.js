@@ -1,0 +1,1 @@
+import"../../../base/common/uri.js";import{assert as r}from"../../../base/common/assert.js";import{basename as p}from"../../../base/common/path.js";const o=".prompt.md",e=t=>t.path.endsWith(o),i=t=>(r(e(t),`Provided path '${t.fsPath}' is not a prompt file.`),p(t.path,o));export{o as PROMPT_FILE_EXTENSION,i as getCleanPromptName,e as isPromptFile};

@@ -1,1 +1,0 @@
-import{createStyleSheet2 as s}from"./domStylesheets.js";import{DisposableStore as a}from"../common/lifecycle.js";import{autorun as b}from"../common/observable.js";function S(r){const e=new a,t=e.add(s());return e.add(b(o=>{t.setStyle(r.read(o))})),e}export{S as createStyleSheetFromObservable};

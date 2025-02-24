@@ -1,1 +1,1 @@
-var _="../../../../../../Asset/shellIntegration-rc-IT63OQNK.zsh";export{_ as default};
+var n="../../../../../../Asset/shellIntegration-rc-6QEUIPVL.zsh";export{n as default};

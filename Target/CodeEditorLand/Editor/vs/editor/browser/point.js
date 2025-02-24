@@ -1,1 +1,1 @@
-class n{constructor(t,e){this.x=t;this.y=e}static equals(t,e){return t.x===e.x&&t.y===e.y}add(t){return new n(this.x+t.x,this.y+t.y)}deltaX(t){return new n(this.x+t,this.y)}deltaY(t){return new n(this.x,this.y+t)}}export{n as Point};
+class n{constructor(t,i){this.x=t;this.y=i}static equals(t,i){return t.x===i.x&&t.y===i.y}add(t){return new n(this.x+t.x,this.y+t.y)}deltaX(t){return new n(this.x+t,this.y)}deltaY(t){return new n(this.x,this.y+t)}toString(){return`(${this.x},${this.y})`}}export{n as Point};

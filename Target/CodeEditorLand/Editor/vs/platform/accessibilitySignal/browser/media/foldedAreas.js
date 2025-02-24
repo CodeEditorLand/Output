@@ -1,1 +1,1 @@
-var c="../../../../../Asset/foldedAreas-TTUJTQJL.mp3";export{c as default};
+var A="../../../../../Asset/foldedAreas-G4PP3ZDV.mp3";export{A as default};

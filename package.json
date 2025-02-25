@@ -26,7 +26,7 @@
 	"devDependencies": {
 		"@playform/build": "0.2.1",
 		"cross-env": "7.0.3",
-		"deepmerge-ts": "7.1.4"
+		"deepmerge-ts": "7.1.5"
 	},
 	"publishConfig": {
 		"access": "public",

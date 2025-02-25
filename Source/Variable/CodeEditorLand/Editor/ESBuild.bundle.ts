@@ -69,4 +69,4 @@ export default (await import("deepmerge-ts")(
 	},
 )) satisfies BuildOptions as BuildOptions;
 
-export const { sep, posix } = await import("path");
+export const { sep, posix } = await import("node:path");

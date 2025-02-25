@@ -37,7 +37,7 @@ export default {
 		// 			try {
 		// 				outdir
 		// 					? await (
-		// 							await import("fs/promises")
+		// 							await import("node:fs/promises")
 		// 						).rm(outdir, {
 		// 							recursive: true,
 		// 						})
@@ -103,4 +103,4 @@ export default {
 	},
 } satisfies BuildOptions as BuildOptions;
 
-export const { sep, posix } = await import("path");
+export const { sep, posix } = await import("node:path");

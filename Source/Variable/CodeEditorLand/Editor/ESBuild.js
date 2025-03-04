@@ -89,4 +89,4 @@ export default {
         ".zsh": "file",
     },
 };
-export const { sep, posix } = await import("path");
+export const { sep, posix } = await import("node:path");

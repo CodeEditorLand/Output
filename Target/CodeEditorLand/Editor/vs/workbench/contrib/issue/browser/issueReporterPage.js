@@ -1,8 +1,13 @@
-import{escape as s}from"../../../../base/common/strings.js";import{localize as e}from"../../../../nls.js";const i=s(e("sendSystemInfo","Include my system information")),l=s(e("sendProcessInfo","Include my currently running processes")),n=s(e("sendWorkspaceInfo","Include my workspace metadata")),a=s(e("sendExtensions","Include my enabled extensions")),o=s(e("sendExperiments","Include A/B experiment info")),t=s(e("sendExtensionData","Include additional extension info")),d=e({key:"reviewGuidanceLabel",comment:['{Locked="<a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">"}','{Locked="</a>"}']},'Before you report an issue here please <a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">review the guidance we provide</a>.');var p=()=>`
+import{escape as s}from"../../../../base/common/strings.js";import{localize as e}from"../../../../nls.js";const i=s(e("sendSystemInfo","Include my system information")),l=s(e("sendProcessInfo","Include my currently running processes")),n=s(e("sendWorkspaceInfo","Include my workspace metadata")),a=s(e("sendExtensions","Include my enabled extensions")),o=s(e("sendExperiments","Include A/B experiment info")),t=s(e("sendExtensionData","Include additional extension info")),d=s(e("acknowledgements","I acknowledge that my VS Code version is not updated and this issue may be closed.")),c=e({key:"reviewGuidanceLabel",comment:['{Locked="<a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">"}','{Locked="</a>"}']},'Before you report an issue here please <a href="https://github.com/microsoft/vscode/wiki/Submitting-Bugs-and-Suggestions" target="_blank">review the guidance we provide</a>. Please complete the form in English.');var u=()=>`
+<div id="update-banner" class="issue-reporter-update-banner hidden">
+	<span class="update-banner-text" id="update-banner-text">
+		<!-- To be dynamically filled -->
+	</span>
+</div>
 <div class="issue-reporter" id="issue-reporter">
 	<div id="english" class="input-group hidden">${s(e("completeInEnglish","Please complete the form in English."))}</div>
 
-	<div id="review-guidance-help-text" class="input-group">${d}</div>
+	<div id="review-guidance-help-text" class="input-group">${c}</div>
 
 	<div class="section">
 		<div class="input-group">
@@ -127,5 +132,11 @@ import{escape as s}from"../../../../base/common/strings.js";import{localize as e
 				<!-- To be dynamically filled -->
 			</pre>
 		</div>
+		<div class="block block-acknowledgements hidden" id="version-acknowledgements">
+			<input class="sendData" aria-label="${d}" type="checkbox" id="includeAcknowledgement"/>
+			<label class="caption" for="includeAcknowledgement">
+				${d}
+			</label>
+		</div>
 	</div>
-</div>`;export{p as default};
+</div>`;export{u as default};

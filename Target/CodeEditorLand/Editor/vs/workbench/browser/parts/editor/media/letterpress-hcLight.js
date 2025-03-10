@@ -1,1 +1,0 @@
-var i="../../../../../../Asset/letterpress-hcLight-QWGNDR5V.svg";export{i as default};

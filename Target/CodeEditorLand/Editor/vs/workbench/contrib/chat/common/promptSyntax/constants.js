@@ -1,1 +1,0 @@
-import{PROMPT_FILE_EXTENSION as t}from"../../../../../platform/prompts/common/constants.js";const e="https://aka.ms/vscode-ghcp-prompt-snippets",o=Object.freeze({pattern:`**/*${t}`});export{e as DOCUMENTATION_URL,o as LANGUAGE_SELECTOR};

@@ -1,1 +1,0 @@
-var e="./Asset/tsconfig.vscode-proposed-dts-I3SHNGNG.json";export{e as default};

@@ -1,1 +1,0 @@
-import{createDecorator as o}from"../../../../platform/instantiation/common/instantiation.js";import"../../../services/workingCopy/common/storedFileWorkingCopy.js";import"../../../services/workingCopy/common/untitledFileWorkingCopy.js";import"./notebookEditorModel.js";const c=o("notebookSynchronizerService");export{c as INotebookSynchronizerService};

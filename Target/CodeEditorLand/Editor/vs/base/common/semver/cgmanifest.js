@@ -1,1 +1,0 @@
-var s="../../../../Asset/cgmanifest-TLDOG6HX.json";export{s as default};

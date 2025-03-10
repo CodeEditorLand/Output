@@ -1,1 +1,0 @@
-var r="../../../../../../Asset/search-6FIMVB5W.svg";export{r as default};

@@ -1,1 +1,0 @@
-var r="../../../../../../Asset/openFolder-U6SPHB5A.svg";export{r as default};

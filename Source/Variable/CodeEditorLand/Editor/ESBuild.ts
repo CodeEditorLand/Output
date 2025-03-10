@@ -81,7 +81,7 @@ export default {
 					return null;
 				});
 			},
-		},
+		} as Plugin,
 	],
 	loader: {
 		".css,": "file",

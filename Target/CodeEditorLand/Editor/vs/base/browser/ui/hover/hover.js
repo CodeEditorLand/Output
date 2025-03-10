@@ -1,1 +1,0 @@
-function n(o){const e=o;return typeof e=="object"&&"markdown"in e&&"markdownNotSupportedFallback"in e}function t(o){const e=o;return typeof e=="object"&&"element"in e}export{t as isManagedHoverTooltipHTMLElement,n as isManagedHoverTooltipMarkdownString};

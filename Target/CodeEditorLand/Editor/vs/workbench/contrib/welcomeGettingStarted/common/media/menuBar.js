@@ -1,1 +1,0 @@
-var e="../../../../../../Asset/menuBar-H4UUN5XP.svg";export{e as default};

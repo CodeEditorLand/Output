@@ -1,1 +1,0 @@
-import"../../../../base/common/event.js";import{createDecorator as i}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/progress/common/progress.js";import"../../../common/panecomposite.js";import"../../../common/views.js";const I=i("viewsService");export{I as IViewsService};

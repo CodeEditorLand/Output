@@ -1,1 +1,0 @@
-import"../../../../../../base/browser/mouseEvent.js";import"../../../../../../base/common/event.js";import"../../../../../../base/common/observable.js";import"../../../../../common/languages.js";import"./inlineEditWithChanges.js";var n=(e=>(e.Jump="jump",e.Accept="accept",e.Inactive="inactive",e))(n||{});export{n as InlineEditTabAction};

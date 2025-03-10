@@ -1,1 +1,0 @@
-var o="./Asset/tsconfig-2BQ2HCGP.json";export{o as default};

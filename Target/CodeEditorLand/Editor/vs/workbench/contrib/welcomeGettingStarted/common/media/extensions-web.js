@@ -1,1 +1,0 @@
-var e="../../../../../../Asset/extensions-web-UD4K66WH.svg";export{e as default};

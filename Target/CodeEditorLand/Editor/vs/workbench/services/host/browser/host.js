@@ -1,1 +1,0 @@
-import"../../../../base/common/buffer.js";import"../../../../base/common/event.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/window/common/window.js";const c=e("hostService");export{c as IHostService};

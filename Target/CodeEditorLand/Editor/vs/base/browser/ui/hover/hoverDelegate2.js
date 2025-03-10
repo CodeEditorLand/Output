@@ -1,1 +1,0 @@
-import{Disposable as e}from"../../../common/lifecycle.js";let o={showHover:()=>{},showDelayedHover:()=>{},setupDelayedHover:()=>e.None,setupDelayedHoverAtMouse:()=>e.None,hideHover:()=>{},showAndFocusLastHover:()=>{},setupManagedHover:()=>null,showManagedHover:()=>{}};function a(r){o=r}function n(){return o}export{n as getBaseLayerHoverDelegate,a as setBaseLayerHoverDelegate};

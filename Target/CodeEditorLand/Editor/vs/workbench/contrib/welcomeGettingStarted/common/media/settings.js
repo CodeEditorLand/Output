@@ -1,1 +1,0 @@
-var V="../../../../../../Asset/settings-K5DDORDF.svg";export{V as default};

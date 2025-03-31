@@ -1,1 +1,1 @@
-import{create as r}from"./outputLinkComputer.js";import{bootstrapWebWorker as o}from"../../../../base/common/worker/webWorkerBootstrap.js";o(r);
+import{bootstrapWebWorker as r}from"../../../../base/common/worker/webWorkerBootstrap.js";import{create as o}from"./outputLinkComputer.js";r(o);

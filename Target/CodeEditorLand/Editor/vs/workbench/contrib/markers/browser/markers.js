@@ -1,1 +1,1 @@
-import"./markersViewActions.js";import"../../../common/views.js";import"./markersModel.js";import"../common/markers.js";
+import"../../../common/views.js";import"../common/markers.js";import"./markersModel.js";import"./markersViewActions.js";

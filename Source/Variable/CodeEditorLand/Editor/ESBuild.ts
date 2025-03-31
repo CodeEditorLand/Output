@@ -6,7 +6,6 @@ export const On =
 
 export const Dependency = "CodeEditorLand/Editor";
 
-
 /**
  * @module ESBuild
  *

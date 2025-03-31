@@ -1,0 +1,1 @@
+import"../../../base/parts/sandbox/common/sandboxTypes.js";import"../../diagnostics/common/diagnostics.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";var o=(r=>(r.VSCode="vscode",r.Extension="extension",r.Marketplace="marketplace",r))(o||{});const l=e("processService");export{l as IProcessMainService,o as IssueSource};

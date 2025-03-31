@@ -1,0 +1,1 @@
+import{MouseTargetType as o}from"../../../../browser/editorBrowser.js";import{ColorDecorationInjectedTextMarker as r}from"../colorDetector.js";function T(e){const t=e.target;return!!t&&t.type===o.CONTENT_TEXT&&t.detail.injectedText?.options.attachedData===r}export{T as isOnColorDecorator};

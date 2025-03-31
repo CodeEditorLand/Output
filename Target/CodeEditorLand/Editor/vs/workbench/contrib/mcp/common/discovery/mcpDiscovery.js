@@ -1,0 +1,1 @@
+import"../../../../../base/common/lifecycle.js";import"../../../../../platform/instantiation/common/descriptors.js";class e{_discovery=[];register(r){this._discovery.push(r)}getAll(){return this._discovery}}const p=new e;export{p as mcpDiscoveryRegistry};

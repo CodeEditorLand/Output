@@ -1,0 +1,1 @@
+import"../../../../../base/common/buffer.js";import{localize as r}from"../../../../../nls.js";import"../../common/chatModel.js";const t="screenshot-focused-window";function s(e){return{id:t,name:r("screenshot","Screenshot"),value:e.buffer,isImage:!0}}export{t as ScreenshotVariableId,s as convertBufferToScreenshotVariable};

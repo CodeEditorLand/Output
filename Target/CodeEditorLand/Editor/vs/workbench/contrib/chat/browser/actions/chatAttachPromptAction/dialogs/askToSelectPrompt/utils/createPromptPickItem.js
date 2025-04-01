@@ -1,1 +1,29 @@
-import{dirname as a}from"../../../../../../../../../base/common/resources.js";import"../../../../../../../../../base/common/types.js";import{localize as c}from"../../../../../../../../../nls.js";import"../../../../../../../../../platform/label/common/label.js";import{getCleanPromptName as l}from"../../../../../../../../../platform/prompts/common/constants.js";import"../../../../../../../../../platform/quickinput/common/quickInput.js";import"../../../../../../common/promptSyntax/service/types.js";import{DELETE_BUTTON as n,EDIT_BUTTON as s}from"../constants.js";const L=(o,i)=>{const{uri:t,type:r}=o,m=l(t),e=r==="user"?c("user-prompt.capitalized","User prompt"):i.getUriLabel(a(t),{relative:!0}),p=r==="user"?e:t.fsPath;return{id:t.toString(),type:"item",label:m,description:e,tooltip:p,value:t,buttons:[s,n]}};export{L as createPromptPickItem};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { dirname } from "../../../../../../../../../base/common/resources.js";
+import { WithUriValue } from "../../../../../../../../../base/common/types.js";
+import { localize } from "../../../../../../../../../nls.js";
+import { ILabelService } from "../../../../../../../../../platform/label/common/label.js";
+import { getCleanPromptName } from "../../../../../../../../../platform/prompts/common/constants.js";
+import { IQuickPickItem } from "../../../../../../../../../platform/quickinput/common/quickInput.js";
+import { IPromptPath } from "../../../../../../common/promptSyntax/service/types.js";
+import { DELETE_BUTTON, EDIT_BUTTON } from "../constants.js";
+const createPromptPickItem = /* @__PURE__ */ __name((promptFile, labelService) => {
+  const { uri, type } = promptFile;
+  const fileWithoutExtension = getCleanPromptName(uri);
+  const description = type === "user" ? localize("user-prompt.capitalized", "User prompt") : labelService.getUriLabel(dirname(uri), { relative: true });
+  const tooltip = type === "user" ? description : uri.fsPath;
+  return {
+    id: uri.toString(),
+    type: "item",
+    label: fileWithoutExtension,
+    description,
+    tooltip,
+    value: uri,
+    buttons: [EDIT_BUTTON, DELETE_BUTTON]
+  };
+}, "createPromptPickItem");
+export {
+  createPromptPickItem
+};
+//# sourceMappingURL=createPromptPickItem.js.map

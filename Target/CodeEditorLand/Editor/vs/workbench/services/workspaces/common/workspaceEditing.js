@@ -1,1 +1,9 @@
-import"../../../../base/common/uri.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/workspace/common/workspace.js";import"../../../../platform/workspaces/common/workspaces.js";const n=e("workspaceEditingService");export{n as IWorkspaceEditingService};
+import { URI } from "../../../../base/common/uri.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceFolderCreationData } from "../../../../platform/workspaces/common/workspaces.js";
+const IWorkspaceEditingService = createDecorator("workspaceEditingService");
+export {
+  IWorkspaceEditingService
+};
+//# sourceMappingURL=workspaceEditing.js.map

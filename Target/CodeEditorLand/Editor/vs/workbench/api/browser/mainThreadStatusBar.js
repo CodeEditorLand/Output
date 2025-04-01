@@ -1,1 +1,121 @@
-var b=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var d=(a,r,i,n)=>{for(var e=n>1?void 0:n?h(r,i):r,o=a.length-1,t;o>=0;o--)(t=a[o])&&(e=(n?t(r,i,e):t(e))||e);return n&&e&&b(r,i,e),e},m=(a,r)=>(i,n)=>r(i,n,a);import"../../../base/browser/ui/hover/hover.js";import"../../../base/common/cancellation.js";import"../../../base/common/htmlContent.js";import{DisposableStore as E,toDisposable as I}from"../../../base/common/lifecycle.js";import"../../../base/common/themables.js";import"../../../editor/common/languages.js";import"../../../platform/accessibility/common/accessibility.js";import{extHostNamedCustomer as v}from"../../services/extensions/common/extHostCustomers.js";import{StatusbarAlignment as C}from"../../services/statusbar/browser/statusbar.js";import{ExtHostContext as k,MainContext as T}from"../common/extHost.protocol.js";import{IExtensionStatusBarItemService as B,StatusBarUpdateKind as D}from"./statusBarExtensionPoint.js";let s=class{constructor(r,i){this.statusbarService=i;this._proxy=r.getProxy(k.ExtHostStatusBar);const n=[];for(const[o,t]of i.getEntries())n.push(e(o,t));this._proxy.$acceptStaticEntries(n),this._store.add(i.onDidChange(o=>{o.added&&this._proxy.$acceptStaticEntries([e(o.added[0],o.added[1])])}));function e(o,t){return{entryId:o,name:t.entry.name,text:t.entry.text,tooltip:t.entry.tooltip,command:typeof t.entry.command=="string"?t.entry.command:typeof t.entry.command=="object"?t.entry.command.id:void 0,priority:t.priority,alignLeft:t.alignment===C.LEFT,accessibilityInformation:t.entry.ariaLabel?{label:t.entry.ariaLabel,role:t.entry.role}:void 0}}}_proxy;_store=new E;dispose(){this._store.dispose()}$setEntry(r,i,n,e,o,t,p,l,u,f,y,c,S){const g=p?{markdown:x=>this._proxy.$provideTooltip(r,x),markdownNotSupportedFallback:void 0}:t;this.statusbarService.setOrUpdateEntry(r,i,n,e,o,g,l,u,f,y,c,S)===D.DidDefine&&this._store.add(I(()=>this.statusbarService.unsetEntry(r)))}$disposeEntry(r){this.statusbarService.unsetEntry(r)}};s=d([v(T.MainThreadStatusBar),m(1,B)],s);export{s as MainThreadStatusBar};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IManagedHoverTooltipMarkdownString } from "../../../base/browser/ui/hover/hover.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import {
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { Command } from "../../../editor/common/languages.js";
+import { IAccessibilityInformation } from "../../../platform/accessibility/common/accessibility.js";
+import {
+  extHostNamedCustomer,
+  IExtHostContext
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  IStatusbarEntry,
+  StatusbarAlignment
+} from "../../services/statusbar/browser/statusbar.js";
+import {
+  ExtHostContext,
+  ExtHostStatusBarShape,
+  MainContext,
+  MainThreadStatusBarShape,
+  StatusBarItemDto
+} from "../common/extHost.protocol.js";
+import {
+  IExtensionStatusBarItemService,
+  StatusBarUpdateKind
+} from "./statusBarExtensionPoint.js";
+let MainThreadStatusBar = class {
+  constructor(extHostContext, statusbarService) {
+    this.statusbarService = statusbarService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostStatusBar);
+    const entries = [];
+    for (const [entryId, item] of statusbarService.getEntries()) {
+      entries.push(asDto(entryId, item));
+    }
+    this._proxy.$acceptStaticEntries(entries);
+    this._store.add(
+      statusbarService.onDidChange((e) => {
+        if (e.added) {
+          this._proxy.$acceptStaticEntries([
+            asDto(e.added[0], e.added[1])
+          ]);
+        }
+      })
+    );
+    function asDto(entryId, item) {
+      return {
+        entryId,
+        name: item.entry.name,
+        text: item.entry.text,
+        tooltip: item.entry.tooltip,
+        command: typeof item.entry.command === "string" ? item.entry.command : typeof item.entry.command === "object" ? item.entry.command.id : void 0,
+        priority: item.priority,
+        alignLeft: item.alignment === StatusbarAlignment.LEFT,
+        accessibilityInformation: item.entry.ariaLabel ? { label: item.entry.ariaLabel, role: item.entry.role } : void 0
+      };
+    }
+    __name(asDto, "asDto");
+  }
+  _proxy;
+  _store = new DisposableStore();
+  dispose() {
+    this._store.dispose();
+  }
+  $setEntry(entryId, id, extensionId, name, text, tooltip, hasTooltipProvider, command, color, backgroundColor, alignLeft, priority, accessibilityInformation) {
+    const tooltipOrTooltipProvider = hasTooltipProvider ? {
+      markdown: /* @__PURE__ */ __name((cancellation) => {
+        return this._proxy.$provideTooltip(
+          entryId,
+          cancellation
+        );
+      }, "markdown"),
+      markdownNotSupportedFallback: void 0
+    } : tooltip;
+    const kind = this.statusbarService.setOrUpdateEntry(
+      entryId,
+      id,
+      extensionId,
+      name,
+      text,
+      tooltipOrTooltipProvider,
+      command,
+      color,
+      backgroundColor,
+      alignLeft,
+      priority,
+      accessibilityInformation
+    );
+    if (kind === StatusBarUpdateKind.DidDefine) {
+      this._store.add(
+        toDisposable(() => this.statusbarService.unsetEntry(entryId))
+      );
+    }
+  }
+  $disposeEntry(entryId) {
+    this.statusbarService.unsetEntry(entryId);
+  }
+};
+__name(MainThreadStatusBar, "MainThreadStatusBar");
+MainThreadStatusBar = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadStatusBar),
+  __decorateParam(1, IExtensionStatusBarItemService)
+], MainThreadStatusBar);
+export {
+  MainThreadStatusBar
+};
+//# sourceMappingURL=mainThreadStatusBar.js.map

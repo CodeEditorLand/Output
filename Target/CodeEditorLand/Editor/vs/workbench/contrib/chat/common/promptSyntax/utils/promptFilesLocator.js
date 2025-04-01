@@ -1,1 +1,280 @@
-var k=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var b=(s,o,t,e)=>{for(var r=e>1?void 0:e?w(o,t):o,n=s.length-1,i;n>=0;n--)(i=s[n])&&(r=(e?i(o,t,r):i(r))||r);return e&&r&&k(o,t,r),r},c=(s,o)=>(t,e)=>o(t,e,s);import{assert as h}from"../../../../../../base/common/assert.js";import{match as C}from"../../../../../../base/common/glob.js";import{ResourceSet as m}from"../../../../../../base/common/map.js";import{isAbsolute as u}from"../../../../../../base/common/path.js";import{basename as y,dirname as P,extUri as f}from"../../../../../../base/common/resources.js";import{URI as l}from"../../../../../../base/common/uri.js";import{IConfigurationService as x}from"../../../../../../platform/configuration/common/configuration.js";import{IFileService as L}from"../../../../../../platform/files/common/files.js";import{PromptsConfig as S}from"../../../../../../platform/prompts/common/config.js";import{isPromptFile as g,PROMPT_FILE_EXTENSION as I}from"../../../../../../platform/prompts/common/constants.js";import{IWorkspaceContextService as W}from"../../../../../../platform/workspace/common/workspace.js";let p=class{constructor(o,t,e){this.fileService=o;this.configService=t;this.workspaceService=e}async listFiles(){const o=S.promptSourceFolders(this.configService),t=U(o,this.workspaceService);return await this.listFilesIn(t)}async listFilesIn(o){return await this.findInstructionFiles(o)}getConfigBasedSourceFolders(){const o=S.promptSourceFolders(this.configService),t=U(o,this.workspaceService),e=new m;for(const r of t){let{path:n}=r;const i=y(r),d=["*.md",`*${I}`];for(const a of d)if(i===a){n=l.joinPath(r,"..").path;continue}i==="*"&&(n=l.joinPath(r,"..").path),v(n)!==!0&&e.add(l.file(n))}return[...e]}async findInstructionFiles(o){const t=new m;for(const e of o){h(u(e.path),`Provided location must be an absolute path, got '${e.path}'.`);const r=v(y(e))||e.path.endsWith(I)?e:f.joinPath(e,`*${I}`),n=await R(F(r),this.fileService);for(const i of n)C(r.path,i.path)&&t.add(i)}return[...t]}};p=b([c(0,L),c(1,x),c(2,W)],p);const v=s=>{let o=!1,t=0,e=!1,r=0,n;for(const i of s){if(n==="\\"){n=i;continue}if(i==="*"||i==="?")return!0;if(i==="["){o=!0,t++,n=i;continue}if(i==="]"){o=!0,t--,n=i;continue}if(i==="{"){e=!0,r++;continue}if(i==="}"){e=!0,r--,n=i;continue}n=i}return!!(o&&t===0||e&&r===0)},F=s=>{if(h(u(s.path),`Provided location must be an absolute path, got '${s.path}'.`),v(s.path)===!1)return s;const o=P(s);return f.isEqual(o,s)?s:F(o)},R=async(s,o)=>{const t=[];try{const e=await o.resolve(s);if(e.isFile&&g(e.resource))return t.push(e.resource),t;if(e.isDirectory&&e.children){for(const r of e.children){if(r.isFile&&g(r.resource)){t.push(r.resource);continue}if(r.isDirectory){const n=await R(r.resource,o);t.push(...n);continue}}return t}}catch{}return t},U=(s,o)=>{const t=new m,{folders:e}=o.getWorkspace();for(const r of s){if(u(r)){t.add(l.file(r));continue}for(const n of e){const i=f.resolvePath(n.uri,r);if(h(u(i.path),`Provided location must be an absolute path, got '${i.path}'.`),t.has(i)===!1&&t.add(i),e.length<=1)continue;const d=P(n.uri),a=f.resolvePath(d,r);t.has(a)!==!0&&a.fsPath.startsWith(n.uri.fsPath)&&t.add(a)}}return[...t]};export{p as PromptFilesLocator,F as firstNonGlobParent,v as isValidGlob};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { assert } from "../../../../../../base/common/assert.js";
+import { match } from "../../../../../../base/common/glob.js";
+import { ResourceSet } from "../../../../../../base/common/map.js";
+import { isAbsolute } from "../../../../../../base/common/path.js";
+import {
+  basename,
+  dirname,
+  extUri
+} from "../../../../../../base/common/resources.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { PromptsConfig } from "../../../../../../platform/prompts/common/config.js";
+import {
+  isPromptFile,
+  PROMPT_FILE_EXTENSION
+} from "../../../../../../platform/prompts/common/constants.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+let PromptFilesLocator = class {
+  constructor(fileService, configService, workspaceService) {
+    this.fileService = fileService;
+    this.configService = configService;
+    this.workspaceService = workspaceService;
+  }
+  static {
+    __name(this, "PromptFilesLocator");
+  }
+  /**
+   * List all prompt files from the filesystem.
+   *
+   * @returns List of prompt files found in the workspace.
+   */
+  async listFiles() {
+    const configuredLocations = PromptsConfig.promptSourceFolders(
+      this.configService
+    );
+    const absoluteLocations = toAbsoluteLocations(
+      configuredLocations,
+      this.workspaceService
+    );
+    return await this.listFilesIn(absoluteLocations);
+  }
+  /**
+   * Lists all prompt files in the provided folders.
+   *
+   * @throws if any of the provided folder paths is not an `absolute path`.
+   *
+   * @param absoluteLocations List of prompt file source folders to search for prompt files in. Must be absolute paths.
+   * @returns List of prompt files found in the provided folders.
+   */
+  async listFilesIn(folders) {
+    return await this.findInstructionFiles(folders);
+  }
+  /**
+   * Get all possible unambiguous prompt file source folders based on
+   * the current workspace folder structure.
+   *
+   * This method is currently primarily used by the `> Create Prompt`
+   * command that providers users with the list of destination folders
+   * for a newly created prompt file. Because such a list cannot contain
+   * paths that include `glob pattern` in them, we need to process config
+   * values and try to create a list of clear and unambiguous locations.
+   *
+   * @returns List of possible unambiguous prompt file folders.
+   */
+  getConfigBasedSourceFolders() {
+    const configuredLocations = PromptsConfig.promptSourceFolders(
+      this.configService
+    );
+    const absoluteLocations = toAbsoluteLocations(
+      configuredLocations,
+      this.workspaceService
+    );
+    const result = new ResourceSet();
+    for (const absoluteLocation of absoluteLocations) {
+      let { path } = absoluteLocation;
+      const baseName = basename(absoluteLocation);
+      const filePatterns = ["*.md", `*${PROMPT_FILE_EXTENSION}`];
+      for (const filePattern of filePatterns) {
+        if (baseName === filePattern) {
+          path = URI.joinPath(absoluteLocation, "..").path;
+          continue;
+        }
+      }
+      if (baseName === "*") {
+        path = URI.joinPath(absoluteLocation, "..").path;
+      }
+      if (isValidGlob(path) === true) {
+        continue;
+      }
+      result.add(URI.file(path));
+    }
+    return [...result];
+  }
+  /**
+   * Finds all existent prompt files in the provided source folders.
+   *
+   * @throws if any of the provided folder paths is not an `absolute path`.
+   *
+   * @param absoluteLocations List of prompt file source folders to search for prompt files in. Must be absolute paths.
+   * @returns List of prompt files found in the provided source folders.
+   */
+  async findInstructionFiles(absoluteLocations) {
+    const paths = new ResourceSet();
+    for (const absoluteLocation of absoluteLocations) {
+      assert(
+        isAbsolute(absoluteLocation.path),
+        `Provided location must be an absolute path, got '${absoluteLocation.path}'.`
+      );
+      const location = isValidGlob(basename(absoluteLocation)) || absoluteLocation.path.endsWith(PROMPT_FILE_EXTENSION) ? absoluteLocation : extUri.joinPath(
+        absoluteLocation,
+        `*${PROMPT_FILE_EXTENSION}`
+      );
+      const promptFiles = await findAllPromptFiles(
+        firstNonGlobParent(location),
+        this.fileService
+      );
+      for (const file of promptFiles) {
+        if (match(location.path, file.path)) {
+          paths.add(file);
+        }
+      }
+    }
+    return [...paths];
+  }
+};
+PromptFilesLocator = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, IWorkspaceContextService)
+], PromptFilesLocator);
+const isValidGlob = /* @__PURE__ */ __name((pattern) => {
+  let squareBrackets = false;
+  let squareBracketsCount = 0;
+  let curlyBrackets = false;
+  let curlyBracketsCount = 0;
+  let previousCharacter;
+  for (const char of pattern) {
+    if (previousCharacter === "\\") {
+      previousCharacter = char;
+      continue;
+    }
+    if (char === "*") {
+      return true;
+    }
+    if (char === "?") {
+      return true;
+    }
+    if (char === "[") {
+      squareBrackets = true;
+      squareBracketsCount++;
+      previousCharacter = char;
+      continue;
+    }
+    if (char === "]") {
+      squareBrackets = true;
+      squareBracketsCount--;
+      previousCharacter = char;
+      continue;
+    }
+    if (char === "{") {
+      curlyBrackets = true;
+      curlyBracketsCount++;
+      continue;
+    }
+    if (char === "}") {
+      curlyBrackets = true;
+      curlyBracketsCount--;
+      previousCharacter = char;
+      continue;
+    }
+    previousCharacter = char;
+  }
+  if (squareBrackets && squareBracketsCount === 0) {
+    return true;
+  }
+  if (curlyBrackets && curlyBracketsCount === 0) {
+    return true;
+  }
+  return false;
+}, "isValidGlob");
+const firstNonGlobParent = /* @__PURE__ */ __name((location) => {
+  assert(
+    isAbsolute(location.path),
+    `Provided location must be an absolute path, got '${location.path}'.`
+  );
+  if (isValidGlob(location.path) === false) {
+    return location;
+  }
+  const parent = dirname(location);
+  if (extUri.isEqual(parent, location)) {
+    return location;
+  }
+  return firstNonGlobParent(parent);
+}, "firstNonGlobParent");
+const findAllPromptFiles = /* @__PURE__ */ __name(async (location, fileService) => {
+  const result = [];
+  try {
+    const info = await fileService.resolve(location);
+    if (info.isFile && isPromptFile(info.resource)) {
+      result.push(info.resource);
+      return result;
+    }
+    if (info.isDirectory && info.children) {
+      for (const child of info.children) {
+        if (child.isFile && isPromptFile(child.resource)) {
+          result.push(child.resource);
+          continue;
+        }
+        if (child.isDirectory) {
+          const promptFiles = await findAllPromptFiles(
+            child.resource,
+            fileService
+          );
+          result.push(...promptFiles);
+          continue;
+        }
+      }
+      return result;
+    }
+  } catch (error) {
+  }
+  return result;
+}, "findAllPromptFiles");
+const toAbsoluteLocations = /* @__PURE__ */ __name((configuredLocations, workspaceService) => {
+  const result = new ResourceSet();
+  const { folders } = workspaceService.getWorkspace();
+  for (const configuredLocation of configuredLocations) {
+    if (isAbsolute(configuredLocation)) {
+      result.add(URI.file(configuredLocation));
+      continue;
+    }
+    for (const workspaceFolder of folders) {
+      const absolutePath = extUri.resolvePath(
+        workspaceFolder.uri,
+        configuredLocation
+      );
+      assert(
+        isAbsolute(absolutePath.path),
+        `Provided location must be an absolute path, got '${absolutePath.path}'.`
+      );
+      if (result.has(absolutePath) === false) {
+        result.add(absolutePath);
+      }
+      if (folders.length <= 1) {
+        continue;
+      }
+      const workspaceRootUri = dirname(workspaceFolder.uri);
+      const workspaceFolderUri = extUri.resolvePath(
+        workspaceRootUri,
+        configuredLocation
+      );
+      if (result.has(workspaceFolderUri) === true) {
+        continue;
+      }
+      if (workspaceFolderUri.fsPath.startsWith(workspaceFolder.uri.fsPath)) {
+        result.add(workspaceFolderUri);
+      }
+    }
+  }
+  return [...result];
+}, "toAbsoluteLocations");
+export {
+  PromptFilesLocator,
+  firstNonGlobParent,
+  isValidGlob
+};
+//# sourceMappingURL=promptFilesLocator.js.map

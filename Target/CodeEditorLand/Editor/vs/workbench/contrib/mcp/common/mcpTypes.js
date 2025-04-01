@@ -1,1 +1,207 @@
-import{equals as g}from"../../../../base/common/arrays.js";import{assertNever as c}from"../../../../base/common/assert.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/lifecycle.js";import{equals as d}from"../../../../base/common/objects.js";import"../../../../base/common/observable.js";import{URI as l}from"../../../../base/common/uri.js";import"../../../../editor/common/languages.js";import{localize as p}from"../../../../nls.js";import"../../../../platform/configuration/common/configuration.js";import{ExtensionIdentifier as y}from"../../../../platform/extensions/common/extensions.js";import{createDecorator as v}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/storage/common/storage.js";import"../../../../platform/workspace/common/workspace.js";import"./mcpServerRequestHandler.js";import"./modelContextProtocol.js";const X="ext.";function Y(o,s){return y.toKey(o)+"/"+s}var S=(r=>(r[r.WorkspaceFolder=0]="WorkspaceFolder",r[r.Workspace=100]="Workspace",r[r.User=200]="User",r[r.Extension=300]="Extension",r[r.Filesystem=400]="Filesystem",r[r.RemoteBoost=-50]="RemoteBoost",r))(S||{}),x;(s=>{function o(i,e){return i.id===e.id&&i.remoteAuthority===e.remoteAuthority&&i.label===e.label&&i.isTrustedByDefault===e.isTrustedByDefault}s.equals=o})(x||={});var b;(e=>{function o(t){return t}e.toSerialized=o;function s(t){return{id:t.id,label:t.label,launch:f.fromSerialized(t.launch),variableReplacement:t.variableReplacement?u.fromSerialized(t.variableReplacement):void 0}}e.fromSerialized=s;function i(t,n){return t.id===n.id&&t.label===n.label&&g(t.roots,n.roots,(r,m)=>r.toString()===m.toString())&&d(t.launch,n.launch)&&d(t.presentation,n.presentation)&&d(t.variableReplacement,n.variableReplacement)}e.equals=i})(b||={});var u;(i=>{function o(e){return e}i.toSerialized=o;function s(e){return{section:e.section,folder:e.folder?{...e.folder,uri:l.revive(e.folder.uri)}:void 0,target:e.target}}i.fromSerialized=s})(u||={});var M=(e=>(e[e.HasUnknown=0]="HasUnknown",e[e.LoadingUnknown=1]="LoadingUnknown",e[e.AllKnown=2]="AllKnown",e))(M||{});const Z=v("IMcpService");var R=(n=>(n[n.Unknown=0]="Unknown",n[n.Cached=1]="Cached",n[n.RefreshingFromUnknown=2]="RefreshingFromUnknown",n[n.RefreshingFromCached=3]="RefreshingFromCached",n[n.Live=4]="Live",n))(R||{}),I=(i=>(i[i.Stdio=1]="Stdio",i[i.SSE=2]="SSE",i))(I||{}),f;(i=>{function o(e){return e}i.toSerialized=o;function s(e){switch(e.type){case 2:return{type:e.type,uri:l.revive(e.uri),headers:e.headers};case 1:return{type:e.type,cwd:e.cwd?l.revive(e.cwd):void 0,command:e.command,args:e.args,env:e.env,envFile:e.envFile}}}i.fromSerialized=s})(f||={});var D;(n=>{let o;(a=>(a[a.Stopped=0]="Stopped",a[a.Starting=1]="Starting",a[a.Running=2]="Running",a[a.Error=3]="Error"))(o=n.Kind||={}),n.toString=r=>{switch(r.state){case 0:return p("mcpstate.stopped","Stopped");case 1:return p("mcpstate.starting","Starting");case 2:return p("mcpstate.running","Running");case 3:return p("mcpstate.error","Error {0}",r.message);default:c(r)}},n.toKindString=r=>{switch(r){case 0:return"stopped";case 1:return"starting";case 2:return"running";case 3:return"error";default:c(r)}},n.canBeStarted=r=>r===3||r===0,n.isRunning=r=>!(0,n.canBeStarted)(r.state)})(D||={});class ee extends Error{constructor(i,e,t){super(`MPC ${e}: ${i}`);this.code=e;this.data=t}}class re extends Error{}export{Z as IMcpService,M as LazyCollectionState,x as McpCollectionDefinition,S as McpCollectionSortOrder,re as McpConnectionFailedError,D as McpConnectionState,b as McpServerDefinition,u as McpServerDefinitionVariableReplacement,f as McpServerLaunch,R as McpServerToolsState,I as McpServerTransportType,ee as MpcResponseError,X as extensionMcpCollectionPrefix,Y as extensionPrefixedIdentifier};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { equals as arraysEqual } from "../../../../base/common/arrays.js";
+import { assertNever } from "../../../../base/common/assert.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { equals as objectsEqual } from "../../../../base/common/objects.js";
+import { IObservable } from "../../../../base/common/observable.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { Location } from "../../../../editor/common/languages.js";
+import { localize } from "../../../../nls.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { StorageScope } from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
+import { McpServerRequestHandler } from "./mcpServerRequestHandler.js";
+import { MCP } from "./modelContextProtocol.js";
+const extensionMcpCollectionPrefix = "ext.";
+function extensionPrefixedIdentifier(identifier, id) {
+  return ExtensionIdentifier.toKey(identifier) + "/" + id;
+}
+__name(extensionPrefixedIdentifier, "extensionPrefixedIdentifier");
+var McpCollectionSortOrder = /* @__PURE__ */ ((McpCollectionSortOrder2) => {
+  McpCollectionSortOrder2[McpCollectionSortOrder2["WorkspaceFolder"] = 0] = "WorkspaceFolder";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Workspace"] = 100] = "Workspace";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["User"] = 200] = "User";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Extension"] = 300] = "Extension";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Filesystem"] = 400] = "Filesystem";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["RemoteBoost"] = -50] = "RemoteBoost";
+  return McpCollectionSortOrder2;
+})(McpCollectionSortOrder || {});
+var McpCollectionDefinition;
+((McpCollectionDefinition2) => {
+  function equals(a, b) {
+    return a.id === b.id && a.remoteAuthority === b.remoteAuthority && a.label === b.label && a.isTrustedByDefault === b.isTrustedByDefault;
+  }
+  McpCollectionDefinition2.equals = equals;
+  __name(equals, "equals");
+})(McpCollectionDefinition || (McpCollectionDefinition = {}));
+var McpServerDefinition;
+((McpServerDefinition2) => {
+  function toSerialized(def) {
+    return def;
+  }
+  McpServerDefinition2.toSerialized = toSerialized;
+  __name(toSerialized, "toSerialized");
+  function fromSerialized(def) {
+    return {
+      id: def.id,
+      label: def.label,
+      launch: McpServerLaunch.fromSerialized(def.launch),
+      variableReplacement: def.variableReplacement ? McpServerDefinitionVariableReplacement.fromSerialized(
+        def.variableReplacement
+      ) : void 0
+    };
+  }
+  McpServerDefinition2.fromSerialized = fromSerialized;
+  __name(fromSerialized, "fromSerialized");
+  function equals(a, b) {
+    return a.id === b.id && a.label === b.label && arraysEqual(
+      a.roots,
+      b.roots,
+      (a2, b2) => a2.toString() === b2.toString()
+    ) && objectsEqual(a.launch, b.launch) && objectsEqual(a.presentation, b.presentation) && objectsEqual(a.variableReplacement, b.variableReplacement);
+  }
+  McpServerDefinition2.equals = equals;
+  __name(equals, "equals");
+})(McpServerDefinition || (McpServerDefinition = {}));
+var McpServerDefinitionVariableReplacement;
+((McpServerDefinitionVariableReplacement2) => {
+  function toSerialized(def) {
+    return def;
+  }
+  McpServerDefinitionVariableReplacement2.toSerialized = toSerialized;
+  __name(toSerialized, "toSerialized");
+  function fromSerialized(def) {
+    return {
+      section: def.section,
+      folder: def.folder ? { ...def.folder, uri: URI.revive(def.folder.uri) } : void 0,
+      target: def.target
+    };
+  }
+  McpServerDefinitionVariableReplacement2.fromSerialized = fromSerialized;
+  __name(fromSerialized, "fromSerialized");
+})(McpServerDefinitionVariableReplacement || (McpServerDefinitionVariableReplacement = {}));
+var LazyCollectionState = /* @__PURE__ */ ((LazyCollectionState2) => {
+  LazyCollectionState2[LazyCollectionState2["HasUnknown"] = 0] = "HasUnknown";
+  LazyCollectionState2[LazyCollectionState2["LoadingUnknown"] = 1] = "LoadingUnknown";
+  LazyCollectionState2[LazyCollectionState2["AllKnown"] = 2] = "AllKnown";
+  return LazyCollectionState2;
+})(LazyCollectionState || {});
+const IMcpService = createDecorator("IMcpService");
+var McpServerToolsState = /* @__PURE__ */ ((McpServerToolsState2) => {
+  McpServerToolsState2[McpServerToolsState2["Unknown"] = 0] = "Unknown";
+  McpServerToolsState2[McpServerToolsState2["Cached"] = 1] = "Cached";
+  McpServerToolsState2[McpServerToolsState2["RefreshingFromUnknown"] = 2] = "RefreshingFromUnknown";
+  McpServerToolsState2[McpServerToolsState2["RefreshingFromCached"] = 3] = "RefreshingFromCached";
+  McpServerToolsState2[McpServerToolsState2["Live"] = 4] = "Live";
+  return McpServerToolsState2;
+})(McpServerToolsState || {});
+var McpServerTransportType = /* @__PURE__ */ ((McpServerTransportType2) => {
+  McpServerTransportType2[McpServerTransportType2["Stdio"] = 1] = "Stdio";
+  McpServerTransportType2[McpServerTransportType2["SSE"] = 2] = "SSE";
+  return McpServerTransportType2;
+})(McpServerTransportType || {});
+var McpServerLaunch;
+((McpServerLaunch2) => {
+  function toSerialized(launch) {
+    return launch;
+  }
+  McpServerLaunch2.toSerialized = toSerialized;
+  __name(toSerialized, "toSerialized");
+  function fromSerialized(launch) {
+    switch (launch.type) {
+      case 2 /* SSE */:
+        return {
+          type: launch.type,
+          uri: URI.revive(launch.uri),
+          headers: launch.headers
+        };
+      case 1 /* Stdio */:
+        return {
+          type: launch.type,
+          cwd: launch.cwd ? URI.revive(launch.cwd) : void 0,
+          command: launch.command,
+          args: launch.args,
+          env: launch.env,
+          envFile: launch.envFile
+        };
+    }
+  }
+  McpServerLaunch2.fromSerialized = fromSerialized;
+  __name(fromSerialized, "fromSerialized");
+})(McpServerLaunch || (McpServerLaunch = {}));
+var McpConnectionState;
+((McpConnectionState2) => {
+  let Kind;
+  ((Kind2) => {
+    Kind2[Kind2["Stopped"] = 0] = "Stopped";
+    Kind2[Kind2["Starting"] = 1] = "Starting";
+    Kind2[Kind2["Running"] = 2] = "Running";
+    Kind2[Kind2["Error"] = 3] = "Error";
+  })(Kind = McpConnectionState2.Kind || (McpConnectionState2.Kind = {}));
+  McpConnectionState2.toString = /* @__PURE__ */ __name((s) => {
+    switch (s.state) {
+      case 0 /* Stopped */:
+        return localize("mcpstate.stopped", "Stopped");
+      case 1 /* Starting */:
+        return localize("mcpstate.starting", "Starting");
+      case 2 /* Running */:
+        return localize("mcpstate.running", "Running");
+      case 3 /* Error */:
+        return localize("mcpstate.error", "Error {0}", s.message);
+      default:
+        assertNever(s);
+    }
+  }, "toString");
+  McpConnectionState2.toKindString = /* @__PURE__ */ __name((s) => {
+    switch (s) {
+      case 0 /* Stopped */:
+        return "stopped";
+      case 1 /* Starting */:
+        return "starting";
+      case 2 /* Running */:
+        return "running";
+      case 3 /* Error */:
+        return "error";
+      default:
+        assertNever(s);
+    }
+  }, "toKindString");
+  McpConnectionState2.canBeStarted = /* @__PURE__ */ __name((s) => s === 3 /* Error */ || s === 0 /* Stopped */, "canBeStarted");
+  McpConnectionState2.isRunning = /* @__PURE__ */ __name((s) => !(0, McpConnectionState2.canBeStarted)(s.state), "isRunning");
+})(McpConnectionState || (McpConnectionState = {}));
+class MpcResponseError extends Error {
+  constructor(message, code, data) {
+    super(`MPC ${code}: ${message}`);
+    this.code = code;
+    this.data = data;
+  }
+  static {
+    __name(this, "MpcResponseError");
+  }
+}
+class McpConnectionFailedError extends Error {
+  static {
+    __name(this, "McpConnectionFailedError");
+  }
+}
+export {
+  IMcpService,
+  LazyCollectionState,
+  McpCollectionDefinition,
+  McpCollectionSortOrder,
+  McpConnectionFailedError,
+  McpConnectionState,
+  McpServerDefinition,
+  McpServerDefinitionVariableReplacement,
+  McpServerLaunch,
+  McpServerToolsState,
+  McpServerTransportType,
+  MpcResponseError,
+  extensionMcpCollectionPrefix,
+  extensionPrefixedIdentifier
+};
+//# sourceMappingURL=mcpTypes.js.map

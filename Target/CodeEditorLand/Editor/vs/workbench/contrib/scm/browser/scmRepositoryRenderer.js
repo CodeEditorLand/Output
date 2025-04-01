@@ -1,1 +1,229 @@
-var C=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var b=(u,o,t,e)=>{for(var i=e>1?void 0:e?f(o,t):o,r=u.length-1,n;r>=0;r--)(n=u[r])&&(i=(e?n(o,t,i):n(i))||i);return e&&i&&C(o,t,i),i},s=(u,o)=>(t,e)=>o(t,e,u);import"./media/scm.css";import{$ as a,append as l}from"../../../../base/browser/dom.js";import"../../../../base/browser/ui/actionbar/actionbar.js";import{CountBadge as T}from"../../../../base/browser/ui/countBadge/countBadge.js";import"../../../../base/browser/ui/hover/hover.js";import{getDefaultHoverDelegate as h}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import"../../../../base/browser/ui/list/list.js";import"../../../../base/browser/ui/tree/objectTree.js";import"../../../../base/browser/ui/tree/tree.js";import{ActionRunner as g}from"../../../../base/common/actions.js";import"../../../../base/common/filters.js";import{combinedDisposable as A,DisposableStore as R}from"../../../../base/common/lifecycle.js";import{autorun as w,autorunWithStore as x}from"../../../../base/common/observable.js";import{WorkbenchToolBar as E}from"../../../../platform/actions/browser/toolbar.js";import{IMenuService as H,MenuId as P,MenuItemAction as L}from"../../../../platform/actions/common/actions.js";import{ICommandService as B}from"../../../../platform/commands/common/commands.js";import{IContextKeyService as V}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as D}from"../../../../platform/contextview/browser/contextView.js";import{IHoverService as z}from"../../../../platform/hover/browser/hover.js";import{IKeybindingService as K}from"../../../../platform/keybinding/common/keybinding.js";import{ITelemetryService as k}from"../../../../platform/telemetry/common/telemetry.js";import{defaultCountBadgeStyles as F}from"../../../../platform/theme/browser/defaultStyles.js";import{ISCMViewService as N}from"../common/scm.js";import{connectPrimaryMenu as W,getRepositoryResourceCount as $,isSCMRepository as U,StatusBarAction as q}from"./util.js";class we extends g{constructor(t){super();this.getSelectedRepositories=t}async runAction(t,e){if(!(t instanceof L))return super.runAction(t,e);const i=this.getSelectedRepositories().map(n=>n.provider),r=i.some(n=>n===e)?i:[e];await t.run(...r)}}let v=class{constructor(o,t,e,i,r,n,S,m,d,I){this.toolbarMenuId=o;this.actionViewItemProvider=t;this.commandService=e;this.contextKeyService=i;this.contextMenuService=r;this.hoverService=n;this.keybindingService=S;this.menuService=m;this.scmViewService=d;this.telemetryService=I}static TEMPLATE_ID="repository";get templateId(){return v.TEMPLATE_ID}renderTemplate(o){o.classList.contains("monaco-tl-contents")&&o.parentElement.parentElement.querySelector(".monaco-tl-twistie").classList.add("force-twistie");const t=l(o,a(".scm-provider")),e=l(t,a(".label")),i=this.hoverService.setupManagedHover(h("mouse"),e,"",{}),r=l(e,a("span.name")),n=l(e,a("span.description")),S=l(t,a(".actions")),m=new E(S,{actionViewItemProvider:this.actionViewItemProvider,resetMenu:this.toolbarMenuId},this.menuService,this.contextKeyService,this.contextMenuService,this.keybindingService,this.commandService,this.telemetryService),d=l(t,a(".count")),I=new T(d,{},F),y=m.onDidChangeDropdownVisibility(c=>t.classList.toggle("active",c)),p=A(i,y,m);return{label:e,labelCustomHover:i,name:r,description:n,countContainer:d,count:I,toolBar:m,elementDisposables:new R,templateDisposable:p}}renderElement(o,t,e,i){const r=U(o)?o:o.element;e.name.textContent=r.provider.name,r.provider.rootUri?(e.labelCustomHover.update(`${r.provider.label}: ${r.provider.rootUri.fsPath}`),e.description.textContent=r.provider.label):(e.labelCustomHover.update(r.provider.label),e.description.textContent="");let n=[],S=[],m=[];const d=()=>{e.toolBar.setActions([...n,...S],m)};e.elementDisposables.add(x((p,c)=>{n=(r.provider.statusBarCommands.read(p)??[]).map(M=>c.add(new q(M,this.commandService))),d()})),e.elementDisposables.add(w(p=>{const c=r.provider.count.read(p)??$(r.provider);e.countContainer.setAttribute("data-count",String(c)),e.count.setCount(c)}));const I=this.scmViewService.menus.getRepositoryMenus(r.provider),y=this.toolbarMenuId===P.SCMTitle?I.titleMenu.menu:I.repositoryMenu;e.elementDisposables.add(W(y,(p,c)=>{S=p,m=c,d()})),e.toolBar.context=r.provider}renderCompressedElements(){throw new Error("Should never happen since node is incompressible")}disposeElement(o,t,e){e.elementDisposables.clear()}disposeTemplate(o){o.elementDisposables.dispose(),o.templateDisposable.dispose(),o.count.dispose()}};v=b([s(2,B),s(3,V),s(4,D),s(5,z),s(6,K),s(7,H),s(8,N),s(9,k)],v);export{we as RepositoryActionRunner,v as RepositoryRenderer};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import "./media/scm.css";
+import { $, append } from "../../../../base/browser/dom.js";
+import { IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
+import { IManagedHover } from "../../../../base/browser/ui/hover/hover.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IListRenderer } from "../../../../base/browser/ui/list/list.js";
+import { ICompressibleTreeRenderer } from "../../../../base/browser/ui/tree/objectTree.js";
+import { ITreeNode } from "../../../../base/browser/ui/tree/tree.js";
+import { ActionRunner, IAction } from "../../../../base/common/actions.js";
+import { FuzzyScore } from "../../../../base/common/filters.js";
+import {
+  combinedDisposable,
+  DisposableStore,
+  IDisposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  autorun,
+  autorunWithStore
+} from "../../../../base/common/observable.js";
+import { WorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import {
+  IMenuService,
+  MenuId,
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { defaultCountBadgeStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import {
+  ISCMProvider,
+  ISCMRepository,
+  ISCMViewService
+} from "../common/scm.js";
+import {
+  connectPrimaryMenu,
+  getRepositoryResourceCount,
+  isSCMRepository,
+  StatusBarAction
+} from "./util.js";
+class RepositoryActionRunner extends ActionRunner {
+  constructor(getSelectedRepositories) {
+    super();
+    this.getSelectedRepositories = getSelectedRepositories;
+  }
+  static {
+    __name(this, "RepositoryActionRunner");
+  }
+  async runAction(action, context) {
+    if (!(action instanceof MenuItemAction)) {
+      return super.runAction(action, context);
+    }
+    const selection = this.getSelectedRepositories().map((r) => r.provider);
+    const actionContext = selection.some((s) => s === context) ? selection : [context];
+    await action.run(...actionContext);
+  }
+}
+let RepositoryRenderer = class {
+  constructor(toolbarMenuId, actionViewItemProvider, commandService, contextKeyService, contextMenuService, hoverService, keybindingService, menuService, scmViewService, telemetryService) {
+    this.toolbarMenuId = toolbarMenuId;
+    this.actionViewItemProvider = actionViewItemProvider;
+    this.commandService = commandService;
+    this.contextKeyService = contextKeyService;
+    this.contextMenuService = contextMenuService;
+    this.hoverService = hoverService;
+    this.keybindingService = keybindingService;
+    this.menuService = menuService;
+    this.scmViewService = scmViewService;
+    this.telemetryService = telemetryService;
+  }
+  static {
+    __name(this, "RepositoryRenderer");
+  }
+  static TEMPLATE_ID = "repository";
+  get templateId() {
+    return RepositoryRenderer.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    if (container.classList.contains("monaco-tl-contents")) {
+      container.parentElement.parentElement.querySelector(
+        ".monaco-tl-twistie"
+      ).classList.add("force-twistie");
+    }
+    const provider = append(container, $(".scm-provider"));
+    const label = append(provider, $(".label"));
+    const labelCustomHover = this.hoverService.setupManagedHover(
+      getDefaultHoverDelegate("mouse"),
+      label,
+      "",
+      {}
+    );
+    const name = append(label, $("span.name"));
+    const description = append(label, $("span.description"));
+    const actions = append(provider, $(".actions"));
+    const toolBar = new WorkbenchToolBar(
+      actions,
+      {
+        actionViewItemProvider: this.actionViewItemProvider,
+        resetMenu: this.toolbarMenuId
+      },
+      this.menuService,
+      this.contextKeyService,
+      this.contextMenuService,
+      this.keybindingService,
+      this.commandService,
+      this.telemetryService
+    );
+    const countContainer = append(provider, $(".count"));
+    const count = new CountBadge(
+      countContainer,
+      {},
+      defaultCountBadgeStyles
+    );
+    const visibilityDisposable = toolBar.onDidChangeDropdownVisibility(
+      (e) => provider.classList.toggle("active", e)
+    );
+    const templateDisposable = combinedDisposable(
+      labelCustomHover,
+      visibilityDisposable,
+      toolBar
+    );
+    return {
+      label,
+      labelCustomHover,
+      name,
+      description,
+      countContainer,
+      count,
+      toolBar,
+      elementDisposables: new DisposableStore(),
+      templateDisposable
+    };
+  }
+  renderElement(arg, index, templateData, height) {
+    const repository = isSCMRepository(arg) ? arg : arg.element;
+    templateData.name.textContent = repository.provider.name;
+    if (repository.provider.rootUri) {
+      templateData.labelCustomHover.update(
+        `${repository.provider.label}: ${repository.provider.rootUri.fsPath}`
+      );
+      templateData.description.textContent = repository.provider.label;
+    } else {
+      templateData.labelCustomHover.update(repository.provider.label);
+      templateData.description.textContent = "";
+    }
+    let statusPrimaryActions = [];
+    let menuPrimaryActions = [];
+    let menuSecondaryActions = [];
+    const updateToolbar = /* @__PURE__ */ __name(() => {
+      templateData.toolBar.setActions(
+        [...statusPrimaryActions, ...menuPrimaryActions],
+        menuSecondaryActions
+      );
+    }, "updateToolbar");
+    templateData.elementDisposables.add(
+      autorunWithStore((reader, store) => {
+        const commands = repository.provider.statusBarCommands.read(reader) ?? [];
+        statusPrimaryActions = commands.map(
+          (c) => store.add(new StatusBarAction(c, this.commandService))
+        );
+        updateToolbar();
+      })
+    );
+    templateData.elementDisposables.add(
+      autorun((reader) => {
+        const count = repository.provider.count.read(reader) ?? getRepositoryResourceCount(repository.provider);
+        templateData.countContainer.setAttribute(
+          "data-count",
+          String(count)
+        );
+        templateData.count.setCount(count);
+      })
+    );
+    const repositoryMenus = this.scmViewService.menus.getRepositoryMenus(
+      repository.provider
+    );
+    const menu = this.toolbarMenuId === MenuId.SCMTitle ? repositoryMenus.titleMenu.menu : repositoryMenus.repositoryMenu;
+    templateData.elementDisposables.add(
+      connectPrimaryMenu(menu, (primary, secondary) => {
+        menuPrimaryActions = primary;
+        menuSecondaryActions = secondary;
+        updateToolbar();
+      })
+    );
+    templateData.toolBar.context = repository.provider;
+  }
+  renderCompressedElements() {
+    throw new Error("Should never happen since node is incompressible");
+  }
+  disposeElement(group, index, template) {
+    template.elementDisposables.clear();
+  }
+  disposeTemplate(templateData) {
+    templateData.elementDisposables.dispose();
+    templateData.templateDisposable.dispose();
+    templateData.count.dispose();
+  }
+};
+RepositoryRenderer = __decorateClass([
+  __decorateParam(2, ICommandService),
+  __decorateParam(3, IContextKeyService),
+  __decorateParam(4, IContextMenuService),
+  __decorateParam(5, IHoverService),
+  __decorateParam(6, IKeybindingService),
+  __decorateParam(7, IMenuService),
+  __decorateParam(8, ISCMViewService),
+  __decorateParam(9, ITelemetryService)
+], RepositoryRenderer);
+export {
+  RepositoryActionRunner,
+  RepositoryRenderer
+};
+//# sourceMappingURL=scmRepositoryRenderer.js.map

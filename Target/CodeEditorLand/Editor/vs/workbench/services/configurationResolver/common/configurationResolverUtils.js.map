@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/workbench/services/configurationResolver/common/configurationResolverUtils.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\nimport { IJSONSchema } from \"../../../../base/common/jsonSchema.js\";\r\nimport * as nls from \"../../../../nls.js\";\r\n\r\nexport function applyDeprecatedVariableMessage(schema: IJSONSchema) {\r\n\tschema.pattern = schema.pattern || \"^(?!.*\\\\$\\\\{(env|config|command)\\\\.)\";\r\n\tschema.patternErrorMessage =\r\n\t\tschema.patternErrorMessage ||\r\n\t\tnls.localize(\r\n\t\t\t\"deprecatedVariables\",\r\n\t\t\t\"'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead.\",\r\n\t\t);\r\n}\r\n"],
+  "mappings": ";;AAIA,SAAS,mBAAmB;AAC5B,YAAY,SAAS;AAEd,SAAS,+BAA+B,QAAqB;AACnE,SAAO,UAAU,OAAO,WAAW;AACnC,SAAO,sBACN,OAAO,uBACP,IAAI;AAAA,IACH;AAAA,IACA;AAAA,EACD;AACF;AARgB;",
+  "names": []
+}

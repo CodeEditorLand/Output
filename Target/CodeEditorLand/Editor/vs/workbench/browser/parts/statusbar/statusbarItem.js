@@ -1,1 +1,352 @@
-var S=Object.defineProperty;var k=Object.getOwnPropertyDescriptor;var f=(s,n,e,t)=>{for(var i=t>1?void 0:t?k(n,e):n,r=s.length-1,o;r>=0;r--)(o=s[r])&&(i=(t?o(n,e,i):o(i))||i);return t&&i&&S(n,e,i),i},l=(s,n)=>(e,t)=>n(e,t,s);import{$ as v,addDisposableListener as p,append as T,EventHelper as b,EventType as g,hide as E,show as w}from"../../../../base/browser/dom.js";import{StandardKeyboardEvent as I}from"../../../../base/browser/keyboardEvent.js";import{Gesture as x,EventType as M}from"../../../../base/browser/touch.js";import"../../../../base/browser/ui/hover/hover.js";import"../../../../base/browser/ui/hover/hoverDelegate.js";import{renderIcon as C,renderLabelWithIcons as H}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{SimpleIconLabel as A}from"../../../../base/browser/ui/iconLabel/simpleIconLabel.js";import"../../../../base/common/actions.js";import{toErrorMessage as D}from"../../../../base/common/errorMessage.js";import{isMarkdownString as u,markdownStringEqual as _}from"../../../../base/common/htmlContent.js";import{KeyCode as d}from"../../../../base/common/keyCodes.js";import{Disposable as q,MutableDisposable as h}from"../../../../base/common/lifecycle.js";import"../../../../base/common/themables.js";import{assertIsDefined as K}from"../../../../base/common/types.js";import{isThemeColor as W}from"../../../../editor/common/editorCommon.js";import"../../../../editor/common/languages.js";import{ICommandService as P}from"../../../../platform/commands/common/commands.js";import{IHoverService as N}from"../../../../platform/hover/browser/hover.js";import{INotificationService as O}from"../../../../platform/notification/common/notification.js";import{ITelemetryService as $}from"../../../../platform/telemetry/common/telemetry.js";import{spinningLoading as B,syncing as y}from"../../../../platform/theme/common/iconRegistry.js";import{IThemeService as R}from"../../../../platform/theme/common/themeService.js";import{isTooltipWithCommands as F,ShowTooltipCommand as L,StatusbarEntryKinds as G}from"../../../services/statusbar/browser/statusbar.js";let c=class extends q{constructor(e,t,i,r,o,a,m,Y){super();this.container=e;this.hoverDelegate=i;this.commandService=r;this.hoverService=o;this.notificationService=a;this.telemetryService=m;this.themeService=Y;this.labelContainer=v("a.statusbar-item-label",{role:"button",tabIndex:-1}),this._register(x.addTarget(this.labelContainer)),this.label=this._register(new V(this.labelContainer)),this.container.appendChild(this.labelContainer),this.beakContainer=v(".status-bar-item-beak-container"),this.container.appendChild(this.beakContainer),this.update(t)}label;entry=void 0;foregroundListener=this._register(new h);backgroundListener=this._register(new h);commandMouseListener=this._register(new h);commandTouchListener=this._register(new h);commandKeyboardListener=this._register(new h);hover=void 0;labelContainer;beakContainer;get name(){return K(this.entry).name}get hasCommand(){return typeof this.entry?.command<"u"}update(e){if(this.label.showProgress=e.showProgress??!1,(!this.entry||e.text!==this.entry.text)&&(this.label.text=e.text,e.text?w(this.labelContainer):E(this.labelContainer)),(!this.entry||e.ariaLabel!==this.entry.ariaLabel)&&(this.container.setAttribute("aria-label",e.ariaLabel),this.labelContainer.setAttribute("aria-label",e.ariaLabel)),(!this.entry||e.role!==this.entry.role)&&this.labelContainer.setAttribute("role",e.role||"button"),!this.entry||!this.isEqualTooltip(this.entry,e)){let i,r;F(e.tooltip)?(r=e.tooltip.content,i={actions:e.tooltip.commands.map(a=>({commandId:a.id,label:a.title,run:()=>this.executeCommand(a)}))}):r=e.tooltip;const o=u(r)?{markdown:r,markdownNotSupportedFallback:void 0}:r;this.hover?this.hover.update(o,i):this.hover=this._register(this.hoverService.setupManagedHover(this.hoverDelegate,this.container,o,i))}if(!this.entry||e.command!==this.entry.command){this.commandMouseListener.clear(),this.commandTouchListener.clear(),this.commandKeyboardListener.clear();const i=e.command;i&&(i!==L||this.hover)?(this.commandMouseListener.value=p(this.labelContainer,g.CLICK,()=>this.executeCommand(i)),this.commandTouchListener.value=p(this.labelContainer,M.Tap,()=>this.executeCommand(i)),this.commandKeyboardListener.value=p(this.labelContainer,g.KEY_DOWN,r=>{const o=new I(r);o.equals(d.Space)||o.equals(d.Enter)?(b.stop(r),this.executeCommand(i)):(o.equals(d.Escape)||o.equals(d.LeftArrow)||o.equals(d.RightArrow))&&(b.stop(r),this.hover?.hide())}),this.labelContainer.classList.remove("disabled")):this.labelContainer.classList.add("disabled")}(!this.entry||e.showBeak!==this.entry.showBeak)&&(e.showBeak?this.container.classList.add("has-beak"):this.container.classList.remove("has-beak"));const t=!!e.backgroundColor||e.kind&&e.kind!=="standard";if(!this.entry||e.kind!==this.entry.kind){for(const i of G)this.container.classList.remove(`${i}-kind`);e.kind&&e.kind!=="standard"&&this.container.classList.add(`${e.kind}-kind`),this.container.classList.toggle("has-background-color",t)}(!this.entry||e.color!==this.entry.color)&&this.applyColor(this.labelContainer,e.color),(!this.entry||e.backgroundColor!==this.entry.backgroundColor)&&(this.container.classList.toggle("has-background-color",t),this.applyColor(this.container,e.backgroundColor,!0)),this.entry=e}isEqualTooltip({tooltip:e},{tooltip:t}){return e===void 0?t===void 0:u(e)?u(t)&&_(e,t):e===t}async executeCommand(e){if(e===L)this.hover?.show(!0);else{const t=typeof e=="string"?e:e.id,i=typeof e=="string"?[]:e.arguments??[];this.telemetryService.publicLog2("workbenchActionExecuted",{id:t,from:"status bar"});try{await this.commandService.executeCommand(t,...i)}catch(r){this.notificationService.error(D(r))}}}applyColor(e,t,i){let r;if(i?this.backgroundListener.clear():this.foregroundListener.clear(),t)if(W(t)){r=this.themeService.getColorTheme().getColor(t.id)?.toString();const o=this.themeService.onDidColorThemeChange(a=>{const m=a.getColor(t.id)?.toString();i?e.style.backgroundColor=m??"":e.style.color=m??""});i?this.backgroundListener.value=o:this.foregroundListener.value=o}else r=t;i?e.style.backgroundColor=r??"":e.style.color=r??""}};c=f([l(3,P),l(4,N),l(5,O),l(6,$),l(7,R)],c);class V extends A{constructor(e){super(e);this.container=e}progressCodicon=C(y);currentText="";currentShowProgress=!1;set showProgress(e){this.currentShowProgress!==e&&(this.currentShowProgress=e,this.progressCodicon=C(e==="syncing"?y:B),this.text=this.currentText)}set text(e){if(this.currentShowProgress){this.container.firstChild!==this.progressCodicon&&this.container.appendChild(this.progressCodicon);for(const i of Array.from(this.container.childNodes))i!==this.progressCodicon&&i.remove();let t=e??"";t&&(t=`\xA0${t}`),T(this.container,...H(t))}else super.text=e}}export{c as StatusbarEntryItem};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  $,
+  addDisposableListener,
+  append,
+  EventHelper,
+  EventType,
+  hide,
+  show
+} from "../../../../base/browser/dom.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import {
+  Gesture,
+  EventType as TouchEventType
+} from "../../../../base/browser/touch.js";
+import {
+  IManagedHover,
+  IManagedHoverOptions
+} from "../../../../base/browser/ui/hover/hover.js";
+import { IHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegate.js";
+import {
+  renderIcon,
+  renderLabelWithIcons
+} from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { SimpleIconLabel } from "../../../../base/browser/ui/iconLabel/simpleIconLabel.js";
+import {
+  WorkbenchActionExecutedClassification,
+  WorkbenchActionExecutedEvent
+} from "../../../../base/common/actions.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import {
+  isMarkdownString,
+  markdownStringEqual
+} from "../../../../base/common/htmlContent.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import {
+  Disposable,
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
+import { ThemeColor } from "../../../../base/common/themables.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { isThemeColor } from "../../../../editor/common/editorCommon.js";
+import { Command } from "../../../../editor/common/languages.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import {
+  spinningLoading,
+  syncing
+} from "../../../../platform/theme/common/iconRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  IStatusbarEntry,
+  isTooltipWithCommands,
+  ShowTooltipCommand,
+  StatusbarEntryKinds,
+  TooltipContent
+} from "../../../services/statusbar/browser/statusbar.js";
+let StatusbarEntryItem = class extends Disposable {
+  constructor(container, entry, hoverDelegate, commandService, hoverService, notificationService, telemetryService, themeService) {
+    super();
+    this.container = container;
+    this.hoverDelegate = hoverDelegate;
+    this.commandService = commandService;
+    this.hoverService = hoverService;
+    this.notificationService = notificationService;
+    this.telemetryService = telemetryService;
+    this.themeService = themeService;
+    this.labelContainer = $("a.statusbar-item-label", {
+      role: "button",
+      tabIndex: -1
+      // allows screen readers to read title, but still prevents tab focus.
+    });
+    this._register(Gesture.addTarget(this.labelContainer));
+    this.label = this._register(
+      new StatusBarCodiconLabel(this.labelContainer)
+    );
+    this.container.appendChild(this.labelContainer);
+    this.beakContainer = $(".status-bar-item-beak-container");
+    this.container.appendChild(this.beakContainer);
+    this.update(entry);
+  }
+  static {
+    __name(this, "StatusbarEntryItem");
+  }
+  label;
+  entry = void 0;
+  foregroundListener = this._register(
+    new MutableDisposable()
+  );
+  backgroundListener = this._register(
+    new MutableDisposable()
+  );
+  commandMouseListener = this._register(
+    new MutableDisposable()
+  );
+  commandTouchListener = this._register(
+    new MutableDisposable()
+  );
+  commandKeyboardListener = this._register(
+    new MutableDisposable()
+  );
+  hover = void 0;
+  labelContainer;
+  beakContainer;
+  get name() {
+    return assertIsDefined(this.entry).name;
+  }
+  get hasCommand() {
+    return typeof this.entry?.command !== "undefined";
+  }
+  update(entry) {
+    this.label.showProgress = entry.showProgress ?? false;
+    if (!this.entry || entry.text !== this.entry.text) {
+      this.label.text = entry.text;
+      if (entry.text) {
+        show(this.labelContainer);
+      } else {
+        hide(this.labelContainer);
+      }
+    }
+    if (!this.entry || entry.ariaLabel !== this.entry.ariaLabel) {
+      this.container.setAttribute("aria-label", entry.ariaLabel);
+      this.labelContainer.setAttribute("aria-label", entry.ariaLabel);
+    }
+    if (!this.entry || entry.role !== this.entry.role) {
+      this.labelContainer.setAttribute("role", entry.role || "button");
+    }
+    if (!this.entry || !this.isEqualTooltip(this.entry, entry)) {
+      let hoverOptions;
+      let hoverTooltip;
+      if (isTooltipWithCommands(entry.tooltip)) {
+        hoverTooltip = entry.tooltip.content;
+        hoverOptions = {
+          actions: entry.tooltip.commands.map((command) => ({
+            commandId: command.id,
+            label: command.title,
+            run: /* @__PURE__ */ __name(() => this.executeCommand(command), "run")
+          }))
+        };
+      } else {
+        hoverTooltip = entry.tooltip;
+      }
+      const hoverContents = isMarkdownString(hoverTooltip) ? {
+        markdown: hoverTooltip,
+        markdownNotSupportedFallback: void 0
+      } : hoverTooltip;
+      if (this.hover) {
+        this.hover.update(hoverContents, hoverOptions);
+      } else {
+        this.hover = this._register(
+          this.hoverService.setupManagedHover(
+            this.hoverDelegate,
+            this.container,
+            hoverContents,
+            hoverOptions
+          )
+        );
+      }
+    }
+    if (!this.entry || entry.command !== this.entry.command) {
+      this.commandMouseListener.clear();
+      this.commandTouchListener.clear();
+      this.commandKeyboardListener.clear();
+      const command = entry.command;
+      if (command && (command !== ShowTooltipCommand || this.hover)) {
+        this.commandMouseListener.value = addDisposableListener(
+          this.labelContainer,
+          EventType.CLICK,
+          () => this.executeCommand(command)
+        );
+        this.commandTouchListener.value = addDisposableListener(
+          this.labelContainer,
+          TouchEventType.Tap,
+          () => this.executeCommand(command)
+        );
+        this.commandKeyboardListener.value = addDisposableListener(
+          this.labelContainer,
+          EventType.KEY_DOWN,
+          (e) => {
+            const event = new StandardKeyboardEvent(e);
+            if (event.equals(KeyCode.Space) || event.equals(KeyCode.Enter)) {
+              EventHelper.stop(e);
+              this.executeCommand(command);
+            } else if (event.equals(KeyCode.Escape) || event.equals(KeyCode.LeftArrow) || event.equals(KeyCode.RightArrow)) {
+              EventHelper.stop(e);
+              this.hover?.hide();
+            }
+          }
+        );
+        this.labelContainer.classList.remove("disabled");
+      } else {
+        this.labelContainer.classList.add("disabled");
+      }
+    }
+    if (!this.entry || entry.showBeak !== this.entry.showBeak) {
+      if (entry.showBeak) {
+        this.container.classList.add("has-beak");
+      } else {
+        this.container.classList.remove("has-beak");
+      }
+    }
+    const hasBackgroundColor = !!entry.backgroundColor || entry.kind && entry.kind !== "standard";
+    if (!this.entry || entry.kind !== this.entry.kind) {
+      for (const kind of StatusbarEntryKinds) {
+        this.container.classList.remove(`${kind}-kind`);
+      }
+      if (entry.kind && entry.kind !== "standard") {
+        this.container.classList.add(`${entry.kind}-kind`);
+      }
+      this.container.classList.toggle(
+        "has-background-color",
+        hasBackgroundColor
+      );
+    }
+    if (!this.entry || entry.color !== this.entry.color) {
+      this.applyColor(this.labelContainer, entry.color);
+    }
+    if (!this.entry || entry.backgroundColor !== this.entry.backgroundColor) {
+      this.container.classList.toggle(
+        "has-background-color",
+        hasBackgroundColor
+      );
+      this.applyColor(this.container, entry.backgroundColor, true);
+    }
+    this.entry = entry;
+  }
+  isEqualTooltip({ tooltip }, { tooltip: otherTooltip }) {
+    if (tooltip === void 0) {
+      return otherTooltip === void 0;
+    }
+    if (isMarkdownString(tooltip)) {
+      return isMarkdownString(otherTooltip) && markdownStringEqual(tooltip, otherTooltip);
+    }
+    return tooltip === otherTooltip;
+  }
+  async executeCommand(command) {
+    if (command === ShowTooltipCommand) {
+      this.hover?.show(
+        true
+        /* focus */
+      );
+    } else {
+      const id = typeof command === "string" ? command : command.id;
+      const args = typeof command === "string" ? [] : command.arguments ?? [];
+      this.telemetryService.publicLog2("workbenchActionExecuted", { id, from: "status bar" });
+      try {
+        await this.commandService.executeCommand(id, ...args);
+      } catch (error) {
+        this.notificationService.error(toErrorMessage(error));
+      }
+    }
+  }
+  applyColor(container, color, isBackground) {
+    let colorResult = void 0;
+    if (isBackground) {
+      this.backgroundListener.clear();
+    } else {
+      this.foregroundListener.clear();
+    }
+    if (color) {
+      if (isThemeColor(color)) {
+        colorResult = this.themeService.getColorTheme().getColor(color.id)?.toString();
+        const listener = this.themeService.onDidColorThemeChange(
+          (theme) => {
+            const colorValue = theme.getColor(color.id)?.toString();
+            if (isBackground) {
+              container.style.backgroundColor = colorValue ?? "";
+            } else {
+              container.style.color = colorValue ?? "";
+            }
+          }
+        );
+        if (isBackground) {
+          this.backgroundListener.value = listener;
+        } else {
+          this.foregroundListener.value = listener;
+        }
+      } else {
+        colorResult = color;
+      }
+    }
+    if (isBackground) {
+      container.style.backgroundColor = colorResult ?? "";
+    } else {
+      container.style.color = colorResult ?? "";
+    }
+  }
+};
+StatusbarEntryItem = __decorateClass([
+  __decorateParam(3, ICommandService),
+  __decorateParam(4, IHoverService),
+  __decorateParam(5, INotificationService),
+  __decorateParam(6, ITelemetryService),
+  __decorateParam(7, IThemeService)
+], StatusbarEntryItem);
+class StatusBarCodiconLabel extends SimpleIconLabel {
+  constructor(container) {
+    super(container);
+    this.container = container;
+  }
+  static {
+    __name(this, "StatusBarCodiconLabel");
+  }
+  progressCodicon = renderIcon(syncing);
+  currentText = "";
+  currentShowProgress = false;
+  set showProgress(showProgress) {
+    if (this.currentShowProgress !== showProgress) {
+      this.currentShowProgress = showProgress;
+      this.progressCodicon = renderIcon(
+        showProgress === "syncing" ? syncing : spinningLoading
+      );
+      this.text = this.currentText;
+    }
+  }
+  set text(text) {
+    if (this.currentShowProgress) {
+      if (this.container.firstChild !== this.progressCodicon) {
+        this.container.appendChild(this.progressCodicon);
+      }
+      for (const node of Array.from(this.container.childNodes)) {
+        if (node !== this.progressCodicon) {
+          node.remove();
+        }
+      }
+      let textContent = text ?? "";
+      if (textContent) {
+        textContent = `\xA0${textContent}`;
+      }
+      append(this.container, ...renderLabelWithIcons(textContent));
+    } else {
+      super.text = text;
+    }
+  }
+}
+export {
+  StatusbarEntryItem
+};
+//# sourceMappingURL=statusbarItem.js.map

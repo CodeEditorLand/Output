@@ -1,1 +1,10 @@
-import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"../../../platform/actions/common/actions.js";import"../core/dimension.js";import"./editorOptions.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { MenuId } from "../../../platform/actions/common/actions.js";
+import { IDimension } from "../core/dimension.js";
+import {
+  ConfigurationChangedEvent,
+  IComputedEditorOptions,
+  IEditorOptions
+} from "./editorOptions.js";
+//# sourceMappingURL=editorConfiguration.js.map

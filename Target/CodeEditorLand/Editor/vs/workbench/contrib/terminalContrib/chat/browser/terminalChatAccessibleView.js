@@ -1,1 +1,73 @@
-import"../../../../../base/common/actions.js";import{AccessibleContentProvider as p,AccessibleViewProviderId as C,AccessibleViewType as r}from"../../../../../platform/accessibility/browser/accessibleView.js";import"../../../../../platform/accessibility/browser/accessibleViewRegistry.js";import{IMenuService as I,MenuItemAction as d}from"../../../../../platform/actions/common/actions.js";import"../../../../../platform/instantiation/common/instantiation.js";import{AccessibilityVerbositySettingId as A}from"../../../accessibility/browser/accessibilityConfiguration.js";import{ITerminalService as u}from"../../../terminal/browser/terminal.js";import{MENU_TERMINAL_CHAT_WIDGET_STATUS as v,TerminalChatContextKeys as y}from"./terminalChat.js";import{TerminalChatController as c}from"./terminalChatController.js";class R{priority=105;name="terminalInlineChat";type=r.View;when=y.focused;getProvider(t){const s=t.get(u),l=t.get(I),n=[],o=c.activeChatController?.scopedContextKeyService;if(o){const a=l.getMenuActions(v,o);for(const f of a)for(const i of f[1])i instanceof d&&n.push(i)}const e=s.activeInstance?.getContribution(c.ID)??void 0;if(!e?.lastResponseContent)return;const m=e.lastResponseContent;return new p(C.TerminalChat,{type:r.View},()=>m,()=>{e.focus()},A.InlineChat,void 0,n)}}export{R as TerminalInlineChatAccessibleView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IAction } from "../../../../../base/common/actions.js";
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../../platform/accessibility/browser/accessibleView.js";
+import { IAccessibleViewImplementation } from "../../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import {
+  IMenuService,
+  MenuItemAction
+} from "../../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
+import { ITerminalService } from "../../../terminal/browser/terminal.js";
+import {
+  MENU_TERMINAL_CHAT_WIDGET_STATUS,
+  TerminalChatContextKeys
+} from "./terminalChat.js";
+import { TerminalChatController } from "./terminalChatController.js";
+class TerminalInlineChatAccessibleView {
+  static {
+    __name(this, "TerminalInlineChatAccessibleView");
+  }
+  priority = 105;
+  name = "terminalInlineChat";
+  type = AccessibleViewType.View;
+  when = TerminalChatContextKeys.focused;
+  getProvider(accessor) {
+    const terminalService = accessor.get(ITerminalService);
+    const menuService = accessor.get(IMenuService);
+    const actions = [];
+    const contextKeyService = TerminalChatController.activeChatController?.scopedContextKeyService;
+    if (contextKeyService) {
+      const menuActions = menuService.getMenuActions(
+        MENU_TERMINAL_CHAT_WIDGET_STATUS,
+        contextKeyService
+      );
+      for (const action of menuActions) {
+        for (const a of action[1]) {
+          if (a instanceof MenuItemAction) {
+            actions.push(a);
+          }
+        }
+      }
+    }
+    const controller = terminalService.activeInstance?.getContribution(
+      TerminalChatController.ID
+    ) ?? void 0;
+    if (!controller?.lastResponseContent) {
+      return;
+    }
+    const responseContent = controller.lastResponseContent;
+    return new AccessibleContentProvider(
+      AccessibleViewProviderId.TerminalChat,
+      { type: AccessibleViewType.View },
+      () => {
+        return responseContent;
+      },
+      () => {
+        controller.focus();
+      },
+      AccessibilityVerbositySettingId.InlineChat,
+      void 0,
+      actions
+    );
+  }
+}
+export {
+  TerminalInlineChatAccessibleView
+};
+//# sourceMappingURL=terminalChatAccessibleView.js.map

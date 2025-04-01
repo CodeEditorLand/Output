@@ -1,1 +1,101 @@
-import{KeyCode as s,KeyMod as i}from"../../../../../../base/common/keyCodes.js";import"../../../../../../base/common/uri.js";import{isCodeEditor as a,isDiffEditor as f}from"../../../../../../editor/browser/editorBrowser.js";import{localize as p}from"../../../../../../nls.js";import{MenuId as u,MenuRegistry as C}from"../../../../../../platform/actions/common/actions.js";import{ICommandService as g}from"../../../../../../platform/commands/common/commands.js";import{ContextKeyExpr as n}from"../../../../../../platform/contextkey/common/contextkey.js";import"../../../../../../platform/instantiation/common/instantiation.js";import{KeybindingsRegistry as l,KeybindingWeight as A}from"../../../../../../platform/keybinding/common/keybindingsRegistry.js";import{PromptsConfig as d}from"../../../../../../platform/prompts/common/config.js";import{isPromptFile as h}from"../../../../../../platform/prompts/common/constants.js";import{IEditorService as I}from"../../../../../services/editor/common/editorService.js";import{ChatContextKeys as m}from"../../../common/chatContextKeys.js";import{CHAT_CATEGORY as v}from"../../actions/chatActions.js";import{ATTACH_PROMPT_ACTION_ID as E}from"../../actions/chatAttachPromptAction/chatAttachPromptAction.js";import{IChatWidgetService as y}from"../../chat.js";const c="workbench.command.prompts.use",M=i.CtrlCmd|s.Slash|i.Alt,S=async t=>{const o=t.get(g),e={resource:P(t),widget:b(t)};await o.executeCommand(E,e)};function b(t){const o=t.get(y),{lastFocusedWidget:e}=o;if(e&&e.hasInputFocus())return e}function x(t){const o=t.get(I),{activeTextEditorControl:e}=o;if(a(e)&&e.hasModel())return e;if(f(e)){const r=e.getOriginalEditor();return r.hasModel()?r:void 0}}const P=t=>{const o=x(t);if(!o)return;const{uri:e}=o.getModel();if(h(e))return e};l.registerCommandAndKeybindingRule({id:c,weight:A.WorkbenchContrib,primary:M,handler:S,when:n.and(d.enabledCtx,m.enabled)}),C.appendMenuItem(u.CommandPalette,{command:{id:c,title:p("commands.prompts.use.title","Use Prompt"),category:v},when:n.and(d.enabledCtx,m.enabled)});export{c as COMMAND_ID,x as getActiveCodeEditor,b as getFocusedChatWidget};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyCode, KeyMod } from "../../../../../../base/common/keyCodes.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import {
+  IActiveCodeEditor,
+  isCodeEditor,
+  isDiffEditor
+} from "../../../../../../editor/browser/editorBrowser.js";
+import { localize } from "../../../../../../nls.js";
+import {
+  MenuId,
+  MenuRegistry
+} from "../../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../../../../platform/instantiation/common/instantiation.js";
+import {
+  KeybindingsRegistry,
+  KeybindingWeight
+} from "../../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { PromptsConfig } from "../../../../../../platform/prompts/common/config.js";
+import { isPromptFile } from "../../../../../../platform/prompts/common/constants.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { ChatContextKeys } from "../../../common/chatContextKeys.js";
+import { CHAT_CATEGORY } from "../../actions/chatActions.js";
+import {
+  ATTACH_PROMPT_ACTION_ID,
+  IChatAttachPromptActionOptions
+} from "../../actions/chatAttachPromptAction/chatAttachPromptAction.js";
+import { IChatWidget, IChatWidgetService } from "../../chat.js";
+const COMMAND_ID = "workbench.command.prompts.use";
+const COMMAND_KEY_BINDING = KeyMod.CtrlCmd | KeyCode.Slash | KeyMod.Alt;
+const command = /* @__PURE__ */ __name(async (accessor) => {
+  const commandService = accessor.get(ICommandService);
+  const options = {
+    resource: getActivePromptUri(accessor),
+    widget: getFocusedChatWidget(accessor)
+  };
+  await commandService.executeCommand(ATTACH_PROMPT_ACTION_ID, options);
+}, "command");
+function getFocusedChatWidget(accessor) {
+  const chatWidgetService = accessor.get(IChatWidgetService);
+  const { lastFocusedWidget } = chatWidgetService;
+  if (!lastFocusedWidget) {
+    return void 0;
+  }
+  if (!lastFocusedWidget.hasInputFocus()) {
+    return void 0;
+  }
+  return lastFocusedWidget;
+}
+__name(getFocusedChatWidget, "getFocusedChatWidget");
+function getActiveCodeEditor(accessor) {
+  const editorService = accessor.get(IEditorService);
+  const { activeTextEditorControl } = editorService;
+  if (isCodeEditor(activeTextEditorControl) && activeTextEditorControl.hasModel()) {
+    return activeTextEditorControl;
+  }
+  if (isDiffEditor(activeTextEditorControl)) {
+    const originalEditor = activeTextEditorControl.getOriginalEditor();
+    if (!originalEditor.hasModel()) {
+      return void 0;
+    }
+    return originalEditor;
+  }
+  return void 0;
+}
+__name(getActiveCodeEditor, "getActiveCodeEditor");
+const getActivePromptUri = /* @__PURE__ */ __name((accessor) => {
+  const activeEditor = getActiveCodeEditor(accessor);
+  if (!activeEditor) {
+    return void 0;
+  }
+  const { uri } = activeEditor.getModel();
+  if (isPromptFile(uri)) {
+    return uri;
+  }
+  return void 0;
+}, "getActivePromptUri");
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: COMMAND_ID,
+  weight: KeybindingWeight.WorkbenchContrib,
+  primary: COMMAND_KEY_BINDING,
+  handler: command,
+  when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: COMMAND_ID,
+    title: localize("commands.prompts.use.title", "Use Prompt"),
+    category: CHAT_CATEGORY
+  },
+  when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+});
+export {
+  COMMAND_ID,
+  getActiveCodeEditor,
+  getFocusedChatWidget
+};
+//# sourceMappingURL=usePromptCommand.js.map

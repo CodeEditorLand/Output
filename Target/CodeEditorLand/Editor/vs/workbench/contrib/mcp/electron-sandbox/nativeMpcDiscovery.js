@@ -1,1 +1,72 @@
-var p=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var m=(n,o,t,e)=>{for(var r=e>1?void 0:e?I(o,t):o,s=n.length-1,c;s>=0;s--)(c=n[s])&&(r=(e?c(o,t,r):c(r))||r);return e&&r&&p(o,t,r),r},i=(n,o)=>(t,e)=>o(t,e,n);import{ProxyChannel as S}from"../../../../base/parts/ipc/common/ipc.js";import{IConfigurationService as f}from"../../../../platform/configuration/common/configuration.js";import{IFileService as g}from"../../../../platform/files/common/files.js";import{IInstantiationService as d}from"../../../../platform/instantiation/common/instantiation.js";import{IMainProcessService as h}from"../../../../platform/ipc/common/mainProcessService.js";import{ILabelService as u}from"../../../../platform/label/common/label.js";import{ILogService as y}from"../../../../platform/log/common/log.js";import{NativeMcpDiscoveryHelperChannelName as C}from"../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";import{NativeFilesystemMcpDiscovery as M}from"../common/discovery/nativeMcpDiscoveryAbstract.js";import{IMcpRegistry as P}from"../common/mcpRegistryTypes.js";let a=class extends M{constructor(t,e,r,s,c,v,l){super(null,r,s,c,v,l);this.mainProcess=t;this.logService=e}start(){S.toService(this.mainProcess.getChannel(C)).load().then(e=>this.setDetails(e),e=>{this.logService.warn("Error getting main process MCP environment",e),this.setDetails(void 0)})}};a=m([i(0,h),i(1,y),i(2,u),i(3,g),i(4,d),i(5,P),i(6,f)],a);export{a as NativeMcpDiscovery};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  INativeMcpDiscoveryHelperService,
+  NativeMcpDiscoveryHelperChannelName
+} from "../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";
+import { NativeFilesystemMcpDiscovery } from "../common/discovery/nativeMcpDiscoveryAbstract.js";
+import { IMcpRegistry } from "../common/mcpRegistryTypes.js";
+let NativeMcpDiscovery = class extends NativeFilesystemMcpDiscovery {
+  constructor(mainProcess, logService, labelService, fileService, instantiationService, mcpRegistry, configurationService) {
+    super(
+      null,
+      labelService,
+      fileService,
+      instantiationService,
+      mcpRegistry,
+      configurationService
+    );
+    this.mainProcess = mainProcess;
+    this.logService = logService;
+  }
+  static {
+    __name(this, "NativeMcpDiscovery");
+  }
+  start() {
+    const service = ProxyChannel.toService(
+      this.mainProcess.getChannel(
+        NativeMcpDiscoveryHelperChannelName
+      )
+    );
+    service.load().then(
+      (data) => this.setDetails(data),
+      (err) => {
+        this.logService.warn(
+          "Error getting main process MCP environment",
+          err
+        );
+        this.setDetails(void 0);
+      }
+    );
+  }
+};
+NativeMcpDiscovery = __decorateClass([
+  __decorateParam(0, IMainProcessService),
+  __decorateParam(1, ILogService),
+  __decorateParam(2, ILabelService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IMcpRegistry),
+  __decorateParam(6, IConfigurationService)
+], NativeMcpDiscovery);
+export {
+  NativeMcpDiscovery
+};
+//# sourceMappingURL=nativeMpcDiscovery.js.map

@@ -1,1 +1,295 @@
-import{getErrorMessage as u}from"../../base/common/errors.js";import{Disposable as I}from"../../base/common/lifecycle.js";import{Schemas as h}from"../../base/common/network.js";import{isAbsolute as w,join as x}from"../../base/common/path.js";import{isWindows as p}from"../../base/common/platform.js";import{cwd as E}from"../../base/common/process.js";import{URI as y}from"../../base/common/uri.js";import{addUNCHostToAllowlist as P,disableUNCAccessRestrictions as L}from"../../base/node/unc.js";import{localize as D}from"../../nls.js";import{IConfigurationService as S}from"../../platform/configuration/common/configuration.js";import{ConfigurationService as A}from"../../platform/configuration/common/configurationService.js";import{IDownloadService as R}from"../../platform/download/common/download.js";import{DownloadService as N}from"../../platform/download/common/downloadService.js";import{buildHelpMessage as U,buildVersionMessage as V}from"../../platform/environment/node/argv.js";import{AllowedExtensionsService as b}from"../../platform/extensionManagement/common/allowedExtensionsService.js";import{IExtensionGalleryManifestService as C}from"../../platform/extensionManagement/common/extensionGalleryManifest.js";import{ExtensionGalleryManifestService as O}from"../../platform/extensionManagement/common/extensionGalleryManifestService.js";import{ExtensionGalleryServiceWithNoStorageService as M}from"../../platform/extensionManagement/common/extensionGalleryService.js";import{IAllowedExtensionsService as F,IExtensionGalleryService as k}from"../../platform/extensionManagement/common/extensionManagement.js";import{ExtensionManagementCLI as _}from"../../platform/extensionManagement/common/extensionManagementCLI.js";import{IExtensionsProfileScannerService as G}from"../../platform/extensionManagement/common/extensionsProfileScannerService.js";import{IExtensionsScannerService as H}from"../../platform/extensionManagement/common/extensionsScannerService.js";import{ExtensionManagementService as T,INativeServerExtensionManagementService as X}from"../../platform/extensionManagement/node/extensionManagementService.js";import{ExtensionSignatureVerificationService as q,IExtensionSignatureVerificationService as z}from"../../platform/extensionManagement/node/extensionSignatureVerificationService.js";import{ExtensionsProfileScannerService as W}from"../../platform/extensionManagement/node/extensionsProfileScannerService.js";import{IFileService as $}from"../../platform/files/common/files.js";import{FileService as j}from"../../platform/files/common/fileService.js";import{DiskFileSystemProvider as B}from"../../platform/files/node/diskFileSystemProvider.js";import{SyncDescriptor as o}from"../../platform/instantiation/common/descriptors.js";import"../../platform/instantiation/common/instantiation.js";import{InstantiationService as J}from"../../platform/instantiation/common/instantiationService.js";import{ServiceCollection as K}from"../../platform/instantiation/common/serviceCollection.js";import{ILanguagePackService as Q}from"../../platform/languagePacks/common/languagePacks.js";import{NativeLanguagePackService as Y}from"../../platform/languagePacks/node/languagePacks.js";import{ConsoleLogger as Z,getLogLevel as ee,ILoggerService as re,ILogService as g}from"../../platform/log/common/log.js";import{LogService as ie}from"../../platform/log/common/logService.js";import{LoggerService as te}from"../../platform/log/node/loggerService.js";import{NullPolicyService as oe}from"../../platform/policy/common/policy.js";import n from"../../platform/product/common/product.js";import{IProductService as se}from"../../platform/product/common/productService.js";import{IRequestService as ne}from"../../platform/request/common/request.js";import{RequestService as ae}from"../../platform/request/node/requestService.js";import{ITelemetryService as ce}from"../../platform/telemetry/common/telemetry.js";import{NullTelemetryService as me}from"../../platform/telemetry/common/telemetryUtils.js";import{IUriIdentityService as le}from"../../platform/uriIdentity/common/uriIdentity.js";import{UriIdentityService as ve}from"../../platform/uriIdentity/common/uriIdentityService.js";import{IUserDataProfilesService as fe}from"../../platform/userDataProfile/common/userDataProfile.js";import{ServerUserDataProfilesService as pe}from"../../platform/userDataProfile/node/userDataProfile.js";import{ExtensionsScannerService as Se}from"./extensionsScannerService.js";import{IServerEnvironmentService as ge,ServerEnvironmentService as de}from"./serverEnvironmentService.js";class ue extends I{constructor(e,r){super();this.args=e;this.remoteDataFolder=r;this.registerListeners()}registerListeners(){process.once("exit",()=>this.dispose())}async run(){const e=await this.initServices();await e.invokeFunction(async r=>{const t=r.get(S),a=r.get(g);p&&(t.getValue("security.restrictUNCAccess")===!1?L():P(t.getValue("security.allowedUNCHosts")));try{await this.doRun(e.createInstance(_,new Z(a.getLevel(),!1)))}catch(i){throw a.error(i),console.error(u(i)),i}})}async initServices(){const e=new K,r={_serviceBrand:void 0,...n};e.set(se,r);const t=new de(this.args,r);e.set(ge,t);const a=new te(ee(t),t.logsHome);e.set(re,a);const i=new ie(this._register(a.createLogger("remoteCLI",{name:D("remotecli","Remote CLI")})));e.set(g,i),i.trace(`Remote configuration data at ${this.remoteDataFolder}`),i.trace("process arguments:",this.args);const c=this._register(new j(i));e.set($,c),c.registerProvider(h.file,this._register(new B(i)));const v=new ve(c);e.set(le,v);const m=this._register(new pe(v,t,c,i));e.set(fe,m);const f=this._register(new A(m.defaultProfile.settingsResource,c,new oe,i));return e.set(S,f),await Promise.all([f.initialize(),m.init()]),e.set(ne,new o(ae,["remote"])),e.set(R,new o(N)),e.set(ce,me),e.set(C,new o(O)),e.set(k,new o(M)),e.set(G,new o(W)),e.set(H,new o(Se)),e.set(z,new o(q)),e.set(F,new o(b)),e.set(X,new o(T)),e.set(Q,new o(Y)),new J(e)}async doRun(e){if(this.args["list-extensions"])return e.listExtensions(!!this.args["show-versions"],this.args.category);if(this.args["install-extension"]||this.args["install-builtin-extension"]){const r={isMachineScoped:!!this.args["do-not-sync"],installPreReleaseVersion:!!this.args["pre-release"],donotIncludePackAndDependencies:!!this.args["do-not-include-pack-dependencies"]};return e.installExtensions(this.asExtensionIdOrVSIX(this.args["install-extension"]||[]),this.asExtensionIdOrVSIX(this.args["install-builtin-extension"]||[]),r,!!this.args.force)}else{if(this.args["uninstall-extension"])return e.uninstallExtensions(this.asExtensionIdOrVSIX(this.args["uninstall-extension"]),!!this.args.force);if(this.args["update-extensions"])return e.updateExtensions();if(this.args["locate-extension"])return e.locateExtension(this.args["locate-extension"])}}asExtensionIdOrVSIX(e){return e.map(r=>/\.vsix$/i.test(r)?y.file(w(r)?r:x(E(),r)):r)}}function d(s){setTimeout(()=>process.exit(s),0)}async function Ir(s,l,e){if(s.help){const t=n.serverApplicationName+(p?".cmd":"");console.log(U(n.nameLong,t,n.version,e,{noInputFiles:!0,noPipe:!0}));return}if(s.version){console.log(V(n.version,n.commit));return}const r=new ue(s,l);try{await r.run(),d(0)}catch{d(1)}finally{r.dispose()}}export{Ir as run};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getErrorMessage } from "../../base/common/errors.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { Schemas } from "../../base/common/network.js";
+import { isAbsolute, join } from "../../base/common/path.js";
+import { isWindows } from "../../base/common/platform.js";
+import { cwd } from "../../base/common/process.js";
+import { URI } from "../../base/common/uri.js";
+import {
+  addUNCHostToAllowlist,
+  disableUNCAccessRestrictions
+} from "../../base/node/unc.js";
+import { localize } from "../../nls.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { ConfigurationService } from "../../platform/configuration/common/configurationService.js";
+import { IDownloadService } from "../../platform/download/common/download.js";
+import { DownloadService } from "../../platform/download/common/downloadService.js";
+import {
+  buildHelpMessage,
+  buildVersionMessage,
+  OptionDescriptions
+} from "../../platform/environment/node/argv.js";
+import { AllowedExtensionsService } from "../../platform/extensionManagement/common/allowedExtensionsService.js";
+import { IExtensionGalleryManifestService } from "../../platform/extensionManagement/common/extensionGalleryManifest.js";
+import { ExtensionGalleryManifestService } from "../../platform/extensionManagement/common/extensionGalleryManifestService.js";
+import { ExtensionGalleryServiceWithNoStorageService } from "../../platform/extensionManagement/common/extensionGalleryService.js";
+import {
+  IAllowedExtensionsService,
+  IExtensionGalleryService,
+  InstallOptions
+} from "../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionManagementCLI } from "../../platform/extensionManagement/common/extensionManagementCLI.js";
+import { IExtensionsProfileScannerService } from "../../platform/extensionManagement/common/extensionsProfileScannerService.js";
+import { IExtensionsScannerService } from "../../platform/extensionManagement/common/extensionsScannerService.js";
+import {
+  ExtensionManagementService,
+  INativeServerExtensionManagementService
+} from "../../platform/extensionManagement/node/extensionManagementService.js";
+import {
+  ExtensionSignatureVerificationService,
+  IExtensionSignatureVerificationService
+} from "../../platform/extensionManagement/node/extensionSignatureVerificationService.js";
+import { ExtensionsProfileScannerService } from "../../platform/extensionManagement/node/extensionsProfileScannerService.js";
+import { IFileService } from "../../platform/files/common/files.js";
+import { FileService } from "../../platform/files/common/fileService.js";
+import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
+import { SyncDescriptor } from "../../platform/instantiation/common/descriptors.js";
+import { IInstantiationService } from "../../platform/instantiation/common/instantiation.js";
+import { InstantiationService } from "../../platform/instantiation/common/instantiationService.js";
+import { ServiceCollection } from "../../platform/instantiation/common/serviceCollection.js";
+import { ILanguagePackService } from "../../platform/languagePacks/common/languagePacks.js";
+import { NativeLanguagePackService } from "../../platform/languagePacks/node/languagePacks.js";
+import {
+  ConsoleLogger,
+  getLogLevel,
+  ILoggerService,
+  ILogService
+} from "../../platform/log/common/log.js";
+import { LogService } from "../../platform/log/common/logService.js";
+import { LoggerService } from "../../platform/log/node/loggerService.js";
+import { NullPolicyService } from "../../platform/policy/common/policy.js";
+import product from "../../platform/product/common/product.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import { IRequestService } from "../../platform/request/common/request.js";
+import { RequestService } from "../../platform/request/node/requestService.js";
+import { ITelemetryService } from "../../platform/telemetry/common/telemetry.js";
+import { NullTelemetryService } from "../../platform/telemetry/common/telemetryUtils.js";
+import { IUriIdentityService } from "../../platform/uriIdentity/common/uriIdentity.js";
+import { UriIdentityService } from "../../platform/uriIdentity/common/uriIdentityService.js";
+import { IUserDataProfilesService } from "../../platform/userDataProfile/common/userDataProfile.js";
+import { ServerUserDataProfilesService } from "../../platform/userDataProfile/node/userDataProfile.js";
+import { ExtensionsScannerService } from "./extensionsScannerService.js";
+import {
+  IServerEnvironmentService,
+  ServerEnvironmentService,
+  ServerParsedArgs
+} from "./serverEnvironmentService.js";
+class CliMain extends Disposable {
+  constructor(args, remoteDataFolder) {
+    super();
+    this.args = args;
+    this.remoteDataFolder = remoteDataFolder;
+    this.registerListeners();
+  }
+  static {
+    __name(this, "CliMain");
+  }
+  registerListeners() {
+    process.once("exit", () => this.dispose());
+  }
+  async run() {
+    const instantiationService = await this.initServices();
+    await instantiationService.invokeFunction(async (accessor) => {
+      const configurationService = accessor.get(IConfigurationService);
+      const logService = accessor.get(ILogService);
+      if (isWindows) {
+        if (configurationService.getValue(
+          "security.restrictUNCAccess"
+        ) === false) {
+          disableUNCAccessRestrictions();
+        } else {
+          addUNCHostToAllowlist(
+            configurationService.getValue(
+              "security.allowedUNCHosts"
+            )
+          );
+        }
+      }
+      try {
+        await this.doRun(
+          instantiationService.createInstance(
+            ExtensionManagementCLI,
+            new ConsoleLogger(logService.getLevel(), false)
+          )
+        );
+      } catch (error) {
+        logService.error(error);
+        console.error(getErrorMessage(error));
+        throw error;
+      }
+    });
+  }
+  async initServices() {
+    const services = new ServiceCollection();
+    const productService = { _serviceBrand: void 0, ...product };
+    services.set(IProductService, productService);
+    const environmentService = new ServerEnvironmentService(
+      this.args,
+      productService
+    );
+    services.set(IServerEnvironmentService, environmentService);
+    const loggerService = new LoggerService(
+      getLogLevel(environmentService),
+      environmentService.logsHome
+    );
+    services.set(ILoggerService, loggerService);
+    const logService = new LogService(
+      this._register(
+        loggerService.createLogger("remoteCLI", {
+          name: localize("remotecli", "Remote CLI")
+        })
+      )
+    );
+    services.set(ILogService, logService);
+    logService.trace(
+      `Remote configuration data at ${this.remoteDataFolder}`
+    );
+    logService.trace("process arguments:", this.args);
+    const fileService = this._register(new FileService(logService));
+    services.set(IFileService, fileService);
+    fileService.registerProvider(
+      Schemas.file,
+      this._register(new DiskFileSystemProvider(logService))
+    );
+    const uriIdentityService = new UriIdentityService(fileService);
+    services.set(IUriIdentityService, uriIdentityService);
+    const userDataProfilesService = this._register(
+      new ServerUserDataProfilesService(
+        uriIdentityService,
+        environmentService,
+        fileService,
+        logService
+      )
+    );
+    services.set(IUserDataProfilesService, userDataProfilesService);
+    const configurationService = this._register(
+      new ConfigurationService(
+        userDataProfilesService.defaultProfile.settingsResource,
+        fileService,
+        new NullPolicyService(),
+        logService
+      )
+    );
+    services.set(IConfigurationService, configurationService);
+    await Promise.all([
+      configurationService.initialize(),
+      userDataProfilesService.init()
+    ]);
+    services.set(
+      IRequestService,
+      new SyncDescriptor(RequestService, ["remote"])
+    );
+    services.set(IDownloadService, new SyncDescriptor(DownloadService));
+    services.set(ITelemetryService, NullTelemetryService);
+    services.set(
+      IExtensionGalleryManifestService,
+      new SyncDescriptor(ExtensionGalleryManifestService)
+    );
+    services.set(
+      IExtensionGalleryService,
+      new SyncDescriptor(ExtensionGalleryServiceWithNoStorageService)
+    );
+    services.set(
+      IExtensionsProfileScannerService,
+      new SyncDescriptor(ExtensionsProfileScannerService)
+    );
+    services.set(
+      IExtensionsScannerService,
+      new SyncDescriptor(ExtensionsScannerService)
+    );
+    services.set(
+      IExtensionSignatureVerificationService,
+      new SyncDescriptor(ExtensionSignatureVerificationService)
+    );
+    services.set(
+      IAllowedExtensionsService,
+      new SyncDescriptor(AllowedExtensionsService)
+    );
+    services.set(
+      INativeServerExtensionManagementService,
+      new SyncDescriptor(ExtensionManagementService)
+    );
+    services.set(
+      ILanguagePackService,
+      new SyncDescriptor(NativeLanguagePackService)
+    );
+    return new InstantiationService(services);
+  }
+  async doRun(extensionManagementCLI) {
+    if (this.args["list-extensions"]) {
+      return extensionManagementCLI.listExtensions(
+        !!this.args["show-versions"],
+        this.args["category"]
+      );
+    } else if (this.args["install-extension"] || this.args["install-builtin-extension"]) {
+      const installOptions = {
+        isMachineScoped: !!this.args["do-not-sync"],
+        installPreReleaseVersion: !!this.args["pre-release"],
+        donotIncludePackAndDependencies: !!this.args["do-not-include-pack-dependencies"]
+      };
+      return extensionManagementCLI.installExtensions(
+        this.asExtensionIdOrVSIX(this.args["install-extension"] || []),
+        this.asExtensionIdOrVSIX(
+          this.args["install-builtin-extension"] || []
+        ),
+        installOptions,
+        !!this.args["force"]
+      );
+    } else if (this.args["uninstall-extension"]) {
+      return extensionManagementCLI.uninstallExtensions(
+        this.asExtensionIdOrVSIX(this.args["uninstall-extension"]),
+        !!this.args["force"]
+      );
+    } else if (this.args["update-extensions"]) {
+      return extensionManagementCLI.updateExtensions();
+    } else if (this.args["locate-extension"]) {
+      return extensionManagementCLI.locateExtension(
+        this.args["locate-extension"]
+      );
+    }
+  }
+  asExtensionIdOrVSIX(inputs) {
+    return inputs.map(
+      (input) => /\.vsix$/i.test(input) ? URI.file(isAbsolute(input) ? input : join(cwd(), input)) : input
+    );
+  }
+}
+function eventuallyExit(code) {
+  setTimeout(() => process.exit(code), 0);
+}
+__name(eventuallyExit, "eventuallyExit");
+async function run(args, REMOTE_DATA_FOLDER, optionDescriptions) {
+  if (args.help) {
+    const executable = product.serverApplicationName + (isWindows ? ".cmd" : "");
+    console.log(
+      buildHelpMessage(
+        product.nameLong,
+        executable,
+        product.version,
+        optionDescriptions,
+        { noInputFiles: true, noPipe: true }
+      )
+    );
+    return;
+  }
+  if (args.version) {
+    console.log(buildVersionMessage(product.version, product.commit));
+    return;
+  }
+  const cliMain = new CliMain(args, REMOTE_DATA_FOLDER);
+  try {
+    await cliMain.run();
+    eventuallyExit(0);
+  } catch (err) {
+    eventuallyExit(1);
+  } finally {
+    cliMain.dispose();
+  }
+}
+__name(run, "run");
+export {
+  run
+};
+//# sourceMappingURL=remoteExtensionHostAgentCli.js.map

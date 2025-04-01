@@ -1,1 +1,97 @@
-var S=Object.defineProperty;var u=Object.getOwnPropertyDescriptor;var v=(n,o,r,e)=>{for(var i=e>1?void 0:e?u(o,r):o,s=n.length-1,a;s>=0;s--)(a=n[s])&&(i=(e?a(o,r,i):a(i))||i);return e&&i&&S(o,r,i),i},t=(n,o)=>(r,e)=>o(r,e,n);import{CancellationToken as h}from"../../../base/common/cancellation.js";import{IConfigurationService as m}from"../../configuration/common/configuration.js";import{IEnvironmentMainService as f}from"../../environment/electron-main/environmentMainService.js";import{ILifecycleMainService as I}from"../../lifecycle/electron-main/lifecycleMainService.js";import{ILogService as g}from"../../log/common/log.js";import{INativeHostMainService as U}from"../../native/electron-main/nativeHostMainService.js";import{IProductService as M}from"../../product/common/productService.js";import{asJson as w,IRequestService as A}from"../../request/common/request.js";import{State as c,UpdateType as l}from"../common/update.js";import{AbstractUpdateService as y,createUpdateURL as F}from"./abstractUpdateService.js";let d=class extends y{constructor(r,e,i,s,a,b,p){super(r,e,i,s,a,p);this.nativeHostMainService=b}buildUpdateFeedUrl(r){return F(`linux-${process.arch}`,r,this.productService)}doCheckForUpdates(r){this.url&&(this.setState(c.CheckingForUpdates(r)),this.requestService.request({url:this.url},h.None).then(w).then(e=>{!e||!e.url||!e.version||!e.productVersion?this.setState(c.Idle(l.Archive)):this.setState(c.AvailableForDownload(e))}).then(void 0,e=>{this.logService.error(e);const i=r?e.message||e:void 0;this.setState(c.Idle(l.Archive,i))}))}async doDownloadUpdate(r){this.productService.downloadUrl&&this.productService.downloadUrl.length>0?this.nativeHostMainService.openExternal(void 0,this.productService.downloadUrl):r.update.url&&this.nativeHostMainService.openExternal(void 0,r.update.url),this.setState(c.Idle(l.Archive))}};d=v([t(0,I),t(1,m),t(2,f),t(3,A),t(4,g),t(5,U),t(6,M)],d);export{d as LinuxUpdateService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
+import { ILogService } from "../../log/common/log.js";
+import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
+import { IProductService } from "../../product/common/productService.js";
+import { asJson, IRequestService } from "../../request/common/request.js";
+import {
+  AvailableForDownload,
+  IUpdate,
+  State,
+  UpdateType
+} from "../common/update.js";
+import {
+  AbstractUpdateService,
+  createUpdateURL
+} from "./abstractUpdateService.js";
+let LinuxUpdateService = class extends AbstractUpdateService {
+  constructor(lifecycleMainService, configurationService, environmentMainService, requestService, logService, nativeHostMainService, productService) {
+    super(
+      lifecycleMainService,
+      configurationService,
+      environmentMainService,
+      requestService,
+      logService,
+      productService
+    );
+    this.nativeHostMainService = nativeHostMainService;
+  }
+  static {
+    __name(this, "LinuxUpdateService");
+  }
+  buildUpdateFeedUrl(quality) {
+    return createUpdateURL(
+      `linux-${process.arch}`,
+      quality,
+      this.productService
+    );
+  }
+  doCheckForUpdates(context) {
+    if (!this.url) {
+      return;
+    }
+    this.setState(State.CheckingForUpdates(context));
+    this.requestService.request({ url: this.url }, CancellationToken.None).then(asJson).then((update) => {
+      if (!update || !update.url || !update.version || !update.productVersion) {
+        this.setState(State.Idle(UpdateType.Archive));
+      } else {
+        this.setState(State.AvailableForDownload(update));
+      }
+    }).then(void 0, (err) => {
+      this.logService.error(err);
+      const message = !!context ? err.message || err : void 0;
+      this.setState(State.Idle(UpdateType.Archive, message));
+    });
+  }
+  async doDownloadUpdate(state) {
+    if (this.productService.downloadUrl && this.productService.downloadUrl.length > 0) {
+      this.nativeHostMainService.openExternal(
+        void 0,
+        this.productService.downloadUrl
+      );
+    } else if (state.update.url) {
+      this.nativeHostMainService.openExternal(
+        void 0,
+        state.update.url
+      );
+    }
+    this.setState(State.Idle(UpdateType.Archive));
+  }
+};
+LinuxUpdateService = __decorateClass([
+  __decorateParam(0, ILifecycleMainService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, IEnvironmentMainService),
+  __decorateParam(3, IRequestService),
+  __decorateParam(4, ILogService),
+  __decorateParam(5, INativeHostMainService),
+  __decorateParam(6, IProductService)
+], LinuxUpdateService);
+export {
+  LinuxUpdateService
+};
+//# sourceMappingURL=updateService.linux.js.map

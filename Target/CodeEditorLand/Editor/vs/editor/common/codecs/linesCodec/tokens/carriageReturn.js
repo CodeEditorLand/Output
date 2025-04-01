@@ -1,1 +1,60 @@
-import{VSBuffer as m}from"../../../../../base/common/buffer.js";import{Position as i}from"../../../core/position.js";import{Range as b}from"../../../core/range.js";import{BaseToken as c}from"../../baseToken.js";import"./line.js";class t extends c{static symbol="\r";static byte=m.fromString(t.symbol);get byte(){return t.byte}get text(){return t.symbol}static newOnLine(n,r){const{range:e}=n,o=new i(e.startLineNumber,r),s=new i(e.startLineNumber,r+this.symbol.length);return new t(b.fromPositions(o,s))}toString(){return`carriage-return${this.range}`}}export{t as CarriageReturn};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { Position } from "../../../core/position.js";
+import { Range } from "../../../core/range.js";
+import { BaseToken } from "../../baseToken.js";
+import { Line } from "./line.js";
+class CarriageReturn extends BaseToken {
+  static {
+    __name(this, "CarriageReturn");
+  }
+  /**
+   * The underlying symbol of the token.
+   */
+  static symbol = "\r";
+  /**
+   * The byte representation of the {@link symbol}.
+   */
+  static byte = VSBuffer.fromString(CarriageReturn.symbol);
+  /**
+   * The byte representation of the token.
+   */
+  get byte() {
+    return CarriageReturn.byte;
+  }
+  /**
+   * Return text representation of the token.
+   */
+  get text() {
+    return CarriageReturn.symbol;
+  }
+  /**
+   * Create new `CarriageReturn` token with range inside
+   * the given `Line` at the given `column number`.
+   */
+  static newOnLine(line, atColumnNumber) {
+    const { range } = line;
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + this.symbol.length
+    );
+    return new CarriageReturn(
+      Range.fromPositions(startPosition, endPosition)
+    );
+  }
+  /**
+   * Returns a string representation of the token.
+   */
+  toString() {
+    return `carriage-return${this.range}`;
+  }
+}
+export {
+  CarriageReturn
+};
+//# sourceMappingURL=carriageReturn.js.map

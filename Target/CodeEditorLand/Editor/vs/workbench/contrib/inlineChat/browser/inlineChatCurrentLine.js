@@ -1,1 +1,441 @@
-var Z=Object.defineProperty;var ee=Object.getOwnPropertyDescriptor;var V=(h,d,e,o)=>{for(var i=o>1?void 0:o?ee(d,e):d,n=h.length-1,s;n>=0;n--)(s=h[n])&&(i=(o?s(d,e,i):s(i))||i);return o&&i&&Z(d,e,i),i},m=(h,d)=>(e,o)=>d(e,o,h);import{KeyChord as te,KeyCode as N,KeyMod as R}from"../../../../base/common/keyCodes.js";import{Disposable as ie,MutableDisposable as ne}from"../../../../base/common/lifecycle.js";import{autorun as oe,derivedWithStore as re,observableFromEvent as G,observableValue as se}from"../../../../base/common/observable.js";import{isEqual as ae}from"../../../../base/common/resources.js";import{URI as de}from"../../../../base/common/uri.js";import{MouseTargetType as ce}from"../../../../editor/browser/editorBrowser.js";import{EditorAction2 as k}from"../../../../editor/browser/editorExtensions.js";import{EditOperation as le}from"../../../../editor/common/core/editOperation.js";import{Position as X}from"../../../../editor/common/core/position.js";import{Range as M}from"../../../../editor/common/core/range.js";import"../../../../editor/common/editorCommon.js";import{EditorContextKeys as z}from"../../../../editor/common/editorContextKeys.js";import{StandardTokenType as F}from"../../../../editor/common/encodedTokenAttributes.js";import{TrackedRangeStickiness as me}from"../../../../editor/common/model.js";import{localize as w,localize2 as K}from"../../../../nls.js";import{ContextKeyExpr as U,IContextKeyService as ue,RawContextKey as he}from"../../../../platform/contextkey/common/contextkey.js";import{KeybindingWeight as O}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{ACTION_START as B,CTX_INLINE_CHAT_HAS_AGENT as j,CTX_INLINE_CHAT_VISIBLE as q,InlineChatConfigKeys as A}from"../common/inlineChat.js";import{AbstractInline1ChatAction as $}from"./inlineChatActions.js";import{InlineChatController as pe}from"./inlineChatController.js";import"./media/inlineChat.css";import{stringValue as fe}from"../../../../base/browser/cssValue.js";import{createStyleSheet2 as Ce}from"../../../../base/browser/domStylesheets.js";import"../../../../base/browser/mouseEvent.js";import{toAction as ge}from"../../../../base/common/actions.js";import{Emitter as Ie}from"../../../../base/common/event.js";import{observableCodeEditor as be}from"../../../../editor/browser/observableCodeEditor.js";import{PLAINTEXT_LANGUAGE_ID as ye}from"../../../../editor/common/languages/modesRegistry.js";import{IMarkerDecorationsService as ve}from"../../../../editor/common/services/markerDecorations.js";import{InlineCompletionsController as Ee}from"../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";import{ICommandService as Se}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as _e}from"../../../../platform/configuration/common/configuration.js";import{IContextMenuService as we}from"../../../../platform/contextview/browser/contextView.js";import{IKeybindingService as xe}from"../../../../platform/keybinding/common/keybinding.js";import{observableConfigValue as J}from"../../../../platform/observable/common/platformObservableUtils.js";import{IChatAgentService as Te}from"../../chat/common/chatAgents.js";import{ChatAgentLocation as Le}from"../../chat/common/constants.js";const D=new he("inlineChatShowingHint",!1,w("inlineChatShowingHint","Whether inline chat shows a contextual hint")),W="inlineChat.startWithCurrentLine";class yt extends k{constructor(){super({id:W,category:$.category,title:K("startWithCurrentLine","Start in Editor with Current Line"),f1:!0,precondition:U.and(q.negate(),j,z.writable),keybinding:[{when:D,weight:O.WorkbenchContrib+1,primary:R.CtrlCmd|N.KeyI},{weight:O.WorkbenchContrib,primary:te(R.CtrlCmd|N.KeyK,N.KeyI)}]})}async runEditorCommand(d,e){const o=pe.get(e);if(!o||!e.hasModel())return;const i=e.getModel(),n=e.getSelection().positionLineNumber,s=i.getLineContent(n),c=i.getLineFirstNonWhitespaceColumn(n),p=i.getLineMaxColumn(n);let g=[];i.pushEditOperations(null,[le.replace(new M(n,c,n,p),"")],f=>(g=f,null)),await o.run({autoSend:!0,message:s.trim(),position:new X(n,c)})||i.pushEditOperations(null,g,()=>null)}}class vt extends k{constructor(){super({id:"inlineChat.showHint",category:$.category,title:K("showHint","Show Inline Chat Hint"),f1:!1,precondition:U.and(q.negate(),j,z.writable)})}async runEditorCommand(d,e,...o){if(!e.hasModel())return;const i=u.get(e);if(!i)return;const[n,s]=o;if(!de.isUri(n)||!X.isIPosition(s)){i.hide();return}const c=e.getModel();if(!ae(c.uri,n)){i.hide();return}c.tokenization.forceTokenization(s.lineNumber);const p=c.tokenization.getLineTokens(s.lineNumber);let g=0,y=0,f;if(p.forEach(I=>{const b=p.getStandardTokenType(I),x=p.getStartOffset(I),T=p.getEndOffset(I);g+=T-x,b!==F.Other&&(y+=T-x),f=b}),y/g>.25){i.hide();return}if(f===F.Comment){i.hide();return}i.show()}}let u=class extends ie{constructor(e,o,i,n,s,c,p,g){super();this._contextMenuService=p;this._configurationService=g;this._editor=e,this._ctxShowingHint=D.bindTo(o);const y=Ee.get(e);this._store.add(i.onWillExecuteCommand(t=>{(t.commandId===W||t.commandId===B)&&this.hide()})),this._store.add(this._editor.onMouseDown(t=>{t.target.type===ce.CONTENT_TEXT&&t.target.element?.classList.contains("inline-chat-hint-text")&&(t.event.leftButton?(i.executeCommand(W),this.hide()):t.event.rightButton&&(t.event.preventDefault(),this._showContextMenu(t.event,t.target.element?.classList.contains("whitespace")?A.LineEmptyHint:A.LineNLHint)))}));const f=this._store.add(new ne),I=this._editor.createDecorationsCollection(),b=be(e),x=G(n.onDidUpdateKeybindings,t=>n.lookupKeybinding(B)?.getLabel()),T=J(A.LineEmptyHint,!1,this._configurationService),Q=J(A.LineNLHint,!1,this._configurationService),Y=re((t,v)=>{const L=y?.model.read(t)?.state.read(t),E=b.isTextFocused.read(t);let a=b.cursorPosition.read(t);const r=b.model.read(t),C=x.read(t);if(L!==void 0||!C||!a||!r||!E||r.getLanguageId()===ye||r.getLanguageId()==="markdown")return;const S=v.add(new Ie);v.add(r.onDidChangeContent(()=>S.fire())),G(S.event,()=>r.getVersionId()).read(t),a=r.validatePosition(a);const _=this._visibilityObs.read(t),l=r.getLineMaxColumn(a.lineNumber)===a.column,H=r.getLineLastNonWhitespaceColumn(a.lineNumber)===0&&r.getValueLength()>0&&a.column>1;if(H)return T.read(t)?{isEol:l,isWhitespace:H,kb:C,position:a,model:r}:void 0;if(_&&l&&Q.read(t))return{isEol:l,isWhitespace:H,kb:C,position:a,model:r}}),P=Ce();this._store.add(P),this._store.add(oe(t=>{const v=Y.read(t);if(!v){I.clear(),f.clear(),this._ctxShowingHint.reset();return}const L=s.getDefaultAgent(Le.Editor)?.name??w("defaultTitle","Chat"),{position:E,isEol:a,isWhitespace:r,kb:C,model:S}=v,_=["a","inline-chat-hint","inline-chat-hint-text"];let l;r?l="\xA0"+w("title2","{0} to edit with {1}",C,L):a?l="\xA0"+w("title1","{0} to continue with {1}",C,L):(l="\u200A"+C+"\u200A",_.push("embedded")),P.setStyle(`.inline-chat-hint-text::after { content: ${fe(l)} }`),r&&_.push("whitespace"),this._ctxShowingHint.set(!0),I.set([{range:M.fromPositions(E),options:{description:"inline-chat-hint-line",showIfCollapsed:!0,stickiness:me.NeverGrowsWhenTypingAtEdges,afterContentClassName:_.join(" ")}}]),f.value=c.addMarkerSuppression(S.uri,S.validateRange(new M(E.lineNumber,1,E.lineNumber,Number.MAX_SAFE_INTEGER)))}))}static ID="editor.contrib.inlineChatHints";static get(e){return e.getContribution(u.ID)}_editor;_ctxShowingHint;_visibilityObs=se(this,!1);_showContextMenu(e,o){this._contextMenuService.showContextMenu({getAnchor:()=>({x:e.posx,y:e.posy}),getActions:()=>[ge({id:"inlineChat.disableHint",label:w("disableHint","Disable Inline Chat Hint"),run:async()=>{await this._configurationService.updateValue(o,!1)}})]})}show(){this._visibilityObs.set(!0,void 0)}hide(){this._visibilityObs.set(!1,void 0)}};u=V([m(1,ue),m(2,Se),m(3,xe),m(4,Te),m(5,ve),m(6,we),m(7,_e)],u);class Et extends k{constructor(){super({id:"inlineChat.hideHint",title:K("hideHint","Hide Inline Chat Hint"),precondition:D,keybinding:{weight:O.EditorContrib-10,primary:N.Escape}})}async runEditorCommand(d,e){u.get(e)?.hide()}}export{D as CTX_INLINE_CHAT_SHOWING_HINT,Et as HideInlineChatHintAction,yt as InlineChatExpandLineAction,u as InlineChatHintsController,vt as ShowInlineChatHintAction};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { KeyChord, KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import {
+  Disposable,
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  autorun,
+  derivedWithStore,
+  observableFromEvent,
+  observableValue
+} from "../../../../base/common/observable.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  ICodeEditor,
+  MouseTargetType
+} from "../../../../editor/browser/editorBrowser.js";
+import {
+  EditorAction2,
+  ServicesAccessor
+} from "../../../../editor/browser/editorExtensions.js";
+import { EditOperation } from "../../../../editor/common/core/editOperation.js";
+import {
+  IPosition,
+  Position
+} from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { StandardTokenType } from "../../../../editor/common/encodedTokenAttributes.js";
+import {
+  IValidEditOperation,
+  TrackedRangeStickiness
+} from "../../../../editor/common/model.js";
+import { localize, localize2 } from "../../../../nls.js";
+import {
+  ContextKeyExpr,
+  IContextKey,
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  ACTION_START,
+  CTX_INLINE_CHAT_HAS_AGENT,
+  CTX_INLINE_CHAT_VISIBLE,
+  InlineChatConfigKeys
+} from "../common/inlineChat.js";
+import { AbstractInline1ChatAction } from "./inlineChatActions.js";
+import { InlineChatController } from "./inlineChatController.js";
+import "./media/inlineChat.css";
+import { stringValue } from "../../../../base/browser/cssValue.js";
+import { createStyleSheet2 } from "../../../../base/browser/domStylesheets.js";
+import { IMouseEvent } from "../../../../base/browser/mouseEvent.js";
+import { toAction } from "../../../../base/common/actions.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { observableCodeEditor } from "../../../../editor/browser/observableCodeEditor.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../../../../editor/common/languages/modesRegistry.js";
+import { IMarkerDecorationsService } from "../../../../editor/common/services/markerDecorations.js";
+import { InlineCompletionsController } from "../../../../editor/contrib/inlineCompletions/browser/controller/inlineCompletionsController.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { IChatAgentService } from "../../chat/common/chatAgents.js";
+import { ChatAgentLocation } from "../../chat/common/constants.js";
+const CTX_INLINE_CHAT_SHOWING_HINT = new RawContextKey(
+  "inlineChatShowingHint",
+  false,
+  localize(
+    "inlineChatShowingHint",
+    "Whether inline chat shows a contextual hint"
+  )
+);
+const _inlineChatActionId = "inlineChat.startWithCurrentLine";
+class InlineChatExpandLineAction extends EditorAction2 {
+  static {
+    __name(this, "InlineChatExpandLineAction");
+  }
+  constructor() {
+    super({
+      id: _inlineChatActionId,
+      category: AbstractInline1ChatAction.category,
+      title: localize2(
+        "startWithCurrentLine",
+        "Start in Editor with Current Line"
+      ),
+      f1: true,
+      precondition: ContextKeyExpr.and(
+        CTX_INLINE_CHAT_VISIBLE.negate(),
+        CTX_INLINE_CHAT_HAS_AGENT,
+        EditorContextKeys.writable
+      ),
+      keybinding: [
+        {
+          when: CTX_INLINE_CHAT_SHOWING_HINT,
+          weight: KeybindingWeight.WorkbenchContrib + 1,
+          primary: KeyMod.CtrlCmd | KeyCode.KeyI
+        },
+        {
+          weight: KeybindingWeight.WorkbenchContrib,
+          primary: KeyChord(
+            KeyMod.CtrlCmd | KeyCode.KeyK,
+            KeyCode.KeyI
+          )
+        }
+      ]
+    });
+  }
+  async runEditorCommand(_accessor, editor) {
+    const ctrl = InlineChatController.get(editor);
+    if (!ctrl || !editor.hasModel()) {
+      return;
+    }
+    const model = editor.getModel();
+    const lineNumber = editor.getSelection().positionLineNumber;
+    const lineContent = model.getLineContent(lineNumber);
+    const startColumn = model.getLineFirstNonWhitespaceColumn(lineNumber);
+    const endColumn = model.getLineMaxColumn(lineNumber);
+    let undoEdits = [];
+    model.pushEditOperations(
+      null,
+      [
+        EditOperation.replace(
+          new Range(lineNumber, startColumn, lineNumber, endColumn),
+          ""
+        )
+      ],
+      (edits) => {
+        undoEdits = edits;
+        return null;
+      }
+    );
+    const accepted = await ctrl.run({
+      autoSend: true,
+      message: lineContent.trim(),
+      position: new Position(lineNumber, startColumn)
+    });
+    if (!accepted) {
+      model.pushEditOperations(null, undoEdits, () => null);
+    }
+  }
+}
+class ShowInlineChatHintAction extends EditorAction2 {
+  static {
+    __name(this, "ShowInlineChatHintAction");
+  }
+  constructor() {
+    super({
+      id: "inlineChat.showHint",
+      category: AbstractInline1ChatAction.category,
+      title: localize2("showHint", "Show Inline Chat Hint"),
+      f1: false,
+      precondition: ContextKeyExpr.and(
+        CTX_INLINE_CHAT_VISIBLE.negate(),
+        CTX_INLINE_CHAT_HAS_AGENT,
+        EditorContextKeys.writable
+      )
+    });
+  }
+  async runEditorCommand(_accessor, editor, ...args) {
+    if (!editor.hasModel()) {
+      return;
+    }
+    const ctrl = InlineChatHintsController.get(editor);
+    if (!ctrl) {
+      return;
+    }
+    const [uri, position] = args;
+    if (!URI.isUri(uri) || !Position.isIPosition(position)) {
+      ctrl.hide();
+      return;
+    }
+    const model = editor.getModel();
+    if (!isEqual(model.uri, uri)) {
+      ctrl.hide();
+      return;
+    }
+    model.tokenization.forceTokenization(position.lineNumber);
+    const tokens = model.tokenization.getLineTokens(position.lineNumber);
+    let totalLength = 0;
+    let specialLength = 0;
+    let lastTokenType;
+    tokens.forEach((idx) => {
+      const tokenType = tokens.getStandardTokenType(idx);
+      const startOffset = tokens.getStartOffset(idx);
+      const endOffset = tokens.getEndOffset(idx);
+      totalLength += endOffset - startOffset;
+      if (tokenType !== StandardTokenType.Other) {
+        specialLength += endOffset - startOffset;
+      }
+      lastTokenType = tokenType;
+    });
+    if (specialLength / totalLength > 0.25) {
+      ctrl.hide();
+      return;
+    }
+    if (lastTokenType === StandardTokenType.Comment) {
+      ctrl.hide();
+      return;
+    }
+    ctrl.show();
+  }
+}
+let InlineChatHintsController = class extends Disposable {
+  constructor(editor, contextKeyService, commandService, keybindingService, chatAgentService, markerDecorationService, _contextMenuService, _configurationService) {
+    super();
+    this._contextMenuService = _contextMenuService;
+    this._configurationService = _configurationService;
+    this._editor = editor;
+    this._ctxShowingHint = CTX_INLINE_CHAT_SHOWING_HINT.bindTo(contextKeyService);
+    const ghostCtrl = InlineCompletionsController.get(editor);
+    this._store.add(
+      commandService.onWillExecuteCommand((e) => {
+        if (e.commandId === _inlineChatActionId || e.commandId === ACTION_START) {
+          this.hide();
+        }
+      })
+    );
+    this._store.add(
+      this._editor.onMouseDown((e) => {
+        if (e.target.type !== MouseTargetType.CONTENT_TEXT) {
+          return;
+        }
+        if (!e.target.element?.classList.contains(
+          "inline-chat-hint-text"
+        )) {
+          return;
+        }
+        if (e.event.leftButton) {
+          commandService.executeCommand(_inlineChatActionId);
+          this.hide();
+        } else if (e.event.rightButton) {
+          e.event.preventDefault();
+          this._showContextMenu(
+            e.event,
+            e.target.element?.classList.contains("whitespace") ? InlineChatConfigKeys.LineEmptyHint : InlineChatConfigKeys.LineNLHint
+          );
+        }
+      })
+    );
+    const markerSuppression = this._store.add(new MutableDisposable());
+    const decos = this._editor.createDecorationsCollection();
+    const editorObs = observableCodeEditor(editor);
+    const keyObs = observableFromEvent(
+      keybindingService.onDidUpdateKeybindings,
+      (_) => keybindingService.lookupKeybinding(ACTION_START)?.getLabel()
+    );
+    const configHintEmpty = observableConfigValue(
+      InlineChatConfigKeys.LineEmptyHint,
+      false,
+      this._configurationService
+    );
+    const configHintNL = observableConfigValue(
+      InlineChatConfigKeys.LineNLHint,
+      false,
+      this._configurationService
+    );
+    const showDataObs = derivedWithStore((r, store) => {
+      const ghostState = ghostCtrl?.model.read(r)?.state.read(r);
+      const textFocus = editorObs.isTextFocused.read(r);
+      let position = editorObs.cursorPosition.read(r);
+      const model = editorObs.model.read(r);
+      const kb = keyObs.read(r);
+      if (ghostState !== void 0 || !kb || !position || !model || !textFocus) {
+        return void 0;
+      }
+      if (model.getLanguageId() === PLAINTEXT_LANGUAGE_ID || model.getLanguageId() === "markdown") {
+        return void 0;
+      }
+      const emitter = store.add(new Emitter());
+      store.add(model.onDidChangeContent(() => emitter.fire()));
+      observableFromEvent(emitter.event, () => model.getVersionId()).read(
+        r
+      );
+      position = model.validatePosition(position);
+      const visible = this._visibilityObs.read(r);
+      const isEol = model.getLineMaxColumn(position.lineNumber) === position.column;
+      const isWhitespace = model.getLineLastNonWhitespaceColumn(position.lineNumber) === 0 && model.getValueLength() > 0 && position.column > 1;
+      if (isWhitespace) {
+        return configHintEmpty.read(r) ? { isEol, isWhitespace, kb, position, model } : void 0;
+      }
+      if (visible && isEol && configHintNL.read(r)) {
+        return { isEol, isWhitespace, kb, position, model };
+      }
+      return void 0;
+    });
+    const style = createStyleSheet2();
+    this._store.add(style);
+    this._store.add(
+      autorun((r) => {
+        const showData = showDataObs.read(r);
+        if (!showData) {
+          decos.clear();
+          markerSuppression.clear();
+          this._ctxShowingHint.reset();
+          return;
+        }
+        const agentName = chatAgentService.getDefaultAgent(ChatAgentLocation.Editor)?.name ?? localize("defaultTitle", "Chat");
+        const { position, isEol, isWhitespace, kb, model } = showData;
+        const inlineClassName = [
+          "a",
+          "inline-chat-hint",
+          "inline-chat-hint-text"
+        ];
+        let content;
+        if (isWhitespace) {
+          content = "\xA0" + localize(
+            "title2",
+            "{0} to edit with {1}",
+            kb,
+            agentName
+          );
+        } else if (isEol) {
+          content = "\xA0" + localize(
+            "title1",
+            "{0} to continue with {1}",
+            kb,
+            agentName
+          );
+        } else {
+          content = "\u200A" + kb + "\u200A";
+          inlineClassName.push("embedded");
+        }
+        style.setStyle(
+          `.inline-chat-hint-text::after { content: ${stringValue(content)} }`
+        );
+        if (isWhitespace) {
+          inlineClassName.push("whitespace");
+        }
+        this._ctxShowingHint.set(true);
+        decos.set([
+          {
+            range: Range.fromPositions(position),
+            options: {
+              description: "inline-chat-hint-line",
+              showIfCollapsed: true,
+              stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+              afterContentClassName: inlineClassName.join(" ")
+            }
+          }
+        ]);
+        markerSuppression.value = markerDecorationService.addMarkerSuppression(
+          model.uri,
+          model.validateRange(
+            new Range(
+              position.lineNumber,
+              1,
+              position.lineNumber,
+              Number.MAX_SAFE_INTEGER
+            )
+          )
+        );
+      })
+    );
+  }
+  static {
+    __name(this, "InlineChatHintsController");
+  }
+  static ID = "editor.contrib.inlineChatHints";
+  static get(editor) {
+    return editor.getContribution(
+      InlineChatHintsController.ID
+    );
+  }
+  _editor;
+  _ctxShowingHint;
+  _visibilityObs = observableValue(this, false);
+  _showContextMenu(event, setting) {
+    this._contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => ({ x: event.posx, y: event.posy }), "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => [
+        toAction({
+          id: "inlineChat.disableHint",
+          label: localize("disableHint", "Disable Inline Chat Hint"),
+          run: /* @__PURE__ */ __name(async () => {
+            await this._configurationService.updateValue(
+              setting,
+              false
+            );
+          }, "run")
+        })
+      ], "getActions")
+    });
+  }
+  show() {
+    this._visibilityObs.set(true, void 0);
+  }
+  hide() {
+    this._visibilityObs.set(false, void 0);
+  }
+};
+InlineChatHintsController = __decorateClass([
+  __decorateParam(1, IContextKeyService),
+  __decorateParam(2, ICommandService),
+  __decorateParam(3, IKeybindingService),
+  __decorateParam(4, IChatAgentService),
+  __decorateParam(5, IMarkerDecorationsService),
+  __decorateParam(6, IContextMenuService),
+  __decorateParam(7, IConfigurationService)
+], InlineChatHintsController);
+class HideInlineChatHintAction extends EditorAction2 {
+  static {
+    __name(this, "HideInlineChatHintAction");
+  }
+  constructor() {
+    super({
+      id: "inlineChat.hideHint",
+      title: localize2("hideHint", "Hide Inline Chat Hint"),
+      precondition: CTX_INLINE_CHAT_SHOWING_HINT,
+      keybinding: {
+        weight: KeybindingWeight.EditorContrib - 10,
+        primary: KeyCode.Escape
+      }
+    });
+  }
+  async runEditorCommand(_accessor, editor) {
+    InlineChatHintsController.get(editor)?.hide();
+  }
+}
+export {
+  CTX_INLINE_CHAT_SHOWING_HINT,
+  HideInlineChatHintAction,
+  InlineChatExpandLineAction,
+  InlineChatHintsController,
+  ShowInlineChatHintAction
+};
+//# sourceMappingURL=inlineChatCurrentLine.js.map

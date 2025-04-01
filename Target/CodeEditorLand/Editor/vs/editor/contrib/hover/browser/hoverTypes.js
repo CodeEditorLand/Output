@@ -1,1 +1,97 @@
-import"../../../../base/browser/dom.js";import"../../../../base/common/async.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/scrollable.js";import"../../../../platform/instantiation/common/instantiation.js";import"../../../browser/editorBrowser.js";import"../../../common/core/position.js";import"../../../common/core/range.js";import"../../../common/model.js";import"./hoverOperation.js";var i=(r=>(r[r.Range=1]="Range",r[r.ForeignElement=2]="ForeignElement",r))(i||{});class w{constructor(e,r,t,n){this.priority=e;this.range=r;this.initialMousePosX=t;this.initialMousePosY=n}type=1;equals(e){return e.type===1&&this.range.equalsRange(e.range)}canAdoptVisibleHover(e,r){return e.type===1&&r.lineNumber===this.range.startLineNumber}}class F{constructor(e,r,t,n,a,s){this.priority=e;this.owner=r;this.range=t;this.initialMousePosX=n;this.initialMousePosY=a;this.supportsMarkerHover=s}type=2;equals(e){return e.type===2&&this.owner===e.owner}canAdoptVisibleHover(e,r){return e.type===2&&this.owner===e.owner}}class B{constructor(e,r){this.renderedHoverParts=e;this.disposables=r}dispose(){for(const e of this.renderedHoverParts)e.dispose();this.disposables?.dispose()}}const L=new class{_participants=[];register(e){this._participants.push(e)}getAll(){return this._participants}};export{i as HoverAnchorType,F as HoverForeignElementAnchor,L as HoverParticipantRegistry,w as HoverRangeAnchor,B as RenderedHoverParts};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Dimension } from "../../../../base/browser/dom.js";
+import { AsyncIterableObject } from "../../../../base/common/async.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { ScrollEvent } from "../../../../base/common/scrollable.js";
+import {
+  BrandedService,
+  IConstructorSignature
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  ICodeEditor,
+  IEditorMouseEvent
+} from "../../../browser/editorBrowser.js";
+import { Position } from "../../../common/core/position.js";
+import { Range } from "../../../common/core/range.js";
+import { IModelDecoration } from "../../../common/model.js";
+import { HoverStartSource } from "./hoverOperation.js";
+var HoverAnchorType = /* @__PURE__ */ ((HoverAnchorType2) => {
+  HoverAnchorType2[HoverAnchorType2["Range"] = 1] = "Range";
+  HoverAnchorType2[HoverAnchorType2["ForeignElement"] = 2] = "ForeignElement";
+  return HoverAnchorType2;
+})(HoverAnchorType || {});
+class HoverRangeAnchor {
+  constructor(priority, range, initialMousePosX, initialMousePosY) {
+    this.priority = priority;
+    this.range = range;
+    this.initialMousePosX = initialMousePosX;
+    this.initialMousePosY = initialMousePosY;
+  }
+  static {
+    __name(this, "HoverRangeAnchor");
+  }
+  type = 1 /* Range */;
+  equals(other) {
+    return other.type === 1 /* Range */ && this.range.equalsRange(other.range);
+  }
+  canAdoptVisibleHover(lastAnchor, showAtPosition) {
+    return lastAnchor.type === 1 /* Range */ && showAtPosition.lineNumber === this.range.startLineNumber;
+  }
+}
+class HoverForeignElementAnchor {
+  constructor(priority, owner, range, initialMousePosX, initialMousePosY, supportsMarkerHover) {
+    this.priority = priority;
+    this.owner = owner;
+    this.range = range;
+    this.initialMousePosX = initialMousePosX;
+    this.initialMousePosY = initialMousePosY;
+    this.supportsMarkerHover = supportsMarkerHover;
+  }
+  static {
+    __name(this, "HoverForeignElementAnchor");
+  }
+  type = 2 /* ForeignElement */;
+  equals(other) {
+    return other.type === 2 /* ForeignElement */ && this.owner === other.owner;
+  }
+  canAdoptVisibleHover(lastAnchor, showAtPosition) {
+    return lastAnchor.type === 2 /* ForeignElement */ && this.owner === lastAnchor.owner;
+  }
+}
+class RenderedHoverParts {
+  constructor(renderedHoverParts, disposables) {
+    this.renderedHoverParts = renderedHoverParts;
+    this.disposables = disposables;
+  }
+  static {
+    __name(this, "RenderedHoverParts");
+  }
+  dispose() {
+    for (const part of this.renderedHoverParts) {
+      part.dispose();
+    }
+    this.disposables?.dispose();
+  }
+}
+const HoverParticipantRegistry = new class HoverParticipantRegistry2 {
+  static {
+    __name(this, "HoverParticipantRegistry");
+  }
+  _participants = [];
+  register(ctor) {
+    this._participants.push(ctor);
+  }
+  getAll() {
+    return this._participants;
+  }
+}();
+export {
+  HoverAnchorType,
+  HoverForeignElementAnchor,
+  HoverParticipantRegistry,
+  HoverRangeAnchor,
+  RenderedHoverParts
+};
+//# sourceMappingURL=hoverTypes.js.map

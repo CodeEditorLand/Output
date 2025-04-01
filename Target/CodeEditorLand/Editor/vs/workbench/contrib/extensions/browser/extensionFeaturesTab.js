@@ -1,18 +1,1040 @@
-var me=Object.defineProperty;var pe=Object.getOwnPropertyDescriptor;var $=(E,u,e,t)=>{for(var n=t>1?void 0:t?pe(u,e):u,r=E.length-1,i;r>=0;r--)(i=E[r])&&(n=(t?i(u,e,n):i(n))||n);return t&&n&&me(u,e,n),n},x=(E,u)=>(e,t)=>u(e,t,E);import{$ as a,append as c,clearNode as R}from"../../../../base/browser/dom.js";import{renderMarkdown as Q}from"../../../../base/browser/markdownRenderer.js";import{Button as he}from"../../../../base/browser/ui/button/button.js";import{KeybindingLabel as fe}from"../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import"../../../../base/browser/ui/list/list.js";import{DomScrollableElement as ve}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{SeverityIcon as ge}from"../../../../base/browser/ui/severityIcon/severityIcon.js";import{Orientation as be,Sizing as xe,SplitView as Ie}from"../../../../base/browser/ui/splitview/splitview.js";import{Codicon as B}from"../../../../base/common/codicons.js";import{Color as K}from"../../../../base/common/color.js";import{getErrorMessage as ye,onUnexpectedError as ee}from"../../../../base/common/errors.js";import{Emitter as Ee,Event as te}from"../../../../base/common/event.js";import{isMarkdownString as ne,MarkdownString as N}from"../../../../base/common/htmlContent.js";import{ResolvedKeybinding as we}from"../../../../base/common/keybindings.js";import{Disposable as ie,DisposableStore as U,MutableDisposable as X,toDisposable as O}from"../../../../base/common/lifecycle.js";import{OS as Se}from"../../../../base/common/platform.js";import k from"../../../../base/common/severity.js";import{ThemeIcon as De}from"../../../../base/common/themables.js";import{localize as f}from"../../../../nls.js";import{IDialogService as Me}from"../../../../platform/dialogs/common/dialogs.js";import{getExtensionId as q}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{ExtensionIdentifier as y}from"../../../../platform/extensions/common/extensions.js";import{IHoverService as Te}from"../../../../platform/hover/browser/hover.js";import{SyncDescriptor as Fe}from"../../../../platform/instantiation/common/descriptors.js";import{IInstantiationService as re}from"../../../../platform/instantiation/common/instantiation.js";import{WorkbenchList as Ae}from"../../../../platform/list/browser/listService.js";import{IOpenerService as se}from"../../../../platform/opener/common/opener.js";import{Registry as ae}from"../../../../platform/registry/common/platform.js";import{defaultButtonStyles as ke,defaultKeybindingLabelStyles as Ce}from"../../../../platform/theme/browser/defaultStyles.js";import{chartAxis as oe,chartGuide as Le,chartLine as $e,foreground as Re}from"../../../../platform/theme/common/colorRegistry.js";import{asCssVariable as H}from"../../../../platform/theme/common/colorUtils.js";import{IThemeService as Ne,Themable as He}from"../../../../platform/theme/common/themeService.js";import{PANEL_SECTION_BORDER as Ve}from"../../../common/theme.js";import{Extensions as de,IExtensionFeaturesManagementService as Y}from"../../../services/extensionManagement/common/extensionFeatures.js";import{IExtensionService as _e}from"../../../services/extensions/common/extensions.js";import{errorIcon as le,infoIcon as Pe,warningIcon as ue}from"./extensionsIcons.js";let C=class extends ie{constructor(e,t,n,r){super();this.extensionService=e;this.openerService=t;this.hoverService=n;this.extensionFeaturesManagementService=r}static ID="runtimeStatus";type="element";shouldRender(e){const t=new y(q(e.publisher,e.name));return this.extensionService.extensions.some(n=>y.equals(n.identifier,t))?!!e.main||!!e.browser:!1}render(e){const t=new U,n=new y(q(e.publisher,e.name)),r=t.add(new Ee);return t.add(this.extensionService.onDidChangeExtensionsStatus(i=>{i.some(l=>y.equals(l,n))&&r.fire(this.createElement(e,t))})),t.add(this.extensionFeaturesManagementService.onDidChangeAccessData(i=>r.fire(this.createElement(e,t)))),{onDidChange:r.event,data:this.createElement(e,t),dispose:()=>t.dispose()}}createElement(e,t){const n=a(".runtime-status"),r=new y(q(e.publisher,e.name)),i=this.extensionService.getExtensionsStatus()[r.value];if(this.extensionService.extensions.some(s=>y.equals(s.identifier,r))){const s=new N;s.appendMarkdown(`### ${f("activation","Activation")}
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { $, append, clearNode } from "../../../../base/browser/dom.js";
+import { renderMarkdown } from "../../../../base/browser/markdownRenderer.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import {
+  IListRenderer,
+  IListVirtualDelegate
+} from "../../../../base/browser/ui/list/list.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
+import {
+  Orientation,
+  Sizing,
+  SplitView
+} from "../../../../base/browser/ui/splitview/splitview.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Color } from "../../../../base/common/color.js";
+import {
+  getErrorMessage,
+  onUnexpectedError
+} from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  IMarkdownString,
+  isMarkdownString,
+  MarkdownString
+} from "../../../../base/common/htmlContent.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import {
+  Disposable,
+  DisposableStore,
+  IDisposable,
+  MutableDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { OS } from "../../../../base/common/platform.js";
+import Severity from "../../../../base/common/severity.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { getExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import {
+  ExtensionIdentifier,
+  IExtensionManifest
+} from "../../../../platform/extensions/common/extensions.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  defaultButtonStyles,
+  defaultKeybindingLabelStyles
+} from "../../../../platform/theme/browser/defaultStyles.js";
+import {
+  chartAxis,
+  chartGuide,
+  chartLine,
+  foreground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import { asCssVariable } from "../../../../platform/theme/common/colorUtils.js";
+import {
+  IThemeService,
+  Themable
+} from "../../../../platform/theme/common/themeService.js";
+import { PANEL_SECTION_BORDER } from "../../../common/theme.js";
+import {
+  Extensions,
+  IExtensionFeatureDescriptor,
+  IExtensionFeatureMarkdownAndTableRenderer,
+  IExtensionFeatureMarkdownRenderer,
+  IExtensionFeatureRenderer,
+  IExtensionFeaturesManagementService,
+  IExtensionFeaturesRegistry,
+  IExtensionFeatureTableRenderer,
+  IRenderedData,
+  ITableData
+} from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { errorIcon, infoIcon, warningIcon } from "./extensionsIcons.js";
+let RuntimeStatusMarkdownRenderer = class extends Disposable {
+  constructor(extensionService, openerService, hoverService, extensionFeaturesManagementService) {
+    super();
+    this.extensionService = extensionService;
+    this.openerService = openerService;
+    this.hoverService = hoverService;
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+  }
+  static {
+    __name(this, "RuntimeStatusMarkdownRenderer");
+  }
+  static ID = "runtimeStatus";
+  type = "element";
+  shouldRender(manifest) {
+    const extensionId = new ExtensionIdentifier(
+      getExtensionId(manifest.publisher, manifest.name)
+    );
+    if (!this.extensionService.extensions.some(
+      (e) => ExtensionIdentifier.equals(e.identifier, extensionId)
+    )) {
+      return false;
+    }
+    return !!manifest.main || !!manifest.browser;
+  }
+  render(manifest) {
+    const disposables = new DisposableStore();
+    const extensionId = new ExtensionIdentifier(
+      getExtensionId(manifest.publisher, manifest.name)
+    );
+    const emitter = disposables.add(new Emitter());
+    disposables.add(
+      this.extensionService.onDidChangeExtensionsStatus((e) => {
+        if (e.some(
+          (extension) => ExtensionIdentifier.equals(extension, extensionId)
+        )) {
+          emitter.fire(this.createElement(manifest, disposables));
+        }
+      })
+    );
+    disposables.add(
+      this.extensionFeaturesManagementService.onDidChangeAccessData(
+        (e) => emitter.fire(this.createElement(manifest, disposables))
+      )
+    );
+    return {
+      onDidChange: emitter.event,
+      data: this.createElement(manifest, disposables),
+      dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+    };
+  }
+  createElement(manifest, disposables) {
+    const container = $(".runtime-status");
+    const extensionId = new ExtensionIdentifier(
+      getExtensionId(manifest.publisher, manifest.name)
+    );
+    const status = this.extensionService.getExtensionsStatus()[extensionId.value];
+    if (this.extensionService.extensions.some(
+      (extension) => ExtensionIdentifier.equals(extension.identifier, extensionId)
+    )) {
+      const data = new MarkdownString();
+      data.appendMarkdown(
+        `### ${localize("activation", "Activation")}
 
-`),i.activationTimes?i.activationTimes.activationReason.startup?s.appendMarkdown(`Activated on Startup: \`${i.activationTimes.activateCallTime}ms\``):s.appendMarkdown(`Activated by \`${i.activationTimes.activationReason.activationEvent}\` event: \`${i.activationTimes.activateCallTime}ms\``):s.appendMarkdown("Not yet activated"),this.renderMarkdown(s,n,t)}const l=ae.as(de.ExtensionFeaturesRegistry).getExtensionFeatures();for(const s of l){const o=this.extensionFeaturesManagementService.getAccessData(r,s.id);if(o){if(this.renderMarkdown(new N(`
- ### ${f("label","{0} Usage",s.label)}
+`
+      );
+      if (status.activationTimes) {
+        if (status.activationTimes.activationReason.startup) {
+          data.appendMarkdown(
+            `Activated on Startup: \`${status.activationTimes.activateCallTime}ms\``
+          );
+        } else {
+          data.appendMarkdown(
+            `Activated by \`${status.activationTimes.activationReason.activationEvent}\` event: \`${status.activationTimes.activateCallTime}ms\``
+          );
+        }
+      } else {
+        data.appendMarkdown("Not yet activated");
+      }
+      this.renderMarkdown(data, container, disposables);
+    }
+    const features = Registry.as(
+      Extensions.ExtensionFeaturesRegistry
+    ).getExtensionFeatures();
+    for (const feature of features) {
+      const accessData = this.extensionFeaturesManagementService.getAccessData(
+        extensionId,
+        feature.id
+      );
+      if (accessData) {
+        this.renderMarkdown(
+          new MarkdownString(
+            `
+ ### ${localize("label", "{0} Usage", feature.label)}
 
-`),n,t),o.accessTimes.length){const m=c(n,a(".feature-chart-description",void 0,f("chartDescription","There were {0} {1} requests from this extension in the last 30 days.",o?.accessTimes.length,s.accessDataLabel??s.label)));m.style.marginBottom="8px",this.renderRequestsChart(n,o.accessTimes,t)}const d=o?.current?.status;if(d){const m=new N;d?.severity===k.Error&&m.appendMarkdown(`$(${le.id}) ${d.message}
+`
+          ),
+          container,
+          disposables
+        );
+        if (accessData.accessTimes.length) {
+          const description = append(
+            container,
+            $(
+              ".feature-chart-description",
+              void 0,
+              localize(
+                "chartDescription",
+                "There were {0} {1} requests from this extension in the last 30 days.",
+                accessData?.accessTimes.length,
+                feature.accessDataLabel ?? feature.label
+              )
+            )
+          );
+          description.style.marginBottom = "8px";
+          this.renderRequestsChart(
+            container,
+            accessData.accessTimes,
+            disposables
+          );
+        }
+        const status2 = accessData?.current?.status;
+        if (status2) {
+          const data = new MarkdownString();
+          if (status2?.severity === Severity.Error) {
+            data.appendMarkdown(
+              `$(${errorIcon.id}) ${status2.message}
 
-`),d?.severity===k.Warning&&m.appendMarkdown(`$(${ue.id}) ${d.message}
+`
+            );
+          }
+          if (status2?.severity === Severity.Warning) {
+            data.appendMarkdown(
+              `$(${warningIcon.id}) ${status2.message}
 
-`),m.value&&this.renderMarkdown(m,n,t)}}}if(i.runtimeErrors.length||i.messages.length){const s=new N;if(i.runtimeErrors.length){s.appendMarkdown(`
- ### ${f("uncaught errors","Uncaught Errors ({0})",i.runtimeErrors.length)}
-`);for(const o of i.runtimeErrors)s.appendMarkdown(`$(${B.error.id})&nbsp;${ye(o)}
+`
+            );
+          }
+          if (data.value) {
+            this.renderMarkdown(data, container, disposables);
+          }
+        }
+      }
+    }
+    if (status.runtimeErrors.length || status.messages.length) {
+      const data = new MarkdownString();
+      if (status.runtimeErrors.length) {
+        data.appendMarkdown(
+          `
+ ### ${localize("uncaught errors", "Uncaught Errors ({0})", status.runtimeErrors.length)}
+`
+        );
+        for (const error of status.runtimeErrors) {
+          data.appendMarkdown(
+            `$(${Codicon.error.id})&nbsp;${getErrorMessage(error)}
 
-`)}if(i.messages.length){s.appendMarkdown(`
- ### ${f("messaages","Messages ({0})",i.messages.length)}
-`);for(const o of i.messages)s.appendMarkdown(`$(${(o.type===k.Error?B.error:o.type===k.Warning?B.warning:B.info).id})&nbsp;${o.message}
+`
+          );
+        }
+      }
+      if (status.messages.length) {
+        data.appendMarkdown(
+          `
+ ### ${localize("messaages", "Messages ({0})", status.messages.length)}
+`
+        );
+        for (const message of status.messages) {
+          data.appendMarkdown(
+            `$(${(message.type === Severity.Error ? Codicon.error : message.type === Severity.Warning ? Codicon.warning : Codicon.info).id})&nbsp;${message.message}
 
-`)}s.value&&this.renderMarkdown(s,n,t)}return n}renderMarkdown(e,t,n){const{element:r,dispose:i}=Q({value:e.value,isTrusted:e.isTrusted,supportThemeIcons:!0},{actionHandler:{callback:l=>this.openerService.open(l,{allowCommands:!!e.isTrusted}).catch(ee),disposables:n}});n.add(O(i)),c(t,r)}renderRequestsChart(e,t,n){const l={top:0,right:4,bottom:20,left:4},s=450-l.left-l.right,o=250-l.top-l.bottom,d=c(e,a(".feature-chart-container"));d.style.position="relative";const m=c(d,a(".feature-chart-tooltip"));m.style.position="absolute",m.style.width="0px",m.style.height="0px";let w=100;const M=new Map;for(const p of t){const v=`${p.getDate()} ${p.toLocaleString("default",{month:"short"})}`;M.set(v,(M.get(v)??0)+1),w=Math.max(w,M.get(v))}const P=new Date,G=[];for(let p=0;p<=30;p++){const v=new Date(P);v.setDate(P.getDate()-(30-p));const A=`${v.getDate()} ${v.toLocaleString("default",{month:"short"})}`,h=M.get(A)??0,g=p/30*s,b=o-h/w*o;G.push({x:g,y:b,date:A,count:h})}const ce=c(d,a(".feature-chart")),S=c(ce,a.SVG("svg"));S.setAttribute("width","450px"),S.setAttribute("height","250px"),S.setAttribute("viewBox","0 0 450 250");const D=a.SVG("g");D.setAttribute("transform",`translate(${l.left},${l.top})`),S.appendChild(D);const T=a.SVG("line");T.setAttribute("x1","0"),T.setAttribute("y1",`${o}`),T.setAttribute("x2",`${s}`),T.setAttribute("y2",`${o}`),T.setAttribute("stroke",H(oe)),T.setAttribute("stroke-width","1px"),D.appendChild(T);for(let p=1;p<=30;p+=7){const v=new Date(P);v.setDate(P.getDate()-(30-p));const A=`${v.getDate()} ${v.toLocaleString("default",{month:"short"})}`,h=p/30*s,g=a.SVG("line");g.setAttribute("x1",`${h}`),g.setAttribute("y1",`${o}`),g.setAttribute("x2",`${h}`),g.setAttribute("y2",`${o+10}`),g.setAttribute("stroke",H(oe)),g.setAttribute("stroke-width","1px"),D.appendChild(g);const b=a.SVG("line");b.setAttribute("x1",`${h}`),b.setAttribute("y1","0"),b.setAttribute("x2",`${h}`),b.setAttribute("y2",`${o}`),b.setAttribute("stroke",H(Le)),b.setAttribute("stroke-width","1px"),D.appendChild(b);const I=a.SVG("text");I.setAttribute("x",`${h}`),I.setAttribute("y","250"),I.setAttribute("text-anchor","middle"),I.setAttribute("fill",H(Re)),I.setAttribute("font-size","10px"),I.textContent=A,D.appendChild(I)}const L=a.SVG("polyline");L.setAttribute("fill","none"),L.setAttribute("stroke",H($e)),L.setAttribute("stroke-width","2px"),L.setAttribute("points",G.map(p=>`${p.x},${p.y}`).join(" ")),D.appendChild(L);const F=a.SVG("circle");F.setAttribute("r","4px"),F.style.display="none",D.appendChild(F);const z=n.add(new X),Z=p=>{const v=S.getBoundingClientRect(),A=p.clientX-v.left-l.left;let h,g=1/0;G.forEach(b=>{const I=Math.abs(b.x-A);I<g&&(g=I,h=b)}),h?(F.setAttribute("cx",`${h.x}`),F.setAttribute("cy",`${h.y}`),F.style.display="block",m.style.left=`${h.x+24}px`,m.style.top=`${h.y+14}px`,z.value=this.hoverService.showInstantHover({content:new N(`${h.date}: ${h.count} requests`),target:m,appearance:{showPointer:!0,skipFadeInAnimation:!0}})):z.value=void 0};S.addEventListener("mousemove",Z),n.add(O(()=>S.removeEventListener("mousemove",Z)));const J=()=>{F.style.display="none",z.value=void 0};S.addEventListener("mouseleave",J),n.add(O(()=>S.removeEventListener("mouseleave",J)))}};C=$([x(0,_e),x(1,se),x(2,Te),x(3,Y)],C);const j={id:C.ID,label:f("runtime","Runtime Status"),access:{canToggle:!1},renderer:new Fe(C)};let W=class extends He{constructor(e,t,n,r){super(n);this.manifest=e;this.feature=t;this.instantiationService=r;this.extensionId=new y(q(e.publisher,e.name)),this.domNode=a("div.subcontent.feature-contributions"),this.create()}domNode;featureView=this._register(new X);featureViewDimension;layoutParticipants=[];extensionId;layout(e,t){this.layoutParticipants.forEach(n=>n.layout(e,t))}create(){const e=this.getFeatures();if(e.length===0){c(a(".no-features"),this.domNode).textContent=f("noFeatures","No features contributed.");return}const t=this._register(new Ie(this.domNode,{orientation:be.HORIZONTAL,proportionalLayout:!0}));this.layoutParticipants.push({layout:(s,o)=>{t.el.style.height=`${s-14}px`,t.layout(o)}});const n=a(".features-list-container"),r=this._register(this.createFeaturesList(n));r.splice(0,r.length,e);const i=a(".feature-view-container");this._register(r.onDidChangeSelection(s=>{const o=s.elements[0];o&&this.showFeatureView(o,i)}));const l=this.feature?e.findIndex(s=>s.id===this.feature):0;r.setSelection([l===-1?0:l]),t.addView({onDidChange:te.None,element:n,minimumSize:100,maximumSize:Number.POSITIVE_INFINITY,layout:(s,o,d)=>{n.style.width=`${s}px`,r.layout(d,s)}},200,void 0,!0),t.addView({onDidChange:te.None,element:i,minimumSize:500,maximumSize:Number.POSITIVE_INFINITY,layout:(s,o,d)=>{i.style.width=`${s}px`,this.featureViewDimension={height:d,width:s},this.layoutFeatureView()}},xe.Distribute,void 0,!0),t.style({separatorBorder:this.theme.getColor(Ve)})}createFeaturesList(e){const t=this.instantiationService.createInstance(V,this.extensionId),n=new Be;return this.instantiationService.createInstance(Ae,"ExtensionFeaturesList",c(e,a(".features-list-wrapper")),n,[t],{multipleSelectionSupport:!1,setRowLineHeight:!1,horizontalScrolling:!1,accessibilityProvider:{getAriaLabel(i){return i?.label??""},getWidgetAriaLabel(){return f("extension features list","Extension Features")}},openOnSingleClick:!0})}layoutFeatureView(){this.featureView.value?.layout(this.featureViewDimension?.height,this.featureViewDimension?.width)}showFeatureView(e,t){this.featureView.value?.feature.id!==e.id&&(R(t),this.featureView.value=this.instantiationService.createInstance(_,this.extensionId,this.manifest,e),t.appendChild(this.featureView.value.domNode),this.layoutFeatureView())}getFeatures(){const e=ae.as(de.ExtensionFeaturesRegistry).getExtensionFeatures().filter(n=>{const r=this.getRenderer(n),i=r?.shouldRender(this.manifest);return r?.dispose(),i}).sort((n,r)=>n.label.localeCompare(r.label)),t=this.getRenderer(j);return t?.shouldRender(this.manifest)&&e.splice(0,0,j),t?.dispose(),e}getRenderer(e){return e.renderer?this.instantiationService.createInstance(e.renderer):void 0}};W=$([x(2,Ne),x(3,re)],W);class Be{getHeight(){return 22}getTemplateId(){return"extensionFeatureDescriptor"}}let V=class{constructor(u,e){this.extensionId=u;this.extensionFeaturesManagementService=e}templateId="extensionFeatureDescriptor";renderTemplate(u){u.classList.add("extension-feature-list-item");const e=c(u,a(".extension-feature-label")),t=c(u,a(".extension-feature-disabled-label"));t.textContent=f("revoked","No Access");const n=c(u,a(".extension-feature-status"));return{label:e,disabledElement:t,statusElement:n,disposables:new U}}renderElement(u,e,t){t.disposables.clear(),t.label.textContent=u.label,t.disabledElement.style.display=u.id===j.id||this.extensionFeaturesManagementService.isEnabled(this.extensionId,u.id)?"none":"inherit",t.disposables.add(this.extensionFeaturesManagementService.onDidChangeEnablement(({extension:i,featureId:l,enabled:s})=>{y.equals(i,this.extensionId)&&l===u.id&&(t.disabledElement.style.display=s?"none":"inherit")}));const n=t.statusElement.className,r=()=>{const i=this.extensionFeaturesManagementService.getAccessData(this.extensionId,u.id);i?.current?.status?(t.statusElement.style.display="inherit",t.statusElement.className=`${n} ${ge.className(i.current.status.severity)}`):t.statusElement.style.display="none"};r(),t.disposables.add(this.extensionFeaturesManagementService.onDidChangeAccessData(({extension:i,featureId:l})=>{y.equals(i,this.extensionId)&&l===u.id&&r()}))}disposeElement(u,e,t,n){t.disposables.dispose()}disposeTemplate(u){u.disposables.dispose()}};V=$([x(1,Y)],V);let _=class extends ie{constructor(e,t,n,r,i,l,s){super();this.extensionId=e;this.manifest=t;this.feature=n;this.openerService=r;this.instantiationService=i;this.extensionFeaturesManagementService=l;this.dialogService=s;this.domNode=a(".extension-feature-content"),this.create(this.domNode)}domNode;layoutParticipants=[];create(e){const t=c(e,a(".feature-header")),n=c(t,a(".feature-title"));if(n.textContent=this.feature.label,this.feature.access.canToggle){const d=c(t,a(".feature-actions")),m=new he(d,ke);this.updateButtonLabel(m),this._register(this.extensionFeaturesManagementService.onDidChangeEnablement(({extension:w,featureId:M})=>{y.equals(w,this.extensionId)&&M===this.feature.id&&this.updateButtonLabel(m)})),this._register(m.onDidClick(async()=>{const w=this.extensionFeaturesManagementService.isEnabled(this.extensionId,this.feature.id);(await this.dialogService.confirm({title:f("accessExtensionFeature","Enable '{0}' Feature",this.feature.label),message:w?f("disableAccessExtensionFeatureMessage","Would you like to revoke '{0}' extension to access '{1}' feature?",this.manifest.displayName??this.extensionId.value,this.feature.label):f("enableAccessExtensionFeatureMessage","Would you like to allow '{0}' extension to access '{1}' feature?",this.manifest.displayName??this.extensionId.value,this.feature.label),custom:!0,primaryButton:w?f("revoke","Revoke Access"):f("grant","Allow Access"),cancelButton:f("cancel","Cancel")})).confirmed&&this.extensionFeaturesManagementService.setEnablement(this.extensionId,this.feature.id,!w)}))}const r=c(e,a(".feature-body")),i=a(".feature-body-content"),l=this._register(new ve(i,{}));if(c(r,l.getDomNode()),this.layoutParticipants.push({layout:()=>l.scanDomNode()}),l.scanDomNode(),this.feature.description){const d=c(i,a(".feature-description"));d.textContent=this.feature.description}const s=this.extensionFeaturesManagementService.getAccessData(this.extensionId,this.feature.id);s?.current?.status&&c(i,a(".feature-status",void 0,a(`span${De.asCSSSelector(s.current.status.severity===k.Error?le:s.current.status.severity===k.Warning?ue:Pe)}`,void 0),a("span",void 0,s.current.status.message)));const o=c(i,a(".feature-content"));if(this.feature.renderer){const d=this.instantiationService.createInstance(this.feature.renderer);d.type==="table"?this.renderTableData(o,d):d.type==="markdown"?this.renderMarkdownData(o,d):d.type==="markdown+table"?this.renderMarkdownAndTableData(o,d):d.type==="element"&&this.renderElementData(o,d)}}updateButtonLabel(e){e.label=this.extensionFeaturesManagementService.isEnabled(this.extensionId,this.feature.id)?f("revoke","Revoke Access"):f("enable","Allow Access")}renderTableData(e,t){const n=this._register(t.render(this.manifest)),r=this._register(new X);n.onDidChange&&this._register(n.onDidChange(i=>{R(e),r.value=this.renderTable(i,e)})),r.value=this.renderTable(n.data,e)}renderTable(e,t){const n=new U;return c(t,a("table",void 0,a("tr",void 0,...e.headers.map(r=>a("th",void 0,r))),...e.rows.map(r=>a("tr",void 0,...r.map(i=>{if(typeof i=="string")return a("td",void 0,a("p",void 0,i));const l=Array.isArray(i)?i:[i];return a("td",void 0,...l.map(s=>{const o=[];if(ne(i)){const d=a("",void 0);this.renderMarkdown(i,d),o.push(d)}else if(s instanceof we){const d=a("");n.add(new fe(d,Se,Ce)).set(s),o.push(d)}else s instanceof K&&(o.push(a("span",{class:"colorBox",style:"background-color: "+K.Format.CSS.format(s)},"")),o.push(a("code",void 0,K.Format.CSS.formatHex(s))));return o}).flat())}))))),n}renderMarkdownAndTableData(e,t){const n=this._register(t.render(this.manifest));n.onDidChange&&this._register(n.onDidChange(r=>{R(e),this.renderMarkdownAndTable(r,e)})),this.renderMarkdownAndTable(n.data,e)}renderMarkdownData(e,t){e.classList.add("markdown");const n=this._register(t.render(this.manifest));n.onDidChange&&this._register(n.onDidChange(r=>{R(e),this.renderMarkdown(r,e)})),this.renderMarkdown(n.data,e)}renderMarkdown(e,t){const{element:n,dispose:r}=Q({value:e.value,isTrusted:e.isTrusted,supportThemeIcons:!0},{actionHandler:{callback:i=>this.openerService.open(i,{allowCommands:!!e.isTrusted}).catch(ee),disposables:this._store}});this._register(O(r)),c(t,n)}renderMarkdownAndTable(e,t){for(const n of e)if(ne(n)){const r=a("",void 0);this.renderMarkdown(n,r),c(t,r)}else{const r=c(t,a("table"));this.renderTable(n,r)}}renderElementData(e,t){const n=t.render(this.manifest);n.onDidChange&&this._register(n.onDidChange(r=>{R(e),e.appendChild(r)})),e.appendChild(n.data)}layout(e,t){this.layoutParticipants.forEach(n=>n.layout(e,t))}};_=$([x(3,se),x(4,re),x(5,Y),x(6,Me)],_);export{W as ExtensionFeaturesTab};
+`
+          );
+        }
+      }
+      if (data.value) {
+        this.renderMarkdown(data, container, disposables);
+      }
+    }
+    return container;
+  }
+  renderMarkdown(markdown, container, disposables) {
+    const { element, dispose } = renderMarkdown(
+      {
+        value: markdown.value,
+        isTrusted: markdown.isTrusted,
+        supportThemeIcons: true
+      },
+      {
+        actionHandler: {
+          callback: /* @__PURE__ */ __name((content) => this.openerService.open(content, {
+            allowCommands: !!markdown.isTrusted
+          }).catch(onUnexpectedError), "callback"),
+          disposables
+        }
+      }
+    );
+    disposables.add(toDisposable(dispose));
+    append(container, element);
+  }
+  renderRequestsChart(container, accessTimes, disposables) {
+    const width = 450;
+    const height = 250;
+    const margin = { top: 0, right: 4, bottom: 20, left: 4 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const chartContainer = append(container, $(".feature-chart-container"));
+    chartContainer.style.position = "relative";
+    const tooltip = append(chartContainer, $(".feature-chart-tooltip"));
+    tooltip.style.position = "absolute";
+    tooltip.style.width = "0px";
+    tooltip.style.height = "0px";
+    let maxCount = 100;
+    const map = /* @__PURE__ */ new Map();
+    for (const accessTime of accessTimes) {
+      const day = `${accessTime.getDate()} ${accessTime.toLocaleString("default", { month: "short" })}`;
+      map.set(day, (map.get(day) ?? 0) + 1);
+      maxCount = Math.max(maxCount, map.get(day));
+    }
+    const now = /* @__PURE__ */ new Date();
+    const points = [];
+    for (let i = 0; i <= 30; i++) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - (30 - i));
+      const dateString = `${date.getDate()} ${date.toLocaleString("default", { month: "short" })}`;
+      const count = map.get(dateString) ?? 0;
+      const x = i / 30 * innerWidth;
+      const y = innerHeight - count / maxCount * innerHeight;
+      points.push({ x, y, date: dateString, count });
+    }
+    const chart = append(chartContainer, $(".feature-chart"));
+    const svg = append(chart, $.SVG("svg"));
+    svg.setAttribute("width", `${width}px`);
+    svg.setAttribute("height", `${height}px`);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    const g = $.SVG("g");
+    g.setAttribute("transform", `translate(${margin.left},${margin.top})`);
+    svg.appendChild(g);
+    const xAxisLine = $.SVG("line");
+    xAxisLine.setAttribute("x1", "0");
+    xAxisLine.setAttribute("y1", `${innerHeight}`);
+    xAxisLine.setAttribute("x2", `${innerWidth}`);
+    xAxisLine.setAttribute("y2", `${innerHeight}`);
+    xAxisLine.setAttribute("stroke", asCssVariable(chartAxis));
+    xAxisLine.setAttribute("stroke-width", "1px");
+    g.appendChild(xAxisLine);
+    for (let i = 1; i <= 30; i += 7) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - (30 - i));
+      const dateString = `${date.getDate()} ${date.toLocaleString("default", { month: "short" })}`;
+      const x = i / 30 * innerWidth;
+      const tick = $.SVG("line");
+      tick.setAttribute("x1", `${x}`);
+      tick.setAttribute("y1", `${innerHeight}`);
+      tick.setAttribute("x2", `${x}`);
+      tick.setAttribute("y2", `${innerHeight + 10}`);
+      tick.setAttribute("stroke", asCssVariable(chartAxis));
+      tick.setAttribute("stroke-width", "1px");
+      g.appendChild(tick);
+      const ruler = $.SVG("line");
+      ruler.setAttribute("x1", `${x}`);
+      ruler.setAttribute("y1", `0`);
+      ruler.setAttribute("x2", `${x}`);
+      ruler.setAttribute("y2", `${innerHeight}`);
+      ruler.setAttribute("stroke", asCssVariable(chartGuide));
+      ruler.setAttribute("stroke-width", "1px");
+      g.appendChild(ruler);
+      const xAxisDate = $.SVG("text");
+      xAxisDate.setAttribute("x", `${x}`);
+      xAxisDate.setAttribute("y", `${height}`);
+      xAxisDate.setAttribute("text-anchor", "middle");
+      xAxisDate.setAttribute("fill", asCssVariable(foreground));
+      xAxisDate.setAttribute("font-size", "10px");
+      xAxisDate.textContent = dateString;
+      g.appendChild(xAxisDate);
+    }
+    const line = $.SVG("polyline");
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke", asCssVariable(chartLine));
+    line.setAttribute("stroke-width", `2px`);
+    line.setAttribute(
+      "points",
+      points.map((p) => `${p.x},${p.y}`).join(" ")
+    );
+    g.appendChild(line);
+    const highlightCircle = $.SVG("circle");
+    highlightCircle.setAttribute("r", `4px`);
+    highlightCircle.style.display = "none";
+    g.appendChild(highlightCircle);
+    const hoverDisposable = disposables.add(
+      new MutableDisposable()
+    );
+    const mouseMoveListener = /* @__PURE__ */ __name((event) => {
+      const rect = svg.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left - margin.left;
+      let closestPoint;
+      let minDistance = Infinity;
+      points.forEach((point) => {
+        const distance = Math.abs(point.x - mouseX);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPoint = point;
+        }
+      });
+      if (closestPoint) {
+        highlightCircle.setAttribute("cx", `${closestPoint.x}`);
+        highlightCircle.setAttribute("cy", `${closestPoint.y}`);
+        highlightCircle.style.display = "block";
+        tooltip.style.left = `${closestPoint.x + 24}px`;
+        tooltip.style.top = `${closestPoint.y + 14}px`;
+        hoverDisposable.value = this.hoverService.showInstantHover({
+          content: new MarkdownString(
+            `${closestPoint.date}: ${closestPoint.count} requests`
+          ),
+          target: tooltip,
+          appearance: {
+            showPointer: true,
+            skipFadeInAnimation: true
+          }
+        });
+      } else {
+        hoverDisposable.value = void 0;
+      }
+    }, "mouseMoveListener");
+    svg.addEventListener("mousemove", mouseMoveListener);
+    disposables.add(
+      toDisposable(
+        () => svg.removeEventListener("mousemove", mouseMoveListener)
+      )
+    );
+    const mouseLeaveListener = /* @__PURE__ */ __name(() => {
+      highlightCircle.style.display = "none";
+      hoverDisposable.value = void 0;
+    }, "mouseLeaveListener");
+    svg.addEventListener("mouseleave", mouseLeaveListener);
+    disposables.add(
+      toDisposable(
+        () => svg.removeEventListener("mouseleave", mouseLeaveListener)
+      )
+    );
+  }
+};
+RuntimeStatusMarkdownRenderer = __decorateClass([
+  __decorateParam(0, IExtensionService),
+  __decorateParam(1, IOpenerService),
+  __decorateParam(2, IHoverService),
+  __decorateParam(3, IExtensionFeaturesManagementService)
+], RuntimeStatusMarkdownRenderer);
+const runtimeStatusFeature = {
+  id: RuntimeStatusMarkdownRenderer.ID,
+  label: localize("runtime", "Runtime Status"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(RuntimeStatusMarkdownRenderer)
+};
+let ExtensionFeaturesTab = class extends Themable {
+  constructor(manifest, feature, themeService, instantiationService) {
+    super(themeService);
+    this.manifest = manifest;
+    this.feature = feature;
+    this.instantiationService = instantiationService;
+    this.extensionId = new ExtensionIdentifier(
+      getExtensionId(manifest.publisher, manifest.name)
+    );
+    this.domNode = $("div.subcontent.feature-contributions");
+    this.create();
+  }
+  static {
+    __name(this, "ExtensionFeaturesTab");
+  }
+  domNode;
+  featureView = this._register(
+    new MutableDisposable()
+  );
+  featureViewDimension;
+  layoutParticipants = [];
+  extensionId;
+  layout(height, width) {
+    this.layoutParticipants.forEach(
+      (participant) => participant.layout(height, width)
+    );
+  }
+  create() {
+    const features = this.getFeatures();
+    if (features.length === 0) {
+      append($(".no-features"), this.domNode).textContent = localize(
+        "noFeatures",
+        "No features contributed."
+      );
+      return;
+    }
+    const splitView = this._register(
+      new SplitView(this.domNode, {
+        orientation: Orientation.HORIZONTAL,
+        proportionalLayout: true
+      })
+    );
+    this.layoutParticipants.push({
+      layout: /* @__PURE__ */ __name((height, width) => {
+        splitView.el.style.height = `${height - 14}px`;
+        splitView.layout(width);
+      }, "layout")
+    });
+    const featuresListContainer = $(".features-list-container");
+    const list = this._register(
+      this.createFeaturesList(featuresListContainer)
+    );
+    list.splice(0, list.length, features);
+    const featureViewContainer = $(".feature-view-container");
+    this._register(
+      list.onDidChangeSelection((e) => {
+        const feature = e.elements[0];
+        if (feature) {
+          this.showFeatureView(feature, featureViewContainer);
+        }
+      })
+    );
+    const index = this.feature ? features.findIndex((f) => f.id === this.feature) : 0;
+    list.setSelection([index === -1 ? 0 : index]);
+    splitView.addView(
+      {
+        onDidChange: Event.None,
+        element: featuresListContainer,
+        minimumSize: 100,
+        maximumSize: Number.POSITIVE_INFINITY,
+        layout: /* @__PURE__ */ __name((width, _, height) => {
+          featuresListContainer.style.width = `${width}px`;
+          list.layout(height, width);
+        }, "layout")
+      },
+      200,
+      void 0,
+      true
+    );
+    splitView.addView(
+      {
+        onDidChange: Event.None,
+        element: featureViewContainer,
+        minimumSize: 500,
+        maximumSize: Number.POSITIVE_INFINITY,
+        layout: /* @__PURE__ */ __name((width, _, height) => {
+          featureViewContainer.style.width = `${width}px`;
+          this.featureViewDimension = { height, width };
+          this.layoutFeatureView();
+        }, "layout")
+      },
+      Sizing.Distribute,
+      void 0,
+      true
+    );
+    splitView.style({
+      separatorBorder: this.theme.getColor(PANEL_SECTION_BORDER)
+    });
+  }
+  createFeaturesList(container) {
+    const renderer = this.instantiationService.createInstance(
+      ExtensionFeatureItemRenderer,
+      this.extensionId
+    );
+    const delegate = new ExtensionFeatureItemDelegate();
+    const list = this.instantiationService.createInstance(
+      WorkbenchList,
+      "ExtensionFeaturesList",
+      append(container, $(".features-list-wrapper")),
+      delegate,
+      [renderer],
+      {
+        multipleSelectionSupport: false,
+        setRowLineHeight: false,
+        horizontalScrolling: false,
+        accessibilityProvider: {
+          getAriaLabel(extensionFeature) {
+            return extensionFeature?.label ?? "";
+          },
+          getWidgetAriaLabel() {
+            return localize(
+              "extension features list",
+              "Extension Features"
+            );
+          }
+        },
+        openOnSingleClick: true
+      }
+    );
+    return list;
+  }
+  layoutFeatureView() {
+    this.featureView.value?.layout(
+      this.featureViewDimension?.height,
+      this.featureViewDimension?.width
+    );
+  }
+  showFeatureView(feature, container) {
+    if (this.featureView.value?.feature.id === feature.id) {
+      return;
+    }
+    clearNode(container);
+    this.featureView.value = this.instantiationService.createInstance(
+      ExtensionFeatureView,
+      this.extensionId,
+      this.manifest,
+      feature
+    );
+    container.appendChild(this.featureView.value.domNode);
+    this.layoutFeatureView();
+  }
+  getFeatures() {
+    const features = Registry.as(
+      Extensions.ExtensionFeaturesRegistry
+    ).getExtensionFeatures().filter((feature) => {
+      const renderer2 = this.getRenderer(feature);
+      const shouldRender = renderer2?.shouldRender(this.manifest);
+      renderer2?.dispose();
+      return shouldRender;
+    }).sort((a, b) => a.label.localeCompare(b.label));
+    const renderer = this.getRenderer(runtimeStatusFeature);
+    if (renderer?.shouldRender(this.manifest)) {
+      features.splice(0, 0, runtimeStatusFeature);
+    }
+    renderer?.dispose();
+    return features;
+  }
+  getRenderer(feature) {
+    return feature.renderer ? this.instantiationService.createInstance(feature.renderer) : void 0;
+  }
+};
+ExtensionFeaturesTab = __decorateClass([
+  __decorateParam(2, IThemeService),
+  __decorateParam(3, IInstantiationService)
+], ExtensionFeaturesTab);
+class ExtensionFeatureItemDelegate {
+  static {
+    __name(this, "ExtensionFeatureItemDelegate");
+  }
+  getHeight() {
+    return 22;
+  }
+  getTemplateId() {
+    return "extensionFeatureDescriptor";
+  }
+}
+let ExtensionFeatureItemRenderer = class {
+  constructor(extensionId, extensionFeaturesManagementService) {
+    this.extensionId = extensionId;
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+  }
+  static {
+    __name(this, "ExtensionFeatureItemRenderer");
+  }
+  templateId = "extensionFeatureDescriptor";
+  renderTemplate(container) {
+    container.classList.add("extension-feature-list-item");
+    const label = append(container, $(".extension-feature-label"));
+    const disabledElement = append(
+      container,
+      $(".extension-feature-disabled-label")
+    );
+    disabledElement.textContent = localize("revoked", "No Access");
+    const statusElement = append(container, $(".extension-feature-status"));
+    return {
+      label,
+      disabledElement,
+      statusElement,
+      disposables: new DisposableStore()
+    };
+  }
+  renderElement(element, index, templateData) {
+    templateData.disposables.clear();
+    templateData.label.textContent = element.label;
+    templateData.disabledElement.style.display = element.id === runtimeStatusFeature.id || this.extensionFeaturesManagementService.isEnabled(
+      this.extensionId,
+      element.id
+    ) ? "none" : "inherit";
+    templateData.disposables.add(
+      this.extensionFeaturesManagementService.onDidChangeEnablement(
+        ({ extension, featureId, enabled }) => {
+          if (ExtensionIdentifier.equals(
+            extension,
+            this.extensionId
+          ) && featureId === element.id) {
+            templateData.disabledElement.style.display = enabled ? "none" : "inherit";
+          }
+        }
+      )
+    );
+    const statusElementClassName = templateData.statusElement.className;
+    const updateStatus = /* @__PURE__ */ __name(() => {
+      const accessData = this.extensionFeaturesManagementService.getAccessData(
+        this.extensionId,
+        element.id
+      );
+      if (accessData?.current?.status) {
+        templateData.statusElement.style.display = "inherit";
+        templateData.statusElement.className = `${statusElementClassName} ${SeverityIcon.className(accessData.current.status.severity)}`;
+      } else {
+        templateData.statusElement.style.display = "none";
+      }
+    }, "updateStatus");
+    updateStatus();
+    templateData.disposables.add(
+      this.extensionFeaturesManagementService.onDidChangeAccessData(
+        ({ extension, featureId }) => {
+          if (ExtensionIdentifier.equals(
+            extension,
+            this.extensionId
+          ) && featureId === element.id) {
+            updateStatus();
+          }
+        }
+      )
+    );
+  }
+  disposeElement(element, index, templateData, height) {
+    templateData.disposables.dispose();
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+  }
+};
+ExtensionFeatureItemRenderer = __decorateClass([
+  __decorateParam(1, IExtensionFeaturesManagementService)
+], ExtensionFeatureItemRenderer);
+let ExtensionFeatureView = class extends Disposable {
+  constructor(extensionId, manifest, feature, openerService, instantiationService, extensionFeaturesManagementService, dialogService) {
+    super();
+    this.extensionId = extensionId;
+    this.manifest = manifest;
+    this.feature = feature;
+    this.openerService = openerService;
+    this.instantiationService = instantiationService;
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+    this.dialogService = dialogService;
+    this.domNode = $(".extension-feature-content");
+    this.create(this.domNode);
+  }
+  static {
+    __name(this, "ExtensionFeatureView");
+  }
+  domNode;
+  layoutParticipants = [];
+  create(content) {
+    const header = append(content, $(".feature-header"));
+    const title = append(header, $(".feature-title"));
+    title.textContent = this.feature.label;
+    if (this.feature.access.canToggle) {
+      const actionsContainer = append(header, $(".feature-actions"));
+      const button = new Button(actionsContainer, defaultButtonStyles);
+      this.updateButtonLabel(button);
+      this._register(
+        this.extensionFeaturesManagementService.onDidChangeEnablement(
+          ({ extension, featureId }) => {
+            if (ExtensionIdentifier.equals(
+              extension,
+              this.extensionId
+            ) && featureId === this.feature.id) {
+              this.updateButtonLabel(button);
+            }
+          }
+        )
+      );
+      this._register(
+        button.onDidClick(async () => {
+          const enabled = this.extensionFeaturesManagementService.isEnabled(
+            this.extensionId,
+            this.feature.id
+          );
+          const confirmationResult = await this.dialogService.confirm(
+            {
+              title: localize(
+                "accessExtensionFeature",
+                "Enable '{0}' Feature",
+                this.feature.label
+              ),
+              message: enabled ? localize(
+                "disableAccessExtensionFeatureMessage",
+                "Would you like to revoke '{0}' extension to access '{1}' feature?",
+                this.manifest.displayName ?? this.extensionId.value,
+                this.feature.label
+              ) : localize(
+                "enableAccessExtensionFeatureMessage",
+                "Would you like to allow '{0}' extension to access '{1}' feature?",
+                this.manifest.displayName ?? this.extensionId.value,
+                this.feature.label
+              ),
+              custom: true,
+              primaryButton: enabled ? localize("revoke", "Revoke Access") : localize("grant", "Allow Access"),
+              cancelButton: localize("cancel", "Cancel")
+            }
+          );
+          if (confirmationResult.confirmed) {
+            this.extensionFeaturesManagementService.setEnablement(
+              this.extensionId,
+              this.feature.id,
+              !enabled
+            );
+          }
+        })
+      );
+    }
+    const body = append(content, $(".feature-body"));
+    const bodyContent = $(".feature-body-content");
+    const scrollableContent = this._register(
+      new DomScrollableElement(bodyContent, {})
+    );
+    append(body, scrollableContent.getDomNode());
+    this.layoutParticipants.push({
+      layout: /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout")
+    });
+    scrollableContent.scanDomNode();
+    if (this.feature.description) {
+      const description = append(bodyContent, $(".feature-description"));
+      description.textContent = this.feature.description;
+    }
+    const accessData = this.extensionFeaturesManagementService.getAccessData(
+      this.extensionId,
+      this.feature.id
+    );
+    if (accessData?.current?.status) {
+      append(
+        bodyContent,
+        $(
+          ".feature-status",
+          void 0,
+          $(
+            `span${ThemeIcon.asCSSSelector(accessData.current.status.severity === Severity.Error ? errorIcon : accessData.current.status.severity === Severity.Warning ? warningIcon : infoIcon)}`,
+            void 0
+          ),
+          $("span", void 0, accessData.current.status.message)
+        )
+      );
+    }
+    const featureContentElement = append(
+      bodyContent,
+      $(".feature-content")
+    );
+    if (this.feature.renderer) {
+      const renderer = this.instantiationService.createInstance(
+        this.feature.renderer
+      );
+      if (renderer.type === "table") {
+        this.renderTableData(
+          featureContentElement,
+          renderer
+        );
+      } else if (renderer.type === "markdown") {
+        this.renderMarkdownData(
+          featureContentElement,
+          renderer
+        );
+      } else if (renderer.type === "markdown+table") {
+        this.renderMarkdownAndTableData(
+          featureContentElement,
+          renderer
+        );
+      } else if (renderer.type === "element") {
+        this.renderElementData(
+          featureContentElement,
+          renderer
+        );
+      }
+    }
+  }
+  updateButtonLabel(button) {
+    button.label = this.extensionFeaturesManagementService.isEnabled(
+      this.extensionId,
+      this.feature.id
+    ) ? localize("revoke", "Revoke Access") : localize("enable", "Allow Access");
+  }
+  renderTableData(container, renderer) {
+    const tableData = this._register(renderer.render(this.manifest));
+    const tableDisposable = this._register(new MutableDisposable());
+    if (tableData.onDidChange) {
+      this._register(
+        tableData.onDidChange((data) => {
+          clearNode(container);
+          tableDisposable.value = this.renderTable(data, container);
+        })
+      );
+    }
+    tableDisposable.value = this.renderTable(tableData.data, container);
+  }
+  renderTable(tableData, container) {
+    const disposables = new DisposableStore();
+    append(
+      container,
+      $(
+        "table",
+        void 0,
+        $(
+          "tr",
+          void 0,
+          ...tableData.headers.map(
+            (header) => $("th", void 0, header)
+          )
+        ),
+        ...tableData.rows.map((row) => {
+          return $(
+            "tr",
+            void 0,
+            ...row.map((rowData) => {
+              if (typeof rowData === "string") {
+                return $(
+                  "td",
+                  void 0,
+                  $("p", void 0, rowData)
+                );
+              }
+              const data = Array.isArray(rowData) ? rowData : [rowData];
+              return $(
+                "td",
+                void 0,
+                ...data.map((item) => {
+                  const result = [];
+                  if (isMarkdownString(rowData)) {
+                    const element = $("", void 0);
+                    this.renderMarkdown(
+                      rowData,
+                      element
+                    );
+                    result.push(element);
+                  } else if (item instanceof ResolvedKeybinding) {
+                    const element = $("");
+                    const kbl = disposables.add(
+                      new KeybindingLabel(
+                        element,
+                        OS,
+                        defaultKeybindingLabelStyles
+                      )
+                    );
+                    kbl.set(item);
+                    result.push(element);
+                  } else if (item instanceof Color) {
+                    result.push(
+                      $(
+                        "span",
+                        {
+                          class: "colorBox",
+                          style: "background-color: " + Color.Format.CSS.format(
+                            item
+                          )
+                        },
+                        ""
+                      )
+                    );
+                    result.push(
+                      $(
+                        "code",
+                        void 0,
+                        Color.Format.CSS.formatHex(
+                          item
+                        )
+                      )
+                    );
+                  }
+                  return result;
+                }).flat()
+              );
+            })
+          );
+        })
+      )
+    );
+    return disposables;
+  }
+  renderMarkdownAndTableData(container, renderer) {
+    const markdownAndTableData = this._register(
+      renderer.render(this.manifest)
+    );
+    if (markdownAndTableData.onDidChange) {
+      this._register(
+        markdownAndTableData.onDidChange((data) => {
+          clearNode(container);
+          this.renderMarkdownAndTable(data, container);
+        })
+      );
+    }
+    this.renderMarkdownAndTable(markdownAndTableData.data, container);
+  }
+  renderMarkdownData(container, renderer) {
+    container.classList.add("markdown");
+    const markdownData = this._register(renderer.render(this.manifest));
+    if (markdownData.onDidChange) {
+      this._register(
+        markdownData.onDidChange((data) => {
+          clearNode(container);
+          this.renderMarkdown(data, container);
+        })
+      );
+    }
+    this.renderMarkdown(markdownData.data, container);
+  }
+  renderMarkdown(markdown, container) {
+    const { element, dispose } = renderMarkdown(
+      {
+        value: markdown.value,
+        isTrusted: markdown.isTrusted,
+        supportThemeIcons: true
+      },
+      {
+        actionHandler: {
+          callback: /* @__PURE__ */ __name((content) => this.openerService.open(content, {
+            allowCommands: !!markdown.isTrusted
+          }).catch(onUnexpectedError), "callback"),
+          disposables: this._store
+        }
+      }
+    );
+    this._register(toDisposable(dispose));
+    append(container, element);
+  }
+  renderMarkdownAndTable(data, container) {
+    for (const markdownOrTable of data) {
+      if (isMarkdownString(markdownOrTable)) {
+        const element = $("", void 0);
+        this.renderMarkdown(markdownOrTable, element);
+        append(container, element);
+      } else {
+        const tableElement = append(container, $("table"));
+        this.renderTable(markdownOrTable, tableElement);
+      }
+    }
+  }
+  renderElementData(container, renderer) {
+    const elementData = renderer.render(this.manifest);
+    if (elementData.onDidChange) {
+      this._register(
+        elementData.onDidChange((data) => {
+          clearNode(container);
+          container.appendChild(data);
+        })
+      );
+    }
+    container.appendChild(elementData.data);
+  }
+  layout(height, width) {
+    this.layoutParticipants.forEach((p) => p.layout(height, width));
+  }
+};
+ExtensionFeatureView = __decorateClass([
+  __decorateParam(3, IOpenerService),
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, IExtensionFeaturesManagementService),
+  __decorateParam(6, IDialogService)
+], ExtensionFeatureView);
+export {
+  ExtensionFeaturesTab
+};
+//# sourceMappingURL=extensionFeaturesTab.js.map

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/platform/webContentExtractor/electron-sandbox/webContentExtractorService.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport {\r\n\tregisterMainProcessRemoteService,\r\n\tregisterSharedProcessRemoteService,\r\n} from \"../../ipc/electron-sandbox/services.js\";\r\nimport {\r\n\tISharedWebContentExtractorService,\r\n\tIWebContentExtractorService,\r\n} from \"../common/webContentExtractor.js\";\r\n\r\nregisterMainProcessRemoteService(\r\n\tIWebContentExtractorService,\r\n\t\"webContentExtractor\",\r\n);\r\nregisterSharedProcessRemoteService(\r\n\tISharedWebContentExtractorService,\r\n\t\"sharedWebContentExtractor\",\r\n);\r\n"],
+  "mappings": "AAKA;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP;AAAA,EACC;AAAA,EACA;AAAA,OACM;AAEP;AAAA,EACC;AAAA,EACA;AACD;AACA;AAAA,EACC;AAAA,EACA;AACD;",
+  "names": []
+}

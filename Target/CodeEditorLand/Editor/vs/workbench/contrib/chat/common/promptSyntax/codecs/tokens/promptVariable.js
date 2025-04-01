@@ -1,1 +1,109 @@
-import{assert as i}from"../../../../../../../base/common/assert.js";import"../../../../../../../editor/common/codecs/baseToken.js";import{Range as g}from"../../../../../../../editor/common/core/range.js";import{INVALID_NAME_CHARACTERS as f,STOP_CHARACTERS as o}from"../parsers/promptVariableParser.js";import{PromptToken as d}from"./promptToken.js";const r="#",l=":";class s extends d{constructor(e,n){for(const t of n)i(f.includes(t)===!1&&o.includes(t)===!1,`Variable 'name' cannot contain character '${t}', got '${n}'.`);super(e);this.name=n}get text(){return`${r}${this.name}`}equals(e){return!super.sameRange(e.range)||!(e instanceof s)||this.text.length!==e.text.length?!1:this.text===e.text}toString(){return`${this.text}${this.range}`}}class u extends s{constructor(e,n,t){super(e,n);this.data=t;for(const a of t)i(o.includes(a)===!1,`Variable 'data' cannot contain character '${a}', got '${t}'.`)}get text(){return`${r}${this.name}${l}${this.data}`}equals(e){return e instanceof u?super.equals(e):!1}get dataRange(){const{range:e}=this,n=e.startColumn+r.length+this.name.length+l.length,t=new g(e.startLineNumber,n,e.endLineNumber,e.endColumn);if(!t.isEmpty())return t}}export{s as PromptVariable,u as PromptVariableWithData};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assert } from "../../../../../../../base/common/assert.js";
+import { BaseToken } from "../../../../../../../editor/common/codecs/baseToken.js";
+import {
+  IRange,
+  Range
+} from "../../../../../../../editor/common/core/range.js";
+import {
+  INVALID_NAME_CHARACTERS,
+  STOP_CHARACTERS
+} from "../parsers/promptVariableParser.js";
+import { PromptToken } from "./promptToken.js";
+const START_CHARACTER = "#";
+const DATA_SEPARATOR = ":";
+class PromptVariable extends PromptToken {
+  constructor(range, name) {
+    for (const character of name) {
+      assert(
+        INVALID_NAME_CHARACTERS.includes(character) === false && STOP_CHARACTERS.includes(character) === false,
+        `Variable 'name' cannot contain character '${character}', got '${name}'.`
+      );
+    }
+    super(range);
+    this.name = name;
+  }
+  static {
+    __name(this, "PromptVariable");
+  }
+  /**
+   * Get full text of the token.
+   */
+  get text() {
+    return `${START_CHARACTER}${this.name}`;
+  }
+  /**
+   * Check if this token is equal to another one.
+   */
+  equals(other) {
+    if (!super.sameRange(other.range)) {
+      return false;
+    }
+    if (other instanceof PromptVariable === false) {
+      return false;
+    }
+    if (this.text.length !== other.text.length) {
+      return false;
+    }
+    return this.text === other.text;
+  }
+  /**
+   * Return a string representation of the token.
+   */
+  toString() {
+    return `${this.text}${this.range}`;
+  }
+}
+class PromptVariableWithData extends PromptVariable {
+  constructor(fullRange, name, data) {
+    super(fullRange, name);
+    this.data = data;
+    for (const character of data) {
+      assert(
+        STOP_CHARACTERS.includes(character) === false,
+        `Variable 'data' cannot contain character '${character}', got '${data}'.`
+      );
+    }
+  }
+  static {
+    __name(this, "PromptVariableWithData");
+  }
+  /**
+   * Get full text of the token.
+   */
+  get text() {
+    return `${START_CHARACTER}${this.name}${DATA_SEPARATOR}${this.data}`;
+  }
+  /**
+   * Check if this token is equal to another one.
+   */
+  equals(other) {
+    if (other instanceof PromptVariableWithData === false) {
+      return false;
+    }
+    return super.equals(other);
+  }
+  /**
+   * Range of the `data` part of the variable.
+   */
+  get dataRange() {
+    const { range } = this;
+    const dataStartColumn = range.startColumn + START_CHARACTER.length + this.name.length + DATA_SEPARATOR.length;
+    const result = new Range(
+      range.startLineNumber,
+      dataStartColumn,
+      range.endLineNumber,
+      range.endColumn
+    );
+    if (result.isEmpty()) {
+      return void 0;
+    }
+    return result;
+  }
+}
+export {
+  PromptVariable,
+  PromptVariableWithData
+};
+//# sourceMappingURL=promptVariable.js.map

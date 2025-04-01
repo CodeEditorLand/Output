@@ -1,1 +1,113 @@
-import{URI as d}from"../../../../base/common/uri.js";import{localize as t,localize2 as l}from"../../../../nls.js";import{Categories as f}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as g,MenuId as b,MenuRegistry as k,registerAction2 as C}from"../../../../platform/actions/common/actions.js";import{CommandsRegistry as I}from"../../../../platform/commands/common/commands.js";import{Extensions as h,ConfigurationScope as R}from"../../../../platform/configuration/common/configurationRegistry.js";import{InstantiationType as y,registerSingleton as v}from"../../../../platform/instantiation/common/extensions.js";import"../../../../platform/instantiation/common/instantiation.js";import{IQuickInputService as S}from"../../../../platform/quickinput/common/quickInput.js";import{Registry as i}from"../../../../platform/registry/common/platform.js";import{IURLService as D}from"../../../../platform/url/common/url.js";import{workbenchConfigurationNodeBase as W}from"../../../common/configuration.js";import{registerWorkbenchContribution2 as n,Extensions as T,WorkbenchPhase as s}from"../../../common/contributions.js";import{LifecyclePhase as U}from"../../../services/lifecycle/common/lifecycle.js";import{ExternalUriResolverContribution as m}from"./externalUriResolver.js";import{manageTrustedDomainSettingsCommand as o}from"./trustedDomains.js";import{ITrustedDomainService as w,TrustedDomainService as A}from"./trustedDomainService.js";import{TrustedDomainsFileSystemProvider as p}from"./trustedDomainsFileSystemProvider.js";import{OpenerValidatorContributions as P}from"./trustedDomainsValidator.js";class x extends g{constructor(){super({id:"workbench.action.url.openUrl",title:l("openUrl","Open URL"),category:f.Developer,f1:!0})}async run(e){const a=e.get(S),c=e.get(D);return a.input({prompt:t("urlToOpen","URL to open")}).then(r=>{if(r){const u=d.parse(r);c.open(u,{originalUrl:r})}})}}C(x),I.registerCommand(o),k.appendMenuItem(b.CommandPalette,{command:{id:o.id,title:o.description.description}}),i.as(T.Workbench).registerWorkbenchContribution(P,U.Restored),n(p.ID,p,s.BlockRestore),n(m.ID,m,s.BlockRestore);const E=i.as(h.Configuration);E.registerConfiguration({...W,properties:{"workbench.trustedDomains.promptInTrustedWorkspace":{scope:R.APPLICATION,type:"boolean",default:!1,description:t("workbench.trustedDomains.promptInTrustedWorkspace","When enabled, trusted domain prompts will appear when opening links in trusted workspaces.")}}}),v(w,A,y.Delayed);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  MenuId,
+  MenuRegistry,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import {
+  Extensions as ConfigurationExtensions,
+  ConfigurationScope,
+  IConfigurationRegistry
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IURLService } from "../../../../platform/url/common/url.js";
+import { workbenchConfigurationNodeBase } from "../../../common/configuration.js";
+import {
+  IWorkbenchContributionsRegistry,
+  registerWorkbenchContribution2,
+  Extensions as WorkbenchExtensions,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { ExternalUriResolverContribution } from "./externalUriResolver.js";
+import { manageTrustedDomainSettingsCommand } from "./trustedDomains.js";
+import {
+  ITrustedDomainService,
+  TrustedDomainService
+} from "./trustedDomainService.js";
+import { TrustedDomainsFileSystemProvider } from "./trustedDomainsFileSystemProvider.js";
+import { OpenerValidatorContributions } from "./trustedDomainsValidator.js";
+class OpenUrlAction extends Action2 {
+  static {
+    __name(this, "OpenUrlAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.url.openUrl",
+      title: localize2("openUrl", "Open URL"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const quickInputService = accessor.get(IQuickInputService);
+    const urlService = accessor.get(IURLService);
+    return quickInputService.input({ prompt: localize("urlToOpen", "URL to open") }).then((input) => {
+      if (input) {
+        const uri = URI.parse(input);
+        urlService.open(uri, { originalUrl: input });
+      }
+    });
+  }
+}
+registerAction2(OpenUrlAction);
+CommandsRegistry.registerCommand(manageTrustedDomainSettingsCommand);
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: manageTrustedDomainSettingsCommand.id,
+    title: manageTrustedDomainSettingsCommand.description.description
+  }
+});
+Registry.as(
+  WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(
+  OpenerValidatorContributions,
+  LifecyclePhase.Restored
+);
+registerWorkbenchContribution2(
+  TrustedDomainsFileSystemProvider.ID,
+  TrustedDomainsFileSystemProvider,
+  WorkbenchPhase.BlockRestore
+  // registration only
+);
+registerWorkbenchContribution2(
+  ExternalUriResolverContribution.ID,
+  ExternalUriResolverContribution,
+  WorkbenchPhase.BlockRestore
+  // registration only
+);
+const configurationRegistry = Registry.as(
+  ConfigurationExtensions.Configuration
+);
+configurationRegistry.registerConfiguration({
+  ...workbenchConfigurationNodeBase,
+  properties: {
+    "workbench.trustedDomains.promptInTrustedWorkspace": {
+      scope: ConfigurationScope.APPLICATION,
+      type: "boolean",
+      default: false,
+      description: localize(
+        "workbench.trustedDomains.promptInTrustedWorkspace",
+        "When enabled, trusted domain prompts will appear when opening links in trusted workspaces."
+      )
+    }
+  }
+});
+registerSingleton(
+  ITrustedDomainService,
+  TrustedDomainService,
+  InstantiationType.Delayed
+);
+//# sourceMappingURL=url.contribution.js.map

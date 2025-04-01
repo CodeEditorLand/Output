@@ -1,1 +1,340 @@
-var U=Object.defineProperty;var k=Object.getOwnPropertyDescriptor;var S=(o,e,n,r)=>{for(var t=r>1?void 0:r?k(e,n):e,d=o.length-1,s;d>=0;d--)(s=o[d])&&(t=(r?s(e,n,t):s(t))||t);return r&&t&&U(e,n,t),t},E=(o,e)=>(n,r)=>e(n,r,o);import"../../../base/browser/ui/hover/hover.js";import{Emitter as O}from"../../../base/common/event.js";import{hash as R}from"../../../base/common/hash.js";import{isMarkdownString as N}from"../../../base/common/htmlContent.js";import{getCodiconAriaLabel as F}from"../../../base/common/iconLabels.js";import{Iterable as H}from"../../../base/common/iterator.js";import"../../../base/common/jsonSchema.js";import{DisposableStore as P,toDisposable as w}from"../../../base/common/lifecycle.js";import"../../../base/common/themables.js";import"../../../editor/common/languages.js";import{localize as a}from"../../../nls.js";import{isAccessibilityInformation as K}from"../../../platform/accessibility/common/accessibility.js";import{ExtensionIdentifier as G}from"../../../platform/extensions/common/extensions.js";import{InstantiationType as L,registerSingleton as j}from"../../../platform/instantiation/common/extensions.js";import{createDecorator as $}from"../../../platform/instantiation/common/instantiation.js";import{STATUS_BAR_ERROR_ITEM_BACKGROUND as _,STATUS_BAR_WARNING_ITEM_BACKGROUND as J}from"../../common/theme.js";import{isProposedApiEnabled as q}from"../../services/extensions/common/extensions.js";import{ExtensionsRegistry as z}from"../../services/extensions/common/extensionsRegistry.js";import{IStatusbarService as W,StatusbarAlignment as D}from"../../services/statusbar/browser/statusbar.js";import{asStatusBarItemIdentifier as Y}from"../common/extHostTypes.js";const B=$("IExtensionStatusBarItemService");var Q=(n=>(n[n.DidDefine=0]="DidDefine",n[n.DidUpdate=1]="DidUpdate",n))(Q||{});let y=class{constructor(e){this._statusbarService=e}_entries=new Map;_onDidChange=new O;onDidChange=this._onDidChange.event;dispose(){this._entries.forEach(e=>e.accessor.dispose()),this._entries.clear(),this._onDidChange.dispose()}setOrUpdateEntry(e,n,r,t,d,s,i,c,u,M,m,I){let g,v;if(I)g=I.label,v=I.role;else if(g=F(d),typeof s=="string"||N(s)){const p=typeof s=="string"?s:s.value;g+=`, ${p}`}let T;switch(u?.id){case _:case J:T=u.id===_?"error":"warning",c=void 0,u=void 0}const f={name:t,text:d,tooltip:s,command:i,color:c,backgroundColor:u,ariaLabel:g,role:v,kind:T,extensionId:r};typeof m>"u"&&(m=0);let h=M?D.LEFT:D.RIGHT;const l=this._entries.get(e);if(l&&(h=l.alignment,m=l.priority),l)return l.accessor.update(f),l.entry=f,1;{let p;typeof r=="string"?p={primary:m,secondary:R(r)}:p=m;const x=this._statusbarService.addEntry(f,n,h,p);return this._entries.set(e,{accessor:x,entry:f,alignment:h,priority:m,disposable:w(()=>{x.dispose(),this._entries.delete(e),this._onDidChange.fire({removed:e})})}),this._onDidChange.fire({added:[e,{entry:f,alignment:h,priority:m}]}),0}}unsetEntry(e){this._entries.get(e)?.disposable.dispose(),this._entries.delete(e)}getEntries(){return this._entries.entries()}};y=S([E(0,W)],y),j(B,y,L.Delayed);function V(o){const e=o;return typeof e.id=="string"&&e.id.length>0&&typeof e.name=="string"&&typeof e.text=="string"&&(e.alignment==="left"||e.alignment==="right")&&(e.command===void 0||typeof e.command=="string")&&(e.tooltip===void 0||typeof e.tooltip=="string")&&(e.priority===void 0||typeof e.priority=="number")&&(e.accessibilityInformation===void 0||K(e.accessibilityInformation))}const A={type:"object",required:["id","text","alignment","name"],properties:{id:{type:"string",markdownDescription:a("id","The identifier of the status bar entry. Must be unique within the extension. The same value must be used when calling the `vscode.window.createStatusBarItem(id, ...)`-API")},name:{type:"string",description:a("name","The name of the entry, like 'Python Language Indicator', 'Git Status' etc. Try to keep the length of the name short, yet descriptive enough that users can understand what the status bar item is about.")},text:{type:"string",description:a("text","The text to show for the entry. You can embed icons in the text by leveraging the `$(<name>)`-syntax, like 'Hello $(globe)!'")},tooltip:{type:"string",description:a("tooltip","The tooltip text for the entry.")},command:{type:"string",description:a("command","The command to execute when the status bar entry is clicked.")},alignment:{type:"string",enum:["left","right"],description:a("alignment","The alignment of the status bar entry.")},priority:{type:"number",description:a("priority","The priority of the status bar entry. Higher value means the item should be shown more to the left.")},accessibilityInformation:{type:"object",description:a("accessibilityInformation","Defines the role and aria label to be used when the status bar entry is focused."),properties:{role:{type:"string",description:a("accessibilityInformation.role","The role of the status bar entry which defines how a screen reader interacts with it. More about aria roles can be found here https://w3c.github.io/aria/#widget_roles")},label:{type:"string",description:a("accessibilityInformation.label","The aria label of the status bar entry. Defaults to the entry's text.")}}}}},X={description:a("vscode.extension.contributes.statusBarItems","Contributes items to the status bar."),oneOf:[A,{type:"array",items:A}]},C=z.registerExtensionPoint({extensionPoint:"statusBarItems",jsonSchema:X});let b=class{constructor(e){const n=new P;C.setHandler(r=>{n.clear();for(const t of r){if(!q(t.description,"contribStatusBarItems")){t.collector.error(`The ${C.name} is proposed API`);continue}const{value:d,collector:s}=t;for(const i of H.wrap(d)){if(!V(i)){s.error(a("invalid","Invalid status bar item contribution."));continue}const c=Y(t.description.identifier,i.id);e.setOrUpdateEntry(c,c,G.toKey(t.description.identifier),i.name??t.description.displayName??t.description.name,i.text,i.tooltip,i.command?{id:i.command,title:i.name}:void 0,void 0,void 0,i.alignment==="left",i.priority,i.accessibilityInformation)===0&&n.add(w(()=>e.unsetEntry(c)))}}})}};b=S([E(0,B)],b);export{B as IExtensionStatusBarItemService,b as StatusBarItemsExtensionPoint,Q as StatusBarUpdateKind};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IManagedHoverTooltipMarkdownString } from "../../../base/browser/ui/hover/hover.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { hash } from "../../../base/common/hash.js";
+import {
+  IMarkdownString,
+  isMarkdownString
+} from "../../../base/common/htmlContent.js";
+import { getCodiconAriaLabel } from "../../../base/common/iconLabels.js";
+import { Iterable } from "../../../base/common/iterator.js";
+import { IJSONSchema } from "../../../base/common/jsonSchema.js";
+import {
+  DisposableStore,
+  IDisposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { ThemeColor } from "../../../base/common/themables.js";
+import { Command } from "../../../editor/common/languages.js";
+import { localize } from "../../../nls.js";
+import {
+  IAccessibilityInformation,
+  isAccessibilityInformation
+} from "../../../platform/accessibility/common/accessibility.js";
+import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import {
+  STATUS_BAR_ERROR_ITEM_BACKGROUND,
+  STATUS_BAR_WARNING_ITEM_BACKGROUND
+} from "../../common/theme.js";
+import { isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../services/extensions/common/extensionsRegistry.js";
+import {
+  IStatusbarEntry,
+  IStatusbarEntryAccessor,
+  IStatusbarEntryPriority,
+  IStatusbarService,
+  StatusbarAlignment as MainThreadStatusBarAlignment,
+  StatusbarAlignment,
+  StatusbarEntryKind
+} from "../../services/statusbar/browser/statusbar.js";
+import { asStatusBarItemIdentifier } from "../common/extHostTypes.js";
+const IExtensionStatusBarItemService = createDecorator(
+  "IExtensionStatusBarItemService"
+);
+var StatusBarUpdateKind = /* @__PURE__ */ ((StatusBarUpdateKind2) => {
+  StatusBarUpdateKind2[StatusBarUpdateKind2["DidDefine"] = 0] = "DidDefine";
+  StatusBarUpdateKind2[StatusBarUpdateKind2["DidUpdate"] = 1] = "DidUpdate";
+  return StatusBarUpdateKind2;
+})(StatusBarUpdateKind || {});
+let ExtensionStatusBarItemService = class {
+  constructor(_statusbarService) {
+    this._statusbarService = _statusbarService;
+  }
+  static {
+    __name(this, "ExtensionStatusBarItemService");
+  }
+  _entries = /* @__PURE__ */ new Map();
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  dispose() {
+    this._entries.forEach((entry) => entry.accessor.dispose());
+    this._entries.clear();
+    this._onDidChange.dispose();
+  }
+  setOrUpdateEntry(entryId, id, extensionId, name, text, tooltip, command, color, backgroundColor, alignLeft, priority, accessibilityInformation) {
+    let ariaLabel;
+    let role = void 0;
+    if (accessibilityInformation) {
+      ariaLabel = accessibilityInformation.label;
+      role = accessibilityInformation.role;
+    } else {
+      ariaLabel = getCodiconAriaLabel(text);
+      if (typeof tooltip === "string" || isMarkdownString(tooltip)) {
+        const tooltipString = typeof tooltip === "string" ? tooltip : tooltip.value;
+        ariaLabel += `, ${tooltipString}`;
+      }
+    }
+    let kind = void 0;
+    switch (backgroundColor?.id) {
+      case STATUS_BAR_ERROR_ITEM_BACKGROUND:
+      case STATUS_BAR_WARNING_ITEM_BACKGROUND:
+        kind = backgroundColor.id === STATUS_BAR_ERROR_ITEM_BACKGROUND ? "error" : "warning";
+        color = void 0;
+        backgroundColor = void 0;
+    }
+    const entry = {
+      name,
+      text,
+      tooltip,
+      command,
+      color,
+      backgroundColor,
+      ariaLabel,
+      role,
+      kind,
+      extensionId
+    };
+    if (typeof priority === "undefined") {
+      priority = 0;
+    }
+    let alignment = alignLeft ? StatusbarAlignment.LEFT : StatusbarAlignment.RIGHT;
+    const existingEntry = this._entries.get(entryId);
+    if (existingEntry) {
+      alignment = existingEntry.alignment;
+      priority = existingEntry.priority;
+    }
+    if (!existingEntry) {
+      let entryPriority;
+      if (typeof extensionId === "string") {
+        entryPriority = {
+          primary: priority,
+          secondary: hash(extensionId)
+        };
+      } else {
+        entryPriority = priority;
+      }
+      const accessor = this._statusbarService.addEntry(
+        entry,
+        id,
+        alignment,
+        entryPriority
+      );
+      this._entries.set(entryId, {
+        accessor,
+        entry,
+        alignment,
+        priority,
+        disposable: toDisposable(() => {
+          accessor.dispose();
+          this._entries.delete(entryId);
+          this._onDidChange.fire({ removed: entryId });
+        })
+      });
+      this._onDidChange.fire({
+        added: [entryId, { entry, alignment, priority }]
+      });
+      return 0 /* DidDefine */;
+    } else {
+      existingEntry.accessor.update(entry);
+      existingEntry.entry = entry;
+      return 1 /* DidUpdate */;
+    }
+  }
+  unsetEntry(entryId) {
+    this._entries.get(entryId)?.disposable.dispose();
+    this._entries.delete(entryId);
+  }
+  getEntries() {
+    return this._entries.entries();
+  }
+};
+ExtensionStatusBarItemService = __decorateClass([
+  __decorateParam(0, IStatusbarService)
+], ExtensionStatusBarItemService);
+registerSingleton(
+  IExtensionStatusBarItemService,
+  ExtensionStatusBarItemService,
+  InstantiationType.Delayed
+);
+function isUserFriendlyStatusItemEntry(candidate) {
+  const obj = candidate;
+  return typeof obj.id === "string" && obj.id.length > 0 && typeof obj.name === "string" && typeof obj.text === "string" && (obj.alignment === "left" || obj.alignment === "right") && (obj.command === void 0 || typeof obj.command === "string") && (obj.tooltip === void 0 || typeof obj.tooltip === "string") && (obj.priority === void 0 || typeof obj.priority === "number") && (obj.accessibilityInformation === void 0 || isAccessibilityInformation(obj.accessibilityInformation));
+}
+__name(isUserFriendlyStatusItemEntry, "isUserFriendlyStatusItemEntry");
+const statusBarItemSchema = {
+  type: "object",
+  required: ["id", "text", "alignment", "name"],
+  properties: {
+    id: {
+      type: "string",
+      markdownDescription: localize(
+        "id",
+        "The identifier of the status bar entry. Must be unique within the extension. The same value must be used when calling the `vscode.window.createStatusBarItem(id, ...)`-API"
+      )
+    },
+    name: {
+      type: "string",
+      description: localize(
+        "name",
+        "The name of the entry, like 'Python Language Indicator', 'Git Status' etc. Try to keep the length of the name short, yet descriptive enough that users can understand what the status bar item is about."
+      )
+    },
+    text: {
+      type: "string",
+      description: localize(
+        "text",
+        "The text to show for the entry. You can embed icons in the text by leveraging the `$(<name>)`-syntax, like 'Hello $(globe)!'"
+      )
+    },
+    tooltip: {
+      type: "string",
+      description: localize("tooltip", "The tooltip text for the entry.")
+    },
+    command: {
+      type: "string",
+      description: localize(
+        "command",
+        "The command to execute when the status bar entry is clicked."
+      )
+    },
+    alignment: {
+      type: "string",
+      enum: ["left", "right"],
+      description: localize(
+        "alignment",
+        "The alignment of the status bar entry."
+      )
+    },
+    priority: {
+      type: "number",
+      description: localize(
+        "priority",
+        "The priority of the status bar entry. Higher value means the item should be shown more to the left."
+      )
+    },
+    accessibilityInformation: {
+      type: "object",
+      description: localize(
+        "accessibilityInformation",
+        "Defines the role and aria label to be used when the status bar entry is focused."
+      ),
+      properties: {
+        role: {
+          type: "string",
+          description: localize(
+            "accessibilityInformation.role",
+            "The role of the status bar entry which defines how a screen reader interacts with it. More about aria roles can be found here https://w3c.github.io/aria/#widget_roles"
+          )
+        },
+        label: {
+          type: "string",
+          description: localize(
+            "accessibilityInformation.label",
+            "The aria label of the status bar entry. Defaults to the entry's text."
+          )
+        }
+      }
+    }
+  }
+};
+const statusBarItemsSchema = {
+  description: localize(
+    "vscode.extension.contributes.statusBarItems",
+    "Contributes items to the status bar."
+  ),
+  oneOf: [
+    statusBarItemSchema,
+    {
+      type: "array",
+      items: statusBarItemSchema
+    }
+  ]
+};
+const statusBarItemsExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "statusBarItems",
+  jsonSchema: statusBarItemsSchema
+});
+let StatusBarItemsExtensionPoint = class {
+  static {
+    __name(this, "StatusBarItemsExtensionPoint");
+  }
+  constructor(statusBarItemsService) {
+    const contributions = new DisposableStore();
+    statusBarItemsExtensionPoint.setHandler((extensions) => {
+      contributions.clear();
+      for (const entry of extensions) {
+        if (!isProposedApiEnabled(
+          entry.description,
+          "contribStatusBarItems"
+        )) {
+          entry.collector.error(
+            `The ${statusBarItemsExtensionPoint.name} is proposed API`
+          );
+          continue;
+        }
+        const { value, collector } = entry;
+        for (const candidate of Iterable.wrap(value)) {
+          if (!isUserFriendlyStatusItemEntry(candidate)) {
+            collector.error(
+              localize(
+                "invalid",
+                "Invalid status bar item contribution."
+              )
+            );
+            continue;
+          }
+          const fullItemId = asStatusBarItemIdentifier(
+            entry.description.identifier,
+            candidate.id
+          );
+          const kind = statusBarItemsService.setOrUpdateEntry(
+            fullItemId,
+            fullItemId,
+            ExtensionIdentifier.toKey(entry.description.identifier),
+            candidate.name ?? entry.description.displayName ?? entry.description.name,
+            candidate.text,
+            candidate.tooltip,
+            candidate.command ? { id: candidate.command, title: candidate.name } : void 0,
+            void 0,
+            void 0,
+            candidate.alignment === "left",
+            candidate.priority,
+            candidate.accessibilityInformation
+          );
+          if (kind === 0 /* DidDefine */) {
+            contributions.add(
+              toDisposable(
+                () => statusBarItemsService.unsetEntry(fullItemId)
+              )
+            );
+          }
+        }
+      }
+    });
+  }
+};
+StatusBarItemsExtensionPoint = __decorateClass([
+  __decorateParam(0, IExtensionStatusBarItemService)
+], StatusBarItemsExtensionPoint);
+export {
+  IExtensionStatusBarItemService,
+  StatusBarItemsExtensionPoint,
+  StatusBarUpdateKind
+};
+//# sourceMappingURL=statusBarExtensionPoint.js.map

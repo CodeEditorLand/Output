@@ -1,1 +1,181 @@
-import{status as d}from"../../../../base/browser/ui/aria/aria.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import{createSingleCallFunction as l}from"../../../../base/common/functional.js";import{DisposableStore as s,MutableDisposable as u,toDisposable as g}from"../../../../base/common/lifecycle.js";import{TextEditorSelectionSource as I}from"../../../../platform/editor/common/editor.js";import"../../../../platform/quickinput/common/quickAccess.js";import"../../../../platform/quickinput/common/quickInput.js";import{themeColorFromId as h}from"../../../../platform/theme/common/themeService.js";import{getCodeEditor as p,isDiffEditor as v}from"../../../browser/editorBrowser.js";import{overviewRulerRangeHighlight as m}from"../../../common/core/editorColorRegistry.js";import"../../../common/core/range.js";import{ScrollType as D}from"../../../common/editorCommon.js";import{OverviewRulerLane as f}from"../../../common/model.js";class z{constructor(e){this.options=e}provide(e,t,r){const i=new s;e.canAcceptInBackground=!!this.options?.canAcceptInBackground,e.matchOnLabel=e.matchOnDescription=e.matchOnDetail=e.sortByLabel=!1;const o=i.add(new u);return o.value=this.doProvide(e,t,r),i.add(this.onDidActiveTextEditorControlChange(()=>{o.value=void 0,o.value=this.doProvide(e,t)})),i}doProvide(e,t,r){const i=new s,o=this.activeTextEditorControl;if(o&&this.canProvideWithTextEditor(o)){const n={editor:o},a=p(o);if(a){let c=o.saveViewState()??void 0;i.add(a.onDidChangeCursorPosition(()=>{c=o.saveViewState()??void 0})),n.restoreViewState=()=>{c&&o===this.activeTextEditorControl&&o.restoreViewState(c)},i.add(l(t.onCancellationRequested)(()=>n.restoreViewState?.()))}i.add(g(()=>this.clearDecorations(o))),i.add(this.provideWithTextEditor(n,e,t,r))}else i.add(this.provideWithoutTextEditor(e,t));return i}canProvideWithTextEditor(e){return!0}gotoLocation({editor:e},t){e.setSelection(t.range,I.JUMP),e.revealRangeInCenter(t.range,D.Smooth),t.preserveFocus||e.focus();const r=e.getModel();r&&"getLineContent"in r&&d(`${r.getLineContent(t.range.startLineNumber)}`)}getModel(e){return v(e)?e.getModel()?.modified:e.getModel()}rangeHighlightDecorationId=void 0;addDecorations(e,t){e.changeDecorations(r=>{const i=[];this.rangeHighlightDecorationId&&(i.push(this.rangeHighlightDecorationId.overviewRulerDecorationId),i.push(this.rangeHighlightDecorationId.rangeHighlightId),this.rangeHighlightDecorationId=void 0);const o=[{range:t,options:{description:"quick-access-range-highlight",className:"rangeHighlight",isWholeLine:!0}},{range:t,options:{description:"quick-access-range-highlight-overview",overviewRuler:{color:h(m),position:f.Full}}}],[n,a]=r.deltaDecorations(i,o);this.rangeHighlightDecorationId={rangeHighlightId:n,overviewRulerDecorationId:a}})}clearDecorations(e){const t=this.rangeHighlightDecorationId;t&&(e.changeDecorations(r=>{r.deltaDecorations([t.overviewRulerDecorationId,t.rangeHighlightId],[])}),this.rangeHighlightDecorationId=void 0)}}export{z as AbstractEditorNavigationQuickAccessProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+import {
+  DisposableStore,
+  IDisposable,
+  MutableDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { TextEditorSelectionSource } from "../../../../platform/editor/common/editor.js";
+import {
+  IQuickAccessProvider,
+  IQuickAccessProviderRunOptions
+} from "../../../../platform/quickinput/common/quickAccess.js";
+import {
+  IKeyMods,
+  IQuickPick,
+  IQuickPickItem
+} from "../../../../platform/quickinput/common/quickInput.js";
+import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { getCodeEditor, isDiffEditor } from "../../../browser/editorBrowser.js";
+import { overviewRulerRangeHighlight } from "../../../common/core/editorColorRegistry.js";
+import { IRange } from "../../../common/core/range.js";
+import {
+  IDiffEditor,
+  IEditor,
+  ScrollType
+} from "../../../common/editorCommon.js";
+import {
+  IModelDeltaDecoration,
+  ITextModel,
+  OverviewRulerLane
+} from "../../../common/model.js";
+class AbstractEditorNavigationQuickAccessProvider {
+  constructor(options) {
+    this.options = options;
+  }
+  static {
+    __name(this, "AbstractEditorNavigationQuickAccessProvider");
+  }
+  //#region Provider methods
+  provide(picker, token, runOptions) {
+    const disposables = new DisposableStore();
+    picker.canAcceptInBackground = !!this.options?.canAcceptInBackground;
+    picker.matchOnLabel = picker.matchOnDescription = picker.matchOnDetail = picker.sortByLabel = false;
+    const pickerDisposable = disposables.add(new MutableDisposable());
+    pickerDisposable.value = this.doProvide(picker, token, runOptions);
+    disposables.add(
+      this.onDidActiveTextEditorControlChange(() => {
+        pickerDisposable.value = void 0;
+        pickerDisposable.value = this.doProvide(picker, token);
+      })
+    );
+    return disposables;
+  }
+  doProvide(picker, token, runOptions) {
+    const disposables = new DisposableStore();
+    const editor = this.activeTextEditorControl;
+    if (editor && this.canProvideWithTextEditor(editor)) {
+      const context = { editor };
+      const codeEditor = getCodeEditor(editor);
+      if (codeEditor) {
+        let lastKnownEditorViewState = editor.saveViewState() ?? void 0;
+        disposables.add(
+          codeEditor.onDidChangeCursorPosition(() => {
+            lastKnownEditorViewState = editor.saveViewState() ?? void 0;
+          })
+        );
+        context.restoreViewState = () => {
+          if (lastKnownEditorViewState && editor === this.activeTextEditorControl) {
+            editor.restoreViewState(lastKnownEditorViewState);
+          }
+        };
+        disposables.add(
+          createSingleCallFunction(token.onCancellationRequested)(
+            () => context.restoreViewState?.()
+          )
+        );
+      }
+      disposables.add(toDisposable(() => this.clearDecorations(editor)));
+      disposables.add(
+        this.provideWithTextEditor(context, picker, token, runOptions)
+      );
+    } else {
+      disposables.add(this.provideWithoutTextEditor(picker, token));
+    }
+    return disposables;
+  }
+  /**
+   * Subclasses to implement if they can operate on the text editor.
+   */
+  canProvideWithTextEditor(editor) {
+    return true;
+  }
+  gotoLocation({ editor }, options) {
+    editor.setSelection(options.range, TextEditorSelectionSource.JUMP);
+    editor.revealRangeInCenter(options.range, ScrollType.Smooth);
+    if (!options.preserveFocus) {
+      editor.focus();
+    }
+    const model = editor.getModel();
+    if (model && "getLineContent" in model) {
+      status(`${model.getLineContent(options.range.startLineNumber)}`);
+    }
+  }
+  getModel(editor) {
+    return isDiffEditor(editor) ? editor.getModel()?.modified : editor.getModel();
+  }
+  //#endregion
+  //#region Decorations Utils
+  rangeHighlightDecorationId = void 0;
+  addDecorations(editor, range) {
+    editor.changeDecorations((changeAccessor) => {
+      const deleteDecorations = [];
+      if (this.rangeHighlightDecorationId) {
+        deleteDecorations.push(
+          this.rangeHighlightDecorationId.overviewRulerDecorationId
+        );
+        deleteDecorations.push(
+          this.rangeHighlightDecorationId.rangeHighlightId
+        );
+        this.rangeHighlightDecorationId = void 0;
+      }
+      const newDecorations = [
+        // highlight the entire line on the range
+        {
+          range,
+          options: {
+            description: "quick-access-range-highlight",
+            className: "rangeHighlight",
+            isWholeLine: true
+          }
+        },
+        // also add overview ruler highlight
+        {
+          range,
+          options: {
+            description: "quick-access-range-highlight-overview",
+            overviewRuler: {
+              color: themeColorFromId(
+                overviewRulerRangeHighlight
+              ),
+              position: OverviewRulerLane.Full
+            }
+          }
+        }
+      ];
+      const [rangeHighlightId, overviewRulerDecorationId] = changeAccessor.deltaDecorations(
+        deleteDecorations,
+        newDecorations
+      );
+      this.rangeHighlightDecorationId = {
+        rangeHighlightId,
+        overviewRulerDecorationId
+      };
+    });
+  }
+  clearDecorations(editor) {
+    const rangeHighlightDecorationId = this.rangeHighlightDecorationId;
+    if (rangeHighlightDecorationId) {
+      editor.changeDecorations((changeAccessor) => {
+        changeAccessor.deltaDecorations(
+          [
+            rangeHighlightDecorationId.overviewRulerDecorationId,
+            rangeHighlightDecorationId.rangeHighlightId
+          ],
+          []
+        );
+      });
+      this.rangeHighlightDecorationId = void 0;
+    }
+  }
+  //#endregion
+}
+export {
+  AbstractEditorNavigationQuickAccessProvider
+};
+//# sourceMappingURL=editorNavigationQuickAccess.js.map

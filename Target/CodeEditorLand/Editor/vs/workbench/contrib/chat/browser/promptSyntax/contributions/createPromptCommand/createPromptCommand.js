@@ -1,1 +1,161 @@
-import{localize as o}from"../../../../../../../nls.js";import{MenuId as d,MenuRegistry as l}from"../../../../../../../platform/actions/common/actions.js";import{ICommandService as R}from"../../../../../../../platform/commands/common/commands.js";import{ContextKeyExpr as r}from"../../../../../../../platform/contextkey/common/contextkey.js";import{IFileService as F}from"../../../../../../../platform/files/common/files.js";import"../../../../../../../platform/instantiation/common/instantiation.js";import{KeybindingsRegistry as f,KeybindingWeight as S}from"../../../../../../../platform/keybinding/common/keybindingsRegistry.js";import{ILabelService as x}from"../../../../../../../platform/label/common/label.js";import{ILogService as L}from"../../../../../../../platform/log/common/log.js";import{INotificationService as U,NeverShowAgainScope as K,Severity as T}from"../../../../../../../platform/notification/common/notification.js";import{IOpenerService as z}from"../../../../../../../platform/opener/common/opener.js";import{PromptsConfig as n}from"../../../../../../../platform/prompts/common/config.js";import{IQuickInputService as W}from"../../../../../../../platform/quickinput/common/quickInput.js";import{IUserDataSyncEnablementService as $,SyncResource as G}from"../../../../../../../platform/userDataSync/common/userDataSync.js";import{IWorkspaceContextService as Y}from"../../../../../../../platform/workspace/common/workspace.js";import{CONFIGURE_SYNC_COMMAND_ID as u}from"../../../../../../services/userDataSync/common/userDataSync.js";import{ChatContextKeys as i}from"../../../../common/chatContextKeys.js";import{IPromptsService as q}from"../../../../common/promptSyntax/service/types.js";import{CHAT_CATEGORY as b}from"../../../actions/chatActions.js";import{askForPromptName as B}from"./dialogs/askForPromptName.js";import{askForPromptSourceFolder as H}from"./dialogs/askForPromptSourceFolder.js";import{createPromptFile as Q}from"./utils/createPromptFile.js";const C="workbench.command.prompts.create",g=`${C}.local`,v=`${C}.user`,j=o("commands.prompts.create.title.local","Create Prompt"),J=o("commands.prompts.create.title.user","Create User Prompt"),V=async(e,t)=>{const h=e.get(L),y=e.get(F),A=e.get(x),m=e.get(z),w=e.get(q),P=e.get(R),c=e.get(W),M=e.get(U),E=e.get(Y),a=e.get($),p=await B(t,c);if(!p)return;const s=await H({type:t,labelService:A,openerService:m,promptsService:w,workspaceService:E,quickInputService:c});if(!s)return;const _=o("workbench.command.prompts.create.initial-content","Add prompt contents..."),D=await Q({fileName:p,folder:s,content:_,fileService:y,openerService:m});if(await m.open(D),t!=="user")return;const k=a.isResourceEnablementConfigured(G.Prompts),N=a.isEnabled();k===!0||N===!1||M.prompt(T.Info,o("workbench.command.prompts.create.user.enable-sync-notification","User prompts are not currently synchronized. Do you want to enable synchronization of the user prompts?"),[{label:o("enable.capitalized","Enable"),run:()=>{P.executeCommand(u).catch(O=>{h.error(`Failed to run '${u}' command: ${O}.`)})}}],{neverShowAgain:{id:"workbench.command.prompts.create.user.enable-sync-notification",scope:K.PROFILE}})},I=e=>async t=>V(t,e);f.registerCommandAndKeybindingRule({id:g,weight:S.WorkbenchContrib,handler:I("local"),when:r.and(n.enabledCtx,i.enabled)}),f.registerCommandAndKeybindingRule({id:v,weight:S.WorkbenchContrib,handler:I("user"),when:r.and(n.enabledCtx,i.enabled)}),l.appendMenuItem(d.CommandPalette,{command:{id:g,title:j,category:b},when:r.and(n.enabledCtx,i.enabled)}),l.appendMenuItem(d.CommandPalette,{command:{id:v,title:J,category:b},when:r.and(n.enabledCtx,i.enabled)});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../../../../nls.js";
+import {
+  MenuId,
+  MenuRegistry
+} from "../../../../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../../../../platform/contextkey/common/contextkey.js";
+import { IFileService } from "../../../../../../../platform/files/common/files.js";
+import { ServicesAccessor } from "../../../../../../../platform/instantiation/common/instantiation.js";
+import {
+  KeybindingsRegistry,
+  KeybindingWeight
+} from "../../../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ILabelService } from "../../../../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../../../../platform/log/common/log.js";
+import {
+  INotificationService,
+  NeverShowAgainScope,
+  Severity
+} from "../../../../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../../../../platform/opener/common/opener.js";
+import { PromptsConfig } from "../../../../../../../platform/prompts/common/config.js";
+import { IQuickInputService } from "../../../../../../../platform/quickinput/common/quickInput.js";
+import {
+  IUserDataSyncEnablementService,
+  SyncResource
+} from "../../../../../../../platform/userDataSync/common/userDataSync.js";
+import { IWorkspaceContextService } from "../../../../../../../platform/workspace/common/workspace.js";
+import { CONFIGURE_SYNC_COMMAND_ID } from "../../../../../../services/userDataSync/common/userDataSync.js";
+import { ChatContextKeys } from "../../../../common/chatContextKeys.js";
+import {
+  IPromptPath,
+  IPromptsService
+} from "../../../../common/promptSyntax/service/types.js";
+import { CHAT_CATEGORY } from "../../../actions/chatActions.js";
+import { askForPromptName } from "./dialogs/askForPromptName.js";
+import { askForPromptSourceFolder } from "./dialogs/askForPromptSourceFolder.js";
+import { createPromptFile } from "./utils/createPromptFile.js";
+const BASE_COMMAND_ID = "workbench.command.prompts.create";
+const LOCAL_COMMAND_ID = `${BASE_COMMAND_ID}.local`;
+const USER_COMMAND_ID = `${BASE_COMMAND_ID}.user`;
+const LOCAL_COMMAND_TITLE = localize(
+  "commands.prompts.create.title.local",
+  "Create Prompt"
+);
+const USER_COMMAND_TITLE = localize(
+  "commands.prompts.create.title.user",
+  "Create User Prompt"
+);
+const command = /* @__PURE__ */ __name(async (accessor, type) => {
+  const logService = accessor.get(ILogService);
+  const fileService = accessor.get(IFileService);
+  const labelService = accessor.get(ILabelService);
+  const openerService = accessor.get(IOpenerService);
+  const promptsService = accessor.get(IPromptsService);
+  const commandService = accessor.get(ICommandService);
+  const quickInputService = accessor.get(IQuickInputService);
+  const notificationService = accessor.get(INotificationService);
+  const workspaceService = accessor.get(IWorkspaceContextService);
+  const userDataSyncEnablementService = accessor.get(
+    IUserDataSyncEnablementService
+  );
+  const fileName = await askForPromptName(type, quickInputService);
+  if (!fileName) {
+    return;
+  }
+  const selectedFolder = await askForPromptSourceFolder({
+    type,
+    labelService,
+    openerService,
+    promptsService,
+    workspaceService,
+    quickInputService
+  });
+  if (!selectedFolder) {
+    return;
+  }
+  const content = localize(
+    "workbench.command.prompts.create.initial-content",
+    "Add prompt contents..."
+  );
+  const promptUri = await createPromptFile({
+    fileName,
+    folder: selectedFolder,
+    content,
+    fileService,
+    openerService
+  });
+  await openerService.open(promptUri);
+  if (type !== "user") {
+    return;
+  }
+  const isConfigured = userDataSyncEnablementService.isResourceEnablementConfigured(
+    SyncResource.Prompts
+  );
+  const isSettingsSyncEnabled = userDataSyncEnablementService.isEnabled();
+  if (isConfigured === true || isSettingsSyncEnabled === false) {
+    return;
+  }
+  notificationService.prompt(
+    Severity.Info,
+    localize(
+      "workbench.command.prompts.create.user.enable-sync-notification",
+      "User prompts are not currently synchronized. Do you want to enable synchronization of the user prompts?"
+    ),
+    [
+      {
+        label: localize("enable.capitalized", "Enable"),
+        run: /* @__PURE__ */ __name(() => {
+          commandService.executeCommand(CONFIGURE_SYNC_COMMAND_ID).catch((error) => {
+            logService.error(
+              `Failed to run '${CONFIGURE_SYNC_COMMAND_ID}' command: ${error}.`
+            );
+          });
+        }, "run")
+      }
+    ],
+    {
+      neverShowAgain: {
+        id: "workbench.command.prompts.create.user.enable-sync-notification",
+        scope: NeverShowAgainScope.PROFILE
+      }
+    }
+  );
+}, "command");
+const commandFactory = /* @__PURE__ */ __name((type) => {
+  return async (accessor) => {
+    return command(accessor, type);
+  };
+}, "commandFactory");
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: LOCAL_COMMAND_ID,
+  weight: KeybindingWeight.WorkbenchContrib,
+  handler: commandFactory("local"),
+  when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+});
+KeybindingsRegistry.registerCommandAndKeybindingRule({
+  id: USER_COMMAND_ID,
+  weight: KeybindingWeight.WorkbenchContrib,
+  handler: commandFactory("user"),
+  when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: LOCAL_COMMAND_ID,
+    title: LOCAL_COMMAND_TITLE,
+    category: CHAT_CATEGORY
+  },
+  when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+});
+MenuRegistry.appendMenuItem(MenuId.CommandPalette, {
+  command: {
+    id: USER_COMMAND_ID,
+    title: USER_COMMAND_TITLE,
+    category: CHAT_CATEGORY
+  },
+  when: ContextKeyExpr.and(PromptsConfig.enabledCtx, ChatContextKeys.enabled)
+});
+//# sourceMappingURL=createPromptCommand.js.map

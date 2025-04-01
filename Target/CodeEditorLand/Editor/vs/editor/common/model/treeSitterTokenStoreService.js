@@ -1,1 +1,201 @@
-import{DisposableStore as f}from"../../../base/common/lifecycle.js";import{InstantiationType as g,registerSingleton as d}from"../../../platform/instantiation/common/extensions.js";import{createDecorator as l}from"../../../platform/instantiation/common/instantiation.js";import{Range as k}from"../core/range.js";import"../model.js";import"../textModelEvents.js";import{TokenQuality as T,TokenStore as u}from"./tokenStore.js";const h=l("treeSitterTokenizationStoreService");class c{_serviceBrand;tokens=new Map;constructor(){}setTokens(e,o,n){const t=new f,r=t.add(new u(e));this.tokens.set(e,{store:r,accurateVersion:e.getVersionId(),disposables:t,guessVersion:e.getVersionId()}),r.buildStore(o,n),t.add(e.onWillDispose(()=>{const s=this.tokens.get(e);s&&(s.disposables.dispose(),this.tokens.delete(e))}))}handleContentChanged(e,o){const n=this.tokens.get(e);if(n){n.guessVersion=o.versionId;for(const t of o.changes)if(t.text.length>t.rangeLength){const r=t.rangeOffset>0?t.rangeOffset-1:t.rangeOffset,s=n.store.getTokenAt(r);let i;s?(i={startOffsetInclusive:s.startOffsetInclusive,length:s.length+t.text.length-t.rangeLength,token:s.token},n.store.markForRefresh(r,t.rangeOffset+(t.text.length>t.rangeLength?t.text.length:t.rangeLength))):i={startOffsetInclusive:r,length:t.text.length,token:0},n.store.update(s?.length??0,[i],T.EditGuess)}else if(t.text.length<t.rangeLength){const r=t.rangeLength-t.text.length;n.store.delete(r,t.rangeOffset)}}}rangeHasTokens(e,o,n){const t=this.tokens.get(e);return t?t.store.rangeHasTokens(e.getOffsetAt(o.getStartPosition()),e.getOffsetAt(o.getEndPosition()),n):!1}hasTokens(e,o){const n=this.tokens.get(e);return n?!o||n.guessVersion===n.accurateVersion?!0:!n.store.rangeNeedsRefresh(e.getOffsetAt(o.getStartPosition()),e.getOffsetAt(o.getEndPosition())):!1}getTokens(e,o){const n=this.tokens.get(e)?.store;if(!n)return;const t=e.getOffsetAt({lineNumber:o,column:1}),r=n.getTokensInRange(t,e.getOffsetAt({lineNumber:o,column:e.getLineLength(o)})+1),s=new Uint32Array(r.length*2);for(let i=0;i<r.length;i++)s[i*2]=r[i].startOffsetInclusive-t+r[i].length,s[i*2+1]=r[i].token;return s}updateTokens(e,o,n,t){const r=this.tokens.get(e);if(r){r.accurateVersion=o;for(const s of n){const i=s.newTokens.length>0?s.newTokens[s.newTokens.length-1]:void 0;let a;i&&r.guessVersion>=o?a=i.startOffsetInclusive+i.length-s.newTokens[0].startOffsetInclusive:s.oldRangeLength?a=s.oldRangeLength:a=0,r.store.update(a,s.newTokens,t)}}}markForRefresh(e,o){const n=this.tokens.get(e)?.store;n&&n.markForRefresh(e.getOffsetAt(o.getStartPosition()),e.getOffsetAt(o.getEndPosition()))}getNeedsRefresh(e){const o=this.tokens.get(e)?.store.getNeedsRefresh();return o?o.map(n=>({range:k.fromPositions(e.getPositionAt(n.startOffset),e.getPositionAt(n.endOffset)),startOffset:n.startOffset,endOffset:n.endOffset})):[]}delete(e){const o=this.tokens.get(e);o&&(o.disposables.dispose(),this.tokens.delete(e))}dispose(){for(const[,e]of this.tokens)e.disposables.dispose()}}d(h,c,g.Delayed);export{h as ITreeSitterTokenizationStoreService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  DisposableStore,
+  IDisposable
+} from "../../../base/common/lifecycle.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { Range } from "../core/range.js";
+import { ITextModel } from "../model.js";
+import { IModelContentChangedEvent } from "../textModelEvents.js";
+import { TokenQuality, TokenStore, TokenUpdate } from "./tokenStore.js";
+const ITreeSitterTokenizationStoreService = createDecorator(
+  "treeSitterTokenizationStoreService"
+);
+class TreeSitterTokenizationStoreService {
+  static {
+    __name(this, "TreeSitterTokenizationStoreService");
+  }
+  _serviceBrand;
+  tokens = /* @__PURE__ */ new Map();
+  constructor() {
+  }
+  setTokens(model, tokens, tokenQuality) {
+    const disposables = new DisposableStore();
+    const store = disposables.add(new TokenStore(model));
+    this.tokens.set(model, {
+      store,
+      accurateVersion: model.getVersionId(),
+      disposables,
+      guessVersion: model.getVersionId()
+    });
+    store.buildStore(tokens, tokenQuality);
+    disposables.add(
+      model.onWillDispose(() => {
+        const storeInfo = this.tokens.get(model);
+        if (storeInfo) {
+          storeInfo.disposables.dispose();
+          this.tokens.delete(model);
+        }
+      })
+    );
+  }
+  handleContentChanged(model, e) {
+    const storeInfo = this.tokens.get(model);
+    if (!storeInfo) {
+      return;
+    }
+    storeInfo.guessVersion = e.versionId;
+    for (const change of e.changes) {
+      if (change.text.length > change.rangeLength) {
+        const offset = change.rangeOffset > 0 ? change.rangeOffset - 1 : change.rangeOffset;
+        const oldToken = storeInfo.store.getTokenAt(offset);
+        let newToken;
+        if (oldToken) {
+          newToken = {
+            startOffsetInclusive: oldToken.startOffsetInclusive,
+            length: oldToken.length + change.text.length - change.rangeLength,
+            token: oldToken.token
+          };
+          storeInfo.store.markForRefresh(
+            offset,
+            change.rangeOffset + (change.text.length > change.rangeLength ? change.text.length : change.rangeLength)
+          );
+        } else {
+          newToken = {
+            startOffsetInclusive: offset,
+            length: change.text.length,
+            token: 0
+          };
+        }
+        storeInfo.store.update(
+          oldToken?.length ?? 0,
+          [newToken],
+          TokenQuality.EditGuess
+        );
+      } else if (change.text.length < change.rangeLength) {
+        const deletedCharCount = change.rangeLength - change.text.length;
+        storeInfo.store.delete(deletedCharCount, change.rangeOffset);
+      }
+    }
+  }
+  rangeHasTokens(model, range, minimumTokenQuality) {
+    const tokens = this.tokens.get(model);
+    if (!tokens) {
+      return false;
+    }
+    return tokens.store.rangeHasTokens(
+      model.getOffsetAt(range.getStartPosition()),
+      model.getOffsetAt(range.getEndPosition()),
+      minimumTokenQuality
+    );
+  }
+  hasTokens(model, accurateForRange) {
+    const tokens = this.tokens.get(model);
+    if (!tokens) {
+      return false;
+    }
+    if (!accurateForRange || tokens.guessVersion === tokens.accurateVersion) {
+      return true;
+    }
+    return !tokens.store.rangeNeedsRefresh(
+      model.getOffsetAt(accurateForRange.getStartPosition()),
+      model.getOffsetAt(accurateForRange.getEndPosition())
+    );
+  }
+  getTokens(model, line) {
+    const tokens = this.tokens.get(model)?.store;
+    if (!tokens) {
+      return void 0;
+    }
+    const lineStartOffset = model.getOffsetAt({
+      lineNumber: line,
+      column: 1
+    });
+    const lineTokens = tokens.getTokensInRange(
+      lineStartOffset,
+      model.getOffsetAt({
+        lineNumber: line,
+        column: model.getLineLength(line)
+      }) + 1
+    );
+    const result = new Uint32Array(lineTokens.length * 2);
+    for (let i = 0; i < lineTokens.length; i++) {
+      result[i * 2] = lineTokens[i].startOffsetInclusive - lineStartOffset + lineTokens[i].length;
+      result[i * 2 + 1] = lineTokens[i].token;
+    }
+    return result;
+  }
+  updateTokens(model, version, updates, tokenQuality) {
+    const existingTokens = this.tokens.get(model);
+    if (!existingTokens) {
+      return;
+    }
+    existingTokens.accurateVersion = version;
+    for (const update of updates) {
+      const lastToken = update.newTokens.length > 0 ? update.newTokens[update.newTokens.length - 1] : void 0;
+      let oldRangeLength;
+      if (lastToken && existingTokens.guessVersion >= version) {
+        oldRangeLength = lastToken.startOffsetInclusive + lastToken.length - update.newTokens[0].startOffsetInclusive;
+      } else if (update.oldRangeLength) {
+        oldRangeLength = update.oldRangeLength;
+      } else {
+        oldRangeLength = 0;
+      }
+      existingTokens.store.update(
+        oldRangeLength,
+        update.newTokens,
+        tokenQuality
+      );
+    }
+  }
+  markForRefresh(model, range) {
+    const tree = this.tokens.get(model)?.store;
+    if (!tree) {
+      return;
+    }
+    tree.markForRefresh(
+      model.getOffsetAt(range.getStartPosition()),
+      model.getOffsetAt(range.getEndPosition())
+    );
+  }
+  getNeedsRefresh(model) {
+    const needsRefreshOffsetRanges = this.tokens.get(model)?.store.getNeedsRefresh();
+    if (!needsRefreshOffsetRanges) {
+      return [];
+    }
+    return needsRefreshOffsetRanges.map((range) => ({
+      range: Range.fromPositions(
+        model.getPositionAt(range.startOffset),
+        model.getPositionAt(range.endOffset)
+      ),
+      startOffset: range.startOffset,
+      endOffset: range.endOffset
+    }));
+  }
+  delete(model) {
+    const storeInfo = this.tokens.get(model);
+    if (storeInfo) {
+      storeInfo.disposables.dispose();
+      this.tokens.delete(model);
+    }
+  }
+  dispose() {
+    for (const [, value] of this.tokens) {
+      value.disposables.dispose();
+    }
+  }
+}
+registerSingleton(
+  ITreeSitterTokenizationStoreService,
+  TreeSitterTokenizationStoreService,
+  InstantiationType.Delayed
+);
+export {
+  ITreeSitterTokenizationStoreService
+};
+//# sourceMappingURL=treeSitterTokenStoreService.js.map

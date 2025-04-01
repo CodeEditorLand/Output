@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/platform/instantiation/common/descriptors.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nexport class SyncDescriptor<T> {\r\n\treadonly ctor: any;\r\n\treadonly staticArguments: any[];\r\n\treadonly supportsDelayedInstantiation: boolean;\r\n\r\n\tconstructor(\r\n\t\tctor: new (...args: any[]) => T,\r\n\t\tstaticArguments: any[] = [],\r\n\t\tsupportsDelayedInstantiation: boolean = false,\r\n\t) {\r\n\t\tthis.ctor = ctor;\r\n\t\tthis.staticArguments = staticArguments;\r\n\t\tthis.supportsDelayedInstantiation = supportsDelayedInstantiation;\r\n\t}\r\n}\r\n\r\nexport interface SyncDescriptor0<T> {\r\n\treadonly ctor: new () => T;\r\n}\r\n"],
+  "mappings": ";;AAKO,MAAM,eAAkB;AAAA,EAL/B,OAK+B;AAAA;AAAA;AAAA,EACrB;AAAA,EACA;AAAA,EACA;AAAA,EAET,YACC,MACA,kBAAyB,CAAC,GAC1B,+BAAwC,OACvC;AACD,SAAK,OAAO;AACZ,SAAK,kBAAkB;AACvB,SAAK,+BAA+B;AAAA,EACrC;AACD;",
+  "names": []
+}

@@ -1,1 +1,32 @@
-var a=Object.defineProperty;var k=Object.getOwnPropertyDescriptor;var i=(o,e,s,c)=>{for(var r=c>1?void 0:c?k(e,s):e,m=o.length-1,p;m>=0;m--)(p=o[m])&&(r=(c?p(e,s,r):p(r))||r);return c&&r&&a(e,s,r),r},n=(o,e)=>(s,c)=>e(s,c,o);import{Disposable as I}from"../../../../../base/common/lifecycle.js";import"../../../../common/contributions.js";import{IChatTransferService as b}from"../../common/chatTransferService.js";let t=class extends I{static ID="workbench.contrib.chatTransfer";constructor(e){super(),e.checkAndSetWorkspaceTrust()}};t=i([n(0,b)],t);export{t as ChatTransferContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import { IChatTransferService } from "../../common/chatTransferService.js";
+let ChatTransferContribution = class extends Disposable {
+  static {
+    __name(this, "ChatTransferContribution");
+  }
+  static ID = "workbench.contrib.chatTransfer";
+  constructor(chatTransferService) {
+    super();
+    chatTransferService.checkAndSetWorkspaceTrust();
+  }
+};
+ChatTransferContribution = __decorateClass([
+  __decorateParam(0, IChatTransferService)
+], ChatTransferContribution);
+export {
+  ChatTransferContribution
+};
+//# sourceMappingURL=chatTransfer.js.map

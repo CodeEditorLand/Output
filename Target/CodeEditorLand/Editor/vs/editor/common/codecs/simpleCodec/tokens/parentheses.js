@@ -1,1 +1,89 @@
-import{Position as n}from"../../../core/position.js";import{Range as c}from"../../../core/range.js";import{BaseToken as g}from"../../baseToken.js";import"../../linesCodec/tokens/line.js";class o extends g{static symbol="(";get text(){return o.symbol}static newOnLine(i,t){const{range:e}=i,r=new n(e.startLineNumber,t),s=new n(e.startLineNumber,t+this.symbol.length);return new o(c.fromPositions(r,s))}toString(){return`left-parenthesis${this.range}`}}class a extends g{static symbol=")";get text(){return a.symbol}static newOnLine(i,t){const{range:e}=i,r=new n(e.startLineNumber,t),s=new n(e.startLineNumber,t+this.symbol.length);return new a(c.fromPositions(r,s))}toString(){return`right-parenthesis${this.range}`}}export{o as LeftParenthesis,a as RightParenthesis};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Position } from "../../../core/position.js";
+import { Range } from "../../../core/range.js";
+import { BaseToken } from "../../baseToken.js";
+import { Line } from "../../linesCodec/tokens/line.js";
+class LeftParenthesis extends BaseToken {
+  static {
+    __name(this, "LeftParenthesis");
+  }
+  /**
+   * The underlying symbol of the token.
+   */
+  static symbol = "(";
+  /**
+   * Return text representation of the token.
+   */
+  get text() {
+    return LeftParenthesis.symbol;
+  }
+  /**
+   * Create new `LeftParenthesis` token with range inside
+   * the given `Line` at the given `column number`.
+   */
+  static newOnLine(line, atColumnNumber) {
+    const { range } = line;
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + this.symbol.length
+    );
+    return new LeftParenthesis(
+      Range.fromPositions(startPosition, endPosition)
+    );
+  }
+  /**
+   * Returns a string representation of the token.
+   */
+  toString() {
+    return `left-parenthesis${this.range}`;
+  }
+}
+class RightParenthesis extends BaseToken {
+  static {
+    __name(this, "RightParenthesis");
+  }
+  /**
+   * The underlying symbol of the token.
+   */
+  static symbol = ")";
+  /**
+   * Return text representation of the token.
+   */
+  get text() {
+    return RightParenthesis.symbol;
+  }
+  /**
+   * Create new `RightParenthesis` token with range inside
+   * the given `Line` at the given `column number`.
+   */
+  static newOnLine(line, atColumnNumber) {
+    const { range } = line;
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + this.symbol.length
+    );
+    return new RightParenthesis(
+      Range.fromPositions(startPosition, endPosition)
+    );
+  }
+  /**
+   * Returns a string representation of the token.
+   */
+  toString() {
+    return `right-parenthesis${this.range}`;
+  }
+}
+export {
+  LeftParenthesis,
+  RightParenthesis
+};
+//# sourceMappingURL=parentheses.js.map

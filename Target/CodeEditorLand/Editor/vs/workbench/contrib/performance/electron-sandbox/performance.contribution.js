@@ -1,1 +1,44 @@
-import{localize as i}from"../../../../nls.js";import{Extensions as t}from"../../../../platform/configuration/common/configurationRegistry.js";import{Registry as r}from"../../../../platform/registry/common/platform.js";import{applicationConfigurationNodeBase as n}from"../../../common/configuration.js";import{Extensions as o}from"../../../common/contributions.js";import{LifecyclePhase as e}from"../../../services/lifecycle/common/lifecycle.js";import{RendererProfiling as a}from"./rendererAutoProfiler.js";import{StartupProfiler as s}from"./startupProfiler.js";import{NativeStartupTimings as l}from"./startupTimings.js";r.as(o.Workbench).registerWorkbenchContribution(a,e.Eventually),r.as(o.Workbench).registerWorkbenchContribution(s,e.Restored),r.as(o.Workbench).registerWorkbenchContribution(l,e.Eventually),r.as(t.Configuration).registerConfiguration({...n,properties:{"application.experimental.rendererProfiling":{type:"boolean",default:!1,tags:["experimental","onExP"],markdownDescription:i("experimental.rendererProfiling","When enabled, slow renderers are automatically profiled.")}}});
+import { localize } from "../../../../nls.js";
+import {
+  Extensions as ConfigExt,
+  IConfigurationRegistry
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { applicationConfigurationNodeBase } from "../../../common/configuration.js";
+import {
+  Extensions,
+  IWorkbenchContributionsRegistry
+} from "../../../common/contributions.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import { RendererProfiling } from "./rendererAutoProfiler.js";
+import { StartupProfiler } from "./startupProfiler.js";
+import { NativeStartupTimings } from "./startupTimings.js";
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(RendererProfiling, LifecyclePhase.Eventually);
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(StartupProfiler, LifecyclePhase.Restored);
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(
+  NativeStartupTimings,
+  LifecyclePhase.Eventually
+);
+Registry.as(
+  ConfigExt.Configuration
+).registerConfiguration({
+  ...applicationConfigurationNodeBase,
+  "properties": {
+    "application.experimental.rendererProfiling": {
+      type: "boolean",
+      default: false,
+      tags: ["experimental", "onExP"],
+      markdownDescription: localize(
+        "experimental.rendererProfiling",
+        "When enabled, slow renderers are automatically profiled."
+      )
+    }
+  }
+});
+//# sourceMappingURL=performance.contribution.js.map

@@ -1,1 +1,96 @@
-var v=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var m=(s,n,e,t)=>{for(var i=t>1?void 0:t?p(n,e):n,r=s.length-1,o;r>=0;r--)(o=s[r])&&(i=(t?o(n,e,i):o(i))||i);return t&&i&&v(n,e,i),i},a=(s,n)=>(e,t)=>n(e,t,s);import{disposableWindowInterval as f,getActiveWindow as d}from"../../../../base/browser/dom.js";import{Disposable as u}from"../../../../base/common/lifecycle.js";import{URI as I}from"../../../../base/common/uri.js";import{ipcRenderer as R}from"../../../../base/parts/sandbox/electron-sandbox/globals.js";import{IFileService as _}from"../../../../platform/files/common/files.js";import{INativeHostService as S}from"../../../../platform/native/common/native.js";import"../../../../platform/window/common/window.js";import"../../../common/contributions.js";import{IRemoteAgentService as h}from"../../../services/remote/common/remoteAgentService.js";import{ITerminalService as w}from"../browser/terminal.js";import{registerRemoteContributions as F}from"./terminalRemote.js";let c=class extends u{constructor(e,t,i,r){super();this._fileService=e;this._terminalService=t;R.on("vscode:openFiles",(g,l)=>{this._onOpenFileRequest(l)}),this._register(r.onDidResumeOS(()=>this._onOsResume())),this._terminalService.setNativeDelegate({getWindowCount:()=>r.getWindowCount()});const o=i.getConnection();o&&o.remoteAuthority&&F()}_onOsResume(){for(const e of this._terminalService.instances)e.xterm?.forceRedraw()}async _onOpenFileRequest(e){if(e.termProgram==="vscode"&&e.filesToWait){const t=I.revive(e.filesToWait.waitMarkerFileUri);await this._whenFileDeleted(t),this._terminalService.activeInstance?.focus()}}_whenFileDeleted(e){return new Promise(t=>{let i=!1;const r=f(d(),async()=>{if(!i){i=!0;const o=await this._fileService.exists(e);i=!1,o||(r.dispose(),t(void 0))}},1e3)})}};c=m([a(0,_),a(1,w),a(2,h),a(3,S)],c);export{c as TerminalNativeContribution};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  disposableWindowInterval,
+  getActiveWindow
+} from "../../../../base/browser/dom.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ipcRenderer } from "../../../../base/parts/sandbox/electron-sandbox/globals.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { INativeOpenFileRequest } from "../../../../platform/window/common/window.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import { ITerminalService } from "../browser/terminal.js";
+import { registerRemoteContributions } from "./terminalRemote.js";
+let TerminalNativeContribution = class extends Disposable {
+  constructor(_fileService, _terminalService, remoteAgentService, nativeHostService) {
+    super();
+    this._fileService = _fileService;
+    this._terminalService = _terminalService;
+    ipcRenderer.on(
+      "vscode:openFiles",
+      (_, request) => {
+        this._onOpenFileRequest(request);
+      }
+    );
+    this._register(
+      nativeHostService.onDidResumeOS(() => this._onOsResume())
+    );
+    this._terminalService.setNativeDelegate({
+      getWindowCount: /* @__PURE__ */ __name(() => nativeHostService.getWindowCount(), "getWindowCount")
+    });
+    const connection = remoteAgentService.getConnection();
+    if (connection && connection.remoteAuthority) {
+      registerRemoteContributions();
+    }
+  }
+  static {
+    __name(this, "TerminalNativeContribution");
+  }
+  _onOsResume() {
+    for (const instance of this._terminalService.instances) {
+      instance.xterm?.forceRedraw();
+    }
+  }
+  async _onOpenFileRequest(request) {
+    if (request.termProgram === "vscode" && request.filesToWait) {
+      const waitMarkerFileUri = URI.revive(
+        request.filesToWait.waitMarkerFileUri
+      );
+      await this._whenFileDeleted(waitMarkerFileUri);
+      this._terminalService.activeInstance?.focus();
+    }
+  }
+  _whenFileDeleted(path) {
+    return new Promise((resolve) => {
+      let running = false;
+      const interval = disposableWindowInterval(
+        getActiveWindow(),
+        async () => {
+          if (!running) {
+            running = true;
+            const exists = await this._fileService.exists(path);
+            running = false;
+            if (!exists) {
+              interval.dispose();
+              resolve(void 0);
+            }
+          }
+        },
+        1e3
+      );
+    });
+  }
+};
+TerminalNativeContribution = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, ITerminalService),
+  __decorateParam(2, IRemoteAgentService),
+  __decorateParam(3, INativeHostService)
+], TerminalNativeContribution);
+export {
+  TerminalNativeContribution
+};
+//# sourceMappingURL=terminalNativeContribution.js.map

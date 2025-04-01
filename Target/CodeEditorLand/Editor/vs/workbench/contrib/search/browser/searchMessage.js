@@ -1,1 +1,79 @@
-import*as t from"../../../../base/browser/dom.js";import{SeverityIcon as v}from"../../../../base/browser/ui/severityIcon/severityIcon.js";import"../../../../base/common/lifecycle.js";import{parseLinkedText as h}from"../../../../base/common/linkedText.js";import{Schemas as m}from"../../../../base/common/network.js";import s from"../../../../base/common/severity.js";import{URI as x}from"../../../../base/common/uri.js";import*as p from"../../../../nls.js";import"../../../../platform/commands/common/commands.js";import"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/notification/common/notification.js";import{Link as T}from"../../../../platform/opener/browser/link.js";import"../../../../platform/opener/common/opener.js";import{TextSearchCompleteMessageType as k}from"../../../services/search/common/searchExtTypes.js";const A=(e,c,a,d,l,f,u)=>{const r=t.$("div.providerMessage"),S=h(e.text);t.append(r,t.$("."+v.className(e.type===k.Information?s.Info:s.Warning).split(" ").join(".")));for(const n of S.nodes)if(typeof n=="string")t.append(r,document.createTextNode(n));else{const I=c.createInstance(T,r,n,{opener:async i=>{if(!e.trusted)return;const o=x.parse(i,!0);o.scheme===m.command&&e.trusted?(await l.executeCommand(o.path))?.triggerSearch&&u():o.scheme===m.https?d.open(o):o.scheme===m.command&&!e.trusted?a.error(p.localize("unable to open trust","Unable to open command link from untrusted source: {0}",i)):a.error(p.localize("unable to open","Unable to open unknown link: {0}",i))}});f.add(I)}return r};export{A as renderSearchMessage};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { parseLinkedText } from "../../../../base/common/linkedText.js";
+import { Schemas } from "../../../../base/common/network.js";
+import Severity from "../../../../base/common/severity.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import {
+  TextSearchCompleteMessage,
+  TextSearchCompleteMessageType
+} from "../../../services/search/common/searchExtTypes.js";
+const renderSearchMessage = /* @__PURE__ */ __name((message, instantiationService, notificationService, openerService, commandService, disposableStore, triggerSearch) => {
+  const div = dom.$("div.providerMessage");
+  const linkedText = parseLinkedText(message.text);
+  dom.append(
+    div,
+    dom.$(
+      "." + SeverityIcon.className(
+        message.type === TextSearchCompleteMessageType.Information ? Severity.Info : Severity.Warning
+      ).split(" ").join(".")
+    )
+  );
+  for (const node of linkedText.nodes) {
+    if (typeof node === "string") {
+      dom.append(div, document.createTextNode(node));
+    } else {
+      const link = instantiationService.createInstance(Link, div, node, {
+        opener: /* @__PURE__ */ __name(async (href) => {
+          if (!message.trusted) {
+            return;
+          }
+          const parsed = URI.parse(href, true);
+          if (parsed.scheme === Schemas.command && message.trusted) {
+            const result = await commandService.executeCommand(
+              parsed.path
+            );
+            if (result?.triggerSearch) {
+              triggerSearch();
+            }
+          } else if (parsed.scheme === Schemas.https) {
+            openerService.open(parsed);
+          } else {
+            if (parsed.scheme === Schemas.command && !message.trusted) {
+              notificationService.error(
+                nls.localize(
+                  "unable to open trust",
+                  "Unable to open command link from untrusted source: {0}",
+                  href
+                )
+              );
+            } else {
+              notificationService.error(
+                nls.localize(
+                  "unable to open",
+                  "Unable to open unknown link: {0}",
+                  href
+                )
+              );
+            }
+          }
+        }, "opener")
+      });
+      disposableStore.add(link);
+    }
+  }
+  return div;
+}, "renderSearchMessage");
+export {
+  renderSearchMessage
+};
+//# sourceMappingURL=searchMessage.js.map

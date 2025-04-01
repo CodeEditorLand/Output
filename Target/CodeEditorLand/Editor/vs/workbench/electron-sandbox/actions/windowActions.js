@@ -1,1 +1,486 @@
-import"./media/actions.css";import{getZoomLevel as M}from"../../../base/browser/browser.js";import{getActiveWindow as S}from"../../../base/browser/dom.js";import{Codicon as N}from"../../../base/common/codicons.js";import{KeyCode as t,KeyMod as n}from"../../../base/common/keyCodes.js";import{isMacintosh as q}from"../../../base/common/platform.js";import{ThemeIcon as E}from"../../../base/common/themables.js";import{URI as P}from"../../../base/common/uri.js";import{ILanguageService as G}from"../../../editor/common/languages/language.js";import{getIconClasses as _}from"../../../editor/common/services/getIconClasses.js";import{IModelService as B}from"../../../editor/common/services/model.js";import{localize as d,localize2 as p}from"../../../nls.js";import{Categories as O}from"../../../platform/action/common/actionCommonCategories.js";import{Action2 as T,MenuId as C}from"../../../platform/actions/common/actions.js";import"../../../platform/commands/common/commands.js";import{IConfigurationService as Z}from"../../../platform/configuration/common/configuration.js";import{FileKind as v}from"../../../platform/files/common/files.js";import"../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as Y}from"../../../platform/keybinding/common/keybinding.js";import{KeybindingWeight as y}from"../../../platform/keybinding/common/keybindingsRegistry.js";import{INativeHostService as u}from"../../../platform/native/common/native.js";import{IQuickInputService as U}from"../../../platform/quickinput/common/quickInput.js";import{isOpenedAuxiliaryWindow as X}from"../../../platform/window/common/window.js";import{applyZoom as j,ApplyZoomTarget as h,MAX_ZOOM_LEVEL as J,MIN_ZOOM_LEVEL as $}from"../../../platform/window/electron-sandbox/window.js";import{isSingleFolderWorkspaceIdentifier as H,isWorkspaceIdentifier as K}from"../../../platform/workspace/common/workspace.js";class Q extends T{static ID="workbench.action.closeWindow";constructor(){super({id:Q.ID,title:{...p("closeWindow","Close Window"),mnemonicTitle:d({key:"miCloseWindow",comment:["&& denotes a mnemonic"]},"Clos&&e Window")},f1:!0,keybinding:{weight:y.WorkbenchContrib,mac:{primary:n.CtrlCmd|n.Shift|t.KeyW},linux:{primary:n.Alt|t.F4,secondary:[n.CtrlCmd|n.Shift|t.KeyW]},win:{primary:n.Alt|t.F4,secondary:[n.CtrlCmd|n.Shift|t.KeyW]}},menu:{id:C.MenubarFileMenu,group:"6_close",order:4}})}async run(o){return o.get(u).closeWindow({targetWindowId:S().vscodeWindowId})}}class l extends T{static ZOOM_LEVEL_SETTING_KEY="window.zoomLevel";static ZOOM_PER_WINDOW_SETTING_KEY="window.zoomPerWindow";constructor(o){super(o)}async setZoomLevel(o,I){const W=o.get(Z);let s;W.getValue(l.ZOOM_PER_WINDOW_SETTING_KEY)!==!1?s=h.ACTIVE_WINDOW:s=h.ALL_WINDOWS;let c;if(typeof I=="number")c=Math.round(I);else if(s===h.ALL_WINDOWS)c=0;else{const w=W.getValue(l.ZOOM_LEVEL_SETTING_KEY);typeof w=="number"?c=w:c=0}c>J||c<$||(s===h.ALL_WINDOWS&&await W.updateValue(l.ZOOM_LEVEL_SETTING_KEY,c),j(c,s))}}class Ee extends l{constructor(){super({id:"workbench.action.zoomIn",title:{...p("zoomIn","Zoom In"),mnemonicTitle:d({key:"miZoomIn",comment:["&& denotes a mnemonic"]},"&&Zoom In")},category:O.View,f1:!0,keybinding:{weight:y.WorkbenchContrib,primary:n.CtrlCmd|t.Equal,secondary:[n.CtrlCmd|n.Shift|t.Equal,n.CtrlCmd|t.NumpadAdd]},menu:{id:C.MenubarAppearanceMenu,group:"5_zoom",order:1}})}run(o){return super.setZoomLevel(o,M(S())+1)}}class Pe extends l{constructor(){super({id:"workbench.action.zoomOut",title:{...p("zoomOut","Zoom Out"),mnemonicTitle:d({key:"miZoomOut",comment:["&& denotes a mnemonic"]},"&&Zoom Out")},category:O.View,f1:!0,keybinding:{weight:y.WorkbenchContrib,primary:n.CtrlCmd|t.Minus,secondary:[n.CtrlCmd|n.Shift|t.Minus,n.CtrlCmd|t.NumpadSubtract],linux:{primary:n.CtrlCmd|t.Minus,secondary:[n.CtrlCmd|t.NumpadSubtract]}},menu:{id:C.MenubarAppearanceMenu,group:"5_zoom",order:2}})}run(o){return super.setZoomLevel(o,M(S())-1)}}class _e extends l{constructor(){super({id:"workbench.action.zoomReset",title:{...p("zoomReset","Reset Zoom"),mnemonicTitle:d({key:"miZoomReset",comment:["&& denotes a mnemonic"]},"&&Reset Zoom")},category:O.View,f1:!0,keybinding:{weight:y.WorkbenchContrib,primary:n.CtrlCmd|t.Numpad0},menu:{id:C.MenubarAppearanceMenu,group:"5_zoom",order:3}})}run(o){return super.setZoomLevel(o,!0)}}class D extends T{closeWindowAction={iconClass:E.asClassName(N.removeClose),tooltip:d("close","Close Window")};closeDirtyWindowAction={iconClass:"dirty-window "+E.asClassName(N.closeDirty),tooltip:d("close","Close Window"),alwaysVisible:!0};constructor(o){super(o)}async run(o){const I=o.get(U),W=o.get(Y),s=o.get(B),c=o.get(G),w=o.get(u),k=S().vscodeWindowId,z=await w.getWindows({includeAuxiliaryWindows:!0}),x=new Set,b=new Map;for(const e of z)if(X(e)){let r=b.get(e.parentId);r||(r=new Set,b.set(e.parentId,r)),r.add(e)}else x.add(e);function A(e){return typeof e?.windowId=="number"}const a=[];for(const e of x){const r=b.get(e.id);b.size>0&&a.push({type:"separator",label:r?d("windowGroup","window group"):void 0});const m=e.filename?P.file(e.filename):H(e.workspace)?e.workspace.uri:K(e.workspace)?e.workspace.configPath:void 0,R=e.filename?v.FILE:H(e.workspace)?v.FOLDER:K(e.workspace)?v.ROOT_FOLDER:v.FILE,V={windowId:e.id,label:e.title,ariaLabel:e.dirty?d("windowDirtyAriaLabel","{0}, window with unsaved changes",e.title):e.title,iconClasses:_(s,c,m,R),description:k===e.id?d("current","Current Window"):void 0,buttons:k!==e.id?e.dirty?[this.closeDirtyWindowAction]:[this.closeWindowAction]:void 0};if(a.push(V),r)for(const g of r){const F={windowId:g.id,label:g.title,iconClasses:_(s,c,g.filename?P.file(g.filename):void 0,v.FILE),description:k===g.id?d("current","Current Window"):void 0,buttons:[this.closeWindowAction]};a.push(F)}}const L=await I.pick(a,{contextKey:"inWindowsPicker",activeItem:(()=>{for(let e=0;e<a.length;e++){const r=a[e];if(A(r)&&r.windowId===k){let m=a[e+1];if(A(m)||(m=a[e+2],A(m)))return m}}})(),placeHolder:d("switchWindowPlaceHolder","Select a window to switch to"),quickNavigate:this.isQuickNavigate()?{keybindings:W.lookupKeybindings(this.desc.id)}:void 0,hideInput:this.isQuickNavigate(),onDidTriggerItemButton:async e=>{await w.closeWindow({targetWindowId:e.item.windowId}),e.removeItem()}});L&&w.focusWindow({targetWindowId:L.windowId})}}class Ze extends D{constructor(){super({id:"workbench.action.switchWindow",title:p("switchWindow","Switch Window..."),f1:!0,keybinding:{weight:y.WorkbenchContrib,primary:0,mac:{primary:n.WinCtrl|t.KeyW}}})}isQuickNavigate(){return!1}}class He extends D{constructor(){super({id:"workbench.action.quickSwitchWindow",title:p("quickSwitchWindow","Quick Switch Window..."),f1:!1})}isQuickNavigate(){return!0}}function f(i){return q?i.get(Z).getValue("window.nativeTabs")===!0:!1}const Ke=function(i){if(f(i))return i.get(u).newWindowTab()},De=function(i){if(f(i))return i.get(u).showPreviousWindowTab()},Qe=function(i){if(f(i))return i.get(u).showNextWindowTab()},ze=function(i){if(f(i))return i.get(u).moveWindowTabToNewWindow()},Re=function(i){if(f(i))return i.get(u).mergeAllWindowTabs()},Ve=function(i){if(f(i))return i.get(u).toggleWindowTabsBar()};export{Q as CloseWindowAction,Re as MergeWindowTabsHandlerHandler,ze as MoveWindowTabToNewWindowHandler,Ke as NewWindowTabHandler,He as QuickSwitchWindowAction,Qe as ShowNextWindowTabHandler,De as ShowPreviousWindowTabHandler,Ze as SwitchWindowAction,Ve as ToggleWindowTabsBarHandler,Ee as ZoomInAction,Pe as ZoomOutAction,_e as ZoomResetAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/actions.css";
+import { getZoomLevel } from "../../../base/browser/browser.js";
+import { getActiveWindow } from "../../../base/browser/dom.js";
+import { Codicon } from "../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../base/common/keyCodes.js";
+import { isMacintosh } from "../../../base/common/platform.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI } from "../../../base/common/uri.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { localize, localize2 } from "../../../nls.js";
+import { Categories } from "../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  IAction2Options,
+  MenuId
+} from "../../../platform/actions/common/actions.js";
+import { ICommandHandler } from "../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { FileKind } from "../../../platform/files/common/files.js";
+import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
+import { KeybindingWeight } from "../../../platform/keybinding/common/keybindingsRegistry.js";
+import { INativeHostService } from "../../../platform/native/common/native.js";
+import {
+  IQuickInputButton,
+  IQuickInputService,
+  IQuickPickItem,
+  QuickPickInput
+} from "../../../platform/quickinput/common/quickInput.js";
+import {
+  IOpenedAuxiliaryWindow,
+  IOpenedMainWindow,
+  isOpenedAuxiliaryWindow
+} from "../../../platform/window/common/window.js";
+import {
+  applyZoom,
+  ApplyZoomTarget,
+  MAX_ZOOM_LEVEL,
+  MIN_ZOOM_LEVEL
+} from "../../../platform/window/electron-sandbox/window.js";
+import {
+  isSingleFolderWorkspaceIdentifier,
+  isWorkspaceIdentifier
+} from "../../../platform/workspace/common/workspace.js";
+class CloseWindowAction extends Action2 {
+  static {
+    __name(this, "CloseWindowAction");
+  }
+  static ID = "workbench.action.closeWindow";
+  constructor() {
+    super({
+      id: CloseWindowAction.ID,
+      title: {
+        ...localize2("closeWindow", "Close Window"),
+        mnemonicTitle: localize(
+          {
+            key: "miCloseWindow",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "Clos&&e Window"
+        )
+      },
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        mac: { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyW },
+        linux: {
+          primary: KeyMod.Alt | KeyCode.F4,
+          secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyW]
+        },
+        win: {
+          primary: KeyMod.Alt | KeyCode.F4,
+          secondary: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyW]
+        }
+      },
+      menu: {
+        id: MenuId.MenubarFileMenu,
+        group: "6_close",
+        order: 4
+      }
+    });
+  }
+  async run(accessor) {
+    const nativeHostService = accessor.get(INativeHostService);
+    return nativeHostService.closeWindow({
+      targetWindowId: getActiveWindow().vscodeWindowId
+    });
+  }
+}
+class BaseZoomAction extends Action2 {
+  static {
+    __name(this, "BaseZoomAction");
+  }
+  static ZOOM_LEVEL_SETTING_KEY = "window.zoomLevel";
+  static ZOOM_PER_WINDOW_SETTING_KEY = "window.zoomPerWindow";
+  constructor(desc) {
+    super(desc);
+  }
+  async setZoomLevel(accessor, levelOrReset) {
+    const configurationService = accessor.get(IConfigurationService);
+    let target;
+    if (configurationService.getValue(
+      BaseZoomAction.ZOOM_PER_WINDOW_SETTING_KEY
+    ) !== false) {
+      target = ApplyZoomTarget.ACTIVE_WINDOW;
+    } else {
+      target = ApplyZoomTarget.ALL_WINDOWS;
+    }
+    let level;
+    if (typeof levelOrReset === "number") {
+      level = Math.round(levelOrReset);
+    } else {
+      if (target === ApplyZoomTarget.ALL_WINDOWS) {
+        level = 0;
+      } else {
+        const defaultLevel = configurationService.getValue(
+          BaseZoomAction.ZOOM_LEVEL_SETTING_KEY
+        );
+        if (typeof defaultLevel === "number") {
+          level = defaultLevel;
+        } else {
+          level = 0;
+        }
+      }
+    }
+    if (level > MAX_ZOOM_LEVEL || level < MIN_ZOOM_LEVEL) {
+      return;
+    }
+    if (target === ApplyZoomTarget.ALL_WINDOWS) {
+      await configurationService.updateValue(
+        BaseZoomAction.ZOOM_LEVEL_SETTING_KEY,
+        level
+      );
+    }
+    applyZoom(level, target);
+  }
+}
+class ZoomInAction extends BaseZoomAction {
+  static {
+    __name(this, "ZoomInAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.zoomIn",
+      title: {
+        ...localize2("zoomIn", "Zoom In"),
+        mnemonicTitle: localize(
+          { key: "miZoomIn", comment: ["&& denotes a mnemonic"] },
+          "&&Zoom In"
+        )
+      },
+      category: Categories.View,
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyCode.Equal,
+        secondary: [
+          KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Equal,
+          KeyMod.CtrlCmd | KeyCode.NumpadAdd
+        ]
+      },
+      menu: {
+        id: MenuId.MenubarAppearanceMenu,
+        group: "5_zoom",
+        order: 1
+      }
+    });
+  }
+  run(accessor) {
+    return super.setZoomLevel(
+      accessor,
+      getZoomLevel(getActiveWindow()) + 1
+    );
+  }
+}
+class ZoomOutAction extends BaseZoomAction {
+  static {
+    __name(this, "ZoomOutAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.zoomOut",
+      title: {
+        ...localize2("zoomOut", "Zoom Out"),
+        mnemonicTitle: localize(
+          { key: "miZoomOut", comment: ["&& denotes a mnemonic"] },
+          "&&Zoom Out"
+        )
+      },
+      category: Categories.View,
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyCode.Minus,
+        secondary: [
+          KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Minus,
+          KeyMod.CtrlCmd | KeyCode.NumpadSubtract
+        ],
+        linux: {
+          primary: KeyMod.CtrlCmd | KeyCode.Minus,
+          secondary: [KeyMod.CtrlCmd | KeyCode.NumpadSubtract]
+        }
+      },
+      menu: {
+        id: MenuId.MenubarAppearanceMenu,
+        group: "5_zoom",
+        order: 2
+      }
+    });
+  }
+  run(accessor) {
+    return super.setZoomLevel(
+      accessor,
+      getZoomLevel(getActiveWindow()) - 1
+    );
+  }
+}
+class ZoomResetAction extends BaseZoomAction {
+  static {
+    __name(this, "ZoomResetAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.zoomReset",
+      title: {
+        ...localize2("zoomReset", "Reset Zoom"),
+        mnemonicTitle: localize(
+          { key: "miZoomReset", comment: ["&& denotes a mnemonic"] },
+          "&&Reset Zoom"
+        )
+      },
+      category: Categories.View,
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: KeyMod.CtrlCmd | KeyCode.Numpad0
+      },
+      menu: {
+        id: MenuId.MenubarAppearanceMenu,
+        group: "5_zoom",
+        order: 3
+      }
+    });
+  }
+  run(accessor) {
+    return super.setZoomLevel(accessor, true);
+  }
+}
+class BaseSwitchWindow extends Action2 {
+  static {
+    __name(this, "BaseSwitchWindow");
+  }
+  closeWindowAction = {
+    iconClass: ThemeIcon.asClassName(Codicon.removeClose),
+    tooltip: localize("close", "Close Window")
+  };
+  closeDirtyWindowAction = {
+    iconClass: "dirty-window " + ThemeIcon.asClassName(Codicon.closeDirty),
+    tooltip: localize("close", "Close Window"),
+    alwaysVisible: true
+  };
+  constructor(desc) {
+    super(desc);
+  }
+  async run(accessor) {
+    const quickInputService = accessor.get(IQuickInputService);
+    const keybindingService = accessor.get(IKeybindingService);
+    const modelService = accessor.get(IModelService);
+    const languageService = accessor.get(ILanguageService);
+    const nativeHostService = accessor.get(INativeHostService);
+    const currentWindowId = getActiveWindow().vscodeWindowId;
+    const windows = await nativeHostService.getWindows({
+      includeAuxiliaryWindows: true
+    });
+    const mainWindows = /* @__PURE__ */ new Set();
+    const mapMainWindowToAuxiliaryWindows = /* @__PURE__ */ new Map();
+    for (const window of windows) {
+      if (isOpenedAuxiliaryWindow(window)) {
+        let auxiliaryWindows = mapMainWindowToAuxiliaryWindows.get(
+          window.parentId
+        );
+        if (!auxiliaryWindows) {
+          auxiliaryWindows = /* @__PURE__ */ new Set();
+          mapMainWindowToAuxiliaryWindows.set(
+            window.parentId,
+            auxiliaryWindows
+          );
+        }
+        auxiliaryWindows.add(window);
+      } else {
+        mainWindows.add(window);
+      }
+    }
+    function isWindowPickItem(candidate) {
+      const windowPickItem = candidate;
+      return typeof windowPickItem?.windowId === "number";
+    }
+    __name(isWindowPickItem, "isWindowPickItem");
+    const picks = [];
+    for (const window of mainWindows) {
+      const auxiliaryWindows = mapMainWindowToAuxiliaryWindows.get(
+        window.id
+      );
+      if (mapMainWindowToAuxiliaryWindows.size > 0) {
+        picks.push({
+          type: "separator",
+          label: auxiliaryWindows ? localize("windowGroup", "window group") : void 0
+        });
+      }
+      const resource = window.filename ? URI.file(window.filename) : isSingleFolderWorkspaceIdentifier(window.workspace) ? window.workspace.uri : isWorkspaceIdentifier(window.workspace) ? window.workspace.configPath : void 0;
+      const fileKind = window.filename ? FileKind.FILE : isSingleFolderWorkspaceIdentifier(window.workspace) ? FileKind.FOLDER : isWorkspaceIdentifier(window.workspace) ? FileKind.ROOT_FOLDER : FileKind.FILE;
+      const pick2 = {
+        windowId: window.id,
+        label: window.title,
+        ariaLabel: window.dirty ? localize(
+          "windowDirtyAriaLabel",
+          "{0}, window with unsaved changes",
+          window.title
+        ) : window.title,
+        iconClasses: getIconClasses(
+          modelService,
+          languageService,
+          resource,
+          fileKind
+        ),
+        description: currentWindowId === window.id ? localize("current", "Current Window") : void 0,
+        buttons: currentWindowId !== window.id ? window.dirty ? [this.closeDirtyWindowAction] : [this.closeWindowAction] : void 0
+      };
+      picks.push(pick2);
+      if (auxiliaryWindows) {
+        for (const auxiliaryWindow of auxiliaryWindows) {
+          const pick3 = {
+            windowId: auxiliaryWindow.id,
+            label: auxiliaryWindow.title,
+            iconClasses: getIconClasses(
+              modelService,
+              languageService,
+              auxiliaryWindow.filename ? URI.file(auxiliaryWindow.filename) : void 0,
+              FileKind.FILE
+            ),
+            description: currentWindowId === auxiliaryWindow.id ? localize("current", "Current Window") : void 0,
+            buttons: [this.closeWindowAction]
+          };
+          picks.push(pick3);
+        }
+      }
+    }
+    const pick = await quickInputService.pick(picks, {
+      contextKey: "inWindowsPicker",
+      activeItem: (() => {
+        for (let i = 0; i < picks.length; i++) {
+          const pick2 = picks[i];
+          if (isWindowPickItem(pick2) && pick2.windowId === currentWindowId) {
+            let nextPick = picks[i + 1];
+            if (isWindowPickItem(nextPick)) {
+              return nextPick;
+            }
+            nextPick = picks[i + 2];
+            if (isWindowPickItem(nextPick)) {
+              return nextPick;
+            }
+          }
+        }
+        return void 0;
+      })(),
+      placeHolder: localize(
+        "switchWindowPlaceHolder",
+        "Select a window to switch to"
+      ),
+      quickNavigate: this.isQuickNavigate() ? {
+        keybindings: keybindingService.lookupKeybindings(
+          this.desc.id
+        )
+      } : void 0,
+      hideInput: this.isQuickNavigate(),
+      onDidTriggerItemButton: /* @__PURE__ */ __name(async (context) => {
+        await nativeHostService.closeWindow({
+          targetWindowId: context.item.windowId
+        });
+        context.removeItem();
+      }, "onDidTriggerItemButton")
+    });
+    if (pick) {
+      nativeHostService.focusWindow({ targetWindowId: pick.windowId });
+    }
+  }
+}
+class SwitchWindowAction extends BaseSwitchWindow {
+  static {
+    __name(this, "SwitchWindowAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.switchWindow",
+      title: localize2("switchWindow", "Switch Window..."),
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        primary: 0,
+        mac: { primary: KeyMod.WinCtrl | KeyCode.KeyW }
+      }
+    });
+  }
+  isQuickNavigate() {
+    return false;
+  }
+}
+class QuickSwitchWindowAction extends BaseSwitchWindow {
+  static {
+    __name(this, "QuickSwitchWindowAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.quickSwitchWindow",
+      title: localize2("quickSwitchWindow", "Quick Switch Window..."),
+      f1: false
+      // hide quick pickers from command palette to not confuse with the other entry that shows a input field
+    });
+  }
+  isQuickNavigate() {
+    return true;
+  }
+}
+function canRunNativeTabsHandler(accessor) {
+  if (!isMacintosh) {
+    return false;
+  }
+  const configurationService = accessor.get(IConfigurationService);
+  return configurationService.getValue("window.nativeTabs") === true;
+}
+__name(canRunNativeTabsHandler, "canRunNativeTabsHandler");
+const NewWindowTabHandler = /* @__PURE__ */ __name(function(accessor) {
+  if (!canRunNativeTabsHandler(accessor)) {
+    return;
+  }
+  return accessor.get(INativeHostService).newWindowTab();
+}, "NewWindowTabHandler");
+const ShowPreviousWindowTabHandler = /* @__PURE__ */ __name(function(accessor) {
+  if (!canRunNativeTabsHandler(accessor)) {
+    return;
+  }
+  return accessor.get(INativeHostService).showPreviousWindowTab();
+}, "ShowPreviousWindowTabHandler");
+const ShowNextWindowTabHandler = /* @__PURE__ */ __name(function(accessor) {
+  if (!canRunNativeTabsHandler(accessor)) {
+    return;
+  }
+  return accessor.get(INativeHostService).showNextWindowTab();
+}, "ShowNextWindowTabHandler");
+const MoveWindowTabToNewWindowHandler = /* @__PURE__ */ __name(function(accessor) {
+  if (!canRunNativeTabsHandler(accessor)) {
+    return;
+  }
+  return accessor.get(INativeHostService).moveWindowTabToNewWindow();
+}, "MoveWindowTabToNewWindowHandler");
+const MergeWindowTabsHandlerHandler = /* @__PURE__ */ __name(function(accessor) {
+  if (!canRunNativeTabsHandler(accessor)) {
+    return;
+  }
+  return accessor.get(INativeHostService).mergeAllWindowTabs();
+}, "MergeWindowTabsHandlerHandler");
+const ToggleWindowTabsBarHandler = /* @__PURE__ */ __name(function(accessor) {
+  if (!canRunNativeTabsHandler(accessor)) {
+    return;
+  }
+  return accessor.get(INativeHostService).toggleWindowTabsBar();
+}, "ToggleWindowTabsBarHandler");
+export {
+  CloseWindowAction,
+  MergeWindowTabsHandlerHandler,
+  MoveWindowTabToNewWindowHandler,
+  NewWindowTabHandler,
+  QuickSwitchWindowAction,
+  ShowNextWindowTabHandler,
+  ShowPreviousWindowTabHandler,
+  SwitchWindowAction,
+  ToggleWindowTabsBarHandler,
+  ZoomInAction,
+  ZoomOutAction,
+  ZoomResetAction
+};
+//# sourceMappingURL=windowActions.js.map

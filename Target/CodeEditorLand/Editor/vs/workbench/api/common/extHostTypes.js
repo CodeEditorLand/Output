@@ -1,1 +1,5174 @@
-var gt=Object.defineProperty;var Lt=Object.getOwnPropertyDescriptor;var ht=n=>{throw TypeError(n)};var Ot=(n,e,t)=>e in n?gt(n,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):n[e]=t;var a=(n,e,t,s)=>{for(var r=s>1?void 0:s?Lt(e,t):e,i=n.length-1,o;i>=0;i--)(o=n[i])&&(r=(s?o(e,t,r):o(r))||r);return s&&r&&gt(e,t,r),r};var x=(n,e,t)=>Ot(n,typeof e!="symbol"?e+"":e,t),st=(n,e,t)=>e.has(n)||ht("Cannot "+t);var y=(n,e,t)=>(st(n,e,"read from private field"),t?t.call(n):e.get(n)),K=(n,e,t)=>e.has(n)?ht("Cannot add the same private member more than once"):e instanceof WeakSet?e.add(n):e.set(n,t),ue=(n,e,t,s)=>(st(n,e,"write to private field"),s?s.call(n,t):e.set(n,t),t),ee=(n,e,t)=>(st(n,e,"access private method"),t);var C,_,$,B,ce;import{asArray as Ft,coalesceInPlace as Wt,equals as ft}from"../../../base/common/arrays.js";import"../../../base/common/buffer.js";import{illegalArgument as h}from"../../../base/common/errors.js";import"../../../base/common/glob.js";import{MarkdownString as At}from"../../../base/common/htmlContent.js";import{ResourceMap as St}from"../../../base/common/map.js";import{MarshalledId as le}from"../../../base/common/marshallingIds.js";import{Mimes as $t,normalizeMimeType as mt}from"../../../base/common/mime.js";import{nextCharLength as vt}from"../../../base/common/strings.js";import{isNumber as pe,isObject as bt,isString as D,isStringArray as qt}from"../../../base/common/types.js";import{URI as P}from"../../../base/common/uri.js";import{generateUuid as ge}from"../../../base/common/uuid.js";import{TextEditorSelectionSource as rt}from"../../../platform/editor/common/editor.js";import{ExtensionIdentifier as Jt}from"../../../platform/extensions/common/extensions.js";import{FileSystemProviderErrorCode as J,markAsFileSystemProviderError as Tt}from"../../../platform/files/common/files.js";import{RemoteAuthorityResolverErrorCode as nt}from"../../../platform/remote/common/remoteAuthorityResolver.js";import{CellEditType as xt,isTextStreamMime as zt}from"../../contrib/notebook/common/notebookCommon.js";import"./extHost.protocol.js";function c(n){return Object.assign(n,{apply:function(...t){if(t.length===0)return Reflect.construct(n,[]);{const s=t.length===1?[]:t[1];return Reflect.construct(n,s,t[0].constructor)}},call:function(...t){if(t.length===0)return Reflect.construct(n,[]);{const[s,...r]=t;return Reflect.construct(n,r,s.constructor)}}})}var jt=(t=>(t[t.Top=0]="Top",t[t.Bottom=1]="Bottom",t))(jt||{}),Ct=(s=>(s[s.TerminalCommand=0]="TerminalCommand",s[s.Opener=1]="Opener",s[s.Command=3]="Command",s))(Ct||{});let Z=class{constructor(e){K(this,C);ue(this,C,e)}static from(...e){let t=e;return new Z(function(){if(t){for(const s of t)s&&typeof s.dispose=="function"&&s.dispose();t=void 0}})}dispose(){typeof y(this,C)=="function"&&(y(this,C).call(this),ue(this,C,void 0))}};C=new WeakMap,Z=a([c],Z);let m=class{static Min(...e){if(e.length===0)throw new TypeError;let t=e[0];for(let s=1;s<e.length;s++){const r=e[s];r.isBefore(t)&&(t=r)}return t}static Max(...e){if(e.length===0)throw new TypeError;let t=e[0];for(let s=1;s<e.length;s++){const r=e[s];r.isAfter(t)&&(t=r)}return t}static isPosition(e){if(!e)return!1;if(e instanceof m)return!0;const{line:t,character:s}=e;return typeof t=="number"&&typeof s=="number"}static of(e){if(e instanceof m)return e;if(this.isPosition(e))return new m(e.line,e.character);throw new Error("Invalid argument, is NOT a position-like object")}_line;_character;get line(){return this._line}get character(){return this._character}constructor(e,t){if(e<0)throw h("line must be non-negative");if(t<0)throw h("character must be non-negative");this._line=e,this._character=t}isBefore(e){return this._line<e._line?!0:e._line<this._line?!1:this._character<e._character}isBeforeOrEqual(e){return this._line<e._line?!0:e._line<this._line?!1:this._character<=e._character}isAfter(e){return!this.isBeforeOrEqual(e)}isAfterOrEqual(e){return!this.isBefore(e)}isEqual(e){return this._line===e._line&&this._character===e._character}compareTo(e){return this._line<e._line?-1:this._line>e.line?1:this._character<e._character?-1:this._character>e._character?1:0}translate(e,t=0){if(e===null||t===null)throw h();let s;return typeof e>"u"?s=0:typeof e=="number"?s=e:(s=typeof e.lineDelta=="number"?e.lineDelta:0,t=typeof e.characterDelta=="number"?e.characterDelta:0),s===0&&t===0?this:new m(this.line+s,this.character+t)}with(e,t=this.character){if(e===null||t===null)throw h();let s;return typeof e>"u"?s=this.line:typeof e=="number"?s=e:(s=typeof e.line=="number"?e.line:this.line,t=typeof e.character=="number"?e.character:this.character),s===this.line&&t===this.character?this:new m(s,t)}toJSON(){return{line:this.line,character:this.character}}[Symbol.for("debug.description")](){return`(${this.line}:${this.character})`}};m=a([c],m);let b=class{static isRange(e){return e instanceof b?!0:e?m.isPosition(e.start)&&m.isPosition(e.end):!1}static of(e){if(e instanceof b)return e;if(this.isRange(e))return new b(e.start,e.end);throw new Error("Invalid argument, is NOT a range-like object")}_start;_end;get start(){return this._start}get end(){return this._end}constructor(e,t,s,r){let i,o;if(typeof e=="number"&&typeof t=="number"&&typeof s=="number"&&typeof r=="number"?(i=new m(e,t),o=new m(s,r)):m.isPosition(e)&&m.isPosition(t)&&(i=m.of(e),o=m.of(t)),!i||!o)throw new Error("Invalid arguments");i.isBefore(o)?(this._start=i,this._end=o):(this._start=o,this._end=i)}contains(e){return b.isRange(e)?this.contains(e.start)&&this.contains(e.end):m.isPosition(e)?!(m.of(e).isBefore(this._start)||this._end.isBefore(e)):!1}isEqual(e){return this._start.isEqual(e._start)&&this._end.isEqual(e._end)}intersection(e){const t=m.Max(e.start,this._start),s=m.Min(e.end,this._end);if(!t.isAfter(s))return new b(t,s)}union(e){if(this.contains(e))return this;if(e.contains(this))return e;const t=m.Min(e.start,this._start),s=m.Max(e.end,this.end);return new b(t,s)}get isEmpty(){return this._start.isEqual(this._end)}get isSingleLine(){return this._start.line===this._end.line}with(e,t=this.end){if(e===null||t===null)throw h();let s;return e?m.isPosition(e)?s=e:(s=e.start||this.start,t=e.end||this.end):s=this.start,s.isEqual(this._start)&&t.isEqual(this.end)?this:new b(s,t)}toJSON(){return[this.start,this.end]}[Symbol.for("debug.description")](){return yt(this)}};b=a([c],b);let X=class extends b{static isSelection(e){return e instanceof X?!0:e?b.isRange(e)&&m.isPosition(e.anchor)&&m.isPosition(e.active)&&typeof e.isReversed=="boolean":!1}_anchor;get anchor(){return this._anchor}_active;get active(){return this._active}constructor(e,t,s,r){let i,o;if(typeof e=="number"&&typeof t=="number"&&typeof s=="number"&&typeof r=="number"?(i=new m(e,t),o=new m(s,r)):m.isPosition(e)&&m.isPosition(t)&&(i=m.of(e),o=m.of(t)),!i||!o)throw new Error("Invalid arguments");super(i,o),this._anchor=i,this._active=o}get isReversed(){return this._anchor===this._end}toJSON(){return{start:this.start,end:this.end,active:this.active,anchor:this.anchor}}[Symbol.for("debug.description")](){return Bt(this)}};X=a([c],X);function yt(n){return n.isEmpty?`[${n.start.line}:${n.start.character})`:`[${n.start.line}:${n.start.character} -> ${n.end.line}:${n.end.character})`}function Bt(n){let e=yt(n);return n.isEmpty||(n.active.isEqual(n.start)?e=`|${e}`:e=`${e}|`),e}const wt=n=>{if(typeof n!="string"||n.length===0||!/^[0-9A-Za-z_\-]+$/.test(n))throw h("connectionToken")};class nn{static isResolvedAuthority(e){return e&&typeof e=="object"&&typeof e.host=="string"&&typeof e.port=="number"&&(e.connectionToken===void 0||typeof e.connectionToken=="string")}host;port;connectionToken;constructor(e,t,s){if(typeof e!="string"||e.length===0)throw h("host");if(typeof t!="number"||t===0||Math.round(t)!==t)throw h("port");typeof s<"u"&&wt(s),this.host=e,this.port=Math.round(t),this.connectionToken=s}}class on{constructor(e,t){this.makeConnection=e;this.connectionToken=t;typeof t<"u"&&wt(t)}static isManagedResolvedAuthority(e){return e&&typeof e=="object"&&typeof e.makeConnection=="function"&&(e.connectionToken===void 0||typeof e.connectionToken=="string")}}class tt extends Error{static NotAvailable(e,t){return new tt(e,nt.NotAvailable,t)}static TemporarilyNotAvailable(e){return new tt(e,nt.TemporarilyNotAvailable)}_message;_code;_detail;constructor(e,t=nt.Unknown,s){super(e),this._message=e,this._code=t,this._detail=s,Object.setPrototypeOf(this,tt.prototype)}}var Gt=(t=>(t[t.LF=1]="LF",t[t.CRLF=2]="CRLF",t))(Gt||{}),Zt=(s=>(s[s.Replace=1]="Replace",s[s.Append=2]="Append",s[s.Prepend=3]="Prepend",s))(Zt||{});let N=class{static isTextEdit(e){return e instanceof N?!0:e?b.isRange(e)&&typeof e.newText=="string":!1}static replace(e,t){return new N(e,t)}static insert(e,t){return N.replace(new b(e,e),t)}static delete(e){return N.replace(e,"")}static setEndOfLine(e){const t=new N(new b(new m(0,0),new m(0,0)),"");return t.newEol=e,t}_range;_newText;_newEol;get range(){return this._range}set range(e){if(e&&!b.isRange(e))throw h("range");this._range=e}get newText(){return this._newText||""}set newText(e){if(e&&typeof e!="string")throw h("newText");this._newText=e}get newEol(){return this._newEol}set newEol(e){if(e&&typeof e!="number")throw h("newEol");this._newEol=e}constructor(e,t){this._range=e,this._newText=t}toJSON(){return{range:this.range,newText:this.newText,newEol:this._newEol}}};N=a([c],N);let U=class{static isNotebookCellEdit(e){return e instanceof U?!0:e?j.isNotebookRange(e)&&Array.isArray(e.newCells):!1}static replaceCells(e,t){return new U(e,t)}static insertCells(e,t){return new U(new j(e,e),t)}static deleteCells(e){return new U(e,[])}static updateCellMetadata(e,t){const s=new U(new j(e,e),[]);return s.newCellMetadata=t,s}static updateNotebookMetadata(e){const t=new U(new j(0,0),[]);return t.newNotebookMetadata=e,t}range;newCells;newCellMetadata;newNotebookMetadata;constructor(e,t){this.range=e,this.newCells=t}};U=a([c],U);class de{static isSnippetTextEdit(e){return e instanceof de?!0:e?b.isRange(e.range)&&L.isSnippetString(e.snippet):!1}static replace(e,t){return new de(e,t)}static insert(e,t){return de.replace(new b(e,e),t)}range;snippet;keepWhitespace;constructor(e,t){this.range=e,this.snippet=t}}var Xt=(i=>(i[i.File=1]="File",i[i.Text=2]="Text",i[i.Cell=3]="Cell",i[i.CellReplace=5]="CellReplace",i[i.Snippet=6]="Snippet",i))(Xt||{});let he=class{_edits=[];_allEntries(){return this._edits}renameFile(e,t,s,r){this._edits.push({_type:1,from:e,to:t,options:s,metadata:r})}createFile(e,t,s){this._edits.push({_type:1,from:void 0,to:e,options:t,metadata:s})}deleteFile(e,t,s){this._edits.push({_type:1,from:e,to:void 0,options:t,metadata:s})}replaceNotebookMetadata(e,t,s){this._edits.push({_type:3,metadata:s,uri:e,edit:{editType:xt.DocumentMetadata,metadata:t}})}replaceNotebookCells(e,t,s,r){const i=t.start,o=t.end;(i!==o||s.length>0)&&this._edits.push({_type:5,uri:e,index:i,count:o-i,cells:s,metadata:r})}replaceNotebookCellMetadata(e,t,s,r){this._edits.push({_type:3,metadata:r,uri:e,edit:{editType:xt.Metadata,index:t,metadata:s}})}replace(e,t,s,r){this._edits.push({_type:2,uri:e,edit:new N(t,s),metadata:r})}insert(e,t,s,r){this.replace(e,new b(t,t),s,r)}delete(e,t,s){this.replace(e,t,"",s)}has(e){return this._edits.some(t=>t._type===2&&t.uri.toString()===e.toString())}set(e,t){if(t)for(const s of t){if(!s)continue;let r,i;Array.isArray(s)?(r=s[0],i=s[1]):r=s,U.isNotebookCellEdit(r)?r.newCellMetadata?this.replaceNotebookCellMetadata(e,r.range.start,r.newCellMetadata,i):r.newNotebookMetadata?this.replaceNotebookMetadata(e,r.newNotebookMetadata,i):this.replaceNotebookCells(e,r.range,r.newCells,i):de.isSnippetTextEdit(r)?this._edits.push({_type:6,uri:e,range:r.range,edit:r.snippet,metadata:i,keepWhitespace:r.keepWhitespace}):this._edits.push({_type:2,uri:e,edit:r,metadata:i})}else{for(let s=0;s<this._edits.length;s++){const r=this._edits[s];switch(r._type){case 2:case 6:case 3:case 5:r.uri.toString()===e.toString()&&(this._edits[s]=void 0);break}}Wt(this._edits)}}get(e){const t=[];for(const s of this._edits)s._type===2&&s.uri.toString()===e.toString()&&t.push(s.edit);return t}entries(){const e=new St;for(const t of this._edits)if(t._type===2){let s=e.get(t.uri);s||(s=[t.uri,[]],e.set(t.uri,s)),s[1].push(t.edit)}return[...e.values()]}get size(){return this.entries().length}toJSON(){return this.entries()}};he=a([c],he);let L=class{static isSnippetString(e){return e instanceof L?!0:e?typeof e.value=="string":!1}static _escape(e){return e.replace(/\$|}|\\/g,"\\$&")}_tabstop=1;value;constructor(e){this.value=e||""}appendText(e){return this.value+=L._escape(e),this}appendTabstop(e=this._tabstop++){return this.value+="$",this.value+=e,this}appendPlaceholder(e,t=this._tabstop++){if(typeof e=="function"){const s=new L;s._tabstop=this._tabstop,e(s),this._tabstop=s._tabstop,e=s.value}else e=L._escape(e);return this.value+="${",this.value+=t,this.value+=":",this.value+=e,this.value+="}",this}appendChoice(e,t=this._tabstop++){const s=e.map(r=>r.replaceAll(/[|\\,]/g,"\\$&")).join(",");return this.value+="${",this.value+=t,this.value+="|",this.value+=s,this.value+="|}",this}appendVariable(e,t){if(typeof t=="function"){const s=new L;s._tabstop=this._tabstop,t(s),this._tabstop=s._tabstop,t=s.value}else typeof t=="string"&&(t=t.replace(/\$|}/g,"\\$&"));return this.value+="${",this.value+=e,t&&(this.value+=":",this.value+=t),this.value+="}",this}};L=a([c],L);var Yt=(t=>(t[t.Unnecessary=1]="Unnecessary",t[t.Deprecated=2]="Deprecated",t))(Yt||{}),_t=(r=>(r[r.Hint=3]="Hint",r[r.Information=2]="Information",r[r.Warning=1]="Warning",r[r.Error=0]="Error",r))(_t||{});let q=class{static isLocation(e){return e instanceof q?!0:e?b.isRange(e.range)&&P.isUri(e.uri):!1}uri;range;constructor(e,t){if(this.uri=e,t)if(b.isRange(t))this.range=b.of(t);else if(m.isPosition(t))this.range=new b(t,t);else throw new Error("Illegal argument")}toJSON(){return{uri:this.uri,range:this.range}}};q=a([c],q);let te=class{static is(e){return e?typeof e.message=="string"&&e.location&&b.isRange(e.location.range)&&P.isUri(e.location.uri):!1}location;message;constructor(e,t){this.location=e,this.message=t}static isEqual(e,t){return e===t?!0:!e||!t?!1:e.message===t.message&&e.location.range.isEqual(t.location.range)&&e.location.uri.toString()===t.location.uri.toString()}};te=a([c],te);let fe=class{range;message;severity;source;code;relatedInformation;tags;constructor(e,t,s=0){if(!b.isRange(e))throw new TypeError("range must be set");if(!t)throw new TypeError("message must be set");this.range=e,this.message=t,this.severity=s}toJSON(){return{severity:_t[this.severity],message:this.message,range:this.range,source:this.source,code:this.code}}static isEqual(e,t){return e===t?!0:!e||!t?!1:e.message===t.message&&e.severity===t.severity&&e.code===t.code&&e.severity===t.severity&&e.source===t.source&&e.range.isEqual(t.range)&&ft(e.tags,t.tags)&&ft(e.relatedInformation,t.relatedInformation,te.isEqual)}};fe=a([c],fe);let se=class{contents;range;constructor(e,t){if(!e)throw new Error("Illegal argument, contents must be defined");Array.isArray(e)?this.contents=e:this.contents=[e],this.range=t}};se=a([c],se);let me=class extends se{canIncreaseVerbosity;canDecreaseVerbosity;constructor(e,t,s,r){super(e,t),this.canIncreaseVerbosity=s,this.canDecreaseVerbosity=r}};me=a([c],me);var Qt=(t=>(t[t.Increase=0]="Increase",t[t.Decrease=1]="Decrease",t))(Qt||{}),Mt=(s=>(s[s.Text=0]="Text",s[s.Read=1]="Read",s[s.Write=2]="Write",s))(Mt||{});let ve=class{range;kind;constructor(e,t=0){this.range=e,this.kind=t}toJSON(){return{range:this.range,kind:Mt[this.kind]}}};ve=a([c],ve);let be=class{uri;highlights;constructor(e,t){this.uri=e,this.highlights=t}toJSON(){return{uri:this.uri,highlights:this.highlights.map(e=>e.toJSON())}}};be=a([c],be);var kt=(u=>(u[u.File=0]="File",u[u.Module=1]="Module",u[u.Namespace=2]="Namespace",u[u.Package=3]="Package",u[u.Class=4]="Class",u[u.Method=5]="Method",u[u.Property=6]="Property",u[u.Field=7]="Field",u[u.Constructor=8]="Constructor",u[u.Enum=9]="Enum",u[u.Interface=10]="Interface",u[u.Function=11]="Function",u[u.Variable=12]="Variable",u[u.Constant=13]="Constant",u[u.String=14]="String",u[u.Number=15]="Number",u[u.Boolean=16]="Boolean",u[u.Array=17]="Array",u[u.Object=18]="Object",u[u.Key=19]="Key",u[u.Null=20]="Null",u[u.EnumMember=21]="EnumMember",u[u.Struct=22]="Struct",u[u.Event=23]="Event",u[u.Operator=24]="Operator",u[u.TypeParameter=25]="TypeParameter",u))(kt||{}),Ht=(e=>(e[e.Deprecated=1]="Deprecated",e))(Ht||{});let Y=class{static validate(e){if(!e.name)throw new Error("name must not be falsy")}name;location;kind;tags;containerName;constructor(e,t,s,r,i){this.name=e,this.kind=t,this.containerName=i,typeof s=="string"&&(this.containerName=s),r instanceof q?this.location=r:s instanceof b&&(this.location=new q(r,s)),Y.validate(this)}toJSON(){return{name:this.name,kind:kt[this.kind],location:this.location,containerName:this.containerName}}};Y=a([c],Y);let z=class{static validate(e){if(!e.name)throw new Error("name must not be falsy");if(!e.range.contains(e.selectionRange))throw new Error("selectionRange must be contained in fullRange");e.children?.forEach(z.validate)}name;detail;kind;tags;range;selectionRange;children;constructor(e,t,s,r,i){this.name=e,this.detail=t,this.kind=s,this.range=r,this.selectionRange=i,this.children=[],z.validate(this)}};z=a([c],z);var Vt=(t=>(t[t.Invoke=1]="Invoke",t[t.Automatic=2]="Automatic",t))(Vt||{});let xe=class{title;command;edit;diagnostics;kind;isPreferred;constructor(e,t){this.title=e,this.kind=t}};xe=a([c],xe);let p=class{constructor(e){this.value=e}append(e){return new p(this.value?this.value+p.sep+e:e)}intersects(e){return this.contains(e)||e.contains(this)}contains(e){return this.value===e.value||e.value.startsWith(this.value+p.sep)}};x(p,"sep","."),x(p,"Empty"),x(p,"QuickFix"),x(p,"Refactor"),x(p,"RefactorExtract"),x(p,"RefactorInline"),x(p,"RefactorMove"),x(p,"RefactorRewrite"),x(p,"Source"),x(p,"SourceOrganizeImports"),x(p,"SourceFixAll"),x(p,"Notebook"),p=a([c],p),p.Empty=new p(""),p.QuickFix=p.Empty.append("quickfix"),p.Refactor=p.Empty.append("refactor"),p.RefactorExtract=p.Refactor.append("extract"),p.RefactorInline=p.Refactor.append("inline"),p.RefactorMove=p.Refactor.append("move"),p.RefactorRewrite=p.Refactor.append("rewrite"),p.Source=p.Empty.append("source"),p.SourceOrganizeImports=p.Source.append("organizeImports"),p.SourceFixAll=p.Source.append("fixAll"),p.Notebook=p.Empty.append("notebook");let ye=class{range;parent;constructor(e,t){if(this.range=e,this.parent=t,t&&!t.range.contains(this.range))throw new Error("Invalid argument: parent must contain this range")}};ye=a([c],ye);class an{_sessionId;_itemId;kind;tags;name;detail;uri;range;selectionRange;constructor(e,t,s,r,i,o){this.kind=e,this.name=t,this.detail=s,this.uri=r,this.range=i,this.selectionRange=o}}class cn{from;fromRanges;constructor(e,t){this.fromRanges=t,this.from=e}}class dn{to;fromRanges;constructor(e,t){this.fromRanges=t,this.to=e}}var Kt=(s=>(s[s.Information=0]="Information",s[s.Warning=1]="Warning",s[s.Error=2]="Error",s))(Kt||{});let we=class{range;command;constructor(e,t){this.range=e,this.command=t}get isResolved(){return!!this.command}};we=a([c],we);let F=class{constructor(e,t=!1){K(this,_);ue(this,_,new At(e,{supportThemeIcons:t}))}static isMarkdownString(e){return e instanceof F?!0:e&&e.appendCodeblock&&e.appendMarkdown&&e.appendText&&e.value!==void 0}get value(){return y(this,_).value}set value(e){y(this,_).value=e}get isTrusted(){return y(this,_).isTrusted}set isTrusted(e){y(this,_).isTrusted=e}get supportThemeIcons(){return y(this,_).supportThemeIcons}set supportThemeIcons(e){y(this,_).supportThemeIcons=e}get supportHtml(){return y(this,_).supportHtml}set supportHtml(e){y(this,_).supportHtml=e}get baseUri(){return y(this,_).baseUri}set baseUri(e){y(this,_).baseUri=e}appendText(e){return y(this,_).appendText(e),this}appendMarkdown(e){return y(this,_).appendMarkdown(e),this}appendCodeblock(e,t){return y(this,_).appendCodeblock(t??"",e),this}};_=new WeakMap,F=a([c],F);let _e=class{label;documentation;constructor(e,t){this.label=e,this.documentation=t}};_e=a([c],_e);let Me=class{label;documentation;parameters;activeParameter;constructor(e,t){this.label=e,this.documentation=t,this.parameters=[]}};Me=a([c],Me);let ke=class{signatures;activeSignature=0;activeParameter=0;constructor(){this.signatures=[]}};ke=a([c],ke);var es=(s=>(s[s.Invoke=1]="Invoke",s[s.TriggerCharacter=2]="TriggerCharacter",s[s.ContentChange=3]="ContentChange",s))(es||{}),ts=(t=>(t[t.Type=1]="Type",t[t.Parameter=2]="Parameter",t))(ts||{});let Re=class{value;tooltip;location;command;constructor(e){this.value=e}};Re=a([c],Re);let Pe=class{label;tooltip;position;textEdits;kind;paddingLeft;paddingRight;constructor(e,t,s){this.position=e,this.label=t,this.kind=s}};Pe=a([c],Pe);var ss=(s=>(s[s.Invoke=0]="Invoke",s[s.TriggerCharacter=1]="TriggerCharacter",s[s.TriggerForIncompleteCompletions=2]="TriggerForIncompleteCompletions",s))(ss||{}),Rt=(d=>(d[d.Text=0]="Text",d[d.Method=1]="Method",d[d.Function=2]="Function",d[d.Constructor=3]="Constructor",d[d.Field=4]="Field",d[d.Variable=5]="Variable",d[d.Class=6]="Class",d[d.Interface=7]="Interface",d[d.Module=8]="Module",d[d.Property=9]="Property",d[d.Unit=10]="Unit",d[d.Value=11]="Value",d[d.Enum=12]="Enum",d[d.Keyword=13]="Keyword",d[d.Snippet=14]="Snippet",d[d.Color=15]="Color",d[d.File=16]="File",d[d.Reference=17]="Reference",d[d.Folder=18]="Folder",d[d.EnumMember=19]="EnumMember",d[d.Constant=20]="Constant",d[d.Struct=21]="Struct",d[d.Event=22]="Event",d[d.Operator=23]="Operator",d[d.TypeParameter=24]="TypeParameter",d[d.User=25]="User",d[d.Issue=26]="Issue",d))(Rt||{}),rs=(e=>(e[e.Deprecated=1]="Deprecated",e))(rs||{});let Ee=class{label;kind;tags;detail;documentation;sortText;filterText;preselect;insertText;keepWhitespace;range;commitCharacters;textEdit;additionalTextEdits;command;constructor(e,t){this.label=e,this.kind=t}toJSON(){return{label:this.label,kind:this.kind&&Rt[this.kind],detail:this.detail,documentation:this.documentation,sortText:this.sortText,filterText:this.filterText,preselect:this.preselect,insertText:this.insertText,textEdit:this.textEdit}}};Ee=a([c],Ee);let Ue=class{isIncomplete;items;constructor(e=[],t=!1){this.items=e,this.isIncomplete=t}};Ue=a([c],Ue);let Ie=class{filterText;insertText;range;command;constructor(e,t,s){this.insertText=e,this.range=t,this.command=s}};Ie=a([c],Ie);let De=class{items;commands=void 0;suppressSuggestions=void 0;constructor(e){this.items=e}};De=a([c],De);var ns=(r=>(r[r.Unknown=0]="Unknown",r[r.Word=1]="Word",r[r.Line=2]="Line",r[r.Suggest=3]="Suggest",r))(ns||{}),is=(v=>(v[v.Active=-1]="Active",v[v.Beside=-2]="Beside",v[v.One=1]="One",v[v.Two=2]="Two",v[v.Three=3]="Three",v[v.Four=4]="Four",v[v.Five=5]="Five",v[v.Six=6]="Six",v[v.Seven=7]="Seven",v[v.Eight=8]="Eight",v[v.Nine=9]="Nine",v))(is||{}),os=(t=>(t[t.Left=1]="Left",t[t.Right=2]="Right",t))(os||{});function un(n,e){return`${Jt.toKey(n)}.${e}`}var as=(r=>(r[r.Off=0]="Off",r[r.On=1]="On",r[r.Relative=2]="Relative",r[r.Interval=3]="Interval",r))(as||{}),cs=(s=>(s[s.Manual=1]="Manual",s[s.AfterDelay=2]="AfterDelay",s[s.FocusOut=3]="FocusOut",s))(cs||{}),ds=(r=>(r[r.Default=0]="Default",r[r.InCenter=1]="InCenter",r[r.InCenterIfOutsideViewport=2]="InCenterIfOutsideViewport",r[r.AtTop=3]="AtTop",r))(ds||{}),ot=(s=>(s[s.Keyboard=1]="Keyboard",s[s.Mouse=2]="Mouse",s[s.Command=3]="Command",s))(ot||{}),us=(s=>(s[s.Addition=1]="Addition",s[s.Deletion=2]="Deletion",s[s.Modification=3]="Modification",s))(us||{}),ls=(t=>(t[t.Undo=1]="Undo",t[t.Redo=2]="Redo",t))(ls||{}),ps=(r=>(r[r.OpenOpen=0]="OpenOpen",r[r.ClosedClosed=1]="ClosedClosed",r[r.OpenClosed=2]="OpenClosed",r[r.ClosedOpen=3]="ClosedOpen",r))(ps||{});(e=>{function n(t){switch(t){case"keyboard":return 1;case"mouse":return 2;case rt.PROGRAMMATIC:case rt.JUMP:case rt.NAVIGATION:return 3}}e.fromValue=n})(ot||={});var at=(r=>(r[r.Other=0]="Other",r[r.Comment=1]="Comment",r[r.String=2]="String",r[r.RegEx=3]="RegEx",r))(at||{});(e=>{function n(t){switch(t){case 0:return"other";case 1:return"comment";case 2:return"string";case 3:return"regex"}return"other"}e.toString=n})(at||={});let Ne=class{range;target;tooltip;constructor(e,t){if(t&&!P.isUri(t))throw h("target");if(!b.isRange(e)||e.isEmpty)throw h("range");this.range=e,this.target=t}};Ne=a([c],Ne);let re=class{red;green;blue;alpha;constructor(e,t,s,r){this.red=e,this.green=t,this.blue=s,this.alpha=r}};re=a([c],re);let Le=class{range;color;constructor(e,t){if(t&&!(t instanceof re))throw h("color");if(!b.isRange(e)||e.isEmpty)throw h("range");this.range=e,this.color=t}};Le=a([c],Le);let Oe=class{label;textEdit;additionalTextEdits;constructor(e){if(!e||typeof e!="string")throw h("label");this.label=e}};Oe=a([c],Oe);var gs=(s=>(s[s.RGB=0]="RGB",s[s.HEX=1]="HEX",s[s.HSL=2]="HSL",s))(gs||{}),hs=(s=>(s[s.Error=0]="Error",s[s.Warning=1]="Warning",s[s.Information=2]="Information",s))(hs||{}),fs=(i=>(i[i.Unknown=0]="Unknown",i[i.Shutdown=1]="Shutdown",i[i.Process=2]="Process",i[i.User=3]="User",i[i.Extension=4]="Extension",i))(fs||{}),ms=(s=>(s[s.Low=0]="Low",s[s.Medium=1]="Medium",s[s.High=2]="High",s))(ms||{}),vs=(l=>(l[l.Sh=1]="Sh",l[l.Bash=2]="Bash",l[l.Fish=3]="Fish",l[l.Csh=4]="Csh",l[l.Ksh=5]="Ksh",l[l.Zsh=6]="Zsh",l[l.CommandPrompt=7]="CommandPrompt",l[l.GitBash=8]="GitBash",l[l.PowerShell=9]="PowerShell",l[l.Python=10]="Python",l[l.Julia=11]="Julia",l[l.NuShell=12]="NuShell",l[l.Node=13]="Node",l))(vs||{});class ln{constructor(e,t,s){this.startIndex=e;this.length=t;this.tooltip=s;if(typeof e!="number"||e<0)throw h("startIndex");if(typeof t!="number"||t<1)throw h("length");if(s!==void 0&&typeof s!="string")throw h("tooltip")}}class pn{uri;constructor(e){this.uri=e}}class gn{terminalCommand;constructor(e){this.terminalCommand=e}}var bs=(t=>(t[t.Panel=1]="Panel",t[t.Editor=2]="Editor",t))(bs||{});class hn{constructor(e){this.options=e;if(typeof e!="object")throw h("options")}}var xs=(f=>(f[f.File=0]="File",f[f.Folder=1]="Folder",f[f.Method=2]="Method",f[f.Alias=3]="Alias",f[f.Argument=4]="Argument",f[f.Option=5]="Option",f[f.OptionValue=6]="OptionValue",f[f.Flag=7]="Flag",f))(xs||{});class fn{label;icon;detail;documentation;isFile;isDirectory;isKeyword;replacementIndex;replacementLength;constructor(e,t,s,r,i,o,g,f,R){this.label=e,this.icon=t,this.detail=s,this.documentation=r,this.isFile=i,this.isDirectory=o,this.isKeyword=g,this.replacementIndex=f??0,this.replacementLength=R??0}}class mn{resourceRequestConfig;items;constructor(e,t){this.items=e??[],this.resourceRequestConfig=t}}var ys=(s=>(s[s.Always=1]="Always",s[s.Silent=2]="Silent",s[s.Never=3]="Never",s))(ys||{}),ws=(l=>(l.Changed="changed",l.ProcessStarted="processStarted",l.ProcessEnded="processEnded",l.Terminated="terminated",l.Start="start",l.AcquiredInput="acquiredInput",l.DependsOnStarted="dependsOnStarted",l.Active="active",l.Inactive="inactive",l.End="end",l.ProblemMatcherStarted="problemMatcherStarted",l.ProblemMatcherEnded="problemMatcherEnded",l.ProblemMatcherFoundErrors="problemMatcherFoundErrors",l))(ws||{}),_s=(s=>(s[s.Shared=1]="Shared",s[s.Dedicated=2]="Dedicated",s[s.New=3]="New",s))(_s||{});let M=class{constructor(e,t){this.label=t;if(typeof e!="string")throw h("name");if(typeof t!="string")throw h("name");this._id=e}isDefault;_id;static from(e){switch(e){case"clean":return M.Clean;case"build":return M.Build;case"rebuild":return M.Rebuild;case"test":return M.Test;default:return}}get id(){return this._id}};x(M,"Clean",new M("clean","Clean")),x(M,"Build",new M("build","Build")),x(M,"Rebuild",new M("rebuild","Rebuild")),x(M,"Test",new M("test","Test")),M=a([c],M);function Pt(n){let e="";for(let t=0;t<n.length;t++)e+=n[t].replace(/,/g,",,")+",";return e}let ne=class{_process;_args;_options;constructor(e,t,s){if(typeof e!="string")throw h("process");this._args=[],this._process=e,t!==void 0&&(Array.isArray(t)?(this._args=t,this._options=s):this._options=t)}get process(){return this._process}set process(e){if(typeof e!="string")throw h("process");this._process=e}get args(){return this._args}set args(e){Array.isArray(e)||(e=[]),this._args=e}get options(){return this._options}set options(e){this._options=e}computeId(){const e=[];if(e.push("process"),this._process!==void 0&&e.push(this._process),this._args&&this._args.length>0)for(const t of this._args)e.push(t);return Pt(e)}};ne=a([c],ne);let ie=class{_commandLine;_command;_args=[];_options;constructor(e,t,s){if(Array.isArray(t)){if(!e)throw h("command can't be undefined or null");if(typeof e!="string"&&typeof e.value!="string")throw h("command");this._command=e,t&&(this._args=t),this._options=s}else{if(typeof e!="string")throw h("commandLine");this._commandLine=e,this._options=t}}get commandLine(){return this._commandLine}set commandLine(e){if(typeof e!="string")throw h("commandLine");this._commandLine=e}get command(){return this._command?this._command:""}set command(e){if(typeof e!="string"&&typeof e.value!="string")throw h("command");this._command=e}get args(){return this._args}set args(e){this._args=e||[]}get options(){return this._options}set options(e){this._options=e}computeId(){const e=[];if(e.push("shell"),this._commandLine!==void 0&&e.push(this._commandLine),this._command!==void 0&&e.push(typeof this._command=="string"?this._command:this._command.value),this._args&&this._args.length>0)for(const t of this._args)e.push(typeof t=="string"?t:t.value);return Pt(e)}};ie=a([c],ie);var Ms=(s=>(s[s.Escape=1]="Escape",s[s.Strong=2]="Strong",s[s.Weak=3]="Weak",s))(Ms||{}),ks=(t=>(t[t.Global=1]="Global",t[t.Workspace=2]="Workspace",t))(ks||{});class Rs{_callback;constructor(e){this._callback=e}computeId(){return"customExecution"+ge()}set callback(e){this._callback=e}get callback(){return this._callback}}let k=class{__id;__deprecated=!1;_definition;_scope;_name;_execution;_problemMatchers;_hasDefinedMatchers;_isBackground;_source;_group;_presentationOptions;_runOptions;_detail;constructor(e,t,s,r,i,o){this._definition=this.definition=e;let g;typeof t=="string"?(this._name=this.name=t,this._source=this.source=s,this.execution=r,g=i,this.__deprecated=!0):t===1||t===2?(this.target=t,this._name=this.name=s,this._source=this.source=r,this.execution=i,g=o):(this.target=t,this._name=this.name=s,this._source=this.source=r,this.execution=i,g=o),typeof g=="string"?(this._problemMatchers=[g],this._hasDefinedMatchers=!0):Array.isArray(g)?(this._problemMatchers=g,this._hasDefinedMatchers=!0):(this._problemMatchers=[],this._hasDefinedMatchers=!1),this._isBackground=!1,this._presentationOptions=Object.create(null),this._runOptions=Object.create(null)}get _id(){return this.__id}set _id(e){this.__id=e}get _deprecated(){return this.__deprecated}clear(){this.__id!==void 0&&(this.__id=void 0,this._scope=void 0,this.computeDefinitionBasedOnExecution())}computeDefinitionBasedOnExecution(){this._execution instanceof ne?this._definition={type:k.ProcessType,id:this._execution.computeId()}:this._execution instanceof ie?this._definition={type:k.ShellType,id:this._execution.computeId()}:this._execution instanceof Rs?this._definition={type:k.ExtensionCallbackType,id:this._execution.computeId()}:this._definition={type:k.EmptyType,id:ge()}}get definition(){return this._definition}set definition(e){if(e==null)throw h("Kind can't be undefined or null");this.clear(),this._definition=e}get scope(){return this._scope}set target(e){this.clear(),this._scope=e}get name(){return this._name}set name(e){if(typeof e!="string")throw h("name");this.clear(),this._name=e}get execution(){return this._execution}set execution(e){e===null&&(e=void 0),this.clear(),this._execution=e;const t=this._definition.type;(k.EmptyType===t||k.ProcessType===t||k.ShellType===t||k.ExtensionCallbackType===t)&&this.computeDefinitionBasedOnExecution()}get problemMatchers(){return this._problemMatchers}set problemMatchers(e){if(Array.isArray(e))this.clear(),this._problemMatchers=e,this._hasDefinedMatchers=!0;else{this.clear(),this._problemMatchers=[],this._hasDefinedMatchers=!1;return}}get hasDefinedMatchers(){return this._hasDefinedMatchers}get isBackground(){return this._isBackground}set isBackground(e){e!==!0&&e!==!1&&(e=!1),this.clear(),this._isBackground=e}get source(){return this._source}set source(e){if(typeof e!="string"||e.length===0)throw h("source must be a string of length > 0");this.clear(),this._source=e}get group(){return this._group}set group(e){e===null&&(e=void 0),this.clear(),this._group=e}get detail(){return this._detail}set detail(e){e===null&&(e=void 0),this._detail=e}get presentationOptions(){return this._presentationOptions}set presentationOptions(e){e==null&&(e=Object.create(null)),this.clear(),this._presentationOptions=e}get runOptions(){return this._runOptions}set runOptions(e){e==null&&(e=Object.create(null)),this.clear(),this._runOptions=e}};x(k,"ExtensionCallbackType","customExecution"),x(k,"ProcessType","process"),x(k,"ShellType","shell"),x(k,"EmptyType","$empty"),k=a([c],k);var Ps=(s=>(s[s.SourceControl=1]="SourceControl",s[s.Window=10]="Window",s[s.Notification=15]="Notification",s))(Ps||{}),Es;(e=>{function n(t){const s=t;return pe(s.value)?s.tooltip&&!D(s.tooltip)?(console.log("INVALID view badge, invalid tooltip",s.tooltip),!1):!0:(console.log("INVALID view badge, invalid value",s.value),!1)}e.isViewBadge=n})(Es||={});let Q=class{constructor(e,t=0){this.collapsibleState=t;P.isUri(e)?this.resourceUri=e:this.label=e}label;resourceUri;iconPath;command;contextValue;tooltip;checkboxState;static isTreeItem(e,t){const s=e;if(s.checkboxState!==void 0){const r=pe(s.checkboxState)?s.checkboxState:bt(s.checkboxState)&&pe(s.checkboxState.state)?s.checkboxState.state:void 0,i=!pe(s.checkboxState)&&bt(s.checkboxState)?s.checkboxState.tooltip:void 0;if(r===void 0||r!==1&&r!==0||i!==void 0&&!D(i))return console.log("INVALID tree item, invalid checkboxState",s.checkboxState),!1}if(e instanceof Q)return!0;if(s.label!==void 0&&!D(s.label)&&!s.label?.label)return console.log("INVALID tree item, invalid label",s.label),!1;if(s.id!==void 0&&!D(s.id))return console.log("INVALID tree item, invalid id",s.id),!1;if(s.iconPath!==void 0&&!D(s.iconPath)&&!P.isUri(s.iconPath)&&(!s.iconPath||!D(s.iconPath.id))){const r=s.iconPath;if(!r||!D(r.light)&&!P.isUri(r.light)&&!D(r.dark)&&!P.isUri(r.dark))return console.log("INVALID tree item, invalid iconPath",s.iconPath),!1}return s.description!==void 0&&!D(s.description)&&typeof s.description!="boolean"?(console.log("INVALID tree item, invalid description",s.description),!1):s.resourceUri!==void 0&&!P.isUri(s.resourceUri)?(console.log("INVALID tree item, invalid resourceUri",s.resourceUri),!1):s.tooltip!==void 0&&!D(s.tooltip)&&!(s.tooltip instanceof F)?(console.log("INVALID tree item, invalid tooltip",s.tooltip),!1):s.command!==void 0&&!s.command.command?(console.log("INVALID tree item, invalid command",s.command),!1):s.collapsibleState!==void 0&&s.collapsibleState<0&&s.collapsibleState>2?(console.log("INVALID tree item, invalid collapsibleState",s.collapsibleState),!1):s.contextValue!==void 0&&!D(s.contextValue)?(console.log("INVALID tree item, invalid contextValue",s.contextValue),!1):s.accessibilityInformation!==void 0&&!s.accessibilityInformation?.label?(console.log("INVALID tree item, invalid accessibilityInformation",s.accessibilityInformation),!1):!0}};Q=a([c],Q);var Us=(s=>(s[s.None=0]="None",s[s.Collapsed=1]="Collapsed",s[s.Expanded=2]="Expanded",s))(Us||{}),Is=(t=>(t[t.Unchecked=0]="Unchecked",t[t.Checked=1]="Checked",t))(Is||{});let oe=class{constructor(e){this.value=e}async asString(){return typeof this.value=="string"?this.value:JSON.stringify(this.value)}asFile(){}};oe=a([c],oe);class Ds extends oe{}class vn extends Ds{#e;constructor(e){super(""),this.#e=e}asFile(){return this.#e}}class bn{name;uri;_itemId;_getData;constructor(e,t,s,r){this.name=e,this.uri=t,this._itemId=s,this._getData=r}data(){return this._getData()}}let Fe=class{constructor(e){K(this,B);K(this,$,new Map);for(const[t,s]of e??[]){const r=y(this,$).get(ee(this,B,ce).call(this,t));r?r.push(s):y(this,$).set(ee(this,B,ce).call(this,t),[s])}}get(e){return y(this,$).get(ee(this,B,ce).call(this,e))?.[0]}set(e,t){y(this,$).set(ee(this,B,ce).call(this,e),[t])}forEach(e,t){for(const[s,r]of y(this,$))for(const i of r)e.call(t,i,s,this)}*[Symbol.iterator](){for(const[e,t]of y(this,$))for(const s of t)yield[e,s]}};$=new WeakMap,B=new WeakSet,ce=function(e){return e.toLowerCase()},Fe=a([c],Fe);let We=class{title;id;insertText;additionalEdit;kind;constructor(e,t,s){this.insertText=e,this.title=t,this.kind=s}};We=a([c],We);var Ns=(t=>(t[t.Automatic=0]="Automatic",t[t.PasteAs=1]="PasteAs",t))(Ns||{});class W{constructor(e){this.value=e}static Empty;static Text;static TextUpdateImports;static sep=".";append(...e){return new W((this.value?[this.value,...e]:e).join(W.sep))}intersects(e){return this.contains(e)||e.contains(this)}contains(e){return this.value===e.value||e.value.startsWith(this.value+W.sep)}}W.Empty=new W(""),W.Text=new W("text"),W.TextUpdateImports=W.Text.append("updateImports");class xn{title;insertText;additionalEdit;kind;constructor(e,t,s){this.title=t,this.insertText=e,this.kind=s}}let E=class{id;color;constructor(e,t){this.id=e,this.color=t}static isThemeIcon(e){return typeof e.id!="string"?(console.log("INVALID ThemeIcon, invalid id",e.id),!1):!0}};x(E,"File"),x(E,"Folder"),E=a([c],E),E.File=new E("file"),E.Folder=new E("folder");let Ae=class{id;constructor(e){this.id=e}};Ae=a([c],Ae);var Ls=(s=>(s[s.Global=1]="Global",s[s.Workspace=2]="Workspace",s[s.WorkspaceFolder=3]="WorkspaceFolder",s))(Ls||{});let Se=class{pattern;_base;get base(){return this._base}set base(e){this._base=e,this._baseUri=P.file(e)}_baseUri;get baseUri(){return this._baseUri}set baseUri(e){this._baseUri=e,this._base=e.fsPath}constructor(e,t){if(typeof e!="string"&&(!e||!P.isUri(e)&&!P.isUri(e.uri)))throw h("base");if(typeof t!="string")throw h("pattern");typeof e=="string"?this.baseUri=P.file(e):P.isUri(e)?this.baseUri=e:this.baseUri=e.uri,this.pattern=t}toJSON(){return{pattern:this.pattern,base:this.base,baseUri:this.baseUri.toJSON()}}};Se=a([c],Se);const Et=new WeakMap;function yn(n,e){Et.set(n,e)}let T=class{_id;enabled;condition;hitCondition;logMessage;mode;constructor(e,t,s,r,i){this.enabled=typeof e=="boolean"?e:!0,typeof t=="string"&&(this.condition=t),typeof s=="string"&&(this.hitCondition=s),typeof r=="string"&&(this.logMessage=r),typeof i=="string"&&(this.mode=i)}get id(){return this._id||(this._id=Et.get(this)??ge()),this._id}};T=a([c],T);let $e=class extends T{location;constructor(e,t,s,r,i,o){if(super(t,s,r,i,o),e===null)throw h("location");this.location=e}};$e=a([c],$e);let qe=class extends T{functionName;constructor(e,t,s,r,i,o){super(t,s,r,i,o),this.functionName=e}};qe=a([c],qe);let Je=class extends T{label;dataId;canPersist;constructor(e,t,s,r,i,o,g,f){if(super(r,i,o,g,f),!t)throw h("dataId");this.label=e,this.dataId=t,this.canPersist=s}};Je=a([c],Je);let Te=class{command;args;options;constructor(e,t,s){this.command=e,this.args=t||[],this.options=s}};Te=a([c],Te);let ze=class{port;host;constructor(e,t){this.port=e,this.host=t}};ze=a([c],ze);let je=class{constructor(e){this.path=e}};je=a([c],je);let Ce=class{implementation;constructor(e){this.implementation=e}};Ce=a([c],Ce);class wn{constructor(e,t,s){this.session=e;this.threadId=t;this.frameId=s}}class _n{constructor(e,t){this.session=e;this.threadId=t}}let Be=class{range;expression;constructor(e,t){this.range=e,this.expression=t}};Be=a([c],Be);var Os=(t=>(t[t.Invoke=0]="Invoke",t[t.Automatic=1]="Automatic",t))(Os||{});let Ge=class{range;text;constructor(e,t){this.range=e,this.text=t}};Ge=a([c],Ge);let Ze=class{range;variableName;caseSensitiveLookup;constructor(e,t,s=!0){this.range=e,this.variableName=t,this.caseSensitiveLookup=s}};Ze=a([c],Ze);let Xe=class{range;expression;constructor(e,t){this.range=e,this.expression=t}};Xe=a([c],Xe);let Ye=class{frameId;stoppedLocation;constructor(e,t){this.frameId=e,this.stoppedLocation=t}};Ye=a([c],Ye);var Fs=(e=>(e[e.AIGenerated=1]="AIGenerated",e))(Fs||{}),Ws=(t=>(t[t.Invoke=0]="Invoke",t[t.Automatic=1]="Automatic",t))(Ws||{});class Mn{newSymbolName;tags;constructor(e,t){this.newSymbolName=e,this.tags=t}}var As=(s=>(s[s.Changed=1]="Changed",s[s.Created=2]="Created",s[s.Deleted=3]="Deleted",s))(As||{});let w=class extends Error{static FileExists(e){return new w(e,J.FileExists,w.FileExists)}static FileNotFound(e){return new w(e,J.FileNotFound,w.FileNotFound)}static FileNotADirectory(e){return new w(e,J.FileNotADirectory,w.FileNotADirectory)}static FileIsADirectory(e){return new w(e,J.FileIsADirectory,w.FileIsADirectory)}static NoPermissions(e){return new w(e,J.NoPermissions,w.NoPermissions)}static Unavailable(e){return new w(e,J.Unavailable,w.Unavailable)}code;constructor(e,t=J.Unknown,s){super(P.isUri(e)?e.toString(!0):e),this.code=s?.name??"Unknown",Tt(this,t),Object.setPrototypeOf(this,w.prototype),typeof Error.captureStackTrace=="function"&&typeof s=="function"&&Error.captureStackTrace(this,s)}};w=a([c],w);let Qe=class{start;end;kind;constructor(e,t,s){this.start=e,this.end=t,this.kind=s}};Qe=a([c],Qe);var Ss=(s=>(s[s.Comment=1]="Comment",s[s.Imports=2]="Imports",s[s.Region=3]="Region",s))(Ss||{}),$s=(t=>(t[t.Collapsed=0]="Collapsed",t[t.Expanded=1]="Expanded",t))($s||{}),qs=(t=>(t[t.Editing=0]="Editing",t[t.Preview=1]="Preview",t))(qs||{}),Js=(t=>(t[t.Published=0]="Published",t[t.Draft=1]="Draft",t))(Js||{}),Ts=(t=>(t[t.Unresolved=0]="Unresolved",t[t.Resolved=1]="Resolved",t))(Ts||{}),zs=(t=>(t[t.Current=0]="Current",t[t.Outdated=1]="Outdated",t))(zs||{}),js=(t=>(t[t.Reply=1]="Reply",t[t.Comment=2]="Comment",t))(js||{});class kn{tokenTypes;tokenModifiers;constructor(e,t=[]){this.tokenTypes=e,this.tokenModifiers=t}}function Cs(n){return typeof n>"u"||qt(n)}class It{_prevLine;_prevChar;_dataIsSortedAndDeltaEncoded;_data;_dataLen;_tokenTypeStrToInt;_tokenModifierStrToInt;_hasLegend;constructor(e){if(this._prevLine=0,this._prevChar=0,this._dataIsSortedAndDeltaEncoded=!0,this._data=[],this._dataLen=0,this._tokenTypeStrToInt=new Map,this._tokenModifierStrToInt=new Map,this._hasLegend=!1,e){this._hasLegend=!0;for(let t=0,s=e.tokenTypes.length;t<s;t++)this._tokenTypeStrToInt.set(e.tokenTypes[t],t);for(let t=0,s=e.tokenModifiers.length;t<s;t++)this._tokenModifierStrToInt.set(e.tokenModifiers[t],t)}}push(e,t,s,r,i){if(typeof e=="number"&&typeof t=="number"&&typeof s=="number"&&typeof r=="number"&&(typeof i=="number"||typeof i>"u"))return typeof i>"u"&&(i=0),this._pushEncoded(e,t,s,r,i);if(b.isRange(e)&&typeof t=="string"&&Cs(s))return this._push(e,t,s);throw h()}_push(e,t,s){if(!this._hasLegend)throw new Error("Legend must be provided in constructor");if(e.start.line!==e.end.line)throw new Error("`range` cannot span multiple lines");if(!this._tokenTypeStrToInt.has(t))throw new Error("`tokenType` is not in the provided legend");const r=e.start.line,i=e.start.character,o=e.end.character-e.start.character,g=this._tokenTypeStrToInt.get(t);let f=0;if(s)for(const R of s){if(!this._tokenModifierStrToInt.has(R))throw new Error("`tokenModifier` is not in the provided legend");const I=this._tokenModifierStrToInt.get(R);f|=1<<I>>>0}this._pushEncoded(r,i,o,g,f)}_pushEncoded(e,t,s,r,i){if(this._dataIsSortedAndDeltaEncoded&&(e<this._prevLine||e===this._prevLine&&t<this._prevChar)){this._dataIsSortedAndDeltaEncoded=!1;const f=this._data.length/5|0;let R=0,I=0;for(let v=0;v<f;v++){let A=this._data[5*v],l=this._data[5*v+1];A===0?(A=R,l+=I):A+=R,this._data[5*v]=A,this._data[5*v+1]=l,R=A,I=l}}let o=e,g=t;this._dataIsSortedAndDeltaEncoded&&this._dataLen>0&&(o-=this._prevLine,o===0&&(g-=this._prevChar)),this._data[this._dataLen++]=o,this._data[this._dataLen++]=g,this._data[this._dataLen++]=s,this._data[this._dataLen++]=r,this._data[this._dataLen++]=i,this._prevLine=e,this._prevChar=t}static _sortAndDeltaEncode(e){const t=[],s=e.length/5|0;for(let g=0;g<s;g++)t[g]=g;t.sort((g,f)=>{const R=e[5*g],I=e[5*f];if(R===I){const v=e[5*g+1],A=e[5*f+1];return v-A}return R-I});const r=new Uint32Array(e.length);let i=0,o=0;for(let g=0;g<s;g++){const f=5*t[g],R=e[f+0],I=e[f+1],v=e[f+2],A=e[f+3],l=e[f+4],pt=R-i,Nt=pt===0?I-o:I,V=5*g;r[V+0]=pt,r[V+1]=Nt,r[V+2]=v,r[V+3]=A,r[V+4]=l,i=R,o=I}return r}build(e){return this._dataIsSortedAndDeltaEncoded?new Ut(new Uint32Array(this._data),e):new Ut(It._sortAndDeltaEncode(this._data),e)}}class Ut{resultId;data;constructor(e,t){this.resultId=t,this.data=e}}class Rn{start;deleteCount;data;constructor(e,t,s){this.start=e,this.deleteCount=t,this.data=s}}class Pn{resultId;edits;constructor(e,t){this.resultId=t,this.edits=e}}var Bs=(t=>(t[t.Separate=0]="Separate",t[t.MergeWithParent=1]="MergeWithParent",t))(Bs||{});class En{constructor(e){this.name=e}iconPath;visualization}var Gs=(t=>(t[t.Title=1]="Title",t[t.Inline=2]="Inline",t))(Gs||{});let ae=class{constructor(){}};x(ae,"Back",{iconPath:new E("arrow-left")}),ae=a([c],ae);var Zs=(t=>(t[t.Separator=-1]="Separator",t[t.Default=0]="Default",t))(Zs||{}),Xs=(s=>(s[s.Info=1]="Info",s[s.Warning=2]="Warning",s[s.Error=3]="Error",s))(Xs||{}),Ys=(t=>(t[t.UI=1]="UI",t[t.Workspace=2]="Workspace",t))(Ys||{});class Un{static validate(e){if(typeof e.badge=="string"){let t=vt(e.badge,0);if(t<e.badge.length&&(t+=vt(e.badge,t)),e.badge.length>t)throw new Error("The 'badge'-property must be undefined or a short character")}else if(e.badge&&!E.isThemeIcon(e.badge))throw new Error("The 'badge'-property is not a valid ThemeIcon");if(!e.color&&!e.badge&&!e.tooltip)throw new Error("The decoration is empty");return!0}badge;tooltip;color;propagate;constructor(e,t,s){this.badge=e,this.tooltip=t,this.color=s}}let He=class{constructor(e){this.kind=e}};He=a([c],He);var Qs=(r=>(r[r.Light=1]="Light",r[r.Dark=2]="Dark",r[r.HighContrast=3]="HighContrast",r[r.HighContrastLight=4]="HighContrastLight",r))(Qs||{});class j{static isNotebookRange(e){return e instanceof j?!0:e?typeof e.start=="number"&&typeof e.end=="number":!1}_start;_end;get start(){return this._start}get end(){return this._end}get isEmpty(){return this._start===this._end}constructor(e,t){if(e<0)throw h("start must be positive");if(t<0)throw h("end must be positive");e<=t?(this._start=e,this._end=t):(this._start=t,this._end=e)}with(e){let t=this._start,s=this._end;return e.start!==void 0&&(t=e.start),e.end!==void 0&&(s=e.end),t===this._start&&s===this._end?this:new j(t,s)}}class ct{static validate(e){if(typeof e.kind!="number")throw new Error("NotebookCellData MUST have 'kind' property");if(typeof e.value!="string")throw new Error("NotebookCellData MUST have 'value' property");if(typeof e.languageId!="string")throw new Error("NotebookCellData MUST have 'languageId' property")}static isNotebookCellDataArray(e){return Array.isArray(e)&&e.every(t=>ct.isNotebookCellData(t))}static isNotebookCellData(e){return!0}kind;value;languageId;mime;outputs;metadata;executionSummary;constructor(e,t,s,r,i,o,g){this.kind=e,this.value=t,this.languageId=s,this.mime=r,this.outputs=i??[],this.metadata=o,this.executionSummary=g,ct.validate(this)}}class In{cells;metadata;constructor(e){this.cells=e}}class S{constructor(e,t){this.data=e;this.mime=t;const s=mt(t,!0);if(!s)throw new Error(`INVALID mime type: ${t}. Must be in the format "type/subtype[;optionalparameter]"`);this.mime=s}static isNotebookCellOutputItem(e){return e instanceof S?!0:e?typeof e.mime=="string"&&e.data instanceof Uint8Array:!1}static error(e){const t={name:e.name,message:e.message,stack:e.stack};return S.json(t,"application/vnd.code.notebook.error")}static stdout(e){return S.text(e,"application/vnd.code.notebook.stdout")}static stderr(e){return S.text(e,"application/vnd.code.notebook.stderr")}static bytes(e,t="application/octet-stream"){return new S(e,t)}static#e=new TextEncoder;static text(e,t=$t.text){const s=S.#e.encode(String(e));return new S(s,t)}static json(e,t="text/x-json"){const s=JSON.stringify(e,void 0,"	");return S.text(s,t)}}class dt{static isNotebookCellOutput(e){return e instanceof dt?!0:!e||typeof e!="object"?!1:typeof e.id=="string"&&Array.isArray(e.items)}static ensureUniqueMimeTypes(e,t=!1){const s=new Set,r=new Set;for(let i=0;i<e.length;i++){const o=e[i],g=mt(o.mime);if(!s.has(g)||zt(g)){s.add(g);continue}r.add(i),t&&console.warn(`DUPLICATED mime type '${o.mime}' will be dropped`)}return r.size===0?e:e.filter((i,o)=>!r.has(o))}id;items;metadata;constructor(e,t,s){this.items=dt.ensureUniqueMimeTypes(e,!0),typeof t=="string"?(this.id=t,this.metadata=s):(this.id=ge(),this.metadata=t??s)}}class Dn{constructor(e,t,s){this.label=e;this.uri=t;this.position=s}}var Hs=(t=>(t[t.Markup=1]="Markup",t[t.Code=2]="Code",t))(Hs||{}),Vs=(s=>(s[s.Idle=1]="Idle",s[s.Pending=2]="Pending",s[s.Executing=3]="Executing",s))(Vs||{}),Ks=(t=>(t[t.Left=1]="Left",t[t.Right=2]="Right",t))(Ks||{}),er=(r=>(r[r.Default=0]="Default",r[r.InCenter=1]="InCenter",r[r.InCenterIfOutsideViewport=2]="InCenterIfOutsideViewport",r[r.AtTop=3]="AtTop",r))(er||{});class Nn{constructor(e,t){this.text=e;this.alignment=t}}var tr=(t=>(t[t.Default=1]="Default",t[t.Preferred=2]="Preferred",t))(tr||{}),sr=(s=>(s[s.Default=1]="Default",s[s.Preferred=2]="Preferred",s[s.Hidden=-1]="Hidden",s))(sr||{});class Ln{constructor(e,t=[]){this.uri=e;this.provides=Ft(t)}provides}class On{constructor(e){this.label=e}description;detail;command}var rr=(t=>(t[t.Named=1]="Named",t[t.Indexed=2]="Indexed",t))(rr||{});let Ve=class{constructor(e,t){this.label=e;this.timestamp=t}};Ve=a([c],Ve);var nr=(s=>(s[s.Production=1]="Production",s[s.Development=2]="Development",s[s.Test=3]="Test",s))(nr||{}),ir=(t=>(t[t.Node=1]="Node",t[t.Webworker=2]="Webworker",t))(ir||{}),or=(r=>(r[r.Other=0]="Other",r[r.Comment=1]="Comment",r[r.String=2]="String",r[r.RegEx=3]="RegEx",r))(or||{});class Fn{constructor(e,t){this.ranges=e;this.wordPattern=t}}class Wn{_autoForwardAction;constructor(e){this._autoForwardAction=e}get autoForwardAction(){return this._autoForwardAction}}var ar=(o=>(o[o.Queued=1]="Queued",o[o.Running=2]="Running",o[o.Passed=3]="Passed",o[o.Failed=4]="Failed",o[o.Skipped=5]="Skipped",o[o.Errored=6]="Errored",o))(ar||{}),cr=(s=>(s[s.Run=1]="Run",s[s.Debug=2]="Debug",s[s.Coverage=3]="Coverage",s))(cr||{});class An{constructor(e,t,s){this.controllerId=e;this.profileId=t;this.kind=s}}let Ke=class{constructor(e=void 0,t=void 0,s=void 0,r=!1,i=!0){this.include=e;this.exclude=t;this.profile=s;this.continuous=r;this.preserveFocus=i}};Ke=a([c],Ke);let H=class{constructor(e){this.message=e}expectedOutput;actualOutput;location;contextValue;stackTrace;static diff(e,t,s){const r=new H(e);return r.expectedOutput=t,r.actualOutput=s,r}};H=a([c],H);let et=class{constructor(e){this.id=e}};et=a([c],et);class Sn{constructor(e,t,s){this.label=e;this.uri=t;this.position=s}}class it{constructor(e,t){this.covered=e;this.total=t;dr(this)}}function dr(n){if(n){if(n.covered>n.total)throw new Error(`The total number of covered items (${n.covered}) cannot be greater than the total (${n.total})`);if(n.total<0)throw new Error(`The number of covered items (${n.total}) cannot be negative`)}}class Dt{constructor(e,t,s,r,i=[]){this.uri=e;this.statementCoverage=t;this.branchCoverage=s;this.declarationCoverage=r;this.includesTests=i}static fromDetails(e,t){const s=new it(0,0),r=new it(0,0),i=new it(0,0);for(const g of t)if("branches"in g){s.total+=1,s.covered+=g.executed?1:0;for(const f of g.branches)r.total+=1,r.covered+=f.executed?1:0}else i.total+=1,i.covered+=g.executed?1:0;const o=new Dt(e,s,r.total>0?r:void 0,i.total>0?i:void 0);return o.detailedCoverage=t,o}detailedCoverage}class $n{constructor(e,t,s=[]){this.executed=e;this.location=t;this.branches=s}get executionCount(){return+this.executed}set executionCount(e){this.executed=e}}class qn{constructor(e,t,s){this.executed=e;this.location=t;this.label=s}get executionCount(){return+this.executed}set executionCount(e){this.executed=e}}class Jn{constructor(e,t,s){this.name=e;this.executed=t;this.location=s}get executionCount(){return+this.executed}set executionCount(e){this.executed=e}}var ur=(r=>(r[r.None=0]="None",r[r.Option=1]="Option",r[r.Default=2]="Default",r[r.Preferred=3]="Preferred",r))(ur||{}),lr=(s=>(s[s.Untrusted=0]="Untrusted",s[s.Trusted=1]="Trusted",s[s.Unspecified=2]="Unspecified",s))(lr||{}),pr=(o=>(o[o.Notify=1]="Notify",o[o.OpenBrowser=2]="OpenBrowser",o[o.OpenPreview=3]="OpenPreview",o[o.Silent=4]="Silent",o[o.Ignore=5]="Ignore",o[o.OpenBrowserOnce=6]="OpenBrowserOnce",o))(pr||{});class Tn{_sessionId;_itemId;kind;tags;name;detail;uri;range;selectionRange;constructor(e,t,s,r,i,o){this.kind=e,this.name=t,this.detail=s,this.uri=r,this.range=i,this.selectionRange=o}}class zn{constructor(e){this.uri=e}}class jn{constructor(e,t){this.original=e;this.modified=t}}class Cn{constructor(e,t,s,r){this.base=e;this.input1=t;this.input2=s;this.result=r}}class Bn{constructor(e,t){this.uri=e;this.viewType=t}}class Gn{constructor(e){this.viewType=e}}class Zn{constructor(e,t){this.uri=e;this.notebookType=t}}class Xn{constructor(e,t,s){this.original=e;this.modified=t;this.notebookType=s}}class Yn{constructor(){}}class Qn{constructor(e,t){this.uri=e;this.inputBoxUri=t}}class Hn{constructor(){}}class Vn{constructor(e){this.textDiffs=e}}var gr=(t=>(t[t.Down=0]="Down",t[t.Up=1]="Up",t))(gr||{}),hr=(t=>(t[t.Action=1]="Action",t[t.Toolbar=2]="Toolbar",t))(hr||{}),fr=(s=>(s[s.Short=1]="Short",s[s.Medium=2]="Medium",s[s.Full=3]="Full",s))(fr||{});class Kn{id;label;fullName;icon;insertText;values;detail;documentation;command;constructor(e,t,s){this.id=e,this.label=t,this.values=s}}var mr=(s=>(s[s.Accepted=1]="Accepted",s[s.Rejected=2]="Rejected",s[s.Saved=3]="Saved",s))(mr||{}),vr=(i=>(i[i.Unhelpful=0]="Unhelpful",i[i.Helpful=1]="Helpful",i[i.Undone=2]="Undone",i[i.Accepted=3]="Accepted",i[i.Bug=4]="Bug",i))(vr||{}),br=(t=>(t[t.Unhelpful=0]="Unhelpful",t[t.Helpful=1]="Helpful",t))(br||{});class ei{value;constructor(e){if(typeof e!="string"&&e.isTrusted===!0)throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");this.value=typeof e=="string"?new F(e):e}}class ti{value;vulnerabilities;constructor(e,t){if(typeof e!="string"&&e.isTrusted===!0)throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");this.value=typeof e=="string"?new F(e):e,this.vulnerabilities=t}}class si{title;message;data;buttons;constructor(e,t,s,r){this.title=e,this.message=t,this.data=s,this.buttons=r}}class ri{value;baseUri;constructor(e,t){this.value=e,this.baseUri=t}}class ni{value;title;value2;constructor(e,t){this.value=e,this.value2=e,this.title=t}}class ii{value;constructor(e){this.value=e}}class oi{value;task;constructor(e,t){this.value=e,this.task=t}}class ai{value;constructor(e){if(typeof e!="string"&&e.isTrusted===!0)throw new Error("The boolean form of MarkdownString.isTrusted is NOT supported for chat participants.");this.value=typeof e=="string"?new F(e):e}}class ci{value;constructor(e){this.value=e}}class di{value;iconPath;options;constructor(e,t,s){this.value=e,this.iconPath=t,this.options=s}}class ui{isEdit;value;constructor(e,t){this.value=e,this.isEdit=t}}class li{value;license;snippet;constructor(e,t,s){this.value=e,this.license=t,this.snippet=s}}class pi{constructor(e,t){this.uri=e;this.range=t}}class gi{uri;edits;isDone;constructor(e,t){this.uri=e,t===!0?(this.isDone=!0,this.edits=[]):this.edits=Array.isArray(t)?t:[t]}}class hi{uri;edits;isDone;constructor(e,t){this.uri=e,t===!0?(this.isDone=!0,this.edits=[]):this.edits=Array.isArray(t)?t:[t]}}class fi{constructor(e,t,s,r,i){this.prompt=e;this.command=t;this.references=s;this.participant=r;this.toolReferences=i}}class mi{constructor(e,t,s,r){this.response=e;this.result=t;this.participant=s;this.command=r}}var xr=(i=>(i[i.Panel=1]="Panel",i[i.Terminal=2]="Terminal",i[i.Notebook=3]="Notebook",i[i.Editor=4]="Editor",i[i.EditingSession=5]="EditingSession",i))(xr||{}),yr=(s=>(s[s.Complete=1]="Complete",s[s.Partial=2]="Partial",s[s.Omitted=3]="Omitted",s))(yr||{});class vi{constructor(e,t,s){this.document=e;this.selection=t;this.wholeRange=s}}class bi{constructor(e){this.cell=e}}class xi{mimeType;data;reference;constructor(e,t,s){this.mimeType=e,this.data=t,this.reference=s}}class yi{constructor(e){this.diagnostics=e}}var wr=(s=>(s[s.User=1]="User",s[s.Assistant=2]="Assistant",s[s.System=3]="System",s))(wr||{});class wi{callId;content;isError;constructor(e,t,s){this.callId=e,this.content=t,this.isError=s??!1}}class _i{constructor(e,t,s){this.command=e;this.language=t;this.confirmationMessages=s}}var _r=(s=>(s[s.Info=0]="Info",s[s.Warning=1]="Warning",s[s.Error=2]="Error",s))(_r||{});class ut{static User(e,t){return new ut(1,e,t)}static Assistant(e,t){return new ut(2,e,t)}role;_content=[];set content(e){typeof e=="string"?this._content=[new G(e)]:this._content=e}get content(){return this._content}set content2(e){e&&(this.content=e.map(t=>typeof t=="string"?new G(t):t))}get content2(){return this.content.map(e=>e instanceof G?e.value:e)}name;constructor(e,t,s){this.role=e,this.content=t,this.name=s}}class lt{static User(e,t){return new lt(1,e,t)}static Assistant(e,t){return new lt(2,e,t)}role;_content=[];set content(e){typeof e=="string"?this._content=[new G(e)]:this._content=e}get content(){return this._content}set content2(e){e&&(this.content=e.map(t=>typeof t=="string"?new G(t):t))}get content2(){return this.content.map(e=>e instanceof G?e.value:e)}name;constructor(e,t,s){this.role=e,this.content=t,this.name=s}}class Mi{callId;name;input;constructor(e,t,s){this.callId=e,this.name=t,this.input=s}}class G{value;constructor(e){this.value=e}toJSON(){return{$mid:le.LanguageModelTextPart,value:this.value}}}class ki{value;constructor(e){this.value=e}toJSON(){return{$mid:le.LanguageModelDataPart,value:this.value}}}var Mr=(i=>(i.PNG="image/png",i.JPEG="image/jpeg",i.GIF="image/gif",i.WEBP="image/webp",i.BMP="image/bmp",i))(Mr||{});class Ri{value;constructor(e){this.value=e}toJSON(){return{$mid:le.LanguageModelPromptTsxPart,value:this.value}}}class Pi{content;constructor(e){this.content=e}}class Ei{content;name;constructor(e,t){this.content=e,this.name=t}}class Ui{content;name;constructor(e,t){this.content=e,this.name=t}}class O extends Error{static#e="LanguageModelError";static NotFound(e){return new O(e,O.NotFound.name)}static NoPermissions(e){return new O(e,O.NoPermissions.name)}static Blocked(e){return new O(e,O.Blocked.name)}static tryDeserialize(e){if(e.name===O.#e)return new O(e.message,e.code,e.cause)}code;constructor(e,t,s){super(e,{cause:s}),this.name=O.#e,this.code=t??""}}class kr{constructor(e){this.content=e}toJSON(){return{$mid:le.LanguageModelToolResult,content:this.content}}}class Ii extends kr{}var Rr=(t=>(t[t.Auto=1]="Auto",t[t.Required=2]="Required",t))(Rr||{}),Pr=(r=>(r[r.SymbolInformation=1]="SymbolInformation",r[r.CommandInformation=2]="CommandInformation",r[r.SearchInformation=3]="SearchInformation",r[r.SettingInformation=4]="SettingInformation",r))(Pr||{}),Er=(i=>(i[i.Started=1]="Started",i[i.Recognizing=2]="Recognizing",i[i.Recognized=3]="Recognized",i[i.Stopped=4]="Stopped",i[i.Error=5]="Error",i))(Er||{}),Ur=(s=>(s[s.Started=1]="Started",s[s.Stopped=2]="Stopped",s[s.Error=3]="Error",s))(Ur||{}),Ir=(t=>(t[t.Recognized=1]="Recognized",t[t.Stopped=2]="Stopped",t))(Ir||{});class Di{constructor(e,t){this.text=e;this.range=t}}var Dr=(t=>(t[t.Invoke=0]="Invoke",t[t.Automatic=1]="Automatic",t))(Dr||{});class Ni{constructor(e,t,s,r){this.label=e;this.command=t;this.args=s;this.env=r}cwd}class Li{constructor(e,t){this.label=e;this.uri=t}headers=[]}export{qn as BranchCoverage,T as Breakpoint,cn as CallHierarchyIncomingCall,an as CallHierarchyItem,dn as CallHierarchyOutgoingCall,Dn as CellErrorStackFrame,Kn as ChatCompletionItem,hr as ChatCopyKind,mr as ChatEditingSessionActionOutcome,Hn as ChatEditorTabInput,_r as ChatErrorLevel,Mr as ChatImageMimeType,xr as ChatLocation,xi as ChatReferenceBinaryData,yi as ChatReferenceDiagnostic,vi as ChatRequestEditorData,bi as ChatRequestNotebookData,fi as ChatRequestTurn,ni as ChatResponseAnchorPart,li as ChatResponseCodeCitationPart,ui as ChatResponseCodeblockUriPart,ci as ChatResponseCommandButtonPart,si as ChatResponseConfirmationPart,ri as ChatResponseFileTreePart,ei as ChatResponseMarkdownPart,ti as ChatResponseMarkdownWithVulnerabilitiesPart,pi as ChatResponseMovePart,hi as ChatResponseNotebookEditPart,ii as ChatResponseProgressPart,oi as ChatResponseProgressPart2,di as ChatResponseReferencePart,yr as ChatResponseReferencePartStatusKind,gi as ChatResponseTextEditPart,mi as ChatResponseTurn,ai as ChatResponseWarningPart,br as ChatResultFeedbackKind,fr as ChatVariableLevel,xe as CodeAction,p as CodeActionKind,Vt as CodeActionTriggerKind,we as CodeLens,re as Color,gs as ColorFormat,Le as ColorInformation,Oe as ColorPresentation,He as ColorTheme,Qs as ColorThemeKind,qs as CommentMode,Js as CommentState,zs as CommentThreadApplicability,$s as CommentThreadCollapsibleState,js as CommentThreadFocus,Ts as CommentThreadState,Ee as CompletionItem,Rt as CompletionItemKind,rs as CompletionItemTag,Ue as CompletionList,ss as CompletionTriggerKind,Ls as ConfigurationTarget,Bn as CustomEditorTabInput,Rs as CustomExecution,Je as DataBreakpoint,Fe as DataTransfer,bn as DataTransferFile,oe as DataTransferItem,Te as DebugAdapterExecutable,Ce as DebugAdapterInlineImplementation,je as DebugAdapterNamedPipeServer,ze as DebugAdapterServer,Bs as DebugConsoleMode,wn as DebugStackFrame,_n as DebugThread,En as DebugVisualization,Jn as DeclarationCoverage,ps as DecorationRangeBehavior,fe as Diagnostic,te as DiagnosticRelatedInformation,_t as DiagnosticSeverity,Yt as DiagnosticTag,Z as Disposable,We as DocumentDropEdit,W as DocumentDropOrPasteEditKind,ve as DocumentHighlight,Mt as DocumentHighlightKind,Ne as DocumentLink,xn as DocumentPasteEdit,Ns as DocumentPasteTriggerKind,z as DocumentSymbol,Gt as EndOfLine,Zt as EnvironmentVariableMutatorType,Be as EvaluatableExpression,Ii as ExtendedLanguageModelToolResult,Ys as ExtensionKind,nr as ExtensionMode,ir as ExtensionRuntime,ur as ExternalUriOpenerPriority,As as FileChangeType,Dt as FileCoverage,Un as FileDecoration,Xt as FileEditType,w as FileSystemError,Qe as FoldingRange,Ss as FoldingRangeKind,qe as FunctionBreakpoint,se as Hover,Qt as HoverVerbosityAction,Pe as InlayHint,ts as InlayHintKind,Re as InlayHintLabelPart,Os as InlineCompletionTriggerKind,Di as InlineEdit,Dr as InlineEditTriggerKind,Ie as InlineSuggestion,De as InlineSuggestionList,Ye as InlineValueContext,Xe as InlineValueEvaluatableExpression,Ge as InlineValueText,Ze as InlineValueVariableLookup,Xs as InputBoxValidationSeverity,vr as InteractiveEditorResponseFeedbackKind,gr as InteractiveSessionVoteDirection,Qn as InteractiveWindowInput,Ds as InternalDataTransferItem,vn as InternalFileDataTransferItem,Ir as KeywordRecognitionStatus,Ui as LanguageModelChatAssistantMessage,ut as LanguageModelChatMessage,lt as LanguageModelChatMessage2,wr as LanguageModelChatMessageRole,Pi as LanguageModelChatSystemMessage,Rr as LanguageModelChatToolMode,Ei as LanguageModelChatUserMessage,ki as LanguageModelDataPart,O as LanguageModelError,Ri as LanguageModelPromptTsxPart,G as LanguageModelTextPart,Mi as LanguageModelToolCallPart,kr as LanguageModelToolResult,wi as LanguageModelToolResultPart,Kt as LanguageStatusSeverity,Fn as LinkedEditingRanges,q as Location,on as ManagedResolvedAuthority,F as MarkdownString,Li as McpSSEServerDefinition,Ni as McpStdioServerDefinition,be as MultiDocumentHighlight,Mn as NewSymbolName,Fs as NewSymbolNameTag,Ws as NewSymbolNameTriggerKind,ct as NotebookCellData,Vs as NotebookCellExecutionState,Hs as NotebookCellKind,dt as NotebookCellOutput,S as NotebookCellOutputItem,Ks as NotebookCellStatusBarAlignment,Nn as NotebookCellStatusBarItem,tr as NotebookControllerAffinity,sr as NotebookControllerAffinity2,In as NotebookData,Xn as NotebookDiffEditorTabInput,U as NotebookEdit,er as NotebookEditorRevealType,Zn as NotebookEditorTabInput,On as NotebookKernelSourceAction,j as NotebookRange,Ln as NotebookRendererScript,rr as NotebookVariablesRequestKind,_e as ParameterInformation,ns as PartialAcceptTriggerKind,Wn as PortAttributes,pr as PortAutoForwardAction,m as Position,_i as PreparedTerminalToolInvocation,ne as ProcessExecution,Ps as ProgressLocation,Gs as QuickInputButtonLocation,ae as QuickInputButtons,Zs as QuickPickItemKind,b as Range,Pr as RelatedInformationType,Se as RelativePattern,tt as RemoteAuthorityResolverError,nn as ResolvedAuthority,X as Selection,ye as SelectionRange,Ut as SemanticTokens,It as SemanticTokensBuilder,Rn as SemanticTokensEdit,Pn as SemanticTokensEdits,kn as SemanticTokensLegend,ie as ShellExecution,Ms as ShellQuoting,ke as SignatureHelp,es as SignatureHelpTriggerKind,Me as SignatureInformation,L as SnippetString,de as SnippetTextEdit,$e as SourceBreakpoint,hs as SourceControlInputBoxValidationType,Er as SpeechToTextStatus,or as StandardTokenType,$n as StatementCoverage,os as StatusBarAlignment,Y as SymbolInformation,kt as SymbolKind,Ht as SymbolTag,at as SyntaxTokenType,k as Task,ws as TaskEventKind,M as TaskGroup,_s as TaskPanelKind,ys as TaskRevealKind,ks as TaskScope,fn as TerminalCompletionItem,xs as TerminalCompletionItemKind,mn as TerminalCompletionList,Yn as TerminalEditorTabInput,fs as TerminalExitReason,ln as TerminalLink,bs as TerminalLocation,jt as TerminalOutputAnchor,hn as TerminalProfile,gn as TerminalQuickFixCommand,pn as TerminalQuickFixOpener,Ct as TerminalQuickFixType,ms as TerminalShellExecutionCommandLineConfidence,vs as TerminalShellType,it as TestCoverageCount,H as TestMessage,Sn as TestMessageStackFrame,ar as TestResultState,An as TestRunProfileBase,cr as TestRunProfileKind,Ke as TestRunRequest,et as TestTag,jn as TextDiffTabInput,ls as TextDocumentChangeReason,cs as TextDocumentSaveReason,N as TextEdit,us as TextEditorChangeKind,as as TextEditorLineNumbersStyle,ds as TextEditorRevealType,ot as TextEditorSelectionChangeKind,Cn as TextMergeTabInput,Vn as TextMultiDiffTabInput,zn as TextTabInput,Ur as TextToSpeechStatus,Ae as ThemeColor,E as ThemeIcon,Ve as TimelineItem,Q as TreeItem,Is as TreeItemCheckboxState,Us as TreeItemCollapsibleState,Tn as TypeHierarchyItem,me as VerboseHover,Es as ViewBadge,is as ViewColumn,Gn as WebviewEditorTabInput,he as WorkspaceEdit,lr as WorkspaceTrustState,un as asStatusBarItemIdentifier,yt as getDebugDescriptionOfRange,Bt as getDebugDescriptionOfSelection,yn as setBreakpointId,dr as validateTestCoverageCount};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __typeError = (msg) => {
+  throw TypeError(msg);
+};
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var __accessCheck = (obj, member, msg) => member.has(obj) || __typeError("Cannot " + msg);
+var __privateGet = (obj, member, getter) => (__accessCheck(obj, member, "read from private field"), getter ? getter.call(obj) : member.get(obj));
+var __privateAdd = (obj, member, value) => member.has(obj) ? __typeError("Cannot add the same private member more than once") : member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+var __privateSet = (obj, member, value, setter) => (__accessCheck(obj, member, "write to private field"), setter ? setter.call(obj, value) : member.set(obj, value), value);
+var __privateMethod = (obj, member, method) => (__accessCheck(obj, member, "access private method"), method);
+var _callOnDispose, _delegate, _items, _DataTransfer_instances, normalizeMime_fn;
+import {
+  asArray,
+  coalesceInPlace,
+  equals
+} from "../../../base/common/arrays.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import {
+  illegalArgument,
+  SerializedError
+} from "../../../base/common/errors.js";
+import { IRelativePattern } from "../../../base/common/glob.js";
+import {
+  MarkdownString as BaseMarkdownString,
+  MarkdownStringTrustedOptions
+} from "../../../base/common/htmlContent.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { MarshalledId } from "../../../base/common/marshallingIds.js";
+import { Mimes, normalizeMimeType } from "../../../base/common/mime.js";
+import { nextCharLength } from "../../../base/common/strings.js";
+import {
+  isNumber,
+  isObject,
+  isString,
+  isStringArray
+} from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { TextEditorSelectionSource } from "../../../platform/editor/common/editor.js";
+import {
+  ExtensionIdentifier,
+  IExtensionDescription
+} from "../../../platform/extensions/common/extensions.js";
+import {
+  FileSystemProviderErrorCode,
+  markAsFileSystemProviderError
+} from "../../../platform/files/common/files.js";
+import { RemoteAuthorityResolverErrorCode } from "../../../platform/remote/common/remoteAuthorityResolver.js";
+import {
+  CellEditType,
+  ICellMetadataEdit,
+  IDocumentMetadataEdit,
+  isTextStreamMime
+} from "../../contrib/notebook/common/notebookCommon.js";
+import { IRelativePatternDto } from "./extHost.protocol.js";
+function es5ClassCompat(target) {
+  const interceptFunctions = {
+    apply: /* @__PURE__ */ __name(function(...args) {
+      if (args.length === 0) {
+        return Reflect.construct(target, []);
+      } else {
+        const argsList = args.length === 1 ? [] : args[1];
+        return Reflect.construct(target, argsList, args[0].constructor);
+      }
+    }, "apply"),
+    call: /* @__PURE__ */ __name(function(...args) {
+      if (args.length === 0) {
+        return Reflect.construct(target, []);
+      } else {
+        const [thisArg, ...restArgs] = args;
+        return Reflect.construct(target, restArgs, thisArg.constructor);
+      }
+    }, "call")
+  };
+  return Object.assign(target, interceptFunctions);
+}
+__name(es5ClassCompat, "es5ClassCompat");
+var TerminalOutputAnchor = /* @__PURE__ */ ((TerminalOutputAnchor2) => {
+  TerminalOutputAnchor2[TerminalOutputAnchor2["Top"] = 0] = "Top";
+  TerminalOutputAnchor2[TerminalOutputAnchor2["Bottom"] = 1] = "Bottom";
+  return TerminalOutputAnchor2;
+})(TerminalOutputAnchor || {});
+var TerminalQuickFixType = /* @__PURE__ */ ((TerminalQuickFixType2) => {
+  TerminalQuickFixType2[TerminalQuickFixType2["TerminalCommand"] = 0] = "TerminalCommand";
+  TerminalQuickFixType2[TerminalQuickFixType2["Opener"] = 1] = "Opener";
+  TerminalQuickFixType2[TerminalQuickFixType2["Command"] = 3] = "Command";
+  return TerminalQuickFixType2;
+})(TerminalQuickFixType || {});
+let Disposable = class {
+  constructor(callOnDispose) {
+    __privateAdd(this, _callOnDispose);
+    __privateSet(this, _callOnDispose, callOnDispose);
+  }
+  static from(...inDisposables) {
+    let disposables = inDisposables;
+    return new Disposable(function() {
+      if (disposables) {
+        for (const disposable of disposables) {
+          if (disposable && typeof disposable.dispose === "function") {
+            disposable.dispose();
+          }
+        }
+        disposables = void 0;
+      }
+    });
+  }
+  dispose() {
+    if (typeof __privateGet(this, _callOnDispose) === "function") {
+      __privateGet(this, _callOnDispose).call(this);
+      __privateSet(this, _callOnDispose, void 0);
+    }
+  }
+};
+_callOnDispose = new WeakMap();
+__name(Disposable, "Disposable");
+Disposable = __decorateClass([
+  es5ClassCompat
+], Disposable);
+let Position = class {
+  static Min(...positions) {
+    if (positions.length === 0) {
+      throw new TypeError();
+    }
+    let result = positions[0];
+    for (let i = 1; i < positions.length; i++) {
+      const p = positions[i];
+      if (p.isBefore(result)) {
+        result = p;
+      }
+    }
+    return result;
+  }
+  static Max(...positions) {
+    if (positions.length === 0) {
+      throw new TypeError();
+    }
+    let result = positions[0];
+    for (let i = 1; i < positions.length; i++) {
+      const p = positions[i];
+      if (p.isAfter(result)) {
+        result = p;
+      }
+    }
+    return result;
+  }
+  static isPosition(other) {
+    if (!other) {
+      return false;
+    }
+    if (other instanceof Position) {
+      return true;
+    }
+    const { line, character } = other;
+    if (typeof line === "number" && typeof character === "number") {
+      return true;
+    }
+    return false;
+  }
+  static of(obj) {
+    if (obj instanceof Position) {
+      return obj;
+    } else if (this.isPosition(obj)) {
+      return new Position(obj.line, obj.character);
+    }
+    throw new Error("Invalid argument, is NOT a position-like object");
+  }
+  _line;
+  _character;
+  get line() {
+    return this._line;
+  }
+  get character() {
+    return this._character;
+  }
+  constructor(line, character) {
+    if (line < 0) {
+      throw illegalArgument("line must be non-negative");
+    }
+    if (character < 0) {
+      throw illegalArgument("character must be non-negative");
+    }
+    this._line = line;
+    this._character = character;
+  }
+  isBefore(other) {
+    if (this._line < other._line) {
+      return true;
+    }
+    if (other._line < this._line) {
+      return false;
+    }
+    return this._character < other._character;
+  }
+  isBeforeOrEqual(other) {
+    if (this._line < other._line) {
+      return true;
+    }
+    if (other._line < this._line) {
+      return false;
+    }
+    return this._character <= other._character;
+  }
+  isAfter(other) {
+    return !this.isBeforeOrEqual(other);
+  }
+  isAfterOrEqual(other) {
+    return !this.isBefore(other);
+  }
+  isEqual(other) {
+    return this._line === other._line && this._character === other._character;
+  }
+  compareTo(other) {
+    if (this._line < other._line) {
+      return -1;
+    } else if (this._line > other.line) {
+      return 1;
+    } else {
+      if (this._character < other._character) {
+        return -1;
+      } else if (this._character > other._character) {
+        return 1;
+      } else {
+        return 0;
+      }
+    }
+  }
+  translate(lineDeltaOrChange, characterDelta = 0) {
+    if (lineDeltaOrChange === null || characterDelta === null) {
+      throw illegalArgument();
+    }
+    let lineDelta;
+    if (typeof lineDeltaOrChange === "undefined") {
+      lineDelta = 0;
+    } else if (typeof lineDeltaOrChange === "number") {
+      lineDelta = lineDeltaOrChange;
+    } else {
+      lineDelta = typeof lineDeltaOrChange.lineDelta === "number" ? lineDeltaOrChange.lineDelta : 0;
+      characterDelta = typeof lineDeltaOrChange.characterDelta === "number" ? lineDeltaOrChange.characterDelta : 0;
+    }
+    if (lineDelta === 0 && characterDelta === 0) {
+      return this;
+    }
+    return new Position(
+      this.line + lineDelta,
+      this.character + characterDelta
+    );
+  }
+  with(lineOrChange, character = this.character) {
+    if (lineOrChange === null || character === null) {
+      throw illegalArgument();
+    }
+    let line;
+    if (typeof lineOrChange === "undefined") {
+      line = this.line;
+    } else if (typeof lineOrChange === "number") {
+      line = lineOrChange;
+    } else {
+      line = typeof lineOrChange.line === "number" ? lineOrChange.line : this.line;
+      character = typeof lineOrChange.character === "number" ? lineOrChange.character : this.character;
+    }
+    if (line === this.line && character === this.character) {
+      return this;
+    }
+    return new Position(line, character);
+  }
+  toJSON() {
+    return { line: this.line, character: this.character };
+  }
+  [Symbol.for("debug.description")]() {
+    return `(${this.line}:${this.character})`;
+  }
+};
+__name(Position, "Position");
+Position = __decorateClass([
+  es5ClassCompat
+], Position);
+let Range = class {
+  static isRange(thing) {
+    if (thing instanceof Range) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Position.isPosition(thing.start) && Position.isPosition(thing.end);
+  }
+  static of(obj) {
+    if (obj instanceof Range) {
+      return obj;
+    }
+    if (this.isRange(obj)) {
+      return new Range(obj.start, obj.end);
+    }
+    throw new Error("Invalid argument, is NOT a range-like object");
+  }
+  _start;
+  _end;
+  get start() {
+    return this._start;
+  }
+  get end() {
+    return this._end;
+  }
+  constructor(startLineOrStart, startColumnOrEnd, endLine, endColumn) {
+    let start;
+    let end;
+    if (typeof startLineOrStart === "number" && typeof startColumnOrEnd === "number" && typeof endLine === "number" && typeof endColumn === "number") {
+      start = new Position(startLineOrStart, startColumnOrEnd);
+      end = new Position(endLine, endColumn);
+    } else if (Position.isPosition(startLineOrStart) && Position.isPosition(startColumnOrEnd)) {
+      start = Position.of(startLineOrStart);
+      end = Position.of(startColumnOrEnd);
+    }
+    if (!start || !end) {
+      throw new Error("Invalid arguments");
+    }
+    if (start.isBefore(end)) {
+      this._start = start;
+      this._end = end;
+    } else {
+      this._start = end;
+      this._end = start;
+    }
+  }
+  contains(positionOrRange) {
+    if (Range.isRange(positionOrRange)) {
+      return this.contains(positionOrRange.start) && this.contains(positionOrRange.end);
+    } else if (Position.isPosition(positionOrRange)) {
+      if (Position.of(positionOrRange).isBefore(this._start)) {
+        return false;
+      }
+      if (this._end.isBefore(positionOrRange)) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+  isEqual(other) {
+    return this._start.isEqual(other._start) && this._end.isEqual(other._end);
+  }
+  intersection(other) {
+    const start = Position.Max(other.start, this._start);
+    const end = Position.Min(other.end, this._end);
+    if (start.isAfter(end)) {
+      return void 0;
+    }
+    return new Range(start, end);
+  }
+  union(other) {
+    if (this.contains(other)) {
+      return this;
+    } else if (other.contains(this)) {
+      return other;
+    }
+    const start = Position.Min(other.start, this._start);
+    const end = Position.Max(other.end, this.end);
+    return new Range(start, end);
+  }
+  get isEmpty() {
+    return this._start.isEqual(this._end);
+  }
+  get isSingleLine() {
+    return this._start.line === this._end.line;
+  }
+  with(startOrChange, end = this.end) {
+    if (startOrChange === null || end === null) {
+      throw illegalArgument();
+    }
+    let start;
+    if (!startOrChange) {
+      start = this.start;
+    } else if (Position.isPosition(startOrChange)) {
+      start = startOrChange;
+    } else {
+      start = startOrChange.start || this.start;
+      end = startOrChange.end || this.end;
+    }
+    if (start.isEqual(this._start) && end.isEqual(this.end)) {
+      return this;
+    }
+    return new Range(start, end);
+  }
+  toJSON() {
+    return [this.start, this.end];
+  }
+  [Symbol.for("debug.description")]() {
+    return getDebugDescriptionOfRange(this);
+  }
+};
+__name(Range, "Range");
+Range = __decorateClass([
+  es5ClassCompat
+], Range);
+let Selection = class extends Range {
+  static isSelection(thing) {
+    if (thing instanceof Selection) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Range.isRange(thing) && Position.isPosition(thing.anchor) && Position.isPosition(thing.active) && typeof thing.isReversed === "boolean";
+  }
+  _anchor;
+  get anchor() {
+    return this._anchor;
+  }
+  _active;
+  get active() {
+    return this._active;
+  }
+  constructor(anchorLineOrAnchor, anchorColumnOrActive, activeLine, activeColumn) {
+    let anchor;
+    let active;
+    if (typeof anchorLineOrAnchor === "number" && typeof anchorColumnOrActive === "number" && typeof activeLine === "number" && typeof activeColumn === "number") {
+      anchor = new Position(anchorLineOrAnchor, anchorColumnOrActive);
+      active = new Position(activeLine, activeColumn);
+    } else if (Position.isPosition(anchorLineOrAnchor) && Position.isPosition(anchorColumnOrActive)) {
+      anchor = Position.of(anchorLineOrAnchor);
+      active = Position.of(anchorColumnOrActive);
+    }
+    if (!anchor || !active) {
+      throw new Error("Invalid arguments");
+    }
+    super(anchor, active);
+    this._anchor = anchor;
+    this._active = active;
+  }
+  get isReversed() {
+    return this._anchor === this._end;
+  }
+  toJSON() {
+    return {
+      start: this.start,
+      end: this.end,
+      active: this.active,
+      anchor: this.anchor
+    };
+  }
+  [Symbol.for("debug.description")]() {
+    return getDebugDescriptionOfSelection(this);
+  }
+};
+__name(Selection, "Selection");
+Selection = __decorateClass([
+  es5ClassCompat
+], Selection);
+function getDebugDescriptionOfRange(range) {
+  return range.isEmpty ? `[${range.start.line}:${range.start.character})` : `[${range.start.line}:${range.start.character} -> ${range.end.line}:${range.end.character})`;
+}
+__name(getDebugDescriptionOfRange, "getDebugDescriptionOfRange");
+function getDebugDescriptionOfSelection(selection) {
+  let rangeStr = getDebugDescriptionOfRange(selection);
+  if (!selection.isEmpty) {
+    if (selection.active.isEqual(selection.start)) {
+      rangeStr = `|${rangeStr}`;
+    } else {
+      rangeStr = `${rangeStr}|`;
+    }
+  }
+  return rangeStr;
+}
+__name(getDebugDescriptionOfSelection, "getDebugDescriptionOfSelection");
+const validateConnectionToken = /* @__PURE__ */ __name((connectionToken) => {
+  if (typeof connectionToken !== "string" || connectionToken.length === 0 || !/^[0-9A-Za-z_\-]+$/.test(connectionToken)) {
+    throw illegalArgument("connectionToken");
+  }
+}, "validateConnectionToken");
+class ResolvedAuthority {
+  static {
+    __name(this, "ResolvedAuthority");
+  }
+  static isResolvedAuthority(resolvedAuthority) {
+    return resolvedAuthority && typeof resolvedAuthority === "object" && typeof resolvedAuthority.host === "string" && typeof resolvedAuthority.port === "number" && (resolvedAuthority.connectionToken === void 0 || typeof resolvedAuthority.connectionToken === "string");
+  }
+  host;
+  port;
+  connectionToken;
+  constructor(host, port, connectionToken) {
+    if (typeof host !== "string" || host.length === 0) {
+      throw illegalArgument("host");
+    }
+    if (typeof port !== "number" || port === 0 || Math.round(port) !== port) {
+      throw illegalArgument("port");
+    }
+    if (typeof connectionToken !== "undefined") {
+      validateConnectionToken(connectionToken);
+    }
+    this.host = host;
+    this.port = Math.round(port);
+    this.connectionToken = connectionToken;
+  }
+}
+class ManagedResolvedAuthority {
+  constructor(makeConnection, connectionToken) {
+    this.makeConnection = makeConnection;
+    this.connectionToken = connectionToken;
+    if (typeof connectionToken !== "undefined") {
+      validateConnectionToken(connectionToken);
+    }
+  }
+  static {
+    __name(this, "ManagedResolvedAuthority");
+  }
+  static isManagedResolvedAuthority(resolvedAuthority) {
+    return resolvedAuthority && typeof resolvedAuthority === "object" && typeof resolvedAuthority.makeConnection === "function" && (resolvedAuthority.connectionToken === void 0 || typeof resolvedAuthority.connectionToken === "string");
+  }
+}
+class RemoteAuthorityResolverError extends Error {
+  static {
+    __name(this, "RemoteAuthorityResolverError");
+  }
+  static NotAvailable(message, handled) {
+    return new RemoteAuthorityResolverError(
+      message,
+      RemoteAuthorityResolverErrorCode.NotAvailable,
+      handled
+    );
+  }
+  static TemporarilyNotAvailable(message) {
+    return new RemoteAuthorityResolverError(
+      message,
+      RemoteAuthorityResolverErrorCode.TemporarilyNotAvailable
+    );
+  }
+  _message;
+  _code;
+  _detail;
+  constructor(message, code = RemoteAuthorityResolverErrorCode.Unknown, detail) {
+    super(message);
+    this._message = message;
+    this._code = code;
+    this._detail = detail;
+    Object.setPrototypeOf(this, RemoteAuthorityResolverError.prototype);
+  }
+}
+var EndOfLine = /* @__PURE__ */ ((EndOfLine2) => {
+  EndOfLine2[EndOfLine2["LF"] = 1] = "LF";
+  EndOfLine2[EndOfLine2["CRLF"] = 2] = "CRLF";
+  return EndOfLine2;
+})(EndOfLine || {});
+var EnvironmentVariableMutatorType = /* @__PURE__ */ ((EnvironmentVariableMutatorType2) => {
+  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Replace"] = 1] = "Replace";
+  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Append"] = 2] = "Append";
+  EnvironmentVariableMutatorType2[EnvironmentVariableMutatorType2["Prepend"] = 3] = "Prepend";
+  return EnvironmentVariableMutatorType2;
+})(EnvironmentVariableMutatorType || {});
+let TextEdit = class {
+  static isTextEdit(thing) {
+    if (thing instanceof TextEdit) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Range.isRange(thing) && typeof thing.newText === "string";
+  }
+  static replace(range, newText) {
+    return new TextEdit(range, newText);
+  }
+  static insert(position, newText) {
+    return TextEdit.replace(new Range(position, position), newText);
+  }
+  static delete(range) {
+    return TextEdit.replace(range, "");
+  }
+  static setEndOfLine(eol) {
+    const ret = new TextEdit(
+      new Range(new Position(0, 0), new Position(0, 0)),
+      ""
+    );
+    ret.newEol = eol;
+    return ret;
+  }
+  _range;
+  _newText;
+  _newEol;
+  get range() {
+    return this._range;
+  }
+  set range(value) {
+    if (value && !Range.isRange(value)) {
+      throw illegalArgument("range");
+    }
+    this._range = value;
+  }
+  get newText() {
+    return this._newText || "";
+  }
+  set newText(value) {
+    if (value && typeof value !== "string") {
+      throw illegalArgument("newText");
+    }
+    this._newText = value;
+  }
+  get newEol() {
+    return this._newEol;
+  }
+  set newEol(value) {
+    if (value && typeof value !== "number") {
+      throw illegalArgument("newEol");
+    }
+    this._newEol = value;
+  }
+  constructor(range, newText) {
+    this._range = range;
+    this._newText = newText;
+  }
+  toJSON() {
+    return {
+      range: this.range,
+      newText: this.newText,
+      newEol: this._newEol
+    };
+  }
+};
+__name(TextEdit, "TextEdit");
+TextEdit = __decorateClass([
+  es5ClassCompat
+], TextEdit);
+let NotebookEdit = class {
+  static isNotebookCellEdit(thing) {
+    if (thing instanceof NotebookEdit) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return NotebookRange.isNotebookRange(thing) && Array.isArray(thing.newCells);
+  }
+  static replaceCells(range, newCells) {
+    return new NotebookEdit(range, newCells);
+  }
+  static insertCells(index, newCells) {
+    return new NotebookEdit(new NotebookRange(index, index), newCells);
+  }
+  static deleteCells(range) {
+    return new NotebookEdit(range, []);
+  }
+  static updateCellMetadata(index, newMetadata) {
+    const edit = new NotebookEdit(new NotebookRange(index, index), []);
+    edit.newCellMetadata = newMetadata;
+    return edit;
+  }
+  static updateNotebookMetadata(newMetadata) {
+    const edit = new NotebookEdit(new NotebookRange(0, 0), []);
+    edit.newNotebookMetadata = newMetadata;
+    return edit;
+  }
+  range;
+  newCells;
+  newCellMetadata;
+  newNotebookMetadata;
+  constructor(range, newCells) {
+    this.range = range;
+    this.newCells = newCells;
+  }
+};
+__name(NotebookEdit, "NotebookEdit");
+NotebookEdit = __decorateClass([
+  es5ClassCompat
+], NotebookEdit);
+class SnippetTextEdit {
+  static {
+    __name(this, "SnippetTextEdit");
+  }
+  static isSnippetTextEdit(thing) {
+    if (thing instanceof SnippetTextEdit) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Range.isRange(thing.range) && SnippetString.isSnippetString(thing.snippet);
+  }
+  static replace(range, snippet) {
+    return new SnippetTextEdit(range, snippet);
+  }
+  static insert(position, snippet) {
+    return SnippetTextEdit.replace(new Range(position, position), snippet);
+  }
+  range;
+  snippet;
+  keepWhitespace;
+  constructor(range, snippet) {
+    this.range = range;
+    this.snippet = snippet;
+  }
+}
+var FileEditType = /* @__PURE__ */ ((FileEditType2) => {
+  FileEditType2[FileEditType2["File"] = 1] = "File";
+  FileEditType2[FileEditType2["Text"] = 2] = "Text";
+  FileEditType2[FileEditType2["Cell"] = 3] = "Cell";
+  FileEditType2[FileEditType2["CellReplace"] = 5] = "CellReplace";
+  FileEditType2[FileEditType2["Snippet"] = 6] = "Snippet";
+  return FileEditType2;
+})(FileEditType || {});
+let WorkspaceEdit = class {
+  _edits = [];
+  _allEntries() {
+    return this._edits;
+  }
+  // --- file
+  renameFile(from, to, options, metadata) {
+    this._edits.push({
+      _type: 1 /* File */,
+      from,
+      to,
+      options,
+      metadata
+    });
+  }
+  createFile(uri, options, metadata) {
+    this._edits.push({
+      _type: 1 /* File */,
+      from: void 0,
+      to: uri,
+      options,
+      metadata
+    });
+  }
+  deleteFile(uri, options, metadata) {
+    this._edits.push({
+      _type: 1 /* File */,
+      from: uri,
+      to: void 0,
+      options,
+      metadata
+    });
+  }
+  // --- notebook
+  replaceNotebookMetadata(uri, value, metadata) {
+    this._edits.push({
+      _type: 3 /* Cell */,
+      metadata,
+      uri,
+      edit: { editType: CellEditType.DocumentMetadata, metadata: value }
+    });
+  }
+  replaceNotebookCells(uri, startOrRange, cellData, metadata) {
+    const start = startOrRange.start;
+    const end = startOrRange.end;
+    if (start !== end || cellData.length > 0) {
+      this._edits.push({
+        _type: 5 /* CellReplace */,
+        uri,
+        index: start,
+        count: end - start,
+        cells: cellData,
+        metadata
+      });
+    }
+  }
+  replaceNotebookCellMetadata(uri, index, cellMetadata, metadata) {
+    this._edits.push({
+      _type: 3 /* Cell */,
+      metadata,
+      uri,
+      edit: {
+        editType: CellEditType.Metadata,
+        index,
+        metadata: cellMetadata
+      }
+    });
+  }
+  // --- text
+  replace(uri, range, newText, metadata) {
+    this._edits.push({
+      _type: 2 /* Text */,
+      uri,
+      edit: new TextEdit(range, newText),
+      metadata
+    });
+  }
+  insert(resource, position, newText, metadata) {
+    this.replace(
+      resource,
+      new Range(position, position),
+      newText,
+      metadata
+    );
+  }
+  delete(resource, range, metadata) {
+    this.replace(resource, range, "", metadata);
+  }
+  // --- text (Maplike)
+  has(uri) {
+    return this._edits.some(
+      (edit) => edit._type === 2 /* Text */ && edit.uri.toString() === uri.toString()
+    );
+  }
+  set(uri, edits) {
+    if (!edits) {
+      for (let i = 0; i < this._edits.length; i++) {
+        const element = this._edits[i];
+        switch (element._type) {
+          case 2 /* Text */:
+          case 6 /* Snippet */:
+          case 3 /* Cell */:
+          case 5 /* CellReplace */:
+            if (element.uri.toString() === uri.toString()) {
+              this._edits[i] = void 0;
+            }
+            break;
+        }
+      }
+      coalesceInPlace(this._edits);
+    } else {
+      for (const editOrTuple of edits) {
+        if (!editOrTuple) {
+          continue;
+        }
+        let edit;
+        let metadata;
+        if (Array.isArray(editOrTuple)) {
+          edit = editOrTuple[0];
+          metadata = editOrTuple[1];
+        } else {
+          edit = editOrTuple;
+        }
+        if (NotebookEdit.isNotebookCellEdit(edit)) {
+          if (edit.newCellMetadata) {
+            this.replaceNotebookCellMetadata(
+              uri,
+              edit.range.start,
+              edit.newCellMetadata,
+              metadata
+            );
+          } else if (edit.newNotebookMetadata) {
+            this.replaceNotebookMetadata(
+              uri,
+              edit.newNotebookMetadata,
+              metadata
+            );
+          } else {
+            this.replaceNotebookCells(
+              uri,
+              edit.range,
+              edit.newCells,
+              metadata
+            );
+          }
+        } else if (SnippetTextEdit.isSnippetTextEdit(edit)) {
+          this._edits.push({
+            _type: 6 /* Snippet */,
+            uri,
+            range: edit.range,
+            edit: edit.snippet,
+            metadata,
+            keepWhitespace: edit.keepWhitespace
+          });
+        } else {
+          this._edits.push({
+            _type: 2 /* Text */,
+            uri,
+            edit,
+            metadata
+          });
+        }
+      }
+    }
+  }
+  get(uri) {
+    const res = [];
+    for (const candidate of this._edits) {
+      if (candidate._type === 2 /* Text */ && candidate.uri.toString() === uri.toString()) {
+        res.push(candidate.edit);
+      }
+    }
+    return res;
+  }
+  entries() {
+    const textEdits = new ResourceMap();
+    for (const candidate of this._edits) {
+      if (candidate._type === 2 /* Text */) {
+        let textEdit = textEdits.get(candidate.uri);
+        if (!textEdit) {
+          textEdit = [candidate.uri, []];
+          textEdits.set(candidate.uri, textEdit);
+        }
+        textEdit[1].push(candidate.edit);
+      }
+    }
+    return [...textEdits.values()];
+  }
+  get size() {
+    return this.entries().length;
+  }
+  toJSON() {
+    return this.entries();
+  }
+};
+__name(WorkspaceEdit, "WorkspaceEdit");
+WorkspaceEdit = __decorateClass([
+  es5ClassCompat
+], WorkspaceEdit);
+let SnippetString = class {
+  static isSnippetString(thing) {
+    if (thing instanceof SnippetString) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return typeof thing.value === "string";
+  }
+  static _escape(value) {
+    return value.replace(/\$|}|\\/g, "\\$&");
+  }
+  _tabstop = 1;
+  value;
+  constructor(value) {
+    this.value = value || "";
+  }
+  appendText(string) {
+    this.value += SnippetString._escape(string);
+    return this;
+  }
+  appendTabstop(number = this._tabstop++) {
+    this.value += "$";
+    this.value += number;
+    return this;
+  }
+  appendPlaceholder(value, number = this._tabstop++) {
+    if (typeof value === "function") {
+      const nested = new SnippetString();
+      nested._tabstop = this._tabstop;
+      value(nested);
+      this._tabstop = nested._tabstop;
+      value = nested.value;
+    } else {
+      value = SnippetString._escape(value);
+    }
+    this.value += "${";
+    this.value += number;
+    this.value += ":";
+    this.value += value;
+    this.value += "}";
+    return this;
+  }
+  appendChoice(values, number = this._tabstop++) {
+    const value = values.map((s) => s.replaceAll(/[|\\,]/g, "\\$&")).join(",");
+    this.value += "${";
+    this.value += number;
+    this.value += "|";
+    this.value += value;
+    this.value += "|}";
+    return this;
+  }
+  appendVariable(name, defaultValue) {
+    if (typeof defaultValue === "function") {
+      const nested = new SnippetString();
+      nested._tabstop = this._tabstop;
+      defaultValue(nested);
+      this._tabstop = nested._tabstop;
+      defaultValue = nested.value;
+    } else if (typeof defaultValue === "string") {
+      defaultValue = defaultValue.replace(/\$|}/g, "\\$&");
+    }
+    this.value += "${";
+    this.value += name;
+    if (defaultValue) {
+      this.value += ":";
+      this.value += defaultValue;
+    }
+    this.value += "}";
+    return this;
+  }
+};
+__name(SnippetString, "SnippetString");
+SnippetString = __decorateClass([
+  es5ClassCompat
+], SnippetString);
+var DiagnosticTag = /* @__PURE__ */ ((DiagnosticTag2) => {
+  DiagnosticTag2[DiagnosticTag2["Unnecessary"] = 1] = "Unnecessary";
+  DiagnosticTag2[DiagnosticTag2["Deprecated"] = 2] = "Deprecated";
+  return DiagnosticTag2;
+})(DiagnosticTag || {});
+var DiagnosticSeverity = /* @__PURE__ */ ((DiagnosticSeverity2) => {
+  DiagnosticSeverity2[DiagnosticSeverity2["Hint"] = 3] = "Hint";
+  DiagnosticSeverity2[DiagnosticSeverity2["Information"] = 2] = "Information";
+  DiagnosticSeverity2[DiagnosticSeverity2["Warning"] = 1] = "Warning";
+  DiagnosticSeverity2[DiagnosticSeverity2["Error"] = 0] = "Error";
+  return DiagnosticSeverity2;
+})(DiagnosticSeverity || {});
+let Location = class {
+  static isLocation(thing) {
+    if (thing instanceof Location) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return Range.isRange(thing.range) && URI.isUri(thing.uri);
+  }
+  uri;
+  range;
+  constructor(uri, rangeOrPosition) {
+    this.uri = uri;
+    if (!rangeOrPosition) {
+    } else if (Range.isRange(rangeOrPosition)) {
+      this.range = Range.of(rangeOrPosition);
+    } else if (Position.isPosition(rangeOrPosition)) {
+      this.range = new Range(rangeOrPosition, rangeOrPosition);
+    } else {
+      throw new Error("Illegal argument");
+    }
+  }
+  toJSON() {
+    return {
+      uri: this.uri,
+      range: this.range
+    };
+  }
+};
+__name(Location, "Location");
+Location = __decorateClass([
+  es5ClassCompat
+], Location);
+let DiagnosticRelatedInformation = class {
+  static is(thing) {
+    if (!thing) {
+      return false;
+    }
+    return typeof thing.message === "string" && thing.location && Range.isRange(
+      thing.location.range
+    ) && URI.isUri(thing.location.uri);
+  }
+  location;
+  message;
+  constructor(location, message) {
+    this.location = location;
+    this.message = message;
+  }
+  static isEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.message === b.message && a.location.range.isEqual(b.location.range) && a.location.uri.toString() === b.location.uri.toString();
+  }
+};
+__name(DiagnosticRelatedInformation, "DiagnosticRelatedInformation");
+DiagnosticRelatedInformation = __decorateClass([
+  es5ClassCompat
+], DiagnosticRelatedInformation);
+let Diagnostic = class {
+  range;
+  message;
+  severity;
+  source;
+  code;
+  relatedInformation;
+  tags;
+  constructor(range, message, severity = 0 /* Error */) {
+    if (!Range.isRange(range)) {
+      throw new TypeError("range must be set");
+    }
+    if (!message) {
+      throw new TypeError("message must be set");
+    }
+    this.range = range;
+    this.message = message;
+    this.severity = severity;
+  }
+  toJSON() {
+    return {
+      severity: DiagnosticSeverity[this.severity],
+      message: this.message,
+      range: this.range,
+      source: this.source,
+      code: this.code
+    };
+  }
+  static isEqual(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.message === b.message && a.severity === b.severity && a.code === b.code && a.severity === b.severity && a.source === b.source && a.range.isEqual(b.range) && equals(a.tags, b.tags) && equals(
+      a.relatedInformation,
+      b.relatedInformation,
+      DiagnosticRelatedInformation.isEqual
+    );
+  }
+};
+__name(Diagnostic, "Diagnostic");
+Diagnostic = __decorateClass([
+  es5ClassCompat
+], Diagnostic);
+let Hover = class {
+  contents;
+  range;
+  constructor(contents, range) {
+    if (!contents) {
+      throw new Error("Illegal argument, contents must be defined");
+    }
+    if (Array.isArray(contents)) {
+      this.contents = contents;
+    } else {
+      this.contents = [contents];
+    }
+    this.range = range;
+  }
+};
+__name(Hover, "Hover");
+Hover = __decorateClass([
+  es5ClassCompat
+], Hover);
+let VerboseHover = class extends Hover {
+  canIncreaseVerbosity;
+  canDecreaseVerbosity;
+  constructor(contents, range, canIncreaseVerbosity, canDecreaseVerbosity) {
+    super(contents, range);
+    this.canIncreaseVerbosity = canIncreaseVerbosity;
+    this.canDecreaseVerbosity = canDecreaseVerbosity;
+  }
+};
+__name(VerboseHover, "VerboseHover");
+VerboseHover = __decorateClass([
+  es5ClassCompat
+], VerboseHover);
+var HoverVerbosityAction = /* @__PURE__ */ ((HoverVerbosityAction2) => {
+  HoverVerbosityAction2[HoverVerbosityAction2["Increase"] = 0] = "Increase";
+  HoverVerbosityAction2[HoverVerbosityAction2["Decrease"] = 1] = "Decrease";
+  return HoverVerbosityAction2;
+})(HoverVerbosityAction || {});
+var DocumentHighlightKind = /* @__PURE__ */ ((DocumentHighlightKind2) => {
+  DocumentHighlightKind2[DocumentHighlightKind2["Text"] = 0] = "Text";
+  DocumentHighlightKind2[DocumentHighlightKind2["Read"] = 1] = "Read";
+  DocumentHighlightKind2[DocumentHighlightKind2["Write"] = 2] = "Write";
+  return DocumentHighlightKind2;
+})(DocumentHighlightKind || {});
+let DocumentHighlight = class {
+  range;
+  kind;
+  constructor(range, kind = 0 /* Text */) {
+    this.range = range;
+    this.kind = kind;
+  }
+  toJSON() {
+    return {
+      range: this.range,
+      kind: DocumentHighlightKind[this.kind]
+    };
+  }
+};
+__name(DocumentHighlight, "DocumentHighlight");
+DocumentHighlight = __decorateClass([
+  es5ClassCompat
+], DocumentHighlight);
+let MultiDocumentHighlight = class {
+  uri;
+  highlights;
+  constructor(uri, highlights) {
+    this.uri = uri;
+    this.highlights = highlights;
+  }
+  toJSON() {
+    return {
+      uri: this.uri,
+      highlights: this.highlights.map((h) => h.toJSON())
+    };
+  }
+};
+__name(MultiDocumentHighlight, "MultiDocumentHighlight");
+MultiDocumentHighlight = __decorateClass([
+  es5ClassCompat
+], MultiDocumentHighlight);
+var SymbolKind = /* @__PURE__ */ ((SymbolKind2) => {
+  SymbolKind2[SymbolKind2["File"] = 0] = "File";
+  SymbolKind2[SymbolKind2["Module"] = 1] = "Module";
+  SymbolKind2[SymbolKind2["Namespace"] = 2] = "Namespace";
+  SymbolKind2[SymbolKind2["Package"] = 3] = "Package";
+  SymbolKind2[SymbolKind2["Class"] = 4] = "Class";
+  SymbolKind2[SymbolKind2["Method"] = 5] = "Method";
+  SymbolKind2[SymbolKind2["Property"] = 6] = "Property";
+  SymbolKind2[SymbolKind2["Field"] = 7] = "Field";
+  SymbolKind2[SymbolKind2["Constructor"] = 8] = "Constructor";
+  SymbolKind2[SymbolKind2["Enum"] = 9] = "Enum";
+  SymbolKind2[SymbolKind2["Interface"] = 10] = "Interface";
+  SymbolKind2[SymbolKind2["Function"] = 11] = "Function";
+  SymbolKind2[SymbolKind2["Variable"] = 12] = "Variable";
+  SymbolKind2[SymbolKind2["Constant"] = 13] = "Constant";
+  SymbolKind2[SymbolKind2["String"] = 14] = "String";
+  SymbolKind2[SymbolKind2["Number"] = 15] = "Number";
+  SymbolKind2[SymbolKind2["Boolean"] = 16] = "Boolean";
+  SymbolKind2[SymbolKind2["Array"] = 17] = "Array";
+  SymbolKind2[SymbolKind2["Object"] = 18] = "Object";
+  SymbolKind2[SymbolKind2["Key"] = 19] = "Key";
+  SymbolKind2[SymbolKind2["Null"] = 20] = "Null";
+  SymbolKind2[SymbolKind2["EnumMember"] = 21] = "EnumMember";
+  SymbolKind2[SymbolKind2["Struct"] = 22] = "Struct";
+  SymbolKind2[SymbolKind2["Event"] = 23] = "Event";
+  SymbolKind2[SymbolKind2["Operator"] = 24] = "Operator";
+  SymbolKind2[SymbolKind2["TypeParameter"] = 25] = "TypeParameter";
+  return SymbolKind2;
+})(SymbolKind || {});
+var SymbolTag = /* @__PURE__ */ ((SymbolTag2) => {
+  SymbolTag2[SymbolTag2["Deprecated"] = 1] = "Deprecated";
+  return SymbolTag2;
+})(SymbolTag || {});
+let SymbolInformation = class {
+  static validate(candidate) {
+    if (!candidate.name) {
+      throw new Error("name must not be falsy");
+    }
+  }
+  name;
+  location;
+  kind;
+  tags;
+  containerName;
+  constructor(name, kind, rangeOrContainer, locationOrUri, containerName) {
+    this.name = name;
+    this.kind = kind;
+    this.containerName = containerName;
+    if (typeof rangeOrContainer === "string") {
+      this.containerName = rangeOrContainer;
+    }
+    if (locationOrUri instanceof Location) {
+      this.location = locationOrUri;
+    } else if (rangeOrContainer instanceof Range) {
+      this.location = new Location(locationOrUri, rangeOrContainer);
+    }
+    SymbolInformation.validate(this);
+  }
+  toJSON() {
+    return {
+      name: this.name,
+      kind: SymbolKind[this.kind],
+      location: this.location,
+      containerName: this.containerName
+    };
+  }
+};
+__name(SymbolInformation, "SymbolInformation");
+SymbolInformation = __decorateClass([
+  es5ClassCompat
+], SymbolInformation);
+let DocumentSymbol = class {
+  static validate(candidate) {
+    if (!candidate.name) {
+      throw new Error("name must not be falsy");
+    }
+    if (!candidate.range.contains(candidate.selectionRange)) {
+      throw new Error("selectionRange must be contained in fullRange");
+    }
+    candidate.children?.forEach(DocumentSymbol.validate);
+  }
+  name;
+  detail;
+  kind;
+  tags;
+  range;
+  selectionRange;
+  children;
+  constructor(name, detail, kind, range, selectionRange) {
+    this.name = name;
+    this.detail = detail;
+    this.kind = kind;
+    this.range = range;
+    this.selectionRange = selectionRange;
+    this.children = [];
+    DocumentSymbol.validate(this);
+  }
+};
+__name(DocumentSymbol, "DocumentSymbol");
+DocumentSymbol = __decorateClass([
+  es5ClassCompat
+], DocumentSymbol);
+var CodeActionTriggerKind = /* @__PURE__ */ ((CodeActionTriggerKind2) => {
+  CodeActionTriggerKind2[CodeActionTriggerKind2["Invoke"] = 1] = "Invoke";
+  CodeActionTriggerKind2[CodeActionTriggerKind2["Automatic"] = 2] = "Automatic";
+  return CodeActionTriggerKind2;
+})(CodeActionTriggerKind || {});
+let CodeAction = class {
+  title;
+  command;
+  edit;
+  diagnostics;
+  kind;
+  isPreferred;
+  constructor(title, kind) {
+    this.title = title;
+    this.kind = kind;
+  }
+};
+__name(CodeAction, "CodeAction");
+CodeAction = __decorateClass([
+  es5ClassCompat
+], CodeAction);
+let CodeActionKind = class {
+  constructor(value) {
+    this.value = value;
+  }
+  append(parts) {
+    return new CodeActionKind(
+      this.value ? this.value + CodeActionKind.sep + parts : parts
+    );
+  }
+  intersects(other) {
+    return this.contains(other) || other.contains(this);
+  }
+  contains(other) {
+    return this.value === other.value || other.value.startsWith(this.value + CodeActionKind.sep);
+  }
+};
+__name(CodeActionKind, "CodeActionKind");
+__publicField(CodeActionKind, "sep", ".");
+__publicField(CodeActionKind, "Empty");
+__publicField(CodeActionKind, "QuickFix");
+__publicField(CodeActionKind, "Refactor");
+__publicField(CodeActionKind, "RefactorExtract");
+__publicField(CodeActionKind, "RefactorInline");
+__publicField(CodeActionKind, "RefactorMove");
+__publicField(CodeActionKind, "RefactorRewrite");
+__publicField(CodeActionKind, "Source");
+__publicField(CodeActionKind, "SourceOrganizeImports");
+__publicField(CodeActionKind, "SourceFixAll");
+__publicField(CodeActionKind, "Notebook");
+CodeActionKind = __decorateClass([
+  es5ClassCompat
+], CodeActionKind);
+CodeActionKind.Empty = new CodeActionKind("");
+CodeActionKind.QuickFix = CodeActionKind.Empty.append("quickfix");
+CodeActionKind.Refactor = CodeActionKind.Empty.append("refactor");
+CodeActionKind.RefactorExtract = CodeActionKind.Refactor.append("extract");
+CodeActionKind.RefactorInline = CodeActionKind.Refactor.append("inline");
+CodeActionKind.RefactorMove = CodeActionKind.Refactor.append("move");
+CodeActionKind.RefactorRewrite = CodeActionKind.Refactor.append("rewrite");
+CodeActionKind.Source = CodeActionKind.Empty.append("source");
+CodeActionKind.SourceOrganizeImports = CodeActionKind.Source.append("organizeImports");
+CodeActionKind.SourceFixAll = CodeActionKind.Source.append("fixAll");
+CodeActionKind.Notebook = CodeActionKind.Empty.append("notebook");
+let SelectionRange = class {
+  range;
+  parent;
+  constructor(range, parent) {
+    this.range = range;
+    this.parent = parent;
+    if (parent && !parent.range.contains(this.range)) {
+      throw new Error("Invalid argument: parent must contain this range");
+    }
+  }
+};
+__name(SelectionRange, "SelectionRange");
+SelectionRange = __decorateClass([
+  es5ClassCompat
+], SelectionRange);
+class CallHierarchyItem {
+  static {
+    __name(this, "CallHierarchyItem");
+  }
+  _sessionId;
+  _itemId;
+  kind;
+  tags;
+  name;
+  detail;
+  uri;
+  range;
+  selectionRange;
+  constructor(kind, name, detail, uri, range, selectionRange) {
+    this.kind = kind;
+    this.name = name;
+    this.detail = detail;
+    this.uri = uri;
+    this.range = range;
+    this.selectionRange = selectionRange;
+  }
+}
+class CallHierarchyIncomingCall {
+  static {
+    __name(this, "CallHierarchyIncomingCall");
+  }
+  from;
+  fromRanges;
+  constructor(item, fromRanges) {
+    this.fromRanges = fromRanges;
+    this.from = item;
+  }
+}
+class CallHierarchyOutgoingCall {
+  static {
+    __name(this, "CallHierarchyOutgoingCall");
+  }
+  to;
+  fromRanges;
+  constructor(item, fromRanges) {
+    this.fromRanges = fromRanges;
+    this.to = item;
+  }
+}
+var LanguageStatusSeverity = /* @__PURE__ */ ((LanguageStatusSeverity2) => {
+  LanguageStatusSeverity2[LanguageStatusSeverity2["Information"] = 0] = "Information";
+  LanguageStatusSeverity2[LanguageStatusSeverity2["Warning"] = 1] = "Warning";
+  LanguageStatusSeverity2[LanguageStatusSeverity2["Error"] = 2] = "Error";
+  return LanguageStatusSeverity2;
+})(LanguageStatusSeverity || {});
+let CodeLens = class {
+  range;
+  command;
+  constructor(range, command) {
+    this.range = range;
+    this.command = command;
+  }
+  get isResolved() {
+    return !!this.command;
+  }
+};
+__name(CodeLens, "CodeLens");
+CodeLens = __decorateClass([
+  es5ClassCompat
+], CodeLens);
+let MarkdownString = class {
+  constructor(value, supportThemeIcons = false) {
+    __privateAdd(this, _delegate);
+    __privateSet(this, _delegate, new BaseMarkdownString(value, { supportThemeIcons }));
+  }
+  static isMarkdownString(thing) {
+    if (thing instanceof MarkdownString) {
+      return true;
+    }
+    return thing && thing.appendCodeblock && thing.appendMarkdown && thing.appendText && thing.value !== void 0;
+  }
+  get value() {
+    return __privateGet(this, _delegate).value;
+  }
+  set value(value) {
+    __privateGet(this, _delegate).value = value;
+  }
+  get isTrusted() {
+    return __privateGet(this, _delegate).isTrusted;
+  }
+  set isTrusted(value) {
+    __privateGet(this, _delegate).isTrusted = value;
+  }
+  get supportThemeIcons() {
+    return __privateGet(this, _delegate).supportThemeIcons;
+  }
+  set supportThemeIcons(value) {
+    __privateGet(this, _delegate).supportThemeIcons = value;
+  }
+  get supportHtml() {
+    return __privateGet(this, _delegate).supportHtml;
+  }
+  set supportHtml(value) {
+    __privateGet(this, _delegate).supportHtml = value;
+  }
+  get baseUri() {
+    return __privateGet(this, _delegate).baseUri;
+  }
+  set baseUri(value) {
+    __privateGet(this, _delegate).baseUri = value;
+  }
+  appendText(value) {
+    __privateGet(this, _delegate).appendText(value);
+    return this;
+  }
+  appendMarkdown(value) {
+    __privateGet(this, _delegate).appendMarkdown(value);
+    return this;
+  }
+  appendCodeblock(value, language) {
+    __privateGet(this, _delegate).appendCodeblock(language ?? "", value);
+    return this;
+  }
+};
+_delegate = new WeakMap();
+__name(MarkdownString, "MarkdownString");
+MarkdownString = __decorateClass([
+  es5ClassCompat
+], MarkdownString);
+let ParameterInformation = class {
+  label;
+  documentation;
+  constructor(label, documentation) {
+    this.label = label;
+    this.documentation = documentation;
+  }
+};
+__name(ParameterInformation, "ParameterInformation");
+ParameterInformation = __decorateClass([
+  es5ClassCompat
+], ParameterInformation);
+let SignatureInformation = class {
+  label;
+  documentation;
+  parameters;
+  activeParameter;
+  constructor(label, documentation) {
+    this.label = label;
+    this.documentation = documentation;
+    this.parameters = [];
+  }
+};
+__name(SignatureInformation, "SignatureInformation");
+SignatureInformation = __decorateClass([
+  es5ClassCompat
+], SignatureInformation);
+let SignatureHelp = class {
+  signatures;
+  activeSignature = 0;
+  activeParameter = 0;
+  constructor() {
+    this.signatures = [];
+  }
+};
+__name(SignatureHelp, "SignatureHelp");
+SignatureHelp = __decorateClass([
+  es5ClassCompat
+], SignatureHelp);
+var SignatureHelpTriggerKind = /* @__PURE__ */ ((SignatureHelpTriggerKind2) => {
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["Invoke"] = 1] = "Invoke";
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["TriggerCharacter"] = 2] = "TriggerCharacter";
+  SignatureHelpTriggerKind2[SignatureHelpTriggerKind2["ContentChange"] = 3] = "ContentChange";
+  return SignatureHelpTriggerKind2;
+})(SignatureHelpTriggerKind || {});
+var InlayHintKind = /* @__PURE__ */ ((InlayHintKind2) => {
+  InlayHintKind2[InlayHintKind2["Type"] = 1] = "Type";
+  InlayHintKind2[InlayHintKind2["Parameter"] = 2] = "Parameter";
+  return InlayHintKind2;
+})(InlayHintKind || {});
+let InlayHintLabelPart = class {
+  value;
+  tooltip;
+  location;
+  command;
+  constructor(value) {
+    this.value = value;
+  }
+};
+__name(InlayHintLabelPart, "InlayHintLabelPart");
+InlayHintLabelPart = __decorateClass([
+  es5ClassCompat
+], InlayHintLabelPart);
+let InlayHint = class {
+  label;
+  tooltip;
+  position;
+  textEdits;
+  kind;
+  paddingLeft;
+  paddingRight;
+  constructor(position, label, kind) {
+    this.position = position;
+    this.label = label;
+    this.kind = kind;
+  }
+};
+__name(InlayHint, "InlayHint");
+InlayHint = __decorateClass([
+  es5ClassCompat
+], InlayHint);
+var CompletionTriggerKind = /* @__PURE__ */ ((CompletionTriggerKind2) => {
+  CompletionTriggerKind2[CompletionTriggerKind2["Invoke"] = 0] = "Invoke";
+  CompletionTriggerKind2[CompletionTriggerKind2["TriggerCharacter"] = 1] = "TriggerCharacter";
+  CompletionTriggerKind2[CompletionTriggerKind2["TriggerForIncompleteCompletions"] = 2] = "TriggerForIncompleteCompletions";
+  return CompletionTriggerKind2;
+})(CompletionTriggerKind || {});
+var CompletionItemKind = /* @__PURE__ */ ((CompletionItemKind2) => {
+  CompletionItemKind2[CompletionItemKind2["Text"] = 0] = "Text";
+  CompletionItemKind2[CompletionItemKind2["Method"] = 1] = "Method";
+  CompletionItemKind2[CompletionItemKind2["Function"] = 2] = "Function";
+  CompletionItemKind2[CompletionItemKind2["Constructor"] = 3] = "Constructor";
+  CompletionItemKind2[CompletionItemKind2["Field"] = 4] = "Field";
+  CompletionItemKind2[CompletionItemKind2["Variable"] = 5] = "Variable";
+  CompletionItemKind2[CompletionItemKind2["Class"] = 6] = "Class";
+  CompletionItemKind2[CompletionItemKind2["Interface"] = 7] = "Interface";
+  CompletionItemKind2[CompletionItemKind2["Module"] = 8] = "Module";
+  CompletionItemKind2[CompletionItemKind2["Property"] = 9] = "Property";
+  CompletionItemKind2[CompletionItemKind2["Unit"] = 10] = "Unit";
+  CompletionItemKind2[CompletionItemKind2["Value"] = 11] = "Value";
+  CompletionItemKind2[CompletionItemKind2["Enum"] = 12] = "Enum";
+  CompletionItemKind2[CompletionItemKind2["Keyword"] = 13] = "Keyword";
+  CompletionItemKind2[CompletionItemKind2["Snippet"] = 14] = "Snippet";
+  CompletionItemKind2[CompletionItemKind2["Color"] = 15] = "Color";
+  CompletionItemKind2[CompletionItemKind2["File"] = 16] = "File";
+  CompletionItemKind2[CompletionItemKind2["Reference"] = 17] = "Reference";
+  CompletionItemKind2[CompletionItemKind2["Folder"] = 18] = "Folder";
+  CompletionItemKind2[CompletionItemKind2["EnumMember"] = 19] = "EnumMember";
+  CompletionItemKind2[CompletionItemKind2["Constant"] = 20] = "Constant";
+  CompletionItemKind2[CompletionItemKind2["Struct"] = 21] = "Struct";
+  CompletionItemKind2[CompletionItemKind2["Event"] = 22] = "Event";
+  CompletionItemKind2[CompletionItemKind2["Operator"] = 23] = "Operator";
+  CompletionItemKind2[CompletionItemKind2["TypeParameter"] = 24] = "TypeParameter";
+  CompletionItemKind2[CompletionItemKind2["User"] = 25] = "User";
+  CompletionItemKind2[CompletionItemKind2["Issue"] = 26] = "Issue";
+  return CompletionItemKind2;
+})(CompletionItemKind || {});
+var CompletionItemTag = /* @__PURE__ */ ((CompletionItemTag2) => {
+  CompletionItemTag2[CompletionItemTag2["Deprecated"] = 1] = "Deprecated";
+  return CompletionItemTag2;
+})(CompletionItemTag || {});
+let CompletionItem = class {
+  label;
+  kind;
+  tags;
+  detail;
+  documentation;
+  sortText;
+  filterText;
+  preselect;
+  insertText;
+  keepWhitespace;
+  range;
+  commitCharacters;
+  textEdit;
+  additionalTextEdits;
+  command;
+  constructor(label, kind) {
+    this.label = label;
+    this.kind = kind;
+  }
+  toJSON() {
+    return {
+      label: this.label,
+      kind: this.kind && CompletionItemKind[this.kind],
+      detail: this.detail,
+      documentation: this.documentation,
+      sortText: this.sortText,
+      filterText: this.filterText,
+      preselect: this.preselect,
+      insertText: this.insertText,
+      textEdit: this.textEdit
+    };
+  }
+};
+__name(CompletionItem, "CompletionItem");
+CompletionItem = __decorateClass([
+  es5ClassCompat
+], CompletionItem);
+let CompletionList = class {
+  isIncomplete;
+  items;
+  constructor(items = [], isIncomplete = false) {
+    this.items = items;
+    this.isIncomplete = isIncomplete;
+  }
+};
+__name(CompletionList, "CompletionList");
+CompletionList = __decorateClass([
+  es5ClassCompat
+], CompletionList);
+let InlineSuggestion = class {
+  filterText;
+  insertText;
+  range;
+  command;
+  constructor(insertText, range, command) {
+    this.insertText = insertText;
+    this.range = range;
+    this.command = command;
+  }
+};
+__name(InlineSuggestion, "InlineSuggestion");
+InlineSuggestion = __decorateClass([
+  es5ClassCompat
+], InlineSuggestion);
+let InlineSuggestionList = class {
+  items;
+  commands = void 0;
+  suppressSuggestions = void 0;
+  constructor(items) {
+    this.items = items;
+  }
+};
+__name(InlineSuggestionList, "InlineSuggestionList");
+InlineSuggestionList = __decorateClass([
+  es5ClassCompat
+], InlineSuggestionList);
+var PartialAcceptTriggerKind = /* @__PURE__ */ ((PartialAcceptTriggerKind2) => {
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Unknown"] = 0] = "Unknown";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Word"] = 1] = "Word";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Line"] = 2] = "Line";
+  PartialAcceptTriggerKind2[PartialAcceptTriggerKind2["Suggest"] = 3] = "Suggest";
+  return PartialAcceptTriggerKind2;
+})(PartialAcceptTriggerKind || {});
+var ViewColumn = /* @__PURE__ */ ((ViewColumn2) => {
+  ViewColumn2[ViewColumn2["Active"] = -1] = "Active";
+  ViewColumn2[ViewColumn2["Beside"] = -2] = "Beside";
+  ViewColumn2[ViewColumn2["One"] = 1] = "One";
+  ViewColumn2[ViewColumn2["Two"] = 2] = "Two";
+  ViewColumn2[ViewColumn2["Three"] = 3] = "Three";
+  ViewColumn2[ViewColumn2["Four"] = 4] = "Four";
+  ViewColumn2[ViewColumn2["Five"] = 5] = "Five";
+  ViewColumn2[ViewColumn2["Six"] = 6] = "Six";
+  ViewColumn2[ViewColumn2["Seven"] = 7] = "Seven";
+  ViewColumn2[ViewColumn2["Eight"] = 8] = "Eight";
+  ViewColumn2[ViewColumn2["Nine"] = 9] = "Nine";
+  return ViewColumn2;
+})(ViewColumn || {});
+var StatusBarAlignment = /* @__PURE__ */ ((StatusBarAlignment2) => {
+  StatusBarAlignment2[StatusBarAlignment2["Left"] = 1] = "Left";
+  StatusBarAlignment2[StatusBarAlignment2["Right"] = 2] = "Right";
+  return StatusBarAlignment2;
+})(StatusBarAlignment || {});
+function asStatusBarItemIdentifier(extension, id) {
+  return `${ExtensionIdentifier.toKey(extension)}.${id}`;
+}
+__name(asStatusBarItemIdentifier, "asStatusBarItemIdentifier");
+var TextEditorLineNumbersStyle = /* @__PURE__ */ ((TextEditorLineNumbersStyle2) => {
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Off"] = 0] = "Off";
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["On"] = 1] = "On";
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Relative"] = 2] = "Relative";
+  TextEditorLineNumbersStyle2[TextEditorLineNumbersStyle2["Interval"] = 3] = "Interval";
+  return TextEditorLineNumbersStyle2;
+})(TextEditorLineNumbersStyle || {});
+var TextDocumentSaveReason = /* @__PURE__ */ ((TextDocumentSaveReason2) => {
+  TextDocumentSaveReason2[TextDocumentSaveReason2["Manual"] = 1] = "Manual";
+  TextDocumentSaveReason2[TextDocumentSaveReason2["AfterDelay"] = 2] = "AfterDelay";
+  TextDocumentSaveReason2[TextDocumentSaveReason2["FocusOut"] = 3] = "FocusOut";
+  return TextDocumentSaveReason2;
+})(TextDocumentSaveReason || {});
+var TextEditorRevealType = /* @__PURE__ */ ((TextEditorRevealType2) => {
+  TextEditorRevealType2[TextEditorRevealType2["Default"] = 0] = "Default";
+  TextEditorRevealType2[TextEditorRevealType2["InCenter"] = 1] = "InCenter";
+  TextEditorRevealType2[TextEditorRevealType2["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
+  TextEditorRevealType2[TextEditorRevealType2["AtTop"] = 3] = "AtTop";
+  return TextEditorRevealType2;
+})(TextEditorRevealType || {});
+var TextEditorSelectionChangeKind = /* @__PURE__ */ ((TextEditorSelectionChangeKind2) => {
+  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Keyboard"] = 1] = "Keyboard";
+  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Mouse"] = 2] = "Mouse";
+  TextEditorSelectionChangeKind2[TextEditorSelectionChangeKind2["Command"] = 3] = "Command";
+  return TextEditorSelectionChangeKind2;
+})(TextEditorSelectionChangeKind || {});
+var TextEditorChangeKind = /* @__PURE__ */ ((TextEditorChangeKind2) => {
+  TextEditorChangeKind2[TextEditorChangeKind2["Addition"] = 1] = "Addition";
+  TextEditorChangeKind2[TextEditorChangeKind2["Deletion"] = 2] = "Deletion";
+  TextEditorChangeKind2[TextEditorChangeKind2["Modification"] = 3] = "Modification";
+  return TextEditorChangeKind2;
+})(TextEditorChangeKind || {});
+var TextDocumentChangeReason = /* @__PURE__ */ ((TextDocumentChangeReason2) => {
+  TextDocumentChangeReason2[TextDocumentChangeReason2["Undo"] = 1] = "Undo";
+  TextDocumentChangeReason2[TextDocumentChangeReason2["Redo"] = 2] = "Redo";
+  return TextDocumentChangeReason2;
+})(TextDocumentChangeReason || {});
+var DecorationRangeBehavior = /* @__PURE__ */ ((DecorationRangeBehavior2) => {
+  DecorationRangeBehavior2[DecorationRangeBehavior2["OpenOpen"] = 0] = "OpenOpen";
+  DecorationRangeBehavior2[DecorationRangeBehavior2["ClosedClosed"] = 1] = "ClosedClosed";
+  DecorationRangeBehavior2[DecorationRangeBehavior2["OpenClosed"] = 2] = "OpenClosed";
+  DecorationRangeBehavior2[DecorationRangeBehavior2["ClosedOpen"] = 3] = "ClosedOpen";
+  return DecorationRangeBehavior2;
+})(DecorationRangeBehavior || {});
+((TextEditorSelectionChangeKind2) => {
+  function fromValue(s) {
+    switch (s) {
+      case "keyboard":
+        return 1 /* Keyboard */;
+      case "mouse":
+        return 2 /* Mouse */;
+      case TextEditorSelectionSource.PROGRAMMATIC:
+      case TextEditorSelectionSource.JUMP:
+      case TextEditorSelectionSource.NAVIGATION:
+        return 3 /* Command */;
+    }
+    return void 0;
+  }
+  TextEditorSelectionChangeKind2.fromValue = fromValue;
+  __name(fromValue, "fromValue");
+})(TextEditorSelectionChangeKind || (TextEditorSelectionChangeKind = {}));
+var SyntaxTokenType = /* @__PURE__ */ ((SyntaxTokenType2) => {
+  SyntaxTokenType2[SyntaxTokenType2["Other"] = 0] = "Other";
+  SyntaxTokenType2[SyntaxTokenType2["Comment"] = 1] = "Comment";
+  SyntaxTokenType2[SyntaxTokenType2["String"] = 2] = "String";
+  SyntaxTokenType2[SyntaxTokenType2["RegEx"] = 3] = "RegEx";
+  return SyntaxTokenType2;
+})(SyntaxTokenType || {});
+((SyntaxTokenType2) => {
+  function toString(v) {
+    switch (v) {
+      case 0 /* Other */:
+        return "other";
+      case 1 /* Comment */:
+        return "comment";
+      case 2 /* String */:
+        return "string";
+      case 3 /* RegEx */:
+        return "regex";
+    }
+    return "other";
+  }
+  SyntaxTokenType2.toString = toString;
+  __name(toString, "toString");
+})(SyntaxTokenType || (SyntaxTokenType = {}));
+let DocumentLink = class {
+  range;
+  target;
+  tooltip;
+  constructor(range, target) {
+    if (target && !URI.isUri(target)) {
+      throw illegalArgument("target");
+    }
+    if (!Range.isRange(range) || range.isEmpty) {
+      throw illegalArgument("range");
+    }
+    this.range = range;
+    this.target = target;
+  }
+};
+__name(DocumentLink, "DocumentLink");
+DocumentLink = __decorateClass([
+  es5ClassCompat
+], DocumentLink);
+let Color = class {
+  red;
+  green;
+  blue;
+  alpha;
+  constructor(red, green, blue, alpha) {
+    this.red = red;
+    this.green = green;
+    this.blue = blue;
+    this.alpha = alpha;
+  }
+};
+__name(Color, "Color");
+Color = __decorateClass([
+  es5ClassCompat
+], Color);
+let ColorInformation = class {
+  range;
+  color;
+  constructor(range, color) {
+    if (color && !(color instanceof Color)) {
+      throw illegalArgument("color");
+    }
+    if (!Range.isRange(range) || range.isEmpty) {
+      throw illegalArgument("range");
+    }
+    this.range = range;
+    this.color = color;
+  }
+};
+__name(ColorInformation, "ColorInformation");
+ColorInformation = __decorateClass([
+  es5ClassCompat
+], ColorInformation);
+let ColorPresentation = class {
+  label;
+  textEdit;
+  additionalTextEdits;
+  constructor(label) {
+    if (!label || typeof label !== "string") {
+      throw illegalArgument("label");
+    }
+    this.label = label;
+  }
+};
+__name(ColorPresentation, "ColorPresentation");
+ColorPresentation = __decorateClass([
+  es5ClassCompat
+], ColorPresentation);
+var ColorFormat = /* @__PURE__ */ ((ColorFormat2) => {
+  ColorFormat2[ColorFormat2["RGB"] = 0] = "RGB";
+  ColorFormat2[ColorFormat2["HEX"] = 1] = "HEX";
+  ColorFormat2[ColorFormat2["HSL"] = 2] = "HSL";
+  return ColorFormat2;
+})(ColorFormat || {});
+var SourceControlInputBoxValidationType = /* @__PURE__ */ ((SourceControlInputBoxValidationType2) => {
+  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Error"] = 0] = "Error";
+  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Warning"] = 1] = "Warning";
+  SourceControlInputBoxValidationType2[SourceControlInputBoxValidationType2["Information"] = 2] = "Information";
+  return SourceControlInputBoxValidationType2;
+})(SourceControlInputBoxValidationType || {});
+var TerminalExitReason = /* @__PURE__ */ ((TerminalExitReason2) => {
+  TerminalExitReason2[TerminalExitReason2["Unknown"] = 0] = "Unknown";
+  TerminalExitReason2[TerminalExitReason2["Shutdown"] = 1] = "Shutdown";
+  TerminalExitReason2[TerminalExitReason2["Process"] = 2] = "Process";
+  TerminalExitReason2[TerminalExitReason2["User"] = 3] = "User";
+  TerminalExitReason2[TerminalExitReason2["Extension"] = 4] = "Extension";
+  return TerminalExitReason2;
+})(TerminalExitReason || {});
+var TerminalShellExecutionCommandLineConfidence = /* @__PURE__ */ ((TerminalShellExecutionCommandLineConfidence2) => {
+  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["Low"] = 0] = "Low";
+  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["Medium"] = 1] = "Medium";
+  TerminalShellExecutionCommandLineConfidence2[TerminalShellExecutionCommandLineConfidence2["High"] = 2] = "High";
+  return TerminalShellExecutionCommandLineConfidence2;
+})(TerminalShellExecutionCommandLineConfidence || {});
+var TerminalShellType = /* @__PURE__ */ ((TerminalShellType2) => {
+  TerminalShellType2[TerminalShellType2["Sh"] = 1] = "Sh";
+  TerminalShellType2[TerminalShellType2["Bash"] = 2] = "Bash";
+  TerminalShellType2[TerminalShellType2["Fish"] = 3] = "Fish";
+  TerminalShellType2[TerminalShellType2["Csh"] = 4] = "Csh";
+  TerminalShellType2[TerminalShellType2["Ksh"] = 5] = "Ksh";
+  TerminalShellType2[TerminalShellType2["Zsh"] = 6] = "Zsh";
+  TerminalShellType2[TerminalShellType2["CommandPrompt"] = 7] = "CommandPrompt";
+  TerminalShellType2[TerminalShellType2["GitBash"] = 8] = "GitBash";
+  TerminalShellType2[TerminalShellType2["PowerShell"] = 9] = "PowerShell";
+  TerminalShellType2[TerminalShellType2["Python"] = 10] = "Python";
+  TerminalShellType2[TerminalShellType2["Julia"] = 11] = "Julia";
+  TerminalShellType2[TerminalShellType2["NuShell"] = 12] = "NuShell";
+  TerminalShellType2[TerminalShellType2["Node"] = 13] = "Node";
+  return TerminalShellType2;
+})(TerminalShellType || {});
+class TerminalLink {
+  constructor(startIndex, length, tooltip) {
+    this.startIndex = startIndex;
+    this.length = length;
+    this.tooltip = tooltip;
+    if (typeof startIndex !== "number" || startIndex < 0) {
+      throw illegalArgument("startIndex");
+    }
+    if (typeof length !== "number" || length < 1) {
+      throw illegalArgument("length");
+    }
+    if (tooltip !== void 0 && typeof tooltip !== "string") {
+      throw illegalArgument("tooltip");
+    }
+  }
+  static {
+    __name(this, "TerminalLink");
+  }
+}
+class TerminalQuickFixOpener {
+  static {
+    __name(this, "TerminalQuickFixOpener");
+  }
+  uri;
+  constructor(uri) {
+    this.uri = uri;
+  }
+}
+class TerminalQuickFixCommand {
+  static {
+    __name(this, "TerminalQuickFixCommand");
+  }
+  terminalCommand;
+  constructor(terminalCommand) {
+    this.terminalCommand = terminalCommand;
+  }
+}
+var TerminalLocation = /* @__PURE__ */ ((TerminalLocation2) => {
+  TerminalLocation2[TerminalLocation2["Panel"] = 1] = "Panel";
+  TerminalLocation2[TerminalLocation2["Editor"] = 2] = "Editor";
+  return TerminalLocation2;
+})(TerminalLocation || {});
+class TerminalProfile {
+  constructor(options) {
+    this.options = options;
+    if (typeof options !== "object") {
+      throw illegalArgument("options");
+    }
+  }
+  static {
+    __name(this, "TerminalProfile");
+  }
+}
+var TerminalCompletionItemKind = /* @__PURE__ */ ((TerminalCompletionItemKind2) => {
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["File"] = 0] = "File";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Folder"] = 1] = "Folder";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Method"] = 2] = "Method";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Alias"] = 3] = "Alias";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Argument"] = 4] = "Argument";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Option"] = 5] = "Option";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["OptionValue"] = 6] = "OptionValue";
+  TerminalCompletionItemKind2[TerminalCompletionItemKind2["Flag"] = 7] = "Flag";
+  return TerminalCompletionItemKind2;
+})(TerminalCompletionItemKind || {});
+class TerminalCompletionItem {
+  static {
+    __name(this, "TerminalCompletionItem");
+  }
+  label;
+  icon;
+  detail;
+  documentation;
+  isFile;
+  isDirectory;
+  isKeyword;
+  replacementIndex;
+  replacementLength;
+  constructor(label, icon, detail, documentation, isFile, isDirectory, isKeyword, replacementIndex, replacementLength) {
+    this.label = label;
+    this.icon = icon;
+    this.detail = detail;
+    this.documentation = documentation;
+    this.isFile = isFile;
+    this.isDirectory = isDirectory;
+    this.isKeyword = isKeyword;
+    this.replacementIndex = replacementIndex ?? 0;
+    this.replacementLength = replacementLength ?? 0;
+  }
+}
+class TerminalCompletionList {
+  static {
+    __name(this, "TerminalCompletionList");
+  }
+  /**
+   * Resources should be shown in the completions list
+   */
+  resourceRequestConfig;
+  /**
+   * The completion items.
+   */
+  items;
+  /**
+   * Creates a new completion list.
+   *
+   * @param items The completion items.
+   * @param isIncomplete The list is not complete.
+   */
+  constructor(items, resourceRequestConfig) {
+    this.items = items ?? [];
+    this.resourceRequestConfig = resourceRequestConfig;
+  }
+}
+var TaskRevealKind = /* @__PURE__ */ ((TaskRevealKind2) => {
+  TaskRevealKind2[TaskRevealKind2["Always"] = 1] = "Always";
+  TaskRevealKind2[TaskRevealKind2["Silent"] = 2] = "Silent";
+  TaskRevealKind2[TaskRevealKind2["Never"] = 3] = "Never";
+  return TaskRevealKind2;
+})(TaskRevealKind || {});
+var TaskEventKind = /* @__PURE__ */ ((TaskEventKind2) => {
+  TaskEventKind2["Changed"] = "changed";
+  TaskEventKind2["ProcessStarted"] = "processStarted";
+  TaskEventKind2["ProcessEnded"] = "processEnded";
+  TaskEventKind2["Terminated"] = "terminated";
+  TaskEventKind2["Start"] = "start";
+  TaskEventKind2["AcquiredInput"] = "acquiredInput";
+  TaskEventKind2["DependsOnStarted"] = "dependsOnStarted";
+  TaskEventKind2["Active"] = "active";
+  TaskEventKind2["Inactive"] = "inactive";
+  TaskEventKind2["End"] = "end";
+  TaskEventKind2["ProblemMatcherStarted"] = "problemMatcherStarted";
+  TaskEventKind2["ProblemMatcherEnded"] = "problemMatcherEnded";
+  TaskEventKind2["ProblemMatcherFoundErrors"] = "problemMatcherFoundErrors";
+  return TaskEventKind2;
+})(TaskEventKind || {});
+var TaskPanelKind = /* @__PURE__ */ ((TaskPanelKind2) => {
+  TaskPanelKind2[TaskPanelKind2["Shared"] = 1] = "Shared";
+  TaskPanelKind2[TaskPanelKind2["Dedicated"] = 2] = "Dedicated";
+  TaskPanelKind2[TaskPanelKind2["New"] = 3] = "New";
+  return TaskPanelKind2;
+})(TaskPanelKind || {});
+let TaskGroup = class {
+  constructor(id, label) {
+    this.label = label;
+    if (typeof id !== "string") {
+      throw illegalArgument("name");
+    }
+    if (typeof label !== "string") {
+      throw illegalArgument("name");
+    }
+    this._id = id;
+  }
+  isDefault;
+  _id;
+  static from(value) {
+    switch (value) {
+      case "clean":
+        return TaskGroup.Clean;
+      case "build":
+        return TaskGroup.Build;
+      case "rebuild":
+        return TaskGroup.Rebuild;
+      case "test":
+        return TaskGroup.Test;
+      default:
+        return void 0;
+    }
+  }
+  get id() {
+    return this._id;
+  }
+};
+__name(TaskGroup, "TaskGroup");
+__publicField(TaskGroup, "Clean", new TaskGroup("clean", "Clean"));
+__publicField(TaskGroup, "Build", new TaskGroup("build", "Build"));
+__publicField(TaskGroup, "Rebuild", new TaskGroup("rebuild", "Rebuild"));
+__publicField(TaskGroup, "Test", new TaskGroup("test", "Test"));
+TaskGroup = __decorateClass([
+  es5ClassCompat
+], TaskGroup);
+function computeTaskExecutionId(values) {
+  let id = "";
+  for (let i = 0; i < values.length; i++) {
+    id += values[i].replace(/,/g, ",,") + ",";
+  }
+  return id;
+}
+__name(computeTaskExecutionId, "computeTaskExecutionId");
+let ProcessExecution = class {
+  _process;
+  _args;
+  _options;
+  constructor(process, varg1, varg2) {
+    if (typeof process !== "string") {
+      throw illegalArgument("process");
+    }
+    this._args = [];
+    this._process = process;
+    if (varg1 !== void 0) {
+      if (Array.isArray(varg1)) {
+        this._args = varg1;
+        this._options = varg2;
+      } else {
+        this._options = varg1;
+      }
+    }
+  }
+  get process() {
+    return this._process;
+  }
+  set process(value) {
+    if (typeof value !== "string") {
+      throw illegalArgument("process");
+    }
+    this._process = value;
+  }
+  get args() {
+    return this._args;
+  }
+  set args(value) {
+    if (!Array.isArray(value)) {
+      value = [];
+    }
+    this._args = value;
+  }
+  get options() {
+    return this._options;
+  }
+  set options(value) {
+    this._options = value;
+  }
+  computeId() {
+    const props = [];
+    props.push("process");
+    if (this._process !== void 0) {
+      props.push(this._process);
+    }
+    if (this._args && this._args.length > 0) {
+      for (const arg of this._args) {
+        props.push(arg);
+      }
+    }
+    return computeTaskExecutionId(props);
+  }
+};
+__name(ProcessExecution, "ProcessExecution");
+ProcessExecution = __decorateClass([
+  es5ClassCompat
+], ProcessExecution);
+let ShellExecution = class {
+  _commandLine;
+  _command;
+  _args = [];
+  _options;
+  constructor(arg0, arg1, arg2) {
+    if (Array.isArray(arg1)) {
+      if (!arg0) {
+        throw illegalArgument("command can't be undefined or null");
+      }
+      if (typeof arg0 !== "string" && typeof arg0.value !== "string") {
+        throw illegalArgument("command");
+      }
+      this._command = arg0;
+      if (arg1) {
+        this._args = arg1;
+      }
+      this._options = arg2;
+    } else {
+      if (typeof arg0 !== "string") {
+        throw illegalArgument("commandLine");
+      }
+      this._commandLine = arg0;
+      this._options = arg1;
+    }
+  }
+  get commandLine() {
+    return this._commandLine;
+  }
+  set commandLine(value) {
+    if (typeof value !== "string") {
+      throw illegalArgument("commandLine");
+    }
+    this._commandLine = value;
+  }
+  get command() {
+    return this._command ? this._command : "";
+  }
+  set command(value) {
+    if (typeof value !== "string" && typeof value.value !== "string") {
+      throw illegalArgument("command");
+    }
+    this._command = value;
+  }
+  get args() {
+    return this._args;
+  }
+  set args(value) {
+    this._args = value || [];
+  }
+  get options() {
+    return this._options;
+  }
+  set options(value) {
+    this._options = value;
+  }
+  computeId() {
+    const props = [];
+    props.push("shell");
+    if (this._commandLine !== void 0) {
+      props.push(this._commandLine);
+    }
+    if (this._command !== void 0) {
+      props.push(
+        typeof this._command === "string" ? this._command : this._command.value
+      );
+    }
+    if (this._args && this._args.length > 0) {
+      for (const arg of this._args) {
+        props.push(typeof arg === "string" ? arg : arg.value);
+      }
+    }
+    return computeTaskExecutionId(props);
+  }
+};
+__name(ShellExecution, "ShellExecution");
+ShellExecution = __decorateClass([
+  es5ClassCompat
+], ShellExecution);
+var ShellQuoting = /* @__PURE__ */ ((ShellQuoting2) => {
+  ShellQuoting2[ShellQuoting2["Escape"] = 1] = "Escape";
+  ShellQuoting2[ShellQuoting2["Strong"] = 2] = "Strong";
+  ShellQuoting2[ShellQuoting2["Weak"] = 3] = "Weak";
+  return ShellQuoting2;
+})(ShellQuoting || {});
+var TaskScope = /* @__PURE__ */ ((TaskScope2) => {
+  TaskScope2[TaskScope2["Global"] = 1] = "Global";
+  TaskScope2[TaskScope2["Workspace"] = 2] = "Workspace";
+  return TaskScope2;
+})(TaskScope || {});
+class CustomExecution {
+  static {
+    __name(this, "CustomExecution");
+  }
+  _callback;
+  constructor(callback) {
+    this._callback = callback;
+  }
+  computeId() {
+    return "customExecution" + generateUuid();
+  }
+  set callback(value) {
+    this._callback = value;
+  }
+  get callback() {
+    return this._callback;
+  }
+}
+let Task = class {
+  __id;
+  __deprecated = false;
+  _definition;
+  _scope;
+  _name;
+  _execution;
+  _problemMatchers;
+  _hasDefinedMatchers;
+  _isBackground;
+  _source;
+  _group;
+  _presentationOptions;
+  _runOptions;
+  _detail;
+  constructor(definition, arg2, arg3, arg4, arg5, arg6) {
+    this._definition = this.definition = definition;
+    let problemMatchers;
+    if (typeof arg2 === "string") {
+      this._name = this.name = arg2;
+      this._source = this.source = arg3;
+      this.execution = arg4;
+      problemMatchers = arg5;
+      this.__deprecated = true;
+    } else if (arg2 === 1 /* Global */ || arg2 === 2 /* Workspace */) {
+      this.target = arg2;
+      this._name = this.name = arg3;
+      this._source = this.source = arg4;
+      this.execution = arg5;
+      problemMatchers = arg6;
+    } else {
+      this.target = arg2;
+      this._name = this.name = arg3;
+      this._source = this.source = arg4;
+      this.execution = arg5;
+      problemMatchers = arg6;
+    }
+    if (typeof problemMatchers === "string") {
+      this._problemMatchers = [problemMatchers];
+      this._hasDefinedMatchers = true;
+    } else if (Array.isArray(problemMatchers)) {
+      this._problemMatchers = problemMatchers;
+      this._hasDefinedMatchers = true;
+    } else {
+      this._problemMatchers = [];
+      this._hasDefinedMatchers = false;
+    }
+    this._isBackground = false;
+    this._presentationOptions = /* @__PURE__ */ Object.create(null);
+    this._runOptions = /* @__PURE__ */ Object.create(null);
+  }
+  get _id() {
+    return this.__id;
+  }
+  set _id(value) {
+    this.__id = value;
+  }
+  get _deprecated() {
+    return this.__deprecated;
+  }
+  clear() {
+    if (this.__id === void 0) {
+      return;
+    }
+    this.__id = void 0;
+    this._scope = void 0;
+    this.computeDefinitionBasedOnExecution();
+  }
+  computeDefinitionBasedOnExecution() {
+    if (this._execution instanceof ProcessExecution) {
+      this._definition = {
+        type: Task.ProcessType,
+        id: this._execution.computeId()
+      };
+    } else if (this._execution instanceof ShellExecution) {
+      this._definition = {
+        type: Task.ShellType,
+        id: this._execution.computeId()
+      };
+    } else if (this._execution instanceof CustomExecution) {
+      this._definition = {
+        type: Task.ExtensionCallbackType,
+        id: this._execution.computeId()
+      };
+    } else {
+      this._definition = {
+        type: Task.EmptyType,
+        id: generateUuid()
+      };
+    }
+  }
+  get definition() {
+    return this._definition;
+  }
+  set definition(value) {
+    if (value === void 0 || value === null) {
+      throw illegalArgument("Kind can't be undefined or null");
+    }
+    this.clear();
+    this._definition = value;
+  }
+  get scope() {
+    return this._scope;
+  }
+  set target(value) {
+    this.clear();
+    this._scope = value;
+  }
+  get name() {
+    return this._name;
+  }
+  set name(value) {
+    if (typeof value !== "string") {
+      throw illegalArgument("name");
+    }
+    this.clear();
+    this._name = value;
+  }
+  get execution() {
+    return this._execution;
+  }
+  set execution(value) {
+    if (value === null) {
+      value = void 0;
+    }
+    this.clear();
+    this._execution = value;
+    const type = this._definition.type;
+    if (Task.EmptyType === type || Task.ProcessType === type || Task.ShellType === type || Task.ExtensionCallbackType === type) {
+      this.computeDefinitionBasedOnExecution();
+    }
+  }
+  get problemMatchers() {
+    return this._problemMatchers;
+  }
+  set problemMatchers(value) {
+    if (!Array.isArray(value)) {
+      this.clear();
+      this._problemMatchers = [];
+      this._hasDefinedMatchers = false;
+      return;
+    } else {
+      this.clear();
+      this._problemMatchers = value;
+      this._hasDefinedMatchers = true;
+    }
+  }
+  get hasDefinedMatchers() {
+    return this._hasDefinedMatchers;
+  }
+  get isBackground() {
+    return this._isBackground;
+  }
+  set isBackground(value) {
+    if (value !== true && value !== false) {
+      value = false;
+    }
+    this.clear();
+    this._isBackground = value;
+  }
+  get source() {
+    return this._source;
+  }
+  set source(value) {
+    if (typeof value !== "string" || value.length === 0) {
+      throw illegalArgument("source must be a string of length > 0");
+    }
+    this.clear();
+    this._source = value;
+  }
+  get group() {
+    return this._group;
+  }
+  set group(value) {
+    if (value === null) {
+      value = void 0;
+    }
+    this.clear();
+    this._group = value;
+  }
+  get detail() {
+    return this._detail;
+  }
+  set detail(value) {
+    if (value === null) {
+      value = void 0;
+    }
+    this._detail = value;
+  }
+  get presentationOptions() {
+    return this._presentationOptions;
+  }
+  set presentationOptions(value) {
+    if (value === null || value === void 0) {
+      value = /* @__PURE__ */ Object.create(null);
+    }
+    this.clear();
+    this._presentationOptions = value;
+  }
+  get runOptions() {
+    return this._runOptions;
+  }
+  set runOptions(value) {
+    if (value === null || value === void 0) {
+      value = /* @__PURE__ */ Object.create(null);
+    }
+    this.clear();
+    this._runOptions = value;
+  }
+};
+__name(Task, "Task");
+__publicField(Task, "ExtensionCallbackType", "customExecution");
+__publicField(Task, "ProcessType", "process");
+__publicField(Task, "ShellType", "shell");
+__publicField(Task, "EmptyType", "$empty");
+Task = __decorateClass([
+  es5ClassCompat
+], Task);
+var ProgressLocation = /* @__PURE__ */ ((ProgressLocation2) => {
+  ProgressLocation2[ProgressLocation2["SourceControl"] = 1] = "SourceControl";
+  ProgressLocation2[ProgressLocation2["Window"] = 10] = "Window";
+  ProgressLocation2[ProgressLocation2["Notification"] = 15] = "Notification";
+  return ProgressLocation2;
+})(ProgressLocation || {});
+var ViewBadge;
+((ViewBadge2) => {
+  function isViewBadge(thing) {
+    const viewBadgeThing = thing;
+    if (!isNumber(viewBadgeThing.value)) {
+      console.log(
+        "INVALID view badge, invalid value",
+        viewBadgeThing.value
+      );
+      return false;
+    }
+    if (viewBadgeThing.tooltip && !isString(viewBadgeThing.tooltip)) {
+      console.log(
+        "INVALID view badge, invalid tooltip",
+        viewBadgeThing.tooltip
+      );
+      return false;
+    }
+    return true;
+  }
+  ViewBadge2.isViewBadge = isViewBadge;
+  __name(isViewBadge, "isViewBadge");
+})(ViewBadge || (ViewBadge = {}));
+let TreeItem = class {
+  constructor(arg1, collapsibleState = 0 /* None */) {
+    this.collapsibleState = collapsibleState;
+    if (URI.isUri(arg1)) {
+      this.resourceUri = arg1;
+    } else {
+      this.label = arg1;
+    }
+  }
+  label;
+  resourceUri;
+  iconPath;
+  command;
+  contextValue;
+  tooltip;
+  checkboxState;
+  static isTreeItem(thing, extension) {
+    const treeItemThing = thing;
+    if (treeItemThing.checkboxState !== void 0) {
+      const checkbox = isNumber(treeItemThing.checkboxState) ? treeItemThing.checkboxState : isObject(treeItemThing.checkboxState) && isNumber(treeItemThing.checkboxState.state) ? treeItemThing.checkboxState.state : void 0;
+      const tooltip = !isNumber(treeItemThing.checkboxState) && isObject(treeItemThing.checkboxState) ? treeItemThing.checkboxState.tooltip : void 0;
+      if (checkbox === void 0 || checkbox !== 1 /* Checked */ && checkbox !== 0 /* Unchecked */ || tooltip !== void 0 && !isString(tooltip)) {
+        console.log(
+          "INVALID tree item, invalid checkboxState",
+          treeItemThing.checkboxState
+        );
+        return false;
+      }
+    }
+    if (thing instanceof TreeItem) {
+      return true;
+    }
+    if (treeItemThing.label !== void 0 && !isString(treeItemThing.label) && !treeItemThing.label?.label) {
+      console.log(
+        "INVALID tree item, invalid label",
+        treeItemThing.label
+      );
+      return false;
+    }
+    if (treeItemThing.id !== void 0 && !isString(treeItemThing.id)) {
+      console.log("INVALID tree item, invalid id", treeItemThing.id);
+      return false;
+    }
+    if (treeItemThing.iconPath !== void 0 && !isString(treeItemThing.iconPath) && !URI.isUri(treeItemThing.iconPath) && (!treeItemThing.iconPath || !isString(treeItemThing.iconPath.id))) {
+      const asLightAndDarkThing = treeItemThing.iconPath;
+      if (!asLightAndDarkThing || !isString(asLightAndDarkThing.light) && !URI.isUri(asLightAndDarkThing.light) && !isString(asLightAndDarkThing.dark) && !URI.isUri(asLightAndDarkThing.dark)) {
+        console.log(
+          "INVALID tree item, invalid iconPath",
+          treeItemThing.iconPath
+        );
+        return false;
+      }
+    }
+    if (treeItemThing.description !== void 0 && !isString(treeItemThing.description) && typeof treeItemThing.description !== "boolean") {
+      console.log(
+        "INVALID tree item, invalid description",
+        treeItemThing.description
+      );
+      return false;
+    }
+    if (treeItemThing.resourceUri !== void 0 && !URI.isUri(treeItemThing.resourceUri)) {
+      console.log(
+        "INVALID tree item, invalid resourceUri",
+        treeItemThing.resourceUri
+      );
+      return false;
+    }
+    if (treeItemThing.tooltip !== void 0 && !isString(treeItemThing.tooltip) && !(treeItemThing.tooltip instanceof MarkdownString)) {
+      console.log(
+        "INVALID tree item, invalid tooltip",
+        treeItemThing.tooltip
+      );
+      return false;
+    }
+    if (treeItemThing.command !== void 0 && !treeItemThing.command.command) {
+      console.log(
+        "INVALID tree item, invalid command",
+        treeItemThing.command
+      );
+      return false;
+    }
+    if (treeItemThing.collapsibleState !== void 0 && treeItemThing.collapsibleState < 0 /* None */ && treeItemThing.collapsibleState > 2 /* Expanded */) {
+      console.log(
+        "INVALID tree item, invalid collapsibleState",
+        treeItemThing.collapsibleState
+      );
+      return false;
+    }
+    if (treeItemThing.contextValue !== void 0 && !isString(treeItemThing.contextValue)) {
+      console.log(
+        "INVALID tree item, invalid contextValue",
+        treeItemThing.contextValue
+      );
+      return false;
+    }
+    if (treeItemThing.accessibilityInformation !== void 0 && !treeItemThing.accessibilityInformation?.label) {
+      console.log(
+        "INVALID tree item, invalid accessibilityInformation",
+        treeItemThing.accessibilityInformation
+      );
+      return false;
+    }
+    return true;
+  }
+};
+__name(TreeItem, "TreeItem");
+TreeItem = __decorateClass([
+  es5ClassCompat
+], TreeItem);
+var TreeItemCollapsibleState = /* @__PURE__ */ ((TreeItemCollapsibleState2) => {
+  TreeItemCollapsibleState2[TreeItemCollapsibleState2["None"] = 0] = "None";
+  TreeItemCollapsibleState2[TreeItemCollapsibleState2["Collapsed"] = 1] = "Collapsed";
+  TreeItemCollapsibleState2[TreeItemCollapsibleState2["Expanded"] = 2] = "Expanded";
+  return TreeItemCollapsibleState2;
+})(TreeItemCollapsibleState || {});
+var TreeItemCheckboxState = /* @__PURE__ */ ((TreeItemCheckboxState2) => {
+  TreeItemCheckboxState2[TreeItemCheckboxState2["Unchecked"] = 0] = "Unchecked";
+  TreeItemCheckboxState2[TreeItemCheckboxState2["Checked"] = 1] = "Checked";
+  return TreeItemCheckboxState2;
+})(TreeItemCheckboxState || {});
+let DataTransferItem = class {
+  constructor(value) {
+    this.value = value;
+  }
+  async asString() {
+    return typeof this.value === "string" ? this.value : JSON.stringify(this.value);
+  }
+  asFile() {
+    return void 0;
+  }
+};
+__name(DataTransferItem, "DataTransferItem");
+DataTransferItem = __decorateClass([
+  es5ClassCompat
+], DataTransferItem);
+class InternalDataTransferItem extends DataTransferItem {
+  static {
+    __name(this, "InternalDataTransferItem");
+  }
+}
+class InternalFileDataTransferItem extends InternalDataTransferItem {
+  static {
+    __name(this, "InternalFileDataTransferItem");
+  }
+  #file;
+  constructor(file) {
+    super("");
+    this.#file = file;
+  }
+  asFile() {
+    return this.#file;
+  }
+}
+class DataTransferFile {
+  static {
+    __name(this, "DataTransferFile");
+  }
+  name;
+  uri;
+  _itemId;
+  _getData;
+  constructor(name, uri, itemId, getData) {
+    this.name = name;
+    this.uri = uri;
+    this._itemId = itemId;
+    this._getData = getData;
+  }
+  data() {
+    return this._getData();
+  }
+}
+let DataTransfer = class {
+  constructor(init) {
+    __privateAdd(this, _DataTransfer_instances);
+    __privateAdd(this, _items, /* @__PURE__ */ new Map());
+    for (const [mime, item] of init ?? []) {
+      const existing = __privateGet(this, _items).get(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mime));
+      if (existing) {
+        existing.push(item);
+      } else {
+        __privateGet(this, _items).set(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mime), [item]);
+      }
+    }
+  }
+  get(mimeType) {
+    return __privateGet(this, _items).get(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mimeType))?.[0];
+  }
+  set(mimeType, value) {
+    __privateGet(this, _items).set(__privateMethod(this, _DataTransfer_instances, normalizeMime_fn).call(this, mimeType), [value]);
+  }
+  forEach(callbackfn, thisArg) {
+    for (const [mime, items] of __privateGet(this, _items)) {
+      for (const item of items) {
+        callbackfn.call(thisArg, item, mime, this);
+      }
+    }
+  }
+  *[Symbol.iterator]() {
+    for (const [mime, items] of __privateGet(this, _items)) {
+      for (const item of items) {
+        yield [mime, item];
+      }
+    }
+  }
+};
+_items = new WeakMap();
+_DataTransfer_instances = new WeakSet();
+normalizeMime_fn = /* @__PURE__ */ __name(function(mimeType) {
+  return mimeType.toLowerCase();
+}, "#normalizeMime");
+__name(DataTransfer, "DataTransfer");
+DataTransfer = __decorateClass([
+  es5ClassCompat
+], DataTransfer);
+let DocumentDropEdit = class {
+  title;
+  id;
+  insertText;
+  additionalEdit;
+  kind;
+  constructor(insertText, title, kind) {
+    this.insertText = insertText;
+    this.title = title;
+    this.kind = kind;
+  }
+};
+__name(DocumentDropEdit, "DocumentDropEdit");
+DocumentDropEdit = __decorateClass([
+  es5ClassCompat
+], DocumentDropEdit);
+var DocumentPasteTriggerKind = /* @__PURE__ */ ((DocumentPasteTriggerKind2) => {
+  DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["Automatic"] = 0] = "Automatic";
+  DocumentPasteTriggerKind2[DocumentPasteTriggerKind2["PasteAs"] = 1] = "PasteAs";
+  return DocumentPasteTriggerKind2;
+})(DocumentPasteTriggerKind || {});
+class DocumentDropOrPasteEditKind {
+  constructor(value) {
+    this.value = value;
+  }
+  static {
+    __name(this, "DocumentDropOrPasteEditKind");
+  }
+  static Empty;
+  static Text;
+  static TextUpdateImports;
+  static sep = ".";
+  append(...parts) {
+    return new DocumentDropOrPasteEditKind(
+      (this.value ? [this.value, ...parts] : parts).join(
+        DocumentDropOrPasteEditKind.sep
+      )
+    );
+  }
+  intersects(other) {
+    return this.contains(other) || other.contains(this);
+  }
+  contains(other) {
+    return this.value === other.value || other.value.startsWith(this.value + DocumentDropOrPasteEditKind.sep);
+  }
+}
+DocumentDropOrPasteEditKind.Empty = new DocumentDropOrPasteEditKind("");
+DocumentDropOrPasteEditKind.Text = new DocumentDropOrPasteEditKind("text");
+DocumentDropOrPasteEditKind.TextUpdateImports = DocumentDropOrPasteEditKind.Text.append("updateImports");
+class DocumentPasteEdit {
+  static {
+    __name(this, "DocumentPasteEdit");
+  }
+  title;
+  insertText;
+  additionalEdit;
+  kind;
+  constructor(insertText, title, kind) {
+    this.title = title;
+    this.insertText = insertText;
+    this.kind = kind;
+  }
+}
+let ThemeIcon = class {
+  id;
+  color;
+  constructor(id, color) {
+    this.id = id;
+    this.color = color;
+  }
+  static isThemeIcon(thing) {
+    if (typeof thing.id !== "string") {
+      console.log("INVALID ThemeIcon, invalid id", thing.id);
+      return false;
+    }
+    return true;
+  }
+};
+__name(ThemeIcon, "ThemeIcon");
+__publicField(ThemeIcon, "File");
+__publicField(ThemeIcon, "Folder");
+ThemeIcon = __decorateClass([
+  es5ClassCompat
+], ThemeIcon);
+ThemeIcon.File = new ThemeIcon("file");
+ThemeIcon.Folder = new ThemeIcon("folder");
+let ThemeColor = class {
+  id;
+  constructor(id) {
+    this.id = id;
+  }
+};
+__name(ThemeColor, "ThemeColor");
+ThemeColor = __decorateClass([
+  es5ClassCompat
+], ThemeColor);
+var ConfigurationTarget = /* @__PURE__ */ ((ConfigurationTarget2) => {
+  ConfigurationTarget2[ConfigurationTarget2["Global"] = 1] = "Global";
+  ConfigurationTarget2[ConfigurationTarget2["Workspace"] = 2] = "Workspace";
+  ConfigurationTarget2[ConfigurationTarget2["WorkspaceFolder"] = 3] = "WorkspaceFolder";
+  return ConfigurationTarget2;
+})(ConfigurationTarget || {});
+let RelativePattern = class {
+  pattern;
+  _base;
+  get base() {
+    return this._base;
+  }
+  set base(base) {
+    this._base = base;
+    this._baseUri = URI.file(base);
+  }
+  _baseUri;
+  get baseUri() {
+    return this._baseUri;
+  }
+  set baseUri(baseUri) {
+    this._baseUri = baseUri;
+    this._base = baseUri.fsPath;
+  }
+  constructor(base, pattern) {
+    if (typeof base !== "string") {
+      if (!base || !URI.isUri(base) && !URI.isUri(base.uri)) {
+        throw illegalArgument("base");
+      }
+    }
+    if (typeof pattern !== "string") {
+      throw illegalArgument("pattern");
+    }
+    if (typeof base === "string") {
+      this.baseUri = URI.file(base);
+    } else if (URI.isUri(base)) {
+      this.baseUri = base;
+    } else {
+      this.baseUri = base.uri;
+    }
+    this.pattern = pattern;
+  }
+  toJSON() {
+    return {
+      pattern: this.pattern,
+      base: this.base,
+      baseUri: this.baseUri.toJSON()
+    };
+  }
+};
+__name(RelativePattern, "RelativePattern");
+RelativePattern = __decorateClass([
+  es5ClassCompat
+], RelativePattern);
+const breakpointIds = /* @__PURE__ */ new WeakMap();
+function setBreakpointId(bp, id) {
+  breakpointIds.set(bp, id);
+}
+__name(setBreakpointId, "setBreakpointId");
+let Breakpoint = class {
+  _id;
+  enabled;
+  condition;
+  hitCondition;
+  logMessage;
+  mode;
+  constructor(enabled, condition, hitCondition, logMessage, mode) {
+    this.enabled = typeof enabled === "boolean" ? enabled : true;
+    if (typeof condition === "string") {
+      this.condition = condition;
+    }
+    if (typeof hitCondition === "string") {
+      this.hitCondition = hitCondition;
+    }
+    if (typeof logMessage === "string") {
+      this.logMessage = logMessage;
+    }
+    if (typeof mode === "string") {
+      this.mode = mode;
+    }
+  }
+  get id() {
+    if (!this._id) {
+      this._id = breakpointIds.get(this) ?? generateUuid();
+    }
+    return this._id;
+  }
+};
+__name(Breakpoint, "Breakpoint");
+Breakpoint = __decorateClass([
+  es5ClassCompat
+], Breakpoint);
+let SourceBreakpoint = class extends Breakpoint {
+  location;
+  constructor(location, enabled, condition, hitCondition, logMessage, mode) {
+    super(enabled, condition, hitCondition, logMessage, mode);
+    if (location === null) {
+      throw illegalArgument("location");
+    }
+    this.location = location;
+  }
+};
+__name(SourceBreakpoint, "SourceBreakpoint");
+SourceBreakpoint = __decorateClass([
+  es5ClassCompat
+], SourceBreakpoint);
+let FunctionBreakpoint = class extends Breakpoint {
+  functionName;
+  constructor(functionName, enabled, condition, hitCondition, logMessage, mode) {
+    super(enabled, condition, hitCondition, logMessage, mode);
+    this.functionName = functionName;
+  }
+};
+__name(FunctionBreakpoint, "FunctionBreakpoint");
+FunctionBreakpoint = __decorateClass([
+  es5ClassCompat
+], FunctionBreakpoint);
+let DataBreakpoint = class extends Breakpoint {
+  label;
+  dataId;
+  canPersist;
+  constructor(label, dataId, canPersist, enabled, condition, hitCondition, logMessage, mode) {
+    super(enabled, condition, hitCondition, logMessage, mode);
+    if (!dataId) {
+      throw illegalArgument("dataId");
+    }
+    this.label = label;
+    this.dataId = dataId;
+    this.canPersist = canPersist;
+  }
+};
+__name(DataBreakpoint, "DataBreakpoint");
+DataBreakpoint = __decorateClass([
+  es5ClassCompat
+], DataBreakpoint);
+let DebugAdapterExecutable = class {
+  command;
+  args;
+  options;
+  constructor(command, args, options) {
+    this.command = command;
+    this.args = args || [];
+    this.options = options;
+  }
+};
+__name(DebugAdapterExecutable, "DebugAdapterExecutable");
+DebugAdapterExecutable = __decorateClass([
+  es5ClassCompat
+], DebugAdapterExecutable);
+let DebugAdapterServer = class {
+  port;
+  host;
+  constructor(port, host) {
+    this.port = port;
+    this.host = host;
+  }
+};
+__name(DebugAdapterServer, "DebugAdapterServer");
+DebugAdapterServer = __decorateClass([
+  es5ClassCompat
+], DebugAdapterServer);
+let DebugAdapterNamedPipeServer = class {
+  constructor(path) {
+    this.path = path;
+  }
+};
+__name(DebugAdapterNamedPipeServer, "DebugAdapterNamedPipeServer");
+DebugAdapterNamedPipeServer = __decorateClass([
+  es5ClassCompat
+], DebugAdapterNamedPipeServer);
+let DebugAdapterInlineImplementation = class {
+  implementation;
+  constructor(impl) {
+    this.implementation = impl;
+  }
+};
+__name(DebugAdapterInlineImplementation, "DebugAdapterInlineImplementation");
+DebugAdapterInlineImplementation = __decorateClass([
+  es5ClassCompat
+], DebugAdapterInlineImplementation);
+class DebugStackFrame {
+  constructor(session, threadId, frameId) {
+    this.session = session;
+    this.threadId = threadId;
+    this.frameId = frameId;
+  }
+  static {
+    __name(this, "DebugStackFrame");
+  }
+}
+class DebugThread {
+  constructor(session, threadId) {
+    this.session = session;
+    this.threadId = threadId;
+  }
+  static {
+    __name(this, "DebugThread");
+  }
+}
+let EvaluatableExpression = class {
+  range;
+  expression;
+  constructor(range, expression) {
+    this.range = range;
+    this.expression = expression;
+  }
+};
+__name(EvaluatableExpression, "EvaluatableExpression");
+EvaluatableExpression = __decorateClass([
+  es5ClassCompat
+], EvaluatableExpression);
+var InlineCompletionTriggerKind = /* @__PURE__ */ ((InlineCompletionTriggerKind2) => {
+  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Invoke"] = 0] = "Invoke";
+  InlineCompletionTriggerKind2[InlineCompletionTriggerKind2["Automatic"] = 1] = "Automatic";
+  return InlineCompletionTriggerKind2;
+})(InlineCompletionTriggerKind || {});
+let InlineValueText = class {
+  range;
+  text;
+  constructor(range, text) {
+    this.range = range;
+    this.text = text;
+  }
+};
+__name(InlineValueText, "InlineValueText");
+InlineValueText = __decorateClass([
+  es5ClassCompat
+], InlineValueText);
+let InlineValueVariableLookup = class {
+  range;
+  variableName;
+  caseSensitiveLookup;
+  constructor(range, variableName, caseSensitiveLookup = true) {
+    this.range = range;
+    this.variableName = variableName;
+    this.caseSensitiveLookup = caseSensitiveLookup;
+  }
+};
+__name(InlineValueVariableLookup, "InlineValueVariableLookup");
+InlineValueVariableLookup = __decorateClass([
+  es5ClassCompat
+], InlineValueVariableLookup);
+let InlineValueEvaluatableExpression = class {
+  range;
+  expression;
+  constructor(range, expression) {
+    this.range = range;
+    this.expression = expression;
+  }
+};
+__name(InlineValueEvaluatableExpression, "InlineValueEvaluatableExpression");
+InlineValueEvaluatableExpression = __decorateClass([
+  es5ClassCompat
+], InlineValueEvaluatableExpression);
+let InlineValueContext = class {
+  frameId;
+  stoppedLocation;
+  constructor(frameId, range) {
+    this.frameId = frameId;
+    this.stoppedLocation = range;
+  }
+};
+__name(InlineValueContext, "InlineValueContext");
+InlineValueContext = __decorateClass([
+  es5ClassCompat
+], InlineValueContext);
+var NewSymbolNameTag = /* @__PURE__ */ ((NewSymbolNameTag2) => {
+  NewSymbolNameTag2[NewSymbolNameTag2["AIGenerated"] = 1] = "AIGenerated";
+  return NewSymbolNameTag2;
+})(NewSymbolNameTag || {});
+var NewSymbolNameTriggerKind = /* @__PURE__ */ ((NewSymbolNameTriggerKind2) => {
+  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Invoke"] = 0] = "Invoke";
+  NewSymbolNameTriggerKind2[NewSymbolNameTriggerKind2["Automatic"] = 1] = "Automatic";
+  return NewSymbolNameTriggerKind2;
+})(NewSymbolNameTriggerKind || {});
+class NewSymbolName {
+  static {
+    __name(this, "NewSymbolName");
+  }
+  newSymbolName;
+  tags;
+  constructor(newSymbolName, tags) {
+    this.newSymbolName = newSymbolName;
+    this.tags = tags;
+  }
+}
+var FileChangeType = /* @__PURE__ */ ((FileChangeType2) => {
+  FileChangeType2[FileChangeType2["Changed"] = 1] = "Changed";
+  FileChangeType2[FileChangeType2["Created"] = 2] = "Created";
+  FileChangeType2[FileChangeType2["Deleted"] = 3] = "Deleted";
+  return FileChangeType2;
+})(FileChangeType || {});
+let FileSystemError = class extends Error {
+  static FileExists(messageOrUri) {
+    return new FileSystemError(
+      messageOrUri,
+      FileSystemProviderErrorCode.FileExists,
+      FileSystemError.FileExists
+    );
+  }
+  static FileNotFound(messageOrUri) {
+    return new FileSystemError(
+      messageOrUri,
+      FileSystemProviderErrorCode.FileNotFound,
+      FileSystemError.FileNotFound
+    );
+  }
+  static FileNotADirectory(messageOrUri) {
+    return new FileSystemError(
+      messageOrUri,
+      FileSystemProviderErrorCode.FileNotADirectory,
+      FileSystemError.FileNotADirectory
+    );
+  }
+  static FileIsADirectory(messageOrUri) {
+    return new FileSystemError(
+      messageOrUri,
+      FileSystemProviderErrorCode.FileIsADirectory,
+      FileSystemError.FileIsADirectory
+    );
+  }
+  static NoPermissions(messageOrUri) {
+    return new FileSystemError(
+      messageOrUri,
+      FileSystemProviderErrorCode.NoPermissions,
+      FileSystemError.NoPermissions
+    );
+  }
+  static Unavailable(messageOrUri) {
+    return new FileSystemError(
+      messageOrUri,
+      FileSystemProviderErrorCode.Unavailable,
+      FileSystemError.Unavailable
+    );
+  }
+  code;
+  constructor(uriOrMessage, code = FileSystemProviderErrorCode.Unknown, terminator) {
+    super(
+      URI.isUri(uriOrMessage) ? uriOrMessage.toString(true) : uriOrMessage
+    );
+    this.code = terminator?.name ?? "Unknown";
+    markAsFileSystemProviderError(this, code);
+    Object.setPrototypeOf(this, FileSystemError.prototype);
+    if (typeof Error.captureStackTrace === "function" && typeof terminator === "function") {
+      Error.captureStackTrace(this, terminator);
+    }
+  }
+};
+__name(FileSystemError, "FileSystemError");
+FileSystemError = __decorateClass([
+  es5ClassCompat
+], FileSystemError);
+let FoldingRange = class {
+  start;
+  end;
+  kind;
+  constructor(start, end, kind) {
+    this.start = start;
+    this.end = end;
+    this.kind = kind;
+  }
+};
+__name(FoldingRange, "FoldingRange");
+FoldingRange = __decorateClass([
+  es5ClassCompat
+], FoldingRange);
+var FoldingRangeKind = /* @__PURE__ */ ((FoldingRangeKind2) => {
+  FoldingRangeKind2[FoldingRangeKind2["Comment"] = 1] = "Comment";
+  FoldingRangeKind2[FoldingRangeKind2["Imports"] = 2] = "Imports";
+  FoldingRangeKind2[FoldingRangeKind2["Region"] = 3] = "Region";
+  return FoldingRangeKind2;
+})(FoldingRangeKind || {});
+var CommentThreadCollapsibleState = /* @__PURE__ */ ((CommentThreadCollapsibleState2) => {
+  CommentThreadCollapsibleState2[CommentThreadCollapsibleState2["Collapsed"] = 0] = "Collapsed";
+  CommentThreadCollapsibleState2[CommentThreadCollapsibleState2["Expanded"] = 1] = "Expanded";
+  return CommentThreadCollapsibleState2;
+})(CommentThreadCollapsibleState || {});
+var CommentMode = /* @__PURE__ */ ((CommentMode2) => {
+  CommentMode2[CommentMode2["Editing"] = 0] = "Editing";
+  CommentMode2[CommentMode2["Preview"] = 1] = "Preview";
+  return CommentMode2;
+})(CommentMode || {});
+var CommentState = /* @__PURE__ */ ((CommentState2) => {
+  CommentState2[CommentState2["Published"] = 0] = "Published";
+  CommentState2[CommentState2["Draft"] = 1] = "Draft";
+  return CommentState2;
+})(CommentState || {});
+var CommentThreadState = /* @__PURE__ */ ((CommentThreadState2) => {
+  CommentThreadState2[CommentThreadState2["Unresolved"] = 0] = "Unresolved";
+  CommentThreadState2[CommentThreadState2["Resolved"] = 1] = "Resolved";
+  return CommentThreadState2;
+})(CommentThreadState || {});
+var CommentThreadApplicability = /* @__PURE__ */ ((CommentThreadApplicability2) => {
+  CommentThreadApplicability2[CommentThreadApplicability2["Current"] = 0] = "Current";
+  CommentThreadApplicability2[CommentThreadApplicability2["Outdated"] = 1] = "Outdated";
+  return CommentThreadApplicability2;
+})(CommentThreadApplicability || {});
+var CommentThreadFocus = /* @__PURE__ */ ((CommentThreadFocus2) => {
+  CommentThreadFocus2[CommentThreadFocus2["Reply"] = 1] = "Reply";
+  CommentThreadFocus2[CommentThreadFocus2["Comment"] = 2] = "Comment";
+  return CommentThreadFocus2;
+})(CommentThreadFocus || {});
+class SemanticTokensLegend {
+  static {
+    __name(this, "SemanticTokensLegend");
+  }
+  tokenTypes;
+  tokenModifiers;
+  constructor(tokenTypes, tokenModifiers = []) {
+    this.tokenTypes = tokenTypes;
+    this.tokenModifiers = tokenModifiers;
+  }
+}
+function isStrArrayOrUndefined(arg) {
+  return typeof arg === "undefined" || isStringArray(arg);
+}
+__name(isStrArrayOrUndefined, "isStrArrayOrUndefined");
+class SemanticTokensBuilder {
+  static {
+    __name(this, "SemanticTokensBuilder");
+  }
+  _prevLine;
+  _prevChar;
+  _dataIsSortedAndDeltaEncoded;
+  _data;
+  _dataLen;
+  _tokenTypeStrToInt;
+  _tokenModifierStrToInt;
+  _hasLegend;
+  constructor(legend) {
+    this._prevLine = 0;
+    this._prevChar = 0;
+    this._dataIsSortedAndDeltaEncoded = true;
+    this._data = [];
+    this._dataLen = 0;
+    this._tokenTypeStrToInt = /* @__PURE__ */ new Map();
+    this._tokenModifierStrToInt = /* @__PURE__ */ new Map();
+    this._hasLegend = false;
+    if (legend) {
+      this._hasLegend = true;
+      for (let i = 0, len = legend.tokenTypes.length; i < len; i++) {
+        this._tokenTypeStrToInt.set(legend.tokenTypes[i], i);
+      }
+      for (let i = 0, len = legend.tokenModifiers.length; i < len; i++) {
+        this._tokenModifierStrToInt.set(legend.tokenModifiers[i], i);
+      }
+    }
+  }
+  push(arg0, arg1, arg2, arg3, arg4) {
+    if (typeof arg0 === "number" && typeof arg1 === "number" && typeof arg2 === "number" && typeof arg3 === "number" && (typeof arg4 === "number" || typeof arg4 === "undefined")) {
+      if (typeof arg4 === "undefined") {
+        arg4 = 0;
+      }
+      return this._pushEncoded(arg0, arg1, arg2, arg3, arg4);
+    }
+    if (Range.isRange(arg0) && typeof arg1 === "string" && isStrArrayOrUndefined(arg2)) {
+      return this._push(arg0, arg1, arg2);
+    }
+    throw illegalArgument();
+  }
+  _push(range, tokenType, tokenModifiers) {
+    if (!this._hasLegend) {
+      throw new Error("Legend must be provided in constructor");
+    }
+    if (range.start.line !== range.end.line) {
+      throw new Error("`range` cannot span multiple lines");
+    }
+    if (!this._tokenTypeStrToInt.has(tokenType)) {
+      throw new Error("`tokenType` is not in the provided legend");
+    }
+    const line = range.start.line;
+    const char = range.start.character;
+    const length = range.end.character - range.start.character;
+    const nTokenType = this._tokenTypeStrToInt.get(tokenType);
+    let nTokenModifiers = 0;
+    if (tokenModifiers) {
+      for (const tokenModifier of tokenModifiers) {
+        if (!this._tokenModifierStrToInt.has(tokenModifier)) {
+          throw new Error(
+            "`tokenModifier` is not in the provided legend"
+          );
+        }
+        const nTokenModifier = this._tokenModifierStrToInt.get(tokenModifier);
+        nTokenModifiers |= 1 << nTokenModifier >>> 0;
+      }
+    }
+    this._pushEncoded(line, char, length, nTokenType, nTokenModifiers);
+  }
+  _pushEncoded(line, char, length, tokenType, tokenModifiers) {
+    if (this._dataIsSortedAndDeltaEncoded && (line < this._prevLine || line === this._prevLine && char < this._prevChar)) {
+      this._dataIsSortedAndDeltaEncoded = false;
+      const tokenCount = this._data.length / 5 | 0;
+      let prevLine = 0;
+      let prevChar = 0;
+      for (let i = 0; i < tokenCount; i++) {
+        let line2 = this._data[5 * i];
+        let char2 = this._data[5 * i + 1];
+        if (line2 === 0) {
+          line2 = prevLine;
+          char2 += prevChar;
+        } else {
+          line2 += prevLine;
+        }
+        this._data[5 * i] = line2;
+        this._data[5 * i + 1] = char2;
+        prevLine = line2;
+        prevChar = char2;
+      }
+    }
+    let pushLine = line;
+    let pushChar = char;
+    if (this._dataIsSortedAndDeltaEncoded && this._dataLen > 0) {
+      pushLine -= this._prevLine;
+      if (pushLine === 0) {
+        pushChar -= this._prevChar;
+      }
+    }
+    this._data[this._dataLen++] = pushLine;
+    this._data[this._dataLen++] = pushChar;
+    this._data[this._dataLen++] = length;
+    this._data[this._dataLen++] = tokenType;
+    this._data[this._dataLen++] = tokenModifiers;
+    this._prevLine = line;
+    this._prevChar = char;
+  }
+  static _sortAndDeltaEncode(data) {
+    const pos = [];
+    const tokenCount = data.length / 5 | 0;
+    for (let i = 0; i < tokenCount; i++) {
+      pos[i] = i;
+    }
+    pos.sort((a, b) => {
+      const aLine = data[5 * a];
+      const bLine = data[5 * b];
+      if (aLine === bLine) {
+        const aChar = data[5 * a + 1];
+        const bChar = data[5 * b + 1];
+        return aChar - bChar;
+      }
+      return aLine - bLine;
+    });
+    const result = new Uint32Array(data.length);
+    let prevLine = 0;
+    let prevChar = 0;
+    for (let i = 0; i < tokenCount; i++) {
+      const srcOffset = 5 * pos[i];
+      const line = data[srcOffset + 0];
+      const char = data[srcOffset + 1];
+      const length = data[srcOffset + 2];
+      const tokenType = data[srcOffset + 3];
+      const tokenModifiers = data[srcOffset + 4];
+      const pushLine = line - prevLine;
+      const pushChar = pushLine === 0 ? char - prevChar : char;
+      const dstOffset = 5 * i;
+      result[dstOffset + 0] = pushLine;
+      result[dstOffset + 1] = pushChar;
+      result[dstOffset + 2] = length;
+      result[dstOffset + 3] = tokenType;
+      result[dstOffset + 4] = tokenModifiers;
+      prevLine = line;
+      prevChar = char;
+    }
+    return result;
+  }
+  build(resultId) {
+    if (!this._dataIsSortedAndDeltaEncoded) {
+      return new SemanticTokens(
+        SemanticTokensBuilder._sortAndDeltaEncode(this._data),
+        resultId
+      );
+    }
+    return new SemanticTokens(new Uint32Array(this._data), resultId);
+  }
+}
+class SemanticTokens {
+  static {
+    __name(this, "SemanticTokens");
+  }
+  resultId;
+  data;
+  constructor(data, resultId) {
+    this.resultId = resultId;
+    this.data = data;
+  }
+}
+class SemanticTokensEdit {
+  static {
+    __name(this, "SemanticTokensEdit");
+  }
+  start;
+  deleteCount;
+  data;
+  constructor(start, deleteCount, data) {
+    this.start = start;
+    this.deleteCount = deleteCount;
+    this.data = data;
+  }
+}
+class SemanticTokensEdits {
+  static {
+    __name(this, "SemanticTokensEdits");
+  }
+  resultId;
+  edits;
+  constructor(edits, resultId) {
+    this.resultId = resultId;
+    this.edits = edits;
+  }
+}
+var DebugConsoleMode = /* @__PURE__ */ ((DebugConsoleMode2) => {
+  DebugConsoleMode2[DebugConsoleMode2["Separate"] = 0] = "Separate";
+  DebugConsoleMode2[DebugConsoleMode2["MergeWithParent"] = 1] = "MergeWithParent";
+  return DebugConsoleMode2;
+})(DebugConsoleMode || {});
+class DebugVisualization {
+  constructor(name) {
+    this.name = name;
+  }
+  static {
+    __name(this, "DebugVisualization");
+  }
+  iconPath;
+  visualization;
+}
+var QuickInputButtonLocation = /* @__PURE__ */ ((QuickInputButtonLocation2) => {
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Title"] = 1] = "Title";
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Inline"] = 2] = "Inline";
+  return QuickInputButtonLocation2;
+})(QuickInputButtonLocation || {});
+let QuickInputButtons = class {
+  constructor() {
+  }
+};
+__name(QuickInputButtons, "QuickInputButtons");
+__publicField(QuickInputButtons, "Back", {
+  iconPath: new ThemeIcon("arrow-left")
+});
+QuickInputButtons = __decorateClass([
+  es5ClassCompat
+], QuickInputButtons);
+var QuickPickItemKind = /* @__PURE__ */ ((QuickPickItemKind2) => {
+  QuickPickItemKind2[QuickPickItemKind2["Separator"] = -1] = "Separator";
+  QuickPickItemKind2[QuickPickItemKind2["Default"] = 0] = "Default";
+  return QuickPickItemKind2;
+})(QuickPickItemKind || {});
+var InputBoxValidationSeverity = /* @__PURE__ */ ((InputBoxValidationSeverity2) => {
+  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Info"] = 1] = "Info";
+  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Warning"] = 2] = "Warning";
+  InputBoxValidationSeverity2[InputBoxValidationSeverity2["Error"] = 3] = "Error";
+  return InputBoxValidationSeverity2;
+})(InputBoxValidationSeverity || {});
+var ExtensionKind = /* @__PURE__ */ ((ExtensionKind2) => {
+  ExtensionKind2[ExtensionKind2["UI"] = 1] = "UI";
+  ExtensionKind2[ExtensionKind2["Workspace"] = 2] = "Workspace";
+  return ExtensionKind2;
+})(ExtensionKind || {});
+class FileDecoration {
+  static {
+    __name(this, "FileDecoration");
+  }
+  static validate(d) {
+    if (typeof d.badge === "string") {
+      let len = nextCharLength(d.badge, 0);
+      if (len < d.badge.length) {
+        len += nextCharLength(d.badge, len);
+      }
+      if (d.badge.length > len) {
+        throw new Error(
+          `The 'badge'-property must be undefined or a short character`
+        );
+      }
+    } else if (d.badge) {
+      if (!ThemeIcon.isThemeIcon(d.badge)) {
+        throw new Error(
+          `The 'badge'-property is not a valid ThemeIcon`
+        );
+      }
+    }
+    if (!d.color && !d.badge && !d.tooltip) {
+      throw new Error(`The decoration is empty`);
+    }
+    return true;
+  }
+  badge;
+  tooltip;
+  color;
+  propagate;
+  constructor(badge, tooltip, color) {
+    this.badge = badge;
+    this.tooltip = tooltip;
+    this.color = color;
+  }
+}
+let ColorTheme = class {
+  constructor(kind) {
+    this.kind = kind;
+  }
+};
+__name(ColorTheme, "ColorTheme");
+ColorTheme = __decorateClass([
+  es5ClassCompat
+], ColorTheme);
+var ColorThemeKind = /* @__PURE__ */ ((ColorThemeKind2) => {
+  ColorThemeKind2[ColorThemeKind2["Light"] = 1] = "Light";
+  ColorThemeKind2[ColorThemeKind2["Dark"] = 2] = "Dark";
+  ColorThemeKind2[ColorThemeKind2["HighContrast"] = 3] = "HighContrast";
+  ColorThemeKind2[ColorThemeKind2["HighContrastLight"] = 4] = "HighContrastLight";
+  return ColorThemeKind2;
+})(ColorThemeKind || {});
+class NotebookRange {
+  static {
+    __name(this, "NotebookRange");
+  }
+  static isNotebookRange(thing) {
+    if (thing instanceof NotebookRange) {
+      return true;
+    }
+    if (!thing) {
+      return false;
+    }
+    return typeof thing.start === "number" && typeof thing.end === "number";
+  }
+  _start;
+  _end;
+  get start() {
+    return this._start;
+  }
+  get end() {
+    return this._end;
+  }
+  get isEmpty() {
+    return this._start === this._end;
+  }
+  constructor(start, end) {
+    if (start < 0) {
+      throw illegalArgument("start must be positive");
+    }
+    if (end < 0) {
+      throw illegalArgument("end must be positive");
+    }
+    if (start <= end) {
+      this._start = start;
+      this._end = end;
+    } else {
+      this._start = end;
+      this._end = start;
+    }
+  }
+  with(change) {
+    let start = this._start;
+    let end = this._end;
+    if (change.start !== void 0) {
+      start = change.start;
+    }
+    if (change.end !== void 0) {
+      end = change.end;
+    }
+    if (start === this._start && end === this._end) {
+      return this;
+    }
+    return new NotebookRange(start, end);
+  }
+}
+class NotebookCellData {
+  static {
+    __name(this, "NotebookCellData");
+  }
+  static validate(data) {
+    if (typeof data.kind !== "number") {
+      throw new Error("NotebookCellData MUST have 'kind' property");
+    }
+    if (typeof data.value !== "string") {
+      throw new Error("NotebookCellData MUST have 'value' property");
+    }
+    if (typeof data.languageId !== "string") {
+      throw new Error("NotebookCellData MUST have 'languageId' property");
+    }
+  }
+  static isNotebookCellDataArray(value) {
+    return Array.isArray(value) && value.every(
+      (elem) => NotebookCellData.isNotebookCellData(elem)
+    );
+  }
+  static isNotebookCellData(value) {
+    return true;
+  }
+  kind;
+  value;
+  languageId;
+  mime;
+  outputs;
+  metadata;
+  executionSummary;
+  constructor(kind, value, languageId, mime, outputs, metadata, executionSummary) {
+    this.kind = kind;
+    this.value = value;
+    this.languageId = languageId;
+    this.mime = mime;
+    this.outputs = outputs ?? [];
+    this.metadata = metadata;
+    this.executionSummary = executionSummary;
+    NotebookCellData.validate(this);
+  }
+}
+class NotebookData {
+  static {
+    __name(this, "NotebookData");
+  }
+  cells;
+  metadata;
+  constructor(cells) {
+    this.cells = cells;
+  }
+}
+class NotebookCellOutputItem {
+  constructor(data, mime) {
+    this.data = data;
+    this.mime = mime;
+    const mimeNormalized = normalizeMimeType(mime, true);
+    if (!mimeNormalized) {
+      throw new Error(
+        `INVALID mime type: ${mime}. Must be in the format "type/subtype[;optionalparameter]"`
+      );
+    }
+    this.mime = mimeNormalized;
+  }
+  static {
+    __name(this, "NotebookCellOutputItem");
+  }
+  static isNotebookCellOutputItem(obj) {
+    if (obj instanceof NotebookCellOutputItem) {
+      return true;
+    }
+    if (!obj) {
+      return false;
+    }
+    return typeof obj.mime === "string" && obj.data instanceof Uint8Array;
+  }
+  static error(err) {
+    const obj = {
+      name: err.name,
+      message: err.message,
+      stack: err.stack
+    };
+    return NotebookCellOutputItem.json(
+      obj,
+      "application/vnd.code.notebook.error"
+    );
+  }
+  static stdout(value) {
+    return NotebookCellOutputItem.text(
+      value,
+      "application/vnd.code.notebook.stdout"
+    );
+  }
+  static stderr(value) {
+    return NotebookCellOutputItem.text(
+      value,
+      "application/vnd.code.notebook.stderr"
+    );
+  }
+  static bytes(value, mime = "application/octet-stream") {
+    return new NotebookCellOutputItem(value, mime);
+  }
+  static #encoder = new TextEncoder();
+  static text(value, mime = Mimes.text) {
+    const bytes = NotebookCellOutputItem.#encoder.encode(String(value));
+    return new NotebookCellOutputItem(bytes, mime);
+  }
+  static json(value, mime = "text/x-json") {
+    const rawStr = JSON.stringify(value, void 0, "	");
+    return NotebookCellOutputItem.text(rawStr, mime);
+  }
+}
+class NotebookCellOutput {
+  static {
+    __name(this, "NotebookCellOutput");
+  }
+  static isNotebookCellOutput(candidate) {
+    if (candidate instanceof NotebookCellOutput) {
+      return true;
+    }
+    if (!candidate || typeof candidate !== "object") {
+      return false;
+    }
+    return typeof candidate.id === "string" && Array.isArray(candidate.items);
+  }
+  static ensureUniqueMimeTypes(items, warn = false) {
+    const seen = /* @__PURE__ */ new Set();
+    const removeIdx = /* @__PURE__ */ new Set();
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const normalMime = normalizeMimeType(item.mime);
+      if (!seen.has(normalMime) || isTextStreamMime(normalMime)) {
+        seen.add(normalMime);
+        continue;
+      }
+      removeIdx.add(i);
+      if (warn) {
+        console.warn(
+          `DUPLICATED mime type '${item.mime}' will be dropped`
+        );
+      }
+    }
+    if (removeIdx.size === 0) {
+      return items;
+    }
+    return items.filter((_item, index) => !removeIdx.has(index));
+  }
+  id;
+  items;
+  metadata;
+  constructor(items, idOrMetadata, metadata) {
+    this.items = NotebookCellOutput.ensureUniqueMimeTypes(items, true);
+    if (typeof idOrMetadata === "string") {
+      this.id = idOrMetadata;
+      this.metadata = metadata;
+    } else {
+      this.id = generateUuid();
+      this.metadata = idOrMetadata ?? metadata;
+    }
+  }
+}
+class CellErrorStackFrame {
+  /**
+   * @param label The name of the stack frame
+   * @param file The file URI of the stack frame
+   * @param position The position of the stack frame within the file
+   */
+  constructor(label, uri, position) {
+    this.label = label;
+    this.uri = uri;
+    this.position = position;
+  }
+  static {
+    __name(this, "CellErrorStackFrame");
+  }
+}
+var NotebookCellKind = /* @__PURE__ */ ((NotebookCellKind2) => {
+  NotebookCellKind2[NotebookCellKind2["Markup"] = 1] = "Markup";
+  NotebookCellKind2[NotebookCellKind2["Code"] = 2] = "Code";
+  return NotebookCellKind2;
+})(NotebookCellKind || {});
+var NotebookCellExecutionState = /* @__PURE__ */ ((NotebookCellExecutionState2) => {
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Idle"] = 1] = "Idle";
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Pending"] = 2] = "Pending";
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Executing"] = 3] = "Executing";
+  return NotebookCellExecutionState2;
+})(NotebookCellExecutionState || {});
+var NotebookCellStatusBarAlignment = /* @__PURE__ */ ((NotebookCellStatusBarAlignment2) => {
+  NotebookCellStatusBarAlignment2[NotebookCellStatusBarAlignment2["Left"] = 1] = "Left";
+  NotebookCellStatusBarAlignment2[NotebookCellStatusBarAlignment2["Right"] = 2] = "Right";
+  return NotebookCellStatusBarAlignment2;
+})(NotebookCellStatusBarAlignment || {});
+var NotebookEditorRevealType = /* @__PURE__ */ ((NotebookEditorRevealType2) => {
+  NotebookEditorRevealType2[NotebookEditorRevealType2["Default"] = 0] = "Default";
+  NotebookEditorRevealType2[NotebookEditorRevealType2["InCenter"] = 1] = "InCenter";
+  NotebookEditorRevealType2[NotebookEditorRevealType2["InCenterIfOutsideViewport"] = 2] = "InCenterIfOutsideViewport";
+  NotebookEditorRevealType2[NotebookEditorRevealType2["AtTop"] = 3] = "AtTop";
+  return NotebookEditorRevealType2;
+})(NotebookEditorRevealType || {});
+class NotebookCellStatusBarItem {
+  constructor(text, alignment) {
+    this.text = text;
+    this.alignment = alignment;
+  }
+  static {
+    __name(this, "NotebookCellStatusBarItem");
+  }
+}
+var NotebookControllerAffinity = /* @__PURE__ */ ((NotebookControllerAffinity3) => {
+  NotebookControllerAffinity3[NotebookControllerAffinity3["Default"] = 1] = "Default";
+  NotebookControllerAffinity3[NotebookControllerAffinity3["Preferred"] = 2] = "Preferred";
+  return NotebookControllerAffinity3;
+})(NotebookControllerAffinity || {});
+var NotebookControllerAffinity2 = /* @__PURE__ */ ((NotebookControllerAffinity22) => {
+  NotebookControllerAffinity22[NotebookControllerAffinity22["Default"] = 1] = "Default";
+  NotebookControllerAffinity22[NotebookControllerAffinity22["Preferred"] = 2] = "Preferred";
+  NotebookControllerAffinity22[NotebookControllerAffinity22["Hidden"] = -1] = "Hidden";
+  return NotebookControllerAffinity22;
+})(NotebookControllerAffinity2 || {});
+class NotebookRendererScript {
+  constructor(uri, provides = []) {
+    this.uri = uri;
+    this.provides = asArray(provides);
+  }
+  static {
+    __name(this, "NotebookRendererScript");
+  }
+  provides;
+}
+class NotebookKernelSourceAction {
+  constructor(label) {
+    this.label = label;
+  }
+  static {
+    __name(this, "NotebookKernelSourceAction");
+  }
+  description;
+  detail;
+  command;
+}
+var NotebookVariablesRequestKind = /* @__PURE__ */ ((NotebookVariablesRequestKind2) => {
+  NotebookVariablesRequestKind2[NotebookVariablesRequestKind2["Named"] = 1] = "Named";
+  NotebookVariablesRequestKind2[NotebookVariablesRequestKind2["Indexed"] = 2] = "Indexed";
+  return NotebookVariablesRequestKind2;
+})(NotebookVariablesRequestKind || {});
+let TimelineItem = class {
+  constructor(label, timestamp) {
+    this.label = label;
+    this.timestamp = timestamp;
+  }
+};
+__name(TimelineItem, "TimelineItem");
+TimelineItem = __decorateClass([
+  es5ClassCompat
+], TimelineItem);
+var ExtensionMode = /* @__PURE__ */ ((ExtensionMode2) => {
+  ExtensionMode2[ExtensionMode2["Production"] = 1] = "Production";
+  ExtensionMode2[ExtensionMode2["Development"] = 2] = "Development";
+  ExtensionMode2[ExtensionMode2["Test"] = 3] = "Test";
+  return ExtensionMode2;
+})(ExtensionMode || {});
+var ExtensionRuntime = /* @__PURE__ */ ((ExtensionRuntime2) => {
+  ExtensionRuntime2[ExtensionRuntime2["Node"] = 1] = "Node";
+  ExtensionRuntime2[ExtensionRuntime2["Webworker"] = 2] = "Webworker";
+  return ExtensionRuntime2;
+})(ExtensionRuntime || {});
+var StandardTokenType = /* @__PURE__ */ ((StandardTokenType2) => {
+  StandardTokenType2[StandardTokenType2["Other"] = 0] = "Other";
+  StandardTokenType2[StandardTokenType2["Comment"] = 1] = "Comment";
+  StandardTokenType2[StandardTokenType2["String"] = 2] = "String";
+  StandardTokenType2[StandardTokenType2["RegEx"] = 3] = "RegEx";
+  return StandardTokenType2;
+})(StandardTokenType || {});
+class LinkedEditingRanges {
+  constructor(ranges, wordPattern) {
+    this.ranges = ranges;
+    this.wordPattern = wordPattern;
+  }
+  static {
+    __name(this, "LinkedEditingRanges");
+  }
+}
+class PortAttributes {
+  static {
+    __name(this, "PortAttributes");
+  }
+  _autoForwardAction;
+  constructor(autoForwardAction) {
+    this._autoForwardAction = autoForwardAction;
+  }
+  get autoForwardAction() {
+    return this._autoForwardAction;
+  }
+}
+var TestResultState = /* @__PURE__ */ ((TestResultState2) => {
+  TestResultState2[TestResultState2["Queued"] = 1] = "Queued";
+  TestResultState2[TestResultState2["Running"] = 2] = "Running";
+  TestResultState2[TestResultState2["Passed"] = 3] = "Passed";
+  TestResultState2[TestResultState2["Failed"] = 4] = "Failed";
+  TestResultState2[TestResultState2["Skipped"] = 5] = "Skipped";
+  TestResultState2[TestResultState2["Errored"] = 6] = "Errored";
+  return TestResultState2;
+})(TestResultState || {});
+var TestRunProfileKind = /* @__PURE__ */ ((TestRunProfileKind2) => {
+  TestRunProfileKind2[TestRunProfileKind2["Run"] = 1] = "Run";
+  TestRunProfileKind2[TestRunProfileKind2["Debug"] = 2] = "Debug";
+  TestRunProfileKind2[TestRunProfileKind2["Coverage"] = 3] = "Coverage";
+  return TestRunProfileKind2;
+})(TestRunProfileKind || {});
+class TestRunProfileBase {
+  constructor(controllerId, profileId, kind) {
+    this.controllerId = controllerId;
+    this.profileId = profileId;
+    this.kind = kind;
+  }
+  static {
+    __name(this, "TestRunProfileBase");
+  }
+}
+let TestRunRequest = class {
+  constructor(include = void 0, exclude = void 0, profile = void 0, continuous = false, preserveFocus = true) {
+    this.include = include;
+    this.exclude = exclude;
+    this.profile = profile;
+    this.continuous = continuous;
+    this.preserveFocus = preserveFocus;
+  }
+};
+__name(TestRunRequest, "TestRunRequest");
+TestRunRequest = __decorateClass([
+  es5ClassCompat
+], TestRunRequest);
+let TestMessage = class {
+  constructor(message) {
+    this.message = message;
+  }
+  expectedOutput;
+  actualOutput;
+  location;
+  contextValue;
+  /** proposed: */
+  stackTrace;
+  static diff(message, expected, actual) {
+    const msg = new TestMessage(message);
+    msg.expectedOutput = expected;
+    msg.actualOutput = actual;
+    return msg;
+  }
+};
+__name(TestMessage, "TestMessage");
+TestMessage = __decorateClass([
+  es5ClassCompat
+], TestMessage);
+let TestTag = class {
+  constructor(id) {
+    this.id = id;
+  }
+};
+__name(TestTag, "TestTag");
+TestTag = __decorateClass([
+  es5ClassCompat
+], TestTag);
+class TestMessageStackFrame {
+  /**
+   * @param label The name of the stack frame
+   * @param file The file URI of the stack frame
+   * @param position The position of the stack frame within the file
+   */
+  constructor(label, uri, position) {
+    this.label = label;
+    this.uri = uri;
+    this.position = position;
+  }
+  static {
+    __name(this, "TestMessageStackFrame");
+  }
+}
+class TestCoverageCount {
+  constructor(covered, total) {
+    this.covered = covered;
+    this.total = total;
+    validateTestCoverageCount(this);
+  }
+  static {
+    __name(this, "TestCoverageCount");
+  }
+}
+function validateTestCoverageCount(cc) {
+  if (!cc) {
+    return;
+  }
+  if (cc.covered > cc.total) {
+    throw new Error(
+      `The total number of covered items (${cc.covered}) cannot be greater than the total (${cc.total})`
+    );
+  }
+  if (cc.total < 0) {
+    throw new Error(
+      `The number of covered items (${cc.total}) cannot be negative`
+    );
+  }
+}
+__name(validateTestCoverageCount, "validateTestCoverageCount");
+class FileCoverage {
+  constructor(uri, statementCoverage, branchCoverage, declarationCoverage, includesTests = []) {
+    this.uri = uri;
+    this.statementCoverage = statementCoverage;
+    this.branchCoverage = branchCoverage;
+    this.declarationCoverage = declarationCoverage;
+    this.includesTests = includesTests;
+  }
+  static {
+    __name(this, "FileCoverage");
+  }
+  static fromDetails(uri, details) {
+    const statements = new TestCoverageCount(0, 0);
+    const branches = new TestCoverageCount(0, 0);
+    const decl = new TestCoverageCount(0, 0);
+    for (const detail of details) {
+      if ("branches" in detail) {
+        statements.total += 1;
+        statements.covered += detail.executed ? 1 : 0;
+        for (const branch of detail.branches) {
+          branches.total += 1;
+          branches.covered += branch.executed ? 1 : 0;
+        }
+      } else {
+        decl.total += 1;
+        decl.covered += detail.executed ? 1 : 0;
+      }
+    }
+    const coverage = new FileCoverage(
+      uri,
+      statements,
+      branches.total > 0 ? branches : void 0,
+      decl.total > 0 ? decl : void 0
+    );
+    coverage.detailedCoverage = details;
+    return coverage;
+  }
+  detailedCoverage;
+}
+class StatementCoverage {
+  constructor(executed, location, branches = []) {
+    this.executed = executed;
+    this.location = location;
+    this.branches = branches;
+  }
+  static {
+    __name(this, "StatementCoverage");
+  }
+  // back compat until finalization:
+  get executionCount() {
+    return +this.executed;
+  }
+  set executionCount(n) {
+    this.executed = n;
+  }
+}
+class BranchCoverage {
+  constructor(executed, location, label) {
+    this.executed = executed;
+    this.location = location;
+    this.label = label;
+  }
+  static {
+    __name(this, "BranchCoverage");
+  }
+  // back compat until finalization:
+  get executionCount() {
+    return +this.executed;
+  }
+  set executionCount(n) {
+    this.executed = n;
+  }
+}
+class DeclarationCoverage {
+  constructor(name, executed, location) {
+    this.name = name;
+    this.executed = executed;
+    this.location = location;
+  }
+  static {
+    __name(this, "DeclarationCoverage");
+  }
+  // back compat until finalization:
+  get executionCount() {
+    return +this.executed;
+  }
+  set executionCount(n) {
+    this.executed = n;
+  }
+}
+var ExternalUriOpenerPriority = /* @__PURE__ */ ((ExternalUriOpenerPriority2) => {
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["None"] = 0] = "None";
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Option"] = 1] = "Option";
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Default"] = 2] = "Default";
+  ExternalUriOpenerPriority2[ExternalUriOpenerPriority2["Preferred"] = 3] = "Preferred";
+  return ExternalUriOpenerPriority2;
+})(ExternalUriOpenerPriority || {});
+var WorkspaceTrustState = /* @__PURE__ */ ((WorkspaceTrustState2) => {
+  WorkspaceTrustState2[WorkspaceTrustState2["Untrusted"] = 0] = "Untrusted";
+  WorkspaceTrustState2[WorkspaceTrustState2["Trusted"] = 1] = "Trusted";
+  WorkspaceTrustState2[WorkspaceTrustState2["Unspecified"] = 2] = "Unspecified";
+  return WorkspaceTrustState2;
+})(WorkspaceTrustState || {});
+var PortAutoForwardAction = /* @__PURE__ */ ((PortAutoForwardAction2) => {
+  PortAutoForwardAction2[PortAutoForwardAction2["Notify"] = 1] = "Notify";
+  PortAutoForwardAction2[PortAutoForwardAction2["OpenBrowser"] = 2] = "OpenBrowser";
+  PortAutoForwardAction2[PortAutoForwardAction2["OpenPreview"] = 3] = "OpenPreview";
+  PortAutoForwardAction2[PortAutoForwardAction2["Silent"] = 4] = "Silent";
+  PortAutoForwardAction2[PortAutoForwardAction2["Ignore"] = 5] = "Ignore";
+  PortAutoForwardAction2[PortAutoForwardAction2["OpenBrowserOnce"] = 6] = "OpenBrowserOnce";
+  return PortAutoForwardAction2;
+})(PortAutoForwardAction || {});
+class TypeHierarchyItem {
+  static {
+    __name(this, "TypeHierarchyItem");
+  }
+  _sessionId;
+  _itemId;
+  kind;
+  tags;
+  name;
+  detail;
+  uri;
+  range;
+  selectionRange;
+  constructor(kind, name, detail, uri, range, selectionRange) {
+    this.kind = kind;
+    this.name = name;
+    this.detail = detail;
+    this.uri = uri;
+    this.range = range;
+    this.selectionRange = selectionRange;
+  }
+}
+class TextTabInput {
+  constructor(uri) {
+    this.uri = uri;
+  }
+  static {
+    __name(this, "TextTabInput");
+  }
+}
+class TextDiffTabInput {
+  constructor(original, modified) {
+    this.original = original;
+    this.modified = modified;
+  }
+  static {
+    __name(this, "TextDiffTabInput");
+  }
+}
+class TextMergeTabInput {
+  constructor(base, input1, input2, result) {
+    this.base = base;
+    this.input1 = input1;
+    this.input2 = input2;
+    this.result = result;
+  }
+  static {
+    __name(this, "TextMergeTabInput");
+  }
+}
+class CustomEditorTabInput {
+  constructor(uri, viewType) {
+    this.uri = uri;
+    this.viewType = viewType;
+  }
+  static {
+    __name(this, "CustomEditorTabInput");
+  }
+}
+class WebviewEditorTabInput {
+  constructor(viewType) {
+    this.viewType = viewType;
+  }
+  static {
+    __name(this, "WebviewEditorTabInput");
+  }
+}
+class NotebookEditorTabInput {
+  constructor(uri, notebookType) {
+    this.uri = uri;
+    this.notebookType = notebookType;
+  }
+  static {
+    __name(this, "NotebookEditorTabInput");
+  }
+}
+class NotebookDiffEditorTabInput {
+  constructor(original, modified, notebookType) {
+    this.original = original;
+    this.modified = modified;
+    this.notebookType = notebookType;
+  }
+  static {
+    __name(this, "NotebookDiffEditorTabInput");
+  }
+}
+class TerminalEditorTabInput {
+  static {
+    __name(this, "TerminalEditorTabInput");
+  }
+  constructor() {
+  }
+}
+class InteractiveWindowInput {
+  constructor(uri, inputBoxUri) {
+    this.uri = uri;
+    this.inputBoxUri = inputBoxUri;
+  }
+  static {
+    __name(this, "InteractiveWindowInput");
+  }
+}
+class ChatEditorTabInput {
+  static {
+    __name(this, "ChatEditorTabInput");
+  }
+  constructor() {
+  }
+}
+class TextMultiDiffTabInput {
+  constructor(textDiffs) {
+    this.textDiffs = textDiffs;
+  }
+  static {
+    __name(this, "TextMultiDiffTabInput");
+  }
+}
+var InteractiveSessionVoteDirection = /* @__PURE__ */ ((InteractiveSessionVoteDirection2) => {
+  InteractiveSessionVoteDirection2[InteractiveSessionVoteDirection2["Down"] = 0] = "Down";
+  InteractiveSessionVoteDirection2[InteractiveSessionVoteDirection2["Up"] = 1] = "Up";
+  return InteractiveSessionVoteDirection2;
+})(InteractiveSessionVoteDirection || {});
+var ChatCopyKind = /* @__PURE__ */ ((ChatCopyKind2) => {
+  ChatCopyKind2[ChatCopyKind2["Action"] = 1] = "Action";
+  ChatCopyKind2[ChatCopyKind2["Toolbar"] = 2] = "Toolbar";
+  return ChatCopyKind2;
+})(ChatCopyKind || {});
+var ChatVariableLevel = /* @__PURE__ */ ((ChatVariableLevel2) => {
+  ChatVariableLevel2[ChatVariableLevel2["Short"] = 1] = "Short";
+  ChatVariableLevel2[ChatVariableLevel2["Medium"] = 2] = "Medium";
+  ChatVariableLevel2[ChatVariableLevel2["Full"] = 3] = "Full";
+  return ChatVariableLevel2;
+})(ChatVariableLevel || {});
+class ChatCompletionItem {
+  static {
+    __name(this, "ChatCompletionItem");
+  }
+  id;
+  label;
+  fullName;
+  icon;
+  insertText;
+  values;
+  detail;
+  documentation;
+  command;
+  constructor(id, label, values) {
+    this.id = id;
+    this.label = label;
+    this.values = values;
+  }
+}
+var ChatEditingSessionActionOutcome = /* @__PURE__ */ ((ChatEditingSessionActionOutcome2) => {
+  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Accepted"] = 1] = "Accepted";
+  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Rejected"] = 2] = "Rejected";
+  ChatEditingSessionActionOutcome2[ChatEditingSessionActionOutcome2["Saved"] = 3] = "Saved";
+  return ChatEditingSessionActionOutcome2;
+})(ChatEditingSessionActionOutcome || {});
+var InteractiveEditorResponseFeedbackKind = /* @__PURE__ */ ((InteractiveEditorResponseFeedbackKind2) => {
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Unhelpful"] = 0] = "Unhelpful";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Helpful"] = 1] = "Helpful";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Undone"] = 2] = "Undone";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Accepted"] = 3] = "Accepted";
+  InteractiveEditorResponseFeedbackKind2[InteractiveEditorResponseFeedbackKind2["Bug"] = 4] = "Bug";
+  return InteractiveEditorResponseFeedbackKind2;
+})(InteractiveEditorResponseFeedbackKind || {});
+var ChatResultFeedbackKind = /* @__PURE__ */ ((ChatResultFeedbackKind2) => {
+  ChatResultFeedbackKind2[ChatResultFeedbackKind2["Unhelpful"] = 0] = "Unhelpful";
+  ChatResultFeedbackKind2[ChatResultFeedbackKind2["Helpful"] = 1] = "Helpful";
+  return ChatResultFeedbackKind2;
+})(ChatResultFeedbackKind || {});
+class ChatResponseMarkdownPart {
+  static {
+    __name(this, "ChatResponseMarkdownPart");
+  }
+  value;
+  constructor(value) {
+    if (typeof value !== "string" && value.isTrusted === true) {
+      throw new Error(
+        "The boolean form of MarkdownString.isTrusted is NOT supported for chat participants."
+      );
+    }
+    this.value = typeof value === "string" ? new MarkdownString(value) : value;
+  }
+}
+class ChatResponseMarkdownWithVulnerabilitiesPart {
+  static {
+    __name(this, "ChatResponseMarkdownWithVulnerabilitiesPart");
+  }
+  value;
+  vulnerabilities;
+  constructor(value, vulnerabilities) {
+    if (typeof value !== "string" && value.isTrusted === true) {
+      throw new Error(
+        "The boolean form of MarkdownString.isTrusted is NOT supported for chat participants."
+      );
+    }
+    this.value = typeof value === "string" ? new MarkdownString(value) : value;
+    this.vulnerabilities = vulnerabilities;
+  }
+}
+class ChatResponseConfirmationPart {
+  static {
+    __name(this, "ChatResponseConfirmationPart");
+  }
+  title;
+  message;
+  data;
+  buttons;
+  constructor(title, message, data, buttons) {
+    this.title = title;
+    this.message = message;
+    this.data = data;
+    this.buttons = buttons;
+  }
+}
+class ChatResponseFileTreePart {
+  static {
+    __name(this, "ChatResponseFileTreePart");
+  }
+  value;
+  baseUri;
+  constructor(value, baseUri) {
+    this.value = value;
+    this.baseUri = baseUri;
+  }
+}
+class ChatResponseAnchorPart {
+  static {
+    __name(this, "ChatResponseAnchorPart");
+  }
+  value;
+  title;
+  value2;
+  constructor(value, title) {
+    this.value = value;
+    this.value2 = value;
+    this.title = title;
+  }
+}
+class ChatResponseProgressPart {
+  static {
+    __name(this, "ChatResponseProgressPart");
+  }
+  value;
+  constructor(value) {
+    this.value = value;
+  }
+}
+class ChatResponseProgressPart2 {
+  static {
+    __name(this, "ChatResponseProgressPart2");
+  }
+  value;
+  task;
+  constructor(value, task) {
+    this.value = value;
+    this.task = task;
+  }
+}
+class ChatResponseWarningPart {
+  static {
+    __name(this, "ChatResponseWarningPart");
+  }
+  value;
+  constructor(value) {
+    if (typeof value !== "string" && value.isTrusted === true) {
+      throw new Error(
+        "The boolean form of MarkdownString.isTrusted is NOT supported for chat participants."
+      );
+    }
+    this.value = typeof value === "string" ? new MarkdownString(value) : value;
+  }
+}
+class ChatResponseCommandButtonPart {
+  static {
+    __name(this, "ChatResponseCommandButtonPart");
+  }
+  value;
+  constructor(value) {
+    this.value = value;
+  }
+}
+class ChatResponseReferencePart {
+  static {
+    __name(this, "ChatResponseReferencePart");
+  }
+  value;
+  iconPath;
+  options;
+  constructor(value, iconPath, options) {
+    this.value = value;
+    this.iconPath = iconPath;
+    this.options = options;
+  }
+}
+class ChatResponseCodeblockUriPart {
+  static {
+    __name(this, "ChatResponseCodeblockUriPart");
+  }
+  isEdit;
+  value;
+  constructor(value, isEdit) {
+    this.value = value;
+    this.isEdit = isEdit;
+  }
+}
+class ChatResponseCodeCitationPart {
+  static {
+    __name(this, "ChatResponseCodeCitationPart");
+  }
+  value;
+  license;
+  snippet;
+  constructor(value, license, snippet) {
+    this.value = value;
+    this.license = license;
+    this.snippet = snippet;
+  }
+}
+class ChatResponseMovePart {
+  constructor(uri, range) {
+    this.uri = uri;
+    this.range = range;
+  }
+  static {
+    __name(this, "ChatResponseMovePart");
+  }
+}
+class ChatResponseTextEditPart {
+  static {
+    __name(this, "ChatResponseTextEditPart");
+  }
+  uri;
+  edits;
+  isDone;
+  constructor(uri, editsOrDone) {
+    this.uri = uri;
+    if (editsOrDone === true) {
+      this.isDone = true;
+      this.edits = [];
+    } else {
+      this.edits = Array.isArray(editsOrDone) ? editsOrDone : [editsOrDone];
+    }
+  }
+}
+class ChatResponseNotebookEditPart {
+  static {
+    __name(this, "ChatResponseNotebookEditPart");
+  }
+  uri;
+  edits;
+  isDone;
+  constructor(uri, editsOrDone) {
+    this.uri = uri;
+    if (editsOrDone === true) {
+      this.isDone = true;
+      this.edits = [];
+    } else {
+      this.edits = Array.isArray(editsOrDone) ? editsOrDone : [editsOrDone];
+    }
+  }
+}
+class ChatRequestTurn {
+  constructor(prompt, command, references, participant, toolReferences) {
+    this.prompt = prompt;
+    this.command = command;
+    this.references = references;
+    this.participant = participant;
+    this.toolReferences = toolReferences;
+  }
+  static {
+    __name(this, "ChatRequestTurn");
+  }
+}
+class ChatResponseTurn {
+  constructor(response, result, participant, command) {
+    this.response = response;
+    this.result = result;
+    this.participant = participant;
+    this.command = command;
+  }
+  static {
+    __name(this, "ChatResponseTurn");
+  }
+}
+var ChatLocation = /* @__PURE__ */ ((ChatLocation2) => {
+  ChatLocation2[ChatLocation2["Panel"] = 1] = "Panel";
+  ChatLocation2[ChatLocation2["Terminal"] = 2] = "Terminal";
+  ChatLocation2[ChatLocation2["Notebook"] = 3] = "Notebook";
+  ChatLocation2[ChatLocation2["Editor"] = 4] = "Editor";
+  ChatLocation2[ChatLocation2["EditingSession"] = 5] = "EditingSession";
+  return ChatLocation2;
+})(ChatLocation || {});
+var ChatResponseReferencePartStatusKind = /* @__PURE__ */ ((ChatResponseReferencePartStatusKind2) => {
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Complete"] = 1] = "Complete";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Partial"] = 2] = "Partial";
+  ChatResponseReferencePartStatusKind2[ChatResponseReferencePartStatusKind2["Omitted"] = 3] = "Omitted";
+  return ChatResponseReferencePartStatusKind2;
+})(ChatResponseReferencePartStatusKind || {});
+class ChatRequestEditorData {
+  constructor(document, selection, wholeRange) {
+    this.document = document;
+    this.selection = selection;
+    this.wholeRange = wholeRange;
+  }
+  static {
+    __name(this, "ChatRequestEditorData");
+  }
+}
+class ChatRequestNotebookData {
+  constructor(cell) {
+    this.cell = cell;
+  }
+  static {
+    __name(this, "ChatRequestNotebookData");
+  }
+}
+class ChatReferenceBinaryData {
+  static {
+    __name(this, "ChatReferenceBinaryData");
+  }
+  mimeType;
+  data;
+  reference;
+  constructor(mimeType, data, reference) {
+    this.mimeType = mimeType;
+    this.data = data;
+    this.reference = reference;
+  }
+}
+class ChatReferenceDiagnostic {
+  constructor(diagnostics) {
+    this.diagnostics = diagnostics;
+  }
+  static {
+    __name(this, "ChatReferenceDiagnostic");
+  }
+}
+var LanguageModelChatMessageRole = /* @__PURE__ */ ((LanguageModelChatMessageRole2) => {
+  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["User"] = 1] = "User";
+  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["Assistant"] = 2] = "Assistant";
+  LanguageModelChatMessageRole2[LanguageModelChatMessageRole2["System"] = 3] = "System";
+  return LanguageModelChatMessageRole2;
+})(LanguageModelChatMessageRole || {});
+class LanguageModelToolResultPart {
+  static {
+    __name(this, "LanguageModelToolResultPart");
+  }
+  callId;
+  content;
+  isError;
+  constructor(callId, content, isError) {
+    this.callId = callId;
+    this.content = content;
+    this.isError = isError ?? false;
+  }
+}
+class PreparedTerminalToolInvocation {
+  constructor(command, language, confirmationMessages) {
+    this.command = command;
+    this.language = language;
+    this.confirmationMessages = confirmationMessages;
+  }
+  static {
+    __name(this, "PreparedTerminalToolInvocation");
+  }
+}
+var ChatErrorLevel = /* @__PURE__ */ ((ChatErrorLevel2) => {
+  ChatErrorLevel2[ChatErrorLevel2["Info"] = 0] = "Info";
+  ChatErrorLevel2[ChatErrorLevel2["Warning"] = 1] = "Warning";
+  ChatErrorLevel2[ChatErrorLevel2["Error"] = 2] = "Error";
+  return ChatErrorLevel2;
+})(ChatErrorLevel || {});
+class LanguageModelChatMessage {
+  static {
+    __name(this, "LanguageModelChatMessage");
+  }
+  static User(content, name) {
+    return new LanguageModelChatMessage(
+      1 /* User */,
+      content,
+      name
+    );
+  }
+  static Assistant(content, name) {
+    return new LanguageModelChatMessage(
+      2 /* Assistant */,
+      content,
+      name
+    );
+  }
+  role;
+  _content = [];
+  set content(value) {
+    if (typeof value === "string") {
+      this._content = [new LanguageModelTextPart(value)];
+    } else {
+      this._content = value;
+    }
+  }
+  get content() {
+    return this._content;
+  }
+  // Temp to avoid breaking changes
+  set content2(value) {
+    if (value) {
+      this.content = value.map((part) => {
+        if (typeof part === "string") {
+          return new LanguageModelTextPart(part);
+        }
+        return part;
+      });
+    }
+  }
+  get content2() {
+    return this.content.map((part) => {
+      if (part instanceof LanguageModelTextPart) {
+        return part.value;
+      }
+      return part;
+    });
+  }
+  name;
+  constructor(role, content, name) {
+    this.role = role;
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelChatMessage2 {
+  static {
+    __name(this, "LanguageModelChatMessage2");
+  }
+  static User(content, name) {
+    return new LanguageModelChatMessage2(
+      1 /* User */,
+      content,
+      name
+    );
+  }
+  static Assistant(content, name) {
+    return new LanguageModelChatMessage2(
+      2 /* Assistant */,
+      content,
+      name
+    );
+  }
+  role;
+  _content = [];
+  set content(value) {
+    if (typeof value === "string") {
+      this._content = [new LanguageModelTextPart(value)];
+    } else {
+      this._content = value;
+    }
+  }
+  get content() {
+    return this._content;
+  }
+  // Temp to avoid breaking changes
+  set content2(value) {
+    if (value) {
+      this.content = value.map((part) => {
+        if (typeof part === "string") {
+          return new LanguageModelTextPart(part);
+        }
+        return part;
+      });
+    }
+  }
+  get content2() {
+    return this.content.map((part) => {
+      if (part instanceof LanguageModelTextPart) {
+        return part.value;
+      }
+      return part;
+    });
+  }
+  name;
+  constructor(role, content, name) {
+    this.role = role;
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelToolCallPart {
+  static {
+    __name(this, "LanguageModelToolCallPart");
+  }
+  callId;
+  name;
+  input;
+  constructor(callId, name, input) {
+    this.callId = callId;
+    this.name = name;
+    this.input = input;
+  }
+}
+class LanguageModelTextPart {
+  static {
+    __name(this, "LanguageModelTextPart");
+  }
+  value;
+  constructor(value) {
+    this.value = value;
+  }
+  toJSON() {
+    return {
+      $mid: MarshalledId.LanguageModelTextPart,
+      value: this.value
+    };
+  }
+}
+class LanguageModelDataPart {
+  static {
+    __name(this, "LanguageModelDataPart");
+  }
+  value;
+  constructor(value) {
+    this.value = value;
+  }
+  toJSON() {
+    return {
+      $mid: MarshalledId.LanguageModelDataPart,
+      value: this.value
+    };
+  }
+}
+var ChatImageMimeType = /* @__PURE__ */ ((ChatImageMimeType2) => {
+  ChatImageMimeType2["PNG"] = "image/png";
+  ChatImageMimeType2["JPEG"] = "image/jpeg";
+  ChatImageMimeType2["GIF"] = "image/gif";
+  ChatImageMimeType2["WEBP"] = "image/webp";
+  ChatImageMimeType2["BMP"] = "image/bmp";
+  return ChatImageMimeType2;
+})(ChatImageMimeType || {});
+class LanguageModelPromptTsxPart {
+  static {
+    __name(this, "LanguageModelPromptTsxPart");
+  }
+  value;
+  constructor(value) {
+    this.value = value;
+  }
+  toJSON() {
+    return {
+      $mid: MarshalledId.LanguageModelPromptTsxPart,
+      value: this.value
+    };
+  }
+}
+class LanguageModelChatSystemMessage {
+  static {
+    __name(this, "LanguageModelChatSystemMessage");
+  }
+  content;
+  constructor(content) {
+    this.content = content;
+  }
+}
+class LanguageModelChatUserMessage {
+  static {
+    __name(this, "LanguageModelChatUserMessage");
+  }
+  content;
+  name;
+  constructor(content, name) {
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelChatAssistantMessage {
+  static {
+    __name(this, "LanguageModelChatAssistantMessage");
+  }
+  content;
+  name;
+  constructor(content, name) {
+    this.content = content;
+    this.name = name;
+  }
+}
+class LanguageModelError extends Error {
+  static {
+    __name(this, "LanguageModelError");
+  }
+  static #name = "LanguageModelError";
+  static NotFound(message) {
+    return new LanguageModelError(
+      message,
+      LanguageModelError.NotFound.name
+    );
+  }
+  static NoPermissions(message) {
+    return new LanguageModelError(
+      message,
+      LanguageModelError.NoPermissions.name
+    );
+  }
+  static Blocked(message) {
+    return new LanguageModelError(message, LanguageModelError.Blocked.name);
+  }
+  static tryDeserialize(data) {
+    if (data.name !== LanguageModelError.#name) {
+      return void 0;
+    }
+    return new LanguageModelError(data.message, data.code, data.cause);
+  }
+  code;
+  constructor(message, code, cause) {
+    super(message, { cause });
+    this.name = LanguageModelError.#name;
+    this.code = code ?? "";
+  }
+}
+class LanguageModelToolResult {
+  constructor(content) {
+    this.content = content;
+  }
+  static {
+    __name(this, "LanguageModelToolResult");
+  }
+  toJSON() {
+    return {
+      $mid: MarshalledId.LanguageModelToolResult,
+      content: this.content
+    };
+  }
+}
+class ExtendedLanguageModelToolResult extends LanguageModelToolResult {
+  static {
+    __name(this, "ExtendedLanguageModelToolResult");
+  }
+}
+var LanguageModelChatToolMode = /* @__PURE__ */ ((LanguageModelChatToolMode2) => {
+  LanguageModelChatToolMode2[LanguageModelChatToolMode2["Auto"] = 1] = "Auto";
+  LanguageModelChatToolMode2[LanguageModelChatToolMode2["Required"] = 2] = "Required";
+  return LanguageModelChatToolMode2;
+})(LanguageModelChatToolMode || {});
+var RelatedInformationType = /* @__PURE__ */ ((RelatedInformationType2) => {
+  RelatedInformationType2[RelatedInformationType2["SymbolInformation"] = 1] = "SymbolInformation";
+  RelatedInformationType2[RelatedInformationType2["CommandInformation"] = 2] = "CommandInformation";
+  RelatedInformationType2[RelatedInformationType2["SearchInformation"] = 3] = "SearchInformation";
+  RelatedInformationType2[RelatedInformationType2["SettingInformation"] = 4] = "SettingInformation";
+  return RelatedInformationType2;
+})(RelatedInformationType || {});
+var SpeechToTextStatus = /* @__PURE__ */ ((SpeechToTextStatus2) => {
+  SpeechToTextStatus2[SpeechToTextStatus2["Started"] = 1] = "Started";
+  SpeechToTextStatus2[SpeechToTextStatus2["Recognizing"] = 2] = "Recognizing";
+  SpeechToTextStatus2[SpeechToTextStatus2["Recognized"] = 3] = "Recognized";
+  SpeechToTextStatus2[SpeechToTextStatus2["Stopped"] = 4] = "Stopped";
+  SpeechToTextStatus2[SpeechToTextStatus2["Error"] = 5] = "Error";
+  return SpeechToTextStatus2;
+})(SpeechToTextStatus || {});
+var TextToSpeechStatus = /* @__PURE__ */ ((TextToSpeechStatus2) => {
+  TextToSpeechStatus2[TextToSpeechStatus2["Started"] = 1] = "Started";
+  TextToSpeechStatus2[TextToSpeechStatus2["Stopped"] = 2] = "Stopped";
+  TextToSpeechStatus2[TextToSpeechStatus2["Error"] = 3] = "Error";
+  return TextToSpeechStatus2;
+})(TextToSpeechStatus || {});
+var KeywordRecognitionStatus = /* @__PURE__ */ ((KeywordRecognitionStatus2) => {
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Recognized"] = 1] = "Recognized";
+  KeywordRecognitionStatus2[KeywordRecognitionStatus2["Stopped"] = 2] = "Stopped";
+  return KeywordRecognitionStatus2;
+})(KeywordRecognitionStatus || {});
+class InlineEdit {
+  constructor(text, range) {
+    this.text = text;
+    this.range = range;
+  }
+  static {
+    __name(this, "InlineEdit");
+  }
+}
+var InlineEditTriggerKind = /* @__PURE__ */ ((InlineEditTriggerKind2) => {
+  InlineEditTriggerKind2[InlineEditTriggerKind2["Invoke"] = 0] = "Invoke";
+  InlineEditTriggerKind2[InlineEditTriggerKind2["Automatic"] = 1] = "Automatic";
+  return InlineEditTriggerKind2;
+})(InlineEditTriggerKind || {});
+class McpStdioServerDefinition {
+  constructor(label, command, args, env) {
+    this.label = label;
+    this.command = command;
+    this.args = args;
+    this.env = env;
+  }
+  static {
+    __name(this, "McpStdioServerDefinition");
+  }
+  cwd;
+}
+class McpSSEServerDefinition {
+  constructor(label, uri) {
+    this.label = label;
+    this.uri = uri;
+  }
+  static {
+    __name(this, "McpSSEServerDefinition");
+  }
+  headers = [];
+}
+export {
+  BranchCoverage,
+  Breakpoint,
+  CallHierarchyIncomingCall,
+  CallHierarchyItem,
+  CallHierarchyOutgoingCall,
+  CellErrorStackFrame,
+  ChatCompletionItem,
+  ChatCopyKind,
+  ChatEditingSessionActionOutcome,
+  ChatEditorTabInput,
+  ChatErrorLevel,
+  ChatImageMimeType,
+  ChatLocation,
+  ChatReferenceBinaryData,
+  ChatReferenceDiagnostic,
+  ChatRequestEditorData,
+  ChatRequestNotebookData,
+  ChatRequestTurn,
+  ChatResponseAnchorPart,
+  ChatResponseCodeCitationPart,
+  ChatResponseCodeblockUriPart,
+  ChatResponseCommandButtonPart,
+  ChatResponseConfirmationPart,
+  ChatResponseFileTreePart,
+  ChatResponseMarkdownPart,
+  ChatResponseMarkdownWithVulnerabilitiesPart,
+  ChatResponseMovePart,
+  ChatResponseNotebookEditPart,
+  ChatResponseProgressPart,
+  ChatResponseProgressPart2,
+  ChatResponseReferencePart,
+  ChatResponseReferencePartStatusKind,
+  ChatResponseTextEditPart,
+  ChatResponseTurn,
+  ChatResponseWarningPart,
+  ChatResultFeedbackKind,
+  ChatVariableLevel,
+  CodeAction,
+  CodeActionKind,
+  CodeActionTriggerKind,
+  CodeLens,
+  Color,
+  ColorFormat,
+  ColorInformation,
+  ColorPresentation,
+  ColorTheme,
+  ColorThemeKind,
+  CommentMode,
+  CommentState,
+  CommentThreadApplicability,
+  CommentThreadCollapsibleState,
+  CommentThreadFocus,
+  CommentThreadState,
+  CompletionItem,
+  CompletionItemKind,
+  CompletionItemTag,
+  CompletionList,
+  CompletionTriggerKind,
+  ConfigurationTarget,
+  CustomEditorTabInput,
+  CustomExecution,
+  DataBreakpoint,
+  DataTransfer,
+  DataTransferFile,
+  DataTransferItem,
+  DebugAdapterExecutable,
+  DebugAdapterInlineImplementation,
+  DebugAdapterNamedPipeServer,
+  DebugAdapterServer,
+  DebugConsoleMode,
+  DebugStackFrame,
+  DebugThread,
+  DebugVisualization,
+  DeclarationCoverage,
+  DecorationRangeBehavior,
+  Diagnostic,
+  DiagnosticRelatedInformation,
+  DiagnosticSeverity,
+  DiagnosticTag,
+  Disposable,
+  DocumentDropEdit,
+  DocumentDropOrPasteEditKind,
+  DocumentHighlight,
+  DocumentHighlightKind,
+  DocumentLink,
+  DocumentPasteEdit,
+  DocumentPasteTriggerKind,
+  DocumentSymbol,
+  EndOfLine,
+  EnvironmentVariableMutatorType,
+  EvaluatableExpression,
+  ExtendedLanguageModelToolResult,
+  ExtensionKind,
+  ExtensionMode,
+  ExtensionRuntime,
+  ExternalUriOpenerPriority,
+  FileChangeType,
+  FileCoverage,
+  FileDecoration,
+  FileEditType,
+  FileSystemError,
+  FoldingRange,
+  FoldingRangeKind,
+  FunctionBreakpoint,
+  Hover,
+  HoverVerbosityAction,
+  InlayHint,
+  InlayHintKind,
+  InlayHintLabelPart,
+  InlineCompletionTriggerKind,
+  InlineEdit,
+  InlineEditTriggerKind,
+  InlineSuggestion,
+  InlineSuggestionList,
+  InlineValueContext,
+  InlineValueEvaluatableExpression,
+  InlineValueText,
+  InlineValueVariableLookup,
+  InputBoxValidationSeverity,
+  InteractiveEditorResponseFeedbackKind,
+  InteractiveSessionVoteDirection,
+  InteractiveWindowInput,
+  InternalDataTransferItem,
+  InternalFileDataTransferItem,
+  KeywordRecognitionStatus,
+  LanguageModelChatAssistantMessage,
+  LanguageModelChatMessage,
+  LanguageModelChatMessage2,
+  LanguageModelChatMessageRole,
+  LanguageModelChatSystemMessage,
+  LanguageModelChatToolMode,
+  LanguageModelChatUserMessage,
+  LanguageModelDataPart,
+  LanguageModelError,
+  LanguageModelPromptTsxPart,
+  LanguageModelTextPart,
+  LanguageModelToolCallPart,
+  LanguageModelToolResult,
+  LanguageModelToolResultPart,
+  LanguageStatusSeverity,
+  LinkedEditingRanges,
+  Location,
+  ManagedResolvedAuthority,
+  MarkdownString,
+  McpSSEServerDefinition,
+  McpStdioServerDefinition,
+  MultiDocumentHighlight,
+  NewSymbolName,
+  NewSymbolNameTag,
+  NewSymbolNameTriggerKind,
+  NotebookCellData,
+  NotebookCellExecutionState,
+  NotebookCellKind,
+  NotebookCellOutput,
+  NotebookCellOutputItem,
+  NotebookCellStatusBarAlignment,
+  NotebookCellStatusBarItem,
+  NotebookControllerAffinity,
+  NotebookControllerAffinity2,
+  NotebookData,
+  NotebookDiffEditorTabInput,
+  NotebookEdit,
+  NotebookEditorRevealType,
+  NotebookEditorTabInput,
+  NotebookKernelSourceAction,
+  NotebookRange,
+  NotebookRendererScript,
+  NotebookVariablesRequestKind,
+  ParameterInformation,
+  PartialAcceptTriggerKind,
+  PortAttributes,
+  PortAutoForwardAction,
+  Position,
+  PreparedTerminalToolInvocation,
+  ProcessExecution,
+  ProgressLocation,
+  QuickInputButtonLocation,
+  QuickInputButtons,
+  QuickPickItemKind,
+  Range,
+  RelatedInformationType,
+  RelativePattern,
+  RemoteAuthorityResolverError,
+  ResolvedAuthority,
+  Selection,
+  SelectionRange,
+  SemanticTokens,
+  SemanticTokensBuilder,
+  SemanticTokensEdit,
+  SemanticTokensEdits,
+  SemanticTokensLegend,
+  ShellExecution,
+  ShellQuoting,
+  SignatureHelp,
+  SignatureHelpTriggerKind,
+  SignatureInformation,
+  SnippetString,
+  SnippetTextEdit,
+  SourceBreakpoint,
+  SourceControlInputBoxValidationType,
+  SpeechToTextStatus,
+  StandardTokenType,
+  StatementCoverage,
+  StatusBarAlignment,
+  SymbolInformation,
+  SymbolKind,
+  SymbolTag,
+  SyntaxTokenType,
+  Task,
+  TaskEventKind,
+  TaskGroup,
+  TaskPanelKind,
+  TaskRevealKind,
+  TaskScope,
+  TerminalCompletionItem,
+  TerminalCompletionItemKind,
+  TerminalCompletionList,
+  TerminalEditorTabInput,
+  TerminalExitReason,
+  TerminalLink,
+  TerminalLocation,
+  TerminalOutputAnchor,
+  TerminalProfile,
+  TerminalQuickFixCommand,
+  TerminalQuickFixOpener,
+  TerminalQuickFixType,
+  TerminalShellExecutionCommandLineConfidence,
+  TerminalShellType,
+  TestCoverageCount,
+  TestMessage,
+  TestMessageStackFrame,
+  TestResultState,
+  TestRunProfileBase,
+  TestRunProfileKind,
+  TestRunRequest,
+  TestTag,
+  TextDiffTabInput,
+  TextDocumentChangeReason,
+  TextDocumentSaveReason,
+  TextEdit,
+  TextEditorChangeKind,
+  TextEditorLineNumbersStyle,
+  TextEditorRevealType,
+  TextEditorSelectionChangeKind,
+  TextMergeTabInput,
+  TextMultiDiffTabInput,
+  TextTabInput,
+  TextToSpeechStatus,
+  ThemeColor,
+  ThemeIcon,
+  TimelineItem,
+  TreeItem,
+  TreeItemCheckboxState,
+  TreeItemCollapsibleState,
+  TypeHierarchyItem,
+  VerboseHover,
+  ViewBadge,
+  ViewColumn,
+  WebviewEditorTabInput,
+  WorkspaceEdit,
+  WorkspaceTrustState,
+  asStatusBarItemIdentifier,
+  getDebugDescriptionOfRange,
+  getDebugDescriptionOfSelection,
+  setBreakpointId,
+  validateTestCoverageCount
+};
+//# sourceMappingURL=extHostTypes.js.map

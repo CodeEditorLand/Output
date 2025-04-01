@@ -1,1 +1,48 @@
-import{Iterable as o}from"../../../common/iterator.js";import"../list/list.js";import{AbstractTree as d}from"./abstractTree.js";import{IndexTreeModel as l}from"./indexTreeModel.js";import{TreeError as a}from"./tree.js";import"./media/tree.css";class F extends d{constructor(e,r,t,i,s,n={}){super(e,r,t,i,n);this.user=e;this.rootElement=s}splice(e,r,t=o.empty()){this.model.splice(e,r,t)}rerender(e){if(e===void 0){this.view.rerender();return}this.model.rerender(e)}updateElementHeight(e,r){if(e.length===0)throw new a(this.user,"Update element height failed: invalid location");const t=this.model.getListIndex(e);t!==-1&&this.view.updateElementHeight(t,r)}createModel(e,r){return new l(e,this.rootElement,r)}}export{F as IndexTree};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Iterable } from "../../../common/iterator.js";
+import { IListVirtualDelegate } from "../list/list.js";
+import { AbstractTree, IAbstractTreeOptions } from "./abstractTree.js";
+import { IndexTreeModel } from "./indexTreeModel.js";
+import { ITreeElement, ITreeModel, ITreeRenderer, TreeError } from "./tree.js";
+import "./media/tree.css";
+class IndexTree extends AbstractTree {
+  constructor(user, container, delegate, renderers, rootElement, options = {}) {
+    super(user, container, delegate, renderers, options);
+    this.user = user;
+    this.rootElement = rootElement;
+  }
+  static {
+    __name(this, "IndexTree");
+  }
+  splice(location, deleteCount, toInsert = Iterable.empty()) {
+    this.model.splice(location, deleteCount, toInsert);
+  }
+  rerender(location) {
+    if (location === void 0) {
+      this.view.rerender();
+      return;
+    }
+    this.model.rerender(location);
+  }
+  updateElementHeight(location, height) {
+    if (location.length === 0) {
+      throw new TreeError(
+        this.user,
+        `Update element height failed: invalid location`
+      );
+    }
+    const elementIndex = this.model.getListIndex(location);
+    if (elementIndex === -1) {
+      return;
+    }
+    this.view.updateElementHeight(elementIndex, height);
+  }
+  createModel(user, options) {
+    return new IndexTreeModel(user, this.rootElement, options);
+  }
+}
+export {
+  IndexTree
+};
+//# sourceMappingURL=indexTree.js.map

@@ -1,1 +1,175 @@
-import{coalesce as k}from"../../../../base/common/arrays.js";import{CancellationToken as m}from"../../../../base/common/cancellation.js";import{onUnexpectedExternalError as g}from"../../../../base/common/errors.js";import{DisposableStore as c,isDisposable as f}from"../../../../base/common/lifecycle.js";import{assertType as h}from"../../../../base/common/types.js";import{URI as L}from"../../../../base/common/uri.js";import{CommandsRegistry as v}from"../../../../platform/commands/common/commands.js";import{Range as d}from"../../../common/core/range.js";import"../../../common/languageFeatureRegistry.js";import"../../../common/languages.js";import"../../../common/model.js";import{ILanguageFeaturesService as I}from"../../../common/services/languageFeatures.js";import{IModelService as _}from"../../../common/services/model.js";class y{_link;_provider;constructor(n,i){this._link=n,this._provider=i}toJSON(){return{range:this.range,url:this.url,tooltip:this.tooltip}}get range(){return this._link.range}get url(){return this._link.url}get tooltip(){return this._link.tooltip}async resolve(n){return this._link.url?this._link.url:typeof this._provider.resolveLink=="function"?Promise.resolve(this._provider.resolveLink(this._link,n)).then(i=>(this._link=i||this._link,this._link.url?this.resolve(n):Promise.reject(new Error("missing")))):Promise.reject(new Error("missing"))}}class p{static Empty=new p([]);links;_disposables=new c;constructor(n){let i=[];for(const[r,t]of n){const s=r.links.map(e=>new y(e,t));i=p._union(i,s),f(r)&&(this._disposables??=new c,this._disposables.add(r))}this.links=i}dispose(){this._disposables?.dispose(),this.links.length=0}static _union(n,i){const r=[];let t,s,e,l;for(t=0,e=0,s=n.length,l=i.length;t<s&&e<l;){const o=n[t],u=i[e];if(d.areIntersectingOrTouching(o.range,u.range)){t++;continue}d.compareRangesUsingStarts(o.range,u.range)<0?(r.push(o),t++):(r.push(u),e++)}for(;t<s;t++)r.push(n[t]);for(;e<l;e++)r.push(i[e]);return r}}async function P(a,n,i){const r=[],t=a.ordered(n).reverse().map(async(e,l)=>{try{const o=await e.provideLinks(n,i);o&&(r[l]=[o,e])}catch(o){g(o)}});await Promise.all(t);let s=new p(k(r));return i.isCancellationRequested&&(s.dispose(),s=p.Empty),s}v.registerCommand("_executeLinkProvider",async(a,...n)=>{let[i,r]=n;h(i instanceof L),typeof r!="number"&&(r=0);const{linkProvider:t}=a.get(I),s=a.get(_).getModel(i);if(!s)return[];const e=await P(t,s,m.None);if(!e)return[];for(let o=0;o<Math.min(r,e.links.length);o++)await e.links[o].resolve(m.None);const l=e.links.slice(0);return e.dispose(),l});export{y as Link,p as LinksList,P as getLinks};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import {
+  DisposableStore,
+  isDisposable
+} from "../../../../base/common/lifecycle.js";
+import { assertType } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IRange, Range } from "../../../common/core/range.js";
+import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
+import { ILink, ILinksList, LinkProvider } from "../../../common/languages.js";
+import { ITextModel } from "../../../common/model.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IModelService } from "../../../common/services/model.js";
+class Link {
+  static {
+    __name(this, "Link");
+  }
+  _link;
+  _provider;
+  constructor(link, provider) {
+    this._link = link;
+    this._provider = provider;
+  }
+  toJSON() {
+    return {
+      range: this.range,
+      url: this.url,
+      tooltip: this.tooltip
+    };
+  }
+  get range() {
+    return this._link.range;
+  }
+  get url() {
+    return this._link.url;
+  }
+  get tooltip() {
+    return this._link.tooltip;
+  }
+  async resolve(token) {
+    if (this._link.url) {
+      return this._link.url;
+    }
+    if (typeof this._provider.resolveLink === "function") {
+      return Promise.resolve(
+        this._provider.resolveLink(this._link, token)
+      ).then((value) => {
+        this._link = value || this._link;
+        if (this._link.url) {
+          return this.resolve(token);
+        }
+        return Promise.reject(new Error("missing"));
+      });
+    }
+    return Promise.reject(new Error("missing"));
+  }
+}
+class LinksList {
+  static {
+    __name(this, "LinksList");
+  }
+  static Empty = new LinksList([]);
+  links;
+  _disposables = new DisposableStore();
+  constructor(tuples) {
+    let links = [];
+    for (const [list, provider] of tuples) {
+      const newLinks = list.links.map((link) => new Link(link, provider));
+      links = LinksList._union(links, newLinks);
+      if (isDisposable(list)) {
+        this._disposables ??= new DisposableStore();
+        this._disposables.add(list);
+      }
+    }
+    this.links = links;
+  }
+  dispose() {
+    this._disposables?.dispose();
+    this.links.length = 0;
+  }
+  static _union(oldLinks, newLinks) {
+    const result = [];
+    let oldIndex;
+    let oldLen;
+    let newIndex;
+    let newLen;
+    for (oldIndex = 0, newIndex = 0, oldLen = oldLinks.length, newLen = newLinks.length; oldIndex < oldLen && newIndex < newLen; ) {
+      const oldLink = oldLinks[oldIndex];
+      const newLink = newLinks[newIndex];
+      if (Range.areIntersectingOrTouching(oldLink.range, newLink.range)) {
+        oldIndex++;
+        continue;
+      }
+      const comparisonResult = Range.compareRangesUsingStarts(
+        oldLink.range,
+        newLink.range
+      );
+      if (comparisonResult < 0) {
+        result.push(oldLink);
+        oldIndex++;
+      } else {
+        result.push(newLink);
+        newIndex++;
+      }
+    }
+    for (; oldIndex < oldLen; oldIndex++) {
+      result.push(oldLinks[oldIndex]);
+    }
+    for (; newIndex < newLen; newIndex++) {
+      result.push(newLinks[newIndex]);
+    }
+    return result;
+  }
+}
+async function getLinks(providers, model, token) {
+  const lists = [];
+  const promises = providers.ordered(model).reverse().map(async (provider, i) => {
+    try {
+      const result = await provider.provideLinks(model, token);
+      if (result) {
+        lists[i] = [result, provider];
+      }
+    } catch (err) {
+      onUnexpectedExternalError(err);
+    }
+  });
+  await Promise.all(promises);
+  let res = new LinksList(coalesce(lists));
+  if (token.isCancellationRequested) {
+    res.dispose();
+    res = LinksList.Empty;
+  }
+  return res;
+}
+__name(getLinks, "getLinks");
+CommandsRegistry.registerCommand(
+  "_executeLinkProvider",
+  async (accessor, ...args) => {
+    let [uri, resolveCount] = args;
+    assertType(uri instanceof URI);
+    if (typeof resolveCount !== "number") {
+      resolveCount = 0;
+    }
+    const { linkProvider } = accessor.get(ILanguageFeaturesService);
+    const model = accessor.get(IModelService).getModel(uri);
+    if (!model) {
+      return [];
+    }
+    const list = await getLinks(
+      linkProvider,
+      model,
+      CancellationToken.None
+    );
+    if (!list) {
+      return [];
+    }
+    for (let i = 0; i < Math.min(resolveCount, list.links.length); i++) {
+      await list.links[i].resolve(CancellationToken.None);
+    }
+    const result = list.links.slice(0);
+    list.dispose();
+    return result;
+  }
+);
+export {
+  Link,
+  LinksList,
+  getLinks
+};
+//# sourceMappingURL=getLinks.js.map

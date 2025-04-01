@@ -1,1 +1,452 @@
-var P=Object.defineProperty;var R=Object.getOwnPropertyDescriptor;var I=(g,p,e,i)=>{for(var o=i>1?void 0:i?R(p,e):p,r=g.length-1,t;r>=0;r--)(t=g[r])&&(o=(i?t(p,e,o):t(o))||o);return i&&o&&P(p,e,o),o},c=(g,p)=>(e,i)=>p(e,i,g);import{Emitter as E}from"../../../../base/common/event.js";import{StringSHA1 as O}from"../../../../base/common/hash.js";import{MarkdownString as T}from"../../../../base/common/htmlContent.js";import{Lazy as m}from"../../../../base/common/lazy.js";import{Disposable as z}from"../../../../base/common/lifecycle.js";import{derived as y,observableValue as C}from"../../../../base/common/observable.js";import{basename as L}from"../../../../base/common/resources.js";import{localize as d}from"../../../../nls.js";import{ConfigurationTarget as b}from"../../../../platform/configuration/common/configuration.js";import{IDialogService as A}from"../../../../platform/dialogs/common/dialogs.js";import{IInstantiationService as x}from"../../../../platform/instantiation/common/instantiation.js";import{INotificationService as W,Severity as k}from"../../../../platform/notification/common/notification.js";import{observableMemento as H}from"../../../../platform/observable/common/observableMemento.js";import{IProductService as F}from"../../../../platform/product/common/productService.js";import{IStorageService as V,StorageScope as u,StorageTarget as h}from"../../../../platform/storage/common/storage.js";import"../../../../platform/workspace/common/workspace.js";import{IConfigurationResolverService as U}from"../../../services/configurationResolver/common/configurationResolver.js";import{ConfigurationResolverExpression as w}from"../../../services/configurationResolver/common/configurationResolverExpression.js";import{IEditorService as K}from"../../../services/editor/common/editorService.js";import{McpRegistryInputStorage as M}from"./mcpRegistryInputStorage.js";import"./mcpRegistryTypes.js";import{McpServerConnection as N}from"./mcpServerConnection.js";import{LazyCollectionState as S}from"./mcpTypes.js";const $=H({defaultValue:{},key:"mcp.trustedCollections"}),D=3;let f=class extends z{constructor(e,i,o,r,t,n,a){super();this._instantiationService=e;this._configurationResolverService=i;this._dialogService=o;this._storageService=r;this._productService=t;this._notificationService=n;this._editorService=a}_trustPrompts=new Map;_collections=C("collections",[]);_delegates=[];collections=this._collections;_collectionToPrefixes=this._collections.map(e=>{const i=e.map(t=>{const n=new O;return n.update(t.id),{view:0,hash:n.digest(),collection:t}}),o=t=>t.hash.slice(t.view,t.view+D);let r=!1;do{i.sort((t,n)=>o(t).localeCompare(o(n))||t.collection.id.localeCompare(n.collection.id)),r=!1;for(let t=1;t<i.length;t++){const n=i[t-1],a=i[t];o(n)===o(a)&&a.view+D<a.hash.length&&(a.view++,r=!0)}}while(r);return Object.fromEntries(i.map(t=>[t.collection.id,o(t)+"."]))});_workspaceStorage=new m(()=>this._register(this._instantiationService.createInstance(M,u.WORKSPACE,h.USER)));_profileStorage=new m(()=>this._register(this._instantiationService.createInstance(M,u.PROFILE,h.USER)));_trustMemento=new m(()=>this._register($(u.APPLICATION,h.MACHINE,this._storageService)));_lazyCollectionsToUpdate=new Set;_ongoingLazyActivations=C(this,0);lazyCollectionState=y(e=>this._ongoingLazyActivations.read(e)>0?S.LoadingUnknown:this._collections.read(e).some(o=>o.lazy&&o.lazy.isCached===!1)?S.HasUnknown:S.AllKnown);get delegates(){return this._delegates}_onDidChangeInputs=this._register(new E);onDidChangeInputs=this._onDidChangeInputs.event;registerDelegate(e){return this._delegates.push(e),{dispose:()=>{const i=this._delegates.indexOf(e);i!==-1&&this._delegates.splice(i,1)}}}registerCollection(e){const i=this._collections.get(),o=i.find(r=>r.lazy&&r.id===e.id);return o?(this._lazyCollectionsToUpdate.add(e.id),this._collections.set(i.map(r=>r===o?e:r),void 0)):this._collections.set([...i,e],void 0),{dispose:()=>{const r=this._collections.get();this._collections.set(r.filter(t=>t!==e),void 0)}}}collectionToolPrefix(e){return this._collectionToPrefixes.map(i=>i[e.id]??"")}async discoverCollections(){const e=this._collections.get().filter(r=>r.lazy&&!r.lazy.isCached);this._ongoingLazyActivations.set(this._ongoingLazyActivations.get()+1,void 0),await Promise.all(e.map(r=>r.lazy?.load())).finally(()=>{this._ongoingLazyActivations.set(this._ongoingLazyActivations.get()-1,void 0)});const i=[],o=this._collections.get();for(const r of e){const t=o.find(n=>n.id===r.id);t&&(t.lazy?t.lazy.removed?.():i.push(t))}return i}_getInputStorage(e){return e===u.WORKSPACE?this._workspaceStorage.value:this._profileStorage.value}_getInputStorageInConfigTarget(e){return this._getInputStorage(e===b.WORKSPACE||e===b.WORKSPACE_FOLDER?u.WORKSPACE:u.PROFILE)}async clearSavedInputs(e,i){const o=this._getInputStorage(e);i?await o.clear(i):o.clearAll(),this._onDidChangeInputs.fire()}async editSavedInput(e,i,o,r){const t=this._getInputStorageInConfigTarget(r),n=w.parse(e),l=(await t.getMap())[e].value;await this._configurationResolverService.resolveWithInteraction(i,n,o,l?{[e.slice(2,-1)]:l}:{},r),await this._updateStorageWithExpressionInputs(t,n)}getSavedInputs(e){return this._getInputStorage(e).getMap()}resetTrust(){this._trustMemento.value.set({},void 0)}getTrust(e){return y(i=>{const o=this._collections.read(i).find(t=>t.id===e.id);if(!o||o.isTrustedByDefault)return!0;const r=this._trustMemento.value.read(i);return r.hasOwnProperty(o.id)?r[o.id]:void 0})}_promptForTrust(e){let i=this._trustPrompts.get(e.id);return i??=this._promptForTrustOpenDialog(e).finally(()=>{this._trustPrompts.delete(e.id)}),this._trustPrompts.set(e.id,i),i}async _promptForTrustOpenDialog(e){const i=e.presentation?.origin,o=i?`[\`${L(i)}\`](${i})`:e.label;return(await this._dialogService.prompt({message:d("trustTitleWithOrigin","Trust MCP servers from {0}?",e.label),custom:{markdownDetails:[{markdown:new T(d("mcp.trust.details","{0} discovered Model Context Protocol servers from {1} (`{2}`). {0} can use their capabilities in Chat.\n\nDo you want to allow running MCP servers from {3}?",this._productService.nameShort,e.label,e.serverDefinitions.get().map(t=>t.label).join("`, `"),o)),dismissOnLinkClick:!0}]},buttons:[{label:d("mcp.trust.yes","Trust"),run:()=>!0},{label:d("mcp.trust.no","Do not trust"),run:()=>!1}]})).result}async _updateStorageWithExpressionInputs(e,i){const o={},r={};for(const[t,n]of i.resolved())n.input?.type==="promptString"&&n.input.password?o[t.id]=n:r[t.id]=n;e.setPlainText(r),await e.setSecrets(o),this._onDidChangeInputs.fire()}async _replaceVariablesInLaunch(e,i){if(!e.variableReplacement)return i;const{section:o,target:r,folder:t}=e.variableReplacement,n=this._getInputStorageInConfigTarget(r),a=await n.getMap(),l=w.parse(i);for(const s of l.unresolved())a.hasOwnProperty(s.id)&&l.resolve(s,a[s.id]);return await this._configurationResolverService.resolveWithInteraction(t,l,o,void 0,r),await this._updateStorageWithExpressionInputs(n,l),await this._configurationResolverService.resolveAsync(t,l)}async resolveConnection({collectionRef:e,definitionRef:i,forceTrust:o,logger:r}){const t=this._collections.get().find(s=>s.id===e.id),n=t?.serverDefinitions.get().find(s=>s.id===i.id);if(!t||!n)throw new Error(`Collection or definition not found for ${e.id} and ${i.id}`);const a=this._delegates.find(s=>s.canStart(t,n));if(!a)throw new Error("No delegate found that can handle the connection");if(!t.isTrustedByDefault){const s=this._trustMemento.value.get(),_=s.hasOwnProperty(t.id)?s[t.id]:void 0;if(!_)if(_===void 0||o){const v=await this._promptForTrust(t);if(v!==void 0&&this._trustMemento.value.set({...s,[t.id]:v},void 0),!v)return}else return}let l;try{l=await this._replaceVariablesInLaunch(n,n.launch)}catch(s){this._notificationService.notify({severity:k.Error,message:d("mcp.launchError","Error starting {0}: {1}",n.label,String(s)),actions:{primary:t.presentation?.origin&&[{id:"mcp.launchError.openConfig",class:void 0,enabled:!0,tooltip:"",label:d("mcp.launchError.openConfig","Open Configuration"),run:()=>this._editorService.openEditor({resource:t.presentation.origin,options:{selection:n.presentation?.origin?.range}})}]}});return}return this._instantiationService.createInstance(N,t,n,a,l,r)}};f=I([c(0,x),c(1,U),c(2,A),c(3,V),c(4,F),c(5,W),c(6,K)],f);export{f as McpRegistry};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import { StringSHA1 } from "../../../../base/common/hash.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  derived,
+  IObservable,
+  observableValue
+} from "../../../../base/common/observable.js";
+import { basename } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import { observableMemento } from "../../../../platform/observable/common/observableMemento.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
+import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
+import {
+  ConfigurationResolverExpression,
+  IResolvedValue
+} from "../../../services/configurationResolver/common/configurationResolverExpression.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { McpRegistryInputStorage } from "./mcpRegistryInputStorage.js";
+import {
+  IMcpHostDelegate,
+  IMcpRegistry,
+  IMcpResolveConnectionOptions
+} from "./mcpRegistryTypes.js";
+import { McpServerConnection } from "./mcpServerConnection.js";
+import {
+  IMcpServerConnection,
+  LazyCollectionState,
+  McpCollectionDefinition,
+  McpCollectionReference,
+  McpServerDefinition,
+  McpServerLaunch
+} from "./mcpTypes.js";
+const createTrustMemento = observableMemento(
+  {
+    defaultValue: {},
+    key: "mcp.trustedCollections"
+  }
+);
+const collectionPrefixLen = 3;
+let McpRegistry = class extends Disposable {
+  constructor(_instantiationService, _configurationResolverService, _dialogService, _storageService, _productService, _notificationService, _editorService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._configurationResolverService = _configurationResolverService;
+    this._dialogService = _dialogService;
+    this._storageService = _storageService;
+    this._productService = _productService;
+    this._notificationService = _notificationService;
+    this._editorService = _editorService;
+  }
+  static {
+    __name(this, "McpRegistry");
+  }
+  _trustPrompts = /* @__PURE__ */ new Map();
+  _collections = observableValue("collections", []);
+  _delegates = [];
+  collections = this._collections;
+  _collectionToPrefixes = this._collections.map((c) => {
+    const hashes = c.map((collection) => {
+      const sha = new StringSHA1();
+      sha.update(collection.id);
+      return { view: 0, hash: sha.digest(), collection };
+    });
+    const view = /* @__PURE__ */ __name((h) => h.hash.slice(h.view, h.view + collectionPrefixLen), "view");
+    let collided = false;
+    do {
+      hashes.sort(
+        (a, b) => view(a).localeCompare(view(b)) || a.collection.id.localeCompare(b.collection.id)
+      );
+      collided = false;
+      for (let i = 1; i < hashes.length; i++) {
+        const prev = hashes[i - 1];
+        const curr = hashes[i];
+        if (view(prev) === view(curr) && curr.view + collectionPrefixLen < curr.hash.length) {
+          curr.view++;
+          collided = true;
+        }
+      }
+    } while (collided);
+    return Object.fromEntries(
+      hashes.map((h) => [h.collection.id, view(h) + "."])
+    );
+  });
+  _workspaceStorage = new Lazy(
+    () => this._register(
+      this._instantiationService.createInstance(
+        McpRegistryInputStorage,
+        StorageScope.WORKSPACE,
+        StorageTarget.USER
+      )
+    )
+  );
+  _profileStorage = new Lazy(
+    () => this._register(
+      this._instantiationService.createInstance(
+        McpRegistryInputStorage,
+        StorageScope.PROFILE,
+        StorageTarget.USER
+      )
+    )
+  );
+  _trustMemento = new Lazy(
+    () => this._register(
+      createTrustMemento(
+        StorageScope.APPLICATION,
+        StorageTarget.MACHINE,
+        this._storageService
+      )
+    )
+  );
+  _lazyCollectionsToUpdate = /* @__PURE__ */ new Set();
+  _ongoingLazyActivations = observableValue(this, 0);
+  lazyCollectionState = derived((reader) => {
+    if (this._ongoingLazyActivations.read(reader) > 0) {
+      return LazyCollectionState.LoadingUnknown;
+    }
+    const collections = this._collections.read(reader);
+    return collections.some((c) => c.lazy && c.lazy.isCached === false) ? LazyCollectionState.HasUnknown : LazyCollectionState.AllKnown;
+  });
+  get delegates() {
+    return this._delegates;
+  }
+  _onDidChangeInputs = this._register(new Emitter());
+  onDidChangeInputs = this._onDidChangeInputs.event;
+  registerDelegate(delegate) {
+    this._delegates.push(delegate);
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        const index = this._delegates.indexOf(delegate);
+        if (index !== -1) {
+          this._delegates.splice(index, 1);
+        }
+      }, "dispose")
+    };
+  }
+  registerCollection(collection) {
+    const currentCollections = this._collections.get();
+    const toReplace = currentCollections.find(
+      (c) => c.lazy && c.id === collection.id
+    );
+    if (toReplace) {
+      this._lazyCollectionsToUpdate.add(collection.id);
+      this._collections.set(
+        currentCollections.map(
+          (c) => c === toReplace ? collection : c
+        ),
+        void 0
+      );
+    } else {
+      this._collections.set(
+        [...currentCollections, collection],
+        void 0
+      );
+    }
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+        const currentCollections2 = this._collections.get();
+        this._collections.set(
+          currentCollections2.filter((c) => c !== collection),
+          void 0
+        );
+      }, "dispose")
+    };
+  }
+  collectionToolPrefix(collection) {
+    return this._collectionToPrefixes.map((p) => p[collection.id] ?? "");
+  }
+  async discoverCollections() {
+    const toDiscover = this._collections.get().filter((c) => c.lazy && !c.lazy.isCached);
+    this._ongoingLazyActivations.set(
+      this._ongoingLazyActivations.get() + 1,
+      void 0
+    );
+    await Promise.all(toDiscover.map((c) => c.lazy?.load())).finally(() => {
+      this._ongoingLazyActivations.set(
+        this._ongoingLazyActivations.get() - 1,
+        void 0
+      );
+    });
+    const found = [];
+    const current = this._collections.get();
+    for (const collection of toDiscover) {
+      const rec = current.find((c) => c.id === collection.id);
+      if (!rec) {
+      } else if (rec.lazy) {
+        rec.lazy.removed?.();
+      } else {
+        found.push(rec);
+      }
+    }
+    return found;
+  }
+  _getInputStorage(scope) {
+    return scope === StorageScope.WORKSPACE ? this._workspaceStorage.value : this._profileStorage.value;
+  }
+  _getInputStorageInConfigTarget(configTarget) {
+    return this._getInputStorage(
+      configTarget === ConfigurationTarget.WORKSPACE || configTarget === ConfigurationTarget.WORKSPACE_FOLDER ? StorageScope.WORKSPACE : StorageScope.PROFILE
+    );
+  }
+  async clearSavedInputs(scope, inputId) {
+    const storage = this._getInputStorage(scope);
+    if (inputId) {
+      await storage.clear(inputId);
+    } else {
+      storage.clearAll();
+    }
+    this._onDidChangeInputs.fire();
+  }
+  async editSavedInput(inputId, folderData, configSection, target) {
+    const storage = this._getInputStorageInConfigTarget(target);
+    const expr = ConfigurationResolverExpression.parse(inputId);
+    const stored = await storage.getMap();
+    const previous = stored[inputId].value;
+    await this._configurationResolverService.resolveWithInteraction(
+      folderData,
+      expr,
+      configSection,
+      previous ? { [inputId.slice(2, -1)]: previous } : {},
+      target
+    );
+    await this._updateStorageWithExpressionInputs(storage, expr);
+  }
+  getSavedInputs(scope) {
+    return this._getInputStorage(scope).getMap();
+  }
+  resetTrust() {
+    this._trustMemento.value.set({}, void 0);
+  }
+  getTrust(collectionRef) {
+    return derived((reader) => {
+      const collection = this._collections.read(reader).find((c) => c.id === collectionRef.id);
+      if (!collection || collection.isTrustedByDefault) {
+        return true;
+      }
+      const memento = this._trustMemento.value.read(reader);
+      return memento.hasOwnProperty(collection.id) ? memento[collection.id] : void 0;
+    });
+  }
+  _promptForTrust(collection) {
+    let resultPromise = this._trustPrompts.get(collection.id);
+    resultPromise ??= this._promptForTrustOpenDialog(collection).finally(
+      () => {
+        this._trustPrompts.delete(collection.id);
+      }
+    );
+    this._trustPrompts.set(collection.id, resultPromise);
+    return resultPromise;
+  }
+  async _promptForTrustOpenDialog(collection) {
+    const originURI = collection.presentation?.origin;
+    const labelWithOrigin = originURI ? `[\`${basename(originURI)}\`](${originURI})` : collection.label;
+    const result = await this._dialogService.prompt({
+      message: localize(
+        "trustTitleWithOrigin",
+        "Trust MCP servers from {0}?",
+        collection.label
+      ),
+      custom: {
+        markdownDetails: [
+          {
+            markdown: new MarkdownString(
+              localize(
+                "mcp.trust.details",
+                "{0} discovered Model Context Protocol servers from {1} (`{2}`). {0} can use their capabilities in Chat.\n\nDo you want to allow running MCP servers from {3}?",
+                this._productService.nameShort,
+                collection.label,
+                collection.serverDefinitions.get().map((s) => s.label).join("`, `"),
+                labelWithOrigin
+              )
+            ),
+            dismissOnLinkClick: true
+          }
+        ]
+      },
+      buttons: [
+        { label: localize("mcp.trust.yes", "Trust"), run: /* @__PURE__ */ __name(() => true, "run") },
+        {
+          label: localize("mcp.trust.no", "Do not trust"),
+          run: /* @__PURE__ */ __name(() => false, "run")
+        }
+      ]
+    });
+    return result.result;
+  }
+  async _updateStorageWithExpressionInputs(inputStorage, expr) {
+    const secrets = {};
+    const inputs = {};
+    for (const [replacement, resolved] of expr.resolved()) {
+      if (resolved.input?.type === "promptString" && resolved.input.password) {
+        secrets[replacement.id] = resolved;
+      } else {
+        inputs[replacement.id] = resolved;
+      }
+    }
+    inputStorage.setPlainText(inputs);
+    await inputStorage.setSecrets(secrets);
+    this._onDidChangeInputs.fire();
+  }
+  async _replaceVariablesInLaunch(definition, launch) {
+    if (!definition.variableReplacement) {
+      return launch;
+    }
+    const { section, target, folder } = definition.variableReplacement;
+    const inputStorage = this._getInputStorageInConfigTarget(target);
+    const previouslyStored = await inputStorage.getMap();
+    const expr = ConfigurationResolverExpression.parse(launch);
+    for (const replacement of expr.unresolved()) {
+      if (previouslyStored.hasOwnProperty(replacement.id)) {
+        expr.resolve(replacement, previouslyStored[replacement.id]);
+      }
+    }
+    await this._configurationResolverService.resolveWithInteraction(
+      folder,
+      expr,
+      section,
+      void 0,
+      target
+    );
+    await this._updateStorageWithExpressionInputs(inputStorage, expr);
+    return await this._configurationResolverService.resolveAsync(
+      folder,
+      expr
+    );
+  }
+  async resolveConnection({
+    collectionRef,
+    definitionRef,
+    forceTrust,
+    logger
+  }) {
+    const collection = this._collections.get().find((c) => c.id === collectionRef.id);
+    const definition = collection?.serverDefinitions.get().find((s) => s.id === definitionRef.id);
+    if (!collection || !definition) {
+      throw new Error(
+        `Collection or definition not found for ${collectionRef.id} and ${definitionRef.id}`
+      );
+    }
+    const delegate = this._delegates.find(
+      (d) => d.canStart(collection, definition)
+    );
+    if (!delegate) {
+      throw new Error("No delegate found that can handle the connection");
+    }
+    if (!collection.isTrustedByDefault) {
+      const memento = this._trustMemento.value.get();
+      const trusted = memento.hasOwnProperty(collection.id) ? memento[collection.id] : void 0;
+      if (trusted) {
+      } else if (trusted === void 0 || forceTrust) {
+        const trustValue = await this._promptForTrust(collection);
+        if (trustValue !== void 0) {
+          this._trustMemento.value.set(
+            { ...memento, [collection.id]: trustValue },
+            void 0
+          );
+        }
+        if (!trustValue) {
+          return;
+        }
+      } else {
+        return void 0;
+      }
+    }
+    let launch;
+    try {
+      launch = await this._replaceVariablesInLaunch(
+        definition,
+        definition.launch
+      );
+    } catch (e) {
+      this._notificationService.notify({
+        severity: Severity.Error,
+        message: localize(
+          "mcp.launchError",
+          "Error starting {0}: {1}",
+          definition.label,
+          String(e)
+        ),
+        actions: {
+          primary: collection.presentation?.origin && [
+            {
+              id: "mcp.launchError.openConfig",
+              class: void 0,
+              enabled: true,
+              tooltip: "",
+              label: localize(
+                "mcp.launchError.openConfig",
+                "Open Configuration"
+              ),
+              run: /* @__PURE__ */ __name(() => this._editorService.openEditor({
+                resource: collection.presentation.origin,
+                options: {
+                  selection: definition.presentation?.origin?.range
+                }
+              }), "run")
+            }
+          ]
+        }
+      });
+      return;
+    }
+    return this._instantiationService.createInstance(
+      McpServerConnection,
+      collection,
+      definition,
+      delegate,
+      launch,
+      logger
+    );
+  }
+};
+McpRegistry = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IConfigurationResolverService),
+  __decorateParam(2, IDialogService),
+  __decorateParam(3, IStorageService),
+  __decorateParam(4, IProductService),
+  __decorateParam(5, INotificationService),
+  __decorateParam(6, IEditorService)
+], McpRegistry);
+export {
+  McpRegistry
+};
+//# sourceMappingURL=mcpRegistry.js.map

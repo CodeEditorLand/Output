@@ -1,1 +1,151 @@
-var C=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var p=(n,e,r,t)=>{for(var o=t>1?void 0:t?h(e,r):e,s=n.length-1,u;s>=0;s--)(u=n[s])&&(o=(t?u(e,r,o):u(o))||o);return t&&o&&C(e,r,o),o},d=(n,e)=>(r,t)=>e(r,t,n);import{addDisposableListener as S,EventHelper as x,getActiveDocument as l,getWindow as A,isHTMLInputElement as b,isHTMLTextAreaElement as v}from"../../../base/browser/dom.js";import{StandardMouseEvent as f}from"../../../base/browser/mouseEvent.js";import{Separator as m,toAction as i}from"../../../base/common/actions.js";import{Event as y}from"../../../base/common/event.js";import{Lazy as I}from"../../../base/common/lazy.js";import{Disposable as g}from"../../../base/common/lifecycle.js";import{localize as c}from"../../../nls.js";import{IClipboardService as E}from"../../../platform/clipboard/common/clipboardService.js";import{IContextMenuService as w}from"../../../platform/contextview/browser/contextView.js";import{registerWorkbenchContribution2 as M,WorkbenchPhase as k}from"../../common/contributions.js";import{IWorkbenchLayoutService as L}from"../../services/layout/browser/layoutService.js";function W(n){return[i({id:"undo",label:c("undo","Undo"),run:()=>l().execCommand("undo")}),i({id:"redo",label:c("redo","Redo"),run:()=>l().execCommand("redo")}),new m,i({id:"editor.action.clipboardCutAction",label:c("cut","Cut"),run:()=>l().execCommand("cut")}),i({id:"editor.action.clipboardCopyAction",label:c("copy","Copy"),run:()=>l().execCommand("copy")}),i({id:"editor.action.clipboardPasteAction",label:c("paste","Paste"),run:async e=>{const r=await n.readText();if(v(e)||b(e)){const t=e.selectionStart||0,o=e.selectionEnd||0;e.value=`${e.value.substring(0,t)}${r}${e.value.substring(o,e.value.length)}`,e.selectionStart=t+r.length,e.selectionEnd=e.selectionStart,e.dispatchEvent(new Event("input",{bubbles:!0,cancelable:!0}))}}}),new m,i({id:"editor.action.selectAll",label:c("selectAll","Select All"),run:()=>l().execCommand("selectAll")})]}let a=class extends g{constructor(r,t,o){super();this.layoutService=r;this.contextMenuService=t;this.clipboardService=o;this.registerListeners()}static ID="workbench.contrib.textInputActionsProvider";textInputActions=new I(()=>W(this.clipboardService));registerListeners(){this._register(y.runAndSubscribe(this.layoutService.onDidAddContainer,({container:r,disposables:t})=>{t.add(S(r,"contextmenu",o=>this.onContextMenu(A(r),o)))},{container:this.layoutService.mainContainer,disposables:this._store}))}onContextMenu(r,t){if(t.defaultPrevented)return;const o=t.target;if(!v(o)&&!b(o))return;x.stop(t,!0);const s=new f(r,t);this.contextMenuService.showContextMenu({getAnchor:()=>s,getActions:()=>this.textInputActions.value,getActionsContext:()=>o})}};a=p([d(0,L),d(1,w),d(2,E)],a),M(a.ID,a,k.BlockRestore);export{a as TextInputActionsProvider,W as createTextInputActions};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  addDisposableListener,
+  EventHelper,
+  getActiveDocument,
+  getWindow,
+  isHTMLInputElement,
+  isHTMLTextAreaElement
+} from "../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
+import { IAction, Separator, toAction } from "../../../base/common/actions.js";
+import { Event as BaseEvent } from "../../../base/common/event.js";
+import { Lazy } from "../../../base/common/lazy.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { localize } from "../../../nls.js";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import {
+  IWorkbenchContribution,
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../common/contributions.js";
+import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
+function createTextInputActions(clipboardService) {
+  return [
+    toAction({
+      id: "undo",
+      label: localize("undo", "Undo"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("undo"), "run")
+    }),
+    toAction({
+      id: "redo",
+      label: localize("redo", "Redo"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("redo"), "run")
+    }),
+    new Separator(),
+    toAction({
+      id: "editor.action.clipboardCutAction",
+      label: localize("cut", "Cut"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("cut"), "run")
+    }),
+    toAction({
+      id: "editor.action.clipboardCopyAction",
+      label: localize("copy", "Copy"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("copy"), "run")
+    }),
+    toAction({
+      id: "editor.action.clipboardPasteAction",
+      label: localize("paste", "Paste"),
+      run: /* @__PURE__ */ __name(async (element) => {
+        const clipboardText = await clipboardService.readText();
+        if (isHTMLTextAreaElement(element) || isHTMLInputElement(element)) {
+          const selectionStart = element.selectionStart || 0;
+          const selectionEnd = element.selectionEnd || 0;
+          element.value = `${element.value.substring(0, selectionStart)}${clipboardText}${element.value.substring(selectionEnd, element.value.length)}`;
+          element.selectionStart = selectionStart + clipboardText.length;
+          element.selectionEnd = element.selectionStart;
+          element.dispatchEvent(
+            new Event("input", { bubbles: true, cancelable: true })
+          );
+        }
+      }, "run")
+    }),
+    new Separator(),
+    toAction({
+      id: "editor.action.selectAll",
+      label: localize("selectAll", "Select All"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("selectAll"), "run")
+    })
+  ];
+}
+__name(createTextInputActions, "createTextInputActions");
+let TextInputActionsProvider = class extends Disposable {
+  constructor(layoutService, contextMenuService, clipboardService) {
+    super();
+    this.layoutService = layoutService;
+    this.contextMenuService = contextMenuService;
+    this.clipboardService = clipboardService;
+    this.registerListeners();
+  }
+  static {
+    __name(this, "TextInputActionsProvider");
+  }
+  static ID = "workbench.contrib.textInputActionsProvider";
+  textInputActions = new Lazy(
+    () => createTextInputActions(this.clipboardService)
+  );
+  registerListeners() {
+    this._register(
+      BaseEvent.runAndSubscribe(
+        this.layoutService.onDidAddContainer,
+        ({ container, disposables }) => {
+          disposables.add(
+            addDisposableListener(
+              container,
+              "contextmenu",
+              (e) => this.onContextMenu(getWindow(container), e)
+            )
+          );
+        },
+        {
+          container: this.layoutService.mainContainer,
+          disposables: this._store
+        }
+      )
+    );
+  }
+  onContextMenu(targetWindow, e) {
+    if (e.defaultPrevented) {
+      return;
+    }
+    const target = e.target;
+    if (!isHTMLTextAreaElement(target) && !isHTMLInputElement(target)) {
+      return;
+    }
+    EventHelper.stop(e, true);
+    const event = new StandardMouseEvent(targetWindow, e);
+    this.contextMenuService.showContextMenu({
+      getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+      getActions: /* @__PURE__ */ __name(() => this.textInputActions.value, "getActions"),
+      getActionsContext: /* @__PURE__ */ __name(() => target, "getActionsContext")
+    });
+  }
+};
+TextInputActionsProvider = __decorateClass([
+  __decorateParam(0, IWorkbenchLayoutService),
+  __decorateParam(1, IContextMenuService),
+  __decorateParam(2, IClipboardService)
+], TextInputActionsProvider);
+registerWorkbenchContribution2(
+  TextInputActionsProvider.ID,
+  TextInputActionsProvider,
+  WorkbenchPhase.BlockRestore
+  // Block to allow right-click into input fields before restore finished
+);
+export {
+  TextInputActionsProvider,
+  createTextInputActions
+};
+//# sourceMappingURL=textInputActions.js.map

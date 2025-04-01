@@ -1,1 +1,54 @@
-import"../../../../base/common/cancellation.js";import{Emitter as r}from"../../../../base/common/event.js";import{toDisposable as o}from"../../../../base/common/lifecycle.js";import{LinkedList as a}from"../../../../base/common/linkedList.js";import{InstantiationType as s,registerSingleton as l}from"../../../../platform/instantiation/common/extensions.js";import"../../../common/editor.js";import{IOutlineService as f}from"./outline.js";class u{_factories=new a;_onDidChange=new r;onDidChange=this._onDidChange.event;canCreateOutline(e){for(const t of this._factories)if(t.matches(e))return!0;return!1}async createOutline(e,t,n){for(const i of this._factories)if(i.matches(e))return await i.createOutline(e,t,n)}registerOutlineCreator(e){const t=this._factories.push(e);return this._onDidChange.fire(),o(()=>{t(),this._onDidChange.fire()})}}l(f,u,s.Delayed);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  IDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IEditorPane } from "../../../common/editor.js";
+import {
+  IOutline,
+  IOutlineCreator,
+  IOutlineService,
+  OutlineTarget
+} from "./outline.js";
+class OutlineService {
+  static {
+    __name(this, "OutlineService");
+  }
+  _factories = new LinkedList();
+  _onDidChange = new Emitter();
+  onDidChange = this._onDidChange.event;
+  canCreateOutline(pane) {
+    for (const factory of this._factories) {
+      if (factory.matches(pane)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  async createOutline(pane, target, token) {
+    for (const factory of this._factories) {
+      if (factory.matches(pane)) {
+        return await factory.createOutline(pane, target, token);
+      }
+    }
+    return void 0;
+  }
+  registerOutlineCreator(creator) {
+    const rm = this._factories.push(creator);
+    this._onDidChange.fire();
+    return toDisposable(() => {
+      rm();
+      this._onDidChange.fire();
+    });
+  }
+}
+registerSingleton(IOutlineService, OutlineService, InstantiationType.Delayed);
+//# sourceMappingURL=outlineService.js.map

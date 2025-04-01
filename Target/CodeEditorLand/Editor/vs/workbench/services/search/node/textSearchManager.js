@@ -1,1 +1,26 @@
-import*as s from"../../../../base/node/pfs.js";import{toCanonicalName as c}from"../../textfile/common/encoding.js";import"../common/search.js";import"../common/searchExtTypes.js";import{TextSearchManager as i}from"../common/textSearchManager.js";class d extends i{constructor(e,t,a=s,o="searchProcess"){super({query:e,provider:t},{readdir:r=>a.Promises.readdir(r.fsPath),toCanonicalName:r=>c(r)},o)}}export{d as NativeTextSearchManager};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as pfs from "../../../../base/node/pfs.js";
+import { toCanonicalName } from "../../textfile/common/encoding.js";
+import { ITextQuery, ITextSearchStats } from "../common/search.js";
+import { TextSearchProvider2 } from "../common/searchExtTypes.js";
+import { TextSearchManager } from "../common/textSearchManager.js";
+class NativeTextSearchManager extends TextSearchManager {
+  static {
+    __name(this, "NativeTextSearchManager");
+  }
+  constructor(query, provider, _pfs = pfs, processType = "searchProcess") {
+    super(
+      { query, provider },
+      {
+        readdir: /* @__PURE__ */ __name((resource) => _pfs.Promises.readdir(resource.fsPath), "readdir"),
+        toCanonicalName: /* @__PURE__ */ __name((name) => toCanonicalName(name), "toCanonicalName")
+      },
+      processType
+    );
+  }
+}
+export {
+  NativeTextSearchManager
+};
+//# sourceMappingURL=textSearchManager.js.map

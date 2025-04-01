@@ -1,1 +1,291 @@
-import{localize as r,localize2 as u}from"../../../../../nls.js";import{Action2 as a,MenuId as c,registerAction2 as C}from"../../../../../platform/actions/common/actions.js";import{ContextKeyExpr as m}from"../../../../../platform/contextkey/common/contextkey.js";import"../../../../../platform/instantiation/common/instantiation.js";import{OutlineTarget as g}from"../../../../services/outline/browser/outline.js";import{CellKind as E}from"../../common/notebookCommon.js";import{NotebookOutlineContext as o}from"../contrib/outline/notebookOutline.js";import{CellEditState as y,CellFoldingState as k}from"../notebookBrowser.js";import*as S from"../notebookIcons.js";import"../viewModel/OutlineEntry.js";import{CELL_TITLE_CELL_GROUP_ID as T,CellToolbarOrder as I}from"./coreActions.js";import{executeSectionCondition as N}from"./executeActions.js";import{FoldingController as b}from"./foldingController.js";class x extends a{constructor(){super({id:"notebook.section.runSingleCell",title:{...u("runCell","Run Cell"),mnemonicTitle:r({key:"mirunCell",comment:["&& denotes a mnemonic"]},"&&Run Cell")},shortTitle:r("runCell","Run Cell"),icon:S.executeIcon,menu:[{id:c.NotebookOutlineActionMenu,group:"inline",order:1,when:m.and(o.CellKind.isEqualTo(E.Code),o.OutlineElementTarget.isEqualTo(g.OutlinePane),o.CellHasChildren.toNegated(),o.CellHasHeader.toNegated())}]})}async run(t,e){p(e)&&e.notebookEditor.executeNotebookCells([e.outlineEntry.cell])}}class F extends a{constructor(){super({id:"notebook.section.runCells",title:{...u("runCellsInSection","Run Cells In Section"),mnemonicTitle:r({key:"mirunCellsInSection",comment:["&& denotes a mnemonic"]},"&&Run Cells In Section")},shortTitle:r("runCellsInSection","Run Cells In Section"),icon:S.executeIcon,menu:[{id:c.NotebookStickyScrollContext,group:"notebookExecution",order:1},{id:c.NotebookOutlineActionMenu,group:"inline",order:1,when:m.and(o.CellKind.isEqualTo(E.Markup),o.OutlineElementTarget.isEqualTo(g.OutlinePane),o.CellHasChildren,o.CellHasHeader)},{id:c.NotebookCellTitle,order:I.RunSection,group:T,when:N}]})}async run(t,e){let l;if(p(e))l=e.outlineEntry.cell;else if(v(e))l=e.cell;else return;l.getEditState()===y.Editing&&e.notebookEditor.getContribution(b.id).recompute();const d=e.notebookEditor.getViewModel()?.getCellIndex(l);if(d===void 0)return;const i=e.notebookEditor.getViewModel()?.getFoldingStartIndex(d);if(i===void 0)return;const s=e.notebookEditor.getViewModel()?.getFoldedLength(i);if(s===void 0)return;const f=e.notebookEditor.getCellsInRange({start:i,end:i+s+1});e.notebookEditor.executeNotebookCells(f)}}class O extends a{constructor(){super({id:"notebook.section.foldSection",title:{...u("foldSection","Fold Section"),mnemonicTitle:r({key:"mifoldSection",comment:["&& denotes a mnemonic"]},"&&Fold Section")},shortTitle:r("foldSection","Fold Section"),menu:[{id:c.NotebookOutlineActionMenu,group:"notebookFolding",order:2,when:m.and(o.CellKind.isEqualTo(E.Markup),o.OutlineElementTarget.isEqualTo(g.OutlinePane),o.CellHasChildren,o.CellHasHeader,o.CellFoldingState.isEqualTo(k.Expanded))}]})}async run(t,e){p(e)&&this.toggleFoldRange(e.outlineEntry,e.notebookEditor)}toggleFoldRange(t,e){const l=e.getContribution(b.id),d=t.index,i=t.level,s=k.Collapsed;l.setFoldingStateDown(d,s,i)}}class h extends a{constructor(){super({id:"notebook.section.expandSection",title:{...u("expandSection","Expand Section"),mnemonicTitle:r({key:"miexpandSection",comment:["&& denotes a mnemonic"]},"&&Expand Section")},shortTitle:r("expandSection","Expand Section"),menu:[{id:c.NotebookOutlineActionMenu,group:"notebookFolding",order:2,when:m.and(o.CellKind.isEqualTo(E.Markup),o.OutlineElementTarget.isEqualTo(g.OutlinePane),o.CellHasChildren,o.CellHasHeader,o.CellFoldingState.isEqualTo(k.Collapsed))}]})}async run(t,e){p(e)&&this.toggleFoldRange(e.outlineEntry,e.notebookEditor)}toggleFoldRange(t,e){const l=e.getContribution(b.id),d=t.index,i=t.level,s=k.Expanded;l.setFoldingStateDown(d,s,i)}}function p(n){return!!(n&&n.notebookEditor&&n.outlineEntry)}function v(n){return!!(n&&n.notebookEditor&&n.cell)}C(x),C(F),C(O),C(h);export{h as NotebookExpandSection,O as NotebookFoldSection,F as NotebookRunCellsInSection,x as NotebookRunSingleCellInSection};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import { OutlineTarget } from "../../../../services/outline/browser/outline.js";
+import { CellKind } from "../../common/notebookCommon.js";
+import { NotebookOutlineContext } from "../contrib/outline/notebookOutline.js";
+import {
+  CellEditState,
+  CellFoldingState,
+  ICellViewModel,
+  INotebookEditor
+} from "../notebookBrowser.js";
+import * as icons from "../notebookIcons.js";
+import { OutlineEntry } from "../viewModel/OutlineEntry.js";
+import { CELL_TITLE_CELL_GROUP_ID, CellToolbarOrder } from "./coreActions.js";
+import { executeSectionCondition } from "./executeActions.js";
+import { FoldingController } from "./foldingController.js";
+class NotebookRunSingleCellInSection extends Action2 {
+  static {
+    __name(this, "NotebookRunSingleCellInSection");
+  }
+  constructor() {
+    super({
+      id: "notebook.section.runSingleCell",
+      title: {
+        ...localize2("runCell", "Run Cell"),
+        mnemonicTitle: localize(
+          { key: "mirunCell", comment: ["&& denotes a mnemonic"] },
+          "&&Run Cell"
+        )
+      },
+      shortTitle: localize("runCell", "Run Cell"),
+      icon: icons.executeIcon,
+      menu: [
+        {
+          id: MenuId.NotebookOutlineActionMenu,
+          group: "inline",
+          order: 1,
+          when: ContextKeyExpr.and(
+            NotebookOutlineContext.CellKind.isEqualTo(
+              CellKind.Code
+            ),
+            NotebookOutlineContext.OutlineElementTarget.isEqualTo(
+              OutlineTarget.OutlinePane
+            ),
+            NotebookOutlineContext.CellHasChildren.toNegated(),
+            NotebookOutlineContext.CellHasHeader.toNegated()
+          )
+        }
+      ]
+    });
+  }
+  async run(_accessor, context) {
+    if (!checkOutlineEntryContext(context)) {
+      return;
+    }
+    context.notebookEditor.executeNotebookCells([
+      context.outlineEntry.cell
+    ]);
+  }
+}
+class NotebookRunCellsInSection extends Action2 {
+  static {
+    __name(this, "NotebookRunCellsInSection");
+  }
+  constructor() {
+    super({
+      id: "notebook.section.runCells",
+      title: {
+        ...localize2("runCellsInSection", "Run Cells In Section"),
+        mnemonicTitle: localize(
+          {
+            key: "mirunCellsInSection",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Run Cells In Section"
+        )
+      },
+      shortTitle: localize("runCellsInSection", "Run Cells In Section"),
+      icon: icons.executeIcon,
+      // TODO @Yoyokrazy replace this with new icon later
+      menu: [
+        {
+          id: MenuId.NotebookStickyScrollContext,
+          group: "notebookExecution",
+          order: 1
+        },
+        {
+          id: MenuId.NotebookOutlineActionMenu,
+          group: "inline",
+          order: 1,
+          when: ContextKeyExpr.and(
+            NotebookOutlineContext.CellKind.isEqualTo(
+              CellKind.Markup
+            ),
+            NotebookOutlineContext.OutlineElementTarget.isEqualTo(
+              OutlineTarget.OutlinePane
+            ),
+            NotebookOutlineContext.CellHasChildren,
+            NotebookOutlineContext.CellHasHeader
+          )
+        },
+        {
+          id: MenuId.NotebookCellTitle,
+          order: CellToolbarOrder.RunSection,
+          group: CELL_TITLE_CELL_GROUP_ID,
+          when: executeSectionCondition
+        }
+      ]
+    });
+  }
+  async run(_accessor, context) {
+    let cell;
+    if (checkOutlineEntryContext(context)) {
+      cell = context.outlineEntry.cell;
+    } else if (checkNotebookCellContext(context)) {
+      cell = context.cell;
+    } else {
+      return;
+    }
+    if (cell.getEditState() === CellEditState.Editing) {
+      const foldingController = context.notebookEditor.getContribution(
+        FoldingController.id
+      );
+      foldingController.recompute();
+    }
+    const cellIdx = context.notebookEditor.getViewModel()?.getCellIndex(cell);
+    if (cellIdx === void 0) {
+      return;
+    }
+    const sectionIdx = context.notebookEditor.getViewModel()?.getFoldingStartIndex(cellIdx);
+    if (sectionIdx === void 0) {
+      return;
+    }
+    const length = context.notebookEditor.getViewModel()?.getFoldedLength(sectionIdx);
+    if (length === void 0) {
+      return;
+    }
+    const cells = context.notebookEditor.getCellsInRange({
+      start: sectionIdx,
+      end: sectionIdx + length + 1
+    });
+    context.notebookEditor.executeNotebookCells(cells);
+  }
+}
+class NotebookFoldSection extends Action2 {
+  static {
+    __name(this, "NotebookFoldSection");
+  }
+  constructor() {
+    super({
+      id: "notebook.section.foldSection",
+      title: {
+        ...localize2("foldSection", "Fold Section"),
+        mnemonicTitle: localize(
+          {
+            key: "mifoldSection",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Fold Section"
+        )
+      },
+      shortTitle: localize("foldSection", "Fold Section"),
+      menu: [
+        {
+          id: MenuId.NotebookOutlineActionMenu,
+          group: "notebookFolding",
+          order: 2,
+          when: ContextKeyExpr.and(
+            NotebookOutlineContext.CellKind.isEqualTo(
+              CellKind.Markup
+            ),
+            NotebookOutlineContext.OutlineElementTarget.isEqualTo(
+              OutlineTarget.OutlinePane
+            ),
+            NotebookOutlineContext.CellHasChildren,
+            NotebookOutlineContext.CellHasHeader,
+            NotebookOutlineContext.CellFoldingState.isEqualTo(
+              CellFoldingState.Expanded
+            )
+          )
+        }
+      ]
+    });
+  }
+  async run(_accessor, context) {
+    if (!checkOutlineEntryContext(context)) {
+      return;
+    }
+    this.toggleFoldRange(context.outlineEntry, context.notebookEditor);
+  }
+  toggleFoldRange(entry, notebookEditor) {
+    const foldingController = notebookEditor.getContribution(
+      FoldingController.id
+    );
+    const index = entry.index;
+    const headerLevel = entry.level;
+    const newFoldingState = CellFoldingState.Collapsed;
+    foldingController.setFoldingStateDown(
+      index,
+      newFoldingState,
+      headerLevel
+    );
+  }
+}
+class NotebookExpandSection extends Action2 {
+  static {
+    __name(this, "NotebookExpandSection");
+  }
+  constructor() {
+    super({
+      id: "notebook.section.expandSection",
+      title: {
+        ...localize2("expandSection", "Expand Section"),
+        mnemonicTitle: localize(
+          {
+            key: "miexpandSection",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Expand Section"
+        )
+      },
+      shortTitle: localize("expandSection", "Expand Section"),
+      menu: [
+        {
+          id: MenuId.NotebookOutlineActionMenu,
+          group: "notebookFolding",
+          order: 2,
+          when: ContextKeyExpr.and(
+            NotebookOutlineContext.CellKind.isEqualTo(
+              CellKind.Markup
+            ),
+            NotebookOutlineContext.OutlineElementTarget.isEqualTo(
+              OutlineTarget.OutlinePane
+            ),
+            NotebookOutlineContext.CellHasChildren,
+            NotebookOutlineContext.CellHasHeader,
+            NotebookOutlineContext.CellFoldingState.isEqualTo(
+              CellFoldingState.Collapsed
+            )
+          )
+        }
+      ]
+    });
+  }
+  async run(_accessor, context) {
+    if (!checkOutlineEntryContext(context)) {
+      return;
+    }
+    this.toggleFoldRange(context.outlineEntry, context.notebookEditor);
+  }
+  toggleFoldRange(entry, notebookEditor) {
+    const foldingController = notebookEditor.getContribution(
+      FoldingController.id
+    );
+    const index = entry.index;
+    const headerLevel = entry.level;
+    const newFoldingState = CellFoldingState.Expanded;
+    foldingController.setFoldingStateDown(
+      index,
+      newFoldingState,
+      headerLevel
+    );
+  }
+}
+function checkOutlineEntryContext(context) {
+  return !!(context && context.notebookEditor && context.outlineEntry);
+}
+__name(checkOutlineEntryContext, "checkOutlineEntryContext");
+function checkNotebookCellContext(context) {
+  return !!(context && context.notebookEditor && context.cell);
+}
+__name(checkNotebookCellContext, "checkNotebookCellContext");
+registerAction2(NotebookRunSingleCellInSection);
+registerAction2(NotebookRunCellsInSection);
+registerAction2(NotebookFoldSection);
+registerAction2(NotebookExpandSection);
+export {
+  NotebookExpandSection,
+  NotebookFoldSection,
+  NotebookRunCellsInSection,
+  NotebookRunSingleCellInSection
+};
+//# sourceMappingURL=sectionActions.js.map

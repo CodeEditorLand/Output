@@ -1,1 +1,5 @@
-var t="../../../../../Asset/css-ZXKXJ3VG.scm";export{t as default};
+var css_default = "../../../../../Asset/css-ZXKXJ3VG.scm";
+export {
+  css_default as default
+};
+//# sourceMappingURL=css.js.map

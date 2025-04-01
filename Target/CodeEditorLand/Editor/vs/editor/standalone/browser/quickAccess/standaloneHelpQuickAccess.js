@@ -1,1 +1,15 @@
-import{HelpQuickAccessProvider as i}from"../../../../platform/quickinput/browser/helpQuickAccess.js";import{Extensions as c}from"../../../../platform/quickinput/common/quickAccess.js";import{Registry as e}from"../../../../platform/registry/common/platform.js";import{QuickHelpNLS as r}from"../../../common/standaloneStrings.js";e.as(c.Quickaccess).registerQuickAccessProvider({ctor:i,prefix:"",helpEntries:[{description:r.helpQuickAccessActionLabel}]});
+import { HelpQuickAccessProvider } from "../../../../platform/quickinput/browser/helpQuickAccess.js";
+import {
+  Extensions,
+  IQuickAccessRegistry
+} from "../../../../platform/quickinput/common/quickAccess.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { QuickHelpNLS } from "../../../common/standaloneStrings.js";
+Registry.as(
+  Extensions.Quickaccess
+).registerQuickAccessProvider({
+  ctor: HelpQuickAccessProvider,
+  prefix: "",
+  helpEntries: [{ description: QuickHelpNLS.helpQuickAccessActionLabel }]
+});
+//# sourceMappingURL=standaloneHelpQuickAccess.js.map

@@ -1,1 +1,89 @@
-import"../../base/common/event.js";import{delimiter as m,posix as a}from"../../base/common/path.js";import{URI as o}from"../../base/common/uri.js";import"../../base/common/uriIpc.js";import"../../platform/configuration/common/configuration.js";import"../../platform/files/common/files.js";import"../../platform/files/common/watcher.js";import{DiskFileSystemProvider as c}from"../../platform/files/node/diskFileSystemProvider.js";import{AbstractDiskFileSystemProviderChannel as f,AbstractSessionFileWatcher as v}from"../../platform/files/node/diskFileSystemProviderServer.js";import"../../platform/log/common/log.js";import"../../platform/remote/common/remoteAgentEnvironment.js";import{createURITransformer as u}from"../../workbench/api/node/uriTransformer.js";import"./serverEnvironmentService.js";class D extends f{constructor(r,e,i){super(new c(r),r);this.environmentService=e;this.configurationService=i;this._register(this.provider)}uriTransformerCache=new Map;getUriTransformer(r){let e=this.uriTransformerCache.get(r.remoteAuthority);return e||(e=u(r.remoteAuthority),this.uriTransformerCache.set(r.remoteAuthority,e)),e}transformIncoming(r,e,i=!1){if(i&&e.path==="/vscode-resource"&&e.query){const n=JSON.parse(e.query).requestResourcePath;return o.from({scheme:"file",path:n})}return o.revive(r.transformIncoming(e))}createSessionFileWatcher(r,e){return new l(r,e,this.logService,this.environmentService,this.configurationService)}}class l extends v{constructor(t,r,e,i,n){super(t,r,e,i)}getRecursiveWatcherOptions(t){const r=t.args["file-watcher-polling"];if(r){const e=r.split(m),i=Number(e[0]);if(i>0)return{usePolling:e.length>1?e.slice(1):!0,pollingInterval:i}}}getExtraExcludes(t){if(t.extensionsPath)return[a.join(t.extensionsPath,"**")]}}export{D as RemoteAgentFileSystemProviderChannel};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../base/common/event.js";
+import { delimiter, posix } from "../../base/common/path.js";
+import { URI, UriComponents } from "../../base/common/uri.js";
+import { IURITransformer } from "../../base/common/uriIpc.js";
+import { IConfigurationService } from "../../platform/configuration/common/configuration.js";
+import { IFileChange } from "../../platform/files/common/files.js";
+import { IRecursiveWatcherOptions } from "../../platform/files/common/watcher.js";
+import { DiskFileSystemProvider } from "../../platform/files/node/diskFileSystemProvider.js";
+import {
+  AbstractDiskFileSystemProviderChannel,
+  AbstractSessionFileWatcher,
+  ISessionFileWatcher
+} from "../../platform/files/node/diskFileSystemProviderServer.js";
+import { ILogService } from "../../platform/log/common/log.js";
+import { RemoteAgentConnectionContext } from "../../platform/remote/common/remoteAgentEnvironment.js";
+import { createURITransformer } from "../../workbench/api/node/uriTransformer.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
+class RemoteAgentFileSystemProviderChannel extends AbstractDiskFileSystemProviderChannel {
+  constructor(logService, environmentService, configurationService) {
+    super(new DiskFileSystemProvider(logService), logService);
+    this.environmentService = environmentService;
+    this.configurationService = configurationService;
+    this._register(this.provider);
+  }
+  static {
+    __name(this, "RemoteAgentFileSystemProviderChannel");
+  }
+  uriTransformerCache = /* @__PURE__ */ new Map();
+  getUriTransformer(ctx) {
+    let transformer = this.uriTransformerCache.get(ctx.remoteAuthority);
+    if (!transformer) {
+      transformer = createURITransformer(ctx.remoteAuthority);
+      this.uriTransformerCache.set(ctx.remoteAuthority, transformer);
+    }
+    return transformer;
+  }
+  transformIncoming(uriTransformer, _resource, supportVSCodeResource = false) {
+    if (supportVSCodeResource && _resource.path === "/vscode-resource" && _resource.query) {
+      const requestResourcePath = JSON.parse(
+        _resource.query
+      ).requestResourcePath;
+      return URI.from({ scheme: "file", path: requestResourcePath });
+    }
+    return URI.revive(uriTransformer.transformIncoming(_resource));
+  }
+  //#region File Watching
+  createSessionFileWatcher(uriTransformer, emitter) {
+    return new SessionFileWatcher(
+      uriTransformer,
+      emitter,
+      this.logService,
+      this.environmentService,
+      this.configurationService
+    );
+  }
+  //#endregion
+}
+class SessionFileWatcher extends AbstractSessionFileWatcher {
+  static {
+    __name(this, "SessionFileWatcher");
+  }
+  constructor(uriTransformer, sessionEmitter, logService, environmentService, configurationService) {
+    super(uriTransformer, sessionEmitter, logService, environmentService);
+  }
+  getRecursiveWatcherOptions(environmentService) {
+    const fileWatcherPolling = environmentService.args["file-watcher-polling"];
+    if (fileWatcherPolling) {
+      const segments = fileWatcherPolling.split(delimiter);
+      const pollingInterval = Number(segments[0]);
+      if (pollingInterval > 0) {
+        const usePolling = segments.length > 1 ? segments.slice(1) : true;
+        return { usePolling, pollingInterval };
+      }
+    }
+    return void 0;
+  }
+  getExtraExcludes(environmentService) {
+    if (environmentService.extensionsPath) {
+      return [posix.join(environmentService.extensionsPath, "**")];
+    }
+    return void 0;
+  }
+}
+export {
+  RemoteAgentFileSystemProviderChannel
+};
+//# sourceMappingURL=remoteFileSystemProviderServer.js.map

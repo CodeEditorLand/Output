@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/workbench/contrib/userDataProfile/browser/userDataProfile.contribution.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport {\r\n\tregisterWorkbenchContribution2,\r\n\tWorkbenchPhase,\r\n} from \"../../../common/contributions.js\";\r\nimport { UserDataProfilesWorkbenchContribution } from \"./userDataProfile.js\";\r\n\r\nimport \"./userDataProfileActions.js\";\r\n\r\nregisterWorkbenchContribution2(\r\n\tUserDataProfilesWorkbenchContribution.ID,\r\n\tUserDataProfilesWorkbenchContribution,\r\n\tWorkbenchPhase.BlockRestore,\r\n);\r\n"],
+  "mappings": "AAKA;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,6CAA6C;AAEtD,OAAO;AAEP;AAAA,EACC,sCAAsC;AAAA,EACtC;AAAA,EACA,eAAe;AAChB;",
+  "names": []
+}

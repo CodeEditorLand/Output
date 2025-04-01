@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/workbench/services/search/common/searchExtTypesInternal.ts"],
+  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\nimport {\r\n\tFileSearchProviderFolderOptions,\r\n\tFileSearchProviderOptions,\r\n\tTextSearchProviderFolderOptions,\r\n\tTextSearchProviderOptions,\r\n} from \"./searchExtTypes.js\";\r\n\r\ninterface RipgrepSearchOptionsCommon {\r\n\tnumThreads?: number;\r\n}\r\n\r\nexport type TextSearchProviderOptionsRipgrep = Omit<\r\n\tPartial<TextSearchProviderOptions>,\r\n\t\"folderOptions\"\r\n> & {\r\n\tfolderOptions: TextSearchProviderFolderOptions;\r\n};\r\n\r\nexport type FileSearchProviderOptionsRipgrep = {\r\n\tfolderOptions: FileSearchProviderFolderOptions;\r\n} & FileSearchProviderOptions;\r\n\r\nexport interface RipgrepTextSearchOptions\r\n\textends TextSearchProviderOptionsRipgrep,\r\n\t\tRipgrepSearchOptionsCommon {}\r\n\r\nexport interface RipgrepFileSearchOptions\r\n\textends FileSearchProviderOptionsRipgrep,\r\n\t\tRipgrepSearchOptionsCommon {}\r\n"],
+  "mappings": "AAIA;AAAA,EACC;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,OACM;",
+  "names": []
+}

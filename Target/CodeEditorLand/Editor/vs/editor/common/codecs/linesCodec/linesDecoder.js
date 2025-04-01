@@ -1,1 +1,148 @@
-import{assert as b}from"../../../../base/common/assert.js";import{VSBuffer as u}from"../../../../base/common/buffer.js";import{BaseDecoder as d}from"../../../../base/common/codecs/baseDecoder.js";import{assertDefined as m}from"../../../../base/common/types.js";import{Range as o}from"../../core/range.js";import{CarriageReturn as a}from"./tokens/carriageReturn.js";import{Line as L}from"./tokens/line.js";import{NewLine as r}from"./tokens/newLine.js";class S extends d{buffer=u.alloc(0);lastEmittedLine;onStreamData(e){this.buffer=u.concat([this.buffer,e]),this.processData(!1)}processData(e){for(;this.buffer.byteLength>0;){const t=this.lastEmittedLine?this.lastEmittedLine.range.startLineNumber+1:1,i=this.findEndOfLineTokens(t),n=i[0];if(!n){e&&this.emitLine(t,this.buffer.slice(0));break}this.emitLine(t,this.buffer.slice(0,n.range.startColumn-1)),m(this.lastEmittedLine,"No last emitted line found.");let s=this.lastEmittedLine.range.endColumn;for(const f of i){const h=s+f.byte.byteLength;this._onData.fire(f.withRange({startColumn:s,endColumn:h})),this.buffer=this.buffer.slice(f.byte.byteLength),s=h}}e&&b(this.buffer.byteLength===0,"Expected the input data buffer to be empty when the stream ends.")}findEndOfLineTokens(e){const t=[],i=this.buffer.indexOf(a.byte),n=this.buffer.indexOf(r.byte);return i>=0&&(i<n||n===-1)?(t.push(new a(new o(e,i+1,e,i+1+a.byte.byteLength))),n===i+1&&t.push(new r(new o(e,n+1,e,n+1+r.byte.byteLength))),this.buffer.byteLength>i+1?t:[]):(n>=0&&t.push(new r(new o(e,n+1,e,n+1+r.byte.byteLength))),t)}emitLine(e,t){const i=new L(e,t.toString());this._onData.fire(i),this.lastEmittedLine=i,this.buffer=this.buffer.slice(t.byteLength)}onStreamEnd(){this.buffer.byteLength>0&&this.processData(!0),super.onStreamEnd()}}export{S as LinesDecoder};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assert } from "../../../../base/common/assert.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { BaseDecoder } from "../../../../base/common/codecs/baseDecoder.js";
+import { assertDefined } from "../../../../base/common/types.js";
+import { Range } from "../../core/range.js";
+import { CarriageReturn } from "./tokens/carriageReturn.js";
+import { Line } from "./tokens/line.js";
+import { NewLine } from "./tokens/newLine.js";
+class LinesDecoder extends BaseDecoder {
+  static {
+    __name(this, "LinesDecoder");
+  }
+  /**
+   * Buffered received data yet to be processed.
+   */
+  buffer = VSBuffer.alloc(0);
+  /**
+   * The last emitted `Line` token, if any. The value is used
+   * to correctly emit remaining line range in the `onStreamEnd`
+   * method when underlying input stream ends and `buffer` still
+   * contains some data that must be emitted as the last line.
+   */
+  lastEmittedLine;
+  /**
+   * Process data received from the input stream.
+   */
+  onStreamData(chunk) {
+    this.buffer = VSBuffer.concat([this.buffer, chunk]);
+    this.processData(false);
+  }
+  /**
+   * Process buffered data.
+   *
+   * @param streamEnded Flag that indicates if the input stream has ended,
+   * 					  which means that is the last call of this method.
+   * @throws If internal logic implementation error is detected.
+   */
+  processData(streamEnded) {
+    while (this.buffer.byteLength > 0) {
+      const lineNumber = this.lastEmittedLine ? this.lastEmittedLine.range.startLineNumber + 1 : 1;
+      const endOfLineTokens = this.findEndOfLineTokens(lineNumber);
+      const firstToken = endOfLineTokens[0];
+      if (!firstToken) {
+        if (streamEnded) {
+          this.emitLine(lineNumber, this.buffer.slice(0));
+        }
+        break;
+      }
+      this.emitLine(
+        lineNumber,
+        this.buffer.slice(0, firstToken.range.startColumn - 1)
+      );
+      assertDefined(this.lastEmittedLine, "No last emitted line found.");
+      let startColumn = this.lastEmittedLine.range.endColumn;
+      for (const token of endOfLineTokens) {
+        const endColumn = startColumn + token.byte.byteLength;
+        this._onData.fire(token.withRange({ startColumn, endColumn }));
+        this.buffer = this.buffer.slice(token.byte.byteLength);
+        startColumn = endColumn;
+      }
+    }
+    if (streamEnded) {
+      assert(
+        this.buffer.byteLength === 0,
+        "Expected the input data buffer to be empty when the stream ends."
+      );
+    }
+  }
+  /**
+   * Find the end of line tokens in the data buffer.
+   * Can return:
+   *  - [`\r`, `\n`] tokens if the sequence is found
+   *  - [`\r`] token if only the carriage return is found
+   *  - [`\n`] token if only the newline is found
+   *  - an `empty array` if no end of line tokens found
+   */
+  findEndOfLineTokens(lineNumber) {
+    const result = [];
+    const carriageReturnIndex = this.buffer.indexOf(CarriageReturn.byte);
+    const newLineIndex = this.buffer.indexOf(NewLine.byte);
+    if (carriageReturnIndex >= 0 && (carriageReturnIndex < newLineIndex || newLineIndex === -1)) {
+      result.push(
+        new CarriageReturn(
+          new Range(
+            lineNumber,
+            carriageReturnIndex + 1,
+            lineNumber,
+            carriageReturnIndex + 1 + CarriageReturn.byte.byteLength
+          )
+        )
+      );
+      if (newLineIndex === carriageReturnIndex + 1) {
+        result.push(
+          new NewLine(
+            new Range(
+              lineNumber,
+              newLineIndex + 1,
+              lineNumber,
+              newLineIndex + 1 + NewLine.byte.byteLength
+            )
+          )
+        );
+      }
+      if (this.buffer.byteLength > carriageReturnIndex + 1) {
+        return result;
+      }
+      return [];
+    }
+    if (newLineIndex >= 0) {
+      result.push(
+        new NewLine(
+          new Range(
+            lineNumber,
+            newLineIndex + 1,
+            lineNumber,
+            newLineIndex + 1 + NewLine.byte.byteLength
+          )
+        )
+      );
+    }
+    return result;
+  }
+  /**
+   * Emit a provided line as the `Line` token to the output stream.
+   */
+  emitLine(lineNumber, lineBytes) {
+    const line = new Line(lineNumber, lineBytes.toString());
+    this._onData.fire(line);
+    this.lastEmittedLine = line;
+    this.buffer = this.buffer.slice(lineBytes.byteLength);
+  }
+  /**
+   * Handle the end of the input stream - if the buffer still has some data,
+   * emit it as the last available line token before firing the `onEnd` event.
+   */
+  onStreamEnd() {
+    if (this.buffer.byteLength > 0) {
+      this.processData(true);
+    }
+    super.onStreamEnd();
+  }
+}
+export {
+  LinesDecoder
+};
+//# sourceMappingURL=linesDecoder.js.map

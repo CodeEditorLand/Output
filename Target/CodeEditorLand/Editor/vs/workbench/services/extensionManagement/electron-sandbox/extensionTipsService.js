@@ -1,1 +1,68 @@
-var l=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var p=(n,e,r,i)=>{for(var t=i>1?void 0:i?m(e,r):e,a=n.length-1,c;a>=0;a--)(c=n[a])&&(t=(i?c(e,r,t):c(t))||t);return i&&t&&l(e,r,t),t},o=(n,e)=>(r,i)=>e(r,i,n);import{Schemas as d}from"../../../../base/common/network.js";import"../../../../base/common/uri.js";import"../../../../base/parts/ipc/common/ipc.js";import{IExtensionTipsService as I}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{ExtensionTipsService as x}from"../../../../platform/extensionManagement/common/extensionTipsService.js";import{IFileService as h}from"../../../../platform/files/common/files.js";import{InstantiationType as u,registerSingleton as E}from"../../../../platform/instantiation/common/extensions.js";import{ISharedProcessService as T}from"../../../../platform/ipc/electron-sandbox/services.js";import{IProductService as g}from"../../../../platform/product/common/productService.js";let s=class extends x{channel;constructor(e,r,i){super(e,r),this.channel=i.getChannel("extensionTipsService")}getConfigBasedTips(e){return e.scheme===d.file?this.channel.call("getConfigBasedTips",[e]):super.getConfigBasedTips(e)}getImportantExecutableBasedTips(){return this.channel.call("getImportantExecutableBasedTips")}getOtherExecutableBasedTips(){return this.channel.call("getOtherExecutableBasedTips")}};s=p([o(0,h),o(1,g),o(2,T)],s),E(I,s,u.Delayed);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import {
+  IConfigBasedExtensionTip,
+  IExecutableBasedExtensionTip,
+  IExtensionTipsService
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { ExtensionTipsService } from "../../../../platform/extensionManagement/common/extensionTipsService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ISharedProcessService } from "../../../../platform/ipc/electron-sandbox/services.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+let NativeExtensionTipsService = class extends ExtensionTipsService {
+  static {
+    __name(this, "NativeExtensionTipsService");
+  }
+  channel;
+  constructor(fileService, productService, sharedProcessService) {
+    super(fileService, productService);
+    this.channel = sharedProcessService.getChannel("extensionTipsService");
+  }
+  getConfigBasedTips(folder) {
+    if (folder.scheme === Schemas.file) {
+      return this.channel.call(
+        "getConfigBasedTips",
+        [folder]
+      );
+    }
+    return super.getConfigBasedTips(folder);
+  }
+  getImportantExecutableBasedTips() {
+    return this.channel.call(
+      "getImportantExecutableBasedTips"
+    );
+  }
+  getOtherExecutableBasedTips() {
+    return this.channel.call(
+      "getOtherExecutableBasedTips"
+    );
+  }
+};
+NativeExtensionTipsService = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IProductService),
+  __decorateParam(2, ISharedProcessService)
+], NativeExtensionTipsService);
+registerSingleton(
+  IExtensionTipsService,
+  NativeExtensionTipsService,
+  InstantiationType.Delayed
+);
+//# sourceMappingURL=extensionTipsService.js.map

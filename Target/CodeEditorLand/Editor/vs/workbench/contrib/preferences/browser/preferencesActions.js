@@ -1,1 +1,197 @@
-var S=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var u=(a,o,r,n)=>{for(var i=n>1?void 0:n?I(o,r):o,e=a.length-1,t;e>=0;e--)(t=a[e])&&(i=(n?t(o,r,i):t(i))||i);return n&&i&&S(o,r,i),i},s=(a,o)=>(r,n)=>o(r,n,a);import{Action as b}from"../../../../base/common/actions.js";import{URI as p}from"../../../../base/common/uri.js";import{EditorExtensionsRegistry as k}from"../../../../editor/browser/editorExtensions.js";import{ILanguageService as h}from"../../../../editor/common/languages/language.js";import{getIconClasses as R}from"../../../../editor/common/services/getIconClasses.js";import{IModelService as L}from"../../../../editor/common/services/model.js";import*as l from"../../../../nls.js";import{isLocalizedString as f}from"../../../../platform/action/common/action.js";import{isIMenuItem as x,MenuId as C,MenuRegistry as M}from"../../../../platform/actions/common/actions.js";import{CommandsRegistry as y}from"../../../../platform/commands/common/commands.js";import{Extensions as K}from"../../../../platform/configuration/common/configurationRegistry.js";import{IContextKeyService as z}from"../../../../platform/contextkey/common/contextkey.js";import{IKeybindingService as w}from"../../../../platform/keybinding/common/keybinding.js";import{KeybindingsRegistry as E}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{IQuickInputService as P}from"../../../../platform/quickinput/common/quickInput.js";import{Registry as N}from"../../../../platform/registry/common/platform.js";import{IPreferencesService as Q}from"../../../services/preferences/common/preferences.js";let d=class extends b{constructor(r,n,i,e,t,c){super(r,n);this.modelService=i;this.languageService=e;this.quickInputService=t;this.preferencesService=c}static ID="workbench.action.configureLanguageBasedSettings";static LABEL=l.localize2("configureLanguageBasedSettings","Configure Language Specific Settings...");async run(){const n=this.languageService.getSortedRegisteredLanguageNames().map(({languageName:i,languageId:e})=>{const t=l.localize("languageDescriptionConfigured","({0})",e);let c;const m=this.languageService.getExtensions(e);if(m.length)c=p.file(m[0]);else{const g=this.languageService.getFilenames(e);g.length&&(c=p.file(g[0]))}return{label:i,iconClasses:R(this.modelService,this.languageService,c),description:t}});await this.quickInputService.pick(n,{placeHolder:l.localize("pickLanguage","Select Language")}).then(i=>{if(i){const e=this.languageService.getLanguageIdByLanguageName(i.label);if(typeof e=="string")return this.preferencesService.openLanguageSpecificSettings(e)}})}};d=u([s(2,L),s(3,h),s(4,P),s(5,Q)],d),y.registerCommand({id:"_getAllSettings",handler:()=>N.as(K.Configuration).getConfigurationProperties()}),y.registerCommand("_getAllCommands",function(a,o){const r=a.get(w),n=a.get(z),i=[];for(const e of k.getEditorActions()){const t=r.lookupKeybinding(e.id);o&&!n.contextMatchesRules(e.precondition)||i.push({command:e.id,label:e.label,description:f(e.metadata?.description)?e.metadata.description.value:e.metadata?.description,precondition:e.precondition?.serialize(),keybinding:t?.getLabel()??"Not set"})}for(const e of M.getMenuItems(C.CommandPalette))if(x(e)){if(o&&!n.contextMatchesRules(e.when))continue;const t=typeof e.command.title=="string"?e.command.title:e.command.title.value,c=e.command.category?typeof e.command.category=="string"?e.command.category:e.command.category.value:void 0,m=c?`${c}: ${t}`:t,g=f(e.command.metadata?.description)?e.command.metadata.description.value:e.command.metadata?.description,v=r.lookupKeybinding(e.command.id);i.push({command:e.command.id,label:m,description:g,precondition:e.when?.serialize(),keybinding:v?.getLabel()??"Not set"})}for(const e of E.getDefaultKeybindings()){if(o&&!n.contextMatchesRules(e.when??void 0))continue;const t=r.lookupKeybinding(e.command??"");t&&(i.some(c=>c.command===e.command)||i.push({command:e.command??"",label:e.command??"",keybinding:t?.getLabel()??"Not set",precondition:e.when?.serialize()}))}return i});export{d as ConfigureLanguageBasedSettingsAction};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Action } from "../../../../base/common/actions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { EditorExtensionsRegistry } from "../../../../editor/browser/editorExtensions.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { getIconClasses } from "../../../../editor/common/services/getIconClasses.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import * as nls from "../../../../nls.js";
+import { isLocalizedString } from "../../../../platform/action/common/action.js";
+import {
+  isIMenuItem,
+  MenuId,
+  MenuRegistry
+} from "../../../../platform/actions/common/actions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import {
+  Extensions,
+  IConfigurationRegistry
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { KeybindingsRegistry } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  IQuickInputService,
+  IQuickPickItem
+} from "../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+let ConfigureLanguageBasedSettingsAction = class extends Action {
+  constructor(id, label, modelService, languageService, quickInputService, preferencesService) {
+    super(id, label);
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this.quickInputService = quickInputService;
+    this.preferencesService = preferencesService;
+  }
+  static {
+    __name(this, "ConfigureLanguageBasedSettingsAction");
+  }
+  static ID = "workbench.action.configureLanguageBasedSettings";
+  static LABEL = nls.localize2(
+    "configureLanguageBasedSettings",
+    "Configure Language Specific Settings..."
+  );
+  async run() {
+    const languages = this.languageService.getSortedRegisteredLanguageNames();
+    const picks = languages.map(
+      ({ languageName, languageId }) => {
+        const description = nls.localize(
+          "languageDescriptionConfigured",
+          "({0})",
+          languageId
+        );
+        let fakeResource;
+        const extensions = this.languageService.getExtensions(languageId);
+        if (extensions.length) {
+          fakeResource = URI.file(extensions[0]);
+        } else {
+          const filenames = this.languageService.getFilenames(languageId);
+          if (filenames.length) {
+            fakeResource = URI.file(filenames[0]);
+          }
+        }
+        return {
+          label: languageName,
+          iconClasses: getIconClasses(
+            this.modelService,
+            this.languageService,
+            fakeResource
+          ),
+          description
+        };
+      }
+    );
+    await this.quickInputService.pick(picks, {
+      placeHolder: nls.localize("pickLanguage", "Select Language")
+    }).then((pick) => {
+      if (pick) {
+        const languageId = this.languageService.getLanguageIdByLanguageName(
+          pick.label
+        );
+        if (typeof languageId === "string") {
+          return this.preferencesService.openLanguageSpecificSettings(
+            languageId
+          );
+        }
+      }
+      return void 0;
+    });
+  }
+};
+ConfigureLanguageBasedSettingsAction = __decorateClass([
+  __decorateParam(2, IModelService),
+  __decorateParam(3, ILanguageService),
+  __decorateParam(4, IQuickInputService),
+  __decorateParam(5, IPreferencesService)
+], ConfigureLanguageBasedSettingsAction);
+CommandsRegistry.registerCommand({
+  id: "_getAllSettings",
+  handler: /* @__PURE__ */ __name(() => {
+    const configRegistry = Registry.as(
+      Extensions.Configuration
+    );
+    const allSettings = configRegistry.getConfigurationProperties();
+    return allSettings;
+  }, "handler")
+});
+CommandsRegistry.registerCommand(
+  "_getAllCommands",
+  function(accessor, filterByPrecondition) {
+    const keybindingService = accessor.get(IKeybindingService);
+    const contextKeyService = accessor.get(IContextKeyService);
+    const actions = [];
+    for (const editorAction of EditorExtensionsRegistry.getEditorActions()) {
+      const keybinding = keybindingService.lookupKeybinding(
+        editorAction.id
+      );
+      if (filterByPrecondition && !contextKeyService.contextMatchesRules(
+        editorAction.precondition
+      )) {
+        continue;
+      }
+      actions.push({
+        command: editorAction.id,
+        label: editorAction.label,
+        description: isLocalizedString(
+          editorAction.metadata?.description
+        ) ? editorAction.metadata.description.value : editorAction.metadata?.description,
+        precondition: editorAction.precondition?.serialize(),
+        keybinding: keybinding?.getLabel() ?? "Not set"
+      });
+    }
+    for (const menuItem of MenuRegistry.getMenuItems(
+      MenuId.CommandPalette
+    )) {
+      if (isIMenuItem(menuItem)) {
+        if (filterByPrecondition && !contextKeyService.contextMatchesRules(menuItem.when)) {
+          continue;
+        }
+        const title = typeof menuItem.command.title === "string" ? menuItem.command.title : menuItem.command.title.value;
+        const category = menuItem.command.category ? typeof menuItem.command.category === "string" ? menuItem.command.category : menuItem.command.category.value : void 0;
+        const label = category ? `${category}: ${title}` : title;
+        const description = isLocalizedString(
+          menuItem.command.metadata?.description
+        ) ? menuItem.command.metadata.description.value : menuItem.command.metadata?.description;
+        const keybinding = keybindingService.lookupKeybinding(
+          menuItem.command.id
+        );
+        actions.push({
+          command: menuItem.command.id,
+          label,
+          description,
+          precondition: menuItem.when?.serialize(),
+          keybinding: keybinding?.getLabel() ?? "Not set"
+        });
+      }
+    }
+    for (const command of KeybindingsRegistry.getDefaultKeybindings()) {
+      if (filterByPrecondition && !contextKeyService.contextMatchesRules(
+        command.when ?? void 0
+      )) {
+        continue;
+      }
+      const keybinding = keybindingService.lookupKeybinding(
+        command.command ?? ""
+      );
+      if (!keybinding) {
+        continue;
+      }
+      if (actions.some((a) => a.command === command.command)) {
+        continue;
+      }
+      actions.push({
+        command: command.command ?? "",
+        label: command.command ?? "",
+        keybinding: keybinding?.getLabel() ?? "Not set",
+        precondition: command.when?.serialize()
+      });
+    }
+    return actions;
+  }
+);
+export {
+  ConfigureLanguageBasedSettingsAction
+};
+//# sourceMappingURL=preferencesActions.js.map

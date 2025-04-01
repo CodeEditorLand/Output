@@ -1,1 +1,25 @@
-import"../../../../../base/common/actions.js";import"../../../../../base/common/cancellation.js";import"../../../../../base/common/event.js";import"../../../../../base/common/lifecycle.js";import"../../../../../base/common/uri.js";import{createDecorator as i}from"../../../../../platform/instantiation/common/instantiation.js";import"../../../../../platform/terminal/common/capabilities/capabilities.js";import"../../../../../platform/terminal/common/terminal.js";const v=i("terminalQuickFixService");var n=(e=>(e[e.TerminalCommand=0]="TerminalCommand",e[e.Opener=1]="Opener",e[e.Port=2]="Port",e[e.VscodeCommand=3]="VscodeCommand",e))(n||{});export{v as ITerminalQuickFixService,n as TerminalQuickFixType};
+import { IAction } from "../../../../../base/common/actions.js";
+import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import {
+  ITerminalCommandSelector,
+  ITerminalOutputMatch,
+  ITerminalOutputMatcher
+} from "../../../../../platform/terminal/common/terminal.js";
+const ITerminalQuickFixService = createDecorator("terminalQuickFixService");
+var TerminalQuickFixType = /* @__PURE__ */ ((TerminalQuickFixType2) => {
+  TerminalQuickFixType2[TerminalQuickFixType2["TerminalCommand"] = 0] = "TerminalCommand";
+  TerminalQuickFixType2[TerminalQuickFixType2["Opener"] = 1] = "Opener";
+  TerminalQuickFixType2[TerminalQuickFixType2["Port"] = 2] = "Port";
+  TerminalQuickFixType2[TerminalQuickFixType2["VscodeCommand"] = 3] = "VscodeCommand";
+  return TerminalQuickFixType2;
+})(TerminalQuickFixType || {});
+export {
+  ITerminalQuickFixService,
+  TerminalQuickFixType
+};
+//# sourceMappingURL=quickFix.js.map

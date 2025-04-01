@@ -1,1 +1,75 @@
-import a from"electron";import"../../../base/common/cancellation.js";import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"../../action/common/action.js";import"../../environment/common/argv.js";import"../../userDataProfile/common/userDataProfile.js";import"../../workspace/common/workspace.js";import{DEFAULT_AUX_WINDOW_SIZE as r,DEFAULT_WINDOW_SIZE as d}from"../common/window.js";var l=(o=>(o[o.INITIAL=1]="INITIAL",o[o.LOAD=2]="LOAD",o[o.RELOAD=3]="RELOAD",o))(l||{}),s=(e=>(e[e.CLOSE=1]="CLOSE",e[e.QUIT=2]="QUIT",e[e.RELOAD=3]="RELOAD",e[e.LOAD=4]="LOAD",e))(s||{});const N=function(n=1){return{width:d.width,height:d.height,mode:n}},F=function(){const n=r.width,i=r.height,t=a.screen.getPrimaryDisplay().workArea,o=Math.max(t.x+t.width/2-n/2,0),e=Math.max(t.y+t.height/2-i/2,0);return{x:o,y:e,width:n,height:i,mode:1}};var m=(e=>(e[e.Maximized=0]="Maximized",e[e.Normal=1]="Normal",e[e.Minimized=2]="Minimized",e[e.Fullscreen=3]="Fullscreen",e))(m||{}),c=(e=>(e[e.UNRESPONSIVE=1]="UNRESPONSIVE",e[e.PROCESS_GONE=2]="PROCESS_GONE",e[e.LOAD=3]="LOAD",e[e.RESPONSIVE=4]="RESPONSIVE",e))(c||{});export{l as LoadReason,s as UnloadReason,c as WindowError,m as WindowMode,F as defaultAuxWindowState,N as defaultWindowState};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import electron from "electron";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Event } from "../../../base/common/event.js";
+import { IDisposable } from "../../../base/common/lifecycle.js";
+import { ISerializableCommandAction } from "../../action/common/action.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+import {
+  ISingleFolderWorkspaceIdentifier,
+  IWorkspaceIdentifier
+} from "../../workspace/common/workspace.js";
+import {
+  DEFAULT_AUX_WINDOW_SIZE,
+  DEFAULT_WINDOW_SIZE,
+  INativeWindowConfiguration
+} from "../common/window.js";
+var LoadReason = /* @__PURE__ */ ((LoadReason2) => {
+  LoadReason2[LoadReason2["INITIAL"] = 1] = "INITIAL";
+  LoadReason2[LoadReason2["LOAD"] = 2] = "LOAD";
+  LoadReason2[LoadReason2["RELOAD"] = 3] = "RELOAD";
+  return LoadReason2;
+})(LoadReason || {});
+var UnloadReason = /* @__PURE__ */ ((UnloadReason2) => {
+  UnloadReason2[UnloadReason2["CLOSE"] = 1] = "CLOSE";
+  UnloadReason2[UnloadReason2["QUIT"] = 2] = "QUIT";
+  UnloadReason2[UnloadReason2["RELOAD"] = 3] = "RELOAD";
+  UnloadReason2[UnloadReason2["LOAD"] = 4] = "LOAD";
+  return UnloadReason2;
+})(UnloadReason || {});
+const defaultWindowState = /* @__PURE__ */ __name(function(mode = 1 /* Normal */) {
+  return {
+    width: DEFAULT_WINDOW_SIZE.width,
+    height: DEFAULT_WINDOW_SIZE.height,
+    mode
+  };
+}, "defaultWindowState");
+const defaultAuxWindowState = /* @__PURE__ */ __name(function() {
+  const width = DEFAULT_AUX_WINDOW_SIZE.width;
+  const height = DEFAULT_AUX_WINDOW_SIZE.height;
+  const workArea = electron.screen.getPrimaryDisplay().workArea;
+  const x = Math.max(workArea.x + workArea.width / 2 - width / 2, 0);
+  const y = Math.max(workArea.y + workArea.height / 2 - height / 2, 0);
+  return {
+    x,
+    y,
+    width,
+    height,
+    mode: 1 /* Normal */
+  };
+}, "defaultAuxWindowState");
+var WindowMode = /* @__PURE__ */ ((WindowMode2) => {
+  WindowMode2[WindowMode2["Maximized"] = 0] = "Maximized";
+  WindowMode2[WindowMode2["Normal"] = 1] = "Normal";
+  WindowMode2[WindowMode2["Minimized"] = 2] = "Minimized";
+  WindowMode2[WindowMode2["Fullscreen"] = 3] = "Fullscreen";
+  return WindowMode2;
+})(WindowMode || {});
+var WindowError = /* @__PURE__ */ ((WindowError2) => {
+  WindowError2[WindowError2["UNRESPONSIVE"] = 1] = "UNRESPONSIVE";
+  WindowError2[WindowError2["PROCESS_GONE"] = 2] = "PROCESS_GONE";
+  WindowError2[WindowError2["LOAD"] = 3] = "LOAD";
+  WindowError2[WindowError2["RESPONSIVE"] = 4] = "RESPONSIVE";
+  return WindowError2;
+})(WindowError || {});
+export {
+  LoadReason,
+  UnloadReason,
+  WindowError,
+  WindowMode,
+  defaultAuxWindowState,
+  defaultWindowState
+};
+//# sourceMappingURL=window.js.map

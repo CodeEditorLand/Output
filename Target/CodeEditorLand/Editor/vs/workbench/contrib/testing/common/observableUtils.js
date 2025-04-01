@@ -1,1 +1,32 @@
-import"../../../../base/common/lifecycle.js";import"../../../../base/common/observable.js";function g(e,r){const a={beginUpdate(){},endUpdate(){},handlePossibleChange(n){n.reportChanges()},handleChange(n,s){r(s)}};return e.addObserver(a),{dispose(){e.removeObserver(a)}}}export{g as onObservableChange};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  IObservableWithChange,
+  IObserver
+} from "../../../../base/common/observable.js";
+function onObservableChange(observable, callback) {
+  const o = {
+    beginUpdate() {
+    },
+    endUpdate() {
+    },
+    handlePossibleChange(observable2) {
+      observable2.reportChanges();
+    },
+    handleChange(_observable, change) {
+      callback(change);
+    }
+  };
+  observable.addObserver(o);
+  return {
+    dispose() {
+      observable.removeObserver(o);
+    }
+  };
+}
+__name(onObservableChange, "onObservableChange");
+export {
+  onObservableChange
+};
+//# sourceMappingURL=observableUtils.js.map

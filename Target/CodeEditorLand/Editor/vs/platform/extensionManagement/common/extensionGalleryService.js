@@ -1,3 +1,2068 @@
-var Ve=Object.defineProperty;var Te=Object.getOwnPropertyDescriptor;var B=(i,e,t,s)=>{for(var r=s>1?void 0:s?Te(e,t):e,a=i.length-1,n;a>=0;a--)(n=i[a])&&(r=(s?n(e,t,r):n(r))||r);return s&&r&&Ve(e,t,r),r},m=(i,e)=>(t,s)=>e(t,s,i);import{distinct as he}from"../../../base/common/arrays.js";import{CancellationToken as V}from"../../../base/common/cancellation.js";import"../../../base/common/collections.js";import{CancellationError as Ge,getErrorMessage as w,isCancellationError as j}from"../../../base/common/errors.js";import"../../../base/common/paging.js";import{isWeb as J,platform as Ce}from"../../../base/common/platform.js";import{arch as Ae}from"../../../base/common/process.js";import{StopWatch as Y}from"../../../base/common/stopwatch.js";import{format2 as A}from"../../../base/common/strings.js";import{isBoolean as k,isString as Ie}from"../../../base/common/types.js";import{URI as Z}from"../../../base/common/uri.js";import{isOfflineError as Ee}from"../../../base/parts/request/common/request.js";import"../../assignment/common/assignment.js";import{IConfigurationService as ee}from"../../configuration/common/configuration.js";import{IEnvironmentService as te}from"../../environment/common/environment.js";import{TargetPlatform as $}from"../../extensions/common/extensions.js";import{areApiProposalsCompatible as Fe,isEngineValid as se}from"../../extensions/common/extensionValidator.js";import{resolveMarketplaceHeaders as Me}from"../../externalServices/common/marketplace.js";import{IFileService as re}from"../../files/common/files.js";import{ILogService as ne}from"../../log/common/log.js";import{IProductService as ie}from"../../product/common/productService.js";import{asJson as z,asTextOrError as D,IRequestService as ae,isSuccess as ke}from"../../request/common/request.js";import{IStorageService as De}from"../../storage/common/storage.js";import{ITelemetryService as oe}from"../../telemetry/common/telemetry.js";import{ExtensionGalleryResourceType as G,Flag as g,getExtensionGalleryManifestResourceUri as C,IExtensionGalleryManifestService as le}from"./extensionGalleryManifest.js";import{EXTENSION_IDENTIFIER_REGEX as ve,ExtensionGalleryError as ce,ExtensionGalleryErrorCode as b,FilterType as v,getTargetPlatform as Ne,IAllowedExtensionsService as ue,InstallOperation as Se,isNotWebExtensionInWebTargetPlatform as N,isTargetPlatformCompatible as xe,SortBy as L,SortOrder as Le,StatisticType as Oe,toTargetPlatform as Ue,UseUnpkgResourceApiConfigKey as Qe,WEB_EXTENSION_TAG as He}from"./extensionManagement.js";import{adoptToGalleryExtensionId as Be,areSameExtensions as F,getGalleryExtensionId as O,getGalleryExtensionTelemetryData as $e}from"./extensionManagementUtil.js";const de=J?$.WEB:Ne(Ce,Ae),U="X-Market-Search-Activity-Id",fe="Activityid",pe="Server",ge="X-Vss-E2eid",E={Icon:"Microsoft.VisualStudio.Services.Icons.Default",Details:"Microsoft.VisualStudio.Services.Content.Details",Changelog:"Microsoft.VisualStudio.Services.Content.Changelog",Manifest:"Microsoft.VisualStudio.Code.Manifest",VSIX:"Microsoft.VisualStudio.Services.VSIXPackage",License:"Microsoft.VisualStudio.Services.Content.License",Repository:"Microsoft.VisualStudio.Services.Links.Source",Signature:"Microsoft.VisualStudio.Services.VsixSignature"},P={Dependency:"Microsoft.VisualStudio.Code.ExtensionDependencies",ExtensionPack:"Microsoft.VisualStudio.Code.ExtensionPack",Engine:"Microsoft.VisualStudio.Code.Engine",PreRelease:"Microsoft.VisualStudio.Code.PreRelease",EnabledApiProposals:"Microsoft.VisualStudio.Code.EnabledApiProposals",LocalizedLanguages:"Microsoft.VisualStudio.Code.LocalizedLanguages",WebExtension:"Microsoft.VisualStudio.Code.WebExtension",SponsorLink:"Microsoft.VisualStudio.Code.SponsorLink",SupportLink:"Microsoft.VisualStudio.Services.Links.Support",ExecutesCode:"Microsoft.VisualStudio.Code.ExecutesCode",Private:"PrivateMarketplace"},ze=10,qe={pageNumber:1,pageSize:ze,sortBy:L.NoneOrRelevance,sortOrder:Le.Default,flags:[],criteria:[],assetTypes:[]};var We=(s=>(s[s.Release=0]="Release",s[s.Prerelease=1]="Prerelease",s[s.Latest=2]="Latest",s))(We||{});class S{constructor(e=qe){this.state=e}get pageNumber(){return this.state.pageNumber}get pageSize(){return this.state.pageSize}get sortBy(){return this.state.sortBy}get sortOrder(){return this.state.sortOrder}get flags(){return this.state.flags}get criteria(){return this.state.criteria}get assetTypes(){return this.state.assetTypes}get source(){return this.state.source}get searchText(){const e=this.state.criteria.filter(t=>t.filterType===v.SearchText)[0];return e&&e.value?e.value:""}withPage(e,t=this.state.pageSize){return new S({...this.state,pageNumber:e,pageSize:t})}withFilter(e,...t){const s=[...this.state.criteria,...t.length?t.map(r=>({filterType:e,value:r})):[{filterType:e}]];return new S({...this.state,criteria:s})}withSortBy(e){return new S({...this.state,sortBy:e})}withSortOrder(e){return new S({...this.state,sortOrder:e})}withFlags(...e){return new S({...this.state,flags:he(e)})}withAssetTypes(...e){return new S({...this.state,assetTypes:e})}withSource(e){return new S({...this.state,source:e})}}function ye(i,e){const t=(i||[]).filter(s=>s.statisticName===e)[0];return t?t.value:0}function _e(i){const e="Microsoft.VisualStudio.Code.Translation.";return i.files.filter(s=>s.assetType.indexOf(e)===0).reduce((s,r)=>{const a=T(i,r.assetType);return a&&s.push([r.assetType.substring(e.length),a]),s},[])}function Xe(i){if(i.properties){const e=i.properties.filter(r=>r.key===E.Repository),t=new RegExp("((git|ssh|http(s)?)|(git@[\\w.]+))(:(//)?)([\\w.@:/\\-~]+)(.git)(/)?"),s=e.filter(r=>t.test(r.value))[0];return s?{uri:s.value,fallbackUri:s.value}:null}return T(i,E.Repository)}function Ke(i){return{uri:`${i.fallbackAssetUri}/${E.VSIX}?redirect=true${i.targetPlatform?`&targetPlatform=${i.targetPlatform}`:""}`,fallbackUri:`${i.fallbackAssetUri}/${E.VSIX}${i.targetPlatform?`?targetPlatform=${i.targetPlatform}`:""}`}}function T(i,e){return i.files.filter(s=>s.assetType===e)[0]?{uri:`${i.assetUri}/${e}${i.targetPlatform?`?targetPlatform=${i.targetPlatform}`:""}`,fallbackUri:`${i.fallbackAssetUri}/${e}${i.targetPlatform?`?targetPlatform=${i.targetPlatform}`:""}`}:null}function we(i,e){const t=i.properties?i.properties.filter(r=>r.key===e):[],s=t.length>0&&t[0].value;return s?s.split(",").map(r=>Be(r)):[]}function be(i){const e=i.properties?i.properties.filter(t=>t.key===P.Engine):[];return e.length>0&&e[0].value||""}function Q(i){const e=i.properties?i.properties.filter(t=>t.key===P.PreRelease):[];return e.length>0&&e[0].value==="true"}function je(i){const e=i.properties?i.properties.filter(t=>t.key===P.Private):[];return e.length>0&&e[0].value==="true"}function Je(i){const e=i.properties?i.properties.filter(t=>t.key===P.ExecutesCode):[];return e.length>0?e[0].value==="true":void 0}function me(i){const e=i.properties?i.properties.filter(s=>s.key===P.EnabledApiProposals):[],t=e.length>0&&e[0].value||"";return t?t.split(","):[]}function Ye(i){const e=i.properties?i.properties.filter(s=>s.key===P.LocalizedLanguages):[],t=e.length>0&&e[0].value||"";return t?t.split(","):[]}function Ze(i){return i.properties?.find(e=>e.key===P.SponsorLink)?.value}function et(i){return i.properties?.find(e=>e.key===P.SupportLink)?.value}function tt(i){return i.indexOf("preview")!==-1}function q(i){return i.targetPlatform?Ue(i.targetPlatform):$.UNDEFINED}function H(i){const e=he(i.versions.map(q)),t=!!i.tags?.includes(He),s=e.indexOf($.WEB);return t?s===-1&&e.push($.WEB):s!==-1&&e.splice(s,1),e}function Pe(i,e){for(let t=0;t<i.length;t++){const s=i[t];if(s.version===i[t-1]?.version){let r=t;if(q(s)===e)for(;r>0&&i[r-1].version===s.version;)r--;r!==t&&(i.splice(t,1),i.splice(r,0,s))}}return i}function Re(i,e,t){i.telemetryData={index:e,querySource:t,queryActivityId:i.queryContext?.[U]}}function W(i,e,t,s,r){const a=i.versions[0],n={manifest:T(e,E.Manifest),readme:T(e,E.Details),changelog:T(e,E.Changelog),license:T(e,E.License),repository:Xe(e),download:Ke(e),icon:T(e,E.Icon),signature:T(e,E.Signature),coreTranslations:_e(e)},d=C(s,G.ExtensionDetailsViewUri),u=C(s,G.PublisherViewUri),l=C(s,G.ExtensionRatingViewUri);return{type:"gallery",identifier:{id:O(i.publisher.publisherName,i.extensionName),uuid:i.extensionId},name:i.extensionName,version:e.version,displayName:i.displayName,publisherId:i.publisher.publisherId,publisher:i.publisher.publisherName,publisherDisplayName:i.publisher.displayName,publisherDomain:i.publisher.domain?{link:i.publisher.domain,verified:!!i.publisher.isDomainVerified}:void 0,publisherSponsorLink:Ze(a),description:i.shortDescription??"",installCount:ye(i.statistics,"install"),rating:ye(i.statistics,"averagerating"),ratingCount:ye(i.statistics,"ratingcount"),categories:i.categories||[],tags:i.tags||[],releaseDate:Date.parse(i.releaseDate),lastUpdated:Date.parse(i.lastUpdated),allTargetPlatforms:t,assets:n,properties:{dependencies:we(e,P.Dependency),extensionPack:we(e,P.ExtensionPack),engine:be(e),enabledApiProposals:me(e),localizedLanguages:Ye(e),targetPlatform:q(e),isPreReleaseVersion:Q(e),executesCode:Je(e)},hasPreReleaseVersion:Q(a),hasReleaseVersion:!0,private:je(a),preview:tt(i.flags),isSigned:!!n.signature,queryContext:r,supportLink:et(a),detailsLink:d?A(d,{publisher:i.publisher.publisherName,name:i.extensionName}):void 0,publisherLink:u?A(u,{publisher:i.publisher.publisherName}):void 0,ratingLink:l?A(l,{publisher:i.publisher.publisherName,name:i.extensionName}):void 0}}let M=class{constructor(e,t,s,r,a,n,d,u,l,o,p){this.assignmentService=t;this.requestService=s;this.logService=r;this.environmentService=a;this.telemetryService=n;this.fileService=d;this.productService=u;this.configurationService=l;this.allowedExtensionsService=o;this.extensionGalleryManifestService=p;this.extensionsControlUrl=u.extensionsGallery?.controlUrl,this.unpkgResourceApi=u.extensionsGallery?.extensionUrlTemplate,this.extensionsEnabledWithApiProposalVersion=u.extensionsEnabledWithApiProposalVersion?.map(c=>c.toLowerCase())??[],this.commonHeadersPromise=Me(u.version,u,this.environmentService,this.configurationService,this.fileService,e,this.telemetryService)}extensionsControlUrl;unpkgResourceApi;commonHeadersPromise;extensionsEnabledWithApiProposalVersion;isEnabled(){return this.extensionGalleryManifestService.isEnabled()}async getExtensions(e,t,s){const r=await this.extensionGalleryManifestService.getExtensionGalleryManifest();if(!r)throw new Error("No extension gallery service configured.");const a=V.isCancellationToken(t)?{}:t,n=V.isCancellationToken(t)?t:s,d=a.preferResourceApi&&(this.configurationService.getValue(Qe)??!1)?await this.getResourceApi(r):void 0,u=d?await this.getExtensionsUsingResourceApi(e,a,d,r,n):await this.getExtensionsUsingQueryApi(e,a,r,n),l=u.map(p=>p.identifier.uuid),o=[];for(const p of e)p.uuid&&!l.includes(p.uuid)&&o.push({...p,uuid:void 0});if(o.length){this.telemetryService.publicLog2("galleryService:additionalQueryByName",{count:o.length});const p=await this.getExtensionsUsingQueryApi(o,a,r,n);u.push(...p)}return u}async getResourceApi(e){const t=C(e,G.ExtensionLatestVersionUri);if(!t)return;if(this.productService.quality!=="stable")return{uri:t,fallback:this.unpkgResourceApi};const s=await this.assignmentService?.getTreatment("extensions.gallery.useResourceApi")??"unpkg";if(s==="marketplace")return{uri:t,fallback:this.unpkgResourceApi};if(s==="unpkg"&&this.unpkgResourceApi)return{uri:this.unpkgResourceApi}}async getExtensionsUsingQueryApi(e,t,s,r){const a=[],n=[],d=[],u=[];let l=!0;for(const c of e)c.uuid?n.push(c.uuid):a.push(c.id),c.version?u.push({id:c.id,uuid:c.uuid,version:c.version}):d.push({id:c.id,uuid:c.uuid,includePreRelease:!!c.preRelease}),l=l&&!!c.hasPreRelease&&!c.preRelease;if(!n.length&&!a.length)return[];let o=new S().withPage(1,e.length);n.length&&(o=o.withFilter(v.ExtensionId,...n)),a.length&&(o=o.withFilter(v.ExtensionName,...a)),t.queryAllVersions&&(o=o.withFlags(...o.flags,g.IncludeVersions)),t.source&&(o=o.withSource(t.source));const{extensions:p}=await this.queryGalleryExtensions(o,{targetPlatform:t.targetPlatform??de,includePreRelease:d,versions:u,compatible:!!t.compatible,productVersion:t.productVersion??{version:this.productService.version,date:this.productService.date},isQueryForReleaseVersionFromPreReleaseVersion:l},s,r);return t.source&&p.forEach((c,f)=>Re(c,f,t.source)),p}async getExtensionsUsingResourceApi(e,t,s,r,a){const n=[],d=[],u=[];for(const l of e)ve.test(l.id)&&(l.version?d.push(l):u.push(l));if(await Promise.allSettled(u.map(async l=>{let o;try{try{o=await this.getLatestGalleryExtension(l,t,s.uri,r,a)}catch(p){if(!s.fallback)throw p;this.logService.error(`Error while getting the latest version for the extension ${l.id} from ${s.uri}. Trying the fallback ${s.fallback}`,w(p)),this.telemetryService.publicLog2("galleryService:fallbacktounpkg",{extension:l.id,preRelease:!!l.preRelease,compatible:!!t.compatible}),o=await this.getLatestGalleryExtension(l,t,s.fallback,r,a)}if(o==="NOT_FOUND"){l.uuid&&d.push(l);return}o&&n.push(o)}catch(p){this.logService.error(`Error while getting the latest version for the extension ${l.id}.`,w(p)),this.telemetryService.publicLog2("galleryService:fallbacktoquery",{extension:l.id,preRelease:!!l.preRelease,compatible:!!t.compatible,fromFallback:!!s.fallback}),d.push(l)}})),d.length){const l=await this.getExtensionsUsingQueryApi(d,t,r,a);n.push(...l)}return n}async getLatestGalleryExtension(e,t,s,r,a){const[n,d]=e.id.split("."),u=Z.parse(A(s,{publisher:n,name:d})),l=await this.getLatestRawGalleryExtension(e.id,u,a);if(!l)return"NOT_FOUND";const o=H(l),p=await this.getRawGalleryExtensionVersion(l,{targetPlatform:t.targetPlatform??de,compatible:!!t.compatible,productVersion:t.productVersion??{version:this.productService.version,date:this.productService.date},version:e.preRelease?1:0},o);return p?W(l,p,o,r):null}async getCompatibleExtension(e,t,s,r={version:this.productService.version,date:this.productService.date}){return N(e.allTargetPlatforms,s)?null:await this.isExtensionCompatible(e,t,s)?e:this.allowedExtensionsService.isAllowed({id:e.identifier.id,publisherDisplayName:e.publisherDisplayName})!==!0?null:(await this.getExtensions([{...e.identifier,preRelease:t,hasPreRelease:e.hasPreReleaseVersion}],{compatible:!0,productVersion:r,queryAllVersions:!0,targetPlatform:s},V.None))[0]??null}async isExtensionCompatible(e,t,s,r={version:this.productService.version,date:this.productService.date}){if(this.allowedExtensionsService.isAllowed(e)!==!0||!xe(e.properties.targetPlatform,e.allTargetPlatforms,s)||!t&&e.properties.isPreReleaseVersion)return!1;let a=e.properties.engine;if(!a){const n=await this.getManifest(e,V.None);if(!n)throw new Error("Manifest was not found");a=n.engines.vscode}return!(!se(a,r.version,r.date)||!this.areApiProposalsCompatible(e.identifier,e.properties.enabledApiProposals))}areApiProposalsCompatible(e,t){return!t||!this.extensionsEnabledWithApiProposalVersion.includes(e.id.toLowerCase())?!0:Fe(t)}async isValidVersion(e,t,{targetPlatform:s,compatible:r,productVersion:a,version:n},d,u){if(Ie(n)){if(t.version!==n)return!1}else if((n===0||n===1)&&Q(t)!==(n===1))return!1;const l=q(t);if(!xe(l,u,s))return!1;if(r){if(this.allowedExtensionsService.isAllowed({id:e,publisherDisplayName:d,version:t.version,prerelease:Q(t),targetPlatform:l})!==!0)return!1;try{const o=await this.getEngine(e,t);if(!se(o,a.version,a.date))return!1}catch(o){return this.logService.error(`Error while getting the engine for the version ${t.version}.`,w(o)),!1}}return!0}async query(e,t){const s=await this.extensionGalleryManifestService.getExtensionGalleryManifest();if(!s)throw new Error("No extension gallery service configured.");let r=e.text||"";const a=e.pageSize??50;let n=new S().withPage(1,a);r?(r=r.replace(/\bcategory:("([^"]*)"|([^"]\S*))(\s+|\b|$)/g,(p,c,f)=>(n=n.withFilter(v.Category,f||c),"")),r=r.replace(/\btag:("([^"]*)"|([^"]\S*))(\s+|\b|$)/g,(p,c,f)=>(n=n.withFilter(v.Tag,f||c),"")),r=r.replace(/\bfeatured(\s+|\b|$)/g,()=>(n=n.withFilter(v.Featured),"")),r=r.trim(),r&&(r=r.length<200?r:r.substring(0,200),n=n.withFilter(v.SearchText,r)),s.capabilities.extensionQuery.sorting?.some(p=>p.name===L.NoneOrRelevance)&&(n=n.withSortBy(L.NoneOrRelevance))):s.capabilities.extensionQuery.sorting?.some(p=>p.name===L.InstallCount)&&(n=n.withSortBy(L.InstallCount)),e.sortBy&&s.capabilities.extensionQuery.sorting?.some(p=>p.name===e.sortBy)&&(n=n.withSortBy(e.sortBy)),typeof e.sortOrder=="number"&&(n=n.withSortOrder(e.sortOrder)),e.source&&(n=n.withSource(e.source));const d=async(p,c)=>{const{extensions:f,total:y}=await this.queryGalleryExtensions(p,{targetPlatform:de,compatible:!1,includePreRelease:!!e.includePreRelease,productVersion:e.productVersion??{version:this.productService.version,date:this.productService.date}},s,c);return f.forEach((h,I)=>Re(h,(p.pageNumber-1)*p.pageSize+I,e.source)),{extensions:f,total:y}},{extensions:u,total:l}=await d(n,t),o=async(p,c)=>{if(c.isCancellationRequested)throw new Ge;const{extensions:f}=await d(n.withPage(p+1),c);return f};return{firstPage:u,total:l,pageSize:n.pageSize,getPage:o}}async queryGalleryExtensions(e,t,s,r){return this.productService.quality!=="stable"&&await this.assignmentService?.getTreatment("useLatestPrereleaseAndStableVersionFlag")?this.queryGalleryExtensionsUsingIncludeLatestPrereleaseAndStableVersionFlag(e,t,s,r):this.queryGalleryExtensionsWithAllVersionsAsFallback(e,t,s,r)}async queryGalleryExtensionsWithAllVersionsAsFallback(e,t,s,r){const a=e.flags;e.flags.includes(g.IncludeLatestVersionOnly)&&e.flags.includes(g.IncludeVersions)&&(e=e.withFlags(...e.flags.filter(c=>c!==g.IncludeVersions))),!e.flags.includes(g.IncludeLatestVersionOnly)&&!e.flags.includes(g.IncludeVersions)&&(e=e.withFlags(...e.flags,g.IncludeLatestVersionOnly)),(t.versions?.length||t.isQueryForReleaseVersionFromPreReleaseVersion)&&(e=e.withFlags(...e.flags.filter(c=>c!==g.IncludeLatestVersionOnly),g.IncludeVersions)),e=e.withFlags(...e.flags,g.IncludeAssetUri,g.IncludeCategoryAndTags,g.IncludeFiles,g.IncludeStatistics,g.IncludeVersionProperties);const{galleryExtensions:n,total:d,context:u}=await this.queryRawGalleryExtensions(e,s,r);if(!e.flags.includes(g.IncludeLatestVersionOnly)){const c=[];for(const f of n){const y=H(f),h={id:O(f.publisher.publisherName,f.extensionName),uuid:f.extensionId},I=k(t.includePreRelease)?t.includePreRelease:!!t.includePreRelease.find(x=>F(x,h))?.includePreRelease,R=await this.getRawGalleryExtensionVersion(f,{compatible:t.compatible,targetPlatform:t.targetPlatform,productVersion:t.productVersion,version:t.versions?.find(x=>F(x,h))?.version??(I?2:0)},y);R&&c.push(W(f,R,y,s,u))}return{extensions:c,total:d}}const o=[],p=new Map;for(let c=0;c<n.length;c++){const f=n[c],y={id:O(f.publisher.publisherName,f.extensionName),uuid:f.extensionId},h=k(t.includePreRelease)?t.includePreRelease:!!t.includePreRelease.find(K=>F(K,y))?.includePreRelease,I=H(f);if(t.compatible&&(N(I,t.targetPlatform)||this.allowedExtensionsService.isAllowed({id:y.id,publisherDisplayName:f.publisher.displayName})!==!0))continue;const R=await this.getRawGalleryExtensionVersion(f,{compatible:t.compatible,targetPlatform:t.targetPlatform,productVersion:t.productVersion,version:t.versions?.find(K=>F(K,y))?.version??(h?2:0)},I),x=R?W(f,R,I,s,u):null;!x||x.properties.isPreReleaseVersion&&(!h||!x.hasReleaseVersion)||!x.properties.isPreReleaseVersion&&x.properties.targetPlatform!==t.targetPlatform&&x.hasPreReleaseVersion?p.set(f.extensionId,c):o.push([c,x])}if(p.size){const c=new Y,f=new S().withFlags(...a.filter(h=>h!==g.IncludeLatestVersionOnly),g.IncludeVersions).withPage(1,p.size).withFilter(v.ExtensionId,...p.keys()),{extensions:y}=await this.queryGalleryExtensions(f,t,s,r);this.telemetryService.publicLog2("galleryService:additionalQuery",{duration:c.elapsed(),count:p.size});for(const h of y){const I=p.get(h.identifier.uuid);o.push([I,h])}}return{extensions:o.sort((c,f)=>c[0]-f[0]).map(([,c])=>c),total:d}}async queryGalleryExtensionsUsingIncludeLatestPrereleaseAndStableVersionFlag(e,t,s,r){t.versions?.length?e=e.withFlags(...e.flags.filter(l=>l!==g.IncludeLatestVersionOnly&&l!==g.IncludeLatestPrereleaseAndStableVersionOnly),g.IncludeVersions):e.flags.includes(g.IncludeVersions)||(e=(k(t.includePreRelease)?t.includePreRelease:t.includePreRelease.every(({includePreRelease:o})=>o))?e.withFlags(...e.flags.filter(o=>o!==g.IncludeLatestPrereleaseAndStableVersionOnly),g.IncludeLatestVersionOnly):e.withFlags(...e.flags.filter(o=>o!==g.IncludeLatestVersionOnly),g.IncludeLatestPrereleaseAndStableVersionOnly)),e.flags.includes(g.IncludeVersions)&&(e.flags.includes(g.IncludeLatestVersionOnly)||e.flags.includes(g.IncludeLatestPrereleaseAndStableVersionOnly))&&(e=e.withFlags(...e.flags.filter(l=>l!==g.IncludeLatestVersionOnly&&l!==g.IncludeLatestPrereleaseAndStableVersionOnly),g.IncludeVersions)),e=e.withFlags(...e.flags,g.IncludeAssetUri,g.IncludeCategoryAndTags,g.IncludeFiles,g.IncludeStatistics,g.IncludeVersionProperties);const{galleryExtensions:a,total:n,context:d}=await this.queryRawGalleryExtensions(e,s,r),u=[];for(let l=0;l<a.length;l++){const o=a[l],p={id:O(o.publisher.publisherName,o.extensionName),uuid:o.extensionId},c=H(o);if(t.compatible&&(N(c,t.targetPlatform)||this.allowedExtensionsService.isAllowed({id:p.id,publisherDisplayName:o.publisher.displayName})!==!0))continue;const f=t.versions?.find(h=>F(h,p))?.version??((k(t.includePreRelease)?t.includePreRelease:t.includePreRelease.find(h=>F(h,p))?.includePreRelease)?2:0),y=await this.getRawGalleryExtensionVersion(o,{compatible:t.compatible,targetPlatform:t.targetPlatform,productVersion:t.productVersion,version:f},c);y&&u.push(W(o,y,c,s,d))}return{extensions:u,total:n}}async getRawGalleryExtensionVersion(e,t,s){const r={id:O(e.publisher.publisherName,e.extensionName),uuid:e.extensionId},a=Pe(e.versions,t.targetPlatform);if(t.compatible&&N(s,t.targetPlatform))return null;const n=Ie(t.version)?t.version:void 0;for(let d=0;d<a.length;d++){const u=a[d];if(await this.isValidVersion(r.id,u,t,e.publisher.displayName,s)){if(t.compatible&&!this.areApiProposalsCompatible(r,me(u)))continue;return u}if(n&&u.version===n)return null}return n||t.compatible?null:e.versions[0]}async queryRawGalleryExtensions(e,t,s){const r=C(t,G.ExtensionQueryService);if(!r)throw new Error("No extension gallery query service configured.");e=e.withFlags(...e.flags,g.ExcludeNonValidated).withFilter(v.Target,"Microsoft.VisualStudio.Code");const a=t.capabilities.extensionQuery.flags?.find(f=>f.name===g.Unpublished);a&&(e=e.withFilter(v.ExcludeWithFlags,String(a.value)));const n=JSON.stringify({filters:[{criteria:e.criteria.reduce((f,y)=>{const h=t.capabilities.extensionQuery.filtering?.find(I=>I.name===y.filterType);return h&&f.push({filterType:h.value,value:y.value}),f},[]),pageNumber:e.pageNumber,pageSize:e.pageSize,sortBy:t.capabilities.extensionQuery.sorting?.find(f=>f.name===e.sortBy)?.value,sortOrder:e.sortOrder}],assetTypes:e.assetTypes,flags:e.flags.reduce((f,y)=>{const h=t.capabilities.extensionQuery.flags?.find(I=>I.name===y);return h&&(f|=h.value),f},0)}),u={...await this.commonHeadersPromise,"Content-Type":"application/json",Accept:"application/json;api-version=3.0-preview.1","Accept-Encoding":"gzip","Content-Length":String(n.length)},l=new Y;let o,p,c=0;try{if(o=await this.requestService.request({type:"POST",url:r,data:n,headers:u},s),o.res.statusCode&&o.res.statusCode>=400&&o.res.statusCode<500)return{galleryExtensions:[],total:c};const f=await z(o);if(f){const y=f.results[0],h=y.extensions,I=y.resultMetadata&&y.resultMetadata.filter(R=>R.metadataType==="ResultCount")[0];return c=I&&I.metadataItems.filter(R=>R.name==="TotalCount")[0].count||0,{galleryExtensions:h,total:c,context:o.res.headers.activityid?{[U]:o.res.headers.activityid}:{}}}return{galleryExtensions:[],total:c}}catch(f){if(j(f))throw p=b.Cancelled,f;{const y=w(f);throw p=Ee(f)?b.Offline:y.startsWith("XHR timeout")?b.Timeout:b.Failed,new ce(y,p)}}finally{this.telemetryService.publicLog2("galleryService:query",{filterTypes:e.criteria.map(f=>f.filterType),flags:e.flags,sortBy:e.sortBy,sortOrder:String(e.sortOrder),pageNumber:String(e.pageNumber),source:e.source,searchTextLength:e.searchText.length,requestBodySize:String(n.length),duration:l.elapsed(),success:!!o&&ke(o),responseBodySize:o?.res.headers["Content-Length"],statusCode:o?String(o.res.statusCode):void 0,errorCode:p,count:String(c),server:this.getHeaderValue(o?.res.headers,pe),activityId:this.getHeaderValue(o?.res.headers,fe),endToEndId:this.getHeaderValue(o?.res.headers,ge)})}}getHeaderValue(e,t){const s=e?.[t.toLowerCase()];return Array.isArray(s)?s[0]:s}async getLatestRawGalleryExtension(e,t,s){let r;const a=new Y;let n;try{const u={...await this.commonHeadersPromise,"Content-Type":"application/json",Accept:"application/json;api-version=7.2-preview","Accept-Encoding":"gzip"};if(n=await this.requestService.request({type:"GET",url:t.toString(!0),headers:u,timeout:1e4},s),n.res.statusCode===404)return r="NotFound",null;if(n.res.statusCode&&n.res.statusCode!==200)throw r="GalleryServiceError:"+n.res.statusCode,new Error("Unexpected HTTP response: "+n.res.statusCode);const l=await z(n);return l||(r="NoData"),l}catch(d){if(j(d))r=b.Cancelled;else{const u=w(d);r=Ee(d)?b.Offline:u.startsWith("XHR timeout")?b.Timeout:b.Failed}throw d}finally{this.telemetryService.publicLog2("galleryService:getLatest",{extension:e,host:t.authority,duration:a.elapsed(),errorCode:r,server:this.getHeaderValue(n?.res.headers,pe),activityId:this.getHeaderValue(n?.res.headers,fe),endToEndId:this.getHeaderValue(n?.res.headers,ge)})}}async reportStatistic(e,t,s,r){const a=await this.extensionGalleryManifestService.getExtensionGalleryManifest();if(!a)return;let n;if(J){const o=C(a,G.WebExtensionStatisticsUri);if(!o)return;n=A(o,{publisher:e,name:t,version:s,statTypeValue:r===Oe.Install?"1":"3"})}else{const o=C(a,G.ExtensionStatisticsUri);if(!o)return;n=A(o,{publisher:e,name:t,version:s,statTypeName:r})}const d=J?"api-version=6.1-preview.1":"*/*;api-version=4.0-preview.1",l={...await this.commonHeadersPromise,Accept:d};try{await this.requestService.request({type:"POST",url:n,headers:l},V.None)}catch{}}async download(e,t,s){this.logService.trace("ExtensionGalleryService#download",e.identifier.id);const r=$e(e),a=new Date().getTime(),n=s===Se.Install?"install":s===Se.Update?"update":"",d=n?{uri:`${e.assets.download.uri}${Z.parse(e.assets.download.uri).query?"&":"?"}${n}=true`,fallbackUri:`${e.assets.download.fallbackUri}${Z.parse(e.assets.download.fallbackUri).query?"&":"?"}${n}=true`}:e.assets.download,u=e.queryContext?.[U]?{[U]:e.queryContext[U]}:void 0,l=await this.getAsset(e.identifier.id,d,E.VSIX,e.version,u?{headers:u}:void 0);try{await this.fileService.writeFile(t,l.stream)}catch(o){try{await this.fileService.del(t)}catch(p){this.logService.warn(`Error while deleting the file ${t.toString()}`,w(p))}throw new ce(w(o),b.DownloadFailedWriting)}this.telemetryService.publicLog("galleryService:downloadVSIX",{...r,duration:new Date().getTime()-a})}async downloadSignatureArchive(e,t){if(!e.assets.signature)throw new Error("No signature asset found");this.logService.trace("ExtensionGalleryService#downloadSignatureArchive",e.identifier.id);const s=await this.getAsset(e.identifier.id,e.assets.signature,E.Signature,e.version);try{await this.fileService.writeFile(t,s.stream)}catch(r){try{await this.fileService.del(t)}catch(a){this.logService.warn(`Error while deleting the file ${t.toString()}`,w(a))}throw new ce(w(r),b.DownloadFailedWriting)}}async getReadme(e,t){if(e.assets.readme){const s=await this.getAsset(e.identifier.id,e.assets.readme,E.Details,e.version,{},t);return await D(s)||""}return""}async getManifest(e,t){if(e.assets.manifest){const s=await this.getAsset(e.identifier.id,e.assets.manifest,E.Manifest,e.version,{},t),r=await D(s);return r?JSON.parse(r):null}return null}async getManifestFromRawExtensionVersion(e,t,s){const r=T(t,E.Manifest);if(!r)throw new Error("Manifest was not found");const a={"Accept-Encoding":"gzip"},n=await this.getAsset(e,r,E.Manifest,t.version,{headers:a});return await z(n)}async getCoreTranslation(e,t){const s=e.assets.coreTranslations.filter(r=>r[0]===t.toUpperCase())[0];if(s){const r=await this.getAsset(e.identifier.id,s[1],s[0],e.version),a=await D(r);return a?JSON.parse(a):null}return null}async getChangelog(e,t){if(e.assets.changelog){const s=await this.getAsset(e.identifier.id,e.assets.changelog,E.Changelog,e.version,{},t);return await D(s)||""}return""}async getAllCompatibleVersions(e,t,s){const r=await this.extensionGalleryManifestService.getExtensionGalleryManifest();if(!r)throw new Error("No extension gallery service configured.");let a=new S().withFlags(g.IncludeVersions,g.IncludeCategoryAndTags,g.IncludeFiles,g.IncludeVersionProperties).withPage(1,1);e.uuid?a=a.withFilter(v.ExtensionId,e.uuid):a=a.withFilter(v.ExtensionName,e.id);const{galleryExtensions:n}=await this.queryRawGalleryExtensions(a,r,V.None);if(!n.length)return[];const d=H(n[0]);if(N(d,s))return[];const u=[],l={version:this.productService.version,date:this.productService.date};await Promise.all(n[0].versions.map(async c=>{try{await this.isValidVersion(e.id,c,{compatible:!0,productVersion:l,targetPlatform:s,version:t?2:0},n[0].publisher.displayName,d)&&this.areApiProposalsCompatible(e,me(c))&&u.push(c)}catch{}}));const o=[],p=new Set;for(const c of Pe(u,s))p.has(c.version)||(p.add(c.version),o.push({version:c.version,date:c.lastUpdated,isPreReleaseVersion:Q(c)}));return o}async getAsset(e,t,s,r,a={},n=V.None){const d=await this.commonHeadersPromise,u={type:"GET"},l={...d,...a.headers||{}};a={...a,...u,headers:l};const o=t.uri,p=t.fallbackUri,c={...a,url:o};let f;try{if(f=await this.requestService.request(c,n),f.res.statusCode===200)return f;const y=await D(f);throw new Error(`Expected 200, got back ${f.res.statusCode} instead.
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { distinct } from "../../../base/common/arrays.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import {
+  CancellationError,
+  getErrorMessage,
+  isCancellationError
+} from "../../../base/common/errors.js";
+import { IPager } from "../../../base/common/paging.js";
+import { isWeb, platform } from "../../../base/common/platform.js";
+import { arch } from "../../../base/common/process.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
+import { format2 } from "../../../base/common/strings.js";
+import { isBoolean, isString } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  IHeaders,
+  IRequestContext,
+  IRequestOptions,
+  isOfflineError
+} from "../../../base/parts/request/common/request.js";
+import { IAssignmentService } from "../../assignment/common/assignment.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import {
+  IExtensionManifest,
+  TargetPlatform
+} from "../../extensions/common/extensions.js";
+import {
+  areApiProposalsCompatible,
+  isEngineValid
+} from "../../extensions/common/extensionValidator.js";
+import { resolveMarketplaceHeaders } from "../../externalServices/common/marketplace.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import {
+  asJson,
+  asTextOrError,
+  IRequestService,
+  isSuccess
+} from "../../request/common/request.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import {
+  ExtensionGalleryResourceType,
+  Flag,
+  getExtensionGalleryManifestResourceUri,
+  IExtensionGalleryManifest,
+  IExtensionGalleryManifestService
+} from "./extensionGalleryManifest.js";
+import {
+  EXTENSION_IDENTIFIER_REGEX,
+  ExtensionGalleryError,
+  ExtensionGalleryErrorCode,
+  FilterType,
+  getTargetPlatform,
+  IAllowedExtensionsService,
+  IDeprecationInfo,
+  IExtensionGalleryService,
+  IExtensionIdentifier,
+  IExtensionInfo,
+  IExtensionQueryOptions,
+  IExtensionsControlManifest,
+  IGalleryExtension,
+  IGalleryExtensionAsset,
+  IGalleryExtensionAssets,
+  IGalleryExtensionVersion,
+  InstallOperation,
+  IProductVersion,
+  IQueryOptions,
+  ISearchPrefferedResults,
+  isNotWebExtensionInWebTargetPlatform,
+  isTargetPlatformCompatible,
+  ITranslation,
+  SortBy,
+  SortOrder,
+  StatisticType,
+  toTargetPlatform,
+  UseUnpkgResourceApiConfigKey,
+  WEB_EXTENSION_TAG
+} from "./extensionManagement.js";
+import {
+  adoptToGalleryExtensionId,
+  areSameExtensions,
+  getGalleryExtensionId,
+  getGalleryExtensionTelemetryData
+} from "./extensionManagementUtil.js";
+const CURRENT_TARGET_PLATFORM = isWeb ? TargetPlatform.WEB : getTargetPlatform(platform, arch);
+const SEARCH_ACTIVITY_HEADER_NAME = "X-Market-Search-Activity-Id";
+const ACTIVITY_HEADER_NAME = "Activityid";
+const SERVER_HEADER_NAME = "Server";
+const END_END_ID_HEADER_NAME = "X-Vss-E2eid";
+const AssetType = {
+  Icon: "Microsoft.VisualStudio.Services.Icons.Default",
+  Details: "Microsoft.VisualStudio.Services.Content.Details",
+  Changelog: "Microsoft.VisualStudio.Services.Content.Changelog",
+  Manifest: "Microsoft.VisualStudio.Code.Manifest",
+  VSIX: "Microsoft.VisualStudio.Services.VSIXPackage",
+  License: "Microsoft.VisualStudio.Services.Content.License",
+  Repository: "Microsoft.VisualStudio.Services.Links.Source",
+  Signature: "Microsoft.VisualStudio.Services.VsixSignature"
+};
+const PropertyType = {
+  Dependency: "Microsoft.VisualStudio.Code.ExtensionDependencies",
+  ExtensionPack: "Microsoft.VisualStudio.Code.ExtensionPack",
+  Engine: "Microsoft.VisualStudio.Code.Engine",
+  PreRelease: "Microsoft.VisualStudio.Code.PreRelease",
+  EnabledApiProposals: "Microsoft.VisualStudio.Code.EnabledApiProposals",
+  LocalizedLanguages: "Microsoft.VisualStudio.Code.LocalizedLanguages",
+  WebExtension: "Microsoft.VisualStudio.Code.WebExtension",
+  SponsorLink: "Microsoft.VisualStudio.Code.SponsorLink",
+  SupportLink: "Microsoft.VisualStudio.Services.Links.Support",
+  ExecutesCode: "Microsoft.VisualStudio.Code.ExecutesCode",
+  Private: "PrivateMarketplace"
+};
+const DefaultPageSize = 10;
+const DefaultQueryState = {
+  pageNumber: 1,
+  pageSize: DefaultPageSize,
+  sortBy: SortBy.NoneOrRelevance,
+  sortOrder: SortOrder.Default,
+  flags: [],
+  criteria: [],
+  assetTypes: []
+};
+var VersionKind = /* @__PURE__ */ ((VersionKind2) => {
+  VersionKind2[VersionKind2["Release"] = 0] = "Release";
+  VersionKind2[VersionKind2["Prerelease"] = 1] = "Prerelease";
+  VersionKind2[VersionKind2["Latest"] = 2] = "Latest";
+  return VersionKind2;
+})(VersionKind || {});
+class Query {
+  constructor(state = DefaultQueryState) {
+    this.state = state;
+  }
+  static {
+    __name(this, "Query");
+  }
+  get pageNumber() {
+    return this.state.pageNumber;
+  }
+  get pageSize() {
+    return this.state.pageSize;
+  }
+  get sortBy() {
+    return this.state.sortBy;
+  }
+  get sortOrder() {
+    return this.state.sortOrder;
+  }
+  get flags() {
+    return this.state.flags;
+  }
+  get criteria() {
+    return this.state.criteria;
+  }
+  get assetTypes() {
+    return this.state.assetTypes;
+  }
+  get source() {
+    return this.state.source;
+  }
+  get searchText() {
+    const criterium = this.state.criteria.filter(
+      (criterium2) => criterium2.filterType === FilterType.SearchText
+    )[0];
+    return criterium && criterium.value ? criterium.value : "";
+  }
+  withPage(pageNumber, pageSize = this.state.pageSize) {
+    return new Query({ ...this.state, pageNumber, pageSize });
+  }
+  withFilter(filterType, ...values) {
+    const criteria = [
+      ...this.state.criteria,
+      ...values.length ? values.map((value) => ({ filterType, value })) : [{ filterType }]
+    ];
+    return new Query({ ...this.state, criteria });
+  }
+  withSortBy(sortBy) {
+    return new Query({ ...this.state, sortBy });
+  }
+  withSortOrder(sortOrder) {
+    return new Query({ ...this.state, sortOrder });
+  }
+  withFlags(...flags) {
+    return new Query({ ...this.state, flags: distinct(flags) });
+  }
+  withAssetTypes(...assetTypes) {
+    return new Query({ ...this.state, assetTypes });
+  }
+  withSource(source) {
+    return new Query({ ...this.state, source });
+  }
+}
+function getStatistic(statistics, name) {
+  const result = (statistics || []).filter(
+    (s) => s.statisticName === name
+  )[0];
+  return result ? result.value : 0;
+}
+__name(getStatistic, "getStatistic");
+function getCoreTranslationAssets(version) {
+  const coreTranslationAssetPrefix = "Microsoft.VisualStudio.Code.Translation.";
+  const result = version.files.filter(
+    (f) => f.assetType.indexOf(coreTranslationAssetPrefix) === 0
+  );
+  return result.reduce((result2, file) => {
+    const asset = getVersionAsset(version, file.assetType);
+    if (asset) {
+      result2.push([
+        file.assetType.substring(coreTranslationAssetPrefix.length),
+        asset
+      ]);
+    }
+    return result2;
+  }, []);
+}
+__name(getCoreTranslationAssets, "getCoreTranslationAssets");
+function getRepositoryAsset(version) {
+  if (version.properties) {
+    const results = version.properties.filter(
+      (p) => p.key === AssetType.Repository
+    );
+    const gitRegExp = new RegExp(
+      "((git|ssh|http(s)?)|(git@[\\w.]+))(:(//)?)([\\w.@:/\\-~]+)(.git)(/)?"
+    );
+    const uri = results.filter((r) => gitRegExp.test(r.value))[0];
+    return uri ? { uri: uri.value, fallbackUri: uri.value } : null;
+  }
+  return getVersionAsset(version, AssetType.Repository);
+}
+__name(getRepositoryAsset, "getRepositoryAsset");
+function getDownloadAsset(version) {
+  return {
+    // always use fallbackAssetUri for download asset to hit the Marketplace API so that downloads are counted
+    uri: `${version.fallbackAssetUri}/${AssetType.VSIX}?redirect=true${version.targetPlatform ? `&targetPlatform=${version.targetPlatform}` : ""}`,
+    fallbackUri: `${version.fallbackAssetUri}/${AssetType.VSIX}${version.targetPlatform ? `?targetPlatform=${version.targetPlatform}` : ""}`
+  };
+}
+__name(getDownloadAsset, "getDownloadAsset");
+function getVersionAsset(version, type) {
+  const result = version.files.filter((f) => f.assetType === type)[0];
+  return result ? {
+    uri: `${version.assetUri}/${type}${version.targetPlatform ? `?targetPlatform=${version.targetPlatform}` : ""}`,
+    fallbackUri: `${version.fallbackAssetUri}/${type}${version.targetPlatform ? `?targetPlatform=${version.targetPlatform}` : ""}`
+  } : null;
+}
+__name(getVersionAsset, "getVersionAsset");
+function getExtensions(version, property) {
+  const values = version.properties ? version.properties.filter((p) => p.key === property) : [];
+  const value = values.length > 0 && values[0].value;
+  return value ? value.split(",").map((v) => adoptToGalleryExtensionId(v)) : [];
+}
+__name(getExtensions, "getExtensions");
+function getEngine(version) {
+  const values = version.properties ? version.properties.filter((p) => p.key === PropertyType.Engine) : [];
+  return values.length > 0 && values[0].value || "";
+}
+__name(getEngine, "getEngine");
+function isPreReleaseVersion(version) {
+  const values = version.properties ? version.properties.filter((p) => p.key === PropertyType.PreRelease) : [];
+  return values.length > 0 && values[0].value === "true";
+}
+__name(isPreReleaseVersion, "isPreReleaseVersion");
+function isPrivateExtension(version) {
+  const values = version.properties ? version.properties.filter((p) => p.key === PropertyType.Private) : [];
+  return values.length > 0 && values[0].value === "true";
+}
+__name(isPrivateExtension, "isPrivateExtension");
+function executesCode(version) {
+  const values = version.properties ? version.properties.filter((p) => p.key === PropertyType.ExecutesCode) : [];
+  return values.length > 0 ? values[0].value === "true" : void 0;
+}
+__name(executesCode, "executesCode");
+function getEnabledApiProposals(version) {
+  const values = version.properties ? version.properties.filter(
+    (p) => p.key === PropertyType.EnabledApiProposals
+  ) : [];
+  const value = values.length > 0 && values[0].value || "";
+  return value ? value.split(",") : [];
+}
+__name(getEnabledApiProposals, "getEnabledApiProposals");
+function getLocalizedLanguages(version) {
+  const values = version.properties ? version.properties.filter(
+    (p) => p.key === PropertyType.LocalizedLanguages
+  ) : [];
+  const value = values.length > 0 && values[0].value || "";
+  return value ? value.split(",") : [];
+}
+__name(getLocalizedLanguages, "getLocalizedLanguages");
+function getSponsorLink(version) {
+  return version.properties?.find((p) => p.key === PropertyType.SponsorLink)?.value;
+}
+__name(getSponsorLink, "getSponsorLink");
+function getSupportLink(version) {
+  return version.properties?.find((p) => p.key === PropertyType.SupportLink)?.value;
+}
+__name(getSupportLink, "getSupportLink");
+function getIsPreview(flags) {
+  return flags.indexOf("preview") !== -1;
+}
+__name(getIsPreview, "getIsPreview");
+function getTargetPlatformForExtensionVersion(version) {
+  return version.targetPlatform ? toTargetPlatform(version.targetPlatform) : TargetPlatform.UNDEFINED;
+}
+__name(getTargetPlatformForExtensionVersion, "getTargetPlatformForExtensionVersion");
+function getAllTargetPlatforms(rawGalleryExtension) {
+  const allTargetPlatforms = distinct(
+    rawGalleryExtension.versions.map(getTargetPlatformForExtensionVersion)
+  );
+  const isWebExtension = !!rawGalleryExtension.tags?.includes(WEB_EXTENSION_TAG);
+  const webTargetPlatformIndex = allTargetPlatforms.indexOf(
+    TargetPlatform.WEB
+  );
+  if (isWebExtension) {
+    if (webTargetPlatformIndex === -1) {
+      allTargetPlatforms.push(TargetPlatform.WEB);
+    }
+  } else {
+    if (webTargetPlatformIndex !== -1) {
+      allTargetPlatforms.splice(webTargetPlatformIndex, 1);
+    }
+  }
+  return allTargetPlatforms;
+}
+__name(getAllTargetPlatforms, "getAllTargetPlatforms");
+function sortExtensionVersions(versions, preferredTargetPlatform) {
+  for (let index = 0; index < versions.length; index++) {
+    const version = versions[index];
+    if (version.version === versions[index - 1]?.version) {
+      let insertionIndex = index;
+      const versionTargetPlatform = getTargetPlatformForExtensionVersion(version);
+      if (versionTargetPlatform === preferredTargetPlatform) {
+        while (insertionIndex > 0 && versions[insertionIndex - 1].version === version.version) {
+          insertionIndex--;
+        }
+      }
+      if (insertionIndex !== index) {
+        versions.splice(index, 1);
+        versions.splice(insertionIndex, 0, version);
+      }
+    }
+  }
+  return versions;
+}
+__name(sortExtensionVersions, "sortExtensionVersions");
+function setTelemetry(extension, index, querySource) {
+  extension.telemetryData = {
+    index,
+    querySource,
+    queryActivityId: extension.queryContext?.[SEARCH_ACTIVITY_HEADER_NAME]
+  };
+}
+__name(setTelemetry, "setTelemetry");
+function toExtension(galleryExtension, version, allTargetPlatforms, extensionGalleryManifest, queryContext) {
+  const latestVersion = galleryExtension.versions[0];
+  const assets = {
+    manifest: getVersionAsset(version, AssetType.Manifest),
+    readme: getVersionAsset(version, AssetType.Details),
+    changelog: getVersionAsset(version, AssetType.Changelog),
+    license: getVersionAsset(version, AssetType.License),
+    repository: getRepositoryAsset(version),
+    download: getDownloadAsset(version),
+    icon: getVersionAsset(version, AssetType.Icon),
+    signature: getVersionAsset(version, AssetType.Signature),
+    coreTranslations: getCoreTranslationAssets(version)
+  };
+  const detailsViewUri = getExtensionGalleryManifestResourceUri(
+    extensionGalleryManifest,
+    ExtensionGalleryResourceType.ExtensionDetailsViewUri
+  );
+  const publisherViewUri = getExtensionGalleryManifestResourceUri(
+    extensionGalleryManifest,
+    ExtensionGalleryResourceType.PublisherViewUri
+  );
+  const ratingViewUri = getExtensionGalleryManifestResourceUri(
+    extensionGalleryManifest,
+    ExtensionGalleryResourceType.ExtensionRatingViewUri
+  );
+  return {
+    type: "gallery",
+    identifier: {
+      id: getGalleryExtensionId(
+        galleryExtension.publisher.publisherName,
+        galleryExtension.extensionName
+      ),
+      uuid: galleryExtension.extensionId
+    },
+    name: galleryExtension.extensionName,
+    version: version.version,
+    displayName: galleryExtension.displayName,
+    publisherId: galleryExtension.publisher.publisherId,
+    publisher: galleryExtension.publisher.publisherName,
+    publisherDisplayName: galleryExtension.publisher.displayName,
+    publisherDomain: galleryExtension.publisher.domain ? {
+      link: galleryExtension.publisher.domain,
+      verified: !!galleryExtension.publisher.isDomainVerified
+    } : void 0,
+    publisherSponsorLink: getSponsorLink(latestVersion),
+    description: galleryExtension.shortDescription ?? "",
+    installCount: getStatistic(galleryExtension.statistics, "install"),
+    rating: getStatistic(galleryExtension.statistics, "averagerating"),
+    ratingCount: getStatistic(galleryExtension.statistics, "ratingcount"),
+    categories: galleryExtension.categories || [],
+    tags: galleryExtension.tags || [],
+    releaseDate: Date.parse(galleryExtension.releaseDate),
+    lastUpdated: Date.parse(galleryExtension.lastUpdated),
+    allTargetPlatforms,
+    assets,
+    properties: {
+      dependencies: getExtensions(version, PropertyType.Dependency),
+      extensionPack: getExtensions(version, PropertyType.ExtensionPack),
+      engine: getEngine(version),
+      enabledApiProposals: getEnabledApiProposals(version),
+      localizedLanguages: getLocalizedLanguages(version),
+      targetPlatform: getTargetPlatformForExtensionVersion(version),
+      isPreReleaseVersion: isPreReleaseVersion(version),
+      executesCode: executesCode(version)
+    },
+    hasPreReleaseVersion: isPreReleaseVersion(latestVersion),
+    hasReleaseVersion: true,
+    private: isPrivateExtension(latestVersion),
+    preview: getIsPreview(galleryExtension.flags),
+    isSigned: !!assets.signature,
+    queryContext,
+    supportLink: getSupportLink(latestVersion),
+    detailsLink: detailsViewUri ? format2(detailsViewUri, {
+      publisher: galleryExtension.publisher.publisherName,
+      name: galleryExtension.extensionName
+    }) : void 0,
+    publisherLink: publisherViewUri ? format2(publisherViewUri, {
+      publisher: galleryExtension.publisher.publisherName
+    }) : void 0,
+    ratingLink: ratingViewUri ? format2(ratingViewUri, {
+      publisher: galleryExtension.publisher.publisherName,
+      name: galleryExtension.extensionName
+    }) : void 0
+  };
+}
+__name(toExtension, "toExtension");
+let AbstractExtensionGalleryService = class {
+  constructor(storageService, assignmentService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService) {
+    this.assignmentService = assignmentService;
+    this.requestService = requestService;
+    this.logService = logService;
+    this.environmentService = environmentService;
+    this.telemetryService = telemetryService;
+    this.fileService = fileService;
+    this.productService = productService;
+    this.configurationService = configurationService;
+    this.allowedExtensionsService = allowedExtensionsService;
+    this.extensionGalleryManifestService = extensionGalleryManifestService;
+    this.extensionsControlUrl = productService.extensionsGallery?.controlUrl;
+    this.unpkgResourceApi = productService.extensionsGallery?.extensionUrlTemplate;
+    this.extensionsEnabledWithApiProposalVersion = productService.extensionsEnabledWithApiProposalVersion?.map(
+      (id) => id.toLowerCase()
+    ) ?? [];
+    this.commonHeadersPromise = resolveMarketplaceHeaders(
+      productService.version,
+      productService,
+      this.environmentService,
+      this.configurationService,
+      this.fileService,
+      storageService,
+      this.telemetryService
+    );
+  }
+  static {
+    __name(this, "AbstractExtensionGalleryService");
+  }
+  extensionsControlUrl;
+  unpkgResourceApi;
+  commonHeadersPromise;
+  extensionsEnabledWithApiProposalVersion;
+  isEnabled() {
+    return this.extensionGalleryManifestService.isEnabled();
+  }
+  async getExtensions(extensionInfos, arg1, arg2) {
+    const extensionGalleryManifest = await this.extensionGalleryManifestService.getExtensionGalleryManifest();
+    if (!extensionGalleryManifest) {
+      throw new Error("No extension gallery service configured.");
+    }
+    const options = CancellationToken.isCancellationToken(arg1) ? {} : arg1;
+    const token = CancellationToken.isCancellationToken(arg1) ? arg1 : arg2;
+    const resourceApi = options.preferResourceApi && (this.configurationService.getValue(UseUnpkgResourceApiConfigKey) ?? false) ? await this.getResourceApi(extensionGalleryManifest) : void 0;
+    const result = resourceApi ? await this.getExtensionsUsingResourceApi(
+      extensionInfos,
+      options,
+      resourceApi,
+      extensionGalleryManifest,
+      token
+    ) : await this.getExtensionsUsingQueryApi(
+      extensionInfos,
+      options,
+      extensionGalleryManifest,
+      token
+    );
+    const uuids = result.map((r) => r.identifier.uuid);
+    const extensionInfosByName = [];
+    for (const e of extensionInfos) {
+      if (e.uuid && !uuids.includes(e.uuid)) {
+        extensionInfosByName.push({ ...e, uuid: void 0 });
+      }
+    }
+    if (extensionInfosByName.length) {
+      this.telemetryService.publicLog2("galleryService:additionalQueryByName", {
+        count: extensionInfosByName.length
+      });
+      const extensions = await this.getExtensionsUsingQueryApi(
+        extensionInfosByName,
+        options,
+        extensionGalleryManifest,
+        token
+      );
+      result.push(...extensions);
+    }
+    return result;
+  }
+  async getResourceApi(extensionGalleryManifest) {
+    const latestVersionResource = getExtensionGalleryManifestResourceUri(
+      extensionGalleryManifest,
+      ExtensionGalleryResourceType.ExtensionLatestVersionUri
+    );
+    if (!latestVersionResource) {
+      return void 0;
+    }
+    if (this.productService.quality !== "stable") {
+      return {
+        uri: latestVersionResource,
+        fallback: this.unpkgResourceApi
+      };
+    }
+    const value = await this.assignmentService?.getTreatment("extensions.gallery.useResourceApi") ?? "unpkg";
+    if (value === "marketplace") {
+      return {
+        uri: latestVersionResource,
+        fallback: this.unpkgResourceApi
+      };
+    }
+    if (value === "unpkg" && this.unpkgResourceApi) {
+      return { uri: this.unpkgResourceApi };
+    }
+    return void 0;
+  }
+  async getExtensionsUsingQueryApi(extensionInfos, options, extensionGalleryManifest, token) {
+    const names = [], ids = [], includePreRelease = [], versions = [];
+    let isQueryForReleaseVersionFromPreReleaseVersion = true;
+    for (const extensionInfo of extensionInfos) {
+      if (extensionInfo.uuid) {
+        ids.push(extensionInfo.uuid);
+      } else {
+        names.push(extensionInfo.id);
+      }
+      if (extensionInfo.version) {
+        versions.push({
+          id: extensionInfo.id,
+          uuid: extensionInfo.uuid,
+          version: extensionInfo.version
+        });
+      } else {
+        includePreRelease.push({
+          id: extensionInfo.id,
+          uuid: extensionInfo.uuid,
+          includePreRelease: !!extensionInfo.preRelease
+        });
+      }
+      isQueryForReleaseVersionFromPreReleaseVersion = isQueryForReleaseVersionFromPreReleaseVersion && !!extensionInfo.hasPreRelease && !extensionInfo.preRelease;
+    }
+    if (!ids.length && !names.length) {
+      return [];
+    }
+    let query = new Query().withPage(1, extensionInfos.length);
+    if (ids.length) {
+      query = query.withFilter(FilterType.ExtensionId, ...ids);
+    }
+    if (names.length) {
+      query = query.withFilter(FilterType.ExtensionName, ...names);
+    }
+    if (options.queryAllVersions) {
+      query = query.withFlags(...query.flags, Flag.IncludeVersions);
+    }
+    if (options.source) {
+      query = query.withSource(options.source);
+    }
+    const { extensions } = await this.queryGalleryExtensions(
+      query,
+      {
+        targetPlatform: options.targetPlatform ?? CURRENT_TARGET_PLATFORM,
+        includePreRelease,
+        versions,
+        compatible: !!options.compatible,
+        productVersion: options.productVersion ?? {
+          version: this.productService.version,
+          date: this.productService.date
+        },
+        isQueryForReleaseVersionFromPreReleaseVersion
+      },
+      extensionGalleryManifest,
+      token
+    );
+    if (options.source) {
+      extensions.forEach(
+        (e, index) => setTelemetry(e, index, options.source)
+      );
+    }
+    return extensions;
+  }
+  async getExtensionsUsingResourceApi(extensionInfos, options, resourceApi, extensionGalleryManifest, token) {
+    const result = [];
+    const toQuery = [];
+    const toFetchLatest = [];
+    for (const extensionInfo of extensionInfos) {
+      if (!EXTENSION_IDENTIFIER_REGEX.test(extensionInfo.id)) {
+        continue;
+      }
+      if (extensionInfo.version) {
+        toQuery.push(extensionInfo);
+      } else {
+        toFetchLatest.push(extensionInfo);
+      }
+    }
+    await Promise.allSettled(
+      toFetchLatest.map(async (extensionInfo) => {
+        let galleryExtension;
+        try {
+          try {
+            galleryExtension = await this.getLatestGalleryExtension(
+              extensionInfo,
+              options,
+              resourceApi.uri,
+              extensionGalleryManifest,
+              token
+            );
+          } catch (error) {
+            if (!resourceApi.fallback) {
+              throw error;
+            }
+            this.logService.error(
+              `Error while getting the latest version for the extension ${extensionInfo.id} from ${resourceApi.uri}. Trying the fallback ${resourceApi.fallback}`,
+              getErrorMessage(error)
+            );
+            this.telemetryService.publicLog2("galleryService:fallbacktounpkg", {
+              extension: extensionInfo.id,
+              preRelease: !!extensionInfo.preRelease,
+              compatible: !!options.compatible
+            });
+            galleryExtension = await this.getLatestGalleryExtension(
+              extensionInfo,
+              options,
+              resourceApi.fallback,
+              extensionGalleryManifest,
+              token
+            );
+          }
+          if (galleryExtension === "NOT_FOUND") {
+            if (extensionInfo.uuid) {
+              toQuery.push(extensionInfo);
+            }
+            return;
+          }
+          if (galleryExtension) {
+            result.push(galleryExtension);
+          }
+        } catch (error) {
+          this.logService.error(
+            `Error while getting the latest version for the extension ${extensionInfo.id}.`,
+            getErrorMessage(error)
+          );
+          this.telemetryService.publicLog2("galleryService:fallbacktoquery", {
+            extension: extensionInfo.id,
+            preRelease: !!extensionInfo.preRelease,
+            compatible: !!options.compatible,
+            fromFallback: !!resourceApi.fallback
+          });
+          toQuery.push(extensionInfo);
+        }
+      })
+    );
+    if (toQuery.length) {
+      const extensions = await this.getExtensionsUsingQueryApi(
+        toQuery,
+        options,
+        extensionGalleryManifest,
+        token
+      );
+      result.push(...extensions);
+    }
+    return result;
+  }
+  async getLatestGalleryExtension(extensionInfo, options, resourceUriTemplate, extensionGalleryManifest, token) {
+    const [publisher, name] = extensionInfo.id.split(".");
+    const uri = URI.parse(
+      format2(resourceUriTemplate, { publisher, name })
+    );
+    const rawGalleryExtension = await this.getLatestRawGalleryExtension(
+      extensionInfo.id,
+      uri,
+      token
+    );
+    if (!rawGalleryExtension) {
+      return "NOT_FOUND";
+    }
+    const allTargetPlatforms = getAllTargetPlatforms(rawGalleryExtension);
+    const rawGalleryExtensionVersion = await this.getRawGalleryExtensionVersion(
+      rawGalleryExtension,
+      {
+        targetPlatform: options.targetPlatform ?? CURRENT_TARGET_PLATFORM,
+        compatible: !!options.compatible,
+        productVersion: options.productVersion ?? {
+          version: this.productService.version,
+          date: this.productService.date
+        },
+        version: extensionInfo.preRelease ? 1 /* Prerelease */ : 0 /* Release */
+      },
+      allTargetPlatforms
+    );
+    if (rawGalleryExtensionVersion) {
+      return toExtension(
+        rawGalleryExtension,
+        rawGalleryExtensionVersion,
+        allTargetPlatforms,
+        extensionGalleryManifest
+      );
+    }
+    return null;
+  }
+  async getCompatibleExtension(extension, includePreRelease, targetPlatform, productVersion = {
+    version: this.productService.version,
+    date: this.productService.date
+  }) {
+    if (isNotWebExtensionInWebTargetPlatform(
+      extension.allTargetPlatforms,
+      targetPlatform
+    )) {
+      return null;
+    }
+    if (await this.isExtensionCompatible(
+      extension,
+      includePreRelease,
+      targetPlatform
+    )) {
+      return extension;
+    }
+    if (this.allowedExtensionsService.isAllowed({
+      id: extension.identifier.id,
+      publisherDisplayName: extension.publisherDisplayName
+    }) !== true) {
+      return null;
+    }
+    const result = await this.getExtensions(
+      [
+        {
+          ...extension.identifier,
+          preRelease: includePreRelease,
+          hasPreRelease: extension.hasPreReleaseVersion
+        }
+      ],
+      {
+        compatible: true,
+        productVersion,
+        queryAllVersions: true,
+        targetPlatform
+      },
+      CancellationToken.None
+    );
+    return result[0] ?? null;
+  }
+  async isExtensionCompatible(extension, includePreRelease, targetPlatform, productVersion = {
+    version: this.productService.version,
+    date: this.productService.date
+  }) {
+    if (this.allowedExtensionsService.isAllowed(extension) !== true) {
+      return false;
+    }
+    if (!isTargetPlatformCompatible(
+      extension.properties.targetPlatform,
+      extension.allTargetPlatforms,
+      targetPlatform
+    )) {
+      return false;
+    }
+    if (!includePreRelease && extension.properties.isPreReleaseVersion) {
+      return false;
+    }
+    let engine = extension.properties.engine;
+    if (!engine) {
+      const manifest = await this.getManifest(
+        extension,
+        CancellationToken.None
+      );
+      if (!manifest) {
+        throw new Error("Manifest was not found");
+      }
+      engine = manifest.engines.vscode;
+    }
+    if (!isEngineValid(engine, productVersion.version, productVersion.date)) {
+      return false;
+    }
+    if (!this.areApiProposalsCompatible(
+      extension.identifier,
+      extension.properties.enabledApiProposals
+    )) {
+      return false;
+    }
+    return true;
+  }
+  areApiProposalsCompatible(extensionIdentifier, enabledApiProposals) {
+    if (!enabledApiProposals) {
+      return true;
+    }
+    if (!this.extensionsEnabledWithApiProposalVersion.includes(
+      extensionIdentifier.id.toLowerCase()
+    )) {
+      return true;
+    }
+    return areApiProposalsCompatible(enabledApiProposals);
+  }
+  async isValidVersion(extension, rawGalleryExtensionVersion, {
+    targetPlatform,
+    compatible,
+    productVersion,
+    version
+  }, publisherDisplayName, allTargetPlatforms) {
+    if (isString(version)) {
+      if (rawGalleryExtensionVersion.version !== version) {
+        return false;
+      }
+    } else if (version === 0 /* Release */ || version === 1 /* Prerelease */) {
+      if (isPreReleaseVersion(rawGalleryExtensionVersion) !== (version === 1 /* Prerelease */)) {
+        return false;
+      }
+    }
+    const targetPlatformForExtension = getTargetPlatformForExtensionVersion(
+      rawGalleryExtensionVersion
+    );
+    if (!isTargetPlatformCompatible(
+      targetPlatformForExtension,
+      allTargetPlatforms,
+      targetPlatform
+    )) {
+      return false;
+    }
+    if (compatible) {
+      if (this.allowedExtensionsService.isAllowed({
+        id: extension,
+        publisherDisplayName,
+        version: rawGalleryExtensionVersion.version,
+        prerelease: isPreReleaseVersion(rawGalleryExtensionVersion),
+        targetPlatform: targetPlatformForExtension
+      }) !== true) {
+        return false;
+      }
+      try {
+        const engine = await this.getEngine(
+          extension,
+          rawGalleryExtensionVersion
+        );
+        if (!isEngineValid(
+          engine,
+          productVersion.version,
+          productVersion.date
+        )) {
+          return false;
+        }
+      } catch (error) {
+        this.logService.error(
+          `Error while getting the engine for the version ${rawGalleryExtensionVersion.version}.`,
+          getErrorMessage(error)
+        );
+        return false;
+      }
+    }
+    return true;
+  }
+  async query(options, token) {
+    const extensionGalleryManifest = await this.extensionGalleryManifestService.getExtensionGalleryManifest();
+    if (!extensionGalleryManifest) {
+      throw new Error("No extension gallery service configured.");
+    }
+    let text = options.text || "";
+    const pageSize = options.pageSize ?? 50;
+    let query = new Query().withPage(1, pageSize);
+    if (text) {
+      text = text.replace(
+        /\bcategory:("([^"]*)"|([^"]\S*))(\s+|\b|$)/g,
+        (_, quotedCategory, category) => {
+          query = query.withFilter(
+            FilterType.Category,
+            category || quotedCategory
+          );
+          return "";
+        }
+      );
+      text = text.replace(
+        /\btag:("([^"]*)"|([^"]\S*))(\s+|\b|$)/g,
+        (_, quotedTag, tag) => {
+          query = query.withFilter(FilterType.Tag, tag || quotedTag);
+          return "";
+        }
+      );
+      text = text.replace(/\bfeatured(\s+|\b|$)/g, () => {
+        query = query.withFilter(FilterType.Featured);
+        return "";
+      });
+      text = text.trim();
+      if (text) {
+        text = text.length < 200 ? text : text.substring(0, 200);
+        query = query.withFilter(FilterType.SearchText, text);
+      }
+      if (extensionGalleryManifest.capabilities.extensionQuery.sorting?.some(
+        (c) => c.name === SortBy.NoneOrRelevance
+      )) {
+        query = query.withSortBy(SortBy.NoneOrRelevance);
+      }
+    } else {
+      if (extensionGalleryManifest.capabilities.extensionQuery.sorting?.some(
+        (c) => c.name === SortBy.InstallCount
+      )) {
+        query = query.withSortBy(SortBy.InstallCount);
+      }
+    }
+    if (options.sortBy && extensionGalleryManifest.capabilities.extensionQuery.sorting?.some(
+      (c) => c.name === options.sortBy
+    )) {
+      query = query.withSortBy(options.sortBy);
+    }
+    if (typeof options.sortOrder === "number") {
+      query = query.withSortOrder(options.sortOrder);
+    }
+    if (options.source) {
+      query = query.withSource(options.source);
+    }
+    const runQuery = /* @__PURE__ */ __name(async (query2, token2) => {
+      const { extensions: extensions2, total: total2 } = await this.queryGalleryExtensions(
+        query2,
+        {
+          targetPlatform: CURRENT_TARGET_PLATFORM,
+          compatible: false,
+          includePreRelease: !!options.includePreRelease,
+          productVersion: options.productVersion ?? {
+            version: this.productService.version,
+            date: this.productService.date
+          }
+        },
+        extensionGalleryManifest,
+        token2
+      );
+      extensions2.forEach(
+        (e, index) => setTelemetry(
+          e,
+          (query2.pageNumber - 1) * query2.pageSize + index,
+          options.source
+        )
+      );
+      return { extensions: extensions2, total: total2 };
+    }, "runQuery");
+    const { extensions, total } = await runQuery(query, token);
+    const getPage = /* @__PURE__ */ __name(async (pageIndex, ct) => {
+      if (ct.isCancellationRequested) {
+        throw new CancellationError();
+      }
+      const { extensions: extensions2 } = await runQuery(
+        query.withPage(pageIndex + 1),
+        ct
+      );
+      return extensions2;
+    }, "getPage");
+    return {
+      firstPage: extensions,
+      total,
+      pageSize: query.pageSize,
+      getPage
+    };
+  }
+  async queryGalleryExtensions(query, criteria, extensionGalleryManifest, token) {
+    if (this.productService.quality !== "stable" && await this.assignmentService?.getTreatment(
+      "useLatestPrereleaseAndStableVersionFlag"
+    )) {
+      return this.queryGalleryExtensionsUsingIncludeLatestPrereleaseAndStableVersionFlag(
+        query,
+        criteria,
+        extensionGalleryManifest,
+        token
+      );
+    }
+    return this.queryGalleryExtensionsWithAllVersionsAsFallback(
+      query,
+      criteria,
+      extensionGalleryManifest,
+      token
+    );
+  }
+  async queryGalleryExtensionsWithAllVersionsAsFallback(query, criteria, extensionGalleryManifest, token) {
+    const flags = query.flags;
+    if (query.flags.includes(Flag.IncludeLatestVersionOnly) && query.flags.includes(Flag.IncludeVersions)) {
+      query = query.withFlags(
+        ...query.flags.filter((flag) => flag !== Flag.IncludeVersions)
+      );
+    }
+    if (!query.flags.includes(Flag.IncludeLatestVersionOnly) && !query.flags.includes(Flag.IncludeVersions)) {
+      query = query.withFlags(
+        ...query.flags,
+        Flag.IncludeLatestVersionOnly
+      );
+    }
+    if (criteria.versions?.length || criteria.isQueryForReleaseVersionFromPreReleaseVersion) {
+      query = query.withFlags(
+        ...query.flags.filter(
+          (flag) => flag !== Flag.IncludeLatestVersionOnly
+        ),
+        Flag.IncludeVersions
+      );
+    }
+    query = query.withFlags(
+      ...query.flags,
+      Flag.IncludeAssetUri,
+      Flag.IncludeCategoryAndTags,
+      Flag.IncludeFiles,
+      Flag.IncludeStatistics,
+      Flag.IncludeVersionProperties
+    );
+    const {
+      galleryExtensions: rawGalleryExtensions,
+      total,
+      context
+    } = await this.queryRawGalleryExtensions(
+      query,
+      extensionGalleryManifest,
+      token
+    );
+    const hasAllVersions = !query.flags.includes(
+      Flag.IncludeLatestVersionOnly
+    );
+    if (hasAllVersions) {
+      const extensions = [];
+      for (const rawGalleryExtension of rawGalleryExtensions) {
+        const allTargetPlatforms = getAllTargetPlatforms(rawGalleryExtension);
+        const extensionIdentifier = {
+          id: getGalleryExtensionId(
+            rawGalleryExtension.publisher.publisherName,
+            rawGalleryExtension.extensionName
+          ),
+          uuid: rawGalleryExtension.extensionId
+        };
+        const includePreRelease = isBoolean(criteria.includePreRelease) ? criteria.includePreRelease : !!criteria.includePreRelease.find(
+          (extensionIdentifierWithPreRelease) => areSameExtensions(
+            extensionIdentifierWithPreRelease,
+            extensionIdentifier
+          )
+        )?.includePreRelease;
+        const rawGalleryExtensionVersion = await this.getRawGalleryExtensionVersion(
+          rawGalleryExtension,
+          {
+            compatible: criteria.compatible,
+            targetPlatform: criteria.targetPlatform,
+            productVersion: criteria.productVersion,
+            version: criteria.versions?.find(
+              (extensionIdentifierWithVersion) => areSameExtensions(
+                extensionIdentifierWithVersion,
+                extensionIdentifier
+              )
+            )?.version ?? (includePreRelease ? 2 /* Latest */ : 0 /* Release */)
+          },
+          allTargetPlatforms
+        );
+        if (rawGalleryExtensionVersion) {
+          extensions.push(
+            toExtension(
+              rawGalleryExtension,
+              rawGalleryExtensionVersion,
+              allTargetPlatforms,
+              extensionGalleryManifest,
+              context
+            )
+          );
+        }
+      }
+      return { extensions, total };
+    }
+    const result = [];
+    const needAllVersions = /* @__PURE__ */ new Map();
+    for (let index = 0; index < rawGalleryExtensions.length; index++) {
+      const rawGalleryExtension = rawGalleryExtensions[index];
+      const extensionIdentifier = {
+        id: getGalleryExtensionId(
+          rawGalleryExtension.publisher.publisherName,
+          rawGalleryExtension.extensionName
+        ),
+        uuid: rawGalleryExtension.extensionId
+      };
+      const includePreRelease = isBoolean(criteria.includePreRelease) ? criteria.includePreRelease : !!criteria.includePreRelease.find(
+        (extensionIdentifierWithPreRelease) => areSameExtensions(
+          extensionIdentifierWithPreRelease,
+          extensionIdentifier
+        )
+      )?.includePreRelease;
+      const allTargetPlatforms = getAllTargetPlatforms(rawGalleryExtension);
+      if (criteria.compatible) {
+        if (isNotWebExtensionInWebTargetPlatform(
+          allTargetPlatforms,
+          criteria.targetPlatform
+        )) {
+          continue;
+        }
+        if (this.allowedExtensionsService.isAllowed({
+          id: extensionIdentifier.id,
+          publisherDisplayName: rawGalleryExtension.publisher.displayName
+        }) !== true) {
+          continue;
+        }
+      }
+      const rawGalleryExtensionVersion = await this.getRawGalleryExtensionVersion(
+        rawGalleryExtension,
+        {
+          compatible: criteria.compatible,
+          targetPlatform: criteria.targetPlatform,
+          productVersion: criteria.productVersion,
+          version: criteria.versions?.find(
+            (extensionIdentifierWithVersion) => areSameExtensions(
+              extensionIdentifierWithVersion,
+              extensionIdentifier
+            )
+          )?.version ?? (includePreRelease ? 2 /* Latest */ : 0 /* Release */)
+        },
+        allTargetPlatforms
+      );
+      const extension = rawGalleryExtensionVersion ? toExtension(
+        rawGalleryExtension,
+        rawGalleryExtensionVersion,
+        allTargetPlatforms,
+        extensionGalleryManifest,
+        context
+      ) : null;
+      if (!extension || /** Need all versions if the extension is a pre-release version but
+       * 		- the query is to look for a release version or
+       * 		- the extension has no release version
+       * Get all versions to get or check the release version
+       */
+      extension.properties.isPreReleaseVersion && (!includePreRelease || !extension.hasReleaseVersion) || /**
+       * Need all versions if the extension is a release version with a different target platform than requested and also has a pre-release version
+       * Because, this is a platform specific extension and can have a newer release version supporting this platform.
+       * See https://github.com/microsoft/vscode/issues/139628
+       */
+      !extension.properties.isPreReleaseVersion && extension.properties.targetPlatform !== criteria.targetPlatform && extension.hasPreReleaseVersion) {
+        needAllVersions.set(rawGalleryExtension.extensionId, index);
+      } else {
+        result.push([index, extension]);
+      }
+    }
+    if (needAllVersions.size) {
+      const stopWatch = new StopWatch();
+      const query2 = new Query().withFlags(
+        ...flags.filter(
+          (flag) => flag !== Flag.IncludeLatestVersionOnly
+        ),
+        Flag.IncludeVersions
+      ).withPage(1, needAllVersions.size).withFilter(FilterType.ExtensionId, ...needAllVersions.keys());
+      const { extensions } = await this.queryGalleryExtensions(
+        query2,
+        criteria,
+        extensionGalleryManifest,
+        token
+      );
+      this.telemetryService.publicLog2("galleryService:additionalQuery", {
+        duration: stopWatch.elapsed(),
+        count: needAllVersions.size
+      });
+      for (const extension of extensions) {
+        const index = needAllVersions.get(extension.identifier.uuid);
+        result.push([index, extension]);
+      }
+    }
+    return {
+      extensions: result.sort((a, b) => a[0] - b[0]).map(([, extension]) => extension),
+      total
+    };
+  }
+  async queryGalleryExtensionsUsingIncludeLatestPrereleaseAndStableVersionFlag(query, criteria, extensionGalleryManifest, token) {
+    if (criteria.versions?.length) {
+      query = query.withFlags(
+        ...query.flags.filter(
+          (flag) => flag !== Flag.IncludeLatestVersionOnly && flag !== Flag.IncludeLatestPrereleaseAndStableVersionOnly
+        ),
+        Flag.IncludeVersions
+      );
+    } else if (!query.flags.includes(Flag.IncludeVersions)) {
+      const includeLatest = isBoolean(criteria.includePreRelease) ? criteria.includePreRelease : criteria.includePreRelease.every(
+        ({ includePreRelease }) => includePreRelease
+      );
+      query = includeLatest ? query.withFlags(
+        ...query.flags.filter(
+          (flag) => flag !== Flag.IncludeLatestPrereleaseAndStableVersionOnly
+        ),
+        Flag.IncludeLatestVersionOnly
+      ) : query.withFlags(
+        ...query.flags.filter(
+          (flag) => flag !== Flag.IncludeLatestVersionOnly
+        ),
+        Flag.IncludeLatestPrereleaseAndStableVersionOnly
+      );
+    }
+    if (query.flags.includes(Flag.IncludeVersions) && (query.flags.includes(Flag.IncludeLatestVersionOnly) || query.flags.includes(
+      Flag.IncludeLatestPrereleaseAndStableVersionOnly
+    ))) {
+      query = query.withFlags(
+        ...query.flags.filter(
+          (flag) => flag !== Flag.IncludeLatestVersionOnly && flag !== Flag.IncludeLatestPrereleaseAndStableVersionOnly
+        ),
+        Flag.IncludeVersions
+      );
+    }
+    query = query.withFlags(
+      ...query.flags,
+      Flag.IncludeAssetUri,
+      Flag.IncludeCategoryAndTags,
+      Flag.IncludeFiles,
+      Flag.IncludeStatistics,
+      Flag.IncludeVersionProperties
+    );
+    const {
+      galleryExtensions: rawGalleryExtensions,
+      total,
+      context
+    } = await this.queryRawGalleryExtensions(
+      query,
+      extensionGalleryManifest,
+      token
+    );
+    const extensions = [];
+    for (let index = 0; index < rawGalleryExtensions.length; index++) {
+      const rawGalleryExtension = rawGalleryExtensions[index];
+      const extensionIdentifier = {
+        id: getGalleryExtensionId(
+          rawGalleryExtension.publisher.publisherName,
+          rawGalleryExtension.extensionName
+        ),
+        uuid: rawGalleryExtension.extensionId
+      };
+      const allTargetPlatforms = getAllTargetPlatforms(rawGalleryExtension);
+      if (criteria.compatible) {
+        if (isNotWebExtensionInWebTargetPlatform(
+          allTargetPlatforms,
+          criteria.targetPlatform
+        )) {
+          continue;
+        }
+        if (this.allowedExtensionsService.isAllowed({
+          id: extensionIdentifier.id,
+          publisherDisplayName: rawGalleryExtension.publisher.displayName
+        }) !== true) {
+          continue;
+        }
+      }
+      const version = criteria.versions?.find(
+        (extensionIdentifierWithVersion) => areSameExtensions(
+          extensionIdentifierWithVersion,
+          extensionIdentifier
+        )
+      )?.version ?? ((isBoolean(criteria.includePreRelease) ? criteria.includePreRelease : !!criteria.includePreRelease.find(
+        (extensionIdentifierWithPreRelease) => areSameExtensions(
+          extensionIdentifierWithPreRelease,
+          extensionIdentifier
+        )
+      )?.includePreRelease) ? 2 /* Latest */ : 0 /* Release */);
+      const rawGalleryExtensionVersion = await this.getRawGalleryExtensionVersion(
+        rawGalleryExtension,
+        {
+          compatible: criteria.compatible,
+          targetPlatform: criteria.targetPlatform,
+          productVersion: criteria.productVersion,
+          version
+        },
+        allTargetPlatforms
+      );
+      if (rawGalleryExtensionVersion) {
+        extensions.push(
+          toExtension(
+            rawGalleryExtension,
+            rawGalleryExtensionVersion,
+            allTargetPlatforms,
+            extensionGalleryManifest,
+            context
+          )
+        );
+      }
+    }
+    return { extensions, total };
+  }
+  async getRawGalleryExtensionVersion(rawGalleryExtension, criteria, allTargetPlatforms) {
+    const extensionIdentifier = {
+      id: getGalleryExtensionId(
+        rawGalleryExtension.publisher.publisherName,
+        rawGalleryExtension.extensionName
+      ),
+      uuid: rawGalleryExtension.extensionId
+    };
+    const rawGalleryExtensionVersions = sortExtensionVersions(
+      rawGalleryExtension.versions,
+      criteria.targetPlatform
+    );
+    if (criteria.compatible && isNotWebExtensionInWebTargetPlatform(
+      allTargetPlatforms,
+      criteria.targetPlatform
+    )) {
+      return null;
+    }
+    const version = isString(criteria.version) ? criteria.version : void 0;
+    for (let index = 0; index < rawGalleryExtensionVersions.length; index++) {
+      const rawGalleryExtensionVersion = rawGalleryExtensionVersions[index];
+      if (await this.isValidVersion(
+        extensionIdentifier.id,
+        rawGalleryExtensionVersion,
+        criteria,
+        rawGalleryExtension.publisher.displayName,
+        allTargetPlatforms
+      )) {
+        if (criteria.compatible && !this.areApiProposalsCompatible(
+          extensionIdentifier,
+          getEnabledApiProposals(rawGalleryExtensionVersion)
+        )) {
+          continue;
+        }
+        return rawGalleryExtensionVersion;
+      }
+      if (version && rawGalleryExtensionVersion.version === version) {
+        return null;
+      }
+    }
+    if (version || criteria.compatible) {
+      return null;
+    }
+    return rawGalleryExtension.versions[0];
+  }
+  async queryRawGalleryExtensions(query, extensionGalleryManifest, token) {
+    const extensionsQueryApi = getExtensionGalleryManifestResourceUri(
+      extensionGalleryManifest,
+      ExtensionGalleryResourceType.ExtensionQueryService
+    );
+    if (!extensionsQueryApi) {
+      throw new Error("No extension gallery query service configured.");
+    }
+    query = query.withFlags(...query.flags, Flag.ExcludeNonValidated).withFilter(FilterType.Target, "Microsoft.VisualStudio.Code");
+    const unpublishedFlag = extensionGalleryManifest.capabilities.extensionQuery.flags?.find(
+      (f) => f.name === Flag.Unpublished
+    );
+    if (unpublishedFlag) {
+      query = query.withFilter(
+        FilterType.ExcludeWithFlags,
+        String(unpublishedFlag.value)
+      );
+    }
+    const data = JSON.stringify({
+      filters: [
+        {
+          criteria: query.criteria.reduce((criteria, c) => {
+            const criterium = extensionGalleryManifest.capabilities.extensionQuery.filtering?.find(
+              (f) => f.name === c.filterType
+            );
+            if (criterium) {
+              criteria.push({
+                filterType: criterium.value,
+                value: c.value
+              });
+            }
+            return criteria;
+          }, []),
+          pageNumber: query.pageNumber,
+          pageSize: query.pageSize,
+          sortBy: extensionGalleryManifest.capabilities.extensionQuery.sorting?.find(
+            (s) => s.name === query.sortBy
+          )?.value,
+          sortOrder: query.sortOrder
+        }
+      ],
+      assetTypes: query.assetTypes,
+      flags: query.flags.reduce((flags, flag) => {
+        const flagValue = extensionGalleryManifest.capabilities.extensionQuery.flags?.find(
+          (f) => f.name === flag
+        );
+        if (flagValue) {
+          flags |= flagValue.value;
+        }
+        return flags;
+      }, 0)
+    });
+    const commonHeaders = await this.commonHeadersPromise;
+    const headers = {
+      ...commonHeaders,
+      "Content-Type": "application/json",
+      "Accept": "application/json;api-version=3.0-preview.1",
+      "Accept-Encoding": "gzip",
+      "Content-Length": String(data.length)
+    };
+    const stopWatch = new StopWatch();
+    let context, errorCode, total = 0;
+    try {
+      context = await this.requestService.request(
+        {
+          type: "POST",
+          url: extensionsQueryApi,
+          data,
+          headers
+        },
+        token
+      );
+      if (context.res.statusCode && context.res.statusCode >= 400 && context.res.statusCode < 500) {
+        return { galleryExtensions: [], total };
+      }
+      const result = await asJson(context);
+      if (result) {
+        const r = result.results[0];
+        const galleryExtensions = r.extensions;
+        const resultCount = r.resultMetadata && r.resultMetadata.filter(
+          (m) => m.metadataType === "ResultCount"
+        )[0];
+        total = resultCount && resultCount.metadataItems.filter(
+          (i) => i.name === "TotalCount"
+        )[0].count || 0;
+        return {
+          galleryExtensions,
+          total,
+          context: context.res.headers["activityid"] ? {
+            [SEARCH_ACTIVITY_HEADER_NAME]: context.res.headers["activityid"]
+          } : {}
+        };
+      }
+      return { galleryExtensions: [], total };
+    } catch (e) {
+      if (isCancellationError(e)) {
+        errorCode = ExtensionGalleryErrorCode.Cancelled;
+        throw e;
+      } else {
+        const errorMessage = getErrorMessage(e);
+        errorCode = isOfflineError(e) ? ExtensionGalleryErrorCode.Offline : errorMessage.startsWith("XHR timeout") ? ExtensionGalleryErrorCode.Timeout : ExtensionGalleryErrorCode.Failed;
+        throw new ExtensionGalleryError(errorMessage, errorCode);
+      }
+    } finally {
+      this.telemetryService.publicLog2("galleryService:query", {
+        filterTypes: query.criteria.map(
+          (criterium) => criterium.filterType
+        ),
+        flags: query.flags,
+        sortBy: query.sortBy,
+        sortOrder: String(query.sortOrder),
+        pageNumber: String(query.pageNumber),
+        source: query.source,
+        searchTextLength: query.searchText.length,
+        requestBodySize: String(data.length),
+        duration: stopWatch.elapsed(),
+        success: !!context && isSuccess(context),
+        responseBodySize: context?.res.headers["Content-Length"],
+        statusCode: context ? String(context.res.statusCode) : void 0,
+        errorCode,
+        count: String(total),
+        server: this.getHeaderValue(
+          context?.res.headers,
+          SERVER_HEADER_NAME
+        ),
+        activityId: this.getHeaderValue(
+          context?.res.headers,
+          ACTIVITY_HEADER_NAME
+        ),
+        endToEndId: this.getHeaderValue(
+          context?.res.headers,
+          END_END_ID_HEADER_NAME
+        )
+      });
+    }
+  }
+  getHeaderValue(headers, name) {
+    const value = headers?.[name.toLowerCase()];
+    return Array.isArray(value) ? value[0] : value;
+  }
+  async getLatestRawGalleryExtension(extension, uri, token) {
+    let errorCode;
+    const stopWatch = new StopWatch();
+    let context;
+    try {
+      const commonHeaders = await this.commonHeadersPromise;
+      const headers = {
+        ...commonHeaders,
+        "Content-Type": "application/json",
+        "Accept": "application/json;api-version=7.2-preview",
+        "Accept-Encoding": "gzip"
+      };
+      context = await this.requestService.request(
+        {
+          type: "GET",
+          url: uri.toString(true),
+          headers,
+          timeout: 1e4
+        },
+        token
+      );
+      if (context.res.statusCode === 404) {
+        errorCode = "NotFound";
+        return null;
+      }
+      if (context.res.statusCode && context.res.statusCode !== 200) {
+        errorCode = `GalleryServiceError:` + context.res.statusCode;
+        throw new Error(
+          "Unexpected HTTP response: " + context.res.statusCode
+        );
+      }
+      const result = await asJson(context);
+      if (!result) {
+        errorCode = "NoData";
+      }
+      return result;
+    } catch (error) {
+      if (isCancellationError(error)) {
+        errorCode = ExtensionGalleryErrorCode.Cancelled;
+      } else {
+        const errorMessage = getErrorMessage(error);
+        errorCode = isOfflineError(error) ? ExtensionGalleryErrorCode.Offline : errorMessage.startsWith("XHR timeout") ? ExtensionGalleryErrorCode.Timeout : ExtensionGalleryErrorCode.Failed;
+      }
+      throw error;
+    } finally {
+      this.telemetryService.publicLog2("galleryService:getLatest", {
+        extension,
+        host: uri.authority,
+        duration: stopWatch.elapsed(),
+        errorCode,
+        server: this.getHeaderValue(
+          context?.res.headers,
+          SERVER_HEADER_NAME
+        ),
+        activityId: this.getHeaderValue(
+          context?.res.headers,
+          ACTIVITY_HEADER_NAME
+        ),
+        endToEndId: this.getHeaderValue(
+          context?.res.headers,
+          END_END_ID_HEADER_NAME
+        )
+      });
+    }
+  }
+  async reportStatistic(publisher, name, version, type) {
+    const manifest = await this.extensionGalleryManifestService.getExtensionGalleryManifest();
+    if (!manifest) {
+      return void 0;
+    }
+    let url;
+    if (isWeb) {
+      const resource = getExtensionGalleryManifestResourceUri(
+        manifest,
+        ExtensionGalleryResourceType.WebExtensionStatisticsUri
+      );
+      if (!resource) {
+        return;
+      }
+      url = format2(resource, {
+        publisher,
+        name,
+        version,
+        statTypeValue: type === StatisticType.Install ? "1" : "3"
+      });
+    } else {
+      const resource = getExtensionGalleryManifestResourceUri(
+        manifest,
+        ExtensionGalleryResourceType.ExtensionStatisticsUri
+      );
+      if (!resource) {
+        return;
+      }
+      url = format2(resource, {
+        publisher,
+        name,
+        version,
+        statTypeName: type
+      });
+    }
+    const Accept = isWeb ? "api-version=6.1-preview.1" : "*/*;api-version=4.0-preview.1";
+    const commonHeaders = await this.commonHeadersPromise;
+    const headers = { ...commonHeaders, Accept };
+    try {
+      await this.requestService.request(
+        {
+          type: "POST",
+          url,
+          headers
+        },
+        CancellationToken.None
+      );
+    } catch (error) {
+    }
+  }
+  async download(extension, location, operation) {
+    this.logService.trace(
+      "ExtensionGalleryService#download",
+      extension.identifier.id
+    );
+    const data = getGalleryExtensionTelemetryData(extension);
+    const startTime = (/* @__PURE__ */ new Date()).getTime();
+    const operationParam = operation === InstallOperation.Install ? "install" : operation === InstallOperation.Update ? "update" : "";
+    const downloadAsset = operationParam ? {
+      uri: `${extension.assets.download.uri}${URI.parse(extension.assets.download.uri).query ? "&" : "?"}${operationParam}=true`,
+      fallbackUri: `${extension.assets.download.fallbackUri}${URI.parse(extension.assets.download.fallbackUri).query ? "&" : "?"}${operationParam}=true`
+    } : extension.assets.download;
+    const headers = extension.queryContext?.[SEARCH_ACTIVITY_HEADER_NAME] ? {
+      [SEARCH_ACTIVITY_HEADER_NAME]: extension.queryContext[SEARCH_ACTIVITY_HEADER_NAME]
+    } : void 0;
+    const context = await this.getAsset(
+      extension.identifier.id,
+      downloadAsset,
+      AssetType.VSIX,
+      extension.version,
+      headers ? { headers } : void 0
+    );
+    try {
+      await this.fileService.writeFile(location, context.stream);
+    } catch (error) {
+      try {
+        await this.fileService.del(location);
+      } catch (e) {
+        this.logService.warn(
+          `Error while deleting the file ${location.toString()}`,
+          getErrorMessage(e)
+        );
+      }
+      throw new ExtensionGalleryError(
+        getErrorMessage(error),
+        ExtensionGalleryErrorCode.DownloadFailedWriting
+      );
+    }
+    this.telemetryService.publicLog("galleryService:downloadVSIX", {
+      ...data,
+      duration: (/* @__PURE__ */ new Date()).getTime() - startTime
+    });
+  }
+  async downloadSignatureArchive(extension, location) {
+    if (!extension.assets.signature) {
+      throw new Error("No signature asset found");
+    }
+    this.logService.trace(
+      "ExtensionGalleryService#downloadSignatureArchive",
+      extension.identifier.id
+    );
+    const context = await this.getAsset(
+      extension.identifier.id,
+      extension.assets.signature,
+      AssetType.Signature,
+      extension.version
+    );
+    try {
+      await this.fileService.writeFile(location, context.stream);
+    } catch (error) {
+      try {
+        await this.fileService.del(location);
+      } catch (e) {
+        this.logService.warn(
+          `Error while deleting the file ${location.toString()}`,
+          getErrorMessage(e)
+        );
+      }
+      throw new ExtensionGalleryError(
+        getErrorMessage(error),
+        ExtensionGalleryErrorCode.DownloadFailedWriting
+      );
+    }
+  }
+  async getReadme(extension, token) {
+    if (extension.assets.readme) {
+      const context = await this.getAsset(
+        extension.identifier.id,
+        extension.assets.readme,
+        AssetType.Details,
+        extension.version,
+        {},
+        token
+      );
+      const content = await asTextOrError(context);
+      return content || "";
+    }
+    return "";
+  }
+  async getManifest(extension, token) {
+    if (extension.assets.manifest) {
+      const context = await this.getAsset(
+        extension.identifier.id,
+        extension.assets.manifest,
+        AssetType.Manifest,
+        extension.version,
+        {},
+        token
+      );
+      const text = await asTextOrError(context);
+      return text ? JSON.parse(text) : null;
+    }
+    return null;
+  }
+  async getManifestFromRawExtensionVersion(extension, rawExtensionVersion, token) {
+    const manifestAsset = getVersionAsset(
+      rawExtensionVersion,
+      AssetType.Manifest
+    );
+    if (!manifestAsset) {
+      throw new Error("Manifest was not found");
+    }
+    const headers = { "Accept-Encoding": "gzip" };
+    const context = await this.getAsset(
+      extension,
+      manifestAsset,
+      AssetType.Manifest,
+      rawExtensionVersion.version,
+      { headers }
+    );
+    return await asJson(context);
+  }
+  async getCoreTranslation(extension, languageId) {
+    const asset = extension.assets.coreTranslations.filter(
+      (t) => t[0] === languageId.toUpperCase()
+    )[0];
+    if (asset) {
+      const context = await this.getAsset(
+        extension.identifier.id,
+        asset[1],
+        asset[0],
+        extension.version
+      );
+      const text = await asTextOrError(context);
+      return text ? JSON.parse(text) : null;
+    }
+    return null;
+  }
+  async getChangelog(extension, token) {
+    if (extension.assets.changelog) {
+      const context = await this.getAsset(
+        extension.identifier.id,
+        extension.assets.changelog,
+        AssetType.Changelog,
+        extension.version,
+        {},
+        token
+      );
+      const content = await asTextOrError(context);
+      return content || "";
+    }
+    return "";
+  }
+  async getAllCompatibleVersions(extensionIdentifier, includePreRelease, targetPlatform) {
+    const extensionGalleryManifest = await this.extensionGalleryManifestService.getExtensionGalleryManifest();
+    if (!extensionGalleryManifest) {
+      throw new Error("No extension gallery service configured.");
+    }
+    let query = new Query().withFlags(
+      Flag.IncludeVersions,
+      Flag.IncludeCategoryAndTags,
+      Flag.IncludeFiles,
+      Flag.IncludeVersionProperties
+    ).withPage(1, 1);
+    if (extensionIdentifier.uuid) {
+      query = query.withFilter(
+        FilterType.ExtensionId,
+        extensionIdentifier.uuid
+      );
+    } else {
+      query = query.withFilter(
+        FilterType.ExtensionName,
+        extensionIdentifier.id
+      );
+    }
+    const { galleryExtensions } = await this.queryRawGalleryExtensions(
+      query,
+      extensionGalleryManifest,
+      CancellationToken.None
+    );
+    if (!galleryExtensions.length) {
+      return [];
+    }
+    const allTargetPlatforms = getAllTargetPlatforms(galleryExtensions[0]);
+    if (isNotWebExtensionInWebTargetPlatform(
+      allTargetPlatforms,
+      targetPlatform
+    )) {
+      return [];
+    }
+    const validVersions = [];
+    const productVersion = {
+      version: this.productService.version,
+      date: this.productService.date
+    };
+    await Promise.all(
+      galleryExtensions[0].versions.map(async (version) => {
+        try {
+          if (await this.isValidVersion(
+            extensionIdentifier.id,
+            version,
+            {
+              compatible: true,
+              productVersion,
+              targetPlatform,
+              version: includePreRelease ? 2 /* Latest */ : 0 /* Release */
+            },
+            galleryExtensions[0].publisher.displayName,
+            allTargetPlatforms
+          ) && this.areApiProposalsCompatible(
+            extensionIdentifier,
+            getEnabledApiProposals(version)
+          )) {
+            validVersions.push(version);
+          }
+        } catch (error) {
+        }
+      })
+    );
+    const result = [];
+    const seen = /* @__PURE__ */ new Set();
+    for (const version of sortExtensionVersions(
+      validVersions,
+      targetPlatform
+    )) {
+      if (!seen.has(version.version)) {
+        seen.add(version.version);
+        result.push({
+          version: version.version,
+          date: version.lastUpdated,
+          isPreReleaseVersion: isPreReleaseVersion(version)
+        });
+      }
+    }
+    return result;
+  }
+  async getAsset(extension, asset, assetType, extensionVersion, options = {}, token = CancellationToken.None) {
+    const commonHeaders = await this.commonHeadersPromise;
+    const baseOptions = { type: "GET" };
+    const headers = { ...commonHeaders, ...options.headers || {} };
+    options = { ...options, ...baseOptions, headers };
+    const url = asset.uri;
+    const fallbackUrl = asset.fallbackUri;
+    const firstOptions = { ...options, url };
+    let context;
+    try {
+      context = await this.requestService.request(firstOptions, token);
+      if (context.res.statusCode === 200) {
+        return context;
+      }
+      const message = await asTextOrError(context);
+      throw new Error(
+        `Expected 200, got back ${context.res.statusCode} instead.
 
-${y}`)}catch(y){if(j(y))throw y;const h=w(y);this.telemetryService.publicLog2("galleryService:cdnFallback",{extension:e,assetType:s,message:h,extensionVersion:r,server:this.getHeaderValue(f?.res.headers,pe),activityId:this.getHeaderValue(f?.res.headers,fe),endToEndId:this.getHeaderValue(f?.res.headers,ge)});const I={...a,url:p};return this.requestService.request(I,n)}}async getEngine(e,t){let s=be(t);if(!s){this.telemetryService.publicLog2("galleryService:engineFallback",{extension:e,extensionVersion:t.version});const r=await this.getManifestFromRawExtensionVersion(e,t,V.None);if(!r)throw new Error("Manifest was not found");s=r.engines.vscode}return s}async getExtensionsControlManifest(){if(!this.isEnabled())throw new Error("No extension gallery service configured.");if(!this.extensionsControlUrl)return{malicious:[],deprecated:{},search:[]};const e=await this.requestService.request({type:"GET",url:this.extensionsControlUrl,timeout:1e4},V.None);if(e.res.statusCode!==200)throw new Error("Could not get extensions report.");const t=await z(e),s=[],r={},a=[],n=[];if(t){for(const d of t.malicious)ve.test(d)?s.push({id:d}):s.push(d);if(t.migrateToPreRelease)for(const[d,u]of Object.entries(t.migrateToPreRelease))(!u.engine||se(u.engine,this.productService.version,this.productService.date))&&(r[d.toLowerCase()]={disallowInstall:!0,extension:{id:u.id,displayName:u.displayName,autoMigrate:{storage:!!u.migrateStorage},preRelease:!0}});if(t.deprecated)for(const[d,u]of Object.entries(t.deprecated))u&&(r[d.toLowerCase()]=k(u)?{}:u);if(t.search)for(const d of t.search)a.push(d);if(Array.isArray(t.extensionsEnabledWithPreRelease))for(const d of t.extensionsEnabledWithPreRelease)n.push(d.toLowerCase())}return{malicious:s,deprecated:r,search:a,extensionsEnabledWithPreRelease:n}}};M=B([m(2,ae),m(3,ne),m(4,te),m(5,oe),m(6,re),m(7,ie),m(8,ee),m(9,ue),m(10,le)],M);let _=class extends M{constructor(e,t,s,r,a,n,d,u,l,o){super(e,void 0,t,s,r,a,n,d,u,l,o)}};_=B([m(0,De),m(1,ae),m(2,ne),m(3,te),m(4,oe),m(5,re),m(6,ie),m(7,ee),m(8,ue),m(9,le)],_);let X=class extends M{constructor(e,t,s,r,a,n,d,u,l){super(void 0,void 0,e,t,s,r,a,n,d,u,l)}};X=B([m(0,ae),m(1,ne),m(2,te),m(3,oe),m(4,re),m(5,ie),m(6,ee),m(7,ue),m(8,le)],X);export{M as AbstractExtensionGalleryService,_ as ExtensionGalleryService,X as ExtensionGalleryServiceWithNoStorageService,Pe as sortExtensionVersions};
+${message}`
+      );
+    } catch (err) {
+      if (isCancellationError(err)) {
+        throw err;
+      }
+      const message = getErrorMessage(err);
+      this.telemetryService.publicLog2("galleryService:cdnFallback", {
+        extension,
+        assetType,
+        message,
+        extensionVersion,
+        server: this.getHeaderValue(
+          context?.res.headers,
+          SERVER_HEADER_NAME
+        ),
+        activityId: this.getHeaderValue(
+          context?.res.headers,
+          ACTIVITY_HEADER_NAME
+        ),
+        endToEndId: this.getHeaderValue(
+          context?.res.headers,
+          END_END_ID_HEADER_NAME
+        )
+      });
+      const fallbackOptions = { ...options, url: fallbackUrl };
+      return this.requestService.request(fallbackOptions, token);
+    }
+  }
+  async getEngine(extension, rawExtensionVersion) {
+    let engine = getEngine(rawExtensionVersion);
+    if (!engine) {
+      this.telemetryService.publicLog2("galleryService:engineFallback", {
+        extension,
+        extensionVersion: rawExtensionVersion.version
+      });
+      const manifest = await this.getManifestFromRawExtensionVersion(
+        extension,
+        rawExtensionVersion,
+        CancellationToken.None
+      );
+      if (!manifest) {
+        throw new Error("Manifest was not found");
+      }
+      engine = manifest.engines.vscode;
+    }
+    return engine;
+  }
+  async getExtensionsControlManifest() {
+    if (!this.isEnabled()) {
+      throw new Error("No extension gallery service configured.");
+    }
+    if (!this.extensionsControlUrl) {
+      return { malicious: [], deprecated: {}, search: [] };
+    }
+    const context = await this.requestService.request(
+      {
+        type: "GET",
+        url: this.extensionsControlUrl,
+        timeout: 1e4
+      },
+      CancellationToken.None
+    );
+    if (context.res.statusCode !== 200) {
+      throw new Error("Could not get extensions report.");
+    }
+    const result = await asJson(context);
+    const malicious = [];
+    const deprecated = {};
+    const search = [];
+    const extensionsEnabledWithPreRelease = [];
+    if (result) {
+      for (const id of result.malicious) {
+        if (EXTENSION_IDENTIFIER_REGEX.test(id)) {
+          malicious.push({ id });
+        } else {
+          malicious.push(id);
+        }
+      }
+      if (result.migrateToPreRelease) {
+        for (const [
+          unsupportedPreReleaseExtensionId,
+          preReleaseExtensionInfo
+        ] of Object.entries(result.migrateToPreRelease)) {
+          if (!preReleaseExtensionInfo.engine || isEngineValid(
+            preReleaseExtensionInfo.engine,
+            this.productService.version,
+            this.productService.date
+          )) {
+            deprecated[unsupportedPreReleaseExtensionId.toLowerCase()] = {
+              disallowInstall: true,
+              extension: {
+                id: preReleaseExtensionInfo.id,
+                displayName: preReleaseExtensionInfo.displayName,
+                autoMigrate: {
+                  storage: !!preReleaseExtensionInfo.migrateStorage
+                },
+                preRelease: true
+              }
+            };
+          }
+        }
+      }
+      if (result.deprecated) {
+        for (const [
+          deprecatedExtensionId,
+          deprecationInfo
+        ] of Object.entries(result.deprecated)) {
+          if (deprecationInfo) {
+            deprecated[deprecatedExtensionId.toLowerCase()] = isBoolean(deprecationInfo) ? {} : deprecationInfo;
+          }
+        }
+      }
+      if (result.search) {
+        for (const s of result.search) {
+          search.push(s);
+        }
+      }
+      if (Array.isArray(result.extensionsEnabledWithPreRelease)) {
+        for (const id of result.extensionsEnabledWithPreRelease) {
+          extensionsEnabledWithPreRelease.push(id.toLowerCase());
+        }
+      }
+    }
+    return {
+      malicious,
+      deprecated,
+      search,
+      extensionsEnabledWithPreRelease
+    };
+  }
+};
+AbstractExtensionGalleryService = __decorateClass([
+  __decorateParam(2, IRequestService),
+  __decorateParam(3, ILogService),
+  __decorateParam(4, IEnvironmentService),
+  __decorateParam(5, ITelemetryService),
+  __decorateParam(6, IFileService),
+  __decorateParam(7, IProductService),
+  __decorateParam(8, IConfigurationService),
+  __decorateParam(9, IAllowedExtensionsService),
+  __decorateParam(10, IExtensionGalleryManifestService)
+], AbstractExtensionGalleryService);
+let ExtensionGalleryService = class extends AbstractExtensionGalleryService {
+  static {
+    __name(this, "ExtensionGalleryService");
+  }
+  constructor(storageService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService) {
+    super(
+      storageService,
+      void 0,
+      requestService,
+      logService,
+      environmentService,
+      telemetryService,
+      fileService,
+      productService,
+      configurationService,
+      allowedExtensionsService,
+      extensionGalleryManifestService
+    );
+  }
+};
+ExtensionGalleryService = __decorateClass([
+  __decorateParam(0, IStorageService),
+  __decorateParam(1, IRequestService),
+  __decorateParam(2, ILogService),
+  __decorateParam(3, IEnvironmentService),
+  __decorateParam(4, ITelemetryService),
+  __decorateParam(5, IFileService),
+  __decorateParam(6, IProductService),
+  __decorateParam(7, IConfigurationService),
+  __decorateParam(8, IAllowedExtensionsService),
+  __decorateParam(9, IExtensionGalleryManifestService)
+], ExtensionGalleryService);
+let ExtensionGalleryServiceWithNoStorageService = class extends AbstractExtensionGalleryService {
+  static {
+    __name(this, "ExtensionGalleryServiceWithNoStorageService");
+  }
+  constructor(requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService) {
+    super(
+      void 0,
+      void 0,
+      requestService,
+      logService,
+      environmentService,
+      telemetryService,
+      fileService,
+      productService,
+      configurationService,
+      allowedExtensionsService,
+      extensionGalleryManifestService
+    );
+  }
+};
+ExtensionGalleryServiceWithNoStorageService = __decorateClass([
+  __decorateParam(0, IRequestService),
+  __decorateParam(1, ILogService),
+  __decorateParam(2, IEnvironmentService),
+  __decorateParam(3, ITelemetryService),
+  __decorateParam(4, IFileService),
+  __decorateParam(5, IProductService),
+  __decorateParam(6, IConfigurationService),
+  __decorateParam(7, IAllowedExtensionsService),
+  __decorateParam(8, IExtensionGalleryManifestService)
+], ExtensionGalleryServiceWithNoStorageService);
+export {
+  AbstractExtensionGalleryService,
+  ExtensionGalleryService,
+  ExtensionGalleryServiceWithNoStorageService,
+  sortExtensionVersions
+};
+//# sourceMappingURL=extensionGalleryService.js.map

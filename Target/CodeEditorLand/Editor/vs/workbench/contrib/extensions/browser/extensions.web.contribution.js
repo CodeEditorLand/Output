@@ -1,1 +1,21 @@
-import{localize as i}from"../../../../nls.js";import{SyncDescriptor as t}from"../../../../platform/instantiation/common/descriptors.js";import{Registry as o}from"../../../../platform/registry/common/platform.js";import{EditorPaneDescriptor as e}from"../../../browser/editor.js";import{EditorExtensions as n}from"../../../common/editor.js";import{RuntimeExtensionsInput as m}from"../common/runtimeExtensionsInput.js";import{RuntimeExtensionsEditor as r}from"./browserRuntimeExtensionsEditor.js";o.as(n.EditorPane).registerEditorPane(e.create(r,r.ID,i("runtimeExtension","Running Extensions")),[new t(m)]);
+import { localize } from "../../../../nls.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  EditorPaneDescriptor,
+  IEditorPaneRegistry
+} from "../../../browser/editor.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { RuntimeExtensionsInput } from "../common/runtimeExtensionsInput.js";
+import { RuntimeExtensionsEditor } from "./browserRuntimeExtensionsEditor.js";
+Registry.as(
+  EditorExtensions.EditorPane
+).registerEditorPane(
+  EditorPaneDescriptor.create(
+    RuntimeExtensionsEditor,
+    RuntimeExtensionsEditor.ID,
+    localize("runtimeExtension", "Running Extensions")
+  ),
+  [new SyncDescriptor(RuntimeExtensionsInput)]
+);
+//# sourceMappingURL=extensions.web.contribution.js.map

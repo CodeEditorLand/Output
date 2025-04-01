@@ -1,1 +1,53 @@
-import{Position as s}from"../../../../../editor/common/core/position.js";import{Range as u}from"../../../../../editor/common/core/range.js";import{BaseToken as c}from"../../baseToken.js";import"../../linesCodec/tokens/line.js";class t extends c{constructor(e,n){super(e);this.text=n}static newOnLine(e,n,r){const{range:i}=n,o=new s(i.startLineNumber,r),a=new s(i.startLineNumber,r+e.length);return new t(u.fromPositions(o,a),e)}equals(e){return!super.equals(e)||!(e instanceof t)?!1:this.text===e.text}toString(){return`word("${this.text}")${this.range}`}}export{t as Word};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Position } from "../../../../../editor/common/core/position.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { BaseToken } from "../../baseToken.js";
+import { Line } from "../../linesCodec/tokens/line.js";
+class Word extends BaseToken {
+  constructor(range, text) {
+    super(range);
+    this.text = text;
+  }
+  static {
+    __name(this, "Word");
+  }
+  /**
+   * Create new `Word` token with the given `text` and the range
+   * inside the given `Line` at the specified `column number`.
+   */
+  static newOnLine(text, line, atColumnNumber) {
+    const { range } = line;
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + text.length
+    );
+    return new Word(Range.fromPositions(startPosition, endPosition), text);
+  }
+  /**
+   * Check if this token is equal to another one.
+   */
+  equals(other) {
+    if (!super.equals(other)) {
+      return false;
+    }
+    if (!(other instanceof Word)) {
+      return false;
+    }
+    return this.text === other.text;
+  }
+  /**
+   * Returns a string representation of the token.
+   */
+  toString() {
+    return `word("${this.text}")${this.range}`;
+  }
+}
+export {
+  Word
+};
+//# sourceMappingURL=word.js.map

@@ -1,1 +1,588 @@
-var L=Object.defineProperty;var A=Object.getOwnPropertyDescriptor;var I=(n,s,e,t)=>{for(var r=t>1?void 0:t?A(s,e):s,i=n.length-1,o;i>=0;i--)(o=n[i])&&(r=(t?o(s,e,r):o(r))||r);return t&&r&&L(s,e,r),r},u=(n,s)=>(e,t)=>s(e,t,n);import{DataTransfers as f}from"../../../../base/browser/dnd.js";import{$ as T,DragAndDropObserver as M}from"../../../../base/browser/dom.js";import{renderLabelWithIcons as R}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{coalesce as C}from"../../../../base/common/arrays.js";import{CancellationToken as F}from"../../../../base/common/cancellation.js";import{Codicon as D}from"../../../../base/common/codicons.js";import{UriList as w}from"../../../../base/common/dataTransfer.js";import"../../../../base/common/lifecycle.js";import{Mimes as v}from"../../../../base/common/mime.js";import{basename as S}from"../../../../base/common/resources.js";import{URI as p}from"../../../../base/common/uri.js";import"../../../../editor/common/core/range.js";import{SymbolKinds as U}from"../../../../editor/common/languages.js";import{ITextModelService as N}from"../../../../editor/common/services/resolverService.js";import{localize as d}from"../../../../nls.js";import{IDialogService as O}from"../../../../platform/dialogs/common/dialogs.js";import{CodeDataTransfers as h,containsDragType as l,extractEditorsDropData as k,extractMarkerDropData as V,extractSymbolDropData as H}from"../../../../platform/dnd/browser/dnd.js";import{IFileService as P}from"../../../../platform/files/common/files.js";import{ILogService as W}from"../../../../platform/log/common/log.js";import{MarkerSeverity as $}from"../../../../platform/markers/common/markers.js";import{IThemeService as B,Themable as q}from"../../../../platform/theme/common/themeService.js";import{ISharedWebContentExtractorService as _}from"../../../../platform/webContentExtractor/common/webContentExtractor.js";import{isUntitledResourceEditorInput as K}from"../../../common/editor.js";import"../../../common/editor/editorInput.js";import{IEditorService as z}from"../../../services/editor/common/editorService.js";import{IExtensionService as Y,isProposedApiEnabled as x}from"../../../services/extensions/common/extensions.js";import{UntitledTextEditorInput as j}from"../../../services/untitled/common/untitledTextEditorInput.js";import{IDiagnosticVariableEntryFilterData as b}from"../common/chatModel.js";import{IChatWidgetService as G}from"./chat.js";import"./chatAttachmentModel.js";import"./chatInputPart.js";import{imageToHash as X}from"./chatPasteProviders.js";import{resizeImage as g}from"./imageUtils.js";var J=(a=>(a[a.FILE_INTERNAL=0]="FILE_INTERNAL",a[a.FILE_EXTERNAL=1]="FILE_EXTERNAL",a[a.FOLDER=2]="FOLDER",a[a.IMAGE=3]="IMAGE",a[a.SYMBOL=4]="SYMBOL",a[a.HTML=5]="HTML",a[a.MARKER=6]="MARKER",a))(J||{});let y=class extends q{constructor(e,t,r,i,o,a,c,m,ee,te,re){super(r);this.attachmentModel=e;this.styles=t;this.extensionService=i;this.fileService=o;this.editorService=a;this.dialogService=c;this.textModelService=m;this.webContentExtractorService=ee;this.chatWidgetService=te;this.logService=re;this.updateStyles()}overlays=new Map;overlayText;overlayTextBackground="";addOverlay(e,t){this.removeOverlay(e);const{overlay:r,disposable:i}=this.createOverlay(e,t);this.overlays.set(e,{overlay:r,disposable:i})}removeOverlay(e){this.currentActiveTarget===e&&(this.currentActiveTarget=void 0);const t=this.overlays.get(e);t&&(t.overlay.remove(),t.disposable.dispose(),this.overlays.delete(e))}currentActiveTarget=void 0;createOverlay(e,t){const r=document.createElement("div");r.classList.add("chat-dnd-overlay"),this.updateOverlayStyles(r),t.appendChild(r);const i=new M(e,{onDragOver:o=>{o.stopPropagation(),o.preventDefault(),e!==this.currentActiveTarget&&(this.currentActiveTarget&&this.setOverlay(this.currentActiveTarget,void 0),this.currentActiveTarget=e,this.onDragEnter(o,e))},onDragLeave:o=>{e===this.currentActiveTarget&&(this.currentActiveTarget=void 0),this.onDragLeave(o,e)},onDrop:o=>{o.stopPropagation(),o.preventDefault(),e===this.currentActiveTarget&&(this.currentActiveTarget=void 0,this.onDrop(o,e))}});return{overlay:r,disposable:i}}onDragEnter(e,t){const r=this.guessDropType(e);this.updateDropFeedback(e,t,r)}onDragLeave(e,t){this.updateDropFeedback(e,t,void 0)}onDrop(e,t){this.updateDropFeedback(e,t,void 0),this.drop(e)}async drop(e){const t=await this.getAttachContext(e);t.length!==0&&this.attachmentModel.addContext(...t)}updateDropFeedback(e,t,r){const i=r!==void 0;e.dataTransfer&&(e.dataTransfer.dropEffect=i?"copy":"none"),this.setOverlay(t,r)}guessDropType(e){if(this.isImageDnd(e))return this.extensionService.extensions.some(t=>x(t,"chatReferenceBinaryData"))?3:void 0;if(l(e,"text/html"))return 5;if(l(e,h.SYMBOLS))return 4;if(l(e,h.MARKERS))return 6;if(l(e,f.FILES))return 1;if(l(e,f.INTERNAL_URI_LIST))return 0;if(l(e,v.uriList,h.FILES,f.RESOURCES))return 2}isDragEventSupported(e){return this.guessDropType(e)!==void 0}getDropTypeName(e){switch(e){case 0:return d("file","File");case 1:return d("file","File");case 2:return d("folder","Folder");case 3:return d("image","Image");case 4:return d("symbol","Symbol");case 6:return d("problem","Problem");case 5:return d("url","URL")}}isImageDnd(e){if(l(e,"image"))return!0;if(l(e,f.FILES)){const t=e.dataTransfer?.files;if(t&&t.length>0)return t[0].type.startsWith("image/");const r=e.dataTransfer?.items;if(r&&r.length>0)return r[0].type.startsWith("image/")}return!1}async getAttachContext(e){if(!this.isDragEventSupported(e))return[];const t=V(e);if(t)return this.resolveMarkerAttachContext(t);if(l(e,h.SYMBOLS)){const i=H(e);return this.resolveSymbolsAttachContext(i)}const r=k(e);return r.length===0&&!l(e,f.INTERNAL_URI_LIST)&&l(e,v.uriList)&&(l(e,v.html)||l(e,v.text))?this.resolveHTMLAttachContext(e):C(await Promise.all(r.map(i=>this.resolveAttachContext(i))))}async resolveAttachContext(e){const t=await Q(e,this.fileService,this.dialogService);return t?this.extensionService.extensions.some(r=>x(r,"chatReferenceBinaryData"))?t:void 0:await this.getEditorAttachContext(e)}async getEditorAttachContext(e){if(K(e))return await this.resolveUntitledAttachContext(e);if(!e.resource)return;let t;try{t=await this.fileService.stat(e.resource)}catch{return}if(!(!t.isDirectory&&!t.isFile))return await E(e.resource,t.isDirectory,this.textModelService)}async resolveUntitledAttachContext(e){if(e.resource)return await E(e.resource,!1,this.textModelService);const t=this.editorService.editors.filter(r=>r instanceof j);for(const r of t)if((await r.resolve()).textEditorModel?.getValue()===e.contents)return await E(r.resource,!1,this.textModelService)}resolveSymbolsAttachContext(e){return e.map(t=>{const r=p.file(t.fsPath);return{kind:"symbol",id:Z(r,t.range),value:{uri:r,range:t.range},symbolKind:t.kind,fullName:`$(${U.toIcon(t.kind).id}) ${t.name}`,name:t.name}})}async downloadImageAsUint8Array(e){try{const r=await this.webContentExtractorService.readImage(p.parse(e),F.None);if(r)return r.buffer}catch(r){this.logService.warn("Fetch failed:",r)}const t=this.chatWidgetService.lastFocusedWidget?.inputEditor.getSelection();t&&this.chatWidgetService.lastFocusedWidget&&this.chatWidgetService.lastFocusedWidget.inputEditor.executeEdits("chatInsertUrl",[{range:t,text:e}]),this.logService.warn(`Image URLs must end in .jpg, .png, .gif, .webp, or .bmp. Failed to fetch image from this URL: ${e}`)}async resolveHTMLAttachContext(e){const t=d("dragAndDroppedImageName","Image from URL");let r=t;for(let c=2;this.attachmentModel.attachments.some(m=>m.name===r);c++)r=`${t} ${c}`;const i=await this.extractImageFromFile(e);if(i)return[await this.createImageVariable(await g(i),r)];const o=await this.extractImageFromUrl(e),a=[];if(o){for(const c of o)if(/^data:image\/[a-z]+;base64,/.test(c))a.push(await this.createImageVariable(await g(c),r,p.parse(c)));else if(/^https?:\/\/.+/.test(c)){const m=await this.downloadImageAsUint8Array(c);m&&a.push(await this.createImageVariable(await g(m),r,p.parse(c),c))}}return a}async createImageVariable(e,t,r,i){return{id:i||await X(e),name:t,value:e,isImage:!0,isFile:!1,isDirectory:!1,references:r?[{reference:r,kind:"reference"}]:[]}}resolveMarkerAttachContext(e){return e.map(t=>{let r;return"severity"in t?r=b.fromMarker(t):r={filterUri:p.revive(t.uri),filterSeverity:$.Warning},b.toEntry(r)})}setOverlay(e,t){this.overlayText?.remove(),this.overlayText=void 0;const{overlay:r}=this.overlays.get(e);if(t!==void 0){const o=R(`$(${D.attach.id}) ${this.getOverlayText(t)}`).map(a=>typeof a=="string"?T("span.overlay-text",void 0,a):a);this.overlayText=T("span.attach-context-overlay-text",void 0,...o),this.overlayText.style.backgroundColor=this.overlayTextBackground,r.appendChild(this.overlayText)}r.classList.toggle("visible",t!==void 0)}getOverlayText(e){const t=this.getDropTypeName(e);return d("attacAsContext","Attach {0} as Context",t)}updateOverlayStyles(e){e.style.backgroundColor=this.getColor(this.styles.overlayBackground)||"",e.style.color=this.getColor(this.styles.listForeground)||""}updateStyles(){this.overlays.forEach(e=>this.updateOverlayStyles(e.overlay)),this.overlayTextBackground=this.getColor(this.styles.listBackground)||""}async extractImageFromFile(e){const t=e.dataTransfer?.files;if(t&&t.length>0){const r=t[0];if(r.type.startsWith("image/"))try{const i=await r.arrayBuffer();return new Uint8Array(i)}catch(i){this.logService.error("Error reading file:",i);return}}}async extractImageFromUrl(e){const t=e.dataTransfer?.getData("text/uri-list");if(t)try{const r=w.parse(t);if(r.length>0)return r}catch(r){this.logService.error("Error parsing URI list:",r);return}}};y=I([u(2,B),u(3,Y),u(4,P),u(5,z),u(6,O),u(7,N),u(8,_),u(9,G),u(10,W)],y);async function E(n,s,e){let t=!1;if(!s){try{(await e.createModelReference(n)).dispose()}catch{t=!0}/\.(svg)$/i.test(n.path)&&(t=!0)}return{value:n,id:n.toString(),name:S(n),isFile:!s,isDirectory:s,isOmitted:t}}async function Q(n,s,e){if(n.resource&&/\.(png|jpg|jpeg|gif|webp)$/i.test(n.resource.path)){const t=S(n.resource),r=await s.readFile(n.resource);if(r.size>30*1024*1024)throw e.error(d("imageTooLarge","Image is too large"),d("imageTooLargeMessage","The image {0} is too large to be attached.",t)),new Error("Image is too large");const i=await g(r.value.buffer);return{id:n.resource.toString(),name:t,fullName:n.resource.path,value:i,icon:D.fileMedia,isImage:!0,isFile:!1,references:[{reference:n.resource,kind:"reference"}]}}}function Z(n,s){let e="";return s&&(e=`:${s.startLineNumber}`,s.startLineNumber!==s.endLineNumber&&(e+=`-${s.endLineNumber}`)),n.fsPath+e}export{y as ChatDragAndDrop};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DataTransfers } from "../../../../base/browser/dnd.js";
+import { $, DragAndDropObserver } from "../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { UriList } from "../../../../base/common/dataTransfer.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { Mimes } from "../../../../base/common/mime.js";
+import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IRange } from "../../../../editor/common/core/range.js";
+import { SymbolKinds } from "../../../../editor/common/languages.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  CodeDataTransfers,
+  containsDragType,
+  DocumentSymbolTransferData,
+  extractEditorsDropData,
+  extractMarkerDropData,
+  extractSymbolDropData,
+  IDraggedResourceEditorInput,
+  MarkerTransferData
+} from "../../../../platform/dnd/browser/dnd.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import {
+  IThemeService,
+  Themable
+} from "../../../../platform/theme/common/themeService.js";
+import { ISharedWebContentExtractorService } from "../../../../platform/webContentExtractor/common/webContentExtractor.js";
+import { isUntitledResourceEditorInput } from "../../../common/editor.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  IExtensionService,
+  isProposedApiEnabled
+} from "../../../services/extensions/common/extensions.js";
+import { UntitledTextEditorInput } from "../../../services/untitled/common/untitledTextEditorInput.js";
+import {
+  IChatRequestVariableEntry,
+  IDiagnosticVariableEntry,
+  IDiagnosticVariableEntryFilterData,
+  ISymbolVariableEntry
+} from "../common/chatModel.js";
+import { IChatWidgetService } from "./chat.js";
+import { ChatAttachmentModel } from "./chatAttachmentModel.js";
+import { IChatInputStyles } from "./chatInputPart.js";
+import { imageToHash } from "./chatPasteProviders.js";
+import { resizeImage } from "./imageUtils.js";
+var ChatDragAndDropType = /* @__PURE__ */ ((ChatDragAndDropType2) => {
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE_INTERNAL"] = 0] = "FILE_INTERNAL";
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE_EXTERNAL"] = 1] = "FILE_EXTERNAL";
+  ChatDragAndDropType2[ChatDragAndDropType2["FOLDER"] = 2] = "FOLDER";
+  ChatDragAndDropType2[ChatDragAndDropType2["IMAGE"] = 3] = "IMAGE";
+  ChatDragAndDropType2[ChatDragAndDropType2["SYMBOL"] = 4] = "SYMBOL";
+  ChatDragAndDropType2[ChatDragAndDropType2["HTML"] = 5] = "HTML";
+  ChatDragAndDropType2[ChatDragAndDropType2["MARKER"] = 6] = "MARKER";
+  return ChatDragAndDropType2;
+})(ChatDragAndDropType || {});
+let ChatDragAndDrop = class extends Themable {
+  constructor(attachmentModel, styles, themeService, extensionService, fileService, editorService, dialogService, textModelService, webContentExtractorService, chatWidgetService, logService) {
+    super(themeService);
+    this.attachmentModel = attachmentModel;
+    this.styles = styles;
+    this.extensionService = extensionService;
+    this.fileService = fileService;
+    this.editorService = editorService;
+    this.dialogService = dialogService;
+    this.textModelService = textModelService;
+    this.webContentExtractorService = webContentExtractorService;
+    this.chatWidgetService = chatWidgetService;
+    this.logService = logService;
+    this.updateStyles();
+  }
+  static {
+    __name(this, "ChatDragAndDrop");
+  }
+  overlays = /* @__PURE__ */ new Map();
+  overlayText;
+  overlayTextBackground = "";
+  addOverlay(target, overlayContainer) {
+    this.removeOverlay(target);
+    const { overlay, disposable } = this.createOverlay(
+      target,
+      overlayContainer
+    );
+    this.overlays.set(target, { overlay, disposable });
+  }
+  removeOverlay(target) {
+    if (this.currentActiveTarget === target) {
+      this.currentActiveTarget = void 0;
+    }
+    const existingOverlay = this.overlays.get(target);
+    if (existingOverlay) {
+      existingOverlay.overlay.remove();
+      existingOverlay.disposable.dispose();
+      this.overlays.delete(target);
+    }
+  }
+  currentActiveTarget = void 0;
+  createOverlay(target, overlayContainer) {
+    const overlay = document.createElement("div");
+    overlay.classList.add("chat-dnd-overlay");
+    this.updateOverlayStyles(overlay);
+    overlayContainer.appendChild(overlay);
+    const disposable = new DragAndDropObserver(target, {
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (target === this.currentActiveTarget) {
+          return;
+        }
+        if (this.currentActiveTarget) {
+          this.setOverlay(this.currentActiveTarget, void 0);
+        }
+        this.currentActiveTarget = target;
+        this.onDragEnter(e, target);
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        if (target === this.currentActiveTarget) {
+          this.currentActiveTarget = void 0;
+        }
+        this.onDragLeave(e, target);
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (target !== this.currentActiveTarget) {
+          return;
+        }
+        this.currentActiveTarget = void 0;
+        this.onDrop(e, target);
+      }, "onDrop")
+    });
+    return { overlay, disposable };
+  }
+  onDragEnter(e, target) {
+    const estimatedDropType = this.guessDropType(e);
+    this.updateDropFeedback(e, target, estimatedDropType);
+  }
+  onDragLeave(e, target) {
+    this.updateDropFeedback(e, target, void 0);
+  }
+  onDrop(e, target) {
+    this.updateDropFeedback(e, target, void 0);
+    this.drop(e);
+  }
+  async drop(e) {
+    const contexts = await this.getAttachContext(e);
+    if (contexts.length === 0) {
+      return;
+    }
+    this.attachmentModel.addContext(...contexts);
+  }
+  updateDropFeedback(e, target, dropType) {
+    const showOverlay = dropType !== void 0;
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = showOverlay ? "copy" : "none";
+    }
+    this.setOverlay(target, dropType);
+  }
+  guessDropType(e) {
+    if (this.isImageDnd(e)) {
+      return this.extensionService.extensions.some(
+        (ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")
+      ) ? 3 /* IMAGE */ : void 0;
+    } else if (containsDragType(e, "text/html")) {
+      return 5 /* HTML */;
+    } else if (containsDragType(e, CodeDataTransfers.SYMBOLS)) {
+      return 4 /* SYMBOL */;
+    } else if (containsDragType(e, CodeDataTransfers.MARKERS)) {
+      return 6 /* MARKER */;
+    } else if (containsDragType(e, DataTransfers.FILES)) {
+      return 1 /* FILE_EXTERNAL */;
+    } else if (containsDragType(e, DataTransfers.INTERNAL_URI_LIST)) {
+      return 0 /* FILE_INTERNAL */;
+    } else if (containsDragType(
+      e,
+      Mimes.uriList,
+      CodeDataTransfers.FILES,
+      DataTransfers.RESOURCES
+    )) {
+      return 2 /* FOLDER */;
+    }
+    return void 0;
+  }
+  isDragEventSupported(e) {
+    const dropType = this.guessDropType(e);
+    return dropType !== void 0;
+  }
+  getDropTypeName(type) {
+    switch (type) {
+      case 0 /* FILE_INTERNAL */:
+        return localize("file", "File");
+      case 1 /* FILE_EXTERNAL */:
+        return localize("file", "File");
+      case 2 /* FOLDER */:
+        return localize("folder", "Folder");
+      case 3 /* IMAGE */:
+        return localize("image", "Image");
+      case 4 /* SYMBOL */:
+        return localize("symbol", "Symbol");
+      case 6 /* MARKER */:
+        return localize("problem", "Problem");
+      case 5 /* HTML */:
+        return localize("url", "URL");
+    }
+  }
+  isImageDnd(e) {
+    if (containsDragType(e, "image")) {
+      return true;
+    }
+    if (containsDragType(e, DataTransfers.FILES)) {
+      const files = e.dataTransfer?.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        return file.type.startsWith("image/");
+      }
+      const items = e.dataTransfer?.items;
+      if (items && items.length > 0) {
+        const item = items[0];
+        return item.type.startsWith("image/");
+      }
+    }
+    return false;
+  }
+  async getAttachContext(e) {
+    if (!this.isDragEventSupported(e)) {
+      return [];
+    }
+    const markerData = extractMarkerDropData(e);
+    if (markerData) {
+      return this.resolveMarkerAttachContext(markerData);
+    }
+    if (containsDragType(e, CodeDataTransfers.SYMBOLS)) {
+      const data = extractSymbolDropData(e);
+      return this.resolveSymbolsAttachContext(data);
+    }
+    const editorDragData = extractEditorsDropData(e);
+    if (editorDragData.length === 0 && !containsDragType(e, DataTransfers.INTERNAL_URI_LIST) && containsDragType(e, Mimes.uriList) && (containsDragType(e, Mimes.html) || containsDragType(e, Mimes.text))) {
+      return this.resolveHTMLAttachContext(e);
+    }
+    return coalesce(
+      await Promise.all(
+        editorDragData.map((editorInput) => {
+          return this.resolveAttachContext(editorInput);
+        })
+      )
+    );
+  }
+  async resolveAttachContext(editorInput) {
+    const imageContext = await getImageAttachContext(
+      editorInput,
+      this.fileService,
+      this.dialogService
+    );
+    if (imageContext) {
+      return this.extensionService.extensions.some(
+        (ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")
+      ) ? imageContext : void 0;
+    }
+    return await this.getEditorAttachContext(editorInput);
+  }
+  async getEditorAttachContext(editor) {
+    if (isUntitledResourceEditorInput(editor)) {
+      return await this.resolveUntitledAttachContext(editor);
+    }
+    if (!editor.resource) {
+      return void 0;
+    }
+    let stat;
+    try {
+      stat = await this.fileService.stat(editor.resource);
+    } catch {
+      return void 0;
+    }
+    if (!stat.isDirectory && !stat.isFile) {
+      return void 0;
+    }
+    return await getResourceAttachContext(
+      editor.resource,
+      stat.isDirectory,
+      this.textModelService
+    );
+  }
+  async resolveUntitledAttachContext(editor) {
+    if (editor.resource) {
+      return await getResourceAttachContext(
+        editor.resource,
+        false,
+        this.textModelService
+      );
+    }
+    const openUntitledEditors = this.editorService.editors.filter(
+      (editor2) => editor2 instanceof UntitledTextEditorInput
+    );
+    for (const canidate of openUntitledEditors) {
+      const model = await canidate.resolve();
+      const contents = model.textEditorModel?.getValue();
+      if (contents === editor.contents) {
+        return await getResourceAttachContext(
+          canidate.resource,
+          false,
+          this.textModelService
+        );
+      }
+    }
+    return void 0;
+  }
+  resolveSymbolsAttachContext(symbols) {
+    return symbols.map((symbol) => {
+      const resource = URI.file(symbol.fsPath);
+      return {
+        kind: "symbol",
+        id: symbolId(resource, symbol.range),
+        value: { uri: resource, range: symbol.range },
+        symbolKind: symbol.kind,
+        fullName: `$(${SymbolKinds.toIcon(symbol.kind).id}) ${symbol.name}`,
+        name: symbol.name
+      };
+    });
+  }
+  async downloadImageAsUint8Array(url) {
+    try {
+      const extractedImages = await this.webContentExtractorService.readImage(
+        URI.parse(url),
+        CancellationToken.None
+      );
+      if (extractedImages) {
+        return extractedImages.buffer;
+      }
+    } catch (error) {
+      this.logService.warn("Fetch failed:", error);
+    }
+    const selection = this.chatWidgetService.lastFocusedWidget?.inputEditor.getSelection();
+    if (selection && this.chatWidgetService.lastFocusedWidget) {
+      this.chatWidgetService.lastFocusedWidget.inputEditor.executeEdits(
+        "chatInsertUrl",
+        [{ range: selection, text: url }]
+      );
+    }
+    this.logService.warn(
+      `Image URLs must end in .jpg, .png, .gif, .webp, or .bmp. Failed to fetch image from this URL: ${url}`
+    );
+    return void 0;
+  }
+  async resolveHTMLAttachContext(e) {
+    const displayName = localize(
+      "dragAndDroppedImageName",
+      "Image from URL"
+    );
+    let finalDisplayName = displayName;
+    for (let appendValue = 2; this.attachmentModel.attachments.some(
+      (attachment) => attachment.name === finalDisplayName
+    ); appendValue++) {
+      finalDisplayName = `${displayName} ${appendValue}`;
+    }
+    const dataFromFile = await this.extractImageFromFile(e);
+    if (dataFromFile) {
+      return [
+        await this.createImageVariable(
+          await resizeImage(dataFromFile),
+          finalDisplayName
+        )
+      ];
+    }
+    const dataFromUrl = await this.extractImageFromUrl(e);
+    const variableEntries = [];
+    if (dataFromUrl) {
+      for (const url of dataFromUrl) {
+        if (/^data:image\/[a-z]+;base64,/.test(url)) {
+          variableEntries.push(
+            await this.createImageVariable(
+              await resizeImage(url),
+              finalDisplayName,
+              URI.parse(url)
+            )
+          );
+        } else if (/^https?:\/\/.+/.test(url)) {
+          const imageData = await this.downloadImageAsUint8Array(url);
+          if (imageData) {
+            variableEntries.push(
+              await this.createImageVariable(
+                await resizeImage(imageData),
+                finalDisplayName,
+                URI.parse(url),
+                url
+              )
+            );
+          }
+        }
+      }
+    }
+    return variableEntries;
+  }
+  async createImageVariable(data, name, uri, id) {
+    return {
+      id: id || await imageToHash(data),
+      name,
+      value: data,
+      isImage: true,
+      isFile: false,
+      isDirectory: false,
+      references: uri ? [{ reference: uri, kind: "reference" }] : []
+    };
+  }
+  resolveMarkerAttachContext(markers) {
+    return markers.map((marker) => {
+      let filter;
+      if (!("severity" in marker)) {
+        filter = {
+          filterUri: URI.revive(marker.uri),
+          filterSeverity: MarkerSeverity.Warning
+        };
+      } else {
+        filter = IDiagnosticVariableEntryFilterData.fromMarker(marker);
+      }
+      return IDiagnosticVariableEntryFilterData.toEntry(filter);
+    });
+  }
+  setOverlay(target, type) {
+    this.overlayText?.remove();
+    this.overlayText = void 0;
+    const { overlay } = this.overlays.get(target);
+    if (type !== void 0) {
+      const iconAndtextElements = renderLabelWithIcons(
+        `$(${Codicon.attach.id}) ${this.getOverlayText(type)}`
+      );
+      const htmlElements = iconAndtextElements.map((element) => {
+        if (typeof element === "string") {
+          return $("span.overlay-text", void 0, element);
+        }
+        return element;
+      });
+      this.overlayText = $(
+        "span.attach-context-overlay-text",
+        void 0,
+        ...htmlElements
+      );
+      this.overlayText.style.backgroundColor = this.overlayTextBackground;
+      overlay.appendChild(this.overlayText);
+    }
+    overlay.classList.toggle("visible", type !== void 0);
+  }
+  getOverlayText(type) {
+    const typeName = this.getDropTypeName(type);
+    return localize("attacAsContext", "Attach {0} as Context", typeName);
+  }
+  updateOverlayStyles(overlay) {
+    overlay.style.backgroundColor = this.getColor(this.styles.overlayBackground) || "";
+    overlay.style.color = this.getColor(this.styles.listForeground) || "";
+  }
+  updateStyles() {
+    this.overlays.forEach(
+      (overlay) => this.updateOverlayStyles(overlay.overlay)
+    );
+    this.overlayTextBackground = this.getColor(this.styles.listBackground) || "";
+  }
+  async extractImageFromFile(e) {
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        try {
+          const buffer = await file.arrayBuffer();
+          return new Uint8Array(buffer);
+        } catch (error) {
+          this.logService.error("Error reading file:", error);
+          return void 0;
+        }
+      }
+    }
+    return void 0;
+  }
+  async extractImageFromUrl(e) {
+    const textUrl = e.dataTransfer?.getData("text/uri-list");
+    if (textUrl) {
+      try {
+        const uris = UriList.parse(textUrl);
+        if (uris.length > 0) {
+          return uris;
+        }
+      } catch (error) {
+        this.logService.error("Error parsing URI list:", error);
+        return void 0;
+      }
+    }
+    return void 0;
+  }
+};
+ChatDragAndDrop = __decorateClass([
+  __decorateParam(2, IThemeService),
+  __decorateParam(3, IExtensionService),
+  __decorateParam(4, IFileService),
+  __decorateParam(5, IEditorService),
+  __decorateParam(6, IDialogService),
+  __decorateParam(7, ITextModelService),
+  __decorateParam(8, ISharedWebContentExtractorService),
+  __decorateParam(9, IChatWidgetService),
+  __decorateParam(10, ILogService)
+], ChatDragAndDrop);
+async function getResourceAttachContext(resource, isDirectory, textModelService) {
+  let isOmitted = false;
+  if (!isDirectory) {
+    try {
+      const createdModel = await textModelService.createModelReference(resource);
+      createdModel.dispose();
+    } catch {
+      isOmitted = true;
+    }
+    if (/\.(svg)$/i.test(resource.path)) {
+      isOmitted = true;
+    }
+  }
+  return {
+    value: resource,
+    id: resource.toString(),
+    name: basename(resource),
+    isFile: !isDirectory,
+    isDirectory,
+    isOmitted
+  };
+}
+__name(getResourceAttachContext, "getResourceAttachContext");
+async function getImageAttachContext(editor, fileService, dialogService) {
+  if (!editor.resource) {
+    return void 0;
+  }
+  if (/\.(png|jpg|jpeg|gif|webp)$/i.test(editor.resource.path)) {
+    const fileName = basename(editor.resource);
+    const readFile = await fileService.readFile(editor.resource);
+    if (readFile.size > 30 * 1024 * 1024) {
+      dialogService.error(
+        localize("imageTooLarge", "Image is too large"),
+        localize(
+          "imageTooLargeMessage",
+          "The image {0} is too large to be attached.",
+          fileName
+        )
+      );
+      throw new Error("Image is too large");
+    }
+    const resizedImage = await resizeImage(readFile.value.buffer);
+    return {
+      id: editor.resource.toString(),
+      name: fileName,
+      fullName: editor.resource.path,
+      value: resizedImage,
+      icon: Codicon.fileMedia,
+      isImage: true,
+      isFile: false,
+      references: [{ reference: editor.resource, kind: "reference" }]
+    };
+  }
+  return void 0;
+}
+__name(getImageAttachContext, "getImageAttachContext");
+function symbolId(resource, range) {
+  let rangePart = "";
+  if (range) {
+    rangePart = `:${range.startLineNumber}`;
+    if (range.startLineNumber !== range.endLineNumber) {
+      rangePart += `-${range.endLineNumber}`;
+    }
+  }
+  return resource.fsPath + rangePart;
+}
+__name(symbolId, "symbolId");
+export {
+  ChatDragAndDrop
+};
+//# sourceMappingURL=chatDragAndDrop.js.map

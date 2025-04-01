@@ -1,1 +1,25 @@
-import"../../../base/common/uri.js";import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../core/range.js";import"../diff/documentDiffProvider.js";import"../diff/legacyLinesDiffComputer.js";import"../languages.js";import"./findSectionHeaders.js";import"./unicodeTextModelHighlighter.js";const C=e("editorWorkerService");export{C as IEditorWorkerService};
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { IRange } from "../core/range.js";
+import {
+  IDocumentDiff,
+  IDocumentDiffProviderOptions
+} from "../diff/documentDiffProvider.js";
+import { IChange } from "../diff/legacyLinesDiffComputer.js";
+import {
+  IColorInformation,
+  IInplaceReplaceSupportResult,
+  TextEdit
+} from "../languages.js";
+import {
+  FindSectionHeaderOptions,
+  SectionHeader
+} from "./findSectionHeaders.js";
+import { UnicodeHighlighterOptions } from "./unicodeTextModelHighlighter.js";
+const IEditorWorkerService = createDecorator(
+  "editorWorkerService"
+);
+export {
+  IEditorWorkerService
+};
+//# sourceMappingURL=editorWorker.js.map

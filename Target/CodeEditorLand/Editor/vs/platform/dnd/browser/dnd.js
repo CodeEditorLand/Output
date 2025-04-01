@@ -1,1 +1,380 @@
-import{DataTransfers as g}from"../../../base/browser/dnd.js";import"../../../base/browser/mouseEvent.js";import{mainWindow as F}from"../../../base/browser/window.js";import{coalesce as m}from"../../../base/common/arrays.js";import{DeferredPromise as y}from"../../../base/common/async.js";import{VSBuffer as I}from"../../../base/common/buffer.js";import{ResourceMap as x}from"../../../base/common/map.js";import{parse as w}from"../../../base/common/marshalling.js";import{Schemas as T}from"../../../base/common/network.js";import{isNative as A,isWeb as R}from"../../../base/common/platform.js";import{URI as l}from"../../../base/common/uri.js";import{localize as C}from"../../../nls.js";import{IDialogService as M}from"../../dialogs/common/dialogs.js";import"../../editor/common/editor.js";import{HTMLFileSystemProvider as O}from"../../files/browser/htmlFileSystemProvider.js";import{WebFileSystemAccess as p}from"../../files/browser/webFileSystemAccess.js";import{ByteSize as P,IFileService as k}from"../../files/common/files.js";import{IInstantiationService as L}from"../../instantiation/common/instantiation.js";import"../../markers/common/markers.js";import{extractSelection as N}from"../../opener/common/opener.js";import{Registry as S}from"../../registry/common/platform.js";const f={EDITORS:"CodeEditors",FILES:"CodeFiles",SYMBOLS:"application/vnd.code.symbols",MARKERS:"application/vnd.code.diagnostics"};function B(r){const e=[];if(r.dataTransfer&&r.dataTransfer.types.length>0){const t=r.dataTransfer.getData(f.EDITORS);if(t)try{e.push(...w(t))}catch{}else try{const a=r.dataTransfer.getData(g.RESOURCES);e.push(...U(a))}catch{}if(r.dataTransfer?.files)for(let a=0;a<r.dataTransfer.files.length;a++){const c=r.dataTransfer.files[a];if(c&&v(c))try{e.push({resource:l.file(v(c)),isExternal:!0,allowWorkspaceOpen:!0})}catch{}}const s=r.dataTransfer.getData(f.FILES);if(s)try{const a=JSON.parse(s);for(const c of a)e.push({resource:l.file(c),isExternal:!0,allowWorkspaceOpen:!0})}catch{}const i=S.as(h.DragAndDropContribution).getAll();for(const a of i){const c=r.dataTransfer.getData(a.dataFormatKey);if(c)try{e.push(...a.getEditorInputs(c))}catch{}}}const o=[],n=new x;for(const t of e)t.resource?n.has(t.resource)||(o.push(t),n.set(t.resource,!0)):o.push(t);return o}async function ye(r,e){const o=B(e);if(e.dataTransfer&&R&&J(e,g.FILES)&&e.dataTransfer.items){const s=await r.get(L).invokeFunction(i=>K(i,e));for(const i of s)o.push({resource:i.resource,contents:i.contents?.toString(),isExternal:!0,allowWorkspaceOpen:i.isDirectory})}return o}function U(r){const e=[];if(r){const o=JSON.parse(r);for(const n of o)if(n.indexOf(":")>0){const{selection:t,uri:s}=N(l.parse(n));e.push({resource:s,options:{selection:t}})}}return e}async function K(r,e){if(p.supported(F)){const n=e.dataTransfer?.items;if(n)return W(r,n)}const o=e.dataTransfer?.files;return o?H(r,o):[]}async function W(r,e){const o=r.get(k).getProvider(T.file);if(!(o instanceof O))return[];const n=[];for(let t=0;t<e.length;t++){const s=e[t];if(s){const i=new y;n.push(i),(async()=>{try{const a=await s.getAsFileSystemHandle();if(!a){i.complete(void 0);return}p.isFileSystemFileHandle(a)?i.complete({resource:await o.registerFileHandle(a),isDirectory:!1}):p.isFileSystemDirectoryHandle(a)?i.complete({resource:await o.registerDirectoryHandle(a),isDirectory:!0}):i.complete(void 0)}catch{i.complete(void 0)}})()}}return m(await Promise.all(n.map(t=>t.p)))}async function H(r,e){const o=r.get(M),n=[];for(let t=0;t<e.length;t++){const s=e.item(t);if(s){if(s.size>100*P.MB){o.warn(C("fileTooLarge","File is too large to open as untitled editor. Please upload it first into the file explorer and then try again."));continue}const i=new y;n.push(i);const a=new FileReader;a.onerror=()=>i.complete(void 0),a.onabort=()=>i.complete(void 0),a.onload=async c=>{const d=s.name,u=c.target?.result??void 0;if(typeof d!="string"||typeof u>"u"){i.complete(void 0);return}i.complete({resource:l.from({scheme:T.untitled,path:d}),contents:typeof u=="string"?I.fromString(u):I.wrap(new Uint8Array(u))})},a.readAsArrayBuffer(s)}}return m(await Promise.all(n.map(t=>t.p)))}function J(r,...e){if(!r.dataTransfer)return!1;const o=r.dataTransfer.types,n=[];for(let t=0;t<o.length;t++)n.push(o[t].toLowerCase());for(const t of e)if(n.indexOf(t.toLowerCase())>=0)return!0;return!1}class z{_contributions=new Map;register(e){if(this._contributions.has(e.dataFormatKey))throw new Error(`A drag and drop contributiont with key '${e.dataFormatKey}' was already registered.`);this._contributions.set(e.dataFormatKey,e)}getAll(){return this._contributions.values()}}const h={DragAndDropContribution:"workbench.contributions.dragAndDrop"};S.add(h.DragAndDropContribution,new z);class D{static INSTANCE=new D;data;proto;constructor(){}static getInstance(){return D.INSTANCE}hasData(e){return e&&e===this.proto}clearData(e){this.hasData(e)&&(this.proto=void 0,this.data=void 0)}getData(e){if(this.hasData(e))return this.data}setData(e,o){o&&(this.data=e,this.proto=o)}}function E(r,e,o){r.dataTransfer?.setData(e,JSON.stringify(o))}function b(r,e,o){const n=r.dataTransfer?.getData(e);if(n)try{return JSON.parse(n)}catch{}return o}function Ie(r){return b(r,f.SYMBOLS,[])}function Te(r,e){E(e,f.SYMBOLS,r)}function Se(r){return b(r,f.MARKERS,void 0)}function he(r,e){E(e,f.MARKERS,r)}function v(r){if(A&&typeof globalThis.vscode?.webUtils?.getPathForFile=="function")return globalThis.vscode.webUtils.getPathForFile(r)}export{f as CodeDataTransfers,h as Extensions,D as LocalSelectionTransfer,J as containsDragType,U as createDraggedEditorInputFromRawResourcesData,ye as extractEditorsAndFilesDropData,B as extractEditorsDropData,H as extractFileListData,Se as extractMarkerDropData,Ie as extractSymbolDropData,he as fillInMarkersDragData,Te as fillInSymbolsDragData,v as getPathForFile};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DataTransfers } from "../../../base/browser/dnd.js";
+import { DragMouseEvent } from "../../../base/browser/mouseEvent.js";
+import { mainWindow } from "../../../base/browser/window.js";
+import { coalesce } from "../../../base/common/arrays.js";
+import { DeferredPromise } from "../../../base/common/async.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { ResourceMap } from "../../../base/common/map.js";
+import { parse } from "../../../base/common/marshalling.js";
+import { Schemas } from "../../../base/common/network.js";
+import { isNative, isWeb } from "../../../base/common/platform.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { IDialogService } from "../../dialogs/common/dialogs.js";
+import {
+  IBaseTextResourceEditorInput,
+  ITextEditorSelection
+} from "../../editor/common/editor.js";
+import { HTMLFileSystemProvider } from "../../files/browser/htmlFileSystemProvider.js";
+import { WebFileSystemAccess } from "../../files/browser/webFileSystemAccess.js";
+import { ByteSize, IFileService } from "../../files/common/files.js";
+import {
+  IInstantiationService,
+  ServicesAccessor
+} from "../../instantiation/common/instantiation.js";
+import { IMarker } from "../../markers/common/markers.js";
+import { extractSelection } from "../../opener/common/opener.js";
+import { Registry } from "../../registry/common/platform.js";
+const CodeDataTransfers = {
+  EDITORS: "CodeEditors",
+  FILES: "CodeFiles",
+  SYMBOLS: "application/vnd.code.symbols",
+  MARKERS: "application/vnd.code.diagnostics"
+};
+function extractEditorsDropData(e) {
+  const editors = [];
+  if (e.dataTransfer && e.dataTransfer.types.length > 0) {
+    const rawEditorsData = e.dataTransfer.getData(
+      CodeDataTransfers.EDITORS
+    );
+    if (rawEditorsData) {
+      try {
+        editors.push(...parse(rawEditorsData));
+      } catch (error) {
+      }
+    } else {
+      try {
+        const rawResourcesData = e.dataTransfer.getData(
+          DataTransfers.RESOURCES
+        );
+        editors.push(
+          ...createDraggedEditorInputFromRawResourcesData(
+            rawResourcesData
+          )
+        );
+      } catch (error) {
+      }
+    }
+    if (e.dataTransfer?.files) {
+      for (let i = 0; i < e.dataTransfer.files.length; i++) {
+        const file = e.dataTransfer.files[i];
+        if (file && getPathForFile(file)) {
+          try {
+            editors.push({
+              resource: URI.file(getPathForFile(file)),
+              isExternal: true,
+              allowWorkspaceOpen: true
+            });
+          } catch (error) {
+          }
+        }
+      }
+    }
+    const rawCodeFiles = e.dataTransfer.getData(CodeDataTransfers.FILES);
+    if (rawCodeFiles) {
+      try {
+        const codeFiles = JSON.parse(rawCodeFiles);
+        for (const codeFile of codeFiles) {
+          editors.push({
+            resource: URI.file(codeFile),
+            isExternal: true,
+            allowWorkspaceOpen: true
+          });
+        }
+      } catch (error) {
+      }
+    }
+    const contributions = Registry.as(
+      Extensions.DragAndDropContribution
+    ).getAll();
+    for (const contribution of contributions) {
+      const data = e.dataTransfer.getData(contribution.dataFormatKey);
+      if (data) {
+        try {
+          editors.push(...contribution.getEditorInputs(data));
+        } catch (error) {
+        }
+      }
+    }
+  }
+  const coalescedEditors = [];
+  const seen = new ResourceMap();
+  for (const editor of editors) {
+    if (!editor.resource) {
+      coalescedEditors.push(editor);
+    } else if (!seen.has(editor.resource)) {
+      coalescedEditors.push(editor);
+      seen.set(editor.resource, true);
+    }
+  }
+  return coalescedEditors;
+}
+__name(extractEditorsDropData, "extractEditorsDropData");
+async function extractEditorsAndFilesDropData(accessor, e) {
+  const editors = extractEditorsDropData(e);
+  if (e.dataTransfer && isWeb && containsDragType(e, DataTransfers.FILES)) {
+    const files = e.dataTransfer.items;
+    if (files) {
+      const instantiationService = accessor.get(IInstantiationService);
+      const filesData = await instantiationService.invokeFunction(
+        (accessor2) => extractFilesDropData(accessor2, e)
+      );
+      for (const fileData of filesData) {
+        editors.push({
+          resource: fileData.resource,
+          contents: fileData.contents?.toString(),
+          isExternal: true,
+          allowWorkspaceOpen: fileData.isDirectory
+        });
+      }
+    }
+  }
+  return editors;
+}
+__name(extractEditorsAndFilesDropData, "extractEditorsAndFilesDropData");
+function createDraggedEditorInputFromRawResourcesData(rawResourcesData) {
+  const editors = [];
+  if (rawResourcesData) {
+    const resourcesRaw = JSON.parse(rawResourcesData);
+    for (const resourceRaw of resourcesRaw) {
+      if (resourceRaw.indexOf(":") > 0) {
+        const { selection, uri } = extractSelection(
+          URI.parse(resourceRaw)
+        );
+        editors.push({ resource: uri, options: { selection } });
+      }
+    }
+  }
+  return editors;
+}
+__name(createDraggedEditorInputFromRawResourcesData, "createDraggedEditorInputFromRawResourcesData");
+async function extractFilesDropData(accessor, event) {
+  if (WebFileSystemAccess.supported(mainWindow)) {
+    const items = event.dataTransfer?.items;
+    if (items) {
+      return extractFileTransferData(accessor, items);
+    }
+  }
+  const files = event.dataTransfer?.files;
+  if (!files) {
+    return [];
+  }
+  return extractFileListData(accessor, files);
+}
+__name(extractFilesDropData, "extractFilesDropData");
+async function extractFileTransferData(accessor, items) {
+  const fileSystemProvider = accessor.get(IFileService).getProvider(Schemas.file);
+  if (!(fileSystemProvider instanceof HTMLFileSystemProvider)) {
+    return [];
+  }
+  const results = [];
+  for (let i = 0; i < items.length; i++) {
+    const file = items[i];
+    if (file) {
+      const result = new DeferredPromise();
+      results.push(result);
+      (async () => {
+        try {
+          const handle = await file.getAsFileSystemHandle();
+          if (!handle) {
+            result.complete(void 0);
+            return;
+          }
+          if (WebFileSystemAccess.isFileSystemFileHandle(handle)) {
+            result.complete({
+              resource: await fileSystemProvider.registerFileHandle(
+                handle
+              ),
+              isDirectory: false
+            });
+          } else if (WebFileSystemAccess.isFileSystemDirectoryHandle(handle)) {
+            result.complete({
+              resource: await fileSystemProvider.registerDirectoryHandle(
+                handle
+              ),
+              isDirectory: true
+            });
+          } else {
+            result.complete(void 0);
+          }
+        } catch (error) {
+          result.complete(void 0);
+        }
+      })();
+    }
+  }
+  return coalesce(await Promise.all(results.map((result) => result.p)));
+}
+__name(extractFileTransferData, "extractFileTransferData");
+async function extractFileListData(accessor, files) {
+  const dialogService = accessor.get(IDialogService);
+  const results = [];
+  for (let i = 0; i < files.length; i++) {
+    const file = files.item(i);
+    if (file) {
+      if (file.size > 100 * ByteSize.MB) {
+        dialogService.warn(
+          localize(
+            "fileTooLarge",
+            "File is too large to open as untitled editor. Please upload it first into the file explorer and then try again."
+          )
+        );
+        continue;
+      }
+      const result = new DeferredPromise();
+      results.push(result);
+      const reader = new FileReader();
+      reader.onerror = () => result.complete(void 0);
+      reader.onabort = () => result.complete(void 0);
+      reader.onload = async (event) => {
+        const name = file.name;
+        const loadResult = event.target?.result ?? void 0;
+        if (typeof name !== "string" || typeof loadResult === "undefined") {
+          result.complete(void 0);
+          return;
+        }
+        result.complete({
+          resource: URI.from({
+            scheme: Schemas.untitled,
+            path: name
+          }),
+          contents: typeof loadResult === "string" ? VSBuffer.fromString(loadResult) : VSBuffer.wrap(new Uint8Array(loadResult))
+        });
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }
+  return coalesce(await Promise.all(results.map((result) => result.p)));
+}
+__name(extractFileListData, "extractFileListData");
+function containsDragType(event, ...dragTypesToFind) {
+  if (!event.dataTransfer) {
+    return false;
+  }
+  const dragTypes = event.dataTransfer.types;
+  const lowercaseDragTypes = [];
+  for (let i = 0; i < dragTypes.length; i++) {
+    lowercaseDragTypes.push(dragTypes[i].toLowerCase());
+  }
+  for (const dragType of dragTypesToFind) {
+    if (lowercaseDragTypes.indexOf(dragType.toLowerCase()) >= 0) {
+      return true;
+    }
+  }
+  return false;
+}
+__name(containsDragType, "containsDragType");
+class DragAndDropContributionRegistry {
+  static {
+    __name(this, "DragAndDropContributionRegistry");
+  }
+  _contributions = /* @__PURE__ */ new Map();
+  register(contribution) {
+    if (this._contributions.has(contribution.dataFormatKey)) {
+      throw new Error(
+        `A drag and drop contributiont with key '${contribution.dataFormatKey}' was already registered.`
+      );
+    }
+    this._contributions.set(contribution.dataFormatKey, contribution);
+  }
+  getAll() {
+    return this._contributions.values();
+  }
+}
+const Extensions = {
+  DragAndDropContribution: "workbench.contributions.dragAndDrop"
+};
+Registry.add(
+  Extensions.DragAndDropContribution,
+  new DragAndDropContributionRegistry()
+);
+class LocalSelectionTransfer {
+  static {
+    __name(this, "LocalSelectionTransfer");
+  }
+  static INSTANCE = new LocalSelectionTransfer();
+  data;
+  proto;
+  constructor() {
+  }
+  static getInstance() {
+    return LocalSelectionTransfer.INSTANCE;
+  }
+  hasData(proto) {
+    return proto && proto === this.proto;
+  }
+  clearData(proto) {
+    if (this.hasData(proto)) {
+      this.proto = void 0;
+      this.data = void 0;
+    }
+  }
+  getData(proto) {
+    if (this.hasData(proto)) {
+      return this.data;
+    }
+    return void 0;
+  }
+  setData(data, proto) {
+    if (proto) {
+      this.data = data;
+      this.proto = proto;
+    }
+  }
+}
+function setDataAsJSON(e, kind, data) {
+  e.dataTransfer?.setData(kind, JSON.stringify(data));
+}
+__name(setDataAsJSON, "setDataAsJSON");
+function getDataAsJSON(e, kind, defaultValue) {
+  const rawSymbolsData = e.dataTransfer?.getData(kind);
+  if (rawSymbolsData) {
+    try {
+      return JSON.parse(rawSymbolsData);
+    } catch (error) {
+    }
+  }
+  return defaultValue;
+}
+__name(getDataAsJSON, "getDataAsJSON");
+function extractSymbolDropData(e) {
+  return getDataAsJSON(e, CodeDataTransfers.SYMBOLS, []);
+}
+__name(extractSymbolDropData, "extractSymbolDropData");
+function fillInSymbolsDragData(symbolsData, e) {
+  setDataAsJSON(e, CodeDataTransfers.SYMBOLS, symbolsData);
+}
+__name(fillInSymbolsDragData, "fillInSymbolsDragData");
+function extractMarkerDropData(e) {
+  return getDataAsJSON(e, CodeDataTransfers.MARKERS, void 0);
+}
+__name(extractMarkerDropData, "extractMarkerDropData");
+function fillInMarkersDragData(markerData, e) {
+  setDataAsJSON(e, CodeDataTransfers.MARKERS, markerData);
+}
+__name(fillInMarkersDragData, "fillInMarkersDragData");
+function getPathForFile(file) {
+  if (isNative && typeof globalThis.vscode?.webUtils?.getPathForFile === "function") {
+    return globalThis.vscode.webUtils.getPathForFile(file);
+  }
+  return void 0;
+}
+__name(getPathForFile, "getPathForFile");
+export {
+  CodeDataTransfers,
+  Extensions,
+  LocalSelectionTransfer,
+  containsDragType,
+  createDraggedEditorInputFromRawResourcesData,
+  extractEditorsAndFilesDropData,
+  extractEditorsDropData,
+  extractFileListData,
+  extractMarkerDropData,
+  extractSymbolDropData,
+  fillInMarkersDragData,
+  fillInSymbolsDragData,
+  getPathForFile
+};
+//# sourceMappingURL=dnd.js.map

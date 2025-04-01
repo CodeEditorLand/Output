@@ -1,1 +1,441 @@
-var x=Object.defineProperty;var T=Object.getOwnPropertyDescriptor;var f=(l,e,i,t)=>{for(var r=t>1?void 0:t?T(e,i):e,o=l.length-1,s;o>=0;o--)(s=l[o])&&(r=(t?s(e,i,r):s(r))||r);return t&&r&&x(e,i,r),r},n=(l,e)=>(i,t)=>e(i,t,l);import{coalesce as W}from"../../../base/common/arrays.js";import{bufferToStream as b,readableToBuffer as E,VSBuffer as P}from"../../../base/common/buffer.js";import"../../../base/common/cancellation.js";import{isCancellationError as g}from"../../../base/common/errors.js";import{DisposableStore as U}from"../../../base/common/lifecycle.js";import{revive as k}from"../../../base/common/marshalling.js";import{isNative as D}from"../../../base/common/platform.js";import{consumeStream as F}from"../../../base/common/stream.js";import{URI as d}from"../../../base/common/uri.js";import{localize as p}from"../../../nls.js";import{IEnvironmentService as $}from"../../../platform/environment/common/environment.js";import{IFileService as M}from"../../../platform/files/common/files.js";import{IInstantiationService as R}from"../../../platform/instantiation/common/instantiation.js";import{ILabelService as q}from"../../../platform/label/common/label.js";import{INotificationService as A}from"../../../platform/notification/common/notification.js";import{IRequestService as w}from"../../../platform/request/common/request.js";import{ICanonicalUriService as B}from"../../../platform/workspace/common/canonicalUri.js";import{IEditSessionIdentityService as H}from"../../../platform/workspace/common/editSessions.js";import{isUntitledWorkspace as O,IWorkspaceContextService as z,WorkbenchState as Q}from"../../../platform/workspace/common/workspace.js";import{IWorkspaceTrustManagementService as j,IWorkspaceTrustRequestService as G}from"../../../platform/workspace/common/workspaceTrust.js";import{EditorResourceAccessor as L,SaveReason as V,SideBySideEditor as I}from"../../common/editor.js";import{IEditorService as Y}from"../../services/editor/common/editorService.js";import{extHostNamedCustomer as K}from"../../services/extensions/common/extHostCustomers.js";import{checkGlobFileExists as X}from"../../services/extensions/common/workspaceContains.js";import{QueryBuilder as J}from"../../services/search/common/queryBuilder.js";import{ISearchService as N}from"../../services/search/common/search.js";import{ITextFileService as Z}from"../../services/textfile/common/textfiles.js";import{IWorkspaceEditingService as ee}from"../../services/workspaces/common/workspaceEditing.js";import{ExtHostContext as re,MainContext as ie}from"../common/extHost.protocol.js";let v=class{constructor(e,i,t,r,o,s,a,u,S,h,_,c,y,te,oe,se){this._searchService=i;this._contextService=t;this._editSessionIdentityService=r;this._canonicalUriService=o;this._editorService=s;this._workspaceEditingService=a;this._notificationService=u;this._requestService=S;this._instantiationService=h;this._labelService=_;this._environmentService=c;this._workspaceTrustManagementService=te;this._workspaceTrustRequestService=oe;this._textFileService=se;this._queryBuilder=this._instantiationService.createInstance(J),this._proxy=e.getProxy(re.ExtHostWorkspace);const m=this._contextService.getWorkspace();m.configuration&&!D&&!y.hasProvider(m.configuration)?this._proxy.$initializeWorkspace(this.getWorkspaceData(m),this.isWorkspaceTrusted()):this._contextService.getCompleteWorkspace().then(C=>this._proxy.$initializeWorkspace(this.getWorkspaceData(C),this.isWorkspaceTrusted())),this._contextService.onDidChangeWorkspaceFolders(this._onDidChangeWorkspace,this,this._toDispose),this._contextService.onDidChangeWorkbenchState(this._onDidChangeWorkspace,this,this._toDispose),this._workspaceTrustManagementService.onDidChangeTrust(this._onDidGrantWorkspaceTrust,this,this._toDispose)}_toDispose=new U;_activeCancelTokens=Object.create(null);_proxy;_queryBuilder;dispose(){this._toDispose.dispose();for(const e in this._activeCancelTokens)this._activeCancelTokens[e].cancel()}$updateWorkspaceFolders(e,i,t,r){const o=r.map(s=>({uri:d.revive(s.uri),name:s.name}));return this._notificationService.status(this.getStatusMessage(e,o.length,t),{hideAfter:10*1e3}),this._workspaceEditingService.updateFolders(i,t,o,!0)}getStatusMessage(e,i,t){let r;const o=i>0,s=t>0;return o&&!s?i===1?r=p("folderStatusMessageAddSingleFolder","Extension '{0}' added 1 folder to the workspace",e):r=p("folderStatusMessageAddMultipleFolders","Extension '{0}' added {1} folders to the workspace",e,i):s&&!o?t===1?r=p("folderStatusMessageRemoveSingleFolder","Extension '{0}' removed 1 folder from the workspace",e):r=p("folderStatusMessageRemoveMultipleFolders","Extension '{0}' removed {1} folders from the workspace",e,t):r=p("folderStatusChangeFolder","Extension '{0}' changed folders of the workspace",e),r}_onDidChangeWorkspace(){this._proxy.$acceptWorkspaceData(this.getWorkspaceData(this._contextService.getWorkspace()))}getWorkspaceData(e){return this._contextService.getWorkbenchState()===Q.EMPTY?null:{configuration:e.configuration||void 0,isUntitled:e.configuration?O(e.configuration,this._environmentService):!1,folders:e.folders,id:e.id,name:this._labelService.getWorkspaceLabel(e),transient:e.transient}}$startFileSearch(e,i,t){const r=d.revive(e),o=this._contextService.getWorkspace(),s=this._queryBuilder.file(r?[r]:o.folders,k(i));return this._searchService.fileSearch(s,t).then(a=>a.results.map(u=>u.resource),a=>g(a)?null:Promise.reject(a))}$startTextSearch(e,i,t,r,o){const s=d.revive(i),a=this._contextService.getWorkspace(),u=s?[s]:a.folders.map(c=>c.uri),S=this._queryBuilder.text(e,u,k(t));S._reason="startTextSearch";const h=c=>{c.results&&this._proxy.$handleTextSearchResult(c,r)};return this._searchService.textSearch(S,o,h).then(c=>({limitHit:c.limitHit}),c=>g(c)?null:Promise.reject(c))}$checkExists(e,i,t){return this._instantiationService.invokeFunction(r=>X(r,e,i,t))}async $save(e,i){const t=d.revive(e),r=[...this._editorService.findEditors(t,{supportSideBySide:I.PRIMARY})],o=await this._editorService.save(r,{reason:V.EXPLICIT,saveAs:i.saveAs,force:!i.saveAs});return this._saveResultToUris(o).at(0)}_saveResultToUris(e){return e.success?W(e.editors.map(i=>L.getCanonicalUri(i,{supportSideBySide:I.PRIMARY}))):[]}$saveAll(e){return this._editorService.saveAll({includeUntitled:e}).then(i=>i.success)}$resolveProxy(e){return this._requestService.resolveProxy(e)}$lookupAuthorization(e){return this._requestService.lookupAuthorization(e)}$lookupKerberosAuthorization(e){return this._requestService.lookupKerberosAuthorization(e)}$loadCertificates(){return this._requestService.loadCertificates()}$requestWorkspaceTrust(e){return this._workspaceTrustRequestService.requestWorkspaceTrust(e)}isWorkspaceTrusted(){return this._workspaceTrustManagementService.isWorkspaceTrusted()}_onDidGrantWorkspaceTrust(){this._proxy.$onDidGrantWorkspaceTrust()}registeredEditSessionProviders=new Map;$registerEditSessionIdentityProvider(e,i){const t=this._editSessionIdentityService.registerEditSessionIdentityProvider({scheme:i,getEditSessionIdentifier:async(r,o)=>this._proxy.$getEditSessionIdentifier(r.uri,o),provideEditSessionIdentityMatch:async(r,o,s,a)=>this._proxy.$provideEditSessionIdentityMatch(r.uri,o,s,a)});this.registeredEditSessionProviders.set(e,t),this._toDispose.add(t)}$unregisterEditSessionIdentityProvider(e){this.registeredEditSessionProviders.get(e)?.dispose(),this.registeredEditSessionProviders.delete(e)}registeredCanonicalUriProviders=new Map;$registerCanonicalUriProvider(e,i){const t=this._canonicalUriService.registerCanonicalUriProvider({scheme:i,provideCanonicalUri:async(r,o,s)=>{const a=await this._proxy.$provideCanonicalUri(r,o,s);return a&&d.revive(a)}});this.registeredCanonicalUriProviders.set(e,t),this._toDispose.add(t)}$unregisterCanonicalUriProvider(e){this.registeredCanonicalUriProviders.get(e)?.dispose(),this.registeredCanonicalUriProviders.delete(e)}async $decode(e,i,t){const r=await this._textFileService.getDecodedStream(d.revive(i)??void 0,b(e),{acceptTextOnly:!0,encoding:t?.encoding});return F(r,o=>o.join())}async $encode(e,i,t){const r=await this._textFileService.getEncodedReadable(d.revive(i)??void 0,e,{encoding:t?.encoding});return r instanceof P?r:E(r)}};v=f([K(ie.MainThreadWorkspace),n(1,N),n(2,z),n(3,H),n(4,B),n(5,Y),n(6,ee),n(7,A),n(8,w),n(9,R),n(10,q),n(11,$),n(12,M),n(13,j),n(14,G),n(15,Z)],v);export{v as MainThreadWorkspace};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { coalesce } from "../../../base/common/arrays.js";
+import {
+  bufferToStream,
+  readableToBuffer,
+  VSBuffer
+} from "../../../base/common/buffer.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../base/common/cancellation.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import {
+  DisposableStore,
+  IDisposable
+} from "../../../base/common/lifecycle.js";
+import { revive } from "../../../base/common/marshalling.js";
+import { isNative } from "../../../base/common/platform.js";
+import { consumeStream } from "../../../base/common/stream.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import { IFileService } from "../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILabelService } from "../../../platform/label/common/label.js";
+import { INotificationService } from "../../../platform/notification/common/notification.js";
+import {
+  AuthInfo,
+  Credentials,
+  IRequestService
+} from "../../../platform/request/common/request.js";
+import { ICanonicalUriService } from "../../../platform/workspace/common/canonicalUri.js";
+import { IEditSessionIdentityService } from "../../../platform/workspace/common/editSessions.js";
+import {
+  isUntitledWorkspace,
+  IWorkspace,
+  IWorkspaceContextService,
+  WorkbenchState,
+  WorkspaceFolder
+} from "../../../platform/workspace/common/workspace.js";
+import {
+  IWorkspaceTrustManagementService,
+  IWorkspaceTrustRequestService,
+  WorkspaceTrustRequestOptions
+} from "../../../platform/workspace/common/workspaceTrust.js";
+import {
+  EditorResourceAccessor,
+  SaveReason,
+  SideBySideEditor
+} from "../../common/editor.js";
+import {
+  IEditorService,
+  ISaveEditorsResult
+} from "../../services/editor/common/editorService.js";
+import {
+  extHostNamedCustomer,
+  IExtHostContext
+} from "../../services/extensions/common/extHostCustomers.js";
+import { checkGlobFileExists } from "../../services/extensions/common/workspaceContains.js";
+import {
+  IFileQueryBuilderOptions,
+  ITextQueryBuilderOptions,
+  QueryBuilder
+} from "../../services/search/common/queryBuilder.js";
+import {
+  IFileMatch,
+  IPatternInfo,
+  ISearchProgressItem,
+  ISearchService
+} from "../../services/search/common/search.js";
+import { ITextFileService } from "../../services/textfile/common/textfiles.js";
+import { IWorkspaceEditingService } from "../../services/workspaces/common/workspaceEditing.js";
+import {
+  ExtHostContext,
+  ExtHostWorkspaceShape,
+  ITextSearchComplete,
+  IWorkspaceData,
+  MainContext,
+  MainThreadWorkspaceShape
+} from "../common/extHost.protocol.js";
+let MainThreadWorkspace = class {
+  constructor(extHostContext, _searchService, _contextService, _editSessionIdentityService, _canonicalUriService, _editorService, _workspaceEditingService, _notificationService, _requestService, _instantiationService, _labelService, _environmentService, fileService, _workspaceTrustManagementService, _workspaceTrustRequestService, _textFileService) {
+    this._searchService = _searchService;
+    this._contextService = _contextService;
+    this._editSessionIdentityService = _editSessionIdentityService;
+    this._canonicalUriService = _canonicalUriService;
+    this._editorService = _editorService;
+    this._workspaceEditingService = _workspaceEditingService;
+    this._notificationService = _notificationService;
+    this._requestService = _requestService;
+    this._instantiationService = _instantiationService;
+    this._labelService = _labelService;
+    this._environmentService = _environmentService;
+    this._workspaceTrustManagementService = _workspaceTrustManagementService;
+    this._workspaceTrustRequestService = _workspaceTrustRequestService;
+    this._textFileService = _textFileService;
+    this._queryBuilder = this._instantiationService.createInstance(QueryBuilder);
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostWorkspace);
+    const workspace = this._contextService.getWorkspace();
+    if (workspace.configuration && !isNative && !fileService.hasProvider(workspace.configuration)) {
+      this._proxy.$initializeWorkspace(
+        this.getWorkspaceData(workspace),
+        this.isWorkspaceTrusted()
+      );
+    } else {
+      this._contextService.getCompleteWorkspace().then(
+        (workspace2) => this._proxy.$initializeWorkspace(
+          this.getWorkspaceData(workspace2),
+          this.isWorkspaceTrusted()
+        )
+      );
+    }
+    this._contextService.onDidChangeWorkspaceFolders(
+      this._onDidChangeWorkspace,
+      this,
+      this._toDispose
+    );
+    this._contextService.onDidChangeWorkbenchState(
+      this._onDidChangeWorkspace,
+      this,
+      this._toDispose
+    );
+    this._workspaceTrustManagementService.onDidChangeTrust(
+      this._onDidGrantWorkspaceTrust,
+      this,
+      this._toDispose
+    );
+  }
+  _toDispose = new DisposableStore();
+  _activeCancelTokens = /* @__PURE__ */ Object.create(null);
+  _proxy;
+  _queryBuilder;
+  dispose() {
+    this._toDispose.dispose();
+    for (const requestId in this._activeCancelTokens) {
+      const tokenSource = this._activeCancelTokens[requestId];
+      tokenSource.cancel();
+    }
+  }
+  // --- workspace ---
+  $updateWorkspaceFolders(extensionName, index, deleteCount, foldersToAdd) {
+    const workspaceFoldersToAdd = foldersToAdd.map((f) => ({
+      uri: URI.revive(f.uri),
+      name: f.name
+    }));
+    this._notificationService.status(
+      this.getStatusMessage(
+        extensionName,
+        workspaceFoldersToAdd.length,
+        deleteCount
+      ),
+      {
+        hideAfter: 10 * 1e3
+        /* 10s */
+      }
+    );
+    return this._workspaceEditingService.updateFolders(
+      index,
+      deleteCount,
+      workspaceFoldersToAdd,
+      true
+    );
+  }
+  getStatusMessage(extensionName, addCount, removeCount) {
+    let message;
+    const wantsToAdd = addCount > 0;
+    const wantsToDelete = removeCount > 0;
+    if (wantsToAdd && !wantsToDelete) {
+      if (addCount === 1) {
+        message = localize(
+          "folderStatusMessageAddSingleFolder",
+          "Extension '{0}' added 1 folder to the workspace",
+          extensionName
+        );
+      } else {
+        message = localize(
+          "folderStatusMessageAddMultipleFolders",
+          "Extension '{0}' added {1} folders to the workspace",
+          extensionName,
+          addCount
+        );
+      }
+    } else if (wantsToDelete && !wantsToAdd) {
+      if (removeCount === 1) {
+        message = localize(
+          "folderStatusMessageRemoveSingleFolder",
+          "Extension '{0}' removed 1 folder from the workspace",
+          extensionName
+        );
+      } else {
+        message = localize(
+          "folderStatusMessageRemoveMultipleFolders",
+          "Extension '{0}' removed {1} folders from the workspace",
+          extensionName,
+          removeCount
+        );
+      }
+    } else {
+      message = localize(
+        "folderStatusChangeFolder",
+        "Extension '{0}' changed folders of the workspace",
+        extensionName
+      );
+    }
+    return message;
+  }
+  _onDidChangeWorkspace() {
+    this._proxy.$acceptWorkspaceData(
+      this.getWorkspaceData(this._contextService.getWorkspace())
+    );
+  }
+  getWorkspaceData(workspace) {
+    if (this._contextService.getWorkbenchState() === WorkbenchState.EMPTY) {
+      return null;
+    }
+    return {
+      configuration: workspace.configuration || void 0,
+      isUntitled: workspace.configuration ? isUntitledWorkspace(
+        workspace.configuration,
+        this._environmentService
+      ) : false,
+      folders: workspace.folders,
+      id: workspace.id,
+      name: this._labelService.getWorkspaceLabel(workspace),
+      transient: workspace.transient
+    };
+  }
+  // --- search ---
+  $startFileSearch(_includeFolder, options, token) {
+    const includeFolder = URI.revive(_includeFolder);
+    const workspace = this._contextService.getWorkspace();
+    const query = this._queryBuilder.file(
+      includeFolder ? [includeFolder] : workspace.folders,
+      revive(options)
+    );
+    return this._searchService.fileSearch(query, token).then(
+      (result) => {
+        return result.results.map((m) => m.resource);
+      },
+      (err) => {
+        if (!isCancellationError(err)) {
+          return Promise.reject(err);
+        }
+        return null;
+      }
+    );
+  }
+  $startTextSearch(pattern, _folder, options, requestId, token) {
+    const folder = URI.revive(_folder);
+    const workspace = this._contextService.getWorkspace();
+    const folders = folder ? [folder] : workspace.folders.map((folder2) => folder2.uri);
+    const query = this._queryBuilder.text(
+      pattern,
+      folders,
+      revive(options)
+    );
+    query._reason = "startTextSearch";
+    const onProgress = /* @__PURE__ */ __name((p) => {
+      if (p.results) {
+        this._proxy.$handleTextSearchResult(p, requestId);
+      }
+    }, "onProgress");
+    const search = this._searchService.textSearch(query, token, onProgress).then(
+      (result) => {
+        return { limitHit: result.limitHit };
+      },
+      (err) => {
+        if (!isCancellationError(err)) {
+          return Promise.reject(err);
+        }
+        return null;
+      }
+    );
+    return search;
+  }
+  $checkExists(folders, includes, token) {
+    return this._instantiationService.invokeFunction(
+      (accessor) => checkGlobFileExists(accessor, folders, includes, token)
+    );
+  }
+  // --- save & edit resources ---
+  async $save(uriComponents, options) {
+    const uri = URI.revive(uriComponents);
+    const editors = [
+      ...this._editorService.findEditors(uri, {
+        supportSideBySide: SideBySideEditor.PRIMARY
+      })
+    ];
+    const result = await this._editorService.save(editors, {
+      reason: SaveReason.EXPLICIT,
+      saveAs: options.saveAs,
+      force: !options.saveAs
+    });
+    return this._saveResultToUris(result).at(0);
+  }
+  _saveResultToUris(result) {
+    if (!result.success) {
+      return [];
+    }
+    return coalesce(
+      result.editors.map(
+        (editor) => EditorResourceAccessor.getCanonicalUri(editor, {
+          supportSideBySide: SideBySideEditor.PRIMARY
+        })
+      )
+    );
+  }
+  $saveAll(includeUntitled) {
+    return this._editorService.saveAll({ includeUntitled }).then((res) => res.success);
+  }
+  $resolveProxy(url) {
+    return this._requestService.resolveProxy(url);
+  }
+  $lookupAuthorization(authInfo) {
+    return this._requestService.lookupAuthorization(authInfo);
+  }
+  $lookupKerberosAuthorization(url) {
+    return this._requestService.lookupKerberosAuthorization(url);
+  }
+  $loadCertificates() {
+    return this._requestService.loadCertificates();
+  }
+  // --- trust ---
+  $requestWorkspaceTrust(options) {
+    return this._workspaceTrustRequestService.requestWorkspaceTrust(
+      options
+    );
+  }
+  isWorkspaceTrusted() {
+    return this._workspaceTrustManagementService.isWorkspaceTrusted();
+  }
+  _onDidGrantWorkspaceTrust() {
+    this._proxy.$onDidGrantWorkspaceTrust();
+  }
+  // --- edit sessions ---
+  registeredEditSessionProviders = /* @__PURE__ */ new Map();
+  $registerEditSessionIdentityProvider(handle, scheme) {
+    const disposable = this._editSessionIdentityService.registerEditSessionIdentityProvider(
+      {
+        scheme,
+        getEditSessionIdentifier: /* @__PURE__ */ __name(async (workspaceFolder, token) => {
+          return this._proxy.$getEditSessionIdentifier(
+            workspaceFolder.uri,
+            token
+          );
+        }, "getEditSessionIdentifier"),
+        provideEditSessionIdentityMatch: /* @__PURE__ */ __name(async (workspaceFolder, identity1, identity2, token) => {
+          return this._proxy.$provideEditSessionIdentityMatch(
+            workspaceFolder.uri,
+            identity1,
+            identity2,
+            token
+          );
+        }, "provideEditSessionIdentityMatch")
+      }
+    );
+    this.registeredEditSessionProviders.set(handle, disposable);
+    this._toDispose.add(disposable);
+  }
+  $unregisterEditSessionIdentityProvider(handle) {
+    const disposable = this.registeredEditSessionProviders.get(handle);
+    disposable?.dispose();
+    this.registeredEditSessionProviders.delete(handle);
+  }
+  // --- canonical uri identities ---
+  registeredCanonicalUriProviders = /* @__PURE__ */ new Map();
+  $registerCanonicalUriProvider(handle, scheme) {
+    const disposable = this._canonicalUriService.registerCanonicalUriProvider({
+      scheme,
+      provideCanonicalUri: /* @__PURE__ */ __name(async (uri, targetScheme, token) => {
+        const result = await this._proxy.$provideCanonicalUri(
+          uri,
+          targetScheme,
+          token
+        );
+        if (result) {
+          return URI.revive(result);
+        }
+        return result;
+      }, "provideCanonicalUri")
+    });
+    this.registeredCanonicalUriProviders.set(handle, disposable);
+    this._toDispose.add(disposable);
+  }
+  $unregisterCanonicalUriProvider(handle) {
+    const disposable = this.registeredCanonicalUriProviders.get(handle);
+    disposable?.dispose();
+    this.registeredCanonicalUriProviders.delete(handle);
+  }
+  // --- encodings
+  async $decode(content, resource, options) {
+    const stream = await this._textFileService.getDecodedStream(
+      URI.revive(resource) ?? void 0,
+      bufferToStream(content),
+      { acceptTextOnly: true, encoding: options?.encoding }
+    );
+    return consumeStream(stream, (chunks) => chunks.join());
+  }
+  async $encode(content, resource, options) {
+    const res = await this._textFileService.getEncodedReadable(
+      URI.revive(resource) ?? void 0,
+      content,
+      { encoding: options?.encoding }
+    );
+    return res instanceof VSBuffer ? res : readableToBuffer(res);
+  }
+};
+__name(MainThreadWorkspace, "MainThreadWorkspace");
+MainThreadWorkspace = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadWorkspace),
+  __decorateParam(1, ISearchService),
+  __decorateParam(2, IWorkspaceContextService),
+  __decorateParam(3, IEditSessionIdentityService),
+  __decorateParam(4, ICanonicalUriService),
+  __decorateParam(5, IEditorService),
+  __decorateParam(6, IWorkspaceEditingService),
+  __decorateParam(7, INotificationService),
+  __decorateParam(8, IRequestService),
+  __decorateParam(9, IInstantiationService),
+  __decorateParam(10, ILabelService),
+  __decorateParam(11, IEnvironmentService),
+  __decorateParam(12, IFileService),
+  __decorateParam(13, IWorkspaceTrustManagementService),
+  __decorateParam(14, IWorkspaceTrustRequestService),
+  __decorateParam(15, ITextFileService)
+], MainThreadWorkspace);
+export {
+  MainThreadWorkspace
+};
+//# sourceMappingURL=mainThreadWorkspace.js.map

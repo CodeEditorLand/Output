@@ -1,1 +1,84 @@
-var A=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var m=(a,t,i,o)=>{for(var r=o>1?void 0:o?g(t,i):t,c=a.length-1,s;c>=0;c--)(s=a[c])&&(r=(o?s(t,i,r):s(r))||r);return o&&r&&A(t,i,r),r},h=(a,t)=>(i,o)=>t(i,o,a);import{Disposable as C}from"../../../../base/common/lifecycle.js";import{registerAction2 as e}from"../../../../platform/actions/common/actions.js";import{IInstantiationService as f}from"../../../../platform/instantiation/common/instantiation.js";import{registerWorkbenchContribution2 as p,WorkbenchPhase as d}from"../../../common/contributions.js";import{ILanguageModelToolsService as S}from"../common/languageModelToolsService.js";import{registerChatDeveloperActions as b}from"./actions/chatDeveloperActions.js";import{HoldToVoiceChatInChatViewAction as u,InlineVoiceChatAction as V,InstallSpeechProviderForVoiceChatAction as D,KeywordActivationContribution as I,QuickVoiceChatAction as R,ReadChatResponseAloud as T,StartVoiceChatAction as W,StopListeningAction as k,StopListeningAndSubmitAction as v,StopReadAloud as L,StopReadChatItemAloud as P,VoiceChatInChatViewAction as w}from"./actions/voiceChatActions.js";import{FetchWebPageTool as F,FetchWebPageToolData as l}from"./tools/fetchPageTool.js";let n=class extends C{static ID="chat.nativeBuiltinTools";constructor(t,i){super();const o=i.createInstance(F);this._register(t.registerToolData(l)),this._register(t.registerToolImplementation(l.id,o))}};n=m([h(0,S),h(1,f)],n),e(W),e(D),e(w),e(u),e(R),e(V),e(k),e(v),e(T),e(P),e(L),b(),p(I.ID,I,d.AfterRestored),p(n.ID,n,d.AfterRestored);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IWorkbenchContribution,
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import { ILanguageModelToolsService } from "../common/languageModelToolsService.js";
+import { registerChatDeveloperActions } from "./actions/chatDeveloperActions.js";
+import {
+  HoldToVoiceChatInChatViewAction,
+  InlineVoiceChatAction,
+  InstallSpeechProviderForVoiceChatAction,
+  KeywordActivationContribution,
+  QuickVoiceChatAction,
+  ReadChatResponseAloud,
+  StartVoiceChatAction,
+  StopListeningAction,
+  StopListeningAndSubmitAction,
+  StopReadAloud,
+  StopReadChatItemAloud,
+  VoiceChatInChatViewAction
+} from "./actions/voiceChatActions.js";
+import {
+  FetchWebPageTool,
+  FetchWebPageToolData
+} from "./tools/fetchPageTool.js";
+let NativeBuiltinToolsContribution = class extends Disposable {
+  static {
+    __name(this, "NativeBuiltinToolsContribution");
+  }
+  static ID = "chat.nativeBuiltinTools";
+  constructor(toolsService, instantiationService) {
+    super();
+    const editTool = instantiationService.createInstance(FetchWebPageTool);
+    this._register(toolsService.registerToolData(FetchWebPageToolData));
+    this._register(
+      toolsService.registerToolImplementation(
+        FetchWebPageToolData.id,
+        editTool
+      )
+    );
+  }
+};
+NativeBuiltinToolsContribution = __decorateClass([
+  __decorateParam(0, ILanguageModelToolsService),
+  __decorateParam(1, IInstantiationService)
+], NativeBuiltinToolsContribution);
+registerAction2(StartVoiceChatAction);
+registerAction2(InstallSpeechProviderForVoiceChatAction);
+registerAction2(VoiceChatInChatViewAction);
+registerAction2(HoldToVoiceChatInChatViewAction);
+registerAction2(QuickVoiceChatAction);
+registerAction2(InlineVoiceChatAction);
+registerAction2(StopListeningAction);
+registerAction2(StopListeningAndSubmitAction);
+registerAction2(ReadChatResponseAloud);
+registerAction2(StopReadChatItemAloud);
+registerAction2(StopReadAloud);
+registerChatDeveloperActions();
+registerWorkbenchContribution2(
+  KeywordActivationContribution.ID,
+  KeywordActivationContribution,
+  WorkbenchPhase.AfterRestored
+);
+registerWorkbenchContribution2(
+  NativeBuiltinToolsContribution.ID,
+  NativeBuiltinToolsContribution,
+  WorkbenchPhase.AfterRestored
+);
+//# sourceMappingURL=chat.contribution.js.map

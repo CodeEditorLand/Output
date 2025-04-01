@@ -1,2 +1,610 @@
-import{VSBuffer as y}from"../../../../base/common/buffer.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/diff/diff.js";import"../../../../base/common/event.js";import*as m from"../../../../base/common/glob.js";import"../../../../base/common/htmlContent.js";import{Iterable as E}from"../../../../base/common/iterator.js";import"../../../../base/common/lifecycle.js";import{Mimes as b}from"../../../../base/common/mime.js";import{Schemas as I}from"../../../../base/common/network.js";import{basename as x}from"../../../../base/common/path.js";import{isWindows as M}from"../../../../base/common/platform.js";import"../../../../base/common/sequence.js";import"../../../../base/common/themables.js";import"../../../../base/common/uri.js";import"../../../../editor/common/core/range.js";import"../../../../editor/common/editorCommon.js";import"../../../../editor/common/languages.js";import"../../../../editor/common/model.js";import"../../../../platform/accessibility/common/accessibility.js";import{RawContextKey as h}from"../../../../platform/contextkey/common/contextkey.js";import"../../../../platform/extensions/common/extensions.js";import"../../../../platform/files/common/files.js";import"../../../../platform/undoRedo/common/undoRedo.js";import"../../../common/editor.js";import"../../../services/editor/common/editorResolverService.js";import{extractCellOutputDetails as O,generateMetadataUri as D,generate as R,parseMetadataUri as N,parse as S}from"../../../services/notebook/common/notebookDocumentService.js";import"../../../services/workingCopy/common/fileWorkingCopy.js";import"../../../services/workingCopy/common/workingCopy.js";import"./model/notebookTextModel.js";import"./notebookExecutionStateService.js";import"./notebookKernelService.js";import"./notebookRange.js";const lt="workbench.editor.notebook",dt="workbench.editor.notebookTextDiffEditor",st="workbench.editor.notebookMultiTextDiffEditor",ut="workbench.editor.interactive",pt="workbench.editor.repl",ct="replNotebook.input.execute";var T=(e=>(e[e.Markup=1]="Markup",e[e.Code=2]="Code",e))(T||{});const w=["application/json","application/javascript","text/html","image/svg+xml",b.latex,b.markdown,"image/png","image/jpeg",b.text],mt=[b.latex,b.markdown,"application/json","text/html","image/svg+xml","image/png","image/jpeg",b.text],bt=new Map([["ms-toolsai.jupyter",new Set(["jupyter-notebook","interactive"])],["ms-toolsai.jupyter-renderers",new Set(["jupyter-notebook","interactive"])]]),It="_notAvailable";var P=(e=>(e[e.Running=1]="Running",e[e.Idle=2]="Idle",e))(P||{}),U=(o=>(o[o.Unconfirmed=1]="Unconfirmed",o[o.Pending=2]="Pending",o[o.Executing=3]="Executing",o))(U||{}),L=(o=>(o[o.Unconfirmed=1]="Unconfirmed",o[o.Pending=2]="Pending",o[o.Executing=3]="Executing",o))(L||{}),A=(a=>(a[a.WithHardKernelDependency=0]="WithHardKernelDependency",a[a.WithOptionalKernelDependency=1]="WithOptionalKernelDependency",a[a.Pure=2]="Pure",a[a.Never=3]="Never",a))(A||{}),B=(o=>(o.Always="always",o.Never="never",o.Optional="optional",o))(B||{}),F=(l=>(l[l.ModelChange=1]="ModelChange",l[l.Move=2]="Move",l[l.ChangeCellLanguage=5]="ChangeCellLanguage",l[l.Initialize=6]="Initialize",l[l.ChangeCellMetadata=7]="ChangeCellMetadata",l[l.Output=8]="Output",l[l.OutputItem=9]="OutputItem",l[l.ChangeCellContent=10]="ChangeCellContent",l[l.ChangeDocumentMetadata=11]="ChangeDocumentMetadata",l[l.ChangeCellInternalMetadata=12]="ChangeCellInternalMetadata",l[l.ChangeCellMime=13]="ChangeCellMime",l[l.Unknown=100]="Unknown",l))(F||{}),_=(e=>(e[e.Handle=0]="Handle",e[e.Index=1]="Index",e))(_||{}),W=(r=>(r[r.Replace=1]="Replace",r[r.Output=2]="Output",r[r.Metadata=3]="Metadata",r[r.CellLanguage=4]="CellLanguage",r[r.DocumentMetadata=5]="DocumentMetadata",r[r.Move=6]="Move",r[r.OutputItems=7]="OutputItems",r[r.PartialMetadata=8]="PartialMetadata",r[r.PartialInternalMetadata=9]="PartialInternalMetadata",r))(W||{}),V;(o=>{o.scheme=I.vscodeNotebookMetadata;function n(a){return D(a)}o.generate=n;function e(a){return N(a)}o.parse=e})(V||={});var H;(u=>{u.scheme=I.vscodeNotebookCell;function n(r,s){return R(r,s)}u.generate=n;function e(r){return S(r)}u.parse=e;function o(r,s){return r.with({scheme:I.vscodeNotebookCellOutput,query:new URLSearchParams({openIn:"editor",outputId:s??"",notebookScheme:r.scheme!==I.file?r.scheme:""}).toString()})}u.generateCellOutputUriWithId=o;function a(r,s,p){return r.with({scheme:I.vscodeNotebookCellOutput,fragment:s.fragment,query:new URLSearchParams({openIn:"notebook",outputIndex:String(p)}).toString()})}u.generateCellOutputUriWithIndex=a;function d(r){return O(r)}u.parseCellOutputUri=d;function i(r,s,p){return u.generate(r,s).with({scheme:p})}u.generateCellPropertyUri=i;function c(r,s){if(r.scheme===s)return u.parse(r.with({scheme:u.scheme}))}u.parseCellPropertyUri=c})(H||={});const g=t=>M?t.replace(/\//g,"\\"):t;class gt{constructor(n=[],e=w){this.defaultOrder=e;this.order=[...new Set(n)].map(o=>({pattern:o,matches:m.parse(g(o))}))}order;sort(n){const e=new Map(E.map(n,a=>[a,g(a)]));let o=[];for(const{matches:a}of this.order)for(const[d,i]of e)if(a(i)){o.push(d),e.delete(d);break}return e.size&&(o=o.concat([...e.keys()].sort((a,d)=>this.defaultOrder.indexOf(a)-this.defaultOrder.indexOf(d)))),o}prioritize(n,e){const o=this.findIndex(n);if(o===-1){this.order.unshift({pattern:n,matches:m.parse(g(n))});return}const a=new Set(e.map(i=>this.findIndex(i,o)));a.delete(-1);const d=Array.from(a).sort();this.order.splice(o+1,0,...d.map(i=>this.order[i]));for(let i=d.length-1;i>=0;i--)this.order.splice(d[i],1)}toArray(){return this.order.map(n=>n.pattern)}findIndex(n,e=this.order.length){const o=g(n);for(let a=0;a<e;a++)if(this.order[a].matches(o))return a;return-1}}function ft(t,n,e,o=(a,d)=>a===d){const a=[];function d(u,r,s){if(r===0&&s.length===0)return;const p=a[a.length-1];p&&p.start+p.deleteCount===u?(p.deleteCount+=r,p.toInsert.push(...s)):a.push({start:u,deleteCount:r,toInsert:s})}let i=0,c=0;for(;;){if(i===t.length){d(i,0,n.slice(c));break}if(c===n.length){d(i,t.length-i,[]);break}const u=t[i],r=n[c];if(o(u,r)){i+=1,c+=1;continue}e(r)?(d(i,1,[]),i+=1):(d(i,0,[r]),c+=1)}return a}const Ct=new h("notebookEditorCursorAtBoundary","none"),yt=new h("notebookEditorCursorAtLineBoundary","none");var K=(e=>(e.default="default",e.option="option",e))(K||{}),z=(o=>(o.Cells="cells",o.Text="text",o.None="none",o))(z||{});function v(t){const n=t;return!!((typeof n.include=="string"||m.isRelativePattern(n.include))&&(typeof n.exclude=="string"||m.isRelativePattern(n.exclude)))}function kt(t,n,e){if(Array.isArray(t.viewType)&&t.viewType.indexOf(n)>=0||t.viewType===n)return!0;if(t.filenamePattern){const o=v(t.filenamePattern)?t.filenamePattern.include:t.filenamePattern,a=v(t.filenamePattern)?t.filenamePattern.exclude:void 0;if(m.match(o,x(e.fsPath).toLowerCase()))return!(a&&m.match(a,x(e.fsPath).toLowerCase()))}return!1}const xt={displayOrder:"notebook.displayOrder",cellToolbarLocation:"notebook.cellToolbarLocation",cellToolbarVisibility:"notebook.cellToolbarVisibility",showCellStatusBar:"notebook.showCellStatusBar",cellExecutionTimeVerbosity:"notebook.cellExecutionTimeVerbosity",textDiffEditorPreview:"notebook.diff.enablePreview",diffOverviewRuler:"notebook.diff.overviewRuler",experimentalInsertToolbarAlignment:"notebook.experimental.insertToolbarAlignment",compactView:"notebook.compactView",focusIndicator:"notebook.cellFocusIndicator",insertToolbarLocation:"notebook.insertToolbarLocation",globalToolbar:"notebook.globalToolbar",stickyScrollEnabled:"notebook.stickyScroll.enabled",stickyScrollMode:"notebook.stickyScroll.mode",undoRedoPerCell:"notebook.undoRedoPerCell",consolidatedOutputButton:"notebook.consolidatedOutputButton",showFoldingControls:"notebook.showFoldingControls",dragAndDropEnabled:"notebook.dragAndDropEnabled",cellEditorOptionsCustomizations:"notebook.editorOptionsCustomizations",consolidatedRunButton:"notebook.consolidatedRunButton",openGettingStarted:"notebook.experimental.openGettingStarted",globalToolbarShowLabel:"notebook.globalToolbarShowLabel",markupFontSize:"notebook.markup.fontSize",markdownLineHeight:"notebook.markdown.lineHeight",interactiveWindowCollapseCodeCells:"interactiveWindow.collapseCellInputCode",outputScrollingDeprecated:"notebook.experimental.outputScrolling",outputScrolling:"notebook.output.scrolling",textOutputLineLimit:"notebook.output.textLineLimit",LinkifyOutputFilePaths:"notebook.output.linkifyFilePaths",minimalErrorRendering:"notebook.output.minimalErrorRendering",formatOnSave:"notebook.formatOnSave.enabled",insertFinalNewline:"notebook.insertFinalNewline",defaultFormatter:"notebook.defaultFormatter",formatOnCellExecution:"notebook.formatOnCellExecution",codeActionsOnSave:"notebook.codeActionsOnSave",outputWordWrap:"notebook.output.wordWrap",outputLineHeightDeprecated:"notebook.outputLineHeight",outputLineHeight:"notebook.output.lineHeight",outputFontSizeDeprecated:"notebook.outputFontSize",outputFontSize:"notebook.output.fontSize",outputFontFamilyDeprecated:"notebook.outputFontFamily",outputFontFamily:"notebook.output.fontFamily",findFilters:"notebook.find.filters",logging:"notebook.logging",confirmDeleteRunningCell:"notebook.confirmDeleteRunningCell",remoteSaving:"notebook.experimental.remoteSave",gotoSymbolsAllSymbols:"notebook.gotoSymbols.showAllSymbols",outlineShowMarkdownHeadersOnly:"notebook.outline.showMarkdownHeadersOnly",outlineShowCodeCells:"notebook.outline.showCodeCells",outlineShowCodeCellSymbols:"notebook.outline.showCodeCellSymbols",breadcrumbsShowCodeCells:"notebook.breadcrumbs.showCodeCells",scrollToRevealCell:"notebook.scrolling.revealNextCellOnExecute",cellChat:"notebook.experimental.cellChat",cellGenerate:"notebook.experimental.generate",notebookVariablesView:"notebook.variablesView",notebookInlineValues:"notebook.inlineValues",InteractiveWindowPromptToSave:"interactiveWindow.promptToSaveOnClose",cellFailureDiagnostics:"notebook.cellFailureDiagnostics",outputBackupSizeLimit:"notebook.backup.sizeLimit",multiCursor:"notebook.multiCursor.enabled",markupFontFamily:"notebook.markup.fontFamily"};var j=(e=>(e[e.Left=1]="Left",e[e.Right=2]="Right",e))(j||{});class C{static _prefix="notebook/";static create(n,e){return`${C._prefix}${n}/${e??n}`}static parse(n){if(n.startsWith(C._prefix)){const e=n.substring(C._prefix.length).split("/");if(e.length===2)return{notebookType:e[0],viewType:e[1]}}}}function ht(t){return["application/vnd.code.notebook.stdout","application/vnd.code.notebook.stderr"].includes(t)}const G=new TextDecoder;function vt(t){const n=[];let e=!1;for(const i of t)(n.length===0||e)&&(n.push(i),e=!0);let o=Y(n);const a=y.concat(n.map(i=>y.wrap(i))),d=Z(a);return o=o||d.byteLength!==a.byteLength,{data:d,didCompression:o}}const f="\x1B[A",k=f.split("").map(t=>t.charCodeAt(0)),$=10;function Y(t){let n=!1;return t.forEach((e,o)=>{if(o===0||e.length<f.length)return;const a=t[o-1],d=e.subarray(0,f.length);if(d[0]===k[0]&&d[1]===k[1]&&d[2]===k[2]){const i=a.lastIndexOf($);if(i===-1)return;n=!0,t[o-1]=a.subarray(0,i),t[o]=e.subarray(f.length)}}),n}function q(t){let n=t;do t=n,n=t.replace(/[^\n]\x08/gm,"");while(n.length<t.length);return t}function X(t){for(t=t.replace(/\r+\n/gm,`
-`);t.search(/\r[^$]/g)>-1;){const n=t.match(/^(.*)\r+/m)[1];let e=t.match(/\r+(.*)$/m)[1];e=e+n.slice(e.length,n.length),t=t.replace(/\r+.*$/m,"\r").replace(/^.*\r/m,e)}return t}const Q=8,J=13;function Z(t){return!t.buffer.includes(Q)&&!t.buffer.includes(J)?t:y.fromString(X(q(G.decode(t.buffer))))}export{mt as ACCESSIBLE_NOTEBOOK_DISPLAY_ORDER,W as CellEditType,T as CellKind,j as CellStatusbarAlignment,H as CellUri,ct as EXECUTE_REPL_COMMAND_ID,ut as INTERACTIVE_WINDOW_EDITOR_ID,f as MOVE_CURSOR_1_LINE_COMMAND,gt as MimeTypeDisplayOrder,dt as NOTEBOOK_DIFF_EDITOR_ID,w as NOTEBOOK_DISPLAY_ORDER,Ct as NOTEBOOK_EDITOR_CURSOR_BOUNDARY,yt as NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY,lt as NOTEBOOK_EDITOR_ID,st as NOTEBOOK_MULTI_DIFF_EDITOR_ID,U as NotebookCellExecutionState,F as NotebookCellsChangeType,K as NotebookEditorPriority,L as NotebookExecutionState,z as NotebookFindScopeType,V as NotebookMetadataUri,A as NotebookRendererMatch,P as NotebookRunState,xt as NotebookSetting,C as NotebookWorkingCopyTypeIdentifier,bt as RENDERER_EQUIVALENT_EXTENSIONS,It as RENDERER_NOT_AVAILABLE,pt as REPL_EDITOR_ID,B as RendererMessagingSpec,_ as SelectionStateType,vt as compressOutputItemStreams,ft as diff,v as isDocumentExcludePattern,ht as isTextStreamMime,kt as notebookDocumentFilterMatch};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { IDiffResult } from "../../../../base/common/diff/diff.js";
+import { Event } from "../../../../base/common/event.js";
+import * as glob from "../../../../base/common/glob.js";
+import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { Mimes } from "../../../../base/common/mime.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { basename } from "../../../../base/common/path.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { ISplice } from "../../../../base/common/sequence.js";
+import { ThemeColor } from "../../../../base/common/themables.js";
+import { URI, UriComponents } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import * as editorCommon from "../../../../editor/common/editorCommon.js";
+import {
+  Command,
+  WorkspaceEditMetadata
+} from "../../../../editor/common/languages.js";
+import {
+  IReadonlyTextBuffer,
+  ITextModel
+} from "../../../../editor/common/model.js";
+import { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
+import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { IFileReadLimits } from "../../../../platform/files/common/files.js";
+import { UndoRedoGroup } from "../../../../platform/undoRedo/common/undoRedo.js";
+import {
+  IRevertOptions,
+  ISaveOptions,
+  IUntypedEditorInput
+} from "../../../common/editor.js";
+import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import {
+  extractCellOutputDetails,
+  generateMetadataUri,
+  generate as generateUri,
+  parseMetadataUri,
+  parse as parseUri
+} from "../../../services/notebook/common/notebookDocumentService.js";
+import { SnapshotContext } from "../../../services/workingCopy/common/fileWorkingCopy.js";
+import {
+  IWorkingCopyBackupMeta,
+  IWorkingCopySaveEvent
+} from "../../../services/workingCopy/common/workingCopy.js";
+import { NotebookTextModel } from "./model/notebookTextModel.js";
+import { ICellExecutionError } from "./notebookExecutionStateService.js";
+import { INotebookTextModelLike } from "./notebookKernelService.js";
+import { ICellRange } from "./notebookRange.js";
+const NOTEBOOK_EDITOR_ID = "workbench.editor.notebook";
+const NOTEBOOK_DIFF_EDITOR_ID = "workbench.editor.notebookTextDiffEditor";
+const NOTEBOOK_MULTI_DIFF_EDITOR_ID = "workbench.editor.notebookMultiTextDiffEditor";
+const INTERACTIVE_WINDOW_EDITOR_ID = "workbench.editor.interactive";
+const REPL_EDITOR_ID = "workbench.editor.repl";
+const EXECUTE_REPL_COMMAND_ID = "replNotebook.input.execute";
+var CellKind = /* @__PURE__ */ ((CellKind2) => {
+  CellKind2[CellKind2["Markup"] = 1] = "Markup";
+  CellKind2[CellKind2["Code"] = 2] = "Code";
+  return CellKind2;
+})(CellKind || {});
+const NOTEBOOK_DISPLAY_ORDER = [
+  "application/json",
+  "application/javascript",
+  "text/html",
+  "image/svg+xml",
+  Mimes.latex,
+  Mimes.markdown,
+  "image/png",
+  "image/jpeg",
+  Mimes.text
+];
+const ACCESSIBLE_NOTEBOOK_DISPLAY_ORDER = [
+  Mimes.latex,
+  Mimes.markdown,
+  "application/json",
+  "text/html",
+  "image/svg+xml",
+  "image/png",
+  "image/jpeg",
+  Mimes.text
+];
+const RENDERER_EQUIVALENT_EXTENSIONS = /* @__PURE__ */ new Map([
+  ["ms-toolsai.jupyter", /* @__PURE__ */ new Set(["jupyter-notebook", "interactive"])],
+  [
+    "ms-toolsai.jupyter-renderers",
+    /* @__PURE__ */ new Set(["jupyter-notebook", "interactive"])
+  ]
+]);
+const RENDERER_NOT_AVAILABLE = "_notAvailable";
+var NotebookRunState = /* @__PURE__ */ ((NotebookRunState2) => {
+  NotebookRunState2[NotebookRunState2["Running"] = 1] = "Running";
+  NotebookRunState2[NotebookRunState2["Idle"] = 2] = "Idle";
+  return NotebookRunState2;
+})(NotebookRunState || {});
+var NotebookCellExecutionState = /* @__PURE__ */ ((NotebookCellExecutionState2) => {
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Unconfirmed"] = 1] = "Unconfirmed";
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Pending"] = 2] = "Pending";
+  NotebookCellExecutionState2[NotebookCellExecutionState2["Executing"] = 3] = "Executing";
+  return NotebookCellExecutionState2;
+})(NotebookCellExecutionState || {});
+var NotebookExecutionState = /* @__PURE__ */ ((NotebookExecutionState2) => {
+  NotebookExecutionState2[NotebookExecutionState2["Unconfirmed"] = 1] = "Unconfirmed";
+  NotebookExecutionState2[NotebookExecutionState2["Pending"] = 2] = "Pending";
+  NotebookExecutionState2[NotebookExecutionState2["Executing"] = 3] = "Executing";
+  return NotebookExecutionState2;
+})(NotebookExecutionState || {});
+var NotebookRendererMatch = /* @__PURE__ */ ((NotebookRendererMatch2) => {
+  NotebookRendererMatch2[NotebookRendererMatch2["WithHardKernelDependency"] = 0] = "WithHardKernelDependency";
+  NotebookRendererMatch2[NotebookRendererMatch2["WithOptionalKernelDependency"] = 1] = "WithOptionalKernelDependency";
+  NotebookRendererMatch2[NotebookRendererMatch2["Pure"] = 2] = "Pure";
+  NotebookRendererMatch2[NotebookRendererMatch2["Never"] = 3] = "Never";
+  return NotebookRendererMatch2;
+})(NotebookRendererMatch || {});
+var RendererMessagingSpec = /* @__PURE__ */ ((RendererMessagingSpec2) => {
+  RendererMessagingSpec2["Always"] = "always";
+  RendererMessagingSpec2["Never"] = "never";
+  RendererMessagingSpec2["Optional"] = "optional";
+  return RendererMessagingSpec2;
+})(RendererMessagingSpec || {});
+var NotebookCellsChangeType = /* @__PURE__ */ ((NotebookCellsChangeType2) => {
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ModelChange"] = 1] = "ModelChange";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["Move"] = 2] = "Move";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ChangeCellLanguage"] = 5] = "ChangeCellLanguage";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["Initialize"] = 6] = "Initialize";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ChangeCellMetadata"] = 7] = "ChangeCellMetadata";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["Output"] = 8] = "Output";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["OutputItem"] = 9] = "OutputItem";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ChangeCellContent"] = 10] = "ChangeCellContent";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ChangeDocumentMetadata"] = 11] = "ChangeDocumentMetadata";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ChangeCellInternalMetadata"] = 12] = "ChangeCellInternalMetadata";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["ChangeCellMime"] = 13] = "ChangeCellMime";
+  NotebookCellsChangeType2[NotebookCellsChangeType2["Unknown"] = 100] = "Unknown";
+  return NotebookCellsChangeType2;
+})(NotebookCellsChangeType || {});
+var SelectionStateType = /* @__PURE__ */ ((SelectionStateType2) => {
+  SelectionStateType2[SelectionStateType2["Handle"] = 0] = "Handle";
+  SelectionStateType2[SelectionStateType2["Index"] = 1] = "Index";
+  return SelectionStateType2;
+})(SelectionStateType || {});
+var CellEditType = /* @__PURE__ */ ((CellEditType2) => {
+  CellEditType2[CellEditType2["Replace"] = 1] = "Replace";
+  CellEditType2[CellEditType2["Output"] = 2] = "Output";
+  CellEditType2[CellEditType2["Metadata"] = 3] = "Metadata";
+  CellEditType2[CellEditType2["CellLanguage"] = 4] = "CellLanguage";
+  CellEditType2[CellEditType2["DocumentMetadata"] = 5] = "DocumentMetadata";
+  CellEditType2[CellEditType2["Move"] = 6] = "Move";
+  CellEditType2[CellEditType2["OutputItems"] = 7] = "OutputItems";
+  CellEditType2[CellEditType2["PartialMetadata"] = 8] = "PartialMetadata";
+  CellEditType2[CellEditType2["PartialInternalMetadata"] = 9] = "PartialInternalMetadata";
+  return CellEditType2;
+})(CellEditType || {});
+var NotebookMetadataUri;
+((NotebookMetadataUri2) => {
+  NotebookMetadataUri2.scheme = Schemas.vscodeNotebookMetadata;
+  function generate(notebook) {
+    return generateMetadataUri(notebook);
+  }
+  NotebookMetadataUri2.generate = generate;
+  __name(generate, "generate");
+  function parse(metadata) {
+    return parseMetadataUri(metadata);
+  }
+  NotebookMetadataUri2.parse = parse;
+  __name(parse, "parse");
+})(NotebookMetadataUri || (NotebookMetadataUri = {}));
+var CellUri;
+((CellUri2) => {
+  CellUri2.scheme = Schemas.vscodeNotebookCell;
+  function generate(notebook, handle) {
+    return generateUri(notebook, handle);
+  }
+  CellUri2.generate = generate;
+  __name(generate, "generate");
+  function parse(cell) {
+    return parseUri(cell);
+  }
+  CellUri2.parse = parse;
+  __name(parse, "parse");
+  function generateCellOutputUriWithId(notebook, outputId) {
+    return notebook.with({
+      scheme: Schemas.vscodeNotebookCellOutput,
+      query: new URLSearchParams({
+        openIn: "editor",
+        outputId: outputId ?? "",
+        notebookScheme: notebook.scheme !== Schemas.file ? notebook.scheme : ""
+      }).toString()
+    });
+  }
+  CellUri2.generateCellOutputUriWithId = generateCellOutputUriWithId;
+  __name(generateCellOutputUriWithId, "generateCellOutputUriWithId");
+  function generateCellOutputUriWithIndex(notebook, cellUri, outputIndex) {
+    return notebook.with({
+      scheme: Schemas.vscodeNotebookCellOutput,
+      fragment: cellUri.fragment,
+      query: new URLSearchParams({
+        openIn: "notebook",
+        outputIndex: String(outputIndex)
+      }).toString()
+    });
+  }
+  CellUri2.generateCellOutputUriWithIndex = generateCellOutputUriWithIndex;
+  __name(generateCellOutputUriWithIndex, "generateCellOutputUriWithIndex");
+  function parseCellOutputUri(uri) {
+    return extractCellOutputDetails(uri);
+  }
+  CellUri2.parseCellOutputUri = parseCellOutputUri;
+  __name(parseCellOutputUri, "parseCellOutputUri");
+  function generateCellPropertyUri(notebook, handle, scheme2) {
+    return CellUri2.generate(notebook, handle).with({ scheme: scheme2 });
+  }
+  CellUri2.generateCellPropertyUri = generateCellPropertyUri;
+  __name(generateCellPropertyUri, "generateCellPropertyUri");
+  function parseCellPropertyUri(uri, propertyScheme) {
+    if (uri.scheme !== propertyScheme) {
+      return void 0;
+    }
+    return CellUri2.parse(uri.with({ scheme: CellUri2.scheme }));
+  }
+  CellUri2.parseCellPropertyUri = parseCellPropertyUri;
+  __name(parseCellPropertyUri, "parseCellPropertyUri");
+})(CellUri || (CellUri = {}));
+const normalizeSlashes = /* @__PURE__ */ __name((str) => isWindows ? str.replace(/\//g, "\\") : str, "normalizeSlashes");
+class MimeTypeDisplayOrder {
+  constructor(initialValue = [], defaultOrder = NOTEBOOK_DISPLAY_ORDER) {
+    this.defaultOrder = defaultOrder;
+    this.order = [...new Set(initialValue)].map((pattern) => ({
+      pattern,
+      matches: glob.parse(normalizeSlashes(pattern))
+    }));
+  }
+  static {
+    __name(this, "MimeTypeDisplayOrder");
+  }
+  order;
+  /**
+   * Returns a sorted array of the input mimetypes.
+   */
+  sort(mimetypes) {
+    const remaining = new Map(
+      Iterable.map(mimetypes, (m) => [m, normalizeSlashes(m)])
+    );
+    let sorted = [];
+    for (const { matches } of this.order) {
+      for (const [original, normalized] of remaining) {
+        if (matches(normalized)) {
+          sorted.push(original);
+          remaining.delete(original);
+          break;
+        }
+      }
+    }
+    if (remaining.size) {
+      sorted = sorted.concat(
+        [...remaining.keys()].sort(
+          (a, b) => this.defaultOrder.indexOf(a) - this.defaultOrder.indexOf(b)
+        )
+      );
+    }
+    return sorted;
+  }
+  /**
+   * Records that the user selected the given mimetype over the other
+   * possible mimetypes, prioritizing it for future reference.
+   */
+  prioritize(chosenMimetype, otherMimetypes) {
+    const chosenIndex = this.findIndex(chosenMimetype);
+    if (chosenIndex === -1) {
+      this.order.unshift({
+        pattern: chosenMimetype,
+        matches: glob.parse(normalizeSlashes(chosenMimetype))
+      });
+      return;
+    }
+    const uniqueIndicies = new Set(
+      otherMimetypes.map((m) => this.findIndex(m, chosenIndex))
+    );
+    uniqueIndicies.delete(-1);
+    const otherIndices = Array.from(uniqueIndicies).sort();
+    this.order.splice(
+      chosenIndex + 1,
+      0,
+      ...otherIndices.map((i) => this.order[i])
+    );
+    for (let oi = otherIndices.length - 1; oi >= 0; oi--) {
+      this.order.splice(otherIndices[oi], 1);
+    }
+  }
+  /**
+   * Gets an array of in-order mimetype preferences.
+   */
+  toArray() {
+    return this.order.map((o) => o.pattern);
+  }
+  findIndex(mimeType, maxIndex = this.order.length) {
+    const normalized = normalizeSlashes(mimeType);
+    for (let i = 0; i < maxIndex; i++) {
+      if (this.order[i].matches(normalized)) {
+        return i;
+      }
+    }
+    return -1;
+  }
+}
+function diff(before, after, contains, equal = (a, b) => a === b) {
+  const result = [];
+  function pushSplice(start, deleteCount, toInsert) {
+    if (deleteCount === 0 && toInsert.length === 0) {
+      return;
+    }
+    const latest = result[result.length - 1];
+    if (latest && latest.start + latest.deleteCount === start) {
+      latest.deleteCount += deleteCount;
+      latest.toInsert.push(...toInsert);
+    } else {
+      result.push({ start, deleteCount, toInsert });
+    }
+  }
+  __name(pushSplice, "pushSplice");
+  let beforeIdx = 0;
+  let afterIdx = 0;
+  while (true) {
+    if (beforeIdx === before.length) {
+      pushSplice(beforeIdx, 0, after.slice(afterIdx));
+      break;
+    }
+    if (afterIdx === after.length) {
+      pushSplice(beforeIdx, before.length - beforeIdx, []);
+      break;
+    }
+    const beforeElement = before[beforeIdx];
+    const afterElement = after[afterIdx];
+    if (equal(beforeElement, afterElement)) {
+      beforeIdx += 1;
+      afterIdx += 1;
+      continue;
+    }
+    if (contains(afterElement)) {
+      pushSplice(beforeIdx, 1, []);
+      beforeIdx += 1;
+    } else {
+      pushSplice(beforeIdx, 0, [afterElement]);
+      afterIdx += 1;
+    }
+  }
+  return result;
+}
+__name(diff, "diff");
+const NOTEBOOK_EDITOR_CURSOR_BOUNDARY = new RawContextKey("notebookEditorCursorAtBoundary", "none");
+const NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY = new RawContextKey("notebookEditorCursorAtLineBoundary", "none");
+var NotebookEditorPriority = /* @__PURE__ */ ((NotebookEditorPriority2) => {
+  NotebookEditorPriority2["default"] = "default";
+  NotebookEditorPriority2["option"] = "option";
+  return NotebookEditorPriority2;
+})(NotebookEditorPriority || {});
+var NotebookFindScopeType = /* @__PURE__ */ ((NotebookFindScopeType2) => {
+  NotebookFindScopeType2["Cells"] = "cells";
+  NotebookFindScopeType2["Text"] = "text";
+  NotebookFindScopeType2["None"] = "none";
+  return NotebookFindScopeType2;
+})(NotebookFindScopeType || {});
+function isDocumentExcludePattern(filenamePattern) {
+  const arg = filenamePattern;
+  if ((typeof arg.include === "string" || glob.isRelativePattern(arg.include)) && (typeof arg.exclude === "string" || glob.isRelativePattern(arg.exclude))) {
+    return true;
+  }
+  return false;
+}
+__name(isDocumentExcludePattern, "isDocumentExcludePattern");
+function notebookDocumentFilterMatch(filter, viewType, resource) {
+  if (Array.isArray(filter.viewType) && filter.viewType.indexOf(viewType) >= 0) {
+    return true;
+  }
+  if (filter.viewType === viewType) {
+    return true;
+  }
+  if (filter.filenamePattern) {
+    const filenamePattern = isDocumentExcludePattern(filter.filenamePattern) ? filter.filenamePattern.include : filter.filenamePattern;
+    const excludeFilenamePattern = isDocumentExcludePattern(
+      filter.filenamePattern
+    ) ? filter.filenamePattern.exclude : void 0;
+    if (glob.match(filenamePattern, basename(resource.fsPath).toLowerCase())) {
+      if (excludeFilenamePattern) {
+        if (glob.match(
+          excludeFilenamePattern,
+          basename(resource.fsPath).toLowerCase()
+        )) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+  return false;
+}
+__name(notebookDocumentFilterMatch, "notebookDocumentFilterMatch");
+const NotebookSetting = {
+  displayOrder: "notebook.displayOrder",
+  cellToolbarLocation: "notebook.cellToolbarLocation",
+  cellToolbarVisibility: "notebook.cellToolbarVisibility",
+  showCellStatusBar: "notebook.showCellStatusBar",
+  cellExecutionTimeVerbosity: "notebook.cellExecutionTimeVerbosity",
+  textDiffEditorPreview: "notebook.diff.enablePreview",
+  diffOverviewRuler: "notebook.diff.overviewRuler",
+  experimentalInsertToolbarAlignment: "notebook.experimental.insertToolbarAlignment",
+  compactView: "notebook.compactView",
+  focusIndicator: "notebook.cellFocusIndicator",
+  insertToolbarLocation: "notebook.insertToolbarLocation",
+  globalToolbar: "notebook.globalToolbar",
+  stickyScrollEnabled: "notebook.stickyScroll.enabled",
+  stickyScrollMode: "notebook.stickyScroll.mode",
+  undoRedoPerCell: "notebook.undoRedoPerCell",
+  consolidatedOutputButton: "notebook.consolidatedOutputButton",
+  showFoldingControls: "notebook.showFoldingControls",
+  dragAndDropEnabled: "notebook.dragAndDropEnabled",
+  cellEditorOptionsCustomizations: "notebook.editorOptionsCustomizations",
+  consolidatedRunButton: "notebook.consolidatedRunButton",
+  openGettingStarted: "notebook.experimental.openGettingStarted",
+  globalToolbarShowLabel: "notebook.globalToolbarShowLabel",
+  markupFontSize: "notebook.markup.fontSize",
+  markdownLineHeight: "notebook.markdown.lineHeight",
+  interactiveWindowCollapseCodeCells: "interactiveWindow.collapseCellInputCode",
+  outputScrollingDeprecated: "notebook.experimental.outputScrolling",
+  outputScrolling: "notebook.output.scrolling",
+  textOutputLineLimit: "notebook.output.textLineLimit",
+  LinkifyOutputFilePaths: "notebook.output.linkifyFilePaths",
+  minimalErrorRendering: "notebook.output.minimalErrorRendering",
+  formatOnSave: "notebook.formatOnSave.enabled",
+  insertFinalNewline: "notebook.insertFinalNewline",
+  defaultFormatter: "notebook.defaultFormatter",
+  formatOnCellExecution: "notebook.formatOnCellExecution",
+  codeActionsOnSave: "notebook.codeActionsOnSave",
+  outputWordWrap: "notebook.output.wordWrap",
+  outputLineHeightDeprecated: "notebook.outputLineHeight",
+  outputLineHeight: "notebook.output.lineHeight",
+  outputFontSizeDeprecated: "notebook.outputFontSize",
+  outputFontSize: "notebook.output.fontSize",
+  outputFontFamilyDeprecated: "notebook.outputFontFamily",
+  outputFontFamily: "notebook.output.fontFamily",
+  findFilters: "notebook.find.filters",
+  logging: "notebook.logging",
+  confirmDeleteRunningCell: "notebook.confirmDeleteRunningCell",
+  remoteSaving: "notebook.experimental.remoteSave",
+  gotoSymbolsAllSymbols: "notebook.gotoSymbols.showAllSymbols",
+  outlineShowMarkdownHeadersOnly: "notebook.outline.showMarkdownHeadersOnly",
+  outlineShowCodeCells: "notebook.outline.showCodeCells",
+  outlineShowCodeCellSymbols: "notebook.outline.showCodeCellSymbols",
+  breadcrumbsShowCodeCells: "notebook.breadcrumbs.showCodeCells",
+  scrollToRevealCell: "notebook.scrolling.revealNextCellOnExecute",
+  cellChat: "notebook.experimental.cellChat",
+  cellGenerate: "notebook.experimental.generate",
+  notebookVariablesView: "notebook.variablesView",
+  notebookInlineValues: "notebook.inlineValues",
+  InteractiveWindowPromptToSave: "interactiveWindow.promptToSaveOnClose",
+  cellFailureDiagnostics: "notebook.cellFailureDiagnostics",
+  outputBackupSizeLimit: "notebook.backup.sizeLimit",
+  multiCursor: "notebook.multiCursor.enabled",
+  markupFontFamily: "notebook.markup.fontFamily"
+};
+var CellStatusbarAlignment = /* @__PURE__ */ ((CellStatusbarAlignment2) => {
+  CellStatusbarAlignment2[CellStatusbarAlignment2["Left"] = 1] = "Left";
+  CellStatusbarAlignment2[CellStatusbarAlignment2["Right"] = 2] = "Right";
+  return CellStatusbarAlignment2;
+})(CellStatusbarAlignment || {});
+class NotebookWorkingCopyTypeIdentifier {
+  static {
+    __name(this, "NotebookWorkingCopyTypeIdentifier");
+  }
+  static _prefix = "notebook/";
+  static create(notebookType, viewType) {
+    return `${NotebookWorkingCopyTypeIdentifier._prefix}${notebookType}/${viewType ?? notebookType}`;
+  }
+  static parse(candidate) {
+    if (candidate.startsWith(NotebookWorkingCopyTypeIdentifier._prefix)) {
+      const split = candidate.substring(NotebookWorkingCopyTypeIdentifier._prefix.length).split("/");
+      if (split.length === 2) {
+        return { notebookType: split[0], viewType: split[1] };
+      }
+    }
+    return void 0;
+  }
+}
+function isTextStreamMime(mimeType) {
+  return [
+    "application/vnd.code.notebook.stdout",
+    "application/vnd.code.notebook.stderr"
+  ].includes(mimeType);
+}
+__name(isTextStreamMime, "isTextStreamMime");
+const textDecoder = new TextDecoder();
+function compressOutputItemStreams(outputs) {
+  const buffers = [];
+  let startAppending = false;
+  for (const output of outputs) {
+    if (buffers.length === 0 || startAppending) {
+      buffers.push(output);
+      startAppending = true;
+    }
+  }
+  let didCompression = compressStreamBuffer(buffers);
+  const concatenated = VSBuffer.concat(
+    buffers.map((buffer) => VSBuffer.wrap(buffer))
+  );
+  const data = formatStreamText(concatenated);
+  didCompression = didCompression || data.byteLength !== concatenated.byteLength;
+  return { data, didCompression };
+}
+__name(compressOutputItemStreams, "compressOutputItemStreams");
+const MOVE_CURSOR_1_LINE_COMMAND = `${String.fromCharCode(27)}[A`;
+const MOVE_CURSOR_1_LINE_COMMAND_BYTES = MOVE_CURSOR_1_LINE_COMMAND.split(
+  ""
+).map((c) => c.charCodeAt(0));
+const LINE_FEED = 10;
+function compressStreamBuffer(streams) {
+  let didCompress = false;
+  streams.forEach((stream, index) => {
+    if (index === 0 || stream.length < MOVE_CURSOR_1_LINE_COMMAND.length) {
+      return;
+    }
+    const previousStream = streams[index - 1];
+    const command = stream.subarray(0, MOVE_CURSOR_1_LINE_COMMAND.length);
+    if (command[0] === MOVE_CURSOR_1_LINE_COMMAND_BYTES[0] && command[1] === MOVE_CURSOR_1_LINE_COMMAND_BYTES[1] && command[2] === MOVE_CURSOR_1_LINE_COMMAND_BYTES[2]) {
+      const lastIndexOfLineFeed = previousStream.lastIndexOf(LINE_FEED);
+      if (lastIndexOfLineFeed === -1) {
+        return;
+      }
+      didCompress = true;
+      streams[index - 1] = previousStream.subarray(
+        0,
+        lastIndexOfLineFeed
+      );
+      streams[index] = stream.subarray(MOVE_CURSOR_1_LINE_COMMAND.length);
+    }
+  });
+  return didCompress;
+}
+__name(compressStreamBuffer, "compressStreamBuffer");
+function fixBackspace(txt) {
+  let tmp = txt;
+  do {
+    txt = tmp;
+    tmp = txt.replace(/[^\n]\x08/gm, "");
+  } while (tmp.length < txt.length);
+  return txt;
+}
+__name(fixBackspace, "fixBackspace");
+function fixCarriageReturn(txt) {
+  txt = txt.replace(/\r+\n/gm, "\n");
+  while (txt.search(/\r[^$]/g) > -1) {
+    const base = txt.match(/^(.*)\r+/m)[1];
+    let insert = txt.match(/\r+(.*)$/m)[1];
+    insert = insert + base.slice(insert.length, base.length);
+    txt = txt.replace(/\r+.*$/m, "\r").replace(/^.*\r/m, insert);
+  }
+  return txt;
+}
+__name(fixCarriageReturn, "fixCarriageReturn");
+const BACKSPACE_CHARACTER = "\b".charCodeAt(0);
+const CARRIAGE_RETURN_CHARACTER = "\r".charCodeAt(0);
+function formatStreamText(buffer) {
+  if (!buffer.buffer.includes(BACKSPACE_CHARACTER) && !buffer.buffer.includes(CARRIAGE_RETURN_CHARACTER)) {
+    return buffer;
+  }
+  return VSBuffer.fromString(
+    fixCarriageReturn(fixBackspace(textDecoder.decode(buffer.buffer)))
+  );
+}
+__name(formatStreamText, "formatStreamText");
+export {
+  ACCESSIBLE_NOTEBOOK_DISPLAY_ORDER,
+  CellEditType,
+  CellKind,
+  CellStatusbarAlignment,
+  CellUri,
+  EXECUTE_REPL_COMMAND_ID,
+  INTERACTIVE_WINDOW_EDITOR_ID,
+  MOVE_CURSOR_1_LINE_COMMAND,
+  MimeTypeDisplayOrder,
+  NOTEBOOK_DIFF_EDITOR_ID,
+  NOTEBOOK_DISPLAY_ORDER,
+  NOTEBOOK_EDITOR_CURSOR_BOUNDARY,
+  NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY,
+  NOTEBOOK_EDITOR_ID,
+  NOTEBOOK_MULTI_DIFF_EDITOR_ID,
+  NotebookCellExecutionState,
+  NotebookCellsChangeType,
+  NotebookEditorPriority,
+  NotebookExecutionState,
+  NotebookFindScopeType,
+  NotebookMetadataUri,
+  NotebookRendererMatch,
+  NotebookRunState,
+  NotebookSetting,
+  NotebookWorkingCopyTypeIdentifier,
+  RENDERER_EQUIVALENT_EXTENSIONS,
+  RENDERER_NOT_AVAILABLE,
+  REPL_EDITOR_ID,
+  RendererMessagingSpec,
+  SelectionStateType,
+  compressOutputItemStreams,
+  diff,
+  isDocumentExcludePattern,
+  isTextStreamMime,
+  notebookDocumentFilterMatch
+};
+//# sourceMappingURL=notebookCommon.js.map

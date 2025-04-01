@@ -1,1 +1,44 @@
-var f=Object.defineProperty;var s=Object.getOwnPropertyDescriptor;var p=(m,e,t,i)=>{for(var r=i>1?void 0:i?s(e,t):e,I=m.length-1,c;I>=0;I--)(c=m[I])&&(r=(i?c(e,t,r):c(r))||r);return i&&r&&f(e,t,r),r},o=(m,e)=>(t,i)=>e(t,i,m);import{URI as a}from"../../../base/common/uri.js";import{INativeEnvironmentService as S}from"../../environment/common/environment.js";import{IFileService as U}from"../../files/common/files.js";import{ILogService as l}from"../../log/common/log.js";import{IUriIdentityService as n}from"../../uriIdentity/common/uriIdentity.js";import{IUserDataProfilesService as d}from"../../userDataProfile/common/userDataProfile.js";import{AbstractExtensionsProfileScannerService as g}from"../common/extensionsProfileScannerService.js";let v=class extends g{constructor(e,t,i,r,I){super(a.file(e.extensionsPath),t,i,r,I)}};v=p([o(0,S),o(1,U),o(2,d),o(3,n),o(4,l)],v);export{v as ExtensionsProfileScannerService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../base/common/uri.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { AbstractExtensionsProfileScannerService } from "../common/extensionsProfileScannerService.js";
+let ExtensionsProfileScannerService = class extends AbstractExtensionsProfileScannerService {
+  static {
+    __name(this, "ExtensionsProfileScannerService");
+  }
+  constructor(environmentService, fileService, userDataProfilesService, uriIdentityService, logService) {
+    super(
+      URI.file(environmentService.extensionsPath),
+      fileService,
+      userDataProfilesService,
+      uriIdentityService,
+      logService
+    );
+  }
+};
+ExtensionsProfileScannerService = __decorateClass([
+  __decorateParam(0, INativeEnvironmentService),
+  __decorateParam(1, IFileService),
+  __decorateParam(2, IUserDataProfilesService),
+  __decorateParam(3, IUriIdentityService),
+  __decorateParam(4, ILogService)
+], ExtensionsProfileScannerService);
+export {
+  ExtensionsProfileScannerService
+};
+//# sourceMappingURL=extensionsProfileScannerService.js.map

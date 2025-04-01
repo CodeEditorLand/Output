@@ -1,14 +1,1471 @@
-import{CharCode as L}from"../../../base/common/charCode.js";import{onUnexpectedError as G}from"../../../base/common/errors.js";import*as E from"../../../base/common/strings.js";import{ReplaceCommand as S,ReplaceCommandThatPreservesSelection as H,ReplaceCommandWithOffsetCursorState as k,ReplaceCommandWithoutChangingPosition as _,ReplaceOvertypeCommand as B,ReplaceOvertypeCommandOnCompositionEnd as X}from"../commands/replaceCommand.js";import{ShiftCommand as z}from"../commands/shiftCommand.js";import{SurroundSelectionCommand as Y}from"../commands/surroundSelectionCommand.js";import{EditorAutoIndentStrategy as w}from"../config/editorOptions.js";import{Position as Z}from"../core/position.js";import{Range as f}from"../core/range.js";import"../core/selection.js";import{getMapForWordSeparators as tt,WordCharacterClass as et}from"../core/wordCharacterClassifier.js";import{EditOperationResult as h,EditOperationType as d,isQuote as P}from"../cursorCommon.js";import"../editorCommon.js";import{getIndentActionForType as nt,getIndentForEnter as ot,getInheritIndentForLine as rt}from"../languages/autoIndent.js";import{getEnterAction as U}from"../languages/enterAction.js";import{IndentAction as O}from"../languages/languageConfiguration.js";import{getIndentationAtPosition as it}from"../languages/languageConfigurationRegistry.js";import{createScopedLineTokens as st}from"../languages/supports.js";import"../languages/supports/electricCharacter.js";import"../model.js";import"./cursorTypeOperations.js";class Ut{static getEdits(t,e,r,n,o){if(!o&&this._isAutoIndentType(t,e,r)){const s=[];for(const a of r){const u=this._findActualIndentationForSelection(t,e,a,n);if(u===null)return;s.push({selection:a,indentation:u})}const i=at.getAutoClosingPairClose(t,e,r,n,!1);return this._getIndentationAndAutoClosingPairEdits(t,e,s,n,i)}}static _isAutoIndentType(t,e,r){if(t.autoIndent<w.Full)return!1;for(let n=0,o=r.length;n<o;n++)if(!e.tokenization.isCheapToTokenize(r[n].getEndPosition().lineNumber))return!1;return!0}static _findActualIndentationForSelection(t,e,r,n){const o=nt(t,e,r,n,{shiftIndent:i=>F(t,i),unshiftIndent:i=>M(t,i)},t.languageConfigurationService);if(o===null)return null;const s=it(e,r.startLineNumber,r.startColumn);return o===t.normalizeIndentation(s)?null:o}static _getIndentationAndAutoClosingPairEdits(t,e,r,n,o){const s=r.map(({selection:a,indentation:u})=>{if(o!==null){const c=this._getEditFromIndentationAndSelection(t,e,u,a,n,!1);return new lt(c,a,n,o)}else{const c=this._getEditFromIndentationAndSelection(t,e,u,a,n,!0);return T(c.range,c.text,!1)}}),i={shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!1};return new h(d.TypingOther,s,i)}static _getEditFromIndentationAndSelection(t,e,r,n,o,s=!0){const i=n.startLineNumber,a=e.getLineFirstNonWhitespaceColumn(i);let u=t.normalizeIndentation(r);if(a!==0){const m=e.getLineContent(i);u+=m.substring(a-1,n.startColumn-1)}return u+=s?o:"",{range:new f(i,1,n.endLineNumber,n.endColumn),text:u}}}class Vt{static getEdits(t,e,r,n,o,s){if(j(e,r,n,o,s))return this._runAutoClosingOvertype(t,n,s)}static _runAutoClosingOvertype(t,e,r){const n=[];for(let o=0,s=e.length;o<s;o++){const a=e[o].getPosition(),u=new f(a.lineNumber,a.column,a.lineNumber,a.column+1);n[o]=new S(u,r)}return new h(d.TypingOther,n,{shouldPushStackElementBefore:R(t,d.TypingOther),shouldPushStackElementAfter:!1})}}class qt{static getEdits(t,e,r,n,o){if(j(t,e,r,n,o)){const s=r.map(i=>new S(new f(i.positionLineNumber,i.positionColumn,i.positionLineNumber,i.positionColumn+1),"",!1));return new h(d.TypingOther,s,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!1})}}}class at{static getEdits(t,e,r,n,o,s){if(!s){const i=this.getAutoClosingPairClose(t,e,r,n,o);if(i!==null)return this._runAutoClosingOpenCharType(r,n,o,i)}}static _runAutoClosingOpenCharType(t,e,r,n){const o=[];for(let s=0,i=t.length;s<i;s++){const a=t[s];o[s]=new ut(a,e,!r,n)}return new h(d.TypingOther,o,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!1})}static getAutoClosingPairClose(t,e,r,n,o){for(const C of r)if(!C.isEmpty())return null;const s=r.map(C=>{const p=C.getPosition();return o?{lineNumber:p.lineNumber,beforeColumn:p.column-n.length,afterColumn:p.column}:{lineNumber:p.lineNumber,beforeColumn:p.column,afterColumn:p.column}}),i=this._findAutoClosingPairOpen(t,e,s.map(C=>new Z(C.lineNumber,C.beforeColumn)),n);if(!i)return null;let a,u;if(P(n)?(a=t.autoClosingQuotes,u=t.shouldAutoCloseBefore.quote):(t.blockCommentStartToken?i.open.includes(t.blockCommentStartToken):!1)?(a=t.autoClosingComments,u=t.shouldAutoCloseBefore.comment):(a=t.autoClosingBrackets,u=t.shouldAutoCloseBefore.bracket),a==="never")return null;const m=this._findContainedAutoClosingPair(t,i),g=m?m.close:"";let b=!0;for(const C of s){const{lineNumber:p,beforeColumn:I,afterColumn:A}=C,N=e.getLineContent(p),y=N.substring(0,I-1),v=N.substring(A-1);if(v.startsWith(g)||(b=!1),v.length>0){const x=v.charAt(0);if(!this._isBeforeClosingBrace(t,v)&&!u(x))return null}if(i.open.length===1&&(n==="'"||n==='"')&&a!=="always"){const x=tt(t.wordSeparators,[]);if(y.length>0){const J=y.charCodeAt(y.length-1);if(x.get(J)===et.Regular)return null}}if(!e.tokenization.isCheapToTokenize(p))return null;e.tokenization.forceTokenization(p);const $=e.tokenization.getLineTokens(p),D=st($,I-1);if(!i.shouldAutoClose(D,I-D.firstCharOffset))return null;const Q=i.findNeutralCharacter();if(Q){const x=e.tokenization.getTokenTypeIfInsertingCharacter(p,I,Q);if(!i.isOK(x))return null}}return b?i.close.substring(0,i.close.length-g.length):i.close}static _findContainedAutoClosingPair(t,e){if(e.open.length<=1)return null;const r=e.close.charAt(e.close.length-1),n=t.autoClosingPairs.autoClosingPairsCloseByEnd.get(r)||[];let o=null;for(const s of n)s.open!==e.open&&e.open.includes(s.open)&&e.close.endsWith(s.close)&&(!o||s.open.length>o.open.length)&&(o=s);return o}static _findAutoClosingPairOpen(t,e,r,n){const o=t.autoClosingPairs.autoClosingPairsOpenByEnd.get(n);if(!o)return null;let s=null;for(const i of o)if(s===null||i.open.length>s.open.length){let a=!0;for(const u of r)if(e.getValueInRange(new f(u.lineNumber,u.column-i.open.length+1,u.lineNumber,u.column))+n!==i.open){a=!1;break}a&&(s=i)}return s}static _isBeforeClosingBrace(t,e){const r=e.charAt(0),n=t.autoClosingPairs.autoClosingPairsOpenByStart.get(r)||[],o=t.autoClosingPairs.autoClosingPairsCloseByStart.get(r)||[],s=n.some(a=>e.startsWith(a.open)),i=o.some(a=>e.startsWith(a.close));return!s&&i}}class Kt{static getEdits(t,e){if(!(t.inputMode==="overtype"))return null;const n=e.map(o=>new X(o.insertedTextRange));return new h(d.TypingOther,n,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!1})}}class jt{static getEdits(t,e,r,n,o){if(!o&&this._isSurroundSelectionType(t,e,r,n))return this._runSurroundSelectionType(t,r,n)}static _runSurroundSelectionType(t,e,r){const n=[];for(let o=0,s=e.length;o<s;o++){const i=e[o],a=t.surroundingPairs[r];n[o]=new Y(i,r,a)}return new h(d.Other,n,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!0})}static _isSurroundSelectionType(t,e,r,n){if(!ct(t,n)||!t.surroundingPairs.hasOwnProperty(n))return!1;const o=P(n);for(const s of r){if(s.isEmpty())return!1;let i=!0;for(let a=s.startLineNumber;a<=s.endLineNumber;a++){const u=e.getLineContent(a),c=a===s.startLineNumber?s.startColumn-1:0,m=a===s.endLineNumber?s.endColumn-1:u.length,g=u.substring(c,m);if(/[^ \t]/.test(g)){i=!1;break}}if(i)return!1;if(o&&s.startLineNumber===s.endLineNumber&&s.startColumn+1===s.endColumn){const a=e.getValueInRange(s);if(P(a))return!1}}return!0}}class $t{static getEdits(t,e,r,n,o,s){if(!s&&this._isTypeInterceptorElectricChar(e,r,n)){const i=this._typeInterceptorElectricChar(t,e,r,n[0],o);if(i)return i}}static _isTypeInterceptorElectricChar(t,e,r){return!!(r.length===1&&e.tokenization.isCheapToTokenize(r[0].getEndPosition().lineNumber))}static _typeInterceptorElectricChar(t,e,r,n,o){if(!e.electricChars.hasOwnProperty(o)||!n.isEmpty())return null;const s=n.getPosition();r.tokenization.forceTokenization(s.lineNumber);const i=r.tokenization.getLineTokens(s.lineNumber);let a;try{a=e.onElectricCharacter(o,i,s.column)}catch(u){return G(u),null}if(!a)return null;if(a.matchOpenBracket){const u=(i.getLineContent()+o).lastIndexOf(a.matchOpenBracket)+1,c=r.bracketPairs.findMatchingBracketUp(a.matchOpenBracket,{lineNumber:s.lineNumber,column:u},500);if(c){if(c.startLineNumber===s.lineNumber)return null;const m=r.getLineContent(c.startLineNumber),g=E.getLeadingWhitespace(m),b=e.normalizeIndentation(g),C=r.getLineContent(s.lineNumber),p=r.getLineFirstNonWhitespaceColumn(s.lineNumber)||s.column,I=C.substring(p-1,s.column-1),A=b+I+o,N=new f(s.lineNumber,1,s.lineNumber,s.column),y=new S(N,A);return new h(W(A,t),[y],{shouldPushStackElementBefore:!1,shouldPushStackElementAfter:!0})}}return null}}class Gt{static getEdits(t,e,r,n,o){const s=[];for(let a=0,u=r.length;a<u;a++){const c=t.inputMode==="overtype"&&!o?B:S;s[a]=new c(r[a],n)}const i=W(n,e);return new h(i,s,{shouldPushStackElementBefore:R(e,i),shouldPushStackElementAfter:!1})}}class Ht{static getEdits(t,e,r,n,o){if(!o&&n===`
-`){const s=[];for(let i=0,a=r.length;i<a;i++)s[i]=this._enter(t,e,!1,r[i]);return new h(d.TypingOther,s,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!1})}}static _enter(t,e,r,n){if(t.autoIndent===w.None)return T(n,`
-`,r);if(!e.tokenization.isCheapToTokenize(n.getStartPosition().lineNumber)||t.autoIndent===w.Keep){const a=e.getLineContent(n.startLineNumber),u=E.getLeadingWhitespace(a).substring(0,n.startColumn-1);return T(n,`
-`+t.normalizeIndentation(u),r)}const o=U(t.autoIndent,e,n,t.languageConfigurationService);if(o){if(o.indentAction===O.None)return T(n,`
-`+t.normalizeIndentation(o.indentation+o.appendText),r);if(o.indentAction===O.Indent)return T(n,`
-`+t.normalizeIndentation(o.indentation+o.appendText),r);if(o.indentAction===O.IndentOutdent){const a=t.normalizeIndentation(o.indentation),u=t.normalizeIndentation(o.indentation+o.appendText),c=`
-`+u+`
-`+a;return r?new _(n,c,!0):new k(n,c,-1,u.length-a.length,!0)}else if(o.indentAction===O.Outdent){const a=M(t,o.indentation);return T(n,`
-`+t.normalizeIndentation(a+o.appendText),r)}}const s=e.getLineContent(n.startLineNumber),i=E.getLeadingWhitespace(s).substring(0,n.startColumn-1);if(t.autoIndent>=w.Full){const a=ot(t.autoIndent,e,n,{unshiftIndent:u=>M(t,u),shiftIndent:u=>F(t,u),normalizeIndentation:u=>t.normalizeIndentation(u)},t.languageConfigurationService);if(a){let u=t.visibleColumnFromColumn(e,n.getEndPosition());const c=n.endColumn,m=e.getLineContent(n.endLineNumber),g=E.firstNonWhitespaceIndex(m);if(g>=0?n=n.setEndPosition(n.endLineNumber,Math.max(n.endColumn,g+1)):n=n.setEndPosition(n.endLineNumber,e.getLineMaxColumn(n.endLineNumber)),r)return new _(n,`
-`+t.normalizeIndentation(a.afterEnter),!0);{let b=0;return c<=g+1&&(t.insertSpaces||(u=Math.ceil(u/t.indentSize)),b=Math.min(u+1-t.normalizeIndentation(a.afterEnter).length-1,0)),new k(n,`
-`+t.normalizeIndentation(a.afterEnter),0,b,!0)}}}return T(n,`
-`+t.normalizeIndentation(i),r)}static lineInsertBefore(t,e,r){if(e===null||r===null)return[];const n=[];for(let o=0,s=r.length;o<s;o++){let i=r[o].positionLineNumber;if(i===1)n[o]=new _(new f(1,1,1,1),`
-`);else{i--;const a=e.getLineMaxColumn(i);n[o]=this._enter(t,e,!1,new f(i,a,i,a))}}return n}static lineInsertAfter(t,e,r){if(e===null||r===null)return[];const n=[];for(let o=0,s=r.length;o<s;o++){const i=r[o].positionLineNumber,a=e.getLineMaxColumn(i);n[o]=this._enter(t,e,!1,new f(i,a,i,a))}return n}static lineBreakInsert(t,e,r){const n=[];for(let o=0,s=r.length;o<s;o++)n[o]=this._enter(t,e,!0,r[o]);return n}}class Xt{static getEdits(t,e,r,n,o,s){const i=this._distributePasteToCursors(t,r,n,o,s);return i?(r=r.sort(f.compareRangesUsingStarts),this._distributedPaste(t,e,r,i)):this._simplePaste(t,e,r,n,o)}static _distributePasteToCursors(t,e,r,n,o){if(n||e.length===1)return null;if(o&&o.length===e.length)return o;if(t.multiCursorPaste==="spread"){r.charCodeAt(r.length-1)===L.LineFeed&&(r=r.substring(0,r.length-1)),r.charCodeAt(r.length-1)===L.CarriageReturn&&(r=r.substring(0,r.length-1));const s=E.splitLines(r);if(s.length===e.length)return s}return null}static _distributedPaste(t,e,r,n){const o=[];for(let s=0,i=r.length;s<i;s++){const u=t.overtypeOnPaste&&t.inputMode==="overtype"?B:S;o[s]=new u(r[s],n[s])}return new h(d.Other,o,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!0})}static _simplePaste(t,e,r,n,o){const s=[];for(let i=0,a=r.length;i<a;i++){const u=r[i],c=u.getPosition();if(o&&!u.isEmpty()&&(o=!1),o&&n.indexOf(`
-`)!==n.length-1&&(o=!1),o){const m=new f(c.lineNumber,1,c.lineNumber,1);s[i]=new H(m,n,u,!0)}else{const g=t.overtypeOnPaste&&t.inputMode==="overtype"?B:S;s[i]=new g(u,n)}}return new h(d.Other,s,{shouldPushStackElementBefore:!0,shouldPushStackElementAfter:!0})}}class Yt{static getEdits(t,e,r,n,o,s,i,a){const u=n.map(c=>this._compositionType(r,c,o,s,i,a));return new h(d.TypingOther,u,{shouldPushStackElementBefore:R(t,d.TypingOther),shouldPushStackElementAfter:!1})}static _compositionType(t,e,r,n,o,s){if(!e.isEmpty())return null;const i=e.getPosition(),a=Math.max(1,i.column-n),u=Math.min(t.getLineMaxColumn(i.lineNumber),i.column+o),c=new f(i.lineNumber,a,i.lineNumber,u);return new k(c,r,0,s)}}class Zt{static getEdits(t,e,r){const n=[];for(let s=0,i=e.length;s<i;s++)n[s]=new S(e[s],r);const o=W(r,t);return new h(o,n,{shouldPushStackElementBefore:R(t,o),shouldPushStackElementAfter:!1})}}class te{static getCommands(t,e,r){const n=[];for(let o=0,s=r.length;o<s;o++){const i=r[o];if(i.isEmpty()){const a=e.getLineContent(i.startLineNumber);if(/^\s*$/.test(a)&&e.tokenization.isCheapToTokenize(i.startLineNumber)){let u=this._goodIndentForLine(t,e,i.startLineNumber);u=u||"	";const c=t.normalizeIndentation(u);if(!a.startsWith(c)){n[o]=new S(new f(i.startLineNumber,1,i.startLineNumber,a.length+1),c,!0);continue}}n[o]=this._replaceJumpToNextIndent(t,e,i,!0)}else{if(i.startLineNumber===i.endLineNumber){const a=e.getLineMaxColumn(i.startLineNumber);if(i.startColumn!==1||i.endColumn!==a){n[o]=this._replaceJumpToNextIndent(t,e,i,!1);continue}}n[o]=new z(i,{isUnshift:!1,tabSize:t.tabSize,indentSize:t.indentSize,insertSpaces:t.insertSpaces,useTabStops:t.useTabStops,autoIndent:t.autoIndent},t.languageConfigurationService)}}return n}static _goodIndentForLine(t,e,r){let n=null,o="";const s=rt(t.autoIndent,e,r,!1,t.languageConfigurationService);if(s)n=s.action,o=s.indentation;else if(r>1){let i;for(i=r-1;i>=1;i--){const c=e.getLineContent(i);if(E.lastNonWhitespaceIndex(c)>=0)break}if(i<1)return null;const a=e.getLineMaxColumn(i),u=U(t.autoIndent,e,new f(i,a,i,a),t.languageConfigurationService);u&&(o=u.indentation+u.appendText)}return n&&(n===O.Indent&&(o=F(t,o)),n===O.Outdent&&(o=M(t,o)),o=t.normalizeIndentation(o)),o||null}static _replaceJumpToNextIndent(t,e,r,n){let o="";const s=r.getStartPosition();if(t.insertSpaces){const i=t.visibleColumnFromColumn(e,s),a=t.indentSize,u=a-i%a;for(let c=0;c<u;c++)o+=" "}else o="	";return new S(r,o,n)}}class V extends k{_openCharacter;_closeCharacter;closeCharacterRange;enclosingRange;constructor(t,e,r,n,o,s){super(t,e,r,n),this._openCharacter=o,this._closeCharacter=s,this.closeCharacterRange=null,this.enclosingRange=null}_computeCursorStateWithRange(t,e,r){return this.closeCharacterRange=new f(e.startLineNumber,e.endColumn-this._closeCharacter.length,e.endLineNumber,e.endColumn),this.enclosingRange=new f(e.startLineNumber,e.endColumn-this._openCharacter.length-this._closeCharacter.length,e.endLineNumber,e.endColumn),super.computeCursorState(t,r)}}class ut extends V{constructor(t,e,r,n){const o=(r?e:"")+n,s=0,i=-n.length;super(t,o,s,i,e,n)}computeCursorState(t,e){const n=e.getInverseEditOperations()[0].range;return this._computeCursorStateWithRange(t,n,e)}}class lt extends V{_autoIndentationEdit;_autoClosingEdit;constructor(t,e,r,n){const o=r+n,s=0,i=r.length;super(e,o,s,i,r,n),this._autoIndentationEdit=t,this._autoClosingEdit={range:e,text:o}}getEditOperations(t,e){e.addTrackedEditOperation(this._autoIndentationEdit.range,this._autoIndentationEdit.text),e.addTrackedEditOperation(this._autoClosingEdit.range,this._autoClosingEdit.text)}computeCursorState(t,e){const r=e.getInverseEditOperations();if(r.length!==2)throw new Error("There should be two inverse edit operations!");const n=r[0].range,o=r[1].range,s=n.plusRange(o);return this._computeCursorStateWithRange(t,s,e)}}function W(l,t){return l===" "?t===d.TypingFirstSpace||t===d.TypingConsecutiveSpace?d.TypingConsecutiveSpace:d.TypingFirstSpace:d.TypingOther}function R(l,t){return K(l)&&!K(t)?!0:l===d.TypingFirstSpace?!1:q(l)!==q(t)}function q(l){return l===d.TypingConsecutiveSpace||l===d.TypingFirstSpace?"space":l}function K(l){return l===d.TypingOther||l===d.TypingFirstSpace||l===d.TypingConsecutiveSpace}function j(l,t,e,r,n){if(l.autoClosingOvertype==="never"||!l.autoClosingPairs.autoClosingPairsCloseSingleChar.has(n))return!1;for(let o=0,s=e.length;o<s;o++){const i=e[o];if(!i.isEmpty())return!1;const a=i.getPosition(),u=t.getLineContent(a.lineNumber);if(u.charAt(a.column-1)!==n)return!1;const m=P(n);if((a.column>2?u.charCodeAt(a.column-2):L.Null)===L.Backslash&&m)return!1;if(l.autoClosingOvertype==="auto"){let b=!1;for(let C=0,p=r.length;C<p;C++){const I=r[C];if(a.lineNumber===I.startLineNumber&&a.column===I.startColumn){b=!0;break}}if(!b)return!1}}return!0}function T(l,t,e){return e?new _(l,t,!0):new S(l,t,!0)}function F(l,t,e){return e=e||1,z.shiftIndent(t,t.length+e,l.tabSize,l.indentSize,l.insertSpaces)}function M(l,t,e){return e=e||1,z.unshiftIndent(t,t.length+e,l.tabSize,l.indentSize,l.insertSpaces)}function ct(l,t){return P(t)?l.autoSurround==="quotes"||l.autoSurround==="languageDefined":l.autoSurround==="brackets"||l.autoSurround==="languageDefined"}export{at as AutoClosingOpenCharTypeOperation,Vt as AutoClosingOvertypeOperation,qt as AutoClosingOvertypeWithInterceptorsOperation,Ut as AutoIndentOperation,V as BaseTypeWithAutoClosingCommand,Kt as CompositionEndOvertypeOperation,Yt as CompositionOperation,Ht as EnterOperation,$t as InterceptorElectricCharOperation,Xt as PasteOperation,Gt as SimpleCharacterTypeOperation,jt as SurroundSelectionOperation,te as TabOperation,Zt as TypeWithoutInterceptorsOperation,F as shiftIndent,ct as shouldSurroundChar,M as unshiftIndent};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CharCode } from "../../../base/common/charCode.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import * as strings from "../../../base/common/strings.js";
+import {
+  ReplaceCommand,
+  ReplaceCommandThatPreservesSelection,
+  ReplaceCommandWithOffsetCursorState,
+  ReplaceCommandWithoutChangingPosition,
+  ReplaceOvertypeCommand,
+  ReplaceOvertypeCommandOnCompositionEnd
+} from "../commands/replaceCommand.js";
+import { ShiftCommand } from "../commands/shiftCommand.js";
+import { SurroundSelectionCommand } from "../commands/surroundSelectionCommand.js";
+import {
+  EditorAutoClosingStrategy,
+  EditorAutoIndentStrategy
+} from "../config/editorOptions.js";
+import { Position } from "../core/position.js";
+import { Range } from "../core/range.js";
+import { Selection } from "../core/selection.js";
+import {
+  getMapForWordSeparators,
+  WordCharacterClass
+} from "../core/wordCharacterClassifier.js";
+import {
+  CursorConfiguration,
+  EditOperationResult,
+  EditOperationType,
+  ICursorSimpleModel,
+  isQuote
+} from "../cursorCommon.js";
+import {
+  ICommand,
+  ICursorStateComputerData,
+  IEditOperationBuilder
+} from "../editorCommon.js";
+import {
+  getIndentActionForType,
+  getIndentForEnter,
+  getInheritIndentForLine
+} from "../languages/autoIndent.js";
+import { getEnterAction } from "../languages/enterAction.js";
+import {
+  EnterAction,
+  IndentAction,
+  StandardAutoClosingPairConditional
+} from "../languages/languageConfiguration.js";
+import { getIndentationAtPosition } from "../languages/languageConfigurationRegistry.js";
+import { createScopedLineTokens } from "../languages/supports.js";
+import { IElectricAction } from "../languages/supports/electricCharacter.js";
+import { ITextModel } from "../model.js";
+import { CompositionOutcome } from "./cursorTypeOperations.js";
+class AutoIndentOperation {
+  static {
+    __name(this, "AutoIndentOperation");
+  }
+  static getEdits(config, model, selections, ch, isDoingComposition) {
+    if (!isDoingComposition && this._isAutoIndentType(config, model, selections)) {
+      const indentationForSelections = [];
+      for (const selection of selections) {
+        const indentation = this._findActualIndentationForSelection(
+          config,
+          model,
+          selection,
+          ch
+        );
+        if (indentation === null) {
+          return;
+        }
+        indentationForSelections.push({ selection, indentation });
+      }
+      const autoClosingPairClose = AutoClosingOpenCharTypeOperation.getAutoClosingPairClose(
+        config,
+        model,
+        selections,
+        ch,
+        false
+      );
+      return this._getIndentationAndAutoClosingPairEdits(
+        config,
+        model,
+        indentationForSelections,
+        ch,
+        autoClosingPairClose
+      );
+    }
+    return;
+  }
+  static _isAutoIndentType(config, model, selections) {
+    if (config.autoIndent < EditorAutoIndentStrategy.Full) {
+      return false;
+    }
+    for (let i = 0, len = selections.length; i < len; i++) {
+      if (!model.tokenization.isCheapToTokenize(
+        selections[i].getEndPosition().lineNumber
+      )) {
+        return false;
+      }
+    }
+    return true;
+  }
+  static _findActualIndentationForSelection(config, model, selection, ch) {
+    const actualIndentation = getIndentActionForType(
+      config,
+      model,
+      selection,
+      ch,
+      {
+        shiftIndent: /* @__PURE__ */ __name((indentation) => {
+          return shiftIndent(config, indentation);
+        }, "shiftIndent"),
+        unshiftIndent: /* @__PURE__ */ __name((indentation) => {
+          return unshiftIndent(config, indentation);
+        }, "unshiftIndent")
+      },
+      config.languageConfigurationService
+    );
+    if (actualIndentation === null) {
+      return null;
+    }
+    const currentIndentation = getIndentationAtPosition(
+      model,
+      selection.startLineNumber,
+      selection.startColumn
+    );
+    if (actualIndentation === config.normalizeIndentation(currentIndentation)) {
+      return null;
+    }
+    return actualIndentation;
+  }
+  static _getIndentationAndAutoClosingPairEdits(config, model, indentationForSelections, ch, autoClosingPairClose) {
+    const commands = indentationForSelections.map(
+      ({ selection, indentation }) => {
+        if (autoClosingPairClose !== null) {
+          const indentationEdit = this._getEditFromIndentationAndSelection(
+            config,
+            model,
+            indentation,
+            selection,
+            ch,
+            false
+          );
+          return new TypeWithIndentationAndAutoClosingCommand(
+            indentationEdit,
+            selection,
+            ch,
+            autoClosingPairClose
+          );
+        } else {
+          const indentationEdit = this._getEditFromIndentationAndSelection(
+            config,
+            model,
+            indentation,
+            selection,
+            ch,
+            true
+          );
+          return typeCommand(
+            indentationEdit.range,
+            indentationEdit.text,
+            false
+          );
+        }
+      }
+    );
+    const editOptions = {
+      shouldPushStackElementBefore: true,
+      shouldPushStackElementAfter: false
+    };
+    return new EditOperationResult(
+      EditOperationType.TypingOther,
+      commands,
+      editOptions
+    );
+  }
+  static _getEditFromIndentationAndSelection(config, model, indentation, selection, ch, includeChInEdit = true) {
+    const startLineNumber = selection.startLineNumber;
+    const firstNonWhitespaceColumn = model.getLineFirstNonWhitespaceColumn(startLineNumber);
+    let text = config.normalizeIndentation(indentation);
+    if (firstNonWhitespaceColumn !== 0) {
+      const startLine = model.getLineContent(startLineNumber);
+      text += startLine.substring(
+        firstNonWhitespaceColumn - 1,
+        selection.startColumn - 1
+      );
+    }
+    text += includeChInEdit ? ch : "";
+    const range = new Range(
+      startLineNumber,
+      1,
+      selection.endLineNumber,
+      selection.endColumn
+    );
+    return { range, text };
+  }
+}
+class AutoClosingOvertypeOperation {
+  static {
+    __name(this, "AutoClosingOvertypeOperation");
+  }
+  static getEdits(prevEditOperationType, config, model, selections, autoClosedCharacters, ch) {
+    if (isAutoClosingOvertype(
+      config,
+      model,
+      selections,
+      autoClosedCharacters,
+      ch
+    )) {
+      return this._runAutoClosingOvertype(
+        prevEditOperationType,
+        selections,
+        ch
+      );
+    }
+    return;
+  }
+  static _runAutoClosingOvertype(prevEditOperationType, selections, ch) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      const position = selection.getPosition();
+      const typeSelection = new Range(
+        position.lineNumber,
+        position.column,
+        position.lineNumber,
+        position.column + 1
+      );
+      commands[i] = new ReplaceCommand(typeSelection, ch);
+    }
+    return new EditOperationResult(
+      EditOperationType.TypingOther,
+      commands,
+      {
+        shouldPushStackElementBefore: shouldPushStackElementBetween(
+          prevEditOperationType,
+          EditOperationType.TypingOther
+        ),
+        shouldPushStackElementAfter: false
+      }
+    );
+  }
+}
+class AutoClosingOvertypeWithInterceptorsOperation {
+  static {
+    __name(this, "AutoClosingOvertypeWithInterceptorsOperation");
+  }
+  static getEdits(config, model, selections, autoClosedCharacters, ch) {
+    if (isAutoClosingOvertype(
+      config,
+      model,
+      selections,
+      autoClosedCharacters,
+      ch
+    )) {
+      const commands = selections.map(
+        (s) => new ReplaceCommand(
+          new Range(
+            s.positionLineNumber,
+            s.positionColumn,
+            s.positionLineNumber,
+            s.positionColumn + 1
+          ),
+          "",
+          false
+        )
+      );
+      return new EditOperationResult(
+        EditOperationType.TypingOther,
+        commands,
+        {
+          shouldPushStackElementBefore: true,
+          shouldPushStackElementAfter: false
+        }
+      );
+    }
+    return;
+  }
+}
+class AutoClosingOpenCharTypeOperation {
+  static {
+    __name(this, "AutoClosingOpenCharTypeOperation");
+  }
+  static getEdits(config, model, selections, ch, chIsAlreadyTyped, isDoingComposition) {
+    if (!isDoingComposition) {
+      const autoClosingPairClose = this.getAutoClosingPairClose(
+        config,
+        model,
+        selections,
+        ch,
+        chIsAlreadyTyped
+      );
+      if (autoClosingPairClose !== null) {
+        return this._runAutoClosingOpenCharType(
+          selections,
+          ch,
+          chIsAlreadyTyped,
+          autoClosingPairClose
+        );
+      }
+    }
+    return;
+  }
+  static _runAutoClosingOpenCharType(selections, ch, chIsAlreadyTyped, autoClosingPairClose) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      commands[i] = new TypeWithAutoClosingCommand(
+        selection,
+        ch,
+        !chIsAlreadyTyped,
+        autoClosingPairClose
+      );
+    }
+    return new EditOperationResult(
+      EditOperationType.TypingOther,
+      commands,
+      {
+        shouldPushStackElementBefore: true,
+        shouldPushStackElementAfter: false
+      }
+    );
+  }
+  static getAutoClosingPairClose(config, model, selections, ch, chIsAlreadyTyped) {
+    for (const selection of selections) {
+      if (!selection.isEmpty()) {
+        return null;
+      }
+    }
+    const positions = selections.map((s) => {
+      const position = s.getPosition();
+      if (chIsAlreadyTyped) {
+        return {
+          lineNumber: position.lineNumber,
+          beforeColumn: position.column - ch.length,
+          afterColumn: position.column
+        };
+      } else {
+        return {
+          lineNumber: position.lineNumber,
+          beforeColumn: position.column,
+          afterColumn: position.column
+        };
+      }
+    });
+    const pair = this._findAutoClosingPairOpen(
+      config,
+      model,
+      positions.map((p) => new Position(p.lineNumber, p.beforeColumn)),
+      ch
+    );
+    if (!pair) {
+      return null;
+    }
+    let autoCloseConfig;
+    let shouldAutoCloseBefore;
+    const chIsQuote = isQuote(ch);
+    if (chIsQuote) {
+      autoCloseConfig = config.autoClosingQuotes;
+      shouldAutoCloseBefore = config.shouldAutoCloseBefore.quote;
+    } else {
+      const pairIsForComments = config.blockCommentStartToken ? pair.open.includes(config.blockCommentStartToken) : false;
+      if (pairIsForComments) {
+        autoCloseConfig = config.autoClosingComments;
+        shouldAutoCloseBefore = config.shouldAutoCloseBefore.comment;
+      } else {
+        autoCloseConfig = config.autoClosingBrackets;
+        shouldAutoCloseBefore = config.shouldAutoCloseBefore.bracket;
+      }
+    }
+    if (autoCloseConfig === "never") {
+      return null;
+    }
+    const containedPair = this._findContainedAutoClosingPair(config, pair);
+    const containedPairClose = containedPair ? containedPair.close : "";
+    let isContainedPairPresent = true;
+    for (const position of positions) {
+      const { lineNumber, beforeColumn, afterColumn } = position;
+      const lineText = model.getLineContent(lineNumber);
+      const lineBefore = lineText.substring(0, beforeColumn - 1);
+      const lineAfter = lineText.substring(afterColumn - 1);
+      if (!lineAfter.startsWith(containedPairClose)) {
+        isContainedPairPresent = false;
+      }
+      if (lineAfter.length > 0) {
+        const characterAfter = lineAfter.charAt(0);
+        const isBeforeCloseBrace = this._isBeforeClosingBrace(
+          config,
+          lineAfter
+        );
+        if (!isBeforeCloseBrace && !shouldAutoCloseBefore(characterAfter)) {
+          return null;
+        }
+      }
+      if (pair.open.length === 1 && (ch === "'" || ch === '"') && autoCloseConfig !== "always") {
+        const wordSeparators = getMapForWordSeparators(
+          config.wordSeparators,
+          []
+        );
+        if (lineBefore.length > 0) {
+          const characterBefore = lineBefore.charCodeAt(
+            lineBefore.length - 1
+          );
+          if (wordSeparators.get(characterBefore) === WordCharacterClass.Regular) {
+            return null;
+          }
+        }
+      }
+      if (!model.tokenization.isCheapToTokenize(lineNumber)) {
+        return null;
+      }
+      model.tokenization.forceTokenization(lineNumber);
+      const lineTokens = model.tokenization.getLineTokens(lineNumber);
+      const scopedLineTokens = createScopedLineTokens(
+        lineTokens,
+        beforeColumn - 1
+      );
+      if (!pair.shouldAutoClose(
+        scopedLineTokens,
+        beforeColumn - scopedLineTokens.firstCharOffset
+      )) {
+        return null;
+      }
+      const neutralCharacter = pair.findNeutralCharacter();
+      if (neutralCharacter) {
+        const tokenType = model.tokenization.getTokenTypeIfInsertingCharacter(
+          lineNumber,
+          beforeColumn,
+          neutralCharacter
+        );
+        if (!pair.isOK(tokenType)) {
+          return null;
+        }
+      }
+    }
+    if (isContainedPairPresent) {
+      return pair.close.substring(
+        0,
+        pair.close.length - containedPairClose.length
+      );
+    } else {
+      return pair.close;
+    }
+  }
+  /**
+   * Find another auto-closing pair that is contained by the one passed in.
+   *
+   * e.g. when having [(,)] and [(*,*)] as auto-closing pairs
+   * this method will find [(,)] as a containment pair for [(*,*)]
+   */
+  static _findContainedAutoClosingPair(config, pair) {
+    if (pair.open.length <= 1) {
+      return null;
+    }
+    const lastChar = pair.close.charAt(pair.close.length - 1);
+    const candidates = config.autoClosingPairs.autoClosingPairsCloseByEnd.get(lastChar) || [];
+    let result = null;
+    for (const candidate of candidates) {
+      if (candidate.open !== pair.open && pair.open.includes(candidate.open) && pair.close.endsWith(candidate.close)) {
+        if (!result || candidate.open.length > result.open.length) {
+          result = candidate;
+        }
+      }
+    }
+    return result;
+  }
+  /**
+   * Determine if typing `ch` at all `positions` in the `model` results in an
+   * auto closing open sequence being typed.
+   *
+   * Auto closing open sequences can consist of multiple characters, which
+   * can lead to ambiguities. In such a case, the longest auto-closing open
+   * sequence is returned.
+   */
+  static _findAutoClosingPairOpen(config, model, positions, ch) {
+    const candidates = config.autoClosingPairs.autoClosingPairsOpenByEnd.get(ch);
+    if (!candidates) {
+      return null;
+    }
+    let result = null;
+    for (const candidate of candidates) {
+      if (result === null || candidate.open.length > result.open.length) {
+        let candidateIsMatch = true;
+        for (const position of positions) {
+          const relevantText = model.getValueInRange(
+            new Range(
+              position.lineNumber,
+              position.column - candidate.open.length + 1,
+              position.lineNumber,
+              position.column
+            )
+          );
+          if (relevantText + ch !== candidate.open) {
+            candidateIsMatch = false;
+            break;
+          }
+        }
+        if (candidateIsMatch) {
+          result = candidate;
+        }
+      }
+    }
+    return result;
+  }
+  static _isBeforeClosingBrace(config, lineAfter) {
+    const nextChar = lineAfter.charAt(0);
+    const potentialStartingBraces = config.autoClosingPairs.autoClosingPairsOpenByStart.get(nextChar) || [];
+    const potentialClosingBraces = config.autoClosingPairs.autoClosingPairsCloseByStart.get(
+      nextChar
+    ) || [];
+    const isBeforeStartingBrace = potentialStartingBraces.some(
+      (x) => lineAfter.startsWith(x.open)
+    );
+    const isBeforeClosingBrace = potentialClosingBraces.some(
+      (x) => lineAfter.startsWith(x.close)
+    );
+    return !isBeforeStartingBrace && isBeforeClosingBrace;
+  }
+}
+class CompositionEndOvertypeOperation {
+  static {
+    __name(this, "CompositionEndOvertypeOperation");
+  }
+  static getEdits(config, compositions) {
+    const isOvertypeMode = config.inputMode === "overtype";
+    if (!isOvertypeMode) {
+      return null;
+    }
+    const commands = compositions.map(
+      (composition) => new ReplaceOvertypeCommandOnCompositionEnd(
+        composition.insertedTextRange
+      )
+    );
+    return new EditOperationResult(
+      EditOperationType.TypingOther,
+      commands,
+      {
+        shouldPushStackElementBefore: true,
+        shouldPushStackElementAfter: false
+      }
+    );
+  }
+}
+class SurroundSelectionOperation {
+  static {
+    __name(this, "SurroundSelectionOperation");
+  }
+  static getEdits(config, model, selections, ch, isDoingComposition) {
+    if (!isDoingComposition && this._isSurroundSelectionType(config, model, selections, ch)) {
+      return this._runSurroundSelectionType(config, selections, ch);
+    }
+    return;
+  }
+  static _runSurroundSelectionType(config, selections, ch) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      const closeCharacter = config.surroundingPairs[ch];
+      commands[i] = new SurroundSelectionCommand(
+        selection,
+        ch,
+        closeCharacter
+      );
+    }
+    return new EditOperationResult(EditOperationType.Other, commands, {
+      shouldPushStackElementBefore: true,
+      shouldPushStackElementAfter: true
+    });
+  }
+  static _isSurroundSelectionType(config, model, selections, ch) {
+    if (!shouldSurroundChar(config, ch) || !config.surroundingPairs.hasOwnProperty(ch)) {
+      return false;
+    }
+    const isTypingAQuoteCharacter = isQuote(ch);
+    for (const selection of selections) {
+      if (selection.isEmpty()) {
+        return false;
+      }
+      let selectionContainsOnlyWhitespace = true;
+      for (let lineNumber = selection.startLineNumber; lineNumber <= selection.endLineNumber; lineNumber++) {
+        const lineText = model.getLineContent(lineNumber);
+        const startIndex = lineNumber === selection.startLineNumber ? selection.startColumn - 1 : 0;
+        const endIndex = lineNumber === selection.endLineNumber ? selection.endColumn - 1 : lineText.length;
+        const selectedText = lineText.substring(startIndex, endIndex);
+        if (/[^ \t]/.test(selectedText)) {
+          selectionContainsOnlyWhitespace = false;
+          break;
+        }
+      }
+      if (selectionContainsOnlyWhitespace) {
+        return false;
+      }
+      if (isTypingAQuoteCharacter && selection.startLineNumber === selection.endLineNumber && selection.startColumn + 1 === selection.endColumn) {
+        const selectionText = model.getValueInRange(selection);
+        if (isQuote(selectionText)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+}
+class InterceptorElectricCharOperation {
+  static {
+    __name(this, "InterceptorElectricCharOperation");
+  }
+  static getEdits(prevEditOperationType, config, model, selections, ch, isDoingComposition) {
+    if (!isDoingComposition && this._isTypeInterceptorElectricChar(config, model, selections)) {
+      const r = this._typeInterceptorElectricChar(
+        prevEditOperationType,
+        config,
+        model,
+        selections[0],
+        ch
+      );
+      if (r) {
+        return r;
+      }
+    }
+    return;
+  }
+  static _isTypeInterceptorElectricChar(config, model, selections) {
+    if (selections.length === 1 && model.tokenization.isCheapToTokenize(
+      selections[0].getEndPosition().lineNumber
+    )) {
+      return true;
+    }
+    return false;
+  }
+  static _typeInterceptorElectricChar(prevEditOperationType, config, model, selection, ch) {
+    if (!config.electricChars.hasOwnProperty(ch) || !selection.isEmpty()) {
+      return null;
+    }
+    const position = selection.getPosition();
+    model.tokenization.forceTokenization(position.lineNumber);
+    const lineTokens = model.tokenization.getLineTokens(
+      position.lineNumber
+    );
+    let electricAction;
+    try {
+      electricAction = config.onElectricCharacter(
+        ch,
+        lineTokens,
+        position.column
+      );
+    } catch (e) {
+      onUnexpectedError(e);
+      return null;
+    }
+    if (!electricAction) {
+      return null;
+    }
+    if (electricAction.matchOpenBracket) {
+      const endColumn = (lineTokens.getLineContent() + ch).lastIndexOf(
+        electricAction.matchOpenBracket
+      ) + 1;
+      const match = model.bracketPairs.findMatchingBracketUp(
+        electricAction.matchOpenBracket,
+        {
+          lineNumber: position.lineNumber,
+          column: endColumn
+        },
+        500
+      );
+      if (match) {
+        if (match.startLineNumber === position.lineNumber) {
+          return null;
+        }
+        const matchLine = model.getLineContent(match.startLineNumber);
+        const matchLineIndentation = strings.getLeadingWhitespace(matchLine);
+        const newIndentation = config.normalizeIndentation(matchLineIndentation);
+        const lineText = model.getLineContent(position.lineNumber);
+        const lineFirstNonBlankColumn = model.getLineFirstNonWhitespaceColumn(
+          position.lineNumber
+        ) || position.column;
+        const prefix = lineText.substring(
+          lineFirstNonBlankColumn - 1,
+          position.column - 1
+        );
+        const typeText = newIndentation + prefix + ch;
+        const typeSelection = new Range(
+          position.lineNumber,
+          1,
+          position.lineNumber,
+          position.column
+        );
+        const command = new ReplaceCommand(typeSelection, typeText);
+        return new EditOperationResult(
+          getTypingOperation(typeText, prevEditOperationType),
+          [command],
+          {
+            shouldPushStackElementBefore: false,
+            shouldPushStackElementAfter: true
+          }
+        );
+      }
+    }
+    return null;
+  }
+}
+class SimpleCharacterTypeOperation {
+  static {
+    __name(this, "SimpleCharacterTypeOperation");
+  }
+  static getEdits(config, prevEditOperationType, selections, ch, isDoingComposition) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const ChosenReplaceCommand = config.inputMode === "overtype" && !isDoingComposition ? ReplaceOvertypeCommand : ReplaceCommand;
+      commands[i] = new ChosenReplaceCommand(selections[i], ch);
+    }
+    const opType = getTypingOperation(ch, prevEditOperationType);
+    return new EditOperationResult(opType, commands, {
+      shouldPushStackElementBefore: shouldPushStackElementBetween(
+        prevEditOperationType,
+        opType
+      ),
+      shouldPushStackElementAfter: false
+    });
+  }
+}
+class EnterOperation {
+  static {
+    __name(this, "EnterOperation");
+  }
+  static getEdits(config, model, selections, ch, isDoingComposition) {
+    if (!isDoingComposition && ch === "\n") {
+      const commands = [];
+      for (let i = 0, len = selections.length; i < len; i++) {
+        commands[i] = this._enter(config, model, false, selections[i]);
+      }
+      return new EditOperationResult(
+        EditOperationType.TypingOther,
+        commands,
+        {
+          shouldPushStackElementBefore: true,
+          shouldPushStackElementAfter: false
+        }
+      );
+    }
+    return;
+  }
+  static _enter(config, model, keepPosition, range) {
+    if (config.autoIndent === EditorAutoIndentStrategy.None) {
+      return typeCommand(range, "\n", keepPosition);
+    }
+    if (!model.tokenization.isCheapToTokenize(
+      range.getStartPosition().lineNumber
+    ) || config.autoIndent === EditorAutoIndentStrategy.Keep) {
+      const lineText2 = model.getLineContent(range.startLineNumber);
+      const indentation2 = strings.getLeadingWhitespace(lineText2).substring(0, range.startColumn - 1);
+      return typeCommand(
+        range,
+        "\n" + config.normalizeIndentation(indentation2),
+        keepPosition
+      );
+    }
+    const r = getEnterAction(
+      config.autoIndent,
+      model,
+      range,
+      config.languageConfigurationService
+    );
+    if (r) {
+      if (r.indentAction === IndentAction.None) {
+        return typeCommand(
+          range,
+          "\n" + config.normalizeIndentation(
+            r.indentation + r.appendText
+          ),
+          keepPosition
+        );
+      } else if (r.indentAction === IndentAction.Indent) {
+        return typeCommand(
+          range,
+          "\n" + config.normalizeIndentation(
+            r.indentation + r.appendText
+          ),
+          keepPosition
+        );
+      } else if (r.indentAction === IndentAction.IndentOutdent) {
+        const normalIndent = config.normalizeIndentation(r.indentation);
+        const increasedIndent = config.normalizeIndentation(
+          r.indentation + r.appendText
+        );
+        const typeText = "\n" + increasedIndent + "\n" + normalIndent;
+        if (keepPosition) {
+          return new ReplaceCommandWithoutChangingPosition(
+            range,
+            typeText,
+            true
+          );
+        } else {
+          return new ReplaceCommandWithOffsetCursorState(
+            range,
+            typeText,
+            -1,
+            increasedIndent.length - normalIndent.length,
+            true
+          );
+        }
+      } else if (r.indentAction === IndentAction.Outdent) {
+        const actualIndentation = unshiftIndent(config, r.indentation);
+        return typeCommand(
+          range,
+          "\n" + config.normalizeIndentation(
+            actualIndentation + r.appendText
+          ),
+          keepPosition
+        );
+      }
+    }
+    const lineText = model.getLineContent(range.startLineNumber);
+    const indentation = strings.getLeadingWhitespace(lineText).substring(0, range.startColumn - 1);
+    if (config.autoIndent >= EditorAutoIndentStrategy.Full) {
+      const ir = getIndentForEnter(
+        config.autoIndent,
+        model,
+        range,
+        {
+          unshiftIndent: /* @__PURE__ */ __name((indent) => {
+            return unshiftIndent(config, indent);
+          }, "unshiftIndent"),
+          shiftIndent: /* @__PURE__ */ __name((indent) => {
+            return shiftIndent(config, indent);
+          }, "shiftIndent"),
+          normalizeIndentation: /* @__PURE__ */ __name((indent) => {
+            return config.normalizeIndentation(indent);
+          }, "normalizeIndentation")
+        },
+        config.languageConfigurationService
+      );
+      if (ir) {
+        let oldEndViewColumn = config.visibleColumnFromColumn(
+          model,
+          range.getEndPosition()
+        );
+        const oldEndColumn = range.endColumn;
+        const newLineContent = model.getLineContent(
+          range.endLineNumber
+        );
+        const firstNonWhitespace = strings.firstNonWhitespaceIndex(newLineContent);
+        if (firstNonWhitespace >= 0) {
+          range = range.setEndPosition(
+            range.endLineNumber,
+            Math.max(range.endColumn, firstNonWhitespace + 1)
+          );
+        } else {
+          range = range.setEndPosition(
+            range.endLineNumber,
+            model.getLineMaxColumn(range.endLineNumber)
+          );
+        }
+        if (keepPosition) {
+          return new ReplaceCommandWithoutChangingPosition(
+            range,
+            "\n" + config.normalizeIndentation(ir.afterEnter),
+            true
+          );
+        } else {
+          let offset = 0;
+          if (oldEndColumn <= firstNonWhitespace + 1) {
+            if (!config.insertSpaces) {
+              oldEndViewColumn = Math.ceil(
+                oldEndViewColumn / config.indentSize
+              );
+            }
+            offset = Math.min(
+              oldEndViewColumn + 1 - config.normalizeIndentation(ir.afterEnter).length - 1,
+              0
+            );
+          }
+          return new ReplaceCommandWithOffsetCursorState(
+            range,
+            "\n" + config.normalizeIndentation(ir.afterEnter),
+            0,
+            offset,
+            true
+          );
+        }
+      }
+    }
+    return typeCommand(
+      range,
+      "\n" + config.normalizeIndentation(indentation),
+      keepPosition
+    );
+  }
+  static lineInsertBefore(config, model, selections) {
+    if (model === null || selections === null) {
+      return [];
+    }
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      let lineNumber = selections[i].positionLineNumber;
+      if (lineNumber === 1) {
+        commands[i] = new ReplaceCommandWithoutChangingPosition(
+          new Range(1, 1, 1, 1),
+          "\n"
+        );
+      } else {
+        lineNumber--;
+        const column = model.getLineMaxColumn(lineNumber);
+        commands[i] = this._enter(
+          config,
+          model,
+          false,
+          new Range(lineNumber, column, lineNumber, column)
+        );
+      }
+    }
+    return commands;
+  }
+  static lineInsertAfter(config, model, selections) {
+    if (model === null || selections === null) {
+      return [];
+    }
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const lineNumber = selections[i].positionLineNumber;
+      const column = model.getLineMaxColumn(lineNumber);
+      commands[i] = this._enter(
+        config,
+        model,
+        false,
+        new Range(lineNumber, column, lineNumber, column)
+      );
+    }
+    return commands;
+  }
+  static lineBreakInsert(config, model, selections) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      commands[i] = this._enter(config, model, true, selections[i]);
+    }
+    return commands;
+  }
+}
+class PasteOperation {
+  static {
+    __name(this, "PasteOperation");
+  }
+  static getEdits(config, model, selections, text, pasteOnNewLine, multicursorText) {
+    const distributedPaste = this._distributePasteToCursors(
+      config,
+      selections,
+      text,
+      pasteOnNewLine,
+      multicursorText
+    );
+    if (distributedPaste) {
+      selections = selections.sort(Range.compareRangesUsingStarts);
+      return this._distributedPaste(
+        config,
+        model,
+        selections,
+        distributedPaste
+      );
+    } else {
+      return this._simplePaste(
+        config,
+        model,
+        selections,
+        text,
+        pasteOnNewLine
+      );
+    }
+  }
+  static _distributePasteToCursors(config, selections, text, pasteOnNewLine, multicursorText) {
+    if (pasteOnNewLine) {
+      return null;
+    }
+    if (selections.length === 1) {
+      return null;
+    }
+    if (multicursorText && multicursorText.length === selections.length) {
+      return multicursorText;
+    }
+    if (config.multiCursorPaste === "spread") {
+      if (text.charCodeAt(text.length - 1) === CharCode.LineFeed) {
+        text = text.substring(0, text.length - 1);
+      }
+      if (text.charCodeAt(text.length - 1) === CharCode.CarriageReturn) {
+        text = text.substring(0, text.length - 1);
+      }
+      const lines = strings.splitLines(text);
+      if (lines.length === selections.length) {
+        return lines;
+      }
+    }
+    return null;
+  }
+  static _distributedPaste(config, model, selections, text) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const shouldOvertypeOnPaste = config.overtypeOnPaste && config.inputMode === "overtype";
+      const ChosenReplaceCommand = shouldOvertypeOnPaste ? ReplaceOvertypeCommand : ReplaceCommand;
+      commands[i] = new ChosenReplaceCommand(selections[i], text[i]);
+    }
+    return new EditOperationResult(EditOperationType.Other, commands, {
+      shouldPushStackElementBefore: true,
+      shouldPushStackElementAfter: true
+    });
+  }
+  static _simplePaste(config, model, selections, text, pasteOnNewLine) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      const position = selection.getPosition();
+      if (pasteOnNewLine && !selection.isEmpty()) {
+        pasteOnNewLine = false;
+      }
+      if (pasteOnNewLine && text.indexOf("\n") !== text.length - 1) {
+        pasteOnNewLine = false;
+      }
+      if (pasteOnNewLine) {
+        const typeSelection = new Range(
+          position.lineNumber,
+          1,
+          position.lineNumber,
+          1
+        );
+        commands[i] = new ReplaceCommandThatPreservesSelection(
+          typeSelection,
+          text,
+          selection,
+          true
+        );
+      } else {
+        const shouldOvertypeOnPaste = config.overtypeOnPaste && config.inputMode === "overtype";
+        const ChosenReplaceCommand = shouldOvertypeOnPaste ? ReplaceOvertypeCommand : ReplaceCommand;
+        commands[i] = new ChosenReplaceCommand(selection, text);
+      }
+    }
+    return new EditOperationResult(EditOperationType.Other, commands, {
+      shouldPushStackElementBefore: true,
+      shouldPushStackElementAfter: true
+    });
+  }
+}
+class CompositionOperation {
+  static {
+    __name(this, "CompositionOperation");
+  }
+  static getEdits(prevEditOperationType, config, model, selections, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta) {
+    const commands = selections.map(
+      (selection) => this._compositionType(
+        model,
+        selection,
+        text,
+        replacePrevCharCnt,
+        replaceNextCharCnt,
+        positionDelta
+      )
+    );
+    return new EditOperationResult(
+      EditOperationType.TypingOther,
+      commands,
+      {
+        shouldPushStackElementBefore: shouldPushStackElementBetween(
+          prevEditOperationType,
+          EditOperationType.TypingOther
+        ),
+        shouldPushStackElementAfter: false
+      }
+    );
+  }
+  static _compositionType(model, selection, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta) {
+    if (!selection.isEmpty()) {
+      return null;
+    }
+    const pos = selection.getPosition();
+    const startColumn = Math.max(1, pos.column - replacePrevCharCnt);
+    const endColumn = Math.min(
+      model.getLineMaxColumn(pos.lineNumber),
+      pos.column + replaceNextCharCnt
+    );
+    const range = new Range(
+      pos.lineNumber,
+      startColumn,
+      pos.lineNumber,
+      endColumn
+    );
+    return new ReplaceCommandWithOffsetCursorState(
+      range,
+      text,
+      0,
+      positionDelta
+    );
+  }
+}
+class TypeWithoutInterceptorsOperation {
+  static {
+    __name(this, "TypeWithoutInterceptorsOperation");
+  }
+  static getEdits(prevEditOperationType, selections, str) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      commands[i] = new ReplaceCommand(selections[i], str);
+    }
+    const opType = getTypingOperation(str, prevEditOperationType);
+    return new EditOperationResult(opType, commands, {
+      shouldPushStackElementBefore: shouldPushStackElementBetween(
+        prevEditOperationType,
+        opType
+      ),
+      shouldPushStackElementAfter: false
+    });
+  }
+}
+class TabOperation {
+  static {
+    __name(this, "TabOperation");
+  }
+  static getCommands(config, model, selections) {
+    const commands = [];
+    for (let i = 0, len = selections.length; i < len; i++) {
+      const selection = selections[i];
+      if (selection.isEmpty()) {
+        const lineText = model.getLineContent(
+          selection.startLineNumber
+        );
+        if (/^\s*$/.test(lineText) && model.tokenization.isCheapToTokenize(
+          selection.startLineNumber
+        )) {
+          let goodIndent = this._goodIndentForLine(
+            config,
+            model,
+            selection.startLineNumber
+          );
+          goodIndent = goodIndent || "	";
+          const possibleTypeText = config.normalizeIndentation(goodIndent);
+          if (!lineText.startsWith(possibleTypeText)) {
+            commands[i] = new ReplaceCommand(
+              new Range(
+                selection.startLineNumber,
+                1,
+                selection.startLineNumber,
+                lineText.length + 1
+              ),
+              possibleTypeText,
+              true
+            );
+            continue;
+          }
+        }
+        commands[i] = this._replaceJumpToNextIndent(
+          config,
+          model,
+          selection,
+          true
+        );
+      } else {
+        if (selection.startLineNumber === selection.endLineNumber) {
+          const lineMaxColumn = model.getLineMaxColumn(
+            selection.startLineNumber
+          );
+          if (selection.startColumn !== 1 || selection.endColumn !== lineMaxColumn) {
+            commands[i] = this._replaceJumpToNextIndent(
+              config,
+              model,
+              selection,
+              false
+            );
+            continue;
+          }
+        }
+        commands[i] = new ShiftCommand(
+          selection,
+          {
+            isUnshift: false,
+            tabSize: config.tabSize,
+            indentSize: config.indentSize,
+            insertSpaces: config.insertSpaces,
+            useTabStops: config.useTabStops,
+            autoIndent: config.autoIndent
+          },
+          config.languageConfigurationService
+        );
+      }
+    }
+    return commands;
+  }
+  static _goodIndentForLine(config, model, lineNumber) {
+    let action = null;
+    let indentation = "";
+    const expectedIndentAction = getInheritIndentForLine(
+      config.autoIndent,
+      model,
+      lineNumber,
+      false,
+      config.languageConfigurationService
+    );
+    if (expectedIndentAction) {
+      action = expectedIndentAction.action;
+      indentation = expectedIndentAction.indentation;
+    } else if (lineNumber > 1) {
+      let lastLineNumber;
+      for (lastLineNumber = lineNumber - 1; lastLineNumber >= 1; lastLineNumber--) {
+        const lineText = model.getLineContent(lastLineNumber);
+        const nonWhitespaceIdx = strings.lastNonWhitespaceIndex(lineText);
+        if (nonWhitespaceIdx >= 0) {
+          break;
+        }
+      }
+      if (lastLineNumber < 1) {
+        return null;
+      }
+      const maxColumn = model.getLineMaxColumn(lastLineNumber);
+      const expectedEnterAction = getEnterAction(
+        config.autoIndent,
+        model,
+        new Range(lastLineNumber, maxColumn, lastLineNumber, maxColumn),
+        config.languageConfigurationService
+      );
+      if (expectedEnterAction) {
+        indentation = expectedEnterAction.indentation + expectedEnterAction.appendText;
+      }
+    }
+    if (action) {
+      if (action === IndentAction.Indent) {
+        indentation = shiftIndent(config, indentation);
+      }
+      if (action === IndentAction.Outdent) {
+        indentation = unshiftIndent(config, indentation);
+      }
+      indentation = config.normalizeIndentation(indentation);
+    }
+    if (!indentation) {
+      return null;
+    }
+    return indentation;
+  }
+  static _replaceJumpToNextIndent(config, model, selection, insertsAutoWhitespace) {
+    let typeText = "";
+    const position = selection.getStartPosition();
+    if (config.insertSpaces) {
+      const visibleColumnFromColumn = config.visibleColumnFromColumn(
+        model,
+        position
+      );
+      const indentSize = config.indentSize;
+      const spacesCnt = indentSize - visibleColumnFromColumn % indentSize;
+      for (let i = 0; i < spacesCnt; i++) {
+        typeText += " ";
+      }
+    } else {
+      typeText = "	";
+    }
+    return new ReplaceCommand(selection, typeText, insertsAutoWhitespace);
+  }
+}
+class BaseTypeWithAutoClosingCommand extends ReplaceCommandWithOffsetCursorState {
+  static {
+    __name(this, "BaseTypeWithAutoClosingCommand");
+  }
+  _openCharacter;
+  _closeCharacter;
+  closeCharacterRange;
+  enclosingRange;
+  constructor(selection, text, lineNumberDeltaOffset, columnDeltaOffset, openCharacter, closeCharacter) {
+    super(selection, text, lineNumberDeltaOffset, columnDeltaOffset);
+    this._openCharacter = openCharacter;
+    this._closeCharacter = closeCharacter;
+    this.closeCharacterRange = null;
+    this.enclosingRange = null;
+  }
+  _computeCursorStateWithRange(model, range, helper) {
+    this.closeCharacterRange = new Range(
+      range.startLineNumber,
+      range.endColumn - this._closeCharacter.length,
+      range.endLineNumber,
+      range.endColumn
+    );
+    this.enclosingRange = new Range(
+      range.startLineNumber,
+      range.endColumn - this._openCharacter.length - this._closeCharacter.length,
+      range.endLineNumber,
+      range.endColumn
+    );
+    return super.computeCursorState(model, helper);
+  }
+}
+class TypeWithAutoClosingCommand extends BaseTypeWithAutoClosingCommand {
+  static {
+    __name(this, "TypeWithAutoClosingCommand");
+  }
+  constructor(selection, openCharacter, insertOpenCharacter, closeCharacter) {
+    const text = (insertOpenCharacter ? openCharacter : "") + closeCharacter;
+    const lineNumberDeltaOffset = 0;
+    const columnDeltaOffset = -closeCharacter.length;
+    super(
+      selection,
+      text,
+      lineNumberDeltaOffset,
+      columnDeltaOffset,
+      openCharacter,
+      closeCharacter
+    );
+  }
+  computeCursorState(model, helper) {
+    const inverseEditOperations = helper.getInverseEditOperations();
+    const range = inverseEditOperations[0].range;
+    return this._computeCursorStateWithRange(model, range, helper);
+  }
+}
+class TypeWithIndentationAndAutoClosingCommand extends BaseTypeWithAutoClosingCommand {
+  static {
+    __name(this, "TypeWithIndentationAndAutoClosingCommand");
+  }
+  _autoIndentationEdit;
+  _autoClosingEdit;
+  constructor(autoIndentationEdit, selection, openCharacter, closeCharacter) {
+    const text = openCharacter + closeCharacter;
+    const lineNumberDeltaOffset = 0;
+    const columnDeltaOffset = openCharacter.length;
+    super(
+      selection,
+      text,
+      lineNumberDeltaOffset,
+      columnDeltaOffset,
+      openCharacter,
+      closeCharacter
+    );
+    this._autoIndentationEdit = autoIndentationEdit;
+    this._autoClosingEdit = { range: selection, text };
+  }
+  getEditOperations(model, builder) {
+    builder.addTrackedEditOperation(
+      this._autoIndentationEdit.range,
+      this._autoIndentationEdit.text
+    );
+    builder.addTrackedEditOperation(
+      this._autoClosingEdit.range,
+      this._autoClosingEdit.text
+    );
+  }
+  computeCursorState(model, helper) {
+    const inverseEditOperations = helper.getInverseEditOperations();
+    if (inverseEditOperations.length !== 2) {
+      throw new Error("There should be two inverse edit operations!");
+    }
+    const range1 = inverseEditOperations[0].range;
+    const range2 = inverseEditOperations[1].range;
+    const range = range1.plusRange(range2);
+    return this._computeCursorStateWithRange(model, range, helper);
+  }
+}
+function getTypingOperation(typedText, previousTypingOperation) {
+  if (typedText === " ") {
+    return previousTypingOperation === EditOperationType.TypingFirstSpace || previousTypingOperation === EditOperationType.TypingConsecutiveSpace ? EditOperationType.TypingConsecutiveSpace : EditOperationType.TypingFirstSpace;
+  }
+  return EditOperationType.TypingOther;
+}
+__name(getTypingOperation, "getTypingOperation");
+function shouldPushStackElementBetween(previousTypingOperation, typingOperation) {
+  if (isTypingOperation(previousTypingOperation) && !isTypingOperation(typingOperation)) {
+    return true;
+  }
+  if (previousTypingOperation === EditOperationType.TypingFirstSpace) {
+    return false;
+  }
+  return normalizeOperationType(previousTypingOperation) !== normalizeOperationType(typingOperation);
+}
+__name(shouldPushStackElementBetween, "shouldPushStackElementBetween");
+function normalizeOperationType(type) {
+  return type === EditOperationType.TypingConsecutiveSpace || type === EditOperationType.TypingFirstSpace ? "space" : type;
+}
+__name(normalizeOperationType, "normalizeOperationType");
+function isTypingOperation(type) {
+  return type === EditOperationType.TypingOther || type === EditOperationType.TypingFirstSpace || type === EditOperationType.TypingConsecutiveSpace;
+}
+__name(isTypingOperation, "isTypingOperation");
+function isAutoClosingOvertype(config, model, selections, autoClosedCharacters, ch) {
+  if (config.autoClosingOvertype === "never") {
+    return false;
+  }
+  if (!config.autoClosingPairs.autoClosingPairsCloseSingleChar.has(ch)) {
+    return false;
+  }
+  for (let i = 0, len = selections.length; i < len; i++) {
+    const selection = selections[i];
+    if (!selection.isEmpty()) {
+      return false;
+    }
+    const position = selection.getPosition();
+    const lineText = model.getLineContent(position.lineNumber);
+    const afterCharacter = lineText.charAt(position.column - 1);
+    if (afterCharacter !== ch) {
+      return false;
+    }
+    const chIsQuote = isQuote(ch);
+    const beforeCharacter = position.column > 2 ? lineText.charCodeAt(position.column - 2) : CharCode.Null;
+    if (beforeCharacter === CharCode.Backslash && chIsQuote) {
+      return false;
+    }
+    if (config.autoClosingOvertype === "auto") {
+      let found = false;
+      for (let j = 0, lenJ = autoClosedCharacters.length; j < lenJ; j++) {
+        const autoClosedCharacter = autoClosedCharacters[j];
+        if (position.lineNumber === autoClosedCharacter.startLineNumber && position.column === autoClosedCharacter.startColumn) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+__name(isAutoClosingOvertype, "isAutoClosingOvertype");
+function typeCommand(range, text, keepPosition) {
+  if (keepPosition) {
+    return new ReplaceCommandWithoutChangingPosition(range, text, true);
+  } else {
+    return new ReplaceCommand(range, text, true);
+  }
+}
+__name(typeCommand, "typeCommand");
+function shiftIndent(config, indentation, count) {
+  count = count || 1;
+  return ShiftCommand.shiftIndent(
+    indentation,
+    indentation.length + count,
+    config.tabSize,
+    config.indentSize,
+    config.insertSpaces
+  );
+}
+__name(shiftIndent, "shiftIndent");
+function unshiftIndent(config, indentation, count) {
+  count = count || 1;
+  return ShiftCommand.unshiftIndent(
+    indentation,
+    indentation.length + count,
+    config.tabSize,
+    config.indentSize,
+    config.insertSpaces
+  );
+}
+__name(unshiftIndent, "unshiftIndent");
+function shouldSurroundChar(config, ch) {
+  if (isQuote(ch)) {
+    return config.autoSurround === "quotes" || config.autoSurround === "languageDefined";
+  } else {
+    return config.autoSurround === "brackets" || config.autoSurround === "languageDefined";
+  }
+}
+__name(shouldSurroundChar, "shouldSurroundChar");
+export {
+  AutoClosingOpenCharTypeOperation,
+  AutoClosingOvertypeOperation,
+  AutoClosingOvertypeWithInterceptorsOperation,
+  AutoIndentOperation,
+  BaseTypeWithAutoClosingCommand,
+  CompositionEndOvertypeOperation,
+  CompositionOperation,
+  EnterOperation,
+  InterceptorElectricCharOperation,
+  PasteOperation,
+  SimpleCharacterTypeOperation,
+  SurroundSelectionOperation,
+  TabOperation,
+  TypeWithoutInterceptorsOperation,
+  shiftIndent,
+  shouldSurroundChar,
+  unshiftIndent
+};
+//# sourceMappingURL=cursorTypeEditOperations.js.map

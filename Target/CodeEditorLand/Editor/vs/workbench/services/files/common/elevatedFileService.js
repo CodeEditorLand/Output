@@ -1,1 +1,18 @@
-import"../../../../base/common/buffer.js";import"../../../../base/common/uri.js";import"../../../../platform/files/common/files.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const m=e("elevatedFileService");export{m as IElevatedFileService};
+import {
+  VSBuffer,
+  VSBufferReadable,
+  VSBufferReadableStream
+} from "../../../../base/common/buffer.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  IFileStatWithMetadata,
+  IWriteFileOptions
+} from "../../../../platform/files/common/files.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const IElevatedFileService = createDecorator(
+  "elevatedFileService"
+);
+export {
+  IElevatedFileService
+};
+//# sourceMappingURL=elevatedFileService.js.map

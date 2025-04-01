@@ -1,1 +1,171 @@
-var d=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var p=(n,r,t,e)=>{for(var i=e>1?void 0:e?m(r,t):r,s=n.length-1,a;s>=0;s--)(a=n[s])&&(i=(e?a(r,t,i):a(i))||i);return e&&i&&d(r,t,i),i},h=(n,r)=>(t,e)=>r(t,e,n);import{Emitter as c}from"../../../../../base/common/event.js";import{Disposable as u,DisposableMap as f}from"../../../../../base/common/lifecycle.js";import"../../../../../base/common/uri.js";import{IConfigurationService as v}from"../../../../../platform/configuration/common/configuration.js";import{IInstantiationService as b}from"../../../../../platform/instantiation/common/instantiation.js";import{PromptsConfig as _}from"../../../../../platform/prompts/common/config.js";import"../../common/chatModel.js";import"../../common/promptSyntax/parsers/types.js";import{ChatPromptAttachmentModel as I}from"./chatPromptAttachmentModel.js";const l=(n,r)=>{const{uri:t,isPromptFile:e}=n;let i=`${t}`;if(e){let s="vscode.prompt.instructions";r&&(s+=".root"),i=`${s}__${i}`}return{id:i,name:t.fsPath,value:t,isSelection:!1,enabled:!0,isFile:!0}};let o=class extends u{constructor(t,e){super();this.initService=t;this.configService=e;this._onUpdate.fire=this._onUpdate.fire.bind(this._onUpdate)}attachments=this._register(new f);get references(){const t=[];for(const e of this.attachments.values())t.push(...e.references);return t}get chatAttachments(){const t=[],e=[...this.attachments.values()];for(const i of e){const{reference:s}=i;t.push(...s.allValidReferences.map(a=>l(a,!1))),t.push(l(s,!0))}return t}async allSettled(){const t=[...this.attachments.values()];await Promise.allSettled(t.map(e=>e.allSettled))}_onUpdate=this._register(new c);onUpdate(t){return this._register(this._onUpdate.event(t)),this}_onAdd=this._register(new c);onAdd(t){return this._register(this._onAdd.event(t)),this}add(t){if(this.attachments.has(t.path))return this;const e=this.initService.createInstance(I,t).onUpdate(this._onUpdate.fire).onDispose(()=>{this.attachments.deleteAndLeak(t.path),this._onUpdate.fire()});return this.attachments.set(t.path,e),e.resolve(),this._onAdd.fire(e),this._onUpdate.fire(),this}remove(t){return this.attachments.has(t.path)?(this.attachments.deleteAndDispose(t.path),this):this}get featureEnabled(){return _.enabled(this.configService)}};o=p([h(0,b),h(1,v)],o);export{o as ChatPromptAttachmentsCollection,l as toChatVariable};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableMap
+} from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { PromptsConfig } from "../../../../../platform/prompts/common/config.js";
+import { IChatRequestVariableEntry } from "../../common/chatModel.js";
+import { IPromptFileReference } from "../../common/promptSyntax/parsers/types.js";
+import { ChatPromptAttachmentModel } from "./chatPromptAttachmentModel.js";
+const toChatVariable = /* @__PURE__ */ __name((reference, isRoot) => {
+  const { uri, isPromptFile } = reference;
+  let id = `${uri}`;
+  if (isPromptFile) {
+    let prefix = "vscode.prompt.instructions";
+    if (isRoot) {
+      prefix += ".root";
+    }
+    id = `${prefix}__${id}`;
+  }
+  return {
+    id,
+    name: uri.fsPath,
+    value: uri,
+    isSelection: false,
+    enabled: true,
+    isFile: true
+  };
+}, "toChatVariable");
+let ChatPromptAttachmentsCollection = class extends Disposable {
+  constructor(initService, configService) {
+    super();
+    this.initService = initService;
+    this.configService = configService;
+    this._onUpdate.fire = this._onUpdate.fire.bind(this._onUpdate);
+  }
+  static {
+    __name(this, "ChatPromptAttachmentsCollection");
+  }
+  /**
+   * List of all prompt instruction attachments.
+   */
+  attachments = this._register(new DisposableMap());
+  /**
+   * Get all `URI`s of all valid references, including all
+   * the possible references nested inside the children.
+   */
+  get references() {
+    const result = [];
+    for (const child of this.attachments.values()) {
+      result.push(...child.references);
+    }
+    return result;
+  }
+  /**
+   * Get the list of all prompt instruction attachment variables, including all
+   * nested child references of each attachment explicitly attached by user.
+   */
+  get chatAttachments() {
+    const result = [];
+    const attachments = [...this.attachments.values()];
+    for (const attachment of attachments) {
+      const { reference } = attachment;
+      result.push(
+        ...reference.allValidReferences.map((link) => {
+          return toChatVariable(link, false);
+        })
+      );
+      result.push(toChatVariable(reference, true));
+    }
+    return result;
+  }
+  /**
+   * Promise that resolves when parsing of all attached prompt instruction
+   * files completes, including parsing of all its possible child references.
+   */
+  async allSettled() {
+    const attachments = [...this.attachments.values()];
+    await Promise.allSettled(
+      attachments.map((attachment) => {
+        return attachment.allSettled;
+      })
+    );
+  }
+  /**
+   * Event that fires then this model is updated.
+   *
+   * See {@linkcode onUpdate}.
+   */
+  _onUpdate = this._register(new Emitter());
+  /**
+   * Subscribe to the `onUpdate` event.
+   * @param callback Function to invoke on update.
+   */
+  onUpdate(callback) {
+    this._register(this._onUpdate.event(callback));
+    return this;
+  }
+  /**
+   * Event that fires when a new prompt instruction attachment is added.
+   * See {@linkcode onAdd}.
+   */
+  _onAdd = this._register(new Emitter());
+  /**
+   * The `onAdd` event fires when a new prompt instruction attachment is added.
+   *
+   * @param callback Function to invoke on add.
+   */
+  onAdd(callback) {
+    this._register(this._onAdd.event(callback));
+    return this;
+  }
+  /**
+   * Add a prompt instruction attachment instance with the provided `URI`.
+   * @param uri URI of the prompt instruction attachment to add.
+   */
+  add(uri) {
+    if (this.attachments.has(uri.path)) {
+      return this;
+    }
+    const instruction = this.initService.createInstance(ChatPromptAttachmentModel, uri).onUpdate(this._onUpdate.fire).onDispose(() => {
+      this.attachments.deleteAndLeak(uri.path);
+      this._onUpdate.fire();
+    });
+    this.attachments.set(uri.path, instruction);
+    instruction.resolve();
+    this._onAdd.fire(instruction);
+    this._onUpdate.fire();
+    return this;
+  }
+  /**
+   * Remove a prompt instruction attachment instance by provided `URI`.
+   * @param uri URI of the prompt instruction attachment to remove.
+   */
+  remove(uri) {
+    if (!this.attachments.has(uri.path)) {
+      return this;
+    }
+    this.attachments.deleteAndDispose(uri.path);
+    return this;
+  }
+  /**
+   * Checks if the prompt instructions feature is enabled in the user settings.
+   */
+  get featureEnabled() {
+    return PromptsConfig.enabled(this.configService);
+  }
+};
+ChatPromptAttachmentsCollection = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IConfigurationService)
+], ChatPromptAttachmentsCollection);
+export {
+  ChatPromptAttachmentsCollection,
+  toChatVariable
+};
+//# sourceMappingURL=chatPromptAttachmentsCollection.js.map

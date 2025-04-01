@@ -1,1 +1,73 @@
-var a=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var S=(m,i,t,o)=>{for(var r=o>1?void 0:o?g(i,t):i,n=m.length-1,c;n>=0;n--)(c=m[n])&&(r=(o?c(i,t,r):c(r))||r);return o&&r&&a(i,t,r),r},e=(m,i)=>(t,o)=>i(t,o,m);import{IConfigurationService as u}from"../../../../platform/configuration/common/configuration.js";import{IEnvironmentService as d}from"../../../../platform/environment/common/environment.js";import{IExtensionGalleryManifestService as x}from"../../../../platform/extensionManagement/common/extensionGalleryManifest.js";import{AbstractExtensionGalleryService as y}from"../../../../platform/extensionManagement/common/extensionGalleryService.js";import{IAllowedExtensionsService as A,IExtensionGalleryService as E}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{IFileService as T}from"../../../../platform/files/common/files.js";import{InstantiationType as q,registerSingleton as w}from"../../../../platform/instantiation/common/extensions.js";import{ILogService as C}from"../../../../platform/log/common/log.js";import{IProductService as F}from"../../../../platform/product/common/productService.js";import{IRequestService as L}from"../../../../platform/request/common/request.js";import{IStorageService as M}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as P}from"../../../../platform/telemetry/common/telemetry.js";import{IWorkbenchAssignmentService as R}from"../../assignment/common/assignmentService.js";let I=class extends y{constructor(i,t,o,r,n,c,v,s,f,p,l){super(i,t,o,r,n,c,v,s,f,p,l)}};I=S([e(0,M),e(1,R),e(2,L),e(3,C),e(4,d),e(5,P),e(6,T),e(7,F),e(8,u),e(9,A),e(10,x)],I),w(E,I,q.Delayed);export{I as WorkbenchExtensionGalleryService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
+import { AbstractExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionGalleryService.js";
+import {
+  IAllowedExtensionsService,
+  IExtensionGalleryService
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkbenchAssignmentService } from "../../assignment/common/assignmentService.js";
+let WorkbenchExtensionGalleryService = class extends AbstractExtensionGalleryService {
+  static {
+    __name(this, "WorkbenchExtensionGalleryService");
+  }
+  constructor(storageService, assignmentService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService) {
+    super(
+      storageService,
+      assignmentService,
+      requestService,
+      logService,
+      environmentService,
+      telemetryService,
+      fileService,
+      productService,
+      configurationService,
+      allowedExtensionsService,
+      extensionGalleryManifestService
+    );
+  }
+};
+WorkbenchExtensionGalleryService = __decorateClass([
+  __decorateParam(0, IStorageService),
+  __decorateParam(1, IWorkbenchAssignmentService),
+  __decorateParam(2, IRequestService),
+  __decorateParam(3, ILogService),
+  __decorateParam(4, IEnvironmentService),
+  __decorateParam(5, ITelemetryService),
+  __decorateParam(6, IFileService),
+  __decorateParam(7, IProductService),
+  __decorateParam(8, IConfigurationService),
+  __decorateParam(9, IAllowedExtensionsService),
+  __decorateParam(10, IExtensionGalleryManifestService)
+], WorkbenchExtensionGalleryService);
+registerSingleton(
+  IExtensionGalleryService,
+  WorkbenchExtensionGalleryService,
+  InstantiationType.Delayed
+);
+export {
+  WorkbenchExtensionGalleryService
+};
+//# sourceMappingURL=extensionGalleryService.js.map

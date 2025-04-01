@@ -1,1 +1,25 @@
-import"../../../../../base/common/event.js";import"../../../../../base/common/lifecycle.js";import"../../../../../base/common/uri.js";import"../../../../../platform/editor/common/editor.js";import{createDecorator as r}from"../../../../../platform/instantiation/common/instantiation.js";import"../../../../../platform/terminal/common/terminal.js";import"../../../terminal/browser/terminal.js";import"../../../terminal/common/terminal.js";import"./terminalLinkParsing.js";const T=r("terminalLinkProviderService");var i=(e=>(e.LocalFile="LocalFile",e.LocalFolderOutsideWorkspace="LocalFolderOutsideWorkspace",e.LocalFolderInWorkspace="LocalFolderInWorkspace",e.Search="Search",e.Url="Url",e))(i||{});export{T as ITerminalLinkProviderService,i as TerminalBuiltinLinkType};
+import { Event } from "../../../../../base/common/event.js";
+import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextEditorSelection } from "../../../../../platform/editor/common/editor.js";
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ITerminalBackend } from "../../../../../platform/terminal/common/terminal.js";
+import { ITerminalExternalLinkProvider } from "../../../terminal/browser/terminal.js";
+import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
+import { IParsedLink } from "./terminalLinkParsing.js";
+const ITerminalLinkProviderService = createDecorator(
+  "terminalLinkProviderService"
+);
+var TerminalBuiltinLinkType = /* @__PURE__ */ ((TerminalBuiltinLinkType2) => {
+  TerminalBuiltinLinkType2["LocalFile"] = "LocalFile";
+  TerminalBuiltinLinkType2["LocalFolderOutsideWorkspace"] = "LocalFolderOutsideWorkspace";
+  TerminalBuiltinLinkType2["LocalFolderInWorkspace"] = "LocalFolderInWorkspace";
+  TerminalBuiltinLinkType2["Search"] = "Search";
+  TerminalBuiltinLinkType2["Url"] = "Url";
+  return TerminalBuiltinLinkType2;
+})(TerminalBuiltinLinkType || {});
+export {
+  ITerminalLinkProviderService,
+  TerminalBuiltinLinkType
+};
+//# sourceMappingURL=links.js.map

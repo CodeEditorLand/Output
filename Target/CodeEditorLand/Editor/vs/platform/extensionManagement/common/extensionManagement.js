@@ -1,1 +1,382 @@
-import"../../../base/common/cancellation.js";import"../../../base/common/collections.js";import"../../../base/common/event.js";import"../../../base/common/htmlContent.js";import"../../../base/common/paging.js";import{Platform as c}from"../../../base/common/platform.js";import"../../../base/common/uri.js";import{localize2 as p}from"../../../nls.js";import{TargetPlatform as e}from"../../extensions/common/extensions.js";import{FileOperationResult as u}from"../../files/common/files.js";import{createDecorator as d}from"../../instantiation/common/instantiation.js";const x="^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$",C=new RegExp(x),j="__web_extension",Y="skipWalkthrough",$="skipPublisherTrust",J="extensionInstallSource",ee="dependecyOrPackExtensionInstall",ne="clientTargetPlatform";var g=(a=>(a.COMMAND="command",a.SETTINGS_SYNC="settingsSync",a))(g||{});function te(o){switch(o){case e.WIN32_X64:return"Windows 64 bit";case e.WIN32_ARM64:return"Windows ARM";case e.LINUX_X64:return"Linux 64 bit";case e.LINUX_ARM64:return"Linux ARM 64";case e.LINUX_ARMHF:return"Linux ARM";case e.ALPINE_X64:return"Alpine Linux 64 bit";case e.ALPINE_ARM64:return"Alpine ARM 64";case e.DARWIN_X64:return"Mac";case e.DARWIN_ARM64:return"Mac Silicon";case e.WEB:return"Web";case e.UNIVERSAL:return e.UNIVERSAL;case e.UNKNOWN:return e.UNKNOWN;case e.UNDEFINED:return e.UNDEFINED}}function oe(o){switch(o){case e.WIN32_X64:return e.WIN32_X64;case e.WIN32_ARM64:return e.WIN32_ARM64;case e.LINUX_X64:return e.LINUX_X64;case e.LINUX_ARM64:return e.LINUX_ARM64;case e.LINUX_ARMHF:return e.LINUX_ARMHF;case e.ALPINE_X64:return e.ALPINE_X64;case e.ALPINE_ARM64:return e.ALPINE_ARM64;case e.DARWIN_X64:return e.DARWIN_X64;case e.DARWIN_ARM64:return e.DARWIN_ARM64;case e.WEB:return e.WEB;case e.UNIVERSAL:return e.UNIVERSAL;default:return e.UNKNOWN}}function ie(o,i){switch(o){case c.Windows:return i==="x64"?e.WIN32_X64:i==="arm64"?e.WIN32_ARM64:e.UNKNOWN;case c.Linux:return i==="x64"?e.LINUX_X64:i==="arm64"?e.LINUX_ARM64:i==="arm"?e.LINUX_ARMHF:e.UNKNOWN;case"alpine":return i==="x64"?e.ALPINE_X64:i==="arm64"?e.ALPINE_ARM64:e.UNKNOWN;case c.Mac:return i==="x64"?e.DARWIN_X64:i==="arm64"?e.DARWIN_ARM64:e.UNKNOWN;case c.Web:return e.WEB}}function y(o,i){return i===e.WEB&&!o.includes(e.WEB)}function ae(o,i,a){return y(i,a)?!1:o===e.UNDEFINED||o===e.UNIVERSAL?!0:o===e.UNKNOWN?!1:o===a}function re(o){return o&&typeof o=="object"&&typeof o.id=="string"&&(!o.uuid||typeof o.uuid=="string")}var f=(r=>(r.NoneOrRelevance="NoneOrRelevance",r.LastUpdatedDate="LastUpdatedDate",r.Title="Title",r.PublisherName="PublisherName",r.InstallCount="InstallCount",r.PublishedDate="PublishedDate",r.AverageRating="AverageRating",r.WeightedRating="WeightedRating",r))(f||{}),E=(s=>(s[s.Default=0]="Default",s[s.Ascending=1]="Ascending",s[s.Descending=2]="Descending",s))(E||{}),m=(r=>(r.Category="Category",r.ExtensionId="ExtensionId",r.ExtensionName="ExtensionName",r.ExcludeWithFlags="ExcludeWithFlags",r.Featured="Featured",r.SearchText="SearchText",r.Tag="Tag",r.Target="Target",r))(m||{}),b=(a=>(a.Install="install",a.Uninstall="uninstall",a))(b||{}),P=(l=>(l[l.None=1]="None",l[l.Install=2]="Install",l[l.Update=3]="Update",l[l.Migrate=4]="Migrate",l))(P||{});const se=d("extensionGalleryService");var N=(I=>(I.Timeout="Timeout",I.Cancelled="Cancelled",I.Failed="Failed",I.DownloadFailedWriting="DownloadFailedWriting",I.Offline="Offline",I))(N||{});class le extends Error{constructor(a,s){super(a);this.code=s;this.name=s}}var R=(n=>(n.NotFound="NotFound",n.Unsupported="Unsupported",n.Deprecated="Deprecated",n.Malicious="Malicious",n.Incompatible="Incompatible",n.IncompatibleApi="IncompatibleApi",n.IncompatibleTargetPlatform="IncompatibleTargetPlatform",n.ReleaseVersionNotFound="ReleaseVersionNotFound",n.Invalid="Invalid",n.Download="Download",n.DownloadSignature="DownloadSignature",n.DownloadFailedWriting="DownloadFailedWriting",n.UpdateMetadata="UpdateMetadata",n.Extract="Extract",n.Scanning="Scanning",n.ScanningExtension="ScanningExtension",n.ReadRemoved="ReadRemoved",n.UnsetRemoved="UnsetRemoved",n.Delete="Delete",n.Rename="Rename",n.IntializeDefaultProfile="IntializeDefaultProfile",n.AddToProfile="AddToProfile",n.InstalledExtensionNotFound="InstalledExtensionNotFound",n.PostInstall="PostInstall",n.CorruptZip="CorruptZip",n.IncompleteZip="IncompleteZip",n.PackageNotSigned="PackageNotSigned",n.SignatureVerificationInternal="SignatureVerificationInternal",n.SignatureVerificationFailed="SignatureVerificationFailed",n.NotAllowed="NotAllowed",n.Gallery="Gallery",n.Cancelled="Cancelled",n.Unknown="Unknown",n.Internal="Internal",n))(R||{}),A=(t=>(t.NotSigned="NotSigned",t.Success="Success",t.RequiredArgumentMissing="RequiredArgumentMissing",t.InvalidArgument="InvalidArgument",t.PackageIsUnreadable="PackageIsUnreadable",t.UnhandledException="UnhandledException",t.SignatureManifestIsMissing="SignatureManifestIsMissing",t.SignatureManifestIsUnreadable="SignatureManifestIsUnreadable",t.SignatureIsMissing="SignatureIsMissing",t.SignatureIsUnreadable="SignatureIsUnreadable",t.CertificateIsUnreadable="CertificateIsUnreadable",t.SignatureArchiveIsUnreadable="SignatureArchiveIsUnreadable",t.FileAlreadyExists="FileAlreadyExists",t.SignatureArchiveIsInvalidZip="SignatureArchiveIsInvalidZip",t.SignatureArchiveHasSameSignatureFile="SignatureArchiveHasSameSignatureFile",t.PackageIntegrityCheckFailed="PackageIntegrityCheckFailed",t.SignatureIsInvalid="SignatureIsInvalid",t.SignatureManifestIsInvalid="SignatureManifestIsInvalid",t.SignatureIntegrityCheckFailed="SignatureIntegrityCheckFailed",t.EntryIsMissing="EntryIsMissing",t.EntryIsTampered="EntryIsTampered",t.Untrusted="Untrusted",t.CertificateRevoked="CertificateRevoked",t.SignatureIsNotValid="SignatureIsNotValid",t.UnknownError="UnknownError",t.PackageIsInvalidZip="PackageIsInvalidZip",t.SignatureArchiveHasTooManyEntries="SignatureArchiveHasTooManyEntries",t))(A||{});class Ie extends Error{constructor(a,s){super(a);this.code=s;this.name=s}}const de=d("extensionManagementService"),ce="extensionsIdentifiers/disabled",pe="extensionsIdentifiers/enabled",ue=d("IGlobalExtensionEnablementService"),xe=d("IExtensionTipsService"),ge=d("IAllowedExtensionsService");async function U(o,i){let a;try{a=await i.resolve(o)}catch(s){if(s.fileOperationResult===u.FILE_NOT_FOUND)return 0;throw s}return a.children?(await Promise.all(a.children.map(l=>U(l.resource,i)))).reduce((l,I)=>l+I,0):a.size??0}const ye=p("extensions","Extensions"),fe=p("preferences","Preferences"),Ee="extensions.gallery.useUnpkgResourceApi",me="extensions.allowed";export{me as AllowedExtensionsConfigKey,ce as DISABLED_EXTENSIONS_STORAGE_PATH,pe as ENABLED_EXTENSIONS_STORAGE_PATH,x as EXTENSION_IDENTIFIER_PATTERN,C as EXTENSION_IDENTIFIER_REGEX,ne as EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT,ee as EXTENSION_INSTALL_DEP_PACK_CONTEXT,$ as EXTENSION_INSTALL_SKIP_PUBLISHER_TRUST_CONTEXT,Y as EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT,J as EXTENSION_INSTALL_SOURCE_CONTEXT,le as ExtensionGalleryError,N as ExtensionGalleryErrorCode,g as ExtensionInstallSource,Ie as ExtensionManagementError,R as ExtensionManagementErrorCode,A as ExtensionSignatureVerificationCode,ye as ExtensionsLocalizedLabel,m as FilterType,ge as IAllowedExtensionsService,se as IExtensionGalleryService,de as IExtensionManagementService,xe as IExtensionTipsService,ue as IGlobalExtensionEnablementService,P as InstallOperation,fe as PreferencesLocalizedLabel,f as SortBy,E as SortOrder,b as StatisticType,te as TargetPlatformToString,Ee as UseUnpkgResourceApiConfigKey,j as WEB_EXTENSION_TAG,U as computeSize,ie as getTargetPlatform,re as isIExtensionIdentifier,y as isNotWebExtensionInWebTargetPlatform,ae as isTargetPlatformCompatible,oe as toTargetPlatform};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { Event } from "../../../base/common/event.js";
+import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { IPager } from "../../../base/common/paging.js";
+import { Platform } from "../../../base/common/platform.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize2 } from "../../../nls.js";
+import {
+  ExtensionType,
+  IExtension,
+  IExtensionManifest,
+  TargetPlatform
+} from "../../extensions/common/extensions.js";
+import {
+  FileOperationError,
+  FileOperationResult,
+  IFileService,
+  IFileStat
+} from "../../files/common/files.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const EXTENSION_IDENTIFIER_PATTERN = "^([a-z0-9A-Z][a-z0-9-A-Z]*)\\.([a-z0-9A-Z][a-z0-9-A-Z]*)$";
+const EXTENSION_IDENTIFIER_REGEX = new RegExp(
+  EXTENSION_IDENTIFIER_PATTERN
+);
+const WEB_EXTENSION_TAG = "__web_extension";
+const EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT = "skipWalkthrough";
+const EXTENSION_INSTALL_SKIP_PUBLISHER_TRUST_CONTEXT = "skipPublisherTrust";
+const EXTENSION_INSTALL_SOURCE_CONTEXT = "extensionInstallSource";
+const EXTENSION_INSTALL_DEP_PACK_CONTEXT = "dependecyOrPackExtensionInstall";
+const EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT = "clientTargetPlatform";
+var ExtensionInstallSource = /* @__PURE__ */ ((ExtensionInstallSource2) => {
+  ExtensionInstallSource2["COMMAND"] = "command";
+  ExtensionInstallSource2["SETTINGS_SYNC"] = "settingsSync";
+  return ExtensionInstallSource2;
+})(ExtensionInstallSource || {});
+function TargetPlatformToString(targetPlatform) {
+  switch (targetPlatform) {
+    case TargetPlatform.WIN32_X64:
+      return "Windows 64 bit";
+    case TargetPlatform.WIN32_ARM64:
+      return "Windows ARM";
+    case TargetPlatform.LINUX_X64:
+      return "Linux 64 bit";
+    case TargetPlatform.LINUX_ARM64:
+      return "Linux ARM 64";
+    case TargetPlatform.LINUX_ARMHF:
+      return "Linux ARM";
+    case TargetPlatform.ALPINE_X64:
+      return "Alpine Linux 64 bit";
+    case TargetPlatform.ALPINE_ARM64:
+      return "Alpine ARM 64";
+    case TargetPlatform.DARWIN_X64:
+      return "Mac";
+    case TargetPlatform.DARWIN_ARM64:
+      return "Mac Silicon";
+    case TargetPlatform.WEB:
+      return "Web";
+    case TargetPlatform.UNIVERSAL:
+      return TargetPlatform.UNIVERSAL;
+    case TargetPlatform.UNKNOWN:
+      return TargetPlatform.UNKNOWN;
+    case TargetPlatform.UNDEFINED:
+      return TargetPlatform.UNDEFINED;
+  }
+}
+__name(TargetPlatformToString, "TargetPlatformToString");
+function toTargetPlatform(targetPlatform) {
+  switch (targetPlatform) {
+    case TargetPlatform.WIN32_X64:
+      return TargetPlatform.WIN32_X64;
+    case TargetPlatform.WIN32_ARM64:
+      return TargetPlatform.WIN32_ARM64;
+    case TargetPlatform.LINUX_X64:
+      return TargetPlatform.LINUX_X64;
+    case TargetPlatform.LINUX_ARM64:
+      return TargetPlatform.LINUX_ARM64;
+    case TargetPlatform.LINUX_ARMHF:
+      return TargetPlatform.LINUX_ARMHF;
+    case TargetPlatform.ALPINE_X64:
+      return TargetPlatform.ALPINE_X64;
+    case TargetPlatform.ALPINE_ARM64:
+      return TargetPlatform.ALPINE_ARM64;
+    case TargetPlatform.DARWIN_X64:
+      return TargetPlatform.DARWIN_X64;
+    case TargetPlatform.DARWIN_ARM64:
+      return TargetPlatform.DARWIN_ARM64;
+    case TargetPlatform.WEB:
+      return TargetPlatform.WEB;
+    case TargetPlatform.UNIVERSAL:
+      return TargetPlatform.UNIVERSAL;
+    default:
+      return TargetPlatform.UNKNOWN;
+  }
+}
+__name(toTargetPlatform, "toTargetPlatform");
+function getTargetPlatform(platform, arch) {
+  switch (platform) {
+    case Platform.Windows:
+      if (arch === "x64") {
+        return TargetPlatform.WIN32_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.WIN32_ARM64;
+      }
+      return TargetPlatform.UNKNOWN;
+    case Platform.Linux:
+      if (arch === "x64") {
+        return TargetPlatform.LINUX_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.LINUX_ARM64;
+      }
+      if (arch === "arm") {
+        return TargetPlatform.LINUX_ARMHF;
+      }
+      return TargetPlatform.UNKNOWN;
+    case "alpine":
+      if (arch === "x64") {
+        return TargetPlatform.ALPINE_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.ALPINE_ARM64;
+      }
+      return TargetPlatform.UNKNOWN;
+    case Platform.Mac:
+      if (arch === "x64") {
+        return TargetPlatform.DARWIN_X64;
+      }
+      if (arch === "arm64") {
+        return TargetPlatform.DARWIN_ARM64;
+      }
+      return TargetPlatform.UNKNOWN;
+    case Platform.Web:
+      return TargetPlatform.WEB;
+  }
+}
+__name(getTargetPlatform, "getTargetPlatform");
+function isNotWebExtensionInWebTargetPlatform(allTargetPlatforms, productTargetPlatform) {
+  return productTargetPlatform === TargetPlatform.WEB && !allTargetPlatforms.includes(TargetPlatform.WEB);
+}
+__name(isNotWebExtensionInWebTargetPlatform, "isNotWebExtensionInWebTargetPlatform");
+function isTargetPlatformCompatible(extensionTargetPlatform, allTargetPlatforms, productTargetPlatform) {
+  if (isNotWebExtensionInWebTargetPlatform(
+    allTargetPlatforms,
+    productTargetPlatform
+  )) {
+    return false;
+  }
+  if (extensionTargetPlatform === TargetPlatform.UNDEFINED) {
+    return true;
+  }
+  if (extensionTargetPlatform === TargetPlatform.UNIVERSAL) {
+    return true;
+  }
+  if (extensionTargetPlatform === TargetPlatform.UNKNOWN) {
+    return false;
+  }
+  if (extensionTargetPlatform === productTargetPlatform) {
+    return true;
+  }
+  return false;
+}
+__name(isTargetPlatformCompatible, "isTargetPlatformCompatible");
+function isIExtensionIdentifier(thing) {
+  return thing && typeof thing === "object" && typeof thing.id === "string" && (!thing.uuid || typeof thing.uuid === "string");
+}
+__name(isIExtensionIdentifier, "isIExtensionIdentifier");
+var SortBy = /* @__PURE__ */ ((SortBy2) => {
+  SortBy2["NoneOrRelevance"] = "NoneOrRelevance";
+  SortBy2["LastUpdatedDate"] = "LastUpdatedDate";
+  SortBy2["Title"] = "Title";
+  SortBy2["PublisherName"] = "PublisherName";
+  SortBy2["InstallCount"] = "InstallCount";
+  SortBy2["PublishedDate"] = "PublishedDate";
+  SortBy2["AverageRating"] = "AverageRating";
+  SortBy2["WeightedRating"] = "WeightedRating";
+  return SortBy2;
+})(SortBy || {});
+var SortOrder = /* @__PURE__ */ ((SortOrder2) => {
+  SortOrder2[SortOrder2["Default"] = 0] = "Default";
+  SortOrder2[SortOrder2["Ascending"] = 1] = "Ascending";
+  SortOrder2[SortOrder2["Descending"] = 2] = "Descending";
+  return SortOrder2;
+})(SortOrder || {});
+var FilterType = /* @__PURE__ */ ((FilterType2) => {
+  FilterType2["Category"] = "Category";
+  FilterType2["ExtensionId"] = "ExtensionId";
+  FilterType2["ExtensionName"] = "ExtensionName";
+  FilterType2["ExcludeWithFlags"] = "ExcludeWithFlags";
+  FilterType2["Featured"] = "Featured";
+  FilterType2["SearchText"] = "SearchText";
+  FilterType2["Tag"] = "Tag";
+  FilterType2["Target"] = "Target";
+  return FilterType2;
+})(FilterType || {});
+var StatisticType = /* @__PURE__ */ ((StatisticType2) => {
+  StatisticType2["Install"] = "install";
+  StatisticType2["Uninstall"] = "uninstall";
+  return StatisticType2;
+})(StatisticType || {});
+var InstallOperation = /* @__PURE__ */ ((InstallOperation2) => {
+  InstallOperation2[InstallOperation2["None"] = 1] = "None";
+  InstallOperation2[InstallOperation2["Install"] = 2] = "Install";
+  InstallOperation2[InstallOperation2["Update"] = 3] = "Update";
+  InstallOperation2[InstallOperation2["Migrate"] = 4] = "Migrate";
+  return InstallOperation2;
+})(InstallOperation || {});
+const IExtensionGalleryService = createDecorator("extensionGalleryService");
+var ExtensionGalleryErrorCode = /* @__PURE__ */ ((ExtensionGalleryErrorCode2) => {
+  ExtensionGalleryErrorCode2["Timeout"] = "Timeout";
+  ExtensionGalleryErrorCode2["Cancelled"] = "Cancelled";
+  ExtensionGalleryErrorCode2["Failed"] = "Failed";
+  ExtensionGalleryErrorCode2["DownloadFailedWriting"] = "DownloadFailedWriting";
+  ExtensionGalleryErrorCode2["Offline"] = "Offline";
+  return ExtensionGalleryErrorCode2;
+})(ExtensionGalleryErrorCode || {});
+class ExtensionGalleryError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+    this.name = code;
+  }
+  static {
+    __name(this, "ExtensionGalleryError");
+  }
+}
+var ExtensionManagementErrorCode = /* @__PURE__ */ ((ExtensionManagementErrorCode2) => {
+  ExtensionManagementErrorCode2["NotFound"] = "NotFound";
+  ExtensionManagementErrorCode2["Unsupported"] = "Unsupported";
+  ExtensionManagementErrorCode2["Deprecated"] = "Deprecated";
+  ExtensionManagementErrorCode2["Malicious"] = "Malicious";
+  ExtensionManagementErrorCode2["Incompatible"] = "Incompatible";
+  ExtensionManagementErrorCode2["IncompatibleApi"] = "IncompatibleApi";
+  ExtensionManagementErrorCode2["IncompatibleTargetPlatform"] = "IncompatibleTargetPlatform";
+  ExtensionManagementErrorCode2["ReleaseVersionNotFound"] = "ReleaseVersionNotFound";
+  ExtensionManagementErrorCode2["Invalid"] = "Invalid";
+  ExtensionManagementErrorCode2["Download"] = "Download";
+  ExtensionManagementErrorCode2["DownloadSignature"] = "DownloadSignature";
+  ExtensionManagementErrorCode2["DownloadFailedWriting"] = "DownloadFailedWriting" /* DownloadFailedWriting */;
+  ExtensionManagementErrorCode2["UpdateMetadata"] = "UpdateMetadata";
+  ExtensionManagementErrorCode2["Extract"] = "Extract";
+  ExtensionManagementErrorCode2["Scanning"] = "Scanning";
+  ExtensionManagementErrorCode2["ScanningExtension"] = "ScanningExtension";
+  ExtensionManagementErrorCode2["ReadRemoved"] = "ReadRemoved";
+  ExtensionManagementErrorCode2["UnsetRemoved"] = "UnsetRemoved";
+  ExtensionManagementErrorCode2["Delete"] = "Delete";
+  ExtensionManagementErrorCode2["Rename"] = "Rename";
+  ExtensionManagementErrorCode2["IntializeDefaultProfile"] = "IntializeDefaultProfile";
+  ExtensionManagementErrorCode2["AddToProfile"] = "AddToProfile";
+  ExtensionManagementErrorCode2["InstalledExtensionNotFound"] = "InstalledExtensionNotFound";
+  ExtensionManagementErrorCode2["PostInstall"] = "PostInstall";
+  ExtensionManagementErrorCode2["CorruptZip"] = "CorruptZip";
+  ExtensionManagementErrorCode2["IncompleteZip"] = "IncompleteZip";
+  ExtensionManagementErrorCode2["PackageNotSigned"] = "PackageNotSigned";
+  ExtensionManagementErrorCode2["SignatureVerificationInternal"] = "SignatureVerificationInternal";
+  ExtensionManagementErrorCode2["SignatureVerificationFailed"] = "SignatureVerificationFailed";
+  ExtensionManagementErrorCode2["NotAllowed"] = "NotAllowed";
+  ExtensionManagementErrorCode2["Gallery"] = "Gallery";
+  ExtensionManagementErrorCode2["Cancelled"] = "Cancelled";
+  ExtensionManagementErrorCode2["Unknown"] = "Unknown";
+  ExtensionManagementErrorCode2["Internal"] = "Internal";
+  return ExtensionManagementErrorCode2;
+})(ExtensionManagementErrorCode || {});
+var ExtensionSignatureVerificationCode = /* @__PURE__ */ ((ExtensionSignatureVerificationCode2) => {
+  ExtensionSignatureVerificationCode2["NotSigned"] = "NotSigned";
+  ExtensionSignatureVerificationCode2["Success"] = "Success";
+  ExtensionSignatureVerificationCode2["RequiredArgumentMissing"] = "RequiredArgumentMissing";
+  ExtensionSignatureVerificationCode2["InvalidArgument"] = "InvalidArgument";
+  ExtensionSignatureVerificationCode2["PackageIsUnreadable"] = "PackageIsUnreadable";
+  ExtensionSignatureVerificationCode2["UnhandledException"] = "UnhandledException";
+  ExtensionSignatureVerificationCode2["SignatureManifestIsMissing"] = "SignatureManifestIsMissing";
+  ExtensionSignatureVerificationCode2["SignatureManifestIsUnreadable"] = "SignatureManifestIsUnreadable";
+  ExtensionSignatureVerificationCode2["SignatureIsMissing"] = "SignatureIsMissing";
+  ExtensionSignatureVerificationCode2["SignatureIsUnreadable"] = "SignatureIsUnreadable";
+  ExtensionSignatureVerificationCode2["CertificateIsUnreadable"] = "CertificateIsUnreadable";
+  ExtensionSignatureVerificationCode2["SignatureArchiveIsUnreadable"] = "SignatureArchiveIsUnreadable";
+  ExtensionSignatureVerificationCode2["FileAlreadyExists"] = "FileAlreadyExists";
+  ExtensionSignatureVerificationCode2["SignatureArchiveIsInvalidZip"] = "SignatureArchiveIsInvalidZip";
+  ExtensionSignatureVerificationCode2["SignatureArchiveHasSameSignatureFile"] = "SignatureArchiveHasSameSignatureFile";
+  ExtensionSignatureVerificationCode2["PackageIntegrityCheckFailed"] = "PackageIntegrityCheckFailed";
+  ExtensionSignatureVerificationCode2["SignatureIsInvalid"] = "SignatureIsInvalid";
+  ExtensionSignatureVerificationCode2["SignatureManifestIsInvalid"] = "SignatureManifestIsInvalid";
+  ExtensionSignatureVerificationCode2["SignatureIntegrityCheckFailed"] = "SignatureIntegrityCheckFailed";
+  ExtensionSignatureVerificationCode2["EntryIsMissing"] = "EntryIsMissing";
+  ExtensionSignatureVerificationCode2["EntryIsTampered"] = "EntryIsTampered";
+  ExtensionSignatureVerificationCode2["Untrusted"] = "Untrusted";
+  ExtensionSignatureVerificationCode2["CertificateRevoked"] = "CertificateRevoked";
+  ExtensionSignatureVerificationCode2["SignatureIsNotValid"] = "SignatureIsNotValid";
+  ExtensionSignatureVerificationCode2["UnknownError"] = "UnknownError";
+  ExtensionSignatureVerificationCode2["PackageIsInvalidZip"] = "PackageIsInvalidZip";
+  ExtensionSignatureVerificationCode2["SignatureArchiveHasTooManyEntries"] = "SignatureArchiveHasTooManyEntries";
+  return ExtensionSignatureVerificationCode2;
+})(ExtensionSignatureVerificationCode || {});
+class ExtensionManagementError extends Error {
+  constructor(message, code) {
+    super(message);
+    this.code = code;
+    this.name = code;
+  }
+  static {
+    __name(this, "ExtensionManagementError");
+  }
+}
+const IExtensionManagementService = createDecorator("extensionManagementService");
+const DISABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/disabled";
+const ENABLED_EXTENSIONS_STORAGE_PATH = "extensionsIdentifiers/enabled";
+const IGlobalExtensionEnablementService = createDecorator(
+  "IGlobalExtensionEnablementService"
+);
+const IExtensionTipsService = createDecorator(
+  "IExtensionTipsService"
+);
+const IAllowedExtensionsService = createDecorator("IAllowedExtensionsService");
+async function computeSize(location, fileService) {
+  let stat;
+  try {
+    stat = await fileService.resolve(location);
+  } catch (e) {
+    if (e.fileOperationResult === FileOperationResult.FILE_NOT_FOUND) {
+      return 0;
+    }
+    throw e;
+  }
+  if (stat.children) {
+    const sizes = await Promise.all(
+      stat.children.map((c) => computeSize(c.resource, fileService))
+    );
+    return sizes.reduce((r, s) => r + s, 0);
+  }
+  return stat.size ?? 0;
+}
+__name(computeSize, "computeSize");
+const ExtensionsLocalizedLabel = localize2("extensions", "Extensions");
+const PreferencesLocalizedLabel = localize2(
+  "preferences",
+  "Preferences"
+);
+const UseUnpkgResourceApiConfigKey = "extensions.gallery.useUnpkgResourceApi";
+const AllowedExtensionsConfigKey = "extensions.allowed";
+export {
+  AllowedExtensionsConfigKey,
+  DISABLED_EXTENSIONS_STORAGE_PATH,
+  ENABLED_EXTENSIONS_STORAGE_PATH,
+  EXTENSION_IDENTIFIER_PATTERN,
+  EXTENSION_IDENTIFIER_REGEX,
+  EXTENSION_INSTALL_CLIENT_TARGET_PLATFORM_CONTEXT,
+  EXTENSION_INSTALL_DEP_PACK_CONTEXT,
+  EXTENSION_INSTALL_SKIP_PUBLISHER_TRUST_CONTEXT,
+  EXTENSION_INSTALL_SKIP_WALKTHROUGH_CONTEXT,
+  EXTENSION_INSTALL_SOURCE_CONTEXT,
+  ExtensionGalleryError,
+  ExtensionGalleryErrorCode,
+  ExtensionInstallSource,
+  ExtensionManagementError,
+  ExtensionManagementErrorCode,
+  ExtensionSignatureVerificationCode,
+  ExtensionsLocalizedLabel,
+  FilterType,
+  IAllowedExtensionsService,
+  IExtensionGalleryService,
+  IExtensionManagementService,
+  IExtensionTipsService,
+  IGlobalExtensionEnablementService,
+  InstallOperation,
+  PreferencesLocalizedLabel,
+  SortBy,
+  SortOrder,
+  StatisticType,
+  TargetPlatformToString,
+  UseUnpkgResourceApiConfigKey,
+  WEB_EXTENSION_TAG,
+  computeSize,
+  getTargetPlatform,
+  isIExtensionIdentifier,
+  isNotWebExtensionInWebTargetPlatform,
+  isTargetPlatformCompatible,
+  toTargetPlatform
+};
+//# sourceMappingURL=extensionManagement.js.map

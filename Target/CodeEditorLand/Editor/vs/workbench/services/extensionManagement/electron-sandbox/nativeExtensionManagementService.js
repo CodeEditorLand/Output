@@ -1,1 +1,133 @@
-var v=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var m=(l,a,e,i)=>{for(var r=i>1?void 0:i?d(a,e):a,o=l.length-1,n;o>=0;o--)(n=l[o])&&(r=(i?n(a,e,r):n(r))||r);return i&&r&&v(a,e,r),r},t=(l,a)=>(e,i)=>a(e,i,l);import{Schemas as f}from"../../../../base/common/network.js";import{joinPath as I}from"../../../../base/common/resources.js";import"../../../../base/common/uri.js";import{generateUuid as p}from"../../../../base/common/uuid.js";import"../../../../base/parts/ipc/common/ipc.js";import{IDownloadService as S}from"../../../../platform/download/common/download.js";import{IAllowedExtensionsService as h}from"../../../../platform/extensionManagement/common/extensionManagement.js";import{ExtensionIdentifier as u,ExtensionType as w,isResolverExtension as E}from"../../../../platform/extensions/common/extensions.js";import{IFileService as y}from"../../../../platform/files/common/files.js";import{ILogService as P}from"../../../../platform/log/common/log.js";import{IProductService as x}from"../../../../platform/product/common/productService.js";import{IUriIdentityService as U}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{INativeWorkbenchEnvironmentService as g}from"../../environment/electron-sandbox/environmentService.js";import{IUserDataProfileService as D}from"../../userDataProfile/common/userDataProfile.js";import"../common/extensionManagement.js";import{ProfileAwareExtensionManagementChannelClient as R}from"../common/extensionManagementChannelClient.js";let s=class extends R{constructor(e,i,r,o,n,c,A,C,b){super(e,i,r,o,n);this.fileService=c;this.downloadService=A;this.nativeEnvironmentService=C;this.logService=b}filterEvent(e,i){return i||this.uriIdentityService.extUri.isEqual(this.userDataProfileService.currentProfile.extensionsResource,e)}async install(e,i){const{location:r,cleanup:o}=await this.downloadVsix(e);try{return await super.install(r,i)}finally{await o()}}async downloadVsix(e){if(e.scheme===f.file)return{location:e,async cleanup(){}};this.logService.trace("Downloading extension from",e.toString());const i=I(this.nativeEnvironmentService.extensionsDownloadLocation,p());return await this.downloadService.download(e,i),this.logService.info("Downloaded extension to",i.toString()),{location:i,cleanup:async()=>{try{await this.fileService.del(i)}catch(o){this.logService.error(o)}}}}async switchExtensionsProfile(e,i,r){if(this.nativeEnvironmentService.remoteAuthority){const n=(await this.getInstalled(w.User,e)).find(c=>E(c.manifest,this.nativeEnvironmentService.remoteAuthority));n&&(r||(r=[]),r.push(new u(n.identifier.id)))}return super.switchExtensionsProfile(e,i,r)}};s=m([t(1,x),t(2,h),t(3,D),t(4,U),t(5,y),t(6,S),t(7,g),t(8,P)],s);export{s as NativeExtensionManagementService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Schemas } from "../../../../base/common/network.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { IChannel } from "../../../../base/parts/ipc/common/ipc.js";
+import { IDownloadService } from "../../../../platform/download/common/download.js";
+import {
+  IAllowedExtensionsService,
+  ILocalExtension,
+  InstallOptions
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import {
+  ExtensionIdentifier,
+  ExtensionType,
+  isResolverExtension
+} from "../../../../platform/extensions/common/extensions.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import {
+  DidChangeProfileEvent,
+  IProfileAwareExtensionManagementService
+} from "../common/extensionManagement.js";
+import { ProfileAwareExtensionManagementChannelClient } from "../common/extensionManagementChannelClient.js";
+let NativeExtensionManagementService = class extends ProfileAwareExtensionManagementChannelClient {
+  constructor(channel, productService, allowedExtensionsService, userDataProfileService, uriIdentityService, fileService, downloadService, nativeEnvironmentService, logService) {
+    super(
+      channel,
+      productService,
+      allowedExtensionsService,
+      userDataProfileService,
+      uriIdentityService
+    );
+    this.fileService = fileService;
+    this.downloadService = downloadService;
+    this.nativeEnvironmentService = nativeEnvironmentService;
+    this.logService = logService;
+  }
+  static {
+    __name(this, "NativeExtensionManagementService");
+  }
+  filterEvent(profileLocation, isApplicationScoped) {
+    return isApplicationScoped || this.uriIdentityService.extUri.isEqual(
+      this.userDataProfileService.currentProfile.extensionsResource,
+      profileLocation
+    );
+  }
+  async install(vsix, options) {
+    const { location, cleanup } = await this.downloadVsix(vsix);
+    try {
+      return await super.install(location, options);
+    } finally {
+      await cleanup();
+    }
+  }
+  async downloadVsix(vsix) {
+    if (vsix.scheme === Schemas.file) {
+      return { location: vsix, async cleanup() {
+      } };
+    }
+    this.logService.trace("Downloading extension from", vsix.toString());
+    const location = joinPath(
+      this.nativeEnvironmentService.extensionsDownloadLocation,
+      generateUuid()
+    );
+    await this.downloadService.download(vsix, location);
+    this.logService.info("Downloaded extension to", location.toString());
+    const cleanup = /* @__PURE__ */ __name(async () => {
+      try {
+        await this.fileService.del(location);
+      } catch (error) {
+        this.logService.error(error);
+      }
+    }, "cleanup");
+    return { location, cleanup };
+  }
+  async switchExtensionsProfile(previousProfileLocation, currentProfileLocation, preserveExtensions) {
+    if (this.nativeEnvironmentService.remoteAuthority) {
+      const previousInstalledExtensions = await this.getInstalled(
+        ExtensionType.User,
+        previousProfileLocation
+      );
+      const resolverExtension = previousInstalledExtensions.find(
+        (e) => isResolverExtension(
+          e.manifest,
+          this.nativeEnvironmentService.remoteAuthority
+        )
+      );
+      if (resolverExtension) {
+        if (!preserveExtensions) {
+          preserveExtensions = [];
+        }
+        preserveExtensions.push(
+          new ExtensionIdentifier(resolverExtension.identifier.id)
+        );
+      }
+    }
+    return super.switchExtensionsProfile(
+      previousProfileLocation,
+      currentProfileLocation,
+      preserveExtensions
+    );
+  }
+};
+NativeExtensionManagementService = __decorateClass([
+  __decorateParam(1, IProductService),
+  __decorateParam(2, IAllowedExtensionsService),
+  __decorateParam(3, IUserDataProfileService),
+  __decorateParam(4, IUriIdentityService),
+  __decorateParam(5, IFileService),
+  __decorateParam(6, IDownloadService),
+  __decorateParam(7, INativeWorkbenchEnvironmentService),
+  __decorateParam(8, ILogService)
+], NativeExtensionManagementService);
+export {
+  NativeExtensionManagementService
+};
+//# sourceMappingURL=nativeExtensionManagementService.js.map

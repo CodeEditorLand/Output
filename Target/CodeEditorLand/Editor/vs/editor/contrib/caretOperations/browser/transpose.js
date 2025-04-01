@@ -1,1 +1,88 @@
-import{KeyCode as b,KeyMod as h}from"../../../../base/common/keyCodes.js";import*as P from"../../../../nls.js";import{KeybindingWeight as y}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import"../../../browser/editorBrowser.js";import{EditorAction as E,registerEditorAction as I}from"../../../browser/editorExtensions.js";import{ReplaceCommand as x}from"../../../common/commands/replaceCommand.js";import{Range as m}from"../../../common/core/range.js";import{MoveOperations as c}from"../../../common/cursor/cursorMoveOperations.js";import"../../../common/editorCommon.js";import{EditorContextKeys as d}from"../../../common/editorContextKeys.js";class L extends E{constructor(){super({id:"editor.action.transposeLetters",label:P.localize2("transposeLetters.label","Transpose Letters"),precondition:d.writable,kbOpts:{kbExpr:d.textInputFocus,primary:0,mac:{primary:h.WinCtrl|b.KeyT},weight:y.EditorContrib}})}run(K,o){if(!o.hasModel())return;const t=o.getModel(),n=[],u=o.getSelections();for(const e of u){if(!e.isEmpty())continue;const a=e.startLineNumber,i=e.startColumn,l=t.getLineMaxColumn(a);if(a===1&&(i===1||i===2&&l===2))continue;const s=i===l?e.getPosition():c.rightPosition(t,e.getPosition().lineNumber,e.getPosition().column),r=c.leftPosition(t,s),p=c.leftPosition(t,r),f=t.getValueInRange(m.fromPositions(p,r)),g=t.getValueInRange(m.fromPositions(r,s)),C=m.fromPositions(p,s);n.push(new x(C,g+f))}n.length>0&&(o.pushUndoStop(),o.executeCommands(this.id,n),o.pushUndoStop())}}I(L);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import * as nls from "../../../../nls.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import {
+  EditorAction,
+  registerEditorAction,
+  ServicesAccessor
+} from "../../../browser/editorExtensions.js";
+import { ReplaceCommand } from "../../../common/commands/replaceCommand.js";
+import { Range } from "../../../common/core/range.js";
+import { MoveOperations } from "../../../common/cursor/cursorMoveOperations.js";
+import { ICommand } from "../../../common/editorCommon.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+class TransposeLettersAction extends EditorAction {
+  static {
+    __name(this, "TransposeLettersAction");
+  }
+  constructor() {
+    super({
+      id: "editor.action.transposeLetters",
+      label: nls.localize2("transposeLetters.label", "Transpose Letters"),
+      precondition: EditorContextKeys.writable,
+      kbOpts: {
+        kbExpr: EditorContextKeys.textInputFocus,
+        primary: 0,
+        mac: {
+          primary: KeyMod.WinCtrl | KeyCode.KeyT
+        },
+        weight: KeybindingWeight.EditorContrib
+      }
+    });
+  }
+  run(accessor, editor) {
+    if (!editor.hasModel()) {
+      return;
+    }
+    const model = editor.getModel();
+    const commands = [];
+    const selections = editor.getSelections();
+    for (const selection of selections) {
+      if (!selection.isEmpty()) {
+        continue;
+      }
+      const lineNumber = selection.startLineNumber;
+      const column = selection.startColumn;
+      const lastColumn = model.getLineMaxColumn(lineNumber);
+      if (lineNumber === 1 && (column === 1 || column === 2 && lastColumn === 2)) {
+        continue;
+      }
+      const endPosition = column === lastColumn ? selection.getPosition() : MoveOperations.rightPosition(
+        model,
+        selection.getPosition().lineNumber,
+        selection.getPosition().column
+      );
+      const middlePosition = MoveOperations.leftPosition(
+        model,
+        endPosition
+      );
+      const beginPosition = MoveOperations.leftPosition(
+        model,
+        middlePosition
+      );
+      const leftChar = model.getValueInRange(
+        Range.fromPositions(beginPosition, middlePosition)
+      );
+      const rightChar = model.getValueInRange(
+        Range.fromPositions(middlePosition, endPosition)
+      );
+      const replaceRange = Range.fromPositions(
+        beginPosition,
+        endPosition
+      );
+      commands.push(
+        new ReplaceCommand(replaceRange, rightChar + leftChar)
+      );
+    }
+    if (commands.length > 0) {
+      editor.pushUndoStop();
+      editor.executeCommands(this.id, commands);
+      editor.pushUndoStop();
+    }
+  }
+}
+registerEditorAction(TransposeLettersAction);
+//# sourceMappingURL=transpose.js.map

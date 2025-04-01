@@ -1,1 +1,22 @@
-import"../../../base/common/dataTransfer.js";import{InstantiationType as e,registerSingleton as r}from"../../../platform/instantiation/common/extensions.js";import{createDecorator as i}from"../../../platform/instantiation/common/instantiation.js";import{TreeViewsDnDService as n}from"./treeViewsDnd.js";const o=i("treeViewsDndService");r(o,n,e.Delayed);export{o as ITreeViewsDnDService};
+import { VSDataTransfer } from "../../../base/common/dataTransfer.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import {
+  ITreeViewsDnDService as ITreeViewsDnDServiceCommon,
+  TreeViewsDnDService
+} from "./treeViewsDnd.js";
+const ITreeViewsDnDService = createDecorator(
+  "treeViewsDndService"
+);
+registerSingleton(
+  ITreeViewsDnDService,
+  TreeViewsDnDService,
+  InstantiationType.Delayed
+);
+export {
+  ITreeViewsDnDService
+};
+//# sourceMappingURL=treeViewsDndService.js.map

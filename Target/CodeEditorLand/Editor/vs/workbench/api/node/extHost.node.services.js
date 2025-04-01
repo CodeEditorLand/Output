@@ -1,1 +1,87 @@
-import{SyncDescriptor as o}from"../../../platform/instantiation/common/descriptors.js";import{InstantiationType as e,registerSingleton as r}from"../../../platform/instantiation/common/extensions.js";import{ILoggerService as t,ILogService as i}from"../../../platform/log/common/log.js";import{ISignService as m}from"../../../platform/sign/common/sign.js";import{SignService as s}from"../../../platform/sign/node/signService.js";import{IExtHostDebugService as E}from"../common/extHostDebugService.js";import{IExtHostExtensionService as a}from"../common/extHostExtensionService.js";import{ExtHostLogService as p}from"../common/extHostLogService.js";import{IExtHostMpcService as f}from"../common/extHostMcp.js";import{IExtHostSearch as S}from"../common/extHostSearch.js";import{IExtensionStoragePaths as n}from"../common/extHostStoragePaths.js";import{IExtHostTask as x}from"../common/extHostTask.js";import{ExtHostTelemetry as c,IExtHostTelemetry as g}from"../common/extHostTelemetry.js";import{IExtHostTerminalService as v}from"../common/extHostTerminalService.js";import{IExtHostTunnelService as H}from"../common/extHostTunnelService.js";import{IExtHostVariableResolverProvider as l}from"../common/extHostVariableResolverService.js";import{ExtHostDebugService as I}from"./extHostDebugService.js";import{ExtHostExtensionService as T}from"./extHostExtensionService.js";import{ExtHostLoggerService as d}from"./extHostLoggerService.js";import{NodeExtHostMpcService as u}from"./extHostMpcNode.js";import{NativeExtHostSearch as y}from"./extHostSearch.js";import{ExtensionStoragePaths as D}from"./extHostStoragePaths.js";import{ExtHostTask as b}from"./extHostTask.js";import{ExtHostTerminalService as h}from"./extHostTerminalService.js";import{NodeExtHostTunnelService as L}from"./extHostTunnelService.js";import{NodeExtHostVariableResolverProviderService as N}from"./extHostVariableResolverService.js";r(a,T,e.Eager),r(t,d,e.Delayed),r(i,new o(p,[!1],!0)),r(m,s,e.Delayed),r(n,D,e.Eager),r(g,new o(c,[!1],!0)),r(E,I,e.Eager),r(S,y,e.Eager),r(x,b,e.Eager),r(v,h,e.Eager),r(H,L,e.Eager),r(l,N,e.Eager),r(f,u,e.Eager);
+import { SyncDescriptor } from "../../../platform/instantiation/common/descriptors.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../platform/instantiation/common/extensions.js";
+import {
+  ILoggerService,
+  ILogService
+} from "../../../platform/log/common/log.js";
+import { ISignService } from "../../../platform/sign/common/sign.js";
+import { SignService } from "../../../platform/sign/node/signService.js";
+import { IExtHostDebugService } from "../common/extHostDebugService.js";
+import { IExtHostExtensionService } from "../common/extHostExtensionService.js";
+import { ExtHostLogService } from "../common/extHostLogService.js";
+import { IExtHostMpcService } from "../common/extHostMcp.js";
+import { IExtHostSearch } from "../common/extHostSearch.js";
+import { IExtensionStoragePaths } from "../common/extHostStoragePaths.js";
+import { IExtHostTask } from "../common/extHostTask.js";
+import {
+  ExtHostTelemetry,
+  IExtHostTelemetry
+} from "../common/extHostTelemetry.js";
+import { IExtHostTerminalService } from "../common/extHostTerminalService.js";
+import { IExtHostTunnelService } from "../common/extHostTunnelService.js";
+import { IExtHostVariableResolverProvider } from "../common/extHostVariableResolverService.js";
+import { ExtHostDebugService } from "./extHostDebugService.js";
+import { ExtHostExtensionService } from "./extHostExtensionService.js";
+import { ExtHostLoggerService } from "./extHostLoggerService.js";
+import { NodeExtHostMpcService } from "./extHostMpcNode.js";
+import { NativeExtHostSearch } from "./extHostSearch.js";
+import { ExtensionStoragePaths } from "./extHostStoragePaths.js";
+import { ExtHostTask } from "./extHostTask.js";
+import { ExtHostTerminalService } from "./extHostTerminalService.js";
+import { NodeExtHostTunnelService } from "./extHostTunnelService.js";
+import { NodeExtHostVariableResolverProviderService } from "./extHostVariableResolverService.js";
+registerSingleton(
+  IExtHostExtensionService,
+  ExtHostExtensionService,
+  InstantiationType.Eager
+);
+registerSingleton(
+  ILoggerService,
+  ExtHostLoggerService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  ILogService,
+  new SyncDescriptor(ExtHostLogService, [false], true)
+);
+registerSingleton(ISignService, SignService, InstantiationType.Delayed);
+registerSingleton(
+  IExtensionStoragePaths,
+  ExtensionStoragePaths,
+  InstantiationType.Eager
+);
+registerSingleton(
+  IExtHostTelemetry,
+  new SyncDescriptor(ExtHostTelemetry, [false], true)
+);
+registerSingleton(
+  IExtHostDebugService,
+  ExtHostDebugService,
+  InstantiationType.Eager
+);
+registerSingleton(IExtHostSearch, NativeExtHostSearch, InstantiationType.Eager);
+registerSingleton(IExtHostTask, ExtHostTask, InstantiationType.Eager);
+registerSingleton(
+  IExtHostTerminalService,
+  ExtHostTerminalService,
+  InstantiationType.Eager
+);
+registerSingleton(
+  IExtHostTunnelService,
+  NodeExtHostTunnelService,
+  InstantiationType.Eager
+);
+registerSingleton(
+  IExtHostVariableResolverProvider,
+  NodeExtHostVariableResolverProviderService,
+  InstantiationType.Eager
+);
+registerSingleton(
+  IExtHostMpcService,
+  NodeExtHostMpcService,
+  InstantiationType.Eager
+);
+//# sourceMappingURL=extHost.node.services.js.map

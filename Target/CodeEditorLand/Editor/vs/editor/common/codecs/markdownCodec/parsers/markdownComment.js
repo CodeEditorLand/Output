@@ -1,1 +1,168 @@
-var f=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var c=(i,e,t,s)=>{for(var n=s>1?void 0:s?d(e,t):e,r=i.length-1,o;r>=0;r--)(o=i[r])&&(n=(s?o(e,t,n):o(n))||n);return s&&n&&f(e,t,n),n};import{pick as p}from"../../../../../base/common/arrays.js";import{assert as u}from"../../../../../base/common/assert.js";import{Range as g}from"../../../core/range.js";import{assertNotConsumed as k,ParserBase as T}from"../../simpleCodec/parserBase.js";import"../../simpleCodec/simpleDecoder.js";import{LeftAngleBracket as h,RightAngleBracket as C}from"../../simpleCodec/tokens/angleBrackets.js";import{Dash as a}from"../../simpleCodec/tokens/dash.js";import{ExclamationMark as m}from"../../simpleCodec/tokens/exclamationMark.js";import{MarkdownComment as w}from"../tokens/markdownComment.js";class S extends T{constructor(e){super([e])}accept(e){const t=this.currentTokens[this.currentTokens.length-1];if(e instanceof m&&t instanceof h)return this.currentTokens.push(e),{result:"success",nextParser:this,wasTokenConsumed:!0};if(e instanceof a){if(this.currentTokens.push(e),t instanceof m)return{result:"success",nextParser:this,wasTokenConsumed:!0};if(t instanceof a){const s=this.currentTokens[0],n=this.currentTokens[1],r=this.currentTokens[2],o=this.currentTokens[3];return u(s instanceof h,`The first token must be a '<', got '${s}'.`),u(n instanceof m,`The second token must be a '!', got '${n}'.`),u(r instanceof a,`The third token must be a '-', got '${r}'.`),u(o instanceof a,`The fourth token must be a '-', got '${o}'.`),this.isConsumed=!0,{result:"success",nextParser:new l([s,n,r,o]),wasTokenConsumed:!0}}}return this.isConsumed=!0,{result:"failure",wasTokenConsumed:!1}}}c([k],S.prototype,"accept",1);class l extends T{constructor(e){super(e)}accept(e){return e instanceof C&&this.endsWithDashes?(this.currentTokens.push(e),{result:"success",nextParser:this.asMarkdownComment(),wasTokenConsumed:!0}):(this.currentTokens.push(e),{result:"success",nextParser:this,wasTokenConsumed:!0})}asMarkdownComment(){this.isConsumed=!0;const e=this.currentTokens.map(p("text")).join("");return new w(this.range,e)}get range(){const e=this.currentTokens[0],t=this.currentTokens[this.currentTokens.length-1];return new g(e.range.startLineNumber,e.range.startColumn,t.range.endLineNumber,t.range.endColumn)}get endsWithDashes(){return!(!(this.currentTokens[this.currentTokens.length-1]instanceof a)||!(this.currentTokens[this.currentTokens.length-2]instanceof a))}}c([k],l.prototype,"accept",1);export{l as MarkdownCommentStart,S as PartialMarkdownCommentStart};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+import { pick } from "../../../../../base/common/arrays.js";
+import { assert } from "../../../../../base/common/assert.js";
+import { Range } from "../../../core/range.js";
+import {
+  assertNotConsumed,
+  ParserBase,
+  TAcceptTokenResult
+} from "../../simpleCodec/parserBase.js";
+import { TSimpleToken } from "../../simpleCodec/simpleDecoder.js";
+import {
+  LeftAngleBracket,
+  RightAngleBracket
+} from "../../simpleCodec/tokens/angleBrackets.js";
+import { Dash } from "../../simpleCodec/tokens/dash.js";
+import { ExclamationMark } from "../../simpleCodec/tokens/exclamationMark.js";
+import { MarkdownComment } from "../tokens/markdownComment.js";
+class PartialMarkdownCommentStart extends ParserBase {
+  static {
+    __name(this, "PartialMarkdownCommentStart");
+  }
+  constructor(token) {
+    super([token]);
+  }
+  accept(token) {
+    const lastToken = this.currentTokens[this.currentTokens.length - 1];
+    if (token instanceof ExclamationMark && lastToken instanceof LeftAngleBracket) {
+      this.currentTokens.push(token);
+      return {
+        result: "success",
+        nextParser: this,
+        wasTokenConsumed: true
+      };
+    }
+    if (token instanceof Dash) {
+      this.currentTokens.push(token);
+      if (lastToken instanceof ExclamationMark) {
+        return {
+          result: "success",
+          nextParser: this,
+          wasTokenConsumed: true
+        };
+      }
+      if (lastToken instanceof Dash) {
+        const token1 = this.currentTokens[0];
+        const token2 = this.currentTokens[1];
+        const token3 = this.currentTokens[2];
+        const token4 = this.currentTokens[3];
+        assert(
+          token1 instanceof LeftAngleBracket,
+          `The first token must be a '<', got '${token1}'.`
+        );
+        assert(
+          token2 instanceof ExclamationMark,
+          `The second token must be a '!', got '${token2}'.`
+        );
+        assert(
+          token3 instanceof Dash,
+          `The third token must be a '-', got '${token3}'.`
+        );
+        assert(
+          token4 instanceof Dash,
+          `The fourth token must be a '-', got '${token4}'.`
+        );
+        this.isConsumed = true;
+        return {
+          result: "success",
+          nextParser: new MarkdownCommentStart([
+            token1,
+            token2,
+            token3,
+            token4
+          ]),
+          wasTokenConsumed: true
+        };
+      }
+    }
+    this.isConsumed = true;
+    return {
+      result: "failure",
+      wasTokenConsumed: false
+    };
+  }
+}
+__decorateClass([
+  assertNotConsumed
+], PartialMarkdownCommentStart.prototype, "accept", 1);
+class MarkdownCommentStart extends ParserBase {
+  static {
+    __name(this, "MarkdownCommentStart");
+  }
+  constructor(tokens) {
+    super(tokens);
+  }
+  accept(token) {
+    if (token instanceof RightAngleBracket && this.endsWithDashes) {
+      this.currentTokens.push(token);
+      return {
+        result: "success",
+        nextParser: this.asMarkdownComment(),
+        wasTokenConsumed: true
+      };
+    }
+    this.currentTokens.push(token);
+    return {
+      result: "success",
+      nextParser: this,
+      wasTokenConsumed: true
+    };
+  }
+  /**
+   * Convert the current token sequence into a {@link MarkdownComment} token.
+   *
+   * Note! that this method marks the current parser object as "consumend"
+   *       hence it should not be used after this method is called.
+   */
+  asMarkdownComment() {
+    this.isConsumed = true;
+    const text = this.currentTokens.map(pick("text")).join("");
+    return new MarkdownComment(this.range, text);
+  }
+  /**
+   * Get range of current token sequence.
+   */
+  get range() {
+    const firstToken = this.currentTokens[0];
+    const lastToken = this.currentTokens[this.currentTokens.length - 1];
+    const range = new Range(
+      firstToken.range.startLineNumber,
+      firstToken.range.startColumn,
+      lastToken.range.endLineNumber,
+      lastToken.range.endColumn
+    );
+    return range;
+  }
+  /**
+   * Whether the current token sequence ends with two dashes.
+   */
+  get endsWithDashes() {
+    const lastToken = this.currentTokens[this.currentTokens.length - 1];
+    if (!(lastToken instanceof Dash)) {
+      return false;
+    }
+    const secondLastToken = this.currentTokens[this.currentTokens.length - 2];
+    if (!(secondLastToken instanceof Dash)) {
+      return false;
+    }
+    return true;
+  }
+}
+__decorateClass([
+  assertNotConsumed
+], MarkdownCommentStart.prototype, "accept", 1);
+export {
+  MarkdownCommentStart,
+  PartialMarkdownCommentStart
+};
+//# sourceMappingURL=markdownComment.js.map

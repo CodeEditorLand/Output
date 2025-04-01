@@ -1,2 +1,223 @@
-var M=Object.defineProperty;var L=Object.getOwnPropertyDescriptor;var y=(d,s,r,t)=>{for(var e=t>1?void 0:t?L(s,r):s,a=d.length-1,c;a>=0;a--)(c=d[a])&&(e=(t?c(s,r,e):c(e))||e);return t&&e&&M(s,r,e),e},o=(d,s)=>(r,t)=>s(r,t,d);import*as i from"../../../../../../base/browser/dom.js";import{StandardMouseEvent as N}from"../../../../../../base/browser/mouseEvent.js";import{Button as w}from"../../../../../../base/browser/ui/button/button.js";import{getDefaultHoverDelegate as E}from"../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{Codicon as x}from"../../../../../../base/common/codicons.js";import{Emitter as K}from"../../../../../../base/common/event.js";import{Disposable as _,DisposableStore as $}from"../../../../../../base/common/lifecycle.js";import{basename as R,dirname as F}from"../../../../../../base/common/resources.js";import{ThemeIcon as H}from"../../../../../../base/common/themables.js";import{URI as A}from"../../../../../../base/common/uri.js";import{ILanguageService as T}from"../../../../../../editor/common/languages/language.js";import{IModelService as U}from"../../../../../../editor/common/services/model.js";import{localize as m}from"../../../../../../nls.js";import{getFlatContextMenuActions as k}from"../../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{IMenuService as P,MenuId as B}from"../../../../../../platform/actions/common/actions.js";import{IContextKeyService as j}from"../../../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as z}from"../../../../../../platform/contextview/browser/contextView.js";import{FileKind as O,IFileService as X}from"../../../../../../platform/files/common/files.js";import{IHoverService as q}from"../../../../../../platform/hover/browser/hover.js";import{ILabelService as G}from"../../../../../../platform/label/common/label.js";import{getCleanPromptName as J}from"../../../../../../platform/prompts/common/constants.js";import"../../../../../browser/labels.js";import{ResourceContextKey as Q}from"../../../../../common/contextkeys.js";import"../../chatAttachmentModel/chatPromptAttachmentModel.js";let h=class extends _{constructor(r,t,e,a,c,S,b,g,v,l){super();this.model=r;this.resourceLabels=t;this.contextKeyService=e;this.contextMenuService=a;this.hoverService=c;this.labelService=S;this.menuService=b;this.fileService=g;this.languageService=v;this.modelService=l;this.domNode=i.$(".chat-prompt-attachment.chat-attached-context-attachment.show-file-icons.implicit"),this.render=this.render.bind(this),this.dispose=this.dispose.bind(this),this.model.onUpdate(this.render),this.model.onDispose(this.dispose),this.render()}domNode;get uri(){return this.model.reference.uri}_onDispose=this._register(new K);onDispose(r){return this._register(this._onDispose.event(r)),this}renderDisposables=this._register(new $);render(){i.clearNode(this.domNode),this.renderDisposables.clear(),this.domNode.classList.remove("warning","error","disabled");const{topError:r}=this.model,t=this.resourceLabels.create(this.domNode,{supportIcons:!0}),e=this.model.reference.uri,a=R(e),c=F(e),S=`${a} ${c}`,b=m("chat.promptAttachment","Prompt attachment, {0}",S),g=this.labelService.getUriLabel(e,{relative:!0}),v=m("prompt","Prompt");let l=`${v} ${g}`;if(r){const{errorSubject:n}=r,p=n==="root";this.domNode.classList.add(p?"error":"warning");const f=p?m("error","Error"):m("warning","Warning");l+=`
-[${f}]: ${r.localizedMessage}`}const C=J(e);t.setFile(A.file(C),{fileKind:O.FILE,hidePath:!0,range:void 0,title:l,icon:H.fromId(x.bookmark.id),extraClasses:[]}),this.domNode.ariaLabel=b,this.domNode.tabIndex=0;const D=i.append(this.domNode,i.$("span.chat-implicit-hint",void 0,v));this._register(this.hoverService.setupManagedHover(E("element"),D,l));const I=this.renderDisposables.add(new w(this.domNode,{supportIcons:!0,title:m("remove","Remove")}));I.icon=x.close,this.renderDisposables.add(I.onDidClick(n=>{n.stopPropagation(),this.model.dispose()}));const u=this.renderDisposables.add(this.contextKeyService.createScoped(this.domNode));this.renderDisposables.add(new Q(u,this.fileService,this.languageService,this.modelService)).set(e),this.renderDisposables.add(i.addDisposableListener(this.domNode,i.EventType.CONTEXT_MENU,async n=>{const p=new N(i.getWindow(n),n);i.EventHelper.stop(n,!0),this.contextMenuService.showContextMenu({contextKeyService:u,getAnchor:()=>p,getActions:()=>{const f=this.menuService.getMenuActions(B.ChatInputResourceAttachmentContext,u,{arg:e});return k(f)}})}))}dispose(){this._onDispose.fire(),super.dispose()}};h=y([o(2,j),o(3,z),o(4,q),o(5,G),o(6,P),o(7,X),o(8,T),o(9,U)],h);export{h as PromptAttachmentWidget};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as dom from "../../../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../../../base/browser/mouseEvent.js";
+import { Button } from "../../../../../../base/browser/ui/button/button.js";
+import { getDefaultHoverDelegate } from "../../../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Codicon } from "../../../../../../base/common/codicons.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../../base/common/lifecycle.js";
+import { basename, dirname } from "../../../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../../../base/common/themables.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { localize } from "../../../../../../nls.js";
+import { getFlatContextMenuActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../../../platform/contextview/browser/contextView.js";
+import {
+  FileKind,
+  IFileService
+} from "../../../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../../../platform/hover/browser/hover.js";
+import { ILabelService } from "../../../../../../platform/label/common/label.js";
+import { getCleanPromptName } from "../../../../../../platform/prompts/common/constants.js";
+import { ResourceLabels } from "../../../../../browser/labels.js";
+import { ResourceContextKey } from "../../../../../common/contextkeys.js";
+import { ChatPromptAttachmentModel } from "../../chatAttachmentModel/chatPromptAttachmentModel.js";
+let PromptAttachmentWidget = class extends Disposable {
+  constructor(model, resourceLabels, contextKeyService, contextMenuService, hoverService, labelService, menuService, fileService, languageService, modelService) {
+    super();
+    this.model = model;
+    this.resourceLabels = resourceLabels;
+    this.contextKeyService = contextKeyService;
+    this.contextMenuService = contextMenuService;
+    this.hoverService = hoverService;
+    this.labelService = labelService;
+    this.menuService = menuService;
+    this.fileService = fileService;
+    this.languageService = languageService;
+    this.modelService = modelService;
+    this.domNode = dom.$(
+      ".chat-prompt-attachment.chat-attached-context-attachment.show-file-icons.implicit"
+    );
+    this.render = this.render.bind(this);
+    this.dispose = this.dispose.bind(this);
+    this.model.onUpdate(this.render);
+    this.model.onDispose(this.dispose);
+    this.render();
+  }
+  static {
+    __name(this, "PromptAttachmentWidget");
+  }
+  /**
+   * The root DOM node of the widget.
+   */
+  domNode;
+  /**
+   * Get the `URI` associated with the model reference.
+   */
+  get uri() {
+    return this.model.reference.uri;
+  }
+  /**
+   * Event that fires when the object is disposed.
+   *
+   * See {@linkcode onDispose}.
+   */
+  _onDispose = this._register(new Emitter());
+  /**
+   * Subscribe to the `onDispose` event.
+   * @param callback Function to invoke on dispose.
+   */
+  onDispose(callback) {
+    this._register(this._onDispose.event(callback));
+    return this;
+  }
+  /**
+   * Temporary disposables used for rendering purposes.
+   */
+  renderDisposables = this._register(new DisposableStore());
+  /**
+   * Render this widget.
+   */
+  render() {
+    dom.clearNode(this.domNode);
+    this.renderDisposables.clear();
+    this.domNode.classList.remove("warning", "error", "disabled");
+    const { topError } = this.model;
+    const label = this.resourceLabels.create(this.domNode, {
+      supportIcons: true
+    });
+    const file = this.model.reference.uri;
+    const fileBasename = basename(file);
+    const fileDirname = dirname(file);
+    const friendlyName = `${fileBasename} ${fileDirname}`;
+    const ariaLabel = localize(
+      "chat.promptAttachment",
+      "Prompt attachment, {0}",
+      friendlyName
+    );
+    const uriLabel = this.labelService.getUriLabel(file, {
+      relative: true
+    });
+    const promptLabel = localize("prompt", "Prompt");
+    let title = `${promptLabel} ${uriLabel}`;
+    if (topError) {
+      const { errorSubject: subject } = topError;
+      const isError = subject === "root";
+      this.domNode.classList.add(isError ? "error" : "warning");
+      const severity = isError ? localize("error", "Error") : localize("warning", "Warning");
+      title += `
+[${severity}]: ${topError.localizedMessage}`;
+    }
+    const fileWithoutExtension = getCleanPromptName(file);
+    label.setFile(URI.file(fileWithoutExtension), {
+      fileKind: FileKind.FILE,
+      hidePath: true,
+      range: void 0,
+      title,
+      icon: ThemeIcon.fromId(Codicon.bookmark.id),
+      extraClasses: []
+    });
+    this.domNode.ariaLabel = ariaLabel;
+    this.domNode.tabIndex = 0;
+    const hintElement = dom.append(
+      this.domNode,
+      dom.$("span.chat-implicit-hint", void 0, promptLabel)
+    );
+    this._register(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("element"),
+        hintElement,
+        title
+      )
+    );
+    const removeButton = this.renderDisposables.add(
+      new Button(this.domNode, {
+        supportIcons: true,
+        title: localize("remove", "Remove")
+      })
+    );
+    removeButton.icon = Codicon.close;
+    this.renderDisposables.add(
+      removeButton.onDidClick((e) => {
+        e.stopPropagation();
+        this.model.dispose();
+      })
+    );
+    const scopedContextKeyService = this.renderDisposables.add(
+      this.contextKeyService.createScoped(this.domNode)
+    );
+    const resourceContextKey = this.renderDisposables.add(
+      new ResourceContextKey(
+        scopedContextKeyService,
+        this.fileService,
+        this.languageService,
+        this.modelService
+      )
+    );
+    resourceContextKey.set(file);
+    this.renderDisposables.add(
+      dom.addDisposableListener(
+        this.domNode,
+        dom.EventType.CONTEXT_MENU,
+        async (domEvent) => {
+          const event = new StandardMouseEvent(
+            dom.getWindow(domEvent),
+            domEvent
+          );
+          dom.EventHelper.stop(domEvent, true);
+          this.contextMenuService.showContextMenu({
+            contextKeyService: scopedContextKeyService,
+            getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor"),
+            getActions: /* @__PURE__ */ __name(() => {
+              const menu = this.menuService.getMenuActions(
+                MenuId.ChatInputResourceAttachmentContext,
+                scopedContextKeyService,
+                { arg: file }
+              );
+              return getFlatContextMenuActions(menu);
+            }, "getActions")
+          });
+        }
+      )
+    );
+  }
+  dispose() {
+    this._onDispose.fire();
+    super.dispose();
+  }
+};
+PromptAttachmentWidget = __decorateClass([
+  __decorateParam(2, IContextKeyService),
+  __decorateParam(3, IContextMenuService),
+  __decorateParam(4, IHoverService),
+  __decorateParam(5, ILabelService),
+  __decorateParam(6, IMenuService),
+  __decorateParam(7, IFileService),
+  __decorateParam(8, ILanguageService),
+  __decorateParam(9, IModelService)
+], PromptAttachmentWidget);
+export {
+  PromptAttachmentWidget
+};
+//# sourceMappingURL=promptAttachmentWidget.js.map

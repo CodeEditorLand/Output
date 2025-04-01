@@ -1,7 +1,576 @@
-var C=Object.defineProperty;var y=Object.getOwnPropertyDescriptor;var c=(p,m,t,e)=>{for(var s=e>1?void 0:e?y(m,t):m,o=p.length-1,i;o>=0;o--)(i=p[o])&&(s=(e?i(m,t,s):i(s))||s);return e&&s&&C(m,t,s),s},x=(p,m)=>(t,e)=>m(t,e,p);import{throttle as T}from"../../../../../base/common/decorators.js";import{Emitter as I,Event as P}from"../../../../../base/common/event.js";import{Disposable as b}from"../../../../../base/common/lifecycle.js";import{ILogService as M,LogLevel as v}from"../../../../log/common/log.js";import{PosixShellType as f}from"../../terminal.js";var D=(e=>(e[e.Unknown=0]="Unknown",e[e.Input=1]="Input",e[e.Execute=2]="Execute",e))(D||{});let _=class extends b{constructor(t,e,s,o,i){super();this._xterm=t;this._logService=i;this._register(P.any(this._xterm.onCursorMove,this._xterm.onData,this._xterm.onWriteParsed)(()=>this._sync())),this._register(this._xterm.onData(h=>this._handleUserInput(h))),this._register(e(h=>this._handleCommandStart(h))),this._register(s(()=>this._handleCommandStartChanged())),this._register(o(()=>this._handleCommandExecuted())),this._register(this.onDidStartInput(()=>this._logCombinedStringIfTrace("PromptInputModel#onDidStartInput"))),this._register(this.onDidChangeInput(()=>this._logCombinedStringIfTrace("PromptInputModel#onDidChangeInput"))),this._register(this.onDidFinishInput(()=>this._logCombinedStringIfTrace("PromptInputModel#onDidFinishInput"))),this._register(this.onDidInterrupt(()=>this._logCombinedStringIfTrace("PromptInputModel#onDidInterrupt")))}_state=0;_commandStartMarker;_commandStartX=0;_lastPromptLine;_continuationPrompt;_shellType;_lastUserInput="";_value="";get value(){return this._value}get prefix(){return this._value.substring(0,this._cursorIndex)}get suffix(){return this._value.substring(this._cursorIndex,this._ghostTextIndex===-1?void 0:this._ghostTextIndex)}_cursorIndex=0;get cursorIndex(){return this._cursorIndex}_ghostTextIndex=-1;get ghostTextIndex(){return this._ghostTextIndex}_onDidStartInput=this._register(new I);onDidStartInput=this._onDidStartInput.event;_onDidChangeInput=this._register(new I);onDidChangeInput=this._onDidChangeInput.event;_onDidFinishInput=this._register(new I);onDidFinishInput=this._onDidFinishInput.event;_onDidInterrupt=this._register(new I);onDidInterrupt=this._onDidInterrupt.event;_logCombinedStringIfTrace(t){this._logService.getLevel()===v.Trace&&this._logService.trace(t,this.getCombinedString())}setShellType(t){this._shellType=t}setContinuationPrompt(t){this._continuationPrompt=t,this._sync()}setLastPromptLine(t){this._lastPromptLine=t,this._sync()}setConfidentCommandLine(t){this._value!==t&&(this._value=t,this._cursorIndex=-1,this._ghostTextIndex=-1,this._onDidChangeInput.fire(this._createStateObject()))}getCombinedString(t){const e=this._value.replaceAll(`
-`,"\u23CE");if(this._cursorIndex===-1)return e;let s=`${e.substring(0,this.cursorIndex)}|`;return this.ghostTextIndex!==-1?(s+=`${e.substring(this.cursorIndex,this.ghostTextIndex)}[`,s+=`${e.substring(this.ghostTextIndex)}]`):s+=e.substring(this.cursorIndex),s==="|"&&t?"":s}serialize(){return{modelState:this._createStateObject(),commandStartX:this._commandStartX,lastPromptLine:this._lastPromptLine,continuationPrompt:this._continuationPrompt,lastUserInput:this._lastUserInput}}deserialize(t){this._value=t.modelState.value,this._cursorIndex=t.modelState.cursorIndex,this._ghostTextIndex=t.modelState.ghostTextIndex,this._commandStartX=t.commandStartX,this._lastPromptLine=t.lastPromptLine,this._continuationPrompt=t.continuationPrompt,this._lastUserInput=t.lastUserInput}_handleCommandStart(t){this._state!==1&&(this._state=1,this._commandStartMarker=t.marker,this._commandStartX=this._xterm.buffer.active.cursorX,this._value="",this._cursorIndex=0,this._onDidStartInput.fire(this._createStateObject()),this._onDidChangeInput.fire(this._createStateObject()),this._lastPromptLine&&this._commandStartX!==this._lastPromptLine.length&&this._xterm.buffer.active.getLine(this._commandStartMarker.line)?.translateToString(!0).startsWith(this._lastPromptLine)&&(this._commandStartX=this._lastPromptLine.length,this._sync()))}_handleCommandStartChanged(){this._state===1&&(this._commandStartX=this._xterm.buffer.active.cursorX,this._onDidChangeInput.fire(this._createStateObject()),this._sync())}_handleCommandExecuted(){if(this._state===2)return;this._cursorIndex=-1,this._ghostTextIndex!==-1&&(this._value=this._value.substring(0,this._ghostTextIndex),this._ghostTextIndex=-1);const t=this._createStateObject();this._lastUserInput===""&&(this._lastUserInput="",this._onDidInterrupt.fire(t)),this._state=2,this._onDidFinishInput.fire(t),this._onDidChangeInput.fire(t)}_sync(){try{this._doSync()}catch(t){this._logService.error("Error while syncing prompt input model",t)}}_doSync(){if(this._state!==1)return;let t=this._commandStartMarker?.line;if(t===void 0)return;const e=this._xterm.buffer.active;let s=e.getLine(t);const o=e.baseY+e.cursorY;let i,h=s?.translateToString(!0,this._commandStartX);if(this._shellType===f.Fish&&(!s||!h)&&(t+=1,s=e.getLine(t),s&&(h=s.translateToString(!0),i=o===t?e.cursorX:h?.trimEnd().length)),s===void 0||h===void 0){this._logService.trace("PromptInputModel#_sync: no line");return}let n=h,u=-1;i===void 0&&(o===t?i=this._getRelativeCursorIndex(this._commandStartX,e,s):i=h.trimEnd().length);for(let r=t+1;r<=o;r++){const a=e.getLine(r),l=a?.translateToString(!0);if(l&&a){if(a.isWrapped||o===r&&this._continuationPrompt&&!this._lineContainsContinuationPrompt(l)){n+=`${l}`;const d=this._getRelativeCursorIndex(0,e,a);o===r?i+=d:i+=l.length}else if(this._shellType===f.Fish)n.endsWith("\\")?(n=n.substring(0,n.length-1),n+=`${l.trim()}`,i+=l.trim().length-1):/^ {6,}/.test(l)?(n+=`
-${l.trim()}`,i+=l.trim().length+1):(n+=l,i+=l.length);else if(this._continuationPrompt===void 0||this._lineContainsContinuationPrompt(l)){const d=this._trimContinuationPrompt(l);if(n+=`
-${d}`,o===r){const g=this._getContinuationPromptCellWidth(a,l),S=this._getRelativeCursorIndex(g,e,a);i+=S+1}else i+=d.length+1}}}for(let r=o+1;r<e.baseY+this._xterm.rows;r++){const a=e.getLine(r),l=a?.translateToString(!0);if(l&&a)this._shellType===f.Fish?n+=`${l}`:this._continuationPrompt===void 0||this._lineContainsContinuationPrompt(l)?n+=`
-${this._trimContinuationPrompt(l)}`:n+=l;else break}this._logService.getLevel()===v.Trace&&this._logService.trace(`PromptInputModel#_sync: ${this.getCombinedString()}`);{let r=this._value.length-this._value.trimEnd().length;this._lastUserInput==="\x7F"&&(this._lastUserInput="",i===this._cursorIndex-1&&(this._value.trimEnd().length>n.trimEnd().length&&n.trimEnd().length<=i?r=Math.max(this._value.length-1-n.trimEnd().length,0):r=Math.max(r-1,0))),this._lastUserInput==="\x1B[3~"&&(this._lastUserInput="",i===this._cursorIndex&&(r=Math.max(r-1,0)));const a=n.split(`
-`),l=a.length>1,d=n.trimEnd();if(!l){d.length<n.length&&(this._lastUserInput===" "&&(this._lastUserInput="",i>d.length&&i>this._cursorIndex&&r++),r=Math.max(i-d.length,r,0));const g=i===0?"":n[i-1];r>0&&i===this._cursorIndex+1&&this._lastUserInput!==""&&g!==" "&&(r=this._value.length-this._cursorIndex)}if(l){a[a.length-1]=a.at(-1)?.trimEnd()??"";const g=(a.length-1)*(this._continuationPrompt?.length??0);r=Math.max(0,i-n.length-g)}n=a.map(g=>g.trimEnd()).join(`
-`)+" ".repeat(r)}u=this._scanForGhostText(e,s,i),(this._value!==n||this._cursorIndex!==i||this._ghostTextIndex!==u)&&(this._value=n,this._cursorIndex=i,this._ghostTextIndex=u,this._onDidChangeInput.fire(this._createStateObject()))}_handleUserInput(t){this._lastUserInput=t}_scanForGhostText(t,e,s){if(!this.value.trim().length)return-1;let o=-1,i=!1,h=t.cursorX;for(;h>0;){const n=e.getCell(--h);if(!n)break;if(n.getChars().trim().length>0){i=!this._isCellStyledLikeGhostText(n);break}}if(i){let n=0,u=t.cursorX;for(;u<e.length;){const r=e.getCell(u++);if(!r||r.getCode()===0)break;if(this._isCellStyledLikeGhostText(r)){o=s+n;break}n+=r.getChars().length}}return o===-1&&(o=this._scanForGhostTextAdvanced(t,e,s)),o>-1&&this.value.substring(o).endsWith(" ")&&(this._value=this.value.trim(),this.value.substring(o)||(o=-1)),o}_scanForGhostTextAdvanced(t,e,s){let o=-1,i=t.cursorX;const h=new Map;let n=e.getCell(i),u=n;for(;u&&i<e.length;){const a=this._getCellStyleAsString(u);h.set(a,[...h.get(a)??[],i]),u=e.getCell(++i),u?.getChars().trim().length&&(n=u)}if(!n?.getChars().trim().length||this._cellStylesMatch(e.getCell(this._commandStartX),n))return-1;const r=h.get(this._getCellStyleAsString(n));if(r){for(let a=1;a<r.length;a++)if(r[a]!==r[a-1]+1)return-1;t.baseY+t.cursorY===this._commandStartMarker?.line?o=r[0]-this._commandStartX:o=r[0]}if(o!==-1)for(let a=t.cursorX;a>=this._commandStartX;a--){const l=e.getCell(a);if(l?.getChars.length&&l&&l.getCode()!==0&&this._cellStylesMatch(n,l))return-1}return o>=s?o:-1}_getCellStyleAsString(t){return`${t.getFgColor()}${t.getBgColor()}${t.isBold()}${t.isItalic()}${t.isDim()}${t.isUnderline()}${t.isBlink()}${t.isInverse()}${t.isInvisible()}${t.isStrikethrough()}${t.isOverline()}${t.getFgColorMode()}${t.getBgColorMode()}`}_cellStylesMatch(t,e){return!t||!e?!1:t.getFgColor()===e.getFgColor()&&t.getBgColor()===e.getBgColor()&&t.isBold()===e.isBold()&&t.isItalic()===e.isItalic()&&t.isDim()===e.isDim()&&t.isUnderline()===e.isUnderline()&&t.isBlink()===e.isBlink()&&t.isInverse()===e.isInverse()&&t.isInvisible()===e.isInvisible()&&t.isStrikethrough()===e.isStrikethrough()&&t.isOverline()===e.isOverline()&&t?.getBgColorMode()===e?.getBgColorMode()&&t?.getFgColorMode()===e?.getFgColorMode()}_trimContinuationPrompt(t){return this._lineContainsContinuationPrompt(t)&&(t=t.substring(this._continuationPrompt.length)),t}_lineContainsContinuationPrompt(t){return!!(this._continuationPrompt&&t.startsWith(this._continuationPrompt.trimEnd()))}_getContinuationPromptCellWidth(t,e){if(!this._continuationPrompt||!e.startsWith(this._continuationPrompt.trimEnd()))return 0;let s="",o=0,i;for(;s!==this._continuationPrompt&&(i=t.getCell(o++),!!i);)s+=i.getChars();return o}_getRelativeCursorIndex(t,e,s){return s?.translateToString(!0,t,e.cursorX).length??0}_isCellStyledLikeGhostText(t){return!!(t.isItalic()||t.isDim())}_createStateObject(){return Object.freeze({value:this._value,prefix:this.prefix,suffix:this.suffix,cursorIndex:this._cursorIndex,ghostTextIndex:this._ghostTextIndex})}};c([T(0)],_.prototype,"_sync",1),_=c([x(4,M)],_);export{_ as PromptInputModel};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { throttle } from "../../../../../base/common/decorators.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ILogService, LogLevel } from "../../../../log/common/log.js";
+import { PosixShellType, TerminalShellType } from "../../terminal.js";
+var PromptInputState = /* @__PURE__ */ ((PromptInputState2) => {
+  PromptInputState2[PromptInputState2["Unknown"] = 0] = "Unknown";
+  PromptInputState2[PromptInputState2["Input"] = 1] = "Input";
+  PromptInputState2[PromptInputState2["Execute"] = 2] = "Execute";
+  return PromptInputState2;
+})(PromptInputState || {});
+let PromptInputModel = class extends Disposable {
+  constructor(_xterm, onCommandStart, onCommandStartChanged, onCommandExecuted, _logService) {
+    super();
+    this._xterm = _xterm;
+    this._logService = _logService;
+    this._register(
+      Event.any(
+        this._xterm.onCursorMove,
+        this._xterm.onData,
+        this._xterm.onWriteParsed
+      )(() => this._sync())
+    );
+    this._register(this._xterm.onData((e) => this._handleUserInput(e)));
+    this._register(
+      onCommandStart(
+        (e) => this._handleCommandStart(e)
+      )
+    );
+    this._register(
+      onCommandStartChanged(() => this._handleCommandStartChanged())
+    );
+    this._register(onCommandExecuted(() => this._handleCommandExecuted()));
+    this._register(
+      this.onDidStartInput(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidStartInput"
+        )
+      )
+    );
+    this._register(
+      this.onDidChangeInput(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidChangeInput"
+        )
+      )
+    );
+    this._register(
+      this.onDidFinishInput(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidFinishInput"
+        )
+      )
+    );
+    this._register(
+      this.onDidInterrupt(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidInterrupt"
+        )
+      )
+    );
+  }
+  static {
+    __name(this, "PromptInputModel");
+  }
+  _state = 0 /* Unknown */;
+  _commandStartMarker;
+  _commandStartX = 0;
+  _lastPromptLine;
+  _continuationPrompt;
+  _shellType;
+  _lastUserInput = "";
+  _value = "";
+  get value() {
+    return this._value;
+  }
+  get prefix() {
+    return this._value.substring(0, this._cursorIndex);
+  }
+  get suffix() {
+    return this._value.substring(
+      this._cursorIndex,
+      this._ghostTextIndex === -1 ? void 0 : this._ghostTextIndex
+    );
+  }
+  _cursorIndex = 0;
+  get cursorIndex() {
+    return this._cursorIndex;
+  }
+  _ghostTextIndex = -1;
+  get ghostTextIndex() {
+    return this._ghostTextIndex;
+  }
+  _onDidStartInput = this._register(
+    new Emitter()
+  );
+  onDidStartInput = this._onDidStartInput.event;
+  _onDidChangeInput = this._register(
+    new Emitter()
+  );
+  onDidChangeInput = this._onDidChangeInput.event;
+  _onDidFinishInput = this._register(
+    new Emitter()
+  );
+  onDidFinishInput = this._onDidFinishInput.event;
+  _onDidInterrupt = this._register(
+    new Emitter()
+  );
+  onDidInterrupt = this._onDidInterrupt.event;
+  _logCombinedStringIfTrace(message) {
+    if (this._logService.getLevel() === LogLevel.Trace) {
+      this._logService.trace(message, this.getCombinedString());
+    }
+  }
+  setShellType(shellType) {
+    this._shellType = shellType;
+  }
+  setContinuationPrompt(value) {
+    this._continuationPrompt = value;
+    this._sync();
+  }
+  setLastPromptLine(value) {
+    this._lastPromptLine = value;
+    this._sync();
+  }
+  setConfidentCommandLine(value) {
+    if (this._value !== value) {
+      this._value = value;
+      this._cursorIndex = -1;
+      this._ghostTextIndex = -1;
+      this._onDidChangeInput.fire(this._createStateObject());
+    }
+  }
+  getCombinedString(emptyStringWhenEmpty) {
+    const value = this._value.replaceAll("\n", "\u23CE");
+    if (this._cursorIndex === -1) {
+      return value;
+    }
+    let result = `${value.substring(0, this.cursorIndex)}|`;
+    if (this.ghostTextIndex !== -1) {
+      result += `${value.substring(this.cursorIndex, this.ghostTextIndex)}[`;
+      result += `${value.substring(this.ghostTextIndex)}]`;
+    } else {
+      result += value.substring(this.cursorIndex);
+    }
+    if (result === "|" && emptyStringWhenEmpty) {
+      return "";
+    }
+    return result;
+  }
+  serialize() {
+    return {
+      modelState: this._createStateObject(),
+      commandStartX: this._commandStartX,
+      lastPromptLine: this._lastPromptLine,
+      continuationPrompt: this._continuationPrompt,
+      lastUserInput: this._lastUserInput
+    };
+  }
+  deserialize(serialized) {
+    this._value = serialized.modelState.value;
+    this._cursorIndex = serialized.modelState.cursorIndex;
+    this._ghostTextIndex = serialized.modelState.ghostTextIndex;
+    this._commandStartX = serialized.commandStartX;
+    this._lastPromptLine = serialized.lastPromptLine;
+    this._continuationPrompt = serialized.continuationPrompt;
+    this._lastUserInput = serialized.lastUserInput;
+  }
+  _handleCommandStart(command) {
+    if (this._state === 1 /* Input */) {
+      return;
+    }
+    this._state = 1 /* Input */;
+    this._commandStartMarker = command.marker;
+    this._commandStartX = this._xterm.buffer.active.cursorX;
+    this._value = "";
+    this._cursorIndex = 0;
+    this._onDidStartInput.fire(this._createStateObject());
+    this._onDidChangeInput.fire(this._createStateObject());
+    if (this._lastPromptLine) {
+      if (this._commandStartX !== this._lastPromptLine.length) {
+        const line = this._xterm.buffer.active.getLine(
+          this._commandStartMarker.line
+        );
+        if (line?.translateToString(true).startsWith(this._lastPromptLine)) {
+          this._commandStartX = this._lastPromptLine.length;
+          this._sync();
+        }
+      }
+    }
+  }
+  _handleCommandStartChanged() {
+    if (this._state !== 1 /* Input */) {
+      return;
+    }
+    this._commandStartX = this._xterm.buffer.active.cursorX;
+    this._onDidChangeInput.fire(this._createStateObject());
+    this._sync();
+  }
+  _handleCommandExecuted() {
+    if (this._state === 2 /* Execute */) {
+      return;
+    }
+    this._cursorIndex = -1;
+    if (this._ghostTextIndex !== -1) {
+      this._value = this._value.substring(0, this._ghostTextIndex);
+      this._ghostTextIndex = -1;
+    }
+    const event = this._createStateObject();
+    if (this._lastUserInput === "") {
+      this._lastUserInput = "";
+      this._onDidInterrupt.fire(event);
+    }
+    this._state = 2 /* Execute */;
+    this._onDidFinishInput.fire(event);
+    this._onDidChangeInput.fire(event);
+  }
+  _sync() {
+    try {
+      this._doSync();
+    } catch (e) {
+      this._logService.error("Error while syncing prompt input model", e);
+    }
+  }
+  _doSync() {
+    if (this._state !== 1 /* Input */) {
+      return;
+    }
+    let commandStartY = this._commandStartMarker?.line;
+    if (commandStartY === void 0) {
+      return;
+    }
+    const buffer = this._xterm.buffer.active;
+    let line = buffer.getLine(commandStartY);
+    const absoluteCursorY = buffer.baseY + buffer.cursorY;
+    let cursorIndex;
+    let commandLine = line?.translateToString(true, this._commandStartX);
+    if (this._shellType === PosixShellType.Fish && (!line || !commandLine)) {
+      commandStartY += 1;
+      line = buffer.getLine(commandStartY);
+      if (line) {
+        commandLine = line.translateToString(true);
+        cursorIndex = absoluteCursorY === commandStartY ? buffer.cursorX : commandLine?.trimEnd().length;
+      }
+    }
+    if (line === void 0 || commandLine === void 0) {
+      this._logService.trace(`PromptInputModel#_sync: no line`);
+      return;
+    }
+    let value = commandLine;
+    let ghostTextIndex = -1;
+    if (cursorIndex === void 0) {
+      if (absoluteCursorY === commandStartY) {
+        cursorIndex = this._getRelativeCursorIndex(
+          this._commandStartX,
+          buffer,
+          line
+        );
+      } else {
+        cursorIndex = commandLine.trimEnd().length;
+      }
+    }
+    for (let y = commandStartY + 1; y <= absoluteCursorY; y++) {
+      const nextLine = buffer.getLine(y);
+      const lineText = nextLine?.translateToString(true);
+      if (lineText && nextLine) {
+        if (nextLine.isWrapped || absoluteCursorY === y && this._continuationPrompt && !this._lineContainsContinuationPrompt(lineText)) {
+          value += `${lineText}`;
+          const relativeCursorIndex = this._getRelativeCursorIndex(
+            0,
+            buffer,
+            nextLine
+          );
+          if (absoluteCursorY === y) {
+            cursorIndex += relativeCursorIndex;
+          } else {
+            cursorIndex += lineText.length;
+          }
+        } else if (this._shellType === PosixShellType.Fish) {
+          if (value.endsWith("\\")) {
+            value = value.substring(0, value.length - 1);
+            value += `${lineText.trim()}`;
+            cursorIndex += lineText.trim().length - 1;
+          } else {
+            if (/^ {6,}/.test(lineText)) {
+              value += `
+${lineText.trim()}`;
+              cursorIndex += lineText.trim().length + 1;
+            } else {
+              value += lineText;
+              cursorIndex += lineText.length;
+            }
+          }
+        } else if (this._continuationPrompt === void 0 || this._lineContainsContinuationPrompt(lineText)) {
+          const trimmedLineText = this._trimContinuationPrompt(lineText);
+          value += `
+${trimmedLineText}`;
+          if (absoluteCursorY === y) {
+            const continuationCellWidth = this._getContinuationPromptCellWidth(
+              nextLine,
+              lineText
+            );
+            const relativeCursorIndex = this._getRelativeCursorIndex(
+              continuationCellWidth,
+              buffer,
+              nextLine
+            );
+            cursorIndex += relativeCursorIndex + 1;
+          } else {
+            cursorIndex += trimmedLineText.length + 1;
+          }
+        }
+      }
+    }
+    for (let y = absoluteCursorY + 1; y < buffer.baseY + this._xterm.rows; y++) {
+      const belowCursorLine = buffer.getLine(y);
+      const lineText = belowCursorLine?.translateToString(true);
+      if (lineText && belowCursorLine) {
+        if (this._shellType === PosixShellType.Fish) {
+          value += `${lineText}`;
+        } else if (this._continuationPrompt === void 0 || this._lineContainsContinuationPrompt(lineText)) {
+          value += `
+${this._trimContinuationPrompt(lineText)}`;
+        } else {
+          value += lineText;
+        }
+      } else {
+        break;
+      }
+    }
+    if (this._logService.getLevel() === LogLevel.Trace) {
+      this._logService.trace(
+        `PromptInputModel#_sync: ${this.getCombinedString()}`
+      );
+    }
+    {
+      let trailingWhitespace = this._value.length - this._value.trimEnd().length;
+      if (this._lastUserInput === "\x7F") {
+        this._lastUserInput = "";
+        if (cursorIndex === this._cursorIndex - 1) {
+          if (this._value.trimEnd().length > value.trimEnd().length && value.trimEnd().length <= cursorIndex) {
+            trailingWhitespace = Math.max(
+              this._value.length - 1 - value.trimEnd().length,
+              0
+            );
+          } else {
+            trailingWhitespace = Math.max(
+              trailingWhitespace - 1,
+              0
+            );
+          }
+        }
+      }
+      if (this._lastUserInput === "\x1B[3~") {
+        this._lastUserInput = "";
+        if (cursorIndex === this._cursorIndex) {
+          trailingWhitespace = Math.max(trailingWhitespace - 1, 0);
+        }
+      }
+      const valueLines = value.split("\n");
+      const isMultiLine = valueLines.length > 1;
+      const valueEndTrimmed = value.trimEnd();
+      if (!isMultiLine) {
+        if (valueEndTrimmed.length < value.length) {
+          if (this._lastUserInput === " ") {
+            this._lastUserInput = "";
+            if (cursorIndex > valueEndTrimmed.length && cursorIndex > this._cursorIndex) {
+              trailingWhitespace++;
+            }
+          }
+          trailingWhitespace = Math.max(
+            cursorIndex - valueEndTrimmed.length,
+            trailingWhitespace,
+            0
+          );
+        }
+        const charBeforeCursor = cursorIndex === 0 ? "" : value[cursorIndex - 1];
+        if (trailingWhitespace > 0 && cursorIndex === this._cursorIndex + 1 && this._lastUserInput !== "" && charBeforeCursor !== " ") {
+          trailingWhitespace = this._value.length - this._cursorIndex;
+        }
+      }
+      if (isMultiLine) {
+        valueLines[valueLines.length - 1] = valueLines.at(-1)?.trimEnd() ?? "";
+        const continuationOffset = (valueLines.length - 1) * (this._continuationPrompt?.length ?? 0);
+        trailingWhitespace = Math.max(
+          0,
+          cursorIndex - value.length - continuationOffset
+        );
+      }
+      value = valueLines.map((e) => e.trimEnd()).join("\n") + " ".repeat(trailingWhitespace);
+    }
+    ghostTextIndex = this._scanForGhostText(buffer, line, cursorIndex);
+    if (this._value !== value || this._cursorIndex !== cursorIndex || this._ghostTextIndex !== ghostTextIndex) {
+      this._value = value;
+      this._cursorIndex = cursorIndex;
+      this._ghostTextIndex = ghostTextIndex;
+      this._onDidChangeInput.fire(this._createStateObject());
+    }
+  }
+  _handleUserInput(e) {
+    this._lastUserInput = e;
+  }
+  /**
+   * Detect ghost text by looking for italic or dim text in or after the cursor and
+   * non-italic/dim text in the first non-whitespace cell following command start and before the cursor.
+   */
+  _scanForGhostText(buffer, line, cursorIndex) {
+    if (!this.value.trim().length) {
+      return -1;
+    }
+    let ghostTextIndex = -1;
+    let proceedWithGhostTextCheck = false;
+    let x = buffer.cursorX;
+    while (x > 0) {
+      const cell = line.getCell(--x);
+      if (!cell) {
+        break;
+      }
+      if (cell.getChars().trim().length > 0) {
+        proceedWithGhostTextCheck = !this._isCellStyledLikeGhostText(cell);
+        break;
+      }
+    }
+    if (proceedWithGhostTextCheck) {
+      let potentialGhostIndexOffset = 0;
+      let x2 = buffer.cursorX;
+      while (x2 < line.length) {
+        const cell = line.getCell(x2++);
+        if (!cell || cell.getCode() === 0) {
+          break;
+        }
+        if (this._isCellStyledLikeGhostText(cell)) {
+          ghostTextIndex = cursorIndex + potentialGhostIndexOffset;
+          break;
+        }
+        potentialGhostIndexOffset += cell.getChars().length;
+      }
+    }
+    if (ghostTextIndex === -1) {
+      ghostTextIndex = this._scanForGhostTextAdvanced(
+        buffer,
+        line,
+        cursorIndex
+      );
+    }
+    if (ghostTextIndex > -1 && this.value.substring(ghostTextIndex).endsWith(" ")) {
+      this._value = this.value.trim();
+      if (!this.value.substring(ghostTextIndex)) {
+        ghostTextIndex = -1;
+      }
+    }
+    return ghostTextIndex;
+  }
+  _scanForGhostTextAdvanced(buffer, line, cursorIndex) {
+    let ghostTextIndex = -1;
+    let currentPos = buffer.cursorX;
+    const styleMap = /* @__PURE__ */ new Map();
+    let lastNonWhitespaceCell = line.getCell(currentPos);
+    let nextCell = lastNonWhitespaceCell;
+    while (nextCell && currentPos < line.length) {
+      const styleKey = this._getCellStyleAsString(nextCell);
+      styleMap.set(styleKey, [
+        ...styleMap.get(styleKey) ?? [],
+        currentPos
+      ]);
+      nextCell = line.getCell(++currentPos);
+      if (nextCell?.getChars().trim().length) {
+        lastNonWhitespaceCell = nextCell;
+      }
+    }
+    if (!lastNonWhitespaceCell?.getChars().trim().length || this._cellStylesMatch(
+      line.getCell(this._commandStartX),
+      lastNonWhitespaceCell
+    )) {
+      return -1;
+    }
+    const positionsWithGhostStyle = styleMap.get(
+      this._getCellStyleAsString(lastNonWhitespaceCell)
+    );
+    if (positionsWithGhostStyle) {
+      for (let i = 1; i < positionsWithGhostStyle.length; i++) {
+        if (positionsWithGhostStyle[i] !== positionsWithGhostStyle[i - 1] + 1) {
+          return -1;
+        }
+      }
+      if (buffer.baseY + buffer.cursorY === this._commandStartMarker?.line) {
+        ghostTextIndex = positionsWithGhostStyle[0] - this._commandStartX;
+      } else {
+        ghostTextIndex = positionsWithGhostStyle[0];
+      }
+    }
+    if (ghostTextIndex !== -1) {
+      for (let checkPos = buffer.cursorX; checkPos >= this._commandStartX; checkPos--) {
+        const checkCell = line.getCell(checkPos);
+        if (!checkCell?.getChars.length) {
+          continue;
+        }
+        if (checkCell && checkCell.getCode() !== 0 && this._cellStylesMatch(lastNonWhitespaceCell, checkCell)) {
+          return -1;
+        }
+      }
+    }
+    return ghostTextIndex >= cursorIndex ? ghostTextIndex : -1;
+  }
+  _getCellStyleAsString(cell) {
+    return `${cell.getFgColor()}${cell.getBgColor()}${cell.isBold()}${cell.isItalic()}${cell.isDim()}${cell.isUnderline()}${cell.isBlink()}${cell.isInverse()}${cell.isInvisible()}${cell.isStrikethrough()}${cell.isOverline()}${cell.getFgColorMode()}${cell.getBgColorMode()}`;
+  }
+  _cellStylesMatch(a, b) {
+    if (!a || !b) {
+      return false;
+    }
+    return a.getFgColor() === b.getFgColor() && a.getBgColor() === b.getBgColor() && a.isBold() === b.isBold() && a.isItalic() === b.isItalic() && a.isDim() === b.isDim() && a.isUnderline() === b.isUnderline() && a.isBlink() === b.isBlink() && a.isInverse() === b.isInverse() && a.isInvisible() === b.isInvisible() && a.isStrikethrough() === b.isStrikethrough() && a.isOverline() === b.isOverline() && a?.getBgColorMode() === b?.getBgColorMode() && a?.getFgColorMode() === b?.getFgColorMode();
+  }
+  _trimContinuationPrompt(lineText) {
+    if (this._lineContainsContinuationPrompt(lineText)) {
+      lineText = lineText.substring(this._continuationPrompt.length);
+    }
+    return lineText;
+  }
+  _lineContainsContinuationPrompt(lineText) {
+    return !!(this._continuationPrompt && lineText.startsWith(this._continuationPrompt.trimEnd()));
+  }
+  _getContinuationPromptCellWidth(line, lineText) {
+    if (!this._continuationPrompt || !lineText.startsWith(this._continuationPrompt.trimEnd())) {
+      return 0;
+    }
+    let buffer = "";
+    let x = 0;
+    let cell;
+    while (buffer !== this._continuationPrompt) {
+      cell = line.getCell(x++);
+      if (!cell) {
+        break;
+      }
+      buffer += cell.getChars();
+    }
+    return x;
+  }
+  _getRelativeCursorIndex(startCellX, buffer, line) {
+    return line?.translateToString(true, startCellX, buffer.cursorX).length ?? 0;
+  }
+  _isCellStyledLikeGhostText(cell) {
+    return !!(cell.isItalic() || cell.isDim());
+  }
+  _createStateObject() {
+    return Object.freeze({
+      value: this._value,
+      prefix: this.prefix,
+      suffix: this.suffix,
+      cursorIndex: this._cursorIndex,
+      ghostTextIndex: this._ghostTextIndex
+    });
+  }
+};
+__decorateClass([
+  throttle(0)
+], PromptInputModel.prototype, "_sync", 1);
+PromptInputModel = __decorateClass([
+  __decorateParam(4, ILogService)
+], PromptInputModel);
+export {
+  PromptInputModel
+};
+//# sourceMappingURL=promptInputModel.js.map

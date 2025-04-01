@@ -1,1 +1,7 @@
-import"../../../base/common/collections.js";import"../../../base/common/uri.js";import"../../environment/common/argv.js";import"../../log/common/log.js";import"../../policy/common/policy.js";import"../../userDataProfile/common/userDataProfile.js";
+import { IStringDictionary } from "../../../base/common/collections.js";
+import { UriComponents, UriDto } from "../../../base/common/uri.js";
+import { NativeParsedArgs } from "../../environment/common/argv.js";
+import { ILoggerResource, LogLevel } from "../../log/common/log.js";
+import { PolicyDefinition, PolicyValue } from "../../policy/common/policy.js";
+import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
+//# sourceMappingURL=sharedProcess.js.map

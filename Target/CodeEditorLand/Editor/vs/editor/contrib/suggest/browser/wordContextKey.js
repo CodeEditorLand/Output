@@ -1,1 +1,90 @@
-var h=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var a=(r,t,i,o)=>{for(var e=o>1?void 0:o?p(t,i):t,n=r.length-1,d;n>=0;n--)(d=r[n])&&(e=(o?d(t,i,e):d(e))||e);return o&&e&&h(t,i,e),e},l=(r,t)=>(i,o)=>t(i,o,r);import"../../../../base/common/lifecycle.js";import{localize as _}from"../../../../nls.js";import{IContextKeyService as f,RawContextKey as b}from"../../../../platform/contextkey/common/contextkey.js";import"../../../browser/editorBrowser.js";import{EditorOption as c}from"../../../common/config/editorOptions.js";let s=class{constructor(t,i){this._editor=t;this._ckAtEnd=s.AtEnd.bindTo(i),this._configListener=this._editor.onDidChangeConfiguration(o=>o.hasChanged(c.tabCompletion)&&this._update()),this._update()}static AtEnd=new b("atEndOfWord",!1,{type:"boolean",description:_("desc","A context key that is true when at the end of a word. Note that this is only defined when tab-completions are enabled")});_ckAtEnd;_configListener;_enabled=!1;_selectionListener;dispose(){this._configListener.dispose(),this._selectionListener?.dispose(),this._ckAtEnd.reset()}_update(){const t=this._editor.getOption(c.tabCompletion)==="on";if(this._enabled!==t)if(this._enabled=t,this._enabled){const i=()=>{if(!this._editor.hasModel()){this._ckAtEnd.set(!1);return}const o=this._editor.getModel(),e=this._editor.getSelection(),n=o.getWordAtPosition(e.getStartPosition());if(!n){this._ckAtEnd.set(!1);return}this._ckAtEnd.set(n.endColumn===e.getStartPosition().column&&e.getStartPosition().lineNumber===e.getEndPosition().lineNumber)};this._selectionListener=this._editor.onDidChangeCursorSelection(i),i()}else this._selectionListener&&(this._ckAtEnd.reset(),this._selectionListener.dispose(),this._selectionListener=void 0)}};s=a([l(1,f)],s);export{s as WordContextKey};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import {
+  IContextKey,
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+let WordContextKey = class {
+  constructor(_editor, contextKeyService) {
+    this._editor = _editor;
+    this._ckAtEnd = WordContextKey.AtEnd.bindTo(contextKeyService);
+    this._configListener = this._editor.onDidChangeConfiguration(
+      (e) => e.hasChanged(EditorOption.tabCompletion) && this._update()
+    );
+    this._update();
+  }
+  static {
+    __name(this, "WordContextKey");
+  }
+  static AtEnd = new RawContextKey("atEndOfWord", false, {
+    type: "boolean",
+    description: localize(
+      "desc",
+      "A context key that is true when at the end of a word. Note that this is only defined when tab-completions are enabled"
+    )
+  });
+  _ckAtEnd;
+  _configListener;
+  _enabled = false;
+  _selectionListener;
+  dispose() {
+    this._configListener.dispose();
+    this._selectionListener?.dispose();
+    this._ckAtEnd.reset();
+  }
+  _update() {
+    const enabled = this._editor.getOption(EditorOption.tabCompletion) === "on";
+    if (this._enabled === enabled) {
+      return;
+    }
+    this._enabled = enabled;
+    if (this._enabled) {
+      const checkForWordEnd = /* @__PURE__ */ __name(() => {
+        if (!this._editor.hasModel()) {
+          this._ckAtEnd.set(false);
+          return;
+        }
+        const model = this._editor.getModel();
+        const selection = this._editor.getSelection();
+        const word = model.getWordAtPosition(
+          selection.getStartPosition()
+        );
+        if (!word) {
+          this._ckAtEnd.set(false);
+          return;
+        }
+        this._ckAtEnd.set(
+          word.endColumn === selection.getStartPosition().column && selection.getStartPosition().lineNumber === selection.getEndPosition().lineNumber
+        );
+      }, "checkForWordEnd");
+      this._selectionListener = this._editor.onDidChangeCursorSelection(checkForWordEnd);
+      checkForWordEnd();
+    } else if (this._selectionListener) {
+      this._ckAtEnd.reset();
+      this._selectionListener.dispose();
+      this._selectionListener = void 0;
+    }
+  }
+};
+WordContextKey = __decorateClass([
+  __decorateParam(1, IContextKeyService)
+], WordContextKey);
+export {
+  WordContextKey
+};
+//# sourceMappingURL=wordContextKey.js.map

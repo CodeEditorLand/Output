@@ -1,1 +1,291 @@
-var h=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var p=(i,e,t,a)=>{for(var n=a>1?void 0:a?c(e,t):e,o=i.length-1,r;o>=0;o--)(r=i[o])&&(n=(a?r(e,t,n):r(n))||n);return a&&n&&h(e,t,n),n},l=(i,e)=>(t,a)=>e(t,a,i);import"../../../../base/common/buffer.js";import"../../../../base/common/cancellation.js";import{Emitter as m}from"../../../../base/common/event.js";import{Iterable as v}from"../../../../base/common/iterator.js";import"../../../../base/common/jsonSchema.js";import{DisposableStore as f,toDisposable as y}from"../../../../base/common/lifecycle.js";import{isFalsyOrWhitespace as I}from"../../../../base/common/strings.js";import{localize as d}from"../../../../nls.js";import{IContextKeyService as C}from"../../../../platform/contextkey/common/contextkey.js";import{ExtensionIdentifier as M}from"../../../../platform/extensions/common/extensions.js";import{createDecorator as x}from"../../../../platform/instantiation/common/instantiation.js";import{ILogService as b}from"../../../../platform/log/common/log.js";import{IExtensionService as L,isProposedApiEnabled as P}from"../../../services/extensions/common/extensions.js";import{ExtensionsRegistry as _}from"../../../services/extensions/common/extensionsRegistry.js";import{ChatContextKeys as S}from"./chatContextKeys.js";var E=(a=>(a[a.System=0]="System",a[a.User=1]="User",a[a.Assistant=2]="Assistant",a))(E||{}),T=(o=>(o.PNG="image/png",o.JPEG="image/jpeg",o.GIF="image/gif",o.WEBP="image/webp",o.BMP="image/bmp",o))(T||{}),w=(t=>(t.Low="low",t.High="high",t))(w||{});const ee=x("ILanguageModelsService"),u={type:"object",properties:{vendor:{type:"string",description:d("vscode.extension.contributes.languageModels.vendor","A globally unique vendor of language models.")}}},k=_.registerExtensionPoint({extensionPoint:"languageModels",jsonSchema:{description:d("vscode.extension.contributes.languageModels","Contribute language models of a specific vendor."),oneOf:[u,{type:"array",items:u}]},activationEventsGenerator:(i,e)=>{for(const t of i)e.push(`onLanguageModelChat:${t.vendor}`)}});let g=class{constructor(e,t,a){this._extensionService=e;this._logService=t;this._contextKeyService=a;this._hasUserSelectableModels=S.languageModelsAreUserSelectable.bindTo(this._contextKeyService),this._store.add(k.setHandler(n=>{this._vendors.clear();for(const r of n){if(!P(r.description,"chatProvider")){r.collector.error(d("vscode.extension.contributes.languageModels.chatProviderRequired","This contribution point requires the 'chatProvider' proposal."));continue}for(const s of v.wrap(r.value)){if(this._vendors.has(s.vendor)){r.collector.error(d("vscode.extension.contributes.languageModels.vendorAlreadyRegistered","The vendor '{0}' is already registered and cannot be registered twice",s.vendor));continue}if(I(s.vendor)){r.collector.error(d("vscode.extension.contributes.languageModels.emptyVendor","The vendor field cannot be empty."));continue}if(s.vendor.trim()!==s.vendor){r.collector.error(d("vscode.extension.contributes.languageModels.whitespaceVendor","The vendor field cannot start or end with whitespace."));continue}this._vendors.add(s.vendor)}}const o=[];for(const[r,s]of this._providers)this._vendors.has(s.metadata.vendor)||(this._providers.delete(r),o.push(r));o.length>0&&this._onDidChangeProviders.fire({removed:o})}))}_serviceBrand;_store=new f;_providers=new Map;_vendors=new Set;_onDidChangeProviders=this._store.add(new m);onDidChangeLanguageModels=this._onDidChangeProviders.event;_hasUserSelectableModels;dispose(){this._store.dispose(),this._providers.clear()}getLanguageModelIds(){return Array.from(this._providers.keys())}lookupLanguageModel(e){return this._providers.get(e)?.metadata}async selectLanguageModels(e){if(e.vendor)await this._extensionService.activateByEvent(`onLanguageModelChat:${e.vendor}}`);else{const a=Array.from(this._vendors).map(n=>this._extensionService.activateByEvent(`onLanguageModelChat:${n}`));await Promise.all(a)}const t=[];for(const[a,n]of this._providers)(e.vendor===void 0||n.metadata.vendor===e.vendor)&&(e.family===void 0||n.metadata.family===e.family)&&(e.version===void 0||n.metadata.version===e.version)&&(e.id===void 0||n.metadata.id===e.id)&&(!n.metadata.targetExtensions||n.metadata.targetExtensions.some(o=>M.equals(o,e.extension)))&&t.push(a);return this._logService.trace("[LM] selected language models",e,t),t}registerLanguageModelChat(e,t){if(this._logService.trace("[LM] registering language model chat",e,t.metadata),!this._vendors.has(t.metadata.vendor))throw new Error(`Chat response provider uses UNKNOWN vendor ${t.metadata.vendor}.`);if(this._providers.has(e))throw new Error(`Chat response provider with identifier ${e} is already registered.`);return this._providers.set(e,t),this._onDidChangeProviders.fire({added:[{identifier:e,metadata:t.metadata}]}),this.updateUserSelectableModelsContext(),y(()=>{this.updateUserSelectableModelsContext(),this._providers.delete(e)&&(this._onDidChangeProviders.fire({removed:[e]}),this._logService.trace("[LM] UNregistered language model chat",e,t.metadata))})}updateUserSelectableModelsContext(){const e=Array.from(this._providers.values()).some(a=>a.metadata.isUserSelectable&&!a.metadata.isDefault),t=Array.from(this._providers.values()).some(a=>a.metadata.isDefault);this._hasUserSelectableModels.set(e&&t)}async sendChatRequest(e,t,a,n,o){const r=this._providers.get(e);if(!r)throw new Error(`Chat response provider with identifier ${e} is not registered.`);return r.sendChatRequest(a,t,n,o)}computeTokenLength(e,t,a){const n=this._providers.get(e);if(!n)throw new Error(`Chat response provider with identifier ${e} is not registered.`);return n.provideTokenCount(t,a)}};g=p([l(0,L),l(1,b),l(2,C)],g);export{T as ChatImageMimeType,E as ChatMessageRole,ee as ILanguageModelsService,w as ImageDetailLevel,g as LanguageModelsService,k as languageModelExtensionPoint};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
+import {
+  DisposableStore,
+  IDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { isFalsyOrWhitespace } from "../../../../base/common/strings.js";
+import { localize } from "../../../../nls.js";
+import {
+  IContextKey,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  IExtensionService,
+  isProposedApiEnabled
+} from "../../../services/extensions/common/extensions.js";
+import { ExtensionsRegistry } from "../../../services/extensions/common/extensionsRegistry.js";
+import { ChatContextKeys } from "./chatContextKeys.js";
+var ChatMessageRole = /* @__PURE__ */ ((ChatMessageRole2) => {
+  ChatMessageRole2[ChatMessageRole2["System"] = 0] = "System";
+  ChatMessageRole2[ChatMessageRole2["User"] = 1] = "User";
+  ChatMessageRole2[ChatMessageRole2["Assistant"] = 2] = "Assistant";
+  return ChatMessageRole2;
+})(ChatMessageRole || {});
+var ChatImageMimeType = /* @__PURE__ */ ((ChatImageMimeType2) => {
+  ChatImageMimeType2["PNG"] = "image/png";
+  ChatImageMimeType2["JPEG"] = "image/jpeg";
+  ChatImageMimeType2["GIF"] = "image/gif";
+  ChatImageMimeType2["WEBP"] = "image/webp";
+  ChatImageMimeType2["BMP"] = "image/bmp";
+  return ChatImageMimeType2;
+})(ChatImageMimeType || {});
+var ImageDetailLevel = /* @__PURE__ */ ((ImageDetailLevel2) => {
+  ImageDetailLevel2["Low"] = "low";
+  ImageDetailLevel2["High"] = "high";
+  return ImageDetailLevel2;
+})(ImageDetailLevel || {});
+const ILanguageModelsService = createDecorator(
+  "ILanguageModelsService"
+);
+const languageModelType = {
+  type: "object",
+  properties: {
+    vendor: {
+      type: "string",
+      description: localize(
+        "vscode.extension.contributes.languageModels.vendor",
+        "A globally unique vendor of language models."
+      )
+    }
+  }
+};
+const languageModelExtensionPoint = ExtensionsRegistry.registerExtensionPoint({
+  extensionPoint: "languageModels",
+  jsonSchema: {
+    description: localize(
+      "vscode.extension.contributes.languageModels",
+      "Contribute language models of a specific vendor."
+    ),
+    oneOf: [
+      languageModelType,
+      {
+        type: "array",
+        items: languageModelType
+      }
+    ]
+  },
+  activationEventsGenerator: /* @__PURE__ */ __name((contribs, result) => {
+    for (const contrib of contribs) {
+      result.push(`onLanguageModelChat:${contrib.vendor}`);
+    }
+  }, "activationEventsGenerator")
+});
+let LanguageModelsService = class {
+  constructor(_extensionService, _logService, _contextKeyService) {
+    this._extensionService = _extensionService;
+    this._logService = _logService;
+    this._contextKeyService = _contextKeyService;
+    this._hasUserSelectableModels = ChatContextKeys.languageModelsAreUserSelectable.bindTo(
+      this._contextKeyService
+    );
+    this._store.add(
+      languageModelExtensionPoint.setHandler((extensions) => {
+        this._vendors.clear();
+        for (const extension of extensions) {
+          if (!isProposedApiEnabled(
+            extension.description,
+            "chatProvider"
+          )) {
+            extension.collector.error(
+              localize(
+                "vscode.extension.contributes.languageModels.chatProviderRequired",
+                "This contribution point requires the 'chatProvider' proposal."
+              )
+            );
+            continue;
+          }
+          for (const item of Iterable.wrap(extension.value)) {
+            if (this._vendors.has(item.vendor)) {
+              extension.collector.error(
+                localize(
+                  "vscode.extension.contributes.languageModels.vendorAlreadyRegistered",
+                  "The vendor '{0}' is already registered and cannot be registered twice",
+                  item.vendor
+                )
+              );
+              continue;
+            }
+            if (isFalsyOrWhitespace(item.vendor)) {
+              extension.collector.error(
+                localize(
+                  "vscode.extension.contributes.languageModels.emptyVendor",
+                  "The vendor field cannot be empty."
+                )
+              );
+              continue;
+            }
+            if (item.vendor.trim() !== item.vendor) {
+              extension.collector.error(
+                localize(
+                  "vscode.extension.contributes.languageModels.whitespaceVendor",
+                  "The vendor field cannot start or end with whitespace."
+                )
+              );
+              continue;
+            }
+            this._vendors.add(item.vendor);
+          }
+        }
+        const removed = [];
+        for (const [identifier, value] of this._providers) {
+          if (!this._vendors.has(value.metadata.vendor)) {
+            this._providers.delete(identifier);
+            removed.push(identifier);
+          }
+        }
+        if (removed.length > 0) {
+          this._onDidChangeProviders.fire({ removed });
+        }
+      })
+    );
+  }
+  static {
+    __name(this, "LanguageModelsService");
+  }
+  _serviceBrand;
+  _store = new DisposableStore();
+  _providers = /* @__PURE__ */ new Map();
+  _vendors = /* @__PURE__ */ new Set();
+  _onDidChangeProviders = this._store.add(
+    new Emitter()
+  );
+  onDidChangeLanguageModels = this._onDidChangeProviders.event;
+  _hasUserSelectableModels;
+  dispose() {
+    this._store.dispose();
+    this._providers.clear();
+  }
+  getLanguageModelIds() {
+    return Array.from(this._providers.keys());
+  }
+  lookupLanguageModel(identifier) {
+    return this._providers.get(identifier)?.metadata;
+  }
+  async selectLanguageModels(selector) {
+    if (selector.vendor) {
+      await this._extensionService.activateByEvent(
+        `onLanguageModelChat:${selector.vendor}}`
+      );
+    } else {
+      const all = Array.from(this._vendors).map(
+        (vendor) => this._extensionService.activateByEvent(
+          `onLanguageModelChat:${vendor}`
+        )
+      );
+      await Promise.all(all);
+    }
+    const result = [];
+    for (const [identifier, model] of this._providers) {
+      if ((selector.vendor === void 0 || model.metadata.vendor === selector.vendor) && (selector.family === void 0 || model.metadata.family === selector.family) && (selector.version === void 0 || model.metadata.version === selector.version) && (selector.id === void 0 || model.metadata.id === selector.id) && (!model.metadata.targetExtensions || model.metadata.targetExtensions.some(
+        (candidate) => ExtensionIdentifier.equals(
+          candidate,
+          selector.extension
+        )
+      ))) {
+        result.push(identifier);
+      }
+    }
+    this._logService.trace(
+      "[LM] selected language models",
+      selector,
+      result
+    );
+    return result;
+  }
+  registerLanguageModelChat(identifier, provider) {
+    this._logService.trace(
+      "[LM] registering language model chat",
+      identifier,
+      provider.metadata
+    );
+    if (!this._vendors.has(provider.metadata.vendor)) {
+      throw new Error(
+        `Chat response provider uses UNKNOWN vendor ${provider.metadata.vendor}.`
+      );
+    }
+    if (this._providers.has(identifier)) {
+      throw new Error(
+        `Chat response provider with identifier ${identifier} is already registered.`
+      );
+    }
+    this._providers.set(identifier, provider);
+    this._onDidChangeProviders.fire({
+      added: [{ identifier, metadata: provider.metadata }]
+    });
+    this.updateUserSelectableModelsContext();
+    return toDisposable(() => {
+      this.updateUserSelectableModelsContext();
+      if (this._providers.delete(identifier)) {
+        this._onDidChangeProviders.fire({ removed: [identifier] });
+        this._logService.trace(
+          "[LM] UNregistered language model chat",
+          identifier,
+          provider.metadata
+        );
+      }
+    });
+  }
+  updateUserSelectableModelsContext() {
+    const hasUserSelectableModels = Array.from(
+      this._providers.values()
+    ).some((p) => p.metadata.isUserSelectable && !p.metadata.isDefault);
+    const hasDefaultModel = Array.from(this._providers.values()).some(
+      (p) => p.metadata.isDefault
+    );
+    this._hasUserSelectableModels.set(
+      hasUserSelectableModels && hasDefaultModel
+    );
+  }
+  async sendChatRequest(identifier, from, messages, options, token) {
+    const provider = this._providers.get(identifier);
+    if (!provider) {
+      throw new Error(
+        `Chat response provider with identifier ${identifier} is not registered.`
+      );
+    }
+    return provider.sendChatRequest(messages, from, options, token);
+  }
+  computeTokenLength(identifier, message, token) {
+    const provider = this._providers.get(identifier);
+    if (!provider) {
+      throw new Error(
+        `Chat response provider with identifier ${identifier} is not registered.`
+      );
+    }
+    return provider.provideTokenCount(message, token);
+  }
+};
+LanguageModelsService = __decorateClass([
+  __decorateParam(0, IExtensionService),
+  __decorateParam(1, ILogService),
+  __decorateParam(2, IContextKeyService)
+], LanguageModelsService);
+export {
+  ChatImageMimeType,
+  ChatMessageRole,
+  ILanguageModelsService,
+  ImageDetailLevel,
+  LanguageModelsService,
+  languageModelExtensionPoint
+};
+//# sourceMappingURL=languageModels.js.map

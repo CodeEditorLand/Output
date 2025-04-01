@@ -1,1 +1,100 @@
-var c=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var m=(s,e,i,r)=>{for(var t=r>1?void 0:r?f(e,i):e,a=s.length-1,n;a>=0;a--)(n=s[a])&&(t=(r?n(e,i,t):n(t))||t);return r&&t&&c(e,i,t),t},o=(s,e)=>(i,r)=>e(i,r,s);import"../../../../base/common/buffer.js";import{randomPath as S}from"../../../../base/common/extpath.js";import{Schemas as u}from"../../../../base/common/network.js";import{isWindows as d}from"../../../../base/common/platform.js";import{URI as p}from"../../../../base/common/uri.js";import{localize as v}from"../../../../nls.js";import{IFileService as I}from"../../../../platform/files/common/files.js";import{InstantiationType as h,registerSingleton as b}from"../../../../platform/instantiation/common/extensions.js";import{ILabelService as w}from"../../../../platform/label/common/label.js";import{INativeHostService as W}from"../../../../platform/native/common/native.js";import{IWorkspaceTrustRequestService as y}from"../../../../platform/workspace/common/workspaceTrust.js";import{INativeWorkbenchEnvironmentService as R}from"../../environment/electron-sandbox/environmentService.js";import{IElevatedFileService as T}from"../common/elevatedFileService.js";let l=class{constructor(e,i,r,t,a){this.nativeHostService=e;this.fileService=i;this.environmentService=r;this.workspaceTrustRequestService=t;this.labelService=a}_serviceBrand;isSupported(e){return e.scheme===u.file}async writeFileElevated(e,i,r){if(!await this.workspaceTrustRequestService.requestWorkspaceTrust({message:d?v("fileNotTrustedMessageWindows","You are about to save '{0}' as admin.",this.labelService.getUriLabel(e)):v("fileNotTrustedMessagePosix","You are about to save '{0}' as super user.",this.labelService.getUriLabel(e))}))throw new Error(v("fileNotTrusted","Workspace is not trusted."));const a=p.file(S(this.environmentService.userDataPath,"code-elevated"));try{await this.fileService.writeFile(a,i,r),await this.nativeHostService.writeElevated(a,e,r)}finally{await this.fileService.del(a)}return this.fileService.resolve(e,{resolveMetadata:!0})}};l=m([o(0,W),o(1,I),o(2,R),o(3,y),o(4,w)],l),b(T,l,h.Delayed);export{l as NativeElevatedFileService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  VSBuffer,
+  VSBufferReadable,
+  VSBufferReadableStream
+} from "../../../../base/common/buffer.js";
+import { randomPath } from "../../../../base/common/extpath.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import {
+  IFileService,
+  IFileStatWithMetadata,
+  IWriteFileOptions
+} from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IElevatedFileService } from "../common/elevatedFileService.js";
+let NativeElevatedFileService = class {
+  constructor(nativeHostService, fileService, environmentService, workspaceTrustRequestService, labelService) {
+    this.nativeHostService = nativeHostService;
+    this.fileService = fileService;
+    this.environmentService = environmentService;
+    this.workspaceTrustRequestService = workspaceTrustRequestService;
+    this.labelService = labelService;
+  }
+  static {
+    __name(this, "NativeElevatedFileService");
+  }
+  _serviceBrand;
+  isSupported(resource) {
+    return resource.scheme === Schemas.file;
+  }
+  async writeFileElevated(resource, value, options) {
+    const trusted = await this.workspaceTrustRequestService.requestWorkspaceTrust({
+      message: isWindows ? localize(
+        "fileNotTrustedMessageWindows",
+        "You are about to save '{0}' as admin.",
+        this.labelService.getUriLabel(resource)
+      ) : localize(
+        "fileNotTrustedMessagePosix",
+        "You are about to save '{0}' as super user.",
+        this.labelService.getUriLabel(resource)
+      )
+    });
+    if (!trusted) {
+      throw new Error(
+        localize("fileNotTrusted", "Workspace is not trusted.")
+      );
+    }
+    const source = URI.file(
+      randomPath(this.environmentService.userDataPath, "code-elevated")
+    );
+    try {
+      await this.fileService.writeFile(source, value, options);
+      await this.nativeHostService.writeElevated(
+        source,
+        resource,
+        options
+      );
+    } finally {
+      await this.fileService.del(source);
+    }
+    return this.fileService.resolve(resource, { resolveMetadata: true });
+  }
+};
+NativeElevatedFileService = __decorateClass([
+  __decorateParam(0, INativeHostService),
+  __decorateParam(1, IFileService),
+  __decorateParam(2, INativeWorkbenchEnvironmentService),
+  __decorateParam(3, IWorkspaceTrustRequestService),
+  __decorateParam(4, ILabelService)
+], NativeElevatedFileService);
+registerSingleton(
+  IElevatedFileService,
+  NativeElevatedFileService,
+  InstantiationType.Delayed
+);
+export {
+  NativeElevatedFileService
+};
+//# sourceMappingURL=elevatedFileService.js.map

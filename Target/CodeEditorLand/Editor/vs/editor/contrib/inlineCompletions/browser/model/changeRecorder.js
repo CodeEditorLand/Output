@@ -1,1 +1,81 @@
-var f=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var g=(s,r,i,e)=>{for(var t=e>1?void 0:e?p(r,i):r,n=s.length-1,o;n>=0;n--)(o=s[n])&&(t=(e?o(r,i,t):o(t))||t);return e&&t&&f(r,i,t),t},u=(s,r)=>(i,e)=>r(i,e,s);import{Disposable as I}from"../../../../../base/common/lifecycle.js";import{autorunWithStore as h}from"../../../../../base/common/observable.js";import{IInstantiationService as E}from"../../../../../platform/instantiation/common/instantiation.js";import"../../../../browser/editorBrowser.js";import{CodeEditorWidget as _}from"../../../../browser/widget/codeEditor/codeEditorWidget.js";import{StructuredLogger as S}from"../structuredLogger.js";let d=class extends I{constructor(i,e){super();this._editor=i;this._instantiationService=e;this._register(h((t,n)=>{if(!(this._editor instanceof _)||!this._structuredLogger.isEnabled.read(t))return;const o=[];n.add(this._editor.onBeforeExecuteEdit(({source:a})=>{a&&o.push(a)})),n.add(this._editor.onDidChangeModelContent(a=>{const c=this._editor.getModel();if(c){for(const m of o){const l={sourceId:"TextModel.setChangeReason",source:m,time:Date.now(),modelUri:c.uri.toString(),modelVersion:c.getVersionId()};this._structuredLogger.log(l)}o.length=0}}))}))}_structuredLogger=this._register(this._instantiationService.createInstance(S.cast(),"editor.inlineSuggest.logChangeReason.commandId"))};d=g([u(1,E)],d);export{d as TextModelChangeRecorder};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { autorunWithStore } from "../../../../../base/common/observable.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ICodeEditor } from "../../../../browser/editorBrowser.js";
+import { CodeEditorWidget } from "../../../../browser/widget/codeEditor/codeEditorWidget.js";
+import {
+  IRecordableEditorLogEntry,
+  StructuredLogger
+} from "../structuredLogger.js";
+let TextModelChangeRecorder = class extends Disposable {
+  constructor(_editor, _instantiationService) {
+    super();
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._register(
+      autorunWithStore((reader, store) => {
+        if (!(this._editor instanceof CodeEditorWidget)) {
+          return;
+        }
+        if (!this._structuredLogger.isEnabled.read(reader)) {
+          return;
+        }
+        const sources = [];
+        store.add(
+          this._editor.onBeforeExecuteEdit(({ source }) => {
+            if (source) {
+              sources.push(source);
+            }
+          })
+        );
+        store.add(
+          this._editor.onDidChangeModelContent((e) => {
+            const tm = this._editor.getModel();
+            if (!tm) {
+              return;
+            }
+            for (const source of sources) {
+              const data = {
+                sourceId: "TextModel.setChangeReason",
+                source,
+                time: Date.now(),
+                modelUri: tm.uri.toString(),
+                modelVersion: tm.getVersionId()
+              };
+              this._structuredLogger.log(data);
+            }
+            sources.length = 0;
+          })
+        );
+      })
+    );
+  }
+  static {
+    __name(this, "TextModelChangeRecorder");
+  }
+  _structuredLogger = this._register(
+    this._instantiationService.createInstance(
+      StructuredLogger.cast(),
+      "editor.inlineSuggest.logChangeReason.commandId"
+    )
+  );
+};
+TextModelChangeRecorder = __decorateClass([
+  __decorateParam(1, IInstantiationService)
+], TextModelChangeRecorder);
+export {
+  TextModelChangeRecorder
+};
+//# sourceMappingURL=changeRecorder.js.map

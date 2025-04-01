@@ -1,1 +1,89 @@
-import{Position as n}from"../../../core/position.js";import{Range as c}from"../../../core/range.js";import{BaseToken as g}from"../../baseToken.js";import"../../linesCodec/tokens/line.js";class o extends g{static symbol="<";get text(){return o.symbol}static newOnLine(r,t){const{range:e}=r,i=new n(e.startLineNumber,t),s=new n(e.startLineNumber,t+this.symbol.length);return new o(c.fromPositions(i,s))}toString(){return`left-angle-bracket${this.range}`}}class a extends g{static symbol=">";get text(){return a.symbol}static newOnLine(r,t){const{range:e}=r,i=new n(e.startLineNumber,t),s=new n(e.startLineNumber,t+this.symbol.length);return new a(c.fromPositions(i,s))}toString(){return`right-angle-bracket${this.range}`}}export{o as LeftAngleBracket,a as RightAngleBracket};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Position } from "../../../core/position.js";
+import { Range } from "../../../core/range.js";
+import { BaseToken } from "../../baseToken.js";
+import { Line } from "../../linesCodec/tokens/line.js";
+class LeftAngleBracket extends BaseToken {
+  static {
+    __name(this, "LeftAngleBracket");
+  }
+  /**
+   * The underlying symbol of the token.
+   */
+  static symbol = "<";
+  /**
+   * Return text representation of the token.
+   */
+  get text() {
+    return LeftAngleBracket.symbol;
+  }
+  /**
+   * Create new `LeftBracket` token with range inside
+   * the given `Line` at the given `column number`.
+   */
+  static newOnLine(line, atColumnNumber) {
+    const { range } = line;
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + this.symbol.length
+    );
+    return new LeftAngleBracket(
+      Range.fromPositions(startPosition, endPosition)
+    );
+  }
+  /**
+   * Returns a string representation of the token.
+   */
+  toString() {
+    return `left-angle-bracket${this.range}`;
+  }
+}
+class RightAngleBracket extends BaseToken {
+  static {
+    __name(this, "RightAngleBracket");
+  }
+  /**
+   * The underlying symbol of the token.
+   */
+  static symbol = ">";
+  /**
+   * Return text representation of the token.
+   */
+  get text() {
+    return RightAngleBracket.symbol;
+  }
+  /**
+   * Create new `RightAngleBracket` token with range inside
+   * the given `Line` at the given `column number`.
+   */
+  static newOnLine(line, atColumnNumber) {
+    const { range } = line;
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + this.symbol.length
+    );
+    return new RightAngleBracket(
+      Range.fromPositions(startPosition, endPosition)
+    );
+  }
+  /**
+   * Returns a string representation of the token.
+   */
+  toString() {
+    return `right-angle-bracket${this.range}`;
+  }
+}
+export {
+  LeftAngleBracket,
+  RightAngleBracket
+};
+//# sourceMappingURL=angleBrackets.js.map

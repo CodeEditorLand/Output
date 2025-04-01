@@ -1,18 +1,156 @@
-import{asArray as d}from"../../../../base/common/arrays.js";import{MarkdownString as g}from"../../../../base/common/htmlContent.js";import{basename as u}from"../../../../base/common/path.js";import I from"../../../../base/common/severity.js";import{localize as s}from"../../../../nls.js";import{StorageScope as h,StorageTarget as f}from"../../../../platform/storage/common/storage.js";import{TerminalCapability as c}from"../../../../platform/terminal/common/capabilities/capabilities.js";import{TerminalStorageKeys as p}from"../common/terminalStorageKeys.js";import"./terminal.js";import{TerminalStatus as S}from"./terminalStatusList.js";function x(e,l){const t=parseInt(l.get(p.TabsShowDetailed,h.APPLICATION)??"0");let i="";const a=e.statusList.statuses,o=[];for(const n of a)t?(n.detailedTooltip??n.tooltip)&&(i+=`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { asArray } from "../../../../base/common/arrays.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { basename } from "../../../../base/common/path.js";
+import Severity from "../../../../base/common/severity.js";
+import { localize } from "../../../../nls.js";
+import {
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { TerminalCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
+import { TerminalStorageKeys } from "../common/terminalStorageKeys.js";
+import { ITerminalInstance } from "./terminal.js";
+import { TerminalStatus } from "./terminalStatusList.js";
+function getInstanceHoverInfo(instance, storageService) {
+  const showDetailed = parseInt(
+    storageService.get(
+      TerminalStorageKeys.TabsShowDetailed,
+      StorageScope.APPLICATION
+    ) ?? "0"
+  );
+  let statusString = "";
+  const statuses = instance.statusList.statuses;
+  const actions = [];
+  for (const status of statuses) {
+    if (showDetailed) {
+      if (status.detailedTooltip ?? status.tooltip) {
+        statusString += `
 
 ---
 
-${n.icon?`$(${n.icon?.id}) `:""}`+(n.detailedTooltip??n.tooltip??"")):n.tooltip&&(i+=`
+${status.icon ? `$(${status.icon?.id}) ` : ""}` + (status.detailedTooltip ?? status.tooltip ?? "");
+      }
+    } else {
+      if (status.tooltip) {
+        statusString += `
 
 ---
 
-${n.icon?`$(${n.icon?.id}) `:""}`+(n.tooltip??"")),n.hoverActions&&o.push(...n.hoverActions);o.push({commandId:"toggleDetailedInfo",label:t?s("hideDetails","Hide Details"):s("showDetails","Show Details"),run(){l.store(p.TabsShowDetailed,(t+1)%2,h.APPLICATION,f.USER)}});const r=b(e,!!t);return{content:new g(e.title+r+i,{supportThemeIcons:!0}),actions:o}}function b(e,l){const t=[];if(e.processId&&e.processId>0&&t.push(s({key:"shellProcessTooltip.processId",comment:[`The first arg is "PID" which shouldn't be translated`]},"Process ID ({0}): {1}","PID",e.processId)+`
-`),e.shellLaunchConfig.executable){let i="";if(!l&&e.shellLaunchConfig.executable.length>32){const o=u(e.shellLaunchConfig.executable),r=e.shellLaunchConfig.executable.length-o.length-1,m=e.shellLaunchConfig.executable.substring(r,r+1);i+=`\u2026${m}${o}`}else i+=e.shellLaunchConfig.executable;const a=d(e.injectedArgs||e.shellLaunchConfig.args||[]).map(o=>o.match(/\s/)?`'${o}'`:o).join(" ");a&&(i+=` ${a}`),t.push(s("shellProcessTooltip.commandLine","Command line: {0}",i))}return t.length?`
+${status.icon ? `$(${status.icon?.id}) ` : ""}` + (status.tooltip ?? "");
+      }
+    }
+    if (status.hoverActions) {
+      actions.push(...status.hoverActions);
+    }
+  }
+  actions.push({
+    commandId: "toggleDetailedInfo",
+    label: showDetailed ? localize("hideDetails", "Hide Details") : localize("showDetails", "Show Details"),
+    run() {
+      storageService.store(
+        TerminalStorageKeys.TabsShowDetailed,
+        (showDetailed + 1) % 2,
+        StorageScope.APPLICATION,
+        StorageTarget.USER
+      );
+    }
+  });
+  const shellProcessString = getShellProcessTooltip(instance, !!showDetailed);
+  const content = new MarkdownString(
+    instance.title + shellProcessString + statusString,
+    { supportThemeIcons: true }
+  );
+  return { content, actions };
+}
+__name(getInstanceHoverInfo, "getInstanceHoverInfo");
+function getShellProcessTooltip(instance, showDetailed) {
+  const lines = [];
+  if (instance.processId && instance.processId > 0) {
+    lines.push(
+      localize(
+        {
+          key: "shellProcessTooltip.processId",
+          comment: [
+            `The first arg is "PID" which shouldn't be translated`
+          ]
+        },
+        "Process ID ({0}): {1}",
+        "PID",
+        instance.processId
+      ) + "\n"
+    );
+  }
+  if (instance.shellLaunchConfig.executable) {
+    let commandLine = "";
+    if (!showDetailed && instance.shellLaunchConfig.executable.length > 32) {
+      const base = basename(instance.shellLaunchConfig.executable);
+      const sepIndex = instance.shellLaunchConfig.executable.length - base.length - 1;
+      const sep = instance.shellLaunchConfig.executable.substring(
+        sepIndex,
+        sepIndex + 1
+      );
+      commandLine += `\u2026${sep}${base}`;
+    } else {
+      commandLine += instance.shellLaunchConfig.executable;
+    }
+    const args = asArray(
+      instance.injectedArgs || instance.shellLaunchConfig.args || []
+    ).map((x) => x.match(/\s/) ? `'${x}'` : x).join(" ");
+    if (args) {
+      commandLine += ` ${args}`;
+    }
+    lines.push(
+      localize(
+        "shellProcessTooltip.commandLine",
+        "Command line: {0}",
+        commandLine
+      )
+    );
+  }
+  return lines.length ? `
 
 ---
 
-${t.join(`
-`)}`:""}function H(e){if(!e.xterm)return;const l=e.capabilities.get(c.CommandDetection)?.hasRichCommandDetection?s("shellIntegration.rich","Rich"):e.capabilities.has(c.CommandDetection)?s("shellIntegration.basic","Basic"):e.usedShellIntegrationInjection?s("shellIntegration.injectionFailed","Injection failed to activate"):s("shellIntegration.no","No"),t=[],i=Array.from(e.xterm.shellIntegration.seenSequences);i.length>0&&t.push(`Seen sequences: ${i.map(r=>`\`${r}\``).join(", ")}`);const a=e.capabilities.get(c.CommandDetection)?.promptInputModel.getCombinedString();a!==void 0&&t.push(`Prompt input: \`${a}\``);const o=t.length>0?`
-
-`+t.map(r=>`- ${r}`).join(`
-`):"";e.statusList.add({id:S.ShellIntegrationInfo,severity:I.Info,tooltip:`${s("shellIntegration","Shell integration")}: ${l}`,detailedTooltip:`${s("shellIntegration","Shell integration")}: ${l}${o}`})}export{x as getInstanceHoverInfo,b as getShellProcessTooltip,H as refreshShellIntegrationInfoStatus};
+${lines.join("\n")}` : "";
+}
+__name(getShellProcessTooltip, "getShellProcessTooltip");
+function refreshShellIntegrationInfoStatus(instance) {
+  if (!instance.xterm) {
+    return;
+  }
+  const cmdDetectionType = instance.capabilities.get(
+    TerminalCapability.CommandDetection
+  )?.hasRichCommandDetection ? localize("shellIntegration.rich", "Rich") : instance.capabilities.has(TerminalCapability.CommandDetection) ? localize("shellIntegration.basic", "Basic") : instance.usedShellIntegrationInjection ? localize(
+    "shellIntegration.injectionFailed",
+    "Injection failed to activate"
+  ) : localize("shellIntegration.no", "No");
+  const detailedAdditions = [];
+  const seenSequences = Array.from(
+    instance.xterm.shellIntegration.seenSequences
+  );
+  if (seenSequences.length > 0) {
+    detailedAdditions.push(
+      `Seen sequences: ${seenSequences.map((e) => `\`${e}\``).join(", ")}`
+    );
+  }
+  const combinedString = instance.capabilities.get(TerminalCapability.CommandDetection)?.promptInputModel.getCombinedString();
+  if (combinedString !== void 0) {
+    detailedAdditions.push(`Prompt input: \`${combinedString}\``);
+  }
+  const detailedAdditionsString = detailedAdditions.length > 0 ? "\n\n" + detailedAdditions.map((e) => `- ${e}`).join("\n") : "";
+  instance.statusList.add({
+    id: TerminalStatus.ShellIntegrationInfo,
+    severity: Severity.Info,
+    tooltip: `${localize("shellIntegration", "Shell integration")}: ${cmdDetectionType}`,
+    detailedTooltip: `${localize("shellIntegration", "Shell integration")}: ${cmdDetectionType}${detailedAdditionsString}`
+  });
+}
+__name(refreshShellIntegrationInfoStatus, "refreshShellIntegrationInfoStatus");
+export {
+  getInstanceHoverInfo,
+  getShellProcessTooltip,
+  refreshShellIntegrationInfoStatus
+};
+//# sourceMappingURL=terminalTooltip.js.map

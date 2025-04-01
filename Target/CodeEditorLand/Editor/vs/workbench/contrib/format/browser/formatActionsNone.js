@@ -1,1 +1,103 @@
-import{KeyCode as l,KeyMod as o}from"../../../../base/common/keyCodes.js";import"../../../../editor/browser/editorBrowser.js";import{EditorAction as v,registerEditorAction as S}from"../../../../editor/browser/editorExtensions.js";import{EditorContextKeys as i}from"../../../../editor/common/editorContextKeys.js";import{ILanguageFeaturesService as y}from"../../../../editor/common/services/languageFeatures.js";import*as t from"../../../../nls.js";import{ICommandService as h}from"../../../../platform/commands/common/commands.js";import{ContextKeyExpr as C}from"../../../../platform/contextkey/common/contextkey.js";import{IDialogService as b}from"../../../../platform/dialogs/common/dialogs.js";import{KeybindingWeight as x}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{INotificationService as E}from"../../../../platform/notification/common/notification.js";import{IExtensionsWorkbenchService as F}from"../../extensions/common/extensions.js";S(class extends v{constructor(){super({id:"editor.action.formatDocument.none",label:t.localize2("formatDocument.label.multiple","Format Document"),precondition:C.and(i.writable,i.hasDocumentFormattingProvider.toNegated()),kbOpts:{kbExpr:i.editorTextFocus,primary:o.Shift|o.Alt|l.KeyF,linux:{primary:o.CtrlCmd|o.Shift|l.KeyI},weight:x.EditorContrib}})}async run(e,n){if(!n.hasModel())return;const m=e.get(h),s=e.get(F),d=e.get(E),f=e.get(b),g=e.get(y),r=n.getModel(),a=g.documentFormattingEditProvider.all(r).length;if(a>1)return m.executeCommand("editor.action.formatDocument.multiple");if(a===1)return m.executeCommand("editor.action.formatDocument");if(r.isTooLargeForSyncing())d.warn(t.localize("too.large","This file cannot be formatted because it is too large"));else{const c=r.getLanguageId(),u=t.localize("no.provider","There is no formatter for '{0}' files installed.",c),{confirmed:p}=await f.confirm({message:u,primaryButton:t.localize({key:"install.formatter",comment:["&& denotes a mnemonic"]},"&&Install Formatter...")});p&&s.openSearch(`category:formatters ${c}`)}}});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import {
+  EditorAction,
+  registerEditorAction,
+  ServicesAccessor
+} from "../../../../editor/browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import * as nls from "../../../../nls.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IExtensionsWorkbenchService } from "../../extensions/common/extensions.js";
+registerEditorAction(
+  class FormatDocumentMultipleAction extends EditorAction {
+    static {
+      __name(this, "FormatDocumentMultipleAction");
+    }
+    constructor() {
+      super({
+        id: "editor.action.formatDocument.none",
+        label: nls.localize2(
+          "formatDocument.label.multiple",
+          "Format Document"
+        ),
+        precondition: ContextKeyExpr.and(
+          EditorContextKeys.writable,
+          EditorContextKeys.hasDocumentFormattingProvider.toNegated()
+        ),
+        kbOpts: {
+          kbExpr: EditorContextKeys.editorTextFocus,
+          primary: KeyMod.Shift | KeyMod.Alt | KeyCode.KeyF,
+          linux: {
+            primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyI
+          },
+          weight: KeybindingWeight.EditorContrib
+        }
+      });
+    }
+    async run(accessor, editor) {
+      if (!editor.hasModel()) {
+        return;
+      }
+      const commandService = accessor.get(ICommandService);
+      const extensionsWorkbenchService = accessor.get(
+        IExtensionsWorkbenchService
+      );
+      const notificationService = accessor.get(INotificationService);
+      const dialogService = accessor.get(IDialogService);
+      const languageFeaturesService = accessor.get(
+        ILanguageFeaturesService
+      );
+      const model = editor.getModel();
+      const formatterCount = languageFeaturesService.documentFormattingEditProvider.all(
+        model
+      ).length;
+      if (formatterCount > 1) {
+        return commandService.executeCommand(
+          "editor.action.formatDocument.multiple"
+        );
+      } else if (formatterCount === 1) {
+        return commandService.executeCommand(
+          "editor.action.formatDocument"
+        );
+      } else if (model.isTooLargeForSyncing()) {
+        notificationService.warn(
+          nls.localize(
+            "too.large",
+            "This file cannot be formatted because it is too large"
+          )
+        );
+      } else {
+        const langName = model.getLanguageId();
+        const message = nls.localize(
+          "no.provider",
+          "There is no formatter for '{0}' files installed.",
+          langName
+        );
+        const { confirmed } = await dialogService.confirm({
+          message,
+          primaryButton: nls.localize(
+            {
+              key: "install.formatter",
+              comment: ["&& denotes a mnemonic"]
+            },
+            "&&Install Formatter..."
+          )
+        });
+        if (confirmed) {
+          extensionsWorkbenchService.openSearch(
+            `category:formatters ${langName}`
+          );
+        }
+      }
+    }
+  }
+);
+//# sourceMappingURL=formatActionsNone.js.map

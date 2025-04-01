@@ -1,1 +1,172 @@
-var u=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var d=(i,e,r,o)=>{for(var t=o>1?void 0:o?v(e,r):e,s=i.length-1,a;s>=0;s--)(a=i[s])&&(t=(o?a(e,r,t):a(t))||t);return o&&t&&u(e,r,t),t},n=(i,e)=>(r,o)=>e(r,o,i);import{assert as b}from"../../../../../../base/common/assert.js";import{Disposable as I}from"../../../../../../base/common/lifecycle.js";import{ObjectCache as E}from"../../../../../../base/common/objectCache.js";import{ObservableDisposable as k}from"../../../../../../base/common/observableDisposable.js";import{assertDefined as c}from"../../../../../../base/common/types.js";import"../../../../../../editor/common/editorCommon.js";import"../../../../../../editor/common/model.js";import{IConfigurationService as S}from"../../../../../../platform/configuration/common/configuration.js";import{IInstantiationService as y}from"../../../../../../platform/instantiation/common/instantiation.js";import{IMarkerService as M,MarkerSeverity as f}from"../../../../../../platform/markers/common/markers.js";import{PromptsConfig as g}from"../../../../../../platform/prompts/common/config.js";import{isPromptFile as x}from"../../../../../../platform/prompts/common/constants.js";import{Registry as C}from"../../../../../../platform/registry/common/platform.js";import{Extensions as R}from"../../../../../common/contributions.js";import{IEditorService as T}from"../../../../../services/editor/common/editorService.js";import{LifecyclePhase as P}from"../../../../../services/lifecycle/common/lifecycle.js";import{NotPromptFile as l}from"../../promptFileReferenceErrors.js";import"../parsers/textModelPromptParser.js";import"../parsers/types.js";import{IPromptsService as D}from"../service/types.js";const h="reusable-prompts-syntax";let p=class extends k{constructor(r,o,t){super();this.editor=r;this.markerService=o;this.promptsService=t;this.parser=this.promptsService.getSyntaxParserFor(this.editor).onUpdate(this.updateMarkers.bind(this)).onDispose(this.dispose.bind(this)).start(),this.updateMarkers()}parser;async updateMarkers(){await this.parser.allSettled(),this.markerService.remove(h,[this.editor.uri]);const r=[];for(const o of this.parser.references){const{topError:t,linkRange:s}=o;if(!t||!s)continue;const{originalError:a}=t;a instanceof l||r.push(N(o))}this.markerService.changeOne(h,this.editor.uri,r)}};p=d([n(1,M),n(2,D)],p);const N=i=>{const{topError:e,linkRange:r}=i;c(e,"Top error must to be defined."),c(r,"Link range must to be defined.");const{originalError:o}=e;b(!(o instanceof l),'Error must not be of "not prompt file" type.');const t=e.errorSubject==="root"?f.Error:f.Warning;return{message:e.localizedMessage,severity:t,...r}};let m=class extends I{providers;constructor(e,r,o){super(),this.providers=this._register(new E(t=>{const s=r.createInstance(p,t);return s.assertNotDisposed("Created prompt parser must not be disposed."),s})),g.enabled(o)&&(this._register(e.onDidActiveEditorChange(()=>{const{activeTextEditorControl:t}=e;t&&this.handleNewEditor(t)})),e.visibleTextEditorControls.forEach(this.handleNewEditor.bind(this)))}handleNewEditor(e){const r=e.getModel();return r?"modified"in r||"model"in r?this:x(r.uri)?(this.providers.get(r),this):this:this}};m=d([n(0,T),n(1,y),n(2,S)],m),C.as(R.Workbench).registerWorkbenchContribution(m,P.Eventually);export{m as PromptLinkDiagnosticsInstanceManager};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { assert } from "../../../../../../base/common/assert.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { ObjectCache } from "../../../../../../base/common/objectCache.js";
+import { ObservableDisposable } from "../../../../../../base/common/observableDisposable.js";
+import { assertDefined } from "../../../../../../base/common/types.js";
+import { IEditor } from "../../../../../../editor/common/editorCommon.js";
+import { ITextModel } from "../../../../../../editor/common/model.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import {
+  IMarkerData,
+  IMarkerService,
+  MarkerSeverity
+} from "../../../../../../platform/markers/common/markers.js";
+import { PromptsConfig } from "../../../../../../platform/prompts/common/config.js";
+import { isPromptFile } from "../../../../../../platform/prompts/common/constants.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import {
+  Extensions,
+  IWorkbenchContributionsRegistry
+} from "../../../../../common/contributions.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
+import { NotPromptFile } from "../../promptFileReferenceErrors.js";
+import { TextModelPromptParser } from "../parsers/textModelPromptParser.js";
+import { IPromptFileReference } from "../parsers/types.js";
+import { IPromptsService } from "../service/types.js";
+const MARKERS_OWNER_ID = "reusable-prompts-syntax";
+let PromptLinkDiagnosticsProvider = class extends ObservableDisposable {
+  constructor(editor, markerService, promptsService) {
+    super();
+    this.editor = editor;
+    this.markerService = markerService;
+    this.promptsService = promptsService;
+    this.parser = this.promptsService.getSyntaxParserFor(this.editor).onUpdate(this.updateMarkers.bind(this)).onDispose(this.dispose.bind(this)).start();
+    this.updateMarkers();
+  }
+  static {
+    __name(this, "PromptLinkDiagnosticsProvider");
+  }
+  /**
+   * Reference to the current prompt syntax parser instance.
+   */
+  parser;
+  /**
+   * Update diagnostic markers for the current editor.
+   */
+  async updateMarkers() {
+    await this.parser.allSettled();
+    this.markerService.remove(MARKERS_OWNER_ID, [this.editor.uri]);
+    const markers = [];
+    for (const link of this.parser.references) {
+      const { topError, linkRange } = link;
+      if (!topError || !linkRange) {
+        continue;
+      }
+      const { originalError } = topError;
+      if (originalError instanceof NotPromptFile) {
+        continue;
+      }
+      markers.push(toMarker(link));
+    }
+    this.markerService.changeOne(
+      MARKERS_OWNER_ID,
+      this.editor.uri,
+      markers
+    );
+  }
+};
+PromptLinkDiagnosticsProvider = __decorateClass([
+  __decorateParam(1, IMarkerService),
+  __decorateParam(2, IPromptsService)
+], PromptLinkDiagnosticsProvider);
+const toMarker = /* @__PURE__ */ __name((link) => {
+  const { topError, linkRange } = link;
+  assertDefined(topError, "Top error must to be defined.");
+  assertDefined(linkRange, "Link range must to be defined.");
+  const { originalError } = topError;
+  assert(
+    !(originalError instanceof NotPromptFile),
+    'Error must not be of "not prompt file" type.'
+  );
+  const severity = topError.errorSubject === "root" ? MarkerSeverity.Error : MarkerSeverity.Warning;
+  return {
+    message: topError.localizedMessage,
+    severity,
+    ...linkRange
+  };
+}, "toMarker");
+let PromptLinkDiagnosticsInstanceManager = class extends Disposable {
+  static {
+    __name(this, "PromptLinkDiagnosticsInstanceManager");
+  }
+  /**
+   * Currently available {@link PromptLinkDiagnosticsProvider} instances.
+   */
+  providers;
+  constructor(editorService, initService, configService) {
+    super();
+    this.providers = this._register(
+      new ObjectCache((editor) => {
+        const parser = initService.createInstance(
+          PromptLinkDiagnosticsProvider,
+          editor
+        );
+        parser.assertNotDisposed(
+          "Created prompt parser must not be disposed."
+        );
+        return parser;
+      })
+    );
+    if (!PromptsConfig.enabled(configService)) {
+      return;
+    }
+    this._register(
+      editorService.onDidActiveEditorChange(() => {
+        const { activeTextEditorControl } = editorService;
+        if (!activeTextEditorControl) {
+          return;
+        }
+        this.handleNewEditor(activeTextEditorControl);
+      })
+    );
+    editorService.visibleTextEditorControls.forEach(
+      this.handleNewEditor.bind(this)
+    );
+  }
+  /**
+   * Initialize a new {@link PromptLinkDiagnosticsProvider} for the given editor.
+   */
+  handleNewEditor(editor) {
+    const model = editor.getModel();
+    if (!model) {
+      return this;
+    }
+    if ("modified" in model || "model" in model) {
+      return this;
+    }
+    if (!isPromptFile(model.uri)) {
+      return this;
+    }
+    this.providers.get(model);
+    return this;
+  }
+};
+PromptLinkDiagnosticsInstanceManager = __decorateClass([
+  __decorateParam(0, IEditorService),
+  __decorateParam(1, IInstantiationService),
+  __decorateParam(2, IConfigurationService)
+], PromptLinkDiagnosticsInstanceManager);
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(
+  PromptLinkDiagnosticsInstanceManager,
+  LifecyclePhase.Eventually
+);
+export {
+  PromptLinkDiagnosticsInstanceManager
+};
+//# sourceMappingURL=promptLinkDiagnosticsProvider.js.map

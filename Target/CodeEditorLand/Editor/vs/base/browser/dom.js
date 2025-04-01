@@ -1,1 +1,2124 @@
-import{_runWhenIdle as J,AbstractIdleValue as z,IntervalTimer as ee,TimeoutTimer as te}from"../common/async.js";import{onUnexpectedError as ne}from"../common/errors.js";import*as g from"../common/event.js";import{hash as re}from"../common/hash.js";import{KeyCode as P}from"../common/keyCodes.js";import{Disposable as D,DisposableStore as M,toDisposable as L}from"../common/lifecycle.js";import{RemoteAuthorities as oe,Schemas as I}from"../common/network.js";import{isPointWithinTriangle as ie}from"../common/numbers.js";import*as v from"../common/platform.js";import{URI as se}from"../common/uri.js";import*as R from"./browser.js";import{BrowserFeatures as k}from"./canIUse.js";import _ from"./dompurify/dompurify.js";import{StandardKeyboardEvent as C}from"./keyboardEvent.js";import{StandardMouseEvent as ae}from"./mouseEvent.js";import{ensureCodeWindow as de,mainWindow as p}from"./window.js";export*from"./domImpl/domObservable.js";export*from"./domImpl/n.js";const{registerWindow:it,getWindow:m,getDocument:st,getWindows:ue,getWindowsCount:le,getWindowId:U,getWindowById:at,hasWindow:dt,onDidRegisterWindow:ce,onWillUnregisterWindow:ut,onDidUnregisterWindow:lt}=function(){const e=new Map;de(p,1);const t={window:p,disposables:new M};e.set(p.vscodeWindowId,t);const n=new g.Emitter,r=new g.Emitter,o=new g.Emitter;function a(i,u){return(typeof i=="number"?e.get(i):void 0)??(u?t:void 0)}return{onDidRegisterWindow:n.event,onWillUnregisterWindow:o.event,onDidUnregisterWindow:r.event,registerWindow(i){if(e.has(i.vscodeWindowId))return D.None;const u=new M,d={window:i,disposables:u.add(new M)};return e.set(i.vscodeWindowId,d),u.add(L(()=>{e.delete(i.vscodeWindowId),r.fire(i)})),u.add(c(i,T.BEFORE_UNLOAD,()=>{o.fire(i)})),n.fire(d),u},getWindows(){return e.values()},getWindowsCount(){return e.size},getWindowId(i){return i.vscodeWindowId},hasWindow(i){return e.has(i)},getWindowById:a,getWindow(i){const u=i;if(u?.ownerDocument?.defaultView)return u.ownerDocument.defaultView.window;const d=i;return d?.view?d.view.window:p},getDocument(i){return m(i).document}}}();function ct(e){for(;e.firstChild;)e.firstChild.remove()}class me{_handler;_node;_type;_options;constructor(t,n,r,o){this._node=t,this._type=n,this._handler=r,this._options=o||!1,this._node.addEventListener(this._type,this._handler,this._options)}dispose(){this._handler&&(this._node.removeEventListener(this._type,this._handler,this._options),this._node=null,this._handler=null)}}function c(e,t,n,r){return new me(e,t,n,r)}function A(e,t){return function(n){return t(new ae(e,n))}}function fe(e){return function(t){return e(new C(t))}}const mt=function(t,n,r,o){let a=r;return n==="click"||n==="mousedown"||n==="contextmenu"?a=A(m(t),r):(n==="keydown"||n==="keypress"||n==="keyup")&&(a=fe(r)),c(t,n,a,o)},ft=function(t,n,r){const o=A(m(t),n);return pe(t,o,r)},pt=function(t,n,r){const o=A(m(t),n);return Te(t,o,r)};function pe(e,t,n){return c(e,v.isIOS&&k.pointerEvents?T.POINTER_DOWN:T.MOUSE_DOWN,t,n)}function Tt(e,t,n){return c(e,v.isIOS&&k.pointerEvents?T.POINTER_MOVE:T.MOUSE_MOVE,t,n)}function Te(e,t,n){return c(e,v.isIOS&&k.pointerEvents?T.POINTER_UP:T.MOUSE_UP,t,n)}function gt(e,t,n){return J(e,t,n)}class Et extends z{constructor(t,n){super(t,n)}}let ge,w;function ht(e,t,n,r){let o=0;const a=e.setInterval(()=>{o++,(typeof r=="number"&&o>=r||t()===!0)&&i.dispose()},n),i=L(()=>{e.clearInterval(a)});return i}class bt extends ee{defaultTarget;constructor(t){super(),this.defaultTarget=t&&m(t)}cancelAndSet(t,n,r){return super.cancelAndSet(t,n,r??this.defaultTarget)}}class N{_runner;priority;_canceled;constructor(t,n=0){this._runner=t,this.priority=n,this._canceled=!1}dispose(){this._canceled=!0}execute(){if(!this._canceled)try{this._runner()}catch(t){ne(t)}}static sort(t,n){return n.priority-t.priority}}(function(){const e=new Map,t=new Map,n=new Map,r=new Map,o=a=>{n.set(a,!1);const i=e.get(a)??[];for(t.set(a,i),e.set(a,[]),r.set(a,!0);i.length>0;)i.sort(N.sort),i.shift().execute();r.set(a,!1)};w=(a,i,u=0)=>{const d=U(a),s=new N(i,u);let f=e.get(d);return f||(f=[],e.set(d,f)),f.push(s),n.get(d)||(n.set(d,!0),a.requestAnimationFrame(()=>o(d))),s},ge=(a,i,u)=>{const d=U(a);if(r.get(d)){const s=new N(i,u);let f=t.get(d);return f||(f=[],t.set(d,f)),f.push(s),s}else return w(a,i,u)}})();function yt(e,t){return w(e,t,1e4)}function vt(e,t){return w(e,t,-1e4)}const Ee=8,he=function(e,t){return t};class be extends D{constructor(t,n,r,o=he,a=Ee){super();let i=null,u=0;const d=this._register(new te),s=()=>{u=new Date().getTime(),r(i),i=null};this._register(c(t,n,f=>{i=o(i,f);const y=new Date().getTime()-u;y>=a?(d.cancel(),s()):d.setIfNotSet(s,a-y)}))}}function wt(e,t,n,r,o){return new be(e,t,n,r,o)}function K(e){return m(e).getComputedStyle(e,null)}function ye(e,t,n){const r=m(e),o=r.document;if(e!==o.body)return new E(e.clientWidth,e.clientHeight);if(v.isIOS&&r?.visualViewport)return new E(r.visualViewport.width,r.visualViewport.height);if(r?.innerWidth&&r.innerHeight)return new E(r.innerWidth,r.innerHeight);if(o.body&&o.body.clientWidth&&o.body.clientHeight)return new E(o.body.clientWidth,o.body.clientHeight);if(o.documentElement&&o.documentElement.clientWidth&&o.documentElement.clientHeight)return new E(o.documentElement.clientWidth,o.documentElement.clientHeight);if(n)return ye(n,t);if(t)return t;throw new Error("Unable to figure out browser width and height")}class l{static convertToPixels(t,n){return parseFloat(n)||0}static getDimension(t,n){const r=K(t),o=r?r.getPropertyValue(n):"0";return l.convertToPixels(t,o)}static getBorderLeftWidth(t){return l.getDimension(t,"border-left-width")}static getBorderRightWidth(t){return l.getDimension(t,"border-right-width")}static getBorderTopWidth(t){return l.getDimension(t,"border-top-width")}static getBorderBottomWidth(t){return l.getDimension(t,"border-bottom-width")}static getPaddingLeft(t){return l.getDimension(t,"padding-left")}static getPaddingRight(t){return l.getDimension(t,"padding-right")}static getPaddingTop(t){return l.getDimension(t,"padding-top")}static getPaddingBottom(t){return l.getDimension(t,"padding-bottom")}static getMarginLeft(t){return l.getDimension(t,"margin-left")}static getMarginTop(t){return l.getDimension(t,"margin-top")}static getMarginRight(t){return l.getDimension(t,"margin-right")}static getMarginBottom(t){return l.getDimension(t,"margin-bottom")}}class E{constructor(t,n){this.width=t;this.height=n}static None=new E(0,0);with(t=this.width,n=this.height){return t!==this.width||n!==this.height?new E(t,n):this}static is(t){return typeof t=="object"&&typeof t.height=="number"&&typeof t.width=="number"}static lift(t){return t instanceof E?t:new E(t.width,t.height)}static equals(t,n){return t===n?!0:!t||!n?!1:t.width===n.width&&t.height===n.height}}function F(e){let t=e.offsetParent,n=e.offsetTop,r=e.offsetLeft;for(;(e=e.parentNode)!==null&&e!==e.ownerDocument.body&&e!==e.ownerDocument.documentElement;){n-=e.scrollTop;const o=G(e)?null:K(e);o&&(r-=o.direction!=="rtl"?e.scrollLeft:-e.scrollLeft),e===t&&(r+=l.getBorderLeftWidth(e),n+=l.getBorderTopWidth(e),n+=e.offsetTop,r+=e.offsetLeft,t=e.offsetParent)}return{left:r,top:n}}function Mt(e,t,n){typeof t=="number"&&(e.style.width=`${t}px`),typeof n=="number"&&(e.style.height=`${n}px`)}function Lt(e,t,n,r,o,a="absolute"){typeof t=="number"&&(e.style.top=`${t}px`),typeof n=="number"&&(e.style.right=`${n}px`),typeof r=="number"&&(e.style.bottom=`${r}px`),typeof o=="number"&&(e.style.left=`${o}px`),e.style.position=a}function xt(e){const t=e.getBoundingClientRect(),n=m(e);return{left:t.left+n.scrollX,top:t.top+n.scrollY,width:t.width,height:t.height}}function Dt(e){let t=e,n=1;do{const r=K(t).zoom;r!=null&&r!=="1"&&(n*=r),t=t.parentElement}while(t!==null&&t!==t.ownerDocument.documentElement);return n}function ve(e){const t=l.getMarginLeft(e)+l.getMarginRight(e);return e.offsetWidth+t}function Ht(e){const t=l.getBorderLeftWidth(e)+l.getBorderRightWidth(e),n=l.getPaddingLeft(e)+l.getPaddingRight(e);return e.offsetWidth-t-n}function we(e){const t=l.getMarginLeft(e)+l.getMarginRight(e);return e.scrollWidth+t}function St(e){const t=l.getBorderTopWidth(e)+l.getBorderBottomWidth(e),n=l.getPaddingTop(e)+l.getPaddingBottom(e);return e.offsetHeight-t-n}function It(e){const t=l.getMarginTop(e)+l.getMarginBottom(e);return e.offsetHeight+t}function Me(e,t){if(e===null)return 0;const n=F(e),r=F(t);return n.left-r.left}function Rt(e,t){const n=t.map(o=>Math.max(we(o),ve(o))+Me(o,e)||0);return Math.max(...n)}function W(e,t){return!!t?.contains(e)}const B="parentFlowToElementId";function kt(e,t){e.dataset[B]=t.id}function Le(e){const t=e.dataset[B];return typeof t=="string"?e.ownerDocument.getElementById(t):null}function _t(e,t){let n=e;for(;n;){if(n===t)return!0;if(h(n)){const r=Le(n);if(r){n=r;continue}}n=n.parentNode}return!1}function xe(e,t,n){for(;e&&e.nodeType===e.ELEMENT_NODE;){if(e.classList.contains(t))return e;if(n){if(typeof n=="string"){if(e.classList.contains(n))return null}else if(e===n)return null}e=e.parentNode}return null}function At(e,t,n){return!!xe(e,t,n)}function G(e){return e&&!!e.host&&!!e.mode}function Nt(e){return!!V(e)}function V(e){for(;e.parentNode;){if(e===e.ownerDocument?.body)return null;e=e.parentNode}return G(e)?e:null}function Y(){let e=O().activeElement;for(;e?.shadowRoot;)e=e.shadowRoot.activeElement;return e}function Kt(e){return Y()===e}function Wt(e){return W(Y(),e)}function Ot(e){return e.ownerDocument===O()}function O(){return le()<=1?p.document:Array.from(ue()).map(({window:t})=>t.document).find(t=>t.hasFocus())??p.document}function $(){return O().defaultView?.window??p}const De=new class{mutationObservers=new Map;observe(e,t,n){let r=this.mutationObservers.get(e);r||(r=new Map,this.mutationObservers.set(e,r));const o=re(n);let a=r.get(o);if(a)a.users+=1;else{const i=new g.Emitter,u=new MutationObserver(s=>i.fire(s));u.observe(e,n);const d=a={users:1,observer:u,onDidMutate:i.event};t.add(L(()=>{d.users-=1,d.users===0&&(i.dispose(),u.disconnect(),r?.delete(o),r?.size===0&&this.mutationObservers.delete(e))})),r.set(o,a)}return a.onDidMutate}};function Pt(e=p.document.head){return j("meta",e)}function Ct(e=p.document.head){return j("link",e)}function j(e,t=p.document.head){const n=document.createElement(e);return t.appendChild(n),n}function h(e){return e instanceof HTMLElement||e instanceof m(e).HTMLElement}function Ut(e){return e instanceof HTMLAnchorElement||e instanceof m(e).HTMLAnchorElement}function Ft(e){return e instanceof HTMLSpanElement||e instanceof m(e).HTMLSpanElement}function Bt(e){return e instanceof HTMLTextAreaElement||e instanceof m(e).HTMLTextAreaElement}function Gt(e){return e instanceof HTMLInputElement||e instanceof m(e).HTMLInputElement}function Vt(e){return e instanceof HTMLButtonElement||e instanceof m(e).HTMLButtonElement}function Yt(e){return e instanceof HTMLDivElement||e instanceof m(e).HTMLDivElement}function $t(e){return e instanceof SVGElement||e instanceof m(e).SVGElement}function jt(e){return e instanceof MouseEvent||e instanceof m(e).MouseEvent}function Qt(e){return e instanceof KeyboardEvent||e instanceof m(e).KeyboardEvent}function Xt(e){return e instanceof PointerEvent||e instanceof m(e).PointerEvent}function qt(e){return e instanceof DragEvent||e instanceof m(e).DragEvent}const T={CLICK:"click",AUXCLICK:"auxclick",DBLCLICK:"dblclick",MOUSE_UP:"mouseup",MOUSE_DOWN:"mousedown",MOUSE_OVER:"mouseover",MOUSE_MOVE:"mousemove",MOUSE_OUT:"mouseout",MOUSE_ENTER:"mouseenter",MOUSE_LEAVE:"mouseleave",MOUSE_WHEEL:"wheel",POINTER_UP:"pointerup",POINTER_DOWN:"pointerdown",POINTER_MOVE:"pointermove",POINTER_LEAVE:"pointerleave",CONTEXT_MENU:"contextmenu",WHEEL:"wheel",KEY_DOWN:"keydown",KEY_PRESS:"keypress",KEY_UP:"keyup",LOAD:"load",BEFORE_UNLOAD:"beforeunload",UNLOAD:"unload",PAGE_SHOW:"pageshow",PAGE_HIDE:"pagehide",PASTE:"paste",ABORT:"abort",ERROR:"error",RESIZE:"resize",SCROLL:"scroll",FULLSCREEN_CHANGE:"fullscreenchange",WK_FULLSCREEN_CHANGE:"webkitfullscreenchange",SELECT:"select",CHANGE:"change",SUBMIT:"submit",RESET:"reset",FOCUS:"focus",FOCUS_IN:"focusin",FOCUS_OUT:"focusout",BLUR:"blur",INPUT:"input",STORAGE:"storage",DRAG_START:"dragstart",DRAG:"drag",DRAG_ENTER:"dragenter",DRAG_LEAVE:"dragleave",DRAG_OVER:"dragover",DROP:"drop",DRAG_END:"dragend",ANIMATION_START:R.isWebKit?"webkitAnimationStart":"animationstart",ANIMATION_END:R.isWebKit?"webkitAnimationEnd":"animationend",ANIMATION_ITERATION:R.isWebKit?"webkitAnimationIteration":"animationiteration"};function Zt(e){const t=e;return!!(t&&typeof t.preventDefault=="function"&&typeof t.stopPropagation=="function")}const Jt={stop:(e,t)=>(e.preventDefault(),t&&e.stopPropagation(),e)};function zt(e){const t=[];for(let n=0;e&&e.nodeType===e.ELEMENT_NODE;n++)t[n]=e.scrollTop,e=e.parentNode;return t}function en(e,t){for(let n=0;e&&e.nodeType===e.ELEMENT_NODE;n++)e.scrollTop!==t[n]&&(e.scrollTop=t[n]),e=e.parentNode}class S extends D{_onDidFocus=this._register(new g.Emitter);onDidFocus=this._onDidFocus.event;_onDidBlur=this._register(new g.Emitter);onDidBlur=this._onDidBlur.event;_refreshStateHandler;static hasFocusWithin(t){if(h(t)){const n=V(t),r=n?n.activeElement:t.ownerDocument.activeElement;return W(r,t)}else{const n=t;return W(n.document.activeElement,n.document)}}constructor(t){super();let n=S.hasFocusWithin(t),r=!1;const o=()=>{r=!1,n||(n=!0,this._onDidFocus.fire())},a=()=>{n&&(r=!0,(h(t)?m(t):t).setTimeout(()=>{r&&(r=!1,n=!1,this._onDidBlur.fire())},0))};this._refreshStateHandler=()=>{S.hasFocusWithin(t)!==n&&(n?a():o())},this._register(c(t,T.FOCUS,o,!0)),this._register(c(t,T.BLUR,a,!0)),h(t)&&(this._register(c(t,T.FOCUS_IN,()=>this._refreshStateHandler())),this._register(c(t,T.FOCUS_OUT,()=>this._refreshStateHandler())))}refreshState(){this._refreshStateHandler()}}function tn(e){return new S(e)}function nn(e,t){return e.after(t),t}function He(e,...t){if(e.append(...t),t.length===1&&typeof t[0]!="string")return t[0]}function rn(e,t){return e.insertBefore(t,e.firstChild),t}function on(e,...t){e.innerText="",He(e,...t)}const Se=/([\w\-]+)?(#([\w\-]+))?((\.([\w\-]+))*)/;var Ie=(n=>(n.HTML="http://www.w3.org/1999/xhtml",n.SVG="http://www.w3.org/2000/svg",n))(Ie||{});function Q(e,t,n,...r){const o=Se.exec(t);if(!o)throw new Error("Bad use of emmet");const a=o[1]||"div";let i;return e!=="http://www.w3.org/1999/xhtml"?i=document.createElementNS(e,a):i=document.createElement(a),o[3]&&(i.id=o[3]),o[4]&&(i.className=o[4].replace(/\./g," ").trim()),n&&Object.entries(n).forEach(([u,d])=>{typeof d>"u"||(/^on\w+$/.test(u)?i[u]=d:u==="selected"?d&&i.setAttribute(u,"true"):i.setAttribute(u,d))}),i.append(...r),i}function Re(e,t,...n){return Q("http://www.w3.org/1999/xhtml",e,t,...n)}Re.SVG=function(e,t,...n){return Q("http://www.w3.org/2000/svg",e,t,...n)};function sn(e,t){const n=[];return e.forEach((r,o)=>{o>0&&(t instanceof Node?n.push(t.cloneNode()):n.push(document.createTextNode(t))),n.push(r)}),n}function an(e,...t){e?ke(...t):_e(...t)}function ke(...e){for(const t of e)t.style.display="",t.removeAttribute("aria-hidden")}function _e(...e){for(const t of e)t.style.display="none",t.setAttribute("aria-hidden","true")}function Ae(e,t){for(;e&&e.nodeType===e.ELEMENT_NODE;){if(h(e)&&e.hasAttribute(t))return e;e=e.parentNode}return null}function dn(e){!e||!e.hasAttribute("tabIndex")||(e.ownerDocument.activeElement===e&&Ae(e.parentElement,"tabIndex")?.focus(),e.removeAttribute("tabindex"))}function un(e){return t=>{t.preventDefault(),t.stopPropagation(),e(t)}}function ln(e){return new Promise(t=>{if(e.document.readyState==="complete"||e.document&&e.document.body!==null)t(void 0);else{const r=()=>{e.window.removeEventListener("DOMContentLoaded",r,!1),t()};e.window.addEventListener("DOMContentLoaded",r,!1)}})}function cn(e,t){const n=e.devicePixelRatio*t;return Math.max(1,Math.floor(n))/e.devicePixelRatio}function mn(e){p.open(e,"_blank","noopener")}const X=780,q=640;function fn(e){const t=Math.floor(p.screenLeft+p.innerWidth/2-X/2),n=Math.floor(p.screenTop+p.innerHeight/2-q/2);p.open(e,"_blank",`width=${X},height=${q},top=${n},left=${t}`)}function pn(e,t=!0){const n=p.open();return n?(t&&(n.opener=null),n.location.href=e,!0):!1}function Tn(e,t){const n=()=>{t(),r=w(e,n)};let r=w(e,n);return L(()=>r.dispose())}oe.setPreferredWebSchema(/^https:/.test(p.location.href)?"https":"http");function gn(e,t){let n;if(se.isUri(e))n=e.toString(!0);else{const a=new Blob([e]);n=URL.createObjectURL(a),setTimeout(()=>URL.revokeObjectURL(n))}const r=$(),o=document.createElement("a");r.document.body.appendChild(o),o.download=t,o.href=n,o.click(),setTimeout(()=>o.remove())}function En(){return new Promise(e=>{const t=$(),n=document.createElement("input");t.document.body.appendChild(n),n.type="file",n.multiple=!0,g.Event.once(g.Event.fromDOMEventEmitter(n,"input"))(()=>{e(n.files??void 0)}),n.click(),setTimeout(()=>n.remove())})}var Ne=(n=>(n[n.DOCUMENT=1]="DOCUMENT",n[n.BROWSER=2]="BROWSER",n))(Ne||{});function hn(e){return e.document.fullscreenElement||e.document.webkitFullscreenElement||e.document.webkitIsFullScreen?{mode:1,guess:!1}:e.innerHeight===e.screen.height?{mode:2,guess:!1}:(v.isMacintosh||v.isLinux)&&e.outerHeight===e.screen.height&&e.outerWidth===e.screen.width?{mode:2,guess:!0}:null}function Ke(e,t=!1){const n=document.createElement("a");return _.addHook("afterSanitizeAttributes",r=>{for(const o of["href","src"])if(r.hasAttribute(o)){const a=r.getAttribute(o);if(o==="href"&&a.startsWith("#"))continue;if(n.href=a,!e.includes(n.protocol.replace(/:$/,""))){if(t&&o==="src"&&n.href.startsWith("data:"))continue;r.removeAttribute(o)}}}),L(()=>{_.removeHook("afterSanitizeAttributes")})}const We=[I.http,I.https,I.command],bn=Object.freeze(["a","abbr","b","bdo","blockquote","br","caption","cite","code","col","colgroup","dd","del","details","dfn","div","dl","dt","em","figcaption","figure","h1","h2","h3","h4","h5","h6","hr","i","img","input","ins","kbd","label","li","mark","ol","p","pre","q","rp","rt","ruby","samp","small","small","source","span","strike","strong","sub","summary","sup","table","tbody","td","tfoot","th","thead","time","tr","tt","u","ul","var","video","wbr"]),Oe=Object.freeze({ALLOWED_TAGS:["a","button","blockquote","code","div","h1","h2","h3","h4","h5","h6","hr","input","label","li","p","pre","select","small","span","strong","textarea","ul","ol"],ALLOWED_ATTR:["href","data-href","data-command","target","title","name","src","alt","class","id","role","tabindex","style","data-code","width","height","align","x-dispatch","required","checked","placeholder","type","start"],RETURN_DOM:!1,RETURN_DOM_FRAGMENT:!1,RETURN_TRUSTED_TYPE:!0});function yn(e,t,n){const r=Ke(We);try{const o=_.sanitize(t,{...Oe,...n});e.innerHTML=o}finally{r.dispose()}}function Pe(e){const t=new Uint16Array(e.length);for(let o=0;o<t.length;o++)t[o]=e.charCodeAt(o);let n="";const r=new Uint8Array(t.buffer);for(let o=0;o<r.length;o++)n+=String.fromCharCode(r[o]);return n}function vn(e){return btoa(Pe(e))}class x extends g.Emitter{_subscriptions=new M;_keyStatus;static instance;constructor(){super(),this._keyStatus={altKey:!1,shiftKey:!1,ctrlKey:!1,metaKey:!1},this._subscriptions.add(g.Event.runAndSubscribe(ce,({window:t,disposables:n})=>this.registerListeners(t,n),{window:p,disposables:this._subscriptions}))}registerListeners(t,n){n.add(c(t,"keydown",r=>{if(r.defaultPrevented)return;const o=new C(r);if(!(o.keyCode===P.Alt&&r.repeat)){if(r.altKey&&!this._keyStatus.altKey)this._keyStatus.lastKeyPressed="alt";else if(r.ctrlKey&&!this._keyStatus.ctrlKey)this._keyStatus.lastKeyPressed="ctrl";else if(r.metaKey&&!this._keyStatus.metaKey)this._keyStatus.lastKeyPressed="meta";else if(r.shiftKey&&!this._keyStatus.shiftKey)this._keyStatus.lastKeyPressed="shift";else if(o.keyCode!==P.Alt)this._keyStatus.lastKeyPressed=void 0;else return;this._keyStatus.altKey=r.altKey,this._keyStatus.ctrlKey=r.ctrlKey,this._keyStatus.metaKey=r.metaKey,this._keyStatus.shiftKey=r.shiftKey,this._keyStatus.lastKeyPressed&&(this._keyStatus.event=r,this.fire(this._keyStatus))}},!0)),n.add(c(t,"keyup",r=>{r.defaultPrevented||(!r.altKey&&this._keyStatus.altKey?this._keyStatus.lastKeyReleased="alt":!r.ctrlKey&&this._keyStatus.ctrlKey?this._keyStatus.lastKeyReleased="ctrl":!r.metaKey&&this._keyStatus.metaKey?this._keyStatus.lastKeyReleased="meta":!r.shiftKey&&this._keyStatus.shiftKey?this._keyStatus.lastKeyReleased="shift":this._keyStatus.lastKeyReleased=void 0,this._keyStatus.lastKeyPressed!==this._keyStatus.lastKeyReleased&&(this._keyStatus.lastKeyPressed=void 0),this._keyStatus.altKey=r.altKey,this._keyStatus.ctrlKey=r.ctrlKey,this._keyStatus.metaKey=r.metaKey,this._keyStatus.shiftKey=r.shiftKey,this._keyStatus.lastKeyReleased&&(this._keyStatus.event=r,this.fire(this._keyStatus)))},!0)),n.add(c(t.document.body,"mousedown",()=>{this._keyStatus.lastKeyPressed=void 0},!0)),n.add(c(t.document.body,"mouseup",()=>{this._keyStatus.lastKeyPressed=void 0},!0)),n.add(c(t.document.body,"mousemove",r=>{r.buttons&&(this._keyStatus.lastKeyPressed=void 0)},!0)),n.add(c(t,"blur",()=>{this.resetKeyStatus()}))}get keyStatus(){return this._keyStatus}get isModifierPressed(){return this._keyStatus.altKey||this._keyStatus.ctrlKey||this._keyStatus.metaKey||this._keyStatus.shiftKey}resetKeyStatus(){this.doResetKeyStatus(),this.fire(this._keyStatus)}doResetKeyStatus(){this._keyStatus={altKey:!1,shiftKey:!1,ctrlKey:!1,metaKey:!1}}static getInstance(){return x.instance||(x.instance=new x),x.instance}dispose(){super.dispose(),this._subscriptions.dispose()}}function wn(e){const t=document.cookie.match("(^|[^;]+)\\s*"+e+"\\s*=\\s*([^;]+)");return t?t.pop():void 0}class Mn extends D{constructor(n,r){super();this.element=n;this.callbacks=r;this.registerListeners()}counter=0;dragStartTime=0;registerListeners(){this.callbacks.onDragStart&&this._register(c(this.element,T.DRAG_START,n=>{this.callbacks.onDragStart?.(n)})),this.callbacks.onDrag&&this._register(c(this.element,T.DRAG,n=>{this.callbacks.onDrag?.(n)})),this._register(c(this.element,T.DRAG_ENTER,n=>{this.counter++,this.dragStartTime=n.timeStamp,this.callbacks.onDragEnter?.(n)})),this._register(c(this.element,T.DRAG_OVER,n=>{n.preventDefault(),this.callbacks.onDragOver?.(n,n.timeStamp-this.dragStartTime)})),this._register(c(this.element,T.DRAG_LEAVE,n=>{this.counter--,this.counter===0&&(this.dragStartTime=0,this.callbacks.onDragLeave?.(n))})),this._register(c(this.element,T.DRAG_END,n=>{this.counter=0,this.dragStartTime=0,this.callbacks.onDragEnd?.(n)})),this._register(c(this.element,T.DROP,n=>{this.counter=0,this.dragStartTime=0,this.callbacks.onDrop?.(n)}))}}const Z=/(?<tag>[\w\-]+)?(?:#(?<id>[\w\-]+))?(?<class>(?:\.(?:[\w\-]+))*)(?:@(?<name>(?:[\w\_])+))?/;function Ln(e,...t){let n,r;Array.isArray(t[0])?(n={},r=t[0]):(n=t[0]||{},r=t[1]);const o=Z.exec(e);if(!o||!o.groups)throw new Error("Bad use of h");const a=o.groups.tag||"div",i=document.createElement(a);o.groups.id&&(i.id=o.groups.id);const u=[];if(o.groups.class)for(const s of o.groups.class.split("."))s!==""&&u.push(s);if(n.className!==void 0)for(const s of n.className.split("."))s!==""&&u.push(s);u.length>0&&(i.className=u.join(" "));const d={};if(o.groups.name&&(d[o.groups.name]=i),r)for(const s of r)h(s)?i.appendChild(s):typeof s=="string"?i.append(s):"root"in s&&(Object.assign(d,s),i.appendChild(s.root));for(const[s,f]of Object.entries(n))if(s!=="className")if(s==="style")for(const[y,b]of Object.entries(f))i.style.setProperty(H(y),typeof b=="number"?b+"px":""+b);else s==="tabIndex"?i.tabIndex=f:i.setAttribute(H(s),f.toString());return d.root=i,d}function xn(e,...t){let n,r;Array.isArray(t[0])?(n={},r=t[0]):(n=t[0]||{},r=t[1]);const o=Z.exec(e);if(!o||!o.groups)throw new Error("Bad use of h");const a=o.groups.tag||"div",i=document.createElementNS("http://www.w3.org/2000/svg",a);o.groups.id&&(i.id=o.groups.id);const u=[];if(o.groups.class)for(const s of o.groups.class.split("."))s!==""&&u.push(s);if(n.className!==void 0)for(const s of n.className.split("."))s!==""&&u.push(s);u.length>0&&(i.className=u.join(" "));const d={};if(o.groups.name&&(d[o.groups.name]=i),r)for(const s of r)h(s)?i.appendChild(s):typeof s=="string"?i.append(s):"root"in s&&(Object.assign(d,s),i.appendChild(s.root));for(const[s,f]of Object.entries(n))if(s!=="className")if(s==="style")for(const[y,b]of Object.entries(f))i.style.setProperty(H(y),typeof b=="number"?b+"px":""+b);else s==="tabIndex"?i.tabIndex=f:i.setAttribute(H(s),f.toString());return d.root=i,d}function H(e){return e.replace(/([a-z])([A-Z])/g,"$1-$2").toLowerCase()}function Ce(e,t,n){for(const{name:r,value:o}of e.attributes)(!n||n.includes(r))&&t.setAttribute(r,o)}function Ue(e,t,n){const r=e.getAttribute(n);r?t.setAttribute(n,r):t.removeAttribute(n)}function Dn(e,t,n){Ce(e,t,n);const r=new M;return r.add(De.observe(e,r,{attributes:!0,attributeFilter:n})(o=>{for(const a of o)a.type==="attributes"&&a.attributeName&&Ue(e,t,a.attributeName)})),r}function Hn(e){return e.tagName.toLowerCase()==="input"||e.tagName.toLowerCase()==="textarea"||h(e)&&!!e.editContext}class Sn{constructor(t,n,r){this.originX=t;this.originY=n;const{top:o,left:a,right:i,bottom:u}=r.getBoundingClientRect(),d=this.points;let s=0;d[s++]=a,d[s++]=o,d[s++]=i,d[s++]=o,d[s++]=a,d[s++]=u,d[s++]=i,d[s++]=u}points=new Int16Array(8);contains(t,n){const{points:r,originX:o,originY:a}=this;for(let i=0;i<4;i++){const u=2*i,d=2*((i+1)%4);if(ie(t,n,o,a,r[u],r[u+1],r[d],r[d+1]))return!0}return!1}}export{Re as $,Ne as DetectedFullscreenMode,E as Dimension,Mn as DragAndDropObserver,Jt as EventHelper,T as EventType,x as ModifierKeyEmitter,Ie as Namespace,Sn as SafeTriangle,Et as WindowIdleValue,bt as WindowIntervalTimer,pe as addDisposableGenericMouseDownListener,Tt as addDisposableGenericMouseMoveListener,Te as addDisposableGenericMouseUpListener,c as addDisposableListener,wt as addDisposableThrottledListener,ft as addStandardDisposableGenericMouseDownListener,pt as addStandardDisposableGenericMouseUpListener,mt as addStandardDisposableListener,nn as after,Tn as animate,He as append,bn as basicMarkupHtmlTags,ct as clearNode,cn as computeScreenAwareSize,Ce as copyAttributes,Ct as createLinkElement,Pt as createMetaElement,hn as detectFullscreen,ht as disposableWindowInterval,ln as domContentLoaded,un as finalHandler,xe as findParentWithClass,O as getActiveDocument,Y as getActiveElement,$ as getActiveWindow,ye as getClientArea,K as getComputedStyle,St as getContentHeight,Ht as getContentWidth,wn as getCookieValue,st as getDocument,xt as getDomNodePagePosition,Dt as getDomNodeZoomLevel,Rt as getLargestChildWidth,V as getShadowRoot,F as getTopLeftOffset,It as getTotalHeight,we as getTotalScrollWidth,ve as getTotalWidth,m as getWindow,at as getWindowById,U as getWindowId,ue as getWindows,le as getWindowsCount,Ln as h,At as hasParentWithClass,dt as hasWindow,_e as hide,Ke as hookDomPurifyHrefAndSrcSanitizer,Ot as isActiveDocument,Kt as isActiveElement,W as isAncestor,Wt as isAncestorOfActiveElement,_t as isAncestorUsingFlowTo,qt as isDragEvent,Hn as isEditableElement,Zt as isEventLike,Ut as isHTMLAnchorElement,Vt as isHTMLButtonElement,Yt as isHTMLDivElement,h as isHTMLElement,Gt as isHTMLInputElement,Ft as isHTMLSpanElement,Bt as isHTMLTextAreaElement,Nt as isInShadowDOM,Qt as isKeyboardEvent,jt as isMouseEvent,Xt as isPointerEvent,$t as isSVGElement,G as isShadowRoot,sn as join,yt as measure,vt as modify,vn as multibyteAwareBtoa,ce as onDidRegisterWindow,lt as onDidUnregisterWindow,ut as onWillUnregisterWindow,Lt as position,rn as prepend,it as registerWindow,dn as removeTabIndexAndUpdateFocus,on as reset,en as restoreParentsScrollTop,ge as runAtThisOrScheduleAtNextAnimationFrame,gt as runWhenWindowIdle,yn as safeInnerHtml,zt as saveParentsScrollTop,w as scheduleAtNextAnimationFrame,kt as setParentFlowTo,an as setVisibility,De as sharedMutationObserver,ke as show,Mt as size,xn as svgElem,Dn as trackAttributes,tn as trackFocus,gn as triggerDownload,En as triggerUpload,mn as windowOpenNoOpener,fn as windowOpenPopup,pn as windowOpenWithSuccess};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  _runWhenIdle,
+  AbstractIdleValue,
+  IdleDeadline,
+  IntervalTimer,
+  TimeoutTimer
+} from "../common/async.js";
+import { onUnexpectedError } from "../common/errors.js";
+import * as event from "../common/event.js";
+import { hash } from "../common/hash.js";
+import { KeyCode } from "../common/keyCodes.js";
+import {
+  Disposable,
+  DisposableStore,
+  IDisposable,
+  toDisposable
+} from "../common/lifecycle.js";
+import { RemoteAuthorities, Schemas } from "../common/network.js";
+import { isPointWithinTriangle } from "../common/numbers.js";
+import * as platform from "../common/platform.js";
+import { URI } from "../common/uri.js";
+import * as browser from "./browser.js";
+import { BrowserFeatures } from "./canIUse.js";
+import dompurify from "./dompurify/dompurify.js";
+import { IKeyboardEvent, StandardKeyboardEvent } from "./keyboardEvent.js";
+import { IMouseEvent, StandardMouseEvent } from "./mouseEvent.js";
+import { CodeWindow, ensureCodeWindow, mainWindow } from "./window.js";
+export * from "./domImpl/domObservable.js";
+export * from "./domImpl/n.js";
+const {
+  registerWindow,
+  getWindow,
+  getDocument,
+  getWindows,
+  getWindowsCount,
+  getWindowId,
+  getWindowById,
+  hasWindow,
+  onDidRegisterWindow,
+  onWillUnregisterWindow,
+  onDidUnregisterWindow
+} = function() {
+  const windows = /* @__PURE__ */ new Map();
+  ensureCodeWindow(mainWindow, 1);
+  const mainWindowRegistration = {
+    window: mainWindow,
+    disposables: new DisposableStore()
+  };
+  windows.set(mainWindow.vscodeWindowId, mainWindowRegistration);
+  const onDidRegisterWindow2 = new event.Emitter();
+  const onDidUnregisterWindow2 = new event.Emitter();
+  const onWillUnregisterWindow2 = new event.Emitter();
+  function getWindowById2(windowId, fallbackToMain) {
+    const window = typeof windowId === "number" ? windows.get(windowId) : void 0;
+    return window ?? (fallbackToMain ? mainWindowRegistration : void 0);
+  }
+  __name(getWindowById2, "getWindowById");
+  return {
+    onDidRegisterWindow: onDidRegisterWindow2.event,
+    onWillUnregisterWindow: onWillUnregisterWindow2.event,
+    onDidUnregisterWindow: onDidUnregisterWindow2.event,
+    registerWindow(window) {
+      if (windows.has(window.vscodeWindowId)) {
+        return Disposable.None;
+      }
+      const disposables = new DisposableStore();
+      const registeredWindow = {
+        window,
+        disposables: disposables.add(new DisposableStore())
+      };
+      windows.set(window.vscodeWindowId, registeredWindow);
+      disposables.add(
+        toDisposable(() => {
+          windows.delete(window.vscodeWindowId);
+          onDidUnregisterWindow2.fire(window);
+        })
+      );
+      disposables.add(
+        addDisposableListener(window, EventType.BEFORE_UNLOAD, () => {
+          onWillUnregisterWindow2.fire(window);
+        })
+      );
+      onDidRegisterWindow2.fire(registeredWindow);
+      return disposables;
+    },
+    getWindows() {
+      return windows.values();
+    },
+    getWindowsCount() {
+      return windows.size;
+    },
+    getWindowId(targetWindow) {
+      return targetWindow.vscodeWindowId;
+    },
+    hasWindow(windowId) {
+      return windows.has(windowId);
+    },
+    getWindowById: getWindowById2,
+    getWindow(e) {
+      const candidateNode = e;
+      if (candidateNode?.ownerDocument?.defaultView) {
+        return candidateNode.ownerDocument.defaultView.window;
+      }
+      const candidateEvent = e;
+      if (candidateEvent?.view) {
+        return candidateEvent.view.window;
+      }
+      return mainWindow;
+    },
+    getDocument(e) {
+      const candidateNode = e;
+      return getWindow(candidateNode).document;
+    }
+  };
+}();
+function clearNode(node) {
+  while (node.firstChild) {
+    node.firstChild.remove();
+  }
+}
+__name(clearNode, "clearNode");
+class DomListener {
+  static {
+    __name(this, "DomListener");
+  }
+  _handler;
+  _node;
+  _type;
+  _options;
+  constructor(node, type, handler, options) {
+    this._node = node;
+    this._type = type;
+    this._handler = handler;
+    this._options = options || false;
+    this._node.addEventListener(this._type, this._handler, this._options);
+  }
+  dispose() {
+    if (!this._handler) {
+      return;
+    }
+    this._node.removeEventListener(
+      this._type,
+      this._handler,
+      this._options
+    );
+    this._node = null;
+    this._handler = null;
+  }
+}
+function addDisposableListener(node, type, handler, useCaptureOrOptions) {
+  return new DomListener(node, type, handler, useCaptureOrOptions);
+}
+__name(addDisposableListener, "addDisposableListener");
+function _wrapAsStandardMouseEvent(targetWindow, handler) {
+  return function(e) {
+    return handler(new StandardMouseEvent(targetWindow, e));
+  };
+}
+__name(_wrapAsStandardMouseEvent, "_wrapAsStandardMouseEvent");
+function _wrapAsStandardKeyboardEvent(handler) {
+  return function(e) {
+    return handler(new StandardKeyboardEvent(e));
+  };
+}
+__name(_wrapAsStandardKeyboardEvent, "_wrapAsStandardKeyboardEvent");
+const addStandardDisposableListener = /* @__PURE__ */ __name(function addStandardDisposableListener2(node, type, handler, useCapture) {
+  let wrapHandler = handler;
+  if (type === "click" || type === "mousedown" || type === "contextmenu") {
+    wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
+  } else if (type === "keydown" || type === "keypress" || type === "keyup") {
+    wrapHandler = _wrapAsStandardKeyboardEvent(handler);
+  }
+  return addDisposableListener(node, type, wrapHandler, useCapture);
+}, "addStandardDisposableListener");
+const addStandardDisposableGenericMouseDownListener = /* @__PURE__ */ __name(function addStandardDisposableListener3(node, handler, useCapture) {
+  const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
+  return addDisposableGenericMouseDownListener(
+    node,
+    wrapHandler,
+    useCapture
+  );
+}, "addStandardDisposableListener");
+const addStandardDisposableGenericMouseUpListener = /* @__PURE__ */ __name(function addStandardDisposableListener4(node, handler, useCapture) {
+  const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
+  return addDisposableGenericMouseUpListener(
+    node,
+    wrapHandler,
+    useCapture
+  );
+}, "addStandardDisposableListener");
+function addDisposableGenericMouseDownListener(node, handler, useCapture) {
+  return addDisposableListener(
+    node,
+    platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_DOWN : EventType.MOUSE_DOWN,
+    handler,
+    useCapture
+  );
+}
+__name(addDisposableGenericMouseDownListener, "addDisposableGenericMouseDownListener");
+function addDisposableGenericMouseMoveListener(node, handler, useCapture) {
+  return addDisposableListener(
+    node,
+    platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_MOVE : EventType.MOUSE_MOVE,
+    handler,
+    useCapture
+  );
+}
+__name(addDisposableGenericMouseMoveListener, "addDisposableGenericMouseMoveListener");
+function addDisposableGenericMouseUpListener(node, handler, useCapture) {
+  return addDisposableListener(
+    node,
+    platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_UP : EventType.MOUSE_UP,
+    handler,
+    useCapture
+  );
+}
+__name(addDisposableGenericMouseUpListener, "addDisposableGenericMouseUpListener");
+function runWhenWindowIdle(targetWindow, callback, timeout) {
+  return _runWhenIdle(targetWindow, callback, timeout);
+}
+__name(runWhenWindowIdle, "runWhenWindowIdle");
+class WindowIdleValue extends AbstractIdleValue {
+  static {
+    __name(this, "WindowIdleValue");
+  }
+  constructor(targetWindow, executor) {
+    super(targetWindow, executor);
+  }
+}
+let runAtThisOrScheduleAtNextAnimationFrame;
+let scheduleAtNextAnimationFrame;
+function disposableWindowInterval(targetWindow, handler, interval, iterations) {
+  let iteration = 0;
+  const timer = targetWindow.setInterval(() => {
+    iteration++;
+    if (typeof iterations === "number" && iteration >= iterations || handler() === true) {
+      disposable.dispose();
+    }
+  }, interval);
+  const disposable = toDisposable(() => {
+    targetWindow.clearInterval(timer);
+  });
+  return disposable;
+}
+__name(disposableWindowInterval, "disposableWindowInterval");
+class WindowIntervalTimer extends IntervalTimer {
+  static {
+    __name(this, "WindowIntervalTimer");
+  }
+  defaultTarget;
+  /**
+   *
+   * @param node The optional node from which the target window is determined
+   */
+  constructor(node) {
+    super();
+    this.defaultTarget = node && getWindow(node);
+  }
+  cancelAndSet(runner, interval, targetWindow) {
+    return super.cancelAndSet(
+      runner,
+      interval,
+      targetWindow ?? this.defaultTarget
+    );
+  }
+}
+class AnimationFrameQueueItem {
+  static {
+    __name(this, "AnimationFrameQueueItem");
+  }
+  _runner;
+  priority;
+  _canceled;
+  constructor(runner, priority = 0) {
+    this._runner = runner;
+    this.priority = priority;
+    this._canceled = false;
+  }
+  dispose() {
+    this._canceled = true;
+  }
+  execute() {
+    if (this._canceled) {
+      return;
+    }
+    try {
+      this._runner();
+    } catch (e) {
+      onUnexpectedError(e);
+    }
+  }
+  // Sort by priority (largest to lowest)
+  static sort(a, b) {
+    return b.priority - a.priority;
+  }
+}
+(function() {
+  const NEXT_QUEUE = /* @__PURE__ */ new Map();
+  const CURRENT_QUEUE = /* @__PURE__ */ new Map();
+  const animFrameRequested = /* @__PURE__ */ new Map();
+  const inAnimationFrameRunner = /* @__PURE__ */ new Map();
+  const animationFrameRunner = /* @__PURE__ */ __name((targetWindowId) => {
+    animFrameRequested.set(targetWindowId, false);
+    const currentQueue = NEXT_QUEUE.get(targetWindowId) ?? [];
+    CURRENT_QUEUE.set(targetWindowId, currentQueue);
+    NEXT_QUEUE.set(targetWindowId, []);
+    inAnimationFrameRunner.set(targetWindowId, true);
+    while (currentQueue.length > 0) {
+      currentQueue.sort(AnimationFrameQueueItem.sort);
+      const top = currentQueue.shift();
+      top.execute();
+    }
+    inAnimationFrameRunner.set(targetWindowId, false);
+  }, "animationFrameRunner");
+  scheduleAtNextAnimationFrame = /* @__PURE__ */ __name((targetWindow, runner, priority = 0) => {
+    const targetWindowId = getWindowId(targetWindow);
+    const item = new AnimationFrameQueueItem(runner, priority);
+    let nextQueue = NEXT_QUEUE.get(targetWindowId);
+    if (!nextQueue) {
+      nextQueue = [];
+      NEXT_QUEUE.set(targetWindowId, nextQueue);
+    }
+    nextQueue.push(item);
+    if (!animFrameRequested.get(targetWindowId)) {
+      animFrameRequested.set(targetWindowId, true);
+      targetWindow.requestAnimationFrame(
+        () => animationFrameRunner(targetWindowId)
+      );
+    }
+    return item;
+  }, "scheduleAtNextAnimationFrame");
+  runAtThisOrScheduleAtNextAnimationFrame = /* @__PURE__ */ __name((targetWindow, runner, priority) => {
+    const targetWindowId = getWindowId(targetWindow);
+    if (inAnimationFrameRunner.get(targetWindowId)) {
+      const item = new AnimationFrameQueueItem(runner, priority);
+      let currentQueue = CURRENT_QUEUE.get(targetWindowId);
+      if (!currentQueue) {
+        currentQueue = [];
+        CURRENT_QUEUE.set(targetWindowId, currentQueue);
+      }
+      currentQueue.push(item);
+      return item;
+    } else {
+      return scheduleAtNextAnimationFrame(targetWindow, runner, priority);
+    }
+  }, "runAtThisOrScheduleAtNextAnimationFrame");
+})();
+function measure(targetWindow, callback) {
+  return scheduleAtNextAnimationFrame(
+    targetWindow,
+    callback,
+    1e4
+  );
+}
+__name(measure, "measure");
+function modify(targetWindow, callback) {
+  return scheduleAtNextAnimationFrame(
+    targetWindow,
+    callback,
+    -1e4
+  );
+}
+__name(modify, "modify");
+const MINIMUM_TIME_MS = 8;
+const DEFAULT_EVENT_MERGER = /* @__PURE__ */ __name(function(lastEvent, currentEvent) {
+  return currentEvent;
+}, "DEFAULT_EVENT_MERGER");
+class TimeoutThrottledDomListener extends Disposable {
+  static {
+    __name(this, "TimeoutThrottledDomListener");
+  }
+  constructor(node, type, handler, eventMerger = DEFAULT_EVENT_MERGER, minimumTimeMs = MINIMUM_TIME_MS) {
+    super();
+    let lastEvent = null;
+    let lastHandlerTime = 0;
+    const timeout = this._register(new TimeoutTimer());
+    const invokeHandler = /* @__PURE__ */ __name(() => {
+      lastHandlerTime = (/* @__PURE__ */ new Date()).getTime();
+      handler(lastEvent);
+      lastEvent = null;
+    }, "invokeHandler");
+    this._register(
+      addDisposableListener(node, type, (e) => {
+        lastEvent = eventMerger(lastEvent, e);
+        const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - lastHandlerTime;
+        if (elapsedTime >= minimumTimeMs) {
+          timeout.cancel();
+          invokeHandler();
+        } else {
+          timeout.setIfNotSet(
+            invokeHandler,
+            minimumTimeMs - elapsedTime
+          );
+        }
+      })
+    );
+  }
+}
+function addDisposableThrottledListener(node, type, handler, eventMerger, minimumTimeMs) {
+  return new TimeoutThrottledDomListener(
+    node,
+    type,
+    handler,
+    eventMerger,
+    minimumTimeMs
+  );
+}
+__name(addDisposableThrottledListener, "addDisposableThrottledListener");
+function getComputedStyle(el) {
+  return getWindow(el).getComputedStyle(el, null);
+}
+__name(getComputedStyle, "getComputedStyle");
+function getClientArea(element, defaultValue, fallbackElement) {
+  const elWindow = getWindow(element);
+  const elDocument = elWindow.document;
+  if (element !== elDocument.body) {
+    return new Dimension(element.clientWidth, element.clientHeight);
+  }
+  if (platform.isIOS && elWindow?.visualViewport) {
+    return new Dimension(
+      elWindow.visualViewport.width,
+      elWindow.visualViewport.height
+    );
+  }
+  if (elWindow?.innerWidth && elWindow.innerHeight) {
+    return new Dimension(elWindow.innerWidth, elWindow.innerHeight);
+  }
+  if (elDocument.body && elDocument.body.clientWidth && elDocument.body.clientHeight) {
+    return new Dimension(
+      elDocument.body.clientWidth,
+      elDocument.body.clientHeight
+    );
+  }
+  if (elDocument.documentElement && elDocument.documentElement.clientWidth && elDocument.documentElement.clientHeight) {
+    return new Dimension(
+      elDocument.documentElement.clientWidth,
+      elDocument.documentElement.clientHeight
+    );
+  }
+  if (fallbackElement) {
+    return getClientArea(fallbackElement, defaultValue);
+  }
+  if (defaultValue) {
+    return defaultValue;
+  }
+  throw new Error("Unable to figure out browser width and height");
+}
+__name(getClientArea, "getClientArea");
+class SizeUtils {
+  static {
+    __name(this, "SizeUtils");
+  }
+  // Adapted from WinJS
+  // Converts a CSS positioning string for the specified element to pixels.
+  static convertToPixels(element, value) {
+    return parseFloat(value) || 0;
+  }
+  static getDimension(element, cssPropertyName) {
+    const computedStyle = getComputedStyle(element);
+    const value = computedStyle ? computedStyle.getPropertyValue(cssPropertyName) : "0";
+    return SizeUtils.convertToPixels(element, value);
+  }
+  static getBorderLeftWidth(element) {
+    return SizeUtils.getDimension(element, "border-left-width");
+  }
+  static getBorderRightWidth(element) {
+    return SizeUtils.getDimension(element, "border-right-width");
+  }
+  static getBorderTopWidth(element) {
+    return SizeUtils.getDimension(element, "border-top-width");
+  }
+  static getBorderBottomWidth(element) {
+    return SizeUtils.getDimension(element, "border-bottom-width");
+  }
+  static getPaddingLeft(element) {
+    return SizeUtils.getDimension(element, "padding-left");
+  }
+  static getPaddingRight(element) {
+    return SizeUtils.getDimension(element, "padding-right");
+  }
+  static getPaddingTop(element) {
+    return SizeUtils.getDimension(element, "padding-top");
+  }
+  static getPaddingBottom(element) {
+    return SizeUtils.getDimension(element, "padding-bottom");
+  }
+  static getMarginLeft(element) {
+    return SizeUtils.getDimension(element, "margin-left");
+  }
+  static getMarginTop(element) {
+    return SizeUtils.getDimension(element, "margin-top");
+  }
+  static getMarginRight(element) {
+    return SizeUtils.getDimension(element, "margin-right");
+  }
+  static getMarginBottom(element) {
+    return SizeUtils.getDimension(element, "margin-bottom");
+  }
+}
+class Dimension {
+  constructor(width, height) {
+    this.width = width;
+    this.height = height;
+  }
+  static {
+    __name(this, "Dimension");
+  }
+  static None = new Dimension(0, 0);
+  with(width = this.width, height = this.height) {
+    if (width !== this.width || height !== this.height) {
+      return new Dimension(width, height);
+    } else {
+      return this;
+    }
+  }
+  static is(obj) {
+    return typeof obj === "object" && typeof obj.height === "number" && typeof obj.width === "number";
+  }
+  static lift(obj) {
+    if (obj instanceof Dimension) {
+      return obj;
+    } else {
+      return new Dimension(obj.width, obj.height);
+    }
+  }
+  static equals(a, b) {
+    if (a === b) {
+      return true;
+    }
+    if (!a || !b) {
+      return false;
+    }
+    return a.width === b.width && a.height === b.height;
+  }
+}
+function getTopLeftOffset(element) {
+  let offsetParent = element.offsetParent;
+  let top = element.offsetTop;
+  let left = element.offsetLeft;
+  while ((element = element.parentNode) !== null && element !== element.ownerDocument.body && element !== element.ownerDocument.documentElement) {
+    top -= element.scrollTop;
+    const c = isShadowRoot(element) ? null : getComputedStyle(element);
+    if (c) {
+      left -= c.direction !== "rtl" ? element.scrollLeft : -element.scrollLeft;
+    }
+    if (element === offsetParent) {
+      left += SizeUtils.getBorderLeftWidth(element);
+      top += SizeUtils.getBorderTopWidth(element);
+      top += element.offsetTop;
+      left += element.offsetLeft;
+      offsetParent = element.offsetParent;
+    }
+  }
+  return {
+    left,
+    top
+  };
+}
+__name(getTopLeftOffset, "getTopLeftOffset");
+function size(element, width, height) {
+  if (typeof width === "number") {
+    element.style.width = `${width}px`;
+  }
+  if (typeof height === "number") {
+    element.style.height = `${height}px`;
+  }
+}
+__name(size, "size");
+function position(element, top, right, bottom, left, position2 = "absolute") {
+  if (typeof top === "number") {
+    element.style.top = `${top}px`;
+  }
+  if (typeof right === "number") {
+    element.style.right = `${right}px`;
+  }
+  if (typeof bottom === "number") {
+    element.style.bottom = `${bottom}px`;
+  }
+  if (typeof left === "number") {
+    element.style.left = `${left}px`;
+  }
+  element.style.position = position2;
+}
+__name(position, "position");
+function getDomNodePagePosition(domNode) {
+  const bb = domNode.getBoundingClientRect();
+  const window = getWindow(domNode);
+  return {
+    left: bb.left + window.scrollX,
+    top: bb.top + window.scrollY,
+    width: bb.width,
+    height: bb.height
+  };
+}
+__name(getDomNodePagePosition, "getDomNodePagePosition");
+function getDomNodeZoomLevel(domNode) {
+  let testElement = domNode;
+  let zoom = 1;
+  do {
+    const elementZoomLevel = getComputedStyle(testElement).zoom;
+    if (elementZoomLevel !== null && elementZoomLevel !== void 0 && elementZoomLevel !== "1") {
+      zoom *= elementZoomLevel;
+    }
+    testElement = testElement.parentElement;
+  } while (testElement !== null && testElement !== testElement.ownerDocument.documentElement);
+  return zoom;
+}
+__name(getDomNodeZoomLevel, "getDomNodeZoomLevel");
+function getTotalWidth(element) {
+  const margin = SizeUtils.getMarginLeft(element) + SizeUtils.getMarginRight(element);
+  return element.offsetWidth + margin;
+}
+__name(getTotalWidth, "getTotalWidth");
+function getContentWidth(element) {
+  const border = SizeUtils.getBorderLeftWidth(element) + SizeUtils.getBorderRightWidth(element);
+  const padding = SizeUtils.getPaddingLeft(element) + SizeUtils.getPaddingRight(element);
+  return element.offsetWidth - border - padding;
+}
+__name(getContentWidth, "getContentWidth");
+function getTotalScrollWidth(element) {
+  const margin = SizeUtils.getMarginLeft(element) + SizeUtils.getMarginRight(element);
+  return element.scrollWidth + margin;
+}
+__name(getTotalScrollWidth, "getTotalScrollWidth");
+function getContentHeight(element) {
+  const border = SizeUtils.getBorderTopWidth(element) + SizeUtils.getBorderBottomWidth(element);
+  const padding = SizeUtils.getPaddingTop(element) + SizeUtils.getPaddingBottom(element);
+  return element.offsetHeight - border - padding;
+}
+__name(getContentHeight, "getContentHeight");
+function getTotalHeight(element) {
+  const margin = SizeUtils.getMarginTop(element) + SizeUtils.getMarginBottom(element);
+  return element.offsetHeight + margin;
+}
+__name(getTotalHeight, "getTotalHeight");
+function getRelativeLeft(element, parent) {
+  if (element === null) {
+    return 0;
+  }
+  const elementPosition = getTopLeftOffset(element);
+  const parentPosition = getTopLeftOffset(parent);
+  return elementPosition.left - parentPosition.left;
+}
+__name(getRelativeLeft, "getRelativeLeft");
+function getLargestChildWidth(parent, children) {
+  const childWidths = children.map((child) => {
+    return Math.max(getTotalScrollWidth(child), getTotalWidth(child)) + getRelativeLeft(child, parent) || 0;
+  });
+  const maxWidth = Math.max(...childWidths);
+  return maxWidth;
+}
+__name(getLargestChildWidth, "getLargestChildWidth");
+function isAncestor(testChild, testAncestor) {
+  return Boolean(testAncestor?.contains(testChild));
+}
+__name(isAncestor, "isAncestor");
+const parentFlowToDataKey = "parentFlowToElementId";
+function setParentFlowTo(fromChildElement, toParentElement) {
+  fromChildElement.dataset[parentFlowToDataKey] = toParentElement.id;
+}
+__name(setParentFlowTo, "setParentFlowTo");
+function getParentFlowToElement(node) {
+  const flowToParentId = node.dataset[parentFlowToDataKey];
+  if (typeof flowToParentId === "string") {
+    return node.ownerDocument.getElementById(flowToParentId);
+  }
+  return null;
+}
+__name(getParentFlowToElement, "getParentFlowToElement");
+function isAncestorUsingFlowTo(testChild, testAncestor) {
+  let node = testChild;
+  while (node) {
+    if (node === testAncestor) {
+      return true;
+    }
+    if (isHTMLElement(node)) {
+      const flowToParentElement = getParentFlowToElement(node);
+      if (flowToParentElement) {
+        node = flowToParentElement;
+        continue;
+      }
+    }
+    node = node.parentNode;
+  }
+  return false;
+}
+__name(isAncestorUsingFlowTo, "isAncestorUsingFlowTo");
+function findParentWithClass(node, clazz, stopAtClazzOrNode) {
+  while (node && node.nodeType === node.ELEMENT_NODE) {
+    if (node.classList.contains(clazz)) {
+      return node;
+    }
+    if (stopAtClazzOrNode) {
+      if (typeof stopAtClazzOrNode === "string") {
+        if (node.classList.contains(stopAtClazzOrNode)) {
+          return null;
+        }
+      } else {
+        if (node === stopAtClazzOrNode) {
+          return null;
+        }
+      }
+    }
+    node = node.parentNode;
+  }
+  return null;
+}
+__name(findParentWithClass, "findParentWithClass");
+function hasParentWithClass(node, clazz, stopAtClazzOrNode) {
+  return !!findParentWithClass(node, clazz, stopAtClazzOrNode);
+}
+__name(hasParentWithClass, "hasParentWithClass");
+function isShadowRoot(node) {
+  return node && !!node.host && !!node.mode;
+}
+__name(isShadowRoot, "isShadowRoot");
+function isInShadowDOM(domNode) {
+  return !!getShadowRoot(domNode);
+}
+__name(isInShadowDOM, "isInShadowDOM");
+function getShadowRoot(domNode) {
+  while (domNode.parentNode) {
+    if (domNode === domNode.ownerDocument?.body) {
+      return null;
+    }
+    domNode = domNode.parentNode;
+  }
+  return isShadowRoot(domNode) ? domNode : null;
+}
+__name(getShadowRoot, "getShadowRoot");
+function getActiveElement() {
+  let result = getActiveDocument().activeElement;
+  while (result?.shadowRoot) {
+    result = result.shadowRoot.activeElement;
+  }
+  return result;
+}
+__name(getActiveElement, "getActiveElement");
+function isActiveElement(element) {
+  return getActiveElement() === element;
+}
+__name(isActiveElement, "isActiveElement");
+function isAncestorOfActiveElement(ancestor) {
+  return isAncestor(getActiveElement(), ancestor);
+}
+__name(isAncestorOfActiveElement, "isAncestorOfActiveElement");
+function isActiveDocument(element) {
+  return element.ownerDocument === getActiveDocument();
+}
+__name(isActiveDocument, "isActiveDocument");
+function getActiveDocument() {
+  if (getWindowsCount() <= 1) {
+    return mainWindow.document;
+  }
+  const documents = Array.from(getWindows()).map(
+    ({ window }) => window.document
+  );
+  return documents.find((doc) => doc.hasFocus()) ?? mainWindow.document;
+}
+__name(getActiveDocument, "getActiveDocument");
+function getActiveWindow() {
+  const document2 = getActiveDocument();
+  return document2.defaultView?.window ?? mainWindow;
+}
+__name(getActiveWindow, "getActiveWindow");
+const sharedMutationObserver = new class {
+  mutationObservers = /* @__PURE__ */ new Map();
+  observe(target, disposables, options) {
+    let mutationObserversPerTarget = this.mutationObservers.get(target);
+    if (!mutationObserversPerTarget) {
+      mutationObserversPerTarget = /* @__PURE__ */ new Map();
+      this.mutationObservers.set(target, mutationObserversPerTarget);
+    }
+    const optionsHash = hash(options);
+    let mutationObserverPerOptions = mutationObserversPerTarget.get(optionsHash);
+    if (!mutationObserverPerOptions) {
+      const onDidMutate = new event.Emitter();
+      const observer = new MutationObserver(
+        (mutations) => onDidMutate.fire(mutations)
+      );
+      observer.observe(target, options);
+      const resolvedMutationObserverPerOptions = mutationObserverPerOptions = {
+        users: 1,
+        observer,
+        onDidMutate: onDidMutate.event
+      };
+      disposables.add(
+        toDisposable(() => {
+          resolvedMutationObserverPerOptions.users -= 1;
+          if (resolvedMutationObserverPerOptions.users === 0) {
+            onDidMutate.dispose();
+            observer.disconnect();
+            mutationObserversPerTarget?.delete(optionsHash);
+            if (mutationObserversPerTarget?.size === 0) {
+              this.mutationObservers.delete(target);
+            }
+          }
+        })
+      );
+      mutationObserversPerTarget.set(
+        optionsHash,
+        mutationObserverPerOptions
+      );
+    } else {
+      mutationObserverPerOptions.users += 1;
+    }
+    return mutationObserverPerOptions.onDidMutate;
+  }
+}();
+function createMetaElement(container = mainWindow.document.head) {
+  return createHeadElement("meta", container);
+}
+__name(createMetaElement, "createMetaElement");
+function createLinkElement(container = mainWindow.document.head) {
+  return createHeadElement("link", container);
+}
+__name(createLinkElement, "createLinkElement");
+function createHeadElement(tagName, container = mainWindow.document.head) {
+  const element = document.createElement(tagName);
+  container.appendChild(element);
+  return element;
+}
+__name(createHeadElement, "createHeadElement");
+function isHTMLElement(e) {
+  return e instanceof HTMLElement || e instanceof getWindow(e).HTMLElement;
+}
+__name(isHTMLElement, "isHTMLElement");
+function isHTMLAnchorElement(e) {
+  return e instanceof HTMLAnchorElement || e instanceof getWindow(e).HTMLAnchorElement;
+}
+__name(isHTMLAnchorElement, "isHTMLAnchorElement");
+function isHTMLSpanElement(e) {
+  return e instanceof HTMLSpanElement || e instanceof getWindow(e).HTMLSpanElement;
+}
+__name(isHTMLSpanElement, "isHTMLSpanElement");
+function isHTMLTextAreaElement(e) {
+  return e instanceof HTMLTextAreaElement || e instanceof getWindow(e).HTMLTextAreaElement;
+}
+__name(isHTMLTextAreaElement, "isHTMLTextAreaElement");
+function isHTMLInputElement(e) {
+  return e instanceof HTMLInputElement || e instanceof getWindow(e).HTMLInputElement;
+}
+__name(isHTMLInputElement, "isHTMLInputElement");
+function isHTMLButtonElement(e) {
+  return e instanceof HTMLButtonElement || e instanceof getWindow(e).HTMLButtonElement;
+}
+__name(isHTMLButtonElement, "isHTMLButtonElement");
+function isHTMLDivElement(e) {
+  return e instanceof HTMLDivElement || e instanceof getWindow(e).HTMLDivElement;
+}
+__name(isHTMLDivElement, "isHTMLDivElement");
+function isSVGElement(e) {
+  return e instanceof SVGElement || e instanceof getWindow(e).SVGElement;
+}
+__name(isSVGElement, "isSVGElement");
+function isMouseEvent(e) {
+  return e instanceof MouseEvent || e instanceof getWindow(e).MouseEvent;
+}
+__name(isMouseEvent, "isMouseEvent");
+function isKeyboardEvent(e) {
+  return e instanceof KeyboardEvent || e instanceof getWindow(e).KeyboardEvent;
+}
+__name(isKeyboardEvent, "isKeyboardEvent");
+function isPointerEvent(e) {
+  return e instanceof PointerEvent || e instanceof getWindow(e).PointerEvent;
+}
+__name(isPointerEvent, "isPointerEvent");
+function isDragEvent(e) {
+  return e instanceof DragEvent || e instanceof getWindow(e).DragEvent;
+}
+__name(isDragEvent, "isDragEvent");
+const EventType = {
+  // Mouse
+  CLICK: "click",
+  AUXCLICK: "auxclick",
+  DBLCLICK: "dblclick",
+  MOUSE_UP: "mouseup",
+  MOUSE_DOWN: "mousedown",
+  MOUSE_OVER: "mouseover",
+  MOUSE_MOVE: "mousemove",
+  MOUSE_OUT: "mouseout",
+  MOUSE_ENTER: "mouseenter",
+  MOUSE_LEAVE: "mouseleave",
+  MOUSE_WHEEL: "wheel",
+  POINTER_UP: "pointerup",
+  POINTER_DOWN: "pointerdown",
+  POINTER_MOVE: "pointermove",
+  POINTER_LEAVE: "pointerleave",
+  CONTEXT_MENU: "contextmenu",
+  WHEEL: "wheel",
+  // Keyboard
+  KEY_DOWN: "keydown",
+  KEY_PRESS: "keypress",
+  KEY_UP: "keyup",
+  // HTML Document
+  LOAD: "load",
+  BEFORE_UNLOAD: "beforeunload",
+  UNLOAD: "unload",
+  PAGE_SHOW: "pageshow",
+  PAGE_HIDE: "pagehide",
+  PASTE: "paste",
+  ABORT: "abort",
+  ERROR: "error",
+  RESIZE: "resize",
+  SCROLL: "scroll",
+  FULLSCREEN_CHANGE: "fullscreenchange",
+  WK_FULLSCREEN_CHANGE: "webkitfullscreenchange",
+  // Form
+  SELECT: "select",
+  CHANGE: "change",
+  SUBMIT: "submit",
+  RESET: "reset",
+  FOCUS: "focus",
+  FOCUS_IN: "focusin",
+  FOCUS_OUT: "focusout",
+  BLUR: "blur",
+  INPUT: "input",
+  // Local Storage
+  STORAGE: "storage",
+  // Drag
+  DRAG_START: "dragstart",
+  DRAG: "drag",
+  DRAG_ENTER: "dragenter",
+  DRAG_LEAVE: "dragleave",
+  DRAG_OVER: "dragover",
+  DROP: "drop",
+  DRAG_END: "dragend",
+  // Animation
+  ANIMATION_START: browser.isWebKit ? "webkitAnimationStart" : "animationstart",
+  ANIMATION_END: browser.isWebKit ? "webkitAnimationEnd" : "animationend",
+  ANIMATION_ITERATION: browser.isWebKit ? "webkitAnimationIteration" : "animationiteration"
+};
+function isEventLike(obj) {
+  const candidate = obj;
+  return !!(candidate && typeof candidate.preventDefault === "function" && typeof candidate.stopPropagation === "function");
+}
+__name(isEventLike, "isEventLike");
+const EventHelper = {
+  stop: /* @__PURE__ */ __name((e, cancelBubble) => {
+    e.preventDefault();
+    if (cancelBubble) {
+      e.stopPropagation();
+    }
+    return e;
+  }, "stop")
+};
+function saveParentsScrollTop(node) {
+  const r = [];
+  for (let i = 0; node && node.nodeType === node.ELEMENT_NODE; i++) {
+    r[i] = node.scrollTop;
+    node = node.parentNode;
+  }
+  return r;
+}
+__name(saveParentsScrollTop, "saveParentsScrollTop");
+function restoreParentsScrollTop(node, state) {
+  for (let i = 0; node && node.nodeType === node.ELEMENT_NODE; i++) {
+    if (node.scrollTop !== state[i]) {
+      node.scrollTop = state[i];
+    }
+    node = node.parentNode;
+  }
+}
+__name(restoreParentsScrollTop, "restoreParentsScrollTop");
+class FocusTracker extends Disposable {
+  static {
+    __name(this, "FocusTracker");
+  }
+  _onDidFocus = this._register(new event.Emitter());
+  onDidFocus = this._onDidFocus.event;
+  _onDidBlur = this._register(new event.Emitter());
+  onDidBlur = this._onDidBlur.event;
+  _refreshStateHandler;
+  static hasFocusWithin(element) {
+    if (isHTMLElement(element)) {
+      const shadowRoot = getShadowRoot(element);
+      const activeElement = shadowRoot ? shadowRoot.activeElement : element.ownerDocument.activeElement;
+      return isAncestor(activeElement, element);
+    } else {
+      const window = element;
+      return isAncestor(window.document.activeElement, window.document);
+    }
+  }
+  constructor(element) {
+    super();
+    let hasFocus = FocusTracker.hasFocusWithin(element);
+    let loosingFocus = false;
+    const onFocus = /* @__PURE__ */ __name(() => {
+      loosingFocus = false;
+      if (!hasFocus) {
+        hasFocus = true;
+        this._onDidFocus.fire();
+      }
+    }, "onFocus");
+    const onBlur = /* @__PURE__ */ __name(() => {
+      if (hasFocus) {
+        loosingFocus = true;
+        (isHTMLElement(element) ? getWindow(element) : element).setTimeout(() => {
+          if (loosingFocus) {
+            loosingFocus = false;
+            hasFocus = false;
+            this._onDidBlur.fire();
+          }
+        }, 0);
+      }
+    }, "onBlur");
+    this._refreshStateHandler = () => {
+      const currentNodeHasFocus = FocusTracker.hasFocusWithin(
+        element
+      );
+      if (currentNodeHasFocus !== hasFocus) {
+        if (hasFocus) {
+          onBlur();
+        } else {
+          onFocus();
+        }
+      }
+    };
+    this._register(
+      addDisposableListener(element, EventType.FOCUS, onFocus, true)
+    );
+    this._register(
+      addDisposableListener(element, EventType.BLUR, onBlur, true)
+    );
+    if (isHTMLElement(element)) {
+      this._register(
+        addDisposableListener(
+          element,
+          EventType.FOCUS_IN,
+          () => this._refreshStateHandler()
+        )
+      );
+      this._register(
+        addDisposableListener(
+          element,
+          EventType.FOCUS_OUT,
+          () => this._refreshStateHandler()
+        )
+      );
+    }
+  }
+  refreshState() {
+    this._refreshStateHandler();
+  }
+}
+function trackFocus(element) {
+  return new FocusTracker(element);
+}
+__name(trackFocus, "trackFocus");
+function after(sibling, child) {
+  sibling.after(child);
+  return child;
+}
+__name(after, "after");
+function append(parent, ...children) {
+  parent.append(...children);
+  if (children.length === 1 && typeof children[0] !== "string") {
+    return children[0];
+  }
+}
+__name(append, "append");
+function prepend(parent, child) {
+  parent.insertBefore(child, parent.firstChild);
+  return child;
+}
+__name(prepend, "prepend");
+function reset(parent, ...children) {
+  parent.innerText = "";
+  append(parent, ...children);
+}
+__name(reset, "reset");
+const SELECTOR_REGEX = /([\w\-]+)?(#([\w\-]+))?((\.([\w\-]+))*)/;
+var Namespace = /* @__PURE__ */ ((Namespace2) => {
+  Namespace2["HTML"] = "http://www.w3.org/1999/xhtml";
+  Namespace2["SVG"] = "http://www.w3.org/2000/svg";
+  return Namespace2;
+})(Namespace || {});
+function _$(namespace, description, attrs, ...children) {
+  const match = SELECTOR_REGEX.exec(description);
+  if (!match) {
+    throw new Error("Bad use of emmet");
+  }
+  const tagName = match[1] || "div";
+  let result;
+  if (namespace !== "http://www.w3.org/1999/xhtml" /* HTML */) {
+    result = document.createElementNS(namespace, tagName);
+  } else {
+    result = document.createElement(tagName);
+  }
+  if (match[3]) {
+    result.id = match[3];
+  }
+  if (match[4]) {
+    result.className = match[4].replace(/\./g, " ").trim();
+  }
+  if (attrs) {
+    Object.entries(attrs).forEach(([name, value]) => {
+      if (typeof value === "undefined") {
+        return;
+      }
+      if (/^on\w+$/.test(name)) {
+        result[name] = value;
+      } else if (name === "selected") {
+        if (value) {
+          result.setAttribute(name, "true");
+        }
+      } else {
+        result.setAttribute(name, value);
+      }
+    });
+  }
+  result.append(...children);
+  return result;
+}
+__name(_$, "_$");
+function $(description, attrs, ...children) {
+  return _$("http://www.w3.org/1999/xhtml" /* HTML */, description, attrs, ...children);
+}
+__name($, "$");
+$.SVG = function(description, attrs, ...children) {
+  return _$("http://www.w3.org/2000/svg" /* SVG */, description, attrs, ...children);
+};
+function join(nodes, separator) {
+  const result = [];
+  nodes.forEach((node, index) => {
+    if (index > 0) {
+      if (separator instanceof Node) {
+        result.push(separator.cloneNode());
+      } else {
+        result.push(document.createTextNode(separator));
+      }
+    }
+    result.push(node);
+  });
+  return result;
+}
+__name(join, "join");
+function setVisibility(visible, ...elements) {
+  if (visible) {
+    show(...elements);
+  } else {
+    hide(...elements);
+  }
+}
+__name(setVisibility, "setVisibility");
+function show(...elements) {
+  for (const element of elements) {
+    element.style.display = "";
+    element.removeAttribute("aria-hidden");
+  }
+}
+__name(show, "show");
+function hide(...elements) {
+  for (const element of elements) {
+    element.style.display = "none";
+    element.setAttribute("aria-hidden", "true");
+  }
+}
+__name(hide, "hide");
+function findParentWithAttribute(node, attribute) {
+  while (node && node.nodeType === node.ELEMENT_NODE) {
+    if (isHTMLElement(node) && node.hasAttribute(attribute)) {
+      return node;
+    }
+    node = node.parentNode;
+  }
+  return null;
+}
+__name(findParentWithAttribute, "findParentWithAttribute");
+function removeTabIndexAndUpdateFocus(node) {
+  if (!node || !node.hasAttribute("tabIndex")) {
+    return;
+  }
+  if (node.ownerDocument.activeElement === node) {
+    const parentFocusable = findParentWithAttribute(
+      node.parentElement,
+      "tabIndex"
+    );
+    parentFocusable?.focus();
+  }
+  node.removeAttribute("tabindex");
+}
+__name(removeTabIndexAndUpdateFocus, "removeTabIndexAndUpdateFocus");
+function finalHandler(fn) {
+  return (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fn(e);
+  };
+}
+__name(finalHandler, "finalHandler");
+function domContentLoaded(targetWindow) {
+  return new Promise((resolve) => {
+    const readyState = targetWindow.document.readyState;
+    if (readyState === "complete" || targetWindow.document && targetWindow.document.body !== null) {
+      resolve(void 0);
+    } else {
+      const listener = /* @__PURE__ */ __name(() => {
+        targetWindow.window.removeEventListener(
+          "DOMContentLoaded",
+          listener,
+          false
+        );
+        resolve();
+      }, "listener");
+      targetWindow.window.addEventListener(
+        "DOMContentLoaded",
+        listener,
+        false
+      );
+    }
+  });
+}
+__name(domContentLoaded, "domContentLoaded");
+function computeScreenAwareSize(window, cssPx) {
+  const screenPx = window.devicePixelRatio * cssPx;
+  return Math.max(1, Math.floor(screenPx)) / window.devicePixelRatio;
+}
+__name(computeScreenAwareSize, "computeScreenAwareSize");
+function windowOpenNoOpener(url) {
+  mainWindow.open(url, "_blank", "noopener");
+}
+__name(windowOpenNoOpener, "windowOpenNoOpener");
+const popupWidth = 780, popupHeight = 640;
+function windowOpenPopup(url) {
+  const left = Math.floor(
+    mainWindow.screenLeft + mainWindow.innerWidth / 2 - popupWidth / 2
+  );
+  const top = Math.floor(
+    mainWindow.screenTop + mainWindow.innerHeight / 2 - popupHeight / 2
+  );
+  mainWindow.open(
+    url,
+    "_blank",
+    `width=${popupWidth},height=${popupHeight},top=${top},left=${left}`
+  );
+}
+__name(windowOpenPopup, "windowOpenPopup");
+function windowOpenWithSuccess(url, noOpener = true) {
+  const newTab = mainWindow.open();
+  if (newTab) {
+    if (noOpener) {
+      newTab.opener = null;
+    }
+    newTab.location.href = url;
+    return true;
+  }
+  return false;
+}
+__name(windowOpenWithSuccess, "windowOpenWithSuccess");
+function animate(targetWindow, fn) {
+  const step = /* @__PURE__ */ __name(() => {
+    fn();
+    stepDisposable = scheduleAtNextAnimationFrame(targetWindow, step);
+  }, "step");
+  let stepDisposable = scheduleAtNextAnimationFrame(targetWindow, step);
+  return toDisposable(() => stepDisposable.dispose());
+}
+__name(animate, "animate");
+RemoteAuthorities.setPreferredWebSchema(
+  /^https:/.test(mainWindow.location.href) ? "https" : "http"
+);
+function triggerDownload(dataOrUri, name) {
+  let url;
+  if (URI.isUri(dataOrUri)) {
+    url = dataOrUri.toString(true);
+  } else {
+    const blob = new Blob([dataOrUri]);
+    url = URL.createObjectURL(blob);
+    setTimeout(() => URL.revokeObjectURL(url));
+  }
+  const activeWindow = getActiveWindow();
+  const anchor = document.createElement("a");
+  activeWindow.document.body.appendChild(anchor);
+  anchor.download = name;
+  anchor.href = url;
+  anchor.click();
+  setTimeout(() => anchor.remove());
+}
+__name(triggerDownload, "triggerDownload");
+function triggerUpload() {
+  return new Promise((resolve) => {
+    const activeWindow = getActiveWindow();
+    const input = document.createElement("input");
+    activeWindow.document.body.appendChild(input);
+    input.type = "file";
+    input.multiple = true;
+    event.Event.once(event.Event.fromDOMEventEmitter(input, "input"))(
+      () => {
+        resolve(input.files ?? void 0);
+      }
+    );
+    input.click();
+    setTimeout(() => input.remove());
+  });
+}
+__name(triggerUpload, "triggerUpload");
+var DetectedFullscreenMode = /* @__PURE__ */ ((DetectedFullscreenMode2) => {
+  DetectedFullscreenMode2[DetectedFullscreenMode2["DOCUMENT"] = 1] = "DOCUMENT";
+  DetectedFullscreenMode2[DetectedFullscreenMode2["BROWSER"] = 2] = "BROWSER";
+  return DetectedFullscreenMode2;
+})(DetectedFullscreenMode || {});
+function detectFullscreen(targetWindow) {
+  if (targetWindow.document.fullscreenElement || targetWindow.document.webkitFullscreenElement || targetWindow.document.webkitIsFullScreen) {
+    return { mode: 1 /* DOCUMENT */, guess: false };
+  }
+  if (targetWindow.innerHeight === targetWindow.screen.height) {
+    return { mode: 2 /* BROWSER */, guess: false };
+  }
+  if (platform.isMacintosh || platform.isLinux) {
+    if (targetWindow.outerHeight === targetWindow.screen.height && targetWindow.outerWidth === targetWindow.screen.width) {
+      return { mode: 2 /* BROWSER */, guess: true };
+    }
+  }
+  return null;
+}
+__name(detectFullscreen, "detectFullscreen");
+function hookDomPurifyHrefAndSrcSanitizer(allowedProtocols, allowDataImages = false) {
+  const anchor = document.createElement("a");
+  dompurify.addHook("afterSanitizeAttributes", (node) => {
+    for (const attr of ["href", "src"]) {
+      if (node.hasAttribute(attr)) {
+        const attrValue = node.getAttribute(attr);
+        if (attr === "href" && attrValue.startsWith("#")) {
+          continue;
+        }
+        anchor.href = attrValue;
+        if (!allowedProtocols.includes(
+          anchor.protocol.replace(/:$/, "")
+        )) {
+          if (allowDataImages && attr === "src" && anchor.href.startsWith("data:")) {
+            continue;
+          }
+          node.removeAttribute(attr);
+        }
+      }
+    }
+  });
+  return toDisposable(() => {
+    dompurify.removeHook("afterSanitizeAttributes");
+  });
+}
+__name(hookDomPurifyHrefAndSrcSanitizer, "hookDomPurifyHrefAndSrcSanitizer");
+const defaultSafeProtocols = [Schemas.http, Schemas.https, Schemas.command];
+const basicMarkupHtmlTags = Object.freeze([
+  "a",
+  "abbr",
+  "b",
+  "bdo",
+  "blockquote",
+  "br",
+  "caption",
+  "cite",
+  "code",
+  "col",
+  "colgroup",
+  "dd",
+  "del",
+  "details",
+  "dfn",
+  "div",
+  "dl",
+  "dt",
+  "em",
+  "figcaption",
+  "figure",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "hr",
+  "i",
+  "img",
+  "input",
+  "ins",
+  "kbd",
+  "label",
+  "li",
+  "mark",
+  "ol",
+  "p",
+  "pre",
+  "q",
+  "rp",
+  "rt",
+  "ruby",
+  "samp",
+  "small",
+  "small",
+  "source",
+  "span",
+  "strike",
+  "strong",
+  "sub",
+  "summary",
+  "sup",
+  "table",
+  "tbody",
+  "td",
+  "tfoot",
+  "th",
+  "thead",
+  "time",
+  "tr",
+  "tt",
+  "u",
+  "ul",
+  "var",
+  "video",
+  "wbr"
+]);
+const defaultDomPurifyConfig = Object.freeze({
+  ALLOWED_TAGS: [
+    "a",
+    "button",
+    "blockquote",
+    "code",
+    "div",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "input",
+    "label",
+    "li",
+    "p",
+    "pre",
+    "select",
+    "small",
+    "span",
+    "strong",
+    "textarea",
+    "ul",
+    "ol"
+  ],
+  ALLOWED_ATTR: [
+    "href",
+    "data-href",
+    "data-command",
+    "target",
+    "title",
+    "name",
+    "src",
+    "alt",
+    "class",
+    "id",
+    "role",
+    "tabindex",
+    "style",
+    "data-code",
+    "width",
+    "height",
+    "align",
+    "x-dispatch",
+    "required",
+    "checked",
+    "placeholder",
+    "type",
+    "start"
+  ],
+  RETURN_DOM: false,
+  RETURN_DOM_FRAGMENT: false,
+  RETURN_TRUSTED_TYPE: true
+});
+function safeInnerHtml(node, value, extraDomPurifyConfig) {
+  const hook = hookDomPurifyHrefAndSrcSanitizer(defaultSafeProtocols);
+  try {
+    const html = dompurify.sanitize(value, {
+      ...defaultDomPurifyConfig,
+      ...extraDomPurifyConfig
+    });
+    node.innerHTML = html;
+  } finally {
+    hook.dispose();
+  }
+}
+__name(safeInnerHtml, "safeInnerHtml");
+function toBinary(str) {
+  const codeUnits = new Uint16Array(str.length);
+  for (let i = 0; i < codeUnits.length; i++) {
+    codeUnits[i] = str.charCodeAt(i);
+  }
+  let binary = "";
+  const uint8array = new Uint8Array(codeUnits.buffer);
+  for (let i = 0; i < uint8array.length; i++) {
+    binary += String.fromCharCode(uint8array[i]);
+  }
+  return binary;
+}
+__name(toBinary, "toBinary");
+function multibyteAwareBtoa(str) {
+  return btoa(toBinary(str));
+}
+__name(multibyteAwareBtoa, "multibyteAwareBtoa");
+class ModifierKeyEmitter extends event.Emitter {
+  static {
+    __name(this, "ModifierKeyEmitter");
+  }
+  _subscriptions = new DisposableStore();
+  _keyStatus;
+  static instance;
+  constructor() {
+    super();
+    this._keyStatus = {
+      altKey: false,
+      shiftKey: false,
+      ctrlKey: false,
+      metaKey: false
+    };
+    this._subscriptions.add(
+      event.Event.runAndSubscribe(
+        onDidRegisterWindow,
+        ({ window, disposables }) => this.registerListeners(window, disposables),
+        { window: mainWindow, disposables: this._subscriptions }
+      )
+    );
+  }
+  registerListeners(window, disposables) {
+    disposables.add(
+      addDisposableListener(
+        window,
+        "keydown",
+        (e) => {
+          if (e.defaultPrevented) {
+            return;
+          }
+          const event2 = new StandardKeyboardEvent(e);
+          if (event2.keyCode === KeyCode.Alt && e.repeat) {
+            return;
+          }
+          if (e.altKey && !this._keyStatus.altKey) {
+            this._keyStatus.lastKeyPressed = "alt";
+          } else if (e.ctrlKey && !this._keyStatus.ctrlKey) {
+            this._keyStatus.lastKeyPressed = "ctrl";
+          } else if (e.metaKey && !this._keyStatus.metaKey) {
+            this._keyStatus.lastKeyPressed = "meta";
+          } else if (e.shiftKey && !this._keyStatus.shiftKey) {
+            this._keyStatus.lastKeyPressed = "shift";
+          } else if (event2.keyCode !== KeyCode.Alt) {
+            this._keyStatus.lastKeyPressed = void 0;
+          } else {
+            return;
+          }
+          this._keyStatus.altKey = e.altKey;
+          this._keyStatus.ctrlKey = e.ctrlKey;
+          this._keyStatus.metaKey = e.metaKey;
+          this._keyStatus.shiftKey = e.shiftKey;
+          if (this._keyStatus.lastKeyPressed) {
+            this._keyStatus.event = e;
+            this.fire(this._keyStatus);
+          }
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window,
+        "keyup",
+        (e) => {
+          if (e.defaultPrevented) {
+            return;
+          }
+          if (!e.altKey && this._keyStatus.altKey) {
+            this._keyStatus.lastKeyReleased = "alt";
+          } else if (!e.ctrlKey && this._keyStatus.ctrlKey) {
+            this._keyStatus.lastKeyReleased = "ctrl";
+          } else if (!e.metaKey && this._keyStatus.metaKey) {
+            this._keyStatus.lastKeyReleased = "meta";
+          } else if (!e.shiftKey && this._keyStatus.shiftKey) {
+            this._keyStatus.lastKeyReleased = "shift";
+          } else {
+            this._keyStatus.lastKeyReleased = void 0;
+          }
+          if (this._keyStatus.lastKeyPressed !== this._keyStatus.lastKeyReleased) {
+            this._keyStatus.lastKeyPressed = void 0;
+          }
+          this._keyStatus.altKey = e.altKey;
+          this._keyStatus.ctrlKey = e.ctrlKey;
+          this._keyStatus.metaKey = e.metaKey;
+          this._keyStatus.shiftKey = e.shiftKey;
+          if (this._keyStatus.lastKeyReleased) {
+            this._keyStatus.event = e;
+            this.fire(this._keyStatus);
+          }
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window.document.body,
+        "mousedown",
+        () => {
+          this._keyStatus.lastKeyPressed = void 0;
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window.document.body,
+        "mouseup",
+        () => {
+          this._keyStatus.lastKeyPressed = void 0;
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window.document.body,
+        "mousemove",
+        (e) => {
+          if (e.buttons) {
+            this._keyStatus.lastKeyPressed = void 0;
+          }
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(window, "blur", () => {
+        this.resetKeyStatus();
+      })
+    );
+  }
+  get keyStatus() {
+    return this._keyStatus;
+  }
+  get isModifierPressed() {
+    return this._keyStatus.altKey || this._keyStatus.ctrlKey || this._keyStatus.metaKey || this._keyStatus.shiftKey;
+  }
+  /**
+   * Allows to explicitly reset the key status based on more knowledge (#109062)
+   */
+  resetKeyStatus() {
+    this.doResetKeyStatus();
+    this.fire(this._keyStatus);
+  }
+  doResetKeyStatus() {
+    this._keyStatus = {
+      altKey: false,
+      shiftKey: false,
+      ctrlKey: false,
+      metaKey: false
+    };
+  }
+  static getInstance() {
+    if (!ModifierKeyEmitter.instance) {
+      ModifierKeyEmitter.instance = new ModifierKeyEmitter();
+    }
+    return ModifierKeyEmitter.instance;
+  }
+  dispose() {
+    super.dispose();
+    this._subscriptions.dispose();
+  }
+}
+function getCookieValue(name) {
+  const match = document.cookie.match(
+    "(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)"
+  );
+  return match ? match.pop() : void 0;
+}
+__name(getCookieValue, "getCookieValue");
+class DragAndDropObserver extends Disposable {
+  constructor(element, callbacks) {
+    super();
+    this.element = element;
+    this.callbacks = callbacks;
+    this.registerListeners();
+  }
+  static {
+    __name(this, "DragAndDropObserver");
+  }
+  // A helper to fix issues with repeated DRAG_ENTER / DRAG_LEAVE
+  // calls see https://github.com/microsoft/vscode/issues/14470
+  // when the element has child elements where the events are fired
+  // repeadedly.
+  counter = 0;
+  // Allows to measure the duration of the drag operation.
+  dragStartTime = 0;
+  registerListeners() {
+    if (this.callbacks.onDragStart) {
+      this._register(
+        addDisposableListener(
+          this.element,
+          EventType.DRAG_START,
+          (e) => {
+            this.callbacks.onDragStart?.(e);
+          }
+        )
+      );
+    }
+    if (this.callbacks.onDrag) {
+      this._register(
+        addDisposableListener(
+          this.element,
+          EventType.DRAG,
+          (e) => {
+            this.callbacks.onDrag?.(e);
+          }
+        )
+      );
+    }
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_ENTER,
+        (e) => {
+          this.counter++;
+          this.dragStartTime = e.timeStamp;
+          this.callbacks.onDragEnter?.(e);
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_OVER,
+        (e) => {
+          e.preventDefault();
+          this.callbacks.onDragOver?.(
+            e,
+            e.timeStamp - this.dragStartTime
+          );
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_LEAVE,
+        (e) => {
+          this.counter--;
+          if (this.counter === 0) {
+            this.dragStartTime = 0;
+            this.callbacks.onDragLeave?.(e);
+          }
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_END,
+        (e) => {
+          this.counter = 0;
+          this.dragStartTime = 0;
+          this.callbacks.onDragEnd?.(e);
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DROP,
+        (e) => {
+          this.counter = 0;
+          this.dragStartTime = 0;
+          this.callbacks.onDrop?.(e);
+        }
+      )
+    );
+  }
+}
+const H_REGEX = /(?<tag>[\w\-]+)?(?:#(?<id>[\w\-]+))?(?<class>(?:\.(?:[\w\-]+))*)(?:@(?<name>(?:[\w\_])+))?/;
+function h(tag, ...args) {
+  let attributes;
+  let children;
+  if (Array.isArray(args[0])) {
+    attributes = {};
+    children = args[0];
+  } else {
+    attributes = args[0] || {};
+    children = args[1];
+  }
+  const match = H_REGEX.exec(tag);
+  if (!match || !match.groups) {
+    throw new Error("Bad use of h");
+  }
+  const tagName = match.groups["tag"] || "div";
+  const el = document.createElement(tagName);
+  if (match.groups["id"]) {
+    el.id = match.groups["id"];
+  }
+  const classNames = [];
+  if (match.groups["class"]) {
+    for (const className of match.groups["class"].split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (attributes.className !== void 0) {
+    for (const className of attributes.className.split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (classNames.length > 0) {
+    el.className = classNames.join(" ");
+  }
+  const result = {};
+  if (match.groups["name"]) {
+    result[match.groups["name"]] = el;
+  }
+  if (children) {
+    for (const c of children) {
+      if (isHTMLElement(c)) {
+        el.appendChild(c);
+      } else if (typeof c === "string") {
+        el.append(c);
+      } else if ("root" in c) {
+        Object.assign(result, c);
+        el.appendChild(c.root);
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(attributes)) {
+    if (key === "className") {
+      continue;
+    } else if (key === "style") {
+      for (const [cssKey, cssValue] of Object.entries(value)) {
+        el.style.setProperty(
+          camelCaseToHyphenCase(cssKey),
+          typeof cssValue === "number" ? cssValue + "px" : "" + cssValue
+        );
+      }
+    } else if (key === "tabIndex") {
+      el.tabIndex = value;
+    } else {
+      el.setAttribute(camelCaseToHyphenCase(key), value.toString());
+    }
+  }
+  result["root"] = el;
+  return result;
+}
+__name(h, "h");
+function svgElem(tag, ...args) {
+  let attributes;
+  let children;
+  if (Array.isArray(args[0])) {
+    attributes = {};
+    children = args[0];
+  } else {
+    attributes = args[0] || {};
+    children = args[1];
+  }
+  const match = H_REGEX.exec(tag);
+  if (!match || !match.groups) {
+    throw new Error("Bad use of h");
+  }
+  const tagName = match.groups["tag"] || "div";
+  const el = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    tagName
+  );
+  if (match.groups["id"]) {
+    el.id = match.groups["id"];
+  }
+  const classNames = [];
+  if (match.groups["class"]) {
+    for (const className of match.groups["class"].split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (attributes.className !== void 0) {
+    for (const className of attributes.className.split(".")) {
+      if (className !== "") {
+        classNames.push(className);
+      }
+    }
+  }
+  if (classNames.length > 0) {
+    el.className = classNames.join(" ");
+  }
+  const result = {};
+  if (match.groups["name"]) {
+    result[match.groups["name"]] = el;
+  }
+  if (children) {
+    for (const c of children) {
+      if (isHTMLElement(c)) {
+        el.appendChild(c);
+      } else if (typeof c === "string") {
+        el.append(c);
+      } else if ("root" in c) {
+        Object.assign(result, c);
+        el.appendChild(c.root);
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(attributes)) {
+    if (key === "className") {
+      continue;
+    } else if (key === "style") {
+      for (const [cssKey, cssValue] of Object.entries(value)) {
+        el.style.setProperty(
+          camelCaseToHyphenCase(cssKey),
+          typeof cssValue === "number" ? cssValue + "px" : "" + cssValue
+        );
+      }
+    } else if (key === "tabIndex") {
+      el.tabIndex = value;
+    } else {
+      el.setAttribute(camelCaseToHyphenCase(key), value.toString());
+    }
+  }
+  result["root"] = el;
+  return result;
+}
+__name(svgElem, "svgElem");
+function camelCaseToHyphenCase(str) {
+  return str.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+}
+__name(camelCaseToHyphenCase, "camelCaseToHyphenCase");
+function copyAttributes(from, to, filter) {
+  for (const { name, value } of from.attributes) {
+    if (!filter || filter.includes(name)) {
+      to.setAttribute(name, value);
+    }
+  }
+}
+__name(copyAttributes, "copyAttributes");
+function copyAttribute(from, to, name) {
+  const value = from.getAttribute(name);
+  if (value) {
+    to.setAttribute(name, value);
+  } else {
+    to.removeAttribute(name);
+  }
+}
+__name(copyAttribute, "copyAttribute");
+function trackAttributes(from, to, filter) {
+  copyAttributes(from, to, filter);
+  const disposables = new DisposableStore();
+  disposables.add(
+    sharedMutationObserver.observe(from, disposables, {
+      attributes: true,
+      attributeFilter: filter
+    })((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "attributes" && mutation.attributeName) {
+          copyAttribute(from, to, mutation.attributeName);
+        }
+      }
+    })
+  );
+  return disposables;
+}
+__name(trackAttributes, "trackAttributes");
+function isEditableElement(element) {
+  return element.tagName.toLowerCase() === "input" || element.tagName.toLowerCase() === "textarea" || isHTMLElement(element) && !!element.editContext;
+}
+__name(isEditableElement, "isEditableElement");
+class SafeTriangle {
+  constructor(originX, originY, target) {
+    this.originX = originX;
+    this.originY = originY;
+    const { top, left, right, bottom } = target.getBoundingClientRect();
+    const t = this.points;
+    let i = 0;
+    t[i++] = left;
+    t[i++] = top;
+    t[i++] = right;
+    t[i++] = top;
+    t[i++] = left;
+    t[i++] = bottom;
+    t[i++] = right;
+    t[i++] = bottom;
+  }
+  static {
+    __name(this, "SafeTriangle");
+  }
+  // 4 points (x, y), 8 length
+  points = new Int16Array(8);
+  contains(x, y) {
+    const { points, originX, originY } = this;
+    for (let i = 0; i < 4; i++) {
+      const p1 = 2 * i;
+      const p2 = 2 * ((i + 1) % 4);
+      if (isPointWithinTriangle(
+        x,
+        y,
+        originX,
+        originY,
+        points[p1],
+        points[p1 + 1],
+        points[p2],
+        points[p2 + 1]
+      )) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+export {
+  $,
+  DetectedFullscreenMode,
+  Dimension,
+  DragAndDropObserver,
+  EventHelper,
+  EventType,
+  ModifierKeyEmitter,
+  Namespace,
+  SafeTriangle,
+  WindowIdleValue,
+  WindowIntervalTimer,
+  addDisposableGenericMouseDownListener,
+  addDisposableGenericMouseMoveListener,
+  addDisposableGenericMouseUpListener,
+  addDisposableListener,
+  addDisposableThrottledListener,
+  addStandardDisposableGenericMouseDownListener,
+  addStandardDisposableGenericMouseUpListener,
+  addStandardDisposableListener,
+  after,
+  animate,
+  append,
+  basicMarkupHtmlTags,
+  clearNode,
+  computeScreenAwareSize,
+  copyAttributes,
+  createLinkElement,
+  createMetaElement,
+  detectFullscreen,
+  disposableWindowInterval,
+  domContentLoaded,
+  finalHandler,
+  findParentWithClass,
+  getActiveDocument,
+  getActiveElement,
+  getActiveWindow,
+  getClientArea,
+  getComputedStyle,
+  getContentHeight,
+  getContentWidth,
+  getCookieValue,
+  getDocument,
+  getDomNodePagePosition,
+  getDomNodeZoomLevel,
+  getLargestChildWidth,
+  getShadowRoot,
+  getTopLeftOffset,
+  getTotalHeight,
+  getTotalScrollWidth,
+  getTotalWidth,
+  getWindow,
+  getWindowById,
+  getWindowId,
+  getWindows,
+  getWindowsCount,
+  h,
+  hasParentWithClass,
+  hasWindow,
+  hide,
+  hookDomPurifyHrefAndSrcSanitizer,
+  isActiveDocument,
+  isActiveElement,
+  isAncestor,
+  isAncestorOfActiveElement,
+  isAncestorUsingFlowTo,
+  isDragEvent,
+  isEditableElement,
+  isEventLike,
+  isHTMLAnchorElement,
+  isHTMLButtonElement,
+  isHTMLDivElement,
+  isHTMLElement,
+  isHTMLInputElement,
+  isHTMLSpanElement,
+  isHTMLTextAreaElement,
+  isInShadowDOM,
+  isKeyboardEvent,
+  isMouseEvent,
+  isPointerEvent,
+  isSVGElement,
+  isShadowRoot,
+  join,
+  measure,
+  modify,
+  multibyteAwareBtoa,
+  onDidRegisterWindow,
+  onDidUnregisterWindow,
+  onWillUnregisterWindow,
+  position,
+  prepend,
+  registerWindow,
+  removeTabIndexAndUpdateFocus,
+  reset,
+  restoreParentsScrollTop,
+  runAtThisOrScheduleAtNextAnimationFrame,
+  runWhenWindowIdle,
+  safeInnerHtml,
+  saveParentsScrollTop,
+  scheduleAtNextAnimationFrame,
+  setParentFlowTo,
+  setVisibility,
+  sharedMutationObserver,
+  show,
+  size,
+  svgElem,
+  trackAttributes,
+  trackFocus,
+  triggerDownload,
+  triggerUpload,
+  windowOpenNoOpener,
+  windowOpenPopup,
+  windowOpenWithSuccess
+};
+//# sourceMappingURL=dom.js.map

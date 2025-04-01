@@ -1,1 +1,69 @@
-import"./media/sidebarpart.css";import{KeyCode as d,KeyMod as p}from"../../../../base/common/keyCodes.js";import{localize2 as t}from"../../../../nls.js";import{Categories as c}from"../../../../platform/action/common/actionCommonCategories.js";import{Action2 as s,registerAction2 as n}from"../../../../platform/actions/common/actions.js";import"../../../../platform/instantiation/common/instantiation.js";import{KeybindingWeight as S}from"../../../../platform/keybinding/common/keybindingsRegistry.js";import{SideBarVisibleContext as l}from"../../../common/contextkeys.js";import{ViewContainerLocation as f}from"../../../common/views.js";import{IWorkbenchLayoutService as a,Parts as e}from"../../../services/layout/browser/layoutService.js";import{IPaneCompositePartService as u}from"../../../services/panecomposite/browser/panecomposite.js";n(class extends s{constructor(){super({id:"workbench.action.closeSidebar",title:t("closeSidebar","Close Primary Side Bar"),category:c.View,f1:!0,precondition:l})}run(i){i.get(a).setPartHidden(!0,e.SIDEBAR_PART)}});class g extends s{constructor(){super({id:"workbench.action.focusSideBar",title:t("focusSideBar","Focus into Primary Side Bar"),category:c.View,f1:!0,keybinding:{weight:S.WorkbenchContrib,when:null,primary:p.CtrlCmd|d.Digit0}})}async run(r){const o=r.get(a),m=r.get(u);o.isVisible(e.SIDEBAR_PART)||o.setPartHidden(!1,e.SIDEBAR_PART),m.getActivePaneComposite(f.Sidebar)?.focus()}}n(g);export{g as FocusSideBarAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/sidebarpart.css";
+import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
+import { localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { SideBarVisibleContext } from "../../../common/contextkeys.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+import {
+  IWorkbenchLayoutService,
+  Parts
+} from "../../../services/layout/browser/layoutService.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+registerAction2(
+  class extends Action2 {
+    constructor() {
+      super({
+        id: "workbench.action.closeSidebar",
+        title: localize2("closeSidebar", "Close Primary Side Bar"),
+        category: Categories.View,
+        f1: true,
+        precondition: SideBarVisibleContext
+      });
+    }
+    run(accessor) {
+      accessor.get(IWorkbenchLayoutService).setPartHidden(true, Parts.SIDEBAR_PART);
+    }
+  }
+);
+class FocusSideBarAction extends Action2 {
+  static {
+    __name(this, "FocusSideBarAction");
+  }
+  constructor() {
+    super({
+      id: "workbench.action.focusSideBar",
+      title: localize2("focusSideBar", "Focus into Primary Side Bar"),
+      category: Categories.View,
+      f1: true,
+      keybinding: {
+        weight: KeybindingWeight.WorkbenchContrib,
+        when: null,
+        primary: KeyMod.CtrlCmd | KeyCode.Digit0
+      }
+    });
+  }
+  async run(accessor) {
+    const layoutService = accessor.get(IWorkbenchLayoutService);
+    const paneCompositeService = accessor.get(IPaneCompositePartService);
+    if (!layoutService.isVisible(Parts.SIDEBAR_PART)) {
+      layoutService.setPartHidden(false, Parts.SIDEBAR_PART);
+    }
+    const viewlet = paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Sidebar
+    );
+    viewlet?.focus();
+  }
+}
+registerAction2(FocusSideBarAction);
+export {
+  FocusSideBarAction
+};
+//# sourceMappingURL=sidebarActions.js.map

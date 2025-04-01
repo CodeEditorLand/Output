@@ -1,1 +1,83 @@
-var c=Object.defineProperty;var D=Object.getOwnPropertyDescriptor;var m=(n,r,i,t)=>{for(var e=t>1?void 0:t?D(r,i):r,o=n.length-1,s;o>=0;o--)(s=n[o])&&(e=(t?s(r,i,e):s(e))||e);return t&&e&&c(r,i,e),e},d=(n,r)=>(i,t)=>r(i,t,n);import{WindowIdleValue as v}from"../../../../base/browser/dom.js";import{mainWindow as l}from"../../../../base/browser/window.js";import{Emitter as p}from"../../../../base/common/event.js";import{Disposable as S}from"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import{createDecorator as T,IInstantiationService as _}from"../../../../platform/instantiation/common/instantiation.js";import{IStorageService as I,StorageScope as h}from"../../../../platform/storage/common/storage.js";import{isURLDomainTrusted as f}from"../common/trustedDomains.js";import{readStaticTrustedDomains as u,TRUSTED_DOMAINS_STORAGE_KEY as g}from"./trustedDomains.js";const y=T("ITrustedDomainService");let a=class extends S{constructor(i,t){super();this._instantiationService=i;this._storageService=t;const e=()=>new v(l,()=>{const{defaultTrustedDomains:o,trustedDomains:s}=this._instantiationService.invokeFunction(u);return[...o,...s]});this._staticTrustedDomainsResult=e(),this._register(this._storageService.onDidChangeValue(h.APPLICATION,g,this._store)(()=>{this._staticTrustedDomainsResult?.dispose(),this._staticTrustedDomainsResult=e(),this._onDidChangeTrustedDomains.fire()}))}_serviceBrand;_staticTrustedDomainsResult;_onDidChangeTrustedDomains=this._register(new p);onDidChangeTrustedDomains=this._onDidChangeTrustedDomains.event;isValid(i){const{defaultTrustedDomains:t,trustedDomains:e}=this._instantiationService.invokeFunction(u),o=[...t,...e];return f(i,o)}};a=m([d(0,_),d(1,I)],a);export{y as ITrustedDomainService,a as TrustedDomainService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { WindowIdleValue } from "../../../../base/browser/dom.js";
+import { mainWindow } from "../../../../base/browser/window.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IStorageService,
+  StorageScope
+} from "../../../../platform/storage/common/storage.js";
+import { isURLDomainTrusted } from "../common/trustedDomains.js";
+import {
+  readStaticTrustedDomains,
+  TRUSTED_DOMAINS_STORAGE_KEY
+} from "./trustedDomains.js";
+const ITrustedDomainService = createDecorator(
+  "ITrustedDomainService"
+);
+let TrustedDomainService = class extends Disposable {
+  constructor(_instantiationService, _storageService) {
+    super();
+    this._instantiationService = _instantiationService;
+    this._storageService = _storageService;
+    const initStaticDomainsResult = /* @__PURE__ */ __name(() => {
+      return new WindowIdleValue(mainWindow, () => {
+        const { defaultTrustedDomains, trustedDomains } = this._instantiationService.invokeFunction(
+          readStaticTrustedDomains
+        );
+        return [...defaultTrustedDomains, ...trustedDomains];
+      });
+    }, "initStaticDomainsResult");
+    this._staticTrustedDomainsResult = initStaticDomainsResult();
+    this._register(
+      this._storageService.onDidChangeValue(
+        StorageScope.APPLICATION,
+        TRUSTED_DOMAINS_STORAGE_KEY,
+        this._store
+      )(() => {
+        this._staticTrustedDomainsResult?.dispose();
+        this._staticTrustedDomainsResult = initStaticDomainsResult();
+        this._onDidChangeTrustedDomains.fire();
+      })
+    );
+  }
+  static {
+    __name(this, "TrustedDomainService");
+  }
+  _serviceBrand;
+  _staticTrustedDomainsResult;
+  _onDidChangeTrustedDomains = this._register(
+    new Emitter()
+  );
+  onDidChangeTrustedDomains = this._onDidChangeTrustedDomains.event;
+  isValid(resource) {
+    const { defaultTrustedDomains, trustedDomains } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
+    const allTrustedDomains = [...defaultTrustedDomains, ...trustedDomains];
+    return isURLDomainTrusted(resource, allTrustedDomains);
+  }
+};
+TrustedDomainService = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IStorageService)
+], TrustedDomainService);
+export {
+  ITrustedDomainService,
+  TrustedDomainService
+};
+//# sourceMappingURL=trustedDomainService.js.map

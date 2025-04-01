@@ -1,1 +1,111 @@
-var a=Object.defineProperty;var C=Object.getOwnPropertyDescriptor;var u=(p,o,e)=>o in p?a(p,o,{enumerable:!0,configurable:!0,writable:!0,value:e}):p[o]=e;var l=(p,o,e,t)=>{for(var r=t>1?void 0:t?C(o,e):o,i=p.length-1,s;i>=0;i--)(s=p[i])&&(r=(t?s(o,e,r):s(r))||r);return t&&r&&a(o,e,r),r},c=(p,o)=>(e,t)=>o(e,t,p);var M=(p,o,e)=>u(p,typeof o!="symbol"?o+"":o,e);import"../../../base/common/cancellation.js";import{Disposable as f,DisposableMap as g}from"../../../base/common/lifecycle.js";import{URI as P}from"../../../base/common/uri.js";import{TextEdit as E}from"../../../editor/common/languages.js";import{ICodeMapperService as b}from"../../contrib/chat/common/chatCodeMapperService.js";import{extHostNamedCustomer as D}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as y,MainContext as H}from"../common/extHost.protocol.js";import{NotebookDto as R}from"./mainThreadNotebookDto.js";let n=class extends f{constructor(e,t){super();this.codeMapperService=t;this._proxy=e.getProxy(y.ExtHostCodeMapper)}providers=this._register(new g);_proxy;_responseMap=new Map;$registerCodeMapperProvider(e,t){const r={displayName:t,mapCode:async(s,m,v)=>{const d=String(n._requestHandlePool++);this._responseMap.set(d,m);const x={requestId:d,codeBlocks:s.codeBlocks,chatRequestId:s.chatRequestId,location:s.location};try{return await this._proxy.$mapCode(e,x,v).then(I=>I??void 0)}finally{this._responseMap.delete(d)}}},i=this.codeMapperService.registerCodeMapperProvider(e,r);this.providers.set(e,i)}$unregisterCodeMapperProvider(e){this.providers.deleteAndDispose(e)}$handleProgress(e,t){const r=this._responseMap.get(e);if(r){const i=t.edits,s=P.revive(t.uri);i.length?i.every(E.isTextEdit)?r.textEdit(s,i):r.notebookEdit(s,i.map(R.fromCellEditOperationDto)):r.textEdit(s,[])}return Promise.resolve()}};M(n,"_requestHandlePool",0),n=l([D(H.MainThreadCodeMapper),c(1,b)],n);export{n as MainThreadChatCodemapper};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import {
+  Disposable,
+  DisposableMap,
+  IDisposable
+} from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import { TextEdit } from "../../../editor/common/languages.js";
+import {
+  ICodeMapperProvider,
+  ICodeMapperRequest,
+  ICodeMapperResponse,
+  ICodeMapperService
+} from "../../contrib/chat/common/chatCodeMapperService.js";
+import {
+  extHostNamedCustomer,
+  IExtHostContext
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostCodeMapperShape,
+  ExtHostContext,
+  ICodeMapperProgressDto,
+  ICodeMapperRequestDto,
+  MainContext,
+  MainThreadCodeMapperShape
+} from "../common/extHost.protocol.js";
+import { NotebookDto } from "./mainThreadNotebookDto.js";
+let MainThreadChatCodemapper = class extends Disposable {
+  constructor(extHostContext, codeMapperService) {
+    super();
+    this.codeMapperService = codeMapperService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostCodeMapper);
+  }
+  providers = this._register(
+    new DisposableMap()
+  );
+  _proxy;
+  _responseMap = /* @__PURE__ */ new Map();
+  $registerCodeMapperProvider(handle, displayName) {
+    const impl = {
+      displayName,
+      mapCode: /* @__PURE__ */ __name(async (uiRequest, response, token) => {
+        const requestId = String(
+          MainThreadChatCodemapper._requestHandlePool++
+        );
+        this._responseMap.set(requestId, response);
+        const extHostRequest = {
+          requestId,
+          codeBlocks: uiRequest.codeBlocks,
+          chatRequestId: uiRequest.chatRequestId,
+          location: uiRequest.location
+        };
+        try {
+          return await this._proxy.$mapCode(handle, extHostRequest, token).then((result) => result ?? void 0);
+        } finally {
+          this._responseMap.delete(requestId);
+        }
+      }, "mapCode")
+    };
+    const disposable = this.codeMapperService.registerCodeMapperProvider(
+      handle,
+      impl
+    );
+    this.providers.set(handle, disposable);
+  }
+  $unregisterCodeMapperProvider(handle) {
+    this.providers.deleteAndDispose(handle);
+  }
+  $handleProgress(requestId, data) {
+    const response = this._responseMap.get(requestId);
+    if (response) {
+      const edits = data.edits;
+      const resource = URI.revive(data.uri);
+      if (!edits.length) {
+        response.textEdit(resource, []);
+      } else if (edits.every(TextEdit.isTextEdit)) {
+        response.textEdit(resource, edits);
+      } else {
+        response.notebookEdit(
+          resource,
+          edits.map(NotebookDto.fromCellEditOperationDto)
+        );
+      }
+    }
+    return Promise.resolve();
+  }
+};
+__name(MainThreadChatCodemapper, "MainThreadChatCodemapper");
+__publicField(MainThreadChatCodemapper, "_requestHandlePool", 0);
+MainThreadChatCodemapper = __decorateClass([
+  extHostNamedCustomer(MainContext.MainThreadCodeMapper),
+  __decorateParam(1, ICodeMapperService)
+], MainThreadChatCodemapper);
+export {
+  MainThreadChatCodemapper
+};
+//# sourceMappingURL=mainThreadChatCodeMapper.js.map

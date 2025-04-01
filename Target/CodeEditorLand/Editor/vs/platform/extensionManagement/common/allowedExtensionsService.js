@@ -1,1 +1,204 @@
-var L=Object.defineProperty;var _=Object.getOwnPropertyDescriptor;var b=(n,s,e,r)=>{for(var i=r>1?void 0:r?_(s,e):s,t=n.length-1,o;t>=0;t--)(o=n[t])&&(i=(r?o(s,e,i):o(i))||i);return r&&i&&L(s,e,i),i},c=(n,s)=>(e,r)=>s(e,r,n);import{Emitter as P}from"../../../base/common/event.js";import{MarkdownString as f}from"../../../base/common/htmlContent.js";import{Disposable as D}from"../../../base/common/lifecycle.js";import{isBoolean as v,isObject as O,isUndefined as x}from"../../../base/common/types.js";import{URI as T}from"../../../base/common/uri.js";import*as d from"../../../nls.js";import{IConfigurationService as N}from"../../configuration/common/configuration.js";import{ExtensionType as V,TargetPlatform as A}from"../../extensions/common/extensions.js";import{IProductService as R}from"../../product/common/productService.js";import{AllowedExtensionsConfigKey as C}from"./extensionManagement.js";function U(n){return n.type==="gallery"}function k(n){return n.type===V.User||n.type===V.System}const z=/^(?<version>\d+\.\d+\.\d+(-.*)?)(@(?<platform>.+))?$/;let h=class extends D{constructor(e,r){super();this.configurationService=r;this.publisherOrgs=e.extensionPublisherOrgs?.map(i=>i.toLowerCase())??[],this._allowedExtensionsConfigValue=this.getAllowedExtensionsValue(),this._register(this.configurationService.onDidChangeConfiguration(i=>{i.affectsConfiguration(C)&&(this._allowedExtensionsConfigValue=this.getAllowedExtensionsValue(),this._onDidChangeAllowedExtensions.fire())}))}_serviceBrand;publisherOrgs;_allowedExtensionsConfigValue;get allowedExtensionsConfigValue(){return this._allowedExtensionsConfigValue}_onDidChangeAllowedExtensions=this._register(new P);onDidChangeAllowedExtensionsConfigValue=this._onDidChangeAllowedExtensions.event;getAllowedExtensionsValue(){const e=this.configurationService.getValue(C);if(!O(e)||Array.isArray(e))return;const r=Object.entries(e).map(([i,t])=>[i.toLowerCase(),t]);if(!(r.length===1&&r[0][0]==="*"&&r[0][1]===!0))return Object.fromEntries(r)}isAllowed(e){if(!this._allowedExtensionsConfigValue)return!0;let r,i,t,o,p,l;U(e)?(r=e.identifier.id.toLowerCase(),i=e.version,o=e.properties.isPreReleaseVersion,p=e.publisher.toLowerCase(),l=e.publisherDisplayName.toLowerCase(),t=e.properties.targetPlatform):k(e)?(r=e.identifier.id.toLowerCase(),i=e.manifest.version,o=e.preRelease,p=e.manifest.publisher.toLowerCase(),l=e.publisherDisplayName?.toLowerCase(),t=e.targetPlatform):(r=e.id.toLowerCase(),i=e.version??"*",t=e.targetPlatform??A.UNIVERSAL,o=e.prerelease??!1,p=e.id.substring(0,e.id.indexOf(".")).toLowerCase(),l=e.publisherDisplayName?.toLowerCase());const u=T.parse(`command:workbench.action.openSettings?${encodeURIComponent(JSON.stringify({query:`@id:${C}`}))}`).toString(),a=this._allowedExtensionsConfigValue[r],E=new f(d.localize("specific extension not allowed","it is not in the [allowed list]({0})",u));if(!x(a))return v(a)?a?!0:E:a==="stable"&&o?new f(d.localize("extension prerelease not allowed","the pre-release versions of this extension are not in the [allowed list]({0})",u)):i!=="*"&&Array.isArray(a)&&!a.some(I=>{const w=z.exec(I);if(w&&w.groups){const{platform:y,version:S}=w.groups;return!(S!==i||t!==A.UNIVERSAL&&y&&t!==y)}return!1})?new f(d.localize("specific version of extension not allowed","the version {0} of this extension is not in the [allowed list]({1})",i,u)):!0;const m=l&&this.publisherOrgs.includes(l)?l:p,g=this._allowedExtensionsConfigValue[m];return x(g)?this._allowedExtensionsConfigValue["*"]===!0?!0:E:v(g)?g?!0:new f(d.localize("publisher not allowed","the extensions from this publisher are not in the [allowed list]({1})",m,u)):g==="stable"&&o?new f(d.localize("prerelease versions from this publisher not allowed","the pre-release versions from this publisher are not in the [allowed list]({1})",m,u)):!0}};h=b([c(0,R),c(1,N)],h);export{h as AllowedExtensionsService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../base/common/event.js";
+import {
+  IMarkdownString,
+  MarkdownString
+} from "../../../base/common/htmlContent.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import {
+  isBoolean,
+  isObject,
+  isUndefined
+} from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import * as nls from "../../../nls.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import {
+  ExtensionType,
+  IExtension,
+  TargetPlatform
+} from "../../extensions/common/extensions.js";
+import { IProductService } from "../../product/common/productService.js";
+import {
+  AllowedExtensionsConfigKey,
+  AllowedExtensionsConfigValueType,
+  IAllowedExtensionsService,
+  IGalleryExtension
+} from "./extensionManagement.js";
+function isGalleryExtension(extension) {
+  return extension.type === "gallery";
+}
+__name(isGalleryExtension, "isGalleryExtension");
+function isIExtension(extension) {
+  return extension.type === ExtensionType.User || extension.type === ExtensionType.System;
+}
+__name(isIExtension, "isIExtension");
+const VersionRegex = /^(?<version>\d+\.\d+\.\d+(-.*)?)(@(?<platform>.+))?$/;
+let AllowedExtensionsService = class extends Disposable {
+  constructor(productService, configurationService) {
+    super();
+    this.configurationService = configurationService;
+    this.publisherOrgs = productService.extensionPublisherOrgs?.map(
+      (p) => p.toLowerCase()
+    ) ?? [];
+    this._allowedExtensionsConfigValue = this.getAllowedExtensionsValue();
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(AllowedExtensionsConfigKey)) {
+          this._allowedExtensionsConfigValue = this.getAllowedExtensionsValue();
+          this._onDidChangeAllowedExtensions.fire();
+        }
+      })
+    );
+  }
+  static {
+    __name(this, "AllowedExtensionsService");
+  }
+  _serviceBrand;
+  publisherOrgs;
+  _allowedExtensionsConfigValue;
+  get allowedExtensionsConfigValue() {
+    return this._allowedExtensionsConfigValue;
+  }
+  _onDidChangeAllowedExtensions = this._register(new Emitter());
+  onDidChangeAllowedExtensionsConfigValue = this._onDidChangeAllowedExtensions.event;
+  getAllowedExtensionsValue() {
+    const value = this.configurationService.getValue(AllowedExtensionsConfigKey);
+    if (!isObject(value) || Array.isArray(value)) {
+      return void 0;
+    }
+    const entries = Object.entries(value).map(([key, value2]) => [
+      key.toLowerCase(),
+      value2
+    ]);
+    if (entries.length === 1 && entries[0][0] === "*" && entries[0][1] === true) {
+      return void 0;
+    }
+    return Object.fromEntries(entries);
+  }
+  isAllowed(extension) {
+    if (!this._allowedExtensionsConfigValue) {
+      return true;
+    }
+    let id, version, targetPlatform, prerelease, publisher, publisherDisplayName;
+    if (isGalleryExtension(extension)) {
+      id = extension.identifier.id.toLowerCase();
+      version = extension.version;
+      prerelease = extension.properties.isPreReleaseVersion;
+      publisher = extension.publisher.toLowerCase();
+      publisherDisplayName = extension.publisherDisplayName.toLowerCase();
+      targetPlatform = extension.properties.targetPlatform;
+    } else if (isIExtension(extension)) {
+      id = extension.identifier.id.toLowerCase();
+      version = extension.manifest.version;
+      prerelease = extension.preRelease;
+      publisher = extension.manifest.publisher.toLowerCase();
+      publisherDisplayName = extension.publisherDisplayName?.toLowerCase();
+      targetPlatform = extension.targetPlatform;
+    } else {
+      id = extension.id.toLowerCase();
+      version = extension.version ?? "*";
+      targetPlatform = extension.targetPlatform ?? TargetPlatform.UNIVERSAL;
+      prerelease = extension.prerelease ?? false;
+      publisher = extension.id.substring(0, extension.id.indexOf(".")).toLowerCase();
+      publisherDisplayName = extension.publisherDisplayName?.toLowerCase();
+    }
+    const settingsCommandLink = URI.parse(
+      `command:workbench.action.openSettings?${encodeURIComponent(JSON.stringify({ query: `@id:${AllowedExtensionsConfigKey}` }))}`
+    ).toString();
+    const extensionValue = this._allowedExtensionsConfigValue[id];
+    const extensionReason = new MarkdownString(
+      nls.localize(
+        "specific extension not allowed",
+        "it is not in the [allowed list]({0})",
+        settingsCommandLink
+      )
+    );
+    if (!isUndefined(extensionValue)) {
+      if (isBoolean(extensionValue)) {
+        return extensionValue ? true : extensionReason;
+      }
+      if (extensionValue === "stable" && prerelease) {
+        return new MarkdownString(
+          nls.localize(
+            "extension prerelease not allowed",
+            "the pre-release versions of this extension are not in the [allowed list]({0})",
+            settingsCommandLink
+          )
+        );
+      }
+      if (version !== "*" && Array.isArray(extensionValue) && !extensionValue.some((v) => {
+        const match = VersionRegex.exec(v);
+        if (match && match.groups) {
+          const { platform: p, version: v2 } = match.groups;
+          if (v2 !== version) {
+            return false;
+          }
+          if (targetPlatform !== TargetPlatform.UNIVERSAL && p && targetPlatform !== p) {
+            return false;
+          }
+          return true;
+        }
+        return false;
+      })) {
+        return new MarkdownString(
+          nls.localize(
+            "specific version of extension not allowed",
+            "the version {0} of this extension is not in the [allowed list]({1})",
+            version,
+            settingsCommandLink
+          )
+        );
+      }
+      return true;
+    }
+    const publisherKey = publisherDisplayName && this.publisherOrgs.includes(publisherDisplayName) ? publisherDisplayName : publisher;
+    const publisherValue = this._allowedExtensionsConfigValue[publisherKey];
+    if (!isUndefined(publisherValue)) {
+      if (isBoolean(publisherValue)) {
+        return publisherValue ? true : new MarkdownString(
+          nls.localize(
+            "publisher not allowed",
+            "the extensions from this publisher are not in the [allowed list]({1})",
+            publisherKey,
+            settingsCommandLink
+          )
+        );
+      }
+      if (publisherValue === "stable" && prerelease) {
+        return new MarkdownString(
+          nls.localize(
+            "prerelease versions from this publisher not allowed",
+            "the pre-release versions from this publisher are not in the [allowed list]({1})",
+            publisherKey,
+            settingsCommandLink
+          )
+        );
+      }
+      return true;
+    }
+    if (this._allowedExtensionsConfigValue["*"] === true) {
+      return true;
+    }
+    return extensionReason;
+  }
+};
+AllowedExtensionsService = __decorateClass([
+  __decorateParam(0, IProductService),
+  __decorateParam(1, IConfigurationService)
+], AllowedExtensionsService);
+export {
+  AllowedExtensionsService
+};
+//# sourceMappingURL=allowedExtensionsService.js.map

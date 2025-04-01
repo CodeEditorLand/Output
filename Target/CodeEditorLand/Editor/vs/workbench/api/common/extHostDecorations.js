@@ -1,1 +1,150 @@
-var u=Object.defineProperty;var g=Object.getOwnPropertyDescriptor;var f=(d,o,i,e)=>{for(var t=e>1?void 0:e?g(o,i):o,a=d.length-1,n;a>=0;a--)(n=d[a])&&(t=(e?n(o,i,t):n(t))||t);return e&&t&&u(o,i,t),t},v=(d,o)=>(i,e)=>o(i,e,d);import{asArray as y,groupBy as x}from"../../../base/common/arrays.js";import"../../../base/common/cancellation.js";import{dirname as _}from"../../../base/common/path.js";import{compare as I,count as P}from"../../../base/common/strings.js";import{URI as S}from"../../../base/common/uri.js";import"../../../platform/extensions/common/extensions.js";import{createDecorator as b}from"../../../platform/instantiation/common/instantiation.js";import{ILogService as E}from"../../../platform/log/common/log.js";import{checkProposedApiEnabled as C}from"../../services/extensions/common/extensions.js";import{MainContext as R}from"./extHost.protocol.js";import{IExtHostRpcService as k}from"./extHostRpcService.js";import{Disposable as $,FileDecoration as F}from"./extHostTypes.js";let s=class{constructor(o,i){this._logService=i;this._proxy=o.getProxy(R.MainThreadDecorations)}static _handlePool=0;static _maxEventSize=250;_serviceBrand;_provider=new Map;_proxy;registerFileDecorationProvider(o,i){const e=s._handlePool++;this._provider.set(e,{provider:o,extensionDescription:i}),this._proxy.$registerDecorationProvider(e,i.identifier.value);const t=o.onDidChangeFileDecorations&&o.onDidChangeFileDecorations(a=>{if(!a){this._proxy.$onDidChange(e,null);return}const n=y(a);if(n.length<=s._maxEventSize){this._proxy.$onDidChange(e,n);return}this._logService.warn("[Decorations] CAPPING events from decorations provider",i.identifier.value,n.length);const m=n.map(r=>({uri:r,rank:P(r.path,"/")})),p=x(m,(r,c)=>r.rank-c.rank||I(r.uri.path,c.uri.path)),l=[];e:for(const r of p){let c;for(const D of r){const h=_(D.uri.path);if(c!==h&&(c=h,l.push(D.uri)>=s._maxEventSize))break e}}this._proxy.$onDidChange(e,l)});return new $(()=>{t?.dispose(),this._proxy.$unregisterDecorationProvider(e),this._provider.delete(e)})}async $provideDecorations(o,i,e){if(!this._provider.has(o))return Object.create(null);const t=Object.create(null),{provider:a,extensionDescription:n}=this._provider.get(o);return await Promise.all(i.map(async m=>{try{const{uri:p,id:l}=m,r=await Promise.resolve(a.provideFileDecoration(S.revive(p),e));if(!r)return;try{F.validate(r),r.badge&&typeof r.badge!="string"&&C(n,"codiconDecoration"),t[l]=[r.propagate,r.tooltip,r.badge,r.color]}catch(c){this._logService.warn(`INVALID decoration from extension '${n.identifier.value}': ${c}`)}}catch(p){this._logService.error(p)}})),t}};s=f([v(0,k),v(1,E)],s);const Y=b("IExtHostDecorations");export{s as ExtHostDecorations,Y as IExtHostDecorations};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { asArray, groupBy } from "../../../base/common/arrays.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { dirname } from "../../../base/common/path.js";
+import { compare, count } from "../../../base/common/strings.js";
+import { URI } from "../../../base/common/uri.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
+import {
+  DecorationData,
+  DecorationReply,
+  DecorationRequest,
+  ExtHostDecorationsShape,
+  MainContext,
+  MainThreadDecorationsShape
+} from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import { Disposable, FileDecoration } from "./extHostTypes.js";
+let ExtHostDecorations = class {
+  constructor(extHostRpc, _logService) {
+    this._logService = _logService;
+    this._proxy = extHostRpc.getProxy(MainContext.MainThreadDecorations);
+  }
+  static {
+    __name(this, "ExtHostDecorations");
+  }
+  static _handlePool = 0;
+  static _maxEventSize = 250;
+  _serviceBrand;
+  _provider = /* @__PURE__ */ new Map();
+  _proxy;
+  registerFileDecorationProvider(provider, extensionDescription) {
+    const handle = ExtHostDecorations._handlePool++;
+    this._provider.set(handle, { provider, extensionDescription });
+    this._proxy.$registerDecorationProvider(
+      handle,
+      extensionDescription.identifier.value
+    );
+    const listener = provider.onDidChangeFileDecorations && provider.onDidChangeFileDecorations((e) => {
+      if (!e) {
+        this._proxy.$onDidChange(handle, null);
+        return;
+      }
+      const array = asArray(e);
+      if (array.length <= ExtHostDecorations._maxEventSize) {
+        this._proxy.$onDidChange(handle, array);
+        return;
+      }
+      this._logService.warn(
+        "[Decorations] CAPPING events from decorations provider",
+        extensionDescription.identifier.value,
+        array.length
+      );
+      const mapped = array.map((uri) => ({
+        uri,
+        rank: count(uri.path, "/")
+      }));
+      const groups = groupBy(
+        mapped,
+        (a, b) => a.rank - b.rank || compare(a.uri.path, b.uri.path)
+      );
+      const picked = [];
+      outer: for (const uris of groups) {
+        let lastDirname;
+        for (const obj of uris) {
+          const myDirname = dirname(obj.uri.path);
+          if (lastDirname !== myDirname) {
+            lastDirname = myDirname;
+            if (picked.push(obj.uri) >= ExtHostDecorations._maxEventSize) {
+              break outer;
+            }
+          }
+        }
+      }
+      this._proxy.$onDidChange(handle, picked);
+    });
+    return new Disposable(() => {
+      listener?.dispose();
+      this._proxy.$unregisterDecorationProvider(handle);
+      this._provider.delete(handle);
+    });
+  }
+  async $provideDecorations(handle, requests, token) {
+    if (!this._provider.has(handle)) {
+      return /* @__PURE__ */ Object.create(null);
+    }
+    const result = /* @__PURE__ */ Object.create(null);
+    const { provider, extensionDescription: extensionId } = this._provider.get(handle);
+    await Promise.all(
+      requests.map(async (request) => {
+        try {
+          const { uri, id } = request;
+          const data = await Promise.resolve(
+            provider.provideFileDecoration(URI.revive(uri), token)
+          );
+          if (!data) {
+            return;
+          }
+          try {
+            FileDecoration.validate(data);
+            if (data.badge && typeof data.badge !== "string") {
+              checkProposedApiEnabled(
+                extensionId,
+                "codiconDecoration"
+              );
+            }
+            result[id] = [
+              data.propagate,
+              data.tooltip,
+              data.badge,
+              data.color
+            ];
+          } catch (e) {
+            this._logService.warn(
+              `INVALID decoration from extension '${extensionId.identifier.value}': ${e}`
+            );
+          }
+        } catch (err) {
+          this._logService.error(err);
+        }
+      })
+    );
+    return result;
+  }
+};
+ExtHostDecorations = __decorateClass([
+  __decorateParam(0, IExtHostRpcService),
+  __decorateParam(1, ILogService)
+], ExtHostDecorations);
+const IExtHostDecorations = createDecorator(
+  "IExtHostDecorations"
+);
+export {
+  ExtHostDecorations,
+  IExtHostDecorations
+};
+//# sourceMappingURL=extHostDecorations.js.map

@@ -1,1 +1,797 @@
-import{Codicon as E}from"../../../../../base/common/codicons.js";import{KeyCode as B,KeyMod as K}from"../../../../../base/common/keyCodes.js";import{DisposableStore as Q}from"../../../../../base/common/lifecycle.js";import{ResourceSet as Y}from"../../../../../base/common/map.js";import{marked as z}from"../../../../../base/common/marked/marked.js";import{observableFromEvent as G,waitForState as j}from"../../../../../base/common/observable.js";import{basename as $}from"../../../../../base/common/resources.js";import{URI as J}from"../../../../../base/common/uri.js";import"../../../../../editor/browser/editorExtensions.js";import{IBulkEditService as X}from"../../../../../editor/browser/services/bulkEditService.js";import{isLocation as Z}from"../../../../../editor/common/languages.js";import{localize as w,localize2 as M}from"../../../../../nls.js";import{Action2 as q,MenuId as R,registerAction2 as b}from"../../../../../platform/actions/common/actions.js";import{IConfigurationService as ee}from"../../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as a}from"../../../../../platform/contextkey/common/contextkey.js";import{IDialogService as te}from"../../../../../platform/dialogs/common/dialogs.js";import{KeybindingWeight as ie}from"../../../../../platform/keybinding/common/keybindingsRegistry.js";import{ILogService as oe}from"../../../../../platform/log/common/log.js";import{IQuickInputService as ne}from"../../../../../platform/quickinput/common/quickInput.js";import{IEditorService as se}from"../../../../services/editor/common/editorService.js";import{IViewsService as re}from"../../../../services/views/common/viewsService.js";import{ResourceNotebookCellEdit as ae}from"../../../bulkEdit/browser/bulkCellEdits.js";import{MENU_INLINE_CHAT_WIDGET_SECONDARY as W}from"../../../inlineChat/common/inlineChat.js";import"../../../notebook/browser/notebookBrowser.js";import{CellEditType as ce,CellKind as U,NOTEBOOK_EDITOR_ID as de}from"../../../notebook/common/notebookCommon.js";import{NOTEBOOK_IS_ACTIVE_EDITOR as le}from"../../../notebook/common/notebookContextKeys.js";import{IChatAgentService as ue}from"../../common/chatAgents.js";import{ChatContextKeyExprs as N,ChatContextKeys as i}from"../../common/chatContextKeys.js";import{applyingChatEditsFailedContextKey as ge,ChatEditingSessionState as me,IChatEditingService as pe,isChatEditingActionContext as he}from"../../common/chatEditingService.js";import"../../common/chatModel.js";import{ChatAgentVoteDirection as O,IChatService as A}from"../../common/chatService.js";import{isRequestVM as L,isResponseVM as T}from"../../common/chatViewModel.js";import{ChatAgentLocation as _,ChatMode as D}from"../../common/constants.js";import{EditsViewId as fe,IChatWidgetService as H}from"../chat.js";import{ChatViewPane as Ie}from"../chatViewPane.js";import{CHAT_CATEGORY as x}from"./chatActions.js";const ke="workbench.action.chat.markUnhelpful",V="config.telemetry.feedback.enabled";function ht(){b(class extends q{constructor(){super({id:"workbench.action.chat.markHelpful",title:M("interactive.helpful.label","Helpful"),f1:!1,category:x,icon:E.thumbsup,toggled:i.responseVote.isEqualTo("up"),menu:[{id:R.ChatMessageFooter,group:"navigation",order:1,when:a.and(i.isResponse,i.responseHasError.negate(),a.has(V))},{id:W,group:"navigation",order:1,when:a.and(i.isResponse,i.responseHasError.negate(),a.has(V))}]})}run(t,...n){const e=n[0];if(!T(e))return;t.get(A).notifyUserAction({agentId:e.agent?.id,command:e.slashCommand?.name,sessionId:e.sessionId,requestId:e.requestId,result:e.result,action:{kind:"vote",direction:O.Up,reason:void 0}}),e.setVote(O.Up),e.setVoteDownReason(void 0)}}),b(class extends q{constructor(){super({id:ke,title:M("interactive.unhelpful.label","Unhelpful"),f1:!1,category:x,icon:E.thumbsdown,toggled:i.responseVote.isEqualTo("down"),menu:[{id:R.ChatMessageFooter,group:"navigation",order:2,when:a.and(i.isResponse,a.has(V))},{id:W,group:"navigation",order:2,when:a.and(i.isResponse,i.responseHasError.negate(),a.has(V))}]})}run(t,...n){const e=n[0];if(!T(e))return;const o=n[1];if(typeof o!="string")return;e.setVote(O.Down),e.setVoteDownReason(o),t.get(A).notifyUserAction({agentId:e.agent?.id,command:e.slashCommand?.name,sessionId:e.sessionId,requestId:e.requestId,result:e.result,action:{kind:"vote",direction:O.Down,reason:e.voteDownReason}})}}),b(class extends q{constructor(){super({id:"workbench.action.chat.reportIssueForBug",title:M("interactive.reportIssueForBug.label","Report Issue"),f1:!1,category:x,icon:E.report,menu:[{id:R.ChatMessageFooter,group:"navigation",order:3,when:a.and(i.responseSupportsIssueReporting,i.isResponse,a.has(V))},{id:W,group:"navigation",order:3,when:a.and(i.responseSupportsIssueReporting,i.isResponse,a.has(V))}]})}run(t,...n){const e=n[0];if(!T(e))return;t.get(A).notifyUserAction({agentId:e.agent?.id,command:e.slashCommand?.name,sessionId:e.sessionId,requestId:e.requestId,result:e.result,action:{kind:"bug"}})}}),b(class extends q{constructor(){super({id:"workbench.action.chat.retry",title:M("chat.retry.label","Retry"),f1:!1,category:x,icon:E.refresh,menu:[{id:R.ChatMessageFooter,group:"navigation",when:a.and(i.isResponse,a.in(i.itemId.key,i.lastItemId.key))},{id:R.ChatEditingWidgetToolbar,group:"navigation",when:ge,order:0}]})}async run(t,...n){const e=t.get(H);let o=n[0];if(he(o)&&(o=e.getWidgetBySessionId(o.sessionId)?.viewModel?.getItems().at(-1)),!T(o))return;const s=t.get(A),m=s.getSession(o.sessionId),p=m?.getRequests();if(!p)return;const C=p?.findIndex(c=>c.id===o.requestId),h=e.getWidgetBySessionId(o.sessionId),I=h?.input.currentMode;if(m?.initialLocation===_.EditingSession||m&&(I===D.Edit||I===D.Agent)){const c=t.get(ee),d=t.get(te),v=h?.viewModel?.model.editingSession;if(!v)return;const f=v.entries.get().filter(l=>l.lastModifyingRequestId===o.requestId),P=f.length>0&&c.getValue("chat.editing.confirmEditRequestRetry")===!0?await d.confirm({title:w("chat.retryLast.confirmation.title2","Do you want to retry your last request?"),message:f.length===1?w("chat.retry.confirmation.message2","This will undo edits made to {0} since this request.",$(f[0].modifiedURI)):w("chat.retryLast.confirmation.message2","This will undo edits made to {0} files in your working set since this request. Do you want to proceed?",f.length),primaryButton:w("chat.retry.confirmation.primaryButton","Yes"),checkbox:{label:w("chat.retry.confirmation.checkbox","Don't ask again"),checked:!1},type:"info"}):{confirmed:!0};if(!P.confirmed)return;P.checkboxChecked&&await c.updateValue("chat.editing.confirmEditRequestRetry",!1);const k=p[C];k&&await v.restoreSnapshot(k.id,void 0)}const r=m?.getRequests().find(c=>c.id===o.requestId),u=h?.input.currentLanguageModel,g=h?.input.currentMode===D.Agent?h.input.selectedToolsModel.tools.get().map(c=>c.id):void 0;s.resendRequest(r,{userSelectedModelId:u,userSelectedTools:g,attempt:(r?.attempt??-1)+1,mode:h?.input.currentMode})}}),b(class extends q{constructor(){super({id:"workbench.action.chat.insertIntoNotebook",title:M("interactive.insertIntoNotebook.label","Insert into Notebook"),f1:!1,category:x,icon:E.insert,menu:{id:R.ChatMessageFooter,group:"navigation",isHiddenByDefault:!0,when:a.and(le,i.isResponse,i.responseIsFiltered.negate())}})}async run(t,...n){const e=n[0];if(!T(e))return;const o=t.get(se);if(o.activeEditorPane?.getId()===de){const s=o.activeEditorPane.getControl();if(!s.hasModel()||s.isReadOnly)return;const m=e.response.toString(),p=we(m),C=s.getFocus(),h=Math.max(C.end,0);await t.get(X).apply([new ae(s.textModel.uri,{editType:ce.Replace,index:h,count:0,cells:p.map(r=>{const u=r.type==="markdown"?U.Markup:U.Code,g=r.type==="markdown"?"markdown":r.language,c=r.type==="markdown"?"text/markdown":`text/x-${r.language}`;return{cellKind:u,language:g,mime:c,source:r.content,outputs:[],metadata:{}}})})],{quotableLabel:"Insert into Notebook"})}}}),b(class extends q{constructor(){super({id:"workbench.action.chat.remove",title:M("chat.removeRequest.label","Remove Request"),f1:!1,category:x,icon:E.x,precondition:a.and(i.chatMode.isEqualTo(D.Ask),N.unifiedChatEnabled.negate()),keybinding:{primary:B.Delete,mac:{primary:K.CtrlCmd|B.Backspace},when:a.and(i.chatMode.isEqualTo(D.Ask),i.inChatSession,i.inChatInput.negate()),weight:ie.WorkbenchContrib},menu:{id:R.ChatMessageTitle,group:"navigation",order:2,when:a.and(i.chatMode.isEqualTo(D.Ask),i.isRequest,N.unifiedChatEnabled.negate())}})}run(t,...n){let e=n[0];if(L(e)||(e=t.get(H).lastFocusedWidget?.getFocus()),!e||t.get(A).getSession(e.sessionId)?.initialLocation===_.EditingSession)return;const m=L(e)?e.id:T(e)?e.requestId:void 0;m&&t.get(A).removeRequest(e.sessionId,m)}}),b(class extends q{constructor(){super({id:"workbench.action.chat.startEditing",title:M("chat.startEditing.label2","Edit with Copilot"),f1:!1,category:x,icon:E.goToEditingSession,precondition:a.and(i.editingParticipantRegistered,i.requestInProgress.toNegated(),i.location.isEqualTo(_.Panel),N.unifiedChatEnabled.negate()),menu:{id:R.ChatMessageFooter,group:"navigation",order:4,when:a.and(i.enabled,i.isResponse,i.editingParticipantRegistered,i.location.isEqualTo(_.Panel),N.unifiedChatEnabled.negate())}})}async run(t,...n){const e=t.get(oe),o=t.get(H),s=t.get(A),m=t.get(ue),p=t.get(re),C=t.get(pe),h=t.get(ne),I=m.getDefaultAgent(_.EditingSession);if(!I){e.trace("[CHAT_MOVE] No edit agent found");return}const r=o.lastFocusedWidget;if(!r||!r.viewModel){e.trace("[CHAT_MOVE] NO source model");return}let g=r.viewModel.model.getRequests().slice();const[c]=n;if(T(c)){const l=g.findIndex(F=>F.id===c.requestId);l>=0&&(g.length=l+1)}if(g.length>1&&(g=await this._pickTurns(h,g)),g.length===0){e.trace("[CHAT_MOVE] NO requests to move");return}const d=await p.openView(fe);if(!(d instanceof Ie))return;const v=G(this,d.widget.onDidChangeViewModel,()=>d.widget.viewModel),f=(await j(v)).sessionId,y=C.getEditingSession(f);if(!y||y.state.get()===me.Disposed)return;const k=new Y;for(const l of g)await s.adoptRequest(y.chatSessionId,l),this._collectWorkingSetAdditions(l,k);await Promise.all(Array.from(k,async l=>d.widget.attachmentModel.addFile(l))),await s.sendRequest(y.chatSessionId,"",{agentId:I.id,acceptedConfirmationData:[{_type:"toEditTransfer",transferredTurnResults:g.map(l=>l.response?.result)}],confirmation:typeof this.desc.title=="string"?this.desc.title:this.desc.title.value})}_collectWorkingSetAdditions(t,n){for(const e of t.response?.response.value??[])e.kind==="inlineReference"&&n.add(Z(e.inlineReference)?e.inlineReference.uri:J.isUri(e.inlineReference)?e.inlineReference:e.inlineReference.location.uri)}async _pickTurns(t,n){const o=n[n.length-1].timestamp,s=n.filter(u=>u.timestamp>=0&&o-u.timestamp<=12e4),m={label:w("chat.startEditing.last","The last {0} requests",s.length),detail:s.map(u=>u.message.text).join(", ")},p={label:w("chat.startEditing.pickAll","All requests from the conversation")},C={label:w("chat.startEditing.pickCustom","Manually select requests...")},h=s.length!==0?[m,p,C]:[p,C],I=await t.pick(h,{placeHolder:w("chat.startEditing.pickRequest","Select requests that you want to use for editing")});if(I){if(I===p)return n;if(I===m)return s}else return[];const r=n.map(u=>({picked:!1,request:u,label:u.message.text,detail:u.response?.response.toString()}));return await new Promise(u=>{const g=f=>{c.dispose(),u(f),d.hide()},c=new Q,d=t.createQuickPick();d.placeholder=w("chat.startEditing.pickRequest","Select requests that you want to use for editing"),d.canSelectMany=!0,d.items=r;let v=!1;c.add(d.onDidChangeSelection(f=>{if(!v){v=!0;try{const[y]=f,P=[];let k=!1;for(let l=0;l<r.length;l++){const F=r[l];r[l]={...F,disabled:k},k=k||F===y,k&&P.push(r[l])}d.items=r,d.selectedItems=P}finally{v=!1}}})),c.add(d.onDidAccept(f=>g(d.selectedItems.map(y=>y.request)))),c.add(d.onDidHide(f=>g([]))),c.add(d),d.show()})}})}function we(S){const n=new z.Lexer().lex(S),e=[];let o="";return n.forEach(s=>{s.type==="code"?(o.trim()&&(e.push({type:"markdown",content:o}),o=""),e.push({type:"code",language:s.lang||"",content:s.text})):o+=s.raw}),o.trim()&&e.push({type:"markdown",content:o}),e}export{ke as MarkUnhelpfulActionId,ht as registerChatTitleActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ResourceSet } from "../../../../../base/common/map.js";
+import { marked } from "../../../../../base/common/marked/marked.js";
+import {
+  observableFromEvent,
+  waitForState
+} from "../../../../../base/common/observable.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
+import { IBulkEditService } from "../../../../../editor/browser/services/bulkEditService.js";
+import { isLocation } from "../../../../../editor/common/languages.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import {
+  IQuickInputService,
+  IQuickPickItem
+} from "../../../../../platform/quickinput/common/quickInput.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import { ResourceNotebookCellEdit } from "../../../bulkEdit/browser/bulkCellEdits.js";
+import { MENU_INLINE_CHAT_WIDGET_SECONDARY } from "../../../inlineChat/common/inlineChat.js";
+import { INotebookEditor } from "../../../notebook/browser/notebookBrowser.js";
+import {
+  CellEditType,
+  CellKind,
+  NOTEBOOK_EDITOR_ID
+} from "../../../notebook/common/notebookCommon.js";
+import { NOTEBOOK_IS_ACTIVE_EDITOR } from "../../../notebook/common/notebookContextKeys.js";
+import { IChatAgentService } from "../../common/chatAgents.js";
+import {
+  ChatContextKeyExprs,
+  ChatContextKeys
+} from "../../common/chatContextKeys.js";
+import {
+  applyingChatEditsFailedContextKey,
+  ChatEditingSessionState,
+  IChatEditingService,
+  isChatEditingActionContext
+} from "../../common/chatEditingService.js";
+import { IChatRequestModel } from "../../common/chatModel.js";
+import {
+  ChatAgentVoteDirection,
+  ChatAgentVoteDownReason,
+  IChatService
+} from "../../common/chatService.js";
+import { isRequestVM, isResponseVM } from "../../common/chatViewModel.js";
+import { ChatAgentLocation, ChatMode } from "../../common/constants.js";
+import { ChatTreeItem, EditsViewId, IChatWidgetService } from "../chat.js";
+import { ChatViewPane } from "../chatViewPane.js";
+import { CHAT_CATEGORY } from "./chatActions.js";
+const MarkUnhelpfulActionId = "workbench.action.chat.markUnhelpful";
+const enableFeedbackConfig = "config.telemetry.feedback.enabled";
+function registerChatTitleActions() {
+  registerAction2(
+    class MarkHelpfulAction extends Action2 {
+      static {
+        __name(this, "MarkHelpfulAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.markHelpful",
+          title: localize2("interactive.helpful.label", "Helpful"),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.thumbsup,
+          toggled: ChatContextKeys.responseVote.isEqualTo("up"),
+          menu: [
+            {
+              id: MenuId.ChatMessageFooter,
+              group: "navigation",
+              order: 1,
+              when: ContextKeyExpr.and(
+                ChatContextKeys.isResponse,
+                ChatContextKeys.responseHasError.negate(),
+                ContextKeyExpr.has(enableFeedbackConfig)
+              )
+            },
+            {
+              id: MENU_INLINE_CHAT_WIDGET_SECONDARY,
+              group: "navigation",
+              order: 1,
+              when: ContextKeyExpr.and(
+                ChatContextKeys.isResponse,
+                ChatContextKeys.responseHasError.negate(),
+                ContextKeyExpr.has(enableFeedbackConfig)
+              )
+            }
+          ]
+        });
+      }
+      run(accessor, ...args) {
+        const item = args[0];
+        if (!isResponseVM(item)) {
+          return;
+        }
+        const chatService = accessor.get(IChatService);
+        chatService.notifyUserAction({
+          agentId: item.agent?.id,
+          command: item.slashCommand?.name,
+          sessionId: item.sessionId,
+          requestId: item.requestId,
+          result: item.result,
+          action: {
+            kind: "vote",
+            direction: ChatAgentVoteDirection.Up,
+            reason: void 0
+          }
+        });
+        item.setVote(ChatAgentVoteDirection.Up);
+        item.setVoteDownReason(void 0);
+      }
+    }
+  );
+  registerAction2(
+    class MarkUnhelpfulAction extends Action2 {
+      static {
+        __name(this, "MarkUnhelpfulAction");
+      }
+      constructor() {
+        super({
+          id: MarkUnhelpfulActionId,
+          title: localize2(
+            "interactive.unhelpful.label",
+            "Unhelpful"
+          ),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.thumbsdown,
+          toggled: ChatContextKeys.responseVote.isEqualTo("down"),
+          menu: [
+            {
+              id: MenuId.ChatMessageFooter,
+              group: "navigation",
+              order: 2,
+              when: ContextKeyExpr.and(
+                ChatContextKeys.isResponse,
+                ContextKeyExpr.has(enableFeedbackConfig)
+              )
+            },
+            {
+              id: MENU_INLINE_CHAT_WIDGET_SECONDARY,
+              group: "navigation",
+              order: 2,
+              when: ContextKeyExpr.and(
+                ChatContextKeys.isResponse,
+                ChatContextKeys.responseHasError.negate(),
+                ContextKeyExpr.has(enableFeedbackConfig)
+              )
+            }
+          ]
+        });
+      }
+      run(accessor, ...args) {
+        const item = args[0];
+        if (!isResponseVM(item)) {
+          return;
+        }
+        const reason = args[1];
+        if (typeof reason !== "string") {
+          return;
+        }
+        item.setVote(ChatAgentVoteDirection.Down);
+        item.setVoteDownReason(reason);
+        const chatService = accessor.get(IChatService);
+        chatService.notifyUserAction({
+          agentId: item.agent?.id,
+          command: item.slashCommand?.name,
+          sessionId: item.sessionId,
+          requestId: item.requestId,
+          result: item.result,
+          action: {
+            kind: "vote",
+            direction: ChatAgentVoteDirection.Down,
+            reason: item.voteDownReason
+          }
+        });
+      }
+    }
+  );
+  registerAction2(
+    class ReportIssueForBugAction extends Action2 {
+      static {
+        __name(this, "ReportIssueForBugAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.reportIssueForBug",
+          title: localize2(
+            "interactive.reportIssueForBug.label",
+            "Report Issue"
+          ),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.report,
+          menu: [
+            {
+              id: MenuId.ChatMessageFooter,
+              group: "navigation",
+              order: 3,
+              when: ContextKeyExpr.and(
+                ChatContextKeys.responseSupportsIssueReporting,
+                ChatContextKeys.isResponse,
+                ContextKeyExpr.has(enableFeedbackConfig)
+              )
+            },
+            {
+              id: MENU_INLINE_CHAT_WIDGET_SECONDARY,
+              group: "navigation",
+              order: 3,
+              when: ContextKeyExpr.and(
+                ChatContextKeys.responseSupportsIssueReporting,
+                ChatContextKeys.isResponse,
+                ContextKeyExpr.has(enableFeedbackConfig)
+              )
+            }
+          ]
+        });
+      }
+      run(accessor, ...args) {
+        const item = args[0];
+        if (!isResponseVM(item)) {
+          return;
+        }
+        const chatService = accessor.get(IChatService);
+        chatService.notifyUserAction({
+          agentId: item.agent?.id,
+          command: item.slashCommand?.name,
+          sessionId: item.sessionId,
+          requestId: item.requestId,
+          result: item.result,
+          action: {
+            kind: "bug"
+          }
+        });
+      }
+    }
+  );
+  registerAction2(
+    class RetryChatAction extends Action2 {
+      static {
+        __name(this, "RetryChatAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.retry",
+          title: localize2("chat.retry.label", "Retry"),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.refresh,
+          menu: [
+            {
+              id: MenuId.ChatMessageFooter,
+              group: "navigation",
+              when: ContextKeyExpr.and(
+                ChatContextKeys.isResponse,
+                ContextKeyExpr.in(
+                  ChatContextKeys.itemId.key,
+                  ChatContextKeys.lastItemId.key
+                )
+              )
+            },
+            {
+              id: MenuId.ChatEditingWidgetToolbar,
+              group: "navigation",
+              when: applyingChatEditsFailedContextKey,
+              order: 0
+            }
+          ]
+        });
+      }
+      async run(accessor, ...args) {
+        const chatWidgetService = accessor.get(IChatWidgetService);
+        let item = args[0];
+        if (isChatEditingActionContext(item)) {
+          item = chatWidgetService.getWidgetBySessionId(item.sessionId)?.viewModel?.getItems().at(-1);
+        }
+        if (!isResponseVM(item)) {
+          return;
+        }
+        const chatService = accessor.get(IChatService);
+        const chatModel = chatService.getSession(item.sessionId);
+        const chatRequests = chatModel?.getRequests();
+        if (!chatRequests) {
+          return;
+        }
+        const itemIndex = chatRequests?.findIndex(
+          (request2) => request2.id === item.requestId
+        );
+        const widget = chatWidgetService.getWidgetBySessionId(
+          item.sessionId
+        );
+        const mode = widget?.input.currentMode;
+        if (chatModel?.initialLocation === ChatAgentLocation.EditingSession || chatModel && (mode === ChatMode.Edit || mode === ChatMode.Agent)) {
+          const configurationService = accessor.get(
+            IConfigurationService
+          );
+          const dialogService = accessor.get(IDialogService);
+          const currentEditingSession = widget?.viewModel?.model.editingSession;
+          if (!currentEditingSession) {
+            return;
+          }
+          const entriesModifiedInLastRequest = currentEditingSession.entries.get().filter(
+            (entry) => entry.lastModifyingRequestId === item.requestId
+          );
+          const shouldPrompt = entriesModifiedInLastRequest.length > 0 && configurationService.getValue(
+            "chat.editing.confirmEditRequestRetry"
+          ) === true;
+          const confirmation = shouldPrompt ? await dialogService.confirm({
+            title: localize(
+              "chat.retryLast.confirmation.title2",
+              "Do you want to retry your last request?"
+            ),
+            message: entriesModifiedInLastRequest.length === 1 ? localize(
+              "chat.retry.confirmation.message2",
+              "This will undo edits made to {0} since this request.",
+              basename(
+                entriesModifiedInLastRequest[0].modifiedURI
+              )
+            ) : localize(
+              "chat.retryLast.confirmation.message2",
+              "This will undo edits made to {0} files in your working set since this request. Do you want to proceed?",
+              entriesModifiedInLastRequest.length
+            ),
+            primaryButton: localize(
+              "chat.retry.confirmation.primaryButton",
+              "Yes"
+            ),
+            checkbox: {
+              label: localize(
+                "chat.retry.confirmation.checkbox",
+                "Don't ask again"
+              ),
+              checked: false
+            },
+            type: "info"
+          }) : { confirmed: true };
+          if (!confirmation.confirmed) {
+            return;
+          }
+          if (confirmation.checkboxChecked) {
+            await configurationService.updateValue(
+              "chat.editing.confirmEditRequestRetry",
+              false
+            );
+          }
+          const snapshotRequest = chatRequests[itemIndex];
+          if (snapshotRequest) {
+            await currentEditingSession.restoreSnapshot(
+              snapshotRequest.id,
+              void 0
+            );
+          }
+        }
+        const request = chatModel?.getRequests().find((candidate) => candidate.id === item.requestId);
+        const languageModelId = widget?.input.currentLanguageModel;
+        const userSelectedTools = widget?.input.currentMode === ChatMode.Agent ? widget.input.selectedToolsModel.tools.get().map((tool) => tool.id) : void 0;
+        chatService.resendRequest(request, {
+          userSelectedModelId: languageModelId,
+          userSelectedTools,
+          attempt: (request?.attempt ?? -1) + 1,
+          mode: widget?.input.currentMode
+        });
+      }
+    }
+  );
+  registerAction2(
+    class InsertToNotebookAction extends Action2 {
+      static {
+        __name(this, "InsertToNotebookAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.insertIntoNotebook",
+          title: localize2(
+            "interactive.insertIntoNotebook.label",
+            "Insert into Notebook"
+          ),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.insert,
+          menu: {
+            id: MenuId.ChatMessageFooter,
+            group: "navigation",
+            isHiddenByDefault: true,
+            when: ContextKeyExpr.and(
+              NOTEBOOK_IS_ACTIVE_EDITOR,
+              ChatContextKeys.isResponse,
+              ChatContextKeys.responseIsFiltered.negate()
+            )
+          }
+        });
+      }
+      async run(accessor, ...args) {
+        const item = args[0];
+        if (!isResponseVM(item)) {
+          return;
+        }
+        const editorService = accessor.get(IEditorService);
+        if (editorService.activeEditorPane?.getId() === NOTEBOOK_EDITOR_ID) {
+          const notebookEditor = editorService.activeEditorPane.getControl();
+          if (!notebookEditor.hasModel()) {
+            return;
+          }
+          if (notebookEditor.isReadOnly) {
+            return;
+          }
+          const value = item.response.toString();
+          const splitContents = splitMarkdownAndCodeBlocks(value);
+          const focusRange = notebookEditor.getFocus();
+          const index = Math.max(focusRange.end, 0);
+          const bulkEditService = accessor.get(IBulkEditService);
+          await bulkEditService.apply(
+            [
+              new ResourceNotebookCellEdit(
+                notebookEditor.textModel.uri,
+                {
+                  editType: CellEditType.Replace,
+                  index,
+                  count: 0,
+                  cells: splitContents.map((content) => {
+                    const kind = content.type === "markdown" ? CellKind.Markup : CellKind.Code;
+                    const language = content.type === "markdown" ? "markdown" : content.language;
+                    const mime = content.type === "markdown" ? "text/markdown" : `text/x-${content.language}`;
+                    return {
+                      cellKind: kind,
+                      language,
+                      mime,
+                      source: content.content,
+                      outputs: [],
+                      metadata: {}
+                    };
+                  })
+                }
+              )
+            ],
+            { quotableLabel: "Insert into Notebook" }
+          );
+        }
+      }
+    }
+  );
+  registerAction2(
+    class RemoveAction extends Action2 {
+      static {
+        __name(this, "RemoveAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.remove",
+          title: localize2(
+            "chat.removeRequest.label",
+            "Remove Request"
+          ),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.x,
+          precondition: ContextKeyExpr.and(
+            ChatContextKeys.chatMode.isEqualTo(ChatMode.Ask),
+            ChatContextKeyExprs.unifiedChatEnabled.negate()
+          ),
+          keybinding: {
+            primary: KeyCode.Delete,
+            mac: {
+              primary: KeyMod.CtrlCmd | KeyCode.Backspace
+            },
+            when: ContextKeyExpr.and(
+              ChatContextKeys.chatMode.isEqualTo(ChatMode.Ask),
+              ChatContextKeys.inChatSession,
+              ChatContextKeys.inChatInput.negate()
+            ),
+            weight: KeybindingWeight.WorkbenchContrib
+          },
+          menu: {
+            id: MenuId.ChatMessageTitle,
+            group: "navigation",
+            order: 2,
+            when: ContextKeyExpr.and(
+              ChatContextKeys.chatMode.isEqualTo(ChatMode.Ask),
+              ChatContextKeys.isRequest,
+              ChatContextKeyExprs.unifiedChatEnabled.negate()
+            )
+          }
+        });
+      }
+      run(accessor, ...args) {
+        let item = args[0];
+        if (!isRequestVM(item)) {
+          const chatWidgetService = accessor.get(IChatWidgetService);
+          const widget = chatWidgetService.lastFocusedWidget;
+          item = widget?.getFocus();
+        }
+        if (!item) {
+          return;
+        }
+        const chatService = accessor.get(IChatService);
+        const chatModel = chatService.getSession(item.sessionId);
+        if (chatModel?.initialLocation === ChatAgentLocation.EditingSession) {
+          return;
+        }
+        const requestId = isRequestVM(item) ? item.id : isResponseVM(item) ? item.requestId : void 0;
+        if (requestId) {
+          const chatService2 = accessor.get(IChatService);
+          chatService2.removeRequest(item.sessionId, requestId);
+        }
+      }
+    }
+  );
+  registerAction2(
+    class ContinueEditingAction extends Action2 {
+      static {
+        __name(this, "ContinueEditingAction");
+      }
+      constructor() {
+        super({
+          id: "workbench.action.chat.startEditing",
+          title: localize2(
+            "chat.startEditing.label2",
+            "Edit with Copilot"
+          ),
+          f1: false,
+          category: CHAT_CATEGORY,
+          icon: Codicon.goToEditingSession,
+          precondition: ContextKeyExpr.and(
+            ChatContextKeys.editingParticipantRegistered,
+            ChatContextKeys.requestInProgress.toNegated(),
+            ChatContextKeys.location.isEqualTo(
+              ChatAgentLocation.Panel
+            ),
+            ChatContextKeyExprs.unifiedChatEnabled.negate()
+          ),
+          menu: {
+            id: MenuId.ChatMessageFooter,
+            group: "navigation",
+            order: 4,
+            when: ContextKeyExpr.and(
+              ChatContextKeys.enabled,
+              ChatContextKeys.isResponse,
+              ChatContextKeys.editingParticipantRegistered,
+              ChatContextKeys.location.isEqualTo(
+                ChatAgentLocation.Panel
+              ),
+              ChatContextKeyExprs.unifiedChatEnabled.negate()
+            )
+          }
+        });
+      }
+      async run(accessor, ...args) {
+        const logService = accessor.get(ILogService);
+        const chatWidgetService = accessor.get(IChatWidgetService);
+        const chatService = accessor.get(IChatService);
+        const chatAgentService = accessor.get(IChatAgentService);
+        const viewsService = accessor.get(IViewsService);
+        const chatEditingService = accessor.get(IChatEditingService);
+        const quickPickService = accessor.get(IQuickInputService);
+        const editAgent = chatAgentService.getDefaultAgent(
+          ChatAgentLocation.EditingSession
+        );
+        if (!editAgent) {
+          logService.trace("[CHAT_MOVE] No edit agent found");
+          return;
+        }
+        const sourceWidget = chatWidgetService.lastFocusedWidget;
+        if (!sourceWidget || !sourceWidget.viewModel) {
+          logService.trace("[CHAT_MOVE] NO source model");
+          return;
+        }
+        const sourceModel = sourceWidget.viewModel.model;
+        let sourceRequests = sourceModel.getRequests().slice();
+        const [first] = args;
+        if (isResponseVM(first)) {
+          const idx = sourceRequests.findIndex(
+            (candidate) => candidate.id === first.requestId
+          );
+          if (idx >= 0) {
+            sourceRequests.length = idx + 1;
+          }
+        }
+        if (sourceRequests.length > 1) {
+          sourceRequests = await this._pickTurns(
+            quickPickService,
+            sourceRequests
+          );
+        }
+        if (sourceRequests.length === 0) {
+          logService.trace("[CHAT_MOVE] NO requests to move");
+          return;
+        }
+        const editsView = await viewsService.openView(EditsViewId);
+        if (!(editsView instanceof ChatViewPane)) {
+          return;
+        }
+        const viewModelObs = observableFromEvent(
+          this,
+          editsView.widget.onDidChangeViewModel,
+          () => editsView.widget.viewModel
+        );
+        const chatSessionId = (await waitForState(viewModelObs)).sessionId;
+        const editingSession = chatEditingService.getEditingSession(chatSessionId);
+        if (!editingSession) {
+          return;
+        }
+        const state = editingSession.state.get();
+        if (state === ChatEditingSessionState.Disposed) {
+          return;
+        }
+        const workingSetAdditions = new ResourceSet();
+        for (const request of sourceRequests) {
+          await chatService.adoptRequest(
+            editingSession.chatSessionId,
+            request
+          );
+          this._collectWorkingSetAdditions(
+            request,
+            workingSetAdditions
+          );
+        }
+        await Promise.all(
+          Array.from(
+            workingSetAdditions,
+            async (uri) => editsView.widget.attachmentModel.addFile(uri)
+          )
+        );
+        await chatService.sendRequest(
+          editingSession.chatSessionId,
+          "",
+          {
+            agentId: editAgent.id,
+            acceptedConfirmationData: [
+              {
+                _type: "toEditTransfer",
+                transferredTurnResults: sourceRequests.map(
+                  (v) => v.response?.result
+                )
+              }
+            ],
+            // TODO@jrieken HACKY
+            confirmation: typeof this.desc.title === "string" ? this.desc.title : this.desc.title.value
+          }
+        );
+      }
+      _collectWorkingSetAdditions(request, bucket) {
+        for (const item of request.response?.response.value ?? []) {
+          if (item.kind === "inlineReference") {
+            bucket.add(
+              isLocation(item.inlineReference) ? item.inlineReference.uri : URI.isUri(item.inlineReference) ? item.inlineReference : item.inlineReference.location.uri
+            );
+          }
+        }
+      }
+      async _pickTurns(quickPickService, requests) {
+        const timeThreshold = 2 * 6e4;
+        const lastRequestTimestamp = requests[requests.length - 1].timestamp;
+        const relatedRequests = requests.filter(
+          (request) => request.timestamp >= 0 && lastRequestTimestamp - request.timestamp <= timeThreshold
+        );
+        const lastPick = {
+          label: localize(
+            "chat.startEditing.last",
+            "The last {0} requests",
+            relatedRequests.length
+          ),
+          detail: relatedRequests.map((req) => req.message.text).join(", ")
+        };
+        const allPick = {
+          label: localize(
+            "chat.startEditing.pickAll",
+            "All requests from the conversation"
+          )
+        };
+        const customPick = {
+          label: localize(
+            "chat.startEditing.pickCustom",
+            "Manually select requests..."
+          )
+        };
+        const picks = relatedRequests.length !== 0 ? [lastPick, allPick, customPick] : [allPick, customPick];
+        const firstPick = await quickPickService.pick(picks, {
+          placeHolder: localize(
+            "chat.startEditing.pickRequest",
+            "Select requests that you want to use for editing"
+          )
+        });
+        if (!firstPick) {
+          return [];
+        } else if (firstPick === allPick) {
+          return requests;
+        } else if (firstPick === lastPick) {
+          return relatedRequests;
+        }
+        const customPicks = requests.map((request) => ({
+          picked: false,
+          request,
+          label: request.message.text,
+          detail: request.response?.response.toString()
+        }));
+        return await new Promise((_resolve) => {
+          const resolve = /* @__PURE__ */ __name((value) => {
+            store.dispose();
+            _resolve(value);
+            qp.hide();
+          }, "resolve");
+          const store = new DisposableStore();
+          const qp = quickPickService.createQuickPick();
+          qp.placeholder = localize(
+            "chat.startEditing.pickRequest",
+            "Select requests that you want to use for editing"
+          );
+          qp.canSelectMany = true;
+          qp.items = customPicks;
+          let ignore = false;
+          store.add(
+            qp.onDidChangeSelection((e) => {
+              if (ignore) {
+                return;
+              }
+              ignore = true;
+              try {
+                const [first] = e;
+                const selected = [];
+                let disabled = false;
+                for (let i = 0; i < customPicks.length; i++) {
+                  const oldItem = customPicks[i];
+                  customPicks[i] = {
+                    ...oldItem,
+                    disabled
+                  };
+                  disabled = disabled || oldItem === first;
+                  if (disabled) {
+                    selected.push(customPicks[i]);
+                  }
+                }
+                qp.items = customPicks;
+                qp.selectedItems = selected;
+              } finally {
+                ignore = false;
+              }
+            })
+          );
+          store.add(
+            qp.onDidAccept(
+              (_e) => resolve(qp.selectedItems.map((i) => i.request))
+            )
+          );
+          store.add(qp.onDidHide((_) => resolve([])));
+          store.add(qp);
+          qp.show();
+        });
+      }
+    }
+  );
+}
+__name(registerChatTitleActions, "registerChatTitleActions");
+function splitMarkdownAndCodeBlocks(markdown) {
+  const lexer = new marked.Lexer();
+  const tokens = lexer.lex(markdown);
+  const splitContent = [];
+  let markdownPart = "";
+  tokens.forEach((token) => {
+    if (token.type === "code") {
+      if (markdownPart.trim()) {
+        splitContent.push({ type: "markdown", content: markdownPart });
+        markdownPart = "";
+      }
+      splitContent.push({
+        type: "code",
+        language: token.lang || "",
+        content: token.text
+      });
+    } else {
+      markdownPart += token.raw;
+    }
+  });
+  if (markdownPart.trim()) {
+    splitContent.push({ type: "markdown", content: markdownPart });
+  }
+  return splitContent;
+}
+__name(splitMarkdownAndCodeBlocks, "splitMarkdownAndCodeBlocks");
+export {
+  MarkUnhelpfulActionId,
+  registerChatTitleActions
+};
+//# sourceMappingURL=chatTitleActions.js.map

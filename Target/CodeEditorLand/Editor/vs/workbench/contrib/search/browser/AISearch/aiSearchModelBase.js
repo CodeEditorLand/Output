@@ -1,12 +1,1 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Range } from "../../../../../editor/common/core/range.js";
-import { ISearchTreeFileMatch } from "../searchTreeModel/searchTreeCommon.js";
-function isSearchTreeAIFileMatch(obj) {
-  return obj && obj.getFullRange && obj.getFullRange() instanceof Range;
-}
-__name(isSearchTreeAIFileMatch, "isSearchTreeAIFileMatch");
-export {
-  isSearchTreeAIFileMatch
-};
-//# sourceMappingURL=aiSearchModelBase.js.map
+import{Range as r}from"../../../../../editor/common/core/range.js";import"../searchTreeModel/searchTreeCommon.js";function c(e){return e&&e.getFullRange&&e.getFullRange()instanceof r}export{c as isSearchTreeAIFileMatch};

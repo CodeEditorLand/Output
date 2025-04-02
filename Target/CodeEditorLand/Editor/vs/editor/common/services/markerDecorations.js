@@ -1,12 +1,1 @@
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { IMarker } from "../../../platform/markers/common/markers.js";
-import { Range } from "../core/range.js";
-import { IModelDecoration, ITextModel } from "../model.js";
-const IMarkerDecorationsService = createDecorator("markerDecorationsService");
-export {
-  IMarkerDecorationsService
-};
-//# sourceMappingURL=markerDecorations.js.map
+import"../../../base/common/event.js";import"../../../base/common/lifecycle.js";import"../../../base/common/uri.js";import{createDecorator as r}from"../../../platform/instantiation/common/instantiation.js";import"../../../platform/markers/common/markers.js";import"../core/range.js";import"../model.js";const D=r("markerDecorationsService");export{D as IMarkerDecorationsService};

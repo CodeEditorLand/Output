@@ -1,7 +1,1 @@
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IExternalTerminalService } from "../common/externalTerminal.js";
-const IExternalTerminalMainService = createDecorator("externalTerminal");
-export {
-  IExternalTerminalMainService
-};
-//# sourceMappingURL=externalTerminal.js.map
+import{createDecorator as e}from"../../instantiation/common/instantiation.js";import"../common/externalTerminal.js";const i=e("externalTerminal");export{i as IExternalTerminalMainService};

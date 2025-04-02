@@ -1,4 +1,1 @@
-import { bootstrapWebWorker } from "../../../../base/common/worker/webWorkerBootstrap.js";
-import { create } from "./languageDetectionWebWorker.js";
-bootstrapWebWorker(create);
-//# sourceMappingURL=languageDetectionWebWorkerMain.js.map
+import{bootstrapWebWorker as r}from"../../../../base/common/worker/webWorkerBootstrap.js";import{create as o}from"./languageDetectionWebWorker.js";r(o);

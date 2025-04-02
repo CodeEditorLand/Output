@@ -1,5 +1,1 @@
-var runTask_default = "../../../../../../Asset/runTask-H2ZTLWZK.svg";
-export {
-  runTask_default as default
-};
-//# sourceMappingURL=runTask.js.map
+var V="../../../../../../Asset/runTask-H2ZTLWZK.svg";export{V as default};

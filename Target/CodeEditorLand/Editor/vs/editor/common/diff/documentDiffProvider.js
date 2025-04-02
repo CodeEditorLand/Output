@@ -1,15 +1,1 @@
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { ITextModel } from "../model.js";
-import { MovedText } from "./linesDiffComputer.js";
-import { DetailedLineRangeMapping } from "./rangeMapping.js";
-const nullDocumentDiff = Object.freeze({
-  identical: true,
-  quitEarly: false,
-  changes: Object.freeze([]),
-  moves: Object.freeze([])
-});
-export {
-  nullDocumentDiff
-};
-//# sourceMappingURL=documentDiffProvider.js.map
+import"../../../base/common/cancellation.js";import"../../../base/common/event.js";import"../model.js";import"./linesDiffComputer.js";import"./rangeMapping.js";const c=Object.freeze({identical:!0,quitEarly:!1,changes:Object.freeze([]),moves:Object.freeze([])});export{c as nullDocumentDiff};

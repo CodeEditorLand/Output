@@ -1,5 +1,1 @@
-var cgmanifest_default = "../../../../../Asset/cgmanifest-IDFLAZJV.json";
-export {
-  cgmanifest_default as default
-};
-//# sourceMappingURL=cgmanifest.js.map
+var I="../../../../../Asset/cgmanifest-IDFLAZJV.json";export{I as default};

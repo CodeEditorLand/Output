@@ -13,7 +13,7 @@ export const Dependency = "CodeEditorLand/Editor";
 export default {
 	color: true,
 	format: "esm",
-	logLevel: "error",
+	logLevel: "debug",
 	metafile: true,
 	minify: !On,
 	outdir: `Target/${Dependency}`,
@@ -29,24 +29,24 @@ export default {
 	ignoreAnnotations: !On,
 	keepNames: On,
 	plugins: [
-		// {
-		// 	name: "Target",
-		// 	setup({ onStart, initialOptions: { outdir } }) {
-		// 		onStart(async () => {
-		// 			try {
-		// 				outdir
-		// 					? await (
-		// 							await import("node:fs/promises")
-		// 						).rm(outdir, {
-		// 							recursive: true,
-		// 						})
-		// 					: {};
-		// 			} catch (_Error) {
-		// 				console.log(_Error);
-		// 			}
-		// 		});
-		// 	},
-		// } as Plugin,
+		{
+			name: "Target",
+			setup({ onStart, initialOptions: { outdir } }) {
+				onStart(async () => {
+					try {
+						outdir
+							? await (
+									await import("node:fs/promises")
+								).rm(outdir, {
+									recursive: true,
+								})
+							: {};
+					} catch (_Error) {
+						console.log(_Error);
+					}
+				});
+			},
+		} as Plugin,
 		{
 			name: "Exclude",
 			setup({ onLoad }) {

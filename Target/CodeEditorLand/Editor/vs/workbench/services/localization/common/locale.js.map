@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/workbench/services/localization/common/locale.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport { createDecorator } from \"../../../../platform/instantiation/common/instantiation.js\";\r\nimport { ILanguagePackItem } from \"../../../../platform/languagePacks/common/languagePacks.js\";\r\n\r\nexport const ILocaleService = createDecorator<ILocaleService>(\r\n\t\"localizationService\",\r\n);\r\n\r\nexport interface ILocaleService {\r\n\treadonly _serviceBrand: undefined;\r\n\tsetLocale(\r\n\t\tlanguagePackItem: ILanguagePackItem,\r\n\t\tskipDialog?: boolean,\r\n\t): Promise<void>;\r\n\tclearLocalePreference(): Promise<void>;\r\n}\r\n\r\nexport const IActiveLanguagePackService =\r\n\tcreateDecorator<IActiveLanguagePackService>(\"activeLanguageService\");\r\n\r\nexport interface IActiveLanguagePackService {\r\n\treadonly _serviceBrand: undefined;\r\n\tgetExtensionIdProvidingCurrentLocale(): Promise<string | undefined>;\r\n}\r\n"],
-  "mappings": "AAKA,SAAS,uBAAuB;AAChC,SAAS,yBAAyB;AAE3B,MAAM,iBAAiB;AAAA,EAC7B;AACD;AAWO,MAAM,6BACZ,gBAA4C,uBAAuB;",
-  "names": []
-}

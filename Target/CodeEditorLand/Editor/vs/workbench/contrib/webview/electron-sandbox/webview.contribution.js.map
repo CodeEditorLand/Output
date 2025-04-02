@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/workbench/contrib/webview/electron-sandbox/webview.contribution.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport { registerAction2 } from \"../../../../platform/actions/common/actions.js\";\r\nimport {\r\n\tInstantiationType,\r\n\tregisterSingleton,\r\n} from \"../../../../platform/instantiation/common/extensions.js\";\r\nimport { IWebviewService } from \"../browser/webview.js\";\r\nimport * as webviewCommands from \"./webviewCommands.js\";\r\nimport { ElectronWebviewService } from \"./webviewService.js\";\r\n\r\nregisterSingleton(\r\n\tIWebviewService,\r\n\tElectronWebviewService,\r\n\tInstantiationType.Delayed,\r\n);\r\n\r\nregisterAction2(webviewCommands.OpenWebviewDeveloperToolsAction);\r\n"],
-  "mappings": "AAKA,SAAS,uBAAuB;AAChC;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,uBAAuB;AAChC,YAAY,qBAAqB;AACjC,SAAS,8BAA8B;AAEvC;AAAA,EACC;AAAA,EACA;AAAA,EACA,kBAAkB;AACnB;AAEA,gBAAgB,gBAAgB,+BAA+B;",
-  "names": []
-}

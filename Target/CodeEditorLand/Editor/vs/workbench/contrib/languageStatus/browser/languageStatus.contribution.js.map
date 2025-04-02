@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/workbench/contrib/languageStatus/browser/languageStatus.contribution.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\r\n *  Copyright (c) Microsoft Corporation. All rights reserved.\r\n *  Licensed under the MIT License. See License.txt in the project root for license information.\r\n *--------------------------------------------------------------------------------------------*/\r\n\r\nimport { registerAction2 } from \"../../../../platform/actions/common/actions.js\";\r\nimport {\r\n\tregisterWorkbenchContribution2,\r\n\tWorkbenchPhase,\r\n} from \"../../../common/contributions.js\";\r\nimport { LanguageStatusContribution, ResetAction } from \"./languageStatus.js\";\r\n\r\nregisterWorkbenchContribution2(\r\n\tLanguageStatusContribution.Id,\r\n\tLanguageStatusContribution,\r\n\tWorkbenchPhase.AfterRestored,\r\n);\r\nregisterAction2(ResetAction);\r\n"],
-  "mappings": "AAKA,SAAS,uBAAuB;AAChC;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,4BAA4B,mBAAmB;AAExD;AAAA,EACC,2BAA2B;AAAA,EAC3B;AAAA,EACA,eAAe;AAChB;AACA,gBAAgB,WAAW;",
-  "names": []
-}

@@ -1,1 +1,0 @@
-import{registerAction2 as t}from"../../../../platform/actions/common/actions.js";import{registerWorkbenchContribution2 as o,WorkbenchPhase as e}from"../../../common/contributions.js";import{LanguageStatusContribution as r,ResetAction as i}from"./languageStatus.js";o(r.Id,r,e.AfterRestored),t(i);

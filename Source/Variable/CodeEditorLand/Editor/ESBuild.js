@@ -1,62 +1,29 @@
-export const On = process.env["NODE_ENV"] === "development" ||
-    process.env["TAURI_ENV_DEBUG"] === "true";
-export const Dependency = "CodeEditorLand/Editor";
+export const Base = "../../ESBuild.ts";
+export const { posix, sep } = await import(Base);
 /**
  * @module ESBuild
  *
  */
-export default {
-    color: true,
-    format: "esm",
-    logLevel: "debug",
-    metafile: true,
-    minify: !On,
-    outdir: `Target/${Dependency}`,
-    platform: "node",
-    target: "esnext",
-    tsconfig: `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`,
-    write: true,
-    legalComments: On ? "inline" : "none",
-    bundle: false,
-    assetNames: "Asset/[name]-[hash]",
-    sourcemap: On,
-    drop: On ? [] : ["debugger"],
-    ignoreAnnotations: !On,
-    keepNames: On,
+export default (await import("deepmerge-ts")).deepmerge((await import(Base)).default, {
     plugins: [
-        {
-            name: "Target",
-            setup({ onStart, initialOptions: { outdir } }) {
-                onStart(async () => {
-                    try {
-                        outdir
-                            ? await (await import("node:fs/promises")).rm(outdir, {
-                                recursive: true,
-                            })
-                            : {};
-                    }
-                    catch (_Error) {
-                        console.log(_Error);
-                    }
-                });
-            },
-        },
         {
             name: "Exclude",
             setup({ onLoad }) {
                 // biome-ignore lint/nursery/useTopLevelRegex:
                 onLoad({ filter: /.*/ }, ({ path }) => {
+                    const VS = "Source/vs";
                     if ([
-                        "Source/vs/base/test/common/filters.perf.data.d.ts",
-                        "Source/vs/platform/files/test/node/fixtures/resolver/examples",
-                        "Source/vs/platform/files/test/node/fixtures/resolver/other/deep",
-                        "Source/vs/platform/files/test/node/fixtures/resolver/other/deep/employee",
-                        "Source/vs/platform/files/test/node/fixtures/service",
-                        "Source/vs/platform/files/test/node/fixtures/service/deep",
-                        "Source/vs/workbench/contrib/codeEditor/test/node",
-                        "Source/vs/workbench/services/search/test/node/fixtures",
-                        "Source/vs/workbench/services/search/test/node/fixtures/examples",
-                        "Source/vs/workbench/services/textfile/test/node/encoding/fixtures",
+                        `${VS}/base/test/common/filters.perf.data.d.ts`,
+                        `${VS}/platform/files/test/node/fixtures/resolver/examples`,
+                        `${VS}/platform/files/test/node/fixtures/resolver/other/deep`,
+                        `${VS}/platform/files/test/node/fixtures/resolver/other/deep/employee`,
+                        `${VS}/platform/files/test/node/fixtures/service`,
+                        `${VS}/platform/files/test/node/fixtures/service/deep`,
+                        `${VS}/workbench/contrib/codeEditor/test/node`,
+                        `${VS}/workbench/services/search/test/node/fixtures`,
+                        `${VS}/workbench/services/search/test/node/fixtures/examples`,
+                        `${VS}/workbench/services/textfile/test/node/encoding/fixtures`,
+                        `${VS}/base/test/common/filters.perf.data.d.ts`,
                         ".d.ts",
                     ].some((Search) => path.split(sep).join(posix.sep).includes(Search))) {
                         return {
@@ -69,23 +36,4 @@ export default {
             },
         },
     ],
-    loader: {
-        ".css,": "file",
-        ".fish": "file",
-        ".html": "copy",
-        ".json": "file",
-        ".md": "file",
-        ".mp3": "file",
-        ".png": "file",
-        ".ps1": "file",
-        ".psm1": "file",
-        ".scm": "file",
-        ".scpt": "file",
-        ".sh": "copy",
-        ".svg": "file",
-        ".ttf": "file",
-        ".txt": "file",
-        ".zsh": "file",
-    },
-};
-export const { sep, posix } = await import("node:path");
+});

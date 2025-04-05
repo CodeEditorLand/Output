@@ -1,1 +1,0 @@
-import{InstantiationType as e,registerSingleton as r}from"../../instantiation/common/extensions.js";import{IMenuService as t,registerAction2 as i}from"./actions.js";import{MenuHiddenStatesReset as o}from"./menuResetAction.js";import{MenuService as n}from"./menuService.js";r(t,n,e.Delayed),i(o);

@@ -1,1 +1,0 @@
-import"../../../../../../base/common/lifecycle.js";import"../../../../../../base/common/uri.js";import"../../../../../../editor/common/model.js";import{createDecorator as e}from"../../../../../../platform/instantiation/common/instantiation.js";import"../parsers/textModelPromptParser.js";const l=e("IPromptsService");export{l as IPromptsService};

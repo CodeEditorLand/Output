@@ -23,7 +23,7 @@
 		"exactOptionalPropertyTypes": false,
 
 		"paths": {
-			"vs/*": [
+			"@vs/*": [
 				"../../../../../../Dependency/Microsoft/Dependency/Editor/Source/vs/*"
 			]
 		},

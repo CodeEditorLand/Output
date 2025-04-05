@@ -1,1 +1,0 @@
-import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";import"../languageFeatureRegistry.js";import"../languages.js";const O=e("ILanguageFeaturesService");export{O as ILanguageFeaturesService};

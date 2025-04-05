@@ -1,1 +1,0 @@
-import*as l from"../../../../nls.js";import{Action as o}from"../../../common/actions.js";import"./asyncDataTree.js";class p extends o{constructor(s,e){super("vs.tree.collapse",l.localize("collapse all","Collapse All"),"collapse-all",e);this.viewer=s}async run(){this.viewer.collapseAll(),this.viewer.setSelection([]),this.viewer.setFocus([])}}export{p as CollapseAllAction};

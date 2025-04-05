@@ -1,1 +1,0 @@
-import{registerMainProcessRemoteService as e}from"../../../../platform/ipc/electron-sandbox/services.js";import{IUpdateService as r}from"../../../../platform/update/common/update.js";import{UpdateChannelClient as t}from"../../../../platform/update/common/updateIpc.js";e(r,"update",{channelClientCtor:t});

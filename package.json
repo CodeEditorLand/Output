@@ -24,7 +24,7 @@
 		"prepublishOnly": "sh ./Source/prepublishOnly/Fn.sh"
 	},
 	"devDependencies": {
-		"@playform/build": "0.2.2",
+		"@playform/build": "0.2.3",
 		"cross-env": "7.0.3",
 		"deepmerge-ts": "7.1.5"
 	},

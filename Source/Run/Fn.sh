@@ -17,5 +17,7 @@ case "$Dependency" in
 	;;
 esac
 
+Build "Source/**/*.{ts,json,sh}" --ESBuild Source/ESBuild/Output.ts
+
 Build "../../Dependency/Microsoft/Dependency/Editor/$Build/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}" \
-	--ESBuild Source/Variable/"$Dependency"/ESBuild.ts --Watch
+	--ESBuild Target/ESBuild/"$Dependency".js --Watch

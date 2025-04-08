@@ -1,1 +1,0 @@
-import{randomInt as r}from"../../common/numbers.js";function i(t,o){return suite(t,function(){this.retries(3),this.timeout(1e3*20),o.call(this)})}const e=t=>new Promise(o=>setTimeout(o,t)),m=(t,o=0)=>e(r(t,o)),s=()=>Math.random()>.5;export{i as flakySuite,s as randomBoolean,e as wait,m as waitRandom};

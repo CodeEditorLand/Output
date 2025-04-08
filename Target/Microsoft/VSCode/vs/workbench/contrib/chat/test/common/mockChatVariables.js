@@ -1,1 +1,0 @@
-import"../../common/chatModel.js";import"../../common/chatParserTypes.js";import"../../common/chatVariables.js";import"../../common/constants.js";class C{_serviceBrand;getDynamicVariables(e){return[]}resolveVariables(e,a){return{variables:[]}}attachContext(e,a,r){throw new Error("Method not implemented.")}}export{C as MockChatVariablesService};

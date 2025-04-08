@@ -1,1 +1,0 @@
-import{URI as t}from"../../../../../../../base/common/uri.js";import{isWindows as e}from"../../../../../../../base/common/platform.js";const n=r=>t.file(o(r)),o=r=>e&&r.startsWith("/")?`/d:${r}`:r;export{o as createPath,n as createURI};

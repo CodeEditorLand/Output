@@ -1,1 +1,95 @@
-var h=Object.defineProperty;var m=Object.getOwnPropertyDescriptor;var a=(l,e,i,t)=>{for(var o=t>1?void 0:t?m(e,i):e,d=l.length-1,r;d>=0;d--)(r=l[d])&&(o=(t?r(e,i,o):r(o))||o);return t&&o&&h(e,i,o),o},n=(l,e)=>(i,t)=>e(i,t,l);import{DisposableStore as g}from"../../../../../base/common/lifecycle.js";import{URI as p}from"../../../../../base/common/uri.js";import{TrackedRangeStickiness as c}from"../../../../../editor/common/model.js";import{ModelDecorationOptions as _}from"../../../../../editor/common/model/textModel.js";import{IModelService as I}from"../../../../../editor/common/services/model.js";import"../../../../../editor/common/core/range.js";let s=class{constructor(e){this._modelService=e}_decorationId=null;_model=null;_modelDisposables=new g;removeHighlightRange(){if(this._model&&this._decorationId){const e=this._decorationId;this._model.changeDecorations(i=>{i.removeDecoration(e)})}this._decorationId=null}highlightRange(e,i,t=0){let o;p.isUri(e)?o=this._modelService.getModel(e):o=e,o&&this.doHighlightRange(o,i)}doHighlightRange(e,i){this.removeHighlightRange(),e.changeDecorations(t=>{this._decorationId=t.addDecoration(i,s._RANGE_HIGHLIGHT_DECORATION)}),this.setModel(e)}setModel(e){this._model!==e&&(this.clearModelListeners(),this._model=e,this._modelDisposables.add(this._model.onDidChangeDecorations(i=>{this.clearModelListeners(),this.removeHighlightRange(),this._model=null})),this._modelDisposables.add(this._model.onWillDispose(()=>{this.clearModelListeners(),this.removeHighlightRange(),this._model=null})))}clearModelListeners(){this._modelDisposables.clear()}dispose(){this._model&&(this.removeHighlightRange(),this._model=null),this._modelDisposables.dispose()}static _RANGE_HIGHLIGHT_DECORATION=_.register({description:"search-range-highlight",stickiness:c.NeverGrowsWhenTypingAtEdges,className:"rangeHighlight",isWholeLine:!0})};s=a([n(0,I)],s);export{s as RangeHighlightDecorations};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IDisposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { ITextModel, TrackedRangeStickiness } from "../../../../../editor/common/model.js";
+import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+let RangeHighlightDecorations = class {
+  constructor(_modelService) {
+    this._modelService = _modelService;
+  }
+  static {
+    __name(this, "RangeHighlightDecorations");
+  }
+  _decorationId = null;
+  _model = null;
+  _modelDisposables = new DisposableStore();
+  removeHighlightRange() {
+    if (this._model && this._decorationId) {
+      const decorationId = this._decorationId;
+      this._model.changeDecorations((accessor) => {
+        accessor.removeDecoration(decorationId);
+      });
+    }
+    this._decorationId = null;
+  }
+  highlightRange(resource, range, ownerId = 0) {
+    let model;
+    if (URI.isUri(resource)) {
+      model = this._modelService.getModel(resource);
+    } else {
+      model = resource;
+    }
+    if (model) {
+      this.doHighlightRange(model, range);
+    }
+  }
+  doHighlightRange(model, range) {
+    this.removeHighlightRange();
+    model.changeDecorations((accessor) => {
+      this._decorationId = accessor.addDecoration(range, RangeHighlightDecorations._RANGE_HIGHLIGHT_DECORATION);
+    });
+    this.setModel(model);
+  }
+  setModel(model) {
+    if (this._model !== model) {
+      this.clearModelListeners();
+      this._model = model;
+      this._modelDisposables.add(this._model.onDidChangeDecorations((e) => {
+        this.clearModelListeners();
+        this.removeHighlightRange();
+        this._model = null;
+      }));
+      this._modelDisposables.add(this._model.onWillDispose(() => {
+        this.clearModelListeners();
+        this.removeHighlightRange();
+        this._model = null;
+      }));
+    }
+  }
+  clearModelListeners() {
+    this._modelDisposables.clear();
+  }
+  dispose() {
+    if (this._model) {
+      this.removeHighlightRange();
+      this._model = null;
+    }
+    this._modelDisposables.dispose();
+  }
+  static _RANGE_HIGHLIGHT_DECORATION = ModelDecorationOptions.register({
+    description: "search-range-highlight",
+    stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+    className: "rangeHighlight",
+    isWholeLine: true
+  });
+};
+RangeHighlightDecorations = __decorateClass([
+  __decorateParam(0, IModelService)
+], RangeHighlightDecorations);
+export {
+  RangeHighlightDecorations
+};
+//# sourceMappingURL=rangeDecorations.js.map

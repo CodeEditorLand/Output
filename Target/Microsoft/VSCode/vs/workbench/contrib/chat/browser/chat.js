@@ -1,1 +1,69 @@
-import"../../../../base/common/event.js";import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";import"../../../../editor/browser/editorBrowser.js";import"../../../../editor/common/core/selection.js";import"../../../../platform/actions/common/actions.js";import"../../../../platform/contextkey/common/contextkey.js";import{createDecorator as n}from"../../../../platform/instantiation/common/instantiation.js";import{ViewContainerLocation as d}from"../../../common/views.js";import{Parts as s}from"../../../services/layout/browser/layoutService.js";import"../../../services/views/common/viewsService.js";import"../common/chatAgents.js";import"../common/chatModel.js";import"../common/chatParserTypes.js";import{CHAT_PROVIDER_ID as l}from"../common/chatParticipantContribTypes.js";import"../common/chatViewModel.js";import"../common/constants.js";import"./chatAttachmentModel.js";import"./chatInputPart.js";import"./chatViewPane.js";import"./chatWidget.js";import"./codeBlockPart.js";const ae=n("chatWidgetService");async function C(t){return(await t.openView(c))?.widget}function de(t,e){return e.activeContainer!==e.mainContainer&&e.mainContainer.focus(),C(t)}function se(t,e,I){const r=t.getViewLocationById(c);if(r===d.Panel)return;const a=r===d.Sidebar?s.SIDEBAR_PART:s.AUXILIARYBAR_PART,i=e.getSize(a);let o;i.width<400&&e.mainContainerDimension.width>1200?o=400:i.width<300&&(o=300),typeof o=="number"&&e.setSize(a,{width:o,height:i.height})}const ce=n("quickChatService"),le=n("chatAccessibilityService"),Ce=n("chatCodeBlockContextProviderService"),c=`workbench.panel.chat.view.${l}`;export{c as ChatViewId,le as IChatAccessibilityService,Ce as IChatCodeBlockContextProviderService,ae as IChatWidgetService,ce as IQuickChatService,se as ensureSideBarChatViewSize,C as showChatView,de as showCopilotView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../../base/common/event.js";
+import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import { Selection } from "../../../../editor/common/core/selection.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IViewDescriptorService, ViewContainerLocation } from "../../../common/views.js";
+import { IWorkbenchLayoutService, Parts } from "../../../services/layout/browser/layoutService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IChatAgentCommand, IChatAgentData } from "../common/chatAgents.js";
+import { IChatResponseModel } from "../common/chatModel.js";
+import { IParsedChatRequest } from "../common/chatParserTypes.js";
+import { CHAT_PROVIDER_ID } from "../common/chatParticipantContribTypes.js";
+import { IChatRequestViewModel, IChatResponseViewModel, IChatViewModel } from "../common/chatViewModel.js";
+import { ChatAgentLocation, ChatMode } from "../common/constants.js";
+import { ChatAttachmentModel } from "./chatAttachmentModel.js";
+import { ChatInputPart } from "./chatInputPart.js";
+import { ChatViewPane } from "./chatViewPane.js";
+import { IChatViewState, IChatWidgetContrib } from "./chatWidget.js";
+import { ICodeBlockActionContext } from "./codeBlockPart.js";
+const IChatWidgetService = createDecorator("chatWidgetService");
+async function showChatView(viewsService) {
+  return (await viewsService.openView(ChatViewId))?.widget;
+}
+__name(showChatView, "showChatView");
+function showCopilotView(viewsService, layoutService) {
+  if (layoutService.activeContainer !== layoutService.mainContainer) {
+    layoutService.mainContainer.focus();
+  }
+  return showChatView(viewsService);
+}
+__name(showCopilotView, "showCopilotView");
+function ensureSideBarChatViewSize(viewDescriptorService, layoutService, viewsService) {
+  const location = viewDescriptorService.getViewLocationById(ChatViewId);
+  if (location === ViewContainerLocation.Panel) {
+    return;
+  }
+  const viewPart = location === ViewContainerLocation.Sidebar ? Parts.SIDEBAR_PART : Parts.AUXILIARYBAR_PART;
+  const partSize = layoutService.getSize(viewPart);
+  let adjustedChatWidth;
+  if (partSize.width < 400 && layoutService.mainContainerDimension.width > 1200) {
+    adjustedChatWidth = 400;
+  } else if (partSize.width < 300) {
+    adjustedChatWidth = 300;
+  }
+  if (typeof adjustedChatWidth === "number") {
+    layoutService.setSize(viewPart, { width: adjustedChatWidth, height: partSize.height });
+  }
+}
+__name(ensureSideBarChatViewSize, "ensureSideBarChatViewSize");
+const IQuickChatService = createDecorator("quickChatService");
+const IChatAccessibilityService = createDecorator("chatAccessibilityService");
+const IChatCodeBlockContextProviderService = createDecorator("chatCodeBlockContextProviderService");
+const ChatViewId = `workbench.panel.chat.view.${CHAT_PROVIDER_ID}`;
+export {
+  ChatViewId,
+  IChatAccessibilityService,
+  IChatCodeBlockContextProviderService,
+  IChatWidgetService,
+  IQuickChatService,
+  ensureSideBarChatViewSize,
+  showChatView,
+  showCopilotView
+};
+//# sourceMappingURL=chat.js.map

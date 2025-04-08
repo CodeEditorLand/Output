@@ -1,1 +1,40 @@
-import{NKeyMap as u}from"../../../../base/common/map.js";class y{_nextId=1;_cacheById=new Map;_cacheByStyle=new u;getOrCreateEntry(e,t,n){if(e===void 0&&t===void 0&&n===void 0)return 0;const d=this._cacheByStyle.get(e??0,t?1:0,n===void 0?"":n.toFixed(2));if(d)return d.id;const r=this._nextId++,i={id:r,color:e,bold:t,opacity:n};return this._cacheById.set(r,i),this._cacheByStyle.set(i,e??0,t?1:0,n===void 0?"":n.toFixed(2)),r}getStyleSet(e){if(e!==0)return this._cacheById.get(e)}}export{y as DecorationStyleCache};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { NKeyMap } from "../../../../base/common/map.js";
+class DecorationStyleCache {
+  static {
+    __name(this, "DecorationStyleCache");
+  }
+  _nextId = 1;
+  _cacheById = /* @__PURE__ */ new Map();
+  _cacheByStyle = new NKeyMap();
+  getOrCreateEntry(color, bold, opacity) {
+    if (color === void 0 && bold === void 0 && opacity === void 0) {
+      return 0;
+    }
+    const result = this._cacheByStyle.get(color ?? 0, bold ? 1 : 0, opacity === void 0 ? "" : opacity.toFixed(2));
+    if (result) {
+      return result.id;
+    }
+    const id = this._nextId++;
+    const entry = {
+      id,
+      color,
+      bold,
+      opacity
+    };
+    this._cacheById.set(id, entry);
+    this._cacheByStyle.set(entry, color ?? 0, bold ? 1 : 0, opacity === void 0 ? "" : opacity.toFixed(2));
+    return id;
+  }
+  getStyleSet(id) {
+    if (id === 0) {
+      return void 0;
+    }
+    return this._cacheById.get(id);
+  }
+}
+export {
+  DecorationStyleCache
+};
+//# sourceMappingURL=decorationStyleCache.js.map

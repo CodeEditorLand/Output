@@ -1,1 +1,60 @@
-var S=Object.defineProperty;var I=Object.getOwnPropertyDescriptor;var f=(s,e,r,t)=>{for(var i=t>1?void 0:t?I(e,r):e,n=s.length-1,a;n>=0;n--)(a=s[n])&&(i=(t?a(e,r,i):a(i))||i);return t&&i&&S(e,r,i),i},o=(s,e)=>(r,t)=>e(r,t,s);import"../../../base/common/uri.js";import{InstantiationType as v,registerSingleton as d}from"../../instantiation/common/extensions.js";import{IFileService as p}from"../../files/common/files.js";import{FileAccess as u,Schemas as m}from"../../../base/common/network.js";import{IProductService as g}from"../../product/common/productService.js";import{IStorageService as h}from"../../storage/common/storage.js";import{IEnvironmentService as w}from"../../environment/common/environment.js";import{ILogService as y}from"../../log/common/log.js";import{IConfigurationService as x}from"../../configuration/common/configuration.js";import{AbstractExtensionResourceLoaderService as E,IExtensionResourceLoaderService as R}from"../common/extensionResourceLoader.js";import{IExtensionGalleryManifestService as q}from"../../extensionManagement/common/extensionGalleryManifest.js";let c=class extends E{constructor(e,r,t,i,n,a,l){super(e,r,t,i,n,a,l)}async readExtensionResource(e){if(e=u.uriToBrowserUri(e),e.scheme!==m.http&&e.scheme!==m.https&&e.scheme!==m.data)return(await this._fileService.readFile(e)).value.toString();const r={};await this.isExtensionGalleryResource(e)&&(r.headers=await this.getExtensionGalleryRequestHeaders(),r.mode="cors");const t=await fetch(e.toString(!0),r);if(t.status!==200)throw this._logService.info(`Request to '${e.toString(!0)}' failed with status code ${t.status}`),new Error(t.statusText);return t.text()}};c=f([o(0,p),o(1,h),o(2,g),o(3,w),o(4,x),o(5,q),o(6,y)],c),d(R,c,v.Delayed);
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../base/common/uri.js";
+import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { FileAccess, Schemas } from "../../../base/common/network.js";
+import { IProductService } from "../../product/common/productService.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { ILogService } from "../../log/common/log.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { AbstractExtensionResourceLoaderService, IExtensionResourceLoaderService } from "../common/extensionResourceLoader.js";
+import { IExtensionGalleryManifestService } from "../../extensionManagement/common/extensionGalleryManifest.js";
+let ExtensionResourceLoaderService = class extends AbstractExtensionResourceLoaderService {
+  static {
+    __name(this, "ExtensionResourceLoaderService");
+  }
+  constructor(fileService, storageService, productService, environmentService, configurationService, extensionGalleryManifestService, logService) {
+    super(fileService, storageService, productService, environmentService, configurationService, extensionGalleryManifestService, logService);
+  }
+  async readExtensionResource(uri) {
+    uri = FileAccess.uriToBrowserUri(uri);
+    if (uri.scheme !== Schemas.http && uri.scheme !== Schemas.https && uri.scheme !== Schemas.data) {
+      const result = await this._fileService.readFile(uri);
+      return result.value.toString();
+    }
+    const requestInit = {};
+    if (await this.isExtensionGalleryResource(uri)) {
+      requestInit.headers = await this.getExtensionGalleryRequestHeaders();
+      requestInit.mode = "cors";
+    }
+    const response = await fetch(uri.toString(true), requestInit);
+    if (response.status !== 200) {
+      this._logService.info(`Request to '${uri.toString(true)}' failed with status code ${response.status}`);
+      throw new Error(response.statusText);
+    }
+    return response.text();
+  }
+};
+ExtensionResourceLoaderService = __decorateClass([
+  __decorateParam(0, IFileService),
+  __decorateParam(1, IStorageService),
+  __decorateParam(2, IProductService),
+  __decorateParam(3, IEnvironmentService),
+  __decorateParam(4, IConfigurationService),
+  __decorateParam(5, IExtensionGalleryManifestService),
+  __decorateParam(6, ILogService)
+], ExtensionResourceLoaderService);
+registerSingleton(IExtensionResourceLoaderService, ExtensionResourceLoaderService, InstantiationType.Delayed);
+//# sourceMappingURL=extensionResourceLoaderService.js.map

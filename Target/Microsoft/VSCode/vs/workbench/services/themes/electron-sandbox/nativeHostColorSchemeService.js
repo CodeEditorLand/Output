@@ -1,1 +1,78 @@
-var l=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var m=(h,a,t,e)=>{for(var r=e>1?void 0:e?p(a,t):a,n=h.length-1,o;n>=0;n--)(o=h[n])&&(r=(e?o(a,t,r):o(r))||r);return e&&r&&l(a,t,r),r},s=(h,a)=>(t,e)=>a(t,e,h);import{Emitter as g}from"../../../../base/common/event.js";import{INativeHostService as v}from"../../../../platform/native/common/native.js";import{InstantiationType as C,registerSingleton as I}from"../../../../platform/instantiation/common/extensions.js";import{Disposable as f}from"../../../../base/common/lifecycle.js";import{IHostColorSchemeService as u}from"../common/hostColorSchemeService.js";import{INativeWorkbenchEnvironmentService as y}from"../../environment/electron-sandbox/environmentService.js";import{IStorageService as E,StorageScope as S,StorageTarget as O}from"../../../../platform/storage/common/storage.js";import{isBoolean as d,isObject as b}from"../../../../base/common/types.js";import"../../../../platform/window/common/window.js";import{ILifecycleService as A,StartupKind as D}from"../../lifecycle/common/lifecycle.js";let i=class extends f{constructor(t,e,r,n){super();this.nativeHostService=t;this.storageService=r;this._register(this.nativeHostService.onDidChangeColorScheme(c=>this.update(c)));let o=e.window.colorScheme;n.startupKind===D.ReloadedWindow&&(o=this.getStoredValue(o)),this.dark=o.dark,this.highContrast=o.highContrast,this.nativeHostService.getOSColorScheme().then(c=>this.update(c))}static STORAGE_KEY="HostColorSchemeData";_onDidChangeColorScheme=this._register(new g);onDidChangeColorScheme=this._onDidChangeColorScheme.event;dark;highContrast;getStoredValue(t){const e=this.storageService.get(i.STORAGE_KEY,S.APPLICATION);if(e)try{const r=JSON.parse(e);if(b(r)&&d(r.highContrast)&&d(r.dark))return r}catch{}return t}update({highContrast:t,dark:e}){(e!==this.dark||t!==this.highContrast)&&(this.dark=e,this.highContrast=t,this.storageService.store(i.STORAGE_KEY,JSON.stringify({highContrast:t,dark:e}),S.APPLICATION,O.MACHINE),this._onDidChangeColorScheme.fire())}};i=m([s(0,v),s(1,y),s(2,E),s(3,A)],i),I(u,i,C.Delayed);export{i as NativeHostColorSchemeService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Emitter } from "../../../../base/common/event.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IHostColorSchemeService } from "../common/hostColorSchemeService.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { isBoolean, isObject } from "../../../../base/common/types.js";
+import { IColorScheme } from "../../../../platform/window/common/window.js";
+import { ILifecycleService, StartupKind } from "../../lifecycle/common/lifecycle.js";
+let NativeHostColorSchemeService = class extends Disposable {
+  constructor(nativeHostService, environmentService, storageService, lifecycleService) {
+    super();
+    this.nativeHostService = nativeHostService;
+    this.storageService = storageService;
+    this._register(this.nativeHostService.onDidChangeColorScheme((scheme) => this.update(scheme)));
+    let initial = environmentService.window.colorScheme;
+    if (lifecycleService.startupKind === StartupKind.ReloadedWindow) {
+      initial = this.getStoredValue(initial);
+    }
+    this.dark = initial.dark;
+    this.highContrast = initial.highContrast;
+    this.nativeHostService.getOSColorScheme().then((scheme) => this.update(scheme));
+  }
+  static {
+    __name(this, "NativeHostColorSchemeService");
+  }
+  // we remember the last color scheme value to restore for reloaded window
+  static STORAGE_KEY = "HostColorSchemeData";
+  _onDidChangeColorScheme = this._register(new Emitter());
+  onDidChangeColorScheme = this._onDidChangeColorScheme.event;
+  dark;
+  highContrast;
+  getStoredValue(dftl) {
+    const stored = this.storageService.get(NativeHostColorSchemeService.STORAGE_KEY, StorageScope.APPLICATION);
+    if (stored) {
+      try {
+        const scheme = JSON.parse(stored);
+        if (isObject(scheme) && isBoolean(scheme.highContrast) && isBoolean(scheme.dark)) {
+          return scheme;
+        }
+      } catch (e) {
+      }
+    }
+    return dftl;
+  }
+  update({ highContrast, dark }) {
+    if (dark !== this.dark || highContrast !== this.highContrast) {
+      this.dark = dark;
+      this.highContrast = highContrast;
+      this.storageService.store(NativeHostColorSchemeService.STORAGE_KEY, JSON.stringify({ highContrast, dark }), StorageScope.APPLICATION, StorageTarget.MACHINE);
+      this._onDidChangeColorScheme.fire();
+    }
+  }
+};
+NativeHostColorSchemeService = __decorateClass([
+  __decorateParam(0, INativeHostService),
+  __decorateParam(1, INativeWorkbenchEnvironmentService),
+  __decorateParam(2, IStorageService),
+  __decorateParam(3, ILifecycleService)
+], NativeHostColorSchemeService);
+registerSingleton(IHostColorSchemeService, NativeHostColorSchemeService, InstantiationType.Delayed);
+export {
+  NativeHostColorSchemeService
+};
+//# sourceMappingURL=nativeHostColorSchemeService.js.map

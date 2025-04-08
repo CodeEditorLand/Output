@@ -1,1 +1,96 @@
-import"../../../../base/common/diff/diff.js";import"./notebookCommon.js";function y(l,a,s){const t=s.cellsDiff.changes,i=[];let e=0,o=0,d=-1;for(let n=0;n<t.length;n++){const r=t[n];for(let f=0;f<r.originalStart-e;f++){const m=l.cells[e+f],I=a.cells[o+f];m.getHashValue()===I.getHashValue()?i.push({originalCellIndex:e+f,modifiedCellIndex:o+f,type:"unchanged"}):(d===-1&&(d=i.length),i.push({originalCellIndex:e+f,modifiedCellIndex:o+f,type:"modified"}))}const C=u(r,l,a);C.length&&d===-1&&(d=i.length),i.push(...C),e=r.originalStart+r.originalLength,o=r.modifiedStart+r.modifiedLength}for(let n=e;n<l.cells.length;n++)i.push({originalCellIndex:n,modifiedCellIndex:n-e+o,type:"unchanged"});return{cellDiffInfo:i,firstChangeIndex:d}}function u(l,a,s){const t=[],i=Math.min(l.originalLength,l.modifiedLength);for(let e=0;e<i;e++){const o=a.cells[l.originalStart+e],d=s.cells[l.modifiedStart+e];if(o.cellKind!==d.cellKind)t.push({originalCellIndex:l.originalStart+e,type:"delete"}),t.push({modifiedCellIndex:l.modifiedStart+e,type:"insert"});else{const n=o.equal(d);t.push({originalCellIndex:l.originalStart+e,modifiedCellIndex:l.modifiedStart+e,type:n?"unchanged":"modified"})}}for(let e=i;e<l.originalLength;e++)t.push({originalCellIndex:l.originalStart+e,type:"delete"});for(let e=i;e<l.modifiedLength;e++)t.push({modifiedCellIndex:l.modifiedStart+e,type:"insert"});return t}export{y as computeDiff};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IDiffChange } from "../../../../base/common/diff/diff.js";
+import { CellKind, INotebookDiffResult } from "./notebookCommon.js";
+function computeDiff(originalModel, modifiedModel, diffResult) {
+  const cellChanges = diffResult.cellsDiff.changes;
+  const cellDiffInfo = [];
+  let originalCellIndex = 0;
+  let modifiedCellIndex = 0;
+  let firstChangeIndex = -1;
+  for (let i = 0; i < cellChanges.length; i++) {
+    const change = cellChanges[i];
+    for (let j = 0; j < change.originalStart - originalCellIndex; j++) {
+      const originalCell = originalModel.cells[originalCellIndex + j];
+      const modifiedCell = modifiedModel.cells[modifiedCellIndex + j];
+      if (originalCell.getHashValue() === modifiedCell.getHashValue()) {
+        cellDiffInfo.push({
+          originalCellIndex: originalCellIndex + j,
+          modifiedCellIndex: modifiedCellIndex + j,
+          type: "unchanged"
+        });
+      } else {
+        if (firstChangeIndex === -1) {
+          firstChangeIndex = cellDiffInfo.length;
+        }
+        cellDiffInfo.push({
+          originalCellIndex: originalCellIndex + j,
+          modifiedCellIndex: modifiedCellIndex + j,
+          type: "modified"
+        });
+      }
+    }
+    const modifiedLCS = computeModifiedLCS(change, originalModel, modifiedModel);
+    if (modifiedLCS.length && firstChangeIndex === -1) {
+      firstChangeIndex = cellDiffInfo.length;
+    }
+    cellDiffInfo.push(...modifiedLCS);
+    originalCellIndex = change.originalStart + change.originalLength;
+    modifiedCellIndex = change.modifiedStart + change.modifiedLength;
+  }
+  for (let i = originalCellIndex; i < originalModel.cells.length; i++) {
+    cellDiffInfo.push({
+      originalCellIndex: i,
+      modifiedCellIndex: i - originalCellIndex + modifiedCellIndex,
+      type: "unchanged"
+    });
+  }
+  return {
+    cellDiffInfo,
+    firstChangeIndex
+  };
+}
+__name(computeDiff, "computeDiff");
+function computeModifiedLCS(change, originalModel, modifiedModel) {
+  const result = [];
+  const modifiedLen = Math.min(change.originalLength, change.modifiedLength);
+  for (let j = 0; j < modifiedLen; j++) {
+    const originalCell = originalModel.cells[change.originalStart + j];
+    const modifiedCell = modifiedModel.cells[change.modifiedStart + j];
+    if (originalCell.cellKind !== modifiedCell.cellKind) {
+      result.push({
+        originalCellIndex: change.originalStart + j,
+        type: "delete"
+      });
+      result.push({
+        modifiedCellIndex: change.modifiedStart + j,
+        type: "insert"
+      });
+    } else {
+      const isTheSame = originalCell.equal(modifiedCell);
+      result.push({
+        originalCellIndex: change.originalStart + j,
+        modifiedCellIndex: change.modifiedStart + j,
+        type: isTheSame ? "unchanged" : "modified"
+      });
+    }
+  }
+  for (let j = modifiedLen; j < change.originalLength; j++) {
+    result.push({
+      originalCellIndex: change.originalStart + j,
+      type: "delete"
+    });
+  }
+  for (let j = modifiedLen; j < change.modifiedLength; j++) {
+    result.push({
+      modifiedCellIndex: change.modifiedStart + j,
+      type: "insert"
+    });
+  }
+  return result;
+}
+__name(computeModifiedLCS, "computeModifiedLCS");
+export {
+  computeDiff
+};
+//# sourceMappingURL=notebookDiff.js.map

@@ -34,16 +34,18 @@ export default {
 		{
 			name: "Target",
 			// @ts-ignore
-			setup({ onStart }) {
+			setup({ onStart, initialOptions: { outdir } }) {
 				switch (true) {
 					case Clean === true:
 						onStart(async () => {
 							try {
-								await (
-									await import("node:fs/promises")
-								).rm("Target", {
-									recursive: true,
-								});
+								outdir
+									? await (
+											await import("node:fs/promises")
+										).rm(outdir, {
+											recursive: true,
+										})
+									: {};
 							} catch (_Error) {
 								console.log(_Error);
 							}

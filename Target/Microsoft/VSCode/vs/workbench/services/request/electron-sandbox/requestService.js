@@ -1,1 +1,65 @@
-var m=Object.defineProperty;var l=Object.getOwnPropertyDescriptor;var c=(s,t,e,r)=>{for(var o=r>1?void 0:r?l(t,e):t,i=s.length-1,n;i>=0;i--)(n=s[i])&&(o=(r?n(t,e,o):n(o))||o);return r&&o&&m(t,e,o),o},u=(s,t)=>(e,r)=>t(e,r,s);import{IConfigurationService as g}from"../../../../platform/configuration/common/configuration.js";import{InstantiationType as p,registerSingleton as v}from"../../../../platform/instantiation/common/extensions.js";import{AbstractRequestService as f,IRequestService as d}from"../../../../platform/request/common/request.js";import{INativeHostService as h}from"../../../../platform/native/common/native.js";import"../../../../base/parts/request/common/request.js";import"../../../../base/common/cancellation.js";import{request as S}from"../../../../base/parts/request/common/requestImpl.js";import{ILoggerService as y}from"../../../../platform/log/common/log.js";import{localize as I}from"../../../../nls.js";import{windowLogGroup as A}from"../../log/common/logConstants.js";import{LogService as C}from"../../../../platform/log/common/logService.js";let a=class extends f{constructor(e,r,o){const i=o.createLogger("network",{name:I("network","Network"),group:A}),n=new C(i);super(n);this.nativeHostService=e;this.configurationService=r;this._register(i),this._register(n)}async request(e,r){return e.proxyAuthorization||(e.proxyAuthorization=this.configurationService.inspect("http.proxyAuthorization").userLocalValue),this.logAndRequest(e,()=>S(e,r,()=>navigator.onLine))}async resolveProxy(e){return this.nativeHostService.resolveProxy(e)}async lookupAuthorization(e){return this.nativeHostService.lookupAuthorization(e)}async lookupKerberosAuthorization(e){return this.nativeHostService.lookupKerberosAuthorization(e)}async loadCertificates(){return this.nativeHostService.loadCertificates()}};a=c([u(0,h),u(1,g),u(2,y)],a),v(d,a,p.Delayed);export{a as NativeRequestService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../../../../platform/request/common/request.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { request } from "../../../../base/parts/request/common/requestImpl.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
+import { localize } from "../../../../nls.js";
+import { windowLogGroup } from "../../log/common/logConstants.js";
+import { LogService } from "../../../../platform/log/common/logService.js";
+let NativeRequestService = class extends AbstractRequestService {
+  constructor(nativeHostService, configurationService, loggerService) {
+    const logger = loggerService.createLogger(`network`, { name: localize("network", "Network"), group: windowLogGroup });
+    const logService = new LogService(logger);
+    super(logService);
+    this.nativeHostService = nativeHostService;
+    this.configurationService = configurationService;
+    this._register(logger);
+    this._register(logService);
+  }
+  static {
+    __name(this, "NativeRequestService");
+  }
+  async request(options, token) {
+    if (!options.proxyAuthorization) {
+      options.proxyAuthorization = this.configurationService.inspect("http.proxyAuthorization").userLocalValue;
+    }
+    return this.logAndRequest(options, () => request(options, token, () => navigator.onLine));
+  }
+  async resolveProxy(url) {
+    return this.nativeHostService.resolveProxy(url);
+  }
+  async lookupAuthorization(authInfo) {
+    return this.nativeHostService.lookupAuthorization(authInfo);
+  }
+  async lookupKerberosAuthorization(url) {
+    return this.nativeHostService.lookupKerberosAuthorization(url);
+  }
+  async loadCertificates() {
+    return this.nativeHostService.loadCertificates();
+  }
+};
+NativeRequestService = __decorateClass([
+  __decorateParam(0, INativeHostService),
+  __decorateParam(1, IConfigurationService),
+  __decorateParam(2, ILoggerService)
+], NativeRequestService);
+registerSingleton(IRequestService, NativeRequestService, InstantiationType.Delayed);
+export {
+  NativeRequestService
+};
+//# sourceMappingURL=requestService.js.map

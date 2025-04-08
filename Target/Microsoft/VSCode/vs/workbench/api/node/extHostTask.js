@@ -1,1 +1,187 @@
-var y=Object.defineProperty;var b=Object.getOwnPropertyDescriptor;var T=(u,d,s,e)=>{for(var t=e>1?void 0:e?b(d,s):d,r=u.length-1,o;r>=0;r--)(o=u[r])&&(t=(e?o(d,s,t):o(t))||t);return e&&t&&y(d,s,t),t},a=(u,d)=>(s,e)=>d(s,e,u);import*as k from"../../../base/common/path.js";import{URI as E}from"../../../base/common/uri.js";import{findExecutable as I}from"../../../base/node/processes.js";import"../common/extHostTypes.js";import{IExtHostWorkspace as D}from"../common/extHostWorkspace.js";import"../common/shared/tasks.js";import{IExtHostDocumentsAndEditors as H}from"../common/extHostDocumentsAndEditors.js";import{IExtHostConfiguration as S}from"../common/extHostConfiguration.js";import{WorkspaceFolder as O}from"../../../platform/workspace/common/workspace.js";import"../../../platform/extensions/common/extensions.js";import{IExtHostTerminalService as P}from"../common/extHostTerminalService.js";import{IExtHostRpcService as A}from"../common/extHostRpcService.js";import{IExtHostInitDataService as _}from"../common/extHostInitDataService.js";import{ExtHostTaskBase as $,TaskHandleDTO as F,TaskDTO as w,CustomExecutionDTO as g}from"../common/extHostTask.js";import{Schemas as l}from"../../../base/common/network.js";import{ILogService as W}from"../../../platform/log/common/log.js";import{IExtHostApiDeprecationService as R}from"../common/extHostApiDeprecationService.js";import*as C from"../../../base/common/resources.js";import{homedir as j}from"os";import{IExtHostVariableResolverProvider as U}from"../common/extHostVariableResolverService.js";let x=class extends ${constructor(s,e,t,r,o,i,n,p,c){super(s,e,t,r,o,i,n,p);this.workspaceService=t;this.variableResolver=c;e.remote.isRemote&&e.remote.authority?this.registerTaskSystem(l.vscodeRemote,{scheme:l.vscodeRemote,authority:e.remote.authority,platform:process.platform}):this.registerTaskSystem(l.file,{scheme:l.file,authority:"",platform:process.platform}),this._proxy.$registerSupportedExecutions(!0,!0,!0)}async executeTask(s,e){const t=e;if(!e.execution&&t._id===void 0)throw new Error("Tasks to execute must include an execution");if(t._id!==void 0){const r=F.from(t,this.workspaceService),o=await this._proxy.$getTaskExecution(r);if(o.task===void 0)throw new Error("Task from execution DTO is undefined");const i=await this.getTaskExecution(o,e);return this._proxy.$executeTask(r).catch(()=>{}),i}else{const r=w.from(e,s);if(r===void 0)return Promise.reject(new Error("Task is not valid"));g.is(r.execution)&&await this.addCustomExecution(r,e,!1);const o=await this.getTaskExecution(await this._proxy.$getTaskExecution(r),e);return this._proxy.$executeTask(r).catch(()=>{}),o}}provideTasksInternal(s,e,t,r){const o=[];if(r)for(const i of r){this.checkDeprecation(i,t),(!i.definition||!s[i.definition.type])&&this._logService.warn(`The task [${i.source}, ${i.name}] uses an undefined task type. The task will be ignored in the future.`);const n=w.from(i,t.extension);n&&(o.push(n),g.is(n.execution)&&e.push(this.addCustomExecution(n,i,!0)))}return{tasks:o,extension:t.extension}}async resolveTaskInternal(s){return s}async getAFolder(s){let e=s&&s.length>0?s[0]:void 0;if(!e){const t=E.file(j());e=new O({uri:t,name:C.basename(t),index:0})}return{uri:e.uri,name:e.name,index:e.index,toResource:()=>{throw new Error("Not implemented")}}}async $resolveVariables(s,e){const t=E.revive(s),r={process:void 0,variables:Object.create(null)},o=await this._workspaceProvider.resolveWorkspaceFolder(t),i=await this._workspaceProvider.getWorkspaceFolders2()??[],n=await this.variableResolver.getResolver(),p=o?{uri:o.uri,name:o.name,index:o.index,toResource:()=>{throw new Error("Not implemented")}}:await this.getAFolder(i);for(const c of e.variables)r.variables[c]=await n.resolveAsync(p,c);if(e.process!==void 0){let c;if(e.process.path!==void 0){c=e.process.path.split(k.delimiter);for(let f=0;f<c.length;f++)c[f]=await n.resolveAsync(p,c[f])}const m=await n.resolveAsync(p,e.process.name),v=e.process.cwd!==void 0?await n.resolveAsync(p,e.process.cwd):void 0,h=await I(m,v,c);h?r.process=h:k.isAbsolute(m)?r.process=m:r.process=k.join(v??"",m)}return r}async $jsonTasksSupported(){return!0}async $findExecutable(s,e,t){return I(s,e,t)}};x=T([a(0,A),a(1,_),a(2,D),a(3,H),a(4,S),a(5,P),a(6,W),a(7,R),a(8,U)],x);export{x as ExtHostTask};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as path from "../../../base/common/path.js";
+import { URI, UriComponents } from "../../../base/common/uri.js";
+import { findExecutable } from "../../../base/node/processes.js";
+import * as types from "../common/extHostTypes.js";
+import { IExtHostWorkspace } from "../common/extHostWorkspace.js";
+import * as tasks from "../common/shared/tasks.js";
+import { IExtHostDocumentsAndEditors } from "../common/extHostDocumentsAndEditors.js";
+import { IExtHostConfiguration } from "../common/extHostConfiguration.js";
+import { IWorkspaceFolder, WorkspaceFolder } from "../../../platform/workspace/common/workspace.js";
+import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { IExtHostTerminalService } from "../common/extHostTerminalService.js";
+import { IExtHostRpcService } from "../common/extHostRpcService.js";
+import { IExtHostInitDataService } from "../common/extHostInitDataService.js";
+import { ExtHostTaskBase, TaskHandleDTO, TaskDTO, CustomExecutionDTO, HandlerData } from "../common/extHostTask.js";
+import { Schemas } from "../../../base/common/network.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { IExtHostApiDeprecationService } from "../common/extHostApiDeprecationService.js";
+import * as resources from "../../../base/common/resources.js";
+import { homedir } from "os";
+import { IExtHostVariableResolverProvider } from "../common/extHostVariableResolverService.js";
+let ExtHostTask = class extends ExtHostTaskBase {
+  constructor(extHostRpc, initData, workspaceService, editorService, configurationService, extHostTerminalService, logService, deprecationService, variableResolver) {
+    super(extHostRpc, initData, workspaceService, editorService, configurationService, extHostTerminalService, logService, deprecationService);
+    this.workspaceService = workspaceService;
+    this.variableResolver = variableResolver;
+    if (initData.remote.isRemote && initData.remote.authority) {
+      this.registerTaskSystem(Schemas.vscodeRemote, {
+        scheme: Schemas.vscodeRemote,
+        authority: initData.remote.authority,
+        platform: process.platform
+      });
+    } else {
+      this.registerTaskSystem(Schemas.file, {
+        scheme: Schemas.file,
+        authority: "",
+        platform: process.platform
+      });
+    }
+    this._proxy.$registerSupportedExecutions(true, true, true);
+  }
+  static {
+    __name(this, "ExtHostTask");
+  }
+  async executeTask(extension, task) {
+    const tTask = task;
+    if (!task.execution && tTask._id === void 0) {
+      throw new Error("Tasks to execute must include an execution");
+    }
+    if (tTask._id !== void 0) {
+      const handleDto = TaskHandleDTO.from(tTask, this.workspaceService);
+      const executionDTO = await this._proxy.$getTaskExecution(handleDto);
+      if (executionDTO.task === void 0) {
+        throw new Error("Task from execution DTO is undefined");
+      }
+      const execution = await this.getTaskExecution(executionDTO, task);
+      this._proxy.$executeTask(handleDto).catch(() => {
+      });
+      return execution;
+    } else {
+      const dto = TaskDTO.from(task, extension);
+      if (dto === void 0) {
+        return Promise.reject(new Error("Task is not valid"));
+      }
+      if (CustomExecutionDTO.is(dto.execution)) {
+        await this.addCustomExecution(dto, task, false);
+      }
+      const execution = await this.getTaskExecution(await this._proxy.$getTaskExecution(dto), task);
+      this._proxy.$executeTask(dto).catch(() => {
+      });
+      return execution;
+    }
+  }
+  provideTasksInternal(validTypes, taskIdPromises, handler, value) {
+    const taskDTOs = [];
+    if (value) {
+      for (const task of value) {
+        this.checkDeprecation(task, handler);
+        if (!task.definition || !validTypes[task.definition.type]) {
+          this._logService.warn(`The task [${task.source}, ${task.name}] uses an undefined task type. The task will be ignored in the future.`);
+        }
+        const taskDTO = TaskDTO.from(task, handler.extension);
+        if (taskDTO) {
+          taskDTOs.push(taskDTO);
+          if (CustomExecutionDTO.is(taskDTO.execution)) {
+            taskIdPromises.push(this.addCustomExecution(taskDTO, task, true));
+          }
+        }
+      }
+    }
+    return {
+      tasks: taskDTOs,
+      extension: handler.extension
+    };
+  }
+  async resolveTaskInternal(resolvedTaskDTO) {
+    return resolvedTaskDTO;
+  }
+  async getAFolder(workspaceFolders) {
+    let folder = workspaceFolders && workspaceFolders.length > 0 ? workspaceFolders[0] : void 0;
+    if (!folder) {
+      const userhome = URI.file(homedir());
+      folder = new WorkspaceFolder({ uri: userhome, name: resources.basename(userhome), index: 0 });
+    }
+    return {
+      uri: folder.uri,
+      name: folder.name,
+      index: folder.index,
+      toResource: /* @__PURE__ */ __name(() => {
+        throw new Error("Not implemented");
+      }, "toResource")
+    };
+  }
+  async $resolveVariables(uriComponents, toResolve) {
+    const uri = URI.revive(uriComponents);
+    const result = {
+      process: void 0,
+      variables: /* @__PURE__ */ Object.create(null)
+    };
+    const workspaceFolder = await this._workspaceProvider.resolveWorkspaceFolder(uri);
+    const workspaceFolders = await this._workspaceProvider.getWorkspaceFolders2() ?? [];
+    const resolver = await this.variableResolver.getResolver();
+    const ws = workspaceFolder ? {
+      uri: workspaceFolder.uri,
+      name: workspaceFolder.name,
+      index: workspaceFolder.index,
+      toResource: /* @__PURE__ */ __name(() => {
+        throw new Error("Not implemented");
+      }, "toResource")
+    } : await this.getAFolder(workspaceFolders);
+    for (const variable of toResolve.variables) {
+      result.variables[variable] = await resolver.resolveAsync(ws, variable);
+    }
+    if (toResolve.process !== void 0) {
+      let paths = void 0;
+      if (toResolve.process.path !== void 0) {
+        paths = toResolve.process.path.split(path.delimiter);
+        for (let i = 0; i < paths.length; i++) {
+          paths[i] = await resolver.resolveAsync(ws, paths[i]);
+        }
+      }
+      const processName = await resolver.resolveAsync(ws, toResolve.process.name);
+      const cwd = toResolve.process.cwd !== void 0 ? await resolver.resolveAsync(ws, toResolve.process.cwd) : void 0;
+      const foundExecutable = await findExecutable(processName, cwd, paths);
+      if (foundExecutable) {
+        result.process = foundExecutable;
+      } else if (path.isAbsolute(processName)) {
+        result.process = processName;
+      } else {
+        result.process = path.join(cwd ?? "", processName);
+      }
+    }
+    return result;
+  }
+  async $jsonTasksSupported() {
+    return true;
+  }
+  async $findExecutable(command, cwd, paths) {
+    return findExecutable(command, cwd, paths);
+  }
+};
+ExtHostTask = __decorateClass([
+  __decorateParam(0, IExtHostRpcService),
+  __decorateParam(1, IExtHostInitDataService),
+  __decorateParam(2, IExtHostWorkspace),
+  __decorateParam(3, IExtHostDocumentsAndEditors),
+  __decorateParam(4, IExtHostConfiguration),
+  __decorateParam(5, IExtHostTerminalService),
+  __decorateParam(6, ILogService),
+  __decorateParam(7, IExtHostApiDeprecationService),
+  __decorateParam(8, IExtHostVariableResolverProvider)
+], ExtHostTask);
+export {
+  ExtHostTask
+};
+//# sourceMappingURL=extHostTask.js.map

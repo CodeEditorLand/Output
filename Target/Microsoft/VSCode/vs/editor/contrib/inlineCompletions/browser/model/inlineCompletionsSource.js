@@ -1,1 +1,668 @@
-var B=Object.defineProperty;var z=Object.getOwnPropertyDescriptor;var U=(o,i,t,e)=>{for(var n=e>1?void 0:e?z(i,t):i,s=o.length-1,a;s>=0;s--)(a=o[s])&&(n=(e?a(i,t,n):a(n))||n);return e&&n&&B(i,t,n),n},x=(o,i)=>(t,e)=>i(t,e,o);import{compareUndefinedSmallest as G,numberComparator as J}from"../../../../../base/common/arrays.js";import{findLastMax as Q}from"../../../../../base/common/arraysFind.js";import{CancellationTokenSource as X}from"../../../../../base/common/cancellation.js";import{equalsIfDefined as q,itemEquals as Y}from"../../../../../base/common/equals.js";import{BugIndicatingError as M}from"../../../../../base/common/errors.js";import{matchesSubString as Z}from"../../../../../base/common/filters.js";import{Disposable as L,MutableDisposable as $}from"../../../../../base/common/lifecycle.js";import{derived as D,derivedHandleChanges as ee,disposableObservableValue as A,observableValue as te,recordChanges as ne,transaction as ie}from"../../../../../base/common/observable.js";import{commonPrefixLength as W,commonSuffixLength as k,splitLines as F}from"../../../../../base/common/strings.js";import{IConfigurationService as se}from"../../../../../platform/configuration/common/configuration.js";import{IInstantiationService as oe}from"../../../../../platform/instantiation/common/instantiation.js";import{ILogService as re}from"../../../../../platform/log/common/log.js";import{observableConfigValue as ae}from"../../../../../platform/observable/common/platformObservableUtils.js";import{OffsetEdit as P,SingleOffsetEdit as _,applyEditsToRanges as le}from"../../../../common/core/offsetEdit.js";import{OffsetRange as C}from"../../../../common/core/offsetRange.js";import"../../../../common/core/position.js";import{Range as O}from"../../../../common/core/range.js";import{SingleTextEdit as N,StringText as de}from"../../../../common/core/textEdit.js";import{TextLength as w}from"../../../../common/core/textLength.js";import{linesDiffComputers as ue}from"../../../../common/diff/linesDiffComputers.js";import{InlineCompletionTriggerKind as S}from"../../../../common/languages.js";import{ILanguageConfigurationService as ge}from"../../../../common/languages/languageConfigurationRegistry.js";import{EndOfLinePreference as pe}from"../../../../common/model.js";import{OffsetEdits as ce}from"../../../../common/model/textModelOffsetEdit.js";import"../../../../common/services/languageFeatureDebounce.js";import{ILanguageFeaturesService as he}from"../../../../common/services/languageFeatures.js";import"../../../../common/textModelEvents.js";import{StructuredLogger as fe,formatRecordableLogEntry as me}from"../structuredLogger.js";import{provideInlineCompletions as _e}from"./provideInlineCompletions.js";import{singleTextRemoveCommonPrefix as xe}from"./singleTextEditHelpers.js";let E=class extends L{constructor(t,e,n,s,a,l,u,r){super();this._textModel=t;this._versionId=e;this._debounceValue=n;this._languageFeaturesService=s;this._languageConfigurationService=a;this._logService=l;this._configurationService=u;this._instantiationService=r;this.clearOperationOnTextModelChange.recomputeInitiallyAndOnChange(this._store)}static _requestId=0;_updateOperation=this._register(new $);inlineCompletions=this._register(A("inlineCompletions",void 0));suggestWidgetInlineCompletions=this._register(A("suggestWidgetInlineCompletions",void 0));_loggingEnabled=ae("editor.inlineSuggest.logFetch",!1,this._configurationService).recomputeInitiallyAndOnChange(this._store);_structuredFetchLogger=this._register(this._instantiationService.createInstance(fe.cast(),"editor.inlineSuggest.logFetch.commandId"));clearOperationOnTextModelChange=D(this,t=>{this._versionId.read(t),this._updateOperation.clear()});_log(t){this._loggingEnabled.get()&&this._logService.info(me(t)),this._structuredFetchLogger.log(t)}_loadingCount=te(this,0);loading=this._loadingCount.map(this,t=>t>0);fetch(t,e,n,s,a){const l=new Ie(t,e,this._textModel.getVersionId()),u=e.selectedSuggestionInfo?this.suggestWidgetInlineCompletions:this.inlineCompletions;if(this._updateOperation.value?.request.satisfies(l))return this._updateOperation.value.promise;if(u.get()?.request.satisfies(l))return Promise.resolve(!0);const r=!!this._updateOperation.value;this._updateOperation.clear();const d=new X,p=(async()=>{this._loadingCount.set(this._loadingCount.get()+1,void 0);try{const g=this._debounceValue.get(this._textModel),f=Q(this._languageFeaturesService.inlineCompletionsProvider.all(this._textModel).map(c=>c.debounceDelayMs),G(J))??g;if((r||s&&e.triggerKind===S.Automatic)&&await Ee(f,d.token),d.token.isCancellationRequested||this._store.isDisposed||this._textModel.getVersionId()!==l.versionId)return!1;const v=E._requestId++;(this._loggingEnabled.get()||this._structuredFetchLogger.isEnabled.get())&&this._log({sourceId:"InlineCompletions.fetch",kind:"start",requestId:v,modelUri:this._textModel.uri.toString(),modelVersion:this._textModel.getVersionId(),context:{triggerKind:e.triggerKind},time:Date.now()});const R=new Date;let m,b;try{m=await _e(this._languageFeaturesService.inlineCompletionsProvider,t,this._textModel,e,d.token,this._languageConfigurationService)}catch(c){throw b=c,c}finally{if(this._loggingEnabled.get()||this._structuredFetchLogger.isEnabled.get()){(d.token.isCancellationRequested||this._store.isDisposed||this._textModel.getVersionId()!==l.versionId)&&(b="canceled");const c=m?.completions.map(T=>({range:T.range.toString(),text:T.insertText,isInlineEdit:!!T.isInlineEdit,source:T.source.provider.groupId}));this._log({sourceId:"InlineCompletions.fetch",kind:"end",requestId:v,durationMs:Date.now()-R.getTime(),error:b,result:c,time:Date.now()})}}if(d.token.isCancellationRequested||this._store.isDisposed||this._textModel.getVersionId()!==l.versionId||a.get())return m.dispose(),!1;if(n&&n.isInlineEdit&&n.updatedEditModelVersion===this._textModel.getVersionId()&&(n.canBeReused(this._textModel,t)||m.has(n.inlineCompletion)||m.isEmpty()))return n.reuse(),m.dispose(),!1;const y=new Date;this._debounceValue.update(this._textModel,y.getTime()-R.getTime());const V=new Ce(m,l,this._textModel,this._versionId);if(n&&!n.isInlineEdit&&n.canBeReused(this._textModel,t)){const c=n.toInlineCompletion(void 0);m.has(c)||V.prepend(n.inlineCompletion,c.range,!0)}this._updateOperation.clear(),ie(c=>{u.set(V,c)})}finally{this._loadingCount.set(this._loadingCount.get()-1,void 0)}return!0})(),h=new be(l,d,p);return this._updateOperation.value=h,p}clear(t){this._updateOperation.clear(),this.inlineCompletions.set(void 0,t),this.suggestWidgetInlineCompletions.set(void 0,t)}clearSuggestWidgetInlineCompletions(t){this._updateOperation.value?.request.context.selectedSuggestionInfo&&this._updateOperation.clear(),this.suggestWidgetInlineCompletions.set(void 0,t)}cancelUpdate(){this._updateOperation.clear()}};E=U([x(3,he),x(4,ge),x(5,re),x(6,se),x(7,oe)],E);function Ee(o,i){return new Promise(t=>{let e;const n=setTimeout(()=>{e&&e.dispose(),t()},o);i&&(e=i.onCancellationRequested(()=>{clearTimeout(n),e&&e.dispose(),t()}))})}class Ie{constructor(i,t,e){this.position=i;this.context=t;this.versionId=e}satisfies(i){return this.position.equals(i.position)&&q(this.context.selectedSuggestionInfo,i.context.selectedSuggestionInfo,Y())&&(i.context.triggerKind===S.Automatic||this.context.triggerKind===S.Explicit)&&this.versionId===i.versionId}get isExplicitRequest(){return this.context.triggerKind===S.Explicit}}class be{constructor(i,t,e){this.request=i;this.cancellationTokenSource=t;this.promise=e}dispose(){this.cancellationTokenSource.cancel()}}class Ce{constructor(i,t,e,n){this.inlineCompletionProviderResult=i;this.request=t;this._textModel=e;this._versionId=n;this._inlineCompletions=i.completions.map(s=>new H(s,void 0,this._textModel,this._versionId,this.request))}_inlineCompletions;get inlineCompletions(){return this._inlineCompletions}_refCount=1;_prependedInlineCompletionItems=[];clone(){return this._refCount++,this}dispose(){if(this._refCount--,this._refCount===0){this.inlineCompletionProviderResult.dispose();for(const i of this._prependedInlineCompletionItems)i.source.removeRef();this._inlineCompletions.forEach(i=>i.dispose())}}prepend(i,t,e){e&&i.source.addRef(),this._inlineCompletions.unshift(new H(i,t,this._textModel,this._versionId,this.request)),this._prependedInlineCompletionItems.push(i)}}class H extends L{constructor(t,e,n,s,a){super();this.inlineCompletion=t;this._textModel=n;this._modelVersion=s;this.request=a;this._updatedEditObj=this._register(this._toUpdatedEdit(e??this.inlineCompletion.range,this.inlineCompletion.insertText))}semanticId=JSON.stringify([this.inlineCompletion.filterText,this.inlineCompletion.insertText,this.inlineCompletion.range.getStartPosition().toString()]);get forwardStable(){return this.source.inlineCompletions.enableForwardStability??!1}_updatedEditObj;get updatedEdit(){return this._updatedEditObj.offsetEdit}get updatedEditModelVersion(){return this._updatedEditObj.modelVersion}get source(){return this.inlineCompletion.source}get sourceInlineCompletion(){return this.inlineCompletion.sourceInlineCompletion}get isInlineEdit(){return this.inlineCompletion.isInlineEdit}toInlineCompletion(t){const e=this.toSingleTextEdit(t);return this.inlineCompletion.withRangeInsertTextAndFilterText(e.range,e.text,e.text)}toSingleTextEdit(t){this._modelVersion.read(t);const e=this.updatedEdit.read(t);if(!e)return new N(this._updatedRange.read(t)??Te,this.inlineCompletion.insertText);const n=e.edits[0].replaceRange.start,s=e.edits[e.edits.length-1].replaceRange.endExclusive,a=new C(n,s),l=O.fromPositions(this._textModel.getPositionAt(a.start),this._textModel.getPositionAt(a.endExclusive));let u=this._textModel.getValueInRange(l);for(let r=e.edits.length-1;r>=0;r--){const d=e.edits[r],p=d.replaceRange.start-n,h=d.replaceRange.endExclusive-n;u=u.substring(0,p)+d.newText+u.substring(h)}return new N(l,u)}isVisible(t,e,n){const s=xe(this.toSingleTextEdit(n),t),a=this._updatedRange.read(n);if(!a||!this.inlineCompletion.range.getStartPosition().equals(a.getStartPosition())||e.lineNumber!==s.range.startLineNumber||s.isEmpty)return!1;const l=t.getValueInRange(s.range,pe.LF),u=s.text,r=Math.max(0,e.column-s.range.startColumn);let d=u.substring(0,r),p=u.substring(r),h=l.substring(0,r),g=l.substring(r);const f=t.getLineIndentColumn(s.range.startLineNumber);return s.range.startColumn<=f&&(h=h.trimStart(),h.length===0&&(g=g.trimStart()),d=d.trimStart(),d.length===0&&(p=p.trimStart())),d.startsWith(h)&&!!Z(g,p)}reuse(){this._updatedEditObj.reuse()}canBeReused(t,e){if(!this.updatedEdit.get())return!1;if(this.sourceInlineCompletion.isInlineEdit)return this._updatedEditObj.lastChangePartOfInlineEdit;const n=this._updatedRange.read(void 0);return!!n&&n.containsPosition(e)&&this.isVisible(t,e,void 0)&&w.ofRange(n).isGreaterThanOrEqualTo(w.ofRange(this.inlineCompletion.range))}_updatedRange=D(t=>{const e=this.updatedEdit.read(t);if(!(!e||e.edits.length===0))return O.fromPositions(this._textModel.getPositionAt(e.edits[0].replaceRange.start),this._textModel.getPositionAt(e.edits[e.edits.length-1].replaceRange.endExclusive))});_toUpdatedEdit(t,e){return this.isInlineEdit?this._toInlineEditEdit(t,e):this._toInlineCompletionEdit(t,e)}_toInlineCompletionEdit(t,e){const n=this._textModel.getOffsetAt(t.getStartPosition()),s=this._textModel.getOffsetAt(t.getEndPosition()),a=C.ofStartAndLength(n,s-n),l=new P([new _(a,e)]);return new K(l,this._textModel,this._modelVersion,!1)}_toInlineEditEdit(t,e){const n=this._textModel.getEOL(),s=this._textModel.getValueInRange(t),a=e.replace(/\r\n|\r|\n/g,n),r=ue.getDefault().computeDiff(F(s),F(a),{ignoreTrimWhitespace:!1,computeMoves:!1,extendToSubwords:!0,maxComputationTimeMs:500}).changes.flatMap(g=>g.innerChanges??[]);function d(g,f){const I=w.fromPosition(f.getStartPosition());return w.ofRange(f).createRange(I.addToPosition(g))}const p=new de(a),h=new P(r.map(g=>{const f=d(t.getStartPosition(),g.originalRange),I=this._textModel.getOffsetAt(f.getStartPosition()),v=this._textModel.getOffsetAt(f.getEndPosition()),R=C.ofStartAndLength(I,v-I),m=p.getValueOfRange(g.modifiedRange),b=this._textModel.getValueInRange(f),y=new _(R,m);return Oe(y,b,r.length,this._textModel)}));return new K(h,this._textModel,this._modelVersion,!0)}}class K extends L{constructor(t,e,n,s){super();this._textModel=e;this._modelVersion=n;this._inlineEditModelVersion=this._modelVersion.get()??-1,this._innerEdits=t.edits.map(a=>{if(s){const l=O.fromPositions(this._textModel.getPositionAt(a.replaceRange.start),this._textModel.getPositionAt(a.replaceRange.endExclusive)),u=this._textModel.getValueInRange(l);return new Re(a,u)}return new ve(a)}),this._updatedEdit.recomputeInitiallyAndOnChange(this._store)}_innerEdits;_inlineEditModelVersion;get modelVersion(){return this._inlineEditModelVersion}_lastChangePartOfInlineEdit=!1;get lastChangePartOfInlineEdit(){return this._lastChangePartOfInlineEdit}_updatedEdit=ee({owner:this,equalityComparer:q((t,e)=>t?.equals(e)),changeTracker:ne({edit:this._modelVersion})},(t,e)=>{this._modelVersion.read(t);for(const n of e.changes)n.change&&(this._innerEdits=this._applyTextModelChanges(ce.fromContentChanges(n.change.changes),this._innerEdits));if(this._innerEdits.length!==0){if(this._innerEdits.some(n=>n.edit===void 0))throw new M("UpdatedEdit: Invalid state");return new P(this._innerEdits.map(n=>n.edit))}});get offsetEdit(){return this._updatedEdit.map(t=>t??void 0)}_applyTextModelChanges(t,e){for(const s of e)s.applyTextModelChanges(t);if(e.some(s=>s.edit===void 0))return[];const n=this._modelVersion.get();return this._lastChangePartOfInlineEdit=e.some(s=>s.lastChangeUpdatedEdit),this._lastChangePartOfInlineEdit&&(this._inlineEditModelVersion=n??-1),n===null||this._inlineEditModelVersion+20<n?[]:(e=e.filter(s=>!s.edit.isEmpty),e.length===0?[]:e)}reuse(){this._inlineEditModelVersion=this._modelVersion.get()??-1}}class j{_edit;get edit(){return this._edit}_lastChangeUpdatedEdit=!1;get lastChangeUpdatedEdit(){return this._lastChangeUpdatedEdit}constructor(i){this._edit=i}applyTextModelChanges(i){if(this._lastChangeUpdatedEdit=!1,!this._edit)throw new M("UpdatedInnerEdits: No edit to apply changes to");const t=this.applyChanges(this._edit,i);if(!t){this._edit=void 0;return}this._edit=t.edit,this._lastChangeUpdatedEdit=t.editHasChanged}}class ve extends j{constructor(i){super(i)}applyChanges(i,t){const e=le([i.replaceRange],t)[0];return{edit:new _(e,i.newText),editHasChanged:!e.equals(i.replaceRange)}}}class Re extends j{_trimmedNewText;_prefixLength;_suffixLength;constructor(i,t){super(i),this._prefixLength=W(i.newText,t),this._suffixLength=k(i.newText,t),this._trimmedNewText=i.newText.substring(this._prefixLength,i.newText.length-this._suffixLength)}applyChanges(i,t){let e=i.replaceRange.start,n=i.replaceRange.endExclusive,s=i.newText,a=!1;const l=this._prefixLength>0||this._suffixLength>0;for(let u=t.edits.length-1;u>=0;u--){const r=t.edits[u],d=r.newText.length>0&&r.replaceRange.isEmpty;if(d&&!l&&r.replaceRange.start===e&&s.startsWith(r.newText)){e+=r.newText.length,s=s.substring(r.newText.length),n=Math.max(e,n),a=!0;continue}if(d&&l&&r.replaceRange.start===e+this._prefixLength&&this._trimmedNewText.startsWith(r.newText)){n+=r.newText.length,a=!0,this._prefixLength+=r.newText.length,this._trimmedNewText=this._trimmedNewText.substring(r.newText.length);continue}if(r.newText.length===0&&r.replaceRange.length>0&&r.replaceRange.start>=e+this._prefixLength&&r.replaceRange.endExclusive<=n-this._suffixLength){n-=r.replaceRange.length,a=!0;continue}if(r.equals(i)){a=!0,e=r.replaceRange.endExclusive,s="";continue}if(!(r.replaceRange.start>n)){if(r.replaceRange.endExclusive<e){e+=r.newText.length-r.replaceRange.length,n+=r.newText.length-r.replaceRange.length;continue}return}}return this._trimmedNewText.length===0&&e+this._prefixLength===n-this._suffixLength?{edit:new _(new C(e+this._prefixLength,e+this._prefixLength),""),editHasChanged:!0}:{edit:new _(new C(e,n),s),editHasChanged:a}}}const Te=new O(1,1,1,1);function Oe(o,i,t,e){const n=e.getEOL();if(o.newText.endsWith(n)&&i.endsWith(n)&&(o=new _(o.replaceRange.deltaEnd(-n.length),o.newText.slice(0,-n.length))),t===1&&o.replaceRange.isEmpty&&o.newText.includes(n)&&(o=we(o,e)),t===1){const s=W(i,o.newText),a=k(i.slice(s),o.newText.slice(s));if(s+a===i.length)return new _(o.replaceRange.deltaStart(s).deltaEnd(-a),o.newText.substring(s,o.newText.length-a));if(s+a===o.newText.length)return new _(o.replaceRange.deltaStart(s).deltaEnd(-a),"")}return o}function we(o,i){if(!o.replaceRange.isEmpty)throw new M("Unexpected original range");if(o.replaceRange.start===0)return o;const t=i.getEOL(),e=i.getPositionAt(o.replaceRange.start),n=e.column,s=e.lineNumber;return n===1&&s>1&&i.getLineLength(s)!==0&&o.newText.endsWith(t)&&!o.newText.startsWith(t)?new _(o.replaceRange.delta(-1),t+o.newText.slice(0,-t.length)):o}export{H as InlineCompletionWithUpdatedRange,E as InlineCompletionsSource,Ce as UpToDateInlineCompletions};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { compareUndefinedSmallest, numberComparator } from "../../../../../base/common/arrays.js";
+import { findLastMax } from "../../../../../base/common/arraysFind.js";
+import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { equalsIfDefined, itemEquals } from "../../../../../base/common/equals.js";
+import { BugIndicatingError } from "../../../../../base/common/errors.js";
+import { matchesSubString } from "../../../../../base/common/filters.js";
+import { Disposable, IDisposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { IObservable, IObservableWithChange, IReader, ITransaction, derived, derivedHandleChanges, disposableObservableValue, observableValue, recordChanges, transaction } from "../../../../../base/common/observable.js";
+import { commonPrefixLength, commonSuffixLength, splitLines } from "../../../../../base/common/strings.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../platform/log/common/log.js";
+import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
+import { OffsetEdit, SingleOffsetEdit, applyEditsToRanges } from "../../../../common/core/offsetEdit.js";
+import { OffsetRange } from "../../../../common/core/offsetRange.js";
+import { Position } from "../../../../common/core/position.js";
+import { Range } from "../../../../common/core/range.js";
+import { SingleTextEdit, StringText } from "../../../../common/core/textEdit.js";
+import { TextLength } from "../../../../common/core/textLength.js";
+import { linesDiffComputers } from "../../../../common/diff/linesDiffComputers.js";
+import { InlineCompletionContext, InlineCompletionTriggerKind } from "../../../../common/languages.js";
+import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
+import { EndOfLinePreference, ITextModel } from "../../../../common/model.js";
+import { OffsetEdits } from "../../../../common/model/textModelOffsetEdit.js";
+import { IFeatureDebounceInformation } from "../../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../../common/services/languageFeatures.js";
+import { IModelContentChangedEvent } from "../../../../common/textModelEvents.js";
+import { IRecordableEditorLogEntry, IRecordableLogEntry, StructuredLogger, formatRecordableLogEntry } from "../structuredLogger.js";
+import { InlineCompletionItem, InlineCompletionProviderResult, provideInlineCompletions } from "./provideInlineCompletions.js";
+import { singleTextRemoveCommonPrefix } from "./singleTextEditHelpers.js";
+let InlineCompletionsSource = class extends Disposable {
+  constructor(_textModel, _versionId, _debounceValue, _languageFeaturesService, _languageConfigurationService, _logService, _configurationService, _instantiationService) {
+    super();
+    this._textModel = _textModel;
+    this._versionId = _versionId;
+    this._debounceValue = _debounceValue;
+    this._languageFeaturesService = _languageFeaturesService;
+    this._languageConfigurationService = _languageConfigurationService;
+    this._logService = _logService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this.clearOperationOnTextModelChange.recomputeInitiallyAndOnChange(this._store);
+  }
+  static {
+    __name(this, "InlineCompletionsSource");
+  }
+  static _requestId = 0;
+  _updateOperation = this._register(new MutableDisposable());
+  inlineCompletions = this._register(disposableObservableValue("inlineCompletions", void 0));
+  suggestWidgetInlineCompletions = this._register(disposableObservableValue("suggestWidgetInlineCompletions", void 0));
+  _loggingEnabled = observableConfigValue("editor.inlineSuggest.logFetch", false, this._configurationService).recomputeInitiallyAndOnChange(this._store);
+  _structuredFetchLogger = this._register(this._instantiationService.createInstance(
+    StructuredLogger.cast(),
+    "editor.inlineSuggest.logFetch.commandId"
+  ));
+  clearOperationOnTextModelChange = derived(this, (reader) => {
+    this._versionId.read(reader);
+    this._updateOperation.clear();
+    return void 0;
+  });
+  _log(entry) {
+    if (this._loggingEnabled.get()) {
+      this._logService.info(formatRecordableLogEntry(entry));
+    }
+    this._structuredFetchLogger.log(entry);
+  }
+  _loadingCount = observableValue(this, 0);
+  loading = this._loadingCount.map(this, (v) => v > 0);
+  fetch(position, context, activeInlineCompletion, withDebounce, userJumpedToActiveCompletion) {
+    const request = new UpdateRequest(position, context, this._textModel.getVersionId());
+    const target = context.selectedSuggestionInfo ? this.suggestWidgetInlineCompletions : this.inlineCompletions;
+    if (this._updateOperation.value?.request.satisfies(request)) {
+      return this._updateOperation.value.promise;
+    } else if (target.get()?.request.satisfies(request)) {
+      return Promise.resolve(true);
+    }
+    const updateOngoing = !!this._updateOperation.value;
+    this._updateOperation.clear();
+    const source = new CancellationTokenSource();
+    const promise = (async () => {
+      this._loadingCount.set(this._loadingCount.get() + 1, void 0);
+      try {
+        const recommendedDebounceValue = this._debounceValue.get(this._textModel);
+        const debounceValue = findLastMax(
+          this._languageFeaturesService.inlineCompletionsProvider.all(this._textModel).map((p) => p.debounceDelayMs),
+          compareUndefinedSmallest(numberComparator)
+        ) ?? recommendedDebounceValue;
+        const shouldDebounce = updateOngoing || withDebounce && context.triggerKind === InlineCompletionTriggerKind.Automatic;
+        if (shouldDebounce) {
+          await wait(debounceValue, source.token);
+        }
+        if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
+          return false;
+        }
+        const requestId = InlineCompletionsSource._requestId++;
+        if (this._loggingEnabled.get() || this._structuredFetchLogger.isEnabled.get()) {
+          this._log({ sourceId: "InlineCompletions.fetch", kind: "start", requestId, modelUri: this._textModel.uri.toString(), modelVersion: this._textModel.getVersionId(), context: { triggerKind: context.triggerKind }, time: Date.now() });
+        }
+        const startTime = /* @__PURE__ */ new Date();
+        let updatedCompletions = void 0;
+        let error = void 0;
+        try {
+          updatedCompletions = await provideInlineCompletions(
+            this._languageFeaturesService.inlineCompletionsProvider,
+            position,
+            this._textModel,
+            context,
+            source.token,
+            this._languageConfigurationService
+          );
+        } catch (e) {
+          error = e;
+          throw e;
+        } finally {
+          if (this._loggingEnabled.get() || this._structuredFetchLogger.isEnabled.get()) {
+            if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId) {
+              error = "canceled";
+            }
+            const result = updatedCompletions?.completions.map((c) => ({
+              range: c.range.toString(),
+              text: c.insertText,
+              isInlineEdit: !!c.isInlineEdit,
+              source: c.source.provider.groupId
+            }));
+            this._log({ sourceId: "InlineCompletions.fetch", kind: "end", requestId, durationMs: Date.now() - startTime.getTime(), error, result, time: Date.now() });
+          }
+        }
+        if (source.token.isCancellationRequested || this._store.isDisposed || this._textModel.getVersionId() !== request.versionId || userJumpedToActiveCompletion.get()) {
+          updatedCompletions.dispose();
+          return false;
+        }
+        if (activeInlineCompletion && activeInlineCompletion.isInlineEdit && activeInlineCompletion.updatedEditModelVersion === this._textModel.getVersionId() && (activeInlineCompletion.canBeReused(this._textModel, position) || updatedCompletions.has(activeInlineCompletion.inlineCompletion) || updatedCompletions.isEmpty())) {
+          activeInlineCompletion.reuse();
+          updatedCompletions.dispose();
+          return false;
+        }
+        const endTime = /* @__PURE__ */ new Date();
+        this._debounceValue.update(this._textModel, endTime.getTime() - startTime.getTime());
+        const completions = new UpToDateInlineCompletions(updatedCompletions, request, this._textModel, this._versionId);
+        if (activeInlineCompletion && !activeInlineCompletion.isInlineEdit && activeInlineCompletion.canBeReused(this._textModel, position)) {
+          const asInlineCompletion = activeInlineCompletion.toInlineCompletion(void 0);
+          if (!updatedCompletions.has(asInlineCompletion)) {
+            completions.prepend(activeInlineCompletion.inlineCompletion, asInlineCompletion.range, true);
+          }
+        }
+        this._updateOperation.clear();
+        transaction((tx) => {
+          target.set(completions, tx);
+        });
+      } finally {
+        this._loadingCount.set(this._loadingCount.get() - 1, void 0);
+      }
+      return true;
+    })();
+    const updateOperation = new UpdateOperation(request, source, promise);
+    this._updateOperation.value = updateOperation;
+    return promise;
+  }
+  clear(tx) {
+    this._updateOperation.clear();
+    this.inlineCompletions.set(void 0, tx);
+    this.suggestWidgetInlineCompletions.set(void 0, tx);
+  }
+  clearSuggestWidgetInlineCompletions(tx) {
+    if (this._updateOperation.value?.request.context.selectedSuggestionInfo) {
+      this._updateOperation.clear();
+    }
+    this.suggestWidgetInlineCompletions.set(void 0, tx);
+  }
+  cancelUpdate() {
+    this._updateOperation.clear();
+  }
+};
+InlineCompletionsSource = __decorateClass([
+  __decorateParam(3, ILanguageFeaturesService),
+  __decorateParam(4, ILanguageConfigurationService),
+  __decorateParam(5, ILogService),
+  __decorateParam(6, IConfigurationService),
+  __decorateParam(7, IInstantiationService)
+], InlineCompletionsSource);
+function wait(ms, cancellationToken) {
+  return new Promise((resolve) => {
+    let d = void 0;
+    const handle = setTimeout(() => {
+      if (d) {
+        d.dispose();
+      }
+      resolve();
+    }, ms);
+    if (cancellationToken) {
+      d = cancellationToken.onCancellationRequested(() => {
+        clearTimeout(handle);
+        if (d) {
+          d.dispose();
+        }
+        resolve();
+      });
+    }
+  });
+}
+__name(wait, "wait");
+class UpdateRequest {
+  constructor(position, context, versionId) {
+    this.position = position;
+    this.context = context;
+    this.versionId = versionId;
+  }
+  static {
+    __name(this, "UpdateRequest");
+  }
+  satisfies(other) {
+    return this.position.equals(other.position) && equalsIfDefined(this.context.selectedSuggestionInfo, other.context.selectedSuggestionInfo, itemEquals()) && (other.context.triggerKind === InlineCompletionTriggerKind.Automatic || this.context.triggerKind === InlineCompletionTriggerKind.Explicit) && this.versionId === other.versionId;
+  }
+  get isExplicitRequest() {
+    return this.context.triggerKind === InlineCompletionTriggerKind.Explicit;
+  }
+}
+class UpdateOperation {
+  constructor(request, cancellationTokenSource, promise) {
+    this.request = request;
+    this.cancellationTokenSource = cancellationTokenSource;
+    this.promise = promise;
+  }
+  static {
+    __name(this, "UpdateOperation");
+  }
+  dispose() {
+    this.cancellationTokenSource.cancel();
+  }
+}
+class UpToDateInlineCompletions {
+  constructor(inlineCompletionProviderResult, request, _textModel, _versionId) {
+    this.inlineCompletionProviderResult = inlineCompletionProviderResult;
+    this.request = request;
+    this._textModel = _textModel;
+    this._versionId = _versionId;
+    this._inlineCompletions = inlineCompletionProviderResult.completions.map(
+      (completion) => new InlineCompletionWithUpdatedRange(completion, void 0, this._textModel, this._versionId, this.request)
+    );
+  }
+  static {
+    __name(this, "UpToDateInlineCompletions");
+  }
+  _inlineCompletions;
+  get inlineCompletions() {
+    return this._inlineCompletions;
+  }
+  _refCount = 1;
+  _prependedInlineCompletionItems = [];
+  clone() {
+    this._refCount++;
+    return this;
+  }
+  dispose() {
+    this._refCount--;
+    if (this._refCount === 0) {
+      this.inlineCompletionProviderResult.dispose();
+      for (const i of this._prependedInlineCompletionItems) {
+        i.source.removeRef();
+      }
+      this._inlineCompletions.forEach((i) => i.dispose());
+    }
+  }
+  prepend(inlineCompletion, range, addRefToSource) {
+    if (addRefToSource) {
+      inlineCompletion.source.addRef();
+    }
+    this._inlineCompletions.unshift(new InlineCompletionWithUpdatedRange(inlineCompletion, range, this._textModel, this._versionId, this.request));
+    this._prependedInlineCompletionItems.push(inlineCompletion);
+  }
+}
+class InlineCompletionWithUpdatedRange extends Disposable {
+  constructor(inlineCompletion, updatedRange, _textModel, _modelVersion, request) {
+    super();
+    this.inlineCompletion = inlineCompletion;
+    this._textModel = _textModel;
+    this._modelVersion = _modelVersion;
+    this.request = request;
+    this._updatedEditObj = this._register(this._toUpdatedEdit(updatedRange ?? this.inlineCompletion.range, this.inlineCompletion.insertText));
+  }
+  static {
+    __name(this, "InlineCompletionWithUpdatedRange");
+  }
+  semanticId = JSON.stringify([
+    this.inlineCompletion.filterText,
+    this.inlineCompletion.insertText,
+    this.inlineCompletion.range.getStartPosition().toString()
+  ]);
+  get forwardStable() {
+    return this.source.inlineCompletions.enableForwardStability ?? false;
+  }
+  _updatedEditObj;
+  // helper as derivedHandleChanges can not access previous value
+  get updatedEdit() {
+    return this._updatedEditObj.offsetEdit;
+  }
+  get updatedEditModelVersion() {
+    return this._updatedEditObj.modelVersion;
+  }
+  get source() {
+    return this.inlineCompletion.source;
+  }
+  get sourceInlineCompletion() {
+    return this.inlineCompletion.sourceInlineCompletion;
+  }
+  get isInlineEdit() {
+    return this.inlineCompletion.isInlineEdit;
+  }
+  toInlineCompletion(reader) {
+    const singleTextEdit = this.toSingleTextEdit(reader);
+    return this.inlineCompletion.withRangeInsertTextAndFilterText(singleTextEdit.range, singleTextEdit.text, singleTextEdit.text);
+  }
+  toSingleTextEdit(reader) {
+    this._modelVersion.read(reader);
+    const offsetEdit = this.updatedEdit.read(reader);
+    if (!offsetEdit) {
+      return new SingleTextEdit(this._updatedRange.read(reader) ?? emptyRange, this.inlineCompletion.insertText);
+    }
+    const startOffset = offsetEdit.edits[0].replaceRange.start;
+    const endOffset = offsetEdit.edits[offsetEdit.edits.length - 1].replaceRange.endExclusive;
+    const overallOffsetRange = new OffsetRange(startOffset, endOffset);
+    const overallLnColRange = Range.fromPositions(
+      this._textModel.getPositionAt(overallOffsetRange.start),
+      this._textModel.getPositionAt(overallOffsetRange.endExclusive)
+    );
+    let text = this._textModel.getValueInRange(overallLnColRange);
+    for (let i = offsetEdit.edits.length - 1; i >= 0; i--) {
+      const edit = offsetEdit.edits[i];
+      const relativeStartOffset = edit.replaceRange.start - startOffset;
+      const relativeEndOffset = edit.replaceRange.endExclusive - startOffset;
+      text = text.substring(0, relativeStartOffset) + edit.newText + text.substring(relativeEndOffset);
+    }
+    return new SingleTextEdit(overallLnColRange, text);
+  }
+  isVisible(model, cursorPosition, reader) {
+    const minimizedReplacement = singleTextRemoveCommonPrefix(this.toSingleTextEdit(reader), model);
+    const updatedRange = this._updatedRange.read(reader);
+    if (!updatedRange || !this.inlineCompletion.range.getStartPosition().equals(updatedRange.getStartPosition()) || cursorPosition.lineNumber !== minimizedReplacement.range.startLineNumber || minimizedReplacement.isEmpty) {
+      return false;
+    }
+    const originalValue = model.getValueInRange(minimizedReplacement.range, EndOfLinePreference.LF);
+    const filterText = minimizedReplacement.text;
+    const cursorPosIndex = Math.max(0, cursorPosition.column - minimizedReplacement.range.startColumn);
+    let filterTextBefore = filterText.substring(0, cursorPosIndex);
+    let filterTextAfter = filterText.substring(cursorPosIndex);
+    let originalValueBefore = originalValue.substring(0, cursorPosIndex);
+    let originalValueAfter = originalValue.substring(cursorPosIndex);
+    const originalValueIndent = model.getLineIndentColumn(minimizedReplacement.range.startLineNumber);
+    if (minimizedReplacement.range.startColumn <= originalValueIndent) {
+      originalValueBefore = originalValueBefore.trimStart();
+      if (originalValueBefore.length === 0) {
+        originalValueAfter = originalValueAfter.trimStart();
+      }
+      filterTextBefore = filterTextBefore.trimStart();
+      if (filterTextBefore.length === 0) {
+        filterTextAfter = filterTextAfter.trimStart();
+      }
+    }
+    return filterTextBefore.startsWith(originalValueBefore) && !!matchesSubString(originalValueAfter, filterTextAfter);
+  }
+  reuse() {
+    this._updatedEditObj.reuse();
+  }
+  canBeReused(model, position) {
+    if (!this.updatedEdit.get()) {
+      return false;
+    }
+    if (this.sourceInlineCompletion.isInlineEdit) {
+      return this._updatedEditObj.lastChangePartOfInlineEdit;
+    }
+    const updatedRange = this._updatedRange.read(void 0);
+    const result = !!updatedRange && updatedRange.containsPosition(position) && this.isVisible(model, position, void 0) && TextLength.ofRange(updatedRange).isGreaterThanOrEqualTo(TextLength.ofRange(this.inlineCompletion.range));
+    return result;
+  }
+  _updatedRange = derived((reader) => {
+    const edit = this.updatedEdit.read(reader);
+    if (!edit || edit.edits.length === 0) {
+      return void 0;
+    }
+    return Range.fromPositions(
+      this._textModel.getPositionAt(edit.edits[0].replaceRange.start),
+      this._textModel.getPositionAt(edit.edits[edit.edits.length - 1].replaceRange.endExclusive)
+    );
+  });
+  _toUpdatedEdit(editRange, replaceText) {
+    return this.isInlineEdit ? this._toInlineEditEdit(editRange, replaceText) : this._toInlineCompletionEdit(editRange, replaceText);
+  }
+  _toInlineCompletionEdit(editRange, replaceText) {
+    const startOffset = this._textModel.getOffsetAt(editRange.getStartPosition());
+    const endOffset = this._textModel.getOffsetAt(editRange.getEndPosition());
+    const originalRange = OffsetRange.ofStartAndLength(startOffset, endOffset - startOffset);
+    const offsetEdit = new OffsetEdit([new SingleOffsetEdit(originalRange, replaceText)]);
+    return new UpdatedEdit(offsetEdit, this._textModel, this._modelVersion, false);
+  }
+  _toInlineEditEdit(editRange, replaceText) {
+    const eol = this._textModel.getEOL();
+    const editOriginalText = this._textModel.getValueInRange(editRange);
+    const editReplaceText = replaceText.replace(/\r\n|\r|\n/g, eol);
+    const diffAlgorithm = linesDiffComputers.getDefault();
+    const lineDiffs = diffAlgorithm.computeDiff(
+      splitLines(editOriginalText),
+      splitLines(editReplaceText),
+      {
+        ignoreTrimWhitespace: false,
+        computeMoves: false,
+        extendToSubwords: true,
+        maxComputationTimeMs: 500
+      }
+    );
+    const innerChanges = lineDiffs.changes.flatMap((c) => c.innerChanges ?? []);
+    function addRangeToPos(pos, range) {
+      const start = TextLength.fromPosition(range.getStartPosition());
+      return TextLength.ofRange(range).createRange(start.addToPosition(pos));
+    }
+    __name(addRangeToPos, "addRangeToPos");
+    const modifiedText = new StringText(editReplaceText);
+    const offsetEdit = new OffsetEdit(
+      innerChanges.map((c) => {
+        const range = addRangeToPos(editRange.getStartPosition(), c.originalRange);
+        const startOffset = this._textModel.getOffsetAt(range.getStartPosition());
+        const endOffset = this._textModel.getOffsetAt(range.getEndPosition());
+        const originalRange = OffsetRange.ofStartAndLength(startOffset, endOffset - startOffset);
+        const replaceText2 = modifiedText.getValueOfRange(c.modifiedRange);
+        const originalText = this._textModel.getValueInRange(range);
+        const edit = new SingleOffsetEdit(originalRange, replaceText2);
+        return reshapeEdit(edit, originalText, innerChanges.length, this._textModel);
+      })
+    );
+    return new UpdatedEdit(offsetEdit, this._textModel, this._modelVersion, true);
+  }
+}
+class UpdatedEdit extends Disposable {
+  constructor(offsetEdit, _textModel, _modelVersion, isInlineEdit) {
+    super();
+    this._textModel = _textModel;
+    this._modelVersion = _modelVersion;
+    this._inlineEditModelVersion = this._modelVersion.get() ?? -1;
+    this._innerEdits = offsetEdit.edits.map((edit) => {
+      if (isInlineEdit) {
+        const replacedRange = Range.fromPositions(this._textModel.getPositionAt(edit.replaceRange.start), this._textModel.getPositionAt(edit.replaceRange.endExclusive));
+        const replacedText = this._textModel.getValueInRange(replacedRange);
+        return new SingleUpdatedNextEdit(edit, replacedText);
+      }
+      return new SingleUpdatedCompletion(edit);
+    });
+    this._updatedEdit.recomputeInitiallyAndOnChange(this._store);
+  }
+  static {
+    __name(this, "UpdatedEdit");
+  }
+  _innerEdits;
+  _inlineEditModelVersion;
+  get modelVersion() {
+    return this._inlineEditModelVersion;
+  }
+  _lastChangePartOfInlineEdit = false;
+  get lastChangePartOfInlineEdit() {
+    return this._lastChangePartOfInlineEdit;
+  }
+  _updatedEdit = derivedHandleChanges({
+    owner: this,
+    equalityComparer: equalsIfDefined((a, b) => a?.equals(b)),
+    changeTracker: recordChanges({ edit: this._modelVersion })
+  }, (reader, changeSummary) => {
+    this._modelVersion.read(reader);
+    for (const change of changeSummary.changes) {
+      if (change.change) {
+        this._innerEdits = this._applyTextModelChanges(OffsetEdits.fromContentChanges(change.change.changes), this._innerEdits);
+      }
+    }
+    if (this._innerEdits.length === 0) {
+      return void 0;
+    }
+    if (this._innerEdits.some((e) => e.edit === void 0)) {
+      throw new BugIndicatingError("UpdatedEdit: Invalid state");
+    }
+    return new OffsetEdit(this._innerEdits.map((edit) => edit.edit));
+  });
+  get offsetEdit() {
+    return this._updatedEdit.map((e) => e ?? void 0);
+  }
+  _applyTextModelChanges(textModelChanges, edits) {
+    for (const innerEdit of edits) {
+      innerEdit.applyTextModelChanges(textModelChanges);
+    }
+    if (edits.some((edit) => edit.edit === void 0)) {
+      return [];
+    }
+    const currentModelVersion = this._modelVersion.get();
+    this._lastChangePartOfInlineEdit = edits.some((edit) => edit.lastChangeUpdatedEdit);
+    if (this._lastChangePartOfInlineEdit) {
+      this._inlineEditModelVersion = currentModelVersion ?? -1;
+    }
+    if (currentModelVersion === null || this._inlineEditModelVersion + 20 < currentModelVersion) {
+      return [];
+    }
+    edits = edits.filter((innerEdit) => !innerEdit.edit.isEmpty);
+    if (edits.length === 0) {
+      return [];
+    }
+    return edits;
+  }
+  reuse() {
+    this._inlineEditModelVersion = this._modelVersion.get() ?? -1;
+  }
+}
+class SingleUpdatedEdit {
+  static {
+    __name(this, "SingleUpdatedEdit");
+  }
+  _edit;
+  get edit() {
+    return this._edit;
+  }
+  _lastChangeUpdatedEdit = false;
+  get lastChangeUpdatedEdit() {
+    return this._lastChangeUpdatedEdit;
+  }
+  constructor(edit) {
+    this._edit = edit;
+  }
+  applyTextModelChanges(textModelChanges) {
+    this._lastChangeUpdatedEdit = false;
+    if (!this._edit) {
+      throw new BugIndicatingError("UpdatedInnerEdits: No edit to apply changes to");
+    }
+    const result = this.applyChanges(this._edit, textModelChanges);
+    if (!result) {
+      this._edit = void 0;
+      return;
+    }
+    this._edit = result.edit;
+    this._lastChangeUpdatedEdit = result.editHasChanged;
+  }
+}
+class SingleUpdatedCompletion extends SingleUpdatedEdit {
+  static {
+    __name(this, "SingleUpdatedCompletion");
+  }
+  constructor(edit) {
+    super(edit);
+  }
+  applyChanges(edit, textModelChanges) {
+    const newEditRange = applyEditsToRanges([edit.replaceRange], textModelChanges)[0];
+    return { edit: new SingleOffsetEdit(newEditRange, edit.newText), editHasChanged: !newEditRange.equals(edit.replaceRange) };
+  }
+}
+class SingleUpdatedNextEdit extends SingleUpdatedEdit {
+  static {
+    __name(this, "SingleUpdatedNextEdit");
+  }
+  _trimmedNewText;
+  _prefixLength;
+  _suffixLength;
+  constructor(edit, replacedText) {
+    super(edit);
+    this._prefixLength = commonPrefixLength(edit.newText, replacedText);
+    this._suffixLength = commonSuffixLength(edit.newText, replacedText);
+    this._trimmedNewText = edit.newText.substring(this._prefixLength, edit.newText.length - this._suffixLength);
+  }
+  applyChanges(edit, textModelChanges) {
+    let editStart = edit.replaceRange.start;
+    let editEnd = edit.replaceRange.endExclusive;
+    let editReplaceText = edit.newText;
+    let editHasChanged = false;
+    const shouldPreserveEditShape = this._prefixLength > 0 || this._suffixLength > 0;
+    for (let i = textModelChanges.edits.length - 1; i >= 0; i--) {
+      const change = textModelChanges.edits[i];
+      const isInsertion = change.newText.length > 0 && change.replaceRange.isEmpty;
+      if (isInsertion && !shouldPreserveEditShape && change.replaceRange.start === editStart && editReplaceText.startsWith(change.newText)) {
+        editStart += change.newText.length;
+        editReplaceText = editReplaceText.substring(change.newText.length);
+        editEnd = Math.max(editStart, editEnd);
+        editHasChanged = true;
+        continue;
+      }
+      if (isInsertion && shouldPreserveEditShape && change.replaceRange.start === editStart + this._prefixLength && this._trimmedNewText.startsWith(change.newText)) {
+        editEnd += change.newText.length;
+        editHasChanged = true;
+        this._prefixLength += change.newText.length;
+        this._trimmedNewText = this._trimmedNewText.substring(change.newText.length);
+        continue;
+      }
+      const isDeletion = change.newText.length === 0 && change.replaceRange.length > 0;
+      if (isDeletion && change.replaceRange.start >= editStart + this._prefixLength && change.replaceRange.endExclusive <= editEnd - this._suffixLength) {
+        editEnd -= change.replaceRange.length;
+        editHasChanged = true;
+        continue;
+      }
+      if (change.equals(edit)) {
+        editHasChanged = true;
+        editStart = change.replaceRange.endExclusive;
+        editReplaceText = "";
+        continue;
+      }
+      if (change.replaceRange.start > editEnd) {
+        continue;
+      }
+      if (change.replaceRange.endExclusive < editStart) {
+        editStart += change.newText.length - change.replaceRange.length;
+        editEnd += change.newText.length - change.replaceRange.length;
+        continue;
+      }
+      return void 0;
+    }
+    if (this._trimmedNewText.length === 0 && editStart + this._prefixLength === editEnd - this._suffixLength) {
+      return { edit: new SingleOffsetEdit(new OffsetRange(editStart + this._prefixLength, editStart + this._prefixLength), ""), editHasChanged: true };
+    }
+    return { edit: new SingleOffsetEdit(new OffsetRange(editStart, editEnd), editReplaceText), editHasChanged };
+  }
+}
+const emptyRange = new Range(1, 1, 1, 1);
+function reshapeEdit(edit, originalText, totalInnerEdits, textModel) {
+  const eol = textModel.getEOL();
+  if (edit.newText.endsWith(eol) && originalText.endsWith(eol)) {
+    edit = new SingleOffsetEdit(edit.replaceRange.deltaEnd(-eol.length), edit.newText.slice(0, -eol.length));
+  }
+  if (totalInnerEdits === 1 && edit.replaceRange.isEmpty && edit.newText.includes(eol)) {
+    edit = reshapeMultiLineInsertion(edit, textModel);
+  }
+  if (totalInnerEdits === 1) {
+    const prefixLength = commonPrefixLength(originalText, edit.newText);
+    const suffixLength = commonSuffixLength(originalText.slice(prefixLength), edit.newText.slice(prefixLength));
+    if (prefixLength + suffixLength === originalText.length) {
+      return new SingleOffsetEdit(edit.replaceRange.deltaStart(prefixLength).deltaEnd(-suffixLength), edit.newText.substring(prefixLength, edit.newText.length - suffixLength));
+    }
+    if (prefixLength + suffixLength === edit.newText.length) {
+      return new SingleOffsetEdit(edit.replaceRange.deltaStart(prefixLength).deltaEnd(-suffixLength), "");
+    }
+  }
+  return edit;
+}
+__name(reshapeEdit, "reshapeEdit");
+function reshapeMultiLineInsertion(edit, textModel) {
+  if (!edit.replaceRange.isEmpty) {
+    throw new BugIndicatingError("Unexpected original range");
+  }
+  if (edit.replaceRange.start === 0) {
+    return edit;
+  }
+  const eol = textModel.getEOL();
+  const startPosition = textModel.getPositionAt(edit.replaceRange.start);
+  const startColumn = startPosition.column;
+  const startLineNumber = startPosition.lineNumber;
+  if (startColumn === 1 && startLineNumber > 1 && textModel.getLineLength(startLineNumber) !== 0 && edit.newText.endsWith(eol) && !edit.newText.startsWith(eol)) {
+    return new SingleOffsetEdit(edit.replaceRange.delta(-1), eol + edit.newText.slice(0, -eol.length));
+  }
+  return edit;
+}
+__name(reshapeMultiLineInsertion, "reshapeMultiLineInsertion");
+export {
+  InlineCompletionWithUpdatedRange,
+  InlineCompletionsSource,
+  UpToDateInlineCompletions
+};
+//# sourceMappingURL=inlineCompletionsSource.js.map

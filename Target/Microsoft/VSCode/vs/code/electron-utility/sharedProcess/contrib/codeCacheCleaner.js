@@ -1,1 +1,71 @@
-var h=Object.defineProperty;var f=Object.getOwnPropertyDescriptor;var l=(i,o,r,e)=>{for(var t=e>1?void 0:e?f(o,r):o,c=i.length-1,a;c>=0;c--)(a=i[c])&&(t=(e?a(o,r,t):a(t))||t);return e&&t&&h(o,r,t),t},m=(i,o)=>(r,e)=>o(r,e,i);import{promises as g}from"fs";import{RunOnceScheduler as v}from"../../../../base/common/async.js";import{onUnexpectedError as S}from"../../../../base/common/errors.js";import{Disposable as y}from"../../../../base/common/lifecycle.js";import{basename as w,dirname as x,join as P}from"../../../../base/common/path.js";import{Promises as u}from"../../../../base/node/pfs.js";import{ILogService as b}from"../../../../platform/log/common/log.js";import{IProductService as I}from"../../../../platform/product/common/productService.js";let s=class extends y{constructor(r,e,t){super();this.logService=t;this.dataMaxAge=e.quality!=="stable"?1e3*60*60*24*7:1e3*60*60*24*30*3,r&&this._register(new v(()=>{this.cleanUpCodeCaches(r)},3e4)).schedule()}dataMaxAge;async cleanUpCodeCaches(r){this.logService.trace("[code cache cleanup]: Starting to clean up old code cache folders.");try{const e=Date.now(),t=x(r),c=w(r),a=await u.readdir(t);await Promise.all(a.map(async n=>{if(n===c)return;const d=P(t,n),p=await g.stat(d);if(p.isDirectory()&&e-p.mtime.getTime()>this.dataMaxAge)return this.logService.trace(`[code cache cleanup]: Removing code cache folder ${n}.`),u.rm(d)}))}catch(e){S(e)}}};s=l([m(1,I),m(2,b)],s);export{s as CodeCacheCleaner};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { promises } from "fs";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { basename, dirname, join } from "../../../../base/common/path.js";
+import { Promises } from "../../../../base/node/pfs.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+let CodeCacheCleaner = class extends Disposable {
+  constructor(currentCodeCachePath, productService, logService) {
+    super();
+    this.logService = logService;
+    this.dataMaxAge = productService.quality !== "stable" ? 1e3 * 60 * 60 * 24 * 7 : 1e3 * 60 * 60 * 24 * 30 * 3;
+    if (currentCodeCachePath) {
+      const scheduler = this._register(new RunOnceScheduler(
+        () => {
+          this.cleanUpCodeCaches(currentCodeCachePath);
+        },
+        30 * 1e3
+        /* after 30s */
+      ));
+      scheduler.schedule();
+    }
+  }
+  static {
+    __name(this, "CodeCacheCleaner");
+  }
+  dataMaxAge;
+  async cleanUpCodeCaches(currentCodeCachePath) {
+    this.logService.trace("[code cache cleanup]: Starting to clean up old code cache folders.");
+    try {
+      const now = Date.now();
+      const codeCacheRootPath = dirname(currentCodeCachePath);
+      const currentCodeCache = basename(currentCodeCachePath);
+      const codeCaches = await Promises.readdir(codeCacheRootPath);
+      await Promise.all(codeCaches.map(async (codeCache) => {
+        if (codeCache === currentCodeCache) {
+          return;
+        }
+        const codeCacheEntryPath = join(codeCacheRootPath, codeCache);
+        const codeCacheEntryStat = await promises.stat(codeCacheEntryPath);
+        if (codeCacheEntryStat.isDirectory() && now - codeCacheEntryStat.mtime.getTime() > this.dataMaxAge) {
+          this.logService.trace(`[code cache cleanup]: Removing code cache folder ${codeCache}.`);
+          return Promises.rm(codeCacheEntryPath);
+        }
+      }));
+    } catch (error) {
+      onUnexpectedError(error);
+    }
+  }
+};
+CodeCacheCleaner = __decorateClass([
+  __decorateParam(1, IProductService),
+  __decorateParam(2, ILogService)
+], CodeCacheCleaner);
+export {
+  CodeCacheCleaner
+};
+//# sourceMappingURL=codeCacheCleaner.js.map

@@ -1,1 +1,280 @@
-import"../../../../base/common/collections.js";import{normalizeDriveLetter as v}from"../../../../base/common/labels.js";import*as c from"../../../../base/common/path.js";import{isWindows as p}from"../../../../base/common/platform.js";import*as w from"../../../../base/common/process.js";import*as h from"../../../../base/common/types.js";import"../../../../base/common/uri.js";import{localize as a}from"../../../../nls.js";import"../../../../platform/label/common/label.js";import"../../../../platform/workspace/common/workspace.js";import{allVariableKinds as x,VariableError as l,VariableKind as t}from"./configurationResolver.js";import{ConfigurationResolverExpression as F}from"./configurationResolverExpression.js";class O{_context;_labelService;_envVariablesPromise;_userHomePromise;_contributedVariables=new Map;resolvableVariables=new Set(x);constructor(i,n,o,s){this._context=i,this._labelService=n,this._userHomePromise=o,s&&(this._envVariablesPromise=s.then(u=>this.prepareEnv(u)))}prepareEnv(i){if(p){const n=Object.create(null);return Object.keys(i).forEach(o=>{n[o.toLowerCase()]=i[o]}),n}return i}async resolveWithEnvironment(i,n,o){const s=F.parse(o),u={env:this.prepareEnv(i),userHome:void 0};for(const r of s.unresolved()){const d=await this.evaluateSingleVariable(u,r,n?.uri);d!==void 0&&s.resolve(r,d)}return s.toObject()}async resolveAsync(i,n){const o=F.parse(n),s={env:await this._envVariablesPromise,userHome:await this._userHomePromise};for(const u of o.unresolved()){const r=await this.evaluateSingleVariable(s,u,i?.uri);r!==void 0&&o.resolve(u,r)}return o.toObject()}resolveWithInteractionReplace(i,n){throw new Error("resolveWithInteractionReplace not implemented.")}resolveWithInteraction(i,n){throw new Error("resolveWithInteraction not implemented.")}contributeVariable(i,n){if(this._contributedVariables.has(i))throw new Error("Variable "+i+" is contributed twice.");this.resolvableVariables.add(i),this._contributedVariables.set(i,n)}fsPath(i){return this._labelService?this._labelService.getUriLabel(i,{noPrefix:!0}):i.fsPath}async evaluateSingleVariable(i,n,o,s){const{name:u,arg:r}=n,d=e=>{const f=this._context.getFilePath();if(f)return v(f);throw new l(e,a("canNotResolveFile","Variable {0} can not be resolved. Please open an editor.",n.id))},b=e=>{const f=d(e);if(this._context.getWorkspaceFolderPathForFile){const g=this._context.getWorkspaceFolderPathForFile();if(g)return v(g)}throw new l(e,a("canNotResolveFolderForFile","Variable {0}: can not find workspace folder of '{1}'.",n.id,c.basename(f)))},m=e=>{if(r){const f=this._context.getFolderUri(r);if(f)return f;throw new l(e,a("canNotFindFolder","Variable {0} can not be resolved. No such folder '{1}'.",e,r))}if(o)return o;throw this._context.getWorkspaceFolderCount()>1?new l(e,a("canNotResolveWorkspaceFolderMultiRoot","Variable {0} can not be resolved in a multi folder workspace. Scope this variable using ':' and a workspace folder name.",e)):new l(e,a("canNotResolveWorkspaceFolder","Variable {0} can not be resolved. Please open a folder.",e))};switch(u){case"env":if(r){if(i.env){const e=i.env[p?r.toLowerCase():r];if(h.isString(e))return e}return""}throw new l(t.Env,a("missingEnvVarName","Variable {0} can not be resolved because no environment variable name is given.",n.id));case"config":if(r){const e=this._context.getConfigurationValue(o,r);if(h.isUndefinedOrNull(e))throw new l(t.Config,a("configNotFound","Variable {0} can not be resolved because setting '{1}' not found.",n.id,r));if(h.isObject(e))throw new l(t.Config,a("configNoString","Variable {0} can not be resolved because '{1}' is a structured value.",n.id,r));return e}throw new l(t.Config,a("missingConfigName","Variable {0} can not be resolved because no settings name is given.",n.id));case"command":return this.resolveFromMap(t.Command,n.id,r,s,"command");case"input":return this.resolveFromMap(t.Input,n.id,r,s,"input");case"extensionInstallFolder":if(r){const e=await this._context.getExtension(r);if(!e)throw new l(t.ExtensionInstallFolder,a("extensionNotInstalled","Variable {0} can not be resolved because the extension {1} is not installed.",n.id,r));return this.fsPath(e.extensionLocation)}throw new l(t.ExtensionInstallFolder,a("missingExtensionName","Variable {0} can not be resolved because no extension name is given.",n.id));default:switch(u){case"workspaceRoot":case"workspaceFolder":{const e=m(t.WorkspaceFolder);return e?v(this.fsPath(e)):void 0}case"cwd":{if(!o&&!r)return w.cwd();const e=m(t.Cwd);return e?v(this.fsPath(e)):void 0}case"workspaceRootFolderName":case"workspaceFolderBasename":{const e=m(t.WorkspaceFolderBasename);return e?v(c.basename(this.fsPath(e))):void 0}case"userHome":if(i.userHome)return i.userHome;throw new l(t.UserHome,a("canNotResolveUserHome","Variable {0} can not be resolved. UserHome path is not defined",n.id));case"lineNumber":{const e=this._context.getLineNumber();if(e)return e;throw new l(t.LineNumber,a("canNotResolveLineNumber","Variable {0} can not be resolved. Make sure to have a line selected in the active editor.",n.id))}case"columnNumber":{const e=this._context.getColumnNumber();if(e)return e;throw new Error(a("canNotResolveColumnNumber","Variable {0} can not be resolved. Make sure to have a column selected in the active editor.",n.id))}case"selectedText":{const e=this._context.getSelectedText();if(e)return e;throw new l(t.SelectedText,a("canNotResolveSelectedText","Variable {0} can not be resolved. Make sure to have some text selected in the active editor.",n.id))}case"file":return d(t.File);case"fileWorkspaceFolder":return b(t.FileWorkspaceFolder);case"fileWorkspaceFolderBasename":return c.basename(b(t.FileWorkspaceFolderBasename));case"relativeFile":return o||r?c.relative(this.fsPath(m(t.RelativeFile)),d(t.RelativeFile)):d(t.RelativeFile);case"relativeFileDirname":{const e=c.dirname(d(t.RelativeFileDirname));if(o||r){const f=c.relative(this.fsPath(m(t.RelativeFileDirname)),e);return f.length===0?".":f}return e}case"fileDirname":return c.dirname(d(t.FileDirname));case"fileExtname":return c.extname(d(t.FileExtname));case"fileBasename":return c.basename(d(t.FileBasename));case"fileBasenameNoExtension":{const e=c.basename(d(t.FileBasenameNoExtension));return e.slice(0,e.length-c.extname(e).length)}case"fileDirnameBasename":return c.basename(c.dirname(d(t.FileDirnameBasename)));case"execPath":{const e=this._context.getExecPath();return e||n.id}case"execInstallFolder":{const e=this._context.getAppRoot();return e||n.id}case"pathSeparator":case"/":return c.sep;default:try{return this.resolveFromMap(t.Unknown,n.id,r,s,void 0)}catch{return n.id}}}}resolveFromMap(i,n,o,s,u){if(o&&s){const r=u===void 0?s[o]:s[u+":"+o];if(typeof r=="string")return r;throw new l(i,a("noValueForCommand","Variable {0} can not be resolved because the command has no value.",n))}return n}}export{O as AbstractVariableResolverService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStringDictionary } from "../../../../base/common/collections.js";
+import { normalizeDriveLetter } from "../../../../base/common/labels.js";
+import * as paths from "../../../../base/common/path.js";
+import { IProcessEnvironment, isWindows } from "../../../../base/common/platform.js";
+import * as process from "../../../../base/common/process.js";
+import * as types from "../../../../base/common/types.js";
+import { URI as uri } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
+import { allVariableKinds, IConfigurationResolverService, VariableError, VariableKind } from "./configurationResolver.js";
+import { ConfigurationResolverExpression, IResolvedValue, Replacement } from "./configurationResolverExpression.js";
+class AbstractVariableResolverService {
+  static {
+    __name(this, "AbstractVariableResolverService");
+  }
+  _context;
+  _labelService;
+  _envVariablesPromise;
+  _userHomePromise;
+  _contributedVariables = /* @__PURE__ */ new Map();
+  resolvableVariables = new Set(allVariableKinds);
+  constructor(_context, _labelService, _userHomePromise, _envVariablesPromise) {
+    this._context = _context;
+    this._labelService = _labelService;
+    this._userHomePromise = _userHomePromise;
+    if (_envVariablesPromise) {
+      this._envVariablesPromise = _envVariablesPromise.then((envVariables) => {
+        return this.prepareEnv(envVariables);
+      });
+    }
+  }
+  prepareEnv(envVariables) {
+    if (isWindows) {
+      const ev = /* @__PURE__ */ Object.create(null);
+      Object.keys(envVariables).forEach((key) => {
+        ev[key.toLowerCase()] = envVariables[key];
+      });
+      return ev;
+    }
+    return envVariables;
+  }
+  async resolveWithEnvironment(environment, folder, value) {
+    const expr = ConfigurationResolverExpression.parse(value);
+    const env = {
+      env: this.prepareEnv(environment),
+      userHome: void 0
+    };
+    for (const replacement of expr.unresolved()) {
+      const resolvedValue = await this.evaluateSingleVariable(env, replacement, folder?.uri);
+      if (resolvedValue !== void 0) {
+        expr.resolve(replacement, resolvedValue);
+      }
+    }
+    return expr.toObject();
+  }
+  async resolveAsync(folder, config) {
+    const expr = ConfigurationResolverExpression.parse(config);
+    const environment = {
+      env: await this._envVariablesPromise,
+      userHome: await this._userHomePromise
+    };
+    for (const replacement of expr.unresolved()) {
+      const resolvedValue = await this.evaluateSingleVariable(environment, replacement, folder?.uri);
+      if (resolvedValue !== void 0) {
+        expr.resolve(replacement, resolvedValue);
+      }
+    }
+    return expr.toObject();
+  }
+  resolveWithInteractionReplace(folder, config) {
+    throw new Error("resolveWithInteractionReplace not implemented.");
+  }
+  resolveWithInteraction(folder, config) {
+    throw new Error("resolveWithInteraction not implemented.");
+  }
+  contributeVariable(variable, resolution) {
+    if (this._contributedVariables.has(variable)) {
+      throw new Error("Variable " + variable + " is contributed twice.");
+    } else {
+      this.resolvableVariables.add(variable);
+      this._contributedVariables.set(variable, resolution);
+    }
+  }
+  fsPath(displayUri) {
+    return this._labelService ? this._labelService.getUriLabel(displayUri, { noPrefix: true }) : displayUri.fsPath;
+  }
+  async evaluateSingleVariable(environment, replacement, folderUri, commandValueMapping) {
+    const { name: variable, arg: argument } = replacement;
+    const getFilePath = /* @__PURE__ */ __name((variableKind) => {
+      const filePath = this._context.getFilePath();
+      if (filePath) {
+        return normalizeDriveLetter(filePath);
+      }
+      throw new VariableError(variableKind, localize("canNotResolveFile", "Variable {0} can not be resolved. Please open an editor.", replacement.id));
+    }, "getFilePath");
+    const getFolderPathForFile = /* @__PURE__ */ __name((variableKind) => {
+      const filePath = getFilePath(variableKind);
+      if (this._context.getWorkspaceFolderPathForFile) {
+        const folderPath = this._context.getWorkspaceFolderPathForFile();
+        if (folderPath) {
+          return normalizeDriveLetter(folderPath);
+        }
+      }
+      throw new VariableError(variableKind, localize("canNotResolveFolderForFile", "Variable {0}: can not find workspace folder of '{1}'.", replacement.id, paths.basename(filePath)));
+    }, "getFolderPathForFile");
+    const getFolderUri = /* @__PURE__ */ __name((variableKind) => {
+      if (argument) {
+        const folder = this._context.getFolderUri(argument);
+        if (folder) {
+          return folder;
+        }
+        throw new VariableError(variableKind, localize("canNotFindFolder", "Variable {0} can not be resolved. No such folder '{1}'.", variableKind, argument));
+      }
+      if (folderUri) {
+        return folderUri;
+      }
+      if (this._context.getWorkspaceFolderCount() > 1) {
+        throw new VariableError(variableKind, localize("canNotResolveWorkspaceFolderMultiRoot", "Variable {0} can not be resolved in a multi folder workspace. Scope this variable using ':' and a workspace folder name.", variableKind));
+      }
+      throw new VariableError(variableKind, localize("canNotResolveWorkspaceFolder", "Variable {0} can not be resolved. Please open a folder.", variableKind));
+    }, "getFolderUri");
+    switch (variable) {
+      case "env":
+        if (argument) {
+          if (environment.env) {
+            const env = environment.env[isWindows ? argument.toLowerCase() : argument];
+            if (types.isString(env)) {
+              return env;
+            }
+          }
+          return "";
+        }
+        throw new VariableError(VariableKind.Env, localize("missingEnvVarName", "Variable {0} can not be resolved because no environment variable name is given.", replacement.id));
+      case "config":
+        if (argument) {
+          const config = this._context.getConfigurationValue(folderUri, argument);
+          if (types.isUndefinedOrNull(config)) {
+            throw new VariableError(VariableKind.Config, localize("configNotFound", "Variable {0} can not be resolved because setting '{1}' not found.", replacement.id, argument));
+          }
+          if (types.isObject(config)) {
+            throw new VariableError(VariableKind.Config, localize("configNoString", "Variable {0} can not be resolved because '{1}' is a structured value.", replacement.id, argument));
+          }
+          return config;
+        }
+        throw new VariableError(VariableKind.Config, localize("missingConfigName", "Variable {0} can not be resolved because no settings name is given.", replacement.id));
+      case "command":
+        return this.resolveFromMap(VariableKind.Command, replacement.id, argument, commandValueMapping, "command");
+      case "input":
+        return this.resolveFromMap(VariableKind.Input, replacement.id, argument, commandValueMapping, "input");
+      case "extensionInstallFolder":
+        if (argument) {
+          const ext = await this._context.getExtension(argument);
+          if (!ext) {
+            throw new VariableError(VariableKind.ExtensionInstallFolder, localize("extensionNotInstalled", "Variable {0} can not be resolved because the extension {1} is not installed.", replacement.id, argument));
+          }
+          return this.fsPath(ext.extensionLocation);
+        }
+        throw new VariableError(VariableKind.ExtensionInstallFolder, localize("missingExtensionName", "Variable {0} can not be resolved because no extension name is given.", replacement.id));
+      default: {
+        switch (variable) {
+          case "workspaceRoot":
+          case "workspaceFolder": {
+            const uri2 = getFolderUri(VariableKind.WorkspaceFolder);
+            return uri2 ? normalizeDriveLetter(this.fsPath(uri2)) : void 0;
+          }
+          case "cwd": {
+            if (!folderUri && !argument) {
+              return process.cwd();
+            }
+            const uri2 = getFolderUri(VariableKind.Cwd);
+            return uri2 ? normalizeDriveLetter(this.fsPath(uri2)) : void 0;
+          }
+          case "workspaceRootFolderName":
+          case "workspaceFolderBasename": {
+            const uri2 = getFolderUri(VariableKind.WorkspaceFolderBasename);
+            return uri2 ? normalizeDriveLetter(paths.basename(this.fsPath(uri2))) : void 0;
+          }
+          case "userHome":
+            if (environment.userHome) {
+              return environment.userHome;
+            }
+            throw new VariableError(VariableKind.UserHome, localize("canNotResolveUserHome", "Variable {0} can not be resolved. UserHome path is not defined", replacement.id));
+          case "lineNumber": {
+            const lineNumber = this._context.getLineNumber();
+            if (lineNumber) {
+              return lineNumber;
+            }
+            throw new VariableError(VariableKind.LineNumber, localize("canNotResolveLineNumber", "Variable {0} can not be resolved. Make sure to have a line selected in the active editor.", replacement.id));
+          }
+          case "columnNumber": {
+            const columnNumber = this._context.getColumnNumber();
+            if (columnNumber) {
+              return columnNumber;
+            }
+            throw new Error(localize("canNotResolveColumnNumber", "Variable {0} can not be resolved. Make sure to have a column selected in the active editor.", replacement.id));
+          }
+          case "selectedText": {
+            const selectedText = this._context.getSelectedText();
+            if (selectedText) {
+              return selectedText;
+            }
+            throw new VariableError(VariableKind.SelectedText, localize("canNotResolveSelectedText", "Variable {0} can not be resolved. Make sure to have some text selected in the active editor.", replacement.id));
+          }
+          case "file":
+            return getFilePath(VariableKind.File);
+          case "fileWorkspaceFolder":
+            return getFolderPathForFile(VariableKind.FileWorkspaceFolder);
+          case "fileWorkspaceFolderBasename":
+            return paths.basename(getFolderPathForFile(VariableKind.FileWorkspaceFolderBasename));
+          case "relativeFile":
+            if (folderUri || argument) {
+              return paths.relative(this.fsPath(getFolderUri(VariableKind.RelativeFile)), getFilePath(VariableKind.RelativeFile));
+            }
+            return getFilePath(VariableKind.RelativeFile);
+          case "relativeFileDirname": {
+            const dirname = paths.dirname(getFilePath(VariableKind.RelativeFileDirname));
+            if (folderUri || argument) {
+              const relative = paths.relative(this.fsPath(getFolderUri(VariableKind.RelativeFileDirname)), dirname);
+              return relative.length === 0 ? "." : relative;
+            }
+            return dirname;
+          }
+          case "fileDirname":
+            return paths.dirname(getFilePath(VariableKind.FileDirname));
+          case "fileExtname":
+            return paths.extname(getFilePath(VariableKind.FileExtname));
+          case "fileBasename":
+            return paths.basename(getFilePath(VariableKind.FileBasename));
+          case "fileBasenameNoExtension": {
+            const basename = paths.basename(getFilePath(VariableKind.FileBasenameNoExtension));
+            return basename.slice(0, basename.length - paths.extname(basename).length);
+          }
+          case "fileDirnameBasename":
+            return paths.basename(paths.dirname(getFilePath(VariableKind.FileDirnameBasename)));
+          case "execPath": {
+            const ep = this._context.getExecPath();
+            if (ep) {
+              return ep;
+            }
+            return replacement.id;
+          }
+          case "execInstallFolder": {
+            const ar = this._context.getAppRoot();
+            if (ar) {
+              return ar;
+            }
+            return replacement.id;
+          }
+          case "pathSeparator":
+          case "/":
+            return paths.sep;
+          default: {
+            try {
+              return this.resolveFromMap(VariableKind.Unknown, replacement.id, argument, commandValueMapping, void 0);
+            } catch {
+              return replacement.id;
+            }
+          }
+        }
+      }
+    }
+  }
+  resolveFromMap(variableKind, match, argument, commandValueMapping, prefix) {
+    if (argument && commandValueMapping) {
+      const v = prefix === void 0 ? commandValueMapping[argument] : commandValueMapping[prefix + ":" + argument];
+      if (typeof v === "string") {
+        return v;
+      }
+      throw new VariableError(variableKind, localize("noValueForCommand", "Variable {0} can not be resolved because the command has no value.", match));
+    }
+    return match;
+  }
+}
+export {
+  AbstractVariableResolverService
+};
+//# sourceMappingURL=variableResolver.js.map

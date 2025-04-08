@@ -1,1 +1,58 @@
-import"../../../../../../base/common/observable.js";import"../../../../../../editor/common/diff/documentDiffProvider.js";import"../../../../../../editor/common/diff/rangeMapping.js";import"../../../../../../editor/common/model.js";function x(t){return t.reduce((e,i)=>{const n=i.diff.get();if(n.identical)return e;switch(i.type){case"delete":return e+1;case"insert":return e+1;case"modified":return e+n.changes.length;default:return e}},0)}function C(t){return[...t].sort((e,i)=>{if((e.type==="unchanged"||e.type==="modified")&&(i.type==="unchanged"||i.type==="modified"))return e.modifiedCellIndex-i.modifiedCellIndex;if(e.type==="delete"&&i.type==="delete")return e.originalCellIndex-i.originalCellIndex;if(e.type==="insert"&&i.type==="insert")return e.modifiedCellIndex-i.modifiedCellIndex;if(e.type==="delete"&&i.type==="insert")return-1;if(e.type==="insert"&&i.type==="delete")return 1;if(e.type==="delete"&&i.type!=="insert"||e.type!=="insert"&&i.type==="delete")return e.originalCellIndex-i.originalCellIndex;const n=e.type==="delete"?e.originalCellIndex:(e.type==="insert",e.modifiedCellIndex),d=i.type==="delete"?i.originalCellIndex:(i.type==="insert",i.modifiedCellIndex);return n-d})}export{x as countChanges,C as sortCellChanges};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ISettableObservable, ObservablePromise } from "../../../../../../base/common/observable.js";
+import { IDocumentDiff } from "../../../../../../editor/common/diff/documentDiffProvider.js";
+import { DetailedLineRangeMapping } from "../../../../../../editor/common/diff/rangeMapping.js";
+import { ITextModel } from "../../../../../../editor/common/model.js";
+function countChanges(changes) {
+  return changes.reduce((count, change) => {
+    const diff = change.diff.get();
+    if (diff.identical) {
+      return count;
+    }
+    switch (change.type) {
+      case "delete":
+        return count + 1;
+      // We want to see 1 deleted entry in the pill for navigation
+      case "insert":
+        return count + 1;
+      // We want to see 1 new entry in the pill for navigation
+      case "modified":
+        return count + diff.changes.length;
+      default:
+        return count;
+    }
+  }, 0);
+}
+__name(countChanges, "countChanges");
+function sortCellChanges(changes) {
+  return [...changes].sort((a, b) => {
+    if ((a.type === "unchanged" || a.type === "modified") && (b.type === "unchanged" || b.type === "modified")) {
+      return a.modifiedCellIndex - b.modifiedCellIndex;
+    }
+    if (a.type === "delete" && b.type === "delete") {
+      return a.originalCellIndex - b.originalCellIndex;
+    }
+    if (a.type === "insert" && b.type === "insert") {
+      return a.modifiedCellIndex - b.modifiedCellIndex;
+    }
+    if (a.type === "delete" && b.type === "insert") {
+      return -1;
+    }
+    if (a.type === "insert" && b.type === "delete") {
+      return 1;
+    }
+    if (a.type === "delete" && b.type !== "insert" || a.type !== "insert" && b.type === "delete") {
+      return a.originalCellIndex - b.originalCellIndex;
+    }
+    const aIndex = a.type === "delete" ? a.originalCellIndex : a.type === "insert" ? a.modifiedCellIndex : a.modifiedCellIndex;
+    const bIndex = b.type === "delete" ? b.originalCellIndex : b.type === "insert" ? b.modifiedCellIndex : b.modifiedCellIndex;
+    return aIndex - bIndex;
+  });
+}
+__name(sortCellChanges, "sortCellChanges");
+export {
+  countChanges,
+  sortCellChanges
+};
+//# sourceMappingURL=notebookCellChanges.js.map

@@ -1,1 +1,62 @@
-var k=Object.defineProperty;var l=Object.getOwnPropertyDescriptor;var p=(n,r,o,t)=>{for(var e=t>1?void 0:t?l(r,o):r,a=n.length-1,i;a>=0;a--)(i=n[a])&&(e=(t?i(r,o,e):i(e))||e);return t&&e&&k(r,o,e),e},s=(n,r)=>(o,t)=>r(o,t,n);import{localize as W}from"../../../../nls.js";import{Disposable as h}from"../../../../base/common/lifecycle.js";import{IWorkspaceTrustEnablementService as b,IWorkspaceTrustManagementService as f}from"../../../../platform/workspace/common/workspaceTrust.js";import"../../../common/contributions.js";import{IWorkbenchEnvironmentService as v}from"../../../services/environment/common/environmentService.js";import{IWorkbenchExtensionEnablementService as E}from"../../../services/extensionManagement/common/extensionManagement.js";import{IExtensionService as d}from"../../../services/extensions/common/extensions.js";import{IHostService as S}from"../../../services/host/browser/host.js";let c=class extends h{constructor(r,o,t,e,a,i){super(),a.isWorkspaceTrustEnabled()&&i.workspaceTrustInitialized.then(()=>{const m=new class{async participate(I){if(I)await e.updateExtensionsEnablementsWhenWorkspaceTrustChanges();else if(t.remoteAuthority)o.reload();else{const u=await r.stopExtensionHosts(W("restartExtensionHost.reason","Changing workspace trust"));await e.updateExtensionsEnablementsWhenWorkspaceTrustChanges(),u&&r.startExtensionHosts()}}};this._register(i.addWorkspaceTrustTransitionParticipant(m))})}};c=p([s(0,d),s(1,S),s(2,v),s(3,E),s(4,b),s(5,f)],c);export{c as ExtensionEnablementWorkspaceTrustTransitionParticipant};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { localize } from "../../../../nls.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService, IWorkspaceTrustTransitionParticipant } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+let ExtensionEnablementWorkspaceTrustTransitionParticipant = class extends Disposable {
+  static {
+    __name(this, "ExtensionEnablementWorkspaceTrustTransitionParticipant");
+  }
+  constructor(extensionService, hostService, environmentService, extensionEnablementService, workspaceTrustEnablementService, workspaceTrustManagementService) {
+    super();
+    if (workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
+      workspaceTrustManagementService.workspaceTrustInitialized.then(() => {
+        const workspaceTrustTransitionParticipant = new class {
+          async participate(trusted) {
+            if (trusted) {
+              await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
+            } else {
+              if (environmentService.remoteAuthority) {
+                hostService.reload();
+              } else {
+                const stopped = await extensionService.stopExtensionHosts(localize("restartExtensionHost.reason", "Changing workspace trust"));
+                await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
+                if (stopped) {
+                  extensionService.startExtensionHosts();
+                }
+              }
+            }
+          }
+        }();
+        this._register(workspaceTrustManagementService.addWorkspaceTrustTransitionParticipant(workspaceTrustTransitionParticipant));
+      });
+    }
+  }
+};
+ExtensionEnablementWorkspaceTrustTransitionParticipant = __decorateClass([
+  __decorateParam(0, IExtensionService),
+  __decorateParam(1, IHostService),
+  __decorateParam(2, IWorkbenchEnvironmentService),
+  __decorateParam(3, IWorkbenchExtensionEnablementService),
+  __decorateParam(4, IWorkspaceTrustEnablementService),
+  __decorateParam(5, IWorkspaceTrustManagementService)
+], ExtensionEnablementWorkspaceTrustTransitionParticipant);
+export {
+  ExtensionEnablementWorkspaceTrustTransitionParticipant
+};
+//# sourceMappingURL=extensionEnablementWorkspaceTrustTransitionParticipant.js.map

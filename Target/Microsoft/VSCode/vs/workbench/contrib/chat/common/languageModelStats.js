@@ -1,1 +1,59 @@
-var l=Object.defineProperty;var p=Object.getOwnPropertyDescriptor;var g=(i,n,o,t)=>{for(var e=t>1?void 0:t?p(n,o):n,r=i.length-1,a;r>=0;r--)(a=i[r])&&(e=(t?a(n,o,e):a(e))||e);return t&&e&&l(n,o,e),e},c=(i,n)=>(o,t)=>n(o,t,i);import{Disposable as f}from"../../../../base/common/lifecycle.js";import{createDecorator as x}from"../../../../platform/instantiation/common/instantiation.js";import{IStorageService as I,StorageScope as u,StorageTarget as S}from"../../../../platform/storage/common/storage.js";import"../../../../platform/extensions/common/extensions.js";import{Extensions as v,IExtensionFeaturesManagementService as E}from"../../../services/extensionManagement/common/extensionFeatures.js";import{Registry as M}from"../../../../platform/registry/common/platform.js";import{localize as d}from"../../../../nls.js";import{Codicon as y}from"../../../../base/common/codicons.js";const B=x("ILanguageModelStatsService");let s=class extends f{constructor(o,t){super();this.extensionFeaturesManagementService=o;for(const e in t.keys(u.APPLICATION,S.USER))(e.startsWith("languageModelStats.")||e.startsWith("languageModelAccess."))&&t.remove(e,u.APPLICATION)}async update(o,t,e,r){await this.extensionFeaturesManagementService.getAccess(t,m)}};s=g([c(0,E),c(1,I)],s);const m="copilot";M.as(v.ExtensionFeaturesRegistry).registerExtensionFeature({id:m,label:d("Language Models","Copilot"),description:d("languageModels","Language models usage statistics of this extension."),icon:y.copilot,access:{canToggle:!1},accessDataLabel:d("chat","chat")});export{m as CopilotUsageExtensionFeatureId,B as ILanguageModelStatsService,s as LanguageModelStatsService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { Extensions, IExtensionFeaturesManagementService, IExtensionFeaturesRegistry } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { localize } from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+const ILanguageModelStatsService = createDecorator("ILanguageModelStatsService");
+let LanguageModelStatsService = class extends Disposable {
+  constructor(extensionFeaturesManagementService, storageService) {
+    super();
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+    for (const key in storageService.keys(StorageScope.APPLICATION, StorageTarget.USER)) {
+      if (key.startsWith("languageModelStats.") || key.startsWith("languageModelAccess.")) {
+        storageService.remove(key, StorageScope.APPLICATION);
+      }
+    }
+  }
+  static {
+    __name(this, "LanguageModelStatsService");
+  }
+  async update(model, extensionId, agent, tokenCount) {
+    await this.extensionFeaturesManagementService.getAccess(extensionId, CopilotUsageExtensionFeatureId);
+  }
+};
+LanguageModelStatsService = __decorateClass([
+  __decorateParam(0, IExtensionFeaturesManagementService),
+  __decorateParam(1, IStorageService)
+], LanguageModelStatsService);
+const CopilotUsageExtensionFeatureId = "copilot";
+Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+  id: CopilotUsageExtensionFeatureId,
+  label: localize("Language Models", "Copilot"),
+  description: localize("languageModels", "Language models usage statistics of this extension."),
+  icon: Codicon.copilot,
+  access: {
+    canToggle: false
+  },
+  accessDataLabel: localize("chat", "chat")
+});
+export {
+  CopilotUsageExtensionFeatureId,
+  ILanguageModelStatsService,
+  LanguageModelStatsService
+};
+//# sourceMappingURL=languageModelStats.js.map

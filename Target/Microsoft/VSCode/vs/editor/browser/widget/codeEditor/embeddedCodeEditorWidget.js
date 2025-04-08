@@ -1,1 +1,74 @@
-var S=Object.defineProperty;var h=Object.getOwnPropertyDescriptor;var d=(r,e,n,o)=>{for(var t=o>1?void 0:o?h(e,n):e,s=r.length-1,a;s>=0;s--)(a=r[s])&&(t=(o?a(e,n,t):a(t))||t);return o&&t&&S(e,n,t),t},i=(r,e)=>(n,o)=>e(n,o,r);import*as E from"../../../../base/common/objects.js";import"../../editorBrowser.js";import{ICodeEditorService as c}from"../../services/codeEditorService.js";import{CodeEditorWidget as _}from"./codeEditorWidget.js";import"../../../common/config/editorOptions.js";import{ILanguageConfigurationService as l}from"../../../common/languages/languageConfigurationRegistry.js";import{ILanguageFeaturesService as w}from"../../../common/services/languageFeatures.js";import{IAccessibilityService as x}from"../../../../platform/accessibility/common/accessibility.js";import{ICommandService as y}from"../../../../platform/commands/common/commands.js";import{IContextKeyService as L}from"../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as A}from"../../../../platform/instantiation/common/instantiation.js";import{INotificationService as N}from"../../../../platform/notification/common/notification.js";import{IThemeService as P}from"../../../../platform/theme/common/themeService.js";let p=class extends _{_parentEditor;_overwriteOptions;constructor(e,n,o,t,s,a,v,g,m,u,I,f,C){super(e,{...t.getRawOptions(),overflowWidgetsDomNode:t.getOverflowWidgetsDomNode()},o,s,a,v,g,m,u,I,f,C),this._parentEditor=t,this._overwriteOptions=n,super.updateOptions(this._overwriteOptions),this._register(t.onDidChangeConfiguration(O=>this._onParentConfigurationChanged(O)))}getParentEditor(){return this._parentEditor}_onParentConfigurationChanged(e){super.updateOptions(this._parentEditor.getRawOptions()),super.updateOptions(this._overwriteOptions)}updateOptions(e){E.mixin(this._overwriteOptions,e,!0),super.updateOptions(this._overwriteOptions)}};p=d([i(4,A),i(5,c),i(6,y),i(7,L),i(8,P),i(9,N),i(10,x),i(11,l),i(12,w)],p);function V(r){const e=r.get(c).getFocusedCodeEditor();return e instanceof p?e.getParentEditor():e}export{p as EmbeddedCodeEditorWidget,V as getOuterEditor};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import * as objects from "../../../../base/common/objects.js";
+import { ICodeEditor } from "../../editorBrowser.js";
+import { ICodeEditorService } from "../../services/codeEditorService.js";
+import { CodeEditorWidget, ICodeEditorWidgetOptions } from "./codeEditorWidget.js";
+import { ConfigurationChangedEvent, IEditorOptions } from "../../../common/config/editorOptions.js";
+import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+let EmbeddedCodeEditorWidget = class extends CodeEditorWidget {
+  static {
+    __name(this, "EmbeddedCodeEditorWidget");
+  }
+  _parentEditor;
+  _overwriteOptions;
+  constructor(domElement, options, codeEditorWidgetOptions, parentEditor, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService) {
+    super(domElement, { ...parentEditor.getRawOptions(), overflowWidgetsDomNode: parentEditor.getOverflowWidgetsDomNode() }, codeEditorWidgetOptions, instantiationService, codeEditorService, commandService, contextKeyService, themeService, notificationService, accessibilityService, languageConfigurationService, languageFeaturesService);
+    this._parentEditor = parentEditor;
+    this._overwriteOptions = options;
+    super.updateOptions(this._overwriteOptions);
+    this._register(parentEditor.onDidChangeConfiguration((e) => this._onParentConfigurationChanged(e)));
+  }
+  getParentEditor() {
+    return this._parentEditor;
+  }
+  _onParentConfigurationChanged(e) {
+    super.updateOptions(this._parentEditor.getRawOptions());
+    super.updateOptions(this._overwriteOptions);
+  }
+  updateOptions(newOptions) {
+    objects.mixin(this._overwriteOptions, newOptions, true);
+    super.updateOptions(this._overwriteOptions);
+  }
+};
+EmbeddedCodeEditorWidget = __decorateClass([
+  __decorateParam(4, IInstantiationService),
+  __decorateParam(5, ICodeEditorService),
+  __decorateParam(6, ICommandService),
+  __decorateParam(7, IContextKeyService),
+  __decorateParam(8, IThemeService),
+  __decorateParam(9, INotificationService),
+  __decorateParam(10, IAccessibilityService),
+  __decorateParam(11, ILanguageConfigurationService),
+  __decorateParam(12, ILanguageFeaturesService)
+], EmbeddedCodeEditorWidget);
+function getOuterEditor(accessor) {
+  const editor = accessor.get(ICodeEditorService).getFocusedCodeEditor();
+  if (editor instanceof EmbeddedCodeEditorWidget) {
+    return editor.getParentEditor();
+  }
+  return editor;
+}
+__name(getOuterEditor, "getOuterEditor");
+export {
+  EmbeddedCodeEditorWidget,
+  getOuterEditor
+};
+//# sourceMappingURL=embeddedCodeEditorWidget.js.map

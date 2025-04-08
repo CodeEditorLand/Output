@@ -1,1 +1,49 @@
-import{assertDefined as r}from"../../../../../../../../../base/common/types.js";import"../../../../../../../../../platform/quickinput/common/quickInput.js";import{showChatView as a}from"../../../../../chat.js";import{ACTION_ID_NEW_CHAT as c}from"../../../../chatClearActions.js";import"../../../chatAttachPromptAction.js";import"../askToSelectPrompt.js";const O=async(t,i,e)=>{const o=await n(i,e);for(const s of t)o.attachmentModel.promptInstructions.add(s.value);return o},n=async(t,i)=>{const{widget:e}=t,{ctrlCmd:o}=i;return o?await m(t):e||await d(t)},m=async t=>{const{commandService:i,viewsService:e}=t;await i.executeCommand(c);const o=await a(e);return r(o,"Chat widget must be defined."),o},d=async t=>{const{viewsService:i}=t,e=await a(i);return r(e,"Revealed chat widget must be defined."),e};export{O as attachPrompts};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertDefined, WithUriValue } from "../../../../../../../../../base/common/types.js";
+import { IKeyMods, IQuickPickItem } from "../../../../../../../../../platform/quickinput/common/quickInput.js";
+import { IChatWidget, showChatView } from "../../../../../chat.js";
+import { ACTION_ID_NEW_CHAT } from "../../../../chatClearActions.js";
+import { IChatAttachPromptActionOptions } from "../../../chatAttachPromptAction.js";
+import { ISelectPromptOptions } from "../askToSelectPrompt.js";
+const attachPrompts = /* @__PURE__ */ __name(async (files, options, keyMods) => {
+  const widget = await getChatWidgetObject(options, keyMods);
+  for (const file of files) {
+    widget.attachmentModel.promptInstructions.add(file.value);
+  }
+  return widget;
+}, "attachPrompts");
+const getChatWidgetObject = /* @__PURE__ */ __name(async (options, keyMods) => {
+  const { widget } = options;
+  const { ctrlCmd } = keyMods;
+  if (ctrlCmd) {
+    return await openNewChat(options);
+  }
+  if (!widget) {
+    return await showExistingChat(options);
+  }
+  return widget;
+}, "getChatWidgetObject");
+const openNewChat = /* @__PURE__ */ __name(async (options) => {
+  const { commandService, viewsService } = options;
+  await commandService.executeCommand(ACTION_ID_NEW_CHAT);
+  const widget = await showChatView(viewsService);
+  assertDefined(
+    widget,
+    "Chat widget must be defined."
+  );
+  return widget;
+}, "openNewChat");
+const showExistingChat = /* @__PURE__ */ __name(async (options) => {
+  const { viewsService } = options;
+  const widget = await showChatView(viewsService);
+  assertDefined(
+    widget,
+    "Revealed chat widget must be defined."
+  );
+  return widget;
+}, "showExistingChat");
+export {
+  attachPrompts
+};
+//# sourceMappingURL=attachPrompts.js.map

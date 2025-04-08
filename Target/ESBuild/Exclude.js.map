@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../Source/ESBuild/Exclude.ts"],
+  "sourcesContent": ["import { posix, sep } from \"../ESBuild.js\";\n\n/**\n * @module ESBuild\n *\n */\nexport default (Path: string, From: string[]) =>\n\tFrom.some((Pattern: string) =>\n\t\t((Path) => Path.split(sep).join(posix.sep))(Path).includes(Pattern),\n\t);\n"],
+  "mappings": ";;AAAA,SAAS,OAAO,WAAW;AAM3B,IAAO,kBAAQ,wBAAC,MAAc,SAC7B,KAAK;AAAA,EAAK,CAAC,aACT,CAACA,UAASA,MAAK,MAAM,GAAG,EAAE,KAAK,MAAM,GAAG,GAAG,IAAI,EAAE,SAAS,OAAO;AACnE,GAHc;",
+  "names": ["Path"]
+}

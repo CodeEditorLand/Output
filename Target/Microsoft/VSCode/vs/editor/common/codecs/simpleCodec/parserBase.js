@@ -1,1 +1,56 @@
-import"../baseToken.js";import{assert as t}from"../../../../base/common/assert.js";class T{constructor(o=[]){this.currentTokens=o;this.startTokensCount=this.currentTokens.length}isConsumed=!1;startTokensCount;get tokens(){return this.currentTokens}assertNotConsumed(){t(this.isConsumed===!1,"The parser object is already consumed and should not be used anymore.")}}function p(s,o,e){const r=e.value;return e.value=function(...n){return t(this.isConsumed===!1,"The parser object is already consumed and should not be used anymore."),r.apply(this,n)},e}export{T as ParserBase,p as assertNotConsumed};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BaseToken } from "../baseToken.js";
+import { assert } from "../../../../base/common/assert.js";
+class ParserBase {
+  constructor(currentTokens = []) {
+    this.currentTokens = currentTokens;
+    this.startTokensCount = this.currentTokens.length;
+  }
+  static {
+    __name(this, "ParserBase");
+  }
+  /**
+   * Whether the parser object was "consumed" and should not be used anymore.
+   */
+  isConsumed = false;
+  /**
+   * Number of tokens at the initialization of the current parser.
+   */
+  startTokensCount;
+  /**
+   * Get the tokens that were accumulated so far.
+   */
+  get tokens() {
+    return this.currentTokens;
+  }
+  /**
+   * A helper method that validates that the current parser object was not yet consumed,
+   * hence can still be used to accept new tokens in the parsing process.
+   *
+   * @throws if the parser object is already consumed.
+   */
+  assertNotConsumed() {
+    assert(
+      this.isConsumed === false,
+      `The parser object is already consumed and should not be used anymore.`
+    );
+  }
+}
+function assertNotConsumed(_target, propertyKey, descriptor) {
+  const originalMethod = descriptor.value;
+  descriptor.value = function(...args) {
+    assert(
+      this.isConsumed === false,
+      `The parser object is already consumed and should not be used anymore.`
+    );
+    return originalMethod.apply(this, args);
+  };
+  return descriptor;
+}
+__name(assertNotConsumed, "assertNotConsumed");
+export {
+  ParserBase,
+  assertNotConsumed
+};
+//# sourceMappingURL=parserBase.js.map

@@ -1,1 +1,172 @@
-import"../../../../base/common/uri.js";import{basename as c}from"../../../../base/common/path.js";import{assert as l,assertNever as p}from"../../../../base/common/assert.js";class f extends Error{constructor(r,e){super(r,e)}sameTypeAs(r){return r==null?!1:r instanceof this.constructor}equal(r){return this.sameTypeAs(r)}}class i extends f{constructor(e,t,s){super(t,s);this.uri=e}}class h extends i{constructor(e,t,s=`Failed to resolve prompt contents stream for '${e.toString()}': ${t}.`){super(e,s);this.originalError=t}errorType="FailedToResolveContentsStream"}class m extends h{errorType="OpenError";constructor(r,e){super(r,e,`Failed to open '${r.fsPath}': ${e}.`)}}const a=" -> ";class $ extends i{constructor(e,t){l(t.length>=2,`Recursive path must contain at least two paths, got '${t.length}'.`);super(e,"Recursive references found.");this.recursivePath=t}errorType="RecursiveReferenceError";defaultPathStringCache;get message(){return`${super.message} ${this.getRecursivePathString("fullpath")}`}getRecursivePathString(e,t=a){const s=e==="fullpath"&&t===a;if(s&&this.defaultPathStringCache!==void 0)return this.defaultPathStringCache;const o=this.recursivePath.map(u=>{if(e==="fullpath")return`'${u}'`;if(e==="basename")return`'${c(u)}'`;p(e,`Unknown filename format '${e}'.`)}).join(t);return s&&(this.defaultPathStringCache=o),o}equal(e){if(!this.sameTypeAs(e)||this.uri.toString()!==e.uri.toString()||this.recursivePath.length!==e.recursivePath.length)return!1;const t=this.getRecursivePathString("fullpath"),s=e.getRecursivePathString("fullpath");return t.length!==s.length?!1:t===s}toString(){return`"${this.message}"(${this.uri})`}}class d extends i{errorType="NotPromptFileError";constructor(r,e=""){const t=e?`: ${e}`:"";super(r,`Resource at ${r.path} is not a prompt file${t}`)}}class y extends d{errorType="FolderReferenceError";constructor(r,e=""){const t=e?`: ${e}`:"";super(r,`Entity at '${r.path}' is a folder${t}`)}}export{h as FailedToResolveContentsStream,y as FolderReference,d as NotPromptFile,m as OpenFailed,$ as RecursiveReference,i as ResolveError};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../base/common/uri.js";
+import { basename } from "../../../../base/common/path.js";
+import { assert, assertNever } from "../../../../base/common/assert.js";
+class ParseError extends Error {
+  static {
+    __name(this, "ParseError");
+  }
+  constructor(message, options) {
+    super(message, options);
+  }
+  /**
+   * Check if provided object is of the same type as this error.
+   */
+  sameTypeAs(other) {
+    if (other === null || other === void 0) {
+      return false;
+    }
+    return other instanceof this.constructor;
+  }
+  /**
+   * Check if provided object is equal to this error.
+   */
+  equal(other) {
+    return this.sameTypeAs(other);
+  }
+}
+class ResolveError extends ParseError {
+  constructor(uri, message, options) {
+    super(message, options);
+    this.uri = uri;
+  }
+  static {
+    __name(this, "ResolveError");
+  }
+}
+class FailedToResolveContentsStream extends ResolveError {
+  constructor(uri, originalError, message = `Failed to resolve prompt contents stream for '${uri.toString()}': ${originalError}.`) {
+    super(uri, message);
+    this.originalError = originalError;
+  }
+  static {
+    __name(this, "FailedToResolveContentsStream");
+  }
+  errorType = "FailedToResolveContentsStream";
+}
+class OpenFailed extends FailedToResolveContentsStream {
+  static {
+    __name(this, "OpenFailed");
+  }
+  errorType = "OpenError";
+  constructor(uri, originalError) {
+    super(
+      uri,
+      originalError,
+      `Failed to open '${uri.fsPath}': ${originalError}.`
+    );
+  }
+}
+const DEFAULT_RECURSIVE_PATH_JOIN_CHAR = " -> ";
+class RecursiveReference extends ResolveError {
+  constructor(uri, recursivePath) {
+    assert(
+      recursivePath.length >= 2,
+      `Recursive path must contain at least two paths, got '${recursivePath.length}'.`
+    );
+    super(
+      uri,
+      "Recursive references found."
+    );
+    this.recursivePath = recursivePath;
+  }
+  static {
+    __name(this, "RecursiveReference");
+  }
+  errorType = "RecursiveReferenceError";
+  /**
+   * Cached default string representation of the recursive path.
+   */
+  defaultPathStringCache;
+  get message() {
+    return `${super.message} ${this.getRecursivePathString("fullpath")}`;
+  }
+  /**
+   * Returns a string representation of the recursive path.
+   */
+  getRecursivePathString(filename, pathJoinCharacter = DEFAULT_RECURSIVE_PATH_JOIN_CHAR) {
+    const isDefault = filename === "fullpath" && pathJoinCharacter === DEFAULT_RECURSIVE_PATH_JOIN_CHAR;
+    if (isDefault && this.defaultPathStringCache !== void 0) {
+      return this.defaultPathStringCache;
+    }
+    const result = this.recursivePath.map((path) => {
+      if (filename === "fullpath") {
+        return `'${path}'`;
+      }
+      if (filename === "basename") {
+        return `'${basename(path)}'`;
+      }
+      assertNever(
+        filename,
+        `Unknown filename format '${filename}'.`
+      );
+    }).join(pathJoinCharacter);
+    if (isDefault) {
+      this.defaultPathStringCache = result;
+    }
+    return result;
+  }
+  /**
+   * Check if provided object is of the same type as this
+   * error, contains the same recursive path and URI.
+   */
+  equal(other) {
+    if (!this.sameTypeAs(other)) {
+      return false;
+    }
+    if (this.uri.toString() !== other.uri.toString()) {
+      return false;
+    }
+    if (this.recursivePath.length !== other.recursivePath.length) {
+      return false;
+    }
+    const myRecursivePath = this.getRecursivePathString("fullpath");
+    const theirRecursivePath = other.getRecursivePathString("fullpath");
+    if (myRecursivePath.length !== theirRecursivePath.length) {
+      return false;
+    }
+    return myRecursivePath === theirRecursivePath;
+  }
+  /**
+   * Returns a string representation of the error object.
+   */
+  toString() {
+    return `"${this.message}"(${this.uri})`;
+  }
+}
+class NotPromptFile extends ResolveError {
+  static {
+    __name(this, "NotPromptFile");
+  }
+  errorType = "NotPromptFileError";
+  constructor(uri, message = "") {
+    const suffix = message ? `: ${message}` : "";
+    super(
+      uri,
+      `Resource at ${uri.path} is not a prompt file${suffix}`
+    );
+  }
+}
+class FolderReference extends NotPromptFile {
+  static {
+    __name(this, "FolderReference");
+  }
+  errorType = "FolderReferenceError";
+  constructor(uri, message = "") {
+    const suffix = message ? `: ${message}` : "";
+    super(
+      uri,
+      `Entity at '${uri.path}' is a folder${suffix}`
+    );
+  }
+}
+export {
+  FailedToResolveContentsStream,
+  FolderReference,
+  NotPromptFile,
+  OpenFailed,
+  RecursiveReference,
+  ResolveError
+};
+//# sourceMappingURL=promptFileReferenceErrors.js.map

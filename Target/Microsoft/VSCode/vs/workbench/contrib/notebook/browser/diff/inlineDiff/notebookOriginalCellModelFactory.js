@@ -1,1 +1,65 @@
-var p=Object.defineProperty;var v=Object.getOwnPropertyDescriptor;var s=(n,r,a,e)=>{for(var t=e>1?void 0:e?v(r,a):r,i=n.length-1,o;i>=0;i--)(o=n[i])&&(t=(e?o(r,a,t):o(t))||t);return e&&t&&p(r,a,t),t},d=(n,r)=>(a,e)=>r(a,e,n);import{ReferenceCollection as u}from"../../../../../../base/common/lifecycle.js";import{createDecorator as f,IInstantiationService as S}from"../../../../../../platform/instantiation/common/instantiation.js";import"../../../../../../editor/common/model.js";import{CellKind as y}from"../../../common/notebookCommon.js";import{URI as h}from"../../../../../../base/common/uri.js";import{ILanguageService as x}from"../../../../../../editor/common/languages/language.js";import{IModelService as _}from"../../../../../../editor/common/services/model.js";const b=f("INotebookOriginalCellModelFactory");let c=class extends u{constructor(a,e){super();this.modelService=a;this._languageService=e}createReferencedObject(a,e,t,i,o){const g=`${e.scheme}-chat-edit`,I=h.from({scheme:g,fragment:e.fragment,path:e.path}),m=this._languageService.getLanguageIdByLanguageName(i)?this._languageService.createById(i):o===y.Markup?this._languageService.createById("markdown"):null;return this.modelService.createModel(t,m,I)}destroyReferencedObject(a,e){e.dispose()}};c=s([d(0,_),d(1,x)],c);let l=class{_serviceBrand;_data;constructor(r){this._data=r.createInstance(c)}getOrCreate(r,a,e,t){return this._data.acquire(r.toString(),r,a,e,t)}};l=s([d(0,S)],l);export{b as INotebookOriginalCellModelFactory,l as OriginalNotebookCellModelFactory,c as OriginalNotebookCellModelReferenceCollection};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { IReference, ReferenceCollection } from "../../../../../../base/common/lifecycle.js";
+import { createDecorator, IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ITextModel } from "../../../../../../editor/common/model.js";
+import { CellKind } from "../../../common/notebookCommon.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+const INotebookOriginalCellModelFactory = createDecorator("INotebookOriginalCellModelFactory");
+let OriginalNotebookCellModelReferenceCollection = class extends ReferenceCollection {
+  constructor(modelService, _languageService) {
+    super();
+    this.modelService = modelService;
+    this._languageService = _languageService;
+  }
+  static {
+    __name(this, "OriginalNotebookCellModelReferenceCollection");
+  }
+  createReferencedObject(_key, uri, cellValue, language, cellKind) {
+    const scheme = `${uri.scheme}-chat-edit`;
+    const originalCellUri = URI.from({ scheme, fragment: uri.fragment, path: uri.path });
+    const languageSelection = this._languageService.getLanguageIdByLanguageName(language) ? this._languageService.createById(language) : cellKind === CellKind.Markup ? this._languageService.createById("markdown") : null;
+    return this.modelService.createModel(cellValue, languageSelection, originalCellUri);
+  }
+  destroyReferencedObject(_key, model) {
+    model.dispose();
+  }
+};
+OriginalNotebookCellModelReferenceCollection = __decorateClass([
+  __decorateParam(0, IModelService),
+  __decorateParam(1, ILanguageService)
+], OriginalNotebookCellModelReferenceCollection);
+let OriginalNotebookCellModelFactory = class {
+  static {
+    __name(this, "OriginalNotebookCellModelFactory");
+  }
+  _serviceBrand;
+  _data;
+  constructor(instantiationService) {
+    this._data = instantiationService.createInstance(OriginalNotebookCellModelReferenceCollection);
+  }
+  getOrCreate(uri, cellValue, language, cellKind) {
+    return this._data.acquire(uri.toString(), uri, cellValue, language, cellKind);
+  }
+};
+OriginalNotebookCellModelFactory = __decorateClass([
+  __decorateParam(0, IInstantiationService)
+], OriginalNotebookCellModelFactory);
+export {
+  INotebookOriginalCellModelFactory,
+  OriginalNotebookCellModelFactory,
+  OriginalNotebookCellModelReferenceCollection
+};
+//# sourceMappingURL=notebookOriginalCellModelFactory.js.map

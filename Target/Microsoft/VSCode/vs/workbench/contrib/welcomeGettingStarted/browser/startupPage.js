@@ -1,3 +1,231 @@
-var E=Object.defineProperty;var w=Object.getOwnPropertyDescriptor;var u=(a,n,t,r)=>{for(var e=r>1?void 0:r?w(n,t):n,o=a.length-1,c;o>=0;o--)(c=a[o])&&(e=(r?c(n,t,e):c(e))||e);return r&&e&&E(n,t,e),e},i=(a,n)=>(t,r)=>n(t,r,a);import"../../../../base/common/uri.js";import{ICommandService as W}from"../../../../platform/commands/common/commands.js";import*as b from"../../../../base/common/arrays.js";import"../../../common/contributions.js";import{IInstantiationService as C}from"../../../../platform/instantiation/common/instantiation.js";import{IEditorService as O}from"../../../services/editor/common/editorService.js";import{onUnexpectedError as f}from"../../../../base/common/errors.js";import{IWorkspaceContextService as R,UNKNOWN_EMPTY_WINDOW_WORKSPACE as P,WorkbenchState as x}from"../../../../platform/workspace/common/workspace.js";import{IConfigurationService as L}from"../../../../platform/configuration/common/configuration.js";import{IWorkingCopyBackupService as D}from"../../../services/workingCopy/common/workingCopyBackup.js";import{ILifecycleService as F,LifecyclePhase as T,StartupKind as U}from"../../../services/lifecycle/common/lifecycle.js";import{Disposable as N}from"../../../../base/common/lifecycle.js";import{IFileService as G}from"../../../../platform/files/common/files.js";import{joinPath as K}from"../../../../base/common/resources.js";import{IWorkbenchLayoutService as B}from"../../../services/layout/browser/layoutService.js";import{GettingStartedInput as s,gettingStartedInputTypeId as h}from"./gettingStartedInput.js";import{IWorkbenchEnvironmentService as V}from"../../../services/environment/common/environmentService.js";import{IStorageService as _,StorageScope as d,StorageTarget as M}from"../../../../platform/storage/common/storage.js";import{getTelemetryLevel as Y}from"../../../../platform/telemetry/common/telemetryUtils.js";import{TelemetryLevel as j}from"../../../../platform/telemetry/common/telemetry.js";import{IProductService as z}from"../../../../platform/product/common/productService.js";import{INotificationService as A}from"../../../../platform/notification/common/notification.js";import{localize as g}from"../../../../nls.js";import{IEditorResolverService as J,RegisteredEditorPriority as $}from"../../../services/editor/common/editorResolverService.js";import{TerminalCommandId as q}from"../../terminal/common/terminal.js";import{ILogService as H}from"../../../../platform/log/common/log.js";const y="workbench.welcomePage.restorableWalkthroughs",I="workbench.startupEditor",Q="workbench.welcome.enabled",k="workbench.telemetryOptOutShown";let p=class{constructor(n,t){this.instantiationService=n;t.registerEditor(`${s.RESOURCE.scheme}:/**`,{id:s.ID,label:g("welcome.displayName","Welcome Page"),priority:$.builtin},{singlePerResource:!1,canSupportResource:r=>r.scheme===s.RESOURCE.scheme},{createEditorInput:({resource:r,options:e})=>({editor:this.instantiationService.createInstance(s,e),options:{...e,pinned:!1}})})}static ID="workbench.contrib.startupPageEditorResolver"};p=u([i(0,C),i(1,J)],p);let m=class extends N{constructor(t,r,e,o,c,v,l,Z,ee,re,te,ie,oe){super();this.configurationService=t;this.editorService=r;this.workingCopyBackupService=e;this.fileService=o;this.contextService=c;this.lifecycleService=v;this.layoutService=l;this.productService=Z;this.commandService=ee;this.environmentService=re;this.storageService=te;this.logService=ie;this.notificationService=oe;this.run().then(void 0,f),this._register(this.editorService.onDidCloseEditor(S=>{S.editor instanceof s&&(S.editor.selectedCategory=void 0,S.editor.selectedStep=void 0)}))}static ID="workbench.contrib.startupPageRunner";async run(){if(await this.lifecycleService.when(T.Restored),this.productService.enableTelemetry&&this.productService.showTelemetryOptOut&&Y(this.configurationService)!==j.NONE&&!this.environmentService.skipWelcome&&!this.storageService.get(k,d.PROFILE)&&this.storageService.store(k,!0,d.PROFILE,M.USER),this.tryOpenWalkthroughForFolder())return;if(X(this.configurationService,this.contextService,this.environmentService,this.logService)&&this.lifecycleService.startupKind!==U.ReloadedWindow){if(await this.workingCopyBackupService.hasBackups())return;if(!this.editorService.activeEditor||this.layoutService.openedDefaultEditors){const e=this.configurationService.inspect(I);e.value==="readme"?await this.openReadme():e.value==="welcomePage"||e.value==="welcomePageInEmptyWorkbench"?await this.openGettingStarted():e.value==="terminal"&&this.commandService.executeCommand(q.CreateTerminalEditor)}}}tryOpenWalkthroughForFolder(){const t=this.storageService.get(y,d.PROFILE);if(t){const r=JSON.parse(t),e=this.contextService.getWorkspace();if(r.folder===P.id||r.folder===e.folders[0].uri.toString()){const o={selectedCategory:r.category,selectedStep:r.step,pinned:!1};return this.editorService.openEditor({resource:s.RESOURCE,options:o}),this.storageService.remove(y,d.PROFILE),!0}}else return!1;return!1}async openReadme(){const t=b.coalesce(await Promise.all(this.contextService.getWorkspace().folders.map(async r=>{const e=r.uri,o=await this.fileService.resolve(e).catch(f),c=o?.children?o.children.map(l=>l.name).sort():[],v=c.find(l=>l.toLowerCase()==="readme.md")||c.find(l=>l.toLowerCase().startsWith("readme"));if(v)return K(e,v)})));if(!this.editorService.activeEditor)if(t.length){const r=e=>e.path.toLowerCase().endsWith(".md");await Promise.all([this.commandService.executeCommand("markdown.showPreview",null,t.filter(r),{locked:!0}).catch(e=>{this.notificationService.error(g("startupPage.markdownPreviewError",`Could not open markdown preview: {0}.
-
-Please make sure the markdown extension is enabled.`,e.message))}),this.editorService.openEditors(t.filter(e=>!r(e)).map(e=>({resource:e})))])}else await this.openGettingStarted()}async openGettingStarted(t){const r=h,e=this.editorService.activeEditor;if(e?.typeId===r||this.editorService.editors.some(c=>c.typeId===r))return;const o=e?{pinned:!1,index:0,showTelemetryNotice:t}:{pinned:!1,showTelemetryNotice:t};r===h&&this.editorService.openEditor({resource:s.RESOURCE,options:o})}};m=u([i(0,L),i(1,O),i(2,D),i(3,G),i(4,R),i(5,F),i(6,B),i(7,z),i(8,W),i(9,V),i(10,_),i(11,H),i(12,A)],m);function X(a,n,t,r){if(t.skipWelcome)return!1;const e=a.inspect(I);if(!e.userValue&&!e.workspaceValue){const o=a.inspect(Q);if(o.value!==void 0&&o.value!==null)return o.value}return e.value==="welcomePage"||e.value==="readme"||n.getWorkbenchState()===x.EMPTY&&e.value==="welcomePageInEmptyWorkbench"||e.value==="terminal"}export{p as StartupPageEditorResolverContribution,m as StartupPageRunnerContribution,y as restoreWalkthroughsConfigurationKey};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { URI } from "../../../../base/common/uri.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import * as arrays from "../../../../base/common/arrays.js";
+import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { IWorkspaceContextService, UNKNOWN_EMPTY_WINDOW_WORKSPACE, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IWorkingCopyBackupService } from "../../../services/workingCopy/common/workingCopyBackup.js";
+import { ILifecycleService, LifecyclePhase, StartupKind } from "../../../services/lifecycle/common/lifecycle.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { joinPath } from "../../../../base/common/resources.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { GettingStartedEditorOptions, GettingStartedInput, gettingStartedInputTypeId } from "./gettingStartedInput.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { getTelemetryLevel } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { localize } from "../../../../nls.js";
+import { IEditorResolverService, RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
+import { TerminalCommandId } from "../../terminal/common/terminal.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+const restoreWalkthroughsConfigurationKey = "workbench.welcomePage.restorableWalkthroughs";
+const configurationKey = "workbench.startupEditor";
+const oldConfigurationKey = "workbench.welcome.enabled";
+const telemetryOptOutStorageKey = "workbench.telemetryOptOutShown";
+let StartupPageEditorResolverContribution = class {
+  constructor(instantiationService, editorResolverService) {
+    this.instantiationService = instantiationService;
+    editorResolverService.registerEditor(
+      `${GettingStartedInput.RESOURCE.scheme}:/**`,
+      {
+        id: GettingStartedInput.ID,
+        label: localize("welcome.displayName", "Welcome Page"),
+        priority: RegisteredEditorPriority.builtin
+      },
+      {
+        singlePerResource: false,
+        canSupportResource: /* @__PURE__ */ __name((uri) => uri.scheme === GettingStartedInput.RESOURCE.scheme, "canSupportResource")
+      },
+      {
+        createEditorInput: /* @__PURE__ */ __name(({ resource, options }) => {
+          return {
+            editor: this.instantiationService.createInstance(GettingStartedInput, options),
+            options: {
+              ...options,
+              pinned: false
+            }
+          };
+        }, "createEditorInput")
+      }
+    );
+  }
+  static {
+    __name(this, "StartupPageEditorResolverContribution");
+  }
+  static ID = "workbench.contrib.startupPageEditorResolver";
+};
+StartupPageEditorResolverContribution = __decorateClass([
+  __decorateParam(0, IInstantiationService),
+  __decorateParam(1, IEditorResolverService)
+], StartupPageEditorResolverContribution);
+let StartupPageRunnerContribution = class extends Disposable {
+  constructor(configurationService, editorService, workingCopyBackupService, fileService, contextService, lifecycleService, layoutService, productService, commandService, environmentService, storageService, logService, notificationService) {
+    super();
+    this.configurationService = configurationService;
+    this.editorService = editorService;
+    this.workingCopyBackupService = workingCopyBackupService;
+    this.fileService = fileService;
+    this.contextService = contextService;
+    this.lifecycleService = lifecycleService;
+    this.layoutService = layoutService;
+    this.productService = productService;
+    this.commandService = commandService;
+    this.environmentService = environmentService;
+    this.storageService = storageService;
+    this.logService = logService;
+    this.notificationService = notificationService;
+    this.run().then(void 0, onUnexpectedError);
+    this._register(this.editorService.onDidCloseEditor((e) => {
+      if (e.editor instanceof GettingStartedInput) {
+        e.editor.selectedCategory = void 0;
+        e.editor.selectedStep = void 0;
+      }
+    }));
+  }
+  static {
+    __name(this, "StartupPageRunnerContribution");
+  }
+  static ID = "workbench.contrib.startupPageRunner";
+  async run() {
+    await this.lifecycleService.when(LifecyclePhase.Restored);
+    if (this.productService.enableTelemetry && this.productService.showTelemetryOptOut && getTelemetryLevel(this.configurationService) !== TelemetryLevel.NONE && !this.environmentService.skipWelcome && !this.storageService.get(telemetryOptOutStorageKey, StorageScope.PROFILE)) {
+      this.storageService.store(telemetryOptOutStorageKey, true, StorageScope.PROFILE, StorageTarget.USER);
+    }
+    if (this.tryOpenWalkthroughForFolder()) {
+      return;
+    }
+    const enabled = isStartupPageEnabled(this.configurationService, this.contextService, this.environmentService, this.logService);
+    if (enabled && this.lifecycleService.startupKind !== StartupKind.ReloadedWindow) {
+      const hasBackups = await this.workingCopyBackupService.hasBackups();
+      if (hasBackups) {
+        return;
+      }
+      if (!this.editorService.activeEditor || this.layoutService.openedDefaultEditors) {
+        const startupEditorSetting = this.configurationService.inspect(configurationKey);
+        if (startupEditorSetting.value === "readme") {
+          await this.openReadme();
+        } else if (startupEditorSetting.value === "welcomePage" || startupEditorSetting.value === "welcomePageInEmptyWorkbench") {
+          await this.openGettingStarted();
+        } else if (startupEditorSetting.value === "terminal") {
+          this.commandService.executeCommand(TerminalCommandId.CreateTerminalEditor);
+        }
+      }
+    }
+  }
+  tryOpenWalkthroughForFolder() {
+    const toRestore = this.storageService.get(restoreWalkthroughsConfigurationKey, StorageScope.PROFILE);
+    if (!toRestore) {
+      return false;
+    } else {
+      const restoreData = JSON.parse(toRestore);
+      const currentWorkspace = this.contextService.getWorkspace();
+      if (restoreData.folder === UNKNOWN_EMPTY_WINDOW_WORKSPACE.id || restoreData.folder === currentWorkspace.folders[0].uri.toString()) {
+        const options = { selectedCategory: restoreData.category, selectedStep: restoreData.step, pinned: false };
+        this.editorService.openEditor({
+          resource: GettingStartedInput.RESOURCE,
+          options
+        });
+        this.storageService.remove(restoreWalkthroughsConfigurationKey, StorageScope.PROFILE);
+        return true;
+      }
+    }
+    return false;
+  }
+  async openReadme() {
+    const readmes = arrays.coalesce(
+      await Promise.all(this.contextService.getWorkspace().folders.map(
+        async (folder) => {
+          const folderUri = folder.uri;
+          const folderStat = await this.fileService.resolve(folderUri).catch(onUnexpectedError);
+          const files = folderStat?.children ? folderStat.children.map((child) => child.name).sort() : [];
+          const file = files.find((file2) => file2.toLowerCase() === "readme.md") || files.find((file2) => file2.toLowerCase().startsWith("readme"));
+          if (file) {
+            return joinPath(folderUri, file);
+          } else {
+            return void 0;
+          }
+        }
+      ))
+    );
+    if (!this.editorService.activeEditor) {
+      if (readmes.length) {
+        const isMarkDown = /* @__PURE__ */ __name((readme) => readme.path.toLowerCase().endsWith(".md"), "isMarkDown");
+        await Promise.all([
+          this.commandService.executeCommand("markdown.showPreview", null, readmes.filter(isMarkDown), { locked: true }).catch((error) => {
+            this.notificationService.error(localize("startupPage.markdownPreviewError", "Could not open markdown preview: {0}.\n\nPlease make sure the markdown extension is enabled.", error.message));
+          }),
+          this.editorService.openEditors(readmes.filter((readme) => !isMarkDown(readme)).map((readme) => ({ resource: readme })))
+        ]);
+      } else {
+        await this.openGettingStarted();
+      }
+    }
+  }
+  async openGettingStarted(showTelemetryNotice) {
+    const startupEditorTypeID = gettingStartedInputTypeId;
+    const editor = this.editorService.activeEditor;
+    if (editor?.typeId === startupEditorTypeID || this.editorService.editors.some((e) => e.typeId === startupEditorTypeID)) {
+      return;
+    }
+    const options = editor ? { pinned: false, index: 0, showTelemetryNotice } : { pinned: false, showTelemetryNotice };
+    if (startupEditorTypeID === gettingStartedInputTypeId) {
+      this.editorService.openEditor({
+        resource: GettingStartedInput.RESOURCE,
+        options
+      });
+    }
+  }
+};
+StartupPageRunnerContribution = __decorateClass([
+  __decorateParam(0, IConfigurationService),
+  __decorateParam(1, IEditorService),
+  __decorateParam(2, IWorkingCopyBackupService),
+  __decorateParam(3, IFileService),
+  __decorateParam(4, IWorkspaceContextService),
+  __decorateParam(5, ILifecycleService),
+  __decorateParam(6, IWorkbenchLayoutService),
+  __decorateParam(7, IProductService),
+  __decorateParam(8, ICommandService),
+  __decorateParam(9, IWorkbenchEnvironmentService),
+  __decorateParam(10, IStorageService),
+  __decorateParam(11, ILogService),
+  __decorateParam(12, INotificationService)
+], StartupPageRunnerContribution);
+function isStartupPageEnabled(configurationService, contextService, environmentService, logService) {
+  if (environmentService.skipWelcome) {
+    return false;
+  }
+  const startupEditor = configurationService.inspect(configurationKey);
+  if (!startupEditor.userValue && !startupEditor.workspaceValue) {
+    const welcomeEnabled = configurationService.inspect(oldConfigurationKey);
+    if (welcomeEnabled.value !== void 0 && welcomeEnabled.value !== null) {
+      return welcomeEnabled.value;
+    }
+  }
+  return startupEditor.value === "welcomePage" || startupEditor.value === "readme" || contextService.getWorkbenchState() === WorkbenchState.EMPTY && startupEditor.value === "welcomePageInEmptyWorkbench" || startupEditor.value === "terminal";
+}
+__name(isStartupPageEnabled, "isStartupPageEnabled");
+export {
+  StartupPageEditorResolverContribution,
+  StartupPageRunnerContribution,
+  restoreWalkthroughsConfigurationKey
+};
+//# sourceMappingURL=startupPage.js.map

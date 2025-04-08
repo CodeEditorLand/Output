@@ -1,1 +1,54 @@
-var f=Object.defineProperty;var d=Object.getOwnPropertyDescriptor;var m=(r,t,i,e)=>{for(var o=e>1?void 0:e?d(t,i):t,n=r.length-1,a;n>=0;n--)(a=r[n])&&(o=(e?a(t,i,o):a(o))||o);return e&&o&&f(t,i,o),o},g=(r,t)=>(i,e)=>t(i,e,r);import{registerSingleton as k,InstantiationType as p}from"../../../../platform/instantiation/common/extensions.js";import{ITextMateTokenizationService as l}from"./textMateTokenizationFeature.js";import{TextMateTokenizationFeature as u}from"./textMateTokenizationFeatureImpl.js";import{WorkbenchPhase as b,registerWorkbenchContribution2 as h}from"../../../common/contributions.js";import{CommandsRegistry as I}from"../../../../platform/commands/common/commands.js";import"../../../../editor/browser/editorExtensions.js";import"../../../../base/common/uri.js";import{TokenizationRegistry as S}from"../../../../editor/common/languages.js";import{ITextFileService as v}from"../../textfile/common/textfiles.js";import{StopWatch as w}from"../../../../base/common/stopwatch.js";let s=class{static ID="workbench.contrib.textMateTokenizationInstantiator";constructor(t){}};s=m([g(0,l)],s),k(l,u,p.Eager),h(s.ID,s,b.BlockRestore),I.registerCommand("_workbench.colorizeTextMateTokens",async(r,t)=>{const i=r.get(v),e=t?(await i.files.resolve(t)).textEditorModel:void 0;if(!e)throw new Error(`Cannot resolve text model for resource ${t}`);const o=await S.getOrCreate(e.getLanguageId());if(!o)throw new Error(`Cannot resolve tokenizer for language ${e.getLanguageId()}`);const n=new w;let a=o.getInitialState();for(let c=1;c<=e.getLineCount();c++)a=o.tokenizeEncoded(e.getLineContent(c),!0,a).endState;return n.stop(),{tokenizeTime:n.elapsed()}});
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { registerSingleton, InstantiationType } from "../../../../platform/instantiation/common/extensions.js";
+import { ITextMateTokenizationService } from "./textMateTokenizationFeature.js";
+import { TextMateTokenizationFeature } from "./textMateTokenizationFeatureImpl.js";
+import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { TokenizationRegistry } from "../../../../editor/common/languages.js";
+import { ITextFileService } from "../../textfile/common/textfiles.js";
+import { StopWatch } from "../../../../base/common/stopwatch.js";
+let TextMateTokenizationInstantiator = class {
+  static {
+    __name(this, "TextMateTokenizationInstantiator");
+  }
+  static ID = "workbench.contrib.textMateTokenizationInstantiator";
+  constructor(_textMateTokenizationService) {
+  }
+};
+TextMateTokenizationInstantiator = __decorateClass([
+  __decorateParam(0, ITextMateTokenizationService)
+], TextMateTokenizationInstantiator);
+registerSingleton(ITextMateTokenizationService, TextMateTokenizationFeature, InstantiationType.Eager);
+registerWorkbenchContribution2(TextMateTokenizationInstantiator.ID, TextMateTokenizationInstantiator, WorkbenchPhase.BlockRestore);
+CommandsRegistry.registerCommand("_workbench.colorizeTextMateTokens", async (accessor, resource) => {
+  const textModelService = accessor.get(ITextFileService);
+  const textModel = resource ? (await textModelService.files.resolve(resource)).textEditorModel : void 0;
+  if (!textModel) {
+    throw new Error(`Cannot resolve text model for resource ${resource}`);
+  }
+  const tokenizer = await TokenizationRegistry.getOrCreate(textModel.getLanguageId());
+  if (!tokenizer) {
+    throw new Error(`Cannot resolve tokenizer for language ${textModel.getLanguageId()}`);
+  }
+  const stopwatch = new StopWatch();
+  let state = tokenizer.getInitialState();
+  for (let i = 1; i <= textModel.getLineCount(); i++) {
+    state = tokenizer.tokenizeEncoded(textModel.getLineContent(i), true, state).endState;
+  }
+  stopwatch.stop();
+  return { tokenizeTime: stopwatch.elapsed() };
+});
+//# sourceMappingURL=textMateTokenizationFeature.contribution.js.map

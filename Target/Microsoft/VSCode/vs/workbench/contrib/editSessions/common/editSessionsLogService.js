@@ -1,1 +1,54 @@
-var m=Object.defineProperty;var c=Object.getOwnPropertyDescriptor;var l=(i,r,o,g)=>{for(var e=g>1?void 0:g?c(r,o):r,n=i.length-1,s;n>=0;n--)(s=i[n])&&(e=(g?s(r,o,e):s(e))||e);return g&&e&&m(r,o,e),e},a=(i,r)=>(o,g)=>r(o,g,i);import{joinPath as h}from"../../../../base/common/resources.js";import{localize as v}from"../../../../nls.js";import{IEnvironmentService as p}from"../../../../platform/environment/common/environment.js";import{AbstractLogger as f,ILoggerService as u}from"../../../../platform/log/common/log.js";import{windowLogGroup as I}from"../../../services/log/common/logConstants.js";import{editSessionsLogId as d}from"./editSessions.js";let t=class extends f{logger;constructor(r,o){super(),this.logger=this._register(r.createLogger(h(o.logsHome,`${d}.log`),{id:d,name:v("cloudChangesLog","Cloud Changes"),group:I}))}trace(r,...o){this.logger.trace(r,...o)}debug(r,...o){this.logger.debug(r,...o)}info(r,...o){this.logger.info(r,...o)}warn(r,...o){this.logger.warn(r,...o)}error(r,...o){this.logger.error(r,...o)}flush(){this.logger.flush()}};t=l([a(0,u),a(1,p)],t);export{t as EditSessionsLogService};
+var __defProp = Object.defineProperty;
+var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = kind > 1 ? void 0 : kind ? __getOwnPropDesc(target, key) : target;
+  for (var i = decorators.length - 1, decorator; i >= 0; i--)
+    if (decorator = decorators[i])
+      result = (kind ? decorator(target, key, result) : decorator(result)) || result;
+  if (kind && result) __defProp(target, key, result);
+  return result;
+};
+var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { joinPath } from "../../../../base/common/resources.js";
+import { localize } from "../../../../nls.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { AbstractLogger, ILogger, ILoggerService } from "../../../../platform/log/common/log.js";
+import { windowLogGroup } from "../../../services/log/common/logConstants.js";
+import { IEditSessionsLogService, editSessionsLogId } from "./editSessions.js";
+let EditSessionsLogService = class extends AbstractLogger {
+  static {
+    __name(this, "EditSessionsLogService");
+  }
+  logger;
+  constructor(loggerService, environmentService) {
+    super();
+    this.logger = this._register(loggerService.createLogger(joinPath(environmentService.logsHome, `${editSessionsLogId}.log`), { id: editSessionsLogId, name: localize("cloudChangesLog", "Cloud Changes"), group: windowLogGroup }));
+  }
+  trace(message, ...args) {
+    this.logger.trace(message, ...args);
+  }
+  debug(message, ...args) {
+    this.logger.debug(message, ...args);
+  }
+  info(message, ...args) {
+    this.logger.info(message, ...args);
+  }
+  warn(message, ...args) {
+    this.logger.warn(message, ...args);
+  }
+  error(message, ...args) {
+    this.logger.error(message, ...args);
+  }
+  flush() {
+    this.logger.flush();
+  }
+};
+EditSessionsLogService = __decorateClass([
+  __decorateParam(0, ILoggerService),
+  __decorateParam(1, IEnvironmentService)
+], EditSessionsLogService);
+export {
+  EditSessionsLogService
+};
+//# sourceMappingURL=editSessionsLogService.js.map

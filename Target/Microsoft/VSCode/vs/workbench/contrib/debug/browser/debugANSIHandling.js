@@ -1,1 +1,371 @@
-import"../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";import{Color as v,RGBA as A}from"../../../../base/common/color.js";import{isDefined as L}from"../../../../base/common/types.js";import{editorHoverBackground as D,listActiveSelectionBackground as H,listFocusBackground as C,listInactiveFocusBackground as M,listInactiveSelectionBackground as E}from"../../../../platform/theme/common/colorRegistry.js";import{registerThemingParticipant as W}from"../../../../platform/theme/common/themeService.js";import"../../../../platform/workspace/common/workspace.js";import{PANEL_BACKGROUND as P,SIDE_BAR_BACKGROUND as K}from"../../../common/theme.js";import{ansiColorIdentifiers as B}from"../../terminal/common/terminalColorRegistry.js";import"./linkDetector.js";function T(o,a,u,f){const s=document.createElement("span"),b=o.length;let n=[],d,p,m,l=!1,c=0,w=0,h="";for(;c<b;){let r=!1;if(o.charCodeAt(c)===27&&o.charAt(c+1)==="["){const i=c;c+=2;let e="";for(;c<b;){const t=o.charAt(c);if(e+=t,c++,t.match(/^[ABCDHIJKfhmpsu]$/)){r=!0;break}}if(r){if(w+=2+e.length,S(s,h,n,a,u,d,p,m,f,c-h.length-w),h="",e.match(/^(?:[34][0-8]|9[0-7]|10[0-7]|[0-9]|2[1-5,7-9]|[34]9|5[8,9]|1[0-9])(?:;[349][0-7]|10[0-7]|[013]|[245]|[34]9)?(?:;[012]?[0-9]?[0-9])*;?m$/)){const t=e.slice(0,-1).split(";").filter(k=>k!=="").map(k=>parseInt(k,10));if(t[0]===38||t[0]===48||t[0]===58){const k=t[0]===38?"foreground":t[0]===48?"background":"underline";t[1]===5?F(t,k):t[1]===2&&$(t,k)}else G(t)}}else c=i}r===!1&&(h+=o.charAt(c),c++)}return h&&S(s,h,n,a,u,d,p,m,f,c-h.length),s;function g(r,i){r==="foreground"?d=i:r==="background"?p=i:r==="underline"&&(m=i),n=n.filter(e=>e!==`code-${r}-colored`),i!==void 0&&n.push(`code-${r}-colored`)}function I(){const r=d;g("foreground",p),g("background",r)}function G(r){for(const i of r)switch(i){case 0:{n=[],d=void 0,p=void 0;break}case 1:{n=n.filter(e=>e!=="code-bold"),n.push("code-bold");break}case 2:{n=n.filter(e=>e!=="code-dim"),n.push("code-dim");break}case 3:{n=n.filter(e=>e!=="code-italic"),n.push("code-italic");break}case 4:{n=n.filter(e=>e!=="code-underline"&&e!=="code-double-underline"),n.push("code-underline");break}case 5:{n=n.filter(e=>e!=="code-blink"),n.push("code-blink");break}case 6:{n=n.filter(e=>e!=="code-rapid-blink"),n.push("code-rapid-blink");break}case 7:{l||(l=!0,I());break}case 8:{n=n.filter(e=>e!=="code-hidden"),n.push("code-hidden");break}case 9:{n=n.filter(e=>e!=="code-strike-through"),n.push("code-strike-through");break}case 10:{n=n.filter(e=>!e.startsWith("code-font"));break}case 11:case 12:case 13:case 14:case 15:case 16:case 17:case 18:case 19:case 20:{n=n.filter(e=>!e.startsWith("code-font")),n.push(`code-font-${i-10}`);break}case 21:{n=n.filter(e=>e!=="code-underline"&&e!=="code-double-underline"),n.push("code-double-underline");break}case 22:{n=n.filter(e=>e!=="code-bold"&&e!=="code-dim");break}case 23:{n=n.filter(e=>e!=="code-italic"&&e!=="code-font-10");break}case 24:{n=n.filter(e=>e!=="code-underline"&&e!=="code-double-underline");break}case 25:{n=n.filter(e=>e!=="code-blink"&&e!=="code-rapid-blink");break}case 27:{l&&(l=!1,I());break}case 28:{n=n.filter(e=>e!=="code-hidden");break}case 29:{n=n.filter(e=>e!=="code-strike-through");break}case 53:{n=n.filter(e=>e!=="code-overline"),n.push("code-overline");break}case 55:{n=n.filter(e=>e!=="code-overline");break}case 39:{g("foreground",void 0);break}case 49:{g("background",void 0);break}case 59:{g("underline",void 0);break}case 73:{n=n.filter(e=>e!=="code-superscript"&&e!=="code-subscript"),n.push("code-superscript");break}case 74:{n=n.filter(e=>e!=="code-superscript"&&e!=="code-subscript"),n.push("code-subscript");break}case 75:{n=n.filter(e=>e!=="code-superscript"&&e!=="code-subscript");break}default:{R(i);break}}}function $(r,i){if(r.length>=5&&r[2]>=0&&r[2]<=255&&r[3]>=0&&r[3]<=255&&r[4]>=0&&r[4]<=255){const e=new A(r[2],r[3],r[4]);g(i,e)}}function F(r,i){let e=r[2];const t=O(e);if(t)g(i,t);else if(e>=0&&e<=15){if(i==="underline"){const k=B[e];g(i,`--vscode-debug-ansi-${k}`);return}e+=30,e>=38&&(e+=52),i==="background"&&(e+=10),R(e)}}function R(r){let i,e;if(r>=30&&r<=37?(e=r-30,i="foreground"):r>=90&&r<=97?(e=r-90+8,i="foreground"):r>=40&&r<=47?(e=r-40,i="background"):r>=100&&r<=107&&(e=r-100+8,i="background"),e!==void 0&&i){const t=B[e];g(i,`--vscode-debug-ansi-${t.replaceAll(".","-")}`)}}}function S(o,a,u,f,s,b,n,d,p,m){if(!o||!a)return;const l=f.linkify(a,!0,s,void 0,void 0,p?.map(c=>({start:c.start-m,end:c.end-m,extraClasses:c.extraClasses})));l.className=u.join(" "),b&&(l.style.color=typeof b=="string"?`var(${b})`:v.Format.CSS.formatRGB(new v(b))),n&&(l.style.backgroundColor=typeof n=="string"?`var(${n})`:v.Format.CSS.formatRGB(new v(n))),d&&(l.style.textDecorationColor=typeof d=="string"?`var(${d})`:v.Format.CSS.formatRGB(new v(d))),o.appendChild(l)}function O(o){if(o%1===0)if(o>=16&&o<=231){o-=16;let a=o%6;o=(o-a)/6;let u=o%6;o=(o-u)/6;let f=o;const s=255/5;return a=Math.round(a*s),u=Math.round(u*s),f=Math.round(f*s),new A(f,u,a)}else if(o>=232&&o<=255){o-=232;const a=Math.round(o/23*255);return new A(a,a,a)}else return}W((o,a)=>{const u=[{selector:".monaco-workbench .sidebar, .monaco-workbench .auxiliarybar",bg:o.getColor(K)},{selector:".monaco-workbench .panel",bg:o.getColor(P)},{selector:".monaco-workbench .monaco-list-row.selected",bg:o.getColor(E)},{selector:".monaco-workbench .monaco-list-row.focused",bg:o.getColor(M)},{selector:".monaco-workbench .monaco-list:focus .monaco-list-row.focused",bg:o.getColor(C)},{selector:".monaco-workbench .monaco-list:focus .monaco-list-row.selected",bg:o.getColor(H)},{selector:".debug-hover-widget",bg:o.getColor(D)}];for(const{selector:f,bg:s}of u){const b=B.map(n=>{const d=o.getColor(n);if(d)return`--vscode-debug-ansi-${n.replaceAll(".","-")}:${s?s.ensureConstrast(d,4):d}`}).filter(L);a.addRule(`${f} { ${b.join(";")} }`)}});export{S as appendStylizedStringToContainer,O as calcANSI8bitColor,T as handleANSIOutput};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IHighlight } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
+import { Color, RGBA } from "../../../../base/common/color.js";
+import { isDefined } from "../../../../base/common/types.js";
+import { editorHoverBackground, listActiveSelectionBackground, listFocusBackground, listInactiveFocusBackground, listInactiveSelectionBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
+import { PANEL_BACKGROUND, SIDE_BAR_BACKGROUND } from "../../../common/theme.js";
+import { ansiColorIdentifiers } from "../../terminal/common/terminalColorRegistry.js";
+import { ILinkDetector } from "./linkDetector.js";
+function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
+  const root = document.createElement("span");
+  const textLength = text.length;
+  let styleNames = [];
+  let customFgColor;
+  let customBgColor;
+  let customUnderlineColor;
+  let colorsInverted = false;
+  let currentPos = 0;
+  let unprintedChars = 0;
+  let buffer = "";
+  while (currentPos < textLength) {
+    let sequenceFound = false;
+    if (text.charCodeAt(currentPos) === 27 && text.charAt(currentPos + 1) === "[") {
+      const startPos = currentPos;
+      currentPos += 2;
+      let ansiSequence = "";
+      while (currentPos < textLength) {
+        const char = text.charAt(currentPos);
+        ansiSequence += char;
+        currentPos++;
+        if (char.match(/^[ABCDHIJKfhmpsu]$/)) {
+          sequenceFound = true;
+          break;
+        }
+      }
+      if (sequenceFound) {
+        unprintedChars += 2 + ansiSequence.length;
+        appendStylizedStringToContainer(root, buffer, styleNames, linkDetector, workspaceFolder, customFgColor, customBgColor, customUnderlineColor, highlights, currentPos - buffer.length - unprintedChars);
+        buffer = "";
+        if (ansiSequence.match(/^(?:[34][0-8]|9[0-7]|10[0-7]|[0-9]|2[1-5,7-9]|[34]9|5[8,9]|1[0-9])(?:;[349][0-7]|10[0-7]|[013]|[245]|[34]9)?(?:;[012]?[0-9]?[0-9])*;?m$/)) {
+          const styleCodes = ansiSequence.slice(0, -1).split(";").filter((elem) => elem !== "").map((elem) => parseInt(elem, 10));
+          if (styleCodes[0] === 38 || styleCodes[0] === 48 || styleCodes[0] === 58) {
+            const colorType = styleCodes[0] === 38 ? "foreground" : styleCodes[0] === 48 ? "background" : "underline";
+            if (styleCodes[1] === 5) {
+              set8BitColor(styleCodes, colorType);
+            } else if (styleCodes[1] === 2) {
+              set24BitColor(styleCodes, colorType);
+            }
+          } else {
+            setBasicFormatters(styleCodes);
+          }
+        } else {
+        }
+      } else {
+        currentPos = startPos;
+      }
+    }
+    if (sequenceFound === false) {
+      buffer += text.charAt(currentPos);
+      currentPos++;
+    }
+  }
+  if (buffer) {
+    appendStylizedStringToContainer(root, buffer, styleNames, linkDetector, workspaceFolder, customFgColor, customBgColor, customUnderlineColor, highlights, currentPos - buffer.length);
+  }
+  return root;
+  function changeColor(colorType, color) {
+    if (colorType === "foreground") {
+      customFgColor = color;
+    } else if (colorType === "background") {
+      customBgColor = color;
+    } else if (colorType === "underline") {
+      customUnderlineColor = color;
+    }
+    styleNames = styleNames.filter((style) => style !== `code-${colorType}-colored`);
+    if (color !== void 0) {
+      styleNames.push(`code-${colorType}-colored`);
+    }
+  }
+  __name(changeColor, "changeColor");
+  function reverseForegroundAndBackgroundColors() {
+    const oldFgColor = customFgColor;
+    changeColor("foreground", customBgColor);
+    changeColor("background", oldFgColor);
+  }
+  __name(reverseForegroundAndBackgroundColors, "reverseForegroundAndBackgroundColors");
+  function setBasicFormatters(styleCodes) {
+    for (const code of styleCodes) {
+      switch (code) {
+        case 0: {
+          styleNames = [];
+          customFgColor = void 0;
+          customBgColor = void 0;
+          break;
+        }
+        case 1: {
+          styleNames = styleNames.filter((style) => style !== `code-bold`);
+          styleNames.push("code-bold");
+          break;
+        }
+        case 2: {
+          styleNames = styleNames.filter((style) => style !== `code-dim`);
+          styleNames.push("code-dim");
+          break;
+        }
+        case 3: {
+          styleNames = styleNames.filter((style) => style !== `code-italic`);
+          styleNames.push("code-italic");
+          break;
+        }
+        case 4: {
+          styleNames = styleNames.filter((style) => style !== `code-underline` && style !== `code-double-underline`);
+          styleNames.push("code-underline");
+          break;
+        }
+        case 5: {
+          styleNames = styleNames.filter((style) => style !== `code-blink`);
+          styleNames.push("code-blink");
+          break;
+        }
+        case 6: {
+          styleNames = styleNames.filter((style) => style !== `code-rapid-blink`);
+          styleNames.push("code-rapid-blink");
+          break;
+        }
+        case 7: {
+          if (!colorsInverted) {
+            colorsInverted = true;
+            reverseForegroundAndBackgroundColors();
+          }
+          break;
+        }
+        case 8: {
+          styleNames = styleNames.filter((style) => style !== `code-hidden`);
+          styleNames.push("code-hidden");
+          break;
+        }
+        case 9: {
+          styleNames = styleNames.filter((style) => style !== `code-strike-through`);
+          styleNames.push("code-strike-through");
+          break;
+        }
+        case 10: {
+          styleNames = styleNames.filter((style) => !style.startsWith("code-font"));
+          break;
+        }
+        case 11:
+        case 12:
+        case 13:
+        case 14:
+        case 15:
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20: {
+          styleNames = styleNames.filter((style) => !style.startsWith("code-font"));
+          styleNames.push(`code-font-${code - 10}`);
+          break;
+        }
+        case 21: {
+          styleNames = styleNames.filter((style) => style !== `code-underline` && style !== `code-double-underline`);
+          styleNames.push("code-double-underline");
+          break;
+        }
+        case 22: {
+          styleNames = styleNames.filter((style) => style !== `code-bold` && style !== `code-dim`);
+          break;
+        }
+        case 23: {
+          styleNames = styleNames.filter((style) => style !== `code-italic` && style !== `code-font-10`);
+          break;
+        }
+        case 24: {
+          styleNames = styleNames.filter((style) => style !== `code-underline` && style !== `code-double-underline`);
+          break;
+        }
+        case 25: {
+          styleNames = styleNames.filter((style) => style !== `code-blink` && style !== `code-rapid-blink`);
+          break;
+        }
+        case 27: {
+          if (colorsInverted) {
+            colorsInverted = false;
+            reverseForegroundAndBackgroundColors();
+          }
+          break;
+        }
+        case 28: {
+          styleNames = styleNames.filter((style) => style !== `code-hidden`);
+          break;
+        }
+        case 29: {
+          styleNames = styleNames.filter((style) => style !== `code-strike-through`);
+          break;
+        }
+        case 53: {
+          styleNames = styleNames.filter((style) => style !== `code-overline`);
+          styleNames.push("code-overline");
+          break;
+        }
+        case 55: {
+          styleNames = styleNames.filter((style) => style !== `code-overline`);
+          break;
+        }
+        case 39: {
+          changeColor("foreground", void 0);
+          break;
+        }
+        case 49: {
+          changeColor("background", void 0);
+          break;
+        }
+        case 59: {
+          changeColor("underline", void 0);
+          break;
+        }
+        case 73: {
+          styleNames = styleNames.filter((style) => style !== `code-superscript` && style !== `code-subscript`);
+          styleNames.push("code-superscript");
+          break;
+        }
+        case 74: {
+          styleNames = styleNames.filter((style) => style !== `code-superscript` && style !== `code-subscript`);
+          styleNames.push("code-subscript");
+          break;
+        }
+        case 75: {
+          styleNames = styleNames.filter((style) => style !== `code-superscript` && style !== `code-subscript`);
+          break;
+        }
+        default: {
+          setBasicColor(code);
+          break;
+        }
+      }
+    }
+  }
+  __name(setBasicFormatters, "setBasicFormatters");
+  function set24BitColor(styleCodes, colorType) {
+    if (styleCodes.length >= 5 && styleCodes[2] >= 0 && styleCodes[2] <= 255 && styleCodes[3] >= 0 && styleCodes[3] <= 255 && styleCodes[4] >= 0 && styleCodes[4] <= 255) {
+      const customColor = new RGBA(styleCodes[2], styleCodes[3], styleCodes[4]);
+      changeColor(colorType, customColor);
+    }
+  }
+  __name(set24BitColor, "set24BitColor");
+  function set8BitColor(styleCodes, colorType) {
+    let colorNumber = styleCodes[2];
+    const color = calcANSI8bitColor(colorNumber);
+    if (color) {
+      changeColor(colorType, color);
+    } else if (colorNumber >= 0 && colorNumber <= 15) {
+      if (colorType === "underline") {
+        const colorName = ansiColorIdentifiers[colorNumber];
+        changeColor(colorType, `--vscode-debug-ansi-${colorName}`);
+        return;
+      }
+      colorNumber += 30;
+      if (colorNumber >= 38) {
+        colorNumber += 52;
+      }
+      if (colorType === "background") {
+        colorNumber += 10;
+      }
+      setBasicColor(colorNumber);
+    }
+  }
+  __name(set8BitColor, "set8BitColor");
+  function setBasicColor(styleCode) {
+    let colorType;
+    let colorIndex;
+    if (styleCode >= 30 && styleCode <= 37) {
+      colorIndex = styleCode - 30;
+      colorType = "foreground";
+    } else if (styleCode >= 90 && styleCode <= 97) {
+      colorIndex = styleCode - 90 + 8;
+      colorType = "foreground";
+    } else if (styleCode >= 40 && styleCode <= 47) {
+      colorIndex = styleCode - 40;
+      colorType = "background";
+    } else if (styleCode >= 100 && styleCode <= 107) {
+      colorIndex = styleCode - 100 + 8;
+      colorType = "background";
+    }
+    if (colorIndex !== void 0 && colorType) {
+      const colorName = ansiColorIdentifiers[colorIndex];
+      changeColor(colorType, `--vscode-debug-ansi-${colorName.replaceAll(".", "-")}`);
+    }
+  }
+  __name(setBasicColor, "setBasicColor");
+}
+__name(handleANSIOutput, "handleANSIOutput");
+function appendStylizedStringToContainer(root, stringContent, cssClasses, linkDetector, workspaceFolder, customTextColor, customBackgroundColor, customUnderlineColor, highlights, offset) {
+  if (!root || !stringContent) {
+    return;
+  }
+  const container = linkDetector.linkify(
+    stringContent,
+    true,
+    workspaceFolder,
+    void 0,
+    void 0,
+    highlights?.map((h) => ({ start: h.start - offset, end: h.end - offset, extraClasses: h.extraClasses }))
+  );
+  container.className = cssClasses.join(" ");
+  if (customTextColor) {
+    container.style.color = typeof customTextColor === "string" ? `var(${customTextColor})` : Color.Format.CSS.formatRGB(new Color(customTextColor));
+  }
+  if (customBackgroundColor) {
+    container.style.backgroundColor = typeof customBackgroundColor === "string" ? `var(${customBackgroundColor})` : Color.Format.CSS.formatRGB(new Color(customBackgroundColor));
+  }
+  if (customUnderlineColor) {
+    container.style.textDecorationColor = typeof customUnderlineColor === "string" ? `var(${customUnderlineColor})` : Color.Format.CSS.formatRGB(new Color(customUnderlineColor));
+  }
+  root.appendChild(container);
+}
+__name(appendStylizedStringToContainer, "appendStylizedStringToContainer");
+function calcANSI8bitColor(colorNumber) {
+  if (colorNumber % 1 !== 0) {
+    return;
+  }
+  if (colorNumber >= 16 && colorNumber <= 231) {
+    colorNumber -= 16;
+    let blue = colorNumber % 6;
+    colorNumber = (colorNumber - blue) / 6;
+    let green = colorNumber % 6;
+    colorNumber = (colorNumber - green) / 6;
+    let red = colorNumber;
+    const convFactor = 255 / 5;
+    blue = Math.round(blue * convFactor);
+    green = Math.round(green * convFactor);
+    red = Math.round(red * convFactor);
+    return new RGBA(red, green, blue);
+  } else if (colorNumber >= 232 && colorNumber <= 255) {
+    colorNumber -= 232;
+    const colorLevel = Math.round(colorNumber / 23 * 255);
+    return new RGBA(colorLevel, colorLevel, colorLevel);
+  } else {
+    return;
+  }
+}
+__name(calcANSI8bitColor, "calcANSI8bitColor");
+registerThemingParticipant((theme, collector) => {
+  const areas = [
+    { selector: ".monaco-workbench .sidebar, .monaco-workbench .auxiliarybar", bg: theme.getColor(SIDE_BAR_BACKGROUND) },
+    { selector: ".monaco-workbench .panel", bg: theme.getColor(PANEL_BACKGROUND) },
+    { selector: ".monaco-workbench .monaco-list-row.selected", bg: theme.getColor(listInactiveSelectionBackground) },
+    { selector: ".monaco-workbench .monaco-list-row.focused", bg: theme.getColor(listInactiveFocusBackground) },
+    { selector: ".monaco-workbench .monaco-list:focus .monaco-list-row.focused", bg: theme.getColor(listFocusBackground) },
+    { selector: ".monaco-workbench .monaco-list:focus .monaco-list-row.selected", bg: theme.getColor(listActiveSelectionBackground) },
+    { selector: ".debug-hover-widget", bg: theme.getColor(editorHoverBackground) }
+  ];
+  for (const { selector, bg } of areas) {
+    const content = ansiColorIdentifiers.map((color) => {
+      const actual = theme.getColor(color);
+      if (!actual) {
+        return void 0;
+      }
+      return `--vscode-debug-ansi-${color.replaceAll(".", "-")}:${bg ? bg.ensureConstrast(actual, 4) : actual}`;
+    }).filter(isDefined);
+    collector.addRule(`${selector} { ${content.join(";")} }`);
+  }
+});
+export {
+  appendStylizedStringToContainer,
+  calcANSI8bitColor,
+  handleANSIOutput
+};
+//# sourceMappingURL=debugANSIHandling.js.map

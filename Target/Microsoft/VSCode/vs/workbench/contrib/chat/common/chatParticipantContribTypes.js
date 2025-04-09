@@ -1,5 +1,1 @@
-const CHAT_PROVIDER_ID = "copilot";
-export {
-  CHAT_PROVIDER_ID
-};
-//# sourceMappingURL=chatParticipantContribTypes.js.map
+import"./constants.js";const n="copilot";export{n as CHAT_PROVIDER_ID};

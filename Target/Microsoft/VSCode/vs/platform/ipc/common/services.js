@@ -1,1 +1,1 @@
-//# sourceMappingURL=services.js.map
+import"../../../base/parts/ipc/common/ipc.js";

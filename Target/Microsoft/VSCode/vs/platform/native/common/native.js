@@ -1,6 +1,1 @@
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-const INativeHostService = createDecorator("nativeHostService");
-export {
-  INativeHostService
-};
-//# sourceMappingURL=native.js.map
+import"../../../base/common/buffer.js";import"../../../base/common/event.js";import"../../../base/common/uri.js";import"../../../base/parts/sandbox/common/electronTypes.js";import"../../action/common/action.js";import"../../dialogs/common/dialogs.js";import{createDecorator as o}from"../../instantiation/common/instantiation.js";import"../../profiling/common/profiling.js";import"../../request/common/request.js";import"../../theme/common/themeService.js";import"../../window/common/window.js";const B=o("nativeHostService");export{B as INativeHostService};

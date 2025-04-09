@@ -1,5 +1,1 @@
-var tsconfig_monaco_default = "./Asset/tsconfig.monaco-43WS2MDF.json";
-export {
-  tsconfig_monaco_default as default
-};
-//# sourceMappingURL=tsconfig.monaco.js.map
+var t="./Asset/tsconfig.monaco-XMBI6LBN.json";export{t as default};

@@ -1,4 +1,1 @@
-import { bootstrapWebWorker } from "../../../base/common/worker/webWorkerBootstrap.js";
-import { create } from "./profileAnalysisWorker.js";
-bootstrapWebWorker(create);
-//# sourceMappingURL=profileAnalysisWorkerMain.js.map
+import{create as r}from"./profileAnalysisWorker.js";import{bootstrapWebWorker as o}from"../../../base/common/worker/webWorkerBootstrap.js";o(r);

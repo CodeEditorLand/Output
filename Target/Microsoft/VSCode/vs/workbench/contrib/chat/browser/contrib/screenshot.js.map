@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/workbench/contrib/chat/browser/contrib/screenshot.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { VSBuffer } from \"../../../../../base/common/buffer.js\";\nimport { localize } from \"../../../../../nls.js\";\nimport type { IChatRequestVariableEntry } from \"../../common/chatModel.js\";\n\nexport const ScreenshotVariableId = \"screenshot-focused-window\";\n\nexport function convertBufferToScreenshotVariable(\n\tbuffer: VSBuffer,\n): IChatRequestVariableEntry {\n\treturn {\n\t\tid: ScreenshotVariableId,\n\t\tname: localize(\"screenshot\", \"Screenshot\"),\n\t\tvalue: buffer.buffer,\n\t\tkind: \"image\",\n\t};\n}\n"],
-  "mappings": ";;AAMA,SAAS,gBAAgB;AAGlB,MAAM,uBAAuB;AAE7B,SAAS,kCACf,QAC4B;AAC5B,SAAO;AAAA,IACN,IAAI;AAAA,IACJ,MAAM,SAAS,cAAc,YAAY;AAAA,IACzC,OAAO,OAAO;AAAA,IACd,MAAM;AAAA,EACP;AACD;AATgB;",
-  "names": []
-}

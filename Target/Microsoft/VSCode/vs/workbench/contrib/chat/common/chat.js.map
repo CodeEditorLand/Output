@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/workbench/contrib/chat/common/chat.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport type { ChatMode } from \"./constants.js\";\n\nexport function checkModeOption(\n\tmode: ChatMode,\n\toption: boolean | ((mode: ChatMode) => boolean) | undefined,\n): boolean | undefined {\n\tif (option === undefined) {\n\t\treturn undefined;\n\t}\n\tif (typeof option === \"function\") {\n\t\treturn option(mode);\n\t}\n\treturn option;\n}\n"],
-  "mappings": ";;AAOO,SAAS,gBACf,MACA,QACsB;AACtB,MAAI,WAAW,QAAW;AACzB,WAAO;AAAA,EACR;AACA,MAAI,OAAO,WAAW,YAAY;AACjC,WAAO,OAAO,IAAI;AAAA,EACnB;AACA,SAAO;AACR;AAXgB;",
-  "names": []
-}

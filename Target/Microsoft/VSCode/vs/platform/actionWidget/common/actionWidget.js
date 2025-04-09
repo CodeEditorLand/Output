@@ -1,1 +1,1 @@
-//# sourceMappingURL=actionWidget.js.map
+import"../../../base/common/lifecycle.js";

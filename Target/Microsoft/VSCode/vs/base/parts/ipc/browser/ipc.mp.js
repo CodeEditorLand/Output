@@ -1,12 +1,1 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Client as MessagePortClient } from "../common/ipc.mp.js";
-class Client extends MessagePortClient {
-  static {
-    __name(this, "Client");
-  }
-}
-export {
-  Client
-};
-//# sourceMappingURL=ipc.mp.js.map
+import"../../../common/lifecycle.js";import{Client as t}from"../common/ipc.mp.js";class n extends t{constructor(s,e){super(s,e)}}export{n as Client};

@@ -1,1 +1,1 @@
-//# sourceMappingURL=workbenchUIElementFactory.js.map
+import"../../../../base/common/lifecycle.js";import"../../../../base/common/uri.js";

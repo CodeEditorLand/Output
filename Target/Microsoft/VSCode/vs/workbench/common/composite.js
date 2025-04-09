@@ -1,1 +1,1 @@
-//# sourceMappingURL=composite.js.map
+import"../../base/common/event.js";

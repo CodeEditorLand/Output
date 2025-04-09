@@ -1,5 +1,1 @@
-var README_default = "../../../../Asset/README-H5UKHNPY.md";
-export {
-  README_default as default
-};
-//# sourceMappingURL=README.js.map
+var i="../../../../Asset/README-L6O6VQLE.md";export{i as default};

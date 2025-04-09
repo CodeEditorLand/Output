@@ -1,6 +1,1 @@
-import { createDecorator } from "../../../../../../platform/instantiation/common/instantiation.js";
-const IPromptsService = createDecorator("IPromptsService");
-export {
-  IPromptsService
-};
-//# sourceMappingURL=types.js.map
+import"../../../../../../base/common/uri.js";import"../../../../../../editor/common/model.js";import"../../../../../../base/common/lifecycle.js";import"../parsers/textModelPromptParser.js";import{createDecorator as r}from"../../../../../../platform/instantiation/common/instantiation.js";const n=r("IPromptsService");var o=(e=>(e.Inactive=".prompt-decoration-inactive",e))(o||{});export{o as CssClassModifiers,n as IPromptsService};

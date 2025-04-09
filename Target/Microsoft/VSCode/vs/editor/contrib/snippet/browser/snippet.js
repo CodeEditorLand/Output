@@ -1,5 +1,1 @@
-var snippet_default = "../../../../../Asset/snippet-TF77LM4H.md";
-export {
-  snippet_default as default
-};
-//# sourceMappingURL=snippet.js.map
+var a="../../../../../Asset/snippet-R5RV3BX4.md";export{a as default};

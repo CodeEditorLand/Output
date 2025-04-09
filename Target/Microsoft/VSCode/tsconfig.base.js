@@ -1,5 +1,1 @@
-var tsconfig_base_default = "./Asset/tsconfig.base-XHJK263A.json";
-export {
-  tsconfig_base_default as default
-};
-//# sourceMappingURL=tsconfig.base.js.map
+var o="./Asset/tsconfig.base-NKZ2YNKK.json";export{o as default};

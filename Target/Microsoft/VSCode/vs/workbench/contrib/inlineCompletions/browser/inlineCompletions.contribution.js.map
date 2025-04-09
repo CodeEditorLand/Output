@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/workbench/contrib/inlineCompletions/browser/inlineCompletions.contribution.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport {\n\tEditorContributionInstantiation,\n\tregisterEditorContribution,\n} from \"../../../../editor/browser/editorExtensions.js\";\nimport { wrapInHotClass1 } from \"../../../../platform/observable/common/wrapInHotClass.js\";\nimport { InlineCompletionLanguageStatusBarContribution } from \"./inlineCompletionLanguageStatusBarContribution.js\";\n\nregisterEditorContribution(\n\tInlineCompletionLanguageStatusBarContribution.Id,\n\twrapInHotClass1(InlineCompletionLanguageStatusBarContribution.hot),\n\tEditorContributionInstantiation.Eventually,\n);\n"],
-  "mappings": "AAKA;AAAA,EACC;AAAA,EACA;AAAA,OACM;AACP,SAAS,uBAAuB;AAChC,SAAS,qDAAqD;AAE9D;AAAA,EACC,8CAA8C;AAAA,EAC9C,gBAAgB,8CAA8C,GAAG;AAAA,EACjE,gCAAgC;AACjC;",
-  "names": []
-}

@@ -1,16 +1,1 @@
-var __defProp = Object.defineProperty;
-var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-class ViewContext {
-  constructor(notebookOptions, eventDispatcher, getBaseCellEditorOptions) {
-    this.notebookOptions = notebookOptions;
-    this.eventDispatcher = eventDispatcher;
-    this.getBaseCellEditorOptions = getBaseCellEditorOptions;
-  }
-  static {
-    __name(this, "ViewContext");
-  }
-}
-export {
-  ViewContext
-};
-//# sourceMappingURL=viewContext.js.map
+import"../notebookBrowser.js";import"./eventDispatcher.js";import"../notebookOptions.js";class c{constructor(t,e,r){this.notebookOptions=t;this.eventDispatcher=e;this.getBaseCellEditorOptions=r}}export{c as ViewContext};

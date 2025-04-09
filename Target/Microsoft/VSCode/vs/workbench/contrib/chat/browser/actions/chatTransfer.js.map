@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../../../../../../../../Dependency/Microsoft/Dependency/Editor/src/vs/workbench/contrib/chat/browser/actions/chatTransfer.ts"],
-  "sourcesContent": ["/*---------------------------------------------------------------------------------------------\n *  Copyright (c) Microsoft Corporation. All rights reserved.\n *  Licensed under the MIT License. See License.txt in the project root for license information.\n *--------------------------------------------------------------------------------------------*/\n\nimport { Disposable } from \"../../../../../base/common/lifecycle.js\";\nimport type { IWorkbenchContribution } from \"../../../../common/contributions.js\";\nimport { IChatTransferService } from \"../../common/chatTransferService.js\";\n\nexport class ChatTransferContribution\n\textends Disposable\n\timplements IWorkbenchContribution\n{\n\tstatic readonly ID = \"workbench.contrib.chatTransfer\";\n\n\tconstructor(\n\t\t@IChatTransferService chatTransferService: IChatTransferService,\n\t) {\n\t\tsuper();\n\t\tchatTransferService.checkAndSetTransferredWorkspaceTrust();\n\t}\n}\n"],
-  "mappings": ";;;;;;;;;;;;AAKA,SAAS,kBAAkB;AAE3B,SAAS,4BAA4B;AAE9B,IAAM,2BAAN,cACE,WAET;AAAA,EAZA,OAYA;AAAA;AAAA;AAAA,EACC,OAAgB,KAAK;AAAA,EAErB,YACuB,qBACrB;AACD,UAAM;AACN,wBAAoB,qCAAqC;AAAA,EAC1D;AACD;AAZa,2BAAN;AAAA,EAOJ;AAAA,GAPU;",
-  "names": []
-}

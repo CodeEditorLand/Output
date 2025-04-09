@@ -1,14 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IHighlight } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
 import { Color, RGBA } from "../../../../base/common/color.js";
 import { isDefined } from "../../../../base/common/types.js";
-import { editorHoverBackground, listActiveSelectionBackground, listFocusBackground, listInactiveFocusBackground, listInactiveSelectionBackground } from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  editorHoverBackground,
+  listActiveSelectionBackground,
+  listFocusBackground,
+  listInactiveFocusBackground,
+  listInactiveSelectionBackground
+} from "../../../../platform/theme/common/colorRegistry.js";
 import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { PANEL_BACKGROUND, SIDE_BAR_BACKGROUND } from "../../../common/theme.js";
+import {
+  PANEL_BACKGROUND,
+  SIDE_BAR_BACKGROUND
+} from "../../../common/theme.js";
 import { ansiColorIdentifiers } from "../../terminal/common/terminalColorRegistry.js";
-import { ILinkDetector } from "./linkDetector.js";
 function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
   const root = document.createElement("span");
   const textLength = text.length;
@@ -37,10 +43,23 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
       }
       if (sequenceFound) {
         unprintedChars += 2 + ansiSequence.length;
-        appendStylizedStringToContainer(root, buffer, styleNames, linkDetector, workspaceFolder, customFgColor, customBgColor, customUnderlineColor, highlights, currentPos - buffer.length - unprintedChars);
+        appendStylizedStringToContainer(
+          root,
+          buffer,
+          styleNames,
+          linkDetector,
+          workspaceFolder,
+          customFgColor,
+          customBgColor,
+          customUnderlineColor,
+          highlights,
+          currentPos - buffer.length - unprintedChars
+        );
         buffer = "";
-        if (ansiSequence.match(/^(?:[34][0-8]|9[0-7]|10[0-7]|[0-9]|2[1-5,7-9]|[34]9|5[8,9]|1[0-9])(?:;[349][0-7]|10[0-7]|[013]|[245]|[34]9)?(?:;[012]?[0-9]?[0-9])*;?m$/)) {
-          const styleCodes = ansiSequence.slice(0, -1).split(";").filter((elem) => elem !== "").map((elem) => parseInt(elem, 10));
+        if (ansiSequence.match(
+          /^(?:[34][0-8]|9[0-7]|10[0-7]|[0-9]|2[1-5,7-9]|[34]9|5[8,9]|1[0-9])(?:;[349][0-7]|10[0-7]|[013]|[245]|[34]9)?(?:;[012]?[0-9]?[0-9])*;?m$/
+        )) {
+          const styleCodes = ansiSequence.slice(0, -1).split(";").filter((elem) => elem !== "").map((elem) => Number.parseInt(elem, 10));
           if (styleCodes[0] === 38 || styleCodes[0] === 48 || styleCodes[0] === 58) {
             const colorType = styleCodes[0] === 38 ? "foreground" : styleCodes[0] === 48 ? "background" : "underline";
             if (styleCodes[1] === 5) {
@@ -63,7 +82,18 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
     }
   }
   if (buffer) {
-    appendStylizedStringToContainer(root, buffer, styleNames, linkDetector, workspaceFolder, customFgColor, customBgColor, customUnderlineColor, highlights, currentPos - buffer.length);
+    appendStylizedStringToContainer(
+      root,
+      buffer,
+      styleNames,
+      linkDetector,
+      workspaceFolder,
+      customFgColor,
+      customBgColor,
+      customUnderlineColor,
+      highlights,
+      currentPos - buffer.length
+    );
   }
   return root;
   function changeColor(colorType, color) {
@@ -74,7 +104,9 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
     } else if (colorType === "underline") {
       customUnderlineColor = color;
     }
-    styleNames = styleNames.filter((style) => style !== `code-${colorType}-colored`);
+    styleNames = styleNames.filter(
+      (style) => style !== `code-${colorType}-colored`
+    );
     if (color !== void 0) {
       styleNames.push(`code-${colorType}-colored`);
     }
@@ -96,32 +128,44 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
           break;
         }
         case 1: {
-          styleNames = styleNames.filter((style) => style !== `code-bold`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-bold"
+          );
           styleNames.push("code-bold");
           break;
         }
         case 2: {
-          styleNames = styleNames.filter((style) => style !== `code-dim`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-dim"
+          );
           styleNames.push("code-dim");
           break;
         }
         case 3: {
-          styleNames = styleNames.filter((style) => style !== `code-italic`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-italic"
+          );
           styleNames.push("code-italic");
           break;
         }
         case 4: {
-          styleNames = styleNames.filter((style) => style !== `code-underline` && style !== `code-double-underline`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-underline" && style !== "code-double-underline"
+          );
           styleNames.push("code-underline");
           break;
         }
         case 5: {
-          styleNames = styleNames.filter((style) => style !== `code-blink`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-blink"
+          );
           styleNames.push("code-blink");
           break;
         }
         case 6: {
-          styleNames = styleNames.filter((style) => style !== `code-rapid-blink`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-rapid-blink"
+          );
           styleNames.push("code-rapid-blink");
           break;
         }
@@ -133,17 +177,23 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
           break;
         }
         case 8: {
-          styleNames = styleNames.filter((style) => style !== `code-hidden`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-hidden"
+          );
           styleNames.push("code-hidden");
           break;
         }
         case 9: {
-          styleNames = styleNames.filter((style) => style !== `code-strike-through`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-strike-through"
+          );
           styleNames.push("code-strike-through");
           break;
         }
         case 10: {
-          styleNames = styleNames.filter((style) => !style.startsWith("code-font"));
+          styleNames = styleNames.filter(
+            (style) => !style.startsWith("code-font")
+          );
           break;
         }
         case 11:
@@ -156,29 +206,41 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
         case 18:
         case 19:
         case 20: {
-          styleNames = styleNames.filter((style) => !style.startsWith("code-font"));
+          styleNames = styleNames.filter(
+            (style) => !style.startsWith("code-font")
+          );
           styleNames.push(`code-font-${code - 10}`);
           break;
         }
         case 21: {
-          styleNames = styleNames.filter((style) => style !== `code-underline` && style !== `code-double-underline`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-underline" && style !== "code-double-underline"
+          );
           styleNames.push("code-double-underline");
           break;
         }
         case 22: {
-          styleNames = styleNames.filter((style) => style !== `code-bold` && style !== `code-dim`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-bold" && style !== "code-dim"
+          );
           break;
         }
         case 23: {
-          styleNames = styleNames.filter((style) => style !== `code-italic` && style !== `code-font-10`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-italic" && style !== "code-font-10"
+          );
           break;
         }
         case 24: {
-          styleNames = styleNames.filter((style) => style !== `code-underline` && style !== `code-double-underline`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-underline" && style !== "code-double-underline"
+          );
           break;
         }
         case 25: {
-          styleNames = styleNames.filter((style) => style !== `code-blink` && style !== `code-rapid-blink`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-blink" && style !== "code-rapid-blink"
+          );
           break;
         }
         case 27: {
@@ -189,20 +251,28 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
           break;
         }
         case 28: {
-          styleNames = styleNames.filter((style) => style !== `code-hidden`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-hidden"
+          );
           break;
         }
         case 29: {
-          styleNames = styleNames.filter((style) => style !== `code-strike-through`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-strike-through"
+          );
           break;
         }
         case 53: {
-          styleNames = styleNames.filter((style) => style !== `code-overline`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-overline"
+          );
           styleNames.push("code-overline");
           break;
         }
         case 55: {
-          styleNames = styleNames.filter((style) => style !== `code-overline`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-overline"
+          );
           break;
         }
         case 39: {
@@ -218,17 +288,23 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
           break;
         }
         case 73: {
-          styleNames = styleNames.filter((style) => style !== `code-superscript` && style !== `code-subscript`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-superscript" && style !== "code-subscript"
+          );
           styleNames.push("code-superscript");
           break;
         }
         case 74: {
-          styleNames = styleNames.filter((style) => style !== `code-superscript` && style !== `code-subscript`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-superscript" && style !== "code-subscript"
+          );
           styleNames.push("code-subscript");
           break;
         }
         case 75: {
-          styleNames = styleNames.filter((style) => style !== `code-superscript` && style !== `code-subscript`);
+          styleNames = styleNames.filter(
+            (style) => style !== "code-superscript" && style !== "code-subscript"
+          );
           break;
         }
         default: {
@@ -241,7 +317,11 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
   __name(setBasicFormatters, "setBasicFormatters");
   function set24BitColor(styleCodes, colorType) {
     if (styleCodes.length >= 5 && styleCodes[2] >= 0 && styleCodes[2] <= 255 && styleCodes[3] >= 0 && styleCodes[3] <= 255 && styleCodes[4] >= 0 && styleCodes[4] <= 255) {
-      const customColor = new RGBA(styleCodes[2], styleCodes[3], styleCodes[4]);
+      const customColor = new RGBA(
+        styleCodes[2],
+        styleCodes[3],
+        styleCodes[4]
+      );
       changeColor(colorType, customColor);
     }
   }
@@ -286,7 +366,10 @@ function handleANSIOutput(text, linkDetector, workspaceFolder, highlights) {
     }
     if (colorIndex !== void 0 && colorType) {
       const colorName = ansiColorIdentifiers[colorIndex];
-      changeColor(colorType, `--vscode-debug-ansi-${colorName.replaceAll(".", "-")}`);
+      changeColor(
+        colorType,
+        `--vscode-debug-ansi-${colorName.replaceAll(".", "-")}`
+      );
     }
   }
   __name(setBasicColor, "setBasicColor");
@@ -302,7 +385,11 @@ function appendStylizedStringToContainer(root, stringContent, cssClasses, linkDe
     workspaceFolder,
     void 0,
     void 0,
-    highlights?.map((h) => ({ start: h.start - offset, end: h.end - offset, extraClasses: h.extraClasses }))
+    highlights?.map((h) => ({
+      start: h.start - offset,
+      end: h.end - offset,
+      extraClasses: h.extraClasses
+    }))
   );
   container.className = cssClasses.join(" ");
   if (customTextColor) {
@@ -344,13 +431,34 @@ function calcANSI8bitColor(colorNumber) {
 __name(calcANSI8bitColor, "calcANSI8bitColor");
 registerThemingParticipant((theme, collector) => {
   const areas = [
-    { selector: ".monaco-workbench .sidebar, .monaco-workbench .auxiliarybar", bg: theme.getColor(SIDE_BAR_BACKGROUND) },
-    { selector: ".monaco-workbench .panel", bg: theme.getColor(PANEL_BACKGROUND) },
-    { selector: ".monaco-workbench .monaco-list-row.selected", bg: theme.getColor(listInactiveSelectionBackground) },
-    { selector: ".monaco-workbench .monaco-list-row.focused", bg: theme.getColor(listInactiveFocusBackground) },
-    { selector: ".monaco-workbench .monaco-list:focus .monaco-list-row.focused", bg: theme.getColor(listFocusBackground) },
-    { selector: ".monaco-workbench .monaco-list:focus .monaco-list-row.selected", bg: theme.getColor(listActiveSelectionBackground) },
-    { selector: ".debug-hover-widget", bg: theme.getColor(editorHoverBackground) }
+    {
+      selector: ".monaco-workbench .sidebar, .monaco-workbench .auxiliarybar",
+      bg: theme.getColor(SIDE_BAR_BACKGROUND)
+    },
+    {
+      selector: ".monaco-workbench .panel",
+      bg: theme.getColor(PANEL_BACKGROUND)
+    },
+    {
+      selector: ".monaco-workbench .monaco-list-row.selected",
+      bg: theme.getColor(listInactiveSelectionBackground)
+    },
+    {
+      selector: ".monaco-workbench .monaco-list-row.focused",
+      bg: theme.getColor(listInactiveFocusBackground)
+    },
+    {
+      selector: ".monaco-workbench .monaco-list:focus .monaco-list-row.focused",
+      bg: theme.getColor(listFocusBackground)
+    },
+    {
+      selector: ".monaco-workbench .monaco-list:focus .monaco-list-row.selected",
+      bg: theme.getColor(listActiveSelectionBackground)
+    },
+    {
+      selector: ".debug-hover-widget",
+      bg: theme.getColor(editorHoverBackground)
+    }
   ];
   for (const { selector, bg } of areas) {
     const content = ansiColorIdentifiers.map((color) => {

@@ -10,16 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { VSBuffer, encodeBase64 } from "../../../base/common/buffer.js";
-import { Event } from "../../../base/common/event.js";
+import { encodeBase64, VSBuffer } from "../../../base/common/buffer.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { getMediaOrTextMime } from "../../../base/common/mime.js";
 import { Schemas } from "../../../base/common/network.js";
 import { URI } from "../../../base/common/uri.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { FileOperationError, FileOperationResult, IFileContent, IFileService } from "../../files/common/files.js";
+import {
+  FileOperationError,
+  FileOperationResult,
+  IFileService
+} from "../../files/common/files.js";
 import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
-import { NODE_REMOTE_RESOURCE_CHANNEL_NAME, NODE_REMOTE_RESOURCE_IPC_METHOD_NAME, NodeRemoteResourceResponse } from "../common/electronRemoteResources.js";
+import {
+  NODE_REMOTE_RESOURCE_CHANNEL_NAME,
+  NODE_REMOTE_RESOURCE_IPC_METHOD_NAME
+} from "../common/electronRemoteResources.js";
 let ElectronRemoteResourceLoader = class extends Disposable {
   constructor(windowId, mainProcessService, fileService) {
     super();
@@ -37,7 +42,10 @@ let ElectronRemoteResourceLoader = class extends Disposable {
         throw new Error(`Call not found: ${command}`);
       }, "call")
     };
-    mainProcessService.registerChannel(NODE_REMOTE_RESOURCE_CHANNEL_NAME, channel);
+    mainProcessService.registerChannel(
+      NODE_REMOTE_RESOURCE_CHANNEL_NAME,
+      channel
+    );
   }
   static {
     __name(this, "ElectronRemoteResourceLoader");
@@ -67,7 +75,10 @@ let ElectronRemoteResourceLoader = class extends Disposable {
     return (uri) => uri.with({
       scheme: Schemas.vscodeManagedRemoteResource,
       authority: `window:${this.windowId}`,
-      query: new URLSearchParams({ authority: uri.authority, scheme: uri.scheme }).toString()
+      query: new URLSearchParams({
+        authority: uri.authority,
+        scheme: uri.scheme
+      }).toString()
     });
   }
 };

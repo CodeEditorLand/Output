@@ -1,17 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createFastDomNode, FastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import {
+  createFastDomNode
+} from "../../../../../base/browser/fastDomNode.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { localize2 } from "../../../../../nls.js";
 import { Categories } from "../../../../../platform/action/common/actionCommonCategories.js";
-import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
 import { IsDevelopmentContext } from "../../../../../platform/contextkey/common/contextkeys.js";
-import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { CellKind } from "../../common/notebookCommon.js";
-import { getNotebookEditorFromEditorPane, INotebookCellOverlay, INotebookCellOverlayChangeAccessor, INotebookViewCellsUpdateEvent } from "../notebookBrowser.js";
-import { NotebookCellListView } from "../view/notebookCellListView.js";
-import { CellViewModel } from "../viewModel/notebookViewModelImpl.js";
+import {
+  getNotebookEditorFromEditorPane
+} from "../notebookBrowser.js";
 class NotebookCellOverlays extends Disposable {
   constructor(listView) {
     super();
@@ -94,7 +98,9 @@ class NotebookCellOverlays extends Disposable {
       return;
     }
     overlay.domNode.setDisplay("block");
-    const index = this.listView.indexOf(overlay.overlay.cell);
+    const index = this.listView.indexOf(
+      overlay.overlay.cell
+    );
     if (index === -1) {
       return;
     }
@@ -117,7 +123,10 @@ class ToggleNotebookCellOverlaysDeveloperAction extends Action2 {
   constructor() {
     super({
       id: "notebook.developer.addCellOverlays",
-      title: localize2("workbench.notebook.developer.addCellOverlays", "Toggle Notebook Cell Overlays"),
+      title: localize2(
+        "workbench.notebook.developer.addCellOverlays",
+        "Toggle Notebook Cell Overlays"
+      ),
       category: Categories.Developer,
       precondition: IsDevelopmentContext,
       f1: true
@@ -125,15 +134,19 @@ class ToggleNotebookCellOverlaysDeveloperAction extends Action2 {
   }
   async run(accessor) {
     const editorService = accessor.get(IEditorService);
-    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    const editor = getNotebookEditorFromEditorPane(
+      editorService.activeEditorPane
+    );
     if (!editor) {
       return;
     }
     if (ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.length > 0) {
       editor.changeCellOverlays((accessor2) => {
-        ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.forEach((id) => {
-          accessor2.removeOverlay(id);
-        });
+        ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds.forEach(
+          (id) => {
+            accessor2.removeOverlay(id);
+          }
+        );
         ToggleNotebookCellOverlaysDeveloperAction.cellOverlayIds = [];
       });
     } else {

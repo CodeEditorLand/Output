@@ -142,7 +142,7 @@
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.warning-kind a:hover:not(.disabled) {
   color: var(--vscode-statusBarItem-warningHoverForeground);
-  background-color: var(--vscode-statusBarItem-warningHoverBackground) !important;
+  background-color: var( --vscode-statusBarItem-warningHoverBackground ) !important;
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.error-kind {
   color: var(--vscode-statusBarItem-errorForeground);
@@ -150,7 +150,7 @@
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.error-kind a:hover:not(.disabled) {
   color: var(--vscode-statusBarItem-errorHoverForeground);
-  background-color: var(--vscode-statusBarItem-errorHoverBackground) !important;
+  background-color: var( --vscode-statusBarItem-errorHoverBackground ) !important;
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.prominent-kind {
   color: var(--vscode-statusBarItem-prominentForeground);
@@ -158,7 +158,7 @@
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.prominent-kind:not(.compact-right):not(.compact-left) a:hover:not(.disabled) {
   color: var(--vscode-statusBarItem-prominentHoverForeground);
-  background-color: var(--vscode-statusBarItem-prominentHoverBackground) !important;
+  background-color: var( --vscode-statusBarItem-prominentHoverBackground ) !important;
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.remote-kind {
   color: var(--vscode-statusBarItem-remoteForeground);
@@ -166,7 +166,7 @@
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.remote-kind a:hover:not(.disabled) {
   color: var(--vscode-statusBarItem-remoteHoverForeground);
-  background-color: var(--vscode-statusBarItem-remoteHoverBackground) !important;
+  background-color: var( --vscode-statusBarItem-remoteHoverBackground ) !important;
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.offline-kind {
   color: var(--vscode-statusBarItem-offlineForeground);
@@ -174,6 +174,6 @@
 }
 .monaco-workbench .part.statusbar > .items-container > .statusbar-item.offline-kind a:hover:not(.disabled) {
   color: var(--vscode-statusBarItem-offlineHoverForeground);
-  background-color: var(--vscode-statusBarItem-offlineHoverBackground) !important;
+  background-color: var( --vscode-statusBarItem-offlineHoverBackground ) !important;
 }
 /*# sourceMappingURL=statusbarpart.css.map */

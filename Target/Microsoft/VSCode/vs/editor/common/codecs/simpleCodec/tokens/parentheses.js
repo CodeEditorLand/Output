@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { BaseToken } from "../../baseToken.js";
-import { Range } from "../../../core/range.js";
 import { Position } from "../../../core/position.js";
-import { Line } from "../../linesCodec/tokens/line.js";
+import { Range } from "../../../core/range.js";
+import { BaseToken } from "../../baseToken.js";
 class LeftParenthesis extends BaseToken {
   static {
     __name(this, "LeftParenthesis");
@@ -24,12 +23,17 @@ class LeftParenthesis extends BaseToken {
    */
   static newOnLine(line, atColumnNumber) {
     const { range } = line;
-    const startPosition = new Position(range.startLineNumber, atColumnNumber);
-    const endPosition = new Position(range.startLineNumber, atColumnNumber + this.symbol.length);
-    return new LeftParenthesis(Range.fromPositions(
-      startPosition,
-      endPosition
-    ));
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + LeftParenthesis.symbol.length
+    );
+    return new LeftParenthesis(
+      Range.fromPositions(startPosition, endPosition)
+    );
   }
   /**
    * Returns a string representation of the token.
@@ -58,12 +62,17 @@ class RightParenthesis extends BaseToken {
    */
   static newOnLine(line, atColumnNumber) {
     const { range } = line;
-    const startPosition = new Position(range.startLineNumber, atColumnNumber);
-    const endPosition = new Position(range.startLineNumber, atColumnNumber + this.symbol.length);
-    return new RightParenthesis(Range.fromPositions(
-      startPosition,
-      endPosition
-    ));
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + RightParenthesis.symbol.length
+    );
+    return new RightParenthesis(
+      Range.fromPositions(startPosition, endPosition)
+    );
   }
   /**
    * Returns a string representation of the token.

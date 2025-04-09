@@ -11,19 +11,26 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { binarySearch2, equals } from "../../../../base/common/arrays.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  DisposableStore,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../../base/common/linkedList.js";
+import { isEqual } from "../../../../base/common/resources.js";
 import { compare } from "../../../../base/common/strings.js";
 import { URI } from "../../../../base/common/uri.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { ITextModel } from "../../../common/model.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IMarker, IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { isEqual } from "../../../../base/common/resources.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IMarkerService,
+  MarkerSeverity
+} from "../../../../platform/markers/common/markers.js";
+import { Range } from "../../../common/core/range.js";
 class MarkerCoordinate {
   constructor(marker, index, total) {
     this.marker = marker;
@@ -61,7 +68,9 @@ let MarkerList = class {
         severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info
       });
       if (typeof resourceFilter === "function") {
-        newMarkers = newMarkers.filter((m) => this._resourceFilter(m.resource));
+        newMarkers = newMarkers.filter(
+          (m) => this._resourceFilter?.(m.resource)
+        );
       }
       newMarkers.sort(compareMarker);
       if (equals(
@@ -75,14 +84,16 @@ let MarkerList = class {
       return true;
     }, "updateMarker");
     updateMarker();
-    this._dispoables.add(_markerService.onMarkerChanged((uris) => {
-      if (!this._resourceFilter || uris.some((uri) => this._resourceFilter(uri))) {
-        if (updateMarker()) {
-          this._nextIdx = -1;
-          this._onDidChange.fire();
+    this._dispoables.add(
+      _markerService.onMarkerChanged((uris) => {
+        if (!this._resourceFilter || uris.some((uri) => this._resourceFilter?.(uri))) {
+          if (updateMarker()) {
+            this._nextIdx = -1;
+            this._onDidChange.fire();
+          }
         }
-      }
-    }));
+      })
+    );
   }
   static {
     __name(this, "MarkerList");
@@ -108,12 +119,24 @@ let MarkerList = class {
   }
   get selected() {
     const marker = this._markers[this._nextIdx];
-    return marker && new MarkerCoordinate(marker, this._nextIdx + 1, this._markers.length);
+    return marker && new MarkerCoordinate(
+      marker,
+      this._nextIdx + 1,
+      this._markers.length
+    );
   }
   _initIdx(model, position, fwd) {
-    let idx = this._markers.findIndex((marker) => isEqual(marker.resource, model.uri));
+    let idx = this._markers.findIndex(
+      (marker) => isEqual(marker.resource, model.uri)
+    );
     if (idx < 0) {
-      idx = binarySearch2(this._markers.length, (idx2) => compare(this._markers[idx2].resource.toString(), model.uri.toString()));
+      idx = binarySearch2(
+        this._markers.length,
+        (idx2) => compare(
+          this._markers[idx2].resource.toString(),
+          model.uri.toString()
+        )
+      );
       if (idx < 0) {
         idx = ~idx;
       }
@@ -128,9 +151,16 @@ let MarkerList = class {
       for (let i = idx; i < this._markers.length; i++) {
         let range = Range.lift(this._markers[i]);
         if (range.isEmpty()) {
-          const word = model.getWordAtPosition(range.getStartPosition());
+          const word = model.getWordAtPosition(
+            range.getStartPosition()
+          );
           if (word) {
-            range = new Range(range.startLineNumber, word.startColumn, range.startLineNumber, word.endColumn);
+            range = new Range(
+              range.startLineNumber,
+              word.startColumn,
+              range.startLineNumber,
+              word.endColumn
+            );
           }
         }
         if (position && (range.containsPosition(position) || position.isBeforeOrEqual(range.getStartPosition()))) {
@@ -174,13 +204,19 @@ let MarkerList = class {
     return false;
   }
   find(uri, position) {
-    let idx = this._markers.findIndex((marker) => marker.resource.toString() === uri.toString());
+    let idx = this._markers.findIndex(
+      (marker) => marker.resource.toString() === uri.toString()
+    );
     if (idx < 0) {
       return void 0;
     }
     for (; idx < this._markers.length; idx++) {
       if (Range.containsPosition(this._markers[idx], position)) {
-        return new MarkerCoordinate(this._markers[idx], idx + 1, this._markers.length);
+        return new MarkerCoordinate(
+          this._markers[idx],
+          idx + 1,
+          this._markers.length
+        );
       }
     }
     return void 0;
@@ -212,14 +248,22 @@ let MarkerNavigationService = class {
         return result;
       }
     }
-    return new MarkerList(resource, this._markerService, this._configService);
+    return new MarkerList(
+      resource,
+      this._markerService,
+      this._configService
+    );
   }
 };
 MarkerNavigationService = __decorateClass([
   __decorateParam(0, IMarkerService),
   __decorateParam(1, IConfigurationService)
 ], MarkerNavigationService);
-registerSingleton(IMarkerNavigationService, MarkerNavigationService, InstantiationType.Delayed);
+registerSingleton(
+  IMarkerNavigationService,
+  MarkerNavigationService,
+  InstantiationType.Delayed
+);
 export {
   IMarkerNavigationService,
   MarkerCoordinate,

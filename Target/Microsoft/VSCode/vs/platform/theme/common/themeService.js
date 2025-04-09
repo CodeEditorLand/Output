@@ -1,14 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../base/common/codicons.js";
-import { Color } from "../../../base/common/color.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import * as platform from "../../registry/common/platform.js";
-import { ColorIdentifier } from "./colorRegistry.js";
-import { IconContribution, IconDefinition } from "./iconRegistry.js";
 import { ColorScheme, ThemeTypeSelector } from "./theme.js";
 const IThemeService = createDecorator("themeService");
 function themeColorFromId(id) {
@@ -69,7 +68,11 @@ class Themable extends Disposable {
     super();
     this.themeService = themeService;
     this.theme = themeService.getColorTheme();
-    this._register(this.themeService.onDidColorThemeChange((theme) => this.onThemeChange(theme)));
+    this._register(
+      this.themeService.onDidColorThemeChange(
+        (theme) => this.onThemeChange(theme)
+      )
+    );
   }
   static {
     __name(this, "Themable");

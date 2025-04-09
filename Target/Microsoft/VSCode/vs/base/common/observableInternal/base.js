@@ -1,18 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { DebugNameData, DebugOwner, getFunctionName } from "./debugName.js";
-import { DisposableStore, EqualityComparer, IDisposable, strictEquals } from "./commonFacade/deps.js";
-import { getLogger, logObservable } from "./logging/logging.js";
-import { keepObserved, recomputeInitiallyAndOnChange } from "./utils.js";
 import { onUnexpectedError } from "../errors.js";
+import {
+  strictEquals
+} from "./commonFacade/deps.js";
+import {
+  DebugNameData,
+  getFunctionName
+} from "./debugName.js";
+import { getLogger, logObservable } from "./logging/logging.js";
 let _recomputeInitiallyAndOnChange;
-function _setRecomputeInitiallyAndOnChange(recomputeInitiallyAndOnChange2) {
-  _recomputeInitiallyAndOnChange = recomputeInitiallyAndOnChange2;
+function _setRecomputeInitiallyAndOnChange(recomputeInitiallyAndOnChange) {
+  _recomputeInitiallyAndOnChange = recomputeInitiallyAndOnChange;
 }
 __name(_setRecomputeInitiallyAndOnChange, "_setRecomputeInitiallyAndOnChange");
 let _keepObserved;
-function _setKeepObserved(keepObserved2) {
-  _keepObserved = keepObserved2;
+function _setKeepObserved(keepObserved) {
+  _keepObserved = keepObserved;
 }
 __name(_setKeepObserved, "_setKeepObserved");
 let _derived;
@@ -67,7 +71,7 @@ class ConvenientObservable {
   /**
    * @sealed
    * Converts an observable of an observable value into a direct observable of the value.
-  */
+   */
   flatten() {
     return _derived(
       {
@@ -78,7 +82,7 @@ class ConvenientObservable {
     );
   }
   recomputeInitiallyAndOnChange(store, handleValue) {
-    store.add(_recomputeInitiallyAndOnChange(this, handleValue));
+    store.add(_recomputeInitiallyAndOnChange?.(this, handleValue));
     return this;
   }
   /**
@@ -87,7 +91,7 @@ class ConvenientObservable {
    * Use `recomputeInitiallyAndOnChange` for eager evaluation.
    */
   keepObserved(store) {
-    store.add(_keepObserved(this));
+    store.add(_keepObserved?.(this));
     return this;
   }
   get debugValue() {
@@ -110,7 +114,10 @@ class BaseObservable extends ConvenientObservable {
       this.onFirstObserverAdded();
     }
     if (len !== this._observers.size) {
-      getLogger()?.handleOnListenerCountChanged(this, this._observers.size);
+      getLogger()?.handleOnListenerCountChanged(
+        this,
+        this._observers.size
+      );
     }
   }
   removeObserver(observer) {
@@ -119,7 +126,10 @@ class BaseObservable extends ConvenientObservable {
       this.onLastObserverRemoved();
     }
     if (deleted) {
-      getLogger()?.handleOnListenerCountChanged(this, this._observers.size);
+      getLogger()?.handleOnListenerCountChanged(
+        this,
+        this._observers.size
+      );
     }
   }
   onFirstObserverAdded() {
@@ -210,7 +220,9 @@ class TransactionImpl {
   finish() {
     const updatingObservers = this._updatingObservers;
     if (!updatingObservers) {
-      handleBugIndicatingErrorRecovery("transaction.finish() has already been called!");
+      handleBugIndicatingErrorRecovery(
+        "transaction.finish() has already been called!"
+      );
       return;
     }
     for (let i = 0; i < updatingObservers.length; i++) {
@@ -225,7 +237,7 @@ class TransactionImpl {
   }
 }
 function handleBugIndicatingErrorRecovery(message) {
-  const err = new Error("BugIndicatingErrorRecovery: " + message);
+  const err = new Error(`BugIndicatingErrorRecovery: ${message}`);
   onUnexpectedError(err);
   console.error("recovered from an error that indicates a bug", err);
 }
@@ -246,7 +258,13 @@ class ObservableValue extends BaseObservable {
     this._debugNameData = _debugNameData;
     this._equalityComparator = _equalityComparator;
     this._value = initialValue;
-    getLogger()?.handleObservableUpdated(this, { hadValue: false, newValue: initialValue, change: void 0, didChange: true, oldValue: void 0 });
+    getLogger()?.handleObservableUpdated(this, {
+      hadValue: false,
+      newValue: initialValue,
+      change: void 0,
+      didChange: true,
+      oldValue: void 0
+    });
   }
   static {
     __name(this, "ObservableValue");
@@ -264,13 +282,22 @@ class ObservableValue extends BaseObservable {
     }
     let _tx;
     if (!tx) {
-      tx = _tx = new TransactionImpl(() => {
-      }, () => `Setting ${this.debugName}`);
+      tx = _tx = new TransactionImpl(
+        () => {
+        },
+        () => `Setting ${this.debugName}`
+      );
     }
     try {
       const oldValue = this._value;
       this._setValue(value);
-      getLogger()?.handleObservableUpdated(this, { oldValue, newValue: value, change, didChange: true, hadValue: true });
+      getLogger()?.handleObservableUpdated(this, {
+        oldValue,
+        newValue: value,
+        change,
+        didChange: true,
+        hadValue: true
+      });
       for (const observer of this._observers) {
         tx.updateObserver(observer, this);
         observer.handleChange(this, change);
@@ -303,7 +330,11 @@ function disposableObservableValue(nameOrOwner, initialValue) {
   } else {
     debugNameData = new DebugNameData(nameOrOwner, void 0, void 0);
   }
-  return new DisposableObservableValue(debugNameData, initialValue, strictEquals);
+  return new DisposableObservableValue(
+    debugNameData,
+    initialValue,
+    strictEquals
+  );
 }
 __name(disposableObservableValue, "disposableObservableValue");
 class DisposableObservableValue extends ObservableValue {

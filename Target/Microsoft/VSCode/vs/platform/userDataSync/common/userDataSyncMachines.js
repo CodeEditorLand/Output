@@ -10,19 +10,38 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../base/common/event.js";
+import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { isAndroid, isChrome, isEdge, isFirefox, isSafari, isWeb, Platform, platform, PlatformToString } from "../../../base/common/platform.js";
+import {
+  isAndroid,
+  isChrome,
+  isEdge,
+  isFirefox,
+  isSafari,
+  isWeb,
+  Platform,
+  platform,
+  PlatformToString
+} from "../../../base/common/platform.js";
 import { escapeRegExpCharacters } from "../../../base/common/strings.js";
 import { localize } from "../../../nls.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
+import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
 import { IFileService } from "../../files/common/files.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { IProductService } from "../../product/common/productService.js";
-import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../storage/common/storage.js";
-import { IUserData, IUserDataManifest, IUserDataSyncLogService, IUserDataSyncStoreService } from "./userDataSync.js";
-const IUserDataSyncMachinesService = createDecorator("IUserDataSyncMachinesService");
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../storage/common/storage.js";
+import {
+  IUserDataSyncLogService,
+  IUserDataSyncStoreService
+} from "./userDataSync.js";
+const IUserDataSyncMachinesService = createDecorator(
+  "IUserDataSyncMachinesService"
+);
 const currentMachineNameKey = "sync.currentMachineName";
 const Safari = "Safari";
 const Chrome = "Chrome";
@@ -68,7 +87,11 @@ let UserDataSyncMachinesService = class extends Disposable {
     this.userDataSyncStoreService = userDataSyncStoreService;
     this.logService = logService;
     this.productService = productService;
-    this.currentMachineIdPromise = getServiceMachineId(environmentService, fileService, storageService);
+    this.currentMachineIdPromise = getServiceMachineId(
+      environmentService,
+      fileService,
+      storageService
+    );
   }
   static {
     __name(this, "UserDataSyncMachinesService");
@@ -83,20 +106,29 @@ let UserDataSyncMachinesService = class extends Disposable {
   async getMachines(manifest) {
     const currentMachineId = await this.currentMachineIdPromise;
     const machineData = await this.readMachinesData(manifest);
-    return machineData.machines.map((machine) => ({ ...machine, ...{ isCurrent: machine.id === currentMachineId } }));
+    return machineData.machines.map((machine) => ({
+      ...machine,
+      ...{ isCurrent: machine.id === currentMachineId }
+    }));
   }
   async addCurrentMachine(manifest) {
     const currentMachineId = await this.currentMachineIdPromise;
     const machineData = await this.readMachinesData(manifest);
     if (!machineData.machines.some(({ id }) => id === currentMachineId)) {
-      machineData.machines.push({ id: currentMachineId, name: this.computeCurrentMachineName(machineData.machines), platform: getPlatformName() });
+      machineData.machines.push({
+        id: currentMachineId,
+        name: this.computeCurrentMachineName(machineData.machines),
+        platform: getPlatformName()
+      });
       await this.writeMachinesData(machineData);
     }
   }
   async removeCurrentMachine(manifest) {
     const currentMachineId = await this.currentMachineIdPromise;
     const machineData = await this.readMachinesData(manifest);
-    const updatedMachines = machineData.machines.filter(({ id }) => id !== currentMachineId);
+    const updatedMachines = machineData.machines.filter(
+      ({ id }) => id !== currentMachineId
+    );
     if (updatedMachines.length !== machineData.machines.length) {
       machineData.machines = updatedMachines;
       await this.writeMachinesData(machineData);
@@ -110,14 +142,21 @@ let UserDataSyncMachinesService = class extends Disposable {
       await this.writeMachinesData(machineData);
       const currentMachineId = await this.currentMachineIdPromise;
       if (machineId === currentMachineId) {
-        this.storageService.store(currentMachineNameKey, name, StorageScope.APPLICATION, StorageTarget.MACHINE);
+        this.storageService.store(
+          currentMachineNameKey,
+          name,
+          StorageScope.APPLICATION,
+          StorageTarget.MACHINE
+        );
       }
     }
   }
   async setEnablements(enablements) {
     const machineData = await this.readMachinesData();
     for (const [machineId, enabled] of enablements) {
-      const machine = machineData.machines.find((machine2) => machine2.id === machineId);
+      const machine = machineData.machines.find(
+        (machine2) => machine2.id === machineId
+      );
       if (machine) {
         machine.disabled = enabled ? void 0 : true;
       }
@@ -125,19 +164,27 @@ let UserDataSyncMachinesService = class extends Disposable {
     await this.writeMachinesData(machineData);
   }
   computeCurrentMachineName(machines) {
-    const previousName = this.storageService.get(currentMachineNameKey, StorageScope.APPLICATION);
+    const previousName = this.storageService.get(
+      currentMachineNameKey,
+      StorageScope.APPLICATION
+    );
     if (previousName) {
       if (!machines.some((machine) => machine.name === previousName)) {
         return previousName;
       }
-      this.storageService.remove(currentMachineNameKey, StorageScope.APPLICATION);
+      this.storageService.remove(
+        currentMachineNameKey,
+        StorageScope.APPLICATION
+      );
     }
     const namePrefix = `${this.productService.embedderIdentifier ? `${this.productService.embedderIdentifier} - ` : ""}${getPlatformName()} (${this.productService.nameShort})`;
-    const nameRegEx = new RegExp(`${escapeRegExpCharacters(namePrefix)}\\s#(\\d+)`);
+    const nameRegEx = new RegExp(
+      `${escapeRegExpCharacters(namePrefix)}\\s#(\\d+)`
+    );
     let nameIndex = 0;
     for (const machine of machines) {
       const matches = nameRegEx.exec(machine.name);
-      const index = matches ? parseInt(matches[1]) : 0;
+      const index = matches ? Number.parseInt(matches[1]) : 0;
       nameIndex = index > nameIndex ? index : nameIndex;
     }
     return `${namePrefix} #${nameIndex + 1}`;
@@ -146,19 +193,29 @@ let UserDataSyncMachinesService = class extends Disposable {
     this.userData = await this.readUserData(manifest);
     const machinesData = this.parse(this.userData);
     if (machinesData.version !== UserDataSyncMachinesService.VERSION) {
-      throw new Error(localize("error incompatible", "Cannot read machines data as the current version is incompatible. Please update {0} and try again.", this.productService.nameLong));
+      throw new Error(
+        localize(
+          "error incompatible",
+          "Cannot read machines data as the current version is incompatible. Please update {0} and try again.",
+          this.productService.nameLong
+        )
+      );
     }
     return machinesData;
   }
   async writeMachinesData(machinesData) {
     const content = JSON.stringify(machinesData);
-    const ref = await this.userDataSyncStoreService.writeResource(UserDataSyncMachinesService.RESOURCE, content, this.userData?.ref || null);
+    const ref = await this.userDataSyncStoreService.writeResource(
+      UserDataSyncMachinesService.RESOURCE,
+      content,
+      this.userData?.ref || null
+    );
     this.userData = { ref, content };
     this._onDidChange.fire();
   }
   async readUserData(manifest) {
     if (this.userData) {
-      const latestRef = manifest && manifest.latest ? manifest.latest[UserDataSyncMachinesService.RESOURCE] : void 0;
+      const latestRef = manifest?.latest ? manifest.latest[UserDataSyncMachinesService.RESOURCE] : void 0;
       if (this.userData.ref === latestRef) {
         return this.userData;
       }
@@ -166,7 +223,10 @@ let UserDataSyncMachinesService = class extends Disposable {
         return this.userData;
       }
     }
-    return this.userDataSyncStoreService.readResource(UserDataSyncMachinesService.RESOURCE, this.userData);
+    return this.userDataSyncStoreService.readResource(
+      UserDataSyncMachinesService.RESOURCE,
+      this.userData
+    );
   }
   parse(userData) {
     if (userData.content !== null) {

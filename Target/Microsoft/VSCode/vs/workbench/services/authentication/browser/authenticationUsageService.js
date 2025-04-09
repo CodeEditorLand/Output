@@ -12,11 +12,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Queue } from "../../../../base/common/async.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { IAuthenticationService } from "../common/authentication.js";
 const IAuthenticationUsageService = createDecorator("IAuthenticationUsageService");
 let AuthenticationUsageService = class extends Disposable {
@@ -31,17 +38,21 @@ let AuthenticationUsageService = class extends Disposable {
         this._extensionsUsingAuth.add(extensionId);
       }
     } else if (trustedExtensionAuthAccess) {
-      for (const extensions of Object.values(trustedExtensionAuthAccess)) {
+      for (const extensions of Object.values(
+        trustedExtensionAuthAccess
+      )) {
         for (const extensionId of extensions) {
           this._extensionsUsingAuth.add(extensionId);
         }
       }
     }
-    this._register(this._authenticationService.onDidRegisterAuthenticationProvider(
-      (provider) => this._queue.queue(
-        () => this._addExtensionsToCache(provider.id)
+    this._register(
+      this._authenticationService.onDidRegisterAuthenticationProvider(
+        (provider) => this._queue.queue(
+          () => this._addExtensionsToCache(provider.id)
+        )
       )
-    ));
+    );
   }
   static {
     __name(this, "AuthenticationUsageService");
@@ -50,7 +61,13 @@ let AuthenticationUsageService = class extends Disposable {
   _queue = new Queue();
   _extensionsUsingAuth = /* @__PURE__ */ new Set();
   async initializeExtensionUsageCache() {
-    await this._queue.queue(() => Promise.all(this._authenticationService.getProviderIds().map((providerId) => this._addExtensionsToCache(providerId))));
+    await this._queue.queue(
+      () => Promise.all(
+        this._authenticationService.getProviderIds().map(
+          (providerId) => this._addExtensionsToCache(providerId)
+        )
+      )
+    );
   }
   async extensionUsesAuth(extensionId) {
     await this._queue.whenIdle();
@@ -58,7 +75,10 @@ let AuthenticationUsageService = class extends Disposable {
   }
   readAccountUsages(providerId, accountName) {
     const accountKey = `${providerId}-${accountName}-usages`;
-    const storedUsages = this._storageService.get(accountKey, StorageScope.APPLICATION);
+    const storedUsages = this._storageService.get(
+      accountKey,
+      StorageScope.APPLICATION
+    );
     let usages = [];
     if (storedUsages) {
       try {
@@ -75,7 +95,9 @@ let AuthenticationUsageService = class extends Disposable {
   addAccountUsage(providerId, accountName, scopes, extensionId, extensionName) {
     const accountKey = `${providerId}-${accountName}-usages`;
     const usages = this.readAccountUsages(providerId, accountName);
-    const existingUsageIndex = usages.findIndex((usage) => usage.extensionId === extensionId);
+    const existingUsageIndex = usages.findIndex(
+      (usage) => usage.extensionId === extensionId
+    );
     if (existingUsageIndex > -1) {
       usages.splice(existingUsageIndex, 1, {
         extensionId,
@@ -91,7 +113,12 @@ let AuthenticationUsageService = class extends Disposable {
         lastUsed: Date.now()
       });
     }
-    this._storageService.store(accountKey, JSON.stringify(usages), StorageScope.APPLICATION, StorageTarget.MACHINE);
+    this._storageService.store(
+      accountKey,
+      JSON.stringify(usages),
+      StorageScope.APPLICATION,
+      StorageTarget.MACHINE
+    );
     this._extensionsUsingAuth.add(extensionId);
   }
   async _addExtensionsToCache(providerId) {
@@ -114,7 +141,11 @@ AuthenticationUsageService = __decorateClass([
   __decorateParam(2, ILogService),
   __decorateParam(3, IProductService)
 ], AuthenticationUsageService);
-registerSingleton(IAuthenticationUsageService, AuthenticationUsageService, InstantiationType.Delayed);
+registerSingleton(
+  IAuthenticationUsageService,
+  AuthenticationUsageService,
+  InstantiationType.Delayed
+);
 export {
   AuthenticationUsageService,
   IAuthenticationUsageService

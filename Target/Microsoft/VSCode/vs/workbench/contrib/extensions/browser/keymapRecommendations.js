@@ -10,9 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ExtensionRecommendations, ExtensionRecommendation } from "./extensionRecommendations.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import {
+  ExtensionRecommendations
+} from "./extensionRecommendations.js";
 let KeymapRecommendations = class extends ExtensionRecommendations {
   constructor(productService) {
     super();
@@ -27,13 +29,15 @@ let KeymapRecommendations = class extends ExtensionRecommendations {
   }
   async doActivate() {
     if (this.productService.keymapExtensionTips) {
-      this._recommendations = this.productService.keymapExtensionTips.map((extensionId) => ({
-        extension: extensionId.toLowerCase(),
-        reason: {
-          reasonId: ExtensionRecommendationReason.Application,
-          reasonText: ""
-        }
-      }));
+      this._recommendations = this.productService.keymapExtensionTips.map(
+        (extensionId) => ({
+          extension: extensionId.toLowerCase(),
+          reason: {
+            reasonId: ExtensionRecommendationReason.Application,
+            reasonText: ""
+          }
+        })
+      );
     }
   }
 };

@@ -10,22 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter } from "../../../../base/common/event.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import Severity from "../../../../base/common/severity.js";
-import { Extensions, IExtensionFeatureAccessData, IExtensionFeaturesManagementService, IExtensionFeaturesRegistry } from "./extensionFeatures.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { Mutable, isBoolean } from "../../../../base/common/types.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { localize } from "../../../../nls.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { IStorageChangeEvent } from "../../../../base/parts/storage/common/storage.js";
 import { distinct } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { equals } from "../../../../base/common/objects.js";
+import { isBoolean } from "../../../../base/common/types.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
+import {
+  Extensions,
+  IExtensionFeaturesManagementService
+} from "./extensionFeatures.js";
 const FEATURES_STATE_KEY = "extension.features.state";
 let ExtensionFeaturesManagementService = class extends Disposable {
   constructor(storageService, dialogService, extensionService) {
@@ -33,17 +40,29 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     this.storageService = storageService;
     this.dialogService = dialogService;
     this.extensionService = extensionService;
-    this.registry = Registry.as(Extensions.ExtensionFeaturesRegistry);
+    this.registry = Registry.as(
+      Extensions.ExtensionFeaturesRegistry
+    );
     this.extensionFeaturesState = this.loadState();
     this.garbageCollectOldRequests();
-    this._register(storageService.onDidChangeValue(StorageScope.PROFILE, FEATURES_STATE_KEY, this._store)((e) => this.onDidStorageChange(e)));
+    this._register(
+      storageService.onDidChangeValue(
+        StorageScope.PROFILE,
+        FEATURES_STATE_KEY,
+        this._store
+      )((e) => this.onDidStorageChange(e))
+    );
   }
   static {
     __name(this, "ExtensionFeaturesManagementService");
   }
-  _onDidChangeEnablement = this._register(new Emitter());
+  _onDidChangeEnablement = this._register(
+    new Emitter()
+  );
   onDidChangeEnablement = this._onDidChangeEnablement.event;
-  _onDidChangeAccessData = this._register(new Emitter());
+  _onDidChangeAccessData = this._register(
+    new Emitter()
+  );
   onDidChangeAccessData = this._onDidChangeAccessData.event;
   registry;
   extensionFeaturesState = /* @__PURE__ */ new Map();
@@ -52,7 +71,10 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     if (!feature) {
       return false;
     }
-    const isDisabled = this.getExtensionFeatureState(extension, featureId)?.disabled;
+    const isDisabled = this.getExtensionFeatureState(
+      extension,
+      featureId
+    )?.disabled;
     if (isBoolean(isDisabled)) {
       return !isDisabled;
     }
@@ -67,7 +89,10 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     if (!feature) {
       throw new Error(`No feature with id '${featureId}'`);
     }
-    const featureState = this.getAndSetIfNotExistsExtensionFeatureState(extension, featureId);
+    const featureState = this.getAndSetIfNotExistsExtensionFeatureState(
+      extension,
+      featureId
+    );
     if (featureState.disabled !== !enabled) {
       featureState.disabled = !enabled;
       this._onDidChangeEnablement.fire({ extension, featureId, enabled });
@@ -81,7 +106,10 @@ let ExtensionFeaturesManagementService = class extends Disposable {
       for (const [extension, featuresStateMap] of this.extensionFeaturesState) {
         const featureState = featuresStateMap.get(featureId);
         if (featureState?.disabled !== void 0) {
-          result.push({ extension: new ExtensionIdentifier(extension), enabled: !featureState.disabled });
+          result.push({
+            extension: new ExtensionIdentifier(extension),
+            enabled: !featureState.disabled
+          });
         }
       }
     }
@@ -92,17 +120,31 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     if (!feature) {
       return false;
     }
-    const featureState = this.getAndSetIfNotExistsExtensionFeatureState(extension, featureId);
+    const featureState = this.getAndSetIfNotExistsExtensionFeatureState(
+      extension,
+      featureId
+    );
     if (featureState.disabled) {
       return false;
     }
     if (featureState.disabled === void 0) {
       let enabled = true;
       if (feature.access.requireUserConsent) {
-        const extensionDescription = this.extensionService.extensions.find((e) => ExtensionIdentifier.equals(e.identifier, extension));
+        const extensionDescription = this.extensionService.extensions.find(
+          (e) => ExtensionIdentifier.equals(e.identifier, extension)
+        );
         const confirmationResult = await this.dialogService.confirm({
-          title: localize("accessExtensionFeature", "Access '{0}' Feature", feature.label),
-          message: localize("accessExtensionFeatureMessage", "'{0}' extension would like to access the '{1}' feature.", extensionDescription?.displayName ?? extension._lower, feature.label),
+          title: localize(
+            "accessExtensionFeature",
+            "Access '{0}' Feature",
+            feature.label
+          ),
+          message: localize(
+            "accessExtensionFeatureMessage",
+            "'{0}' extension would like to access the '{1}' feature.",
+            extensionDescription?.displayName ?? extension._lower,
+            feature.label
+          ),
           detail: justification ?? feature.description,
           custom: true,
           primaryButton: localize("allow", "Allow"),
@@ -117,18 +159,26 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     }
     const accessTime = /* @__PURE__ */ new Date();
     featureState.accessData.current = {
-      accessTimes: [accessTime].concat(featureState.accessData.current?.accessTimes ?? []),
+      accessTimes: [accessTime].concat(
+        featureState.accessData.current?.accessTimes ?? []
+      ),
       lastAccessed: accessTime,
       status: featureState.accessData.current?.status
     };
     featureState.accessData.accessTimes = (featureState.accessData.accessTimes ?? []).concat(accessTime);
     this.saveState();
-    this._onDidChangeAccessData.fire({ extension, featureId, accessData: featureState.accessData });
+    this._onDidChangeAccessData.fire({
+      extension,
+      featureId,
+      accessData: featureState.accessData
+    });
     return true;
   }
   getAllAccessDataForExtension(extension) {
     const result = /* @__PURE__ */ new Map();
-    const extensionState = this.extensionFeaturesState.get(extension._lower);
+    const extensionState = this.extensionFeaturesState.get(
+      extension._lower
+    );
     if (extensionState) {
       for (const [featureId, featureState] of extensionState) {
         result.set(featureId, featureState.accessData);
@@ -148,13 +198,20 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     if (!feature) {
       throw new Error(`No feature with id '${featureId}'`);
     }
-    const featureState = this.getAndSetIfNotExistsExtensionFeatureState(extension, featureId);
+    const featureState = this.getAndSetIfNotExistsExtensionFeatureState(
+      extension,
+      featureId
+    );
     featureState.accessData.current = {
       accessTimes: featureState.accessData.current?.accessTimes ?? [],
       lastAccessed: featureState.accessData.current?.lastAccessed ?? /* @__PURE__ */ new Date(),
       status
     };
-    this._onDidChangeAccessData.fire({ extension, featureId, accessData: this.getAccessData(extension, featureId) });
+    this._onDidChangeAccessData.fire({
+      extension,
+      featureId,
+      accessData: this.getAccessData(extension, featureId)
+    });
   }
   getExtensionFeatureState(extension, featureId) {
     return this.extensionFeaturesState.get(extension._lower)?.get(featureId);
@@ -176,20 +233,37 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     if (e.external) {
       const oldState = this.extensionFeaturesState;
       this.extensionFeaturesState = this.loadState();
-      for (const extensionId of distinct([...oldState.keys(), ...this.extensionFeaturesState.keys()])) {
+      for (const extensionId of distinct([
+        ...oldState.keys(),
+        ...this.extensionFeaturesState.keys()
+      ])) {
         const extension = new ExtensionIdentifier(extensionId);
         const oldExtensionFeaturesState = oldState.get(extensionId);
         const newExtensionFeaturesState = this.extensionFeaturesState.get(extensionId);
-        for (const featureId of distinct([...oldExtensionFeaturesState?.keys() ?? [], ...newExtensionFeaturesState?.keys() ?? []])) {
+        for (const featureId of distinct([
+          ...oldExtensionFeaturesState?.keys() ?? [],
+          ...newExtensionFeaturesState?.keys() ?? []
+        ])) {
           const isEnabled = this.isEnabled(extension, featureId);
           const wasEnabled = !oldExtensionFeaturesState?.get(featureId)?.disabled;
           if (isEnabled !== wasEnabled) {
-            this._onDidChangeEnablement.fire({ extension, featureId, enabled: isEnabled });
+            this._onDidChangeEnablement.fire({
+              extension,
+              featureId,
+              enabled: isEnabled
+            });
           }
-          const newAccessData = this.getAccessData(extension, featureId);
+          const newAccessData = this.getAccessData(
+            extension,
+            featureId
+          );
           const oldAccessData = oldExtensionFeaturesState?.get(featureId)?.accessData;
           if (!equals(newAccessData, oldAccessData)) {
-            this._onDidChangeAccessData.fire({ extension, featureId, accessData: newAccessData ?? { accessTimes: [] } });
+            this._onDidChangeAccessData.fire({
+              extension,
+              featureId,
+              accessData: newAccessData ?? { accessTimes: [] }
+            });
           }
         }
       }
@@ -197,7 +271,11 @@ let ExtensionFeaturesManagementService = class extends Disposable {
   }
   loadState() {
     let data = {};
-    const raw = this.storageService.get(FEATURES_STATE_KEY, StorageScope.PROFILE, "{}");
+    const raw = this.storageService.get(
+      FEATURES_STATE_KEY,
+      StorageScope.PROFILE,
+      "{}"
+    );
     try {
       data = JSON.parse(raw);
     } catch (e) {
@@ -211,7 +289,9 @@ let ExtensionFeaturesManagementService = class extends Disposable {
         extensionFeatureState.set(featureId, {
           disabled: extensionFeature.disabled,
           accessData: {
-            accessTimes: (extensionFeature.accessTimes ?? []).map((time) => new Date(time))
+            accessTimes: (extensionFeature.accessTimes ?? []).map(
+              (time) => new Date(time)
+            )
           }
         });
       }
@@ -226,12 +306,19 @@ let ExtensionFeaturesManagementService = class extends Disposable {
       extensionState.forEach((featureState, featureId) => {
         extensionFeatures[featureId] = {
           disabled: featureState.disabled,
-          accessTimes: featureState.accessData.accessTimes.map((time) => time.getTime())
+          accessTimes: featureState.accessData.accessTimes.map(
+            (time) => time.getTime()
+          )
         };
       });
       data[extensionId] = extensionFeatures;
     });
-    this.storageService.store(FEATURES_STATE_KEY, JSON.stringify(data), StorageScope.PROFILE, StorageTarget.USER);
+    this.storageService.store(
+      FEATURES_STATE_KEY,
+      JSON.stringify(data),
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
   }
   garbageCollectOldRequests() {
     const now = /* @__PURE__ */ new Date();
@@ -240,7 +327,9 @@ let ExtensionFeaturesManagementService = class extends Disposable {
     for (const [, featuresStateMap] of this.extensionFeaturesState) {
       for (const [, featureState] of featuresStateMap) {
         const originalLength = featureState.accessData.accessTimes.length;
-        featureState.accessData.accessTimes = featureState.accessData.accessTimes.filter((accessTime) => accessTime > thirtyDaysAgo);
+        featureState.accessData.accessTimes = featureState.accessData.accessTimes.filter(
+          (accessTime) => accessTime > thirtyDaysAgo
+        );
         if (featureState.accessData.accessTimes.length !== originalLength) {
           modified = true;
         }
@@ -256,5 +345,9 @@ ExtensionFeaturesManagementService = __decorateClass([
   __decorateParam(1, IDialogService),
   __decorateParam(2, IExtensionService)
 ], ExtensionFeaturesManagementService);
-registerSingleton(IExtensionFeaturesManagementService, ExtensionFeaturesManagementService, InstantiationType.Delayed);
+registerSingleton(
+  IExtensionFeaturesManagementService,
+  ExtensionFeaturesManagementService,
+  InstantiationType.Delayed
+);
 //# sourceMappingURL=extensionFeaturesManagemetService.js.map

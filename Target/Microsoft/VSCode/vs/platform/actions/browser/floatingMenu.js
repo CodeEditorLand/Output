@@ -12,14 +12,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { $, append, clearNode } from "../../../base/browser/dom.js";
 import { Widget } from "../../../base/browser/ui/widget.js";
-import { IAction } from "../../../base/common/actions.js";
 import { Emitter } from "../../../base/common/event.js";
-import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
-import { getFlatActionBarActions } from "./menuEntryActionViewItem.js";
-import { IMenu, IMenuService, MenuId } from "../common/actions.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { IContextKeyService } from "../../contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
-import { asCssVariable, asCssVariableWithDefault, buttonBackground, buttonForeground, contrastBorder, editorBackground, editorForeground } from "../../theme/common/colorRegistry.js";
+import {
+  asCssVariable,
+  asCssVariableWithDefault,
+  buttonBackground,
+  buttonForeground,
+  contrastBorder,
+  editorBackground,
+  editorForeground
+} from "../../theme/common/colorRegistry.js";
+import { IMenuService } from "../common/actions.js";
+import { getFlatActionBarActions } from "./menuEntryActionViewItem.js";
 class FloatingClickWidget extends Widget {
   constructor(label) {
     super();
@@ -41,8 +52,14 @@ class FloatingClickWidget extends Widget {
   }
   render() {
     clearNode(this._domNode);
-    this._domNode.style.backgroundColor = asCssVariableWithDefault(buttonBackground, asCssVariable(editorBackground));
-    this._domNode.style.color = asCssVariableWithDefault(buttonForeground, asCssVariable(editorForeground));
+    this._domNode.style.backgroundColor = asCssVariableWithDefault(
+      buttonBackground,
+      asCssVariable(editorBackground)
+    );
+    this._domNode.style.color = asCssVariableWithDefault(
+      buttonForeground,
+      asCssVariable(editorForeground)
+    );
     this._domNode.style.border = `1px solid ${asCssVariable(contrastBorder)}`;
     append(this._domNode, $("")).textContent = this.label;
     this.onclick(this._domNode, () => this._onClick.fire());
@@ -57,7 +74,9 @@ let AbstractFloatingClickMenu = class extends Disposable {
   menu;
   constructor(menuId, menuService, contextKeyService) {
     super();
-    this.menu = this._register(menuService.createMenu(menuId, contextKeyService));
+    this.menu = this._register(
+      menuService.createMenu(menuId, contextKeyService)
+    );
   }
   /** Should be called in implementation constructors after they initialized */
   render() {
@@ -67,14 +86,21 @@ let AbstractFloatingClickMenu = class extends Disposable {
       if (!this.isVisible()) {
         return;
       }
-      const actions = getFlatActionBarActions(this.menu.getActions({ renderShortTitle: true, shouldForwardArgs: true }));
+      const actions = getFlatActionBarActions(
+        this.menu.getActions({
+          renderShortTitle: true,
+          shouldForwardArgs: true
+        })
+      );
       if (actions.length === 0) {
         return;
       }
       const [first] = actions;
       const widget = this.createWidget(first, menuDisposables);
       menuDisposables.add(widget);
-      menuDisposables.add(widget.onClick(() => first.run(this.getActionArg())));
+      menuDisposables.add(
+        widget.onClick(() => first.run(this.getActionArg()))
+      );
       widget.render();
     }, "renderMenuAsFloatingClickBtn");
     this._register(this.menu.onDidChange(renderMenuAsFloatingClickBtn));
@@ -102,7 +128,10 @@ let FloatingClickMenu = class extends AbstractFloatingClickMenu {
     __name(this, "FloatingClickMenu");
   }
   createWidget(action, disposable) {
-    const w = this.instantiationService.createInstance(FloatingClickWidget, action.label);
+    const w = this.instantiationService.createInstance(
+      FloatingClickWidget,
+      action.label
+    );
     const node = w.getDomNode();
     this.options.container.appendChild(node);
     disposable.add(toDisposable(() => node.remove()));

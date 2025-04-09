@@ -10,16 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../../base/common/uri.js";
 import { assert } from "../../../../../../base/common/assert.js";
-import { assertDefined } from "../../../../../../base/common/types.js";
 import { CancellationError } from "../../../../../../base/common/errors.js";
-import { PromptContentsProviderBase } from "./promptContentsProviderBase.js";
-import { VSBufferReadableStream } from "../../../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
+import { assertDefined } from "../../../../../../base/common/types.js";
+import {
+  FileChangeType,
+  IFileService
+} from "../../../../../../platform/files/common/files.js";
 import { isPromptFile } from "../../../../../../platform/prompts/common/constants.js";
-import { OpenFailed, NotPromptFile, ResolveError, FolderReference } from "../../promptFileReferenceErrors.js";
-import { FileChangesEvent, FileChangeType, IFileService } from "../../../../../../platform/files/common/files.js";
+import {
+  FolderReference,
+  NotPromptFile,
+  OpenFailed,
+  ResolveError
+} from "../../promptFileReferenceErrors.js";
+import { PromptContentsProviderBase } from "./promptContentsProviderBase.js";
 let FilePromptContentProvider = class extends PromptContentsProviderBase {
   constructor(uri, fileService) {
     super();
@@ -27,7 +32,11 @@ let FilePromptContentProvider = class extends PromptContentsProviderBase {
     this.fileService = fileService;
     this._register(
       this.fileService.onDidFilesChange((event) => {
-        if (event.contains(this.uri, FileChangeType.ADDED, FileChangeType.UPDATED)) {
+        if (event.contains(
+          this.uri,
+          FileChangeType.ADDED,
+          FileChangeType.UPDATED
+        )) {
           return this.onChangeEmitter.fire("full");
         }
         if (event.contains(this.uri, FileChangeType.DELETED)) {
@@ -59,10 +68,7 @@ let FilePromptContentProvider = class extends PromptContentsProviderBase {
         !cancellationToken?.isCancellationRequested,
         new CancellationError()
       );
-      assert(
-        info.isFile,
-        new FolderReference(this.uri)
-      );
+      assert(info.isFile, new FolderReference(this.uri));
       fileStream = await this.fileService.readFileStream(this.uri);
     } catch (error) {
       if (error instanceof ResolveError) {

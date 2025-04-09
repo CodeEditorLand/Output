@@ -10,30 +10,38 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { generateUuid } from "../../../../base/common/uuid.js";
-import { ILocalExtension, IExtensionGalleryService, InstallOptions, IAllowedExtensionsService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ExtensionManagementService as BaseExtensionManagementService } from "../common/extensionManagementService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IExtensionManagementServer, IExtensionManagementServerService, IWorkbenchExtensionManagementService } from "../common/extensionManagement.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDownloadService } from "../../../../platform/download/common/download.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
 import { joinPath } from "../../../../base/common/resources.js";
-import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IExtensionManifestPropertiesService } from "../../extensions/common/extensionManifestPropertiesService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import { IDownloadService } from "../../../../platform/download/common/download.js";
+import {
+  IAllowedExtensionsService,
+  IExtensionGalleryService
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IExtensionsScannerService } from "../../../../platform/extensionManagement/common/extensionsScannerService.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IUserDataSyncEnablementService } from "../../../../platform/userDataSync/common/userDataSync.js";
+import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import { IExtensionManifestPropertiesService } from "../../extensions/common/extensionManifestPropertiesService.js";
+import { IUserDataProfileService } from "../../userDataProfile/common/userDataProfile.js";
+import {
+  IExtensionManagementServerService,
+  IWorkbenchExtensionManagementService
+} from "../common/extensionManagement.js";
+import { ExtensionManagementService as BaseExtensionManagementService } from "../common/extensionManagementService.js";
 let ExtensionManagementService = class extends BaseExtensionManagementService {
   constructor(environmentService, extensionManagementServerService, extensionGalleryService, userDataProfileService, userDataProfilesService, configurationService, productService, downloadService, userDataSyncEnablementService, dialogService, workspaceTrustRequestService, extensionManifestPropertiesService, fileService, logService, instantiationService, extensionsScannerService, allowedExtensionsService, storageService, telemetryService) {
     super(
@@ -63,7 +71,10 @@ let ExtensionManagementService = class extends BaseExtensionManagementService {
   }
   async installVSIXInServer(vsix, server, options) {
     if (vsix.scheme === Schemas.vscodeRemote && server === this.extensionManagementServerService.localExtensionManagementServer) {
-      const downloadedLocation = joinPath(this.environmentService.tmpDir, generateUuid());
+      const downloadedLocation = joinPath(
+        this.environmentService.tmpDir,
+        generateUuid()
+      );
       await this.downloadService.download(vsix, downloadedLocation);
       vsix = downloadedLocation;
     }
@@ -91,7 +102,11 @@ ExtensionManagementService = __decorateClass([
   __decorateParam(17, IStorageService),
   __decorateParam(18, ITelemetryService)
 ], ExtensionManagementService);
-registerSingleton(IWorkbenchExtensionManagementService, ExtensionManagementService, InstantiationType.Delayed);
+registerSingleton(
+  IWorkbenchExtensionManagementService,
+  ExtensionManagementService,
+  InstantiationType.Delayed
+);
 export {
   ExtensionManagementService
 };

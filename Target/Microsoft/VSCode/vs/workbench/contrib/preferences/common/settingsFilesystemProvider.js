@@ -10,41 +10,73 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { NotSupportedError } from "../../../../base/common/errors.js";
-import { IDisposable, Disposable } from "../../../../base/common/lifecycle.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { URI } from "../../../../base/common/uri.js";
-import { FileChangeType, FilePermission, FileSystemProviderCapabilities, FileSystemProviderErrorCode, FileType, IFileChange, IFileDeleteOptions, IFileOverwriteOptions, IFileSystemProviderWithFileReadWriteCapability, IStat, IWatchOptions } from "../../../../platform/files/common/files.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import * as JSONContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { ILogService, LogLevel } from "../../../../platform/log/common/log.js";
+import { NotSupportedError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
 import { isEqual } from "../../../../base/common/resources.js";
-const schemaRegistry = Registry.as(JSONContributionRegistry.Extensions.JSONContribution);
+import { URI } from "../../../../base/common/uri.js";
+import {
+  FileChangeType,
+  FilePermission,
+  FileSystemProviderCapabilities,
+  FileSystemProviderErrorCode,
+  FileType
+} from "../../../../platform/files/common/files.js";
+import * as JSONContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import { ILogService, LogLevel } from "../../../../platform/log/common/log.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+const schemaRegistry = Registry.as(
+  JSONContributionRegistry.Extensions.JSONContribution
+);
 let SettingsFileSystemProvider = class extends Disposable {
   constructor(preferencesService, logService) {
     super();
     this.preferencesService = preferencesService;
     this.logService = logService;
-    this._register(schemaRegistry.onDidChangeSchema((schemaUri) => {
-      this._onDidChangeFile.fire([{ resource: URI.parse(schemaUri), type: FileChangeType.UPDATED }]);
-    }));
-    this._register(schemaRegistry.onDidChangeSchemaAssociations(() => {
-      this._onDidChangeFile.fire([{ resource: SettingsFileSystemProvider.SCHEMA_ASSOCIATIONS, type: FileChangeType.UPDATED }]);
-    }));
-    this._register(preferencesService.onDidDefaultSettingsContentChanged((uri) => {
-      this._onDidChangeFile.fire([{ resource: uri, type: FileChangeType.UPDATED }]);
-    }));
+    this._register(
+      schemaRegistry.onDidChangeSchema((schemaUri) => {
+        this._onDidChangeFile.fire([
+          {
+            resource: URI.parse(schemaUri),
+            type: FileChangeType.UPDATED
+          }
+        ]);
+      })
+    );
+    this._register(
+      schemaRegistry.onDidChangeSchemaAssociations(() => {
+        this._onDidChangeFile.fire([
+          {
+            resource: SettingsFileSystemProvider.SCHEMA_ASSOCIATIONS,
+            type: FileChangeType.UPDATED
+          }
+        ]);
+      })
+    );
+    this._register(
+      preferencesService.onDidDefaultSettingsContentChanged((uri) => {
+        this._onDidChangeFile.fire([
+          { resource: uri, type: FileChangeType.UPDATED }
+        ]);
+      })
+    );
   }
   static {
     __name(this, "SettingsFileSystemProvider");
   }
   static SCHEMA = Schemas.vscode;
-  _onDidChangeFile = this._register(new Emitter());
+  _onDidChangeFile = this._register(
+    new Emitter()
+  );
   onDidChangeFile = this._onDidChangeFile.event;
-  static SCHEMA_ASSOCIATIONS = URI.parse(`${Schemas.vscode}://schemas-associations/schemas-associations.json`);
+  static SCHEMA_ASSOCIATIONS = URI.parse(
+    `${Schemas.vscode}://schemas-associations/schemas-associations.json`
+  );
   capabilities = FileSystemProviderCapabilities.Readonly + FileSystemProviderCapabilities.FileReadWrite;
   async readFile(uri) {
     if (uri.scheme !== SettingsFileSystemProvider.SCHEMA) {
@@ -108,8 +140,12 @@ let SettingsFileSystemProvider = class extends Disposable {
     const logLevel = this.logService.getLevel();
     if (logLevel === LogLevel.Debug || logLevel === LogLevel.Trace) {
       const endTime = Date.now();
-      const uncompressed = JSON.stringify(schemaRegistry.getSchemaContributions().schemas[uri.toString()]);
-      this.logService.debug(`${uri.toString()}: ${uncompressed.length} -> ${content.length} (${Math.round((uncompressed.length - content.length) / uncompressed.length * 100)}%) Took ${endTime - startTime}ms`);
+      const uncompressed = JSON.stringify(
+        schemaRegistry.getSchemaContributions().schemas[uri.toString()]
+      );
+      this.logService.debug(
+        `${uri.toString()}: ${uncompressed.length} -> ${content.length} (${Math.round((uncompressed.length - content.length) / uncompressed.length * 100)}%) Took ${endTime - startTime}ms`
+      );
     }
     return content;
   }

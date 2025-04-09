@@ -11,37 +11,68 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/bannerpart.css";
-import { localize, localize2 } from "../../../../nls.js";
-import { $, addDisposableListener, append, clearNode, EventType, isHTMLElement } from "../../../../base/browser/dom.js";
 import { asCSSUrl } from "../../../../base/browser/cssValue.js";
+import {
+  $,
+  addDisposableListener,
+  append,
+  clearNode,
+  EventType,
+  isHTMLElement
+} from "../../../../base/browser/dom.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { Part } from "../../part.js";
-import { IWorkbenchLayoutService, Parts } from "../../../services/layout/browser/layoutService.js";
 import { Action } from "../../../../base/common/actions.js";
-import { Link } from "../../../../platform/opener/browser/link.js";
-import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Emitter } from "../../../../base/common/event.js";
-import { IBannerItem, IBannerService } from "../../../services/banner/browser/bannerService.js";
-import { MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import { KeybindingsRegistry, KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
+import { MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  KeybindingsRegistry,
+  KeybindingWeight
+} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { widgetClose } from "../../../../platform/theme/common/iconRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { BannerFocused } from "../../../common/contextkeys.js";
+import {
+  IBannerService
+} from "../../../services/banner/browser/bannerService.js";
+import {
+  IWorkbenchLayoutService,
+  Parts
+} from "../../../services/layout/browser/layoutService.js";
+import { Part } from "../../part.js";
 let BannerPart = class extends Part {
   constructor(themeService, layoutService, storageService, contextKeyService, instantiationService) {
-    super(Parts.BANNER_PART, { hasTitle: false }, themeService, storageService, layoutService);
+    super(
+      Parts.BANNER_PART,
+      { hasTitle: false },
+      themeService,
+      storageService,
+      layoutService
+    );
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
-    this.markdownRenderer = this.instantiationService.createInstance(MarkdownRenderer, {});
+    this.markdownRenderer = this.instantiationService.createInstance(
+      MarkdownRenderer,
+      {}
+    );
   }
   static {
     __name(this, "BannerPart");
@@ -56,7 +87,9 @@ let BannerPart = class extends Part {
   get maximumHeight() {
     return this.visible ? this.height : 0;
   }
-  _onDidChangeSize = this._register(new Emitter());
+  _onDidChangeSize = this._register(
+    new Emitter()
+  );
   get onDidChange() {
     return this._onDidChangeSize.event;
   }
@@ -70,12 +103,16 @@ let BannerPart = class extends Part {
   createContentArea(parent) {
     this.element = parent;
     this.element.tabIndex = 0;
-    this._register(addDisposableListener(this.element, EventType.FOCUS, () => {
-      if (this.focusedActionIndex !== -1) {
-        this.focusActionLink();
-      }
-    }));
-    const scopedContextKeyService = this._register(this.contextKeyService.createScoped(this.element));
+    this._register(
+      addDisposableListener(this.element, EventType.FOCUS, () => {
+        if (this.focusedActionIndex !== -1) {
+          this.focusActionLink();
+        }
+      })
+    );
+    const scopedContextKeyService = this._register(
+      this.contextKeyService.createScoped(this.element)
+    );
     BannerFocused.bindTo(scopedContextKeyService).set(true);
     return this.element;
   }
@@ -157,26 +194,52 @@ let BannerPart = class extends Part {
     const iconContainer = append(this.element, $("div.icon-container"));
     iconContainer.setAttribute("aria-hidden", "true");
     if (ThemeIcon.isThemeIcon(item.icon)) {
-      iconContainer.appendChild($(`div${ThemeIcon.asCSSSelector(item.icon)}`));
+      iconContainer.appendChild(
+        $(`div${ThemeIcon.asCSSSelector(item.icon)}`)
+      );
     } else {
       iconContainer.classList.add("custom-icon");
       if (URI.isUri(item.icon)) {
         iconContainer.style.backgroundImage = asCSSUrl(item.icon);
       }
     }
-    const messageContainer = append(this.element, $("div.message-container"));
+    const messageContainer = append(
+      this.element,
+      $("div.message-container")
+    );
     messageContainer.setAttribute("aria-hidden", "true");
     messageContainer.appendChild(this.getBannerMessage(item.message));
-    this.messageActionsContainer = append(this.element, $("div.message-actions-container"));
+    this.messageActionsContainer = append(
+      this.element,
+      $("div.message-actions-container")
+    );
     if (item.actions) {
       for (const action of item.actions) {
-        this._register(this.instantiationService.createInstance(Link, this.messageActionsContainer, { ...action, tabIndex: -1 }, {}));
+        this._register(
+          this.instantiationService.createInstance(
+            Link,
+            this.messageActionsContainer,
+            { ...action, tabIndex: -1 },
+            {}
+          )
+        );
       }
     }
-    const actionBarContainer = append(this.element, $("div.action-container"));
+    const actionBarContainer = append(
+      this.element,
+      $("div.action-container")
+    );
     this.actionBar = this._register(new ActionBar(actionBarContainer));
     const label = item.closeLabel ?? localize("closeBanner", "Close Banner");
-    const closeAction = this._register(new Action("banner.close", label, ThemeIcon.asClassName(widgetClose), true, () => this.close(item)));
+    const closeAction = this._register(
+      new Action(
+        "banner.close",
+        label,
+        ThemeIcon.asClassName(widgetClose),
+        true,
+        () => this.close(item)
+      )
+    );
     this.actionBar.push(closeAction, { icon: true, label: false });
     this.actionBar.setFocusable(false);
     this.setVisibility(true);

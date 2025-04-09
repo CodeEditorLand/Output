@@ -3,40 +3,64 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { ArrayQueue } from "../../../base/common/arrays.js";
 import { RunOnceScheduler } from "../../../base/common/async.js";
 import { Color } from "../../../base/common/color.js";
-import { Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
 import * as platform from "../../../base/common/platform.js";
 import * as strings from "../../../base/common/strings.js";
-import { ConfigurationChangedEvent, EditorOption, EDITOR_FONT_DEFAULTS, filterValidationDecorations } from "../config/editorOptions.js";
-import { CursorsController } from "../cursor/cursor.js";
-import { CursorConfiguration, CursorState, EditOperationType, IColumnSelectData, PartialCursorState } from "../cursorCommon.js";
-import { CursorChangeReason } from "../cursorEvents.js";
-import { IPosition, Position } from "../core/position.js";
+import {
+  EDITOR_FONT_DEFAULTS,
+  EditorOption,
+  filterValidationDecorations
+} from "../config/editorOptions.js";
+import { Position } from "../core/position.js";
 import { Range } from "../core/range.js";
-import { ISelection, Selection } from "../core/selection.js";
-import { ICommand, ICursorState, IViewState, ScrollType } from "../editorCommon.js";
-import { IEditorConfiguration } from "../config/editorConfiguration.js";
-import { EndOfLinePreference, IAttachedView, ICursorStateComputer, IGlyphMarginLanesModel, IIdentifiedSingleEditOperation, ITextModel, PositionAffinity, TrackedRangeStickiness } from "../model.js";
-import { IActiveIndentGuideInfo, BracketGuideOptions, IndentGuide } from "../textModelGuides.js";
-import { ModelDecorationMinimapOptions, ModelDecorationOptions, ModelDecorationOverviewRulerOptions } from "../model/textModel.js";
-import * as textModelEvents from "../textModelEvents.js";
-import { TokenizationRegistry } from "../languages.js";
+import { CursorsController } from "../cursor/cursor.js";
+import {
+  CursorConfiguration
+} from "../cursorCommon.js";
+import { CursorChangeReason } from "../cursorEvents.js";
+import {
+  ScrollType
+} from "../editorCommon.js";
 import { ColorId } from "../encodedTokenAttributes.js";
-import { ILanguageConfigurationService } from "../languages/languageConfigurationRegistry.js";
+import { TokenizationRegistry } from "../languages.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
 import { tokenizeLineToHTML } from "../languages/textToHtmlTokenizer.js";
-import { EditorTheme } from "../editorTheme.js";
+import {
+  EndOfLinePreference,
+  TrackedRangeStickiness
+} from "../model.js";
+import * as textModelEvents from "../textModelEvents.js";
 import * as viewEvents from "../viewEvents.js";
 import { ViewLayout } from "../viewLayout/viewLayout.js";
-import { MinimapTokensColorTracker } from "./minimapTokensColorTracker.js";
-import { ILineBreaksComputer, ILineBreaksComputerFactory, InjectedText } from "../modelLineProjectionData.js";
-import { ViewEventHandler } from "../viewEventHandler.js";
-import { ICoordinatesConverter, InlineDecoration, IViewModel, IWhitespaceChangeAccessor, MinimapLinesRenderingData, OverviewRulerDecorationsGroup, ViewLineData, ViewLineRenderingData, ViewModelDecoration } from "../viewModel.js";
-import { ViewModelDecorations } from "./viewModelDecorations.js";
-import { FocusChangedEvent, HiddenAreasChangedEvent, ModelContentChangedEvent, ModelDecorationsChangedEvent, ModelLanguageChangedEvent, ModelLanguageConfigurationChangedEvent, ModelOptionsChangedEvent, ModelTokensChangedEvent, OutgoingViewModelEvent, ReadOnlyEditAttemptEvent, ScrollChangedEvent, ViewModelEventDispatcher, ViewModelEventsCollector, ViewZonesChangedEvent, WidgetFocusChangedEvent } from "../viewModelEventDispatcher.js";
-import { IViewModelLines, ViewModelLinesFromModelAsIs, ViewModelLinesFromProjectedModel } from "./viewModelLines.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
+import {
+  MinimapLinesRenderingData,
+  OverviewRulerDecorationsGroup,
+  ViewLineRenderingData
+} from "../viewModel.js";
+import {
+  FocusChangedEvent,
+  HiddenAreasChangedEvent,
+  ModelContentChangedEvent,
+  ModelDecorationsChangedEvent,
+  ModelLanguageChangedEvent,
+  ModelLanguageConfigurationChangedEvent,
+  ModelOptionsChangedEvent,
+  ModelTokensChangedEvent,
+  ReadOnlyEditAttemptEvent,
+  ScrollChangedEvent,
+  ViewModelEventDispatcher,
+  ViewZonesChangedEvent,
+  WidgetFocusChangedEvent
+} from "../viewModelEventDispatcher.js";
 import { GlyphMarginLanesModel } from "./glyphLanesModel.js";
+import { MinimapTokensColorTracker } from "./minimapTokensColorTracker.js";
+import { ViewModelDecorations } from "./viewModelDecorations.js";
+import {
+  ViewModelLinesFromModelAsIs,
+  ViewModelLinesFromProjectedModel
+} from "./viewModelLines.js";
 const USE_IDENTITY_LINES_COLLECTION = true;
 class ViewModel extends Disposable {
   constructor(editorId, configuration, model, domLineBreaksComputerFactory, monospaceLineBreaksComputerFactory, scheduleAtNextAnimationFrame, languageConfigurationService, _themeService, _attachedView, _transactionalTarget) {
@@ -50,8 +74,18 @@ class ViewModel extends Disposable {
     this.model = model;
     this._eventDispatcher = new ViewModelEventDispatcher();
     this.onEvent = this._eventDispatcher.onEvent;
-    this.cursorConfig = new CursorConfiguration(this.model.getLanguageId(), this.model.getOptions(), this._configuration, this.languageConfigurationService);
-    this._updateConfigurationViewLineCount = this._register(new RunOnceScheduler(() => this._updateConfigurationViewLineCountNow(), 0));
+    this.cursorConfig = new CursorConfiguration(
+      this.model.getLanguageId(),
+      this.model.getOptions(),
+      this._configuration,
+      this.languageConfigurationService
+    );
+    this._updateConfigurationViewLineCount = this._register(
+      new RunOnceScheduler(
+        () => this._updateConfigurationViewLineCountNow(),
+        0
+      )
+    );
     this._hasFocus = false;
     this._viewportStart = ViewportStart.create(this.model);
     this.glyphLanes = new GlyphMarginLanesModel(0);
@@ -78,47 +112,84 @@ class ViewModel extends Disposable {
       );
     }
     this.coordinatesConverter = this._lines.createCoordinatesConverter();
-    this._cursor = this._register(new CursorsController(model, this, this.coordinatesConverter, this.cursorConfig));
-    this.viewLayout = this._register(new ViewLayout(this._configuration, this.getLineCount(), scheduleAtNextAnimationFrame));
-    this._register(this.viewLayout.onDidScroll((e) => {
-      if (e.scrollTopChanged) {
-        this._handleVisibleLinesChanged();
-      }
-      if (e.scrollTopChanged) {
-        this._viewportStart.invalidate();
-      }
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewScrollChangedEvent(e));
-      this._eventDispatcher.emitOutgoingEvent(new ScrollChangedEvent(
-        e.oldScrollWidth,
-        e.oldScrollLeft,
-        e.oldScrollHeight,
-        e.oldScrollTop,
-        e.scrollWidth,
-        e.scrollLeft,
-        e.scrollHeight,
-        e.scrollTop
-      ));
-    }));
-    this._register(this.viewLayout.onDidContentSizeChange((e) => {
-      this._eventDispatcher.emitOutgoingEvent(e);
-    }));
-    this._decorations = new ViewModelDecorations(this._editorId, this.model, this._configuration, this._lines, this.coordinatesConverter);
+    this._cursor = this._register(
+      new CursorsController(
+        model,
+        this,
+        this.coordinatesConverter,
+        this.cursorConfig
+      )
+    );
+    this.viewLayout = this._register(
+      new ViewLayout(
+        this._configuration,
+        this.getLineCount(),
+        scheduleAtNextAnimationFrame
+      )
+    );
+    this._register(
+      this.viewLayout.onDidScroll((e) => {
+        if (e.scrollTopChanged) {
+          this._handleVisibleLinesChanged();
+        }
+        if (e.scrollTopChanged) {
+          this._viewportStart.invalidate();
+        }
+        this._eventDispatcher.emitSingleViewEvent(
+          new viewEvents.ViewScrollChangedEvent(e)
+        );
+        this._eventDispatcher.emitOutgoingEvent(
+          new ScrollChangedEvent(
+            e.oldScrollWidth,
+            e.oldScrollLeft,
+            e.oldScrollHeight,
+            e.oldScrollTop,
+            e.scrollWidth,
+            e.scrollLeft,
+            e.scrollHeight,
+            e.scrollTop
+          )
+        );
+      })
+    );
+    this._register(
+      this.viewLayout.onDidContentSizeChange((e) => {
+        this._eventDispatcher.emitOutgoingEvent(e);
+      })
+    );
+    this._decorations = new ViewModelDecorations(
+      this._editorId,
+      this.model,
+      this._configuration,
+      this._lines,
+      this.coordinatesConverter
+    );
     this._registerModelEvents();
-    this._register(this._configuration.onDidChangeFast((e) => {
-      try {
-        const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
-        this._onConfigurationChanged(eventsCollector, e);
-      } finally {
-        this._eventDispatcher.endEmitViewEvents();
-      }
-    }));
-    this._register(MinimapTokensColorTracker.getInstance().onDidChange(() => {
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewTokensColorsChangedEvent());
-    }));
-    this._register(this._themeService.onDidColorThemeChange((theme) => {
-      this._invalidateDecorationsColorCache();
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewThemeChangedEvent(theme));
-    }));
+    this._register(
+      this._configuration.onDidChangeFast((e) => {
+        try {
+          const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
+          this._onConfigurationChanged(eventsCollector, e);
+        } finally {
+          this._eventDispatcher.endEmitViewEvents();
+        }
+      })
+    );
+    this._register(
+      MinimapTokensColorTracker.getInstance().onDidChange(() => {
+        this._eventDispatcher.emitSingleViewEvent(
+          new viewEvents.ViewTokensColorsChangedEvent()
+        );
+      })
+    );
+    this._register(
+      this._themeService.onDidColorThemeChange((theme) => {
+        this._invalidateDecorationsColorCache();
+        this._eventDispatcher.emitSingleViewEvent(
+          new viewEvents.ViewThemeChangedEvent(theme)
+        );
+      })
+    );
     this._updateConfigurationViewLineCountNow();
   }
   static {
@@ -180,23 +251,41 @@ class ViewModel extends Disposable {
   setHasFocus(hasFocus) {
     this._hasFocus = hasFocus;
     this._cursor.setHasFocus(hasFocus);
-    this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewFocusChangedEvent(hasFocus));
-    this._eventDispatcher.emitOutgoingEvent(new FocusChangedEvent(!hasFocus, hasFocus));
+    this._eventDispatcher.emitSingleViewEvent(
+      new viewEvents.ViewFocusChangedEvent(hasFocus)
+    );
+    this._eventDispatcher.emitOutgoingEvent(
+      new FocusChangedEvent(!hasFocus, hasFocus)
+    );
   }
   setHasWidgetFocus(hasWidgetFocus) {
-    this._eventDispatcher.emitOutgoingEvent(new WidgetFocusChangedEvent(!hasWidgetFocus, hasWidgetFocus));
+    this._eventDispatcher.emitOutgoingEvent(
+      new WidgetFocusChangedEvent(!hasWidgetFocus, hasWidgetFocus)
+    );
   }
   onCompositionStart() {
-    this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewCompositionStartEvent());
+    this._eventDispatcher.emitSingleViewEvent(
+      new viewEvents.ViewCompositionStartEvent()
+    );
   }
   onCompositionEnd() {
-    this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewCompositionEndEvent());
+    this._eventDispatcher.emitSingleViewEvent(
+      new viewEvents.ViewCompositionEndEvent()
+    );
   }
   _captureStableViewport() {
     if (this._viewportStart.isValid && this.viewLayout.getCurrentScrollTop() > 0) {
-      const previousViewportStartViewPosition = new Position(this._viewportStart.viewLineNumber, this.getLineMinColumn(this._viewportStart.viewLineNumber));
-      const previousViewportStartModelPosition = this.coordinatesConverter.convertViewPositionToModelPosition(previousViewportStartViewPosition);
-      return new StableViewport(previousViewportStartModelPosition, this._viewportStart.startLineDelta);
+      const previousViewportStartViewPosition = new Position(
+        this._viewportStart.viewLineNumber,
+        this.getLineMinColumn(this._viewportStart.viewLineNumber)
+      );
+      const previousViewportStartModelPosition = this.coordinatesConverter.convertViewPositionToModelPosition(
+        previousViewportStartViewPosition
+      );
+      return new StableViewport(
+        previousViewportStartModelPosition,
+        this._viewportStart.startLineDelta
+      );
     }
     return new StableViewport(null, 0);
   }
@@ -208,10 +297,20 @@ class ViewModel extends Disposable {
     const wrappingInfo = options.get(EditorOption.wrappingInfo);
     const wrappingIndent = options.get(EditorOption.wrappingIndent);
     const wordBreak = options.get(EditorOption.wordBreak);
-    if (this._lines.setWrappingSettings(fontInfo, wrappingStrategy, wrappingInfo.wrappingColumn, wrappingIndent, wordBreak)) {
+    if (this._lines.setWrappingSettings(
+      fontInfo,
+      wrappingStrategy,
+      wrappingInfo.wrappingColumn,
+      wrappingIndent,
+      wordBreak
+    )) {
       eventsCollector.emitViewEvent(new viewEvents.ViewFlushedEvent());
-      eventsCollector.emitViewEvent(new viewEvents.ViewLineMappingChangedEvent());
-      eventsCollector.emitViewEvent(new viewEvents.ViewDecorationsChangedEvent(null));
+      eventsCollector.emitViewEvent(
+        new viewEvents.ViewLineMappingChangedEvent()
+      );
+      eventsCollector.emitViewEvent(
+        new viewEvents.ViewDecorationsChangedEvent(null)
+      );
       this._cursor.onLineMappingChanged(eventsCollector);
       this._decorations.onLineMappingChanged();
       this.viewLayout.onFlushed(this.getLineCount());
@@ -219,190 +318,337 @@ class ViewModel extends Disposable {
     }
     if (e.hasChanged(EditorOption.readOnly)) {
       this._decorations.reset();
-      eventsCollector.emitViewEvent(new viewEvents.ViewDecorationsChangedEvent(null));
+      eventsCollector.emitViewEvent(
+        new viewEvents.ViewDecorationsChangedEvent(null)
+      );
     }
     if (e.hasChanged(EditorOption.renderValidationDecorations)) {
       this._decorations.reset();
-      eventsCollector.emitViewEvent(new viewEvents.ViewDecorationsChangedEvent(null));
+      eventsCollector.emitViewEvent(
+        new viewEvents.ViewDecorationsChangedEvent(null)
+      );
     }
-    eventsCollector.emitViewEvent(new viewEvents.ViewConfigurationChangedEvent(e));
+    eventsCollector.emitViewEvent(
+      new viewEvents.ViewConfigurationChangedEvent(e)
+    );
     this.viewLayout.onConfigurationChanged(e);
-    stableViewport.recoverViewportStart(this.coordinatesConverter, this.viewLayout);
+    stableViewport.recoverViewportStart(
+      this.coordinatesConverter,
+      this.viewLayout
+    );
     if (CursorConfiguration.shouldRecreate(e)) {
-      this.cursorConfig = new CursorConfiguration(this.model.getLanguageId(), this.model.getOptions(), this._configuration, this.languageConfigurationService);
+      this.cursorConfig = new CursorConfiguration(
+        this.model.getLanguageId(),
+        this.model.getOptions(),
+        this._configuration,
+        this.languageConfigurationService
+      );
       this._cursor.updateConfiguration(this.cursorConfig);
     }
   }
   _registerModelEvents() {
-    this._register(this.model.onDidChangeContentOrInjectedText((e) => {
-      try {
-        const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
-        let hadOtherModelChange = false;
-        let hadModelLineChangeThatChangedLineMapping = false;
-        const changes = e instanceof textModelEvents.InternalModelContentChangeEvent ? e.rawContentChangedEvent.changes : e.changes;
-        const versionId = e instanceof textModelEvents.InternalModelContentChangeEvent ? e.rawContentChangedEvent.versionId : null;
-        const lineBreaksComputer = this._lines.createLineBreaksComputer();
-        for (const change of changes) {
-          switch (change.changeType) {
-            case textModelEvents.RawContentChangedType.LinesInserted: {
-              for (let lineIdx = 0; lineIdx < change.detail.length; lineIdx++) {
-                const line = change.detail[lineIdx];
-                let injectedText = change.injectedTexts[lineIdx];
-                if (injectedText) {
-                  injectedText = injectedText.filter((element) => !element.ownerId || element.ownerId === this._editorId);
-                }
-                lineBreaksComputer.addRequest(line, injectedText, null);
-              }
-              break;
-            }
-            case textModelEvents.RawContentChangedType.LineChanged: {
-              let injectedText = null;
-              if (change.injectedText) {
-                injectedText = change.injectedText.filter((element) => !element.ownerId || element.ownerId === this._editorId);
-              }
-              lineBreaksComputer.addRequest(change.detail, injectedText, null);
-              break;
-            }
-          }
-        }
-        const lineBreaks = lineBreaksComputer.finalize();
-        const lineBreakQueue = new ArrayQueue(lineBreaks);
-        for (const change of changes) {
-          switch (change.changeType) {
-            case textModelEvents.RawContentChangedType.Flush: {
-              this._lines.onModelFlushed();
-              eventsCollector.emitViewEvent(new viewEvents.ViewFlushedEvent());
-              this._decorations.reset();
-              this.viewLayout.onFlushed(this.getLineCount());
-              hadOtherModelChange = true;
-              break;
-            }
-            case textModelEvents.RawContentChangedType.LinesDeleted: {
-              const linesDeletedEvent = this._lines.onModelLinesDeleted(versionId, change.fromLineNumber, change.toLineNumber);
-              if (linesDeletedEvent !== null) {
-                eventsCollector.emitViewEvent(linesDeletedEvent);
-                this.viewLayout.onLinesDeleted(linesDeletedEvent.fromLineNumber, linesDeletedEvent.toLineNumber);
-              }
-              hadOtherModelChange = true;
-              break;
-            }
-            case textModelEvents.RawContentChangedType.LinesInserted: {
-              const insertedLineBreaks = lineBreakQueue.takeCount(change.detail.length);
-              const linesInsertedEvent = this._lines.onModelLinesInserted(versionId, change.fromLineNumber, change.toLineNumber, insertedLineBreaks);
-              if (linesInsertedEvent !== null) {
-                eventsCollector.emitViewEvent(linesInsertedEvent);
-                this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber);
-              }
-              hadOtherModelChange = true;
-              break;
-            }
-            case textModelEvents.RawContentChangedType.LineChanged: {
-              const changedLineBreakData = lineBreakQueue.dequeue();
-              const [lineMappingChanged, linesChangedEvent, linesInsertedEvent, linesDeletedEvent] = this._lines.onModelLineChanged(versionId, change.lineNumber, changedLineBreakData);
-              hadModelLineChangeThatChangedLineMapping = lineMappingChanged;
-              if (linesChangedEvent) {
-                eventsCollector.emitViewEvent(linesChangedEvent);
-              }
-              if (linesInsertedEvent) {
-                eventsCollector.emitViewEvent(linesInsertedEvent);
-                this.viewLayout.onLinesInserted(linesInsertedEvent.fromLineNumber, linesInsertedEvent.toLineNumber);
-              }
-              if (linesDeletedEvent) {
-                eventsCollector.emitViewEvent(linesDeletedEvent);
-                this.viewLayout.onLinesDeleted(linesDeletedEvent.fromLineNumber, linesDeletedEvent.toLineNumber);
-              }
-              break;
-            }
-            case textModelEvents.RawContentChangedType.EOLChanged: {
-              break;
-            }
-          }
-        }
-        if (versionId !== null) {
-          this._lines.acceptVersionId(versionId);
-        }
-        this.viewLayout.onHeightMaybeChanged();
-        if (!hadOtherModelChange && hadModelLineChangeThatChangedLineMapping) {
-          eventsCollector.emitViewEvent(new viewEvents.ViewLineMappingChangedEvent());
-          eventsCollector.emitViewEvent(new viewEvents.ViewDecorationsChangedEvent(null));
-          this._cursor.onLineMappingChanged(eventsCollector);
-          this._decorations.onLineMappingChanged();
-        }
-      } finally {
-        this._eventDispatcher.endEmitViewEvents();
-      }
-      const viewportStartWasValid = this._viewportStart.isValid;
-      this._viewportStart.invalidate();
-      this._configuration.setModelLineCount(this.model.getLineCount());
-      this._updateConfigurationViewLineCountNow();
-      if (!this._hasFocus && this.model.getAttachedEditorCount() >= 2 && viewportStartWasValid) {
-        const modelRange = this.model._getTrackedRange(this._viewportStart.modelTrackedRange);
-        if (modelRange) {
-          const viewPosition = this.coordinatesConverter.convertModelPositionToViewPosition(modelRange.getStartPosition());
-          const viewPositionTop = this.viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber);
-          this.viewLayout.setScrollPosition({ scrollTop: viewPositionTop + this._viewportStart.startLineDelta }, ScrollType.Immediate);
-        }
-      }
-      try {
-        const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
-        if (e instanceof textModelEvents.InternalModelContentChangeEvent) {
-          eventsCollector.emitOutgoingEvent(new ModelContentChangedEvent(e.contentChangedEvent));
-        }
-        this._cursor.onModelContentChanged(eventsCollector, e);
-      } finally {
-        this._eventDispatcher.endEmitViewEvents();
-      }
-      this._handleVisibleLinesChanged();
-    }));
-    this._register(this.model.onDidChangeTokens((e) => {
-      const viewRanges = [];
-      for (let j = 0, lenJ = e.ranges.length; j < lenJ; j++) {
-        const modelRange = e.ranges[j];
-        const viewStartLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.fromLineNumber, 1)).lineNumber;
-        const viewEndLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(new Position(modelRange.toLineNumber, this.model.getLineMaxColumn(modelRange.toLineNumber))).lineNumber;
-        viewRanges[j] = {
-          fromLineNumber: viewStartLineNumber,
-          toLineNumber: viewEndLineNumber
-        };
-      }
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewTokensChangedEvent(viewRanges));
-      this._eventDispatcher.emitOutgoingEvent(new ModelTokensChangedEvent(e));
-    }));
-    this._register(this.model.onDidChangeLanguageConfiguration((e) => {
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewLanguageConfigurationEvent());
-      this.cursorConfig = new CursorConfiguration(this.model.getLanguageId(), this.model.getOptions(), this._configuration, this.languageConfigurationService);
-      this._cursor.updateConfiguration(this.cursorConfig);
-      this._eventDispatcher.emitOutgoingEvent(new ModelLanguageConfigurationChangedEvent(e));
-    }));
-    this._register(this.model.onDidChangeLanguage((e) => {
-      this.cursorConfig = new CursorConfiguration(this.model.getLanguageId(), this.model.getOptions(), this._configuration, this.languageConfigurationService);
-      this._cursor.updateConfiguration(this.cursorConfig);
-      this._eventDispatcher.emitOutgoingEvent(new ModelLanguageChangedEvent(e));
-    }));
-    this._register(this.model.onDidChangeOptions((e) => {
-      if (this._lines.setTabSize(this.model.getOptions().tabSize)) {
+    this._register(
+      this.model.onDidChangeContentOrInjectedText((e) => {
         try {
           const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
-          eventsCollector.emitViewEvent(new viewEvents.ViewFlushedEvent());
-          eventsCollector.emitViewEvent(new viewEvents.ViewLineMappingChangedEvent());
-          eventsCollector.emitViewEvent(new viewEvents.ViewDecorationsChangedEvent(null));
-          this._cursor.onLineMappingChanged(eventsCollector);
-          this._decorations.onLineMappingChanged();
-          this.viewLayout.onFlushed(this.getLineCount());
+          let hadOtherModelChange = false;
+          let hadModelLineChangeThatChangedLineMapping = false;
+          const changes = e instanceof textModelEvents.InternalModelContentChangeEvent ? e.rawContentChangedEvent.changes : e.changes;
+          const versionId = e instanceof textModelEvents.InternalModelContentChangeEvent ? e.rawContentChangedEvent.versionId : null;
+          const lineBreaksComputer = this._lines.createLineBreaksComputer();
+          for (const change of changes) {
+            switch (change.changeType) {
+              case textModelEvents.RawContentChangedType.LinesInserted: {
+                for (let lineIdx = 0; lineIdx < change.detail.length; lineIdx++) {
+                  const line = change.detail[lineIdx];
+                  let injectedText = change.injectedTexts[lineIdx];
+                  if (injectedText) {
+                    injectedText = injectedText.filter(
+                      (element) => !element.ownerId || element.ownerId === this._editorId
+                    );
+                  }
+                  lineBreaksComputer.addRequest(
+                    line,
+                    injectedText,
+                    null
+                  );
+                }
+                break;
+              }
+              case textModelEvents.RawContentChangedType.LineChanged: {
+                let injectedText = null;
+                if (change.injectedText) {
+                  injectedText = change.injectedText.filter(
+                    (element) => !element.ownerId || element.ownerId === this._editorId
+                  );
+                }
+                lineBreaksComputer.addRequest(
+                  change.detail,
+                  injectedText,
+                  null
+                );
+                break;
+              }
+            }
+          }
+          const lineBreaks = lineBreaksComputer.finalize();
+          const lineBreakQueue = new ArrayQueue(lineBreaks);
+          for (const change of changes) {
+            switch (change.changeType) {
+              case textModelEvents.RawContentChangedType.Flush: {
+                this._lines.onModelFlushed();
+                eventsCollector.emitViewEvent(
+                  new viewEvents.ViewFlushedEvent()
+                );
+                this._decorations.reset();
+                this.viewLayout.onFlushed(this.getLineCount());
+                hadOtherModelChange = true;
+                break;
+              }
+              case textModelEvents.RawContentChangedType.LinesDeleted: {
+                const linesDeletedEvent = this._lines.onModelLinesDeleted(
+                  versionId,
+                  change.fromLineNumber,
+                  change.toLineNumber
+                );
+                if (linesDeletedEvent !== null) {
+                  eventsCollector.emitViewEvent(
+                    linesDeletedEvent
+                  );
+                  this.viewLayout.onLinesDeleted(
+                    linesDeletedEvent.fromLineNumber,
+                    linesDeletedEvent.toLineNumber
+                  );
+                }
+                hadOtherModelChange = true;
+                break;
+              }
+              case textModelEvents.RawContentChangedType.LinesInserted: {
+                const insertedLineBreaks = lineBreakQueue.takeCount(
+                  change.detail.length
+                );
+                const linesInsertedEvent = this._lines.onModelLinesInserted(
+                  versionId,
+                  change.fromLineNumber,
+                  change.toLineNumber,
+                  insertedLineBreaks
+                );
+                if (linesInsertedEvent !== null) {
+                  eventsCollector.emitViewEvent(
+                    linesInsertedEvent
+                  );
+                  this.viewLayout.onLinesInserted(
+                    linesInsertedEvent.fromLineNumber,
+                    linesInsertedEvent.toLineNumber
+                  );
+                }
+                hadOtherModelChange = true;
+                break;
+              }
+              case textModelEvents.RawContentChangedType.LineChanged: {
+                const changedLineBreakData = lineBreakQueue.dequeue();
+                const [
+                  lineMappingChanged,
+                  linesChangedEvent,
+                  linesInsertedEvent,
+                  linesDeletedEvent
+                ] = this._lines.onModelLineChanged(
+                  versionId,
+                  change.lineNumber,
+                  changedLineBreakData
+                );
+                hadModelLineChangeThatChangedLineMapping = lineMappingChanged;
+                if (linesChangedEvent) {
+                  eventsCollector.emitViewEvent(
+                    linesChangedEvent
+                  );
+                }
+                if (linesInsertedEvent) {
+                  eventsCollector.emitViewEvent(
+                    linesInsertedEvent
+                  );
+                  this.viewLayout.onLinesInserted(
+                    linesInsertedEvent.fromLineNumber,
+                    linesInsertedEvent.toLineNumber
+                  );
+                }
+                if (linesDeletedEvent) {
+                  eventsCollector.emitViewEvent(
+                    linesDeletedEvent
+                  );
+                  this.viewLayout.onLinesDeleted(
+                    linesDeletedEvent.fromLineNumber,
+                    linesDeletedEvent.toLineNumber
+                  );
+                }
+                break;
+              }
+              case textModelEvents.RawContentChangedType.EOLChanged: {
+                break;
+              }
+            }
+          }
+          if (versionId !== null) {
+            this._lines.acceptVersionId(versionId);
+          }
+          this.viewLayout.onHeightMaybeChanged();
+          if (!hadOtherModelChange && hadModelLineChangeThatChangedLineMapping) {
+            eventsCollector.emitViewEvent(
+              new viewEvents.ViewLineMappingChangedEvent()
+            );
+            eventsCollector.emitViewEvent(
+              new viewEvents.ViewDecorationsChangedEvent(null)
+            );
+            this._cursor.onLineMappingChanged(eventsCollector);
+            this._decorations.onLineMappingChanged();
+          }
         } finally {
           this._eventDispatcher.endEmitViewEvents();
         }
-        this._updateConfigurationViewLineCount.schedule();
-      }
-      this.cursorConfig = new CursorConfiguration(this.model.getLanguageId(), this.model.getOptions(), this._configuration, this.languageConfigurationService);
-      this._cursor.updateConfiguration(this.cursorConfig);
-      this._eventDispatcher.emitOutgoingEvent(new ModelOptionsChangedEvent(e));
-    }));
-    this._register(this.model.onDidChangeDecorations((e) => {
-      this._decorations.onModelDecorationsChanged();
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewDecorationsChangedEvent(e));
-      this._eventDispatcher.emitOutgoingEvent(new ModelDecorationsChangedEvent(e));
-    }));
+        const viewportStartWasValid = this._viewportStart.isValid;
+        this._viewportStart.invalidate();
+        this._configuration.setModelLineCount(
+          this.model.getLineCount()
+        );
+        this._updateConfigurationViewLineCountNow();
+        if (!this._hasFocus && this.model.getAttachedEditorCount() >= 2 && viewportStartWasValid) {
+          const modelRange = this.model._getTrackedRange(
+            this._viewportStart.modelTrackedRange
+          );
+          if (modelRange) {
+            const viewPosition = this.coordinatesConverter.convertModelPositionToViewPosition(
+              modelRange.getStartPosition()
+            );
+            const viewPositionTop = this.viewLayout.getVerticalOffsetForLineNumber(
+              viewPosition.lineNumber
+            );
+            this.viewLayout.setScrollPosition(
+              {
+                scrollTop: viewPositionTop + this._viewportStart.startLineDelta
+              },
+              ScrollType.Immediate
+            );
+          }
+        }
+        try {
+          const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
+          if (e instanceof textModelEvents.InternalModelContentChangeEvent) {
+            eventsCollector.emitOutgoingEvent(
+              new ModelContentChangedEvent(e.contentChangedEvent)
+            );
+          }
+          this._cursor.onModelContentChanged(eventsCollector, e);
+        } finally {
+          this._eventDispatcher.endEmitViewEvents();
+        }
+        this._handleVisibleLinesChanged();
+      })
+    );
+    this._register(
+      this.model.onDidChangeTokens((e) => {
+        const viewRanges = [];
+        for (let j = 0, lenJ = e.ranges.length; j < lenJ; j++) {
+          const modelRange = e.ranges[j];
+          const viewStartLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(
+            new Position(modelRange.fromLineNumber, 1)
+          ).lineNumber;
+          const viewEndLineNumber = this.coordinatesConverter.convertModelPositionToViewPosition(
+            new Position(
+              modelRange.toLineNumber,
+              this.model.getLineMaxColumn(
+                modelRange.toLineNumber
+              )
+            )
+          ).lineNumber;
+          viewRanges[j] = {
+            fromLineNumber: viewStartLineNumber,
+            toLineNumber: viewEndLineNumber
+          };
+        }
+        this._eventDispatcher.emitSingleViewEvent(
+          new viewEvents.ViewTokensChangedEvent(viewRanges)
+        );
+        this._eventDispatcher.emitOutgoingEvent(
+          new ModelTokensChangedEvent(e)
+        );
+      })
+    );
+    this._register(
+      this.model.onDidChangeLanguageConfiguration((e) => {
+        this._eventDispatcher.emitSingleViewEvent(
+          new viewEvents.ViewLanguageConfigurationEvent()
+        );
+        this.cursorConfig = new CursorConfiguration(
+          this.model.getLanguageId(),
+          this.model.getOptions(),
+          this._configuration,
+          this.languageConfigurationService
+        );
+        this._cursor.updateConfiguration(this.cursorConfig);
+        this._eventDispatcher.emitOutgoingEvent(
+          new ModelLanguageConfigurationChangedEvent(e)
+        );
+      })
+    );
+    this._register(
+      this.model.onDidChangeLanguage((e) => {
+        this.cursorConfig = new CursorConfiguration(
+          this.model.getLanguageId(),
+          this.model.getOptions(),
+          this._configuration,
+          this.languageConfigurationService
+        );
+        this._cursor.updateConfiguration(this.cursorConfig);
+        this._eventDispatcher.emitOutgoingEvent(
+          new ModelLanguageChangedEvent(e)
+        );
+      })
+    );
+    this._register(
+      this.model.onDidChangeOptions((e) => {
+        if (this._lines.setTabSize(this.model.getOptions().tabSize)) {
+          try {
+            const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
+            eventsCollector.emitViewEvent(
+              new viewEvents.ViewFlushedEvent()
+            );
+            eventsCollector.emitViewEvent(
+              new viewEvents.ViewLineMappingChangedEvent()
+            );
+            eventsCollector.emitViewEvent(
+              new viewEvents.ViewDecorationsChangedEvent(null)
+            );
+            this._cursor.onLineMappingChanged(eventsCollector);
+            this._decorations.onLineMappingChanged();
+            this.viewLayout.onFlushed(this.getLineCount());
+          } finally {
+            this._eventDispatcher.endEmitViewEvents();
+          }
+          this._updateConfigurationViewLineCount.schedule();
+        }
+        this.cursorConfig = new CursorConfiguration(
+          this.model.getLanguageId(),
+          this.model.getOptions(),
+          this._configuration,
+          this.languageConfigurationService
+        );
+        this._cursor.updateConfiguration(this.cursorConfig);
+        this._eventDispatcher.emitOutgoingEvent(
+          new ModelOptionsChangedEvent(e)
+        );
+      })
+    );
+    this._register(
+      this.model.onDidChangeDecorations((e) => {
+        this._decorations.onModelDecorationsChanged();
+        this._eventDispatcher.emitSingleViewEvent(
+          new viewEvents.ViewDecorationsChangedEvent(e)
+        );
+        this._eventDispatcher.emitOutgoingEvent(
+          new ModelDecorationsChangedEvent(e)
+        );
+      })
+    );
   }
   hiddenAreasModel = new HiddenAreasModel();
   previousHiddenAreas = [];
@@ -410,7 +656,7 @@ class ViewModel extends Disposable {
    * @param forceUpdate If true, the hidden areas will be updated even if the new ranges are the same as the previous ranges.
    * This is because the model might have changed, which resets the hidden areas, but not the last cached value.
    * This needs a better fix in the future.
-  */
+   */
   setHiddenAreas(ranges, source, forceUpdate) {
     this.hiddenAreasModel.setHiddenAreas(source, ranges);
     const mergedRanges = this.hiddenAreasModel.getMergedRanges();
@@ -424,40 +670,68 @@ class ViewModel extends Disposable {
       const eventsCollector = this._eventDispatcher.beginEmitViewEvents();
       lineMappingChanged = this._lines.setHiddenAreas(mergedRanges);
       if (lineMappingChanged) {
-        eventsCollector.emitViewEvent(new viewEvents.ViewFlushedEvent());
-        eventsCollector.emitViewEvent(new viewEvents.ViewLineMappingChangedEvent());
-        eventsCollector.emitViewEvent(new viewEvents.ViewDecorationsChangedEvent(null));
+        eventsCollector.emitViewEvent(
+          new viewEvents.ViewFlushedEvent()
+        );
+        eventsCollector.emitViewEvent(
+          new viewEvents.ViewLineMappingChangedEvent()
+        );
+        eventsCollector.emitViewEvent(
+          new viewEvents.ViewDecorationsChangedEvent(null)
+        );
         this._cursor.onLineMappingChanged(eventsCollector);
         this._decorations.onLineMappingChanged();
         this.viewLayout.onFlushed(this.getLineCount());
         this.viewLayout.onHeightMaybeChanged();
       }
       const firstModelLineInViewPort = stableViewport.viewportStartModelPosition?.lineNumber;
-      const firstModelLineIsHidden = firstModelLineInViewPort && mergedRanges.some((range) => range.startLineNumber <= firstModelLineInViewPort && firstModelLineInViewPort <= range.endLineNumber);
+      const firstModelLineIsHidden = firstModelLineInViewPort && mergedRanges.some(
+        (range) => range.startLineNumber <= firstModelLineInViewPort && firstModelLineInViewPort <= range.endLineNumber
+      );
       if (!firstModelLineIsHidden) {
-        stableViewport.recoverViewportStart(this.coordinatesConverter, this.viewLayout);
+        stableViewport.recoverViewportStart(
+          this.coordinatesConverter,
+          this.viewLayout
+        );
       }
     } finally {
       this._eventDispatcher.endEmitViewEvents();
     }
     this._updateConfigurationViewLineCount.schedule();
     if (lineMappingChanged) {
-      this._eventDispatcher.emitOutgoingEvent(new HiddenAreasChangedEvent());
+      this._eventDispatcher.emitOutgoingEvent(
+        new HiddenAreasChangedEvent()
+      );
     }
   }
   getVisibleRangesPlusViewportAboveBelow() {
-    const layoutInfo = this._configuration.options.get(EditorOption.layoutInfo);
-    const lineHeight = this._configuration.options.get(EditorOption.lineHeight);
-    const linesAround = Math.max(20, Math.round(layoutInfo.height / lineHeight));
+    const layoutInfo = this._configuration.options.get(
+      EditorOption.layoutInfo
+    );
+    const lineHeight = this._configuration.options.get(
+      EditorOption.lineHeight
+    );
+    const linesAround = Math.max(
+      20,
+      Math.round(layoutInfo.height / lineHeight)
+    );
     const partialData = this.viewLayout.getLinesViewportData();
-    const startViewLineNumber = Math.max(1, partialData.completelyVisibleStartLineNumber - linesAround);
-    const endViewLineNumber = Math.min(this.getLineCount(), partialData.completelyVisibleEndLineNumber + linesAround);
-    return this._toModelVisibleRanges(new Range(
-      startViewLineNumber,
-      this.getLineMinColumn(startViewLineNumber),
-      endViewLineNumber,
-      this.getLineMaxColumn(endViewLineNumber)
-    ));
+    const startViewLineNumber = Math.max(
+      1,
+      partialData.completelyVisibleStartLineNumber - linesAround
+    );
+    const endViewLineNumber = Math.min(
+      this.getLineCount(),
+      partialData.completelyVisibleEndLineNumber + linesAround
+    );
+    return this._toModelVisibleRanges(
+      new Range(
+        startViewLineNumber,
+        this.getLineMinColumn(startViewLineNumber),
+        endViewLineNumber,
+        this.getLineMaxColumn(endViewLineNumber)
+      )
+    );
   }
   getVisibleRanges() {
     const visibleViewRange = this.getCompletelyVisibleViewRange();
@@ -467,7 +741,9 @@ class ViewModel extends Disposable {
     return this._lines.getHiddenAreas();
   }
   _toModelVisibleRanges(visibleViewRange) {
-    const visibleRange = this.coordinatesConverter.convertViewRangeToModelRange(visibleViewRange);
+    const visibleRange = this.coordinatesConverter.convertViewRangeToModelRange(
+      visibleViewRange
+    );
     const hiddenAreas = this._lines.getHiddenAreas();
     if (hiddenAreas.length === 0) {
       return [visibleRange];
@@ -534,8 +810,15 @@ class ViewModel extends Disposable {
     const compatViewState = this.viewLayout.saveState();
     const scrollTop = compatViewState.scrollTop;
     const firstViewLineNumber = this.viewLayout.getLineNumberAtVerticalOffset(scrollTop);
-    const firstPosition = this.coordinatesConverter.convertViewPositionToModelPosition(new Position(firstViewLineNumber, this.getLineMinColumn(firstViewLineNumber)));
-    const firstPositionDeltaTop = this.viewLayout.getVerticalOffsetForLineNumber(firstViewLineNumber) - scrollTop;
+    const firstPosition = this.coordinatesConverter.convertViewPositionToModelPosition(
+      new Position(
+        firstViewLineNumber,
+        this.getLineMinColumn(firstViewLineNumber)
+      )
+    );
+    const firstPositionDeltaTop = this.viewLayout.getVerticalOffsetForLineNumber(
+      firstViewLineNumber
+    ) - scrollTop;
     return {
       scrollLeft: compatViewState.scrollLeft,
       firstPosition,
@@ -547,8 +830,12 @@ class ViewModel extends Disposable {
       return this._reduceRestoreStateCompatibility(state);
     }
     const modelPosition = this.model.validatePosition(state.firstPosition);
-    const viewPosition = this.coordinatesConverter.convertModelPositionToViewPosition(modelPosition);
-    const scrollTop = this.viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber) - state.firstPositionDeltaTop;
+    const viewPosition = this.coordinatesConverter.convertModelPositionToViewPosition(
+      modelPosition
+    );
+    const scrollTop = this.viewLayout.getVerticalOffsetForLineNumber(
+      viewPosition.lineNumber
+    ) - state.firstPositionDeltaTop;
     return {
       scrollLeft: state.scrollLeft,
       scrollTop
@@ -573,13 +860,25 @@ class ViewModel extends Disposable {
     this._viewportStart.update(this, startLineNumber);
   }
   getActiveIndentGuide(lineNumber, minLineNumber, maxLineNumber) {
-    return this._lines.getActiveIndentGuide(lineNumber, minLineNumber, maxLineNumber);
+    return this._lines.getActiveIndentGuide(
+      lineNumber,
+      minLineNumber,
+      maxLineNumber
+    );
   }
   getLinesIndentGuides(startLineNumber, endLineNumber) {
-    return this._lines.getViewLinesIndentGuides(startLineNumber, endLineNumber);
+    return this._lines.getViewLinesIndentGuides(
+      startLineNumber,
+      endLineNumber
+    );
   }
   getBracketGuidesInRangeByLine(startLineNumber, endLineNumber, activePosition, options) {
-    return this._lines.getViewLinesBracketGuides(startLineNumber, endLineNumber, activePosition, options);
+    return this._lines.getViewLinesBracketGuides(
+      startLineNumber,
+      endLineNumber,
+      activePosition,
+      options
+    );
   }
   getLineContent(lineNumber) {
     return this._lines.getViewLineContent(lineNumber);
@@ -594,14 +893,18 @@ class ViewModel extends Disposable {
     return this._lines.getViewLineMaxColumn(lineNumber);
   }
   getLineFirstNonWhitespaceColumn(lineNumber) {
-    const result = strings.firstNonWhitespaceIndex(this.getLineContent(lineNumber));
+    const result = strings.firstNonWhitespaceIndex(
+      this.getLineContent(lineNumber)
+    );
     if (result === -1) {
       return 0;
     }
     return result + 1;
   }
   getLineLastNonWhitespaceColumn(lineNumber) {
-    const result = strings.lastNonWhitespaceIndex(this.getLineContent(lineNumber));
+    const result = strings.lastNonWhitespaceIndex(
+      this.getLineContent(lineNumber)
+    );
     if (result === -1) {
       return 0;
     }
@@ -617,7 +920,9 @@ class ViewModel extends Disposable {
     return this._lines.getInjectedTextAt(viewPosition);
   }
   getViewportViewLineRenderingData(visibleRange, lineNumber) {
-    const allInlineDecorations = this._decorations.getDecorationsViewportData(visibleRange).inlineDecorations;
+    const allInlineDecorations = this._decorations.getDecorationsViewportData(
+      visibleRange
+    ).inlineDecorations;
     const inlineDecorations = allInlineDecorations[lineNumber - visibleRange.startLineNumber];
     return this._getViewLineRenderingData(lineNumber, inlineDecorations);
   }
@@ -655,14 +960,18 @@ class ViewModel extends Disposable {
     return this._lines.getViewLineData(lineNumber);
   }
   getMinimapLinesRenderingData(startLineNumber, endLineNumber, needed) {
-    const result = this._lines.getViewLinesData(startLineNumber, endLineNumber, needed);
-    return new MinimapLinesRenderingData(
-      this.getTabSize(),
-      result
+    const result = this._lines.getViewLinesData(
+      startLineNumber,
+      endLineNumber,
+      needed
     );
+    return new MinimapLinesRenderingData(this.getTabSize(), result);
   }
   getAllOverviewRulerDecorations(theme) {
-    const decorations = this.model.getOverviewRulerDecorations(this._editorId, filterValidationDecorations(this._configuration.options));
+    const decorations = this.model.getOverviewRulerDecorations(
+      this._editorId,
+      filterValidationDecorations(this._configuration.options)
+    );
     const result = new OverviewRulerDecorations();
     for (const decoration of decorations) {
       const decorationOptions = decoration.options;
@@ -675,9 +984,21 @@ class ViewModel extends Disposable {
         continue;
       }
       const color = opts.getColor(theme.value);
-      const viewStartLineNumber = this.coordinatesConverter.getViewLineNumberOfModelPosition(decoration.range.startLineNumber, decoration.range.startColumn);
-      const viewEndLineNumber = this.coordinatesConverter.getViewLineNumberOfModelPosition(decoration.range.endLineNumber, decoration.range.endColumn);
-      result.accept(color, decorationOptions.zIndex, viewStartLineNumber, viewEndLineNumber, lane);
+      const viewStartLineNumber = this.coordinatesConverter.getViewLineNumberOfModelPosition(
+        decoration.range.startLineNumber,
+        decoration.range.startColumn
+      );
+      const viewEndLineNumber = this.coordinatesConverter.getViewLineNumberOfModelPosition(
+        decoration.range.endLineNumber,
+        decoration.range.endColumn
+      );
+      result.accept(
+        color,
+        decorationOptions.zIndex,
+        viewStartLineNumber,
+        viewEndLineNumber,
+        lane
+      );
     }
     return result.asArray;
   }
@@ -699,12 +1020,21 @@ class ViewModel extends Disposable {
     return this.model.getValueLengthInRange(modelRange, eol);
   }
   modifyPosition(position, offset) {
-    const modelPosition = this.coordinatesConverter.convertViewPositionToModelPosition(position);
-    const resultModelPosition = this.model.modifyPosition(modelPosition, offset);
-    return this.coordinatesConverter.convertModelPositionToViewPosition(resultModelPosition);
+    const modelPosition = this.coordinatesConverter.convertViewPositionToModelPosition(
+      position
+    );
+    const resultModelPosition = this.model.modifyPosition(
+      modelPosition,
+      offset
+    );
+    return this.coordinatesConverter.convertModelPositionToViewPosition(
+      resultModelPosition
+    );
   }
   deduceModelPositionRelativeToViewPosition(viewAnchorPosition, deltaOffset, lineFeedCnt) {
-    const modelAnchor = this.coordinatesConverter.convertViewPositionToModelPosition(viewAnchorPosition);
+    const modelAnchor = this.coordinatesConverter.convertViewPositionToModelPosition(
+      viewAnchorPosition
+    );
     if (this.model.getEOL().length === 2) {
       if (deltaOffset < 0) {
         deltaOffset -= lineFeedCnt;
@@ -753,7 +1083,12 @@ class ViewModel extends Disposable {
             result2.push(this.model.getLineContent(modelLineNumber));
           }
         } else {
-          result2.push(this.model.getValueInRange(modelRange, forceCRLF ? EndOfLinePreference.CRLF : EndOfLinePreference.TextDefined));
+          result2.push(
+            this.model.getValueInRange(
+              modelRange,
+              forceCRLF ? EndOfLinePreference.CRLF : EndOfLinePreference.TextDefined
+            )
+          );
         }
         prevModelLineNumber = modelLineNumber;
       }
@@ -762,7 +1097,12 @@ class ViewModel extends Disposable {
     const result = [];
     for (const modelRange of modelRanges) {
       if (!modelRange.isEmpty()) {
-        result.push(this.model.getValueInRange(modelRange, forceCRLF ? EndOfLinePreference.CRLF : EndOfLinePreference.TextDefined));
+        result.push(
+          this.model.getValueInRange(
+            modelRange,
+            forceCRLF ? EndOfLinePreference.CRLF : EndOfLinePreference.TextDefined
+          )
+        );
       }
     }
     return result.length === 1 ? result[0] : result;
@@ -781,7 +1121,12 @@ class ViewModel extends Disposable {
         return null;
       }
       const lineNumber = range.startLineNumber;
-      range = new Range(lineNumber, this.model.getLineMinColumn(lineNumber), lineNumber, this.model.getLineMaxColumn(lineNumber));
+      range = new Range(
+        lineNumber,
+        this.model.getLineMinColumn(lineNumber),
+        lineNumber,
+        this.model.getLineMaxColumn(lineNumber)
+      );
     }
     const fontInfo = this._configuration.options.get(EditorOption.fontInfo);
     const colorMap = this._getColorMap();
@@ -804,7 +1149,7 @@ class ViewModel extends Disposable {
     }
     return {
       mode: languageId,
-      html: `<div style="color: ${colorMap[ColorId.DefaultForeground]};background-color: ${colorMap[ColorId.DefaultBackground]};font-family: ${fontFamily};font-weight: ${fontInfo.fontWeight};font-size: ${fontInfo.fontSize}px;line-height: ${fontInfo.lineHeight}px;white-space: pre;">` + this._getHTMLToCopy(range, colorMap) + "</div>"
+      html: `<div style="color: ${colorMap[ColorId.DefaultForeground]};background-color: ${colorMap[ColorId.DefaultBackground]};font-family: ${fontFamily};font-weight: ${fontInfo.fontWeight};font-size: ${fontInfo.fontSize}px;line-height: ${fontInfo.lineHeight}px;white-space: pre;">${this._getHTMLToCopy(range, colorMap)}</div>`
     };
   }
   _getHTMLToCopy(modelRange, colorMap) {
@@ -822,7 +1167,15 @@ class ViewModel extends Disposable {
       if (lineContent === "") {
         result += "<br>";
       } else {
-        result += tokenizeLineToHTML(lineContent, lineTokens.inflate(), colorMap, startOffset, endOffset, tabSize, platform.isWindows);
+        result += tokenizeLineToHTML(
+          lineContent,
+          lineTokens.inflate(),
+          colorMap,
+          startOffset,
+          endOffset,
+          tabSize,
+          platform.isWindows
+        );
       }
     }
     return result;
@@ -848,7 +1201,9 @@ class ViewModel extends Disposable {
     return this._cursor.getCursorStates();
   }
   setCursorStates(source, reason, states) {
-    return this._withViewEventsCollector((eventsCollector) => this._cursor.setStates(eventsCollector, source, reason, states));
+    return this._withViewEventsCollector(
+      (eventsCollector) => this._cursor.setStates(eventsCollector, source, reason, states)
+    );
   }
   getCursorColumnSelectData() {
     return this._cursor.getCursorColumnSelectData();
@@ -875,74 +1230,189 @@ class ViewModel extends Disposable {
     return this._cursor.getPrimaryCursorState().modelState.position;
   }
   setSelections(source, selections, reason = CursorChangeReason.NotSet) {
-    this._withViewEventsCollector((eventsCollector) => this._cursor.setSelections(eventsCollector, source, selections, reason));
+    this._withViewEventsCollector(
+      (eventsCollector) => this._cursor.setSelections(
+        eventsCollector,
+        source,
+        selections,
+        reason
+      )
+    );
   }
   saveCursorState() {
     return this._cursor.saveState();
   }
   restoreCursorState(states) {
-    this._withViewEventsCollector((eventsCollector) => this._cursor.restoreState(eventsCollector, states));
+    this._withViewEventsCollector(
+      (eventsCollector) => this._cursor.restoreState(eventsCollector, states)
+    );
   }
   _executeCursorEdit(callback) {
     if (this._cursor.context.cursorConfig.readOnly) {
-      this._eventDispatcher.emitOutgoingEvent(new ReadOnlyEditAttemptEvent());
+      this._eventDispatcher.emitOutgoingEvent(
+        new ReadOnlyEditAttemptEvent()
+      );
       return;
     }
     this._withViewEventsCollector(callback);
   }
   executeEdits(source, edits, cursorStateComputer) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.executeEdits(eventsCollector, source, edits, cursorStateComputer));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.executeEdits(
+        eventsCollector,
+        source,
+        edits,
+        cursorStateComputer
+      )
+    );
   }
   startComposition() {
-    this._executeCursorEdit((eventsCollector) => this._cursor.startComposition(eventsCollector));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.startComposition(eventsCollector)
+    );
   }
   endComposition(source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.endComposition(eventsCollector, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.endComposition(eventsCollector, source)
+    );
   }
   type(text, source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.type(eventsCollector, text, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.type(eventsCollector, text, source)
+    );
   }
   compositionType(text, replacePrevCharCnt, replaceNextCharCnt, positionDelta, source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.compositionType(eventsCollector, text, replacePrevCharCnt, replaceNextCharCnt, positionDelta, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.compositionType(
+        eventsCollector,
+        text,
+        replacePrevCharCnt,
+        replaceNextCharCnt,
+        positionDelta,
+        source
+      )
+    );
   }
   paste(text, pasteOnNewLine, multicursorText, source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.paste(eventsCollector, text, pasteOnNewLine, multicursorText, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.paste(
+        eventsCollector,
+        text,
+        pasteOnNewLine,
+        multicursorText,
+        source
+      )
+    );
   }
   cut(source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.cut(eventsCollector, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.cut(eventsCollector, source)
+    );
   }
   executeCommand(command, source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.executeCommand(eventsCollector, command, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.executeCommand(eventsCollector, command, source)
+    );
   }
   executeCommands(commands, source) {
-    this._executeCursorEdit((eventsCollector) => this._cursor.executeCommands(eventsCollector, commands, source));
+    this._executeCursorEdit(
+      (eventsCollector) => this._cursor.executeCommands(eventsCollector, commands, source)
+    );
   }
   revealAllCursors(source, revealHorizontal, minimalReveal = false) {
-    this._withViewEventsCollector((eventsCollector) => this._cursor.revealAll(eventsCollector, source, minimalReveal, viewEvents.VerticalRevealType.Simple, revealHorizontal, ScrollType.Smooth));
+    this._withViewEventsCollector(
+      (eventsCollector) => this._cursor.revealAll(
+        eventsCollector,
+        source,
+        minimalReveal,
+        viewEvents.VerticalRevealType.Simple,
+        revealHorizontal,
+        ScrollType.Smooth
+      )
+    );
   }
   revealPrimaryCursor(source, revealHorizontal, minimalReveal = false) {
-    this._withViewEventsCollector((eventsCollector) => this._cursor.revealPrimary(eventsCollector, source, minimalReveal, viewEvents.VerticalRevealType.Simple, revealHorizontal, ScrollType.Smooth));
+    this._withViewEventsCollector(
+      (eventsCollector) => this._cursor.revealPrimary(
+        eventsCollector,
+        source,
+        minimalReveal,
+        viewEvents.VerticalRevealType.Simple,
+        revealHorizontal,
+        ScrollType.Smooth
+      )
+    );
   }
   revealTopMostCursor(source) {
     const viewPosition = this._cursor.getTopMostViewPosition();
-    const viewRange = new Range(viewPosition.lineNumber, viewPosition.column, viewPosition.lineNumber, viewPosition.column);
-    this._withViewEventsCollector((eventsCollector) => eventsCollector.emitViewEvent(new viewEvents.ViewRevealRangeRequestEvent(source, false, viewRange, null, viewEvents.VerticalRevealType.Simple, true, ScrollType.Smooth)));
+    const viewRange = new Range(
+      viewPosition.lineNumber,
+      viewPosition.column,
+      viewPosition.lineNumber,
+      viewPosition.column
+    );
+    this._withViewEventsCollector(
+      (eventsCollector) => eventsCollector.emitViewEvent(
+        new viewEvents.ViewRevealRangeRequestEvent(
+          source,
+          false,
+          viewRange,
+          null,
+          viewEvents.VerticalRevealType.Simple,
+          true,
+          ScrollType.Smooth
+        )
+      )
+    );
   }
   revealBottomMostCursor(source) {
     const viewPosition = this._cursor.getBottomMostViewPosition();
-    const viewRange = new Range(viewPosition.lineNumber, viewPosition.column, viewPosition.lineNumber, viewPosition.column);
-    this._withViewEventsCollector((eventsCollector) => eventsCollector.emitViewEvent(new viewEvents.ViewRevealRangeRequestEvent(source, false, viewRange, null, viewEvents.VerticalRevealType.Simple, true, ScrollType.Smooth)));
+    const viewRange = new Range(
+      viewPosition.lineNumber,
+      viewPosition.column,
+      viewPosition.lineNumber,
+      viewPosition.column
+    );
+    this._withViewEventsCollector(
+      (eventsCollector) => eventsCollector.emitViewEvent(
+        new viewEvents.ViewRevealRangeRequestEvent(
+          source,
+          false,
+          viewRange,
+          null,
+          viewEvents.VerticalRevealType.Simple,
+          true,
+          ScrollType.Smooth
+        )
+      )
+    );
   }
   revealRange(source, revealHorizontal, viewRange, verticalType, scrollType) {
-    this._withViewEventsCollector((eventsCollector) => eventsCollector.emitViewEvent(new viewEvents.ViewRevealRangeRequestEvent(source, false, viewRange, null, verticalType, revealHorizontal, scrollType)));
+    this._withViewEventsCollector(
+      (eventsCollector) => eventsCollector.emitViewEvent(
+        new viewEvents.ViewRevealRangeRequestEvent(
+          source,
+          false,
+          viewRange,
+          null,
+          verticalType,
+          revealHorizontal,
+          scrollType
+        )
+      )
+    );
   }
   //#endregion
   //#region viewLayout
   changeWhitespace(callback) {
     const hadAChange = this.viewLayout.changeWhitespace(callback);
     if (hadAChange) {
-      this._eventDispatcher.emitSingleViewEvent(new viewEvents.ViewZonesChangedEvent());
-      this._eventDispatcher.emitOutgoingEvent(new ViewZonesChangedEvent());
+      this._eventDispatcher.emitSingleViewEvent(
+        new viewEvents.ViewZonesChangedEvent()
+      );
+      this._eventDispatcher.emitOutgoingEvent(
+        new ViewZonesChangedEvent()
+      );
     }
   }
   //#endregion
@@ -967,7 +1437,7 @@ class ViewModel extends Disposable {
   /**
    * Gets the column at which indentation stops at a given line.
    * @internal
-  */
+   */
   getLineIndentColumn(lineNumber) {
     return this._lines.getLineIndentColumn(lineNumber);
   }
@@ -984,8 +1454,18 @@ class ViewportStart {
     __name(this, "ViewportStart");
   }
   static create(model) {
-    const viewportStartLineTrackedRange = model._setTrackedRange(null, new Range(1, 1, 1, 1), TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
-    return new ViewportStart(model, 1, false, viewportStartLineTrackedRange, 0);
+    const viewportStartLineTrackedRange = model._setTrackedRange(
+      null,
+      new Range(1, 1, 1, 1),
+      TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+    );
+    return new ViewportStart(
+      model,
+      1,
+      false,
+      viewportStartLineTrackedRange,
+      0
+    );
   }
   get viewLineNumber() {
     return this._viewLineNumber;
@@ -1000,12 +1480,32 @@ class ViewportStart {
     return this._startLineDelta;
   }
   dispose() {
-    this._model._setTrackedRange(this._modelTrackedRange, null, TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
+    this._model._setTrackedRange(
+      this._modelTrackedRange,
+      null,
+      TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+    );
   }
   update(viewModel, startLineNumber) {
-    const position = viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(startLineNumber, viewModel.getLineMinColumn(startLineNumber)));
-    const viewportStartLineTrackedRange = viewModel.model._setTrackedRange(this._modelTrackedRange, new Range(position.lineNumber, position.column, position.lineNumber, position.column), TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges);
-    const viewportStartLineTop = viewModel.viewLayout.getVerticalOffsetForLineNumber(startLineNumber);
+    const position = viewModel.coordinatesConverter.convertViewPositionToModelPosition(
+      new Position(
+        startLineNumber,
+        viewModel.getLineMinColumn(startLineNumber)
+      )
+    );
+    const viewportStartLineTrackedRange = viewModel.model._setTrackedRange(
+      this._modelTrackedRange,
+      new Range(
+        position.lineNumber,
+        position.column,
+        position.lineNumber,
+        position.column
+      ),
+      TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+    );
+    const viewportStartLineTop = viewModel.viewLayout.getVerticalOffsetForLineNumber(
+      startLineNumber
+    );
     const scrollTop = viewModel.viewLayout.getCurrentScrollTop();
     this._viewLineNumber = startLineNumber;
     this._isValid = true;
@@ -1036,7 +1536,11 @@ class OverviewRulerDecorations {
       }
       prevData.push(lane, startLineNumber, endLineNumber);
     } else {
-      const group = new OverviewRulerDecorationsGroup(color, zIndex, [lane, startLineNumber, endLineNumber]);
+      const group = new OverviewRulerDecorationsGroup(color, zIndex, [
+        lane,
+        startLineNumber,
+        endLineNumber
+      ]);
       this._asMap[color] = group;
       this.asArray.push(group);
     }
@@ -1059,13 +1563,16 @@ class HiddenAreasModel {
   }
   /**
    * The returned array is immutable.
-  */
+   */
   getMergedRanges() {
     if (!this.shouldRecompute) {
       return this.ranges;
     }
     this.shouldRecompute = false;
-    const newRanges = Array.from(this.hiddenAreas.values()).reduce((r, hiddenAreas) => mergeLineRangeArray(r, hiddenAreas), []);
+    const newRanges = Array.from(this.hiddenAreas.values()).reduce(
+      (r, hiddenAreas) => mergeLineRangeArray(r, hiddenAreas),
+      []
+    );
     if (rangeArraysEqual(this.ranges, newRanges)) {
       return this.ranges;
     }
@@ -1085,8 +1592,14 @@ function mergeLineRangeArray(arr1, arr2) {
     } else if (item2.endLineNumber < item1.startLineNumber - 1) {
       result.push(arr2[j++]);
     } else {
-      const startLineNumber = Math.min(item1.startLineNumber, item2.startLineNumber);
-      const endLineNumber = Math.max(item1.endLineNumber, item2.endLineNumber);
+      const startLineNumber = Math.min(
+        item1.startLineNumber,
+        item2.startLineNumber
+      );
+      const endLineNumber = Math.max(
+        item1.endLineNumber,
+        item2.endLineNumber
+      );
       result.push(new Range(startLineNumber, 1, endLineNumber, 1));
       i++;
       j++;
@@ -1125,9 +1638,16 @@ class StableViewport {
     if (!this.viewportStartModelPosition) {
       return;
     }
-    const viewPosition = coordinatesConverter.convertModelPositionToViewPosition(this.viewportStartModelPosition);
-    const viewPositionTop = viewLayout.getVerticalOffsetForLineNumber(viewPosition.lineNumber);
-    viewLayout.setScrollPosition({ scrollTop: viewPositionTop + this.startLineDelta }, ScrollType.Immediate);
+    const viewPosition = coordinatesConverter.convertModelPositionToViewPosition(
+      this.viewportStartModelPosition
+    );
+    const viewPositionTop = viewLayout.getVerticalOffsetForLineNumber(
+      viewPosition.lineNumber
+    );
+    viewLayout.setScrollPosition(
+      { scrollTop: viewPositionTop + this.startLineDelta },
+      ScrollType.Immediate
+    );
   }
 }
 export {

@@ -11,10 +11,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import {
+  Disposable,
+  DisposableMap,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
-import { ITextModel } from "../../../../editor/common/model.js";
 import { Range } from "../../../../editor/common/core/range.js";
 import { ITreeSitterParserService } from "../../../../editor/common/services/treeSitterParserService.js";
 let TreeSitterCodeEditors = class extends Disposable {
@@ -23,17 +25,33 @@ let TreeSitterCodeEditors = class extends Disposable {
     this._languageId = _languageId;
     this._codeEditorService = _codeEditorService;
     this._treeSitterParserService = _treeSitterParserService;
-    this._register(this._codeEditorService.onCodeEditorAdd(this._onCodeEditorAdd, this));
-    this._register(this._codeEditorService.onCodeEditorRemove(this._onCodeEditorRemove, this));
+    this._register(
+      this._codeEditorService.onCodeEditorAdd(
+        this._onCodeEditorAdd,
+        this
+      )
+    );
+    this._register(
+      this._codeEditorService.onCodeEditorRemove(
+        this._onCodeEditorRemove,
+        this
+      )
+    );
     this._codeEditorService.listCodeEditors().forEach(this._onCodeEditorAdd, this);
   }
   static {
     __name(this, "TreeSitterCodeEditors");
   }
   _textModels = /* @__PURE__ */ new Set();
-  _languageEditors = this._register(new DisposableMap());
-  _allEditors = this._register(new DisposableMap());
-  _onDidChangeViewport = this._register(new Emitter());
+  _languageEditors = this._register(
+    new DisposableMap()
+  );
+  _allEditors = this._register(
+    new DisposableMap()
+  );
+  _onDidChangeViewport = this._register(
+    new Emitter()
+  );
   onDidChangeViewport = this._onDidChangeViewport.event;
   get textModels() {
     return Array.from(this._textModels.keys());
@@ -62,15 +80,25 @@ let TreeSitterCodeEditors = class extends Disposable {
   async getEditorModel(editor) {
     let model = editor.getModel() ?? void 0;
     if (!model) {
-      const disposableStore = this._register(new DisposableStore());
-      await Event.toPromise(Event.once(editor.onDidChangeModel), disposableStore);
+      const disposableStore = this._register(
+        new DisposableStore()
+      );
+      await Event.toPromise(
+        Event.once(editor.onDidChangeModel),
+        disposableStore
+      );
       model = editor.getModel() ?? void 0;
     }
     return model;
   }
   async _onCodeEditorAdd(editor) {
     const otherEditorDisposables = new DisposableStore();
-    otherEditorDisposables.add(editor.onDidChangeModel(() => this._onDidChangeModel(editor, editor.getModel()), this));
+    otherEditorDisposables.add(
+      editor.onDidChangeModel(
+        () => this._onDidChangeModel(editor, editor.getModel()),
+        this
+      )
+    );
     this._allEditors.set(editor, otherEditorDisposables);
     const model = editor.getModel();
     if (model) {
@@ -85,7 +113,12 @@ let TreeSitterCodeEditors = class extends Disposable {
       }
       if (!this._languageEditors.has(editor)) {
         const langaugeEditorDisposables = new DisposableStore();
-        langaugeEditorDisposables.add(editor.onDidScrollChange(() => this._onViewportChange(editor), this));
+        langaugeEditorDisposables.add(
+          editor.onDidScrollChange(
+            () => this._onViewportChange(editor),
+            this
+          )
+        );
         this._languageEditors.set(editor, langaugeEditorDisposables);
         this._onViewportChange(editor);
       }

@@ -30,7 +30,11 @@ function normalizeIndentation(str, indentSize, insertSpaces) {
   if (firstNonWhitespaceIndex === -1) {
     firstNonWhitespaceIndex = str.length;
   }
-  return _normalizeIndentationFromWhitespace(str.substring(0, firstNonWhitespaceIndex), indentSize, insertSpaces) + str.substring(firstNonWhitespaceIndex);
+  return _normalizeIndentationFromWhitespace(
+    str.substring(0, firstNonWhitespaceIndex),
+    indentSize,
+    insertSpaces
+  ) + str.substring(firstNonWhitespaceIndex);
 }
 __name(normalizeIndentation, "normalizeIndentation");
 export {

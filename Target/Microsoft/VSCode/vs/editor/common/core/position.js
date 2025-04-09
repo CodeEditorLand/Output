@@ -36,7 +36,10 @@ class Position {
    * @param deltaColumn column delta
    */
   delta(deltaLineNumber = 0, deltaColumn = 0) {
-    return this.with(Math.max(1, this.lineNumber + deltaLineNumber), Math.max(1, this.column + deltaColumn));
+    return this.with(
+      Math.max(1, this.lineNumber + deltaLineNumber),
+      Math.max(1, this.column + deltaColumn)
+    );
   }
   /**
    * Test if this position equals other position
@@ -116,7 +119,7 @@ class Position {
    * Convert to a human-readable representation.
    */
   toString() {
-    return "(" + this.lineNumber + "," + this.column + ")";
+    return `(${this.lineNumber},${this.column})`;
   }
   // ---
   /**

@@ -10,17 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ILanguageIdCodec, ITreeSitterTokenizationSupport, TreeSitterTokenizationRegistry } from "../languages.js";
-import { LineTokens } from "../tokens/lineTokens.js";
-import { StandardTokenType } from "../encodedTokenAttributes.js";
-import { TextModel } from "./textModel.js";
-import { IModelContentChangedEvent } from "../textModelEvents.js";
-import { AbstractTokens } from "./tokens.js";
-import { IDisposable, MutableDisposable } from "../../../base/common/lifecycle.js";
-import { ITreeSitterTokenizationStoreService } from "./treeSitterTokenStoreService.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  MutableDisposable
+} from "../../../base/common/lifecycle.js";
 import { Range } from "../core/range.js";
+import { StandardTokenType } from "../encodedTokenAttributes.js";
+import {
+  TreeSitterTokenizationRegistry
+} from "../languages.js";
 import { BackgroundTokenizationState } from "../tokenizationTextModelPart.js";
-import { Emitter, Event } from "../../../base/common/event.js";
+import { LineTokens } from "../tokens/lineTokens.js";
+import { AbstractTokens } from "./tokens.js";
+import { ITreeSitterTokenizationStoreService } from "./treeSitterTokenStoreService.js";
 let TreeSitterTokens = class extends AbstractTokens {
   constructor(languageIdCodec, textModel, languageId, _tokenStore) {
     super(languageIdCodec, textModel, languageId);
@@ -47,20 +49,29 @@ let TreeSitterTokens = class extends AbstractTokens {
           this._onDidChangeTokens.fire(e.changes);
         }
       });
-      this._onDidChangeBackgroundTokenization.value = this._tokenizationSupport?.onDidChangeBackgroundTokenization((e) => {
-        if (e.textModel === this._textModel) {
-          this._backgroundTokenizationState = BackgroundTokenizationState.Completed;
-          this._onDidChangeBackgroundTokenizationState.fire();
+      this._onDidChangeBackgroundTokenization.value = this._tokenizationSupport?.onDidChangeBackgroundTokenization(
+        (e) => {
+          if (e.textModel === this._textModel) {
+            this._backgroundTokenizationState = BackgroundTokenizationState.Completed;
+            this._onDidChangeBackgroundTokenizationState.fire();
+          }
         }
-      });
+      );
     }
   }
   getLineTokens(lineNumber) {
     const content = this._textModel.getLineContent(lineNumber);
     if (this._tokenizationSupport && content.length > 0) {
-      const rawTokens = this._tokenStore.getTokens(this._textModel, lineNumber);
+      const rawTokens = this._tokenStore.getTokens(
+        this._textModel,
+        lineNumber
+      );
       if (rawTokens && rawTokens.length > 0) {
-        return new LineTokens(rawTokens, content, this._languageIdCodec);
+        return new LineTokens(
+          rawTokens,
+          content,
+          this._languageIdCodec
+        );
       }
     }
     return LineTokens.createEmpty(content, this._languageIdCodec);
@@ -90,11 +101,22 @@ let TreeSitterTokens = class extends AbstractTokens {
   }
   forceTokenization(lineNumber) {
     if (this._tokenizationSupport && !this.hasAccurateTokensForLine(lineNumber)) {
-      this._tokenizationSupport.tokenizeEncoded(lineNumber, this._textModel);
+      this._tokenizationSupport.tokenizeEncoded(
+        lineNumber,
+        this._textModel
+      );
     }
   }
   hasAccurateTokensForLine(lineNumber) {
-    return this._tokenStore.hasTokens(this._textModel, new Range(lineNumber, 1, lineNumber, this._textModel.getLineMaxColumn(lineNumber)));
+    return this._tokenStore.hasTokens(
+      this._textModel,
+      new Range(
+        lineNumber,
+        1,
+        lineNumber,
+        this._textModel.getLineMaxColumn(lineNumber)
+      )
+    );
   }
   isCheapToTokenize(lineNumber) {
     return true;
@@ -104,11 +126,21 @@ let TreeSitterTokens = class extends AbstractTokens {
   }
   tokenizeLinesAt(lineNumber, lines) {
     if (this._tokenizationSupport) {
-      const rawLineTokens = this._tokenizationSupport.guessTokensForLinesContent(lineNumber, this._textModel, lines);
+      const rawLineTokens = this._tokenizationSupport.guessTokensForLinesContent(
+        lineNumber,
+        this._textModel,
+        lines
+      );
       const lineTokens = [];
       if (rawLineTokens) {
         for (let i = 0; i < rawLineTokens.length; i++) {
-          lineTokens.push(new LineTokens(rawLineTokens[i], lines[i], this._languageIdCodec));
+          lineTokens.push(
+            new LineTokens(
+              rawLineTokens[i],
+              lines[i],
+              this._languageIdCodec
+            )
+          );
         }
         return lineTokens;
       }

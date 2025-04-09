@@ -1,13 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ViewPart } from "../../view/viewPart.js";
-import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
 import { Color } from "../../../../base/common/color.js";
-import { editorRuler } from "../../../common/core/editorColorRegistry.js";
 import { autorun } from "../../../../base/common/observable.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import { editorRuler } from "../../../common/core/editorColorRegistry.js";
+import { ViewPart } from "../../view/viewPart.js";
 class RulersGpu extends ViewPart {
   constructor(context, _viewGpuContext) {
     super(context);
@@ -31,7 +28,9 @@ class RulersGpu extends ViewPart {
   _updateEntries(reader) {
     const options = this._context.configuration.options;
     const rulers = options.get(EditorOption.rulers);
-    const typicalHalfwidthCharacterWidth = options.get(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
+    const typicalHalfwidthCharacterWidth = options.get(
+      EditorOption.fontInfo
+    ).typicalHalfwidthCharacterWidth;
     const devicePixelRatio = this._viewGpuContext.devicePixelRatio.read(reader);
     for (let i = 0, len = rulers.length; i < len; i++) {
       const ruler = rulers[i];
@@ -48,7 +47,9 @@ class RulersGpu extends ViewPart {
         color.rgba.a
       ];
       if (!shape) {
-        this._gpuShapes[i] = this._viewGpuContext.rectangleRenderer.register(...rulerData);
+        this._gpuShapes[i] = this._viewGpuContext.rectangleRenderer.register(
+          ...rulerData
+        );
       } else {
         shape.setRaw(rulerData);
       }

@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/singleeditortabscontrol.css";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorTabsControl } from "./editorTabsControl.js";
 import { Dimension } from "../../../../base/browser/dom.js";
-import { IEditorTitleControlDimensions } from "./editorTitleControl.js";
-import { IToolbarActions } from "../../../common/editor.js";
+import { EditorTabsControl } from "./editorTabsControl.js";
 class NoEditorTabsControl extends EditorTabsControl {
   static {
     __name(this, "NoEditorTabsControl");
@@ -31,7 +28,7 @@ class NoEditorTabsControl extends EditorTabsControl {
   activeEditorChanged() {
     if (!this.activeEditor && this.tabsModel.activeEditor || // active editor changed from null => editor
     this.activeEditor && !this.tabsModel.activeEditor || // active editor changed from editor => null
-    (!this.activeEditor || !this.tabsModel.isActive(this.activeEditor))) {
+    !this.activeEditor || !this.tabsModel.isActive(this.activeEditor)) {
       return true;
     }
     return false;

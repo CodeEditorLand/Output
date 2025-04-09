@@ -10,15 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IResourceDiffEditorInput, IResourceSideBySideEditorInput, isResourceDiffEditorInput, IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorModel } from "../../../common/editor/editorModel.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotebookDiffEditorModel, IResolvedNotebookEditorModel } from "./notebookCommon.js";
+import {
+  isResourceDiffEditorInput
+} from "../../../common/editor.js";
 import { DiffEditorInput } from "../../../common/editor/diffEditorInput.js";
-import { NotebookEditorInput } from "./notebookEditorInput.js";
+import { EditorModel } from "../../../common/editor/editorModel.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { NotebookEditorInput } from "./notebookEditorInput.js";
 class NotebookDiffEditorModel extends EditorModel {
   constructor(original, modified) {
     super();
@@ -31,14 +29,7 @@ class NotebookDiffEditorModel extends EditorModel {
 }
 let NotebookDiffEditorInput = class extends DiffEditorInput {
   constructor(name, description, original, modified, viewType, editorService) {
-    super(
-      name,
-      description,
-      original,
-      modified,
-      void 0,
-      editorService
-    );
+    super(name, description, original, modified, void 0, editorService);
     this.original = original;
     this.modified = modified;
     this.viewType = viewType;
@@ -47,9 +38,26 @@ let NotebookDiffEditorInput = class extends DiffEditorInput {
     __name(this, "NotebookDiffEditorInput");
   }
   static create(instantiationService, resource, name, description, originalResource, viewType) {
-    const original = NotebookEditorInput.getOrCreate(instantiationService, originalResource, void 0, viewType);
-    const modified = NotebookEditorInput.getOrCreate(instantiationService, resource, void 0, viewType);
-    return instantiationService.createInstance(NotebookDiffEditorInput, name, description, original, modified, viewType);
+    const original = NotebookEditorInput.getOrCreate(
+      instantiationService,
+      originalResource,
+      void 0,
+      viewType
+    );
+    const modified = NotebookEditorInput.getOrCreate(
+      instantiationService,
+      resource,
+      void 0,
+      viewType
+    );
+    return instantiationService.createInstance(
+      NotebookDiffEditorInput,
+      name,
+      description,
+      original,
+      modified,
+      viewType
+    );
   }
   static ID = "workbench.input.diffNotebookInput";
   _modifiedTextModel = null;
@@ -71,14 +79,21 @@ let NotebookDiffEditorInput = class extends DiffEditorInput {
     ]);
     this._cachedModel?.dispose();
     if (!modifiedEditorModel) {
-      throw new Error(`Fail to resolve modified editor model for resource ${this.modified.resource} with notebookType ${this.viewType}`);
+      throw new Error(
+        `Fail to resolve modified editor model for resource ${this.modified.resource} with notebookType ${this.viewType}`
+      );
     }
     if (!originalEditorModel) {
-      throw new Error(`Fail to resolve original editor model for resource ${this.original.resource} with notebookType ${this.viewType}`);
+      throw new Error(
+        `Fail to resolve original editor model for resource ${this.original.resource} with notebookType ${this.viewType}`
+      );
     }
     this._originalTextModel = originalEditorModel;
     this._modifiedTextModel = modifiedEditorModel;
-    this._cachedModel = new NotebookDiffEditorModel(this._originalTextModel, this._modifiedTextModel);
+    this._cachedModel = new NotebookDiffEditorModel(
+      this._originalTextModel,
+      this._modifiedTextModel
+    );
     return this._cachedModel;
   }
   toUntyped() {

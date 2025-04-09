@@ -1,22 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../base/common/buffer.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { IExpression, IRelativePattern } from "../../../base/common/glob.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
+import { Lazy } from "../../../base/common/lazy.js";
+import { Schemas } from "../../../base/common/network.js";
 import { sep } from "../../../base/common/path.js";
-import { ReadableStreamEvents } from "../../../base/common/stream.js";
+import { isWeb } from "../../../base/common/platform.js";
 import { startsWithIgnoreCase } from "../../../base/common/strings.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
 import { isNumber } from "../../../base/common/types.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { isWeb } from "../../../base/common/platform.js";
-import { Schemas } from "../../../base/common/network.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
-import { Lazy } from "../../../base/common/lazy.js";
 const IFileService = createDecorator("fileService");
 function isFileOpenForWriteOptions(options) {
   return options.create === true;
@@ -125,7 +118,10 @@ class FileSystemProviderError extends Error {
     __name(this, "FileSystemProviderError");
   }
   static create(error, code) {
-    const providerError = new FileSystemProviderError(error.toString(), code);
+    const providerError = new FileSystemProviderError(
+      error.toString(),
+      code
+    );
     markAsFileSystemProviderError(providerError, code);
     return providerError;
   }
@@ -136,13 +132,16 @@ function createFileSystemProviderError(error, code) {
 __name(createFileSystemProviderError, "createFileSystemProviderError");
 function ensureFileSystemProviderError(error) {
   if (!error) {
-    return createFileSystemProviderError(localize("unknownError", "Unknown Error"), "Unknown" /* Unknown */);
+    return createFileSystemProviderError(
+      localize("unknownError", "Unknown Error"),
+      "Unknown" /* Unknown */
+    );
   }
   return error;
 }
 __name(ensureFileSystemProviderError, "ensureFileSystemProviderError");
 function markAsFileSystemProviderError(error, code) {
-  error.name = code ? `${code} (FileSystemError)` : `FileSystemError`;
+  error.name = code ? `${code} (FileSystemError)` : "FileSystemError";
   return error;
 }
 __name(markAsFileSystemProviderError, "markAsFileSystemProviderError");
@@ -265,17 +264,23 @@ class FileChangesEvent {
   static MIXED_CORRELATION = null;
   correlationId = void 0;
   added = new Lazy(() => {
-    const added = TernarySearchTree.forUris(() => this.ignorePathCasing);
+    const added = TernarySearchTree.forUris(
+      () => this.ignorePathCasing
+    );
     added.fill(this.rawAdded.map((resource) => [resource, true]));
     return added;
   });
   updated = new Lazy(() => {
-    const updated = TernarySearchTree.forUris(() => this.ignorePathCasing);
+    const updated = TernarySearchTree.forUris(
+      () => this.ignorePathCasing
+    );
     updated.fill(this.rawUpdated.map((resource) => [resource, true]));
     return updated;
   });
   deleted = new Lazy(() => {
-    const deleted = TernarySearchTree.forUris(() => this.ignorePathCasing);
+    const deleted = TernarySearchTree.forUris(
+      () => this.ignorePathCasing
+    );
     deleted.fill(this.rawDeleted.map((resource) => [resource, true]));
     return deleted;
   });
@@ -317,7 +322,9 @@ class FileChangesEvent {
       }
     }
     if (!hasTypesFilter || types.includes(2 /* DELETED */)) {
-      if (this.deleted.value.findSubstr(resource)) {
+      if (this.deleted.value.findSubstr(
+        resource
+      )) {
         return true;
       }
       if (options.includeChildren && this.deleted.value.findSuperstr(resource)) {
@@ -376,18 +383,18 @@ class FileChangesEvent {
    */
   rawAdded = [];
   /**
-  * @deprecated use the `contains` or `affects` method to efficiently find
-  * out if the event relates to a given resource. these methods ensure:
-  * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
-  * - correctly handles `FileChangeType.DELETED` events
-  */
+   * @deprecated use the `contains` or `affects` method to efficiently find
+   * out if the event relates to a given resource. these methods ensure:
+   * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+   * - correctly handles `FileChangeType.DELETED` events
+   */
   rawUpdated = [];
   /**
-  * @deprecated use the `contains` or `affects` method to efficiently find
-  * out if the event relates to a given resource. these methods ensure:
-  * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
-  * - correctly handles `FileChangeType.DELETED` events
-  */
+   * @deprecated use the `contains` or `affects` method to efficiently find
+   * out if the event relates to a given resource. these methods ensure:
+   * - that there is no expensive lookup needed (by using a `TernarySearchTree`)
+   * - correctly handles `FileChangeType.DELETED` events
+   */
   rawDeleted = [];
 }
 function isParent(path, candidate, ignoreCase) {

@@ -10,17 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
-import { IChatAgentCommand } from "../../common/chatAgents.js";
-import { chatSubcommandLeader } from "../../common/chatParserTypes.js";
-import { IChatRendererContent } from "../../common/chatViewModel.js";
-import { ChatTreeItem } from "../chat.js";
-import { IChatContentPart } from "./chatContentParts.js";
-import { Codicon } from "../../../../../base/common/codicons.js";
-import { localize } from "../../../../../nls.js";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
+import { Codicon } from "../../../../../base/common/codicons.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { generateUuid } from "../../../../../base/common/uuid.js";
+import { localize } from "../../../../../nls.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { chatSubcommandLeader } from "../../common/chatParserTypes.js";
 let ChatAgentCommandContentPart = class extends Disposable {
   constructor(cmd, onClick, _hoverService) {
     super();
@@ -32,13 +28,30 @@ let ChatAgentCommandContentPart = class extends Disposable {
     const commandSpan = document.createElement("span");
     this.domNode.appendChild(commandSpan);
     commandSpan.innerText = chatSubcommandLeader + cmd.name;
-    this._store.add(this._hoverService.setupDelayedHover(commandSpan, { content: cmd.description, appearance: { showPointer: true } }, { groupId }));
-    const rerun = localize("rerun", "Rerun without {0}{1}", chatSubcommandLeader, cmd.name);
+    this._store.add(
+      this._hoverService.setupDelayedHover(
+        commandSpan,
+        { content: cmd.description, appearance: { showPointer: true } },
+        { groupId }
+      )
+    );
+    const rerun = localize(
+      "rerun",
+      "Rerun without {0}{1}",
+      chatSubcommandLeader,
+      cmd.name
+    );
     const btn = new Button(this.domNode, { ariaLabel: rerun });
     btn.icon = Codicon.close;
     this._store.add(btn.onDidClick(() => onClick()));
     this._store.add(btn);
-    this._store.add(this._hoverService.setupDelayedHover(btn.element, { content: rerun, appearance: { showPointer: true } }, { groupId }));
+    this._store.add(
+      this._hoverService.setupDelayedHover(
+        btn.element,
+        { content: rerun, appearance: { showPointer: true } },
+        { groupId }
+      )
+    );
   }
   static {
     __name(this, "ChatAgentCommandContentPart");

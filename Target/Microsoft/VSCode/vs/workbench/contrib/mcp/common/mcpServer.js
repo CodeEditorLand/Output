@@ -10,30 +10,59 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { raceCancellationError, Sequencer } from "../../../../base/common/async.js";
+import {
+  raceCancellationError,
+  Sequencer
+} from "../../../../base/common/async.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import * as json from "../../../../base/common/json.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
-import { autorun, autorunWithStore, derived, disposableObservableValue, IObservable, ITransaction, observableFromEvent, ObservablePromise, observableValue, transaction } from "../../../../base/common/observable.js";
+import {
+  autorun,
+  autorunWithStore,
+  derived,
+  disposableObservableValue,
+  observableFromEvent,
+  ObservablePromise,
+  observableValue,
+  transaction
+} from "../../../../base/common/observable.js";
 import { basename } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { ILogger, ILoggerService } from "../../../../platform/log/common/log.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  ILoggerService
+} from "../../../../platform/log/common/log.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import {
+  IStorageService,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IOutputService } from "../../../services/output/common/output.js";
 import { mcpActivationEvent } from "./mcpConfiguration.js";
 import { IMcpRegistry } from "./mcpRegistryTypes.js";
-import { McpServerRequestHandler } from "./mcpServerRequestHandler.js";
-import { extensionMcpCollectionPrefix, IMcpServer, IMcpServerConnection, IMcpTool, McpCollectionReference, McpConnectionFailedError, McpConnectionState, McpDefinitionReference, McpServerDefinition, McpServerToolsState } from "./mcpTypes.js";
-import { MCP } from "./modelContextProtocol.js";
-import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
-import { localize } from "../../../../nls.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  extensionMcpCollectionPrefix,
+  McpConnectionFailedError,
+  McpConnectionState,
+  McpServerToolsState
+} from "./mcpTypes.js";
 const toolInvalidCharRe = /[^a-z0-9_-]/gi;
 let McpServerMetadataCache = class extends Disposable {
   static {
@@ -45,17 +74,27 @@ let McpServerMetadataCache = class extends Disposable {
   constructor(scope, storageService) {
     super();
     const storageKey = "mcpToolCache";
-    this._register(storageService.onWillSaveState(() => {
-      if (this.didChange) {
-        storageService.store(storageKey, {
-          extensionServers: [...this.extensionServers],
-          serverTools: this.cache.toJSON()
-        }, scope, StorageTarget.MACHINE);
-        this.didChange = false;
-      }
-    }));
+    this._register(
+      storageService.onWillSaveState(() => {
+        if (this.didChange) {
+          storageService.store(
+            storageKey,
+            {
+              extensionServers: [...this.extensionServers],
+              serverTools: this.cache.toJSON()
+            },
+            scope,
+            StorageTarget.MACHINE
+          );
+          this.didChange = false;
+        }
+      })
+    );
     try {
-      const cached = storageService.getObject(storageKey, scope);
+      const cached = storageService.getObject(
+        storageKey,
+        scope
+      );
       this.extensionServers = new Map(cached?.extensionServers ?? []);
       cached?.serverTools?.forEach(([k, v]) => this.cache.set(k, v));
     } catch {
@@ -73,7 +112,10 @@ let McpServerMetadataCache = class extends Disposable {
   }
   /** Sets cached tools for a server */
   storeTools(definitionId, tools) {
-    this.cache.set(definitionId, { ...this.cache.get(definitionId), tools });
+    this.cache.set(definitionId, {
+      ...this.cache.get(definitionId),
+      tools
+    });
     this.didChange = true;
   }
   /** Gets cached servers for a collection (used for extensions, before the extension activates) */
@@ -108,38 +150,56 @@ let McpServer = class extends Disposable {
     this._commandService = _commandService;
     this._instantiationService = _instantiationService;
     this._loggerId = `mcpServer.${definition.id}`;
-    this._logger = this._register(_loggerService.createLogger(this._loggerId, { hidden: true, name: `MCP: ${definition.label}` }));
-    this._register(toDisposable(() => _loggerService.deregisterLogger(this._loggerId)));
-    const workspaces = explicitRoots ? observableValue(this, explicitRoots.map((uri) => ({ uri, name: basename(uri) }))) : observableFromEvent(
+    this._logger = this._register(
+      _loggerService.createLogger(this._loggerId, {
+        hidden: true,
+        name: `MCP: ${definition.label}`
+      })
+    );
+    this._register(
+      toDisposable(() => _loggerService.deregisterLogger(this._loggerId))
+    );
+    const workspaces = explicitRoots ? observableValue(
+      this,
+      explicitRoots.map((uri) => ({ uri, name: basename(uri) }))
+    ) : observableFromEvent(
       this,
       workspacesService.onDidChangeWorkspaceFolders,
       () => workspacesService.getWorkspace().folders
     );
-    this._register(autorunWithStore((reader) => {
-      const cnx = this._connection.read(reader)?.handler.read(reader);
-      if (!cnx) {
-        return;
-      }
-      cnx.roots = workspaces.read(reader).map((wf) => ({
-        uri: wf.uri.toString(),
-        name: wf.name
-      }));
-    }));
-    this._register(autorunWithStore((reader, store) => {
-      const cnx = this._connection.read(reader)?.handler.read(reader);
-      if (cnx) {
-        this.populateLiveData(cnx, store);
-      } else {
-        this.resetLiveData();
-      }
-    }));
-    this._register(autorun((reader) => {
-      const tools = this.toolsFromServer.read(reader);
-      if (tools) {
-        this._toolCache.storeTools(definition.id, tools);
-      }
-    }));
-    const toolPrefix = this._mcpRegistry.collectionToolPrefix(this.collection);
+    this._register(
+      autorunWithStore((reader) => {
+        const cnx = this._connection.read(reader)?.handler.read(reader);
+        if (!cnx) {
+          return;
+        }
+        cnx.roots = workspaces.read(reader).map((wf) => ({
+          uri: wf.uri.toString(),
+          name: wf.name
+        }));
+      })
+    );
+    this._register(
+      autorunWithStore((reader, store) => {
+        const cnx = this._connection.read(reader)?.handler.read(reader);
+        if (cnx) {
+          this.populateLiveData(cnx, store);
+        } else {
+          this.resetLiveData();
+        }
+      })
+    );
+    this._register(
+      autorun((reader) => {
+        const tools = this.toolsFromServer.read(reader);
+        if (tools) {
+          this._toolCache.storeTools(definition.id, tools);
+        }
+      })
+    );
+    const toolPrefix = this._mcpRegistry.collectionToolPrefix(
+      this.collection
+    );
     this.tools = derived((reader) => {
       const serverTools = this.toolsFromServer.read(reader);
       const definitions = serverTools ?? this.toolsFromCache ?? [];
@@ -151,14 +211,25 @@ let McpServer = class extends Disposable {
     __name(this, "McpServer");
   }
   _connectionSequencer = new Sequencer();
-  _connection = this._register(disposableObservableValue(this, void 0));
+  _connection = this._register(
+    disposableObservableValue(
+      this,
+      void 0
+    )
+  );
   connection = this._connection;
-  connectionState = derived((reader) => this._connection.read(reader)?.state.read(reader) ?? { state: McpConnectionState.Kind.Stopped });
+  connectionState = derived(
+    (reader) => this._connection.read(reader)?.state.read(reader) ?? {
+      state: McpConnectionState.Kind.Stopped
+    }
+  );
   get toolsFromCache() {
     return this._toolCache.getTools(this.definition.id);
   }
   toolsFromServerPromise = observableValue(this, void 0);
-  toolsFromServer = derived((reader) => this.toolsFromServerPromise.read(reader)?.promiseResult.read(reader)?.data);
+  toolsFromServer = derived(
+    (reader) => this.toolsFromServerPromise.read(reader)?.promiseResult.read(reader)?.data
+  );
   tools;
   toolsState = derived((reader) => {
     const fromServer = this.toolsFromServerPromise.read(reader);
@@ -184,10 +255,16 @@ let McpServer = class extends Disposable {
   }
   start(isFromInteraction) {
     return this._connectionSequencer.queue(async () => {
-      const activationEvent = mcpActivationEvent(this.collection.id.slice(extensionMcpCollectionPrefix.length));
+      const activationEvent = mcpActivationEvent(
+        this.collection.id.slice(extensionMcpCollectionPrefix.length)
+      );
       if (this._requiresExtensionActivation && !this._extensionService.activationEventIsDone(activationEvent)) {
         await this._extensionService.activateByEvent(activationEvent);
-        await Promise.all(this._mcpRegistry.delegates.map((r) => r.waitForInitialProviderPromises()));
+        await Promise.all(
+          this._mcpRegistry.delegates.map(
+            (r) => r.waitForInitialProviderPromises()
+          )
+        );
         if (this._store.isDisposed) {
           return { state: McpConnectionState.Kind.Stopped };
         }
@@ -232,20 +309,33 @@ let McpServer = class extends Disposable {
     });
   }
   async _normalizeTool(originalTool) {
-    const tool = { ...originalTool, serverToolName: originalTool.name };
+    const tool = {
+      ...originalTool,
+      serverToolName: originalTool.name
+    };
     if (!tool.description) {
-      this._logger.warn(`Tool ${tool.name} does not have a description. Tools must be accurately described to be called`);
+      this._logger.warn(
+        `Tool ${tool.name} does not have a description. Tools must be accurately described to be called`
+      );
       tool.description = "<empty>";
     }
     if (toolInvalidCharRe.test(tool.name)) {
-      this._logger.warn(`Tool ${JSON.stringify(tool.name)} is invalid. Tools names may only contain [a-z0-9_-]`);
+      this._logger.warn(
+        `Tool ${JSON.stringify(tool.name)} is invalid. Tools names may only contain [a-z0-9_-]`
+      );
       tool.name = tool.name.replace(toolInvalidCharRe, "_");
     }
     let diagnostics = [];
     const toolJson = JSON.stringify(tool.inputSchema);
     try {
-      const schemaUri = URI.parse("https://json-schema.org/draft-07/schema");
-      diagnostics = await this._commandService.executeCommand("json.validate", schemaUri, toolJson) || [];
+      const schemaUri = URI.parse(
+        "https://json-schema.org/draft-07/schema"
+      );
+      diagnostics = await this._commandService.executeCommand(
+        "json.validate",
+        schemaUri,
+        toolJson
+      ) || [];
     } catch (e) {
     }
     if (!diagnostics.length) {
@@ -261,11 +351,18 @@ let McpServer = class extends Disposable {
   }
   async _getValidatedTools(handler, tools) {
     let error = "";
-    const validations = await Promise.all(tools.map((t) => this._normalizeTool(t)));
+    const validations = await Promise.all(
+      tools.map((t) => this._normalizeTool(t))
+    );
     const validated = [];
     for (const [i, result] of validations.entries()) {
       if ("error" in result) {
-        error += localize("mcpBadSchema.tool", "Tool `{0}` has invalid JSON parameters:", tools[i].name) + "\n";
+        error += `${localize(
+          "mcpBadSchema.tool",
+          "Tool `{0}` has invalid JSON parameters:",
+          tools[i].name
+        )}
+`;
         for (const message of result.error) {
           error += `	- ${message}
 `;
@@ -278,8 +375,14 @@ let McpServer = class extends Disposable {
       }
     }
     if (error) {
-      handler.logger.warn(`${tools.length - validated.length} tools have invalid JSON schemas and will be omitted`);
-      warnInvalidTools(this._instantiationService, this.definition.label, error);
+      handler.logger.warn(
+        `${tools.length - validated.length} tools have invalid JSON schemas and will be omitted`
+      );
+      warnInvalidTools(
+        this._instantiationService,
+        this.definition.label,
+        error
+      );
     }
     return validated;
   }
@@ -292,13 +395,18 @@ let McpServer = class extends Disposable {
         handler.logger.info(`Discovered ${tools.length} tools`);
         return this._getValidatedTools(handler, tools);
       });
-      this.toolsFromServerPromise.set(new ObservablePromise(toolPromiseSafe), tx);
+      this.toolsFromServerPromise.set(
+        new ObservablePromise(toolPromiseSafe),
+        tx
+      );
       return [toolPromise];
     }, "updateTools");
-    store.add(handler.onDidChangeToolList(() => {
-      handler.logger.info("Tool list changed, refreshing tools...");
-      updateTools(void 0);
-    }));
+    store.add(
+      handler.onDidChangeToolList(() => {
+        handler.logger.info("Tool list changed, refreshing tools...");
+        updateTools(void 0);
+      })
+    );
     let promises;
     transaction((tx) => {
       promises = updateTools(tx);
@@ -330,10 +438,18 @@ let McpServer = class extends Disposable {
         if (!handler) {
           const state = connection.state.read(reader);
           if (state.state === McpConnectionState.Kind.Error) {
-            reject(new McpConnectionFailedError(`MCP server could not be started: ${state.message}`));
+            reject(
+              new McpConnectionFailedError(
+                `MCP server could not be started: ${state.message}`
+              )
+            );
             return;
           } else if (state.state === McpConnectionState.Kind.Stopped) {
-            reject(new McpConnectionFailedError("MCP server has stopped"));
+            reject(
+              new McpConnectionFailedError(
+                "MCP server has stopped"
+              )
+            );
             return;
           } else {
             return;
@@ -343,7 +459,9 @@ let McpServer = class extends Disposable {
         ranOnce = true;
       });
     });
-    return raceCancellationError(callPromise, token).finally(() => d.dispose());
+    return raceCancellationError(callPromise, token).finally(
+      () => d.dispose()
+    );
   }
 };
 McpServer = __decorateClass([
@@ -371,7 +489,10 @@ class McpTool {
   }
   call(params, token) {
     const name = this._definition.serverToolName ?? this._definition.name;
-    return this._server.callOn((h) => h.callTool({ name, arguments: params }), token);
+    return this._server.callOn(
+      (h) => h.callTool({ name, arguments: params }),
+      token
+    );
   }
 }
 function warnInvalidTools(instaService, serverName, errorText) {
@@ -380,21 +501,27 @@ function warnInvalidTools(instaService, serverName, errorText) {
     const editorService = accessor.get(IEditorService);
     notificationService.notify({
       severity: Severity.Warning,
-      message: localize("mcpBadSchema", "MCP server `{0}` has tools with invalid parameters which will be omitted.", serverName),
+      message: localize(
+        "mcpBadSchema",
+        "MCP server `{0}` has tools with invalid parameters which will be omitted.",
+        serverName
+      ),
       actions: {
-        primary: [{
-          class: void 0,
-          enabled: true,
-          id: "mcpBadSchema.show",
-          tooltip: "",
-          label: localize("mcpBadSchema.show", "Show"),
-          run: /* @__PURE__ */ __name(() => {
-            editorService.openEditor({
-              resource: void 0,
-              contents: errorText
-            });
-          }, "run")
-        }]
+        primary: [
+          {
+            class: void 0,
+            enabled: true,
+            id: "mcpBadSchema.show",
+            tooltip: "",
+            label: localize("mcpBadSchema.show", "Show"),
+            run: /* @__PURE__ */ __name(() => {
+              editorService.openEditor({
+                resource: void 0,
+                contents: errorText
+              });
+            }, "run")
+          }
+        ]
       }
     });
   });

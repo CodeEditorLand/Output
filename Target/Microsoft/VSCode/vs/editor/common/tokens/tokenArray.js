@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { OffsetRange } from "../core/offsetRange.js";
-import { ILanguageIdCodec } from "../languages.js";
 import { LineTokens } from "./lineTokens.js";
 class TokenArray {
   constructor(_tokenInfo) {
@@ -13,7 +12,12 @@ class TokenArray {
   static fromLineTokens(lineTokens) {
     const tokenInfo = [];
     for (let i = 0; i < lineTokens.getCount(); i++) {
-      tokenInfo.push(new TokenInfo(lineTokens.getEndOffset(i) - lineTokens.getStartOffset(i), lineTokens.getMetadata(i)));
+      tokenInfo.push(
+        new TokenInfo(
+          lineTokens.getEndOffset(i) - lineTokens.getStartOffset(i),
+          lineTokens.getMetadata(i)
+        )
+      );
     }
     return TokenArray.create(tokenInfo);
   }
@@ -21,12 +25,21 @@ class TokenArray {
     return new TokenArray(tokenInfo);
   }
   toLineTokens(lineContent, decoder) {
-    return LineTokens.createFromTextAndMetadata(this.map((r, t) => ({ text: r.substring(lineContent), metadata: t.metadata })), decoder);
+    return LineTokens.createFromTextAndMetadata(
+      this.map((r, t) => ({
+        text: r.substring(lineContent),
+        metadata: t.metadata
+      })),
+      decoder
+    );
   }
   forEach(cb) {
     let lengthSum = 0;
     for (const tokenInfo of this._tokenInfo) {
-      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.length);
+      const range = new OffsetRange(
+        lengthSum,
+        lengthSum + tokenInfo.length
+      );
       cb(range, tokenInfo);
       lengthSum += tokenInfo.length;
     }
@@ -35,7 +48,10 @@ class TokenArray {
     const result = [];
     let lengthSum = 0;
     for (const tokenInfo of this._tokenInfo) {
-      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.length);
+      const range = new OffsetRange(
+        lengthSum,
+        lengthSum + tokenInfo.length
+      );
       result.push(cb(range, tokenInfo));
       lengthSum += tokenInfo.length;
     }
@@ -53,7 +69,12 @@ class TokenArray {
         }
         const deltaBefore = Math.max(0, range.start - tokenStart);
         const deltaAfter = Math.max(0, tokenEndEx - range.endExclusive);
-        result.push(new TokenInfo(tokenInfo.length - deltaBefore - deltaAfter, tokenInfo.metadata));
+        result.push(
+          new TokenInfo(
+            tokenInfo.length - deltaBefore - deltaAfter,
+            tokenInfo.metadata
+          )
+        );
       }
       lengthSum += tokenInfo.length;
     }

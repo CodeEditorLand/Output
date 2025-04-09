@@ -10,27 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import * as platform from "../../../base/common/platform.js";
-import { URI } from "../../../base/common/uri.js";
-import { EditOperation, ISingleEditOperation } from "../core/editOperation.js";
-import { Range } from "../core/range.js";
-import { DefaultEndOfLine, EndOfLinePreference, EndOfLineSequence, ITextBuffer, ITextBufferFactory, ITextModel, ITextModelCreationOptions } from "../model.js";
-import { TextModel, createTextBuffer } from "../model/textModel.js";
-import { EDITOR_MODEL_DEFAULTS } from "../core/textModelDefaults.js";
-import { IModelLanguageChangedEvent } from "../textModelEvents.js";
-import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
-import { ILanguageSelection } from "../languages/language.js";
-import { IModelService } from "./model.js";
-import { ITextResourcePropertiesService } from "./textResourceConfiguration.js";
-import { IConfigurationChangeEvent, IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IUndoRedoService, ResourceEditStackSnapshot } from "../../../platform/undoRedo/common/undoRedo.js";
+import { Emitter } from "../../../base/common/event.js";
 import { StringSHA1 } from "../../../base/common/hash.js";
-import { isEditStackElement } from "../model/editStack.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { equals } from "../../../base/common/objects.js";
+import * as platform from "../../../base/common/platform.js";
+import {
+  IConfigurationService
+} from "../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import {
+  IUndoRedoService
+} from "../../../platform/undoRedo/common/undoRedo.js";
+import {
+  EditOperation
+} from "../core/editOperation.js";
+import { Range } from "../core/range.js";
+import { EDITOR_MODEL_DEFAULTS } from "../core/textModelDefaults.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
+import {
+  DefaultEndOfLine,
+  EndOfLinePreference,
+  EndOfLineSequence
+} from "../model.js";
+import { isEditStackElement } from "../model/editStack.js";
+import { createTextBuffer, TextModel } from "../model/textModel.js";
+import { ITextResourcePropertiesService } from "./textResourceConfiguration.js";
 function MODEL_ID(resource) {
   return resource.toString();
 }
@@ -39,8 +48,12 @@ class ModelData {
   constructor(model, onWillDispose, onDidChangeLanguage) {
     this.model = model;
     this.model = model;
-    this._modelEventListeners.add(model.onWillDispose(() => onWillDispose(model)));
-    this._modelEventListeners.add(model.onDidChangeLanguage((e) => onDidChangeLanguage(model, e)));
+    this._modelEventListeners.add(
+      model.onWillDispose(() => onWillDispose(model))
+    );
+    this._modelEventListeners.add(
+      model.onDidChangeLanguage((e) => onDidChangeLanguage(model, e))
+    );
   }
   static {
     __name(this, "ModelData");
@@ -77,7 +90,11 @@ let ModelService = class extends Disposable {
     this._models = {};
     this._disposedModels = /* @__PURE__ */ new Map();
     this._disposedModelsHeapSize = 0;
-    this._register(this._configurationService.onDidChangeConfiguration((e) => this._updateModelOptions(e)));
+    this._register(
+      this._configurationService.onDidChangeConfiguration(
+        (e) => this._updateModelOptions(e)
+      )
+    );
     this._updateModelOptions(void 0);
   }
   static {
@@ -85,11 +102,17 @@ let ModelService = class extends Disposable {
   }
   static MAX_MEMORY_FOR_CLOSED_FILES_UNDO_STACK = 20 * 1024 * 1024;
   _serviceBrand;
-  _onModelAdded = this._register(new Emitter());
+  _onModelAdded = this._register(
+    new Emitter()
+  );
   onModelAdded = this._onModelAdded.event;
-  _onModelRemoved = this._register(new Emitter());
+  _onModelRemoved = this._register(
+    new Emitter()
+  );
   onModelRemoved = this._onModelRemoved.event;
-  _onModelModeChanged = this._register(new Emitter());
+  _onModelModeChanged = this._register(
+    new Emitter()
+  );
   onModelLanguageChanged = this._onModelModeChanged.event;
   _modelCreationOptionsByLanguageAndResource;
   /**
@@ -101,8 +124,8 @@ let ModelService = class extends Disposable {
   static _readModelOptions(config, isForSimpleWidget) {
     let tabSize = EDITOR_MODEL_DEFAULTS.tabSize;
     if (config.editor && typeof config.editor.tabSize !== "undefined") {
-      const parsedTabSize = parseInt(config.editor.tabSize, 10);
-      if (!isNaN(parsedTabSize)) {
+      const parsedTabSize = Number.parseInt(config.editor.tabSize, 10);
+      if (!Number.isNaN(parsedTabSize)) {
         tabSize = parsedTabSize;
       }
       if (tabSize < 1) {
@@ -111,8 +134,11 @@ let ModelService = class extends Disposable {
     }
     let indentSize = "tabSize";
     if (config.editor && typeof config.editor.indentSize !== "undefined" && config.editor.indentSize !== "tabSize") {
-      const parsedIndentSize = parseInt(config.editor.indentSize, 10);
-      if (!isNaN(parsedIndentSize)) {
+      const parsedIndentSize = Number.parseInt(
+        config.editor.indentSize,
+        10
+      );
+      if (!Number.isNaN(parsedIndentSize)) {
         indentSize = Math.max(parsedIndentSize, 1);
       }
     }
@@ -162,14 +188,18 @@ let ModelService = class extends Disposable {
     if (resource) {
       return this._resourcePropertiesService.getEOL(resource, language);
     }
-    const eol = this._configurationService.getValue("files.eol", { overrideIdentifier: language });
+    const eol = this._configurationService.getValue("files.eol", {
+      overrideIdentifier: language
+    });
     if (eol && typeof eol === "string" && eol !== "auto") {
       return eol;
     }
     return platform.OS === platform.OperatingSystem.Linux || platform.OS === platform.OperatingSystem.Macintosh ? "\n" : "\r\n";
   }
   _shouldRestoreUndoStack() {
-    const result = this._configurationService.getValue("files.restoreUndoStack");
+    const result = this._configurationService.getValue(
+      "files.restoreUndoStack"
+    );
     if (typeof result === "boolean") {
       return result;
     }
@@ -179,9 +209,15 @@ let ModelService = class extends Disposable {
     const language = typeof languageIdOrSelection === "string" ? languageIdOrSelection : languageIdOrSelection.languageId;
     let creationOptions = this._modelCreationOptionsByLanguageAndResource[language + resource];
     if (!creationOptions) {
-      const editor = this._configurationService.getValue("editor", { overrideIdentifier: language, resource });
+      const editor = this._configurationService.getValue(
+        "editor",
+        { overrideIdentifier: language, resource }
+      );
       const eol = this._getEOL(resource, language);
-      creationOptions = ModelService._readModelOptions({ editor, eol }, isForSimpleWidget);
+      creationOptions = ModelService._readModelOptions(
+        { editor, eol },
+        isForSimpleWidget
+      );
       this._modelCreationOptionsByLanguageAndResource[language + resource] = creationOptions;
     }
     return creationOptions;
@@ -195,23 +231,45 @@ let ModelService = class extends Disposable {
       const modelData = this._models[modelId];
       const language = modelData.model.getLanguageId();
       const uri = modelData.model.uri;
-      if (e && !e.affectsConfiguration("editor", { overrideIdentifier: language, resource: uri }) && !e.affectsConfiguration("files.eol", { overrideIdentifier: language, resource: uri })) {
+      if (e && !e.affectsConfiguration("editor", {
+        overrideIdentifier: language,
+        resource: uri
+      }) && !e.affectsConfiguration("files.eol", {
+        overrideIdentifier: language,
+        resource: uri
+      })) {
         continue;
       }
       const oldOptions = oldOptionsByLanguageAndResource[language + uri];
-      const newOptions = this.getCreationOptions(language, uri, modelData.model.isForSimpleWidget);
-      ModelService._setModelOptionsForModel(modelData.model, newOptions, oldOptions);
+      const newOptions = this.getCreationOptions(
+        language,
+        uri,
+        modelData.model.isForSimpleWidget
+      );
+      ModelService._setModelOptionsForModel(
+        modelData.model,
+        newOptions,
+        oldOptions
+      );
     }
   }
   static _setModelOptionsForModel(model, newOptions, currentOptions) {
     if (currentOptions && currentOptions.defaultEOL !== newOptions.defaultEOL && model.getLineCount() === 1) {
-      model.setEOL(newOptions.defaultEOL === DefaultEndOfLine.LF ? EndOfLineSequence.LF : EndOfLineSequence.CRLF);
+      model.setEOL(
+        newOptions.defaultEOL === DefaultEndOfLine.LF ? EndOfLineSequence.LF : EndOfLineSequence.CRLF
+      );
     }
-    if (currentOptions && currentOptions.detectIndentation === newOptions.detectIndentation && currentOptions.insertSpaces === newOptions.insertSpaces && currentOptions.tabSize === newOptions.tabSize && currentOptions.indentSize === newOptions.indentSize && currentOptions.trimAutoWhitespace === newOptions.trimAutoWhitespace && equals(currentOptions.bracketPairColorizationOptions, newOptions.bracketPairColorizationOptions)) {
+    if (currentOptions && currentOptions.detectIndentation === newOptions.detectIndentation && currentOptions.insertSpaces === newOptions.insertSpaces && currentOptions.tabSize === newOptions.tabSize && currentOptions.indentSize === newOptions.indentSize && currentOptions.trimAutoWhitespace === newOptions.trimAutoWhitespace && equals(
+      currentOptions.bracketPairColorizationOptions,
+      newOptions.bracketPairColorizationOptions
+    )) {
       return;
     }
     if (newOptions.detectIndentation) {
-      model.detectIndentation(newOptions.insertSpaces, newOptions.tabSize);
+      model.detectIndentation(
+        newOptions.insertSpaces,
+        newOptions.tabSize
+      );
       model.updateOptions({
         trimAutoWhitespace: newOptions.trimAutoWhitespace,
         bracketColorizationOptions: newOptions.bracketPairColorizationOptions
@@ -228,7 +286,10 @@ let ModelService = class extends Disposable {
   }
   // --- begin IModelService
   _insertDisposedModel(disposedModelData) {
-    this._disposedModels.set(MODEL_ID(disposedModelData.uri), disposedModelData);
+    this._disposedModels.set(
+      MODEL_ID(disposedModelData.uri),
+      disposedModelData
+    );
     this._disposedModelsHeapSize += disposedModelData.heapSize;
   }
   _removeDisposedModel(resource) {
@@ -252,13 +313,19 @@ let ModelService = class extends Disposable {
         const disposedModel = disposedModels.shift();
         this._removeDisposedModel(disposedModel.uri);
         if (disposedModel.initialUndoRedoSnapshot !== null) {
-          this._undoRedoService.restoreSnapshot(disposedModel.initialUndoRedoSnapshot);
+          this._undoRedoService.restoreSnapshot(
+            disposedModel.initialUndoRedoSnapshot
+          );
         }
       }
     }
   }
   _createModelData(value, languageIdOrSelection, resource, isForSimpleWidget) {
-    const options = this.getCreationOptions(languageIdOrSelection, resource, isForSimpleWidget);
+    const options = this.getCreationOptions(
+      languageIdOrSelection,
+      resource,
+      isForSimpleWidget
+    );
     const model = this._instantiationService.createInstance(
       TextModel,
       value,
@@ -282,21 +349,33 @@ let ModelService = class extends Disposable {
             element.setModel(model);
           }
         }
-        this._undoRedoService.setElementsValidFlag(resource, true, (element) => isEditStackElement(element) && element.matchesResource(resource));
+        this._undoRedoService.setElementsValidFlag(
+          resource,
+          true,
+          (element) => isEditStackElement(element) && element.matchesResource(resource)
+        );
         if (sha1IsEqual) {
           model._overwriteVersionId(disposedModelData.versionId);
-          model._overwriteAlternativeVersionId(disposedModelData.alternativeVersionId);
-          model._overwriteInitialUndoRedoSnapshot(disposedModelData.initialUndoRedoSnapshot);
+          model._overwriteAlternativeVersionId(
+            disposedModelData.alternativeVersionId
+          );
+          model._overwriteInitialUndoRedoSnapshot(
+            disposedModelData.initialUndoRedoSnapshot
+          );
         }
       } else {
         if (disposedModelData.initialUndoRedoSnapshot !== null) {
-          this._undoRedoService.restoreSnapshot(disposedModelData.initialUndoRedoSnapshot);
+          this._undoRedoService.restoreSnapshot(
+            disposedModelData.initialUndoRedoSnapshot
+          );
         }
       }
     }
     const modelId = MODEL_ID(model.uri);
     if (this._models[modelId]) {
-      throw new Error("ModelService: Cannot add model because it already exists!");
+      throw new Error(
+        "ModelService: Cannot add model because it already exists!"
+      );
     }
     const modelData = new ModelData(
       model,
@@ -307,14 +386,23 @@ let ModelService = class extends Disposable {
     return modelData;
   }
   updateModel(model, value) {
-    const options = this.getCreationOptions(model.getLanguageId(), model.uri, model.isForSimpleWidget);
-    const { textBuffer, disposable } = createTextBuffer(value, options.defaultEOL);
+    const options = this.getCreationOptions(
+      model.getLanguageId(),
+      model.uri,
+      model.isForSimpleWidget
+    );
+    const { textBuffer, disposable } = createTextBuffer(
+      value,
+      options.defaultEOL
+    );
     if (model.equalsTextBuffer(textBuffer)) {
       disposable.dispose();
       return;
     }
     model.pushStackElement();
-    model.pushEOL(textBuffer.getEOL() === "\r\n" ? EndOfLineSequence.CRLF : EndOfLineSequence.LF);
+    model.pushEOL(
+      textBuffer.getEOL() === "\r\n" ? EndOfLineSequence.CRLF : EndOfLineSequence.LF
+    );
     model.pushEditOperations(
       [],
       ModelService._computeEdits(model, textBuffer),
@@ -345,31 +433,93 @@ let ModelService = class extends Disposable {
   static _computeEdits(model, textBuffer) {
     const modelLineCount = model.getLineCount();
     const textBufferLineCount = textBuffer.getLineCount();
-    const commonPrefix = this._commonPrefix(model, modelLineCount, 1, textBuffer, textBufferLineCount, 1);
+    const commonPrefix = ModelService._commonPrefix(
+      model,
+      modelLineCount,
+      1,
+      textBuffer,
+      textBufferLineCount,
+      1
+    );
     if (modelLineCount === textBufferLineCount && commonPrefix === modelLineCount) {
       return [];
     }
-    const commonSuffix = this._commonSuffix(model, modelLineCount - commonPrefix, commonPrefix, textBuffer, textBufferLineCount - commonPrefix, commonPrefix);
+    const commonSuffix = ModelService._commonSuffix(
+      model,
+      modelLineCount - commonPrefix,
+      commonPrefix,
+      textBuffer,
+      textBufferLineCount - commonPrefix,
+      commonPrefix
+    );
     let oldRange;
     let newRange;
     if (commonSuffix > 0) {
-      oldRange = new Range(commonPrefix + 1, 1, modelLineCount - commonSuffix + 1, 1);
-      newRange = new Range(commonPrefix + 1, 1, textBufferLineCount - commonSuffix + 1, 1);
+      oldRange = new Range(
+        commonPrefix + 1,
+        1,
+        modelLineCount - commonSuffix + 1,
+        1
+      );
+      newRange = new Range(
+        commonPrefix + 1,
+        1,
+        textBufferLineCount - commonSuffix + 1,
+        1
+      );
     } else if (commonPrefix > 0) {
-      oldRange = new Range(commonPrefix, model.getLineMaxColumn(commonPrefix), modelLineCount, model.getLineMaxColumn(modelLineCount));
-      newRange = new Range(commonPrefix, 1 + textBuffer.getLineLength(commonPrefix), textBufferLineCount, 1 + textBuffer.getLineLength(textBufferLineCount));
+      oldRange = new Range(
+        commonPrefix,
+        model.getLineMaxColumn(commonPrefix),
+        modelLineCount,
+        model.getLineMaxColumn(modelLineCount)
+      );
+      newRange = new Range(
+        commonPrefix,
+        1 + textBuffer.getLineLength(commonPrefix),
+        textBufferLineCount,
+        1 + textBuffer.getLineLength(textBufferLineCount)
+      );
     } else {
-      oldRange = new Range(1, 1, modelLineCount, model.getLineMaxColumn(modelLineCount));
-      newRange = new Range(1, 1, textBufferLineCount, 1 + textBuffer.getLineLength(textBufferLineCount));
+      oldRange = new Range(
+        1,
+        1,
+        modelLineCount,
+        model.getLineMaxColumn(modelLineCount)
+      );
+      newRange = new Range(
+        1,
+        1,
+        textBufferLineCount,
+        1 + textBuffer.getLineLength(textBufferLineCount)
+      );
     }
-    return [EditOperation.replaceMove(oldRange, textBuffer.getValueInRange(newRange, EndOfLinePreference.TextDefined))];
+    return [
+      EditOperation.replaceMove(
+        oldRange,
+        textBuffer.getValueInRange(
+          newRange,
+          EndOfLinePreference.TextDefined
+        )
+      )
+    ];
   }
   createModel(value, languageSelection, resource, isForSimpleWidget = false) {
     let modelData;
     if (languageSelection) {
-      modelData = this._createModelData(value, languageSelection, resource, isForSimpleWidget);
+      modelData = this._createModelData(
+        value,
+        languageSelection,
+        resource,
+        isForSimpleWidget
+      );
     } else {
-      modelData = this._createModelData(value, PLAINTEXT_LANGUAGE_ID, resource, isForSimpleWidget);
+      modelData = this._createModelData(
+        value,
+        PLAINTEXT_LANGUAGE_ID,
+        resource,
+        isForSimpleWidget
+      );
     }
     this._onModelAdded.fire(modelData.model);
     return modelData.model;
@@ -433,7 +583,9 @@ let ModelService = class extends Disposable {
       if (!sharesUndoRedoStack) {
         const initialUndoRedoSnapshot = modelData.model.getInitialUndoRedoSnapshot();
         if (initialUndoRedoSnapshot !== null) {
-          this._undoRedoService.restoreSnapshot(initialUndoRedoSnapshot);
+          this._undoRedoService.restoreSnapshot(
+            initialUndoRedoSnapshot
+          );
         }
       }
     } else if (!sharesUndoRedoStack && (heapSize > maxMemory || !sha1Computer.canComputeSHA1(model))) {
@@ -443,8 +595,23 @@ let ModelService = class extends Disposable {
       }
     } else {
       this._ensureDisposedModelsHeapSize(maxMemory - heapSize);
-      this._undoRedoService.setElementsValidFlag(model.uri, false, (element) => isEditStackElement(element) && element.matchesResource(model.uri));
-      this._insertDisposedModel(new DisposedModelInfo(model.uri, modelData.model.getInitialUndoRedoSnapshot(), Date.now(), sharesUndoRedoStack, heapSize, sha1Computer.computeSHA1(model), model.getVersionId(), model.getAlternativeVersionId()));
+      this._undoRedoService.setElementsValidFlag(
+        model.uri,
+        false,
+        (element) => isEditStackElement(element) && element.matchesResource(model.uri)
+      );
+      this._insertDisposedModel(
+        new DisposedModelInfo(
+          model.uri,
+          modelData.model.getInitialUndoRedoSnapshot(),
+          Date.now(),
+          sharesUndoRedoStack,
+          heapSize,
+          sha1Computer.computeSHA1(model),
+          model.getVersionId(),
+          model.getAlternativeVersionId()
+        )
+      );
     }
     delete this._models[modelId];
     modelData.dispose();
@@ -454,8 +621,16 @@ let ModelService = class extends Disposable {
   _onDidChangeLanguage(model, e) {
     const oldLanguageId = e.oldLanguage;
     const newLanguageId = model.getLanguageId();
-    const oldOptions = this.getCreationOptions(oldLanguageId, model.uri, model.isForSimpleWidget);
-    const newOptions = this.getCreationOptions(newLanguageId, model.uri, model.isForSimpleWidget);
+    const oldOptions = this.getCreationOptions(
+      oldLanguageId,
+      model.uri,
+      model.isForSimpleWidget
+    );
+    const newOptions = this.getCreationOptions(
+      newLanguageId,
+      model.uri,
+      model.isForSimpleWidget
+    );
     ModelService._setModelOptionsForModel(model, newOptions, oldOptions);
     this._onModelModeChanged.fire({ model, oldLanguageId });
   }

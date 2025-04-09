@@ -136,7 +136,7 @@ const setTimeout0 = (() => {
   if (setTimeout0IsFaster) {
     const pending = [];
     $globalThis.addEventListener("message", (e) => {
-      if (e.data && e.data.vscodeScheduleAsyncWork) {
+      if (e.data?.vscodeScheduleAsyncWork) {
         for (let i = 0, len = pending.length; i < len; i++) {
           const candidate = pending[i];
           if (candidate.id === e.data.vscodeScheduleAsyncWork) {
@@ -182,11 +182,11 @@ function isLittleEndian() {
 __name(isLittleEndian, "isLittleEndian");
 const isChrome = !!(userAgent && userAgent.indexOf("Chrome") >= 0);
 const isFirefox = !!(userAgent && userAgent.indexOf("Firefox") >= 0);
-const isSafari = !!(!isChrome && (userAgent && userAgent.indexOf("Safari") >= 0));
+const isSafari = !!(!isChrome && userAgent && userAgent.indexOf("Safari") >= 0);
 const isEdge = !!(userAgent && userAgent.indexOf("Edg/") >= 0);
 const isAndroid = !!(userAgent && userAgent.indexOf("Android") >= 0);
 function isBigSurOrNewer(osVersion) {
-  return parseFloat(osVersion) >= 20;
+  return Number.parseFloat(osVersion) >= 20;
 }
 __name(isBigSurOrNewer, "isBigSurOrNewer");
 export {

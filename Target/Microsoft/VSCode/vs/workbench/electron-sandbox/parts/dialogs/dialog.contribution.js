@@ -10,36 +10,58 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDialogHandler, IDialogResult, IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  IDialogService
+} from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { IDialogsModel, IDialogViewItem } from "../../../common/dialogs.js";
-import { BrowserDialogHandler } from "../../../browser/parts/dialogs/dialogHandler.js";
-import { NativeDialogHandler } from "./dialogHandler.js";
-import { DialogService } from "../../../services/dialogs/common/dialogService.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { Lazy } from "../../../../base/common/lazy.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { BrowserDialogHandler } from "../../../browser/parts/dialogs/dialogHandler.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import { NativeDialogHandler } from "./dialogHandler.js";
 let DialogHandlerContribution = class extends Disposable {
   constructor(configurationService, dialogService, logService, layoutService, keybindingService, instantiationService, productService, clipboardService, nativeHostService, openerService) {
     super();
     this.configurationService = configurationService;
     this.dialogService = dialogService;
-    this.browserImpl = new Lazy(() => new BrowserDialogHandler(logService, layoutService, keybindingService, instantiationService, productService, clipboardService, openerService));
-    this.nativeImpl = new Lazy(() => new NativeDialogHandler(logService, nativeHostService, productService, clipboardService));
+    this.browserImpl = new Lazy(
+      () => new BrowserDialogHandler(
+        logService,
+        layoutService,
+        keybindingService,
+        instantiationService,
+        productService,
+        clipboardService,
+        openerService
+      )
+    );
+    this.nativeImpl = new Lazy(
+      () => new NativeDialogHandler(
+        logService,
+        nativeHostService,
+        productService,
+        clipboardService
+      )
+    );
     this.model = this.dialogService.model;
-    this._register(this.model.onWillShowDialog(() => {
-      if (!this.currentDialog) {
-        this.processDialogs();
-      }
-    }));
+    this._register(
+      this.model.onWillShowDialog(() => {
+        if (!this.currentDialog) {
+          this.processDialogs();
+        }
+      })
+    );
     this.processDialogs();
   }
   static {
@@ -57,7 +79,11 @@ let DialogHandlerContribution = class extends Disposable {
       try {
         if (this.currentDialog.args.confirmArgs) {
           const args = this.currentDialog.args.confirmArgs;
-          result = this.useCustomDialog || args?.confirmation.custom ? await this.browserImpl.value.confirm(args.confirmation) : await this.nativeImpl.value.confirm(args.confirmation);
+          result = this.useCustomDialog || args?.confirmation.custom ? await this.browserImpl.value.confirm(
+            args.confirmation
+          ) : await this.nativeImpl.value.confirm(
+            args.confirmation
+          );
         } else if (this.currentDialog.args.inputArgs) {
           const args = this.currentDialog.args.inputArgs;
           result = await this.browserImpl.value.input(args.input);

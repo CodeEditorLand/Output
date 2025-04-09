@@ -10,7 +10,7 @@ function asWebviewUri(resource, remoteInfo) {
   if (resource.scheme === Schemas.http || resource.scheme === Schemas.https) {
     return resource;
   }
-  if (remoteInfo && remoteInfo.authority && remoteInfo.isRemote && resource.scheme === Schemas.file) {
+  if (remoteInfo?.authority && remoteInfo.isRemote && resource.scheme === Schemas.file) {
     resource = URI.from({
       scheme: Schemas.vscodeRemote,
       authority: remoteInfo.authority,
@@ -32,12 +32,15 @@ function encodeAuthority(authority) {
     if (code >= CharCode.a && code <= CharCode.z || code >= CharCode.A && code <= CharCode.Z || code >= CharCode.Digit0 && code <= CharCode.Digit9) {
       return char;
     }
-    return "-" + code.toString(16).padStart(4, "0");
+    return `-${code.toString(16).padStart(4, "0")}`;
   });
 }
 __name(encodeAuthority, "encodeAuthority");
 function decodeAuthority(authority) {
-  return authority.replace(/-([0-9a-f]{4})/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+  return authority.replace(
+    /-([0-9a-f]{4})/g,
+    (_, code) => String.fromCharCode(Number.parseInt(code, 16))
+  );
 }
 __name(decodeAuthority, "decodeAuthority");
 export {

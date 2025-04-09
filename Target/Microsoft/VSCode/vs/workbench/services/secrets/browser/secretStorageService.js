@@ -12,9 +12,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { SequencerByKey } from "../../../../base/common/async.js";
 import { IEncryptionService } from "../../../../platform/encryption/common/encryptionService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { ISecretStorageProvider, ISecretStorageService, BaseSecretStorageService } from "../../../../platform/secrets/common/secrets.js";
+import {
+  BaseSecretStorageService,
+  ISecretStorageService
+} from "../../../../platform/secrets/common/secrets.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
 let BrowserSecretStorageService = class extends BaseSecretStorageService {
@@ -32,14 +38,17 @@ let BrowserSecretStorageService = class extends BaseSecretStorageService {
   }
   get(key) {
     if (this._secretStorageProvider) {
-      return this._embedderSequencer.queue(key, () => this._secretStorageProvider.get(key));
+      return this._embedderSequencer?.queue(
+        key,
+        () => this._secretStorageProvider?.get(key)
+      );
     }
     return super.get(key);
   }
   set(key, value) {
     if (this._secretStorageProvider) {
-      return this._embedderSequencer.queue(key, async () => {
-        await this._secretStorageProvider.set(key, value);
+      return this._embedderSequencer?.queue(key, async () => {
+        await this._secretStorageProvider?.set(key, value);
         this.onDidChangeSecretEmitter.fire(key);
       });
     }
@@ -47,8 +56,8 @@ let BrowserSecretStorageService = class extends BaseSecretStorageService {
   }
   delete(key) {
     if (this._secretStorageProvider) {
-      return this._embedderSequencer.queue(key, async () => {
-        await this._secretStorageProvider.delete(key);
+      return this._embedderSequencer?.queue(key, async () => {
+        await this._secretStorageProvider?.delete(key);
         this.onDidChangeSecretEmitter.fire(key);
       });
     }
@@ -67,7 +76,11 @@ BrowserSecretStorageService = __decorateClass([
   __decorateParam(2, IBrowserWorkbenchEnvironmentService),
   __decorateParam(3, ILogService)
 ], BrowserSecretStorageService);
-registerSingleton(ISecretStorageService, BrowserSecretStorageService, InstantiationType.Delayed);
+registerSingleton(
+  ISecretStorageService,
+  BrowserSecretStorageService,
+  InstantiationType.Delayed
+);
 export {
   BrowserSecretStorageService
 };

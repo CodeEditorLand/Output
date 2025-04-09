@@ -15,19 +15,30 @@ import { Codicon } from "../../../../base/common/codicons.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
 import * as nls from "../../../../nls.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  ConfirmResult,
+  IDialogService
+} from "../../../../platform/dialogs/common/dialogs.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-import { EditorInputCapabilities, IEditorIdentifier, IEditorSerializer, IUntypedEditorInput } from "../../../common/editor.js";
-import { EditorInput, IEditorCloseHandler } from "../../../common/editor/editorInput.js";
-import { IChatModel } from "../common/chatModel.js";
+import {
+  EditorInputCapabilities
+} from "../../../common/editor.js";
+import {
+  EditorInput
+} from "../../../common/editor/editorInput.js";
 import { IChatService } from "../common/chatService.js";
 import { ChatAgentLocation } from "../common/constants.js";
-import { ConfirmResult, IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { shouldShowClearEditingSessionConfirmation, showClearEditingSessionConfirmation } from "./actions/chatActions.js";
-const ChatEditorIcon = registerIcon("chat-editor-label-icon", Codicon.commentDiscussion, nls.localize("chatEditorLabelIcon", "Icon of the chat editor label."));
+import {
+  shouldShowClearEditingSessionConfirmation,
+  showClearEditingSessionConfirmation
+} from "./actions/chatActions.js";
+const ChatEditorIcon = registerIcon(
+  "chat-editor-label-icon",
+  Codicon.commentDiscussion,
+  nls.localize("chatEditorLabelIcon", "Icon of the chat editor label.")
+);
 let ChatEditorInput = class extends EditorInput {
   constructor(resource, options, chatService, dialogService) {
     super();
@@ -42,7 +53,11 @@ let ChatEditorInput = class extends EditorInput {
     this.sessionId = options.target && "sessionId" in options.target ? options.target.sessionId : void 0;
     this.inputCount = ChatEditorInput.getNextCount();
     ChatEditorInput.countsInUse.add(this.inputCount);
-    this._register(toDisposable(() => ChatEditorInput.countsInUse.delete(this.inputCount)));
+    this._register(
+      toDisposable(
+        () => ChatEditorInput.countsInUse.delete(this.inputCount)
+      )
+    );
   }
   static {
     __name(this, "ChatEditorInput");
@@ -66,15 +81,27 @@ let ChatEditorInput = class extends EditorInput {
   }
   closeHandler = this;
   showConfirm() {
-    return this.model?.editingSession ? shouldShowClearEditingSessionConfirmation(this.model.editingSession) : false;
+    return this.model?.editingSession ? shouldShowClearEditingSessionConfirmation(
+      this.model.editingSession
+    ) : false;
   }
   async confirm(editors) {
     if (!this.model?.editingSession) {
       return ConfirmResult.SAVE;
     }
-    const titleOverride = nls.localize("chatEditorConfirmTitle", "Close Chat Editor");
-    const messageOverride = nls.localize("chat.startEditing.confirmation.pending.message.default", "Closing the chat editor will end your current edit session.");
-    const result = await showClearEditingSessionConfirmation(this.model.editingSession, this.dialogService, { titleOverride, messageOverride });
+    const titleOverride = nls.localize(
+      "chatEditorConfirmTitle",
+      "Close Chat Editor"
+    );
+    const messageOverride = nls.localize(
+      "chat.startEditing.confirmation.pending.message.default",
+      "Closing the chat editor will end your current edit session."
+    );
+    const result = await showClearEditingSessionConfirmation(
+      this.model.editingSession,
+      this.dialogService,
+      { titleOverride, messageOverride }
+    );
     return result ? ConfirmResult.SAVE : ConfirmResult.CANCEL;
   }
   get editorId() {
@@ -97,17 +124,27 @@ let ChatEditorInput = class extends EditorInput {
   }
   async resolve() {
     if (typeof this.sessionId === "string") {
-      this.model = await this.chatService.getOrRestoreSession(this.sessionId) ?? this.chatService.startSession(ChatAgentLocation.Panel, CancellationToken.None);
+      this.model = await this.chatService.getOrRestoreSession(this.sessionId) ?? this.chatService.startSession(
+        ChatAgentLocation.Panel,
+        CancellationToken.None
+      );
     } else if (!this.options.target) {
-      this.model = this.chatService.startSession(ChatAgentLocation.Panel, CancellationToken.None);
+      this.model = this.chatService.startSession(
+        ChatAgentLocation.Panel,
+        CancellationToken.None
+      );
     } else if ("data" in this.options.target) {
-      this.model = this.chatService.loadSessionFromContent(this.options.target.data);
+      this.model = this.chatService.loadSessionFromContent(
+        this.options.target.data
+      );
     }
     if (!this.model) {
       return null;
     }
     this.sessionId = this.model.sessionId;
-    this._register(this.model.onDidChange(() => this._onDidChangeLabel.fire()));
+    this._register(
+      this.model.onDidChange(() => this._onDidChangeLabel.fire())
+    );
     return this._register(new ChatEditorModel(this.model));
   }
   dispose() {
@@ -164,8 +201,8 @@ var ChatUri;
     if (typeof handleStr !== "string") {
       return void 0;
     }
-    const handle = parseInt(handleStr);
-    if (isNaN(handle)) {
+    const handle = Number.parseInt(handleStr);
+    if (Number.isNaN(handle)) {
       return void 0;
     }
     return { handle };
@@ -195,7 +232,11 @@ class ChatEditorInputSerializer {
     try {
       const parsed = JSON.parse(serializedEditor);
       const resource = URI.revive(parsed.resource);
-      return instantiationService.createInstance(ChatEditorInput, resource, { ...parsed.options, target: { sessionId: parsed.sessionId } });
+      return instantiationService.createInstance(
+        ChatEditorInput,
+        resource,
+        { ...parsed.options, target: { sessionId: parsed.sessionId } }
+      );
     } catch (err) {
       return void 0;
     }

@@ -1,9 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-const IChatStatusItemService = createDecorator("IChatStatusItemService");
+const IChatStatusItemService = createDecorator(
+  "IChatStatusItemService"
+);
 class ChatStatusItemService {
   static {
     __name(this, "ChatStatusItemService");
@@ -26,7 +31,11 @@ class ChatStatusItemService {
     return this._entries.values();
   }
 }
-registerSingleton(IChatStatusItemService, ChatStatusItemService, InstantiationType.Delayed);
+registerSingleton(
+  IChatStatusItemService,
+  ChatStatusItemService,
+  InstantiationType.Delayed
+);
 export {
   IChatStatusItemService
 };

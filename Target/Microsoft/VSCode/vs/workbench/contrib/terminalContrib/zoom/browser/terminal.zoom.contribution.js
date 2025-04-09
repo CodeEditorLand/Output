@@ -10,20 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../../base/common/event.js";
-import { IMouseWheelEvent } from "../../../../../base/browser/mouseEvent.js";
 import { MouseWheelClassifier } from "../../../../../base/browser/ui/scrollbar/scrollableElement.js";
-import { Disposable, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { Event } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  MutableDisposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { isMacintosh } from "../../../../../base/common/platform.js";
-import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
-import { IDetachedTerminalInstance, ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { registerTerminalAction } from "../../../terminal/browser/terminalActions.js";
-import { localize2 } from "../../../../../nls.js";
 import { isNumber } from "../../../../../base/common/types.js";
+import { localize2 } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
+import { registerTerminalAction } from "../../../terminal/browser/terminalActions.js";
+import {
+  registerTerminalContribution
+} from "../../../terminal/browser/terminalExtensions.js";
 import { defaultTerminalFontSize } from "../../../terminal/common/terminalConfiguration.js";
-import { TerminalZoomCommandId, TerminalZoomSettingId } from "../common/terminal.zoom.js";
+import {
+  TerminalZoomCommandId,
+  TerminalZoomSettingId
+} from "../common/terminal.zoom.js";
 let TerminalMouseWheelZoomContribution = class extends Disposable {
   constructor(_ctx, _configurationService) {
     super();
@@ -39,19 +46,30 @@ let TerminalMouseWheelZoomContribution = class extends Disposable {
    */
   static activeFindWidget;
   static get(instance) {
-    return instance.getContribution(TerminalMouseWheelZoomContribution.ID);
+    return instance.getContribution(
+      TerminalMouseWheelZoomContribution.ID
+    );
   }
   _listener = this._register(new MutableDisposable());
   xtermOpen(xterm) {
-    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TerminalZoomSettingId.MouseWheelZoom)) {
-        if (!!this._configurationService.getValue(TerminalZoomSettingId.MouseWheelZoom)) {
-          this._setupMouseWheelZoomListener(xterm.raw);
-        } else {
-          this._listener.clear();
+    this._register(
+      Event.runAndSubscribe(
+        this._configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(
+            TerminalZoomSettingId.MouseWheelZoom
+          )) {
+            if (this._configurationService.getValue(
+              TerminalZoomSettingId.MouseWheelZoom
+            )) {
+              this._setupMouseWheelZoomListener(xterm.raw);
+            } else {
+              this._listener.clear();
+            }
+          }
         }
-      }
-    }));
+      )
+    );
   }
   _getConfigFontSize() {
     return this._configurationService.getValue(TerminalSettingId.FontSize);
@@ -67,7 +85,10 @@ let TerminalMouseWheelZoomContribution = class extends Disposable {
       if (classifier.isPhysicalMouseWheel()) {
         if (this._hasMouseWheelZoomModifiers(browserEvent)) {
           const delta = browserEvent.deltaY > 0 ? -1 : 1;
-          this._configurationService.updateValue(TerminalSettingId.FontSize, this._getConfigFontSize() + delta);
+          this._configurationService.updateValue(
+            TerminalSettingId.FontSize,
+            this._getConfigFontSize() + delta
+          );
           browserEvent.preventDefault();
           browserEvent.stopPropagation();
           return false;
@@ -81,10 +102,15 @@ let TerminalMouseWheelZoomContribution = class extends Disposable {
         prevMouseWheelTime = Date.now();
         gestureAccumulatedDelta += browserEvent.deltaY;
         if (gestureHasZoomModifiers) {
-          const deltaAbs = Math.ceil(Math.abs(gestureAccumulatedDelta / 5));
+          const deltaAbs = Math.ceil(
+            Math.abs(gestureAccumulatedDelta / 5)
+          );
           const deltaDirection = gestureAccumulatedDelta > 0 ? -1 : 1;
           const delta = deltaAbs * deltaDirection;
-          this._configurationService.updateValue(TerminalSettingId.FontSize, gestureStartFontSize + delta);
+          this._configurationService.updateValue(
+            TerminalSettingId.FontSize,
+            gestureStartFontSize + delta
+          );
           gestureAccumulatedDelta += browserEvent.deltaY;
           browserEvent.preventDefault();
           browserEvent.stopPropagation();
@@ -93,16 +119,26 @@ let TerminalMouseWheelZoomContribution = class extends Disposable {
       }
       return true;
     });
-    this._listener.value = toDisposable(() => raw.attachCustomWheelEventHandler(() => true));
+    this._listener.value = toDisposable(
+      () => raw.attachCustomWheelEventHandler(() => true)
+    );
   }
   _hasMouseWheelZoomModifiers(browserEvent) {
-    return isMacintosh ? (browserEvent.metaKey || browserEvent.ctrlKey) && !browserEvent.shiftKey && !browserEvent.altKey : browserEvent.ctrlKey && !browserEvent.metaKey && !browserEvent.shiftKey && !browserEvent.altKey;
+    return isMacintosh ? (
+      // on macOS we support cmd + two fingers scroll (`metaKey` set)
+      // and also the two fingers pinch gesture (`ctrKey` set)
+      (browserEvent.metaKey || browserEvent.ctrlKey) && !browserEvent.shiftKey && !browserEvent.altKey
+    ) : browserEvent.ctrlKey && !browserEvent.metaKey && !browserEvent.shiftKey && !browserEvent.altKey;
   }
 };
 TerminalMouseWheelZoomContribution = __decorateClass([
   __decorateParam(1, IConfigurationService)
 ], TerminalMouseWheelZoomContribution);
-registerTerminalContribution(TerminalMouseWheelZoomContribution.ID, TerminalMouseWheelZoomContribution, true);
+registerTerminalContribution(
+  TerminalMouseWheelZoomContribution.ID,
+  TerminalMouseWheelZoomContribution,
+  true
+);
 registerTerminalAction({
   id: TerminalZoomCommandId.FontZoomIn,
   title: localize2("fontZoomIn", "Increase Font Size"),
@@ -110,7 +146,10 @@ registerTerminalAction({
     const configurationService = accessor.get(IConfigurationService);
     const value = configurationService.getValue(TerminalSettingId.FontSize);
     if (isNumber(value)) {
-      await configurationService.updateValue(TerminalSettingId.FontSize, value + 1);
+      await configurationService.updateValue(
+        TerminalSettingId.FontSize,
+        value + 1
+      );
     }
   }, "run")
 });
@@ -121,7 +160,10 @@ registerTerminalAction({
     const configurationService = accessor.get(IConfigurationService);
     const value = configurationService.getValue(TerminalSettingId.FontSize);
     if (isNumber(value)) {
-      await configurationService.updateValue(TerminalSettingId.FontSize, value - 1);
+      await configurationService.updateValue(
+        TerminalSettingId.FontSize,
+        value - 1
+      );
     }
   }, "run")
 });
@@ -130,7 +172,10 @@ registerTerminalAction({
   title: localize2("fontZoomReset", "Reset Font Size"),
   run: /* @__PURE__ */ __name(async (c, accessor) => {
     const configurationService = accessor.get(IConfigurationService);
-    await configurationService.updateValue(TerminalSettingId.FontSize, defaultTerminalFontSize);
+    await configurationService.updateValue(
+      TerminalSettingId.FontSize,
+      defaultTerminalFontSize
+    );
   }, "run")
 });
 //# sourceMappingURL=terminal.zoom.contribution.js.map

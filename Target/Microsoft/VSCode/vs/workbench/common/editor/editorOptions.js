@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IRange } from "../../../editor/common/core/range.js";
-import { ICodeEditorViewState, IDiffEditorViewState, IEditor, ScrollType } from "../../../editor/common/editorCommon.js";
-import { ITextEditorOptions, TextEditorSelectionRevealType, TextEditorSelectionSource } from "../../../platform/editor/common/editor.js";
+import {
+  TextEditorSelectionRevealType,
+  TextEditorSelectionSource
+} from "../../../platform/editor/common/editor.js";
 import { isTextEditorViewState } from "../editor.js";
 function applyTextEditorOptions(options, editor, scrollType) {
   let applied = false;
@@ -18,7 +19,10 @@ function applyTextEditorOptions(options, editor, scrollType) {
       endLineNumber: options.selection.endLineNumber ?? options.selection.startLineNumber,
       endColumn: options.selection.endColumn ?? options.selection.startColumn
     };
-    editor.setSelection(range, options.selectionSource ?? TextEditorSelectionSource.NAVIGATION);
+    editor.setSelection(
+      range,
+      options.selectionSource ?? TextEditorSelectionSource.NAVIGATION
+    );
     if (options.selectionRevealType === TextEditorSelectionRevealType.NearTop) {
       editor.revealRangeNearTop(range, scrollType);
     } else if (options.selectionRevealType === TextEditorSelectionRevealType.NearTopIfOutsideViewport) {

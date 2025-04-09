@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Range } from "../core/range.js";
-import { GlyphMarginLane, IGlyphMarginLanesModel } from "../model.js";
+import { GlyphMarginLane } from "../model.js";
 const MAX_LANE = GlyphMarginLane.Right;
 class GlyphMarginLanesModel {
   static {
@@ -33,7 +32,10 @@ class GlyphMarginLanesModel {
     for (let i = range.startLineNumber; i <= range.endLineNumber; i++) {
       const bit = MAX_LANE * i + (lane - 1);
       this.lanes[bit >>> 3] |= 1 << bit % 8;
-      this._requiredLanes = Math.max(this._requiredLanes, this.countAtLine(i));
+      this._requiredLanes = Math.max(
+        this._requiredLanes,
+        this.countAtLine(i)
+      );
     }
   }
   getLanesAtLine(lineNumber) {

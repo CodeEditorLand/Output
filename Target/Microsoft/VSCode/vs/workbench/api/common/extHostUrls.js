@@ -1,10 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { MainContext, IMainContext, ExtHostUrlsShape, MainThreadUrlsShape } from "./extHost.protocol.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { toDisposable } from "../../../base/common/lifecycle.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
-import { ExtensionIdentifierSet, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { toDisposable } from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  ExtensionIdentifierSet
+} from "../../../platform/extensions/common/extensions.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
 class ExtHostUrls {
   static {
     __name(this, "ExtHostUrls");
@@ -19,12 +23,18 @@ class ExtHostUrls {
   registerUriHandler(extension, handler) {
     const extensionId = extension.identifier;
     if (this.handles.has(extensionId)) {
-      throw new Error(`Protocol handler already registered for extension ${extensionId}`);
+      throw new Error(
+        `Protocol handler already registered for extension ${extensionId}`
+      );
     }
     const handle = ExtHostUrls.HandlePool++;
     this.handles.add(extensionId);
     this.handlers.set(handle, handler);
-    this._proxy.$registerUriHandler(handle, extensionId, extension.displayName || extension.name);
+    this._proxy.$registerUriHandler(
+      handle,
+      extensionId,
+      extension.displayName || extension.name
+    );
     return toDisposable(() => {
       this.handles.delete(extensionId);
       this.handlers.delete(handle);

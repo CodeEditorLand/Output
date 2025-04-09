@@ -10,13 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../base/common/event.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { splitGlobAware } from "../../../../base/common/glob.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ISettableObservable, observableValue } from "../../../../base/common/observable.js";
+import {
+  observableValue
+} from "../../../../base/common/observable.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IObservableValue, MutableObservableValue } from "./observableValue.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import {
+  MutableObservableValue
+} from "./observableValue.js";
 import { StoredValue } from "./storedValue.js";
 import { namespaceTestTag } from "./testTypes.js";
 const ITestExplorerFilterState = createDecorator("testingFilterState");
@@ -43,15 +51,25 @@ let TestExplorerFilterState = class extends Disposable {
   fuzzy;
   reveal = observableValue("TestExplorerFilterState.reveal", void 0);
   onDidRequestInputFocus = this.focusEmitter.event;
-  selectTestInExplorerEmitter = this._register(new Emitter());
+  selectTestInExplorerEmitter = this._register(
+    new Emitter()
+  );
   onDidSelectTestInExplorer = this.selectTestInExplorerEmitter.event;
   constructor(storageService) {
     super();
-    this.fuzzy = this._register(MutableObservableValue.stored(new StoredValue({
-      key: "testHistoryFuzzy",
-      scope: StorageScope.PROFILE,
-      target: StorageTarget.USER
-    }, storageService), false));
+    this.fuzzy = this._register(
+      MutableObservableValue.stored(
+        new StoredValue(
+          {
+            key: "testHistoryFuzzy",
+            scope: StorageScope.PROFILE,
+            target: StorageTarget.USER
+          },
+          storageService
+        ),
+        false
+      )
+    );
   }
   /** @inheritdoc */
   didSelectTestInExplorer(testId) {
@@ -110,9 +128,15 @@ let TestExplorerFilterState = class extends Disposable {
     if (globText.length) {
       for (const filter of splitGlobAware(globText, ",").map((s) => s.trim()).filter((s) => !!s.length)) {
         if (filter.startsWith("!")) {
-          this.globList.push({ include: false, text: filter.slice(1).toLowerCase() });
+          this.globList.push({
+            include: false,
+            text: filter.slice(1).toLowerCase()
+          });
         } else {
-          this.globList.push({ include: true, text: filter.toLowerCase() });
+          this.globList.push({
+            include: true,
+            text: filter.toLowerCase()
+          });
         }
       }
     }

@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../../../../../base/common/lifecycle.js";
-import { IReader, derivedWithStore } from "../../../../../../../base/common/observable.js";
-import { Rect } from "../../../../../../browser/rect.js";
+import {
+  derivedWithStore
+} from "../../../../../../../base/common/observable.js";
 function setVisualization(data, visualization) {
   data["$$visualization"] = visualization;
 }
@@ -65,10 +65,10 @@ class HtmlRectVisualizer {
     const updatePosition = /* @__PURE__ */ __name(() => {
       const elemRect = this._elem.getBoundingClientRect();
       console.log(elemRect);
-      div.style.left = elemRect.left + this._rect.left + "px";
-      div.style.top = elemRect.top + this._rect.top + "px";
-      div.style.width = this._rect.width + "px";
-      div.style.height = this._rect.height + "px";
+      div.style.left = `${elemRect.left + this._rect.left}px`;
+      div.style.top = `${elemRect.top + this._rect.top}px`;
+      div.style.width = `${this._rect.width}px`;
+      div.style.height = `${this._rect.height}px`;
     }, "updatePosition");
     document.body.appendChild(div);
     updatePosition();

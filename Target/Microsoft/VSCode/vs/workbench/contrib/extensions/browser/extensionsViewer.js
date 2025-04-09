@@ -11,37 +11,58 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import { localize } from "../../../../nls.js";
-import { IDisposable, dispose, Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
-import { Action } from "../../../../base/common/actions.js";
-import { IExtensionsWorkbenchService, IExtension } from "../common/extensions.js";
-import { Event } from "../../../../base/common/event.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IListService, WorkbenchAsyncDataTree } from "../../../../platform/list/browser/listService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { registerThemingParticipant, IColorTheme, ICssStyleCollector } from "../../../../platform/theme/common/themeService.js";
-import { IAsyncDataSource, ITreeNode } from "../../../../base/browser/ui/tree/tree.js";
-import { IListVirtualDelegate, IListRenderer } from "../../../../base/browser/ui/list/list.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { isNonEmptyArray } from "../../../../base/common/arrays.js";
-import { Delegate, Renderer } from "./extensionsList.js";
-import { listFocusForeground, listFocusBackground, foreground, editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
 import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import { IStyleOverride } from "../../../../platform/theme/browser/defaultStyles.js";
+import { Action } from "../../../../base/common/actions.js";
+import { isNonEmptyArray } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Event } from "../../../../base/common/event.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IListService,
+  WorkbenchAsyncDataTree
+} from "../../../../platform/list/browser/listService.js";
+import {
+  editorBackground,
+  foreground,
+  listFocusBackground,
+  listFocusForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  registerThemingParticipant
+} from "../../../../platform/theme/common/themeService.js";
+import {
+  IExtensionsWorkbenchService
+} from "../common/extensions.js";
+import { Renderer } from "./extensionsList.js";
 import { getAriaLabelForExtension } from "./extensionsViews.js";
 let ExtensionsGridView = class extends Disposable {
   constructor(parent, delegate, instantiationService) {
     super();
     this.instantiationService = instantiationService;
     this.element = dom.append(parent, dom.$(".extensions-grid-view"));
-    this.renderer = this.instantiationService.createInstance(Renderer, { onFocus: Event.None, onBlur: Event.None, filters: {} }, { hoverOptions: { position() {
-      return HoverPosition.BELOW;
-    } } });
+    this.renderer = this.instantiationService.createInstance(
+      Renderer,
+      { onFocus: Event.None, onBlur: Event.None, filters: {} },
+      {
+        hoverOptions: {
+          position() {
+            return HoverPosition.BELOW;
+          }
+        }
+      }
+    );
     this.delegate = delegate;
     this.disposableStore = this._register(new DisposableStore());
   }
@@ -57,11 +78,16 @@ let ExtensionsGridView = class extends Disposable {
     extensions.forEach((e, index) => this.renderExtension(e, index));
   }
   renderExtension(extension, index) {
-    const extensionContainer = dom.append(this.element, dom.$(".extension-container"));
+    const extensionContainer = dom.append(
+      this.element,
+      dom.$(".extension-container")
+    );
     extensionContainer.style.height = `${this.delegate.getHeight()}px`;
     extensionContainer.setAttribute("tabindex", "0");
     const template = this.renderer.renderTemplate(extensionContainer);
-    this.disposableStore.add(toDisposable(() => this.renderer.disposeTemplate(template)));
+    this.disposableStore.add(
+      toDisposable(() => this.renderer.disposeTemplate(template))
+    );
     const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
     openExtensionAction.extension = extension;
     template.name.setAttribute("tabindex", "0");
@@ -73,9 +99,29 @@ let ExtensionsGridView = class extends Disposable {
       e.stopPropagation();
       e.preventDefault();
     }, "handleEvent");
-    this.disposableStore.add(dom.addDisposableListener(template.name, dom.EventType.CLICK, (e) => handleEvent(new StandardMouseEvent(dom.getWindow(template.name), e))));
-    this.disposableStore.add(dom.addDisposableListener(template.name, dom.EventType.KEY_DOWN, (e) => handleEvent(new StandardKeyboardEvent(e))));
-    this.disposableStore.add(dom.addDisposableListener(extensionContainer, dom.EventType.KEY_DOWN, (e) => handleEvent(new StandardKeyboardEvent(e))));
+    this.disposableStore.add(
+      dom.addDisposableListener(
+        template.name,
+        dom.EventType.CLICK,
+        (e) => handleEvent(
+          new StandardMouseEvent(dom.getWindow(template.name), e)
+        )
+      )
+    );
+    this.disposableStore.add(
+      dom.addDisposableListener(
+        template.name,
+        dom.EventType.KEY_DOWN,
+        (e) => handleEvent(new StandardKeyboardEvent(e))
+      )
+    );
+    this.disposableStore.add(
+      dom.addDisposableListener(
+        extensionContainer,
+        dom.EventType.KEY_DOWN,
+        (e) => handleEvent(new StandardKeyboardEvent(e))
+      )
+    );
     this.renderer.renderElement(extension, index, template);
   }
 };
@@ -122,11 +168,13 @@ let ExtensionRenderer = class {
     const header = dom.append(details, dom.$(".header"));
     const name = dom.append(header, dom.$("span.name"));
     const openExtensionAction = this.instantiationService.createInstance(OpenExtensionAction);
-    const extensionDisposables = [dom.addDisposableListener(name, "click", (e) => {
-      openExtensionAction.run(e.ctrlKey || e.metaKey);
-      e.stopPropagation();
-      e.preventDefault();
-    })];
+    const extensionDisposables = [
+      dom.addDisposableListener(name, "click", (e) => {
+        openExtensionAction.run(e.ctrlKey || e.metaKey);
+        e.stopPropagation();
+        e.preventDefault();
+      })
+    ];
     const identifier = dom.append(header, dom.$("span.identifier"));
     const footer = dom.append(details, dom.$(".footer"));
     const author = dom.append(footer, dom.$(".author"));
@@ -143,7 +191,14 @@ let ExtensionRenderer = class {
   }
   renderElement(node, index, data) {
     const extension = node.element.extension;
-    data.extensionDisposables.push(dom.addDisposableListener(data.icon, "error", () => data.icon.src = extension.iconUrlFallback, { once: true }));
+    data.extensionDisposables.push(
+      dom.addDisposableListener(
+        data.icon,
+        "error",
+        () => data.icon.src = extension.iconUrlFallback,
+        { once: true }
+      )
+    );
     data.icon.src = extension.iconUrl;
     if (!data.icon.complete) {
       data.icon.style.visibility = "hidden";
@@ -157,7 +212,9 @@ let ExtensionRenderer = class {
     data.extensionData = node.element;
   }
   disposeTemplate(templateData) {
-    templateData.extensionDisposables = dispose(templateData.extensionDisposables);
+    templateData.extensionDisposables = dispose(
+      templateData.extensionDisposables
+    );
   }
 };
 ExtensionRenderer = __decorateClass([
@@ -172,7 +229,10 @@ class UnknownExtensionRenderer {
     return UnknownExtensionRenderer.TEMPLATE_ID;
   }
   renderTemplate(container) {
-    const messageContainer = dom.append(container, dom.$("div.unknown-extension"));
+    const messageContainer = dom.append(
+      container,
+      dom.$("div.unknown-extension")
+    );
     dom.append(messageContainer, dom.$("span.error-marker")).textContent = localize("error", "Error");
     dom.append(messageContainer, dom.$("span.message")).textContent = localize("Unknown Extension", "Unknown Extension:");
     const identifier = dom.append(messageContainer, dom.$("span.message"));
@@ -198,7 +258,9 @@ let OpenExtensionAction = class extends Action {
   }
   run(sideByside) {
     if (this._extension) {
-      return this.extensionsWorkdbenchService.open(this._extension, { sideByside });
+      return this.extensionsWorkdbenchService.open(this._extension, {
+        sideByside
+      });
     }
     return Promise.resolve();
   }
@@ -213,10 +275,13 @@ let ExtensionsTree = class extends WorkbenchAsyncDataTree {
   constructor(input, container, overrideStyles, contextKeyService, listService, instantiationService, configurationService, extensionsWorkdbenchService) {
     const delegate = new VirualDelegate();
     const dataSource = new AsyncDataSource();
-    const renderers = [instantiationService.createInstance(ExtensionRenderer), instantiationService.createInstance(UnknownExtensionRenderer)];
+    const renderers = [
+      instantiationService.createInstance(ExtensionRenderer),
+      instantiationService.createInstance(UnknownExtensionRenderer)
+    ];
     const identityProvider = {
       getId({ extension, parent }) {
-        return parent ? this.getId(parent) + "/" + extension.identifier.id : extension.identifier.id;
+        return parent ? `${this.getId(parent)}/${extension.identifier.id}` : extension.identifier.id;
       }
     };
     super(
@@ -232,7 +297,9 @@ let ExtensionsTree = class extends WorkbenchAsyncDataTree {
         overrideStyles,
         accessibilityProvider: {
           getAriaLabel(extensionData) {
-            return getAriaLabelForExtension(extensionData.extension);
+            return getAriaLabelForExtension(
+              extensionData.extension
+            );
           },
           getWidgetAriaLabel() {
             return localize("extensions", "Extensions");
@@ -245,11 +312,16 @@ let ExtensionsTree = class extends WorkbenchAsyncDataTree {
       configurationService
     );
     this.setInput(input);
-    this.disposables.add(this.onDidChangeSelection((event) => {
-      if (dom.isKeyboardEvent(event.browserEvent)) {
-        extensionsWorkdbenchService.open(event.elements[0].extension, { sideByside: false });
-      }
-    }));
+    this.disposables.add(
+      this.onDidChangeSelection((event) => {
+        if (dom.isKeyboardEvent(event.browserEvent)) {
+          extensionsWorkdbenchService.open(
+            event.elements[0].extension,
+            { sideByside: false }
+          );
+        }
+      })
+    );
   }
 };
 ExtensionsTree = __decorateClass([
@@ -280,8 +352,18 @@ class ExtensionData {
   }
   async getChildren() {
     if (this.hasChildren) {
-      const result = await getExtensions(this.childrenExtensionIds, this.extensionsWorkbenchService);
-      return result.map((extension) => new ExtensionData(extension, this, this.getChildrenExtensionIds, this.extensionsWorkbenchService));
+      const result = await getExtensions(
+        this.childrenExtensionIds,
+        this.extensionsWorkbenchService
+      );
+      return result.map(
+        (extension) => new ExtensionData(
+          extension,
+          this,
+          this.getChildrenExtensionIds,
+          this.extensionsWorkbenchService
+        )
+      );
     }
     return null;
   }
@@ -303,30 +385,43 @@ async function getExtensions(extensions, extensionsWorkbenchService) {
     }
   }
   if (toQuery.length) {
-    const galleryResult = await extensionsWorkbenchService.getExtensions(toQuery.map((id) => ({ id })), CancellationToken.None);
+    const galleryResult = await extensionsWorkbenchService.getExtensions(
+      toQuery.map((id) => ({ id })),
+      CancellationToken.None
+    );
     result.push(...galleryResult);
   }
   return result;
 }
 __name(getExtensions, "getExtensions");
-registerThemingParticipant((theme, collector) => {
-  const focusBackground = theme.getColor(listFocusBackground);
-  if (focusBackground) {
-    collector.addRule(`.extensions-grid-view .extension-container:focus { background-color: ${focusBackground}; outline: none; }`);
+registerThemingParticipant(
+  (theme, collector) => {
+    const focusBackground = theme.getColor(listFocusBackground);
+    if (focusBackground) {
+      collector.addRule(
+        `.extensions-grid-view .extension-container:focus { background-color: ${focusBackground}; outline: none; }`
+      );
+    }
+    const focusForeground = theme.getColor(listFocusForeground);
+    if (focusForeground) {
+      collector.addRule(
+        `.extensions-grid-view .extension-container:focus { color: ${focusForeground}; }`
+      );
+    }
+    const foregroundColor = theme.getColor(foreground);
+    const editorBackgroundColor = theme.getColor(editorBackground);
+    if (foregroundColor && editorBackgroundColor) {
+      const authorForeground = foregroundColor.transparent(0.9).makeOpaque(editorBackgroundColor);
+      collector.addRule(
+        `.extensions-grid-view .extension-container:not(.disabled) .author { color: ${authorForeground}; }`
+      );
+      const disabledExtensionForeground = foregroundColor.transparent(0.5).makeOpaque(editorBackgroundColor);
+      collector.addRule(
+        `.extensions-grid-view .extension-container.disabled { color: ${disabledExtensionForeground}; }`
+      );
+    }
   }
-  const focusForeground = theme.getColor(listFocusForeground);
-  if (focusForeground) {
-    collector.addRule(`.extensions-grid-view .extension-container:focus { color: ${focusForeground}; }`);
-  }
-  const foregroundColor = theme.getColor(foreground);
-  const editorBackgroundColor = theme.getColor(editorBackground);
-  if (foregroundColor && editorBackgroundColor) {
-    const authorForeground = foregroundColor.transparent(0.9).makeOpaque(editorBackgroundColor);
-    collector.addRule(`.extensions-grid-view .extension-container:not(.disabled) .author { color: ${authorForeground}; }`);
-    const disabledExtensionForeground = foregroundColor.transparent(0.5).makeOpaque(editorBackgroundColor);
-    collector.addRule(`.extensions-grid-view .extension-container.disabled { color: ${disabledExtensionForeground}; }`);
-  }
-});
+);
 export {
   ExtensionData,
   ExtensionsGridView,

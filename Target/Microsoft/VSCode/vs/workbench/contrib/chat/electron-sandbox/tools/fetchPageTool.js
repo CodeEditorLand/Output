@@ -10,19 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../../nls.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
+import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { URI } from "../../../../../base/common/uri.js";
+import { localize } from "../../../../../nls.js";
 import { IWebContentExtractorService } from "../../../../../platform/webContentExtractor/common/webContentExtractor.js";
 import { ITrustedDomainService } from "../../../url/browser/trustedDomainService.js";
-import { CountTokensCallback, IPreparedToolInvocation, IToolData, IToolImpl, IToolInvocation, IToolResult, IToolResultTextPart } from "../../common/languageModelToolsService.js";
-import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { InternalFetchWebPageToolId } from "../../common/tools/tools.js";
 const FetchWebPageToolData = {
   id: InternalFetchWebPageToolId,
   displayName: "Fetch Web Page",
   canBeReferencedInPrompt: false,
-  modelDescription: localize("fetchWebPage.modelDescription", "Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage."),
+  modelDescription: localize(
+    "fetchWebPage.modelDescription",
+    "Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage."
+  ),
   source: { type: "internal" },
   inputSchema: {
     type: "object",
@@ -32,7 +33,10 @@ const FetchWebPageToolData = {
         items: {
           type: "string"
         },
-        description: localize("fetchWebPage.urlsDescription", "An array of URLs to fetch content from.")
+        description: localize(
+          "fetchWebPage.urlsDescription",
+          "An array of URLs to fetch content from."
+        )
       }
     },
     required: ["urls"]
@@ -48,11 +52,23 @@ let FetchWebPageTool = class {
   }
   _alreadyApprovedDomains = /* @__PURE__ */ new Set();
   async invoke(invocation, _countTokens, _token) {
-    const parsedUriResults = this._parseUris(invocation.parameters.urls);
-    const validUris = Array.from(parsedUriResults.values()).filter((uri) => !!uri);
+    const parsedUriResults = this._parseUris(
+      invocation.parameters.urls
+    );
+    const validUris = Array.from(parsedUriResults.values()).filter(
+      (uri) => !!uri
+    );
     if (!validUris.length) {
       return {
-        content: [{ kind: "text", value: localize("fetchWebPage.noValidUrls", "No valid URLs provided.") }]
+        content: [
+          {
+            kind: "text",
+            value: localize(
+              "fetchWebPage.noValidUrls",
+              "No valid URLs provided."
+            )
+          }
+        ]
       };
     }
     for (const uri of validUris) {
@@ -88,66 +104,130 @@ let FetchWebPageTool = class {
         valid.push(uri);
       }
     });
-    const urlsNeedingConfirmation = valid.filter((url) => !this._trustedDomainService.isValid(url) && !this._alreadyApprovedDomains.has(url.toString(true)));
-    const pastTenseMessage = invalid.length ? invalid.length > 1 ? new MarkdownString(
-      localize(
-        "fetchWebPage.pastTenseMessage.plural",
-        "Fetched {0} web pages, but the following were invalid URLs:\n\n{1}\n\n",
-        valid.length,
-        invalid.map((url) => `- ${url}`).join("\n")
+    const urlsNeedingConfirmation = valid.filter(
+      (url) => !this._trustedDomainService.isValid(url) && !this._alreadyApprovedDomains.has(url.toString(true))
+    );
+    const pastTenseMessage = invalid.length ? invalid.length > 1 ? (
+      // If there are multiple invalid URLs, show them all
+      new MarkdownString(
+        localize(
+          "fetchWebPage.pastTenseMessage.plural",
+          "Fetched {0} web pages, but the following were invalid URLs:\n\n{1}\n\n",
+          valid.length,
+          invalid.map((url) => `- ${url}`).join("\n")
+        )
       )
-    ) : new MarkdownString(
-      localize(
-        "fetchWebPage.pastTenseMessage.singular",
-        "Fetched web page, but the following was an invalid URL:\n\n{0}\n\n",
-        invalid[0]
+    ) : (
+      // If there is only one invalid URL, show it
+      new MarkdownString(
+        localize(
+          "fetchWebPage.pastTenseMessage.singular",
+          "Fetched web page, but the following was an invalid URL:\n\n{0}\n\n",
+          invalid[0]
+        )
       )
-    ) : new MarkdownString();
+    ) : (
+      // No invalid URLs
+      new MarkdownString()
+    );
     const invocationMessage = new MarkdownString();
     if (valid.length > 1) {
-      pastTenseMessage.appendMarkdown(localize("fetchWebPage.pastTenseMessageResult.plural", "Fetched {0} web pages", valid.length));
-      invocationMessage.appendMarkdown(localize("fetchWebPage.invocationMessage.plural", "Fetching {0} web pages", valid.length));
+      pastTenseMessage.appendMarkdown(
+        localize(
+          "fetchWebPage.pastTenseMessageResult.plural",
+          "Fetched {0} web pages",
+          valid.length
+        )
+      );
+      invocationMessage.appendMarkdown(
+        localize(
+          "fetchWebPage.invocationMessage.plural",
+          "Fetching {0} web pages",
+          valid.length
+        )
+      );
     } else {
       const url = valid[0].toString();
       if (url.length > 400) {
-        pastTenseMessage.appendMarkdown(localize({
-          key: "fetchWebPage.pastTenseMessageResult.singularAsLink",
-          comment: [
-            // Make sure the link syntax is correct
-            '{Locked="]({0})"}'
-          ]
-        }, "Fetched [web page]({0})", url));
-        invocationMessage.appendMarkdown(localize({
-          key: "fetchWebPage.invocationMessage.singularAsLink",
-          comment: [
-            // Make sure the link syntax is correct
-            '{Locked="]({0})"}'
-          ]
-        }, "Fetching [web page]({0})", url));
+        pastTenseMessage.appendMarkdown(
+          localize(
+            {
+              key: "fetchWebPage.pastTenseMessageResult.singularAsLink",
+              comment: [
+                // Make sure the link syntax is correct
+                '{Locked="]({0})"}'
+              ]
+            },
+            "Fetched [web page]({0})",
+            url
+          )
+        );
+        invocationMessage.appendMarkdown(
+          localize(
+            {
+              key: "fetchWebPage.invocationMessage.singularAsLink",
+              comment: [
+                // Make sure the link syntax is correct
+                '{Locked="]({0})"}'
+              ]
+            },
+            "Fetching [web page]({0})",
+            url
+          )
+        );
       } else {
-        pastTenseMessage.appendMarkdown(localize("fetchWebPage.pastTenseMessageResult.singular", "Fetched {0}", url));
-        invocationMessage.appendMarkdown(localize("fetchWebPage.invocationMessage.singular", "Fetching {0}", url));
+        pastTenseMessage.appendMarkdown(
+          localize(
+            "fetchWebPage.pastTenseMessageResult.singular",
+            "Fetched {0}",
+            url
+          )
+        );
+        invocationMessage.appendMarkdown(
+          localize(
+            "fetchWebPage.invocationMessage.singular",
+            "Fetching {0}",
+            url
+          )
+        );
       }
     }
-    const result = { invocationMessage, pastTenseMessage };
+    const result = {
+      invocationMessage,
+      pastTenseMessage
+    };
     if (urlsNeedingConfirmation.length) {
-      const confirmationTitle = urlsNeedingConfirmation.length > 1 ? localize("fetchWebPage.confirmationTitle.plural", "Fetch untrusted web pages?") : localize("fetchWebPage.confirmationTitle.singular", "Fetch untrusted web page?");
+      const confirmationTitle = urlsNeedingConfirmation.length > 1 ? localize(
+        "fetchWebPage.confirmationTitle.plural",
+        "Fetch untrusted web pages?"
+      ) : localize(
+        "fetchWebPage.confirmationTitle.singular",
+        "Fetch untrusted web page?"
+      );
       const managedTrustedDomainsCommand = "workbench.action.manageTrustedDomain";
       const confirmationMessage = new MarkdownString(
         urlsNeedingConfirmation.length > 1 ? urlsNeedingConfirmation.map((uri) => `- ${uri.toString()}`).join("\n") : urlsNeedingConfirmation[0].toString(),
         {
-          isTrusted: { enabledCommands: [managedTrustedDomainsCommand] },
+          isTrusted: {
+            enabledCommands: [managedTrustedDomainsCommand]
+          },
           supportThemeIcons: true
         }
       );
       confirmationMessage.appendMarkdown(
-        "\n\n$(info) " + localize(
+        `
+
+$(info) ${localize(
           "fetchWebPage.confirmationMessageManageTrustedDomains",
           "You can [manage your trusted domains]({0}) to skip this confirmation in the future.",
           `command:${managedTrustedDomainsCommand}`
-        )
+        )}`
       );
-      result.confirmationMessages = { title: confirmationTitle, message: confirmationMessage, allowAutoConfirm: false };
+      result.confirmationMessages = {
+        title: confirmationTitle,
+        message: confirmationMessage,
+        allowAutoConfirm: false
+      };
     }
     return result;
   }

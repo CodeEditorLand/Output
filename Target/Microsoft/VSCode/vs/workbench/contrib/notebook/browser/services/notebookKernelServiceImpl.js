@@ -10,20 +10,30 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event, Emitter } from "../../../../../base/common/event.js";
-import { Disposable, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
-import { INotebookKernelSourceAction, INotebookTextModel } from "../../common/notebookCommon.js";
-import { INotebookKernel, ISelectedNotebooksChangeEvent, INotebookKernelMatchResult, INotebookKernelService, INotebookTextModelLike, ISourceAction, INotebookSourceActionChangeEvent, INotebookKernelDetectionTask, IKernelSourceActionProvider } from "../../common/notebookKernelService.js";
+import {
+  getActiveWindow,
+  runWhenWindowIdle
+} from "../../../../../base/browser/dom.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { LRUCache, ResourceMap } from "../../../../../base/common/map.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../../platform/storage/common/storage.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { INotebookService } from "../../common/notebookService.js";
-import { IMenu, IMenuService, MenuId } from "../../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IAction } from "../../../../../base/common/actions.js";
 import { MarshalledId } from "../../../../../base/common/marshallingIds.js";
 import { Schemas } from "../../../../../base/common/network.js";
-import { getActiveWindow, runWhenWindowIdle } from "../../../../../base/browser/dom.js";
+import { URI } from "../../../../../base/common/uri.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../../platform/actions/common/actions.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../../platform/storage/common/storage.js";
+import { INotebookService } from "../../common/notebookService.js";
 class KernelInfo {
   static {
     __name(this, "KernelInfo");
@@ -95,18 +105,31 @@ let NotebookKernelService = class extends Disposable {
     this._storageService = _storageService;
     this._menuService = _menuService;
     this._contextKeyService = _contextKeyService;
-    this._register(_notebookService.onDidAddNotebookDocument(this._tryAutoBindNotebook, this));
-    this._register(_notebookService.onWillRemoveNotebookDocument((notebook) => {
-      const id = NotebookTextModelLikeId.str(notebook);
-      const kernelId = this._notebookBindings.get(id);
-      if (kernelId && notebook.uri.scheme === Schemas.untitled) {
-        this.selectKernelForNotebook(void 0, notebook);
-      }
-      this._kernelSourceActionsUpdates.get(id)?.dispose();
-      this._kernelSourceActionsUpdates.delete(id);
-    }));
+    this._register(
+      _notebookService.onDidAddNotebookDocument(
+        this._tryAutoBindNotebook,
+        this
+      )
+    );
+    this._register(
+      _notebookService.onWillRemoveNotebookDocument((notebook) => {
+        const id = NotebookTextModelLikeId.str(notebook);
+        const kernelId = this._notebookBindings.get(id);
+        if (kernelId && notebook.uri.scheme === Schemas.untitled) {
+          this.selectKernelForNotebook(void 0, notebook);
+        }
+        this._kernelSourceActionsUpdates.get(id)?.dispose();
+        this._kernelSourceActionsUpdates.delete(id);
+      })
+    );
     try {
-      const data = JSON.parse(this._storageService.get(NotebookKernelService._storageNotebookBinding, StorageScope.WORKSPACE, "[]"));
+      const data = JSON.parse(
+        this._storageService.get(
+          NotebookKernelService._storageNotebookBinding,
+          StorageScope.WORKSPACE,
+          "[]"
+        )
+      );
       this._notebookBindings.fromJSON(data);
     } catch {
     }
@@ -115,17 +138,34 @@ let NotebookKernelService = class extends Disposable {
     __name(this, "NotebookKernelService");
   }
   _kernels = /* @__PURE__ */ new Map();
-  _notebookBindings = new LRUCache(1e3, 0.7);
-  _onDidChangeNotebookKernelBinding = this._register(new Emitter());
-  _onDidAddKernel = this._register(new Emitter());
-  _onDidRemoveKernel = this._register(new Emitter());
-  _onDidChangeNotebookAffinity = this._register(new Emitter());
-  _onDidChangeSourceActions = this._register(new Emitter());
-  _onDidNotebookVariablesChange = this._register(new Emitter());
+  _notebookBindings = new LRUCache(
+    1e3,
+    0.7
+  );
+  _onDidChangeNotebookKernelBinding = this._register(
+    new Emitter()
+  );
+  _onDidAddKernel = this._register(
+    new Emitter()
+  );
+  _onDidRemoveKernel = this._register(
+    new Emitter()
+  );
+  _onDidChangeNotebookAffinity = this._register(
+    new Emitter()
+  );
+  _onDidChangeSourceActions = this._register(
+    new Emitter()
+  );
+  _onDidNotebookVariablesChange = this._register(
+    new Emitter()
+  );
   _kernelSources = /* @__PURE__ */ new Map();
   _kernelSourceActionsUpdates = /* @__PURE__ */ new Map();
   _kernelDetectionTasks = /* @__PURE__ */ new Map();
-  _onDidChangeKernelDetectionTasks = this._register(new Emitter());
+  _onDidChangeKernelDetectionTasks = this._register(
+    new Emitter()
+  );
   _kernelSourceActionProviders = /* @__PURE__ */ new Map();
   onDidChangeSelectedNotebooks = this._onDidChangeNotebookKernelBinding.event;
   onDidAddKernel = this._onDidAddKernel.event;
@@ -150,9 +190,18 @@ let NotebookKernelService = class extends Disposable {
   _persistSoonHandle;
   _persistMementos() {
     this._persistSoonHandle?.dispose();
-    this._persistSoonHandle = runWhenWindowIdle(getActiveWindow(), () => {
-      this._storageService.store(NotebookKernelService._storageNotebookBinding, JSON.stringify(this._notebookBindings), StorageScope.WORKSPACE, StorageTarget.MACHINE);
-    }, 100);
+    this._persistSoonHandle = runWhenWindowIdle(
+      getActiveWindow(),
+      () => {
+        this._storageService.store(
+          NotebookKernelService._storageNotebookBinding,
+          JSON.stringify(this._notebookBindings),
+          StorageScope.WORKSPACE,
+          StorageTarget.MACHINE
+        );
+      },
+      100
+    );
   }
   static _score(kernel, notebook) {
     if (kernel.viewType === "*") {
@@ -164,7 +213,9 @@ let NotebookKernelService = class extends Disposable {
     }
   }
   _tryAutoBindNotebook(notebook, onlyThisKernel) {
-    const id = this._notebookBindings.get(NotebookTextModelLikeId.str(notebook));
+    const id = this._notebookBindings.get(
+      NotebookTextModelLikeId.str(notebook)
+    );
     if (!id) {
       return;
     }
@@ -173,7 +224,11 @@ let NotebookKernelService = class extends Disposable {
       return;
     }
     if (!onlyThisKernel || existingKernel.kernel === onlyThisKernel) {
-      this._onDidChangeNotebookKernelBinding.fire({ notebook: notebook.uri, oldKernel: void 0, newKernel: existingKernel.kernel.id });
+      this._onDidChangeNotebookKernelBinding.fire({
+        notebook: notebook.uri,
+        oldKernel: void 0,
+        newKernel: existingKernel.kernel.id
+      });
     }
   }
   notifyVariablesChange(notebookUri) {
@@ -181,7 +236,9 @@ let NotebookKernelService = class extends Disposable {
   }
   registerKernel(kernel) {
     if (this._kernels.has(kernel.id)) {
-      throw new Error(`NOTEBOOK CONTROLLER with id '${kernel.id}' already exists`);
+      throw new Error(
+        `NOTEBOOK CONTROLLER with id '${kernel.id}' already exists`
+      );
     }
     this._kernels.set(kernel.id, new KernelInfo(kernel));
     this._onDidAddKernel.fire(kernel);
@@ -194,7 +251,11 @@ let NotebookKernelService = class extends Disposable {
       }
       for (const [key, candidate] of Array.from(this._notebookBindings)) {
         if (candidate === kernel.id) {
-          this._onDidChangeNotebookKernelBinding.fire({ notebook: NotebookTextModelLikeId.obj(key).uri, oldKernel: kernel.id, newKernel: void 0 });
+          this._onDidChangeNotebookKernelBinding.fire({
+            notebook: NotebookTextModelLikeId.obj(key).uri,
+            oldKernel: kernel.id,
+            newKernel: void 0
+          });
         }
       }
     });
@@ -211,9 +272,13 @@ let NotebookKernelService = class extends Disposable {
         });
       }
     }
-    kernels.sort((a, b) => b.instanceAffinity - a.instanceAffinity || a.score - b.score || a.kernel.label.localeCompare(b.kernel.label));
+    kernels.sort(
+      (a, b) => b.instanceAffinity - a.instanceAffinity || a.score - b.score || a.kernel.label.localeCompare(b.kernel.label)
+    );
     const all = kernels.map((obj) => obj.kernel);
-    const selectedId = this._notebookBindings.get(NotebookTextModelLikeId.str(notebook));
+    const selectedId = this._notebookBindings.get(
+      NotebookTextModelLikeId.str(notebook)
+    );
     const selected = selectedId ? this._kernels.get(selectedId)?.kernel : void 0;
     const suggestions = kernels.filter((item) => item.instanceAffinity > 1).map((item) => item.kernel);
     const hidden = kernels.filter((item) => item.instanceAffinity < 0).map((item) => item.kernel);
@@ -226,7 +291,6 @@ let NotebookKernelService = class extends Disposable {
     }
     const preferred = info.all.filter(
       (kernel) => this._kernels.get(kernel.id)?.notebookPriorities.get(notebook.uri) === 2
-      /* vscode.NotebookControllerPriority.Preferred */
     );
     if (preferred.length === 1) {
       return preferred[0];
@@ -244,7 +308,11 @@ let NotebookKernelService = class extends Disposable {
       } else {
         this._notebookBindings.delete(key);
       }
-      this._onDidChangeNotebookKernelBinding.fire({ notebook: notebook.uri, oldKernel, newKernel: kernel?.id });
+      this._onDidChangeNotebookKernelBinding.fire({
+        notebook: notebook.uri,
+        oldKernel,
+        newKernel: kernel?.id
+      });
       this._persistMementos();
     }
   }
@@ -283,7 +351,12 @@ let NotebookKernelService = class extends Disposable {
     if (existingInfo) {
       return existingInfo.actions.map((a) => a[0]);
     }
-    const sourceMenu = this._register(this._menuService.createMenu(MenuId.NotebookKernelSource, contextKeyService));
+    const sourceMenu = this._register(
+      this._menuService.createMenu(
+        MenuId.NotebookKernelSource,
+        contextKeyService
+      )
+    );
     const info = { menu: sourceMenu, actions: [] };
     const loadActionsFromMenu = /* @__PURE__ */ __name((menu, document) => {
       const groups = menu.getActions({ shouldForwardArgs: true });
@@ -291,24 +364,36 @@ let NotebookKernelService = class extends Disposable {
       groups.forEach((group) => {
         const isPrimary = /^primary/.test(group[0]);
         group[1].forEach((action) => {
-          const sourceAction = new SourceAction(action, document, isPrimary);
-          const stateChangeListener = sourceAction.onDidChangeState(() => {
-            this._onDidChangeSourceActions.fire({
-              notebook: document.uri,
-              viewType: document.notebookType
-            });
-          });
+          const sourceAction = new SourceAction(
+            action,
+            document,
+            isPrimary
+          );
+          const stateChangeListener = sourceAction.onDidChangeState(
+            () => {
+              this._onDidChangeSourceActions.fire({
+                notebook: document.uri,
+                viewType: document.notebookType
+              });
+            }
+          );
           sourceActions.push([sourceAction, stateChangeListener]);
         });
       });
       info.actions = sourceActions;
       this._kernelSources.set(id, info);
-      this._onDidChangeSourceActions.fire({ notebook: document.uri, viewType: document.notebookType });
+      this._onDidChangeSourceActions.fire({
+        notebook: document.uri,
+        viewType: document.notebookType
+      });
     }, "loadActionsFromMenu");
     this._kernelSourceActionsUpdates.get(id)?.dispose();
-    this._kernelSourceActionsUpdates.set(id, sourceMenu.onDidChange(() => {
-      loadActionsFromMenu(sourceMenu, notebook);
-    }));
+    this._kernelSourceActionsUpdates.set(
+      id,
+      sourceMenu.onDidChange(() => {
+        loadActionsFromMenu(sourceMenu, notebook);
+      })
+    );
     loadActionsFromMenu(sourceMenu, notebook);
     return info.actions.map((a) => a[0]);
   }
@@ -336,9 +421,11 @@ let NotebookKernelService = class extends Disposable {
     providers.push(provider);
     this._kernelSourceActionProviders.set(viewType, providers);
     this._onDidChangeSourceActions.fire({ viewType });
-    const eventEmitterDisposable = provider.onDidChangeSourceActions?.(() => {
-      this._onDidChangeSourceActions.fire({ viewType });
-    });
+    const eventEmitterDisposable = provider.onDidChangeSourceActions?.(
+      () => {
+        this._onDidChangeSourceActions.fire({ viewType });
+      }
+    );
     return toDisposable(() => {
       const providers2 = this._kernelSourceActionProviders.get(viewType) ?? [];
       const idx = providers2.indexOf(provider);
@@ -355,7 +442,9 @@ let NotebookKernelService = class extends Disposable {
   getKernelSourceActions2(notebook) {
     const viewType = notebook.notebookType;
     const providers = this._kernelSourceActionProviders.get(viewType) ?? [];
-    const promises = providers.map((provider) => provider.provideKernelSourceActions());
+    const promises = providers.map(
+      (provider) => provider.provideKernelSourceActions()
+    );
     return Promise.all(promises).then((actions) => {
       return actions.reduce((a, b) => a.concat(b), []);
     });

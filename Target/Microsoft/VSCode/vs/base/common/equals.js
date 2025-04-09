@@ -95,7 +95,7 @@ function toNormalizedJsonStructure(t) {
         objId = objectId++;
         objIds.set(t, objId);
       }
-      return objId + "----2b76a038c20c4bcc";
+      return `${objId}----2b76a038c20c4bcc`;
     }
   }
   return t;

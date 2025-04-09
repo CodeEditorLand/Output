@@ -30,12 +30,19 @@ class WellDefinedPrefixTree {
   }
   /** Mutates a value in the prefix tree. */
   mutate(key, mutate) {
-    this.opNode(key, (n) => n._value = mutate(n._value === unset ? void 0 : n._value));
+    this.opNode(
+      key,
+      (n) => n._value = mutate(n._value === unset ? void 0 : n._value)
+    );
   }
   /** Mutates nodes along the path in the prefix tree. */
   mutatePath(key, mutate) {
-    this.opNode(key, () => {
-    }, (n) => mutate(n));
+    this.opNode(
+      key,
+      () => {
+      },
+      (n) => mutate(n)
+    );
   }
   /** Deletes a node from the prefix tree, returning the value it contained. */
   delete(key) {
@@ -55,7 +62,7 @@ class WellDefinedPrefixTree {
       if (node.children?.size || node._value !== unset) {
         break;
       }
-      path[i - 1].node.children.delete(part);
+      path[i - 1].node.children?.delete(part);
     }
     return value;
   }
@@ -68,8 +75,8 @@ class WellDefinedPrefixTree {
     const subtree = path[path.length - 1].node;
     for (let i = path.length - 1; i > 0; i--) {
       const parent = path[i - 1];
-      parent.node.children.delete(path[i].part);
-      if (parent.node.children.size > 0 || parent.node._value !== unset) {
+      parent.node.children?.delete(path[i].part);
+      if (parent.node.children?.size > 0 || parent.node._value !== unset) {
         break;
       }
     }

@@ -17,21 +17,21 @@ import { MarkdownString } from "../../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
 import { localize } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IChatProgressMessage, IChatTask } from "../../common/chatService.js";
-import { IChatRendererContent, IChatWorkingProgress, isResponseVM } from "../../common/chatViewModel.js";
-import { ChatTreeItem } from "../chat.js";
+import {
+  isResponseVM
+} from "../../common/chatViewModel.js";
 import { InlineAnchorWidget } from "../chatInlineAnchorWidget.js";
-import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
 import { IChatMarkdownAnchorService } from "./chatMarkdownAnchorService.js";
 let ChatProgressContentPart = class extends Disposable {
   constructor(progress, renderer, context, forceShowSpinner, forceShowMessage, icon, instantiationService, chatMarkdownAnchorService) {
     super();
     this.instantiationService = instantiationService;
     this.chatMarkdownAnchorService = chatMarkdownAnchorService;
-    const followingContent = context.content.slice(context.contentIndex + 1);
+    const followingContent = context.content.slice(
+      context.contentIndex + 1
+    );
     this.showSpinner = forceShowSpinner ?? shouldShowSpinner(followingContent, context.element);
     this.isHidden = forceShowMessage !== true && followingContent.some((part) => part.kind !== "progressMessage");
     if (this.isHidden) {
@@ -64,8 +64,16 @@ let ChatProgressContentPart = class extends Disposable {
         const href = a.getAttribute("data-href");
         const uri = href ? URI.parse(href) : void 0;
         if (uri?.scheme) {
-          const widget = this._register(this.instantiationService.createInstance(InlineAnchorWidget, a, { kind: "inlineReference", inlineReference: uri }));
-          this._register(this.chatMarkdownAnchorService.register(widget));
+          const widget = this._register(
+            this.instantiationService.createInstance(
+              InlineAnchorWidget,
+              a,
+              { kind: "inlineReference", inlineReference: uri }
+            )
+          );
+          this._register(
+            this.chatMarkdownAnchorService.register(widget)
+          );
         }
       }
     });
@@ -90,9 +98,22 @@ let ChatWorkingProgressContentPart = class extends ChatProgressContentPart {
   constructor(workingProgress, renderer, context, instantiationService, chatMarkdownAnchorService) {
     const progressMessage = {
       kind: "progressMessage",
-      content: workingProgress.isPaused ? new MarkdownString().appendText(localize("pausedMessage", "Paused")) : new MarkdownString().appendText(localize("workingMessage", "Working..."))
+      content: workingProgress.isPaused ? new MarkdownString().appendText(
+        localize("pausedMessage", "Paused")
+      ) : new MarkdownString().appendText(
+        localize("workingMessage", "Working...")
+      )
     };
-    super(progressMessage, renderer, context, void 0, void 0, workingProgress.isPaused ? Codicon.debugPause : void 0, instantiationService, chatMarkdownAnchorService);
+    super(
+      progressMessage,
+      renderer,
+      context,
+      void 0,
+      void 0,
+      workingProgress.isPaused ? Codicon.debugPause : void 0,
+      instantiationService,
+      chatMarkdownAnchorService
+    );
     this.workingProgress = workingProgress;
   }
   static {

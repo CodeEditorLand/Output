@@ -1,12 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ILanguageIdCodec } from "../languages.js";
-import { FontStyle, ColorId, StandardTokenType, MetadataConsts, TokenMetadata, ITokenPresentation } from "../encodedTokenAttributes.js";
-import { IPosition } from "../core/position.js";
-import { ITextModel } from "../model.js";
-import { OffsetRange } from "../core/offsetRange.js";
-import { TokenArray, TokenArrayBuilder } from "./tokenArray.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
+import { OffsetRange } from "../core/offsetRange.js";
+import {
+  ColorId,
+  FontStyle,
+  MetadataConsts,
+  TokenMetadata
+} from "../encodedTokenAttributes.js";
+import { TokenArrayBuilder } from "./tokenArray.js";
 class LineTokens {
   static {
     __name(this, "LineTokens");
@@ -65,7 +67,9 @@ class LineTokens {
   constructor(tokens, text, decoder) {
     const tokensLength = tokens.length > 1 ? tokens[tokens.length - 2] : 0;
     if (tokensLength !== text.length) {
-      onUnexpectedError(new Error("Token length and text length do not match!"));
+      onUnexpectedError(
+        new Error("Token length and text length do not match!")
+      );
     }
     this._tokens = tokens;
     this._tokensCount = this._tokens.length >>> 1;
@@ -158,7 +162,7 @@ class LineTokens {
   /**
    * @pure
    * @param insertTokens Must be sorted by offset.
-  */
+   */
   withInserted(insertTokens) {
     if (insertTokens.length === 0) {
       return this;
@@ -172,14 +176,20 @@ class LineTokens {
       const nextOriginalTokenEndOffset = nextOriginalTokenIdx < this._tokensCount ? this._tokens[nextOriginalTokenIdx << 1] : -1;
       const nextInsertToken = nextInsertTokenIdx < insertTokens.length ? insertTokens[nextInsertTokenIdx] : null;
       if (nextOriginalTokenEndOffset !== -1 && (nextInsertToken === null || nextOriginalTokenEndOffset <= nextInsertToken.offset)) {
-        text += this._text.substring(originalEndOffset, nextOriginalTokenEndOffset);
+        text += this._text.substring(
+          originalEndOffset,
+          nextOriginalTokenEndOffset
+        );
         const metadata = this._tokens[(nextOriginalTokenIdx << 1) + 1];
         newTokens.push(text.length, metadata);
         nextOriginalTokenIdx++;
         originalEndOffset = nextOriginalTokenEndOffset;
       } else if (nextInsertToken) {
         if (nextInsertToken.offset > originalEndOffset) {
-          text += this._text.substring(originalEndOffset, nextInsertToken.offset);
+          text += this._text.substring(
+            originalEndOffset,
+            nextInsertToken.offset
+          );
           const metadata = this._tokens[(nextOriginalTokenIdx << 1) + 1];
           newTokens.push(text.length, metadata);
           originalEndOffset = nextInsertToken.offset;
@@ -191,14 +201,21 @@ class LineTokens {
         break;
       }
     }
-    return new LineTokens(new Uint32Array(newTokens), text, this.languageIdCodec);
+    return new LineTokens(
+      new Uint32Array(newTokens),
+      text,
+      this.languageIdCodec
+    );
   }
   getTokensInRange(range) {
     const builder = new TokenArrayBuilder();
     const startTokenIndex = this.findTokenIndexAtOffset(range.start);
     const endTokenIndex = this.findTokenIndexAtOffset(range.endExclusive);
     for (let tokenIndex = startTokenIndex; tokenIndex <= endTokenIndex; tokenIndex++) {
-      const tokenRange = new OffsetRange(this.getStartOffset(tokenIndex), this.getEndOffset(tokenIndex));
+      const tokenRange = new OffsetRange(
+        this.getStartOffset(tokenIndex),
+        this.getEndOffset(tokenIndex)
+      );
       const length = tokenRange.intersectionLength(range);
       if (length > 0) {
         builder.add(length, this.getMetadata(tokenIndex));
@@ -264,7 +281,11 @@ class SliceLineTokens {
   }
   equals(other) {
     if (other instanceof SliceLineTokens) {
-      return this._startOffset === other._startOffset && this._endOffset === other._endOffset && this._deltaOffset === other._deltaOffset && this._source.slicedEquals(other._source, this._firstTokenIndex, this._tokensCount);
+      return this._startOffset === other._startOffset && this._endOffset === other._endOffset && this._deltaOffset === other._deltaOffset && this._source.slicedEquals(
+        other._source,
+        this._firstTokenIndex,
+        this._tokensCount
+      );
     }
     return false;
   }
@@ -272,26 +293,35 @@ class SliceLineTokens {
     return this._tokensCount;
   }
   getStandardTokenType(tokenIndex) {
-    return this._source.getStandardTokenType(this._firstTokenIndex + tokenIndex);
+    return this._source.getStandardTokenType(
+      this._firstTokenIndex + tokenIndex
+    );
   }
   getForeground(tokenIndex) {
     return this._source.getForeground(this._firstTokenIndex + tokenIndex);
   }
   getEndOffset(tokenIndex) {
-    const tokenEndOffset = this._source.getEndOffset(this._firstTokenIndex + tokenIndex);
+    const tokenEndOffset = this._source.getEndOffset(
+      this._firstTokenIndex + tokenIndex
+    );
     return Math.min(this._endOffset, tokenEndOffset) - this._startOffset + this._deltaOffset;
   }
   getClassName(tokenIndex) {
     return this._source.getClassName(this._firstTokenIndex + tokenIndex);
   }
   getInlineStyle(tokenIndex, colorMap) {
-    return this._source.getInlineStyle(this._firstTokenIndex + tokenIndex, colorMap);
+    return this._source.getInlineStyle(
+      this._firstTokenIndex + tokenIndex,
+      colorMap
+    );
   }
   getPresentation(tokenIndex) {
     return this._source.getPresentation(this._firstTokenIndex + tokenIndex);
   }
   findTokenIndexAtOffset(offset) {
-    return this._source.findTokenIndexAtOffset(offset + this._startOffset - this._deltaOffset) - this._firstTokenIndex;
+    return this._source.findTokenIndexAtOffset(
+      offset + this._startOffset - this._deltaOffset
+    ) - this._firstTokenIndex;
   }
   getTokenText(tokenIndex) {
     const adjustedTokenIndex = this._firstTokenIndex + tokenIndex;
@@ -302,7 +332,10 @@ class SliceLineTokens {
       text = text.substring(this._startOffset - tokenStartOffset);
     }
     if (tokenEndOffset > this._endOffset) {
-      text = text.substring(0, text.length - (tokenEndOffset - this._endOffset));
+      text = text.substring(
+        0,
+        text.length - (tokenEndOffset - this._endOffset)
+      );
     }
     return text;
   }

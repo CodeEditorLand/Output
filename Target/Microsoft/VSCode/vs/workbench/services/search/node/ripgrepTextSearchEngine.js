@@ -1,22 +1,40 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
-import { EventEmitter } from "events";
-import { StringDecoder } from "string_decoder";
+import * as cp from "node:child_process";
+import { EventEmitter } from "node:events";
+import { StringDecoder } from "node:string_decoder";
+import { rgPath } from "@vscode/ripgrep";
+import { RegExpParser, RegExpVisitor } from "vscode-regexpp";
 import { coalesce, mapArrayOrNot } from "../../../../base/common/arrays.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { groupBy } from "../../../../base/common/collections.js";
 import { splitGlobAware } from "../../../../base/common/glob.js";
-import { createRegExp, escapeRegExpCharacters } from "../../../../base/common/strings.js";
+import {
+  createRegExp,
+  escapeRegExpCharacters
+} from "../../../../base/common/strings.js";
 import { URI } from "../../../../base/common/uri.js";
-import { Progress } from "../../../../platform/progress/common/progress.js";
-import { DEFAULT_MAX_SEARCH_RESULTS, IExtendedExtensionSearchOptions, ITextSearchPreviewOptions, SearchError, SearchErrorCode, serializeSearchError, TextSearchMatch } from "../common/search.js";
-import { Range, TextSearchComplete2, TextSearchContext2, TextSearchMatch2, TextSearchProviderOptions, TextSearchQuery2, TextSearchResult2 } from "../common/searchExtTypes.js";
-import { AST as ReAST, RegExpParser, RegExpVisitor } from "vscode-regexpp";
-import { rgPath } from "@vscode/ripgrep";
-import { anchorGlob, IOutputChannel, Maybe, rangeToSearchRange, searchRangeToRange } from "./ripgrepSearchUtils.js";
+import {
+  DEFAULT_MAX_SEARCH_RESULTS,
+  SearchError,
+  SearchErrorCode,
+  serializeSearchError,
+  TextSearchMatch
+} from "../common/search.js";
 import { newToOldPreviewOptions } from "../common/searchExtConversionTypes.js";
-const rgDiskPath = rgPath.replace(/\bnode_modules\.asar\b/, "node_modules.asar.unpacked");
+import {
+  Range,
+  TextSearchContext2,
+  TextSearchMatch2
+} from "../common/searchExtTypes.js";
+import {
+  anchorGlob,
+  rangeToSearchRange,
+  searchRangeToRange
+} from "./ripgrepSearchUtils.js";
+const rgDiskPath = rgPath.replace(
+  /\bnode_modules\.asar\b/,
+  "node_modules.asar.unpacked"
+);
 class RipgrepTextSearchEngine {
   constructor(outputChannel, _numThreads) {
     this.outputChannel = outputChannel;
@@ -26,17 +44,24 @@ class RipgrepTextSearchEngine {
     __name(this, "RipgrepTextSearchEngine");
   }
   provideTextSearchResults(query, options, progress, token) {
-    return Promise.all(options.folderOptions.map((folderOption) => {
-      const extendedOptions = {
-        folderOptions: folderOption,
-        numThreads: this._numThreads,
-        maxResults: options.maxResults,
-        previewOptions: options.previewOptions,
-        maxFileSize: options.maxFileSize,
-        surroundingContext: options.surroundingContext
-      };
-      return this.provideTextSearchResultsWithRgOptions(query, extendedOptions, progress, token);
-    })).then((e) => {
+    return Promise.all(
+      options.folderOptions.map((folderOption) => {
+        const extendedOptions = {
+          folderOptions: folderOption,
+          numThreads: this._numThreads,
+          maxResults: options.maxResults,
+          previewOptions: options.previewOptions,
+          maxFileSize: options.maxFileSize,
+          surroundingContext: options.surroundingContext
+        };
+        return this.provideTextSearchResultsWithRgOptions(
+          query,
+          extendedOptions,
+          progress,
+          token
+        );
+      })
+    ).then((e) => {
       const complete = {
         // todo: get this to actually check
         limitHit: e.some((complete2) => !!complete2 && complete2.limitHit)
@@ -45,12 +70,14 @@ class RipgrepTextSearchEngine {
     });
   }
   provideTextSearchResultsWithRgOptions(query, options, progress, token) {
-    this.outputChannel.appendLine(`provideTextSearchResults ${query.pattern}, ${JSON.stringify({
-      ...options,
-      ...{
-        folder: options.folderOptions.folder.toString()
-      }
-    })}`);
+    this.outputChannel.appendLine(
+      `provideTextSearchResults ${query.pattern}, ${JSON.stringify({
+        ...options,
+        ...{
+          folder: options.folderOptions.folder.toString()
+        }
+      })}`
+    );
     return new Promise((resolve, reject) => {
       token.onCancellationRequested(() => cancel());
       const extendedOptions = {
@@ -60,16 +87,31 @@ class RipgrepTextSearchEngine {
       const rgArgs = getRgArgs(query, extendedOptions);
       const cwd = options.folderOptions.folder.fsPath;
       const escapedArgs = rgArgs.map((arg) => arg.match(/^-/) ? arg : `'${arg}'`).join(" ");
-      this.outputChannel.appendLine(`${rgDiskPath} ${escapedArgs}
- - cwd: ${cwd}`);
-      let rgProc = cp.spawn(rgDiskPath, rgArgs, { cwd });
+      this.outputChannel.appendLine(
+        `${rgDiskPath} ${escapedArgs}
+ - cwd: ${cwd}`
+      );
+      let rgProc = cp.spawn(rgDiskPath, rgArgs, {
+        cwd
+      });
       rgProc.on("error", (e) => {
         console.error(e);
-        this.outputChannel.appendLine("Error: " + (e && e.message));
-        reject(serializeSearchError(new SearchError(e && e.message, SearchErrorCode.rgProcessError)));
+        this.outputChannel.appendLine(`Error: ${e?.message}`);
+        reject(
+          serializeSearchError(
+            new SearchError(
+              e?.message,
+              SearchErrorCode.rgProcessError
+            )
+          )
+        );
       });
       let gotResult = false;
-      const ripgrepParser = new RipgrepParser(options.maxResults ?? DEFAULT_MAX_SEARCH_RESULTS, options.folderOptions.folder, newToOldPreviewOptions(options.previewOptions));
+      const ripgrepParser = new RipgrepParser(
+        options.maxResults ?? DEFAULT_MAX_SEARCH_RESULTS,
+        options.folderOptions.folder,
+        newToOldPreviewOptions(options.previewOptions)
+      );
       ripgrepParser.on("result", (match) => {
         gotResult = true;
         dataWithoutResult = "";
@@ -87,16 +129,16 @@ class RipgrepTextSearchEngine {
         cancel();
       });
       let dataWithoutResult = "";
-      rgProc.stdout.on("data", (data) => {
+      rgProc.stdout?.on("data", (data) => {
         ripgrepParser.handleData(data);
         if (!gotResult) {
           dataWithoutResult += data;
         }
       });
       let gotData = false;
-      rgProc.stdout.once("data", () => gotData = true);
+      rgProc.stdout?.once("data", () => gotData = true);
       let stderr = "";
-      rgProc.stderr.on("data", (data) => {
+      rgProc.stderr?.on("data", (data) => {
         const message = data.toString();
         this.outputChannel.appendLine(message);
         if (stderr.length + message.length < 1e6) {
@@ -104,10 +146,16 @@ class RipgrepTextSearchEngine {
         }
       });
       rgProc.on("close", () => {
-        this.outputChannel.appendLine(gotData ? "Got data from stdout" : "No data from stdout");
-        this.outputChannel.appendLine(gotResult ? "Got result from parser" : "No result from parser");
+        this.outputChannel.appendLine(
+          gotData ? "Got data from stdout" : "No data from stdout"
+        );
+        this.outputChannel.appendLine(
+          gotResult ? "Got result from parser" : "No result from parser"
+        );
         if (dataWithoutResult) {
-          this.outputChannel.appendLine(`Got data without result: ${dataWithoutResult}`);
+          this.outputChannel.appendLine(
+            `Got data without result: ${dataWithoutResult}`
+          );
         }
         this.outputChannel.appendLine("");
         if (isDone) {
@@ -117,7 +165,14 @@ class RipgrepTextSearchEngine {
           rgProc = null;
           let searchError;
           if (stderr && !gotData && (searchError = rgErrorMsgForDisplay(stderr))) {
-            reject(serializeSearchError(new SearchError(searchError.message, searchError.code)));
+            reject(
+              serializeSearchError(
+                new SearchError(
+                  searchError.message,
+                  searchError.code
+                )
+              )
+            );
           } else {
             resolve({ limitHit });
           }
@@ -130,17 +185,29 @@ function rgErrorMsgForDisplay(msg) {
   const lines = msg.split("\n");
   const firstLine = lines[0].trim();
   if (lines.some((l) => l.startsWith("regex parse error"))) {
-    return new SearchError(buildRegexParseError(lines), SearchErrorCode.regexParseError);
+    return new SearchError(
+      buildRegexParseError(lines),
+      SearchErrorCode.regexParseError
+    );
   }
   const match = firstLine.match(/grep config error: unknown encoding: (.*)/);
   if (match) {
-    return new SearchError(`Unknown encoding: ${match[1]}`, SearchErrorCode.unknownEncoding);
+    return new SearchError(
+      `Unknown encoding: ${match[1]}`,
+      SearchErrorCode.unknownEncoding
+    );
   }
   if (firstLine.startsWith("error parsing glob")) {
-    return new SearchError(firstLine.charAt(0).toUpperCase() + firstLine.substr(1), SearchErrorCode.globParseError);
+    return new SearchError(
+      firstLine.charAt(0).toUpperCase() + firstLine.substr(1),
+      SearchErrorCode.globParseError
+    );
   }
   if (firstLine.startsWith("the literal")) {
-    return new SearchError(firstLine.charAt(0).toUpperCase() + firstLine.substr(1), SearchErrorCode.invalidLiteral);
+    return new SearchError(
+      firstLine.charAt(0).toUpperCase() + firstLine.substr(1),
+      SearchErrorCode.invalidLiteral
+    );
   }
   if (firstLine.startsWith("PCRE2: error compiling pattern")) {
     return new SearchError(firstLine, SearchErrorCode.regexParseError);
@@ -155,7 +222,7 @@ function buildRegexParseError(lines) {
     const pcre2ErrorMessage = pcre2ErrorLine[0].replace("PCRE2:", "");
     if (pcre2ErrorMessage.indexOf(":") !== -1 && pcre2ErrorMessage.split(":").length >= 2) {
       const pcre2ActualErrorMessage = pcre2ErrorMessage.split(":")[1];
-      errorMessage.push(":" + pcre2ActualErrorMessage);
+      errorMessage.push(`:${pcre2ActualErrorMessage}`);
     }
   }
   return errorMessage.join("");
@@ -249,29 +316,40 @@ class RipgrepParser extends EventEmitter {
         fullText.length ? { start: 0, end: 1, match: { text: fullText[0] } } : { start: 0, end: 0, match: { text: "" } }
       );
     }
-    const ranges = coalesce(data.submatches.map((match, i) => {
-      if (this.hitLimit) {
-        return null;
-      }
-      this.numResults++;
-      if (this.numResults >= this.maxResults) {
-        this.hitLimit = true;
-      }
-      const matchText = bytesOrTextToString(match.match);
-      const inBetweenText = fullTextBytes.slice(prevMatchEnd, match.start).toString();
-      const inBetweenStats = getNumLinesAndLastNewlineLength(inBetweenText);
-      const startCol = inBetweenStats.numLines > 0 ? inBetweenStats.lastLineLength : inBetweenStats.lastLineLength + prevMatchEndCol;
-      const stats = getNumLinesAndLastNewlineLength(matchText);
-      const startLineNumber = inBetweenStats.numLines + prevMatchEndLine;
-      const endLineNumber = stats.numLines + startLineNumber;
-      const endCol = stats.numLines > 0 ? stats.lastLineLength : stats.lastLineLength + startCol;
-      prevMatchEnd = match.end;
-      prevMatchEndCol = endCol;
-      prevMatchEndLine = endLineNumber;
-      return new Range(startLineNumber, startCol, endLineNumber, endCol);
-    }));
+    const ranges = coalesce(
+      data.submatches.map((match, i) => {
+        if (this.hitLimit) {
+          return null;
+        }
+        this.numResults++;
+        if (this.numResults >= this.maxResults) {
+          this.hitLimit = true;
+        }
+        const matchText = bytesOrTextToString(match.match);
+        const inBetweenText = fullTextBytes.slice(prevMatchEnd, match.start).toString();
+        const inBetweenStats = getNumLinesAndLastNewlineLength(inBetweenText);
+        const startCol = inBetweenStats.numLines > 0 ? inBetweenStats.lastLineLength : inBetweenStats.lastLineLength + prevMatchEndCol;
+        const stats = getNumLinesAndLastNewlineLength(matchText);
+        const startLineNumber = inBetweenStats.numLines + prevMatchEndLine;
+        const endLineNumber = stats.numLines + startLineNumber;
+        const endCol = stats.numLines > 0 ? stats.lastLineLength : stats.lastLineLength + startCol;
+        prevMatchEnd = match.end;
+        prevMatchEndCol = endCol;
+        prevMatchEndLine = endLineNumber;
+        return new Range(
+          startLineNumber,
+          startCol,
+          endLineNumber,
+          endCol
+        );
+      })
+    );
     const searchRange = mapArrayOrNot(ranges, rangeToSearchRange);
-    const internalResult = new TextSearchMatch(fullText, searchRange, this.previewOptions);
+    const internalResult = new TextSearchMatch(
+      fullText,
+      searchRange,
+      this.previewOptions
+    );
     return new TextSearchMatch2(
       uri,
       internalResult.rangeLocations.map((e) => ({
@@ -314,7 +392,7 @@ function getRgArgs(query, options) {
     options.folderOptions.includes,
     (include) => include.startsWith("**") ? "doubleStarIncludes" : "otherIncludes"
   );
-  if (otherIncludes && otherIncludes.length) {
+  if (otherIncludes?.length) {
     const uniqueOthers = /* @__PURE__ */ new Set();
     otherIncludes.forEach((other) => {
       uniqueOthers.add(other);
@@ -326,14 +404,14 @@ function getRgArgs(query, options) {
       });
     });
   }
-  if (doubleStarIncludes && doubleStarIncludes.length) {
+  if (doubleStarIncludes?.length) {
     doubleStarIncludes.forEach((globArg) => {
       args.push("-g", globArg);
     });
   }
   options.folderOptions.excludes.map((e) => typeof e === "string" ? e : e.pattern).map(anchorGlob).forEach((rgGlob) => args.push("-g", `!${rgGlob}`));
   if (options.maxFileSize) {
-    args.push("--max-filesize", options.maxFileSize + "");
+    args.push("--max-filesize", `${options.maxFileSize}`);
   }
   if (options.folderOptions.useIgnoreFiles.local) {
     if (!options.folderOptions.useIgnoreFiles.parent) {
@@ -369,7 +447,9 @@ function getRgArgs(query, options) {
   }
   let searchPatternAfterDoubleDashes;
   if (query.isWordMatch) {
-    const regexp = createRegExp(query.pattern, !!query.isRegExp, { wholeWord: query.isWordMatch });
+    const regexp = createRegExp(query.pattern, !!query.isRegExp, {
+      wholeWord: query.isWordMatch
+    });
     const regexpStr = regexp.source.replace(/\\\//g, "/");
     args.push("--regexp", regexpStr);
   } else if (query.isRegExp) {
@@ -389,8 +469,8 @@ function getRgArgs(query, options) {
     args.push("--multiline");
   }
   if (options.surroundingContext) {
-    args.push("--before-context", options.surroundingContext + "");
-    args.push("--after-context", options.surroundingContext + "");
+    args.push("--before-context", `${options.surroundingContext}`);
+    args.push("--after-context", `${options.surroundingContext}`);
   }
   args.push("--");
   if (searchPatternAfterDoubleDashes) {
@@ -411,11 +491,11 @@ __name(spreadGlobComponents, "spreadGlobComponents");
 function unicodeEscapesToPCRE2(pattern) {
   const unicodePattern = /((?:[^\\]|^)(?:\\\\)*)\\u([a-z0-9]{4})/gi;
   while (pattern.match(unicodePattern)) {
-    pattern = pattern.replace(unicodePattern, `$1\\x{$2}`);
+    pattern = pattern.replace(unicodePattern, "$1\\x{$2}");
   }
   const unicodePatternWithBraces = /((?:[^\\]|^)(?:\\\\)*)\\u\{([a-z0-9]{4})\}/gi;
   while (pattern.match(unicodePatternWithBraces)) {
-    pattern = pattern.replace(unicodePatternWithBraces, `$1\\x{$2}`);
+    pattern = pattern.replace(unicodePatternWithBraces, "$1\\x{$2}");
   }
   return pattern;
 }
@@ -448,13 +528,25 @@ function fixRegexNewline(pattern) {
         if (parent.negate) {
           const otherContent = pattern.slice(parent.start + 2, char.start) + pattern.slice(char.end, parent.end - 1);
           if (parent.parent?.type === "Quantifier") {
-            replace(parent.start, parent.end, otherContent ? `[^${otherContent}]` : ".");
+            replace(
+              parent.start,
+              parent.end,
+              otherContent ? `[^${otherContent}]` : "."
+            );
           } else {
-            replace(parent.start, parent.end, "(?!\\r?\\n" + (otherContent ? `|[${otherContent}]` : "") + ")");
+            replace(
+              parent.start,
+              parent.end,
+              `(?!\\r?\\n${otherContent ? `|[${otherContent}]` : ""})`
+            );
           }
         } else {
           const otherContent = pattern.slice(parent.start + 1, char.start) + pattern.slice(char.end, parent.end - 1);
-          replace(parent.start, parent.end, otherContent === "" ? "\\r?\\n" : `(?:[${otherContent}]|\\r?\\n)`);
+          replace(
+            parent.start,
+            parent.end,
+            otherContent === "" ? "\\r?\\n" : `(?:[${otherContent}]|\\r?\\n)`
+          );
         }
       } else if (parent.type === "Quantifier") {
         replace(char.start, char.end, "(?:\\r?\\n)");
@@ -509,9 +601,9 @@ function getEscapeAwareSplitStringForRipgrep(pattern) {
       case "\\":
         if (escaped) {
           if (inBraces) {
-            strInBraces += "\\" + char;
+            strInBraces += `\\${char}`;
           } else {
-            fixedStart += "\\" + char;
+            fixedStart += `\\${char}`;
           }
           escaped = false;
         } else {
@@ -528,7 +620,9 @@ function getEscapeAwareSplitStringForRipgrep(pattern) {
           escaped = false;
         } else {
           if (inBraces) {
-            return { strInBraces: fixedStart + "{" + strInBraces + "{" + pattern.substring(i + 1) };
+            return {
+              strInBraces: `${fixedStart}{${strInBraces}{${pattern.substring(i + 1)}`
+            };
           } else {
             inBraces = true;
           }
@@ -543,7 +637,11 @@ function getEscapeAwareSplitStringForRipgrep(pattern) {
           }
           escaped = false;
         } else if (inBraces) {
-          return { fixedStart, strInBraces, fixedEnd: pattern.substring(i + 1) };
+          return {
+            fixedStart,
+            strInBraces,
+            fixedEnd: pattern.substring(i + 1)
+          };
         } else {
           fixedStart += char;
         }
@@ -558,7 +656,7 @@ function getEscapeAwareSplitStringForRipgrep(pattern) {
         break;
     }
   }
-  return { strInBraces: fixedStart + (inBraces ? "{" + strInBraces : "") };
+  return { strInBraces: fixedStart + (inBraces ? `{${strInBraces}` : "") };
 }
 __name(getEscapeAwareSplitStringForRipgrep, "getEscapeAwareSplitStringForRipgrep");
 function performBraceExpansionForRipgrep(pattern) {

@@ -21,7 +21,7 @@ export default {
 	outdir: `Target/${Dependency}`,
 	platform: "node",
 	target: "esnext",
-	tsconfig: `Source/Notation/${Dependency}/tsconfig${On ? "" : ".no-types"}.json`,
+	tsconfig: On ? `TypeLess/${Dependency}.json` : `tsconfig/${Dependency}.json`,
 	write: true,
 	legalComments: On ? "inline" : "none",
 	bundle: false,

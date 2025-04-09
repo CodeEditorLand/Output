@@ -1,24 +1,50 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { promises } from "node:fs";
+import { homedir, tmpdir } from "node:os";
 import parcelWatcher from "@parcel/watcher";
-import { promises } from "fs";
-import { tmpdir, homedir } from "os";
-import { URI } from "../../../../../base/common/uri.js";
-import { DeferredPromise, RunOnceScheduler, RunOnceWorker, ThrottledWorker } from "../../../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import {
+  DeferredPromise,
+  RunOnceScheduler,
+  RunOnceWorker,
+  ThrottledWorker
+} from "../../../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../../../base/common/errorMessage.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import { randomPath, isEqual, isEqualOrParent } from "../../../../../base/common/extpath.js";
-import { GLOBSTAR, ParsedPattern, patternsEquals } from "../../../../../base/common/glob.js";
-import { BaseWatcher } from "../baseWatcher.js";
-import { TernarySearchTree } from "../../../../../base/common/ternarySearchTree.js";
+import {
+  isEqual,
+  isEqualOrParent,
+  randomPath
+} from "../../../../../base/common/extpath.js";
+import {
+  GLOBSTAR,
+  patternsEquals
+} from "../../../../../base/common/glob.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { normalizeNFC } from "../../../../../base/common/normalization.js";
-import { normalize, join } from "../../../../../base/common/path.js";
-import { isLinux, isMacintosh, isWindows } from "../../../../../base/common/platform.js";
+import { join, normalize } from "../../../../../base/common/path.js";
+import {
+  isLinux,
+  isMacintosh,
+  isWindows
+} from "../../../../../base/common/platform.js";
+import { TernarySearchTree } from "../../../../../base/common/ternarySearchTree.js";
+import { URI } from "../../../../../base/common/uri.js";
 import { realcase, realpath } from "../../../../../base/node/extpath.js";
-import { FileChangeType, IFileChange } from "../../../common/files.js";
-import { coalesceEvents, IRecursiveWatchRequest, parseWatcherPatterns, IRecursiveWatcherWithSubscribe, isFiltered, IWatcherErrorEvent } from "../../../common/watcher.js";
-import { Disposable, DisposableStore, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { FileChangeType } from "../../../common/files.js";
+import {
+  coalesceEvents,
+  isFiltered,
+  parseWatcherPatterns
+} from "../../../common/watcher.js";
+import { BaseWatcher } from "../baseWatcher.js";
 class ParcelWatcherInstance extends Disposable {
   constructor(ready, request, restarts, token, worker, stopFn) {
     super();
@@ -35,7 +61,9 @@ class ParcelWatcherInstance extends Disposable {
   static {
     __name(this, "ParcelWatcherInstance");
   }
-  _onDidStop = this._register(new Emitter());
+  _onDidStop = this._register(
+    new Emitter()
+  );
   onDidStop = this._onDidStop.event;
   _onDidFail = this._register(new Emitter());
   onDidFail = this._onDidFail.event;
@@ -106,23 +134,23 @@ class ParcelWatcher extends BaseWatcher {
   static {
     __name(this, "ParcelWatcher");
   }
-  static MAP_PARCEL_WATCHER_ACTION_TO_FILE_CHANGE = /* @__PURE__ */ new Map(
-    [
-      ["create", FileChangeType.ADDED],
-      ["update", FileChangeType.UPDATED],
-      ["delete", FileChangeType.DELETED]
-    ]
-  );
+  static MAP_PARCEL_WATCHER_ACTION_TO_FILE_CHANGE = /* @__PURE__ */ new Map([
+    ["create", FileChangeType.ADDED],
+    ["update", FileChangeType.UPDATED],
+    ["delete", FileChangeType.DELETED]
+  ]);
   static PREDEFINED_EXCLUDES = {
-    "win32": [],
-    "darwin": [
+    win32: [],
+    darwin: [
       join(homedir(), "Library", "Containers")
       // Triggers access dialog from macOS 14 (https://github.com/microsoft/vscode/issues/208105)
     ],
-    "linux": []
+    linux: []
   };
   static PARCEL_WATCHER_BACKEND = isWindows ? "windows" : isLinux ? "inotify" : "fs-events";
-  _onDidError = this._register(new Emitter());
+  _onDidError = this._register(
+    new Emitter()
+  );
   onDidError = this._onDidError.event;
   _watchers = /* @__PURE__ */ new Map();
   get watchers() {
@@ -141,17 +169,19 @@ class ParcelWatcher extends BaseWatcher {
   static FILE_CHANGES_HANDLER_DELAY = 75;
   // Reduce likelyhood of spam from file events via throttling.
   // (https://github.com/microsoft/vscode/issues/124723)
-  throttledFileChangesEmitter = this._register(new ThrottledWorker(
-    {
-      maxWorkChunkSize: 500,
-      // only process up to 500 changes at once before...
-      throttleDelay: 200,
-      // ...resting for 200ms until we process events again...
-      maxBufferedWork: 3e4
-      // ...but never buffering more than 30000 events in memory
-    },
-    (events) => this._onDidChangeFile.fire(events)
-  ));
+  throttledFileChangesEmitter = this._register(
+    new ThrottledWorker(
+      {
+        maxWorkChunkSize: 500,
+        // only process up to 500 changes at once before...
+        throttleDelay: 200,
+        // ...resting for 200ms until we process events again...
+        maxBufferedWork: 3e4
+        // ...but never buffering more than 30000 events in memory
+      },
+      (events) => this._onDidChangeFile.fire(events)
+    )
+  );
   enospcErrorLogged = false;
   constructor() {
     super();
@@ -162,17 +192,21 @@ class ParcelWatcher extends BaseWatcher {
     const onUnhandledRejection = /* @__PURE__ */ __name((error) => this.onUnexpectedError(error), "onUnhandledRejection");
     process.on("uncaughtException", onUncaughtException);
     process.on("unhandledRejection", onUnhandledRejection);
-    this._register(toDisposable(() => {
-      process.off("uncaughtException", onUncaughtException);
-      process.off("unhandledRejection", onUnhandledRejection);
-    }));
+    this._register(
+      toDisposable(() => {
+        process.off("uncaughtException", onUncaughtException);
+        process.off("unhandledRejection", onUnhandledRejection);
+      })
+    );
   }
   async doWatch(requests) {
     requests = await this.removeDuplicateRequests(requests);
     const requestsToStart = [];
     const watchersToStop = new Set(Array.from(this.watchers));
     for (const request of requests) {
-      const watcher = this._watchers.get(this.requestToWatcherKey(request));
+      const watcher = this._watchers.get(
+        this.requestToWatcherKey(request)
+      );
       if (watcher && patternsEquals(watcher.request.excludes, request.excludes) && patternsEquals(watcher.request.includes, request.includes) && watcher.request.pollingInterval === request.pollingInterval) {
         watchersToStop.delete(watcher);
       } else {
@@ -180,10 +214,14 @@ class ParcelWatcher extends BaseWatcher {
       }
     }
     if (requestsToStart.length) {
-      this.trace(`Request to start watching: ${requestsToStart.map((request) => this.requestToString(request)).join(",")}`);
+      this.trace(
+        `Request to start watching: ${requestsToStart.map((request) => this.requestToString(request)).join(",")}`
+      );
     }
     if (watchersToStop.size) {
-      this.trace(`Request to stop watching: ${Array.from(watchersToStop).map((watcher) => this.requestToString(watcher.request)).join(",")}`);
+      this.trace(
+        `Request to stop watching: ${Array.from(watchersToStop).map((watcher) => this.requestToString(watcher.request)).join(",")}`
+      );
     }
     for (const watcher of watchersToStop) {
       await this.stopWatching(watcher);
@@ -211,7 +249,10 @@ class ParcelWatcher extends BaseWatcher {
       request,
       restarts,
       cts.token,
-      new RunOnceWorker((events) => this.handleParcelEvents(events, watcher), ParcelWatcher.FILE_CHANGES_HANDLER_DELAY),
+      new RunOnceWorker(
+        (events) => this.handleParcelEvents(events, watcher),
+        ParcelWatcher.FILE_CHANGES_HANDLER_DELAY
+      ),
       async () => {
         cts.dispose(true);
         watcher.worker.flush();
@@ -222,7 +263,9 @@ class ParcelWatcher extends BaseWatcher {
     );
     this._watchers.set(this.requestToWatcherKey(request), watcher);
     const { realPath, realPathDiffers, realPathLength } = await this.normalizePath(request);
-    this.trace(`Started watching: '${realPath}' with polling interval '${pollingInterval}'`);
+    this.trace(
+      `Started watching: '${realPath}' with polling interval '${pollingInterval}'`
+    );
     let counter = 0;
     const pollingWatcher = new RunOnceScheduler(async () => {
       counter++;
@@ -232,13 +275,30 @@ class ParcelWatcher extends BaseWatcher {
       const parcelWatcherLib = parcelWatcher;
       try {
         if (counter > 1) {
-          const parcelEvents = await parcelWatcherLib.getEventsSince(realPath, snapshotFile, { ignore: this.addPredefinedExcludes(request.excludes), backend: ParcelWatcher.PARCEL_WATCHER_BACKEND });
+          const parcelEvents = await parcelWatcherLib.getEventsSince(
+            realPath,
+            snapshotFile,
+            {
+              ignore: this.addPredefinedExcludes(
+                request.excludes
+              ),
+              backend: ParcelWatcher.PARCEL_WATCHER_BACKEND
+            }
+          );
           if (cts.token.isCancellationRequested) {
             return;
           }
-          this.onParcelEvents(parcelEvents, watcher, realPathDiffers, realPathLength);
+          this.onParcelEvents(
+            parcelEvents,
+            watcher,
+            realPathDiffers,
+            realPathLength
+          );
         }
-        await parcelWatcherLib.writeSnapshot(realPath, snapshotFile, { ignore: this.addPredefinedExcludes(request.excludes), backend: ParcelWatcher.PARCEL_WATCHER_BACKEND });
+        await parcelWatcherLib.writeSnapshot(realPath, snapshotFile, {
+          ignore: this.addPredefinedExcludes(request.excludes),
+          backend: ParcelWatcher.PARCEL_WATCHER_BACKEND
+        });
       } catch (error) {
         this.onUnexpectedError(error, request);
       }
@@ -260,7 +320,10 @@ class ParcelWatcher extends BaseWatcher {
       request,
       restarts,
       cts.token,
-      new RunOnceWorker((events) => this.handleParcelEvents(events, watcher), ParcelWatcher.FILE_CHANGES_HANDLER_DELAY),
+      new RunOnceWorker(
+        (events) => this.handleParcelEvents(events, watcher),
+        ParcelWatcher.FILE_CHANGES_HANDLER_DELAY
+      ),
       async () => {
         cts.dispose(true);
         watcher.worker.flush();
@@ -273,19 +336,32 @@ class ParcelWatcher extends BaseWatcher {
     const { realPath, realPathDiffers, realPathLength } = await this.normalizePath(request);
     try {
       const parcelWatcherLib = parcelWatcher;
-      const parcelWatcherInstance = await parcelWatcherLib.subscribe(realPath, (error, parcelEvents) => {
-        if (watcher.token.isCancellationRequested) {
-          return;
+      const parcelWatcherInstance = await parcelWatcherLib.subscribe(
+        realPath,
+        (error, parcelEvents) => {
+          if (watcher.token.isCancellationRequested) {
+            return;
+          }
+          if (error) {
+            this.onUnexpectedError(error, request);
+          }
+          this.onParcelEvents(
+            parcelEvents,
+            watcher,
+            realPathDiffers,
+            realPathLength
+          );
+        },
+        {
+          backend: ParcelWatcher.PARCEL_WATCHER_BACKEND,
+          ignore: this.addPredefinedExcludes(
+            watcher.request.excludes
+          )
         }
-        if (error) {
-          this.onUnexpectedError(error, request);
-        }
-        this.onParcelEvents(parcelEvents, watcher, realPathDiffers, realPathLength);
-      }, {
-        backend: ParcelWatcher.PARCEL_WATCHER_BACKEND,
-        ignore: this.addPredefinedExcludes(watcher.request.excludes)
-      });
-      this.trace(`Started watching: '${realPath}' with backend '${ParcelWatcher.PARCEL_WATCHER_BACKEND}'`);
+      );
+      this.trace(
+        `Started watching: '${realPath}' with backend '${ParcelWatcher.PARCEL_WATCHER_BACKEND}'`
+      );
       instance.complete(parcelWatcherInstance);
     } catch (error) {
       this.onUnexpectedError(error, request);
@@ -310,7 +386,12 @@ class ParcelWatcher extends BaseWatcher {
     if (parcelEvents.length === 0) {
       return;
     }
-    this.normalizeEvents(parcelEvents, watcher.request, realPathDiffers, realPathLength);
+    this.normalizeEvents(
+      parcelEvents,
+      watcher.request,
+      realPathDiffers,
+      realPathLength
+    );
     const includedEvents = this.handleIncludes(watcher, parcelEvents);
     for (const includedEvent of includedEvents) {
       watcher.worker.work(includedEvent);
@@ -319,23 +400,38 @@ class ParcelWatcher extends BaseWatcher {
   handleIncludes(watcher, parcelEvents) {
     const events = [];
     for (const { path, type: parcelEventType } of parcelEvents) {
-      const type = ParcelWatcher.MAP_PARCEL_WATCHER_ACTION_TO_FILE_CHANGE.get(parcelEventType);
+      const type = ParcelWatcher.MAP_PARCEL_WATCHER_ACTION_TO_FILE_CHANGE.get(
+        parcelEventType
+      );
       if (this.verboseLogging) {
-        this.traceWithCorrelation(`${type === FileChangeType.ADDED ? "[ADDED]" : type === FileChangeType.DELETED ? "[DELETED]" : "[CHANGED]"} ${path}`, watcher.request);
+        this.traceWithCorrelation(
+          `${type === FileChangeType.ADDED ? "[ADDED]" : type === FileChangeType.DELETED ? "[DELETED]" : "[CHANGED]"} ${path}`,
+          watcher.request
+        );
       }
       if (!watcher.include(path)) {
         if (this.verboseLogging) {
-          this.traceWithCorrelation(` >> ignored (not included) ${path}`, watcher.request);
+          this.traceWithCorrelation(
+            ` >> ignored (not included) ${path}`,
+            watcher.request
+          );
         }
       } else {
-        events.push({ type, resource: URI.file(path), cId: watcher.request.correlationId });
+        events.push({
+          type,
+          resource: URI.file(path),
+          cId: watcher.request.correlationId
+        });
       }
     }
     return events;
   }
   handleParcelEvents(parcelEvents, watcher) {
     const coalescedEvents = coalesceEvents(parcelEvents);
-    const { events: filteredEvents, rootDeleted } = this.filterEvents(coalescedEvents, watcher);
+    const { events: filteredEvents, rootDeleted } = this.filterEvents(
+      coalescedEvents,
+      watcher
+    );
     this.emitEvents(filteredEvents, watcher);
     if (rootDeleted) {
       this.onWatchedPathDeleted(watcher);
@@ -347,10 +443,15 @@ class ParcelWatcher extends BaseWatcher {
     }
     const worked = this.throttledFileChangesEmitter.work(events);
     if (!worked) {
-      this.warn(`started ignoring events due to too many file change events at once (incoming: ${events.length}, most recent change: ${events[0].resource.fsPath}). Use 'files.watcherExclude' setting to exclude folders with lots of changing files (e.g. compilation output).`);
+      this.warn(
+        `started ignoring events due to too many file change events at once (incoming: ${events.length}, most recent change: ${events[0].resource.fsPath}). Use 'files.watcherExclude' setting to exclude folders with lots of changing files (e.g. compilation output).`
+      );
     } else {
       if (this.throttledFileChangesEmitter.pending > 0) {
-        this.trace(`started throttling events due to large amount of file change events at once (pending: ${this.throttledFileChangesEmitter.pending}, most recent change: ${events[0].resource.fsPath}). Use 'files.watcherExclude' setting to exclude folders with lots of changing files (e.g. compilation output).`, watcher);
+        this.trace(
+          `started throttling events due to large amount of file change events at once (pending: ${this.throttledFileChangesEmitter.pending}, most recent change: ${events[0].resource.fsPath}). Use 'files.watcherExclude' setting to exclude folders with lots of changing files (e.g. compilation output).`,
+          watcher
+        );
       }
     }
   }
@@ -366,7 +467,9 @@ class ParcelWatcher extends BaseWatcher {
       if (request.path !== realPath) {
         realPathLength = realPath.length;
         realPathDiffers = true;
-        this.trace(`correcting a path to watch that seems to be a symbolic link or wrong casing (original: ${request.path}, real: ${realPath})`);
+        this.trace(
+          `correcting a path to watch that seems to be a symbolic link or wrong casing (original: ${request.path}, real: ${realPath})`
+        );
       }
     } catch (error) {
     }
@@ -398,7 +501,10 @@ class ParcelWatcher extends BaseWatcher {
       rootDeleted = event.type === FileChangeType.DELETED && isEqual(event.resource.fsPath, watcher.request.path, !isLinux);
       if (isFiltered(event, filter)) {
         if (this.verboseLogging) {
-          this.traceWithCorrelation(` >> ignored (filtered) ${event.resource.fsPath}`, watcher.request);
+          this.traceWithCorrelation(
+            ` >> ignored (filtered) ${event.resource.fsPath}`,
+            watcher.request
+          );
         }
         continue;
       }
@@ -441,9 +547,16 @@ class ParcelWatcher extends BaseWatcher {
       try {
         await this.stopWatching(watcher, restartPromise.p);
         if (watcher.request.pollingInterval) {
-          await this.startPolling(watcher.request, watcher.request.pollingInterval, watcher.restarts + 1);
+          await this.startPolling(
+            watcher.request,
+            watcher.request.pollingInterval,
+            watcher.restarts + 1
+          );
         } else {
-          await this.startWatching(watcher.request, watcher.restarts + 1);
+          await this.startWatching(
+            watcher.request,
+            watcher.restarts + 1
+          );
         }
       } finally {
         restartPromise.complete();
@@ -453,29 +566,41 @@ class ParcelWatcher extends BaseWatcher {
     watcher.token.onCancellationRequested(() => scheduler.dispose());
   }
   async stopWatching(watcher, joinRestart) {
-    this.trace(`stopping file watcher`, watcher);
+    this.trace("stopping file watcher", watcher);
     this._watchers.delete(this.requestToWatcherKey(watcher.request));
     try {
       await watcher.stop(joinRestart);
     } catch (error) {
-      this.error(`Unexpected error stopping watcher: ${toErrorMessage(error)}`, watcher.request);
+      this.error(
+        `Unexpected error stopping watcher: ${toErrorMessage(error)}`,
+        watcher.request
+      );
     }
   }
   async removeDuplicateRequests(requests, validatePaths = true) {
-    requests.sort((requestA, requestB) => requestA.path.length - requestB.path.length);
+    requests.sort(
+      (requestA, requestB) => requestA.path.length - requestB.path.length
+    );
     const mapCorrelationtoRequests = /* @__PURE__ */ new Map();
     for (const request of requests) {
       if (request.excludes.includes(GLOBSTAR)) {
         continue;
       }
-      let requestsForCorrelation = mapCorrelationtoRequests.get(request.correlationId);
+      let requestsForCorrelation = mapCorrelationtoRequests.get(
+        request.correlationId
+      );
       if (!requestsForCorrelation) {
         requestsForCorrelation = /* @__PURE__ */ new Map();
-        mapCorrelationtoRequests.set(request.correlationId, requestsForCorrelation);
+        mapCorrelationtoRequests.set(
+          request.correlationId,
+          requestsForCorrelation
+        );
       }
       const path = this.pathToWatcherKey(request.path);
       if (requestsForCorrelation.has(path)) {
-        this.trace(`ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`);
+        this.trace(
+          `ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`
+        );
       }
       requestsForCorrelation.set(path, request);
     }
@@ -485,15 +610,21 @@ class ParcelWatcher extends BaseWatcher {
       for (const request of requestsForCorrelation.values()) {
         if (requestTrie.findSubstr(request.path)) {
           if (requestTrie.has(request.path)) {
-            this.trace(`ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`);
+            this.trace(
+              `ignoring a request for watching who's path is already watched: ${this.requestToString(request)}`
+            );
           } else {
             try {
               if (!(await promises.lstat(request.path)).isSymbolicLink()) {
-                this.trace(`ignoring a request for watching who's parent is already watched: ${this.requestToString(request)}`);
+                this.trace(
+                  `ignoring a request for watching who's parent is already watched: ${this.requestToString(request)}`
+                );
                 continue;
               }
             } catch (error) {
-              this.trace(`ignoring a request for watching who's lstat failed to resolve: ${this.requestToString(request)} (error: ${error})`);
+              this.trace(
+                `ignoring a request for watching who's lstat failed to resolve: ${this.requestToString(request)} (error: ${error})`
+              );
               this._onDidWatchFail.fire(request);
               continue;
             }
@@ -505,7 +636,9 @@ class ParcelWatcher extends BaseWatcher {
         }
         requestTrie.set(request.path, request);
       }
-      normalizedRequests.push(...Array.from(requestTrie).map(([, request]) => request));
+      normalizedRequests.push(
+        ...Array.from(requestTrie).map(([, request]) => request)
+      );
     }
     return normalizedRequests;
   }
@@ -513,11 +646,15 @@ class ParcelWatcher extends BaseWatcher {
     try {
       const stat = await promises.stat(path);
       if (!stat.isDirectory()) {
-        this.trace(`ignoring a path for watching that is a file and not a folder: ${path}`);
+        this.trace(
+          `ignoring a path for watching that is a file and not a folder: ${path}`
+        );
         return false;
       }
     } catch (error) {
-      this.trace(`ignoring a path for watching who's stat info failed to resolve: ${path} (error: ${error})`);
+      this.trace(
+        `ignoring a path for watching who's stat info failed to resolve: ${path} (error: ${error})`
+      );
       return false;
     }
     return true;
@@ -534,35 +671,50 @@ class ParcelWatcher extends BaseWatcher {
         continue;
       }
       const disposables = new DisposableStore();
-      disposables.add(Event.once(watcher.onDidStop)(async (e) => {
-        await e.joinRestart;
-        if (disposables.isDisposed) {
-          return;
-        }
-        callback(
+      disposables.add(
+        Event.once(watcher.onDidStop)(async (e) => {
+          await e.joinRestart;
+          if (disposables.isDisposed) {
+            return;
+          }
+          callback(
+            true
+            /* error */
+          );
+        })
+      );
+      disposables.add(
+        Event.once(watcher.onDidFail)(() => callback(
           true
           /* error */
-        );
-      }));
-      disposables.add(Event.once(watcher.onDidFail)(() => callback(
-        true
-        /* error */
-      )));
-      disposables.add(watcher.subscribe(path, (change) => callback(null, change)));
+        ))
+      );
+      disposables.add(
+        watcher.subscribe(path, (change) => callback(null, change))
+      );
       return disposables;
     }
     return void 0;
   }
   trace(message, watcher) {
     if (this.verboseLogging) {
-      this._onDidLogMessage.fire({ type: "trace", message: this.toMessage(message, watcher?.request) });
+      this._onDidLogMessage.fire({
+        type: "trace",
+        message: this.toMessage(message, watcher?.request)
+      });
     }
   }
   warn(message, watcher) {
-    this._onDidLogMessage.fire({ type: "warn", message: this.toMessage(message, watcher?.request) });
+    this._onDidLogMessage.fire({
+      type: "warn",
+      message: this.toMessage(message, watcher?.request)
+    });
   }
   error(message, request) {
-    this._onDidLogMessage.fire({ type: "error", message: this.toMessage(message, request) });
+    this._onDidLogMessage.fire({
+      type: "error",
+      message: this.toMessage(message, request)
+    });
   }
   toMessage(message, request) {
     return request ? `[File Watcher] ${message} (path: ${request.path})` : `[File Watcher ('parcel')] ${message}`;

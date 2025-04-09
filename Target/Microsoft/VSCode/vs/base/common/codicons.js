@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ThemeIcon } from "./themables.js";
-import { register } from "./codiconsUtil.js";
 import { codiconsLibrary } from "./codiconsLibrary.js";
+import { register } from "./codiconsUtil.js";
 function getAllCodicons() {
   return Object.values(Codicon);
 }

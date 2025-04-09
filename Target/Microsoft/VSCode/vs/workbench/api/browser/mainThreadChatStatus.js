@@ -12,8 +12,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { IChatStatusItemService } from "../../contrib/chat/browser/chatStatusItemService.js";
-import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-import { ChatStatusItemDto, MainContext, MainThreadChatStatusShape } from "../common/extHost.protocol.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadChatStatus = class extends Disposable {
   constructor(_extHostContext, _chatStatusItemService) {
     super();

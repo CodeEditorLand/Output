@@ -1,39 +1,64 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { watchFile, unwatchFile, Stats } from "fs";
-import { Disposable, DisposableMap, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
-import { ILogMessage, IRecursiveWatcherWithSubscribe, IUniversalWatchRequest, IWatchRequestWithCorrelation, IWatcher, IWatcherErrorEvent, isWatchRequestWithCorrelation, requestFilterToString } from "../../common/watcher.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { FileChangeType, IFileChange } from "../../common/files.js";
-import { URI } from "../../../../base/common/uri.js";
-import { DeferredPromise, ThrottledDelayer } from "../../../../base/common/async.js";
-import { hash } from "../../../../base/common/hash.js";
+import { unwatchFile, watchFile } from "node:fs";
+import {
+  DeferredPromise,
+  ThrottledDelayer
+} from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { hash } from "../../../../base/common/hash.js";
+import {
+  Disposable,
+  DisposableMap,
+  DisposableStore,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileChangeType } from "../../common/files.js";
+import {
+  isWatchRequestWithCorrelation,
+  requestFilterToString
+} from "../../common/watcher.js";
 class BaseWatcher extends Disposable {
   static {
     __name(this, "BaseWatcher");
   }
-  _onDidChangeFile = this._register(new Emitter());
+  _onDidChangeFile = this._register(
+    new Emitter()
+  );
   onDidChangeFile = this._onDidChangeFile.event;
-  _onDidLogMessage = this._register(new Emitter());
+  _onDidLogMessage = this._register(
+    new Emitter()
+  );
   onDidLogMessage = this._onDidLogMessage.event;
-  _onDidWatchFail = this._register(new Emitter());
+  _onDidWatchFail = this._register(
+    new Emitter()
+  );
   onDidWatchFail = this._onDidWatchFail.event;
   correlatedWatchRequests = /* @__PURE__ */ new Map();
   nonCorrelatedWatchRequests = /* @__PURE__ */ new Map();
-  suspendedWatchRequests = this._register(new DisposableMap());
+  suspendedWatchRequests = this._register(
+    new DisposableMap()
+  );
   suspendedWatchRequestsWithPolling = /* @__PURE__ */ new Set();
-  updateWatchersDelayer = this._register(new ThrottledDelayer(this.getUpdateWatchersDelay()));
+  updateWatchersDelayer = this._register(
+    new ThrottledDelayer(this.getUpdateWatchersDelay())
+  );
   suspendedWatchRequestPollingInterval = 5007;
   // node.js default
   joinWatch = new DeferredPromise();
   constructor() {
     super();
-    this._register(this.onDidWatchFail((request) => this.suspendWatchRequest({
-      id: this.computeId(request),
-      correlationId: this.isCorrelated(request) ? request.correlationId : void 0,
-      path: request.path
-    })));
+    this._register(
+      this.onDidWatchFail(
+        (request) => this.suspendWatchRequest({
+          id: this.computeId(request),
+          correlationId: this.isCorrelated(request) ? request.correlationId : void 0,
+          path: request.path
+        })
+      )
+    );
   }
   isCorrelated(request) {
     return isWatchRequestWithCorrelation(request);
@@ -55,9 +80,15 @@ class BaseWatcher extends Disposable {
       this.nonCorrelatedWatchRequests.clear();
       for (const request of requests) {
         if (this.isCorrelated(request)) {
-          this.correlatedWatchRequests.set(request.correlationId, request);
+          this.correlatedWatchRequests.set(
+            request.correlationId,
+            request
+          );
         } else {
-          this.nonCorrelatedWatchRequests.set(this.computeId(request), request);
+          this.nonCorrelatedWatchRequests.set(
+            this.computeId(request),
+            request
+          );
         }
       }
       for (const [id] of this.suspendedWatchRequests) {
@@ -76,12 +107,18 @@ class BaseWatcher extends Disposable {
   }
   updateWatchers(delayed) {
     const nonSuspendedRequests = [];
-    for (const [id, request] of [...this.nonCorrelatedWatchRequests, ...this.correlatedWatchRequests]) {
+    for (const [id, request] of [
+      ...this.nonCorrelatedWatchRequests,
+      ...this.correlatedWatchRequests
+    ]) {
       if (!this.suspendedWatchRequests.has(id)) {
         nonSuspendedRequests.push(request);
       }
     }
-    return this.updateWatchersDelayer.trigger(() => this.doWatch(nonSuspendedRequests), delayed ? this.getUpdateWatchersDelay() : 0).catch((error) => onUnexpectedError(error));
+    return this.updateWatchersDelayer.trigger(
+      () => this.doWatch(nonSuspendedRequests),
+      delayed ? this.getUpdateWatchersDelay() : 0
+    ).catch((error) => onUnexpectedError(error));
   }
   getUpdateWatchersDelay() {
     return 800;
@@ -103,7 +140,6 @@ class BaseWatcher extends Disposable {
     this.monitorSuspendedWatchRequest(request, disposables);
     this.updateWatchers(
       true
-      /* delay this call as we might accumulate many failing watch requests on startup */
     );
   }
   resumeWatchRequest(request) {
@@ -113,7 +149,9 @@ class BaseWatcher extends Disposable {
   }
   monitorSuspendedWatchRequest(request, disposables) {
     if (this.doMonitorWithExistingWatcher(request, disposables)) {
-      this.trace(`reusing an existing recursive watcher to monitor ${request.path}`);
+      this.trace(
+        `reusing an existing recursive watcher to monitor ${request.path}`
+      );
       this.suspendedWatchRequestsWithPolling.delete(request.id);
     } else {
       this.doMonitorWithNodeJS(request, disposables);
@@ -121,16 +159,19 @@ class BaseWatcher extends Disposable {
     }
   }
   doMonitorWithExistingWatcher(request, disposables) {
-    const subscription = this.recursiveWatcher?.subscribe(request.path, (error, change) => {
-      if (disposables.isDisposed) {
-        return;
+    const subscription = this.recursiveWatcher?.subscribe(
+      request.path,
+      (error, change) => {
+        if (disposables.isDisposed) {
+          return;
+        }
+        if (error) {
+          this.monitorSuspendedWatchRequest(request, disposables);
+        } else if (change?.type === FileChangeType.ADDED) {
+          this.onMonitoredPathAdded(request);
+        }
       }
-      if (error) {
-        this.monitorSuspendedWatchRequest(request, disposables);
-      } else if (change?.type === FileChangeType.ADDED) {
-        this.onMonitoredPathAdded(request);
-      }
-    });
+    );
     if (subscription) {
       disposables.add(subscription);
       return true;
@@ -151,24 +192,47 @@ class BaseWatcher extends Disposable {
         this.onMonitoredPathAdded(request);
       }
     }, "watchFileCallback");
-    this.trace(`starting fs.watchFile() on ${request.path} (correlationId: ${request.correlationId})`);
+    this.trace(
+      `starting fs.watchFile() on ${request.path} (correlationId: ${request.correlationId})`
+    );
     try {
-      watchFile(request.path, { persistent: false, interval: this.suspendedWatchRequestPollingInterval }, watchFileCallback);
+      watchFile(
+        request.path,
+        {
+          persistent: false,
+          interval: this.suspendedWatchRequestPollingInterval
+        },
+        watchFileCallback
+      );
     } catch (error) {
-      this.warn(`fs.watchFile() failed with error ${error} on path ${request.path} (correlationId: ${request.correlationId})`);
+      this.warn(
+        `fs.watchFile() failed with error ${error} on path ${request.path} (correlationId: ${request.correlationId})`
+      );
     }
-    disposables.add(toDisposable(() => {
-      this.trace(`stopping fs.watchFile() on ${request.path} (correlationId: ${request.correlationId})`);
-      try {
-        unwatchFile(request.path, watchFileCallback);
-      } catch (error) {
-        this.warn(`fs.unwatchFile() failed with error ${error} on path ${request.path} (correlationId: ${request.correlationId})`);
-      }
-    }));
+    disposables.add(
+      toDisposable(() => {
+        this.trace(
+          `stopping fs.watchFile() on ${request.path} (correlationId: ${request.correlationId})`
+        );
+        try {
+          unwatchFile(request.path, watchFileCallback);
+        } catch (error) {
+          this.warn(
+            `fs.unwatchFile() failed with error ${error} on path ${request.path} (correlationId: ${request.correlationId})`
+          );
+        }
+      })
+    );
   }
   onMonitoredPathAdded(request) {
-    this.trace(`detected ${request.path} exists again, resuming watcher (correlationId: ${request.correlationId})`);
-    const event = { resource: URI.file(request.path), type: FileChangeType.ADDED, cId: request.correlationId };
+    this.trace(
+      `detected ${request.path} exists again, resuming watcher (correlationId: ${request.correlationId})`
+    );
+    const event = {
+      resource: URI.file(request.path),
+      type: FileChangeType.ADDED,
+      cId: request.correlationId
+    };
     this._onDidChangeFile.fire([event]);
     this.traceEvent(event, request);
     this.resumeWatchRequest(request);
@@ -188,7 +252,9 @@ class BaseWatcher extends Disposable {
   }
   traceWithCorrelation(message, request) {
     if (this.verboseLogging) {
-      this.trace(`${message}${typeof request.correlationId === "number" ? ` <${request.correlationId}> ` : ``}`);
+      this.trace(
+        `${message}${typeof request.correlationId === "number" ? ` <${request.correlationId}> ` : ""}`
+      );
     }
   }
   requestToString(request) {

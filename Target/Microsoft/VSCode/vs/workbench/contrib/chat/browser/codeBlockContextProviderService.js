@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { ICodeBlockActionContextProvider, IChatCodeBlockContextProviderService } from "./chat.js";
+import {
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 class ChatCodeBlockContextProviderService {
   static {
     __name(this, "ChatCodeBlockContextProviderService");

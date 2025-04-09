@@ -2,12 +2,10 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../base/common/network.js";
 import { DataUri } from "../../../base/common/resources.js";
-import { URI, URI as uri } from "../../../base/common/uri.js";
-import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
-import { ILanguageService } from "../languages/language.js";
-import { IModelService } from "./model.js";
-import { FileKind } from "../../../platform/files/common/files.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
+import { URI } from "../../../base/common/uri.js";
+import { FileKind } from "../../../platform/files/common/files.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
 const fileIconDirectoryRegex = /(?:\/|^)(?:([^\/]+)\/)?([^\/]+)$/;
 function getIconClasses(modelService, languageService, resource, fileKind, icon) {
   if (ThemeIcon.isThemeIcon(icon)) {
@@ -27,7 +25,9 @@ function getIconClasses(modelService, languageService, resource, fileKind, icon)
       if (match) {
         name = fileIconSelectorEscape(match[2].toLowerCase());
         if (match[1]) {
-          classes.push(`${fileIconSelectorEscape(match[1].toLowerCase())}-name-dir-icon`);
+          classes.push(
+            `${fileIconSelectorEscape(match[1].toLowerCase())}-name-dir-icon`
+          );
         }
       } else {
         name = fileIconSelectorEscape(resource.authority.toLowerCase());
@@ -40,18 +40,26 @@ function getIconClasses(modelService, languageService, resource, fileKind, icon)
     } else {
       if (name) {
         classes.push(`${name}-name-file-icon`);
-        classes.push(`name-file-icon`);
+        classes.push("name-file-icon");
         if (name.length <= 255) {
           const dotSegments = name.split(".");
           for (let i = 1; i < dotSegments.length; i++) {
-            classes.push(`${dotSegments.slice(i).join(".")}-ext-file-icon`);
+            classes.push(
+              `${dotSegments.slice(i).join(".")}-ext-file-icon`
+            );
           }
         }
-        classes.push(`ext-file-icon`);
+        classes.push("ext-file-icon");
       }
-      const detectedLanguageId = detectLanguageId(modelService, languageService, resource);
+      const detectedLanguageId = detectLanguageId(
+        modelService,
+        languageService,
+        resource
+      );
       if (detectedLanguageId) {
-        classes.push(`${fileIconSelectorEscape(detectedLanguageId)}-lang-file-icon`);
+        classes.push(
+          `${fileIconSelectorEscape(detectedLanguageId)}-lang-file-icon`
+        );
       }
     }
   }
@@ -59,7 +67,10 @@ function getIconClasses(modelService, languageService, resource, fileKind, icon)
 }
 __name(getIconClasses, "getIconClasses");
 function getIconClassesForLanguageId(languageId) {
-  return ["file-icon", `${fileIconSelectorEscape(languageId)}-lang-file-icon`];
+  return [
+    "file-icon",
+    `${fileIconSelectorEscape(languageId)}-lang-file-icon`
+  ];
 }
 __name(getIconClassesForLanguageId, "getIconClassesForLanguageId");
 function detectLanguageId(modelService, languageService, resource) {

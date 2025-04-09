@@ -10,9 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../base/common/event.js";
-import { IURITransformer, transformOutgoingURIs } from "../../../base/common/uriIpc.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
+import {
+  transformOutgoingURIs
+} from "../../../base/common/uriIpc.js";
 import { INativeMcpDiscoveryHelperService } from "../common/nativeMcpDiscoveryHelper.js";
 let NativeMcpDiscoveryHelperChannel = class {
   constructor(getUriTransformer, nativeMcpDiscoveryHelperService) {

@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as platform from "../../../../../base/common/platform.js";
-import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IWorkbenchEnvironmentService } from "../../../../services/environment/common/environmentService.js";
 function content(accessor) {
   const isServerless = platform.isWeb && !accessor.get(IWorkbenchEnvironmentService).remoteAuthority;

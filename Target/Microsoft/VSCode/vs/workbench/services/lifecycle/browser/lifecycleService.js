@@ -10,16 +10,28 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ShutdownReason, ILifecycleService, StartupKind } from "../common/lifecycle.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { AbstractLifecycleService } from "../common/lifecycleService.js";
-import { localize } from "../../../../nls.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { addDisposableListener, EventType } from "../../../../base/browser/dom.js";
-import { IStorageService, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
+import {
+  addDisposableListener,
+  EventType
+} from "../../../../base/browser/dom.js";
 import { mainWindow } from "../../../../base/browser/window.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { localize } from "../../../../nls.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  IStorageService,
+  WillSaveStateReason
+} from "../../../../platform/storage/common/storage.js";
+import {
+  ILifecycleService,
+  ShutdownReason,
+  StartupKind
+} from "../common/lifecycle.js";
+import { AbstractLifecycleService } from "../common/lifecycleService.js";
 let BrowserLifecycleService = class extends AbstractLifecycleService {
   static {
     __name(this, "BrowserLifecycleService");
@@ -33,21 +45,36 @@ let BrowserLifecycleService = class extends AbstractLifecycleService {
     this.registerListeners();
   }
   registerListeners() {
-    this.beforeUnloadListener = addDisposableListener(mainWindow, EventType.BEFORE_UNLOAD, (e) => this.onBeforeUnload(e));
-    this.unloadListener = addDisposableListener(mainWindow, EventType.PAGE_HIDE, () => this.onUnload());
+    this.beforeUnloadListener = addDisposableListener(
+      mainWindow,
+      EventType.BEFORE_UNLOAD,
+      (e) => this.onBeforeUnload(e)
+    );
+    this.unloadListener = addDisposableListener(
+      mainWindow,
+      EventType.PAGE_HIDE,
+      () => this.onUnload()
+    );
   }
   onBeforeUnload(event) {
     if (this.ignoreBeforeUnload) {
-      this.logService.info("[lifecycle] onBeforeUnload triggered but ignored once");
+      this.logService.info(
+        "[lifecycle] onBeforeUnload triggered but ignored once"
+      );
       this.ignoreBeforeUnload = false;
     } else {
-      this.logService.info("[lifecycle] onBeforeUnload triggered and handled with veto support");
+      this.logService.info(
+        "[lifecycle] onBeforeUnload triggered and handled with veto support"
+      );
       this.doShutdown(() => this.vetoBeforeUnload(event));
     }
   }
   vetoBeforeUnload(event) {
     event.preventDefault();
-    event.returnValue = localize("lifecycleVeto", "Changes that you made may not be saved. Please check press 'Cancel' and try again.");
+    event.returnValue = localize(
+      "lifecycleVeto",
+      "Changes that you made may not be saved. Please check press 'Cancel' and try again."
+    );
   }
   withExpectedShutdown(reason, callback) {
     if (typeof reason === "number") {
@@ -78,11 +105,15 @@ let BrowserLifecycleService = class extends AbstractLifecycleService {
         return;
       }
       if (vetoResult instanceof Promise) {
-        logService.error(`[lifecycle] Long running operations before shutdown are unsupported in the web (id: ${id})`);
+        logService.error(
+          `[lifecycle] Long running operations before shutdown are unsupported in the web (id: ${id})`
+        );
         veto = true;
       }
       if (vetoResult === true) {
-        logService.info(`[lifecycle]: Unload was prevented (id: ${id})`);
+        logService.info(
+          `[lifecycle]: Unload was prevented (id: ${id})`
+        );
         veto = true;
       }
     }
@@ -107,7 +138,13 @@ let BrowserLifecycleService = class extends AbstractLifecycleService {
     }
     this.didUnload = true;
     this._willShutdown = true;
-    this._register(addDisposableListener(mainWindow, EventType.PAGE_SHOW, (e) => this.onLoadAfterUnload(e)));
+    this._register(
+      addDisposableListener(
+        mainWindow,
+        EventType.PAGE_SHOW,
+        (e) => this.onLoadAfterUnload(e)
+      )
+    );
     const logService = this.logService;
     this._onWillShutdown.fire({
       reason: ShutdownReason.QUIT,
@@ -119,7 +156,9 @@ let BrowserLifecycleService = class extends AbstractLifecycleService {
         if (typeof promise === "function") {
           promise();
         }
-        logService.error(`[lifecycle] Long running operations during shutdown are unsupported in the web (id: ${joiner.id})`);
+        logService.error(
+          `[lifecycle] Long running operations during shutdown are unsupported in the web (id: ${joiner.id})`
+        );
       },
       force: /* @__PURE__ */ __name(() => {
       }, "force")
@@ -131,7 +170,10 @@ let BrowserLifecycleService = class extends AbstractLifecycleService {
     if (!wasRestoredFromCache) {
       return;
     }
-    this.withExpectedShutdown({ disableShutdownHandling: true }, () => mainWindow.location.reload());
+    this.withExpectedShutdown(
+      { disableShutdownHandling: true },
+      () => mainWindow.location.reload()
+    );
   }
   doResolveStartupKind() {
     let startupKind = super.doResolveStartupKind();
@@ -148,7 +190,11 @@ BrowserLifecycleService = __decorateClass([
   __decorateParam(0, ILogService),
   __decorateParam(1, IStorageService)
 ], BrowserLifecycleService);
-registerSingleton(ILifecycleService, BrowserLifecycleService, InstantiationType.Eager);
+registerSingleton(
+  ILifecycleService,
+  BrowserLifecycleService,
+  InstantiationType.Eager
+);
 export {
   BrowserLifecycleService
 };

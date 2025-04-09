@@ -12,21 +12,39 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { EDITOR_FONT_DEFAULTS } from "../../../../editor/common/config/editorOptions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ITerminalConfigurationService, LinuxDistro } from "./terminal.js";
-import { DEFAULT_BOLD_FONT_WEIGHT, DEFAULT_FONT_WEIGHT, DEFAULT_LETTER_SPACING, DEFAULT_LINE_HEIGHT, FontWeight, ITerminalConfiguration, MAXIMUM_FONT_WEIGHT, MINIMUM_FONT_WEIGHT, MINIMUM_LETTER_SPACING, TERMINAL_CONFIG_SECTION } from "../common/terminal.js";
 import { isMacintosh } from "../../../../base/common/platform.js";
+import {
+  EDITOR_FONT_DEFAULTS
+} from "../../../../editor/common/config/editorOptions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  DEFAULT_BOLD_FONT_WEIGHT,
+  DEFAULT_FONT_WEIGHT,
+  DEFAULT_LETTER_SPACING,
+  DEFAULT_LINE_HEIGHT,
+  MAXIMUM_FONT_WEIGHT,
+  MINIMUM_FONT_WEIGHT,
+  MINIMUM_LETTER_SPACING,
+  TERMINAL_CONFIG_SECTION
+} from "../common/terminal.js";
+import { LinuxDistro } from "./terminal.js";
 let TerminalConfigurationService = class extends Disposable {
   constructor(_configurationService) {
     super();
     this._configurationService = _configurationService;
-    this._fontMetrics = this._register(new TerminalFontMetrics(this, this._configurationService));
-    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
-        this._updateConfig();
-      }
-    }));
+    this._fontMetrics = this._register(
+      new TerminalFontMetrics(this, this._configurationService)
+    );
+    this._register(
+      Event.runAndSubscribe(
+        this._configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(TERMINAL_CONFIG_SECTION)) {
+            this._updateConfig();
+          }
+        }
+      )
+    );
   }
   static {
     __name(this, "TerminalConfigurationService");
@@ -50,9 +68,19 @@ let TerminalConfigurationService = class extends Disposable {
     return this._fontMetrics.getFont(w, xtermCore, excludeDimensions);
   }
   _updateConfig() {
-    const configValues = { ...this._configurationService.getValue(TERMINAL_CONFIG_SECTION) };
-    configValues.fontWeight = this._normalizeFontWeight(configValues.fontWeight, DEFAULT_FONT_WEIGHT);
-    configValues.fontWeightBold = this._normalizeFontWeight(configValues.fontWeightBold, DEFAULT_BOLD_FONT_WEIGHT);
+    const configValues = {
+      ...this._configurationService.getValue(
+        TERMINAL_CONFIG_SECTION
+      )
+    };
+    configValues.fontWeight = this._normalizeFontWeight(
+      configValues.fontWeight,
+      DEFAULT_FONT_WEIGHT
+    );
+    configValues.fontWeightBold = this._normalizeFontWeight(
+      configValues.fontWeightBold,
+      DEFAULT_BOLD_FONT_WEIGHT
+    );
     this._config = configValues;
     this._onConfigChanged.fire();
   }
@@ -60,7 +88,12 @@ let TerminalConfigurationService = class extends Disposable {
     if (input === "normal" || input === "bold") {
       return input;
     }
-    return clampInt(input, MINIMUM_FONT_WEIGHT, MAXIMUM_FONT_WEIGHT, defaultWeight);
+    return clampInt(
+      input,
+      MINIMUM_FONT_WEIGHT,
+      MAXIMUM_FONT_WEIGHT,
+      defaultWeight
+    );
   }
 };
 TerminalConfigurationService = __decorateClass([
@@ -105,21 +138,36 @@ class TerminalFontMetrics extends Disposable {
   getFont(w, xtermCore, excludeDimensions) {
     const editorConfig = this._configurationService.getValue("editor");
     let fontFamily = this._terminalConfigurationService.config.fontFamily || editorConfig.fontFamily || EDITOR_FONT_DEFAULTS.fontFamily || "monospace";
-    let fontSize = clampInt(this._terminalConfigurationService.config.fontSize, 6 /* MinimumFontSize */, 100 /* MaximumFontSize */, EDITOR_FONT_DEFAULTS.fontSize);
+    let fontSize = clampInt(
+      this._terminalConfigurationService.config.fontSize,
+      6 /* MinimumFontSize */,
+      100 /* MaximumFontSize */,
+      EDITOR_FONT_DEFAULTS.fontSize
+    );
     if (!this._terminalConfigurationService.config.fontFamily) {
       if (this.linuxDistro === LinuxDistro.Fedora) {
         fontFamily = "'DejaVu Sans Mono'";
       }
       if (this.linuxDistro === LinuxDistro.Ubuntu) {
         fontFamily = "'Ubuntu Mono'";
-        fontSize = clampInt(fontSize + 2, 6 /* MinimumFontSize */, 100 /* MaximumFontSize */, EDITOR_FONT_DEFAULTS.fontSize);
+        fontSize = clampInt(
+          fontSize + 2,
+          6 /* MinimumFontSize */,
+          100 /* MaximumFontSize */,
+          EDITOR_FONT_DEFAULTS.fontSize
+        );
       }
     }
     fontFamily += ", monospace";
     if (isMacintosh) {
       fontFamily += ", AppleBraille";
     }
-    const letterSpacing = this._terminalConfigurationService.config.letterSpacing ? Math.max(Math.floor(this._terminalConfigurationService.config.letterSpacing), MINIMUM_LETTER_SPACING) : DEFAULT_LETTER_SPACING;
+    const letterSpacing = this._terminalConfigurationService.config.letterSpacing ? Math.max(
+      Math.floor(
+        this._terminalConfigurationService.config.letterSpacing
+      ),
+      MINIMUM_LETTER_SPACING
+    ) : DEFAULT_LETTER_SPACING;
     const lineHeight = this._terminalConfigurationService.config.lineHeight ? Math.max(this._terminalConfigurationService.config.lineHeight, 1) : DEFAULT_LINE_HEIGHT;
     if (excludeDimensions) {
       return {
@@ -142,11 +190,19 @@ class TerminalFontMetrics extends Disposable {
         };
       }
     }
-    return this._measureFont(w, fontFamily, fontSize, letterSpacing, lineHeight);
+    return this._measureFont(
+      w,
+      fontFamily,
+      fontSize,
+      letterSpacing,
+      lineHeight
+    );
   }
   _createCharMeasureElementIfNecessary() {
     if (!this._panelContainer) {
-      throw new Error("Cannot measure element when terminal is not attached");
+      throw new Error(
+        "Cannot measure element when terminal is not attached"
+      );
     }
     if (!this._charMeasureElement || !this._charMeasureElement.parentElement) {
       this._charMeasureElement = document.createElement("div");
@@ -164,7 +220,7 @@ class TerminalFontMetrics extends Disposable {
     const style = charMeasureElement.style;
     style.display = "inline-block";
     style.fontFamily = fontFamily;
-    style.fontSize = fontSize + "px";
+    style.fontSize = `${fontSize}px`;
     style.lineHeight = "normal";
     charMeasureElement.innerText = char;
     const rect = charMeasureElement.getBoundingClientRect();
@@ -184,12 +240,14 @@ class TerminalFontMetrics extends Disposable {
       charWidth: 0,
       charHeight: 0
     };
-    if (rect && rect.width && rect.height) {
+    if (rect?.width && rect.height) {
       this._lastFontMeasurement.charHeight = Math.ceil(rect.height);
       if (this._terminalConfigurationService.config.gpuAcceleration === "off") {
         this._lastFontMeasurement.charWidth = rect.width;
       } else {
-        const deviceCharWidth = Math.floor(rect.width * w.devicePixelRatio);
+        const deviceCharWidth = Math.floor(
+          rect.width * w.devicePixelRatio
+        );
         const deviceCellWidth = deviceCharWidth + Math.round(letterSpacing);
         const cssCellWidth = deviceCellWidth / w.devicePixelRatio;
         this._lastFontMeasurement.charWidth = cssCellWidth - Math.round(letterSpacing) / w.devicePixelRatio;
@@ -199,8 +257,8 @@ class TerminalFontMetrics extends Disposable {
   }
 }
 function clampInt(source, minimum, maximum, fallback) {
-  let r = parseInt(source, 10);
-  if (isNaN(r)) {
+  let r = Number.parseInt(source, 10);
+  if (Number.isNaN(r)) {
     return fallback;
   }
   if (typeof minimum === "number") {

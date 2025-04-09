@@ -9,14 +9,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import { SerializedError, onUnexpectedError, transformErrorFromSerialization } from "../../../base/common/errors.js";
+import {
+  onUnexpectedError,
+  transformErrorFromSerialization
+} from "../../../base/common/errors.js";
 import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-import { MainContext, MainThreadErrorsShape } from "../common/extHost.protocol.js";
+import {
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadErrors = class {
   dispose() {
   }
   $onUnexpectedError(err) {
-    if (err && err.$isError) {
+    if (err?.$isError) {
       err = transformErrorFromSerialization(err);
     }
     onUnexpectedError(err);

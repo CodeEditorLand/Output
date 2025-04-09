@@ -1,15 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { PromptToken } from "./tokens/promptToken.js";
-import { VSBuffer } from "../../../../../../base/common/buffer.js";
 import { assertNever } from "../../../../../../base/common/assert.js";
-import { ReadableStream } from "../../../../../../base/common/stream.js";
 import { BaseDecoder } from "../../../../../../base/common/codecs/baseDecoder.js";
-import { PromptVariable, PromptVariableWithData } from "./tokens/promptVariable.js";
-import { Hash } from "../../../../../../editor/common/codecs/simpleCodec/tokens/hash.js";
+import {
+  MarkdownDecoder
+} from "../../../../../../editor/common/codecs/markdownCodec/markdownDecoder.js";
 import { MarkdownLink } from "../../../../../../editor/common/codecs/markdownCodec/tokens/markdownLink.js";
-import { PartialPromptVariableName, PartialPromptVariableWithData } from "./parsers/promptVariableParser.js";
-import { MarkdownDecoder, TMarkdownToken } from "../../../../../../editor/common/codecs/markdownCodec/markdownDecoder.js";
+import { Hash } from "../../../../../../editor/common/codecs/simpleCodec/tokens/hash.js";
+import {
+  PartialPromptVariableName,
+  PartialPromptVariableWithData
+} from "./parsers/promptVariableParser.js";
+import { PromptToken } from "./tokens/promptToken.js";
 class ChatPromptDecoder extends BaseDecoder {
   static {
     __name(this, "ChatPromptDecoder");
@@ -46,7 +48,7 @@ class ChatPromptDecoder extends BaseDecoder {
         const { nextParser } = parseResult;
         if (nextParser instanceof PromptToken) {
           this._onData.fire(nextParser);
-          delete this.current;
+          this.current = void 0;
         } else {
           this.current = nextParser;
         }
@@ -54,7 +56,7 @@ class ChatPromptDecoder extends BaseDecoder {
       }
       // in the case of failure, reset the current parser object
       case "failure": {
-        delete this.current;
+        this.current = void 0;
         break;
       }
     }
@@ -71,7 +73,9 @@ class ChatPromptDecoder extends BaseDecoder {
         return this._onData.fire(this.current.asPromptVariable());
       }
       if (this.current instanceof PartialPromptVariableWithData) {
-        return this._onData.fire(this.current.asPromptVariableWithData());
+        return this._onData.fire(
+          this.current.asPromptVariableWithData()
+        );
       }
       assertNever(
         this.current,
@@ -79,7 +83,7 @@ class ChatPromptDecoder extends BaseDecoder {
       );
     } catch (error) {
     } finally {
-      delete this.current;
+      this.current = void 0;
       super.onStreamEnd();
     }
   }

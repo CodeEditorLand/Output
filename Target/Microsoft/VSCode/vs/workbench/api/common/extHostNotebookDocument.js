@@ -2,13 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Schemas } from "../../../base/common/network.js";
 import { URI } from "../../../base/common/uri.js";
-import * as extHostProtocol from "./extHost.protocol.js";
-import { ExtHostDocuments } from "./extHostDocuments.js";
-import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
 import * as extHostTypeConverters from "./extHostTypeConverters.js";
 import { NotebookRange } from "./extHostTypes.js";
-import * as notebookCommon from "../../contrib/notebook/common/notebookCommon.js";
-import * as vscode from "vscode";
 class RawContentChangeEvent {
   constructor(start, deletedCount, deletedItems, items) {
     this.start = start;
@@ -21,7 +17,10 @@ class RawContentChangeEvent {
   }
   asApiEvent() {
     return {
-      range: new NotebookRange(this.start, this.start + this.deletedCount),
+      range: new NotebookRange(
+        this.start,
+        this.start + this.deletedCount
+      ),
       addedCells: this.items.map((cell) => cell.apiCell),
       removedCells: this.deletedItems
     };
@@ -35,10 +34,16 @@ class ExtHostCell {
     this.handle = _cellData.handle;
     this.uri = URI.revive(_cellData.uri);
     this.cellKind = _cellData.cellKind;
-    this._outputs = _cellData.outputs.map(extHostTypeConverters.NotebookCellOutput.to);
+    this._outputs = _cellData.outputs.map(
+      extHostTypeConverters.NotebookCellOutput.to
+    );
     this._internalMetadata = _cellData.internalMetadata ?? {};
     this._metadata = Object.freeze(_cellData.metadata ?? {});
-    this._previousResult = Object.freeze(extHostTypeConverters.NotebookCellExecutionSummary.to(_cellData.internalMetadata ?? {}));
+    this._previousResult = Object.freeze(
+      extHostTypeConverters.NotebookCellExecutionSummary.to(
+        _cellData.internalMetadata ?? {}
+      )
+    );
   }
   static {
     __name(this, "ExtHostCell");
@@ -71,14 +76,18 @@ class ExtHostCell {
       const that = this;
       const data = this._extHostDocument.getDocument(this.uri);
       if (!data) {
-        throw new Error(`MISSING extHostDocument for notebook cell: ${this.uri}`);
+        throw new Error(
+          `MISSING extHostDocument for notebook cell: ${this.uri}`
+        );
       }
       const apiCell = {
         get index() {
           return that.notebook.getCellIndex(that);
         },
         notebook: that.notebook.apiNotebook,
-        kind: extHostTypeConverters.NotebookCellKind.to(this._cellData.cellKind),
+        kind: extHostTypeConverters.NotebookCellKind.to(
+          this._cellData.cellKind
+        ),
         document: data.document,
         get mime() {
           return that._mime;
@@ -101,17 +110,23 @@ class ExtHostCell {
     return this._apiCell;
   }
   setOutputs(newOutputs) {
-    this._outputs = newOutputs.map(extHostTypeConverters.NotebookCellOutput.to);
+    this._outputs = newOutputs.map(
+      extHostTypeConverters.NotebookCellOutput.to
+    );
   }
   setOutputItems(outputId, append, newOutputItems) {
-    const newItems = newOutputItems.map(extHostTypeConverters.NotebookCellOutputItem.to);
+    const newItems = newOutputItems.map(
+      extHostTypeConverters.NotebookCellOutputItem.to
+    );
     const output = this._outputs.find((op) => op.id === outputId);
     if (output) {
       if (!append) {
         output.items.length = 0;
       }
       output.items.push(...newItems);
-      if (output.items.length > 1 && output.items.every((item) => notebookCommon.isTextStreamMime(item.mime))) {
+      if (output.items.length > 1 && output.items.every(
+        (item) => notebookCommon.isTextStreamMime(item.mime)
+      )) {
         const mimeOutputs = /* @__PURE__ */ new Map();
         const mimeTypes = [];
         output.items.forEach((item) => {
@@ -127,7 +142,9 @@ class ExtHostCell {
         });
         output.items.length = 0;
         mimeTypes.forEach((mime) => {
-          const compressed = notebookCommon.compressOutputItemStreams(mimeOutputs.get(mime));
+          const compressed = notebookCommon.compressOutputItemStreams(
+            mimeOutputs.get(mime)
+          );
           output.items.push({
             mime,
             data: compressed.data.buffer
@@ -141,7 +158,11 @@ class ExtHostCell {
   }
   setInternalMetadata(newInternalMetadata) {
     this._internalMetadata = newInternalMetadata;
-    this._previousResult = Object.freeze(extHostTypeConverters.NotebookCellExecutionSummary.to(newInternalMetadata));
+    this._previousResult = Object.freeze(
+      extHostTypeConverters.NotebookCellExecutionSummary.to(
+        newInternalMetadata
+      )
+    );
   }
   setMime(newMime) {
   }
@@ -154,7 +175,11 @@ class ExtHostNotebookDocument {
     this.uri = uri;
     this._notebookType = data.viewType;
     this._metadata = Object.freeze(data.metadata ?? /* @__PURE__ */ Object.create(null));
-    this._spliceNotebookCells([[0, 0, data.cells]], true, void 0);
+    this._spliceNotebookCells(
+      [[0, 0, data.cells]],
+      true,
+      void 0
+    );
     this._versionId = data.versionId;
   }
   static {
@@ -224,7 +249,10 @@ class ExtHostNotebookDocument {
   }
   acceptDocumentPropertiesChanged(data) {
     if (data.metadata) {
-      this._metadata = Object.freeze({ ...this._metadata, ...data.metadata });
+      this._metadata = Object.freeze({
+        ...this._metadata,
+        ...data.metadata
+      });
     }
   }
   acceptDirty(isDirty) {
@@ -243,28 +271,63 @@ class ExtHostNotebookDocument {
     const relaxedCellChanges = [];
     for (const rawEvent of event.rawEvents) {
       if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ModelChange) {
-        this._spliceNotebookCells(rawEvent.changes, false, result.contentChanges);
+        this._spliceNotebookCells(
+          rawEvent.changes,
+          false,
+          result.contentChanges
+        );
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.Move) {
-        this._moveCells(rawEvent.index, rawEvent.length, rawEvent.newIdx, result.contentChanges);
+        this._moveCells(
+          rawEvent.index,
+          rawEvent.length,
+          rawEvent.newIdx,
+          result.contentChanges
+        );
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.Output) {
         this._setCellOutputs(rawEvent.index, rawEvent.outputs);
-        relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, outputs: this._cells[rawEvent.index].apiCell.outputs });
+        relaxedCellChanges.push({
+          cell: this._cells[rawEvent.index].apiCell,
+          outputs: this._cells[rawEvent.index].apiCell.outputs
+        });
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.OutputItem) {
-        this._setCellOutputItems(rawEvent.index, rawEvent.outputId, rawEvent.append, rawEvent.outputItems);
-        relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, outputs: this._cells[rawEvent.index].apiCell.outputs });
+        this._setCellOutputItems(
+          rawEvent.index,
+          rawEvent.outputId,
+          rawEvent.append,
+          rawEvent.outputItems
+        );
+        relaxedCellChanges.push({
+          cell: this._cells[rawEvent.index].apiCell,
+          outputs: this._cells[rawEvent.index].apiCell.outputs
+        });
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellLanguage) {
         this._changeCellLanguage(rawEvent.index, rawEvent.language);
-        relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, document: this._cells[rawEvent.index].apiCell.document });
+        relaxedCellChanges.push({
+          cell: this._cells[rawEvent.index].apiCell,
+          document: this._cells[rawEvent.index].apiCell.document
+        });
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellContent) {
-        relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, document: this._cells[rawEvent.index].apiCell.document });
+        relaxedCellChanges.push({
+          cell: this._cells[rawEvent.index].apiCell,
+          document: this._cells[rawEvent.index].apiCell.document
+        });
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellMime) {
         this._changeCellMime(rawEvent.index, rawEvent.mime);
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellMetadata) {
         this._changeCellMetadata(rawEvent.index, rawEvent.metadata);
-        relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, metadata: this._cells[rawEvent.index].apiCell.metadata });
+        relaxedCellChanges.push({
+          cell: this._cells[rawEvent.index].apiCell,
+          metadata: this._cells[rawEvent.index].apiCell.metadata
+        });
       } else if (rawEvent.kind === notebookCommon.NotebookCellsChangeType.ChangeCellInternalMetadata) {
-        this._changeCellInternalMetadata(rawEvent.index, rawEvent.internalMetadata);
-        relaxedCellChanges.push({ cell: this._cells[rawEvent.index].apiCell, executionSummary: this._cells[rawEvent.index].apiCell.executionSummary });
+        this._changeCellInternalMetadata(
+          rawEvent.index,
+          rawEvent.internalMetadata
+        );
+        relaxedCellChanges.push({
+          cell: this._cells[rawEvent.index].apiCell,
+          executionSummary: this._cells[rawEvent.index].apiCell.executionSummary
+        });
       }
     }
     const map = /* @__PURE__ */ new Map();
@@ -337,14 +400,27 @@ class ExtHostNotebookDocument {
     splices.reverse().forEach((splice) => {
       const cellDtos = splice[2];
       const newCells = cellDtos.map((cell) => {
-        const extCell = new ExtHostCell(this, this._textDocumentsAndEditors, cell);
+        const extCell = new ExtHostCell(
+          this,
+          this._textDocumentsAndEditors,
+          cell
+        );
         if (!initialization) {
           addedCellDocuments.push(ExtHostCell.asModelAddData(cell));
         }
         return extCell;
       });
-      const changeEvent = new RawContentChangeEvent(splice[0], splice[1], [], newCells);
-      const deletedItems = this._cells.splice(splice[0], splice[1], ...newCells);
+      const changeEvent = new RawContentChangeEvent(
+        splice[0],
+        splice[1],
+        [],
+        newCells
+      );
+      const deletedItems = this._cells.splice(
+        splice[0],
+        splice[1],
+        ...newCells
+      );
       for (const cell of deletedItems) {
         removedCellDocuments.push(cell.uri);
         changeEvent.deletedItems.push(cell.apiCell);
@@ -365,7 +441,12 @@ class ExtHostNotebookDocument {
     const cells = this._cells.splice(index, length);
     this._cells.splice(newIdx, 0, ...cells);
     const changes = [
-      new RawContentChangeEvent(index, length, cells.map((c) => c.apiCell), []),
+      new RawContentChangeEvent(
+        index,
+        length,
+        cells.map((c) => c.apiCell),
+        []
+      ),
       new RawContentChangeEvent(newIdx, 0, [], cells)
     ];
     for (const change of changes) {
@@ -383,7 +464,10 @@ class ExtHostNotebookDocument {
   _changeCellLanguage(index, newLanguageId) {
     const cell = this._cells[index];
     if (cell.apiCell.document.languageId !== newLanguageId) {
-      this._textDocuments.$acceptModelLanguageChanged(cell.uri, newLanguageId);
+      this._textDocuments.$acceptModelLanguageChanged(
+        cell.uri,
+        newLanguageId
+      );
     }
   }
   _changeCellMime(index, newMime) {

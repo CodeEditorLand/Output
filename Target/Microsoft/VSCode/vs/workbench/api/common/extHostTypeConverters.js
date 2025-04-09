@@ -1,11 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { asArray, coalesce, isNonEmptyArray } from "../../../base/common/arrays.js";
-import { VSBuffer, encodeBase64 } from "../../../base/common/buffer.js";
-import { IDataTransferFile, IDataTransferItem, UriList } from "../../../base/common/dataTransfer.js";
+import {
+  asArray,
+  coalesce,
+  isNonEmptyArray
+} from "../../../base/common/arrays.js";
+import { encodeBase64, VSBuffer } from "../../../base/common/buffer.js";
+import {
+  UriList
+} from "../../../base/common/dataTransfer.js";
 import { createSingleCallFunction } from "../../../base/common/functional.js";
 import * as htmlContent from "../../../base/common/htmlContent.js";
-import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { ResourceMap, ResourceSet } from "../../../base/common/map.js";
 import * as marked from "../../../base/common/marked/marked.js";
 import { parse, revive } from "../../../base/common/marshalling.js";
@@ -13,58 +18,82 @@ import { MarshalledId } from "../../../base/common/marshallingIds.js";
 import { Mimes } from "../../../base/common/mime.js";
 import { cloneAndChange } from "../../../base/common/objects.js";
 import { isWindows } from "../../../base/common/platform.js";
-import { IPrefixTreeNode, WellDefinedPrefixTree } from "../../../base/common/prefixTree.js";
+import {
+  WellDefinedPrefixTree
+} from "../../../base/common/prefixTree.js";
 import { basename } from "../../../base/common/resources.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
-import { isDefined, isEmptyObject, isNumber, isString, isUndefinedOrNull } from "../../../base/common/types.js";
-import { URI, UriComponents, isUriComponents } from "../../../base/common/uri.js";
-import { IURITransformer } from "../../../base/common/uriIpc.js";
+import {
+  isDefined,
+  isEmptyObject,
+  isNumber,
+  isString,
+  isUndefinedOrNull
+} from "../../../base/common/types.js";
+import {
+  isUriComponents,
+  URI
+} from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
 import { RenderLineNumbersType } from "../../../editor/common/config/editorOptions.js";
-import { IPosition } from "../../../editor/common/core/position.js";
 import * as editorRange from "../../../editor/common/core/range.js";
-import { ISelection } from "../../../editor/common/core/selection.js";
-import { IContentDecorationRenderOptions, IDecorationOptions, IDecorationRenderOptions, IThemeDecorationRenderOptions } from "../../../editor/common/editorCommon.js";
 import * as encodedTokenAttributes from "../../../editor/common/encodedTokenAttributes.js";
-import * as languageSelector from "../../../editor/common/languageSelector.js";
 import * as languages from "../../../editor/common/languages.js";
-import { EndOfLineSequence, TrackedRangeStickiness } from "../../../editor/common/model.js";
-import { ITextEditorOptions } from "../../../platform/editor/common/editor.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { IMarkerData, IRelatedInformation, MarkerSeverity, MarkerTag } from "../../../platform/markers/common/markers.js";
+import {
+  EndOfLineSequence,
+  TrackedRangeStickiness
+} from "../../../editor/common/model.js";
+import {
+  MarkerSeverity,
+  MarkerTag
+} from "../../../platform/markers/common/markers.js";
 import { ProgressLocation as MainProgressLocation } from "../../../platform/progress/common/progress.js";
 import { DEFAULT_EDITOR_ASSOCIATION, SaveReason } from "../../common/editor.js";
-import { IViewBadge } from "../../common/views.js";
-import { IChatAgentRequest, IChatAgentResult } from "../../contrib/chat/common/chatAgents.js";
-import { IChatRequestDraft } from "../../contrib/chat/common/chatEditingService.js";
-import { IChatRequestVariableEntry, isImageVariableEntry } from "../../contrib/chat/common/chatModel.js";
-import { IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatMarkdownContent, IChatMoveMessage, IChatProgressMessage, IChatResponseCodeblockUriPart, IChatTaskDto, IChatTaskResult, IChatTextEdit, IChatTreeData, IChatUserActionEvent, IChatWarningMessage } from "../../contrib/chat/common/chatService.js";
-import { IToolData, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
+import {
+  isImageVariableEntry
+} from "../../contrib/chat/common/chatModel.js";
+import { ChatAgentLocation } from "../../contrib/chat/common/constants.js";
 import * as chatProvider from "../../contrib/chat/common/languageModels.js";
-import { IChatResponsePromptTsxPart, IChatResponseTextPart } from "../../contrib/chat/common/languageModels.js";
-import { DebugTreeItemCollapsibleState, IDebugVisualizationTreeItem } from "../../contrib/debug/common/debug.js";
+import {
+  DebugTreeItemCollapsibleState
+} from "../../contrib/debug/common/debug.js";
 import * as notebooks from "../../contrib/notebook/common/notebookCommon.js";
 import { CellEditType } from "../../contrib/notebook/common/notebookCommon.js";
-import { ICellRange } from "../../contrib/notebook/common/notebookRange.js";
-import * as search from "../../contrib/search/common/search.js";
 import { TestId } from "../../contrib/testing/common/testId.js";
-import { CoverageDetails, DetailType, ICoverageCount, IFileCoverage, ISerializedTestResults, ITestErrorMessage, ITestItem, ITestRunProfileReference, ITestTag, TestMessageType, TestResultItem, TestRunProfileBitset, denamespaceTestTag, namespaceTestTag } from "../../contrib/testing/common/testTypes.js";
-import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
-import { ACTIVE_GROUP, SIDE_GROUP } from "../../services/editor/common/editorService.js";
+import {
+  denamespaceTestTag,
+  DetailType,
+  namespaceTestTag,
+  TestMessageType,
+  TestRunProfileBitset
+} from "../../contrib/testing/common/testTypes.js";
+import {
+  ACTIVE_GROUP,
+  SIDE_GROUP
+} from "../../services/editor/common/editorService.js";
 import { checkProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
-import * as extHostProtocol from "./extHost.protocol.js";
-import { CommandsConverter } from "./extHostCommands.js";
 import { getPrivateApiFor } from "./extHostTestingPrivateApi.js";
 import * as types from "./extHostTypes.js";
-import { LanguageModelPromptTsxPart, LanguageModelTextPart } from "./extHostTypes.js";
-import { ChatAgentLocation } from "../../contrib/chat/common/constants.js";
+import {
+  LanguageModelTextPart
+} from "./extHostTypes.js";
 var Selection;
 ((Selection2) => {
   function to(selection) {
-    const { selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn } = selection;
-    const start = new types.Position(selectionStartLineNumber - 1, selectionStartColumn - 1);
-    const end = new types.Position(positionLineNumber - 1, positionColumn - 1);
+    const {
+      selectionStartLineNumber,
+      selectionStartColumn,
+      positionLineNumber,
+      positionColumn
+    } = selection;
+    const start = new types.Position(
+      selectionStartLineNumber - 1,
+      selectionStartColumn - 1
+    );
+    const end = new types.Position(
+      positionLineNumber - 1,
+      positionColumn - 1
+    );
     return new types.Selection(start, end);
   }
   Selection2.to = to;
@@ -102,7 +131,12 @@ var Range;
       return void 0;
     }
     const { startLineNumber, startColumn, endLineNumber, endColumn } = range;
-    return new types.Range(startLineNumber - 1, startColumn - 1, endLineNumber - 1, endColumn - 1);
+    return new types.Range(
+      startLineNumber - 1,
+      startColumn - 1,
+      endLineNumber - 1,
+      endColumn - 1
+    );
   }
   Range2.to = to;
   __name(to, "to");
@@ -118,7 +152,10 @@ var Location;
   Location2.from = from;
   __name(from, "from");
   function to(location2) {
-    return new types.Location(URI.revive(location2.uri), Range.to(location2.range));
+    return new types.Location(
+      URI.revive(location2.uri),
+      Range.to(location2.range)
+    );
   }
   Location2.to = to;
   __name(to, "to");
@@ -148,7 +185,10 @@ var Position;
   Position2.to = to;
   __name(to, "to");
   function from(position) {
-    return { lineNumber: position.line + 1, column: position.character + 1 };
+    return {
+      lineNumber: position.line + 1,
+      column: position.character + 1
+    };
   }
   Position2.from = from;
   __name(from, "from");
@@ -156,7 +196,11 @@ var Position;
 var DocumentSelector;
 ((DocumentSelector2) => {
   function from(value, uriTransformer, extension) {
-    return coalesce(asArray(value).map((sel) => _doTransformDocumentSelector(sel, uriTransformer, extension)));
+    return coalesce(
+      asArray(value).map(
+        (sel) => _doTransformDocumentSelector(sel, uriTransformer, extension)
+      )
+    );
   }
   DocumentSelector2.from = from;
   __name(from, "from");
@@ -236,17 +280,25 @@ var Diagnostic;
       source: value.source,
       code,
       severity: DiagnosticSeverity.from(value.severity),
-      relatedInformation: value.relatedInformation && value.relatedInformation.map(DiagnosticRelatedInformation.from),
+      relatedInformation: value.relatedInformation?.map(
+        DiagnosticRelatedInformation.from
+      ),
       tags: Array.isArray(value.tags) ? coalesce(value.tags.map(DiagnosticTag.from)) : void 0
     };
   }
   Diagnostic2.from = from;
   __name(from, "from");
   function to(value) {
-    const res = new types.Diagnostic(Range.to(value), value.message, DiagnosticSeverity.to(value.severity));
+    const res = new types.Diagnostic(
+      Range.to(value),
+      value.message,
+      DiagnosticSeverity.to(value.severity)
+    );
     res.source = value.source;
     res.code = isString(value.code) ? value.code : value.code?.value;
-    res.relatedInformation = value.relatedInformation && value.relatedInformation.map(DiagnosticRelatedInformation.to);
+    res.relatedInformation = value.relatedInformation?.map(
+      DiagnosticRelatedInformation.to
+    );
     res.tags = value.tags && coalesce(value.tags.map(DiagnosticTag.to));
     return res;
   }
@@ -265,7 +317,10 @@ var DiagnosticRelatedInformation;
   DiagnosticRelatedInformation2.from = from;
   __name(from, "from");
   function to(value) {
-    return new types.DiagnosticRelatedInformation(new types.Location(value.resource, Range.to(value)), value.message);
+    return new types.DiagnosticRelatedInformation(
+      new types.Location(value.resource, Range.to(value)),
+      value.message
+    );
   }
   DiagnosticRelatedInformation2.to = to;
   __name(to, "to");
@@ -334,7 +389,7 @@ function isDecorationOptionsArr(something) {
   if (something.length === 0) {
     return true;
   }
-  return isDecorationOptions(something[0]) ? true : false;
+  return !!isDecorationOptions(something[0]);
 }
 __name(isDecorationOptionsArr, "isDecorationOptionsArr");
 var MarkdownString;
@@ -352,9 +407,18 @@ var MarkdownString;
     let res;
     if (isCodeblock(markup)) {
       const { language, value } = markup;
-      res = { value: "```" + language + "\n" + value + "\n```\n" };
+      res = { value: `\`\`\`${language}
+${value}
+\`\`\`
+` };
     } else if (types.MarkdownString.isMarkdownString(markup)) {
-      res = { value: markup.value, isTrusted: markup.isTrusted, supportThemeIcons: markup.supportThemeIcons, supportHtml: markup.supportHtml, baseUri: markup.baseUri };
+      res = {
+        value: markup.value,
+        isTrusted: markup.isTrusted,
+        supportThemeIcons: markup.supportThemeIcons,
+        supportHtml: markup.supportHtml,
+        baseUri: markup.baseUri
+      };
     } else if (typeof markup === "string") {
       res = { value: markup };
     } else {
@@ -414,7 +478,10 @@ var MarkdownString;
   }
   __name(_uriMassage, "_uriMassage");
   function to(value) {
-    const result = new types.MarkdownString(value.value, value.supportThemeIcons);
+    const result = new types.MarkdownString(
+      value.value,
+      value.supportThemeIcons
+    );
     result.isTrusted = value.isTrusted;
     result.supportHtml = value.supportHtml;
     result.baseUri = value.baseUri ? URI.from(value.baseUri) : void 0;
@@ -616,9 +683,17 @@ var WorkspaceEdit;
           let contents;
           if (entry.options?.contents) {
             if (ArrayBuffer.isView(entry.options.contents)) {
-              contents = { type: "base64", value: encodeBase64(VSBuffer.wrap(entry.options.contents)) };
+              contents = {
+                type: "base64",
+                value: encodeBase64(
+                  VSBuffer.wrap(entry.options.contents)
+                )
+              };
             } else {
-              contents = { type: "dataTransferItem", id: entry.options.contents._itemId };
+              contents = {
+                type: "dataTransferItem",
+                id: entry.options.contents._itemId
+              };
             }
           }
           result.edits.push({
@@ -684,7 +759,10 @@ var WorkspaceEdit;
         const isSnippet = item.textEdit.insertAsSnippet;
         let editOrSnippetTest;
         if (isSnippet) {
-          editOrSnippetTest = types.SnippetTextEdit.replace(range, new types.SnippetString(text));
+          editOrSnippetTest = types.SnippetTextEdit.replace(
+            range,
+            new types.SnippetString(text)
+          );
         } else {
           editOrSnippetTest = types.TextEdit.replace(range, text);
         }
@@ -696,8 +774,12 @@ var WorkspaceEdit;
         }
       } else {
         result.renameFile(
-          URI.revive(edit.oldResource),
-          URI.revive(edit.newResource),
+          URI.revive(
+            edit.oldResource
+          ),
+          URI.revive(
+            edit.newResource
+          ),
           edit.options
         );
       }
@@ -780,7 +862,7 @@ var WorkspaceSymbol;
     return {
       name: info.name,
       kind: SymbolKind.from(info.kind),
-      tags: info.tags && info.tags.map(SymbolTag.from),
+      tags: info.tags?.map(SymbolTag.from),
       containerName: info.containerName,
       location: location.from(info.location)
     };
@@ -794,7 +876,7 @@ var WorkspaceSymbol;
       info.containerName,
       location.to(info.location)
     );
-    result.tags = info.tags && info.tags.map(SymbolTag.to);
+    result.tags = info.tags?.map(SymbolTag.to);
     return result;
   }
   WorkspaceSymbol2.to = to;
@@ -921,7 +1003,9 @@ var DefinitionLink;
     return {
       originSelectionRange: definitionLink.originSelectionRange ? Range.from(definitionLink.originSelectionRange) : void 0,
       uri: definitionLink.targetUri ? definitionLink.targetUri : location2.uri,
-      range: Range.from(definitionLink.targetRange ? definitionLink.targetRange : location2.range),
+      range: Range.from(
+        definitionLink.targetRange ? definitionLink.targetRange : location2.range
+      ),
       targetSelectionRange: definitionLink.targetSelectionRange ? Range.from(definitionLink.targetSelectionRange) : void 0
     };
   }
@@ -956,7 +1040,12 @@ var Hover;
     const range = Range.to(info.range);
     const canIncreaseVerbosity = info.canIncreaseVerbosity;
     const canDecreaseVerbosity = info.canDecreaseVerbosity;
-    return new types.VerboseHover(contents, range, canIncreaseVerbosity, canDecreaseVerbosity);
+    return new types.VerboseHover(
+      contents,
+      range,
+      canIncreaseVerbosity,
+      canDecreaseVerbosity
+    );
   }
   Hover2.to = to;
   __name(to, "to");
@@ -972,7 +1061,10 @@ var EvaluatableExpression;
   EvaluatableExpression2.from = from;
   __name(from, "from");
   function to(info) {
-    return new types.EvaluatableExpression(Range.to(info.range), info.expression);
+    return new types.EvaluatableExpression(
+      Range.to(info.range),
+      info.expression
+    );
   }
   EvaluatableExpression2.to = to;
   __name(to, "to");
@@ -1039,7 +1131,10 @@ var InlineValueContext;
   InlineValueContext2.from = from;
   __name(from, "from");
   function to(inlineValueContext) {
-    return new types.InlineValueContext(inlineValueContext.frameId, Range.to(inlineValueContext.stoppedLocation));
+    return new types.InlineValueContext(
+      inlineValueContext.frameId,
+      Range.to(inlineValueContext.stoppedLocation)
+    );
   }
   InlineValueContext2.to = to;
   __name(to, "to");
@@ -1055,7 +1150,10 @@ var DocumentHighlight;
   DocumentHighlight2.from = from;
   __name(from, "from");
   function to(occurrence) {
-    return new types.DocumentHighlight(Range.to(occurrence.range), occurrence.kind);
+    return new types.DocumentHighlight(
+      Range.to(occurrence.range),
+      occurrence.kind
+    );
   }
   DocumentHighlight2.to = to;
   __name(to, "to");
@@ -1065,13 +1163,18 @@ var MultiDocumentHighlight;
   function from(multiDocumentHighlight) {
     return {
       uri: multiDocumentHighlight.uri,
-      highlights: multiDocumentHighlight.highlights.map(DocumentHighlight.from)
+      highlights: multiDocumentHighlight.highlights.map(
+        DocumentHighlight.from
+      )
     };
   }
   MultiDocumentHighlight2.from = from;
   __name(from, "from");
   function to(multiDocumentHighlight) {
-    return new types.MultiDocumentHighlight(URI.revive(multiDocumentHighlight.uri), multiDocumentHighlight.highlights.map(DocumentHighlight.to));
+    return new types.MultiDocumentHighlight(
+      URI.revive(multiDocumentHighlight.uri),
+      multiDocumentHighlight.highlights.map(DocumentHighlight.to)
+    );
   }
   MultiDocumentHighlight2.to = to;
   __name(to, "to");
@@ -1084,7 +1187,6 @@ var CompletionTriggerKind;
         return types.CompletionTriggerKind.TriggerCharacter;
       case languages.CompletionTriggerKind.TriggerForIncompleteCompletions:
         return types.CompletionTriggerKind.TriggerForIncompleteCompletions;
-      case languages.CompletionTriggerKind.Invoke:
       default:
         return types.CompletionTriggerKind.Invoke;
     }
@@ -1126,30 +1228,66 @@ var CompletionItemKind;
 ((CompletionItemKind2) => {
   const _from = /* @__PURE__ */ new Map([
     [types.CompletionItemKind.Method, languages.CompletionItemKind.Method],
-    [types.CompletionItemKind.Function, languages.CompletionItemKind.Function],
-    [types.CompletionItemKind.Constructor, languages.CompletionItemKind.Constructor],
+    [
+      types.CompletionItemKind.Function,
+      languages.CompletionItemKind.Function
+    ],
+    [
+      types.CompletionItemKind.Constructor,
+      languages.CompletionItemKind.Constructor
+    ],
     [types.CompletionItemKind.Field, languages.CompletionItemKind.Field],
-    [types.CompletionItemKind.Variable, languages.CompletionItemKind.Variable],
+    [
+      types.CompletionItemKind.Variable,
+      languages.CompletionItemKind.Variable
+    ],
     [types.CompletionItemKind.Class, languages.CompletionItemKind.Class],
-    [types.CompletionItemKind.Interface, languages.CompletionItemKind.Interface],
+    [
+      types.CompletionItemKind.Interface,
+      languages.CompletionItemKind.Interface
+    ],
     [types.CompletionItemKind.Struct, languages.CompletionItemKind.Struct],
     [types.CompletionItemKind.Module, languages.CompletionItemKind.Module],
-    [types.CompletionItemKind.Property, languages.CompletionItemKind.Property],
+    [
+      types.CompletionItemKind.Property,
+      languages.CompletionItemKind.Property
+    ],
     [types.CompletionItemKind.Unit, languages.CompletionItemKind.Unit],
     [types.CompletionItemKind.Value, languages.CompletionItemKind.Value],
-    [types.CompletionItemKind.Constant, languages.CompletionItemKind.Constant],
+    [
+      types.CompletionItemKind.Constant,
+      languages.CompletionItemKind.Constant
+    ],
     [types.CompletionItemKind.Enum, languages.CompletionItemKind.Enum],
-    [types.CompletionItemKind.EnumMember, languages.CompletionItemKind.EnumMember],
-    [types.CompletionItemKind.Keyword, languages.CompletionItemKind.Keyword],
-    [types.CompletionItemKind.Snippet, languages.CompletionItemKind.Snippet],
+    [
+      types.CompletionItemKind.EnumMember,
+      languages.CompletionItemKind.EnumMember
+    ],
+    [
+      types.CompletionItemKind.Keyword,
+      languages.CompletionItemKind.Keyword
+    ],
+    [
+      types.CompletionItemKind.Snippet,
+      languages.CompletionItemKind.Snippet
+    ],
     [types.CompletionItemKind.Text, languages.CompletionItemKind.Text],
     [types.CompletionItemKind.Color, languages.CompletionItemKind.Color],
     [types.CompletionItemKind.File, languages.CompletionItemKind.File],
-    [types.CompletionItemKind.Reference, languages.CompletionItemKind.Reference],
+    [
+      types.CompletionItemKind.Reference,
+      languages.CompletionItemKind.Reference
+    ],
     [types.CompletionItemKind.Folder, languages.CompletionItemKind.Folder],
     [types.CompletionItemKind.Event, languages.CompletionItemKind.Event],
-    [types.CompletionItemKind.Operator, languages.CompletionItemKind.Operator],
-    [types.CompletionItemKind.TypeParameter, languages.CompletionItemKind.TypeParameter],
+    [
+      types.CompletionItemKind.Operator,
+      languages.CompletionItemKind.Operator
+    ],
+    [
+      types.CompletionItemKind.TypeParameter,
+      languages.CompletionItemKind.TypeParameter
+    ],
     [types.CompletionItemKind.Issue, languages.CompletionItemKind.Issue],
     [types.CompletionItemKind.User, languages.CompletionItemKind.User]
   ]);
@@ -1158,35 +1296,103 @@ var CompletionItemKind;
   }
   CompletionItemKind2.from = from;
   __name(from, "from");
-  const _to = /* @__PURE__ */ new Map([
-    [languages.CompletionItemKind.Method, types.CompletionItemKind.Method],
-    [languages.CompletionItemKind.Function, types.CompletionItemKind.Function],
-    [languages.CompletionItemKind.Constructor, types.CompletionItemKind.Constructor],
-    [languages.CompletionItemKind.Field, types.CompletionItemKind.Field],
-    [languages.CompletionItemKind.Variable, types.CompletionItemKind.Variable],
-    [languages.CompletionItemKind.Class, types.CompletionItemKind.Class],
-    [languages.CompletionItemKind.Interface, types.CompletionItemKind.Interface],
-    [languages.CompletionItemKind.Struct, types.CompletionItemKind.Struct],
-    [languages.CompletionItemKind.Module, types.CompletionItemKind.Module],
-    [languages.CompletionItemKind.Property, types.CompletionItemKind.Property],
-    [languages.CompletionItemKind.Unit, types.CompletionItemKind.Unit],
-    [languages.CompletionItemKind.Value, types.CompletionItemKind.Value],
-    [languages.CompletionItemKind.Constant, types.CompletionItemKind.Constant],
-    [languages.CompletionItemKind.Enum, types.CompletionItemKind.Enum],
-    [languages.CompletionItemKind.EnumMember, types.CompletionItemKind.EnumMember],
-    [languages.CompletionItemKind.Keyword, types.CompletionItemKind.Keyword],
-    [languages.CompletionItemKind.Snippet, types.CompletionItemKind.Snippet],
-    [languages.CompletionItemKind.Text, types.CompletionItemKind.Text],
-    [languages.CompletionItemKind.Color, types.CompletionItemKind.Color],
-    [languages.CompletionItemKind.File, types.CompletionItemKind.File],
-    [languages.CompletionItemKind.Reference, types.CompletionItemKind.Reference],
-    [languages.CompletionItemKind.Folder, types.CompletionItemKind.Folder],
-    [languages.CompletionItemKind.Event, types.CompletionItemKind.Event],
-    [languages.CompletionItemKind.Operator, types.CompletionItemKind.Operator],
-    [languages.CompletionItemKind.TypeParameter, types.CompletionItemKind.TypeParameter],
-    [languages.CompletionItemKind.User, types.CompletionItemKind.User],
-    [languages.CompletionItemKind.Issue, types.CompletionItemKind.Issue]
-  ]);
+  const _to = /* @__PURE__ */ new Map(
+    [
+      [
+        languages.CompletionItemKind.Method,
+        types.CompletionItemKind.Method
+      ],
+      [
+        languages.CompletionItemKind.Function,
+        types.CompletionItemKind.Function
+      ],
+      [
+        languages.CompletionItemKind.Constructor,
+        types.CompletionItemKind.Constructor
+      ],
+      [
+        languages.CompletionItemKind.Field,
+        types.CompletionItemKind.Field
+      ],
+      [
+        languages.CompletionItemKind.Variable,
+        types.CompletionItemKind.Variable
+      ],
+      [
+        languages.CompletionItemKind.Class,
+        types.CompletionItemKind.Class
+      ],
+      [
+        languages.CompletionItemKind.Interface,
+        types.CompletionItemKind.Interface
+      ],
+      [
+        languages.CompletionItemKind.Struct,
+        types.CompletionItemKind.Struct
+      ],
+      [
+        languages.CompletionItemKind.Module,
+        types.CompletionItemKind.Module
+      ],
+      [
+        languages.CompletionItemKind.Property,
+        types.CompletionItemKind.Property
+      ],
+      [languages.CompletionItemKind.Unit, types.CompletionItemKind.Unit],
+      [
+        languages.CompletionItemKind.Value,
+        types.CompletionItemKind.Value
+      ],
+      [
+        languages.CompletionItemKind.Constant,
+        types.CompletionItemKind.Constant
+      ],
+      [languages.CompletionItemKind.Enum, types.CompletionItemKind.Enum],
+      [
+        languages.CompletionItemKind.EnumMember,
+        types.CompletionItemKind.EnumMember
+      ],
+      [
+        languages.CompletionItemKind.Keyword,
+        types.CompletionItemKind.Keyword
+      ],
+      [
+        languages.CompletionItemKind.Snippet,
+        types.CompletionItemKind.Snippet
+      ],
+      [languages.CompletionItemKind.Text, types.CompletionItemKind.Text],
+      [
+        languages.CompletionItemKind.Color,
+        types.CompletionItemKind.Color
+      ],
+      [languages.CompletionItemKind.File, types.CompletionItemKind.File],
+      [
+        languages.CompletionItemKind.Reference,
+        types.CompletionItemKind.Reference
+      ],
+      [
+        languages.CompletionItemKind.Folder,
+        types.CompletionItemKind.Folder
+      ],
+      [
+        languages.CompletionItemKind.Event,
+        types.CompletionItemKind.Event
+      ],
+      [
+        languages.CompletionItemKind.Operator,
+        types.CompletionItemKind.Operator
+      ],
+      [
+        languages.CompletionItemKind.TypeParameter,
+        types.CompletionItemKind.TypeParameter
+      ],
+      [languages.CompletionItemKind.User, types.CompletionItemKind.User],
+      [
+        languages.CompletionItemKind.Issue,
+        types.CompletionItemKind.Issue
+      ]
+    ]
+  );
   function to(kind) {
     return _to.get(kind) ?? types.CompletionItemKind.Property;
   }
@@ -1201,7 +1407,9 @@ var CompletionItem;
     result.kind = CompletionItemKind.to(suggestion.kind);
     result.tags = suggestion.tags?.map(CompletionItemTag.to);
     result.detail = suggestion.detail;
-    result.documentation = htmlContent.isMarkdownString(suggestion.documentation) ? MarkdownString.to(suggestion.documentation) : suggestion.documentation;
+    result.documentation = htmlContent.isMarkdownString(
+      suggestion.documentation
+    ) ? MarkdownString.to(suggestion.documentation) : suggestion.documentation;
     result.sortText = suggestion.sortText;
     result.filterText = suggestion.filterText;
     result.preselect = suggestion.preselect;
@@ -1209,9 +1417,14 @@ var CompletionItem;
     if (editorRange.Range.isIRange(suggestion.range)) {
       result.range = Range.to(suggestion.range);
     } else if (typeof suggestion.range === "object") {
-      result.range = { inserting: Range.to(suggestion.range.insert), replacing: Range.to(suggestion.range.replace) };
+      result.range = {
+        inserting: Range.to(suggestion.range.insert),
+        replacing: Range.to(suggestion.range.replace)
+      };
     }
-    result.keepWhitespace = typeof suggestion.insertTextRules === "undefined" ? false : Boolean(suggestion.insertTextRules & languages.CompletionItemInsertTextRule.KeepWhitespace);
+    result.keepWhitespace = typeof suggestion.insertTextRules === "undefined" ? false : Boolean(
+      suggestion.insertTextRules & languages.CompletionItemInsertTextRule.KeepWhitespace
+    );
     if (typeof suggestion.insertTextRules !== "undefined" && suggestion.insertTextRules & languages.CompletionItemInsertTextRule.InsertAsSnippet) {
       result.insertText = new types.SnippetString(suggestion.insertText);
     } else {
@@ -1219,7 +1432,9 @@ var CompletionItem;
       result.textEdit = result.range instanceof types.Range ? new types.TextEdit(result.range, result.insertText) : void 0;
     }
     if (suggestion.additionalTextEdits && suggestion.additionalTextEdits.length > 0) {
-      result.additionalTextEdits = suggestion.additionalTextEdits.map((e) => TextEdit.to(e));
+      result.additionalTextEdits = suggestion.additionalTextEdits.map(
+        (e) => TextEdit.to(e)
+      );
     }
     result.command = converter && suggestion.command ? converter.fromInternal(suggestion.command) : void 0;
     return result;
@@ -1298,10 +1513,12 @@ var InlayHint;
   function to(converter, hint) {
     const res = new types.InlayHint(
       Position.to(hint.position),
-      typeof hint.label === "string" ? hint.label : hint.label.map(InlayHintLabelPart.to.bind(void 0, converter)),
+      typeof hint.label === "string" ? hint.label : hint.label.map(
+        InlayHintLabelPart.to.bind(void 0, converter)
+      ),
       hint.kind && InlayHintKind.to(hint.kind)
     );
-    res.textEdits = hint.textEdits && hint.textEdits.map(TextEdit.to);
+    res.textEdits = hint.textEdits?.map(TextEdit.to);
     res.tooltip = htmlContent.isMarkdownString(hint.tooltip) ? MarkdownString.to(hint.tooltip) : hint.tooltip;
     res.paddingLeft = hint.paddingLeft;
     res.paddingRight = hint.paddingRight;
@@ -1373,7 +1590,9 @@ var ColorPresentation;
       cp.textEdit = TextEdit.to(colorPresentation.textEdit);
     }
     if (colorPresentation.additionalTextEdits) {
-      cp.additionalTextEdits = colorPresentation.additionalTextEdits.map((value) => TextEdit.to(value));
+      cp.additionalTextEdits = colorPresentation.additionalTextEdits.map(
+        (value) => TextEdit.to(value)
+      );
     }
     return cp;
   }
@@ -1383,7 +1602,9 @@ var ColorPresentation;
     return {
       label: colorPresentation.label,
       textEdit: colorPresentation.textEdit ? TextEdit.from(colorPresentation.textEdit) : void 0,
-      additionalTextEdits: colorPresentation.additionalTextEdits ? colorPresentation.additionalTextEdits.map((value) => TextEdit.from(value)) : void 0
+      additionalTextEdits: colorPresentation.additionalTextEdits ? colorPresentation.additionalTextEdits.map(
+        (value) => TextEdit.from(value)
+      ) : void 0
     };
   }
   ColorPresentation2.from = from;
@@ -1441,7 +1662,6 @@ var TextEditorLineNumbersStyle;
         return RenderLineNumbersType.Relative;
       case types.TextEditorLineNumbersStyle.Interval:
         return RenderLineNumbersType.Interval;
-      case types.TextEditorLineNumbersStyle.On:
       default:
         return RenderLineNumbersType.On;
     }
@@ -1456,7 +1676,6 @@ var TextEditorLineNumbersStyle;
         return types.TextEditorLineNumbersStyle.Relative;
       case RenderLineNumbersType.Interval:
         return types.TextEditorLineNumbersStyle.Interval;
-      case RenderLineNumbersType.On:
       default:
         return types.TextEditorLineNumbersStyle.On;
     }
@@ -1509,7 +1728,10 @@ var ProgressLocation;
 var FoldingRange;
 ((FoldingRange2) => {
   function from(r) {
-    const range = { start: r.start + 1, end: r.end + 1 };
+    const range = {
+      start: r.start + 1,
+      end: r.end + 1
+    };
     if (r.kind) {
       range.kind = FoldingRangeKind.from(r.kind);
     }
@@ -1518,7 +1740,10 @@ var FoldingRange;
   FoldingRange2.from = from;
   __name(from, "from");
   function to(r) {
-    const range = { start: r.start - 1, end: r.end - 1 };
+    const range = {
+      start: r.start - 1,
+      end: r.end - 1
+    };
     if (r.kind) {
       range.kind = FoldingRangeKind.to(r.kind);
     }
@@ -1587,7 +1812,10 @@ var GlobPattern;
       return pattern;
     }
     if (isRelativePatternShape(pattern) || isLegacyRelativePatternShape(pattern)) {
-      return new types.RelativePattern(pattern.baseUri ?? pattern.base, pattern.pattern).toJSON();
+      return new types.RelativePattern(
+        pattern.baseUri ?? pattern.base,
+        pattern.pattern
+      ).toJSON();
     }
     return pattern;
   }
@@ -1613,7 +1841,10 @@ var GlobPattern;
     if (typeof pattern === "string") {
       return pattern;
     }
-    return new types.RelativePattern(URI.revive(pattern.baseUri), pattern.pattern);
+    return new types.RelativePattern(
+      URI.revive(pattern.baseUri),
+      pattern.pattern
+    );
   }
   GlobPattern2.to = to;
   __name(to, "to");
@@ -1698,7 +1929,6 @@ var NotebookCellKind;
     switch (data) {
       case types.NotebookCellKind.Markup:
         return notebooks.CellKind.Markup;
-      case types.NotebookCellKind.Code:
       default:
         return notebooks.CellKind.Code;
     }
@@ -1709,7 +1939,6 @@ var NotebookCellKind;
     switch (data) {
       case notebooks.CellKind.Markup:
         return types.NotebookCellKind.Markup;
-      case notebooks.CellKind.Code:
       default:
         return types.NotebookCellKind.Code;
     }
@@ -1733,9 +1962,7 @@ var NotebookData;
   NotebookData2.from = from;
   __name(from, "from");
   function to(data) {
-    const res = new types.NotebookData(
-      data.cells.map(NotebookCellData.to)
-    );
+    const res = new types.NotebookData(data.cells.map(NotebookCellData.to));
     if (!isEmptyObject(data.metadata)) {
       res.metadata = data.metadata;
     }
@@ -1753,7 +1980,9 @@ var NotebookCellData;
       mime: data.mime,
       source: data.value,
       metadata: data.metadata,
-      internalMetadata: NotebookCellExecutionSummary.from(data.executionSummary ?? {}),
+      internalMetadata: NotebookCellExecutionSummary.from(
+        data.executionSummary ?? {}
+      ),
       outputs: data.outputs ? data.outputs.map(NotebookCellOutput.from) : []
     };
   }
@@ -1784,7 +2013,10 @@ var NotebookCellOutputItem;
   NotebookCellOutputItem2.from = from;
   __name(from, "from");
   function to(item) {
-    return new types.NotebookCellOutputItem(item.valueBytes.buffer, item.mime);
+    return new types.NotebookCellOutputItem(
+      item.valueBytes.buffer,
+      item.mime
+    );
   }
   NotebookCellOutputItem2.to = to;
   __name(to, "to");
@@ -1802,7 +2034,11 @@ var NotebookCellOutput;
   __name(from, "from");
   function to(output) {
     const items = output.items.map(NotebookCellOutputItem.to);
-    return new types.NotebookCellOutput(items, output.outputId, output.metadata);
+    return new types.NotebookCellOutput(
+      items,
+      output.outputId,
+      output.metadata
+    );
   }
   NotebookCellOutput2.to = to;
   __name(to, "to");
@@ -1896,7 +2132,10 @@ var NotebookRendererScript;
   NotebookRendererScript2.from = from;
   __name(from, "from");
   function to(preload) {
-    return new types.NotebookRendererScript(URI.revive(preload.uri), preload.provides);
+    return new types.NotebookRendererScript(
+      URI.revive(preload.uri),
+      preload.provides
+    );
   }
   NotebookRendererScript2.to = to;
   __name(to, "to");
@@ -1910,7 +2149,10 @@ var TestMessage;
       expected: message.expectedOutput,
       actual: message.actualOutput,
       contextValue: message.contextValue,
-      location: message.location && { range: Range.from(message.location.range), uri: message.location.uri },
+      location: message.location && {
+        range: Range.from(message.location.range),
+        uri: message.location.uri
+      },
       stackTrace: message.stackTrace?.map((s) => ({
         label: s.label,
         position: s.position && Position.from(s.position),
@@ -1921,7 +2163,9 @@ var TestMessage;
   TestMessage2.from = from;
   __name(from, "from");
   function to(item) {
-    const message = new types.TestMessage(typeof item.message === "string" ? item.message : MarkdownString.to(item.message));
+    const message = new types.TestMessage(
+      typeof item.message === "string" ? item.message : MarkdownString.to(item.message)
+    );
     message.actualOutput = item.actual;
     message.expectedOutput = item.expected;
     message.contextValue = item.contextValue;
@@ -2039,7 +2283,9 @@ var TestResults;
       taskStates: item.tasks.map((t) => ({
         state: t.state,
         duration: t.duration,
-        messages: t.messages.filter((m) => m.type === TestMessageType.Error).map(TestMessage.to)
+        messages: t.messages.filter(
+          (m) => m.type === TestMessageType.Error
+        ).map(TestMessage.to)
       })),
       children: []
     };
@@ -2109,11 +2355,13 @@ var TestCoverage;
       return new types.StatementCoverage(
         serialized.count,
         toLocation(serialized.location),
-        serialized.branches?.map((b) => new types.BranchCoverage(
-          b.count,
-          toLocation(b.location),
-          b.label
-        ))
+        serialized.branches?.map(
+          (b) => new types.BranchCoverage(
+            b.count,
+            toLocation(b.location),
+            b.label
+          )
+        )
       );
     } else {
       return new types.DeclarationCoverage(
@@ -2134,7 +2382,11 @@ var TestCoverage;
         count: coverage.executed,
         location: fromLocation(coverage.location),
         type: DetailType.Statement,
-        branches: coverage.branches.length ? coverage.branches.map((b) => ({ count: b.executed, location: b.location && fromLocation(b.location), label: b.label })) : void 0
+        branches: coverage.branches.length ? coverage.branches.map((b) => ({
+          count: b.executed,
+          location: b.location && fromLocation(b.location),
+          label: b.label
+        })) : void 0
       };
     } else {
       return {
@@ -2157,7 +2409,12 @@ var TestCoverage;
       statement: fromCoverageCount(coverage.statementCoverage),
       branch: coverage.branchCoverage && fromCoverageCount(coverage.branchCoverage),
       declaration: coverage.declarationCoverage && fromCoverageCount(coverage.declarationCoverage),
-      testIds: coverage instanceof types.FileCoverage && coverage.includesTests.length ? coverage.includesTests.map((t) => TestId.fromExtHostTestItem(t, controllerId).toString()) : void 0
+      testIds: coverage instanceof types.FileCoverage && coverage.includesTests.length ? coverage.includesTests.map(
+        (t) => TestId.fromExtHostTestItem(
+          t,
+          controllerId
+        ).toString()
+      ) : void 0
     };
   }
   TestCoverage2.fromFile = fromFile;
@@ -2234,11 +2491,18 @@ var DataTransferItem;
     const file = item.fileData;
     if (file) {
       return new types.InternalFileDataTransferItem(
-        new types.DataTransferFile(file.name, URI.revive(file.uri), file.id, createSingleCallFunction(() => resolveFileData(file.id)))
+        new types.DataTransferFile(
+          file.name,
+          URI.revive(file.uri),
+          file.id,
+          createSingleCallFunction(() => resolveFileData(file.id))
+        )
       );
     }
     if (mime === Mimes.uriList && item.uriListData) {
-      return new types.InternalDataTransferItem(reviveUriList(item.uriListData));
+      return new types.InternalDataTransferItem(
+        reviveUriList(item.uriListData)
+      );
     }
     return new types.InternalDataTransferItem(item.asString);
   }
@@ -2281,9 +2545,11 @@ var DataTransferItem;
   }
   __name(serializeUriList, "serializeUriList");
   function reviveUriList(parts) {
-    return UriList.create(parts.map((part) => {
-      return typeof part === "string" ? part : URI.revive(part);
-    }));
+    return UriList.create(
+      parts.map((part) => {
+        return typeof part === "string" ? part : URI.revive(part);
+      })
+    );
   }
   __name(reviveUriList, "reviveUriList");
 })(DataTransferItem || (DataTransferItem = {}));
@@ -2291,24 +2557,37 @@ var DataTransfer;
 ((DataTransfer2) => {
   function toDataTransfer(value, resolveFileData) {
     const init = value.items.map(([type, item]) => {
-      return [type, DataTransferItem.to(type, item, resolveFileData)];
+      return [
+        type,
+        DataTransferItem.to(type, item, resolveFileData)
+      ];
     });
     return new types.DataTransfer(init);
   }
   DataTransfer2.toDataTransfer = toDataTransfer;
   __name(toDataTransfer, "toDataTransfer");
   async function from(dataTransfer) {
-    const items = await Promise.all(Array.from(dataTransfer, async ([mime, value]) => {
-      return [mime, await DataTransferItem.from(mime, value)];
-    }));
+    const items = await Promise.all(
+      Array.from(dataTransfer, async ([mime, value]) => {
+        return [
+          mime,
+          await DataTransferItem.from(mime, value)
+        ];
+      })
+    );
     return { items };
   }
   DataTransfer2.from = from;
   __name(from, "from");
   async function fromList(dataTransfer) {
-    const items = await Promise.all(Array.from(dataTransfer, async ([mime, value]) => {
-      return [mime, await DataTransferItem.from(mime, value, value.id)];
-    }));
+    const items = await Promise.all(
+      Array.from(dataTransfer, async ([mime, value]) => {
+        return [
+          mime,
+          await DataTransferItem.from(mime, value, value.id)
+        ];
+      })
+    );
     return { items };
   }
   DataTransfer2.fromList = fromList;
@@ -2377,18 +2656,32 @@ var LanguageModelChatMessage;
           if (part.type === "text") {
             return new types.LanguageModelTextPart(part.value);
           } else {
-            return new types.LanguageModelPromptTsxPart(part.value);
+            return new types.LanguageModelPromptTsxPart(
+              part.value
+            );
           }
         });
-        return new types.LanguageModelToolResultPart(c.toolCallId, content2, c.isError);
+        return new types.LanguageModelToolResultPart(
+          c.toolCallId,
+          content2,
+          c.isError
+        );
       } else if (c.type === "image_url") {
         return void 0;
       } else {
-        return new types.LanguageModelToolCallPart(c.toolCallId, c.name, c.parameters);
+        return new types.LanguageModelToolCallPart(
+          c.toolCallId,
+          c.name,
+          c.parameters
+        );
       }
     }).filter((c) => c !== void 0);
     const role = LanguageModelChatMessageRole.to(message.role);
-    const result = new types.LanguageModelChatMessage(role, content, message.name);
+    const result = new types.LanguageModelChatMessage(
+      role,
+      content,
+      message.name
+    );
     return result;
   }
   LanguageModelChatMessage3.to = to;
@@ -2400,50 +2693,54 @@ var LanguageModelChatMessage;
     if (typeof messageContent === "string") {
       messageContent = [new types.LanguageModelTextPart(messageContent)];
     }
-    const content = messageContent.map((c) => {
-      if (c instanceof types.LanguageModelToolResultPart) {
-        return {
-          type: "tool_result",
-          toolCallId: c.callId,
-          value: coalesce(c.content.map((part) => {
-            if (part instanceof types.LanguageModelTextPart) {
-              return {
-                type: "text",
-                value: part.value
-              };
-            } else if (part instanceof types.LanguageModelPromptTsxPart) {
-              return {
-                type: "prompt_tsx",
-                value: part.value
-              };
-            } else {
-              return void 0;
-            }
-          })),
-          isError: c.isError
-        };
-      } else if (c instanceof types.LanguageModelToolCallPart) {
-        return {
-          type: "tool_use",
-          toolCallId: c.callId,
-          name: c.name,
-          parameters: c.input
-        };
-      } else if (c instanceof types.LanguageModelTextPart) {
-        return {
-          type: "text",
-          value: c.value
-        };
-      } else {
-        if (typeof c !== "string") {
-          throw new Error("Unexpected chat message content type");
+    const content = messageContent.map(
+      (c) => {
+        if (c instanceof types.LanguageModelToolResultPart) {
+          return {
+            type: "tool_result",
+            toolCallId: c.callId,
+            value: coalesce(
+              c.content.map((part) => {
+                if (part instanceof types.LanguageModelTextPart) {
+                  return {
+                    type: "text",
+                    value: part.value
+                  };
+                } else if (part instanceof types.LanguageModelPromptTsxPart) {
+                  return {
+                    type: "prompt_tsx",
+                    value: part.value
+                  };
+                } else {
+                  return void 0;
+                }
+              })
+            ),
+            isError: c.isError
+          };
+        } else if (c instanceof types.LanguageModelToolCallPart) {
+          return {
+            type: "tool_use",
+            toolCallId: c.callId,
+            name: c.name,
+            parameters: c.input
+          };
+        } else if (c instanceof types.LanguageModelTextPart) {
+          return {
+            type: "text",
+            value: c.value
+          };
+        } else {
+          if (typeof c !== "string") {
+            throw new Error("Unexpected chat message content type");
+          }
+          return {
+            type: "text",
+            value: c
+          };
         }
-        return {
-          type: "text",
-          value: c
-        };
       }
-    });
+    );
     return {
       role,
       name,
@@ -2467,7 +2764,11 @@ var LanguageModelChatMessage2;
             return new types.LanguageModelPromptTsxPart(part.value);
           }
         });
-        return new types.LanguageModelToolResultPart(c.toolCallId, content2, c.isError);
+        return new types.LanguageModelToolResultPart(
+          c.toolCallId,
+          content2,
+          c.isError
+        );
       } else if (c.type === "image_url") {
         const value = {
           mimeType: c.value.mimeType,
@@ -2475,11 +2776,19 @@ var LanguageModelChatMessage2;
         };
         return new types.LanguageModelDataPart(value);
       } else {
-        return new types.LanguageModelToolCallPart(c.toolCallId, c.name, c.parameters);
+        return new types.LanguageModelToolCallPart(
+          c.toolCallId,
+          c.name,
+          c.parameters
+        );
       }
     });
     const role = LanguageModelChatMessageRole.to(message.role);
-    const result = new types.LanguageModelChatMessage2(role, content, message.name);
+    const result = new types.LanguageModelChatMessage2(
+      role,
+      content,
+      message.name
+    );
     return result;
   }
   LanguageModelChatMessage22.to = to;
@@ -2491,59 +2800,63 @@ var LanguageModelChatMessage2;
     if (typeof messageContent === "string") {
       messageContent = [new types.LanguageModelTextPart(messageContent)];
     }
-    const content = messageContent.map((c) => {
-      if (c instanceof types.LanguageModelToolResultPart) {
-        return {
-          type: "tool_result",
-          toolCallId: c.callId,
-          value: coalesce(c.content.map((part) => {
-            if (part instanceof types.LanguageModelTextPart) {
-              return {
-                type: "text",
-                value: part.value
-              };
-            } else if (part instanceof types.LanguageModelPromptTsxPart) {
-              return {
-                type: "prompt_tsx",
-                value: part.value
-              };
-            } else {
-              return void 0;
-            }
-          })),
-          isError: c.isError
-        };
-      } else if (c instanceof types.LanguageModelDataPart) {
-        const value = {
-          mimeType: c.value.mimeType,
-          data: VSBuffer.wrap(c.value.data)
-        };
-        return {
-          type: "image_url",
-          value
-        };
-      } else if (c instanceof types.LanguageModelToolCallPart) {
-        return {
-          type: "tool_use",
-          toolCallId: c.callId,
-          name: c.name,
-          parameters: c.input
-        };
-      } else if (c instanceof types.LanguageModelTextPart) {
-        return {
-          type: "text",
-          value: c.value
-        };
-      } else {
-        if (typeof c !== "string") {
-          throw new Error("Unexpected chat message content type");
+    const content = messageContent.map(
+      (c) => {
+        if (c instanceof types.LanguageModelToolResultPart) {
+          return {
+            type: "tool_result",
+            toolCallId: c.callId,
+            value: coalesce(
+              c.content.map((part) => {
+                if (part instanceof types.LanguageModelTextPart) {
+                  return {
+                    type: "text",
+                    value: part.value
+                  };
+                } else if (part instanceof types.LanguageModelPromptTsxPart) {
+                  return {
+                    type: "prompt_tsx",
+                    value: part.value
+                  };
+                } else {
+                  return void 0;
+                }
+              })
+            ),
+            isError: c.isError
+          };
+        } else if (c instanceof types.LanguageModelDataPart) {
+          const value = {
+            mimeType: c.value.mimeType,
+            data: VSBuffer.wrap(c.value.data)
+          };
+          return {
+            type: "image_url",
+            value
+          };
+        } else if (c instanceof types.LanguageModelToolCallPart) {
+          return {
+            type: "tool_use",
+            toolCallId: c.callId,
+            name: c.name,
+            parameters: c.input
+          };
+        } else if (c instanceof types.LanguageModelTextPart) {
+          return {
+            type: "text",
+            value: c.value
+          };
+        } else {
+          if (typeof c !== "string") {
+            throw new Error("Unexpected chat message content type");
+          }
+          return {
+            type: "text",
+            value: c
+          };
         }
-        return {
-          type: "text",
-          value: c
-        };
       }
-    });
+    );
     return {
       role,
       name,
@@ -2564,7 +2877,9 @@ var ChatResponseMarkdownPart;
   ChatResponseMarkdownPart2.from = from;
   __name(from, "from");
   function to(part) {
-    return new types.ChatResponseMarkdownPart(MarkdownString.to(part.content));
+    return new types.ChatResponseMarkdownPart(
+      MarkdownString.to(part.content)
+    );
   }
   ChatResponseMarkdownPart2.to = to;
   __name(to, "to");
@@ -2581,7 +2896,10 @@ var ChatResponseCodeblockUriPart;
   ChatResponseCodeblockUriPart2.from = from;
   __name(from, "from");
   function to(part) {
-    return new types.ChatResponseCodeblockUriPart(URI.revive(part.uri), part.isEdit);
+    return new types.ChatResponseCodeblockUriPart(
+      URI.revive(part.uri),
+      part.isEdit
+    );
   }
   ChatResponseCodeblockUriPart2.to = to;
   __name(to, "to");
@@ -2598,7 +2916,10 @@ var ChatResponseMarkdownWithVulnerabilitiesPart;
   ChatResponseMarkdownWithVulnerabilitiesPart2.from = from;
   __name(from, "from");
   function to(part) {
-    return new types.ChatResponseMarkdownWithVulnerabilitiesPart(MarkdownString.to(part.content), part.vulnerabilities);
+    return new types.ChatResponseMarkdownWithVulnerabilitiesPart(
+      MarkdownString.to(part.content),
+      part.vulnerabilities
+    );
   }
   ChatResponseMarkdownWithVulnerabilitiesPart2.to = to;
   __name(to, "to");
@@ -2644,7 +2965,9 @@ var ChatResponseFilesPart;
   ChatResponseFilesPart2.from = from;
   __name(from, "from");
   function to(part) {
-    const treeData = revive(part.treeData);
+    const treeData = revive(
+      part.treeData
+    );
     function convert(items2) {
       return items2.map((item) => {
         return {
@@ -2677,7 +3000,9 @@ var ChatResponseAnchorPart;
   function to(part) {
     const value = revive(part);
     return new types.ChatResponseAnchorPart(
-      URI.isUri(value.inlineReference) ? value.inlineReference : "location" in value.inlineReference ? WorkspaceSymbol.to(value.inlineReference) : Location.to(value.inlineReference),
+      URI.isUri(value.inlineReference) ? value.inlineReference : "location" in value.inlineReference ? WorkspaceSymbol.to(
+        value.inlineReference
+      ) : Location.to(value.inlineReference),
       part.name
     );
   }
@@ -2728,7 +3053,10 @@ var ChatResponseMovePart;
   ChatResponseMovePart2.from = from;
   __name(from, "from");
   function to(part) {
-    return new types.ChatResponseMovePart(URI.revive(part.uri), Range.to(part.range));
+    return new types.ChatResponseMovePart(
+      URI.revive(part.uri),
+      Range.to(part.range)
+    );
   }
   ChatResponseMovePart2.to = to;
   __name(to, "to");
@@ -2758,7 +3086,10 @@ var ChatTaskResult;
 var ChatResponseCommandButtonPart;
 ((ChatResponseCommandButtonPart2) => {
   function from(part, commandsConverter, commandDisposables) {
-    const command = commandsConverter.toInternal(part.value, commandDisposables) ?? { command: part.value.command, title: part.value.title };
+    const command = commandsConverter.toInternal(
+      part.value,
+      commandDisposables
+    ) ?? { command: part.value.command, title: part.value.title };
     return {
       kind: "command",
       command
@@ -2767,7 +3098,12 @@ var ChatResponseCommandButtonPart;
   ChatResponseCommandButtonPart2.from = from;
   __name(from, "from");
   function to(part, commandsConverter) {
-    return new types.ChatResponseCommandButtonPart(commandsConverter.fromInternal(part.command) ?? { command: part.command.id, title: part.command.title });
+    return new types.ChatResponseCommandButtonPart(
+      commandsConverter.fromInternal(part.command) ?? {
+        command: part.command.id,
+        title: part.command.title
+      }
+    );
   }
   ChatResponseCommandButtonPart2.to = to;
   __name(to, "to");
@@ -2785,7 +3121,10 @@ var ChatResponseTextEditPart;
   ChatResponseTextEditPart2.from = from;
   __name(from, "from");
   function to(part) {
-    const result = new types.ChatResponseTextEditPart(URI.revive(part.uri), part.edits.map((e) => TextEdit.to(e)));
+    const result = new types.ChatResponseTextEditPart(
+      URI.revive(part.uri),
+      part.edits.map((e) => TextEdit.to(e))
+    );
     result.isDone = part.done;
     return result;
   }
@@ -2834,13 +3173,18 @@ var ChatResponseNotebookEditPart;
 var ChatResponseReferencePart;
 ((ChatResponseReferencePart2) => {
   function from(part) {
-    const iconPath = ThemeIcon.isThemeIcon(part.iconPath) ? part.iconPath : URI.isUri(part.iconPath) ? { light: URI.revive(part.iconPath) } : part.iconPath && "light" in part.iconPath && "dark" in part.iconPath && URI.isUri(part.iconPath.light) && URI.isUri(part.iconPath.dark) ? { light: URI.revive(part.iconPath.light), dark: URI.revive(part.iconPath.dark) } : void 0;
+    const iconPath = ThemeIcon.isThemeIcon(part.iconPath) ? part.iconPath : URI.isUri(part.iconPath) ? { light: URI.revive(part.iconPath) } : part.iconPath && "light" in part.iconPath && "dark" in part.iconPath && URI.isUri(part.iconPath.light) && URI.isUri(part.iconPath.dark) ? {
+      light: URI.revive(part.iconPath.light),
+      dark: URI.revive(part.iconPath.dark)
+    } : void 0;
     if (typeof part.value === "object" && "variableName" in part.value) {
       return {
         kind: "reference",
         reference: {
           variableName: part.value.variableName,
-          value: URI.isUri(part.value.value) || !part.value.value ? part.value.value : Location.from(part.value.value)
+          value: URI.isUri(part.value.value) || !part.value.value ? part.value.value : Location.from(
+            part.value.value
+          )
         },
         iconPath,
         options: part.options
@@ -2895,7 +3239,11 @@ var ChatResponsePart;
     } else if (part instanceof types.ChatResponseFileTreePart) {
       return ChatResponseFilesPart.from(part);
     } else if (part instanceof types.ChatResponseCommandButtonPart) {
-      return ChatResponseCommandButtonPart.from(part, commandsConverter, commandDisposables);
+      return ChatResponseCommandButtonPart.from(
+        part,
+        commandsConverter,
+        commandDisposables
+      );
     } else if (part instanceof types.ChatResponseTextEditPart) {
       return ChatResponseTextEditPart.from(part);
     } else if (part instanceof types.ChatResponseNotebookEditPart) {
@@ -2946,7 +3294,10 @@ var ChatResponsePart;
       case "treeData":
         return ChatResponseFilesPart.to(part);
       case "command":
-        return ChatResponseCommandButtonPart.to(part, commandsConverter);
+        return ChatResponseCommandButtonPart.to(
+          part,
+          commandsConverter
+        );
     }
     return void 0;
   }
@@ -2956,21 +3307,31 @@ var ChatResponsePart;
 var ChatAgentRequest;
 ((ChatAgentRequest2) => {
   function to(request, location2, model, diagnostics, tools) {
-    const toolReferences = request.variables.variables.filter((v) => v.isTool);
-    const variableReferences = request.variables.variables.filter((v) => !v.isTool);
+    const toolReferences = request.variables.variables.filter(
+      (v) => v.isTool
+    );
+    const variableReferences = request.variables.variables.filter(
+      (v) => !v.isTool
+    );
     const requestWithoutId = {
       prompt: request.message,
       command: request.command,
       attempt: request.attempt ?? 0,
       enableCommandDetection: request.enableCommandDetection ?? true,
       isParticipantDetected: request.isParticipantDetected ?? false,
-      references: variableReferences.map((v) => ChatPromptReference.to(v, diagnostics)),
-      toolReferences: toolReferences.map(ChatLanguageModelToolReference.to),
+      references: variableReferences.map(
+        (v) => ChatPromptReference.to(v, diagnostics)
+      ),
+      toolReferences: toolReferences.map(
+        ChatLanguageModelToolReference.to
+      ),
       location: ChatLocation.to(request.location),
       acceptedConfirmationData: request.acceptedConfirmationData,
       rejectedConfirmationData: request.rejectedConfirmationData,
       location2,
-      toolInvocationToken: Object.freeze({ sessionId: request.sessionId }),
+      toolInvocationToken: Object.freeze({
+        sessionId: request.sessionId
+      }),
       tools,
       model
     };
@@ -3046,31 +3407,46 @@ var ChatPromptReference;
       const ref = variable.references?.[0]?.reference;
       value = new types.ChatReferenceBinaryData(
         variable.mimeType ?? "image/png",
-        () => Promise.resolve(new Uint8Array(Object.values(variable.value))),
+        () => Promise.resolve(
+          new Uint8Array(
+            Object.values(variable.value)
+          )
+        ),
         ref && URI.isUri(ref) ? ref : void 0
       );
     } else if (variable.kind === "diagnostic") {
       const filterSeverity = variable.filterSeverity && DiagnosticSeverity.to(variable.filterSeverity);
       const filterUri = variable.filterUri && URI.revive(variable.filterUri).toString();
-      value = new types.ChatReferenceDiagnostic(diagnostics.map(([uri, d]) => {
-        if (variable.filterUri && uri.toString() !== filterUri) {
-          return [uri, []];
-        }
-        return [uri, d.filter((d2) => {
-          if (filterSeverity && d2.severity > filterSeverity) {
-            return false;
+      value = new types.ChatReferenceDiagnostic(
+        diagnostics.map(([uri, d]) => {
+          if (variable.filterUri && uri.toString() !== filterUri) {
+            return [uri, []];
           }
-          if (variable.filterRange && !editorRange.Range.areIntersectingOrTouching(variable.filterRange, Range.from(d2.range))) {
-            return false;
-          }
-          return true;
-        })];
-      }).filter(([, d]) => d.length > 0));
+          return [
+            uri,
+            d.filter((d2) => {
+              if (filterSeverity && d2.severity > filterSeverity) {
+                return false;
+              }
+              if (variable.filterRange && !editorRange.Range.areIntersectingOrTouching(
+                variable.filterRange,
+                Range.from(d2.range)
+              )) {
+                return false;
+              }
+              return true;
+            })
+          ];
+        }).filter(([, d]) => d.length > 0)
+      );
     }
     return {
       id: variable.id,
       name: variable.name,
-      range: variable.range && [variable.range.start, variable.range.endExclusive],
+      range: variable.range && [
+        variable.range.start,
+        variable.range.endExclusive
+      ],
       value,
       modelDescription: variable.modelDescription
     };
@@ -3087,7 +3463,10 @@ var ChatLanguageModelToolReference;
     }
     return {
       name: variable.id,
-      range: variable.range && [variable.range.start, variable.range.endExclusive]
+      range: variable.range && [
+        variable.range.start,
+        variable.range.endExclusive
+      ]
     };
   }
   ChatLanguageModelToolReference2.to = to;
@@ -3134,7 +3513,9 @@ var ChatAgentResult;
   function reviveMetadata(metadata) {
     return cloneAndChange(metadata, (value) => {
       if (value.$mid === MarshalledId.LanguageModelToolResult) {
-        return new types.LanguageModelToolResult(cloneAndChange(value.content, reviveMetadata));
+        return new types.LanguageModelToolResult(
+          cloneAndChange(value.content, reviveMetadata)
+        );
       } else if (value.$mid === MarshalledId.LanguageModelTextPart) {
         return new types.LanguageModelTextPart(value.value);
       } else if (value.$mid === MarshalledId.LanguageModelPromptTsxPart) {
@@ -3155,15 +3536,30 @@ var ChatAgentUserActionEvent;
     if (event.action.kind === "command") {
       const command = event.action.commandButton.command;
       const commandButton = {
-        command: commandsConverter.fromInternal(command) ?? { command: command.id, title: command.title }
+        command: commandsConverter.fromInternal(command) ?? {
+          command: command.id,
+          title: command.title
+        }
       };
-      const commandAction = { kind: "command", commandButton };
+      const commandAction = {
+        kind: "command",
+        commandButton
+      };
       return { action: commandAction, result: ehResult };
     } else if (event.action.kind === "followUp") {
-      const followupAction = { kind: "followUp", followup: ChatFollowup.to(event.action.followup) };
+      const followupAction = {
+        kind: "followUp",
+        followup: ChatFollowup.to(event.action.followup)
+      };
       return { action: followupAction, result: ehResult };
     } else if (event.action.kind === "inlineChat") {
-      return { action: { kind: "editor", accepted: event.action.action === "accepted" }, result: ehResult };
+      return {
+        action: {
+          kind: "editor",
+          accepted: event.action.action === "accepted"
+        },
+        result: ehResult
+      };
     } else if (event.action.kind === "chatEditingSessionAction") {
       const outcomes = /* @__PURE__ */ new Map([
         ["accepted", types.ChatEditingSessionActionOutcome.Accepted],
@@ -3190,7 +3586,10 @@ var TerminalQuickFix;
 ((TerminalQuickFix2) => {
   function from(quickFix, converter, disposables) {
     if ("terminalCommand" in quickFix) {
-      return { terminalCommand: quickFix.terminalCommand, shouldExecute: quickFix.shouldExecute };
+      return {
+        terminalCommand: quickFix.terminalCommand,
+        shouldExecute: quickFix.shouldExecute
+      };
     }
     if ("uri" in quickFix) {
       return { uri: quickFix.uri };
@@ -3216,12 +3615,18 @@ var TerminalCompletionList;
   function from(completions) {
     if (Array.isArray(completions)) {
       return {
-        items: completions.map((i) => TerminalCompletionItemDto.from(i))
+        items: completions.map(
+          (i) => TerminalCompletionItemDto.from(i)
+        )
       };
     }
     return {
-      items: completions.items.map((i) => TerminalCompletionItemDto.from(i)),
-      resourceRequestConfig: completions.resourceRequestConfig ? TerminalResourceRequestConfig.from(completions.resourceRequestConfig) : void 0
+      items: completions.items.map(
+        (i) => TerminalCompletionItemDto.from(i)
+      ),
+      resourceRequestConfig: completions.resourceRequestConfig ? TerminalResourceRequestConfig.from(
+        completions.resourceRequestConfig
+      ) : void 0
     };
   }
   TerminalCompletionList2.from = from;
@@ -3299,13 +3704,15 @@ var LanguageModelToolDescription;
 var LanguageModelToolResult;
 ((LanguageModelToolResult2) => {
   function to(result) {
-    return new types.LanguageModelToolResult(result.content.map((item) => {
-      if (item.kind === "text") {
-        return new types.LanguageModelTextPart(item.value);
-      } else {
-        return new types.LanguageModelPromptTsxPart(item.value);
-      }
-    }));
+    return new types.LanguageModelToolResult(
+      result.content.map((item) => {
+        if (item.kind === "text") {
+          return new types.LanguageModelTextPart(item.value);
+        } else {
+          return new types.LanguageModelPromptTsxPart(item.value);
+        }
+      })
+    );
   }
   LanguageModelToolResult2.to = to;
   __name(to, "to");
@@ -3326,11 +3733,17 @@ var LanguageModelToolResult;
             value: item.value
           };
         } else {
-          throw new Error("Unknown LanguageModelToolResult part type");
+          throw new Error(
+            "Unknown LanguageModelToolResult part type"
+          );
         }
       }),
-      toolResultMessage: MarkdownString.fromStrict(result.toolResultMessage),
-      toolResultDetails: result.toolResultDetails?.map((detail) => URI.isUri(detail) ? detail : Location.from(detail))
+      toolResultMessage: MarkdownString.fromStrict(
+        result.toolResultMessage
+      ),
+      toolResultDetails: result.toolResultDetails?.map(
+        (detail) => URI.isUri(detail) ? detail : Location.from(detail)
+      )
     };
   }
   LanguageModelToolResult2.from = from;

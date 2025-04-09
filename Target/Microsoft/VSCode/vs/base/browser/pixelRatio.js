@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { getWindowId, onDidUnregisterWindow } from "./dom.js";
 import { Emitter, Event } from "../common/event.js";
 import { Disposable, markAsSingleton } from "../common/lifecycle.js";
+import { getWindowId, onDidUnregisterWindow } from "./dom.js";
 class DevicePixelRatioMonitor extends Disposable {
   static {
     __name(this, "DevicePixelRatioMonitor");
@@ -19,7 +19,9 @@ class DevicePixelRatioMonitor extends Disposable {
   }
   _handleChange(targetWindow, fireEvent) {
     this._mediaQueryList?.removeEventListener("change", this._listener);
-    this._mediaQueryList = targetWindow.matchMedia(`(resolution: ${targetWindow.devicePixelRatio}dppx)`);
+    this._mediaQueryList = targetWindow.matchMedia(
+      `(resolution: ${targetWindow.devicePixelRatio}dppx)`
+    );
     this._mediaQueryList.addEventListener("change", this._listener);
     if (fireEvent) {
       this._onDidChange.fire();
@@ -39,11 +41,15 @@ class PixelRatioMonitorImpl extends Disposable {
   constructor(targetWindow) {
     super();
     this._value = this._getPixelRatio(targetWindow);
-    const dprMonitor = this._register(new DevicePixelRatioMonitor(targetWindow));
-    this._register(dprMonitor.onDidChange(() => {
-      this._value = this._getPixelRatio(targetWindow);
-      this._onDidChange.fire(this._value);
-    }));
+    const dprMonitor = this._register(
+      new DevicePixelRatioMonitor(targetWindow)
+    );
+    this._register(
+      dprMonitor.onDidChange(() => {
+        this._value = this._getPixelRatio(targetWindow);
+        this._onDidChange.fire(this._value);
+      })
+    );
   }
   _getPixelRatio(targetWindow) {
     const ctx = document.createElement("canvas").getContext("2d");
@@ -61,14 +67,23 @@ class PixelRatioMonitorFacade {
     const targetWindowId = getWindowId(targetWindow);
     let pixelRatioMonitor = this.mapWindowIdToPixelRatioMonitor.get(targetWindowId);
     if (!pixelRatioMonitor) {
-      pixelRatioMonitor = markAsSingleton(new PixelRatioMonitorImpl(targetWindow));
-      this.mapWindowIdToPixelRatioMonitor.set(targetWindowId, pixelRatioMonitor);
-      markAsSingleton(Event.once(onDidUnregisterWindow)(({ vscodeWindowId }) => {
-        if (vscodeWindowId === targetWindowId) {
-          pixelRatioMonitor?.dispose();
-          this.mapWindowIdToPixelRatioMonitor.delete(targetWindowId);
-        }
-      }));
+      pixelRatioMonitor = markAsSingleton(
+        new PixelRatioMonitorImpl(targetWindow)
+      );
+      this.mapWindowIdToPixelRatioMonitor.set(
+        targetWindowId,
+        pixelRatioMonitor
+      );
+      markAsSingleton(
+        Event.once(onDidUnregisterWindow)(({ vscodeWindowId }) => {
+          if (vscodeWindowId === targetWindowId) {
+            pixelRatioMonitor?.dispose();
+            this.mapWindowIdToPixelRatioMonitor.delete(
+              targetWindowId
+            );
+          }
+        })
+      );
     }
     return pixelRatioMonitor;
   }

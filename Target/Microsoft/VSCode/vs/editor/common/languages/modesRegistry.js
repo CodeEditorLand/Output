@@ -1,12 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../nls.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { ILanguageExtensionPoint } from "./language.js";
-import { Registry } from "../../../platform/registry/common/platform.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
 import { Mimes } from "../../../base/common/mime.js";
-import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../../platform/configuration/common/configurationRegistry.js";
+import * as nls from "../../../nls.js";
+import {
+  Extensions as ConfigurationExtensions
+} from "../../../platform/configuration/common/configurationRegistry.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
 const Extensions = {
   ModesRegistry: "editor.modesRegistry"
 };
@@ -48,28 +48,32 @@ ModesRegistry.registerLanguage({
   aliases: [nls.localize("plainText.alias", "Plain Text"), "text"],
   mimetypes: [Mimes.text]
 });
-Registry.as(ConfigurationExtensions.Configuration).registerDefaultConfigurations([{
-  overrides: {
-    "[plaintext]": {
-      "editor.unicodeHighlight.ambiguousCharacters": false,
-      "editor.unicodeHighlight.invisibleCharacters": false
-    },
-    // TODO: Below is a workaround for: https://github.com/microsoft/vscode/issues/240567
-    "[go]": {
-      "editor.insertSpaces": false
-    },
-    "[makefile]": {
-      "editor.insertSpaces": false
-    },
-    "[shellscript]": {
-      "files.eol": "\n"
-    },
-    "[yaml]": {
-      "editor.insertSpaces": true,
-      "editor.tabSize": 2
+Registry.as(
+  ConfigurationExtensions.Configuration
+).registerDefaultConfigurations([
+  {
+    overrides: {
+      "[plaintext]": {
+        "editor.unicodeHighlight.ambiguousCharacters": false,
+        "editor.unicodeHighlight.invisibleCharacters": false
+      },
+      // TODO: Below is a workaround for: https://github.com/microsoft/vscode/issues/240567
+      "[go]": {
+        "editor.insertSpaces": false
+      },
+      "[makefile]": {
+        "editor.insertSpaces": false
+      },
+      "[shellscript]": {
+        "files.eol": "\n"
+      },
+      "[yaml]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 2
+      }
     }
   }
-}]);
+]);
 export {
   EditorModesRegistry,
   Extensions,

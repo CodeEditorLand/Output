@@ -10,13 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, toDisposable } from "../../../../../base/common/lifecycle.js";
-import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
-import { Widget } from "../../../../../base/browser/ui/widget.js";
-import { ITerminalWidget } from "./widgets.js";
 import * as dom from "../../../../../base/browser/dom.js";
-import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
+import { Widget } from "../../../../../base/browser/ui/widget.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IHoverService } from "../../../../../platform/hover/browser/hover.js";
 import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
 const $ = dom.$;
 let TerminalHover = class extends Disposable {
@@ -34,7 +35,9 @@ let TerminalHover = class extends Disposable {
   }
   id = "hover";
   attach(container) {
-    const showLinkHover = this._configurationService.getValue(TerminalSettingId.ShowLinkHover);
+    const showLinkHover = this._configurationService.getValue(
+      TerminalSettingId.ShowLinkHover
+    );
     if (!showLinkHover) {
       return;
     }
@@ -71,7 +74,7 @@ class CellHoverTarget extends Widget {
     this._targetElements.push(this._domNode.appendChild(topTarget));
     if (rowCount > 2) {
       const middleTarget = $("div.terminal-hover-target.hoverHighlight");
-      middleTarget.style.left = `0px`;
+      middleTarget.style.left = "0px";
       middleTarget.style.bottom = `${(this._options.terminalDimensions.height - this._options.viewportRange.start.y - 1 - (rowCount - 2)) * this._options.cellDimensions.height}px`;
       middleTarget.style.width = `${this._options.terminalDimensions.width * this._options.cellDimensions.width}px`;
       middleTarget.style.height = `${(rowCount - 2) * this._options.cellDimensions.height}px`;
@@ -79,7 +82,7 @@ class CellHoverTarget extends Widget {
     }
     if (rowCount > 1) {
       const bottomTarget = $("div.terminal-hover-target.hoverHighlight");
-      bottomTarget.style.left = `0px`;
+      bottomTarget.style.left = "0px";
       bottomTarget.style.bottom = `${(this._options.terminalDimensions.height - this._options.viewportRange.end.y - 1) * this._options.cellDimensions.height}px`;
       bottomTarget.style.width = `${(this._options.viewportRange.end.x + 1) * this._options.cellDimensions.width}px`;
       bottomTarget.style.height = `${this._options.cellDimensions.height}px`;
@@ -87,18 +90,30 @@ class CellHoverTarget extends Widget {
     }
     if (this._options.modifierDownCallback && this._options.modifierUpCallback) {
       let down = false;
-      this._register(dom.addDisposableListener(container.ownerDocument, "keydown", (e) => {
-        if (e.ctrlKey && !down) {
-          down = true;
-          this._options.modifierDownCallback();
-        }
-      }));
-      this._register(dom.addDisposableListener(container.ownerDocument, "keyup", (e) => {
-        if (!e.ctrlKey) {
-          down = false;
-          this._options.modifierUpCallback();
-        }
-      }));
+      this._register(
+        dom.addDisposableListener(
+          container.ownerDocument,
+          "keydown",
+          (e) => {
+            if (e.ctrlKey && !down) {
+              down = true;
+              this._options.modifierDownCallback?.();
+            }
+          }
+        )
+      );
+      this._register(
+        dom.addDisposableListener(
+          container.ownerDocument,
+          "keyup",
+          (e) => {
+            if (!e.ctrlKey) {
+              down = false;
+              this._options.modifierUpCallback?.();
+            }
+          }
+        )
+      );
     }
     container.appendChild(this._domNode);
     this._register(toDisposable(() => this._domNode?.remove()));

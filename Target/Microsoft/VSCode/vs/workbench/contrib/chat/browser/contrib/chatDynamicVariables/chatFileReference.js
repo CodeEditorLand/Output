@@ -10,13 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../../base/common/uri.js";
 import { assert } from "../../../../../../base/common/assert.js";
-import { IDynamicVariable } from "../../../common/chatVariables.js";
-import { IRange } from "../../../../../../editor/common/core/range.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import { FilePromptParser } from "../../../common/promptSyntax/parsers/filePromptParser.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 let ChatFileReference = class extends FilePromptParser {
   /**
    * @throws if the `data` reference is no an instance of `URI`.

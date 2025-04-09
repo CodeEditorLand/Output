@@ -12,7 +12,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
 import { ExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifestService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 let WebExtensionGalleryManifestService = class extends ExtensionGalleryManifestService {
@@ -23,10 +26,16 @@ let WebExtensionGalleryManifestService = class extends ExtensionGalleryManifestS
     super(productService);
     const remoteConnection = remoteAgentService.getConnection();
     if (remoteConnection) {
-      const channel = remoteConnection.getChannel("extensionGalleryManifest");
+      const channel = remoteConnection.getChannel(
+        "extensionGalleryManifest"
+      );
       this.getExtensionGalleryManifest().then((manifest) => {
         channel.call("setExtensionGalleryManifest", [manifest]);
-        this._register(this.onDidChangeExtensionGalleryManifest((manifest2) => channel.call("setExtensionGalleryManifest", [manifest2])));
+        this._register(
+          this.onDidChangeExtensionGalleryManifest(
+            (manifest2) => channel.call("setExtensionGalleryManifest", [manifest2])
+          )
+        );
       });
     }
   }
@@ -35,5 +44,9 @@ WebExtensionGalleryManifestService = __decorateClass([
   __decorateParam(0, IProductService),
   __decorateParam(1, IRemoteAgentService)
 ], WebExtensionGalleryManifestService);
-registerSingleton(IExtensionGalleryManifestService, WebExtensionGalleryManifestService, InstantiationType.Delayed);
+registerSingleton(
+  IExtensionGalleryManifestService,
+  WebExtensionGalleryManifestService,
+  InstantiationType.Delayed
+);
 //# sourceMappingURL=extensionGalleryManifestService.js.map

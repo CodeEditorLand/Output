@@ -10,19 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as vscode from "vscode";
 import { importAMDNodeModule } from "../../../amdX.js";
 import { DeferredPromise, Sequencer } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Lazy } from "../../../base/common/lazy.js";
-import { Disposable, DisposableMap, DisposableStore, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import {
+  Disposable,
+  DisposableMap,
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import {
+  ExtensionIdentifier
+} from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { StorageScope } from "../../../platform/storage/common/storage.js";
-import { extensionPrefixedIdentifier, McpCollectionDefinition, McpConnectionState, McpServerDefinition, McpServerLaunch, McpServerTransportSSE, McpServerTransportType } from "../../contrib/mcp/common/mcpTypes.js";
-import { ExtHostMcpShape, MainContext, MainThreadMcpShape } from "./extHost.protocol.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
 import { LogLevel } from "../../../platform/log/common/log.js";
+import { StorageScope } from "../../../platform/storage/common/storage.js";
+import {
+  extensionPrefixedIdentifier,
+  McpConnectionState,
+  McpServerLaunch,
+  McpServerTransportType
+} from "../../contrib/mcp/common/mcpTypes.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 const IExtHostMpcService = createDecorator("IExtHostMpcService");
 let ExtHostMcpService = class extends Disposable {
   static {
@@ -30,9 +43,14 @@ let ExtHostMcpService = class extends Disposable {
   }
   _proxy;
   _initialProviderPromises = /* @__PURE__ */ new Set();
-  _sseEventSources = this._register(new DisposableMap());
+  _sseEventSources = this._register(
+    new DisposableMap()
+  );
   _eventSource = new Lazy(async () => {
-    const es = await importAMDNodeModule("@c4312/eventsource-umd", "dist/index.umd.js");
+    const es = await importAMDNodeModule(
+      "@c4312/eventsource-umd",
+      "dist/index.umd.js"
+    );
     return es.EventSource;
   });
   constructor(extHostRpc) {
@@ -44,7 +62,15 @@ let ExtHostMcpService = class extends Disposable {
   }
   _startMcp(id, launch) {
     if (launch.type === McpServerTransportType.SSE) {
-      this._sseEventSources.set(id, new McpSSEHandle(this._eventSource.value, id, launch, this._proxy));
+      this._sseEventSources.set(
+        id,
+        new McpSSEHandle(
+          this._eventSource.value,
+          id,
+          launch,
+          this._proxy
+        )
+      );
       return;
     }
     throw new Error("not implemented");
@@ -52,7 +78,9 @@ let ExtHostMcpService = class extends Disposable {
   $stopMcp(id) {
     if (this._sseEventSources.has(id)) {
       this._sseEventSources.deleteAndDispose(id);
-      this._proxy.$onDidChangeState(id, { state: McpConnectionState.Kind.Stopped });
+      this._proxy.$onDidChangeState(id, {
+        state: McpConnectionState.Kind.Stopped
+      });
     }
   }
   $sendMessage(id, message) {
@@ -64,9 +92,13 @@ let ExtHostMcpService = class extends Disposable {
   /** {@link vscode.lm.registerMcpConfigurationProvider} */
   registerMcpConfigurationProvider(extension, id, provider) {
     const store = new DisposableStore();
-    const metadata = extension.contributes?.modelContextServerCollections?.find((m) => m.id === id);
+    const metadata = extension.contributes?.modelContextServerCollections?.find(
+      (m) => m.id === id
+    );
     if (!metadata) {
-      throw new Error(`MCP configuration providers must be registered in the contributes.modelContextServerCollections array within your package.json, but "${id}" was not`);
+      throw new Error(
+        `MCP configuration providers must be registered in the contributes.modelContextServerCollections array within your package.json, but "${id}" was not`
+      );
     }
     const mcp = {
       id: extensionPrefixedIdentifier(extension.identifier, id),
@@ -75,7 +107,9 @@ let ExtHostMcpService = class extends Disposable {
       scope: StorageScope.WORKSPACE
     };
     const update = /* @__PURE__ */ __name(async () => {
-      const list = await provider.provideMcpServerDefinitions(CancellationToken.None);
+      const list = await provider.provideMcpServerDefinitions(
+        CancellationToken.None
+      );
       function isSSEConfig(candidate) {
         return !!candidate.uri;
       }
@@ -101,17 +135,22 @@ let ExtHostMcpService = class extends Disposable {
       }
       this._proxy.$upsertMcpCollection(mcp, servers);
     }, "update");
-    store.add(toDisposable(() => {
-      this._proxy.$deleteMcpCollection(mcp.id);
-    }));
+    store.add(
+      toDisposable(() => {
+        this._proxy.$deleteMcpCollection(mcp.id);
+      })
+    );
     if (provider.onDidChange) {
       store.add(provider.onDidChange(update));
     }
     const promise = new Promise((resolve) => {
-      setTimeout(() => update().finally(() => {
-        this._initialProviderPromises.delete(promise);
-        resolve();
-      }), 0);
+      setTimeout(
+        () => update().finally(() => {
+          this._initialProviderPromises.delete(promise);
+          resolve();
+        }),
+        0
+      );
     });
     this._initialProviderPromises.add(promise);
     return store;
@@ -125,7 +164,9 @@ class McpSSEHandle extends Disposable {
     super();
     this._id = _id;
     this._proxy = _proxy;
-    eventSourceCtor.then((EventSourceCtor) => this._attach(EventSourceCtor, launch));
+    eventSourceCtor.then(
+      (EventSourceCtor) => this._attach(EventSourceCtor, launch)
+    );
   }
   static {
     __name(this, "McpSSEHandle");
@@ -144,27 +185,40 @@ class McpSSEHandle extends Disposable {
           ...Object.fromEntries(launch.headers),
           ...init?.headers
         }
-      }).then(async (res) => {
-        if (res.status >= 300) {
-          this._proxy.$onDidChangeState(this._id, { state: McpConnectionState.Kind.Error, message: `${res.status} status connecting to ${launch.uri}: ${await this._getErrText(res)}` });
+      }).then(
+        async (res) => {
+          if (res.status >= 300) {
+            this._proxy.$onDidChangeState(this._id, {
+              state: McpConnectionState.Kind.Error,
+              message: `${res.status} status connecting to ${launch.uri}: ${await this._getErrText(res)}`
+            });
+            eventSource.close();
+          }
+          return res;
+        },
+        (err) => {
+          this._proxy.$onDidChangeState(this._id, {
+            state: McpConnectionState.Kind.Error,
+            message: `Error connecting to ${launch.uri}: ${String(err)}`
+          });
           eventSource.close();
+          return Promise.reject(err);
         }
-        return res;
-      }, (err) => {
-        this._proxy.$onDidChangeState(this._id, { state: McpConnectionState.Kind.Error, message: `Error connecting to ${launch.uri}: ${String(err)}` });
-        eventSource.close();
-        return Promise.reject(err);
-      }), "fetch")
+      ), "fetch")
     });
     this._register(toDisposable(() => eventSource.close()));
     eventSource.addEventListener("endpoint", (e) => {
-      this._postEndpoint.complete(new URL(e.data, launch.uri.toString()).toString());
+      this._postEndpoint.complete(
+        new URL(e.data, launch.uri.toString()).toString()
+      );
     });
     eventSource.addEventListener("message", (e) => {
       this._proxy.$onDidReceiveMessage(this._id, e.data);
     });
     eventSource.addEventListener("open", () => {
-      this._proxy.$onDidChangeState(this._id, { state: McpConnectionState.Kind.Running });
+      this._proxy.$onDidChangeState(this._id, {
+        state: McpConnectionState.Kind.Running
+      });
     });
     eventSource.addEventListener("error", (err) => {
       this._postEndpoint.cancel();
@@ -190,7 +244,11 @@ class McpSSEHandle extends Disposable {
         });
       });
       if (res.status >= 300) {
-        this._proxy.$onDidPublishLog(this._id, LogLevel.Warning, `${res.status} status sending message to ${this._postEndpoint}: ${await this._getErrText(res)}`);
+        this._proxy.$onDidPublishLog(
+          this._id,
+          LogLevel.Warning,
+          `${res.status} status sending message to ${this._postEndpoint}: ${await this._getErrText(res)}`
+        );
       }
     } catch (err) {
     }

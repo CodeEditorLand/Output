@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as os from "os";
+import * as os from "node:os";
 import * as path from "../common/path.js";
 import * as pfs from "./pfs.js";
 const IntRegex = /^\d+$/;
@@ -46,12 +46,16 @@ class PossiblePowerShellExe {
   }
   async exists() {
     if (this.knownToExist === void 0) {
-      this.knownToExist = await pfs.SymlinkSupport.existsFile(this.exePath);
+      this.knownToExist = await pfs.SymlinkSupport.existsFile(
+        this.exePath
+      );
     }
     return this.knownToExist;
   }
 }
-function getProgramFilesPath({ useAlternateBitness = false } = {}) {
+function getProgramFilesPath({
+  useAlternateBitness = false
+} = {}) {
   if (!useAlternateBitness) {
     return process.env.ProgramFiles || null;
   }
@@ -64,7 +68,10 @@ function getProgramFilesPath({ useAlternateBitness = false } = {}) {
   return null;
 }
 __name(getProgramFilesPath, "getProgramFilesPath");
-async function findPSCoreWindowsInstallation({ useAlternateBitness = false, findPreview = false } = {}) {
+async function findPSCoreWindowsInstallation({
+  useAlternateBitness = false,
+  findPreview = false
+} = {}) {
   const programFilesPath = getProgramFilesPath({ useAlternateBitness });
   if (!programFilesPath) {
     return null;
@@ -86,12 +93,12 @@ async function findPSCoreWindowsInstallation({ useAlternateBitness = false, find
       if (!IntRegex.test(intPart) || item.substring(dashIndex + 1) !== "preview") {
         continue;
       }
-      currentVersion = parseInt(intPart, 10);
+      currentVersion = Number.parseInt(intPart, 10);
     } else {
       if (!IntRegex.test(item)) {
         continue;
       }
-      currentVersion = parseInt(item, 10);
+      currentVersion = Number.parseInt(item, 10);
     }
     if (currentVersion <= highestSeenVersion) {
       continue;
@@ -108,18 +115,34 @@ async function findPSCoreWindowsInstallation({ useAlternateBitness = false, find
   }
   const bitness = programFilesPath.includes("x86") ? " (x86)" : "";
   const preview = findPreview ? " Preview" : "";
-  return new PossiblePowerShellExe(pwshExePath, `PowerShell${preview}${bitness}`, true);
+  return new PossiblePowerShellExe(
+    pwshExePath,
+    `PowerShell${preview}${bitness}`,
+    true
+  );
 }
 __name(findPSCoreWindowsInstallation, "findPSCoreWindowsInstallation");
-async function findPSCoreMsix({ findPreview } = {}) {
+async function findPSCoreMsix({
+  findPreview
+} = {}) {
   if (!process.env.LOCALAPPDATA) {
     return null;
   }
-  const msixAppDir = path.join(process.env.LOCALAPPDATA, "Microsoft", "WindowsApps");
+  const msixAppDir = path.join(
+    process.env.LOCALAPPDATA,
+    "Microsoft",
+    "WindowsApps"
+  );
   if (!await pfs.SymlinkSupport.existsDirectory(msixAppDir)) {
     return null;
   }
-  const { pwshMsixDirRegex, pwshMsixName } = findPreview ? { pwshMsixDirRegex: PwshPreviewMsixRegex, pwshMsixName: "PowerShell Preview (Store)" } : { pwshMsixDirRegex: PwshMsixRegex, pwshMsixName: "PowerShell (Store)" };
+  const { pwshMsixDirRegex, pwshMsixName } = findPreview ? {
+    pwshMsixDirRegex: PwshPreviewMsixRegex,
+    pwshMsixName: "PowerShell Preview (Store)"
+  } : {
+    pwshMsixDirRegex: PwshMsixRegex,
+    pwshMsixName: "PowerShell (Store)"
+  };
   for (const subdir of await pfs.Promises.readdir(msixAppDir)) {
     if (pwshMsixDirRegex.test(subdir)) {
       const pwshMsixPath = path.join(msixAppDir, subdir, "pwsh.exe");
@@ -130,8 +153,16 @@ async function findPSCoreMsix({ findPreview } = {}) {
 }
 __name(findPSCoreMsix, "findPSCoreMsix");
 function findPSCoreDotnetGlobalTool() {
-  const dotnetGlobalToolExePath = path.join(os.homedir(), ".dotnet", "tools", "pwsh.exe");
-  return new PossiblePowerShellExe(dotnetGlobalToolExePath, ".NET Core PowerShell Global Tool");
+  const dotnetGlobalToolExePath = path.join(
+    os.homedir(),
+    ".dotnet",
+    "tools",
+    "pwsh.exe"
+  );
+  return new PossiblePowerShellExe(
+    dotnetGlobalToolExePath,
+    ".NET Core PowerShell Global Tool"
+  );
 }
 __name(findPSCoreDotnetGlobalTool, "findPSCoreDotnetGlobalTool");
 function findPSCoreScoopInstallation() {
@@ -156,7 +187,9 @@ async function* enumerateDefaultPowerShellInstallations() {
   if (pwshExe) {
     yield pwshExe;
   }
-  pwshExe = await findPSCoreWindowsInstallation({ useAlternateBitness: true });
+  pwshExe = await findPSCoreWindowsInstallation({
+    useAlternateBitness: true
+  });
   if (pwshExe) {
     yield pwshExe;
   }
@@ -176,7 +209,10 @@ async function* enumerateDefaultPowerShellInstallations() {
   if (pwshExe) {
     yield pwshExe;
   }
-  pwshExe = await findPSCoreWindowsInstallation({ useAlternateBitness: true, findPreview: true });
+  pwshExe = await findPSCoreWindowsInstallation({
+    useAlternateBitness: true,
+    findPreview: true
+  });
   if (pwshExe) {
     yield pwshExe;
   }

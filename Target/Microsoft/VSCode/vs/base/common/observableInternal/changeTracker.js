@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { BugIndicatingError } from "../errors.js";
-import { IObservableWithChange, IReader } from "./base.js";
 function recordChanges(obs) {
   return {
     createChangeSummary: /* @__PURE__ */ __name((_previousChangeSummary) => {
@@ -12,7 +11,10 @@ function recordChanges(obs) {
     handleChange(ctx, changeSummary) {
       for (const key in obs) {
         if (ctx.didChange(obs[key])) {
-          changeSummary.changes.push({ key, change: ctx.change });
+          changeSummary.changes.push({
+            key,
+            change: ctx.change
+          });
         }
       }
       return true;
@@ -20,7 +22,9 @@ function recordChanges(obs) {
     beforeUpdate(reader, changeSummary) {
       for (const key in obs) {
         if (key === "changes") {
-          throw new BugIndicatingError('property name "changes" is reserved for change tracking');
+          throw new BugIndicatingError(
+            'property name "changes" is reserved for change tracking'
+          );
         }
         changeSummary[key] = obs[key].read(reader);
       }

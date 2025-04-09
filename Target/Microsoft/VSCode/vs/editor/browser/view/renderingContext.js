@@ -1,9 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Position } from "../../common/core/position.js";
-import { Range } from "../../common/core/range.js";
-import { ViewportData } from "../../common/viewLayout/viewLinesViewportData.js";
-import { IViewLayout, ViewModelDecoration } from "../../common/viewModel.js";
 class RestrictedRenderingContext {
   static {
     __name(this, "RestrictedRenderingContext");
@@ -36,10 +32,16 @@ class RestrictedRenderingContext {
     return absoluteTop - this.scrollTop;
   }
   getVerticalOffsetForLineNumber(lineNumber, includeViewZones) {
-    return this._viewLayout.getVerticalOffsetForLineNumber(lineNumber, includeViewZones);
+    return this._viewLayout.getVerticalOffsetForLineNumber(
+      lineNumber,
+      includeViewZones
+    );
   }
   getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones) {
-    return this._viewLayout.getVerticalOffsetAfterLineNumber(lineNumber, includeViewZones);
+    return this._viewLayout.getVerticalOffsetAfterLineNumber(
+      lineNumber,
+      includeViewZones
+    );
   }
   getDecorationsInViewport() {
     return this.viewportData.getDecorationsInViewport();
@@ -58,11 +60,17 @@ class RenderingContext extends RestrictedRenderingContext {
     this._viewLinesGpu = viewLinesGpu;
   }
   linesVisibleRangesForRange(range, includeNewLines) {
-    const domRanges = this._viewLines.linesVisibleRangesForRange(range, includeNewLines);
+    const domRanges = this._viewLines.linesVisibleRangesForRange(
+      range,
+      includeNewLines
+    );
     if (!this._viewLinesGpu) {
       return domRanges ?? null;
     }
-    const gpuRanges = this._viewLinesGpu.linesVisibleRangesForRange(range, includeNewLines);
+    const gpuRanges = this._viewLinesGpu.linesVisibleRangesForRange(
+      range,
+      includeNewLines
+    );
     if (!domRanges) {
       return gpuRanges;
     }

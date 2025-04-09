@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { InternalTestItem } from "../../common/testTypes.js";
-import { capabilityContextKeys } from "../../common/testProfileService.js";
 import { TestId } from "../../common/testId.js";
 import { TestingContextKeys } from "../../common/testingContextKeys.js";
+import { capabilityContextKeys } from "../../common/testProfileService.js";
 const getTestItemContextOverlay = /* @__PURE__ */ __name((test, capabilities) => {
   if (!test) {
     return [];

@@ -3,17 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { assert } from "../../../../../../../../base/common/assert.js";
 import { DisposableStore } from "../../../../../../../../base/common/lifecycle.js";
 import { extUri } from "../../../../../../../../base/common/resources.js";
-import { WithUriValue } from "../../../../../../../../base/common/types.js";
-import { URI } from "../../../../../../../../base/common/uri.js";
-import { ICommandService } from "../../../../../../../../platform/commands/common/commands.js";
-import { IDialogService } from "../../../../../../../../platform/dialogs/common/dialogs.js";
-import { IFileService } from "../../../../../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../../../../../platform/label/common/label.js";
-import { IOpenerService } from "../../../../../../../../platform/opener/common/opener.js";
-import { IQuickInputService, IQuickPickItem } from "../../../../../../../../platform/quickinput/common/quickInput.js";
-import { IViewsService } from "../../../../../../../services/views/common/viewsService.js";
-import { IPromptPath } from "../../../../../common/promptSyntax/service/types.js";
-import { IChatWidget } from "../../../../chat.js";
 import { DOCS_OPTION } from "./constants.js";
 import { attachPrompts } from "./utils/attachPrompts.js";
 import { createPlaceholderText } from "./utils/createPlaceholderText.js";
@@ -31,12 +20,15 @@ const askToSelectPrompt = /* @__PURE__ */ __name(async (options) => {
       return extUri.isEqual(file.value, resource);
     });
     if (!activeItem) {
-      activeItem = createPromptPickItem({
-        uri: resource,
-        // "user" prompts are always registered in the prompts list, hence it
-        // should be safe to assume that `resource` is not "user" prompt here
-        type: "local"
-      }, labelService);
+      activeItem = createPromptPickItem(
+        {
+          uri: resource,
+          // "user" prompts are always registered in the prompts list, hence it
+          // should be safe to assume that `resource` is not "user" prompt here
+          type: "local"
+        },
+        labelService
+      );
       fileOptions.push(activeItem);
     }
     fileOptions.sort((file1, file2) => {
@@ -69,29 +61,37 @@ const askToSelectPrompt = /* @__PURE__ */ __name(async (options) => {
         lastActiveWidget?.focusInput();
       }
     });
-    disposables.add(quickPick.onDidAccept(async (event) => {
-      const { selectedItems } = quickPick;
-      assert(
-        selectedItems.length === 1,
-        `Only one item can be accepted, got '${selectedItems.length}'.`
-      );
-      const selectedOption = selectedItems[0];
-      const docsSelected = selectedOption === DOCS_OPTION;
-      if (docsSelected) {
-        await openerService.open(selectedOption.value);
-        return;
-      }
-      lastActiveWidget = await attachPrompts(selectedItems, options, quickPick.keyMods);
-      if (!event.inBackground) {
-        disposables.dispose();
-      }
-    }));
-    disposables.add(quickPick.onDidTriggerItemButton(
-      handleButtonClick.bind(null, { quickPick, ...options })
-    ));
-    disposables.add(quickPick.onDidHide(
-      disposables.dispose.bind(disposables)
-    ));
+    disposables.add(
+      quickPick.onDidAccept(async (event) => {
+        const { selectedItems } = quickPick;
+        assert(
+          selectedItems.length === 1,
+          `Only one item can be accepted, got '${selectedItems.length}'.`
+        );
+        const selectedOption = selectedItems[0];
+        const docsSelected = selectedOption === DOCS_OPTION;
+        if (docsSelected) {
+          await openerService.open(selectedOption.value);
+          return;
+        }
+        lastActiveWidget = await attachPrompts(
+          selectedItems,
+          options,
+          quickPick.keyMods
+        );
+        if (!event.inBackground) {
+          disposables.dispose();
+        }
+      })
+    );
+    disposables.add(
+      quickPick.onDidTriggerItemButton(
+        handleButtonClick.bind(null, { quickPick, ...options })
+      )
+    );
+    disposables.add(
+      quickPick.onDidHide(disposables.dispose.bind(disposables))
+    );
     quickPick.show();
   });
 }, "askToSelectPrompt");

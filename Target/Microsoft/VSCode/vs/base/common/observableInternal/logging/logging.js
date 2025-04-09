@@ -1,7 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { AutorunObserver } from "../autorun.js";
-import { IObservable, TransactionImpl } from "../base.js";
 let globalObservableLogger;
 function addLogger(logger) {
   if (!globalObservableLogger) {
@@ -9,7 +7,10 @@ function addLogger(logger) {
   } else if (globalObservableLogger instanceof ComposedLogger) {
     globalObservableLogger.loggers.push(logger);
   } else {
-    globalObservableLogger = new ComposedLogger([globalObservableLogger, logger]);
+    globalObservableLogger = new ComposedLogger([
+      globalObservableLogger,
+      logger
+    ]);
   }
 }
 __name(addLogger, "addLogger");

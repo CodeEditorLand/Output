@@ -1,9 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../../../../../nls.js";
 import { assert } from "../../../../../../base/common/assert.js";
 import { assertDefined } from "../../../../../../base/common/types.js";
-import { OpenFailed, RecursiveReference, FailedToResolveContentsStream } from "../../promptFileReferenceErrors.js";
+import { localize } from "../../../../../../nls.js";
+import {
+  FailedToResolveContentsStream,
+  OpenFailed,
+  RecursiveReference
+} from "../../promptFileReferenceErrors.js";
 class TopError {
   constructor(options) {
     this.options = options;
@@ -20,12 +24,21 @@ class TopError {
   errorsCount;
   parentUri;
   get localizedMessage() {
-    const { originalError, parentUri, errorSubject: subject, errorsCount } = this;
+    const {
+      originalError,
+      parentUri,
+      errorSubject: subject,
+      errorsCount
+    } = this;
     assert(
       errorsCount >= 1,
       `Error count must be at least 1, got '${errorsCount}'.`
     );
-    const moreIssuesLabel = errorsCount > 1 ? localize("workbench.reusable-prompts.top-error.more-issues-label", "\n(+{0} more issues)", errorsCount - 1) : "";
+    const moreIssuesLabel = errorsCount > 1 ? localize(
+      "workbench.reusable-prompts.top-error.more-issues-label",
+      "\n(+{0} more issues)",
+      errorsCount - 1
+    ) : "";
     if (subject === "root") {
       if (originalError instanceof OpenFailed) {
         return localize(

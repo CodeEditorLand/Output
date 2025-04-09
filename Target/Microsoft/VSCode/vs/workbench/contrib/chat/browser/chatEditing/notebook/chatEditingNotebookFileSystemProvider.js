@@ -10,26 +10,37 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { VSBuffer } from "../../../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
 import { Event } from "../../../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../../base/common/map.js";
-import { ReadableStreamEvents } from "../../../../../../base/common/stream.js";
-import { URI } from "../../../../../../base/common/uri.js";
-import { FileSystemProviderCapabilities, FileType, IFileChange, IFileDeleteOptions, IFileOpenOptions, IFileOverwriteOptions, IFileReadStreamOptions, IFileService, IFileSystemProvider, IFileWriteOptions, IStat, IWatchOptions } from "../../../../../../platform/files/common/files.js";
+import {
+  FileSystemProviderCapabilities,
+  FileType,
+  IFileService
+} from "../../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchContribution } from "../../../../../common/contributions.js";
 import { INotebookService } from "../../../../notebook/common/notebookService.js";
 import { IChatEditingService } from "../../../common/chatEditingService.js";
-import { ChatEditingNotebookSnapshotScheme, deserializeSnapshot } from "./chatEditingModifiedNotebookSnapshot.js";
 import { ChatEditingSession } from "../chatEditingSession.js";
+import {
+  ChatEditingNotebookSnapshotScheme,
+  deserializeSnapshot
+} from "./chatEditingModifiedNotebookSnapshot.js";
 let ChatEditingNotebookFileSystemProviderContrib = class extends Disposable {
   constructor(fileService, instantiationService) {
     super();
     this.fileService = fileService;
-    const fileSystemProvider = instantiationService.createInstance(ChatEditingNotebookFileSystemProvider);
-    this._register(this.fileService.registerProvider(ChatEditingNotebookSnapshotScheme, fileSystemProvider));
+    const fileSystemProvider = instantiationService.createInstance(
+      ChatEditingNotebookFileSystemProvider
+    );
+    this._register(
+      this.fileService.registerProvider(
+        ChatEditingNotebookSnapshotScheme,
+        fileSystemProvider
+      )
+    );
   }
   static {
     __name(this, "ChatEditingNotebookFileSystemProviderContrib");
@@ -51,11 +62,18 @@ let ChatEditingNotebookFileSystemProvider = class {
   static registeredFiles = new ResourceMap();
   capabilities = FileSystemProviderCapabilities.Readonly | FileSystemProviderCapabilities.FileAtomicRead | FileSystemProviderCapabilities.FileReadWrite;
   static registerFile(resource, buffer) {
-    ChatEditingNotebookFileSystemProvider.registeredFiles.set(resource, buffer);
+    ChatEditingNotebookFileSystemProvider.registeredFiles.set(
+      resource,
+      buffer
+    );
     return {
       dispose() {
-        if (ChatEditingNotebookFileSystemProvider.registeredFiles.get(resource) === buffer) {
-          ChatEditingNotebookFileSystemProvider.registeredFiles.delete(resource);
+        if (ChatEditingNotebookFileSystemProvider.registeredFiles.get(
+          resource
+        ) === buffer) {
+          ChatEditingNotebookFileSystemProvider.registeredFiles.delete(
+            resource
+          );
         }
       }
     };
@@ -93,20 +111,30 @@ let ChatEditingNotebookFileSystemProvider = class {
     if (buffer) {
       return buffer.buffer;
     }
-    const queryData = JSON.parse(resource.query);
+    const queryData = JSON.parse(
+      resource.query
+    );
     if (!queryData.viewType) {
       throw new Error("File not found, viewType not found");
     }
-    const session = this._chatEditingService.getEditingSession(queryData.sessionId);
+    const session = this._chatEditingService.getEditingSession(
+      queryData.sessionId
+    );
     if (!(session instanceof ChatEditingSession) || !queryData.requestId) {
       throw new Error("File not found, session not found");
     }
-    const snapshotEntry = session.getSnapshot(queryData.requestId, queryData.undoStop || void 0, resource);
+    const snapshotEntry = session.getSnapshot(
+      queryData.requestId,
+      queryData.undoStop || void 0,
+      resource
+    );
     if (!snapshotEntry) {
       throw new Error("File not found, snapshot not found");
     }
     const { data } = deserializeSnapshot(snapshotEntry.current);
-    const { serializer } = await this.notebookService.withNotebookDataProvider(queryData.viewType);
+    const { serializer } = await this.notebookService.withNotebookDataProvider(
+      queryData.viewType
+    );
     return serializer.notebookToData(data).then((s) => s.buffer);
   }
   writeFile(__resource, _content, _opts) {

@@ -1,13 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Line } from "./tokens/line.js";
-import { Range } from "../../core/range.js";
-import { NewLine } from "./tokens/newLine.js";
 import { assert } from "../../../../base/common/assert.js";
-import { CarriageReturn } from "./tokens/carriageReturn.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { assertDefined } from "../../../../base/common/types.js";
 import { BaseDecoder } from "../../../../base/common/codecs/baseDecoder.js";
+import { assertDefined } from "../../../../base/common/types.js";
+import { Range } from "../../core/range.js";
+import { CarriageReturn } from "./tokens/carriageReturn.js";
+import { Line } from "./tokens/line.js";
+import { NewLine } from "./tokens/newLine.js";
 class LinesDecoder extends BaseDecoder {
   static {
     __name(this, "LinesDecoder");
@@ -48,11 +48,11 @@ class LinesDecoder extends BaseDecoder {
         }
         break;
       }
-      this.emitLine(lineNumber, this.buffer.slice(0, firstToken.range.startColumn - 1));
-      assertDefined(
-        this.lastEmittedLine,
-        "No last emitted line found."
+      this.emitLine(
+        lineNumber,
+        this.buffer.slice(0, firstToken.range.startColumn - 1)
       );
+      assertDefined(this.lastEmittedLine, "No last emitted line found.");
       let startColumn = this.lastEmittedLine.range.endColumn;
       for (const token of endOfLineTokens) {
         const endColumn = startColumn + token.byte.byteLength;
@@ -82,21 +82,25 @@ class LinesDecoder extends BaseDecoder {
     const newLineIndex = this.buffer.indexOf(NewLine.byte);
     if (carriageReturnIndex >= 0 && (carriageReturnIndex < newLineIndex || newLineIndex === -1)) {
       result.push(
-        new CarriageReturn(new Range(
-          lineNumber,
-          carriageReturnIndex + 1,
-          lineNumber,
-          carriageReturnIndex + 1 + CarriageReturn.byte.byteLength
-        ))
+        new CarriageReturn(
+          new Range(
+            lineNumber,
+            carriageReturnIndex + 1,
+            lineNumber,
+            carriageReturnIndex + 1 + CarriageReturn.byte.byteLength
+          )
+        )
       );
       if (newLineIndex === carriageReturnIndex + 1) {
         result.push(
-          new NewLine(new Range(
-            lineNumber,
-            newLineIndex + 1,
-            lineNumber,
-            newLineIndex + 1 + NewLine.byte.byteLength
-          ))
+          new NewLine(
+            new Range(
+              lineNumber,
+              newLineIndex + 1,
+              lineNumber,
+              newLineIndex + 1 + NewLine.byte.byteLength
+            )
+          )
         );
       }
       if (this.buffer.byteLength > carriageReturnIndex + 1) {
@@ -106,12 +110,14 @@ class LinesDecoder extends BaseDecoder {
     }
     if (newLineIndex >= 0) {
       result.push(
-        new NewLine(new Range(
-          lineNumber,
-          newLineIndex + 1,
-          lineNumber,
-          newLineIndex + 1 + NewLine.byte.byteLength
-        ))
+        new NewLine(
+          new Range(
+            lineNumber,
+            newLineIndex + 1,
+            lineNumber,
+            newLineIndex + 1 + NewLine.byte.byteLength
+          )
+        )
       );
     }
     return result;

@@ -1,19 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./whitespace.css";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import { Selection } from "../../../common/core/selection.js";
-import { RenderingContext } from "../../view/renderingContext.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewLineData } from "../../../common/viewModel.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { IEditorConfiguration } from "../../../common/config/editorConfiguration.js";
-import * as strings from "../../../../base/common/strings.js";
 import { CharCode } from "../../../../base/common/charCode.js";
-import { LineRange } from "../../../common/viewLayout/viewLineRenderer.js";
-import { Position } from "../../../common/core/position.js";
+import * as strings from "../../../../base/common/strings.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
 import { editorWhitespaces } from "../../../common/core/editorColorRegistry.js";
+import { Position } from "../../../common/core/position.js";
+import { LineRange } from "../../../common/viewLayout/viewLineRenderer.js";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
 class WhitespaceOverlay extends DynamicViewOverlay {
   static {
     __name(this, "WhitespaceOverlay");
@@ -85,7 +79,11 @@ class WhitespaceOverlay extends DynamicViewOverlay {
     for (let i = 0; i < lineCount; i++) {
       needed[i] = true;
     }
-    const viewportData = this._context.viewModel.getMinimapLinesRenderingData(ctx.viewportData.startLineNumber, ctx.viewportData.endLineNumber, needed);
+    const viewportData = this._context.viewModel.getMinimapLinesRenderingData(
+      ctx.viewportData.startLineNumber,
+      ctx.viewportData.endLineNumber,
+      needed
+    );
     this._renderResult = [];
     for (let lineNumber = ctx.viewportData.startLineNumber; lineNumber <= ctx.viewportData.endLineNumber; lineNumber++) {
       const lineIndex = lineNumber - ctx.viewportData.startLineNumber;
@@ -103,11 +101,18 @@ class WhitespaceOverlay extends DynamicViewOverlay {
             if (!selectionsOnLine) {
               selectionsOnLine = [];
             }
-            selectionsOnLine.push(new LineRange(startColumn - 1, endColumn - 1));
+            selectionsOnLine.push(
+              new LineRange(startColumn - 1, endColumn - 1)
+            );
           }
         }
       }
-      this._renderResult[lineIndex] = this._applyRenderWhitespace(ctx, lineNumber, selectionsOnLine, lineData);
+      this._renderResult[lineIndex] = this._applyRenderWhitespace(
+        ctx,
+        lineNumber,
+        selectionsOnLine,
+        lineData
+      );
     }
   }
   _applyRenderWhitespace(ctx, lineNumber, selections, lineData) {
@@ -120,7 +125,10 @@ class WhitespaceOverlay extends DynamicViewOverlay {
     const color = this._context.theme.getColor(editorWhitespaces);
     const USE_SVG = this._options.renderWithSVG;
     const lineContent = lineData.content;
-    const len = this._options.stopRenderingLineAfter === -1 ? lineContent.length : Math.min(this._options.stopRenderingLineAfter, lineContent.length);
+    const len = this._options.stopRenderingLineAfter === -1 ? lineContent.length : Math.min(
+      this._options.stopRenderingLineAfter,
+      lineContent.length
+    );
     const continuesWithWrappedLine = lineData.continuesWithWrappedLine;
     const fauxIndentLength = lineData.minColumn - 1;
     const onlyBoundary = this._options.renderWhitespace === "boundary";
@@ -145,13 +153,13 @@ class WhitespaceOverlay extends DynamicViewOverlay {
       lastNonWhitespaceIndex = strings.lastNonWhitespaceIndex(lineContent);
     }
     let currentSelectionIndex = 0;
-    let currentSelection = selections && selections[currentSelectionIndex];
+    let currentSelection = selections?.[currentSelectionIndex];
     let maxLeft = 0;
     for (let charIndex = fauxIndentLength; charIndex < len; charIndex++) {
       const chCode = lineContent.charCodeAt(charIndex);
       if (currentSelection && charIndex >= currentSelection.endOffset) {
         currentSelectionIndex++;
-        currentSelection = selections && selections[currentSelectionIndex];
+        currentSelection = selections?.[currentSelectionIndex];
       }
       if (chCode !== CharCode.Tab && chCode !== CharCode.Space) {
         continue;
@@ -168,7 +176,7 @@ class WhitespaceOverlay extends DynamicViewOverlay {
       }
       if (onlyBoundary && continuesWithWrappedLine && charIndex === len - 1) {
         const prevCharCode = charIndex - 1 >= 0 ? lineContent.charCodeAt(charIndex - 1) : CharCode.Null;
-        const isSingleTrailingSpace = chCode === CharCode.Space && (prevCharCode !== CharCode.Space && prevCharCode !== CharCode.Tab);
+        const isSingleTrailingSpace = chCode === CharCode.Space && prevCharCode !== CharCode.Space && prevCharCode !== CharCode.Tab;
         if (isSingleTrailingSpace) {
           continue;
         }
@@ -176,14 +184,20 @@ class WhitespaceOverlay extends DynamicViewOverlay {
       if (selections && (!currentSelection || currentSelection.startOffset > charIndex || currentSelection.endOffset <= charIndex)) {
         continue;
       }
-      const visibleRange = ctx.visibleRangeForPosition(new Position(lineNumber, charIndex + 1));
+      const visibleRange = ctx.visibleRangeForPosition(
+        new Position(lineNumber, charIndex + 1)
+      );
       if (!visibleRange) {
         continue;
       }
       if (USE_SVG) {
         maxLeft = Math.max(maxLeft, visibleRange.left);
         if (chCode === CharCode.Tab) {
-          result += this._renderArrow(lineHeight, spaceWidth, visibleRange.left);
+          result += this._renderArrow(
+            lineHeight,
+            spaceWidth,
+            visibleRange.left
+          );
         } else {
           result += `<circle cx="${(visibleRange.left + spaceWidth / 2).toFixed(2)}" cy="${(lineHeight / 2).toFixed(2)}" r="${(spaceWidth / 7).toFixed(2)}" />`;
         }
@@ -197,7 +211,7 @@ class WhitespaceOverlay extends DynamicViewOverlay {
     }
     if (USE_SVG) {
       maxLeft = Math.round(maxLeft + spaceWidth);
-      return `<svg style="bottom:0;position:absolute;width:${maxLeft}px;height:${lineHeight}px" viewBox="0 0 ${maxLeft} ${lineHeight}" xmlns="http://www.w3.org/2000/svg" fill="${color}">` + result + `</svg>`;
+      return `<svg style="bottom:0;position:absolute;width:${maxLeft}px;height:${lineHeight}px" viewBox="0 0 ${maxLeft} ${lineHeight}" xmlns="http://www.w3.org/2000/svg" fill="${color}">${result}</svg>`;
     }
     return result;
   }
@@ -246,7 +260,9 @@ class WhitespaceOptions {
   constructor(config) {
     const options = config.options;
     const fontInfo = options.get(EditorOption.fontInfo);
-    const experimentalWhitespaceRendering = options.get(EditorOption.experimentalWhitespaceRendering);
+    const experimentalWhitespaceRendering = options.get(
+      EditorOption.experimentalWhitespaceRendering
+    );
     if (experimentalWhitespaceRendering === "off") {
       this.renderWhitespace = "none";
       this.renderWithSVG = false;
@@ -262,7 +278,9 @@ class WhitespaceOptions {
     this.wsmiddotWidth = fontInfo.wsmiddotWidth;
     this.canUseHalfwidthRightwardsArrow = fontInfo.canUseHalfwidthRightwardsArrow;
     this.lineHeight = options.get(EditorOption.lineHeight);
-    this.stopRenderingLineAfter = options.get(EditorOption.stopRenderingLineAfter);
+    this.stopRenderingLineAfter = options.get(
+      EditorOption.stopRenderingLineAfter
+    );
   }
   equals(other) {
     return this.renderWhitespace === other.renderWhitespace && this.renderWithSVG === other.renderWithSVG && this.spaceWidth === other.spaceWidth && this.middotWidth === other.middotWidth && this.wsmiddotWidth === other.wsmiddotWidth && this.canUseHalfwidthRightwardsArrow === other.canUseHalfwidthRightwardsArrow && this.lineHeight === other.lineHeight && this.stopRenderingLineAfter === other.stopRenderingLineAfter;

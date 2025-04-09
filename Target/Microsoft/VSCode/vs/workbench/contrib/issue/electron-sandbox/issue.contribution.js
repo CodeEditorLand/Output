@@ -10,61 +10,101 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IQuickAccessRegistry, Extensions as QuickAccessExtensions } from "../../../../platform/quickinput/common/quickAccess.js";
+import {
+  Extensions as QuickAccessExtensions
+} from "../../../../platform/quickinput/common/quickAccess.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions, IWorkbenchContributionsRegistry } from "../../../common/contributions.js";
+import {
+  Extensions
+} from "../../../common/contributions.js";
 import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 import { IssueQuickAccess } from "../browser/issueQuickAccess.js";
 import "../browser/issueTroubleshoot.js";
 import { BaseIssueContribution } from "../common/issue.contribution.js";
-import { IIssueFormService, IWorkbenchIssueService, IssueType } from "../common/issue.js";
+import {
+  IIssueFormService,
+  IssueType,
+  IWorkbenchIssueService
+} from "../common/issue.js";
 import { NativeIssueService } from "./issueService.js";
 import { NativeIssueFormService } from "./nativeIssueFormService.js";
 import "./processMainService.js";
-registerSingleton(IWorkbenchIssueService, NativeIssueService, InstantiationType.Delayed);
-registerSingleton(IIssueFormService, NativeIssueFormService, InstantiationType.Delayed);
+registerSingleton(
+  IWorkbenchIssueService,
+  NativeIssueService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IIssueFormService,
+  NativeIssueFormService,
+  InstantiationType.Delayed
+);
 let NativeIssueContribution = class extends BaseIssueContribution {
   static {
     __name(this, "NativeIssueContribution");
   }
   constructor(productService, configurationService) {
     super(productService, configurationService);
-    if (!configurationService.getValue("telemetry.feedback.enabled")) {
+    if (!configurationService.getValue(
+      "telemetry.feedback.enabled"
+    )) {
       return;
     }
     if (productService.reportIssueUrl) {
-      this._register(registerAction2(ReportPerformanceIssueUsingReporterAction));
+      this._register(
+        registerAction2(ReportPerformanceIssueUsingReporterAction)
+      );
     }
     let disposable;
     const registerQuickAccessProvider = /* @__PURE__ */ __name(() => {
-      disposable = Registry.as(QuickAccessExtensions.Quickaccess).registerQuickAccessProvider({
+      disposable = Registry.as(
+        QuickAccessExtensions.Quickaccess
+      ).registerQuickAccessProvider({
         ctor: IssueQuickAccess,
         prefix: IssueQuickAccess.PREFIX,
         contextKey: "inReportIssuePicker",
-        placeholder: localize("tasksQuickAccessPlaceholder", "Type the name of an extension to report on."),
-        helpEntries: [{
-          description: localize("openIssueReporter", "Open Issue Reporter"),
-          commandId: "workbench.action.openIssueReporter"
-        }]
+        placeholder: localize(
+          "tasksQuickAccessPlaceholder",
+          "Type the name of an extension to report on."
+        ),
+        helpEntries: [
+          {
+            description: localize(
+              "openIssueReporter",
+              "Open Issue Reporter"
+            ),
+            commandId: "workbench.action.openIssueReporter"
+          }
+        ]
       });
     }, "registerQuickAccessProvider");
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (!configurationService.getValue("extensions.experimental.issueQuickAccess") && disposable) {
-        disposable.dispose();
-        disposable = void 0;
-      } else if (!disposable) {
-        registerQuickAccessProvider();
-      }
-    }));
-    if (configurationService.getValue("extensions.experimental.issueQuickAccess")) {
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (!configurationService.getValue(
+          "extensions.experimental.issueQuickAccess"
+        ) && disposable) {
+          disposable.dispose();
+          disposable = void 0;
+        } else if (!disposable) {
+          registerQuickAccessProvider();
+        }
+      })
+    );
+    if (configurationService.getValue(
+      "extensions.experimental.issueQuickAccess"
+    )) {
       registerQuickAccessProvider();
     }
   }
@@ -73,7 +113,12 @@ NativeIssueContribution = __decorateClass([
   __decorateParam(0, IProductService),
   __decorateParam(1, IConfigurationService)
 ], NativeIssueContribution);
-Registry.as(Extensions.Workbench).registerWorkbenchContribution(NativeIssueContribution, LifecyclePhase.Restored);
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(
+  NativeIssueContribution,
+  LifecyclePhase.Restored
+);
 class ReportPerformanceIssueUsingReporterAction extends Action2 {
   static {
     __name(this, "ReportPerformanceIssueUsingReporterAction");
@@ -82,14 +127,22 @@ class ReportPerformanceIssueUsingReporterAction extends Action2 {
   constructor() {
     super({
       id: ReportPerformanceIssueUsingReporterAction.ID,
-      title: localize2({ key: "reportPerformanceIssue", comment: [`Here, 'issue' means problem or bug`] }, "Report Performance Issue..."),
+      title: localize2(
+        {
+          key: "reportPerformanceIssue",
+          comment: [`Here, 'issue' means problem or bug`]
+        },
+        "Report Performance Issue..."
+      ),
       category: Categories.Help,
       f1: true
     });
   }
   async run(accessor) {
     const issueService = accessor.get(IWorkbenchIssueService);
-    return issueService.openReporter({ issueType: IssueType.PerformanceIssue });
+    return issueService.openReporter({
+      issueType: IssueType.PerformanceIssue
+    });
   }
 }
 //# sourceMappingURL=issue.contribution.js.map

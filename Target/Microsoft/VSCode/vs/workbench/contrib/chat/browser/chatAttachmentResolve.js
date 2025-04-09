@@ -2,27 +2,28 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../base/common/codicons.js";
 import { basename } from "../../../../base/common/resources.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IRange } from "../../../../editor/common/core/range.js";
 import { SymbolKinds } from "../../../../editor/common/languages.js";
-import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
 import { localize } from "../../../../nls.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IDraggedResourceEditorInput, MarkerTransferData, DocumentSymbolTransferData } from "../../../../platform/dnd/browser/dnd.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
 import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
 import { isUntitledResourceEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IExtensionService, isProposedApiEnabled } from "../../../services/extensions/common/extensions.js";
+import {
+  isProposedApiEnabled
+} from "../../../services/extensions/common/extensions.js";
 import { UntitledTextEditorInput } from "../../../services/untitled/common/untitledTextEditorInput.js";
-import { IChatRequestVariableEntry, IDiagnosticVariableEntry, IDiagnosticVariableEntryFilterData, ISymbolVariableEntry, OmittedState } from "../common/chatModel.js";
+import {
+  IDiagnosticVariableEntryFilterData,
+  OmittedState
+} from "../common/chatModel.js";
 import { imageToHash } from "./chatPasteProviders.js";
 import { resizeImage } from "./imageUtils.js";
 async function resolveEditorAttachContext(editor, fileService, editorService, textModelService, extensionService, dialogService) {
   if (isUntitledResourceEditorInput(editor)) {
-    return await resolveUntitledEditorAttachContext(editor, editorService, textModelService);
+    return await resolveUntitledEditorAttachContext(
+      editor,
+      editorService,
+      textModelService
+    );
   }
   if (!editor.resource) {
     return void 0;
@@ -36,23 +37,43 @@ async function resolveEditorAttachContext(editor, fileService, editorService, te
   if (!stat.isDirectory && !stat.isFile) {
     return void 0;
   }
-  const imageContext = await resolveImageEditorAttachContext(editor, fileService, dialogService);
+  const imageContext = await resolveImageEditorAttachContext(
+    editor,
+    fileService,
+    dialogService
+  );
   if (imageContext) {
-    return extensionService.extensions.some((ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")) ? imageContext : void 0;
+    return extensionService.extensions.some(
+      (ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")
+    ) ? imageContext : void 0;
   }
-  return await resolveResourceAttachContext(editor.resource, stat.isDirectory, textModelService);
+  return await resolveResourceAttachContext(
+    editor.resource,
+    stat.isDirectory,
+    textModelService
+  );
 }
 __name(resolveEditorAttachContext, "resolveEditorAttachContext");
 async function resolveUntitledEditorAttachContext(editor, editorService, textModelService) {
   if (editor.resource) {
-    return await resolveResourceAttachContext(editor.resource, false, textModelService);
+    return await resolveResourceAttachContext(
+      editor.resource,
+      false,
+      textModelService
+    );
   }
-  const openUntitledEditors = editorService.editors.filter((editor2) => editor2 instanceof UntitledTextEditorInput);
+  const openUntitledEditors = editorService.editors.filter(
+    (editor2) => editor2 instanceof UntitledTextEditorInput
+  );
   for (const canidate of openUntitledEditors) {
     const model = await canidate.resolve();
     const contents = model.textEditorModel?.getValue();
     if (contents === editor.contents) {
-      return await resolveResourceAttachContext(canidate.resource, false, textModelService);
+      return await resolveResourceAttachContext(
+        canidate.resource,
+        false,
+        textModelService
+      );
     }
   }
   return void 0;
@@ -94,35 +115,46 @@ async function resolveImageEditorAttachContext(editor, fileService, dialogServic
   const fileName = basename(editor.resource);
   const readFile = await fileService.readFile(editor.resource);
   if (readFile.size > 30 * 1024 * 1024) {
-    dialogService.error(localize("imageTooLarge", "Image is too large"), localize("imageTooLargeMessage", "The image {0} is too large to be attached.", fileName));
+    dialogService.error(
+      localize("imageTooLarge", "Image is too large"),
+      localize(
+        "imageTooLargeMessage",
+        "The image {0} is too large to be attached.",
+        fileName
+      )
+    );
     throw new Error("Image is too large");
   }
   const isPartiallyOmitted = /\.gif$/i.test(editor.resource.path);
-  const imageFileContext = await resolveImageAttachContext([{
-    id: editor.resource.toString(),
-    name: fileName,
-    data: readFile.value.buffer,
-    icon: Codicon.fileMedia,
-    resource: editor.resource,
-    mimeType,
-    omittedState: isPartiallyOmitted ? OmittedState.Partial : OmittedState.NotOmitted
-  }]);
+  const imageFileContext = await resolveImageAttachContext([
+    {
+      id: editor.resource.toString(),
+      name: fileName,
+      data: readFile.value.buffer,
+      icon: Codicon.fileMedia,
+      resource: editor.resource,
+      mimeType,
+      omittedState: isPartiallyOmitted ? OmittedState.Partial : OmittedState.NotOmitted
+    }
+  ]);
   return imageFileContext[0];
 }
 __name(resolveImageEditorAttachContext, "resolveImageEditorAttachContext");
 async function resolveImageAttachContext(images) {
-  return Promise.all(images.map(async (image) => ({
-    id: image.id || await imageToHash(image.data),
-    name: image.name,
-    fullName: image.resource ? image.resource.path : void 0,
-    value: await resizeImage(image.data, image.mimeType),
-    icon: image.icon,
-    kind: "image",
-    isFile: false,
-    isDirectory: false,
-    omittedState: image.omittedState || OmittedState.NotOmitted,
-    references: image.resource ? [{ reference: image.resource, kind: "reference" }] : []
-  })));
+  return Promise.all(
+    images.map(async (image) => ({
+      id: image.id || await imageToHash(image.data),
+      name: image.name,
+      fullName: image.resource ? image.resource.path : void 0,
+      value: await resizeImage(image.data, image.mimeType),
+      icon: image.icon,
+      kind: "image",
+      isFile: false,
+      isDirectory: false,
+      omittedState: image.omittedState || OmittedState.NotOmitted,
+      references: image.resource ? [{ reference: image.resource, kind: "reference" }] : []
+    }))
+  );
 }
 __name(resolveImageAttachContext, "resolveImageAttachContext");
 const MIME_TYPES = {
@@ -141,7 +173,10 @@ function resolveMarkerAttachContext(markers) {
   return markers.map((marker) => {
     let filter;
     if (!("severity" in marker)) {
-      filter = { filterUri: URI.revive(marker.uri), filterSeverity: MarkerSeverity.Warning };
+      filter = {
+        filterUri: URI.revive(marker.uri),
+        filterSeverity: MarkerSeverity.Warning
+      };
     } else {
       filter = IDiagnosticVariableEntryFilterData.fromMarker(marker);
     }

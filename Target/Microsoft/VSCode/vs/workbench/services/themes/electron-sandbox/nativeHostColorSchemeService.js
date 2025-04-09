@@ -11,21 +11,34 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../base/common/event.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IHostColorSchemeService } from "../common/hostColorSchemeService.js";
-import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { isBoolean, isObject } from "../../../../base/common/types.js";
-import { IColorScheme } from "../../../../platform/window/common/window.js";
-import { ILifecycleService, StartupKind } from "../../lifecycle/common/lifecycle.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { INativeWorkbenchEnvironmentService } from "../../environment/electron-sandbox/environmentService.js";
+import {
+  ILifecycleService,
+  StartupKind
+} from "../../lifecycle/common/lifecycle.js";
+import { IHostColorSchemeService } from "../common/hostColorSchemeService.js";
 let NativeHostColorSchemeService = class extends Disposable {
   constructor(nativeHostService, environmentService, storageService, lifecycleService) {
     super();
     this.nativeHostService = nativeHostService;
     this.storageService = storageService;
-    this._register(this.nativeHostService.onDidChangeColorScheme((scheme) => this.update(scheme)));
+    this._register(
+      this.nativeHostService.onDidChangeColorScheme(
+        (scheme) => this.update(scheme)
+      )
+    );
     let initial = environmentService.window.colorScheme;
     if (lifecycleService.startupKind === StartupKind.ReloadedWindow) {
       initial = this.getStoredValue(initial);
@@ -39,12 +52,17 @@ let NativeHostColorSchemeService = class extends Disposable {
   }
   // we remember the last color scheme value to restore for reloaded window
   static STORAGE_KEY = "HostColorSchemeData";
-  _onDidChangeColorScheme = this._register(new Emitter());
+  _onDidChangeColorScheme = this._register(
+    new Emitter()
+  );
   onDidChangeColorScheme = this._onDidChangeColorScheme.event;
   dark;
   highContrast;
   getStoredValue(dftl) {
-    const stored = this.storageService.get(NativeHostColorSchemeService.STORAGE_KEY, StorageScope.APPLICATION);
+    const stored = this.storageService.get(
+      NativeHostColorSchemeService.STORAGE_KEY,
+      StorageScope.APPLICATION
+    );
     if (stored) {
       try {
         const scheme = JSON.parse(stored);
@@ -60,7 +78,12 @@ let NativeHostColorSchemeService = class extends Disposable {
     if (dark !== this.dark || highContrast !== this.highContrast) {
       this.dark = dark;
       this.highContrast = highContrast;
-      this.storageService.store(NativeHostColorSchemeService.STORAGE_KEY, JSON.stringify({ highContrast, dark }), StorageScope.APPLICATION, StorageTarget.MACHINE);
+      this.storageService.store(
+        NativeHostColorSchemeService.STORAGE_KEY,
+        JSON.stringify({ highContrast, dark }),
+        StorageScope.APPLICATION,
+        StorageTarget.MACHINE
+      );
       this._onDidChangeColorScheme.fire();
     }
   }
@@ -71,7 +94,11 @@ NativeHostColorSchemeService = __decorateClass([
   __decorateParam(2, IStorageService),
   __decorateParam(3, ILifecycleService)
 ], NativeHostColorSchemeService);
-registerSingleton(IHostColorSchemeService, NativeHostColorSchemeService, InstantiationType.Delayed);
+registerSingleton(
+  IHostColorSchemeService,
+  NativeHostColorSchemeService,
+  InstantiationType.Delayed
+);
 export {
   NativeHostColorSchemeService
 };

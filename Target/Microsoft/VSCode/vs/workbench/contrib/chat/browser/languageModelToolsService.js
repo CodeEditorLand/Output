@@ -12,34 +12,54 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { renderStringAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../../base/common/errorMessage.js";
-import { CancellationError, isCancellationError } from "../../../../base/common/errors.js";
+import {
+  CancellationError,
+  isCancellationError
+} from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import { Lazy } from "../../../../base/common/lazy.js";
-import { Disposable, DisposableStore, dispose, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
 import { localize } from "../../../../nls.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import * as JSONContributionRegistry from "../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { ChatContextKeys } from "../common/chatContextKeys.js";
-import { ChatModel } from "../common/chatModel.js";
 import { ChatToolInvocation } from "../common/chatProgressTypes/chatToolInvocation.js";
 import { IChatService } from "../common/chatService.js";
 import { ChatConfiguration } from "../common/constants.js";
-import { CountTokensCallback, createToolSchemaUri, ILanguageModelToolsService, IPreparedToolInvocation, IToolData, IToolImpl, IToolInvocation, IToolResult, stringifyPromptTsxPart } from "../common/languageModelToolsService.js";
-const jsonSchemaRegistry = Registry.as(JSONContributionRegistry.Extensions.JSONContribution);
+import {
+  createToolSchemaUri,
+  stringifyPromptTsxPart
+} from "../common/languageModelToolsService.js";
+const jsonSchemaRegistry = Registry.as(
+  JSONContributionRegistry.Extensions.JSONContribution
+);
 let LanguageModelToolsService = class extends Disposable {
   constructor(_instantiationService, _extensionService, _contextKeyService, _chatService, _dialogService, _telemetryService, _logService, _configurationService, _accessibilityService) {
     super();
@@ -52,18 +72,38 @@ let LanguageModelToolsService = class extends Disposable {
     this._logService = _logService;
     this._configurationService = _configurationService;
     this._accessibilityService = _accessibilityService;
-    this._workspaceToolConfirmStore = new Lazy(() => this._register(this._instantiationService.createInstance(ToolConfirmStore, StorageScope.WORKSPACE)));
-    this._profileToolConfirmStore = new Lazy(() => this._register(this._instantiationService.createInstance(ToolConfirmStore, StorageScope.PROFILE)));
-    this._register(this._contextKeyService.onDidChangeContext((e) => {
-      if (e.affectsSome(this._toolContextKeys)) {
-        this._onDidChangeToolsScheduler.schedule();
-      }
-    }));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(ChatConfiguration.ExtensionToolsEnabled)) {
-        this._onDidChangeToolsScheduler.schedule();
-      }
-    }));
+    this._workspaceToolConfirmStore = new Lazy(
+      () => this._register(
+        this._instantiationService.createInstance(
+          ToolConfirmStore,
+          StorageScope.WORKSPACE
+        )
+      )
+    );
+    this._profileToolConfirmStore = new Lazy(
+      () => this._register(
+        this._instantiationService.createInstance(
+          ToolConfirmStore,
+          StorageScope.PROFILE
+        )
+      )
+    );
+    this._register(
+      this._contextKeyService.onDidChangeContext((e) => {
+        if (e.affectsSome(this._toolContextKeys)) {
+          this._onDidChangeToolsScheduler.schedule();
+        }
+      })
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          ChatConfiguration.ExtensionToolsEnabled
+        )) {
+          this._onDidChangeToolsScheduler.schedule();
+        }
+      })
+    );
     this._ctxToolsCount = ChatContextKeys.Tools.toolsCount.bindTo(_contextKeyService);
   }
   static {
@@ -73,7 +113,10 @@ let LanguageModelToolsService = class extends Disposable {
   _onDidChangeTools = new Emitter();
   onDidChangeTools = this._onDidChangeTools.event;
   /** Throttle tools updates because it sends all tools and runs on context key updates */
-  _onDidChangeToolsScheduler = new RunOnceScheduler(() => this._onDidChangeTools.fire(), 750);
+  _onDidChangeToolsScheduler = new RunOnceScheduler(
+    () => this._onDidChangeTools.fire(),
+    750
+  );
   _tools = /* @__PURE__ */ new Map();
   _toolContextKeys = /* @__PURE__ */ new Set();
   _ctxToolsCount;
@@ -93,8 +136,17 @@ let LanguageModelToolsService = class extends Disposable {
     if (toolData.inputSchema) {
       store = new DisposableStore();
       const schemaUrl = createToolSchemaUri(toolData.id).toString();
-      jsonSchemaRegistry.registerSchema(schemaUrl, toolData.inputSchema, store);
-      store.add(jsonSchemaRegistry.registerSchemaAssociation(schemaUrl, `/lm/tool/${toolData.id}/tool_input.json`));
+      jsonSchemaRegistry.registerSchema(
+        schemaUrl,
+        toolData.inputSchema,
+        store
+      );
+      store.add(
+        jsonSchemaRegistry.registerSchemaAssociation(
+          schemaUrl,
+          `/lm/tool/${toolData.id}/tool_input.json`
+        )
+      );
     }
     return toDisposable(() => {
       store?.dispose();
@@ -125,15 +177,14 @@ let LanguageModelToolsService = class extends Disposable {
   }
   getTools() {
     const toolDatas = Iterable.map(this._tools.values(), (i) => i.data);
-    const extensionToolsEnabled = this._configurationService.getValue(ChatConfiguration.ExtensionToolsEnabled);
-    return Iterable.filter(
-      toolDatas,
-      (toolData) => {
-        const satisfiesWhenClause = !toolData.when || this._contextKeyService.contextMatchesRules(toolData.when);
-        const satisfiesExternalToolCheck = toolData.source.type === "extension" && !extensionToolsEnabled ? !toolData.source.isExternalTool : true;
-        return satisfiesWhenClause && satisfiesExternalToolCheck;
-      }
+    const extensionToolsEnabled = this._configurationService.getValue(
+      ChatConfiguration.ExtensionToolsEnabled
     );
+    return Iterable.filter(toolDatas, (toolData) => {
+      const satisfiesWhenClause = !toolData.when || this._contextKeyService.contextMatchesRules(toolData.when);
+      const satisfiesExternalToolCheck = toolData.source.type === "extension" && !extensionToolsEnabled ? !toolData.source.isExternalTool : true;
+      return satisfiesWhenClause && satisfiesExternalToolCheck;
+    });
   }
   getTool(id) {
     return this._getToolEntry(id)?.data;
@@ -156,9 +207,15 @@ let LanguageModelToolsService = class extends Disposable {
   }
   setToolAutoConfirmation(toolId, scope, autoConfirm = true) {
     if (scope === "workspace") {
-      this._workspaceToolConfirmStore.value.setAutoConfirm(toolId, autoConfirm);
+      this._workspaceToolConfirmStore.value.setAutoConfirm(
+        toolId,
+        autoConfirm
+      );
     } else if (scope === "profile") {
-      this._profileToolConfirmStore.value.setAutoConfirm(toolId, autoConfirm);
+      this._profileToolConfirmStore.value.setAutoConfirm(
+        toolId,
+        autoConfirm
+      );
     } else {
       this._memoryToolConfirmStore.add(toolId);
     }
@@ -169,16 +226,22 @@ let LanguageModelToolsService = class extends Disposable {
     this._memoryToolConfirmStore.clear();
   }
   async invokeTool(dto, countTokens, token) {
-    this._logService.trace(`[LanguageModelToolsService#invokeTool] Invoking tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}`);
+    this._logService.trace(
+      `[LanguageModelToolsService#invokeTool] Invoking tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}`
+    );
     let tool = this._tools.get(dto.toolId);
     if (!tool) {
       throw new Error(`Tool ${dto.toolId} was not contributed`);
     }
     if (!tool.impl) {
-      await this._extensionService.activateByEvent(`onLanguageModelTool:${dto.toolId}`);
+      await this._extensionService.activateByEvent(
+        `onLanguageModelTool:${dto.toolId}`
+      );
       tool = this._tools.get(dto.toolId);
       if (!tool?.impl) {
-        throw new Error(`Tool ${dto.toolId} does not have an implementation registered.`);
+        throw new Error(
+          `Tool ${dto.toolId} does not have an implementation registered.`
+        );
       }
     }
     let toolInvocation;
@@ -188,9 +251,11 @@ let LanguageModelToolsService = class extends Disposable {
     try {
       if (dto.context) {
         store = new DisposableStore();
-        const model = this._chatService.getSession(dto.context?.sessionId);
+        const model = this._chatService.getSession(
+          dto.context?.sessionId
+        );
         if (!model) {
-          throw new Error(`Tool called for unknown chat session`);
+          throw new Error("Tool called for unknown chat session");
         }
         const request = model.getRequests().at(-1);
         requestId = request.id;
@@ -198,27 +263,50 @@ let LanguageModelToolsService = class extends Disposable {
         if (!this._callsByRequestId.has(requestId)) {
           this._callsByRequestId.set(requestId, []);
         }
-        this._callsByRequestId.get(requestId).push(store);
+        this._callsByRequestId.get(requestId)?.push(store);
         const source = new CancellationTokenSource();
-        store.add(toDisposable(() => {
-          source.dispose(true);
-        }));
-        store.add(token.onCancellationRequested(() => {
-          toolInvocation?.confirmed.complete(false);
-          source.cancel();
-        }));
-        store.add(source.token.onCancellationRequested(() => {
-          toolInvocation?.confirmed.complete(false);
-        }));
+        store.add(
+          toDisposable(() => {
+            source.dispose(true);
+          })
+        );
+        store.add(
+          token.onCancellationRequested(() => {
+            toolInvocation?.confirmed.complete(false);
+            source.cancel();
+          })
+        );
+        store.add(
+          source.token.onCancellationRequested(() => {
+            toolInvocation?.confirmed.complete(false);
+          })
+        );
         token = source.token;
-        const prepared = await this.prepareToolInvocation(tool, dto, token);
-        toolInvocation = new ChatToolInvocation(prepared, tool.data, dto.callId);
-        if (this.shouldAutoConfirm(tool.data.id, tool.data.runsInWorkspace)) {
+        const prepared = await this.prepareToolInvocation(
+          tool,
+          dto,
+          token
+        );
+        toolInvocation = new ChatToolInvocation(
+          prepared,
+          tool.data,
+          dto.callId
+        );
+        if (this.shouldAutoConfirm(
+          tool.data.id,
+          tool.data.runsInWorkspace
+        )) {
           toolInvocation.confirmed.complete(true);
         }
         model.acceptResponseProgress(request, toolInvocation);
         if (prepared?.confirmationMessages) {
-          this._accessibilityService.alert(localize("toolConfirmationMessage", "Action required: {0}", prepared.confirmationMessages.title));
+          this._accessibilityService.alert(
+            localize(
+              "toolConfirmationMessage",
+              "Action required: {0}",
+              prepared.confirmationMessages.title
+            )
+          );
           const userConfirmed = await toolInvocation.confirmed.p;
           if (!userConfirmed) {
             throw new CancellationError();
@@ -230,9 +318,18 @@ let LanguageModelToolsService = class extends Disposable {
           }
         }
       } else {
-        const prepared = await this.prepareToolInvocation(tool, dto, token);
+        const prepared = await this.prepareToolInvocation(
+          tool,
+          dto,
+          token
+        );
         if (prepared?.confirmationMessages) {
-          const result = await this._dialogService.confirm({ message: prepared.confirmationMessages.title, detail: renderStringAsPlaintext(prepared.confirmationMessages.message) });
+          const result = await this._dialogService.confirm({
+            message: prepared.confirmationMessages.title,
+            detail: renderStringAsPlaintext(
+              prepared.confirmationMessages.message
+            )
+          });
           if (!result.confirmed) {
             throw new CancellationError();
           }
@@ -243,31 +340,27 @@ let LanguageModelToolsService = class extends Disposable {
       }
       toolResult = await tool.impl.invoke(dto, countTokens, token);
       this.ensureToolDetails(dto, toolResult, tool.data);
-      this._telemetryService.publicLog2(
-        "languageModelToolInvoked",
-        {
-          result: "success",
-          chatSessionId: dto.context?.sessionId,
-          toolId: tool.data.id,
-          toolExtensionId: tool.data.source.type === "extension" ? tool.data.source.extensionId.value : void 0,
-          toolSourceKind: tool.data.source.type
-        }
-      );
+      this._telemetryService.publicLog2("languageModelToolInvoked", {
+        result: "success",
+        chatSessionId: dto.context?.sessionId,
+        toolId: tool.data.id,
+        toolExtensionId: tool.data.source.type === "extension" ? tool.data.source.extensionId.value : void 0,
+        toolSourceKind: tool.data.source.type
+      });
       return toolResult;
     } catch (err) {
       const result = isCancellationError(err) ? "userCancelled" : "error";
-      this._telemetryService.publicLog2(
-        "languageModelToolInvoked",
-        {
-          result,
-          chatSessionId: dto.context?.sessionId,
-          toolId: tool.data.id,
-          toolExtensionId: tool.data.source.type === "extension" ? tool.data.source.extensionId.value : void 0,
-          toolSourceKind: tool.data.source.type
-        }
+      this._telemetryService.publicLog2("languageModelToolInvoked", {
+        result,
+        chatSessionId: dto.context?.sessionId,
+        toolId: tool.data.id,
+        toolExtensionId: tool.data.source.type === "extension" ? tool.data.source.extensionId.value : void 0,
+        toolSourceKind: tool.data.source.type
+      });
+      this._logService.error(
+        `[LanguageModelToolsService#invokeTool] Error from tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}:
+${toErrorMessage(err, true)}`
       );
-      this._logService.error(`[LanguageModelToolsService#invokeTool] Error from tool ${dto.toolId} with parameters ${JSON.stringify(dto.parameters)}:
-${toErrorMessage(err, true)}`);
       throw err;
     } finally {
       toolInvocation?.complete(toolResult);
@@ -277,7 +370,7 @@ ${toErrorMessage(err, true)}`);
     }
   }
   async prepareToolInvocation(tool, dto, token) {
-    let prepared = tool.impl.prepareToolInvocation ? await tool.impl.prepareToolInvocation(dto.parameters, token) : void 0;
+    let prepared = tool.impl?.prepareToolInvocation ? await tool.impl?.prepareToolInvocation(dto.parameters, token) : void 0;
     if (!prepared?.confirmationMessages && tool.data.requiresConfirmation && tool.data.source.type === "extension") {
       if (!prepared) {
         prepared = {};
@@ -289,8 +382,17 @@ ${toErrorMessage(err, true)}`);
         tool.data.source.extensionId.value
       );
       prepared.confirmationMessages = {
-        title: localize("msg.title", "Run {0}", `"${tool.data.displayName}"`),
-        message: new MarkdownString((tool.data.userDescription ?? tool.data.modelDescription) + "\n\n" + toolWarning, { supportThemeIcons: true }),
+        title: localize(
+          "msg.title",
+          "Run {0}",
+          `"${tool.data.displayName}"`
+        ),
+        message: new MarkdownString(
+          `${tool.data.userDescription ?? tool.data.modelDescription}
+
+${toolWarning}`,
+          { supportThemeIcons: true }
+        ),
         allowAutoConfirm: true
       };
     }
@@ -382,18 +484,28 @@ let ToolConfirmStore = class extends Disposable {
     super();
     this._scope = _scope;
     this.storageService = storageService;
-    const stored = storageService.getObject(ToolConfirmStore.STORED_KEY, this._scope);
+    const stored = storageService.getObject(
+      ToolConfirmStore.STORED_KEY,
+      this._scope
+    );
     if (stored) {
       for (const key of stored) {
         this._autoConfirmTools.set(key, true);
       }
     }
-    this._register(storageService.onWillSaveState(() => {
-      if (this._didChange) {
-        this.storageService.store(ToolConfirmStore.STORED_KEY, [...this._autoConfirmTools.keys()], this._scope, StorageTarget.MACHINE);
-        this._didChange = false;
-      }
-    }));
+    this._register(
+      storageService.onWillSaveState(() => {
+        if (this._didChange) {
+          this.storageService.store(
+            ToolConfirmStore.STORED_KEY,
+            [...this._autoConfirmTools.keys()],
+            this._scope,
+            StorageTarget.MACHINE
+          );
+          this._didChange = false;
+        }
+      })
+    );
   }
   static {
     __name(this, "ToolConfirmStore");

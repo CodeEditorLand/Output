@@ -16,7 +16,9 @@ import { IConfigurationService } from "../../configuration/common/configuration.
 import { IEnvironmentService } from "../../environment/common/environment.js";
 import { ILoggerService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
-import { ICustomEndpointTelemetryService, ITelemetryData, ITelemetryEndpoint, ITelemetryService } from "../common/telemetry.js";
+import {
+  ITelemetryService
+} from "../common/telemetry.js";
 import { TelemetryAppenderClient } from "../common/telemetryIpc.js";
 import { TelemetryLogAppender } from "../common/telemetryLogAppender.js";
 import { TelemetryService } from "../common/telemetryService.js";
@@ -37,7 +39,11 @@ let CustomEndpointTelemetryService = class {
       const telemetryInfo = /* @__PURE__ */ Object.create(null);
       telemetryInfo["common.vscodemachineid"] = this.telemetryService.machineId;
       telemetryInfo["common.vscodesessionid"] = this.telemetryService.sessionId;
-      const args = [endpoint.id, JSON.stringify(telemetryInfo), endpoint.aiKey];
+      const args = [
+        endpoint.id,
+        JSON.stringify(telemetryInfo),
+        endpoint.aiKey
+      ];
       const client = new TelemetryClient(
         FileAccess.asFileUri("bootstrap-fork").fsPath,
         {
@@ -54,12 +60,25 @@ let CustomEndpointTelemetryService = class {
       const channel = client.getChannel("telemetryAppender");
       const appenders = [
         new TelemetryAppenderClient(channel),
-        new TelemetryLogAppender(`[${endpoint.id}] `, false, this.loggerService, this.environmentService, this.productService)
+        new TelemetryLogAppender(
+          `[${endpoint.id}] `,
+          false,
+          this.loggerService,
+          this.environmentService,
+          this.productService
+        )
       ];
-      this.customTelemetryServices.set(endpoint.id, new TelemetryService({
-        appenders,
-        sendErrorTelemetry: endpoint.sendErrorTelemetry
-      }, this.configurationService, this.productService));
+      this.customTelemetryServices.set(
+        endpoint.id,
+        new TelemetryService(
+          {
+            appenders,
+            sendErrorTelemetry: endpoint.sendErrorTelemetry
+          },
+          this.configurationService,
+          this.productService
+        )
+      );
     }
     return this.customTelemetryServices.get(endpoint.id);
   }

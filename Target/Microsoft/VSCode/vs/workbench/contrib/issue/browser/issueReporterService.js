@@ -10,20 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IProductConfiguration } from "../../../../base/common/product.js";
 import { localize } from "../../../../nls.js";
 import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IIssueFormService, IssueReporterData } from "../common/issue.js";
+import { IIssueFormService } from "../common/issue.js";
 import { BaseIssueReporterService } from "./baseIssueReporterService.js";
 let IssueWebReporter = class extends BaseIssueReporterService {
   static {
     __name(this, "IssueWebReporter");
   }
   constructor(disableExtensions, data, os, product, window, issueFormService, themeService, fileService, fileDialogService) {
-    super(disableExtensions, data, os, product, window, true, issueFormService, themeService, fileService, fileDialogService);
-    const target = this.window.document.querySelector(".block-system .block-info");
+    super(
+      disableExtensions,
+      data,
+      os,
+      product,
+      window,
+      true,
+      issueFormService,
+      themeService,
+      fileService,
+      fileDialogService
+    );
+    const target = this.window.document.querySelector(
+      ".block-system .block-info"
+    );
     const webInfo = this.window.navigator.userAgent;
     if (webInfo) {
       target?.appendChild(this.window.document.createTextNode(webInfo));
@@ -35,11 +47,16 @@ let IssueWebReporter = class extends BaseIssueReporterService {
   setEventHandlers() {
     super.setEventHandlers();
     this.addEventListener("issue-type", "change", (event) => {
-      const issueType = parseInt(event.target.value);
+      const issueType = Number.parseInt(
+        event.target.value
+      );
       this.issueReporterModel.update({ issueType });
       const descriptionTextArea = this.getElementById("issue-title");
       if (descriptionTextArea) {
-        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
+        descriptionTextArea.placeholder = localize(
+          "undefinedPlaceholder",
+          "Please enter a title"
+        );
       }
       this.updatePreviewButtonState();
       this.setSourceOptions();

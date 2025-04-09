@@ -10,31 +10,46 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { Lazy } from "../../../../base/common/lazy.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { IDialogHandler, IDialogResult, IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import {
+  IDialogService
+} from "../../../../platform/dialogs/common/dialogs.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { IDialogsModel, IDialogViewItem } from "../../../common/dialogs.js";
-import { BrowserDialogHandler } from "./dialogHandler.js";
-import { DialogService } from "../../../services/dialogs/common/dialogService.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { Lazy } from "../../../../base/common/lazy.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import { BrowserDialogHandler } from "./dialogHandler.js";
 let DialogHandlerContribution = class extends Disposable {
   constructor(dialogService, logService, layoutService, keybindingService, instantiationService, productService, clipboardService, openerService) {
     super();
     this.dialogService = dialogService;
-    this.impl = new Lazy(() => new BrowserDialogHandler(logService, layoutService, keybindingService, instantiationService, productService, clipboardService, openerService));
+    this.impl = new Lazy(
+      () => new BrowserDialogHandler(
+        logService,
+        layoutService,
+        keybindingService,
+        instantiationService,
+        productService,
+        clipboardService,
+        openerService
+      )
+    );
     this.model = this.dialogService.model;
-    this._register(this.model.onWillShowDialog(() => {
-      if (!this.currentDialog) {
-        this.processDialogs();
-      }
-    }));
+    this._register(
+      this.model.onWillShowDialog(() => {
+        if (!this.currentDialog) {
+          this.processDialogs();
+        }
+      })
+    );
     this.processDialogs();
   }
   static {

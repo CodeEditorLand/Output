@@ -61,7 +61,10 @@ function getUNCHost(maybeUNCPath) {
     if (indexOfUNCPath === -1) {
       continue;
     }
-    const hostCandidate = maybeUNCPath.substring(uncRoot.length, indexOfUNCPath);
+    const hostCandidate = maybeUNCPath.substring(
+      uncRoot.length,
+      indexOfUNCPath
+    );
     if (hostCandidate) {
       host = hostCandidate;
       break;

@@ -1,12 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICodeEditor, IEditorMouseEvent } from "../../../../browser/editorBrowser.js";
 import { EditorOption } from "../../../../common/config/editorOptions.js";
 import { Range } from "../../../../common/core/range.js";
-import { IEditorContribution } from "../../../../common/editorCommon.js";
 import { ContentHoverController } from "../../../hover/browser/contentHoverController.js";
-import { HoverStartMode, HoverStartSource } from "../../../hover/browser/hoverOperation.js";
+import {
+  HoverStartMode,
+  HoverStartSource
+} from "../../../hover/browser/hoverOperation.js";
 import { isOnColorDecorator } from "./hoverColorPicker.js";
 class HoverColorPickerContribution extends Disposable {
   // ms
@@ -24,14 +25,18 @@ class HoverColorPickerContribution extends Disposable {
     super.dispose();
   }
   onMouseDown(mouseEvent) {
-    const colorDecoratorsActivatedOn = this._editor.getOption(EditorOption.colorDecoratorsActivatedOn);
+    const colorDecoratorsActivatedOn = this._editor.getOption(
+      EditorOption.colorDecoratorsActivatedOn
+    );
     if (colorDecoratorsActivatedOn !== "click" && colorDecoratorsActivatedOn !== "clickAndHover") {
       return;
     }
     if (!isOnColorDecorator(mouseEvent)) {
       return;
     }
-    const hoverController = this._editor.getContribution(ContentHoverController.ID);
+    const hoverController = this._editor.getContribution(
+      ContentHoverController.ID
+    );
     if (!hoverController) {
       return;
     }
@@ -42,8 +47,18 @@ class HoverColorPickerContribution extends Disposable {
     if (!targetRange) {
       return;
     }
-    const range = new Range(targetRange.startLineNumber, targetRange.startColumn + 1, targetRange.endLineNumber, targetRange.endColumn + 1);
-    hoverController.showContentHover(range, HoverStartMode.Immediate, HoverStartSource.Click, false);
+    const range = new Range(
+      targetRange.startLineNumber,
+      targetRange.startColumn + 1,
+      targetRange.endLineNumber,
+      targetRange.endColumn + 1
+    );
+    hoverController.showContentHover(
+      range,
+      HoverStartMode.Immediate,
+      HoverStartSource.Click,
+      false
+    );
   }
 }
 export {

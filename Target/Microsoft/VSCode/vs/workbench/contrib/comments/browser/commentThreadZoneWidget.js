@@ -10,32 +10,42 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as dom from "../../../../base/browser/dom.js";
 import { Color } from "../../../../base/common/color.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor, IEditorMouseEvent, isCodeEditor, MouseTargetType } from "../../../../editor/browser/editorBrowser.js";
-import { IPosition } from "../../../../editor/common/core/position.js";
-import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
+import {
+  isCodeEditor,
+  MouseTargetType
+} from "../../../../editor/browser/editorBrowser.js";
+import { StableEditorScrollState } from "../../../../editor/browser/stableEditorScroll.js";
+import {
+  EDITOR_FONT_DEFAULTS,
+  EditorOption
+} from "../../../../editor/common/config/editorOptions.js";
+import { Range } from "../../../../editor/common/core/range.js";
 import * as languages from "../../../../editor/common/languages.js";
+import { peekViewBorder } from "../../../../editor/contrib/peekView/browser/peekView.js";
 import { ZoneWidget } from "../../../../editor/contrib/zoneWidget/browser/zoneWidget.js";
+import * as nls from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import {
+  IThemeService
+} from "../../../../platform/theme/common/themeService.js";
+import {
+  commentThreadStateBackgroundColorVar,
+  commentThreadStateColorVar,
+  getCommentThreadStateBorderColor
+} from "./commentColors.js";
 import { CommentGlyphWidget } from "./commentGlyphWidget.js";
 import { ICommentService } from "./commentService.js";
-import { ICommentThreadWidget } from "../common/commentThreadWidget.js";
-import { EDITOR_FONT_DEFAULTS, EditorOption, IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
 import { CommentThreadWidget } from "./commentThreadWidget.js";
-import { ICellRange } from "../../notebook/common/notebookRange.js";
-import { commentThreadStateBackgroundColorVar, commentThreadStateColorVar, getCommentThreadStateBorderColor } from "./commentColors.js";
-import { peekViewBorder } from "../../../../editor/contrib/peekView/browser/peekView.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { StableEditorScrollState } from "../../../../editor/browser/stableEditorScroll.js";
-import Severity from "../../../../base/common/severity.js";
-import * as nls from "../../../../nls.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 function getCommentThreadWidgetStateColor(thread, theme) {
   return getCommentThreadStateBorderColor(thread, theme) ?? theme.getColor(peekViewBorder);
 }
@@ -94,7 +104,11 @@ function isMouseUpEventMatchMouseDown(mouseDownInfo, e) {
 __name(isMouseUpEventMatchMouseDown, "isMouseUpEventMatchMouseDown");
 let ReviewZoneWidget = class extends ZoneWidget {
   constructor(editor, _uniqueOwner, _commentThread, _pendingComment, _pendingEdits, instantiationService, themeService, commentService, contextKeyService, configurationService, dialogService) {
-    super(editor, { keepEditorSelection: true, isAccessible: true, showArrow: !!_commentThread.range });
+    super(editor, {
+      keepEditorSelection: true,
+      isAccessible: true,
+      showArrow: !!_commentThread.range
+    });
     this._uniqueOwner = _uniqueOwner;
     this._commentThread = _commentThread;
     this._pendingComment = _pendingComment;
@@ -104,10 +118,17 @@ let ReviewZoneWidget = class extends ZoneWidget {
     this.configurationService = configurationService;
     this.dialogService = dialogService;
     this._contextKeyService = contextKeyService.createScoped(this.domNode);
-    this._scopedInstantiationService = this._globalToDispose.add(instantiationService.createChild(new ServiceCollection(
-      [IContextKeyService, this._contextKeyService]
-    )));
-    const controller = this.commentService.getCommentController(this._uniqueOwner);
+    this._scopedInstantiationService = this._globalToDispose.add(
+      instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          this._contextKeyService
+        ])
+      )
+    );
+    const controller = this.commentService.getCommentController(
+      this._uniqueOwner
+    );
     if (controller) {
       this._commentOptions = controller.options;
     }
@@ -115,12 +136,16 @@ let ReviewZoneWidget = class extends ZoneWidget {
     _commentThread.initialCollapsibleState = this._initialCollapsibleState;
     this._commentThreadDisposables = [];
     this.create();
-    this._globalToDispose.add(this.themeService.onDidColorThemeChange(this._applyTheme, this));
-    this._globalToDispose.add(this.editor.onDidChangeConfiguration((e) => {
-      if (e.hasChanged(EditorOption.fontInfo)) {
-        this._applyTheme(this.themeService.getColorTheme());
-      }
-    }));
+    this._globalToDispose.add(
+      this.themeService.onDidColorThemeChange(this._applyTheme, this)
+    );
+    this._globalToDispose.add(
+      this.editor.onDidChangeConfiguration((e) => {
+        if (e.hasChanged(EditorOption.fontInfo)) {
+          this._applyTheme(this.themeService.getColorTheme());
+        }
+      })
+    );
     this._applyTheme(this.themeService.getColorTheme());
   }
   static {
@@ -165,8 +190,13 @@ let ReviewZoneWidget = class extends ZoneWidget {
   }
   reveal(commentUniqueId, focus = 0 /* None */) {
     this.makeVisible(commentUniqueId, focus);
-    const comment = this._commentThread.comments?.find((comment2) => comment2.uniqueIdInThread === commentUniqueId) ?? this._commentThread.comments?.[0];
-    this.commentService.setActiveCommentAndThread(this.uniqueOwner, { thread: this._commentThread, comment });
+    const comment = this._commentThread.comments?.find(
+      (comment2) => comment2.uniqueIdInThread === commentUniqueId
+    ) ?? this._commentThread.comments?.[0];
+    this.commentService.setActiveCommentAndThread(this.uniqueOwner, {
+      thread: this._commentThread,
+      comment
+    });
   }
   _expandAndShowZoneWidget() {
     if (!this._isExpanded) {
@@ -188,7 +218,9 @@ let ReviewZoneWidget = class extends ZoneWidget {
       if (this._commentThread.range) {
         const commentThreadCoords = coords.thread;
         const commentCoords = coords.comment;
-        scrollTop = this.editor.getTopForLineNumber(this._commentThread.range.startLineNumber) - height / 2 + commentCoords.top - commentThreadCoords.top;
+        scrollTop = this.editor.getTopForLineNumber(
+          this._commentThread.range.startLineNumber
+        ) - height / 2 + commentCoords.top - commentThreadCoords.top;
       }
       this.editor.setScrollTop(scrollTop);
       this._setFocus(commentUniqueId, focus);
@@ -197,7 +229,12 @@ let ReviewZoneWidget = class extends ZoneWidget {
     }
   }
   _goToThread(focus) {
-    const rangeToReveal = this._commentThread.range ? new Range(this._commentThread.range.startLineNumber, this._commentThread.range.startColumn, this._commentThread.range.endLineNumber + 1, 1) : new Range(1, 1, 1, 1);
+    const rangeToReveal = this._commentThread.range ? new Range(
+      this._commentThread.range.startLineNumber,
+      this._commentThread.range.startColumn,
+      this._commentThread.range.endLineNumber + 1,
+      1
+    ) : new Range(1, 1, 1, 1);
     this.editor.revealRangeInCenter(rangeToReveal);
     this._setFocus(void 0, focus);
   }
@@ -227,13 +264,19 @@ let ReviewZoneWidget = class extends ZoneWidget {
       container,
       this.editor,
       this._uniqueOwner,
-      this.editor.getModel().uri,
+      this.editor.getModel()?.uri,
       this._contextKeyService,
       this._scopedInstantiationService,
       this._commentThread,
       this._pendingComment,
       this._pendingEdits,
-      { editor: this.editor, codeBlockFontSize: "", codeBlockFontFamily: this.configurationService.getValue("editor").fontFamily || EDITOR_FONT_DEFAULTS.fontFamily },
+      {
+        editor: this.editor,
+        codeBlockFontSize: "",
+        codeBlockFontFamily: this.configurationService.getValue(
+          "editor"
+        ).fontFamily || EDITOR_FONT_DEFAULTS.fontFamily
+      },
       this._commentOptions,
       {
         actionRunner: /* @__PURE__ */ __name(async () => {
@@ -247,11 +290,25 @@ let ReviewZoneWidget = class extends ZoneWidget {
               let range;
               if (newPosition.lineNumber !== originalRange.endLineNumber) {
                 const distance = newPosition.lineNumber - originalRange.endLineNumber;
-                range = new Range(originalRange.startLineNumber + distance, originalRange.startColumn, originalRange.endLineNumber + distance, originalRange.endColumn);
+                range = new Range(
+                  originalRange.startLineNumber + distance,
+                  originalRange.startColumn,
+                  originalRange.endLineNumber + distance,
+                  originalRange.endColumn
+                );
               } else {
-                range = new Range(originalRange.startLineNumber, originalRange.startColumn, originalRange.endLineNumber, originalRange.endColumn);
+                range = new Range(
+                  originalRange.startLineNumber,
+                  originalRange.startColumn,
+                  originalRange.endLineNumber,
+                  originalRange.endColumn
+                );
               }
-              await this.commentService.updateCommentThreadTemplate(this.uniqueOwner, this._commentThread.commentThreadHandle, range);
+              await this.commentService.updateCommentThreadTemplate(
+                this.uniqueOwner,
+                this._commentThread.commentThreadHandle,
+                range
+              );
             }
           }
         }, "actionRunner"),
@@ -266,11 +323,17 @@ let ReviewZoneWidget = class extends ZoneWidget {
     if (!range) {
       return void 0;
     }
-    return { lineNumber: range.endLineNumber, column: range.endLineNumber === range.startLineNumber ? (range.startColumn + range.endColumn + 1) / 2 : 1 };
+    return {
+      lineNumber: range.endLineNumber,
+      column: range.endLineNumber === range.startLineNumber ? (range.startColumn + range.endColumn + 1) / 2 : 1
+    };
   }
   deleteCommentThread() {
     this.dispose();
-    this.commentService.disposeCommentThread(this.uniqueOwner, this._commentThread.threadId);
+    this.commentService.disposeCommentThread(
+      this.uniqueOwner,
+      this._commentThread.threadId
+    );
   }
   doCollapse() {
     this._commentThread.collapsibleState = languages.CommentThreadCollapsibleState.Collapsed;
@@ -287,13 +350,22 @@ let ReviewZoneWidget = class extends ZoneWidget {
     const confirmSetting = this.configurationService.getValue("comments.thread.confirmOnCollapse");
     if (confirmSetting === "whenHasUnsubmittedComments" && this._commentThreadWidget.hasUnsubmittedComments) {
       const result = await this.dialogService.confirm({
-        message: nls.localize("confirmCollapse", "Collapsing a comment thread will discard unsubmitted comments. Do you want to collapse this comment thread?"),
+        message: nls.localize(
+          "confirmCollapse",
+          "Collapsing a comment thread will discard unsubmitted comments. Do you want to collapse this comment thread?"
+        ),
         primaryButton: nls.localize("collapse", "Collapse"),
         type: Severity.Warning,
-        checkbox: { label: nls.localize("neverAskAgain", "Never ask me again"), checked: false }
+        checkbox: {
+          label: nls.localize("neverAskAgain", "Never ask me again"),
+          checked: false
+        }
       });
       if (result.checkboxChecked) {
-        await this.configurationService.updateValue("comments.thread.confirmOnCollapse", "never");
+        await this.configurationService.updateValue(
+          "comments.thread.confirmOnCollapse",
+          "never"
+        );
       }
       return result.confirmed;
     }
@@ -302,18 +374,22 @@ let ReviewZoneWidget = class extends ZoneWidget {
   expand(setActive) {
     this._commentThread.collapsibleState = languages.CommentThreadCollapsibleState.Expanded;
     if (setActive) {
-      this.commentService.setActiveCommentAndThread(this.uniqueOwner, { thread: this._commentThread });
+      this.commentService.setActiveCommentAndThread(this.uniqueOwner, {
+        thread: this._commentThread
+      });
     }
   }
   getGlyphPosition() {
     if (this._commentGlyph) {
-      return this._commentGlyph.getPosition().position.lineNumber;
+      return this._commentGlyph.getPosition().position?.lineNumber;
     }
     return 0;
   }
   async update(commentThread) {
     if (this._commentThread !== commentThread) {
-      this._commentThreadDisposables.forEach((disposable) => disposable.dispose());
+      this._commentThreadDisposables.forEach(
+        (disposable) => disposable.dispose()
+      );
       this._commentThread = commentThread;
       this._commentThreadDisposables = [];
       this.bindCommentThreadListeners();
@@ -323,7 +399,7 @@ let ReviewZoneWidget = class extends ZoneWidget {
     let shouldMoveWidget = false;
     if (this._commentGlyph) {
       this._commentGlyph.setThreadState(commentThread.state);
-      if (this._commentGlyph.getPosition().position.lineNumber !== lineNumber) {
+      if (this._commentGlyph.getPosition().position?.lineNumber !== lineNumber) {
         shouldMoveWidget = true;
         this._commentGlyph.setLineNumber(lineNumber);
       }
@@ -342,21 +418,36 @@ let ReviewZoneWidget = class extends ZoneWidget {
   }
   async display(range, shouldReveal) {
     if (range) {
-      this._commentGlyph = new CommentGlyphWidget(this.editor, range?.endLineNumber ?? -1);
+      this._commentGlyph = new CommentGlyphWidget(
+        this.editor,
+        range?.endLineNumber ?? -1
+      );
       this._commentGlyph.setThreadState(this._commentThread.state);
-      this._globalToDispose.add(this._commentGlyph.onDidChangeLineNumber(async (e) => {
-        if (!this._commentThread.range) {
-          return;
-        }
-        const shift = e - this._commentThread.range.endLineNumber;
-        const newRange = new Range(this._commentThread.range.startLineNumber + shift, this._commentThread.range.startColumn, this._commentThread.range.endLineNumber + shift, this._commentThread.range.endColumn);
-        this._commentThread.range = newRange;
-      }));
+      this._globalToDispose.add(
+        this._commentGlyph.onDidChangeLineNumber(async (e) => {
+          if (!this._commentThread.range) {
+            return;
+          }
+          const shift = e - this._commentThread.range.endLineNumber;
+          const newRange = new Range(
+            this._commentThread.range.startLineNumber + shift,
+            this._commentThread.range.startColumn,
+            this._commentThread.range.endLineNumber + shift,
+            this._commentThread.range.endColumn
+          );
+          this._commentThread.range = newRange;
+        })
+      );
     }
-    await this._commentThreadWidget.display(this.editor.getOption(EditorOption.lineHeight), shouldReveal);
-    this._disposables.add(this._commentThreadWidget.onDidResize((dimension) => {
-      this._refresh(dimension);
-    }));
+    await this._commentThreadWidget.display(
+      this.editor.getOption(EditorOption.lineHeight),
+      shouldReveal
+    );
+    this._disposables.add(
+      this._commentThreadWidget.onDidResize((dimension) => {
+        this._refresh(dimension);
+      })
+    );
     if (this._commentThread.collapsibleState === languages.CommentThreadCollapsibleState.Expanded) {
       this.show(this.arrowPosition(range), 2);
     }
@@ -366,37 +457,56 @@ let ReviewZoneWidget = class extends ZoneWidget {
     this.bindCommentThreadListeners();
   }
   bindCommentThreadListeners() {
-    this._commentThreadDisposables.push(this._commentThread.onDidChangeComments(async (_) => {
-      await this.update(this._commentThread);
-    }));
-    this._commentThreadDisposables.push(this._commentThread.onDidChangeCollapsibleState((state) => {
-      if (state === languages.CommentThreadCollapsibleState.Expanded && !this._isExpanded) {
-        this.show(this.arrowPosition(this._commentThread.range), 2);
-        this._commentThreadWidget.ensureFocusIntoNewEditingComment();
-        return;
-      }
-      if (state === languages.CommentThreadCollapsibleState.Collapsed && this._isExpanded) {
-        this.hide();
-        return;
-      }
-    }));
+    this._commentThreadDisposables.push(
+      this._commentThread.onDidChangeComments(async (_) => {
+        await this.update(this._commentThread);
+      })
+    );
+    this._commentThreadDisposables.push(
+      this._commentThread.onDidChangeCollapsibleState((state) => {
+        if (state === languages.CommentThreadCollapsibleState.Expanded && !this._isExpanded) {
+          this.show(this.arrowPosition(this._commentThread.range), 2);
+          this._commentThreadWidget.ensureFocusIntoNewEditingComment();
+          return;
+        }
+        if (state === languages.CommentThreadCollapsibleState.Collapsed && this._isExpanded) {
+          this.hide();
+          return;
+        }
+      })
+    );
     if (this._initialCollapsibleState === void 0) {
-      const onDidChangeInitialCollapsibleState = this._commentThread.onDidChangeInitialCollapsibleState((state) => {
-        this._initialCollapsibleState = state;
-        this._commentThread.collapsibleState = this._initialCollapsibleState;
-        onDidChangeInitialCollapsibleState.dispose();
-      });
-      this._commentThreadDisposables.push(onDidChangeInitialCollapsibleState);
+      const onDidChangeInitialCollapsibleState = this._commentThread.onDidChangeInitialCollapsibleState(
+        (state) => {
+          this._initialCollapsibleState = state;
+          this._commentThread.collapsibleState = this._initialCollapsibleState;
+          onDidChangeInitialCollapsibleState.dispose();
+        }
+      );
+      this._commentThreadDisposables.push(
+        onDidChangeInitialCollapsibleState
+      );
     }
-    this._commentThreadDisposables.push(this._commentThread.onDidChangeState(() => {
-      const borderColor = getCommentThreadWidgetStateColor(this._commentThread.state, this.themeService.getColorTheme()) || Color.transparent;
-      this.style({
-        frameColor: borderColor,
-        arrowColor: borderColor
-      });
-      this.container?.style.setProperty(commentThreadStateColorVar, `${borderColor}`);
-      this.container?.style.setProperty(commentThreadStateBackgroundColorVar, `${borderColor.transparent(0.1)}`);
-    }));
+    this._commentThreadDisposables.push(
+      this._commentThread.onDidChangeState(() => {
+        const borderColor = getCommentThreadWidgetStateColor(
+          this._commentThread.state,
+          this.themeService.getColorTheme()
+        ) || Color.transparent;
+        this.style({
+          frameColor: borderColor,
+          arrowColor: borderColor
+        });
+        this.container?.style.setProperty(
+          commentThreadStateColorVar,
+          `${borderColor}`
+        );
+        this.container?.style.setProperty(
+          commentThreadStateBackgroundColorVar,
+          `${borderColor.transparent(0.1)}`
+        );
+      })
+    );
   }
   async submitComment() {
     return this._commentThreadWidget.submitComment();
@@ -408,11 +518,15 @@ let ReviewZoneWidget = class extends ZoneWidget {
     }
     if (this._isExpanded) {
       this._commentThreadWidget.layout();
-      const headHeight = Math.ceil(this.editor.getOption(EditorOption.lineHeight) * 1.2);
+      const headHeight = Math.ceil(
+        this.editor.getOption(EditorOption.lineHeight) * 1.2
+      );
       const lineHeight = this.editor.getOption(EditorOption.lineHeight);
       const arrowHeight = Math.round(lineHeight / 3);
       const frameThickness = Math.round(lineHeight / 9) * 2;
-      const computedLinesNumber = Math.ceil((headHeight + dimensions.height + arrowHeight + frameThickness + 8) / lineHeight);
+      const computedLinesNumber = Math.ceil(
+        (headHeight + dimensions.height + arrowHeight + frameThickness + 8) / lineHeight
+      );
       if (this._viewZone?.heightInLines === computedLinesNumber) {
         return;
       }
@@ -426,7 +540,10 @@ let ReviewZoneWidget = class extends ZoneWidget {
     }
   }
   _applyTheme(theme) {
-    const borderColor = getCommentThreadWidgetStateColor(this._commentThread.state, this.themeService.getColorTheme()) || Color.transparent;
+    const borderColor = getCommentThreadWidgetStateColor(
+      this._commentThread.state,
+      this.themeService.getColorTheme()
+    ) || Color.transparent;
     this.style({
       arrowColor: borderColor,
       frameColor: borderColor
@@ -439,7 +556,12 @@ let ReviewZoneWidget = class extends ZoneWidget {
     let range = Range.isIRange(rangeOrPos) ? rangeOrPos : rangeOrPos ? Range.fromPositions(rangeOrPos) : void 0;
     if (glyphPosition?.position && range && glyphPosition.position.lineNumber !== range.endLineNumber) {
       const distance = glyphPosition.position.lineNumber - range.endLineNumber;
-      range = new Range(range.startLineNumber + distance, range.startColumn, range.endLineNumber + distance, range.endColumn);
+      range = new Range(
+        range.startLineNumber + distance,
+        range.startColumn,
+        range.endLineNumber + distance,
+        range.endColumn
+      );
     }
     this._isExpanded = true;
     super.show(range ?? new Range(0, 0, 0, 0), heightInLines);

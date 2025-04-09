@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ParsedPattern, parse } from "../../../base/common/glob.js";
+import { parse } from "../../../base/common/glob.js";
 import { Mimes } from "../../../base/common/mime.js";
 import { Schemas } from "../../../base/common/network.js";
 import { basename, posix } from "../../../base/common/path.js";
 import { DataUri } from "../../../base/common/resources.js";
 import { startsWithUTF8BOM } from "../../../base/common/strings.js";
-import { URI } from "../../../base/common/uri.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
 let registeredAssociations = [];
 let nonUserRegisteredAssociations = [];
@@ -20,7 +19,10 @@ function registerConfiguredLanguageAssociation(association) {
 }
 __name(registerConfiguredLanguageAssociation, "registerConfiguredLanguageAssociation");
 function _registerLanguageAssociation(association, userConfigured, warnOnOverwrite) {
-  const associationItem = toLanguageAssociationItem(association, userConfigured);
+  const associationItem = toLanguageAssociationItem(
+    association,
+    userConfigured
+  );
   registeredAssociations.push(associationItem);
   if (!associationItem.userConfigured) {
     nonUserRegisteredAssociations.push(associationItem);
@@ -33,16 +35,24 @@ function _registerLanguageAssociation(association, userConfigured, warnOnOverwri
         return;
       }
       if (associationItem.extension && a.extension === associationItem.extension) {
-        console.warn(`Overwriting extension <<${associationItem.extension}>> to now point to mime <<${associationItem.mime}>>`);
+        console.warn(
+          `Overwriting extension <<${associationItem.extension}>> to now point to mime <<${associationItem.mime}>>`
+        );
       }
       if (associationItem.filename && a.filename === associationItem.filename) {
-        console.warn(`Overwriting filename <<${associationItem.filename}>> to now point to mime <<${associationItem.mime}>>`);
+        console.warn(
+          `Overwriting filename <<${associationItem.filename}>> to now point to mime <<${associationItem.mime}>>`
+        );
       }
       if (associationItem.filepattern && a.filepattern === associationItem.filepattern) {
-        console.warn(`Overwriting filepattern <<${associationItem.filepattern}>> to now point to mime <<${associationItem.mime}>>`);
+        console.warn(
+          `Overwriting filepattern <<${associationItem.filepattern}>> to now point to mime <<${associationItem.mime}>>`
+        );
       }
       if (associationItem.firstline && a.firstline === associationItem.firstline) {
-        console.warn(`Overwriting firstline <<${associationItem.firstline}>> to now point to mime <<${associationItem.mime}>>`);
+        console.warn(
+          `Overwriting firstline <<${associationItem.firstline}>> to now point to mime <<${associationItem.mime}>>`
+        );
       }
     });
   }
@@ -65,12 +75,16 @@ function toLanguageAssociationItem(association, userConfigured) {
 }
 __name(toLanguageAssociationItem, "toLanguageAssociationItem");
 function clearPlatformLanguageAssociations() {
-  registeredAssociations = registeredAssociations.filter((a) => a.userConfigured);
+  registeredAssociations = registeredAssociations.filter(
+    (a) => a.userConfigured
+  );
   nonUserRegisteredAssociations = [];
 }
 __name(clearPlatformLanguageAssociations, "clearPlatformLanguageAssociations");
 function clearConfiguredLanguageAssociations() {
-  registeredAssociations = registeredAssociations.filter((a) => !a.userConfigured);
+  registeredAssociations = registeredAssociations.filter(
+    (a) => !a.userConfigured
+  );
   userRegisteredAssociations = [];
 }
 __name(clearConfiguredLanguageAssociations, "clearConfiguredLanguageAssociations");
@@ -106,18 +120,35 @@ function getAssociations(resource, firstLine) {
   }
   path = path.toLowerCase();
   const filename = basename(path);
-  const configuredLanguage = getAssociationByPath(path, filename, userRegisteredAssociations);
+  const configuredLanguage = getAssociationByPath(
+    path,
+    filename,
+    userRegisteredAssociations
+  );
   if (configuredLanguage) {
-    return [configuredLanguage, { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }];
+    return [
+      configuredLanguage,
+      { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }
+    ];
   }
-  const registeredLanguage = getAssociationByPath(path, filename, nonUserRegisteredAssociations);
+  const registeredLanguage = getAssociationByPath(
+    path,
+    filename,
+    nonUserRegisteredAssociations
+  );
   if (registeredLanguage) {
-    return [registeredLanguage, { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }];
+    return [
+      registeredLanguage,
+      { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }
+    ];
   }
   if (firstLine) {
     const firstlineLanguage = getAssociationByFirstline(firstLine);
     if (firstlineLanguage) {
-      return [firstlineLanguage, { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }];
+      return [
+        firstlineLanguage,
+        { id: PLAINTEXT_LANGUAGE_ID, mime: Mimes.text }
+      ];
     }
   }
   return [{ id: "unknown", mime: Mimes.unknown }];
@@ -134,7 +165,7 @@ function getAssociationByPath(path, filename, associations) {
       break;
     }
     if (association.filepattern) {
-      if (!patternMatch || association.filepattern.length > patternMatch.filepattern.length) {
+      if (!patternMatch || association.filepattern.length > patternMatch.filepattern?.length) {
         const target = association.filepatternOnPath ? path : filename;
         if (association.filepatternLowercase?.(target)) {
           patternMatch = association;
@@ -142,7 +173,7 @@ function getAssociationByPath(path, filename, associations) {
       }
     }
     if (association.extension) {
-      if (!extensionMatch || association.extension.length > extensionMatch.extension.length) {
+      if (!extensionMatch || association.extension.length > extensionMatch.extension?.length) {
         if (filename.endsWith(association.extensionLowercase)) {
           extensionMatch = association;
         }

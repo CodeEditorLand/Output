@@ -12,7 +12,11 @@ class DecorationStyleCache {
     if (color === void 0 && bold === void 0 && opacity === void 0) {
       return 0;
     }
-    const result = this._cacheByStyle.get(color ?? 0, bold ? 1 : 0, opacity === void 0 ? "" : opacity.toFixed(2));
+    const result = this._cacheByStyle.get(
+      color ?? 0,
+      bold ? 1 : 0,
+      opacity === void 0 ? "" : opacity.toFixed(2)
+    );
     if (result) {
       return result.id;
     }
@@ -24,7 +28,12 @@ class DecorationStyleCache {
       opacity
     };
     this._cacheById.set(id, entry);
-    this._cacheByStyle.set(entry, color ?? 0, bold ? 1 : 0, opacity === void 0 ? "" : opacity.toFixed(2));
+    this._cacheByStyle.set(
+      entry,
+      color ?? 0,
+      bold ? 1 : 0,
+      opacity === void 0 ? "" : opacity.toFixed(2)
+    );
     return id;
   }
   getStyleSet(id) {

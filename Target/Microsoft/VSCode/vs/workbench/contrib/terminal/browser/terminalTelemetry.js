@@ -12,7 +12,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { timeout } from "../../../../base/common/async.js";
 import { Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { basename } from "../../../../base/common/path.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { TerminalCapability } from "../../../../platform/terminal/common/capabilities/capabilities.js";
@@ -22,23 +25,25 @@ let TerminalTelemetryContribution = class extends Disposable {
   constructor(lifecycleService, terminalService, _telemetryService) {
     super();
     this._telemetryService = _telemetryService;
-    this._register(terminalService.onDidCreateInstance(async (instance) => {
-      const store = new DisposableStore();
-      this._store.add(store);
-      await Promise.race([
-        // Wait for process ready so the shell launch config is fully resolved, then
-        // allow another 10 seconds for the shell integration to be fully initialized
-        instance.processReady.then(() => {
-          return timeout(1e4);
-        }),
-        // If the terminal is disposed, it's ready to report on immediately
-        Event.toPromise(instance.onDisposed, store),
-        // If the app is shutting down, flush
-        Event.toPromise(lifecycleService.onWillShutdown, store)
-      ]);
-      this._logCreateInstance(instance);
-      this._store.delete(store);
-    }));
+    this._register(
+      terminalService.onDidCreateInstance(async (instance) => {
+        const store = new DisposableStore();
+        this._store.add(store);
+        await Promise.race([
+          // Wait for process ready so the shell launch config is fully resolved, then
+          // allow another 10 seconds for the shell integration to be fully initialized
+          instance.processReady.then(() => {
+            return timeout(1e4);
+          }),
+          // If the terminal is disposed, it's ready to report on immediately
+          Event.toPromise(instance.onDisposed, store),
+          // If the app is shutting down, flush
+          Event.toPromise(lifecycleService.onWillShutdown, store)
+        ]);
+        this._logCreateInstance(instance);
+        this._store.delete(store);
+      })
+    );
   }
   static {
     __name(this, "TerminalTelemetryContribution");
@@ -46,7 +51,9 @@ let TerminalTelemetryContribution = class extends Disposable {
   static ID = "terminalTelemetry";
   _logCreateInstance(instance) {
     const slc = instance.shellLaunchConfig;
-    const commandDetection = instance.capabilities.get(TerminalCapability.CommandDetection);
+    const commandDetection = instance.capabilities.get(
+      TerminalCapability.CommandDetection
+    );
     this._telemetryService.publicLog2("terminal/createInstance", {
       shellType: getSanitizedShellType(slc),
       promptType: commandDetection?.promptType,
@@ -181,22 +188,37 @@ const shellTypeExecutableAllowList = /* @__PURE__ */ new Set([
   "ts-node" /* TsNode */
 ]);
 const shellTypeExecutableRegexAllowList = [
-  { regex: /^(?:pwsh|powershell)-preview$/i, type: "pwsh-preview" /* PwshPreview */ },
+  {
+    regex: /^(?:pwsh|powershell)-preview$/i,
+    type: "pwsh-preview" /* PwshPreview */
+  },
   { regex: /^python(?:\d+(?:\.\d+)?)?$/i, type: "python" /* Python */ }
 ];
 const shellTypePathRegexAllowList = [
   // Cygwin uses bash.exe, so look up based on the path
-  { regex: /\\Cygwin(?:64)?\\.+\\bash\.exe$/i, type: "cygwin-bash" /* Cygwin */ },
+  {
+    regex: /\\Cygwin(?:64)?\\.+\\bash\.exe$/i,
+    type: "cygwin-bash" /* Cygwin */
+  },
   // Git bash uses bash.exe, so look up based on the path
   { regex: /\\Git\\.+\\bash\.exe$/i, type: "git-bash" /* GitBash */ },
   // Msys2 uses bash.exe, so look up based on the path
-  { regex: /\\msys(?:32|64)\\.+\\(?:bash|msys2)\.exe$/i, type: "msys2-bash" /* Msys2 */ },
+  {
+    regex: /\\msys(?:32|64)\\.+\\(?:bash|msys2)\.exe$/i,
+    type: "msys2-bash" /* Msys2 */
+  },
   // WindowsPowerShell should always be installed on this path, we cannot just look at the
   // executable name since powershell is the CLI on other platforms sometimes (eg. snap package)
-  { regex: /\\WindowsPowerShell\\v1.0\\powershell.exe$/i, type: "windows-powershell" /* WindowsPowerShell */ },
+  {
+    regex: /\\WindowsPowerShell\\v1.0\\powershell.exe$/i,
+    type: "windows-powershell" /* WindowsPowerShell */
+  },
   // WSL executables will represent some other shell in the end, but it's difficult to determine
   // when we log
-  { regex: /\\Windows\\(?:System32|SysWOW64|Sysnative)\\(?:bash|wsl)\.exe$/i, type: "wsl" /* Wsl */ }
+  {
+    regex: /\\Windows\\(?:System32|SysWOW64|Sysnative)\\(?:bash|wsl)\.exe$/i,
+    type: "wsl" /* Wsl */
+  }
 ];
 function getSanitizedShellType(slc) {
   if (!slc.executable) {

@@ -13,27 +13,32 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { CancellationTokenSource } from "../../../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../../../base/common/errors.js";
 import { Event } from "../../../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../../base/common/map.js";
 import { isEqual } from "../../../../../../base/common/resources.js";
 import { format } from "../../../../../../base/common/strings.js";
 import { Position } from "../../../../../../editor/common/core/position.js";
 import { Range } from "../../../../../../editor/common/core/range.js";
 import { StandardTokenType } from "../../../../../../editor/common/encodedTokenAttributes.js";
-import { InlineValueContext, InlineValueText, InlineValueVariableLookup } from "../../../../../../editor/common/languages.js";
-import { IModelDeltaDecoration, ITextModel } from "../../../../../../editor/common/model.js";
 import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
 import { localize } from "../../../../../../nls.js";
 import { registerAction2 } from "../../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { ServicesAccessor } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { createInlineValueDecoration } from "../../../../debug/browser/debugEditorContribution.js";
 import { IDebugService, State } from "../../../../debug/common/debug.js";
 import { NotebookSetting } from "../../../common/notebookCommon.js";
-import { ICellExecutionStateChangedEvent, INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
-import { INotebookKernelService, VariablesResult } from "../../../common/notebookKernelService.js";
-import { INotebookActionContext, NotebookAction } from "../../controller/coreActions.js";
-import { ICellViewModel, INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
+import {
+  INotebookExecutionStateService,
+  NotebookExecutionType
+} from "../../../common/notebookExecutionStateService.js";
+import {
+  INotebookKernelService
+} from "../../../common/notebookKernelService.js";
+import {
+  NotebookAction
+} from "../../controller/coreActions.js";
 import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
 class InlineSegment {
   constructor(column, text) {
@@ -54,22 +59,33 @@ let NotebookInlineVariablesController = class extends Disposable {
     this.languageFeaturesService = languageFeaturesService;
     this.configurationService = configurationService;
     this.debugService = debugService;
-    this._register(this.notebookExecutionStateService.onDidChangeExecution(async (e) => {
-      const inlineValuesSetting = this.configurationService.getValue(NotebookSetting.notebookInlineValues);
-      if (inlineValuesSetting === "off") {
-        return;
-      }
-      if (e.type === NotebookExecutionType.cell) {
-        await this.updateInlineVariables(e);
-      }
-    }));
-    this._register(Event.runAndSubscribe(this.configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(NotebookSetting.notebookInlineValues)) {
-        if (this.configurationService.getValue(NotebookSetting.notebookInlineValues) === "off") {
-          this.clearNotebookInlineDecorations();
+    this._register(
+      this.notebookExecutionStateService.onDidChangeExecution(
+        async (e) => {
+          const inlineValuesSetting = this.configurationService.getValue(NotebookSetting.notebookInlineValues);
+          if (inlineValuesSetting === "off") {
+            return;
+          }
+          if (e.type === NotebookExecutionType.cell) {
+            await this.updateInlineVariables(e);
+          }
         }
-      }
-    }));
+      )
+    );
+    this._register(
+      Event.runAndSubscribe(
+        this.configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(
+            NotebookSetting.notebookInlineValues
+          )) {
+            if (this.configurationService.getValue(NotebookSetting.notebookInlineValues) === "off") {
+              this.clearNotebookInlineDecorations();
+            }
+          }
+        }
+      )
+    );
   }
   static {
     __name(this, "NotebookInlineVariablesController");
@@ -87,12 +103,17 @@ let NotebookInlineVariablesController = class extends Disposable {
     if (!cell) {
       return;
     }
-    const existingSource = this.currentCancellationTokenSources.get(cell.uri);
+    const existingSource = this.currentCancellationTokenSources.get(
+      cell.uri
+    );
     if (existingSource) {
       existingSource.cancel();
     }
-    this.currentCancellationTokenSources.set(cell.uri, new CancellationTokenSource());
-    const token = this.currentCancellationTokenSources.get(cell.uri).token;
+    this.currentCancellationTokenSources.set(
+      cell.uri,
+      new CancellationTokenSource()
+    );
+    const token = this.currentCancellationTokenSources.get(cell.uri)?.token;
     if (this.debugService.state !== State.Inactive) {
       this._clearNotebookInlineDecorations();
       return;
@@ -117,70 +138,102 @@ let NotebookInlineVariablesController = class extends Disposable {
       const ctx = {
         frameId: 0,
         // ignored, we won't have a stack from since not in a debug session
-        stoppedLocation: new Range(lastLine, lastColumn, lastLine, lastColumn)
+        stoppedLocation: new Range(
+          lastLine,
+          lastColumn,
+          lastLine,
+          lastColumn
+        )
         // executing cell by cell, so "stopped" location would just be the end of document
       };
       const providers = this.languageFeaturesService.inlineValuesProvider.ordered(model).reverse();
       const lineDecorations = /* @__PURE__ */ new Map();
       const fullCellRange = new Range(1, 1, lastLine, lastColumn);
-      const promises = providers.flatMap((provider) => Promise.resolve(provider.provideInlineValues(model, fullCellRange, ctx, token)).then(async (result) => {
-        if (!result) {
-          return;
-        }
-        const notebook = this.notebookEditor.textModel;
-        if (!notebook) {
-          return;
-        }
-        const kernel = this.notebookKernelService.getMatchingKernel(notebook);
-        const kernelVars = [];
-        if (result.some((iv) => iv.type === "variable")) {
-          if (!this.notebookEditor.hasModel()) {
-            return;
-          }
-          const variables = kernel.selected?.provideVariables(event.notebook, void 0, "named", 0, token);
-          if (variables) {
-            for await (const v of variables) {
-              kernelVars.push(v);
+      const promises = providers.flatMap(
+        (provider) => Promise.resolve(
+          provider.provideInlineValues(
+            model,
+            fullCellRange,
+            ctx,
+            token
+          )
+        ).then(
+          async (result) => {
+            if (!result) {
+              return;
             }
-          }
-        }
-        for (const iv of result) {
-          let text = void 0;
-          switch (iv.type) {
-            case "text":
-              text = iv.text;
-              break;
-            case "variable": {
-              const name = iv.variableName;
-              if (!name) {
-                continue;
+            const notebook = this.notebookEditor.textModel;
+            if (!notebook) {
+              return;
+            }
+            const kernel = this.notebookKernelService.getMatchingKernel(
+              notebook
+            );
+            const kernelVars = [];
+            if (result.some((iv) => iv.type === "variable")) {
+              if (!this.notebookEditor.hasModel()) {
+                return;
               }
-              const value = kernelVars.find((v) => v.name === name)?.value;
-              if (!value) {
-                continue;
+              const variables = kernel.selected?.provideVariables(
+                event.notebook,
+                void 0,
+                "named",
+                0,
+                token
+              );
+              if (variables) {
+                for await (const v of variables) {
+                  kernelVars.push(v);
+                }
               }
-              text = format("{0} = {1}", name, value);
-              break;
             }
-            case "expression": {
-              continue;
+            for (const iv of result) {
+              let text = void 0;
+              switch (iv.type) {
+                case "text":
+                  text = iv.text;
+                  break;
+                case "variable": {
+                  const name = iv.variableName;
+                  if (!name) {
+                    continue;
+                  }
+                  const value = kernelVars.find(
+                    (v) => v.name === name
+                  )?.value;
+                  if (!value) {
+                    continue;
+                  }
+                  text = format("{0} = {1}", name, value);
+                  break;
+                }
+                case "expression": {
+                  continue;
+                }
+              }
+              if (text) {
+                const line = iv.range.startLineNumber;
+                let lineSegments = lineDecorations.get(line);
+                if (!lineSegments) {
+                  lineSegments = [];
+                  lineDecorations.set(line, lineSegments);
+                }
+                if (!lineSegments.some((iv2) => iv2.text === text)) {
+                  lineSegments.push(
+                    new InlineSegment(
+                      iv.range.startColumn,
+                      text
+                    )
+                  );
+                }
+              }
             }
+          },
+          (err) => {
+            onUnexpectedExternalError(err);
           }
-          if (text) {
-            const line = iv.range.startLineNumber;
-            let lineSegments = lineDecorations.get(line);
-            if (!lineSegments) {
-              lineSegments = [];
-              lineDecorations.set(line, lineSegments);
-            }
-            if (!lineSegments.some((iv2) => iv2.text === text)) {
-              lineSegments.push(new InlineSegment(iv.range.startColumn, text));
-            }
-          }
-        }
-      }, (err) => {
-        onUnexpectedExternalError(err);
-      }));
+        )
+      );
       await Promise.all(promises);
       lineDecorations.forEach((segments, line) => {
         if (segments.length > 0) {
@@ -189,12 +242,24 @@ let NotebookInlineVariablesController = class extends Disposable {
           const editorWidth = cell.layoutInfo.editorWidth;
           const fontInfo = cell.layoutInfo.fontInfo;
           if (fontInfo && cell.textModel) {
-            const base = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
+            const base = Math.floor(
+              (editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth
+            );
             const lineLength = cell.textModel.getLineLength(line);
             const available = Math.max(0, base - lineLength);
-            inlineDecorations.push(...createInlineValueDecoration(line, text, "nb", void 0, available));
+            inlineDecorations.push(
+              ...createInlineValueDecoration(
+                line,
+                text,
+                "nb",
+                void 0,
+                available
+              )
+            );
           } else {
-            inlineDecorations.push(...createInlineValueDecoration(line, text, "nb"));
+            inlineDecorations.push(
+              ...createInlineValueDecoration(line, text, "nb")
+            );
           }
         }
       });
@@ -202,8 +267,16 @@ let NotebookInlineVariablesController = class extends Disposable {
       if (!this.notebookEditor.hasModel()) {
         return;
       }
-      const kernel = this.notebookKernelService.getMatchingKernel(this.notebookEditor.textModel);
-      const variables = kernel?.selected?.provideVariables(event.notebook, void 0, "named", 0, token);
+      const kernel = this.notebookKernelService.getMatchingKernel(
+        this.notebookEditor.textModel
+      );
+      const variables = kernel?.selected?.provideVariables(
+        event.notebook,
+        void 0,
+        "named",
+        0,
+        token
+      );
       if (!variables) {
         return;
       }
@@ -238,7 +311,10 @@ let NotebookInlineVariablesController = class extends Disposable {
           let match;
           while ((match = regex.exec(line)) !== null) {
             const startIndex = match.index;
-            const pos = new Position(lineNumber + 1, startIndex + 1);
+            const pos = new Position(
+              lineNumber + 1,
+              startIndex + 1
+            );
             if (!this.isPositionInRanges(pos, ignoredRanges)) {
               lastMatchOutsideIgnored = {
                 line: lineNumber + 1,
@@ -253,14 +329,24 @@ let NotebookInlineVariablesController = class extends Disposable {
           }
         }
         if (lastMatchOutsideIgnored) {
-          const inlineVal = varName + " = " + vars.find((v) => v.name === varName)?.value;
-          let lineSegments = lineDecorations.get(lastMatchOutsideIgnored.line);
+          const inlineVal = `${varName} = ${vars.find((v) => v.name === varName)?.value}`;
+          let lineSegments = lineDecorations.get(
+            lastMatchOutsideIgnored.line
+          );
           if (!lineSegments) {
             lineSegments = [];
-            lineDecorations.set(lastMatchOutsideIgnored.line, lineSegments);
+            lineDecorations.set(
+              lastMatchOutsideIgnored.line,
+              lineSegments
+            );
           }
           if (!lineSegments.some((iv) => iv.text === inlineVal)) {
-            lineSegments.push(new InlineSegment(lastMatchOutsideIgnored.column, inlineVal));
+            lineSegments.push(
+              new InlineSegment(
+                lastMatchOutsideIgnored.column,
+                inlineVal
+              )
+            );
           }
         }
         processedVars.add(varName);
@@ -272,12 +358,24 @@ let NotebookInlineVariablesController = class extends Disposable {
           const editorWidth = cell.layoutInfo.editorWidth;
           const fontInfo = cell.layoutInfo.fontInfo;
           if (fontInfo && cell.textModel) {
-            const base = Math.floor((editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth);
+            const base = Math.floor(
+              (editorWidth - 50) / fontInfo.typicalHalfwidthCharacterWidth
+            );
             const lineLength = cell.textModel.getLineLength(line);
             const available = Math.max(0, base - lineLength);
-            inlineDecorations2.push(...createInlineValueDecoration(line, text, "nb", void 0, available));
+            inlineDecorations2.push(
+              ...createInlineValueDecoration(
+                line,
+                text,
+                "nb",
+                void 0,
+                available
+              )
+            );
           } else {
-            inlineDecorations2.push(...createInlineValueDecoration(line, text, "nb"));
+            inlineDecorations2.push(
+              ...createInlineValueDecoration(line, text, "nb")
+            );
           }
         }
       });
@@ -304,7 +402,14 @@ let NotebookInlineVariablesController = class extends Disposable {
         if (inFunction) {
           const currentIndent = pythonMatch[1].length;
           if (currentIndent <= pythonIndentLevel) {
-            functionRanges.push(new Range(functionStartLine + 1, 1, lineNumber, line.length + 1));
+            functionRanges.push(
+              new Range(
+                functionStartLine + 1,
+                1,
+                lineNumber,
+                line.length + 1
+              )
+            );
             inFunction = false;
           }
         }
@@ -321,14 +426,28 @@ let NotebookInlineVariablesController = class extends Disposable {
         }
         const currentIndent = line.match(/^\s*/)?.[0].length ?? 0;
         if (currentIndent <= pythonIndentLevel) {
-          functionRanges.push(new Range(functionStartLine + 1, 1, lineNumber, line.length + 1));
+          functionRanges.push(
+            new Range(
+              functionStartLine + 1,
+              1,
+              lineNumber,
+              line.length + 1
+            )
+          );
           inFunction = false;
           pythonIndentLevel = -1;
         }
       }
     }
     if (inFunction) {
-      functionRanges.push(new Range(functionStartLine + 1, 1, lines.length, lines[lines.length - 1].length + 1));
+      functionRanges.push(
+        new Range(
+          functionStartLine + 1,
+          1,
+          lines.length,
+          lines[lines.length - 1].length + 1
+        )
+      );
     }
     return functionRanges;
   }
@@ -351,7 +470,14 @@ let NotebookInlineVariablesController = class extends Disposable {
         } else if (char === "}") {
           braceDepth--;
           if (braceDepth === 0 && inFunction) {
-            functionRanges.push(new Range(functionStartLine + 1, 1, lineNumber + 1, line.length + 1));
+            functionRanges.push(
+              new Range(
+                functionStartLine + 1,
+                1,
+                lineNumber + 1,
+                line.length + 1
+              )
+            );
             inFunction = false;
           }
         }
@@ -394,7 +520,14 @@ let NotebookInlineVariablesController = class extends Disposable {
           const isLastToken = tokenIndex === lineTokens.getCount() - 1;
           const nextTokenDifferent = !isLastToken && lineTokens.getStandardTokenType(tokenIndex + 1) !== tokenType;
           if (isLastToken || nextTokenDifferent) {
-            commentRanges.push(new Range(lineNumber, startCharacter + 1, lineNumber, endCharacter + 1));
+            commentRanges.push(
+              new Range(
+                lineNumber,
+                startCharacter + 1,
+                lineNumber,
+                endCharacter + 1
+              )
+            );
             startCharacter = void 0;
           }
         } else {
@@ -431,12 +564,14 @@ let NotebookInlineVariablesController = class extends Disposable {
         if (inBlockComment) {
           const endIndex = line.indexOf(blockComments.end);
           if (endIndex !== -1) {
-            commentRanges.push(new Range(
-              blockCommentStartLine + 1,
-              blockCommentStartCol + 1,
-              lineNumber + 1,
-              endIndex + blockComments.end.length + 1
-            ));
+            commentRanges.push(
+              new Range(
+                blockCommentStartLine + 1,
+                blockCommentStartCol + 1,
+                lineNumber + 1,
+                endIndex + blockComments.end.length + 1
+              )
+            );
             inBlockComment = false;
           }
           continue;
@@ -444,21 +579,25 @@ let NotebookInlineVariablesController = class extends Disposable {
       }
       if (!inBlockComment && lineCommentToken && line.trimLeft().startsWith(lineCommentToken)) {
         const startCol = line.indexOf(lineCommentToken);
-        commentRanges.push(new Range(
-          lineNumber + 1,
-          startCol + 1,
-          lineNumber + 1,
-          line.length + 1
-        ));
+        commentRanges.push(
+          new Range(
+            lineNumber + 1,
+            startCol + 1,
+            lineNumber + 1,
+            line.length + 1
+          )
+        );
       }
     }
     if (inBlockComment) {
-      commentRanges.push(new Range(
-        blockCommentStartLine + 1,
-        blockCommentStartCol + 1,
-        lines.length,
-        lines[lines.length - 1].length + 1
-      ));
+      commentRanges.push(
+        new Range(
+          blockCommentStartLine + 1,
+          blockCommentStartCol + 1,
+          lines.length,
+          lines[lines.length - 1].length + 1
+        )
+      );
     }
     return commentRanges;
   }
@@ -467,19 +606,22 @@ let NotebookInlineVariablesController = class extends Disposable {
   }
   updateCellInlineDecorations(cell, decorations) {
     const oldDecorations = this.cellDecorationIds.get(cell) ?? [];
-    this.cellDecorationIds.set(cell, cell.deltaModelDecorations(
-      oldDecorations,
-      decorations
-    ));
+    this.cellDecorationIds.set(
+      cell,
+      cell.deltaModelDecorations(oldDecorations, decorations)
+    );
   }
   initCellContentListener(cell) {
     const cellModel = cell.textModel;
     if (!cellModel) {
       return;
     }
-    this.cellContentListeners.set(cell.uri, cellModel.onDidChangeContent(() => {
-      this.clearCellInlineDecorations(cell);
-    }));
+    this.cellContentListeners.set(
+      cell.uri,
+      cellModel.onDidChangeContent(() => {
+        this.clearCellInlineDecorations(cell);
+      })
+    );
   }
   clearCellInlineDecorations(cell) {
     const cellDecorations = this.cellDecorationIds.get(cell) ?? [];
@@ -504,7 +646,9 @@ let NotebookInlineVariablesController = class extends Disposable {
   dispose() {
     super.dispose();
     this._clearNotebookInlineDecorations();
-    this.currentCancellationTokenSources.forEach((source) => source.cancel());
+    this.currentCancellationTokenSources.forEach(
+      (source) => source.cancel()
+    );
     this.currentCancellationTokenSources.clear();
     this.cellContentListeners.forEach((listener) => listener.dispose());
     this.cellContentListeners.clear();
@@ -517,24 +661,34 @@ NotebookInlineVariablesController = __decorateClass([
   __decorateParam(4, IConfigurationService),
   __decorateParam(5, IDebugService)
 ], NotebookInlineVariablesController);
-registerNotebookContribution(NotebookInlineVariablesController.id, NotebookInlineVariablesController);
-registerAction2(class ClearNotebookInlineValues extends NotebookAction {
-  static {
-    __name(this, "ClearNotebookInlineValues");
+registerNotebookContribution(
+  NotebookInlineVariablesController.id,
+  NotebookInlineVariablesController
+);
+registerAction2(
+  class ClearNotebookInlineValues extends NotebookAction {
+    static {
+      __name(this, "ClearNotebookInlineValues");
+    }
+    constructor() {
+      super({
+        id: "notebook.clearAllInlineValues",
+        title: localize(
+          "clearAllInlineValues",
+          "Clear All Inline Values"
+        )
+      });
+    }
+    runWithContext(accessor, context) {
+      const editor = context.notebookEditor;
+      const controller = editor.getContribution(
+        NotebookInlineVariablesController.id
+      );
+      controller.clearNotebookInlineDecorations();
+      return Promise.resolve();
+    }
   }
-  constructor() {
-    super({
-      id: "notebook.clearAllInlineValues",
-      title: localize("clearAllInlineValues", "Clear All Inline Values")
-    });
-  }
-  runWithContext(accessor, context) {
-    const editor = context.notebookEditor;
-    const controller = editor.getContribution(NotebookInlineVariablesController.id);
-    controller.clearNotebookInlineDecorations();
-    return Promise.resolve();
-  }
-});
+);
 export {
   NotebookInlineVariablesController
 };

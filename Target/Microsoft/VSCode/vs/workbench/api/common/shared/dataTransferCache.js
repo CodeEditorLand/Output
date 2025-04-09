@@ -2,7 +2,6 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { coalesce } from "../../../../base/common/arrays.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { IDataTransferFile, IReadonlyVSDataTransfer } from "../../../../base/common/dataTransfer.js";
 class DataTransferFileCache {
   static {
     __name(this, "DataTransferFileCache");
@@ -11,7 +10,10 @@ class DataTransferFileCache {
   dataTransferFiles = /* @__PURE__ */ new Map();
   add(dataTransfer) {
     const requestId = this.requestIdPool++;
-    this.dataTransferFiles.set(requestId, coalesce(Array.from(dataTransfer, ([, item]) => item.asFile())));
+    this.dataTransferFiles.set(
+      requestId,
+      coalesce(Array.from(dataTransfer, ([, item]) => item.asFile()))
+    );
     return {
       id: requestId,
       dispose: /* @__PURE__ */ __name(() => {

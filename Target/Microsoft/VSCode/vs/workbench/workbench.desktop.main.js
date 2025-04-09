@@ -54,10 +54,12 @@ import "../platform/userDataProfile/electron-sandbox/userDataProfileStorageServi
 import "./services/auxiliaryWindow/electron-sandbox/auxiliaryWindowService.js";
 import "../platform/extensionManagement/electron-sandbox/extensionsProfileScannerService.js";
 import "../platform/webContentExtractor/electron-sandbox/webContentExtractorService.js";
-import { registerSingleton } from "../platform/instantiation/common/extensions.js";
-import { IUserDataInitializationService, UserDataInitializationService } from "./services/userData/browser/userDataInit.js";
 import { SyncDescriptor } from "../platform/instantiation/common/descriptors.js";
-registerSingleton(IUserDataInitializationService, new SyncDescriptor(UserDataInitializationService, [[]], true));
+import { registerSingleton } from "../platform/instantiation/common/extensions.js";
+import {
+  IUserDataInitializationService,
+  UserDataInitializationService
+} from "./services/userData/browser/userDataInit.js";
 import "./contrib/logs/electron-sandbox/logs.contribution.js";
 import "./contrib/localization/electron-sandbox/localization.contribution.js";
 import "./contrib/files/electron-sandbox/fileActions.contribution.js";
@@ -87,6 +89,10 @@ import "./contrib/inlineChat/electron-sandbox/inlineChat.contribution.js";
 import "./contrib/encryption/electron-sandbox/encryption.contribution.js";
 import "./contrib/emergencyAlert/electron-sandbox/emergencyAlert.contribution.js";
 import "./contrib/mcp/electron-sandbox/mcp.contribution.js";
+registerSingleton(
+  IUserDataInitializationService,
+  new SyncDescriptor(UserDataInitializationService, [[]], true)
+);
 import { main } from "./electron-sandbox/desktop.main.js";
 export {
   main

@@ -10,27 +10,44 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { equals as arraysEqual, binarySearch2 } from "../../../../../base/common/arrays.js";
+import {
+  equals as arraysEqual,
+  binarySearch2
+} from "../../../../../base/common/arrays.js";
 import { findLast } from "../../../../../base/common/arraysFind.js";
-import { DeferredPromise, ITask, Sequencer, SequencerByKey, timeout } from "../../../../../base/common/async.js";
+import {
+  DeferredPromise,
+  Sequencer,
+  SequencerByKey,
+  timeout
+} from "../../../../../base/common/async.js";
 import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { BugIndicatingError } from "../../../../../base/common/errors.js";
 import { Emitter } from "../../../../../base/common/event.js";
 import { Iterable } from "../../../../../base/common/iterator.js";
 import { Disposable, dispose } from "../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../base/common/map.js";
-import { asyncTransaction, autorun, derived, derivedOpts, derivedWithStore, IObservable, IReader, ITransaction, ObservablePromise, observableValue, transaction } from "../../../../../base/common/observable.js";
+import {
+  asyncTransaction,
+  autorun,
+  derived,
+  derivedOpts,
+  derivedWithStore,
+  ObservablePromise,
+  observableValue,
+  transaction
+} from "../../../../../base/common/observable.js";
 import { isEqual } from "../../../../../base/common/resources.js";
-import { URI } from "../../../../../base/common/uri.js";
 import { IBulkEditService } from "../../../../../editor/browser/services/bulkEditService.js";
-import { TextEdit } from "../../../../../editor/common/languages.js";
 import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
 import { IEditorWorkerService } from "../../../../../editor/common/services/editorWorker.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { localize } from "../../../../../nls.js";
-import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import {
+  AccessibilitySignal,
+  IAccessibilitySignalService
+} from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { EditorActivation } from "../../../../../platform/editor/common/editor.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
@@ -38,17 +55,26 @@ import { observableConfigValue } from "../../../../../platform/observable/common
 import { DiffEditorInput } from "../../../../common/editor/diffEditorInput.js";
 import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { MultiDiffEditor } from "../../../multiDiffEditor/browser/multiDiffEditor.js";
 import { MultiDiffEditorInput } from "../../../multiDiffEditor/browser/multiDiffEditorInput.js";
-import { CellUri, ICellEditOperation } from "../../../notebook/common/notebookCommon.js";
+import {
+  CellUri
+} from "../../../notebook/common/notebookCommon.js";
 import { INotebookService } from "../../../notebook/common/notebookService.js";
-import { ChatEditingSessionState, ChatEditKind, getMultiDiffSourceUri, IChatEditingSession, IEditSessionEntryDiff, IModifiedFileEntry, IStreamingEdits, ModifiedFileEntryState } from "../../common/chatEditingService.js";
-import { IChatRequestDisablement, IChatResponseModel } from "../../common/chatModel.js";
+import {
+  ChatEditingSessionState,
+  ChatEditKind,
+  getMultiDiffSourceUri,
+  ModifiedFileEntryState
+} from "../../common/chatEditingService.js";
 import { IChatService } from "../../common/chatService.js";
 import { ChatEditingModifiedDocumentEntry } from "./chatEditingModifiedDocumentEntry.js";
-import { AbstractChatEditingModifiedFileEntry, IModifiedEntryTelemetryInfo, ISnapshotEntry } from "./chatEditingModifiedFileEntry.js";
+import {
+  AbstractChatEditingModifiedFileEntry
+} from "./chatEditingModifiedFileEntry.js";
 import { ChatEditingModifiedNotebookEntry } from "./chatEditingModifiedNotebookEntry.js";
-import { ChatEditingSessionStorage, IChatEditingSessionSnapshot, IChatEditingSessionStop, StoredSessionState } from "./chatEditingSessionStorage.js";
+import {
+  ChatEditingSessionStorage
+} from "./chatEditingSessionStorage.js";
 import { ChatEditingTextModelContentProvider } from "./chatEditingTextModelContentProviders.js";
 import { ChatEditingModifiedNotebookDiff } from "./notebook/chatEditingModifiedNotebookDiff.js";
 const POST_EDIT_STOP_ID = "d19944f6-f46c-4e17-911b-79a8e843c7c0";
@@ -153,12 +179,19 @@ let ChatEditingSession = class extends Disposable {
     this._editorWorkerService = _editorWorkerService;
     this._configurationService = _configurationService;
     this._accessibilitySignalService = _accessibilitySignalService;
-    this._ignoreTrimWhitespaceObservable = observableConfigValue("diffEditor.ignoreTrimWhitespace", true, this._configurationService);
+    this._ignoreTrimWhitespaceObservable = observableConfigValue(
+      "diffEditor.ignoreTrimWhitespace",
+      true,
+      this._configurationService
+    );
   }
   static {
     __name(this, "ChatEditingSession");
   }
-  _state = observableValue(this, ChatEditingSessionState.Initial);
+  _state = observableValue(
+    this,
+    ChatEditingSessionState.Initial
+  );
   _linearHistory = observableValue(this, []);
   _linearHistoryIndex = observableValue(this, 0);
   /**
@@ -201,25 +234,37 @@ let ChatEditingSession = class extends Disposable {
   async init() {
     const restoredSessionState = await this._instantiationService.createInstance(ChatEditingSessionStorage, this.chatSessionId).restoreState();
     if (restoredSessionState) {
-      for (const [uri, content] of restoredSessionState.initialFileContents) {
+      for (const [
+        uri,
+        content
+      ] of restoredSessionState.initialFileContents) {
         this._initialFileContents.set(uri, content);
       }
       await asyncTransaction(async (tx) => {
         this._pendingSnapshot = restoredSessionState.pendingSnapshot;
-        await this._restoreSnapshot(restoredSessionState.recentSnapshot, tx, false);
+        await this._restoreSnapshot(
+          restoredSessionState.recentSnapshot,
+          tx,
+          false
+        );
         this._linearHistory.set(restoredSessionState.linearHistory, tx);
-        this._linearHistoryIndex.set(restoredSessionState.linearHistoryIndex, tx);
+        this._linearHistoryIndex.set(
+          restoredSessionState.linearHistoryIndex,
+          tx
+        );
         this._state.set(ChatEditingSessionState.Idle, tx);
       });
     } else {
       this._state.set(ChatEditingSessionState.Idle, void 0);
     }
-    this._register(autorun((reader) => {
-      const entries = this.entries.read(reader);
-      entries.forEach((entry) => {
-        entry.state.read(reader);
-      });
-    }));
+    this._register(
+      autorun((reader) => {
+        const entries = this.entries.read(reader);
+        entries.forEach((entry) => {
+          entry.state.read(reader);
+        });
+      })
+    );
   }
   _getEntry(uri) {
     uri = CellUri.parse(uri)?.notebook ?? uri;
@@ -233,7 +278,10 @@ let ChatEditingSession = class extends Disposable {
     return this._entriesObs.read(reader).find((e) => isEqual(e.modifiedURI, uri));
   }
   storeState() {
-    const storage = this._instantiationService.createInstance(ChatEditingSessionStorage, this.chatSessionId);
+    const storage = this._instantiationService.createInstance(
+      ChatEditingSessionStorage,
+      this.chatSessionId
+    );
     const state = {
       initialFileContents: this._initialFileContents,
       pendingSnapshot: this._pendingSnapshot,
@@ -252,7 +300,11 @@ let ChatEditingSession = class extends Disposable {
       return void 0;
     }
     const idx = snapshot.stops.findIndex((s) => s.stopId === undoStop);
-    return idx === -1 ? void 0 : { stop: snapshot.stops[idx], snapshot, historyIndex: snapshot.startIndex + idx };
+    return idx === -1 ? void 0 : {
+      stop: snapshot.stops[idx],
+      snapshot,
+      historyIndex: snapshot.startIndex + idx
+    };
   }
   _ensurePendingSnapshot() {
     this._pendingSnapshot ??= this._createSnapshot(void 0, void 0);
@@ -271,7 +323,11 @@ let ChatEditingSession = class extends Disposable {
       if (!modelUris) {
         return void 0;
       }
-      const promise = Promise.all(modelUris.map((u) => this._textModelService.createModelReference(u))).then((refs) => {
+      const promise = Promise.all(
+        modelUris.map(
+          (u) => this._textModelService.createModelReference(u)
+        )
+      ).then((refs) => {
         if (store.isDisposed) {
           refs.forEach((r) => r.dispose());
         } else {
@@ -281,42 +337,54 @@ let ChatEditingSession = class extends Disposable {
       });
       return new ObservablePromise(promise);
     });
-    return derived((reader) => {
-      const refs2 = modelRefsPromise.read(reader)?.promiseResult.read(reader);
-      const refs = refs2?.data;
-      if (!refs) {
-        return;
-      }
-      const entries = entriesContent.read(reader);
-      if (entries?.before && ChatEditingModifiedNotebookEntry.canHandleSnapshot(entries.before)) {
-        const diffService = this._instantiationService.createInstance(ChatEditingModifiedNotebookDiff, entries.before, entries.after);
-        return new ObservablePromise(diffService.computeDiff());
-      }
-      const ignoreTrimWhitespace = this._ignoreTrimWhitespaceObservable.read(reader);
-      const promise = this._editorWorkerService.computeDiff(
-        refs[0].object.textEditorModel.uri,
-        refs[1].object.textEditorModel.uri,
-        { ignoreTrimWhitespace, computeMoves: false, maxComputationTimeMs: 3e3 },
-        "advanced"
-      ).then((diff) => {
-        const entryDiff = {
-          originalURI: refs[0].object.textEditorModel.uri,
-          modifiedURI: refs[1].object.textEditorModel.uri,
-          identical: !!diff?.identical,
-          quitEarly: !diff || diff.quitEarly,
-          added: 0,
-          removed: 0
-        };
-        if (diff) {
-          for (const change of diff.changes) {
-            entryDiff.removed += change.original.endLineNumberExclusive - change.original.startLineNumber;
-            entryDiff.added += change.modified.endLineNumberExclusive - change.modified.startLineNumber;
-          }
+    return derived(
+      (reader) => {
+        const refs2 = modelRefsPromise.read(reader)?.promiseResult.read(reader);
+        const refs = refs2?.data;
+        if (!refs) {
+          return;
         }
-        return entryDiff;
-      });
-      return new ObservablePromise(promise);
-    });
+        const entries = entriesContent.read(reader);
+        if (entries?.before && ChatEditingModifiedNotebookEntry.canHandleSnapshot(
+          entries.before
+        )) {
+          const diffService = this._instantiationService.createInstance(
+            ChatEditingModifiedNotebookDiff,
+            entries.before,
+            entries.after
+          );
+          return new ObservablePromise(diffService.computeDiff());
+        }
+        const ignoreTrimWhitespace = this._ignoreTrimWhitespaceObservable.read(reader);
+        const promise = this._editorWorkerService.computeDiff(
+          refs[0].object.textEditorModel.uri,
+          refs[1].object.textEditorModel.uri,
+          {
+            ignoreTrimWhitespace,
+            computeMoves: false,
+            maxComputationTimeMs: 3e3
+          },
+          "advanced"
+        ).then((diff) => {
+          const entryDiff = {
+            originalURI: refs[0].object.textEditorModel.uri,
+            modifiedURI: refs[1].object.textEditorModel.uri,
+            identical: !!diff?.identical,
+            quitEarly: !diff || diff.quitEarly,
+            added: 0,
+            removed: 0
+          };
+          if (diff) {
+            for (const change of diff.changes) {
+              entryDiff.removed += change.original.endLineNumberExclusive - change.original.startLineNumber;
+              entryDiff.added += change.modified.endLineNumberExclusive - change.modified.startLineNumber;
+            }
+          }
+          return entryDiff;
+        });
+        return new ObservablePromise(promise);
+      }
+    );
   }
   _createDiffBetweenStopsObservable(uri, requestId, stopId) {
     const entries = derivedOpts(
@@ -324,7 +392,14 @@ let ChatEditingSession = class extends Disposable {
         equalsFn: /* @__PURE__ */ __name((a, b) => snapshotsEqualForDiff(a?.before, b?.before) && snapshotsEqualForDiff(a?.after, b?.after), "equalsFn")
       },
       (reader) => {
-        const stops = requestId ? getCurrentAndNextStop(requestId, stopId, this._linearHistory.read(reader)) : getFirstAndLastStop(uri, this._linearHistory.read(reader));
+        const stops = requestId ? getCurrentAndNextStop(
+          requestId,
+          stopId,
+          this._linearHistory.read(reader)
+        ) : getFirstAndLastStop(
+          uri,
+          this._linearHistory.read(reader)
+        );
         if (!stops) {
           return void 0;
         }
@@ -336,14 +411,23 @@ let ChatEditingSession = class extends Disposable {
         return { before, after };
       }
     );
-    const modelUrisObservable = derivedOpts({ equalsFn: /* @__PURE__ */ __name((a, b) => arraysEqual(a, b, isEqual), "equalsFn") }, (reader) => {
-      const entriesValue = entries.read(reader);
-      if (!entriesValue) {
-        return void 0;
+    const modelUrisObservable = derivedOpts(
+      { equalsFn: /* @__PURE__ */ __name((a, b) => arraysEqual(a, b, isEqual), "equalsFn") },
+      (reader) => {
+        const entriesValue = entries.read(reader);
+        if (!entriesValue) {
+          return void 0;
+        }
+        return [
+          entriesValue.before.snapshotUri,
+          entriesValue.after.snapshotUri
+        ];
       }
-      return [entriesValue.before.snapshotUri, entriesValue.after.snapshotUri];
-    });
-    const diff = this._entryDiffBetweenTextStops(entries, modelUrisObservable);
+    );
+    const diff = this._entryDiffBetweenTextStops(
+      entries,
+      modelUrisObservable
+    );
     return derived((reader) => {
       return diff.read(reader)?.promiseResult.read(reader)?.data || void 0;
     });
@@ -353,7 +437,11 @@ let ChatEditingSession = class extends Disposable {
       const key = `${uri}\0${requestId}\0${stopId}`;
       let observable = this._diffsBetweenStops.get(key);
       if (!observable) {
-        observable = this._createDiffBetweenStopsObservable(uri, requestId, stopId);
+        observable = this._createDiffBetweenStopsObservable(
+          uri,
+          requestId,
+          stopId
+        );
         this._diffsBetweenStops.set(key, observable);
       }
       return observable;
@@ -361,7 +449,11 @@ let ChatEditingSession = class extends Disposable {
       const key = uri.toString();
       let observable = this._fullDiffs.get(key);
       if (!observable) {
-        observable = this._createDiffBetweenStopsObservable(uri, requestId, stopId);
+        observable = this._createDiffBetweenStopsObservable(
+          uri,
+          requestId,
+          stopId
+        );
         this._fullDiffs.set(key, observable);
       }
       return observable;
@@ -373,21 +465,41 @@ let ChatEditingSession = class extends Disposable {
     const newLinearHistory = [];
     for (const entry of this._linearHistory.get()) {
       if (linearHistoryPtr - entry.startIndex < entry.stops.length) {
-        newLinearHistory.push({ requestId: entry.requestId, stops: entry.stops.slice(0, linearHistoryPtr - entry.startIndex), startIndex: entry.startIndex, postEdit: void 0 });
+        newLinearHistory.push({
+          requestId: entry.requestId,
+          stops: entry.stops.slice(
+            0,
+            linearHistoryPtr - entry.startIndex
+          ),
+          startIndex: entry.startIndex,
+          postEdit: void 0
+        });
       } else {
         newLinearHistory.push(entry);
       }
     }
     const lastEntry = newLinearHistory.at(-1);
     if (requestId && lastEntry?.requestId === requestId) {
-      newLinearHistory[newLinearHistory.length - 1] = { ...lastEntry, stops: [...lastEntry.stops, snapshot], postEdit: void 0 };
+      newLinearHistory[newLinearHistory.length - 1] = {
+        ...lastEntry,
+        stops: [...lastEntry.stops, snapshot],
+        postEdit: void 0
+      };
     } else {
-      newLinearHistory.push({ requestId, startIndex: lastEntry ? lastEntry.startIndex + lastEntry.stops.length : 0, stops: [snapshot], postEdit: void 0 });
+      newLinearHistory.push({
+        requestId,
+        startIndex: lastEntry ? lastEntry.startIndex + lastEntry.stops.length : 0,
+        stops: [snapshot],
+        postEdit: void 0
+      });
     }
     transaction((tx) => {
       const last = newLinearHistory[newLinearHistory.length - 1];
       this._linearHistory.set(newLinearHistory, tx);
-      this._linearHistoryIndex.set(last.startIndex + last.stops.length, tx);
+      this._linearHistoryIndex.set(
+        last.startIndex + last.stops.length,
+        tx
+      );
     });
   }
   _createEmptySnapshot(undoStop) {
@@ -399,7 +511,10 @@ let ChatEditingSession = class extends Disposable {
   _createSnapshot(requestId, undoStop) {
     const entries = new ResourceMap();
     for (const entry of this._entriesObs.get()) {
-      entries.set(entry.modifiedURI, entry.createSnapshot(requestId, undoStop));
+      entries.set(
+        entry.modifiedURI,
+        entry.createSnapshot(requestId, undoStop)
+      );
     }
     return {
       stopId: undoStop,
@@ -408,17 +523,32 @@ let ChatEditingSession = class extends Disposable {
   }
   getSnapshot(requestId, undoStop, snapshotUri) {
     const entries = undoStop === POST_EDIT_STOP_ID ? this._findSnapshot(requestId)?.postEdit : this._findEditStop(requestId, undoStop)?.stop.entries;
-    return entries && [...entries.values()].find((e) => isEqual(e.snapshotUri, snapshotUri));
+    return entries && [...entries.values()].find(
+      (e) => isEqual(e.snapshotUri, snapshotUri)
+    );
   }
   async getSnapshotModel(requestId, undoStop, snapshotUri) {
-    const snapshotEntry = this.getSnapshot(requestId, undoStop, snapshotUri);
+    const snapshotEntry = this.getSnapshot(
+      requestId,
+      undoStop,
+      snapshotUri
+    );
     if (!snapshotEntry) {
       return null;
     }
-    return this._modelService.createModel(snapshotEntry.current, this._languageService.createById(snapshotEntry.languageId), snapshotUri, false);
+    return this._modelService.createModel(
+      snapshotEntry.current,
+      this._languageService.createById(snapshotEntry.languageId),
+      snapshotUri,
+      false
+    );
   }
   getSnapshotUri(requestId, uri, stopId) {
-    const stops = getCurrentAndNextStop(requestId, stopId, this._linearHistory.get());
+    const stops = getCurrentAndNextStop(
+      requestId,
+      stopId,
+      this._linearHistory.get()
+    );
     return stops?.next.get(uri)?.snapshotUri;
   }
   /**
@@ -455,7 +585,10 @@ let ChatEditingSession = class extends Disposable {
     }
     const entriesArr = [];
     for (const snapshotEntry of entries.values()) {
-      const entry = await this._getOrCreateModifiedFileEntry(snapshotEntry.resource, snapshotEntry.telemetryInfo);
+      const entry = await this._getOrCreateModifiedFileEntry(
+        snapshotEntry.resource,
+        snapshotEntry.telemetryInfo
+      );
       const restoreToDisk = snapshotEntry.state === ModifiedFileEntryState.Modified || restoreResolvedToDisk;
       entry.restoreFromSnapshot(snapshotEntry, restoreToDisk);
       entriesArr.push(entry);
@@ -480,14 +613,18 @@ let ChatEditingSession = class extends Disposable {
   }
   _assertNotDisposed() {
     if (this._state.get() === ChatEditingSessionState.Disposed) {
-      throw new BugIndicatingError(`Cannot access a disposed editing session`);
+      throw new BugIndicatingError(
+        "Cannot access a disposed editing session"
+      );
     }
   }
   async accept(...uris) {
     this._assertNotDisposed();
     await asyncTransaction(async (tx) => {
       if (uris.length === 0) {
-        await Promise.all(this._entriesObs.get().map((entry) => entry.accept(tx)));
+        await Promise.all(
+          this._entriesObs.get().map((entry) => entry.accept(tx))
+        );
       }
       for (const uri of uris) {
         const entry = this._entriesObs.get().find((e) => isEqual(e.modifiedURI, uri));
@@ -496,13 +633,18 @@ let ChatEditingSession = class extends Disposable {
         }
       }
     });
-    this._accessibilitySignalService.playSignal(AccessibilitySignal.editsKept, { allowManyInParallel: true });
+    this._accessibilitySignalService.playSignal(
+      AccessibilitySignal.editsKept,
+      { allowManyInParallel: true }
+    );
   }
   async reject(...uris) {
     this._assertNotDisposed();
     await asyncTransaction(async (tx) => {
       if (uris.length === 0) {
-        await Promise.all(this._entriesObs.get().map((entry) => entry.reject(tx)));
+        await Promise.all(
+          this._entriesObs.get().map((entry) => entry.reject(tx))
+        );
       }
       for (const uri of uris) {
         const entry = this._entriesObs.get().find((e) => isEqual(e.modifiedURI, uri));
@@ -511,7 +653,10 @@ let ChatEditingSession = class extends Disposable {
         }
       }
     });
-    this._accessibilitySignalService.playSignal(AccessibilitySignal.editsUndone, { allowManyInParallel: true });
+    this._accessibilitySignalService.playSignal(
+      AccessibilitySignal.editsUndone,
+      { allowManyInParallel: true }
+    );
   }
   async show(previousChanges) {
     this._assertNotDisposed();
@@ -519,19 +664,31 @@ let ChatEditingSession = class extends Disposable {
       if (this._editorPane.isVisible()) {
         return;
       } else if (this._editorPane.input) {
-        await this._editorGroupsService.activeGroup.openEditor(this._editorPane.input, { pinned: true, activation: EditorActivation.ACTIVATE });
+        await this._editorGroupsService.activeGroup.openEditor(
+          this._editorPane.input,
+          { pinned: true, activation: EditorActivation.ACTIVATE }
+        );
         return;
       }
     }
-    const input = MultiDiffEditorInput.fromResourceMultiDiffEditorInput({
-      multiDiffSource: getMultiDiffSourceUri(this, previousChanges),
-      label: localize("multiDiffEditorInput.name", "Suggested Edits")
-    }, this._instantiationService);
-    this._editorPane = await this._editorGroupsService.activeGroup.openEditor(input, { pinned: true, activation: EditorActivation.ACTIVATE });
+    const input = MultiDiffEditorInput.fromResourceMultiDiffEditorInput(
+      {
+        multiDiffSource: getMultiDiffSourceUri(this, previousChanges),
+        label: localize("multiDiffEditorInput.name", "Suggested Edits")
+      },
+      this._instantiationService
+    );
+    this._editorPane = await this._editorGroupsService.activeGroup.openEditor(input, {
+      pinned: true,
+      activation: EditorActivation.ACTIVATE
+    });
   }
   _stopPromise;
   async stop(clearState = false) {
-    this._stopPromise ??= Promise.allSettled([this._performStop(), this.storeState()]).then(() => {
+    this._stopPromise ??= Promise.allSettled([
+      this._performStop(),
+      this.storeState()
+    ]).then(() => {
     });
     await this._stopPromise;
     if (clearState) {
@@ -539,14 +696,21 @@ let ChatEditingSession = class extends Disposable {
     }
   }
   async _performStop() {
-    const schemes = [AbstractChatEditingModifiedFileEntry.scheme, ChatEditingTextModelContentProvider.scheme];
-    await Promise.allSettled(this._editorGroupsService.groups.flatMap(async (g) => {
-      return g.editors.map(async (e) => {
-        if (e instanceof MultiDiffEditorInput && e.initialResources?.some((r) => r.originalUri && schemes.indexOf(r.originalUri.scheme) !== -1) || e instanceof DiffEditorInput && e.original.resource && schemes.indexOf(e.original.resource.scheme) !== -1) {
-          await g.closeEditor(e);
-        }
-      });
-    }));
+    const schemes = [
+      AbstractChatEditingModifiedFileEntry.scheme,
+      ChatEditingTextModelContentProvider.scheme
+    ];
+    await Promise.allSettled(
+      this._editorGroupsService.groups.flatMap(async (g) => {
+        return g.editors.map(async (e) => {
+          if (e instanceof MultiDiffEditorInput && e.initialResources?.some(
+            (r) => r.originalUri && schemes.indexOf(r.originalUri.scheme) !== -1
+          ) || e instanceof DiffEditorInput && e.original.resource && schemes.indexOf(e.original.resource.scheme) !== -1) {
+            await g.closeEditor(e);
+          }
+        });
+      })
+    );
   }
   dispose() {
     this._assertNotDisposed();
@@ -568,7 +732,11 @@ let ChatEditingSession = class extends Disposable {
     sequencer.queue(() => startPromise.p);
     this._streamingEditLocks.queue(resource.toString(), async () => {
       if (!this.isDisposed) {
-        await this._acceptStreamingEditsStart(responseModel, inUndoStop, resource);
+        await this._acceptStreamingEditsStart(
+          responseModel,
+          inUndoStop,
+          resource
+        );
       }
       startPromise.complete();
       return completePromise.p;
@@ -578,21 +746,36 @@ let ChatEditingSession = class extends Disposable {
       pushText: /* @__PURE__ */ __name((edits) => {
         sequencer.queue(async () => {
           if (!this.isDisposed) {
-            await this._acceptEdits(resource, edits, false, responseModel);
+            await this._acceptEdits(
+              resource,
+              edits,
+              false,
+              responseModel
+            );
           }
         });
       }, "pushText"),
       pushNotebookCellText: /* @__PURE__ */ __name((cell, edits) => {
         sequencer.queue(async () => {
           if (!this.isDisposed) {
-            await this._acceptEdits(cell, edits, false, responseModel);
+            await this._acceptEdits(
+              cell,
+              edits,
+              false,
+              responseModel
+            );
           }
         });
       }, "pushNotebookCellText"),
       pushNotebook: /* @__PURE__ */ __name((edits) => {
         sequencer.queue(async () => {
           if (!this.isDisposed) {
-            await this._acceptEdits(resource, edits, false, responseModel);
+            await this._acceptEdits(
+              resource,
+              edits,
+              false,
+              responseModel
+            );
           }
         });
       }, "pushNotebook"),
@@ -603,8 +786,17 @@ let ChatEditingSession = class extends Disposable {
         didComplete = true;
         sequencer.queue(async () => {
           if (!this.isDisposed) {
-            await this._acceptEdits(resource, [], true, responseModel);
-            await this._resolve(responseModel.requestId, inUndoStop, resource);
+            await this._acceptEdits(
+              resource,
+              [],
+              true,
+              responseModel
+            );
+            await this._resolve(
+              responseModel.requestId,
+              inUndoStop,
+              resource
+            );
             completePromise.complete();
           }
         });
@@ -613,7 +805,10 @@ let ChatEditingSession = class extends Disposable {
   }
   _getHistoryEntryByLinearIndex(index) {
     const history = this._linearHistory.get();
-    const searchedIndex = binarySearch2(history.length, (e) => history[e].startIndex - index);
+    const searchedIndex = binarySearch2(
+      history.length,
+      (e) => history[e].startIndex - index
+    );
     const entry = history[searchedIndex < 0 ? ~searchedIndex - 1 : searchedIndex];
     if (!entry || index - entry.startIndex >= entry.stops.length) {
       return void 0;
@@ -661,17 +856,29 @@ let ChatEditingSession = class extends Disposable {
       } else if (entry.startIndex >= index) {
         undoRequests.push({ requestId: entry.requestId });
       } else if (entry.startIndex + entry.stops.length > index) {
-        undoRequests.push({ requestId: entry.requestId, afterUndoStop: entry.stops[index - entry.startIndex].stopId });
+        undoRequests.push({
+          requestId: entry.requestId,
+          afterUndoStop: entry.stops[index - entry.startIndex].stopId
+        });
       }
     }
     this._chatService.getSession(this.chatSessionId)?.setDisabledRequests(undoRequests);
   }
   async _acceptStreamingEditsStart(responseModel, undoStop, resource) {
-    const entry = await this._getOrCreateModifiedFileEntry(resource, this._getTelemetryInfoForModel(responseModel));
+    const entry = await this._getOrCreateModifiedFileEntry(
+      resource,
+      this._getTelemetryInfoForModel(responseModel)
+    );
     transaction((tx) => {
       this._state.set(ChatEditingSessionState.StreamingEdits, tx);
       entry.acceptStreamingEditsStart(responseModel, tx);
-      this.ensureEditInUndoStopMatches(responseModel.requestId, undoStop, entry, false, tx);
+      this.ensureEditInUndoStopMatches(
+        responseModel.requestId,
+        undoStop,
+        entry,
+        false,
+        tx
+      );
     });
   }
   /**
@@ -705,9 +912,14 @@ let ChatEditingSession = class extends Disposable {
     }
     if (next) {
       if (stopIndex === snap.stops.length - 1) {
-        const postEdit = new ResourceMap(snap.postEdit || this._createEmptySnapshot(void 0).entries);
+        const postEdit = new ResourceMap(
+          snap.postEdit || this._createEmptySnapshot(void 0).entries
+        );
         if (!snap.postEdit || !entry.equalsSnapshot(postEdit.get(entry.modifiedURI))) {
-          postEdit.set(entry.modifiedURI, entry.createSnapshot(requestId, POST_EDIT_STOP_ID));
+          postEdit.set(
+            entry.modifiedURI,
+            entry.createSnapshot(requestId, POST_EDIT_STOP_ID)
+          );
           const newHistory2 = history.slice();
           newHistory2[snapIndex] = { ...snap, postEdit };
           this._linearHistory.set(newHistory2, tx);
@@ -721,7 +933,10 @@ let ChatEditingSession = class extends Disposable {
       return;
     }
     const newMap = new ResourceMap(stop.entries);
-    newMap.set(entry.modifiedURI, entry.createSnapshot(requestId, stop.stopId));
+    newMap.set(
+      entry.modifiedURI,
+      entry.createSnapshot(requestId, stop.stopId)
+    );
     const newStop = snap.stops.slice();
     newStop[stopIndex] = { ...stop, entries: newMap };
     const newHistory = history.slice();
@@ -730,8 +945,16 @@ let ChatEditingSession = class extends Disposable {
   }
   async _acceptEdits(resource, textEdits, isLastEdits, responseModel) {
     this._fullDiffs.delete(resource.toString());
-    const entry = await this._getOrCreateModifiedFileEntry(resource, this._getTelemetryInfoForModel(responseModel));
-    await entry.acceptAgentEdits(resource, textEdits, isLastEdits, responseModel);
+    const entry = await this._getOrCreateModifiedFileEntry(
+      resource,
+      this._getTelemetryInfoForModel(responseModel)
+    );
+    await entry.acceptAgentEdits(
+      resource,
+      textEdits,
+      isLastEdits,
+      responseModel
+    );
   }
   _getTelemetryInfoForModel(responseModel) {
     return new class {
@@ -754,7 +977,10 @@ let ChatEditingSession = class extends Disposable {
   }
   async _resolve(requestId, undoStop, resource) {
     await asyncTransaction(async (tx) => {
-      const hasOtherTasks = Iterable.some(this._streamingEditLocks.keys(), (k) => k !== resource.toString());
+      const hasOtherTasks = Iterable.some(
+        this._streamingEditLocks.keys(),
+        (k) => k !== resource.toString()
+      );
       if (!hasOtherTasks) {
         this._state.set(ChatEditingSessionState.Idle, tx);
       }
@@ -793,7 +1019,12 @@ let ChatEditingSession = class extends Disposable {
       entry = existingExternalEntry;
     } else {
       const initialContent = this._initialFileContents.get(resource);
-      entry = await this._createModifiedFileEntry(resource, telemetryInfo, false, initialContent);
+      entry = await this._createModifiedFileEntry(
+        resource,
+        telemetryInfo,
+        false,
+        initialContent
+      );
       if (!initialContent) {
         this._initialFileContents.set(resource, entry.initialContent);
       }
@@ -801,7 +1032,9 @@ let ChatEditingSession = class extends Disposable {
     const listener = entry.onDidDelete(() => {
       const newEntries = this._entriesObs.get().filter((e) => !isEqual(e.modifiedURI, entry.modifiedURI));
       this._entriesObs.set(newEntries, void 0);
-      this._editorService.closeEditors(this._editorService.findEditors(entry.modifiedURI));
+      this._editorService.closeEditors(
+        this._editorService.findEditors(entry.modifiedURI)
+      );
       if (!existingExternalEntry) {
         entry.dispose();
       }
@@ -812,34 +1045,75 @@ let ChatEditingSession = class extends Disposable {
     this._entriesObs.set(entriesArr, void 0);
     return entry;
   }
-  async _createModifiedFileEntry(resource, telemetryInfo, mustExist = false, initialContent) {
-    const multiDiffEntryDelegate = { collapse: /* @__PURE__ */ __name((transaction2) => this._collapse(resource, transaction2), "collapse") };
+  async _createModifiedFileEntry(resource, telemetryInfo, mustExist, initialContent) {
+    const multiDiffEntryDelegate = {
+      collapse: /* @__PURE__ */ __name((transaction2) => this._collapse(resource, transaction2), "collapse")
+    };
     const chatKind = mustExist ? ChatEditKind.Created : ChatEditKind.Modified;
     const notebookUri = CellUri.parse(resource)?.notebook || resource;
     try {
       if (this._notebookService.hasSupportedNotebooks(notebookUri)) {
-        return await ChatEditingModifiedNotebookEntry.create(notebookUri, multiDiffEntryDelegate, telemetryInfo, chatKind, initialContent, this._instantiationService);
+        return await ChatEditingModifiedNotebookEntry.create(
+          notebookUri,
+          multiDiffEntryDelegate,
+          telemetryInfo,
+          chatKind,
+          initialContent,
+          this._instantiationService
+        );
       } else {
         const ref = await this._textModelService.createModelReference(resource);
-        return this._instantiationService.createInstance(ChatEditingModifiedDocumentEntry, ref, multiDiffEntryDelegate, telemetryInfo, chatKind, initialContent);
+        return this._instantiationService.createInstance(
+          ChatEditingModifiedDocumentEntry,
+          ref,
+          multiDiffEntryDelegate,
+          telemetryInfo,
+          chatKind,
+          initialContent
+        );
       }
     } catch (err) {
       if (mustExist) {
         throw err;
       }
-      await this._bulkEditService.apply({ edits: [{ newResource: resource }] });
-      this._editorService.openEditor({ resource, options: { inactive: true, preserveFocus: true, pinned: true } });
+      await this._bulkEditService.apply({
+        edits: [{ newResource: resource }]
+      });
+      this._editorService.openEditor({
+        resource,
+        options: { inactive: true, preserveFocus: true, pinned: true }
+      });
       if (this._notebookService.hasSupportedNotebooks(notebookUri)) {
-        return await ChatEditingModifiedNotebookEntry.create(resource, multiDiffEntryDelegate, telemetryInfo, ChatEditKind.Created, initialContent, this._instantiationService);
+        return await ChatEditingModifiedNotebookEntry.create(
+          resource,
+          multiDiffEntryDelegate,
+          telemetryInfo,
+          ChatEditKind.Created,
+          initialContent,
+          this._instantiationService
+        );
       } else {
-        return this._createModifiedFileEntry(resource, telemetryInfo, true, initialContent);
+        return this._createModifiedFileEntry(
+          resource,
+          telemetryInfo,
+          true,
+          initialContent
+        );
       }
     }
   }
   _collapse(resource, transaction2) {
     const multiDiffItem = this._editorPane?.findDocumentDiffItem(resource);
     if (multiDiffItem) {
-      this._editorPane?.viewModel?.items.get().find((documentDiffItem) => isEqual(documentDiffItem.originalUri, multiDiffItem.originalUri) && isEqual(documentDiffItem.modifiedUri, multiDiffItem.modifiedUri))?.collapsed.set(true, transaction2);
+      this._editorPane?.viewModel?.items.get().find(
+        (documentDiffItem) => isEqual(
+          documentDiffItem.originalUri,
+          multiDiffItem.originalUri
+        ) && isEqual(
+          documentDiffItem.modifiedUri,
+          multiDiffItem.modifiedUri
+        )
+      )?.collapsed.set(true, transaction2);
     }
   }
 };

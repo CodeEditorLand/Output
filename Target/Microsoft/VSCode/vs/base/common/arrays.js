@@ -1,9 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { findFirstIdxMonotonousOrArrLen } from "./arraysFind.js";
-import { CancellationToken } from "./cancellation.js";
 import { CancellationError } from "./errors.js";
-import { ISplice } from "./sequence.js";
 function tail(arr) {
   if (arr.length === 0) {
     throw new Error("Invalid tail call");
@@ -42,7 +40,8 @@ function binarySearch(array, key, comparator) {
 }
 __name(binarySearch, "binarySearch");
 function binarySearch2(length, compareToKey) {
-  let low = 0, high = length - 1;
+  let low = 0;
+  let high = length - 1;
   while (low <= high) {
     const mid = (low + high) / 2 | 0;
     const comp = compareToKey(mid);
@@ -81,7 +80,11 @@ function quickSelect(nth, data, compare) {
   } else if (nth < lower.length + pivots.length) {
     return pivots[0];
   } else {
-    return quickSelect(nth - (lower.length + pivots.length), higher, compare);
+    return quickSelect(
+      nth - (lower.length + pivots.length),
+      higher,
+      compare
+    );
   }
 }
 __name(quickSelect, "quickSelect");
@@ -104,7 +107,7 @@ function* groupAdjacentBy(items, shouldBeGrouped) {
   let last;
   for (const item of items) {
     if (last !== void 0 && shouldBeGrouped(last, item)) {
-      currentGroup.push(item);
+      currentGroup?.push(item);
     } else {
       if (currentGroup) {
         yield currentGroup;
@@ -120,13 +123,20 @@ function* groupAdjacentBy(items, shouldBeGrouped) {
 __name(groupAdjacentBy, "groupAdjacentBy");
 function forEachAdjacent(arr, f) {
   for (let i = 0; i <= arr.length; i++) {
-    f(i === 0 ? void 0 : arr[i - 1], i === arr.length ? void 0 : arr[i]);
+    f(
+      i === 0 ? void 0 : arr[i - 1],
+      i === arr.length ? void 0 : arr[i]
+    );
   }
 }
 __name(forEachAdjacent, "forEachAdjacent");
 function forEachWithNeighbors(arr, f) {
   for (let i = 0; i < arr.length; i++) {
-    f(i === 0 ? void 0 : arr[i - 1], arr[i], i + 1 === arr.length ? void 0 : arr[i + 1]);
+    f(
+      i === 0 ? void 0 : arr[i - 1],
+      arr[i],
+      i + 1 === arr.length ? void 0 : arr[i + 1]
+    );
   }
 }
 __name(forEachWithNeighbors, "forEachWithNeighbors");
@@ -178,7 +188,9 @@ function delta(before, after, compare) {
   const removed = [];
   const added = [];
   for (const splice2 of splices) {
-    removed.push(...before.slice(splice2.start, splice2.start + splice2.deleteCount));
+    removed.push(
+      ...before.slice(splice2.start, splice2.start + splice2.deleteCount)
+    );
     added.push(...splice2.toInsert);
   }
   return { removed, added };
@@ -205,7 +217,7 @@ function topAsync(array, compare, n, batch, token) {
         if (i > n) {
           await new Promise((resolve2) => setTimeout(resolve2));
         }
-        if (token && token.isCancellationRequested) {
+        if (token?.isCancellationRequested) {
           throw new CancellationError();
         }
         topStep(array, compare, result, i, m);
@@ -220,7 +232,10 @@ function topStep(array, compare, result, i, m) {
     const element = array[i];
     if (compare(element, result[n - 1]) < 0) {
       result.pop();
-      const j = findFirstIdxMonotonousOrArrLen(result, (e) => compare(element, e) < 0);
+      const j = findFirstIdxMonotonousOrArrLen(
+        result,
+        (e) => compare(element, e) < 0
+      );
       result.splice(j, 0, element);
     }
   }
@@ -233,7 +248,7 @@ __name(coalesce, "coalesce");
 function coalesceInPlace(array) {
   let to = 0;
   for (let i = 0; i < array.length; i++) {
-    if (!!array[i]) {
+    if (array[i]) {
       array[to] = array[i];
       to += 1;
     }
@@ -256,7 +271,7 @@ __name(isNonEmptyArray, "isNonEmptyArray");
 function distinct(array, keyFn = (value) => value) {
   const seen = /* @__PURE__ */ new Set();
   return array.filter((element) => {
-    const key = keyFn(element);
+    const key = keyFn?.(element);
     if (seen.has(key)) {
       return false;
     }
@@ -486,7 +501,7 @@ class ArrayQueue {
   lastIdx;
   /**
    * Constructs a queue that is backed by the given array. Runtime is O(1).
-  */
+   */
   constructor(items) {
     this.items = items;
     this.lastIdx = this.items.length - 1;
@@ -497,7 +512,7 @@ class ArrayQueue {
   /**
    * Consumes elements from the beginning of the queue as long as the predicate returns true.
    * If no elements were consumed, `null` is returned. Has a runtime of O(result.length).
-  */
+   */
   takeWhile(predicate) {
     let startIdx = this.firstIdx;
     while (startIdx < this.items.length && predicate(this.items[startIdx])) {
@@ -511,7 +526,7 @@ class ArrayQueue {
    * Consumes elements from the end of the queue as long as the predicate returns true.
    * If no elements were consumed, `null` is returned.
    * The result has the same order as the underlying array!
-  */
+   */
   takeFromEndWhile(predicate) {
     let endIdx = this.lastIdx;
     while (endIdx >= 0 && predicate(this.items[endIdx])) {
@@ -556,8 +571,10 @@ class CallbackIterable {
   static {
     __name(this, "CallbackIterable");
   }
-  static empty = new CallbackIterable((_callback) => {
-  });
+  static empty = new CallbackIterable(
+    (_callback) => {
+    }
+  );
   forEach(handler) {
     this.iterate((item) => {
       handler(item);
@@ -573,10 +590,14 @@ class CallbackIterable {
     return result;
   }
   filter(predicate) {
-    return new CallbackIterable((cb) => this.iterate((item) => predicate(item) ? cb(item) : true));
+    return new CallbackIterable(
+      (cb) => this.iterate((item) => predicate(item) ? cb(item) : true)
+    );
   }
   map(mapFn) {
-    return new CallbackIterable((cb) => this.iterate((item) => cb(mapFn(item))));
+    return new CallbackIterable(
+      (cb) => this.iterate((item) => cb(mapFn(item)))
+    );
   }
   some(predicate) {
     let result = false;
@@ -631,7 +652,9 @@ class Permutation {
    * Returns a permutation that sorts the given array according to the given compare function.
    */
   static createSortPermutation(arr, compareFn) {
-    const sortIndices = Array.from(arr.keys()).sort((index1, index2) => compareFn(arr[index1], arr[index2]));
+    const sortIndices = Array.from(arr.keys()).sort(
+      (index1, index2) => compareFn(arr[index1], arr[index2])
+    );
     return new Permutation(sortIndices);
   }
   /**
@@ -642,7 +665,7 @@ class Permutation {
   }
   /**
    * Returns a new permutation that undoes the re-arrangement of this permutation.
-  */
+   */
   inverse() {
     const inverseIndexMap = this._indexMap.slice();
     for (let i = 0; i < this._indexMap.length; i++) {
@@ -652,9 +675,12 @@ class Permutation {
   }
 }
 async function findAsync(array, predicate) {
-  const results = await Promise.all(array.map(
-    async (element, index2) => ({ element, ok: await predicate(element, index2) })
-  ));
+  const results = await Promise.all(
+    array.map(async (element, index2) => ({
+      element,
+      ok: await predicate(element, index2)
+    }))
+  );
   return results.find((r) => r.ok)?.element;
 }
 __name(findAsync, "findAsync");

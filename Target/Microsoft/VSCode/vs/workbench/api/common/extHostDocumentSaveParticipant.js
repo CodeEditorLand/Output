@@ -1,19 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
 import { illegalState } from "../../../base/common/errors.js";
-import { ExtHostDocumentSaveParticipantShape, IWorkspaceEditDto, MainThreadBulkEditsShape } from "./extHost.protocol.js";
-import { TextEdit } from "./extHostTypes.js";
-import { Range, TextDocumentSaveReason, EndOfLine } from "./extHostTypeConverters.js";
-import { ExtHostDocuments } from "./extHostDocuments.js";
-import { SaveReason } from "../../common/editor.js";
 import { LinkedList } from "../../../base/common/linkedList.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import { URI } from "../../../base/common/uri.js";
 import { SerializableObjectWithBuffers } from "../../services/extensions/common/proxyIdentifier.js";
+import {
+  EndOfLine,
+  Range,
+  TextDocumentSaveReason
+} from "./extHostTypeConverters.js";
+import { TextEdit } from "./extHostTypes.js";
 class ExtHostDocumentSaveParticipant {
-  constructor(_logService, _documents, _mainThreadBulkEdits, _thresholds = { timeout: 1500, errors: 3 }) {
+  constructor(_logService, _documents, _mainThreadBulkEdits, _thresholds = {
+    timeout: 1500,
+    errors: 3
+  }) {
     this._logService = _logService;
     this._documents = _documents;
     this._mainThreadBulkEdits = _mainThreadBulkEdits;
@@ -40,7 +41,10 @@ class ExtHostDocumentSaveParticipant {
   async $participateInSave(data, reason) {
     const resource = URI.revive(data);
     let didTimeout = false;
-    const didTimeoutHandle = setTimeout(() => didTimeout = true, this._thresholds.timeout);
+    const didTimeoutHandle = setTimeout(
+      () => didTimeout = true,
+      this._thresholds.timeout
+    );
     const results = [];
     try {
       for (const listener of [...this._callbacks]) {
@@ -48,7 +52,13 @@ class ExtHostDocumentSaveParticipant {
           break;
         }
         const document = this._documents.getDocument(resource);
-        const success = await this._deliverEventAsyncAndBlameBadListeners(listener, { document, reason: TextDocumentSaveReason.to(reason) });
+        const success = await this._deliverEventAsyncAndBlameBadListeners(
+          listener,
+          {
+            document,
+            reason: TextDocumentSaveReason.to(reason)
+          }
+        );
         results.push(success);
       }
     } finally {
@@ -61,20 +71,32 @@ class ExtHostDocumentSaveParticipant {
     if (typeof errors === "number" && errors > this._thresholds.errors) {
       return Promise.resolve(false);
     }
-    return this._deliverEventAsync(extension, listener, thisArg, stubEvent).then(() => {
-      return true;
-    }, (err) => {
-      this._logService.error(`onWillSaveTextDocument-listener from extension '${extension.identifier.value}' threw ERROR`);
-      this._logService.error(err);
-      if (!(err instanceof Error) || err.message !== "concurrent_edits") {
-        const errors2 = this._badListeners.get(listener);
-        this._badListeners.set(listener, !errors2 ? 1 : errors2 + 1);
-        if (typeof errors2 === "number" && errors2 > this._thresholds.errors) {
-          this._logService.info(`onWillSaveTextDocument-listener from extension '${extension.identifier.value}' will now be IGNORED because of timeouts and/or errors`);
+    return this._deliverEventAsync(
+      extension,
+      listener,
+      thisArg,
+      stubEvent
+    ).then(
+      () => {
+        return true;
+      },
+      (err) => {
+        this._logService.error(
+          `onWillSaveTextDocument-listener from extension '${extension.identifier.value}' threw ERROR`
+        );
+        this._logService.error(err);
+        if (!(err instanceof Error) || err.message !== "concurrent_edits") {
+          const errors2 = this._badListeners.get(listener);
+          this._badListeners.set(listener, !errors2 ? 1 : errors2 + 1);
+          if (typeof errors2 === "number" && errors2 > this._thresholds.errors) {
+            this._logService.info(
+              `onWillSaveTextDocument-listener from extension '${extension.identifier.value}' will now be IGNORED because of timeouts and/or errors`
+            );
+          }
         }
+        return false;
       }
-      return false;
-    });
+    );
   }
   _deliverEventAsync(extension, listener, thisArg, stubEvent) {
     const promises = [];
@@ -98,9 +120,14 @@ class ExtHostDocumentSaveParticipant {
     }
     Object.freeze(promises);
     return new Promise((resolve, reject) => {
-      const handle = setTimeout(() => reject(new Error("timeout")), this._thresholds.timeout);
+      const handle = setTimeout(
+        () => reject(new Error("timeout")),
+        this._thresholds.timeout
+      );
       return Promise.all(promises).then((edits) => {
-        this._logService.debug(`onWillSaveTextDocument-listener from extension '${extension.identifier.value}' finished after ${Date.now() - t1}ms`);
+        this._logService.debug(
+          `onWillSaveTextDocument-listener from extension '${extension.identifier.value}' finished after ${Date.now() - t1}ms`
+        );
         clearTimeout(handle);
         resolve(edits);
       }).catch((err) => {
@@ -110,7 +137,9 @@ class ExtHostDocumentSaveParticipant {
     }).then((values) => {
       const dto = { edits: [] };
       for (const value of values) {
-        if (Array.isArray(value) && value.every((e) => e instanceof TextEdit)) {
+        if (Array.isArray(value) && value.every(
+          (e) => e instanceof TextEdit
+        )) {
           for (const { newText, newEol, range } of value) {
             dto.edits.push({
               resource: document.uri,
@@ -128,7 +157,9 @@ class ExtHostDocumentSaveParticipant {
         return void 0;
       }
       if (version === document.version) {
-        return this._mainThreadBulkEdits.$tryApplyWorkspaceEdit(new SerializableObjectWithBuffers(dto));
+        return this._mainThreadBulkEdits.$tryApplyWorkspaceEdit(
+          new SerializableObjectWithBuffers(dto)
+        );
       }
       return Promise.reject(new Error("concurrent_edits"));
     });

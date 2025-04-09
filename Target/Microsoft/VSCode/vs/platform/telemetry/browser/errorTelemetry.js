@@ -3,7 +3,8 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { mainWindow } from "../../../base/browser/window.js";
 import { ErrorNoTelemetry } from "../../../base/common/errors.js";
 import { toDisposable } from "../../../base/common/lifecycle.js";
-import BaseErrorTelemetry, { ErrorEvent } from "../common/errorTelemetry.js";
+import BaseErrorTelemetry, {
+} from "../common/errorTelemetry.js";
 class ErrorTelemetry extends BaseErrorTelemetry {
   static {
     __name(this, "ErrorTelemetry");
@@ -15,14 +16,22 @@ class ErrorTelemetry extends BaseErrorTelemetry {
       oldOnError = mainWindow.onerror;
     }
     mainWindow.onerror = function(message, filename, line, column, error) {
-      that._onUncaughtError(message, filename, line, column, error);
+      that._onUncaughtError(
+        message,
+        filename,
+        line,
+        column,
+        error
+      );
       oldOnError?.apply(this, [message, filename, line, column, error]);
     };
-    this._disposables.add(toDisposable(() => {
-      if (oldOnError) {
-        mainWindow.onerror = oldOnError;
-      }
-    }));
+    this._disposables.add(
+      toDisposable(() => {
+        if (oldOnError) {
+          mainWindow.onerror = oldOnError;
+        }
+      })
+    );
   }
   _onUncaughtError(msg, file, line, column, err) {
     const data = {

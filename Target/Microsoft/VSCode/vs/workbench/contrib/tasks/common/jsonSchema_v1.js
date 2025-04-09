@@ -1,10 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../../nls.js";
 import * as Objects from "../../../../base/common/objects.js";
-import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
-import { ProblemMatcherRegistry } from "./problemMatcher.js";
+import * as nls from "../../../../nls.js";
 import commonSchema from "./jsonSchemaCommon.js";
+import { ProblemMatcherRegistry } from "./problemMatcher.js";
 const schema = {
   oneOf: [
     {
@@ -16,29 +15,50 @@ const schema = {
             version: {
               type: "string",
               enum: ["0.1.0"],
-              deprecationMessage: nls.localize("JsonSchema.version.deprecated", "Task version 0.1.0 is deprecated. Please use 2.0.0"),
-              description: nls.localize("JsonSchema.version", "The config's version number")
+              deprecationMessage: nls.localize(
+                "JsonSchema.version.deprecated",
+                "Task version 0.1.0 is deprecated. Please use 2.0.0"
+              ),
+              description: nls.localize(
+                "JsonSchema.version",
+                "The config's version number"
+              )
             },
             _runner: {
-              deprecationMessage: nls.localize("JsonSchema._runner", "The runner has graduated. Use the official runner property")
+              deprecationMessage: nls.localize(
+                "JsonSchema._runner",
+                "The runner has graduated. Use the official runner property"
+              )
             },
             runner: {
               type: "string",
               enum: ["process", "terminal"],
               default: "process",
-              description: nls.localize("JsonSchema.runner", "Defines whether the task is executed as a process and the output is shown in the output window or inside the terminal.")
+              description: nls.localize(
+                "JsonSchema.runner",
+                "Defines whether the task is executed as a process and the output is shown in the output window or inside the terminal."
+              )
             },
             windows: {
               $ref: "#/definitions/taskRunnerConfiguration",
-              description: nls.localize("JsonSchema.windows", "Windows specific command configuration")
+              description: nls.localize(
+                "JsonSchema.windows",
+                "Windows specific command configuration"
+              )
             },
             osx: {
               $ref: "#/definitions/taskRunnerConfiguration",
-              description: nls.localize("JsonSchema.mac", "Mac specific command configuration")
+              description: nls.localize(
+                "JsonSchema.mac",
+                "Mac specific command configuration"
+              )
             },
             linux: {
               $ref: "#/definitions/taskRunnerConfiguration",
-              description: nls.localize("JsonSchema.linux", "Linux specific command configuration")
+              description: nls.localize(
+                "JsonSchema.linux",
+                "Linux specific command configuration"
+              )
             }
           }
         },
@@ -52,7 +72,10 @@ const schema = {
 const shellCommand = {
   type: "boolean",
   default: true,
-  description: nls.localize("JsonSchema.shell", "Specifies whether the command is a shell command or an external program. Defaults to false if omitted.")
+  description: nls.localize(
+    "JsonSchema.shell",
+    "Specifies whether the command is a shell command or an external program. Defaults to false if omitted."
+  )
 };
 schema.definitions = Objects.deepClone(commonSchema.definitions);
 const definitions = schema.definitions;
@@ -60,7 +83,7 @@ definitions["commandConfiguration"]["properties"]["isShellCommand"] = Objects.de
 definitions["taskDescription"]["properties"]["isShellCommand"] = Objects.deepClone(shellCommand);
 definitions["taskRunnerConfiguration"]["properties"]["isShellCommand"] = Objects.deepClone(shellCommand);
 Object.getOwnPropertyNames(definitions).forEach((key) => {
-  const newKey = key + "1";
+  const newKey = `${key}1`;
   definitions[newKey] = definitions[key];
   delete definitions[key];
 });
@@ -69,7 +92,7 @@ function fixReferences(literal) {
     literal.forEach(fixReferences);
   } else if (typeof literal === "object") {
     if (literal["$ref"]) {
-      literal["$ref"] = literal["$ref"] + "1";
+      literal["$ref"] = `${literal["$ref"]}1`;
     }
     Object.getOwnPropertyNames(literal).forEach((property) => {
       const value = literal[property];
@@ -83,9 +106,16 @@ __name(fixReferences, "fixReferences");
 fixReferences(schema);
 ProblemMatcherRegistry.onReady().then(() => {
   try {
-    const matcherIds = ProblemMatcherRegistry.keys().map((key) => "$" + key);
-    definitions.problemMatcherType1.oneOf[0].enum = matcherIds;
-    definitions.problemMatcherType1.oneOf[2].items.anyOf[1].enum = matcherIds;
+    const matcherIds = ProblemMatcherRegistry.keys().map(
+      (key) => `$${key}`
+    );
+    if (definitions.problemMatcherType1.oneOf) {
+      definitions.problemMatcherType1.oneOf[0].enum = matcherIds;
+      const items = definitions.problemMatcherType1.oneOf[2].items;
+      if (items && items.anyOf) {
+        items.anyOf[1].enum = matcherIds;
+      }
+    }
   } catch (err) {
     console.log("Installing problem matcher ids failed");
   }

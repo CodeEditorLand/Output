@@ -23,7 +23,7 @@ class SmallImmutableSet {
   }
   static empty = SmallImmutableSet.create(0, emptyArr);
   static getEmpty() {
-    return this.empty;
+    return SmallImmutableSet.empty;
   }
   add(value, keyProvider) {
     const key = keyProvider.getKey(value);

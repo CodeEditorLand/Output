@@ -10,14 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { areWorkspaceFoldersEmpty } from "../../../services/workspaces/common/workspaceUtils.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { URI } from "../../../../base/common/uri.js";
-const IChatTransferService = createDecorator("chatTransferService");
+const IChatTransferService = createDecorator(
+  "chatTransferService"
+);
 const transferredWorkspacesKey = "chat.transferedWorkspaces";
 let ChatTransferService = class {
   constructor(workspaceService, storageService, fileService, workspaceTrustManagementService) {
@@ -31,14 +36,34 @@ let ChatTransferService = class {
   }
   _serviceBrand;
   deleteWorkspaceFromTransferredList(workspace) {
-    const transferredWorkspaces = this.storageService.getObject(transferredWorkspacesKey, StorageScope.PROFILE, []);
-    const updatedWorkspaces = transferredWorkspaces.filter((uri) => uri !== workspace.toString());
-    this.storageService.store(transferredWorkspacesKey, updatedWorkspaces, StorageScope.PROFILE, StorageTarget.MACHINE);
+    const transferredWorkspaces = this.storageService.getObject(
+      transferredWorkspacesKey,
+      StorageScope.PROFILE,
+      []
+    );
+    const updatedWorkspaces = transferredWorkspaces.filter(
+      (uri) => uri !== workspace.toString()
+    );
+    this.storageService.store(
+      transferredWorkspacesKey,
+      updatedWorkspaces,
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
   }
   addWorkspaceToTransferred(workspace) {
-    const transferredWorkspaces = this.storageService.getObject(transferredWorkspacesKey, StorageScope.PROFILE, []);
+    const transferredWorkspaces = this.storageService.getObject(
+      transferredWorkspacesKey,
+      StorageScope.PROFILE,
+      []
+    );
     transferredWorkspaces.push(workspace.toString());
-    this.storageService.store(transferredWorkspacesKey, transferredWorkspaces, StorageScope.PROFILE, StorageTarget.MACHINE);
+    this.storageService.store(
+      transferredWorkspacesKey,
+      transferredWorkspaces,
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
   }
   async checkAndSetTransferredWorkspaceTrust() {
     const workspace = this.workspaceService.getWorkspace();
@@ -46,7 +71,10 @@ let ChatTransferService = class {
     if (!currentWorkspaceUri) {
       return;
     }
-    if (this.isChatTransferredWorkspace(currentWorkspaceUri, this.storageService) && await areWorkspaceFoldersEmpty(workspace, this.fileService)) {
+    if (this.isChatTransferredWorkspace(
+      currentWorkspaceUri,
+      this.storageService
+    ) && await areWorkspaceFoldersEmpty(workspace, this.fileService)) {
       await this.workspaceTrustManagementService.setWorkspaceTrust(true);
       this.deleteWorkspaceFromTransferredList(currentWorkspaceUri);
     }
@@ -55,8 +83,14 @@ let ChatTransferService = class {
     if (!workspace) {
       return false;
     }
-    const chatWorkspaceTransfer = storageService.getObject(transferredWorkspacesKey, StorageScope.PROFILE, []);
-    return chatWorkspaceTransfer.some((item) => item.toString() === workspace.toString());
+    const chatWorkspaceTransfer = storageService.getObject(
+      transferredWorkspacesKey,
+      StorageScope.PROFILE,
+      []
+    );
+    return chatWorkspaceTransfer.some(
+      (item) => item.toString() === workspace.toString()
+    );
   }
 };
 ChatTransferService = __decorateClass([

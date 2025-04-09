@@ -10,7 +10,7 @@ function createWordRegExp(allowInWords = "") {
     if (allowInWords.indexOf(sep) >= 0) {
       continue;
     }
-    source += "\\" + sep;
+    source += `\\${sep}`;
   }
   source += "\\s]+)";
   return new RegExp(source, "g");
@@ -76,7 +76,12 @@ function getWordAtText(column, wordDefinition, text, textOffset, config) {
     }
     const regexIndex = pos - config.windowSize * i;
     wordDefinition.lastIndex = Math.max(0, regexIndex);
-    const thisMatch = _findRegexMatchEnclosingPosition(wordDefinition, text, pos, prevRegexIndex);
+    const thisMatch = _findRegexMatchEnclosingPosition(
+      wordDefinition,
+      text,
+      pos,
+      prevRegexIndex
+    );
     if (!thisMatch && match) {
       break;
     }

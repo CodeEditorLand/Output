@@ -12,38 +12,71 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { Registry } from "../../../platform/registry/common/platform.js";
-import { Extensions, IOutputChannelRegistry, IOutputService, IOutputChannel, OUTPUT_VIEW_ID, OutputChannelUpdateMode } from "../../services/output/common/output.js";
-import { MainThreadOutputServiceShape, MainContext, ExtHostOutputServiceShape, ExtHostContext } from "../common/extHost.protocol.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { UriComponents, URI } from "../../../base/common/uri.js";
-import { Disposable, MutableDisposable, toDisposable } from "../../../base/common/lifecycle.js";
 import { Event } from "../../../base/common/event.js";
-import { IViewsService } from "../../services/views/common/viewsService.js";
+import {
+  Disposable,
+  MutableDisposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { isNumber } from "../../../base/common/types.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarService, StatusbarAlignment } from "../../services/statusbar/browser/statusbar.js";
+import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  Extensions,
+  IOutputService,
+  OUTPUT_VIEW_ID,
+  OutputChannelUpdateMode
+} from "../../services/output/common/output.js";
+import {
+  IStatusbarService,
+  StatusbarAlignment
+} from "../../services/statusbar/browser/statusbar.js";
+import { IViewsService } from "../../services/views/common/viewsService.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadOutputService = class extends Disposable {
   _proxy;
   _outputService;
   _viewsService;
   _configurationService;
   _statusbarService;
-  _outputStatusItem = this._register(new MutableDisposable());
+  _outputStatusItem = this._register(
+    new MutableDisposable()
+  );
   constructor(extHostContext, outputService, viewsService, configurationService, statusbarService) {
     super();
     this._outputService = outputService;
     this._viewsService = viewsService;
     this._configurationService = configurationService;
     this._statusbarService = statusbarService;
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostOutputService);
+    this._proxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostOutputService
+    );
     const setVisibleChannel = /* @__PURE__ */ __name(() => {
-      const visibleChannel = this._viewsService.isViewVisible(OUTPUT_VIEW_ID) ? this._outputService.getActiveChannel() : void 0;
-      this._proxy.$setVisibleChannel(visibleChannel ? visibleChannel.id : null);
+      const visibleChannel = this._viewsService.isViewVisible(
+        OUTPUT_VIEW_ID
+      ) ? this._outputService.getActiveChannel() : void 0;
+      this._proxy.$setVisibleChannel(
+        visibleChannel ? visibleChannel.id : null
+      );
       this._outputStatusItem.value = void 0;
     }, "setVisibleChannel");
-    this._register(Event.any(this._outputService.onActiveOutputChannel, Event.filter(this._viewsService.onDidChangeViewVisibility, ({ id }) => id === OUTPUT_VIEW_ID))(() => setVisibleChannel()));
+    this._register(
+      Event.any(
+        this._outputService.onActiveOutputChannel,
+        Event.filter(
+          this._viewsService.onDidChangeViewVisibility,
+          ({ id }) => id === OUTPUT_VIEW_ID
+        )
+      )(() => setVisibleChannel())
+    );
     setVisibleChannel();
   }
   async $register(label, file, languageId, extensionId) {
@@ -51,7 +84,16 @@ let MainThreadOutputService = class extends Disposable {
     MainThreadOutputService._extensionIdPool.set(extensionId, idCounter);
     const id = `extension-output-${extensionId}-#${idCounter}-${label}`;
     const resource = URI.revive(file);
-    Registry.as(Extensions.OutputChannels).registerChannel({ id, label, source: { resource }, log: false, languageId, extensionId });
+    Registry.as(
+      Extensions.OutputChannels
+    ).registerChannel({
+      id,
+      label,
+      source: { resource },
+      log: false,
+      languageId,
+      extensionId
+    });
     this._register(toDisposable(() => this.$dispose(id)));
     return id;
   }
@@ -82,9 +124,17 @@ let MainThreadOutputService = class extends Disposable {
     const statusProperties = {
       name: localize("status.showOutput", "Show Output"),
       text: "$(output)",
-      ariaLabel: localize("status.showOutputAria", "Show {0} Output Channel", channel.label),
+      ariaLabel: localize(
+        "status.showOutputAria",
+        "Show {0} Output Channel",
+        channel.label
+      ),
       command: `workbench.action.output.show.${channel.id}`,
-      tooltip: localize("status.showOutputTooltip", "Show {0} Output Channel", channel.label),
+      tooltip: localize(
+        "status.showOutputTooltip",
+        "Show {0} Output Channel",
+        channel.label
+      ),
       kind: "prominent"
     };
     if (!this._outputStatusItem.value) {
@@ -92,7 +142,13 @@ let MainThreadOutputService = class extends Disposable {
         statusProperties,
         "status.view.showQuietly",
         StatusbarAlignment.RIGHT,
-        { location: { id: "status.notifications", priority: Number.NEGATIVE_INFINITY }, alignment: StatusbarAlignment.LEFT }
+        {
+          location: {
+            id: "status.notifications",
+            priority: Number.NEGATIVE_INFINITY
+          },
+          alignment: StatusbarAlignment.LEFT
+        }
       );
     } else {
       this._outputStatusItem.value.update(statusProperties);

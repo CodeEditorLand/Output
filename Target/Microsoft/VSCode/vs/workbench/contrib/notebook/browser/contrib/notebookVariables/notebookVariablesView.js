@@ -10,13 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ITreeContextMenuEvent } from "../../../../../../base/browser/ui/tree/tree.js";
 import { RunOnceScheduler } from "../../../../../../base/common/async.js";
-import { URI } from "../../../../../../base/common/uri.js";
 import * as nls from "../../../../../../nls.js";
-import { ILocalizedString } from "../../../../../../platform/action/common/action.js";
 import { getFlatContextMenuActions } from "../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { IMenuService, MenuId } from "../../../../../../platform/actions/common/actions.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
@@ -28,41 +28,94 @@ import { WorkbenchAsyncDataTree } from "../../../../../../platform/list/browser/
 import { IOpenerService } from "../../../../../../platform/opener/common/opener.js";
 import { IQuickInputService } from "../../../../../../platform/quickinput/common/quickInput.js";
 import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
-import { IViewPaneOptions, ViewPane } from "../../../../../browser/parts/views/viewPane.js";
+import {
+  ViewPane
+} from "../../../../../browser/parts/views/viewPane.js";
 import { IViewDescriptorService } from "../../../../../common/views.js";
-import { CONTEXT_VARIABLE_EXTENSIONID, CONTEXT_VARIABLE_INTERFACES, CONTEXT_VARIABLE_LANGUAGE, CONTEXT_VARIABLE_NAME, CONTEXT_VARIABLE_TYPE, CONTEXT_VARIABLE_VALUE } from "../../../../debug/common/debug.js";
-import { IEmptyScope, INotebookScope, INotebookVariableElement, NotebookVariableDataSource } from "./notebookVariablesDataSource.js";
-import { NotebookVariableAccessibilityProvider, NotebookVariableRenderer, NotebookVariablesDelegate } from "./notebookVariablesTree.js";
-import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
-import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
-import { ICellExecutionStateChangedEvent, IExecutionStateChangedEvent, INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
-import { INotebookKernelService } from "../../../common/notebookKernelService.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
-import { IEditorCloseEvent, IEditorPane } from "../../../../../common/editor.js";
+import {
+  CONTEXT_VARIABLE_EXTENSIONID,
+  CONTEXT_VARIABLE_INTERFACES,
+  CONTEXT_VARIABLE_LANGUAGE,
+  CONTEXT_VARIABLE_NAME,
+  CONTEXT_VARIABLE_TYPE,
+  CONTEXT_VARIABLE_VALUE
+} from "../../../../debug/common/debug.js";
 import { isCompositeNotebookEditorInput } from "../../../common/notebookEditorInput.js";
+import {
+  INotebookExecutionStateService
+} from "../../../common/notebookExecutionStateService.js";
+import { INotebookKernelService } from "../../../common/notebookKernelService.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import {
+  NotebookVariableDataSource
+} from "./notebookVariablesDataSource.js";
+import {
+  NotebookVariableAccessibilityProvider,
+  NotebookVariableRenderer,
+  NotebookVariablesDelegate
+} from "./notebookVariablesTree.js";
 let NotebookVariablesView = class extends ViewPane {
   constructor(options, editorService, notebookKernelService, notebookExecutionStateService, keybindingService, contextMenuService, contextKeyService, configurationService, instantiationService, viewDescriptorService, openerService, quickInputService, commandService, themeService, hoverService, menuService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      hoverService
+    );
     this.editorService = editorService;
     this.notebookKernelService = notebookKernelService;
     this.notebookExecutionStateService = notebookExecutionStateService;
     this.quickInputService = quickInputService;
     this.commandService = commandService;
     this.menuService = menuService;
-    this._register(this.editorService.onDidActiveEditorChange(() => this.handleActiveEditorChange()));
-    this._register(this.notebookKernelService.onDidNotebookVariablesUpdate(this.handleVariablesChanged.bind(this)));
-    this._register(this.notebookExecutionStateService.onDidChangeExecution(this.handleExecutionStateChange.bind(this)));
-    this._register(this.editorService.onDidCloseEditor((e) => this.handleCloseEditor(e)));
+    this._register(
+      this.editorService.onDidActiveEditorChange(
+        () => this.handleActiveEditorChange()
+      )
+    );
+    this._register(
+      this.notebookKernelService.onDidNotebookVariablesUpdate(
+        this.handleVariablesChanged.bind(this)
+      )
+    );
+    this._register(
+      this.notebookExecutionStateService.onDidChangeExecution(
+        this.handleExecutionStateChange.bind(this)
+      )
+    );
+    this._register(
+      this.editorService.onDidCloseEditor(
+        (e) => this.handleCloseEditor(e)
+      )
+    );
     this.handleActiveEditorChange(false);
-    this.dataSource = new NotebookVariableDataSource(this.notebookKernelService);
-    this.updateScheduler = new RunOnceScheduler(() => this.tree?.updateChildren(), 100);
+    this.dataSource = new NotebookVariableDataSource(
+      this.notebookKernelService
+    );
+    this.updateScheduler = new RunOnceScheduler(
+      () => this.tree?.updateChildren(),
+      100
+    );
   }
   static {
     __name(this, "NotebookVariablesView");
   }
   static ID = "notebookVariablesView";
-  static NOTEBOOK_TITLE = nls.localize2("notebook.notebookVariables", "Notebook Variables");
-  static REPL_TITLE = nls.localize2("notebook.ReplVariables", "REPL Variables");
+  static NOTEBOOK_TITLE = nls.localize2(
+    "notebook.notebookVariables",
+    "Notebook Variables"
+  );
+  static REPL_TITLE = nls.localize2(
+    "notebook.ReplVariables",
+    "REPL Variables"
+  );
   tree;
   activeNotebook;
   dataSource;
@@ -75,11 +128,17 @@ let NotebookVariablesView = class extends ViewPane {
       "notebookVariablesTree",
       container,
       new NotebookVariablesDelegate(),
-      [this.instantiationService.createInstance(NotebookVariableRenderer)],
+      [
+        this.instantiationService.createInstance(
+          NotebookVariableRenderer
+        )
+      ],
       this.dataSource,
       {
         accessibilityProvider: new NotebookVariableAccessibilityProvider(),
-        identityProvider: { getId: /* @__PURE__ */ __name((e) => e.id, "getId") }
+        identityProvider: {
+          getId: /* @__PURE__ */ __name((e) => e.id, "getId")
+        }
       }
     );
     this.tree.layout();
@@ -110,7 +169,11 @@ let NotebookVariablesView = class extends ViewPane {
       [CONTEXT_VARIABLE_LANGUAGE.key, element.language],
       [CONTEXT_VARIABLE_EXTENSIONID.key, element.extensionId]
     ]);
-    const menuActions = this.menuService.getMenuActions(MenuId.NotebookVariablesContext, overlayedContext, { arg, shouldForwardArgs: true });
+    const menuActions = this.menuService.getMenuActions(
+      MenuId.NotebookVariablesContext,
+      overlayedContext,
+      { arg, shouldForwardArgs: true }
+    );
     const actions = getFlatContextMenuActions(menuActions);
     this.contextMenuService.showContextMenu({
       getAnchor: /* @__PURE__ */ __name(() => e.anchor, "getAnchor"),
@@ -151,7 +214,11 @@ let NotebookVariablesView = class extends ViewPane {
   handleActiveEditorChange(doUpdate = true) {
     const found = this.getActiveNotebook();
     if (found && found.notebookDocument !== this.activeNotebook) {
-      this.setActiveNotebook(found.notebookDocument, found.notebookEditor, doUpdate);
+      this.setActiveNotebook(
+        found.notebookDocument,
+        found.notebookEditor,
+        doUpdate
+      );
     }
   }
   handleExecutionStateChange(event) {

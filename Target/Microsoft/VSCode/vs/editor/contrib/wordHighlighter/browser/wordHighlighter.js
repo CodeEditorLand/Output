@@ -10,48 +10,73 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../nls.js";
 import { alert } from "../../../../base/browser/ui/aria/aria.js";
-import { CancelablePromise, createCancelablePromise, Delayer, first } from "../../../../base/common/async.js";
+import {
+  createCancelablePromise,
+  Delayer,
+  first
+} from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { onUnexpectedError, onUnexpectedExternalError } from "../../../../base/common/errors.js";
+import {
+  onUnexpectedError,
+  onUnexpectedExternalError
+} from "../../../../base/common/errors.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { matchesScheme, Schemas } from "../../../../base/common/network.js";
 import { isEqual } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IActiveCodeEditor, ICodeEditor, isDiffEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, EditorContributionInstantiation, IActionOptions, registerEditorAction, registerEditorContribution, registerModelAndPositionCommand } from "../../../browser/editorExtensions.js";
+import {
+  isDiffEditor
+} from "../../../browser/editorBrowser.js";
+import {
+  EditorAction,
+  EditorContributionInstantiation,
+  registerEditorAction,
+  registerEditorContribution,
+  registerModelAndPositionCommand
+} from "../../../browser/editorExtensions.js";
 import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
-import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
-import { Selection } from "../../../common/core/selection.js";
-import { IWordAtPosition } from "../../../common/core/wordHelper.js";
-import { CursorChangeReason, ICursorPositionChangedEvent } from "../../../common/cursorEvents.js";
-import { IDiffEditor, IEditorContribution, IEditorDecorationsCollection } from "../../../common/editorCommon.js";
+import {
+  CursorChangeReason
+} from "../../../common/cursorEvents.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import { registerEditorFeature } from "../../../common/editorFeatures.js";
-import { LanguageFeatureRegistry } from "../../../common/languageFeatureRegistry.js";
-import { DocumentHighlight, DocumentHighlightProvider, MultiDocumentHighlightProvider } from "../../../common/languages.js";
 import { score } from "../../../common/languageSelector.js";
-import { IModelDeltaDecoration, ITextModel, shouldSynchronizeModel } from "../../../common/model.js";
+import {
+  shouldSynchronizeModel
+} from "../../../common/model.js";
 import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
 import { ITextModelService } from "../../../common/services/resolverService.js";
 import { getHighlightDecorationOptions } from "./highlightDecorations.js";
 import { TextualMultiDocumentHighlightFeature } from "./textualHighlightProvider.js";
-const ctxHasWordHighlights = new RawContextKey("hasWordHighlights", false);
+const ctxHasWordHighlights = new RawContextKey(
+  "hasWordHighlights",
+  false
+);
 function getOccurrencesAtPosition(registry, model, position, token) {
   const orderedByScore = registry.ordered(model);
-  return first(orderedByScore.map((provider) => () => {
-    return Promise.resolve(provider.provideDocumentHighlights(model, position, token)).then(void 0, onUnexpectedExternalError);
-  }), (result) => result !== void 0 && result !== null).then((result) => {
+  return first(
+    orderedByScore.map((provider) => () => {
+      return Promise.resolve(
+        provider.provideDocumentHighlights(model, position, token)
+      ).then(void 0, onUnexpectedExternalError);
+    }),
+    (result) => result !== void 0 && result !== null
+  ).then((result) => {
     if (result) {
       const map = new ResourceMap();
       map.set(model.uri, result);
@@ -63,14 +88,31 @@ function getOccurrencesAtPosition(registry, model, position, token) {
 __name(getOccurrencesAtPosition, "getOccurrencesAtPosition");
 function getOccurrencesAcrossMultipleModels(registry, model, position, token, otherModels) {
   const orderedByScore = registry.ordered(model);
-  return first(orderedByScore.map((provider) => () => {
-    const filteredModels = otherModels.filter((otherModel) => {
-      return shouldSynchronizeModel(otherModel);
-    }).filter((otherModel) => {
-      return score(provider.selector, otherModel.uri, otherModel.getLanguageId(), true, void 0, void 0) > 0;
-    });
-    return Promise.resolve(provider.provideMultiDocumentHighlights(model, position, filteredModels, token)).then(void 0, onUnexpectedExternalError);
-  }), (result) => result !== void 0 && result !== null);
+  return first(
+    orderedByScore.map((provider) => () => {
+      const filteredModels = otherModels.filter((otherModel) => {
+        return shouldSynchronizeModel(otherModel);
+      }).filter((otherModel) => {
+        return score(
+          provider.selector,
+          otherModel.uri,
+          otherModel.getLanguageId(),
+          true,
+          void 0,
+          void 0
+        ) > 0;
+      });
+      return Promise.resolve(
+        provider.provideMultiDocumentHighlights(
+          model,
+          position,
+          filteredModels,
+          token
+        )
+      ).then(void 0, onUnexpectedExternalError);
+    }),
+    (result) => result !== void 0 && result !== null
+  );
 }
 __name(getOccurrencesAcrossMultipleModels, "getOccurrencesAcrossMultipleModels");
 class OccurenceAtPositionRequest {
@@ -88,14 +130,26 @@ class OccurenceAtPositionRequest {
   _result;
   get result() {
     if (!this._result) {
-      this._result = createCancelablePromise((token) => this._compute(this._model, this._selection, this._wordSeparators, token));
+      this._result = createCancelablePromise(
+        (token) => this._compute(
+          this._model,
+          this._selection,
+          this._wordSeparators,
+          token
+        )
+      );
     }
     return this._result;
   }
   _getCurrentWordRange(model, selection) {
     const word = model.getWordAtPosition(selection.getPosition());
     if (word) {
-      return new Range(selection.startLineNumber, word.startColumn, selection.startLineNumber, word.endColumn);
+      return new Range(
+        selection.startLineNumber,
+        word.startColumn,
+        selection.startLineNumber,
+        word.endColumn
+      );
     }
     return null;
   }
@@ -104,7 +158,9 @@ class OccurenceAtPositionRequest {
     const startColumn = selection.startColumn;
     const endColumn = selection.endColumn;
     const currentWordRange = this._getCurrentWordRange(model, selection);
-    let requestIsValid = Boolean(this._wordRange && this._wordRange.equalsRange(currentWordRange));
+    let requestIsValid = Boolean(
+      this._wordRange?.equalsRange(currentWordRange)
+    );
     for (let i = 0, len = decorations.length; !requestIsValid && i < len; i++) {
       const range = decorations.getRange(i);
       if (range && range.startLineNumber === lineNumber) {
@@ -129,7 +185,12 @@ class SemanticOccurenceAtPositionRequest extends OccurenceAtPositionRequest {
     this._providers = providers;
   }
   _compute(model, selection, wordSeparators, token) {
-    return getOccurrencesAtPosition(this._providers, model, selection.getPosition(), token).then((value) => {
+    return getOccurrencesAtPosition(
+      this._providers,
+      model,
+      selection.getPosition(),
+      token
+    ).then((value) => {
       if (!value) {
         return new ResourceMap();
       }
@@ -149,7 +210,13 @@ class MultiModelOccurenceRequest extends OccurenceAtPositionRequest {
     this._otherModels = otherModels;
   }
   _compute(model, selection, wordSeparators, token) {
-    return getOccurrencesAcrossMultipleModels(this._providers, model, selection.getPosition(), token, this._otherModels).then((value) => {
+    return getOccurrencesAcrossMultipleModels(
+      this._providers,
+      model,
+      selection.getPosition(),
+      token,
+      this._otherModels
+    ).then((value) => {
       if (!value) {
         return new ResourceMap();
       }
@@ -158,18 +225,37 @@ class MultiModelOccurenceRequest extends OccurenceAtPositionRequest {
   }
 }
 function computeOccurencesAtPosition(registry, model, selection, wordSeparators) {
-  return new SemanticOccurenceAtPositionRequest(model, selection, wordSeparators, registry);
+  return new SemanticOccurenceAtPositionRequest(
+    model,
+    selection,
+    wordSeparators,
+    registry
+  );
 }
 __name(computeOccurencesAtPosition, "computeOccurencesAtPosition");
 function computeOccurencesMultiModel(registry, model, selection, wordSeparators, otherModels) {
-  return new MultiModelOccurenceRequest(model, selection, wordSeparators, registry, otherModels);
+  return new MultiModelOccurenceRequest(
+    model,
+    selection,
+    wordSeparators,
+    registry,
+    otherModels
+  );
 }
 __name(computeOccurencesMultiModel, "computeOccurencesMultiModel");
-registerModelAndPositionCommand("_executeDocumentHighlights", async (accessor, model, position) => {
-  const languageFeaturesService = accessor.get(ILanguageFeaturesService);
-  const map = await getOccurrencesAtPosition(languageFeaturesService.documentHighlightProvider, model, position, CancellationToken.None);
-  return map?.get(model.uri);
-});
+registerModelAndPositionCommand(
+  "_executeDocumentHighlights",
+  async (accessor, model, position) => {
+    const languageFeaturesService = accessor.get(ILanguageFeaturesService);
+    const map = await getOccurrencesAtPosition(
+      languageFeaturesService.documentHighlightProvider,
+      model,
+      position,
+      CancellationToken.None
+    );
+    return map?.get(model.uri);
+  }
+);
 let WordHighlighter = class {
   static {
     __name(this, "WordHighlighter");
@@ -194,7 +280,9 @@ let WordHighlighter = class {
   renderDecorationsTimer = -1;
   _hasWordHighlights;
   _ignorePositionChangeEvent;
-  runDelayer = this.toUnhook.add(new Delayer(50));
+  runDelayer = this.toUnhook.add(
+    new Delayer(50)
+  );
   static storedDecorationIDs = new ResourceMap();
   static query = null;
   constructor(editor, providers, multiProviders, contextKeyService, textModelService, codeEditorService, configurationService, logService) {
@@ -207,80 +295,109 @@ let WordHighlighter = class {
     this.logService = logService;
     this._hasWordHighlights = ctxHasWordHighlights.bindTo(contextKeyService);
     this._ignorePositionChangeEvent = false;
-    this.occurrencesHighlightEnablement = this.editor.getOption(EditorOption.occurrencesHighlight);
-    this.occurrencesHighlightDelay = this.configurationService.getValue("editor.occurrencesHighlightDelay");
+    this.occurrencesHighlightEnablement = this.editor.getOption(
+      EditorOption.occurrencesHighlight
+    );
+    this.occurrencesHighlightDelay = this.configurationService.getValue(
+      "editor.occurrencesHighlightDelay"
+    );
     this.model = this.editor.getModel();
-    this.toUnhook.add(editor.onDidChangeCursorPosition((e) => {
-      if (this._ignorePositionChangeEvent) {
-        return;
-      }
-      if (this.occurrencesHighlightEnablement === "off") {
-        return;
-      }
-      this.runDelayer.trigger(() => {
-        this._onPositionChanged(e);
-      });
-    }));
-    this.toUnhook.add(editor.onDidFocusEditorText((e) => {
-      if (this.occurrencesHighlightEnablement === "off") {
-        return;
-      }
-      if (!this.workerRequest) {
-        this.runDelayer.trigger(() => {
+    this.toUnhook.add(
+      editor.onDidChangeCursorPosition(
+        (e) => {
+          if (this._ignorePositionChangeEvent) {
+            return;
+          }
+          if (this.occurrencesHighlightEnablement === "off") {
+            return;
+          }
+          this.runDelayer.trigger(() => {
+            this._onPositionChanged(e);
+          });
+        }
+      )
+    );
+    this.toUnhook.add(
+      editor.onDidFocusEditorText((e) => {
+        if (this.occurrencesHighlightEnablement === "off") {
+          return;
+        }
+        if (!this.workerRequest) {
+          this.runDelayer.trigger(() => {
+            this._run();
+          });
+        }
+      })
+    );
+    this.toUnhook.add(
+      editor.onDidChangeModelContent((e) => {
+        if (!matchesScheme(this.model.uri, "output")) {
+          this._stopAll();
+        }
+      })
+    );
+    this.toUnhook.add(
+      editor.onDidChangeModel((e) => {
+        if (!e.newModelUrl && e.oldModelUrl) {
+          this._stopSingular();
+        } else if (WordHighlighter.query) {
           this._run();
-        });
-      }
-    }));
-    this.toUnhook.add(editor.onDidChangeModelContent((e) => {
-      if (!matchesScheme(this.model.uri, "output")) {
-        this._stopAll();
-      }
-    }));
-    this.toUnhook.add(editor.onDidChangeModel((e) => {
-      if (!e.newModelUrl && e.oldModelUrl) {
-        this._stopSingular();
-      } else if (WordHighlighter.query) {
-        this._run();
-      }
-    }));
-    this.toUnhook.add(editor.onDidChangeConfiguration((e) => {
-      const newEnablement = this.editor.getOption(EditorOption.occurrencesHighlight);
-      if (this.occurrencesHighlightEnablement !== newEnablement) {
-        this.occurrencesHighlightEnablement = newEnablement;
-        switch (newEnablement) {
-          case "off":
-            this._stopAll();
-            break;
-          case "singleFile":
-            this._stopAll(WordHighlighter.query?.modelInfo?.modelURI);
-            break;
-          case "multiFile":
-            if (WordHighlighter.query) {
-              this._run(true);
-            }
-            break;
-          default:
-            console.warn("Unknown occurrencesHighlight setting value:", newEnablement);
-            break;
         }
-      }
-    }));
-    this.toUnhook.add(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor.occurrencesHighlightDelay")) {
-        const newDelay = configurationService.getValue("editor.occurrencesHighlightDelay");
-        if (this.occurrencesHighlightDelay !== newDelay) {
-          this.occurrencesHighlightDelay = newDelay;
+      })
+    );
+    this.toUnhook.add(
+      editor.onDidChangeConfiguration((e) => {
+        const newEnablement = this.editor.getOption(
+          EditorOption.occurrencesHighlight
+        );
+        if (this.occurrencesHighlightEnablement !== newEnablement) {
+          this.occurrencesHighlightEnablement = newEnablement;
+          switch (newEnablement) {
+            case "off":
+              this._stopAll();
+              break;
+            case "singleFile":
+              this._stopAll(
+                WordHighlighter.query?.modelInfo?.modelURI
+              );
+              break;
+            case "multiFile":
+              if (WordHighlighter.query) {
+                this._run(true);
+              }
+              break;
+            default:
+              console.warn(
+                "Unknown occurrencesHighlight setting value:",
+                newEnablement
+              );
+              break;
+          }
         }
-      }
-    }));
-    this.toUnhook.add(editor.onDidBlurEditorWidget(() => {
-      const activeEditor = this.codeEditorService.getFocusedCodeEditor();
-      if (!activeEditor) {
-        this._stopAll();
-      } else if (activeEditor.getModel()?.uri.scheme === Schemas.vscodeNotebookCell && this.editor.getModel()?.uri.scheme !== Schemas.vscodeNotebookCell) {
-        this._stopAll();
-      }
-    }));
+      })
+    );
+    this.toUnhook.add(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor.occurrencesHighlightDelay")) {
+          const newDelay = configurationService.getValue(
+            "editor.occurrencesHighlightDelay"
+          );
+          if (this.occurrencesHighlightDelay !== newDelay) {
+            this.occurrencesHighlightDelay = newDelay;
+          }
+        }
+      })
+    );
+    this.toUnhook.add(
+      editor.onDidBlurEditorWidget(() => {
+        const activeEditor = this.codeEditorService.getFocusedCodeEditor();
+        if (!activeEditor) {
+          this._stopAll();
+        } else if (activeEditor.getModel()?.uri.scheme === Schemas.vscodeNotebookCell && this.editor.getModel()?.uri.scheme !== Schemas.vscodeNotebookCell) {
+          this._stopAll();
+        }
+      })
+    );
     this.decorations = this.editor.createDecorationsCollection();
     this.workerRequestTokenId = 0;
     this.workerRequest = null;
@@ -318,7 +435,9 @@ let WordHighlighter = class {
   }
   moveNext() {
     const highlights = this._getSortedHighlights();
-    const index = highlights.findIndex((range) => range.containsPosition(this.editor.getPosition()));
+    const index = highlights.findIndex(
+      (range) => range.containsPosition(this.editor.getPosition())
+    );
     const newIndex = (index + 1) % highlights.length;
     const dest = highlights[newIndex];
     try {
@@ -328,7 +447,9 @@ let WordHighlighter = class {
       const word = this._getWord();
       if (word) {
         const lineContent = this.editor.getModel().getLineContent(dest.startLineNumber);
-        alert(`${lineContent}, ${newIndex + 1} of ${highlights.length} for '${word.word}'`);
+        alert(
+          `${lineContent}, ${newIndex + 1} of ${highlights.length} for '${word.word}'`
+        );
       }
     } finally {
       this._ignorePositionChangeEvent = false;
@@ -336,7 +457,9 @@ let WordHighlighter = class {
   }
   moveBack() {
     const highlights = this._getSortedHighlights();
-    const index = highlights.findIndex((range) => range.containsPosition(this.editor.getPosition()));
+    const index = highlights.findIndex(
+      (range) => range.containsPosition(this.editor.getPosition())
+    );
     const newIndex = (index - 1 + highlights.length) % highlights.length;
     const dest = highlights[newIndex];
     try {
@@ -346,7 +469,9 @@ let WordHighlighter = class {
       const word = this._getWord();
       if (word) {
         const lineContent = this.editor.getModel().getLineContent(dest.startLineNumber);
-        alert(`${lineContent}, ${newIndex + 1} of ${highlights.length} for '${word.word}'`);
+        alert(
+          `${lineContent}, ${newIndex + 1} of ${highlights.length} for '${word.word}'`
+        );
       }
     } finally {
       this._ignorePositionChangeEvent = false;
@@ -356,7 +481,9 @@ let WordHighlighter = class {
     if (!this.editor.hasModel()) {
       return;
     }
-    const currentDecorationIDs = WordHighlighter.storedDecorationIDs.get(this.editor.getModel().uri);
+    const currentDecorationIDs = WordHighlighter.storedDecorationIDs.get(
+      this.editor.getModel().uri
+    );
     if (!currentDecorationIDs) {
       return;
     }
@@ -387,7 +514,9 @@ let WordHighlighter = class {
       if (editorHighlighterContrib.wordHighlighter.decorations.length > 0) {
         editorHighlighterContrib.wordHighlighter.decorations.clear();
         editorHighlighterContrib.wordHighlighter.workerRequest = null;
-        editorHighlighterContrib.wordHighlighter._hasWordHighlights.set(false);
+        editorHighlighterContrib.wordHighlighter._hasWordHighlights.set(
+          false
+        );
       }
     }
     for (const uri of deleteURI) {
@@ -532,7 +661,10 @@ let WordHighlighter = class {
       };
     }
     this.lastCursorPositionChangeTime = (/* @__PURE__ */ new Date()).getTime();
-    if (isEqual(this.editor.getModel().uri, WordHighlighter.query.modelInfo?.modelURI)) {
+    if (isEqual(
+      this.editor.getModel().uri,
+      WordHighlighter.query.modelInfo?.modelURI
+    )) {
       if (!multiFileConfigChange) {
         const currentModelDecorationRanges = this.decorations.getRanges();
         for (const storedRange of currentModelDecorationRanges) {
@@ -544,22 +676,35 @@ let WordHighlighter = class {
       this._stopAll(multiFileConfigChange ? this.model.uri : void 0);
       const myRequestId = ++this.workerRequestTokenId;
       this.workerRequestCompleted = false;
-      const otherModelsToHighlight = this.getOtherModelsToHighlight(this.editor.getModel());
+      const otherModelsToHighlight = this.getOtherModelsToHighlight(
+        this.editor.getModel()
+      );
       if (!WordHighlighter.query || !WordHighlighter.query.modelInfo) {
         return;
       }
-      const queryModelRef = await this.textModelService.createModelReference(WordHighlighter.query.modelInfo.modelURI);
+      const queryModelRef = await this.textModelService.createModelReference(
+        WordHighlighter.query.modelInfo.modelURI
+      );
       try {
-        this.workerRequest = this.computeWithModel(queryModelRef.object.textEditorModel, WordHighlighter.query.modelInfo.selection, otherModelsToHighlight);
+        this.workerRequest = this.computeWithModel(
+          queryModelRef.object.textEditorModel,
+          WordHighlighter.query.modelInfo.selection,
+          otherModelsToHighlight
+        );
         this.workerRequest?.result.then((data) => {
           if (myRequestId === this.workerRequestTokenId) {
             this.workerRequestCompleted = true;
             this.workerRequestValue = data || [];
-            this._beginRenderDecorations(delay ?? this.occurrencesHighlightDelay);
+            this._beginRenderDecorations(
+              delay ?? this.occurrencesHighlightDelay
+            );
           }
         }, onUnexpectedError);
       } catch (e) {
-        this.logService.error("Unexpected error during occurrence request. Log: ", e);
+        this.logService.error(
+          "Unexpected error during occurrence request. Log: ",
+          e
+        );
       } finally {
         queryModelRef.dispose();
       }
@@ -569,18 +714,29 @@ let WordHighlighter = class {
       if (!WordHighlighter.query || !WordHighlighter.query.modelInfo) {
         return;
       }
-      const queryModelRef = await this.textModelService.createModelReference(WordHighlighter.query.modelInfo.modelURI);
+      const queryModelRef = await this.textModelService.createModelReference(
+        WordHighlighter.query.modelInfo.modelURI
+      );
       try {
-        this.workerRequest = this.computeWithModel(queryModelRef.object.textEditorModel, WordHighlighter.query.modelInfo.selection, [this.model]);
+        this.workerRequest = this.computeWithModel(
+          queryModelRef.object.textEditorModel,
+          WordHighlighter.query.modelInfo.selection,
+          [this.model]
+        );
         this.workerRequest?.result.then((data) => {
           if (myRequestId === this.workerRequestTokenId) {
             this.workerRequestCompleted = true;
             this.workerRequestValue = data || [];
-            this._beginRenderDecorations(delay ?? this.occurrencesHighlightDelay);
+            this._beginRenderDecorations(
+              delay ?? this.occurrencesHighlightDelay
+            );
           }
         }, onUnexpectedError);
       } catch (e) {
-        this.logService.error("Unexpected error during occurrence request. Log: ", e);
+        this.logService.error(
+          "Unexpected error during occurrence request. Log: ",
+          e
+        );
       } finally {
         queryModelRef.dispose();
       }
@@ -588,9 +744,20 @@ let WordHighlighter = class {
   }
   computeWithModel(model, selection, otherModels) {
     if (!otherModels.length) {
-      return computeOccurencesAtPosition(this.providers, model, selection, this.editor.getOption(EditorOption.wordSeparators));
+      return computeOccurencesAtPosition(
+        this.providers,
+        model,
+        selection,
+        this.editor.getOption(EditorOption.wordSeparators)
+      );
     } else {
-      return computeOccurencesMultiModel(this.multiDocumentProviders, model, selection, this.editor.getOption(EditorOption.wordSeparators), otherModels);
+      return computeOccurencesMultiModel(
+        this.multiDocumentProviders,
+        model,
+        selection,
+        this.editor.getOption(EditorOption.wordSeparators),
+        otherModels
+      );
     }
   }
   _beginRenderDecorations(delay) {
@@ -625,18 +792,30 @@ let WordHighlighter = class {
             }
             newDecorations.push({
               range: highlight.range,
-              options: getHighlightDecorationOptions(highlight.kind)
+              options: getHighlightDecorationOptions(
+                highlight.kind
+              )
             });
           }
         }
         let newDecorationIDs = [];
         editor.changeDecorations((changeAccessor) => {
-          newDecorationIDs = changeAccessor.deltaDecorations(oldDecorationIDs ?? [], newDecorations);
+          newDecorationIDs = changeAccessor.deltaDecorations(
+            oldDecorationIDs ?? [],
+            newDecorations
+          );
         });
-        WordHighlighter.storedDecorationIDs = WordHighlighter.storedDecorationIDs.set(uri, newDecorationIDs);
+        WordHighlighter.storedDecorationIDs = WordHighlighter.storedDecorationIDs.set(
+          uri,
+          newDecorationIDs
+        );
         if (newDecorations.length > 0) {
-          editorHighlighterContrib.wordHighlighter?.decorations.set(newDecorations);
-          editorHighlighterContrib.wordHighlighter?._hasWordHighlights.set(true);
+          editorHighlighterContrib.wordHighlighter?.decorations.set(
+            newDecorations
+          );
+          editorHighlighterContrib.wordHighlighter?._hasWordHighlights.set(
+            true
+          );
         }
       }
     }
@@ -659,7 +838,9 @@ let WordHighlighterContribution = class extends Disposable {
   }
   static ID = "editor.contrib.wordHighlighter";
   static get(editor) {
-    return editor.getContribution(WordHighlighterContribution.ID);
+    return editor.getContribution(
+      WordHighlighterContribution.ID
+    );
   }
   _wordHighlighter;
   constructor(editor, contextKeyService, languageFeaturesService, codeEditorService, textModelService, configurationService, logService) {
@@ -667,26 +848,37 @@ let WordHighlighterContribution = class extends Disposable {
     this._wordHighlighter = null;
     const createWordHighlighterIfPossible = /* @__PURE__ */ __name(() => {
       if (editor.hasModel() && !editor.getModel().isTooLargeForTokenization() && editor.getModel().uri.scheme !== Schemas.accessibleView) {
-        this._wordHighlighter = new WordHighlighter(editor, languageFeaturesService.documentHighlightProvider, languageFeaturesService.multiDocumentHighlightProvider, contextKeyService, textModelService, codeEditorService, configurationService, logService);
+        this._wordHighlighter = new WordHighlighter(
+          editor,
+          languageFeaturesService.documentHighlightProvider,
+          languageFeaturesService.multiDocumentHighlightProvider,
+          contextKeyService,
+          textModelService,
+          codeEditorService,
+          configurationService,
+          logService
+        );
       }
     }, "createWordHighlighterIfPossible");
-    this._register(editor.onDidChangeModel((e) => {
-      if (this._wordHighlighter) {
-        if (!e.newModelUrl && e.oldModelUrl?.scheme !== Schemas.vscodeNotebookCell) {
-          this.wordHighlighter?.stop();
+    this._register(
+      editor.onDidChangeModel((e) => {
+        if (this._wordHighlighter) {
+          if (!e.newModelUrl && e.oldModelUrl?.scheme !== Schemas.vscodeNotebookCell) {
+            this.wordHighlighter?.stop();
+          }
+          this._wordHighlighter.dispose();
+          this._wordHighlighter = null;
         }
-        this._wordHighlighter.dispose();
-        this._wordHighlighter = null;
-      }
-      createWordHighlighterIfPossible();
-    }));
+        createWordHighlighterIfPossible();
+      })
+    );
     createWordHighlighterIfPossible();
   }
   get wordHighlighter() {
     return this._wordHighlighter;
   }
   saveViewState() {
-    if (this._wordHighlighter && this._wordHighlighter.hasDecorations()) {
+    if (this._wordHighlighter?.hasDecorations()) {
       return true;
     }
     return false;
@@ -749,7 +941,10 @@ class NextWordHighlightAction extends WordHighlightNavigationAction {
   constructor() {
     super(true, {
       id: "editor.action.wordHighlight.next",
-      label: nls.localize2("wordHighlight.next.label", "Go to Next Symbol Highlight"),
+      label: nls.localize2(
+        "wordHighlight.next.label",
+        "Go to Next Symbol Highlight"
+      ),
       precondition: ctxHasWordHighlights,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
@@ -766,7 +961,10 @@ class PrevWordHighlightAction extends WordHighlightNavigationAction {
   constructor() {
     super(false, {
       id: "editor.action.wordHighlight.prev",
-      label: nls.localize2("wordHighlight.previous.label", "Go to Previous Symbol Highlight"),
+      label: nls.localize2(
+        "wordHighlight.previous.label",
+        "Go to Previous Symbol Highlight"
+      ),
       precondition: ctxHasWordHighlights,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
@@ -783,7 +981,10 @@ class TriggerWordHighlightAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.wordHighlight.trigger",
-      label: nls.localize2("wordHighlight.trigger.label", "Trigger Symbol Highlight"),
+      label: nls.localize2(
+        "wordHighlight.trigger.label",
+        "Trigger Symbol Highlight"
+      ),
       precondition: void 0,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
@@ -800,7 +1001,11 @@ class TriggerWordHighlightAction extends EditorAction {
     controller.restoreViewState(true);
   }
 }
-registerEditorContribution(WordHighlighterContribution.ID, WordHighlighterContribution, EditorContributionInstantiation.Eager);
+registerEditorContribution(
+  WordHighlighterContribution.ID,
+  WordHighlighterContribution,
+  EditorContributionInstantiation.Eager
+);
 registerEditorAction(NextWordHighlightAction);
 registerEditorAction(PrevWordHighlightAction);
 registerEditorAction(TriggerWordHighlightAction);

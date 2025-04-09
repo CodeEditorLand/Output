@@ -10,18 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
 import { Emitter } from "../../../../base/common/event.js";
-import { basename } from "../../../../base/common/resources.js";
-import { IRange } from "../../../../editor/common/core/range.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IChatRequestVariableEntry } from "../common/chatModel.js";
+import { basename } from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ChatPromptAttachmentsCollection } from "./chatAttachmentModel/chatPromptAttachmentsCollection.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
 import { resizeImage } from "./imageUtils.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { localize } from "../../../../nls.js";
 let ChatAttachmentModel = class extends Disposable {
   constructor(initService, fileService, dialogService) {
     super();
@@ -99,7 +97,14 @@ let ChatAttachmentModel = class extends Disposable {
     const fileName = basename(uri);
     const readFile = await this.fileService.readFile(uri);
     if (readFile.size > 30 * 1024 * 1024) {
-      this.dialogService.error(localize("imageTooLarge", "Image is too large"), localize("imageTooLargeMessage", "The image {0} is too large to be attached.", fileName));
+      this.dialogService.error(
+        localize("imageTooLarge", "Image is too large"),
+        localize(
+          "imageTooLargeMessage",
+          "The image {0} is too large to be attached.",
+          fileName
+        )
+      );
       throw new Error("Image is too large");
     }
     const resizedImage = await resizeImage(readFile.value.buffer);

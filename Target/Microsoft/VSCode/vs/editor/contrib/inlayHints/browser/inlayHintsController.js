@@ -10,39 +10,81 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { isHTMLElement, ModifierKeyEmitter } from "../../../../base/browser/dom.js";
+import {
+  isHTMLElement,
+  ModifierKeyEmitter
+} from "../../../../base/browser/dom.js";
 import { isNonEmptyArray } from "../../../../base/common/arrays.js";
-import { disposableTimeout, RunOnceScheduler } from "../../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import {
+  disposableTimeout,
+  RunOnceScheduler
+} from "../../../../base/common/async.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { DisposableStore, IDisposable, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  DisposableStore,
+  MutableDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../../base/common/map.js";
-import { IRange } from "../../../../base/common/range.js";
 import { assertType } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IActiveCodeEditor, ICodeEditor, IEditorMouseEvent, MouseTargetType } from "../../../browser/editorBrowser.js";
-import { ClassNameReference, CssProperties, DynamicCssRules } from "../../../browser/editorDom.js";
-import { StableEditorScrollState } from "../../../browser/stableEditorScroll.js";
-import { EditorOption, EDITOR_FONT_DEFAULTS } from "../../../common/config/editorOptions.js";
-import { EditOperation } from "../../../common/core/editOperation.js";
-import { Range } from "../../../common/core/range.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import * as languages from "../../../common/languages.js";
-import { IModelDeltaDecoration, InjectedTextCursorStops, InjectedTextOptions, ITextModel, TrackedRangeStickiness } from "../../../common/model.js";
-import { ModelDecorationInjectedTextOptions } from "../../../common/model/textModel.js";
-import { IFeatureDebounceInformation, ILanguageFeatureDebounceService } from "../../../common/services/languageFeatureDebounce.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { ITextModelService } from "../../../common/services/resolverService.js";
-import { ClickLinkGesture, ClickLinkMouseEvent } from "../../gotoSymbol/browser/link/clickLinkGesture.js";
-import { InlayHintAnchor, InlayHintItem, InlayHintsFragments } from "./inlayHints.js";
-import { goToDefinitionWithLocation, showGoToContextMenu } from "./inlayHintsLocations.js";
-import { CommandsRegistry, ICommandService } from "../../../../platform/commands/common/commands.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import {
+  CommandsRegistry,
+  ICommandService
+} from "../../../../platform/commands/common/commands.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
 import * as colors from "../../../../platform/theme/common/colorRegistry.js";
 import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
-import { Position } from "../../../common/core/position.js";
+import {
+  MouseTargetType
+} from "../../../browser/editorBrowser.js";
+import {
+  DynamicCssRules
+} from "../../../browser/editorDom.js";
+import { StableEditorScrollState } from "../../../browser/stableEditorScroll.js";
+import {
+  EDITOR_FONT_DEFAULTS,
+  EditorOption
+} from "../../../common/config/editorOptions.js";
+import { EditOperation } from "../../../common/core/editOperation.js";
+import { Range } from "../../../common/core/range.js";
+import * as languages from "../../../common/languages.js";
+import {
+  InjectedTextCursorStops,
+  TrackedRangeStickiness
+} from "../../../common/model.js";
+import { ModelDecorationInjectedTextOptions } from "../../../common/model/textModel.js";
+import {
+  ILanguageFeatureDebounceService
+} from "../../../common/services/languageFeatureDebounce.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { ITextModelService } from "../../../common/services/resolverService.js";
+import {
+  ClickLinkGesture
+} from "../../gotoSymbol/browser/link/clickLinkGesture.js";
+import {
+  InlayHintAnchor,
+  InlayHintsFragments
+} from "./inlayHints.js";
+import {
+  goToDefinitionWithLocation,
+  showGoToContextMenu
+} from "./inlayHintsLocations.js";
 class InlayHintsCache {
   static {
     __name(this, "InlayHintsCache");
@@ -101,15 +143,27 @@ let InlayHintsController = class {
     this._commandService = _commandService;
     this._notificationService = _notificationService;
     this._instaService = _instaService;
-    this._debounceInfo = _featureDebounce.for(_languageFeaturesService.inlayHintsProvider, "InlayHint", { min: 25 });
-    this._disposables.add(_languageFeaturesService.inlayHintsProvider.onDidChange(() => this._update()));
+    this._debounceInfo = _featureDebounce.for(
+      _languageFeaturesService.inlayHintsProvider,
+      "InlayHint",
+      { min: 25 }
+    );
+    this._disposables.add(
+      _languageFeaturesService.inlayHintsProvider.onDidChange(
+        () => this._update()
+      )
+    );
     this._disposables.add(_editor.onDidChangeModel(() => this._update()));
-    this._disposables.add(_editor.onDidChangeModelLanguage(() => this._update()));
-    this._disposables.add(_editor.onDidChangeConfiguration((e) => {
-      if (e.hasChanged(EditorOption.inlayHints)) {
-        this._update();
-      }
-    }));
+    this._disposables.add(
+      _editor.onDidChangeModelLanguage(() => this._update())
+    );
+    this._disposables.add(
+      _editor.onDidChangeConfiguration((e) => {
+        if (e.hasChanged(EditorOption.inlayHints)) {
+          this._update();
+        }
+      })
+    );
     this._update();
   }
   static {
@@ -119,7 +173,9 @@ let InlayHintsController = class {
   static _MAX_DECORATORS = 1500;
   static _whitespaceData = {};
   static get(editor) {
-    return editor.getContribution(InlayHintsController.ID) ?? void 0;
+    return editor.getContribution(
+      InlayHintsController.ID
+    ) ?? void 0;
   }
   _disposables = new DisposableStore();
   _sessionDisposables = new DisposableStore();
@@ -158,29 +214,36 @@ let InlayHintsController = class {
         altMode = 0 /* Normal */;
       }
       this._activeRenderMode = defaultMode;
-      this._sessionDisposables.add(ModifierKeyEmitter.getInstance().event((e) => {
-        if (!this._editor.hasModel()) {
-          return;
-        }
-        const newRenderMode = e.altKey && e.ctrlKey && !(e.shiftKey || e.metaKey) ? altMode : defaultMode;
-        if (newRenderMode !== this._activeRenderMode) {
-          this._activeRenderMode = newRenderMode;
-          const model2 = this._editor.getModel();
-          const copies = this._copyInlayHintsWithCurrentAnchor(model2);
-          this._updateHintsDecorators([model2.getFullModelRange()], copies);
-          scheduler.schedule(0);
-        }
-      }));
+      this._sessionDisposables.add(
+        ModifierKeyEmitter.getInstance().event((e) => {
+          if (!this._editor.hasModel()) {
+            return;
+          }
+          const newRenderMode = e.altKey && e.ctrlKey && !(e.shiftKey || e.metaKey) ? altMode : defaultMode;
+          if (newRenderMode !== this._activeRenderMode) {
+            this._activeRenderMode = newRenderMode;
+            const model2 = this._editor.getModel();
+            const copies = this._copyInlayHintsWithCurrentAnchor(model2);
+            this._updateHintsDecorators(
+              [model2.getFullModelRange()],
+              copies
+            );
+            scheduler.schedule(0);
+          }
+        })
+      );
     }
     const cached = this._inlayHintsCache.get(model);
     if (cached) {
       this._updateHintsDecorators([model.getFullModelRange()], cached);
     }
-    this._sessionDisposables.add(toDisposable(() => {
-      if (!model.isDisposed()) {
-        this._cacheHintsForFastRestore(model);
-      }
-    }));
+    this._sessionDisposables.add(
+      toDisposable(() => {
+        if (!model.isDisposed()) {
+          this._cacheHintsForFastRestore(model);
+        }
+      })
+    );
     let cts;
     const watchedProviders = /* @__PURE__ */ new Set();
     const scheduler = new RunOnceScheduler(async () => {
@@ -190,8 +253,16 @@ let InlayHintsController = class {
       const listener = model.onWillDispose(() => cts?.cancel());
       try {
         const myToken = cts.token;
-        const inlayHints = await InlayHintsFragments.create(this._languageFeaturesService.inlayHintsProvider, model, this._getHintsRanges(), myToken);
-        scheduler.delay = this._debounceInfo.update(model, Date.now() - t1);
+        const inlayHints = await InlayHintsFragments.create(
+          this._languageFeaturesService.inlayHintsProvider,
+          model,
+          this._getHintsRanges(),
+          myToken
+        );
+        scheduler.delay = this._debounceInfo.update(
+          model,
+          Date.now() - t1
+        );
         if (myToken.isCancellationRequested) {
           inlayHints.dispose();
           return;
@@ -199,15 +270,20 @@ let InlayHintsController = class {
         for (const provider of inlayHints.provider) {
           if (typeof provider.onDidChangeInlayHints === "function" && !watchedProviders.has(provider)) {
             watchedProviders.add(provider);
-            this._sessionDisposables.add(provider.onDidChangeInlayHints(() => {
-              if (!scheduler.isScheduled()) {
-                scheduler.schedule();
-              }
-            }));
+            this._sessionDisposables.add(
+              provider.onDidChangeInlayHints(() => {
+                if (!scheduler.isScheduled()) {
+                  scheduler.schedule();
+                }
+              })
+            );
           }
         }
         this._sessionDisposables.add(inlayHints);
-        this._updateHintsDecorators(inlayHints.ranges, inlayHints.items);
+        this._updateHintsDecorators(
+          inlayHints.ranges,
+          inlayHints.items
+        );
         this._cacheHintsForFastRestore(model);
       } catch (err) {
         onUnexpectedError(err);
@@ -219,25 +295,39 @@ let InlayHintsController = class {
     this._sessionDisposables.add(scheduler);
     this._sessionDisposables.add(toDisposable(() => cts?.dispose(true)));
     scheduler.schedule(0);
-    this._sessionDisposables.add(this._editor.onDidScrollChange((e) => {
-      if (e.scrollTopChanged || !scheduler.isScheduled()) {
-        scheduler.schedule();
-      }
-    }));
+    this._sessionDisposables.add(
+      this._editor.onDidScrollChange((e) => {
+        if (e.scrollTopChanged || !scheduler.isScheduled()) {
+          scheduler.schedule();
+        }
+      })
+    );
     const cursor = this._sessionDisposables.add(new MutableDisposable());
-    this._sessionDisposables.add(this._editor.onDidChangeModelContent((e) => {
-      cts?.cancel();
-      const delay = Math.max(scheduler.delay, 800);
-      this._cursorInfo = { position: this._editor.getPosition(), notEarlierThan: Date.now() + delay };
-      cursor.value = disposableTimeout(() => scheduler.schedule(0), delay);
-      scheduler.schedule();
-    }));
-    this._sessionDisposables.add(this._editor.onDidChangeConfiguration((e) => {
-      if (e.hasChanged(EditorOption.inlayHints)) {
+    this._sessionDisposables.add(
+      this._editor.onDidChangeModelContent((e) => {
+        cts?.cancel();
+        const delay = Math.max(scheduler.delay, 800);
+        this._cursorInfo = {
+          position: this._editor.getPosition(),
+          notEarlierThan: Date.now() + delay
+        };
+        cursor.value = disposableTimeout(
+          () => scheduler.schedule(0),
+          delay
+        );
         scheduler.schedule();
-      }
-    }));
-    this._sessionDisposables.add(this._installDblClickGesture(() => scheduler.schedule(0)));
+      })
+    );
+    this._sessionDisposables.add(
+      this._editor.onDidChangeConfiguration((e) => {
+        if (e.hasChanged(EditorOption.inlayHints)) {
+          scheduler.schedule();
+        }
+      })
+    );
+    this._sessionDisposables.add(
+      this._installDblClickGesture(() => scheduler.schedule(0))
+    );
     this._sessionDisposables.add(this._installLinkGesture());
     this._sessionDisposables.add(this._installContextMenu());
   }
@@ -246,39 +336,60 @@ let InlayHintsController = class {
     const gesture = store.add(new ClickLinkGesture(this._editor));
     const sessionStore = new DisposableStore();
     store.add(sessionStore);
-    store.add(gesture.onMouseMoveOrRelevantKeyDown((e) => {
-      const [mouseEvent] = e;
-      const labelPart = this._getInlayHintLabelPart(mouseEvent);
-      const model = this._editor.getModel();
-      if (!labelPart || !model) {
-        sessionStore.clear();
-        return;
-      }
-      const cts = new CancellationTokenSource();
-      sessionStore.add(toDisposable(() => cts.dispose(true)));
-      labelPart.item.resolve(cts.token);
-      this._activeInlayHintPart = labelPart.part.command || labelPart.part.location ? new ActiveInlayHintInfo(labelPart, mouseEvent.hasTriggerModifier) : void 0;
-      const lineNumber = model.validatePosition(labelPart.item.hint.position).lineNumber;
-      const range = new Range(lineNumber, 1, lineNumber, model.getLineMaxColumn(lineNumber));
-      const lineHints = this._getInlineHintsForRange(range);
-      this._updateHintsDecorators([range], lineHints);
-      sessionStore.add(toDisposable(() => {
-        this._activeInlayHintPart = void 0;
-        this._updateHintsDecorators([range], lineHints);
-      }));
-    }));
-    store.add(gesture.onCancel(() => sessionStore.clear()));
-    store.add(gesture.onExecute(async (e) => {
-      const label = this._getInlayHintLabelPart(e);
-      if (label) {
-        const part = label.part;
-        if (part.location) {
-          this._instaService.invokeFunction(goToDefinitionWithLocation, e, this._editor, part.location);
-        } else if (languages.Command.is(part.command)) {
-          await this._invokeCommand(part.command, label.item);
+    store.add(
+      gesture.onMouseMoveOrRelevantKeyDown((e) => {
+        const [mouseEvent] = e;
+        const labelPart = this._getInlayHintLabelPart(mouseEvent);
+        const model = this._editor.getModel();
+        if (!labelPart || !model) {
+          sessionStore.clear();
+          return;
         }
-      }
-    }));
+        const cts = new CancellationTokenSource();
+        sessionStore.add(toDisposable(() => cts.dispose(true)));
+        labelPart.item.resolve(cts.token);
+        this._activeInlayHintPart = labelPart.part.command || labelPart.part.location ? new ActiveInlayHintInfo(
+          labelPart,
+          mouseEvent.hasTriggerModifier
+        ) : void 0;
+        const lineNumber = model.validatePosition(
+          labelPart.item.hint.position
+        ).lineNumber;
+        const range = new Range(
+          lineNumber,
+          1,
+          lineNumber,
+          model.getLineMaxColumn(lineNumber)
+        );
+        const lineHints = this._getInlineHintsForRange(range);
+        this._updateHintsDecorators([range], lineHints);
+        sessionStore.add(
+          toDisposable(() => {
+            this._activeInlayHintPart = void 0;
+            this._updateHintsDecorators([range], lineHints);
+          })
+        );
+      })
+    );
+    store.add(gesture.onCancel(() => sessionStore.clear()));
+    store.add(
+      gesture.onExecute(async (e) => {
+        const label = this._getInlayHintLabelPart(e);
+        if (label) {
+          const part = label.part;
+          if (part.location) {
+            this._instaService.invokeFunction(
+              goToDefinitionWithLocation,
+              e,
+              this._editor,
+              part.location
+            );
+          } else if (languages.Command.is(part.command)) {
+            await this._invokeCommand(part.command, label.item);
+          }
+        }
+      })
+    );
     return store;
   }
   _getInlineHintsForRange(range) {
@@ -302,7 +413,9 @@ let InlayHintsController = class {
       e.event.preventDefault();
       await part.item.resolve(CancellationToken.None);
       if (isNonEmptyArray(part.item.hint.textEdits)) {
-        const edits = part.item.hint.textEdits.map((edit) => EditOperation.replace(Range.lift(edit.range), edit.text));
+        const edits = part.item.hint.textEdits.map(
+          (edit) => EditOperation.replace(Range.lift(edit.range), edit.text)
+        );
         this._editor.executeEdits("inlayHint.default", edits);
         updateInlayHints();
       }
@@ -315,7 +428,12 @@ let InlayHintsController = class {
       }
       const part = this._getInlayHintLabelPart(e);
       if (part) {
-        await this._instaService.invokeFunction(showGoToContextMenu, this._editor, e.event.target, part);
+        await this._instaService.invokeFunction(
+          showGoToContextMenu,
+          this._editor,
+          e.event.target,
+          part
+        );
       }
     });
   }
@@ -331,7 +449,10 @@ let InlayHintsController = class {
   }
   async _invokeCommand(command, item) {
     try {
-      await this._commandService.executeCommand(command.id, ...command.arguments ?? []);
+      await this._commandService.executeCommand(
+        command.id,
+        ...command.arguments ?? []
+      );
     } catch (err) {
       this._notificationService.notify({
         severity: Severity.Error,
@@ -354,7 +475,10 @@ let InlayHintsController = class {
       }
       const range = model.getDecorationRange(id);
       if (range) {
-        const anchor = new InlayHintAnchor(range, obj.item.anchor.direction);
+        const anchor = new InlayHintAnchor(
+          range,
+          obj.item.anchor.direction
+        );
         const copy = obj.item.with({ anchor });
         items.set(obj.item, copy);
       }
@@ -366,23 +490,42 @@ let InlayHintsController = class {
     const model = this._editor.getModel();
     const visibleRanges = this._editor.getVisibleRangesPlusViewportAboveBelow();
     const result = [];
-    for (const range of visibleRanges.sort(Range.compareRangesUsingStarts)) {
-      const extendedRange = model.validateRange(new Range(range.startLineNumber - extra, range.startColumn, range.endLineNumber + extra, range.endColumn));
-      if (result.length === 0 || !Range.areIntersectingOrTouching(result[result.length - 1], extendedRange)) {
+    for (const range of visibleRanges.sort(
+      Range.compareRangesUsingStarts
+    )) {
+      const extendedRange = model.validateRange(
+        new Range(
+          range.startLineNumber - extra,
+          range.startColumn,
+          range.endLineNumber + extra,
+          range.endColumn
+        )
+      );
+      if (result.length === 0 || !Range.areIntersectingOrTouching(
+        result[result.length - 1],
+        extendedRange
+      )) {
         result.push(extendedRange);
       } else {
-        result[result.length - 1] = Range.plusRange(result[result.length - 1], extendedRange);
+        result[result.length - 1] = Range.plusRange(
+          result[result.length - 1],
+          extendedRange
+        );
       }
     }
     return result;
   }
   _updateHintsDecorators(ranges, items) {
     const itemFixedLengths = /* @__PURE__ */ new Map();
-    if (this._cursorInfo && this._cursorInfo.notEarlierThan > Date.now() && ranges.some((range) => range.containsPosition(this._cursorInfo.position))) {
+    if (this._cursorInfo && this._cursorInfo.notEarlierThan > Date.now() && ranges.some(
+      (range) => range.containsPosition(this._cursorInfo?.position)
+    )) {
       const { position } = this._cursorInfo;
       this._cursorInfo = void 0;
       const lengths = /* @__PURE__ */ new Map();
-      for (const deco of this._editor.getLineDecorations(position.lineNumber) ?? []) {
+      for (const deco of this._editor.getLineDecorations(
+        position.lineNumber
+      ) ?? []) {
         const data = this._decorationsMetadata.get(deco.id);
         if (deco.range.startColumn > position.column) {
           continue;
@@ -393,7 +536,9 @@ let InlayHintsController = class {
           lengths.set(data.item, len + opts.content.length);
         }
       }
-      const newItemsWithFixedLength = items.filter((item) => item.anchor.range.startLineNumber === position.lineNumber && item.anchor.range.endColumn <= position.column);
+      const newItemsWithFixedLength = items.filter(
+        (item) => item.anchor.range.startLineNumber === position.lineNumber && item.anchor.range.endColumn <= position.column
+      );
       const fixedLengths = Array.from(lengths.values());
       let lastItem;
       while (true) {
@@ -445,17 +590,28 @@ let InlayHintsController = class {
         width: `${fontSize / 3 | 0}px`,
         display: "inline-block"
       });
-      addInjectedText(item, marginRule, "\u200A", isLast ? InjectedTextCursorStops.Right : InjectedTextCursorStops.None, InlayHintsController._whitespaceData);
+      addInjectedText(
+        item,
+        marginRule,
+        "\u200A",
+        isLast ? InjectedTextCursorStops.Right : InjectedTextCursorStops.None,
+        InlayHintsController._whitespaceData
+      );
     }, "addInjectedWhitespace");
     const { fontSize, fontFamily, padding, isUniform } = this._getLayoutInfo();
-    const maxLength = this._editor.getOption(EditorOption.inlayHints).maximumLength;
+    const maxLength = this._editor.getOption(
+      EditorOption.inlayHints
+    ).maximumLength;
     const fontFamilyVar = "--code-editorInlayHintsFontFamily";
     this._editor.getContainerDomNode().style.setProperty(fontFamilyVar, fontFamily);
     let currentLineInfo = { line: 0, totalLen: 0 };
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
       if (currentLineInfo.line !== item.anchor.range.startLineNumber) {
-        currentLineInfo = { line: item.anchor.range.startLineNumber, totalLen: 0 };
+        currentLineInfo = {
+          line: item.anchor.range.startLineNumber,
+          totalLen: 0
+        };
       }
       if (maxLength && currentLineInfo.totalLen > maxLength) {
         continue;
@@ -483,7 +639,9 @@ let InlayHintsController = class {
         if ((part.command || part.location) && this._activeInlayHintPart?.part.item === item && this._activeInlayHintPart.part.index === i2) {
           cssProperties.textDecoration = "underline";
           if (this._activeInlayHintPart.hasTriggerModifier) {
-            cssProperties.color = themeColorFromId(colors.editorActiveLinkForeground);
+            cssProperties.color = themeColorFromId(
+              colors.editorActiveLinkForeground
+            );
             cssProperties.cursor = "pointer";
           }
         }
@@ -492,7 +650,7 @@ let InlayHintsController = class {
         let tooLong = false;
         const over = maxLength !== 0 ? currentLineInfo.totalLen - maxLength : 0;
         if (over > 0) {
-          textlabel = textlabel.slice(0, -over) + "\u2026";
+          textlabel = `${textlabel.slice(0, -over)}\u2026`;
           tooLong = true;
         }
         itemActualLength += textlabel.length;
@@ -500,7 +658,7 @@ let InlayHintsController = class {
           const overFixedLength = itemActualLength - itemFixedLength;
           if (overFixedLength >= 0) {
             itemActualLength -= overFixedLength;
-            textlabel = textlabel.slice(0, -(1 + overFixedLength)) + "\u2026";
+            textlabel = `${textlabel.slice(0, -(1 + overFixedLength))}\u2026`;
             tooLong = true;
           }
         }
@@ -515,7 +673,7 @@ let InlayHintsController = class {
             cssProperties.padding = `1px ${Math.max(1, fontSize / 4) | 0}px 1px 0`;
             cssProperties.borderRadius = `0 ${fontSize / 4 | 0}px ${fontSize / 4 | 0}px 0`;
           } else {
-            cssProperties.padding = `1px 0 1px 0`;
+            cssProperties.padding = "1px 0 1px 0";
           }
         }
         addInjectedText(
@@ -556,7 +714,10 @@ let InlayHintsController = class {
     }
     const scrollState = StableEditorScrollState.capture(this._editor);
     this._editor.changeDecorations((accessor) => {
-      const newDecorationIds = accessor.deltaDecorations(decorationIdsToReplace, newDecorationsData.map((d) => d.decoration));
+      const newDecorationIds = accessor.deltaDecorations(
+        decorationIdsToReplace,
+        newDecorationsData.map((d) => d.decoration)
+      );
       for (let i = 0; i < newDecorationIds.length; i++) {
         const data = newDecorationsData[i];
         this._decorationsMetadata.set(newDecorationIds[i], data);
@@ -566,13 +727,23 @@ let InlayHintsController = class {
   }
   _fillInColors(props, hint) {
     if (hint.kind === languages.InlayHintKind.Parameter) {
-      props.backgroundColor = themeColorFromId(colors.editorInlayHintParameterBackground);
-      props.color = themeColorFromId(colors.editorInlayHintParameterForeground);
+      props.backgroundColor = themeColorFromId(
+        colors.editorInlayHintParameterBackground
+      );
+      props.color = themeColorFromId(
+        colors.editorInlayHintParameterForeground
+      );
     } else if (hint.kind === languages.InlayHintKind.Type) {
-      props.backgroundColor = themeColorFromId(colors.editorInlayHintTypeBackground);
-      props.color = themeColorFromId(colors.editorInlayHintTypeForeground);
+      props.backgroundColor = themeColorFromId(
+        colors.editorInlayHintTypeBackground
+      );
+      props.color = themeColorFromId(
+        colors.editorInlayHintTypeForeground
+      );
     } else {
-      props.backgroundColor = themeColorFromId(colors.editorInlayHintBackground);
+      props.backgroundColor = themeColorFromId(
+        colors.editorInlayHintBackground
+      );
       props.color = themeColorFromId(colors.editorInlayHintForeground);
     }
   }
@@ -580,7 +751,9 @@ let InlayHintsController = class {
     const options = this._editor.getOption(EditorOption.inlayHints);
     const padding = options.padding;
     const editorFontSize = this._editor.getOption(EditorOption.fontSize);
-    const editorFontFamily = this._editor.getOption(EditorOption.fontFamily);
+    const editorFontFamily = this._editor.getOption(
+      EditorOption.fontFamily
+    );
     let fontSize = options.fontSize;
     if (!fontSize || fontSize < 5 || fontSize > editorFontSize) {
       fontSize = editorFontSize;
@@ -590,7 +763,9 @@ let InlayHintsController = class {
     return { fontSize, fontFamily, padding, isUniform };
   }
   _removeAllDecorations() {
-    this._editor.removeDecorations(Array.from(this._decorationsMetadata.keys()));
+    this._editor.removeDecorations(
+      Array.from(this._decorationsMetadata.keys())
+    );
     for (const obj of this._decorationsMetadata.values()) {
       obj.classNameRef.dispose();
     }
@@ -626,21 +801,29 @@ function fixSpace(str) {
   return str.replace(/[ \t]/g, noBreakWhitespace);
 }
 __name(fixSpace, "fixSpace");
-CommandsRegistry.registerCommand("_executeInlayHintProvider", async (accessor, ...args) => {
-  const [uri, range] = args;
-  assertType(URI.isUri(uri));
-  assertType(Range.isIRange(range));
-  const { inlayHintsProvider } = accessor.get(ILanguageFeaturesService);
-  const ref = await accessor.get(ITextModelService).createModelReference(uri);
-  try {
-    const model = await InlayHintsFragments.create(inlayHintsProvider, ref.object.textEditorModel, [Range.lift(range)], CancellationToken.None);
-    const result = model.items.map((i) => i.hint);
-    setTimeout(() => model.dispose(), 0);
-    return result;
-  } finally {
-    ref.dispose();
+CommandsRegistry.registerCommand(
+  "_executeInlayHintProvider",
+  async (accessor, ...args) => {
+    const [uri, range] = args;
+    assertType(URI.isUri(uri));
+    assertType(Range.isIRange(range));
+    const { inlayHintsProvider } = accessor.get(ILanguageFeaturesService);
+    const ref = await accessor.get(ITextModelService).createModelReference(uri);
+    try {
+      const model = await InlayHintsFragments.create(
+        inlayHintsProvider,
+        ref.object.textEditorModel,
+        [Range.lift(range)],
+        CancellationToken.None
+      );
+      const result = model.items.map((i) => i.hint);
+      setTimeout(() => model.dispose(), 0);
+      return result;
+    } finally {
+      ref.dispose();
+    }
   }
-});
+);
 export {
   InlayHintsController,
   RenderedInlayHintLabelPart

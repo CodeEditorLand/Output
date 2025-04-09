@@ -10,14 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { AsyncReferenceCollection, IReference, ReferenceCollection } from "../../../../../../base/common/lifecycle.js";
-import { IModifiedFileEntry } from "../../../../chat/common/chatEditingService.js";
-import { INotebookService } from "../../../common/notebookService.js";
-import { bufferToStream, VSBuffer } from "../../../../../../base/common/buffer.js";
-import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
-import { createDecorator, IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import {
+  bufferToStream,
+  VSBuffer
+} from "../../../../../../base/common/buffer.js";
+import {
+  AsyncReferenceCollection,
+  ReferenceCollection
+} from "../../../../../../base/common/lifecycle.js";
 import { ITextModelService } from "../../../../../../editor/common/services/resolverService.js";
-const INotebookOriginalModelReferenceFactory = createDecorator("INotebookOriginalModelReferenceFactory");
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../../../../../platform/instantiation/common/instantiation.js";
+import { INotebookService } from "../../../common/notebookService.js";
+const INotebookOriginalModelReferenceFactory = createDecorator(
+  "INotebookOriginalModelReferenceFactory"
+);
 let OriginalNotebookModelReferenceCollection = class extends ReferenceCollection {
   constructor(notebookService, modelService) {
     super();
@@ -36,10 +45,16 @@ let OriginalNotebookModelReferenceCollection = class extends ReferenceCollection
       return model;
     }
     const modelRef = await this.modelService.createModelReference(uri);
-    const bytes = VSBuffer.fromString(modelRef.object.textEditorModel.getValue());
+    const bytes = VSBuffer.fromString(
+      modelRef.object.textEditorModel.getValue()
+    );
     const stream = bufferToStream(bytes);
     modelRef.dispose();
-    return this.notebookService.createNotebookTextModel(viewType, uri, stream);
+    return this.notebookService.createNotebookTextModel(
+      viewType,
+      uri,
+      stream
+    );
   }
   destroyReferencedObject(key, modelPromise) {
     this.modelsToDispose.add(key);
@@ -72,19 +87,27 @@ let NotebookOriginalModelReferenceFactory = class {
   _resourceModelCollection = void 0;
   get resourceModelCollection() {
     if (!this._resourceModelCollection) {
-      this._resourceModelCollection = this.instantiationService.createInstance(OriginalNotebookModelReferenceCollection);
+      this._resourceModelCollection = this.instantiationService.createInstance(
+        OriginalNotebookModelReferenceCollection
+      );
     }
     return this._resourceModelCollection;
   }
   _asyncModelCollection = void 0;
   get asyncModelCollection() {
     if (!this._asyncModelCollection) {
-      this._asyncModelCollection = new AsyncReferenceCollection(this.resourceModelCollection);
+      this._asyncModelCollection = new AsyncReferenceCollection(
+        this.resourceModelCollection
+      );
     }
     return this._asyncModelCollection;
   }
   getOrCreate(fileEntry, viewType) {
-    return this.asyncModelCollection.acquire(fileEntry.originalURI.toString(), fileEntry, viewType);
+    return this.asyncModelCollection.acquire(
+      fileEntry.originalURI.toString(),
+      fileEntry,
+      viewType
+    );
   }
 };
 NotebookOriginalModelReferenceFactory = __decorateClass([

@@ -5,7 +5,7 @@ const SshProtocolMatcher = /^([^@:]+@)?([^:]+):/;
 const SshUrlMatcher = /^([^@:]+@)?([^:]+):(.+)$/;
 const AuthorityMatcher = /^([^@]+@)?([^:]+)(:\d+)?$/;
 const SecondLevelDomainMatcher = /([^@:.]+\.[^@:.]+)(:\d+)?$/;
-const RemoteMatcher = /^\s*url\s*=\s*(.+\S)\s*$/mg;
+const RemoteMatcher = /^\s*url\s*=\s*(.+\S)\s*$/gm;
 const AnyButDot = /[^.]/g;
 const AllowedSecondLevelDomains = [
   "github.com",
@@ -56,7 +56,9 @@ function getDomainsOfRemotes(text, allowedDomains) {
     }
   }
   const allowedDomainsSet = new Set(allowedDomains);
-  return Array.from(domains).map((key) => allowedDomainsSet.has(key) ? key : key.replace(AnyButDot, "a"));
+  return Array.from(domains).map(
+    (key) => allowedDomainsSet.has(key) ? key : key.replace(AnyButDot, "a")
+  );
 }
 __name(getDomainsOfRemotes, "getDomainsOfRemotes");
 function stripPort(authority) {
@@ -84,7 +86,11 @@ function extractRemote(url, stripEndingDotGit) {
   try {
     const uri = URI.parse(url);
     if (uri.authority) {
-      return normalizeRemote(stripPort(uri.authority), uri.path, stripEndingDotGit);
+      return normalizeRemote(
+        stripPort(uri.authority),
+        uri.path,
+        stripEndingDotGit
+      );
     }
   } catch (e) {
   }

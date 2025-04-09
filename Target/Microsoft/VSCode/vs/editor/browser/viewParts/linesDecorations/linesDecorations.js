@@ -1,11 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./linesDecorations.css";
-import { DecorationToRender, DedupOverlay } from "../glyphMargin/glyphMargin.js";
-import { RenderingContext } from "../../view/renderingContext.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import * as viewEvents from "../../../common/viewEvents.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
+import {
+  DecorationToRender,
+  DedupOverlay
+} from "../glyphMargin/glyphMargin.js";
 class LinesDecorationsOverlay extends DedupOverlay {
   static {
     __name(this, "LinesDecorationsOverlay");
@@ -68,11 +68,23 @@ class LinesDecorationsOverlay extends DedupOverlay {
       const linesDecorationsClassName = d.options.linesDecorationsClassName;
       const zIndex = d.options.zIndex;
       if (linesDecorationsClassName) {
-        r[rLen++] = new DecorationToRender(d.range.startLineNumber, d.range.endLineNumber, linesDecorationsClassName, d.options.linesDecorationsTooltip ?? null, zIndex);
+        r[rLen++] = new DecorationToRender(
+          d.range.startLineNumber,
+          d.range.endLineNumber,
+          linesDecorationsClassName,
+          d.options.linesDecorationsTooltip ?? null,
+          zIndex
+        );
       }
       const firstLineDecorationClassName = d.options.firstLineDecorationClassName;
       if (firstLineDecorationClassName) {
-        r[rLen++] = new DecorationToRender(d.range.startLineNumber, d.range.startLineNumber, firstLineDecorationClassName, d.options.linesDecorationsTooltip ?? null, zIndex);
+        r[rLen++] = new DecorationToRender(
+          d.range.startLineNumber,
+          d.range.startLineNumber,
+          firstLineDecorationClassName,
+          d.options.linesDecorationsTooltip ?? null,
+          zIndex
+        );
       }
     }
     return r;
@@ -80,19 +92,23 @@ class LinesDecorationsOverlay extends DedupOverlay {
   prepareRender(ctx) {
     const visibleStartLineNumber = ctx.visibleRange.startLineNumber;
     const visibleEndLineNumber = ctx.visibleRange.endLineNumber;
-    const toRender = this._render(visibleStartLineNumber, visibleEndLineNumber, this._getDecorations(ctx));
+    const toRender = this._render(
+      visibleStartLineNumber,
+      visibleEndLineNumber,
+      this._getDecorations(ctx)
+    );
     const left = this._decorationsLeft.toString();
     const width = this._decorationsWidth.toString();
-    const common = '" style="left:' + left + "px;width:" + width + 'px;"></div>';
+    const common = `" style="left:${left}px;width:${width}px;"></div>`;
     const output = [];
     for (let lineNumber = visibleStartLineNumber; lineNumber <= visibleEndLineNumber; lineNumber++) {
       const lineIndex = lineNumber - visibleStartLineNumber;
       const decorations = toRender[lineIndex].getDecorations();
       let lineOutput = "";
       for (const decoration of decorations) {
-        let addition = '<div class="cldr ' + decoration.className;
+        let addition = `<div class="cldr ${decoration.className}`;
         if (decoration.tooltip !== null) {
-          addition += '" title="' + decoration.tooltip;
+          addition += `" title="${decoration.tooltip}`;
         }
         addition += common;
         lineOutput += addition;

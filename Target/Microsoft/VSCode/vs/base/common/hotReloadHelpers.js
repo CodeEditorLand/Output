@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isHotReloadEnabled, registerHotReloadHandler } from "./hotReload.js";
-import { constObservable, IObservable, IReader, ISettableObservable, observableSignalFromEvent, observableValue } from "./observable.js";
+import {
+  constObservable,
+  observableSignalFromEvent,
+  observableValue
+} from "./observable.js";
 function readHotReloadableExport(value, reader) {
   observeHotReloadableExports([value], reader);
   return value;
@@ -12,7 +16,9 @@ function observeHotReloadableExports(values, reader) {
     const o = observableSignalFromEvent(
       "reload",
       (event) => registerHotReloadHandler(({ oldExports }) => {
-        if (![...Object.values(oldExports)].some((v) => values.includes(v))) {
+        if (![...Object.values(oldExports)].some(
+          (v) => values.includes(v)
+        )) {
           return void 0;
         }
         return (_newExports) => {
@@ -37,7 +43,7 @@ function createHotClass(clazz) {
     classes.set(id, existing);
   } else {
     setTimeout(() => {
-      existing.set(clazz, void 0);
+      existing?.set(clazz, void 0);
     }, 0);
   }
   return existing;

@@ -1,9 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "../../../base/common/buffer.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { URI } from "../../../base/common/uri.js";
-import { ISharedWebContentExtractorService } from "../common/webContentExtractor.js";
 class SharedWebContentExtractorService {
   static {
     __name(this, "SharedWebContentExtractorService");
@@ -16,7 +13,7 @@ class SharedWebContentExtractorService {
     try {
       const response = await fetch(uri.toString(true), {
         headers: {
-          "Accept": "image/*",
+          Accept: "image/*",
           "User-Agent": "Mozilla/5.0"
         }
       });

@@ -2,15 +2,18 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./lineNumbers.css";
 import * as platform from "../../../../base/common/platform.js";
-import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
-import { RenderLineNumbersType, EditorOption } from "../../../common/config/editorOptions.js";
+import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import {
+  EditorOption,
+  RenderLineNumbersType
+} from "../../../common/config/editorOptions.js";
+import {
+  editorDimmedLineNumber,
+  editorLineNumbers
+} from "../../../common/core/editorColorRegistry.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
-import { RenderingContext } from "../../view/renderingContext.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
-import { editorDimmedLineNumber, editorLineNumbers } from "../../../common/core/editorColorRegistry.js";
+import { DynamicViewOverlay } from "../../view/dynamicViewOverlay.js";
 class LineNumbersOverlay extends DynamicViewOverlay {
   static {
     __name(this, "LineNumbersOverlay");
@@ -58,7 +61,9 @@ class LineNumbersOverlay extends DynamicViewOverlay {
   }
   onCursorStateChanged(e) {
     const primaryViewPosition = e.selections[0].getPosition();
-    this._lastCursorModelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(primaryViewPosition);
+    this._lastCursorModelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(
+      primaryViewPosition
+    );
     let shouldRender = false;
     if (this._activeLineNumber !== primaryViewPosition.lineNumber) {
       this._activeLineNumber = primaryViewPosition.lineNumber;
@@ -92,7 +97,9 @@ class LineNumbersOverlay extends DynamicViewOverlay {
   }
   // --- end event handlers
   _getLineRenderLineNumber(viewLineNumber) {
-    const modelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(new Position(viewLineNumber, 1));
+    const modelPosition = this._context.viewModel.coordinatesConverter.convertViewPositionToModelPosition(
+      new Position(viewLineNumber, 1)
+    );
     if (modelPosition.column !== 1) {
       return "";
     }
@@ -101,9 +108,11 @@ class LineNumbersOverlay extends DynamicViewOverlay {
       return this._renderCustomLineNumbers(modelLineNumber);
     }
     if (this._renderLineNumbers === RenderLineNumbersType.Relative) {
-      const diff = Math.abs(this._lastCursorModelPosition.lineNumber - modelLineNumber);
+      const diff = Math.abs(
+        this._lastCursorModelPosition.lineNumber - modelLineNumber
+      );
       if (diff === 0) {
-        return '<span class="relative-current-line-number">' + modelLineNumber + "</span>";
+        return `<span class="relative-current-line-number">${modelLineNumber}</span>`;
       }
       return String(diff);
     }
@@ -131,7 +140,9 @@ class LineNumbersOverlay extends DynamicViewOverlay {
     const visibleStartLineNumber = ctx.visibleRange.startLineNumber;
     const visibleEndLineNumber = ctx.visibleRange.endLineNumber;
     const lineNoDecorations = this._context.viewModel.getDecorationsInViewport(ctx.visibleRange).filter((d) => !!d.options.lineNumberClassName);
-    lineNoDecorations.sort((a, b) => Range.compareRangesUsingEnds(a.range, b.range));
+    lineNoDecorations.sort(
+      (a, b) => Range.compareRangesUsingEnds(a.range, b.range)
+    );
     let decorationStartIndex = 0;
     const lineCount = this._context.viewModel.getLineCount();
     const output = [];
@@ -145,7 +156,7 @@ class LineNumbersOverlay extends DynamicViewOverlay {
       for (let i = decorationStartIndex; i < lineNoDecorations.length; i++) {
         const { range, options } = lineNoDecorations[i];
         if (range.startLineNumber <= lineNumber) {
-          extraClassNames += " " + options.lineNumberClassName;
+          extraClassNames += ` ${options.lineNumberClassName}`;
         }
       }
       if (!renderLineNumber && !extraClassNames) {
@@ -182,9 +193,13 @@ registerThemingParticipant((theme, collector) => {
   const editorLineNumbersColor = theme.getColor(editorLineNumbers);
   const editorDimmedLineNumberColor = theme.getColor(editorDimmedLineNumber);
   if (editorDimmedLineNumberColor) {
-    collector.addRule(`.monaco-editor .line-numbers.dimmed-line-number { color: ${editorDimmedLineNumberColor}; }`);
+    collector.addRule(
+      `.monaco-editor .line-numbers.dimmed-line-number { color: ${editorDimmedLineNumberColor}; }`
+    );
   } else if (editorLineNumbersColor) {
-    collector.addRule(`.monaco-editor .line-numbers.dimmed-line-number { color: ${editorLineNumbersColor.transparent(0.4)}; }`);
+    collector.addRule(
+      `.monaco-editor .line-numbers.dimmed-line-number { color: ${editorLineNumbersColor.transparent(0.4)}; }`
+    );
   }
 });
 export {

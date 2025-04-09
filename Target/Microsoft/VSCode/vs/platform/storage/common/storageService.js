@@ -4,13 +4,23 @@ import { Promises } from "../../../base/common/async.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { joinPath } from "../../../base/common/resources.js";
-import { IStorage, Storage } from "../../../base/parts/storage/common/storage.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IRemoteService } from "../../ipc/common/services.js";
-import { AbstractStorageService, isProfileUsingDefaultStorage, StorageScope, WillSaveStateReason } from "./storage.js";
-import { ApplicationStorageDatabaseClient, ProfileStorageDatabaseClient, WorkspaceStorageDatabaseClient } from "./storageIpc.js";
-import { isUserDataProfile, IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import { IAnyWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import {
+  Storage
+} from "../../../base/parts/storage/common/storage.js";
+import {
+  isUserDataProfile
+} from "../../userDataProfile/common/userDataProfile.js";
+import {
+  AbstractStorageService,
+  isProfileUsingDefaultStorage,
+  StorageScope,
+  WillSaveStateReason
+} from "./storage.js";
+import {
+  ApplicationStorageDatabaseClient,
+  ProfileStorageDatabaseClient,
+  WorkspaceStorageDatabaseClient
+} from "./storageIpc.js";
 class RemoteStorageService extends AbstractStorageService {
   constructor(initialWorkspace, initialProfiles, remoteService, environmentService) {
     super();
@@ -19,7 +29,9 @@ class RemoteStorageService extends AbstractStorageService {
     this.applicationStorageProfile = initialProfiles.defaultProfile;
     this.applicationStorage = this.createApplicationStorage();
     this.profileStorageProfile = initialProfiles.currentProfile;
-    this.profileStorage = this.createProfileStorage(this.profileStorageProfile);
+    this.profileStorage = this.createProfileStorage(
+      this.profileStorageProfile
+    );
     this.workspaceStorageId = initialWorkspace?.id;
     this.workspaceStorage = this.createWorkspaceStorage(initialWorkspace);
   }
@@ -29,15 +41,29 @@ class RemoteStorageService extends AbstractStorageService {
   applicationStorageProfile;
   applicationStorage;
   profileStorageProfile;
-  profileStorageDisposables = this._register(new DisposableStore());
+  profileStorageDisposables = this._register(
+    new DisposableStore()
+  );
   profileStorage;
   workspaceStorageId;
-  workspaceStorageDisposables = this._register(new DisposableStore());
+  workspaceStorageDisposables = this._register(
+    new DisposableStore()
+  );
   workspaceStorage;
   createApplicationStorage() {
-    const storageDataBaseClient = this._register(new ApplicationStorageDatabaseClient(this.remoteService.getChannel("storage")));
-    const applicationStorage = this._register(new Storage(storageDataBaseClient));
-    this._register(applicationStorage.onDidChangeStorage((e) => this.emitDidChangeValue(StorageScope.APPLICATION, e)));
+    const storageDataBaseClient = this._register(
+      new ApplicationStorageDatabaseClient(
+        this.remoteService.getChannel("storage")
+      )
+    );
+    const applicationStorage = this._register(
+      new Storage(storageDataBaseClient)
+    );
+    this._register(
+      applicationStorage.onDidChangeStorage(
+        (e) => this.emitDidChangeValue(StorageScope.APPLICATION, e)
+      )
+    );
     return applicationStorage;
   }
   createProfileStorage(profile) {
@@ -47,10 +73,21 @@ class RemoteStorageService extends AbstractStorageService {
     if (isProfileUsingDefaultStorage(profile)) {
       profileStorage = this.applicationStorage;
     } else {
-      const storageDataBaseClient = this.profileStorageDisposables.add(new ProfileStorageDatabaseClient(this.remoteService.getChannel("storage"), profile));
-      profileStorage = this.profileStorageDisposables.add(new Storage(storageDataBaseClient));
+      const storageDataBaseClient = this.profileStorageDisposables.add(
+        new ProfileStorageDatabaseClient(
+          this.remoteService.getChannel("storage"),
+          profile
+        )
+      );
+      profileStorage = this.profileStorageDisposables.add(
+        new Storage(storageDataBaseClient)
+      );
     }
-    this.profileStorageDisposables.add(profileStorage.onDidChangeStorage((e) => this.emitDidChangeValue(StorageScope.PROFILE, e)));
+    this.profileStorageDisposables.add(
+      profileStorage.onDidChangeStorage(
+        (e) => this.emitDidChangeValue(StorageScope.PROFILE, e)
+      )
+    );
     return profileStorage;
   }
   createWorkspaceStorage(workspace) {
@@ -58,9 +95,20 @@ class RemoteStorageService extends AbstractStorageService {
     this.workspaceStorageId = workspace?.id;
     let workspaceStorage = void 0;
     if (workspace) {
-      const storageDataBaseClient = this.workspaceStorageDisposables.add(new WorkspaceStorageDatabaseClient(this.remoteService.getChannel("storage"), workspace));
-      workspaceStorage = this.workspaceStorageDisposables.add(new Storage(storageDataBaseClient));
-      this.workspaceStorageDisposables.add(workspaceStorage.onDidChangeStorage((e) => this.emitDidChangeValue(StorageScope.WORKSPACE, e)));
+      const storageDataBaseClient = this.workspaceStorageDisposables.add(
+        new WorkspaceStorageDatabaseClient(
+          this.remoteService.getChannel("storage"),
+          workspace
+        )
+      );
+      workspaceStorage = this.workspaceStorageDisposables.add(
+        new Storage(storageDataBaseClient)
+      );
+      this.workspaceStorageDisposables.add(
+        workspaceStorage.onDidChangeStorage(
+          (e) => this.emitDidChangeValue(StorageScope.WORKSPACE, e)
+        )
+      );
     }
     return workspaceStorage;
   }
@@ -84,9 +132,13 @@ class RemoteStorageService extends AbstractStorageService {
   getLogDetails(scope) {
     switch (scope) {
       case StorageScope.APPLICATION:
-        return this.applicationStorageProfile.globalStorageHome.with({ scheme: Schemas.file }).fsPath;
+        return this.applicationStorageProfile.globalStorageHome.with({
+          scheme: Schemas.file
+        }).fsPath;
       case StorageScope.PROFILE:
-        return this.profileStorageProfile?.globalStorageHome.with({ scheme: Schemas.file }).fsPath;
+        return this.profileStorageProfile?.globalStorageHome.with({
+          scheme: Schemas.file
+        }).fsPath;
       default:
         return this.workspaceStorageId ? `${joinPath(this.environmentService.workspaceStorageHome, this.workspaceStorageId, "state.vscdb").with({ scheme: Schemas.file }).fsPath}` : void 0;
     }
@@ -119,7 +171,11 @@ class RemoteStorageService extends AbstractStorageService {
     await oldWorkspaceStorage?.close();
     this.workspaceStorage = this.createWorkspaceStorage(toWorkspace);
     await this.workspaceStorage.init();
-    this.switchData(oldItems, this.workspaceStorage, StorageScope.WORKSPACE);
+    this.switchData(
+      oldItems,
+      this.workspaceStorage,
+      StorageScope.WORKSPACE
+    );
   }
   hasScope(scope) {
     if (isUserDataProfile(scope)) {

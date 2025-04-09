@@ -10,18 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, IDisposable, toDisposable } from "../../../../../../base/common/lifecycle.js";
-import { IMarkerData, IMarkerService } from "../../../../../../platform/markers/common/markers.js";
-import { IRange } from "../../../../../../editor/common/core/range.js";
-import { ICellExecutionStateChangedEvent, IExecutionStateChangedEvent, INotebookExecutionStateService, NotebookExecutionType } from "../../../common/notebookExecutionStateService.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { CellKind, NotebookSetting } from "../../../common/notebookCommon.js";
-import { INotebookEditor, INotebookEditorContribution } from "../../notebookBrowser.js";
-import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
-import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
 import { Event } from "../../../../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import {
+  IMarkerService
+} from "../../../../../../platform/markers/common/markers.js";
 import { IChatAgentService } from "../../../../chat/common/chatAgents.js";
 import { ChatAgentLocation } from "../../../../chat/common/constants.js";
+import { CellKind, NotebookSetting } from "../../../common/notebookCommon.js";
+import {
+  INotebookExecutionStateService,
+  NotebookExecutionType
+} from "../../../common/notebookExecutionStateService.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { CodeCellViewModel } from "../../viewModel/codeCellViewModel.js";
 let CellDiagnostics = class extends Disposable {
   constructor(notebookEditor, notebookExecutionStateService, markerService, chatAgentService, configurationService) {
     super();
@@ -31,12 +37,18 @@ let CellDiagnostics = class extends Disposable {
     this.chatAgentService = chatAgentService;
     this.configurationService = configurationService;
     this.updateEnabled();
-    this._register(chatAgentService.onDidChangeAgents(() => this.updateEnabled()));
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(NotebookSetting.cellFailureDiagnostics)) {
-        this.updateEnabled();
-      }
-    }));
+    this._register(
+      chatAgentService.onDidChangeAgents(() => this.updateEnabled())
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          NotebookSetting.cellFailureDiagnostics
+        )) {
+          this.updateEnabled();
+        }
+      })
+    );
   }
   static {
     __name(this, "CellDiagnostics");
@@ -47,10 +59,14 @@ let CellDiagnostics = class extends Disposable {
   diagnosticsByHandle = /* @__PURE__ */ new Map();
   hasNotebookAgent() {
     const agents = this.chatAgentService.getAgents();
-    return !!agents.find((agent) => agent.locations.includes(ChatAgentLocation.Notebook));
+    return !!agents.find(
+      (agent) => agent.locations.includes(ChatAgentLocation.Notebook)
+    );
   }
   updateEnabled() {
-    const settingEnabled = this.configurationService.getValue(NotebookSetting.cellFailureDiagnostics);
+    const settingEnabled = this.configurationService.getValue(
+      NotebookSetting.cellFailureDiagnostics
+    );
     if (this.enabled && (!settingEnabled || !this.hasNotebookAgent())) {
       this.enabled = false;
       this.clearAll();
@@ -58,10 +74,12 @@ let CellDiagnostics = class extends Disposable {
       this.enabled = true;
       if (!this.listening) {
         this.listening = true;
-        this._register(Event.accumulate(
-          this.notebookExecutionStateService.onDidChangeExecution,
-          200
-        )((e) => this.handleChangeExecutionState(e)));
+        this._register(
+          Event.accumulate(
+            this.notebookExecutionStateService.onDidChangeExecution,
+            200
+          )((e) => this.handleChangeExecutionState(e))
+        );
       }
     }
   }
@@ -74,7 +92,7 @@ let CellDiagnostics = class extends Disposable {
       const notebookUri = this.notebookEditor.textModel?.uri;
       if (e.type === NotebookExecutionType.cell && notebookUri && e.affectsNotebook(notebookUri) && !handled.has(e.cellHandle)) {
         handled.add(e.cellHandle);
-        if (!!e.changed) {
+        if (e.changed) {
           this.clear(e.cellHandle);
         } else {
           this.setDiagnostics(e.cellHandle);
@@ -108,19 +126,40 @@ let CellDiagnostics = class extends Disposable {
     if (cell instanceof CodeCellViewModel && !metadata.lastRunSuccess && metadata?.error?.location) {
       const disposables = [];
       const errorLabel = metadata.error.name ? `${metadata.error.name}: ${metadata.error.message}` : metadata.error.message;
-      const marker = this.createMarkerData(errorLabel, metadata.error.location);
-      this.markerService.changeOne(CellDiagnostics.ID, cell.uri, [marker]);
-      disposables.push(toDisposable(() => this.markerService.changeOne(CellDiagnostics.ID, cell.uri, [])));
+      const marker = this.createMarkerData(
+        errorLabel,
+        metadata.error.location
+      );
+      this.markerService.changeOne(CellDiagnostics.ID, cell.uri, [
+        marker
+      ]);
+      disposables.push(
+        toDisposable(
+          () => this.markerService.changeOne(
+            CellDiagnostics.ID,
+            cell.uri,
+            []
+          )
+        )
+      );
       cell.executionErrorDiagnostic.set(metadata.error, void 0);
-      disposables.push(toDisposable(() => cell.executionErrorDiagnostic.set(void 0, void 0)));
-      disposables.push(cell.model.onDidChangeOutputs(() => {
-        if (cell.model.outputs.length === 0) {
+      disposables.push(
+        toDisposable(
+          () => cell.executionErrorDiagnostic.set(void 0, void 0)
+        )
+      );
+      disposables.push(
+        cell.model.onDidChangeOutputs(() => {
+          if (cell.model.outputs.length === 0) {
+            this.clear(cellHandle);
+          }
+        })
+      );
+      disposables.push(
+        cell.model.onDidChangeContent(() => {
           this.clear(cellHandle);
-        }
-      }));
-      disposables.push(cell.model.onDidChangeContent(() => {
-        this.clear(cellHandle);
-      }));
+        })
+      );
       this.diagnosticsByHandle.set(cellHandle, disposables);
     }
   }

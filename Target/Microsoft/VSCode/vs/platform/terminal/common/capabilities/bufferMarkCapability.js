@@ -2,7 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IBufferMarkCapability, TerminalCapability, IMarkProperties } from "./capabilities.js";
+import {
+  TerminalCapability
+} from "./capabilities.js";
 class BufferMarkCapability extends Disposable {
   constructor(_terminal) {
     super();
@@ -14,7 +16,9 @@ class BufferMarkCapability extends Disposable {
   type = TerminalCapability.BufferMarkDetection;
   _idToMarkerMap = /* @__PURE__ */ new Map();
   _anonymousMarkers = /* @__PURE__ */ new Map();
-  _onMarkAdded = this._register(new Emitter());
+  _onMarkAdded = this._register(
+    new Emitter()
+  );
   onMarkAdded = this._onMarkAdded.event;
   *markers() {
     for (const m of this._idToMarkerMap.values()) {
@@ -37,7 +41,12 @@ class BufferMarkCapability extends Disposable {
       this._anonymousMarkers.set(marker.id, marker);
       marker.onDispose(() => this._anonymousMarkers.delete(marker.id));
     }
-    this._onMarkAdded.fire({ marker, id, hidden: properties?.hidden, hoverMessage: properties?.hoverMessage });
+    this._onMarkAdded.fire({
+      marker,
+      id,
+      hidden: properties?.hidden,
+      hoverMessage: properties?.hoverMessage
+    });
   }
   getMark(id) {
     return this._idToMarkerMap.get(id);

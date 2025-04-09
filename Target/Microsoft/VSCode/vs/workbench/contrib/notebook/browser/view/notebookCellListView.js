@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IRange } from "../../../../../base/common/range.js";
 import { ListView } from "../../../../../base/browser/ui/list/listView.js";
-import { IItem, IRangeMap } from "../../../../../base/browser/ui/list/rangeMap.js";
 import { ConstantTimePrefixSumComputer } from "../../../../../editor/common/model/prefixSumComputer.js";
 class NotebookCellsLayout {
   static {
@@ -50,18 +48,33 @@ class NotebookCellsLayout {
     const newSizes = [];
     for (let i = 0; i < inserts.length; i++) {
       const insertIndex = i + index;
-      const existingWhitespaces = this._whitespace.filter((ws) => ws.afterPosition === insertIndex + 1);
+      const existingWhitespaces = this._whitespace.filter(
+        (ws) => ws.afterPosition === insertIndex + 1
+      );
       if (existingWhitespaces.length > 0) {
-        newSizes.push(inserts[i].size + existingWhitespaces.reduce((acc, ws) => acc + ws.size, 0));
+        newSizes.push(
+          inserts[i].size + existingWhitespaces.reduce(
+            (acc, ws) => acc + ws.size,
+            0
+          )
+        );
       } else {
         newSizes.push(inserts[i].size);
       }
     }
     this._prefixSumComputer.insertValues(index, newSizes);
     for (let i = index; i < this._items.length; i++) {
-      const existingWhitespaces = this._whitespace.filter((ws) => ws.afterPosition === i + 1);
+      const existingWhitespaces = this._whitespace.filter(
+        (ws) => ws.afterPosition === i + 1
+      );
       if (existingWhitespaces.length > 0) {
-        this._prefixSumComputer.setValue(i, this._items[i].size + existingWhitespaces.reduce((acc, ws) => acc + ws.size, 0));
+        this._prefixSumComputer.setValue(
+          i,
+          this._items[i].size + existingWhitespaces.reduce(
+            (acc, ws) => acc + ws.size,
+            0
+          )
+        );
       } else {
         this._prefixSumComputer.setValue(i, this._items[i].size);
       }
@@ -69,11 +82,18 @@ class NotebookCellsLayout {
   }
   insertWhitespace(id, afterPosition, size) {
     let priority = 0;
-    const existingWhitespaces = this._whitespace.filter((ws) => ws.afterPosition === afterPosition);
+    const existingWhitespaces = this._whitespace.filter(
+      (ws) => ws.afterPosition === afterPosition
+    );
     if (existingWhitespaces.length > 0) {
       priority = Math.max(...existingWhitespaces.map((ws) => ws.priority)) + 1;
     }
-    this._whitespace.push({ id, afterPosition, size, priority });
+    this._whitespace.push({
+      id,
+      afterPosition,
+      size,
+      priority
+    });
     this._size += size;
     this._whitespace.sort((a, b) => {
       if (a.afterPosition === b.afterPosition) {
@@ -89,7 +109,9 @@ class NotebookCellsLayout {
     }
   }
   changeOneWhitespace(id, afterPosition, size) {
-    const whitespaceIndex = this._whitespace.findIndex((ws) => ws.id === id);
+    const whitespaceIndex = this._whitespace.findIndex(
+      (ws) => ws.id === id
+    );
     if (whitespaceIndex !== -1) {
       const whitespace = this._whitespace[whitespaceIndex];
       const oldAfterPosition = whitespace.afterPosition;
@@ -113,7 +135,9 @@ class NotebookCellsLayout {
     }
   }
   removeWhitespace(id) {
-    const whitespaceIndex = this._whitespace.findIndex((ws) => ws.id === id);
+    const whitespaceIndex = this._whitespace.findIndex(
+      (ws) => ws.id === id
+    );
     if (whitespaceIndex !== -1) {
       const whitespace = this._whitespace[whitespaceIndex];
       this._whitespace.splice(whitespaceIndex, 1);
@@ -121,7 +145,9 @@ class NotebookCellsLayout {
       if (whitespace.afterPosition > 0) {
         const index = whitespace.afterPosition - 1;
         const itemSize = this._items[index].size;
-        const remainingWhitespaces = this._whitespace.filter((ws) => ws.afterPosition === whitespace.afterPosition);
+        const remainingWhitespaces = this._whitespace.filter(
+          (ws) => ws.afterPosition === whitespace.afterPosition
+        );
         const accSize = itemSize + remainingWhitespaces.reduce((acc, ws) => acc + ws.size, 0);
         this._prefixSumComputer.setValue(index, accSize);
       }
@@ -139,7 +165,9 @@ class NotebookCellsLayout {
     }
     const afterPosition = whitespace.afterPosition;
     if (afterPosition === 0) {
-      const whitespaces = this._whitespace.filter((ws) => ws.afterPosition === afterPosition && ws.priority < whitespace.priority);
+      const whitespaces = this._whitespace.filter(
+        (ws) => ws.afterPosition === afterPosition && ws.priority < whitespace.priority
+      );
       return whitespaces.reduce((acc, ws) => acc + ws.size, 0) + this.paddingTop;
     }
     const whitespaceBeforeFirstItem = this._whitespace.filter((ws) => ws.afterPosition === 0).reduce((acc, ws) => acc + ws.size, 0);
@@ -197,7 +225,14 @@ class NotebookCellListView extends ListView {
   }
   render(previousRenderRange, renderTop, renderHeight, renderLeft, scrollWidth, updateItemsInDOM) {
     this._renderingStack++;
-    super.render(previousRenderRange, renderTop, renderHeight, renderLeft, scrollWidth, updateItemsInDOM);
+    super.render(
+      previousRenderRange,
+      renderTop,
+      renderHeight,
+      renderLeft,
+      scrollWidth,
+      updateItemsInDOM
+    );
     this._renderingStack--;
   }
   _rerender(renderTop, renderHeight, inSmoothScrolling) {
@@ -218,35 +253,73 @@ class NotebookCellListView extends ListView {
   insertWhitespace(afterPosition, size) {
     const scrollTop = this.scrollTop;
     const id = `${++this._lastWhitespaceId}`;
-    const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+    const previousRenderRange = this.getRenderRange(
+      this.lastRenderTop,
+      this.lastRenderHeight
+    );
     const elementPosition = this.elementTop(afterPosition);
     const aboveScrollTop = scrollTop > elementPosition;
     this.notebookRangeMap.insertWhitespace(id, afterPosition, size);
     const newScrolltop = aboveScrollTop ? scrollTop + size : scrollTop;
-    this.render(previousRenderRange, newScrolltop, this.lastRenderHeight, void 0, void 0, false);
+    this.render(
+      previousRenderRange,
+      newScrolltop,
+      this.lastRenderHeight,
+      void 0,
+      void 0,
+      false
+    );
     this._rerender(newScrolltop, this.renderHeight, false);
     this.eventuallyUpdateScrollDimensions();
     return id;
   }
   changeOneWhitespace(id, newAfterPosition, newSize) {
     const scrollTop = this.scrollTop;
-    const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+    const previousRenderRange = this.getRenderRange(
+      this.lastRenderTop,
+      this.lastRenderHeight
+    );
     const currentPosition = this.notebookRangeMap.getWhitespacePosition(id);
     if (currentPosition > scrollTop) {
-      this.notebookRangeMap.changeOneWhitespace(id, newAfterPosition, newSize);
-      this.render(previousRenderRange, scrollTop, this.lastRenderHeight, void 0, void 0, false);
+      this.notebookRangeMap.changeOneWhitespace(
+        id,
+        newAfterPosition,
+        newSize
+      );
+      this.render(
+        previousRenderRange,
+        scrollTop,
+        this.lastRenderHeight,
+        void 0,
+        void 0,
+        false
+      );
       this._rerender(scrollTop, this.renderHeight, false);
       this.eventuallyUpdateScrollDimensions();
     } else {
-      this.notebookRangeMap.changeOneWhitespace(id, newAfterPosition, newSize);
+      this.notebookRangeMap.changeOneWhitespace(
+        id,
+        newAfterPosition,
+        newSize
+      );
       this.eventuallyUpdateScrollDimensions();
     }
   }
   removeWhitespace(id) {
     const scrollTop = this.scrollTop;
-    const previousRenderRange = this.getRenderRange(this.lastRenderTop, this.lastRenderHeight);
+    const previousRenderRange = this.getRenderRange(
+      this.lastRenderTop,
+      this.lastRenderHeight
+    );
     this.notebookRangeMap.removeWhitespace(id);
-    this.render(previousRenderRange, scrollTop, this.lastRenderHeight, void 0, void 0, false);
+    this.render(
+      previousRenderRange,
+      scrollTop,
+      this.lastRenderHeight,
+      void 0,
+      void 0,
+      false
+    );
     this._rerender(scrollTop, this.renderHeight, false);
     this.eventuallyUpdateScrollDimensions();
   }

@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { homedir } from "os";
+import { homedir } from "node:os";
 import { ExtHostVariableResolverProviderService } from "../common/extHostVariableResolverService.js";
 class NodeExtHostVariableResolverProviderService extends ExtHostVariableResolverProviderService {
   static {

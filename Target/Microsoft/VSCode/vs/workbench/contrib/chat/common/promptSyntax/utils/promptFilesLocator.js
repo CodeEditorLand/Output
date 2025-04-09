@@ -10,17 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../../base/common/uri.js";
-import { match } from "../../../../../../base/common/glob.js";
 import { assert } from "../../../../../../base/common/assert.js";
-import { isAbsolute } from "../../../../../../base/common/path.js";
+import { match } from "../../../../../../base/common/glob.js";
 import { ResourceSet } from "../../../../../../base/common/map.js";
+import { isAbsolute } from "../../../../../../base/common/path.js";
+import {
+  basename,
+  dirname,
+  extUri
+} from "../../../../../../base/common/resources.js";
+import { URI } from "../../../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../../../platform/files/common/files.js";
 import { PromptsConfig } from "../../../../../../platform/prompts/common/config.js";
-import { basename, dirname, extUri } from "../../../../../../base/common/resources.js";
+import {
+  isPromptFile,
+  PROMPT_FILE_EXTENSION
+} from "../../../../../../platform/prompts/common/constants.js";
 import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { isPromptFile, PROMPT_FILE_EXTENSION } from "../../../../../../platform/prompts/common/constants.js";
 let PromptFilesLocator = class {
   constructor(fileService, configService, workspaceService) {
     this.fileService = fileService;
@@ -36,8 +43,13 @@ let PromptFilesLocator = class {
    * @returns List of prompt files found in the workspace.
    */
   async listFiles() {
-    const configuredLocations = PromptsConfig.promptSourceFolders(this.configService);
-    const absoluteLocations = toAbsoluteLocations(configuredLocations, this.workspaceService);
+    const configuredLocations = PromptsConfig.promptSourceFolders(
+      this.configService
+    );
+    const absoluteLocations = toAbsoluteLocations(
+      configuredLocations,
+      this.workspaceService
+    );
     return await this.listFilesIn(absoluteLocations);
   }
   /**
@@ -64,8 +76,13 @@ let PromptFilesLocator = class {
    * @returns List of possible unambiguous prompt file folders.
    */
   getConfigBasedSourceFolders() {
-    const configuredLocations = PromptsConfig.promptSourceFolders(this.configService);
-    const absoluteLocations = toAbsoluteLocations(configuredLocations, this.workspaceService);
+    const configuredLocations = PromptsConfig.promptSourceFolders(
+      this.configService
+    );
+    const absoluteLocations = toAbsoluteLocations(
+      configuredLocations,
+      this.workspaceService
+    );
     const result = new ResourceSet();
     for (const absoluteLocation of absoluteLocations) {
       let { path } = absoluteLocation;
@@ -74,7 +91,6 @@ let PromptFilesLocator = class {
       for (const filePattern of filePatterns) {
         if (baseName === filePattern) {
           path = URI.joinPath(absoluteLocation, "..").path;
-          continue;
         }
       }
       if (baseName === "*") {
@@ -102,7 +118,10 @@ let PromptFilesLocator = class {
         isAbsolute(absoluteLocation.path),
         `Provided location must be an absolute path, got '${absoluteLocation.path}'.`
       );
-      const location = isValidGlob(basename(absoluteLocation)) || absoluteLocation.path.endsWith(PROMPT_FILE_EXTENSION) ? absoluteLocation : extUri.joinPath(absoluteLocation, `*${PROMPT_FILE_EXTENSION}`);
+      const location = isValidGlob(basename(absoluteLocation)) || absoluteLocation.path.endsWith(PROMPT_FILE_EXTENSION) ? absoluteLocation : extUri.joinPath(
+        absoluteLocation,
+        `*${PROMPT_FILE_EXTENSION}`
+      );
       const promptFiles = await findAllPromptFiles(
         firstNonGlobParent(location),
         this.fileService
@@ -200,9 +219,11 @@ const findAllPromptFiles = /* @__PURE__ */ __name(async (location, fileService) 
           continue;
         }
         if (child.isDirectory) {
-          const promptFiles = await findAllPromptFiles(child.resource, fileService);
+          const promptFiles = await findAllPromptFiles(
+            child.resource,
+            fileService
+          );
           result.push(...promptFiles);
-          continue;
         }
       }
       return result;
@@ -220,7 +241,10 @@ const toAbsoluteLocations = /* @__PURE__ */ __name((configuredLocations, workspa
       continue;
     }
     for (const workspaceFolder of folders) {
-      const absolutePath = extUri.resolvePath(workspaceFolder.uri, configuredLocation);
+      const absolutePath = extUri.resolvePath(
+        workspaceFolder.uri,
+        configuredLocation
+      );
       assert(
         isAbsolute(absolutePath.path),
         `Provided location must be an absolute path, got '${absolutePath.path}'.`
@@ -232,7 +256,10 @@ const toAbsoluteLocations = /* @__PURE__ */ __name((configuredLocations, workspa
         continue;
       }
       const workspaceRootUri = dirname(workspaceFolder.uri);
-      const workspaceFolderUri = extUri.resolvePath(workspaceRootUri, configuredLocation);
+      const workspaceFolderUri = extUri.resolvePath(
+        workspaceRootUri,
+        configuredLocation
+      );
       if (result.has(workspaceFolderUri) === true) {
         continue;
       }

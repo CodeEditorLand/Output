@@ -1,9 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { URI } from "../../../../base/common/uri.js";
-import { IFolderQuery } from "./search.js";
-import { TernarySearchTree, UriIterator } from "../../../../base/common/ternarySearchTree.js";
 import { ResourceMap } from "../../../../base/common/map.js";
+import {
+  TernarySearchTree,
+  UriIterator
+} from "../../../../base/common/ternarySearchTree.js";
 class FolderQuerySearchTree extends TernarySearchTree {
   static {
     __name(this, "FolderQuerySearchTree");
@@ -13,9 +14,12 @@ class FolderQuerySearchTree extends TernarySearchTree {
     super(uriIterator);
     const fqBySameBase = new ResourceMap();
     folderQueries.forEach((fq, i) => {
-      const uriWithoutQueryOrFragment = fq.folder.with({ query: "", fragment: "" });
+      const uriWithoutQueryOrFragment = fq.folder.with({
+        query: "",
+        fragment: ""
+      });
       if (fqBySameBase.has(uriWithoutQueryOrFragment)) {
-        fqBySameBase.get(uriWithoutQueryOrFragment).push({ fq, i });
+        fqBySameBase.get(uriWithoutQueryOrFragment)?.push({ fq, i });
       } else {
         fqBySameBase.set(uriWithoutQueryOrFragment, [{ fq, i }]);
       }
@@ -23,14 +27,22 @@ class FolderQuerySearchTree extends TernarySearchTree {
     fqBySameBase.forEach((values, key) => {
       const folderQueriesWithQueries = /* @__PURE__ */ new Map();
       for (const fqBases of values) {
-        const folderQueryInfo = getFolderQueryInfo(fqBases.fq, fqBases.i);
-        folderQueriesWithQueries.set(this.encodeKey(fqBases.fq.folder), folderQueryInfo);
+        const folderQueryInfo = getFolderQueryInfo(
+          fqBases.fq,
+          fqBases.i
+        );
+        folderQueriesWithQueries.set(
+          this.encodeKey(fqBases.fq.folder),
+          folderQueryInfo
+        );
       }
       super.set(key, folderQueriesWithQueries);
     });
   }
   findQueryFragmentAwareSubstr(key) {
-    const baseURIResult = super.findSubstr(key.with({ query: "", fragment: "" }));
+    const baseURIResult = super.findSubstr(
+      key.with({ query: "", fragment: "" })
+    );
     if (!baseURIResult) {
       return void 0;
     }
@@ -46,7 +58,7 @@ class FolderQuerySearchTree extends TernarySearchTree {
       str += key.query;
     }
     if (key.fragment) {
-      str += "#" + key.fragment;
+      str += `#${key.fragment}`;
     }
     return str;
   }

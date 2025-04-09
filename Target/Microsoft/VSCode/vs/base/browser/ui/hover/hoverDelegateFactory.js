@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IHoverDelegate, IScopedHoverDelegate } from "./hoverDelegate.js";
 import { Lazy } from "../../../common/lazy.js";
 const nullHoverDelegateFactory = /* @__PURE__ */ __name(() => ({
   get delay() {
@@ -13,8 +12,12 @@ const nullHoverDelegateFactory = /* @__PURE__ */ __name(() => ({
   }, "showHover")
 }), "nullHoverDelegateFactory");
 let hoverDelegateFactory = nullHoverDelegateFactory;
-const defaultHoverDelegateMouse = new Lazy(() => hoverDelegateFactory("mouse", false));
-const defaultHoverDelegateElement = new Lazy(() => hoverDelegateFactory("element", false));
+const defaultHoverDelegateMouse = new Lazy(
+  () => hoverDelegateFactory("mouse", false)
+);
+const defaultHoverDelegateElement = new Lazy(
+  () => hoverDelegateFactory("element", false)
+);
 function setHoverDelegateFactory(hoverDelegateProvider) {
   hoverDelegateFactory = hoverDelegateProvider;
 }

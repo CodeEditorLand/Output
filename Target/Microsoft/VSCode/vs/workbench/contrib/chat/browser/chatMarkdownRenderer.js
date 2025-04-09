@@ -11,12 +11,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { $ } from "../../../../base/browser/dom.js";
-import { MarkdownRenderOptions, MarkedOptions } from "../../../../base/browser/markdownRenderer.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IMarkdownRendererOptions, IMarkdownRenderResult, MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import {
+  MarkdownRenderer
+} from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
@@ -79,7 +79,7 @@ let ChatMarkdownRenderer = class extends MarkdownRenderer {
         allowedTags: allowedHtmlTags
       }
     };
-    const mdWithBody = markdown && markdown.supportHtml ? {
+    const mdWithBody = markdown?.supportHtml ? {
       ...markdown,
       // dompurify uses DOMParser, which strips leading comments. Wrapping it all in 'body' prevents this.
       // The \n\n prevents marked.js from parsing the body contents as just text in an 'html' token, instead of actual markdown.
@@ -100,7 +100,13 @@ ${markdown.value}</body>`
       if (element.title) {
         const title = element.title;
         element.title = "";
-        store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), element, title));
+        store.add(
+          this.hoverService.setupManagedHover(
+            getDefaultHoverDelegate("element"),
+            element,
+            title
+          )
+        );
       }
     });
     return {
@@ -115,7 +121,10 @@ ${markdown.value}</body>`
     try {
       const uri = URI.parse(link);
       if ((await this.fileService.stat(uri)).isDirectory) {
-        return this.commandService.executeCommand(REVEAL_IN_EXPLORER_COMMAND_ID, uri);
+        return this.commandService.executeCommand(
+          REVEAL_IN_EXPLORER_COMMAND_ID,
+          uri
+        );
       }
     } catch {
     }

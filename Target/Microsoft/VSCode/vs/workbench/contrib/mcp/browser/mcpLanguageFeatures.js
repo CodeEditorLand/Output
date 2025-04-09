@@ -12,25 +12,46 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { computeLevenshteinDistance } from "../../../../base/common/diff/diff.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { markdownCommandLink, MarkdownString } from "../../../../base/common/htmlContent.js";
-import { findNodeAtLocation, Node, parseTree } from "../../../../base/common/json.js";
-import { Disposable, DisposableStore, dispose, IDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
-import { IObservable } from "../../../../base/common/observable.js";
+import {
+  markdownCommandLink,
+  MarkdownString
+} from "../../../../base/common/htmlContent.js";
+import {
+  findNodeAtLocation,
+  parseTree
+} from "../../../../base/common/json.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
 import { isEqual } from "../../../../base/common/resources.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { CodeLensList, CodeLensProvider, InlayHint, InlayHintList } from "../../../../editor/common/languages.js";
-import { ITextModel } from "../../../../editor/common/model.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
 import { localize } from "../../../../nls.js";
-import { IMarkerData, IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
+import {
+  IMarkerService,
+  MarkerSeverity
+} from "../../../../platform/markers/common/markers.js";
 import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { ConfigurationResolverExpression, IResolvedValue } from "../../../services/configurationResolver/common/configurationResolverExpression.js";
-import { IMcpConfigPath, IMcpConfigPathsService } from "../common/mcpConfigPathsService.js";
+import {
+  ConfigurationResolverExpression
+} from "../../../services/configurationResolver/common/configurationResolverExpression.js";
+import {
+  IMcpConfigPathsService
+} from "../common/mcpConfigPathsService.js";
 import { mcpConfigurationSection } from "../common/mcpConfiguration.js";
 import { IMcpRegistry } from "../common/mcpRegistryTypes.js";
 import { IMcpService, McpConnectionState } from "../common/mcpTypes.js";
-import { EditStoredInput, RemoveStoredInput, RestartServer, ShowOutput, StartServer, StopServer } from "./mcpCommands.js";
+import {
+  EditStoredInput,
+  RemoveStoredInput,
+  RestartServer,
+  ShowOutput,
+  StartServer,
+  StopServer
+} from "./mcpCommands.js";
 const diagnosticOwner = "vscode.mcp";
 let McpLanguageFeatures = class extends Disposable {
   constructor(languageFeaturesService, _mcpRegistry, _mcpConfigPathsService, _mcpService, _markerService, _configurationResolverService) {
@@ -45,21 +66,35 @@ let McpLanguageFeatures = class extends Disposable {
       { pattern: "**/settings.json" },
       { pattern: "**/workspace.json" }
     ];
-    const onDidChangeCodeLens = this._register(new Emitter());
+    const onDidChangeCodeLens = this._register(
+      new Emitter()
+    );
     const codeLensProvider = {
       onDidChange: onDidChangeCodeLens.event,
-      provideCodeLenses: /* @__PURE__ */ __name((model, range) => this._provideCodeLenses(model, () => onDidChangeCodeLens.fire(codeLensProvider)), "provideCodeLenses")
+      provideCodeLenses: /* @__PURE__ */ __name((model, range) => this._provideCodeLenses(
+        model,
+        () => onDidChangeCodeLens.fire(codeLensProvider)
+      ), "provideCodeLenses")
     };
-    this._register(languageFeaturesService.codeLensProvider.register(patterns, codeLensProvider));
-    this._register(languageFeaturesService.inlayHintsProvider.register(patterns, {
-      onDidChangeInlayHints: _mcpRegistry.onDidChangeInputs,
-      provideInlayHints: /* @__PURE__ */ __name((model, range) => this._provideInlayHints(model, range), "provideInlayHints")
-    }));
+    this._register(
+      languageFeaturesService.codeLensProvider.register(
+        patterns,
+        codeLensProvider
+      )
+    );
+    this._register(
+      languageFeaturesService.inlayHintsProvider.register(patterns, {
+        onDidChangeInlayHints: _mcpRegistry.onDidChangeInputs,
+        provideInlayHints: /* @__PURE__ */ __name((model, range) => this._provideInlayHints(model, range), "provideInlayHints")
+      })
+    );
   }
   static {
     __name(this, "McpLanguageFeatures");
   }
-  _cachedMcpSection = this._register(new MutableDisposable());
+  _cachedMcpSection = this._register(
+    new MutableDisposable()
+  );
   /** Simple mechanism to avoid extra json parsing for hints+lenses */
   _parseModel(model) {
     if (this._cachedMcpSection.value?.model === model) {
@@ -88,13 +123,16 @@ let McpLanguageFeatures = class extends Disposable {
     };
   }
   _addDiagnostics(tm, value, tree, inConfig) {
-    const serversNode = findNodeAtLocation(tree, inConfig.section ? [...inConfig.section, "servers"] : ["servers"]);
+    const serversNode = findNodeAtLocation(
+      tree,
+      inConfig.section ? [...inConfig.section, "servers"] : ["servers"]
+    );
     if (!serversNode) {
       return;
     }
     const getClosestMatchingVariable = /* @__PURE__ */ __name((name) => {
       let bestValue = "";
-      let bestDistance = Infinity;
+      let bestDistance = Number.POSITIVE_INFINITY;
       for (const variable of this._configurationResolverService.resolvableVariables) {
         const distance = computeLevenshteinDistance(name, variable);
         if (distance < bestDistance) {
@@ -108,7 +146,9 @@ let McpLanguageFeatures = class extends Disposable {
     forEachPropertyWithReplacement(serversNode, (node) => {
       const expr = ConfigurationResolverExpression.parse(node.value);
       for (const { id, name, arg } of expr.unresolved()) {
-        if (!this._configurationResolverService.resolvableVariables.has(name)) {
+        if (!this._configurationResolverService.resolvableVariables.has(
+          name
+        )) {
           const position = value.indexOf(id, node.offset);
           if (position === -1) {
             continue;
@@ -117,7 +157,12 @@ let McpLanguageFeatures = class extends Disposable {
           const end = tm.getPositionAt(position + id.length);
           diagnostics.push({
             severity: MarkerSeverity.Warning,
-            message: localize("mcp.variableNotFound", "Variable `{0}` not found, did you mean ${{1}}?", name, getClosestMatchingVariable(name) + (arg ? `:${arg}` : "")),
+            message: localize(
+              "mcp.variableNotFound",
+              "Variable `{0}` not found, did you mean ${{1}}?",
+              name,
+              getClosestMatchingVariable(name) + (arg ? `:${arg}` : "")
+            ),
             startLineNumber: start.lineNumber,
             startColumn: start.column,
             endLineNumber: end.lineNumber,
@@ -139,21 +184,33 @@ let McpLanguageFeatures = class extends Disposable {
       return void 0;
     }
     const { tree, inConfig } = parsed;
-    const serversNode = findNodeAtLocation(tree, inConfig.section ? [...inConfig.section, "servers"] : ["servers"]);
+    const serversNode = findNodeAtLocation(
+      tree,
+      inConfig.section ? [...inConfig.section, "servers"] : ["servers"]
+    );
     if (!serversNode) {
       return void 0;
     }
     const store = new DisposableStore();
-    const lenses = { lenses: [], dispose: /* @__PURE__ */ __name(() => store.dispose(), "dispose") };
+    const lenses = {
+      lenses: [],
+      dispose: /* @__PURE__ */ __name(() => store.dispose(), "dispose")
+    };
     const read = /* @__PURE__ */ __name((observable) => {
-      store.add(Event.fromObservableLight(observable)(onDidChangeCodeLens));
+      store.add(
+        Event.fromObservableLight(observable)(onDidChangeCodeLens)
+      );
       return observable.get();
     }, "read");
-    const collection = read(this._mcpRegistry.collections).find((c) => isEqual(c.presentation?.origin, model.uri));
+    const collection = read(this._mcpRegistry.collections).find(
+      (c) => isEqual(c.presentation?.origin, model.uri)
+    );
     if (!collection) {
       return lenses;
     }
-    const mcpServers = read(this._mcpService.servers).filter((s) => s.collection.id === collection.id);
+    const mcpServers = read(this._mcpService.servers).filter(
+      (s) => s.collection.id === collection.id
+    );
     for (const node of serversNode.children || []) {
       if (node.type !== "property" || node.children?.[0]?.type !== "string") {
         continue;
@@ -163,78 +220,95 @@ let McpLanguageFeatures = class extends Disposable {
       if (!server) {
         continue;
       }
-      const range = Range.fromPositions(model.getPositionAt(node.children[0].offset));
+      const range = Range.fromPositions(
+        model.getPositionAt(node.children[0].offset)
+      );
       switch (read(server.connectionState).state) {
         case McpConnectionState.Kind.Error:
-          lenses.lenses.push({
-            range,
-            command: {
-              id: ShowOutput.ID,
-              title: "$(error) " + localize("server.error", "Error"),
-              arguments: [server.definition.id]
+          lenses.lenses.push(
+            {
+              range,
+              command: {
+                id: ShowOutput.ID,
+                title: `$(error) ${localize("server.error", "Error")}`,
+                arguments: [server.definition.id]
+              }
+            },
+            {
+              range,
+              command: {
+                id: RestartServer.ID,
+                title: localize("mcp.restart", "Restart"),
+                arguments: [server.definition.id]
+              }
             }
-          }, {
-            range,
-            command: {
-              id: RestartServer.ID,
-              title: localize("mcp.restart", "Restart"),
-              arguments: [server.definition.id]
-            }
-          });
+          );
           break;
         case McpConnectionState.Kind.Starting:
-          lenses.lenses.push({
-            range,
-            command: {
-              id: ShowOutput.ID,
-              title: "$(loading~spin) " + localize("server.starting", "Starting"),
-              arguments: [server.definition.id]
+          lenses.lenses.push(
+            {
+              range,
+              command: {
+                id: ShowOutput.ID,
+                title: `$(loading~spin) ${localize("server.starting", "Starting")}`,
+                arguments: [server.definition.id]
+              }
+            },
+            {
+              range,
+              command: {
+                id: StopServer.ID,
+                title: localize("cancel", "Cancel"),
+                arguments: [server.definition.id]
+              }
             }
-          }, {
-            range,
-            command: {
-              id: StopServer.ID,
-              title: localize("cancel", "Cancel"),
-              arguments: [server.definition.id]
-            }
-          });
+          );
           break;
         case McpConnectionState.Kind.Running:
-          lenses.lenses.push({
-            range,
-            command: {
-              id: ShowOutput.ID,
-              title: "$(check) " + localize("server.running", "Running"),
-              arguments: [server.definition.id]
+          lenses.lenses.push(
+            {
+              range,
+              command: {
+                id: ShowOutput.ID,
+                title: `$(check) ${localize("server.running", "Running")}`,
+                arguments: [server.definition.id]
+              }
+            },
+            {
+              range,
+              command: {
+                id: StopServer.ID,
+                title: localize("mcp.stop", "Stop"),
+                arguments: [server.definition.id]
+              }
+            },
+            {
+              range,
+              command: {
+                id: RestartServer.ID,
+                title: localize("mcp.restart", "Restart"),
+                arguments: [server.definition.id]
+              }
+            },
+            {
+              range,
+              command: {
+                id: "",
+                title: localize(
+                  "server.toolCount",
+                  "{0} tools",
+                  read(server.tools).length
+                )
+              }
             }
-          }, {
-            range,
-            command: {
-              id: StopServer.ID,
-              title: localize("mcp.stop", "Stop"),
-              arguments: [server.definition.id]
-            }
-          }, {
-            range,
-            command: {
-              id: RestartServer.ID,
-              title: localize("mcp.restart", "Restart"),
-              arguments: [server.definition.id]
-            }
-          }, {
-            range,
-            command: {
-              id: "",
-              title: localize("server.toolCount", "{0} tools", read(server.tools).length)
-            }
-          });
+          );
           break;
         case McpConnectionState.Kind.Stopped: {
           lenses.lenses.push({
             range,
             command: {
               id: StartServer.ID,
-              title: "$(debug-start) " + localize("mcp.start", "Start"),
+              title: `$(debug-start) ${localize("mcp.start", "Start")}`,
               arguments: [server.definition.id]
             }
           });
@@ -244,7 +318,11 @@ let McpLanguageFeatures = class extends Disposable {
               range,
               command: {
                 id: "",
-                title: localize("server.toolCountCached", "{0} cached tools", toolCount)
+                title: localize(
+                  "server.toolCountCached",
+                  "{0} cached tools",
+                  toolCount
+                )
               }
             });
           }
@@ -282,7 +360,11 @@ let McpLanguageFeatures = class extends Disposable {
         for (const { id } of expr.unresolved()) {
           const saved = inputs[id];
           if (saved) {
-            pushAnnotation(id, node.offset + node.value.indexOf(id) + id.length, saved);
+            pushAnnotation(
+              id,
+              node.offset + node.value.indexOf(id) + id.length,
+              saved
+            );
           }
         }
       });
@@ -296,15 +378,17 @@ let McpLanguageFeatures = class extends Disposable {
         if (input.type !== "object" || !input.children) {
           continue;
         }
-        const idProp = input.children.find((c) => c.type === "property" && c.children?.[0].value === "id");
+        const idProp = input.children.find(
+          (c) => c.type === "property" && c.children?.[0].value === "id"
+        );
         if (!idProp) {
           continue;
         }
-        const id = idProp.children[1];
+        const id = idProp.children?.[1];
         if (!id || id.type !== "string" || !id.value) {
           continue;
         }
-        const savedId = "${input:" + id.value + "}";
+        const savedId = `\${input:${id.value}}`;
         const saved = inputs[savedId];
         if (saved) {
           pushAnnotation(savedId, id.offset + 1 + id.length, saved);
@@ -313,13 +397,33 @@ let McpLanguageFeatures = class extends Disposable {
     }
     __name(annotateInputs, "annotateInputs");
     function pushAnnotation(savedId, offset, saved) {
-      const tooltip = new MarkdownString([
-        markdownCommandLink({ id: EditStoredInput.ID, title: localize("edit", "Edit"), arguments: [savedId, model.uri, mcpConfigurationSection, inConfig.target] }),
-        markdownCommandLink({ id: RemoveStoredInput.ID, title: localize("clear", "Clear"), arguments: [inConfig.scope, savedId] }),
-        markdownCommandLink({ id: RemoveStoredInput.ID, title: localize("clearAll", "Clear All"), arguments: [inConfig.scope] })
-      ].join(" | "), { isTrusted: true });
+      const tooltip = new MarkdownString(
+        [
+          markdownCommandLink({
+            id: EditStoredInput.ID,
+            title: localize("edit", "Edit"),
+            arguments: [
+              savedId,
+              model.uri,
+              mcpConfigurationSection,
+              inConfig?.target
+            ]
+          }),
+          markdownCommandLink({
+            id: RemoveStoredInput.ID,
+            title: localize("clear", "Clear"),
+            arguments: [inConfig?.scope, savedId]
+          }),
+          markdownCommandLink({
+            id: RemoveStoredInput.ID,
+            title: localize("clearAll", "Clear All"),
+            arguments: [inConfig?.scope]
+          })
+        ].join(" | "),
+        { isTrusted: true }
+      );
       const hint = {
-        label: "= " + (saved.input?.type === "promptString" && saved.input.password ? "*".repeat(10) : saved.value || ""),
+        label: `= ${saved.input?.type === "promptString" && saved.input.password ? "*".repeat(10) : saved.value || ""}`,
         position: model.getPositionAt(offset),
         tooltip,
         paddingLeft: true
@@ -344,7 +448,9 @@ function forEachPropertyWithReplacement(node, callback) {
   } else if (node.type === "property") {
     node.children?.slice(1).forEach((n) => forEachPropertyWithReplacement(n, callback));
   } else {
-    node.children?.forEach((n) => forEachPropertyWithReplacement(n, callback));
+    node.children?.forEach(
+      (n) => forEachPropertyWithReplacement(n, callback)
+    );
   }
 }
 __name(forEachPropertyWithReplacement, "forEachPropertyWithReplacement");

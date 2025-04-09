@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "./cancellation.js";
 import { onUnexpectedError } from "./errors.js";
 import { DisposableStore, toDisposable } from "./lifecycle.js";
 function isReadable(obj) {
@@ -16,7 +15,12 @@ function isReadableStream(obj) {
   if (!candidate) {
     return false;
   }
-  return [candidate.on, candidate.pause, candidate.resume, candidate.destroy].every((fn) => typeof fn === "function");
+  return [
+    candidate.on,
+    candidate.pause,
+    candidate.resume,
+    candidate.destroy
+  ].every((fn) => typeof fn === "function");
 }
 __name(isReadableStream, "isReadableStream");
 function isReadableBufferedStream(obj) {
@@ -86,7 +90,9 @@ class WriteableStreamImpl {
     } else {
       this.buffer.data.push(data);
       if (typeof this.options?.highWaterMark === "number" && this.buffer.data.length > this.options.highWaterMark) {
-        return new Promise((resolve) => this.pendingWritePromises.push(resolve));
+        return new Promise(
+          (resolve) => this.pendingWritePromises.push(resolve)
+        );
       }
     }
   }
@@ -188,7 +194,9 @@ class WriteableStreamImpl {
     this.buffer.data.length = 0;
     const pendingWritePromises = [...this.pendingWritePromises];
     this.pendingWritePromises.length = 0;
-    pendingWritePromises.forEach((pendingWritePromise) => pendingWritePromise());
+    pendingWritePromises.forEach(
+      (pendingWritePromise) => pendingWritePromise()
+    );
   }
   flowErrors() {
     if (this.listeners.error.length > 0) {
@@ -316,11 +324,17 @@ function peekStream(stream, maxChunks) {
       streamListeners.dispose();
       return resolve({ stream, buffer, ended: true });
     }, "endListener");
-    streamListeners.add(toDisposable(() => stream.removeListener("error", errorListener)));
+    streamListeners.add(
+      toDisposable(() => stream.removeListener("error", errorListener))
+    );
     stream.on("error", errorListener);
-    streamListeners.add(toDisposable(() => stream.removeListener("end", endListener)));
+    streamListeners.add(
+      toDisposable(() => stream.removeListener("end", endListener))
+    );
     stream.on("end", endListener);
-    streamListeners.add(toDisposable(() => stream.removeListener("data", dataListener)));
+    streamListeners.add(
+      toDisposable(() => stream.removeListener("data", dataListener))
+    );
     stream.on("data", dataListener);
   });
 }

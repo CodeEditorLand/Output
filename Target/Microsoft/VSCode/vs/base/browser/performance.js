@@ -2,10 +2,16 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 var inputLatency;
 ((inputLatency2) => {
-  const totalKeydownTime = { total: 0, min: Number.MAX_VALUE, max: 0 };
+  const totalKeydownTime = {
+    total: 0,
+    min: Number.MAX_VALUE,
+    max: 0
+  };
   const totalInputTime = { ...totalKeydownTime };
   const totalRenderTime = { ...totalKeydownTime };
-  const totalInputLatencyTime = { ...totalKeydownTime };
+  const totalInputLatencyTime = {
+    ...totalKeydownTime
+  };
   let measurementsCount = 0;
   let EventPhase;
   ((EventPhase2) => {
@@ -93,7 +99,11 @@ var inputLatency;
       performance.measure("keydown", "keydown/start", "keydown/end");
       performance.measure("input", "input/start", "input/end");
       performance.measure("render", "render/start", "render/end");
-      performance.measure("inputlatency", "inputlatency/start", "inputlatency/end");
+      performance.measure(
+        "inputlatency",
+        "inputlatency/start",
+        "inputlatency/end"
+      );
       addMeasure("keydown", totalKeydownTime);
       addMeasure("input", totalInputTime);
       addMeasure("render", totalRenderTime);
@@ -106,8 +116,14 @@ var inputLatency;
   function addMeasure(entryName, cumulativeMeasurement) {
     const duration = performance.getEntriesByName(entryName)[0].duration;
     cumulativeMeasurement.total += duration;
-    cumulativeMeasurement.min = Math.min(cumulativeMeasurement.min, duration);
-    cumulativeMeasurement.max = Math.max(cumulativeMeasurement.max, duration);
+    cumulativeMeasurement.min = Math.min(
+      cumulativeMeasurement.min,
+      duration
+    );
+    cumulativeMeasurement.max = Math.max(
+      cumulativeMeasurement.max,
+      duration
+    );
   }
   __name(addMeasure, "addMeasure");
   function reset() {

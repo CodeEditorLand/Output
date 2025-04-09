@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { ContextKeyExpr } from "../../contextkey/common/contextkey.js";
-import { CONFIG_KEY, DEFAULT_SOURCE_FOLDER, LOCATIONS_CONFIG_KEY } from "./constants.js";
+import {
+  CONFIG_KEY,
+  DEFAULT_SOURCE_FOLDER,
+  LOCATIONS_CONFIG_KEY
+} from "./constants.js";
 var PromptsConfig;
 ((PromptsConfig2) => {
   PromptsConfig2.KEY = CONFIG_KEY;
@@ -10,7 +14,10 @@ var PromptsConfig;
     const enabledValue = configService.getValue(CONFIG_KEY);
     return asBoolean(enabledValue) ?? false;
   }, "enabled");
-  PromptsConfig2.enabledCtx = ContextKeyExpr.equals(`config.${CONFIG_KEY}`, true);
+  PromptsConfig2.enabledCtx = ContextKeyExpr.equals(
+    `config.${CONFIG_KEY}`,
+    true
+  );
   PromptsConfig2.getLocationsValue = /* @__PURE__ */ __name((configService) => {
     const configValue = configService.getValue(LOCATIONS_CONFIG_KEY);
     if (configValue === void 0 || configValue === null || Array.isArray(configValue)) {

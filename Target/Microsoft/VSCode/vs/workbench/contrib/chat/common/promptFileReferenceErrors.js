@@ -1,14 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { URI } from "../../../../base/common/uri.js";
-import { basename } from "../../../../base/common/path.js";
 import { assert, assertNever } from "../../../../base/common/assert.js";
+import { basename } from "../../../../base/common/path.js";
 class ParseError extends Error {
   static {
     __name(this, "ParseError");
-  }
-  constructor(message, options) {
-    super(message, options);
   }
   /**
    * Check if provided object is of the same type as this error.
@@ -65,10 +61,7 @@ class RecursiveReference extends ResolveError {
       recursivePath.length >= 2,
       `Recursive path must contain at least two paths, got '${recursivePath.length}'.`
     );
-    super(
-      uri,
-      "Recursive references found."
-    );
+    super(uri, "Recursive references found.");
     this.recursivePath = recursivePath;
   }
   static {
@@ -97,10 +90,7 @@ class RecursiveReference extends ResolveError {
       if (filename === "basename") {
         return `'${basename(path)}'`;
       }
-      assertNever(
-        filename,
-        `Unknown filename format '${filename}'.`
-      );
+      assertNever(filename, `Unknown filename format '${filename}'.`);
     }).join(pathJoinCharacter);
     if (isDefault) {
       this.defaultPathStringCache = result;
@@ -142,10 +132,7 @@ class NotPromptFile extends ResolveError {
   errorType = "NotPromptFileError";
   constructor(uri, message = "") {
     const suffix = message ? `: ${message}` : "";
-    super(
-      uri,
-      `Resource at ${uri.path} is not a prompt file${suffix}`
-    );
+    super(uri, `Resource at ${uri.path} is not a prompt file${suffix}`);
   }
 }
 class FolderReference extends NotPromptFile {
@@ -155,10 +142,7 @@ class FolderReference extends NotPromptFile {
   errorType = "FolderReferenceError";
   constructor(uri, message = "") {
     const suffix = message ? `: ${message}` : "";
-    super(
-      uri,
-      `Entity at '${uri.path}' is a folder${suffix}`
-    );
+    super(uri, `Entity at '${uri.path}' is a folder${suffix}`);
   }
 }
 export {

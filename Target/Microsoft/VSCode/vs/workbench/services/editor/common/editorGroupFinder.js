@@ -2,19 +2,45 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { EditorActivation } from "../../../../platform/editor/common/editor.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { EditorInputWithOptions, isEditorInputWithOptions, IUntypedEditorInput, isEditorInput, EditorInputCapabilities } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IEditorGroup, GroupsOrder, preferredSideBySideGroupDirection, IEditorGroupsService } from "./editorGroupsService.js";
-import { AUX_WINDOW_GROUP, AUX_WINDOW_GROUP_TYPE, PreferredGroup, SIDE_GROUP } from "./editorService.js";
+import {
+  EditorInputCapabilities,
+  isEditorInput,
+  isEditorInputWithOptions
+} from "../../../common/editor.js";
+import {
+  GroupsOrder,
+  IEditorGroupsService,
+  preferredSideBySideGroupDirection
+} from "./editorGroupsService.js";
+import {
+  AUX_WINDOW_GROUP,
+  SIDE_GROUP
+} from "./editorService.js";
 function findGroup(accessor, editor, preferredGroup) {
   const editorGroupService = accessor.get(IEditorGroupsService);
   const configurationService = accessor.get(IConfigurationService);
-  const group = doFindGroup(editor, preferredGroup, editorGroupService, configurationService);
+  const group = doFindGroup(
+    editor,
+    preferredGroup,
+    editorGroupService,
+    configurationService
+  );
   if (group instanceof Promise) {
-    return group.then((group2) => handleGroupActivation(group2, editor, preferredGroup, editorGroupService));
+    return group.then(
+      (group2) => handleGroupActivation(
+        group2,
+        editor,
+        preferredGroup,
+        editorGroupService
+      )
+    );
   }
-  return handleGroupActivation(group, editor, preferredGroup, editorGroupService);
+  return handleGroupActivation(
+    group,
+    editor,
+    preferredGroup,
+    editorGroupService
+  );
 }
 __name(findGroup, "findGroup");
 function handleGroupActivation(group, editor, preferredGroup, editorGroupService) {
@@ -41,13 +67,18 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
     const direction = preferredSideBySideGroupDirection(configurationService);
     let candidateGroup = editorGroupService.findGroup({ direction });
     if (!candidateGroup || isGroupLockedForEditor(candidateGroup, editor)) {
-      candidateGroup = editorGroupService.addGroup(editorGroupService.activeGroup, direction);
+      candidateGroup = editorGroupService.addGroup(
+        editorGroupService.activeGroup,
+        direction
+      );
     }
     group = candidateGroup;
   } else if (preferredGroup === AUX_WINDOW_GROUP) {
     group = editorGroupService.createAuxiliaryEditorPart().then((group2) => group2.activeGroup);
   } else if (!options || typeof options.index !== "number") {
-    const groupsByLastActive = editorGroupService.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
+    const groupsByLastActive = editorGroupService.getGroups(
+      GroupsOrder.MOST_RECENTLY_ACTIVE
+    );
     if (options?.revealIfVisible) {
       for (const lastActiveGroup of groupsByLastActive) {
         if (isActive(lastActiveGroup, editor)) {
@@ -57,7 +88,9 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
       }
     }
     if (!group) {
-      if (options?.revealIfOpened || configurationService.getValue("workbench.editor.revealIfOpen") || isEditorInput(editor) && editor.hasCapability(EditorInputCapabilities.Singleton)) {
+      if (options?.revealIfOpened || configurationService.getValue(
+        "workbench.editor.revealIfOpen"
+      ) || isEditorInput(editor) && editor.hasCapability(EditorInputCapabilities.Singleton)) {
         let groupWithInputActive = void 0;
         let groupWithInputOpened = void 0;
         for (const group2 of groupsByLastActive) {
@@ -80,7 +113,9 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
   if (!group) {
     let candidateGroup = editorGroupService.activeGroup;
     if (isGroupLockedForEditor(candidateGroup, editor)) {
-      for (const group2 of editorGroupService.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE)) {
+      for (const group2 of editorGroupService.getGroups(
+        GroupsOrder.MOST_RECENTLY_ACTIVE
+      )) {
         if (isGroupLockedForEditor(group2, editor)) {
           continue;
         }
@@ -88,7 +123,10 @@ function doFindGroup(input, preferredGroup, editorGroupService, configurationSer
         break;
       }
       if (isGroupLockedForEditor(candidateGroup, editor)) {
-        group = editorGroupService.addGroup(candidateGroup, preferredSideBySideGroupDirection(configurationService));
+        group = editorGroupService.addGroup(
+          candidateGroup,
+          preferredSideBySideGroupDirection(configurationService)
+        );
       } else {
         group = candidateGroup;
       }

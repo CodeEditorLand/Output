@@ -4,7 +4,12 @@ function findMatchingThemeRule(theme, scopes, onlyColorRules = true) {
   for (let i = scopes.length - 1; i >= 0; i--) {
     const parentScopes = scopes.slice(0, i);
     const scope = scopes[i];
-    const r = findMatchingThemeRule2(theme, scope, parentScopes, onlyColorRules);
+    const r = findMatchingThemeRule2(
+      theme,
+      scope,
+      parentScopes,
+      onlyColorRules
+    );
     if (r) {
       return r;
     }
@@ -53,10 +58,18 @@ class ThemeRule {
     this.settings = settings;
     const rawSelectorPieces = this.rawSelector.split(/ /);
     this.scope = rawSelectorPieces[rawSelectorPieces.length - 1];
-    this.parentScopes = rawSelectorPieces.slice(0, rawSelectorPieces.length - 1);
+    this.parentScopes = rawSelectorPieces.slice(
+      0,
+      rawSelectorPieces.length - 1
+    );
   }
   matches(scope, parentScopes) {
-    return ThemeRule._matches(this.scope, this.parentScopes, scope, parentScopes);
+    return ThemeRule._matches(
+      this.scope,
+      this.parentScopes,
+      scope,
+      parentScopes
+    );
   }
   static _cmp(a, b) {
     if (a === null && b === null) {
@@ -89,20 +102,23 @@ class ThemeRule {
     return ThemeRule._cmp(this, other) > 0;
   }
   static _matchesOne(selectorScope, scope) {
-    const selectorPrefix = selectorScope + ".";
+    const selectorPrefix = `${selectorScope}.`;
     if (selectorScope === scope || scope.substring(0, selectorPrefix.length) === selectorPrefix) {
       return true;
     }
     return false;
   }
   static _matches(selectorScope, selectorParentScopes, scope, parentScopes) {
-    if (!this._matchesOne(selectorScope, scope)) {
+    if (!ThemeRule._matchesOne(selectorScope, scope)) {
       return false;
     }
     let selectorParentIndex = selectorParentScopes.length - 1;
     let parentIndex = parentScopes.length - 1;
     while (selectorParentIndex >= 0 && parentIndex >= 0) {
-      if (this._matchesOne(selectorParentScopes[selectorParentIndex], parentScopes[parentIndex])) {
+      if (ThemeRule._matchesOne(
+        selectorParentScopes[selectorParentIndex],
+        parentScopes[parentIndex]
+      )) {
         selectorParentIndex--;
       }
       parentIndex--;

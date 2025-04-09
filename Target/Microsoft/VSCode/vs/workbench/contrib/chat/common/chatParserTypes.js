@@ -2,14 +2,15 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { revive } from "../../../../base/common/marshalling.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import { IOffsetRange, OffsetRange } from "../../../../editor/common/core/offsetRange.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { IChatAgentCommand, IChatAgentData, IChatAgentService, reviveSerializedAgent } from "./chatAgents.js";
-import { IChatRequestVariableEntry, IDiagnosticVariableEntryFilterData } from "./chatModel.js";
-import { IChatSlashData } from "./chatSlashCommands.js";
-import { IChatRequestProblemsVariable, IChatRequestVariableValue } from "./chatVariables.js";
-import { ChatAgentLocation } from "./constants.js";
-import { IToolData } from "./languageModelToolsService.js";
+import {
+  OffsetRange
+} from "../../../../editor/common/core/offsetRange.js";
+import {
+  reviveSerializedAgent
+} from "./chatAgents.js";
+import {
+  IDiagnosticVariableEntryFilterData
+} from "./chatModel.js";
 function getPromptText(request) {
   const message = request.parts.map((r) => r.promptText).join("").trimStart();
   const diff = request.text.length - message.length;
@@ -76,7 +77,15 @@ class ChatRequestToolPart {
     return this.text;
   }
   toVariableEntry() {
-    return { id: this.toolId, name: this.toolName, range: this.range, value: void 0, isTool: true, icon: ThemeIcon.isThemeIcon(this.icon) ? this.icon : void 0, fullName: this.displayName };
+    return {
+      id: this.toolId,
+      name: this.toolName,
+      range: this.range,
+      value: void 0,
+      isTool: true,
+      icon: ThemeIcon.isThemeIcon(this.icon) ? this.icon : void 0,
+      fullName: this.displayName
+    };
   }
 }
 class ChatRequestAgentPart {
@@ -159,9 +168,20 @@ class ChatRequestDynamicVariablePart {
   }
   toVariableEntry() {
     if (this.id === "vscode.problems") {
-      return IDiagnosticVariableEntryFilterData.toEntry(this.data.filter);
+      return IDiagnosticVariableEntryFilterData.toEntry(
+        this.data.filter
+      );
     }
-    return { id: this.id, name: this.referenceText, range: this.range, value: this.data, fullName: this.fullName, icon: this.icon, isFile: this.isFile, isDirectory: this.isDirectory };
+    return {
+      id: this.id,
+      name: this.referenceText,
+      range: this.range,
+      value: this.data,
+      fullName: this.fullName,
+      icon: this.icon,
+      isFile: this.isFile,
+      isDirectory: this.isDirectory
+    };
   }
 }
 function reviveParsedChatRequest(serialized) {
@@ -232,8 +252,12 @@ function reviveParsedChatRequest(serialized) {
 }
 __name(reviveParsedChatRequest, "reviveParsedChatRequest");
 function extractAgentAndCommand(parsed) {
-  const agentPart = parsed.parts.find((r) => r instanceof ChatRequestAgentPart);
-  const commandPart = parsed.parts.find((r) => r instanceof ChatRequestAgentSubcommandPart);
+  const agentPart = parsed.parts.find(
+    (r) => r instanceof ChatRequestAgentPart
+  );
+  const commandPart = parsed.parts.find(
+    (r) => r instanceof ChatRequestAgentSubcommandPart
+  );
   return { agentPart, commandPart };
 }
 __name(extractAgentAndCommand, "extractAgentAndCommand");

@@ -11,10 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { getWindow } from "../../../../../base/browser/dom.js";
-import { createFastDomNode, FastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import {
+  createFastDomNode
+} from "../../../../../base/browser/fastDomNode.js";
 import { PixelRatio } from "../../../../../base/browser/pixelRatio.js";
-import { IThemeService, Themable } from "../../../../../platform/theme/common/themeService.js";
-import { INotebookEditorDelegate, NotebookOverviewRulerLane } from "../notebookBrowser.js";
+import {
+  IThemeService,
+  Themable
+} from "../../../../../platform/theme/common/themeService.js";
+import {
+  NotebookOverviewRulerLane
+} from "../notebookBrowser.js";
 let NotebookOverviewRuler = class extends Themable {
   constructor(notebookEditor, container, themeService) {
     super(themeService);
@@ -24,12 +31,18 @@ let NotebookOverviewRuler = class extends Themable {
     this._domNode.setLayerHinting(true);
     this._domNode.setContain("strict");
     container.appendChild(this._domNode.domNode);
-    this._register(notebookEditor.onDidChangeDecorations(() => {
-      this.layout();
-    }));
-    this._register(PixelRatio.getInstance(getWindow(this._domNode.domNode)).onDidChange(() => {
-      this.layout();
-    }));
+    this._register(
+      notebookEditor.onDidChangeDecorations(() => {
+        this.layout();
+      })
+    );
+    this._register(
+      PixelRatio.getInstance(
+        getWindow(this._domNode.domNode)
+      ).onDidChange(() => {
+        this.layout();
+      })
+    );
   }
   static {
     __name(this, "NotebookOverviewRuler");
@@ -41,14 +54,22 @@ let NotebookOverviewRuler = class extends Themable {
     const layoutInfo = this.notebookEditor.getLayoutInfo();
     const scrollHeight = layoutInfo.scrollHeight;
     const height = layoutInfo.height;
-    const ratio = PixelRatio.getInstance(getWindow(this._domNode.domNode)).value;
+    const ratio = PixelRatio.getInstance(
+      getWindow(this._domNode.domNode)
+    ).value;
     this._domNode.setWidth(width);
     this._domNode.setHeight(height);
     this._domNode.domNode.width = width * ratio;
     this._domNode.domNode.height = height * ratio;
     const ctx = this._domNode.domNode.getContext("2d");
     ctx.clearRect(0, 0, width * ratio, height * ratio);
-    this._render(ctx, width * ratio, height * ratio, scrollHeight * ratio, ratio);
+    this._render(
+      ctx,
+      width * ratio,
+      height * ratio,
+      scrollHeight * ratio,
+      ratio
+    );
   }
   _render(ctx, width, height, scrollHeight, ratio) {
     const viewModel = this.notebookEditor.getViewModel();
@@ -64,7 +85,10 @@ let NotebookOverviewRuler = class extends Themable {
         decorations.filter((decoration) => decoration.overviewRuler).forEach((decoration) => {
           const overviewRuler = decoration.overviewRuler;
           const fillStyle = this.getColor(overviewRuler.color) ?? "#000000";
-          const lineHeight = Math.min(fontInfo.lineHeight, viewCell.layoutInfo.editorHeight / scrollHeight / textBuffer.getLineCount() * ratio * height);
+          const lineHeight = Math.min(
+            fontInfo.lineHeight,
+            viewCell.layoutInfo.editorHeight / scrollHeight / textBuffer.getLineCount() * ratio * height
+          );
           const lineNumbers = overviewRuler.modelRanges.map((range) => range.startLineNumber).reduce((previous, current) => {
             if (previous.length === 0) {
               previous.push(current);
@@ -95,13 +119,23 @@ let NotebookOverviewRuler = class extends Themable {
             ctx.fillStyle = fillStyle;
             const lineNumber = lineNumbers[i2];
             const offset = (lineNumber - 1) * lineHeight;
-            ctx.fillRect(x, currentFrom + offset, width2, lineHeight);
+            ctx.fillRect(
+              x,
+              currentFrom + offset,
+              width2,
+              lineHeight
+            );
           }
           if (overviewRuler.includeOutput) {
             ctx.fillStyle = fillStyle;
             const outputOffset = viewCell.layoutInfo.editorHeight / scrollHeight * ratio * height;
             const decorationHeight = fontInfo.lineHeight / scrollHeight * ratio * height;
-            ctx.fillRect(laneWidth, currentFrom + outputOffset, laneWidth, decorationHeight);
+            ctx.fillRect(
+              laneWidth,
+              currentFrom + outputOffset,
+              laneWidth,
+              decorationHeight
+            );
           }
         });
         currentFrom += cellHeight;
@@ -112,7 +146,9 @@ let NotebookOverviewRuler = class extends Themable {
         if (!decoration.options.overviewRuler) {
           continue;
         }
-        const viewZoneInfo = this.notebookEditor.getViewZoneLayoutInfo(decoration.viewZoneId);
+        const viewZoneInfo = this.notebookEditor.getViewZoneLayoutInfo(
+          decoration.viewZoneId
+        );
         if (!viewZoneInfo) {
           continue;
         }

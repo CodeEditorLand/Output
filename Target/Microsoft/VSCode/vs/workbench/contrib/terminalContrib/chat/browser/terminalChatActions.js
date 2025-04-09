@@ -13,7 +13,11 @@ import { AbstractInline1ChatAction } from "../../../inlineChat/browser/inlineCha
 import { isDetachedTerminalInstance } from "../../../terminal/browser/terminal.js";
 import { registerActiveXtermAction } from "../../../terminal/browser/terminalActions.js";
 import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
-import { MENU_TERMINAL_CHAT_WIDGET_STATUS, TerminalChatCommandId, TerminalChatContextKeys } from "./terminalChat.js";
+import {
+  MENU_TERMINAL_CHAT_WIDGET_STATUS,
+  TerminalChatCommandId,
+  TerminalChatContextKeys
+} from "./terminalChat.js";
 import { TerminalChatController } from "./terminalChatController.js";
 registerActiveXtermAction({
   id: TerminalChatCommandId.Start,
@@ -29,7 +33,10 @@ registerActiveXtermAction({
   f1: true,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.hasChatAgent
   ),
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance, opts) => {
@@ -56,16 +63,21 @@ registerActiveXtermAction({
   keybinding: {
     primary: KeyCode.Escape,
     when: ContextKeyExpr.and(
-      ContextKeyExpr.or(TerminalContextKeys.focus, TerminalChatContextKeys.focused),
+      ContextKeyExpr.or(
+        TerminalContextKeys.focus,
+        TerminalChatContextKeys.focused
+      ),
       TerminalChatContextKeys.visible
     ),
     weight: KeybindingWeight.WorkbenchContrib
   },
-  menu: [{
-    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
-    group: "0_main",
-    order: 2
-  }],
+  menu: [
+    {
+      id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+      group: "0_main",
+      order: 2
+    }
+  ],
   icon: Codicon.close,
   f1: true,
   precondition: ContextKeyExpr.and(
@@ -87,7 +99,10 @@ registerActiveXtermAction({
   category: AbstractInline1ChatAction.category,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.requestActive.negate(),
     TerminalChatContextKeys.responseContainsCodeBlock,
     TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate()
@@ -102,7 +117,11 @@ registerActiveXtermAction({
     id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
     group: "0_main",
     order: 0,
-    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate(), TerminalChatContextKeys.requestActive.negate())
+    when: ContextKeyExpr.and(
+      TerminalChatContextKeys.responseContainsCodeBlock,
+      TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate(),
+      TerminalChatContextKeys.requestActive.negate()
+    )
   },
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     if (isDetachedTerminalInstance(activeInstance)) {
@@ -119,7 +138,10 @@ registerActiveXtermAction({
   category: AbstractInline1ChatAction.category,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.requestActive.negate(),
     TerminalChatContextKeys.responseContainsMultipleCodeBlocks
   ),
@@ -133,7 +155,10 @@ registerActiveXtermAction({
     id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
     group: "0_main",
     order: 0,
-    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsMultipleCodeBlocks, TerminalChatContextKeys.requestActive.negate())
+    when: ContextKeyExpr.and(
+      TerminalChatContextKeys.responseContainsMultipleCodeBlocks,
+      TerminalChatContextKeys.requestActive.negate()
+    )
   },
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     if (isDetachedTerminalInstance(activeInstance)) {
@@ -151,7 +176,10 @@ registerActiveXtermAction({
   icon: Codicon.insert,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.requestActive.negate(),
     TerminalChatContextKeys.responseContainsCodeBlock,
     TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate()
@@ -166,7 +194,11 @@ registerActiveXtermAction({
     id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
     group: "0_main",
     order: 1,
-    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate(), TerminalChatContextKeys.requestActive.negate())
+    when: ContextKeyExpr.and(
+      TerminalChatContextKeys.responseContainsCodeBlock,
+      TerminalChatContextKeys.responseContainsMultipleCodeBlocks.negate(),
+      TerminalChatContextKeys.requestActive.negate()
+    )
   },
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     if (isDetachedTerminalInstance(activeInstance)) {
@@ -183,7 +215,10 @@ registerActiveXtermAction({
   category: AbstractInline1ChatAction.category,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.requestActive.negate(),
     TerminalChatContextKeys.responseContainsMultipleCodeBlocks
   ),
@@ -197,7 +232,10 @@ registerActiveXtermAction({
     id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
     group: "0_main",
     order: 1,
-    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsMultipleCodeBlocks, TerminalChatContextKeys.requestActive.negate())
+    when: ContextKeyExpr.and(
+      TerminalChatContextKeys.responseContainsMultipleCodeBlocks,
+      TerminalChatContextKeys.requestActive.negate()
+    )
   },
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     if (isDetachedTerminalInstance(activeInstance)) {
@@ -215,7 +253,10 @@ registerActiveXtermAction({
   category: AbstractInline1ChatAction.category,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.requestActive.negate()
   ),
   keybinding: {
@@ -227,7 +268,10 @@ registerActiveXtermAction({
     id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
     group: "0_main",
     order: 5,
-    when: ContextKeyExpr.and(TerminalChatContextKeys.inputHasText.toNegated(), TerminalChatContextKeys.requestActive.negate())
+    when: ContextKeyExpr.and(
+      TerminalChatContextKeys.inputHasText.toNegated(),
+      TerminalChatContextKeys.requestActive.negate()
+    )
   },
   run: /* @__PURE__ */ __name(async (_xterm, _accessor, activeInstance) => {
     const chatService = _accessor.get(IChatService);
@@ -239,7 +283,9 @@ registerActiveXtermAction({
     }
     const lastRequest = model.getRequests().at(-1);
     if (lastRequest) {
-      const widget = chatWidgetService.getWidgetBySessionId(model.sessionId);
+      const widget = chatWidgetService.getWidgetBySessionId(
+        model.sessionId
+      );
       await chatService.resendRequest(lastRequest, {
         noCommandDetection: false,
         attempt: lastRequest.attempt + 1,
@@ -255,17 +301,25 @@ registerActiveXtermAction({
   category: AbstractInline1ChatAction.category,
   precondition: ContextKeyExpr.and(
     ChatContextKeys.enabled,
-    ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+    ContextKeyExpr.or(
+      TerminalContextKeys.processSupported,
+      TerminalContextKeys.terminalHasBeenCreated
+    ),
     TerminalChatContextKeys.requestActive.negate()
   ),
   icon: Codicon.commentDiscussion,
-  menu: [{
-    id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
-    group: "zzz",
-    order: 1,
-    isHiddenByDefault: true,
-    when: ContextKeyExpr.and(TerminalChatContextKeys.responseContainsCodeBlock, TerminalChatContextKeys.requestActive.negate())
-  }],
+  menu: [
+    {
+      id: MENU_TERMINAL_CHAT_WIDGET_STATUS,
+      group: "zzz",
+      order: 1,
+      isHiddenByDefault: true,
+      when: ContextKeyExpr.and(
+        TerminalChatContextKeys.responseContainsCodeBlock,
+        TerminalChatContextKeys.requestActive.negate()
+      )
+    }
+  ],
   run: /* @__PURE__ */ __name((_xterm, _accessor, activeInstance) => {
     if (isDetachedTerminalInstance(activeInstance)) {
       return;

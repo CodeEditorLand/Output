@@ -1,14 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../../../../../../../../nls.js";
-import { DELETE_BUTTON, EDIT_BUTTON } from "../constants.js";
 import { assert } from "../../../../../../../../../base/common/assert.js";
-import { WithUriValue } from "../../../../../../../../../base/common/types.js";
-import { IFileService } from "../../../../../../../../../platform/files/common/files.js";
-import { IOpenerService } from "../../../../../../../../../platform/opener/common/opener.js";
-import { IDialogService } from "../../../../../../../../../platform/dialogs/common/dialogs.js";
+import { localize } from "../../../../../../../../../nls.js";
 import { getCleanPromptName } from "../../../../../../../../../platform/prompts/common/constants.js";
-import { IQuickPick, IQuickPickItem, IQuickPickItemButtonEvent } from "../../../../../../../../../platform/quickinput/common/quickInput.js";
+import { DELETE_BUTTON, EDIT_BUTTON } from "../constants.js";
 async function handleButtonClick(options, context) {
   const { quickPick, openerService, fileService, dialogService } = options;
   const { item, button } = context;

@@ -4,9 +4,8 @@ import "../colorPicker.css";
 import * as dom from "../../../../../base/browser/dom.js";
 import { GlobalPointerMoveMonitor } from "../../../../../base/browser/globalPointerMoveMonitor.js";
 import { Color, RGBA } from "../../../../../base/common/color.js";
-import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ColorPickerModel } from "../colorPickerModel.js";
 import { ColorPickerWidgetType } from "../colorPickerParticipantUtils.js";
 const $ = dom.$;
 class Strip extends Disposable {
@@ -21,8 +20,14 @@ class Strip extends Disposable {
       this.overlay = dom.append(this.domNode, $(".overlay"));
     }
     this.slider = dom.append(this.domNode, $(".slider"));
-    this.slider.style.top = `0px`;
-    this._register(dom.addDisposableListener(this.domNode, dom.EventType.POINTER_DOWN, (e) => this.onPointerDown(e)));
+    this.slider.style.top = "0px";
+    this._register(
+      dom.addDisposableListener(
+        this.domNode,
+        dom.EventType.POINTER_DOWN,
+        (e) => this.onPointerDown(e)
+      )
+    );
     this._register(model.onDidChangeColor(this.onDidChangeColor, this));
     this.layout();
   }
@@ -56,13 +61,24 @@ class Strip extends Disposable {
     if (e.target !== this.slider) {
       this.onDidChangeTop(e.offsetY);
     }
-    monitor.startMonitoring(e.target, e.pointerId, e.buttons, (event) => this.onDidChangeTop(event.pageY - origin.top), () => null);
-    const pointerUpListener = dom.addDisposableListener(e.target.ownerDocument, dom.EventType.POINTER_UP, () => {
-      this._onColorFlushed.fire();
-      pointerUpListener.dispose();
-      monitor.stopMonitoring(true);
-      this.domNode.classList.remove("grabbing");
-    }, true);
+    monitor.startMonitoring(
+      e.target,
+      e.pointerId,
+      e.buttons,
+      (event) => this.onDidChangeTop(event.pageY - origin.top),
+      () => null
+    );
+    const pointerUpListener = dom.addDisposableListener(
+      e.target.ownerDocument,
+      dom.EventType.POINTER_UP,
+      () => {
+        this._onColorFlushed.fire();
+        pointerUpListener.dispose();
+        monitor.stopMonitoring(true);
+        this.domNode.classList.remove("grabbing");
+      },
+      true
+    );
   }
   onDidChangeTop(top) {
     const value = Math.max(0, Math.min(1, 1 - top / this.height));

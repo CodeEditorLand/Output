@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 var ExtensionGalleryResourceType = /* @__PURE__ */ ((ExtensionGalleryResourceType2) => {
   ExtensionGalleryResourceType2["ExtensionQueryService"] = "ExtensionQueryService";
@@ -31,7 +30,9 @@ var Flag = /* @__PURE__ */ ((Flag2) => {
   Flag2["IncludeLatestPrereleaseAndStableVersionOnly"] = "IncludeLatestPrereleaseAndStableVersionOnly";
   return Flag2;
 })(Flag || {});
-const IExtensionGalleryManifestService = createDecorator("IExtensionGalleryManifestService");
+const IExtensionGalleryManifestService = createDecorator(
+  "IExtensionGalleryManifestService"
+);
 function getExtensionGalleryManifestResourceUri(manifest, type, version) {
   for (const resource of manifest.resources) {
     const [r, v] = resource.type.split("/");

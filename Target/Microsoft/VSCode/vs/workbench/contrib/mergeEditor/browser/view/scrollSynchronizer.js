@@ -1,19 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ReentrancyBarrier } from "../../../../../base/common/controlFlow.js";
+import { BugIndicatingError } from "../../../../../base/common/errors.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { derivedWithStore, IObservable } from "../../../../../base/common/observable.js";
-import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import {
+  derivedWithStore
+} from "../../../../../base/common/observable.js";
+import { isDefined } from "../../../../../base/common/types.js";
 import { ScrollType } from "../../../../../editor/common/editorCommon.js";
 import { DocumentLineRangeMap } from "../model/mapping.js";
-import { ReentrancyBarrier } from "../../../../../base/common/controlFlow.js";
-import { BaseCodeEditorView } from "./editors/baseCodeEditorView.js";
-import { IMergeEditorLayout } from "./mergeEditor.js";
-import { MergeEditorViewModel } from "./viewModel.js";
-import { InputCodeEditorView } from "./editors/inputCodeEditorView.js";
-import { ResultCodeEditorView } from "./editors/resultCodeEditorView.js";
-import { CodeEditorView } from "./editors/codeEditorView.js";
-import { BugIndicatingError } from "../../../../../base/common/errors.js";
-import { isDefined } from "../../../../../base/common/types.js";
 class ScrollSynchronizer extends Disposable {
   constructor(viewModel, input1View, input2View, baseView, inputResultView, layout) {
     super();
@@ -25,14 +20,22 @@ class ScrollSynchronizer extends Disposable {
     this.layout = layout;
     const s = derivedWithStore((reader, store) => {
       const baseView2 = this.baseView.read(reader);
-      const editors = [this.input1View, this.input2View, this.inputResultView, baseView2].filter(isDefined);
+      const editors = [
+        this.input1View,
+        this.input2View,
+        this.inputResultView,
+        baseView2
+      ].filter(isDefined);
       const alignScrolling = /* @__PURE__ */ __name((source, updateScrollLeft, updateScrollTop) => {
         this.reentrancyBarrier.runExclusivelyOrSkip(() => {
           if (updateScrollLeft) {
             const scrollLeft = source.editor.getScrollLeft();
             for (const editorView of editors) {
               if (editorView !== source) {
-                editorView.editor.setScrollLeft(scrollLeft, ScrollType.Immediate);
+                editorView.editor.setScrollLeft(
+                  scrollLeft,
+                  ScrollType.Immediate
+                );
               }
             }
           }
@@ -41,11 +44,21 @@ class ScrollSynchronizer extends Disposable {
             for (const editorView of editors) {
               if (editorView !== source) {
                 if (this._shouldLock(source, editorView)) {
-                  editorView.editor.setScrollTop(scrollTop, ScrollType.Immediate);
+                  editorView.editor.setScrollTop(
+                    scrollTop,
+                    ScrollType.Immediate
+                  );
                 } else {
-                  const m = this._getMapping(source, editorView);
+                  const m = this._getMapping(
+                    source,
+                    editorView
+                  );
                   if (m) {
-                    this._synchronizeScrolling(source.editor, editorView.editor, m);
+                    this._synchronizeScrolling(
+                      source.editor,
+                      editorView.editor,
+                      m
+                    );
                   }
                 }
               }
@@ -54,12 +67,18 @@ class ScrollSynchronizer extends Disposable {
         });
       }, "alignScrolling");
       for (const editorView of editors) {
-        store.add(editorView.editor.onDidScrollChange((e) => {
-          if (!this._isSyncing) {
-            return;
-          }
-          alignScrolling(editorView, e.scrollLeftChanged, e.scrollTopChanged);
-        }));
+        store.add(
+          editorView.editor.onDidScrollChange((e) => {
+            if (!this._isSyncing) {
+              return;
+            }
+            alignScrolling(
+              editorView,
+              e.scrollLeftChanged,
+              e.scrollTopChanged
+            );
+          })
+        );
       }
       return {
         update: /* @__PURE__ */ __name(() => {
@@ -177,11 +196,22 @@ class ScrollSynchronizer extends Disposable {
     const result = mapping.project(topLineNumber);
     const sourceRange = result.inputRange;
     const targetRange = result.outputRange;
-    const resultStartTopPx = targetEditor.getTopForLineNumber(targetRange.startLineNumber);
-    const resultEndPx = targetEditor.getTopForLineNumber(targetRange.endLineNumberExclusive);
-    const sourceStartTopPx = scrollingEditor.getTopForLineNumber(sourceRange.startLineNumber);
-    const sourceEndPx = scrollingEditor.getTopForLineNumber(sourceRange.endLineNumberExclusive);
-    const factor = Math.min((scrollingEditor.getScrollTop() - sourceStartTopPx) / (sourceEndPx - sourceStartTopPx), 1);
+    const resultStartTopPx = targetEditor.getTopForLineNumber(
+      targetRange.startLineNumber
+    );
+    const resultEndPx = targetEditor.getTopForLineNumber(
+      targetRange.endLineNumberExclusive
+    );
+    const sourceStartTopPx = scrollingEditor.getTopForLineNumber(
+      sourceRange.startLineNumber
+    );
+    const sourceEndPx = scrollingEditor.getTopForLineNumber(
+      sourceRange.endLineNumberExclusive
+    );
+    const factor = Math.min(
+      (scrollingEditor.getScrollTop() - sourceStartTopPx) / (sourceEndPx - sourceStartTopPx),
+      1
+    );
     const resultScrollPosition = resultStartTopPx + (resultEndPx - resultStartTopPx) * factor;
     targetEditor.setScrollTop(resultScrollPosition, ScrollType.Immediate);
   }

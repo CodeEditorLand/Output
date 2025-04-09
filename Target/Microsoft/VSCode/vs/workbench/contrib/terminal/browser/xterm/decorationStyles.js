@@ -2,8 +2,6 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { fromNow, getDurationString } from "../../../../../base/common/date.js";
 import { localize } from "../../../../../nls.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
 var DecorationStyles = /* @__PURE__ */ ((DecorationStyles2) => {
   DecorationStyles2[DecorationStyles2["DefaultDimension"] = 16] = "DefaultDimension";
@@ -41,22 +39,51 @@ function getTerminalDecorationHoverContent(command, hoverMessage) {
       const durationText = getDurationString(command.duration);
       if (command.exitCode) {
         if (command.exitCode === -1) {
-          hoverContent += localize("terminalPromptCommandFailed.duration", "Command executed {0}, took {1} and failed", fromNow(command.timestamp, true), durationText);
+          hoverContent += localize(
+            "terminalPromptCommandFailed.duration",
+            "Command executed {0}, took {1} and failed",
+            fromNow(command.timestamp, true),
+            durationText
+          );
         } else {
-          hoverContent += localize("terminalPromptCommandFailedWithExitCode.duration", "Command executed {0}, took {1} and failed (Exit Code {2})", fromNow(command.timestamp, true), durationText, command.exitCode);
+          hoverContent += localize(
+            "terminalPromptCommandFailedWithExitCode.duration",
+            "Command executed {0}, took {1} and failed (Exit Code {2})",
+            fromNow(command.timestamp, true),
+            durationText,
+            command.exitCode
+          );
         }
       } else {
-        hoverContent += localize("terminalPromptCommandSuccess.duration", "Command executed {0} and took {1}", fromNow(command.timestamp, true), durationText);
+        hoverContent += localize(
+          "terminalPromptCommandSuccess.duration",
+          "Command executed {0} and took {1}",
+          fromNow(command.timestamp, true),
+          durationText
+        );
       }
     } else {
       if (command.exitCode) {
         if (command.exitCode === -1) {
-          hoverContent += localize("terminalPromptCommandFailed", "Command executed {0} and failed", fromNow(command.timestamp, true));
+          hoverContent += localize(
+            "terminalPromptCommandFailed",
+            "Command executed {0} and failed",
+            fromNow(command.timestamp, true)
+          );
         } else {
-          hoverContent += localize("terminalPromptCommandFailedWithExitCode", "Command executed {0} and failed (Exit Code {1})", fromNow(command.timestamp, true), command.exitCode);
+          hoverContent += localize(
+            "terminalPromptCommandFailedWithExitCode",
+            "Command executed {0} and failed (Exit Code {1})",
+            fromNow(command.timestamp, true),
+            command.exitCode
+          );
         }
       } else {
-        hoverContent += localize("terminalPromptCommandSuccess", "Command executed {0}", fromNow(command.timestamp, true));
+        hoverContent += localize(
+          "terminalPromptCommandSuccess",
+          "Command executed {0}",
+          fromNow(command.timestamp, true)
+        );
       }
     }
   }
@@ -67,9 +94,15 @@ function updateLayout(configurationService, element) {
   if (!element) {
     return;
   }
-  const fontSize = configurationService.inspect(TerminalSettingId.FontSize).value;
-  const defaultFontSize = configurationService.inspect(TerminalSettingId.FontSize).defaultValue;
-  const lineHeight = configurationService.inspect(TerminalSettingId.LineHeight).value;
+  const fontSize = configurationService.inspect(
+    TerminalSettingId.FontSize
+  ).value;
+  const defaultFontSize = configurationService.inspect(
+    TerminalSettingId.FontSize
+  ).defaultValue;
+  const lineHeight = configurationService.inspect(
+    TerminalSettingId.LineHeight
+  ).value;
   if (typeof fontSize === "number" && typeof defaultFontSize === "number" && typeof lineHeight === "number") {
     const scalar = fontSize / defaultFontSize <= 1 ? fontSize / defaultFontSize : 1;
     element.style.width = `${scalar * 16 /* DefaultDimension */}px`;

@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IRange, Range } from "../../../editor/common/core/range.js";
+import { Range } from "../../../editor/common/core/range.js";
 class BaseToken {
   constructor(_range) {
     this._range = _range;

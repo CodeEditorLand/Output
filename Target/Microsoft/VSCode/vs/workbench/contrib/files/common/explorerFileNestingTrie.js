@@ -80,8 +80,6 @@ class PreTrie {
   }
   value = new SufTrie();
   map = /* @__PURE__ */ new Map();
-  constructor() {
-  }
   add(key, value) {
     if (key === "") {
       this.value.add(key, value);
@@ -111,9 +109,13 @@ class PreTrie {
   toString(indentation = "") {
     const lines = [];
     if (this.value.hasItems) {
-      lines.push("* => \n" + this.value.toString(indentation + "  "));
+      lines.push(`* => 
+${this.value.toString(`${indentation}  `)}`);
     }
-    [...this.map.entries()].map(([key, trie]) => lines.push("^" + key + " => \n" + trie.toString(indentation + "  ")));
+    [...this.map.entries()].map(
+      ([key, trie]) => lines.push(`^${key} => 
+${trie.toString(`${indentation}  `)}`)
+    );
     return lines.map((l) => indentation + l).join("\n");
   }
 }
@@ -125,8 +127,6 @@ class SufTrie {
   epsilon = [];
   map = /* @__PURE__ */ new Map();
   hasItems = false;
-  constructor() {
-  }
   add(key, value) {
     this.hasItems = true;
     if (key === "*") {
@@ -137,7 +137,7 @@ class SufTrie {
       const tail = key[key.length - 1];
       const rest = key.slice(0, key.length - 1);
       if (tail === "*") {
-        throw Error("Unexpected star in SufTrie key: " + key);
+        throw Error(`Unexpected star in SufTrie key: ${key}`);
       } else {
         let existing = this.map.get(tail);
         if (!existing) {
@@ -150,10 +150,14 @@ class SufTrie {
   get(key, attributes) {
     const results = [];
     if (key === "") {
-      results.push(...this.epsilon.map((ss) => ss.substitute(attributes)));
+      results.push(
+        ...this.epsilon.map((ss) => ss.substitute(attributes))
+      );
     }
     if (this.star.length) {
-      results.push(...this.star.map((ss) => ss.substitute(attributes, key)));
+      results.push(
+        ...this.star.map((ss) => ss.substitute(attributes, key))
+      );
     }
     const tail = key[key.length - 1];
     const rest = key.slice(0, key.length - 1);
@@ -166,12 +170,15 @@ class SufTrie {
   toString(indentation = "") {
     const lines = [];
     if (this.star.length) {
-      lines.push("* => " + this.star.join("; "));
+      lines.push(`* => ${this.star.join("; ")}`);
     }
     if (this.epsilon.length) {
-      lines.push("\u03B5 => " + this.epsilon.join("; "));
+      lines.push(`\u03B5 => ${this.epsilon.join("; ")}`);
     }
-    [...this.map.entries()].map(([key, trie]) => lines.push(key + "$ => \n" + trie.toString(indentation + "  ")));
+    [...this.map.entries()].map(
+      ([key, trie]) => lines.push(`${key}$ => 
+${trie.toString(`${indentation}  `)}`)
+    );
     return lines.map((l) => indentation + l).join("\n");
   }
 }
@@ -204,7 +211,7 @@ class SubstitutionString {
           this.tokens.push({ capture: type });
           break;
         default:
-          throw Error("unknown substitution type: " + type);
+          throw Error(`unknown substitution type: ${type}`);
       }
       lastIndex = token.index + token[0].length;
     }

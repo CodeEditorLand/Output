@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IWebWorkerServerRequestHandler, IWebWorkerServerRequestHandlerFactory, WebWorkerServer } from "./webWorker.js";
+import {
+  WebWorkerServer
+} from "./webWorker.js";
 let initialized = false;
 function initialize(factory) {
   if (initialized) {

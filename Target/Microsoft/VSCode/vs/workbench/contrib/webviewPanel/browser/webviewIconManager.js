@@ -13,19 +13,23 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import * as cssValue from "../../../../base/browser/cssValue.js";
 import * as domStylesheets from "../../../../base/browser/domStylesheets.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ILifecycleService, LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
+import {
+  ILifecycleService,
+  LifecyclePhase
+} from "../../../services/lifecycle/common/lifecycle.js";
 let WebviewIconManager = class extends Disposable {
   constructor(_lifecycleService, _configService) {
     super();
     this._lifecycleService = _lifecycleService;
     this._configService = _configService;
-    this._register(this._configService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("workbench.iconTheme")) {
-        this.updateStyleSheet();
-      }
-    }));
+    this._register(
+      this._configService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("workbench.iconTheme")) {
+          this.updateStyleSheet();
+        }
+      })
+    );
   }
   static {
     __name(this, "WebviewIconManager");
@@ -38,7 +42,11 @@ let WebviewIconManager = class extends Disposable {
   }
   get styleElement() {
     if (!this._styleElement) {
-      this._styleElement = domStylesheets.createStyleSheet(void 0, void 0, this._store);
+      this._styleElement = domStylesheets.createStyleSheet(
+        void 0,
+        void 0,
+        this._store
+      );
       this._styleElement.className = "webview-icons";
     }
     return this._styleElement;

@@ -13,22 +13,26 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { VSBuffer } from "../../../../base/common/buffer.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { removeAnsiEscapeCodes } from "../../../../base/common/strings.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageSelection, ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../editor/common/model.js";
+import {
+  ILanguageService
+} from "../../../../editor/common/languages/language.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextModelContentProvider, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import {
+  ITextModelService
+} from "../../../../editor/common/services/resolverService.js";
 import { localize } from "../../../../nls.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { parseTestUri, TEST_DATA_SCHEME, TestUriType } from "./testingUri.js";
 import { ITestResultService } from "./testResultService.js";
 import { TestMessageType } from "./testTypes.js";
-import { TEST_DATA_SCHEME, TestUriType, parseTestUri } from "./testingUri.js";
 let TestingContentProvider = class {
   constructor(textModelResolverService, languageService, modelService, resultService) {
     this.languageService = languageService;
     this.modelService = modelService;
     this.resultService = resultService;
-    textModelResolverService.registerTextModelContentProvider(TEST_DATA_SCHEME, this);
+    textModelResolverService.registerTextModelContentProvider(
+      TEST_DATA_SCHEME,
+      this
+    );
   }
   static {
     __name(this, "TestingContentProvider");
@@ -51,25 +55,47 @@ let TestingContentProvider = class {
     }
     if (parsed.type === TestUriType.TaskOutput) {
       const task = result.tasks[parsed.taskIndex];
-      const model = this.modelService.createModel("", null, resource, false);
-      const append = /* @__PURE__ */ __name((text2) => model.applyEdits([{
-        range: { startColumn: 1, endColumn: 1, startLineNumber: Infinity, endLineNumber: Infinity },
-        text: text2
-      }]), "append");
-      const init = VSBuffer.concat(task.output.buffers, task.output.length).toString();
+      const model = this.modelService.createModel(
+        "",
+        null,
+        resource,
+        false
+      );
+      const append = /* @__PURE__ */ __name((text2) => model.applyEdits([
+        {
+          range: {
+            startColumn: 1,
+            endColumn: 1,
+            startLineNumber: Number.POSITIVE_INFINITY,
+            endLineNumber: Number.POSITIVE_INFINITY
+          },
+          text: text2
+        }
+      ]), "append");
+      const init = VSBuffer.concat(
+        task.output.buffers,
+        task.output.length
+      ).toString();
       append(removeAnsiEscapeCodes(init));
       let hadContent = init.length > 0;
       const dispose = new DisposableStore();
-      dispose.add(task.output.onDidWriteData((d) => {
-        hadContent ||= d.byteLength > 0;
-        append(removeAnsiEscapeCodes(d.toString()));
-      }));
+      dispose.add(
+        task.output.onDidWriteData((d) => {
+          hadContent ||= d.byteLength > 0;
+          append(removeAnsiEscapeCodes(d.toString()));
+        })
+      );
       task.output.endPromise.then(() => {
         if (dispose.isDisposed) {
           return;
         }
         if (!hadContent) {
-          append(localize("runNoOutout", "The test run did not record any output."));
+          append(
+            localize(
+              "runNoOutout",
+              "The test run did not record any output."
+            )
+          );
           dispose.dispose();
         }
       });
@@ -95,7 +121,9 @@ let TestingContentProvider = class {
         const output = result.tasks[parsed.taskIndex].output;
         for (const message of test.tasks[parsed.taskIndex].messages) {
           if (message.type === TestMessageType.Output) {
-            text += removeAnsiEscapeCodes(output.getRange(message.offset, message.length).toString());
+            text += removeAnsiEscapeCodes(
+              output.getRange(message.offset, message.length).toString()
+            );
           }
         }
         break;

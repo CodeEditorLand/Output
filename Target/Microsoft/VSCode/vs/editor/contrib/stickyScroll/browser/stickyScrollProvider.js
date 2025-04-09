@@ -10,18 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Range } from "../../../common/core/range.js";
 import { binarySearch } from "../../../../base/common/arrays.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
 import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
-import { StickyModelProvider, IStickyModelProvider } from "./stickyScrollModelProvider.js";
-import { StickyElement, StickyModel, StickyRange } from "./stickyScrollElement.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import {
+  StickyModelProvider
+} from "./stickyScrollModelProvider.js";
 class StickyLineCandidate {
   constructor(startLineNumber, endLineNumber, top, height) {
     this.startLineNumber = startLineNumber;
@@ -40,19 +45,25 @@ let StickyLineCandidateProvider = class extends Disposable {
     this._languageConfigurationService = _languageConfigurationService;
     this._editor = editor;
     this._sessionStore = this._register(new DisposableStore());
-    this._updateSoon = this._register(new RunOnceScheduler(() => this.update(), 50));
-    this._register(this._editor.onDidChangeConfiguration((e) => {
-      if (e.hasChanged(EditorOption.stickyScroll)) {
-        this.readConfiguration();
-      }
-    }));
+    this._updateSoon = this._register(
+      new RunOnceScheduler(() => this.update(), 50)
+    );
+    this._register(
+      this._editor.onDidChangeConfiguration((e) => {
+        if (e.hasChanged(EditorOption.stickyScroll)) {
+          this.readConfiguration();
+        }
+      })
+    );
     this.readConfiguration();
   }
   static {
     __name(this, "StickyLineCandidateProvider");
   }
   static ID = "store.contrib.stickyScrollController";
-  _onDidChangeStickyScroll = this._register(new Emitter());
+  _onDidChangeStickyScroll = this._register(
+    new Emitter()
+  );
   onDidChangeStickyScroll = this._onDidChangeStickyScroll.event;
   _editor;
   _updateSoon;
@@ -66,19 +77,33 @@ let StickyLineCandidateProvider = class extends Disposable {
     if (!options.enabled) {
       return;
     }
-    this._sessionStore.add(this._editor.onDidChangeModel(() => {
-      this._model = null;
-      this.updateStickyModelProvider();
-      this._onDidChangeStickyScroll.fire();
-      this.update();
-    }));
-    this._sessionStore.add(this._editor.onDidChangeHiddenAreas(() => this.update()));
-    this._sessionStore.add(this._editor.onDidChangeModelContent(() => this._updateSoon.schedule()));
-    this._sessionStore.add(this._languageFeaturesService.documentSymbolProvider.onDidChange(() => this.update()));
-    this._sessionStore.add(toDisposable(() => {
-      this._stickyModelProvider?.dispose();
-      this._stickyModelProvider = null;
-    }));
+    this._sessionStore.add(
+      this._editor.onDidChangeModel(() => {
+        this._model = null;
+        this.updateStickyModelProvider();
+        this._onDidChangeStickyScroll.fire();
+        this.update();
+      })
+    );
+    this._sessionStore.add(
+      this._editor.onDidChangeHiddenAreas(() => this.update())
+    );
+    this._sessionStore.add(
+      this._editor.onDidChangeModelContent(
+        () => this._updateSoon.schedule()
+      )
+    );
+    this._sessionStore.add(
+      this._languageFeaturesService.documentSymbolProvider.onDidChange(
+        () => this.update()
+      )
+    );
+    this._sessionStore.add(
+      toDisposable(() => {
+        this._stickyModelProvider?.dispose();
+        this._stickyModelProvider = null;
+      })
+    );
     this.updateStickyModelProvider();
     this.update();
   }
@@ -135,12 +160,24 @@ let StickyLineCandidateProvider = class extends Disposable {
         childrenStartLines.push(child.range.startLineNumber);
       }
     }
-    const lowerBound = this.updateIndex(binarySearch(childrenStartLines, range.startLineNumber, (a, b) => {
-      return a - b;
-    }));
-    const upperBound = this.updateIndex(binarySearch(childrenStartLines, range.startLineNumber + depth, (a, b) => {
-      return a - b;
-    }));
+    const lowerBound = this.updateIndex(
+      binarySearch(
+        childrenStartLines,
+        range.startLineNumber,
+        (a, b) => {
+          return a - b;
+        }
+      )
+    );
+    const upperBound = this.updateIndex(
+      binarySearch(
+        childrenStartLines,
+        range.startLineNumber + depth,
+        (a, b) => {
+          return a - b;
+        }
+      )
+    );
     for (let i = lowerBound; i <= upperBound; i++) {
       const child = outlineModel.children[i];
       if (!child) {
@@ -152,12 +189,35 @@ let StickyLineCandidateProvider = class extends Disposable {
         const childEndLine = childRange.endLineNumber;
         if (range.startLineNumber <= childEndLine + 1 && childStartLine - 1 <= range.endLineNumber && childStartLine !== lastLine) {
           lastLine = childStartLine;
-          const lineHeight = this._editor.getOption(EditorOption.lineHeight);
-          result.push(new StickyLineCandidate(childStartLine, childEndLine - 1, top, lineHeight));
-          this.getCandidateStickyLinesIntersectingFromStickyModel(range, child, result, depth + 1, top + lineHeight, childStartLine);
+          const lineHeight = this._editor.getOption(
+            EditorOption.lineHeight
+          );
+          result.push(
+            new StickyLineCandidate(
+              childStartLine,
+              childEndLine - 1,
+              top,
+              lineHeight
+            )
+          );
+          this.getCandidateStickyLinesIntersectingFromStickyModel(
+            range,
+            child,
+            result,
+            depth + 1,
+            top + lineHeight,
+            childStartLine
+          );
         }
       } else {
-        this.getCandidateStickyLinesIntersectingFromStickyModel(range, child, result, depth, top, lastStartLineNumber);
+        this.getCandidateStickyLinesIntersectingFromStickyModel(
+          range,
+          child,
+          result,
+          depth,
+          top,
+          lastStartLineNumber
+        );
       }
     }
   }
@@ -166,11 +226,20 @@ let StickyLineCandidateProvider = class extends Disposable {
       return [];
     }
     let stickyLineCandidates = [];
-    this.getCandidateStickyLinesIntersectingFromStickyModel(range, this._model.element, stickyLineCandidates, 0, 0, -1);
+    this.getCandidateStickyLinesIntersectingFromStickyModel(
+      range,
+      this._model.element,
+      stickyLineCandidates,
+      0,
+      0,
+      -1
+    );
     const hiddenRanges = this._editor._getViewModel()?.getHiddenAreas();
     if (hiddenRanges) {
       for (const hiddenRange of hiddenRanges) {
-        stickyLineCandidates = stickyLineCandidates.filter((stickyLine) => !(stickyLine.startLineNumber >= hiddenRange.startLineNumber && stickyLine.endLineNumber <= hiddenRange.endLineNumber + 1));
+        stickyLineCandidates = stickyLineCandidates.filter(
+          (stickyLine) => !(stickyLine.startLineNumber >= hiddenRange.startLineNumber && stickyLine.endLineNumber <= hiddenRange.endLineNumber + 1)
+        );
       }
     }
     return stickyLineCandidates;

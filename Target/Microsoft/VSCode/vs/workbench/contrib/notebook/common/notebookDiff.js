@@ -1,7 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDiffChange } from "../../../../base/common/diff/diff.js";
-import { CellKind, INotebookDiffResult } from "./notebookCommon.js";
 function computeDiff(originalModel, modifiedModel, diffResult) {
   const cellChanges = diffResult.cellsDiff.changes;
   const cellDiffInfo = [];
@@ -30,7 +28,11 @@ function computeDiff(originalModel, modifiedModel, diffResult) {
         });
       }
     }
-    const modifiedLCS = computeModifiedLCS(change, originalModel, modifiedModel);
+    const modifiedLCS = computeModifiedLCS(
+      change,
+      originalModel,
+      modifiedModel
+    );
     if (modifiedLCS.length && firstChangeIndex === -1) {
       firstChangeIndex = cellDiffInfo.length;
     }

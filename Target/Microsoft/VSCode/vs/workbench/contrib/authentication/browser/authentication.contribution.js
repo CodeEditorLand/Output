@@ -10,26 +10,41 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
 import { localize } from "../../../../nls.js";
-import { MenuId, MenuRegistry, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import {
+  MenuId,
+  MenuRegistry,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
 import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
 import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { SignOutOfAccountAction } from "./actions/signOutOfAccountAction.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import { IAuthenticationUsageService } from "../../../services/authentication/browser/authenticationUsageService.js";
 import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
-import { Extensions, IExtensionFeatureTableRenderer, IExtensionFeaturesRegistry, IRenderedData, IRowData, ITableData } from "../../../services/extensionManagement/common/extensionFeatures.js";
-import { ManageTrustedExtensionsForAccountAction } from "./actions/manageTrustedExtensionsForAccountAction.js";
+import {
+  Extensions
+} from "../../../services/extensionManagement/common/extensionFeatures.js";
 import { ManageAccountPreferencesForExtensionAction } from "./actions/manageAccountPreferencesForExtensionAction.js";
-import { IAuthenticationUsageService } from "../../../services/authentication/browser/authenticationUsageService.js";
-const codeExchangeProxyCommand = CommandsRegistry.registerCommand("workbench.getCodeExchangeProxyEndpoints", function(accessor, _) {
-  const environmentService = accessor.get(IBrowserWorkbenchEnvironmentService);
-  return environmentService.options?.codeExchangeProxyEndpoints;
-});
+import { ManageTrustedExtensionsForAccountAction } from "./actions/manageTrustedExtensionsForAccountAction.js";
+import { SignOutOfAccountAction } from "./actions/signOutOfAccountAction.js";
+const codeExchangeProxyCommand = CommandsRegistry.registerCommand(
+  "workbench.getCodeExchangeProxyEndpoints",
+  (accessor, _) => {
+    const environmentService = accessor.get(
+      IBrowserWorkbenchEnvironmentService
+    );
+    return environmentService.options?.codeExchangeProxyEndpoints;
+  }
+);
 class AuthenticationDataRenderer extends Disposable {
   static {
     __name(this, "AuthenticationDataRenderer");
@@ -49,10 +64,7 @@ class AuthenticationDataRenderer extends Disposable {
       localize("authenticationid", "ID")
     ];
     const rows = authentication.sort((a, b) => a.label.localeCompare(b.label)).map((auth) => {
-      return [
-        auth.label,
-        auth.id
-      ];
+      return [auth.label, auth.id];
     });
     return {
       data: {
@@ -64,7 +76,9 @@ class AuthenticationDataRenderer extends Disposable {
     };
   }
 }
-const extensionFeature = Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+const extensionFeature = Registry.as(
+  Extensions.ExtensionFeaturesRegistry
+).registerExtensionFeature({
   id: "authentication",
   label: localize("authentication", "Authentication"),
   access: {
@@ -91,30 +105,48 @@ let AuthenticationContribution = class extends Disposable {
   _placeholderMenuItem = MenuRegistry.appendMenuItem(MenuId.AccountsContext, {
     command: {
       id: "noAuthenticationProviders",
-      title: localize("authentication.Placeholder", "No accounts requested yet..."),
+      title: localize(
+        "authentication.Placeholder",
+        "No accounts requested yet..."
+      ),
       precondition: ContextKeyExpr.false()
     }
   });
   _registerHandlers() {
-    this._register(this._authenticationService.onDidRegisterAuthenticationProvider((_e) => {
-      this._clearPlaceholderMenuItem();
-    }));
-    this._register(this._authenticationService.onDidUnregisterAuthenticationProvider((_e) => {
-      if (!this._authenticationService.getProviderIds().length) {
-        this._placeholderMenuItem = MenuRegistry.appendMenuItem(MenuId.AccountsContext, {
-          command: {
-            id: "noAuthenticationProviders",
-            title: localize("loading", "Loading..."),
-            precondition: ContextKeyExpr.false()
+    this._register(
+      this._authenticationService.onDidRegisterAuthenticationProvider(
+        (_e) => {
+          this._clearPlaceholderMenuItem();
+        }
+      )
+    );
+    this._register(
+      this._authenticationService.onDidUnregisterAuthenticationProvider(
+        (_e) => {
+          if (!this._authenticationService.getProviderIds().length) {
+            this._placeholderMenuItem = MenuRegistry.appendMenuItem(
+              MenuId.AccountsContext,
+              {
+                command: {
+                  id: "noAuthenticationProviders",
+                  title: localize("loading", "Loading..."),
+                  precondition: ContextKeyExpr.false()
+                }
+              }
+            );
           }
-        });
-      }
-    }));
+        }
+      )
+    );
   }
   _registerActions() {
     this._register(registerAction2(SignOutOfAccountAction));
-    this._register(registerAction2(ManageTrustedExtensionsForAccountAction));
-    this._register(registerAction2(ManageAccountPreferencesForExtensionAction));
+    this._register(
+      registerAction2(ManageTrustedExtensionsForAccountAction)
+    );
+    this._register(
+      registerAction2(ManageAccountPreferencesForExtensionAction)
+    );
   }
   _clearPlaceholderMenuItem() {
     this._placeholderMenuItem?.dispose();
@@ -140,6 +172,14 @@ let AuthenticationUsageContribution = class {
 AuthenticationUsageContribution = __decorateClass([
   __decorateParam(0, IAuthenticationUsageService)
 ], AuthenticationUsageContribution);
-registerWorkbenchContribution2(AuthenticationContribution.ID, AuthenticationContribution, WorkbenchPhase.AfterRestored);
-registerWorkbenchContribution2(AuthenticationUsageContribution.ID, AuthenticationUsageContribution, WorkbenchPhase.Eventually);
+registerWorkbenchContribution2(
+  AuthenticationContribution.ID,
+  AuthenticationContribution,
+  WorkbenchPhase.AfterRestored
+);
+registerWorkbenchContribution2(
+  AuthenticationUsageContribution.ID,
+  AuthenticationUsageContribution,
+  WorkbenchPhase.Eventually
+);
 //# sourceMappingURL=authentication.contribution.js.map

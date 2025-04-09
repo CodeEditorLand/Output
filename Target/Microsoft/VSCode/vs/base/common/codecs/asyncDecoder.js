@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../lifecycle.js";
-import { BaseDecoder } from "./baseDecoder.js";
 class AsyncDecoder extends Disposable {
   /**
    * @param decoder The decoder instance to wrap.
@@ -39,7 +38,7 @@ class AsyncDecoder extends Disposable {
       }
       if (this.resolveOnNewEvent) {
         this.resolveOnNewEvent();
-        delete this.resolveOnNewEvent;
+        this.resolveOnNewEvent = void 0;
       }
     }, "callback");
     this.decoder.on("data", callback);

@@ -1,24 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { assertNever } from "../../../../base/common/assert.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { equals as objectsEqual } from "../../../../base/common/objects.js";
 import { equals as arraysEqual } from "../../../../base/common/arrays.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { Location } from "../../../../editor/common/languages.js";
+import { assertNever } from "../../../../base/common/assert.js";
+import { equals as objectsEqual } from "../../../../base/common/objects.js";
+import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
 import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { StorageScope } from "../../../../platform/storage/common/storage.js";
-import { IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
-import { McpServerRequestHandler } from "./mcpServerRequestHandler.js";
-import { MCP } from "./modelContextProtocol.js";
 const extensionMcpCollectionPrefix = "ext.";
 function extensionPrefixedIdentifier(identifier, id) {
-  return ExtensionIdentifier.toKey(identifier) + "/" + id;
+  return `${ExtensionIdentifier.toKey(identifier)}/${id}`;
 }
 __name(extensionPrefixedIdentifier, "extensionPrefixedIdentifier");
 var McpCollectionSortOrder = /* @__PURE__ */ ((McpCollectionSortOrder2) => {
@@ -50,13 +41,19 @@ var McpServerDefinition;
       id: def.id,
       label: def.label,
       launch: McpServerLaunch.fromSerialized(def.launch),
-      variableReplacement: def.variableReplacement ? McpServerDefinitionVariableReplacement.fromSerialized(def.variableReplacement) : void 0
+      variableReplacement: def.variableReplacement ? McpServerDefinitionVariableReplacement.fromSerialized(
+        def.variableReplacement
+      ) : void 0
     };
   }
   McpServerDefinition2.fromSerialized = fromSerialized;
   __name(fromSerialized, "fromSerialized");
   function equals(a, b) {
-    return a.id === b.id && a.label === b.label && arraysEqual(a.roots, b.roots, (a2, b2) => a2.toString() === b2.toString()) && objectsEqual(a.launch, b.launch) && objectsEqual(a.presentation, b.presentation) && objectsEqual(a.variableReplacement, b.variableReplacement);
+    return a.id === b.id && a.label === b.label && arraysEqual(
+      a.roots,
+      b.roots,
+      (a2, b2) => a2.toString() === b2.toString()
+    ) && objectsEqual(a.launch, b.launch) && objectsEqual(a.presentation, b.presentation) && objectsEqual(a.variableReplacement, b.variableReplacement);
   }
   McpServerDefinition2.equals = equals;
   __name(equals, "equals");
@@ -108,7 +105,11 @@ var McpServerLaunch;
   function fromSerialized(launch) {
     switch (launch.type) {
       case 2 /* SSE */:
-        return { type: launch.type, uri: URI.revive(launch.uri), headers: launch.headers };
+        return {
+          type: launch.type,
+          uri: URI.revive(launch.uri),
+          headers: launch.headers
+        };
       case 1 /* Stdio */:
         return {
           type: launch.type,

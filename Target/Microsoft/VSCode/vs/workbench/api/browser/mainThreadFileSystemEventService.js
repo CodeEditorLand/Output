@@ -12,38 +12,66 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
-import { DisposableMap, DisposableStore } from "../../../base/common/lifecycle.js";
-import { FileOperation, IFileService, IWatchOptions } from "../../../platform/files/common/files.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { ExtHostContext, ExtHostFileSystemEventServiceShape, MainContext, MainThreadFileSystemEventServiceShape } from "../common/extHost.protocol.js";
-import { localize } from "../../../nls.js";
-import { IWorkingCopyFileOperationParticipant, IWorkingCopyFileService, SourceTargetPair, IFileOperationUndoRedoInfo } from "../../services/workingCopy/common/workingCopyFileService.js";
-import { IBulkEditService } from "../../../editor/browser/services/bulkEditService.js";
-import { IProgressService, ProgressLocation } from "../../../platform/progress/common/progress.js";
 import { raceCancellation } from "../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
-import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
+import {
+  CancellationTokenSource
+} from "../../../base/common/cancellation.js";
+import {
+  DisposableMap,
+  DisposableStore
+} from "../../../base/common/lifecycle.js";
 import Severity from "../../../base/common/severity.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../platform/storage/common/storage.js";
-import { Action2, registerAction2 } from "../../../platform/actions/common/actions.js";
-import { ServicesAccessor } from "../../../platform/instantiation/common/instantiation.js";
-import { ILogService } from "../../../platform/log/common/log.js";
+import { URI } from "../../../base/common/uri.js";
+import { IBulkEditService } from "../../../editor/browser/services/bulkEditService.js";
+import { localize } from "../../../nls.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../platform/actions/common/actions.js";
+import { IDialogService } from "../../../platform/dialogs/common/dialogs.js";
 import { IEnvironmentService } from "../../../platform/environment/common/environment.js";
+import {
+  FileOperation,
+  IFileService
+} from "../../../platform/files/common/files.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../platform/progress/common/progress.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../platform/storage/common/storage.js";
 import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  IWorkingCopyFileService
+} from "../../services/workingCopy/common/workingCopyFileService.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 import { reviveWorkspaceEditDto } from "./mainThreadBulkEdits.js";
-import { UriComponents, URI } from "../../../base/common/uri.js";
 let MainThreadFileSystemEventService = class {
   constructor(extHostContext, _fileService, workingCopyFileService, bulkEditService, progressService, dialogService, storageService, logService, envService, uriIdentService, _logService) {
     this._fileService = _fileService;
     this._logService = _logService;
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostFileSystemEventService);
-    this._listener.add(_fileService.onDidFilesChange((event) => {
-      this._proxy.$onFileEvent({
-        created: event.rawAdded,
-        changed: event.rawUpdated,
-        deleted: event.rawDeleted
-      });
-    }));
+    this._proxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostFileSystemEventService
+    );
+    this._listener.add(
+      _fileService.onDidFilesChange((event) => {
+        this._proxy.$onFileEvent({
+          created: event.rawAdded,
+          changed: event.rawUpdated,
+          deleted: event.rawDeleted
+        });
+      })
+    );
     const that = this;
     const fileOperationParticipant = new class {
       async participate(files, operation, undoInfo, timeout, token) {
@@ -52,25 +80,39 @@ let MainThreadFileSystemEventService = class {
         }
         const cts = new CancellationTokenSource(token);
         const timer = setTimeout(() => cts.cancel(), timeout);
-        const data = await progressService.withProgress({
-          location: ProgressLocation.Notification,
-          title: this._progressLabel(operation),
-          cancellable: true,
-          delay: Math.min(timeout / 2, 3e3)
-        }, () => {
-          const onWillEvent = that._proxy.$onWillRunFileOperation(operation, files, timeout, cts.token);
-          return raceCancellation(onWillEvent, cts.token);
-        }, () => {
-          cts.cancel();
-        }).finally(() => {
+        const data = await progressService.withProgress(
+          {
+            location: ProgressLocation.Notification,
+            title: this._progressLabel(operation),
+            cancellable: true,
+            delay: Math.min(timeout / 2, 3e3)
+          },
+          () => {
+            const onWillEvent = that._proxy.$onWillRunFileOperation(
+              operation,
+              files,
+              timeout,
+              cts.token
+            );
+            return raceCancellation(onWillEvent, cts.token);
+          },
+          () => {
+            cts.cancel();
+          }
+        ).finally(() => {
           cts.dispose();
           clearTimeout(timer);
         });
         if (!data || data.edit.edits.length === 0) {
           return;
         }
-        const needsConfirmation = data.edit.edits.some((edit) => edit.metadata?.needsConfirmation);
-        let showPreview = storageService.getBoolean(MainThreadFileSystemEventService.MementoKeyAdditionalEdits, StorageScope.PROFILE);
+        const needsConfirmation = data.edit.edits.some(
+          (edit) => edit.metadata?.needsConfirmation
+        );
+        let showPreview = storageService.getBoolean(
+          MainThreadFileSystemEventService.MementoKeyAdditionalEdits,
+          StorageScope.PROFILE
+        );
         if (envService.extensionTestsLocationURI) {
           showPreview = false;
         }
@@ -78,30 +120,85 @@ let MainThreadFileSystemEventService = class {
           let message;
           if (data.extensionNames.length === 1) {
             if (operation === FileOperation.CREATE) {
-              message = localize("ask.1.create", "Extension '{0}' wants to make refactoring changes with this file creation", data.extensionNames[0]);
+              message = localize(
+                "ask.1.create",
+                "Extension '{0}' wants to make refactoring changes with this file creation",
+                data.extensionNames[0]
+              );
             } else if (operation === FileOperation.COPY) {
-              message = localize("ask.1.copy", "Extension '{0}' wants to make refactoring changes with this file copy", data.extensionNames[0]);
+              message = localize(
+                "ask.1.copy",
+                "Extension '{0}' wants to make refactoring changes with this file copy",
+                data.extensionNames[0]
+              );
             } else if (operation === FileOperation.MOVE) {
-              message = localize("ask.1.move", "Extension '{0}' wants to make refactoring changes with this file move", data.extensionNames[0]);
+              message = localize(
+                "ask.1.move",
+                "Extension '{0}' wants to make refactoring changes with this file move",
+                data.extensionNames[0]
+              );
             } else {
-              message = localize("ask.1.delete", "Extension '{0}' wants to make refactoring changes with this file deletion", data.extensionNames[0]);
+              message = localize(
+                "ask.1.delete",
+                "Extension '{0}' wants to make refactoring changes with this file deletion",
+                data.extensionNames[0]
+              );
             }
           } else {
             if (operation === FileOperation.CREATE) {
-              message = localize({ key: "ask.N.create", comment: ['{0} is a number, e.g "3 extensions want..."'] }, "{0} extensions want to make refactoring changes with this file creation", data.extensionNames.length);
+              message = localize(
+                {
+                  key: "ask.N.create",
+                  comment: [
+                    '{0} is a number, e.g "3 extensions want..."'
+                  ]
+                },
+                "{0} extensions want to make refactoring changes with this file creation",
+                data.extensionNames.length
+              );
             } else if (operation === FileOperation.COPY) {
-              message = localize({ key: "ask.N.copy", comment: ['{0} is a number, e.g "3 extensions want..."'] }, "{0} extensions want to make refactoring changes with this file copy", data.extensionNames.length);
+              message = localize(
+                {
+                  key: "ask.N.copy",
+                  comment: [
+                    '{0} is a number, e.g "3 extensions want..."'
+                  ]
+                },
+                "{0} extensions want to make refactoring changes with this file copy",
+                data.extensionNames.length
+              );
             } else if (operation === FileOperation.MOVE) {
-              message = localize({ key: "ask.N.move", comment: ['{0} is a number, e.g "3 extensions want..."'] }, "{0} extensions want to make refactoring changes with this file move", data.extensionNames.length);
+              message = localize(
+                {
+                  key: "ask.N.move",
+                  comment: [
+                    '{0} is a number, e.g "3 extensions want..."'
+                  ]
+                },
+                "{0} extensions want to make refactoring changes with this file move",
+                data.extensionNames.length
+              );
             } else {
-              message = localize({ key: "ask.N.delete", comment: ['{0} is a number, e.g "3 extensions want..."'] }, "{0} extensions want to make refactoring changes with this file deletion", data.extensionNames.length);
+              message = localize(
+                {
+                  key: "ask.N.delete",
+                  comment: [
+                    '{0} is a number, e.g "3 extensions want..."'
+                  ]
+                },
+                "{0} extensions want to make refactoring changes with this file deletion",
+                data.extensionNames.length
+              );
             }
           }
           if (needsConfirmation) {
             const { confirmed } = await dialogService.confirm({
               type: Severity.Info,
               message,
-              primaryButton: localize("preview", "Show &&Preview"),
+              primaryButton: localize(
+                "preview",
+                "Show &&Preview"
+              ),
               cancelButton: localize("cancel", "Skip Changes")
             });
             showPreview = true;
@@ -120,11 +217,27 @@ let MainThreadFileSystemEventService = class {
               message,
               buttons: [
                 {
-                  label: localize({ key: "ok", comment: ["&& denotes a mnemonic"] }, "&&OK"),
+                  label: localize(
+                    {
+                      key: "ok",
+                      comment: [
+                        "&& denotes a mnemonic"
+                      ]
+                    },
+                    "&&OK"
+                  ),
                   run: /* @__PURE__ */ __name(() => 0 /* OK */, "run")
                 },
                 {
-                  label: localize({ key: "preview", comment: ["&& denotes a mnemonic"] }, "Show &&Preview"),
+                  label: localize(
+                    {
+                      key: "preview",
+                      comment: [
+                        "&& denotes a mnemonic"
+                      ]
+                    },
+                    "Show &&Preview"
+                  ),
                   run: /* @__PURE__ */ __name(() => 1 /* Preview */, "run")
                 }
               ],
@@ -132,18 +245,31 @@ let MainThreadFileSystemEventService = class {
                 label: localize("cancel", "Skip Changes"),
                 run: /* @__PURE__ */ __name(() => 2 /* Cancel */, "run")
               },
-              checkbox: { label: localize("again", "Do not ask me again") }
+              checkbox: {
+                label: localize(
+                  "again",
+                  "Do not ask me again"
+                )
+              }
             });
             if (result === 2 /* Cancel */) {
               return;
             }
             showPreview = result === 1 /* Preview */;
             if (checkboxChecked) {
-              storageService.store(MainThreadFileSystemEventService.MementoKeyAdditionalEdits, showPreview, StorageScope.PROFILE, StorageTarget.USER);
+              storageService.store(
+                MainThreadFileSystemEventService.MementoKeyAdditionalEdits,
+                showPreview,
+                StorageScope.PROFILE,
+                StorageTarget.USER
+              );
             }
           }
         }
-        logService.info("[onWill-handler] applying additional workspace edit from extensions", data.extensionNames);
+        logService.info(
+          "[onWill-handler] applying additional workspace edit from extensions",
+          data.extensionNames
+        );
         await bulkEditService.apply(
           reviveWorkspaceEditDto(data.edit, uriIdentService),
           { undoRedoGroupId: undoInfo?.undoRedoGroupId, showPreview }
@@ -152,20 +278,43 @@ let MainThreadFileSystemEventService = class {
       _progressLabel(operation) {
         switch (operation) {
           case FileOperation.CREATE:
-            return localize("msg-create", "Running 'File Create' participants...");
+            return localize(
+              "msg-create",
+              "Running 'File Create' participants..."
+            );
           case FileOperation.MOVE:
-            return localize("msg-rename", "Running 'File Rename' participants...");
+            return localize(
+              "msg-rename",
+              "Running 'File Rename' participants..."
+            );
           case FileOperation.COPY:
-            return localize("msg-copy", "Running 'File Copy' participants...");
+            return localize(
+              "msg-copy",
+              "Running 'File Copy' participants..."
+            );
           case FileOperation.DELETE:
-            return localize("msg-delete", "Running 'File Delete' participants...");
+            return localize(
+              "msg-delete",
+              "Running 'File Delete' participants..."
+            );
           case FileOperation.WRITE:
-            return localize("msg-write", "Running 'File Write' participants...");
+            return localize(
+              "msg-write",
+              "Running 'File Write' participants..."
+            );
         }
       }
     }();
-    this._listener.add(workingCopyFileService.addFileOperationParticipant(fileOperationParticipant));
-    this._listener.add(workingCopyFileService.onDidRunWorkingCopyFileOperation((e) => this._proxy.$onDidRunFileOperation(e.operation, e.files)));
+    this._listener.add(
+      workingCopyFileService.addFileOperationParticipant(
+        fileOperationParticipant
+      )
+    );
+    this._listener.add(
+      workingCopyFileService.onDidRunWorkingCopyFileOperation(
+        (e) => this._proxy.$onDidRunFileOperation(e.operation, e.files)
+      )
+    );
   }
   _proxy;
   _listener = new DisposableStore();
@@ -185,27 +334,40 @@ let MainThreadFileSystemEventService = class {
       }
     }
     if (correlate && !opts.recursive) {
-      this._logService.trace(`MainThreadFileSystemEventService#$watch(): request to start watching correlated (extension: ${extensionId}, path: ${uri.toString(true)}, recursive: ${opts.recursive}, session: ${session}, excludes: ${JSON.stringify(opts.excludes)}, includes: ${JSON.stringify(opts.includes)})`);
+      this._logService.trace(
+        `MainThreadFileSystemEventService#$watch(): request to start watching correlated (extension: ${extensionId}, path: ${uri.toString(true)}, recursive: ${opts.recursive}, session: ${session}, excludes: ${JSON.stringify(opts.excludes)}, includes: ${JSON.stringify(opts.includes)})`
+      );
       const watcherDisposables = new DisposableStore();
-      const subscription = watcherDisposables.add(this._fileService.createWatcher(uri, { ...opts, recursive: false }));
-      watcherDisposables.add(subscription.onDidChange((event) => {
-        this._proxy.$onFileEvent({
-          session,
-          created: event.rawAdded,
-          changed: event.rawUpdated,
-          deleted: event.rawDeleted
-        });
-      }));
+      const subscription = watcherDisposables.add(
+        this._fileService.createWatcher(uri, {
+          ...opts,
+          recursive: false
+        })
+      );
+      watcherDisposables.add(
+        subscription.onDidChange((event) => {
+          this._proxy.$onFileEvent({
+            session,
+            created: event.rawAdded,
+            changed: event.rawUpdated,
+            deleted: event.rawDeleted
+          });
+        })
+      );
       this._watches.set(session, watcherDisposables);
     } else {
-      this._logService.trace(`MainThreadFileSystemEventService#$watch(): request to start watching uncorrelated (extension: ${extensionId}, path: ${uri.toString(true)}, recursive: ${opts.recursive}, session: ${session}, excludes: ${JSON.stringify(opts.excludes)}, includes: ${JSON.stringify(opts.includes)})`);
+      this._logService.trace(
+        `MainThreadFileSystemEventService#$watch(): request to start watching uncorrelated (extension: ${extensionId}, path: ${uri.toString(true)}, recursive: ${opts.recursive}, session: ${session}, excludes: ${JSON.stringify(opts.excludes)}, includes: ${JSON.stringify(opts.includes)})`
+      );
       const subscription = this._fileService.watch(uri, opts);
       this._watches.set(session, subscription);
     }
   }
   $unwatch(session) {
     if (this._watches.has(session)) {
-      this._logService.trace(`MainThreadFileSystemEventService#$unwatch(): request to stop watching (session: ${session})`);
+      this._logService.trace(
+        `MainThreadFileSystemEventService#$unwatch(): request to stop watching (session: ${session})`
+      );
       this._watches.deleteAndDispose(session);
     }
   }
@@ -215,7 +377,7 @@ let MainThreadFileSystemEventService = class {
   }
 };
 __name(MainThreadFileSystemEventService, "MainThreadFileSystemEventService");
-__publicField(MainThreadFileSystemEventService, "MementoKeyAdditionalEdits", `file.particpants.additionalEdits`);
+__publicField(MainThreadFileSystemEventService, "MementoKeyAdditionalEdits", "file.particpants.additionalEdits");
 MainThreadFileSystemEventService = __decorateClass([
   extHostNamedCustomer(MainContext.MainThreadFileSystemEventService),
   __decorateParam(1, IFileService),
@@ -229,24 +391,32 @@ MainThreadFileSystemEventService = __decorateClass([
   __decorateParam(9, IUriIdentityService),
   __decorateParam(10, ILogService)
 ], MainThreadFileSystemEventService);
-registerAction2(class ResetMemento extends Action2 {
-  static {
-    __name(this, "ResetMemento");
+registerAction2(
+  class ResetMemento extends Action2 {
+    static {
+      __name(this, "ResetMemento");
+    }
+    constructor() {
+      super({
+        id: "files.participants.resetChoice",
+        title: {
+          value: localize(
+            "label",
+            "Reset choice for 'File operation needs preview'"
+          ),
+          original: `Reset choice for 'File operation needs preview'`
+        },
+        f1: true
+      });
+    }
+    run(accessor) {
+      accessor.get(IStorageService).remove(
+        MainThreadFileSystemEventService.MementoKeyAdditionalEdits,
+        StorageScope.PROFILE
+      );
+    }
   }
-  constructor() {
-    super({
-      id: "files.participants.resetChoice",
-      title: {
-        value: localize("label", "Reset choice for 'File operation needs preview'"),
-        original: `Reset choice for 'File operation needs preview'`
-      },
-      f1: true
-    });
-  }
-  run(accessor) {
-    accessor.get(IStorageService).remove(MainThreadFileSystemEventService.MementoKeyAdditionalEdits, StorageScope.PROFILE);
-  }
-});
+);
 export {
   MainThreadFileSystemEventService
 };

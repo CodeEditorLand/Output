@@ -10,20 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../../../../platform/request/common/request.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IRequestContext, IRequestOptions } from "../../../../base/parts/request/common/request.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { request } from "../../../../base/parts/request/common/requestImpl.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
 import { localize } from "../../../../nls.js";
-import { windowLogGroup } from "../../log/common/logConstants.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
 import { LogService } from "../../../../platform/log/common/logService.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
+import {
+  AbstractRequestService,
+  IRequestService
+} from "../../../../platform/request/common/request.js";
+import { windowLogGroup } from "../../log/common/logConstants.js";
 let NativeRequestService = class extends AbstractRequestService {
   constructor(nativeHostService, configurationService, loggerService) {
-    const logger = loggerService.createLogger(`network`, { name: localize("network", "Network"), group: windowLogGroup });
+    const logger = loggerService.createLogger("network", {
+      name: localize("network", "Network"),
+      group: windowLogGroup
+    });
     const logService = new LogService(logger);
     super(logService);
     this.nativeHostService = nativeHostService;
@@ -36,9 +43,14 @@ let NativeRequestService = class extends AbstractRequestService {
   }
   async request(options, token) {
     if (!options.proxyAuthorization) {
-      options.proxyAuthorization = this.configurationService.inspect("http.proxyAuthorization").userLocalValue;
+      options.proxyAuthorization = this.configurationService.inspect(
+        "http.proxyAuthorization"
+      ).userLocalValue;
     }
-    return this.logAndRequest(options, () => request(options, token, () => navigator.onLine));
+    return this.logAndRequest(
+      options,
+      () => request(options, token, () => navigator.onLine)
+    );
   }
   async resolveProxy(url) {
     return this.nativeHostService.resolveProxy(url);
@@ -58,7 +70,11 @@ NativeRequestService = __decorateClass([
   __decorateParam(1, IConfigurationService),
   __decorateParam(2, ILoggerService)
 ], NativeRequestService);
-registerSingleton(IRequestService, NativeRequestService, InstantiationType.Delayed);
+registerSingleton(
+  IRequestService,
+  NativeRequestService,
+  InstantiationType.Delayed
+);
 export {
   NativeRequestService
 };

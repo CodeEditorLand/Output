@@ -15,29 +15,51 @@ import { Button } from "../../../../base/browser/ui/button/button.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { toErrorMessage } from "../../../../base/common/errorMessage.js";
 import { Lazy } from "../../../../base/common/lazy.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { URI } from "../../../../base/common/uri.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { asCssVariable } from "../../../../platform/theme/common/colorUtils.js";
 import { contentRefUrl } from "../common/annotations.js";
-import { getFullyQualifiedId, IChatAgentCommand, IChatAgentData, IChatAgentNameService, IChatAgentService } from "../common/chatAgents.js";
-import { chatSlashCommandBackground, chatSlashCommandForeground } from "../common/chatColors.js";
-import { chatAgentLeader, ChatRequestAgentPart, ChatRequestAgentSubcommandPart, ChatRequestDynamicVariablePart, ChatRequestSlashCommandPart, ChatRequestTextPart, ChatRequestToolPart, chatSubcommandLeader, IParsedChatRequest, IParsedChatRequestPart } from "../common/chatParserTypes.js";
-import { IChatMarkdownContent, IChatService } from "../common/chatService.js";
+import {
+  getFullyQualifiedId,
+  IChatAgentNameService,
+  IChatAgentService
+} from "../common/chatAgents.js";
+import {
+  chatSlashCommandBackground,
+  chatSlashCommandForeground
+} from "../common/chatColors.js";
+import {
+  chatAgentLeader,
+  ChatRequestAgentPart,
+  ChatRequestAgentSubcommandPart,
+  ChatRequestDynamicVariablePart,
+  ChatRequestSlashCommandPart,
+  ChatRequestTextPart,
+  ChatRequestToolPart,
+  chatSubcommandLeader
+} from "../common/chatParserTypes.js";
+import {
+  IChatService
+} from "../common/chatService.js";
 import { ILanguageModelToolsService } from "../common/languageModelToolsService.js";
 import { IChatWidgetService } from "./chat.js";
 import { ChatAgentHover, getChatAgentHoverOptions } from "./chatAgentHover.js";
 import { IChatMarkdownAnchorService } from "./chatContentParts/chatMarkdownAnchorService.js";
 import { InlineAnchorWidget } from "./chatInlineAnchorWidget.js";
 import "./media/chatInlineAnchorWidget.css";
-const decorationRefUrl = `http://_vscodedecoration_`;
-const agentRefUrl = `http://_chatagent_`;
-const agentSlashRefUrl = `http://_chatslash_`;
+const decorationRefUrl = "http://_vscodedecoration_";
+const agentRefUrl = "http://_chatagent_";
+const agentSlashRefUrl = "http://_chatslash_";
 function agentToMarkdown(agent, isClickable, accessor) {
   const chatAgentNameService = accessor.get(IChatAgentNameService);
   const chatAgentService = accessor.get(IChatAgentService);
@@ -53,7 +75,10 @@ function agentToMarkdown(agent, isClickable, accessor) {
 __name(agentToMarkdown, "agentToMarkdown");
 function agentSlashCommandToMarkdown(agent, command) {
   const text = `${chatSubcommandLeader}${command.name}`;
-  const args = { agentId: agent.id, command: command.name };
+  const args = {
+    agentId: agent.id,
+    command: command.name
+  };
   return `[${text}](${agentSlashRefUrl}?${encodeURIComponent(JSON.stringify(args))})`;
 }
 __name(agentSlashCommandToMarkdown, "agentSlashCommandToMarkdown");
@@ -80,7 +105,9 @@ let ChatMarkdownDecorationsRenderer = class {
       if (part instanceof ChatRequestTextPart) {
         result += part.text;
       } else if (part instanceof ChatRequestAgentPart) {
-        result += this.instantiationService.invokeFunction((accessor) => agentToMarkdown(part.agent, false, accessor));
+        result += this.instantiationService.invokeFunction(
+          (accessor) => agentToMarkdown(part.agent, false, accessor)
+        );
       } else {
         result += this.genericDecorationToMarkdown(part);
       }
@@ -102,12 +129,19 @@ let ChatMarkdownDecorationsRenderer = class {
         if (href.startsWith(agentRefUrl)) {
           let args;
           try {
-            args = JSON.parse(decodeURIComponent(href.slice(agentRefUrl.length + 1)));
+            args = JSON.parse(
+              decodeURIComponent(
+                href.slice(agentRefUrl.length + 1)
+              )
+            );
           } catch (e) {
-            this.logService.error("Invalid chat widget render data JSON", toErrorMessage(e));
+            this.logService.error(
+              "Invalid chat widget render data JSON",
+              toErrorMessage(e)
+            );
           }
           if (args) {
-            a.parentElement.replaceChild(
+            a.parentElement?.replaceChild(
               this.renderAgentWidget(args, store),
               a
             );
@@ -115,23 +149,38 @@ let ChatMarkdownDecorationsRenderer = class {
         } else if (href.startsWith(agentSlashRefUrl)) {
           let args;
           try {
-            args = JSON.parse(decodeURIComponent(href.slice(agentRefUrl.length + 1)));
+            args = JSON.parse(
+              decodeURIComponent(
+                href.slice(agentRefUrl.length + 1)
+              )
+            );
           } catch (e) {
-            this.logService.error("Invalid chat slash command render data JSON", toErrorMessage(e));
+            this.logService.error(
+              "Invalid chat slash command render data JSON",
+              toErrorMessage(e)
+            );
           }
           if (args) {
-            a.parentElement.replaceChild(
-              this.renderSlashCommandWidget(a.textContent, args, store),
+            a.parentElement?.replaceChild(
+              this.renderSlashCommandWidget(
+                a.textContent,
+                args,
+                store
+              ),
               a
             );
           }
         } else if (href.startsWith(decorationRefUrl)) {
           let args;
           try {
-            args = JSON.parse(decodeURIComponent(href.slice(decorationRefUrl.length + 1)));
+            args = JSON.parse(
+              decodeURIComponent(
+                href.slice(decorationRefUrl.length + 1)
+              )
+            );
           } catch (e) {
           }
-          a.parentElement.replaceChild(
+          a.parentElement?.replaceChild(
             this.renderResourceWidget(a.textContent, args, store),
             a
           );
@@ -149,63 +198,90 @@ let ChatMarkdownDecorationsRenderer = class {
     let container;
     if (args.isClickable) {
       container = dom.$("span.chat-agent-widget");
-      const button = store.add(new Button(container, {
-        buttonBackground: asCssVariable(chatSlashCommandBackground),
-        buttonForeground: asCssVariable(chatSlashCommandForeground),
-        buttonHoverBackground: void 0
-      }));
+      const button = store.add(
+        new Button(container, {
+          buttonBackground: asCssVariable(chatSlashCommandBackground),
+          buttonForeground: asCssVariable(chatSlashCommandForeground),
+          buttonHoverBackground: void 0
+        })
+      );
       button.label = nameWithLeader;
-      store.add(button.onDidClick(() => {
-        const agent2 = this.chatAgentService.getAgent(args.agentId);
-        const widget = this.chatWidgetService.lastFocusedWidget;
-        if (!widget || !agent2) {
-          return;
-        }
-        this.chatService.sendRequest(
-          widget.viewModel.sessionId,
-          agent2.metadata.sampleRequest ?? "",
-          {
-            location: widget.location,
-            agentId: agent2.id,
-            userSelectedModelId: widget.input.currentLanguageModel,
-            mode: widget.input.currentMode
+      store.add(
+        button.onDidClick(() => {
+          const agent2 = this.chatAgentService.getAgent(args.agentId);
+          const widget = this.chatWidgetService.lastFocusedWidget;
+          if (!widget || !agent2) {
+            return;
           }
-        );
-      }));
+          this.chatService.sendRequest(
+            widget.viewModel?.sessionId,
+            agent2.metadata.sampleRequest ?? "",
+            {
+              location: widget.location,
+              agentId: agent2.id,
+              userSelectedModelId: widget.input.currentLanguageModel,
+              mode: widget.input.currentMode
+            }
+          );
+        })
+      );
     } else {
-      container = this.renderResourceWidget(nameWithLeader, void 0, store);
+      container = this.renderResourceWidget(
+        nameWithLeader,
+        void 0,
+        store
+      );
     }
     const agent = this.chatAgentService.getAgent(args.agentId);
-    const hover = new Lazy(() => store.add(this.instantiationService.createInstance(ChatAgentHover)));
-    store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), container, () => {
-      hover.value.setAgent(args.agentId);
-      return hover.value.domNode;
-    }, agent && getChatAgentHoverOptions(() => agent, this.commandService)));
+    const hover = new Lazy(
+      () => store.add(this.instantiationService.createInstance(ChatAgentHover))
+    );
+    store.add(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("element"),
+        container,
+        () => {
+          hover.value.setAgent(args.agentId);
+          return hover.value.domNode;
+        },
+        agent && getChatAgentHoverOptions(() => agent, this.commandService)
+      )
+    );
     return container;
   }
   renderSlashCommandWidget(name, args, store) {
     const container = dom.$("span.chat-agent-widget.chat-command-widget");
     const agent = this.chatAgentService.getAgent(args.agentId);
-    const button = store.add(new Button(container, {
-      buttonBackground: asCssVariable(chatSlashCommandBackground),
-      buttonForeground: asCssVariable(chatSlashCommandForeground),
-      buttonHoverBackground: void 0
-    }));
+    const button = store.add(
+      new Button(container, {
+        buttonBackground: asCssVariable(chatSlashCommandBackground),
+        buttonForeground: asCssVariable(chatSlashCommandForeground),
+        buttonHoverBackground: void 0
+      })
+    );
     button.label = name;
-    store.add(button.onDidClick(() => {
-      const widget = this.chatWidgetService.lastFocusedWidget;
-      if (!widget || !agent) {
-        return;
-      }
-      const command = agent.slashCommands.find((c) => c.name === args.command);
-      this.chatService.sendRequest(widget.viewModel.sessionId, command?.sampleRequest ?? "", {
-        location: widget.location,
-        agentId: agent.id,
-        slashCommand: args.command,
-        userSelectedModelId: widget.input.currentLanguageModel,
-        mode: widget.input.currentMode
-      });
-    }));
+    store.add(
+      button.onDidClick(() => {
+        const widget = this.chatWidgetService.lastFocusedWidget;
+        if (!widget || !agent) {
+          return;
+        }
+        const command = agent.slashCommands.find(
+          (c) => c.name === args.command
+        );
+        this.chatService.sendRequest(
+          widget.viewModel?.sessionId,
+          command?.sampleRequest ?? "",
+          {
+            location: widget.location,
+            agentId: agent.id,
+            slashCommand: args.command,
+            userSelectedModelId: widget.input.currentLanguageModel,
+            mode: widget.input.currentMode
+          }
+        );
+      })
+    );
     return container;
   }
   renderFileWidget(content, href, a, store) {
@@ -215,14 +291,26 @@ let ChatMarkdownDecorationsRenderer = class {
       this.logService.error("Invalid chat widget render data JSON");
       return;
     }
-    const inlineAnchor = store.add(this.instantiationService.createInstance(InlineAnchorWidget, a, data));
+    const inlineAnchor = store.add(
+      this.instantiationService.createInstance(
+        InlineAnchorWidget,
+        a,
+        data
+      )
+    );
     store.add(this.chatMarkdownAnchorService.register(inlineAnchor));
   }
   renderResourceWidget(name, args, store) {
     const container = dom.$("span.chat-resource-widget");
     const alias = dom.$("span", void 0, name);
     if (args?.title) {
-      store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), container, args.title));
+      store.add(
+        this.hoverService.setupManagedHover(
+          getDefaultHoverDelegate("element"),
+          container,
+          args.title
+        )
+      );
     }
     container.appendChild(alias);
     return container;

@@ -1,14 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { homedir } from "os";
+import { homedir } from "node:os";
 import { platform } from "../../../base/common/platform.js";
 import { URI } from "../../../base/common/uri.js";
-import { INativeMcpDiscoveryData, INativeMcpDiscoveryHelperService } from "../common/nativeMcpDiscoveryHelper.js";
 class NativeMcpDiscoveryHelperService {
   static {
     __name(this, "NativeMcpDiscoveryHelperService");
-  }
-  constructor() {
   }
   load() {
     return Promise.resolve({

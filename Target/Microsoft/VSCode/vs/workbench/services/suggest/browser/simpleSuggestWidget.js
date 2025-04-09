@@ -12,26 +12,46 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/suggest.css";
 import * as dom from "../../../../base/browser/dom.js";
-import { IListEvent, IListGestureEvent, IListMouseEvent } from "../../../../base/browser/ui/list/list.js";
+import { status } from "../../../../base/browser/ui/aria/aria.js";
 import { List } from "../../../../base/browser/ui/list/listWidget.js";
 import { ResizableHTMLElement } from "../../../../base/browser/ui/resizable/resizable.js";
-import { SimpleCompletionItem } from "./simpleCompletionItem.js";
-import { LineContext, SimpleCompletionModel } from "./simpleCompletionModel.js";
-import { getAriaId, SimpleSuggestWidgetItemRenderer } from "./simpleSuggestWidgetRenderer.js";
-import { CancelablePromise, createCancelablePromise, disposableTimeout, TimeoutTimer } from "../../../../base/common/async.js";
-import { Emitter, Event, PauseableEmitter } from "../../../../base/common/event.js";
-import { MutableDisposable, Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  createCancelablePromise,
+  disposableTimeout,
+  TimeoutTimer
+} from "../../../../base/common/async.js";
+import {
+  Emitter,
+  PauseableEmitter
+} from "../../../../base/common/event.js";
+import {
+  Disposable,
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
 import { clamp } from "../../../../base/common/numbers.js";
-import { localize } from "../../../../nls.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { SuggestWidgetStatus } from "../../../../editor/contrib/suggest/browser/suggestWidgetStatus.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { canExpandCompletionItem, SimpleSuggestDetailsOverlay, SimpleSuggestDetailsWidget } from "./simpleSuggestWidgetDetails.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import * as strings from "../../../../base/common/strings.js";
-import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { SuggestWidgetStatus } from "../../../../editor/contrib/suggest/browser/suggestWidgetStatus.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import {
+  canExpandCompletionItem,
+  SimpleSuggestDetailsOverlay,
+  SimpleSuggestDetailsWidget
+} from "./simpleSuggestWidgetDetails.js";
+import {
+  getAriaId,
+  SimpleSuggestWidgetItemRenderer
+} from "./simpleSuggestWidgetRenderer.js";
 const $ = dom.$;
 var State = /* @__PURE__ */ ((State2) => {
   State2[State2["Hidden"] = 0] = "Hidden";
@@ -48,8 +68,22 @@ var WidgetPositionPreference = /* @__PURE__ */ ((WidgetPositionPreference2) => {
   return WidgetPositionPreference2;
 })(WidgetPositionPreference || {});
 const SimpleSuggestContext = {
-  HasFocusedSuggestion: new RawContextKey("simpleSuggestWidgetHasFocusedSuggestion", false, localize("simpleSuggestWidgetHasFocusedSuggestion", "Whether any simple suggestion is focused")),
-  HasNavigated: new RawContextKey("simpleSuggestWidgetHasNavigated", false, localize("simpleSuggestWidgetHasNavigated", "Whether the simple suggestion widget has been navigated downwards"))
+  HasFocusedSuggestion: new RawContextKey(
+    "simpleSuggestWidgetHasFocusedSuggestion",
+    false,
+    localize(
+      "simpleSuggestWidgetHasFocusedSuggestion",
+      "Whether any simple suggestion is focused"
+    )
+  ),
+  HasNavigated: new RawContextKey(
+    "simpleSuggestWidgetHasNavigated",
+    false,
+    localize(
+      "simpleSuggestWidgetHasNavigated",
+      "Whether the simple suggestion widget has been navigated downwards"
+    )
+  )
 };
 let SimpleSuggestWidget = class extends Disposable {
   constructor(_container, _persistedSize, _options, _getFontInfo, _onDidFontConfigurationChange, _getAdvancedExplainModeDetails, _instantiationService, _configurationService, _storageService, _contextKeyService) {
@@ -66,7 +100,9 @@ let SimpleSuggestWidget = class extends Disposable {
     this.element = this._register(new ResizableHTMLElement());
     this.element.domNode.classList.add("workbench-suggest-widget");
     this._container.appendChild(this.element.domNode);
-    this._ctxSuggestWidgetHasFocusedSuggestion = SimpleSuggestContext.HasFocusedSuggestion.bindTo(_contextKeyService);
+    this._ctxSuggestWidgetHasFocusedSuggestion = SimpleSuggestContext.HasFocusedSuggestion.bindTo(
+      _contextKeyService
+    );
     this._ctxSuggestWidgetHasBeenNavigated = SimpleSuggestContext.HasNavigated.bindTo(_contextKeyService);
     class ResizeState {
       constructor(persistedSize, currentSize, persistHeight = false, persistWidth = false) {
@@ -80,130 +116,240 @@ let SimpleSuggestWidget = class extends Disposable {
       }
     }
     let state;
-    this._register(this.element.onDidWillResize(() => {
-      state = new ResizeState(this._persistedSize.restore(), this.element.size);
-    }));
-    this._register(this.element.onDidResize((e) => {
-      this._resize(e.dimension.width, e.dimension.height);
-      if (state) {
-        state.persistHeight = state.persistHeight || !!e.north || !!e.south;
-        state.persistWidth = state.persistWidth || !!e.east || !!e.west;
-      }
-      if (!e.done) {
-        return;
-      }
-      if (state) {
-        const { itemHeight, defaultSize } = this._getLayoutInfo();
-        const threshold = Math.round(itemHeight / 2);
-        let { width, height } = this.element.size;
-        if (!state.persistHeight || Math.abs(state.currentSize.height - height) <= threshold) {
-          height = state.persistedSize?.height ?? defaultSize.height;
+    this._register(
+      this.element.onDidWillResize(() => {
+        state = new ResizeState(
+          this._persistedSize.restore(),
+          this.element.size
+        );
+      })
+    );
+    this._register(
+      this.element.onDidResize((e) => {
+        this._resize(e.dimension.width, e.dimension.height);
+        if (state) {
+          state.persistHeight = state.persistHeight || !!e.north || !!e.south;
+          state.persistWidth = state.persistWidth || !!e.east || !!e.west;
         }
-        if (!state.persistWidth || Math.abs(state.currentSize.width - width) <= threshold) {
-          width = state.persistedSize?.width ?? defaultSize.width;
+        if (!e.done) {
+          return;
         }
-        this._persistedSize.store(new dom.Dimension(width, height));
-      }
-      state = void 0;
-    }));
-    const applyIconStyle = /* @__PURE__ */ __name(() => this.element.domNode.classList.toggle("no-icons", !_configurationService.getValue("editor.suggest.showIcons")), "applyIconStyle");
+        if (state) {
+          const { itemHeight, defaultSize } = this._getLayoutInfo();
+          const threshold = Math.round(itemHeight / 2);
+          let { width, height } = this.element.size;
+          if (!state.persistHeight || Math.abs(state.currentSize.height - height) <= threshold) {
+            height = state.persistedSize?.height ?? defaultSize.height;
+          }
+          if (!state.persistWidth || Math.abs(state.currentSize.width - width) <= threshold) {
+            width = state.persistedSize?.width ?? defaultSize.width;
+          }
+          this._persistedSize.store(new dom.Dimension(width, height));
+        }
+        state = void 0;
+      })
+    );
+    const applyIconStyle = /* @__PURE__ */ __name(() => this.element.domNode.classList.toggle(
+      "no-icons",
+      !_configurationService.getValue("editor.suggest.showIcons")
+    ), "applyIconStyle");
     applyIconStyle();
-    const renderer = this._instantiationService.createInstance(SimpleSuggestWidgetItemRenderer, this._getFontInfo.bind(this), this._onDidFontConfigurationChange.bind(this));
+    const renderer = this._instantiationService.createInstance(
+      SimpleSuggestWidgetItemRenderer,
+      this._getFontInfo.bind(this),
+      this._onDidFontConfigurationChange.bind(this)
+    );
     this._register(renderer);
     this._listElement = dom.append(this.element.domNode, $(".tree"));
-    this._list = this._register(new List("SuggestWidget", this._listElement, {
-      getHeight: /* @__PURE__ */ __name(() => this._getLayoutInfo().itemHeight, "getHeight"),
-      getTemplateId: /* @__PURE__ */ __name(() => "suggestion", "getTemplateId")
-    }, [renderer], {
-      alwaysConsumeMouseWheel: true,
-      useShadows: false,
-      mouseSupport: false,
-      multipleSelectionSupport: false,
-      accessibilityProvider: {
-        getRole: /* @__PURE__ */ __name(() => "listitem", "getRole"),
-        getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("suggest", "Suggest"), "getWidgetAriaLabel"),
-        getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole"),
-        getAriaLabel: /* @__PURE__ */ __name((item) => {
-          let label = item.textLabel;
-          const kindLabel = item.completion.kindLabel ?? "";
-          if (typeof item.completion.label !== "string") {
-            const { detail: detail2, description } = item.completion.label;
-            if (detail2 && description) {
-              label = localize("label.full", "{0}{1}, {2} {3}", label, detail2, description, kindLabel);
-            } else if (detail2) {
-              label = localize("label.detail", "{0}{1} {2}", label, detail2, kindLabel);
-            } else if (description) {
-              label = localize("label.desc", "{0}, {1} {2}", label, description, kindLabel);
-            }
-          } else {
-            label = localize("label", "{0}, {1}", label, kindLabel);
+    this._list = this._register(
+      new List(
+        "SuggestWidget",
+        this._listElement,
+        {
+          getHeight: /* @__PURE__ */ __name(() => this._getLayoutInfo().itemHeight, "getHeight"),
+          getTemplateId: /* @__PURE__ */ __name(() => "suggestion", "getTemplateId")
+        },
+        [renderer],
+        {
+          alwaysConsumeMouseWheel: true,
+          useShadows: false,
+          mouseSupport: false,
+          multipleSelectionSupport: false,
+          accessibilityProvider: {
+            getRole: /* @__PURE__ */ __name(() => "listitem", "getRole"),
+            getWidgetAriaLabel: /* @__PURE__ */ __name(() => localize("suggest", "Suggest"), "getWidgetAriaLabel"),
+            getWidgetRole: /* @__PURE__ */ __name(() => "listbox", "getWidgetRole"),
+            getAriaLabel: /* @__PURE__ */ __name((item) => {
+              let label = item.textLabel;
+              const kindLabel = item.completion.kindLabel ?? "";
+              if (typeof item.completion.label !== "string") {
+                const { detail: detail2, description } = item.completion.label;
+                if (detail2 && description) {
+                  label = localize(
+                    "label.full",
+                    "{0}{1}, {2} {3}",
+                    label,
+                    detail2,
+                    description,
+                    kindLabel
+                  );
+                } else if (detail2) {
+                  label = localize(
+                    "label.detail",
+                    "{0}{1} {2}",
+                    label,
+                    detail2,
+                    kindLabel
+                  );
+                } else if (description) {
+                  label = localize(
+                    "label.desc",
+                    "{0}, {1} {2}",
+                    label,
+                    description,
+                    kindLabel
+                  );
+                }
+              } else {
+                label = localize(
+                  "label",
+                  "{0}, {1}",
+                  label,
+                  kindLabel
+                );
+              }
+              const { documentation, detail } = item.completion;
+              const docs = strings.format(
+                "{0}{1}",
+                detail || "",
+                documentation ? typeof documentation === "string" ? documentation : documentation.value : ""
+              );
+              return localize(
+                "ariaCurrenttSuggestionReadDetails",
+                "{0}, docs: {1}",
+                label,
+                docs
+              );
+            }, "getAriaLabel")
           }
-          const { documentation, detail } = item.completion;
-          const docs = strings.format(
-            "{0}{1}",
-            detail || "",
-            documentation ? typeof documentation === "string" ? documentation : documentation.value : ""
-          );
-          return localize("ariaCurrenttSuggestionReadDetails", "{0}, docs: {1}", label, docs);
-        }, "getAriaLabel")
-      }
-    }));
-    this._register(this._list.onDidChangeFocus((e) => {
-      if (e.indexes.length && e.indexes[0] !== 0) {
-        this._ctxSuggestWidgetHasBeenNavigated.set(true);
-      }
-    }));
-    this._messageElement = dom.append(this.element.domNode, dom.$(".message"));
-    const details = this._register(_instantiationService.createInstance(SimpleSuggestDetailsWidget, this._getFontInfo.bind(this), this._onDidFontConfigurationChange.bind(this), this._getAdvancedExplainModeDetails.bind(this)));
+        }
+      )
+    );
+    this._register(
+      this._list.onDidChangeFocus((e) => {
+        if (e.indexes.length && e.indexes[0] !== 0) {
+          this._ctxSuggestWidgetHasBeenNavigated.set(true);
+        }
+      })
+    );
+    this._messageElement = dom.append(
+      this.element.domNode,
+      dom.$(".message")
+    );
+    const details = this._register(
+      _instantiationService.createInstance(
+        SimpleSuggestDetailsWidget,
+        this._getFontInfo.bind(this),
+        this._onDidFontConfigurationChange.bind(this),
+        this._getAdvancedExplainModeDetails.bind(this)
+      )
+    );
     this._register(details.onDidClose(() => this.toggleDetails()));
-    this._details = this._register(new SimpleSuggestDetailsOverlay(details, this._listElement));
-    this._register(dom.addDisposableListener(this._details.widget.domNode, "blur", (e) => this._onDidBlurDetails.fire(e)));
+    this._details = this._register(
+      new SimpleSuggestDetailsOverlay(details, this._listElement)
+    );
+    this._register(
+      dom.addDisposableListener(
+        this._details.widget.domNode,
+        "blur",
+        (e) => this._onDidBlurDetails.fire(e)
+      )
+    );
     if (_options.statusBarMenuId && _options.showStatusBarSettingId && _configurationService.getValue(_options.showStatusBarSettingId)) {
-      this._status = this._register(_instantiationService.createInstance(SuggestWidgetStatus, this.element.domNode, _options.statusBarMenuId));
+      this._status = this._register(
+        _instantiationService.createInstance(
+          SuggestWidgetStatus,
+          this.element.domNode,
+          _options.statusBarMenuId
+        )
+      );
       this.element.domNode.classList.toggle("with-status-bar", true);
     }
-    this._register(this._list.onMouseDown((e) => this._onListMouseDownOrTap(e)));
+    this._register(
+      this._list.onMouseDown((e) => this._onListMouseDownOrTap(e))
+    );
     this._register(this._list.onTap((e) => this._onListMouseDownOrTap(e)));
-    this._register(this._list.onDidChangeFocus((e) => this._onListFocus(e)));
-    this._register(this._list.onDidChangeSelection((e) => this._onListSelection(e)));
-    this._register(this._onDidFontConfigurationChange(() => {
-      if (this._completionModel) {
-        this._list.splice(0, this._completionModel.items.length, this._completionModel.items);
-      }
-    }));
-    this._register(_configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor.suggest.showIcons")) {
-        applyIconStyle();
-      }
-      if (_options.statusBarMenuId && _options.showStatusBarSettingId && e.affectsConfiguration(_options.showStatusBarSettingId)) {
-        const showStatusBar = _configurationService.getValue(_options.showStatusBarSettingId);
-        if (showStatusBar && !this._status) {
-          this._status = this._register(_instantiationService.createInstance(SuggestWidgetStatus, this.element.domNode, _options.statusBarMenuId));
-          this._status.show();
-        } else if (showStatusBar && this._status) {
-          this._status.show();
-        } else if (this._status) {
-          this._status.element.remove();
-          this._status.dispose();
-          this._status = void 0;
-          this._layout(void 0);
+    this._register(
+      this._list.onDidChangeFocus((e) => this._onListFocus(e))
+    );
+    this._register(
+      this._list.onDidChangeSelection((e) => this._onListSelection(e))
+    );
+    this._register(
+      this._onDidFontConfigurationChange(() => {
+        if (this._completionModel) {
+          this._list.splice(
+            0,
+            this._completionModel.items.length,
+            this._completionModel?.items
+          );
         }
-        this.element.domNode.classList.toggle("with-status-bar", showStatusBar);
-      }
-    }));
+      })
+    );
+    this._register(
+      _configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor.suggest.showIcons")) {
+          applyIconStyle();
+        }
+        if (_options.statusBarMenuId && _options.showStatusBarSettingId && e.affectsConfiguration(_options.showStatusBarSettingId)) {
+          const showStatusBar = _configurationService.getValue(
+            _options.showStatusBarSettingId
+          );
+          if (showStatusBar && !this._status) {
+            this._status = this._register(
+              _instantiationService.createInstance(
+                SuggestWidgetStatus,
+                this.element.domNode,
+                _options.statusBarMenuId
+              )
+            );
+            this._status.show();
+          } else if (showStatusBar && this._status) {
+            this._status.show();
+          } else if (this._status) {
+            this._status.element.remove();
+            this._status.dispose();
+            this._status = void 0;
+            this._layout(void 0);
+          }
+          this.element.domNode.classList.toggle(
+            "with-status-bar",
+            showStatusBar
+          );
+        }
+      })
+    );
   }
   static {
     __name(this, "SimpleSuggestWidget");
   }
-  static LOADING_MESSAGE = localize("suggestWidget.loading", "Loading...");
-  static NO_SUGGESTIONS_MESSAGE = localize("suggestWidget.noSuggestions", "No suggestions.");
+  static LOADING_MESSAGE = localize(
+    "suggestWidget.loading",
+    "Loading..."
+  );
+  static NO_SUGGESTIONS_MESSAGE = localize(
+    "suggestWidget.noSuggestions",
+    "No suggestions."
+  );
   _state = 0 /* Hidden */;
   _completionModel;
   _cappedHeight;
   _forceRenderingAbove = false;
   _explainMode = false;
   _preference;
-  _pendingShowDetails = this._register(new MutableDisposable());
+  _pendingShowDetails = this._register(
+    new MutableDisposable()
+  );
   _pendingLayout = this._register(new MutableDisposable());
   _currentSuggestionDetails;
   _focusedItem;
@@ -215,7 +361,9 @@ let SimpleSuggestWidget = class extends Disposable {
   _status;
   _details;
   _showTimeout = this._register(new TimeoutTimer());
-  _onDidSelect = this._register(new Emitter());
+  _onDidSelect = this._register(
+    new Emitter()
+  );
   onDidSelect = this._onDidSelect.event;
   _onDidHide = this._register(new Emitter());
   onDidHide = this._onDidHide.event;
@@ -223,7 +371,9 @@ let SimpleSuggestWidget = class extends Disposable {
   onDidShow = this._onDidShow.event;
   _onDidFocus = new PauseableEmitter();
   onDidFocus = this._onDidFocus.event;
-  _onDidBlurDetails = this._register(new Emitter());
+  _onDidBlurDetails = this._register(
+    new Emitter()
+  );
   onDidBlurDetails = this._onDidBlurDetails.event;
   get list() {
     return this._list;
@@ -267,20 +417,24 @@ let SimpleSuggestWidget = class extends Disposable {
       } else {
         this._clearAriaActiveDescendant();
       }
-      this._currentSuggestionDetails = createCancelablePromise(async (token) => {
-        const loading = disposableTimeout(() => {
-          if (this._isDetailsVisible()) {
-            this._showDetails(true, false);
+      this._currentSuggestionDetails = createCancelablePromise(
+        async (token) => {
+          const loading = disposableTimeout(() => {
+            if (this._isDetailsVisible()) {
+              this._showDetails(true, false);
+            }
+          }, 250);
+          const sub = token.onCancellationRequested(
+            () => loading.dispose()
+          );
+          try {
+            return await Promise.resolve();
+          } finally {
+            loading.dispose();
+            sub.dispose();
           }
-        }, 250);
-        const sub = token.onCancellationRequested(() => loading.dispose());
-        try {
-          return await Promise.resolve();
-        } finally {
-          loading.dispose();
-          sub.dispose();
         }
-      });
+      );
       this._currentSuggestionDetails.then(() => {
         if (index >= this._list.length || item !== this._list.element(index)) {
           return;
@@ -331,16 +485,23 @@ let SimpleSuggestWidget = class extends Disposable {
       return;
     }
     try {
-      this._list.splice(0, this._list.length, this._completionModel?.items ?? []);
+      this._list.splice(
+        0,
+        this._list.length,
+        this._completionModel?.items ?? []
+      );
       this._setState(isFrozen ? 4 /* Frozen */ : 3 /* Open */);
       this._list.reveal(selectionIndex, 0);
       this._list.setFocus([selectionIndex]);
     } finally {
     }
-    this._pendingLayout.value = dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(this.element.domNode), () => {
-      this._pendingLayout.clear();
-      this._layout(this.element.size);
-    });
+    this._pendingLayout.value = dom.runAtThisOrScheduleAtNextAnimationFrame(
+      dom.getWindow(this.element.domNode),
+      () => {
+        this._pendingLayout.clear();
+        this._layout(this.element.size);
+      }
+    );
     this._afterRender();
   }
   setLineContext(lineContext) {
@@ -457,28 +618,34 @@ let SimpleSuggestWidget = class extends Disposable {
     }
   }
   _showDetails(loading, focused) {
-    this._pendingShowDetails.value = dom.runAtThisOrScheduleAtNextAnimationFrame(dom.getWindow(this.element.domNode), () => {
-      this._pendingShowDetails.clear();
-      this._details.show();
-      let didFocusDetails = false;
-      if (loading) {
-        this._details.widget.renderLoading();
-      } else {
-        this._details.widget.renderItem(this._list.getFocusedElements()[0], this._explainMode);
-      }
-      if (!this._details.widget.isEmpty) {
-        this._positionDetails();
-        this.element.domNode.classList.add("shows-details");
-        if (focused) {
-          this._details.widget.focus();
-          didFocusDetails = true;
+    this._pendingShowDetails.value = dom.runAtThisOrScheduleAtNextAnimationFrame(
+      dom.getWindow(this.element.domNode),
+      () => {
+        this._pendingShowDetails.clear();
+        this._details.show();
+        let didFocusDetails = false;
+        if (loading) {
+          this._details.widget.renderLoading();
+        } else {
+          this._details.widget.renderItem(
+            this._list.getFocusedElements()[0],
+            this._explainMode
+          );
         }
-      } else {
-        this._details.hide();
+        if (!this._details.widget.isEmpty) {
+          this._positionDetails();
+          this.element.domNode.classList.add("shows-details");
+          if (focused) {
+            this._details.widget.focus();
+            didFocusDetails = true;
+          }
+        } else {
+          this._details.hide();
+        }
+        if (!didFocusDetails) {
+        }
       }
-      if (!didFocusDetails) {
-      }
-    });
+    );
   }
   toggleExplainMode() {
     if (this._list.getFocusedElements()[0]) {
@@ -499,7 +666,9 @@ let SimpleSuggestWidget = class extends Disposable {
     dom.hide(this.element.domNode);
     this.element.clearSashHoverState();
     const dim = this._persistedSize.restore();
-    const minPersistedHeight = Math.ceil(this._getLayoutInfo().itemHeight * 4.3);
+    const minPersistedHeight = Math.ceil(
+      this._getLayoutInfo().itemHeight * 4.3
+    );
     if (dim && dim.height < minPersistedHeight) {
       this._persistedSize.store(dim.with(void 0, minPersistedHeight));
     }
@@ -528,10 +697,16 @@ let SimpleSuggestWidget = class extends Disposable {
     const editorBox = dom.getDomNodePagePosition(this._container);
     const cursorBox = this._cursorPosition;
     const cursorBottom = editorBox.top + cursorBox.top + cursorBox.height;
-    const maxHeightBelow = Math.min(bodyBox.height - cursorBottom - info.verticalPadding, fullHeight);
+    const maxHeightBelow = Math.min(
+      bodyBox.height - cursorBottom - info.verticalPadding,
+      fullHeight
+    );
     const availableSpaceAbove = editorBox.top + cursorBox.top - info.verticalPadding;
     const maxHeightAbove = Math.min(availableSpaceAbove, fullHeight);
-    let maxHeight = Math.min(Math.max(maxHeightAbove, maxHeightBelow) + info.borderHeight, fullHeight);
+    let maxHeight = Math.min(
+      Math.max(maxHeightAbove, maxHeightBelow) + info.borderHeight,
+      fullHeight
+    );
     if (height === this._cappedHeight?.capped) {
       height = this._cappedHeight.wanted;
     }
@@ -551,10 +726,16 @@ let SimpleSuggestWidget = class extends Disposable {
       this.element.enableSashes(false, true, true, false);
       maxHeight = maxHeightBelow;
     }
-    this.element.preferredSize = new dom.Dimension(preferredWidth, info.defaultSize.height);
+    this.element.preferredSize = new dom.Dimension(
+      preferredWidth,
+      info.defaultSize.height
+    );
     this.element.maxSize = new dom.Dimension(maxWidth, maxHeight);
     this.element.minSize = new dom.Dimension(220, minHeight);
-    this._cappedHeight = height === fullHeight ? { wanted: this._cappedHeight?.wanted ?? size.height, capped: height } : void 0;
+    this._cappedHeight = height === fullHeight ? {
+      wanted: this._cappedHeight?.wanted ?? size.height,
+      capped: height
+    } : void 0;
     this.element.domNode.style.left = `${this._cursorPosition.left}px`;
     if (this._preference === 0 /* Above */) {
       this.element.domNode.style.top = `${this._cursorPosition.top - height - info.borderHeight}px`;
@@ -596,7 +777,9 @@ let SimpleSuggestWidget = class extends Disposable {
   _getLayoutInfo() {
     const fontInfo = this._getFontInfo();
     const itemHeight = clamp(fontInfo.lineHeight, 8, 1e3);
-    const statusBarHeight = !this._options.statusBarMenuId || !this._options.showStatusBarSettingId || !this._configurationService.getValue(this._options.showStatusBarSettingId) || this._state === 2 /* Empty */ || this._state === 1 /* Loading */ ? 0 : itemHeight;
+    const statusBarHeight = !this._options.statusBarMenuId || !this._options.showStatusBarSettingId || !this._configurationService.getValue(
+      this._options.showStatusBarSettingId
+    ) || this._state === 2 /* Empty */ || this._state === 1 /* Loading */ ? 0 : itemHeight;
     const borderWidth = this._details.widget.borderWidth;
     const borderHeight = 2 * borderWidth;
     return {
@@ -607,7 +790,10 @@ let SimpleSuggestWidget = class extends Disposable {
       typicalHalfwidthCharacterWidth: 10,
       verticalPadding: 22,
       horizontalPadding: 14,
-      defaultSize: new dom.Dimension(430, statusBarHeight + 12 * itemHeight + borderHeight)
+      defaultSize: new dom.Dimension(
+        430,
+        statusBarHeight + 12 * itemHeight + borderHeight
+      )
     };
   }
   _onListMouseDownOrTap(e) {
@@ -672,10 +858,19 @@ let SimpleSuggestWidget = class extends Disposable {
     return void 0;
   }
   _isDetailsVisible() {
-    return this._storageService.getBoolean("expandSuggestionDocs", StorageScope.PROFILE, false);
+    return this._storageService.getBoolean(
+      "expandSuggestionDocs",
+      StorageScope.PROFILE,
+      false
+    );
   }
   _setDetailsVisible(value) {
-    this._storageService.store("expandSuggestionDocs", value, StorageScope.PROFILE, StorageTarget.USER);
+    this._storageService.store(
+      "expandSuggestionDocs",
+      value,
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
   }
   forceRenderingAbove() {
     if (!this._forceRenderingAbove) {

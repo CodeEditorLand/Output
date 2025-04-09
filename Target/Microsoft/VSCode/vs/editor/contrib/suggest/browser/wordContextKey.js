@@ -10,22 +10,31 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { localize } from "../../../../nls.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
 let WordContextKey = class {
   constructor(_editor, contextKeyService) {
     this._editor = _editor;
     this._ckAtEnd = WordContextKey.AtEnd.bindTo(contextKeyService);
-    this._configListener = this._editor.onDidChangeConfiguration((e) => e.hasChanged(EditorOption.tabCompletion) && this._update());
+    this._configListener = this._editor.onDidChangeConfiguration(
+      (e) => e.hasChanged(EditorOption.tabCompletion) && this._update()
+    );
     this._update();
   }
   static {
     __name(this, "WordContextKey");
   }
-  static AtEnd = new RawContextKey("atEndOfWord", false, { type: "boolean", description: localize("desc", "A context key that is true when at the end of a word. Note that this is only defined when tab-completions are enabled") });
+  static AtEnd = new RawContextKey("atEndOfWord", false, {
+    type: "boolean",
+    description: localize(
+      "desc",
+      "A context key that is true when at the end of a word. Note that this is only defined when tab-completions are enabled"
+    )
+  });
   _ckAtEnd;
   _configListener;
   _enabled = false;
@@ -49,12 +58,16 @@ let WordContextKey = class {
         }
         const model = this._editor.getModel();
         const selection = this._editor.getSelection();
-        const word = model.getWordAtPosition(selection.getStartPosition());
+        const word = model.getWordAtPosition(
+          selection.getStartPosition()
+        );
         if (!word) {
           this._ckAtEnd.set(false);
           return;
         }
-        this._ckAtEnd.set(word.endColumn === selection.getStartPosition().column && selection.getStartPosition().lineNumber === selection.getEndPosition().lineNumber);
+        this._ckAtEnd.set(
+          word.endColumn === selection.getStartPosition().column && selection.getStartPosition().lineNumber === selection.getEndPosition().lineNumber
+        );
       }, "checkForWordEnd");
       this._selectionListener = this._editor.onDidChangeCursorSelection(checkForWordEnd);
       checkForWordEnd();

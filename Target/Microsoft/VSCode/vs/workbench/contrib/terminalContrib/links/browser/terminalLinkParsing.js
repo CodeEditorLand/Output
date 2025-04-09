@@ -2,7 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Lazy } from "../../../../../base/common/lazy.js";
 import { OperatingSystem } from "../../../../../base/common/platform.js";
-const linkSuffixRegexEol = new Lazy(() => generateLinkSuffixRegex(true));
+const linkSuffixRegexEol = new Lazy(
+  () => generateLinkSuffixRegex(true)
+);
 const linkSuffixRegex = new Lazy(() => generateLinkSuffixRegex(false));
 function generateLinkSuffixRegex(eolOnly) {
   let ri = 0;
@@ -44,7 +46,7 @@ function generateLinkSuffixRegex(eolOnly) {
     // "foo",339.12
     // "foo",339.12-789
     // "foo",339.12-341.789
-    `(?::|#| |['"],|, )${r()}([:.]${c()}(?:-(?:${re()}\\.)?${ce()})?)?` + eolSuffix,
+    `(?::|#| |['"],|, )${r()}([:.]${c()}(?:-(?:${re()}\\.)?${ce()})?)?${eolSuffix}`,
     // The quotes below are optional           [#171652]
     // "foo", line 339                         [#40468]
     // "foo", line 339, col 12
@@ -63,7 +65,7 @@ function generateLinkSuffixRegex(eolOnly) {
     // "foo", line 339, characters 12-789      [#171880]
     // "foo", lines 339-341                    [#171880]
     // "foo", lines 339-341, characters 12-789 [#178287]
-    `['"]?(?:,? |: ?| on )lines? ${r()}(?:-${re()})?(?:,? (?:col(?:umn)?|characters?) ${c()}(?:-${ce()})?)?` + eolSuffix,
+    `['"]?(?:,? |: ?| on )lines? ${r()}(?:-${re()})?(?:,? (?:col(?:umn)?|characters?) ${c()}(?:-${ce()})?)?${eolSuffix}`,
     // () and [] are interchangeable
     // foo(339)
     // foo(339,12)
@@ -76,7 +78,7 @@ function generateLinkSuffixRegex(eolOnly) {
     // foo: (339, 12)
     // foo(339:12)                             [#229842]
     // foo (339:12)                            [#229842]
-    `:? ?[\\[\\(]${r()}(?:(?:, ?|:)${c()})?[\\]\\)]` + eolSuffix
+    `:? ?[\\[\\(]${r()}(?:(?:, ?|:)${c()})?[\\]\\)]${eolSuffix}`
   ];
   const suffixClause = lineAndColumnRegexClauses.join("|").replace(/ /g, `[${"\xA0"} ]`);
   return new RegExp(`(${suffixClause})`, eolOnly ? void 0 : "g");
@@ -125,8 +127,12 @@ function toLinkSuffix(match) {
   return {
     row: parseIntOptional(groups.row0 || groups.row1 || groups.row2),
     col: parseIntOptional(groups.col0 || groups.col1 || groups.col2),
-    rowEnd: parseIntOptional(groups.rowEnd0 || groups.rowEnd1 || groups.rowEnd2),
-    colEnd: parseIntOptional(groups.colEnd0 || groups.colEnd1 || groups.colEnd2),
+    rowEnd: parseIntOptional(
+      groups.rowEnd0 || groups.rowEnd1 || groups.rowEnd2
+    ),
+    colEnd: parseIntOptional(
+      groups.colEnd0 || groups.colEnd1 || groups.colEnd2
+    ),
     suffix: { index: match.index, text: match[0] }
   };
 }
@@ -135,7 +141,7 @@ function parseIntOptional(value) {
   if (value === void 0) {
     return value;
   }
-  return parseInt(value);
+  return Number.parseInt(value);
 }
 __name(parseIntOptional, "parseIntOptional");
 const linkWithSuffixPathCharacters = /(?<path>(?:file:\/\/\/)?[^\s\|<>\[\({][^\s\|<>]*)$/;
@@ -182,7 +188,9 @@ function detectLinksViaSuffix(line) {
   const suffixes = detectLinkSuffixes(line);
   for (const suffix of suffixes) {
     const beforeSuffix = line.substring(0, suffix.suffix.index);
-    const possiblePathMatch = beforeSuffix.match(linkWithSuffixPathCharacters);
+    const possiblePathMatch = beforeSuffix.match(
+      linkWithSuffixPathCharacters
+    );
     if (possiblePathMatch && possiblePathMatch.index !== void 0 && possiblePathMatch.groups?.path) {
       let linkStartIndex = possiblePathMatch.index;
       let path = possiblePathMatch.groups.path;
@@ -230,12 +238,15 @@ var RegexPathConstants = /* @__PURE__ */ ((RegexPathConstants2) => {
   RegexPathConstants2["WinExcludedStartPathCharactersClause"] = "[^\\0<>\\?\\|\\/\\s!`&*()\\[\\]'\":;]";
   return RegexPathConstants2;
 })(RegexPathConstants || {});
-const unixLocalLinkClause = "(?:(?:(?:\\.\\.?|\\~|file://)|(?:[^\\0<>\\?\\s!`&*()\\[\\]'\":;\\\\][^\\0<>\\?\\s!`&*()'\":;\\\\]*))?(?:\\/(?:[^\\0<>\\?\\s!`&*()'\":;\\\\])+)+)";
+const unixLocalLinkClause = `(?:(?:${"(?:\\.\\.?|\\~|file://)" /* PathPrefix */}|(?:${"[^\\0<>\\?\\s!`&*()\\[\\]'\":;\\\\]" /* ExcludedStartPathCharactersClause */}${"[^\\0<>\\?\\s!`&*()'\":;\\\\]" /* ExcludedPathCharactersClause */}*))?(?:${"\\/" /* PathSeparatorClause */}(?:${"[^\\0<>\\?\\s!`&*()'\":;\\\\]" /* ExcludedPathCharactersClause */})+)+)`;
 const winDrivePrefix = "(?:\\\\\\\\\\?\\\\|file:\\/\\/\\/)?[a-zA-Z]:";
-const winLocalLinkClause = `(?:(?:(?:${winDrivePrefix}|${"\\.\\.?|\\~" /* WinOtherPathPrefix */})|(?:[^\\0<>\\?\\|\\/\\s!\`&*()\\[\\]'":;][^\\0<>\\?\\|\\/\\s!\`&*()'":;]*))?(?:(?:\\\\|\\/)(?:[^\\0<>\\?\\|\\/\\s!\`&*()'":;])+)+)`;
+const winLocalLinkClause = `(?:(?:(?:${winDrivePrefix}|${"\\.\\.?|\\~" /* WinOtherPathPrefix */})|(?:${"[^\\0<>\\?\\|\\/\\s!`&*()\\[\\]'\":;]" /* WinExcludedStartPathCharactersClause */}${"[^\\0<>\\?\\|\\/\\s!`&*()'\":;]" /* WinExcludedPathCharactersClause */}*))?(?:${"(?:\\\\|\\/)" /* WinPathSeparatorClause */}(?:${"[^\\0<>\\?\\|\\/\\s!`&*()'\":;]" /* WinExcludedPathCharactersClause */})+)+)`;
 function detectPathsNoSuffix(line, os) {
   const results = [];
-  const regex = new RegExp(os === OperatingSystem.Windows ? winLocalLinkClause : unixLocalLinkClause, "g");
+  const regex = new RegExp(
+    os === OperatingSystem.Windows ? winLocalLinkClause : unixLocalLinkClause,
+    "g"
+  );
   let match;
   while ((match = regex.exec(line)) !== null) {
     let text = match[0];

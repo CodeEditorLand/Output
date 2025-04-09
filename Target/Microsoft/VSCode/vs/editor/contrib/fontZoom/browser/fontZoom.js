@@ -1,9 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, registerEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { EditorZoom } from "../../../common/config/editorZoom.js";
 import * as nls from "../../../../nls.js";
+import {
+  EditorAction,
+  registerEditorAction
+} from "../../../browser/editorExtensions.js";
+import { EditorZoom } from "../../../common/config/editorZoom.js";
 class EditorFontZoomIn extends EditorAction {
   static {
     __name(this, "EditorFontZoomIn");
@@ -11,7 +13,10 @@ class EditorFontZoomIn extends EditorAction {
   constructor() {
     super({
       id: "editor.action.fontZoomIn",
-      label: nls.localize2("EditorFontZoomIn.label", "Increase Editor Font Size"),
+      label: nls.localize2(
+        "EditorFontZoomIn.label",
+        "Increase Editor Font Size"
+      ),
       precondition: void 0
     });
   }
@@ -26,7 +31,10 @@ class EditorFontZoomOut extends EditorAction {
   constructor() {
     super({
       id: "editor.action.fontZoomOut",
-      label: nls.localize2("EditorFontZoomOut.label", "Decrease Editor Font Size"),
+      label: nls.localize2(
+        "EditorFontZoomOut.label",
+        "Decrease Editor Font Size"
+      ),
       precondition: void 0
     });
   }
@@ -41,7 +49,10 @@ class EditorFontZoomReset extends EditorAction {
   constructor() {
     super({
       id: "editor.action.fontZoomReset",
-      label: nls.localize2("EditorFontZoomReset.label", "Reset Editor Font Size"),
+      label: nls.localize2(
+        "EditorFontZoomReset.label",
+        "Reset Editor Font Size"
+      ),
       precondition: void 0
     });
   }

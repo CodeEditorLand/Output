@@ -11,7 +11,7 @@
   top: -15px;
   height: 26px;
   line-height: 26px;
-  background-color: var(--vscode-interactive-result-editor-background-color, var(--vscode-editor-background));
+  background-color: var( --vscode-interactive-result-editor-background-color, var(--vscode-editor-background) );
   border: 1px solid var(--vscode-chat-requestBorder);
   z-index: 100;
   max-width: 70%;
@@ -92,7 +92,7 @@
   padding: 0;
   text-align: initial;
   justify-content: initial;
-  color: var(--vscode-foreground) !important;
+  color: var( --vscode-foreground ) !important;
   user-select: none;
 }
 .interactive-result-code-block .interactive-result-vulns-header .monaco-text-button:focus {

@@ -1,16 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import Severity from "../../../base/common/severity.js";
 import * as strings from "../../../base/common/strings.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILocalizedString } from "../../action/common/action.js";
-import { ExtensionKind } from "../../environment/common/environment.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { getRemoteName } from "../../remote/common/remoteHosts.js";
 const USER_MANIFEST_CACHE_FILE = "extensions.user.cache";
 const BUILTIN_MANIFEST_CACHE_FILE = "extensions.builtin.cache";
 const UNDEFINED_PUBLISHER = "undefined_publisher";
-const ALL_EXTENSION_KINDS = ["ui", "workspace", "web"];
+const ALL_EXTENSION_KINDS = [
+  "ui",
+  "workspace",
+  "web"
+];
 function getWorkspaceSupportTypeMessage(supportType) {
   if (typeof supportType === "object" && supportType !== null) {
     if (supportType.supported !== true) {
@@ -162,7 +162,10 @@ class ExtensionError extends Error {
   }
   extension;
   constructor(extensionIdentifier, cause, message) {
-    super(`Error in extension ${ExtensionIdentifier.toKey(extensionIdentifier)}: ${message ?? cause.message}`, { cause });
+    super(
+      `Error in extension ${ExtensionIdentifier.toKey(extensionIdentifier)}: ${message ?? cause.message}`,
+      { cause }
+    );
     this.name = "ExtensionError";
     this.extension = extensionIdentifier;
   }
@@ -172,11 +175,11 @@ function isApplicationScopedExtension(manifest) {
 }
 __name(isApplicationScopedExtension, "isApplicationScopedExtension");
 function isLanguagePackExtension(manifest) {
-  return manifest.contributes && manifest.contributes.localizations ? manifest.contributes.localizations.length > 0 : false;
+  return manifest.contributes?.localizations ? manifest.contributes.localizations.length > 0 : false;
 }
 __name(isLanguagePackExtension, "isLanguagePackExtension");
 function isAuthenticationProviderExtension(manifest) {
-  return manifest.contributes && manifest.contributes.authentication ? manifest.contributes.authentication.length > 0 : false;
+  return manifest.contributes?.authentication ? manifest.contributes.authentication.length > 0 : false;
 }
 __name(isAuthenticationProviderExtension, "isAuthenticationProviderExtension");
 function isResolverExtension(manifest, remoteAuthority) {
@@ -190,7 +193,10 @@ __name(isResolverExtension, "isResolverExtension");
 function parseApiProposals(enabledApiProposals) {
   return enabledApiProposals.map((proposal) => {
     const [proposalName, version] = proposal.split("@");
-    return { proposalName, version: version ? parseInt(version) : void 0 };
+    return {
+      proposalName,
+      version: version ? Number.parseInt(version) : void 0
+    };
   });
 }
 __name(parseApiProposals, "parseApiProposals");
@@ -198,7 +204,9 @@ function parseEnabledApiProposalNames(enabledApiProposals) {
   return enabledApiProposals.map((proposal) => proposal.split("@")[0]);
 }
 __name(parseEnabledApiProposalNames, "parseEnabledApiProposalNames");
-const IBuiltinExtensionsScannerService = createDecorator("IBuiltinExtensionsScannerService");
+const IBuiltinExtensionsScannerService = createDecorator(
+  "IBuiltinExtensionsScannerService"
+);
 export {
   ALL_EXTENSION_KINDS,
   BUILTIN_MANIFEST_CACHE_FILE,

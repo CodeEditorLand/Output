@@ -12,10 +12,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../base/browser/dom.js";
 import * as domStylesheetsJs from "../../../../base/browser/domStylesheets.js";
-import { IListVirtualDelegate } from "../../../../base/browser/ui/list/list.js";
-import { DefaultStyleController, IListAccessibilityProvider } from "../../../../base/browser/ui/list/listWidget.js";
+import {
+  DefaultStyleController
+} from "../../../../base/browser/ui/list/listWidget.js";
 import { RenderIndentGuides } from "../../../../base/browser/ui/tree/abstractTree.js";
-import { ITreeElement, ITreeNode, ITreeRenderer } from "../../../../base/browser/ui/tree/tree.js";
 import { Iterable } from "../../../../base/common/iterator.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { localize } from "../../../../nls.js";
@@ -23,13 +23,25 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IListService, IWorkbenchObjectTreeOptions, WorkbenchObjectTree } from "../../../../platform/list/browser/listService.js";
+import {
+  IListService,
+  WorkbenchObjectTree
+} from "../../../../platform/list/browser/listService.js";
 import { getListStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import { editorBackground, focusBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  editorBackground,
+  focusBorder
+} from "../../../../platform/theme/common/colorRegistry.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { settingsHeaderForeground, settingsHeaderHoverForeground } from "../common/settingsEditorColorRegistry.js";
+import {
+  settingsHeaderForeground,
+  settingsHeaderHoverForeground
+} from "../common/settingsEditorColorRegistry.js";
 import { SettingsTreeFilter } from "./settingsTree.js";
-import { ISettingsEditorViewState, SearchResultModel, SettingsTreeElement, SettingsTreeGroupElement, SettingsTreeSettingElement } from "./settingsTreeModels.js";
+import {
+  SettingsTreeGroupElement,
+  SettingsTreeSettingElement
+} from "./settingsTreeModels.js";
 const $ = DOM.$;
 let TOCTreeModel = class {
   constructor(_viewState, environmentService) {
@@ -69,7 +81,10 @@ let TOCTreeModel = class {
         this.updateGroupCount(child);
       }
     });
-    const childCount = group.children.filter((child) => child instanceof SettingsTreeGroupElement).reduce((acc, cur) => acc + cur.count, 0);
+    const childCount = group.children.filter((child) => child instanceof SettingsTreeGroupElement).reduce(
+      (acc, cur) => acc + cur.count,
+      0
+    );
     group.count = childCount + this.getGroupCount(group);
   }
   getGroupCount(group) {
@@ -77,7 +92,9 @@ let TOCTreeModel = class {
       if (!(child instanceof SettingsTreeSettingElement)) {
         return false;
       }
-      if (this._currentSearchModel && !this._currentSearchModel.root.containsSetting(child.setting.key)) {
+      if (this._currentSearchModel && !this._currentSearchModel.root.containsSetting(
+        child.setting.key
+      )) {
         return false;
       }
       const isRemote = !!this.environmentService.remoteAuthority;
@@ -110,7 +127,11 @@ class TOCRenderer {
     const count = element.count;
     const label = element.label;
     template.labelElement.textContent = label;
-    template.elementDisposables.add(this._hoverService.setupDelayedHover(template.labelElement, { content: label }));
+    template.elementDisposables.add(
+      this._hoverService.setupDelayedHover(template.labelElement, {
+        content: label
+      })
+    );
     if (count) {
       template.countElement.textContent = ` (${count})`;
     } else {
@@ -135,7 +156,9 @@ class TOCTreeDelegate {
 function createTOCIterator(model, tree) {
   const groupChildren = model.children.filter((c) => c instanceof SettingsTreeGroupElement);
   return Iterable.map(groupChildren, (g) => {
-    const hasGroupChildren = g.children.some((c) => c instanceof SettingsTreeGroupElement);
+    const hasGroupChildren = g.children.some(
+      (c) => c instanceof SettingsTreeGroupElement
+    );
     return {
       element: g,
       collapsed: void 0,
@@ -153,7 +176,9 @@ class SettingsAccessibilityProvider {
     return localize(
       {
         key: "settingsTOC",
-        comment: ["A label for the table of contents for the full settings list"]
+        comment: [
+          "A label for the table of contents for the full settings list"
+        ]
       },
       "Settings Table of Contents"
     );
@@ -181,7 +206,10 @@ let TOCTree = class extends WorkbenchObjectTree {
     __name(this, "TOCTree");
   }
   constructor(container, viewState, contextKeyService, listService, configurationService, hoverService, instantiationService) {
-    const filter = instantiationService.createInstance(SettingsTreeFilter, viewState);
+    const filter = instantiationService.createInstance(
+      SettingsTreeFilter,
+      viewState
+    );
     const options = {
       filter,
       multipleSelectionSupport: false,
@@ -190,8 +218,13 @@ let TOCTree = class extends WorkbenchObjectTree {
           return e.id;
         }
       },
-      styleController: /* @__PURE__ */ __name((id) => new DefaultStyleController(domStylesheetsJs.createStyleSheet(container), id), "styleController"),
-      accessibilityProvider: instantiationService.createInstance(SettingsAccessibilityProvider),
+      styleController: /* @__PURE__ */ __name((id) => new DefaultStyleController(
+        domStylesheetsJs.createStyleSheet(container),
+        id
+      ), "styleController"),
+      accessibilityProvider: instantiationService.createInstance(
+        SettingsAccessibilityProvider
+      ),
       collapseByDefault: true,
       horizontalScrolling: false,
       hideTwistiesOfChildlessElements: true,
@@ -208,24 +241,26 @@ let TOCTree = class extends WorkbenchObjectTree {
       listService,
       configurationService
     );
-    this.style(getListStyles({
-      listBackground: editorBackground,
-      listFocusOutline: focusBorder,
-      listActiveSelectionBackground: editorBackground,
-      listActiveSelectionForeground: settingsHeaderForeground,
-      listFocusAndSelectionBackground: editorBackground,
-      listFocusAndSelectionForeground: settingsHeaderForeground,
-      listFocusBackground: editorBackground,
-      listFocusForeground: settingsHeaderHoverForeground,
-      listHoverForeground: settingsHeaderHoverForeground,
-      listHoverBackground: editorBackground,
-      listInactiveSelectionBackground: editorBackground,
-      listInactiveSelectionForeground: settingsHeaderForeground,
-      listInactiveFocusBackground: editorBackground,
-      listInactiveFocusOutline: editorBackground,
-      treeIndentGuidesStroke: void 0,
-      treeInactiveIndentGuidesStroke: void 0
-    }));
+    this.style(
+      getListStyles({
+        listBackground: editorBackground,
+        listFocusOutline: focusBorder,
+        listActiveSelectionBackground: editorBackground,
+        listActiveSelectionForeground: settingsHeaderForeground,
+        listFocusAndSelectionBackground: editorBackground,
+        listFocusAndSelectionForeground: settingsHeaderForeground,
+        listFocusBackground: editorBackground,
+        listFocusForeground: settingsHeaderHoverForeground,
+        listHoverForeground: settingsHeaderHoverForeground,
+        listHoverBackground: editorBackground,
+        listInactiveSelectionBackground: editorBackground,
+        listInactiveSelectionForeground: settingsHeaderForeground,
+        listInactiveFocusBackground: editorBackground,
+        listInactiveFocusOutline: editorBackground,
+        treeIndentGuidesStroke: void 0,
+        treeInactiveIndentGuidesStroke: void 0
+      })
+    );
   }
 };
 TOCTree = __decorateClass([

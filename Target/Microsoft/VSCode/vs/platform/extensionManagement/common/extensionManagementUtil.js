@@ -1,16 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { compareIgnoreCase } from "../../../base/common/strings.js";
-import { IExtensionIdentifier, IGalleryExtension, ILocalExtension, getTargetPlatform } from "./extensionManagement.js";
-import { ExtensionIdentifier, IExtension, TargetPlatform, UNDEFINED_PUBLISHER } from "../../extensions/common/extensions.js";
-import { IFileService } from "../../files/common/files.js";
-import { isLinux, platform } from "../../../base/common/platform.js";
-import { URI } from "../../../base/common/uri.js";
 import { getErrorMessage } from "../../../base/common/errors.js";
-import { ILogService } from "../../log/common/log.js";
+import { isLinux, platform } from "../../../base/common/platform.js";
 import { arch } from "../../../base/common/process.js";
-import { TelemetryTrustedValue } from "../../telemetry/common/telemetryUtils.js";
+import { compareIgnoreCase } from "../../../base/common/strings.js";
 import { isString } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  ExtensionIdentifier,
+  TargetPlatform,
+  UNDEFINED_PUBLISHER
+} from "../../extensions/common/extensions.js";
+import { TelemetryTrustedValue } from "../../telemetry/common/telemetryUtils.js";
+import {
+  getTargetPlatform
+} from "./extensionManagement.js";
 function areSameExtensions(a, b) {
   if (a.uuid && b.uuid) {
     return a.uuid === b.uuid;
@@ -39,7 +43,11 @@ class ExtensionKey {
   }
   static parse(key) {
     const matches = ExtensionKeyRegex.exec(key);
-    return matches && matches[1] && matches[2] ? new ExtensionKey({ id: matches[1] }, matches[2], matches[4] || void 0) : null;
+    return matches?.[1] && matches[2] ? new ExtensionKey(
+      { id: matches[1] },
+      matches[2],
+      matches[4] || void 0
+    ) : null;
   }
   id;
   toString() {
@@ -55,7 +63,7 @@ class ExtensionKey {
 const EXTENSION_IDENTIFIER_WITH_VERSION_REGEX = /^([^.]+\..+)@((prerelease)|(\d+\.\d+\.\d+(-.*)?))$/;
 function getIdAndVersion(id) {
   const matches = EXTENSION_IDENTIFIER_WITH_VERSION_REGEX.exec(id);
-  if (matches && matches[1]) {
+  if (matches?.[1]) {
     return [adoptToGalleryExtensionId(matches[1]), matches[2]];
   }
   return [adoptToGalleryExtensionId(id), void 0];
@@ -70,14 +78,21 @@ function adoptToGalleryExtensionId(id) {
 }
 __name(adoptToGalleryExtensionId, "adoptToGalleryExtensionId");
 function getGalleryExtensionId(publisher, name) {
-  return adoptToGalleryExtensionId(getExtensionId(publisher ?? UNDEFINED_PUBLISHER, name));
+  return adoptToGalleryExtensionId(
+    getExtensionId(publisher ?? UNDEFINED_PUBLISHER, name)
+  );
 }
 __name(getGalleryExtensionId, "getGalleryExtensionId");
 function groupByExtension(extensions, getExtensionIdentifier) {
   const byExtension = [];
   const findGroup = /* @__PURE__ */ __name((extension) => {
     for (const group of byExtension) {
-      if (group.some((e) => areSameExtensions(getExtensionIdentifier(e), getExtensionIdentifier(extension)))) {
+      if (group.some(
+        (e) => areSameExtensions(
+          getExtensionIdentifier(e),
+          getExtensionIdentifier(extension)
+        )
+      )) {
         return group;
       }
     }
@@ -129,10 +144,14 @@ function getExtensionDependencies(installedExtensions, extension) {
   while (extensions.length) {
     const id = extensions.shift();
     if (id && dependencies.every((e) => !areSameExtensions(e.identifier, { id }))) {
-      const ext = installedExtensions.filter((e) => areSameExtensions(e.identifier, { id }));
+      const ext = installedExtensions.filter(
+        (e) => areSameExtensions(e.identifier, { id })
+      );
       if (ext.length === 1) {
         dependencies.push(ext[0]);
-        extensions.push(...ext[0].manifest.extensionDependencies?.slice(0) ?? []);
+        extensions.push(
+          ...ext[0].manifest.extensionDependencies?.slice(0) ?? []
+        );
       }
     }
   }
@@ -145,14 +164,21 @@ async function isAlpineLinux(fileService, logService) {
   }
   let content;
   try {
-    const fileContent = await fileService.readFile(URI.file("/etc/os-release"));
+    const fileContent = await fileService.readFile(
+      URI.file("/etc/os-release")
+    );
     content = fileContent.value.toString();
   } catch (error) {
     try {
-      const fileContent = await fileService.readFile(URI.file("/usr/lib/os-release"));
+      const fileContent = await fileService.readFile(
+        URI.file("/usr/lib/os-release")
+      );
       content = fileContent.value.toString();
     } catch (error2) {
-      logService.debug(`Error while getting the os-release file.`, getErrorMessage(error2));
+      logService.debug(
+        "Error while getting the os-release file.",
+        getErrorMessage(error2)
+      );
     }
   }
   return !!content && (content.match(/^ID=([^\u001b\r\n]*)/m) || [])[1] === "alpine";
@@ -160,7 +186,10 @@ async function isAlpineLinux(fileService, logService) {
 __name(isAlpineLinux, "isAlpineLinux");
 async function computeTargetPlatform(fileService, logService) {
   const alpineLinux = await isAlpineLinux(fileService, logService);
-  const targetPlatform = getTargetPlatform(alpineLinux ? "alpine" : platform, arch);
+  const targetPlatform = getTargetPlatform(
+    alpineLinux ? "alpine" : platform,
+    arch
+  );
   logService.debug("ComputeTargetPlatform:", targetPlatform);
   return targetPlatform;
 }
@@ -168,7 +197,10 @@ __name(computeTargetPlatform, "computeTargetPlatform");
 function isMalicious(identifier, malicious) {
   return malicious.some((publisherOrIdentifier) => {
     if (isString(publisherOrIdentifier)) {
-      return compareIgnoreCase(identifier.id.split(".")[0], publisherOrIdentifier) === 0;
+      return compareIgnoreCase(
+        identifier.id.split(".")[0],
+        publisherOrIdentifier
+      ) === 0;
     }
     return areSameExtensions(identifier, publisherOrIdentifier);
   });

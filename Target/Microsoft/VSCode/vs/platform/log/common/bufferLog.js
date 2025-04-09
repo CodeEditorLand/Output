@@ -1,14 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { MutableDisposable } from "../../../base/common/lifecycle.js";
-import { AbstractMessageLogger, DEFAULT_LOG_LEVEL, ILogger, log, LogLevel } from "./log.js";
+import {
+  AbstractMessageLogger,
+  DEFAULT_LOG_LEVEL,
+  log
+} from "./log.js";
 class BufferLogger extends AbstractMessageLogger {
   static {
     __name(this, "BufferLogger");
   }
   buffer = [];
   _logger = void 0;
-  _logLevelDisposable = this._register(new MutableDisposable());
+  _logLevelDisposable = this._register(
+    new MutableDisposable()
+  );
   constructor(logLevel = DEFAULT_LOG_LEVEL) {
     super();
     this.setLevel(logLevel);
@@ -16,7 +22,10 @@ class BufferLogger extends AbstractMessageLogger {
   set logger(logger) {
     this._logger = logger;
     this.setLevel(logger.getLevel());
-    this._logLevelDisposable.value = logger.onDidChangeLogLevel(this.setLevel, this);
+    this._logLevelDisposable.value = logger.onDidChangeLogLevel(
+      this.setLevel,
+      this
+    );
     for (const { level, message } of this.buffer) {
       log(logger, level, message);
     }

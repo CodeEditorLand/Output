@@ -3,8 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { timeout } from "../../../../../base/common/async.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { isWindows } from "../../../../../base/common/platform.js";
-import { ILogService } from "../../../../log/common/log.js";
-import { ITerminalChildProcess } from "../../../common/terminal.js";
 class TerminalAutoResponder extends Disposable {
   static {
     __name(this, "TerminalAutoResponder");
@@ -18,26 +16,30 @@ class TerminalAutoResponder extends Disposable {
   _throttled = false;
   constructor(proc, matchWord, response, logService) {
     super();
-    this._register(proc.onProcessData((e) => {
-      if (this._paused || this._throttled) {
-        return;
-      }
-      const data = typeof e === "string" ? e : e.data;
-      for (let i = 0; i < data.length; i++) {
-        if (data[i] === matchWord[this._pointer]) {
-          this._pointer++;
-        } else {
-          this._reset();
+    this._register(
+      proc.onProcessData((e) => {
+        if (this._paused || this._throttled) {
+          return;
         }
-        if (this._pointer === matchWord.length) {
-          logService.debug(`Auto reply match: "${matchWord}", response: "${response}"`);
-          proc.input(response);
-          this._throttled = true;
-          timeout(1e3).then(() => this._throttled = false);
-          this._reset();
+        const data = typeof e === "string" ? e : e.data;
+        for (let i = 0; i < data.length; i++) {
+          if (data[i] === matchWord[this._pointer]) {
+            this._pointer++;
+          } else {
+            this._reset();
+          }
+          if (this._pointer === matchWord.length) {
+            logService.debug(
+              `Auto reply match: "${matchWord}", response: "${response}"`
+            );
+            proc.input(response);
+            this._throttled = true;
+            timeout(1e3).then(() => this._throttled = false);
+            this._reset();
+          }
         }
-      }
-    }));
+      })
+    );
   }
   _reset() {
     this._pointer = 0;

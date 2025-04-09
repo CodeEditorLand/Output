@@ -10,33 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import {
+  Disposable,
+  dispose
+} from "../../../base/common/lifecycle.js";
+import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
+import {
+  MultiModelEditStackElement
+} from "../model/editStack.js";
 import { IModelService } from "./model.js";
 import { ITextModelService } from "./resolverService.js";
-import { Disposable, IDisposable, dispose } from "../../../base/common/lifecycle.js";
-import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
-import { IUndoRedoDelegate, MultiModelEditStackElement } from "../model/editStack.js";
 let ModelUndoRedoParticipant = class extends Disposable {
   constructor(_modelService, _textModelService, _undoRedoService) {
     super();
     this._modelService = _modelService;
     this._textModelService = _textModelService;
     this._undoRedoService = _undoRedoService;
-    this._register(this._modelService.onModelRemoved((model) => {
-      const elements = this._undoRedoService.getElements(model.uri);
-      if (elements.past.length === 0 && elements.future.length === 0) {
-        return;
-      }
-      for (const element of elements.past) {
-        if (element instanceof MultiModelEditStackElement) {
-          element.setDelegate(this);
+    this._register(
+      this._modelService.onModelRemoved((model) => {
+        const elements = this._undoRedoService.getElements(model.uri);
+        if (elements.past.length === 0 && elements.future.length === 0) {
+          return;
         }
-      }
-      for (const element of elements.future) {
-        if (element instanceof MultiModelEditStackElement) {
-          element.setDelegate(this);
+        for (const element of elements.past) {
+          if (element instanceof MultiModelEditStackElement) {
+            element.setDelegate(this);
+          }
         }
-      }
-    }));
+        for (const element of elements.future) {
+          if (element instanceof MultiModelEditStackElement) {
+            element.setDelegate(this);
+          }
+        }
+      })
+    );
   }
   static {
     __name(this, "ModelUndoRedoParticipant");

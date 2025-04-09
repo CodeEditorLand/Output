@@ -1,38 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDiffResult } from "../../../../base/common/diff/diff.js";
-import { Event } from "../../../../base/common/event.js";
 import * as glob from "../../../../base/common/glob.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { Mimes } from "../../../../base/common/mime.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { basename } from "../../../../base/common/path.js";
 import { isWindows } from "../../../../base/common/platform.js";
-import { ISplice } from "../../../../base/common/sequence.js";
-import { ThemeColor } from "../../../../base/common/themables.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import * as editorCommon from "../../../../editor/common/editorCommon.js";
-import { Command, WorkspaceEditMetadata } from "../../../../editor/common/languages.js";
-import { IReadonlyTextBuffer, ITextModel } from "../../../../editor/common/model.js";
-import { IAccessibilityInformation } from "../../../../platform/accessibility/common/accessibility.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IFileReadLimits } from "../../../../platform/files/common/files.js";
-import { UndoRedoGroup } from "../../../../platform/undoRedo/common/undoRedo.js";
-import { IRevertOptions, ISaveOptions, IUntypedEditorInput } from "../../../common/editor.js";
-import { NotebookTextModel } from "./model/notebookTextModel.js";
-import { ICellExecutionError } from "./notebookExecutionStateService.js";
-import { INotebookTextModelLike } from "./notebookKernelService.js";
-import { ICellRange } from "./notebookRange.js";
-import { RegisteredEditorPriority } from "../../../services/editor/common/editorResolverService.js";
-import { generateMetadataUri, generate as generateUri, extractCellOutputDetails, parseMetadataUri, parse as parseUri } from "../../../services/notebook/common/notebookDocumentService.js";
-import { IWorkingCopyBackupMeta, IWorkingCopySaveEvent } from "../../../services/workingCopy/common/workingCopy.js";
-import { SnapshotContext } from "../../../services/workingCopy/common/fileWorkingCopy.js";
+import {
+  extractCellOutputDetails,
+  generateMetadataUri,
+  generate as generateUri,
+  parseMetadataUri,
+  parse as parseUri
+} from "../../../services/notebook/common/notebookDocumentService.js";
 const NOTEBOOK_EDITOR_ID = "workbench.editor.notebook";
 const NOTEBOOK_DIFF_EDITOR_ID = "workbench.editor.notebookTextDiffEditor";
 const NOTEBOOK_MULTI_DIFF_EDITOR_ID = "workbench.editor.notebookMultiTextDiffEditor";
@@ -67,7 +49,10 @@ const ACCESSIBLE_NOTEBOOK_DISPLAY_ORDER = [
 ];
 const RENDERER_EQUIVALENT_EXTENSIONS = /* @__PURE__ */ new Map([
   ["ms-toolsai.jupyter", /* @__PURE__ */ new Set(["jupyter-notebook", "interactive"])],
-  ["ms-toolsai.jupyter-renderers", /* @__PURE__ */ new Set(["jupyter-notebook", "interactive"])]
+  [
+    "ms-toolsai.jupyter-renderers",
+    /* @__PURE__ */ new Set(["jupyter-notebook", "interactive"])
+  ]
 ]);
 const RENDERER_NOT_AVAILABLE = "_notAvailable";
 var NotebookRunState = /* @__PURE__ */ ((NotebookRunState2) => {
@@ -219,7 +204,9 @@ class MimeTypeDisplayOrder {
    * Returns a sorted array of the input mimetypes.
    */
   sort(mimetypes) {
-    const remaining = new Map(Iterable.map(mimetypes, (m) => [m, normalizeSlashes(m)]));
+    const remaining = new Map(
+      Iterable.map(mimetypes, (m) => [m, normalizeSlashes(m)])
+    );
     let sorted = [];
     for (const { matches } of this.order) {
       for (const [original, normalized] of remaining) {
@@ -231,9 +218,11 @@ class MimeTypeDisplayOrder {
       }
     }
     if (remaining.size) {
-      sorted = sorted.concat([...remaining.keys()].sort(
-        (a, b) => this.defaultOrder.indexOf(a) - this.defaultOrder.indexOf(b)
-      ));
+      sorted = sorted.concat(
+        [...remaining.keys()].sort(
+          (a, b) => this.defaultOrder.indexOf(a) - this.defaultOrder.indexOf(b)
+        )
+      );
     }
     return sorted;
   }
@@ -244,13 +233,22 @@ class MimeTypeDisplayOrder {
   prioritize(chosenMimetype, otherMimetypes) {
     const chosenIndex = this.findIndex(chosenMimetype);
     if (chosenIndex === -1) {
-      this.order.unshift({ pattern: chosenMimetype, matches: glob.parse(normalizeSlashes(chosenMimetype)) });
+      this.order.unshift({
+        pattern: chosenMimetype,
+        matches: glob.parse(normalizeSlashes(chosenMimetype))
+      });
       return;
     }
-    const uniqueIndicies = new Set(otherMimetypes.map((m) => this.findIndex(m, chosenIndex)));
+    const uniqueIndicies = new Set(
+      otherMimetypes.map((m) => this.findIndex(m, chosenIndex))
+    );
     uniqueIndicies.delete(-1);
     const otherIndices = Array.from(uniqueIndicies).sort();
-    this.order.splice(chosenIndex + 1, 0, ...otherIndices.map((i) => this.order[i]));
+    this.order.splice(
+      chosenIndex + 1,
+      0,
+      ...otherIndices.map((i) => this.order[i])
+    );
     for (let oi = otherIndices.length - 1; oi >= 0; oi--) {
       this.order.splice(otherIndices[oi], 1);
     }
@@ -345,10 +343,15 @@ function notebookDocumentFilterMatch(filter, viewType, resource) {
   }
   if (filter.filenamePattern) {
     const filenamePattern = isDocumentExcludePattern(filter.filenamePattern) ? filter.filenamePattern.include : filter.filenamePattern;
-    const excludeFilenamePattern = isDocumentExcludePattern(filter.filenamePattern) ? filter.filenamePattern.exclude : void 0;
+    const excludeFilenamePattern = isDocumentExcludePattern(
+      filter.filenamePattern
+    ) ? filter.filenamePattern.exclude : void 0;
     if (glob.match(filenamePattern, basename(resource.fsPath).toLowerCase())) {
       if (excludeFilenamePattern) {
-        if (glob.match(excludeFilenamePattern, basename(resource.fsPath).toLowerCase())) {
+        if (glob.match(
+          excludeFilenamePattern,
+          basename(resource.fsPath).toLowerCase()
+        )) {
           return false;
         }
       }
@@ -445,7 +448,10 @@ class NotebookWorkingCopyTypeIdentifier {
   }
 }
 function isTextStreamMime(mimeType) {
-  return ["application/vnd.code.notebook.stdout", "application/vnd.code.notebook.stderr"].includes(mimeType);
+  return [
+    "application/vnd.code.notebook.stdout",
+    "application/vnd.code.notebook.stderr"
+  ].includes(mimeType);
 }
 __name(isTextStreamMime, "isTextStreamMime");
 const textDecoder = new TextDecoder();
@@ -459,14 +465,18 @@ function compressOutputItemStreams(outputs) {
     }
   }
   let didCompression = compressStreamBuffer(buffers);
-  const concatenated = VSBuffer.concat(buffers.map((buffer) => VSBuffer.wrap(buffer)));
+  const concatenated = VSBuffer.concat(
+    buffers.map((buffer) => VSBuffer.wrap(buffer))
+  );
   const data = formatStreamText(concatenated);
   didCompression = didCompression || data.byteLength !== concatenated.byteLength;
   return { data, didCompression };
 }
 __name(compressOutputItemStreams, "compressOutputItemStreams");
 const MOVE_CURSOR_1_LINE_COMMAND = `${String.fromCharCode(27)}[A`;
-const MOVE_CURSOR_1_LINE_COMMAND_BYTES = MOVE_CURSOR_1_LINE_COMMAND.split("").map((c) => c.charCodeAt(0));
+const MOVE_CURSOR_1_LINE_COMMAND_BYTES = MOVE_CURSOR_1_LINE_COMMAND.split(
+  ""
+).map((c) => c.charCodeAt(0));
 const LINE_FEED = 10;
 function compressStreamBuffer(streams) {
   let didCompress = false;
@@ -482,7 +492,10 @@ function compressStreamBuffer(streams) {
         return;
       }
       didCompress = true;
-      streams[index - 1] = previousStream.subarray(0, lastIndexOfLineFeed);
+      streams[index - 1] = previousStream.subarray(
+        0,
+        lastIndexOfLineFeed
+      );
       streams[index] = stream.subarray(MOVE_CURSOR_1_LINE_COMMAND.length);
     }
   });
@@ -501,8 +514,8 @@ __name(fixBackspace, "fixBackspace");
 function fixCarriageReturn(txt) {
   txt = txt.replace(/\r+\n/gm, "\n");
   while (txt.search(/\r[^$]/g) > -1) {
-    const base = txt.match(/^(.*)\r+/m)[1];
-    let insert = txt.match(/\r+(.*)$/m)[1];
+    const base = txt.match(/^(.*)\r+/m)?.[1];
+    let insert = txt.match(/\r+(.*)$/m)?.[1];
     insert = insert + base.slice(insert.length, base.length);
     txt = txt.replace(/\r+.*$/m, "\r").replace(/^.*\r/m, insert);
   }
@@ -515,7 +528,9 @@ function formatStreamText(buffer) {
   if (!buffer.buffer.includes(BACKSPACE_CHARACTER) && !buffer.buffer.includes(CARRIAGE_RETURN_CHARACTER)) {
     return buffer;
   }
-  return VSBuffer.fromString(fixCarriageReturn(fixBackspace(textDecoder.decode(buffer.buffer))));
+  return VSBuffer.fromString(
+    fixCarriageReturn(fixBackspace(textDecoder.decode(buffer.buffer)))
+  );
 }
 __name(formatStreamText, "formatStreamText");
 export {

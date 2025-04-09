@@ -11,25 +11,32 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { RawContextKey, IContextKeyService, ContextKeyExpr, IContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ISnippetsService } from "./snippets.js";
-import { getNonWhitespacePrefix } from "./snippetsService.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IEditorContribution } from "../../../../editor/common/editorCommon.js";
+import {
+  EditorCommand,
+  EditorContributionInstantiation,
+  registerEditorCommand,
+  registerEditorContribution
+} from "../../../../editor/browser/editorExtensions.js";
+import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { registerEditorContribution, EditorCommand, registerEditorCommand, EditorContributionInstantiation } from "../../../../editor/browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
+import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import {
+  CodeEditorStateFlag,
+  EditorState
+} from "../../../../editor/contrib/editorState/browser/editorState.js";
 import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
 import { showSimpleSuggestions } from "../../../../editor/contrib/suggest/browser/suggest.js";
-import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { Snippet } from "./snippetsFile.js";
-import { SnippetCompletion } from "./snippetCompletionProvider.js";
-import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
 import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { EditorState, CodeEditorStateFlag } from "../../../../editor/contrib/editorState/browser/editorState.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { CompletionItemProvider } from "../../../../editor/common/languages.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { SnippetCompletion } from "./snippetCompletionProvider.js";
+import { ISnippetsService } from "./snippets.js";
+import { getNonWhitespacePrefix } from "./snippetsService.js";
 let TabCompletionController = class {
   constructor(_editor, _snippetService, _clipboardService, _languageFeaturesService, contextKeyService) {
     this._editor = _editor;
@@ -48,9 +55,14 @@ let TabCompletionController = class {
     __name(this, "TabCompletionController");
   }
   static ID = "editor.tabCompletionController";
-  static ContextKey = new RawContextKey("hasSnippetCompletions", void 0);
+  static ContextKey = new RawContextKey(
+    "hasSnippetCompletions",
+    void 0
+  );
   static get(editor) {
-    return editor.getContribution(TabCompletionController.ID);
+    return editor.getContribution(
+      TabCompletionController.ID
+    );
   }
   _hasSnippets;
   _configListener;
@@ -69,7 +81,9 @@ let TabCompletionController = class {
       if (!this._enabled) {
         this._selectionListener?.dispose();
       } else {
-        this._selectionListener = this._editor.onDidChangeCursorSelection((e) => this._updateSnippets());
+        this._selectionListener = this._editor.onDidChangeCursorSelection(
+          (e) => this._updateSnippets()
+        );
         if (this._editor.getModel()) {
           this._updateSnippets();
         }
@@ -85,14 +99,20 @@ let TabCompletionController = class {
     const selection = this._editor.getSelection();
     const model = this._editor.getModel();
     model.tokenization.tokenizeIfCheap(selection.positionLineNumber);
-    const id = model.getLanguageIdAtPosition(selection.positionLineNumber, selection.positionColumn);
+    const id = model.getLanguageIdAtPosition(
+      selection.positionLineNumber,
+      selection.positionColumn
+    );
     const snippets = this._snippetService.getSnippetsSync(id);
     if (!snippets) {
       this._hasSnippets.set(false);
       return;
     }
     if (Range.isEmpty(selection)) {
-      const prefix = getNonWhitespacePrefix(model, selection.getPosition());
+      const prefix = getNonWhitespacePrefix(
+        model,
+        selection.getPosition()
+      );
       if (prefix) {
         for (const snippet of snippets) {
           if (prefix.endsWith(snippet.prefix)) {
@@ -127,14 +147,21 @@ let TabCompletionController = class {
             return;
           }
           const suggestions = this._activeSnippets.map((snippet) => {
-            const range = Range.fromPositions(position.delta(0, -snippet.prefix.length), position);
+            const range = Range.fromPositions(
+              position.delta(0, -snippet.prefix.length),
+              position
+            );
             return new SnippetCompletion(snippet, range);
           });
           return { suggestions };
         }, "provideCompletionItems")
       };
       const registration = this._languageFeaturesService.completionProvider.register(
-        { language: model.getLanguageId(), pattern: model.uri.fsPath, scheme: model.uri.scheme },
+        {
+          language: model.getLanguageId(),
+          pattern: model.uri.fsPath,
+          scheme: model.uri.scheme
+        },
         this._completionProvider
       );
     }
@@ -147,7 +174,10 @@ let TabCompletionController = class {
       const [snippet] = this._activeSnippets;
       let clipboardText;
       if (snippet.needsClipboard) {
-        const state = new EditorState(this._editor, CodeEditorStateFlag.Value | CodeEditorStateFlag.Position);
+        const state = new EditorState(
+          this._editor,
+          CodeEditorStateFlag.Value | CodeEditorStateFlag.Position
+        );
         clipboardText = await this._clipboardService.readText();
         if (!state.validate(this._editor)) {
           return;
@@ -171,22 +201,30 @@ TabCompletionController = __decorateClass([
   __decorateParam(3, ILanguageFeaturesService),
   __decorateParam(4, IContextKeyService)
 ], TabCompletionController);
-registerEditorContribution(TabCompletionController.ID, TabCompletionController, EditorContributionInstantiation.Eager);
-const TabCompletionCommand = EditorCommand.bindToContribution(TabCompletionController.get);
-registerEditorCommand(new TabCompletionCommand({
-  id: "insertSnippet",
-  precondition: TabCompletionController.ContextKey,
-  handler: /* @__PURE__ */ __name((x) => x.performSnippetCompletions(), "handler"),
-  kbOpts: {
-    weight: KeybindingWeight.EditorContrib,
-    kbExpr: ContextKeyExpr.and(
-      EditorContextKeys.editorTextFocus,
-      EditorContextKeys.tabDoesNotMoveFocus,
-      SnippetController2.InSnippetMode.toNegated()
-    ),
-    primary: KeyCode.Tab
-  }
-}));
+registerEditorContribution(
+  TabCompletionController.ID,
+  TabCompletionController,
+  EditorContributionInstantiation.Eager
+);
+const TabCompletionCommand = EditorCommand.bindToContribution(
+  TabCompletionController.get
+);
+registerEditorCommand(
+  new TabCompletionCommand({
+    id: "insertSnippet",
+    precondition: TabCompletionController.ContextKey,
+    handler: /* @__PURE__ */ __name((x) => x.performSnippetCompletions(), "handler"),
+    kbOpts: {
+      weight: KeybindingWeight.EditorContrib,
+      kbExpr: ContextKeyExpr.and(
+        EditorContextKeys.editorTextFocus,
+        EditorContextKeys.tabDoesNotMoveFocus,
+        SnippetController2.InSnippetMode.toNegated()
+      ),
+      primary: KeyCode.Tab
+    }
+  })
+);
 export {
   TabCompletionController
 };

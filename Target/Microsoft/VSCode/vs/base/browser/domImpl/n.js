@@ -1,20 +1,33 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { BugIndicatingError } from "../../common/errors.js";
-import { DisposableStore, IDisposable } from "../../common/lifecycle.js";
-import { derived, derivedOpts, derivedWithStore, IObservable, IReader, observableValue } from "../../common/observable.js";
+import { DisposableStore } from "../../common/lifecycle.js";
+import {
+  derived,
+  derivedOpts,
+  derivedWithStore,
+  observableValue
+} from "../../common/observable.js";
 import { isSVGElement } from "../dom.js";
 var n;
 ((n2) => {
   function nodeNs(elementNs = void 0) {
     return (tag, attributes, children) => {
       const className = attributes.class;
-      delete attributes.class;
+      attributes.class = void 0;
       const ref2 = attributes.ref;
-      delete attributes.ref;
+      attributes.ref = void 0;
       const obsRef = attributes.obsRef;
-      delete attributes.obsRef;
-      return new ObserverNodeWithElement(tag, ref2, obsRef, elementNs, className, attributes, children);
+      attributes.obsRef = void 0;
+      return new ObserverNodeWithElement(
+        tag,
+        ref2,
+        obsRef,
+        elementNs,
+        className,
+        attributes,
+        children
+      );
     };
   }
   __name(nodeNs, "nodeNs");
@@ -28,16 +41,20 @@ var n;
   n2.div = node("div");
   n2.elem = nodeNs(void 0);
   n2.svg = node("svg", "http://www.w3.org/2000/svg");
-  n2.svgElem = nodeNs("http://www.w3.org/2000/svg");
+  n2.svgElem = nodeNs(
+    "http://www.w3.org/2000/svg"
+  );
   function ref() {
     let value = void 0;
-    const result = /* @__PURE__ */ __name(function(val) {
+    const result = /* @__PURE__ */ __name((val) => {
       value = val;
     }, "result");
     Object.defineProperty(result, "element", {
       get() {
         if (!value) {
-          throw new BugIndicatingError("Make sure the ref is set before accessing the element. Maybe wrong initialization order?");
+          throw new BugIndicatingError(
+            "Make sure the ref is set before accessing the element. Maybe wrong initialization order?"
+          );
         }
         return value;
       }
@@ -59,20 +76,27 @@ class ObserverNode {
       ref(this._element);
     }
     if (obsRef) {
-      this._deriveds.push(derivedWithStore((_reader, store) => {
-        obsRef(this);
-        store.add({
-          dispose: /* @__PURE__ */ __name(() => {
-            obsRef(null);
-          }, "dispose")
-        });
-      }));
+      this._deriveds.push(
+        derivedWithStore((_reader, store) => {
+          obsRef(this);
+          store.add({
+            dispose: /* @__PURE__ */ __name(() => {
+              obsRef(null);
+            }, "dispose")
+          });
+        })
+      );
     }
     if (className) {
       if (hasObservable(className)) {
-        this._deriveds.push(derived(this, (reader) => {
-          setClassName(this._element, getClassName(className, reader));
-        }));
+        this._deriveds.push(
+          derived(this, (reader) => {
+            setClassName(
+              this._element,
+              getClassName(className, reader)
+            );
+          })
+        );
       } else {
         setClassName(this._element, getClassName(className, void 0));
       }
@@ -82,18 +106,34 @@ class ObserverNode {
         for (const [cssKey, cssValue] of Object.entries(value)) {
           const key2 = camelCaseToHyphenCase(cssKey);
           if (isObservable(cssValue)) {
-            this._deriveds.push(derivedOpts({ owner: this, debugName: /* @__PURE__ */ __name(() => `set.style.${key2}`, "debugName") }, (reader) => {
-              this._element.style.setProperty(key2, convertCssValue(cssValue.read(reader)));
-            }));
+            this._deriveds.push(
+              derivedOpts(
+                {
+                  owner: this,
+                  debugName: /* @__PURE__ */ __name(() => `set.style.${key2}`, "debugName")
+                },
+                (reader) => {
+                  this._element.style.setProperty(
+                    key2,
+                    convertCssValue(cssValue.read(reader))
+                  );
+                }
+              )
+            );
           } else {
-            this._element.style.setProperty(key2, convertCssValue(cssValue));
+            this._element.style.setProperty(
+              key2,
+              convertCssValue(cssValue)
+            );
           }
         }
       } else if (key === "tabIndex") {
         if (isObservable(value)) {
-          this._deriveds.push(derived(this, (reader) => {
-            this._element.tabIndex = value.read(reader);
-          }));
+          this._deriveds.push(
+            derived(this, (reader) => {
+              this._element.tabIndex = value.read(reader);
+            })
+          );
         } else {
           this._element.tabIndex = value;
         }
@@ -101,9 +141,18 @@ class ObserverNode {
         this._element[key] = value;
       } else {
         if (isObservable(value)) {
-          this._deriveds.push(derivedOpts({ owner: this, debugName: /* @__PURE__ */ __name(() => `set.${key}`, "debugName") }, (reader) => {
-            setOrRemoveAttribute(this._element, key, value.read(reader));
-          }));
+          this._deriveds.push(
+            derivedOpts(
+              { owner: this, debugName: /* @__PURE__ */ __name(() => `set.${key}`, "debugName") },
+              (reader) => {
+                setOrRemoveAttribute(
+                  this._element,
+                  key,
+                  value.read(reader)
+                );
+              }
+            )
+          );
         } else {
           setOrRemoveAttribute(this._element, key, value);
         }
@@ -152,7 +201,7 @@ class ObserverNode {
   }
   /**
    * Creates a live element that will keep the element updated as long as the returned object is not disposed.
-  */
+   */
   toDisposableLiveElement() {
     const store = new DisposableStore();
     this.keepUpdated(store);
@@ -188,7 +237,7 @@ function getClassName(className, reader) {
       if (result.length === 0) {
         result = val;
       } else {
-        result += " " + val;
+        result += ` ${val}`;
       }
     }
   });
@@ -207,7 +256,7 @@ function hasObservable(value) {
 __name(hasObservable, "hasObservable");
 function convertCssValue(value) {
   if (typeof value === "number") {
-    return value + "px";
+    return `${value}px`;
   }
   return value;
 }
@@ -245,8 +294,14 @@ class ObserverNodeWithElement extends ObserverNode {
   get isHovered() {
     if (!this._isHovered) {
       const hovered = observableValue("hovered", false);
-      this._element.addEventListener("mouseenter", (_e) => hovered.set(true, void 0));
-      this._element.addEventListener("mouseleave", (_e) => hovered.set(false, void 0));
+      this._element.addEventListener(
+        "mouseenter",
+        (_e) => hovered.set(true, void 0)
+      );
+      this._element.addEventListener(
+        "mouseleave",
+        (_e) => hovered.set(false, void 0)
+      );
       this._isHovered = hovered;
     }
     return this._isHovered;
@@ -255,7 +310,10 @@ class ObserverNodeWithElement extends ObserverNode {
   get didMouseMoveDuringHover() {
     if (!this._didMouseMoveDuringHover) {
       let _hovering = false;
-      const hovered = observableValue("didMouseMoveDuringHover", false);
+      const hovered = observableValue(
+        "didMouseMoveDuringHover",
+        false
+      );
       this._element.addEventListener("mouseenter", (_e) => {
         _hovering = true;
       });

@@ -12,18 +12,31 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { findFirstIdxMonotonousOrArrLen } from "../../../../base/common/arraysFind.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { createSingleCallFunction } from "../../../../base/common/functional.js";
-import { Disposable, DisposableStore, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { TestingContextKeys } from "./testingContextKeys.js";
 import { ITestProfileService } from "./testProfileService.js";
-import { ITestResult, LiveTestResult, TestResultItemChange, TestResultItemChangeReason } from "./testResult.js";
+import {
+  LiveTestResult,
+  TestResultItemChangeReason
+} from "./testResult.js";
 import { ITestResultStorage, RETAIN_MAX_RESULTS } from "./testResultStorage.js";
-import { ExtensionRunTestsRequest, ITestRunProfile, ResolvedTestRunRequest, TestResultItem, TestResultState, TestRunProfileBitset } from "./testTypes.js";
+import {
+  TestResultState,
+  TestRunProfileBitset
+} from "./testTypes.js";
 const isRunningTests = /* @__PURE__ */ __name((service) => service.results.length > 0 && service.results[0].completedAt === void 0, "isRunningTests");
 const ITestResultService = createDecorator("testResultService");
 let TestResultService = class extends Disposable {
@@ -39,10 +52,14 @@ let TestResultService = class extends Disposable {
   static {
     __name(this, "TestResultService");
   }
-  changeResultEmitter = this._register(new Emitter());
+  changeResultEmitter = this._register(
+    new Emitter()
+  );
   _results = [];
   _resultsDisposables = [];
-  testChangeEmitter = this._register(new Emitter());
+  testChangeEmitter = this._register(
+    new Emitter()
+  );
   insertOrderCounter = 0;
   /**
    * @inheritdoc
@@ -61,12 +78,17 @@ let TestResultService = class extends Disposable {
   onTestChanged = this.testChangeEmitter.event;
   isRunning;
   hasAnyResults;
-  loadResults = createSingleCallFunction(() => this.storage.read().then((loaded) => {
-    for (let i = loaded.length - 1; i >= 0; i--) {
-      this.push(loaded[i]);
-    }
-  }));
-  persistScheduler = new RunOnceScheduler(() => this.persistImmediately(), 500);
+  loadResults = createSingleCallFunction(
+    () => this.storage.read().then((loaded) => {
+      for (let i = loaded.length - 1; i >= 0; i--) {
+        this.push(loaded[i]);
+      }
+    })
+  );
+  persistScheduler = new RunOnceScheduler(
+    () => this.persistImmediately(),
+    500
+  );
   /**
    * @inheritdoc
    */
@@ -85,12 +107,22 @@ let TestResultService = class extends Disposable {
   createLiveResult(req) {
     if ("targets" in req) {
       const id = generateUuid();
-      return this.push(new LiveTestResult(id, true, req, this.insertOrderCounter++, this.telemetryService));
+      return this.push(
+        new LiveTestResult(
+          id,
+          true,
+          req,
+          this.insertOrderCounter++,
+          this.telemetryService
+        )
+      );
     }
     let profile;
     if (req.profile) {
-      const profiles = this.testProfiles.getControllerProfiles(req.controllerId);
-      profile = profiles.find((c) => c.profileId === req.profile.id);
+      const profiles = this.testProfiles.getControllerProfiles(
+        req.controllerId
+      );
+      profile = profiles.find((c) => c.profileId === req.profile?.id);
     }
     const resolved = {
       preserveFocus: req.preserveFocus,
@@ -106,7 +138,15 @@ let TestResultService = class extends Disposable {
         testIds: req.include
       });
     }
-    return this.push(new LiveTestResult(req.id, req.persist, resolved, this.insertOrderCounter++, this.telemetryService));
+    return this.push(
+      new LiveTestResult(
+        req.id,
+        req.persist,
+        resolved,
+        this.insertOrderCounter++,
+        this.telemetryService
+      )
+    );
   }
   /**
    * @inheritdoc
@@ -115,7 +155,10 @@ let TestResultService = class extends Disposable {
     if (result.completedAt === void 0) {
       this.results.unshift(result);
     } else {
-      const index = findFirstIdxMonotonousOrArrLen(this.results, (r) => r.completedAt !== void 0 && r.completedAt <= result.completedAt);
+      const index = findFirstIdxMonotonousOrArrLen(
+        this.results,
+        (r) => r.completedAt !== void 0 && r.completedAt <= result.completedAt
+      );
       this.results.splice(index, 0, result);
       this.persistScheduler.schedule();
     }
@@ -129,7 +172,12 @@ let TestResultService = class extends Disposable {
     if (result instanceof LiveTestResult) {
       ds.add(result);
       ds.add(result.onComplete(() => this.onComplete(result)));
-      ds.add(result.onChange(this.testChangeEmitter.fire, this.testChangeEmitter));
+      ds.add(
+        result.onChange(
+          this.testChangeEmitter.fire,
+          this.testChangeEmitter
+        )
+      );
       this.isRunning.set(true);
       this.changeResultEmitter.fire({ started: result });
     } else {
@@ -137,7 +185,11 @@ let TestResultService = class extends Disposable {
       for (const item of result.tests) {
         for (const otherResult of this.results) {
           if (otherResult === result) {
-            this.testChangeEmitter.fire({ item, result, reason: TestResultItemChangeReason.ComputedStateChange });
+            this.testChangeEmitter.fire({
+              item,
+              result,
+              reason: TestResultItemChangeReason.ComputedStateChange
+            });
             break;
           } else if (otherResult.getStateById(item.item.extId) !== void 0) {
             break;

@@ -11,19 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as performance from "../../../base/common/performance.js";
-import { URI } from "../../../base/common/uri.js";
-import { MainThreadTelemetryShape, MainContext } from "./extHost.protocol.js";
-import { ExtHostConfigProvider, IExtHostConfiguration } from "./extHostConfiguration.js";
-import { nullExtensionDescription } from "../../services/extensions/common/extensions.js";
-import * as vscode from "vscode";
-import { ExtensionIdentifierMap } from "../../../platform/extensions/common/extensions.js";
-import { IExtensionApiFactory, IExtensionRegistries } from "./extHost.api.impl.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { ExtensionPaths, IExtHostExtensionService } from "./extHostExtensionService.js";
-import { ILogService } from "../../../platform/log/common/log.js";
 import { escapeRegExpCharacters } from "../../../base/common/strings.js";
+import { URI } from "../../../base/common/uri.js";
+import { ExtensionIdentifierMap } from "../../../platform/extensions/common/extensions.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import { nullExtensionDescription } from "../../services/extensions/common/extensions.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
+import {
+  IExtHostConfiguration
+} from "./extHostConfiguration.js";
+import {
+  IExtHostExtensionService
+} from "./extHostExtensionService.js";
+import { IExtHostInitDataService } from "./extHostInitDataService.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 let RequireInterceptor = class {
   constructor(_apiFactory, _extensionRegistry, _instaService, _extHostConfiguration, _extHostExtensionService, _initData, _logService) {
     this._apiFactory = _apiFactory;
@@ -47,10 +51,26 @@ let RequireInterceptor = class {
     const configProvider = await this._extHostConfiguration.getConfigProvider();
     performance.mark("code/extHost/didWaitForConfig");
     const extensionPaths = await this._extHostExtensionService.getExtensionPathIndex();
-    this.register(new VSCodeNodeModuleFactory(this._apiFactory, extensionPaths, this._extensionRegistry, configProvider, this._logService));
-    this.register(this._instaService.createInstance(NodeModuleAliasingModuleFactory));
+    this.register(
+      new VSCodeNodeModuleFactory(
+        this._apiFactory,
+        extensionPaths,
+        this._extensionRegistry,
+        configProvider,
+        this._logService
+      )
+    );
+    this.register(
+      this._instaService.createInstance(NodeModuleAliasingModuleFactory)
+    );
     if (this._initData.remote.isRemote) {
-      this.register(this._instaService.createInstance(OpenNodeModuleFactory, extensionPaths, this._initData.environment.appUriScheme));
+      this.register(
+        this._instaService.createInstance(
+          OpenNodeModuleFactory,
+          extensionPaths,
+          this._initData.environment.appUriScheme
+        )
+      );
     }
   }
   register(interceptor) {
@@ -65,7 +85,7 @@ let RequireInterceptor = class {
     }
     if (typeof interceptor.alternativeModuleName === "function") {
       this._alternatives.push((moduleName) => {
-        return interceptor.alternativeModuleName(moduleName);
+        return interceptor.alternativeModuleName?.(moduleName);
       });
     }
   }
@@ -92,11 +112,16 @@ let NodeModuleAliasingModuleFactory = class {
   re;
   constructor(initData) {
     if (initData.environment.appRoot && NodeModuleAliasingModuleFactory.aliased.size) {
-      const root = escapeRegExpCharacters(this.forceForwardSlashes(initData.environment.appRoot.fsPath));
-      const npmIdChrs = `[a-z0-9_.-]`;
+      const root = escapeRegExpCharacters(
+        this.forceForwardSlashes(initData.environment.appRoot.fsPath)
+      );
+      const npmIdChrs = "[a-z0-9_.-]";
       const npmModuleName = `@${npmIdChrs}+\\/${npmIdChrs}+|${npmIdChrs}+`;
       const moduleFolders = "node_modules|node_modules\\.asar(?:\\.unpacked)?";
-      this.re = new RegExp(`^(${root}/${moduleFolders}\\/)(${npmModuleName})(.*)$`, "i");
+      this.re = new RegExp(
+        `^(${root}/${moduleFolders}\\/)(${npmModuleName})(.*)$`,
+        "i"
+      );
     }
   }
   alternativeModuleName(name) {
@@ -112,7 +137,9 @@ let NodeModuleAliasingModuleFactory = class {
     if (dealiased === void 0) {
       return;
     }
-    console.warn(`${moduleName} as been renamed to ${dealiased}, please update your imports`);
+    console.warn(
+      `${moduleName} as been renamed to ${dealiased}, please update your imports`
+    );
     return prefix + dealiased + suffix;
   }
   forceForwardSlashes(str) {
@@ -141,18 +168,30 @@ class VSCodeNodeModuleFactory {
     if (ext) {
       let apiImpl = this._extApiImpl.get(ext.identifier);
       if (!apiImpl) {
-        apiImpl = this._apiFactory(ext, this._extensionRegistry, this._configProvider);
+        apiImpl = this._apiFactory(
+          ext,
+          this._extensionRegistry,
+          this._configProvider
+        );
         this._extApiImpl.set(ext.identifier, apiImpl);
       }
       return apiImpl;
     }
     if (!this._defaultApiImpl) {
       let extensionPathsPretty = "";
-      this._extensionPaths.forEach((value, index) => extensionPathsPretty += `	${index} -> ${value.identifier.value}
-`);
-      this._logService.warn(`Could not identify extension for 'vscode' require call from ${parent}. These are the extension path mappings: 
-${extensionPathsPretty}`);
-      this._defaultApiImpl = this._apiFactory(nullExtensionDescription, this._extensionRegistry, this._configProvider);
+      this._extensionPaths.forEach(
+        (value, index) => extensionPathsPretty += `	${index} -> ${value.identifier.value}
+`
+      );
+      this._logService.warn(
+        `Could not identify extension for 'vscode' require call from ${parent}. These are the extension path mappings: 
+${extensionPathsPretty}`
+      );
+      this._defaultApiImpl = this._apiFactory(
+        nullExtensionDescription,
+        this._extensionRegistry,
+        this._configProvider
+      );
     }
     return this._defaultApiImpl;
   }
@@ -161,15 +200,21 @@ let OpenNodeModuleFactory = class {
   constructor(_extensionPaths, _appUriScheme, rpcService) {
     this._extensionPaths = _extensionPaths;
     this._appUriScheme = _appUriScheme;
-    this._mainThreadTelemetry = rpcService.getProxy(MainContext.MainThreadTelemetry);
-    const mainThreadWindow = rpcService.getProxy(MainContext.MainThreadWindow);
+    this._mainThreadTelemetry = rpcService.getProxy(
+      MainContext.MainThreadTelemetry
+    );
+    const mainThreadWindow = rpcService.getProxy(
+      MainContext.MainThreadWindow
+    );
     this._impl = (target, options) => {
       const uri = URI.parse(target);
       if (options) {
         return this.callOriginal(target, options);
       }
       if (uri.scheme === "http" || uri.scheme === "https") {
-        return mainThreadWindow.$openUri(uri, target, { allowTunneling: true });
+        return mainThreadWindow.$openUri(uri, target, {
+          allowTunneling: true
+        });
       } else if (uri.scheme === "mailto" || uri.scheme === this._appUriScheme) {
         return mainThreadWindow.$openUri(uri, target, {});
       }
@@ -195,7 +240,7 @@ let OpenNodeModuleFactory = class {
   }
   callOriginal(target, options) {
     this.sendNoForwardTelemetry();
-    return this._original(target, options);
+    return this._original?.(target, options);
   }
   sendShimmingTelemetry() {
     if (!this._extensionId) {

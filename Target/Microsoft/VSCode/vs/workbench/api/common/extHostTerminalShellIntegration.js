@@ -10,27 +10,42 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { TerminalShellExecutionCommandLineConfidence } from "./extHostTypes.js";
-import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  AsyncIterableObject,
+  Barrier
+} from "../../../base/common/async.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { MainContext } from "./extHost.protocol.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
 import { IExtHostTerminalService } from "./extHostTerminalService.js";
-import { Emitter } from "../../../base/common/event.js";
-import { URI } from "../../../base/common/uri.js";
-import { AsyncIterableObject, Barrier } from "../../../base/common/async.js";
-const IExtHostTerminalShellIntegration = createDecorator("IExtHostTerminalShellIntegration");
+import { TerminalShellExecutionCommandLineConfidence } from "./extHostTypes.js";
+const IExtHostTerminalShellIntegration = createDecorator(
+  "IExtHostTerminalShellIntegration"
+);
 let ExtHostTerminalShellIntegration = class extends Disposable {
   constructor(extHostRpc, _extHostTerminalService) {
     super();
     this._extHostTerminalService = _extHostTerminalService;
-    this._proxy = extHostRpc.getProxy(MainContext.MainThreadTerminalShellIntegration);
-    this._register(toDisposable(() => {
-      for (const [_, integration] of this._activeShellIntegrations) {
-        integration.dispose();
-      }
-      this._activeShellIntegrations.clear();
-    }));
+    this._proxy = extHostRpc.getProxy(
+      MainContext.MainThreadTerminalShellIntegration
+    );
+    this._register(
+      toDisposable(() => {
+        for (const [_, integration] of this._activeShellIntegrations) {
+          integration.dispose();
+        }
+        this._activeShellIntegrations.clear();
+      })
+    );
   }
   static {
     __name(this, "ExtHostTerminalShellIntegration");
@@ -52,12 +67,31 @@ let ExtHostTerminalShellIntegration = class extends Disposable {
     const apiTerminal = terminal.value;
     let shellIntegration = this._activeShellIntegrations.get(instanceId);
     if (!shellIntegration) {
-      shellIntegration = new InternalTerminalShellIntegration(terminal.value, this._onDidStartTerminalShellExecution);
+      shellIntegration = new InternalTerminalShellIntegration(
+        terminal.value,
+        this._onDidStartTerminalShellExecution
+      );
       this._activeShellIntegrations.set(instanceId, shellIntegration);
-      shellIntegration.store.add(terminal.onWillDispose(() => this._activeShellIntegrations.get(instanceId)?.dispose()));
-      shellIntegration.store.add(shellIntegration.onDidRequestShellExecution((commandLine) => this._proxy.$executeCommand(instanceId, commandLine)));
-      shellIntegration.store.add(shellIntegration.onDidRequestEndExecution((e) => this._onDidEndTerminalShellExecution.fire(e)));
-      shellIntegration.store.add(shellIntegration.onDidRequestChangeShellIntegration((e) => this._onDidChangeTerminalShellIntegration.fire(e)));
+      shellIntegration.store.add(
+        terminal.onWillDispose(
+          () => this._activeShellIntegrations.get(instanceId)?.dispose()
+        )
+      );
+      shellIntegration.store.add(
+        shellIntegration.onDidRequestShellExecution(
+          (commandLine) => this._proxy.$executeCommand(instanceId, commandLine)
+        )
+      );
+      shellIntegration.store.add(
+        shellIntegration.onDidRequestEndExecution(
+          (e) => this._onDidEndTerminalShellExecution.fire(e)
+        )
+      );
+      shellIntegration.store.add(
+        shellIntegration.onDidRequestChangeShellIntegration(
+          (e) => this._onDidChangeTerminalShellIntegration.fire(e)
+        )
+      );
       terminal.shellIntegration = shellIntegration.value;
     }
     this._onDidChangeTerminalShellIntegration.fire({
@@ -141,7 +175,10 @@ class InternalTerminalShellIntegration extends Disposable {
           confidence: TerminalShellExecutionCommandLineConfidence.High,
           isTrusted: true
         };
-        const execution = that.requestNewShellExecution(commandLine, that._cwd).value;
+        const execution = that.requestNewShellExecution(
+          commandLine,
+          that._cwd
+        ).value;
         return execution;
       }
     };
@@ -160,21 +197,36 @@ class InternalTerminalShellIntegration extends Disposable {
   _cwd;
   store = this._register(new DisposableStore());
   value;
-  _onDidRequestChangeShellIntegration = this._register(new Emitter());
+  _onDidRequestChangeShellIntegration = this._register(
+    new Emitter()
+  );
   onDidRequestChangeShellIntegration = this._onDidRequestChangeShellIntegration.event;
-  _onDidRequestShellExecution = this._register(new Emitter());
+  _onDidRequestShellExecution = this._register(
+    new Emitter()
+  );
   onDidRequestShellExecution = this._onDidRequestShellExecution.event;
-  _onDidRequestEndExecution = this._register(new Emitter());
+  _onDidRequestEndExecution = this._register(
+    new Emitter()
+  );
   onDidRequestEndExecution = this._onDidRequestEndExecution.event;
-  _onDidRequestNewExecution = this._register(new Emitter());
+  _onDidRequestNewExecution = this._register(
+    new Emitter()
+  );
   onDidRequestNewExecution = this._onDidRequestNewExecution.event;
   requestNewShellExecution(commandLine, cwd) {
-    const execution = new InternalTerminalShellExecution(commandLine, cwd ?? this._cwd);
-    const unresolvedCommandLines = splitAndSanitizeCommandLine(commandLine.value);
+    const execution = new InternalTerminalShellExecution(
+      commandLine,
+      cwd ?? this._cwd
+    );
+    const unresolvedCommandLines = splitAndSanitizeCommandLine(
+      commandLine.value
+    );
     if (unresolvedCommandLines.length > 1) {
       this._currentExecutionProperties = {
         isMultiLine: true,
-        unresolvedCommandLines: splitAndSanitizeCommandLine(commandLine.value)
+        unresolvedCommandLines: splitAndSanitizeCommandLine(
+          commandLine.value
+        )
       };
     }
     this._pendingExecutions.push(execution);
@@ -183,12 +235,20 @@ class InternalTerminalShellIntegration extends Disposable {
   }
   startShellExecution(commandLine, cwd) {
     if (this._pendingEndingExecution) {
-      this._onDidRequestEndExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: this._pendingEndingExecution.value, exitCode: void 0 });
+      this._onDidRequestEndExecution.fire({
+        terminal: this._terminal,
+        shellIntegration: this.value,
+        execution: this._pendingEndingExecution.value,
+        exitCode: void 0
+      });
       this._pendingEndingExecution = void 0;
     }
     if (this._currentExecution) {
       if (this._currentExecutionProperties?.isMultiLine && this._currentExecutionProperties.unresolvedCommandLines) {
-        const subExecutionResult = isSubExecution(this._currentExecutionProperties.unresolvedCommandLines, commandLine);
+        const subExecutionResult = isSubExecution(
+          this._currentExecutionProperties.unresolvedCommandLines,
+          commandLine
+        );
         if (subExecutionResult) {
           this._currentExecutionProperties.unresolvedCommandLines = subExecutionResult.unresolvedCommandLines;
           return;
@@ -196,7 +256,12 @@ class InternalTerminalShellIntegration extends Disposable {
       }
       this._currentExecution.endExecution(void 0);
       this._currentExecution.flush();
-      this._onDidRequestEndExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: this._currentExecution.value, exitCode: void 0 });
+      this._onDidRequestEndExecution.fire({
+        terminal: this._terminal,
+        shellIntegration: this.value,
+        execution: this._currentExecution.value,
+        exitCode: void 0
+      });
     }
     let currentExecution;
     if (commandLine.confidence === TerminalShellExecutionCommandLineConfidence.High) {
@@ -211,7 +276,12 @@ class InternalTerminalShellIntegration extends Disposable {
           this._pendingExecutions.splice(i, 1);
           break;
         } else {
-          const subExecutionResult = isSubExecution(splitAndSanitizeCommandLine(execution.value.commandLine.value), commandLine);
+          const subExecutionResult = isSubExecution(
+            splitAndSanitizeCommandLine(
+              execution.value.commandLine.value
+            ),
+            commandLine
+          );
           if (subExecutionResult) {
             this._currentExecutionProperties = {
               isMultiLine: true,
@@ -227,10 +297,17 @@ class InternalTerminalShellIntegration extends Disposable {
       currentExecution = this._pendingExecutions.shift();
     }
     if (!currentExecution) {
-      currentExecution = new InternalTerminalShellExecution(commandLine, cwd ?? this._cwd);
+      currentExecution = new InternalTerminalShellExecution(
+        commandLine,
+        cwd ?? this._cwd
+      );
     }
     this._currentExecution = currentExecution;
-    this._onDidStartTerminalShellExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: this._currentExecution.value });
+    this._onDidStartTerminalShellExecution.fire({
+      terminal: this._terminal,
+      shellIntegration: this.value,
+      execution: this._currentExecution.value
+    });
   }
   emitData(data) {
     this.currentExecution?.emitData(data);
@@ -249,7 +326,12 @@ class InternalTerminalShellIntegration extends Disposable {
       this._currentExecution = void 0;
       currentExecution.flush().then(() => {
         if (this._pendingEndingExecution === currentExecution) {
-          this._onDidRequestEndExecution.fire({ terminal: this._terminal, shellIntegration: this.value, execution: currentExecution.value, exitCode });
+          this._onDidRequestEndExecution.fire({
+            terminal: this._terminal,
+            shellIntegration: this.value,
+            execution: currentExecution.value,
+            exitCode
+          });
           this._pendingEndingExecution = void 0;
         }
       });
@@ -276,7 +358,10 @@ class InternalTerminalShellIntegration extends Disposable {
     }
   }
   _fireChangeEvent() {
-    this._onDidRequestChangeShellIntegration.fire({ terminal: this._terminal, shellIntegration: this.value });
+    this._onDidRequestChangeShellIntegration.fire({
+      terminal: this._terminal,
+      shellIntegration: this.value
+    });
   }
 }
 class InternalTerminalShellExecution {

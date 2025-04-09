@@ -11,14 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Event } from "../../../../../base/common/event.js";
-import { Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import { TerminalInstance, TerminalInstanceColorProvider } from "../../../terminal/browser/terminalInstance.js";
+import {
+  TerminalInstance,
+  TerminalInstanceColorProvider
+} from "../../../terminal/browser/terminalInstance.js";
 import { TerminalStickyScrollSettingId } from "../common/terminalStickyScrollConfiguration.js";
 import "./media/stickyScroll.css";
 import { TerminalStickyScrollOverlay } from "./terminalStickyScrollOverlay.js";
@@ -30,23 +35,36 @@ let TerminalStickyScrollContribution = class extends Disposable {
     this._contextKeyService = _contextKeyService;
     this._instantiationService = _instantiationService;
     this._keybindingService = _keybindingService;
-    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TerminalStickyScrollSettingId.Enabled)) {
-        this._refreshState();
-      }
-    }));
+    this._register(
+      Event.runAndSubscribe(
+        this._configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(
+            TerminalStickyScrollSettingId.Enabled
+          )) {
+            this._refreshState();
+          }
+        }
+      )
+    );
   }
   static {
     __name(this, "TerminalStickyScrollContribution");
   }
   static ID = "terminal.stickyScroll";
   static get(instance) {
-    return instance.getContribution(TerminalStickyScrollContribution.ID);
+    return instance.getContribution(
+      TerminalStickyScrollContribution.ID
+    );
   }
   _xterm;
-  _overlay = this._register(new MutableDisposable());
+  _overlay = this._register(
+    new MutableDisposable()
+  );
   _enableListeners = this._register(new MutableDisposable());
-  _disableListeners = this._register(new MutableDisposable());
+  _disableListeners = this._register(
+    new MutableDisposable()
+  );
   xtermReady(xterm) {
     this._xterm = xterm;
     this._refreshState();
@@ -69,11 +87,13 @@ let TerminalStickyScrollContribution = class extends Disposable {
     if (this._overlay.value) {
       this._enableListeners.clear();
       if (!this._disableListeners.value) {
-        this._disableListeners.value = this._ctx.instance.capabilities.onDidRemoveCapability((e) => {
-          if (e.id === TerminalCapability.CommandDetection) {
-            this._refreshState();
+        this._disableListeners.value = this._ctx.instance.capabilities.onDidRemoveCapability(
+          (e) => {
+            if (e.id === TerminalCapability.CommandDetection) {
+              this._refreshState();
+            }
           }
-        });
+        );
       }
     } else {
       this._disableListeners.clear();
@@ -88,13 +108,21 @@ let TerminalStickyScrollContribution = class extends Disposable {
   }
   _tryEnable() {
     if (this._shouldBeEnabled()) {
-      const xtermCtorEventually = TerminalInstance.getXtermConstructor(this._keybindingService, this._contextKeyService);
+      const xtermCtorEventually = TerminalInstance.getXtermConstructor(
+        this._keybindingService,
+        this._contextKeyService
+      );
       this._overlay.value = this._instantiationService.createInstance(
         TerminalStickyScrollOverlay,
         this._ctx.instance,
         this._xterm,
-        this._instantiationService.createInstance(TerminalInstanceColorProvider, this._ctx.instance.targetRef),
-        this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection),
+        this._instantiationService.createInstance(
+          TerminalInstanceColorProvider,
+          this._ctx.instance.targetRef
+        ),
+        this._ctx.instance.capabilities.get(
+          TerminalCapability.CommandDetection
+        ),
         xtermCtorEventually
       );
     }
@@ -105,8 +133,12 @@ let TerminalStickyScrollContribution = class extends Disposable {
     }
   }
   _shouldBeEnabled() {
-    const capability = this._ctx.instance.capabilities.get(TerminalCapability.CommandDetection);
-    return !!(this._configurationService.getValue(TerminalStickyScrollSettingId.Enabled) && capability && this._xterm?.raw?.element);
+    const capability = this._ctx.instance.capabilities.get(
+      TerminalCapability.CommandDetection
+    );
+    return !!(this._configurationService.getValue(
+      TerminalStickyScrollSettingId.Enabled
+    ) && capability && this._xterm?.raw?.element);
   }
 };
 TerminalStickyScrollContribution = __decorateClass([

@@ -118,11 +118,13 @@ function _parse(content, filename, locationKeyName) {
   }
   __name(popState, "popState");
   function fail(msg) {
-    throw new Error("Near offset " + pos + ": " + msg + " ~~~" + content.substr(pos, 50) + "~~~");
+    throw new Error(
+      `Near offset ${pos}: ${msg} ~~~${content.substr(pos, 50)}~~~`
+    );
   }
   __name(fail, "fail");
   const dictState = {
-    enterDict: /* @__PURE__ */ __name(function() {
+    enterDict: /* @__PURE__ */ __name(() => {
       if (curKey === null) {
         return fail("missing <key>");
       }
@@ -138,7 +140,7 @@ function _parse(content, filename, locationKeyName) {
       curKey = null;
       pushState(1 /* DICT_STATE */, newDict);
     }, "enterDict"),
-    enterArray: /* @__PURE__ */ __name(function() {
+    enterArray: /* @__PURE__ */ __name(() => {
       if (curKey === null) {
         return fail("missing <key>");
       }
@@ -149,7 +151,7 @@ function _parse(content, filename, locationKeyName) {
     }, "enterArray")
   };
   const arrState = {
-    enterDict: /* @__PURE__ */ __name(function() {
+    enterDict: /* @__PURE__ */ __name(() => {
       const newDict = {};
       if (locationKeyName !== null) {
         newDict[locationKeyName] = {
@@ -161,7 +163,7 @@ function _parse(content, filename, locationKeyName) {
       cur.push(newDict);
       pushState(1 /* DICT_STATE */, newDict);
     }, "enterDict"),
-    enterArray: /* @__PURE__ */ __name(function() {
+    enterArray: /* @__PURE__ */ __name(() => {
       const newArr = [];
       cur.push(newArr);
       pushState(2 /* ARR_STATE */, newArr);
@@ -244,7 +246,7 @@ function _parse(content, filename, locationKeyName) {
   }
   __name(acceptString, "acceptString");
   function acceptReal(val) {
-    if (isNaN(val)) {
+    if (Number.isNaN(val)) {
       return fail("cannot parse float");
     }
     if (state === 1 /* DICT_STATE */) {
@@ -261,7 +263,7 @@ function _parse(content, filename, locationKeyName) {
   }
   __name(acceptReal, "acceptReal");
   function acceptInteger(val) {
-    if (isNaN(val)) {
+    if (Number.isNaN(val)) {
       return fail("cannot parse integer");
     }
     if (state === 1 /* DICT_STATE */) {
@@ -320,11 +322,13 @@ function _parse(content, filename, locationKeyName) {
   }
   __name(acceptBool, "acceptBool");
   function escapeVal(str) {
-    return str.replace(/&#([0-9]+);/g, function(_, m0) {
-      return String.fromCodePoint(parseInt(m0, 10));
-    }).replace(/&#x([0-9a-f]+);/g, function(_, m0) {
-      return String.fromCodePoint(parseInt(m0, 16));
-    }).replace(/&amp;|&lt;|&gt;|&quot;|&apos;/g, function(_) {
+    return str.replace(
+      /&#([0-9]+);/g,
+      (_, m0) => String.fromCodePoint(Number.parseInt(m0, 10))
+    ).replace(
+      /&#x([0-9a-f]+);/g,
+      (_, m0) => String.fromCodePoint(Number.parseInt(m0, 16))
+    ).replace(/&amp;|&lt;|&gt;|&quot;|&apos;/g, (_) => {
       switch (_) {
         case "&amp;":
           return "&";
@@ -431,10 +435,10 @@ function _parse(content, filename, locationKeyName) {
         acceptString(parseTagValue(tag));
         continue;
       case "real":
-        acceptReal(parseFloat(parseTagValue(tag)));
+        acceptReal(Number.parseFloat(parseTagValue(tag)));
         continue;
       case "integer":
-        acceptInteger(parseInt(parseTagValue(tag), 10));
+        acceptInteger(Number.parseInt(parseTagValue(tag), 10));
         continue;
       case "date":
         acceptDate(new Date(parseTagValue(tag)));
@@ -454,7 +458,7 @@ function _parse(content, filename, locationKeyName) {
     if (/^plist/.test(tag.name)) {
       continue;
     }
-    return fail("unexpected opened tag " + tag.name);
+    return fail(`unexpected opened tag ${tag.name}`);
   }
   return cur;
 }

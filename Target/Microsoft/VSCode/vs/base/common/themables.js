@@ -19,16 +19,18 @@ var ThemeIcon;
   ThemeIcon2.iconNameExpression = "[A-Za-z0-9-]+";
   ThemeIcon2.iconModifierExpression = "~[A-Za-z]+";
   ThemeIcon2.iconNameCharacter = "[A-Za-z0-9~-]";
-  const ThemeIconIdRegex = new RegExp(`^(${ThemeIcon2.iconNameExpression})(${ThemeIcon2.iconModifierExpression})?$`);
+  const ThemeIconIdRegex = new RegExp(
+    `^(${ThemeIcon2.iconNameExpression})(${ThemeIcon2.iconModifierExpression})?$`
+  );
   function asClassNameArray(icon) {
     const match = ThemeIconIdRegex.exec(icon.id);
     if (!match) {
       return asClassNameArray(Codicon.error);
     }
     const [, id, modifier] = match;
-    const classNames = ["codicon", "codicon-" + id];
+    const classNames = ["codicon", `codicon-${id}`];
     if (modifier) {
-      classNames.push("codicon-modifier-" + modifier.substring(1));
+      classNames.push(`codicon-modifier-${modifier.substring(1)}`);
     }
     return classNames;
   }
@@ -40,7 +42,7 @@ var ThemeIcon;
   ThemeIcon2.asClassName = asClassName;
   __name(asClassName, "asClassName");
   function asCSSSelector(icon) {
-    return "." + asClassNameArray(icon).join(".");
+    return `.${asClassNameArray(icon).join(".")}`;
   }
   ThemeIcon2.asCSSSelector = asCSSSelector;
   __name(asCSSSelector, "asCSSSelector");
@@ -49,7 +51,9 @@ var ThemeIcon;
   }
   ThemeIcon2.isThemeIcon = isThemeIcon;
   __name(isThemeIcon, "isThemeIcon");
-  const _regexFromString = new RegExp(`^\\$\\((${ThemeIcon2.iconNameExpression}(?:${ThemeIcon2.iconModifierExpression})?)\\)$`);
+  const _regexFromString = new RegExp(
+    `^\\$\\((${ThemeIcon2.iconNameExpression}(?:${ThemeIcon2.iconModifierExpression})?)\\)$`
+  );
   function fromString(str) {
     const match = _regexFromString.exec(str);
     if (!match) {

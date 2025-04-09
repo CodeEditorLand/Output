@@ -10,12 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IChannel, ProxyChannel } from "../../../base/parts/ipc/common/ipc.js";
+import {
+  ProxyChannel
+} from "../../../base/parts/ipc/common/ipc.js";
 import { SyncDescriptor } from "../../instantiation/common/descriptors.js";
 import { registerSingleton } from "../../instantiation/common/extensions.js";
-import { createDecorator, IInstantiationService, ServiceIdentifier } from "../../instantiation/common/instantiation.js";
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../instantiation/common/instantiation.js";
 import { IMainProcessService } from "../common/mainProcessService.js";
-import { IRemoteService } from "../common/services.js";
 class RemoteServiceStub {
   static {
     __name(this, "RemoteServiceStub");
@@ -23,7 +27,9 @@ class RemoteServiceStub {
   constructor(channelName, options, remote, instantiationService) {
     const channel = remote.getChannel(channelName);
     if (isRemoteServiceWithChannelClientOptions(options)) {
-      return instantiationService.createInstance(new SyncDescriptor(options.channelClientCtor, [channel]));
+      return instantiationService.createInstance(
+        new SyncDescriptor(options.channelClientCtor, [channel])
+      );
     }
     return ProxyChannel.toService(channel, options?.proxyOptions);
   }
@@ -46,10 +52,19 @@ MainProcessRemoteServiceStub = __decorateClass([
   __decorateParam(3, IInstantiationService)
 ], MainProcessRemoteServiceStub);
 function registerMainProcessRemoteService(id, channelName, options) {
-  registerSingleton(id, new SyncDescriptor(MainProcessRemoteServiceStub, [channelName, options], true));
+  registerSingleton(
+    id,
+    new SyncDescriptor(
+      MainProcessRemoteServiceStub,
+      [channelName, options],
+      true
+    )
+  );
 }
 __name(registerMainProcessRemoteService, "registerMainProcessRemoteService");
-const ISharedProcessService = createDecorator("sharedProcessService");
+const ISharedProcessService = createDecorator(
+  "sharedProcessService"
+);
 let SharedProcessRemoteServiceStub = class extends RemoteServiceStub {
   static {
     __name(this, "SharedProcessRemoteServiceStub");
@@ -63,7 +78,14 @@ SharedProcessRemoteServiceStub = __decorateClass([
   __decorateParam(3, IInstantiationService)
 ], SharedProcessRemoteServiceStub);
 function registerSharedProcessRemoteService(id, channelName, options) {
-  registerSingleton(id, new SyncDescriptor(SharedProcessRemoteServiceStub, [channelName, options], true));
+  registerSingleton(
+    id,
+    new SyncDescriptor(
+      SharedProcessRemoteServiceStub,
+      [channelName, options],
+      true
+    )
+  );
 }
 __name(registerSharedProcessRemoteService, "registerSharedProcessRemoteService");
 export {

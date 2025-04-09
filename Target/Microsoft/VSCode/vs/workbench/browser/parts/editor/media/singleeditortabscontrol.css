@@ -23,7 +23,7 @@
   line-height: var(--editor-group-tab-height);
   flex: 1 50%;
   overflow: hidden;
-  margin-left: .45em;
+  margin-left: 0.45em;
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title.breadcrumbs .breadcrumbs-control.preview .monaco-breadcrumb-item {
   font-style: italic;

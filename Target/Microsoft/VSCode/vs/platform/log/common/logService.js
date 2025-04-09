@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable } from "../../../base/common/lifecycle.js";
-import { Event } from "../../../base/common/event.js";
-import { ILogger, ILogService, LogLevel, MultiplexLogger } from "./log.js";
+import {
+  MultiplexLogger
+} from "./log.js";
 class LogService extends Disposable {
   static {
     __name(this, "LogService");
@@ -11,7 +12,9 @@ class LogService extends Disposable {
   constructor(primaryLogger, otherLoggers = []) {
     super();
     this.logger = new MultiplexLogger([primaryLogger, ...otherLoggers]);
-    this._register(primaryLogger.onDidChangeLogLevel((level) => this.setLevel(level)));
+    this._register(
+      primaryLogger.onDidChangeLogLevel((level) => this.setLevel(level))
+    );
   }
   get onDidChangeLogLevel() {
     return this.logger.onDidChangeLogLevel;

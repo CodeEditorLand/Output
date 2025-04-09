@@ -9,22 +9,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import { Schemas } from "../../../../base/common/network.js";
-import { joinPath } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ExtensionKind, IEnvironmentService, IExtensionHostDebugParams } from "../../../../platform/environment/common/environment.js";
-import { IPath } from "../../../../platform/window/common/window.js";
-import { IWorkbenchEnvironmentService } from "../common/environmentService.js";
-import { IWorkbenchConstructionOptions } from "../../../browser/web.api.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
 import { memoize } from "../../../../base/common/decorators.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { parseLineAndColumnAware } from "../../../../base/common/extpath.js";
-import { LogLevelToString } from "../../../../platform/log/common/log.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { joinPath } from "../../../../base/common/resources.js";
 import { isUndefined } from "../../../../base/common/types.js";
-import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  IEnvironmentService
+} from "../../../../platform/environment/common/environment.js";
 import { EXTENSION_IDENTIFIER_WITH_LOG_REGEX } from "../../../../platform/environment/common/environmentService.js";
+import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { LogLevelToString } from "../../../../platform/log/common/log.js";
 const IBrowserWorkbenchEnvironmentService = refineServiceDecorator(IEnvironmentService);
 class BrowserWorkbenchEnvironmentService {
   constructor(workspaceId, logsHome, options, productService) {
@@ -55,7 +52,9 @@ class BrowserWorkbenchEnvironmentService {
   get logLevel() {
     const logLevelFromPayload = this.payload?.get("logLevel");
     if (logLevelFromPayload) {
-      return logLevelFromPayload.split(",").find((entry) => !EXTENSION_IDENTIFIER_WITH_LOG_REGEX.test(entry));
+      return logLevelFromPayload.split(",").find(
+        (entry) => !EXTENSION_IDENTIFIER_WITH_LOG_REGEX.test(entry)
+      );
     }
     return this.options.developmentOptions?.logLevel !== void 0 ? LogLevelToString(this.options.developmentOptions?.logLevel) : void 0;
   }
@@ -65,16 +64,23 @@ class BrowserWorkbenchEnvironmentService {
       const result = [];
       for (const entry of logLevelFromPayload.split(",")) {
         const matches = EXTENSION_IDENTIFIER_WITH_LOG_REGEX.exec(entry);
-        if (matches && matches[1] && matches[2]) {
+        if (matches?.[1] && matches[2]) {
           result.push([matches[1], matches[2]]);
         }
       }
       return result.length ? result : void 0;
     }
-    return this.options.developmentOptions?.extensionLogLevel !== void 0 ? this.options.developmentOptions?.extensionLogLevel.map(([extension, logLevel]) => [extension, LogLevelToString(logLevel)]) : void 0;
+    return this.options.developmentOptions?.extensionLogLevel !== void 0 ? this.options.developmentOptions?.extensionLogLevel.map(
+      ([extension, logLevel]) => [
+        extension,
+        LogLevelToString(logLevel)
+      ]
+    ) : void 0;
   }
   get profDurationMarkers() {
-    const profDurationMarkersFromPayload = this.payload?.get("profDurationMarkers");
+    const profDurationMarkersFromPayload = this.payload?.get(
+      "profDurationMarkers"
+    );
     if (profDurationMarkersFromPayload) {
       const result = [];
       for (const entry of profDurationMarkersFromPayload.split(",")) {
@@ -180,8 +186,16 @@ class BrowserWorkbenchEnvironmentService {
   }
   get webviewExternalEndpoint() {
     const endpoint = this.options.webviewEndpoint || this.productService.webviewContentExternalBaseUrlTemplate || "https://{{uuid}}.vscode-cdn.net/{{quality}}/{{commit}}/out/vs/workbench/contrib/webview/browser/pre/";
-    const webviewExternalEndpointCommit = this.payload?.get("webviewExternalEndpointCommit");
-    return endpoint.replace("{{commit}}", webviewExternalEndpointCommit ?? this.productService.commit ?? "ef65ac1ba57f57f2a3961bfe94aa20481caca4c6").replace("{{quality}}", (webviewExternalEndpointCommit ? "insider" : this.productService.quality) ?? "insider");
+    const webviewExternalEndpointCommit = this.payload?.get(
+      "webviewExternalEndpointCommit"
+    );
+    return endpoint.replace(
+      "{{commit}}",
+      webviewExternalEndpointCommit ?? this.productService.commit ?? "ef65ac1ba57f57f2a3961bfe94aa20481caca4c6"
+    ).replace(
+      "{{quality}}",
+      (webviewExternalEndpointCommit ? "insider" : this.productService.quality) ?? "insider"
+    );
   }
   get extensionTelemetryLogResource() {
     return joinPath(this.logsHome, "extensionTelemetry.log");
@@ -229,7 +243,9 @@ class BrowserWorkbenchEnvironmentService {
             if (!extensionHostDebugEnvironment.extensionDevelopmentLocationURI) {
               extensionHostDebugEnvironment.extensionDevelopmentLocationURI = [];
             }
-            extensionHostDebugEnvironment.extensionDevelopmentLocationURI.push(URI.parse(value));
+            extensionHostDebugEnvironment.extensionDevelopmentLocationURI.push(
+              URI.parse(value)
+            );
             extensionHostDebugEnvironment.isExtensionDevelopment = true;
             break;
           case "extensionDevelopmentKind":
@@ -245,11 +261,11 @@ class BrowserWorkbenchEnvironmentService {
             extensionHostDebugEnvironment.params.debugId = value;
             break;
           case "inspect-brk-extensions":
-            extensionHostDebugEnvironment.params.port = parseInt(value);
+            extensionHostDebugEnvironment.params.port = Number.parseInt(value);
             extensionHostDebugEnvironment.params.break = true;
             break;
           case "inspect-extensions":
-            extensionHostDebugEnvironment.params.port = parseInt(value);
+            extensionHostDebugEnvironment.params.port = Number.parseInt(value);
             break;
           case "enableProposedApi":
             extensionHostDebugEnvironment.extensionEnabledProposedApi = [];
@@ -275,13 +291,22 @@ class BrowserWorkbenchEnvironmentService {
       if (fileToOpen) {
         const fileUri = URI.parse(fileToOpen);
         if (this.payload.has("gotoLineMode")) {
-          const pathColumnAware = parseLineAndColumnAware(fileUri.path);
-          return [{
-            fileUri: fileUri.with({ path: pathColumnAware.path }),
-            options: {
-              selection: !isUndefined(pathColumnAware.line) ? { startLineNumber: pathColumnAware.line, startColumn: pathColumnAware.column || 1 } : void 0
+          const pathColumnAware = parseLineAndColumnAware(
+            fileUri.path
+          );
+          return [
+            {
+              fileUri: fileUri.with({
+                path: pathColumnAware.path
+              }),
+              options: {
+                selection: !isUndefined(pathColumnAware.line) ? {
+                  startLineNumber: pathColumnAware.line,
+                  startColumn: pathColumnAware.column || 1
+                } : void 0
+              }
             }
-          }];
+          ];
         }
         return [{ fileUri }];
       }

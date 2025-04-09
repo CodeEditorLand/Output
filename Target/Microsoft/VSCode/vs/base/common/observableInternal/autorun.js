@@ -1,10 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IObservable, IObservableWithChange, IObserver, IReader } from "./base.js";
-import { DebugNameData, IDebugNameData } from "./debugName.js";
-import { assertFn, BugIndicatingError, DisposableStore, IDisposable, markAsDisposed, onBugIndicatingError, toDisposable, trackDisposable } from "./commonFacade/deps.js";
+import {
+  assertFn,
+  BugIndicatingError,
+  DisposableStore,
+  markAsDisposed,
+  onBugIndicatingError,
+  toDisposable,
+  trackDisposable
+} from "./commonFacade/deps.js";
+import { DebugNameData } from "./debugName.js";
 import { getLogger } from "./logging/logging.js";
-import { IChangeTracker } from "./changeTracker.js";
 function autorun(fn) {
   return new AutorunObserver(
     new DebugNameData(void 0, void 0, fn),
@@ -15,7 +21,11 @@ function autorun(fn) {
 __name(autorun, "autorun");
 function autorunOpts(options, fn) {
   return new AutorunObserver(
-    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? fn),
+    new DebugNameData(
+      options.owner,
+      options.debugName,
+      options.debugReferenceFn ?? fn
+    ),
     fn,
     void 0
   );
@@ -23,7 +33,11 @@ function autorunOpts(options, fn) {
 __name(autorunOpts, "autorunOpts");
 function autorunHandleChanges(options, fn) {
   return new AutorunObserver(
-    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn ?? fn),
+    new DebugNameData(
+      options.owner,
+      options.debugName,
+      options.debugReferenceFn ?? fn
+    ),
     fn,
     options.changeTracker
   );
@@ -96,7 +110,10 @@ function autorunIterableDelta(getValue, handler, getUniqueIdentifier = (v) => v)
       lastValues.delete(id);
     }
     if (newValues.size || removedValues.size) {
-      handler({ addedValues: [...newValues.values()], removedValues: [...removedValues.values()] });
+      handler({
+        addedValues: [...newValues.values()],
+        removedValues: [...removedValues.values()]
+      });
     }
   });
 }
@@ -152,7 +169,9 @@ class AutorunObserver {
           this._isRunning = true;
           if (this._changeTracker) {
             this._changeTracker.beforeUpdate?.(this, changeSummary);
-            this._changeSummary = this._changeTracker.createChangeSummary(changeSummary);
+            this._changeSummary = this._changeTracker.createChangeSummary(
+              changeSummary
+            );
           }
           this._runFn(this, changeSummary);
         } catch (e) {
@@ -211,13 +230,20 @@ class AutorunObserver {
   }
   handleChange(observable, change) {
     if (this._isDependency(observable)) {
-      getLogger()?.handleAutorunDependencyChanged(this, observable, change);
+      getLogger()?.handleAutorunDependencyChanged(
+        this,
+        observable,
+        change
+      );
       try {
-        const shouldReact = this._changeTracker ? this._changeTracker.handleChange({
-          changedObservable: observable,
-          change,
-          didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
-        }, this._changeSummary) : true;
+        const shouldReact = this._changeTracker ? this._changeTracker.handleChange(
+          {
+            changedObservable: observable,
+            change,
+            didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
+          },
+          this._changeSummary
+        ) : true;
         if (shouldReact) {
           this._state = 2 /* stale */;
         }
@@ -232,7 +258,9 @@ class AutorunObserver {
   // IReader implementation
   readObservable(observable) {
     if (!this._isRunning) {
-      throw new BugIndicatingError("The reader object cannot be used outside its compute function!");
+      throw new BugIndicatingError(
+        "The reader object cannot be used outside its compute function!"
+      );
     }
     if (this._disposed) {
       return observable.get();

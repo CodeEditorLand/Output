@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { networkInterfaces } from "os";
+import { networkInterfaces } from "node:os";
 const invalidMacAddresses = /* @__PURE__ */ new Set([
   "00:00:00:00:00:00",
   "ff:ff:ff:ff:ff:ff",

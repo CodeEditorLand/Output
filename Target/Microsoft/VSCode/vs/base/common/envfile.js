@@ -19,7 +19,10 @@ function parseEnvFile(src) {
     if (line.startsWith("export ")) {
       line = line.substring(7).trim();
     }
-    const separatorIndex = findIndexOutsideQuotes(line, (c) => c === "=" || c === ":");
+    const separatorIndex = findIndexOutsideQuotes(
+      line,
+      (c) => c === "=" || c === ":"
+    );
     if (separatorIndex === -1) {
       return [null, null];
     }

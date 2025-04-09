@@ -57,11 +57,26 @@ class DebugEditContext {
   characterBounds() {
     return this._editContext.characterBounds();
   }
-  _ontextupdateWrapper = new EventListenerWrapper("textupdate", this);
-  _ontextformatupdateWrapper = new EventListenerWrapper("textformatupdate", this);
-  _oncharacterboundsupdateWrapper = new EventListenerWrapper("characterboundsupdate", this);
-  _oncompositionstartWrapper = new EventListenerWrapper("compositionstart", this);
-  _oncompositionendWrapper = new EventListenerWrapper("compositionend", this);
+  _ontextupdateWrapper = new EventListenerWrapper(
+    "textupdate",
+    this
+  );
+  _ontextformatupdateWrapper = new EventListenerWrapper(
+    "textformatupdate",
+    this
+  );
+  _oncharacterboundsupdateWrapper = new EventListenerWrapper(
+    "characterboundsupdate",
+    this
+  );
+  _oncompositionstartWrapper = new EventListenerWrapper(
+    "compositionstart",
+    this
+  );
+  _oncompositionendWrapper = new EventListenerWrapper(
+    "compositionend",
+    this
+  );
   get ontextupdate() {
     return this._ontextupdateWrapper.eventHandler;
   }
@@ -142,17 +157,29 @@ class DebugEditContext {
       return;
     }
     if (this._controlBounds) {
-      this._disposables.push(createRect(this._controlBounds, COLOR_FOR_CONTROL_BOUNDS));
+      this._disposables.push(
+        createRect(this._controlBounds, COLOR_FOR_CONTROL_BOUNDS)
+      );
     }
     if (this._selectionBounds) {
-      this._disposables.push(createRect(this._selectionBounds, COLOR_FOR_SELECTION_BOUNDS));
+      this._disposables.push(
+        createRect(this._selectionBounds, COLOR_FOR_SELECTION_BOUNDS)
+      );
     }
     if (this._characterBounds) {
       for (const rect of this._characterBounds.characterBounds) {
-        this._disposables.push(createRect(rect, COLOR_FOR_CHARACTER_BOUNDS));
+        this._disposables.push(
+          createRect(rect, COLOR_FOR_CHARACTER_BOUNDS)
+        );
       }
     }
-    this._disposables.push(createDiv(this._editContext.text, this._editContext.selectionStart, this._editContext.selectionEnd));
+    this._disposables.push(
+      createDiv(
+        this._editContext.text,
+        this._editContext.selectionStart,
+        this._editContext.selectionEnd
+      )
+    );
   }
 }
 function createDiv(text, selectionStart, selectionEnd) {
@@ -170,7 +197,7 @@ function createDiv(text, selectionStart, selectionEnd) {
   ret.style.pointerEvents = "none";
   const before = text.substring(0, selectionStart);
   const selected = text.substring(selectionStart, selectionEnd) || "|";
-  const after = text.substring(selectionEnd) + " ";
+  const after = `${text.substring(selectionEnd)} `;
   const beforeNode = document.createTextNode(before);
   ret.appendChild(beforeNode);
   const selectedNode = document.createElement("span");
@@ -196,10 +223,10 @@ function createRect(rect, color) {
   ret.style.zIndex = "999999999";
   ret.style.outline = `2px solid ${color}`;
   ret.style.pointerEvents = "none";
-  ret.style.top = rect.top + "px";
-  ret.style.left = rect.left + "px";
-  ret.style.width = rect.width + "px";
-  ret.style.height = rect.height + "px";
+  ret.style.top = `${rect.top}px`;
+  ret.style.left = `${rect.left}px`;
+  ret.style.width = `${rect.width}px`;
+  ret.style.height = `${rect.height}px`;
   document.body.appendChild(ret);
   return {
     dispose: /* @__PURE__ */ __name(() => {
@@ -222,7 +249,10 @@ class EventListenerWrapper {
   }
   set eventHandler(value) {
     if (this._eventHandler) {
-      this._target.removeEventListener(this._eventType, this._eventHandler);
+      this._target.removeEventListener(
+        this._eventType,
+        this._eventHandler
+      );
     }
     this._eventHandler = value;
     if (value) {

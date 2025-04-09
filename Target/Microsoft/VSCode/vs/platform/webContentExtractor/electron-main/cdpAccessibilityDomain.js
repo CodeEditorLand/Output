@@ -80,7 +80,10 @@ function convertAXTreeToMarkdown(uri, axNodes) {
   }
   const mainContent = extractMainContent(uri, tree);
   const navLinks = collectNavigationLinks(tree);
-  return mainContent + (navLinks.length > 0 ? "\n\n## Additional Links\n" + navLinks.join("\n") : "");
+  return mainContent + (navLinks.length > 0 ? `
+
+## Additional Links
+${navLinks.join("\n")}` : "");
 }
 __name(convertAXTreeToMarkdown, "convertAXTreeToMarkdown");
 function extractMainContent(uri, tree) {
@@ -142,7 +145,14 @@ function processNode(uri, node, buffer, depth, semanticLineBreak) {
       processDescriptionListNode(uri, node, buffer, depth);
       return;
     case "blockquote":
-      buffer.push("> " + getNodeText(node.node, semanticLineBreak).replace(/\n/g, "\n> ") + "\n\n");
+      buffer.push(
+        `> ${getNodeText(node.node, semanticLineBreak).replace(
+          /\n/g,
+          "\n> "
+        )}
+
+`
+      );
       break;
     // TODO: Is this the correct way to handle the generic role?
     case "generic":
@@ -153,7 +163,11 @@ function processNode(uri, node, buffer, depth, semanticLineBreak) {
       return;
     }
     case "pre":
-      buffer.push("```\n" + getNodeText(node.node, false) + "\n```\n\n");
+      buffer.push(`\`\`\`
+${getNodeText(node.node, false)}
+\`\`\`
+
+`);
       break;
     case "table":
       processTableNode(node, buffer);
@@ -279,16 +293,29 @@ function processListNode(uri, node, buffer, depth) {
 __name(processListNode, "processListNode");
 function processTableNode(node, buffer) {
   buffer.push("\n");
-  const rows = node.children.filter((child) => getNodeRole(child.node).includes("row"));
+  const rows = node.children.filter(
+    (child) => getNodeRole(child.node).includes("row")
+  );
   if (rows.length > 0) {
-    const headerCells = rows[0].children.filter((cell) => getNodeRole(cell.node).includes("cell"));
-    const headerContent = headerCells.map((cell) => getNodeText(cell.node, false) || " ");
-    buffer.push("| " + headerContent.join(" | ") + " |\n");
-    buffer.push("| " + headerCells.map(() => "---").join(" | ") + " |\n");
+    const headerCells = rows[0].children.filter(
+      (cell) => getNodeRole(cell.node).includes("cell")
+    );
+    const headerContent = headerCells.map(
+      (cell) => getNodeText(cell.node, false) || " "
+    );
+    buffer.push(`| ${headerContent.join(" | ")} |
+`);
+    buffer.push(`| ${headerCells.map(() => "---").join(" | ")} |
+`);
     for (let i = 1; i < rows.length; i++) {
-      const dataCells = rows[i].children.filter((cell) => getNodeRole(cell.node).includes("cell"));
-      const rowContent = dataCells.map((cell) => getNodeText(cell.node, false) || " ");
-      buffer.push("| " + rowContent.join(" | ") + " |\n");
+      const dataCells = rows[i].children.filter(
+        (cell) => getNodeRole(cell.node).includes("cell")
+      );
+      const rowContent = dataCells.map(
+        (cell) => getNodeText(cell.node, false) || " "
+      );
+      buffer.push(`| ${rowContent.join(" | ")} |
+`);
     }
   }
   buffer.push("\n");
@@ -331,7 +358,9 @@ function collectLinks(node, links) {
     const linkText = getNodeText(node.node, true);
     const url = getLinkUrl(node.node);
     const description = node.node.description?.value || "";
-    links.push(`- [${linkText}](${url})${description ? " - " + description : ""}`);
+    links.push(
+      `- [${linkText}](${url})${description ? ` - ${description}` : ""}`
+    );
   }
   for (const child of node.children) {
     collectLinks(child, links);

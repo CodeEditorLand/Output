@@ -11,48 +11,67 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
-import * as nls from "../../../../nls.js";
 import { renderMarkdown } from "../../../../base/browser/markdownRenderer.js";
-import { IDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IResourceLabel, ResourceLabels } from "../../../browser/labels.js";
-import { CommentNode, ResourceWithCommentThreads } from "../common/commentModel.js";
-import { ITreeContextMenuEvent, ITreeFilter, ITreeNode, TreeFilterResult, TreeVisibility } from "../../../../base/browser/ui/tree/tree.js";
-import { IListVirtualDelegate, IListRenderer } from "../../../../base/browser/ui/list/list.js";
+import {
+  ActionBar
+} from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import {
+  TreeVisibility
+} from "../../../../base/browser/ui/tree/tree.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import { MarshalledId } from "../../../../base/common/marshallingIds.js";
+import { basename } from "../../../../base/common/resources.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { openLinkFromMarkdown } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import {
+  CommentThreadApplicability,
+  CommentThreadState
+} from "../../../../editor/common/languages.js";
+import * as nls from "../../../../nls.js";
+import {
+  createActionViewItem,
+  getContextMenuActions
+} from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IListService, IWorkbenchAsyncDataTreeOptions, WorkbenchObjectTree } from "../../../../platform/list/browser/listService.js";
-import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { TimestampWidget } from "./timestamp.js";
-import { Codicon } from "../../../../base/common/codicons.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { commentViewThreadStateColorVar, getCommentThreadStateIconColor } from "./commentColors.js";
-import { CommentThreadApplicability, CommentThreadState } from "../../../../editor/common/languages.js";
-import { Color } from "../../../../base/common/color.js";
-import { IMatch } from "../../../../base/common/filters.js";
-import { FilterOptions } from "./commentsFilterOptions.js";
-import { basename } from "../../../../base/common/resources.js";
-import { openLinkFromMarkdown } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import { IStyleOverride } from "../../../../platform/theme/browser/defaultStyles.js";
-import { IListStyles } from "../../../../base/browser/ui/list/listWidget.js";
-import { ILocalizedString } from "../../../../platform/action/common/action.js";
-import { CommentsModel } from "./commentsModel.js";
-import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
-import { ActionBar, IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { createActionViewItem, getContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
-import { IAction } from "../../../../base/common/actions.js";
-import { MarshalledId } from "../../../../base/common/marshallingIds.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { ActionViewItem } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { MarshalledCommentThread, MarshalledCommentThreadInternal } from "../../../common/comments.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import {
+  IListService,
+  WorkbenchObjectTree
+} from "../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import {
+  IThemeService
+} from "../../../../platform/theme/common/themeService.js";
+import {
+  CommentNode,
+  ResourceWithCommentThreads
+} from "../common/commentModel.js";
+import {
+  commentViewThreadStateColorVar,
+  getCommentThreadStateIconColor
+} from "./commentColors.js";
+import { FilterOptions } from "./commentsFilterOptions.js";
+import { CommentsModel } from "./commentsModel.js";
+import { TimestampWidget } from "./timestamp.js";
 const COMMENTS_VIEW_ID = "workbench.panel.comments";
 const COMMENTS_VIEW_STORAGE_ID = "Comments";
-const COMMENTS_VIEW_TITLE = nls.localize2("comments.view.title", "Comments");
+const COMMENTS_VIEW_TITLE = nls.localize2(
+  "comments.view.title",
+  "Comments"
+);
 class CommentsModelVirtualDelegate {
   static {
     __name(this, "CommentsModelVirtualDelegate");
@@ -84,7 +103,10 @@ class ResourceWithCommentsRenderer {
   }
   templateId = "resource-with-comments";
   renderTemplate(container) {
-    const labelContainer = dom.append(container, dom.$(".resource-container"));
+    const labelContainer = dom.append(
+      container,
+      dom.$(".resource-container")
+    );
     const resourceLabel = this.labels.create(labelContainer);
     const separator = dom.append(labelContainer, dom.$(".separator"));
     const owner = labelContainer.appendChild(dom.$(".owner"));
@@ -114,7 +136,10 @@ let CommentsMenus = class {
   }
   contextKeyService;
   getResourceActions(element) {
-    const actions = this.getActions(MenuId.CommentsViewThreadActions, element);
+    const actions = this.getActions(
+      MenuId.CommentsViewThreadActions,
+      element
+    );
     return { actions: actions.primary };
   }
   getResourceContextActions(element) {
@@ -134,7 +159,11 @@ let CommentsMenus = class {
       ["canReply", element.thread.canReply]
     ];
     const contextKeyService = this.contextKeyService.createOverlay(overlay);
-    const menu = this.menuService.getMenuActions(menuId, contextKeyService, { shouldForwardArgs: true });
+    const menu = this.menuService.getMenuActions(
+      menuId,
+      contextKeyService,
+      { shouldForwardArgs: true }
+    );
     return getContextMenuActions(menu, "inline");
   }
   dispose() {
@@ -158,12 +187,25 @@ let CommentNodeRenderer = class {
   }
   templateId = "comment-node";
   renderTemplate(container) {
-    const threadContainer = dom.append(container, dom.$(".comment-thread-container"));
-    const metadataContainer = dom.append(threadContainer, dom.$(".comment-metadata-container"));
-    const metadata = dom.append(metadataContainer, dom.$(".comment-metadata"));
+    const threadContainer = dom.append(
+      container,
+      dom.$(".comment-thread-container")
+    );
+    const metadataContainer = dom.append(
+      threadContainer,
+      dom.$(".comment-metadata-container")
+    );
+    const metadata = dom.append(
+      metadataContainer,
+      dom.$(".comment-metadata")
+    );
     const icon = dom.append(metadata, dom.$(".icon"));
     const userNames = dom.append(metadata, dom.$(".user"));
-    const timestamp = new TimestampWidget(this.configurationService, this.hoverService, dom.append(metadata, dom.$(".timestamp-container")));
+    const timestamp = new TimestampWidget(
+      this.configurationService,
+      this.hoverService,
+      dom.append(metadata, dom.$(".timestamp-container"))
+    );
     const relevance = dom.append(metadata, dom.$(".relevance"));
     const separator = dom.append(metadata, dom.$(".separator"));
     const commentPreview = dom.append(metadata, dom.$(".text"));
@@ -180,27 +222,49 @@ let CommentNodeRenderer = class {
       range
     };
     threadMetadata.separator.innerText = "\xB7";
-    const actionsContainer = dom.append(metadataContainer, dom.$(".actions"));
+    const actionsContainer = dom.append(
+      metadataContainer,
+      dom.$(".actions")
+    );
     const actionBar = new ActionBar(actionsContainer, {
       actionViewItemProvider: this.actionViewItemProvider
     });
-    const snippetContainer = dom.append(threadContainer, dom.$(".comment-snippet-container"));
+    const snippetContainer = dom.append(
+      threadContainer,
+      dom.$(".comment-snippet-container")
+    );
     const repliesMetadata = {
       container: snippetContainer,
       icon: dom.append(snippetContainer, dom.$(".icon")),
       count: dom.append(snippetContainer, dom.$(".count")),
-      lastReplyDetail: dom.append(snippetContainer, dom.$(".reply-detail")),
+      lastReplyDetail: dom.append(
+        snippetContainer,
+        dom.$(".reply-detail")
+      ),
       separator: dom.append(snippetContainer, dom.$(".separator")),
-      timestamp: new TimestampWidget(this.configurationService, this.hoverService, dom.append(snippetContainer, dom.$(".timestamp-container")))
+      timestamp: new TimestampWidget(
+        this.configurationService,
+        this.hoverService,
+        dom.append(snippetContainer, dom.$(".timestamp-container"))
+      )
     };
     repliesMetadata.separator.innerText = "\xB7";
-    repliesMetadata.icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.indent));
-    const disposables = [threadMetadata.timestamp, repliesMetadata.timestamp];
+    repliesMetadata.icon.classList.add(
+      ...ThemeIcon.asClassNameArray(Codicon.indent)
+    );
+    const disposables = [
+      threadMetadata.timestamp,
+      repliesMetadata.timestamp
+    ];
     return { threadMetadata, repliesMetadata, actionBar, disposables };
   }
   getCountString(commentCount) {
     if (commentCount > 2) {
-      return nls.localize("commentsCountReplies", "{0} replies", commentCount - 1);
+      return nls.localize(
+        "commentsCountReplies",
+        "{0} replies",
+        commentCount - 1
+      );
     } else if (commentCount === 2) {
       return nls.localize("commentsCountReply", "1 reply");
     } else {
@@ -211,7 +275,11 @@ let CommentNodeRenderer = class {
     const renderedComment = renderMarkdown(commentBody, {
       inline: true,
       actionHandler: {
-        callback: /* @__PURE__ */ __name((link) => openLinkFromMarkdown(this.openerService, link, commentBody.isTrusted), "callback"),
+        callback: /* @__PURE__ */ __name((link) => openLinkFromMarkdown(
+          this.openerService,
+          link,
+          commentBody.isTrusted
+        ), "callback"),
         disposables
       }
     });
@@ -220,15 +288,24 @@ let CommentNodeRenderer = class {
       const image = images[i];
       const textDescription = dom.$("");
       textDescription.textContent = image.alt ? nls.localize("imageWithLabel", "Image: {0}", image.alt) : nls.localize("image", "Image");
-      image.parentNode.replaceChild(textDescription, image);
+      image.parentNode?.replaceChild(textDescription, image);
     }
-    const headings = [...renderedComment.element.getElementsByTagName("h1"), ...renderedComment.element.getElementsByTagName("h2"), ...renderedComment.element.getElementsByTagName("h3"), ...renderedComment.element.getElementsByTagName("h4"), ...renderedComment.element.getElementsByTagName("h5"), ...renderedComment.element.getElementsByTagName("h6")];
+    const headings = [
+      ...renderedComment.element.getElementsByTagName("h1"),
+      ...renderedComment.element.getElementsByTagName("h2"),
+      ...renderedComment.element.getElementsByTagName("h3"),
+      ...renderedComment.element.getElementsByTagName("h4"),
+      ...renderedComment.element.getElementsByTagName("h5"),
+      ...renderedComment.element.getElementsByTagName("h6")
+    ];
     for (const heading of headings) {
       const textNode = document.createTextNode(heading.textContent || "");
-      heading.parentNode.replaceChild(textNode, heading);
+      heading.parentNode?.replaceChild(textNode, heading);
     }
     while (renderedComment.element.children.length > 1 && renderedComment.element.firstElementChild?.tagName === "HR") {
-      renderedComment.element.removeChild(renderedComment.element.firstElementChild);
+      renderedComment.element.removeChild(
+        renderedComment.element.firstElementChild
+      );
     }
     return renderedComment;
   }
@@ -244,22 +321,41 @@ let CommentNodeRenderer = class {
     const commentCount = node.element.replies.length + 1;
     if (node.element.threadRelevance === CommentThreadApplicability.Outdated) {
       templateData.threadMetadata.relevance.style.display = "";
-      templateData.threadMetadata.relevance.innerText = nls.localize("outdated", "Outdated");
+      templateData.threadMetadata.relevance.innerText = nls.localize(
+        "outdated",
+        "Outdated"
+      );
       templateData.threadMetadata.separator.style.display = "none";
     } else {
       templateData.threadMetadata.relevance.innerText = "";
       templateData.threadMetadata.relevance.style.display = "none";
       templateData.threadMetadata.separator.style.display = "";
     }
-    templateData.threadMetadata.icon.classList.remove(...Array.from(templateData.threadMetadata.icon.classList.values()).filter((value) => value.startsWith("codicon")));
-    templateData.threadMetadata.icon.classList.add(...ThemeIcon.asClassNameArray(this.getIcon(node.element.threadState)));
+    templateData.threadMetadata.icon.classList.remove(
+      ...Array.from(
+        templateData.threadMetadata.icon.classList.values()
+      ).filter((value) => value.startsWith("codicon"))
+    );
+    templateData.threadMetadata.icon.classList.add(
+      ...ThemeIcon.asClassNameArray(
+        this.getIcon(node.element.threadState)
+      )
+    );
     if (node.element.threadState !== void 0) {
-      const color = this.getCommentThreadWidgetStateColor(node.element.threadState, this.themeService.getColorTheme());
-      templateData.threadMetadata.icon.style.setProperty(commentViewThreadStateColorVar, `${color}`);
+      const color = this.getCommentThreadWidgetStateColor(
+        node.element.threadState,
+        this.themeService.getColorTheme()
+      );
+      templateData.threadMetadata.icon.style.setProperty(
+        commentViewThreadStateColorVar,
+        `${color}`
+      );
       templateData.threadMetadata.icon.style.color = `var(${commentViewThreadStateColorVar})`;
     }
     templateData.threadMetadata.userNames.textContent = node.element.comment.userName;
-    templateData.threadMetadata.timestamp.setTimestamp(node.element.comment.timestamp ? new Date(node.element.comment.timestamp) : void 0);
+    templateData.threadMetadata.timestamp.setTimestamp(
+      node.element.comment.timestamp ? new Date(node.element.comment.timestamp) : void 0
+    );
     const originalComment = node.element;
     templateData.threadMetadata.commentPreview.innerText = "";
     templateData.threadMetadata.commentPreview.style.height = "22px";
@@ -268,23 +364,48 @@ let CommentNodeRenderer = class {
     } else {
       const disposables = new DisposableStore();
       templateData.disposables.push(disposables);
-      const renderedComment = this.getRenderedComment(originalComment.comment.body, disposables);
+      const renderedComment = this.getRenderedComment(
+        originalComment.comment.body,
+        disposables
+      );
       templateData.disposables.push(renderedComment);
       for (let i = renderedComment.element.children.length - 1; i >= 1; i--) {
-        renderedComment.element.removeChild(renderedComment.element.children[i]);
+        renderedComment.element.removeChild(
+          renderedComment.element.children[i]
+        );
       }
-      templateData.threadMetadata.commentPreview.appendChild(renderedComment.element);
-      templateData.disposables.push(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), templateData.threadMetadata.commentPreview, renderedComment.element.textContent ?? ""));
+      templateData.threadMetadata.commentPreview.appendChild(
+        renderedComment.element
+      );
+      templateData.disposables.push(
+        this.hoverService.setupManagedHover(
+          getDefaultHoverDelegate("mouse"),
+          templateData.threadMetadata.commentPreview,
+          renderedComment.element.textContent ?? ""
+        )
+      );
     }
     if (node.element.range) {
       if (node.element.range.startLineNumber === node.element.range.endLineNumber) {
-        templateData.threadMetadata.range.textContent = nls.localize("commentLine", "[Ln {0}]", node.element.range.startLineNumber);
+        templateData.threadMetadata.range.textContent = nls.localize(
+          "commentLine",
+          "[Ln {0}]",
+          node.element.range.startLineNumber
+        );
       } else {
-        templateData.threadMetadata.range.textContent = nls.localize("commentRange", "[Ln {0}-{1}]", node.element.range.startLineNumber, node.element.range.endLineNumber);
+        templateData.threadMetadata.range.textContent = nls.localize(
+          "commentRange",
+          "[Ln {0}-{1}]",
+          node.element.range.startLineNumber,
+          node.element.range.endLineNumber
+        );
       }
     }
     const menuActions = this.menus.getResourceActions(node.element);
-    templateData.actionBar.push(menuActions.actions, { icon: true, label: false });
+    templateData.actionBar.push(menuActions.actions, {
+      icon: true,
+      label: false
+    });
     templateData.actionBar.context = {
       commentControlHandle: node.element.controllerHandle,
       commentThreadHandle: node.element.threadHandle,
@@ -297,14 +418,22 @@ let CommentNodeRenderer = class {
     templateData.repliesMetadata.container.style.display = "";
     templateData.repliesMetadata.count.textContent = this.getCountString(commentCount);
     const lastComment = node.element.replies[node.element.replies.length - 1].comment;
-    templateData.repliesMetadata.lastReplyDetail.textContent = nls.localize("lastReplyFrom", "Last reply from {0}", lastComment.userName);
-    templateData.repliesMetadata.timestamp.setTimestamp(lastComment.timestamp ? new Date(lastComment.timestamp) : void 0);
+    templateData.repliesMetadata.lastReplyDetail.textContent = nls.localize(
+      "lastReplyFrom",
+      "Last reply from {0}",
+      lastComment.userName
+    );
+    templateData.repliesMetadata.timestamp.setTimestamp(
+      lastComment.timestamp ? new Date(lastComment.timestamp) : void 0
+    );
   }
   getCommentThreadWidgetStateColor(state, theme) {
     return state !== void 0 ? getCommentThreadStateIconColor(state, theme) : void 0;
   }
   disposeTemplate(templateData) {
-    templateData.disposables.forEach((disposeable) => disposeable.dispose());
+    templateData.disposables.forEach(
+      (disposeable) => disposeable.dispose()
+    );
     templateData.actionBar.dispose();
   }
 };
@@ -338,9 +467,18 @@ class Filter {
   }
   filterResourceMarkers(resourceMarkers) {
     if (this.options.textFilter.text && !this.options.textFilter.negate) {
-      const uriMatches = FilterOptions._filter(this.options.textFilter.text, basename(resourceMarkers.resource));
+      const uriMatches = FilterOptions._filter(
+        this.options.textFilter.text,
+        basename(resourceMarkers.resource)
+      );
       if (uriMatches) {
-        return { visibility: true, data: { type: 0 /* Resource */, uriMatches: uriMatches || [] } };
+        return {
+          visibility: true,
+          data: {
+            type: 0 /* Resource */,
+            uriMatches: uriMatches || []
+          }
+        };
       }
     }
     return TreeVisibility.Recurse;
@@ -355,12 +493,30 @@ class Filter {
     }
     const textMatches = (
       // Check body of comment for value
-      FilterOptions._messageFilter(this.options.textFilter.text, typeof comment.comment.body === "string" ? comment.comment.body : comment.comment.body.value) || FilterOptions._messageFilter(this.options.textFilter.text, comment.comment.userName) || comment.replies.map((reply) => {
-        return FilterOptions._messageFilter(this.options.textFilter.text, reply.comment.userName) || FilterOptions._messageFilter(this.options.textFilter.text, typeof reply.comment.body === "string" ? reply.comment.body : reply.comment.body.value);
+      FilterOptions._messageFilter(
+        this.options.textFilter.text,
+        typeof comment.comment.body === "string" ? comment.comment.body : comment.comment.body.value
+      ) || // Check first user for value
+      FilterOptions._messageFilter(
+        this.options.textFilter.text,
+        comment.comment.userName
+      ) || // Check all replies for value
+      comment.replies.map((reply) => {
+        return FilterOptions._messageFilter(
+          this.options.textFilter.text,
+          reply.comment.userName
+        ) || // Check body of reply for value
+        FilterOptions._messageFilter(
+          this.options.textFilter.text,
+          typeof reply.comment.body === "string" ? reply.comment.body : reply.comment.body.value
+        );
       }).filter((value) => !!value).flat()
     );
     if (textMatches.length && !this.options.textFilter.negate) {
-      return { visibility: true, data: { type: 1 /* Comment */, textMatches } };
+      return {
+        visibility: true,
+        data: { type: 1 /* Comment */, textMatches }
+      };
     }
     if (textMatches.length && this.options.textFilter.negate && parentVisibility === TreeVisibility.Recurse) {
       return false;
@@ -374,12 +530,22 @@ class Filter {
 let CommentsList = class extends WorkbenchObjectTree {
   constructor(labels, container, options, contextKeyService, listService, instantiationService, configurationService, contextMenuService, keybindingService) {
     const delegate = new CommentsModelVirtualDelegate();
-    const actionViewItemProvider = createActionViewItem.bind(void 0, instantiationService);
+    const actionViewItemProvider = createActionViewItem.bind(
+      void 0,
+      instantiationService
+    );
     const menus = instantiationService.createInstance(CommentsMenus);
     menus.setContextKeyService(contextKeyService);
     const renderers = [
-      instantiationService.createInstance(ResourceWithCommentsRenderer, labels),
-      instantiationService.createInstance(CommentNodeRenderer, actionViewItemProvider, menus)
+      instantiationService.createInstance(
+        ResourceWithCommentsRenderer,
+        labels
+      ),
+      instantiationService.createInstance(
+        CommentNodeRenderer,
+        actionViewItemProvider,
+        menus
+      )
     ];
     super(
       "CommentsTree",
@@ -397,7 +563,7 @@ let CommentsList = class extends WorkbenchObjectTree {
               return `${element.uniqueOwner}-${element.id}`;
             }
             if (element instanceof CommentNode) {
-              return `${element.uniqueOwner}-${element.resource.toString()}-${element.threadId}-${element.comment.uniqueIdInThread}` + (element.isRoot ? "-root" : "");
+              return `${element.uniqueOwner}-${element.resource.toString()}-${element.threadId}-${element.comment.uniqueIdInThread}${element.isRoot ? "-root" : ""}`;
             }
             return "";
           }, "getId")
@@ -418,7 +584,9 @@ let CommentsList = class extends WorkbenchObjectTree {
     this.contextMenuService = contextMenuService;
     this.keybindingService = keybindingService;
     this.menus = menus;
-    this.disposables.add(this.onContextMenu((e) => this.commentsOnContextMenu(e)));
+    this.disposables.add(
+      this.onContextMenu((e) => this.commentsOnContextMenu(e))
+    );
   }
   static {
     __name(this, "CommentsList");
@@ -441,9 +609,14 @@ let CommentsList = class extends WorkbenchObjectTree {
       getAnchor: /* @__PURE__ */ __name(() => treeEvent.anchor, "getAnchor"),
       getActions: /* @__PURE__ */ __name(() => actions, "getActions"),
       getActionViewItem: /* @__PURE__ */ __name((action) => {
-        const keybinding = this.keybindingService.lookupKeybinding(action.id);
+        const keybinding = this.keybindingService.lookupKeybinding(
+          action.id
+        );
         if (keybinding) {
-          return new ActionViewItem(action, action, { label: true, keybinding: keybinding.getLabel() });
+          return new ActionViewItem(action, action, {
+            label: true,
+            keybinding: keybinding.getLabel()
+          });
         }
         return void 0;
       }, "getActionViewItem"),

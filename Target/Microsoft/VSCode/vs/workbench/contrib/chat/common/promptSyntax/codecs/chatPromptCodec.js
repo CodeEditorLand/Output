@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer } from "../../../../../../base/common/buffer.js";
-import { ReadableStream } from "../../../../../../base/common/stream.js";
-import { ChatPromptDecoder, TChatPromptToken } from "./chatPromptDecoder.js";
+import {
+  ChatPromptDecoder
+} from "./chatPromptDecoder.js";
 const ChatPromptCodec = Object.freeze({
   /**
    * Encode a stream of `TChatPromptToken`s into a stream of `VSBuffer`s.

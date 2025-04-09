@@ -1,7 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IRange } from "../core/range.js";
-import { FoldingRules } from "../languages/languageConfiguration.js";
 import { isMultilineRegexSource } from "../model/textModelSearch.js";
 const trimDashesRegex = /^-+|-+$/g;
 const CHUNK_SIZE = 100;
@@ -24,9 +22,14 @@ function collectRegionHeaders(model, options) {
   const endLineNumber = model.getLineCount();
   for (let lineNumber = 1; lineNumber <= endLineNumber; lineNumber++) {
     const lineContent = model.getLineContent(lineNumber);
-    const match = lineContent.match(options.foldingRules.markers.start);
+    const match = lineContent.match(options.foldingRules?.markers?.start);
     if (match) {
-      const range = { startLineNumber: lineNumber, startColumn: match[0].length + 1, endLineNumber: lineNumber, endColumn: lineContent.length + 1 };
+      const range = {
+        startLineNumber: lineNumber,
+        startColumn: match[0].length + 1,
+        endLineNumber: lineNumber,
+        endColumn: lineContent.length + 1
+      };
       if (range.endColumn > range.startColumn) {
         const sectionHeader = {
           range,
@@ -46,7 +49,10 @@ function collectMarkHeaders(model, options) {
   const markHeaders = [];
   const endLineNumber = model.getLineCount();
   const multiline = isMultilineRegexSource(options.markSectionHeaderRegex);
-  const regex = new RegExp(options.markSectionHeaderRegex, `gdm${multiline ? "s" : ""}`);
+  const regex = new RegExp(
+    options.markSectionHeaderRegex,
+    `gdm${multiline ? "s" : ""}`
+  );
   for (let startLine = 1; startLine <= endLineNumber; startLine += CHUNK_SIZE - MAX_SECTION_LINES) {
     const endLine = Math.min(startLine + CHUNK_SIZE - 1, endLineNumber);
     const lines = [];
@@ -73,8 +79,8 @@ function collectMarkHeaders(model, options) {
         endLineNumber: matchEndLine,
         endColumn
       };
-      const text2 = (match.groups ?? {})["label"] ?? "";
-      const hasSeparatorLine = ((match.groups ?? {})["separator"] ?? "") !== "";
+      const text2 = match.groups?.["label"] ?? "";
+      const hasSeparatorLine = (match.groups?.["separator"] ?? "") !== "";
       const sectionHeader = {
         range,
         text: text2,

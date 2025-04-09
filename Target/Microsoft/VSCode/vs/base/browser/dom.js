@@ -1,21 +1,30 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as browser from "./browser.js";
-import { BrowserFeatures } from "./canIUse.js";
-import { IKeyboardEvent, StandardKeyboardEvent } from "./keyboardEvent.js";
-import { IMouseEvent, StandardMouseEvent } from "./mouseEvent.js";
-import { AbstractIdleValue, IntervalTimer, TimeoutTimer, _runWhenIdle, IdleDeadline } from "../common/async.js";
+import {
+  _runWhenIdle,
+  AbstractIdleValue,
+  IntervalTimer,
+  TimeoutTimer
+} from "../common/async.js";
 import { onUnexpectedError } from "../common/errors.js";
 import * as event from "../common/event.js";
-import dompurify from "./dompurify/dompurify.js";
+import { hash } from "../common/hash.js";
 import { KeyCode } from "../common/keyCodes.js";
-import { Disposable, DisposableStore, IDisposable, toDisposable } from "../common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../common/lifecycle.js";
 import { RemoteAuthorities, Schemas } from "../common/network.js";
+import { isPointWithinTriangle } from "../common/numbers.js";
 import * as platform from "../common/platform.js";
 import { URI } from "../common/uri.js";
-import { hash } from "../common/hash.js";
-import { CodeWindow, ensureCodeWindow, mainWindow } from "./window.js";
-import { isPointWithinTriangle } from "../common/numbers.js";
+import * as browser from "./browser.js";
+import { BrowserFeatures } from "./canIUse.js";
+import dompurify from "./dompurify/dompurify.js";
+import { StandardKeyboardEvent } from "./keyboardEvent.js";
+import { StandardMouseEvent } from "./mouseEvent.js";
+import { ensureCodeWindow, mainWindow } from "./window.js";
 export * from "./domImpl/domObservable.js";
 export * from "./domImpl/n.js";
 const {
@@ -30,10 +39,13 @@ const {
   onDidRegisterWindow,
   onWillUnregisterWindow,
   onDidUnregisterWindow
-} = function() {
+} = (() => {
   const windows = /* @__PURE__ */ new Map();
   ensureCodeWindow(mainWindow, 1);
-  const mainWindowRegistration = { window: mainWindow, disposables: new DisposableStore() };
+  const mainWindowRegistration = {
+    window: mainWindow,
+    disposables: new DisposableStore()
+  };
   windows.set(mainWindow.vscodeWindowId, mainWindowRegistration);
   const onDidRegisterWindow2 = new event.Emitter();
   const onDidUnregisterWindow2 = new event.Emitter();
@@ -57,13 +69,17 @@ const {
         disposables: disposables.add(new DisposableStore())
       };
       windows.set(window.vscodeWindowId, registeredWindow);
-      disposables.add(toDisposable(() => {
-        windows.delete(window.vscodeWindowId);
-        onDidUnregisterWindow2.fire(window);
-      }));
-      disposables.add(addDisposableListener(window, EventType.BEFORE_UNLOAD, () => {
-        onWillUnregisterWindow2.fire(window);
-      }));
+      disposables.add(
+        toDisposable(() => {
+          windows.delete(window.vscodeWindowId);
+          onDidUnregisterWindow2.fire(window);
+        })
+      );
+      disposables.add(
+        addDisposableListener(window, EventType.BEFORE_UNLOAD, () => {
+          onWillUnregisterWindow2.fire(window);
+        })
+      );
       onDidRegisterWindow2.fire(registeredWindow);
       return disposables;
     },
@@ -96,7 +112,7 @@ const {
       return getWindow(candidateNode).document;
     }
   };
-}();
+})();
 function clearNode(node) {
   while (node.firstChild) {
     node.firstChild.remove();
@@ -122,7 +138,11 @@ class DomListener {
     if (!this._handler) {
       return;
     }
-    this._node.removeEventListener(this._type, this._handler, this._options);
+    this._node.removeEventListener(
+      this._type,
+      this._handler,
+      this._options
+    );
     this._node = null;
     this._handler = null;
   }
@@ -132,15 +152,11 @@ function addDisposableListener(node, type, handler, useCaptureOrOptions) {
 }
 __name(addDisposableListener, "addDisposableListener");
 function _wrapAsStandardMouseEvent(targetWindow, handler) {
-  return function(e) {
-    return handler(new StandardMouseEvent(targetWindow, e));
-  };
+  return (e) => handler(new StandardMouseEvent(targetWindow, e));
 }
 __name(_wrapAsStandardMouseEvent, "_wrapAsStandardMouseEvent");
 function _wrapAsStandardKeyboardEvent(handler) {
-  return function(e) {
-    return handler(new StandardKeyboardEvent(e));
-  };
+  return (e) => handler(new StandardKeyboardEvent(e));
 }
 __name(_wrapAsStandardKeyboardEvent, "_wrapAsStandardKeyboardEvent");
 const addStandardDisposableListener = /* @__PURE__ */ __name(function addStandardDisposableListener2(node, type, handler, useCapture) {
@@ -154,22 +170,45 @@ const addStandardDisposableListener = /* @__PURE__ */ __name(function addStandar
 }, "addStandardDisposableListener");
 const addStandardDisposableGenericMouseDownListener = /* @__PURE__ */ __name(function addStandardDisposableListener3(node, handler, useCapture) {
   const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
-  return addDisposableGenericMouseDownListener(node, wrapHandler, useCapture);
+  return addDisposableGenericMouseDownListener(
+    node,
+    wrapHandler,
+    useCapture
+  );
 }, "addStandardDisposableListener");
 const addStandardDisposableGenericMouseUpListener = /* @__PURE__ */ __name(function addStandardDisposableListener4(node, handler, useCapture) {
   const wrapHandler = _wrapAsStandardMouseEvent(getWindow(node), handler);
-  return addDisposableGenericMouseUpListener(node, wrapHandler, useCapture);
+  return addDisposableGenericMouseUpListener(
+    node,
+    wrapHandler,
+    useCapture
+  );
 }, "addStandardDisposableListener");
 function addDisposableGenericMouseDownListener(node, handler, useCapture) {
-  return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_DOWN : EventType.MOUSE_DOWN, handler, useCapture);
+  return addDisposableListener(
+    node,
+    platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_DOWN : EventType.MOUSE_DOWN,
+    handler,
+    useCapture
+  );
 }
 __name(addDisposableGenericMouseDownListener, "addDisposableGenericMouseDownListener");
 function addDisposableGenericMouseMoveListener(node, handler, useCapture) {
-  return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_MOVE : EventType.MOUSE_MOVE, handler, useCapture);
+  return addDisposableListener(
+    node,
+    platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_MOVE : EventType.MOUSE_MOVE,
+    handler,
+    useCapture
+  );
 }
 __name(addDisposableGenericMouseMoveListener, "addDisposableGenericMouseMoveListener");
 function addDisposableGenericMouseUpListener(node, handler, useCapture) {
-  return addDisposableListener(node, platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_UP : EventType.MOUSE_UP, handler, useCapture);
+  return addDisposableListener(
+    node,
+    platform.isIOS && BrowserFeatures.pointerEvents ? EventType.POINTER_UP : EventType.MOUSE_UP,
+    handler,
+    useCapture
+  );
 }
 __name(addDisposableGenericMouseUpListener, "addDisposableGenericMouseUpListener");
 function runWhenWindowIdle(targetWindow, callback, timeout) {
@@ -179,9 +218,6 @@ __name(runWhenWindowIdle, "runWhenWindowIdle");
 class WindowIdleValue extends AbstractIdleValue {
   static {
     __name(this, "WindowIdleValue");
-  }
-  constructor(targetWindow, executor) {
-    super(targetWindow, executor);
   }
 }
 let runAtThisOrScheduleAtNextAnimationFrame;
@@ -214,7 +250,11 @@ class WindowIntervalTimer extends IntervalTimer {
     this.defaultTarget = node && getWindow(node);
   }
   cancelAndSet(runner, interval, targetWindow) {
-    return super.cancelAndSet(runner, interval, targetWindow ?? this.defaultTarget);
+    return super.cancelAndSet(
+      runner,
+      interval,
+      targetWindow ?? this.defaultTarget
+    );
   }
 }
 class AnimationFrameQueueItem {
@@ -247,7 +287,7 @@ class AnimationFrameQueueItem {
     return b.priority - a.priority;
   }
 }
-(function() {
+(() => {
   const NEXT_QUEUE = /* @__PURE__ */ new Map();
   const CURRENT_QUEUE = /* @__PURE__ */ new Map();
   const animFrameRequested = /* @__PURE__ */ new Map();
@@ -276,7 +316,9 @@ class AnimationFrameQueueItem {
     nextQueue.push(item);
     if (!animFrameRequested.get(targetWindowId)) {
       animFrameRequested.set(targetWindowId, true);
-      targetWindow.requestAnimationFrame(() => animationFrameRunner(targetWindowId));
+      targetWindow.requestAnimationFrame(
+        () => animationFrameRunner(targetWindowId)
+      );
     }
     return item;
   }, "scheduleAtNextAnimationFrame");
@@ -301,7 +343,6 @@ function measure(targetWindow, callback) {
     targetWindow,
     callback,
     1e4
-    /* must be early */
   );
 }
 __name(measure, "measure");
@@ -310,14 +351,11 @@ function modify(targetWindow, callback) {
     targetWindow,
     callback,
     -1e4
-    /* must be late */
   );
 }
 __name(modify, "modify");
 const MINIMUM_TIME_MS = 8;
-const DEFAULT_EVENT_MERGER = /* @__PURE__ */ __name(function(lastEvent, currentEvent) {
-  return currentEvent;
-}, "DEFAULT_EVENT_MERGER");
+const DEFAULT_EVENT_MERGER = /* @__PURE__ */ __name((lastEvent, currentEvent) => currentEvent, "DEFAULT_EVENT_MERGER");
 class TimeoutThrottledDomListener extends Disposable {
   static {
     __name(this, "TimeoutThrottledDomListener");
@@ -332,20 +370,31 @@ class TimeoutThrottledDomListener extends Disposable {
       handler(lastEvent);
       lastEvent = null;
     }, "invokeHandler");
-    this._register(addDisposableListener(node, type, (e) => {
-      lastEvent = eventMerger(lastEvent, e);
-      const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - lastHandlerTime;
-      if (elapsedTime >= minimumTimeMs) {
-        timeout.cancel();
-        invokeHandler();
-      } else {
-        timeout.setIfNotSet(invokeHandler, minimumTimeMs - elapsedTime);
-      }
-    }));
+    this._register(
+      addDisposableListener(node, type, (e) => {
+        lastEvent = eventMerger(lastEvent, e);
+        const elapsedTime = (/* @__PURE__ */ new Date()).getTime() - lastHandlerTime;
+        if (elapsedTime >= minimumTimeMs) {
+          timeout.cancel();
+          invokeHandler();
+        } else {
+          timeout.setIfNotSet(
+            invokeHandler,
+            minimumTimeMs - elapsedTime
+          );
+        }
+      })
+    );
   }
 }
 function addDisposableThrottledListener(node, type, handler, eventMerger, minimumTimeMs) {
-  return new TimeoutThrottledDomListener(node, type, handler, eventMerger, minimumTimeMs);
+  return new TimeoutThrottledDomListener(
+    node,
+    type,
+    handler,
+    eventMerger,
+    minimumTimeMs
+  );
 }
 __name(addDisposableThrottledListener, "addDisposableThrottledListener");
 function getComputedStyle(el) {
@@ -359,16 +408,25 @@ function getClientArea(element, defaultValue, fallbackElement) {
     return new Dimension(element.clientWidth, element.clientHeight);
   }
   if (platform.isIOS && elWindow?.visualViewport) {
-    return new Dimension(elWindow.visualViewport.width, elWindow.visualViewport.height);
+    return new Dimension(
+      elWindow.visualViewport.width,
+      elWindow.visualViewport.height
+    );
   }
   if (elWindow?.innerWidth && elWindow.innerHeight) {
     return new Dimension(elWindow.innerWidth, elWindow.innerHeight);
   }
-  if (elDocument.body && elDocument.body.clientWidth && elDocument.body.clientHeight) {
-    return new Dimension(elDocument.body.clientWidth, elDocument.body.clientHeight);
+  if (elDocument.body?.clientWidth && elDocument.body.clientHeight) {
+    return new Dimension(
+      elDocument.body.clientWidth,
+      elDocument.body.clientHeight
+    );
   }
-  if (elDocument.documentElement && elDocument.documentElement.clientWidth && elDocument.documentElement.clientHeight) {
-    return new Dimension(elDocument.documentElement.clientWidth, elDocument.documentElement.clientHeight);
+  if (elDocument.documentElement?.clientWidth && elDocument.documentElement.clientHeight) {
+    return new Dimension(
+      elDocument.documentElement.clientWidth,
+      elDocument.documentElement.clientHeight
+    );
   }
   if (fallbackElement) {
     return getClientArea(fallbackElement, defaultValue);
@@ -386,7 +444,7 @@ class SizeUtils {
   // Adapted from WinJS
   // Converts a CSS positioning string for the specified element to pixels.
   static convertToPixels(element, value) {
-    return parseFloat(value) || 0;
+    return Number.parseFloat(value) || 0;
   }
   static getDimension(element, cssPropertyName) {
     const computedStyle = getComputedStyle(element);
@@ -691,7 +749,9 @@ function getActiveDocument() {
   if (getWindowsCount() <= 1) {
     return mainWindow.document;
   }
-  const documents = Array.from(getWindows()).map(({ window }) => window.document);
+  const documents = Array.from(getWindows()).map(
+    ({ window }) => window.document
+  );
   return documents.find((doc) => doc.hasFocus()) ?? mainWindow.document;
 }
 __name(getActiveDocument, "getActiveDocument");
@@ -712,25 +772,32 @@ const sharedMutationObserver = new class {
     let mutationObserverPerOptions = mutationObserversPerTarget.get(optionsHash);
     if (!mutationObserverPerOptions) {
       const onDidMutate = new event.Emitter();
-      const observer = new MutationObserver((mutations) => onDidMutate.fire(mutations));
+      const observer = new MutationObserver(
+        (mutations) => onDidMutate.fire(mutations)
+      );
       observer.observe(target, options);
       const resolvedMutationObserverPerOptions = mutationObserverPerOptions = {
         users: 1,
         observer,
         onDidMutate: onDidMutate.event
       };
-      disposables.add(toDisposable(() => {
-        resolvedMutationObserverPerOptions.users -= 1;
-        if (resolvedMutationObserverPerOptions.users === 0) {
-          onDidMutate.dispose();
-          observer.disconnect();
-          mutationObserversPerTarget?.delete(optionsHash);
-          if (mutationObserversPerTarget?.size === 0) {
-            this.mutationObservers.delete(target);
+      disposables.add(
+        toDisposable(() => {
+          resolvedMutationObserverPerOptions.users -= 1;
+          if (resolvedMutationObserverPerOptions.users === 0) {
+            onDidMutate.dispose();
+            observer.disconnect();
+            mutationObserversPerTarget?.delete(optionsHash);
+            if (mutationObserversPerTarget?.size === 0) {
+              this.mutationObservers.delete(target);
+            }
           }
-        }
-      }));
-      mutationObserversPerTarget.set(optionsHash, mutationObserverPerOptions);
+        })
+      );
+      mutationObserversPerTarget.set(
+        optionsHash,
+        mutationObserverPerOptions
+      );
     } else {
       mutationObserverPerOptions.users += 1;
     }
@@ -935,7 +1002,9 @@ class FocusTracker extends Disposable {
       }
     }, "onBlur");
     this._refreshStateHandler = () => {
-      const currentNodeHasFocus = FocusTracker.hasFocusWithin(element);
+      const currentNodeHasFocus = FocusTracker.hasFocusWithin(
+        element
+      );
       if (currentNodeHasFocus !== hasFocus) {
         if (hasFocus) {
           onBlur();
@@ -944,11 +1013,27 @@ class FocusTracker extends Disposable {
         }
       }
     };
-    this._register(addDisposableListener(element, EventType.FOCUS, onFocus, true));
-    this._register(addDisposableListener(element, EventType.BLUR, onBlur, true));
+    this._register(
+      addDisposableListener(element, EventType.FOCUS, onFocus, true)
+    );
+    this._register(
+      addDisposableListener(element, EventType.BLUR, onBlur, true)
+    );
     if (isHTMLElement(element)) {
-      this._register(addDisposableListener(element, EventType.FOCUS_IN, () => this._refreshStateHandler()));
-      this._register(addDisposableListener(element, EventType.FOCUS_OUT, () => this._refreshStateHandler()));
+      this._register(
+        addDisposableListener(
+          element,
+          EventType.FOCUS_IN,
+          () => this._refreshStateHandler()
+        )
+      );
+      this._register(
+        addDisposableListener(
+          element,
+          EventType.FOCUS_OUT,
+          () => this._refreshStateHandler()
+        )
+      );
     }
   }
   refreshState() {
@@ -1029,9 +1114,7 @@ function $(description, attrs, ...children) {
   return _$("http://www.w3.org/1999/xhtml" /* HTML */, description, attrs, ...children);
 }
 __name($, "$");
-$.SVG = function(description, attrs, ...children) {
-  return _$("http://www.w3.org/2000/svg" /* SVG */, description, attrs, ...children);
-};
+$.SVG = (description, attrs, ...children) => _$("http://www.w3.org/2000/svg" /* SVG */, description, attrs, ...children);
 function join(nodes, separator) {
   const result = [];
   nodes.forEach((node, index) => {
@@ -1084,7 +1167,10 @@ function removeTabIndexAndUpdateFocus(node) {
     return;
   }
   if (node.ownerDocument.activeElement === node) {
-    const parentFocusable = findParentWithAttribute(node.parentElement, "tabIndex");
+    const parentFocusable = findParentWithAttribute(
+      node.parentElement,
+      "tabIndex"
+    );
     parentFocusable?.focus();
   }
   node.removeAttribute("tabindex");
@@ -1105,10 +1191,18 @@ function domContentLoaded(targetWindow) {
       resolve(void 0);
     } else {
       const listener = /* @__PURE__ */ __name(() => {
-        targetWindow.window.removeEventListener("DOMContentLoaded", listener, false);
+        targetWindow.window.removeEventListener(
+          "DOMContentLoaded",
+          listener,
+          false
+        );
         resolve();
       }, "listener");
-      targetWindow.window.addEventListener("DOMContentLoaded", listener, false);
+      targetWindow.window.addEventListener(
+        "DOMContentLoaded",
+        listener,
+        false
+      );
     }
   });
 }
@@ -1122,10 +1216,15 @@ function windowOpenNoOpener(url) {
   mainWindow.open(url, "_blank", "noopener");
 }
 __name(windowOpenNoOpener, "windowOpenNoOpener");
-const popupWidth = 780, popupHeight = 640;
+const popupWidth = 780;
+const popupHeight = 640;
 function windowOpenPopup(url) {
-  const left = Math.floor(mainWindow.screenLeft + mainWindow.innerWidth / 2 - popupWidth / 2);
-  const top = Math.floor(mainWindow.screenTop + mainWindow.innerHeight / 2 - popupHeight / 2);
+  const left = Math.floor(
+    mainWindow.screenLeft + mainWindow.innerWidth / 2 - popupWidth / 2
+  );
+  const top = Math.floor(
+    mainWindow.screenTop + mainWindow.innerHeight / 2 - popupHeight / 2
+  );
   mainWindow.open(
     url,
     "_blank",
@@ -1154,7 +1253,9 @@ function animate(targetWindow, fn) {
   return toDisposable(() => stepDisposable.dispose());
 }
 __name(animate, "animate");
-RemoteAuthorities.setPreferredWebSchema(/^https:/.test(mainWindow.location.href) ? "https" : "http");
+RemoteAuthorities.setPreferredWebSchema(
+  /^https:/.test(mainWindow.location.href) ? "https" : "http"
+);
 function triggerDownload(dataOrUri, name) {
   let url;
   if (URI.isUri(dataOrUri)) {
@@ -1180,9 +1281,11 @@ function triggerUpload() {
     activeWindow.document.body.appendChild(input);
     input.type = "file";
     input.multiple = true;
-    event.Event.once(event.Event.fromDOMEventEmitter(input, "input"))(() => {
-      resolve(input.files ?? void 0);
-    });
+    event.Event.once(event.Event.fromDOMEventEmitter(input, "input"))(
+      () => {
+        resolve(input.files ?? void 0);
+      }
+    );
     input.click();
     setTimeout(() => input.remove());
   });
@@ -1218,7 +1321,9 @@ function hookDomPurifyHrefAndSrcSanitizer(allowedProtocols, allowDataImages = fa
           continue;
         }
         anchor.href = attrValue;
-        if (!allowedProtocols.includes(anchor.protocol.replace(/:$/, ""))) {
+        if (!allowedProtocols.includes(
+          anchor.protocol.replace(/:$/, "")
+        )) {
           if (allowDataImages && attr === "src" && anchor.href.startsWith("data:")) {
             continue;
           }
@@ -1232,11 +1337,7 @@ function hookDomPurifyHrefAndSrcSanitizer(allowedProtocols, allowDataImages = fa
   });
 }
 __name(hookDomPurifyHrefAndSrcSanitizer, "hookDomPurifyHrefAndSrcSanitizer");
-const defaultSafeProtocols = [
-  Schemas.http,
-  Schemas.https,
-  Schemas.command
-];
+const defaultSafeProtocols = [Schemas.http, Schemas.https, Schemas.command];
 const basicMarkupHtmlTags = Object.freeze([
   "a",
   "abbr",
@@ -1307,8 +1408,57 @@ const basicMarkupHtmlTags = Object.freeze([
   "wbr"
 ]);
 const defaultDomPurifyConfig = Object.freeze({
-  ALLOWED_TAGS: ["a", "button", "blockquote", "code", "div", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "input", "label", "li", "p", "pre", "select", "small", "span", "strong", "textarea", "ul", "ol"],
-  ALLOWED_ATTR: ["href", "data-href", "data-command", "target", "title", "name", "src", "alt", "class", "id", "role", "tabindex", "style", "data-code", "width", "height", "align", "x-dispatch", "required", "checked", "placeholder", "type", "start"],
+  ALLOWED_TAGS: [
+    "a",
+    "button",
+    "blockquote",
+    "code",
+    "div",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hr",
+    "input",
+    "label",
+    "li",
+    "p",
+    "pre",
+    "select",
+    "small",
+    "span",
+    "strong",
+    "textarea",
+    "ul",
+    "ol"
+  ],
+  ALLOWED_ATTR: [
+    "href",
+    "data-href",
+    "data-command",
+    "target",
+    "title",
+    "name",
+    "src",
+    "alt",
+    "class",
+    "id",
+    "role",
+    "tabindex",
+    "style",
+    "data-code",
+    "width",
+    "height",
+    "align",
+    "x-dispatch",
+    "required",
+    "checked",
+    "placeholder",
+    "type",
+    "start"
+  ],
   RETURN_DOM: false,
   RETURN_DOM_FRAGMENT: false,
   RETURN_TRUSTED_TYPE: true
@@ -1316,7 +1466,10 @@ const defaultDomPurifyConfig = Object.freeze({
 function safeInnerHtml(node, value, extraDomPurifyConfig) {
   const hook = hookDomPurifyHrefAndSrcSanitizer(defaultSafeProtocols);
   try {
-    const html = dompurify.sanitize(value, { ...defaultDomPurifyConfig, ...extraDomPurifyConfig });
+    const html = dompurify.sanitize(value, {
+      ...defaultDomPurifyConfig,
+      ...extraDomPurifyConfig
+    });
     node.innerHTML = html;
   } finally {
     hook.dispose();
@@ -1355,80 +1508,123 @@ class ModifierKeyEmitter extends event.Emitter {
       ctrlKey: false,
       metaKey: false
     };
-    this._subscriptions.add(event.Event.runAndSubscribe(onDidRegisterWindow, ({ window, disposables }) => this.registerListeners(window, disposables), { window: mainWindow, disposables: this._subscriptions }));
+    this._subscriptions.add(
+      event.Event.runAndSubscribe(
+        onDidRegisterWindow,
+        ({ window, disposables }) => this.registerListeners(window, disposables),
+        { window: mainWindow, disposables: this._subscriptions }
+      )
+    );
   }
   registerListeners(window, disposables) {
-    disposables.add(addDisposableListener(window, "keydown", (e) => {
-      if (e.defaultPrevented) {
-        return;
-      }
-      const event2 = new StandardKeyboardEvent(e);
-      if (event2.keyCode === KeyCode.Alt && e.repeat) {
-        return;
-      }
-      if (e.altKey && !this._keyStatus.altKey) {
-        this._keyStatus.lastKeyPressed = "alt";
-      } else if (e.ctrlKey && !this._keyStatus.ctrlKey) {
-        this._keyStatus.lastKeyPressed = "ctrl";
-      } else if (e.metaKey && !this._keyStatus.metaKey) {
-        this._keyStatus.lastKeyPressed = "meta";
-      } else if (e.shiftKey && !this._keyStatus.shiftKey) {
-        this._keyStatus.lastKeyPressed = "shift";
-      } else if (event2.keyCode !== KeyCode.Alt) {
-        this._keyStatus.lastKeyPressed = void 0;
-      } else {
-        return;
-      }
-      this._keyStatus.altKey = e.altKey;
-      this._keyStatus.ctrlKey = e.ctrlKey;
-      this._keyStatus.metaKey = e.metaKey;
-      this._keyStatus.shiftKey = e.shiftKey;
-      if (this._keyStatus.lastKeyPressed) {
-        this._keyStatus.event = e;
-        this.fire(this._keyStatus);
-      }
-    }, true));
-    disposables.add(addDisposableListener(window, "keyup", (e) => {
-      if (e.defaultPrevented) {
-        return;
-      }
-      if (!e.altKey && this._keyStatus.altKey) {
-        this._keyStatus.lastKeyReleased = "alt";
-      } else if (!e.ctrlKey && this._keyStatus.ctrlKey) {
-        this._keyStatus.lastKeyReleased = "ctrl";
-      } else if (!e.metaKey && this._keyStatus.metaKey) {
-        this._keyStatus.lastKeyReleased = "meta";
-      } else if (!e.shiftKey && this._keyStatus.shiftKey) {
-        this._keyStatus.lastKeyReleased = "shift";
-      } else {
-        this._keyStatus.lastKeyReleased = void 0;
-      }
-      if (this._keyStatus.lastKeyPressed !== this._keyStatus.lastKeyReleased) {
-        this._keyStatus.lastKeyPressed = void 0;
-      }
-      this._keyStatus.altKey = e.altKey;
-      this._keyStatus.ctrlKey = e.ctrlKey;
-      this._keyStatus.metaKey = e.metaKey;
-      this._keyStatus.shiftKey = e.shiftKey;
-      if (this._keyStatus.lastKeyReleased) {
-        this._keyStatus.event = e;
-        this.fire(this._keyStatus);
-      }
-    }, true));
-    disposables.add(addDisposableListener(window.document.body, "mousedown", () => {
-      this._keyStatus.lastKeyPressed = void 0;
-    }, true));
-    disposables.add(addDisposableListener(window.document.body, "mouseup", () => {
-      this._keyStatus.lastKeyPressed = void 0;
-    }, true));
-    disposables.add(addDisposableListener(window.document.body, "mousemove", (e) => {
-      if (e.buttons) {
-        this._keyStatus.lastKeyPressed = void 0;
-      }
-    }, true));
-    disposables.add(addDisposableListener(window, "blur", () => {
-      this.resetKeyStatus();
-    }));
+    disposables.add(
+      addDisposableListener(
+        window,
+        "keydown",
+        (e) => {
+          if (e.defaultPrevented) {
+            return;
+          }
+          const event2 = new StandardKeyboardEvent(e);
+          if (event2.keyCode === KeyCode.Alt && e.repeat) {
+            return;
+          }
+          if (e.altKey && !this._keyStatus.altKey) {
+            this._keyStatus.lastKeyPressed = "alt";
+          } else if (e.ctrlKey && !this._keyStatus.ctrlKey) {
+            this._keyStatus.lastKeyPressed = "ctrl";
+          } else if (e.metaKey && !this._keyStatus.metaKey) {
+            this._keyStatus.lastKeyPressed = "meta";
+          } else if (e.shiftKey && !this._keyStatus.shiftKey) {
+            this._keyStatus.lastKeyPressed = "shift";
+          } else if (event2.keyCode !== KeyCode.Alt) {
+            this._keyStatus.lastKeyPressed = void 0;
+          } else {
+            return;
+          }
+          this._keyStatus.altKey = e.altKey;
+          this._keyStatus.ctrlKey = e.ctrlKey;
+          this._keyStatus.metaKey = e.metaKey;
+          this._keyStatus.shiftKey = e.shiftKey;
+          if (this._keyStatus.lastKeyPressed) {
+            this._keyStatus.event = e;
+            this.fire(this._keyStatus);
+          }
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window,
+        "keyup",
+        (e) => {
+          if (e.defaultPrevented) {
+            return;
+          }
+          if (!e.altKey && this._keyStatus.altKey) {
+            this._keyStatus.lastKeyReleased = "alt";
+          } else if (!e.ctrlKey && this._keyStatus.ctrlKey) {
+            this._keyStatus.lastKeyReleased = "ctrl";
+          } else if (!e.metaKey && this._keyStatus.metaKey) {
+            this._keyStatus.lastKeyReleased = "meta";
+          } else if (!e.shiftKey && this._keyStatus.shiftKey) {
+            this._keyStatus.lastKeyReleased = "shift";
+          } else {
+            this._keyStatus.lastKeyReleased = void 0;
+          }
+          if (this._keyStatus.lastKeyPressed !== this._keyStatus.lastKeyReleased) {
+            this._keyStatus.lastKeyPressed = void 0;
+          }
+          this._keyStatus.altKey = e.altKey;
+          this._keyStatus.ctrlKey = e.ctrlKey;
+          this._keyStatus.metaKey = e.metaKey;
+          this._keyStatus.shiftKey = e.shiftKey;
+          if (this._keyStatus.lastKeyReleased) {
+            this._keyStatus.event = e;
+            this.fire(this._keyStatus);
+          }
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window.document.body,
+        "mousedown",
+        () => {
+          this._keyStatus.lastKeyPressed = void 0;
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window.document.body,
+        "mouseup",
+        () => {
+          this._keyStatus.lastKeyPressed = void 0;
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(
+        window.document.body,
+        "mousemove",
+        (e) => {
+          if (e.buttons) {
+            this._keyStatus.lastKeyPressed = void 0;
+          }
+        },
+        true
+      )
+    );
+    disposables.add(
+      addDisposableListener(window, "blur", () => {
+        this.resetKeyStatus();
+      })
+    );
   }
   get keyStatus() {
     return this._keyStatus;
@@ -1463,7 +1659,7 @@ class ModifierKeyEmitter extends event.Emitter {
   }
 }
 function getCookieValue(name) {
-  const match = document.cookie.match("(^|[^;]+)\\s*" + name + "\\s*=\\s*([^;]+)");
+  const match = document.cookie.match(`(^|[^;]+)\\s*${name}\\s*=\\s*([^;]+)`);
   return match ? match.pop() : void 0;
 }
 __name(getCookieValue, "getCookieValue");
@@ -1486,41 +1682,86 @@ class DragAndDropObserver extends Disposable {
   dragStartTime = 0;
   registerListeners() {
     if (this.callbacks.onDragStart) {
-      this._register(addDisposableListener(this.element, EventType.DRAG_START, (e) => {
-        this.callbacks.onDragStart?.(e);
-      }));
+      this._register(
+        addDisposableListener(
+          this.element,
+          EventType.DRAG_START,
+          (e) => {
+            this.callbacks.onDragStart?.(e);
+          }
+        )
+      );
     }
     if (this.callbacks.onDrag) {
-      this._register(addDisposableListener(this.element, EventType.DRAG, (e) => {
-        this.callbacks.onDrag?.(e);
-      }));
+      this._register(
+        addDisposableListener(
+          this.element,
+          EventType.DRAG,
+          (e) => {
+            this.callbacks.onDrag?.(e);
+          }
+        )
+      );
     }
-    this._register(addDisposableListener(this.element, EventType.DRAG_ENTER, (e) => {
-      this.counter++;
-      this.dragStartTime = e.timeStamp;
-      this.callbacks.onDragEnter?.(e);
-    }));
-    this._register(addDisposableListener(this.element, EventType.DRAG_OVER, (e) => {
-      e.preventDefault();
-      this.callbacks.onDragOver?.(e, e.timeStamp - this.dragStartTime);
-    }));
-    this._register(addDisposableListener(this.element, EventType.DRAG_LEAVE, (e) => {
-      this.counter--;
-      if (this.counter === 0) {
-        this.dragStartTime = 0;
-        this.callbacks.onDragLeave?.(e);
-      }
-    }));
-    this._register(addDisposableListener(this.element, EventType.DRAG_END, (e) => {
-      this.counter = 0;
-      this.dragStartTime = 0;
-      this.callbacks.onDragEnd?.(e);
-    }));
-    this._register(addDisposableListener(this.element, EventType.DROP, (e) => {
-      this.counter = 0;
-      this.dragStartTime = 0;
-      this.callbacks.onDrop?.(e);
-    }));
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_ENTER,
+        (e) => {
+          this.counter++;
+          this.dragStartTime = e.timeStamp;
+          this.callbacks.onDragEnter?.(e);
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_OVER,
+        (e) => {
+          e.preventDefault();
+          this.callbacks.onDragOver?.(
+            e,
+            e.timeStamp - this.dragStartTime
+          );
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_LEAVE,
+        (e) => {
+          this.counter--;
+          if (this.counter === 0) {
+            this.dragStartTime = 0;
+            this.callbacks.onDragLeave?.(e);
+          }
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DRAG_END,
+        (e) => {
+          this.counter = 0;
+          this.dragStartTime = 0;
+          this.callbacks.onDragEnd?.(e);
+        }
+      )
+    );
+    this._register(
+      addDisposableListener(
+        this.element,
+        EventType.DROP,
+        (e) => {
+          this.counter = 0;
+          this.dragStartTime = 0;
+          this.callbacks.onDrop?.(e);
+        }
+      )
+    );
   }
 }
 const H_REGEX = /(?<tag>[\w\-]+)?(?:#(?<id>[\w\-]+))?(?<class>(?:\.(?:[\w\-]+))*)(?:@(?<name>(?:[\w\_])+))?/;
@@ -1579,12 +1820,11 @@ function h(tag, ...args) {
   }
   for (const [key, value] of Object.entries(attributes)) {
     if (key === "className") {
-      continue;
     } else if (key === "style") {
       for (const [cssKey, cssValue] of Object.entries(value)) {
         el.style.setProperty(
           camelCaseToHyphenCase(cssKey),
-          typeof cssValue === "number" ? cssValue + "px" : "" + cssValue
+          typeof cssValue === "number" ? `${cssValue}px` : `${cssValue}`
         );
       }
     } else if (key === "tabIndex") {
@@ -1612,7 +1852,10 @@ function svgElem(tag, ...args) {
     throw new Error("Bad use of h");
   }
   const tagName = match.groups["tag"] || "div";
-  const el = document.createElementNS("http://www.w3.org/2000/svg", tagName);
+  const el = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    tagName
+  );
   if (match.groups["id"]) {
     el.id = match.groups["id"];
   }
@@ -1652,12 +1895,11 @@ function svgElem(tag, ...args) {
   }
   for (const [key, value] of Object.entries(attributes)) {
     if (key === "className") {
-      continue;
     } else if (key === "style") {
       for (const [cssKey, cssValue] of Object.entries(value)) {
         el.style.setProperty(
           camelCaseToHyphenCase(cssKey),
-          typeof cssValue === "number" ? cssValue + "px" : "" + cssValue
+          typeof cssValue === "number" ? `${cssValue}px` : `${cssValue}`
         );
       }
     } else if (key === "tabIndex") {
@@ -1694,13 +1936,18 @@ __name(copyAttribute, "copyAttribute");
 function trackAttributes(from, to, filter) {
   copyAttributes(from, to, filter);
   const disposables = new DisposableStore();
-  disposables.add(sharedMutationObserver.observe(from, disposables, { attributes: true, attributeFilter: filter })((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.type === "attributes" && mutation.attributeName) {
-        copyAttribute(from, to, mutation.attributeName);
+  disposables.add(
+    sharedMutationObserver.observe(from, disposables, {
+      attributes: true,
+      attributeFilter: filter
+    })((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "attributes" && mutation.attributeName) {
+          copyAttribute(from, to, mutation.attributeName);
+        }
       }
-    }
-  }));
+    })
+  );
   return disposables;
 }
 __name(trackAttributes, "trackAttributes");
@@ -1734,7 +1981,16 @@ class SafeTriangle {
     for (let i = 0; i < 4; i++) {
       const p1 = 2 * i;
       const p2 = 2 * ((i + 1) % 4);
-      if (isPointWithinTriangle(x, y, originX, originY, points[p1], points[p1 + 1], points[p2], points[p2 + 1])) {
+      if (isPointWithinTriangle(
+        x,
+        y,
+        originX,
+        originY,
+        points[p1],
+        points[p1 + 1],
+        points[p2],
+        points[p2 + 1]
+      )) {
         return true;
       }
     }

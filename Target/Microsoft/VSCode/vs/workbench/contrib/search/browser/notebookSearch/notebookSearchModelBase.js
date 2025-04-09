@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ITextSearchMatch } from "../../../../services/search/common/search.js";
-import { ICellViewModel } from "../../../notebook/browser/notebookBrowser.js";
-import { NotebookEditorWidget } from "../../../notebook/browser/notebookEditorWidget.js";
-import { INotebookCellMatchNoModel } from "../../common/searchNotebookHelpers.js";
-import { ISearchTreeFileMatch, ISearchTreeMatch, isSearchTreeFileMatch } from "../searchTreeModel/searchTreeCommon.js";
-import { INotebookCellMatchWithModel } from "./searchNotebookHelpers.js";
+import {
+  isSearchTreeFileMatch
+} from "../searchTreeModel/searchTreeCommon.js";
 function isNotebookFileMatch(obj) {
   return obj && typeof obj.bindNotebookEditorWidget === "function" && typeof obj.updateMatchesForEditorWidget === "function" && typeof obj.unbindNotebookEditorWidget === "function" && typeof obj.updateNotebookHighlights === "function" && isSearchTreeFileMatch(obj);
 }

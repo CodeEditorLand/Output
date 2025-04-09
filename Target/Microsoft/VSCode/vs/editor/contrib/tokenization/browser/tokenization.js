@@ -1,9 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { StopWatch } from "../../../../base/common/stopwatch.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, registerEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
 import * as nls from "../../../../nls.js";
+import {
+  EditorAction,
+  registerEditorAction
+} from "../../../browser/editorExtensions.js";
 class ForceRetokenizeAction extends EditorAction {
   static {
     __name(this, "ForceRetokenizeAction");
@@ -11,7 +13,10 @@ class ForceRetokenizeAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.forceRetokenize",
-      label: nls.localize2("forceRetokenize", "Developer: Force Retokenize"),
+      label: nls.localize2(
+        "forceRetokenize",
+        "Developer: Force Retokenize"
+      ),
       precondition: void 0
     });
   }

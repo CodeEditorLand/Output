@@ -12,7 +12,6 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
 import { alert } from "../../../../base/browser/ui/aria/aria.js";
-import { IAction } from "../../../../base/common/actions.js";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Color } from "../../../../base/common/color.js";
@@ -22,61 +21,120 @@ import { Iterable } from "../../../../base/common/iterator.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { Lazy } from "../../../../base/common/lazy.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { derived, disposableObservableValue, observableValue } from "../../../../base/common/observable.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ICodeEditor, isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import {
+  derived,
+  disposableObservableValue,
+  observableValue
+} from "../../../../base/common/observable.js";
+import {
+  isCodeEditor
+} from "../../../../editor/browser/editorBrowser.js";
 import { EditorAction2 } from "../../../../editor/browser/editorExtensions.js";
 import { ICodeEditorService } from "../../../../editor/browser/services/codeEditorService.js";
 import { EmbeddedCodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/embeddedCodeEditorWidget.js";
 import { EmbeddedDiffEditorWidget } from "../../../../editor/browser/widget/diffEditor/embeddedDiffEditorWidget.js";
 import { EditorOption } from "../../../../editor/common/config/editorOptions.js";
-import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { IEditor, IEditorContribution, ScrollType } from "../../../../editor/common/editorCommon.js";
+import {
+  ScrollType
+} from "../../../../editor/common/editorCommon.js";
 import { EditorContextKeys } from "../../../../editor/common/editorContextKeys.js";
 import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { IPeekViewService, PeekViewWidget, peekViewTitleForeground, peekViewTitleInfoForeground } from "../../../../editor/contrib/peekView/browser/peekView.js";
+import {
+  IPeekViewService,
+  peekViewTitleForeground,
+  peekViewTitleInfoForeground,
+  PeekViewWidget
+} from "../../../../editor/contrib/peekView/browser/peekView.js";
 import { localize, localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
 import { fillInActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { Action2, IMenuService, MenuId } from "../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  IMenuService,
+  MenuId
+} from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ContextKeyExpr, IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { ITextEditorOptions, TextEditorSelectionRevealType } from "../../../../platform/editor/common/editor.js";
+import {
+  TextEditorSelectionRevealType
+} from "../../../../platform/editor/common/editor.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { bindContextKey } from "../../../../platform/observable/common/platformObservableUtils.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { editorBackground } from "../../../../platform/theme/common/colorRegistry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IViewPaneOptions, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import {
+  ViewPane
+} from "../../../browser/parts/views/viewPane.js";
 import { IViewDescriptorService } from "../../../common/views.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { AutoOpenPeekViewWhen, TestingConfigKeys, getTestingConfiguration } from "../common/configuration.js";
+import {
+  AutoOpenPeekViewWhen,
+  getTestingConfiguration,
+  TestingConfigKeys
+} from "../common/configuration.js";
 import { Testing } from "../common/constants.js";
-import { MutableObservableValue, staticObservableValue } from "../common/observableValue.js";
+import {
+  MutableObservableValue,
+  staticObservableValue
+} from "../common/observableValue.js";
 import { StoredValue } from "../common/storedValue.js";
-import { ITestResult, TestResultItemChange, TestResultItemChangeReason, resultItemParents } from "../common/testResult.js";
-import { ITestResultService, ResultChangeEvent } from "../common/testResultService.js";
-import { ITestService } from "../common/testService.js";
-import { IRichLocation, ITestMessage, TestMessageType, TestResultItem } from "../common/testTypes.js";
 import { TestingContextKeys } from "../common/testingContextKeys.js";
-import { IShowResultOptions, ITestingPeekOpener } from "../common/testingPeekOpener.js";
+import {
+  ITestingPeekOpener
+} from "../common/testingPeekOpener.js";
 import { isFailedState } from "../common/testingStates.js";
-import { ParsedTestUri, TestUriType, buildTestUri, parseTestUri } from "../common/testingUri.js";
+import {
+  buildTestUri,
+  parseTestUri,
+  TestUriType
+} from "../common/testingUri.js";
+import {
+  resultItemParents,
+  TestResultItemChangeReason
+} from "../common/testResult.js";
+import {
+  ITestResultService
+} from "../common/testResultService.js";
+import { ITestService } from "../common/testService.js";
+import {
+  TestMessageType
+} from "../common/testTypes.js";
 import { renderTestMessageAsText } from "./testMessageColorizer.js";
-import { InspectSubject, MessageSubject, TaskSubject, TestOutputSubject, inspectSubjectHasStack, mapFindTestMessage } from "./testResultsView/testResultsSubject.js";
+import {
+  inspectSubjectHasStack,
+  mapFindTestMessage,
+  MessageSubject,
+  TaskSubject,
+  TestOutputSubject
+} from "./testResultsView/testResultsSubject.js";
 import { TestResultsViewContent } from "./testResultsView/testResultsViewContent.js";
-import { testingMessagePeekBorder, testingPeekBorder, testingPeekHeaderBackground, testingPeekMessageHeaderBackground } from "./theme.js";
+import {
+  testingMessagePeekBorder,
+  testingPeekBorder,
+  testingPeekHeaderBackground,
+  testingPeekMessageHeaderBackground
+} from "./theme.js";
 function* allMessages([result]) {
   if (!result) {
     return;
@@ -93,7 +151,12 @@ function* allMessages([result]) {
   }
 }
 __name(allMessages, "allMessages");
-function messageItReferenceToUri({ result, test, taskIndex, messageIndex }) {
+function messageItReferenceToUri({
+  result,
+  test,
+  taskIndex,
+  messageIndex
+}) {
   return buildTestUri({
     type: TestUriType.ResultMessage,
     resultId: result.id,
@@ -115,11 +178,19 @@ let TestingPeekOpener = class extends Disposable {
     this.commandService = commandService;
     this.notificationService = notificationService;
     this._register(testResults.onTestChanged(this.openPeekOnFailure, this));
-    this.historyVisible = this._register(MutableObservableValue.stored(new StoredValue({
-      key: "testHistoryVisibleInPeek",
-      scope: StorageScope.PROFILE,
-      target: StorageTarget.USER
-    }, storageService), false));
+    this.historyVisible = this._register(
+      MutableObservableValue.stored(
+        new StoredValue(
+          {
+            key: "testHistoryVisibleInPeek",
+            scope: StorageScope.PROFILE,
+            target: StorageTarget.USER
+          },
+          storageService
+        ),
+        false
+      )
+    );
   }
   static {
     __name(this, "TestingPeekOpener");
@@ -134,7 +205,10 @@ let TestingPeekOpener = class extends Disposable {
     if (isCodeEditor(active) && active.getModel()?.uri) {
       const modelUri = active.getModel()?.uri;
       if (modelUri) {
-        uri = await this.getFileCandidateMessage(modelUri, active.getPosition());
+        uri = await this.getFileCandidateMessage(
+          modelUri,
+          active.getPosition()
+        );
       }
     }
     if (!uri) {
@@ -154,14 +228,22 @@ let TestingPeekOpener = class extends Disposable {
     if (!candidate) {
       return false;
     }
-    this.showPeekFromUri({
-      type: TestUriType.ResultMessage,
-      documentUri: candidate.location.uri,
-      taskIndex: candidate.taskId,
-      messageIndex: candidate.index,
-      resultId: result.id,
-      testExtId: test.item.extId
-    }, void 0, { selection: candidate.location.range, selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport, ...options });
+    this.showPeekFromUri(
+      {
+        type: TestUriType.ResultMessage,
+        documentUri: candidate.location.uri,
+        taskIndex: candidate.taskId,
+        messageIndex: candidate.index,
+        resultId: result.id,
+        testExtId: test.item.extId
+      },
+      void 0,
+      {
+        selection: candidate.location.range,
+        selectionRevealType: TextEditorSelectionRevealType.NearTopIfOutsideViewport,
+        ...options
+      }
+    );
     return true;
   }
   /** @inheritdoc */
@@ -178,14 +260,18 @@ let TestingPeekOpener = class extends Disposable {
     if (!message?.location) {
       return false;
     }
-    this.showPeekFromUri({
-      type: TestUriType.ResultMessage,
-      documentUri: message.location.uri,
-      taskIndex: parsed.taskIndex,
-      messageIndex: parsed.messageIndex,
-      resultId: result.id,
-      testExtId: parsed.testExtId
-    }, options.inEditor, { selection: message.location.range, ...options.options });
+    this.showPeekFromUri(
+      {
+        type: TestUriType.ResultMessage,
+        documentUri: message.location.uri,
+        taskIndex: parsed.taskIndex,
+        messageIndex: parsed.messageIndex,
+        resultId: result.id,
+        testExtId: parsed.testExtId
+      },
+      options.inEditor,
+      { selection: message.location.range, ...options.options }
+    );
     return true;
   }
   /** @inheritdoc */
@@ -201,11 +287,17 @@ let TestingPeekOpener = class extends Disposable {
     }
     const options = { pinned: false, revealIfOpened: true };
     if (current instanceof TaskSubject || current instanceof TestOutputSubject) {
-      this.editorService.openEditor({ resource: current.outputUri, options });
+      this.editorService.openEditor({
+        resource: current.outputUri,
+        options
+      });
       return;
     }
     if (current instanceof TestOutputSubject) {
-      this.editorService.openEditor({ resource: current.outputUri, options });
+      this.editorService.openEditor({
+        resource: current.outputUri,
+        options
+      });
       return;
     }
     const message = current.message;
@@ -216,23 +308,36 @@ let TestingPeekOpener = class extends Disposable {
         options
       });
     } else if (typeof message.message === "string") {
-      this.editorService.openEditor({ resource: current.messageUri, options });
+      this.editorService.openEditor({
+        resource: current.messageUri,
+        options
+      });
     } else {
       this.commandService.executeCommand("markdown.showPreview", current.messageUri).catch((err) => {
-        this.notificationService.error(localize("testing.markdownPeekError", "Could not open markdown preview: {0}.\n\nPlease make sure the markdown extension is enabled.", err.message));
+        this.notificationService.error(
+          localize(
+            "testing.markdownPeekError",
+            "Could not open markdown preview: {0}.\n\nPlease make sure the markdown extension is enabled.",
+            err.message
+          )
+        );
       });
     }
   }
   getActiveControl() {
     const editor = getPeekedEditorFromFocus(this.codeEditorService);
     const controller = editor && TestingOutputPeekController.get(editor);
-    return controller?.subject.get() ?? this.viewsService.getActiveViewWithId(Testing.ResultsViewId)?.subject;
+    return controller?.subject.get() ?? this.viewsService.getActiveViewWithId(
+      Testing.ResultsViewId
+    )?.subject;
   }
   /** @inheritdoc */
   async showPeekFromUri(uri, editor, options) {
     if (isCodeEditor(editor)) {
       this.lastUri = uri;
-      TestingOutputPeekController.get(editor)?.show(buildTestUri(this.lastUri));
+      TestingOutputPeekController.get(editor)?.show(
+        buildTestUri(this.lastUri)
+      );
       return true;
     }
     const pane = await this.editorService.openEditor({
@@ -244,7 +349,9 @@ let TestingPeekOpener = class extends Disposable {
       return false;
     }
     this.lastUri = uri;
-    TestingOutputPeekController.get(control)?.show(buildTestUri(this.lastUri));
+    TestingOutputPeekController.get(control)?.show(
+      buildTestUri(this.lastUri)
+    );
     return true;
   }
   /**
@@ -258,16 +365,27 @@ let TestingPeekOpener = class extends Disposable {
     if (!candidate) {
       return;
     }
-    if (evt.result.request.continuous && !getTestingConfiguration(this.configuration, TestingConfigKeys.AutoOpenPeekViewDuringContinuousRun)) {
+    if (evt.result.request.continuous && !getTestingConfiguration(
+      this.configuration,
+      TestingConfigKeys.AutoOpenPeekViewDuringContinuousRun
+    )) {
       return;
     }
     const editors = this.codeEditorService.listCodeEditors();
-    const cfg = getTestingConfiguration(this.configuration, TestingConfigKeys.AutoOpenPeekView);
+    const cfg = getTestingConfiguration(
+      this.configuration,
+      TestingConfigKeys.AutoOpenPeekView
+    );
     switch (cfg) {
       case AutoOpenPeekViewWhen.FailureVisible: {
         const visibleEditors = this.editorService.visibleTextEditorControls;
-        const editorUris = new Set(visibleEditors.filter(isCodeEditor).map((e) => e.getModel()?.uri.toString()));
-        if (!Iterable.some(resultItemParents(evt.result, evt.item), (i) => i.item.uri && editorUris.has(i.item.uri.toString()))) {
+        const editorUris = new Set(
+          visibleEditors.filter(isCodeEditor).map((e) => e.getModel()?.uri.toString())
+        );
+        if (!Iterable.some(
+          resultItemParents(evt.result, evt.item),
+          (i) => i.item.uri && editorUris.has(i.item.uri.toString())
+        )) {
           return;
         }
         break;
@@ -289,30 +407,35 @@ let TestingPeekOpener = class extends Disposable {
    */
   async getFileCandidateMessage(uri, position) {
     let best;
-    let bestDistance = Infinity;
+    let bestDistance = Number.POSITIVE_INFINITY;
     const demandedUriStr = uri.toString();
     for (const test of this.testService.collection.all) {
       const result = this.testResults.getStateById(test.item.extId);
       if (!result) {
         continue;
       }
-      mapFindTestMessage(result[1], (_task, message, messageIndex, taskIndex) => {
-        if (message.type !== TestMessageType.Error || !message.location || message.location.uri.toString() !== demandedUriStr) {
-          return;
+      mapFindTestMessage(
+        result[1],
+        (_task, message, messageIndex, taskIndex) => {
+          if (message.type !== TestMessageType.Error || !message.location || message.location.uri.toString() !== demandedUriStr) {
+            return;
+          }
+          const distance = position ? Math.abs(
+            position.lineNumber - message.location.range.startLineNumber
+          ) : 0;
+          if (!best || distance <= bestDistance) {
+            bestDistance = distance;
+            best = {
+              type: TestUriType.ResultMessage,
+              testExtId: result[1].item.extId,
+              resultId: result[0].id,
+              taskIndex,
+              messageIndex,
+              documentUri: uri
+            };
+          }
         }
-        const distance = position ? Math.abs(position.lineNumber - message.location.range.startLineNumber) : 0;
-        if (!best || distance <= bestDistance) {
-          bestDistance = distance;
-          best = {
-            type: TestUriType.ResultMessage,
-            testExtId: result[1].item.extId,
-            resultId: result[0].id,
-            taskIndex,
-            messageIndex,
-            documentUri: uri
-          };
-        }
-      });
+      );
     }
     return best;
   }
@@ -327,14 +450,17 @@ let TestingPeekOpener = class extends Disposable {
           continue;
         }
         seen.add(test.item.extId);
-        const found = mapFindTestMessage(test, (task, message, messageIndex, taskIndex) => message.location && {
-          type: TestUriType.ResultMessage,
-          testExtId: test.item.extId,
-          resultId: result.id,
-          taskIndex,
-          messageIndex,
-          documentUri: message.location.uri
-        });
+        const found = mapFindTestMessage(
+          test,
+          (task, message, messageIndex, taskIndex) => message.location && {
+            type: TestUriType.ResultMessage,
+            testExtId: test.item.extId,
+            resultId: result.id,
+            taskIndex,
+            messageIndex,
+            documentUri: message.location.uri
+          }
+        );
         if (found) {
           return found;
         }
@@ -380,9 +506,18 @@ let TestingOutputPeekController = class extends Disposable {
     this.instantiationService = instantiationService;
     this.testResults = testResults;
     this.visible = TestingContextKeys.isPeekVisible.bindTo(contextKeyService);
-    this._register(editor.onDidChangeModel(() => this.peek.set(void 0, void 0)));
-    this._register(testResults.onResultsChanged(this.closePeekOnCertainResultEvents, this));
-    this._register(testResults.onTestChanged(this.closePeekOnTestChange, this));
+    this._register(
+      editor.onDidChangeModel(() => this.peek.set(void 0, void 0))
+    );
+    this._register(
+      testResults.onResultsChanged(
+        this.closePeekOnCertainResultEvents,
+        this
+      )
+    );
+    this._register(
+      testResults.onTestChanged(this.closePeekOnTestChange, this)
+    );
   }
   static {
     __name(this, "TestingOutputPeekController");
@@ -391,12 +526,19 @@ let TestingOutputPeekController = class extends Disposable {
    * Gets the controller associated with the given code editor.
    */
   static get(editor) {
-    return editor.getContribution(Testing.OutputPeekContributionId);
+    return editor.getContribution(
+      Testing.OutputPeekContributionId
+    );
   }
   /**
    * Currently-shown peek view.
    */
-  peek = this._register(disposableObservableValue("TestingOutputPeek", void 0));
+  peek = this._register(
+    disposableObservableValue(
+      "TestingOutputPeek",
+      void 0
+    )
+  );
   /**
    * Context key updated when the peek is visible/hidden.
    */
@@ -404,7 +546,9 @@ let TestingOutputPeekController = class extends Disposable {
   /**
    * Gets the currently display subject. Undefined if the peek is not open.
    */
-  subject = derived((reader) => this.peek.read(reader)?.current.read(reader));
+  subject = derived(
+    (reader) => this.peek.read(reader)?.current.read(reader)
+  );
   /**
    * Shows a peek for the message in the editor.
    */
@@ -419,7 +563,10 @@ let TestingOutputPeekController = class extends Disposable {
    */
   async showSubject(subject) {
     if (!this.peek.get()) {
-      const peek = this.instantiationService.createInstance(TestResultsPeek, this.editor);
+      const peek = this.instantiationService.createInstance(
+        TestResultsPeek,
+        this.editor
+      );
       this.peek.set(peek, void 0);
       peek.onDidClose(() => {
         this.visible.set(false);
@@ -431,7 +578,7 @@ let TestingOutputPeekController = class extends Disposable {
     if (subject instanceof MessageSubject) {
       alert(renderTestMessageAsText(subject.message.message));
     }
-    this.peek.get().setModel(subject);
+    this.peek.get()?.setModel(subject);
   }
   async openAndShow(uri) {
     const subject = this.retrieveTest(uri);
@@ -441,10 +588,13 @@ let TestingOutputPeekController = class extends Disposable {
     if (!subject.revealLocation || subject.revealLocation.uri.toString() === this.editor.getModel()?.uri.toString()) {
       return this.show(uri);
     }
-    const otherEditor = await this.codeEditorService.openCodeEditor({
-      resource: subject.revealLocation.uri,
-      options: { pinned: false, revealIfOpened: true }
-    }, this.editor);
+    const otherEditor = await this.codeEditorService.openCodeEditor(
+      {
+        resource: subject.revealLocation.uri,
+        options: { pinned: false, revealIfOpened: true }
+      },
+      this.editor
+    );
     if (otherEditor) {
       TestingOutputPeekController.get(otherEditor)?.removePeek();
       return TestingOutputPeekController.get(otherEditor)?.show(uri);
@@ -562,7 +712,9 @@ let TestingOutputPeekController = class extends Disposable {
     if (!parts) {
       return void 0;
     }
-    const result = this.testResults.results.find((r) => r.id === parts.resultId);
+    const result = this.testResults.results.find(
+      (r) => r.id === parts.resultId
+    );
     if (!result) {
       return;
     }
@@ -592,7 +744,18 @@ TestingOutputPeekController = __decorateClass([
 ], TestingOutputPeekController);
 let TestResultsPeek = class extends PeekViewWidget {
   constructor(editor, themeService, peekViewService, testingPeek, contextKeyService, menuService, instantiationService, modelService, codeEditorService, uriIdentityService) {
-    super(editor, { showFrame: true, frameWidth: 1, showArrow: true, isResizeable: true, isAccessible: true, className: "test-output-peek" }, instantiationService);
+    super(
+      editor,
+      {
+        showFrame: true,
+        frameWidth: 1,
+        showArrow: true,
+        isResizeable: true,
+        isAccessible: true,
+        className: "test-output-peek"
+      },
+      instantiationService
+    );
     this.themeService = themeService;
     this.testingPeek = testingPeek;
     this.contextKeyService = contextKeyService;
@@ -600,13 +763,18 @@ let TestResultsPeek = class extends PeekViewWidget {
     this.modelService = modelService;
     this.codeEditorService = codeEditorService;
     this.uriIdentityService = uriIdentityService;
-    this._disposables.add(themeService.onDidColorThemeChange(this.applyTheme, this));
+    this._disposables.add(
+      themeService.onDidColorThemeChange(this.applyTheme, this)
+    );
     peekViewService.addExclusiveWidget(editor, this);
   }
   static {
     __name(this, "TestResultsPeek");
   }
-  current = observableValue("testPeekCurrent", void 0);
+  current = observableValue(
+    "testPeekCurrent",
+    void 0
+  );
   resizeOnNextContentHeightUpdate = false;
   content;
   scopedContextKeyService;
@@ -622,7 +790,10 @@ let TestResultsPeek = class extends PeekViewWidget {
     }
     const lineHeight = this.editor.getOption(EditorOption.lineHeight);
     const basePeekOverhead = 41;
-    return Math.min(defaultMaxHeight || Infinity, (contentHeight + basePeekOverhead) / lineHeight + 1);
+    return Math.min(
+      defaultMaxHeight || Number.POSITIVE_INFINITY,
+      (contentHeight + basePeekOverhead) / lineHeight + 1
+    );
   }
   applyTheme() {
     const theme = this.themeService.getColorTheme();
@@ -641,58 +812,99 @@ let TestResultsPeek = class extends PeekViewWidget {
   }
   _fillContainer(container) {
     if (!this.scopedContextKeyService) {
-      this.scopedContextKeyService = this._disposables.add(this.contextKeyService.createScoped(container));
+      this.scopedContextKeyService = this._disposables.add(
+        this.contextKeyService.createScoped(container)
+      );
       TestingContextKeys.isInPeek.bindTo(this.scopedContextKeyService).set(true);
-      const instaService = this._disposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
-      this.content = this._disposables.add(instaService.createInstance(TestResultsViewContent, this.editor, { historyVisible: this.testingPeek.historyVisible, showRevealLocationOnMessages: false, locationForProgress: Testing.ResultsViewId }));
-      this._disposables.add(this.content.onClose(() => {
-        TestingOutputPeekController.get(this.editor)?.removePeek();
-      }));
+      const instaService = this._disposables.add(
+        this.instantiationService.createChild(
+          new ServiceCollection([
+            IContextKeyService,
+            this.scopedContextKeyService
+          ])
+        )
+      );
+      this.content = this._disposables.add(
+        instaService.createInstance(
+          TestResultsViewContent,
+          this.editor,
+          {
+            historyVisible: this.testingPeek.historyVisible,
+            showRevealLocationOnMessages: false,
+            locationForProgress: Testing.ResultsViewId
+          }
+        )
+      );
+      this._disposables.add(
+        this.content.onClose(() => {
+          TestingOutputPeekController.get(this.editor)?.removePeek();
+        })
+      );
     }
     super._fillContainer(container);
   }
   _fillHead(container) {
     super._fillHead(container);
-    const menuContextKeyService = this._disposables.add(this.contextKeyService.createScoped(container));
-    this._disposables.add(bindContextKey(
-      TestingContextKeys.peekHasStack,
-      menuContextKeyService,
-      (reader) => inspectSubjectHasStack(this.current.read(reader))
-    ));
-    const menu = this.menuService.createMenu(MenuId.TestPeekTitle, menuContextKeyService);
+    const menuContextKeyService = this._disposables.add(
+      this.contextKeyService.createScoped(container)
+    );
+    this._disposables.add(
+      bindContextKey(
+        TestingContextKeys.peekHasStack,
+        menuContextKeyService,
+        (reader) => inspectSubjectHasStack(this.current.read(reader))
+      )
+    );
+    const menu = this.menuService.createMenu(
+      MenuId.TestPeekTitle,
+      menuContextKeyService
+    );
     const actionBar = this._actionbarWidget;
-    this._disposables.add(menu.onDidChange(() => {
-      actions.length = 0;
-      fillInActionBarActions(menu.getActions(), actions);
-      while (actionBar.getAction(1)) {
-        actionBar.pull(0);
-      }
-      actionBar.push(actions, { label: false, icon: true, index: 0 });
-    }));
+    this._disposables.add(
+      menu.onDidChange(() => {
+        actions.length = 0;
+        fillInActionBarActions(menu.getActions(), actions);
+        while (actionBar.getAction(1)) {
+          actionBar.pull(0);
+        }
+        actionBar.push(actions, { label: false, icon: true, index: 0 });
+      })
+    );
     const actions = [];
     fillInActionBarActions(menu.getActions(), actions);
     actionBar.push(actions, { label: false, icon: true, index: 0 });
   }
   _fillBody(containerElement) {
     this.content.fillBody(containerElement);
-    const contentHeightSettleTimer = this._disposables.add(new RunOnceScheduler(() => {
-      this.resizeOnNextContentHeightUpdate = false;
-    }, 500));
-    this._disposables.add(this.content.onDidChangeContentHeight((height) => {
-      if (!this.resizeOnNextContentHeightUpdate || !height) {
-        return;
-      }
-      const displayed = this._getMaximumHeightInLines();
-      if (displayed) {
-        this._relayout(Math.min(displayed, this.getVisibleEditorLines() / 2), true);
-        if (!contentHeightSettleTimer.isScheduled()) {
-          contentHeightSettleTimer.schedule();
+    const contentHeightSettleTimer = this._disposables.add(
+      new RunOnceScheduler(() => {
+        this.resizeOnNextContentHeightUpdate = false;
+      }, 500)
+    );
+    this._disposables.add(
+      this.content.onDidChangeContentHeight((height) => {
+        if (!this.resizeOnNextContentHeightUpdate || !height) {
+          return;
         }
-      }
-    }));
-    this._disposables.add(this.content.onDidRequestReveal((sub) => {
-      TestingOutputPeekController.get(this.editor)?.show(sub instanceof MessageSubject ? sub.messageUri : sub.outputUri);
-    }));
+        const displayed = this._getMaximumHeightInLines();
+        if (displayed) {
+          this._relayout(
+            Math.min(displayed, this.getVisibleEditorLines() / 2),
+            true
+          );
+          if (!contentHeightSettleTimer.isScheduled()) {
+            contentHeightSettleTimer.schedule();
+          }
+        }
+      })
+    );
+    this._disposables.add(
+      this.content.onDidRequestReveal((sub) => {
+        TestingOutputPeekController.get(this.editor)?.show(
+          sub instanceof MessageSubject ? sub.messageUri : sub.outputUri
+        );
+      })
+    );
   }
   /**
    * Updates the test to be shown.
@@ -713,7 +925,10 @@ let TestResultsPeek = class extends PeekViewWidget {
     }
     this.resizeOnNextContentHeightUpdate = true;
     this.show(revealLocation, 10);
-    this.editor.revealRangeNearTopIfOutsideViewport(Range.fromPositions(revealLocation), ScrollType.Smooth);
+    this.editor.revealRangeNearTopIfOutsideViewport(
+      Range.fromPositions(revealLocation),
+      ScrollType.Smooth
+    );
     return this.showInPlace(subject);
   }
   /**
@@ -723,7 +938,9 @@ let TestResultsPeek = class extends PeekViewWidget {
     this.content.collapseStack();
   }
   getVisibleEditorLines() {
-    return Math.round(this.editor.getDomNode().clientHeight / this.editor.getOption(EditorOption.lineHeight));
+    return Math.round(
+      this.editor.getDomNode()?.clientHeight / this.editor.getOption(EditorOption.lineHeight)
+    );
   }
   /**
    * Shows a message in-place without showing or changing the peek location.
@@ -732,7 +949,10 @@ let TestResultsPeek = class extends PeekViewWidget {
   async showInPlace(subject) {
     if (subject instanceof MessageSubject) {
       const message = subject.message;
-      this.setTitle(firstLine(renderTestMessageAsText(message.message)), stripIcons(subject.test.label));
+      this.setTitle(
+        firstLine(renderTestMessageAsText(message.message)),
+        stripIcons(subject.test.label)
+      );
     } else {
       this.setTitle(localize("testOutputTitle", "Test Output"));
     }
@@ -766,17 +986,36 @@ TestResultsPeek = __decorateClass([
 ], TestResultsPeek);
 let TestResultsView = class extends ViewPane {
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, resultService) {
-    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    super(
+      options,
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      hoverService
+    );
     this.resultService = resultService;
   }
   static {
     __name(this, "TestResultsView");
   }
-  content = new Lazy(() => this._register(this.instantiationService.createInstance(TestResultsViewContent, void 0, {
-    historyVisible: staticObservableValue(true),
-    showRevealLocationOnMessages: true,
-    locationForProgress: Testing.ExplorerViewId
-  })));
+  content = new Lazy(
+    () => this._register(
+      this.instantiationService.createInstance(
+        TestResultsViewContent,
+        void 0,
+        {
+          historyVisible: staticObservableValue(true),
+          showRevealLocationOnMessages: true,
+          locationForProgress: Testing.ExplorerViewId
+        }
+      )
+    )
+  );
   get subject() {
     return this.content.rawValue?.current;
   }
@@ -785,14 +1024,21 @@ let TestResultsView = class extends ViewPane {
     if (!result) {
       return;
     }
-    this.content.rawValue?.reveal({ preserveFocus, subject: new TaskSubject(result, 0) });
+    this.content.rawValue?.reveal({
+      preserveFocus,
+      subject: new TaskSubject(result, 0)
+    });
   }
   renderBody(container) {
     super.renderBody(container);
     if (this.isBodyVisible()) {
       this.renderContent(container);
     } else {
-      this._register(Event.once(Event.filter(this.onDidChangeBodyVisibility, Boolean))(() => this.renderContent(container)));
+      this._register(
+        Event.once(
+          Event.filter(this.onDidChangeBodyVisibility, Boolean)
+        )(() => this.renderContent(container))
+      );
     }
   }
   layoutBody(height, width) {
@@ -802,10 +1048,17 @@ let TestResultsView = class extends ViewPane {
   renderContent(container) {
     const content = this.content.value;
     content.fillBody(container);
-    this._register(content.onDidRequestReveal((subject) => content.reveal({ preserveFocus: true, subject })));
+    this._register(
+      content.onDidRequestReveal(
+        (subject) => content.reveal({ preserveFocus: true, subject })
+      )
+    );
     const [lastResult] = this.resultService.results;
-    if (lastResult && lastResult.tasks.length) {
-      content.reveal({ preserveFocus: true, subject: new TaskSubject(lastResult, 0) });
+    if (lastResult?.tasks.length) {
+      content.reveal({
+        preserveFocus: true,
+        subject: new TaskSubject(lastResult, 0)
+      });
     }
   }
 };
@@ -844,7 +1097,10 @@ class CloseTestPeek extends EditorAction2 {
       id: "editor.closeTestPeek",
       title: localize2("close", "Close"),
       icon: Codicon.close,
-      precondition: ContextKeyExpr.or(TestingContextKeys.isInPeek, TestingContextKeys.isPeekVisible),
+      precondition: ContextKeyExpr.or(
+        TestingContextKeys.isInPeek,
+        TestingContextKeys.isPeekVisible
+      ),
       keybinding: {
         weight: KeybindingWeight.EditorContrib - 101,
         primary: KeyCode.Escape,
@@ -853,7 +1109,9 @@ class CloseTestPeek extends EditorAction2 {
     });
   }
   runEditorCommand(accessor, editor) {
-    const parent = getPeekedEditorFromFocus(accessor.get(ICodeEditorService));
+    const parent = getPeekedEditorFromFocus(
+      accessor.get(ICodeEditorService)
+    );
     TestingOutputPeekController.get(parent ?? editor)?.removePeek();
   }
 }
@@ -887,9 +1145,15 @@ class GoToNextMessageAction extends Action2 {
     super({
       id: GoToNextMessageAction.ID,
       f1: true,
-      title: localize2("testing.goToNextMessage", "Go to Next Test Failure"),
+      title: localize2(
+        "testing.goToNextMessage",
+        "Go to Next Test Failure"
+      ),
       metadata: {
-        description: localize2("testing.goToNextMessage.description", "Shows the next failure message in your file")
+        description: localize2(
+          "testing.goToNextMessage.description",
+          "Shows the next failure message in your file"
+        )
       },
       icon: Codicon.arrowDown,
       category: Categories.Test,
@@ -898,18 +1162,23 @@ class GoToNextMessageAction extends Action2 {
         weight: KeybindingWeight.EditorContrib + 1,
         when: navWhen
       },
-      menu: [{
-        id: MenuId.TestPeekTitle,
-        group: "navigation",
-        order: 2
-      }, {
-        id: MenuId.CommandPalette,
-        when: navWhen
-      }]
+      menu: [
+        {
+          id: MenuId.TestPeekTitle,
+          group: "navigation",
+          order: 2
+        },
+        {
+          id: MenuId.CommandPalette,
+          when: navWhen
+        }
+      ]
     });
   }
   run(accessor) {
-    const editor = getPeekedEditorFromFocus(accessor.get(ICodeEditorService));
+    const editor = getPeekedEditorFromFocus(
+      accessor.get(ICodeEditorService)
+    );
     if (editor) {
       TestingOutputPeekController.get(editor)?.next();
     }
@@ -924,9 +1193,15 @@ class GoToPreviousMessageAction extends Action2 {
     super({
       id: GoToPreviousMessageAction.ID,
       f1: true,
-      title: localize2("testing.goToPreviousMessage", "Go to Previous Test Failure"),
+      title: localize2(
+        "testing.goToPreviousMessage",
+        "Go to Previous Test Failure"
+      ),
       metadata: {
-        description: localize2("testing.goToPreviousMessage.description", "Shows the previous failure message in your file")
+        description: localize2(
+          "testing.goToPreviousMessage.description",
+          "Shows the previous failure message in your file"
+        )
       },
       icon: Codicon.arrowUp,
       category: Categories.Test,
@@ -935,18 +1210,23 @@ class GoToPreviousMessageAction extends Action2 {
         weight: KeybindingWeight.EditorContrib + 1,
         when: navWhen
       },
-      menu: [{
-        id: MenuId.TestPeekTitle,
-        group: "navigation",
-        order: 1
-      }, {
-        id: MenuId.CommandPalette,
-        when: navWhen
-      }]
+      menu: [
+        {
+          id: MenuId.TestPeekTitle,
+          group: "navigation",
+          order: 1
+        },
+        {
+          id: MenuId.CommandPalette,
+          when: navWhen
+        }
+      ]
     });
   }
   run(accessor) {
-    const editor = getPeekedEditorFromFocus(accessor.get(ICodeEditorService));
+    const editor = getPeekedEditorFromFocus(
+      accessor.get(ICodeEditorService)
+    );
     if (editor) {
       TestingOutputPeekController.get(editor)?.previous();
     }
@@ -960,19 +1240,26 @@ class CollapsePeekStack extends Action2 {
   constructor() {
     super({
       id: CollapsePeekStack.ID,
-      title: localize2("testing.collapsePeekStack", "Collapse Stack Frames"),
+      title: localize2(
+        "testing.collapsePeekStack",
+        "Collapse Stack Frames"
+      ),
       icon: Codicon.collapseAll,
       category: Categories.Test,
-      menu: [{
-        id: MenuId.TestPeekTitle,
-        when: TestingContextKeys.peekHasStack,
-        group: "navigation",
-        order: 4
-      }]
+      menu: [
+        {
+          id: MenuId.TestPeekTitle,
+          when: TestingContextKeys.peekHasStack,
+          group: "navigation",
+          order: 4
+        }
+      ]
     });
   }
   run(accessor) {
-    const editor = getPeekedEditorFromFocus(accessor.get(ICodeEditorService));
+    const editor = getPeekedEditorFromFocus(
+      accessor.get(ICodeEditorService)
+    );
     if (editor) {
       TestingOutputPeekController.get(editor)?.collapseStack();
     }
@@ -1006,17 +1293,25 @@ class ToggleTestingPeekHistory extends Action2 {
     super({
       id: ToggleTestingPeekHistory.ID,
       f1: true,
-      title: localize2("testing.toggleTestingPeekHistory", "Toggle Test History in Peek"),
+      title: localize2(
+        "testing.toggleTestingPeekHistory",
+        "Toggle Test History in Peek"
+      ),
       metadata: {
-        description: localize2("testing.toggleTestingPeekHistory.description", "Shows or hides the history of test runs in the peek view")
+        description: localize2(
+          "testing.toggleTestingPeekHistory.description",
+          "Shows or hides the history of test runs in the peek view"
+        )
       },
       icon: Codicon.history,
       category: Categories.Test,
-      menu: [{
-        id: MenuId.TestPeekTitle,
-        group: "navigation",
-        order: 3
-      }],
+      menu: [
+        {
+          id: MenuId.TestPeekTitle,
+          group: "navigation",
+          order: 3
+        }
+      ],
       keybinding: {
         weight: KeybindingWeight.WorkbenchContrib,
         primary: KeyMod.Alt | KeyCode.KeyH,

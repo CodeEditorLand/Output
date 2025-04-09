@@ -10,9 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IContextMenuDelegate } from "../../../base/browser/contextmenu.js";
 import { ModifierKeyEmitter } from "../../../base/browser/dom.js";
-import { IAction, Separator } from "../../../base/common/actions.js";
+import { Separator } from "../../../base/common/actions.js";
 import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { getFlatContextMenuActions } from "../../actions/browser/menuEntryActionViewItem.js";
@@ -21,8 +20,12 @@ import { IContextKeyService } from "../../contextkey/common/contextkey.js";
 import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 import { INotificationService } from "../../notification/common/notification.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { ContextMenuHandler, IContextMenuHandlerOptions } from "./contextMenuHandler.js";
-import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "./contextView.js";
+import {
+  ContextMenuHandler
+} from "./contextMenuHandler.js";
+import {
+  IContextViewService
+} from "./contextView.js";
 let ContextMenuService = class extends Disposable {
   constructor(telemetryService, notificationService, contextViewService, keybindingService, menuService, contextKeyService) {
     super();
@@ -39,20 +42,33 @@ let ContextMenuService = class extends Disposable {
   _contextMenuHandler = void 0;
   get contextMenuHandler() {
     if (!this._contextMenuHandler) {
-      this._contextMenuHandler = new ContextMenuHandler(this.contextViewService, this.telemetryService, this.notificationService, this.keybindingService);
+      this._contextMenuHandler = new ContextMenuHandler(
+        this.contextViewService,
+        this.telemetryService,
+        this.notificationService,
+        this.keybindingService
+      );
     }
     return this._contextMenuHandler;
   }
-  _onDidShowContextMenu = this._store.add(new Emitter());
+  _onDidShowContextMenu = this._store.add(
+    new Emitter()
+  );
   onDidShowContextMenu = this._onDidShowContextMenu.event;
-  _onDidHideContextMenu = this._store.add(new Emitter());
+  _onDidHideContextMenu = this._store.add(
+    new Emitter()
+  );
   onDidHideContextMenu = this._onDidHideContextMenu.event;
   configure(options) {
     this.contextMenuHandler.configure(options);
   }
   // ContextMenu
   showContextMenu(delegate) {
-    delegate = ContextMenuMenuDelegate.transform(delegate, this.menuService, this.contextKeyService);
+    delegate = ContextMenuMenuDelegate.transform(
+      delegate,
+      this.menuService,
+      this.contextKeyService
+    );
     this.contextMenuHandler.showContextMenu({
       ...delegate,
       onHide: /* @__PURE__ */ __name((didCancel) => {
@@ -88,7 +104,11 @@ var ContextMenuMenuDelegate;
       getActions: /* @__PURE__ */ __name(() => {
         let target = [];
         if (menuId) {
-          const menu = menuService.getMenuActions(menuId, contextKeyService ?? globalContextKeyService, menuActionOptions);
+          const menu = menuService.getMenuActions(
+            menuId,
+            contextKeyService ?? globalContextKeyService,
+            menuActionOptions
+          );
           target = getFlatContextMenuActions(menu);
         }
         if (!delegate.getActions) {

@@ -1,16 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as path from "../../../../base/common/path.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../../base/common/errorMessage.js";
 import * as glob from "../../../../base/common/glob.js";
+import * as path from "../../../../base/common/path.js";
 import * as resources from "../../../../base/common/resources.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileMatch, IFileSearchProviderStats, IFolderQuery, ISearchCompleteStats, IFileQuery, QueryGlobTester, resolvePatternsForProvider, hasSiblingFn, excludeToGlobPattern, DEFAULT_MAX_SEARCH_RESULTS } from "./search.js";
-import { FileSearchProviderFolderOptions, FileSearchProvider2, FileSearchProviderOptions } from "./searchExtTypes.js";
-import { OldFileSearchProviderConverter } from "./searchExtConversionTypes.js";
 import { FolderQuerySearchTree } from "./folderQuerySearchTree.js";
+import {
+  DEFAULT_MAX_SEARCH_RESULTS,
+  excludeToGlobPattern,
+  hasSiblingFn,
+  QueryGlobTester,
+  resolvePatternsForProvider
+} from "./search.js";
+import { OldFileSearchProviderConverter } from "./searchExtConversionTypes.js";
 class FileSearchEngine {
   constructor(config, provider, sessionLifecycle) {
     this.config = config;
@@ -54,26 +60,31 @@ class FileSearchEngine {
         this.config.extraFileResources.forEach((extraFile) => {
           const extraFileStr = extraFile.toString();
           const basename = path.basename(extraFileStr);
-          if (this.globalExcludePattern && this.globalExcludePattern(extraFileStr, basename)) {
+          if (this.globalExcludePattern?.(extraFileStr, basename)) {
             return;
           }
           this.matchFile(onResult, { base: extraFile, basename });
         });
       }
-      this.doSearch(folderQueries, onResult).then((stats) => {
-        resolve({
-          limitHit: this.isLimitHit,
-          stats: stats || void 0
-          // Only looking at single-folder workspace stats...
-        });
-      }, (err) => {
-        reject(new Error(toErrorMessage(err)));
-      });
+      this.doSearch(folderQueries, onResult).then(
+        (stats) => {
+          resolve({
+            limitHit: this.isLimitHit,
+            stats: stats || void 0
+            // Only looking at single-folder workspace stats...
+          });
+        },
+        (err) => {
+          reject(new Error(toErrorMessage(err)));
+        }
+      );
     });
   }
   async doSearch(fqs, onResult) {
     const cancellation = new CancellationTokenSource();
-    const folderOptions = fqs.map((fq) => this.getSearchOptionsForFolder(fq));
+    const folderOptions = fqs.map(
+      (fq) => this.getSearchOptionsForFolder(fq)
+    );
     const session = this.provider instanceof OldFileSearchProviderConverter ? this.sessionLifecycle?.tokenSource.token : this.sessionLifecycle?.obj;
     const options = {
       folderOptions,
@@ -83,7 +94,12 @@ class FileSearchEngine {
     const getFolderQueryInfo = /* @__PURE__ */ __name((fq) => {
       const queryTester = new QueryGlobTester(this.config, fq);
       const noSiblingsClauses = !queryTester.hasSiblingExcludeClauses();
-      return { queryTester, noSiblingsClauses, folder: fq.folder, tree: this.initDirectoryTree() };
+      return {
+        queryTester,
+        noSiblingsClauses,
+        folder: fq.folder,
+        tree: this.initDirectoryTree()
+      };
     }, "getFolderQueryInfo");
     const folderMappings = new FolderQuerySearchTree(fqs, getFolderQueryInfo);
     let providerSW;
@@ -103,13 +119,25 @@ class FileSearchEngine {
       if (results) {
         results.forEach((result) => {
           const fqFolderInfo = folderMappings.findQueryFragmentAwareSubstr(result);
-          const relativePath = path.posix.relative(fqFolderInfo.folder.path, result.path);
+          const relativePath = path.posix.relative(
+            fqFolderInfo.folder.path,
+            result.path
+          );
           if (fqFolderInfo.noSiblingsClauses) {
             const basename = path.basename(result.path);
-            this.matchFile(onResult, { base: fqFolderInfo.folder, relativePath, basename });
+            this.matchFile(onResult, {
+              base: fqFolderInfo.folder,
+              relativePath,
+              basename
+            });
             return;
           }
-          this.addDirectoryEntries(fqFolderInfo.tree, fqFolderInfo.folder, relativePath, onResult);
+          this.addDirectoryEntries(
+            fqFolderInfo.tree,
+            fqFolderInfo.folder,
+            relativePath,
+            onResult
+          );
         });
       }
       if (this.isCanceled && !this.isLimitHit) {
@@ -128,16 +156,27 @@ class FileSearchEngine {
     }
   }
   getSearchOptionsForFolder(fq) {
-    const includes = resolvePatternsForProvider(this.config.includePattern, fq.includePattern);
+    const includes = resolvePatternsForProvider(
+      this.config.includePattern,
+      fq.includePattern
+    );
     let excludePattern = fq.excludePattern?.map((e) => ({
       folder: e.folder,
-      patterns: resolvePatternsForProvider(this.config.excludePattern, e.pattern)
+      patterns: resolvePatternsForProvider(
+        this.config.excludePattern,
+        e.pattern
+      )
     }));
     if (!excludePattern?.length) {
-      excludePattern = [{
-        folder: void 0,
-        patterns: resolvePatternsForProvider(this.config.excludePattern, void 0)
-      }];
+      excludePattern = [
+        {
+          folder: void 0,
+          patterns: resolvePatternsForProvider(
+            this.config.excludePattern,
+            void 0
+          )
+        }
+      ];
     }
     const excludes = excludeToGlobPattern(excludePattern);
     return {
@@ -163,7 +202,11 @@ class FileSearchEngine {
   addDirectoryEntries({ pathToEntries }, base, relativeFile, onResult) {
     if (relativeFile === this.filePattern) {
       const basename = path.basename(this.filePattern);
-      this.matchFile(onResult, { base, relativePath: this.filePattern, basename });
+      this.matchFile(onResult, {
+        base,
+        relativePath: this.filePattern,
+        basename
+      });
     }
     function add(relativePath) {
       const basename = path.basename(relativePath);
@@ -186,11 +229,17 @@ class FileSearchEngine {
     const self = this;
     const filePattern = this.filePattern;
     function matchDirectory(entries) {
-      const hasSibling = hasSiblingFn(() => entries.map((entry) => entry.basename));
+      const hasSibling = hasSiblingFn(
+        () => entries.map((entry) => entry.basename)
+      );
       for (let i = 0, n = entries.length; i < n; i++) {
         const entry = entries[i];
         const { relativePath, basename } = entry;
-        if (queryTester.matchesExcludesSync(relativePath, basename, filePattern !== basename ? hasSibling : void 0)) {
+        if (queryTester.matchesExcludesSync(
+          relativePath,
+          basename,
+          filePattern !== basename ? hasSibling : void 0
+        )) {
           continue;
         }
         const sub = pathToEntries[relativePath];
@@ -251,26 +300,33 @@ class FileSearchManager {
   sessions = /* @__PURE__ */ new Map();
   fileSearch(config, provider, onBatch, token) {
     const sessionTokenSource = this.getSessionTokenSource(config.cacheKey);
-    const engine = new FileSearchEngine(config, provider, sessionTokenSource);
+    const engine = new FileSearchEngine(
+      config,
+      provider,
+      sessionTokenSource
+    );
     let resultCount = 0;
     const onInternalResult = /* @__PURE__ */ __name((batch) => {
       resultCount += batch.length;
       onBatch(batch.map((m) => this.rawMatchToSearchItem(m)));
     }, "onInternalResult");
-    return this.doSearch(engine, FileSearchManager.BATCH_SIZE, onInternalResult, token).then(
-      (result) => {
-        return {
-          limitHit: result.limitHit,
-          stats: result.stats ? {
-            fromCache: false,
-            type: "fileSearchProvider",
-            resultCount,
-            detailStats: result.stats
-          } : void 0,
-          messages: []
-        };
-      }
-    );
+    return this.doSearch(
+      engine,
+      FileSearchManager.BATCH_SIZE,
+      onInternalResult,
+      token
+    ).then((result) => {
+      return {
+        limitHit: result.limitHit,
+        stats: result.stats ? {
+          fromCache: false,
+          type: "fileSearchProvider",
+          resultCount,
+          detailStats: result.stats
+        } : void 0,
+        messages: []
+      };
+    });
   }
   clearCache(cacheKey) {
     this.sessions.get(cacheKey)?.cancel();
@@ -310,19 +366,22 @@ class FileSearchManager {
       }
     }, "_onResult");
     let batch = [];
-    return engine.search(_onResult).then((result) => {
-      if (batch.length) {
-        onResultBatch(batch);
+    return engine.search(_onResult).then(
+      (result) => {
+        if (batch.length) {
+          onResultBatch(batch);
+        }
+        listener.dispose();
+        return result;
+      },
+      (error) => {
+        if (batch.length) {
+          onResultBatch(batch);
+        }
+        listener.dispose();
+        return Promise.reject(error);
       }
-      listener.dispose();
-      return result;
-    }, (error) => {
-      if (batch.length) {
-        onResultBatch(batch);
-      }
-      listener.dispose();
-      return Promise.reject(error);
-    });
+    );
   }
 }
 export {

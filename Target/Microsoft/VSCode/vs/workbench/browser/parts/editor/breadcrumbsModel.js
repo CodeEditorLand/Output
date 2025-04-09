@@ -12,17 +12,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { Schemas, matchesSomeScheme } from "../../../../base/common/network.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  DisposableStore,
+  MutableDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { matchesSomeScheme, Schemas } from "../../../../base/common/network.js";
 import { dirname, isEqual } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { FileKind } from "../../../../platform/files/common/files.js";
-import { IWorkspaceContextService, IWorkspaceFolder, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import {
+  IWorkspaceContextService,
+  WorkbenchState
+} from "../../../../platform/workspace/common/workspace.js";
+import {
+  IOutlineService,
+  OutlineTarget
+} from "../../../services/outline/browser/outline.js";
 import { BreadcrumbsConfig } from "./breadcrumbs.js";
-import { IEditorPane } from "../../../common/editor.js";
-import { IOutline, IOutlineService, OutlineTarget } from "../../../services/outline/browser/outline.js";
 class FileElement {
   constructor(uri, kind) {
     this.uri = uri;
@@ -49,14 +57,28 @@ let BreadcrumbsModel = class {
     this._outlineService = _outlineService;
     this._cfgFilePath = BreadcrumbsConfig.FilePath.bindTo(configurationService);
     this._cfgSymbolPath = BreadcrumbsConfig.SymbolPath.bindTo(configurationService);
-    this._disposables.add(this._cfgFilePath.onDidChange((_) => this._onDidUpdate.fire(this)));
-    this._disposables.add(this._cfgSymbolPath.onDidChange((_) => this._onDidUpdate.fire(this)));
-    this._workspaceService.onDidChangeWorkspaceFolders(this._onDidChangeWorkspaceFolders, this, this._disposables);
+    this._disposables.add(
+      this._cfgFilePath.onDidChange((_) => this._onDidUpdate.fire(this))
+    );
+    this._disposables.add(
+      this._cfgSymbolPath.onDidChange(
+        (_) => this._onDidUpdate.fire(this)
+      )
+    );
+    this._workspaceService.onDidChangeWorkspaceFolders(
+      this._onDidChangeWorkspaceFolders,
+      this,
+      this._disposables
+    );
     this._fileInfo = this._initFilePathInfo(resource);
     if (editor) {
       this._bindToEditor(editor);
-      this._disposables.add(_outlineService.onDidChange(() => this._bindToEditor(editor)));
-      this._disposables.add(editor.onDidChangeControl(() => this._bindToEditor(editor)));
+      this._disposables.add(
+        _outlineService.onDidChange(() => this._bindToEditor(editor))
+      );
+      this._disposables.add(
+        editor.onDidChangeControl(() => this._bindToEditor(editor))
+      );
     }
     this._onDidUpdate.fire(this);
   }
@@ -97,10 +119,20 @@ let BreadcrumbsModel = class {
     }
     const breadcrumbsElements = this._currentOutline.value.config.breadcrumbsDataSource.getBreadcrumbElements();
     for (let i = this._cfgSymbolPath.getValue() === "last" && breadcrumbsElements.length > 0 ? breadcrumbsElements.length - 1 : 0; i < breadcrumbsElements.length; i++) {
-      result.push(new OutlineElement2(breadcrumbsElements[i], this._currentOutline.value));
+      result.push(
+        new OutlineElement2(
+          breadcrumbsElements[i],
+          this._currentOutline.value
+        )
+      );
     }
     if (breadcrumbsElements.length === 0 && !this._currentOutline.value.isEmpty) {
-      result.push(new OutlineElement2(this._currentOutline.value, this._currentOutline.value));
+      result.push(
+        new OutlineElement2(
+          this._currentOutline.value,
+          this._currentOutline.value
+        )
+      );
     }
     return result;
   }
@@ -120,7 +152,12 @@ let BreadcrumbsModel = class {
       if (info.folder && isEqual(info.folder.uri, uriPrefix)) {
         break;
       }
-      info.path.unshift(new FileElement(uriPrefix, info.path.length === 0 ? FileKind.FILE : FileKind.FOLDER));
+      info.path.unshift(
+        new FileElement(
+          uriPrefix,
+          info.path.length === 0 ? FileKind.FILE : FileKind.FOLDER
+        )
+      );
       const prevPathLength = uriPrefix.path.length;
       uriPrefix = dirname(uriPrefix);
       if (uriPrefix.path.length === prevPathLength) {
@@ -128,7 +165,9 @@ let BreadcrumbsModel = class {
       }
     }
     if (info.folder && this._workspaceService.getWorkbenchState() === WorkbenchState.WORKSPACE) {
-      info.path.unshift(new FileElement(info.folder.uri, FileKind.ROOT_FOLDER));
+      info.path.unshift(
+        new FileElement(info.folder.uri, FileKind.ROOT_FOLDER)
+      );
     }
     return info;
   }
@@ -149,7 +188,9 @@ let BreadcrumbsModel = class {
       this._currentOutline.value = outline;
       this._onDidUpdate.fire(this);
       if (outline) {
-        this._outlineDisposables.add(outline.onDidChange(() => this._onDidUpdate.fire(this)));
+        this._outlineDisposables.add(
+          outline.onDidChange(() => this._onDidUpdate.fire(this))
+        );
       }
     }).catch((err) => {
       this._onDidUpdate.fire(this);

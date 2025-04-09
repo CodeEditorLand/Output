@@ -12,22 +12,26 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { ICommandDetectionCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { IPromptInputModel } from "../../../../../platform/terminal/common/capabilities/commandDetection/promptInputModel.js";
-import { ITerminalCompletion, TerminalCompletionItemKind } from "./terminalCompletionItem.js";
+import {
+  TerminalCompletionItemKind
+} from "./terminalCompletionItem.js";
 let TerminalSuggestTelemetry = class extends Disposable {
   constructor(commandDetection, _promptInputModel, _telemetryService) {
     super();
     this._promptInputModel = _promptInputModel;
     this._telemetryService = _telemetryService;
-    this._register(commandDetection.onCommandFinished((e) => {
-      this._sendTelemetryInfo(false, e.exitCode);
-      this._acceptedCompletions = void 0;
-    }));
-    this._register(this._promptInputModel.onDidInterrupt(() => {
-      this._sendTelemetryInfo(true);
-      this._acceptedCompletions = void 0;
-    }));
+    this._register(
+      commandDetection.onCommandFinished((e) => {
+        this._sendTelemetryInfo(false, e.exitCode);
+        this._acceptedCompletions = void 0;
+      })
+    );
+    this._register(
+      this._promptInputModel.onDidInterrupt(() => {
+        this._sendTelemetryInfo(true);
+        this._acceptedCompletions = void 0;
+      })
+    );
   }
   static {
     __name(this, "TerminalSuggestTelemetry");
@@ -43,7 +47,10 @@ let TerminalSuggestTelemetry = class extends Disposable {
     [TerminalCompletionItemKind.OptionValue, "Option Value"],
     [TerminalCompletionItemKind.Flag, "Flag"],
     [TerminalCompletionItemKind.InlineSuggestion, "Inline Suggestion"],
-    [TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop, "Inline Suggestion"]
+    [
+      TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop,
+      "Inline Suggestion"
+    ]
   ]);
   acceptCompletion(completion, commandLine) {
     if (!completion || !commandLine) {
@@ -51,7 +58,10 @@ let TerminalSuggestTelemetry = class extends Disposable {
       return;
     }
     this._acceptedCompletions = this._acceptedCompletions || [];
-    this._acceptedCompletions.push({ label: typeof completion.label === "string" ? completion.label : completion.label.label, kind: this._kindMap.get(completion.kind) });
+    this._acceptedCompletions.push({
+      label: typeof completion.label === "string" ? completion.label : completion.label.label,
+      kind: this._kindMap.get(completion.kind)
+    });
   }
   _sendTelemetryInfo(fromInterrupt, exitCode) {
     const commandLine = this._promptInputModel?.value;
@@ -90,7 +100,9 @@ var CompletionOutcome = /* @__PURE__ */ ((CompletionOutcome2) => {
   return CompletionOutcome2;
 })(CompletionOutcome || {});
 function inputContainsFirstHalfOfLabel(commandLine, label) {
-  return commandLine.includes(label.substring(0, Math.ceil(label.length / 2)));
+  return commandLine.includes(
+    label.substring(0, Math.ceil(label.length / 2))
+  );
 }
 __name(inputContainsFirstHalfOfLabel, "inputContainsFirstHalfOfLabel");
 export {

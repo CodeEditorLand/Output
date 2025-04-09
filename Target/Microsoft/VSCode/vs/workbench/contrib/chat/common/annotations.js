@@ -3,9 +3,10 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { basename } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { IChatProgressRenderableResponseContent, IChatProgressResponseContent, appendMarkdownString, canMergeMarkdownStrings } from "./chatModel.js";
-import { IChatAgentVulnerabilityDetails, IChatMarkdownContent } from "./chatService.js";
+import {
+  appendMarkdownString,
+  canMergeMarkdownStrings
+} from "./chatModel.js";
 const contentRefUrl = "http://_vscodecontentref_";
 function annotateSpecialMarkdownContent(response) {
   let refIdPool = 0;
@@ -25,33 +26,69 @@ function annotateSpecialMarkdownContent(response) {
         }
       }
       const refId = refIdPool++;
-      const printUri = URI.parse(contentRefUrl).with({ path: String(refId) });
+      const printUri = URI.parse(contentRefUrl).with({
+        path: String(refId)
+      });
       const markdownText = `[${label}](${printUri.toString()})`;
       const annotationMetadata = { [refId]: item };
       if (previousItem?.kind === "markdownContent") {
-        const merged = appendMarkdownString(previousItem.content, new MarkdownString(markdownText));
-        result[previousItemIndex] = { ...previousItem, content: merged, inlineReferences: { ...annotationMetadata, ...previousItem.inlineReferences || {} } };
+        const merged = appendMarkdownString(
+          previousItem.content,
+          new MarkdownString(markdownText)
+        );
+        result[previousItemIndex] = {
+          ...previousItem,
+          content: merged,
+          inlineReferences: {
+            ...annotationMetadata,
+            ...previousItem.inlineReferences || {}
+          }
+        };
       } else {
-        result.push({ content: new MarkdownString(markdownText), inlineReferences: annotationMetadata, kind: "markdownContent" });
+        result.push({
+          content: new MarkdownString(markdownText),
+          inlineReferences: annotationMetadata,
+          kind: "markdownContent"
+        });
       }
     } else if (item.kind === "markdownContent" && previousItem?.kind === "markdownContent" && canMergeMarkdownStrings(previousItem.content, item.content)) {
-      const merged = appendMarkdownString(previousItem.content, item.content);
+      const merged = appendMarkdownString(
+        previousItem.content,
+        item.content
+      );
       result[previousItemIndex] = { ...previousItem, content: merged };
     } else if (item.kind === "markdownVuln") {
-      const vulnText = encodeURIComponent(JSON.stringify(item.vulnerabilities));
+      const vulnText = encodeURIComponent(
+        JSON.stringify(item.vulnerabilities)
+      );
       const markdownText = `<vscode_annotation details='${vulnText}'>${item.content.value}</vscode_annotation>`;
       if (previousItem?.kind === "markdownContent") {
-        const merged = appendMarkdownString(previousItem.content, new MarkdownString(markdownText));
-        result[previousItemIndex] = { ...previousItem, content: merged };
+        const merged = appendMarkdownString(
+          previousItem.content,
+          new MarkdownString(markdownText)
+        );
+        result[previousItemIndex] = {
+          ...previousItem,
+          content: merged
+        };
       } else {
-        result.push({ content: new MarkdownString(markdownText), kind: "markdownContent" });
+        result.push({
+          content: new MarkdownString(markdownText),
+          kind: "markdownContent"
+        });
       }
     } else if (item.kind === "codeblockUri") {
       if (previousItem?.kind === "markdownContent") {
-        const isEditText = item.isEdit ? ` isEdit` : "";
+        const isEditText = item.isEdit ? " isEdit" : "";
         const markdownText = `<vscode_codeblock_uri${isEditText}>${item.uri.toString()}</vscode_codeblock_uri>`;
-        const merged = appendMarkdownString(previousItem.content, new MarkdownString(markdownText));
-        result[previousItemIndex] = { ...previousItem, content: merged };
+        const merged = appendMarkdownString(
+          previousItem.content,
+          new MarkdownString(markdownText)
+        );
+        result[previousItemIndex] = {
+          ...previousItem,
+          content: merged
+        };
       }
     } else {
       result.push(item);
@@ -66,17 +103,34 @@ function annotateVulnerabilitiesInText(response) {
     const previousItem = result[result.length - 1];
     if (item.kind === "markdownContent") {
       if (previousItem?.kind === "markdownContent") {
-        result[result.length - 1] = { content: new MarkdownString(previousItem.content.value + item.content.value, { isTrusted: previousItem.content.isTrusted }), kind: "markdownContent" };
+        result[result.length - 1] = {
+          content: new MarkdownString(
+            previousItem.content.value + item.content.value,
+            { isTrusted: previousItem.content.isTrusted }
+          ),
+          kind: "markdownContent"
+        };
       } else {
         result.push(item);
       }
     } else if (item.kind === "markdownVuln") {
-      const vulnText = encodeURIComponent(JSON.stringify(item.vulnerabilities));
+      const vulnText = encodeURIComponent(
+        JSON.stringify(item.vulnerabilities)
+      );
       const markdownText = `<vscode_annotation details='${vulnText}'>${item.content.value}</vscode_annotation>`;
       if (previousItem?.kind === "markdownContent") {
-        result[result.length - 1] = { content: new MarkdownString(previousItem.content.value + markdownText, { isTrusted: previousItem.content.isTrusted }), kind: "markdownContent" };
+        result[result.length - 1] = {
+          content: new MarkdownString(
+            previousItem.content.value + markdownText,
+            { isTrusted: previousItem.content.isTrusted }
+          ),
+          kind: "markdownContent"
+        };
       } else {
-        result.push({ content: new MarkdownString(markdownText), kind: "markdownContent" });
+        result.push({
+          content: new MarkdownString(markdownText),
+          kind: "markdownContent"
+        });
       }
     }
   }
@@ -84,7 +138,9 @@ function annotateVulnerabilitiesInText(response) {
 }
 __name(annotateVulnerabilitiesInText, "annotateVulnerabilitiesInText");
 function extractCodeblockUrisFromText(text) {
-  const match = /<vscode_codeblock_uri( isEdit)?>(.*?)<\/vscode_codeblock_uri>/ms.exec(text);
+  const match = /<vscode_codeblock_uri( isEdit)?>(.*?)<\/vscode_codeblock_uri>/ms.exec(
+    text
+  );
   if (match) {
     const [all, isEdit, uriString] = match;
     if (uriString) {
@@ -100,7 +156,9 @@ function extractVulnerabilitiesFromText(text) {
   const vulnerabilities = [];
   let newText = text;
   let match;
-  while ((match = /<vscode_annotation details='(.*?)'>(.*?)<\/vscode_annotation>/ms.exec(newText)) !== null) {
+  while ((match = /<vscode_annotation details='(.*?)'>(.*?)<\/vscode_annotation>/ms.exec(
+    newText
+  )) !== null) {
     const [full, details, content] = match;
     const start = match.index;
     const textBefore = newText.substring(0, start);
@@ -111,12 +169,21 @@ function extractVulnerabilitiesFromText(text) {
     const endPreviousNewlineIdx = (textBefore + content).lastIndexOf("\n");
     const endColumn = start + content.length - (endPreviousNewlineIdx + 1) + 1;
     try {
-      const vulnDetails = JSON.parse(decodeURIComponent(details));
-      vulnDetails.forEach(({ title, description }) => vulnerabilities.push({
-        title,
-        description,
-        range: { startLineNumber: linesBefore + 1, startColumn, endLineNumber: linesBefore + linesInside + 1, endColumn }
-      }));
+      const vulnDetails = JSON.parse(
+        decodeURIComponent(details)
+      );
+      vulnDetails.forEach(
+        ({ title, description }) => vulnerabilities.push({
+          title,
+          description,
+          range: {
+            startLineNumber: linesBefore + 1,
+            startColumn,
+            endLineNumber: linesBefore + linesInside + 1,
+            endColumn
+          }
+        })
+      );
     } catch (err) {
     }
     newText = newText.substring(0, start) + content + newText.substring(start + full.length);

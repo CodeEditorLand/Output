@@ -28,7 +28,10 @@ class OffsetRange {
       sortedRanges.splice(i, 0, range);
     } else {
       const start = Math.min(range.start, sortedRanges[i].start);
-      const end = Math.max(range.endExclusive, sortedRanges[j - 1].endExclusive);
+      const end = Math.max(
+        range.endExclusive,
+        sortedRanges[j - 1].endExclusive
+      );
       sortedRanges.splice(i, j - i, new OffsetRange(start, end));
     }
   }
@@ -79,7 +82,10 @@ class OffsetRange {
    * The joined range is the smallest range that contains both ranges.
    */
   join(other) {
-    return new OffsetRange(Math.min(this.start, other.start), Math.max(this.endExclusive, other.endExclusive));
+    return new OffsetRange(
+      Math.min(this.start, other.start),
+      Math.max(this.endExclusive, other.endExclusive)
+    );
   }
   /**
    * for all numbers n: range1.contains(n) and range2.contains(n) <=> range1.intersect(range2).contains(n)
@@ -128,7 +134,9 @@ class OffsetRange {
    */
   clip(value) {
     if (this.isEmpty) {
-      throw new BugIndicatingError(`Invalid clipping range: ${this.toString()}`);
+      throw new BugIndicatingError(
+        `Invalid clipping range: ${this.toString()}`
+      );
     }
     return Math.max(this.start, Math.min(this.endExclusive - 1, value));
   }
@@ -140,7 +148,9 @@ class OffsetRange {
    */
   clipCyclic(value) {
     if (this.isEmpty) {
-      throw new BugIndicatingError(`Invalid clipping range: ${this.toString()}`);
+      throw new BugIndicatingError(
+        `Invalid clipping range: ${this.toString()}`
+      );
     }
     if (value < this.start) {
       return this.endExclusive - (this.start - value) % this.length;
@@ -181,7 +191,10 @@ class OffsetRangeSet {
       this._sortedRanges.splice(i, 0, range);
     } else {
       const start = Math.min(range.start, this._sortedRanges[i].start);
-      const end = Math.max(range.endExclusive, this._sortedRanges[j - 1].endExclusive);
+      const end = Math.max(
+        range.endExclusive,
+        this._sortedRanges[j - 1].endExclusive
+      );
       this._sortedRanges.splice(i, j - i, new OffsetRange(start, end));
     }
   }

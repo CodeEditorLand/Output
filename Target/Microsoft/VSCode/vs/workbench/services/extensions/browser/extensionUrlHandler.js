@@ -10,29 +10,52 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize, localize2 } from "../../../../nls.js";
-import { IDisposable, combinedDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { createDecorator, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IURLHandler, IURLService, IOpenURLOptions } from "../../../../platform/url/common/url.js";
-import { IHostService } from "../../host/browser/host.js";
-import { ActivationKind, IExtensionService } from "../common/extensions.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { Action2, MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { IQuickInputService, IQuickPickItem } from "../../../../platform/quickinput/common/quickInput.js";
-import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
 import { disposableWindowInterval } from "../../../../base/browser/dom.js";
 import { mainWindow } from "../../../../base/browser/window.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { isCancellationError } from "../../../../base/common/errors.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import {
+  combinedDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize, localize2 } from "../../../../nls.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  createDecorator
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import {
+  IURLService
+} from "../../../../platform/url/common/url.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import { IHostService } from "../../host/browser/host.js";
+import { ActivationKind, IExtensionService } from "../common/extensions.js";
 const FIVE_MINUTES = 5 * 60 * 1e3;
 const THIRTY_SECONDS = 30 * 1e3;
 const URL_TO_HANDLE = "extensionUrlHandler.urlToHandle";
@@ -50,7 +73,11 @@ class UserTrustedExtensionIdStorage {
     __name(this, "UserTrustedExtensionIdStorage");
   }
   get extensions() {
-    const userTrustedExtensionIdsJson = this.storageService.get(USER_TRUSTED_EXTENSIONS_STORAGE_KEY, StorageScope.PROFILE, "[]");
+    const userTrustedExtensionIdsJson = this.storageService.get(
+      USER_TRUSTED_EXTENSIONS_STORAGE_KEY,
+      StorageScope.PROFILE,
+      "[]"
+    );
     try {
       return JSON.parse(userTrustedExtensionIdsJson);
     } catch {
@@ -64,21 +91,30 @@ class UserTrustedExtensionIdStorage {
     this.set([...this.extensions, id]);
   }
   set(ids) {
-    this.storageService.store(USER_TRUSTED_EXTENSIONS_STORAGE_KEY, JSON.stringify(ids), StorageScope.PROFILE, StorageTarget.MACHINE);
+    this.storageService.store(
+      USER_TRUSTED_EXTENSIONS_STORAGE_KEY,
+      JSON.stringify(ids),
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
   }
 }
-const IExtensionUrlHandler = createDecorator("extensionUrlHandler");
+const IExtensionUrlHandler = createDecorator(
+  "extensionUrlHandler"
+);
 class ExtensionUrlHandlerOverrideRegistry {
   static {
     __name(this, "ExtensionUrlHandlerOverrideRegistry");
   }
   static handlers = /* @__PURE__ */ new Set();
   static registerHandler(handler) {
-    this.handlers.add(handler);
-    return toDisposable(() => this.handlers.delete(handler));
+    ExtensionUrlHandlerOverrideRegistry.handlers.add(handler);
+    return toDisposable(
+      () => ExtensionUrlHandlerOverrideRegistry.handlers.delete(handler)
+    );
   }
   static getHandler(uri) {
-    for (const handler of this.handlers) {
+    for (const handler of ExtensionUrlHandlerOverrideRegistry.handlers) {
       if (handler.canHandleURL(uri)) {
         return handler;
       }
@@ -96,19 +132,32 @@ let ExtensionUrlHandler = class {
     this.configurationService = configurationService;
     this.notificationService = notificationService;
     this.productService = productService;
-    this.userTrustedExtensionsStorage = new UserTrustedExtensionIdStorage(storageService);
-    const interval = disposableWindowInterval(mainWindow, () => this.garbageCollect(), THIRTY_SECONDS);
-    const urlToHandleValue = this.storageService.get(URL_TO_HANDLE, StorageScope.WORKSPACE);
+    this.userTrustedExtensionsStorage = new UserTrustedExtensionIdStorage(
+      storageService
+    );
+    const interval = disposableWindowInterval(
+      mainWindow,
+      () => this.garbageCollect(),
+      THIRTY_SECONDS
+    );
+    const urlToHandleValue = this.storageService.get(
+      URL_TO_HANDLE,
+      StorageScope.WORKSPACE
+    );
     if (urlToHandleValue) {
       this.storageService.remove(URL_TO_HANDLE, StorageScope.WORKSPACE);
-      this.handleURL(URI.revive(JSON.parse(urlToHandleValue)), { trusted: true });
+      this.handleURL(URI.revive(JSON.parse(urlToHandleValue)), {
+        trusted: true
+      });
     }
     this.disposable = combinedDisposable(
       urlService.registerHandler(this),
       interval
     );
     const cache = ExtensionUrlBootstrapHandler.cache;
-    setTimeout(() => cache.forEach(([uri, option]) => this.handleURL(uri, option)));
+    setTimeout(
+      () => cache.forEach(([uri, option]) => this.handleURL(uri, option))
+    );
   }
   static {
     __name(this, "ExtensionUrlHandler");
@@ -130,7 +179,9 @@ let ExtensionUrlHandler = class {
       }
     }
     const extensionId = uri.authority;
-    const initialHandler = this.extensionHandlers.get(ExtensionIdentifier.toKey(extensionId));
+    const initialHandler = this.extensionHandlers.get(
+      ExtensionIdentifier.toKey(extensionId)
+    );
     let extensionDisplayName;
     if (!initialHandler) {
       const extension = await this.extensionService.getExtension(extensionId);
@@ -143,7 +194,9 @@ let ExtensionUrlHandler = class {
     } else {
       extensionDisplayName = initialHandler.extensionDisplayName;
     }
-    const trusted = options?.trusted || this.productService.trustedExtensionProtocolHandlers?.includes(extensionId) || this.didUserTrustExtension(ExtensionIdentifier.toKey(extensionId));
+    const trusted = options?.trusted || this.productService.trustedExtensionProtocolHandlers?.includes(
+      extensionId
+    ) || this.didUserTrustExtension(ExtensionIdentifier.toKey(extensionId));
     if (!trusted) {
       const uriString = uri.toString(false);
       let uriLabel = uriString;
@@ -151,28 +204,52 @@ let ExtensionUrlHandler = class {
         uriLabel = `${uriLabel.substring(0, 30)}...${uriLabel.substring(uriLabel.length - 5)}`;
       }
       const result = await this.dialogService.confirm({
-        message: localize("confirmUrl", "Allow '{0}' extension to open this URI?", extensionDisplayName),
+        message: localize(
+          "confirmUrl",
+          "Allow '{0}' extension to open this URI?",
+          extensionDisplayName
+        ),
         checkbox: {
-          label: localize("rememberConfirmUrl", "Do not ask me again for this extension")
+          label: localize(
+            "rememberConfirmUrl",
+            "Do not ask me again for this extension"
+          )
         },
-        primaryButton: localize({ key: "open", comment: ["&& denotes a mnemonic"] }, "&&Open"),
+        primaryButton: localize(
+          { key: "open", comment: ["&& denotes a mnemonic"] },
+          "&&Open"
+        ),
         custom: {
-          markdownDetails: [{
-            markdown: new MarkdownString(`<div title="${uriString}" aria-label='${uriString}'>${uriLabel}</div>`, { supportHtml: true })
-          }]
+          markdownDetails: [
+            {
+              markdown: new MarkdownString(
+                `<div title="${uriString}" aria-label='${uriString}'>${uriLabel}</div>`,
+                { supportHtml: true }
+              )
+            }
+          ]
         }
       });
       if (!result.confirmed) {
         return true;
       }
       if (result.checkboxChecked) {
-        this.userTrustedExtensionsStorage.add(ExtensionIdentifier.toKey(extensionId));
+        this.userTrustedExtensionsStorage.add(
+          ExtensionIdentifier.toKey(extensionId)
+        );
       }
     }
-    const handler = this.extensionHandlers.get(ExtensionIdentifier.toKey(extensionId));
+    const handler = this.extensionHandlers.get(
+      ExtensionIdentifier.toKey(extensionId)
+    );
     if (handler) {
       if (!initialHandler) {
-        return await this.handleURLByExtension(extensionId, handler, uri, options);
+        return await this.handleURLByExtension(
+          extensionId,
+          handler,
+          uri,
+          options
+        );
       }
       return false;
     }
@@ -183,11 +260,17 @@ let ExtensionUrlHandler = class {
       this.uriBuffer.set(ExtensionIdentifier.toKey(extensionId), uris);
     }
     uris.push({ timestamp, uri });
-    await this.extensionService.activateByEvent(`onUri:${ExtensionIdentifier.toKey(extensionId)}`, ActivationKind.Immediate);
+    await this.extensionService.activateByEvent(
+      `onUri:${ExtensionIdentifier.toKey(extensionId)}`,
+      ActivationKind.Immediate
+    );
     return true;
   }
   registerExtensionHandler(extensionId, handler) {
-    this.extensionHandlers.set(ExtensionIdentifier.toKey(extensionId), handler);
+    this.extensionHandlers.set(
+      ExtensionIdentifier.toKey(extensionId),
+      handler
+    );
     const uris = this.uriBuffer.get(ExtensionIdentifier.toKey(extensionId)) || [];
     for (const { uri } of uris) {
       this.handleURLByExtension(extensionId, handler, uri);
@@ -202,14 +285,18 @@ let ExtensionUrlHandler = class {
   }
   async handleUnhandledURL(uri, extensionId, options) {
     try {
-      await this.commandService.executeCommand("workbench.extensions.installExtension", extensionId, {
-        justification: {
-          reason: `${localize("installDetail", "This extension wants to open a URI:")}
+      await this.commandService.executeCommand(
+        "workbench.extensions.installExtension",
+        extensionId,
+        {
+          justification: {
+            reason: `${localize("installDetail", "This extension wants to open a URI:")}
 ${uri.toString()}`,
-          action: localize("openUri", "Open URI")
-        },
-        enable: true
-      });
+            action: localize("openUri", "Open URI")
+          },
+          enable: true
+        }
+      );
     } catch (error) {
       if (!isCancellationError(error)) {
         this.notificationService.error(error);
@@ -221,13 +308,28 @@ ${uri.toString()}`,
       await this.handleURL(uri, { ...options, trusted: true });
     } else {
       const result = await this.dialogService.confirm({
-        message: localize("reloadAndHandle", "Extension '{0}' is not loaded. Would you like to reload the window to load the extension and open the URL?", extensionId),
-        primaryButton: localize({ key: "reloadAndOpen", comment: ["&& denotes a mnemonic"] }, "&&Reload Window and Open")
+        message: localize(
+          "reloadAndHandle",
+          "Extension '{0}' is not loaded. Would you like to reload the window to load the extension and open the URL?",
+          extensionId
+        ),
+        primaryButton: localize(
+          {
+            key: "reloadAndOpen",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Reload Window and Open"
+        )
       });
       if (!result.confirmed) {
         return;
       }
-      this.storageService.store(URL_TO_HANDLE, JSON.stringify(uri.toJSON()), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      this.storageService.store(
+        URL_TO_HANDLE,
+        JSON.stringify(uri.toJSON()),
+        StorageScope.WORKSPACE,
+        StorageTarget.MACHINE
+      );
       await this.hostService.reload();
     }
   }
@@ -236,7 +338,9 @@ ${uri.toString()}`,
     const now = (/* @__PURE__ */ new Date()).getTime();
     const uriBuffer = /* @__PURE__ */ new Map();
     this.uriBuffer.forEach((uris, extensionId) => {
-      uris = uris.filter(({ timestamp }) => now - timestamp < FIVE_MINUTES);
+      uris = uris.filter(
+        ({ timestamp }) => now - timestamp < FIVE_MINUTES
+      );
       if (uris.length > 0) {
         uriBuffer.set(extensionId, uris);
       }
@@ -247,10 +351,14 @@ ${uri.toString()}`,
     if (this.userTrustedExtensionsStorage.has(id)) {
       return true;
     }
-    return this.getConfirmedTrustedExtensionIdsFromConfiguration().indexOf(id) > -1;
+    return this.getConfirmedTrustedExtensionIdsFromConfiguration().indexOf(
+      id
+    ) > -1;
   }
   getConfirmedTrustedExtensionIdsFromConfiguration() {
-    const trustedExtensionIds = this.configurationService.getValue(USER_TRUSTED_EXTENSIONS_CONFIGURATION_KEY);
+    const trustedExtensionIds = this.configurationService.getValue(
+      USER_TRUSTED_EXTENSIONS_CONFIGURATION_KEY
+    );
     if (!Array.isArray(trustedExtensionIds)) {
       return [];
     }
@@ -273,7 +381,11 @@ ExtensionUrlHandler = __decorateClass([
   __decorateParam(7, INotificationService),
   __decorateParam(8, IProductService)
 ], ExtensionUrlHandler);
-registerSingleton(IExtensionUrlHandler, ExtensionUrlHandler, InstantiationType.Eager);
+registerSingleton(
+  IExtensionUrlHandler,
+  ExtensionUrlHandler,
+  InstantiationType.Eager
+);
 let ExtensionUrlBootstrapHandler = class {
   static {
     __name(this, "ExtensionUrlBootstrapHandler");
@@ -305,7 +417,6 @@ registerWorkbenchContribution2(
   ExtensionUrlBootstrapHandler.ID,
   ExtensionUrlBootstrapHandler,
   WorkbenchPhase.BlockRestore
-  /* registration only */
 );
 class ManageAuthorizedExtensionURIsAction extends Action2 {
   static {
@@ -326,12 +437,23 @@ class ManageAuthorizedExtensionURIsAction extends Action2 {
     const storageService = accessor.get(IStorageService);
     const quickInputService = accessor.get(IQuickInputService);
     const storage = new UserTrustedExtensionIdStorage(storageService);
-    const items = storage.extensions.map((label) => ({ label, picked: true }));
+    const items = storage.extensions.map(
+      (label) => ({ label, picked: true })
+    );
     if (items.length === 0) {
-      await quickInputService.pick([{ label: localize("no", "There are currently no authorized extension URIs.") }]);
+      await quickInputService.pick([
+        {
+          label: localize(
+            "no",
+            "There are currently no authorized extension URIs."
+          )
+        }
+      ]);
       return;
     }
-    const result = await quickInputService.pick(items, { canPickMany: true });
+    const result = await quickInputService.pick(items, {
+      canPickMany: true
+    });
     if (!result) {
       return;
     }

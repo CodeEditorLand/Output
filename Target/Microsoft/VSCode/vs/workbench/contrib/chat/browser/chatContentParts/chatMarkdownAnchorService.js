@@ -1,9 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { addDisposableListener, isActiveElement } from "../../../../../base/browser/dom.js";
-import { Disposable, IDisposable, combinedDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  addDisposableListener,
+  isActiveElement
+} from "../../../../../base/browser/dom.js";
+import {
+  combinedDisposable,
+  Disposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
-import { InlineAnchorWidget } from "../chatInlineAnchorWidget.js";
 const IChatMarkdownAnchorService = createDecorator("chatMarkdownAnchorService");
 class ChatMarkdownAnchorService extends Disposable {
   static {
@@ -27,8 +33,14 @@ class ChatMarkdownAnchorService extends Disposable {
       this.setLastFocusedList(widget);
     }
     return combinedDisposable(
-      addDisposableListener(element, "focus", () => this.setLastFocusedList(widget)),
-      toDisposable(() => this._widgets.splice(this._widgets.indexOf(widget), 1)),
+      addDisposableListener(
+        element,
+        "focus",
+        () => this.setLastFocusedList(widget)
+      ),
+      toDisposable(
+        () => this._widgets.splice(this._widgets.indexOf(widget), 1)
+      ),
       addDisposableListener(element, "blur", () => {
         if (this._lastFocusedWidget === widget) {
           this.setLastFocusedList(void 0);

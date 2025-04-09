@@ -11,9 +11,14 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { autorun, observableFromEvent } from "../../../../../base/common/observable.js";
-import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { IWorkbenchContribution } from "../../../../common/contributions.js";
+import {
+  autorun,
+  observableFromEvent
+} from "../../../../../base/common/observable.js";
+import {
+  AccessibilitySignal,
+  IAccessibilitySignalService
+} from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { IEditorService } from "../../../../services/editor/common/editorService.js";
 import { IChatEditingService } from "../../common/chatEditingService.js";
 let ChatEditingEditorAccessibility = class {
@@ -23,17 +28,25 @@ let ChatEditingEditorAccessibility = class {
   static ID = "chat.edits.accessibilty";
   _store = new DisposableStore();
   constructor(chatEditingService, editorService, accessibilityService) {
-    const activeUri = observableFromEvent(this, editorService.onDidActiveEditorChange, () => editorService.activeEditorPane?.input.resource);
-    this._store.add(autorun((r) => {
-      const editor = activeUri.read(r);
-      if (!editor) {
-        return;
-      }
-      const entry = chatEditingService.editingSessionsObs.read(r).find((session) => session.readEntry(editor, r));
-      if (entry) {
-        accessibilityService.playSignal(AccessibilitySignal.chatEditModifiedFile);
-      }
-    }));
+    const activeUri = observableFromEvent(
+      this,
+      editorService.onDidActiveEditorChange,
+      () => editorService.activeEditorPane?.input.resource
+    );
+    this._store.add(
+      autorun((r) => {
+        const editor = activeUri.read(r);
+        if (!editor) {
+          return;
+        }
+        const entry = chatEditingService.editingSessionsObs.read(r).find((session) => session.readEntry(editor, r));
+        if (entry) {
+          accessibilityService.playSignal(
+            AccessibilitySignal.chatEditModifiedFile
+          );
+        }
+      })
+    );
   }
   dispose() {
     this._store.dispose();

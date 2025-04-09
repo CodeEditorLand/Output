@@ -2,12 +2,20 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { onUnexpectedError } from "../common/errors.js";
 import { Event } from "../common/event.js";
-import { escapeDoubleQuotes, IMarkdownString, isMarkdownString, MarkdownStringTrustedOptions, parseHrefAndDimensions, removeMarkdownEscapes } from "../common/htmlContent.js";
+import {
+  escapeDoubleQuotes,
+  isMarkdownString,
+  parseHrefAndDimensions,
+  removeMarkdownEscapes
+} from "../common/htmlContent.js";
 import { markdownEscapeEscapedIcons } from "../common/iconLabels.js";
 import { defaultGenerator } from "../common/idGenerator.js";
 import { KeyCode } from "../common/keyCodes.js";
 import { Lazy } from "../common/lazy.js";
-import { DisposableStore, IDisposable, toDisposable } from "../common/lifecycle.js";
+import {
+  DisposableStore,
+  toDisposable
+} from "../common/lifecycle.js";
 import * as marked from "../common/marked/marked.js";
 import { parse } from "../common/marshalling.js";
 import { FileAccess, Schemas } from "../common/network.js";
@@ -18,7 +26,9 @@ import { URI } from "../common/uri.js";
 import * as DOM from "./dom.js";
 import dompurify from "./dompurify/dompurify.js";
 import { DomEmitter } from "./event.js";
-import { createElement, FormattedTextRenderOptions } from "./formattedTextRenderer.js";
+import {
+  createElement
+} from "./formattedTextRenderer.js";
 import { StandardKeyboardEvent } from "./keyboardEvent.js";
 import { StandardMouseEvent } from "./mouseEvent.js";
 import { renderLabelWithIcons } from "./ui/iconLabel/iconLabels.js";
@@ -39,7 +49,7 @@ const defaultMarkedRenderers = Object.freeze({
     if (dimensions.length) {
       attributes = attributes.concat(dimensions);
     }
-    return "<img " + attributes.join(" ") + ">";
+    return `<img ${attributes.join(" ")}>`;
   }, "image"),
   paragraph({ tokens }) {
     return `<p>${this.parser.parseInline(tokens)}</p>`;
@@ -62,7 +72,10 @@ function renderMarkdown(markdown, options = {}, markedOptions = {}) {
   const disposables = new DisposableStore();
   let isDisposed = false;
   const element = createElement(options);
-  const { renderer, codeBlocks, syncCodeBlocks } = createMarkdownRenderer(options, markdown);
+  const { renderer, codeBlocks, syncCodeBlocks } = createMarkdownRenderer(
+    options,
+    markdown
+  );
   const value = preprocessMarkdownString(markdown);
   let renderedMarkdown;
   if (options.fillInIncompleteTokens) {
@@ -75,25 +88,40 @@ function renderMarkdown(markdown, options = {}, markedOptions = {}) {
     const newTokens = fillInIncompleteTokens(tokens);
     renderedMarkdown = marked.parser(newTokens, opts);
   } else {
-    renderedMarkdown = marked.parse(value, { ...markedOptions, renderer, async: false });
+    renderedMarkdown = marked.parse(value, {
+      ...markedOptions,
+      renderer,
+      async: false
+    });
   }
   if (markdown.supportThemeIcons) {
     const elements = renderLabelWithIcons(renderedMarkdown);
     renderedMarkdown = elements.map((e) => typeof e === "string" ? e : e.outerHTML).join("");
   }
   const htmlParser = new DOMParser();
-  const markdownHtmlDoc = htmlParser.parseFromString(sanitizeRenderedMarkdown({ isTrusted: markdown.isTrusted, ...options.sanitizerOptions }, renderedMarkdown), "text/html");
+  const markdownHtmlDoc = htmlParser.parseFromString(
+    sanitizeRenderedMarkdown(
+      { isTrusted: markdown.isTrusted, ...options.sanitizerOptions },
+      renderedMarkdown
+    ),
+    "text/html"
+  );
   rewriteRenderedLinks(markdown, options, markdownHtmlDoc.body);
-  element.innerHTML = sanitizeRenderedMarkdown({ isTrusted: markdown.isTrusted, ...options.sanitizerOptions }, markdownHtmlDoc.body.innerHTML);
+  element.innerHTML = sanitizeRenderedMarkdown(
+    { isTrusted: markdown.isTrusted, ...options.sanitizerOptions },
+    markdownHtmlDoc.body.innerHTML
+  );
   if (codeBlocks.length > 0) {
     Promise.all(codeBlocks).then((tuples) => {
       if (isDisposed) {
         return;
       }
       const renderedElements = new Map(tuples);
-      const placeholderElements = element.querySelectorAll(`div[data-code]`);
+      const placeholderElements = element.querySelectorAll("div[data-code]");
       for (const placeholderElement of placeholderElements) {
-        const renderedElement = renderedElements.get(placeholderElement.dataset["code"] ?? "");
+        const renderedElement = renderedElements.get(
+          placeholderElement.dataset["code"] ?? ""
+        );
         if (renderedElement) {
           DOM.reset(placeholderElement, renderedElement);
         }
@@ -102,9 +130,11 @@ function renderMarkdown(markdown, options = {}, markedOptions = {}) {
     });
   } else if (syncCodeBlocks.length > 0) {
     const renderedElements = new Map(syncCodeBlocks);
-    const placeholderElements = element.querySelectorAll(`div[data-code]`);
+    const placeholderElements = element.querySelectorAll("div[data-code]");
     for (const placeholderElement of placeholderElements) {
-      const renderedElement = renderedElements.get(placeholderElement.dataset["code"] ?? "");
+      const renderedElement = renderedElements.get(
+        placeholderElement.dataset["code"] ?? ""
+      );
       if (renderedElement) {
         DOM.reset(placeholderElement, renderedElement);
       }
@@ -112,29 +142,45 @@ function renderMarkdown(markdown, options = {}, markedOptions = {}) {
   }
   if (options.asyncRenderCallback) {
     for (const img of element.getElementsByTagName("img")) {
-      const listener = disposables.add(DOM.addDisposableListener(img, "load", () => {
-        listener.dispose();
-        options.asyncRenderCallback();
-      }));
+      const listener = disposables.add(
+        DOM.addDisposableListener(img, "load", () => {
+          listener.dispose();
+          options.asyncRenderCallback?.();
+        })
+      );
     }
   }
   if (options.actionHandler) {
-    const onClick = options.actionHandler.disposables.add(new DomEmitter(element, "click"));
-    const onAuxClick = options.actionHandler.disposables.add(new DomEmitter(element, "auxclick"));
-    options.actionHandler.disposables.add(Event.any(onClick.event, onAuxClick.event)((e) => {
-      const mouseEvent = new StandardMouseEvent(DOM.getWindow(element), e);
-      if (!mouseEvent.leftButton && !mouseEvent.middleButton) {
-        return;
-      }
-      activateLink(markdown, options, mouseEvent);
-    }));
-    options.actionHandler.disposables.add(DOM.addDisposableListener(element, "keydown", (e) => {
-      const keyboardEvent = new StandardKeyboardEvent(e);
-      if (!keyboardEvent.equals(KeyCode.Space) && !keyboardEvent.equals(KeyCode.Enter)) {
-        return;
-      }
-      activateLink(markdown, options, keyboardEvent);
-    }));
+    const onClick = options.actionHandler.disposables.add(
+      new DomEmitter(element, "click")
+    );
+    const onAuxClick = options.actionHandler.disposables.add(
+      new DomEmitter(element, "auxclick")
+    );
+    options.actionHandler.disposables.add(
+      Event.any(
+        onClick.event,
+        onAuxClick.event
+      )((e) => {
+        const mouseEvent = new StandardMouseEvent(
+          DOM.getWindow(element),
+          e
+        );
+        if (!mouseEvent.leftButton && !mouseEvent.middleButton) {
+          return;
+        }
+        activateLink(markdown, options, mouseEvent);
+      })
+    );
+    options.actionHandler.disposables.add(
+      DOM.addDisposableListener(element, "keydown", (e) => {
+        const keyboardEvent = new StandardKeyboardEvent(e);
+        if (!keyboardEvent.equals(KeyCode.Space) && !keyboardEvent.equals(KeyCode.Enter)) {
+          return;
+        }
+        activateLink(markdown, options, keyboardEvent);
+      })
+    );
   }
   return {
     element,
@@ -173,7 +219,10 @@ function rewriteRenderedLinks(markdown, options, root) {
     } else {
       let resolvedHref = massageHref(markdown, href, false);
       if (markdown.baseUri) {
-        resolvedHref = resolveWithBaseUri(URI.from(markdown.baseUri), href);
+        resolvedHref = resolveWithBaseUri(
+          URI.from(markdown.baseUri),
+          href
+        );
       }
       el.dataset.href = resolvedHref;
     }
@@ -190,14 +239,21 @@ function createMarkdownRenderer(options, markdown) {
   if (options.codeBlockRendererSync) {
     renderer.code = ({ text, lang, raw }) => {
       const id = defaultGenerator.nextId();
-      const value = options.codeBlockRendererSync(postProcessCodeBlockLanguageId(lang), text, raw);
+      const value = options.codeBlockRendererSync?.(
+        postProcessCodeBlockLanguageId(lang),
+        text,
+        raw
+      );
       syncCodeBlocks.push([id, value]);
       return `<div class="code" data-code="${id}">${escape(text)}</div>`;
     };
   } else if (options.codeBlockRenderer) {
     renderer.code = ({ text, lang }) => {
       const id = defaultGenerator.nextId();
-      const value = options.codeBlockRenderer(postProcessCodeBlockLanguageId(lang), text);
+      const value = options.codeBlockRenderer?.(
+        postProcessCodeBlockLanguageId(lang),
+        text
+      );
       codeBlocks.push(value.then((element) => [id, element]));
       return `<div class="code" data-code="${id}">${escape(text)}</div>`;
     };
@@ -236,7 +292,7 @@ function activateLink(markdown, options, event) {
       if (markdown.baseUri) {
         href = resolveWithBaseUri(URI.from(markdown.baseUri), href);
       }
-      options.actionHandler.callback(href, event);
+      options.actionHandler?.callback(href, event);
     }
   } catch (err) {
     onUnexpectedError(err);
@@ -255,7 +311,7 @@ function uriMassage(markdown, part) {
     return part;
   }
   data = cloneAndChange(data, (value) => {
-    if (markdown.uris && markdown.uris[value]) {
+    if (markdown.uris?.[value]) {
       return URI.revive(markdown.uris[value]);
     } else {
       return void 0;
@@ -265,10 +321,10 @@ function uriMassage(markdown, part) {
 }
 __name(uriMassage, "uriMassage");
 function massageHref(markdown, href, isDomUri) {
-  const data = markdown.uris && markdown.uris[href];
+  const data = markdown.uris?.[href];
   let uri = URI.revive(data);
   if (isDomUri) {
-    if (href.startsWith(Schemas.data + ":")) {
+    if (href.startsWith(`${Schemas.data}:`)) {
       return href;
     }
     if (!uri) {
@@ -311,74 +367,110 @@ function resolveWithBaseUri(baseUri, href) {
   }
 }
 __name(resolveWithBaseUri, "resolveWithBaseUri");
-const selfClosingTags = ["area", "base", "br", "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"];
+const selfClosingTags = [
+  "area",
+  "base",
+  "br",
+  "col",
+  "command",
+  "embed",
+  "hr",
+  "img",
+  "input",
+  "keygen",
+  "link",
+  "meta",
+  "param",
+  "source",
+  "track",
+  "wbr"
+];
 function sanitizeRenderedMarkdown(options, renderedMarkdown) {
   const { config, allowedSchemes } = getSanitizerOptions(options);
   const store = new DisposableStore();
-  store.add(addDompurifyHook("uponSanitizeAttribute", (element, e) => {
-    if (e.attrName === "style" || e.attrName === "class") {
-      if (element.tagName === "SPAN") {
-        if (e.attrName === "style") {
-          e.keepAttr = /^(color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(background-color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(border-radius:[0-9]+px;)?$/.test(e.attrValue);
-          return;
-        } else if (e.attrName === "class") {
-          e.keepAttr = /^codicon codicon-[a-z\-]+( codicon-modifier-[a-z\-]+)?$/.test(e.attrValue);
-          return;
-        }
-      }
-      e.keepAttr = false;
-      return;
-    } else if (element.tagName === "INPUT" && element.attributes.getNamedItem("type")?.value === "checkbox") {
-      if (e.attrName === "type" && e.attrValue === "checkbox" || e.attrName === "disabled" || e.attrName === "checked") {
-        e.keepAttr = true;
-        return;
-      }
-      e.keepAttr = false;
-    }
-  }));
-  store.add(addDompurifyHook("uponSanitizeElement", (element, e) => {
-    if (e.tagName === "input") {
-      if (element.attributes.getNamedItem("type")?.value === "checkbox") {
-        element.setAttribute("disabled", "");
-      } else if (!options.replaceWithPlaintext) {
-        element.remove();
-      }
-    }
-    if (options.replaceWithPlaintext && !e.allowedTags[e.tagName] && e.tagName !== "body") {
-      if (element.parentElement) {
-        let startTagText;
-        let endTagText;
-        if (e.tagName === "#comment") {
-          startTagText = `<!--${element.textContent}-->`;
-        } else {
-          const isSelfClosing = selfClosingTags.includes(e.tagName);
-          const attrString = element.attributes.length ? " " + Array.from(element.attributes).map((attr) => `${attr.name}="${attr.value}"`).join(" ") : "";
-          startTagText = `<${e.tagName}${attrString}>`;
-          if (!isSelfClosing) {
-            endTagText = `</${e.tagName}>`;
+  store.add(
+    addDompurifyHook("uponSanitizeAttribute", (element, e) => {
+      if (e.attrName === "style" || e.attrName === "class") {
+        if (element.tagName === "SPAN") {
+          if (e.attrName === "style") {
+            e.keepAttr = /^(color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(background-color\:(#[0-9a-fA-F]+|var\(--vscode(-[a-zA-Z0-9]+)+\));)?(border-radius:[0-9]+px;)?$/.test(
+              e.attrValue
+            );
+            return;
+          } else if (e.attrName === "class") {
+            e.keepAttr = /^codicon codicon-[a-z\-]+( codicon-modifier-[a-z\-]+)?$/.test(
+              e.attrValue
+            );
+            return;
           }
         }
-        const fragment = document.createDocumentFragment();
-        const textNode = element.parentElement.ownerDocument.createTextNode(startTagText);
-        fragment.appendChild(textNode);
-        const endTagTextNode = endTagText ? element.parentElement.ownerDocument.createTextNode(endTagText) : void 0;
-        while (element.firstChild) {
-          fragment.appendChild(element.firstChild);
+        e.keepAttr = false;
+        return;
+      } else if (element.tagName === "INPUT" && element.attributes.getNamedItem("type")?.value === "checkbox") {
+        if (e.attrName === "type" && e.attrValue === "checkbox" || e.attrName === "disabled" || e.attrName === "checked") {
+          e.keepAttr = true;
+          return;
         }
-        if (endTagTextNode) {
-          fragment.appendChild(endTagTextNode);
-        }
-        if (element.nodeType === Node.COMMENT_NODE) {
-          element.parentElement.insertBefore(fragment, element);
-        } else {
-          element.parentElement.replaceChild(fragment, element);
+        e.keepAttr = false;
+      }
+    })
+  );
+  store.add(
+    addDompurifyHook("uponSanitizeElement", (element, e) => {
+      if (e.tagName === "input") {
+        if (element.attributes.getNamedItem("type")?.value === "checkbox") {
+          element.setAttribute("disabled", "");
+        } else if (!options.replaceWithPlaintext) {
+          element.remove();
         }
       }
-    }
-  }));
+      if (options.replaceWithPlaintext && !e.allowedTags[e.tagName] && e.tagName !== "body") {
+        if (element.parentElement) {
+          let startTagText;
+          let endTagText;
+          if (e.tagName === "#comment") {
+            startTagText = `<!--${element.textContent}-->`;
+          } else {
+            const isSelfClosing = selfClosingTags.includes(
+              e.tagName
+            );
+            const attrString = element.attributes.length ? ` ${Array.from(element.attributes).map(
+              (attr) => `${attr.name}="${attr.value}"`
+            ).join(" ")}` : "";
+            startTagText = `<${e.tagName}${attrString}>`;
+            if (!isSelfClosing) {
+              endTagText = `</${e.tagName}>`;
+            }
+          }
+          const fragment = document.createDocumentFragment();
+          const textNode = element.parentElement.ownerDocument.createTextNode(
+            startTagText
+          );
+          fragment.appendChild(textNode);
+          const endTagTextNode = endTagText ? element.parentElement.ownerDocument.createTextNode(
+            endTagText
+          ) : void 0;
+          while (element.firstChild) {
+            fragment.appendChild(element.firstChild);
+          }
+          if (endTagTextNode) {
+            fragment.appendChild(endTagTextNode);
+          }
+          if (element.nodeType === Node.COMMENT_NODE) {
+            element.parentElement.insertBefore(fragment, element);
+          } else {
+            element.parentElement.replaceChild(fragment, element);
+          }
+        }
+      }
+    })
+  );
   store.add(DOM.hookDomPurifyHrefAndSrcSanitizer(allowedSchemes));
   try {
-    return dompurify.sanitize(renderedMarkdown, { ...config, RETURN_TRUSTED_TYPE: true });
+    return dompurify.sanitize(renderedMarkdown, {
+      ...config,
+      RETURN_TRUSTED_TYPE: true
+    });
   } finally {
     store.dispose();
   }
@@ -448,7 +540,10 @@ function renderMarkdownAsPlaintext(markdown, withCodeBlocks) {
   if (value.length > 1e5) {
     value = `${value.substr(0, 1e5)}\u2026`;
   }
-  const html = marked.parse(value, { async: false, renderer: withCodeBlocks ? plainTextWithCodeBlocksRenderer.value : plainTextRenderer.value });
+  const html = marked.parse(value, {
+    async: false,
+    renderer: withCodeBlocks ? plainTextWithCodeBlocksRenderer.value : plainTextRenderer.value
+  });
   return sanitizeRenderedMarkdown({ isTrusted: false }, html).toString().replace(/&(#\d+|[a-zA-Z]+);/g, (m) => unescapeInfo.get(m) ?? m).trim();
 }
 __name(renderMarkdownAsPlaintext, "renderMarkdownAsPlaintext");
@@ -466,33 +561,44 @@ function createPlainTextRenderer() {
     return escape(text);
   };
   renderer.blockquote = ({ text }) => {
-    return text + "\n";
+    return `${text}
+`;
   };
   renderer.html = (_) => {
     return "";
   };
   renderer.heading = function({ tokens }) {
-    return this.parser.parseInline(tokens) + "\n";
+    return `${this.parser.parseInline(tokens)}
+`;
   };
   renderer.hr = () => {
     return "";
   };
   renderer.list = function({ items }) {
-    return items.map((x) => this.listitem(x)).join("\n") + "\n";
+    return `${items.map((x) => this.listitem(x)).join("\n")}
+`;
   };
   renderer.listitem = ({ text }) => {
-    return text + "\n";
+    return `${text}
+`;
   };
-  renderer.paragraph = function({ tokens }) {
-    return this.parser.parseInline(tokens) + "\n";
+  renderer.paragraph = function({
+    tokens
+  }) {
+    return `${this.parser.parseInline(tokens)}
+`;
   };
   renderer.table = function({ header, rows }) {
-    return header.map((cell) => this.tablecell(cell)).join(" ") + "\n" + rows.map((cells) => cells.map((cell) => this.tablecell(cell)).join(" ")).join("\n") + "\n";
+    return `${header.map((cell) => this.tablecell(cell)).join(" ")}
+${rows.map((cells) => cells.map((cell) => this.tablecell(cell)).join(" ")).join("\n")}
+`;
   };
   renderer.tablerow = ({ text }) => {
     return text;
   };
-  renderer.tablecell = function({ tokens }) {
+  renderer.tablecell = function({
+    tokens
+  }) {
     return this.parser.parseInline(tokens);
   };
   renderer.strong = ({ text }) => {
@@ -565,7 +671,9 @@ function completeSingleLinePattern(token) {
         // Text with start of link target
         hasLinkTextAndStartOfLinkTarget(lastLine) || // This token doesn't have the link text, eg if it contains other markdown constructs that are in other subtokens.
         // But some preceding token does have an unbalanced [ at least
-        hasStartOfLinkTargetAndNoLinkText(lastLine) && token.tokens.slice(0, i).some((t) => t.type === "text" && t.raw.match(/\[[^\]]*$/))
+        hasStartOfLinkTargetAndNoLinkText(lastLine) && token.tokens.slice(0, i).some(
+          (t) => t.type === "text" && t.raw.match(/\[[^\]]*$/)
+        )
       ) {
         const nextTwoSubTokens = token.tokens.slice(i + 1);
         if (
@@ -602,9 +710,13 @@ function completeListItemPattern(list) {
   }, "listEndsInHeading");
   let newToken;
   if (lastListSubToken?.type === "text" && !("inRawBlock" in lastListItem)) {
-    newToken = completeSingleLinePattern(lastListSubToken);
+    newToken = completeSingleLinePattern(
+      lastListSubToken
+    );
   } else if (listEndsInHeading(list)) {
-    const newList2 = marked.lexer(list.raw.trim() + " &nbsp;")[0];
+    const newList2 = marked.lexer(
+      `${list.raw.trim()} &nbsp;`
+    )[0];
     if (newList2.type !== "list") {
       return;
     }
@@ -619,7 +731,9 @@ function completeListItemPattern(list) {
     return;
   }
   const newListItemText = lastListItemLead + mergeRawTokenText(lastListItem.tokens.slice(0, -1)) + newToken.raw;
-  const newList = marked.lexer(previousListItemsText + newListItemText)[0];
+  const newList = marked.lexer(
+    previousListItemsText + newListItemText
+  )[0];
   if (newList.type !== "list") {
     return;
   }
@@ -649,14 +763,18 @@ function fillInIncompleteTokensOnce(tokens) {
       break;
     }
     if (i === tokens.length - 1 && token.type === "list") {
-      const newListToken = completeListItemPattern(token);
+      const newListToken = completeListItemPattern(
+        token
+      );
       if (newListToken) {
         newTokens = [newListToken];
         break;
       }
     }
     if (i === tokens.length - 1 && token.type === "paragraph") {
-      const newToken = completeSingleLinePattern(token);
+      const newToken = completeSingleLinePattern(
+        token
+      );
       if (newToken) {
         newTokens = [newToken];
         break;
@@ -664,10 +782,7 @@ function fillInIncompleteTokensOnce(tokens) {
     }
   }
   if (newTokens) {
-    const newTokensList = [
-      ...tokens.slice(0, i),
-      ...newTokens
-    ];
+    const newTokensList = [...tokens.slice(0, i), ...newTokens];
     newTokensList.links = tokens.links;
     return newTokensList;
   }
@@ -707,7 +822,9 @@ function completeDoubleUnderscore(tokens) {
 }
 __name(completeDoubleUnderscore, "completeDoubleUnderscore");
 function completeWithString(tokens, closingString) {
-  const mergedRawText = mergeRawTokenText(Array.isArray(tokens) ? tokens : [tokens]);
+  const mergedRawText = mergeRawTokenText(
+    Array.isArray(tokens) ? tokens : [tokens]
+  );
   return marked.lexer(mergedRawText + closingString)[0];
 }
 __name(completeWithString, "completeWithString");
@@ -737,7 +854,7 @@ function completeTable(tokens) {
   if (typeof numCols === "number" && numCols > 0) {
     const prefixText = hasSeparatorRow ? lines.slice(0, -1).join("\n") : mergedRawText;
     const line1EndsInPipe = !!prefixText.match(/\|\s*$/);
-    const newRawText = prefixText + (line1EndsInPipe ? "" : "|") + `
+    const newRawText = `${prefixText + (line1EndsInPipe ? "" : "|")}
 |${" --- |".repeat(numCols)}`;
     return marked.lexer(newRawText);
   }

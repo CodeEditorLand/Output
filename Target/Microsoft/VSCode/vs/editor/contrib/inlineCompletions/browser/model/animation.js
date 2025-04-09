@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getActiveWindow } from "../../../../../base/browser/dom.js";
-import { ISettableObservable, observableValue, ITransaction, IReader, observableSignal } from "../../../../../base/common/observable.js";
+import {
+  observableSignal,
+  observableValue
+} from "../../../../../base/common/observable.js";
 class AnimatedValue {
   constructor(startValue, endValue, durationMs, _interpolationFunction = easeOutExpo) {
     this.startValue = startValue;
@@ -27,12 +30,17 @@ class AnimatedValue {
     if (timePassed >= this.durationMs) {
       return this.endValue;
     }
-    const value = this._interpolationFunction(timePassed, this.startValue, this.endValue - this.startValue, this.durationMs);
+    const value = this._interpolationFunction(
+      timePassed,
+      this.startValue,
+      this.endValue - this.startValue,
+      this.durationMs
+    );
     return value;
   }
 }
 function easeOutExpo(passedTime, start, length, totalDuration) {
-  return passedTime === totalDuration ? start + length : length * (-Math.pow(2, -10 * passedTime / totalDuration) + 1) + start;
+  return passedTime === totalDuration ? start + length : length * (-(2 ** (-10 * passedTime / totalDuration)) + 1) + start;
 }
 __name(easeOutExpo, "easeOutExpo");
 function easeOutCubic(passedTime, start, length, totalDuration) {

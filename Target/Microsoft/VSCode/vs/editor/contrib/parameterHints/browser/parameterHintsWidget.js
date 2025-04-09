@@ -15,33 +15,63 @@ import * as aria from "../../../../base/browser/ui/aria/aria.js";
 import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { escapeRegExpCharacters } from "../../../../base/common/strings.js";
 import { assertIsDefined } from "../../../../base/common/types.js";
 import "./parameterHints.css";
-import { ContentWidgetPositionPreference, ICodeEditor, IContentWidget, IContentWidgetPosition } from "../../../browser/editorBrowser.js";
-import { EDITOR_FONT_DEFAULTS, EditorOption } from "../../../common/config/editorOptions.js";
-import * as languages from "../../../common/languages.js";
-import { ILanguageService } from "../../../common/languages/language.js";
-import { IMarkdownRenderResult, MarkdownRenderer } from "../../../browser/widget/markdownRenderer/browser/markdownRenderer.js";
-import { ParameterHintsModel } from "./parameterHintsModel.js";
-import { Context } from "./provideSignatureHelp.js";
-import * as nls from "../../../../nls.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { listHighlightForeground, registerColor } from "../../../../platform/theme/common/colorRegistry.js";
-import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
+import * as nls from "../../../../nls.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import {
+  listHighlightForeground,
+  registerColor
+} from "../../../../platform/theme/common/colorRegistry.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import {
+  ContentWidgetPositionPreference
+} from "../../../browser/editorBrowser.js";
+import {
+  MarkdownRenderer
+} from "../../../browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import {
+  EDITOR_FONT_DEFAULTS,
+  EditorOption
+} from "../../../common/config/editorOptions.js";
+import { ILanguageService } from "../../../common/languages/language.js";
+import { Context } from "./provideSignatureHelp.js";
 const $ = dom.$;
-const parameterHintsNextIcon = registerIcon("parameter-hints-next", Codicon.chevronDown, nls.localize("parameterHintsNextIcon", "Icon for show next parameter hint."));
-const parameterHintsPreviousIcon = registerIcon("parameter-hints-previous", Codicon.chevronUp, nls.localize("parameterHintsPreviousIcon", "Icon for show previous parameter hint."));
+const parameterHintsNextIcon = registerIcon(
+  "parameter-hints-next",
+  Codicon.chevronDown,
+  nls.localize(
+    "parameterHintsNextIcon",
+    "Icon for show next parameter hint."
+  )
+);
+const parameterHintsPreviousIcon = registerIcon(
+  "parameter-hints-previous",
+  Codicon.chevronUp,
+  nls.localize(
+    "parameterHintsPreviousIcon",
+    "Icon for show previous parameter hint."
+  )
+);
 let ParameterHintsWidget = class extends Disposable {
   constructor(editor, model, contextKeyService, openerService, languageService) {
     super();
     this.editor = editor;
     this.model = model;
-    this.markdownRenderer = new MarkdownRenderer({ editor }, languageService, openerService);
+    this.markdownRenderer = new MarkdownRenderer(
+      { editor },
+      languageService,
+      openerService
+    );
     this.keyVisible = Context.Visible.bindTo(contextKeyService);
     this.keyMultipleSignatures = Context.MultipleSignatures.bindTo(contextKeyService);
   }
@@ -63,17 +93,27 @@ let ParameterHintsWidget = class extends Disposable {
     const wrapper = dom.append(element, $(".phwrapper"));
     wrapper.tabIndex = -1;
     const controls = dom.append(wrapper, $(".controls"));
-    const previous = dom.append(controls, $(".button" + ThemeIcon.asCSSSelector(parameterHintsPreviousIcon)));
+    const previous = dom.append(
+      controls,
+      $(`.button${ThemeIcon.asCSSSelector(parameterHintsPreviousIcon)}`)
+    );
     const overloads = dom.append(controls, $(".overloads"));
-    const next = dom.append(controls, $(".button" + ThemeIcon.asCSSSelector(parameterHintsNextIcon)));
-    this._register(dom.addDisposableListener(previous, "click", (e) => {
-      dom.EventHelper.stop(e);
-      this.previous();
-    }));
-    this._register(dom.addDisposableListener(next, "click", (e) => {
-      dom.EventHelper.stop(e);
-      this.next();
-    }));
+    const next = dom.append(
+      controls,
+      $(`.button${ThemeIcon.asCSSSelector(parameterHintsNextIcon)}`)
+    );
+    this._register(
+      dom.addDisposableListener(previous, "click", (e) => {
+        dom.EventHelper.stop(e);
+        this.previous();
+      })
+    );
+    this._register(
+      dom.addDisposableListener(next, "click", (e) => {
+        dom.EventHelper.stop(e);
+        this.next();
+      })
+    );
     const body = $(".body");
     const scrollbar = new DomScrollableElement(body, {
       alwaysConsumeMouseWheel: true
@@ -92,11 +132,13 @@ let ParameterHintsWidget = class extends Disposable {
     };
     this.editor.addContentWidget(this);
     this.hide();
-    this._register(this.editor.onDidChangeCursorSelection((e) => {
-      if (this.visible) {
-        this.editor.layoutContentWidget(this);
-      }
-    }));
+    this._register(
+      this.editor.onDidChangeCursorSelection((e) => {
+        if (this.visible) {
+          this.editor.layoutContentWidget(this);
+        }
+      })
+    );
     const updateFont = /* @__PURE__ */ __name(() => {
       if (!this.domNodes) {
         return;
@@ -105,15 +147,25 @@ let ParameterHintsWidget = class extends Disposable {
       const element2 = this.domNodes.element;
       element2.style.fontSize = `${fontInfo.fontSize}px`;
       element2.style.lineHeight = `${fontInfo.lineHeight / fontInfo.fontSize}`;
-      element2.style.setProperty("--vscode-parameterHintsWidget-editorFontFamily", fontInfo.fontFamily);
-      element2.style.setProperty("--vscode-parameterHintsWidget-editorFontFamilyDefault", EDITOR_FONT_DEFAULTS.fontFamily);
+      element2.style.setProperty(
+        "--vscode-parameterHintsWidget-editorFontFamily",
+        fontInfo.fontFamily
+      );
+      element2.style.setProperty(
+        "--vscode-parameterHintsWidget-editorFontFamilyDefault",
+        EDITOR_FONT_DEFAULTS.fontFamily
+      );
     }, "updateFont");
     updateFont();
-    this._register(Event.chain(
-      this.editor.onDidChangeConfiguration.bind(this.editor),
-      ($2) => $2.filter((e) => e.hasChanged(EditorOption.fontInfo))
-    )(updateFont));
-    this._register(this.editor.onDidLayoutChange((e) => this.updateMaxHeight()));
+    this._register(
+      Event.chain(
+        this.editor.onDidChangeConfiguration.bind(this.editor),
+        ($2) => $2.filter((e) => e.hasChanged(EditorOption.fontInfo))
+      )(updateFont)
+    );
+    this._register(
+      this.editor.onDidLayoutChange((e) => this.updateMaxHeight())
+    );
     this.updateMaxHeight();
   }
   show() {
@@ -145,7 +197,10 @@ let ParameterHintsWidget = class extends Disposable {
     if (this.visible) {
       return {
         position: this.editor.getPosition(),
-        preference: [ContentWidgetPositionPreference.ABOVE, ContentWidgetPositionPreference.BELOW]
+        preference: [
+          ContentWidgetPositionPreference.ABOVE,
+          ContentWidgetPositionPreference.BELOW
+        ]
       };
     }
     return null;
@@ -179,7 +234,9 @@ let ParameterHintsWidget = class extends Disposable {
       if (typeof activeParameter.documentation === "string") {
         documentation.textContent = activeParameter.documentation;
       } else {
-        const renderedContents = this.renderMarkdownDocs(activeParameter.documentation);
+        const renderedContents = this.renderMarkdownDocs(
+          activeParameter.documentation
+        );
         documentation.appendChild(renderedContents.element);
       }
       dom.append(this.domNodes.docs, $("p", {}, documentation));
@@ -188,18 +245,28 @@ let ParameterHintsWidget = class extends Disposable {
     } else if (typeof signature.documentation === "string") {
       dom.append(this.domNodes.docs, $("p", {}, signature.documentation));
     } else {
-      const renderedContents = this.renderMarkdownDocs(signature.documentation);
+      const renderedContents = this.renderMarkdownDocs(
+        signature.documentation
+      );
       dom.append(this.domNodes.docs, renderedContents.element);
     }
     const hasDocs = this.hasDocs(signature, activeParameter);
     this.domNodes.signature.classList.toggle("has-docs", hasDocs);
     this.domNodes.docs.classList.toggle("empty", !hasDocs);
-    this.domNodes.overloads.textContent = String(hints.activeSignature + 1).padStart(hints.signatures.length.toString().length, "0") + "/" + hints.signatures.length;
+    this.domNodes.overloads.textContent = `${String(
+      hints.activeSignature + 1
+    ).padStart(
+      hints.signatures.length.toString().length,
+      "0"
+    )}/${hints.signatures.length}`;
     if (activeParameter) {
       let labelToAnnounce = "";
       const param = signature.parameters[activeParameterIndex];
       if (Array.isArray(param.label)) {
-        labelToAnnounce = signature.label.substring(param.label[0], param.label[1]);
+        labelToAnnounce = signature.label.substring(
+          param.label[0],
+          param.label[1]
+        );
       } else {
         labelToAnnounce = param.label;
       }
@@ -218,11 +285,13 @@ let ParameterHintsWidget = class extends Disposable {
     this.domNodes.scrollbar.scanDomNode();
   }
   renderMarkdownDocs(markdown) {
-    const renderedContents = this.renderDisposeables.add(this.markdownRenderer.render(markdown, {
-      asyncRenderCallback: /* @__PURE__ */ __name(() => {
-        this.domNodes?.scrollbar.scanDomNode();
-      }, "asyncRenderCallback")
-    }));
+    const renderedContents = this.renderDisposeables.add(
+      this.markdownRenderer.render(markdown, {
+        asyncRenderCallback: /* @__PURE__ */ __name(() => {
+          this.domNodes?.scrollbar.scanDomNode();
+        }, "asyncRenderCallback")
+      })
+    );
     renderedContents.element.classList.add("markdown-docs");
     return renderedContents;
   }
@@ -242,7 +311,10 @@ let ParameterHintsWidget = class extends Disposable {
     return false;
   }
   renderParameters(parent, signature, activeParameterIndex) {
-    const [start, end] = this.getParameterLabelOffsets(signature, activeParameterIndex);
+    const [start, end] = this.getParameterLabelOffsets(
+      signature,
+      activeParameterIndex
+    );
     const beforeSpan = document.createElement("span");
     beforeSpan.textContent = signature.label.substring(0, start);
     const paramSpan = document.createElement("span");
@@ -261,7 +333,10 @@ let ParameterHintsWidget = class extends Disposable {
     } else if (!param.label.length) {
       return [0, 0];
     } else {
-      const regex = new RegExp(`(\\W|^)${escapeRegExpCharacters(param.label)}(?=\\W|$)`, "g");
+      const regex = new RegExp(
+        `(\\W|^)${escapeRegExpCharacters(param.label)}(?=\\W|$)`,
+        "g"
+      );
       regex.test(signature.label);
       const idx = regex.lastIndex - param.label.length;
       return idx >= 0 ? [idx, regex.lastIndex] : [0, 0];
@@ -279,7 +354,7 @@ let ParameterHintsWidget = class extends Disposable {
     if (!this.domNodes) {
       this.createParameterHintDOMNodes();
     }
-    return this.domNodes.element;
+    return this.domNodes?.element;
   }
   getId() {
     return ParameterHintsWidget.ID;
@@ -291,7 +366,9 @@ let ParameterHintsWidget = class extends Disposable {
     const height = Math.max(this.editor.getLayoutInfo().height / 4, 250);
     const maxHeight = `${height}px`;
     this.domNodes.element.style.maxHeight = maxHeight;
-    const wrapper = this.domNodes.element.getElementsByClassName("phwrapper");
+    const wrapper = this.domNodes.element.getElementsByClassName(
+      "phwrapper"
+    );
     if (wrapper.length) {
       wrapper[0].style.maxHeight = maxHeight;
     }
@@ -302,7 +379,14 @@ ParameterHintsWidget = __decorateClass([
   __decorateParam(3, IOpenerService),
   __decorateParam(4, ILanguageService)
 ], ParameterHintsWidget);
-registerColor("editorHoverWidget.highlightForeground", listHighlightForeground, nls.localize("editorHoverWidgetHighlightForeground", "Foreground color of the active item in the parameter hint."));
+registerColor(
+  "editorHoverWidget.highlightForeground",
+  listHighlightForeground,
+  nls.localize(
+    "editorHoverWidgetHighlightForeground",
+    "Foreground color of the active item in the parameter hint."
+  )
+);
 export {
   ParameterHintsWidget
 };

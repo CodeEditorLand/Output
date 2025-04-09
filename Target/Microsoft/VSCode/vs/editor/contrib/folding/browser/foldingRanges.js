@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { SelectedLines } from "./folding.js";
 var FoldSource = /* @__PURE__ */ ((FoldSource2) => {
   FoldSource2[FoldSource2["provider"] = 0] = "provider";
   FoldSource2[FoldSource2["userDefined"] = 1] = "userDefined";
@@ -75,7 +74,9 @@ class FoldingRegions {
         const startLineNumber = this._startIndexes[i];
         const endLineNumber = this._endIndexes[i];
         if (startLineNumber > MAX_LINE_NUMBER || endLineNumber > MAX_LINE_NUMBER) {
-          throw new Error("startLineNumber or endLineNumber must not exceed " + MAX_LINE_NUMBER);
+          throw new Error(
+            `startLineNumber or endLineNumber must not exceed ${MAX_LINE_NUMBER}`
+          );
         }
         while (parentIndexes.length > 0 && !isInsideLast(startLineNumber, endLineNumber)) {
           parentIndexes.pop();
@@ -167,7 +168,8 @@ class FoldingRegions {
     return this.getStartLineNumber(index) <= line && this.getEndLineNumber(index) >= line;
   }
   findIndex(line) {
-    let low = 0, high = this._startIndexes.length;
+    let low = 0;
+    let high = this._startIndexes.length;
     if (high === 0) {
       return -1;
     }
@@ -281,7 +283,10 @@ class FoldingRegions {
             useRange = nextB;
           } else {
             useRange = nextA;
-            useRange.isCollapsed = nextB.isCollapsed && (nextA.endLineNumber === nextB.endLineNumber || !selection?.startsInside(nextA.startLineNumber + 1, nextA.endLineNumber + 1));
+            useRange.isCollapsed = nextB.isCollapsed && (nextA.endLineNumber === nextB.endLineNumber || !selection?.startsInside(
+              nextA.startLineNumber + 1,
+              nextA.endLineNumber + 1
+            ));
             useRange.source = 0 /* provider */;
           }
           nextA = getA(++indexA);
@@ -296,11 +301,11 @@ class FoldingRegions {
         let scanIndex = indexB;
         let prescanB = nextB;
         while (true) {
-          if (!prescanB || prescanB.startLineNumber > nextA.endLineNumber) {
+          if (!prescanB || prescanB.startLineNumber > nextA?.endLineNumber) {
             useRange = nextA;
             break;
           }
-          if (prescanB.source === 1 /* userDefined */ && prescanB.endLineNumber > nextA.endLineNumber) {
+          if (prescanB.source === 1 /* userDefined */ && prescanB.endLineNumber > nextA?.endLineNumber) {
             break;
           }
           prescanB = getB(++scanIndex);

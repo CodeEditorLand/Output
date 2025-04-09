@@ -10,30 +10,46 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event, Emitter } from "../../../base/common/event.js";
-import { ExtHostTerminalServiceShape, MainContext, MainThreadTerminalServiceShape, ITerminalDimensionsDto, ITerminalLinkDto, ExtHostTerminalIdentifier, ICommandDto, ITerminalQuickFixOpenerDto, ITerminalQuickFixTerminalCommandDto, TerminalCommandMatchResultDto, ITerminalCommandDto, ITerminalCompletionContextDto, TerminalCompletionListDto } from "./extHost.protocol.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { URI } from "../../../base/common/uri.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { IDisposable, DisposableStore, Disposable, MutableDisposable } from "../../../base/common/lifecycle.js";
-import { Disposable as VSCodeDisposable, EnvironmentVariableMutatorType, TerminalExitReason, TerminalCompletionItem } from "./extHostTypes.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { localize } from "../../../nls.js";
-import { NotSupportedError } from "../../../base/common/errors.js";
-import { serializeEnvironmentDescriptionMap, serializeEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariableShared.js";
-import { CancellationTokenSource } from "../../../base/common/cancellation.js";
-import { generateUuid } from "../../../base/common/uuid.js";
-import { IEnvironmentVariableCollectionDescription, IEnvironmentVariableMutator, ISerializableEnvironmentVariableCollection } from "../../../platform/terminal/common/environmentVariable.js";
-import { ICreateContributedTerminalProfileOptions, IProcessReadyEvent, IShellLaunchConfigDto, ITerminalChildProcess, ITerminalLaunchError, ITerminalProfile, TerminalIcon, TerminalLocation, IProcessProperty, ProcessPropertyType, IProcessPropertyMap, TerminalShellType } from "../../../platform/terminal/common/terminal.js";
-import { TerminalDataBufferer } from "../../../platform/terminal/common/terminalDataBuffering.js";
-import { ThemeColor } from "../../../base/common/themables.js";
 import { Promises } from "../../../base/common/async.js";
-import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
-import { TerminalCompletionList, TerminalQuickFix, ViewColumn } from "./extHostTypeConverters.js";
-import { IExtHostCommands } from "./extHostCommands.js";
+import { CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { NotSupportedError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../base/common/marshallingIds.js";
-import { ISerializedTerminalInstanceContext } from "../../contrib/terminal/common/terminal.js";
-const IExtHostTerminalService = createDecorator("IExtHostTerminalService");
+import { ThemeColor } from "../../../base/common/themables.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import {
+  serializeEnvironmentDescriptionMap,
+  serializeEnvironmentVariableCollection
+} from "../../../platform/terminal/common/environmentVariableShared.js";
+import {
+  ProcessPropertyType
+} from "../../../platform/terminal/common/terminal.js";
+import { TerminalDataBufferer } from "../../../platform/terminal/common/terminalDataBuffering.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
+import { IExtHostCommands } from "./extHostCommands.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
+import {
+  TerminalCompletionList,
+  TerminalQuickFix,
+  ViewColumn
+} from "./extHostTypeConverters.js";
+import {
+  EnvironmentVariableMutatorType,
+  Disposable as VSCodeDisposable
+} from "./extHostTypes.js";
+const IExtHostTerminalService = createDecorator(
+  "IExtHostTerminalService"
+);
 class ExtHostTerminal extends Disposable {
   constructor(_proxy, _id, _creationOptions, _name) {
     super();
@@ -42,7 +58,9 @@ class ExtHostTerminal extends Disposable {
     this._creationOptions = _creationOptions;
     this._name = _name;
     this._creationOptions = Object.freeze(this._creationOptions);
-    this._pidPromise = new Promise((c) => this._pidPromiseComplete = c);
+    this._pidPromise = new Promise(
+      (c) => this._pidPromiseComplete = c
+    );
     const that = this;
     this.value = {
       get name() {
@@ -104,7 +122,10 @@ class ExtHostTerminal extends Disposable {
   _pidPromiseComplete;
   _rows;
   _exitStatus;
-  _state = { isInteractedWith: false, shell: void 0 };
+  _state = {
+    isInteractedWith: false,
+    shell: void 0
+  };
   _selection;
   shellIntegration;
   isOpen = false;
@@ -134,7 +155,10 @@ class ExtHostTerminal extends Disposable {
       isFeatureTerminal: internalOptions?.isFeatureTerminal ?? void 0,
       isExtensionOwnedTerminal: true,
       useShellEnvironment: internalOptions?.useShellEnvironment ?? void 0,
-      location: internalOptions?.location || this._serializeParentTerminal(options.location, internalOptions?.resolvedExtHostIdentifier),
+      location: internalOptions?.location || this._serializeParentTerminal(
+        options.location,
+        internalOptions?.resolvedExtHostIdentifier
+      ),
       isTransient: options.isTransient ?? void 0
     });
   }
@@ -161,7 +185,10 @@ class ExtHostTerminal extends Disposable {
         return { parentTerminal };
       }
       if ("viewColumn" in location) {
-        return { viewColumn: ViewColumn.from(location.viewColumn), preserveFocus: location.preserveFocus };
+        return {
+          viewColumn: ViewColumn.from(location.viewColumn),
+          preserveFocus: location.preserveFocus
+        };
       }
       return void 0;
     }
@@ -245,10 +272,14 @@ class ExtHostPseudoterminal {
   _onProcessExit = new Emitter();
   onProcessExit = this._onProcessExit.event;
   refreshProperty(property) {
-    throw new Error(`refreshProperty is not suppported in extension owned terminals. property: ${property}`);
+    throw new Error(
+      `refreshProperty is not suppported in extension owned terminals. property: ${property}`
+    );
   }
   updateProperty(property, value) {
-    throw new Error(`updateProperty is not suppported in extension owned terminals. property: ${property}, value: ${value}`);
+    throw new Error(
+      `updateProperty is not suppported in extension owned terminals. property: ${property}, value: ${value}`
+    );
   }
   async start() {
     return void 0;
@@ -283,11 +314,17 @@ class ExtHostPseudoterminal {
     });
     this._pty.onDidOverrideDimensions?.((e) => {
       if (e) {
-        this._onDidChangeProperty.fire({ type: ProcessPropertyType.OverrideDimensions, value: { cols: e.columns, rows: e.rows } });
+        this._onDidChangeProperty.fire({
+          type: ProcessPropertyType.OverrideDimensions,
+          value: { cols: e.columns, rows: e.rows }
+        });
       }
     });
     this._pty.onDidChangeName?.((title) => {
-      this._onDidChangeProperty.fire({ type: ProcessPropertyType.Title, value: title });
+      this._onDidChangeProperty.fire({
+        type: ProcessPropertyType.Title,
+        value: title
+      });
     });
     this._pty.open(initialDimensions ? initialDimensions : void 0);
     if (initialDimensions) {
@@ -301,7 +338,9 @@ let BaseExtHostTerminalService = class extends Disposable {
   constructor(supportsProcesses, _extHostCommands, extHostRpc) {
     super();
     this._extHostCommands = _extHostCommands;
-    this._proxy = extHostRpc.getProxy(MainContext.MainThreadTerminalService);
+    this._proxy = extHostRpc.getProxy(
+      MainContext.MainThreadTerminalService
+    );
     this._bufferer = new TerminalDataBufferer(this._proxy.$sendProcessData);
     this._proxy.$registerProcessSupport(supportsProcesses);
     this._extHostCommands.registerArgumentProcessor({
@@ -395,9 +434,20 @@ let BaseExtHostTerminalService = class extends Disposable {
     return profile?.args || [];
   }
   createExtensionTerminal(options, internalOptions) {
-    const terminal = new ExtHostTerminal(this._proxy, generateUuid(), options, options.name);
+    const terminal = new ExtHostTerminal(
+      this._proxy,
+      generateUuid(),
+      options,
+      options.name
+    );
     const p = new ExtHostPseudoterminal(options.pty);
-    terminal.createExtensionTerminal(options.location, internalOptions, this._serializeParentTerminal(options, internalOptions).resolvedExtHostIdentifier, asTerminalIcon(options.iconPath), asTerminalColor(options.color)).then((id) => {
+    terminal.createExtensionTerminal(
+      options.location,
+      internalOptions,
+      this._serializeParentTerminal(options, internalOptions).resolvedExtHostIdentifier,
+      asTerminalIcon(options.iconPath),
+      asTerminalColor(options.color)
+    ).then((id) => {
       const disposable = this._setupExtHostProcessListeners(id, p);
       this._terminalProcessDisposables[id] = disposable;
     });
@@ -409,7 +459,9 @@ let BaseExtHostTerminalService = class extends Disposable {
     if (options.location && typeof options.location === "object" && "parentTerminal" in options.location) {
       const parentTerminal = options.location.parentTerminal;
       if (parentTerminal) {
-        const parentExtHostTerminal = this._terminals.find((t) => t.value === parentTerminal);
+        const parentExtHostTerminal = this._terminals.find(
+          (t) => t.value === parentTerminal
+        );
         if (parentExtHostTerminal) {
           internalOptions.resolvedExtHostIdentifier = parentExtHostTerminal._id;
         }
@@ -424,7 +476,9 @@ let BaseExtHostTerminalService = class extends Disposable {
   attachPtyToTerminal(id, pty) {
     const terminal = this.getTerminalById(id);
     if (!terminal) {
-      throw new Error(`Cannot resolve terminal with id ${id} for virtual process`);
+      throw new Error(
+        `Cannot resolve terminal with id ${id} for virtual process`
+      );
     }
     const p = new ExtHostPseudoterminal(pty);
     const disposable = this._setupExtHostProcessListeners(id, p);
@@ -443,14 +497,19 @@ let BaseExtHostTerminalService = class extends Disposable {
     if (terminal) {
       this._activeTerminal = terminal;
       if (original !== this._activeTerminal) {
-        this._onDidChangeActiveTerminal.fire(this._activeTerminal.value);
+        this._onDidChangeActiveTerminal.fire(
+          this._activeTerminal.value
+        );
       }
     }
   }
   async $acceptTerminalProcessData(id, data) {
     const terminal = this.getTerminalById(id);
     if (terminal) {
-      this._onDidWriteTerminalData.fire({ terminal: terminal.value, data });
+      this._onDidWriteTerminalData.fire({
+        terminal: terminal.value,
+        data
+      });
     }
   }
   async $acceptTerminalDimensions(id, cols, rows) {
@@ -467,7 +526,10 @@ let BaseExtHostTerminalService = class extends Disposable {
   async $acceptDidExecuteCommand(id, command) {
     const terminal = this.getTerminalById(id);
     if (terminal) {
-      this._onDidExecuteCommand.fire({ terminal: terminal.value, ...command });
+      this._onDidExecuteCommand.fire({
+        terminal: terminal.value,
+        ...command
+      });
     }
   }
   async $acceptTerminalMaximumDimensions(id, cols, rows) {
@@ -489,7 +551,10 @@ let BaseExtHostTerminalService = class extends Disposable {
   }
   $acceptTerminalOpened(id, extHostTerminalId, name, shellLaunchConfigDto) {
     if (extHostTerminalId) {
-      const index = this._getTerminalObjectIndexById(this._terminals, extHostTerminalId);
+      const index = this._getTerminalObjectIndexById(
+        this._terminals,
+        extHostTerminalId
+      );
       if (index !== null) {
         this._terminals[index]._id = id;
         this._onDidOpenTerminal.fire(this.terminals[index]);
@@ -505,7 +570,12 @@ let BaseExtHostTerminalService = class extends Disposable {
       env: shellLaunchConfigDto.env,
       hideFromUser: shellLaunchConfigDto.hideFromUser
     };
-    const terminal = new ExtHostTerminal(this._proxy, id, creationOptions, name);
+    const terminal = new ExtHostTerminal(
+      this._proxy,
+      id,
+      creationOptions,
+      name
+    );
     this._terminals.push(terminal);
     this._onDidOpenTerminal.fire(terminal.value);
     terminal.isOpen = true;
@@ -517,7 +587,13 @@ let BaseExtHostTerminalService = class extends Disposable {
   async $startExtensionTerminal(id, initialDimensions) {
     const terminal = this.getTerminalById(id);
     if (!terminal) {
-      return { message: localize("launchFail.idMissingOnExtHost", "Could not find the terminal with id {0} on the extension host", id) };
+      return {
+        message: localize(
+          "launchFail.idMissingOnExtHost",
+          "Could not find the terminal with id {0} on the extension host",
+          id
+        )
+      };
     }
     if (!terminal.isOpen) {
       await new Promise((r) => {
@@ -531,7 +607,9 @@ let BaseExtHostTerminalService = class extends Disposable {
     }
     const terminalProcess = this._terminalProcesses.get(id);
     if (terminalProcess) {
-      terminalProcess.startSendingEvents(initialDimensions);
+      terminalProcess.startSendingEvents(
+        initialDimensions
+      );
     } else {
       this._extensionTerminalAwaitingStart[id] = { initialDimensions };
     }
@@ -539,10 +617,20 @@ let BaseExtHostTerminalService = class extends Disposable {
   }
   _setupExtHostProcessListeners(id, p) {
     const disposables = new DisposableStore();
-    disposables.add(p.onProcessReady((e) => this._proxy.$sendProcessReady(id, e.pid, e.cwd, e.windowsPty)));
-    disposables.add(p.onDidChangeProperty((property) => this._proxy.$sendProcessProperty(id, property)));
+    disposables.add(
+      p.onProcessReady(
+        (e) => this._proxy.$sendProcessReady(id, e.pid, e.cwd, e.windowsPty)
+      )
+    );
+    disposables.add(
+      p.onDidChangeProperty(
+        (property) => this._proxy.$sendProcessProperty(id, property)
+      )
+    );
     this._bufferer.startBuffering(id, p.onProcessData);
-    disposables.add(p.onProcessExit((exitCode) => this._onProcessExit(id, exitCode)));
+    disposables.add(
+      p.onProcessExit((exitCode) => this._onProcessExit(id, exitCode))
+    );
     this._terminalProcesses.set(id, p);
     const awaitingStart = this._extensionTerminalAwaitingStart[id];
     if (awaitingStart && p instanceof ExtHostPseudoterminal) {
@@ -579,17 +667,29 @@ let BaseExtHostTerminalService = class extends Disposable {
     this._terminalProcesses.get(id)?.shutdown(immediate);
   }
   $acceptProcessRequestInitialCwd(id) {
-    this._terminalProcesses.get(id)?.getInitialCwd().then((initialCwd) => this._proxy.$sendProcessProperty(id, { type: ProcessPropertyType.InitialCwd, value: initialCwd }));
+    this._terminalProcesses.get(id)?.getInitialCwd().then(
+      (initialCwd) => this._proxy.$sendProcessProperty(id, {
+        type: ProcessPropertyType.InitialCwd,
+        value: initialCwd
+      })
+    );
   }
   $acceptProcessRequestCwd(id) {
-    this._terminalProcesses.get(id)?.getCwd().then((cwd) => this._proxy.$sendProcessProperty(id, { type: ProcessPropertyType.Cwd, value: cwd }));
+    this._terminalProcesses.get(id)?.getCwd().then(
+      (cwd) => this._proxy.$sendProcessProperty(id, {
+        type: ProcessPropertyType.Cwd,
+        value: cwd
+      })
+    );
   }
   $acceptProcessRequestLatency(id) {
     return Promise.resolve(id);
   }
   registerProfileProvider(extension, id, provider) {
     if (this._profileProviders.has(id)) {
-      throw new Error(`Terminal profile provider "${id}" already registered`);
+      throw new Error(
+        `Terminal profile provider "${id}" already registered`
+      );
     }
     this._profileProviders.set(id, provider);
     this._proxy.$registerProfileProvider(id, extension.identifier.value);
@@ -600,10 +700,16 @@ let BaseExtHostTerminalService = class extends Disposable {
   }
   registerTerminalCompletionProvider(extension, provider, ...triggerCharacters) {
     if (this._completionProviders.has(provider.id)) {
-      throw new Error(`Terminal completion provider "${provider.id}" already registered`);
+      throw new Error(
+        `Terminal completion provider "${provider.id}" already registered`
+      );
     }
     this._completionProviders.set(provider.id, provider);
-    this._proxy.$registerCompletionProvider(provider.id, extension.identifier.value, ...triggerCharacters);
+    this._proxy.$registerCompletionProvider(
+      provider.id,
+      extension.identifier.value,
+      ...triggerCharacters
+    );
     return new VSCodeDisposable(() => {
       this._completionProviders.delete(provider.id);
       this._proxy.$unregisterCompletionProvider(provider.id);
@@ -618,7 +724,11 @@ let BaseExtHostTerminalService = class extends Disposable {
     if (!provider) {
       return;
     }
-    const completions = await provider.provideTerminalCompletions(this.activeTerminal, options, token);
+    const completions = await provider.provideTerminalCompletions(
+      this.activeTerminal,
+      options,
+      token
+    );
     if (completions === null || completions === void 0) {
       return void 0;
     }
@@ -632,7 +742,9 @@ let BaseExtHostTerminalService = class extends Disposable {
   }
   registerTerminalQuickFixProvider(id, extensionId, provider) {
     if (this._quickFixProviders.has(id)) {
-      throw new Error(`Terminal quick fix provider "${id}" is already registered`);
+      throw new Error(
+        `Terminal quick fix provider "${id}" is already registered`
+      );
     }
     this._quickFixProviders.set(id, provider);
     this._proxy.$registerQuickFixProvider(id, extensionId);
@@ -650,18 +762,29 @@ let BaseExtHostTerminalService = class extends Disposable {
     if (!provider) {
       return;
     }
-    const quickFixes = await provider.provideTerminalQuickFixes(matchResult, token);
+    const quickFixes = await provider.provideTerminalQuickFixes(
+      matchResult,
+      token
+    );
     if (quickFixes === null || Array.isArray(quickFixes) && quickFixes.length === 0) {
       return void 0;
     }
     const store = new DisposableStore();
     this._lastQuickFixCommands.value = store;
     if (!Array.isArray(quickFixes)) {
-      return quickFixes ? TerminalQuickFix.from(quickFixes, this._extHostCommands.converter, store) : void 0;
+      return quickFixes ? TerminalQuickFix.from(
+        quickFixes,
+        this._extHostCommands.converter,
+        store
+      ) : void 0;
     }
     const result = [];
     for (const fix of quickFixes) {
-      const converted = TerminalQuickFix.from(fix, this._extHostCommands.converter, store);
+      const converted = TerminalQuickFix.from(
+        fix,
+        this._extHostCommands.converter,
+        store
+      );
       if (converted) {
         result.push(converted);
       }
@@ -678,7 +801,9 @@ let BaseExtHostTerminalService = class extends Disposable {
       profile = { options: profile };
     }
     if (!profile || !("options" in profile)) {
-      throw new Error(`No terminal profile options provided for id "${id}"`);
+      throw new Error(
+        `No terminal profile options provided for id "${id}"`
+      );
     }
     if ("pty" in profile.options) {
       this.createExtensionTerminal(profile.options, options);
@@ -707,18 +832,31 @@ let BaseExtHostTerminalService = class extends Disposable {
     const oldToken = this._terminalLinkCancellationSource.get(terminalId);
     oldToken?.dispose(true);
     const cancellationSource = new CancellationTokenSource();
-    this._terminalLinkCancellationSource.set(terminalId, cancellationSource);
+    this._terminalLinkCancellationSource.set(
+      terminalId,
+      cancellationSource
+    );
     const result = [];
-    const context = { terminal: terminal.value, line };
+    const context = {
+      terminal: terminal.value,
+      line
+    };
     const promises = [];
     for (const provider of this._linkProviders) {
-      promises.push(Promises.withAsyncBody(async (r) => {
-        cancellationSource.token.onCancellationRequested(() => r({ provider, links: [] }));
-        const links = await provider.provideTerminalLinks(context, cancellationSource.token) || [];
-        if (!cancellationSource.token.isCancellationRequested) {
-          r({ provider, links });
-        }
-      }));
+      promises.push(
+        Promises.withAsyncBody(async (r) => {
+          cancellationSource.token.onCancellationRequested(
+            () => r({ provider, links: [] })
+          );
+          const links = await provider.provideTerminalLinks(
+            context,
+            cancellationSource.token
+          ) || [];
+          if (!cancellationSource.token.isCancellationRequested) {
+            r({ provider, links });
+          }
+        })
+      );
     }
     const provideResults = await Promise.all(promises);
     if (cancellationSource.token.isCancellationRequested) {
@@ -727,19 +865,21 @@ let BaseExtHostTerminalService = class extends Disposable {
     const cacheLinkMap = /* @__PURE__ */ new Map();
     for (const provideResult of provideResults) {
       if (provideResult && provideResult.links.length > 0) {
-        result.push(...provideResult.links.map((providerLink) => {
-          const link = {
-            id: nextLinkId++,
-            startIndex: providerLink.startIndex,
-            length: providerLink.length,
-            label: providerLink.tooltip
-          };
-          cacheLinkMap.set(link.id, {
-            provider: provideResult.provider,
-            link: providerLink
-          });
-          return link;
-        }));
+        result.push(
+          ...provideResult.links.map((providerLink) => {
+            const link = {
+              id: nextLinkId++,
+              startIndex: providerLink.startIndex,
+              length: providerLink.length,
+              label: providerLink.tooltip
+            };
+            cacheLinkMap.set(link.id, {
+              provider: provideResult.provider,
+              link: providerLink
+            });
+            return link;
+          })
+        );
       }
     }
     this._terminalLinkCache.set(terminalId, cacheLinkMap);
@@ -783,23 +923,44 @@ let BaseExtHostTerminalService = class extends Disposable {
     return index >= 0 ? index : null;
   }
   getEnvironmentVariableCollection(extension) {
-    let collection = this._environmentVariableCollections.get(extension.identifier.value);
+    let collection = this._environmentVariableCollections.get(
+      extension.identifier.value
+    );
     if (!collection) {
-      collection = this._register(new UnifiedEnvironmentVariableCollection());
-      this._setEnvironmentVariableCollection(extension.identifier.value, collection);
+      collection = this._register(
+        new UnifiedEnvironmentVariableCollection()
+      );
+      this._setEnvironmentVariableCollection(
+        extension.identifier.value,
+        collection
+      );
     }
     return collection.getScopedEnvironmentVariableCollection(void 0);
   }
   _syncEnvironmentVariableCollection(extensionIdentifier, collection) {
-    const serialized = serializeEnvironmentVariableCollection(collection.map);
-    const serializedDescription = serializeEnvironmentDescriptionMap(collection.descriptionMap);
-    this._proxy.$setEnvironmentVariableCollection(extensionIdentifier, collection.persistent, serialized.length === 0 ? void 0 : serialized, serializedDescription);
+    const serialized = serializeEnvironmentVariableCollection(
+      collection.map
+    );
+    const serializedDescription = serializeEnvironmentDescriptionMap(
+      collection.descriptionMap
+    );
+    this._proxy.$setEnvironmentVariableCollection(
+      extensionIdentifier,
+      collection.persistent,
+      serialized.length === 0 ? void 0 : serialized,
+      serializedDescription
+    );
   }
   $initEnvironmentVariableCollections(collections) {
     collections.forEach((entry) => {
       const extensionIdentifier = entry[0];
-      const collection = this._register(new UnifiedEnvironmentVariableCollection(entry[1]));
-      this._setEnvironmentVariableCollection(extensionIdentifier, collection);
+      const collection = this._register(
+        new UnifiedEnvironmentVariableCollection(entry[1])
+      );
+      this._setEnvironmentVariableCollection(
+        extensionIdentifier,
+        collection
+      );
     });
   }
   $acceptDefaultProfile(profile, automationProfile) {
@@ -811,10 +972,18 @@ let BaseExtHostTerminalService = class extends Disposable {
     }
   }
   _setEnvironmentVariableCollection(extensionIdentifier, collection) {
-    this._environmentVariableCollections.set(extensionIdentifier, collection);
-    this._register(collection.onDidChangeCollection(() => {
-      this._syncEnvironmentVariableCollection(extensionIdentifier, collection);
-    }));
+    this._environmentVariableCollections.set(
+      extensionIdentifier,
+      collection
+    );
+    this._register(
+      collection.onDidChangeCollection(() => {
+        this._syncEnvironmentVariableCollection(
+          extensionIdentifier,
+          collection
+        );
+      })
+    );
   }
 };
 BaseExtHostTerminalService = __decorateClass([
@@ -838,7 +1007,7 @@ class UnifiedEnvironmentVariableCollection extends Disposable {
   }
   _onDidChangeCollection = new Emitter();
   get onDidChangeCollection() {
-    return this._onDidChangeCollection && this._onDidChangeCollection.event;
+    return this._onDidChangeCollection?.event;
   }
   constructor(serialized) {
     super();
@@ -848,24 +1017,48 @@ class UnifiedEnvironmentVariableCollection extends Disposable {
     const scopedCollectionKey = this.getScopeKey(scope);
     let scopedCollection = this.scopedCollections.get(scopedCollectionKey);
     if (!scopedCollection) {
-      scopedCollection = new ScopedEnvironmentVariableCollection(this, scope);
+      scopedCollection = new ScopedEnvironmentVariableCollection(
+        this,
+        scope
+      );
       this.scopedCollections.set(scopedCollectionKey, scopedCollection);
-      this._register(scopedCollection.onDidChangeCollection(() => this._onDidChangeCollection.fire()));
+      this._register(
+        scopedCollection.onDidChangeCollection(
+          () => this._onDidChangeCollection.fire()
+        )
+      );
     }
     return scopedCollection;
   }
   replace(variable, value, options, scope) {
-    this._setIfDiffers(variable, { value, type: EnvironmentVariableMutatorType.Replace, options: options ?? { applyAtProcessCreation: true }, scope });
+    this._setIfDiffers(variable, {
+      value,
+      type: EnvironmentVariableMutatorType.Replace,
+      options: options ?? { applyAtProcessCreation: true },
+      scope
+    });
   }
   append(variable, value, options, scope) {
-    this._setIfDiffers(variable, { value, type: EnvironmentVariableMutatorType.Append, options: options ?? { applyAtProcessCreation: true }, scope });
+    this._setIfDiffers(variable, {
+      value,
+      type: EnvironmentVariableMutatorType.Append,
+      options: options ?? { applyAtProcessCreation: true },
+      scope
+    });
   }
   prepend(variable, value, options, scope) {
-    this._setIfDiffers(variable, { value, type: EnvironmentVariableMutatorType.Prepend, options: options ?? { applyAtProcessCreation: true }, scope });
+    this._setIfDiffers(variable, {
+      value,
+      type: EnvironmentVariableMutatorType.Prepend,
+      options: options ?? { applyAtProcessCreation: true },
+      scope
+    });
   }
   _setIfDiffers(variable, mutator) {
     if (mutator.options && mutator.options.applyAtProcessCreation === false && !mutator.options.applyAtShellIntegration) {
-      throw new Error("EnvironmentVariableMutatorOptions must apply at either process creation or shell integration");
+      throw new Error(
+        "EnvironmentVariableMutatorOptions must apply at either process creation or shell integration"
+      );
     }
     const key = this.getKey(variable, mutator.scope);
     const current = this.map.get(key);
@@ -939,7 +1132,10 @@ class UnifiedEnvironmentVariableCollection extends Disposable {
       } else {
         descriptionStr = description?.value.split("\n\n")[0];
       }
-      const value = { description: descriptionStr, scope };
+      const value = {
+        description: descriptionStr,
+        scope
+      };
       this.descriptionMap.set(key, value);
       this._onDidChangeCollection.fire();
     }
@@ -969,7 +1165,7 @@ class ScopedEnvironmentVariableCollection {
   }
   _onDidChangeCollection = new Emitter();
   get onDidChangeCollection() {
-    return this._onDidChangeCollection && this._onDidChangeCollection.event;
+    return this._onDidChangeCollection?.event;
   }
   getScoped(scope) {
     return this.collection.getScopedEnvironmentVariableCollection(scope);
@@ -987,7 +1183,10 @@ class ScopedEnvironmentVariableCollection {
     return this.collection.get(variable, this.scope);
   }
   forEach(callback, thisArg) {
-    this.collection.getVariableMap(this.scope).forEach((value, variable) => callback.call(thisArg, variable, value, this), this.scope);
+    this.collection.getVariableMap(this.scope).forEach(
+      (value, variable) => callback.call(thisArg, variable, value, this),
+      this.scope
+    );
   }
   [Symbol.iterator]() {
     return this.collection.getVariableMap(this.scope).entries();
@@ -1043,9 +1242,9 @@ function asTerminalColor(color) {
 __name(asTerminalColor, "asTerminalColor");
 function convertMutator(mutator) {
   const newMutator = { ...mutator };
-  delete newMutator.scope;
+  newMutator.scope = void 0;
   newMutator.options = newMutator.options ?? void 0;
-  delete newMutator.variable;
+  newMutator.variable = void 0;
   return newMutator;
 }
 __name(convertMutator, "convertMutator");

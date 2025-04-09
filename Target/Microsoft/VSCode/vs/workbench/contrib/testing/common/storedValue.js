@@ -10,9 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IStorageService, IStorageValueChangeEvent, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService
+} from "../../../../platform/storage/common/storage.js";
 const defaultSerialization = {
   deserialize: /* @__PURE__ */ __name((d) => JSON.parse(d), "deserialize"),
   serialize: /* @__PURE__ */ __name((d) => JSON.stringify(d), "serialize")
@@ -25,7 +26,11 @@ let StoredValue = class extends Disposable {
     this.scope = options.scope;
     this.target = options.target;
     this.serialization = options.serialization ?? defaultSerialization;
-    this.onDidChange = this.storage.onDidChangeValue(this.scope, this.key, this._store);
+    this.onDidChange = this.storage.onDidChangeValue(
+      this.scope,
+      this.key,
+      this._store
+    );
   }
   static {
     __name(this, "StoredValue");
@@ -52,7 +57,12 @@ let StoredValue = class extends Disposable {
    */
   store(value) {
     this.value = value;
-    this.storage.store(this.key, this.serialization.serialize(value), this.scope, this.target);
+    this.storage.store(
+      this.key,
+      this.serialization.serialize(value),
+      this.scope,
+      this.target
+    );
   }
   /**
    * Delete an element stored under the provided key from storage.

@@ -1,9 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as browser from "./browser.js";
-import { EVENT_KEY_CODE_MAP, KeyCode, KeyCodeUtils, KeyMod } from "../common/keyCodes.js";
 import { KeyCodeChord } from "../common/keybindings.js";
+import {
+  EVENT_KEY_CODE_MAP,
+  KeyCode,
+  KeyCodeUtils,
+  KeyMod
+} from "../common/keyCodes.js";
 import * as platform from "../common/platform.js";
+import * as browser from "./browser.js";
 function extractKeyCode(e) {
   if (e.charCode) {
     const char = String.fromCharCode(e.charCode).toUpperCase();
@@ -53,16 +58,16 @@ const metaKeyMod = platform.isMacintosh ? KeyMod.CtrlCmd : KeyMod.WinCtrl;
 function printKeyboardEvent(e) {
   const modifiers = [];
   if (e.ctrlKey) {
-    modifiers.push(`ctrl`);
+    modifiers.push("ctrl");
   }
   if (e.shiftKey) {
-    modifiers.push(`shift`);
+    modifiers.push("shift");
   }
   if (e.altKey) {
-    modifiers.push(`alt`);
+    modifiers.push("alt");
   }
   if (e.metaKey) {
-    modifiers.push(`meta`);
+    modifiers.push("meta");
   }
   return `modifiers: [${modifiers.join(",")}], code: ${e.code}, keyCode: ${e.keyCode}, key: ${e.key}`;
 }
@@ -70,16 +75,16 @@ __name(printKeyboardEvent, "printKeyboardEvent");
 function printStandardKeyboardEvent(e) {
   const modifiers = [];
   if (e.ctrlKey) {
-    modifiers.push(`ctrl`);
+    modifiers.push("ctrl");
   }
   if (e.shiftKey) {
-    modifiers.push(`shift`);
+    modifiers.push("shift");
   }
   if (e.altKey) {
-    modifiers.push(`alt`);
+    modifiers.push("alt");
   }
   if (e.metaKey) {
-    modifiers.push(`meta`);
+    modifiers.push("meta");
   }
   return `modifiers: [${modifiers.join(",")}], code: ${e.code}, keyCode: ${e.keyCode} ('${KeyCodeUtils.toString(e.keyCode)}')`;
 }
@@ -119,12 +124,12 @@ class StandardKeyboardEvent {
     this._asKeyCodeChord = this._computeKeyCodeChord();
   }
   preventDefault() {
-    if (this.browserEvent && this.browserEvent.preventDefault) {
+    if (this.browserEvent?.preventDefault) {
       this.browserEvent.preventDefault();
     }
   }
   stopPropagation() {
-    if (this.browserEvent && this.browserEvent.stopPropagation) {
+    if (this.browserEvent?.stopPropagation) {
       this.browserEvent.stopPropagation();
     }
   }
@@ -160,7 +165,13 @@ class StandardKeyboardEvent {
     if (this.keyCode !== KeyCode.Ctrl && this.keyCode !== KeyCode.Shift && this.keyCode !== KeyCode.Alt && this.keyCode !== KeyCode.Meta) {
       key = this.keyCode;
     }
-    return new KeyCodeChord(this.ctrlKey, this.shiftKey, this.altKey, this.metaKey, key);
+    return new KeyCodeChord(
+      this.ctrlKey,
+      this.shiftKey,
+      this.altKey,
+      this.metaKey,
+      key
+    );
   }
 }
 export {

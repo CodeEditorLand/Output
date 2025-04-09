@@ -48,7 +48,9 @@ async function requestHidDevice(options) {
   if (!hid) {
     return void 0;
   }
-  const devices = await hid.requestDevice({ filters: options?.filters ?? [] });
+  const devices = await hid.requestDevice({
+    filters: options?.filters ?? []
+  });
   if (!devices.length) {
     return void 0;
   }

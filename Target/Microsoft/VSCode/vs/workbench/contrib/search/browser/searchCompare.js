@@ -1,11 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IMatchInNotebook, isIMatchInNotebook } from "./notebookSearch/notebookSearchModelBase.js";
-import { compareFileExtensions, compareFileNames, comparePaths } from "../../../../base/common/comparers.js";
-import { SearchSortOrder } from "../../../services/search/common/search.js";
+import {
+  compareFileExtensions,
+  compareFileNames,
+  comparePaths
+} from "../../../../base/common/comparers.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { createParentList, isSearchTreeFileMatch, isSearchTreeFolderMatch, isSearchTreeMatch, RenderableMatch } from "./searchTreeModel/searchTreeCommon.js";
+import { SearchSortOrder } from "../../../services/search/common/search.js";
 import { isSearchTreeAIFileMatch } from "./AISearch/aiSearchModelBase.js";
+import {
+  isIMatchInNotebook
+} from "./notebookSearch/notebookSearchModelBase.js";
+import {
+  createParentList,
+  isSearchTreeFileMatch,
+  isSearchTreeFolderMatch,
+  isSearchTreeMatch
+} from "./searchTreeModel/searchTreeCommon.js";
 let elemAIndex = -1;
 let elemBIndex = -1;
 function searchMatchComparer(elementA, elementB, sortOrder = SearchSortOrder.Default) {
@@ -38,7 +49,10 @@ function searchMatchComparer(elementA, elementB, sortOrder = SearchSortOrder.Def
         if (!elementA.resource || !elementB.resource) {
           return 0;
         }
-        return comparePaths(elementA.resource.fsPath, elementB.resource.fsPath) || compareFileNames(elementA.name(), elementB.name());
+        return comparePaths(
+          elementA.resource.fsPath,
+          elementB.resource.fsPath
+        ) || compareFileNames(elementA.name(), elementB.name());
     }
   }
   if (isSearchTreeFileMatch(elementA) && isSearchTreeFileMatch(elementB)) {
@@ -60,14 +74,20 @@ function searchMatchComparer(elementA, elementB, sortOrder = SearchSortOrder.Def
       }
       // Fall through otherwise
       default:
-        return comparePaths(elementA.resource.fsPath, elementB.resource.fsPath) || compareFileNames(elementA.name(), elementB.name());
+        return comparePaths(
+          elementA.resource.fsPath,
+          elementB.resource.fsPath
+        ) || compareFileNames(elementA.name(), elementB.name());
     }
   }
   if (isIMatchInNotebook(elementA) && isIMatchInNotebook(elementB)) {
     return compareNotebookPos(elementA, elementB);
   }
   if (isSearchTreeMatch(elementA) && isSearchTreeMatch(elementB)) {
-    return Range.compareRangesUsingStarts(elementA.range(), elementB.range());
+    return Range.compareRangesUsingStarts(
+      elementA.range(),
+      elementB.range()
+    );
   }
   return 0;
 }
@@ -77,7 +97,10 @@ function compareNotebookPos(match1, match2) {
     if (match1.webviewIndex !== void 0 && match2.webviewIndex !== void 0) {
       return match1.webviewIndex - match2.webviewIndex;
     } else if (match1.webviewIndex === void 0 && match2.webviewIndex === void 0) {
-      return Range.compareRangesUsingStarts(match1.range(), match2.range());
+      return Range.compareRangesUsingStarts(
+        match1.range(),
+        match2.range()
+      );
     } else {
       if (match1.webviewIndex !== void 0) {
         return 1;
@@ -99,7 +122,11 @@ function searchComparer(elementA, elementB, sortOrder = SearchSortOrder.Default)
   let j = elemBParents.length - 1;
   while (i >= 0 && j >= 0) {
     if (elemAParents[i].id() !== elemBParents[j].id()) {
-      return searchMatchComparer(elemAParents[i], elemBParents[j], sortOrder);
+      return searchMatchComparer(
+        elemAParents[i],
+        elemBParents[j],
+        sortOrder
+      );
     }
     i--;
     j--;

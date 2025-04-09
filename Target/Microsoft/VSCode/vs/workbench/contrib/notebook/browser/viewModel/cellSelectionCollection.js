@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { ICellRange } from "../../common/notebookRange.js";
 function rangesEqual(a, b) {
   if (a.length !== b.length) {
     return false;
@@ -19,7 +18,9 @@ class NotebookCellSelectionCollection extends Disposable {
   static {
     __name(this, "NotebookCellSelectionCollection");
   }
-  _onDidChangeSelection = this._register(new Emitter());
+  _onDidChangeSelection = this._register(
+    new Emitter()
+  );
   get onDidChangeSelection() {
     return this._onDidChangeSelection.event;
   }

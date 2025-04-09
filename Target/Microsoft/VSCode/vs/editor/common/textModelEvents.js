@@ -1,8 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IRange } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { IModelDecoration, InjectedTextOptions } from "./model.js";
 var RawContentChangedType = /* @__PURE__ */ ((RawContentChangedType2) => {
   RawContentChangedType2[RawContentChangedType2["Flush"] = 1] = "Flush";
   RawContentChangedType2[RawContentChangedType2["LineChanged"] = 2] = "LineChanged";
@@ -35,7 +32,10 @@ class LineInjectedText {
     let result = "";
     let lastOriginalOffset = 0;
     for (const injectedText of injectedTexts) {
-      result += lineText.substring(lastOriginalOffset, injectedText.column - 1);
+      result += lineText.substring(
+        lastOriginalOffset,
+        injectedText.column - 1
+      );
       lastOriginalOffset = injectedText.column - 1;
       result += injectedText.options.content;
     }
@@ -46,22 +46,26 @@ class LineInjectedText {
     const result = [];
     for (const decoration of decorations) {
       if (decoration.options.before && decoration.options.before.content.length > 0) {
-        result.push(new LineInjectedText(
-          decoration.ownerId,
-          decoration.range.startLineNumber,
-          decoration.range.startColumn,
-          decoration.options.before,
-          0
-        ));
+        result.push(
+          new LineInjectedText(
+            decoration.ownerId,
+            decoration.range.startLineNumber,
+            decoration.range.startColumn,
+            decoration.options.before,
+            0
+          )
+        );
       }
       if (decoration.options.after && decoration.options.after.content.length > 0) {
-        result.push(new LineInjectedText(
-          decoration.ownerId,
-          decoration.range.endLineNumber,
-          decoration.range.endColumn,
-          decoration.options.after,
-          1
-        ));
+        result.push(
+          new LineInjectedText(
+            decoration.ownerId,
+            decoration.range.endLineNumber,
+            decoration.range.endColumn,
+            decoration.options.after,
+            1
+          )
+        );
       }
     }
     result.sort((a, b) => {
@@ -76,7 +80,13 @@ class LineInjectedText {
     return result;
   }
   withText(text) {
-    return new LineInjectedText(this.ownerId, this.lineNumber, this.column, { ...this.options, content: text }, this.order);
+    return new LineInjectedText(
+      this.ownerId,
+      this.lineNumber,
+      this.column,
+      { ...this.options, content: text },
+      this.order
+    );
   }
 }
 class ModelRawLineChanged {
@@ -193,7 +203,12 @@ class ModelRawContentChangedEvent {
     const versionId = b.versionId;
     const isUndoing = a.isUndoing || b.isUndoing;
     const isRedoing = a.isRedoing || b.isRedoing;
-    return new ModelRawContentChangedEvent(changes, versionId, isUndoing, isRedoing);
+    return new ModelRawContentChangedEvent(
+      changes,
+      versionId,
+      isUndoing,
+      isRedoing
+    );
   }
 }
 class ModelInjectedTextChangedEvent {
@@ -214,9 +229,18 @@ class InternalModelContentChangeEvent {
     __name(this, "InternalModelContentChangeEvent");
   }
   merge(other) {
-    const rawContentChangedEvent = ModelRawContentChangedEvent.merge(this.rawContentChangedEvent, other.rawContentChangedEvent);
-    const contentChangedEvent = InternalModelContentChangeEvent._mergeChangeEvents(this.contentChangedEvent, other.contentChangedEvent);
-    return new InternalModelContentChangeEvent(rawContentChangedEvent, contentChangedEvent);
+    const rawContentChangedEvent = ModelRawContentChangedEvent.merge(
+      this.rawContentChangedEvent,
+      other.rawContentChangedEvent
+    );
+    const contentChangedEvent = InternalModelContentChangeEvent._mergeChangeEvents(
+      this.contentChangedEvent,
+      other.contentChangedEvent
+    );
+    return new InternalModelContentChangeEvent(
+      rawContentChangedEvent,
+      contentChangedEvent
+    );
   }
   static _mergeChangeEvents(a, b) {
     const changes = [].concat(a.changes).concat(b.changes);

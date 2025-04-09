@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBufferReadableStream } from "../../../common/buffer.js";
 const offlineName = "Offline";
 function isOfflineError(error) {
   if (error instanceof OfflineError) {

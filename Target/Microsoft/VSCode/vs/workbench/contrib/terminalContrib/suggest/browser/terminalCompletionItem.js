@@ -2,7 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { basename } from "../../../../../base/common/path.js";
 import { isWindows } from "../../../../../base/common/platform.js";
-import { ISimpleCompletion, SimpleCompletionItem } from "../../../../services/suggest/browser/simpleCompletionItem.js";
+import {
+  SimpleCompletionItem
+} from "../../../../services/suggest/browser/simpleCompletionItem.js";
 var TerminalCompletionItemKind = /* @__PURE__ */ ((TerminalCompletionItemKind2) => {
   TerminalCompletionItemKind2[TerminalCompletionItemKind2["File"] = 0] = "File";
   TerminalCompletionItemKind2[TerminalCompletionItemKind2["Folder"] = 1] = "Folder";
@@ -28,18 +30,26 @@ class TerminalCompletionItem extends SimpleCompletionItem {
       }
       const extIndex = this.labelLow.lastIndexOf(".");
       if (extIndex > 0) {
-        this.labelLowExcludeFileExt = this.labelLow.substring(0, extIndex);
+        this.labelLowExcludeFileExt = this.labelLow.substring(
+          0,
+          extIndex
+        );
         this.fileExtLow = this.labelLow.substring(extIndex + 1);
       }
     }
     if (isFile(completion) || completion.kind === 1 /* Folder */) {
       if (isWindows) {
-        this.labelLowNormalizedPath = this.labelLow.replaceAll("\\", "/");
+        this.labelLowNormalizedPath = this.labelLow.replaceAll(
+          "\\",
+          "/"
+        );
       }
       if (completion.kind === 1 /* Folder */) {
         this.labelLowNormalizedPath = this.labelLowNormalizedPath.replace(/\/$/, "");
       }
-      this.underscorePenalty = basename(this.labelLowNormalizedPath).startsWith("_") ? 1 : 0;
+      this.underscorePenalty = basename(
+        this.labelLowNormalizedPath
+      ).startsWith("_") ? 1 : 0;
     }
   }
   static {

@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "./charCode.js";
 function roundFloat(number, decimalPoints) {
-  const decimal = Math.pow(10, decimalPoints);
+  const decimal = 10 ** decimalPoints;
   return Math.round(number * decimal) / decimal;
 }
 __name(roundFloat, "roundFloat");
@@ -129,7 +129,9 @@ class HSLA {
   static toRGBA(hsla) {
     const h = hsla.h / 360;
     const { s, l, a } = hsla;
-    let r, g, b;
+    let r;
+    let g;
+    let b;
     if (s === 0) {
       r = g = b = l;
     } else {
@@ -139,7 +141,12 @@ class HSLA {
       g = HSLA._hue2rgb(p, q, h);
       b = HSLA._hue2rgb(p, q, h - 1 / 3);
     }
-    return new RGBA(Math.round(r * 255), Math.round(g * 255), Math.round(b * 255), a);
+    return new RGBA(
+      Math.round(r * 255),
+      Math.round(g * 255),
+      Math.round(b * 255),
+      a
+    );
   }
 }
 class HSVA {
@@ -322,7 +329,7 @@ class Color {
   }
   static _relativeLuminanceForComponent(color) {
     const c = color / 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
   }
   /**
    * http://www.w3.org/TR/WCAG20/#contrast-ratiodef
@@ -381,7 +388,10 @@ class Color {
         const resultA2 = this.reduceRelativeLuminace(foreground, ratio);
         const resultARatio2 = this.getContrastRatio(resultA2);
         if (resultARatio2 < ratio) {
-          const resultB = this.increaseRelativeLuminace(foreground, ratio);
+          const resultB = this.increaseRelativeLuminace(
+            foreground,
+            ratio
+          );
           const resultBRatio = this.getContrastRatio(resultB);
           return resultARatio2 > resultBRatio ? resultA2 : resultB;
         }
@@ -399,10 +409,24 @@ class Color {
     return foreground;
   }
   lighten(factor) {
-    return new Color(new HSLA(this.hsla.h, this.hsla.s, this.hsla.l + this.hsla.l * factor, this.hsla.a));
+    return new Color(
+      new HSLA(
+        this.hsla.h,
+        this.hsla.s,
+        this.hsla.l + this.hsla.l * factor,
+        this.hsla.a
+      )
+    );
   }
   darken(factor) {
-    return new Color(new HSLA(this.hsla.h, this.hsla.s, this.hsla.l - this.hsla.l * factor, this.hsla.a));
+    return new Color(
+      new HSLA(
+        this.hsla.h,
+        this.hsla.s,
+        this.hsla.l - this.hsla.l * factor,
+        this.hsla.a
+      )
+    );
   }
   transparent(factor) {
     const { r, g, b, a } = this.rgba;
@@ -415,7 +439,14 @@ class Color {
     return this.rgba.a === 1;
   }
   opposite() {
-    return new Color(new RGBA(255 - this.rgba.r, 255 - this.rgba.g, 255 - this.rgba.b, this.rgba.a));
+    return new Color(
+      new RGBA(
+        255 - this.rgba.r,
+        255 - this.rgba.g,
+        255 - this.rgba.b,
+        this.rgba.a
+      )
+    );
   }
   blend(c) {
     const rgba = c.rgba;
@@ -435,12 +466,14 @@ class Color {
       return this;
     }
     const { r, g, b, a } = this.rgba;
-    return new Color(new RGBA(
-      opaqueBackground.rgba.r - a * (opaqueBackground.rgba.r - r),
-      opaqueBackground.rgba.g - a * (opaqueBackground.rgba.g - g),
-      opaqueBackground.rgba.b - a * (opaqueBackground.rgba.b - b),
-      1
-    ));
+    return new Color(
+      new RGBA(
+        opaqueBackground.rgba.r - a * (opaqueBackground.rgba.r - r),
+        opaqueBackground.rgba.g - a * (opaqueBackground.rgba.g - g),
+        opaqueBackground.rgba.b - a * (opaqueBackground.rgba.b - b),
+        1
+      )
+    );
   }
   flatten(...backgrounds) {
     const background = backgrounds.reduceRight((accumulator, color) => {
@@ -450,11 +483,13 @@ class Color {
   }
   static _flatten(foreground, background) {
     const backgroundAlpha = 1 - foreground.rgba.a;
-    return new Color(new RGBA(
-      backgroundAlpha * background.rgba.r + foreground.rgba.a * foreground.rgba.r,
-      backgroundAlpha * background.rgba.g + foreground.rgba.a * foreground.rgba.g,
-      backgroundAlpha * background.rgba.b + foreground.rgba.a * foreground.rgba.b
-    ));
+    return new Color(
+      new RGBA(
+        backgroundAlpha * background.rgba.r + foreground.rgba.a * foreground.rgba.r,
+        backgroundAlpha * background.rgba.g + foreground.rgba.a * foreground.rgba.g,
+        backgroundAlpha * background.rgba.b + foreground.rgba.a * foreground.rgba.b
+      )
+    );
   }
   _toString;
   toString() {
@@ -532,7 +567,7 @@ class Color {
       __name(formatHSLA, "formatHSLA");
       function _toTwoDigitHex(n) {
         const r = n.toString(16);
-        return r.length !== 2 ? "0" + r : r;
+        return r.length !== 2 ? `0${r}` : r;
       }
       __name(_toTwoDigitHex, "_toTwoDigitHex");
       function formatHex(color) {
@@ -564,24 +599,28 @@ class Color {
           return parseHex(css);
         }
         if (css.startsWith("rgba(")) {
-          const color = css.match(/rgba\((?<r>(?:\+|-)?\d+), *(?<g>(?:\+|-)?\d+), *(?<b>(?:\+|-)?\d+), *(?<a>(?:\+|-)?\d+(\.\d+)?)\)/);
+          const color = css.match(
+            /rgba\((?<r>(?:\+|-)?\d+), *(?<g>(?:\+|-)?\d+), *(?<b>(?:\+|-)?\d+), *(?<a>(?:\+|-)?\d+(\.\d+)?)\)/
+          );
           if (!color) {
-            throw new Error("Invalid color format " + css);
+            throw new Error(`Invalid color format ${css}`);
           }
-          const r = parseInt(color.groups?.r ?? "0");
-          const g = parseInt(color.groups?.g ?? "0");
-          const b = parseInt(color.groups?.b ?? "0");
-          const a = parseFloat(color.groups?.a ?? "0");
+          const r = Number.parseInt(color.groups?.r ?? "0");
+          const g = Number.parseInt(color.groups?.g ?? "0");
+          const b = Number.parseInt(color.groups?.b ?? "0");
+          const a = Number.parseFloat(color.groups?.a ?? "0");
           return new Color2(new RGBA(r, g, b, a));
         }
         if (css.startsWith("rgb(")) {
-          const color = css.match(/rgb\((?<r>(?:\+|-)?\d+), *(?<g>(?:\+|-)?\d+), *(?<b>(?:\+|-)?\d+)\)/);
+          const color = css.match(
+            /rgb\((?<r>(?:\+|-)?\d+), *(?<g>(?:\+|-)?\d+), *(?<b>(?:\+|-)?\d+)\)/
+          );
           if (!color) {
-            throw new Error("Invalid color format " + css);
+            throw new Error(`Invalid color format ${css}`);
           }
-          const r = parseInt(color.groups?.r ?? "0");
-          const g = parseInt(color.groups?.g ?? "0");
-          const b = parseInt(color.groups?.b ?? "0");
+          const r = Number.parseInt(color.groups?.r ?? "0");
+          const g = Number.parseInt(color.groups?.g ?? "0");
+          const b = Number.parseInt(color.groups?.b ?? "0");
           return new Color2(new RGBA(r, g, b));
         }
         return parseNamedKeyword(css);
@@ -916,14 +955,23 @@ class Color {
           const r = _parseHexDigit(hex.charCodeAt(1));
           const g = _parseHexDigit(hex.charCodeAt(2));
           const b = _parseHexDigit(hex.charCodeAt(3));
-          return new Color2(new RGBA(16 * r + r, 16 * g + g, 16 * b + b));
+          return new Color2(
+            new RGBA(16 * r + r, 16 * g + g, 16 * b + b)
+          );
         }
         if (length === 5) {
           const r = _parseHexDigit(hex.charCodeAt(1));
           const g = _parseHexDigit(hex.charCodeAt(2));
           const b = _parseHexDigit(hex.charCodeAt(3));
           const a = _parseHexDigit(hex.charCodeAt(4));
-          return new Color2(new RGBA(16 * r + r, 16 * g + g, 16 * b + b, (16 * a + a) / 255));
+          return new Color2(
+            new RGBA(
+              16 * r + r,
+              16 * g + g,
+              16 * b + b,
+              (16 * a + a) / 255
+            )
+          );
         }
         return null;
       }

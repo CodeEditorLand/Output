@@ -1,26 +1,45 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IContextMenuProvider } from "../../contextmenu.js";
-import { addDisposableListener, EventHelper, EventType, IFocusTracker, isActiveElement, reset, trackFocus, $ } from "../../dom.js";
-import dompurify from "../../dompurify/dompurify.js";
-import { StandardKeyboardEvent } from "../../keyboardEvent.js";
-import { renderMarkdown, renderStringAsPlaintext } from "../../markdownRenderer.js";
-import { Gesture, EventType as TouchEventType } from "../../touch.js";
-import { createInstantHoverDelegate, getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
-import { renderLabelWithIcons } from "../iconLabel/iconLabels.js";
-import { Action, IAction, IActionRunner } from "../../../common/actions.js";
+import {
+  Action
+} from "../../../common/actions.js";
 import { Codicon } from "../../../common/codicons.js";
 import { Color } from "../../../common/color.js";
-import { Event as BaseEvent, Emitter } from "../../../common/event.js";
-import { IMarkdownString, isMarkdownString, markdownStringEqual } from "../../../common/htmlContent.js";
+import { Emitter } from "../../../common/event.js";
+import {
+  isMarkdownString,
+  markdownStringEqual
+} from "../../../common/htmlContent.js";
 import { KeyCode } from "../../../common/keyCodes.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../common/lifecycle.js";
 import { ThemeIcon } from "../../../common/themables.js";
+import {
+  $,
+  addDisposableListener,
+  EventHelper,
+  EventType,
+  isActiveElement,
+  reset,
+  trackFocus
+} from "../../dom.js";
+import dompurify from "../../dompurify/dompurify.js";
+import { StandardKeyboardEvent } from "../../keyboardEvent.js";
+import {
+  renderMarkdown,
+  renderStringAsPlaintext
+} from "../../markdownRenderer.js";
+import { Gesture, EventType as TouchEventType } from "../../touch.js";
+import {
+  createInstantHoverDelegate,
+  getDefaultHoverDelegate
+} from "../hover/hoverDelegateFactory.js";
+import { renderLabelWithIcons } from "../iconLabel/iconLabels.js";
 import "./button.css";
 import { localize } from "../../../../nls.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
-import { IActionProvider } from "../dropdown/dropdown.js";
 const unthemedButtonStyles = {
   buttonBackground: "#0E639C",
   buttonHoverBackground: "#006BB3",
@@ -80,48 +99,60 @@ class Button extends Disposable {
     container.appendChild(this._element);
     this._register(Gesture.addTarget(this._element));
     [EventType.CLICK, TouchEventType.Tap].forEach((eventType) => {
-      this._register(addDisposableListener(this._element, eventType, (e) => {
-        if (!this.enabled) {
-          EventHelper.stop(e);
-          return;
-        }
-        this._onDidClick.fire(e);
-      }));
+      this._register(
+        addDisposableListener(this._element, eventType, (e) => {
+          if (!this.enabled) {
+            EventHelper.stop(e);
+            return;
+          }
+          this._onDidClick.fire(e);
+        })
+      );
     });
-    this._register(addDisposableListener(this._element, EventType.KEY_DOWN, (e) => {
-      const event = new StandardKeyboardEvent(e);
-      let eventHandled = false;
-      if (this.enabled && (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space))) {
-        this._onDidClick.fire(e);
-        eventHandled = true;
-      } else if (event.equals(KeyCode.Escape)) {
-        this._onDidEscape.fire(e);
-        this._element.blur();
-        eventHandled = true;
-      }
-      if (eventHandled) {
-        EventHelper.stop(event, true);
-      }
-    }));
-    this._register(addDisposableListener(this._element, EventType.MOUSE_OVER, (e) => {
-      if (!this._element.classList.contains("disabled")) {
-        this.updateBackground(true);
-      }
-    }));
-    this._register(addDisposableListener(this._element, EventType.MOUSE_OUT, (e) => {
-      this.updateBackground(false);
-    }));
-    this.focusTracker = this._register(trackFocus(this._element));
-    this._register(this.focusTracker.onDidFocus(() => {
-      if (this.enabled) {
-        this.updateBackground(true);
-      }
-    }));
-    this._register(this.focusTracker.onDidBlur(() => {
-      if (this.enabled) {
+    this._register(
+      addDisposableListener(this._element, EventType.KEY_DOWN, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        let eventHandled = false;
+        if (this.enabled && (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space))) {
+          this._onDidClick.fire(e);
+          eventHandled = true;
+        } else if (event.equals(KeyCode.Escape)) {
+          this._onDidEscape.fire(e);
+          this._element.blur();
+          eventHandled = true;
+        }
+        if (eventHandled) {
+          EventHelper.stop(event, true);
+        }
+      })
+    );
+    this._register(
+      addDisposableListener(this._element, EventType.MOUSE_OVER, (e) => {
+        if (!this._element.classList.contains("disabled")) {
+          this.updateBackground(true);
+        }
+      })
+    );
+    this._register(
+      addDisposableListener(this._element, EventType.MOUSE_OUT, (e) => {
         this.updateBackground(false);
-      }
-    }));
+      })
+    );
+    this.focusTracker = this._register(trackFocus(this._element));
+    this._register(
+      this.focusTracker.onDidFocus(() => {
+        if (this.enabled) {
+          this.updateBackground(true);
+        }
+      })
+    );
+    this._register(
+      this.focusTracker.onDidBlur(() => {
+        if (this.enabled) {
+          this.updateBackground(false);
+        }
+      })
+    );
   }
   dispose() {
     super.dispose();
@@ -172,7 +203,11 @@ class Button extends Disposable {
       rendered.dispose();
       const root = rendered.element.querySelector("p")?.innerHTML;
       if (root) {
-        const sanitized = dompurify.sanitize(root, { ADD_TAGS: ["b", "i", "u", "code", "span"], ALLOWED_ATTR: ["class"], RETURN_TRUSTED_TYPE: true });
+        const sanitized = dompurify.sanitize(root, {
+          ADD_TAGS: ["b", "i", "u", "code", "span"],
+          ALLOWED_ATTR: ["class"],
+          RETURN_TRUSTED_TYPE: true
+        });
         labelElement.innerHTML = sanitized;
       } else {
         reset(labelElement);
@@ -216,7 +251,9 @@ class Button extends Disposable {
   }
   set icon(icon) {
     this._setAriaLabel();
-    const oldIcons = Array.from(this._element.classList).filter((item) => item.startsWith("codicon-"));
+    const oldIcons = Array.from(this._element.classList).filter(
+      (item) => item.startsWith("codicon-")
+    );
     this._element.classList.remove(...oldIcons);
     this._element.classList.add(...ThemeIcon.asClassNameArray(icon));
   }
@@ -247,7 +284,13 @@ class Button extends Disposable {
   }
   setTitle(title) {
     if (!this._hover && title !== "") {
-      this._hover = this._register(getBaseLayerHoverDelegate().setupManagedHover(this.options.hoverDelegate ?? getDefaultHoverDelegate("element"), this._element, title));
+      this._hover = this._register(
+        getBaseLayerHoverDelegate().setupManagedHover(
+          this.options.hoverDelegate ?? getDefaultHoverDelegate("element"),
+          this._element,
+          title
+        )
+      );
     } else if (this._hover) {
       this._hover.update(title);
     }
@@ -269,7 +312,9 @@ class ButtonWithDropdown extends Disposable {
   separatorContainer;
   separator;
   element;
-  _onDidClick = this._register(new Emitter());
+  _onDidClick = this._register(
+    new Emitter()
+  );
   onDidClick = this._onDidClick.event;
   constructor(container, options) {
     super();
@@ -277,40 +322,72 @@ class ButtonWithDropdown extends Disposable {
     this.element.classList.add("monaco-button-dropdown");
     container.appendChild(this.element);
     if (!options.hoverDelegate) {
-      options = { ...options, hoverDelegate: this._register(createInstantHoverDelegate()) };
+      options = {
+        ...options,
+        hoverDelegate: this._register(createInstantHoverDelegate())
+      };
     }
     this.primaryButton = this._register(new Button(this.element, options));
-    this._register(this.primaryButton.onDidClick((e) => this._onDidClick.fire(e)));
-    this.action = this._register(new Action("primaryAction", renderStringAsPlaintext(this.primaryButton.label), void 0, true, async () => this._onDidClick.fire(void 0)));
+    this._register(
+      this.primaryButton.onDidClick((e) => this._onDidClick.fire(e))
+    );
+    this.action = this._register(
+      new Action(
+        "primaryAction",
+        renderStringAsPlaintext(this.primaryButton.label),
+        void 0,
+        true,
+        async () => this._onDidClick.fire(void 0)
+      )
+    );
     this.separatorContainer = document.createElement("div");
-    this.separatorContainer.classList.add("monaco-button-dropdown-separator");
+    this.separatorContainer.classList.add(
+      "monaco-button-dropdown-separator"
+    );
     this.separator = document.createElement("div");
     this.separatorContainer.appendChild(this.separator);
     this.element.appendChild(this.separatorContainer);
     const border = options.buttonBorder;
     if (border) {
-      this.separatorContainer.style.borderTop = "1px solid " + border;
-      this.separatorContainer.style.borderBottom = "1px solid " + border;
+      this.separatorContainer.style.borderTop = `1px solid ${border}`;
+      this.separatorContainer.style.borderBottom = `1px solid ${border}`;
     }
     const buttonBackground = options.secondary ? options.buttonSecondaryBackground : options.buttonBackground;
     this.separatorContainer.style.backgroundColor = buttonBackground ?? "";
     this.separator.style.backgroundColor = options.buttonSeparator ?? "";
-    this.dropdownButton = this._register(new Button(this.element, { ...options, title: localize("button dropdown more actions", "More Actions..."), supportIcons: true }));
+    this.dropdownButton = this._register(
+      new Button(this.element, {
+        ...options,
+        title: localize(
+          "button dropdown more actions",
+          "More Actions..."
+        ),
+        supportIcons: true
+      })
+    );
     this.dropdownButton.element.setAttribute("aria-haspopup", "true");
     this.dropdownButton.element.setAttribute("aria-expanded", "false");
     this.dropdownButton.element.classList.add("monaco-dropdown-button");
     this.dropdownButton.icon = Codicon.dropDownButton;
-    this._register(this.dropdownButton.onDidClick((e) => {
-      const actions = Array.isArray(options.actions) ? options.actions : options.actions.getActions();
-      options.contextMenuProvider.showContextMenu({
-        getAnchor: /* @__PURE__ */ __name(() => this.dropdownButton.element, "getAnchor"),
-        getActions: /* @__PURE__ */ __name(() => options.addPrimaryActionToDropdown === false ? [...actions] : [this.action, ...actions], "getActions"),
-        actionRunner: options.actionRunner,
-        onHide: /* @__PURE__ */ __name(() => this.dropdownButton.element.setAttribute("aria-expanded", "false"), "onHide"),
-        layer: options.dropdownLayer
-      });
-      this.dropdownButton.element.setAttribute("aria-expanded", "true");
-    }));
+    this._register(
+      this.dropdownButton.onDidClick((e) => {
+        const actions = Array.isArray(options.actions) ? options.actions : options.actions.getActions();
+        options.contextMenuProvider.showContextMenu({
+          getAnchor: /* @__PURE__ */ __name(() => this.dropdownButton.element, "getAnchor"),
+          getActions: /* @__PURE__ */ __name(() => options.addPrimaryActionToDropdown === false ? [...actions] : [this.action, ...actions], "getActions"),
+          actionRunner: options.actionRunner,
+          onHide: /* @__PURE__ */ __name(() => this.dropdownButton.element.setAttribute(
+            "aria-expanded",
+            "false"
+          ), "onHide"),
+          layer: options.dropdownLayer
+        });
+        this.dropdownButton.element.setAttribute(
+          "aria-expanded",
+          "true"
+        );
+      })
+    );
   }
   dispose() {
     super.dispose();
@@ -422,39 +499,47 @@ class ButtonBar {
     this._buttons.length = 0;
   }
   addButton(options) {
-    const button = this._buttonStore.add(new Button(this.container, options));
+    const button = this._buttonStore.add(
+      new Button(this.container, options)
+    );
     this.pushButton(button);
     return button;
   }
   addButtonWithDescription(options) {
-    const button = this._buttonStore.add(new ButtonWithDescription(this.container, options));
+    const button = this._buttonStore.add(
+      new ButtonWithDescription(this.container, options)
+    );
     this.pushButton(button);
     return button;
   }
   addButtonWithDropdown(options) {
-    const button = this._buttonStore.add(new ButtonWithDropdown(this.container, options));
+    const button = this._buttonStore.add(
+      new ButtonWithDropdown(this.container, options)
+    );
     this.pushButton(button);
     return button;
   }
   pushButton(button) {
     this._buttons.push(button);
     const index = this._buttons.length - 1;
-    this._buttonStore.add(addDisposableListener(button.element, EventType.KEY_DOWN, (e) => {
-      const event = new StandardKeyboardEvent(e);
-      let eventHandled = true;
-      let buttonIndexToFocus;
-      if (event.equals(KeyCode.LeftArrow)) {
-        buttonIndexToFocus = index > 0 ? index - 1 : this._buttons.length - 1;
-      } else if (event.equals(KeyCode.RightArrow)) {
-        buttonIndexToFocus = index === this._buttons.length - 1 ? 0 : index + 1;
-      } else {
-        eventHandled = false;
-      }
-      if (eventHandled && typeof buttonIndexToFocus === "number") {
-        this._buttons[buttonIndexToFocus].focus();
-        EventHelper.stop(e, true);
-      }
-    }));
+    this._buttonStore.add(
+      addDisposableListener(button.element, EventType.KEY_DOWN, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        let eventHandled = true;
+        let buttonIndexToFocus;
+        if (event.equals(KeyCode.LeftArrow)) {
+          buttonIndexToFocus = index > 0 ? index - 1 : this._buttons.length - 1;
+        } else if (event.equals(KeyCode.RightArrow)) {
+          buttonIndexToFocus = index === this._buttons.length - 1 ? 0 : index + 1;
+        } else {
+          eventHandled = false;
+        }
+        if (eventHandled && typeof buttonIndexToFocus === "number") {
+          this._buttons[buttonIndexToFocus].focus();
+          EventHelper.stop(e, true);
+        }
+      })
+    );
   }
 }
 class ButtonWithIcon extends Button {
@@ -486,7 +571,11 @@ class ButtonWithIcon extends Button {
       rendered.dispose();
       const root = rendered.element.querySelector("p")?.innerHTML;
       if (root) {
-        const sanitized = dompurify.sanitize(root, { ADD_TAGS: ["b", "i", "u", "code", "span"], ALLOWED_ATTR: ["class"], RETURN_TRUSTED_TYPE: true });
+        const sanitized = dompurify.sanitize(root, {
+          ADD_TAGS: ["b", "i", "u", "code", "span"],
+          ALLOWED_ATTR: ["class"],
+          RETURN_TRUSTED_TYPE: true
+        });
         this._mdlabelElement.innerHTML = sanitized;
       } else {
         reset(this._mdlabelElement);

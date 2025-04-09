@@ -11,24 +11,34 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { groupBy } from "../../../../base/common/arrays.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { observableValue } from "../../../../base/common/observable.js";
 import { isDefined } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { Location } from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { bindContextKey } from "../../../../platform/observable/common/platformObservableUtils.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceTrustRequestService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { getTestingConfiguration, TestingConfigKeys } from "./configuration.js";
 import { MainThreadTestCollection } from "./mainThreadTestCollection.js";
 import { MutableObservableValue } from "./observableValue.js";
@@ -36,12 +46,15 @@ import { StoredValue } from "./storedValue.js";
 import { TestExclusions } from "./testExclusions.js";
 import { TestId } from "./testId.js";
 import { TestingContextKeys } from "./testingContextKeys.js";
-import { canUseProfileWithTest, ITestProfileService } from "./testProfileService.js";
-import { ITestResult } from "./testResult.js";
+import {
+  canUseProfileWithTest,
+  ITestProfileService
+} from "./testProfileService.js";
 import { ITestResultService } from "./testResultService.js";
-import { AmbiguousRunTestsRequest, IMainThreadTestController, IMainThreadTestHostProxy, ITestFollowups, ITestService } from "./testService.js";
-import { InternalTestItem, ITestRunProfile, ResolvedTestRunRequest, TestControllerCapability, TestDiffOpType, TestMessageFollowupRequest, TestsDiff } from "./testTypes.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  TestControllerCapability,
+  TestDiffOpType
+} from "./testTypes.js";
 let TestService = class extends Disposable {
   constructor(contextKeyService, instantiationService, uriIdentityService, storage, editorService, testProfiles, notificationService, configurationService, testResults, workspaceTrustRequestService) {
     super();
@@ -51,32 +64,60 @@ let TestService = class extends Disposable {
     this.configurationService = configurationService;
     this.testResults = testResults;
     this.workspaceTrustRequestService = workspaceTrustRequestService;
-    this.collection = new MainThreadTestCollection(uriIdentityService, this.expandTest.bind(this));
-    this.showInlineOutput = this._register(MutableObservableValue.stored(new StoredValue({
-      key: "inlineTestOutputVisible",
-      scope: StorageScope.WORKSPACE,
-      target: StorageTarget.USER
-    }, storage), true));
+    this.collection = new MainThreadTestCollection(
+      uriIdentityService,
+      this.expandTest.bind(this)
+    );
+    this.showInlineOutput = this._register(
+      MutableObservableValue.stored(
+        new StoredValue(
+          {
+            key: "inlineTestOutputVisible",
+            scope: StorageScope.WORKSPACE,
+            target: StorageTarget.USER
+          },
+          storage
+        ),
+        true
+      )
+    );
     this.excluded = instantiationService.createInstance(TestExclusions);
     this.isRefreshingTests = TestingContextKeys.isRefreshingTests.bindTo(contextKeyService);
     this.activeEditorHasTests = TestingContextKeys.activeEditorHasTests.bindTo(contextKeyService);
-    this._register(bindContextKey(
-      TestingContextKeys.providerCount,
-      contextKeyService,
-      (reader) => this.testControllers.read(reader).size
-    ));
-    const bindCapability = /* @__PURE__ */ __name((key, capability) => this._register(bindContextKey(
-      key,
-      contextKeyService,
-      (reader) => Iterable.some(
-        this.testControllers.read(reader).values(),
-        (ctrl) => !!(ctrl.capabilities.read(reader) & capability)
+    this._register(
+      bindContextKey(
+        TestingContextKeys.providerCount,
+        contextKeyService,
+        (reader) => this.testControllers.read(reader).size
       )
-    )), "bindCapability");
-    bindCapability(TestingContextKeys.canRefreshTests, TestControllerCapability.Refresh);
-    bindCapability(TestingContextKeys.canGoToRelatedCode, TestControllerCapability.CodeRelatedToTest);
-    bindCapability(TestingContextKeys.canGoToRelatedTest, TestControllerCapability.TestRelatedToCode);
-    this._register(editorService.onDidActiveEditorChange(() => this.updateEditorContextKeys()));
+    );
+    const bindCapability = /* @__PURE__ */ __name((key, capability) => this._register(
+      bindContextKey(
+        key,
+        contextKeyService,
+        (reader) => Iterable.some(
+          this.testControllers.read(reader).values(),
+          (ctrl) => !!(ctrl.capabilities.read(reader) & capability)
+        )
+      )
+    ), "bindCapability");
+    bindCapability(
+      TestingContextKeys.canRefreshTests,
+      TestControllerCapability.Refresh
+    );
+    bindCapability(
+      TestingContextKeys.canGoToRelatedCode,
+      TestControllerCapability.CodeRelatedToTest
+    );
+    bindCapability(
+      TestingContextKeys.canGoToRelatedTest,
+      TestControllerCapability.TestRelatedToCode
+    );
+    this._register(
+      editorService.onDidActiveEditorChange(
+        () => this.updateEditorContextKeys()
+      )
+    );
   }
   static {
     __name(this, "TestService");
@@ -143,12 +184,17 @@ let TestService = class extends Disposable {
   async runTests(req, token = CancellationToken.None) {
     const byProfile = [];
     for (const test of req.tests) {
-      const existing = byProfile.find((p) => canUseProfileWithTest(p.profile, test));
+      const existing = byProfile.find(
+        (p) => canUseProfileWithTest(p.profile, test)
+      );
       if (existing) {
         existing.tests.push(test);
         continue;
       }
-      const bestProfile = this.testProfiles.getDefaultProfileForTest(req.group, test);
+      const bestProfile = this.testProfiles.getDefaultProfileForTest(
+        req.group,
+        test
+      );
       if (!bestProfile) {
         continue;
       }
@@ -165,13 +211,23 @@ let TestService = class extends Disposable {
       continuous: req.continuous
     };
     if (resolved.targets.length === 0) {
-      for (const byController of groupBy(req.tests, (a, b) => a.controllerId === b.controllerId ? 0 : 1)) {
-        const profiles = this.testProfiles.getControllerProfiles(byController[0].controllerId);
+      for (const byController of groupBy(
+        req.tests,
+        (a, b) => a.controllerId === b.controllerId ? 0 : 1
+      )) {
+        const profiles = this.testProfiles.getControllerProfiles(
+          byController[0].controllerId
+        );
         const withControllers = byController.map((test) => ({
-          profile: profiles.find((p) => p.group === req.group && canUseProfileWithTest(p, test)),
+          profile: profiles.find(
+            (p) => p.group === req.group && canUseProfileWithTest(p, test)
+          ),
           test
         }));
-        for (const byProfile2 of groupBy(withControllers, (a, b) => a.profile === b.profile ? 0 : 1)) {
+        for (const byProfile2 of groupBy(
+          withControllers,
+          (a, b) => a.profile === b.profile ? 0 : 1
+        )) {
           const profile = byProfile2[0].profile;
           if (profile) {
             resolved.targets.push({
@@ -191,16 +247,24 @@ let TestService = class extends Disposable {
       req.exclude = [...this.excluded.all];
     }
     const trust = await this.workspaceTrustRequestService.requestWorkspaceTrust({
-      message: localize("testTrust", "Running tests may execute code in your workspace.")
+      message: localize(
+        "testTrust",
+        "Running tests may execute code in your workspace."
+      )
     });
     if (!trust) {
       return;
     }
-    const byController = groupBy(req.targets, (a, b) => a.controllerId.localeCompare(b.controllerId));
+    const byController = groupBy(
+      req.targets,
+      (a, b) => a.controllerId.localeCompare(b.controllerId)
+    );
     const requests = byController.map(
       (group) => this.getTestController(group[0].controllerId)?.startContinuousRun(
         group.map((controlReq) => ({
-          excludeExtIds: req.exclude.filter((t) => !controlReq.testIds.includes(t)),
+          excludeExtIds: req.exclude?.filter(
+            (t) => !controlReq.testIds.includes(t)
+          ),
           profileId: controlReq.profileId,
           controllerId: controlReq.controllerId,
           testIds: controlReq.testIds
@@ -209,7 +273,13 @@ let TestService = class extends Disposable {
       ).then((result) => {
         const errs = result.map((r) => r.error).filter(isDefined);
         if (errs.length) {
-          this.notificationService.error(localize("testError", "An error occurred attempting to run tests: {0}", errs.join(" ")));
+          this.notificationService.error(
+            localize(
+              "testError",
+              "An error occurred attempting to run tests: {0}",
+              errs.join(" ")
+            )
+          );
         }
       })
     );
@@ -224,7 +294,10 @@ let TestService = class extends Disposable {
     }
     const result = this.testResults.createLiveResult(req);
     const trust = await this.workspaceTrustRequestService.requestWorkspaceTrust({
-      message: localize("testTrust", "Running tests may execute code in your workspace.")
+      message: localize(
+        "testTrust",
+        "Running tests may execute code in your workspace."
+      )
     });
     if (!trust) {
       result.markComplete();
@@ -233,12 +306,17 @@ let TestService = class extends Disposable {
     try {
       const cancelSource = new CancellationTokenSource(token);
       this.uiRunningTests.set(result.id, cancelSource);
-      const byController = groupBy(req.targets, (a, b) => a.controllerId.localeCompare(b.controllerId));
+      const byController = groupBy(
+        req.targets,
+        (a, b) => a.controllerId.localeCompare(b.controllerId)
+      );
       const requests = byController.map(
         (group) => this.getTestController(group[0].controllerId)?.runTests(
           group.map((controlReq) => ({
             runId: result.id,
-            excludeExtIds: req.exclude.filter((t) => !controlReq.testIds.includes(t)),
+            excludeExtIds: req.exclude?.filter(
+              (t) => !controlReq.testIds.includes(t)
+            ),
             profileId: controlReq.profileId,
             controllerId: controlReq.controllerId,
             testIds: controlReq.testIds
@@ -247,7 +325,13 @@ let TestService = class extends Disposable {
         ).then((result2) => {
           const errs = result2.map((r) => r.error).filter(isDefined);
           if (errs.length) {
-            this.notificationService.error(localize("testError", "An error occurred attempting to run tests: {0}", errs.join(" ")));
+            this.notificationService.error(
+              localize(
+                "testError",
+                "An error occurred attempting to run tests: {0}",
+                errs.join(" ")
+              )
+            );
           }
         })
       );
@@ -263,12 +347,19 @@ let TestService = class extends Disposable {
    * @inheritdoc
    */
   async provideTestFollowups(req, token) {
-    const reqs = await Promise.all([...this.testExtHosts].map(async (ctrl) => ({ ctrl, followups: await ctrl.provideTestFollowups(req, token) })));
+    const reqs = await Promise.all(
+      [...this.testExtHosts].map(async (ctrl) => ({
+        ctrl,
+        followups: await ctrl.provideTestFollowups(req, token)
+      }))
+    );
     const followups = {
-      followups: reqs.flatMap(({ ctrl, followups: followups2 }) => followups2.map((f) => ({
-        message: f.title,
-        execute: /* @__PURE__ */ __name(() => ctrl.executeTestFollowup(f.id), "execute")
-      }))),
+      followups: reqs.flatMap(
+        ({ ctrl, followups: followups2 }) => followups2.map((f) => ({
+          message: f.title,
+          execute: /* @__PURE__ */ __name(() => ctrl.executeTestFollowup(f.id), "execute")
+        }))
+      ),
       dispose: /* @__PURE__ */ __name(() => {
         for (const { ctrl, followups: followups2 } of reqs) {
           ctrl.disposeTestFollowups(followups2.map((f) => f.id));
@@ -301,7 +392,11 @@ let TestService = class extends Disposable {
   async syncTests() {
     const cts = new CancellationTokenSource();
     try {
-      await Promise.all([...this.testControllers.get().values()].map((c) => c.syncTests(cts.token)));
+      await Promise.all(
+        [...this.testControllers.get().values()].map(
+          (c) => c.syncTests(cts.token)
+        )
+      );
     } finally {
       cts.dispose(true);
     }
@@ -315,9 +410,15 @@ let TestService = class extends Disposable {
     this.isRefreshingTests.set(true);
     try {
       if (controllerId) {
-        await this.getTestController(controllerId)?.refreshTests(cts.token);
+        await this.getTestController(controllerId)?.refreshTests(
+          cts.token
+        );
       } else {
-        await Promise.all([...this.testControllers.get().values()].map((c) => c.refreshTests(cts.token)));
+        await Promise.all(
+          [...this.testControllers.get().values()].map(
+            (c) => c.refreshTests(cts.token)
+          )
+        );
       }
     } finally {
       this.testRefreshCancellations.delete(cts);
@@ -346,19 +447,29 @@ let TestService = class extends Disposable {
    * @inheritdoc
    */
   async getTestsRelatedToCode(uri, position, token = CancellationToken.None) {
-    const testIds = await Promise.all([...this.testExtHosts.values()].map((v) => v.getTestsRelatedToCode(uri, position, token)));
+    const testIds = await Promise.all(
+      [...this.testExtHosts.values()].map(
+        (v) => v.getTestsRelatedToCode(uri, position, token)
+      )
+    );
     return testIds.flatMap((ids) => ids.map((id) => this.collection.getNodeById(id))).filter(isDefined);
   }
   /**
    * @inheritdoc
    */
   registerTestController(id, controller) {
-    this.testControllers.set(new Map(this.testControllers.get()).set(id, controller), void 0);
+    this.testControllers.set(
+      new Map(this.testControllers.get()).set(id, controller),
+      void 0
+    );
     return toDisposable(() => {
       const diff = [];
       for (const root of this.collection.rootItems) {
         if (root.controllerId === id) {
-          diff.push({ op: TestDiffOpType.Remove, itemId: root.item.extId });
+          diff.push({
+            op: TestDiffOpType.Remove,
+            itemId: root.item.extId
+          });
         }
       }
       this.publishDiff(id, diff);
@@ -376,7 +487,9 @@ let TestService = class extends Disposable {
   updateEditorContextKeys() {
     const uri = this.editorService.activeEditor?.resource;
     if (uri) {
-      this.activeEditorHasTests.set(!Iterable.isEmpty(this.collection.getNodeByUrl(uri)));
+      this.activeEditorHasTests.set(
+        !Iterable.isEmpty(this.collection.getNodeByUrl(uri))
+      );
     } else {
       this.activeEditorHasTests.set(false);
     }
@@ -385,7 +498,10 @@ let TestService = class extends Disposable {
     if (req.preserveFocus === true) {
       return;
     }
-    const saveBeforeTest = getTestingConfiguration(this.configurationService, TestingConfigKeys.SaveBeforeTest);
+    const saveBeforeTest = getTestingConfiguration(
+      this.configurationService,
+      TestingConfigKeys.SaveBeforeTest
+    );
     if (saveBeforeTest) {
       await editorService.saveAll();
     }

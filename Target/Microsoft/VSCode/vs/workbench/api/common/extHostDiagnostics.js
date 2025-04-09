@@ -10,19 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../nls.js";
-import { IMarkerData, MarkerSeverity } from "../../../platform/markers/common/markers.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { MainContext, MainThreadDiagnosticsShape, ExtHostDiagnosticsShape, IMainContext } from "./extHost.protocol.js";
-import { DiagnosticSeverity } from "./extHostTypes.js";
-import * as converter from "./extHostTypeConverters.js";
-import { Event, Emitter, DebounceEmitter } from "../../../base/common/event.js";
-import { ILogService } from "../../../platform/log/common/log.js";
+import {
+  DebounceEmitter,
+  Event
+} from "../../../base/common/event.js";
 import { ResourceMap } from "../../../base/common/map.js";
-import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import {
+  MarkerSeverity
+} from "../../../platform/markers/common/markers.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
 import { IExtHostFileSystemInfo } from "./extHostFileSystemInfo.js";
-import { IExtUri } from "../../../base/common/resources.js";
-import { ExtHostDocumentsAndEditors } from "./extHostDocumentsAndEditors.js";
+import * as converter from "./extHostTypeConverters.js";
+import { DiagnosticSeverity } from "./extHostTypes.js";
 class DiagnosticCollection {
   constructor(_name, _owner, _maxDiagnosticsTotal, _maxDiagnosticsPerFile, _modelVersionIdProvider, extUri, proxy, onDidChangeDiagnostics) {
     this._name = _name;
@@ -30,7 +34,10 @@ class DiagnosticCollection {
     this._maxDiagnosticsTotal = _maxDiagnosticsTotal;
     this._maxDiagnosticsPerFile = _maxDiagnosticsPerFile;
     this._modelVersionIdProvider = _modelVersionIdProvider;
-    this._maxDiagnosticsTotal = Math.max(_maxDiagnosticsPerFile, _maxDiagnosticsTotal);
+    this._maxDiagnosticsTotal = Math.max(
+      _maxDiagnosticsPerFile,
+      _maxDiagnosticsTotal
+    );
     this.#data = new ResourceMap((uri) => extUri.getComparisonKey(uri));
     this.#proxy = proxy;
     this.#onDidChangeDiagnostics = onDidChangeDiagnostics;
@@ -71,11 +78,13 @@ class DiagnosticCollection {
     } else if (Array.isArray(first)) {
       toSync = [];
       let lastUri;
-      first = [...first].sort(DiagnosticCollection._compareIndexedTuplesByUri);
+      first = [...first].sort(
+        DiagnosticCollection._compareIndexedTuplesByUri
+      );
       for (const tuple of first) {
         const [uri, diagnostics2] = tuple;
         if (!lastUri || uri.toString() !== lastUri.toString()) {
-          if (lastUri && this.#data.get(lastUri).length === 0) {
+          if (lastUri && this.#data.get(lastUri)?.length === 0) {
             this.#data.delete(lastUri);
           }
           lastUri = uri;
@@ -105,11 +114,19 @@ class DiagnosticCollection {
       if (diagnostics2) {
         if (diagnostics2.length > this._maxDiagnosticsPerFile) {
           marker = [];
-          const order = [DiagnosticSeverity.Error, DiagnosticSeverity.Warning, DiagnosticSeverity.Information, DiagnosticSeverity.Hint];
+          const order = [
+            DiagnosticSeverity.Error,
+            DiagnosticSeverity.Warning,
+            DiagnosticSeverity.Information,
+            DiagnosticSeverity.Hint
+          ];
           orderLoop: for (let i = 0; i < 4; i++) {
             for (const diagnostic of diagnostics2) {
               if (diagnostic.severity === order[i]) {
-                const len = marker.push({ ...converter.Diagnostic.from(diagnostic), modelVersionId: this._modelVersionIdProvider(uri) });
+                const len = marker.push({
+                  ...converter.Diagnostic.from(diagnostic),
+                  modelVersionId: this._modelVersionIdProvider(uri)
+                });
                 if (len === this._maxDiagnosticsPerFile) {
                   break orderLoop;
                 }
@@ -118,14 +135,26 @@ class DiagnosticCollection {
           }
           marker.push({
             severity: MarkerSeverity.Info,
-            message: localize({ key: "limitHit", comment: ["amount of errors/warning skipped due to limits"] }, "Not showing {0} further errors and warnings.", diagnostics2.length - this._maxDiagnosticsPerFile),
+            message: localize(
+              {
+                key: "limitHit",
+                comment: [
+                  "amount of errors/warning skipped due to limits"
+                ]
+              },
+              "Not showing {0} further errors and warnings.",
+              diagnostics2.length - this._maxDiagnosticsPerFile
+            ),
             startLineNumber: marker[marker.length - 1].startLineNumber,
             startColumn: marker[marker.length - 1].startColumn,
             endLineNumber: marker[marker.length - 1].endLineNumber,
             endColumn: marker[marker.length - 1].endColumn
           });
         } else {
-          marker = diagnostics2.map((diag) => ({ ...converter.Diagnostic.from(diag), modelVersionId: this._modelVersionIdProvider(uri) }));
+          marker = diagnostics2.map((diag) => ({
+            ...converter.Diagnostic.from(diag),
+            modelVersionId: this._modelVersionIdProvider(uri)
+          }));
         }
       }
       entries.push([uri, marker]);
@@ -210,17 +239,36 @@ let ExtHostDiagnostics = class {
     }
     return { uris: Object.freeze(Array.from(map.values())) };
   }
-  onDidChangeDiagnostics = Event.map(this._onDidChangeDiagnostics.event, ExtHostDiagnostics._mapper);
+  onDidChangeDiagnostics = Event.map(
+    this._onDidChangeDiagnostics.event,
+    ExtHostDiagnostics._mapper
+  );
   createDiagnosticCollection(extensionId, name) {
-    const { _collections, _proxy, _onDidChangeDiagnostics, _logService, _fileSystemInfoService, _extHostDocumentsAndEditors } = this;
+    const {
+      _collections,
+      _proxy,
+      _onDidChangeDiagnostics,
+      _logService,
+      _fileSystemInfoService,
+      _extHostDocumentsAndEditors
+    } = this;
     const loggingProxy = new class {
       $changeMany(owner2, entries) {
         _proxy.$changeMany(owner2, entries);
-        _logService.trace("[DiagnosticCollection] change many (extension, owner, uris)", extensionId.value, owner2, entries.length === 0 ? "CLEARING" : entries);
+        _logService.trace(
+          "[DiagnosticCollection] change many (extension, owner, uris)",
+          extensionId.value,
+          owner2,
+          entries.length === 0 ? "CLEARING" : entries
+        );
       }
       $clear(owner2) {
         _proxy.$clear(owner2);
-        _logService.trace("[DiagnosticCollection] remove all (extension, owner)", extensionId.value, owner2);
+        _logService.trace(
+          "[DiagnosticCollection] remove all (extension, owner)",
+          extensionId.value,
+          owner2
+        );
       }
       dispose() {
         _proxy.dispose();
@@ -228,12 +276,14 @@ let ExtHostDiagnostics = class {
     }();
     let owner;
     if (!name) {
-      name = "_generated_diagnostic_collection_name_#" + ExtHostDiagnostics._idPool++;
+      name = `_generated_diagnostic_collection_name_#${ExtHostDiagnostics._idPool++}`;
       owner = name;
     } else if (!_collections.has(name)) {
       owner = name;
     } else {
-      this._logService.warn(`DiagnosticCollection with name '${name}' does already exist.`);
+      this._logService.warn(
+        `DiagnosticCollection with name '${name}' does already exist.`
+      );
       do {
         owner = name + ExtHostDiagnostics._idPool++;
       } while (_collections.has(owner));
@@ -307,7 +357,10 @@ let ExtHostDiagnostics = class {
       this._mirrorCollection = collection;
     }
     for (const [uri, markers] of data) {
-      this._mirrorCollection.set(URI.revive(uri), markers.map(converter.Diagnostic.to));
+      this._mirrorCollection.set(
+        URI.revive(uri),
+        markers.map(converter.Diagnostic.to)
+      );
     }
   }
 };

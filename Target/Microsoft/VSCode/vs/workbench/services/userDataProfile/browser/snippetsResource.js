@@ -11,17 +11,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { IStringDictionary } from "../../../../base/common/collections.js";
 import { ResourceSet } from "../../../../base/common/map.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
-import { FileOperationError, FileOperationResult, IFileService, IFileStat } from "../../../../platform/files/common/files.js";
+import {
+  FileOperationError,
+  FileOperationResult,
+  IFileService
+} from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IUserDataProfile, ProfileResourceType } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import {
+  ProfileResourceType
+} from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { API_OPEN_EDITOR_COMMAND_ID } from "../../../browser/parts/editor/editorCommands.js";
-import { ITreeItemCheckboxState, TreeItemCollapsibleState } from "../../../common/views.js";
-import { IProfileResource, IProfileResourceChildTreeItem, IProfileResourceInitializer, IProfileResourceTreeItem, IUserDataProfileService } from "../common/userDataProfile.js";
+import {
+  TreeItemCollapsibleState
+} from "../../../common/views.js";
+import {
+  IUserDataProfileService
+} from "../common/userDataProfile.js";
 let SnippetsResourceInitializer = class {
   constructor(userDataProfileService, fileService, uriIdentityService) {
     this.userDataProfileService = userDataProfileService;
@@ -34,8 +42,14 @@ let SnippetsResourceInitializer = class {
   async initialize(content) {
     const snippetsContent = JSON.parse(content);
     for (const key in snippetsContent.snippets) {
-      const resource = this.uriIdentityService.extUri.joinPath(this.userDataProfileService.currentProfile.snippetsHome, key);
-      await this.fileService.writeFile(resource, VSBuffer.fromString(snippetsContent.snippets[key]));
+      const resource = this.uriIdentityService.extUri.joinPath(
+        this.userDataProfileService.currentProfile.snippetsHome,
+        key
+      );
+      await this.fileService.writeFile(
+        resource,
+        VSBuffer.fromString(snippetsContent.snippets[key])
+      );
     }
   }
 };
@@ -59,15 +73,27 @@ let SnippetsResource = class {
   async apply(content, profile) {
     const snippetsContent = JSON.parse(content);
     for (const key in snippetsContent.snippets) {
-      const resource = this.uriIdentityService.extUri.joinPath(profile.snippetsHome, key);
-      await this.fileService.writeFile(resource, VSBuffer.fromString(snippetsContent.snippets[key]));
+      const resource = this.uriIdentityService.extUri.joinPath(
+        profile.snippetsHome,
+        key
+      );
+      await this.fileService.writeFile(
+        resource,
+        VSBuffer.fromString(snippetsContent.snippets[key])
+      );
     }
   }
   async getSnippets(profile, excluded) {
     const snippets = {};
-    const snippetsResources = await this.getSnippetsResources(profile, excluded);
+    const snippetsResources = await this.getSnippetsResources(
+      profile,
+      excluded
+    );
     for (const resource of snippetsResources) {
-      const key = this.uriIdentityService.extUri.relativePath(profile.snippetsHome, resource);
+      const key = this.uriIdentityService.extUri.relativePath(
+        profile.snippetsHome,
+        resource
+      );
       const content = await this.fileService.readFile(resource);
       snippets[key] = content.value.toString();
     }
@@ -120,35 +146,43 @@ let SnippetsResourceTreeItem = class {
   async getChildren() {
     const snippetsResources = await this.instantiationService.createInstance(SnippetsResource).getSnippetsResources(this.profile);
     const that = this;
-    return snippetsResources.map((resource) => ({
-      handle: resource.toString(),
-      parent: that,
-      resourceUri: resource,
-      collapsibleState: TreeItemCollapsibleState.None,
-      accessibilityInformation: {
-        label: this.uriIdentityService.extUri.basename(resource)
-      },
-      checkbox: that.checkbox ? {
-        get isChecked() {
-          return !that.excludedSnippets.has(resource);
-        },
-        set isChecked(value) {
-          if (value) {
-            that.excludedSnippets.delete(resource);
-          } else {
-            that.excludedSnippets.add(resource);
-          }
-        },
+    return snippetsResources.map(
+      (resource) => ({
+        handle: resource.toString(),
+        parent: that,
+        resourceUri: resource,
+        collapsibleState: TreeItemCollapsibleState.None,
         accessibilityInformation: {
-          label: localize("exclude", "Select Snippet {0}", this.uriIdentityService.extUri.basename(resource))
+          label: this.uriIdentityService.extUri.basename(resource)
+        },
+        checkbox: that.checkbox ? {
+          get isChecked() {
+            return !that.excludedSnippets.has(resource);
+          },
+          set isChecked(value) {
+            if (value) {
+              that.excludedSnippets.delete(resource);
+            } else {
+              that.excludedSnippets.add(resource);
+            }
+          },
+          accessibilityInformation: {
+            label: localize(
+              "exclude",
+              "Select Snippet {0}",
+              this.uriIdentityService.extUri.basename(
+                resource
+              )
+            )
+          }
+        } : void 0,
+        command: {
+          id: API_OPEN_EDITOR_COMMAND_ID,
+          title: "",
+          arguments: [resource, void 0, void 0]
         }
-      } : void 0,
-      command: {
-        id: API_OPEN_EDITOR_COMMAND_ID,
-        title: "",
-        arguments: [resource, void 0, void 0]
-      }
-    }));
+      })
+    );
   }
   async hasContent() {
     const snippetsResources = await this.instantiationService.createInstance(SnippetsResource).getSnippetsResources(this.profile);

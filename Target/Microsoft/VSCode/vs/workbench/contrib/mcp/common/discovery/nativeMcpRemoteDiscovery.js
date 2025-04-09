@@ -16,13 +16,22 @@ import { IFileService } from "../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
-import { INativeMcpDiscoveryHelperService, NativeMcpDiscoveryHelperChannelName } from "../../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";
+import {
+  NativeMcpDiscoveryHelperChannelName
+} from "../../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";
 import { IRemoteAgentService } from "../../../../services/remote/common/remoteAgentService.js";
 import { IMcpRegistry } from "../mcpRegistryTypes.js";
 import { NativeFilesystemMcpDiscovery } from "./nativeMcpDiscoveryAbstract.js";
 let RemoteNativeMpcDiscovery = class extends NativeFilesystemMcpDiscovery {
   constructor(remoteAgent, logService, labelService, fileService, instantiationService, mcpRegistry, configurationService) {
-    super(remoteAgent.getConnection()?.remoteAuthority || null, labelService, fileService, instantiationService, mcpRegistry, configurationService);
+    super(
+      remoteAgent.getConnection()?.remoteAuthority || null,
+      labelService,
+      fileService,
+      instantiationService,
+      mcpRegistry,
+      configurationService
+    );
     this.remoteAgent = remoteAgent;
     this.logService = logService;
   }
@@ -34,16 +43,24 @@ let RemoteNativeMpcDiscovery = class extends NativeFilesystemMcpDiscovery {
     if (!connection) {
       return this.setDetails(void 0);
     }
-    await connection.withChannel(NativeMcpDiscoveryHelperChannelName, async (channel) => {
-      const service = ProxyChannel.toService(channel);
-      service.load().then(
-        (data) => this.setDetails(data),
-        (err) => {
-          this.logService.warn("Error getting remote process MCP environment", err);
-          this.setDetails(void 0);
-        }
-      );
-    });
+    await connection.withChannel(
+      NativeMcpDiscoveryHelperChannelName,
+      async (channel) => {
+        const service = ProxyChannel.toService(
+          channel
+        );
+        service.load().then(
+          (data) => this.setDetails(data),
+          (err) => {
+            this.logService.warn(
+              "Error getting remote process MCP environment",
+              err
+            );
+            this.setDetails(void 0);
+          }
+        );
+      }
+    );
   }
 };
 RemoteNativeMpcDiscovery = __decorateClass([

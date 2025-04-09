@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable, Disposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../../base/common/lifecycle.js";
 class ResourcePool extends Disposable {
   constructor(_itemFactory) {
     super();

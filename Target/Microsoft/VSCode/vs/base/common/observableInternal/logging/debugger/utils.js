@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../lifecycle.js";
 function getFirstStackFrameOutsideOf(stack, pattern) {
   const lines = stack.split("\n");
   let i = -1;
   for (const line of lines.slice(1)) {
     i++;
-    if (pattern && pattern.test(line)) {
+    if (pattern?.test(line)) {
       continue;
     }
     const result = parseLine(line);
@@ -22,8 +21,8 @@ function parseLine(stackLine) {
   if (match) {
     return {
       fileName: match[1],
-      line: parseInt(match[2]),
-      column: parseInt(match[3]),
+      line: Number.parseInt(match[2]),
+      column: Number.parseInt(match[3]),
       id: stackLine
     };
   }
@@ -31,8 +30,8 @@ function parseLine(stackLine) {
   if (match2) {
     return {
       fileName: match2[1],
-      line: parseInt(match2[2]),
-      column: parseInt(match2[3]),
+      line: Number.parseInt(match2[2]),
+      column: Number.parseInt(match2[3]),
       id: stackLine
     };
   }

@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ISpliceable } from "../../../common/sequence.js";
 class CombinedSpliceable {
   constructor(spliceables) {
     this.spliceables = spliceables;

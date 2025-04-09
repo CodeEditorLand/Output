@@ -1,16 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { MarkdownLink } from "../tokens/markdownLink.js";
-import { NewLine } from "../../linesCodec/tokens/newLine.js";
 import { assert } from "../../../../../base/common/assert.js";
-import { FormFeed } from "../../simpleCodec/tokens/formFeed.js";
-import { TSimpleToken } from "../../simpleCodec/simpleDecoder.js";
-import { VerticalTab } from "../../simpleCodec/tokens/verticalTab.js";
 import { CarriageReturn } from "../../linesCodec/tokens/carriageReturn.js";
-import { LeftBracket, RightBracket } from "../../simpleCodec/tokens/brackets.js";
-import { ParserBase, TAcceptTokenResult } from "../../simpleCodec/parserBase.js";
-import { LeftParenthesis, RightParenthesis } from "../../simpleCodec/tokens/parentheses.js";
-const MARKDOWN_LINK_STOP_CHARACTERS = [CarriageReturn, NewLine, VerticalTab, FormFeed].map((token) => {
+import { NewLine } from "../../linesCodec/tokens/newLine.js";
+import {
+  ParserBase
+} from "../../simpleCodec/parserBase.js";
+import {
+  RightBracket
+} from "../../simpleCodec/tokens/brackets.js";
+import { FormFeed } from "../../simpleCodec/tokens/formFeed.js";
+import {
+  LeftParenthesis,
+  RightParenthesis
+} from "../../simpleCodec/tokens/parentheses.js";
+import { VerticalTab } from "../../simpleCodec/tokens/verticalTab.js";
+import { MarkdownLink } from "../tokens/markdownLink.js";
+const MARKDOWN_LINK_STOP_CHARACTERS = [
+  CarriageReturn,
+  NewLine,
+  VerticalTab,
+  FormFeed
+].map((token) => {
   return token.symbol;
 });
 class PartialMarkdownLinkCaption extends ParserBase {

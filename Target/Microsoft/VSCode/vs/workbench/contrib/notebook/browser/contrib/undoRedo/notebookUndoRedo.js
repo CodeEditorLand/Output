@@ -11,53 +11,93 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { WorkbenchPhase, registerWorkbenchContribution2 } from "../../../../../common/contributions.js";
-import { CellKind } from "../../../common/notebookCommon.js";
+import {
+  RedoCommand,
+  UndoCommand
+} from "../../../../../../editor/browser/editorExtensions.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../../../common/contributions.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
-import { CellEditState, getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
-import { RedoCommand, UndoCommand } from "../../../../../../editor/browser/editorExtensions.js";
-import { NotebookViewModel } from "../../viewModel/notebookViewModelImpl.js";
+import { CellKind } from "../../../common/notebookCommon.js";
+import {
+  CellEditState,
+  getNotebookEditorFromEditorPane
+} from "../../notebookBrowser.js";
 let NotebookUndoRedoContribution = class extends Disposable {
   constructor(_editorService) {
     super();
     this._editorService = _editorService;
     const PRIORITY = 105;
-    this._register(UndoCommand.addImplementation(PRIORITY, "notebook-undo-redo", () => {
-      const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
-      const viewModel = editor?.getViewModel();
-      if (editor && editor.hasModel() && viewModel) {
-        return viewModel.undo().then((cellResources) => {
-          if (cellResources?.length) {
-            for (let i = 0; i < editor.getLength(); i++) {
-              const cell = editor.cellAt(i);
-              if (cell.cellKind === CellKind.Markup && cellResources.find((resource) => resource.fragment === cell.model.uri.fragment)) {
-                cell.updateEditState(CellEditState.Editing, "undo");
+    this._register(
+      UndoCommand.addImplementation(
+        PRIORITY,
+        "notebook-undo-redo",
+        () => {
+          const editor = getNotebookEditorFromEditorPane(
+            this._editorService.activeEditorPane
+          );
+          const viewModel = editor?.getViewModel();
+          if (editor?.hasModel() && viewModel) {
+            return viewModel.undo().then((cellResources) => {
+              if (cellResources?.length) {
+                for (let i = 0; i < editor.getLength(); i++) {
+                  const cell = editor.cellAt(i);
+                  if (cell.cellKind === CellKind.Markup && cellResources.find(
+                    (resource) => resource.fragment === cell.model.uri.fragment
+                  )) {
+                    cell.updateEditState(
+                      CellEditState.Editing,
+                      "undo"
+                    );
+                  }
+                }
+                editor?.setOptions({
+                  cellOptions: { resource: cellResources[0] },
+                  preserveFocus: true
+                });
               }
-            }
-            editor?.setOptions({ cellOptions: { resource: cellResources[0] }, preserveFocus: true });
+            });
           }
-        });
-      }
-      return false;
-    }));
-    this._register(RedoCommand.addImplementation(PRIORITY, "notebook-undo-redo", () => {
-      const editor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
-      const viewModel = editor?.getViewModel();
-      if (editor && editor.hasModel() && viewModel) {
-        return viewModel.redo().then((cellResources) => {
-          if (cellResources?.length) {
-            for (let i = 0; i < editor.getLength(); i++) {
-              const cell = editor.cellAt(i);
-              if (cell.cellKind === CellKind.Markup && cellResources.find((resource) => resource.fragment === cell.model.uri.fragment)) {
-                cell.updateEditState(CellEditState.Editing, "redo");
+          return false;
+        }
+      )
+    );
+    this._register(
+      RedoCommand.addImplementation(
+        PRIORITY,
+        "notebook-undo-redo",
+        () => {
+          const editor = getNotebookEditorFromEditorPane(
+            this._editorService.activeEditorPane
+          );
+          const viewModel = editor?.getViewModel();
+          if (editor?.hasModel() && viewModel) {
+            return viewModel.redo().then((cellResources) => {
+              if (cellResources?.length) {
+                for (let i = 0; i < editor.getLength(); i++) {
+                  const cell = editor.cellAt(i);
+                  if (cell.cellKind === CellKind.Markup && cellResources.find(
+                    (resource) => resource.fragment === cell.model.uri.fragment
+                  )) {
+                    cell.updateEditState(
+                      CellEditState.Editing,
+                      "redo"
+                    );
+                  }
+                }
+                editor?.setOptions({
+                  cellOptions: { resource: cellResources[0] },
+                  preserveFocus: true
+                });
               }
-            }
-            editor?.setOptions({ cellOptions: { resource: cellResources[0] }, preserveFocus: true });
+            });
           }
-        });
-      }
-      return false;
-    }));
+          return false;
+        }
+      )
+    );
   }
   static {
     __name(this, "NotebookUndoRedoContribution");
@@ -67,5 +107,9 @@ let NotebookUndoRedoContribution = class extends Disposable {
 NotebookUndoRedoContribution = __decorateClass([
   __decorateParam(0, IEditorService)
 ], NotebookUndoRedoContribution);
-registerWorkbenchContribution2(NotebookUndoRedoContribution.ID, NotebookUndoRedoContribution, WorkbenchPhase.BlockRestore);
+registerWorkbenchContribution2(
+  NotebookUndoRedoContribution.ID,
+  NotebookUndoRedoContribution,
+  WorkbenchPhase.BlockRestore
+);
 //# sourceMappingURL=notebookUndoRedo.js.map

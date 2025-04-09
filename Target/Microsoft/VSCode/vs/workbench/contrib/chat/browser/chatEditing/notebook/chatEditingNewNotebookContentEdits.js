@@ -11,9 +11,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { VSBuffer } from "../../../../../../base/common/buffer.js";
-import { TextEdit } from "../../../../../../editor/common/languages.js";
-import { NotebookTextModel } from "../../../../notebook/common/model/notebookTextModel.js";
-import { CellEditType, ICellEditOperation } from "../../../../notebook/common/notebookCommon.js";
+import {
+  CellEditType
+} from "../../../../notebook/common/notebookCommon.js";
 import { INotebookService } from "../../../../notebook/common/notebookService.js";
 let ChatEditingNewNotebookContentEdits = class {
   constructor(notebook, _notebookService) {
@@ -31,7 +31,9 @@ let ChatEditingNewNotebookContentEdits = class {
   }
   async generateEdits() {
     if (this.notebook.cells.length) {
-      console.error(`Notebook edits not generated as notebook already has cells`);
+      console.error(
+        "Notebook edits not generated as notebook already has cells"
+      );
       return [];
     }
     const content = this.generateContent();
@@ -40,8 +42,12 @@ let ChatEditingNewNotebookContentEdits = class {
     }
     const notebookEdits = [];
     try {
-      const { serializer } = await this._notebookService.withNotebookDataProvider(this.notebook.viewType);
-      const data = await serializer.dataToNotebook(VSBuffer.fromString(content));
+      const { serializer } = await this._notebookService.withNotebookDataProvider(
+        this.notebook.viewType
+      );
+      const data = await serializer.dataToNotebook(
+        VSBuffer.fromString(content)
+      );
       for (let i = 0; i < data.cells.length; i++) {
         notebookEdits.push({
           editType: CellEditType.Replace,
@@ -51,7 +57,10 @@ let ChatEditingNewNotebookContentEdits = class {
         });
       }
     } catch (ex) {
-      console.error(`Failed to generate notebook edits from text edits ${content}`, ex);
+      console.error(
+        `Failed to generate notebook edits from text edits ${content}`,
+        ex
+      );
       return [];
     }
     return notebookEdits;

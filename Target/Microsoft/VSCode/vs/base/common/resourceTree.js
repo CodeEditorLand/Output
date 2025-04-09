@@ -10,9 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 import { memoize } from "./decorators.js";
-import { PathIterator } from "./ternarySearchTree.js";
 import * as paths from "./path.js";
-import { extUri as defaultExtUri, IExtUri } from "./resources.js";
+import { extUri as defaultExtUri } from "./resources.js";
+import { PathIterator } from "./ternarySearchTree.js";
 import { URI } from "./uri.js";
 class Node {
   constructor(uri, relativePath, context, element = void 0, parent = void 0) {
@@ -89,7 +89,7 @@ class ResourceTree {
     let path = "";
     while (true) {
       const name = iterator.value();
-      path = path + "/" + name;
+      path = `${path}/${name}`;
       let child = node.get(name);
       if (!child) {
         child = new Node(

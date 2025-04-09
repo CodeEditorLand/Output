@@ -11,19 +11,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../../base/browser/dom.js";
-import { CodeWindow } from "../../../../../../base/browser/window.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { EditorExtensionsRegistry } from "../../../../../../editor/browser/editorExtensions.js";
 import { MenuId } from "../../../../../../platform/actions/common/actions.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
-import { NotebookDiffEditorInput } from "../../../common/notebookDiffEditorInput.js";
-import { NotebookInlineDiffDecorationContribution } from "./notebookInlineDiff.js";
-import { INotebookEditorOptions } from "../../notebookBrowser.js";
 import { NotebookEditorExtensionsRegistry } from "../../notebookEditorExtensions.js";
-import { NotebookEditorWidget } from "../../notebookEditorWidget.js";
-import { NotebookOptions } from "../../notebookOptions.js";
-import { IBorrowValue, INotebookEditorService } from "../../services/notebookEditorService.js";
+import {
+  INotebookEditorService
+} from "../../services/notebookEditorService.js";
+import { NotebookInlineDiffDecorationContribution } from "./notebookInlineDiff.js";
 let NotebookInlineDiffWidget = class extends Disposable {
   constructor(rootElement, groupId, window, options, dimension, instantiationService, widgetService) {
     super();
@@ -48,17 +44,27 @@ let NotebookInlineDiffWidget = class extends Disposable {
       this.createNotebookWidget(input, this.groupId, this.rootElement);
     }
     if (this.dimension) {
-      this.widget.value?.layout(this.dimension, this.rootElement, this.position);
+      this.widget.value?.layout(
+        this.dimension,
+        this.rootElement,
+        this.position
+      );
     }
     if (model) {
       await this.widget.value?.setOptions({ ...options });
-      this.widget.value?.notebookOptions.previousModelToCompare.set(previousModel, void 0);
-      await this.widget.value.setModel(model, options?.viewState);
+      this.widget.value?.notebookOptions.previousModelToCompare.set(
+        previousModel,
+        void 0
+      );
+      await this.widget.value?.setModel(model, options?.viewState);
     }
   }
   hide() {
     if (this.widget.value) {
-      this.widget.value.notebookOptions.previousModelToCompare.set(void 0, void 0);
+      this.widget.value.notebookOptions.previousModelToCompare.set(
+        void 0,
+        void 0
+      );
       this.widget.value.onWillHide();
     }
   }
@@ -67,7 +73,9 @@ let NotebookInlineDiffWidget = class extends Disposable {
     this.position = position;
   }
   createNotebookWidget(input, groupId, rootElement) {
-    const contributions = NotebookEditorExtensionsRegistry.getSomeEditorContributions([NotebookInlineDiffDecorationContribution.ID]);
+    const contributions = NotebookEditorExtensionsRegistry.getSomeEditorContributions([
+      NotebookInlineDiffDecorationContribution.ID
+    ]);
     const menuIds = {
       notebookToolbar: MenuId.NotebookToolbar,
       cellTitleToolbar: MenuId.NotebookCellTitle,
@@ -87,18 +95,31 @@ let NotebookInlineDiffWidget = class extends Disposable {
       "editor.contrib.findController",
       "editor.contrib.emptyTextEditorHint"
     ];
-    const cellEditorContributions = EditorExtensionsRegistry.getEditorContributions().filter((c) => skipContributions.indexOf(c.id) === -1);
+    const cellEditorContributions = EditorExtensionsRegistry.getEditorContributions().filter(
+      (c) => skipContributions.indexOf(c.id) === -1
+    );
     this.widget = this.instantiationService.invokeFunction(
       this.widgetService.retrieveWidget,
       groupId,
       input,
-      { contributions, menuIds, cellEditorContributions, options: this.options },
+      {
+        contributions,
+        menuIds,
+        cellEditorContributions,
+        options: this.options
+      },
       this.dimension,
       this.window
     );
-    if (this.rootElement && this.widget.value.getDomNode()) {
-      this.rootElement.setAttribute("aria-flowto", this.widget.value.getDomNode().id || "");
-      DOM.setParentFlowTo(this.widget.value.getDomNode(), this.rootElement);
+    if (this.rootElement && this.widget.value?.getDomNode()) {
+      this.rootElement.setAttribute(
+        "aria-flowto",
+        this.widget.value?.getDomNode().id || ""
+      );
+      DOM.setParentFlowTo(
+        this.widget.value?.getDomNode(),
+        this.rootElement
+      );
     }
   }
   dispose() {

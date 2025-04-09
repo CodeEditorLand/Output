@@ -4,13 +4,14 @@ import { Emitter } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { URI } from "../../../base/common/uri.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import * as typeConverters from "./extHostTypeConverters.js";
-import { serializeWebviewOptions, ExtHostWebview, ExtHostWebviews, toExtensionData, shouldSerializeBuffersForPostMessage } from "./extHostWebview.js";
-import { IExtHostWorkspace } from "./extHostWorkspace.js";
-import { EditorGroupColumn } from "../../services/editor/common/editorGroupColumn.js";
 import * as extHostProtocol from "./extHost.protocol.js";
+import * as typeConverters from "./extHostTypeConverters.js";
 import * as extHostTypes from "./extHostTypes.js";
+import {
+  serializeWebviewOptions,
+  shouldSerializeBuffersForPostMessage,
+  toExtensionData
+} from "./extHostWebview.js";
 class ExtHostWebviewPanel extends Disposable {
   static {
     __name(this, "ExtHostWebviewPanel");
@@ -28,7 +29,9 @@ class ExtHostWebviewPanel extends Disposable {
   #isDisposed = false;
   #onDidDispose = this._register(new Emitter());
   onDidDispose = this.#onDidDispose.event;
-  #onDidChangeViewState = this._register(new Emitter());
+  #onDidChangeViewState = this._register(
+    new Emitter()
+  );
   onDidChangeViewState = this.#onDidChangeViewState.event;
   constructor(handle, proxy, webview, params) {
     super();
@@ -78,7 +81,10 @@ class ExtHostWebviewPanel extends Disposable {
     this.assertNotDisposed();
     if (this.#iconPath !== value) {
       this.#iconPath = value;
-      this.#proxy.$setIconPath(this.#handle, URI.isUri(value) ? { light: value, dark: value } : value);
+      this.#proxy.$setIconPath(
+        this.#handle,
+        URI.isUri(value) ? { light: value, dark: value } : value
+      );
     }
   }
   get options() {
@@ -128,7 +134,9 @@ class ExtHostWebviewPanels extends Disposable {
     super();
     this.webviews = webviews;
     this.workspace = workspace;
-    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadWebviewPanels);
+    this._proxy = mainContext.getProxy(
+      extHostProtocol.MainContext.MainThreadWebviewPanels
+    );
   }
   static {
     __name(this, "ExtHostWebviewPanels");
@@ -152,14 +160,36 @@ class ExtHostWebviewPanels extends Disposable {
     };
     const serializeBuffersForPostMessage = shouldSerializeBuffersForPostMessage(extension);
     const handle = ExtHostWebviewPanels.newHandle();
-    this._proxy.$createWebviewPanel(toExtensionData(extension), handle, viewType, {
+    this._proxy.$createWebviewPanel(
+      toExtensionData(extension),
+      handle,
+      viewType,
+      {
+        title,
+        panelOptions: serializeWebviewPanelOptions(options),
+        webviewOptions: serializeWebviewOptions(
+          extension,
+          this.workspace,
+          options
+        ),
+        serializeBuffersForPostMessage
+      },
+      webviewShowOptions
+    );
+    const webview = this.webviews.createNewWebview(
+      handle,
+      options,
+      extension
+    );
+    const panel = this.createNewWebviewPanel(
+      handle,
+      viewType,
       title,
-      panelOptions: serializeWebviewPanelOptions(options),
-      webviewOptions: serializeWebviewOptions(extension, this.workspace, options),
-      serializeBuffersForPostMessage
-    }, webviewShowOptions);
-    const webview = this.webviews.createNewWebview(handle, options, extension);
-    const panel = this.createNewWebviewPanel(handle, viewType, title, viewColumn, options, webview, true);
+      viewColumn,
+      options,
+      webview,
+      true
+    );
     return panel;
   }
   $onDidChangeWebviewPanelViewStates(newStates) {
@@ -213,12 +243,35 @@ class ExtHostWebviewPanels extends Disposable {
       throw new Error(`No serializer found for '${viewType}'`);
     }
     const { serializer, extension } = entry;
-    const webview = this.webviews.createNewWebview(webviewHandle, initData.webviewOptions, extension);
-    const revivedPanel = this.createNewWebviewPanel(webviewHandle, viewType, initData.title, position, initData.panelOptions, webview, initData.active);
+    const webview = this.webviews.createNewWebview(
+      webviewHandle,
+      initData.webviewOptions,
+      extension
+    );
+    const revivedPanel = this.createNewWebviewPanel(
+      webviewHandle,
+      viewType,
+      initData.title,
+      position,
+      initData.panelOptions,
+      webview,
+      initData.active
+    );
     await serializer.deserializeWebviewPanel(revivedPanel, initData.state);
   }
   createNewWebviewPanel(webviewHandle, viewType, title, position, options, webview, active) {
-    const panel = new ExtHostWebviewPanel(webviewHandle, this._proxy, webview, { viewType, title, viewColumn: position, panelOptions: options, active });
+    const panel = new ExtHostWebviewPanel(
+      webviewHandle,
+      this._proxy,
+      webview,
+      {
+        viewType,
+        title,
+        viewColumn: position,
+        panelOptions: options,
+        active
+      }
+    );
     this._webviewPanels.set(webviewHandle, panel);
     return panel;
   }

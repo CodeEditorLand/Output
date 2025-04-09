@@ -35,11 +35,11 @@ function decodeKeybinding(keybinding, OS) {
 }
 __name(decodeKeybinding, "decodeKeybinding");
 function createSimpleKeybinding(keybinding, OS) {
-  const ctrlCmd = keybinding & 2048 /* CtrlCmd */ ? true : false;
-  const winCtrl = keybinding & 256 /* WinCtrl */ ? true : false;
+  const ctrlCmd = !!(keybinding & 2048 /* CtrlCmd */);
+  const winCtrl = !!(keybinding & 256 /* WinCtrl */);
   const ctrlKey = OS === OperatingSystem.Macintosh ? winCtrl : ctrlCmd;
-  const shiftKey = keybinding & 1024 /* Shift */ ? true : false;
-  const altKey = keybinding & 512 /* Alt */ ? true : false;
+  const shiftKey = !!(keybinding & 1024 /* Shift */);
+  const altKey = !!(keybinding & 512 /* Alt */);
   const metaKey = OS === OperatingSystem.Macintosh ? ctrlCmd : winCtrl;
   const keyCode = keybinding & 255 /* KeyCode */;
   return new KeyCodeChord(ctrlKey, shiftKey, altKey, metaKey, keyCode);
@@ -114,7 +114,7 @@ class Keybinding {
   chords;
   constructor(chords) {
     if (chords.length === 0) {
-      throw illegalArgument(`chords`);
+      throw illegalArgument("chords");
     }
     this.chords = chords;
   }

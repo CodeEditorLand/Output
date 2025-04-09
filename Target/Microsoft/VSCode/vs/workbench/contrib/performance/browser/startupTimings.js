@@ -10,22 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { hash } from "../../../../base/common/hash.js";
+import { posix } from "../../../../base/common/path.js";
 import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { ILifecycleService, StartupKind, StartupKindToString } from "../../../services/lifecycle/common/lifecycle.js";
-import { IUpdateService } from "../../../../platform/update/common/update.js";
-import * as files from "../../files/common/files.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
-import { ViewContainerLocation } from "../../../common/views.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IUpdateService } from "../../../../platform/update/common/update.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import {
+  ILifecycleService,
+  StartupKind,
+  StartupKindToString
+} from "../../../services/lifecycle/common/lifecycle.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
 import { ITimerService } from "../../../services/timer/browser/timerService.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { posix } from "../../../../base/common/path.js";
-import { hash } from "../../../../base/common/hash.js";
+import * as files from "../../files/common/files.js";
 let StartupTimings = class {
   constructor(_editorService, _paneCompositeService, _lifecycleService, _updateService, _workspaceTrustService) {
     this._editorService = _editorService;
@@ -44,7 +47,9 @@ let StartupTimings = class {
     if (!this._workspaceTrustService.isWorkspaceTrusted()) {
       return "Workspace not trusted";
     }
-    const activeViewlet = this._paneCompositeService.getActivePaneComposite(ViewContainerLocation.Sidebar);
+    const activeViewlet = this._paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Sidebar
+    );
     if (!activeViewlet || activeViewlet.getId() !== files.VIEWLET_ID) {
       return "Explorer viewlet not visible";
     }
@@ -55,7 +60,9 @@ let StartupTimings = class {
     if (!isCodeEditor(visibleEditorPanes[0].getControl())) {
       return "Active editor is not a text editor";
     }
-    const activePanel = this._paneCompositeService.getActivePaneComposite(ViewContainerLocation.Panel);
+    const activePanel = this._paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Panel
+    );
     if (activePanel) {
       return `Current active panel : ${this._paneCompositeService.getPaneComposite(activePanel.getId(), ViewContainerLocation.Panel)?.name}`;
     }
@@ -75,7 +82,13 @@ StartupTimings = __decorateClass([
 ], StartupTimings);
 let BrowserStartupTimings = class extends StartupTimings {
   constructor(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService, timerService, logService, environmentService, telemetryService, productService) {
-    super(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService);
+    super(
+      editorService,
+      paneCompositeService,
+      lifecycleService,
+      updateService,
+      workspaceTrustService
+    );
     this.timerService = timerService;
     this.logService = logService;
     this.environmentService = environmentService;
@@ -94,7 +107,7 @@ let BrowserStartupTimings = class extends StartupTimings {
     const standardStartupError = await this._isStandardStartup();
     const perfBaseline = await this.timerService.perfBaseline;
     const [from, to] = this.environmentService.profDurationMarkers;
-    const content = `${this.timerService.getDuration(from, to)}	${this.productService.nameShort}	${(this.productService.commit || "").slice(0, 10) || "0000000000"}	${this.telemetryService.sessionId}	${standardStartupError === void 0 ? "standard_start" : "NO_standard_start : " + standardStartupError}	${String(perfBaseline).padStart(4, "0")}ms
+    const content = `${this.timerService.getDuration(from, to)}	${this.productService.nameShort}	${(this.productService.commit || "").slice(0, 10) || "0000000000"}	${this.telemetryService.sessionId}	${standardStartupError === void 0 ? "standard_start" : `NO_standard_start : ${standardStartupError}`}	${String(perfBaseline).padStart(4, "0")}ms
 `;
     this.logService.info(`[prof-timers] ${content}`);
   }
@@ -120,11 +133,14 @@ let BrowserResourcePerformanceMarks = class {
       try {
         const url = new URL(item.name);
         const name = posix.basename(url.pathname);
-        telemetryService.publicLog2("startup.resource.perf", {
-          hosthash: `H${hash(url.host).toString(16)}`,
-          name,
-          duration: item.duration
-        });
+        telemetryService.publicLog2(
+          "startup.resource.perf",
+          {
+            hosthash: `H${hash(url.host).toString(16)}`,
+            name,
+            duration: item.duration
+          }
+        );
       } catch {
       }
     }

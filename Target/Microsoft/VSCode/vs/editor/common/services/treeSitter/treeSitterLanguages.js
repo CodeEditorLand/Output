@@ -1,14 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { AppResourcePath, FileAccess, nodeModulesAsarUnpackedPath, nodeModulesPath } from "../../../../base/common/network.js";
-import { ITreeSitterImporter } from "../treeSitterParserService.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
 import { canASAR } from "../../../../amdX.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  FileAccess,
+  nodeModulesAsarUnpackedPath,
+  nodeModulesPath
+} from "../../../../base/common/network.js";
 import { PromiseResult } from "../../../../base/common/observable.js";
-const MODULE_LOCATION_SUBPATH = `@vscode/tree-sitter-wasm/wasm`;
+const MODULE_LOCATION_SUBPATH = "@vscode/tree-sitter-wasm/wasm";
 function getModuleLocation(environmentService) {
   return `${canASAR && environmentService.isBuilt ? nodeModulesAsarUnpackedPath : nodeModulesPath}/${MODULE_LOCATION_SUBPATH}`;
 }
@@ -64,7 +65,9 @@ class TreeSitterLanguages extends Disposable {
       return void 0;
     }
     const wasmPath = `${languageLocation}/${grammarName}.wasm`;
-    const languageFile = await this._fileService.readFile(FileAccess.asFileUri(wasmPath));
+    const languageFile = await this._fileService.readFile(
+      FileAccess.asFileUri(wasmPath)
+    );
     const Language = await this._treeSitterImporter.getLanguageClass();
     return Language.load(languageFile.value.buffer);
   }

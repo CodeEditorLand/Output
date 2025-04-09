@@ -1,9 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ISettableObservable, ObservablePromise } from "../../../../../../base/common/observable.js";
-import { IDocumentDiff } from "../../../../../../editor/common/diff/documentDiffProvider.js";
-import { DetailedLineRangeMapping } from "../../../../../../editor/common/diff/rangeMapping.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
 function countChanges(changes) {
   return changes.reduce((count, change) => {
     const diff = change.diff.get();

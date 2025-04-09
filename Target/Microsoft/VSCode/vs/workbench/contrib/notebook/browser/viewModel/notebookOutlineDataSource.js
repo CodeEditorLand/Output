@@ -10,18 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../../base/common/event.js";
-import { DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { isEqual } from "../../../../../base/common/resources.js";
-import { URI } from "../../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IMarkerService } from "../../../../../platform/markers/common/markers.js";
-import { IActiveNotebookEditor, INotebookEditor } from "../notebookBrowser.js";
+import {
+  OutlineConfigKeys
+} from "../../../../services/outline/browser/outline.js";
 import { CellKind } from "../../common/notebookCommon.js";
-import { OutlineChangeEvent, OutlineConfigKeys } from "../../../../services/outline/browser/outline.js";
-import { OutlineEntry } from "./OutlineEntry.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { INotebookOutlineEntryFactory, NotebookOutlineEntryFactory } from "./notebookOutlineEntryFactory.js";
+import {
+  INotebookOutlineEntryFactory
+} from "./notebookOutlineEntryFactory.js";
 let NotebookCellOutlineDataSource = class {
   constructor(_editor, _markerService, _configurationService, _outlineEntryFactory) {
     this._editor = _editor;
@@ -58,7 +61,12 @@ let NotebookCellOutlineDataSource = class {
       if (notebookCells) {
         const promises = [];
         for (const cell of notebookCells.slice(0, 50)) {
-          promises.push(this._outlineEntryFactory.cacheSymbols(cell, cancelToken));
+          promises.push(
+            this._outlineEntryFactory.cacheSymbols(
+              cell,
+              cancelToken
+            )
+          );
         }
         await Promise.allSettled(promises);
       }
@@ -83,7 +91,12 @@ let NotebookCellOutlineDataSource = class {
     const notebookCells = notebookEditorWidget.getViewModel().viewCells;
     const entries = [];
     for (const cell of notebookCells) {
-      entries.push(...this._outlineEntryFactory.getOutlineEntries(cell, entries.length));
+      entries.push(
+        ...this._outlineEntryFactory.getOutlineEntries(
+          cell,
+          entries.length
+        )
+      );
     }
     if (entries.length > 0) {
       const result = [entries[0]];
@@ -125,18 +138,24 @@ let NotebookCellOutlineDataSource = class {
           }
         }
       }, "doUpdateMarker");
-      const problem = this._configurationService.getValue("problems.visibility");
+      const problem = this._configurationService.getValue(
+        "problems.visibility"
+      );
       if (problem === void 0) {
         return;
       }
-      const config = this._configurationService.getValue(OutlineConfigKeys.problemsEnabled);
+      const config = this._configurationService.getValue(
+        OutlineConfigKeys.problemsEnabled
+      );
       if (problem && config) {
         markerServiceListener.value = this._markerService.onMarkerChanged((e) => {
           if (notebookEditorWidget.isDisposed) {
             console.error("notebook editor is disposed");
             return;
           }
-          if (e.some((uri) => notebookEditorWidget.getCellsInRange().some((cell) => isEqual(cell.uri, uri)))) {
+          if (e.some(
+            (uri) => notebookEditorWidget.getCellsInRange().some((cell) => isEqual(cell.uri, uri))
+          )) {
             doUpdateMarker(false);
             this._onDidChange.fire({});
           }
@@ -148,12 +167,14 @@ let NotebookCellOutlineDataSource = class {
       }
     }, "updateMarkerUpdater");
     updateMarkerUpdater();
-    this._disposables.add(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("problems.visibility") || e.affectsConfiguration(OutlineConfigKeys.problemsEnabled)) {
-        updateMarkerUpdater();
-        this._onDidChange.fire({});
-      }
-    }));
+    this._disposables.add(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("problems.visibility") || e.affectsConfiguration(OutlineConfigKeys.problemsEnabled)) {
+          updateMarkerUpdater();
+          this._onDidChange.fire({});
+        }
+      })
+    );
     const { changeEventTriggered } = this.recomputeActive();
     if (!changeEventTriggered) {
       this._onDidChange.fire({});
@@ -164,7 +185,9 @@ let NotebookCellOutlineDataSource = class {
     const notebookEditorWidget = this._editor;
     if (notebookEditorWidget) {
       if (notebookEditorWidget.hasModel() && notebookEditorWidget.getLength() > 0) {
-        const cell = notebookEditorWidget.cellAt(notebookEditorWidget.getFocus().start);
+        const cell = notebookEditorWidget.cellAt(
+          notebookEditorWidget.getFocus().start
+        );
         if (cell) {
           for (const entry of this._entries) {
             newActive = entry.find(cell, []);

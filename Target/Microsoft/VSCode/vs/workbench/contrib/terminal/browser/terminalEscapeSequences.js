@@ -41,7 +41,7 @@ function oscSequence(ps, pt, data) {
   if (data) {
     result += `;${data}`;
   }
-  result += `\x07`;
+  result += "\x07";
   return result;
 }
 __name(oscSequence, "oscSequence");

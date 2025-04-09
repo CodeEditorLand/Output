@@ -14,16 +14,40 @@ import { getZoomLevel } from "../../../../base/browser/browser.js";
 import { mainWindow } from "../../../../base/browser/window.js";
 import { IExtensionManagementService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { ExtensionType } from "../../../../platform/extensions/common/extensions.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { buttonBackground, buttonForeground, buttonHoverBackground, foreground, inputActiveOptionBorder, inputBackground, inputBorder, inputForeground, inputValidationErrorBackground, inputValidationErrorBorder, inputValidationErrorForeground, scrollbarSliderActiveBackground, scrollbarSliderHoverBackground, textLinkActiveForeground, textLinkForeground } from "../../../../platform/theme/common/colorRegistry.js";
-import { IColorTheme, IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  buttonBackground,
+  buttonForeground,
+  buttonHoverBackground,
+  foreground,
+  inputActiveOptionBorder,
+  inputBackground,
+  inputBorder,
+  inputForeground,
+  inputValidationErrorBackground,
+  inputValidationErrorBorder,
+  inputValidationErrorForeground,
+  scrollbarSliderActiveBackground,
+  scrollbarSliderHoverBackground,
+  textLinkActiveForeground,
+  textLinkForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  IThemeService
+} from "../../../../platform/theme/common/themeService.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
 import { SIDE_BAR_BACKGROUND } from "../../../common/theme.js";
-import { IIssueFormService, IssueReporterData, IssueReporterExtensionData, IssueReporterStyles, IWorkbenchIssueService } from "../common/issue.js";
 import { IWorkbenchAssignmentService } from "../../../services/assignment/common/assignmentService.js";
 import { IAuthenticationService } from "../../../services/authentication/common/authentication.js";
 import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { IIntegrityService } from "../../../services/integrity/common/integrity.js";
+import {
+  IIssueFormService,
+  IWorkbenchIssueService
+} from "../common/issue.js";
 let NativeIssueService = class {
   constructor(issueFormService, themeService, extensionManagementService, extensionEnablementService, workspaceTrustManagementService, experimentService, authenticationService, integrityService) {
     this.issueFormService = issueFormService;
@@ -42,27 +66,33 @@ let NativeIssueService = class {
     const extensionData = [];
     try {
       const extensions = await this.extensionManagementService.getInstalled();
-      const enabledExtensions = extensions.filter((extension) => this.extensionEnablementService.isEnabled(extension) || dataOverrides.extensionId && extension.identifier.id === dataOverrides.extensionId);
-      extensionData.push(...enabledExtensions.map((extension) => {
-        const { manifest } = extension;
-        const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
-        const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
-        const isBuiltin = extension.type === ExtensionType.System;
-        return {
-          name: manifest.name,
-          publisher: manifest.publisher,
-          version: manifest.version,
-          repositoryUrl: manifest.repository && manifest.repository.url,
-          bugsUrl: manifest.bugs && manifest.bugs.url,
-          displayName: manifest.displayName,
-          id: extension.identifier.id,
-          data: dataOverrides.data,
-          uri: dataOverrides.uri,
-          isTheme,
-          isBuiltin,
-          extensionData: "Extensions data loading"
-        };
-      }));
+      const enabledExtensions = extensions.filter(
+        (extension) => this.extensionEnablementService.isEnabled(extension) || dataOverrides.extensionId && extension.identifier.id === dataOverrides.extensionId
+      );
+      extensionData.push(
+        ...enabledExtensions.map(
+          (extension) => {
+            const { manifest } = extension;
+            const manifestKeys = manifest.contributes ? Object.keys(manifest.contributes) : [];
+            const isTheme = !manifest.main && !manifest.browser && manifestKeys.length === 1 && manifestKeys[0] === "themes";
+            const isBuiltin = extension.type === ExtensionType.System;
+            return {
+              name: manifest.name,
+              publisher: manifest.publisher,
+              version: manifest.version,
+              repositoryUrl: manifest.repository?.url,
+              bugsUrl: manifest.bugs?.url,
+              displayName: manifest.displayName,
+              id: extension.identifier.id,
+              data: dataOverrides.data,
+              uri: dataOverrides.uri,
+              isTheme,
+              isBuiltin,
+              extensionData: "Extensions data loading"
+            };
+          }
+        )
+      );
     } catch (e) {
       extensionData.push({
         name: "Workbench Issue Service",
@@ -81,7 +111,9 @@ let NativeIssueService = class {
     let githubAccessToken = "";
     try {
       const githubSessions = await this.authenticationService.getSessions("github");
-      const potentialSessions = githubSessions.filter((session) => session.scopes.includes("repo"));
+      const potentialSessions = githubSessions.filter(
+        (session) => session.scopes.includes("repo")
+      );
       githubAccessToken = potentialSessions[0]?.accessToken;
     } catch (e) {
     }
@@ -91,15 +123,18 @@ let NativeIssueService = class {
     } catch (e) {
     }
     const theme = this.themeService.getColorTheme();
-    const issueReporterData = Object.assign({
-      styles: getIssueReporterStyles(theme),
-      zoomLevel: getZoomLevel(mainWindow),
-      enabledExtensions: extensionData,
-      experiments: experiments?.join("\n"),
-      restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
-      isUnsupported,
-      githubAccessToken
-    }, dataOverrides);
+    const issueReporterData = Object.assign(
+      {
+        styles: getIssueReporterStyles(theme),
+        zoomLevel: getZoomLevel(mainWindow),
+        enabledExtensions: extensionData,
+        experiments: experiments?.join("\n"),
+        restrictedMode: !this.workspaceTrustManagementService.isWorkspaceTrusted(),
+        isUnsupported,
+        githubAccessToken
+      },
+      dataOverrides
+    );
     return this.issueFormService.openReporter(issueReporterData);
   }
 };
@@ -140,7 +175,11 @@ function getColor(theme, key) {
   return color ? color.toString() : void 0;
 }
 __name(getColor, "getColor");
-registerSingleton(IWorkbenchIssueService, NativeIssueService, InstantiationType.Delayed);
+registerSingleton(
+  IWorkbenchIssueService,
+  NativeIssueService,
+  InstantiationType.Delayed
+);
 export {
   NativeIssueService,
   getIssueReporterStyles

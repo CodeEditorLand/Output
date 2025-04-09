@@ -1,11 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IStringDictionary } from "../../../base/common/collections.js";
 import { Event } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { PolicyName } from "../../../base/common/policy.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { AbstractPolicyService, IPolicyService, PolicyDefinition, PolicyValue } from "./policy.js";
+import {
+  AbstractPolicyService
+} from "./policy.js";
 class PolicyChannel {
   constructor(service) {
     this.service = service;
@@ -19,7 +18,13 @@ class PolicyChannel {
       case "onDidChange":
         return Event.map(
           this.service.onDidChange,
-          (names) => names.reduce((r, name) => ({ ...r, [name]: this.service.getPolicyValue(name) ?? null }), {}),
+          (names) => names.reduce(
+            (r, name) => ({
+              ...r,
+              [name]: this.service.getPolicyValue(name) ?? null
+            }),
+            {}
+          ),
           this.disposables
         );
     }
@@ -28,7 +33,9 @@ class PolicyChannel {
   call(_, command, arg) {
     switch (command) {
       case "updatePolicyDefinitions":
-        return this.service.updatePolicyDefinitions(arg);
+        return this.service.updatePolicyDefinitions(
+          arg
+        );
     }
     throw new Error(`Call not found: ${command}`);
   }

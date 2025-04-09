@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { clearNode } from "../../../base/browser/dom.js";
-import { createCSSRule, createStyleSheet } from "../../../base/browser/domStylesheets.js";
+import {
+  createCSSRule,
+  createStyleSheet
+} from "../../../base/browser/domStylesheets.js";
 import { RunOnceScheduler } from "../../../base/common/async.js";
 var ZIndex = /* @__PURE__ */ ((ZIndex2) => {
   ZIndex2[ZIndex2["Base"] = 0] = "Base";
@@ -15,7 +18,7 @@ var ZIndex = /* @__PURE__ */ ((ZIndex2) => {
   ZIndex2[ZIndex2["PaneDropOverlay"] = 1e4] = "PaneDropOverlay";
   return ZIndex2;
 })(ZIndex || {});
-const ZIndexValues = Object.keys(ZIndex).filter((key) => !isNaN(Number(key))).map((key) => Number(key)).sort((a, b) => b - a);
+const ZIndexValues = Object.keys(ZIndex).filter((key) => !Number.isNaN(Number(key))).map((key) => Number(key)).sort((a, b) => b - a);
 function findBase(z) {
   for (const zi of ZIndexValues) {
     if (z >= zi) {
@@ -35,15 +38,22 @@ class ZIndexRegistry {
   constructor() {
     this.styleSheet = createStyleSheet();
     this.zIndexMap = /* @__PURE__ */ new Map();
-    this.scheduler = new RunOnceScheduler(() => this.updateStyleElement(), 200);
+    this.scheduler = new RunOnceScheduler(
+      () => this.updateStyleElement(),
+      200
+    );
   }
   registerZIndex(relativeLayer, z, name) {
     if (this.zIndexMap.get(name)) {
-      throw new Error(`z-index with name ${name} has already been registered.`);
+      throw new Error(
+        `z-index with name ${name} has already been registered.`
+      );
     }
     const proposedZValue = relativeLayer + z;
     if (findBase(proposedZValue) !== relativeLayer) {
-      throw new Error(`Relative layer: ${relativeLayer} + z-index: ${z} exceeds next layer ${proposedZValue}.`);
+      throw new Error(
+        `Relative layer: ${relativeLayer} + z-index: ${z} exceeds next layer ${proposedZValue}.`
+      );
     }
     this.zIndexMap.set(name, proposedZValue);
     this.scheduler.schedule();

@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as errors from "./errors.js";
+import * as paths from "./path.js";
 import * as platform from "./platform.js";
 import { equalsIgnoreCase, startsWithIgnoreCase } from "./strings.js";
 import { URI } from "./uri.js";
-import * as paths from "./path.js";
 var Schemas;
 ((Schemas2) => {
   Schemas2.inMemory = "inmemory";
@@ -53,7 +53,7 @@ function matchesScheme(target, scheme) {
   if (URI.isUri(target)) {
     return equalsIgnoreCase(target.scheme, scheme);
   } else {
-    return startsWithIgnoreCase(target, scheme + ":");
+    return startsWithIgnoreCase(target, `${scheme}:`);
   }
 }
 __name(matchesScheme, "matchesScheme");
@@ -80,13 +80,19 @@ class RemoteAuthoritiesImpl {
     this._delegate = delegate;
   }
   setServerRootPath(product, serverBasePath) {
-    this._serverRootPath = paths.posix.join(serverBasePath ?? "/", getServerProductSegment(product));
+    this._serverRootPath = paths.posix.join(
+      serverBasePath ?? "/",
+      getServerProductSegment(product)
+    );
   }
   getServerRootPath() {
     return this._serverRootPath;
   }
   get _remoteResourcesPath() {
-    return paths.posix.join(this._serverRootPath, Schemas.vscodeRemoteResource);
+    return paths.posix.join(
+      this._serverRootPath,
+      Schemas.vscodeRemoteResource
+    );
   }
   set(authority, host, port) {
     this._hosts[authority] = host;
@@ -213,7 +219,10 @@ class FileAccessImpl {
     if (globalThis._VSCODE_FILE_ROOT) {
       const rootUriOrPath = globalThis._VSCODE_FILE_ROOT;
       if (/^\w[\w\d+.-]*:\/\//.test(rootUriOrPath)) {
-        return URI.joinPath(URI.parse(rootUriOrPath, true), uriOrModule);
+        return URI.joinPath(
+          URI.parse(rootUriOrPath, true),
+          uriOrModule
+        );
       }
       const modulePath = paths.join(rootUriOrPath, uriOrModule);
       return URI.file(modulePath);
@@ -233,7 +242,13 @@ var COI;
   const coiHeaders = /* @__PURE__ */ new Map([
     ["1", { "Cross-Origin-Opener-Policy": "same-origin" }],
     ["2", { "Cross-Origin-Embedder-Policy": "require-corp" }],
-    ["3", { "Cross-Origin-Opener-Policy": "same-origin", "Cross-Origin-Embedder-Policy": "require-corp" }]
+    [
+      "3",
+      {
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "require-corp"
+      }
+    ]
   ]);
   COI2.CoopAndCoep = Object.freeze(coiHeaders.get("3"));
   const coiSearchParamName = "vscode-coi";

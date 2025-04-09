@@ -23,8 +23,20 @@ let WorkbenchEditorWorkerService = class extends EditorWorkerService {
     __name(this, "WorkbenchEditorWorkerService");
   }
   constructor(modelService, configurationService, logService, languageConfigurationService, languageFeaturesService) {
-    const workerDescriptor = new WebWorkerDescriptor(FileAccess.asBrowserUri("vs/editor/common/services/editorWebWorkerMain.js"), "TextEditorWorker");
-    super(workerDescriptor, modelService, configurationService, logService, languageConfigurationService, languageFeaturesService);
+    const workerDescriptor = new WebWorkerDescriptor(
+      FileAccess.asBrowserUri(
+        "vs/editor/common/services/editorWebWorkerMain.js"
+      ),
+      "TextEditorWorker"
+    );
+    super(
+      workerDescriptor,
+      modelService,
+      configurationService,
+      logService,
+      languageConfigurationService,
+      languageFeaturesService
+    );
   }
 };
 WorkbenchEditorWorkerService = __decorateClass([

@@ -12,25 +12,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplementation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import { URI } from "../../../../base/common/uri.js";
+import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
+import {
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
 import { IMenuService } from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import { COMMENTS_VIEW_ID, CommentsMenus } from "./commentsTreeViewer.js";
-import { CommentsPanel, CONTEXT_KEY_COMMENT_FOCUSED } from "./commentsView.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { ICommentService } from "./commentService.js";
-import { CommentContextKeys } from "../common/commentContextKeys.js";
-import { moveToNextCommentInThread as findNextCommentInThread, revealCommentThread } from "./commentsController.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { isCodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { URI } from "../../../../base/common/uri.js";
-import { CommentThread, Comment } from "../../../../editor/common/languages.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { IAction } from "../../../../base/common/actions.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
+import {
+  moveToNextCommentInThread as findNextCommentInThread,
+  revealCommentThread
+} from "./commentsController.js";
+import { ICommentService } from "./commentService.js";
+import { COMMENTS_VIEW_ID, CommentsMenus } from "./commentsTreeViewer.js";
+import {
+  CONTEXT_KEY_COMMENT_FOCUSED
+} from "./commentsView.js";
 class CommentsAccessibleView extends Disposable {
   static {
     __name(this, "CommentsAccessibleView");
@@ -50,10 +53,11 @@ class CommentsAccessibleView extends Disposable {
     }
     const menus = this._register(new CommentsMenus(menuService));
     menus.setContextKeyService(contextKeyService);
-    return new CommentsAccessibleContentProvider(commentsView, focusedCommentNode, menus);
-  }
-  constructor() {
-    super();
+    return new CommentsAccessibleContentProvider(
+      commentsView,
+      focusedCommentNode,
+      menus
+    );
   }
 }
 class CommentThreadAccessibleView extends Disposable {
@@ -72,10 +76,11 @@ class CommentThreadAccessibleView extends Disposable {
     if (!threads) {
       return;
     }
-    return new CommentsThreadWidgetAccessibleContentProvider(commentService, editorService, uriIdentityService);
-  }
-  constructor() {
-    super();
+    return new CommentsThreadWidgetAccessibleContentProvider(
+      commentService,
+      editorService,
+      uriIdentityService
+    );
   }
 }
 class CommentsAccessibleContentProvider extends Disposable {
@@ -84,7 +89,9 @@ class CommentsAccessibleContentProvider extends Disposable {
     this._commentsView = _commentsView;
     this._focusedCommentNode = _focusedCommentNode;
     this._menus = _menus;
-    this.actions = [...this._menus.getResourceContextActions(this._focusedCommentNode)].filter((i) => i.enabled).map((action) => {
+    this.actions = [
+      ...this._menus.getResourceContextActions(this._focusedCommentNode)
+    ].filter((i) => i.enabled).map((action) => {
       return {
         ...action,
         run: /* @__PURE__ */ __name(() => {
@@ -110,7 +117,9 @@ class CommentsAccessibleContentProvider extends Disposable {
     const commentNode = this._commentsView.focusedCommentNode;
     const content = this._commentsView.focusedCommentInfo?.toString();
     if (!commentNode || !content) {
-      throw new Error("Comment tree is focused but no comment is selected");
+      throw new Error(
+        "Comment tree is focused but no comment is selected"
+      );
     }
     return content;
   }
@@ -161,7 +170,9 @@ let CommentsThreadWidgetAccessibleContentProvider = class extends Disposable {
       if (editor?.length && isCodeEditor(codeEditor)) {
         const content = codeEditor.getModel()?.getValueInRange(range);
         if (content) {
-          contentLabel = "\nCorresponding code: \n" + content;
+          contentLabel = `
+Corresponding code: 
+${content}`;
         }
       }
     }
@@ -171,11 +182,20 @@ let CommentsThreadWidgetAccessibleContentProvider = class extends Disposable {
     const lastComment = this._activeCommentInfo;
     this._activeCommentInfo = void 0;
     if (lastComment) {
-      revealCommentThread(this._commentService, this._editorService, this._uriIdentityService, lastComment.thread, lastComment.comment);
+      revealCommentThread(
+        this._commentService,
+        this._editorService,
+        this._uriIdentityService,
+        lastComment.thread,
+        lastComment.comment
+      );
     }
   }
   provideNextContent() {
-    const newCommentInfo = findNextCommentInThread(this._activeCommentInfo, "next");
+    const newCommentInfo = findNextCommentInThread(
+      this._activeCommentInfo,
+      "next"
+    );
     if (newCommentInfo) {
       this._activeCommentInfo = newCommentInfo;
       return this.provideContent();
@@ -183,7 +203,10 @@ let CommentsThreadWidgetAccessibleContentProvider = class extends Disposable {
     return void 0;
   }
   providePreviousContent() {
-    const newCommentInfo = findNextCommentInThread(this._activeCommentInfo, "previous");
+    const newCommentInfo = findNextCommentInThread(
+      this._activeCommentInfo,
+      "previous"
+    );
     if (newCommentInfo) {
       this._activeCommentInfo = newCommentInfo;
       return this.provideContent();

@@ -1,5 +1,8 @@
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-const InSearchEditor = new RawContextKey("inSearchEditor", false);
+const InSearchEditor = new RawContextKey(
+  "inSearchEditor",
+  false
+);
 const SearchEditorScheme = "search-editor";
 const SearchEditorWorkingCopyTypeId = "search/editor";
 const SearchEditorFindMatchClass = "searchEditorFindMatch";

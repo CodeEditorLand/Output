@@ -1,14 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken, CancellationTokenSource } from "../cancellation.js";
+import { DisposableMap } from "../lifecycle.js";
 import { assertDefined } from "../types.js";
-import { Disposable, DisposableMap } from "../lifecycle.js";
-import { CancellationTokenSource, CancellationToken } from "../cancellation.js";
 function cancelPreviousCalls(_proto, methodName, descriptor) {
   const originalMethod = descriptor.value;
-  assertDefined(
-    originalMethod,
-    `Method '${methodName}' is not defined.`
-  );
+  assertDefined(originalMethod, `Method '${methodName}' is not defined.`);
   const objectRecords = /* @__PURE__ */ new WeakMap();
   descriptor.value = function(...args) {
     let record = objectRecords.get(this);

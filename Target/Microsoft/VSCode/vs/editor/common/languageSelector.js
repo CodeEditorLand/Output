@@ -1,13 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IRelativePattern, match as matchGlobPattern } from "../../base/common/glob.js";
-import { URI } from "../../base/common/uri.js";
+import {
+  match as matchGlobPattern
+} from "../../base/common/glob.js";
 import { normalize } from "../../base/common/path.js";
 function score(selector, candidateUri, candidateLanguage, candidateIsSynchronized, candidateNotebookUri, candidateNotebookType) {
   if (Array.isArray(selector)) {
     let ret = 0;
     for (const filter of selector) {
-      const value = score(filter, candidateUri, candidateLanguage, candidateIsSynchronized, candidateNotebookUri, candidateNotebookType);
+      const value = score(
+        filter,
+        candidateUri,
+        candidateLanguage,
+        candidateIsSynchronized,
+        candidateNotebookUri,
+        candidateNotebookType
+      );
       if (value === 10) {
         return value;
       }
@@ -28,7 +36,13 @@ function score(selector, candidateUri, candidateLanguage, candidateIsSynchronize
       return 0;
     }
   } else if (selector) {
-    const { language, pattern, scheme, hasAccessToAllModels, notebookType } = selector;
+    const {
+      language,
+      pattern,
+      scheme,
+      hasAccessToAllModels,
+      notebookType
+    } = selector;
     if (!candidateIsSynchronized && !hasAccessToAllModels) {
       return 0;
     }
@@ -68,7 +82,10 @@ function score(selector, candidateUri, candidateLanguage, candidateIsSynchronize
       if (typeof pattern === "string") {
         normalizedPattern = pattern;
       } else {
-        normalizedPattern = { ...pattern, base: normalize(pattern.base) };
+        normalizedPattern = {
+          ...pattern,
+          base: normalize(pattern.base)
+        };
       }
       if (normalizedPattern === candidateUri.fsPath || matchGlobPattern(normalizedPattern, candidateUri.fsPath)) {
         ret = 10;

@@ -11,15 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../../base/common/lifecycle.js";
 import { localize } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IChatProgressRenderableResponseContent } from "../../common/chatModel.js";
-import { IChatConfirmation, IChatSendRequestOptions, IChatService } from "../../common/chatService.js";
+import {
+  IChatService
+} from "../../common/chatService.js";
 import { isResponseVM } from "../../common/chatViewModel.js";
 import { IChatWidgetService } from "../chat.js";
 import { ChatConfirmationWidget } from "./chatConfirmationWidget.js";
-import { IChatContentPart, IChatContentPartRenderContext } from "./chatContentParts.js";
 let ChatConfirmationContentPart = class extends Disposable {
   constructor(confirmation, context, instantiationService, chatService, chatWidgetService) {
     super();
@@ -30,29 +32,55 @@ let ChatConfirmationContentPart = class extends Disposable {
       label: button,
       data: confirmation.data
     })) : [
-      { label: localize("accept", "Accept"), data: confirmation.data },
-      { label: localize("dismiss", "Dismiss"), data: confirmation.data, isSecondary: true }
-    ];
-    const confirmationWidget = this._register(this.instantiationService.createInstance(ChatConfirmationWidget, confirmation.title, confirmation.message, buttons));
-    confirmationWidget.setShowButtons(!confirmation.isUsed);
-    this._register(confirmationWidget.onDidChangeHeight(() => this._onDidChangeHeight.fire()));
-    this._register(confirmationWidget.onDidClick(async (e) => {
-      if (isResponseVM(element)) {
-        const prompt = `${e.label}: "${confirmation.title}"`;
-        const options = e.isSecondary ? { rejectedConfirmationData: [e.data] } : { acceptedConfirmationData: [e.data] };
-        options.agentId = element.agent?.id;
-        options.slashCommand = element.slashCommand?.name;
-        options.confirmation = e.label;
-        const widget = chatWidgetService.getWidgetBySessionId(element.sessionId);
-        options.userSelectedModelId = widget?.input.currentLanguageModel;
-        options.mode = widget?.input.currentMode;
-        if (await this.chatService.sendRequest(element.sessionId, prompt, options)) {
-          confirmation.isUsed = true;
-          confirmationWidget.setShowButtons(false);
-          this._onDidChangeHeight.fire();
-        }
+      {
+        label: localize("accept", "Accept"),
+        data: confirmation.data
+      },
+      {
+        label: localize("dismiss", "Dismiss"),
+        data: confirmation.data,
+        isSecondary: true
       }
-    }));
+    ];
+    const confirmationWidget = this._register(
+      this.instantiationService.createInstance(
+        ChatConfirmationWidget,
+        confirmation.title,
+        confirmation.message,
+        buttons
+      )
+    );
+    confirmationWidget.setShowButtons(!confirmation.isUsed);
+    this._register(
+      confirmationWidget.onDidChangeHeight(
+        () => this._onDidChangeHeight.fire()
+      )
+    );
+    this._register(
+      confirmationWidget.onDidClick(async (e) => {
+        if (isResponseVM(element)) {
+          const prompt = `${e.label}: "${confirmation.title}"`;
+          const options = e.isSecondary ? { rejectedConfirmationData: [e.data] } : { acceptedConfirmationData: [e.data] };
+          options.agentId = element.agent?.id;
+          options.slashCommand = element.slashCommand?.name;
+          options.confirmation = e.label;
+          const widget = chatWidgetService.getWidgetBySessionId(
+            element.sessionId
+          );
+          options.userSelectedModelId = widget?.input.currentLanguageModel;
+          options.mode = widget?.input.currentMode;
+          if (await this.chatService.sendRequest(
+            element.sessionId,
+            prompt,
+            options
+          )) {
+            confirmation.isUsed = true;
+            confirmationWidget.setShowButtons(false);
+            this._onDidChangeHeight.fire();
+          }
+        }
+      })
+    );
     this.domNode = confirmationWidget.domNode;
   }
   static {

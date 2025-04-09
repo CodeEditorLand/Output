@@ -18,18 +18,35 @@ import { ILogService } from "../../log/common/log.js";
 import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
 import { IProductService } from "../../product/common/productService.js";
 import { asJson, IRequestService } from "../../request/common/request.js";
-import { AvailableForDownload, IUpdate, State, UpdateType } from "../common/update.js";
-import { AbstractUpdateService, createUpdateURL } from "./abstractUpdateService.js";
+import {
+  State,
+  UpdateType
+} from "../common/update.js";
+import {
+  AbstractUpdateService,
+  createUpdateURL
+} from "./abstractUpdateService.js";
 let LinuxUpdateService = class extends AbstractUpdateService {
   constructor(lifecycleMainService, configurationService, environmentMainService, requestService, logService, nativeHostMainService, productService) {
-    super(lifecycleMainService, configurationService, environmentMainService, requestService, logService, productService);
+    super(
+      lifecycleMainService,
+      configurationService,
+      environmentMainService,
+      requestService,
+      logService,
+      productService
+    );
     this.nativeHostMainService = nativeHostMainService;
   }
   static {
     __name(this, "LinuxUpdateService");
   }
   buildUpdateFeedUrl(quality) {
-    return createUpdateURL(`linux-${process.arch}`, quality, this.productService);
+    return createUpdateURL(
+      `linux-${process.arch}`,
+      quality,
+      this.productService
+    );
   }
   doCheckForUpdates(context) {
     if (!this.url) {
@@ -44,15 +61,21 @@ let LinuxUpdateService = class extends AbstractUpdateService {
       }
     }).then(void 0, (err) => {
       this.logService.error(err);
-      const message = !!context ? err.message || err : void 0;
+      const message = context ? err.message || err : void 0;
       this.setState(State.Idle(UpdateType.Archive, message));
     });
   }
   async doDownloadUpdate(state) {
     if (this.productService.downloadUrl && this.productService.downloadUrl.length > 0) {
-      this.nativeHostMainService.openExternal(void 0, this.productService.downloadUrl);
+      this.nativeHostMainService.openExternal(
+        void 0,
+        this.productService.downloadUrl
+      );
     } else if (state.update.url) {
-      this.nativeHostMainService.openExternal(void 0, state.update.url);
+      this.nativeHostMainService.openExternal(
+        void 0,
+        state.update.url
+      );
     }
     this.setState(State.Idle(UpdateType.Archive));
   }

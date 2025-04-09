@@ -1,37 +1,43 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/compositepart.css";
-import { localize } from "../../../nls.js";
-import { defaultGenerator } from "../../../base/common/idGenerator.js";
-import { IDisposable, dispose, DisposableStore, MutableDisposable } from "../../../base/common/lifecycle.js";
-import { Emitter } from "../../../base/common/event.js";
-import { isCancellationError } from "../../../base/common/errors.js";
-import { ActionsOrientation, IActionViewItem, prepareActions } from "../../../base/browser/ui/actionbar/actionbar.js";
-import { ProgressBar } from "../../../base/browser/ui/progressbar/progressbar.js";
-import { IAction } from "../../../base/common/actions.js";
-import { Part, IPartOptions } from "../part.js";
-import { Composite, CompositeRegistry } from "../composite.js";
-import { IComposite } from "../../common/composite.js";
-import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../platform/storage/common/storage.js";
-import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { ServiceCollection } from "../../../platform/instantiation/common/serviceCollection.js";
-import { IProgressIndicator, IEditorProgressService } from "../../../platform/progress/common/progress.js";
-import { IKeybindingService } from "../../../platform/keybinding/common/keybinding.js";
-import { IThemeService } from "../../../platform/theme/common/themeService.js";
-import { INotificationService } from "../../../platform/notification/common/notification.js";
-import { Dimension, append, $, hide, show } from "../../../base/browser/dom.js";
+import { $, append, Dimension, hide, show } from "../../../base/browser/dom.js";
+import {
+  ActionsOrientation,
+  prepareActions
+} from "../../../base/browser/ui/actionbar/actionbar.js";
 import { AnchorAlignment } from "../../../base/browser/ui/contextview/contextview.js";
+import {
+  createInstantHoverDelegate,
+  getDefaultHoverDelegate
+} from "../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { ProgressBar } from "../../../base/browser/ui/progressbar/progressbar.js";
+import { isCancellationError } from "../../../base/common/errors.js";
+import { Emitter } from "../../../base/common/event.js";
+import { defaultGenerator } from "../../../base/common/idGenerator.js";
+import {
+  DisposableStore,
+  dispose,
+  MutableDisposable
+} from "../../../base/common/lifecycle.js";
 import { assertIsDefined } from "../../../base/common/types.js";
+import { localize } from "../../../nls.js";
 import { createActionViewItem } from "../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { AbstractProgressScope, ScopedProgressIndicator } from "../../services/progress/browser/progressIndicator.js";
 import { WorkbenchToolBar } from "../../../platform/actions/browser/toolbar.js";
+import { ServiceCollection } from "../../../platform/instantiation/common/serviceCollection.js";
+import {
+  IEditorProgressService
+} from "../../../platform/progress/common/progress.js";
+import {
+  StorageScope,
+  StorageTarget
+} from "../../../platform/storage/common/storage.js";
 import { defaultProgressBarStyles } from "../../../platform/theme/browser/defaultStyles.js";
-import { IBoundarySashes } from "../../../base/browser/ui/sash/sash.js";
-import { IBaseActionViewItemOptions } from "../../../base/browser/ui/actionbar/actionViewItems.js";
-import { IHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegate.js";
-import { createInstantHoverDelegate, getDefaultHoverDelegate } from "../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import {
+  AbstractProgressScope,
+  ScopedProgressIndicator
+} from "../../services/progress/browser/progressIndicator.js";
+import { Part } from "../part.js";
 class CompositePart extends Part {
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, registry, activeCompositeSettingsKey, defaultCompositeId, nameForTelemetry, compositeCSSClass, titleForegroundColor, titleBorderColor, id, options) {
     super(id, options, themeService, storageService, layoutService);
@@ -48,14 +54,24 @@ class CompositePart extends Part {
     this.compositeCSSClass = compositeCSSClass;
     this.titleForegroundColor = titleForegroundColor;
     this.titleBorderColor = titleBorderColor;
-    this.lastActiveCompositeId = storageService.get(activeCompositeSettingsKey, StorageScope.WORKSPACE, this.defaultCompositeId);
-    this.toolbarHoverDelegate = this._register(createInstantHoverDelegate());
+    this.lastActiveCompositeId = storageService.get(
+      activeCompositeSettingsKey,
+      StorageScope.WORKSPACE,
+      this.defaultCompositeId
+    );
+    this.toolbarHoverDelegate = this._register(
+      createInstantHoverDelegate()
+    );
   }
   static {
     __name(this, "CompositePart");
   }
-  onDidCompositeOpen = this._register(new Emitter());
-  onDidCompositeClose = this._register(new Emitter());
+  onDidCompositeOpen = this._register(
+    new Emitter()
+  );
+  onDidCompositeClose = this._register(
+    new Emitter()
+  );
   toolBar;
   titleLabelElement;
   toolbarHoverDelegate;
@@ -117,21 +133,47 @@ class CompositePart extends Part {
     const compositeDescriptor = this.registry.getComposite(id);
     if (compositeDescriptor) {
       const that = this;
-      const compositeProgressIndicator = new ScopedProgressIndicator(assertIsDefined(this.progressBar), new class extends AbstractProgressScope {
-        constructor() {
-          super(compositeDescriptor.id, !!isActive);
-          this._register(that.onDidCompositeOpen.event((e) => this.onScopeOpened(e.composite.getId())));
-          this._register(that.onDidCompositeClose.event((e) => this.onScopeClosed(e.getId())));
-        }
-      }());
-      const compositeInstantiationService = this._register(this.instantiationService.createChild(new ServiceCollection(
-        [IEditorProgressService, compositeProgressIndicator]
-        // provide the editor progress service for any editors instantiated within the composite
-      )));
-      const composite = compositeDescriptor.instantiate(compositeInstantiationService);
+      const compositeProgressIndicator = new ScopedProgressIndicator(
+        assertIsDefined(this.progressBar),
+        new class extends AbstractProgressScope {
+          constructor() {
+            super(compositeDescriptor?.id, !!isActive);
+            this._register(
+              that.onDidCompositeOpen.event(
+                (e) => this.onScopeOpened(e.composite.getId())
+              )
+            );
+            this._register(
+              that.onDidCompositeClose.event(
+                (e) => this.onScopeClosed(e.getId())
+              )
+            );
+          }
+        }()
+      );
+      const compositeInstantiationService = this._register(
+        this.instantiationService.createChild(
+          new ServiceCollection(
+            [IEditorProgressService, compositeProgressIndicator]
+            // provide the editor progress service for any editors instantiated within the composite
+          )
+        )
+      );
+      const composite = compositeDescriptor.instantiate(
+        compositeInstantiationService
+      );
       const disposable = new DisposableStore();
-      this.instantiatedCompositeItems.set(id, { composite, disposable, progress: compositeProgressIndicator });
-      disposable.add(composite.onTitleAreaUpdate(() => this.onTitleAreaUpdate(composite.getId()), this));
+      this.instantiatedCompositeItems.set(id, {
+        composite,
+        disposable,
+        progress: compositeProgressIndicator
+      });
+      disposable.add(
+        composite.onTitleAreaUpdate(
+          () => this.onTitleAreaUpdate(composite.getId()),
+          this
+        )
+      );
       disposable.add(compositeInstantiationService);
       return composite;
     }
@@ -141,19 +183,34 @@ class CompositePart extends Part {
     this.activeComposite = composite;
     const id = this.activeComposite.getId();
     if (id !== this.defaultCompositeId) {
-      this.storageService.store(this.activeCompositeSettingsKey, id, StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      this.storageService.store(
+        this.activeCompositeSettingsKey,
+        id,
+        StorageScope.WORKSPACE,
+        StorageTarget.MACHINE
+      );
     } else {
-      this.storageService.remove(this.activeCompositeSettingsKey, StorageScope.WORKSPACE);
+      this.storageService.remove(
+        this.activeCompositeSettingsKey,
+        StorageScope.WORKSPACE
+      );
     }
     this.lastActiveCompositeId = this.activeComposite.getId();
-    let compositeContainer = this.mapCompositeToCompositeContainer.get(composite.getId());
+    let compositeContainer = this.mapCompositeToCompositeContainer.get(
+      composite.getId()
+    );
     if (!compositeContainer) {
       compositeContainer = $(".composite");
-      compositeContainer.classList.add(...this.compositeCSSClass.split(" "));
+      compositeContainer.classList.add(
+        ...this.compositeCSSClass.split(" ")
+      );
       compositeContainer.id = composite.getId();
       composite.create(compositeContainer);
       composite.updateStyles();
-      this.mapCompositeToCompositeContainer.set(composite.getId(), compositeContainer);
+      this.mapCompositeToCompositeContainer.set(
+        composite.getId(),
+        compositeContainer
+      );
     }
     if (!this.activeComposite || composite.getId() !== this.activeComposite.getId()) {
       return void 0;
@@ -167,10 +224,15 @@ class CompositePart extends Part {
     if (descriptor && descriptor.name !== composite.getTitle()) {
       this.updateTitle(composite.getId(), composite.getTitle());
     }
-    let actionsBinding = this.mapActionsBindingToComposite.get(composite.getId());
+    let actionsBinding = this.mapActionsBindingToComposite.get(
+      composite.getId()
+    );
     if (!actionsBinding) {
       actionsBinding = this.collectCompositeActions(composite);
-      this.mapActionsBindingToComposite.set(composite.getId(), actionsBinding);
+      this.mapActionsBindingToComposite.set(
+        composite.getId(),
+        actionsBinding
+      );
     }
     actionsBinding();
     this.actionsListener.value = toolBar.actionRunner.onDidRun((e) => {
@@ -195,8 +257,13 @@ class CompositePart extends Part {
       this.updateTitle(compositeId, composite.composite.getTitle());
     }
     if (this.activeComposite?.getId() === compositeId) {
-      const actionsBinding = this.collectCompositeActions(this.activeComposite);
-      this.mapActionsBindingToComposite.set(this.activeComposite.getId(), actionsBinding);
+      const actionsBinding = this.collectCompositeActions(
+        this.activeComposite
+      );
+      this.mapActionsBindingToComposite.set(
+        this.activeComposite.getId(),
+        actionsBinding
+      );
       actionsBinding();
     } else {
       this.mapActionsBindingToComposite.delete(compositeId);
@@ -211,9 +278,19 @@ class CompositePart extends Part {
       compositeTitle = compositeDescriptor.name;
     }
     const keybinding = this.keybindingService.lookupKeybinding(compositeId);
-    this.titleLabel.updateTitle(compositeId, compositeTitle, keybinding?.getLabel() ?? void 0);
+    this.titleLabel.updateTitle(
+      compositeId,
+      compositeTitle,
+      keybinding?.getLabel() ?? void 0
+    );
     const toolBar = assertIsDefined(this.toolBar);
-    toolBar.setAriaLabel(localize("ariaCompositeToolbarLabel", "{0} actions", compositeTitle));
+    toolBar.setAriaLabel(
+      localize(
+        "ariaCompositeToolbarLabel",
+        "{0} actions",
+        compositeTitle
+      )
+    );
   }
   collectCompositeActions(composite) {
     const menuIds = composite?.getMenuIds();
@@ -221,7 +298,11 @@ class CompositePart extends Part {
     const secondaryActions = composite?.getSecondaryActions().slice(0) || [];
     const toolBar = assertIsDefined(this.toolBar);
     toolBar.context = this.actionsContextProvider();
-    return () => toolBar.setActions(prepareActions(primaryActions), prepareActions(secondaryActions), menuIds);
+    return () => toolBar.setActions(
+      prepareActions(primaryActions),
+      prepareActions(secondaryActions),
+      menuIds
+    );
   }
   getActiveComposite() {
     return this.activeComposite;
@@ -235,7 +316,9 @@ class CompositePart extends Part {
     }
     const composite = this.activeComposite;
     this.activeComposite = void 0;
-    const compositeContainer = this.mapCompositeToCompositeContainer.get(composite.getId());
+    const compositeContainer = this.mapCompositeToCompositeContainer.get(
+      composite.getId()
+    );
     composite.setVisible(false);
     if (compositeContainer) {
       compositeContainer.remove();
@@ -253,15 +336,24 @@ class CompositePart extends Part {
     titleArea.classList.add("title");
     this.titleLabel = this.createTitleLabel(titleArea);
     const titleActionsContainer = append(titleArea, $(".title-actions"));
-    this.toolBar = this._register(this.instantiationService.createInstance(WorkbenchToolBar, titleActionsContainer, {
-      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
-      orientation: ActionsOrientation.HORIZONTAL,
-      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
-      anchorAlignmentProvider: /* @__PURE__ */ __name(() => this.getTitleAreaDropDownAnchorAlignment(), "anchorAlignmentProvider"),
-      toggleMenuTitle: localize("viewsAndMoreActions", "Views and More Actions..."),
-      telemetrySource: this.nameForTelemetry,
-      hoverDelegate: this.toolbarHoverDelegate
-    }));
+    this.toolBar = this._register(
+      this.instantiationService.createInstance(
+        WorkbenchToolBar,
+        titleActionsContainer,
+        {
+          actionViewItemProvider: /* @__PURE__ */ __name((action, options) => this.actionViewItemProvider(action, options), "actionViewItemProvider"),
+          orientation: ActionsOrientation.HORIZONTAL,
+          getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+          anchorAlignmentProvider: /* @__PURE__ */ __name(() => this.getTitleAreaDropDownAnchorAlignment(), "anchorAlignmentProvider"),
+          toggleMenuTitle: localize(
+            "viewsAndMoreActions",
+            "Views and More Actions..."
+          ),
+          telemetrySource: this.nameForTelemetry,
+          hoverDelegate: this.toolbarHoverDelegate
+        }
+      )
+    );
     this.collectCompositeActions()();
     return titleArea;
   }
@@ -269,18 +361,30 @@ class CompositePart extends Part {
     const titleContainer = append(parent, $(".title-label"));
     const titleLabel = append(titleContainer, $("h2"));
     this.titleLabelElement = titleLabel;
-    const hover = this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), titleLabel, ""));
-    const $this = this;
+    const hover = this._register(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        titleLabel,
+        ""
+      )
+    );
     return {
       updateTitle: /* @__PURE__ */ __name((id, title, keybinding) => {
         if (!this.activeComposite || this.activeComposite.getId() === id) {
           titleLabel.innerText = title;
-          hover.update(keybinding ? localize("titleTooltip", "{0} ({1})", title, keybinding) : title);
+          hover.update(
+            keybinding ? localize(
+              "titleTooltip",
+              "{0} ({1})",
+              title,
+              keybinding
+            ) : title
+          );
         }
       }, "updateTitle"),
       updateStyles: /* @__PURE__ */ __name(() => {
-        titleLabel.style.color = $this.titleForegroundColor ? $this.getColor($this.titleForegroundColor) || "" : "";
-        const borderColor = $this.titleBorderColor ? $this.getColor($this.titleBorderColor) : void 0;
+        titleLabel.style.color = this.titleForegroundColor ? this.getColor(this.titleForegroundColor) || "" : "";
+        const borderColor = this.titleBorderColor ? this.getColor(this.titleBorderColor) : void 0;
         parent.style.borderBottom = borderColor ? `1px solid ${borderColor}` : "";
       }, "updateStyles")
     };
@@ -310,7 +414,9 @@ class CompositePart extends Part {
   }
   createContentArea(parent) {
     const contentContainer = append(parent, $(".content"));
-    this.progressBar = this._register(new ProgressBar(contentContainer, defaultProgressBarStyles));
+    this.progressBar = this._register(
+      new ProgressBar(contentContainer, defaultProgressBarStyles)
+    );
     this.progressBar.hide();
     return contentContainer;
   }
@@ -323,7 +429,9 @@ class CompositePart extends Part {
   }
   layout(width, height, top, left) {
     super.layout(width, height, top, left);
-    this.contentAreaSize = Dimension.lift(super.layoutContents(width, height).contentSize);
+    this.contentAreaSize = Dimension.lift(
+      super.layoutContents(width, height).contentSize
+    );
     this.activeComposite?.layout(this.contentAreaSize);
   }
   setBoundarySashes(sashes) {

@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { asArray } from "../../../../base/common/arrays.js";
-import { IMarkdownString, isEmptyMarkdownString } from "../../../../base/common/htmlContent.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IHoverComputer } from "./hoverOperation.js";
+import {
+  isEmptyMarkdownString
+} from "../../../../base/common/htmlContent.js";
 import { GlyphMarginLane } from "../../../common/model.js";
 class GlyphHoverComputer {
   constructor(_editor) {
@@ -18,7 +18,9 @@ class GlyphHoverComputer {
         value: contents
       };
     }, "toHoverMessage");
-    const lineDecorations = this._editor.getLineDecorations(opts.lineNumber);
+    const lineDecorations = this._editor.getLineDecorations(
+      opts.lineNumber
+    );
     const result = [];
     const isLineHover = opts.laneOrLine === "lineNo";
     if (!lineDecorations) {

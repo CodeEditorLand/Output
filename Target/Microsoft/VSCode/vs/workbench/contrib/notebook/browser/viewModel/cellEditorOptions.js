@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { deepClone } from "../../../../../base/common/objects.js";
-import { IEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
-import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IBaseCellEditorOptions, INotebookEditorDelegate } from "../notebookBrowser.js";
-import { NotebookOptions } from "../notebookOptions.js";
 class BaseCellEditorOptions extends Disposable {
   constructor(notebookEditor, notebookOptions, configurationService, language) {
     super();
@@ -14,29 +13,39 @@ class BaseCellEditorOptions extends Disposable {
     this.notebookOptions = notebookOptions;
     this.configurationService = configurationService;
     this.language = language;
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor") || e.affectsConfiguration("notebook")) {
-        this._recomputeOptions();
-      }
-    }));
-    this._register(notebookOptions.onDidChangeOptions((e) => {
-      if (e.cellStatusBarVisibility || e.editorTopPadding || e.editorOptionsCustomizations) {
-        this._recomputeOptions();
-      }
-    }));
-    this._register(this.notebookEditor.onDidChangeModel(() => {
-      this._localDisposableStore.clear();
-      if (this.notebookEditor.hasModel()) {
-        this._localDisposableStore.add(this.notebookEditor.onDidChangeOptions(() => {
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor") || e.affectsConfiguration("notebook")) {
           this._recomputeOptions();
-        }));
-        this._recomputeOptions();
-      }
-    }));
+        }
+      })
+    );
+    this._register(
+      notebookOptions.onDidChangeOptions((e) => {
+        if (e.cellStatusBarVisibility || e.editorTopPadding || e.editorOptionsCustomizations) {
+          this._recomputeOptions();
+        }
+      })
+    );
+    this._register(
+      this.notebookEditor.onDidChangeModel(() => {
+        this._localDisposableStore.clear();
+        if (this.notebookEditor.hasModel()) {
+          this._localDisposableStore.add(
+            this.notebookEditor.onDidChangeOptions(() => {
+              this._recomputeOptions();
+            })
+          );
+          this._recomputeOptions();
+        }
+      })
+    );
     if (this.notebookEditor.hasModel()) {
-      this._localDisposableStore.add(this.notebookEditor.onDidChangeOptions(() => {
-        this._recomputeOptions();
-      }));
+      this._localDisposableStore.add(
+        this.notebookEditor.onDidChangeOptions(() => {
+          this._recomputeOptions();
+        })
+      );
     }
     this._value = this._computeEditorOptions();
   }
@@ -62,7 +71,9 @@ class BaseCellEditorOptions extends Disposable {
     renderValidationDecorations: "on",
     lineNumbersMinChars: 3
   };
-  _localDisposableStore = this._register(new DisposableStore());
+  _localDisposableStore = this._register(
+    new DisposableStore()
+  );
   _onDidChange = this._register(new Emitter());
   onDidChange = this._onDidChange.event;
   _value;
@@ -74,7 +85,11 @@ class BaseCellEditorOptions extends Disposable {
     this._onDidChange.fire();
   }
   _computeEditorOptions() {
-    const editorOptions = deepClone(this.configurationService.getValue("editor", { overrideIdentifier: this.language }));
+    const editorOptions = deepClone(
+      this.configurationService.getValue("editor", {
+        overrideIdentifier: this.language
+      })
+    );
     const editorOptionsOverrideRaw = this.notebookOptions.getDisplayOptions().editorOptionsCustomizations;
     const editorOptionsOverride = {};
     if (editorOptionsOverrideRaw) {

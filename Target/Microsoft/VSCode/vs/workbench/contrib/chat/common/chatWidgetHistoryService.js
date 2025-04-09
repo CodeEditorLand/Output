@@ -10,15 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { Memento } from "../../../common/memento.js";
-import { ModifiedFileEntryState } from "./chatEditingService.js";
-import { IChatRequestVariableEntry } from "./chatModel.js";
 import { CHAT_PROVIDER_ID } from "./chatParticipantContribTypes.js";
-import { ChatAgentLocation, ChatMode } from "./constants.js";
+import { ChatAgentLocation } from "./constants.js";
 const IChatWidgetHistoryService = createDecorator("IChatWidgetHistoryService");
 const ChatInputHistoryMaxEntries = 40;
 let ChatWidgetHistoryService = class {
@@ -32,9 +33,14 @@ let ChatWidgetHistoryService = class {
   onDidClearHistory = this._onDidClearHistory.event;
   constructor(storageService) {
     this.memento = new Memento("interactive-session", storageService);
-    const loadedState = this.memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
+    const loadedState = this.memento.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
     for (const provider in loadedState.history) {
-      loadedState.history[provider] = loadedState.history[provider].map((entry) => typeof entry === "string" ? { text: entry } : entry);
+      loadedState.history[provider] = loadedState.history[provider].map(
+        (entry) => typeof entry === "string" ? { text: entry } : entry
+      );
     }
     this.viewState = loadedState;
   }
@@ -50,7 +56,9 @@ let ChatWidgetHistoryService = class {
       this.viewState.history = {};
     }
     const key = this.getKey(location);
-    this.viewState.history[key] = history.slice(-ChatInputHistoryMaxEntries);
+    this.viewState.history[key] = history.slice(
+      -ChatInputHistoryMaxEntries
+    );
     this.memento.saveMemento();
   }
   clearHistory() {

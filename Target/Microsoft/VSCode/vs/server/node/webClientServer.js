@@ -10,32 +10,45 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createReadStream, promises } from "fs";
-import * as path from "path";
-import * as http from "http";
-import * as url from "url";
+import * as crypto from "node:crypto";
+import { createReadStream, promises } from "node:fs";
+import * as path from "node:path";
+import * as url from "node:url";
 import * as cookie from "cookie";
-import * as crypto from "crypto";
+import { streamToBuffer } from "../../base/common/buffer.js";
+import { CancellationToken } from "../../base/common/cancellation.js";
+import { CharCode } from "../../base/common/charCode.js";
 import { isEqualOrParent } from "../../base/common/extpath.js";
 import { getMediaMime } from "../../base/common/mime.js";
+import {
+  builtinExtensionsPath,
+  connectionTokenCookieName,
+  connectionTokenQueryName,
+  FileAccess,
+  Schemas
+} from "../../base/common/network.js";
+import {
+  dirname,
+  extname,
+  join,
+  normalize,
+  posix
+} from "../../base/common/path.js";
 import { isLinux } from "../../base/common/platform.js";
-import { ILogService, LogLevel } from "../../platform/log/common/log.js";
-import { IServerEnvironmentService } from "./serverEnvironmentService.js";
-import { extname, dirname, join, normalize, posix } from "../../base/common/path.js";
-import { FileAccess, connectionTokenCookieName, connectionTokenQueryName, Schemas, builtinExtensionsPath } from "../../base/common/network.js";
-import { generateUuid } from "../../base/common/uuid.js";
-import { IProductService } from "../../platform/product/common/productService.js";
-import { ServerConnectionToken, ServerConnectionTokenType } from "./serverConnectionToken.js";
-import { asTextOrError, IRequestService } from "../../platform/request/common/request.js";
-import { IHeaders } from "../../base/parts/request/common/request.js";
-import { CancellationToken } from "../../base/common/cancellation.js";
-import { URI } from "../../base/common/uri.js";
-import { streamToBuffer } from "../../base/common/buffer.js";
-import { IProductConfiguration } from "../../base/common/product.js";
 import { isString } from "../../base/common/types.js";
-import { CharCode } from "../../base/common/charCode.js";
-import { IExtensionManifest } from "../../platform/extensions/common/extensions.js";
+import { URI } from "../../base/common/uri.js";
+import { generateUuid } from "../../base/common/uuid.js";
 import { ICSSDevelopmentService } from "../../platform/cssDev/node/cssDevService.js";
+import { ILogService, LogLevel } from "../../platform/log/common/log.js";
+import { IProductService } from "../../platform/product/common/productService.js";
+import {
+  asTextOrError,
+  IRequestService
+} from "../../platform/request/common/request.js";
+import {
+  ServerConnectionTokenType
+} from "./serverConnectionToken.js";
+import { IServerEnvironmentService } from "./serverEnvironmentService.js";
 const textMimeType = {
   ".html": "text/html",
   ".js": "text/javascript",
@@ -85,9 +98,9 @@ async function serveFile(filePath, cacheControl, logService, req, res, responseH
 }
 __name(serveFile, "serveFile");
 const APP_ROOT = dirname(FileAccess.asFileUri("").fsPath);
-const STATIC_PATH = `/static`;
-const CALLBACK_PATH = `/callback`;
-const WEB_EXTENSION_PATH = `/web-extension-resource`;
+const STATIC_PATH = "/static";
+const CALLBACK_PATH = "/callback";
+const WEB_EXTENSION_PATH = "/web-extension-resource";
 let WebClientServer = class {
   constructor(_connectionToken, _basePath, _productPath, _environmentService, _logService, _requestService, _productService, _cssDevService) {
     this._connectionToken = _connectionToken;
@@ -98,7 +111,9 @@ let WebClientServer = class {
     this._requestService = _requestService;
     this._productService = _productService;
     this._cssDevService = _cssDevService;
-    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(this._productService.extensionsGallery.resourceUrlTemplate) : void 0;
+    this._webExtensionResourceUrlTemplate = this._productService.extensionsGallery?.resourceUrlTemplate ? URI.parse(
+      this._productService.extensionsGallery.resourceUrlTemplate
+    ) : void 0;
   }
   static {
     __name(this, "WebClientServer");
@@ -114,7 +129,11 @@ let WebClientServer = class {
   async handle(req, res, parsedUrl, pathname) {
     try {
       if (pathname.startsWith(STATIC_PATH) && pathname.charCodeAt(STATIC_PATH.length) === CharCode.Slash) {
-        return this._handleStatic(req, res, pathname.substring(STATIC_PATH.length));
+        return this._handleStatic(
+          req,
+          res,
+          pathname.substring(STATIC_PATH.length)
+        );
       }
       if (pathname === "/") {
         return this._handleRoot(req, res, parsedUrl);
@@ -123,7 +142,11 @@ let WebClientServer = class {
         return this._handleCallback(res);
       }
       if (pathname.startsWith(WEB_EXTENSION_PATH) && pathname.charCodeAt(WEB_EXTENSION_PATH.length) === CharCode.Slash) {
-        return this._handleWebExtensionResource(req, res, pathname.substring(WEB_EXTENSION_PATH.length));
+        return this._handleWebExtensionResource(
+          req,
+          res,
+          pathname.substring(WEB_EXTENSION_PATH.length)
+        );
       }
       return serveError(req, res, 404, "Not found.");
     } catch (error) {
@@ -141,9 +164,16 @@ let WebClientServer = class {
     const normalizedPathname = decodeURIComponent(resourcePath);
     const filePath = join(APP_ROOT, normalizedPathname);
     if (!isEqualOrParent(filePath, APP_ROOT, !isLinux)) {
-      return serveError(req, res, 400, `Bad request.`);
+      return serveError(req, res, 400, "Bad request.");
     }
-    return serveFile(filePath, this._environmentService.isBuilt ? 2 /* NO_EXPIRY */ : 1 /* ETAG */, this._logService, req, res, headers);
+    return serveFile(
+      filePath,
+      this._environmentService.isBuilt ? 2 /* NO_EXPIRY */ : 1 /* ETAG */,
+      this._logService,
+      req,
+      res,
+      headers
+    );
   }
   _getResourceURLTemplateAuthority(uri) {
     const index = uri.authority.indexOf(".");
@@ -155,7 +185,12 @@ let WebClientServer = class {
    */
   async _handleWebExtensionResource(req, res, resourcePath) {
     if (!this._webExtensionResourceUrlTemplate) {
-      return serveError(req, res, 500, "No extension gallery service configured.");
+      return serveError(
+        req,
+        res,
+        500,
+        "No extension gallery service configured."
+      );
     }
     const normalizedPathname = decodeURIComponent(resourcePath);
     const path2 = normalize(normalizedPathname);
@@ -164,7 +199,9 @@ let WebClientServer = class {
       authority: path2.substring(0, path2.indexOf("/")),
       path: path2.substring(path2.indexOf("/") + 1)
     });
-    if (this._getResourceURLTemplateAuthority(this._webExtensionResourceUrlTemplate) !== this._getResourceURLTemplateAuthority(uri)) {
+    if (this._getResourceURLTemplateAuthority(
+      this._webExtensionResourceUrlTemplate
+    ) !== this._getResourceURLTemplateAuthority(uri)) {
       return serveError(req, res, 403, "Request Forbidden");
     }
     const headers = {};
@@ -180,11 +217,14 @@ let WebClientServer = class {
     setRequestHeader("X-Client-Version");
     setRequestHeader("X-Machine-Id");
     setRequestHeader("X-Client-Commit");
-    const context = await this._requestService.request({
-      type: "GET",
-      url: uri.toString(true),
-      headers
-    }, CancellationToken.None);
+    const context = await this._requestService.request(
+      {
+        type: "GET",
+        url: uri.toString(true),
+        headers
+      },
+      CancellationToken.None
+    );
     const status = context.res.statusCode || 500;
     if (status !== 200) {
       let text = null;
@@ -192,7 +232,12 @@ let WebClientServer = class {
         text = await asTextOrError(context);
       } catch (error) {
       }
-      return serveError(req, res, status, text || `Request failed with status ${status}`);
+      return serveError(
+        req,
+        res,
+        status,
+        text || `Request failed with status ${status}`
+      );
     }
     const responseHeaders = /* @__PURE__ */ Object.create(null);
     const setResponseHeader = /* @__PURE__ */ __name((header) => {
@@ -227,7 +272,6 @@ let WebClientServer = class {
         {
           sameSite: "lax",
           maxAge: 60 * 60 * 24 * 7
-          /* 1 week */
         }
       );
       const newQuery = /* @__PURE__ */ Object.create(null);
@@ -236,7 +280,10 @@ let WebClientServer = class {
           newQuery[key] = parsedUrl.query[key];
         }
       }
-      const newLocation = url.format({ pathname: basePath, query: newQuery });
+      const newLocation = url.format({
+        pathname: basePath,
+        query: newQuery
+      });
       responseHeaders["Location"] = newLocation;
       res.writeHead(302, responseHeaders);
       return void res.end();
@@ -252,7 +299,7 @@ let WebClientServer = class {
     const useTestResolver = !this._environmentService.isBuilt && this._environmentService.args["use-test-resolver"];
     let remoteAuthority = useTestResolver ? "test+test" : getFirstHeader("x-original-host") || getFirstHeader("x-forwarded-host") || req.headers.host;
     if (!remoteAuthority) {
-      return serveError(req, res, 400, `Bad request.`);
+      return serveError(req, res, 400, "Bad request.");
     }
     const forwardedPort = getFirstHeader("x-forwarded-port");
     if (forwardedPort) {
@@ -267,19 +314,45 @@ let WebClientServer = class {
       _wrapWebWorkerExtHostInIframe = false;
     }
     if (this._logService.getLevel() === LogLevel.Trace) {
-      ["x-original-host", "x-forwarded-host", "x-forwarded-port", "host"].forEach((header) => {
+      [
+        "x-original-host",
+        "x-forwarded-host",
+        "x-forwarded-port",
+        "host"
+      ].forEach((header) => {
         const value = getFirstHeader(header);
         if (value) {
-          this._logService.trace(`[WebClientServer] ${header}: ${value}`);
+          this._logService.trace(
+            `[WebClientServer] ${header}: ${value}`
+          );
         }
       });
-      this._logService.trace(`[WebClientServer] Request URL: ${req.url}, basePath: ${basePath}, remoteAuthority: ${remoteAuthority}`);
+      this._logService.trace(
+        `[WebClientServer] Request URL: ${req.url}, basePath: ${basePath}, remoteAuthority: ${remoteAuthority}`
+      );
     }
-    const staticRoute = posix.join(basePath, this._productPath, STATIC_PATH);
-    const callbackRoute = posix.join(basePath, this._productPath, CALLBACK_PATH);
-    const webExtensionRoute = posix.join(basePath, this._productPath, WEB_EXTENSION_PATH);
-    const resolveWorkspaceURI = /* @__PURE__ */ __name((defaultLocation) => defaultLocation && URI.file(path.resolve(defaultLocation)).with({ scheme: Schemas.vscodeRemote, authority: remoteAuthority }), "resolveWorkspaceURI");
-    const filePath = FileAccess.asFileUri(`vs/code/browser/workbench/workbench${this._environmentService.isBuilt ? "" : "-dev"}.html`).fsPath;
+    const staticRoute = posix.join(
+      basePath,
+      this._productPath,
+      STATIC_PATH
+    );
+    const callbackRoute = posix.join(
+      basePath,
+      this._productPath,
+      CALLBACK_PATH
+    );
+    const webExtensionRoute = posix.join(
+      basePath,
+      this._productPath,
+      WEB_EXTENSION_PATH
+    );
+    const resolveWorkspaceURI = /* @__PURE__ */ __name((defaultLocation) => defaultLocation && URI.file(path.resolve(defaultLocation)).with({
+      scheme: Schemas.vscodeRemote,
+      authority: remoteAuthority
+    }), "resolveWorkspaceURI");
+    const filePath = FileAccess.asFileUri(
+      `vs/code/browser/workbench/workbench${this._environmentService.isBuilt ? "" : "-dev"}.html`
+    ).fsPath;
     const authSessionInfo = !this._environmentService.isBuilt && this._environmentService.args["github-auth"] ? {
       id: generateUuid(),
       providerId: "github",
@@ -299,7 +372,11 @@ let WebClientServer = class {
     };
     if (!this._environmentService.isBuilt) {
       try {
-        const productOverrides = JSON.parse((await promises.readFile(join(APP_ROOT, "product.overrides.json"))).toString());
+        const productOverrides = JSON.parse(
+          (await promises.readFile(
+            join(APP_ROOT, "product.overrides.json")
+          )).toString()
+        );
         Object.assign(productConfiguration, productOverrides);
       } catch (err) {
       }
@@ -308,11 +385,18 @@ let WebClientServer = class {
       remoteAuthority,
       serverBasePath: basePath,
       _wrapWebWorkerExtHostInIframe,
-      developmentOptions: { enableSmokeTestDriver: this._environmentService.args["enable-smoke-test-driver"] ? true : void 0, logLevel: this._logService.getLevel() },
+      developmentOptions: {
+        enableSmokeTestDriver: this._environmentService.args["enable-smoke-test-driver"] ? true : void 0,
+        logLevel: this._logService.getLevel()
+      },
       settingsSyncOptions: !this._environmentService.isBuilt && this._environmentService.args["enable-sync"] ? { enabled: true } : void 0,
       enableWorkspaceTrust: !this._environmentService.args["disable-workspace-trust"],
-      folderUri: resolveWorkspaceURI(this._environmentService.args["default-folder"]),
-      workspaceUri: resolveWorkspaceURI(this._environmentService.args["default-workspace"]),
+      folderUri: resolveWorkspaceURI(
+        this._environmentService.args["default-folder"]
+      ),
+      workspaceUri: resolveWorkspaceURI(
+        this._environmentService.args["default-workspace"]
+      ),
       productConfiguration,
       callbackRoute
     };
@@ -339,8 +423,17 @@ let WebClientServer = class {
     }
     if (useTestResolver) {
       const bundledExtensions = [];
-      for (const extensionPath of ["vscode-test-resolver", "github-authentication"]) {
-        const packageJSON = JSON.parse((await promises.readFile(FileAccess.asFileUri(`${builtinExtensionsPath}/${extensionPath}/package.json`).fsPath)).toString());
+      for (const extensionPath of [
+        "vscode-test-resolver",
+        "github-authentication"
+      ]) {
+        const packageJSON = JSON.parse(
+          (await promises.readFile(
+            FileAccess.asFileUri(
+              `${builtinExtensionsPath}/${extensionPath}/package.json`
+            ).fsPath
+          )).toString()
+        );
         bundledExtensions.push({ extensionPath, packageJSON });
       }
       values["WORKBENCH_BUILTIN_EXTENSIONS"] = asJSON(bundledExtensions);
@@ -348,7 +441,10 @@ let WebClientServer = class {
     let data;
     try {
       const workbenchTemplate = (await promises.readFile(filePath)).toString();
-      data = workbenchTemplate.replace(/\{\{([^}]+)\}\}/g, (_, key) => values[key] ?? "undefined");
+      data = workbenchTemplate.replace(
+        /\{\{([^}]+)\}\}/g,
+        (_, key) => values[key] ?? "undefined"
+      );
     } catch (e) {
       res.writeHead(404, { "Content-Type": "text/plain" });
       return void res.end("Not found");
@@ -379,7 +475,6 @@ let WebClientServer = class {
         {
           sameSite: "lax",
           maxAge: 60 * 60 * 24 * 7
-          /* 1 week */
         }
       );
     }
@@ -387,7 +482,7 @@ let WebClientServer = class {
     return void res.end(data);
   }
   _getScriptCspHashes(content) {
-    const regex = /<script>([\s\S]+?)<\/script>/img;
+    const regex = /<script>([\s\S]+?)<\/script>/gim;
     const result = [];
     let match;
     while (match = regex.exec(content)) {
@@ -402,7 +497,9 @@ let WebClientServer = class {
    * Handle HTTP requests for /callback
    */
   async _handleCallback(res) {
-    const filePath = FileAccess.asFileUri("vs/code/browser/workbench/callback.html").fsPath;
+    const filePath = FileAccess.asFileUri(
+      "vs/code/browser/workbench/callback.html"
+    ).fsPath;
     const data = (await promises.readFile(filePath)).toString();
     const cspDirectives = [
       "default-src 'self';",

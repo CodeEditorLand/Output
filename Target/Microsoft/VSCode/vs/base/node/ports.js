@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as net from "net";
+import * as net from "node:net";
 function findFreePort(startPort, giveUpAfter, timeout, stride = 1) {
   let done = false;
   return new Promise((resolve) => {
@@ -34,7 +34,12 @@ function doFindFreePort(startPort, giveUpAfter, stride, clb) {
   client.once("error", (err) => {
     dispose(client);
     if (err.code !== "ECONNREFUSED") {
-      return doFindFreePort(startPort + stride, giveUpAfter - 1, stride, clb);
+      return doFindFreePort(
+        startPort + stride,
+        giveUpAfter - 1,
+        stride,
+        clb
+      );
     }
     return clb(startPort);
   });

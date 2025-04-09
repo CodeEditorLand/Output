@@ -10,23 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event } from "../../../../../base/common/event.js";
-import { localize, localize2 } from "../../../../../nls.js";
-import { IKeyMods, IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
-import { IEditorService } from "../../../../services/editor/common/editorService.js";
-import { IRange } from "../../../../../editor/common/core/range.js";
+import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
 import { AbstractGotoLineQuickAccessProvider } from "../../../../../editor/contrib/quickAccess/browser/gotoLineQuickAccess.js";
-import { Registry } from "../../../../../platform/registry/common/platform.js";
-import { IQuickAccessRegistry, Extensions as QuickaccesExtensions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { localize, localize2 } from "../../../../../nls.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IWorkbenchEditorConfiguration } from "../../../../common/editor.js";
-import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
-import { KeyMod, KeyCode } from "../../../../../base/common/keyCodes.js";
-import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { IQuickAccessTextEditorContext } from "../../../../../editor/contrib/quickAccess/browser/editorNavigationQuickAccess.js";
-import { ITextEditorOptions } from "../../../../../platform/editor/common/editor.js";
+import {
+  Extensions as QuickaccesExtensions
+} from "../../../../../platform/quickinput/common/quickAccess.js";
+import {
+  IQuickInputService
+} from "../../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
 import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
 let GotoLineQuickAccessProvider = class extends AbstractGotoLineQuickAccessProvider {
   constructor(editorService, editorGroupService, configurationService) {
     super();
@@ -56,7 +57,10 @@ let GotoLineQuickAccessProvider = class extends AbstractGotoLineQuickAccessProvi
         pinned: options.keyMods.ctrlCmd || this.configuration.openEditorPinned,
         preserveFocus: options.preserveFocus
       };
-      this.editorGroupService.sideGroup.openEditor(this.editorService.activeEditor, editorOptions);
+      this.editorGroupService.sideGroup.openEditor(
+        this.editorService.activeEditor,
+        editorOptions
+      );
     } else {
       super.gotoLocation(context, options);
     }
@@ -90,11 +94,21 @@ class GotoLineAction extends Action2 {
   }
 }
 registerAction2(GotoLineAction);
-Registry.as(QuickaccesExtensions.Quickaccess).registerQuickAccessProvider({
+Registry.as(
+  QuickaccesExtensions.Quickaccess
+).registerQuickAccessProvider({
   ctor: GotoLineQuickAccessProvider,
   prefix: AbstractGotoLineQuickAccessProvider.PREFIX,
-  placeholder: localize("gotoLineQuickAccessPlaceholder", "Type the line number and optional column to go to (e.g. 42:5 for line 42 and column 5)."),
-  helpEntries: [{ description: localize("gotoLineQuickAccess", "Go to Line/Column"), commandId: GotoLineAction.ID }]
+  placeholder: localize(
+    "gotoLineQuickAccessPlaceholder",
+    "Type the line number and optional column to go to (e.g. 42:5 for line 42 and column 5)."
+  ),
+  helpEntries: [
+    {
+      description: localize("gotoLineQuickAccess", "Go to Line/Column"),
+      commandId: GotoLineAction.ID
+    }
+  ]
 });
 export {
   GotoLineQuickAccessProvider

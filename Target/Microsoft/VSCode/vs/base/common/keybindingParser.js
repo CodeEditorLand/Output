@@ -1,7 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  Keybinding,
+  KeyCodeChord,
+  ScanCodeChord
+} from "./keybindings.js";
 import { KeyCodeUtils, ScanCodeUtils } from "./keyCodes.js";
-import { KeyCodeChord, ScanCodeChord, Keybinding, Chord } from "./keybindings.js";
 class KeybindingParser {
   static {
     __name(this, "KeybindingParser");
@@ -65,15 +69,33 @@ class KeybindingParser {
     };
   }
   static parseChord(input) {
-    const mods = this._readModifiers(input);
+    const mods = KeybindingParser._readModifiers(input);
     const scanCodeMatch = mods.key.match(/^\[([^\]]+)\]$/);
     if (scanCodeMatch) {
       const strScanCode = scanCodeMatch[1];
       const scanCode = ScanCodeUtils.lowerCaseToEnum(strScanCode);
-      return [new ScanCodeChord(mods.ctrl, mods.shift, mods.alt, mods.meta, scanCode), mods.remains];
+      return [
+        new ScanCodeChord(
+          mods.ctrl,
+          mods.shift,
+          mods.alt,
+          mods.meta,
+          scanCode
+        ),
+        mods.remains
+      ];
     }
     const keyCode = KeyCodeUtils.fromUserSettings(mods.key);
-    return [new KeyCodeChord(mods.ctrl, mods.shift, mods.alt, mods.meta, keyCode), mods.remains];
+    return [
+      new KeyCodeChord(
+        mods.ctrl,
+        mods.shift,
+        mods.alt,
+        mods.meta,
+        keyCode
+      ),
+      mods.remains
+    ];
   }
   static parseKeybinding(input) {
     if (!input) {
@@ -82,7 +104,7 @@ class KeybindingParser {
     const chords = [];
     let chord;
     while (input.length > 0) {
-      [chord, input] = this.parseChord(input);
+      [chord, input] = KeybindingParser.parseChord(input);
       chords.push(chord);
     }
     return chords.length > 0 ? new Keybinding(chords) : null;

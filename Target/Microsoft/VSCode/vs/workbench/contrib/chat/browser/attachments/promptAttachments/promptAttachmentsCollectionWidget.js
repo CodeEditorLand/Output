@@ -10,14 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../../base/common/uri.js";
 import { Emitter } from "../../../../../../base/common/event.js";
-import { ResourceLabels } from "../../../../../browser/labels.js";
-import { PromptAttachmentWidget } from "./promptAttachmentWidget.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../../../../platform/log/common/log.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { ChatPromptAttachmentsCollection } from "../../chatAttachmentModel/chatPromptAttachmentsCollection.js";
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { PromptAttachmentWidget } from "./promptAttachmentWidget.js";
 let PromptAttachmentsCollectionWidget = class extends Disposable {
   constructor(model, resourceLabels, initService, logService) {
     super();

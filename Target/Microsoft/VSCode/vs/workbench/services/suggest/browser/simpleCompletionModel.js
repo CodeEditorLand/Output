@@ -1,9 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { SimpleCompletionItem } from "./simpleCompletionItem.js";
 import { quickSelect } from "../../../../base/common/arrays.js";
 import { CharCode } from "../../../../base/common/charCode.js";
-import { FuzzyScore, fuzzyScore, fuzzyScoreGracefulAggressive, FuzzyScoreOptions, FuzzyScorer } from "../../../../base/common/filters.js";
+import {
+  FuzzyScore,
+  fuzzyScore,
+  fuzzyScoreGracefulAggressive,
+  FuzzyScoreOptions
+} from "../../../../base/common/filters.js";
 class LineContext {
   constructor(leadingLineContent, characterCountDelta) {
     this.leadingLineContent = leadingLineContent;
@@ -97,7 +101,15 @@ class SimpleCompletionModel {
         if (wordPos >= wordLen) {
           item.score = FuzzyScore.Default;
         } else {
-          const match = scoreFn(word, wordLow, wordPos, item.textLabel, item.labelLow, 0, this._fuzzyScoreOptions);
+          const match = scoreFn(
+            word,
+            wordLow,
+            wordPos,
+            item.textLabel,
+            item.labelLow,
+            0,
+            this._fuzzyScoreOptions
+          );
           if (!match && word !== "") {
             continue;
           }
@@ -108,10 +120,16 @@ class SimpleCompletionModel {
       target.push(item);
       labelLengths.push(item.textLabel.length);
     }
-    this._filteredItems = target.sort(this._rawCompareFn?.bind(void 0, leadingLineContent));
+    this._filteredItems = target.sort(
+      this._rawCompareFn?.bind(void 0, leadingLineContent)
+    );
     this._refilterKind = 0 /* Nothing */;
     this._stats = {
-      pLabelLen: labelLengths.length ? quickSelect(labelLengths.length - 0.85, labelLengths, (a, b) => a - b) : 0
+      pLabelLen: labelLengths.length ? quickSelect(
+        labelLengths.length - 0.85,
+        labelLengths,
+        (a, b) => a - b
+      ) : 0
     };
   }
 }

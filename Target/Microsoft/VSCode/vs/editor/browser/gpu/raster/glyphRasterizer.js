@@ -13,10 +13,12 @@ import { memoize } from "../../../../base/common/decorators.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { isMacintosh } from "../../../../base/common/platform.js";
 import { StringBuilder } from "../../../common/core/stringBuilder.js";
-import { FontStyle, TokenMetadata } from "../../../common/encodedTokenAttributes.js";
+import {
+  FontStyle,
+  TokenMetadata
+} from "../../../common/encodedTokenAttributes.js";
 import { ensureNonNullable } from "../gpuUtils.js";
 import { ViewGpuContext } from "../viewGpuContext.js";
-import {} from "./raster.js";
 let nextId = 0;
 class GlyphRasterizer extends Disposable {
   constructor(fontSize, fontFamily, devicePixelRatio) {
@@ -25,11 +27,16 @@ class GlyphRasterizer extends Disposable {
     this.fontFamily = fontFamily;
     this.devicePixelRatio = devicePixelRatio;
     const devicePixelFontSize = Math.ceil(this.fontSize * devicePixelRatio);
-    this._canvas = new OffscreenCanvas(devicePixelFontSize * 3, devicePixelFontSize * 3);
-    this._ctx = ensureNonNullable(this._canvas.getContext("2d", {
-      willReadFrequently: true,
-      alpha: this._antiAliasing === "greyscale"
-    }));
+    this._canvas = new OffscreenCanvas(
+      devicePixelFontSize * 3,
+      devicePixelFontSize * 3
+    );
+    this._ctx = ensureNonNullable(
+      this._canvas.getContext("2d", {
+        willReadFrequently: true,
+        alpha: this._antiAliasing === "greyscale"
+      })
+    );
     this._ctx.textBaseline = "top";
     this._ctx.fillStyle = "#FFFFFF";
     this._ctx.font = `${devicePixelFontSize}px ${this.fontFamily}`;
@@ -83,10 +90,17 @@ class GlyphRasterizer extends Disposable {
     this._workGlyphConfig.chars = chars;
     this._workGlyphConfig.tokenMetadata = tokenMetadata;
     this._workGlyphConfig.decorationStyleSetId = decorationStyleSetId;
-    return this._rasterizeGlyph(chars, tokenMetadata, decorationStyleSetId, colorMap);
+    return this._rasterizeGlyph(
+      chars,
+      tokenMetadata,
+      decorationStyleSetId,
+      colorMap
+    );
   }
   _rasterizeGlyph(chars, tokenMetadata, decorationStyleSetId, colorMap) {
-    const devicePixelFontSize = Math.ceil(this.fontSize * this.devicePixelRatio);
+    const devicePixelFontSize = Math.ceil(
+      this.fontSize * this.devicePixelRatio
+    );
     const canvasDim = devicePixelFontSize * 3;
     if (this._canvas.width !== canvasDim) {
       this._canvas.width = canvasDim;
@@ -96,7 +110,9 @@ class GlyphRasterizer extends Disposable {
     const xSubPixelXOffset = (tokenMetadata & 15) / 10;
     const bgId = TokenMetadata.getBackground(tokenMetadata);
     const bg = colorMap[bgId];
-    const decorationStyleSet = ViewGpuContext.decorationStyleCache.getStyleSet(decorationStyleSetId);
+    const decorationStyleSet = ViewGpuContext.decorationStyleCache.getStyleSet(
+      decorationStyleSetId
+    );
     if (this._antiAliasing === "subpixel") {
       this._ctx.fillStyle = bg;
       this._ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
@@ -130,11 +146,16 @@ class GlyphRasterizer extends Disposable {
     }
     this._ctx.fillText(chars, originX + xSubPixelXOffset, originY);
     this._ctx.restore();
-    const imageData = this._ctx.getImageData(0, 0, this._canvas.width, this._canvas.height);
+    const imageData = this._ctx.getImageData(
+      0,
+      0,
+      this._canvas.width,
+      this._canvas.height
+    );
     if (this._antiAliasing === "subpixel") {
-      const bgR = parseInt(bg.substring(1, 3), 16);
-      const bgG = parseInt(bg.substring(3, 5), 16);
-      const bgB = parseInt(bg.substring(5, 7), 16);
+      const bgR = Number.parseInt(bg.substring(1, 3), 16);
+      const bgG = Number.parseInt(bg.substring(3, 5), 16);
+      const bgB = Number.parseInt(bg.substring(5, 7), 16);
       this._clearColor(imageData, bgR, bgG, bgB);
       this._ctx.putImageData(imageData, 0, 0);
     }

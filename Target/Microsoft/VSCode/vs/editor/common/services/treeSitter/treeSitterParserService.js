@@ -10,20 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { AppResourcePath, FileAccess } from "../../../../base/common/network.js";
-import { EDITOR_EXPERIMENTAL_PREFER_TREESITTER, ITreeSitterParserService, ITextModelTreeSitter, TreeUpdateEvent, ITreeSitterImporter, TREESITTER_ALLOWED_SUPPORT, ModelTreeUpdateEvent } from "../treeSitterParserService.js";
-import { IModelService } from "../model.js";
-import { Disposable, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { ITextModel } from "../../model.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableMap,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import {
+  FileAccess
+} from "../../../../base/common/network.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { TextModelTreeSitter, TextModelTreeSitterItem } from "./textModelTreeSitter.js";
-import { getModuleLocation, TreeSitterLanguages } from "./treeSitterLanguages.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IModelService } from "../model.js";
+import {
+  EDITOR_EXPERIMENTAL_PREFER_TREESITTER,
+  ITreeSitterImporter,
+  TREESITTER_ALLOWED_SUPPORT
+} from "../treeSitterParserService.js";
+import {
+  TextModelTreeSitter
+} from "./textModelTreeSitter.js";
+import {
+  getModuleLocation,
+  TreeSitterLanguages
+} from "./treeSitterLanguages.js";
 const EDITOR_TREESITTER_TELEMETRY = "editor.experimental.treeSitterTelemetry";
-const FILENAME_TREESITTER_WASM = `tree-sitter.wasm`;
+const FILENAME_TREESITTER_WASM = "tree-sitter.wasm";
 let TreeSitterTextModelService = class extends Disposable {
   constructor(_modelService, fileService, _configurationService, _environmentService, _treeSitterImporter, _instantiationService) {
     super();
@@ -32,13 +46,24 @@ let TreeSitterTextModelService = class extends Disposable {
     this._environmentService = _environmentService;
     this._treeSitterImporter = _treeSitterImporter;
     this._instantiationService = _instantiationService;
-    this._treeSitterLanguages = this._register(new TreeSitterLanguages(this._treeSitterImporter, fileService, this._environmentService, this._registeredLanguages));
+    this._treeSitterLanguages = this._register(
+      new TreeSitterLanguages(
+        this._treeSitterImporter,
+        fileService,
+        this._environmentService,
+        this._registeredLanguages
+      )
+    );
     this.onDidAddLanguage = this._treeSitterLanguages.onDidAddLanguage;
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(EDITOR_EXPERIMENTAL_PREFER_TREESITTER)) {
-        this._supportedLanguagesChanged();
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          EDITOR_EXPERIMENTAL_PREFER_TREESITTER
+        )) {
+          this._supportedLanguagesChanged();
+        }
+      })
+    );
     this._supportedLanguagesChanged();
   }
   static {
@@ -50,7 +75,9 @@ let TreeSitterTextModelService = class extends Disposable {
   _registeredLanguages = /* @__PURE__ */ new Map();
   _treeSitterLanguages;
   onDidAddLanguage;
-  _onDidUpdateTree = this._register(new Emitter());
+  _onDidUpdateTree = this._register(
+    new Emitter()
+  );
   onDidUpdateTree = this._onDidUpdateTree.event;
   isTest = false;
   getOrInitLanguage(languageId) {
@@ -133,19 +160,27 @@ let TreeSitterTextModelService = class extends Disposable {
     return this._initParser(hasLanguages);
   }
   _getSetting(languageId) {
-    const setting = this._configurationService.getValue(`${EDITOR_EXPERIMENTAL_PREFER_TREESITTER}.${languageId}`);
+    const setting = this._configurationService.getValue(
+      `${EDITOR_EXPERIMENTAL_PREFER_TREESITTER}.${languageId}`
+    );
     if (!setting && TREESITTER_ALLOWED_SUPPORT.includes(languageId)) {
-      return this._configurationService.getValue(EDITOR_TREESITTER_TELEMETRY);
+      return this._configurationService.getValue(
+        EDITOR_TREESITTER_TELEMETRY
+      );
     }
     return setting;
   }
   async _registerModelServiceListeners() {
-    this._register(this._modelService.onModelAdded((model) => {
-      this._createTextModelTreeSitter(model);
-    }));
-    this._register(this._modelService.onModelRemoved((model) => {
-      this._textModelTreeSitters.deleteAndDispose(model);
-    }));
+    this._register(
+      this._modelService.onModelAdded((model) => {
+        this._createTextModelTreeSitter(model);
+      })
+    );
+    this._register(
+      this._modelService.onModelRemoved((model) => {
+        this._textModelTreeSitters.deleteAndDispose(model);
+      })
+    );
     this._modelService.getModels().forEach((model) => this._createTextModelTreeSitter(model));
   }
   async getTextModelTreeSitter(model, parseImmediately = false) {
@@ -153,10 +188,19 @@ let TreeSitterTextModelService = class extends Disposable {
     return this._createTextModelTreeSitter(model, parseImmediately);
   }
   _createTextModelTreeSitter(model, parseImmediately = true) {
-    const textModelTreeSitter = this._instantiationService.createInstance(TextModelTreeSitter, model, this._treeSitterLanguages, parseImmediately);
+    const textModelTreeSitter = this._instantiationService.createInstance(
+      TextModelTreeSitter,
+      model,
+      this._treeSitterLanguages,
+      parseImmediately
+    );
     const disposables = new DisposableStore();
     disposables.add(textModelTreeSitter);
-    disposables.add(textModelTreeSitter.onDidChangeParseResult((e) => this._handleOnDidChangeParseResult(e, model)));
+    disposables.add(
+      textModelTreeSitter.onDidChangeParseResult(
+        (e) => this._handleOnDidChangeParseResult(e, model)
+      )
+    );
     this._textModelTreeSitters.set(model, {
       textModelTreeSitter,
       disposables,
@@ -165,7 +209,14 @@ let TreeSitterTextModelService = class extends Disposable {
     return textModelTreeSitter;
   }
   _handleOnDidChangeParseResult(change, model) {
-    this._onDidUpdateTree.fire({ textModel: model, ranges: change.ranges, versionId: change.versionId, tree: change.tree, languageId: change.languageId, hasInjections: change.hasInjections });
+    this._onDidUpdateTree.fire({
+      textModel: model,
+      ranges: change.ranges,
+      versionId: change.versionId,
+      tree: change.tree,
+      languageId: change.languageId,
+      hasInjections: change.hasInjections
+    });
   }
   _addGrammar(languageId, grammarName) {
     if (!this._registeredLanguages.has(languageId)) {

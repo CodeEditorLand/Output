@@ -37,7 +37,12 @@ function _define() {
           if (typeof timeOrigin !== "number") {
             timeOrigin = performance.timing.navigationStart || performance.timing.redirectStart || performance.timing.fetchStart;
           }
-          const result = [{ name: "code/timeOrigin", startTime: Math.round(timeOrigin) }];
+          const result = [
+            {
+              name: "code/timeOrigin",
+              startTime: Math.round(timeOrigin)
+            }
+          ];
           for (const entry of performance.getEntriesByType("mark")) {
             result.push({
               name: entry.name,

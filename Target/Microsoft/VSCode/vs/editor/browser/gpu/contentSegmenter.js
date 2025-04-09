@@ -30,7 +30,9 @@ class GraphemeContentSegmenter {
   _segments = [];
   constructor(lineData) {
     const content = lineData.content;
-    const segmenter = safeIntl.Segmenter(void 0, { granularity: "grapheme" });
+    const segmenter = safeIntl.Segmenter(void 0, {
+      granularity: "grapheme"
+    });
     const segmentedContent = Array.from(segmenter.segment(content));
     let segmenterIndex = 0;
     for (let x = 0; x < content.length; x++) {

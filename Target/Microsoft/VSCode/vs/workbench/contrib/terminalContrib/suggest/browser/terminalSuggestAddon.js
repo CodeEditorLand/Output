@@ -11,37 +11,72 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
+import {
+  IntervalTimer,
+  TimeoutTimer
+} from "../../../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import { combinedDisposable, Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  combinedDisposable,
+  Disposable,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { sep } from "../../../../../base/common/path.js";
 import { commonPrefixLength } from "../../../../../base/common/strings.js";
+import {
+  GOLDEN_LINE_HEIGHT_RATIO,
+  MINIMUM_LINE_HEIGHT
+} from "../../../../../editor/common/config/fontInfo.js";
 import { editorSuggestWidgetSelectedBackground } from "../../../../../editor/contrib/suggest/browser/suggestWidget.js";
+import { localize } from "../../../../../nls.js";
+import { MenuId } from "../../../../../platform/actions/common/actions.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../../platform/storage/common/storage.js";
-import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../../platform/storage/common/storage.js";
+import {
+  TerminalCapability
+} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import {
+  TerminalSettingId
+} from "../../../../../platform/terminal/common/terminal.js";
 import { getListStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
 import { activeContrastBorder } from "../../../../../platform/theme/common/colorRegistry.js";
-import { TerminalStorageKeys } from "../../../terminal/common/terminalStorageKeys.js";
-import { terminalSuggestConfigSection, TerminalSuggestSettingId } from "../common/terminalSuggestConfiguration.js";
-import { LineContext } from "../../../../services/suggest/browser/simpleCompletionModel.js";
-import { ISimpleSelectedSuggestion, SimpleSuggestWidget } from "../../../../services/suggest/browser/simpleSuggestWidget.js";
-import { ITerminalCompletionService } from "./terminalCompletionService.js";
-import { TerminalSettingId, TerminalShellType } from "../../../../../platform/terminal/common/terminal.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
 import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
-import { ThemeIcon } from "../../../../../base/common/themables.js";
-import { MenuId } from "../../../../../platform/actions/common/actions.js";
-import { ISimpleSuggestWidgetFontInfo } from "../../../../services/suggest/browser/simpleSuggestWidgetRenderer.js";
+import { LineContext } from "../../../../services/suggest/browser/simpleCompletionModel.js";
+import {
+  SimpleSuggestWidget
+} from "../../../../services/suggest/browser/simpleSuggestWidget.js";
 import { ITerminalConfigurationService } from "../../../terminal/browser/terminal.js";
-import { GOLDEN_LINE_HEIGHT_RATIO, MINIMUM_LINE_HEIGHT } from "../../../../../editor/common/config/fontInfo.js";
+import { TerminalStorageKeys } from "../../../terminal/common/terminalStorageKeys.js";
+import {
+  terminalSuggestConfigSection,
+  TerminalSuggestSettingId
+} from "../common/terminalSuggestConfiguration.js";
+import {
+  TerminalCompletionItem,
+  TerminalCompletionItemKind
+} from "./terminalCompletionItem.js";
 import { TerminalCompletionModel } from "./terminalCompletionModel.js";
-import { TerminalCompletionItem, TerminalCompletionItemKind } from "./terminalCompletionItem.js";
-import { IntervalTimer, TimeoutTimer } from "../../../../../base/common/async.js";
-import { localize } from "../../../../../nls.js";
+import { ITerminalCompletionService } from "./terminalCompletionService.js";
 import { TerminalSuggestTelemetry } from "./terminalSuggestTelemetry.js";
-import { terminalSymbolAliasIcon, terminalSymbolArgumentIcon, terminalSymbolEnumMember, terminalSymbolFileIcon, terminalSymbolFlagIcon, terminalSymbolInlineSuggestionIcon, terminalSymbolMethodIcon, terminalSymbolOptionIcon, terminalSymbolFolderIcon } from "./terminalSymbolIcons.js";
+import {
+  terminalSymbolAliasIcon,
+  terminalSymbolArgumentIcon,
+  terminalSymbolEnumMember,
+  terminalSymbolFileIcon,
+  terminalSymbolFlagIcon,
+  terminalSymbolFolderIcon,
+  terminalSymbolInlineSuggestionIcon,
+  terminalSymbolMethodIcon,
+  terminalSymbolOptionIcon
+} from "./terminalSymbolIcons.js";
 let SuggestAddon = class extends Disposable {
   constructor(shellType, _capabilities, _terminalSuggestWidgetVisibleContextKey, _terminalCompletionService, _configurationService, _instantiationService, _extensionService, _terminalConfigurationService) {
     super();
@@ -70,56 +105,87 @@ let SuggestAddon = class extends Disposable {
         this._store.delete(timeoutTimer);
       });
     }
-    this._register(Event.runAndSubscribe(Event.any(
-      this._capabilities.onDidAddCapabilityType,
-      this._capabilities.onDidRemoveCapabilityType
-    ), () => {
-      const commandDetection = this._capabilities.get(TerminalCapability.CommandDetection);
-      if (commandDetection) {
-        if (this._promptInputModel !== commandDetection.promptInputModel) {
-          this._promptInputModel = commandDetection.promptInputModel;
-          this._suggestTelemetry = this._register(this._instantiationService.createInstance(TerminalSuggestTelemetry, commandDetection, this._promptInputModel));
-          this._promptInputModelSubscriptions.value = combinedDisposable(
-            this._promptInputModel.onDidChangeInput((e) => this._sync(e)),
-            this._promptInputModel.onDidFinishInput(() => {
-              this.hideSuggestWidget(true);
-            })
+    this._register(
+      Event.runAndSubscribe(
+        Event.any(
+          this._capabilities.onDidAddCapabilityType,
+          this._capabilities.onDidRemoveCapabilityType
+        ),
+        () => {
+          const commandDetection = this._capabilities.get(
+            TerminalCapability.CommandDetection
           );
-          if (this._shouldSyncWhenReady) {
-            this._sync(this._promptInputModel);
-            this._shouldSyncWhenReady = false;
+          if (commandDetection) {
+            if (this._promptInputModel !== commandDetection.promptInputModel) {
+              this._promptInputModel = commandDetection.promptInputModel;
+              this._suggestTelemetry = this._register(
+                this._instantiationService.createInstance(
+                  TerminalSuggestTelemetry,
+                  commandDetection,
+                  this._promptInputModel
+                )
+              );
+              this._promptInputModelSubscriptions.value = combinedDisposable(
+                this._promptInputModel.onDidChangeInput(
+                  (e) => this._sync(e)
+                ),
+                this._promptInputModel.onDidFinishInput(
+                  () => {
+                    this.hideSuggestWidget(true);
+                  }
+                )
+              );
+              if (this._shouldSyncWhenReady) {
+                this._sync(this._promptInputModel);
+                this._shouldSyncWhenReady = false;
+              }
+            }
+          } else {
+            this._promptInputModel = void 0;
           }
         }
-      } else {
-        this._promptInputModel = void 0;
-      }
-    }));
-    this._register(this._terminalConfigurationService.onConfigChanged(() => this._cachedFontInfo = void 0));
-    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
-      if (!e || e.affectsConfiguration(TerminalSuggestSettingId.InlineSuggestion)) {
-        const value = this._configurationService.getValue(terminalSuggestConfigSection).inlineSuggestion;
-        this._inlineCompletionItem.isInvalid = value === "off";
-        switch (value) {
-          case "alwaysOnTopExceptExactMatch": {
-            this._inlineCompletion.kind = TerminalCompletionItemKind.InlineSuggestion;
-            break;
-          }
-          case "alwaysOnTop":
-          default: {
-            this._inlineCompletion.kind = TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop;
-            break;
+      )
+    );
+    this._register(
+      this._terminalConfigurationService.onConfigChanged(
+        () => this._cachedFontInfo = void 0
+      )
+    );
+    this._register(
+      Event.runAndSubscribe(
+        this._configurationService.onDidChangeConfiguration,
+        (e) => {
+          if (!e || e.affectsConfiguration(
+            TerminalSuggestSettingId.InlineSuggestion
+          )) {
+            const value = this._configurationService.getValue(
+              terminalSuggestConfigSection
+            ).inlineSuggestion;
+            this._inlineCompletionItem.isInvalid = value === "off";
+            switch (value) {
+              case "alwaysOnTopExceptExactMatch": {
+                this._inlineCompletion.kind = TerminalCompletionItemKind.InlineSuggestion;
+                break;
+              }
+              default: {
+                this._inlineCompletion.kind = TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop;
+                break;
+              }
+            }
+            this._model?.forceRefilterAll();
           }
         }
-        this._model?.forceRefilterAll();
-      }
-    }));
+      )
+    );
   }
   static {
     __name(this, "SuggestAddon");
   }
   _terminal;
   _promptInputModel;
-  _promptInputModelSubscriptions = this._register(new MutableDisposable());
+  _promptInputModelSubscriptions = this._register(
+    new MutableDisposable()
+  );
   _mostRecentPromptInputState;
   _currentPromptInputState;
   _model;
@@ -143,11 +209,17 @@ let SuggestAddon = class extends Disposable {
   _shellTypeInit;
   _onBell = this._register(new Emitter());
   onBell = this._onBell.event;
-  _onAcceptedCompletion = this._register(new Emitter());
+  _onAcceptedCompletion = this._register(
+    new Emitter()
+  );
   onAcceptedCompletion = this._onAcceptedCompletion.event;
-  _onDidReceiveCompletions = this._register(new Emitter());
+  _onDidReceiveCompletions = this._register(
+    new Emitter()
+  );
   onDidReceiveCompletions = this._onDidReceiveCompletions.event;
-  _onDidFontConfigurationChange = this._register(new Emitter());
+  _onDidFontConfigurationChange = this._register(
+    new Emitter()
+  );
   onDidFontConfigurationChange = this._onDidFontConfigurationChange.event;
   _kindToIconMap = /* @__PURE__ */ new Map([
     [TerminalCompletionItemKind.File, terminalSymbolFileIcon],
@@ -158,8 +230,14 @@ let SuggestAddon = class extends Disposable {
     [TerminalCompletionItemKind.Option, terminalSymbolOptionIcon],
     [TerminalCompletionItemKind.OptionValue, terminalSymbolEnumMember],
     [TerminalCompletionItemKind.Flag, terminalSymbolFlagIcon],
-    [TerminalCompletionItemKind.InlineSuggestion, terminalSymbolInlineSuggestionIcon],
-    [TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop, terminalSymbolInlineSuggestionIcon]
+    [
+      TerminalCompletionItemKind.InlineSuggestion,
+      terminalSymbolInlineSuggestionIcon
+    ],
+    [
+      TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop,
+      terminalSymbolInlineSuggestionIcon
+    ]
   ]);
   _kindToKindLabelMap = /* @__PURE__ */ new Map([
     [TerminalCompletionItemKind.File, localize("file", "File")],
@@ -168,10 +246,19 @@ let SuggestAddon = class extends Disposable {
     [TerminalCompletionItemKind.Alias, localize("alias", "Alias")],
     [TerminalCompletionItemKind.Argument, localize("argument", "Argument")],
     [TerminalCompletionItemKind.Option, localize("option", "Option")],
-    [TerminalCompletionItemKind.OptionValue, localize("optionValue", "Option Value")],
+    [
+      TerminalCompletionItemKind.OptionValue,
+      localize("optionValue", "Option Value")
+    ],
     [TerminalCompletionItemKind.Flag, localize("flag", "Flag")],
-    [TerminalCompletionItemKind.InlineSuggestion, localize("inlineSuggestion", "Inline Suggestion")],
-    [TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop, localize("inlineSuggestionAlwaysOnTop", "Inline Suggestion")]
+    [
+      TerminalCompletionItemKind.InlineSuggestion,
+      localize("inlineSuggestion", "Inline Suggestion")
+    ],
+    [
+      TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop,
+      localize("inlineSuggestionAlwaysOnTop", "Inline Suggestion")
+    ]
   ]);
   _inlineCompletion = {
     label: "",
@@ -184,17 +271,23 @@ let SuggestAddon = class extends Disposable {
     detail: "Inline suggestion",
     kind: TerminalCompletionItemKind.InlineSuggestion,
     kindLabel: "Inline suggestion",
-    icon: this._kindToIconMap.get(TerminalCompletionItemKind.InlineSuggestion)
+    icon: this._kindToIconMap.get(
+      TerminalCompletionItemKind.InlineSuggestion
+    )
   };
-  _inlineCompletionItem = new TerminalCompletionItem(this._inlineCompletion);
+  _inlineCompletionItem = new TerminalCompletionItem(
+    this._inlineCompletion
+  );
   _shouldSyncWhenReady = false;
   _suggestTelemetry;
   activate(xterm) {
     this._terminal = xterm;
-    this._register(xterm.onKey(async (e) => {
-      this._lastUserData = e.key;
-      this._lastUserDataTimestamp = Date.now();
-    }));
+    this._register(
+      xterm.onKey(async (e) => {
+        this._lastUserData = e.key;
+        this._lastUserDataTimestamp = Date.now();
+      })
+    );
     this._register(xterm.onScroll(() => this.hideSuggestWidget(true)));
   }
   async _handleCompletionProviders(terminal, token, explicitlyInvoked) {
@@ -213,7 +306,9 @@ let SuggestAddon = class extends Disposable {
       doNotRequestExtensionCompletions = true;
     }
     if (!doNotRequestExtensionCompletions) {
-      await this._extensionService.activateByEvent("onTerminalCompletionsRequested");
+      await this._extensionService.activateByEvent(
+        "onTerminalCompletionsRequested"
+      );
     }
     this._currentPromptInputState = {
       value: this._promptInputModel.value,
@@ -223,15 +318,28 @@ let SuggestAddon = class extends Disposable {
       ghostTextIndex: this._promptInputModel.ghostTextIndex
     };
     this._requestedCompletionsIndex = this._currentPromptInputState.cursorIndex;
-    const quickSuggestionsConfig = this._configurationService.getValue(terminalSuggestConfigSection).quickSuggestions;
+    const quickSuggestionsConfig = this._configurationService.getValue(
+      terminalSuggestConfigSection
+    ).quickSuggestions;
     const allowFallbackCompletions = explicitlyInvoked || quickSuggestionsConfig.unknown === "on";
-    const providedCompletions = await this._terminalCompletionService.provideCompletions(this._currentPromptInputState.prefix, this._currentPromptInputState.cursorIndex, allowFallbackCompletions, this.shellType, this._capabilities, token, doNotRequestExtensionCompletions);
+    const providedCompletions = await this._terminalCompletionService.provideCompletions(
+      this._currentPromptInputState.prefix,
+      this._currentPromptInputState.cursorIndex,
+      allowFallbackCompletions,
+      this.shellType,
+      this._capabilities,
+      token,
+      doNotRequestExtensionCompletions
+    );
     if (token.isCancellationRequested) {
       return;
     }
     this._onDidReceiveCompletions.fire();
     this._cursorIndexDelta = this._promptInputModel.cursorIndex - this._requestedCompletionsIndex;
-    this._leadingLineContent = this._promptInputModel.prefix.substring(0, this._requestedCompletionsIndex + this._cursorIndexDelta);
+    this._leadingLineContent = this._promptInputModel.prefix.substring(
+      0,
+      this._requestedCompletionsIndex + this._cursorIndexDelta
+    );
     const completions = providedCompletions?.flat() || [];
     if (!explicitlyInvoked && !completions.length) {
       this.hideSuggestWidget(true);
@@ -242,21 +350,33 @@ let SuggestAddon = class extends Disposable {
       this._leadingLineContent = this._promptInputModel.prefix;
     }
     let normalizedLeadingLineContent = this._leadingLineContent;
-    this._isFilteringDirectories = completions.some((e) => e.kind === TerminalCompletionItemKind.Folder);
+    this._isFilteringDirectories = completions.some(
+      (e) => e.kind === TerminalCompletionItemKind.Folder
+    );
     if (this._isFilteringDirectories) {
-      const firstDir = completions.find((e) => e.kind === TerminalCompletionItemKind.Folder);
+      const firstDir = completions.find(
+        (e) => e.kind === TerminalCompletionItemKind.Folder
+      );
       const textLabel = typeof firstDir?.label === "string" ? firstDir.label : firstDir?.label.label;
       this._pathSeparator = textLabel?.match(/(?<sep>[\\\/])/)?.groups?.sep ?? sep;
-      normalizedLeadingLineContent = normalizePathSeparator(normalizedLeadingLineContent, this._pathSeparator);
+      normalizedLeadingLineContent = normalizePathSeparator(
+        normalizedLeadingLineContent,
+        this._pathSeparator
+      );
     }
     this._refreshInlineCompletion(completions);
     for (const completion of completions) {
       if (!completion.icon && completion.kind !== void 0) {
         completion.icon = this._kindToIconMap.get(completion.kind);
-        completion.kindLabel = this._kindToKindLabelMap.get(completion.kind);
+        completion.kindLabel = this._kindToKindLabelMap.get(
+          completion.kind
+        );
       }
     }
-    const lineContext = new LineContext(normalizedLeadingLineContent, this._cursorIndexDelta);
+    const lineContext = new LineContext(
+      normalizedLeadingLineContent,
+      this._cursorIndexDelta
+    );
     const model = new TerminalCompletionModel(
       [
         ...completions.filter((c) => !!c.label).map((c) => new TerminalCompletionItem(c)),
@@ -301,13 +421,22 @@ let SuggestAddon = class extends Disposable {
     }
     this._cancellationTokenSource = new CancellationTokenSource();
     const token = this._cancellationTokenSource.token;
-    await this._handleCompletionProviders(this._terminal, token, explicitlyInvoked);
+    await this._handleCompletionProviders(
+      this._terminal,
+      token,
+      explicitlyInvoked
+    );
   }
   _addPropertiesToInlineCompletionItem(completions) {
     const inlineCompletionLabel = (typeof this._inlineCompletionItem.completion.label === "string" ? this._inlineCompletionItem.completion.label : this._inlineCompletionItem.completion.label.label).trim();
-    const inlineCompletionMatchIndex = completions.findIndex((c) => typeof c.label === "string" ? c.label === inlineCompletionLabel : c.label.label === inlineCompletionLabel);
+    const inlineCompletionMatchIndex = completions.findIndex(
+      (c) => typeof c.label === "string" ? c.label === inlineCompletionLabel : c.label.label === inlineCompletionLabel
+    );
     if (inlineCompletionMatchIndex !== -1) {
-      const richCompletionMatchingInline = completions.splice(inlineCompletionMatchIndex, 1)[0];
+      const richCompletionMatchingInline = completions.splice(
+        inlineCompletionMatchIndex,
+        1
+      )[0];
       this._inlineCompletionItem.completion.label = richCompletionMatchingInline.label;
       this._inlineCompletionItem.completion.detail = richCompletionMatchingInline.detail;
       this._inlineCompletionItem.completion.documentation = richCompletionMatchingInline.documentation;
@@ -342,7 +471,9 @@ let SuggestAddon = class extends Disposable {
     return !!this._lastUserData?.match(/^\x1b[\[O]?[A-D]$/);
   }
   _sync(promptInputState) {
-    const config = this._configurationService.getValue(terminalSuggestConfigSection);
+    const config = this._configurationService.getValue(
+      terminalSuggestConfigSection
+    );
     {
       let sent = false;
       if (!this._mostRecentPromptInputState || promptInputState.cursorIndex > this._mostRecentPromptInputState.cursorIndex) {
@@ -404,7 +535,9 @@ let SuggestAddon = class extends Disposable {
     }
     const previousPromptInputState = this._currentPromptInputState;
     this._currentPromptInputState = promptInputState;
-    if (this._currentPromptInputState.cursorIndex > 1 && this._currentPromptInputState.value.at(this._currentPromptInputState.cursorIndex - 1) === " ") {
+    if (this._currentPromptInputState.cursorIndex > 1 && this._currentPromptInputState.value.at(
+      this._currentPromptInputState.cursorIndex - 1
+    ) === " ") {
       if (!this._wasLastInputArrowKey()) {
         this.hideSuggestWidget(false);
         return;
@@ -418,14 +551,25 @@ let SuggestAddon = class extends Disposable {
     }
     if (this._terminalSuggestWidgetVisibleContextKey.get()) {
       this._cursorIndexDelta = this._currentPromptInputState.cursorIndex - this._requestedCompletionsIndex;
-      let normalizedLeadingLineContent = this._currentPromptInputState.value.substring(0, this._requestedCompletionsIndex + this._cursorIndexDelta);
+      let normalizedLeadingLineContent = this._currentPromptInputState.value.substring(
+        0,
+        this._requestedCompletionsIndex + this._cursorIndexDelta
+      );
       if (this._isFilteringDirectories) {
-        normalizedLeadingLineContent = normalizePathSeparator(normalizedLeadingLineContent, this._pathSeparator);
+        normalizedLeadingLineContent = normalizePathSeparator(
+          normalizedLeadingLineContent,
+          this._pathSeparator
+        );
       }
-      const lineContext = new LineContext(normalizedLeadingLineContent, this._cursorIndexDelta);
+      const lineContext = new LineContext(
+        normalizedLeadingLineContent,
+        this._cursorIndexDelta
+      );
       this._suggestWidget.setLineContext(lineContext);
     }
-    this._refreshInlineCompletion(this._model?.items.map((i) => i.completion) || []);
+    this._refreshInlineCompletion(
+      this._model?.items.map((i) => i.completion) || []
+    );
     if (!this._suggestWidget.hasCompletions()) {
       this.hideSuggestWidget(false);
       return;
@@ -434,7 +578,7 @@ let SuggestAddon = class extends Disposable {
     if (!dimensions.width || !dimensions.height) {
       return;
     }
-    const xtermBox = this._screen.getBoundingClientRect();
+    const xtermBox = this._screen?.getBoundingClientRect();
     this._suggestWidget.showSuggestions(0, false, true, {
       left: xtermBox.left + this._terminal.buffer.active.cursorX * dimensions.width,
       top: xtermBox.top + this._terminal.buffer.active.cursorY * dimensions.height,
@@ -447,7 +591,10 @@ let SuggestAddon = class extends Disposable {
       this._inlineCompletionItem.isInvalid = true;
     } else {
       this._inlineCompletionItem.isInvalid = false;
-      const spaceIndex = this._currentPromptInputState.value.lastIndexOf(" ", this._currentPromptInputState.ghostTextIndex - 1);
+      const spaceIndex = this._currentPromptInputState.value.lastIndexOf(
+        " ",
+        this._currentPromptInputState.ghostTextIndex - 1
+      );
       const replacementIndex = spaceIndex === -1 ? 0 : spaceIndex + 1;
       const suggestion = this._currentPromptInputState.value.substring(replacementIndex);
       this._inlineCompletion.label = suggestion;
@@ -482,7 +629,10 @@ let SuggestAddon = class extends Disposable {
       return this._cachedFontInfo;
     }
     const core = this._terminal._core;
-    const font = this._terminalConfigurationService.getFont(dom.getActiveWindow(), core);
+    const font = this._terminalConfigurationService.getFont(
+      dom.getActiveWindow(),
+      core
+    );
     let lineHeight = font.lineHeight;
     const fontSize = font.fontSize;
     const fontFamily = font.fontFamily;
@@ -525,7 +675,7 @@ let SuggestAddon = class extends Disposable {
     if (!dimensions.width || !dimensions.height) {
       return;
     }
-    const xtermBox = this._screen.getBoundingClientRect();
+    const xtermBox = this._screen?.getBoundingClientRect();
     suggestWidget.showSuggestions(0, false, !explicitlyInvoked, {
       left: xtermBox.left + this._terminal.buffer.active.cursorX * dimensions.width,
       top: xtermBox.top + this._terminal.buffer.active.cursorY * dimensions.height,
@@ -534,48 +684,76 @@ let SuggestAddon = class extends Disposable {
   }
   _ensureSuggestWidget(terminal) {
     if (!this._suggestWidget) {
-      this._suggestWidget = this._register(this._instantiationService.createInstance(
-        SimpleSuggestWidget,
-        this._container,
-        this._instantiationService.createInstance(PersistedWidgetSize),
-        {
-          statusBarMenuId: MenuId.MenubarTerminalSuggestStatusMenu,
-          showStatusBarSettingId: TerminalSuggestSettingId.ShowStatusBar
-        },
-        this._getFontInfo.bind(this),
-        this._onDidFontConfigurationChange.event.bind(this),
-        this._getAdvancedExplainModeDetails.bind(this)
-      ));
-      this._suggestWidget.list.style(getListStyles({
-        listInactiveFocusBackground: editorSuggestWidgetSelectedBackground,
-        listInactiveFocusOutline: activeContrastBorder
-      }));
-      this._register(this._suggestWidget.onDidSelect(async (e) => this.acceptSelectedSuggestion(e)));
-      this._register(this._suggestWidget.onDidHide(() => this._terminalSuggestWidgetVisibleContextKey.reset()));
-      this._register(this._suggestWidget.onDidShow(() => this._terminalSuggestWidgetVisibleContextKey.set(true)));
-      this._register(this._configurationService.onDidChangeConfiguration(
-        (e) => {
+      this._suggestWidget = this._register(
+        this._instantiationService.createInstance(
+          SimpleSuggestWidget,
+          this._container,
+          this._instantiationService.createInstance(
+            PersistedWidgetSize
+          ),
+          {
+            statusBarMenuId: MenuId.MenubarTerminalSuggestStatusMenu,
+            showStatusBarSettingId: TerminalSuggestSettingId.ShowStatusBar
+          },
+          this._getFontInfo.bind(this),
+          this._onDidFontConfigurationChange.event.bind(this),
+          this._getAdvancedExplainModeDetails.bind(this)
+        )
+      );
+      this._suggestWidget.list.style(
+        getListStyles({
+          listInactiveFocusBackground: editorSuggestWidgetSelectedBackground,
+          listInactiveFocusOutline: activeContrastBorder
+        })
+      );
+      this._register(
+        this._suggestWidget.onDidSelect(
+          async (e) => this.acceptSelectedSuggestion(e)
+        )
+      );
+      this._register(
+        this._suggestWidget.onDidHide(
+          () => this._terminalSuggestWidgetVisibleContextKey.reset()
+        )
+      );
+      this._register(
+        this._suggestWidget.onDidShow(
+          () => this._terminalSuggestWidgetVisibleContextKey.set(true)
+        )
+      );
+      this._register(
+        this._configurationService.onDidChangeConfiguration((e) => {
           if (e.affectsConfiguration(TerminalSettingId.FontFamily) || e.affectsConfiguration(TerminalSettingId.FontSize) || e.affectsConfiguration(TerminalSettingId.LineHeight) || e.affectsConfiguration(TerminalSettingId.FontFamily) || e.affectsConfiguration("editor.fontSize") || e.affectsConfiguration("editor.fontFamily")) {
             this._onDidFontConfigurationChange.fire();
           }
-        }
-      ));
-      const element = this._terminal?.element?.querySelector(".xterm-helper-textarea");
+        })
+      );
+      const element = this._terminal?.element?.querySelector(
+        ".xterm-helper-textarea"
+      );
       if (element) {
-        this._register(dom.addDisposableListener(dom.getActiveDocument(), "click", (event) => {
-          const target = event.target;
-          if (this._terminal?.element?.contains(target)) {
-            this._suggestWidget?.hide();
-          }
-        }));
+        this._register(
+          dom.addDisposableListener(
+            dom.getActiveDocument(),
+            "click",
+            (event) => {
+              const target = event.target;
+              if (this._terminal?.element?.contains(target)) {
+                this._suggestWidget?.hide();
+              }
+            }
+          )
+        );
       }
-      this._register(this._suggestWidget.onDidBlurDetails((e) => {
-        const elt = e.relatedTarget;
-        if (this._terminal?.element?.contains(elt)) {
-          return;
-        }
-        this._suggestWidget?.hide();
-      }));
+      this._register(
+        this._suggestWidget.onDidBlurDetails((e) => {
+          const elt = e.relatedTarget;
+          if (this._terminal?.element?.contains(elt)) {
+            return;
+          }
+          this._suggestWidget?.hide();
+        })
+      );
       this._terminalSuggestWidgetVisibleContextKey.set(false);
     }
     return this._suggestWidget;
@@ -598,22 +776,36 @@ let SuggestAddon = class extends Disposable {
     }
     const initialPromptInputState = this._mostRecentPromptInputState;
     if (!suggestion || !initialPromptInputState || this._leadingLineContent === void 0 || !this._model) {
-      this._suggestTelemetry?.acceptCompletion(void 0, this._mostRecentPromptInputState?.value);
+      this._suggestTelemetry?.acceptCompletion(
+        void 0,
+        this._mostRecentPromptInputState?.value
+      );
       return;
     }
     SuggestAddon.lastAcceptedCompletionTimestamp = Date.now();
     this._suggestWidget?.hide();
     const currentPromptInputState = this._currentPromptInputState ?? initialPromptInputState;
-    const replacementText = currentPromptInputState.value.substring(suggestion.item.completion.replacementIndex, currentPromptInputState.cursorIndex);
+    const replacementText = currentPromptInputState.value.substring(
+      suggestion.item.completion.replacementIndex,
+      currentPromptInputState.cursorIndex
+    );
     let rightSideReplacementText = "";
     if (
       // The line didn't end with ghost text
       (currentPromptInputState.ghostTextIndex === -1 || currentPromptInputState.ghostTextIndex > currentPromptInputState.cursorIndex) && // There is more than one charatcer
       currentPromptInputState.value.length > currentPromptInputState.cursorIndex + 1 && // THe next character is not a space
-      currentPromptInputState.value.at(currentPromptInputState.cursorIndex) !== " "
+      currentPromptInputState.value.at(
+        currentPromptInputState.cursorIndex
+      ) !== " "
     ) {
-      const spaceIndex = currentPromptInputState.value.substring(currentPromptInputState.cursorIndex, currentPromptInputState.ghostTextIndex === -1 ? void 0 : currentPromptInputState.ghostTextIndex).indexOf(" ");
-      rightSideReplacementText = currentPromptInputState.value.substring(currentPromptInputState.cursorIndex, spaceIndex === -1 ? void 0 : currentPromptInputState.cursorIndex + spaceIndex);
+      const spaceIndex = currentPromptInputState.value.substring(
+        currentPromptInputState.cursorIndex,
+        currentPromptInputState.ghostTextIndex === -1 ? void 0 : currentPromptInputState.ghostTextIndex
+      ).indexOf(" ");
+      rightSideReplacementText = currentPromptInputState.value.substring(
+        currentPromptInputState.cursorIndex,
+        spaceIndex === -1 ? void 0 : currentPromptInputState.cursorIndex + spaceIndex
+      );
     }
     const completion = suggestion.item.completion;
     let resultSequence = completion.inputData;
@@ -624,7 +816,9 @@ let SuggestAddon = class extends Disposable {
       }
       let runOnEnter = false;
       if (respectRunOnEnter) {
-        const runOnEnterConfig = this._configurationService.getValue(terminalSuggestConfigSection).runOnEnter;
+        const runOnEnterConfig = this._configurationService.getValue(
+          terminalSuggestConfigSection
+        ).runOnEnter;
         switch (runOnEnterConfig) {
           case "always": {
             runOnEnter = true;
@@ -643,11 +837,19 @@ let SuggestAddon = class extends Disposable {
           }
         }
       }
-      const commonPrefixLen = commonPrefixLength(replacementText, completionText);
-      const commonPrefix = replacementText.substring(replacementText.length - 1 - commonPrefixLen, replacementText.length - 1);
+      const commonPrefixLen = commonPrefixLength(
+        replacementText,
+        completionText
+      );
+      const commonPrefix = replacementText.substring(
+        replacementText.length - 1 - commonPrefixLen,
+        replacementText.length - 1
+      );
       const completionSuffix = completionText.substring(commonPrefixLen);
       if (currentPromptInputState.suffix.length > 0 && currentPromptInputState.prefix.endsWith(commonPrefix) && currentPromptInputState.suffix.startsWith(completionSuffix)) {
-        resultSequence = "\x1BOC".repeat(completionText.length - commonPrefixLen);
+        resultSequence = "\x1BOC".repeat(
+          completionText.length - commonPrefixLen
+        );
       } else {
         resultSequence = [
           // Backspace (left) to remove all additional input
@@ -665,7 +867,10 @@ let SuggestAddon = class extends Disposable {
       SuggestAddon.lastAcceptedCompletionTimestamp = 0;
     }
     this._onAcceptedCompletion.fire(resultSequence);
-    this._suggestTelemetry?.acceptCompletion(completion, this._mostRecentPromptInputState?.value);
+    this._suggestTelemetry?.acceptCompletion(
+      completion,
+      this._mostRecentPromptInputState?.value
+    );
     this.hideSuggestWidget(true);
   }
   hideSuggestWidget(cancelAnyRequest) {
@@ -705,7 +910,12 @@ let PersistedWidgetSize = class {
     return void 0;
   }
   store(size) {
-    this._storageService.store(this._key, JSON.stringify(size), StorageScope.PROFILE, StorageTarget.MACHINE);
+    this._storageService.store(
+      this._key,
+      JSON.stringify(size),
+      StorageScope.PROFILE,
+      StorageTarget.MACHINE
+    );
   }
   reset() {
     this._storageService.remove(this._key, StorageScope.PROFILE);

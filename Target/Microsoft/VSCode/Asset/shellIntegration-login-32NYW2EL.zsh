@@ -10,6 +10,6 @@ fi
 export VSCODE_LOGIN_INITIALIZED=1
 
 ZDOTDIR=$USER_ZDOTDIR
-if [[ $options[norcs] = off && -o "login" &&  -f $ZDOTDIR/.zlogin ]]; then
+if [[ $options[norcs] = off && -o "login" && -f $ZDOTDIR/.zlogin ]]; then
 	. $ZDOTDIR/.zlogin
 fi

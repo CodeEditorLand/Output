@@ -15,8 +15,6 @@ import { computeDiff } from "../../../../notebook/common/notebookDiff.js";
 import { INotebookEditorModelResolverService } from "../../../../notebook/common/notebookEditorModelResolverService.js";
 import { INotebookLoggingService } from "../../../../notebook/common/notebookLoggingService.js";
 import { INotebookEditorWorkerService } from "../../../../notebook/common/services/notebookWorkerService.js";
-import { IEditSessionEntryDiff } from "../../../common/chatEditingService.js";
-import { ISnapshotEntry } from "../chatEditingModifiedFileEntry.js";
 let ChatEditingModifiedNotebookDiff = class {
   constructor(original, modified, notebookEditorWorkerService, notebookLoggingService, notebookEditorModelService) {
     this.original = original;
@@ -35,13 +33,24 @@ let ChatEditingModifiedNotebookDiff = class {
     const disposables = new DisposableStore();
     try {
       const [modifiedRef, originalRef] = await Promise.all([
-        this.notebookEditorModelService.resolve(this.modified.snapshotUri),
-        this.notebookEditorModelService.resolve(this.original.snapshotUri)
+        this.notebookEditorModelService.resolve(
+          this.modified.snapshotUri
+        ),
+        this.notebookEditorModelService.resolve(
+          this.original.snapshotUri
+        )
       ]);
       disposables.add(modifiedRef);
       disposables.add(originalRef);
-      const notebookDiff = await this.notebookEditorWorkerService.computeDiff(this.original.snapshotUri, this.modified.snapshotUri);
-      const result = computeDiff(originalRef.object.notebook, modifiedRef.object.notebook, notebookDiff);
+      const notebookDiff = await this.notebookEditorWorkerService.computeDiff(
+        this.original.snapshotUri,
+        this.modified.snapshotUri
+      );
+      const result = computeDiff(
+        originalRef.object.notebook,
+        modifiedRef.object.notebook,
+        notebookDiff
+      );
       result.cellDiffInfo.forEach((diff) => {
         switch (diff.type) {
           case "modified":
@@ -56,7 +65,11 @@ let ChatEditingModifiedNotebookDiff = class {
         }
       });
     } catch (e) {
-      this.notebookLoggingService.error("Notebook Chat", "Error computing diff:\n" + e);
+      this.notebookLoggingService.error(
+        "Notebook Chat",
+        `Error computing diff:
+${e}`
+      );
     } finally {
       disposables.dispose();
     }

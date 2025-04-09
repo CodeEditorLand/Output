@@ -13,7 +13,11 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { timeout } from "../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../base/common/cancellation.js";
 import { Emitter } from "../../../base/common/event.js";
-import { Disposable, dispose, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  dispose,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { ILogService } from "../../log/common/log.js";
 let RequestStore = class extends Disposable {
   /**
@@ -24,11 +28,13 @@ let RequestStore = class extends Disposable {
     super();
     this._logService = _logService;
     this._timeout = timeout2 === void 0 ? 15e3 : timeout2;
-    this._register(toDisposable(() => {
-      for (const d of this._pendingRequestDisposables.values()) {
-        dispose(d);
-      }
-    }));
+    this._register(
+      toDisposable(() => {
+        for (const d of this._pendingRequestDisposables.values()) {
+          dispose(d);
+        }
+      })
+    );
   }
   static {
     __name(this, "RequestStore");
@@ -37,7 +43,9 @@ let RequestStore = class extends Disposable {
   _timeout;
   _pendingRequests = /* @__PURE__ */ new Map();
   _pendingRequestDisposables = /* @__PURE__ */ new Map();
-  _onCreateRequest = this._register(new Emitter());
+  _onCreateRequest = this._register(
+    new Emitter()
+  );
   onCreateRequest = this._onCreateRequest.event;
   /**
    * Creates a request.
@@ -49,8 +57,12 @@ let RequestStore = class extends Disposable {
       this._pendingRequests.set(requestId, resolve);
       this._onCreateRequest.fire({ requestId, ...args });
       const tokenSource = new CancellationTokenSource();
-      timeout(this._timeout, tokenSource.token).then(() => reject(`Request ${requestId} timed out (${this._timeout}ms)`));
-      this._pendingRequestDisposables.set(requestId, [toDisposable(() => tokenSource.cancel())]);
+      timeout(this._timeout, tokenSource.token).then(
+        () => reject(`Request ${requestId} timed out (${this._timeout}ms)`)
+      );
+      this._pendingRequestDisposables.set(requestId, [
+        toDisposable(() => tokenSource.cancel())
+      ]);
     });
   }
   /**
@@ -66,7 +78,9 @@ let RequestStore = class extends Disposable {
       this._pendingRequestDisposables.delete(requestId);
       resolveRequest(data);
     } else {
-      this._logService.warn(`RequestStore#acceptReply was called without receiving a matching request ${requestId}`);
+      this._logService.warn(
+        `RequestStore#acceptReply was called without receiving a matching request ${requestId}`
+      );
     }
   }
 };

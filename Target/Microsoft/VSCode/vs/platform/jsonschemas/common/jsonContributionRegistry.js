@@ -1,8 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../base/common/event.js";
-import { getCompressedContent, IJSONSchema } from "../../../base/common/jsonSchema.js";
-import { DisposableStore, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  getCompressedContent
+} from "../../../base/common/jsonSchema.js";
+import {
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import * as platform from "../../registry/common/platform.js";
 const Extensions = {
   JSONContribution: "base.contributions.json"
@@ -29,10 +33,12 @@ class JSONContributionRegistry {
     this.schemasById[normalizedUri] = unresolvedSchemaContent;
     this._onDidChangeSchema.fire(uri);
     if (store) {
-      store.add(toDisposable(() => {
-        delete this.schemasById[normalizedUri];
-        this._onDidChangeSchema.fire(uri);
-      }));
+      store.add(
+        toDisposable(() => {
+          delete this.schemasById[normalizedUri];
+          this._onDidChangeSchema.fire(uri);
+        })
+      );
     }
   }
   registerSchemaAssociation(uri, glob) {

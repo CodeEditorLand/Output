@@ -12,7 +12,6 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchContribution } from "../../../../common/contributions.js";
 import { ILanguageModelToolsService } from "../../common/languageModelToolsService.js";
 import { EditTool, EditToolData } from "./editFileTool.js";
 let BuiltinToolsContribution = class extends Disposable {
@@ -24,7 +23,9 @@ let BuiltinToolsContribution = class extends Disposable {
     super();
     const editTool = instantiationService.createInstance(EditTool);
     this._register(toolsService.registerToolData(EditToolData));
-    this._register(toolsService.registerToolImplementation(EditToolData.id, editTool));
+    this._register(
+      toolsService.registerToolImplementation(EditToolData.id, editTool)
+    );
   }
 };
 BuiltinToolsContribution = __decorateClass([

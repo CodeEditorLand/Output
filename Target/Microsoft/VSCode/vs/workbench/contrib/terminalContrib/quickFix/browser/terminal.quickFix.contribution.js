@@ -11,21 +11,41 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
-import { DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { localize2 } from "../../../../../nls.js";
-import { InstantiationType, registerSingleton } from "../../../../../platform/instantiation/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../../platform/instantiation/common/extensions.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ITerminalContribution, ITerminalInstance, IXtermTerminal } from "../../../terminal/browser/terminal.js";
 import { registerActiveInstanceAction } from "../../../terminal/browser/terminalActions.js";
-import { registerTerminalContribution } from "../../../terminal/browser/terminalExtensions.js";
+import {
+  registerTerminalContribution
+} from "../../../terminal/browser/terminalExtensions.js";
 import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
 import "./media/terminalQuickFix.css";
 import { ITerminalQuickFixService } from "./quickFix.js";
 import { TerminalQuickFixAddon } from "./quickFixAddon.js";
-import { freePort, gitCreatePr, gitFastForwardPull, gitPushSetUpstream, gitSimilar, gitTwoDashes, pwshGeneralError, pwshUnixCommandNotFoundError } from "./terminalQuickFixBuiltinActions.js";
+import {
+  freePort,
+  gitCreatePr,
+  gitFastForwardPull,
+  gitPushSetUpstream,
+  gitSimilar,
+  gitTwoDashes,
+  pwshGeneralError,
+  pwshUnixCommandNotFoundError
+} from "./terminalQuickFixBuiltinActions.js";
 import { TerminalQuickFixService } from "./terminalQuickFixService.js";
-registerSingleton(ITerminalQuickFixService, TerminalQuickFixService, InstantiationType.Delayed);
+registerSingleton(
+  ITerminalQuickFixService,
+  TerminalQuickFixService,
+  InstantiationType.Delayed
+);
 let TerminalQuickFixContribution = class extends DisposableStore {
   constructor(_ctx, _instantiationService) {
     super();
@@ -37,7 +57,9 @@ let TerminalQuickFixContribution = class extends DisposableStore {
   }
   static ID = "quickFix";
   static get(instance) {
-    return instance.getContribution(TerminalQuickFixContribution.ID);
+    return instance.getContribution(
+      TerminalQuickFixContribution.ID
+    );
   }
   _addon;
   get addon() {
@@ -45,16 +67,34 @@ let TerminalQuickFixContribution = class extends DisposableStore {
   }
   _quickFixMenuItems = this.add(new MutableDisposable());
   xtermReady(xterm) {
-    this._addon = this._instantiationService.createInstance(TerminalQuickFixAddon, void 0, this._ctx.instance.capabilities);
+    this._addon = this._instantiationService.createInstance(
+      TerminalQuickFixAddon,
+      void 0,
+      this._ctx.instance.capabilities
+    );
     xterm.raw.loadAddon(this._addon);
-    this.add(this._addon.onDidRequestRerunCommand((e) => this._ctx.instance.runCommand(e.command, e.shouldExecute || false)));
-    this.add(this._addon.onDidUpdateQuickFixes((e) => {
-      this._quickFixMenuItems.value = e.actions ? xterm.decorationAddon.registerMenuItems(e.command, e.actions) : void 0;
-    }));
+    this.add(
+      this._addon.onDidRequestRerunCommand(
+        (e) => this._ctx.instance.runCommand(
+          e.command,
+          e.shouldExecute || false
+        )
+      )
+    );
+    this.add(
+      this._addon.onDidUpdateQuickFixes((e) => {
+        this._quickFixMenuItems.value = e.actions ? xterm.decorationAddon.registerMenuItems(
+          e.command,
+          e.actions
+        ) : void 0;
+      })
+    );
     for (const actionOption of [
       gitTwoDashes(),
       gitFastForwardPull(),
-      freePort((port, command) => this._ctx.instance.freePortKillProcess(port, command)),
+      freePort(
+        (port, command) => this._ctx.instance.freePortKillProcess(port, command)
+      ),
       gitSimilar(),
       gitPushSetUpstream(),
       gitCreatePr(),
@@ -68,14 +108,20 @@ let TerminalQuickFixContribution = class extends DisposableStore {
 TerminalQuickFixContribution = __decorateClass([
   __decorateParam(1, IInstantiationService)
 ], TerminalQuickFixContribution);
-registerTerminalContribution(TerminalQuickFixContribution.ID, TerminalQuickFixContribution);
+registerTerminalContribution(
+  TerminalQuickFixContribution.ID,
+  TerminalQuickFixContribution
+);
 var TerminalQuickFixCommandId = /* @__PURE__ */ ((TerminalQuickFixCommandId2) => {
   TerminalQuickFixCommandId2["ShowQuickFixes"] = "workbench.action.terminal.showQuickFixes";
   return TerminalQuickFixCommandId2;
 })(TerminalQuickFixCommandId || {});
 registerActiveInstanceAction({
   id: "workbench.action.terminal.showQuickFixes" /* ShowQuickFixes */,
-  title: localize2("workbench.action.terminal.showQuickFixes", "Show Terminal Quick Fixes"),
+  title: localize2(
+    "workbench.action.terminal.showQuickFixes",
+    "Show Terminal Quick Fixes"
+  ),
   precondition: TerminalContextKeys.focus,
   keybinding: {
     primary: KeyMod.CtrlCmd | KeyCode.Period,

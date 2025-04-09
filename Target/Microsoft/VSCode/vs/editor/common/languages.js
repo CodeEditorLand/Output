@@ -1,32 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer } from "../../base/common/buffer.js";
-import { CancellationToken } from "../../base/common/cancellation.js";
 import { Codicon } from "../../base/common/codicons.js";
-import { Color } from "../../base/common/color.js";
-import { IReadonlyVSDataTransfer } from "../../base/common/dataTransfer.js";
-import { Event } from "../../base/common/event.js";
-import { HierarchicalKind } from "../../base/common/hierarchicalKind.js";
-import { IMarkdownString } from "../../base/common/htmlContent.js";
-import { IDisposable } from "../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../base/common/themables.js";
-import { URI, UriComponents } from "../../base/common/uri.js";
-import { EditOperation, ISingleEditOperation } from "./core/editOperation.js";
-import { IPosition, Position } from "./core/position.js";
-import { IRange, Range } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { LanguageId } from "./encodedTokenAttributes.js";
-import { LanguageSelector } from "./languageSelector.js";
-import * as model from "./model.js";
-import { TokenizationRegistry as TokenizationRegistryImpl } from "./tokenizationRegistry.js";
-import { ContiguousMultilineTokens } from "./tokens/contiguousMultilineTokens.js";
+import { URI } from "../../base/common/uri.js";
 import { localize } from "../../nls.js";
-import { ExtensionIdentifier } from "../../platform/extensions/common/extensions.js";
-import { IMarkerData } from "../../platform/markers/common/markers.js";
-import { IModelTokensChangedEvent } from "./textModelEvents.js";
-import { ITextModel } from "./model.js";
-import { TokenUpdate } from "./model/tokenStore.js";
-import { ITextModelTreeSitter } from "./services/treeSitterParserService.js";
+import {
+  EditOperation
+} from "./core/editOperation.js";
+import { Range } from "./core/range.js";
+import { TokenizationRegistry as TokenizationRegistryImpl } from "./tokenizationRegistry.js";
 class Token {
   constructor(offset, type, language) {
     this.offset = offset;
@@ -38,7 +19,7 @@ class Token {
   }
   _tokenBrand = void 0;
   toString() {
-    return "(" + this.offset + ", " + this.type + ")";
+    return `(${this.offset}, ${this.type})`;
   }
 }
 class TokenizationResult {
@@ -132,7 +113,7 @@ var CompletionItemKinds;
   function toIcon(kind) {
     let codicon = byKind.get(kind);
     if (!codicon) {
-      console.info("No codicon found for CompletionItemKind " + kind);
+      console.info(`No codicon found for CompletionItemKind ${kind}`);
       codicon = Codicon.symbolProperty;
     }
     return codicon;
@@ -146,7 +127,10 @@ var CompletionItemKinds;
       case 1 /* Function */:
         return localize("suggestWidget.kind.function", "Function");
       case 2 /* Constructor */:
-        return localize("suggestWidget.kind.constructor", "Constructor");
+        return localize(
+          "suggestWidget.kind.constructor",
+          "Constructor"
+        );
       case 3 /* Field */:
         return localize("suggestWidget.kind.field", "Field");
       case 4 /* Variable */:
@@ -186,11 +170,17 @@ var CompletionItemKinds;
       case 21 /* Reference */:
         return localize("suggestWidget.kind.reference", "Reference");
       case 22 /* Customcolor */:
-        return localize("suggestWidget.kind.customcolor", "Custom Color");
+        return localize(
+          "suggestWidget.kind.customcolor",
+          "Custom Color"
+        );
       case 23 /* Folder */:
         return localize("suggestWidget.kind.folder", "Folder");
       case 24 /* TypeParameter */:
-        return localize("suggestWidget.kind.typeParameter", "Type Parameter");
+        return localize(
+          "suggestWidget.kind.typeParameter",
+          "Type Parameter"
+        );
       case 25 /* User */:
         return localize("suggestWidget.kind.user", "User");
       case 26 /* Issue */:
@@ -373,7 +363,12 @@ const symbolKindNames = {
   [12 /* Variable */]: localize("Variable", "variable")
 };
 function getAriaLabelForSymbol(symbolName, kind) {
-  return localize("symbolAriaLabel", "{0} ({1})", symbolName, symbolKindNames[kind]);
+  return localize(
+    "symbolAriaLabel",
+    "{0} ({1})",
+    symbolName,
+    symbolKindNames[kind]
+  );
 }
 __name(getAriaLabelForSymbol, "getAriaLabelForSymbol");
 var SymbolTag = /* @__PURE__ */ ((SymbolTag2) => {
@@ -412,7 +407,7 @@ var SymbolKinds;
   function toIcon(kind) {
     let icon = byKind.get(kind);
     if (!icon) {
-      console.info("No codicon found for SymbolKind " + kind);
+      console.info(`No codicon found for SymbolKind ${kind}`);
       icon = Codicon.symbolProperty;
     }
     return icon;
@@ -428,7 +423,10 @@ var SymbolKinds;
   byCompletionKind.set(5 /* Method */, 0 /* Method */);
   byCompletionKind.set(6 /* Property */, 9 /* Property */);
   byCompletionKind.set(7 /* Field */, 3 /* Field */);
-  byCompletionKind.set(8 /* Constructor */, 2 /* Constructor */);
+  byCompletionKind.set(
+    8 /* Constructor */,
+    2 /* Constructor */
+  );
   byCompletionKind.set(9 /* Enum */, 15 /* Enum */);
   byCompletionKind.set(10 /* Interface */, 7 /* Interface */);
   byCompletionKind.set(11 /* Function */, 1 /* Function */);
@@ -445,11 +443,14 @@ var SymbolKinds;
   byCompletionKind.set(22 /* Struct */, 6 /* Struct */);
   byCompletionKind.set(23 /* Event */, 10 /* Event */);
   byCompletionKind.set(24 /* Operator */, 11 /* Operator */);
-  byCompletionKind.set(25 /* TypeParameter */, 24 /* TypeParameter */);
+  byCompletionKind.set(
+    25 /* TypeParameter */,
+    24 /* TypeParameter */
+  );
   function toCompletionKind(kind) {
     let completionKind = byCompletionKind.get(kind);
     if (completionKind === void 0) {
-      console.info("No completion kind found for SymbolKind " + kind);
+      console.info(`No completion kind found for SymbolKind ${kind}`);
       completionKind = 20 /* File */;
     }
     return completionKind;

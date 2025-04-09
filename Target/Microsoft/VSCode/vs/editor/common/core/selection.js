@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IPosition, Position } from "./position.js";
+import { Position } from "./position.js";
 import { Range } from "./range.js";
 var SelectionDirection = /* @__PURE__ */ ((SelectionDirection2) => {
   SelectionDirection2[SelectionDirection2["LTR"] = 0] = "LTR";
@@ -28,7 +28,12 @@ class Selection extends Range {
    */
   positionColumn;
   constructor(selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn) {
-    super(selectionStartLineNumber, selectionStartColumn, positionLineNumber, positionColumn);
+    super(
+      selectionStartLineNumber,
+      selectionStartColumn,
+      positionLineNumber,
+      positionColumn
+    );
     this.selectionStartLineNumber = selectionStartLineNumber;
     this.selectionStartColumn = selectionStartColumn;
     this.positionLineNumber = positionLineNumber;
@@ -38,7 +43,7 @@ class Selection extends Range {
    * Transform to a human-readable representation.
    */
   toString() {
-    return "[" + this.selectionStartLineNumber + "," + this.selectionStartColumn + " -> " + this.positionLineNumber + "," + this.positionColumn + "]";
+    return `[${this.selectionStartLineNumber},${this.selectionStartColumn} -> ${this.positionLineNumber},${this.positionColumn}]`;
   }
   /**
    * Test if equals other selection.
@@ -66,9 +71,19 @@ class Selection extends Range {
    */
   setEndPosition(endLineNumber, endColumn) {
     if (this.getDirection() === 0 /* LTR */) {
-      return new Selection(this.startLineNumber, this.startColumn, endLineNumber, endColumn);
+      return new Selection(
+        this.startLineNumber,
+        this.startColumn,
+        endLineNumber,
+        endColumn
+      );
     }
-    return new Selection(endLineNumber, endColumn, this.startLineNumber, this.startColumn);
+    return new Selection(
+      endLineNumber,
+      endColumn,
+      this.startLineNumber,
+      this.startColumn
+    );
   }
   /**
    * Get the position at `positionLineNumber` and `positionColumn`.
@@ -78,41 +93,74 @@ class Selection extends Range {
   }
   /**
    * Get the position at the start of the selection.
-  */
+   */
   getSelectionStart() {
-    return new Position(this.selectionStartLineNumber, this.selectionStartColumn);
+    return new Position(
+      this.selectionStartLineNumber,
+      this.selectionStartColumn
+    );
   }
   /**
    * Create a new selection with a different `selectionStartLineNumber` and `selectionStartColumn`.
    */
   setStartPosition(startLineNumber, startColumn) {
     if (this.getDirection() === 0 /* LTR */) {
-      return new Selection(startLineNumber, startColumn, this.endLineNumber, this.endColumn);
+      return new Selection(
+        startLineNumber,
+        startColumn,
+        this.endLineNumber,
+        this.endColumn
+      );
     }
-    return new Selection(this.endLineNumber, this.endColumn, startLineNumber, startColumn);
+    return new Selection(
+      this.endLineNumber,
+      this.endColumn,
+      startLineNumber,
+      startColumn
+    );
   }
   // ----
   /**
    * Create a `Selection` from one or two positions
    */
   static fromPositions(start, end = start) {
-    return new Selection(start.lineNumber, start.column, end.lineNumber, end.column);
+    return new Selection(
+      start.lineNumber,
+      start.column,
+      end.lineNumber,
+      end.column
+    );
   }
   /**
    * Creates a `Selection` from a range, given a direction.
    */
   static fromRange(range, direction) {
     if (direction === 0 /* LTR */) {
-      return new Selection(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn);
+      return new Selection(
+        range.startLineNumber,
+        range.startColumn,
+        range.endLineNumber,
+        range.endColumn
+      );
     } else {
-      return new Selection(range.endLineNumber, range.endColumn, range.startLineNumber, range.startColumn);
+      return new Selection(
+        range.endLineNumber,
+        range.endColumn,
+        range.startLineNumber,
+        range.startColumn
+      );
     }
   }
   /**
    * Create a `Selection` from an `ISelection`.
    */
   static liftSelection(sel) {
-    return new Selection(sel.selectionStartLineNumber, sel.selectionStartColumn, sel.positionLineNumber, sel.positionColumn);
+    return new Selection(
+      sel.selectionStartLineNumber,
+      sel.selectionStartColumn,
+      sel.positionLineNumber,
+      sel.positionColumn
+    );
   }
   /**
    * `a` equals `b`.
@@ -128,7 +176,7 @@ class Selection extends Range {
       return false;
     }
     for (let i = 0, len = a.length; i < len; i++) {
-      if (!this.selectionsEqual(a[i], b[i])) {
+      if (!Selection.selectionsEqual(a[i], b[i])) {
         return false;
       }
     }
@@ -145,9 +193,19 @@ class Selection extends Range {
    */
   static createWithDirection(startLineNumber, startColumn, endLineNumber, endColumn, direction) {
     if (direction === 0 /* LTR */) {
-      return new Selection(startLineNumber, startColumn, endLineNumber, endColumn);
+      return new Selection(
+        startLineNumber,
+        startColumn,
+        endLineNumber,
+        endColumn
+      );
     }
-    return new Selection(endLineNumber, endColumn, startLineNumber, startColumn);
+    return new Selection(
+      endLineNumber,
+      endColumn,
+      startLineNumber,
+      startColumn
+    );
   }
 }
 export {

@@ -10,15 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { OperatingSystem, OS } from "../../../../base/common/platform.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { OperatingSystem, OS } from "../../../../base/common/platform.js";
+import { ITextResourcePropertiesService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IRemoteAgentEnvironment } from "../../../../platform/remote/common/remoteAgentEnvironment.js";
 import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
 let TextResourcePropertiesService = class {
   constructor(configurationService, remoteAgentService, environmentService, storageService) {
@@ -32,7 +37,10 @@ let TextResourcePropertiesService = class {
   }
   remoteEnvironment = null;
   getEOL(resource, language) {
-    const eol = this.configurationService.getValue("files.eol", { overrideIdentifier: language, resource });
+    const eol = this.configurationService.getValue("files.eol", {
+      overrideIdentifier: language,
+      resource
+    });
     if (eol && typeof eol === "string" && eol !== "auto") {
       return eol;
     }
@@ -47,9 +55,18 @@ let TextResourcePropertiesService = class {
         const osCacheKey = `resource.authority.os.${remoteAuthority}`;
         os = this.remoteEnvironment ? this.remoteEnvironment.os : (
           /* Get it from cache */
-          this.storageService.getNumber(osCacheKey, StorageScope.WORKSPACE, OS)
+          this.storageService.getNumber(
+            osCacheKey,
+            StorageScope.WORKSPACE,
+            OS
+          )
         );
-        this.storageService.store(osCacheKey, os, StorageScope.WORKSPACE, StorageTarget.MACHINE);
+        this.storageService.store(
+          osCacheKey,
+          os,
+          StorageScope.WORKSPACE,
+          StorageTarget.MACHINE
+        );
       }
     }
     return os;
@@ -61,7 +78,11 @@ TextResourcePropertiesService = __decorateClass([
   __decorateParam(2, IWorkbenchEnvironmentService),
   __decorateParam(3, IStorageService)
 ], TextResourcePropertiesService);
-registerSingleton(ITextResourcePropertiesService, TextResourcePropertiesService, InstantiationType.Delayed);
+registerSingleton(
+  ITextResourcePropertiesService,
+  TextResourcePropertiesService,
+  InstantiationType.Delayed
+);
 export {
   TextResourcePropertiesService
 };

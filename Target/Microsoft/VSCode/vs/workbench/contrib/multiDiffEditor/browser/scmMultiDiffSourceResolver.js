@@ -11,17 +11,29 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { observableFromEvent, ValueWithChangeEventFromObservable, waitForState } from "../../../../base/common/observable.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { IMultiDiffEditorOptions } from "../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl.js";
+import {
+  observableFromEvent,
+  ValueWithChangeEventFromObservable,
+  waitForState
+} from "../../../../base/common/observable.js";
+import { URI } from "../../../../base/common/uri.js";
 import { localize2 } from "../../../../nls.js";
 import { Action2 } from "../../../../platform/actions/common/actions.js";
-import { ContextKeyValue } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IActivityService, ProgressBadge } from "../../../services/activity/common/activity.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IActivityService,
+  ProgressBadge
+} from "../../../services/activity/common/activity.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ISCMRepository, ISCMResourceGroup, ISCMService } from "../../scm/common/scm.js";
-import { IMultiDiffSourceResolver, IMultiDiffSourceResolverService, IResolvedMultiDiffSource, MultiDiffEditorItem } from "./multiDiffSourceResolverService.js";
+import {
+  ISCMService
+} from "../../scm/common/scm.js";
+import {
+  IMultiDiffSourceResolverService,
+  MultiDiffEditorItem
+} from "./multiDiffSourceResolverService.js";
 let ScmMultiDiffSourceResolver = class {
   constructor(_scmService, _activityService) {
     this._scmService = _scmService;
@@ -34,7 +46,10 @@ let ScmMultiDiffSourceResolver = class {
   static getMultiDiffSourceUri(repositoryUri, groupId) {
     return URI.from({
       scheme: ScmMultiDiffSourceResolver._scheme,
-      query: JSON.stringify({ repositoryUri, groupId })
+      query: JSON.stringify({
+        repositoryUri,
+        groupId
+      })
     });
   }
   static parseUri(uri) {
@@ -65,19 +80,29 @@ let ScmMultiDiffSourceResolver = class {
       observableFromEvent(
         this,
         this._scmService.onDidAddRepository,
-        () => [...this._scmService.repositories].find((r) => r.provider.rootUri?.toString() === repositoryUri.toString())
+        () => [...this._scmService.repositories].find(
+          (r) => r.provider.rootUri?.toString() === repositoryUri.toString()
+        )
       )
     );
-    const group = await waitForState(observableFromEvent(
-      this,
-      repository.provider.onDidChangeResourceGroups,
-      () => repository.provider.groups.find((g) => g.id === groupId)
-    ));
+    const group = await waitForState(
+      observableFromEvent(
+        this,
+        repository.provider.onDidChangeResourceGroups,
+        () => repository.provider.groups.find((g) => g.id === groupId)
+      )
+    );
     const scmActivities = observableFromEvent(
       this._activityService.onDidChangeActivity,
-      () => [...this._activityService.getViewContainerActivities("workbench.view.scm")]
+      () => [
+        ...this._activityService.getViewContainerActivities(
+          "workbench.view.scm"
+        )
+      ]
     );
-    const scmViewHasNoProgressBadge = scmActivities.map((activities) => !activities.some((a) => a.badge instanceof ProgressBadge));
+    const scmViewHasNoProgressBadge = scmActivities.map(
+      (activities) => !activities.some((a) => a.badge instanceof ProgressBadge)
+    );
     await waitForState(scmViewHasNoProgressBadge, (v) => v);
     return new ScmResolvedMultiDiffSource(group, repository);
   }
@@ -98,10 +123,18 @@ class ScmResolvedMultiDiffSource {
     this._group.onDidChangeResources,
     () => (
       /** @description resources */
-      this._group.resources.map((e) => new MultiDiffEditorItem(e.multiDiffEditorOriginalUri, e.multiDiffEditorModifiedUri, e.sourceUri))
+      this._group.resources.map(
+        (e) => new MultiDiffEditorItem(
+          e.multiDiffEditorOriginalUri,
+          e.multiDiffEditorModifiedUri,
+          e.sourceUri
+        )
+      )
     )
   );
-  resources = new ValueWithChangeEventFromObservable(this._resources);
+  resources = new ValueWithChangeEventFromObservable(
+    this._resources
+  );
   contextKeys = {
     scmResourceGroup: this._group.id,
     scmProvider: this._repository.provider.contextValue
@@ -114,7 +147,11 @@ let ScmMultiDiffSourceResolverContribution = class extends Disposable {
   static ID = "workbench.contrib.scmMultiDiffSourceResolver";
   constructor(instantiationService, multiDiffSourceResolverService) {
     super();
-    this._register(multiDiffSourceResolverService.registerResolver(instantiationService.createInstance(ScmMultiDiffSourceResolver)));
+    this._register(
+      multiDiffSourceResolverService.registerResolver(
+        instantiationService.createInstance(ScmMultiDiffSourceResolver)
+      )
+    );
   }
 };
 ScmMultiDiffSourceResolverContribution = __decorateClass([
@@ -129,8 +166,15 @@ class OpenScmGroupAction extends Action2 {
     if (!repositoryRootUri) {
       return;
     }
-    const multiDiffSource = ScmMultiDiffSourceResolver.getMultiDiffSourceUri(repositoryRootUri.toString(), resourceGroupId);
-    return await editorService.openEditor({ label, multiDiffSource, options });
+    const multiDiffSource = ScmMultiDiffSourceResolver.getMultiDiffSourceUri(
+      repositoryRootUri.toString(),
+      resourceGroupId
+    );
+    return await editorService.openEditor({
+      label,
+      multiDiffSource,
+      options
+    });
   }
   constructor() {
     super({
@@ -141,7 +185,12 @@ class OpenScmGroupAction extends Action2 {
   }
   async run(accessor, options) {
     const editorService = accessor.get(IEditorService);
-    await OpenScmGroupAction.openMultiFileDiffEditor(editorService, options.title, URI.revive(options.repositoryUri), options.resourceGroupId);
+    await OpenScmGroupAction.openMultiFileDiffEditor(
+      editorService,
+      options.title,
+      URI.revive(options.repositoryUri),
+      options.resourceGroupId
+    );
   }
 }
 export {

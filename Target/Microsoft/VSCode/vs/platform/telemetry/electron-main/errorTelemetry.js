@@ -10,10 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { isSigPipeError, onUnexpectedError, setUnexpectedErrorHandler } from "../../../base/common/errors.js";
+import {
+  isSigPipeError,
+  onUnexpectedError,
+  setUnexpectedErrorHandler
+} from "../../../base/common/errors.js";
 import BaseErrorTelemetry from "../common/errorTelemetry.js";
 import { ITelemetryService } from "../common/telemetry.js";
-import { ILogService } from "../../../platform/log/common/log.js";
 let ErrorTelemetry = class extends BaseErrorTelemetry {
   constructor(logService, telemetryService) {
     super(telemetryService);
@@ -29,7 +32,10 @@ let ErrorTelemetry = class extends BaseErrorTelemetry {
         onUnexpectedError(error);
       }
     });
-    process.on("unhandledRejection", (reason) => onUnexpectedError(reason));
+    process.on(
+      "unhandledRejection",
+      (reason) => onUnexpectedError(reason)
+    );
   }
   onUnexpectedError(error) {
     this.logService.error(`[uncaught exception in main]: ${error}`);

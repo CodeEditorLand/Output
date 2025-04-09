@@ -27,7 +27,9 @@ class ReentrancyBarrier {
    */
   runExclusivelyOrThrow(runner) {
     if (this._isOccupied) {
-      throw new BugIndicatingError(`ReentrancyBarrier: reentrant call detected!`);
+      throw new BugIndicatingError(
+        "ReentrancyBarrier: reentrant call detected!"
+      );
     }
     this._isOccupied = true;
     try {
@@ -38,7 +40,7 @@ class ReentrancyBarrier {
   }
   /**
    * Indicates if some runner occupies this barrier.
-  */
+   */
   get isOccupied() {
     return this._isOccupied;
   }

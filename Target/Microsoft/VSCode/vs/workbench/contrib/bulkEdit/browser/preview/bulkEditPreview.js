@@ -10,28 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ITextModelContentProvider, ITextModelService } from "../../../../../editor/common/services/resolverService.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../../editor/common/services/model.js";
-import { createTextBufferFactoryFromSnapshot } from "../../../../../editor/common/model/textModel.js";
-import { WorkspaceEditMetadata } from "../../../../../editor/common/languages.js";
-import { DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { coalesceInPlace } from "../../../../../base/common/arrays.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { EditOperation, ISingleEditOperation } from "../../../../../editor/common/core/editOperation.js";
-import { ServicesAccessor, IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
-import { Emitter, Event } from "../../../../../base/common/event.js";
-import { ConflictDetector } from "../conflicts.js";
-import { ResourceMap } from "../../../../../base/common/map.js";
-import { localize } from "../../../../../nls.js";
-import { extUri } from "../../../../../base/common/resources.js";
-import { ResourceEdit, ResourceFileEdit, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
-import { generateUuid } from "../../../../../base/common/uuid.js";
-import { SnippetParser } from "../../../../../editor/contrib/snippet/browser/snippetParser.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../../base/common/map.js";
+import { extUri } from "../../../../../base/common/resources.js";
 import { MicrotaskDelay } from "../../../../../base/common/symbols.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
+import {
+  ResourceFileEdit,
+  ResourceTextEdit
+} from "../../../../../editor/browser/services/bulkEditService.js";
+import {
+  EditOperation
+} from "../../../../../editor/common/core/editOperation.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { ILanguageService } from "../../../../../editor/common/languages/language.js";
+import { createTextBufferFactoryFromSnapshot } from "../../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import {
+  ITextModelService
+} from "../../../../../editor/common/services/resolverService.js";
+import { SnippetParser } from "../../../../../editor/contrib/snippet/browser/snippetParser.js";
+import { localize } from "../../../../../nls.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
+import { ConflictDetector } from "../conflicts.js";
 class CheckedStates {
   static {
     __name(this, "CheckedStates");
@@ -139,7 +147,10 @@ let BulkFileOperations = class {
   constructor(_bulkEdit, _fileService, instaService) {
     this._bulkEdit = _bulkEdit;
     this._fileService = _fileService;
-    this.conflicts = instaService.createInstance(ConflictDetector, _bulkEdit);
+    this.conflicts = instaService.createInstance(
+      ConflictDetector,
+      _bulkEdit
+    );
   }
   static {
     __name(this, "BulkFileOperations");
@@ -267,7 +278,15 @@ let BulkFileOperations = class {
     if (!content) {
       return void 0;
     }
-    return EditOperation.replaceMove(Range.lift({ startLineNumber: 0, startColumn: 0, endLineNumber: Number.MAX_VALUE, endColumn: 0 }), content.toString());
+    return EditOperation.replaceMove(
+      Range.lift({
+        startLineNumber: 0,
+        startColumn: 0,
+        endLineNumber: Number.MAX_VALUE,
+        endColumn: 0
+      }),
+      content.toString()
+    );
   }
   async getFileEdits(uri) {
     for (const file of this.fileOperations) {
@@ -279,7 +298,16 @@ let BulkFileOperations = class {
             result.push(this.getFileEditOperation(edit));
           } else if (edit instanceof ResourceTextEdit) {
             if (this.checked.isChecked(edit)) {
-              result.push(Promise.resolve(EditOperation.replaceMove(Range.lift(edit.textEdit.range), !edit.textEdit.insertAsSnippet ? edit.textEdit.text : SnippetParser.asInsertText(edit.textEdit.text))));
+              result.push(
+                Promise.resolve(
+                  EditOperation.replaceMove(
+                    Range.lift(edit.textEdit.range),
+                    !edit.textEdit.insertAsSnippet ? edit.textEdit.text : SnippetParser.asInsertText(
+                      edit.textEdit.text
+                    )
+                  )
+                )
+              );
             }
           } else if (!this.checked.isChecked(edit)) {
             ignoreAll = true;
@@ -288,7 +316,9 @@ let BulkFileOperations = class {
         if (ignoreAll) {
           return [];
         }
-        return (await Promise.all(result)).filter((r) => r !== void 0).sort((a, b) => Range.compareRangesUsingStarts(a.range, b.range));
+        return (await Promise.all(result)).filter((r) => r !== void 0).sort(
+          (a, b) => Range.compareRangesUsingStarts(a.range, b.range)
+        );
       }
     }
     return [];
@@ -314,7 +344,12 @@ let BulkEditPreviewProvider = class {
     this._languageService = _languageService;
     this._modelService = _modelService;
     this._textModelResolverService = _textModelResolverService;
-    this._disposables.add(this._textModelResolverService.registerTextModelContentProvider(BulkEditPreviewProvider.Schema, this));
+    this._disposables.add(
+      this._textModelResolverService.registerTextModelContentProvider(
+        BulkEditPreviewProvider.Schema,
+        this
+      )
+    );
     this._ready = this._init();
   }
   static {
@@ -333,16 +368,27 @@ let BulkEditPreviewProvider = class {
     this._disposables.dispose();
   }
   asPreviewUri(uri) {
-    return URI.from({ scheme: BulkEditPreviewProvider.Schema, authority: this._instanceId, path: uri.path, query: uri.toString() });
+    return URI.from({
+      scheme: BulkEditPreviewProvider.Schema,
+      authority: this._instanceId,
+      path: uri.path,
+      query: uri.toString()
+    });
   }
   async _init() {
     for (const operation of this._operations.fileOperations) {
       await this._applyTextEditsToPreviewModel(operation.uri);
     }
-    this._disposables.add(Event.debounce(this._operations.checked.onDidChange, (_last, e) => e, MicrotaskDelay)((e) => {
-      const uri = this._operations.getUriOfEdit(e);
-      this._applyTextEditsToPreviewModel(uri);
-    }));
+    this._disposables.add(
+      Event.debounce(
+        this._operations.checked.onDidChange,
+        (_last, e) => e,
+        MicrotaskDelay
+      )((e) => {
+        const uri = this._operations.getUriOfEdit(e);
+        this._applyTextEditsToPreviewModel(uri);
+      })
+    );
   }
   async _applyTextEditsToPreviewModel(uri) {
     const model = await this._getOrCreatePreviewModel(uri);
@@ -359,23 +405,35 @@ let BulkEditPreviewProvider = class {
     let model = this._modelService.getModel(previewUri);
     if (!model) {
       try {
-        const ref = await this._textModelResolverService.createModelReference(uri);
+        const ref = await this._textModelResolverService.createModelReference(
+          uri
+        );
         const sourceModel = ref.object.textEditorModel;
         model = this._modelService.createModel(
-          createTextBufferFactoryFromSnapshot(sourceModel.createSnapshot()),
-          this._languageService.createById(sourceModel.getLanguageId()),
+          createTextBufferFactoryFromSnapshot(
+            sourceModel.createSnapshot()
+          ),
+          this._languageService.createById(
+            sourceModel.getLanguageId()
+          ),
           previewUri
         );
         ref.dispose();
       } catch {
         model = this._modelService.createModel(
           "",
-          this._languageService.createByFilepathOrFirstLine(previewUri),
+          this._languageService.createByFilepathOrFirstLine(
+            previewUri
+          ),
           previewUri
         );
       }
       queueMicrotask(async () => {
-        this._disposables.add(await this._textModelResolverService.createModelReference(model.uri));
+        this._disposables.add(
+          await this._textModelResolverService.createModelReference(
+            model?.uri
+          )
+        );
       });
     }
     return model;

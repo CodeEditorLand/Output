@@ -10,73 +10,103 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as glob from "../../../../base/common/glob.js";
-import { GroupIdentifier, ISaveOptions, IMoveResult, IRevertOptions, EditorInputCapabilities, Verbosity, IUntypedEditorInput, IFileLimitedEditorInputOptions, isResourceEditorInput } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { INotebookService, SimpleNotebookProviderInfo } from "./notebookService.js";
-import { URI } from "../../../../base/common/uri.js";
-import { isEqual, joinPath } from "../../../../base/common/resources.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { INotebookEditorModelResolverService } from "./notebookEditorModelResolverService.js";
-import { IDisposable, IReference } from "../../../../base/common/lifecycle.js";
-import { CellEditType, CellUri, IResolvedNotebookEditorModel } from "./notebookCommon.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { AbstractResourceEditorInput } from "../../../common/editor/resourceEditorInput.js";
-import { IResourceEditorInput } from "../../../../platform/editor/common/editor.js";
-import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
-import { IWorkingCopyIdentifier } from "../../../services/workingCopy/common/workingCopy.js";
-import { NotebookProviderInfo } from "./notebookProvider.js";
-import { NotebookPerfMarks } from "./notebookPerformance.js";
-import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { localize } from "../../../../nls.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import * as glob from "../../../../base/common/glob.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isEqual, joinPath } from "../../../../base/common/resources.js";
 import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import {
+  EditorInputCapabilities,
+  isResourceEditorInput,
+  Verbosity
+} from "../../../common/editor.js";
+import { AbstractResourceEditorInput } from "../../../common/editor/resourceEditorInput.js";
 import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import {
+  CellEditType,
+  CellUri
+} from "./notebookCommon.js";
+import { INotebookEditorModelResolverService } from "./notebookEditorModelResolverService.js";
+import {
+  INotebookService,
+  SimpleNotebookProviderInfo
+} from "./notebookService.js";
 let NotebookEditorInput = class extends AbstractResourceEditorInput {
   constructor(resource, preferredResource, viewType, options, _notebookService, _notebookModelResolverService, _fileDialogService, labelService, fileService, filesConfigurationService, extensionService, editorService, textResourceConfigurationService, customEditorLabelService) {
-    super(resource, preferredResource, labelService, fileService, filesConfigurationService, textResourceConfigurationService, customEditorLabelService);
+    super(
+      resource,
+      preferredResource,
+      labelService,
+      fileService,
+      filesConfigurationService,
+      textResourceConfigurationService,
+      customEditorLabelService
+    );
     this.viewType = viewType;
     this.options = options;
     this._notebookService = _notebookService;
     this._notebookModelResolverService = _notebookModelResolverService;
     this._fileDialogService = _fileDialogService;
     this._defaultDirtyState = !!options.startDirty;
-    this._sideLoadedListener = _notebookService.onDidAddNotebookDocument((e) => {
-      if (e.viewType === this.viewType && e.uri.toString() === this.resource.toString()) {
-        this.resolve().catch(onUnexpectedError);
-      }
-    });
-    this._register(extensionService.onWillStop((e) => {
-      if (!e.auto && !this.isDirty()) {
-        return;
-      }
-      const reason = e.auto ? localize("vetoAutoExtHostRestart", "An extension provided notebook for '{0}' is still open that would close otherwise.", this.getName()) : localize("vetoExtHostRestart", "An extension provided notebook for '{0}' could not be saved.", this.getName());
-      e.veto((async () => {
-        const editors = editorService.findEditors(this);
-        if (e.auto) {
-          return true;
+    this._sideLoadedListener = _notebookService.onDidAddNotebookDocument(
+      (e) => {
+        if (e.viewType === this.viewType && e.uri.toString() === this.resource.toString()) {
+          this.resolve().catch(onUnexpectedError);
         }
-        if (editors.length > 0) {
-          const result = await editorService.save(editors[0]);
-          if (result.success) {
-            return false;
-          }
+      }
+    );
+    this._register(
+      extensionService.onWillStop((e) => {
+        if (!e.auto && !this.isDirty()) {
+          return;
         }
-        return true;
-      })(), reason);
-    }));
+        const reason = e.auto ? localize(
+          "vetoAutoExtHostRestart",
+          "An extension provided notebook for '{0}' is still open that would close otherwise.",
+          this.getName()
+        ) : localize(
+          "vetoExtHostRestart",
+          "An extension provided notebook for '{0}' could not be saved.",
+          this.getName()
+        );
+        e.veto(
+          (async () => {
+            const editors = editorService.findEditors(this);
+            if (e.auto) {
+              return true;
+            }
+            if (editors.length > 0) {
+              const result = await editorService.save(editors[0]);
+              if (result.success) {
+                return false;
+              }
+            }
+            return true;
+          })(),
+          reason
+        );
+      })
+    );
   }
   static {
     __name(this, "NotebookEditorInput");
   }
   static getOrCreate(instantiationService, resource, preferredResource, viewType, options = {}) {
-    const editor = instantiationService.createInstance(NotebookEditorInput, resource, preferredResource, viewType, options);
+    const editor = instantiationService.createInstance(
+      NotebookEditorInput,
+      resource,
+      preferredResource,
+      viewType,
+      options
+    );
     if (preferredResource) {
       editor.setPreferredResource(preferredResource);
     }
@@ -157,16 +187,26 @@ let NotebookEditorInput = class extends AbstractResourceEditorInput {
     if (!this.editorModelReference) {
       return void 0;
     }
-    const provider = this._notebookService.getContributedNotebookType(this.viewType);
+    const provider = this._notebookService.getContributedNotebookType(
+      this.viewType
+    );
     if (!provider) {
       return void 0;
     }
-    const pathCandidate = this.hasCapability(EditorInputCapabilities.Untitled) ? await this._suggestName(provider, this.labelService.getUriBasenameLabel(this.resource)) : this.editorModelReference.object.resource;
+    const pathCandidate = this.hasCapability(
+      EditorInputCapabilities.Untitled
+    ) ? await this._suggestName(
+      provider,
+      this.labelService.getUriBasenameLabel(this.resource)
+    ) : this.editorModelReference.object.resource;
     let target;
     if (this.editorModelReference.object.hasAssociatedFilePath()) {
       target = pathCandidate;
     } else {
-      target = await this._fileDialogService.pickFileToSave(pathCandidate, options?.availableFileSystems);
+      target = await this._fileDialogService.pickFileToSave(
+        pathCandidate,
+        options?.availableFileSystems
+      );
       if (!target) {
         return void 0;
       }
@@ -185,10 +225,12 @@ let NotebookEditorInput = class extends AbstractResourceEditorInput {
           return `${pattern.include}`;
         }
       }).join(", ");
-      throw new Error(`File name ${target} is not supported by ${provider.providerDisplayName}.
+      throw new Error(
+        `File name ${target} is not supported by ${provider.providerDisplayName}.
 
 Please make sure the file name matches following patterns:
-${patterns}`);
+${patterns}`
+      );
     }
     return await this.editorModelReference.object.saveAs(target);
   }
@@ -206,21 +248,30 @@ ${patterns}`);
       if (matches && matches.length > 1) {
         const fileExt = matches[1];
         if (!suggestedFilename.endsWith(fileExt)) {
-          return joinPath(await this._fileDialogService.defaultFilePath(), suggestedFilename + "." + fileExt);
+          return joinPath(
+            await this._fileDialogService.defaultFilePath(),
+            `${suggestedFilename}.${fileExt}`
+          );
         }
       }
     }
-    return joinPath(await this._fileDialogService.defaultFilePath(), suggestedFilename);
+    return joinPath(
+      await this._fileDialogService.defaultFilePath(),
+      suggestedFilename
+    );
   }
   // called when users rename a notebook document
   async rename(group, target) {
     if (this.editorModelReference) {
-      return { editor: { resource: target }, options: { override: this.viewType } };
+      return {
+        editor: { resource: target },
+        options: { override: this.viewType }
+      };
     }
     return void 0;
   }
   async revert(_group, options) {
-    if (this.editorModelReference && this.editorModelReference.object.isDirty()) {
+    if (this.editorModelReference?.object.isDirty()) {
       await this.editorModelReference.object.revert(options);
     }
   }
@@ -231,8 +282,16 @@ ${patterns}`);
     perf?.mark("extensionActivated");
     this._sideLoadedListener.dispose();
     if (!this.editorModelReference) {
-      const scratchpad = this.capabilities & EditorInputCapabilities.Scratchpad ? true : false;
-      const ref = await this._notebookModelResolverService.resolve(this.resource, this.viewType, { limits: this.ensureLimits(_options), scratchpad, viewType: this.editorId });
+      const scratchpad = !!(this.capabilities & EditorInputCapabilities.Scratchpad);
+      const ref = await this._notebookModelResolverService.resolve(
+        this.resource,
+        this.viewType,
+        {
+          limits: this.ensureLimits(_options),
+          scratchpad,
+          viewType: this.editorId
+        }
+      );
       if (this.editorModelReference) {
         ref.dispose();
         return this.editorModelReference.object;
@@ -243,29 +302,58 @@ ${patterns}`);
         this.editorModelReference = null;
         return null;
       }
-      this._register(this.editorModelReference.object.onDidChangeDirty(() => this._onDidChangeDirty.fire()));
-      this._register(this.editorModelReference.object.onDidChangeReadonly(() => this._onDidChangeCapabilities.fire()));
-      this._register(this.editorModelReference.object.onDidRevertUntitled(() => this.dispose()));
+      this._register(
+        this.editorModelReference.object.onDidChangeDirty(
+          () => this._onDidChangeDirty.fire()
+        )
+      );
+      this._register(
+        this.editorModelReference.object.onDidChangeReadonly(
+          () => this._onDidChangeCapabilities.fire()
+        )
+      );
+      this._register(
+        this.editorModelReference.object.onDidRevertUntitled(
+          () => this.dispose()
+        )
+      );
       if (this.editorModelReference.object.isDirty()) {
         this._onDidChangeDirty.fire();
       }
     } else {
-      this.editorModelReference.object.load({ limits: this.ensureLimits(_options) });
+      this.editorModelReference.object.load({
+        limits: this.ensureLimits(_options)
+      });
     }
     if (this.options._backupId) {
-      const info = await this._notebookService.withNotebookDataProvider(this.editorModelReference.object.notebook.viewType);
+      const info = await this._notebookService.withNotebookDataProvider(
+        this.editorModelReference.object.notebook.viewType
+      );
       if (!(info instanceof SimpleNotebookProviderInfo)) {
         throw new Error("CANNOT open file notebook with this provider");
       }
-      const data = await info.serializer.dataToNotebook(VSBuffer.fromString(JSON.stringify({ __webview_backup: this.options._backupId })));
-      this.editorModelReference.object.notebook.applyEdits([
-        {
-          editType: CellEditType.Replace,
-          index: 0,
-          count: this.editorModelReference.object.notebook.length,
-          cells: data.cells
-        }
-      ], true, void 0, () => void 0, void 0, false);
+      const data = await info.serializer.dataToNotebook(
+        VSBuffer.fromString(
+          JSON.stringify({
+            __webview_backup: this.options._backupId
+          })
+        )
+      );
+      this.editorModelReference.object.notebook.applyEdits(
+        [
+          {
+            editType: CellEditType.Replace,
+            index: 0,
+            count: this.editorModelReference.object.notebook.length,
+            cells: data.cells
+          }
+        ],
+        true,
+        void 0,
+        () => void 0,
+        void 0,
+        false
+      );
       if (this.options._workingCopy) {
         this.options._backupId = void 0;
         this.options._workingCopy = void 0;
@@ -290,7 +378,10 @@ ${patterns}`);
       return this.viewType === otherInput.viewType && isEqual(this.resource, otherInput.resource);
     }
     if (isResourceEditorInput(otherInput) && otherInput.resource.scheme === CellUri.scheme) {
-      return isEqual(this.resource, CellUri.parse(otherInput.resource)?.notebook);
+      return isEqual(
+        this.resource,
+        CellUri.parse(otherInput.resource)?.notebook
+      );
     }
     return false;
   }
@@ -308,7 +399,9 @@ NotebookEditorInput = __decorateClass([
   __decorateParam(13, ICustomEditorLabelService)
 ], NotebookEditorInput);
 function isCompositeNotebookEditorInput(thing) {
-  return !!thing && typeof thing === "object" && Array.isArray(thing.editorInputs) && thing.editorInputs.every((input) => input instanceof NotebookEditorInput);
+  return !!thing && typeof thing === "object" && Array.isArray(thing.editorInputs) && thing.editorInputs.every(
+    (input) => input instanceof NotebookEditorInput
+  );
 }
 __name(isCompositeNotebookEditorInput, "isCompositeNotebookEditorInput");
 function isNotebookEditorInput(thing) {

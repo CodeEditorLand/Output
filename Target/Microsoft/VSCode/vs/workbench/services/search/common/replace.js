@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as strings from "../../../../base/common/strings.js";
-import { IPatternInfo } from "./search.js";
 import { CharCode } from "../../../../base/common/charCode.js";
 import { buildReplaceStringWithCasePreserved } from "../../../../base/common/search.js";
+import * as strings from "../../../../base/common/strings.js";
 class ReplacePattern {
   static {
     __name(this, "ReplacePattern");
@@ -22,15 +21,32 @@ class ReplacePattern {
     } else {
       searchPatternInfo = arg2;
       parseParameters = !!searchPatternInfo.isRegExp;
-      this._regExp = strings.createRegExp(searchPatternInfo.pattern, !!searchPatternInfo.isRegExp, { matchCase: searchPatternInfo.isCaseSensitive, wholeWord: searchPatternInfo.isWordMatch, multiline: searchPatternInfo.isMultiline, global: false, unicode: true });
+      this._regExp = strings.createRegExp(
+        searchPatternInfo.pattern,
+        !!searchPatternInfo.isRegExp,
+        {
+          matchCase: searchPatternInfo.isCaseSensitive,
+          wholeWord: searchPatternInfo.isWordMatch,
+          multiline: searchPatternInfo.isMultiline,
+          global: false,
+          unicode: true
+        }
+      );
     }
     if (parseParameters) {
       this.parseReplaceString(replaceString);
     }
     if (this._regExp.global) {
-      this._regExp = strings.createRegExp(this._regExp.source, true, { matchCase: !this._regExp.ignoreCase, wholeWord: false, multiline: this._regExp.multiline, global: false });
+      this._regExp = strings.createRegExp(this._regExp.source, true, {
+        matchCase: !this._regExp.ignoreCase,
+        wholeWord: false,
+        multiline: this._regExp.multiline,
+        global: false
+      });
     }
-    this._caseOpsRegExp = new RegExp(/([\s\S]*?)((?:\\[uUlL])+?|)(\$[0-9]+)([\s\S]*?)/g);
+    this._caseOpsRegExp = new RegExp(
+      /([\s\S]*?)((?:\\[uUlL])+?|)(\$[0-9]+)([\s\S]*?)/g
+    );
   }
   get hasParameters() {
     return this._hasParameters;
@@ -42,19 +58,26 @@ class ReplacePattern {
     return this._regExp;
   }
   /**
-  * Returns the replace string for the first match in the given text.
-  * If text has no matches then returns null.
-  */
+   * Returns the replace string for the first match in the given text.
+   * If text has no matches then returns null.
+   */
   getReplaceString(text, preserveCase) {
     this._regExp.lastIndex = 0;
     const match = this._regExp.exec(text);
     if (match) {
       if (this.hasParameters) {
-        const replaceString = this.replaceWithCaseOperations(text, this._regExp, this.buildReplaceString(match, preserveCase));
+        const replaceString = this.replaceWithCaseOperations(
+          text,
+          this._regExp,
+          this.buildReplaceString(match, preserveCase)
+        );
         if (match[0] === text) {
           return replaceString;
         }
-        return replaceString.substr(match.index, match[0].length - (text.length - replaceString.length));
+        return replaceString.substr(
+          match.index,
+          match[0].length - (text.length - replaceString.length)
+        );
       }
       return this.buildReplaceString(match, preserveCase);
     }
@@ -91,7 +114,7 @@ class ReplacePattern {
         newReplaceString += fullMatch;
         continue;
       }
-      const replacement = firstMatch[parseInt(money.slice(1))];
+      const replacement = firstMatch[Number.parseInt(money.slice(1))];
       if (!replacement) {
         newReplaceString += fullMatch;
         continue;
@@ -128,7 +151,10 @@ class ReplacePattern {
   }
   buildReplaceString(matches, preserveCase) {
     if (preserveCase) {
-      return buildReplaceStringWithCasePreserved(matches, this._replacePattern);
+      return buildReplaceStringWithCasePreserved(
+        matches,
+        this._replacePattern
+      );
     } else {
       return this._replacePattern;
     }
@@ -144,7 +170,8 @@ class ReplacePattern {
     if (!replaceString || replaceString.length === 0) {
       return;
     }
-    let substrFrom = 0, result = "";
+    let substrFrom = 0;
+    let result = "";
     for (let i = 0, len = replaceString.length; i < len; i++) {
       const chCode = replaceString.charCodeAt(i);
       if (chCode === CharCode.Backslash) {
@@ -187,7 +214,11 @@ class ReplacePattern {
             this._hasParameters = true;
             break;
           default: {
-            if (!this.between(nextChCode, CharCode.Digit1, CharCode.Digit9)) {
+            if (!this.between(
+              nextChCode,
+              CharCode.Digit1,
+              CharCode.Digit9
+            )) {
               break;
             }
             if (i === replaceString.length - 1) {
@@ -195,7 +226,11 @@ class ReplacePattern {
               break;
             }
             let charCode = replaceString.charCodeAt(++i);
-            if (!this.between(charCode, CharCode.Digit0, CharCode.Digit9)) {
+            if (!this.between(
+              charCode,
+              CharCode.Digit0,
+              CharCode.Digit9
+            )) {
               this._hasParameters = true;
               --i;
               break;
@@ -205,7 +240,11 @@ class ReplacePattern {
               break;
             }
             charCode = replaceString.charCodeAt(++i);
-            if (!this.between(charCode, CharCode.Digit0, CharCode.Digit9)) {
+            if (!this.between(
+              charCode,
+              CharCode.Digit0,
+              CharCode.Digit9
+            )) {
               this._hasParameters = true;
               --i;
               break;

@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { userInfo } from "os";
+import { userInfo } from "node:os";
 import * as platform from "../common/platform.js";
 import { getFirstAvailablePowerShellInstallation } from "./powershell.js";
 import * as processes from "./processes.js";
@@ -46,7 +46,7 @@ __name(getSystemShellUnixLike, "getSystemShellUnixLike");
 let _TERMINAL_DEFAULT_SHELL_WINDOWS = null;
 async function getSystemShellWindows() {
   if (!_TERMINAL_DEFAULT_SHELL_WINDOWS) {
-    _TERMINAL_DEFAULT_SHELL_WINDOWS = (await getFirstAvailablePowerShellInstallation()).exePath;
+    _TERMINAL_DEFAULT_SHELL_WINDOWS = (await getFirstAvailablePowerShellInstallation())?.exePath;
   }
   return _TERMINAL_DEFAULT_SHELL_WINDOWS;
 }

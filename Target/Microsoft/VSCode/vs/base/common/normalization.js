@@ -30,12 +30,10 @@ function normalize(str, form, normalizedCache) {
   return res;
 }
 __name(normalize, "normalize");
-const removeAccents = /* @__PURE__ */ function() {
+const removeAccents = /* @__PURE__ */ (() => {
   const regex = /[\u0300-\u036f]/g;
-  return function(str) {
-    return normalizeNFD(str).replace(regex, "");
-  };
-}();
+  return (str) => normalizeNFD(str).replace(regex, "");
+})();
 export {
   normalizeNFC,
   normalizeNFD,

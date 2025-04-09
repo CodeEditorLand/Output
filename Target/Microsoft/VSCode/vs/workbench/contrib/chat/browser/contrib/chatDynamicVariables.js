@@ -13,39 +13,63 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { coalesce, groupBy } from "../../../../../base/common/arrays.js";
 import { assertNever } from "../../../../../base/common/assert.js";
 import { timeout } from "../../../../../base/common/async.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { isCancellationError } from "../../../../../base/common/errors.js";
 import * as glob from "../../../../../base/common/glob.js";
-import { IMarkdownString, MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import {
+  MarkdownString
+} from "../../../../../base/common/htmlContent.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { ResourceSet } from "../../../../../base/common/map.js";
-import { basename, dirname, joinPath, relativePath } from "../../../../../base/common/resources.js";
+import {
+  basename,
+  dirname,
+  joinPath,
+  relativePath
+} from "../../../../../base/common/resources.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { IRange, Range } from "../../../../../editor/common/core/range.js";
-import { IDecorationOptions } from "../../../../../editor/common/editorCommon.js";
-import { Command, isLocation } from "../../../../../editor/common/languages.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import {
+  isLocation
+} from "../../../../../editor/common/languages.js";
 import { ITextModelService } from "../../../../../editor/common/services/resolverService.js";
 import { localize } from "../../../../../nls.js";
-import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { FileType, IFileService } from "../../../../../platform/files/common/files.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import {
+  FileType,
+  IFileService
+} from "../../../../../platform/files/common/files.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
-import { IMarkerService, MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
+import {
+  IMarkerService,
+  MarkerSeverity
+} from "../../../../../platform/markers/common/markers.js";
 import { PromptsConfig } from "../../../../../platform/prompts/common/config.js";
-import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../../platform/quickinput/common/quickInput.js";
+import {
+  IQuickInputService
+} from "../../../../../platform/quickinput/common/quickInput.js";
 import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
-import { getExcludes, IFileQuery, ISearchComplete, ISearchConfiguration, ISearchService, QueryType } from "../../../../services/search/common/search.js";
-import { ISymbolQuickPickItem } from "../../../search/browser/symbolsQuickAccess.js";
+import {
+  getExcludes,
+  ISearchService,
+  QueryType
+} from "../../../../services/search/common/search.js";
 import { IDiagnosticVariableEntryFilterData } from "../../common/chatModel.js";
-import { IChatRequestProblemsVariable, IChatRequestVariableValue, IDynamicVariable } from "../../common/chatVariables.js";
-import { IChatWidget } from "../chat.js";
-import { ChatWidget, IChatWidgetContrib } from "../chatWidget.js";
+import { ChatWidget } from "../chatWidget.js";
 import { ChatFileReference } from "./chatDynamicVariables/chatFileReference.js";
 const dynamicVariableDecorationType = "chat-dynamic-variable";
 function changeIsBeforeVariable(changeRange, variableRange) {
@@ -63,70 +87,90 @@ let ChatDynamicVariableModel = class extends Disposable {
     this.labelService = labelService;
     this.configService = configService;
     this.instantiationService = instantiationService;
-    this._register(widget.inputEditor.onDidChangeModelContent((e) => {
-      e.changes.forEach((c) => {
-        this._variables = coalesce(this._variables.map((ref) => {
-          const intersection = Range.intersectRanges(ref.range, c.range);
-          if (intersection && !intersection.isEmpty()) {
-            if (!Range.containsRange(c.range, ref.range)) {
-              const rangeToDelete = new Range(ref.range.startLineNumber, ref.range.startColumn, ref.range.endLineNumber, ref.range.endColumn - 1);
-              this.widget.inputEditor.executeEdits(this.id, [{
-                range: rangeToDelete,
-                text: ""
-              }]);
-              this.widget.refreshParsedInput();
-            }
-            if ("dispose" in ref && typeof ref.dispose === "function") {
-              ref.dispose();
-            }
-            return null;
-          } else if (Range.compareRangesUsingStarts(ref.range, c.range) > 0) {
-            if (changeIsBeforeVariable(c.range, ref.range)) {
-              const linesInserted = c.text.split("\n").length - 1;
-              const linesRemoved = c.range.endLineNumber - c.range.startLineNumber;
-              const lineDelta = linesInserted - linesRemoved;
-              let columnDelta = 0;
-              if (c.range.endLineNumber === ref.range.startLineNumber) {
-                if (c.range.endColumn <= ref.range.startColumn) {
-                  if (linesInserted === 0) {
-                    const charsInserted = c.text.length;
-                    const charsRemoved = c.rangeLength;
-                    columnDelta = charsInserted - charsRemoved;
-                  } else {
-                    columnDelta = -(c.range.endColumn - 1);
-                  }
-                } else {
-                  columnDelta = 0;
+    this._register(
+      widget.inputEditor.onDidChangeModelContent((e) => {
+        e.changes.forEach((c) => {
+          this._variables = coalesce(
+            this._variables.map((ref) => {
+              const intersection = Range.intersectRanges(
+                ref.range,
+                c.range
+              );
+              if (intersection && !intersection.isEmpty()) {
+                if (!Range.containsRange(c.range, ref.range)) {
+                  const rangeToDelete = new Range(
+                    ref.range.startLineNumber,
+                    ref.range.startColumn,
+                    ref.range.endLineNumber,
+                    ref.range.endColumn - 1
+                  );
+                  this.widget.inputEditor.executeEdits(
+                    this.id,
+                    [
+                      {
+                        range: rangeToDelete,
+                        text: ""
+                      }
+                    ]
+                  );
+                  this.widget.refreshParsedInput();
                 }
-              } else if (c.range.endLineNumber < ref.range.startLineNumber) {
-                columnDelta = 0;
+                if ("dispose" in ref && typeof ref.dispose === "function") {
+                  ref.dispose();
+                }
+                return null;
+              } else if (Range.compareRangesUsingStarts(
+                ref.range,
+                c.range
+              ) > 0) {
+                if (changeIsBeforeVariable(c.range, ref.range)) {
+                  const linesInserted = c.text.split("\n").length - 1;
+                  const linesRemoved = c.range.endLineNumber - c.range.startLineNumber;
+                  const lineDelta = linesInserted - linesRemoved;
+                  let columnDelta = 0;
+                  if (c.range.endLineNumber === ref.range.startLineNumber) {
+                    if (c.range.endColumn <= ref.range.startColumn) {
+                      if (linesInserted === 0) {
+                        const charsInserted = c.text.length;
+                        const charsRemoved = c.rangeLength;
+                        columnDelta = charsInserted - charsRemoved;
+                      } else {
+                        columnDelta = -(c.range.endColumn - 1);
+                      }
+                    } else {
+                      columnDelta = 0;
+                    }
+                  } else if (c.range.endLineNumber < ref.range.startLineNumber) {
+                    columnDelta = 0;
+                  }
+                  const newRange = {
+                    startLineNumber: ref.range.startLineNumber + lineDelta,
+                    startColumn: ref.range.startColumn + columnDelta,
+                    endLineNumber: ref.range.endLineNumber + lineDelta,
+                    endColumn: ref.range.endColumn + columnDelta
+                  };
+                  if (ref instanceof ChatFileReference) {
+                    ref.range = newRange;
+                    return ref;
+                  } else {
+                    return {
+                      ...ref,
+                      range: newRange
+                    };
+                  }
+                } else if (changeIsAfterVariable(c.range, ref.range)) {
+                  return ref;
+                } else {
+                  return null;
+                }
               }
-              const newRange = {
-                startLineNumber: ref.range.startLineNumber + lineDelta,
-                startColumn: ref.range.startColumn + columnDelta,
-                endLineNumber: ref.range.endLineNumber + lineDelta,
-                endColumn: ref.range.endColumn + columnDelta
-              };
-              if (ref instanceof ChatFileReference) {
-                ref.range = newRange;
-                return ref;
-              } else {
-                return {
-                  ...ref,
-                  range: newRange
-                };
-              }
-            } else if (changeIsAfterVariable(c.range, ref.range)) {
               return ref;
-            } else {
-              return null;
-            }
-          }
-          return ref;
-        }));
-      });
-      this.updateDecorations();
-    }));
+            })
+          );
+        });
+        this.updateDecorations();
+      })
+    );
   }
   static {
     __name(this, "ChatDynamicVariableModel");
@@ -162,7 +206,10 @@ let ChatDynamicVariableModel = class extends Disposable {
   }
   addReference(ref) {
     const promptSnippetsEnabled = PromptsConfig.enabled(this.configService);
-    const variable = ref.id === "vscode.file" && promptSnippetsEnabled ? this.instantiationService.createInstance(ChatFileReference, ref) : ref;
+    const variable = ref.id === "vscode.file" && promptSnippetsEnabled ? this.instantiationService.createInstance(
+      ChatFileReference,
+      ref
+    ) : ref;
     this._variables.push(variable);
     this.updateDecorations();
     this.widget.refreshParsedInput();
@@ -174,19 +221,31 @@ let ChatDynamicVariableModel = class extends Disposable {
     }
   }
   updateDecorations() {
-    this.widget.inputEditor.setDecorationsByType("chat", dynamicVariableDecorationType, this._variables.map((r) => ({
-      range: r.range,
-      hoverMessage: this.getHoverForReference(r)
-    })));
+    this.widget.inputEditor.setDecorationsByType(
+      "chat",
+      dynamicVariableDecorationType,
+      this._variables.map(
+        (r) => ({
+          range: r.range,
+          hoverMessage: this.getHoverForReference(r)
+        })
+      )
+    );
   }
   getHoverForReference(ref) {
     const value = ref.data;
     if (URI.isUri(value)) {
-      return new MarkdownString(this.labelService.getUriLabel(value, { relative: true }));
+      return new MarkdownString(
+        this.labelService.getUriLabel(value, { relative: true })
+      );
     } else if (isLocation(value)) {
       const prefix = ref.fullName ? ` ${ref.fullName}` : "";
       const rangeString = `#${value.range.startLineNumber}-${value.range.endLineNumber}`;
-      return new MarkdownString(prefix + this.labelService.getUriLabel(value.uri, { relative: true }) + rangeString);
+      return new MarkdownString(
+        prefix + this.labelService.getUriLabel(value.uri, {
+          relative: true
+        }) + rangeString
+      );
     } else {
       return void 0;
     }
@@ -227,7 +286,10 @@ class SelectAndInsertFileAction extends Action2 {
   static Name = "files";
   static Item = {
     label: localize("allFiles", "All Files"),
-    description: localize("allFilesDescription", "Search for relevant files in the workspace and provide context from them")
+    description: localize(
+      "allFilesDescription",
+      "Search for relevant files in the workspace and provide context from them"
+    )
   };
   static ID = "workbench.action.chat.selectAndInsertFile";
   constructor() {
@@ -246,7 +308,9 @@ class SelectAndInsertFileAction extends Action2 {
       return;
     }
     const doCleanup = /* @__PURE__ */ __name(() => {
-      context.widget.inputEditor.executeEdits("chatInsertFile", [{ range: context.range, text: `` }]);
+      context.widget.inputEditor.executeEdits("chatInsertFile", [
+        { range: context.range, text: "" }
+      ]);
     }, "doCleanup");
     await timeout(0);
     const picks = await quickInputService.quickAccess.pick("");
@@ -259,24 +323,34 @@ class SelectAndInsertFileAction extends Action2 {
     const range = context.range;
     if (picks[0] === SelectAndInsertFileAction.Item) {
       const text2 = `#${SelectAndInsertFileAction.Name}`;
-      const success2 = editor.executeEdits("chatInsertFile", [{ range, text: text2 + " " }]);
+      const success2 = editor.executeEdits("chatInsertFile", [
+        { range, text: `${text2} ` }
+      ]);
       if (!success2) {
-        logService.trace(`SelectAndInsertFileAction: failed to insert "${text2}"`);
+        logService.trace(
+          `SelectAndInsertFileAction: failed to insert "${text2}"`
+        );
         doCleanup();
       }
       return;
     }
     const resource = picks[0].resource;
     if (!textModelService.canHandleResource(resource)) {
-      logService.trace("SelectAndInsertFileAction: non-text resource selected");
+      logService.trace(
+        "SelectAndInsertFileAction: non-text resource selected"
+      );
       doCleanup();
       return;
     }
     const fileName = basename(resource);
     const text = `#file:${fileName}`;
-    const success = editor.executeEdits("chatInsertFile", [{ range, text: text + " " }]);
+    const success = editor.executeEdits("chatInsertFile", [
+      { range, text: `${text} ` }
+    ]);
     if (!success) {
-      logService.trace(`SelectAndInsertFileAction: failed to insert "${text}"`);
+      logService.trace(
+        `SelectAndInsertFileAction: failed to insert "${text}"`
+      );
       doCleanup();
       return;
     }
@@ -284,7 +358,12 @@ class SelectAndInsertFileAction extends Action2 {
       id: "vscode.file",
       isFile: true,
       prefix: "file",
-      range: { startLineNumber: range.startLineNumber, startColumn: range.startColumn, endLineNumber: range.endLineNumber, endColumn: range.startColumn + text.length },
+      range: {
+        startLineNumber: range.startLineNumber,
+        startColumn: range.startColumn,
+        endLineNumber: range.endLineNumber,
+        endColumn: range.startColumn + text.length
+      },
       data: resource
     });
   }
@@ -310,7 +389,9 @@ class SelectAndInsertFolderAction extends Action2 {
       return;
     }
     const doCleanup = /* @__PURE__ */ __name(() => {
-      context.widget.inputEditor.executeEdits("chatInsertFolder", [{ range: context.range, text: `` }]);
+      context.widget.inputEditor.executeEdits("chatInsertFolder", [
+        { range: context.range, text: "" }
+      ]);
     }, "doCleanup");
     const folder = await createFolderQuickPick(accessor);
     if (!folder) {
@@ -322,9 +403,13 @@ class SelectAndInsertFolderAction extends Action2 {
     const range = context.range;
     const folderName = basename(folder);
     const text = `#folder:${folderName}`;
-    const success = editor.executeEdits("chatInsertFolder", [{ range, text: text + " " }]);
+    const success = editor.executeEdits("chatInsertFolder", [
+      { range, text: `${text} ` }
+    ]);
     if (!success) {
-      logService.trace(`SelectAndInsertFolderAction: failed to insert "${text}"`);
+      logService.trace(
+        `SelectAndInsertFolderAction: failed to insert "${text}"`
+      );
       doCleanup();
       return;
     }
@@ -333,7 +418,12 @@ class SelectAndInsertFolderAction extends Action2 {
       isFile: false,
       isDirectory: true,
       prefix: "folder",
-      range: { startLineNumber: range.startLineNumber, startColumn: range.startColumn, endLineNumber: range.endLineNumber, endColumn: range.startColumn + text.length },
+      range: {
+        startLineNumber: range.startLineNumber,
+        startColumn: range.startColumn,
+        endLineNumber: range.endLineNumber,
+        endColumn: range.startColumn + text.length
+      },
       data: folder
     });
   }
@@ -358,33 +448,39 @@ async function createFolderQuickPick(accessor) {
       disposables.dispose();
       quickPick.dispose();
     }, "resolve");
-    disposables.add(quickPick.onDidChangeValue(async (value) => {
-      if (value === "") {
-        quickPick.items = topLevelFolderItems;
-        return;
-      }
-      const workspaceFolders = await Promise.all(
-        workspaces.map(
-          (workspace) => searchFolders(
-            workspace,
-            value,
-            true,
-            void 0,
-            void 0,
-            configurationService,
-            searchService
+    disposables.add(
+      quickPick.onDidChangeValue(async (value) => {
+        if (value === "") {
+          quickPick.items = topLevelFolderItems;
+          return;
+        }
+        const workspaceFolders = await Promise.all(
+          workspaces.map(
+            (workspace) => searchFolders(
+              workspace,
+              value,
+              true,
+              void 0,
+              void 0,
+              configurationService,
+              searchService
+            )
           )
-        )
-      );
-      quickPick.items = workspaceFolders.flat().map(createQuickPickItem);
-    }));
-    disposables.add(quickPick.onDidAccept((e) => {
-      const value = quickPick.selectedItems[0]?.resource;
-      resolve(value);
-    }));
-    disposables.add(quickPick.onDidHide(() => {
-      resolve(void 0);
-    }));
+        );
+        quickPick.items = workspaceFolders.flat().map(createQuickPickItem);
+      })
+    );
+    disposables.add(
+      quickPick.onDidAccept((e) => {
+        const value = quickPick.selectedItems[0]?.resource;
+        resolve(value);
+      })
+    );
+    disposables.add(
+      quickPick.onDidHide(() => {
+        resolve(void 0);
+      })
+    );
     quickPick.show();
   });
   function createQuickPickItem(folder) {
@@ -394,7 +490,9 @@ async function createFolderQuickPick(accessor) {
       resource: folder,
       alwaysShow: true,
       label: basename(folder),
-      description: labelService.getUriLabel(dirname(folder), { relative: true }),
+      description: labelService.getUriLabel(dirname(folder), {
+        relative: true
+      }),
       iconClass: ThemeIcon.asClassName(Codicon.folder)
     };
   }
@@ -420,13 +518,23 @@ async function getTopLevelFolders(workspaces, fileService) {
 }
 __name(getTopLevelFolders, "getTopLevelFolders");
 async function searchFolders(workspace, pattern, fuzzyMatch, token, cacheKey, configurationService, searchService) {
-  const segmentMatchPattern = caseInsensitiveGlobPattern(fuzzyMatch ? fuzzyMatchingGlobPattern(pattern) : continousMatchingGlobPattern(pattern));
-  const searchExcludePattern = getExcludes(configurationService.getValue({ resource: workspace })) || {};
+  const segmentMatchPattern = caseInsensitiveGlobPattern(
+    fuzzyMatch ? fuzzyMatchingGlobPattern(pattern) : continousMatchingGlobPattern(pattern)
+  );
+  const searchExcludePattern = getExcludes(
+    configurationService.getValue({
+      resource: workspace
+    })
+  ) || {};
   const searchOptions = {
-    folderQueries: [{
-      folder: workspace,
-      disregardIgnoreFiles: configurationService.getValue("explorer.excludeGitIgnore")
-    }],
+    folderQueries: [
+      {
+        folder: workspace,
+        disregardIgnoreFiles: configurationService.getValue(
+          "explorer.excludeGitIgnore"
+        )
+      }
+    ],
     type: QueryType.File,
     shouldGlobMatchFilePattern: true,
     cacheKey,
@@ -434,7 +542,10 @@ async function searchFolders(workspace, pattern, fuzzyMatch, token, cacheKey, co
   };
   let folderResults;
   try {
-    folderResults = await searchService.fileSearch({ ...searchOptions, filePattern: `**/${segmentMatchPattern}/**` }, token);
+    folderResults = await searchService.fileSearch(
+      { ...searchOptions, filePattern: `**/${segmentMatchPattern}/**` },
+      token
+    );
   } catch (e) {
     if (!isCancellationError(e)) {
       throw e;
@@ -443,7 +554,11 @@ async function searchFolders(workspace, pattern, fuzzyMatch, token, cacheKey, co
   if (!folderResults || token?.isCancellationRequested) {
     return [];
   }
-  const folderResources = getMatchingFoldersFromFiles(folderResults.results.map((result) => result.resource), workspace, segmentMatchPattern);
+  const folderResources = getMatchingFoldersFromFiles(
+    folderResults.results.map((result) => result.resource),
+    workspace,
+    segmentMatchPattern
+  );
   return folderResources;
 }
 __name(searchFolders, "searchFolders");
@@ -451,14 +566,14 @@ function fuzzyMatchingGlobPattern(pattern) {
   if (!pattern) {
     return "*";
   }
-  return "*" + pattern.split("").join("*") + "*";
+  return `*${pattern.split("").join("*")}*`;
 }
 __name(fuzzyMatchingGlobPattern, "fuzzyMatchingGlobPattern");
 function continousMatchingGlobPattern(pattern) {
   if (!pattern) {
     return "*";
   }
-  return "*" + pattern + "*";
+  return `*${pattern}*`;
 }
 __name(continousMatchingGlobPattern, "continousMatchingGlobPattern");
 function caseInsensitiveGlobPattern(pattern) {
@@ -484,7 +599,9 @@ function getMatchingFoldersFromFiles(resources, workspace, segmentMatchPattern) 
     let dirResource = workspace;
     const stats = relativePathToRoot.split("/").slice(0, -1);
     for (const stat of stats) {
-      dirResource = dirResource.with({ path: `${dirResource.path}/${stat}` });
+      dirResource = dirResource.with({
+        path: `${dirResource.path}/${stat}`
+      });
       uniqueFolders.add(dirResource);
     }
   }
@@ -522,10 +639,14 @@ class SelectAndInsertSymAction extends Action2 {
       return;
     }
     const doCleanup = /* @__PURE__ */ __name(() => {
-      context.widget.inputEditor.executeEdits("chatInsertSym", [{ range: context.range, text: `` }]);
+      context.widget.inputEditor.executeEdits("chatInsertSym", [
+        { range: context.range, text: "" }
+      ]);
     }, "doCleanup");
     await timeout(0);
-    const picks = await quickInputService.quickAccess.pick("#", { enabledProviderPrefixes: ["#"] });
+    const picks = await quickInputService.quickAccess.pick("#", {
+      enabledProviderPrefixes: ["#"]
+    });
     if (!picks?.length) {
       logService.trace("SelectAndInsertSymAction: no symbol selected");
       doCleanup();
@@ -535,21 +656,32 @@ class SelectAndInsertSymAction extends Action2 {
     const range = context.range;
     const symbol = picks[0].symbol;
     if (!symbol || !textModelService.canHandleResource(symbol.location.uri)) {
-      logService.trace("SelectAndInsertSymAction: non-text resource selected");
+      logService.trace(
+        "SelectAndInsertSymAction: non-text resource selected"
+      );
       doCleanup();
       return;
     }
     const text = `#sym:${symbol.name}`;
-    const success = editor.executeEdits("chatInsertSym", [{ range, text: text + " " }]);
+    const success = editor.executeEdits("chatInsertSym", [
+      { range, text: `${text} ` }
+    ]);
     if (!success) {
-      logService.trace(`SelectAndInsertSymAction: failed to insert "${text}"`);
+      logService.trace(
+        `SelectAndInsertSymAction: failed to insert "${text}"`
+      );
       doCleanup();
       return;
     }
     context.widget.getContrib(ChatDynamicVariableModel.ID)?.addReference({
       id: "vscode.symbol",
       prefix: "symbol",
-      range: { startLineNumber: range.startLineNumber, startColumn: range.startColumn, endLineNumber: range.endLineNumber, endColumn: range.startColumn + text.length },
+      range: {
+        startLineNumber: range.startLineNumber,
+        startColumn: range.startColumn,
+        endLineNumber: range.endLineNumber,
+        endColumn: range.startColumn + text.length
+      },
       data: symbol.location
     });
   }
@@ -579,20 +711,39 @@ class AddDynamicVariableAction extends Action2 {
     let range = context.range;
     const variableData = context.variableData;
     const doCleanup = /* @__PURE__ */ __name(() => {
-      context.widget.inputEditor.executeEdits("chatInsertDynamicVariableWithArguments", [{ range: context.range, text: `` }]);
+      context.widget.inputEditor.executeEdits(
+        "chatInsertDynamicVariableWithArguments",
+        [{ range: context.range, text: "" }]
+      );
     }, "doCleanup");
     if (context.command) {
       const commandService = accessor.get(ICommandService);
-      const selection = await commandService.executeCommand(context.command.id, ...context.command.arguments ?? []);
+      const selection = await commandService.executeCommand(
+        context.command.id,
+        ...context.command.arguments ?? []
+      );
       if (!selection) {
         doCleanup();
         return;
       }
-      const insertText = ":" + selection;
-      const insertRange = new Range(range.startLineNumber, range.endColumn, range.endLineNumber, range.endColumn + insertText.length);
-      range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn + insertText.length);
+      const insertText = `:${selection}`;
+      const insertRange = new Range(
+        range.startLineNumber,
+        range.endColumn,
+        range.endLineNumber,
+        range.endColumn + insertText.length
+      );
+      range = new Range(
+        range.startLineNumber,
+        range.startColumn,
+        range.endLineNumber,
+        range.endColumn + insertText.length
+      );
       const editor = context.widget.inputEditor;
-      const success = editor.executeEdits("chatInsertDynamicVariableWithArguments", [{ range: insertRange, text: insertText + " " }]);
+      const success = editor.executeEdits(
+        "chatInsertDynamicVariableWithArguments",
+        [{ range: insertRange, text: `${insertText} ` }]
+      );
       if (!success) {
         doCleanup();
         return;
@@ -609,20 +760,28 @@ class AddDynamicVariableAction extends Action2 {
 }
 registerAction2(AddDynamicVariableAction);
 async function createMarkersQuickPick(accessor, level, onBackgroundAccept) {
-  const markers = accessor.get(IMarkerService).read({ severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info });
+  const markers = accessor.get(IMarkerService).read({
+    severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info
+  });
   if (!markers.length) {
     return;
   }
   const uriIdentityService = accessor.get(IUriIdentityService);
   const labelService = accessor.get(ILabelService);
-  const grouped = groupBy(markers, (a, b) => uriIdentityService.extUri.compare(a.resource, b.resource));
+  const grouped = groupBy(
+    markers,
+    (a, b) => uriIdentityService.extUri.compare(a.resource, b.resource)
+  );
   const severities = /* @__PURE__ */ new Set();
   const items = [];
   let pickCount = 0;
   for (const group of grouped) {
     const resource = group[0].resource;
     if (level === "problem") {
-      items.push({ type: "separator", label: labelService.getUriLabel(resource, { relative: true }) });
+      items.push({
+        type: "separator",
+        label: labelService.getUriLabel(resource, { relative: true })
+      });
       for (const marker of group) {
         pickCount++;
         severities.add(marker.severity);
@@ -630,8 +789,15 @@ async function createMarkersQuickPick(accessor, level, onBackgroundAccept) {
           type: "item",
           resource: marker.resource,
           label: marker.message,
-          description: localize("markers.panel.at.ln.col.number", "[Ln {0}, Col {1}]", "" + marker.startLineNumber, "" + marker.startColumn),
-          entry: IDiagnosticVariableEntryFilterData.fromMarker(marker)
+          description: localize(
+            "markers.panel.at.ln.col.number",
+            "[Ln {0}, Col {1}]",
+            `${marker.startLineNumber}`,
+            `${marker.startColumn}`
+          ),
+          entry: IDiagnosticVariableEntryFilterData.fromMarker(
+            marker
+          )
         });
       }
     } else if (level === "file") {
@@ -641,7 +807,11 @@ async function createMarkersQuickPick(accessor, level, onBackgroundAccept) {
         type: "item",
         resource,
         label: IDiagnosticVariableEntryFilterData.label(entry),
-        description: group[0].message + (group.length > 1 ? localize("problemsMore", "+ {0} more", group.length - 1) : ""),
+        description: group[0].message + (group.length > 1 ? localize(
+          "problemsMore",
+          "+ {0} more",
+          group.length - 1
+        ) : ""),
         entry
       });
       for (const marker of group) {
@@ -655,27 +825,47 @@ async function createMarkersQuickPick(accessor, level, onBackgroundAccept) {
     return items.find((i) => i.type === "item")?.entry;
   }
   if (level === "file") {
-    items.unshift({ type: "separator", label: localize("markers.panel.files", "Files") });
+    items.unshift({
+      type: "separator",
+      label: localize("markers.panel.files", "Files")
+    });
   }
-  items.unshift({ type: "item", label: localize("markers.panel.allErrors", "All Problems"), entry: { filterSeverity: MarkerSeverity.Info } });
+  items.unshift({
+    type: "item",
+    label: localize("markers.panel.allErrors", "All Problems"),
+    entry: { filterSeverity: MarkerSeverity.Info }
+  });
   const quickInputService = accessor.get(IQuickInputService);
   const store = new DisposableStore();
-  const quickPick = store.add(quickInputService.createQuickPick({ useSeparators: true }));
+  const quickPick = store.add(
+    quickInputService.createQuickPick({
+      useSeparators: true
+    })
+  );
   quickPick.canAcceptInBackground = !onBackgroundAccept;
-  quickPick.placeholder = localize("pickAProblem", "Pick a problem to attach...");
+  quickPick.placeholder = localize(
+    "pickAProblem",
+    "Pick a problem to attach..."
+  );
   quickPick.items = items;
-  return new Promise((resolve) => {
-    store.add(quickPick.onDidHide(() => resolve(void 0)));
-    store.add(quickPick.onDidAccept((ev) => {
-      if (ev.inBackground) {
-        onBackgroundAccept?.(quickPick.selectedItems.map((i) => i.entry));
-      } else {
-        resolve(quickPick.selectedItems[0]?.entry);
-        quickPick.dispose();
-      }
-    }));
-    quickPick.show();
-  }).finally(() => store.dispose());
+  return new Promise(
+    (resolve) => {
+      store.add(quickPick.onDidHide(() => resolve(void 0)));
+      store.add(
+        quickPick.onDidAccept((ev) => {
+          if (ev.inBackground) {
+            onBackgroundAccept?.(
+              quickPick.selectedItems.map((i) => i.entry)
+            );
+          } else {
+            resolve(quickPick.selectedItems[0]?.entry);
+            quickPick.dispose();
+          }
+        })
+      );
+      quickPick.show();
+    }
+  ).finally(() => store.dispose());
 }
 __name(createMarkersQuickPick, "createMarkersQuickPick");
 class SelectAndInsertProblemAction extends Action2 {
@@ -698,7 +888,9 @@ class SelectAndInsertProblemAction extends Action2 {
       return;
     }
     const doCleanup = /* @__PURE__ */ __name(() => {
-      context.widget.inputEditor.executeEdits("chatInsertProblems", [{ range: context.range, text: `` }]);
+      context.widget.inputEditor.executeEdits("chatInsertProblems", [
+        { range: context.range, text: "" }
+      ]);
     }, "doCleanup");
     const pick = await createMarkersQuickPick(accessor, "file");
     if (!pick) {
@@ -708,10 +900,19 @@ class SelectAndInsertProblemAction extends Action2 {
     const editor = context.widget.inputEditor;
     const originalRange = context.range;
     const insertText = `#${SelectAndInsertProblemAction.Name}:${pick.filterUri ? basename(pick.filterUri) : MarkerSeverity.toString(pick.filterSeverity)}`;
-    const varRange = new Range(originalRange.startLineNumber, originalRange.startColumn, originalRange.endLineNumber, originalRange.startColumn + insertText.length);
-    const success = editor.executeEdits("chatInsertProblems", [{ range: varRange, text: insertText + " " }]);
+    const varRange = new Range(
+      originalRange.startLineNumber,
+      originalRange.startColumn,
+      originalRange.endLineNumber,
+      originalRange.startColumn + insertText.length
+    );
+    const success = editor.executeEdits("chatInsertProblems", [
+      { range: varRange, text: `${insertText} ` }
+    ]);
     if (!success) {
-      logService.trace(`SelectAndInsertProblemsAction: failed to insert "${insertText}"`);
+      logService.trace(
+        `SelectAndInsertProblemsAction: failed to insert "${insertText}"`
+      );
       doCleanup();
       return;
     }
@@ -719,7 +920,10 @@ class SelectAndInsertProblemAction extends Action2 {
       id: "vscode.problems",
       prefix: SelectAndInsertProblemAction.Name,
       range: varRange,
-      data: { id: "vscode.problems", filter: pick }
+      data: {
+        id: "vscode.problems",
+        filter: pick
+      }
     });
   }
 }

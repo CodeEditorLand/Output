@@ -1,21 +1,37 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { DataTransfers } from "../../base/browser/dnd.js";
-import { createFileDataTransferItem, createStringDataTransferItem, IDataTransferItem, UriList, VSDataTransfer } from "../../base/common/dataTransfer.js";
+import {
+  createFileDataTransferItem,
+  createStringDataTransferItem,
+  UriList,
+  VSDataTransfer
+} from "../../base/common/dataTransfer.js";
 import { Mimes } from "../../base/common/mime.js";
 import { URI } from "../../base/common/uri.js";
-import { CodeDataTransfers, getPathForFile } from "../../platform/dnd/browser/dnd.js";
+import {
+  CodeDataTransfers,
+  getPathForFile
+} from "../../platform/dnd/browser/dnd.js";
 function toVSDataTransfer(dataTransfer) {
   const vsDataTransfer = new VSDataTransfer();
   for (const item of dataTransfer.items) {
     const type = item.type;
     if (item.kind === "string") {
-      const asStringValue = new Promise((resolve) => item.getAsString(resolve));
-      vsDataTransfer.append(type, createStringDataTransferItem(asStringValue));
+      const asStringValue = new Promise(
+        (resolve) => item.getAsString(resolve)
+      );
+      vsDataTransfer.append(
+        type,
+        createStringDataTransferItem(asStringValue)
+      );
     } else if (item.kind === "file") {
       const file = item.getAsFile();
       if (file) {
-        vsDataTransfer.append(type, createFileDataTransferItemFromFile(file));
+        vsDataTransfer.append(
+          type,
+          createFileDataTransferItemFromFile(file)
+        );
       }
     }
   }
@@ -52,14 +68,19 @@ function toExternalVSDataTransfer(sourceDataTransfer, overwriteUriList = false) 
             if (path) {
               editorData.push(URI.file(path).toString());
             } else {
-              editorData.push(URI.parse(file.name, true).toString());
+              editorData.push(
+                URI.parse(file.name, true).toString()
+              );
             }
           } catch {
           }
         }
       }
       if (editorData.length) {
-        vsDataTransfer.replace(Mimes.uriList, createStringDataTransferItem(UriList.create(editorData)));
+        vsDataTransfer.replace(
+          Mimes.uriList,
+          createStringDataTransferItem(UriList.create(editorData))
+        );
       }
     }
   }

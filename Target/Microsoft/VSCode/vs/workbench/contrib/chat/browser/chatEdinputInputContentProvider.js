@@ -11,18 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { ITextModel } from "../../../../editor/common/model.js";
 import { IModelService } from "../../../../editor/common/services/model.js";
-import { ITextModelContentProvider, ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import {
+  ITextModelService
+} from "../../../../editor/common/services/resolverService.js";
 import { ChatInputPart } from "./chatInputPart.js";
 let ChatInputBoxContentProvider = class extends Disposable {
   constructor(textModelService, modelService, languageService) {
     super();
     this.modelService = modelService;
     this.languageService = languageService;
-    this._register(textModelService.registerTextModelContentProvider(ChatInputPart.INPUT_SCHEME, this));
+    this._register(
+      textModelService.registerTextModelContentProvider(
+        ChatInputPart.INPUT_SCHEME,
+        this
+      )
+    );
   }
   static {
     __name(this, "ChatInputBoxContentProvider");
@@ -32,7 +37,11 @@ let ChatInputBoxContentProvider = class extends Disposable {
     if (existing) {
       return existing;
     }
-    return this.modelService.createModel("", this.languageService.createById("chatinput"), resource);
+    return this.modelService.createModel(
+      "",
+      this.languageService.createById("chatinput"),
+      resource
+    );
   }
 };
 ChatInputBoxContentProvider = __decorateClass([

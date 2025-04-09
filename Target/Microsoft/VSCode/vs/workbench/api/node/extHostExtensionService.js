@@ -1,25 +1,28 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as performance from "../../../base/common/performance.js";
-import { createApiFactoryAndRegisterActors } from "../common/extHost.api.impl.js";
-import { INodeModuleFactory, RequireInterceptor } from "../common/extHostRequireInterceptor.js";
-import { ExtensionActivationTimesBuilder } from "../common/extHostExtensionActivator.js";
-import { connectProxyResolver } from "./proxyResolver.js";
-import { AbstractExtHostExtensionService } from "../common/extHostExtensionService.js";
-import { ExtHostDownloadService } from "./extHostDownloadService.js";
-import { URI } from "../../../base/common/uri.js";
+import nodeModule from "node:module";
+import {
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { BidirectionalMap } from "../../../base/common/map.js";
 import { Schemas } from "../../../base/common/network.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import * as performance from "../../../base/common/performance.js";
+import { assertType } from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import { realpathSync } from "../../../base/node/extpath.js";
+import { createApiFactoryAndRegisterActors } from "../common/extHost.api.impl.js";
+import { AbstractExtHostExtensionService } from "../common/extHostExtensionService.js";
+import {
+  RequireInterceptor
+} from "../common/extHostRequireInterceptor.js";
 import { ExtensionRuntime } from "../common/extHostTypes.js";
 import { CLIServer } from "./extHostCLIServer.js";
-import { realpathSync } from "../../../base/node/extpath.js";
 import { ExtHostConsoleForwarder } from "./extHostConsoleForwarder.js";
 import { ExtHostDiskFileSystemProvider } from "./extHostDiskFileSystemProvider.js";
-import nodeModule from "node:module";
-import { assertType } from "../../../base/common/types.js";
-import { generateUuid } from "../../../base/common/uuid.js";
-import { BidirectionalMap } from "../../../base/common/map.js";
-import { DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import { ExtHostDownloadService } from "./extHostDownloadService.js";
+import { connectProxyResolver } from "./proxyResolver.js";
 const require2 = nodeModule.createRequire(import.meta.url);
 class NodeModuleRequireInterceptor extends RequireInterceptor {
   static {
@@ -27,14 +30,14 @@ class NodeModuleRequireInterceptor extends RequireInterceptor {
   }
   _installInterceptor() {
     const that = this;
-    const node_module = require2("module");
+    const node_module = require2("node:module");
     const originalLoad = node_module._load;
     node_module._load = /* @__PURE__ */ __name(function load(request, parent, isMain) {
       request = applyAlternatives(request);
       if (!that._factories.has(request)) {
         return originalLoad.apply(this, arguments);
       }
-      return that._factories.get(request).load(
+      return that._factories.get(request)?.load(
         request,
         URI.file(realpathSync(parent.filename)),
         (request2) => originalLoad.apply(this, [request2, parent, isMain])
@@ -42,14 +45,26 @@ class NodeModuleRequireInterceptor extends RequireInterceptor {
     }, "load");
     const originalLookup = node_module._resolveLookupPaths;
     node_module._resolveLookupPaths = (request, parent) => {
-      return originalLookup.call(this, applyAlternatives(request), parent);
+      return originalLookup.call(
+        this,
+        applyAlternatives(request),
+        parent
+      );
     };
     const originalResolveFilename = node_module._resolveFilename;
     node_module._resolveFilename = /* @__PURE__ */ __name(function resolveFilename(request, parent, isMain, options) {
       if (request === "vsda" && Array.isArray(options?.paths) && options.paths.length === 0) {
-        options.paths = node_module._nodeModulePaths(import.meta.dirname);
+        options.paths = node_module._nodeModulePaths(
+          import.meta.dirname
+        );
       }
-      return originalResolveFilename.call(this, request, parent, isMain, options);
+      return originalResolveFilename.call(
+        this,
+        request,
+        parent,
+        isMain,
+        options
+      );
     }, "resolveFilename");
     const applyAlternatives = /* @__PURE__ */ __name((request) => {
       for (const alternativeModuleName of that._alternatives) {
@@ -100,7 +115,7 @@ class NodeModuleESMInterceptor extends RequireInterceptor {
 			shortCircuit: true,
 		};
 	};`;
-  static _vscodeImportFnName = `_VSCODE_IMPORT_VSCODE_API`;
+  static _vscodeImportFnName = "_VSCODE_IMPORT_VSCODE_API";
   _store = new DisposableStore();
   dispose() {
     this._store.dispose();
@@ -108,14 +123,18 @@ class NodeModuleESMInterceptor extends RequireInterceptor {
   _installInterceptor() {
     const apiInstances = new BidirectionalMap();
     const apiImportDataUrl = /* @__PURE__ */ new Map();
-    Object.defineProperty(globalThis, NodeModuleESMInterceptor._vscodeImportFnName, {
-      enumerable: false,
-      configurable: false,
-      writable: false,
-      value: /* @__PURE__ */ __name((key) => {
-        return apiInstances.getKey(key);
-      }, "value")
-    });
+    Object.defineProperty(
+      globalThis,
+      NodeModuleESMInterceptor._vscodeImportFnName,
+      {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: /* @__PURE__ */ __name((key) => {
+          return apiInstances.getKey(key);
+        }, "value")
+      }
+    );
     const { port1, port2 } = new MessageChannel();
     let apiModuleFactory;
     const port1LayerCheckerWorkaround = port1;
@@ -138,7 +157,11 @@ class NodeModuleESMInterceptor extends RequireInterceptor {
       if (!scriptDataUrlSrc) {
         const jsCode = `const _vscodeInstance = globalThis.${NodeModuleESMInterceptor._vscodeImportFnName}('${key}');
 
-${Object.keys(apiInstance).map((name) => `export const ${name} = _vscodeInstance['${name}'];`).join("\n")}`;
+${Object.keys(
+          apiInstance
+        ).map(
+          (name) => `export const ${name} = _vscodeInstance['${name}'];`
+        ).join("\n")}`;
         scriptDataUrlSrc = NodeModuleESMInterceptor._createDataUri(jsCode);
         apiImportDataUrl.set(key, scriptDataUrlSrc);
       }
@@ -147,15 +170,22 @@ ${Object.keys(apiInstance).map((name) => `export const ${name} = _vscodeInstance
         url: scriptDataUrlSrc
       });
     };
-    nodeModule.register(NodeModuleESMInterceptor._createDataUri(NodeModuleESMInterceptor._loaderScript), {
-      parentURL: import.meta.url,
-      data: { port: port2 },
-      transferList: [port2]
-    });
-    this._store.add(toDisposable(() => {
-      port1.close();
-      port2.close();
-    }));
+    nodeModule.register(
+      NodeModuleESMInterceptor._createDataUri(
+        NodeModuleESMInterceptor._loaderScript
+      ),
+      {
+        parentURL: import.meta.url,
+        data: { port: port2 },
+        transferList: [port2]
+      }
+    );
+    this._store.add(
+      toDisposable(() => {
+        port1.close();
+        port2.close();
+      })
+    );
   }
 }
 class ExtHostExtensionService extends AbstractExtHostExtensionService {
@@ -165,18 +195,37 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
   extensionRuntime = ExtensionRuntime.Node;
   async _beforeAlmostReadyToRunExtensions() {
     this._instaService.createInstance(ExtHostConsoleForwarder);
-    const extensionApiFactory = this._instaService.invokeFunction(createApiFactoryAndRegisterActors);
+    const extensionApiFactory = this._instaService.invokeFunction(
+      createApiFactoryAndRegisterActors
+    );
     this._instaService.createInstance(ExtHostDownloadService);
     if (this._initData.remote.isRemote && this._initData.remote.authority) {
       const cliServer = this._instaService.createInstance(CLIServer);
       process.env["VSCODE_IPC_HOOK_CLI"] = cliServer.ipcHandlePath;
     }
     this._instaService.createInstance(ExtHostDiskFileSystemProvider);
-    await this._instaService.createInstance(NodeModuleRequireInterceptor, extensionApiFactory, { mine: this._myRegistry, all: this._globalRegistry }).install();
-    await this._store.add(this._instaService.createInstance(NodeModuleESMInterceptor, extensionApiFactory, { mine: this._myRegistry, all: this._globalRegistry })).install();
+    await this._instaService.createInstance(NodeModuleRequireInterceptor, extensionApiFactory, {
+      mine: this._myRegistry,
+      all: this._globalRegistry
+    }).install();
+    await this._store.add(
+      this._instaService.createInstance(
+        NodeModuleESMInterceptor,
+        extensionApiFactory,
+        { mine: this._myRegistry, all: this._globalRegistry }
+      )
+    ).install();
     performance.mark("code/extHost/didInitAPI");
     const configProvider = await this._extHostConfiguration.getConfigProvider();
-    await connectProxyResolver(this._extHostWorkspace, configProvider, this, this._logService, this._mainThreadTelemetryProxy, this._initData, this._store);
+    await connectProxyResolver(
+      this._extHostWorkspace,
+      configProvider,
+      this,
+      this._logService,
+      this._mainThreadTelemetryProxy,
+      this._initData,
+      this._store
+    );
     performance.mark("code/extHost/didInitProxyResolver");
   }
   _getEntryPoint(extensionDescription) {
@@ -184,19 +233,27 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
   }
   async _doLoadModule(extension, module, activationTimesBuilder, mode) {
     if (module.scheme !== Schemas.file) {
-      throw new Error(`Cannot load URI: '${module}', must be of file-scheme`);
+      throw new Error(
+        `Cannot load URI: '${module}', must be of file-scheme`
+      );
     }
     let r = null;
     activationTimesBuilder.codeLoadingStart();
-    this._logService.trace(`ExtensionService#loadModule [${mode}] -> ${module.toString(true)}`);
+    this._logService.trace(
+      `ExtensionService#loadModule [${mode}] -> ${module.toString(true)}`
+    );
     this._logService.flush();
     const extensionId = extension?.identifier.value;
     if (extension) {
-      await this._extHostLocalizationService.initializeLocalizedMessages(extension);
+      await this._extHostLocalizationService.initializeLocalizedMessages(
+        extension
+      );
     }
     try {
       if (extensionId) {
-        performance.mark(`code/extHost/willLoadExtensionCode/${extensionId}`);
+        performance.mark(
+          `code/extHost/willLoadExtensionCode/${extensionId}`
+        );
       }
       if (mode === "esm") {
         r = await import(module.fsPath);
@@ -205,17 +262,29 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
       }
     } finally {
       if (extensionId) {
-        performance.mark(`code/extHost/didLoadExtensionCode/${extensionId}`);
+        performance.mark(
+          `code/extHost/didLoadExtensionCode/${extensionId}`
+        );
       }
       activationTimesBuilder.codeLoadingStop();
     }
     return r;
   }
   async _loadCommonJSModule(extension, module, activationTimesBuilder) {
-    return this._doLoadModule(extension, module, activationTimesBuilder, "cjs");
+    return this._doLoadModule(
+      extension,
+      module,
+      activationTimesBuilder,
+      "cjs"
+    );
   }
   async _loadESMModule(extension, module, activationTimesBuilder) {
-    return this._doLoadModule(extension, module, activationTimesBuilder, "esm");
+    return this._doLoadModule(
+      extension,
+      module,
+      activationTimesBuilder,
+      "esm"
+    );
   }
   async $setRemoteEnvironment(env) {
     if (!this._initData.remote.isRemote) {

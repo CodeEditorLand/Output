@@ -10,16 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../platform/log/common/log.js";
 import * as extHostProtocol from "./extHost.protocol.js";
 import { IExtHostRpcService } from "./extHostRpcService.js";
-const IExtHostApiDeprecationService = createDecorator("IExtHostApiDeprecationService");
+const IExtHostApiDeprecationService = createDecorator(
+  "IExtHostApiDeprecationService"
+);
 let ExtHostApiDeprecationService = class {
   constructor(rpc, _extHostLogService) {
     this._extHostLogService = _extHostLogService;
-    this._telemetryShape = rpc.getProxy(extHostProtocol.MainContext.MainThreadTelemetry);
+    this._telemetryShape = rpc.getProxy(
+      extHostProtocol.MainContext.MainThreadTelemetry
+    );
   }
   static {
     __name(this, "ExtHostApiDeprecationService");
@@ -33,7 +36,9 @@ let ExtHostApiDeprecationService = class {
     }
     this._reportedUsages.add(key);
     if (extension.isUnderDevelopment) {
-      this._extHostLogService.warn(`[Deprecation Warning] '${apiId}' is deprecated. ${migrationSuggestion}`);
+      this._extHostLogService.warn(
+        `[Deprecation Warning] '${apiId}' is deprecated. ${migrationSuggestion}`
+      );
     }
     this._telemetryShape.$publicLog2("extHostDeprecatedApiUsage", {
       extensionId: extension.identifier.value,
@@ -48,10 +53,12 @@ ExtHostApiDeprecationService = __decorateClass([
   __decorateParam(0, IExtHostRpcService),
   __decorateParam(1, ILogService)
 ], ExtHostApiDeprecationService);
-const NullApiDeprecationService = Object.freeze(new class {
-  report(_apiId, _extension, _warningMessage) {
-  }
-}());
+const NullApiDeprecationService = Object.freeze(
+  new class {
+    report(_apiId, _extension, _warningMessage) {
+    }
+  }()
+);
 export {
   ExtHostApiDeprecationService,
   IExtHostApiDeprecationService,

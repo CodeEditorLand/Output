@@ -1,12 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as dom from "../../dom.js";
 import { ThemeIcon } from "../../../common/themables.js";
-const labelWithIconsRegex = new RegExp(`(\\\\)?\\$\\((${ThemeIcon.iconNameExpression}(?:${ThemeIcon.iconModifierExpression})?)\\)`, "g");
+import * as dom from "../../dom.js";
+const labelWithIconsRegex = new RegExp(
+  `(\\\\)?\\$\\((${ThemeIcon.iconNameExpression}(?:${ThemeIcon.iconModifierExpression})?)\\)`,
+  "g"
+);
 function renderLabelWithIcons(text) {
   const elements = new Array();
   let match;
-  let textStart = 0, textStop = 0;
+  let textStart = 0;
+  let textStop = 0;
   while ((match = labelWithIconsRegex.exec(text)) !== null) {
     textStop = match.index || 0;
     if (textStart < textStop) {
@@ -23,7 +27,7 @@ function renderLabelWithIcons(text) {
 }
 __name(renderLabelWithIcons, "renderLabelWithIcons");
 function renderIcon(icon) {
-  const node = dom.$(`span`);
+  const node = dom.$("span");
   node.classList.add(...ThemeIcon.asClassNameArray(icon));
   return node;
 }

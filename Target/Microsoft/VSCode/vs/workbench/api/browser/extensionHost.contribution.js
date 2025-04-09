@@ -10,13 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../common/contributions.js";
 import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { JSONValidationExtensionPoint } from "../common/jsonValidationExtensionPoint.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../common/contributions.js";
+import { LanguageConfigurationFileHandler } from "../../contrib/codeEditor/common/languageConfigurationExtensionPoint.js";
 import { ColorExtensionPoint } from "../../services/themes/common/colorExtensionPoint.js";
 import { IconExtensionPoint } from "../../services/themes/common/iconExtensionPoint.js";
 import { TokenClassificationExtensionPoints } from "../../services/themes/common/tokenClassificationExtensionPoint.js";
-import { LanguageConfigurationFileHandler } from "../../contrib/codeEditor/common/languageConfigurationExtensionPoint.js";
+import { JSONValidationExtensionPoint } from "../common/jsonValidationExtensionPoint.js";
 import { StatusBarItemsExtensionPoint } from "./statusBarExtensionPoint.js";
 import "./mainThreadLocalization.js";
 import "./mainThreadBulkEdits.js";
@@ -99,8 +102,12 @@ let ExtensionPoints = class {
     this.instantiationService.createInstance(JSONValidationExtensionPoint);
     this.instantiationService.createInstance(ColorExtensionPoint);
     this.instantiationService.createInstance(IconExtensionPoint);
-    this.instantiationService.createInstance(TokenClassificationExtensionPoints);
-    this.instantiationService.createInstance(LanguageConfigurationFileHandler);
+    this.instantiationService.createInstance(
+      TokenClassificationExtensionPoints
+    );
+    this.instantiationService.createInstance(
+      LanguageConfigurationFileHandler
+    );
     this.instantiationService.createInstance(StatusBarItemsExtensionPoint);
   }
   static {
@@ -111,7 +118,11 @@ let ExtensionPoints = class {
 ExtensionPoints = __decorateClass([
   __decorateParam(0, IInstantiationService)
 ], ExtensionPoints);
-registerWorkbenchContribution2(ExtensionPoints.ID, ExtensionPoints, WorkbenchPhase.BlockStartup);
+registerWorkbenchContribution2(
+  ExtensionPoints.ID,
+  ExtensionPoints,
+  WorkbenchPhase.BlockStartup
+);
 export {
   ExtensionPoints
 };

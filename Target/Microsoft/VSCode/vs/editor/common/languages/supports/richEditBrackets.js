@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as strings from "../../../../base/common/strings.js";
-import * as stringBuilder from "../../core/stringBuilder.js";
 import { Range } from "../../core/range.js";
-import { CharacterPair } from "../languageConfiguration.js";
+import * as stringBuilder from "../../core/stringBuilder.js";
 class RichEditBracket {
   static {
     __name(this, "RichEditBracket");
@@ -177,7 +176,12 @@ class RichEditBrackets {
         b.open,
         b.close,
         getRegexForBracketPair(b.open, b.close, brackets, index),
-        getReversedRegexForBracketPair(b.open, b.close, brackets, index)
+        getReversedRegexForBracketPair(
+          b.open,
+          b.close,
+          brackets,
+          index
+        )
       );
     });
     this.forwardRegex = getRegexForBrackets(this.brackets);
@@ -189,12 +193,18 @@ class RichEditBrackets {
       for (const open of bracket.open) {
         this.textIsBracket[open] = bracket;
         this.textIsOpenBracket[open] = true;
-        this.maxBracketLength = Math.max(this.maxBracketLength, open.length);
+        this.maxBracketLength = Math.max(
+          this.maxBracketLength,
+          open.length
+        );
       }
       for (const close of bracket.close) {
         this.textIsBracket[close] = bracket;
         this.textIsOpenBracket[close] = false;
-        this.maxBracketLength = Math.max(this.maxBracketLength, close.length);
+        this.maxBracketLength = Math.max(
+          this.maxBracketLength,
+          close.length
+        );
       }
     }
   }
@@ -303,7 +313,7 @@ function createBracketOrRegExp(pieces, options) {
   return strings.createRegExp(regexStr, true, options);
 }
 __name(createBracketOrRegExp, "createBracketOrRegExp");
-const toReversedString = /* @__PURE__ */ function() {
+const toReversedString = /* @__PURE__ */ (() => {
   function reverse(str) {
     const arr = new Uint16Array(str.length);
     let offset = 0;
@@ -322,7 +332,7 @@ const toReversedString = /* @__PURE__ */ function() {
     }
     return lastOutput;
   }, "toReversedString");
-}();
+})();
 class BracketsUtils {
   static {
     __name(this, "BracketsUtils");
@@ -335,12 +345,25 @@ class BracketsUtils {
     const matchOffset = reversedText.length - (m.index || 0);
     const matchLength = m[0].length;
     const absoluteMatchOffset = offset + matchOffset;
-    return new Range(lineNumber, absoluteMatchOffset - matchLength + 1, lineNumber, absoluteMatchOffset + 1);
+    return new Range(
+      lineNumber,
+      absoluteMatchOffset - matchLength + 1,
+      lineNumber,
+      absoluteMatchOffset + 1
+    );
   }
   static findPrevBracketInRange(reversedBracketRegex, lineNumber, lineText, startOffset, endOffset) {
     const reversedLineText = toReversedString(lineText);
-    const reversedSubstr = reversedLineText.substring(lineText.length - endOffset, lineText.length - startOffset);
-    return this._findPrevBracketInText(reversedBracketRegex, lineNumber, reversedSubstr, startOffset);
+    const reversedSubstr = reversedLineText.substring(
+      lineText.length - endOffset,
+      lineText.length - startOffset
+    );
+    return BracketsUtils._findPrevBracketInText(
+      reversedBracketRegex,
+      lineNumber,
+      reversedSubstr,
+      startOffset
+    );
   }
   static findNextBracketInText(bracketRegex, lineNumber, text, offset) {
     const m = text.match(bracketRegex);
@@ -353,11 +376,21 @@ class BracketsUtils {
       return null;
     }
     const absoluteMatchOffset = offset + matchOffset;
-    return new Range(lineNumber, absoluteMatchOffset + 1, lineNumber, absoluteMatchOffset + 1 + matchLength);
+    return new Range(
+      lineNumber,
+      absoluteMatchOffset + 1,
+      lineNumber,
+      absoluteMatchOffset + 1 + matchLength
+    );
   }
   static findNextBracketInRange(bracketRegex, lineNumber, lineText, startOffset, endOffset) {
     const substr = lineText.substring(startOffset, endOffset);
-    return this.findNextBracketInText(bracketRegex, lineNumber, substr, startOffset);
+    return BracketsUtils.findNextBracketInText(
+      bracketRegex,
+      lineNumber,
+      substr,
+      startOffset
+    );
   }
 }
 export {

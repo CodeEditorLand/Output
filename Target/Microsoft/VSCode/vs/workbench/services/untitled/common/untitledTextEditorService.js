@@ -10,16 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { UntitledTextEditorModel, IUntitledTextEditorModel } from "./untitledTextEditorModel.js";
-import { IFilesConfiguration } from "../../../../platform/files/common/files.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  UntitledTextEditorModel
+} from "./untitledTextEditorModel.js";
 const IUntitledTextEditorService = createDecorator("untitledTextEditorService");
 let UntitledTextEditorService = class extends Disposable {
   constructor(instantiationService, configurationService) {
@@ -31,17 +41,29 @@ let UntitledTextEditorService = class extends Disposable {
     __name(this, "UntitledTextEditorService");
   }
   static UNTITLED_WITHOUT_ASSOCIATED_RESOURCE_REGEX = /Untitled-\d+/;
-  _onDidSave = this._register(new Emitter());
+  _onDidSave = this._register(
+    new Emitter()
+  );
   onDidSave = this._onDidSave.event;
-  _onDidChangeDirty = this._register(new Emitter());
+  _onDidChangeDirty = this._register(
+    new Emitter()
+  );
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onDidChangeEncoding = this._register(new Emitter());
+  _onDidChangeEncoding = this._register(
+    new Emitter()
+  );
   onDidChangeEncoding = this._onDidChangeEncoding.event;
-  _onDidCreate = this._register(new Emitter());
+  _onDidCreate = this._register(
+    new Emitter()
+  );
   onDidCreate = this._onDidCreate.event;
-  _onWillDispose = this._register(new Emitter());
+  _onWillDispose = this._register(
+    new Emitter()
+  );
   onWillDispose = this._onWillDispose.event;
-  _onDidChangeLabel = this._register(new Emitter());
+  _onDidChangeLabel = this._register(
+    new Emitter()
+  );
   onDidChangeLabel = this._onDidChangeLabel.event;
   mapResourceToModel = new ResourceMap();
   get(resource) {
@@ -61,7 +83,9 @@ let UntitledTextEditorService = class extends Disposable {
   doCreateOrGet(options = /* @__PURE__ */ Object.create(null)) {
     const massagedOptions = this.massageOptions(options);
     if (massagedOptions.untitledResource && this.mapResourceToModel.has(massagedOptions.untitledResource)) {
-      return this.mapResourceToModel.get(massagedOptions.untitledResource);
+      return this.mapResourceToModel.get(
+        massagedOptions.untitledResource
+      );
     }
     return this.doCreate(massagedOptions);
   }
@@ -98,20 +122,42 @@ let UntitledTextEditorService = class extends Disposable {
     if (!untitledResource) {
       let counter = 1;
       do {
-        untitledResource = URI.from({ scheme: Schemas.untitled, path: `Untitled-${counter}` });
+        untitledResource = URI.from({
+          scheme: Schemas.untitled,
+          path: `Untitled-${counter}`
+        });
         counter++;
       } while (this.mapResourceToModel.has(untitledResource));
     }
-    const model = this._register(this.instantiationService.createInstance(UntitledTextEditorModel, untitledResource, !!options.associatedResource, options.initialValue, options.languageId, options.encoding));
+    const model = this._register(
+      this.instantiationService.createInstance(
+        UntitledTextEditorModel,
+        untitledResource,
+        !!options.associatedResource,
+        options.initialValue,
+        options.languageId,
+        options.encoding
+      )
+    );
     this.registerModel(model);
     return model;
   }
   registerModel(model) {
     const modelListeners = new DisposableStore();
-    modelListeners.add(model.onDidChangeDirty(() => this._onDidChangeDirty.fire(model)));
-    modelListeners.add(model.onDidChangeName(() => this._onDidChangeLabel.fire(model)));
-    modelListeners.add(model.onDidChangeEncoding(() => this._onDidChangeEncoding.fire(model)));
-    modelListeners.add(model.onWillDispose(() => this._onWillDispose.fire(model)));
+    modelListeners.add(
+      model.onDidChangeDirty(() => this._onDidChangeDirty.fire(model))
+    );
+    modelListeners.add(
+      model.onDidChangeName(() => this._onDidChangeLabel.fire(model))
+    );
+    modelListeners.add(
+      model.onDidChangeEncoding(
+        () => this._onDidChangeEncoding.fire(model)
+      )
+    );
+    modelListeners.add(
+      model.onWillDispose(() => this._onWillDispose.fire(model))
+    );
     Event.once(model.onWillDispose)(() => {
       this.mapResourceToModel.delete(model.resource);
       modelListeners.dispose();
@@ -123,7 +169,9 @@ let UntitledTextEditorService = class extends Disposable {
     }
   }
   isUntitledWithAssociatedResource(resource) {
-    return resource.scheme === Schemas.untitled && resource.path.length > 1 && !UntitledTextEditorService.UNTITLED_WITHOUT_ASSOCIATED_RESOURCE_REGEX.test(resource.path);
+    return resource.scheme === Schemas.untitled && resource.path.length > 1 && !UntitledTextEditorService.UNTITLED_WITHOUT_ASSOCIATED_RESOURCE_REGEX.test(
+      resource.path
+    );
   }
   canDispose(model) {
     if (model.isDisposed()) {
@@ -146,7 +194,11 @@ UntitledTextEditorService = __decorateClass([
   __decorateParam(0, IInstantiationService),
   __decorateParam(1, IConfigurationService)
 ], UntitledTextEditorService);
-registerSingleton(IUntitledTextEditorService, UntitledTextEditorService, InstantiationType.Delayed);
+registerSingleton(
+  IUntitledTextEditorService,
+  UntitledTextEditorService,
+  InstantiationType.Delayed
+);
 export {
   IUntitledTextEditorService,
   UntitledTextEditorService

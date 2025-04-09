@@ -1,11 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as strings from "../../../../base/common/strings.js";
-import { EditOperation, ISingleEditOperation } from "../../../common/core/editOperation.js";
+import {
+  EditOperation
+} from "../../../common/core/editOperation.js";
 import { Position } from "../../../common/core/position.js";
-import { Selection } from "../../../common/core/selection.js";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../../../common/editorCommon.js";
-import { ITextModel } from "../../../common/model.js";
 class InsertFinalNewLineCommand {
   static {
     __name(this, "InsertFinalNewLineCommand");

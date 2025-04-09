@@ -1,13 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IActiveCodeEditor } from "../../../browser/editorBrowser.js";
-import { Position } from "../../../common/core/position.js";
-import { Range } from "../../../common/core/range.js";
-import { FindMatch, IModelDecorationsChangeAccessor, IModelDeltaDecoration, MinimapPosition, OverviewRulerLane, TrackedRangeStickiness } from "../../../common/model.js";
-import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-import { minimapFindMatch, overviewRulerFindMatchForeground } from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  minimapFindMatch,
+  overviewRulerFindMatchForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
 import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { Range } from "../../../common/core/range.js";
+import {
+  MinimapPosition,
+  OverviewRulerLane,
+  TrackedRangeStickiness
+} from "../../../common/model.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
 class FindDecorations {
   static {
     __name(this, "FindDecorations");
@@ -109,29 +113,47 @@ class FindDecorations {
       }
     }
     if (this._highlightedDecorationId !== null || newCurrentDecorationId !== null) {
-      this._editor.changeDecorations((changeAccessor) => {
-        if (this._highlightedDecorationId !== null) {
-          changeAccessor.changeDecorationOptions(this._highlightedDecorationId, FindDecorations._FIND_MATCH_DECORATION);
-          this._highlightedDecorationId = null;
-        }
-        if (newCurrentDecorationId !== null) {
-          this._highlightedDecorationId = newCurrentDecorationId;
-          changeAccessor.changeDecorationOptions(this._highlightedDecorationId, FindDecorations._CURRENT_FIND_MATCH_DECORATION);
-        }
-        if (this._rangeHighlightDecorationId !== null) {
-          changeAccessor.removeDecoration(this._rangeHighlightDecorationId);
-          this._rangeHighlightDecorationId = null;
-        }
-        if (newCurrentDecorationId !== null) {
-          let rng = this._editor.getModel().getDecorationRange(newCurrentDecorationId);
-          if (rng.startLineNumber !== rng.endLineNumber && rng.endColumn === 1) {
-            const lineBeforeEnd = rng.endLineNumber - 1;
-            const lineBeforeEndMaxColumn = this._editor.getModel().getLineMaxColumn(lineBeforeEnd);
-            rng = new Range(rng.startLineNumber, rng.startColumn, lineBeforeEnd, lineBeforeEndMaxColumn);
+      this._editor.changeDecorations(
+        (changeAccessor) => {
+          if (this._highlightedDecorationId !== null) {
+            changeAccessor.changeDecorationOptions(
+              this._highlightedDecorationId,
+              FindDecorations._FIND_MATCH_DECORATION
+            );
+            this._highlightedDecorationId = null;
           }
-          this._rangeHighlightDecorationId = changeAccessor.addDecoration(rng, FindDecorations._RANGE_HIGHLIGHT_DECORATION);
+          if (newCurrentDecorationId !== null) {
+            this._highlightedDecorationId = newCurrentDecorationId;
+            changeAccessor.changeDecorationOptions(
+              this._highlightedDecorationId,
+              FindDecorations._CURRENT_FIND_MATCH_DECORATION
+            );
+          }
+          if (this._rangeHighlightDecorationId !== null) {
+            changeAccessor.removeDecoration(
+              this._rangeHighlightDecorationId
+            );
+            this._rangeHighlightDecorationId = null;
+          }
+          if (newCurrentDecorationId !== null) {
+            let rng = this._editor.getModel().getDecorationRange(newCurrentDecorationId);
+            if (rng.startLineNumber !== rng.endLineNumber && rng.endColumn === 1) {
+              const lineBeforeEnd = rng.endLineNumber - 1;
+              const lineBeforeEndMaxColumn = this._editor.getModel().getLineMaxColumn(lineBeforeEnd);
+              rng = new Range(
+                rng.startLineNumber,
+                rng.startColumn,
+                lineBeforeEnd,
+                lineBeforeEndMaxColumn
+              );
+            }
+            this._rangeHighlightDecorationId = changeAccessor.addDecoration(
+              rng,
+              FindDecorations._RANGE_HIGHLIGHT_DECORATION
+            );
+          }
         }
-      });
+      );
     }
     return matchPosition;
   }
@@ -144,7 +166,10 @@ class FindDecorations {
         const lineCount = this._editor.getModel().getLineCount();
         const height = this._editor.getLayoutInfo().height;
         const approxPixelsPerLine = height / lineCount;
-        const mergeLinesDelta = Math.max(2, Math.ceil(3 / approxPixelsPerLine));
+        const mergeLinesDelta = Math.max(
+          2,
+          Math.ceil(3 / approxPixelsPerLine)
+        );
         let prevStartLineNumber = findMatches[0].range.startLineNumber;
         let prevEndLineNumber = findMatches[0].range.endLineNumber;
         for (let i = 1, len = findMatches.length; i < len; i++) {
@@ -155,7 +180,12 @@ class FindDecorations {
             }
           } else {
             newOverviewRulerApproximateDecorations.push({
-              range: new Range(prevStartLineNumber, 1, prevEndLineNumber, 1),
+              range: new Range(
+                prevStartLineNumber,
+                1,
+                prevEndLineNumber,
+                1
+              ),
               options: FindDecorations._FIND_MATCH_ONLY_OVERVIEW_DECORATION
             });
             prevStartLineNumber = range.startLineNumber;
@@ -163,7 +193,12 @@ class FindDecorations {
           }
         }
         newOverviewRulerApproximateDecorations.push({
-          range: new Range(prevStartLineNumber, 1, prevEndLineNumber, 1),
+          range: new Range(
+            prevStartLineNumber,
+            1,
+            prevEndLineNumber,
+            1
+          ),
           options: FindDecorations._FIND_MATCH_ONLY_OVERVIEW_DECORATION
         });
       }
@@ -174,18 +209,31 @@ class FindDecorations {
           options: findMatchesOptions
         };
       }
-      this._decorations = accessor.deltaDecorations(this._decorations, newFindMatchesDecorations);
-      this._overviewRulerApproximateDecorations = accessor.deltaDecorations(this._overviewRulerApproximateDecorations, newOverviewRulerApproximateDecorations);
+      this._decorations = accessor.deltaDecorations(
+        this._decorations,
+        newFindMatchesDecorations
+      );
+      this._overviewRulerApproximateDecorations = accessor.deltaDecorations(
+        this._overviewRulerApproximateDecorations,
+        newOverviewRulerApproximateDecorations
+      );
       if (this._rangeHighlightDecorationId) {
         accessor.removeDecoration(this._rangeHighlightDecorationId);
         this._rangeHighlightDecorationId = null;
       }
       if (this._findScopeDecorationIds.length) {
-        this._findScopeDecorationIds.forEach((findScopeDecorationId) => accessor.removeDecoration(findScopeDecorationId));
+        this._findScopeDecorationIds.forEach(
+          (findScopeDecorationId) => accessor.removeDecoration(findScopeDecorationId)
+        );
         this._findScopeDecorationIds = [];
       }
       if (findScopes?.length) {
-        this._findScopeDecorationIds = findScopes.map((findScope) => accessor.addDecoration(findScope, FindDecorations._FIND_SCOPE_DECORATION));
+        this._findScopeDecorationIds = findScopes.map(
+          (findScope) => accessor.addDecoration(
+            findScope,
+            FindDecorations._FIND_SCOPE_DECORATION
+          )
+        );
       }
     });
   }
@@ -207,7 +255,9 @@ class FindDecorations {
       }
       return r;
     }
-    return this._editor.getModel().getDecorationRange(this._decorations[this._decorations.length - 1]);
+    return this._editor.getModel().getDecorationRange(
+      this._decorations[this._decorations.length - 1]
+    );
   }
   matchAfterPosition(position) {
     if (this._decorations.length === 0) {

@@ -1,18 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as css from "../../../base/browser/cssValue.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  DisposableStore
+} from "../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../base/common/themables.js";
-import { getIconRegistry, IconContribution, IconFontDefinition } from "../common/iconRegistry.js";
-import { IProductIconTheme, IThemeService } from "../common/themeService.js";
+import {
+  getIconRegistry
+} from "../common/iconRegistry.js";
 function getIconsStyleSheet(themeService) {
   const disposable = new DisposableStore();
   const onDidChangeEmmiter = disposable.add(new Emitter());
   const iconRegistry = getIconRegistry();
   disposable.add(iconRegistry.onDidChange(() => onDidChangeEmmiter.fire()));
   if (themeService) {
-    disposable.add(themeService.onDidProductIconThemeChange(() => onDidChangeEmmiter.fire()));
+    disposable.add(
+      themeService.onDidProductIconThemeChange(
+        () => onDidChangeEmmiter.fire()
+      )
+    );
   }
   return {
     dispose: /* @__PURE__ */ __name(() => disposable.dispose(), "dispose"),
@@ -36,10 +43,16 @@ function getIconsStyleSheet(themeService) {
             css.inline`${fontFamilyVar}: ${css.stringValue(fontContribution.id)};`,
             css.inline`${contentVar}: ${css.stringValue(definition.fontCharacter)};`
           );
-          rules.push(css.inline`.codicon-${css.className(contribution.id)}:before { content: ${css.stringValue(definition.fontCharacter)}; font-family: ${css.stringValue(fontContribution.id)}; }`);
+          rules.push(
+            css.inline`.codicon-${css.className(contribution.id)}:before { content: ${css.stringValue(definition.fontCharacter)}; font-family: ${css.stringValue(fontContribution.id)}; }`
+          );
         } else {
-          rootAttribs.push(css.inline`${contentVar}: ${css.stringValue(definition.fontCharacter)}; ${fontFamilyVar}: 'codicon';`);
-          rules.push(css.inline`.codicon-${css.className(contribution.id)}:before { content: ${css.stringValue(definition.fontCharacter)}; }`);
+          rootAttribs.push(
+            css.inline`${contentVar}: ${css.stringValue(definition.fontCharacter)}; ${fontFamilyVar}: 'codicon';`
+          );
+          rules.push(
+            css.inline`.codicon-${css.className(contribution.id)}:before { content: ${css.stringValue(definition.fontCharacter)}; }`
+          );
         }
       }
       for (const id in usedFontIds) {
@@ -48,9 +61,13 @@ function getIconsStyleSheet(themeService) {
         const fontStyle = definition.style ? css.inline`font-style: ${css.identValue(definition.style)};` : css.inline``;
         const src = new css.Builder();
         for (const l of definition.src) {
-          src.push(css.inline`${css.asCSSUrl(l.location)} format(${css.stringValue(l.format)})`);
+          src.push(
+            css.inline`${css.asCSSUrl(l.location)} format(${css.stringValue(l.format)})`
+          );
         }
-        rules.push(css.inline`@font-face { src: ${src.join(", ")}; font-family: ${css.stringValue(id)};${fontWeight}${fontStyle} font-display: block; }`);
+        rules.push(
+          css.inline`@font-face { src: ${src.join(", ")}; font-family: ${css.stringValue(id)};${fontWeight}${fontStyle} font-display: block; }`
+        );
       }
       rules.push(css.inline`:root { ${rootAttribs.join(" ")} }`);
       return rules.join("\n");

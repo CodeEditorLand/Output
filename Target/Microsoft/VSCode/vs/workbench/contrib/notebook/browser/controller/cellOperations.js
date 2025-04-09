@@ -1,21 +1,33 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IBulkEditService, ResourceEdit, ResourceTextEdit } from "../../../../../editor/browser/services/bulkEditService.js";
-import { IPosition, Position } from "../../../../../editor/common/core/position.js";
+import {
+  ResourceTextEdit
+} from "../../../../../editor/browser/services/bulkEditService.js";
+import {
+  Position
+} from "../../../../../editor/common/core/position.js";
 import { Range } from "../../../../../editor/common/core/range.js";
-import { EndOfLinePreference, IReadonlyTextBuffer } from "../../../../../editor/common/model.js";
 import { PLAINTEXT_LANGUAGE_ID } from "../../../../../editor/common/languages/modesRegistry.js";
-import { ILanguageService } from "../../../../../editor/common/languages/language.js";
-import { ResourceNotebookCellEdit } from "../../../bulkEdit/browser/bulkCellEdits.js";
-import { INotebookActionContext, INotebookCellActionContext } from "./coreActions.js";
-import { CellEditState, CellFocusMode, expandCellRangesWithHiddenCells, IActiveNotebookEditor, ICellViewModel } from "../notebookBrowser.js";
-import { CellViewModel, NotebookViewModel } from "../viewModel/notebookViewModelImpl.js";
-import { cloneNotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
-import { CellEditType, CellKind, ICellEditOperation, ICellReplaceEdit, IOutputDto, ISelectionState, NotebookCellMetadata, SelectionStateType } from "../../common/notebookCommon.js";
-import { cellRangeContains, cellRangesToIndexes, ICellRange } from "../../common/notebookRange.js";
+import {
+  EndOfLinePreference
+} from "../../../../../editor/common/model.js";
 import { localize } from "../../../../../nls.js";
-import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import { INotebookKernelHistoryService } from "../../common/notebookKernelService.js";
+import { ResourceNotebookCellEdit } from "../../../bulkEdit/browser/bulkCellEdits.js";
+import { cloneNotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
+import {
+  CellEditType,
+  CellKind,
+  SelectionStateType
+} from "../../common/notebookCommon.js";
+import {
+  cellRangeContains,
+  cellRangesToIndexes
+} from "../../common/notebookRange.js";
+import {
+  CellEditState,
+  CellFocusMode,
+  expandCellRangesWithHiddenCells
+} from "../notebookBrowser.js";
 async function changeCellToKind(kind, context, language, mime) {
   const { notebookEditor } = context;
   if (!notebookEditor.hasModel()) {
@@ -35,33 +47,45 @@ async function changeCellToKind(kind, context, language, mime) {
       const availableLanguages = notebookEditor.activeKernel?.supportedLanguages ?? [];
       language = availableLanguages[0] ?? PLAINTEXT_LANGUAGE_ID;
     }
-    notebookEditor.textModel.applyEdits([
+    notebookEditor.textModel.applyEdits(
+      [
+        {
+          editType: CellEditType.Replace,
+          index: idx,
+          count: 1,
+          cells: [
+            {
+              cellKind: kind,
+              source: text,
+              language,
+              mime: mime ?? cell.mime,
+              outputs: cell.model.outputs,
+              metadata: cell.metadata
+            }
+          ]
+        }
+      ],
+      true,
       {
-        editType: CellEditType.Replace,
-        index: idx,
-        count: 1,
-        cells: [{
-          cellKind: kind,
-          source: text,
-          language,
-          mime: mime ?? cell.mime,
-          outputs: cell.model.outputs,
-          metadata: cell.metadata
-        }]
-      }
-    ], true, {
-      kind: SelectionStateType.Index,
-      focus: notebookEditor.getFocus(),
-      selections: notebookEditor.getSelections()
-    }, () => {
-      return {
         kind: SelectionStateType.Index,
         focus: notebookEditor.getFocus(),
         selections: notebookEditor.getSelections()
-      };
-    }, void 0, true);
+      },
+      () => {
+        return {
+          kind: SelectionStateType.Index,
+          focus: notebookEditor.getFocus(),
+          selections: notebookEditor.getSelections()
+        };
+      },
+      void 0,
+      true
+    );
     const newCell = notebookEditor.cellAt(idx);
-    await notebookEditor.focusNotebookCell(newCell, cell.getEditState() === CellEditState.Editing ? "editor" : "container");
+    await notebookEditor.focusNotebookCell(
+      newCell,
+      cell.getEditState() === CellEditState.Editing ? "editor" : "container"
+    );
   } else if (context.selectedCells) {
     const selectedCells = context.selectedCells;
     const rawEdits = [];
@@ -75,33 +99,40 @@ async function changeCellToKind(kind, context, language, mime) {
         const availableLanguages = notebookEditor.activeKernel?.supportedLanguages ?? [];
         language = availableLanguages[0] ?? PLAINTEXT_LANGUAGE_ID;
       }
-      rawEdits.push(
-        {
-          editType: CellEditType.Replace,
-          index: idx,
-          count: 1,
-          cells: [{
+      rawEdits.push({
+        editType: CellEditType.Replace,
+        index: idx,
+        count: 1,
+        cells: [
+          {
             cellKind: kind,
             source: text,
             language,
             mime: mime ?? cell.mime,
             outputs: cell.model.outputs,
             metadata: cell.metadata
-          }]
-        }
-      );
+          }
+        ]
+      });
     });
-    notebookEditor.textModel.applyEdits(rawEdits, true, {
-      kind: SelectionStateType.Index,
-      focus: notebookEditor.getFocus(),
-      selections: notebookEditor.getSelections()
-    }, () => {
-      return {
+    notebookEditor.textModel.applyEdits(
+      rawEdits,
+      true,
+      {
         kind: SelectionStateType.Index,
         focus: notebookEditor.getFocus(),
         selections: notebookEditor.getSelections()
-      };
-    }, void 0, true);
+      },
+      () => {
+        return {
+          kind: SelectionStateType.Index,
+          focus: notebookEditor.getFocus(),
+          selections: notebookEditor.getSelections()
+        };
+      },
+      void 0,
+      true
+    );
   }
 }
 __name(changeCellToKind, "changeCellToKind");
@@ -109,7 +140,9 @@ function runDeleteAction(editor, cell) {
   const textModel = editor.textModel;
   const selections = editor.getSelections();
   const targetCellIndex = editor.getCellIndex(cell);
-  const containingSelection = selections.find((selection) => selection.start <= targetCellIndex && targetCellIndex < selection.end);
+  const containingSelection = selections.find(
+    (selection) => selection.start <= targetCellIndex && targetCellIndex < selection.end
+  );
   const computeUndoRedo = !editor.isReadOnly || textModel.viewType === "interactive";
   if (containingSelection) {
     const edits = selections.reverse().map((selection) => ({
@@ -119,52 +152,115 @@ function runDeleteAction(editor, cell) {
       cells: []
     }));
     const nextCellAfterContainingSelection = containingSelection.end >= editor.getLength() ? void 0 : editor.cellAt(containingSelection.end);
-    textModel.applyEdits(edits, true, { kind: SelectionStateType.Index, focus: editor.getFocus(), selections: editor.getSelections() }, () => {
-      if (nextCellAfterContainingSelection) {
-        const cellIndex = textModel.cells.findIndex((cell2) => cell2.handle === nextCellAfterContainingSelection.handle);
-        return { kind: SelectionStateType.Index, focus: { start: cellIndex, end: cellIndex + 1 }, selections: [{ start: cellIndex, end: cellIndex + 1 }] };
-      } else {
-        if (textModel.length) {
-          const lastCellIndex = textModel.length - 1;
-          return { kind: SelectionStateType.Index, focus: { start: lastCellIndex, end: lastCellIndex + 1 }, selections: [{ start: lastCellIndex, end: lastCellIndex + 1 }] };
+    textModel.applyEdits(
+      edits,
+      true,
+      {
+        kind: SelectionStateType.Index,
+        focus: editor.getFocus(),
+        selections: editor.getSelections()
+      },
+      () => {
+        if (nextCellAfterContainingSelection) {
+          const cellIndex = textModel.cells.findIndex(
+            (cell2) => cell2.handle === nextCellAfterContainingSelection.handle
+          );
+          return {
+            kind: SelectionStateType.Index,
+            focus: { start: cellIndex, end: cellIndex + 1 },
+            selections: [{ start: cellIndex, end: cellIndex + 1 }]
+          };
         } else {
-          return { kind: SelectionStateType.Index, focus: { start: 0, end: 0 }, selections: [{ start: 0, end: 0 }] };
+          if (textModel.length) {
+            const lastCellIndex = textModel.length - 1;
+            return {
+              kind: SelectionStateType.Index,
+              focus: {
+                start: lastCellIndex,
+                end: lastCellIndex + 1
+              },
+              selections: [
+                {
+                  start: lastCellIndex,
+                  end: lastCellIndex + 1
+                }
+              ]
+            };
+          } else {
+            return {
+              kind: SelectionStateType.Index,
+              focus: { start: 0, end: 0 },
+              selections: [{ start: 0, end: 0 }]
+            };
+          }
         }
-      }
-    }, void 0, computeUndoRedo);
+      },
+      void 0,
+      computeUndoRedo
+    );
   } else {
     const focus = editor.getFocus();
-    const edits = [{
-      editType: CellEditType.Replace,
-      index: targetCellIndex,
-      count: 1,
-      cells: []
-    }];
+    const edits = [
+      {
+        editType: CellEditType.Replace,
+        index: targetCellIndex,
+        count: 1,
+        cells: []
+      }
+    ];
     const finalSelections = [];
     for (let i = 0; i < selections.length; i++) {
       const selection = selections[i];
       if (selection.end <= targetCellIndex) {
         finalSelections.push(selection);
       } else if (selection.start > targetCellIndex) {
-        finalSelections.push({ start: selection.start - 1, end: selection.end - 1 });
+        finalSelections.push({
+          start: selection.start - 1,
+          end: selection.end - 1
+        });
       } else {
-        finalSelections.push({ start: targetCellIndex, end: targetCellIndex + 1 });
+        finalSelections.push({
+          start: targetCellIndex,
+          end: targetCellIndex + 1
+        });
       }
     }
     if (editor.cellAt(focus.start) === cell) {
       const newFocus = focus.end === textModel.length ? { start: focus.start - 1, end: focus.end - 1 } : focus;
-      textModel.applyEdits(edits, true, { kind: SelectionStateType.Index, focus: editor.getFocus(), selections: editor.getSelections() }, () => ({
-        kind: SelectionStateType.Index,
-        focus: newFocus,
-        selections: finalSelections
-      }), void 0, computeUndoRedo);
+      textModel.applyEdits(
+        edits,
+        true,
+        {
+          kind: SelectionStateType.Index,
+          focus: editor.getFocus(),
+          selections: editor.getSelections()
+        },
+        () => ({
+          kind: SelectionStateType.Index,
+          focus: newFocus,
+          selections: finalSelections
+        }),
+        void 0,
+        computeUndoRedo
+      );
     } else {
       const newFocus = focus.start > targetCellIndex ? { start: focus.start - 1, end: focus.end - 1 } : focus;
-      textModel.applyEdits(edits, true, { kind: SelectionStateType.Index, focus: editor.getFocus(), selections: editor.getSelections() }, () => ({
-        kind: SelectionStateType.Index,
-        focus: newFocus,
-        selections: finalSelections
-      }), void 0, computeUndoRedo);
+      textModel.applyEdits(
+        edits,
+        true,
+        {
+          kind: SelectionStateType.Index,
+          focus: editor.getFocus(),
+          selections: editor.getSelections()
+        },
+        () => ({
+          kind: SelectionStateType.Index,
+          focus: newFocus,
+          selections: finalSelections
+        }),
+        void 0,
+        computeUndoRedo
+      );
     }
   }
 }
@@ -213,7 +309,11 @@ async function moveCellRange(context, direction) {
         focus: editor.getFocus(),
         selections: editor.getSelections()
       },
-      () => ({ kind: SelectionStateType.Index, focus: newFocus, selections: [finalSelection] }),
+      () => ({
+        kind: SelectionStateType.Index,
+        focus: newFocus,
+        selections: [finalSelection]
+      }),
       void 0,
       true
     );
@@ -242,7 +342,11 @@ async function moveCellRange(context, direction) {
         focus: editor.getFocus(),
         selections: editor.getSelections()
       },
-      () => ({ kind: SelectionStateType.Index, focus: newFocus, selections: [finalSelection] }),
+      () => ({
+        kind: SelectionStateType.Index,
+        focus: newFocus,
+        selections: [finalSelection]
+      }),
       void 0,
       true
     );
@@ -282,7 +386,9 @@ async function copyCellRange(context, direction) {
           editType: CellEditType.Replace,
           index: range.end,
           count: 0,
-          cells: cellRangesToIndexes([range]).map((index) => cloneNotebookCellTextModel(editor.cellAt(index).model))
+          cells: cellRangesToIndexes([range]).map(
+            (index) => cloneNotebookCellTextModel(editor.cellAt(index)?.model)
+          )
         }
       ],
       true,
@@ -291,24 +397,37 @@ async function copyCellRange(context, direction) {
         focus,
         selections
       },
-      () => ({ kind: SelectionStateType.Index, focus, selections }),
+      () => ({
+        kind: SelectionStateType.Index,
+        focus,
+        selections
+      }),
       void 0,
       true
     );
   } else {
     const focus = editor.getFocus();
     const selections = editor.getSelections();
-    const newCells = cellRangesToIndexes([range]).map((index) => cloneNotebookCellTextModel(editor.cellAt(index).model));
+    const newCells = cellRangesToIndexes([range]).map(
+      (index) => cloneNotebookCellTextModel(editor.cellAt(index)?.model)
+    );
     const countDelta = newCells.length;
     const newFocus = context.ui ? focus : { start: focus.start + countDelta, end: focus.end + countDelta };
-    const newSelections = context.ui ? selections : [{ start: range.start + countDelta, end: range.end + countDelta }];
+    const newSelections = context.ui ? selections : [
+      {
+        start: range.start + countDelta,
+        end: range.end + countDelta
+      }
+    ];
     textModel.applyEdits(
       [
         {
           editType: CellEditType.Replace,
           index: range.end,
           count: 0,
-          cells: cellRangesToIndexes([range]).map((index) => cloneNotebookCellTextModel(editor.cellAt(index).model))
+          cells: cellRangesToIndexes([range]).map(
+            (index) => cloneNotebookCellTextModel(editor.cellAt(index)?.model)
+          )
         }
       ],
       true,
@@ -317,7 +436,11 @@ async function copyCellRange(context, direction) {
         focus,
         selections
       },
-      () => ({ kind: SelectionStateType.Index, focus: newFocus, selections: newSelections }),
+      () => ({
+        kind: SelectionStateType.Index,
+        focus: newFocus,
+        selections: newSelections
+      }),
       void 0,
       true
     );
@@ -342,46 +465,49 @@ async function joinSelectedCells(bulkEditService, notificationService, context) 
   const cellKind = cells[0].cellKind;
   const isSameKind = cells.every((cell) => cell.cellKind === cellKind);
   if (!isSameKind) {
-    const message = localize("notebookActions.joinSelectedCells", "Cannot join cells of different kinds");
+    const message = localize(
+      "notebookActions.joinSelectedCells",
+      "Cannot join cells of different kinds"
+    );
     return notificationService.warn(message);
   }
   const firstCell = cells[0];
   const insertContent = cells.map((cell) => cell.getText()).join(firstCell.textBuffer.getEOL());
   const firstSelection = editor.getSelections()[0];
   edits.push(
-    new ResourceNotebookCellEdit(
-      editor.textModel.uri,
-      {
-        editType: CellEditType.Replace,
-        index: firstSelection.start,
-        count: firstSelection.end - firstSelection.start,
-        cells: [{
+    new ResourceNotebookCellEdit(editor.textModel.uri, {
+      editType: CellEditType.Replace,
+      index: firstSelection.start,
+      count: firstSelection.end - firstSelection.start,
+      cells: [
+        {
           cellKind: firstCell.cellKind,
           source: insertContent,
           language: firstCell.language,
           mime: firstCell.mime,
           outputs: firstCell.model.outputs,
           metadata: firstCell.metadata
-        }]
-      }
-    )
+        }
+      ]
+    })
   );
   for (const selection of editor.getSelections().slice(1)) {
-    edits.push(new ResourceNotebookCellEdit(
-      editor.textModel.uri,
-      {
+    edits.push(
+      new ResourceNotebookCellEdit(editor.textModel.uri, {
         editType: CellEditType.Replace,
         index: selection.start,
         count: selection.end - selection.start,
         cells: []
-      }
-    ));
+      })
+    );
   }
   if (edits.length) {
-    await bulkEditService.apply(
-      edits,
-      { quotableLabel: localize("notebookActions.joinSelectedCells.label", "Join Notebook Cells") }
-    );
+    await bulkEditService.apply(edits, {
+      quotableLabel: localize(
+        "notebookActions.joinSelectedCells.label",
+        "Join Notebook Cells"
+      )
+    });
   }
 }
 __name(joinSelectedCells, "joinSelectedCells");
@@ -416,16 +542,21 @@ async function joinNotebookCells(editor, range, direction, constraint) {
     const aboveCellLastLineEndColumn = above.textBuffer.getLineLength(aboveCellLineCount);
     return {
       edits: [
-        new ResourceTextEdit(above.uri, { range: new Range(aboveCellLineCount, aboveCellLastLineEndColumn + 1, aboveCellLineCount, aboveCellLastLineEndColumn + 1), text: insertContent }),
-        new ResourceNotebookCellEdit(
-          textModel.uri,
-          {
-            editType: CellEditType.Replace,
-            index: range.start,
-            count: range.end - range.start,
-            cells: []
-          }
-        )
+        new ResourceTextEdit(above.uri, {
+          range: new Range(
+            aboveCellLineCount,
+            aboveCellLastLineEndColumn + 1,
+            aboveCellLineCount,
+            aboveCellLastLineEndColumn + 1
+          ),
+          text: insertContent
+        }),
+        new ResourceNotebookCellEdit(textModel.uri, {
+          editType: CellEditType.Replace,
+          index: range.start,
+          count: range.end - range.start,
+          cells: []
+        })
       ],
       cell: above,
       endFocus: { start: range.start - 1, end: range.start },
@@ -443,16 +574,21 @@ async function joinNotebookCells(editor, range, direction, constraint) {
     const cellLastLineEndColumn = cell.textBuffer.getLineLength(cellLineCount);
     return {
       edits: [
-        new ResourceTextEdit(cell.uri, { range: new Range(cellLineCount, cellLastLineEndColumn + 1, cellLineCount, cellLastLineEndColumn + 1), text: insertContent }),
-        new ResourceNotebookCellEdit(
-          textModel.uri,
-          {
-            editType: CellEditType.Replace,
-            index: range.start + 1,
-            count: range.end - range.start,
-            cells: []
-          }
-        )
+        new ResourceTextEdit(cell.uri, {
+          range: new Range(
+            cellLineCount,
+            cellLastLineEndColumn + 1,
+            cellLineCount,
+            cellLastLineEndColumn + 1
+          ),
+          text: insertContent
+        }),
+        new ResourceNotebookCellEdit(textModel.uri, {
+          editType: CellEditType.Replace,
+          index: range.start + 1,
+          count: range.end - range.start,
+          cells: []
+        })
       ],
       cell,
       endFocus: { start: range.start, end: range.start + 1 },
@@ -469,16 +605,26 @@ async function joinCellsWithSurrounds(bulkEditService, context, direction) {
   if (context.ui) {
     const focusMode = context.cell.focusMode;
     const cellIndex = editor.getCellIndex(context.cell);
-    ret = await joinNotebookCells(editor, { start: cellIndex, end: cellIndex + 1 }, direction);
+    ret = await joinNotebookCells(
+      editor,
+      { start: cellIndex, end: cellIndex + 1 },
+      direction
+    );
     if (!ret) {
       return;
     }
-    await bulkEditService.apply(
-      ret?.edits,
-      { quotableLabel: "Join Notebook Cells" }
+    await bulkEditService.apply(ret?.edits, {
+      quotableLabel: "Join Notebook Cells"
+    });
+    viewModel.updateSelectionsState({
+      kind: SelectionStateType.Index,
+      focus: ret.endFocus,
+      selections: ret.endSelections
+    });
+    ret.cell.updateEditState(
+      CellEditState.Editing,
+      "joinCellsWithSurrounds"
     );
-    viewModel.updateSelectionsState({ kind: SelectionStateType.Index, focus: ret.endFocus, selections: ret.endSelections });
-    ret.cell.updateEditState(CellEditState.Editing, "joinCellsWithSurrounds");
     editor.revealCellRangeInView(editor.getFocus());
     if (focusMode === CellFocusMode.Editor) {
       ret.cell.focusMode = CellFocusMode.Editor;
@@ -503,7 +649,11 @@ async function joinCellsWithSurrounds(bulkEditService, context, direction) {
         cells.push(...editor.getCellsInRange(selection));
         continue;
       }
-      const singleRet = await joinNotebookCells(editor, selection, direction);
+      const singleRet = await joinNotebookCells(
+        editor,
+        selection,
+        direction
+      );
       if (!singleRet) {
         return;
       }
@@ -519,14 +669,20 @@ async function joinCellsWithSurrounds(bulkEditService, context, direction) {
     if (!cell || !cells.length) {
       return;
     }
-    await bulkEditService.apply(
-      edits,
-      { quotableLabel: "Join Notebook Cells" }
-    );
-    cells.forEach((cell2) => {
-      cell2.updateEditState(CellEditState.Editing, "joinCellsWithSurrounds");
+    await bulkEditService.apply(edits, {
+      quotableLabel: "Join Notebook Cells"
     });
-    viewModel.updateSelectionsState({ kind: SelectionStateType.Handle, primary: cell.handle, selections: cells.map((cell2) => cell2.handle) });
+    cells.forEach((cell2) => {
+      cell2.updateEditState(
+        CellEditState.Editing,
+        "joinCellsWithSurrounds"
+      );
+    });
+    viewModel.updateSelectionsState({
+      kind: SelectionStateType.Handle,
+      primary: cell.handle,
+      selections: cells.map((cell2) => cell2.handle)
+    });
     editor.revealCellRangeInView(editor.getFocus());
     const newFocusedCell = editor.cellAt(editor.getFocus().start);
     if (focusMode === CellFocusMode.Editor && newFocusedCell) {
@@ -568,7 +724,10 @@ function _pushIfAbsent(positions, p) {
 }
 __name(_pushIfAbsent, "_pushIfAbsent");
 function computeCellLinesContents(cell, splitPoints) {
-  const rangeBoundaries = _splitPointsToBoundaries(splitPoints, cell.textBuffer);
+  const rangeBoundaries = _splitPointsToBoundaries(
+    splitPoints,
+    cell.textBuffer
+  );
   if (!rangeBoundaries) {
     return null;
   }
@@ -576,7 +735,17 @@ function computeCellLinesContents(cell, splitPoints) {
   for (let i = 1; i < rangeBoundaries.length; i++) {
     const start = rangeBoundaries[i - 1];
     const end = rangeBoundaries[i];
-    newLineModels.push(cell.textBuffer.getValueInRange(new Range(start.lineNumber, start.column, end.lineNumber, end.column), EndOfLinePreference.TextDefined));
+    newLineModels.push(
+      cell.textBuffer.getValueInRange(
+        new Range(
+          start.lineNumber,
+          start.column,
+          end.lineNumber,
+          end.column
+        ),
+        EndOfLinePreference.TextDefined
+      )
+    );
   }
   return newLineModels;
 }
@@ -598,12 +767,14 @@ function insertCell(languageService, editor, index, type, direction = "above", i
     } else if (cell?.cellKind === CellKind.Markup) {
       const nearestCodeCellIndex = viewModel.nearestCodeCellIndex(index);
       if (nearestCodeCellIndex > -1) {
-        language = viewModel.cellAt(nearestCodeCellIndex).language;
+        language = viewModel.cellAt(nearestCodeCellIndex)?.language;
       } else {
         language = defaultLanguage;
       }
     } else if (!cell && viewModel.length === 0) {
-      const lastKernels = kernelHistoryService?.getKernels(viewModel.notebookDocument);
+      const lastKernels = kernelHistoryService?.getKernels(
+        viewModel.notebookDocument
+      );
       if (lastKernels?.all.length) {
         const lastKernel = lastKernels.all[0];
         language = lastKernel.supportedLanguages[0] || defaultLanguage;
@@ -612,7 +783,9 @@ function insertCell(languageService, editor, index, type, direction = "above", i
       }
     } else {
       if (cell === void 0 && direction === "above") {
-        language = viewModel.viewCells.find((cell2) => cell2.cellKind === CellKind.Code)?.language || defaultLanguage;
+        language = viewModel.viewCells.find(
+          (cell2) => cell2.cellKind === CellKind.Code
+        )?.language || defaultLanguage;
       } else {
         language = defaultLanguage;
       }
@@ -624,28 +797,53 @@ function insertCell(languageService, editor, index, type, direction = "above", i
     language = "markdown";
   }
   const insertIndex = cell ? direction === "above" ? index : nextIndex : index;
-  return insertCellAtIndex(viewModel, insertIndex, initialText, language, type, void 0, [], true, true);
+  return insertCellAtIndex(
+    viewModel,
+    insertIndex,
+    initialText,
+    language,
+    type,
+    void 0,
+    [],
+    true,
+    true
+  );
 }
 __name(insertCell, "insertCell");
 function insertCellAtIndex(viewModel, index, source, language, type, metadata, outputs, synchronous, pushUndoStop) {
-  const endSelections = { kind: SelectionStateType.Index, focus: { start: index, end: index + 1 }, selections: [{ start: index, end: index + 1 }] };
-  viewModel.notebookDocument.applyEdits([
+  const endSelections = {
+    kind: SelectionStateType.Index,
+    focus: { start: index, end: index + 1 },
+    selections: [{ start: index, end: index + 1 }]
+  };
+  viewModel.notebookDocument.applyEdits(
+    [
+      {
+        editType: CellEditType.Replace,
+        index,
+        count: 0,
+        cells: [
+          {
+            cellKind: type,
+            language,
+            mime: void 0,
+            outputs,
+            metadata,
+            source
+          }
+        ]
+      }
+    ],
+    synchronous,
     {
-      editType: CellEditType.Replace,
-      index,
-      count: 0,
-      cells: [
-        {
-          cellKind: type,
-          language,
-          mime: void 0,
-          outputs,
-          metadata,
-          source
-        }
-      ]
-    }
-  ], synchronous, { kind: SelectionStateType.Index, focus: viewModel.getFocus(), selections: viewModel.getSelections() }, () => endSelections, void 0, pushUndoStop && !viewModel.options.isReadOnly);
+      kind: SelectionStateType.Index,
+      focus: viewModel.getFocus(),
+      selections: viewModel.getSelections()
+    },
+    () => endSelections,
+    void 0,
+    pushUndoStop && !viewModel.options.isReadOnly
+  );
   return viewModel.cellAt(index);
 }
 __name(insertCellAtIndex, "insertCellAtIndex");

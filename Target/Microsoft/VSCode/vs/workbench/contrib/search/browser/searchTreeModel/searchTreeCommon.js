@@ -1,16 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Range } from "../../../../../editor/common/core/range.js";
-import { IAITextQuery, IFileMatch, ISearchComplete, ISearchProgressItem, ISearchRange, ITextQuery, ITextSearchQuery, ITextSearchResult } from "../../../../services/search/common/search.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
-import { IFileStatWithPartialMetadata, IFileService } from "../../../../../platform/files/common/files.js";
-import { IProgress, IProgressStep } from "../../../../../platform/progress/common/progress.js";
-import { ReplacePattern } from "../../../../services/search/common/replace.js";
-import { NotebookEditorWidget } from "../../../notebook/browser/notebookEditorWidget.js";
-import { RangeHighlightDecorations } from "./rangeDecorations.js";
-import { Event } from "../../../../../base/common/event.js";
 function arrayContainsElementOrParent(element, testArray) {
   do {
     if (testArray.includes(element)) {
@@ -115,7 +105,9 @@ function getFileMatches(matches) {
       folderMatches.push(e);
     }
   });
-  return fileMatches.concat(folderMatches.map((e) => e.allDownstreamFileMatches()).flat());
+  return fileMatches.concat(
+    folderMatches.flatMap((e) => e.allDownstreamFileMatches())
+  );
 }
 __name(getFileMatches, "getFileMatches");
 export {

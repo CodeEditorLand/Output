@@ -111,7 +111,6 @@ class StringSHA1 {
   constructor() {
     this._buff = new Uint8Array(
       64 /* BLOCK_SIZE */ + 3
-      /* to fit any utf-8 */
     );
     this._buffDV = new DataView(this._buff.buffer);
     this._buffLen = 0;
@@ -144,7 +143,10 @@ class StringSHA1 {
           const nextCharCode = str.charCodeAt(offset + 1);
           if (strings.isLowSurrogate(nextCharCode)) {
             offset++;
-            codePoint = strings.computeCodePoint(charCode, nextCharCode);
+            codePoint = strings.computeCodePoint(
+              charCode,
+              nextCharCode
+            );
           } else {
             codePoint = 65533 /* UNICODE_REPLACEMENT */;
           }
@@ -197,7 +199,11 @@ class StringSHA1 {
       this._finished = true;
       if (this._leftoverHighSurrogate) {
         this._leftoverHighSurrogate = 0;
-        this._buffLen = this._push(this._buff, this._buffLen, 65533 /* UNICODE_REPLACEMENT */);
+        this._buffLen = this._push(
+          this._buff,
+          this._buffLen,
+          65533 /* UNICODE_REPLACEMENT */
+        );
       }
       this._totalLen += this._buffLen;
       this._wrapUp();
@@ -223,14 +229,22 @@ class StringSHA1 {
       bigBlock32.setUint32(j, data.getUint32(j, false), false);
     }
     for (let j = 64; j < 320; j += 4) {
-      bigBlock32.setUint32(j, leftRotate(bigBlock32.getUint32(j - 12, false) ^ bigBlock32.getUint32(j - 32, false) ^ bigBlock32.getUint32(j - 56, false) ^ bigBlock32.getUint32(j - 64, false), 1), false);
+      bigBlock32.setUint32(
+        j,
+        leftRotate(
+          bigBlock32.getUint32(j - 12, false) ^ bigBlock32.getUint32(j - 32, false) ^ bigBlock32.getUint32(j - 56, false) ^ bigBlock32.getUint32(j - 64, false),
+          1
+        ),
+        false
+      );
     }
     let a = this._h0;
     let b = this._h1;
     let c = this._h2;
     let d = this._h3;
     let e = this._h4;
-    let f, k;
+    let f;
+    let k;
     let temp;
     for (let j = 0; j < 80; j++) {
       if (j < 20) {

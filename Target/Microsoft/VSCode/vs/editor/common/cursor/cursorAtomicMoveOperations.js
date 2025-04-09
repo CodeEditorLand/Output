@@ -25,7 +25,11 @@ class AtomicTabMoveOperations {
     let prevTabStopVisibleColumn = -1;
     for (let i = 0; i < lineLength; i++) {
       if (i === position) {
-        return [prevTabStopPosition, prevTabStopVisibleColumn, visibleColumn];
+        return [
+          prevTabStopPosition,
+          prevTabStopVisibleColumn,
+          visibleColumn
+        ];
       }
       if (visibleColumn % tabSize === 0) {
         prevTabStopPosition = i;
@@ -37,14 +41,21 @@ class AtomicTabMoveOperations {
           visibleColumn += 1;
           break;
         case CharCode.Tab:
-          visibleColumn = CursorColumns.nextRenderTabStop(visibleColumn, tabSize);
+          visibleColumn = CursorColumns.nextRenderTabStop(
+            visibleColumn,
+            tabSize
+          );
           break;
         default:
           return [-1, -1, -1];
       }
     }
     if (position === lineLength) {
-      return [prevTabStopPosition, prevTabStopVisibleColumn, visibleColumn];
+      return [
+        prevTabStopPosition,
+        prevTabStopVisibleColumn,
+        visibleColumn
+      ];
     }
     return [-1, -1, -1];
   }
@@ -59,7 +70,11 @@ class AtomicTabMoveOperations {
    */
   static atomicPosition(lineContent, position, tabSize, direction) {
     const lineLength = lineContent.length;
-    const [prevTabStopPosition, prevTabStopVisibleColumn, visibleColumn] = AtomicTabMoveOperations.whitespaceVisibleColumn(lineContent, position, tabSize);
+    const [prevTabStopPosition, prevTabStopVisibleColumn, visibleColumn] = AtomicTabMoveOperations.whitespaceVisibleColumn(
+      lineContent,
+      position,
+      tabSize
+    );
     if (visibleColumn === -1) {
       return -1;
     }
@@ -93,7 +108,10 @@ class AtomicTabMoveOperations {
             currentVisibleColumn2 += 1;
             break;
           case CharCode.Tab:
-            currentVisibleColumn2 = CursorColumns.nextRenderTabStop(currentVisibleColumn2, tabSize);
+            currentVisibleColumn2 = CursorColumns.nextRenderTabStop(
+              currentVisibleColumn2,
+              tabSize
+            );
             break;
           default:
             return -1;
@@ -104,7 +122,10 @@ class AtomicTabMoveOperations {
       }
       return -1;
     }
-    const targetVisibleColumn = CursorColumns.nextRenderTabStop(visibleColumn, tabSize);
+    const targetVisibleColumn = CursorColumns.nextRenderTabStop(
+      visibleColumn,
+      tabSize
+    );
     let currentVisibleColumn = visibleColumn;
     for (let i = position; i < lineLength; i++) {
       if (currentVisibleColumn === targetVisibleColumn) {
@@ -116,7 +137,10 @@ class AtomicTabMoveOperations {
           currentVisibleColumn += 1;
           break;
         case CharCode.Tab:
-          currentVisibleColumn = CursorColumns.nextRenderTabStop(currentVisibleColumn, tabSize);
+          currentVisibleColumn = CursorColumns.nextRenderTabStop(
+            currentVisibleColumn,
+            tabSize
+          );
           break;
         default:
           return -1;

@@ -3,8 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { Position } from "../core/position.js";
 import { Range } from "../core/range.js";
 import { Selection, SelectionDirection } from "../core/selection.js";
-import { ICommand, ICursorStateComputerData, IEditOperationBuilder } from "../editorCommon.js";
-import { ITextModel } from "../model.js";
 class ReplaceCommand {
   static {
     __name(this, "ReplaceCommand");
@@ -43,11 +41,21 @@ class ReplaceOvertypeCommand {
     const initialEndPosition = this._range.getEndPosition();
     const initialEndLineNumber = initialEndPosition.lineNumber;
     const offsetDelta = this._text.length + (this._range.isEmpty() ? 0 : -1);
-    let endPosition = addPositiveOffsetToModelPosition(model, initialEndPosition, offsetDelta);
+    let endPosition = addPositiveOffsetToModelPosition(
+      model,
+      initialEndPosition,
+      offsetDelta
+    );
     if (endPosition.lineNumber > initialEndLineNumber) {
-      endPosition = new Position(initialEndLineNumber, model.getLineMaxColumn(initialEndLineNumber));
+      endPosition = new Position(
+        initialEndLineNumber,
+        model.getLineMaxColumn(initialEndLineNumber)
+      );
     }
-    const replaceRange = Range.fromPositions(intialStartPosition, endPosition);
+    const replaceRange = Range.fromPositions(
+      intialStartPosition,
+      endPosition
+    );
     builder.addTrackedEditOperation(replaceRange, this._text);
   }
   computeCursorState(model, helper) {
@@ -118,7 +126,9 @@ class ReplaceCommandWithOffsetCursorState {
   computeCursorState(model, helper) {
     const inverseEditOperations = helper.getInverseEditOperations();
     const srcRange = inverseEditOperations[0].range;
-    return Selection.fromPositions(srcRange.getEndPosition().delta(this._lineNumberDeltaOffset, this._columnDeltaOffset));
+    return Selection.fromPositions(
+      srcRange.getEndPosition().delta(this._lineNumberDeltaOffset, this._columnDeltaOffset)
+    );
   }
 }
 class ReplaceOvertypeCommandOnCompositionEnd {
@@ -133,11 +143,21 @@ class ReplaceOvertypeCommandOnCompositionEnd {
     const text = model.getValueInRange(this._range);
     const initialEndPosition = this._range.getEndPosition();
     const initialEndLineNumber = initialEndPosition.lineNumber;
-    let endPosition = addPositiveOffsetToModelPosition(model, initialEndPosition, text.length);
+    let endPosition = addPositiveOffsetToModelPosition(
+      model,
+      initialEndPosition,
+      text.length
+    );
     if (endPosition.lineNumber > initialEndLineNumber) {
-      endPosition = new Position(initialEndLineNumber, model.getLineMaxColumn(initialEndLineNumber));
+      endPosition = new Position(
+        initialEndLineNumber,
+        model.getLineMaxColumn(initialEndLineNumber)
+      );
     }
-    const replaceRange = Range.fromPositions(initialEndPosition, endPosition);
+    const replaceRange = Range.fromPositions(
+      initialEndPosition,
+      endPosition
+    );
     builder.addTrackedEditOperation(replaceRange, "");
   }
   computeCursorState(model, helper) {
@@ -163,7 +183,11 @@ class ReplaceCommandThatPreservesSelection {
     this._selectionId = null;
   }
   getEditOperations(model, builder) {
-    builder.addTrackedEditOperation(this._range, this._text, this._forceMoveMarkers);
+    builder.addTrackedEditOperation(
+      this._range,
+      this._text,
+      this._forceMoveMarkers
+    );
     this._selectionId = builder.trackSelection(this._initialSelection);
   }
   computeCursorState(model, helper) {
@@ -175,12 +199,18 @@ function addPositiveOffsetToModelPosition(model, position, offset) {
     throw new Error("Unexpected negative delta");
   }
   const lineCount = model.getLineCount();
-  let endPosition = new Position(lineCount, model.getLineMaxColumn(lineCount));
+  let endPosition = new Position(
+    lineCount,
+    model.getLineMaxColumn(lineCount)
+  );
   for (let lineNumber = position.lineNumber; lineNumber <= lineCount; lineNumber++) {
     if (lineNumber === position.lineNumber) {
       const futureOffset = offset - model.getLineMaxColumn(position.lineNumber) + position.column;
       if (futureOffset <= 0) {
-        endPosition = new Position(position.lineNumber, position.column + offset);
+        endPosition = new Position(
+          position.lineNumber,
+          position.column + offset
+        );
         break;
       }
       offset = futureOffset;

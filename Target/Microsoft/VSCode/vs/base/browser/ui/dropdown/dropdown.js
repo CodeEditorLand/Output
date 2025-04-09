@@ -1,17 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IContextMenuProvider } from "../../contextmenu.js";
-import { $, addDisposableListener, append, EventHelper, EventType, isMouseEvent } from "../../dom.js";
+import { ActionRunner } from "../../../common/actions.js";
+import { Emitter } from "../../../common/event.js";
+import { KeyCode } from "../../../common/keyCodes.js";
+import {
+  $,
+  addDisposableListener,
+  append,
+  EventHelper,
+  EventType,
+  isMouseEvent
+} from "../../dom.js";
 import { StandardKeyboardEvent } from "../../keyboardEvent.js";
-import { EventType as GestureEventType, Gesture } from "../../touch.js";
+import { Gesture, EventType as GestureEventType } from "../../touch.js";
 import { AnchorAlignment } from "../contextview/contextview.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
 import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
-import { IMenuOptions } from "../menu/menu.js";
-import { ActionRunner, IAction } from "../../../common/actions.js";
-import { Emitter } from "../../../common/event.js";
-import { KeyCode } from "../../../common/keyCodes.js";
-import { IDisposable } from "../../../common/lifecycle.js";
 import "./dropdown.css";
 class BaseDropdown extends ActionRunner {
   static {
@@ -36,32 +40,46 @@ class BaseDropdown extends ActionRunner {
         return null;
       }, "labelRenderer");
     }
-    for (const event of [EventType.CLICK, EventType.MOUSE_DOWN, GestureEventType.Tap]) {
-      this._register(addDisposableListener(this.element, event, (e) => EventHelper.stop(e, true)));
+    for (const event of [
+      EventType.CLICK,
+      EventType.MOUSE_DOWN,
+      GestureEventType.Tap
+    ]) {
+      this._register(
+        addDisposableListener(
+          this.element,
+          event,
+          (e) => EventHelper.stop(e, true)
+        )
+      );
     }
     for (const event of [EventType.MOUSE_DOWN, GestureEventType.Tap]) {
-      this._register(addDisposableListener(this._label, event, (e) => {
-        if (isMouseEvent(e) && (e.detail > 1 || e.button !== 0)) {
-          return;
-        }
-        if (this.visible) {
-          this.hide();
-        } else {
-          this.show();
-        }
-      }));
+      this._register(
+        addDisposableListener(this._label, event, (e) => {
+          if (isMouseEvent(e) && (e.detail > 1 || e.button !== 0)) {
+            return;
+          }
+          if (this.visible) {
+            this.hide();
+          } else {
+            this.show();
+          }
+        })
+      );
     }
-    this._register(addDisposableListener(this._label, EventType.KEY_DOWN, (e) => {
-      const event = new StandardKeyboardEvent(e);
-      if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
-        EventHelper.stop(e, true);
-        if (this.visible) {
-          this.hide();
-        } else {
-          this.show();
+    this._register(
+      addDisposableListener(this._label, EventType.KEY_DOWN, (e) => {
+        const event = new StandardKeyboardEvent(e);
+        if (event.equals(KeyCode.Enter) || event.equals(KeyCode.Space)) {
+          EventHelper.stop(e, true);
+          if (this.visible) {
+            this.hide();
+          } else {
+            this.show();
+          }
         }
-      }
-    }));
+      })
+    );
     const cleanupFn = labelRenderer(this._label);
     if (cleanupFn) {
       this._register(cleanupFn);
@@ -77,7 +95,13 @@ class BaseDropdown extends ActionRunner {
   set tooltip(tooltip) {
     if (this._label) {
       if (!this.hover && tooltip !== "") {
-        this.hover = this._register(getBaseLayerHoverDelegate().setupManagedHover(getDefaultHoverDelegate("mouse"), this._label, tooltip));
+        this.hover = this._register(
+          getBaseLayerHoverDelegate().setupManagedHover(
+            getDefaultHoverDelegate("mouse"),
+            this._label,
+            tooltip
+          )
+        );
       } else if (this.hover) {
         this.hover.update(tooltip);
       }
@@ -156,8 +180,8 @@ class DropdownMenu extends BaseDropdown {
       getAnchor: /* @__PURE__ */ __name(() => this.element, "getAnchor"),
       getActions: /* @__PURE__ */ __name(() => this.actions, "getActions"),
       getActionsContext: /* @__PURE__ */ __name(() => this.menuOptions ? this.menuOptions.context : null, "getActionsContext"),
-      getActionViewItem: /* @__PURE__ */ __name((action, options) => this.menuOptions && this.menuOptions.actionViewItemProvider ? this.menuOptions.actionViewItemProvider(action, options) : void 0, "getActionViewItem"),
-      getKeyBinding: /* @__PURE__ */ __name((action) => this.menuOptions && this.menuOptions.getKeyBinding ? this.menuOptions.getKeyBinding(action) : void 0, "getKeyBinding"),
+      getActionViewItem: /* @__PURE__ */ __name((action, options) => this.menuOptions?.actionViewItemProvider ? this.menuOptions.actionViewItemProvider(action, options) : void 0, "getActionViewItem"),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.menuOptions?.getKeyBinding ? this.menuOptions.getKeyBinding(action) : void 0, "getKeyBinding"),
       getMenuClassName: /* @__PURE__ */ __name(() => this._options.menuClassName || "", "getMenuClassName"),
       onHide: /* @__PURE__ */ __name(() => this.onHide(), "onHide"),
       actionRunner: this.menuOptions ? this.menuOptions.actionRunner : void 0,

@@ -1,14 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { AccessibleViewProviderId, AccessibleViewType, AccessibleContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplementation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
-import { getNotebookEditorFromEditorPane } from "./notebookBrowser.js";
-import { NOTEBOOK_CELL_LIST_FOCUSED } from "../common/notebookContextKeys.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { InputFocusedContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
+import { NOTEBOOK_CELL_LIST_FOCUSED } from "../common/notebookContextKeys.js";
+import { getNotebookEditorFromEditorPane } from "./notebookBrowser.js";
 import { getAllOutputsText } from "./viewModel/cellOutputTextHelper.js";
 class NotebookAccessibleView {
   static {
@@ -17,7 +19,10 @@ class NotebookAccessibleView {
   priority = 100;
   name = "notebook";
   type = AccessibleViewType.View;
-  when = ContextKeyExpr.and(NOTEBOOK_CELL_LIST_FOCUSED, InputFocusedContext.toNegated());
+  when = ContextKeyExpr.and(
+    NOTEBOOK_CELL_LIST_FOCUSED,
+    InputFocusedContext.toNegated()
+  );
   getProvider(accessor) {
     const editorService = accessor.get(IEditorService);
     return getAccessibleOutputProvider(editorService);

@@ -11,9 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { IMarkerDecorationsService } from "../../common/services/markerDecorations.js";
-import { EditorContributionInstantiation, registerEditorContribution } from "../editorExtensions.js";
-import { ICodeEditor } from "../editorBrowser.js";
-import { IEditorContribution } from "../../common/editorCommon.js";
+import {
+  EditorContributionInstantiation,
+  registerEditorContribution
+} from "../editorExtensions.js";
 let MarkerDecorationsContribution = class {
   static {
     __name(this, "MarkerDecorationsContribution");
@@ -27,7 +28,11 @@ let MarkerDecorationsContribution = class {
 MarkerDecorationsContribution = __decorateClass([
   __decorateParam(1, IMarkerDecorationsService)
 ], MarkerDecorationsContribution);
-registerEditorContribution(MarkerDecorationsContribution.ID, MarkerDecorationsContribution, EditorContributionInstantiation.Eager);
+registerEditorContribution(
+  MarkerDecorationsContribution.ID,
+  MarkerDecorationsContribution,
+  EditorContributionInstantiation.Eager
+);
 export {
   MarkerDecorationsContribution
 };

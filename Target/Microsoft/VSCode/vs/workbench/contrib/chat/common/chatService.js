@@ -1,25 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { DeferredPromise } from "../../../../base/common/async.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IRange, Range } from "../../../../editor/common/core/range.js";
-import { ISelection } from "../../../../editor/common/core/selection.js";
-import { Command, Location, TextEdit } from "../../../../editor/common/languages.js";
-import { FileType } from "../../../../platform/files/common/files.js";
+import { Range } from "../../../../editor/common/core/range.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICellEditOperation } from "../../notebook/common/notebookCommon.js";
-import { IWorkspaceSymbol } from "../../search/common/search.js";
-import { IChatAgentCommand, IChatAgentData, IChatAgentResult } from "./chatAgents.js";
-import { ChatModel, IChatModel, IChatRequestModel, IChatRequestVariableData, IChatRequestVariableEntry, IChatResponseModel, IExportableChatData, ISerializableChatData } from "./chatModel.js";
-import { IParsedChatRequest } from "./chatParserTypes.js";
-import { IChatParserContext } from "./chatRequestParser.js";
-import { IChatRequestVariableValue } from "./chatVariables.js";
-import { ChatAgentLocation, ChatMode } from "./constants.js";
-import { IPreparedToolInvocation, IToolConfirmationMessages, IToolResult } from "./languageModelToolsService.js";
 var ChatErrorLevel = /* @__PURE__ */ ((ChatErrorLevel2) => {
   ChatErrorLevel2[ChatErrorLevel2["Info"] = 0] = "Info";
   ChatErrorLevel2[ChatErrorLevel2["Warning"] = 1] = "Warning";

@@ -11,26 +11,36 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
-import { Disposable, DisposableMap, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableMap,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../../base/common/network.js";
 import { clamp } from "../../../../../base/common/numbers.js";
-import { autorun, derived, IObservable, ITransaction, observableValue } from "../../../../../base/common/observable.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { OffsetEdit } from "../../../../../editor/common/core/offsetEdit.js";
-import { TextEdit } from "../../../../../editor/common/languages.js";
+import {
+  autorun,
+  derived,
+  observableValue
+} from "../../../../../base/common/observable.js";
 import { localize } from "../../../../../nls.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
-import { editorBackground, registerColor, transparent } from "../../../../../platform/theme/common/colorRegistry.js";
-import { IUndoRedoElement, IUndoRedoService } from "../../../../../platform/undoRedo/common/undoRedo.js";
-import { IEditorPane } from "../../../../common/editor.js";
+import {
+  editorBackground,
+  registerColor,
+  transparent
+} from "../../../../../platform/theme/common/colorRegistry.js";
+import {
+  IUndoRedoService
+} from "../../../../../platform/undoRedo/common/undoRedo.js";
 import { IFilesConfigurationService } from "../../../../services/filesConfiguration/common/filesConfigurationService.js";
-import { ICellEditOperation } from "../../../notebook/common/notebookCommon.js";
-import { IChatAgentResult } from "../../common/chatAgents.js";
-import { ChatEditKind, IModifiedFileEntry, IModifiedFileEntryEditorIntegration, ModifiedFileEntryState } from "../../common/chatEditingService.js";
-import { IChatResponseModel } from "../../common/chatModel.js";
+import {
+  ChatEditKind,
+  ModifiedFileEntryState
+} from "../../common/chatEditingService.js";
 import { IChatService } from "../../common/chatService.js";
 class AutoAcceptControl {
   constructor(total, remaining, cancel) {
@@ -45,7 +55,10 @@ class AutoAcceptControl {
 const pendingRewriteMinimap = registerColor(
   "minimap.chatEditHighlight",
   transparent(editorBackground, 0.6),
-  localize("editorSelectionBackground", "Color of pending edit regions in the minimap")
+  localize(
+    "editorSelectionBackground",
+    "Color of pending edit regions in the minimap"
+  )
 );
 let AbstractChatEditingModifiedFileEntry = class extends Disposable {
   constructor(modifiedURI, _telemetryInfo, kind, configService, _fileConfigService, _chatService, _fileService, _undoRedoService, _instantiationService) {
@@ -62,13 +75,19 @@ let AbstractChatEditingModifiedFileEntry = class extends Disposable {
     }
     if (this.modifiedURI.scheme !== Schemas.untitled && this.modifiedURI.scheme !== Schemas.vscodeNotebookCell) {
       this._register(this._fileService.watch(this.modifiedURI));
-      this._register(this._fileService.onDidFilesChange((e) => {
-        if (e.affects(this.modifiedURI) && kind === ChatEditKind.Created && e.gotDeleted()) {
-          this._onDidDelete.fire();
-        }
-      }));
+      this._register(
+        this._fileService.onDidFilesChange((e) => {
+          if (e.affects(this.modifiedURI) && kind === ChatEditKind.Created && e.gotDeleted()) {
+            this._onDidDelete.fire();
+          }
+        })
+      );
     }
-    const autoAcceptRaw = observableConfigValue("chat.editing.autoAcceptDelay", 0, configService);
+    const autoAcceptRaw = observableConfigValue(
+      "chat.editing.autoAcceptDelay",
+      0,
+      configService
+    );
     this._autoAcceptTimeout = derived((r) => {
       const value = autoAcceptRaw.read(r);
       return clamp(value, 0, 100);
@@ -79,13 +98,17 @@ let AbstractChatEditingModifiedFileEntry = class extends Disposable {
       return tempValue ?? configuredValue === 0;
     });
     const autoSaveOff = this._store.add(new MutableDisposable());
-    this._store.add(autorun((r) => {
-      if (this.isCurrentlyBeingModifiedBy.read(r)) {
-        autoSaveOff.value = _fileConfigService.disableAutoSave(this.modifiedURI);
-      } else {
-        autoSaveOff.clear();
-      }
-    }));
+    this._store.add(
+      autorun((r) => {
+        if (this.isCurrentlyBeingModifiedBy.read(r)) {
+          autoSaveOff.value = _fileConfigService.disableAutoSave(
+            this.modifiedURI
+          );
+        } else {
+          autoSaveOff.clear();
+        }
+      })
+    );
   }
   static {
     __name(this, "AbstractChatEditingModifiedFileEntry");
@@ -95,13 +118,19 @@ let AbstractChatEditingModifiedFileEntry = class extends Disposable {
   entryId = `${AbstractChatEditingModifiedFileEntry.scheme}::${++AbstractChatEditingModifiedFileEntry.lastEntryId}`;
   _onDidDelete = this._register(new Emitter());
   onDidDelete = this._onDidDelete.event;
-  _stateObs = observableValue(this, ModifiedFileEntryState.Modified);
+  _stateObs = observableValue(
+    this,
+    ModifiedFileEntryState.Modified
+  );
   state = this._stateObs;
   _isCurrentlyBeingModifiedByObs = observableValue(this, void 0);
   isCurrentlyBeingModifiedBy = this._isCurrentlyBeingModifiedByObs;
   _rewriteRatioObs = observableValue(this, 0);
   rewriteRatio = this._rewriteRatioObs;
-  _reviewModeTempObs = observableValue(this, void 0);
+  _reviewModeTempObs = observableValue(
+    this,
+    void 0
+  );
   reviewMode;
   _autoAcceptCtrl = observableValue(this, void 0);
   autoAcceptController = this._autoAcceptCtrl;
@@ -157,7 +186,12 @@ let AbstractChatEditingModifiedFileEntry = class extends Disposable {
   }
   _notifyAction(outcome) {
     this._chatService.notifyUserAction({
-      action: { kind: "chatEditingSessionAction", uri: this.modifiedURI, hasRemainingEdits: false, outcome },
+      action: {
+        kind: "chatEditingSessionAction",
+        uri: this.modifiedURI,
+        hasRemainingEdits: false,
+        outcome
+      },
       agentId: this._telemetryInfo.agentId,
       command: this._telemetryInfo.command,
       sessionId: this._telemetryInfo.sessionId,
@@ -165,7 +199,9 @@ let AbstractChatEditingModifiedFileEntry = class extends Disposable {
       result: this._telemetryInfo.result
     });
   }
-  _editorIntegrations = this._register(new DisposableMap());
+  _editorIntegrations = this._register(
+    new DisposableMap()
+  );
   getEditorIntegration(pane) {
     let value = this._editorIntegrations.get(pane);
     if (!value) {
@@ -201,10 +237,13 @@ let AbstractChatEditingModifiedFileEntry = class extends Disposable {
           this.accept(void 0);
         } else {
           const handle = setTimeout(update, 100);
-          this._autoAcceptCtrl.set(new AutoAcceptControl(acceptTimeout, remain, () => {
-            clearTimeout(handle);
-            this._autoAcceptCtrl.set(void 0, void 0);
-          }), void 0);
+          this._autoAcceptCtrl.set(
+            new AutoAcceptControl(acceptTimeout, remain, () => {
+              clearTimeout(handle);
+              this._autoAcceptCtrl.set(void 0, void 0);
+            }),
+            void 0
+          );
         }
       }, "update");
       update();

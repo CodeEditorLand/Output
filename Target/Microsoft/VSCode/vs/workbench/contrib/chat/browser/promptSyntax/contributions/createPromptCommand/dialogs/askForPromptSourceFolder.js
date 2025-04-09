@@ -1,17 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../../../../../../../nls.js";
+import {
+  basename,
+  extUri
+} from "../../../../../../../../base/common/resources.js";
 import { URI } from "../../../../../../../../base/common/uri.js";
-import { WithUriValue } from "../../../../../../../../base/common/types.js";
+import { localize } from "../../../../../../../../nls.js";
 import { DOCUMENTATION_URL } from "../../../../../common/promptSyntax/constants.js";
-import { basename, extUri } from "../../../../../../../../base/common/resources.js";
-import { IPromptsService } from "../../../../../common/promptSyntax/service/types.js";
-import { ILabelService } from "../../../../../../../../platform/label/common/label.js";
-import { IOpenerService } from "../../../../../../../../platform/opener/common/opener.js";
-import { IWorkspaceContextService } from "../../../../../../../../platform/workspace/common/workspace.js";
-import { IPickOptions, IQuickInputService, IQuickPickItem } from "../../../../../../../../platform/quickinput/common/quickInput.js";
 const askForPromptSourceFolder = /* @__PURE__ */ __name(async (options) => {
-  const { type, promptsService, quickInputService, labelService, openerService, workspaceService } = options;
+  const {
+    type,
+    promptsService,
+    quickInputService,
+    labelService,
+    openerService,
+    workspaceService
+  } = options;
   const folders = promptsService.getSourceFolders(type);
   if (folders.length === 0) {
     return await showNoFoldersDialog(quickInputService, openerService);
@@ -69,16 +73,13 @@ const showNoFoldersDialog = /* @__PURE__ */ __name(async (quickInputService, ope
     tooltip: DOCUMENTATION_URL,
     value: URI.parse(DOCUMENTATION_URL)
   };
-  const result = await quickInputService.pick(
-    [docsQuickPick],
-    {
-      placeHolder: localize(
-        "commands.prompts.create.ask-folder.empty.placeholder",
-        "No prompt source folders found."
-      ),
-      canPickMany: false
-    }
-  );
+  const result = await quickInputService.pick([docsQuickPick], {
+    placeHolder: localize(
+      "commands.prompts.create.ask-folder.empty.placeholder",
+      "No prompt source folders found."
+    ),
+    canPickMany: false
+  });
   if (!result) {
     return;
   }

@@ -1,9 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../base/common/event.js";
+import { Emitter } from "../../../base/common/event.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
-import { IChannel, IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { IUpdateService, State } from "./update.js";
+import { State } from "./update.js";
 class UpdateChannel {
   constructor(service) {
     this.service = service;
@@ -41,7 +40,11 @@ class UpdateChannel {
 class UpdateChannelClient {
   constructor(channel) {
     this.channel = channel;
-    this.disposables.add(this.channel.listen("onStateChange")((state) => this.state = state));
+    this.disposables.add(
+      this.channel.listen("onStateChange")(
+        (state) => this.state = state
+      )
+    );
     this.channel.call("_getInitialState").then((state) => this.state = state);
   }
   static {

@@ -10,28 +10,42 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ITerminalInstance, ITerminalInstanceService } from "./terminal.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IShellLaunchConfig, ITerminalBackend, ITerminalBackendRegistry, ITerminalProfile, TerminalExtensions, TerminalLocation } from "../../../../platform/terminal/common/terminal.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { TerminalInstance } from "./terminalInstance.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { URI } from "../../../../base/common/uri.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { TerminalContextKeys } from "../common/terminalContextKey.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { promiseWithResolvers } from "../../../../base/common/async.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  TerminalExtensions
+} from "../../../../platform/terminal/common/terminal.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { TerminalContextKeys } from "../common/terminalContextKey.js";
+import {
+  ITerminalInstanceService
+} from "./terminal.js";
+import { TerminalInstance } from "./terminalInstance.js";
 let TerminalInstanceService = class extends Disposable {
   constructor(_instantiationService, _contextKeyService, environmentService) {
     super();
     this._instantiationService = _instantiationService;
     this._contextKeyService = _contextKeyService;
     this._terminalShellTypeContextKey = TerminalContextKeys.shellType.bindTo(this._contextKeyService);
-    for (const remoteAuthority of [void 0, environmentService.remoteAuthority]) {
+    for (const remoteAuthority of [
+      void 0,
+      environmentService.remoteAuthority
+    ]) {
       const { promise, resolve } = promiseWithResolvers();
-      this._backendRegistration.set(remoteAuthority, { promise, resolve });
+      this._backendRegistration.set(remoteAuthority, {
+        promise,
+        resolve
+      });
     }
   }
   static {
@@ -39,17 +53,25 @@ let TerminalInstanceService = class extends Disposable {
   }
   _terminalShellTypeContextKey;
   _backendRegistration = /* @__PURE__ */ new Map();
-  _onDidCreateInstance = this._register(new Emitter());
+  _onDidCreateInstance = this._register(
+    new Emitter()
+  );
   get onDidCreateInstance() {
     return this._onDidCreateInstance.event;
   }
-  _onDidRegisterBackend = this._register(new Emitter());
+  _onDidRegisterBackend = this._register(
+    new Emitter()
+  );
   get onDidRegisterBackend() {
     return this._onDidRegisterBackend.event;
   }
   createInstance(config, target) {
     const shellLaunchConfig = this.convertProfileToShellLaunchConfig(config);
-    const instance = this._instantiationService.createInstance(TerminalInstance, this._terminalShellTypeContextKey, shellLaunchConfig);
+    const instance = this._instantiationService.createInstance(
+      TerminalInstance,
+      this._terminalShellTypeContextKey,
+      shellLaunchConfig
+    );
     instance.target = target;
     this._onDidCreateInstance.fire(instance);
     return instance;
@@ -79,15 +101,21 @@ let TerminalInstanceService = class extends Disposable {
     return {};
   }
   async getBackend(remoteAuthority) {
-    let backend = Registry.as(TerminalExtensions.Backend).getTerminalBackend(remoteAuthority);
+    let backend = Registry.as(
+      TerminalExtensions.Backend
+    ).getTerminalBackend(remoteAuthority);
     if (!backend) {
       await this._backendRegistration.get(remoteAuthority)?.promise;
-      backend = Registry.as(TerminalExtensions.Backend).getTerminalBackend(remoteAuthority);
+      backend = Registry.as(
+        TerminalExtensions.Backend
+      ).getTerminalBackend(remoteAuthority);
     }
     return backend;
   }
   getRegisteredBackends() {
-    return Registry.as(TerminalExtensions.Backend).backends.values();
+    return Registry.as(
+      TerminalExtensions.Backend
+    ).backends.values();
   }
   didRegisterBackend(backend) {
     this._backendRegistration.get(backend.remoteAuthority)?.resolve();
@@ -99,7 +127,11 @@ TerminalInstanceService = __decorateClass([
   __decorateParam(1, IContextKeyService),
   __decorateParam(2, IWorkbenchEnvironmentService)
 ], TerminalInstanceService);
-registerSingleton(ITerminalInstanceService, TerminalInstanceService, InstantiationType.Delayed);
+registerSingleton(
+  ITerminalInstanceService,
+  TerminalInstanceService,
+  InstantiationType.Delayed
+);
 export {
   TerminalInstanceService
 };

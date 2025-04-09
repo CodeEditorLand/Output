@@ -4,15 +4,18 @@ import { getActiveWindow } from "../../../../base/browser/dom.js";
 import { Color } from "../../../../base/common/color.js";
 import { BugIndicatingError } from "../../../../base/common/errors.js";
 import { CursorColumns } from "../../../common/core/cursorColumns.js";
-import { ViewEventType } from "../../../common/viewEvents.js";
-import { createContentSegmenter } from "../contentSegmenter.js";
-import { fullFileRenderStrategyWgsl } from "./fullFileRenderStrategy.wgsl.js";
+import {
+  ViewEventType
+} from "../../../common/viewEvents.js";
+import {
+  createContentSegmenter
+} from "../contentSegmenter.js";
 import { BindingId } from "../gpu.js";
 import { GPULifecycle } from "../gpuDisposable.js";
 import { quadVertices } from "../gpuUtils.js";
-import { GlyphRasterizer } from "../raster/glyphRasterizer.js";
 import { ViewGpuContext } from "../viewGpuContext.js";
 import { BaseRenderStrategy } from "./baseRenderStrategy.js";
+import { fullFileRenderStrategyWgsl } from "./fullFileRenderStrategy.wgsl.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["IndicesPerCell"] = 6] = "IndicesPerCell";
   return Constants2;
@@ -49,7 +52,10 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
    */
   _cellValueBuffers;
   _activeDoubleBufferIndex = 0;
-  _upToDateLines = [/* @__PURE__ */ new Set(), /* @__PURE__ */ new Set()];
+  _upToDateLines = [
+    /* @__PURE__ */ new Set(),
+    /* @__PURE__ */ new Set()
+  ];
   _visibleObjectCount = 0;
   _finalRenderedLine = 0;
   _scrollOffsetBindBuffer;
@@ -58,29 +64,41 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
   _queuedBufferUpdates = [[], []];
   get bindGroupEntries() {
     return [
-      { binding: BindingId.Cells, resource: { buffer: this._cellBindBuffer } },
-      { binding: BindingId.ScrollOffset, resource: { buffer: this._scrollOffsetBindBuffer } }
+      {
+        binding: BindingId.Cells,
+        resource: { buffer: this._cellBindBuffer }
+      },
+      {
+        binding: BindingId.ScrollOffset,
+        resource: { buffer: this._scrollOffsetBindBuffer }
+      }
     ];
   }
   constructor(context, viewGpuContext, device, glyphRasterizer) {
     super(context, viewGpuContext, device, glyphRasterizer);
     const bufferSize = FullFileRenderStrategy.maxSupportedLines * FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */ * Float32Array.BYTES_PER_ELEMENT;
-    this._cellBindBuffer = this._register(GPULifecycle.createBuffer(this._device, {
-      label: "Monaco full file cell buffer",
-      size: bufferSize,
-      usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
-    })).object;
+    this._cellBindBuffer = this._register(
+      GPULifecycle.createBuffer(this._device, {
+        label: "Monaco full file cell buffer",
+        size: bufferSize,
+        usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+      })
+    ).object;
     this._cellValueBuffers = [
       new ArrayBuffer(bufferSize),
       new ArrayBuffer(bufferSize)
     ];
     const scrollOffsetBufferSize = 2;
-    this._scrollOffsetBindBuffer = this._register(GPULifecycle.createBuffer(this._device, {
-      label: "Monaco scroll offset buffer",
-      size: scrollOffsetBufferSize * Float32Array.BYTES_PER_ELEMENT,
-      usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
-    })).object;
-    this._scrollOffsetValueBuffer = new Float32Array(scrollOffsetBufferSize);
+    this._scrollOffsetBindBuffer = this._register(
+      GPULifecycle.createBuffer(this._device, {
+        label: "Monaco scroll offset buffer",
+        size: scrollOffsetBufferSize * Float32Array.BYTES_PER_ELEMENT,
+        usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST
+      })
+    ).object;
+    this._scrollOffsetValueBuffer = new Float32Array(
+      scrollOffsetBufferSize
+    );
   }
   // #region Event handlers
   // The primary job of these handlers is to:
@@ -122,7 +140,11 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
     const dpr = getActiveWindow().devicePixelRatio;
     this._scrollOffsetValueBuffer[0] = (e?.scrollLeft ?? this._context.viewLayout.getCurrentScrollLeft()) * dpr;
     this._scrollOffsetValueBuffer[1] = (e?.scrollTop ?? this._context.viewLayout.getCurrentScrollTop()) * dpr;
-    this._device.queue.writeBuffer(this._scrollOffsetBindBuffer, 0, this._scrollOffsetValueBuffer);
+    this._device.queue.writeBuffer(
+      this._scrollOffsetBindBuffer,
+      0,
+      this._scrollOffsetValueBuffer
+    );
     return true;
   }
   onThemeChanged(e) {
@@ -163,9 +185,17 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
   reset() {
     this._invalidateAllLines();
     for (const bufferIndex of [0, 1]) {
-      const buffer = new Float32Array(this._cellValueBuffers[bufferIndex]);
+      const buffer = new Float32Array(
+        this._cellValueBuffers[bufferIndex]
+      );
       buffer.fill(0, 0, buffer.length);
-      this._device.queue.writeBuffer(this._cellBindBuffer, 0, buffer.buffer, 0, buffer.byteLength);
+      this._device.queue.writeBuffer(
+        this._cellBindBuffer,
+        0,
+        buffer.buffer,
+        0,
+        buffer.byteLength
+      );
     }
     this._finalRenderedLine = 0;
   }
@@ -197,7 +227,9 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
       this.onScrollChanged();
       this._scrollInitialized = true;
     }
-    const cellBuffer = new Float32Array(this._cellValueBuffers[this._activeDoubleBufferIndex]);
+    const cellBuffer = new Float32Array(
+      this._cellValueBuffers[this._activeDoubleBufferIndex]
+    );
     const lineIndexCount = FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */;
     const upToDateLines = this._upToDateLines[this._activeDoubleBufferIndex];
     let dirtyLineStart = 3e3;
@@ -212,7 +244,10 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
         case ViewEventType.ViewZonesChanged: {
           cellBuffer.fill(0);
           dirtyLineStart = 1;
-          dirtyLineEnd = Math.max(dirtyLineEnd, this._finalRenderedLine);
+          dirtyLineEnd = Math.max(
+            dirtyLineEnd,
+            this._finalRenderedLine
+          );
           this._finalRenderedLine = 0;
           break;
         }
@@ -220,17 +255,27 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
           const deletedLineContentStartIndex = (e.fromLineNumber - 1) * FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */;
           const deletedLineContentEndIndex = e.toLineNumber * FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */;
           const nullContentStartIndex = (this._finalRenderedLine - (e.toLineNumber - e.fromLineNumber + 1)) * FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */;
-          cellBuffer.set(cellBuffer.subarray(deletedLineContentEndIndex), deletedLineContentStartIndex);
+          cellBuffer.set(
+            cellBuffer.subarray(deletedLineContentEndIndex),
+            deletedLineContentStartIndex
+          );
           cellBuffer.fill(0, nullContentStartIndex);
           dirtyLineStart = Math.min(dirtyLineStart, e.fromLineNumber);
-          dirtyLineEnd = Math.max(dirtyLineEnd, this._finalRenderedLine);
+          dirtyLineEnd = Math.max(
+            dirtyLineEnd,
+            this._finalRenderedLine
+          );
           this._finalRenderedLine -= e.toLineNumber - e.fromLineNumber + 1;
           break;
         }
       }
     }
     for (y = viewportData.startLineNumber; y <= viewportData.endLineNumber; y++) {
-      if (!this._viewGpuContext.canRender(viewLineOptions, viewportData, y)) {
+      if (!this._viewGpuContext.canRender(
+        viewLineOptions,
+        viewportData,
+        y
+      )) {
         fillStartIndex = (y - 1) * FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */;
         fillEndIndex = y * FullFileRenderStrategy.maxSupportedColumns * 6 /* IndicesPerCell */;
         cellBuffer.fill(0, fillStartIndex, fillEndIndex);
@@ -245,7 +290,10 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
       dirtyLineEnd = Math.max(dirtyLineEnd, y);
       lineData = viewportData.getViewLineRenderingData(y);
       tabXOffset = 0;
-      contentSegmenter = createContentSegmenter(lineData, viewLineOptions);
+      contentSegmenter = createContentSegmenter(
+        lineData,
+        viewLineOptions
+      );
       charWidth = viewLineOptions.spaceWidth * dpr;
       absoluteOffsetX = 0;
       tokens = lineData.tokens;
@@ -276,7 +324,10 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
             if (y < decoration.range.startLineNumber || y > decoration.range.endLineNumber || y === decoration.range.startLineNumber && x < decoration.range.startColumn - 1 || y === decoration.range.endLineNumber && x >= decoration.range.endColumn - 1) {
               continue;
             }
-            const rules = ViewGpuContext.decorationCssRuleExtractor.getStyleRules(this._viewGpuContext.canvas.domNode, decoration.inlineClassName);
+            const rules = ViewGpuContext.decorationCssRuleExtractor.getStyleRules(
+              this._viewGpuContext.canvas.domNode,
+              decoration.inlineClassName
+            );
             for (const rule of rules) {
               for (const r of rule.style) {
                 const value = rule.styleMap.get(r)?.toString() ?? "";
@@ -284,7 +335,9 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
                   case "color": {
                     const parsedColor = Color.Format.CSS.parse(value);
                     if (!parsedColor) {
-                      throw new BugIndicatingError("Invalid color format " + value);
+                      throw new BugIndicatingError(
+                        `Invalid color format ${value}`
+                      );
                     }
                     decorationStyleSetColor = parsedColor.toNumber32Bit();
                     break;
@@ -304,17 +357,26 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
                     break;
                   }
                   default:
-                    throw new BugIndicatingError("Unexpected inline decoration style");
+                    throw new BugIndicatingError(
+                      "Unexpected inline decoration style"
+                    );
                 }
               }
             }
           }
           if (chars === " " || chars === "	") {
             cellIndex = ((y - 1) * FullFileRenderStrategy.maxSupportedColumns + x) * 6 /* IndicesPerCell */;
-            cellBuffer.fill(0, cellIndex, cellIndex + 6 /* FloatsPerEntry */);
+            cellBuffer.fill(
+              0,
+              cellIndex,
+              cellIndex + 6 /* FloatsPerEntry */
+            );
             if (chars === "	") {
               const offsetBefore = x + tabXOffset;
-              tabXOffset = CursorColumns.nextRenderTabStop(x + tabXOffset, lineData.tabSize);
+              tabXOffset = CursorColumns.nextRenderTabStop(
+                x + tabXOffset,
+                lineData.tabSize
+              );
               absoluteOffsetX += charWidth * (tabXOffset - offsetBefore);
               tabXOffset -= x + 1;
             } else {
@@ -322,12 +384,24 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
             }
             continue;
           }
-          const decorationStyleSetId = ViewGpuContext.decorationStyleCache.getOrCreateEntry(decorationStyleSetColor, decorationStyleSetBold, decorationStyleSetOpacity);
-          glyph = this._viewGpuContext.atlas.getGlyph(this.glyphRasterizer, chars, tokenMetadata, decorationStyleSetId, absoluteOffsetX);
+          const decorationStyleSetId = ViewGpuContext.decorationStyleCache.getOrCreateEntry(
+            decorationStyleSetColor,
+            decorationStyleSetBold,
+            decorationStyleSetOpacity
+          );
+          glyph = this._viewGpuContext.atlas.getGlyph(
+            this.glyphRasterizer,
+            chars,
+            tokenMetadata,
+            decorationStyleSetId,
+            absoluteOffsetX
+          );
           absoluteOffsetY = Math.round(
             // Top of layout box (includes line height)
             viewportData.relativeVerticalOffset[y - viewportData.startLineNumber] * dpr + // Delta from top of layout box (includes line height) to top of the inline box (no line height)
-            Math.floor((viewportData.lineHeight * dpr - (glyph.fontBoundingBoxAscent + glyph.fontBoundingBoxDescent)) / 2) + // Delta from top of inline box (no line height) to top of glyph origin. If the glyph was drawn
+            Math.floor(
+              (viewportData.lineHeight * dpr - (glyph.fontBoundingBoxAscent + glyph.fontBoundingBoxDescent)) / 2
+            ) + // Delta from top of inline box (no line height) to top of glyph origin. If the glyph was drawn
             // with a top baseline for example, this ends up drawing the glyph correctly using the alphabetical
             // baseline.
             glyph.fontBoundingBoxAscent
@@ -347,8 +421,14 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
       upToDateLines.add(y);
     }
     const visibleObjectCount = (viewportData.endLineNumber - viewportData.startLineNumber + 1) * lineIndexCount;
-    dirtyLineStart = Math.min(dirtyLineStart, FullFileRenderStrategy.maxSupportedLines);
-    dirtyLineEnd = Math.min(dirtyLineEnd, FullFileRenderStrategy.maxSupportedLines);
+    dirtyLineStart = Math.min(
+      dirtyLineStart,
+      FullFileRenderStrategy.maxSupportedLines
+    );
+    dirtyLineEnd = Math.min(
+      dirtyLineEnd,
+      FullFileRenderStrategy.maxSupportedLines
+    );
     if (dirtyLineStart <= dirtyLineEnd) {
       this._device.queue.writeBuffer(
         this._cellBindBuffer,
@@ -358,7 +438,10 @@ class FullFileRenderStrategy extends BaseRenderStrategy {
         (dirtyLineEnd - dirtyLineStart + 1) * lineIndexCount * Float32Array.BYTES_PER_ELEMENT
       );
     }
-    this._finalRenderedLine = Math.max(this._finalRenderedLine, dirtyLineEnd);
+    this._finalRenderedLine = Math.max(
+      this._finalRenderedLine,
+      dirtyLineEnd
+    );
     this._activeDoubleBufferIndex = this._activeDoubleBufferIndex ? 0 : 1;
     this._visibleObjectCount = visibleObjectCount;
     return visibleObjectCount;
@@ -393,15 +476,15 @@ function parseCssFontWeight(value) {
     case "bold":
       return 700;
   }
-  return parseInt(value);
+  return Number.parseInt(value);
 }
 __name(parseCssFontWeight, "parseCssFontWeight");
 function parseCssOpacity(value) {
   if (value.endsWith("%")) {
-    return parseFloat(value.substring(0, value.length - 1)) / 100;
+    return Number.parseFloat(value.substring(0, value.length - 1)) / 100;
   }
   if (value.match(/^\d+(?:\.\d*)/)) {
-    return parseFloat(value);
+    return Number.parseFloat(value);
   }
   return 1;
 }

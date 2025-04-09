@@ -13,30 +13,42 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { alert } from "../../../../base/browser/ui/aria/aria.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { KeyChord, KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
 import "./anchorSelect.css";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, EditorContributionInstantiation, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import { localize, localize2 } from "../../../../nls.js";
+import {
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  EditorAction,
+  EditorContributionInstantiation,
+  registerEditorAction,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
 import { Selection } from "../../../common/core/selection.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import { TrackedRangeStickiness } from "../../../common/model.js";
-import { localize, localize2 } from "../../../../nls.js";
-import { IContextKey, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-const SelectionAnchorSet = new RawContextKey("selectionAnchorSet", false);
+const SelectionAnchorSet = new RawContextKey(
+  "selectionAnchorSet",
+  false
+);
 let SelectionAnchorController = class {
   constructor(editor, contextKeyService) {
     this.editor = editor;
     this.selectionAnchorSetContextKey = SelectionAnchorSet.bindTo(contextKeyService);
-    this.modelChangeListener = editor.onDidChangeModel(() => this.selectionAnchorSetContextKey.reset());
+    this.modelChangeListener = editor.onDidChangeModel(
+      () => this.selectionAnchorSetContextKey.reset()
+    );
   }
   static {
     __name(this, "SelectionAnchorController");
   }
   static ID = "editor.contrib.selectionAnchorController";
   static get(editor) {
-    return editor.getContribution(SelectionAnchorController.ID);
+    return editor.getContribution(
+      SelectionAnchorController.ID
+    );
   }
   decorationId;
   selectionAnchorSetContextKey;
@@ -53,13 +65,22 @@ let SelectionAnchorController = class {
           {
             description: "selection-anchor",
             stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
-            hoverMessage: new MarkdownString().appendText(localize("selectionAnchor", "Selection Anchor")),
+            hoverMessage: new MarkdownString().appendText(
+              localize("selectionAnchor", "Selection Anchor")
+            ),
             className: "selection-anchor"
           }
         );
       });
       this.selectionAnchorSetContextKey.set(!!this.decorationId);
-      alert(localize("anchorSet", "Anchor set at {0}:{1}", position.lineNumber, position.column));
+      alert(
+        localize(
+          "anchorSet",
+          "Anchor set at {0}:{1}",
+          position.lineNumber,
+          position.column
+        )
+      );
     }
   }
   goToSelectionAnchor() {
@@ -75,7 +96,9 @@ let SelectionAnchorController = class {
       const start = this.editor.getModel().getDecorationRange(this.decorationId);
       if (start) {
         const end = this.editor.getPosition();
-        this.editor.setSelection(Selection.fromPositions(start.getStartPosition(), end));
+        this.editor.setSelection(
+          Selection.fromPositions(start.getStartPosition(), end)
+        );
         this.cancelSelectionAnchor();
       }
     }
@@ -109,7 +132,10 @@ class SetSelectionAnchor extends EditorAction {
       precondition: void 0,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
-        primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyB),
+        primary: KeyChord(
+          KeyMod.CtrlCmd | KeyCode.KeyK,
+          KeyMod.CtrlCmd | KeyCode.KeyB
+        ),
         weight: KeybindingWeight.EditorContrib
       }
     });
@@ -140,11 +166,17 @@ class SelectFromAnchorToCursor extends EditorAction {
   constructor() {
     super({
       id: "editor.action.selectFromAnchorToCursor",
-      label: localize2("selectFromAnchorToCursor", "Select from Anchor to Cursor"),
+      label: localize2(
+        "selectFromAnchorToCursor",
+        "Select from Anchor to Cursor"
+      ),
       precondition: SelectionAnchorSet,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
-        primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyK),
+        primary: KeyChord(
+          KeyMod.CtrlCmd | KeyCode.KeyK,
+          KeyMod.CtrlCmd | KeyCode.KeyK
+        ),
         weight: KeybindingWeight.EditorContrib
       }
     });
@@ -160,7 +192,10 @@ class CancelSelectionAnchor extends EditorAction {
   constructor() {
     super({
       id: "editor.action.cancelSelectionAnchor",
-      label: localize2("cancelSelectionAnchor", "Cancel Selection Anchor"),
+      label: localize2(
+        "cancelSelectionAnchor",
+        "Cancel Selection Anchor"
+      ),
       precondition: SelectionAnchorSet,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
@@ -173,7 +208,11 @@ class CancelSelectionAnchor extends EditorAction {
     SelectionAnchorController.get(editor)?.cancelSelectionAnchor();
   }
 }
-registerEditorContribution(SelectionAnchorController.ID, SelectionAnchorController, EditorContributionInstantiation.Lazy);
+registerEditorContribution(
+  SelectionAnchorController.ID,
+  SelectionAnchorController,
+  EditorContributionInstantiation.Lazy
+);
 registerEditorAction(SetSelectionAnchor);
 registerEditorAction(GoToSelectionAnchor);
 registerEditorAction(SelectFromAnchorToCursor);

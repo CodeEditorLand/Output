@@ -12,13 +12,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { IAccessibleViewContentProvider, AccessibleViewProviderId, IAccessibleViewOptions, AccessibleViewType, IAccessibleViewSymbol } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import {
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../../platform/accessibility/browser/accessibleView.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { TerminalCapability, ITerminalCommand } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { ICurrentPartialCommand } from "../../../../../platform/terminal/common/capabilities/commandDetection/terminalCommand.js";
+import {
+  TerminalCapability
+} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
 import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
-import { ITerminalInstance, ITerminalService } from "../../../terminal/browser/terminal.js";
-import { BufferContentTracker } from "./bufferContentTracker.js";
+import {
+  ITerminalService
+} from "../../../terminal/browser/terminal.js";
 import { TerminalAccessibilitySettingId } from "../common/terminalAccessibilityConfiguration.js";
 let TerminalAccessibleBufferProvider = class extends Disposable {
   constructor(_instance, _bufferTracker, customHelp, configurationService, terminalService) {
@@ -26,26 +31,48 @@ let TerminalAccessibleBufferProvider = class extends Disposable {
     this._instance = _instance;
     this._bufferTracker = _bufferTracker;
     this.options.customHelp = customHelp;
-    this.options.position = configurationService.getValue(TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition) ? "initial-bottom" : "bottom";
-    this._register(this._instance.onDisposed(() => this._onDidRequestClearProvider.fire(AccessibleViewProviderId.Terminal)));
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition)) {
-        this.options.position = configurationService.getValue(TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition) ? "initial-bottom" : "bottom";
-      }
-    }));
+    this.options.position = configurationService.getValue(
+      TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition
+    ) ? "initial-bottom" : "bottom";
+    this._register(
+      this._instance.onDisposed(
+        () => this._onDidRequestClearProvider.fire(
+          AccessibleViewProviderId.Terminal
+        )
+      )
+    );
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition
+        )) {
+          this.options.position = configurationService.getValue(
+            TerminalAccessibilitySettingId.AccessibleViewPreserveCursorPosition
+          ) ? "initial-bottom" : "bottom";
+        }
+      })
+    );
     this._focusedInstance = terminalService.activeInstance;
-    this._register(terminalService.onDidChangeActiveInstance(() => {
-      if (terminalService.activeInstance && this._focusedInstance?.instanceId !== terminalService.activeInstance?.instanceId) {
-        this._onDidRequestClearProvider.fire(AccessibleViewProviderId.Terminal);
-        this._focusedInstance = terminalService.activeInstance;
-      }
-    }));
+    this._register(
+      terminalService.onDidChangeActiveInstance(() => {
+        if (terminalService.activeInstance && this._focusedInstance?.instanceId !== terminalService.activeInstance?.instanceId) {
+          this._onDidRequestClearProvider.fire(
+            AccessibleViewProviderId.Terminal
+          );
+          this._focusedInstance = terminalService.activeInstance;
+        }
+      })
+    );
   }
   static {
     __name(this, "TerminalAccessibleBufferProvider");
   }
   id = AccessibleViewProviderId.Terminal;
-  options = { type: AccessibleViewType.View, language: "terminal", id: AccessibleViewProviderId.Terminal };
+  options = {
+    type: AccessibleViewType.View,
+    language: "terminal",
+    id: AccessibleViewProviderId.Terminal
+  };
   verbositySettingKey = AccessibilityVerbositySettingId.Terminal;
   _focusedInstance;
   _onDidRequestClearProvider = new Emitter();
@@ -72,7 +99,9 @@ let TerminalAccessibleBufferProvider = class extends Disposable {
     return symbols;
   }
   _getCommandsWithEditorLine() {
-    const capability = this._instance.capabilities.get(TerminalCapability.CommandDetection);
+    const capability = this._instance.capabilities.get(
+      TerminalCapability.CommandDetection
+    );
     const commands = capability?.commands;
     const currentCommand = capability?.currentCommand;
     if (!commands?.length) {

@@ -10,20 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { Extensions, IExtensionFeaturesManagementService, IExtensionFeaturesRegistry } from "../../../services/extensionManagement/common/extensionFeatures.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { localize } from "../../../../nls.js";
 import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import {
+  Extensions,
+  IExtensionFeaturesManagementService
+} from "../../../services/extensionManagement/common/extensionFeatures.js";
 const ILanguageModelStatsService = createDecorator("ILanguageModelStatsService");
 let LanguageModelStatsService = class extends Disposable {
   constructor(extensionFeaturesManagementService, storageService) {
     super();
     this.extensionFeaturesManagementService = extensionFeaturesManagementService;
-    for (const key in storageService.keys(StorageScope.APPLICATION, StorageTarget.USER)) {
+    for (const key in storageService.keys(
+      StorageScope.APPLICATION,
+      StorageTarget.USER
+    )) {
       if (key.startsWith("languageModelStats.") || key.startsWith("languageModelAccess.")) {
         storageService.remove(key, StorageScope.APPLICATION);
       }
@@ -33,7 +42,10 @@ let LanguageModelStatsService = class extends Disposable {
     __name(this, "LanguageModelStatsService");
   }
   async update(model, extensionId, agent, tokenCount) {
-    await this.extensionFeaturesManagementService.getAccess(extensionId, CopilotUsageExtensionFeatureId);
+    await this.extensionFeaturesManagementService.getAccess(
+      extensionId,
+      CopilotUsageExtensionFeatureId
+    );
   }
 };
 LanguageModelStatsService = __decorateClass([
@@ -41,10 +53,15 @@ LanguageModelStatsService = __decorateClass([
   __decorateParam(1, IStorageService)
 ], LanguageModelStatsService);
 const CopilotUsageExtensionFeatureId = "copilot";
-Registry.as(Extensions.ExtensionFeaturesRegistry).registerExtensionFeature({
+Registry.as(
+  Extensions.ExtensionFeaturesRegistry
+).registerExtensionFeature({
   id: CopilotUsageExtensionFeatureId,
   label: localize("Language Models", "Copilot"),
-  description: localize("languageModels", "Language models usage statistics of this extension."),
+  description: localize(
+    "languageModels",
+    "Language models usage statistics of this extension."
+  ),
   icon: Codicon.copilot,
   access: {
     canToggle: false

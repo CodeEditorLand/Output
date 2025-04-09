@@ -11,11 +11,13 @@ class FolderExists extends BaseCreatePromptError {
     __name(this, "FolderExists");
   }
   constructor(path) {
-    super(localize(
-      "workbench.command.prompts.create.error.folder-exists",
-      "Folder already exists at '{0}'.",
-      path
-    ));
+    super(
+      localize(
+        "workbench.command.prompts.create.error.folder-exists",
+        "Folder already exists at '{0}'.",
+        path
+      )
+    );
   }
 }
 class InvalidPromptName extends BaseCreatePromptError {
@@ -23,11 +25,13 @@ class InvalidPromptName extends BaseCreatePromptError {
     __name(this, "InvalidPromptName");
   }
   constructor(name) {
-    super(localize(
-      "workbench.command.prompts.create.error.invalid-prompt-name",
-      "Invalid prompt file name '{0}'.",
-      name
-    ));
+    super(
+      localize(
+        "workbench.command.prompts.create.error.invalid-prompt-name",
+        "Invalid prompt file name '{0}'.",
+        name
+      )
+    );
   }
 }
 export {

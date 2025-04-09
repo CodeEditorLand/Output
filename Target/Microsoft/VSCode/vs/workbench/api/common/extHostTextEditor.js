@@ -1,17 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { ok } from "../../../base/common/assert.js";
-import { ReadonlyError, illegalArgument } from "../../../base/common/errors.js";
+import { illegalArgument, ReadonlyError } from "../../../base/common/errors.js";
 import { IdGenerator } from "../../../base/common/idGenerator.js";
-import { TextEditorCursorStyle } from "../../../editor/common/config/editorOptions.js";
-import { IRange } from "../../../editor/common/core/range.js";
-import { ISingleEditOperation } from "../../../editor/common/core/editOperation.js";
-import { IResolvedTextEditorConfiguration, ITextEditorConfigurationUpdate, MainThreadTextEditorsShape } from "./extHost.protocol.js";
 import * as TypeConverters from "./extHostTypeConverters.js";
-import { EndOfLine, Position, Range, Selection, SnippetString, TextEditorLineNumbersStyle, TextEditorRevealType } from "./extHostTypes.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { Lazy } from "../../../base/common/lazy.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
+import {
+  EndOfLine,
+  Position,
+  Range,
+  Selection,
+  TextEditorRevealType
+} from "./extHostTypes.js";
 class TextEditorDecorationType {
   static {
     __name(this, "TextEditorDecorationType");
@@ -20,7 +19,11 @@ class TextEditorDecorationType {
   value;
   constructor(proxy, extension, options) {
     const key = TextEditorDecorationType._Keys.nextId();
-    proxy.$registerTextEditorDecorationType(extension.identifier, key, TypeConverters.DecorationRenderOptions.from(options));
+    proxy.$registerTextEditorDecorationType(
+      extension.identifier,
+      key,
+      TypeConverters.DecorationRenderOptions.from(options)
+    );
     this.value = Object.freeze({
       key,
       dispose() {
@@ -162,7 +165,9 @@ class ExtHostTextEditorOptions {
     this._originalIndentSize = source.originalIndentSize;
     this._insertSpaces = source.insertSpaces;
     this._cursorStyle = source.cursorStyle;
-    this._lineNumbers = TypeConverters.TextEditorLineNumbersStyle.to(source.lineNumbers);
+    this._lineNumbers = TypeConverters.TextEditorLineNumbersStyle.to(
+      source.lineNumbers
+    );
   }
   // --- internal: tabSize
   _validateTabSize(value) {
@@ -174,8 +179,8 @@ class ExtHostTextEditorOptions {
       return r > 0 ? r : null;
     }
     if (typeof value === "string") {
-      const r = parseInt(value, 10);
-      if (isNaN(r)) {
+      const r = Number.parseInt(value, 10);
+      if (Number.isNaN(r)) {
         return null;
       }
       return r > 0 ? r : null;
@@ -193,9 +198,12 @@ class ExtHostTextEditorOptions {
       }
       this._tabSize = tabSize;
     }
-    this._warnOnError("setTabSize", this._proxy.$trySetOptions(this._id, {
-      tabSize
-    }));
+    this._warnOnError(
+      "setTabSize",
+      this._proxy.$trySetOptions(this._id, {
+        tabSize
+      })
+    );
   }
   // --- internal: indentSize
   _validateIndentSize(value) {
@@ -207,8 +215,8 @@ class ExtHostTextEditorOptions {
       return r > 0 ? r : null;
     }
     if (typeof value === "string") {
-      const r = parseInt(value, 10);
-      if (isNaN(r)) {
+      const r = Number.parseInt(value, 10);
+      if (Number.isNaN(r)) {
         return null;
       }
       return r > 0 ? r : null;
@@ -227,9 +235,12 @@ class ExtHostTextEditorOptions {
       this._indentSize = indentSize;
       this._originalIndentSize = indentSize;
     }
-    this._warnOnError("setIndentSize", this._proxy.$trySetOptions(this._id, {
-      indentSize
-    }));
+    this._warnOnError(
+      "setIndentSize",
+      this._proxy.$trySetOptions(this._id, {
+        indentSize
+      })
+    );
   }
   // --- internal: insert spaces
   _validateInsertSpaces(value) {
@@ -246,9 +257,12 @@ class ExtHostTextEditorOptions {
       }
       this._insertSpaces = insertSpaces;
     }
-    this._warnOnError("setInsertSpaces", this._proxy.$trySetOptions(this._id, {
-      insertSpaces
-    }));
+    this._warnOnError(
+      "setInsertSpaces",
+      this._proxy.$trySetOptions(this._id, {
+        insertSpaces
+      })
+    );
   }
   // --- internal: cursor style
   _setCursorStyle(value) {
@@ -256,9 +270,12 @@ class ExtHostTextEditorOptions {
       return;
     }
     this._cursorStyle = value;
-    this._warnOnError("setCursorStyle", this._proxy.$trySetOptions(this._id, {
-      cursorStyle: value
-    }));
+    this._warnOnError(
+      "setCursorStyle",
+      this._proxy.$trySetOptions(this._id, {
+        cursorStyle: value
+      })
+    );
   }
   // --- internal: line number
   _setLineNumbers(value) {
@@ -266,9 +283,12 @@ class ExtHostTextEditorOptions {
       return;
     }
     this._lineNumbers = value;
-    this._warnOnError("setLineNumbers", this._proxy.$trySetOptions(this._id, {
-      lineNumbers: TypeConverters.TextEditorLineNumbersStyle.from(value)
-    }));
+    this._warnOnError(
+      "setLineNumbers",
+      this._proxy.$trySetOptions(this._id, {
+        lineNumbers: TypeConverters.TextEditorLineNumbersStyle.from(value)
+      })
+    );
   }
   assign(newOptions) {
     const bulkConfigurationUpdate = {};
@@ -297,7 +317,9 @@ class ExtHostTextEditorOptions {
       }
     }
     if (typeof newOptions.insertSpaces !== "undefined") {
-      const insertSpaces = this._validateInsertSpaces(newOptions.insertSpaces);
+      const insertSpaces = this._validateInsertSpaces(
+        newOptions.insertSpaces
+      );
       if (insertSpaces === "auto") {
         hasUpdate = true;
         bulkConfigurationUpdate.insertSpaces = insertSpaces;
@@ -318,16 +340,23 @@ class ExtHostTextEditorOptions {
       if (this._lineNumbers !== newOptions.lineNumbers) {
         this._lineNumbers = newOptions.lineNumbers;
         hasUpdate = true;
-        bulkConfigurationUpdate.lineNumbers = TypeConverters.TextEditorLineNumbersStyle.from(newOptions.lineNumbers);
+        bulkConfigurationUpdate.lineNumbers = TypeConverters.TextEditorLineNumbersStyle.from(
+          newOptions.lineNumbers
+        );
       }
     }
     if (hasUpdate) {
-      this._warnOnError("setOptions", this._proxy.$trySetOptions(this._id, bulkConfigurationUpdate));
+      this._warnOnError(
+        "setOptions",
+        this._proxy.$trySetOptions(this._id, bulkConfigurationUpdate)
+      );
     }
   }
   _warnOnError(action, promise) {
     promise.catch((err) => {
-      this._logService.warn(`ExtHostTextEditorOptions '${action}' failed:'`);
+      this._logService.warn(
+        `ExtHostTextEditorOptions '${action}' failed:'`
+      );
       this._logService.warn(err);
     });
   }
@@ -338,7 +367,12 @@ class ExtHostTextEditor {
     this._proxy = _proxy;
     this._logService = _logService;
     this._selections = selections;
-    this._options = new ExtHostTextEditorOptions(this._proxy, this.id, options, _logService);
+    this._options = new ExtHostTextEditorOptions(
+      this._proxy,
+      this.id,
+      options,
+      _logService
+    );
     this._visibleRanges = visibleRanges;
     this._viewColumn = viewColumn;
     const that = this;
@@ -351,7 +385,7 @@ class ExtHostTextEditor {
       },
       // --- selection
       get selection() {
-        return that._selections && that._selections[0];
+        return that._selections?.[0];
       },
       set selection(value) {
         if (!(value instanceof Selection)) {
@@ -397,9 +431,16 @@ class ExtHostTextEditor {
         throw new ReadonlyError("viewColumn");
       },
       // --- edit
-      edit(callback, options2 = { undoStopBefore: true, undoStopAfter: true }) {
+      edit(callback, options2 = {
+        undoStopBefore: true,
+        undoStopAfter: true
+      }) {
         if (that._disposed) {
-          return Promise.reject(new Error("TextEditor#edit not possible on closed editors"));
+          return Promise.reject(
+            new Error(
+              "TextEditor#edit not possible on closed editors"
+            )
+          );
         }
         const edit = new TextEditorEdit(document.value, options2);
         callback(edit);
@@ -408,14 +449,27 @@ class ExtHostTextEditor {
       // --- snippet edit
       insertSnippet(snippet, where, options2 = { undoStopBefore: true, undoStopAfter: true }) {
         if (that._disposed) {
-          return Promise.reject(new Error("TextEditor#insertSnippet not possible on closed editors"));
+          return Promise.reject(
+            new Error(
+              "TextEditor#insertSnippet not possible on closed editors"
+            )
+          );
         }
         let ranges;
         if (!where || Array.isArray(where) && where.length === 0) {
-          ranges = that._selections.map((range) => TypeConverters.Range.from(range));
+          ranges = that._selections.map(
+            (range) => TypeConverters.Range.from(range)
+          );
         } else if (where instanceof Position) {
           const { lineNumber, column } = TypeConverters.Position.from(where);
-          ranges = [{ startLineNumber: lineNumber, startColumn: column, endLineNumber: lineNumber, endColumn: column }];
+          ranges = [
+            {
+              startLineNumber: lineNumber,
+              startColumn: column,
+              endLineNumber: lineNumber,
+              endColumn: column
+            }
+          ];
         } else if (where instanceof Range) {
           ranges = [TypeConverters.Range.from(where)];
         } else {
@@ -425,14 +479,25 @@ class ExtHostTextEditor {
               ranges.push(TypeConverters.Range.from(posOrRange));
             } else {
               const { lineNumber, column } = TypeConverters.Position.from(posOrRange);
-              ranges.push({ startLineNumber: lineNumber, startColumn: column, endLineNumber: lineNumber, endColumn: column });
+              ranges.push({
+                startLineNumber: lineNumber,
+                startColumn: column,
+                endLineNumber: lineNumber,
+                endColumn: column
+              });
             }
           }
         }
         if (options2.keepWhitespace === void 0) {
           options2.keepWhitespace = false;
         }
-        return _proxy.$tryInsertSnippet(id, document.value.version, snippet.value, ranges, options2);
+        return _proxy.$tryInsertSnippet(
+          id,
+          document.value.version,
+          snippet.value,
+          ranges,
+          options2
+        );
       },
       setDecorations(decorationType, ranges) {
         const willBeEmpty = ranges.length === 0;
@@ -452,7 +517,9 @@ class ExtHostTextEditor {
               TypeConverters.fromRangeOrRangeWithMessage(ranges)
             );
           } else {
-            const _ranges = new Array(4 * ranges.length);
+            const _ranges = new Array(
+              4 * ranges.length
+            );
             for (let i = 0, len = ranges.length; i < len; i++) {
               const range = ranges[i];
               _ranges[4 * i] = range.start.line + 1;
@@ -469,14 +536,19 @@ class ExtHostTextEditor {
         });
       },
       revealRange(range, revealType) {
-        that._runOnProxy(() => _proxy.$tryRevealRange(
-          id,
-          TypeConverters.Range.from(range),
-          revealType || TextEditorRevealType.Default
-        ));
+        that._runOnProxy(
+          () => _proxy.$tryRevealRange(
+            id,
+            TypeConverters.Range.from(range),
+            revealType || TextEditorRevealType.Default
+          )
+        );
       },
       show(column) {
-        _proxy.$tryShowEditor(id, TypeConverters.ViewColumn.from(column));
+        _proxy.$tryShowEditor(
+          id,
+          TypeConverters.ViewColumn.from(column)
+        );
       },
       hide() {
         _proxy.$tryHideEditor(id);
@@ -524,7 +596,9 @@ class ExtHostTextEditor {
   }
   async _trySetSelection() {
     const selection = this._selections.map(TypeConverters.Selection.from);
-    await this._runOnProxy(() => this._proxy.$trySetSelections(this.id, selection));
+    await this._runOnProxy(
+      () => this._proxy.$trySetSelections(this.id, selection)
+    );
     return this.value;
   }
   _applyEdit(editBuilder) {
@@ -561,23 +635,31 @@ class ExtHostTextEditor {
         forceMoveMarkers: edit.forceMoveMarkers
       };
     });
-    return this._proxy.$tryApplyEdits(this.id, editData.documentVersionId, edits, {
-      setEndOfLine: typeof editData.setEndOfLine === "number" ? TypeConverters.EndOfLine.from(editData.setEndOfLine) : void 0,
-      undoStopBefore: editData.undoStopBefore,
-      undoStopAfter: editData.undoStopAfter
-    });
+    return this._proxy.$tryApplyEdits(
+      this.id,
+      editData.documentVersionId,
+      edits,
+      {
+        setEndOfLine: typeof editData.setEndOfLine === "number" ? TypeConverters.EndOfLine.from(editData.setEndOfLine) : void 0,
+        undoStopBefore: editData.undoStopBefore,
+        undoStopAfter: editData.undoStopAfter
+      }
+    );
   }
   _runOnProxy(callback) {
     if (this._disposed) {
       this._logService.warn("TextEditor is closed/disposed");
       return Promise.resolve(void 0);
     }
-    return callback().then(() => this, (err) => {
-      if (!(err instanceof Error && err.name === "DISPOSED")) {
-        this._logService.warn(err);
+    return callback().then(
+      () => this,
+      (err) => {
+        if (!(err instanceof Error && err.name === "DISPOSED")) {
+          this._logService.warn(err);
+        }
+        return null;
       }
-      return null;
-    });
+    );
   }
 }
 export {

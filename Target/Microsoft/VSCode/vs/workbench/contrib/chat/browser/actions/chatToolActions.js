@@ -8,25 +8,34 @@ import { Iterable } from "../../../../../base/common/iterator.js";
 import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
 import { DisposableStore } from "../../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
-import { ServicesAccessor } from "../../../../../editor/browser/editorExtensions.js";
 import { localize, localize2 } from "../../../../../nls.js";
-import { Action2, MenuId, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  MenuId,
+  registerAction2
+} from "../../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../../platform/commands/common/commands.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
 import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
 import { KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../../platform/quickinput/common/quickInput.js";
+import {
+  IQuickInputService
+} from "../../../../../platform/quickinput/common/quickInput.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
 import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
 import { IExtensionsWorkbenchService } from "../../../extensions/common/extensions.js";
 import { AddConfigurationAction } from "../../../mcp/browser/mcpCommands.js";
-import { IMcpService, IMcpServer, McpConnectionState } from "../../../mcp/common/mcpTypes.js";
+import {
+  IMcpService,
+  McpConnectionState
+} from "../../../mcp/common/mcpTypes.js";
 import { ChatContextKeys } from "../../common/chatContextKeys.js";
-import { IChatToolInvocation } from "../../common/chatService.js";
 import { isResponseVM } from "../../common/chatViewModel.js";
 import { ChatMode } from "../../common/constants.js";
-import { ILanguageModelToolsService, IToolData, ToolDataSource } from "../../common/languageModelToolsService.js";
-import { IChatWidget, IChatWidgetService } from "../chat.js";
+import {
+  ILanguageModelToolsService
+} from "../../common/languageModelToolsService.js";
+import { IChatWidgetService } from "../chat.js";
 import { CHAT_CATEGORY } from "./chatActions.js";
 const AcceptToolConfirmationActionId = "workbench.action.chat.acceptTool";
 class AcceptToolConfirmation extends Action2 {
@@ -40,7 +49,10 @@ class AcceptToolConfirmation extends Action2 {
       f1: false,
       category: CHAT_CATEGORY,
       keybinding: {
-        when: ContextKeyExpr.and(ChatContextKeys.inChatSession, ChatContextKeys.Editing.hasToolConfirmation),
+        when: ContextKeyExpr.and(
+          ChatContextKeys.inChatSession,
+          ChatContextKeys.Editing.hasToolConfirmation
+        ),
         primary: KeyMod.CtrlCmd | KeyCode.Enter,
         // Override chatEditor.action.accept
         weight: KeybindingWeight.WorkbenchContrib + 1
@@ -54,7 +66,9 @@ class AcceptToolConfirmation extends Action2 {
     if (!isResponseVM(lastItem)) {
       return;
     }
-    const unconfirmedToolInvocation = lastItem.model.response.value.find((item) => item.kind === "toolInvocation" && !item.isConfirmed);
+    const unconfirmedToolInvocation = lastItem.model.response.value.find(
+      (item) => item.kind === "toolInvocation" && !item.isConfirmed
+    );
     if (unconfirmedToolInvocation) {
       unconfirmedToolInvocation.confirmed.complete(true);
     }
@@ -81,7 +95,10 @@ class AttachToolsAction extends Action2 {
         order: 1
       },
       keybinding: {
-        when: ContextKeyExpr.and(ChatContextKeys.inChatInput, ChatContextKeys.chatMode.isEqualTo(ChatMode.Agent)),
+        when: ContextKeyExpr.and(
+          ChatContextKeys.inChatInput,
+          ChatContextKeys.chatMode.isEqualTo(ChatMode.Agent)
+        ),
         primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.Slash,
         weight: KeybindingWeight.EditorContrib
       }
@@ -95,7 +112,9 @@ class AttachToolsAction extends Action2 {
     const chatWidgetService = accessor.get(IChatWidgetService);
     const telemetryService = accessor.get(ITelemetryService);
     const commandService = accessor.get(ICommandService);
-    const extensionWorkbenchService = accessor.get(IExtensionsWorkbenchService);
+    const extensionWorkbenchService = accessor.get(
+      IExtensionsWorkbenchService
+    );
     let widget = chatWidgetService.lastFocusedWidget;
     if (!widget) {
       let isChatActionContext2 = function(obj) {
@@ -123,8 +142,22 @@ class AttachToolsAction extends Action2 {
       BucketOrdinal2[BucketOrdinal2["Mcp"] = 1] = "Mcp";
       BucketOrdinal2[BucketOrdinal2["Other"] = 2] = "Other";
     })(BucketOrdinal || (BucketOrdinal = {}));
-    const addMcpPick = { type: "item", label: localize("addServer", "Add MCP Server..."), iconClass: ThemeIcon.asClassName(Codicon.add), pickable: false, run: /* @__PURE__ */ __name(() => commandService.executeCommand(AddConfigurationAction.ID), "run") };
-    const addExpPick = { type: "item", label: localize("addExtension", "Install Extension..."), iconClass: ThemeIcon.asClassName(Codicon.add), pickable: false, run: /* @__PURE__ */ __name(() => extensionWorkbenchService.openSearch("@tag:language-model-tools"), "run") };
+    const addMcpPick = {
+      type: "item",
+      label: localize("addServer", "Add MCP Server..."),
+      iconClass: ThemeIcon.asClassName(Codicon.add),
+      pickable: false,
+      run: /* @__PURE__ */ __name(() => commandService.executeCommand(AddConfigurationAction.ID), "run")
+    };
+    const addExpPick = {
+      type: "item",
+      label: localize("addExtension", "Install Extension..."),
+      iconClass: ThemeIcon.asClassName(Codicon.add),
+      pickable: false,
+      run: /* @__PURE__ */ __name(() => extensionWorkbenchService.openSearch(
+        "@tag:language-model-tools"
+      ), "run")
+    };
     const addPick = {
       type: "item",
       label: localize("addAny", "Add More Tools..."),
@@ -149,7 +182,9 @@ class AttachToolsAction extends Action2 {
       ordinal: 2 /* Other */,
       picked: true
     };
-    const nowSelectedTools = new Set(widget.input.selectedToolsModel.tools.get());
+    const nowSelectedTools = new Set(
+      widget.input.selectedToolsModel.tools.get()
+    );
     const toolBuckets = /* @__PURE__ */ new Map();
     for (const tool of toolsService.getTools()) {
       if (!tool.supportsToolPicker) {
@@ -163,8 +198,19 @@ class AttachToolsAction extends Action2 {
         }
         bucket = toolBuckets.get(mcpServer.definition.id) ?? {
           type: "item",
-          label: localize("mcplabel", "MCP Server: {0}", mcpServer?.definition.label),
-          status: localize("mcpstatus", "From {0} ({1})", mcpServer.collection.label, McpConnectionState.toString(mcpServer.connectionState.get())),
+          label: localize(
+            "mcplabel",
+            "MCP Server: {0}",
+            mcpServer?.definition.label
+          ),
+          status: localize(
+            "mcpstatus",
+            "From {0} ({1})",
+            mcpServer.collection.label,
+            McpConnectionState.toString(
+              mcpServer.connectionState.get()
+            )
+          ),
           ordinal: 1 /* Mcp */,
           source: tool.source,
           picked: false,
@@ -173,11 +219,15 @@ class AttachToolsAction extends Action2 {
         toolBuckets.set(mcpServer.definition.id, bucket);
       } else if (tool.source.type === "extension") {
         const extensionId = tool.source.extensionId;
-        const ext = extensionService.extensions.find((value) => ExtensionIdentifier.equals(value.identifier, extensionId));
+        const ext = extensionService.extensions.find(
+          (value) => ExtensionIdentifier.equals(value.identifier, extensionId)
+        );
         if (!ext) {
           continue;
         }
-        bucket = toolBuckets.get(ExtensionIdentifier.toKey(extensionId)) ?? {
+        bucket = toolBuckets.get(
+          ExtensionIdentifier.toKey(extensionId)
+        ) ?? {
           type: "item",
           label: ext.displayName ?? ext.name,
           ordinal: 0 /* Extension */,
@@ -185,7 +235,10 @@ class AttachToolsAction extends Action2 {
           source: tool.source,
           children: []
         };
-        toolBuckets.set(ExtensionIdentifier.toKey(ext.identifier), bucket);
+        toolBuckets.set(
+          ExtensionIdentifier.toKey(ext.identifier),
+          bucket
+        );
       } else if (tool.source.type === "internal") {
         bucket = defaultBucket;
       } else {
@@ -219,7 +272,9 @@ class AttachToolsAction extends Action2 {
     __name(isAddPick, "isAddPick");
     const store = new DisposableStore();
     const picks = [];
-    for (const bucket of Array.from(toolBuckets.values()).sort((a, b) => a.ordinal - b.ordinal)) {
+    for (const bucket of Array.from(toolBuckets.values()).sort(
+      (a, b) => a.ordinal - b.ordinal
+    )) {
       picks.push({
         type: "separator",
         label: bucket.status
@@ -227,30 +282,31 @@ class AttachToolsAction extends Action2 {
       picks.push(bucket);
       picks.push(...bucket.children);
     }
-    const picker = store.add(quickPickService.createQuickPick({ useSeparators: true }));
-    picker.placeholder = localize("placeholder", "Select tools that are available to chat");
+    const picker = store.add(
+      quickPickService.createQuickPick({ useSeparators: true })
+    );
+    picker.placeholder = localize(
+      "placeholder",
+      "Select tools that are available to chat"
+    );
     picker.canSelectMany = true;
     picker.keepScrollPosition = true;
     picker.matchOnDescription = true;
     if (picks.length === 0) {
       picker.placeholder = localize("noTools", "Add tools to chat");
       picker.canSelectMany = false;
-      picks.push(
-        addMcpPick,
-        addExpPick
-      );
+      picks.push(addMcpPick, addExpPick);
     } else {
-      picks.push(
-        { type: "separator" },
-        addPick
-      );
+      picks.push({ type: "separator" }, addPick);
     }
     let lastSelectedItems = /* @__PURE__ */ new Set();
     let ignoreEvent = false;
     const _update = /* @__PURE__ */ __name(() => {
       ignoreEvent = true;
       try {
-        const items = picks.filter((p) => p.type === "item" && Boolean(p.picked));
+        const items = picks.filter(
+          (p) => p.type === "item" && Boolean(p.picked)
+        );
         lastSelectedItems = new Set(items);
         picker.selectedItems = items;
         const disableBuckets = [];
@@ -264,7 +320,10 @@ class AttachToolsAction extends Action2 {
             }
           }
         }
-        widget.input.selectedToolsModel.update(disableBuckets, disableTools);
+        widget.input.selectedToolsModel.update(
+          disableBuckets,
+          disableTools
+        );
       } finally {
         ignoreEvent = false;
       }
@@ -272,43 +331,52 @@ class AttachToolsAction extends Action2 {
     _update();
     picker.items = picks;
     picker.show();
-    store.add(picker.onDidChangeSelection((selectedPicks) => {
-      if (ignoreEvent) {
-        return;
-      }
-      const addPick2 = selectedPicks.find(isAddPick);
-      if (addPick2) {
-        addPick2.run();
-        picker.hide();
-        return;
-      }
-      const { added, removed } = diffSets(lastSelectedItems, new Set(selectedPicks));
-      for (const item of added) {
-        item.picked = true;
-        if (isBucketPick(item)) {
-          for (const toolPick of item.children) {
-            toolPick.picked = true;
-          }
-        } else if (isToolPick(item)) {
-          item.parent.picked = true;
+    store.add(
+      picker.onDidChangeSelection((selectedPicks) => {
+        if (ignoreEvent) {
+          return;
         }
-      }
-      for (const item of removed) {
-        item.picked = false;
-        if (isBucketPick(item)) {
-          for (const toolPick of item.children) {
-            toolPick.picked = false;
-          }
-        } else if (isToolPick(item) && item.parent.children.every((child) => !child.picked)) {
-          item.parent.picked = false;
+        const addPick2 = selectedPicks.find(isAddPick);
+        if (addPick2) {
+          addPick2.run();
+          picker.hide();
+          return;
         }
-      }
-      _update();
-    }));
-    store.add(picker.onDidAccept(() => {
-      picker.activeItems.find(isAddPick)?.run();
-    }));
-    await Promise.race([Event.toPromise(Event.any(picker.onDidAccept, picker.onDidHide))]);
+        const { added, removed } = diffSets(
+          lastSelectedItems,
+          new Set(selectedPicks)
+        );
+        for (const item of added) {
+          item.picked = true;
+          if (isBucketPick(item)) {
+            for (const toolPick of item.children) {
+              toolPick.picked = true;
+            }
+          } else if (isToolPick(item)) {
+            item.parent.picked = true;
+          }
+        }
+        for (const item of removed) {
+          item.picked = false;
+          if (isBucketPick(item)) {
+            for (const toolPick of item.children) {
+              toolPick.picked = false;
+            }
+          } else if (isToolPick(item) && item.parent.children.every((child) => !child.picked)) {
+            item.parent.picked = false;
+          }
+        }
+        _update();
+      })
+    );
+    store.add(
+      picker.onDidAccept(() => {
+        picker.activeItems.find(isAddPick)?.run();
+      })
+    );
+    await Promise.race([
+      Event.toPromise(Event.any(picker.onDidAccept, picker.onDidHide))
+    ]);
     telemetryService.publicLog2("chat/selectedTools", {
       enabled: widget.input.selectedToolsModel.tools.get().length,
       total: Iterable.length(toolsService.getTools())

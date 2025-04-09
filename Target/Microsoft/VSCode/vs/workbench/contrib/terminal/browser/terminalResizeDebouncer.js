@@ -11,7 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 import { getWindow, runWhenWindowIdle } from "../../../../base/browser/dom.js";
 import { debounce } from "../../../../base/common/decorators.js";
-import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["StartDebouncingThreshold"] = 200] = "StartDebouncingThreshold";
   return Constants2;
@@ -35,13 +38,13 @@ class TerminalResizeDebouncer extends Disposable {
   async resize(cols, rows, immediate) {
     this._latestX = cols;
     this._latestY = rows;
-    if (immediate || this._getXterm().raw.buffer.normal.length < 200 /* StartDebouncingThreshold */) {
+    if (immediate || this._getXterm()?.raw.buffer.normal.length < 200 /* StartDebouncingThreshold */) {
       this._resizeXJob.clear();
       this._resizeYJob.clear();
       this._resizeBothCallback(cols, rows);
       return;
     }
-    const win = getWindow(this._getXterm().raw.element);
+    const win = getWindow(this._getXterm()?.raw.element);
     if (win && !this._isVisible()) {
       if (!this._resizeXJob.value) {
         this._resizeXJob.value = runWhenWindowIdle(win, async () => {

@@ -17,7 +17,7 @@ class Cache {
     return id;
   }
   get(pid, id) {
-    return this._data.has(pid) ? this._data.get(pid)[id] : void 0;
+    return this._data.has(pid) ? this._data.get(pid)?.[id] : void 0;
   }
   delete(id) {
     this._data.delete(id);

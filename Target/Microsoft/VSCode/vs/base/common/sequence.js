@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "./event.js";
+import { Emitter } from "./event.js";
 class Sequence {
   static {
     __name(this, "Sequence");

@@ -160,7 +160,7 @@ body {
 }
 .data {
   white-space: pre;
-  padding-left: .5rem;
+  padding-left: 0.5rem;
   font-weight: normal;
   text-align: left;
   height: 22px;

@@ -1,4 +1,4 @@
-var tsconfig_vscode_proposed_dts_default = "./Asset/tsconfig.vscode-proposed-dts-I3SHNGNG.json";
+var tsconfig_vscode_proposed_dts_default = "./Asset/tsconfig.vscode-proposed-dts-I7FLNVCE.json";
 export {
   tsconfig_vscode_proposed_dts_default as default
 };

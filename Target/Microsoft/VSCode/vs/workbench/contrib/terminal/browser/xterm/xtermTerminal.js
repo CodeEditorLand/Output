@@ -11,36 +11,75 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
+import {
+  StandardWheelEvent
+} from "../../../../../base/browser/mouseEvent.js";
+import { MouseWheelClassifier } from "../../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { debounce } from "../../../../../base/common/decorators.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
+import { equals } from "../../../../../base/common/objects.js";
+import { localize } from "../../../../../nls.js";
+import {
+  AccessibilitySignal,
+  IAccessibilitySignalService
+} from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { Disposable, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
-import { IEditorOptions } from "../../../../../editor/common/config/editorOptions.js";
-import { IShellIntegration, ITerminalLogService, TerminalSettingId } from "../../../../../platform/terminal/common/terminal.js";
-import { ITerminalFont, ITerminalConfiguration } from "../../common/terminal.js";
-import { IMarkTracker, IInternalXtermTerminal, IXtermTerminal, IXtermColorProvider, XtermTerminalConstants, IXtermAttachToElementOptions, IDetachedXtermTerminal, ITerminalConfigurationService } from "../terminal.js";
+import {
+  IContextKeyService
+} from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
 import { LogLevel } from "../../../../../platform/log/common/log.js";
 import { INotificationService } from "../../../../../platform/notification/common/notification.js";
-import { MarkNavigationAddon, ScrollPosition } from "./markNavigationAddon.js";
-import { localize } from "../../../../../nls.js";
-import { IColorTheme, IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import { PANEL_BACKGROUND } from "../../../../common/theme.js";
-import { TERMINAL_FOREGROUND_COLOR, TERMINAL_BACKGROUND_COLOR, TERMINAL_CURSOR_FOREGROUND_COLOR, TERMINAL_CURSOR_BACKGROUND_COLOR, ansiColorIdentifiers, TERMINAL_SELECTION_BACKGROUND_COLOR, TERMINAL_FIND_MATCH_BACKGROUND_COLOR, TERMINAL_FIND_MATCH_HIGHLIGHT_BACKGROUND_COLOR, TERMINAL_FIND_MATCH_BORDER_COLOR, TERMINAL_OVERVIEW_RULER_FIND_MATCH_FOREGROUND_COLOR, TERMINAL_FIND_MATCH_HIGHLIGHT_BORDER_COLOR, TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR, TERMINAL_SELECTION_FOREGROUND_COLOR, TERMINAL_INACTIVE_SELECTION_BACKGROUND_COLOR, TERMINAL_OVERVIEW_RULER_BORDER_COLOR } from "../../common/terminalColorRegistry.js";
-import { ShellIntegrationAddon } from "../../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { DecorationAddon } from "./decorationAddon.js";
-import { ITerminalCapabilityStore, ITerminalCommand, TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { Emitter } from "../../../../../base/common/event.js";
 import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
-import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import {
+  TerminalCapability
+} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import {
+  ITerminalLogService,
+  TerminalSettingId
+} from "../../../../../platform/terminal/common/terminal.js";
+import { ShellIntegrationAddon } from "../../../../../platform/terminal/common/xterm/shellIntegrationAddon.js";
+import {
+  scrollbarSliderActiveBackground,
+  scrollbarSliderBackground,
+  scrollbarSliderHoverBackground
+} from "../../../../../platform/theme/common/colorRegistry.js";
+import {
+  IThemeService
+} from "../../../../../platform/theme/common/themeService.js";
+import { PANEL_BACKGROUND } from "../../../../common/theme.js";
+import {
+  ansiColorIdentifiers,
+  TERMINAL_BACKGROUND_COLOR,
+  TERMINAL_CURSOR_BACKGROUND_COLOR,
+  TERMINAL_CURSOR_FOREGROUND_COLOR,
+  TERMINAL_FIND_MATCH_BACKGROUND_COLOR,
+  TERMINAL_FIND_MATCH_BORDER_COLOR,
+  TERMINAL_FIND_MATCH_HIGHLIGHT_BACKGROUND_COLOR,
+  TERMINAL_FIND_MATCH_HIGHLIGHT_BORDER_COLOR,
+  TERMINAL_FOREGROUND_COLOR,
+  TERMINAL_INACTIVE_SELECTION_BACKGROUND_COLOR,
+  TERMINAL_OVERVIEW_RULER_BORDER_COLOR,
+  TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR,
+  TERMINAL_OVERVIEW_RULER_FIND_MATCH_FOREGROUND_COLOR,
+  TERMINAL_SELECTION_BACKGROUND_COLOR,
+  TERMINAL_SELECTION_FOREGROUND_COLOR
+} from "../../common/terminalColorRegistry.js";
 import { TerminalContextKeys } from "../../common/terminalContextKey.js";
-import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
-import { debounce } from "../../../../../base/common/decorators.js";
-import { MouseWheelClassifier } from "../../../../../base/browser/ui/scrollbar/scrollableElement.js";
-import { IMouseWheelEvent, StandardWheelEvent } from "../../../../../base/browser/mouseEvent.js";
-import { ILayoutService } from "../../../../../platform/layout/browser/layoutService.js";
-import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
-import { scrollbarSliderActiveBackground, scrollbarSliderBackground, scrollbarSliderHoverBackground } from "../../../../../platform/theme/common/colorRegistry.js";
+import {
+  ITerminalConfigurationService,
+  XtermTerminalConstants
+} from "../terminal.js";
+import { DecorationAddon } from "./decorationAddon.js";
+import { MarkNavigationAddon, ScrollPosition } from "./markNavigationAddon.js";
 import { XtermAddonImporter } from "./xtermAddonImporter.js";
-import { equals } from "../../../../../base/common/objects.js";
 var RenderConstants = /* @__PURE__ */ ((RenderConstants2) => {
   RenderConstants2[RenderConstants2["SmoothScrollDuration"] = 125] = "SmoothScrollDuration";
   return RenderConstants2;
@@ -80,97 +119,153 @@ let XtermTerminal = class extends Disposable {
     this._xtermAddonLoader = options.xtermAddonImporter ?? new XtermAddonImporter();
     this._xtermColorProvider = options.xtermColorProvider;
     this._capabilities = options.capabilities;
-    const font = this._terminalConfigurationService.getFont(dom.getActiveWindow(), void 0, true);
+    const font = this._terminalConfigurationService.getFont(
+      dom.getActiveWindow(),
+      void 0,
+      true
+    );
     const config = this._terminalConfigurationService.config;
     const editorOptions = this._configurationService.getValue("editor");
-    this.raw = this._register(new xtermCtor({
-      allowProposedApi: true,
-      cols: options.cols,
-      rows: options.rows,
-      documentOverride: layoutService.mainContainer.ownerDocument,
-      altClickMovesCursor: config.altClickMovesCursor && editorOptions.multiCursorModifier === "alt",
-      scrollback: config.scrollback,
-      theme: this.getXtermTheme(),
-      drawBoldTextInBrightColors: config.drawBoldTextInBrightColors,
-      fontFamily: font.fontFamily,
-      fontWeight: config.fontWeight,
-      fontWeightBold: config.fontWeightBold,
-      fontSize: font.fontSize,
-      letterSpacing: font.letterSpacing,
-      lineHeight: font.lineHeight,
-      logLevel: vscodeToXtermLogLevel(this._logService.getLevel()),
-      logger: this._logService,
-      minimumContrastRatio: config.minimumContrastRatio,
-      tabStopWidth: config.tabStopWidth,
-      cursorBlink: config.cursorBlinking,
-      cursorStyle: vscodeToXtermCursorStyle(config.cursorStyle),
-      cursorInactiveStyle: vscodeToXtermCursorStyle(config.cursorStyleInactive),
-      cursorWidth: config.cursorWidth,
-      macOptionIsMeta: config.macOptionIsMeta,
-      macOptionClickForcesSelection: config.macOptionClickForcesSelection,
-      rightClickSelectsWord: config.rightClickBehavior === "selectWord",
-      fastScrollModifier: "alt",
-      fastScrollSensitivity: config.fastScrollSensitivity,
-      scrollSensitivity: config.mouseWheelScrollSensitivity,
-      wordSeparator: config.wordSeparators,
-      overviewRuler: {
-        width: 14,
-        showTopBorder: true
-      },
-      ignoreBracketedPasteMode: config.ignoreBracketedPasteMode,
-      rescaleOverlappingGlyphs: config.rescaleOverlappingGlyphs,
-      windowOptions: {
-        getWinSizePixels: true,
-        getCellSizePixels: true,
-        getWinSizeChars: true
-      }
-    }));
+    this.raw = this._register(
+      new xtermCtor({
+        allowProposedApi: true,
+        cols: options.cols,
+        rows: options.rows,
+        documentOverride: layoutService.mainContainer.ownerDocument,
+        altClickMovesCursor: config.altClickMovesCursor && editorOptions.multiCursorModifier === "alt",
+        scrollback: config.scrollback,
+        theme: this.getXtermTheme(),
+        drawBoldTextInBrightColors: config.drawBoldTextInBrightColors,
+        fontFamily: font.fontFamily,
+        fontWeight: config.fontWeight,
+        fontWeightBold: config.fontWeightBold,
+        fontSize: font.fontSize,
+        letterSpacing: font.letterSpacing,
+        lineHeight: font.lineHeight,
+        logLevel: vscodeToXtermLogLevel(this._logService.getLevel()),
+        logger: this._logService,
+        minimumContrastRatio: config.minimumContrastRatio,
+        tabStopWidth: config.tabStopWidth,
+        cursorBlink: config.cursorBlinking,
+        cursorStyle: vscodeToXtermCursorStyle(
+          config.cursorStyle
+        ),
+        cursorInactiveStyle: vscodeToXtermCursorStyle(
+          config.cursorStyleInactive
+        ),
+        cursorWidth: config.cursorWidth,
+        macOptionIsMeta: config.macOptionIsMeta,
+        macOptionClickForcesSelection: config.macOptionClickForcesSelection,
+        rightClickSelectsWord: config.rightClickBehavior === "selectWord",
+        fastScrollModifier: "alt",
+        fastScrollSensitivity: config.fastScrollSensitivity,
+        scrollSensitivity: config.mouseWheelScrollSensitivity,
+        wordSeparator: config.wordSeparators,
+        overviewRuler: {
+          width: 14,
+          showTopBorder: true
+        },
+        ignoreBracketedPasteMode: config.ignoreBracketedPasteMode,
+        rescaleOverlappingGlyphs: config.rescaleOverlappingGlyphs,
+        windowOptions: {
+          getWinSizePixels: true,
+          getCellSizePixels: true,
+          getWinSizeChars: true
+        }
+      })
+    );
     this._updateSmoothScrolling();
     this._core = this.raw._core;
-    this._register(this._configurationService.onDidChangeConfiguration(async (e) => {
-      if (e.affectsConfiguration(TerminalSettingId.GpuAcceleration)) {
-        XtermTerminal._suggestedRendererType = void 0;
-      }
-      if (e.affectsConfiguration("terminal.integrated") || e.affectsConfiguration("editor.fastScrollSensitivity") || e.affectsConfiguration("editor.mouseWheelScrollSensitivity") || e.affectsConfiguration("editor.multiCursorModifier")) {
-        this.updateConfig();
-      }
-      if (e.affectsConfiguration(TerminalSettingId.UnicodeVersion)) {
-        this._updateUnicodeVersion();
-      }
-      if (e.affectsConfiguration(TerminalSettingId.ShellIntegrationDecorationsEnabled)) {
-        this._updateTheme();
-      }
-    }));
-    this._register(this._themeService.onDidColorThemeChange((theme) => this._updateTheme(theme)));
-    this._register(this._logService.onDidChangeLogLevel((e) => this.raw.options.logLevel = vscodeToXtermLogLevel(e)));
-    this._register(this.raw.onSelectionChange(() => {
-      this._onDidChangeSelection.fire();
-      if (this.isFocused) {
-        this._anyFocusedTerminalHasSelection.set(this.raw.hasSelection());
-      }
-    }));
+    this._register(
+      this._configurationService.onDidChangeConfiguration(async (e) => {
+        if (e.affectsConfiguration(TerminalSettingId.GpuAcceleration)) {
+          XtermTerminal._suggestedRendererType = void 0;
+        }
+        if (e.affectsConfiguration("terminal.integrated") || e.affectsConfiguration("editor.fastScrollSensitivity") || e.affectsConfiguration(
+          "editor.mouseWheelScrollSensitivity"
+        ) || e.affectsConfiguration("editor.multiCursorModifier")) {
+          this.updateConfig();
+        }
+        if (e.affectsConfiguration(TerminalSettingId.UnicodeVersion)) {
+          this._updateUnicodeVersion();
+        }
+        if (e.affectsConfiguration(
+          TerminalSettingId.ShellIntegrationDecorationsEnabled
+        )) {
+          this._updateTheme();
+        }
+      })
+    );
+    this._register(
+      this._themeService.onDidColorThemeChange(
+        (theme) => this._updateTheme(theme)
+      )
+    );
+    this._register(
+      this._logService.onDidChangeLogLevel(
+        (e) => this.raw.options.logLevel = vscodeToXtermLogLevel(e)
+      )
+    );
+    this._register(
+      this.raw.onSelectionChange(() => {
+        this._onDidChangeSelection.fire();
+        if (this.isFocused) {
+          this._anyFocusedTerminalHasSelection.set(
+            this.raw.hasSelection()
+          );
+        }
+      })
+    );
     this._register(this.raw.onData((e) => this._lastInputEvent = e));
     this._updateUnicodeVersion();
-    this._markNavigationAddon = this._instantiationService.createInstance(MarkNavigationAddon, options.capabilities);
+    this._markNavigationAddon = this._instantiationService.createInstance(
+      MarkNavigationAddon,
+      options.capabilities
+    );
     this.raw.loadAddon(this._markNavigationAddon);
-    this._decorationAddon = this._instantiationService.createInstance(DecorationAddon, this._capabilities);
-    this._register(this._decorationAddon.onDidRequestRunCommand((e) => this._onDidRequestRunCommand.fire(e)));
-    this._register(this._decorationAddon.onDidRequestCopyAsHtml((e) => this._onDidRequestCopyAsHtml.fire(e)));
+    this._decorationAddon = this._instantiationService.createInstance(
+      DecorationAddon,
+      this._capabilities
+    );
+    this._register(
+      this._decorationAddon.onDidRequestRunCommand(
+        (e) => this._onDidRequestRunCommand.fire(e)
+      )
+    );
+    this._register(
+      this._decorationAddon.onDidRequestCopyAsHtml(
+        (e) => this._onDidRequestCopyAsHtml.fire(e)
+      )
+    );
     this.raw.loadAddon(this._decorationAddon);
-    this._shellIntegrationAddon = new ShellIntegrationAddon(options.shellIntegrationNonce ?? "", options.disableShellIntegrationReporting, this._telemetryService, this._logService);
+    this._shellIntegrationAddon = new ShellIntegrationAddon(
+      options.shellIntegrationNonce ?? "",
+      options.disableShellIntegrationReporting,
+      this._telemetryService,
+      this._logService
+    );
     this.raw.loadAddon(this._shellIntegrationAddon);
     this._xtermAddonLoader.importAddon("clipboard").then((ClipboardAddon) => {
       if (this._store.isDisposed) {
         return;
       }
-      this._clipboardAddon = this._instantiationService.createInstance(ClipboardAddon, void 0, {
-        async readText(type) {
-          return _clipboardService.readText(type === "p" ? "selection" : "clipboard");
-        },
-        async writeText(type, text) {
-          return _clipboardService.writeText(text, type === "p" ? "selection" : "clipboard");
+      this._clipboardAddon = this._instantiationService.createInstance(
+        ClipboardAddon,
+        void 0,
+        {
+          async readText(type) {
+            return _clipboardService.readText(
+              type === "p" ? "selection" : "clipboard"
+            );
+          },
+          async writeText(type, text) {
+            return _clipboardService.writeText(
+              text,
+              type === "p" ? "selection" : "clipboard"
+            );
+          }
         }
-      });
+      );
       this.raw.loadAddon(this._clipboardAddon);
     });
     this._xtermAddonLoader.importAddon("progress").then((ProgressAddon) => {
@@ -187,16 +282,31 @@ let XtermTerminal = class extends Disposable {
       }, "updateProgress");
       this._register(progressAddon.onChange(() => updateProgress()));
       updateProgress();
-      const commandDetection = this._capabilities.get(TerminalCapability.CommandDetection);
+      const commandDetection = this._capabilities.get(
+        TerminalCapability.CommandDetection
+      );
       if (commandDetection) {
-        this._register(commandDetection.onCommandFinished(() => progressAddon.progress = { state: 0, value: 0 }));
+        this._register(
+          commandDetection.onCommandFinished(
+            () => progressAddon.progress = { state: 0, value: 0 }
+          )
+        );
       } else {
-        const disposable = this._capabilities.onDidAddCapability((e) => {
-          if (e.id === TerminalCapability.CommandDetection) {
-            this._register(e.capability.onCommandFinished(() => progressAddon.progress = { state: 0, value: 0 }));
-            this._store.delete(disposable);
+        const disposable = this._capabilities.onDidAddCapability(
+          (e) => {
+            if (e.id === TerminalCapability.CommandDetection) {
+              this._register(
+                e.capability.onCommandFinished(
+                  () => progressAddon.progress = {
+                    state: 0,
+                    value: 0
+                  }
+                )
+              );
+              this._store.delete(disposable);
+            }
           }
-        });
+        );
         this._store.add(disposable);
       }
     });
@@ -237,7 +347,9 @@ let XtermTerminal = class extends Disposable {
   _imageAddon;
   _ligaturesAddon = this._register(new MutableDisposable());
   _ligaturesAddonConfig;
-  _attachedDisposables = this._register(new DisposableStore());
+  _attachedDisposables = this._register(
+    new DisposableStore()
+  );
   _anyTerminalFocusContextKey;
   _anyFocusedTerminalHasSelection;
   _lastFindResult;
@@ -250,21 +362,33 @@ let XtermTerminal = class extends Disposable {
   get isGpuAccelerated() {
     return !!this._webglAddon;
   }
-  _onDidRequestRunCommand = this._register(new Emitter());
+  _onDidRequestRunCommand = this._register(
+    new Emitter()
+  );
   onDidRequestRunCommand = this._onDidRequestRunCommand.event;
-  _onDidRequestCopyAsHtml = this._register(new Emitter());
+  _onDidRequestCopyAsHtml = this._register(
+    new Emitter()
+  );
   onDidRequestCopyAsHtml = this._onDidRequestCopyAsHtml.event;
-  _onDidRequestRefreshDimensions = this._register(new Emitter());
+  _onDidRequestRefreshDimensions = this._register(
+    new Emitter()
+  );
   onDidRequestRefreshDimensions = this._onDidRequestRefreshDimensions.event;
-  _onDidChangeFindResults = this._register(new Emitter());
+  _onDidChangeFindResults = this._register(
+    new Emitter()
+  );
   onDidChangeFindResults = this._onDidChangeFindResults.event;
-  _onDidChangeSelection = this._register(new Emitter());
+  _onDidChangeSelection = this._register(
+    new Emitter()
+  );
   onDidChangeSelection = this._onDidChangeSelection.event;
   _onDidChangeFocus = this._register(new Emitter());
   onDidChangeFocus = this._onDidChangeFocus.event;
   _onDidDispose = this._register(new Emitter());
   onDidDispose = this._onDidDispose.event;
-  _onDidChangeProgress = this._register(new Emitter());
+  _onDidChangeProgress = this._register(
+    new Emitter()
+  );
   onDidChangeProgress = this._onDidChangeProgress.event;
   get markTracker() {
     return this._markNavigationAddon;
@@ -290,7 +414,10 @@ let XtermTerminal = class extends Disposable {
   }
   *getBufferReverseIterator() {
     for (let i = this.raw.buffer.active.length; i >= 0; i--) {
-      const { lineData, lineIndex } = getFullBufferLineAsString(i, this.raw.buffer.active);
+      const { lineData, lineIndex } = getFullBufferLineAsString(
+        i,
+        this.raw.buffer.active
+      );
       if (lineData) {
         i = lineIndex;
         yield lineData;
@@ -315,18 +442,29 @@ let XtermTerminal = class extends Disposable {
       const length = command.getOutput()?.length;
       const row = command.marker?.line;
       if (!length || !row) {
-        throw new Error(`No row ${row} or output length ${length} for command ${command}`);
+        throw new Error(
+          `No row ${row} or output length ${length} for command ${command}`
+        );
       }
-      this.raw.select(0, row + 1, length - Math.floor(length / this.raw.cols));
+      this.raw.select(
+        0,
+        row + 1,
+        length - Math.floor(length / this.raw.cols)
+      );
     }
-    const result = this._serializeAddon.serializeAsHTML({ onlySelection: true });
+    const result = this._serializeAddon.serializeAsHTML({
+      onlySelection: true
+    });
     if (command) {
       this.raw.clearSelection();
     }
     return result;
   }
   attachToElement(container, partialOptions) {
-    const options = { enableGpu: true, ...partialOptions };
+    const options = {
+      enableGpu: true,
+      ...partialOptions
+    };
     if (!this._attached) {
       this.raw.open(container);
     }
@@ -340,18 +478,45 @@ let XtermTerminal = class extends Disposable {
     }
     const ad = this._attachedDisposables;
     ad.clear();
-    ad.add(dom.addDisposableListener(this.raw.textarea, "focus", () => this._setFocused(true)));
-    ad.add(dom.addDisposableListener(this.raw.textarea, "blur", () => this._setFocused(false)));
-    ad.add(dom.addDisposableListener(this.raw.textarea, "focusout", () => this._setFocused(false)));
-    ad.add(dom.addDisposableListener(this.raw.element, dom.EventType.MOUSE_WHEEL, (e) => {
-      const classifier = MouseWheelClassifier.INSTANCE;
-      classifier.acceptStandardWheelEvent(new StandardWheelEvent(e));
-      const value = classifier.isPhysicalMouseWheel();
-      if (value !== this._isPhysicalMouseWheel) {
-        this._isPhysicalMouseWheel = value;
-        this._updateSmoothScrolling();
-      }
-    }, { passive: true }));
+    ad.add(
+      dom.addDisposableListener(
+        this.raw.textarea,
+        "focus",
+        () => this._setFocused(true)
+      )
+    );
+    ad.add(
+      dom.addDisposableListener(
+        this.raw.textarea,
+        "blur",
+        () => this._setFocused(false)
+      )
+    );
+    ad.add(
+      dom.addDisposableListener(
+        this.raw.textarea,
+        "focusout",
+        () => this._setFocused(false)
+      )
+    );
+    ad.add(
+      dom.addDisposableListener(
+        this.raw.element,
+        dom.EventType.MOUSE_WHEEL,
+        (e) => {
+          const classifier = MouseWheelClassifier.INSTANCE;
+          classifier.acceptStandardWheelEvent(
+            new StandardWheelEvent(e)
+          );
+          const value = classifier.isPhysicalMouseWheel();
+          if (value !== this._isPhysicalMouseWheel) {
+            this._isPhysicalMouseWheel = value;
+            this._updateSmoothScrolling();
+          }
+        },
+        { passive: true }
+      )
+    );
     this._refreshLigaturesAddon();
     this._attached = { container, options };
     return this._attached?.container.querySelector(".xterm-screen");
@@ -359,7 +524,9 @@ let XtermTerminal = class extends Disposable {
   _setFocused(isFocused) {
     this._onDidChangeFocus.fire(isFocused);
     this._anyTerminalFocusContextKey.set(isFocused);
-    this._anyFocusedTerminalHasSelection.set(isFocused && this.raw.hasSelection());
+    this._anyFocusedTerminalHasSelection.set(
+      isFocused && this.raw.hasSelection()
+    );
   }
   write(data, callback) {
     this.raw.write(data, callback);
@@ -431,12 +598,24 @@ let XtermTerminal = class extends Disposable {
   _updateFindColors(searchOptions) {
     const theme = this._themeService.getColorTheme();
     const terminalBackground = theme.getColor(TERMINAL_BACKGROUND_COLOR) || theme.getColor(PANEL_BACKGROUND);
-    const findMatchBackground = theme.getColor(TERMINAL_FIND_MATCH_BACKGROUND_COLOR);
-    const findMatchBorder = theme.getColor(TERMINAL_FIND_MATCH_BORDER_COLOR);
-    const findMatchOverviewRuler = theme.getColor(TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR);
-    const findMatchHighlightBackground = theme.getColor(TERMINAL_FIND_MATCH_HIGHLIGHT_BACKGROUND_COLOR);
-    const findMatchHighlightBorder = theme.getColor(TERMINAL_FIND_MATCH_HIGHLIGHT_BORDER_COLOR);
-    const findMatchHighlightOverviewRuler = theme.getColor(TERMINAL_OVERVIEW_RULER_FIND_MATCH_FOREGROUND_COLOR);
+    const findMatchBackground = theme.getColor(
+      TERMINAL_FIND_MATCH_BACKGROUND_COLOR
+    );
+    const findMatchBorder = theme.getColor(
+      TERMINAL_FIND_MATCH_BORDER_COLOR
+    );
+    const findMatchOverviewRuler = theme.getColor(
+      TERMINAL_OVERVIEW_RULER_CURSOR_FOREGROUND_COLOR
+    );
+    const findMatchHighlightBackground = theme.getColor(
+      TERMINAL_FIND_MATCH_HIGHLIGHT_BACKGROUND_COLOR
+    );
+    const findMatchHighlightBorder = theme.getColor(
+      TERMINAL_FIND_MATCH_HIGHLIGHT_BORDER_COLOR
+    );
+    const findMatchHighlightOverviewRuler = theme.getColor(
+      TERMINAL_OVERVIEW_RULER_FIND_MATCH_FOREGROUND_COLOR
+    );
     searchOptions.decorations = {
       activeMatchBackground: findMatchBackground?.toString(),
       activeMatchBorder: findMatchBorder?.toString() || "transparent",
@@ -452,14 +631,20 @@ let XtermTerminal = class extends Disposable {
     if (!this._searchAddonPromise) {
       this._searchAddonPromise = this._xtermAddonLoader.importAddon("search").then((AddonCtor) => {
         if (this._store.isDisposed) {
-          return Promise.reject("Could not create search addon, terminal is disposed");
+          return Promise.reject(
+            "Could not create search addon, terminal is disposed"
+          );
         }
-        this._searchAddon = new AddonCtor({ highlightLimit: XtermTerminalConstants.SearchHighlightLimit });
-        this.raw.loadAddon(this._searchAddon);
-        this._searchAddon.onDidChangeResults((results) => {
-          this._lastFindResult = results;
-          this._onDidChangeFindResults.fire(results);
+        this._searchAddon = new AddonCtor({
+          highlightLimit: XtermTerminalConstants.SearchHighlightLimit
         });
+        this.raw.loadAddon(this._searchAddon);
+        this._searchAddon.onDidChangeResults(
+          (results) => {
+            this._lastFindResult = results;
+            this._onDidChangeFindResults.fire(results);
+          }
+        );
         return this._searchAddon;
       });
     }
@@ -472,13 +657,22 @@ let XtermTerminal = class extends Disposable {
     this._searchAddon?.clearActiveDecoration();
   }
   getFont() {
-    return this._terminalConfigurationService.getFont(dom.getWindow(this.raw.element), this._core);
+    return this._terminalConfigurationService.getFont(
+      dom.getWindow(this.raw.element),
+      this._core
+    );
   }
   getLongestViewportWrappedLineLength() {
     let maxLineLength = 0;
     for (let i = this.raw.buffer.active.length - 1; i >= this.raw.buffer.active.viewportY; i--) {
-      const lineInfo = this._getWrappedLineCount(i, this.raw.buffer.active);
-      maxLineLength = Math.max(maxLineLength, lineInfo.lineCount * this.raw.cols - lineInfo.endSpaces || 0);
+      const lineInfo = this._getWrappedLineCount(
+        i,
+        this.raw.buffer.active
+      );
+      maxLineLength = Math.max(
+        maxLineLength,
+        lineInfo.lineCount * this.raw.cols - lineInfo.endSpaces || 0
+      );
       i = lineInfo.currentIndex;
     }
     return maxLineLength;
@@ -537,7 +731,9 @@ let XtermTerminal = class extends Disposable {
     this.raw.clearSelection();
   }
   selectMarkedRange(fromMarkerId, toMarkerId, scrollIntoView = false) {
-    const detectionCapability = this.shellIntegration.capabilities.get(TerminalCapability.BufferMarkDetection);
+    const detectionCapability = this.shellIntegration.capabilities.get(
+      TerminalCapability.BufferMarkDetection
+    );
     if (!detectionCapability) {
       return;
     }
@@ -563,7 +759,10 @@ let XtermTerminal = class extends Disposable {
       if (asHtml) {
         let listener2 = function(e) {
           if (!e.clipboardData.types.includes("text/plain")) {
-            e.clipboardData.setData("text/plain", command?.getOutput() ?? "");
+            e.clipboardData.setData(
+              "text/plain",
+              command?.getOutput() ?? ""
+            );
           }
           e.clipboardData.setData("text/html", textAsHtml);
           e.preventDefault();
@@ -579,7 +778,12 @@ let XtermTerminal = class extends Disposable {
         await this._clipboardService.writeText(this.raw.getSelection());
       }
     } else {
-      this._notificationService.warn(localize("terminal.integrated.copySelection.noSelection", "The terminal has no selection to copy"));
+      this._notificationService.warn(
+        localize(
+          "terminal.integrated.copySelection.noSelection",
+          "The terminal has no selection to copy"
+        )
+      );
     }
   }
   _setCursorBlink(blink) {
@@ -615,13 +819,18 @@ let XtermTerminal = class extends Disposable {
       this.raw.loadAddon(this._webglAddon);
       this._logService.trace("Webgl was loaded");
       this._webglAddon.onContextLoss(() => {
-        this._logService.info(`Webgl lost context, disposing of webgl renderer`);
+        this._logService.info(
+          "Webgl lost context, disposing of webgl renderer"
+        );
         this._disposeOfWebglRenderer();
       });
       this._refreshImageAddon();
       this._onDidRequestRefreshDimensions.fire();
     } catch (e) {
-      this._logService.warn(`Webgl could not be loaded. Falling back to the DOM renderer`, e);
+      this._logService.warn(
+        "Webgl could not be loaded. Falling back to the DOM renderer",
+        e
+      );
       XtermTerminal._suggestedRendererType = "dom";
       this._disposeOfWebglRenderer();
     }
@@ -689,13 +898,19 @@ let XtermTerminal = class extends Disposable {
       theme = this._themeService.getColorTheme();
     }
     const config = this._terminalConfigurationService.config;
-    const hideOverviewRuler = ["never", "gutter"].includes(config.shellIntegration?.decorationsEnabled ?? "");
+    const hideOverviewRuler = ["never", "gutter"].includes(
+      config.shellIntegration?.decorationsEnabled ?? ""
+    );
     const foregroundColor = theme.getColor(TERMINAL_FOREGROUND_COLOR);
     const backgroundColor = this._xtermColorProvider.getBackgroundColor(theme);
     const cursorColor = theme.getColor(TERMINAL_CURSOR_FOREGROUND_COLOR) || foregroundColor;
     const cursorAccentColor = theme.getColor(TERMINAL_CURSOR_BACKGROUND_COLOR) || backgroundColor;
-    const selectionBackgroundColor = theme.getColor(TERMINAL_SELECTION_BACKGROUND_COLOR);
-    const selectionInactiveBackgroundColor = theme.getColor(TERMINAL_INACTIVE_SELECTION_BACKGROUND_COLOR);
+    const selectionBackgroundColor = theme.getColor(
+      TERMINAL_SELECTION_BACKGROUND_COLOR
+    );
+    const selectionInactiveBackgroundColor = theme.getColor(
+      TERMINAL_INACTIVE_SELECTION_BACKGROUND_COLOR
+    );
     const selectionForegroundColor = theme.getColor(TERMINAL_SELECTION_FOREGROUND_COLOR) || void 0;
     return {
       background: backgroundColor?.toString(),
@@ -780,11 +995,17 @@ function getXtermScaledDimensions(w, font, width, height) {
   }
   const scaledWidthAvailable = width * w.devicePixelRatio;
   const scaledCharWidth = font.charWidth * w.devicePixelRatio + font.letterSpacing;
-  const cols = Math.max(Math.floor(scaledWidthAvailable / scaledCharWidth), 1);
+  const cols = Math.max(
+    Math.floor(scaledWidthAvailable / scaledCharWidth),
+    1
+  );
   const scaledHeightAvailable = height * w.devicePixelRatio;
   const scaledCharHeight = Math.ceil(font.charHeight * w.devicePixelRatio);
   const scaledLineHeight = Math.floor(scaledCharHeight * font.lineHeight);
-  const rows = Math.max(Math.floor(scaledHeightAvailable / scaledLineHeight), 1);
+  const rows = Math.max(
+    Math.floor(scaledHeightAvailable / scaledLineHeight),
+    1
+  );
   return { rows, cols };
 }
 __name(getXtermScaledDimensions, "getXtermScaledDimensions");

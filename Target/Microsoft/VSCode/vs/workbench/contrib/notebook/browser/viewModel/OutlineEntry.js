@@ -2,12 +2,14 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../../base/common/codicons.js";
 import { ThemeIcon } from "../../../../../base/common/themables.js";
-import { IMarkerService, MarkerSeverity } from "../../../../../platform/markers/common/markers.js";
-import { ICellViewModel } from "../notebookBrowser.js";
-import { executingStateIcon } from "../notebookIcons.js";
+import {
+  SymbolKinds
+} from "../../../../../editor/common/languages.js";
+import {
+  MarkerSeverity
+} from "../../../../../platform/markers/common/markers.js";
 import { CellKind } from "../../common/notebookCommon.js";
-import { IRange } from "../../../../../editor/common/core/range.js";
-import { SymbolKind, SymbolKinds } from "../../../../../editor/common/languages.js";
+import { executingStateIcon } from "../notebookIcons.js";
 class OutlineEntry {
   constructor(index, level, cell, label, isExecuting, isPaused, range, symbolKind) {
     this.index = index;
@@ -46,13 +48,19 @@ class OutlineEntry {
   }
   get position() {
     if (this.range) {
-      return { startLineNumber: this.range.startLineNumber, startColumn: this.range.startColumn };
+      return {
+        startLineNumber: this.range.startLineNumber,
+        startColumn: this.range.startColumn
+      };
     }
     return void 0;
   }
   updateMarkers(markerService) {
     if (this.cell.cellKind === CellKind.Code) {
-      const marker = markerService.read({ resource: this.cell.uri, severities: MarkerSeverity.Error | MarkerSeverity.Warning });
+      const marker = markerService.read({
+        resource: this.cell.uri,
+        severities: MarkerSeverity.Error | MarkerSeverity.Warning
+      });
       if (marker.length === 0) {
         this._markerInfo = void 0;
       } else {

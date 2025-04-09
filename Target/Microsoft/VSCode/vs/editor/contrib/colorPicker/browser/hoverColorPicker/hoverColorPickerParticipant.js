@@ -10,24 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { AsyncIterableObject } from "../../../../../base/common/async.js";
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { Range } from "../../../../common/core/range.js";
-import { IModelDecoration } from "../../../../common/model.js";
-import { DocumentColorProvider } from "../../../../common/languages.js";
-import { ColorDetector } from "../colorDetector.js";
-import { ColorPickerModel } from "../colorPickerModel.js";
-import { ColorPickerWidget } from "../colorPickerWidget.js";
-import { HoverAnchor, HoverAnchorType, IEditorHoverParticipant, IEditorHoverRenderContext, IHoverPart, IRenderedHoverPart, IRenderedHoverParts, RenderedHoverParts } from "../../../hover/browser/hoverTypes.js";
-import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
-import * as nls from "../../../../../nls.js";
-import { BaseColor, ColorPickerWidgetType, createColorHover, updateColorPresentations, updateEditorModel } from "../colorPickerParticipantUtils.js";
-import { EditorOption } from "../../../../common/config/editorOptions.js";
 import { Dimension } from "../../../../../base/browser/dom.js";
+import { AsyncIterableObject } from "../../../../../base/common/async.js";
 import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { Color } from "../../../../../base/common/color.js";
+import * as nls from "../../../../../nls.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { EditorOption } from "../../../../common/config/editorOptions.js";
+import { Range } from "../../../../common/core/range.js";
 import { HoverStartSource } from "../../../hover/browser/hoverOperation.js";
+import {
+  HoverAnchorType,
+  RenderedHoverParts
+} from "../../../hover/browser/hoverTypes.js";
+import { ColorDetector } from "../colorDetector.js";
+import {
+  ColorPickerWidgetType,
+  createColorHover,
+  updateColorPresentations,
+  updateEditorModel
+} from "../colorPickerParticipantUtils.js";
+import { ColorPickerWidget } from "../colorPickerWidget.js";
 class ColorHover {
   constructor(owner, range, model, provider) {
     this.owner = owner;
@@ -64,7 +66,9 @@ let HoverColorPickerParticipant = class {
     return [];
   }
   computeAsync(anchor, lineDecorations, source, token) {
-    return AsyncIterableObject.fromPromise(this._computeAsync(anchor, lineDecorations, source));
+    return AsyncIterableObject.fromPromise(
+      this._computeAsync(anchor, lineDecorations, source)
+    );
   }
   async _computeAsync(_anchor, lineDecorations, source) {
     if (!this._editor.hasModel()) {
@@ -81,16 +85,27 @@ let HoverColorPickerParticipant = class {
       if (!colorDetector.isColorDecoration(d)) {
         continue;
       }
-      const colorData = colorDetector.getColorData(d.range.getStartPosition());
+      const colorData = colorDetector.getColorData(
+        d.range.getStartPosition()
+      );
       if (colorData) {
-        const colorHover = ColorHover.fromBaseColor(this, await createColorHover(this._editor.getModel(), colorData.colorInfo, colorData.provider));
+        const colorHover = ColorHover.fromBaseColor(
+          this,
+          await createColorHover(
+            this._editor.getModel(),
+            colorData.colorInfo,
+            colorData.provider
+          )
+        );
         return [colorHover];
       }
     }
     return [];
   }
   _isValidRequest(source) {
-    const decoratorActivatedOn = this._editor.getOption(EditorOption.colorDecoratorsActivatedOn);
+    const decoratorActivatedOn = this._editor.getOption(
+      EditorOption.colorDecoratorsActivatedOn
+    );
     switch (source) {
       case HoverStartSource.Mouse:
         return decoratorActivatedOn === "hover" || decoratorActivatedOn === "clickAndHover";
@@ -111,25 +126,56 @@ let HoverColorPickerParticipant = class {
     const colorHover = hoverParts[0];
     const editorModel = editor.getModel();
     const model = colorHover.model;
-    this._colorPicker = disposables.add(new ColorPickerWidget(context.fragment, model, editor.getOption(EditorOption.pixelRatio), this._themeService, ColorPickerWidgetType.Hover));
+    this._colorPicker = disposables.add(
+      new ColorPickerWidget(
+        context.fragment,
+        model,
+        editor.getOption(EditorOption.pixelRatio),
+        this._themeService,
+        ColorPickerWidgetType.Hover
+      )
+    );
     let editorUpdatedByColorPicker = false;
-    let range = new Range(colorHover.range.startLineNumber, colorHover.range.startColumn, colorHover.range.endLineNumber, colorHover.range.endColumn);
-    disposables.add(model.onColorFlushed(async (color) => {
-      await updateColorPresentations(editorModel, model, color, range, colorHover);
-      editorUpdatedByColorPicker = true;
-      range = updateEditorModel(editor, range, model);
-    }));
-    disposables.add(model.onDidChangeColor((color) => {
-      updateColorPresentations(editorModel, model, color, range, colorHover);
-    }));
-    disposables.add(editor.onDidChangeModelContent((e) => {
-      if (editorUpdatedByColorPicker) {
-        editorUpdatedByColorPicker = false;
-      } else {
-        context.hide();
-        editor.focus();
-      }
-    }));
+    let range = new Range(
+      colorHover.range.startLineNumber,
+      colorHover.range.startColumn,
+      colorHover.range.endLineNumber,
+      colorHover.range.endColumn
+    );
+    disposables.add(
+      model.onColorFlushed(async (color) => {
+        await updateColorPresentations(
+          editorModel,
+          model,
+          color,
+          range,
+          colorHover
+        );
+        editorUpdatedByColorPicker = true;
+        range = updateEditorModel(editor, range, model);
+      })
+    );
+    disposables.add(
+      model.onDidChangeColor((color) => {
+        updateColorPresentations(
+          editorModel,
+          model,
+          color,
+          range,
+          colorHover
+        );
+      })
+    );
+    disposables.add(
+      editor.onDidChangeModelContent((e) => {
+        if (editorUpdatedByColorPicker) {
+          editorUpdatedByColorPicker = false;
+        } else {
+          context.hide();
+          editor.focus();
+        }
+      })
+    );
     const renderedHoverPart = {
       hoverPart: ColorHover.fromBaseColor(this, colorHover),
       hoverElement: this._colorPicker.domNode,
@@ -140,7 +186,10 @@ let HoverColorPickerParticipant = class {
     return new RenderedHoverParts([renderedHoverPart]);
   }
   getAccessibleContent(hoverPart) {
-    return nls.localize("hoverAccessibilityColorParticipant", "There is a color picker here.");
+    return nls.localize(
+      "hoverAccessibilityColorParticipant",
+      "There is a color picker here."
+    );
   }
   handleResize() {
     this._colorPicker?.layout();

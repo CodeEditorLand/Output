@@ -10,21 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IViewDescriptor, IViewDescriptorService, IAddedViewDescriptorRef, IView } from "../../../common/views.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { ViewPaneContainer } from "./viewPaneContainer.js";
-import { ViewPane, IViewPaneOptions } from "./viewPane.js";
-import { Event } from "../../../../base/common/event.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IViewDescriptorService
+} from "../../../common/views.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
+import { ViewPaneContainer } from "./viewPaneContainer.js";
 let FilterViewPaneContainer = class extends ViewPaneContainer {
   static {
     __name(this, "FilterViewPaneContainer");
@@ -33,14 +32,34 @@ let FilterViewPaneContainer = class extends ViewPaneContainer {
   allViews = /* @__PURE__ */ new Map();
   filterValue;
   constructor(viewletId, onDidChangeFilterValue, configurationService, layoutService, telemetryService, storageService, instantiationService, themeService, contextMenuService, extensionService, contextService, viewDescriptorService, logService) {
-    super(viewletId, { mergeViewWithContainerWhenSingleView: false }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService, logService);
-    this._register(onDidChangeFilterValue((newFilterValue) => {
-      this.filterValue = newFilterValue;
-      this.onFilterChanged(newFilterValue);
-    }));
-    this._register(this.viewContainerModel.onDidChangeActiveViewDescriptors(() => {
-      this.updateAllViews(this.viewContainerModel.activeViewDescriptors);
-    }));
+    super(
+      viewletId,
+      { mergeViewWithContainerWhenSingleView: false },
+      instantiationService,
+      configurationService,
+      layoutService,
+      contextMenuService,
+      telemetryService,
+      extensionService,
+      themeService,
+      storageService,
+      contextService,
+      viewDescriptorService,
+      logService
+    );
+    this._register(
+      onDidChangeFilterValue((newFilterValue) => {
+        this.filterValue = newFilterValue;
+        this.onFilterChanged(newFilterValue);
+      })
+    );
+    this._register(
+      this.viewContainerModel.onDidChangeActiveViewDescriptors(() => {
+        this.updateAllViews(
+          this.viewContainerModel.activeViewDescriptors
+        );
+      })
+    );
   }
   updateAllViews(viewDescriptors) {
     viewDescriptors.forEach((descriptor) => {
@@ -51,27 +70,35 @@ let FilterViewPaneContainer = class extends ViewPaneContainer {
       if (!this.allViews.has(filterOnValue)) {
         this.allViews.set(filterOnValue, /* @__PURE__ */ new Map());
       }
-      this.allViews.get(filterOnValue).set(descriptor.id, descriptor);
+      this.allViews.get(filterOnValue)?.set(descriptor.id, descriptor);
       if (this.filterValue && !this.filterValue.includes(filterOnValue) && this.panes.find((pane) => pane.id === descriptor.id)) {
         this.viewContainerModel.setVisible(descriptor.id, false);
       }
     });
   }
   addConstantViewDescriptors(constantViewDescriptors) {
-    constantViewDescriptors.forEach((viewDescriptor) => this.constantViewDescriptors.set(viewDescriptor.id, viewDescriptor));
+    constantViewDescriptors.forEach(
+      (viewDescriptor) => this.constantViewDescriptors.set(viewDescriptor.id, viewDescriptor)
+    );
   }
   onFilterChanged(newFilterValue) {
     if (this.allViews.size === 0) {
       this.updateAllViews(this.viewContainerModel.activeViewDescriptors);
     }
-    this.getViewsNotForTarget(newFilterValue).forEach((item) => this.viewContainerModel.setVisible(item.id, false));
-    this.getViewsForTarget(newFilterValue).forEach((item) => this.viewContainerModel.setVisible(item.id, true));
+    this.getViewsNotForTarget(newFilterValue).forEach(
+      (item) => this.viewContainerModel.setVisible(item.id, false)
+    );
+    this.getViewsForTarget(newFilterValue).forEach(
+      (item) => this.viewContainerModel.setVisible(item.id, true)
+    );
   }
   getViewsForTarget(target) {
     const views = [];
     for (let i = 0; i < target.length; i++) {
       if (this.allViews.has(target[i])) {
-        views.push(...Array.from(this.allViews.get(target[i]).values()));
+        views.push(
+          ...Array.from(this.allViews.get(target[i])?.values())
+        );
       }
     }
     return views;
@@ -109,7 +136,9 @@ let FilterViewPaneContainer = class extends ViewPaneContainer {
   openView(id, focus) {
     const result = super.openView(id, focus);
     if (result) {
-      const descriptorMap = Array.from(this.allViews.entries()).find((entry) => entry[1].has(id));
+      const descriptorMap = Array.from(this.allViews.entries()).find(
+        (entry) => entry[1].has(id)
+      );
       if (descriptorMap && !this.filterValue?.includes(descriptorMap[0])) {
         this.setFilter(descriptorMap[1].get(id));
       }

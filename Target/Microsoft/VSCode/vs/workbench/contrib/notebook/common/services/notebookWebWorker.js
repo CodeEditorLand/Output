@@ -1,23 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDiffChange, ISequence, LcsDiff } from "../../../../../base/common/diff/diff.js";
+import {
+  LcsDiff
+} from "../../../../../base/common/diff/diff.js";
+import { DiffChange } from "../../../../../base/common/diff/diffChange.js";
 import { doHash, hash, numberHash } from "../../../../../base/common/hash.js";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
+import { filter } from "../../../../../base/common/objects.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { IWebWorkerServerRequestHandler } from "../../../../../base/common/worker/webWorker.js";
-import { PieceTreeTextBufferBuilder } from "../../../../../editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js";
-import { CellKind, IMainCellDto, INotebookDiffResult, IOutputDto, NotebookCellInternalMetadata, NotebookCellMetadata, NotebookCellsChangedEventDto, NotebookCellsChangeType, NotebookCellTextModelSplice, NotebookDocumentMetadata, TransientDocumentMetadata } from "../notebookCommon.js";
+import { generateUuid } from "../../../../../base/common/uuid.js";
 import { Range } from "../../../../../editor/common/core/range.js";
+import { DefaultEndOfLine } from "../../../../../editor/common/model.js";
+import { PieceTreeTextBufferBuilder } from "../../../../../editor/common/model/pieceTreeTextBuffer/pieceTreeTextBufferBuilder.js";
 import { SearchParams } from "../../../../../editor/common/model/textModelSearch.js";
 import { MirrorModel } from "../../../../../editor/common/services/textModelSync/textModelSync.impl.js";
-import { DefaultEndOfLine } from "../../../../../editor/common/model.js";
-import { IModelChangedEvent } from "../../../../../editor/common/model/mirrorTextModel.js";
-import { filter } from "../../../../../base/common/objects.js";
-import { matchCellBasedOnSimilarties } from "./notebookCellMatching.js";
-import { generateUuid } from "../../../../../base/common/uuid.js";
-import { DiffChange } from "../../../../../base/common/diff/diffChange.js";
+import {
+  CellKind,
+  NotebookCellsChangeType
+} from "../notebookCommon.js";
 import { computeDiff } from "../notebookDiff.js";
-const PREFIX_FOR_UNMATCHED_ORIGINAL_CELLS = `unmatchedOriginalCell`;
+import { matchCellBasedOnSimilarties } from "./notebookCellMatching.js";
+const PREFIX_FOR_UNMATCHED_ORIGINAL_CELLS = "unmatchedOriginalCell";
 class MirrorCell {
   constructor(handle, uri, source, _eol, versionId, language, cellKind, outputs, metadata, internalMetadata) {
     this.handle = handle;
@@ -110,7 +112,9 @@ class MirrorNotebookDocument {
   }
   _assertIndex(index) {
     if (index < 0 || index >= this.cells.length) {
-      throw new Error(`Illegal index ${index}. Cells length: ${this.cells.length}`);
+      throw new Error(
+        `Illegal index ${index}. Cells length: ${this.cells.length}`
+      );
     }
   }
   _spliceNotebookCells(splices) {
@@ -170,18 +174,25 @@ class NotebookWorker {
   dispose() {
   }
   $acceptNewModel(uri, metadata, transientDocumentMetadata, cells) {
-    this._models[uri] = new MirrorNotebookDocument(URI.parse(uri), cells.map((dto) => new MirrorCell(
-      dto.handle,
-      URI.parse(dto.url),
-      dto.source,
-      dto.eol,
-      dto.versionId,
-      dto.language,
-      dto.cellKind,
-      dto.outputs,
-      dto.metadata,
-      dto.internalMetadata
-    )), metadata, transientDocumentMetadata);
+    this._models[uri] = new MirrorNotebookDocument(
+      URI.parse(uri),
+      cells.map(
+        (dto) => new MirrorCell(
+          dto.handle,
+          URI.parse(dto.url),
+          dto.source,
+          dto.eol,
+          dto.versionId,
+          dto.language,
+          dto.cellKind,
+          dto.outputs,
+          dto.metadata,
+          dto.internalMetadata
+        )
+      ),
+      metadata,
+      transientDocumentMetadata
+    );
   }
   $acceptModelChanged(strURL, event) {
     const model = this._models[strURL];
@@ -202,28 +213,50 @@ class NotebookWorker {
     const modified = this._getModel(modifiedUrl);
     const originalModel = new NotebookTextModelFacade(original);
     const modifiedModel = new NotebookTextModelFacade(modified);
-    const originalMetadata = filter(original.metadata, (key) => !original.transientDocumentMetadata[key]);
-    const modifiedMetadata = filter(modified.metadata, (key) => !modified.transientDocumentMetadata[key]);
+    const originalMetadata = filter(
+      original.metadata,
+      (key) => !original.transientDocumentMetadata[key]
+    );
+    const modifiedMetadata = filter(
+      modified.metadata,
+      (key) => !modified.transientDocumentMetadata[key]
+    );
     const metadataChanged = JSON.stringify(originalMetadata) !== JSON.stringify(modifiedMetadata);
-    const originalDiff = new LcsDiff(CellSequence.create(original), CellSequence.create(modified)).ComputeDiff(false);
+    const originalDiff = new LcsDiff(
+      CellSequence.create(original),
+      CellSequence.create(modified)
+    ).ComputeDiff(false);
     if (originalDiff.changes.length === 0) {
       return {
         metadataChanged,
         cellsDiff: originalDiff
       };
     }
-    const cellMapping = computeDiff(originalModel, modifiedModel, { cellsDiff: { changes: originalDiff.changes, quitEarly: false }, metadataChanged: false }).cellDiffInfo;
+    const cellMapping = computeDiff(originalModel, modifiedModel, {
+      cellsDiff: { changes: originalDiff.changes, quitEarly: false },
+      metadataChanged: false
+    }).cellDiffInfo;
     if (cellMapping.every((c) => c.type === "modified")) {
       return {
         metadataChanged,
         cellsDiff: originalDiff
       };
     }
-    let diffUsingCellIds = this.canComputeDiffWithCellIds(original, modified);
+    let diffUsingCellIds = this.canComputeDiffWithCellIds(
+      original,
+      modified
+    );
     if (!diffUsingCellIds) {
-      const result = matchCellBasedOnSimilarties(modified.cells, original.cells);
+      const result = matchCellBasedOnSimilarties(
+        modified.cells,
+        original.cells
+      );
       if (result.some((c) => c.original !== -1)) {
-        this.updateCellIdsBasedOnMappings(result, original.cells, modified.cells);
+        this.updateCellIdsBasedOnMappings(
+          result,
+          original.cells,
+          modified.cells
+        );
         diffUsingCellIds = true;
       }
     }
@@ -233,48 +266,84 @@ class NotebookWorker {
         cellsDiff: originalDiff
       };
     }
-    const cellsInsertedOrDeletedDiff = new LcsDiff(CellSequence.createWithCellId(original.cells), CellSequence.createWithCellId(modified.cells)).ComputeDiff(false);
-    const cellDiffInfo = computeDiff(originalModel, modifiedModel, { cellsDiff: { changes: cellsInsertedOrDeletedDiff.changes, quitEarly: false }, metadataChanged: false }).cellDiffInfo;
+    const cellsInsertedOrDeletedDiff = new LcsDiff(
+      CellSequence.createWithCellId(original.cells),
+      CellSequence.createWithCellId(modified.cells)
+    ).ComputeDiff(false);
+    const cellDiffInfo = computeDiff(originalModel, modifiedModel, {
+      cellsDiff: {
+        changes: cellsInsertedOrDeletedDiff.changes,
+        quitEarly: false
+      },
+      metadataChanged: false
+    }).cellDiffInfo;
     let processedIndex = 0;
     const changes = [];
     cellsInsertedOrDeletedDiff.changes.forEach((change) => {
       if (!change.originalLength && change.modifiedLength) {
-        const changeIndex = cellDiffInfo.findIndex((c) => c.type === "insert" && c.modifiedCellIndex === change.modifiedStart);
+        const changeIndex = cellDiffInfo.findIndex(
+          (c) => c.type === "insert" && c.modifiedCellIndex === change.modifiedStart
+        );
         cellDiffInfo.slice(processedIndex, changeIndex).forEach((c) => {
           if (c.type === "unchanged" || c.type === "modified") {
             const originalCell = original.cells[c.originalCellIndex];
             const modifiedCell = modified.cells[c.modifiedCellIndex];
             const changed = c.type === "modified" || originalCell.getComparisonValue() !== modifiedCell.getComparisonValue();
             if (changed) {
-              changes.push(new DiffChange(c.originalCellIndex, 1, c.modifiedCellIndex, 1));
+              changes.push(
+                new DiffChange(
+                  c.originalCellIndex,
+                  1,
+                  c.modifiedCellIndex,
+                  1
+                )
+              );
             }
           }
         });
         changes.push(change);
         processedIndex = changeIndex + 1;
       } else if (change.originalLength && !change.modifiedLength) {
-        const changeIndex = cellDiffInfo.findIndex((c) => c.type === "delete" && c.originalCellIndex === change.originalStart);
+        const changeIndex = cellDiffInfo.findIndex(
+          (c) => c.type === "delete" && c.originalCellIndex === change.originalStart
+        );
         cellDiffInfo.slice(processedIndex, changeIndex).forEach((c) => {
           if (c.type === "unchanged" || c.type === "modified") {
             const originalCell = original.cells[c.originalCellIndex];
             const modifiedCell = modified.cells[c.modifiedCellIndex];
             const changed = c.type === "modified" || originalCell.getComparisonValue() !== modifiedCell.getComparisonValue();
             if (changed) {
-              changes.push(new DiffChange(c.originalCellIndex, 1, c.modifiedCellIndex, 1));
+              changes.push(
+                new DiffChange(
+                  c.originalCellIndex,
+                  1,
+                  c.modifiedCellIndex,
+                  1
+                )
+              );
             }
           }
         });
         changes.push(change);
         processedIndex = changeIndex + 1;
       } else {
-        const changeIndex = cellDiffInfo.findIndex((c) => c.type === "delete" && c.originalCellIndex === change.originalStart || c.type === "insert" && c.modifiedCellIndex === change.modifiedStart);
+        const changeIndex = cellDiffInfo.findIndex(
+          (c) => c.type === "delete" && c.originalCellIndex === change.originalStart || c.type === "insert" && c.modifiedCellIndex === change.modifiedStart
+        );
         cellDiffInfo.slice(processedIndex, changeIndex).forEach((c) => {
           if (c.type === "unchanged" || c.type === "modified") {
             const originalCell = original.cells[c.originalCellIndex];
             const modifiedCell = modified.cells[c.modifiedCellIndex];
             const changed = c.type === "modified" || originalCell.getComparisonValue() !== modifiedCell.getComparisonValue();
             if (changed) {
-              changes.push(new DiffChange(c.originalCellIndex, 1, c.modifiedCellIndex, 1));
+              changes.push(
+                new DiffChange(
+                  c.originalCellIndex,
+                  1,
+                  c.modifiedCellIndex,
+                  1
+                )
+              );
             }
           }
         });
@@ -288,7 +357,14 @@ class NotebookWorker {
         const modifiedCell = modified.cells[c.modifiedCellIndex];
         const changed = c.type === "modified" || originalCell.getComparisonValue() !== modifiedCell.getComparisonValue();
         if (changed) {
-          changes.push(new DiffChange(c.originalCellIndex, 1, c.modifiedCellIndex, 1));
+          changes.push(
+            new DiffChange(
+              c.originalCellIndex,
+              1,
+              c.modifiedCellIndex,
+              1
+            )
+          );
         }
       }
     });
@@ -304,20 +380,36 @@ class NotebookWorker {
     return this.canComputeDiffWithCellInternalIds(original, modified) || this.canComputeDiffWithCellMetadataIds(original, modified);
   }
   canComputeDiffWithCellInternalIds(original, modified) {
-    const originalCellIndexIds = original.cells.map((cell, index) => ({ index, id: cell.internalMetadata?.internalId || "" }));
-    const modifiedCellIndexIds = modified.cells.map((cell, index) => ({ index, id: cell.internalMetadata?.internalId || "" }));
+    const originalCellIndexIds = original.cells.map((cell, index) => ({
+      index,
+      id: cell.internalMetadata?.internalId || ""
+    }));
+    const modifiedCellIndexIds = modified.cells.map((cell, index) => ({
+      index,
+      id: cell.internalMetadata?.internalId || ""
+    }));
     if (originalCellIndexIds.some((c) => !c.id) || modifiedCellIndexIds.some((c) => !c.id)) {
       return false;
     }
-    return originalCellIndexIds.some((c) => modifiedCellIndexIds.find((m) => m.id === c.id));
+    return originalCellIndexIds.some(
+      (c) => modifiedCellIndexIds.find((m) => m.id === c.id)
+    );
   }
   canComputeDiffWithCellMetadataIds(original, modified) {
-    const originalCellIndexIds = original.cells.map((cell, index) => ({ index, id: cell.metadata?.id || "" }));
-    const modifiedCellIndexIds = modified.cells.map((cell, index) => ({ index, id: cell.metadata?.id || "" }));
+    const originalCellIndexIds = original.cells.map((cell, index) => ({
+      index,
+      id: cell.metadata?.id || ""
+    }));
+    const modifiedCellIndexIds = modified.cells.map((cell, index) => ({
+      index,
+      id: cell.metadata?.id || ""
+    }));
     if (originalCellIndexIds.some((c) => !c.id) || modifiedCellIndexIds.some((c) => !c.id)) {
       return false;
     }
-    if (originalCellIndexIds.every((c) => !modifiedCellIndexIds.find((m) => m.id === c.id))) {
+    if (originalCellIndexIds.every(
+      (c) => !modifiedCellIndexIds.find((m) => m.id === c.id)
+    )) {
       return false;
     }
     original.cells.map((cell, index) => {
@@ -341,7 +433,10 @@ class NotebookWorker {
       const found = mappings.find((r) => r.original === index);
       if (found) {
         cell.internalMetadata.internalId = generateUuid();
-        uuids.set(found.modified, cell.internalMetadata.internalId);
+        uuids.set(
+          found.modified,
+          cell.internalMetadata.internalId
+        );
       }
     });
     modifiedCells.map((cell, index) => {
@@ -361,7 +456,12 @@ class NotebookWorker {
       if (cell.language !== "python") {
         continue;
       }
-      const searchParams = new SearchParams("import\\s*pandas|from\\s*pandas", true, false, null);
+      const searchParams = new SearchParams(
+        "import\\s*pandas|from\\s*pandas",
+        true,
+        false,
+        null
+      );
       const searchData = searchParams.parseSearchRequest();
       if (!searchData) {
         continue;
@@ -372,8 +472,18 @@ class NotebookWorker {
       const textBuffer = bufferFactory.create(cell.eol).textBuffer;
       const lineCount = textBuffer.getLineCount();
       const maxLineCount = Math.min(lineCount, 20);
-      const range = new Range(1, 1, maxLineCount, textBuffer.getLineLength(maxLineCount) + 1);
-      const cellMatches = textBuffer.findMatchesLineByLine(range, searchData, true, 1);
+      const range = new Range(
+        1,
+        1,
+        maxLineCount,
+        textBuffer.getLineLength(maxLineCount) + 1
+      );
+      const cellMatches = textBuffer.findMatchesLineByLine(
+        range,
+        searchData,
+        true,
+        1
+      );
       if (cellMatches.length > 0) {
         return true;
       }
@@ -391,7 +501,9 @@ __name(create, "create");
 class NotebookTextModelFacade {
   constructor(notebook) {
     this.notebook = notebook;
-    this.cells = notebook.cells.map((cell) => new NotebookCellTextModelFacade(cell));
+    this.cells = notebook.cells.map(
+      (cell) => new NotebookCellTextModelFacade(cell)
+    );
   }
   static {
     __name(this, "NotebookTextModelFacade");

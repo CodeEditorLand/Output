@@ -1,9 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { WorkbenchState, IWorkspace } from "../../../../platform/workspace/common/workspace.js";
-import { URI } from "../../../../base/common/uri.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IWorkspaceTagsService, Tags } from "../common/workspaceTags.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkspaceTagsService } from "../common/workspaceTags.js";
 class NoOpWorkspaceTagsService {
   static {
     __name(this, "NoOpWorkspaceTagsService");
@@ -18,7 +19,11 @@ class NoOpWorkspaceTagsService {
     return Promise.resolve([]);
   }
 }
-registerSingleton(IWorkspaceTagsService, NoOpWorkspaceTagsService, InstantiationType.Delayed);
+registerSingleton(
+  IWorkspaceTagsService,
+  NoOpWorkspaceTagsService,
+  InstantiationType.Delayed
+);
 export {
   NoOpWorkspaceTagsService
 };

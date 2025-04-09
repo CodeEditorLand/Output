@@ -10,14 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../base/common/uri.js";
 import { Emitter } from "../../../../../base/common/event.js";
-import { IChatRequestVariableEntry } from "../../common/chatModel.js";
-import { ChatPromptAttachmentModel } from "./chatPromptAttachmentModel.js";
-import { PromptsConfig } from "../../../../../platform/prompts/common/config.js";
-import { Disposable, DisposableMap } from "../../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import {
+  Disposable,
+  DisposableMap
+} from "../../../../../base/common/lifecycle.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { PromptsConfig } from "../../../../../platform/prompts/common/config.js";
+import { ChatPromptAttachmentModel } from "./chatPromptAttachmentModel.js";
 const toChatVariable = /* @__PURE__ */ __name((reference, isRoot) => {
   const { uri, isPromptFile } = reference;
   let id = `${uri}`;
@@ -76,9 +77,7 @@ let ChatPromptAttachmentsCollection = class extends Disposable {
           return toChatVariable(link, false);
         })
       );
-      result.push(
-        toChatVariable(reference, true)
-      );
+      result.push(toChatVariable(reference, true));
     }
     return result;
   }

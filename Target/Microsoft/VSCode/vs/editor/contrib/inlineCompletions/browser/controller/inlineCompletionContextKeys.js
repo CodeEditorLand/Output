@@ -1,23 +1,91 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
 import { localize } from "../../../../../nls.js";
 import * as nls from "../../../../../nls.js";
+import { RawContextKey } from "../../../../../platform/contextkey/common/contextkey.js";
 class InlineCompletionContextKeys {
   static {
     __name(this, "InlineCompletionContextKeys");
   }
-  static inlineSuggestionVisible = new RawContextKey("inlineSuggestionVisible", false, localize("inlineSuggestionVisible", "Whether an inline suggestion is visible"));
-  static inlineSuggestionHasIndentation = new RawContextKey("inlineSuggestionHasIndentation", false, localize("inlineSuggestionHasIndentation", "Whether the inline suggestion starts with whitespace"));
-  static inlineSuggestionHasIndentationLessThanTabSize = new RawContextKey("inlineSuggestionHasIndentationLessThanTabSize", true, localize("inlineSuggestionHasIndentationLessThanTabSize", "Whether the inline suggestion starts with whitespace that is less than what would be inserted by tab"));
-  static suppressSuggestions = new RawContextKey("inlineSuggestionSuppressSuggestions", void 0, localize("suppressSuggestions", "Whether suggestions should be suppressed for the current suggestion"));
-  static cursorInIndentation = new RawContextKey("cursorInIndentation", false, localize("cursorInIndentation", "Whether the cursor is in indentation"));
-  static hasSelection = new RawContextKey("editor.hasSelection", false, localize("editor.hasSelection", "Whether the editor has a selection"));
-  static cursorAtInlineEdit = new RawContextKey("cursorAtInlineEdit", false, localize("cursorAtInlineEdit", "Whether the cursor is at an inline edit"));
-  static inlineEditVisible = new RawContextKey("inlineEditIsVisible", false, localize("inlineEditVisible", "Whether an inline edit is visible"));
-  static tabShouldJumpToInlineEdit = new RawContextKey("tabShouldJumpToInlineEdit", false, localize("tabShouldJumpToInlineEdit", "Whether tab should jump to an inline edit."));
-  static tabShouldAcceptInlineEdit = new RawContextKey("tabShouldAcceptInlineEdit", false, localize("tabShouldAcceptInlineEdit", "Whether tab should accept the inline edit."));
-  static inInlineEditsPreviewEditor = new RawContextKey("inInlineEditsPreviewEditor", true, nls.localize("inInlineEditsPreviewEditor", "Whether the current code editor is showing an inline edits preview"));
+  static inlineSuggestionVisible = new RawContextKey(
+    "inlineSuggestionVisible",
+    false,
+    localize(
+      "inlineSuggestionVisible",
+      "Whether an inline suggestion is visible"
+    )
+  );
+  static inlineSuggestionHasIndentation = new RawContextKey(
+    "inlineSuggestionHasIndentation",
+    false,
+    localize(
+      "inlineSuggestionHasIndentation",
+      "Whether the inline suggestion starts with whitespace"
+    )
+  );
+  static inlineSuggestionHasIndentationLessThanTabSize = new RawContextKey(
+    "inlineSuggestionHasIndentationLessThanTabSize",
+    true,
+    localize(
+      "inlineSuggestionHasIndentationLessThanTabSize",
+      "Whether the inline suggestion starts with whitespace that is less than what would be inserted by tab"
+    )
+  );
+  static suppressSuggestions = new RawContextKey(
+    "inlineSuggestionSuppressSuggestions",
+    void 0,
+    localize(
+      "suppressSuggestions",
+      "Whether suggestions should be suppressed for the current suggestion"
+    )
+  );
+  static cursorInIndentation = new RawContextKey(
+    "cursorInIndentation",
+    false,
+    localize("cursorInIndentation", "Whether the cursor is in indentation")
+  );
+  static hasSelection = new RawContextKey(
+    "editor.hasSelection",
+    false,
+    localize("editor.hasSelection", "Whether the editor has a selection")
+  );
+  static cursorAtInlineEdit = new RawContextKey(
+    "cursorAtInlineEdit",
+    false,
+    localize(
+      "cursorAtInlineEdit",
+      "Whether the cursor is at an inline edit"
+    )
+  );
+  static inlineEditVisible = new RawContextKey(
+    "inlineEditIsVisible",
+    false,
+    localize("inlineEditVisible", "Whether an inline edit is visible")
+  );
+  static tabShouldJumpToInlineEdit = new RawContextKey(
+    "tabShouldJumpToInlineEdit",
+    false,
+    localize(
+      "tabShouldJumpToInlineEdit",
+      "Whether tab should jump to an inline edit."
+    )
+  );
+  static tabShouldAcceptInlineEdit = new RawContextKey(
+    "tabShouldAcceptInlineEdit",
+    false,
+    localize(
+      "tabShouldAcceptInlineEdit",
+      "Whether tab should accept the inline edit."
+    )
+  );
+  static inInlineEditsPreviewEditor = new RawContextKey(
+    "inInlineEditsPreviewEditor",
+    true,
+    nls.localize(
+      "inInlineEditsPreviewEditor",
+      "Whether the current code editor is showing an inline edits preview"
+    )
+  );
 }
 export {
   InlineCompletionContextKeys

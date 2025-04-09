@@ -10,20 +10,22 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, DisposableStore, dispose, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { IWebWorkerClient, Proxied } from "../../../../../base/common/worker/webWorker.js";
 import { createWebWorker } from "../../../../../base/browser/webWorkerFactory.js";
-import { NotebookCellTextModel } from "../../common/model/notebookCellTextModel.js";
-import { CellUri, IMainCellDto, INotebookDiffResult, NotebookCellsChangeType, NotebookRawContentEventDto } from "../../common/notebookCommon.js";
-import { INotebookService } from "../../common/notebookService.js";
-import { NotebookWorker } from "../../common/services/notebookWebWorker.js";
-import { INotebookEditorWorkerService } from "../../common/services/notebookWorkerService.js";
-import { IModelService } from "../../../../../editor/common/services/model.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
-import { TextModel } from "../../../../../editor/common/model/textModel.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { FileAccess, Schemas } from "../../../../../base/common/network.js";
 import { isEqual } from "../../../../../base/common/resources.js";
+import { TextModel } from "../../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import {
+  CellUri,
+  NotebookCellsChangeType
+} from "../../common/notebookCommon.js";
+import { INotebookService } from "../../common/notebookService.js";
 let NotebookEditorWorkerServiceImpl = class extends Disposable {
   static {
     __name(this, "NotebookEditorWorkerServiceImpl");
@@ -31,7 +33,9 @@ let NotebookEditorWorkerServiceImpl = class extends Disposable {
   _workerManager;
   constructor(notebookService, modelService) {
     super();
-    this._workerManager = this._register(new WorkerManager(notebookService, modelService));
+    this._workerManager = this._register(
+      new WorkerManager(notebookService, modelService)
+    );
   }
   canComputeDiff(original, modified) {
     throw new Error("Method not implemented.");
@@ -65,7 +69,10 @@ class WorkerManager extends Disposable {
   _editorWorkerClient;
   withWorker() {
     if (!this._editorWorkerClient) {
-      this._editorWorkerClient = new NotebookWorkerClient(this._notebookService, this._modelService);
+      this._editorWorkerClient = new NotebookWorkerClient(
+        this._notebookService,
+        this._modelService
+      );
       this._register(this._editorWorkerClient);
     }
     return Promise.resolve(this._editorWorkerClient);
@@ -95,7 +102,9 @@ class NotebookEditorModelManager extends Disposable {
     }
   }
   _beginModelSync(resource) {
-    const model = this._notebookService.listNotebookDocuments().find((document) => document.uri.toString() === resource.toString());
+    const model = this._notebookService.listNotebookDocuments().find(
+      (document) => document.uri.toString() === resource.toString()
+    );
     if (!model) {
       return;
     }
@@ -113,7 +122,10 @@ class NotebookEditorModelManager extends Disposable {
         language: cell.language,
         mime: cell.mime,
         cellKind: cell.cellKind,
-        outputs: cell.outputs.map((op) => ({ outputId: op.outputId, outputs: op.outputs })),
+        outputs: cell.outputs.map((op) => ({
+          outputId: op.outputId,
+          outputs: op.outputs
+        })),
         metadata: cell.metadata,
         internalMetadata: cell.internalMetadata
       }))
@@ -128,7 +140,10 @@ class NotebookEditorModelManager extends Disposable {
         versionId: 0,
         language: cell.language,
         cellKind: cell.cellKind,
-        outputs: cell.outputs.map((op) => ({ outputId: op.outputId, outputs: op.outputs })),
+        outputs: cell.outputs.map((op) => ({
+          outputId: op.outputId,
+          outputs: op.outputs
+        })),
         metadata: cell.metadata,
         internalMetadata: cell.internalMetadata
       };
@@ -136,77 +151,107 @@ class NotebookEditorModelManager extends Disposable {
     const cellHandlers = /* @__PURE__ */ new Set();
     const addCellContentChangeHandler = /* @__PURE__ */ __name((cell) => {
       cellHandlers.add(cell);
-      toDispose.add(cell.onDidChangeContent((e) => {
-        if (typeof e === "object" && e.type === "model") {
-          this._proxy.$acceptCellModelChanged(modelUrl, cell.handle, e.event);
-        }
-      }));
+      toDispose.add(
+        cell.onDidChangeContent((e) => {
+          if (typeof e === "object" && e.type === "model") {
+            this._proxy.$acceptCellModelChanged(
+              modelUrl,
+              cell.handle,
+              e.event
+            );
+          }
+        })
+      );
     }, "addCellContentChangeHandler");
     model.cells.forEach((cell) => addCellContentChangeHandler(cell));
     if (model.cells.length !== cellHandlers.size) {
-      toDispose.add(this._modelService.onModelAdded((textModel) => {
-        if (textModel.uri.scheme !== Schemas.vscodeNotebookCell || !(textModel instanceof TextModel)) {
-          return;
-        }
-        const cellUri = CellUri.parse(textModel.uri);
-        if (!cellUri || !isEqual(cellUri.notebook, model.uri)) {
-          return;
-        }
-        const cell = model.cells.find((cell2) => cell2.handle === cellUri.handle);
-        if (cell) {
-          addCellContentChangeHandler(cell);
-        }
-      }));
+      toDispose.add(
+        this._modelService.onModelAdded((textModel) => {
+          if (textModel.uri.scheme !== Schemas.vscodeNotebookCell || !(textModel instanceof TextModel)) {
+            return;
+          }
+          const cellUri = CellUri.parse(textModel.uri);
+          if (!cellUri || !isEqual(cellUri.notebook, model.uri)) {
+            return;
+          }
+          const cell = model.cells.find(
+            (cell2) => cell2.handle === cellUri.handle
+          );
+          if (cell) {
+            addCellContentChangeHandler(cell);
+          }
+        })
+      );
     }
-    toDispose.add(model.onDidChangeContent((event) => {
-      const dto = [];
-      event.rawEvents.forEach((e) => {
-        switch (e.kind) {
-          case NotebookCellsChangeType.ModelChange:
-          case NotebookCellsChangeType.Initialize: {
-            dto.push({
-              kind: e.kind,
-              changes: e.changes.map((diff) => [diff[0], diff[1], diff[2].map((cell) => cellToDto(cell))])
-            });
-            for (const change of e.changes) {
-              for (const cell of change[2]) {
-                addCellContentChangeHandler(cell);
+    toDispose.add(
+      model.onDidChangeContent((event) => {
+        const dto = [];
+        event.rawEvents.forEach((e) => {
+          switch (e.kind) {
+            case NotebookCellsChangeType.ModelChange:
+            case NotebookCellsChangeType.Initialize: {
+              dto.push({
+                kind: e.kind,
+                changes: e.changes.map(
+                  (diff) => [
+                    diff[0],
+                    diff[1],
+                    diff[2].map(
+                      (cell) => cellToDto(
+                        cell
+                      )
+                    )
+                  ]
+                )
+              });
+              for (const change of e.changes) {
+                for (const cell of change[2]) {
+                  addCellContentChangeHandler(
+                    cell
+                  );
+                }
               }
+              break;
             }
-            break;
+            case NotebookCellsChangeType.Move: {
+              dto.push({
+                kind: NotebookCellsChangeType.Move,
+                index: e.index,
+                length: e.length,
+                newIdx: e.newIdx,
+                cells: e.cells.map(
+                  (cell) => cellToDto(cell)
+                )
+              });
+              break;
+            }
+            case NotebookCellsChangeType.ChangeCellContent:
+              break;
+            case NotebookCellsChangeType.ChangeDocumentMetadata:
+              dto.push({
+                kind: e.kind,
+                metadata: e.metadata
+              });
+            default:
+              dto.push(e);
           }
-          case NotebookCellsChangeType.Move: {
-            dto.push({
-              kind: NotebookCellsChangeType.Move,
-              index: e.index,
-              length: e.length,
-              newIdx: e.newIdx,
-              cells: e.cells.map((cell) => cellToDto(cell))
-            });
-            break;
-          }
-          case NotebookCellsChangeType.ChangeCellContent:
-            break;
-          case NotebookCellsChangeType.ChangeDocumentMetadata:
-            dto.push({
-              kind: e.kind,
-              metadata: e.metadata
-            });
-          default:
-            dto.push(e);
-        }
-      });
-      this._proxy.$acceptModelChanged(modelUrl.toString(), {
-        rawEvents: dto,
-        versionId: event.versionId
-      });
-    }));
-    toDispose.add(model.onWillDispose(() => {
-      this._stopModelSync(modelUrl);
-    }));
-    toDispose.add(toDisposable(() => {
-      this._proxy.$acceptRemovedModel(modelUrl);
-    }));
+        });
+        this._proxy.$acceptModelChanged(modelUrl.toString(), {
+          rawEvents: dto,
+          versionId: event.versionId
+        });
+      })
+    );
+    toDispose.add(
+      model.onWillDispose(() => {
+        this._stopModelSync(modelUrl);
+      })
+    );
+    toDispose.add(
+      toDisposable(() => {
+        this._proxy.$acceptRemovedModel(modelUrl);
+      })
+    );
     this._syncedModels[modelUrl] = toDispose;
   }
   _stopModelSync(modelUrl) {
@@ -239,7 +284,13 @@ class NotebookWorkerClient extends Disposable {
   }
   _getOrCreateModelManager(proxy) {
     if (!this._modelManager) {
-      this._modelManager = this._register(new NotebookEditorModelManager(proxy, this._notebookService, this._modelService));
+      this._modelManager = this._register(
+        new NotebookEditorModelManager(
+          proxy,
+          this._notebookService,
+          this._modelService
+        )
+      );
     }
     return this._modelManager;
   }
@@ -250,14 +301,14 @@ class NotebookWorkerClient extends Disposable {
   }
   _getOrCreateWorker() {
     if (!this._worker) {
-      try {
-        this._worker = this._register(createWebWorker(
-          FileAccess.asBrowserUri("vs/workbench/contrib/notebook/common/services/notebookWebWorkerMain.js"),
+      this._worker = this._register(
+        createWebWorker(
+          FileAccess.asBrowserUri(
+            "vs/workbench/contrib/notebook/common/services/notebookWebWorkerMain.js"
+          ),
           "NotebookEditorWorker"
-        ));
-      } catch (err) {
-        throw err;
-      }
+        )
+      );
     }
     return this._worker;
   }

@@ -35,7 +35,9 @@ async function resizeImage(data, mimeType) {
           if (blob2) {
             const reader = new FileReader();
             reader.onload = () => {
-              resolve(new Uint8Array(reader.result));
+              resolve(
+                new Uint8Array(reader.result)
+              );
             };
             reader.onerror = (error) => reject(error);
             reader.readAsArrayBuffer(blob2);

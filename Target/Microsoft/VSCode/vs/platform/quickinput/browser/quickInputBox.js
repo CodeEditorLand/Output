@@ -2,9 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as dom from "../../../base/browser/dom.js";
 import { FindInput } from "../../../base/browser/ui/findinput/findInput.js";
-import { IInputBoxStyles, IRange, MessageType } from "../../../base/browser/ui/inputbox/inputBox.js";
-import { IToggleStyles, Toggle } from "../../../base/browser/ui/toggle/toggle.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import {
+  MessageType
+} from "../../../base/browser/ui/inputbox/inputBox.js";
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
 import Severity from "../../../base/common/severity.js";
 import "./media/quickInput.css";
 const $ = dom.$;
@@ -13,7 +16,13 @@ class QuickInputBox extends Disposable {
     super();
     this.parent = parent;
     this.container = dom.append(this.parent, $(".quick-input-box"));
-    this.findInput = this._register(new FindInput(this.container, void 0, { label: "", inputBoxStyles, toggleStyles }));
+    this.findInput = this._register(
+      new FindInput(this.container, void 0, {
+        label: "",
+        inputBoxStyles,
+        toggleStyles
+      })
+    );
     const input = this.findInput.inputBox.inputElement;
     input.role = "textbox";
     input.ariaHasPopup = "menu";
@@ -64,7 +73,10 @@ class QuickInputBox extends Disposable {
     this.findInput.inputBox.inputElement.type = password ? "password" : "text";
   }
   set enabled(enabled) {
-    this.findInput.inputBox.inputElement.toggleAttribute("readonly", !enabled);
+    this.findInput.inputBox.inputElement.toggleAttribute(
+      "readonly",
+      !enabled
+    );
   }
   set toggles(toggles) {
     this.findInput.setAdditionalToggles(toggles);
@@ -82,11 +94,16 @@ class QuickInputBox extends Disposable {
     if (decoration === Severity.Ignore) {
       this.findInput.clearMessage();
     } else {
-      this.findInput.showMessage({ type: decoration === Severity.Info ? MessageType.INFO : decoration === Severity.Warning ? MessageType.WARNING : MessageType.ERROR, content: "" });
+      this.findInput.showMessage({
+        type: decoration === Severity.Info ? MessageType.INFO : decoration === Severity.Warning ? MessageType.WARNING : MessageType.ERROR,
+        content: ""
+      });
     }
   }
   stylesForType(decoration) {
-    return this.findInput.inputBox.stylesForType(decoration === Severity.Info ? MessageType.INFO : decoration === Severity.Warning ? MessageType.WARNING : MessageType.ERROR);
+    return this.findInput.inputBox.stylesForType(
+      decoration === Severity.Info ? MessageType.INFO : decoration === Severity.Warning ? MessageType.WARNING : MessageType.ERROR
+    );
   }
   setFocus() {
     this.findInput.focus();

@@ -14,9 +14,10 @@ import * as dom from "../../../../../base/browser/dom.js";
 import { Button } from "../../../../../base/browser/ui/button/button.js";
 import { renderIcon } from "../../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { Event } from "../../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../../base/common/themables.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { MarkdownRenderer } from "../../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
 import { localize } from "../../../../../nls.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
@@ -25,8 +26,9 @@ import { ILogService } from "../../../../../platform/log/common/log.js";
 import { IOpenerService } from "../../../../../platform/opener/common/opener.js";
 import { defaultButtonStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
 import { IChatAgentService } from "../../common/chatAgents.js";
-import { ChatAgentLocation } from "../../common/constants.js";
-import { chatViewsWelcomeRegistry, IChatViewsWelcomeDescriptor } from "./chatViewsWelcome.js";
+import {
+  chatViewsWelcomeRegistry
+} from "./chatViewsWelcome.js";
 const $ = dom.$;
 let ChatViewWelcomeController = class extends Disposable {
   constructor(container, delegate, location, contextKeyService, instantiationService) {
@@ -37,11 +39,15 @@ let ChatViewWelcomeController = class extends Disposable {
     this.contextKeyService = contextKeyService;
     this.instantiationService = instantiationService;
     this.element = dom.append(this.container, dom.$(".chat-view-welcome"));
-    this._register(Event.runAndSubscribe(
-      delegate.onDidChangeViewWelcomeState,
-      () => this.update()
-    ));
-    this._register(chatViewsWelcomeRegistry.onDidChange(() => this.update(true)));
+    this._register(
+      Event.runAndSubscribe(
+        delegate.onDidChangeViewWelcomeState,
+        () => this.update()
+      )
+    );
+    this._register(
+      chatViewsWelcomeRegistry.onDidChange(() => this.update(true))
+    );
   }
   static {
     __name(this, "ChatViewWelcomeController");
@@ -65,18 +71,24 @@ let ChatViewWelcomeController = class extends Disposable {
     const descriptors = chatViewsWelcomeRegistry.get();
     if (descriptors.length) {
       this.render(descriptors);
-      const descriptorKeys = new Set(descriptors.flatMap((d) => d.when.keys()));
-      this.enabledDisposables.add(this.contextKeyService.onDidChangeContext((e) => {
-        if (e.affectsSome(descriptorKeys)) {
-          this.render(descriptors);
-        }
-      }));
+      const descriptorKeys = new Set(
+        descriptors.flatMap((d) => d.when.keys())
+      );
+      this.enabledDisposables.add(
+        this.contextKeyService.onDidChangeContext((e) => {
+          if (e.affectsSome(descriptorKeys)) {
+            this.render(descriptors);
+          }
+        })
+      );
     }
   }
   render(descriptors) {
     this.renderDisposables.clear();
     dom.clearNode(this.element);
-    const matchingDescriptors = descriptors.filter((descriptor) => this.contextKeyService.contextMatchesRules(descriptor.when));
+    const matchingDescriptors = descriptors.filter(
+      (descriptor) => this.contextKeyService.contextMatchesRules(descriptor.when)
+    );
     let enabledDescriptor;
     for (const descriptor of matchingDescriptors) {
       if (typeof descriptor.content === "function") {
@@ -91,8 +103,14 @@ let ChatViewWelcomeController = class extends Disposable {
         title: enabledDescriptor.title,
         message: enabledDescriptor.content
       };
-      const welcomeView = this.renderDisposables.add(this.instantiationService.createInstance(ChatViewWelcomePart, content, { firstLinkToButton: true, location: this.location }));
-      this.element.appendChild(welcomeView.element);
+      const welcomeView = this.renderDisposables.add(
+        this.instantiationService.createInstance(
+          ChatViewWelcomePart,
+          content,
+          { firstLinkToButton: true, location: this.location }
+        )
+      );
+      this.element?.appendChild(welcomeView.element);
       this.container.classList.toggle("chat-view-welcome-visible", true);
     } else {
       this.container.classList.toggle("chat-view-welcome-visible", false);
@@ -112,43 +130,84 @@ let ChatViewWelcomePart = class extends Disposable {
     this.logService = logService;
     this.element = dom.$(".chat-welcome-view");
     try {
-      const renderer = this.instantiationService.createInstance(MarkdownRenderer, {});
+      const renderer = this.instantiationService.createInstance(
+        MarkdownRenderer,
+        {}
+      );
       const icon = dom.append(this.element, $(".chat-welcome-view-icon"));
       if (content.icon) {
         icon.appendChild(renderIcon(content.icon));
       }
-      const title = dom.append(this.element, $(".chat-welcome-view-title"));
+      const title = dom.append(
+        this.element,
+        $(".chat-welcome-view-title")
+      );
       title.textContent = content.title;
       if (typeof content.message !== "function" && options?.isWidgetAgentWelcomeViewContent) {
-        const container = dom.append(this.element, $(".chat-welcome-view-indicator-container"));
-        dom.append(container, $(".chat-welcome-view-subtitle", void 0, localize("agentModeSubtitle", "Agent Mode")));
+        const container = dom.append(
+          this.element,
+          $(".chat-welcome-view-indicator-container")
+        );
+        dom.append(
+          container,
+          $(
+            ".chat-welcome-view-subtitle",
+            void 0,
+            localize("agentModeSubtitle", "Agent Mode")
+          )
+        );
       }
-      const message = dom.append(this.element, $(".chat-welcome-view-message"));
+      const message = dom.append(
+        this.element,
+        $(".chat-welcome-view-message")
+      );
       if (typeof content.message === "function") {
-        dom.append(message, content.message(this._register(new DisposableStore())));
+        dom.append(
+          message,
+          content.message(this._register(new DisposableStore()))
+        );
       } else {
-        const messageResult = this._register(renderer.render(content.message));
+        const messageResult = this._register(
+          renderer.render(content.message)
+        );
         const firstLink = options?.firstLinkToButton ? messageResult.element.querySelector("a") : void 0;
         if (firstLink) {
           const target = firstLink.getAttribute("data-href");
-          const button = this._register(new Button(firstLink.parentElement, defaultButtonStyles));
+          const button = this._register(
+            new Button(
+              firstLink.parentElement,
+              defaultButtonStyles
+            )
+          );
           button.label = firstLink.textContent ?? "";
           if (target) {
-            this._register(button.onDidClick(() => {
-              this.openerService.open(target, { allowCommands: true });
-            }));
+            this._register(
+              button.onDidClick(() => {
+                this.openerService.open(target, {
+                  allowCommands: true
+                });
+              })
+            );
           }
           firstLink.replaceWith(button.element);
         }
         dom.append(message, messageResult.element);
       }
       if (content.tips) {
-        const tips = dom.append(this.element, $(".chat-welcome-view-tips"));
-        const tipsResult = this._register(renderer.render(content.tips));
+        const tips = dom.append(
+          this.element,
+          $(".chat-welcome-view-tips")
+        );
+        const tipsResult = this._register(
+          renderer.render(content.tips)
+        );
         tips.appendChild(tipsResult.element);
       }
     } catch (err) {
-      this.logService.error("Failed to render chat view welcome content", err);
+      this.logService.error(
+        "Failed to render chat view welcome content",
+        err
+      );
     }
   }
   static {

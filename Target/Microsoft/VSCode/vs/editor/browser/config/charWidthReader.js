@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { applyFontInfo } from "./domFontInfo.js";
-import { BareFontInfo } from "../../common/config/fontInfo.js";
 var CharWidthRequestType = /* @__PURE__ */ ((CharWidthRequestType2) => {
   CharWidthRequestType2[CharWidthRequestType2["Regular"] = 0] = "Regular";
   CharWidthRequestType2[CharWidthRequestType2["Italic"] = 1] = "Italic";
@@ -74,10 +73,10 @@ class DomCharWidthReader {
       if (request.type === 1 /* Italic */) {
         parent = italicDomNode;
       }
-      parent.appendChild(document.createElement("br"));
+      parent?.appendChild(document.createElement("br"));
       const testElement = document.createElement("span");
       DomCharWidthReader._render(testElement, request);
-      parent.appendChild(testElement);
+      parent?.appendChild(testElement);
       testElements.push(testElement);
     }
     this._container = container;
@@ -101,7 +100,7 @@ class DomCharWidthReader {
   _readFromDomElements() {
     for (let i = 0, len = this._requests.length; i < len; i++) {
       const request = this._requests[i];
-      const testElement = this._testElements[i];
+      const testElement = this._testElements?.[i];
       request.fulfill(testElement.offsetWidth / 256);
     }
   }

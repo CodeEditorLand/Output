@@ -12,29 +12,38 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { ResourceMap, ResourceSet } from "../../../../../base/common/map.js";
 import { autorun } from "../../../../../base/common/observable.js";
 import { isEqual } from "../../../../../base/common/resources.js";
-import { URI } from "../../../../../base/common/uri.js";
 import { localize } from "../../../../../nls.js";
-import { IWorkbenchContribution } from "../../../../common/contributions.js";
-import { IChatEditingService, IChatEditingSession } from "../../common/chatEditingService.js";
-import { IChatWidget, IChatWidgetService } from "../chat.js";
+import {
+  IChatEditingService
+} from "../../common/chatEditingService.js";
+import { IChatWidgetService } from "../chat.js";
 let ChatRelatedFilesContribution = class extends Disposable {
   constructor(chatEditingService, chatWidgetService) {
     super();
     this.chatEditingService = chatEditingService;
     this.chatWidgetService = chatWidgetService;
-    this._register(autorun((reader) => {
-      const sessions = this.chatEditingService.editingSessionsObs.read(reader);
-      sessions.forEach((session) => {
-        const widget = this.chatWidgetService.getWidgetBySessionId(session.chatSessionId);
-        if (widget && !this.chatEditingSessionDisposables.has(session.chatSessionId)) {
-          this._handleNewEditingSession(session, widget);
-        }
-      });
-    }));
+    this._register(
+      autorun((reader) => {
+        const sessions = this.chatEditingService.editingSessionsObs.read(reader);
+        sessions.forEach((session) => {
+          const widget = this.chatWidgetService.getWidgetBySessionId(
+            session.chatSessionId
+          );
+          if (widget && !this.chatEditingSessionDisposables.has(
+            session.chatSessionId
+          )) {
+            this._handleNewEditingSession(session, widget);
+          }
+        });
+      })
+    );
   }
   static {
     __name(this, "ChatRelatedFilesContribution");
@@ -50,15 +59,25 @@ let ChatRelatedFilesContribution = class extends Disposable {
     if (workingSetEntries.length > 0 || widget.attachmentModel.fileAttachments.length === 0) {
       return;
     }
-    this._currentRelatedFilesRetrievalOperation = this.chatEditingService.getRelatedFiles(currentEditingSession.chatSessionId, widget.getInput(), widget.attachmentModel.fileAttachments, CancellationToken.None).then((files) => {
+    this._currentRelatedFilesRetrievalOperation = this.chatEditingService.getRelatedFiles(
+      currentEditingSession.chatSessionId,
+      widget.getInput(),
+      widget.attachmentModel.fileAttachments,
+      CancellationToken.None
+    ).then((files) => {
       if (!files?.length || !widget.viewModel?.sessionId || !widget.input.relatedFiles) {
         return;
       }
-      const currentEditingSession2 = this.chatEditingService.getEditingSession(widget.viewModel.sessionId);
+      const currentEditingSession2 = this.chatEditingService.getEditingSession(
+        widget.viewModel.sessionId
+      );
       if (!currentEditingSession2 || currentEditingSession2.entries.get().length) {
         return;
       }
-      const existingFiles = new ResourceSet([...widget.attachmentModel.fileAttachments, ...widget.input.relatedFiles.removedFiles]);
+      const existingFiles = new ResourceSet([
+        ...widget.attachmentModel.fileAttachments,
+        ...widget.input.relatedFiles.removedFiles
+      ]);
       if (!existingFiles.size) {
         return;
       }
@@ -71,36 +90,71 @@ let ChatRelatedFilesContribution = class extends Disposable {
           if (existingFiles.has(file.uri)) {
             continue;
           }
-          newSuggestions.set(file.uri, localize("relatedFile", "{0} (Suggested)", file.description));
+          newSuggestions.set(
+            file.uri,
+            localize(
+              "relatedFile",
+              "{0} (Suggested)",
+              file.description
+            )
+          );
           existingFiles.add(file.uri);
         }
       }
-      widget.input.relatedFiles.value = [...newSuggestions.entries()].map(([uri, description]) => ({ uri, description }));
+      widget.input.relatedFiles.value = [
+        ...newSuggestions.entries()
+      ].map(([uri, description]) => ({ uri, description }));
     }).finally(() => {
       this._currentRelatedFilesRetrievalOperation = void 0;
     });
   }
   _handleNewEditingSession(currentEditingSession, widget) {
     const disposableStore = new DisposableStore();
-    disposableStore.add(currentEditingSession.onDidDispose(() => {
-      disposableStore.clear();
-    }));
+    disposableStore.add(
+      currentEditingSession.onDidDispose(() => {
+        disposableStore.clear();
+      })
+    );
     this._updateRelatedFileSuggestions(currentEditingSession, widget);
-    const onDebouncedType = Event.debounce(widget.inputEditor.onDidChangeModelContent, () => null, 3e3);
-    disposableStore.add(onDebouncedType(() => {
-      this._updateRelatedFileSuggestions(currentEditingSession, widget);
-    }));
-    disposableStore.add(widget.attachmentModel.onDidChangeContext(() => {
-      this._updateRelatedFileSuggestions(currentEditingSession, widget);
-    }));
-    disposableStore.add(currentEditingSession.onDidDispose(() => {
-      disposableStore.dispose();
-    }));
-    disposableStore.add(widget.onDidAcceptInput(() => {
-      widget.input.relatedFiles?.clear();
-      this._updateRelatedFileSuggestions(currentEditingSession, widget);
-    }));
-    this.chatEditingSessionDisposables.set(currentEditingSession.chatSessionId, disposableStore);
+    const onDebouncedType = Event.debounce(
+      widget.inputEditor.onDidChangeModelContent,
+      () => null,
+      3e3
+    );
+    disposableStore.add(
+      onDebouncedType(() => {
+        this._updateRelatedFileSuggestions(
+          currentEditingSession,
+          widget
+        );
+      })
+    );
+    disposableStore.add(
+      widget.attachmentModel.onDidChangeContext(() => {
+        this._updateRelatedFileSuggestions(
+          currentEditingSession,
+          widget
+        );
+      })
+    );
+    disposableStore.add(
+      currentEditingSession.onDidDispose(() => {
+        disposableStore.dispose();
+      })
+    );
+    disposableStore.add(
+      widget.onDidAcceptInput(() => {
+        widget.input.relatedFiles?.clear();
+        this._updateRelatedFileSuggestions(
+          currentEditingSession,
+          widget
+        );
+      })
+    );
+    this.chatEditingSessionDisposables.set(
+      currentEditingSession.chatSessionId,
+      disposableStore
+    );
   }
   dispose() {
     for (const store of this.chatEditingSessionDisposables.values()) {

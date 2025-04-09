@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Color } from "../common/color.js";
 import { FileAccess } from "../common/network.js";
-import { URI } from "../common/uri.js";
 function asFragment(raw) {
   return raw;
 }
@@ -33,7 +31,9 @@ __name(sizeValue, "sizeValue");
 function hexColorValue(value) {
   const out = value.replaceAll(/[^[0-9a-fA-F#]]/gi, "");
   if (out !== value) {
-    console.warn(`CSS hex color ${value} modified to ${out} to be safe for CSS`);
+    console.warn(
+      `CSS hex color ${value} modified to ${out} to be safe for CSS`
+    );
   }
   return asFragment(out);
 }
@@ -41,7 +41,9 @@ __name(hexColorValue, "hexColorValue");
 function identValue(value) {
   const out = value.replaceAll(/[^_\-a-z0-9]/gi, "");
   if (out !== value) {
-    console.warn(`CSS ident value ${value} modified to ${out} to be safe for CSS`);
+    console.warn(
+      `CSS ident value ${value} modified to ${out} to be safe for CSS`
+    );
   }
   return asFragment(out);
 }
@@ -60,16 +62,20 @@ __name(asCSSUrl, "asCSSUrl");
 function className(value, escapingExpected = false) {
   const out = CSS.escape(value);
   if (!escapingExpected && out !== value) {
-    console.warn(`CSS class name ${value} modified to ${out} to be safe for CSS`);
+    console.warn(
+      `CSS class name ${value} modified to ${out} to be safe for CSS`
+    );
   }
   return asFragment(out);
 }
 __name(className, "className");
 function inline(strings, ...values) {
-  return asFragment(strings.reduce((result, str, i) => {
-    const value = values[i] || "";
-    return result + str + value;
-  }, ""));
+  return asFragment(
+    strings.reduce((result, str, i) => {
+      const value = values[i] || "";
+      return result + str + value;
+    }, "")
+  );
 }
 __name(inline, "inline");
 class Builder {

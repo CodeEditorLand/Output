@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { ViewEventHandler } from "../../../common/viewEventHandler.js";
-import { GlyphRasterizer } from "../raster/glyphRasterizer.js";
 class BaseRenderStrategy extends ViewEventHandler {
   constructor(_context, _viewGpuContext, _device, _glyphRasterizer) {
     super();

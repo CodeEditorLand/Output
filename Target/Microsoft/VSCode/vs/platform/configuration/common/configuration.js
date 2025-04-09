@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { assertNever } from "../../../base/common/assert.js";
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { Event } from "../../../base/common/event.js";
 import * as types from "../../../base/common/types.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
+import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IWorkspaceFolder } from "../../workspace/common/workspace.js";
-const IConfigurationService = createDecorator("configurationService");
+const IConfigurationService = createDecorator(
+  "configurationService"
+);
 function isConfigurationOverrides(thing) {
   return thing && typeof thing === "object" && (!thing.overrideIdentifier || typeof thing.overrideIdentifier === "string") && (!thing.resource || thing.resource instanceof URI);
 }
@@ -96,12 +95,16 @@ function addToValueTree(settingsTreeRoot, key, value, conflictReporter) {
         break;
       case "object":
         if (obj === null) {
-          conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1).join(".")} is null`);
+          conflictReporter(
+            `Ignoring ${key} as ${segments.slice(0, i + 1).join(".")} is null`
+          );
           return;
         }
         break;
       default:
-        conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1).join(".")} is ${JSON.stringify(obj)}`);
+        conflictReporter(
+          `Ignoring ${key} as ${segments.slice(0, i + 1).join(".")} is ${JSON.stringify(obj)}`
+        );
         return;
     }
     curr = obj;
@@ -110,10 +113,14 @@ function addToValueTree(settingsTreeRoot, key, value, conflictReporter) {
     try {
       curr[last] = value;
     } catch (e) {
-      conflictReporter(`Ignoring ${key} as ${segments.join(".")} is ${JSON.stringify(curr)}`);
+      conflictReporter(
+        `Ignoring ${key} as ${segments.join(".")} is ${JSON.stringify(curr)}`
+      );
     }
   } else {
-    conflictReporter(`Ignoring ${key} as ${segments.join(".")} is ${JSON.stringify(curr)}`);
+    conflictReporter(
+      `Ignoring ${key} as ${segments.join(".")} is ${JSON.stringify(curr)}`
+    );
   }
 }
 __name(addToValueTree, "addToValueTree");

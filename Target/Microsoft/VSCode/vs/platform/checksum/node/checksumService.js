@@ -10,10 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 import { listenStream } from "../../../base/common/stream.js";
-import { URI } from "../../../base/common/uri.js";
-import { IChecksumService } from "../common/checksumService.js";
 import { IFileService } from "../../files/common/files.js";
 let ChecksumService = class {
   constructor(fileService) {

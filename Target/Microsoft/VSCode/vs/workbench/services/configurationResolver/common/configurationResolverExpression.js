@@ -1,8 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Iterable } from "../../../../base/common/iterator.js";
-import { isLinux, isMacintosh, isWindows } from "../../../../base/common/platform.js";
-import { ConfiguredInput } from "./configurationResolver.js";
+import {
+  isLinux,
+  isMacintosh,
+  isWindows
+} from "../../../../base/common/platform.js";
 class ConfigurationResolverExpression {
   static {
     __name(this, "ConfigurationResolverExpression");
@@ -41,9 +44,9 @@ class ConfigurationResolverExpression {
       return;
     }
     Object.keys(config[key]).forEach((k) => config[k] = config[key][k]);
-    delete config.windows;
-    delete config.osx;
-    delete config.linux;
+    config.windows = void 0;
+    config.osx = void 0;
+    config.linux = void 0;
   }
   parseVariable(str, start) {
     if (str[start] !== "$" || str[start + 1] !== "{") {
@@ -113,7 +116,10 @@ class ConfigurationResolverExpression {
       }
       const parsed = this.parseVariable(value, match);
       if (parsed) {
-        const locations = this.locations.get(parsed.replacement.id) || { locations: [], replacement: parsed.replacement };
+        const locations = this.locations.get(parsed.replacement.id) || {
+          locations: [],
+          replacement: parsed.replacement
+        };
         locations.locations.push({ object, propertyName });
         this.locations.set(parsed.replacement.id, locations);
         pos = parsed.end + 1;
@@ -123,10 +129,19 @@ class ConfigurationResolverExpression {
     }
   }
   unresolved() {
-    return Iterable.map(Iterable.filter(this.locations.values(), (l) => l.resolved === void 0), (l) => l.replacement);
+    return Iterable.map(
+      Iterable.filter(
+        this.locations.values(),
+        (l) => l.resolved === void 0
+      ),
+      (l) => l.replacement
+    );
   }
   resolved() {
-    return Iterable.map(Iterable.filter(this.locations.values(), (l) => !!l.resolved), (l) => [l.replacement, l.resolved]);
+    return Iterable.map(
+      Iterable.filter(this.locations.values(), (l) => !!l.resolved),
+      (l) => [l.replacement, l.resolved]
+    );
   }
   resolve(replacement, data) {
     if (typeof data !== "object") {
@@ -138,7 +153,10 @@ class ConfigurationResolverExpression {
     }
     if (data.value !== void 0) {
       for (const { object, propertyName } of location.locations || []) {
-        const newValue = object[propertyName].replaceAll(replacement.id, data.value);
+        const newValue = object[propertyName].replaceAll(
+          replacement.id,
+          data.value
+        );
         object[propertyName] = newValue;
       }
     }

@@ -10,17 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { BasePromptParser } from "./basePromptParser.js";
-import { URI } from "../../../../../../base/common/uri.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import { FilePromptContentProvider } from "../contentProviders/filePromptContentsProvider.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { BasePromptParser } from "./basePromptParser.js";
 let FilePromptParser = class extends BasePromptParser {
   static {
     __name(this, "FilePromptParser");
   }
-  constructor(uri, seenReferences = [], initService, logService) {
-    const contentsProvider = initService.createInstance(FilePromptContentProvider, uri);
+  constructor(uri, seenReferences, initService, logService) {
+    const contentsProvider = initService.createInstance(
+      FilePromptContentProvider,
+      uri
+    );
     super(contentsProvider, seenReferences, initService, logService);
     this._register(contentsProvider);
   }

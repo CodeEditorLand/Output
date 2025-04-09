@@ -10,10 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { Comment } from "../../../../editor/common/languages.js";
-import { IMenu, IMenuActionOptions, IMenuCreateOptions, IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  IMenuService,
+  MenuId
+} from "../../../../platform/actions/common/actions.js";
 let CommentMenus = class {
   constructor(menuService) {
     this.menuService = menuService;
@@ -31,7 +31,11 @@ let CommentMenus = class {
     return this.getMenu(MenuId.CommentEditorActions, contextKeyService);
   }
   getCommentThreadAdditionalActions(contextKeyService) {
-    return this.getMenu(MenuId.CommentThreadAdditionalActions, contextKeyService, { emitEventsForSubmenuChanges: true });
+    return this.getMenu(
+      MenuId.CommentThreadAdditionalActions,
+      contextKeyService,
+      { emitEventsForSubmenuChanges: true }
+    );
   }
   getCommentTitleActions(comment, contextKeyService) {
     return this.getMenu(MenuId.CommentTitle, contextKeyService);
@@ -40,13 +44,17 @@ let CommentMenus = class {
     return this.getMenu(MenuId.CommentActions, contextKeyService);
   }
   getCommentThreadTitleContextActions(contextKeyService) {
-    return this.getActions(MenuId.CommentThreadTitleContext, contextKeyService, { shouldForwardArgs: true });
+    return this.getActions(
+      MenuId.CommentThreadTitleContext,
+      contextKeyService,
+      { shouldForwardArgs: true }
+    );
   }
   getMenu(menuId, contextKeyService, options) {
     return this.menuService.createMenu(menuId, contextKeyService, options);
   }
   getActions(menuId, contextKeyService, options) {
-    return this.menuService.getMenuActions(menuId, contextKeyService, options).map((value) => value[1]).flat();
+    return this.menuService.getMenuActions(menuId, contextKeyService, options).flatMap((value) => value[1]);
   }
   dispose() {
   }

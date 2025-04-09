@@ -11,11 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IDisposable, dispose } from "../../../base/common/lifecycle.js";
+import { dispose } from "../../../base/common/lifecycle.js";
 import { URI } from "../../../base/common/uri.js";
-import { ExtHostContext, ExtHostShareShape, IDocumentFilterDto, MainContext, MainThreadShareShape } from "../common/extHost.protocol.js";
-import { IShareProvider, IShareService, IShareableItem } from "../../contrib/share/common/share.js";
-import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import {
+  IShareService
+} from "../../contrib/share/common/share.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadShare = class {
   constructor(extHostContext, shareService) {
     this.shareService = shareService;
@@ -31,7 +38,11 @@ let MainThreadShare = class {
       selector,
       priority,
       provideShare: /* @__PURE__ */ __name(async (item) => {
-        const result = await this.proxy.$provideShare(handle, item, CancellationToken.None);
+        const result = await this.proxy.$provideShare(
+          handle,
+          item,
+          CancellationToken.None
+        );
         return typeof result === "string" ? result : URI.revive(result);
       }, "provideShare")
     };

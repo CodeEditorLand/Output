@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as fs from "fs";
-import { tmpdir } from "os";
+import * as fs from "node:fs";
+import { tmpdir } from "node:os";
 import { Queue } from "../../../base/common/async.js";
 import { randomPath } from "../../../base/common/extpath.js";
 import { resolveTerminalEncoding } from "../../../base/node/terminalEncoding.js";
@@ -43,14 +43,18 @@ async function readFromStdin(targetPath, verbose, onEnd) {
     // make sure file exists right away (https://github.com/microsoft/vscode/issues/155341)
   ]);
   if (!iconv.default.encodingExists(encoding)) {
-    console.log(`Unsupported terminal encoding: ${encoding}, falling back to UTF-8.`);
+    console.log(
+      `Unsupported terminal encoding: ${encoding}, falling back to UTF-8.`
+    );
     encoding = "utf8";
   }
   const appendFileQueue = new Queue();
   const decoder = iconv.default.getDecoder(encoding);
   process.stdin.on("data", (chunk) => {
     const chunkStr = decoder.write(chunk);
-    appendFileQueue.queue(() => fs.promises.appendFile(targetPath, chunkStr));
+    appendFileQueue.queue(
+      () => fs.promises.appendFile(targetPath, chunkStr)
+    );
   });
   process.stdin.on("end", () => {
     const end = decoder.end();

@@ -10,42 +10,80 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry, IWorkbenchContribution } from "../../../common/contributions.js";
-import { LifecyclePhase, ILifecycleService, StartupKind } from "../../../services/lifecycle/common/lifecycle.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IWorkspaceContextService, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
-import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { language } from "../../../../base/common/platform.js";
-import { Event } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import ErrorTelemetry from "../../../../platform/telemetry/browser/errorTelemetry.js";
-import { supportsTelemetry, TelemetryLogGroup, telemetryLogId, TelemetryTrustedValue } from "../../../../platform/telemetry/common/telemetryUtils.js";
-import { ConfigurationTarget, ConfigurationTargetToString, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ITextFileService, ITextFileSaveEvent, ITextFileResolveEvent } from "../../../services/textfile/common/textfiles.js";
-import { extname, basename, isEqual, isEqualOrParent } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { getMimeTypes } from "../../../../editor/common/services/languagesAssociations.js";
-import { hash } from "../../../../base/common/hash.js";
-import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
-import { ViewContainerLocation } from "../../../common/views.js";
-import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
 import { mainWindow } from "../../../../base/browser/window.js";
-import { IConfigurationRegistry, Extensions as ConfigurationExtensions } from "../../../../platform/configuration/common/configurationRegistry.js";
-import { isBoolean, isNumber, isString } from "../../../../base/common/types.js";
-import { LayoutSettings } from "../../../services/layout/browser/layoutService.js";
-import { AutoRestartConfigurationKey, AutoUpdateConfigurationKey } from "../../extensions/common/extensions.js";
-import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Event } from "../../../../base/common/event.js";
+import { hash } from "../../../../base/common/hash.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { language } from "../../../../base/common/platform.js";
+import {
+  basename,
+  extname,
+  isEqual,
+  isEqualOrParent
+} from "../../../../base/common/resources.js";
+import {
+  isBoolean,
+  isNumber,
+  isString
+} from "../../../../base/common/types.js";
+import { getMimeTypes } from "../../../../editor/common/services/languagesAssociations.js";
 import { localize2 } from "../../../../nls.js";
 import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import {
+  ConfigurationTarget,
+  ConfigurationTargetToString,
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import {
+  Extensions as ConfigurationExtensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import {
+  ILoggerService,
+  LogLevel
+} from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import ErrorTelemetry from "../../../../platform/telemetry/browser/errorTelemetry.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import {
+  supportsTelemetry,
+  TelemetryLogGroup,
+  telemetryLogId,
+  TelemetryTrustedValue
+} from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
+import {
+  IWorkspaceContextService,
+  WorkbenchState
+} from "../../../../platform/workspace/common/workspace.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../common/contributions.js";
+import { ViewContainerLocation } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { LayoutSettings } from "../../../services/layout/browser/layoutService.js";
+import {
+  ILifecycleService,
+  LifecyclePhase
+} from "../../../services/lifecycle/common/lifecycle.js";
 import { IOutputService } from "../../../services/output/common/output.js";
-import { ILoggerResource, ILoggerService, LogLevel } from "../../../../platform/log/common/log.js";
+import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import {
+  ITextFileService
+} from "../../../services/textfile/common/textfiles.js";
+import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import {
+  AutoRestartConfigurationKey,
+  AutoUpdateConfigurationKey
+} from "../../extensions/common/extensions.js";
 let TelemetryContribution = class extends Disposable {
   constructor(telemetryService, contextService, lifecycleService, editorService, keybindingsService, themeService, environmentService, userDataProfileService, paneCompositeService, productService, loggerService, outputService, textFileService) {
     super();
@@ -55,24 +93,41 @@ let TelemetryContribution = class extends Disposable {
     this.loggerService = loggerService;
     this.outputService = outputService;
     const { filesToOpenOrCreate, filesToDiff, filesToMerge } = environmentService;
-    const activeViewlet = paneCompositeService.getActivePaneComposite(ViewContainerLocation.Sidebar);
+    const activeViewlet = paneCompositeService.getActivePaneComposite(
+      ViewContainerLocation.Sidebar
+    );
     telemetryService.publicLog2("workspaceLoad", {
-      windowSize: { innerHeight: mainWindow.innerHeight, innerWidth: mainWindow.innerWidth, outerHeight: mainWindow.outerHeight, outerWidth: mainWindow.outerWidth },
+      windowSize: {
+        innerHeight: mainWindow.innerHeight,
+        innerWidth: mainWindow.innerWidth,
+        outerHeight: mainWindow.outerHeight,
+        outerWidth: mainWindow.outerWidth
+      },
       emptyWorkbench: contextService.getWorkbenchState() === WorkbenchState.EMPTY,
-      "workbench.filesToOpenOrCreate": filesToOpenOrCreate && filesToOpenOrCreate.length || 0,
-      "workbench.filesToDiff": filesToDiff && filesToDiff.length || 0,
-      "workbench.filesToMerge": filesToMerge && filesToMerge.length || 0,
+      "workbench.filesToOpenOrCreate": filesToOpenOrCreate?.length || 0,
+      "workbench.filesToDiff": filesToDiff?.length || 0,
+      "workbench.filesToMerge": filesToMerge?.length || 0,
       customKeybindingsCount: keybindingsService.customKeybindingsCount(),
       theme: themeService.getColorTheme().id,
       language,
-      pinnedViewlets: paneCompositeService.getPinnedPaneCompositeIds(ViewContainerLocation.Sidebar),
+      pinnedViewlets: paneCompositeService.getPinnedPaneCompositeIds(
+        ViewContainerLocation.Sidebar
+      ),
       restoredViewlet: activeViewlet ? activeViewlet.getId() : void 0,
       restoredEditors: editorService.visibleEditors.length,
       startupKind: lifecycleService.startupKind
     });
     this._register(new ErrorTelemetry(telemetryService));
-    this._register(textFileService.files.onDidResolve((e) => this.onTextFileModelResolved(e)));
-    this._register(textFileService.files.onDidSave((e) => this.onTextFileModelSaved(e)));
+    this._register(
+      textFileService.files.onDidResolve(
+        (e) => this.onTextFileModelResolved(e)
+      )
+    );
+    this._register(
+      textFileService.files.onDidSave(
+        (e) => this.onTextFileModelSaved(e)
+      )
+    );
     this._register(lifecycleService.onDidShutdown(() => this.dispose()));
     if (supportsTelemetry(productService, environmentService)) {
       this.handleTelemetryOutputVisibility();
@@ -81,8 +136,22 @@ let TelemetryContribution = class extends Disposable {
   static {
     __name(this, "TelemetryContribution");
   }
-  static ALLOWLIST_JSON = ["package.json", "package-lock.json", "tsconfig.json", "jsconfig.json", "bower.json", ".eslintrc.json", "tslint.json", "composer.json"];
-  static ALLOWLIST_WORKSPACE_JSON = ["settings.json", "extensions.json", "tasks.json", "launch.json"];
+  static ALLOWLIST_JSON = [
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json",
+    "jsconfig.json",
+    "bower.json",
+    ".eslintrc.json",
+    "tslint.json",
+    "composer.json"
+  ];
+  static ALLOWLIST_WORKSPACE_JSON = [
+    "settings.json",
+    "extensions.json",
+    "tasks.json",
+    "launch.json"
+  ];
   onTextFileModelResolved(e) {
     const settingsType = this.getTypeIfSettings(e.model.resource);
     if (!settingsType) {
@@ -99,20 +168,31 @@ let TelemetryContribution = class extends Disposable {
     if (extname(resource) !== ".json") {
       return "";
     }
-    if (isEqual(resource, this.userDataProfileService.currentProfile.settingsResource)) {
+    if (isEqual(
+      resource,
+      this.userDataProfileService.currentProfile.settingsResource
+    )) {
       return "global-settings";
     }
-    if (isEqual(resource, this.userDataProfileService.currentProfile.keybindingsResource)) {
+    if (isEqual(
+      resource,
+      this.userDataProfileService.currentProfile.keybindingsResource
+    )) {
       return "keybindings";
     }
-    if (isEqualOrParent(resource, this.userDataProfileService.currentProfile.snippetsHome)) {
+    if (isEqualOrParent(
+      resource,
+      this.userDataProfileService.currentProfile.snippetsHome
+    )) {
       return "snippets";
     }
     const folders = this.contextService.getWorkspace().folders;
     for (const folder of folders) {
       if (isEqualOrParent(resource, folder.toResource(".vscode"))) {
         const filename = basename(resource);
-        if (TelemetryContribution.ALLOWLIST_WORKSPACE_JSON.indexOf(filename) > -1) {
+        if (TelemetryContribution.ALLOWLIST_WORKSPACE_JSON.indexOf(
+          filename
+        ) > -1) {
           return `.vscode/${filename}`;
         }
       }
@@ -126,7 +206,9 @@ let TelemetryContribution = class extends Disposable {
     const fileName = basename(resource);
     const path = resource.scheme === Schemas.file ? resource.fsPath : resource.path;
     const telemetryData = {
-      mimeType: new TelemetryTrustedValue(getMimeTypes(resource).join(", ")),
+      mimeType: new TelemetryTrustedValue(
+        getMimeTypes(resource).join(", ")
+      ),
       ext,
       path: hash(path),
       reason,
@@ -139,27 +221,44 @@ let TelemetryContribution = class extends Disposable {
   }
   async handleTelemetryOutputVisibility() {
     const that = this;
-    this._register(registerAction2(class extends Action2 {
-      constructor() {
-        super({
-          id: "workbench.action.showTelemetry",
-          title: localize2("showTelemetry", "Show Telemetry"),
-          category: Categories.Developer,
-          f1: true
-        });
-      }
-      async run() {
-        for (const logger of that.loggerService.getRegisteredLoggers()) {
-          if (logger.group?.id === TelemetryLogGroup.id) {
-            that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
-            that.loggerService.setVisibility(logger.resource, true);
+    this._register(
+      registerAction2(
+        class extends Action2 {
+          constructor() {
+            super({
+              id: "workbench.action.showTelemetry",
+              title: localize2("showTelemetry", "Show Telemetry"),
+              category: Categories.Developer,
+              f1: true
+            });
+          }
+          async run() {
+            for (const logger of that.loggerService.getRegisteredLoggers()) {
+              if (logger.group?.id === TelemetryLogGroup.id) {
+                that.loggerService.setLogLevel(
+                  logger.resource,
+                  LogLevel.Trace
+                );
+                that.loggerService.setVisibility(
+                  logger.resource,
+                  true
+                );
+              }
+            }
+            that.outputService.showChannel(TelemetryLogGroup.id);
           }
         }
-        that.outputService.showChannel(TelemetryLogGroup.id);
-      }
-    }));
-    if (![...this.loggerService.getRegisteredLoggers()].find((logger) => logger.id === telemetryLogId)) {
-      await Event.toPromise(Event.filter(this.loggerService.onDidChangeLoggers, (e) => [...e.added].some((logger) => logger.id === telemetryLogId)));
+      )
+    );
+    if (![...this.loggerService.getRegisteredLoggers()].find(
+      (logger) => logger.id === telemetryLogId
+    )) {
+      await Event.toPromise(
+        Event.filter(
+          this.loggerService.onDidChangeLoggers,
+          (e) => [...e.added].some((logger) => logger.id === telemetryLogId)
+        )
+      );
     }
     let showTelemetry = false;
     for (const logger of this.loggerService.getRegisteredLoggers()) {
@@ -175,13 +274,20 @@ let TelemetryContribution = class extends Disposable {
       const showExtensionTelemetry = /* @__PURE__ */ __name((loggers) => {
         for (const logger of loggers) {
           if (logger.group?.id === TelemetryLogGroup.id) {
-            that.loggerService.setLogLevel(logger.resource, LogLevel.Trace);
+            that.loggerService.setLogLevel(
+              logger.resource,
+              LogLevel.Trace
+            );
             this.loggerService.setVisibility(logger.id, true);
           }
         }
       }, "showExtensionTelemetry");
       showExtensionTelemetry(this.loggerService.getRegisteredLoggers());
-      this._register(this.loggerService.onDidChangeLoggers((e) => showExtensionTelemetry(e.added)));
+      this._register(
+        this.loggerService.onDidChangeLoggers(
+          (e) => showExtensionTelemetry(e.added)
+        )
+      );
     }
   }
 };
@@ -217,7 +323,9 @@ let ConfigurationTelemetryContribution = class extends Disposable {
   static {
     __name(this, "ConfigurationTelemetryContribution");
   }
-  configurationRegistry = Registry.as(ConfigurationExtensions.Configuration);
+  configurationRegistry = Registry.as(
+    ConfigurationExtensions.Configuration
+  );
   /**
    * Report value of a setting only if it is an enum, boolean, or number or an array of those.
    */
@@ -235,7 +343,9 @@ let ConfigurationTelemetryContribution = class extends Disposable {
       return void 0;
     }
     if (Array.isArray(value)) {
-      if (value.every((v) => isNumber(v) || isBoolean(v) || isString(v) && schema?.enum?.includes(v))) {
+      if (value.every(
+        (v) => isNumber(v) || isBoolean(v) || isString(v) && schema?.enum?.includes(v)
+      )) {
         return JSON.stringify(value);
       }
     }
@@ -245,22 +355,40 @@ let ConfigurationTelemetryContribution = class extends Disposable {
     const source = ConfigurationTargetToString(target);
     switch (key) {
       case LayoutSettings.ACTIVITY_BAR_LOCATION:
-        this.telemetryService.publicLog2("workbench.activityBar.location", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("workbench.activityBar.location", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
       case AutoUpdateConfigurationKey:
-        this.telemetryService.publicLog2("extensions.autoUpdate", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("extensions.autoUpdate", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
       case "editor.stickyScroll.enabled":
-        this.telemetryService.publicLog2("editor.stickyScroll.enabled", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("editor.stickyScroll.enabled", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
       case "typescript.experimental.expandableHover":
-        this.telemetryService.publicLog2("typescript.experimental.expandableHover", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("typescript.experimental.expandableHover", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
       case "window.titleBarStyle":
-        this.telemetryService.publicLog2("window.titleBarStyle", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("window.titleBarStyle", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
       case "extensions.verifySignature":
-        this.telemetryService.publicLog2("extensions.verifySignature", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("extensions.verifySignature", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
       case "window.newWindowProfile": {
         const valueToReport = this.getValueToReport(key, target);
@@ -269,7 +397,10 @@ let ConfigurationTelemetryContribution = class extends Disposable {
         return;
       }
       case AutoRestartConfigurationKey:
-        this.telemetryService.publicLog2("extensions.autoRestart", { settingValue: this.getValueToReport(key, target), source });
+        this.telemetryService.publicLog2("extensions.autoRestart", {
+          settingValue: this.getValueToReport(key, target),
+          source
+        });
         return;
     }
   }
@@ -280,8 +411,14 @@ ConfigurationTelemetryContribution = __decorateClass([
   __decorateParam(2, ITelemetryService)
 ], ConfigurationTelemetryContribution);
 const workbenchContributionRegistry = Registry.as(WorkbenchExtensions.Workbench);
-workbenchContributionRegistry.registerWorkbenchContribution(TelemetryContribution, LifecyclePhase.Restored);
-workbenchContributionRegistry.registerWorkbenchContribution(ConfigurationTelemetryContribution, LifecyclePhase.Eventually);
+workbenchContributionRegistry.registerWorkbenchContribution(
+  TelemetryContribution,
+  LifecyclePhase.Restored
+);
+workbenchContributionRegistry.registerWorkbenchContribution(
+  ConfigurationTelemetryContribution,
+  LifecyclePhase.Eventually
+);
 export {
   TelemetryContribution
 };

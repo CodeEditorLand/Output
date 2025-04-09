@@ -6,8 +6,6 @@ import { Position } from "../../../../common/core/position.js";
 import { Range } from "../../../../common/core/range.js";
 import { SingleTextEdit, TextEdit } from "../../../../common/core/textEdit.js";
 import { LineDecoration } from "../../../../common/viewLayout/lineDecorations.js";
-import { InlineDecoration } from "../../../../common/viewModel.js";
-import { ColumnRange } from "../../../../common/core/columnRange.js";
 class GhostText {
   constructor(lineNumber, parts) {
     this.lineNumber = lineNumber;
@@ -21,13 +19,17 @@ class GhostText {
   }
   /**
    * Only used for testing/debugging.
-  */
+   */
   render(documentText, debug = false) {
     return new TextEdit([
-      ...this.parts.map((p) => new SingleTextEdit(
-        Range.fromPositions(new Position(this.lineNumber, p.column)),
-        debug ? `[${p.lines.map((line) => line.line).join("\n")}]` : p.lines.map((line) => line.line).join("\n")
-      ))
+      ...this.parts.map(
+        (p) => new SingleTextEdit(
+          Range.fromPositions(
+            new Position(this.lineNumber, p.column)
+          ),
+          debug ? `[${p.lines.map((line) => line.line).join("\n")}]` : p.lines.map((line) => line.line).join("\n")
+        )
+      )
     ]).applyToString(documentText);
   }
   renderForScreenReader(lineText) {
@@ -37,10 +39,12 @@ class GhostText {
     const lastPart = this.parts[this.parts.length - 1];
     const cappedLineText = lineText.substr(0, lastPart.column - 1);
     const text = new TextEdit([
-      ...this.parts.map((p) => new SingleTextEdit(
-        Range.fromPositions(new Position(1, p.column)),
-        p.lines.map((line) => line.line).join("\n")
-      ))
+      ...this.parts.map(
+        (p) => new SingleTextEdit(
+          Range.fromPositions(new Position(1, p.column)),
+          p.lines.map((line) => line.line).join("\n")
+        )
+      )
     ]).applyToString(cappedLineText);
     return text.substring(this.parts[0].column - 1);
   }
@@ -59,7 +63,12 @@ class GhostTextPart {
     this._inlineDecorations = _inlineDecorations;
     this.lines = splitLines(this.text).map((line, i) => ({
       line,
-      lineDecorations: LineDecoration.filter(this._inlineDecorations, i + 1, 1, line.length + 1)
+      lineDecorations: LineDecoration.filter(
+        this._inlineDecorations,
+        i + 1,
+        1,
+        line.length + 1
+      )
     }));
   }
   static {
@@ -68,7 +77,10 @@ class GhostTextPart {
   lines;
   equals(other) {
     return this.column === other.column && this.lines.length === other.lines.length && this.lines.every(
-      (line, index) => line.line === other.lines[index].line && LineDecoration.equalsArr(line.lineDecorations, other.lines[index].lineDecorations)
+      (line, index) => line.line === other.lines[index].line && LineDecoration.equalsArr(
+        line.lineDecorations,
+        other.lines[index].lineDecorations
+      )
     );
   }
 }
@@ -99,8 +111,14 @@ class GhostTextReplacement {
     const replaceRange = this.columnRange.toRange(this.lineNumber);
     if (debug) {
       return new TextEdit([
-        new SingleTextEdit(Range.fromPositions(replaceRange.getStartPosition()), "("),
-        new SingleTextEdit(Range.fromPositions(replaceRange.getEndPosition()), `)[${this.newLines.join("\n")}]`)
+        new SingleTextEdit(
+          Range.fromPositions(replaceRange.getStartPosition()),
+          "("
+        ),
+        new SingleTextEdit(
+          Range.fromPositions(replaceRange.getEndPosition()),
+          `)[${this.newLines.join("\n")}]`
+        )
       ]).applyToString(documentText);
     } else {
       return new TextEdit([
@@ -115,7 +133,9 @@ class GhostTextReplacement {
     return this.parts.every((p) => p.lines.length === 0);
   }
   equals(other) {
-    return this.lineNumber === other.lineNumber && this.columnRange.equals(other.columnRange) && this.newLines.length === other.newLines.length && this.newLines.every((line, index) => line === other.newLines[index]) && this.additionalReservedLineCount === other.additionalReservedLineCount;
+    return this.lineNumber === other.lineNumber && this.columnRange.equals(other.columnRange) && this.newLines.length === other.newLines.length && this.newLines.every(
+      (line, index) => line === other.newLines[index]
+    ) && this.additionalReservedLineCount === other.additionalReservedLineCount;
   }
 }
 function ghostTextsOrReplacementsEqual(a, b) {

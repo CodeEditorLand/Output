@@ -1,15 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { BugIndicatingError, onUnexpectedError } from "../../../errors.js";
+import { isDefined } from "../../../types.js";
 import { AutorunObserver, AutorunState } from "../../autorun.js";
-import { BaseObservable, IObservable, IObserver, ObservableValue, TransactionImpl } from "../../base.js";
+import {
+  ObservableValue
+} from "../../base.js";
 import { Derived, DerivedState } from "../../derived.js";
-import { IChangeInformation, IObservableLogger } from "../logging.js";
+import { FromEventObservable } from "../../utils.js";
 import { formatValue } from "../consoleObservableLogger.js";
 import { registerDebugChannel } from "./debuggerRpc.js";
-import { deepAssign, deepAssignDeleteNulls, getFirstStackFrameOutsideOf, ILocation, Throttler } from "./utils.js";
-import { isDefined } from "../../../types.js";
-import { FromEventObservable } from "../../utils.js";
-import { BugIndicatingError, onUnexpectedError } from "../../../errors.js";
+import {
+  deepAssign,
+  deepAssignDeleteNulls,
+  getFirstStackFrameOutsideOf,
+  Throttler
+} from "./utils.js";
 class DevToolsLogger {
   static {
     __name(this, "DevToolsLogger");
@@ -27,89 +33,107 @@ class DevToolsLogger {
   _instanceInfos = /* @__PURE__ */ new WeakMap();
   _aliveInstances = /* @__PURE__ */ new Map();
   _activeTransactions = /* @__PURE__ */ new Set();
-  _channel = registerDebugChannel("observableDevTools", () => {
-    return {
-      notifications: {
-        setDeclarationIdFilter: /* @__PURE__ */ __name((declarationIds) => {
-        }, "setDeclarationIdFilter"),
-        logObservableValue: /* @__PURE__ */ __name((observableId) => {
-          console.log("logObservableValue", observableId);
-        }, "logObservableValue"),
-        flushUpdates: /* @__PURE__ */ __name(() => {
-          this._flushUpdates();
-        }, "flushUpdates"),
-        resetUpdates: /* @__PURE__ */ __name(() => {
-          this._pendingChanges = null;
-          this._channel.api.notifications.handleChange(this._fullState, true);
-        }, "resetUpdates")
-      },
-      requests: {
-        getDeclarations: /* @__PURE__ */ __name(() => {
-          const result = {};
-          for (const decl of this._declarations.values()) {
-            result[decl.id] = decl;
-          }
-          return { decls: result };
-        }, "getDeclarations"),
-        getSummarizedInstances: /* @__PURE__ */ __name(() => {
-          return null;
-        }, "getSummarizedInstances"),
-        getObservableValueInfo: /* @__PURE__ */ __name((instanceId) => {
-          const obs = this._aliveInstances.get(instanceId);
-          return {
-            observers: [...obs.debugGetObservers()].map((d) => this._formatObserver(d)).filter(isDefined)
-          };
-        }, "getObservableValueInfo"),
-        getDerivedInfo: /* @__PURE__ */ __name((instanceId) => {
-          const d = this._aliveInstances.get(instanceId);
-          return {
-            dependencies: [...d.debugGetState().dependencies].map((d2) => this._formatObservable(d2)).filter(isDefined),
-            observers: [...d.debugGetObservers()].map((d2) => this._formatObserver(d2)).filter(isDefined)
-          };
-        }, "getDerivedInfo"),
-        getAutorunInfo: /* @__PURE__ */ __name((instanceId) => {
-          const obs = this._aliveInstances.get(instanceId);
-          return {
-            dependencies: [...obs.debugGetState().dependencies].map((d) => this._formatObservable(d)).filter(isDefined)
-          };
-        }, "getAutorunInfo"),
-        getTransactionState: /* @__PURE__ */ __name(() => {
-          return this.getTransactionState();
-        }, "getTransactionState"),
-        setValue: /* @__PURE__ */ __name((instanceId, jsonValue) => {
-          const obs = this._aliveInstances.get(instanceId);
-          if (obs instanceof Derived) {
-            obs.debugSetValue(jsonValue);
-          } else if (obs instanceof ObservableValue) {
-            obs.debugSetValue(jsonValue);
-          } else if (obs instanceof FromEventObservable) {
-            obs.debugSetValue(jsonValue);
-          } else {
-            throw new BugIndicatingError("Observable is not supported");
-          }
-          const observers = [...obs.debugGetObservers()];
-          for (const d of observers) {
-            d.beginUpdate(obs);
-          }
-          for (const d of observers) {
-            d.handleChange(obs, void 0);
-          }
-          for (const d of observers) {
-            d.endUpdate(obs);
-          }
-        }, "setValue"),
-        getValue: /* @__PURE__ */ __name((instanceId) => {
-          const obs = this._aliveInstances.get(instanceId);
-          if (obs instanceof Derived) {
-            return formatValue(obs.debugGetState().value, 200);
-          } else if (obs instanceof ObservableValue) {
-            return formatValue(obs.debugGetState().value, 200);
-          }
-          return void 0;
-        }, "getValue")
-      }
-    };
-  });
+  _channel = registerDebugChannel(
+    "observableDevTools",
+    () => {
+      return {
+        notifications: {
+          setDeclarationIdFilter: /* @__PURE__ */ __name((declarationIds) => {
+          }, "setDeclarationIdFilter"),
+          logObservableValue: /* @__PURE__ */ __name((observableId) => {
+            console.log("logObservableValue", observableId);
+          }, "logObservableValue"),
+          flushUpdates: /* @__PURE__ */ __name(() => {
+            this._flushUpdates();
+          }, "flushUpdates"),
+          resetUpdates: /* @__PURE__ */ __name(() => {
+            this._pendingChanges = null;
+            this._channel.api.notifications.handleChange(
+              this._fullState,
+              true
+            );
+          }, "resetUpdates")
+        },
+        requests: {
+          getDeclarations: /* @__PURE__ */ __name(() => {
+            const result = {};
+            for (const decl of this._declarations.values()) {
+              result[decl.id] = decl;
+            }
+            return { decls: result };
+          }, "getDeclarations"),
+          getSummarizedInstances: /* @__PURE__ */ __name(() => {
+            return null;
+          }, "getSummarizedInstances"),
+          getObservableValueInfo: /* @__PURE__ */ __name((instanceId) => {
+            const obs = this._aliveInstances.get(
+              instanceId
+            );
+            return {
+              observers: [...obs.debugGetObservers()].map((d) => this._formatObserver(d)).filter(isDefined)
+            };
+          }, "getObservableValueInfo"),
+          getDerivedInfo: /* @__PURE__ */ __name((instanceId) => {
+            const d = this._aliveInstances.get(
+              instanceId
+            );
+            return {
+              dependencies: [...d.debugGetState().dependencies].map((d2) => this._formatObservable(d2)).filter(isDefined),
+              observers: [...d.debugGetObservers()].map((d2) => this._formatObserver(d2)).filter(isDefined)
+            };
+          }, "getDerivedInfo"),
+          getAutorunInfo: /* @__PURE__ */ __name((instanceId) => {
+            const obs = this._aliveInstances.get(
+              instanceId
+            );
+            return {
+              dependencies: [...obs.debugGetState().dependencies].map((d) => this._formatObservable(d)).filter(isDefined)
+            };
+          }, "getAutorunInfo"),
+          getTransactionState: /* @__PURE__ */ __name(() => {
+            return this.getTransactionState();
+          }, "getTransactionState"),
+          setValue: /* @__PURE__ */ __name((instanceId, jsonValue) => {
+            const obs = this._aliveInstances.get(
+              instanceId
+            );
+            if (obs instanceof Derived) {
+              obs.debugSetValue(jsonValue);
+            } else if (obs instanceof ObservableValue) {
+              obs.debugSetValue(jsonValue);
+            } else if (obs instanceof FromEventObservable) {
+              obs.debugSetValue(jsonValue);
+            } else {
+              throw new BugIndicatingError(
+                "Observable is not supported"
+              );
+            }
+            const observers = [...obs.debugGetObservers()];
+            for (const d of observers) {
+              d.beginUpdate(obs);
+            }
+            for (const d of observers) {
+              d.handleChange(obs, void 0);
+            }
+            for (const d of observers) {
+              d.endUpdate(obs);
+            }
+          }, "setValue"),
+          getValue: /* @__PURE__ */ __name((instanceId) => {
+            const obs = this._aliveInstances.get(
+              instanceId
+            );
+            if (obs instanceof Derived) {
+              return formatValue(obs.debugGetState().value, 200);
+            } else if (obs instanceof ObservableValue) {
+              return formatValue(obs.debugGetState().value, 200);
+            }
+            return void 0;
+          }, "getValue")
+        }
+      };
+    }
+  );
   getTransactionState() {
     const affected = [];
     const txs = [...this._activeTransactions];
@@ -162,36 +186,79 @@ class DevToolsLogger {
         return;
       }
       const observerState = observer.debugGetState();
-      const base = { name: observer.debugName, instanceId: info.instanceId, updateCount: observerState.updateCount };
+      const base = {
+        name: observer.debugName,
+        instanceId: info.instanceId,
+        updateCount: observerState.updateCount
+      };
       const changedDependencies = [...info.changedObservables].map((o) => this._instanceInfos.get(o)?.instanceId).filter(isDefined);
       if (observerState.isComputing) {
-        return { ...base, type: "observable/derived", state: "updating", changedDependencies, initialComputation: false };
+        return {
+          ...base,
+          type: "observable/derived",
+          state: "updating",
+          changedDependencies,
+          initialComputation: false
+        };
       }
       switch (observerState.state) {
         case DerivedState.initial:
-          return { ...base, type: "observable/derived", state: "noValue" };
+          return {
+            ...base,
+            type: "observable/derived",
+            state: "noValue"
+          };
         case DerivedState.upToDate:
-          return { ...base, type: "observable/derived", state: "upToDate" };
+          return {
+            ...base,
+            type: "observable/derived",
+            state: "upToDate"
+          };
         case DerivedState.stale:
-          return { ...base, type: "observable/derived", state: "stale", changedDependencies };
+          return {
+            ...base,
+            type: "observable/derived",
+            state: "stale",
+            changedDependencies
+          };
         case DerivedState.dependenciesMightHaveChanged:
-          return { ...base, type: "observable/derived", state: "possiblyStale" };
+          return {
+            ...base,
+            type: "observable/derived",
+            state: "possiblyStale"
+          };
       }
     } else if (observer instanceof AutorunObserver) {
       const info = this._getAutorunInfo(observer);
       if (!info) {
         return void 0;
       }
-      const base = { name: observer.debugName, instanceId: info.instanceId, updateCount: info.updateCount };
-      const changedDependencies = [...info.changedObservables].map((o) => this._instanceInfos.get(o).instanceId);
+      const base = {
+        name: observer.debugName,
+        instanceId: info.instanceId,
+        updateCount: info.updateCount
+      };
+      const changedDependencies = [...info.changedObservables].map(
+        (o) => this._instanceInfos.get(o)?.instanceId
+      );
       if (observer.debugGetState().isRunning) {
-        return { ...base, type: "autorun", state: "updating", changedDependencies };
+        return {
+          ...base,
+          type: "autorun",
+          state: "updating",
+          changedDependencies
+        };
       }
       switch (observer.debugGetState().state) {
         case AutorunState.upToDate:
           return { ...base, type: "autorun", state: "upToDate" };
         case AutorunState.stale:
-          return { ...base, type: "autorun", state: "stale", changedDependencies };
+          return {
+            ...base,
+            type: "autorun",
+            state: "stale",
+            changedDependencies
+          };
         case AutorunState.dependenciesMightHaveChanged:
           return { ...base, type: "autorun", state: "possiblyStale" };
       }
@@ -207,7 +274,10 @@ class DevToolsLogger {
   }
   _formatObserver(obs) {
     if (obs instanceof Derived) {
-      return { name: obs.toString(), instanceId: this._getObservableInfo(obs)?.instanceId };
+      return {
+        name: obs.toString(),
+        instanceId: this._getObservableInfo(obs)?.instanceId
+      };
     }
     const autorunInfo = this._getAutorunInfo(obs);
     if (autorunInfo) {
@@ -231,7 +301,10 @@ class DevToolsLogger {
   }
   _flushUpdates = /* @__PURE__ */ __name(() => {
     if (this._pendingChanges !== null) {
-      this._channel.api.notifications.handleChange(this._pendingChanges, false);
+      this._channel.api.notifications.handleChange(
+        this._pendingChanges,
+        false
+      );
       this._pendingChanges = null;
     }
   }, "_flushUpdates");
@@ -244,17 +317,31 @@ class DevToolsLogger {
       Err.stackTraceLimit = shallow ? 6 : 20;
       const stack = new Error().stack;
       Err.stackTraceLimit = l;
-      let result = getFirstStackFrameOutsideOf(stack, /[/\\]observableInternal[/\\]|\.observe|[/\\]util(s)?\./);
+      let result = getFirstStackFrameOutsideOf(
+        stack,
+        /[/\\]observableInternal[/\\]|\.observe|[/\\]util(s)?\./
+      );
       if (!shallow && !result) {
-        result = getFirstStackFrameOutsideOf(stack, /[/\\]observableInternal[/\\]|\.observe/);
+        result = getFirstStackFrameOutsideOf(
+          stack,
+          /[/\\]observableInternal[/\\]|\.observe/
+        );
       }
       if (result) {
         loc = result;
         break;
       }
       if (!shallow) {
-        console.error("Could not find location for declaration", new Error().stack);
-        loc = { fileName: "unknown", line: 0, column: 0, id: "unknown" };
+        console.error(
+          "Could not find location for declaration",
+          new Error().stack
+        );
+        loc = {
+          fileName: "unknown",
+          line: 0,
+          column: 0,
+          id: "unknown"
+        };
         break;
       }
       shallow = false;
@@ -323,7 +410,11 @@ class DevToolsLogger {
         info.lastValue = formatValue(changeInfo.newValue, 30);
         if (info.listenerCount > 0) {
           this._handleChange({
-            instances: { [info.instanceId]: { formattedValue: info.lastValue } }
+            instances: {
+              [info.instanceId]: {
+                formattedValue: info.lastValue
+              }
+            }
           });
         }
       }
@@ -401,7 +492,12 @@ class DevToolsLogger {
     info.lastValue = formattedValue;
     if (info.listenerCount > 0) {
       this._handleChange({
-        instances: { [info.instanceId]: { formattedValue, recomputationCount: info.updateCount } }
+        instances: {
+          [info.instanceId]: {
+            formattedValue,
+            recomputationCount: info.updateCount
+          }
+        }
       });
     }
   }

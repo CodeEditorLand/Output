@@ -4,12 +4,11 @@ import * as dom from "../../../../base/browser/dom.js";
 import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
 import { Constants } from "../../../../base/common/uint.js";
 import "./codelensWidget.css";
-import { ContentWidgetPositionPreference, IActiveCodeEditor, IContentWidget, IContentWidgetPosition, IViewZone, IViewZoneChangeAccessor } from "../../../browser/editorBrowser.js";
+import {
+  ContentWidgetPositionPreference
+} from "../../../browser/editorBrowser.js";
 import { Range } from "../../../common/core/range.js";
-import { IModelDecorationsChangeAccessor, IModelDeltaDecoration, ITextModel } from "../../../common/model.js";
 import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-import { CodeLens, Command } from "../../../common/languages.js";
-import { CodeLensItem } from "./codelens.js";
 class CodeLensViewZone {
   static {
     __name(this, "CodeLensViewZone");
@@ -63,7 +62,7 @@ class CodeLensContentWidget {
     this._id = `codelens.widget-${CodeLensContentWidget._idPool++}`;
     this.updatePosition(line);
     this._domNode = document.createElement("span");
-    this._domNode.className = `codelens-decoration`;
+    this._domNode.className = "codelens-decoration";
   }
   withCommands(lenses, animate) {
     this._commands.clear();
@@ -79,10 +78,22 @@ class CodeLensContentWidget {
         const title = renderLabelWithIcons(lens.command.title.trim());
         if (lens.command.id) {
           const id = `c${CodeLensContentWidget._idPool++}`;
-          children.push(dom.$("a", { id, title: lens.command.tooltip, role: "button" }, ...title));
+          children.push(
+            dom.$(
+              "a",
+              { id, title: lens.command.tooltip, role: "button" },
+              ...title
+            )
+          );
           this._commands.set(id, lens.command);
         } else {
-          children.push(dom.$("span", { title: lens.command.tooltip }, ...title));
+          children.push(
+            dom.$(
+              "span",
+              { title: lens.command.tooltip },
+              ...title
+            )
+          );
         }
         if (i + 1 < lenses.length) {
           children.push(dom.$("span", void 0, "\xA0|\xA0"));
@@ -139,7 +150,10 @@ class CodeLensHelper {
     this._removeDecorations.push(decorationId);
   }
   commit(changeAccessor) {
-    const resultingDecorations = changeAccessor.deltaDecorations(this._removeDecorations, this._addDecorations);
+    const resultingDecorations = changeAccessor.deltaDecorations(
+      this._removeDecorations,
+      this._addDecorations
+    );
     for (let i = 0, len = resultingDecorations.length; i < len; i++) {
       this._addDecorationsCallbacks[i](resultingDecorations[i]);
     }
@@ -170,26 +184,36 @@ class CodeLensWidget {
       if (codeLensData.symbol.command) {
         lenses.push(codeLensData.symbol);
       }
-      helper.addDecoration({
-        range: codeLensData.symbol.range,
-        options: codeLensDecorationOptions
-      }, (id) => this._decorationIds[i] = id);
+      helper.addDecoration(
+        {
+          range: codeLensData.symbol.range,
+          options: codeLensDecorationOptions
+        },
+        (id) => this._decorationIds[i] = id
+      );
       if (!range) {
         range = Range.lift(codeLensData.symbol.range);
       } else {
         range = Range.plusRange(range, codeLensData.symbol.range);
       }
     });
-    this._viewZone = new CodeLensViewZone(range.startLineNumber - 1, heightInPx, updateCallback);
+    this._viewZone = new CodeLensViewZone(
+      range?.startLineNumber - 1,
+      heightInPx,
+      updateCallback
+    );
     this._viewZoneId = viewZoneChangeAccessor.addZone(this._viewZone);
     if (lenses.length > 0) {
       this._createContentWidgetIfNecessary();
-      this._contentWidget.withCommands(lenses, false);
+      this._contentWidget?.withCommands(lenses, false);
     }
   }
   _createContentWidgetIfNecessary() {
     if (!this._contentWidget) {
-      this._contentWidget = new CodeLensContentWidget(this._editor, this._viewZone.afterLineNumber + 1);
+      this._contentWidget = new CodeLensContentWidget(
+        this._editor,
+        this._viewZone.afterLineNumber + 1
+      );
       this._editor.addContentWidget(this._contentWidget);
     } else {
       this._editor.layoutContentWidget(this._contentWidget);
@@ -220,10 +244,13 @@ class CodeLensWidget {
     this._decorationIds = [];
     this._data = data;
     this._data.forEach((codeLensData, i) => {
-      helper.addDecoration({
-        range: codeLensData.symbol.range,
-        options: codeLensDecorationOptions
-      }, (id) => this._decorationIds[i] = id);
+      helper.addDecoration(
+        {
+          range: codeLensData.symbol.range,
+          options: codeLensDecorationOptions
+        },
+        (id) => this._decorationIds[i] = id
+      );
     });
   }
   updateHeight(height, viewZoneChangeAccessor) {
@@ -247,7 +274,7 @@ class CodeLensWidget {
   }
   updateCommands(symbols) {
     this._createContentWidgetIfNecessary();
-    this._contentWidget.withCommands(symbols, true);
+    this._contentWidget?.withCommands(symbols, true);
     for (let i = 0; i < this._data.length; i++) {
       const resolved = symbols[i];
       if (resolved) {

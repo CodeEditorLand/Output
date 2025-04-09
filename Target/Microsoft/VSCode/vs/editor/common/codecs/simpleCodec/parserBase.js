@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { BaseToken } from "../baseToken.js";
 import { assert } from "../../../../base/common/assert.js";
 class ParserBase {
   constructor(currentTokens = []) {
@@ -33,7 +32,7 @@ class ParserBase {
   assertNotConsumed() {
     assert(
       this.isConsumed === false,
-      `The parser object is already consumed and should not be used anymore.`
+      "The parser object is already consumed and should not be used anymore."
     );
   }
 }
@@ -42,7 +41,7 @@ function assertNotConsumed(_target, propertyKey, descriptor) {
   descriptor.value = function(...args) {
     assert(
       this.isConsumed === false,
-      `The parser object is already consumed and should not be used anymore.`
+      "The parser object is already consumed and should not be used anymore."
     );
     return originalMethod.apply(this, args);
   };

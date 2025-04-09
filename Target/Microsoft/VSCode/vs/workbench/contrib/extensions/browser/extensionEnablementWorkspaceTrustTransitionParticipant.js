@@ -10,10 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IWorkspaceTrustEnablementService, IWorkspaceTrustManagementService, IWorkspaceTrustTransitionParticipant } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { localize } from "../../../../nls.js";
+import {
+  IWorkspaceTrustEnablementService,
+  IWorkspaceTrustManagementService
+} from "../../../../platform/workspace/common/workspaceTrust.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
 import { IExtensionService } from "../../../services/extensions/common/extensions.js";
@@ -25,26 +27,37 @@ let ExtensionEnablementWorkspaceTrustTransitionParticipant = class extends Dispo
   constructor(extensionService, hostService, environmentService, extensionEnablementService, workspaceTrustEnablementService, workspaceTrustManagementService) {
     super();
     if (workspaceTrustEnablementService.isWorkspaceTrustEnabled()) {
-      workspaceTrustManagementService.workspaceTrustInitialized.then(() => {
-        const workspaceTrustTransitionParticipant = new class {
-          async participate(trusted) {
-            if (trusted) {
-              await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
-            } else {
-              if (environmentService.remoteAuthority) {
-                hostService.reload();
-              } else {
-                const stopped = await extensionService.stopExtensionHosts(localize("restartExtensionHost.reason", "Changing workspace trust"));
+      workspaceTrustManagementService.workspaceTrustInitialized.then(
+        () => {
+          const workspaceTrustTransitionParticipant = new class {
+            async participate(trusted) {
+              if (trusted) {
                 await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
-                if (stopped) {
-                  extensionService.startExtensionHosts();
+              } else {
+                if (environmentService.remoteAuthority) {
+                  hostService.reload();
+                } else {
+                  const stopped = await extensionService.stopExtensionHosts(
+                    localize(
+                      "restartExtensionHost.reason",
+                      "Changing workspace trust"
+                    )
+                  );
+                  await extensionEnablementService.updateExtensionsEnablementsWhenWorkspaceTrustChanges();
+                  if (stopped) {
+                    extensionService.startExtensionHosts();
+                  }
                 }
               }
             }
-          }
-        }();
-        this._register(workspaceTrustManagementService.addWorkspaceTrustTransitionParticipant(workspaceTrustTransitionParticipant));
-      });
+          }();
+          this._register(
+            workspaceTrustManagementService.addWorkspaceTrustTransitionParticipant(
+              workspaceTrustTransitionParticipant
+            )
+          );
+        }
+      );
     }
   }
 };

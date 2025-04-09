@@ -1,6 +1,3 @@
-import { UriComponents } from "../../../../base/common/uri.js";
-import { IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
-import { ITaskExecution } from "../../../contrib/tasks/common/tasks.js";
 var TaskEventKind = /* @__PURE__ */ ((TaskEventKind2) => {
   TaskEventKind2["Changed"] = "changed";
   TaskEventKind2["ProcessStarted"] = "processStarted";

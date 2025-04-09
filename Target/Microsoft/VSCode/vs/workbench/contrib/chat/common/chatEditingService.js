@@ -1,17 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, IReader, ITransaction } from "../../../../base/common/observable.js";
 import { URI } from "../../../../base/common/uri.js";
-import { TextEdit } from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IEditorPane } from "../../../common/editor.js";
-import { ICellEditOperation } from "../../notebook/common/notebookCommon.js";
-import { ChatModel, IChatResponseModel } from "./chatModel.js";
 const IChatEditingService = createDecorator("chatEditingService");
 const chatEditingSnapshotScheme = "chat-editing-snapshot-text-model";
 var ModifiedFileEntryState = /* @__PURE__ */ ((ModifiedFileEntryState2) => {
@@ -28,9 +20,26 @@ var ChatEditingSessionState = /* @__PURE__ */ ((ChatEditingSessionState2) => {
   return ChatEditingSessionState2;
 })(ChatEditingSessionState || {});
 const CHAT_EDITING_MULTI_DIFF_SOURCE_RESOLVER_SCHEME = "chat-editing-multi-diff-source";
-const chatEditingWidgetFileStateContextKey = new RawContextKey("chatEditingWidgetFileState", void 0, localize("chatEditingWidgetFileState", "The current state of the file in the chat editing widget"));
-const chatEditingAgentSupportsReadonlyReferencesContextKey = new RawContextKey("chatEditingAgentSupportsReadonlyReferences", void 0, localize("chatEditingAgentSupportsReadonlyReferences", "Whether the chat editing agent supports readonly references (temporary)"));
-const decidedChatEditingResourceContextKey = new RawContextKey("decidedChatEditingResource", []);
+const chatEditingWidgetFileStateContextKey = new RawContextKey(
+  "chatEditingWidgetFileState",
+  void 0,
+  localize(
+    "chatEditingWidgetFileState",
+    "The current state of the file in the chat editing widget"
+  )
+);
+const chatEditingAgentSupportsReadonlyReferencesContextKey = new RawContextKey(
+  "chatEditingAgentSupportsReadonlyReferences",
+  void 0,
+  localize(
+    "chatEditingAgentSupportsReadonlyReferences",
+    "Whether the chat editing agent supports readonly references (temporary)"
+  )
+);
+const decidedChatEditingResourceContextKey = new RawContextKey(
+  "decidedChatEditingResource",
+  []
+);
 const chatEditingResourceContextKey = new RawContextKey("chatEditingResource", void 0);
 const inChatEditingSessionContextKey = new RawContextKey("inChatEditingSession", void 0);
 const hasUndecidedChatEditingResourceContextKey = new RawContextKey("hasUndecidedChatEditingResource", false);

@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { networkInterfaces } from "os";
+import { networkInterfaces } from "node:os";
+import { isWindows } from "../common/platform.js";
 import { TernarySearchTree } from "../common/ternarySearchTree.js";
 import * as uuid from "../common/uuid.js";
 import { getMac } from "./macAddress.js";
-import { isWindows } from "../common/platform.js";
 const virtualMachineHint = new class {
   _virtualMachineOUIs;
   _value;
@@ -39,7 +39,9 @@ const virtualMachineHint = new class {
           for (const { mac, internal } of networkInterface) {
             if (!internal) {
               interfaceCount += 1;
-              if (this._isVirtualMachineMacAddress(mac.toUpperCase())) {
+              if (this._isVirtualMachineMacAddress(
+                mac.toUpperCase()
+              )) {
                 vmOui += 1;
               }
             }
@@ -64,7 +66,7 @@ async function getMachineId(errorLogger) {
 __name(getMachineId, "getMachineId");
 async function getMacMachineId(errorLogger) {
   try {
-    const crypto = await import("crypto");
+    const crypto = await import("node:crypto");
     const macAddress = getMac();
     return crypto.createHash("sha256").update(macAddress, "utf8").digest("hex");
   } catch (err) {
@@ -78,7 +80,11 @@ async function getSqmMachineId(errorLogger) {
   if (isWindows) {
     const Registry = await import("@vscode/windows-registry");
     try {
-      return Registry.GetStringRegKey("HKEY_LOCAL_MACHINE", SQM_KEY, "MachineId") || "";
+      return Registry.GetStringRegKey(
+        "HKEY_LOCAL_MACHINE",
+        SQM_KEY,
+        "MachineId"
+      ) || "";
     } catch (err) {
       errorLogger(err);
       return "";

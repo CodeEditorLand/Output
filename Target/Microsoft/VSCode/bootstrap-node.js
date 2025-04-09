@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as path from "path";
-import * as fs from "fs";
-import { fileURLToPath } from "url";
+import * as fs from "node:fs";
 import { createRequire } from "node:module";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
 const require2 = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isWindows = process.platform === "win32";
@@ -13,7 +13,7 @@ if (!process.env["VSCODE_HANDLES_SIGPIPE"]) {
   process.on("SIGPIPE", () => {
     if (!didLogAboutSIGPIPE) {
       didLogAboutSIGPIPE = true;
-      console.error(new Error(`Unexpected SIGPIPE`));
+      console.error(new Error("Unexpected SIGPIPE"));
     }
   });
 }
@@ -39,17 +39,20 @@ function devInjectNodeModuleLookupPath(injectPath) {
     throw new Error("Missing injectPath");
   }
   const Module = require2("node:module");
-  Module.register("./bootstrap-import.js", { parentURL: import.meta.url, data: injectPath });
+  Module.register("./bootstrap-import.js", {
+    parentURL: import.meta.url,
+    data: injectPath
+  });
 }
 __name(devInjectNodeModuleLookupPath, "devInjectNodeModuleLookupPath");
 function removeGlobalNodeJsModuleLookupPaths() {
   if (typeof process?.versions?.electron === "string") {
     return;
   }
-  const Module = require2("module");
+  const Module = require2("node:module");
   const globalPaths = Module.globalPaths;
   const originalResolveLookupPaths = Module._resolveLookupPaths;
-  Module._resolveLookupPaths = function(moduleName, parent) {
+  Module._resolveLookupPaths = (moduleName, parent) => {
     const paths = originalResolveLookupPaths(moduleName, parent);
     if (Array.isArray(paths)) {
       let commonSuffixLength = 0;
@@ -61,7 +64,7 @@ function removeGlobalNodeJsModuleLookupPaths() {
     return paths;
   };
   const originalNodeModulePaths = Module._nodeModulePaths;
-  Module._nodeModulePaths = function(from) {
+  Module._nodeModulePaths = (from) => {
     let paths = originalNodeModulePaths(from);
     if (!isWindows) {
       return paths;
@@ -71,7 +74,9 @@ function removeGlobalNodeJsModuleLookupPaths() {
       paths = paths.filter((p) => !isDrive(path.dirname(p)));
     }
     if (process.env.HOMEDRIVE && process.env.HOMEPATH) {
-      const userDir = path.dirname(path.join(process.env.HOMEDRIVE, process.env.HOMEPATH));
+      const userDir = path.dirname(
+        path.join(process.env.HOMEDRIVE, process.env.HOMEPATH)
+      );
       const isUsersDir = /* @__PURE__ */ __name((p) => path.relative(p, userDir).length === 0, "isUsersDir");
       if (!isUsersDir(from)) {
         paths = paths.filter((p) => !isUsersDir(path.dirname(p)));
@@ -111,7 +116,7 @@ function configurePortable(product) {
   if (isPortable) {
     process.env["VSCODE_PORTABLE"] = portableDataPath;
   } else {
-    delete process.env["VSCODE_PORTABLE"];
+    process.env["VSCODE_PORTABLE"] = void 0;
   }
   if (isTempPortable) {
     if (process.platform === "win32") {

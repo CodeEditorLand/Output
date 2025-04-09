@@ -11,15 +11,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { raceCancellation } from "../../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { IProgress, IProgressService, IProgressStep, ProgressLocation } from "../../../../platform/progress/common/progress.js";
-import { ITextFileSaveParticipant, ITextFileEditorModel, ITextFileSaveParticipantContext } from "./textfiles.js";
-import { IDisposable, Disposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
+import {
+  CancellationError,
+  isCancellationError
+} from "../../../../base/common/errors.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../../base/common/linkedList.js";
 import { localize } from "../../../../nls.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
 import { NotificationPriority } from "../../../../platform/notification/common/notification.js";
-import { CancellationError, isCancellationError } from "../../../../base/common/errors.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../../platform/progress/common/progress.js";
 let TextFileSaveParticipant = class extends Disposable {
   constructor(logService, progressService) {
     super();
@@ -38,39 +48,53 @@ let TextFileSaveParticipant = class extends Disposable {
     const cts = new CancellationTokenSource(token);
     model.textEditorModel?.pushStackElement();
     progress.report({
-      message: localize("saveParticipants1", "Running Code Actions and Formatters...")
+      message: localize(
+        "saveParticipants1",
+        "Running Code Actions and Formatters..."
+      )
     });
     let bubbleCancel = false;
-    await this.progressService.withProgress({
-      priority: NotificationPriority.URGENT,
-      location: ProgressLocation.Notification,
-      cancellable: localize("skip", "Skip"),
-      delay: model.isDirty() ? 5e3 : 3e3
-    }, async (progress2) => {
-      const participants = Array.from(this.saveParticipants).sort((a, b) => {
-        const aValue = a.ordinal ?? 0;
-        const bValue = b.ordinal ?? 0;
-        return aValue - bValue;
-      });
-      for (const saveParticipant of participants) {
-        if (cts.token.isCancellationRequested || !model.textEditorModel) {
-          break;
-        }
-        try {
-          const promise = saveParticipant.participate(model, context, progress2, cts.token);
-          await raceCancellation(promise, cts.token);
-        } catch (err) {
-          if (!isCancellationError(err)) {
-            this.logService.error(err);
-          } else if (!cts.token.isCancellationRequested) {
-            cts.cancel();
-            bubbleCancel = true;
+    await this.progressService.withProgress(
+      {
+        priority: NotificationPriority.URGENT,
+        location: ProgressLocation.Notification,
+        cancellable: localize("skip", "Skip"),
+        delay: model.isDirty() ? 5e3 : 3e3
+      },
+      async (progress2) => {
+        const participants = Array.from(this.saveParticipants).sort(
+          (a, b) => {
+            const aValue = a.ordinal ?? 0;
+            const bValue = b.ordinal ?? 0;
+            return aValue - bValue;
+          }
+        );
+        for (const saveParticipant of participants) {
+          if (cts.token.isCancellationRequested || !model.textEditorModel) {
+            break;
+          }
+          try {
+            const promise = saveParticipant.participate(
+              model,
+              context,
+              progress2,
+              cts.token
+            );
+            await raceCancellation(promise, cts.token);
+          } catch (err) {
+            if (!isCancellationError(err)) {
+              this.logService.error(err);
+            } else if (!cts.token.isCancellationRequested) {
+              cts.cancel();
+              bubbleCancel = true;
+            }
           }
         }
+      },
+      () => {
+        cts.cancel();
       }
-    }, () => {
-      cts.cancel();
-    });
+    );
     model.textEditorModel?.pushStackElement();
     cts.dispose();
     if (bubbleCancel) {

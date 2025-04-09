@@ -135,7 +135,8 @@ function createScanner(text, ignoreTrivia = false) {
   }
   __name(scanNumber, "scanNumber");
   function scanString() {
-    let result = "", start = pos;
+    let result = "";
+    let start = pos;
     while (true) {
       if (pos >= len) {
         result += text.substring(start, pos);
@@ -680,7 +681,13 @@ function parse(text, errors = [], options = ParseOptions.DEFAULT) {
 }
 __name(parse, "parse");
 function parseTree(text, errors = [], options = ParseOptions.DEFAULT) {
-  let currentParent = { type: "array", offset: -1, length: -1, children: [], parent: void 0 };
+  let currentParent = {
+    type: "array",
+    offset: -1,
+    length: -1,
+    children: [],
+    parent: void 0
+  };
   function ensurePropertyComplete(endOffset) {
     if (currentParent.type === "property") {
       currentParent.length = endOffset - currentParent.offset;
@@ -689,17 +696,35 @@ function parseTree(text, errors = [], options = ParseOptions.DEFAULT) {
   }
   __name(ensurePropertyComplete, "ensurePropertyComplete");
   function onValue(valueNode) {
-    currentParent.children.push(valueNode);
+    currentParent.children?.push(valueNode);
     return valueNode;
   }
   __name(onValue, "onValue");
   const visitor = {
     onObjectBegin: /* @__PURE__ */ __name((offset) => {
-      currentParent = onValue({ type: "object", offset, length: -1, parent: currentParent, children: [] });
+      currentParent = onValue({
+        type: "object",
+        offset,
+        length: -1,
+        parent: currentParent,
+        children: []
+      });
     }, "onObjectBegin"),
     onObjectProperty: /* @__PURE__ */ __name((name, offset, length) => {
-      currentParent = onValue({ type: "property", offset, length: -1, parent: currentParent, children: [] });
-      currentParent.children.push({ type: "string", value: name, offset, length, parent: currentParent });
+      currentParent = onValue({
+        type: "property",
+        offset,
+        length: -1,
+        parent: currentParent,
+        children: []
+      });
+      currentParent.children?.push({
+        type: "string",
+        value: name,
+        offset,
+        length,
+        parent: currentParent
+      });
     }, "onObjectProperty"),
     onObjectEnd: /* @__PURE__ */ __name((offset, length) => {
       currentParent.length = offset + length - currentParent.offset;
@@ -707,7 +732,13 @@ function parseTree(text, errors = [], options = ParseOptions.DEFAULT) {
       ensurePropertyComplete(offset + length);
     }, "onObjectEnd"),
     onArrayBegin: /* @__PURE__ */ __name((offset, length) => {
-      currentParent = onValue({ type: "array", offset, length: -1, parent: currentParent, children: [] });
+      currentParent = onValue({
+        type: "array",
+        offset,
+        length: -1,
+        parent: currentParent,
+        children: []
+      });
     }, "onArrayBegin"),
     onArrayEnd: /* @__PURE__ */ __name((offset, length) => {
       currentParent.length = offset + length - currentParent.offset;
@@ -715,7 +746,13 @@ function parseTree(text, errors = [], options = ParseOptions.DEFAULT) {
       ensurePropertyComplete(offset + length);
     }, "onArrayEnd"),
     onLiteralValue: /* @__PURE__ */ __name((value, offset, length) => {
-      onValue({ type: getNodeType(value), offset, length, parent: currentParent, value });
+      onValue({
+        type: getNodeType(value),
+        offset,
+        length,
+        parent: currentParent,
+        value
+      });
       ensurePropertyComplete(offset + length);
     }, "onLiteralValue"),
     onSeparator: /* @__PURE__ */ __name((sep, offset, length) => {
@@ -732,9 +769,9 @@ function parseTree(text, errors = [], options = ParseOptions.DEFAULT) {
     }, "onError")
   };
   visit(text, visitor, options);
-  const result = currentParent.children[0];
+  const result = currentParent.children?.[0];
   if (result) {
-    delete result.parent;
+    result.parent = void 0;
   }
   return result;
 }
@@ -791,13 +828,13 @@ __name(getNodePath, "getNodePath");
 function getNodeValue(node) {
   switch (node.type) {
     case "array":
-      return node.children.map(getNodeValue);
+      return node.children?.map(getNodeValue);
     case "object": {
       const obj = /* @__PURE__ */ Object.create(null);
       for (const prop of node.children) {
-        const valueNode = prop.children[1];
+        const valueNode = prop.children?.[1];
         if (valueNode) {
-          obj[prop.children[0].value] = getNodeValue(valueNode);
+          obj[prop.children?.[0].value] = getNodeValue(valueNode);
         }
       }
       return obj;
@@ -821,7 +858,11 @@ function findNodeAtOffset(node, offset, includeRightBound = false) {
     const children = node.children;
     if (Array.isArray(children)) {
       for (let i = 0; i < children.length && children[i].offset <= offset; i++) {
-        const item = findNodeAtOffset(children[i], offset, includeRightBound);
+        const item = findNodeAtOffset(
+          children[i],
+          offset,
+          includeRightBound
+        );
         if (item) {
           return item;
         }
@@ -835,16 +876,31 @@ __name(findNodeAtOffset, "findNodeAtOffset");
 function visit(text, visitor, options = ParseOptions.DEFAULT) {
   const _scanner = createScanner(text, false);
   function toNoArgVisit(visitFunction) {
-    return visitFunction ? () => visitFunction(_scanner.getTokenOffset(), _scanner.getTokenLength()) : () => true;
+    return visitFunction ? () => visitFunction(
+      _scanner.getTokenOffset(),
+      _scanner.getTokenLength()
+    ) : () => true;
   }
   __name(toNoArgVisit, "toNoArgVisit");
   function toOneArgVisit(visitFunction) {
-    return visitFunction ? (arg) => visitFunction(arg, _scanner.getTokenOffset(), _scanner.getTokenLength()) : () => true;
+    return visitFunction ? (arg) => visitFunction(
+      arg,
+      _scanner.getTokenOffset(),
+      _scanner.getTokenLength()
+    ) : () => true;
   }
   __name(toOneArgVisit, "toOneArgVisit");
-  const onObjectBegin = toNoArgVisit(visitor.onObjectBegin), onObjectProperty = toOneArgVisit(visitor.onObjectProperty), onObjectEnd = toNoArgVisit(visitor.onObjectEnd), onArrayBegin = toNoArgVisit(visitor.onArrayBegin), onArrayEnd = toNoArgVisit(visitor.onArrayEnd), onLiteralValue = toOneArgVisit(visitor.onLiteralValue), onSeparator = toOneArgVisit(visitor.onSeparator), onComment = toNoArgVisit(visitor.onComment), onError = toOneArgVisit(visitor.onError);
-  const disallowComments = options && options.disallowComments;
-  const allowTrailingComma = options && options.allowTrailingComma;
+  const onObjectBegin = toNoArgVisit(visitor.onObjectBegin);
+  const onObjectProperty = toOneArgVisit(visitor.onObjectProperty);
+  const onObjectEnd = toNoArgVisit(visitor.onObjectEnd);
+  const onArrayBegin = toNoArgVisit(visitor.onArrayBegin);
+  const onArrayEnd = toNoArgVisit(visitor.onArrayEnd);
+  const onLiteralValue = toOneArgVisit(visitor.onLiteralValue);
+  const onSeparator = toOneArgVisit(visitor.onSeparator);
+  const onComment = toNoArgVisit(visitor.onComment);
+  const onError = toOneArgVisit(visitor.onError);
+  const disallowComments = options?.disallowComments;
+  const allowTrailingComma = options?.allowTrailingComma;
   function scanNext() {
     while (true) {
       const token = _scanner.scan();
@@ -952,7 +1008,11 @@ function visit(text, visitor, options = ParseOptions.DEFAULT) {
   __name(parseLiteral, "parseLiteral");
   function parseProperty() {
     if (_scanner.getToken() !== 10 /* StringLiteral */) {
-      handleError(3 /* PropertyNameExpected */, [], [2 /* CloseBraceToken */, 5 /* CommaToken */]);
+      handleError(
+        3 /* PropertyNameExpected */,
+        [],
+        [2 /* CloseBraceToken */, 5 /* CommaToken */]
+      );
       return false;
     }
     parseString(false);
@@ -960,10 +1020,18 @@ function visit(text, visitor, options = ParseOptions.DEFAULT) {
       onSeparator(":");
       scanNext();
       if (!parseValue()) {
-        handleError(4 /* ValueExpected */, [], [2 /* CloseBraceToken */, 5 /* CommaToken */]);
+        handleError(
+          4 /* ValueExpected */,
+          [],
+          [2 /* CloseBraceToken */, 5 /* CommaToken */]
+        );
       }
     } else {
-      handleError(5 /* ColonExpected */, [], [2 /* CloseBraceToken */, 5 /* CommaToken */]);
+      handleError(
+        5 /* ColonExpected */,
+        [],
+        [2 /* CloseBraceToken */, 5 /* CommaToken */]
+      );
     }
     return true;
   }
@@ -986,13 +1054,21 @@ function visit(text, visitor, options = ParseOptions.DEFAULT) {
         handleError(6 /* CommaExpected */, [], []);
       }
       if (!parseProperty()) {
-        handleError(4 /* ValueExpected */, [], [2 /* CloseBraceToken */, 5 /* CommaToken */]);
+        handleError(
+          4 /* ValueExpected */,
+          [],
+          [2 /* CloseBraceToken */, 5 /* CommaToken */]
+        );
       }
       needsComma = true;
     }
     onObjectEnd();
     if (_scanner.getToken() !== 2 /* CloseBraceToken */) {
-      handleError(7 /* CloseBraceExpected */, [2 /* CloseBraceToken */], []);
+      handleError(
+        7 /* CloseBraceExpected */,
+        [2 /* CloseBraceToken */],
+        []
+      );
     } else {
       scanNext();
     }
@@ -1017,13 +1093,21 @@ function visit(text, visitor, options = ParseOptions.DEFAULT) {
         handleError(6 /* CommaExpected */, [], []);
       }
       if (!parseValue()) {
-        handleError(4 /* ValueExpected */, [], [4 /* CloseBracketToken */, 5 /* CommaToken */]);
+        handleError(
+          4 /* ValueExpected */,
+          [],
+          [4 /* CloseBracketToken */, 5 /* CommaToken */]
+        );
       }
       needsComma = true;
     }
     onArrayEnd();
     if (_scanner.getToken() !== 4 /* CloseBracketToken */) {
-      handleError(8 /* CloseBracketExpected */, [4 /* CloseBracketToken */], []);
+      handleError(
+        8 /* CloseBracketExpected */,
+        [4 /* CloseBracketToken */],
+        []
+      );
     } else {
       scanNext();
     }

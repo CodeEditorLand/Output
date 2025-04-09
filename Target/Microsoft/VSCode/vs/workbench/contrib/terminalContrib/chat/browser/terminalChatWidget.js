@@ -10,30 +10,61 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Dimension, getActiveWindow, IFocusTracker, trackFocus } from "../../../../../base/browser/dom.js";
-import { CancelablePromise, createCancelablePromise, DeferredPromise } from "../../../../../base/common/async.js";
+import {
+  Dimension,
+  getActiveWindow,
+  trackFocus
+} from "../../../../../base/browser/dom.js";
+import {
+  createCancelablePromise,
+  DeferredPromise
+} from "../../../../../base/common/async.js";
 import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
-import { autorun, observableValue } from "../../../../../base/common/observable.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
+import {
+  autorun,
+  observableValue
+} from "../../../../../base/common/observable.js";
 import { MicrotaskDelay } from "../../../../../base/common/symbols.js";
 import { localize } from "../../../../../nls.js";
 import { MenuId } from "../../../../../platform/actions/common/actions.js";
-import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import {
+  IContextKeyService
+} from "../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../../platform/storage/common/storage.js";
 import { IViewsService } from "../../../../services/views/common/viewsService.js";
-import { IChatAcceptInputOptions, showChatView } from "../../../chat/browser/chat.js";
+import {
+  showChatView
+} from "../../../chat/browser/chat.js";
 import { IChatAgentService } from "../../../chat/common/chatAgents.js";
-import { ChatModel, IChatResponseModel, isCellTextEditOperation } from "../../../chat/common/chatModel.js";
-import { IChatProgress, IChatService } from "../../../chat/common/chatService.js";
+import {
+  isCellTextEditOperation
+} from "../../../chat/common/chatModel.js";
+import {
+  IChatService
+} from "../../../chat/common/chatService.js";
 import { ChatAgentLocation } from "../../../chat/common/constants.js";
 import { InlineChatWidget } from "../../../inlineChat/browser/inlineChatWidget.js";
 import { MENU_INLINE_CHAT_WIDGET_SECONDARY } from "../../../inlineChat/common/inlineChat.js";
-import { ITerminalInstance } from "../../../terminal/browser/terminal.js";
 import { TerminalStickyScrollContribution } from "../../stickyScroll/browser/terminalStickyScrollContribution.js";
 import "./media/terminalChatWidget.css";
-import { MENU_TERMINAL_CHAT_WIDGET_INPUT_SIDE_TOOLBAR, MENU_TERMINAL_CHAT_WIDGET_STATUS, TerminalChatCommandId, TerminalChatContextKeys } from "./terminalChat.js";
+import {
+  MENU_TERMINAL_CHAT_WIDGET_INPUT_SIDE_TOOLBAR,
+  MENU_TERMINAL_CHAT_WIDGET_STATUS,
+  TerminalChatCommandId,
+  TerminalChatContextKeys
+} from "./terminalChat.js";
 var Constants = /* @__PURE__ */ ((Constants2) => {
   Constants2[Constants2["HorizontalMargin"] = 10] = "HorizontalMargin";
   Constants2[Constants2["VerticalMargin"] = 30] = "VerticalMargin";
@@ -66,8 +97,12 @@ let TerminalChatWidget = class extends Disposable {
     this._focusedContextKey = TerminalChatContextKeys.focused.bindTo(contextKeyService);
     this._visibleContextKey = TerminalChatContextKeys.visible.bindTo(contextKeyService);
     this._requestActiveContextKey = TerminalChatContextKeys.requestActive.bindTo(contextKeyService);
-    this._responseContainsCodeBlockContextKey = TerminalChatContextKeys.responseContainsCodeBlock.bindTo(contextKeyService);
-    this._responseContainsMulitpleCodeBlocksContextKey = TerminalChatContextKeys.responseContainsMultipleCodeBlocks.bindTo(contextKeyService);
+    this._responseContainsCodeBlockContextKey = TerminalChatContextKeys.responseContainsCodeBlock.bindTo(
+      contextKeyService
+    );
+    this._responseContainsMulitpleCodeBlocksContextKey = TerminalChatContextKeys.responseContainsMultipleCodeBlocks.bindTo(
+      contextKeyService
+    );
     this._container = document.createElement("div");
     this._container.classList.add("terminal-inline-chat");
     this._terminalElement.appendChild(this._container);
@@ -100,39 +135,67 @@ let TerminalChatWidget = class extends Disposable {
         }
       }
     );
-    this._register(this._inlineChatWidget.chatWidget.onDidChangeViewModel(() => this._saveViewState()));
-    this._register(Event.any(
-      this._inlineChatWidget.onDidChangeHeight,
-      this._instance.onDimensionsChanged,
-      this._inlineChatWidget.chatWidget.onDidChangeContentHeight,
-      Event.debounce(this._xterm.raw.onCursorMove, () => void 0, MicrotaskDelay)
-    )(() => this._relayout()));
+    this._register(
+      this._inlineChatWidget.chatWidget.onDidChangeViewModel(
+        () => this._saveViewState()
+      )
+    );
+    this._register(
+      Event.any(
+        this._inlineChatWidget.onDidChangeHeight,
+        this._instance.onDimensionsChanged,
+        this._inlineChatWidget.chatWidget.onDidChangeContentHeight,
+        Event.debounce(
+          this._xterm.raw.onCursorMove,
+          () => void 0,
+          MicrotaskDelay
+        )
+      )(() => this._relayout())
+    );
     const observer = new ResizeObserver(() => this._relayout());
     observer.observe(this._terminalElement);
     this._register(toDisposable(() => observer.disconnect()));
     this._resetPlaceholder();
     this._container.appendChild(this._inlineChatWidget.domNode);
     this._focusTracker = this._register(trackFocus(this._container));
-    this._register(this._focusTracker.onDidFocus(() => this._focusedContextKey.set(true)));
-    this._register(this._focusTracker.onDidBlur(() => this._focusedContextKey.set(false)));
-    this._register(autorun((r) => {
-      const isBusy = this._inlineChatWidget.requestInProgress.read(r);
-      this._container.classList.toggle("busy", isBusy);
-      this._inlineChatWidget.toggleStatus(!!this._inlineChatWidget.responseContent);
-      if (isBusy || !this._inlineChatWidget.responseContent) {
-        this._responseContainsCodeBlockContextKey.set(false);
-        this._responseContainsMulitpleCodeBlocksContextKey.set(false);
-      } else {
-        Promise.all([
-          this._inlineChatWidget.getCodeBlockInfo(0),
-          this._inlineChatWidget.getCodeBlockInfo(1)
-        ]).then(([firstCodeBlock, secondCodeBlock]) => {
-          this._responseContainsCodeBlockContextKey.set(!!firstCodeBlock);
-          this._responseContainsMulitpleCodeBlocksContextKey.set(!!secondCodeBlock);
-          this._inlineChatWidget.updateToolbar(true);
-        });
-      }
-    }));
+    this._register(
+      this._focusTracker.onDidFocus(
+        () => this._focusedContextKey.set(true)
+      )
+    );
+    this._register(
+      this._focusTracker.onDidBlur(
+        () => this._focusedContextKey.set(false)
+      )
+    );
+    this._register(
+      autorun((r) => {
+        const isBusy = this._inlineChatWidget.requestInProgress.read(r);
+        this._container.classList.toggle("busy", isBusy);
+        this._inlineChatWidget.toggleStatus(
+          !!this._inlineChatWidget.responseContent
+        );
+        if (isBusy || !this._inlineChatWidget.responseContent) {
+          this._responseContainsCodeBlockContextKey.set(false);
+          this._responseContainsMulitpleCodeBlocksContextKey.set(
+            false
+          );
+        } else {
+          Promise.all([
+            this._inlineChatWidget.getCodeBlockInfo(0),
+            this._inlineChatWidget.getCodeBlockInfo(1)
+          ]).then(([firstCodeBlock, secondCodeBlock]) => {
+            this._responseContainsCodeBlockContextKey.set(
+              !!firstCodeBlock
+            );
+            this._responseContainsMulitpleCodeBlocksContextKey.set(
+              !!secondCodeBlock
+            );
+            this._inlineChatWidget.updateToolbar(true);
+          });
+        }
+      })
+    );
     this.hide();
   }
   static {
@@ -158,7 +221,9 @@ let TerminalChatWidget = class extends Disposable {
     return this._lastResponseContent;
   }
   _terminalAgentName = "terminal";
-  _model = this._register(new MutableDisposable());
+  _model = this._register(
+    new MutableDisposable()
+  );
   _sessionCtor;
   _currentRequestId;
   _activeRequestCts;
@@ -171,19 +236,26 @@ let TerminalChatWidget = class extends Disposable {
     }
   }
   _doLayout() {
-    const xtermElement = this._xterm.raw.element;
+    const xtermElement = this._xterm.raw?.element;
     if (!xtermElement) {
       return;
     }
     const style = getActiveWindow().getComputedStyle(xtermElement);
-    const xtermLeftPadding = parseInt(style.paddingLeft);
+    const xtermLeftPadding = Number.parseInt(style.paddingLeft);
     const width = xtermElement.clientWidth - xtermLeftPadding - 12 /* RightPadding */;
     if (width === 0) {
       return;
     }
     const terminalViewportHeight = this._getTerminalViewportHeight();
     const widgetAllowedPercentBasedHeight = (terminalViewportHeight ?? 0) * 0.75 /* MaxHeightPercentageOfViewport */;
-    const height = Math.max(Math.min(480 /* MaxHeight */, this._inlineChatWidget.contentHeight, widgetAllowedPercentBasedHeight), this._inlineChatWidget.minHeight);
+    const height = Math.max(
+      Math.min(
+        480 /* MaxHeight */,
+        this._inlineChatWidget.contentHeight,
+        widgetAllowedPercentBasedHeight
+      ),
+      this._inlineChatWidget.minHeight
+    );
     if (height === 0) {
       return;
     }
@@ -193,7 +265,9 @@ let TerminalChatWidget = class extends Disposable {
     this._updateXtermViewportPosition();
   }
   _resetPlaceholder() {
-    const defaultAgent = this._chatAgentService.getDefaultAgent(ChatAgentLocation.Terminal);
+    const defaultAgent = this._chatAgentService.getDefaultAgent(
+      ChatAgentLocation.Terminal
+    );
     this.inlineChatWidget.placeholder = defaultAgent?.description ?? localize("askAI", "Ask AI");
   }
   async reveal(viewState) {
@@ -227,9 +301,18 @@ let TerminalChatWidget = class extends Disposable {
       return;
     }
     const widgetAllowedPercentBasedHeight = terminalViewportHeight * 0.75 /* MaxHeightPercentageOfViewport */;
-    const height = Math.max(Math.min(480 /* MaxHeight */, this._inlineChatWidget.contentHeight, widgetAllowedPercentBasedHeight), this._inlineChatWidget.minHeight);
+    const height = Math.max(
+      Math.min(
+        480 /* MaxHeight */,
+        this._inlineChatWidget.contentHeight,
+        widgetAllowedPercentBasedHeight
+      ),
+      this._inlineChatWidget.minHeight
+    );
     if (top > terminalViewportHeight - height && terminalViewportHeight - height > 0) {
-      this._setTerminalViewportOffset(top - (terminalViewportHeight - height));
+      this._setTerminalViewportOffset(
+        top - (terminalViewportHeight - height)
+      );
     } else {
       this._setTerminalViewportOffset(void 0);
     }
@@ -283,10 +366,16 @@ let TerminalChatWidget = class extends Disposable {
   async _createSession(viewState) {
     this._sessionCtor = createCancelablePromise(async (token) => {
       if (!this._model.value) {
-        this._model.value = this._chatService.startSession(ChatAgentLocation.Terminal, token);
+        this._model.value = this._chatService.startSession(
+          ChatAgentLocation.Terminal,
+          token
+        );
         const model = this._model.value;
         if (model) {
-          this._inlineChatWidget.setChatModel(model, this._loadViewState());
+          this._inlineChatWidget.setChatModel(
+            model,
+            this._loadViewState()
+          );
           model.waitForInitialization().then(() => {
             if (token.isCancellationRequested) {
               return;
@@ -302,7 +391,11 @@ let TerminalChatWidget = class extends Disposable {
     this._register(toDisposable(() => this._sessionCtor?.cancel()));
   }
   _loadViewState() {
-    const rawViewState = this._storageService.get(this._viewStateStorageKey, StorageScope.PROFILE, void 0);
+    const rawViewState = this._storageService.get(
+      this._viewStateStorageKey,
+      StorageScope.PROFILE,
+      void 0
+    );
     let viewState;
     if (rawViewState) {
       try {
@@ -314,7 +407,12 @@ let TerminalChatWidget = class extends Disposable {
     return viewState;
   }
   _saveViewState() {
-    this._storageService.store(this._viewStateStorageKey, JSON.stringify(this._inlineChatWidget.chatWidget.getViewState()), StorageScope.PROFILE, StorageTarget.USER);
+    this._storageService.store(
+      this._viewStateStorageKey,
+      JSON.stringify(this._inlineChatWidget.chatWidget.getViewState()),
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
   }
   clear() {
     this.cancel();
@@ -337,29 +435,42 @@ let TerminalChatWidget = class extends Disposable {
     this._activeRequestCts = new CancellationTokenSource();
     const store = new DisposableStore();
     this._requestActiveContextKey.set(true);
-    const response = await this._inlineChatWidget.chatWidget.acceptInput(lastInput, { isVoiceInput: options?.isVoiceInput });
+    const response = await this._inlineChatWidget.chatWidget.acceptInput(
+      lastInput,
+      { isVoiceInput: options?.isVoiceInput }
+    );
     this._currentRequestId = response?.requestId;
     const responsePromise = new DeferredPromise();
     try {
       this._requestActiveContextKey.set(true);
       if (response) {
-        store.add(response.onDidChange(async () => {
-          if (response.isCanceled) {
-            this._requestActiveContextKey.set(false);
-            responsePromise.complete(void 0);
-            return;
-          }
-          if (response.isComplete) {
-            this._requestActiveContextKey.set(false);
-            this._requestActiveContextKey.set(false);
-            const firstCodeBlock = await this._inlineChatWidget.getCodeBlockInfo(0);
-            const secondCodeBlock = await this._inlineChatWidget.getCodeBlockInfo(1);
-            this._responseContainsCodeBlockContextKey.set(!!firstCodeBlock);
-            this._responseContainsMulitpleCodeBlocksContextKey.set(!!secondCodeBlock);
-            this._inlineChatWidget.updateToolbar(true);
-            responsePromise.complete(response);
-          }
-        }));
+        store.add(
+          response.onDidChange(async () => {
+            if (response.isCanceled) {
+              this._requestActiveContextKey.set(false);
+              responsePromise.complete(void 0);
+              return;
+            }
+            if (response.isComplete) {
+              this._requestActiveContextKey.set(false);
+              this._requestActiveContextKey.set(false);
+              const firstCodeBlock = await this._inlineChatWidget.getCodeBlockInfo(
+                0
+              );
+              const secondCodeBlock = await this._inlineChatWidget.getCodeBlockInfo(
+                1
+              );
+              this._responseContainsCodeBlockContextKey.set(
+                !!firstCodeBlock
+              );
+              this._responseContainsMulitpleCodeBlocksContextKey.set(
+                !!secondCodeBlock
+              );
+              this._inlineChatWidget.updateToolbar(true);
+              responsePromise.complete(response);
+            }
+          })
+        );
       }
       await responsePromise.p;
       this._lastResponseContent = response?.response.getMarkdown();
@@ -419,14 +530,14 @@ let TerminalChatWidget = class extends Disposable {
       }
     }
     this._chatService.addCompleteRequest(
-      widget.viewModel.sessionId,
+      widget?.viewModel?.sessionId,
       `@${this._terminalAgentName} ${currentRequest.message.text}`,
       currentRequest.variableData,
       currentRequest.attempt,
       {
         message,
-        result: currentRequest.response.result,
-        followups: currentRequest.response.followups
+        result: currentRequest.response?.result,
+        followups: currentRequest.response?.followups
       }
     );
     widget.focusLastMessage();

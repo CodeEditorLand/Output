@@ -13,12 +13,15 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { ThrottledDelayer } from "../../../base/common/async.js";
 import { Event } from "../../../base/common/event.js";
 import { Iterable } from "../../../base/common/iterator.js";
-import { PolicyName } from "../../../base/common/policy.js";
 import { isObject } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
-import { FileOperationError, FileOperationResult, IFileService } from "../../files/common/files.js";
+import {
+  FileOperationResult,
+  IFileService
+} from "../../files/common/files.js";
 import { ILogService } from "../../log/common/log.js";
-import { AbstractPolicyService, IPolicyService, PolicyValue } from "./policy.js";
+import {
+  AbstractPolicyService
+} from "./policy.js";
 function keysDiff(a, b) {
   const result = [];
   for (const key of new Set(Iterable.concat(a.keys(), b.keys()))) {
@@ -35,14 +38,23 @@ let FilePolicyService = class extends AbstractPolicyService {
     this.file = file;
     this.fileService = fileService;
     this.logService = logService;
-    const onDidChangePolicyFile = Event.filter(fileService.onDidFilesChange, (e) => e.affects(file));
+    const onDidChangePolicyFile = Event.filter(
+      fileService.onDidFilesChange,
+      (e) => e.affects(file)
+    );
     this._register(fileService.watch(file));
-    this._register(onDidChangePolicyFile(() => this.throttledDelayer.trigger(() => this.refresh())));
+    this._register(
+      onDidChangePolicyFile(
+        () => this.throttledDelayer.trigger(() => this.refresh())
+      )
+    );
   }
   static {
     __name(this, "FilePolicyService");
   }
-  throttledDelayer = this._register(new ThrottledDelayer(500));
+  throttledDelayer = this._register(
+    new ThrottledDelayer(500)
+  );
   async _updatePolicyDefinitions() {
     await this.refresh();
   }
@@ -61,7 +73,10 @@ let FilePolicyService = class extends AbstractPolicyService {
       }
     } catch (error) {
       if (error.fileOperationResult !== FileOperationResult.FILE_NOT_FOUND) {
-        this.logService.error(`[FilePolicyService] Failed to read policies`, error);
+        this.logService.error(
+          "[FilePolicyService] Failed to read policies",
+          error
+        );
       }
     }
     return policies;

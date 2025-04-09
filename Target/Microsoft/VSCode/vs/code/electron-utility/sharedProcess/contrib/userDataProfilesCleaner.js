@@ -19,13 +19,15 @@ let UserDataProfilesCleaner = class extends Disposable {
   }
   constructor(userDataProfilesService) {
     super();
-    const scheduler = this._register(new RunOnceScheduler(
-      () => {
-        userDataProfilesService.cleanUp();
-      },
-      10 * 1e3
-      /* after 10s */
-    ));
+    const scheduler = this._register(
+      new RunOnceScheduler(
+        () => {
+          userDataProfilesService.cleanUp();
+        },
+        10 * 1e3
+        /* after 10s */
+      )
+    );
     scheduler.schedule();
   }
 };

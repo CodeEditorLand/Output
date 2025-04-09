@@ -10,20 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ILogService } from "../../log/common/log.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
-import { AbstractExtensionsProfileScannerService, IExtensionsProfileScannerService } from "../common/extensionsProfileScannerService.js";
-import { IFileService } from "../../files/common/files.js";
-import { INativeEnvironmentService } from "../../environment/common/environment.js";
 import { URI } from "../../../base/common/uri.js";
-import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
+import { INativeEnvironmentService } from "../../environment/common/environment.js";
+import { IFileService } from "../../files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
+import { ILogService } from "../../log/common/log.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import {
+  AbstractExtensionsProfileScannerService,
+  IExtensionsProfileScannerService
+} from "../common/extensionsProfileScannerService.js";
 let ExtensionsProfileScannerService = class extends AbstractExtensionsProfileScannerService {
   static {
     __name(this, "ExtensionsProfileScannerService");
   }
   constructor(environmentService, fileService, userDataProfilesService, uriIdentityService, logService) {
-    super(URI.file(environmentService.extensionsPath), fileService, userDataProfilesService, uriIdentityService, logService);
+    super(
+      URI.file(environmentService.extensionsPath),
+      fileService,
+      userDataProfilesService,
+      uriIdentityService,
+      logService
+    );
   }
 };
 ExtensionsProfileScannerService = __decorateClass([
@@ -33,7 +45,11 @@ ExtensionsProfileScannerService = __decorateClass([
   __decorateParam(3, IUriIdentityService),
   __decorateParam(4, ILogService)
 ], ExtensionsProfileScannerService);
-registerSingleton(IExtensionsProfileScannerService, ExtensionsProfileScannerService, InstantiationType.Delayed);
+registerSingleton(
+  IExtensionsProfileScannerService,
+  ExtensionsProfileScannerService,
+  InstantiationType.Delayed
+);
 export {
   ExtensionsProfileScannerService
 };

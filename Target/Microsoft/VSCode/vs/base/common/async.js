@@ -1,14 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken, CancellationTokenSource } from "./cancellation.js";
+import {
+  CancellationTokenSource
+} from "./cancellation.js";
 import { BugIndicatingError, CancellationError } from "./errors.js";
 import { Emitter, Event } from "./event.js";
-import { Disposable, DisposableMap, DisposableStore, IDisposable, isDisposable, MutableDisposable, toDisposable } from "./lifecycle.js";
-import { extUri as defaultExtUri, IExtUri } from "./resources.js";
-import { URI } from "./uri.js";
-import { setTimeout0 } from "./platform.js";
-import { MicrotaskDelay } from "./symbols.js";
 import { Lazy } from "./lazy.js";
+import {
+  Disposable,
+  DisposableMap,
+  isDisposable,
+  MutableDisposable,
+  toDisposable
+} from "./lifecycle.js";
+import { setTimeout0 } from "./platform.js";
+import { extUri as defaultExtUri } from "./resources.js";
+import { MicrotaskDelay } from "./symbols.js";
 function isThenable(obj) {
   return !!obj && typeof obj.then === "function";
 }
@@ -23,19 +30,22 @@ function createCancelablePromise(callback) {
       subscription.dispose();
       reject(new CancellationError());
     });
-    Promise.resolve(thenable).then((value) => {
-      subscription.dispose();
-      source.dispose();
-      if (!isCancelled) {
-        resolve(value);
-      } else if (isDisposable(value)) {
-        value.dispose();
+    Promise.resolve(thenable).then(
+      (value) => {
+        subscription.dispose();
+        source.dispose();
+        if (!isCancelled) {
+          resolve(value);
+        } else if (isDisposable(value)) {
+          value.dispose();
+        }
+      },
+      (err) => {
+        subscription.dispose();
+        source.dispose();
+        reject(err);
       }
-    }, (err) => {
-      subscription.dispose();
-      source.dispose();
-      reject(err);
-    });
+    );
   });
   return new class {
     cancel() {
@@ -76,10 +86,12 @@ function raceCancellationError(promise, token) {
 __name(raceCancellationError, "raceCancellationError");
 async function raceCancellablePromises(cancellablePromises) {
   let resolvedPromiseIndex = -1;
-  const promises = cancellablePromises.map((promise, index) => promise.then((result) => {
-    resolvedPromiseIndex = index;
-    return result;
-  }));
+  const promises = cancellablePromises.map(
+    (promise, index) => promise.then((result) => {
+      resolvedPromiseIndex = index;
+      return result;
+    })
+  );
   try {
     const result = await Promise.race(promises);
     return result;
@@ -179,22 +191,25 @@ class Throttler {
           return result;
         }, "onComplete");
         this.queuedPromise = new Promise((resolve) => {
-          this.activePromise.then(onComplete, onComplete).then(resolve);
+          this.activePromise?.then(onComplete, onComplete).then(resolve);
         });
       }
       return new Promise((resolve, reject) => {
-        this.queuedPromise.then(resolve, reject);
+        this.queuedPromise?.then(resolve, reject);
       });
     }
     this.activePromise = promiseFactory();
     return new Promise((resolve, reject) => {
-      this.activePromise.then((result) => {
-        this.activePromise = null;
-        resolve(result);
-      }, (err) => {
-        this.activePromise = null;
-        reject(err);
-      });
+      this.activePromise?.then(
+        (result) => {
+          this.activePromise = null;
+          resolve(result);
+        },
+        (err) => {
+          this.activePromise = null;
+          reject(err);
+        }
+      );
     });
   }
   dispose() {
@@ -207,7 +222,10 @@ class Sequencer {
   }
   current = Promise.resolve(null);
   queue(promiseTask) {
-    return this.current = this.current.then(() => promiseTask(), () => promiseTask());
+    return this.current = this.current.then(
+      () => promiseTask(),
+      () => promiseTask()
+    );
   }
 }
 class SequencerByKey {
@@ -330,7 +348,10 @@ class ThrottledDelayer {
     this.throttler = new Throttler();
   }
   trigger(promiseFactory, delay) {
-    return this.delayer.trigger(() => this.throttler.queue(promiseFactory), delay);
+    return this.delayer.trigger(
+      () => this.throttler.queue(promiseFactory),
+      delay
+    );
   }
   isTriggered() {
     return this.delayer.isTriggered();
@@ -530,7 +551,10 @@ class Limiter {
       this.runningPromises++;
       const promise = iLimitedTask.factory();
       promise.then(iLimitedTask.c, iLimitedTask.e);
-      promise.then(() => this.consumed(), () => this.consumed());
+      promise.then(
+        () => this.consumed(),
+        () => this.consumed()
+      );
     }
   }
   consumed() {
@@ -679,7 +703,9 @@ class TimeoutTimer {
   }
   cancelAndSet(runner, timeout2) {
     if (this._isDisposed) {
-      throw new BugIndicatingError(`Calling 'cancelAndSet' on a disposed TimeoutTimer`);
+      throw new BugIndicatingError(
+        `Calling 'cancelAndSet' on a disposed TimeoutTimer`
+      );
     }
     this.cancel();
     this._token = setTimeout(() => {
@@ -689,7 +715,9 @@ class TimeoutTimer {
   }
   setIfNotSet(runner, timeout2) {
     if (this._isDisposed) {
-      throw new BugIndicatingError(`Calling 'setIfNotSet' on a disposed TimeoutTimer`);
+      throw new BugIndicatingError(
+        `Calling 'setIfNotSet' on a disposed TimeoutTimer`
+      );
     }
     if (this._token !== -1) {
       return;
@@ -712,7 +740,9 @@ class IntervalTimer {
   }
   cancelAndSet(runner, interval, context = globalThis) {
     if (this.isDisposed) {
-      throw new BugIndicatingError(`Calling 'cancelAndSet' on a disposed IntervalTimer`);
+      throw new BugIndicatingError(
+        `Calling 'cancelAndSet' on a disposed IntervalTimer`
+      );
     }
     this.cancel();
     const handle = context.setInterval(() => {
@@ -804,7 +834,9 @@ class ProcessTimeRunOnceScheduler {
   intervalHandler;
   constructor(runner, delay) {
     if (delay % 1e3 !== 0) {
-      console.warn(`ProcessTimeRunOnceScheduler resolution is 1s, ${delay}ms is not a multiple of 1000ms.`);
+      console.warn(
+        `ProcessTimeRunOnceScheduler resolution is 1s, ${delay}ms is not a multiple of 1000ms.`
+      );
     }
     this.runner = runner;
     this.timeout = delay;
@@ -827,7 +859,9 @@ class ProcessTimeRunOnceScheduler {
    */
   schedule(delay = this.timeout) {
     if (delay % 1e3 !== 0) {
-      console.warn(`ProcessTimeRunOnceScheduler resolution is 1s, ${delay}ms is not a multiple of 1000ms.`);
+      console.warn(
+        `ProcessTimeRunOnceScheduler resolution is 1s, ${delay}ms is not a multiple of 1000ms.`
+      );
     }
     this.cancel();
     this.counter = Math.ceil(delay / 1e3);
@@ -854,9 +888,6 @@ class RunOnceWorker extends RunOnceScheduler {
     __name(this, "RunOnceWorker");
   }
   units = [];
-  constructor(runner, timeout2) {
-    super(runner, timeout2);
-  }
   work(unit) {
     this.units.push(unit);
     if (!this.isScheduled()) {
@@ -883,7 +914,9 @@ class ThrottledWorker extends Disposable {
     __name(this, "ThrottledWorker");
   }
   pendingWork = [];
-  throttler = this._register(new MutableDisposable());
+  throttler = this._register(
+    new MutableDisposable()
+  );
   disposed = false;
   lastExecutionTime = 0;
   /**
@@ -924,7 +957,12 @@ class ThrottledWorker extends Disposable {
     if (!this.throttler.value && (!this.options.waitThrottleDelayBetweenWorkUnits || timeSinceLastExecution >= this.options.throttleDelay)) {
       this.doWork();
     } else if (!this.throttler.value && this.options.waitThrottleDelayBetweenWorkUnits) {
-      this.scheduleThrottler(Math.max(this.options.throttleDelay - timeSinceLastExecution, 0));
+      this.scheduleThrottler(
+        Math.max(
+          this.options.throttleDelay - timeSinceLastExecution,
+          0
+        )
+      );
     } else {
     }
     return true;
@@ -951,7 +989,7 @@ class ThrottledWorker extends Disposable {
 }
 let runWhenGlobalIdle;
 let _runWhenIdle;
-(function() {
+(() => {
   if (typeof globalThis.requestIdleCallback !== "function" || typeof globalThis.cancelIdleCallback !== "function") {
     _runWhenIdle = /* @__PURE__ */ __name((_targetWindow, runner, timeout2) => {
       setTimeout0(() => {
@@ -979,7 +1017,10 @@ let _runWhenIdle;
     }, "_runWhenIdle");
   } else {
     _runWhenIdle = /* @__PURE__ */ __name((targetWindow, runner, timeout2) => {
-      const handle = targetWindow.requestIdleCallback(runner, typeof timeout2 === "number" ? { timeout: timeout2 } : void 0);
+      const handle = targetWindow.requestIdleCallback(
+        runner,
+        typeof timeout2 === "number" ? { timeout: timeout2 } : void 0
+      );
       let disposed = false;
       return {
         dispose() {
@@ -1073,7 +1114,10 @@ class TaskSequentializer {
   }
   run(taskId, promise, onCancel) {
     this._running = { taskId, cancel: /* @__PURE__ */ __name(() => onCancel?.(), "cancel"), promise };
-    promise.then(() => this.doneRunning(taskId), () => this.doneRunning(taskId));
+    promise.then(
+      () => this.doneRunning(taskId),
+      () => this.doneRunning(taskId)
+    );
     return promise;
   }
   doneRunning(taskId) {
@@ -1097,7 +1141,11 @@ class TaskSequentializer {
    */
   queue(run) {
     if (!this._queued) {
-      const { promise, resolve: promiseResolve, reject: promiseReject } = promiseWithResolvers();
+      const {
+        promise,
+        resolve: promiseResolve,
+        reject: promiseReject
+      } = promiseWithResolvers();
       this._queued = {
         run,
         promise,
@@ -1189,12 +1237,19 @@ var Promises;
 ((Promises2) => {
   async function settled(promises) {
     let firstError = void 0;
-    const result = await Promise.all(promises.map((promise) => promise.then((value) => value, (error) => {
-      if (!firstError) {
-        firstError = error;
-      }
-      return void 0;
-    })));
+    const result = await Promise.all(
+      promises.map(
+        (promise) => promise.then(
+          (value) => value,
+          (error) => {
+            if (!firstError) {
+              firstError = error;
+            }
+            return void 0;
+          }
+        )
+      )
+    );
     if (typeof firstError !== "undefined") {
       throw firstError;
     }
@@ -1266,7 +1321,9 @@ class LazyStatefulPromise {
   static {
     __name(this, "LazyStatefulPromise");
   }
-  _promise = new Lazy(() => new StatefulPromise(this._compute()));
+  _promise = new Lazy(
+    () => new StatefulPromise(this._compute())
+  );
   /**
    * Returns the resolved value.
    * Throws if the promise is not resolved yet.
@@ -1309,16 +1366,20 @@ class AsyncIterableObject {
   }
   static fromPromisesResolveOrder(promises) {
     return new AsyncIterableObject(async (emitter) => {
-      await Promise.all(promises.map(async (p) => emitter.emitOne(await p)));
+      await Promise.all(
+        promises.map(async (p) => emitter.emitOne(await p))
+      );
     });
   }
   static merge(iterables) {
     return new AsyncIterableObject(async (emitter) => {
-      await Promise.all(iterables.map(async (iterable) => {
-        for await (const item of iterable) {
-          emitter.emitOne(item);
-        }
-      }));
+      await Promise.all(
+        iterables.map(async (iterable) => {
+          for await (const item of iterable) {
+            emitter.emitOne(item);
+          }
+        })
+      );
     });
   }
   static EMPTY = AsyncIterableObject.fromArray([]);

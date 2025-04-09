@@ -10,7 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { matchesScheme, Schemas } from "../../../../base/common/network.js";
 import Severity from "../../../../base/common/severity.js";
 import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
@@ -18,17 +18,21 @@ import { IClipboardService } from "../../../../platform/clipboard/common/clipboa
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IOpenerService, OpenOptions } from "../../../../platform/opener/common/opener.js";
+import {
+  IOpenerService
+} from "../../../../platform/opener/common/opener.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { ITrustedDomainService } from "./trustedDomainService.js";
-import { isURLDomainTrusted } from "../common/trustedDomains.js";
-import { configureOpenerTrustedDomainsHandler, readStaticTrustedDomains } from "./trustedDomains.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { isURLDomainTrusted } from "../common/trustedDomains.js";
+import {
+  configureOpenerTrustedDomainsHandler,
+  readStaticTrustedDomains
+} from "./trustedDomains.js";
+import { ITrustedDomainService } from "./trustedDomainService.js";
 let OpenerValidatorContributions = class {
   constructor(_openerService, _storageService, _dialogService, _productService, _quickInputService, _editorService, _clipboardService, _telemetryService, _instantiationService, _configurationService, _workspaceTrustService, _trustedDomainService) {
     this._openerService = _openerService;
@@ -43,7 +47,9 @@ let OpenerValidatorContributions = class {
     this._configurationService = _configurationService;
     this._workspaceTrustService = _workspaceTrustService;
     this._trustedDomainService = _trustedDomainService;
-    this._openerService.registerValidator({ shouldOpen: /* @__PURE__ */ __name((uri, options) => this.validateLink(uri, options), "shouldOpen") });
+    this._openerService.registerValidator({
+      shouldOpen: /* @__PURE__ */ __name((uri, options) => this.validateLink(uri, options), "shouldOpen")
+    });
   }
   static {
     __name(this, "OpenerValidatorContributions");
@@ -52,7 +58,9 @@ let OpenerValidatorContributions = class {
     if (!matchesScheme(resource, Schemas.http) && !matchesScheme(resource, Schemas.https)) {
       return true;
     }
-    if (openOptions?.fromWorkspace && this._workspaceTrustService.isWorkspaceTrusted() && !this._configurationService.getValue("workbench.trustedDomains.promptInTrustedWorkspace")) {
+    if (openOptions?.fromWorkspace && this._workspaceTrustService.isWorkspaceTrusted() && !this._configurationService.getValue(
+      "workbench.trustedDomains.promptInTrustedWorkspace"
+    )) {
       return true;
     }
     const originalResource = resource;
@@ -67,13 +75,18 @@ let OpenerValidatorContributions = class {
     } else {
       const { scheme, authority, path, query, fragment } = resourceUri;
       let formattedLink = `${scheme}://${authority}${path}`;
-      const linkTail = `${query ? "?" + query : ""}${fragment ? "#" + fragment : ""}`;
+      const linkTail = `${query ? `?${query}` : ""}${fragment ? `#${fragment}` : ""}`;
       const remainingLength = Math.max(0, 60 - formattedLink.length);
-      const linkTailLengthToKeep = Math.min(Math.max(5, remainingLength), linkTail.length);
+      const linkTailLengthToKeep = Math.min(
+        Math.max(5, remainingLength),
+        linkTail.length
+      );
       if (linkTailLengthToKeep === linkTail.length) {
         formattedLink += linkTail;
       } else {
-        formattedLink += linkTail.charAt(0) + "..." + linkTail.substring(linkTail.length - linkTailLengthToKeep + 1);
+        formattedLink += `${linkTail.charAt(0)}...${linkTail.substring(
+          linkTail.length - linkTailLengthToKeep + 1
+        )}`;
       }
       const { result } = await this._dialogService.prompt({
         type: Severity.Info,
@@ -85,20 +98,36 @@ let OpenerValidatorContributions = class {
         detail: typeof originalResource === "string" ? originalResource : formattedLink,
         buttons: [
           {
-            label: localize({ key: "open", comment: ["&& denotes a mnemonic"] }, "&&Open"),
+            label: localize(
+              { key: "open", comment: ["&& denotes a mnemonic"] },
+              "&&Open"
+            ),
             run: /* @__PURE__ */ __name(() => true, "run")
           },
           {
-            label: localize({ key: "copy", comment: ["&& denotes a mnemonic"] }, "&&Copy"),
+            label: localize(
+              { key: "copy", comment: ["&& denotes a mnemonic"] },
+              "&&Copy"
+            ),
             run: /* @__PURE__ */ __name(() => {
-              this._clipboardService.writeText(typeof originalResource === "string" ? originalResource : resourceUri.toString(true));
+              this._clipboardService.writeText(
+                typeof originalResource === "string" ? originalResource : resourceUri.toString(true)
+              );
               return false;
             }, "run")
           },
           {
-            label: localize({ key: "configureTrustedDomains", comment: ["&& denotes a mnemonic"] }, "Configure &&Trusted Domains"),
+            label: localize(
+              {
+                key: "configureTrustedDomains",
+                comment: ["&& denotes a mnemonic"]
+              },
+              "Configure &&Trusted Domains"
+            ),
             run: /* @__PURE__ */ __name(async () => {
-              const { trustedDomains } = this._instantiationService.invokeFunction(readStaticTrustedDomains);
+              const { trustedDomains } = this._instantiationService.invokeFunction(
+                readStaticTrustedDomains
+              );
               const domainToOpen = `${scheme}://${authority}`;
               const pickedDomains = await configureOpenerTrustedDomainsHandler(
                 trustedDomains,

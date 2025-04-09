@@ -17,9 +17,9 @@ import { URI } from "../../../../base/common/uri.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { InMemoryFileSystemProvider } from "../../../../platform/files/common/inMemoryFilesystemProvider.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { McpConfigurationServer } from "../../../../platform/mcp/common/mcpPlatformTypes.js";
-import { IOpenURLOptions, IURLHandler, IURLService } from "../../../../platform/url/common/url.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
+import {
+  IURLService
+} from "../../../../platform/url/common/url.js";
 import { McpAddConfigurationCommand } from "./mcpCommandsAddConfiguration.js";
 const providerScheme = "mcp-install";
 let McpUrlHandler = class extends Disposable {
@@ -37,7 +37,9 @@ let McpUrlHandler = class extends Disposable {
     return this._instaService.invokeFunction((accessor) => {
       const fileService = accessor.get(IFileService);
       const filesystem = new InMemoryFileSystemProvider();
-      this._register(fileService.registerProvider(providerScheme, filesystem));
+      this._register(
+        fileService.registerProvider(providerScheme, filesystem)
+      );
       return providerScheme;
     });
   });
@@ -53,12 +55,18 @@ let McpUrlHandler = class extends Disposable {
     }
     const { name, ...rest } = parsed;
     const scheme = this._fileSystemProvider.value;
-    const fileUri = URI.from({ scheme, path: `/${encodeURIComponent(name)}.json` });
+    const fileUri = URI.from({
+      scheme,
+      path: `/${encodeURIComponent(name)}.json`
+    });
     await this._fileService.writeFile(
       fileUri,
       VSBuffer.fromString(JSON.stringify(rest, null, "	"))
     );
-    const addConfigHelper = this._instaService.createInstance(McpAddConfigurationCommand, void 0);
+    const addConfigHelper = this._instaService.createInstance(
+      McpAddConfigurationCommand,
+      void 0
+    );
     addConfigHelper.pickForUrlHandler(fileUri, true);
     return Promise.resolve(true);
   }

@@ -1,23 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as nls from "../../../../nls.js";
-import { Action, IAction, IActionRunner } from "../../../common/actions.js";
+import {
+  Action
+} from "../../../common/actions.js";
 import { Codicon } from "../../../common/codicons.js";
 import { Emitter } from "../../../common/event.js";
-import { ResolvedKeybinding } from "../../../common/keybindings.js";
 import { KeyCode } from "../../../common/keyCodes.js";
-import { IDisposable } from "../../../common/lifecycle.js";
 import { ThemeIcon } from "../../../common/themables.js";
-import { IContextMenuProvider } from "../../contextmenu.js";
 import { $, addDisposableListener, append, EventType, h } from "../../dom.js";
 import { StandardKeyboardEvent } from "../../keyboardEvent.js";
-import { IActionViewItemProvider } from "../actionbar/actionbar.js";
-import { ActionViewItem, BaseActionViewItem, IActionViewItemOptions, IBaseActionViewItemOptions } from "../actionbar/actionViewItems.js";
-import { AnchorAlignment } from "../contextview/contextview.js";
+import {
+  ActionViewItem,
+  BaseActionViewItem
+} from "../actionbar/actionViewItems.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
 import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
 import "./dropdown.css";
-import { DropdownMenu, IActionProvider, IDropdownMenuOptions, ILabelRenderer } from "./dropdown.js";
+import {
+  DropdownMenu
+} from "./dropdown.js";
 class DropdownMenuActionViewItem extends BaseActionViewItem {
   static {
     __name(this, "DropdownMenuActionViewItem");
@@ -53,11 +55,15 @@ class DropdownMenuActionViewItem extends BaseActionViewItem {
       actionProvider: isActionsArray ? void 0 : this.menuActionsOrProvider,
       skipTelemetry: this.options.skipTelemetry
     };
-    this.dropdownMenu = this._register(new DropdownMenu(container, options));
-    this._register(this.dropdownMenu.onDidChangeVisibility((visible) => {
-      this.element?.setAttribute("aria-expanded", `${visible}`);
-      this._onDidChangeVisibility.fire(visible);
-    }));
+    this.dropdownMenu = this._register(
+      new DropdownMenu(container, options)
+    );
+    this._register(
+      this.dropdownMenu.onDidChangeVisibility((visible) => {
+        this.element?.setAttribute("aria-expanded", `${visible}`);
+        this._onDidChangeVisibility.fire(visible);
+      })
+    );
     this.dropdownMenu.menuOptions = {
       actionViewItemProvider: this.options.actionViewItemProvider,
       actionRunner: this.actionRunner,
@@ -69,7 +75,7 @@ class DropdownMenuActionViewItem extends BaseActionViewItem {
       this.dropdownMenu.menuOptions = {
         ...this.dropdownMenu.menuOptions,
         get anchorAlignment() {
-          return that.options.anchorAlignmentProvider();
+          return that.options.anchorAlignmentProvider?.();
         }
       };
     }
@@ -88,7 +94,13 @@ class DropdownMenuActionViewItem extends BaseActionViewItem {
     }
     element.classList.add(...classNames);
     if (this._action.label) {
-      this._register(getBaseLayerHoverDelegate().setupManagedHover(this.options.hoverDelegate ?? getDefaultHoverDelegate("mouse"), element, this._action.label));
+      this._register(
+        getBaseLayerHoverDelegate().setupManagedHover(
+          this.options.hoverDelegate ?? getDefaultHoverDelegate("mouse"),
+          element,
+          this._action.label
+        )
+      );
     }
     return null;
   }
@@ -146,31 +158,59 @@ class ActionWithDropdownActionViewItem extends ActionViewItem {
         }, "getActions")
       };
       const menuActionClassNames = this.options.menuActionClassNames || [];
-      const separator = h("div.action-dropdown-item-separator", [h("div", {})]).root;
-      separator.classList.toggle("prominent", menuActionClassNames.includes("prominent"));
+      const separator = h("div.action-dropdown-item-separator", [
+        h("div", {})
+      ]).root;
+      separator.classList.toggle(
+        "prominent",
+        menuActionClassNames.includes("prominent")
+      );
       append(this.element, separator);
-      this.dropdownMenuActionViewItem = this._register(new DropdownMenuActionViewItem(this._register(new Action("dropdownAction", nls.localize("moreActions", "More Actions..."))), menuActionsProvider, this.contextMenuProvider, { classNames: ["dropdown", ...ThemeIcon.asClassNameArray(Codicon.dropDownButton), ...menuActionClassNames], hoverDelegate: this.options.hoverDelegate }));
+      this.dropdownMenuActionViewItem = this._register(
+        new DropdownMenuActionViewItem(
+          this._register(
+            new Action(
+              "dropdownAction",
+              nls.localize("moreActions", "More Actions...")
+            )
+          ),
+          menuActionsProvider,
+          this.contextMenuProvider,
+          {
+            classNames: [
+              "dropdown",
+              ...ThemeIcon.asClassNameArray(
+                Codicon.dropDownButton
+              ),
+              ...menuActionClassNames
+            ],
+            hoverDelegate: this.options.hoverDelegate
+          }
+        )
+      );
       this.dropdownMenuActionViewItem.render(this.element);
-      this._register(addDisposableListener(this.element, EventType.KEY_DOWN, (e) => {
-        if (menuActionsProvider.getActions().length === 0) {
-          return;
-        }
-        const event = new StandardKeyboardEvent(e);
-        let handled = false;
-        if (this.dropdownMenuActionViewItem?.isFocused() && event.equals(KeyCode.LeftArrow)) {
-          handled = true;
-          this.dropdownMenuActionViewItem?.blur();
-          this.focus();
-        } else if (this.isFocused() && event.equals(KeyCode.RightArrow)) {
-          handled = true;
-          this.blur();
-          this.dropdownMenuActionViewItem?.focus();
-        }
-        if (handled) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-      }));
+      this._register(
+        addDisposableListener(this.element, EventType.KEY_DOWN, (e) => {
+          if (menuActionsProvider.getActions().length === 0) {
+            return;
+          }
+          const event = new StandardKeyboardEvent(e);
+          let handled = false;
+          if (this.dropdownMenuActionViewItem?.isFocused() && event.equals(KeyCode.LeftArrow)) {
+            handled = true;
+            this.dropdownMenuActionViewItem?.blur();
+            this.focus();
+          } else if (this.isFocused() && event.equals(KeyCode.RightArrow)) {
+            handled = true;
+            this.blur();
+            this.dropdownMenuActionViewItem?.focus();
+          }
+          if (handled) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        })
+      );
     }
   }
   blur() {

@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtHostAiRelatedInformationShape, IMainContext, MainContext, MainThreadAiRelatedInformationShape } from "./extHost.protocol.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
 import { Disposable } from "./extHostTypes.js";
 class ExtHostRelatedInformation {
   static {
@@ -11,7 +12,9 @@ class ExtHostRelatedInformation {
   _nextHandle = 0;
   _proxy;
   constructor(mainContext) {
-    this._proxy = mainContext.getProxy(MainContext.MainThreadAiRelatedInformation);
+    this._proxy = mainContext.getProxy(
+      MainContext.MainThreadAiRelatedInformation
+    );
   }
   async $provideAiRelatedInformation(handle, query, token) {
     if (this._relatedInformationProviders.size === 0) {

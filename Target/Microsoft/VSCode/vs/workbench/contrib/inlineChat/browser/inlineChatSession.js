@@ -10,37 +10,45 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IIdentifiedSingleEditOperation, IModelDecorationOptions, IModelDeltaDecoration, ITextModel, IValidEditOperation, TrackedRangeStickiness } from "../../../../editor/common/model.js";
-import { CTX_INLINE_CHAT_HAS_STASHED_SESSION } from "../common/inlineChat.js";
-import { IRange, Range } from "../../../../editor/common/core/range.js";
-import { ModelDecorationOptions } from "../../../../editor/common/model/textModel.js";
-import { EditOperation, ISingleEditOperation } from "../../../../editor/common/core/editOperation.js";
-import { DetailedLineRangeMapping, LineRangeMapping, RangeMapping } from "../../../../editor/common/diff/rangeMapping.js";
-import { IInlineChatSessionService } from "./inlineChatSessionService.js";
-import { LineRange } from "../../../../editor/common/core/lineRange.js";
-import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
 import { coalesceInPlace } from "../../../../base/common/arrays.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import { IModelContentChangedEvent } from "../../../../editor/common/textModelEvents.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { ChatModel, IChatRequestModel, IChatTextEditGroupState } from "../../chat/common/chatModel.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import {
+  EditOperation
+} from "../../../../editor/common/core/editOperation.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import {
+  DetailedLineRangeMapping
+} from "../../../../editor/common/diff/rangeMapping.js";
+import {
+  TrackedRangeStickiness
+} from "../../../../editor/common/model.js";
+import { ModelDecorationOptions } from "../../../../editor/common/model/textModel.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { IChatAgent } from "../../chat/common/chatAgents.js";
-import { IDocumentDiff } from "../../../../editor/common/diff/documentDiffProvider.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { CTX_INLINE_CHAT_HAS_STASHED_SESSION } from "../common/inlineChat.js";
+import { IInlineChatSessionService } from "./inlineChatSessionService.js";
 class SessionWholeRange {
   constructor(_textModel, wholeRange) {
     this._textModel = _textModel;
-    this._decorationIds = _textModel.deltaDecorations([], [{ range: wholeRange, options: SessionWholeRange._options }]);
+    this._decorationIds = _textModel.deltaDecorations(
+      [],
+      [{ range: wholeRange, options: SessionWholeRange._options }]
+    );
   }
   static {
     __name(this, "SessionWholeRange");
   }
-  static _options = ModelDecorationOptions.register({ description: "inlineChat/session/wholeRange" });
+  static _options = ModelDecorationOptions.register({
+    description: "inlineChat/session/wholeRange"
+  });
   _onDidChange = new Emitter();
   onDidChange = this._onDidChange.event;
   _decorationIds = [];
@@ -53,8 +61,23 @@ class SessionWholeRange {
   fixup(changes) {
     const newDeco = [];
     for (const { modified } of changes) {
-      const modifiedRange = this._textModel.validateRange(modified.isEmpty ? new Range(modified.startLineNumber, 1, modified.startLineNumber, Number.MAX_SAFE_INTEGER) : new Range(modified.startLineNumber, 1, modified.endLineNumberExclusive - 1, Number.MAX_SAFE_INTEGER));
-      newDeco.push({ range: modifiedRange, options: SessionWholeRange._options });
+      const modifiedRange = this._textModel.validateRange(
+        modified.isEmpty ? new Range(
+          modified.startLineNumber,
+          1,
+          modified.startLineNumber,
+          Number.MAX_SAFE_INTEGER
+        ) : new Range(
+          modified.startLineNumber,
+          1,
+          modified.endLineNumberExclusive - 1,
+          Number.MAX_SAFE_INTEGER
+        )
+      );
+      newDeco.push({
+        range: modifiedRange,
+        options: SessionWholeRange._options
+      });
     }
     const [first, ...rest] = this._decorationIds;
     const newIds = this._textModel.deltaDecorations(rest, newDeco);
@@ -122,7 +145,10 @@ class Session {
     this._isUnstashed = true;
   }
   markModelVersion(request) {
-    this._versionByRequest.set(request.id, this.textModelN.getAlternativeVersionId());
+    this._versionByRequest.set(
+      request.id,
+      this.textModelN.getAlternativeVersionId()
+    );
   }
   get versionsByRequest() {
     return Array.from(this._versionByRequest);
@@ -143,7 +169,9 @@ class Session {
     return true;
   }
   get hasChangedText() {
-    return !this.textModel0.equalsTextBuffer(this.textModelN.getTextBuffer());
+    return !this.textModel0.equalsTextBuffer(
+      this.textModelN.getTextBuffer()
+    );
   }
   asChangedText(changes) {
     if (changes.length === 0) {
@@ -155,7 +183,9 @@ class Session {
       startLine = Math.min(startLine, change.modified.startLineNumber);
       endLine = Math.max(endLine, change.modified.endLineNumberExclusive);
     }
-    return this.textModelN.getValueInRange(new Range(startLine, 1, endLine, Number.MAX_VALUE));
+    return this.textModelN.getValueInRange(
+      new Range(startLine, 1, endLine, Number.MAX_VALUE)
+    );
   }
   recordExternalEditOccurred(didFinish) {
     this._teldata.edits += 1;
@@ -184,7 +214,14 @@ let StashedSession = class {
     this._ctxHasStashedSession = CTX_INLINE_CHAT_HAS_STASHED_SESSION.bindTo(contextKeyService);
     this._session = session;
     this._ctxHasStashedSession.set(true);
-    this._listener = Event.once(Event.any(editor.onDidChangeCursorSelection, editor.onDidChangeModelContent, editor.onDidChangeModel, editor.onDidBlurEditorWidget))(() => {
+    this._listener = Event.once(
+      Event.any(
+        editor.onDidChangeCursorSelection,
+        editor.onDidChangeModelContent,
+        editor.onDidChangeModel,
+        editor.onDidBlurEditorWidget
+      )
+    )(() => {
       this._session = void 0;
       this._sessionService.releaseSession(session);
       this._ctxHasStashedSession.reset();
@@ -211,7 +248,11 @@ let StashedSession = class {
     const result = this._session;
     result.markUnstashed();
     result.hunkData.ignoreTextModelNChanges = true;
-    result.textModelN.pushEditOperations(null, this._undoCancelEdits, () => null);
+    result.textModelN.pushEditOperations(
+      null,
+      this._undoCancelEdits,
+      () => null
+    );
     result.hunkData.ignoreTextModelNChanges = false;
     this._session = void 0;
     this._logService.debug("[IE] Unstashed session");
@@ -224,7 +265,17 @@ StashedSession = __decorateClass([
   __decorateParam(5, ILogService)
 ], StashedSession);
 function lineRangeAsRange(lineRange, model) {
-  return lineRange.isEmpty ? new Range(lineRange.startLineNumber, 1, lineRange.startLineNumber, Number.MAX_SAFE_INTEGER) : new Range(lineRange.startLineNumber, 1, lineRange.endLineNumberExclusive - 1, Number.MAX_SAFE_INTEGER);
+  return lineRange.isEmpty ? new Range(
+    lineRange.startLineNumber,
+    1,
+    lineRange.startLineNumber,
+    Number.MAX_SAFE_INTEGER
+  ) : new Range(
+    lineRange.startLineNumber,
+    1,
+    lineRange.endLineNumberExclusive - 1,
+    Number.MAX_SAFE_INTEGER
+  );
 }
 __name(lineRangeAsRange, "lineRangeAsRange");
 let HunkData = class {
@@ -232,11 +283,13 @@ let HunkData = class {
     this._editorWorkerService = _editorWorkerService;
     this._textModel0 = _textModel0;
     this._textModelN = _textModelN;
-    this._store.add(_textModelN.onDidChangeContent((e) => {
-      if (!this._ignoreChanges) {
-        this._mirrorChanges(e);
-      }
-    }));
+    this._store.add(
+      _textModelN.onDidChangeContent((e) => {
+        if (!this._ignoreChanges) {
+          this._mirrorChanges(e);
+        }
+      })
+    );
   }
   static {
     __name(this, "HunkData");
@@ -253,14 +306,20 @@ let HunkData = class {
     if (!this._textModelN.isDisposed()) {
       this._textModelN.changeDecorations((accessor) => {
         for (const { textModelNDecorations } of this._data.values()) {
-          textModelNDecorations.forEach(accessor.removeDecoration, accessor);
+          textModelNDecorations.forEach(
+            accessor.removeDecoration,
+            accessor
+          );
         }
       });
     }
     if (!this._textModel0.isDisposed()) {
       this._textModel0.changeDecorations((accessor) => {
         for (const { textModel0Decorations } of this._data.values()) {
-          textModel0Decorations.forEach(accessor.removeDecoration, accessor);
+          textModel0Decorations.forEach(
+            accessor.removeDecoration,
+            accessor
+          );
         }
       });
     }
@@ -279,8 +338,12 @@ let HunkData = class {
     for (const entry of this._data.values()) {
       if (entry.state === 0 /* Pending */) {
         for (let i = 1; i < entry.textModelNDecorations.length; i++) {
-          const rangeN = this._textModelN.getDecorationRange(entry.textModelNDecorations[i]);
-          const range0 = this._textModel0.getDecorationRange(entry.textModel0Decorations[i]);
+          const rangeN = this._textModelN.getDecorationRange(
+            entry.textModelNDecorations[i]
+          );
+          const range0 = this._textModel0.getDecorationRange(
+            entry.textModel0Decorations[i]
+          );
           if (rangeN && range0) {
             hunkRanges.push({
               rangeN,
@@ -291,14 +354,18 @@ let HunkData = class {
         }
       } else if (entry.state === 1 /* Accepted */) {
         for (let i = 1; i < entry.textModel0Decorations.length; i++) {
-          const range = this._textModel0.getDecorationRange(entry.textModel0Decorations[i]);
+          const range = this._textModel0.getDecorationRange(
+            entry.textModel0Decorations[i]
+          );
           if (range) {
             ranges0.push(range);
           }
         }
       }
     }
-    hunkRanges.sort((a, b) => Range.compareRangesUsingStarts(a.rangeN, b.rangeN));
+    hunkRanges.sort(
+      (a, b) => Range.compareRangesUsingStarts(a.rangeN, b.rangeN)
+    );
     ranges0.sort(Range.compareRangesUsingStarts);
     const edits = [];
     for (const change of event.changes) {
@@ -306,8 +373,12 @@ let HunkData = class {
       let pendingChangesLen = 0;
       for (const entry of hunkRanges) {
         if (entry.rangeN.getEndPosition().isBefore(Range.getStartPosition(change.range))) {
-          pendingChangesLen += this._textModelN.getValueLengthInRange(entry.rangeN);
-          pendingChangesLen -= this._textModel0.getValueLengthInRange(entry.range0);
+          pendingChangesLen += this._textModelN.getValueLengthInRange(
+            entry.rangeN
+          );
+          pendingChangesLen -= this._textModel0.getValueLengthInRange(
+            entry.range0
+          );
         } else if (Range.areIntersectingOrTouching(entry.rangeN, change.range)) {
           entry.markAccepted();
           isOverlapping = true;
@@ -327,14 +398,32 @@ let HunkData = class {
           acceptedChangesLen += this._textModel0.getValueLengthInRange(range);
         }
       }
-      const start = this._textModel0.getPositionAt(offset0 + acceptedChangesLen);
-      const end = this._textModel0.getPositionAt(offset0 + acceptedChangesLen + change.rangeLength);
-      edits.push(EditOperation.replace(Range.fromPositions(start, end), change.text));
+      const start = this._textModel0.getPositionAt(
+        offset0 + acceptedChangesLen
+      );
+      const end = this._textModel0.getPositionAt(
+        offset0 + acceptedChangesLen + change.rangeLength
+      );
+      edits.push(
+        EditOperation.replace(
+          Range.fromPositions(start, end),
+          change.text
+        )
+      );
     }
     this._textModel0.pushEditOperations(null, edits, () => null);
   }
   async recompute(editState, diff) {
-    diff ??= await this._editorWorkerService.computeDiff(this._textModel0.uri, this._textModelN.uri, { ignoreTrimWhitespace: false, maxComputationTimeMs: Number.MAX_SAFE_INTEGER, computeMoves: false }, "advanced");
+    diff ??= await this._editorWorkerService.computeDiff(
+      this._textModel0.uri,
+      this._textModelN.uri,
+      {
+        ignoreTrimWhitespace: false,
+        maxComputationTimeMs: Number.MAX_SAFE_INTEGER,
+        computeMoves: false
+      },
+      "advanced"
+    );
     let mergedChanges = [];
     if (diff && diff.changes.length > 0) {
       mergedChanges = [diff.changes[0]];
@@ -345,30 +434,67 @@ let HunkData = class {
           mergedChanges[mergedChanges.length - 1] = new DetailedLineRangeMapping(
             lastChange.original.join(thisChange.original),
             lastChange.modified.join(thisChange.modified),
-            (lastChange.innerChanges ?? []).concat(thisChange.innerChanges ?? [])
+            (lastChange.innerChanges ?? []).concat(
+              thisChange.innerChanges ?? []
+            )
           );
         } else {
           mergedChanges.push(thisChange);
         }
       }
     }
-    const hunks = mergedChanges.map((change) => new RawHunk(change.original, change.modified, change.innerChanges ?? []));
+    const hunks = mergedChanges.map(
+      (change) => new RawHunk(
+        change.original,
+        change.modified,
+        change.innerChanges ?? []
+      )
+    );
     editState.applied = hunks.length;
     this._textModelN.changeDecorations((accessorN) => {
       this._textModel0.changeDecorations((accessor0) => {
-        for (const { textModelNDecorations, textModel0Decorations } of this._data.values()) {
-          textModelNDecorations.forEach(accessorN.removeDecoration, accessorN);
-          textModel0Decorations.forEach(accessor0.removeDecoration, accessor0);
+        for (const {
+          textModelNDecorations,
+          textModel0Decorations
+        } of this._data.values()) {
+          textModelNDecorations.forEach(
+            accessorN.removeDecoration,
+            accessorN
+          );
+          textModel0Decorations.forEach(
+            accessor0.removeDecoration,
+            accessor0
+          );
         }
         this._data.clear();
         for (const hunk of hunks) {
           const textModelNDecorations = [];
           const textModel0Decorations = [];
-          textModelNDecorations.push(accessorN.addDecoration(lineRangeAsRange(hunk.modified, this._textModelN), HunkData._HUNK_TRACKED_RANGE));
-          textModel0Decorations.push(accessor0.addDecoration(lineRangeAsRange(hunk.original, this._textModel0), HunkData._HUNK_TRACKED_RANGE));
+          textModelNDecorations.push(
+            accessorN.addDecoration(
+              lineRangeAsRange(hunk.modified, this._textModelN),
+              HunkData._HUNK_TRACKED_RANGE
+            )
+          );
+          textModel0Decorations.push(
+            accessor0.addDecoration(
+              lineRangeAsRange(hunk.original, this._textModel0),
+              HunkData._HUNK_TRACKED_RANGE
+            )
+          );
           for (const change of hunk.changes) {
-            textModelNDecorations.push(accessorN.addDecoration(change.modifiedRange, HunkData._HUNK_TRACKED_RANGE));
-            textModel0Decorations.push(accessor0.addDecoration(change.originalRange, HunkData._HUNK_TRACKED_RANGE));
+            textModelNDecorations.push(
+              accessorN.addDecoration(
+                change.modifiedRange,
+                HunkData._HUNK_TRACKED_RANGE
+              )
+            );
+            textModel0Decorations.push(
+              accessor0.addDecoration(
+                change.originalRange,
+                HunkData._HUNK_TRACKED_RANGE
+              )
+            );
           }
           this._data.set(hunk, {
             editState,
@@ -384,7 +510,11 @@ let HunkData = class {
     return this._data.size;
   }
   get pending() {
-    return Iterable.reduce(this._data.values(), (r, { state }) => r + (state === 0 /* Pending */ ? 1 : 0), 0);
+    return Iterable.reduce(
+      this._data.values(),
+      (r, { state }) => r + (state === 0 /* Pending */ ? 1 : 0),
+      0
+    );
   }
   _discardEdits(item) {
     const edits = [];
@@ -405,10 +535,14 @@ let HunkData = class {
       }
     }
     const undoEdits = [];
-    this._textModelN.pushEditOperations(null, edits.flat(), (_undoEdits) => {
-      undoEdits.push(_undoEdits);
-      return null;
-    });
+    this._textModelN.pushEditOperations(
+      null,
+      edits.flat(),
+      (_undoEdits) => {
+        undoEdits.push(_undoEdits);
+        return null;
+      }
+    );
     return undoEdits.flat();
   }
   getInfo() {
@@ -422,19 +556,27 @@ let HunkData = class {
           return hunk.original.isEmpty;
         }, "isInsertion"),
         getRangesN: /* @__PURE__ */ __name(() => {
-          const ranges = data.textModelNDecorations.map((id) => this._textModelN.getDecorationRange(id));
+          const ranges = data.textModelNDecorations.map(
+            (id) => this._textModelN.getDecorationRange(id)
+          );
           coalesceInPlace(ranges);
           return ranges;
         }, "getRangesN"),
         getRanges0: /* @__PURE__ */ __name(() => {
-          const ranges = data.textModel0Decorations.map((id) => this._textModel0.getDecorationRange(id));
+          const ranges = data.textModel0Decorations.map(
+            (id) => this._textModel0.getDecorationRange(id)
+          );
           coalesceInPlace(ranges);
           return ranges;
         }, "getRanges0"),
         discardChanges: /* @__PURE__ */ __name(() => {
           if (data.state === 0 /* Pending */) {
             const edits = this._discardEdits(item);
-            this._textModelN.pushEditOperations(null, edits, () => null);
+            this._textModelN.pushEditOperations(
+              null,
+              edits,
+              () => null
+            );
             data.state = 2 /* Rejected */;
             if (data.editState.applied > 0) {
               data.editState.applied -= 1;
@@ -449,9 +591,18 @@ let HunkData = class {
             for (let i = 1; i < ranges0.length; i++) {
               const originalRange = ranges0[i];
               const modifiedValue = this._textModelN.getValueInRange(rangesN[i]);
-              edits.push(EditOperation.replace(originalRange, modifiedValue));
+              edits.push(
+                EditOperation.replace(
+                  originalRange,
+                  modifiedValue
+                )
+              );
             }
-            this._textModel0.pushEditOperations(null, edits, () => null);
+            this._textModel0.pushEditOperations(
+              null,
+              edits,
+              () => null
+            );
             data.state = 1 /* Accepted */;
           }
         }, "acceptChanges")

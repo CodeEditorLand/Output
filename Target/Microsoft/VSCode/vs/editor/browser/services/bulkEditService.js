@@ -1,15 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ICodeEditor } from "../editorBrowser.js";
-import { TextEdit, WorkspaceEdit, WorkspaceEditMetadata, IWorkspaceFileEdit, WorkspaceFileEditOptions, IWorkspaceTextEdit } from "../../common/languages.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { IProgress, IProgressStep } from "../../../platform/progress/common/progress.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
 import { isObject } from "../../../base/common/types.js";
-import { UndoRedoSource } from "../../../platform/undoRedo/common/undoRedo.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-const IBulkEditService = createDecorator("IWorkspaceEditService");
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IBulkEditService = createDecorator(
+  "IWorkspaceEditService"
+);
 class ResourceEdit {
   constructor(metadata) {
     this.metadata = metadata;
@@ -49,7 +45,12 @@ class ResourceTextEdit extends ResourceEdit {
     if (edit instanceof ResourceTextEdit) {
       return edit;
     } else {
-      return new ResourceTextEdit(edit.resource, edit.textEdit, edit.versionId, edit.metadata);
+      return new ResourceTextEdit(
+        edit.resource,
+        edit.textEdit,
+        edit.versionId,
+        edit.metadata
+      );
     }
   }
 }
@@ -74,7 +75,12 @@ class ResourceFileEdit extends ResourceEdit {
     if (edit instanceof ResourceFileEdit) {
       return edit;
     } else {
-      return new ResourceFileEdit(edit.oldResource, edit.newResource, edit.options, edit.metadata);
+      return new ResourceFileEdit(
+        edit.oldResource,
+        edit.newResource,
+        edit.options,
+        edit.metadata
+      );
     }
   }
 }

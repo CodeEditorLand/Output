@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IExtensionGalleryManifest } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
-import { FilterType, SortBy } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import {
+  FilterType,
+  SortBy
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { EXTENSION_CATEGORIES } from "../../../../platform/extensions/common/extensions.js";
 class Query {
   constructor(value, sortBy) {
@@ -13,40 +15,69 @@ class Query {
     __name(this, "Query");
   }
   static suggestions(query, galleryManifest) {
-    const commands = ["installed", "updates", "enabled", "disabled", "builtin"];
-    if (galleryManifest?.capabilities.extensionQuery?.filtering?.some((c) => c.name === FilterType.Featured)) {
+    const commands = [
+      "installed",
+      "updates",
+      "enabled",
+      "disabled",
+      "builtin"
+    ];
+    if (galleryManifest?.capabilities.extensionQuery?.filtering?.some(
+      (c) => c.name === FilterType.Featured
+    )) {
       commands.push("featured");
     }
-    commands.push(...["popular", "recommended", "recentlyPublished", "workspaceUnsupported", "deprecated", "sort"]);
-    const isCategoriesEnabled = galleryManifest?.capabilities.extensionQuery?.filtering?.some((c) => c.name === FilterType.Category);
+    commands.push(
+      ...[
+        "popular",
+        "recommended",
+        "recentlyPublished",
+        "workspaceUnsupported",
+        "deprecated",
+        "sort"
+      ]
+    );
+    const isCategoriesEnabled = galleryManifest?.capabilities.extensionQuery?.filtering?.some(
+      (c) => c.name === FilterType.Category
+    );
     if (isCategoriesEnabled) {
       commands.push("category");
     }
     commands.push(...["tag", "ext", "id", "outdated", "recentlyUpdated"]);
     const sortCommands = [];
-    if (galleryManifest?.capabilities.extensionQuery?.sorting?.some((c) => c.name === SortBy.InstallCount)) {
+    if (galleryManifest?.capabilities.extensionQuery?.sorting?.some(
+      (c) => c.name === SortBy.InstallCount
+    )) {
       sortCommands.push("installs");
     }
-    if (galleryManifest?.capabilities.extensionQuery?.sorting?.some((c) => c.name === SortBy.WeightedRating)) {
+    if (galleryManifest?.capabilities.extensionQuery?.sorting?.some(
+      (c) => c.name === SortBy.WeightedRating
+    )) {
       sortCommands.push("rating");
     }
     sortCommands.push("name", "publishedDate", "updateDate");
     const subcommands = {
-      "sort": sortCommands,
-      "category": isCategoriesEnabled ? EXTENSION_CATEGORIES.map((c) => `"${c.toLowerCase()}"`) : [],
-      "tag": [""],
-      "ext": [""],
-      "id": [""]
+      sort: sortCommands,
+      category: isCategoriesEnabled ? EXTENSION_CATEGORIES.map((c) => `"${c.toLowerCase()}"`) : [],
+      tag: [""],
+      ext: [""],
+      id: [""]
     };
     const queryContains = /* @__PURE__ */ __name((substr) => query.indexOf(substr) > -1, "queryContains");
-    const hasSort = subcommands.sort.some((subcommand) => queryContains(`@sort:${subcommand}`));
-    const hasCategory = subcommands.category.some((subcommand) => queryContains(`@category:${subcommand}`));
+    const hasSort = subcommands.sort.some(
+      (subcommand) => queryContains(`@sort:${subcommand}`)
+    );
+    const hasCategory = subcommands.category.some(
+      (subcommand) => queryContains(`@category:${subcommand}`)
+    );
     return commands.flatMap((command) => {
       if (hasSort && command === "sort" || hasCategory && command === "category") {
         return [];
       }
       if (command in subcommands) {
-        return subcommands[command].map((subcommand) => `@${command}:${subcommand}${subcommand === "" ? "" : " "}`);
+        return subcommands[command].map(
+          (subcommand) => `@${command}:${subcommand}${subcommand === "" ? "" : " "}`
+        );
       } else {
         return queryContains(`@${command}`) ? [] : [`@${command} `];
       }
@@ -54,10 +85,13 @@ class Query {
   }
   static parse(value) {
     let sortBy = "";
-    value = value.replace(/@sort:(\w+)(-\w*)?/g, (match, by, order) => {
-      sortBy = by;
-      return "";
-    });
+    value = value.replace(
+      /@sort:(\w+)(-\w*)?/g,
+      (match, by, order) => {
+        sortBy = by;
+        return "";
+      }
+    );
     return new Query(value, sortBy);
   }
   toString() {

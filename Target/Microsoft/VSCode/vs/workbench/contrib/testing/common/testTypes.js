@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { IPosition, Position } from "../../../../editor/common/core/position.js";
-import { IRange, Range } from "../../../../editor/common/core/range.js";
+import { URI } from "../../../../base/common/uri.js";
+import {
+  Position
+} from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
 import { localize } from "../../../../nls.js";
 import { TestId } from "./testId.js";
 var TestResultState = /* @__PURE__ */ ((TestResultState2) => {
@@ -49,8 +49,14 @@ var TestRunProfileBitset = /* @__PURE__ */ ((TestRunProfileBitset2) => {
 })(TestRunProfileBitset || {});
 const testProfileBitset = {
   [2 /* Run */]: localize("testing.runProfileBitset.run", "Run"),
-  [4 /* Debug */]: localize("testing.runProfileBitset.debug", "Debug"),
-  [8 /* Coverage */]: localize("testing.runProfileBitset.coverage", "Coverage")
+  [4 /* Debug */]: localize(
+    "testing.runProfileBitset.debug",
+    "Debug"
+  ),
+  [8 /* Coverage */]: localize(
+    "testing.runProfileBitset.coverage",
+    "Coverage"
+  )
 };
 const testRunProfileBitsetList = [
   2 /* Run */,
@@ -108,7 +114,9 @@ var ITestErrorMessage;
     actual: message.actual,
     contextValue: message.contextValue,
     location: message.location && IRichLocation.deserialize(uriIdentity, message.location),
-    stackTrace: message.stackTrace && message.stackTrace.map((s) => ITestMessageStackFrame.deserialize(uriIdentity, s))
+    stackTrace: message.stackTrace?.map(
+      (s) => ITestMessageStackFrame.deserialize(uriIdentity, s)
+    )
   }), "deserialize");
 })(ITestErrorMessage || (ITestErrorMessage = {}));
 const getMarkId = /* @__PURE__ */ __name((marker, start) => `${start ? "s" : "e"}${marker}`, "getMarkId");
@@ -150,14 +158,19 @@ var ITestTaskState;
   ITestTaskState2.deserialize = /* @__PURE__ */ __name((uriIdentity, state) => ({
     state: state.state,
     duration: state.duration,
-    messages: state.messages.map((m) => ITestMessage.deserialize(uriIdentity, m))
+    messages: state.messages.map(
+      (m) => ITestMessage.deserialize(uriIdentity, m)
+    )
   }), "deserialize");
 })(ITestTaskState || (ITestTaskState = {}));
 const testTagDelimiter = "\0";
 const namespaceTestTag = /* @__PURE__ */ __name((ctrlId, tagId) => ctrlId + testTagDelimiter + tagId, "namespaceTestTag");
 const denamespaceTestTag = /* @__PURE__ */ __name((namespaced) => {
   const index = namespaced.indexOf(testTagDelimiter);
-  return { ctrlId: namespaced.slice(0, index), tagId: namespaced.slice(index + 1) };
+  return {
+    ctrlId: namespaced.slice(0, index),
+    tagId: namespaced.slice(index + 1)
+  };
 }, "denamespaceTestTag");
 var ITestItem;
 ((ITestItem2) => {
@@ -296,7 +309,9 @@ var TestResultItem;
     ...InternalTestItem.deserialize(uriIdentity, serialized),
     ownComputedState: serialized.ownComputedState,
     computedState: serialized.computedState,
-    tasks: serialized.tasks.map((m) => ITestTaskState.deserialize(uriIdentity, m)),
+    tasks: serialized.tasks.map(
+      (m) => ITestTaskState.deserialize(uriIdentity, m)
+    ),
     retired: true
   }), "deserialize");
 })(TestResultItem || (TestResultItem = {}));
@@ -392,11 +407,18 @@ var TestsDiffOp;
 ((TestsDiffOp2) => {
   TestsDiffOp2.deserialize = /* @__PURE__ */ __name((uriIdentity, u) => {
     if (u.op === 0 /* Add */) {
-      return { op: u.op, item: InternalTestItem.deserialize(uriIdentity, u.item) };
+      return {
+        op: u.op,
+        item: InternalTestItem.deserialize(uriIdentity, u.item)
+      };
     } else if (u.op === 1 /* Update */) {
       return { op: u.op, item: ITestItemUpdate.deserialize(u.item) };
     } else if (u.op === 2 /* DocumentSynced */) {
-      return { op: u.op, uri: uriIdentity.asCanonicalUri(URI.revive(u.uri)), docv: u.docv };
+      return {
+        op: u.op,
+        uri: uriIdentity.asCanonicalUri(URI.revive(u.uri)),
+        docv: u.docv
+      };
     } else {
       return u;
     }
@@ -447,7 +469,10 @@ class AbstractIncrementalTestCollection {
     for (const op of diff) {
       switch (op.op) {
         case 0 /* Add */:
-          this.add(InternalTestItem.deserialize(this.uriIdentity, op.item), changes);
+          this.add(
+            InternalTestItem.deserialize(this.uriIdentity, op.item),
+            changes
+          );
           break;
         case 1 /* Update */:
           this.update(ITestItemUpdate.deserialize(op.item), changes);
@@ -484,7 +509,9 @@ class AbstractIncrementalTestCollection {
       created = this.createItem(item, parent);
       this.items.set(item.item.extId, created);
     } else {
-      console.error(`Test with unknown parent ID: ${JSON.stringify(item)}`);
+      console.error(
+        `Test with unknown parent ID: ${JSON.stringify(item)}`
+      );
       return;
     }
     changes.add?.(created);

@@ -1,9 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { $, append } from "../../dom.js";
 import { format } from "../../../common/strings.js";
+import { $, append } from "../../dom.js";
 import "./countBadge.css";
-import { Disposable, IDisposable, MutableDisposable, toDisposable } from "../../../common/lifecycle.js";
+import {
+  Disposable,
+  MutableDisposable,
+  toDisposable
+} from "../../../common/lifecycle.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
 const unthemedCountStyles = {
   badgeBackground: "#4D4D4D",
@@ -29,7 +33,9 @@ class CountBadge extends Disposable {
   count = 0;
   countFormat;
   titleFormat;
-  hover = this._register(new MutableDisposable());
+  hover = this._register(
+    new MutableDisposable()
+  );
   setCount(count) {
     this.count = count;
     this.render();
@@ -45,7 +51,13 @@ class CountBadge extends Disposable {
   }
   updateHover() {
     if (this.titleFormat !== "" && !this.hover.value) {
-      this.hover.value = getBaseLayerHoverDelegate().setupDelayedHoverAtMouse(this.element, () => ({ content: format(this.titleFormat, this.count), appearance: { compact: true } }));
+      this.hover.value = getBaseLayerHoverDelegate().setupDelayedHoverAtMouse(
+        this.element,
+        () => ({
+          content: format(this.titleFormat, this.count),
+          appearance: { compact: true }
+        })
+      );
     } else if (this.titleFormat === "" && this.hover.value) {
       this.hover.value = void 0;
     }

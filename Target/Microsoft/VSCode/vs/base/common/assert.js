@@ -3,7 +3,9 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { BugIndicatingError, onUnexpectedError } from "./errors.js";
 function ok(value, message) {
   if (!value) {
-    throw new Error(message ? `Assertion failed (${message})` : "Assertion Failed");
+    throw new Error(
+      message ? `Assertion failed (${message})` : "Assertion Failed"
+    );
   }
 }
 __name(ok, "ok");
@@ -26,7 +28,6 @@ function softAssert(condition, message = "Soft Assertion Failed") {
 __name(softAssert, "softAssert");
 function assertFn(condition) {
   if (!condition()) {
-    debugger;
     condition();
     onUnexpectedError(new BugIndicatingError("Assertion Failed"));
   }

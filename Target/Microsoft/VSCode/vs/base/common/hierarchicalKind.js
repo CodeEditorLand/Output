@@ -21,7 +21,11 @@ class HierarchicalKind {
     return this.contains(other) || other.contains(this);
   }
   append(...parts) {
-    return new HierarchicalKind((this.value ? [this.value, ...parts] : parts).join(HierarchicalKind.sep));
+    return new HierarchicalKind(
+      (this.value ? [this.value, ...parts] : parts).join(
+        HierarchicalKind.sep
+      )
+    );
   }
 }
 export {

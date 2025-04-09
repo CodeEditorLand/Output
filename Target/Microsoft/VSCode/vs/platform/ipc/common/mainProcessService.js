@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IChannel, IPCServer, IServerChannel, StaticRouter } from "../../../base/parts/ipc/common/ipc.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IRemoteService } from "./services.js";
 const IMainProcessService = createDecorator("mainProcessService");
 class MainProcessService {
   constructor(server, router) {

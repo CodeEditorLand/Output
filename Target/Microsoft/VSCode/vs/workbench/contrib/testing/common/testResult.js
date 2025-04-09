@@ -15,17 +15,29 @@ import { VSBuffer } from "../../../../base/common/buffer.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { Lazy } from "../../../../base/common/lazy.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, observableValue } from "../../../../base/common/observable.js";
+import {
+  observableValue
+} from "../../../../base/common/observable.js";
 import { language } from "../../../../base/common/platform.js";
-import { WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
 import { localize } from "../../../../nls.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IComputedStateAccessor, refreshComputedState } from "./getComputedState.js";
-import { TestCoverage } from "./testCoverage.js";
+import {
+  refreshComputedState
+} from "./getComputedState.js";
 import { TestId } from "./testId.js";
-import { makeEmptyCounts, maxPriority, statesInOrder, terminalStatePriorities, TestStateCount } from "./testingStates.js";
-import { getMarkId, IRichLocation, ISerializedTestResults, ITestItem, ITestMessage, ITestOutputMessage, ITestRunTask, ITestTaskState, ResolvedTestRunRequest, TestItemExpandState, TestMessageType, TestResultItem, TestResultState } from "./testTypes.js";
+import {
+  makeEmptyCounts,
+  maxPriority,
+  statesInOrder,
+  terminalStatePriorities
+} from "./testingStates.js";
+import {
+  getMarkId,
+  TestItemExpandState,
+  TestMessageType,
+  TestResultItem,
+  TestResultState
+} from "./testTypes.js";
 const emptyRawOutput = {
   buffers: [],
   length: 0,
@@ -168,7 +180,9 @@ let LiveTestResult = class extends Disposable {
   completeEmitter = this._register(new Emitter());
   newTaskEmitter = this._register(new Emitter());
   endTaskEmitter = this._register(new Emitter());
-  changeEmitter = this._register(new Emitter());
+  changeEmitter = this._register(
+    new Emitter()
+  );
   /** todo@connor4312: convert to a WellDefinedPrefixTree */
   testById = /* @__PURE__ */ new Map();
   testMarkerCounter = 0;
@@ -179,7 +193,11 @@ let LiveTestResult = class extends Disposable {
   onNewTask = this.newTaskEmitter.event;
   onEndTask = this.endTaskEmitter.event;
   tasks = [];
-  name = localize("runFinished", "Test run at {0}", (/* @__PURE__ */ new Date()).toLocaleString(language));
+  name = localize(
+    "runFinished",
+    "Test run at {0}",
+    (/* @__PURE__ */ new Date()).toLocaleString(language)
+  );
   /**
    * @inheritdoc
    */
@@ -227,7 +245,7 @@ let LiveTestResult = class extends Disposable {
    * Appends output that occurred during the test run.
    */
   appendOutput(output, taskId, location, testId) {
-    const preview = output.byteLength > 100 ? output.slice(0, 100).toString() + "\u2026" : output.toString();
+    const preview = output.byteLength > 100 ? `${output.slice(0, 100).toString()}\u2026` : output.toString();
     let marker;
     if (testId || location) {
       marker = this.testMarkerCounter++;
@@ -246,7 +264,12 @@ let LiveTestResult = class extends Disposable {
     const test = testId && this.testById.get(testId);
     if (test) {
       test.tasks[index].messages.push(message);
-      this.changeEmitter.fire({ item: test, result: this, reason: 2 /* NewMessage */, message });
+      this.changeEmitter.fire({
+        item: test,
+        result: this,
+        reason: 2 /* NewMessage */,
+        message
+      });
     } else {
       task.otherMessages.push(message);
     }
@@ -255,9 +278,18 @@ let LiveTestResult = class extends Disposable {
    * Adds a new run task to the results.
    */
   addTask(task) {
-    this.tasks.push({ ...task, coverage: observableValue(this, void 0), otherMessages: [], output: new TaskRawOutput() });
+    this.tasks.push({
+      ...task,
+      coverage: observableValue(this, void 0),
+      otherMessages: [],
+      output: new TaskRawOutput()
+    });
     for (const test of this.tests) {
-      test.tasks.push({ duration: void 0, messages: [], state: TestResultState.Unset });
+      test.tasks.push({
+        duration: void 0,
+        messages: [],
+        state: TestResultState.Unset
+      });
     }
     this.newTaskEmitter.fire(this.tasks.length - 1);
   }
@@ -271,7 +303,11 @@ let LiveTestResult = class extends Disposable {
       parent = this.addTestToRun(controllerId, chain[0], null);
     }
     for (let i = 1; i < chain.length; i++) {
-      parent = this.addTestToRun(controllerId, chain[i], parent.item.extId);
+      parent = this.addTestToRun(
+        controllerId,
+        chain[i],
+        parent.item.extId
+      );
     }
     return void 0;
   }
@@ -300,7 +336,12 @@ let LiveTestResult = class extends Disposable {
       return;
     }
     entry.tasks[this.mustGetTaskIndex(taskId)].messages.push(message);
-    this.changeEmitter.fire({ item: entry, result: this, reason: 2 /* NewMessage */, message });
+    this.changeEmitter.fire({
+      item: entry,
+      result: this,
+      reason: 2 /* NewMessage */,
+      message
+    });
   }
   /**
    * Marks the task in the test run complete.
@@ -344,7 +385,11 @@ let LiveTestResult = class extends Disposable {
     for (const [id, test] of this.testById) {
       if (!test.retired && (!testIds || testIds.hasKeyOrParent(TestId.fromString(id).path))) {
         test.retired = true;
-        this.changeEmitter.fire({ reason: 0 /* ComputedStateChange */, item: test, result: this });
+        this.changeEmitter.fire({
+          reason: 0 /* ComputedStateChange */,
+          item: test,
+          result: this
+        });
       }
     }
   }
@@ -381,7 +426,10 @@ let LiveTestResult = class extends Disposable {
     entry.tasks[taskIndex].state = newState;
     if (newOwnDuration !== void 0) {
       entry.tasks[taskIndex].duration = newOwnDuration;
-      entry.ownDuration = Math.max(entry.ownDuration || 0, newOwnDuration);
+      entry.ownDuration = Math.max(
+        entry.ownDuration || 0,
+        newOwnDuration
+      );
     }
     const newOwnComputed = maxPriority(...entry.tasks.map((t) => t.state));
     if (newOwnComputed === previousOwnComputed) {
@@ -394,11 +442,13 @@ let LiveTestResult = class extends Disposable {
     this.counts[previousOwnComputed]--;
     this.counts[newOwnComputed]++;
     refreshComputedState(this.computedStateAccessor, entry).forEach(
-      (t) => this.changeEmitter.fire(t === entry ? changeEvent : {
-        item: t,
-        result: this,
-        reason: 0 /* ComputedStateChange */
-      })
+      (t) => this.changeEmitter.fire(
+        t === entry ? changeEvent : {
+          item: t,
+          result: this,
+          reason: 0 /* ComputedStateChange */
+        }
+      )
     );
   }
   addTestToRun(controllerId, item, parent) {
@@ -410,7 +460,11 @@ let LiveTestResult = class extends Disposable {
     }
     if (this.tasks.length) {
       for (let i = 0; i < this.tasks.length; i++) {
-        node.tasks.push({ duration: void 0, messages: [], state: TestResultState.Unset });
+        node.tasks.push({
+          duration: void 0,
+          messages: [],
+          state: TestResultState.Unset
+        });
       }
     }
     return node;
@@ -422,22 +476,38 @@ let LiveTestResult = class extends Disposable {
     }
     return index;
   }
-  doSerialize = new Lazy(() => ({
-    id: this.id,
-    completedAt: this.completedAt,
-    tasks: this.tasks.map((t) => ({ id: t.id, name: t.name, ctrlId: t.ctrlId, hasCoverage: !!t.coverage.get() })),
-    name: this.name,
-    request: this.request,
-    items: [...this.testById.values()].map(TestResultItem.serializeWithoutMessages)
-  }));
-  doSerializeWithMessages = new Lazy(() => ({
-    id: this.id,
-    completedAt: this.completedAt,
-    tasks: this.tasks.map((t) => ({ id: t.id, name: t.name, ctrlId: t.ctrlId, hasCoverage: !!t.coverage.get() })),
-    name: this.name,
-    request: this.request,
-    items: [...this.testById.values()].map(TestResultItem.serialize)
-  }));
+  doSerialize = new Lazy(
+    () => ({
+      id: this.id,
+      completedAt: this.completedAt,
+      tasks: this.tasks.map((t) => ({
+        id: t.id,
+        name: t.name,
+        ctrlId: t.ctrlId,
+        hasCoverage: !!t.coverage.get()
+      })),
+      name: this.name,
+      request: this.request,
+      items: [...this.testById.values()].map(
+        TestResultItem.serializeWithoutMessages
+      )
+    })
+  );
+  doSerializeWithMessages = new Lazy(
+    () => ({
+      id: this.id,
+      completedAt: this.completedAt,
+      tasks: this.tasks.map((t) => ({
+        id: t.id,
+        name: t.name,
+        ctrlId: t.ctrlId,
+        hasCoverage: !!t.coverage.get()
+      })),
+      name: this.name,
+      request: this.request,
+      items: [...this.testById.values()].map(TestResultItem.serialize)
+    })
+  );
 };
 LiveTestResult = __decorateClass([
   __decorateParam(4, ITelemetryService)

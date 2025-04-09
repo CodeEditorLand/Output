@@ -1,12 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IFilter, matchesFuzzy, matchesFuzzy2 } from "../../../../base/common/filters.js";
-import { IExpression, splitGlobAware, getEmptyExpression, ParsedExpression, parse } from "../../../../base/common/glob.js";
-import * as strings from "../../../../base/common/strings.js";
-import { URI } from "../../../../base/common/uri.js";
+import {
+  matchesFuzzy,
+  matchesFuzzy2
+} from "../../../../base/common/filters.js";
+import {
+  getEmptyExpression,
+  parse,
+  splitGlobAware
+} from "../../../../base/common/glob.js";
 import { relativePath } from "../../../../base/common/resources.js";
+import * as strings from "../../../../base/common/strings.js";
 import { TernarySearchTree } from "../../../../base/common/ternarySearchTree.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
 class ResourceGlobMatcher {
   static {
     __name(this, "ResourceGlobMatcher");
@@ -17,7 +22,10 @@ class ResourceGlobMatcher {
     this.globalExpression = parse(globalExpression);
     this.expressionsByRoot = TernarySearchTree.forUris((uri) => uriIdentityService.extUri.ignorePathCasing(uri));
     for (const expression of rootExpressions) {
-      this.expressionsByRoot.set(expression.root, { root: expression.root, expression: parse(expression.expression) });
+      this.expressionsByRoot.set(expression.root, {
+        root: expression.root,
+        expression: parse(expression.expression)
+      });
     }
   }
   matches(resource) {
@@ -48,7 +56,10 @@ class FilterOptions {
       }
     }
     const negate = filter.startsWith("!");
-    this.textFilter = { text: (negate ? strings.ltrim(filter, "!") : filter).trim(), negate };
+    this.textFilter = {
+      text: (negate ? strings.ltrim(filter, "!") : filter).trim(),
+      negate
+    };
     const includeExpression = getEmptyExpression();
     if (filter) {
       const filters = splitGlobAware(filter, ",").map((s) => s.trim()).filter((s) => !!s.length);
@@ -63,8 +74,16 @@ class FilterOptions {
         }
       }
     }
-    this.excludesMatcher = new ResourceGlobMatcher(excludesExpression, filesExcludeByRoot, uriIdentityService);
-    this.includesMatcher = new ResourceGlobMatcher(includeExpression, [], uriIdentityService);
+    this.excludesMatcher = new ResourceGlobMatcher(
+      excludesExpression,
+      filesExcludeByRoot,
+      uriIdentityService
+    );
+    this.includesMatcher = new ResourceGlobMatcher(
+      includeExpression,
+      [],
+      uriIdentityService
+    );
   }
   static {
     __name(this, "FilterOptions");
@@ -78,11 +97,18 @@ class FilterOptions {
   excludesMatcher;
   includesMatcher;
   static EMPTY(uriIdentityService) {
-    return new FilterOptions("", [], false, false, false, uriIdentityService);
+    return new FilterOptions(
+      "",
+      [],
+      false,
+      false,
+      false,
+      uriIdentityService
+    );
   }
   setPattern(expression, pattern) {
     if (pattern[0] === ".") {
-      pattern = "*" + pattern;
+      pattern = `*${pattern}`;
     }
     expression[`**/${pattern}/**`] = true;
     expression[`**/${pattern}`] = true;

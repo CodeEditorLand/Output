@@ -1,14 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(function() {
+(() => {
   const preloadGlobals = window.vscode;
   const safeProcess = preloadGlobals.process;
   async function load(esModule, options) {
     const configuration = await resolveWindowConfiguration();
     options?.beforeImport?.(configuration);
-    const { enableDeveloperKeybindings, removeDeveloperKeybindingsAfterLoad, developerDeveloperKeybindingsDisposable, forceDisableShowDevtoolsOnError } = setupDeveloperKeybindings(configuration, options);
+    const {
+      enableDeveloperKeybindings,
+      removeDeveloperKeybindingsAfterLoad,
+      developerDeveloperKeybindingsDisposable,
+      forceDisableShowDevtoolsOnError
+    } = setupDeveloperKeybindings(configuration, options);
     setupNLS(configuration);
-    const baseUrl = new URL(`${fileUriFromPath(configuration.appRoot, { isWindows: safeProcess.platform === "win32", scheme: "vscode-file", fallbackAuthority: "vscode-app" })}/out/`);
+    const baseUrl = new URL(
+      `${fileUriFromPath(configuration.appRoot, { isWindows: safeProcess.platform === "win32", scheme: "vscode-file", fallbackAuthority: "vscode-app" })}/out/`
+    );
     globalThis._VSCODE_FILE_ROOT = baseUrl.toString();
     setupCSSImportMaps(configuration, baseUrl);
     try {
@@ -18,14 +25,19 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       }
       return { result, configuration };
     } catch (error) {
-      onUnexpectedError(error, enableDeveloperKeybindings && !forceDisableShowDevtoolsOnError);
+      onUnexpectedError(
+        error,
+        enableDeveloperKeybindings && !forceDisableShowDevtoolsOnError
+      );
       throw error;
     }
   }
   __name(load, "load");
   async function resolveWindowConfiguration() {
     const timeout = setTimeout(() => {
-      console.error(`[resolve window config] Could not resolve window configuration within 10 seconds, but will continue to wait...`);
+      console.error(
+        "[resolve window config] Could not resolve window configuration within 10 seconds, but will continue to wait..."
+      );
     }, 1e4);
     performance.mark("code/willWaitForWindowConfig");
     const configuration = await preloadGlobals.context.resolveConfiguration();
@@ -47,7 +59,9 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       forceDisableShowDevtoolsOnError: false
     };
     const isDev = !!safeProcess.env["VSCODE_DEV"];
-    const enableDeveloperKeybindings = Boolean(isDev || forceEnableDeveloperKeybindings);
+    const enableDeveloperKeybindings = Boolean(
+      isDev || forceEnableDeveloperKeybindings
+    );
     let developerDeveloperKeybindingsDisposable = void 0;
     if (enableDeveloperKeybindings) {
       developerDeveloperKeybindingsDisposable = registerDeveloperKeybindings(disallowReloadKeybinding);
@@ -62,19 +76,17 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
   __name(setupDeveloperKeybindings, "setupDeveloperKeybindings");
   function registerDeveloperKeybindings(disallowReloadKeybinding) {
     const ipcRenderer = preloadGlobals.ipcRenderer;
-    const extractKey = /* @__PURE__ */ __name(function(e) {
-      return [
-        e.ctrlKey ? "ctrl-" : "",
-        e.metaKey ? "meta-" : "",
-        e.altKey ? "alt-" : "",
-        e.shiftKey ? "shift-" : "",
-        e.keyCode
-      ].join("");
-    }, "extractKey");
+    const extractKey = /* @__PURE__ */ __name((e) => [
+      e.ctrlKey ? "ctrl-" : "",
+      e.metaKey ? "meta-" : "",
+      e.altKey ? "alt-" : "",
+      e.shiftKey ? "shift-" : "",
+      e.keyCode
+    ].join(""), "extractKey");
     const TOGGLE_DEV_TOOLS_KB = safeProcess.platform === "darwin" ? "meta-alt-73" : "ctrl-shift-73";
     const TOGGLE_DEV_TOOLS_KB_ALT = "123";
     const RELOAD_KB = safeProcess.platform === "darwin" ? "meta-82" : "ctrl-82";
-    let listener = /* @__PURE__ */ __name(function(e) {
+    let listener = /* @__PURE__ */ __name((e) => {
       const key = extractKey(e);
       if (key === TOGGLE_DEV_TOOLS_KB || key === TOGGLE_DEV_TOOLS_KB_ALT) {
         ipcRenderer.send("vscode:toggleDevTools");
@@ -83,7 +95,7 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       }
     }, "listener");
     window.addEventListener("keydown", listener);
-    return function() {
+    return () => {
       if (listener) {
         window.removeEventListener("keydown", listener);
         listener = void 0;
@@ -123,7 +135,9 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
     if (config.isWindows && pathName.startsWith("//")) {
       uri = encodeURI(`${config.scheme || "file"}:${pathName}`);
     } else {
-      uri = encodeURI(`${config.scheme || "file"}://${config.fallbackAuthority || ""}${pathName}`);
+      uri = encodeURI(
+        `${config.scheme || "file"}://${config.fallbackAuthority || ""}${pathName}`
+      );
     }
     return uri.replace(/#/g, "%23");
   }
@@ -136,21 +150,30 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
       style.media = "screen";
       style.id = "vscode-css-loading";
       document.head.appendChild(style);
-      globalThis._VSCODE_CSS_LOAD = function(url) {
+      globalThis._VSCODE_CSS_LOAD = (url) => {
         style.textContent += `@import url(${url});
 `;
       };
-      const importMap = { imports: {} };
+      const importMap = {
+        imports: {}
+      };
       for (const cssModule of configuration.cssModules) {
         const cssUrl = new URL(cssModule, baseUrl).href;
         const jsSrc = `globalThis._VSCODE_CSS_LOAD('${cssUrl}');
 `;
-        const blob = new Blob([jsSrc], { type: "application/javascript" });
+        const blob = new Blob([jsSrc], {
+          type: "application/javascript"
+        });
         importMap.imports[cssUrl] = URL.createObjectURL(blob);
       }
-      const ttp = window.trustedTypes?.createPolicy("vscode-bootstrapImportMap", { createScript(value) {
-        return value;
-      } });
+      const ttp = window.trustedTypes?.createPolicy(
+        "vscode-bootstrapImportMap",
+        {
+          createScript(value) {
+            return value;
+          }
+        }
+      );
       const importMapSrc = JSON.stringify(importMap, void 0, 2);
       const importMapScript = document.createElement("script");
       importMapScript.type = "importmap";

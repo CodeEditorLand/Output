@@ -12,11 +12,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { coalesce } from "../../../../base/common/arrays.js";
 import { URI } from "../../../../base/common/uri.js";
-import { Location } from "../../../../editor/common/languages.js";
 import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { IChatRequestVariableData, IChatRequestVariableEntry } from "../common/chatModel.js";
-import { ChatRequestDynamicVariablePart, ChatRequestToolPart, IParsedChatRequest } from "../common/chatParserTypes.js";
-import { IChatVariablesService, IDynamicVariable } from "../common/chatVariables.js";
+import {
+  ChatRequestDynamicVariablePart,
+  ChatRequestToolPart
+} from "../common/chatParserTypes.js";
 import { ChatAgentLocation } from "../common/constants.js";
 import { IChatWidgetService, showChatView } from "./chat.js";
 import { ChatDynamicVariableModel } from "./contrib/chatDynamicVariables.js";
@@ -36,7 +36,7 @@ let ChatVariablesService = class {
       }
     });
     resolvedVariables = coalesce(resolvedVariables);
-    resolvedVariables.sort((a, b) => b.range.start - a.range.start);
+    resolvedVariables.sort((a, b) => b.range?.start - a.range?.start);
     if (attachedContextVariables) {
       resolvedVariables.push(...attachedContextVariables);
     }
@@ -49,7 +49,9 @@ let ChatVariablesService = class {
     if (!widget || !widget.viewModel || !widget.supportsFileReferences) {
       return [];
     }
-    const model = widget.getContrib(ChatDynamicVariableModel.ID);
+    const model = widget.getContrib(
+      ChatDynamicVariableModel.ID
+    );
     if (!model) {
       return [];
     }

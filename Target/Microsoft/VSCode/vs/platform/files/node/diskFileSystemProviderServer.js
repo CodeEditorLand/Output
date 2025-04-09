@@ -1,18 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../base/common/event.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { DiskFileSystemProvider } from "./diskFileSystemProvider.js";
-import { Disposable, dispose, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { ILogService } from "../../log/common/log.js";
-import { IURITransformer } from "../../../base/common/uriIpc.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
-import { ReadableStreamEventPayload, listenStream } from "../../../base/common/stream.js";
-import { IStat, IFileReadStreamOptions, IFileWriteOptions, IFileOpenOptions, IFileDeleteOptions, IFileOverwriteOptions, IFileChange, IWatchOptions, FileType, IFileAtomicReadOptions } from "../common/files.js";
 import { CancellationTokenSource } from "../../../base/common/cancellation.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IRecursiveWatcherOptions } from "../common/watcher.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  dispose,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import {
+  listenStream
+} from "../../../base/common/stream.js";
+import { DiskFileSystemProvider } from "./diskFileSystemProvider.js";
 class AbstractDiskFileSystemProviderChannel extends Disposable {
   constructor(provider, logService) {
     super();
@@ -52,7 +51,13 @@ class AbstractDiskFileSystemProviderChannel extends Disposable {
       case "delete":
         return this.delete(uriTransformer, arg[0], arg[1]);
       case "watch":
-        return this.watch(uriTransformer, arg[0], arg[1], arg[2], arg[3]);
+        return this.watch(
+          uriTransformer,
+          arg[0],
+          arg[1],
+          arg[2],
+          arg[3]
+        );
       case "unwatch":
         return this.unwatch(arg[0], arg[1]);
     }
@@ -70,7 +75,11 @@ class AbstractDiskFileSystemProviderChannel extends Disposable {
   }
   //#region File Metadata Resolving
   stat(uriTransformer, _resource) {
-    const resource = this.transformIncoming(uriTransformer, _resource, true);
+    const resource = this.transformIncoming(
+      uriTransformer,
+      _resource,
+      true
+    );
     return this.provider.stat(resource);
   }
   readdir(uriTransformer, _resource) {
@@ -80,19 +89,31 @@ class AbstractDiskFileSystemProviderChannel extends Disposable {
   //#endregion
   //#region File Reading/Writing
   async readFile(uriTransformer, _resource, opts) {
-    const resource = this.transformIncoming(uriTransformer, _resource, true);
+    const resource = this.transformIncoming(
+      uriTransformer,
+      _resource,
+      true
+    );
     const buffer = await this.provider.readFile(resource, opts);
     return VSBuffer.wrap(buffer);
   }
   onReadFileStream(uriTransformer, _resource, opts) {
-    const resource = this.transformIncoming(uriTransformer, _resource, true);
+    const resource = this.transformIncoming(
+      uriTransformer,
+      _resource,
+      true
+    );
     const cts = new CancellationTokenSource();
     const emitter = new Emitter({
       onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
         cts.cancel();
       }, "onDidRemoveLastListener")
     });
-    const fileStream = this.provider.readFileStream(resource, opts, cts.token);
+    const fileStream = this.provider.readFileStream(
+      resource,
+      opts,
+      cts.token
+    );
     listenStream(fileStream, {
       onData: /* @__PURE__ */ __name((chunk) => emitter.fire(VSBuffer.wrap(chunk)), "onData"),
       onError: /* @__PURE__ */ __name((error) => emitter.fire(error), "onError"),
@@ -109,7 +130,11 @@ class AbstractDiskFileSystemProviderChannel extends Disposable {
     return this.provider.writeFile(resource, content.buffer, opts);
   }
   open(uriTransformer, _resource, opts) {
-    const resource = this.transformIncoming(uriTransformer, _resource, true);
+    const resource = this.transformIncoming(
+      uriTransformer,
+      _resource,
+      true
+    );
     return this.provider.open(resource, opts);
   }
   close(fd) {
@@ -118,7 +143,13 @@ class AbstractDiskFileSystemProviderChannel extends Disposable {
   async read(fd, pos, length) {
     const buffer = VSBuffer.alloc(length);
     const bufferOffset = 0;
-    const bytesRead = await this.provider.read(fd, pos, buffer.buffer, bufferOffset, length);
+    const bytesRead = await this.provider.read(
+      fd,
+      pos,
+      buffer.buffer,
+      bufferOffset,
+      length
+    );
     return [buffer, bytesRead];
   }
   write(fd, pos, data, offset, length) {
@@ -158,7 +189,10 @@ class AbstractDiskFileSystemProviderChannel extends Disposable {
   onFileChange(uriTransformer, sessionId) {
     const emitter = new Emitter({
       onWillAddFirstListener: /* @__PURE__ */ __name(() => {
-        this.sessionToWatcher.set(sessionId, this.createSessionFileWatcher(uriTransformer, emitter));
+        this.sessionToWatcher.set(
+          sessionId,
+          this.createSessionFileWatcher(uriTransformer, emitter)
+        );
       }, "onWillAddFirstListener"),
       onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
         dispose(this.sessionToWatcher.get(sessionId));
@@ -201,7 +235,9 @@ class AbstractSessionFileWatcher extends Disposable {
     super();
     this.uriTransformer = uriTransformer;
     this.environmentService = environmentService;
-    this.fileWatcher = this._register(new DiskFileSystemProvider(logService));
+    this.fileWatcher = this._register(
+      new DiskFileSystemProvider(logService)
+    );
     this.registerListeners(sessionEmitter);
   }
   static {
@@ -218,18 +254,32 @@ class AbstractSessionFileWatcher extends Disposable {
   // not other clients that asked to watch other paths.
   fileWatcher;
   registerListeners(sessionEmitter) {
-    const localChangeEmitter = this._register(new Emitter());
-    this._register(localChangeEmitter.event((events) => {
-      sessionEmitter.fire(
-        events.map((e) => ({
-          resource: this.uriTransformer.transformOutgoingURI(e.resource),
-          type: e.type,
-          cId: e.cId
-        }))
-      );
-    }));
-    this._register(this.fileWatcher.onDidChangeFile((events) => localChangeEmitter.fire(events)));
-    this._register(this.fileWatcher.onDidWatchError((error) => sessionEmitter.fire(error)));
+    const localChangeEmitter = this._register(
+      new Emitter()
+    );
+    this._register(
+      localChangeEmitter.event((events) => {
+        sessionEmitter.fire(
+          events.map((e) => ({
+            resource: this.uriTransformer.transformOutgoingURI(
+              e.resource
+            ),
+            type: e.type,
+            cId: e.cId
+          }))
+        );
+      })
+    );
+    this._register(
+      this.fileWatcher.onDidChangeFile(
+        (events) => localChangeEmitter.fire(events)
+      )
+    );
+    this._register(
+      this.fileWatcher.onDidWatchError(
+        (error) => sessionEmitter.fire(error)
+      )
+    );
   }
   getRecursiveWatcherOptions(environmentService) {
     return void 0;

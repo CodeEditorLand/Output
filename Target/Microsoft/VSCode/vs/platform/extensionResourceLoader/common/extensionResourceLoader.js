@@ -1,24 +1,26 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { RemoteAuthorities } from "../../../base/common/network.js";
 import { isWeb } from "../../../base/common/platform.js";
 import { format2 } from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IFileService } from "../../files/common/files.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IProductService } from "../../product/common/productService.js";
-import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { TelemetryLevel } from "../../telemetry/common/telemetry.js";
-import { getTelemetryLevel, supportsTelemetry } from "../../telemetry/common/telemetryUtils.js";
-import { RemoteAuthorities } from "../../../base/common/network.js";
+import {
+  ExtensionGalleryResourceType,
+  getExtensionGalleryManifestResourceUri
+} from "../../extensionManagement/common/extensionGalleryManifest.js";
 import { TargetPlatform } from "../../extensions/common/extensions.js";
-import { ExtensionGalleryResourceType, getExtensionGalleryManifestResourceUri, IExtensionGalleryManifest, IExtensionGalleryManifestService } from "../../extensionManagement/common/extensionGalleryManifest.js";
-import { ILogService } from "../../log/common/log.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
+import { getServiceMachineId } from "../../externalServices/common/serviceMachineId.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { TelemetryLevel } from "../../telemetry/common/telemetry.js";
+import {
+  getTelemetryLevel,
+  supportsTelemetry
+} from "../../telemetry/common/telemetryUtils.js";
 const WEB_EXTENSION_RESOURCE_END_POINT_SEGMENT = "/web-extension-resource/";
-const IExtensionResourceLoaderService = createDecorator("extensionResourceLoaderService");
+const IExtensionResourceLoaderService = createDecorator(
+  "extensionResourceLoaderService"
+);
 function migratePlatformSpecificExtensionGalleryResourceURL(resource, targetPlatform) {
   if (resource.query !== `target=${targetPlatform}`) {
     return void 0;
@@ -54,29 +56,47 @@ class AbstractExtensionResourceLoaderService extends Disposable {
     try {
       const manifest = await this._extensionGalleryManifestService.getExtensionGalleryManifest();
       this.resolve(manifest);
-      this._register(this._extensionGalleryManifestService.onDidChangeExtensionGalleryManifest(() => this.resolve(manifest)));
+      this._register(
+        this._extensionGalleryManifestService.onDidChangeExtensionGalleryManifest(
+          () => this.resolve(manifest)
+        )
+      );
     } catch (error) {
       this._logService.error(error);
     }
   }
   resolve(manifest) {
-    this._extensionGalleryResourceUrlTemplate = manifest ? getExtensionGalleryManifestResourceUri(manifest, ExtensionGalleryResourceType.ExtensionResourceUri) : void 0;
-    this._extensionGalleryAuthority = this._extensionGalleryResourceUrlTemplate ? this._getExtensionGalleryAuthority(URI.parse(this._extensionGalleryResourceUrlTemplate)) : void 0;
+    this._extensionGalleryResourceUrlTemplate = manifest ? getExtensionGalleryManifestResourceUri(
+      manifest,
+      ExtensionGalleryResourceType.ExtensionResourceUri
+    ) : void 0;
+    this._extensionGalleryAuthority = this._extensionGalleryResourceUrlTemplate ? this._getExtensionGalleryAuthority(
+      URI.parse(this._extensionGalleryResourceUrlTemplate)
+    ) : void 0;
   }
   async supportsExtensionGalleryResources() {
     await this._initPromise;
     return this._extensionGalleryResourceUrlTemplate !== void 0;
   }
-  async getExtensionGalleryResourceURL({ publisher, name, version, targetPlatform }, path) {
+  async getExtensionGalleryResourceURL({
+    publisher,
+    name,
+    version,
+    targetPlatform
+  }, path) {
     await this._initPromise;
     if (this._extensionGalleryResourceUrlTemplate) {
-      const uri = URI.parse(format2(this._extensionGalleryResourceUrlTemplate, {
-        publisher,
-        name,
-        version: targetPlatform !== void 0 && targetPlatform !== TargetPlatform.UNDEFINED && targetPlatform !== TargetPlatform.UNKNOWN && targetPlatform !== TargetPlatform.UNIVERSAL ? `${version}+${targetPlatform}` : version,
-        path: "extension"
-      }));
-      return this._isWebExtensionResourceEndPoint(uri) ? uri.with({ scheme: RemoteAuthorities.getPreferredWebSchema() }) : uri;
+      const uri = URI.parse(
+        format2(this._extensionGalleryResourceUrlTemplate, {
+          publisher,
+          name,
+          version: targetPlatform !== void 0 && targetPlatform !== TargetPlatform.UNDEFINED && targetPlatform !== TargetPlatform.UNKNOWN && targetPlatform !== TargetPlatform.UNIVERSAL ? `${version}+${targetPlatform}` : version,
+          path: "extension"
+        })
+      );
+      return this._isWebExtensionResourceEndPoint(uri) ? uri.with({
+        scheme: RemoteAuthorities.getPreferredWebSchema()
+      }) : uri;
     }
     return void 0;
   }
@@ -100,7 +120,11 @@ class AbstractExtensionResourceLoaderService extends Disposable {
   _serviceMachineIdPromise;
   _getServiceMachineId() {
     if (!this._serviceMachineIdPromise) {
-      this._serviceMachineIdPromise = getServiceMachineId(this._environmentService, this._fileService, this._storageService);
+      this._serviceMachineIdPromise = getServiceMachineId(
+        this._environmentService,
+        this._fileService,
+        this._storageService
+      );
     }
     return this._serviceMachineIdPromise;
   }
@@ -112,8 +136,12 @@ class AbstractExtensionResourceLoaderService extends Disposable {
     return index !== -1 ? uri.authority.substring(index + 1) : void 0;
   }
   _isWebExtensionResourceEndPoint(uri) {
-    const uriPath = uri.path, serverRootPath = RemoteAuthorities.getServerRootPath();
-    return uriPath.startsWith(serverRootPath) && uriPath.startsWith(WEB_EXTENSION_RESOURCE_END_POINT_SEGMENT, serverRootPath.length);
+    const uriPath = uri.path;
+    const serverRootPath = RemoteAuthorities.getServerRootPath();
+    return uriPath.startsWith(serverRootPath) && uriPath.startsWith(
+      WEB_EXTENSION_RESOURCE_END_POINT_SEGMENT,
+      serverRootPath.length
+    );
   }
 }
 export {

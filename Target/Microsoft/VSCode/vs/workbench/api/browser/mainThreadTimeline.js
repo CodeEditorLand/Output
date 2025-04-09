@@ -11,13 +11,18 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter } from "../../../base/common/event.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { URI } from "../../../base/common/uri.js";
-import { ILogService } from "../../../platform/log/common/log.js";
-import { MainContext, MainThreadTimelineShape, ExtHostTimelineShape, ExtHostContext } from "../common/extHost.protocol.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { TimelineChangeEvent, TimelineOptions, TimelineProviderDescriptor, ITimelineService, Timeline } from "../../contrib/timeline/common/timeline.js";
 import { revive } from "../../../base/common/marshalling.js";
+import { ILogService } from "../../../platform/log/common/log.js";
+import {
+  ITimelineService
+} from "../../contrib/timeline/common/timeline.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadTimeline = class {
   constructor(context, logService, _timelineService) {
     this.logService = logService;
@@ -27,7 +32,9 @@ let MainThreadTimeline = class {
   _proxy;
   _providerEmitters = /* @__PURE__ */ new Map();
   $registerTimelineProvider(provider) {
-    this.logService.trace(`MainThreadTimeline#registerTimelineProvider: id=${provider.id}`);
+    this.logService.trace(
+      `MainThreadTimeline#registerTimelineProvider: id=${provider.id}`
+    );
     const proxy = this._proxy;
     const emitters = this._providerEmitters;
     let onDidChange = emitters.get(provider.id);
@@ -39,7 +46,9 @@ let MainThreadTimeline = class {
       ...provider,
       onDidChange: onDidChange.event,
       async provideTimeline(uri, options, token) {
-        return revive(await proxy.$getTimeline(provider.id, uri, options, token));
+        return revive(
+          await proxy.$getTimeline(provider.id, uri, options, token)
+        );
       },
       dispose() {
         emitters.delete(provider.id);
@@ -48,11 +57,15 @@ let MainThreadTimeline = class {
     });
   }
   $unregisterTimelineProvider(id) {
-    this.logService.trace(`MainThreadTimeline#unregisterTimelineProvider: id=${id}`);
+    this.logService.trace(
+      `MainThreadTimeline#unregisterTimelineProvider: id=${id}`
+    );
     this._timelineService.unregisterTimelineProvider(id);
   }
   $emitTimelineChangeEvent(e) {
-    this.logService.trace(`MainThreadTimeline#emitChangeEvent: id=${e.id}, uri=${e.uri?.toString(true)}`);
+    this.logService.trace(
+      `MainThreadTimeline#emitChangeEvent: id=${e.id}, uri=${e.uri?.toString(true)}`
+    );
     const emitter = this._providerEmitters.get(e.id);
     emitter?.fire(e);
   }

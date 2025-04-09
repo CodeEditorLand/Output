@@ -1,11 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
 import { ScanCode, ScanCodeUtils } from "../../../base/common/keyCodes.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
-import { IKeyboardMapper } from "./keyboardMapper.js";
-const IKeyboardLayoutService = createDecorator("keyboardLayoutService");
+const IKeyboardLayoutService = createDecorator(
+  "keyboardLayoutService"
+);
 function areKeyboardLayoutsEqual(a, b) {
   if (!a || !b) {
     return false;

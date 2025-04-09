@@ -1,10 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyCode } from "../../../common/keyCodes.js";
+import { Disposable } from "../../../common/lifecycle.js";
 import * as dom from "../../dom.js";
 import { StandardKeyboardEvent } from "../../keyboardEvent.js";
 import { DomScrollableElement } from "../scrollbar/scrollableElement.js";
-import { KeyCode } from "../../../common/keyCodes.js";
-import { Disposable } from "../../../common/lifecycle.js";
 import "./hoverWidget.css";
 import { localize } from "../../../../nls.js";
 const $ = dom.$;
@@ -31,9 +31,11 @@ class HoverWidget extends Disposable {
     this.containerDomNode.setAttribute("role", "tooltip");
     this.contentsDomNode = document.createElement("div");
     this.contentsDomNode.className = "monaco-hover-content";
-    this.scrollbar = this._register(new DomScrollableElement(this.contentsDomNode, {
-      consumeMouseWheelIfScrollbarIsNeeded: true
-    }));
+    this.scrollbar = this._register(
+      new DomScrollableElement(this.contentsDomNode, {
+        consumeMouseWheelIfScrollbarIsNeeded: true
+      })
+    );
     this.containerDomNode.appendChild(this.scrollbar.getDomNode());
   }
   onContentsChanged() {
@@ -66,8 +68,15 @@ class HoverAction extends Disposable {
     this.actionRenderedLabel = keybindingLabel ? `${actionOptions.label} (${keybindingLabel})` : actionOptions.label;
     const label = dom.append(this.action, $("span"));
     label.textContent = this.actionRenderedLabel;
-    this._store.add(new ClickAction(this.actionContainer, actionOptions.run));
-    this._store.add(new KeyDownAction(this.actionContainer, actionOptions.run, [KeyCode.Enter, KeyCode.Space]));
+    this._store.add(
+      new ClickAction(this.actionContainer, actionOptions.run)
+    );
+    this._store.add(
+      new KeyDownAction(this.actionContainer, actionOptions.run, [
+        KeyCode.Enter,
+        KeyCode.Space
+      ])
+    );
     this.setEnabled(true);
   }
   setEnabled(enabled) {
@@ -81,7 +90,14 @@ class HoverAction extends Disposable {
   }
 }
 function getHoverAccessibleViewHint(shouldHaveHint, keybinding) {
-  return shouldHaveHint && keybinding ? localize("acessibleViewHint", "Inspect this in the accessible view with {0}.", keybinding) : shouldHaveHint ? localize("acessibleViewHintNoKbOpen", "Inspect this in the accessible view via the command Open Accessible View which is currently not triggerable via keybinding.") : "";
+  return shouldHaveHint && keybinding ? localize(
+    "acessibleViewHint",
+    "Inspect this in the accessible view with {0}.",
+    keybinding
+  ) : shouldHaveHint ? localize(
+    "acessibleViewHintNoKbOpen",
+    "Inspect this in the accessible view via the command Open Accessible View which is currently not triggerable via keybinding."
+  ) : "";
 }
 __name(getHoverAccessibleViewHint, "getHoverAccessibleViewHint");
 class ClickAction extends Disposable {
@@ -90,11 +106,13 @@ class ClickAction extends Disposable {
   }
   constructor(container, run) {
     super();
-    this._register(dom.addDisposableListener(container, dom.EventType.CLICK, (e) => {
-      e.stopPropagation();
-      e.preventDefault();
-      run(container);
-    }));
+    this._register(
+      dom.addDisposableListener(container, dom.EventType.CLICK, (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        run(container);
+      })
+    );
   }
 }
 class KeyDownAction extends Disposable {
@@ -103,14 +121,20 @@ class KeyDownAction extends Disposable {
   }
   constructor(container, run, keyCodes) {
     super();
-    this._register(dom.addDisposableListener(container, dom.EventType.KEY_DOWN, (e) => {
-      const event = new StandardKeyboardEvent(e);
-      if (keyCodes.some((keyCode) => event.equals(keyCode))) {
-        e.stopPropagation();
-        e.preventDefault();
-        run(container);
-      }
-    }));
+    this._register(
+      dom.addDisposableListener(
+        container,
+        dom.EventType.KEY_DOWN,
+        (e) => {
+          const event = new StandardKeyboardEvent(e);
+          if (keyCodes.some((keyCode) => event.equals(keyCode))) {
+            e.stopPropagation();
+            e.preventDefault();
+            run(container);
+          }
+        }
+      )
+    );
   }
 }
 export {

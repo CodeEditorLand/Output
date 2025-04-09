@@ -11,31 +11,47 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { RunOnceScheduler } from "../../../../../base/common/async.js";
-import { VSBuffer } from "../../../../../base/common/buffer.js";
-import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../../base/common/network.js";
-import { autorunWithStore, IObservable, IReader, ISettableObservable, observableValue } from "../../../../../base/common/observable.js";
+import {
+  autorunWithStore,
+  observableValue
+} from "../../../../../base/common/observable.js";
 import { URI } from "../../../../../base/common/uri.js";
 import { localize } from "../../../../../nls.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { INativeMcpDiscoveryData } from "../../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";
 import { observableConfigValue } from "../../../../../platform/observable/common/platformObservableUtils.js";
 import { StorageScope } from "../../../../../platform/storage/common/storage.js";
-import { Dto } from "../../../../services/extensions/common/proxyIdentifier.js";
-import { DiscoverySource, discoverySourceLabel, mcpDiscoverySection } from "../mcpConfiguration.js";
+import {
+  discoverySourceLabel,
+  mcpDiscoverySection
+} from "../mcpConfiguration.js";
 import { IMcpRegistry } from "../mcpRegistryTypes.js";
-import { McpCollectionDefinition, McpCollectionSortOrder, McpServerDefinition } from "../mcpTypes.js";
-import { IMcpDiscovery } from "./mcpDiscovery.js";
-import { ClaudeDesktopMpcDiscoveryAdapter, CursorDesktopMpcDiscoveryAdapter, NativeMpcDiscoveryAdapter, WindsurfDesktopMpcDiscoveryAdapter } from "./nativeMcpDiscoveryAdapters.js";
+import {
+  McpCollectionSortOrder
+} from "../mcpTypes.js";
+import {
+  ClaudeDesktopMpcDiscoveryAdapter,
+  CursorDesktopMpcDiscoveryAdapter,
+  WindsurfDesktopMpcDiscoveryAdapter
+} from "./nativeMcpDiscoveryAdapters.js";
 let FilesystemMcpDiscovery = class extends Disposable {
   constructor(configurationService, _fileService, _mcpRegistry) {
     super();
     this._fileService = _fileService;
     this._mcpRegistry = _mcpRegistry;
-    this._fsDiscoveryEnabled = observableConfigValue(mcpDiscoverySection, true, configurationService);
+    this._fsDiscoveryEnabled = observableConfigValue(
+      mcpDiscoverySection,
+      true,
+      configurationService
+    );
   }
   static {
     __name(this, "FilesystemMcpDiscovery");
@@ -70,16 +86,25 @@ let FilesystemMcpDiscovery = class extends Disposable {
         }
       }
     }, "updateFile");
-    store.add(autorunWithStore((reader, store2) => {
-      if (!this._isDiscoveryEnabled(reader, discoverySource)) {
-        collectionRegistration.clear();
-        return;
-      }
-      const throttler = store2.add(new RunOnceScheduler(updateFile, 500));
-      const watcher = store2.add(this._fileService.createWatcher(file, { recursive: false, excludes: [] }));
-      store2.add(watcher.onDidChange(() => throttler.schedule()));
-      updateFile();
-    }));
+    store.add(
+      autorunWithStore((reader, store2) => {
+        if (!this._isDiscoveryEnabled(reader, discoverySource)) {
+          collectionRegistration.clear();
+          return;
+        }
+        const throttler = store2.add(
+          new RunOnceScheduler(updateFile, 500)
+        );
+        const watcher = store2.add(
+          this._fileService.createWatcher(file, {
+            recursive: false,
+            excludes: []
+          })
+        );
+        store2.add(watcher.onDidChange(() => throttler.schedule()));
+        updateFile();
+      })
+    );
     return store;
   }
 };
@@ -97,12 +122,28 @@ let NativeFilesystemMcpDiscovery = class extends FilesystemMcpDiscovery {
   constructor(remoteAuthority, labelService, fileService, instantiationService, mcpRegistry, configurationService) {
     super(configurationService, fileService, mcpRegistry);
     if (remoteAuthority) {
-      this.suffix = " " + localize("onRemoteLabel", " on {0}", labelService.getHostLabel(Schemas.vscodeRemote, remoteAuthority));
+      this.suffix = ` ${localize(
+        "onRemoteLabel",
+        " on {0}",
+        labelService.getHostLabel(
+          Schemas.vscodeRemote,
+          remoteAuthority
+        )
+      )}`;
     }
     this.adapters = [
-      instantiationService.createInstance(ClaudeDesktopMpcDiscoveryAdapter, remoteAuthority),
-      instantiationService.createInstance(CursorDesktopMpcDiscoveryAdapter, remoteAuthority),
-      instantiationService.createInstance(WindsurfDesktopMpcDiscoveryAdapter, remoteAuthority)
+      instantiationService.createInstance(
+        ClaudeDesktopMpcDiscoveryAdapter,
+        remoteAuthority
+      ),
+      instantiationService.createInstance(
+        CursorDesktopMpcDiscoveryAdapter,
+        remoteAuthority
+      ),
+      instantiationService.createInstance(
+        WindsurfDesktopMpcDiscoveryAdapter,
+        remoteAuthority
+      )
     ];
   }
   setDetails(detailsDto) {
@@ -132,7 +173,14 @@ let NativeFilesystemMcpDiscovery = class extends FilesystemMcpDiscovery {
           order: adapter.order + (adapter.remoteAuthority ? McpCollectionSortOrder.RemoteBoost : 0)
         }
       };
-      this._register(this.watchFile(file, collection, adapter.discoverySource, (contents) => adapter.adaptFile(contents, details)));
+      this._register(
+        this.watchFile(
+          file,
+          collection,
+          adapter.discoverySource,
+          (contents) => adapter.adaptFile(contents, details)
+        )
+      );
     }
   }
 };

@@ -1,23 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Hash } from "./tokens/hash.js";
-import { Dash } from "./tokens/dash.js";
-import { Colon } from "./tokens/colon.js";
-import { FormFeed } from "./tokens/formFeed.js";
+import { BaseDecoder } from "../../../../base/common/codecs/baseDecoder.js";
+import { LinesDecoder } from "../linesCodec/linesDecoder.js";
+import { CarriageReturn } from "../linesCodec/tokens/carriageReturn.js";
+import { NewLine } from "../linesCodec/tokens/newLine.js";
+import { Space } from "../simpleCodec/tokens/space.js";
 import { Tab } from "../simpleCodec/tokens/tab.js";
 import { Word } from "../simpleCodec/tokens/word.js";
-import { VerticalTab } from "./tokens/verticalTab.js";
-import { Space } from "../simpleCodec/tokens/space.js";
-import { NewLine } from "../linesCodec/tokens/newLine.js";
-import { VSBuffer } from "../../../../base/common/buffer.js";
+import {
+  LeftAngleBracket,
+  RightAngleBracket
+} from "./tokens/angleBrackets.js";
+import { LeftBracket, RightBracket } from "./tokens/brackets.js";
+import { Colon } from "./tokens/colon.js";
+import { Dash } from "./tokens/dash.js";
 import { ExclamationMark } from "./tokens/exclamationMark.js";
-import { ReadableStream } from "../../../../base/common/stream.js";
-import { CarriageReturn } from "../linesCodec/tokens/carriageReturn.js";
-import { LinesDecoder, TLineToken } from "../linesCodec/linesDecoder.js";
-import { LeftBracket, RightBracket, TBracket } from "./tokens/brackets.js";
-import { BaseDecoder } from "../../../../base/common/codecs/baseDecoder.js";
-import { LeftParenthesis, RightParenthesis, TParenthesis } from "./tokens/parentheses.js";
-import { LeftAngleBracket, RightAngleBracket, TAngleBracket } from "./tokens/angleBrackets.js";
+import { FormFeed } from "./tokens/formFeed.js";
+import { Hash } from "./tokens/hash.js";
+import {
+  LeftParenthesis,
+  RightParenthesis
+} from "./tokens/parentheses.js";
+import { VerticalTab } from "./tokens/verticalTab.js";
 const WELL_KNOWN_TOKENS = Object.freeze([
   Space,
   Tab,
@@ -65,11 +69,15 @@ class SimpleDecoder extends BaseDecoder {
     let i = 0;
     while (i < token.text.length) {
       const columnNumber = i + 1;
-      const tokenConstructor = WELL_KNOWN_TOKENS.find((wellKnownToken) => {
-        return wellKnownToken.symbol === token.text[i];
-      });
+      const tokenConstructor = WELL_KNOWN_TOKENS.find(
+        (wellKnownToken) => {
+          return wellKnownToken.symbol === token.text[i];
+        }
+      );
       if (tokenConstructor) {
-        this._onData.fire(tokenConstructor.newOnLine(token, columnNumber));
+        this._onData.fire(
+          tokenConstructor.newOnLine(token, columnNumber)
+        );
         i++;
         continue;
       }
@@ -78,9 +86,7 @@ class SimpleDecoder extends BaseDecoder {
         word += token.text[i];
         i++;
       }
-      this._onData.fire(
-        Word.newOnLine(word, token, columnNumber)
-      );
+      this._onData.fire(Word.newOnLine(word, token, columnNumber));
     }
   }
 }

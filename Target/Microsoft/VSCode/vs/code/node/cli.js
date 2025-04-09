@@ -1,29 +1,53 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ChildProcess, spawn, SpawnOptions, StdioOptions } from "child_process";
-import { chmodSync, existsSync, readFileSync, statSync, truncateSync, unlinkSync } from "fs";
-import { homedir, release, tmpdir } from "os";
+import {
+  spawn
+} from "node:child_process";
+import {
+  chmodSync,
+  existsSync,
+  readFileSync,
+  statSync,
+  truncateSync,
+  unlinkSync
+} from "node:fs";
+import { homedir, release, tmpdir } from "node:os";
+import { DeferredPromise } from "../../base/common/async.js";
+import { CancellationTokenSource } from "../../base/common/cancellation.js";
 import { Event } from "../../base/common/event.js";
-import { isAbsolute, resolve, join, dirname } from "../../base/common/path.js";
-import { IProcessEnvironment, isMacintosh, isWindows } from "../../base/common/platform.js";
+import { isUNC, randomPath } from "../../base/common/extpath.js";
+import { FileAccess } from "../../base/common/network.js";
+import { dirname, isAbsolute, join, resolve } from "../../base/common/path.js";
+import {
+  isMacintosh,
+  isWindows
+} from "../../base/common/platform.js";
 import { randomPort } from "../../base/common/ports.js";
+import { cwd } from "../../base/common/process.js";
+import { URI } from "../../base/common/uri.js";
 import { whenDeleted, writeFileSync } from "../../base/node/pfs.js";
 import { findFreePort } from "../../base/node/ports.js";
-import { watchFileContents } from "../../platform/files/node/watcher/nodejs/nodejsWatcherLib.js";
-import { NativeParsedArgs } from "../../platform/environment/common/argv.js";
-import { buildHelpMessage, buildVersionMessage, NATIVE_CLI_COMMANDS, OPTIONS } from "../../platform/environment/node/argv.js";
-import { addArg, parseCLIProcessArgv } from "../../platform/environment/node/argvHelper.js";
-import { getStdinFilePath, hasStdinWithoutTty, readFromStdin, stdinDataListener } from "../../platform/environment/node/stdin.js";
-import { createWaitMarkerFileSync } from "../../platform/environment/node/wait.js";
-import product from "../../platform/product/common/product.js";
-import { CancellationTokenSource } from "../../base/common/cancellation.js";
-import { isUNC, randomPath } from "../../base/common/extpath.js";
-import { Utils } from "../../platform/profiling/common/profiling.js";
-import { FileAccess } from "../../base/common/network.js";
-import { cwd } from "../../base/common/process.js";
 import { addUNCHostToAllowlist } from "../../base/node/unc.js";
-import { URI } from "../../base/common/uri.js";
-import { DeferredPromise } from "../../base/common/async.js";
+import {
+  buildHelpMessage,
+  buildVersionMessage,
+  NATIVE_CLI_COMMANDS,
+  OPTIONS
+} from "../../platform/environment/node/argv.js";
+import {
+  addArg,
+  parseCLIProcessArgv
+} from "../../platform/environment/node/argvHelper.js";
+import {
+  getStdinFilePath,
+  hasStdinWithoutTty,
+  readFromStdin,
+  stdinDataListener
+} from "../../platform/environment/node/stdin.js";
+import { createWaitMarkerFileSync } from "../../platform/environment/node/wait.js";
+import { watchFileContents } from "../../platform/files/node/watcher/nodejs/nodejsWatcherLib.js";
+import product from "../../platform/product/common/product.js";
+import { Utils } from "../../platform/profiling/common/profiling.js";
 function shouldSpawnCliProcess(argv) {
   return !!argv["install-source"] || !!argv["list-extensions"] || !!argv["install-extension"] || !!argv["uninstall-extension"] || !!argv["update-extensions"] || !!argv["locate-extension"] || !!argv["add-mcp"] || !!argv["telemetry"];
 }
@@ -39,26 +63,47 @@ async function main(argv) {
   for (const subcommand of NATIVE_CLI_COMMANDS) {
     if (args[subcommand]) {
       if (!product.tunnelApplicationName) {
-        console.error(`'${subcommand}' command not supported in ${product.applicationName}`);
+        console.error(
+          `'${subcommand}' command not supported in ${product.applicationName}`
+        );
         return;
       }
       const env = {
         ...process.env
       };
-      delete env["ELECTRON_RUN_AS_NODE"];
+      env["ELECTRON_RUN_AS_NODE"] = void 0;
       const tunnelArgs = argv.slice(argv.indexOf(subcommand) + 1);
       return new Promise((resolve2, reject) => {
         let tunnelProcess;
         const stdio = ["ignore", "pipe", "pipe"];
         if (process.env["VSCODE_DEV"]) {
-          tunnelProcess = spawn("cargo", ["run", "--", subcommand, ...tunnelArgs], { cwd: join(getAppRoot(), "cli"), stdio, env });
+          tunnelProcess = spawn(
+            "cargo",
+            ["run", "--", subcommand, ...tunnelArgs],
+            { cwd: join(getAppRoot(), "cli"), stdio, env }
+          );
         } else {
-          const appPath = process.platform === "darwin" ? join(dirname(dirname(process.execPath)), "Resources", "app") : dirname(process.execPath);
-          const tunnelCommand = join(appPath, "bin", `${product.tunnelApplicationName}${isWindows ? ".exe" : ""}`);
-          tunnelProcess = spawn(tunnelCommand, [subcommand, ...tunnelArgs], { cwd: cwd(), stdio, env });
+          const appPath = process.platform === "darwin" ? (
+            // ./Contents/MacOS/Electron => ./Contents/Resources/app/bin/code-tunnel-insiders
+            join(
+              dirname(dirname(process.execPath)),
+              "Resources",
+              "app"
+            )
+          ) : dirname(process.execPath);
+          const tunnelCommand = join(
+            appPath,
+            "bin",
+            `${product.tunnelApplicationName}${isWindows ? ".exe" : ""}`
+          );
+          tunnelProcess = spawn(
+            tunnelCommand,
+            [subcommand, ...tunnelArgs],
+            { cwd: cwd(), stdio, env }
+          );
         }
-        tunnelProcess.stdout.pipe(process.stdout);
-        tunnelProcess.stderr.pipe(process.stderr);
+        tunnelProcess.stdout?.pipe(process.stdout);
+        tunnelProcess.stderr?.pipe(process.stderr);
         tunnelProcess.on("exit", resolve2);
         tunnelProcess.on("error", reject);
       });
@@ -66,7 +111,14 @@ async function main(argv) {
   }
   if (args.help) {
     const executable = `${product.applicationName}${isWindows ? ".exe" : ""}`;
-    console.log(buildHelpMessage(product.nameLong, executable, product.version, OPTIONS));
+    console.log(
+      buildHelpMessage(
+        product.nameLong,
+        executable,
+        product.version,
+        OPTIONS
+      )
+    );
   } else if (args.version) {
     console.log(buildVersionMessage(product.version, product.commit));
   } else if (args["locate-shell-integration-path"]) {
@@ -89,9 +141,23 @@ async function main(argv) {
         file = "shellIntegration.fish";
         break;
       default:
-        throw new Error("Error using --locate-shell-integration-path: Invalid shell type");
+        throw new Error(
+          "Error using --locate-shell-integration-path: Invalid shell type"
+        );
     }
-    console.log(join(getAppRoot(), "out", "vs", "workbench", "contrib", "terminal", "common", "scripts", file));
+    console.log(
+      join(
+        getAppRoot(),
+        "out",
+        "vs",
+        "workbench",
+        "contrib",
+        "terminal",
+        "common",
+        "scripts",
+        file
+      )
+    );
   } else if (shouldSpawnCliProcess(args)) {
     let cliProcessMain;
     if (process.env["VSCODE_DEV"]) {
@@ -110,7 +176,9 @@ async function main(argv) {
     let source;
     let target;
     try {
-      const argsContents = JSON.parse(readFileSync(argsFile, "utf8"));
+      const argsContents = JSON.parse(
+        readFileSync(argsFile, "utf8")
+      );
       source = argsContents.source;
       target = argsContents.target;
     } catch (error) {
@@ -132,7 +200,7 @@ async function main(argv) {
     try {
       let targetMode = 0;
       let restoreMode = false;
-      if (!!args["file-chmod"]) {
+      if (args["file-chmod"]) {
         targetMode = statSync(target).mode;
         if (!(targetMode & 128)) {
           chmodSync(target, targetMode | 128);
@@ -156,18 +224,26 @@ async function main(argv) {
   } else {
     const env = {
       ...process.env,
-      "ELECTRON_NO_ATTACH_CONSOLE": "1"
+      ELECTRON_NO_ATTACH_CONSOLE: "1"
     };
-    delete env["ELECTRON_RUN_AS_NODE"];
+    env["ELECTRON_RUN_AS_NODE"] = void 0;
     const processCallbacks = [];
     if (args.verbose) {
       env["ELECTRON_ENABLE_LOGGING"] = "1";
     }
     if (args.verbose || args.status) {
       processCallbacks.push(async (child2) => {
-        child2.stdout?.on("data", (data) => console.log(data.toString("utf8").trim()));
-        child2.stderr?.on("data", (data) => console.log(data.toString("utf8").trim()));
-        await Event.toPromise(Event.fromNodeEventEmitter(child2, "exit"));
+        child2.stdout?.on(
+          "data",
+          (data) => console.log(data.toString("utf8").trim())
+        );
+        child2.stderr?.on(
+          "data",
+          (data) => console.log(data.toString("utf8").trim())
+        );
+        await Event.toPromise(
+          Event.fromNodeEventEmitter(child2, "exit")
+        );
       });
     }
     const hasReadStdinArg = args._.some((arg) => arg === "-");
@@ -181,7 +257,11 @@ async function main(argv) {
         stdinFilePath = getStdinFilePath();
         try {
           const readFromStdinDone = new DeferredPromise();
-          await readFromStdin(stdinFilePath, !!args.verbose, () => readFromStdinDone.complete());
+          await readFromStdin(
+            stdinFilePath,
+            !!args.verbose,
+            () => readFromStdinDone.complete()
+          );
           if (!args.wait) {
             processCallbacks.push(() => readFromStdinDone.p);
           }
@@ -189,19 +269,27 @@ async function main(argv) {
           addArg(argv, "--skip-add-to-recently-opened");
           console.log(`Reading from stdin via: ${stdinFilePath}`);
         } catch (e) {
-          console.log(`Failed to create file to read via stdin: ${e.toString()}`);
+          console.log(
+            `Failed to create file to read via stdin: ${e.toString()}`
+          );
           stdinFilePath = void 0;
         }
       } else {
-        processCallbacks.push((_) => stdinDataListener(1e3).then((dataReceived) => {
-          if (dataReceived) {
-            if (isWindows) {
-              console.log(`Run with '${product.applicationName} -' to read output from another program (e.g. 'echo Hello World | ${product.applicationName} -').`);
-            } else {
-              console.log(`Run with '${product.applicationName} -' to read from stdin (e.g. 'ps aux | grep code | ${product.applicationName} -').`);
+        processCallbacks.push(
+          (_) => stdinDataListener(1e3).then((dataReceived) => {
+            if (dataReceived) {
+              if (isWindows) {
+                console.log(
+                  `Run with '${product.applicationName} -' to read output from another program (e.g. 'echo Hello World | ${product.applicationName} -').`
+                );
+              } else {
+                console.log(
+                  `Run with '${product.applicationName} -' to read from stdin (e.g. 'ps aux | grep code | ${product.applicationName} -').`
+                );
+              }
             }
-          }
-        }));
+          })
+        );
       }
     }
     const isMacOSBigSurOrNewer = isMacintosh && release() > "20.0.0";
@@ -222,12 +310,16 @@ async function main(argv) {
             });
           });
         } else {
-          childExitPromise = Event.toPromise(Event.fromNodeEventEmitter(child2, "exit"));
+          childExitPromise = Event.toPromise(
+            Event.fromNodeEventEmitter(child2, "exit")
+          );
         }
         try {
           await Promise.race([
             whenDeleted(waitMarkerFilePath),
-            Event.toPromise(Event.fromNodeEventEmitter(child2, "error")),
+            Event.toPromise(
+              Event.fromNodeEventEmitter(child2, "error")
+            ),
             childExitPromise
           ]);
         } finally {
@@ -243,14 +335,22 @@ async function main(argv) {
       const portRenderer = await findFreePort(portMain + 1, 10, 3e3);
       const portExthost = await findFreePort(portRenderer + 1, 10, 3e3);
       if (portMain * portRenderer * portExthost === 0) {
-        throw new Error("Failed to find free ports for profiler. Make sure to shutdown all instances of the editor first.");
+        throw new Error(
+          "Failed to find free ports for profiler. Make sure to shutdown all instances of the editor first."
+        );
       }
       const filenamePrefix = randomPath(homedir(), "prof");
       addArg(argv, `--inspect-brk=${profileHost}:${portMain}`);
-      addArg(argv, `--remote-debugging-port=${profileHost}:${portRenderer}`);
-      addArg(argv, `--inspect-brk-extensions=${profileHost}:${portExthost}`);
-      addArg(argv, `--prof-startup-prefix`, filenamePrefix);
-      addArg(argv, `--no-cached-data`);
+      addArg(
+        argv,
+        `--remote-debugging-port=${profileHost}:${portRenderer}`
+      );
+      addArg(
+        argv,
+        `--inspect-brk-extensions=${profileHost}:${portExthost}`
+      );
+      addArg(argv, "--prof-startup-prefix", filenamePrefix);
+      addArg(argv, "--no-cached-data");
       writeFileSync(filenamePrefix, argv.slice(-6).join("|"));
       processCallbacks.push(async (_child) => {
         class Profiler {
@@ -261,9 +361,14 @@ async function main(argv) {
             const profiler = await import("v8-inspect-profiler");
             let session;
             try {
-              session = await profiler.startProfiling({ ...opts, host: profileHost });
+              session = await profiler.startProfiling({
+                ...opts,
+                host: profileHost
+              });
             } catch (err) {
-              console.error(`FAILED to start profiling for '${name}' on port '${opts.port}'`);
+              console.error(
+                `FAILED to start profiling for '${name}' on port '${opts.port}'`
+              );
             }
             return {
               async stop() {
@@ -273,33 +378,57 @@ async function main(argv) {
                 let suffix = "";
                 const result = await session.stop();
                 if (!process.env["VSCODE_DEV"]) {
-                  result.profile = Utils.rewriteAbsolutePaths(result.profile, "piiRemoved");
+                  result.profile = Utils.rewriteAbsolutePaths(
+                    result.profile,
+                    "piiRemoved"
+                  );
                   suffix = ".txt";
                 }
-                writeFileSync(`${filenamePrefix2}.${name}.cpuprofile${suffix}`, JSON.stringify(result.profile, void 0, 4));
+                writeFileSync(
+                  `${filenamePrefix2}.${name}.cpuprofile${suffix}`,
+                  JSON.stringify(
+                    result.profile,
+                    void 0,
+                    4
+                  )
+                );
               }
             };
           }
         }
         try {
-          const mainProfileRequest = Profiler.start("main", filenamePrefix, { port: portMain });
-          const extHostProfileRequest = Profiler.start("extHost", filenamePrefix, { port: portExthost, tries: 300 });
-          const rendererProfileRequest = Profiler.start("renderer", filenamePrefix, {
-            port: portRenderer,
-            tries: 200,
-            target: /* @__PURE__ */ __name(function(targets) {
-              return targets.filter((target) => {
+          const mainProfileRequest = Profiler.start(
+            "main",
+            filenamePrefix,
+            { port: portMain }
+          );
+          const extHostProfileRequest = Profiler.start(
+            "extHost",
+            filenamePrefix,
+            { port: portExthost, tries: 300 }
+          );
+          const rendererProfileRequest = Profiler.start(
+            "renderer",
+            filenamePrefix,
+            {
+              port: portRenderer,
+              tries: 200,
+              target: /* @__PURE__ */ __name((targets) => targets.filter((target) => {
                 if (!target.webSocketDebuggerUrl) {
                   return false;
                 }
                 if (target.type === "page") {
-                  return target.url.indexOf("workbench/workbench.html") > 0 || target.url.indexOf("workbench/workbench-dev.html") > 0;
+                  return target.url.indexOf(
+                    "workbench/workbench.html"
+                  ) > 0 || target.url.indexOf(
+                    "workbench/workbench-dev.html"
+                  ) > 0;
                 } else {
                   return true;
                 }
-              })[0];
-            }, "target")
-          });
+              })[0], "target")
+            }
+          );
           const main2 = await mainProfileRequest;
           const extHost = await extHostProfileRequest;
           const renderer = await rendererProfileRequest;
@@ -309,7 +438,9 @@ async function main(argv) {
           await extHost.stop();
           writeFileSync(filenamePrefix, "");
         } catch (e) {
-          console.error("Failed to profile startup. Make sure to quit Code first.");
+          console.error(
+            "Failed to profile startup. Make sure to quit Code first."
+          );
         }
       });
     }
@@ -342,8 +473,13 @@ async function main(argv) {
               child2.on("close", () => {
                 setTimeout(() => cts.dispose(true), 200);
               });
-              await watchFileContents(tmpName, (chunk) => stream.write(chunk), () => {
-              }, cts.token);
+              await watchFileContents(
+                tmpName,
+                (chunk) => stream.write(chunk),
+                () => {
+                },
+                cts.token
+              );
             } finally {
               unlinkSync(tmpName);
             }

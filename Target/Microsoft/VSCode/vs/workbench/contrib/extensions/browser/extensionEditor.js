@@ -10,20 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { $, Dimension, addDisposableListener, append, hide, setParentFlowTo, show } from "../../../../base/browser/dom.js";
+import {
+  $,
+  addDisposableListener,
+  append,
+  hide,
+  setParentFlowTo,
+  show
+} from "../../../../base/browser/dom.js";
 import { ActionBar } from "../../../../base/browser/ui/actionbar/actionbar.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
 import { CheckboxActionViewItem } from "../../../../base/browser/ui/toggle/toggle.js";
-import { Action, IAction } from "../../../../base/common/actions.js";
+import { Action } from "../../../../base/common/actions.js";
 import * as arrays from "../../../../base/common/arrays.js";
-import { Cache, CacheResult } from "../../../../base/common/cache.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { Cache } from "../../../../base/common/cache.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
 import { isCancellationError } from "../../../../base/common/errors.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { Disposable, DisposableStore, MutableDisposable, dispose, toDisposable } from "../../../../base/common/lifecycle.js";
-import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose,
+  MutableDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { matchesScheme, Schemas } from "../../../../base/common/network.js";
 import { isNative, language } from "../../../../base/common/platform.js";
 import { isUndefined } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
@@ -34,32 +50,82 @@ import { TokenizationRegistry } from "../../../../editor/common/languages.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
 import { generateTokensCSSForColorMap } from "../../../../editor/common/languages/supports/tokenization.js";
 import { localize } from "../../../../nls.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { ContextKeyExpr, IContextKey, IContextKeyService, IScopedContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService,
+  RawContextKey
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { computeSize, FilterType, IExtensionGalleryService, IGalleryExtension, ILocalExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
+import {
+  computeSize,
+  FilterType,
+  IExtensionGalleryService
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { areSameExtensions } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import { ExtensionType, IExtensionManifest } from "../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  ExtensionType
+} from "../../../../platform/extensions/common/extensions.js";
+import {
+  ByteSize,
+  IFileService
+} from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { defaultCheckboxStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import { buttonForeground, buttonHoverBackground, editorBackground, textLinkActiveForeground, textLinkForeground } from "../../../../platform/theme/common/colorRegistry.js";
-import { IColorTheme, ICssStyleCollector, IThemeService, registerThemingParticipant } from "../../../../platform/theme/common/themeService.js";
+import {
+  buttonForeground,
+  buttonHoverBackground,
+  editorBackground,
+  textLinkActiveForeground,
+  textLinkForeground
+} from "../../../../platform/theme/common/colorRegistry.js";
+import {
+  IThemeService,
+  registerThemingParticipant
+} from "../../../../platform/theme/common/themeService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
 import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
-import { IEditorOpenContext } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
+import {
+  DEFAULT_MARKDOWN_STYLES,
+  renderMarkdownDocument
+} from "../../markdown/browser/markdownDocumentRenderer.js";
+import {
+  IWebviewService,
+  KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED
+} from "../../webview/browser/webview.js";
+import {
+  ExtensionContainers,
+  ExtensionEditorTab,
+  ExtensionState,
+  IExtensionsWorkbenchService
+} from "../common/extensions.js";
 import { ExtensionFeaturesTab } from "./extensionFeaturesTab.js";
 import {
   ButtonWithDropDownExtensionAction,
+  ButtonWithDropdownExtensionActionViewItem,
   ClearLanguageAction,
   DisableDropDownAction,
-  EnableDropDownAction,
-  ButtonWithDropdownExtensionActionViewItem,
   DropDownExtensionAction,
+  EnableDropDownAction,
   ExtensionEditorManageExtensionAction,
+  ExtensionRuntimeStateAction,
   ExtensionStatusAction,
   ExtensionStatusLabelAction,
   InstallAnotherVersionAction,
@@ -67,35 +133,36 @@ import {
   InstallingLabelAction,
   LocalInstallAction,
   MigrateDeprecatedExtensionAction,
-  ExtensionRuntimeStateAction,
   RemoteInstallAction,
   SetColorThemeAction,
   SetFileIconThemeAction,
   SetLanguageAction,
   SetProductIconThemeAction,
   ToggleAutoUpdateForExtensionAction,
+  TogglePreReleaseExtensionAction,
   UninstallAction,
   UpdateAction,
-  WebInstallAction,
-  TogglePreReleaseExtensionAction
+  WebInstallAction
 } from "./extensionsActions.js";
 import { Delegate } from "./extensionsList.js";
-import { ExtensionData, ExtensionsGridView, ExtensionsTree, getExtensions } from "./extensionsViewer.js";
-import { ExtensionRecommendationWidget, ExtensionStatusWidget, ExtensionWidget, InstallCountWidget, RatingsWidget, RemoteBadgeWidget, SponsorWidget, PublisherWidget, onClick, ExtensionKindIndicatorWidget } from "./extensionsWidgets.js";
-import { ExtensionContainers, ExtensionEditorTab, ExtensionState, IExtension, IExtensionContainer, IExtensionsWorkbenchService } from "../common/extensions.js";
-import { ExtensionsInput, IExtensionEditorOptions } from "../common/extensionsInput.js";
-import { DEFAULT_MARKDOWN_STYLES, renderMarkdownDocument } from "../../markdown/browser/markdownDocumentRenderer.js";
-import { IWebview, IWebviewService, KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED } from "../../webview/browser/webview.js";
-import { IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { ByteSize, IFileService } from "../../../../platform/files/common/files.js";
-import { IUserDataProfilesService } from "../../../../platform/userDataProfile/common/userDataProfile.js";
-import { IRemoteAgentService } from "../../../services/remote/common/remoteAgentService.js";
-import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
+import {
+  ExtensionData,
+  ExtensionsGridView,
+  ExtensionsTree,
+  getExtensions
+} from "./extensionsViewer.js";
+import {
+  ExtensionKindIndicatorWidget,
+  ExtensionRecommendationWidget,
+  ExtensionStatusWidget,
+  ExtensionWidget,
+  InstallCountWidget,
+  onClick,
+  PublisherWidget,
+  RatingsWidget,
+  RemoteBadgeWidget,
+  SponsorWidget
+} from "./extensionsWidgets.js";
 function toDateString(date) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}, ${date.toLocaleTimeString(language, { hourCycle: "h23" })}`;
 }
@@ -104,7 +171,9 @@ class NavBar extends Disposable {
   static {
     __name(this, "NavBar");
   }
-  _onChange = this._register(new Emitter());
+  _onChange = this._register(
+    new Emitter()
+  );
   get onChange() {
     return this._onChange.event;
   }
@@ -121,7 +190,13 @@ class NavBar extends Disposable {
     this.actionbar = this._register(new ActionBar(element));
   }
   push(id, label, tooltip) {
-    const action = new Action(id, label, void 0, true, () => this.update(id, true));
+    const action = new Action(
+      id,
+      label,
+      void 0,
+      true,
+      () => this.update(id, true)
+    );
     action.tooltip = tooltip;
     this.actions.push(action);
     this.actionbar.push(action);
@@ -152,7 +227,10 @@ var WebviewIndex = /* @__PURE__ */ ((WebviewIndex2) => {
   WebviewIndex2[WebviewIndex2["Changelog"] = 1] = "Changelog";
   return WebviewIndex2;
 })(WebviewIndex || {});
-const CONTEXT_SHOW_PRE_RELEASE_VERSION = new RawContextKey("showPreReleaseVersion", false);
+const CONTEXT_SHOW_PRE_RELEASE_VERSION = new RawContextKey(
+  "showPreReleaseVersion",
+  false
+);
 class ExtensionWithDifferentGalleryVersionWidget extends ExtensionWidget {
   static {
     __name(this, "ExtensionWithDifferentGalleryVersionWidget");
@@ -176,8 +254,17 @@ class VersionWidget extends ExtensionWithDifferentGalleryVersionWidget {
   element;
   constructor(container, hoverService) {
     super();
-    this.element = append(container, $("code.version", void 0, "pre-release"));
-    this._register(hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), this.element, localize("extension version", "Extension Version")));
+    this.element = append(
+      container,
+      $("code.version", void 0, "pre-release")
+    );
+    this._register(
+      hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        this.element,
+        localize("extension version", "Extension Version")
+      )
+    );
     this.render();
   }
   render() {
@@ -190,7 +277,13 @@ class VersionWidget extends ExtensionWithDifferentGalleryVersionWidget {
 }
 let ExtensionEditor = class extends EditorPane {
   constructor(group, telemetryService, instantiationService, extensionsWorkbenchService, extensionGalleryService, themeService, notificationService, openerService, extensionRecommendationsService, storageService, extensionService, webviewService, languageService, contextMenuService, contextKeyService, hoverService) {
-    super(ExtensionEditor.ID, group, telemetryService, themeService, storageService);
+    super(
+      ExtensionEditor.ID,
+      group,
+      telemetryService,
+      themeService,
+      storageService
+    );
     this.instantiationService = instantiationService;
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionGalleryService = extensionGalleryService;
@@ -211,7 +304,9 @@ let ExtensionEditor = class extends EditorPane {
     __name(this, "ExtensionEditor");
   }
   static ID = "workbench.editor.extension";
-  _scopedContextKeyService = this._register(new MutableDisposable());
+  _scopedContextKeyService = this._register(
+    new MutableDisposable()
+  );
   template;
   extensionReadme;
   extensionChangelog;
@@ -222,7 +317,9 @@ let ExtensionEditor = class extends EditorPane {
   currentIdentifier = "";
   layoutParticipants = [];
   contentDisposables = this._register(new DisposableStore());
-  transientDisposables = this._register(new DisposableStore());
+  transientDisposables = this._register(
+    new DisposableStore()
+  );
   activeElement = null;
   dimension;
   showPreReleaseVersionContextKey;
@@ -232,22 +329,49 @@ let ExtensionEditor = class extends EditorPane {
   createEditor(parent) {
     const root = append(parent, $(".extension-editor"));
     this._scopedContextKeyService.value = this.contextKeyService.createScoped(root);
-    this._scopedContextKeyService.value.createKey("inExtensionEditor", true);
-    this.showPreReleaseVersionContextKey = CONTEXT_SHOW_PRE_RELEASE_VERSION.bindTo(this._scopedContextKeyService.value);
+    this._scopedContextKeyService.value.createKey(
+      "inExtensionEditor",
+      true
+    );
+    this.showPreReleaseVersionContextKey = CONTEXT_SHOW_PRE_RELEASE_VERSION.bindTo(
+      this._scopedContextKeyService.value
+    );
     root.tabIndex = 0;
     root.style.outline = "none";
     root.setAttribute("role", "document");
     const header = append(root, $(".header"));
     const iconContainer = append(header, $(".icon-container"));
-    const icon = append(iconContainer, $("img.icon", { draggable: false, alt: "" }));
-    const remoteBadge = this.instantiationService.createInstance(RemoteBadgeWidget, iconContainer, true);
+    const icon = append(
+      iconContainer,
+      $("img.icon", { draggable: false, alt: "" })
+    );
+    const remoteBadge = this.instantiationService.createInstance(
+      RemoteBadgeWidget,
+      iconContainer,
+      true
+    );
     const details = append(header, $(".details"));
     const title = append(details, $(".title"));
-    const name = append(title, $("span.name.clickable", { role: "heading", tabIndex: 0 }));
-    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), name, localize("name", "Extension name")));
+    const name = append(
+      title,
+      $("span.name.clickable", { role: "heading", tabIndex: 0 })
+    );
+    this._register(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        name,
+        localize("name", "Extension name")
+      )
+    );
     const versionWidget = new VersionWidget(title, this.hoverService);
     const preview = append(title, $("span.preview"));
-    this._register(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), preview, localize("preview", "Preview")));
+    this._register(
+      this.hoverService.setupManagedHover(
+        getDefaultHoverDelegate("mouse"),
+        preview,
+        localize("preview", "Preview")
+      )
+    );
     preview.textContent = localize("preview", "Preview");
     const builtin = append(title, $("span.builtin"));
     builtin.textContent = localize("builtin", "Built-in");
@@ -255,19 +379,38 @@ let ExtensionEditor = class extends EditorPane {
     const subTitleEntryContainers = [];
     const publisherContainer = append(subtitle, $(".subtitle-entry"));
     subTitleEntryContainers.push(publisherContainer);
-    const publisherWidget = this.instantiationService.createInstance(PublisherWidget, publisherContainer, false);
+    const publisherWidget = this.instantiationService.createInstance(
+      PublisherWidget,
+      publisherContainer,
+      false
+    );
     const extensionKindContainer = append(subtitle, $(".subtitle-entry"));
     subTitleEntryContainers.push(extensionKindContainer);
-    const extensionKindWidget = this.instantiationService.createInstance(ExtensionKindIndicatorWidget, extensionKindContainer, false);
+    const extensionKindWidget = this.instantiationService.createInstance(
+      ExtensionKindIndicatorWidget,
+      extensionKindContainer,
+      false
+    );
     const installCountContainer = append(subtitle, $(".subtitle-entry"));
     subTitleEntryContainers.push(installCountContainer);
-    const installCountWidget = this.instantiationService.createInstance(InstallCountWidget, installCountContainer, false);
+    const installCountWidget = this.instantiationService.createInstance(
+      InstallCountWidget,
+      installCountContainer,
+      false
+    );
     const ratingsContainer = append(subtitle, $(".subtitle-entry"));
     subTitleEntryContainers.push(ratingsContainer);
-    const ratingsWidget = this.instantiationService.createInstance(RatingsWidget, ratingsContainer, false);
+    const ratingsWidget = this.instantiationService.createInstance(
+      RatingsWidget,
+      ratingsContainer,
+      false
+    );
     const sponsorContainer = append(subtitle, $(".subtitle-entry"));
     subTitleEntryContainers.push(sponsorContainer);
-    const sponsorWidget = this.instantiationService.createInstance(SponsorWidget, sponsorContainer);
+    const sponsorWidget = this.instantiationService.createInstance(
+      SponsorWidget,
+      sponsorContainer
+    );
     const widgets = [
       remoteBadge,
       versionWidget,
@@ -278,10 +421,16 @@ let ExtensionEditor = class extends EditorPane {
       sponsorWidget
     ];
     const description = append(details, $(".description"));
-    const installAction = this.instantiationService.createInstance(InstallDropdownAction);
+    const installAction = this.instantiationService.createInstance(
+      InstallDropdownAction
+    );
     const actions = [
-      this.instantiationService.createInstance(ExtensionRuntimeStateAction),
-      this.instantiationService.createInstance(ExtensionStatusLabelAction),
+      this.instantiationService.createInstance(
+        ExtensionRuntimeStateAction
+      ),
+      this.instantiationService.createInstance(
+        ExtensionStatusLabelAction
+      ),
       this.instantiationService.createInstance(UpdateAction, true),
       this.instantiationService.createInstance(SetColorThemeAction),
       this.instantiationService.createInstance(SetFileIconThemeAction),
@@ -290,71 +439,144 @@ let ExtensionEditor = class extends EditorPane {
       this.instantiationService.createInstance(ClearLanguageAction),
       this.instantiationService.createInstance(EnableDropDownAction),
       this.instantiationService.createInstance(DisableDropDownAction),
-      this.instantiationService.createInstance(RemoteInstallAction, false),
+      this.instantiationService.createInstance(
+        RemoteInstallAction,
+        false
+      ),
       this.instantiationService.createInstance(LocalInstallAction),
       this.instantiationService.createInstance(WebInstallAction),
       installAction,
       this.instantiationService.createInstance(InstallingLabelAction),
-      this.instantiationService.createInstance(ButtonWithDropDownExtensionAction, "extensions.uninstall", UninstallAction.UninstallClass, [
+      this.instantiationService.createInstance(
+        ButtonWithDropDownExtensionAction,
+        "extensions.uninstall",
+        UninstallAction.UninstallClass,
         [
-          this.instantiationService.createInstance(MigrateDeprecatedExtensionAction, false),
-          this.instantiationService.createInstance(UninstallAction),
-          this.instantiationService.createInstance(InstallAnotherVersionAction, null, true)
+          [
+            this.instantiationService.createInstance(
+              MigrateDeprecatedExtensionAction,
+              false
+            ),
+            this.instantiationService.createInstance(
+              UninstallAction
+            ),
+            this.instantiationService.createInstance(
+              InstallAnotherVersionAction,
+              null,
+              true
+            )
+          ]
         ]
-      ]),
-      this.instantiationService.createInstance(TogglePreReleaseExtensionAction),
-      this.instantiationService.createInstance(ToggleAutoUpdateForExtensionAction),
-      new ExtensionEditorManageExtensionAction(this.scopedContextKeyService || this.contextKeyService, this.instantiationService)
+      ),
+      this.instantiationService.createInstance(
+        TogglePreReleaseExtensionAction
+      ),
+      this.instantiationService.createInstance(
+        ToggleAutoUpdateForExtensionAction
+      ),
+      new ExtensionEditorManageExtensionAction(
+        this.scopedContextKeyService || this.contextKeyService,
+        this.instantiationService
+      )
     ];
-    const actionsAndStatusContainer = append(details, $(".actions-status-container"));
-    const extensionActionBar = this._register(new ActionBar(actionsAndStatusContainer, {
-      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
-        if (action instanceof DropDownExtensionAction) {
-          return action.createActionViewItem(options);
-        }
-        if (action instanceof ButtonWithDropDownExtensionAction) {
-          return new ButtonWithDropdownExtensionActionViewItem(
-            action,
-            {
+    const actionsAndStatusContainer = append(
+      details,
+      $(".actions-status-container")
+    );
+    const extensionActionBar = this._register(
+      new ActionBar(actionsAndStatusContainer, {
+        actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+          if (action instanceof DropDownExtensionAction) {
+            return action.createActionViewItem(options);
+          }
+          if (action instanceof ButtonWithDropDownExtensionAction) {
+            return new ButtonWithDropdownExtensionActionViewItem(
+              action,
+              {
+                ...options,
+                icon: true,
+                label: true,
+                menuActionsOrProvider: {
+                  getActions: /* @__PURE__ */ __name(() => action.menuActions, "getActions")
+                },
+                menuActionClassNames: action.menuActionClassNames
+              },
+              this.contextMenuService
+            );
+          }
+          if (action instanceof ToggleAutoUpdateForExtensionAction) {
+            return new CheckboxActionViewItem(void 0, action, {
               ...options,
               icon: true,
               label: true,
-              menuActionsOrProvider: { getActions: /* @__PURE__ */ __name(() => action.menuActions, "getActions") },
-              menuActionClassNames: action.menuActionClassNames
-            },
-            this.contextMenuService
-          );
-        }
-        if (action instanceof ToggleAutoUpdateForExtensionAction) {
-          return new CheckboxActionViewItem(void 0, action, { ...options, icon: true, label: true, checkboxStyles: defaultCheckboxStyles });
-        }
-        return void 0;
-      }, "actionViewItemProvider"),
-      focusOnlyEnabledItems: true
-    }));
+              checkboxStyles: defaultCheckboxStyles
+            });
+          }
+          return void 0;
+        }, "actionViewItemProvider"),
+        focusOnlyEnabledItems: true
+      })
+    );
     extensionActionBar.push(actions, { icon: true, label: true });
     extensionActionBar.setFocusable(true);
-    this._register(Event.any(...actions.map((a) => Event.filter(a.onDidChange, (e) => e.enabled !== void 0)))(() => {
-      extensionActionBar.setFocusable(false);
-      extensionActionBar.setFocusable(true);
-    }));
+    this._register(
+      Event.any(
+        ...actions.map(
+          (a) => Event.filter(a.onDidChange, (e) => e.enabled !== void 0)
+        )
+      )(() => {
+        extensionActionBar.setFocusable(false);
+        extensionActionBar.setFocusable(true);
+      })
+    );
     const otherExtensionContainers = [];
-    const extensionStatusAction = this.instantiationService.createInstance(ExtensionStatusAction);
-    const extensionStatusWidget = this._register(this.instantiationService.createInstance(ExtensionStatusWidget, append(actionsAndStatusContainer, $(".status")), extensionStatusAction));
-    otherExtensionContainers.push(extensionStatusAction, new class extends ExtensionWidget {
-      render() {
-        actionsAndStatusContainer.classList.toggle("list-layout", this.extension?.state === ExtensionState.Installed);
-      }
-    }());
-    const recommendationWidget = this.instantiationService.createInstance(ExtensionRecommendationWidget, append(details, $(".recommendation")));
+    const extensionStatusAction = this.instantiationService.createInstance(
+      ExtensionStatusAction
+    );
+    const extensionStatusWidget = this._register(
+      this.instantiationService.createInstance(
+        ExtensionStatusWidget,
+        append(actionsAndStatusContainer, $(".status")),
+        extensionStatusAction
+      )
+    );
+    otherExtensionContainers.push(
+      extensionStatusAction,
+      new class extends ExtensionWidget {
+        render() {
+          actionsAndStatusContainer.classList.toggle(
+            "list-layout",
+            this.extension?.state === ExtensionState.Installed
+          );
+        }
+      }()
+    );
+    const recommendationWidget = this.instantiationService.createInstance(
+      ExtensionRecommendationWidget,
+      append(details, $(".recommendation"))
+    );
     widgets.push(recommendationWidget);
-    this._register(Event.any(extensionStatusWidget.onDidRender, recommendationWidget.onDidRender)(() => {
-      if (this.dimension) {
-        this.layout(this.dimension);
-      }
-    }));
-    const extensionContainers = this.instantiationService.createInstance(ExtensionContainers, [...actions, ...widgets, ...otherExtensionContainers]);
-    for (const disposable of [...actions, ...widgets, ...otherExtensionContainers, extensionContainers]) {
+    this._register(
+      Event.any(
+        extensionStatusWidget.onDidRender,
+        recommendationWidget.onDidRender
+      )(() => {
+        if (this.dimension) {
+          this.layout(this.dimension);
+        }
+      })
+    );
+    const extensionContainers = this.instantiationService.createInstance(ExtensionContainers, [
+      ...actions,
+      ...widgets,
+      ...otherExtensionContainers
+    ]);
+    for (const disposable of [
+      ...actions,
+      ...widgets,
+      ...otherExtensionContainers,
+      extensionContainers
+    ]) {
       this._register(disposable);
     }
     const onError = Event.chain(
@@ -388,7 +610,9 @@ let ExtensionEditor = class extends EditorPane {
           }
         }
         if (lastNonEmptySubtitleEntryContainer) {
-          lastNonEmptySubtitleEntryContainer.classList.add("last-non-empty");
+          lastNonEmptySubtitleEntryContainer.classList.add(
+            "last-non-empty"
+          );
         }
       },
       set gallery(gallery) {
@@ -403,7 +627,11 @@ let ExtensionEditor = class extends EditorPane {
     await super.setInput(input, options, context, token);
     this.updatePreReleaseVersionContext();
     if (this.template) {
-      await this.render(input.extension, this.template, !!options?.preserveFocus);
+      await this.render(
+        input.extension,
+        this.template,
+        !!options?.preserveFocus
+      );
     }
   }
   setOptions(options) {
@@ -411,7 +639,11 @@ let ExtensionEditor = class extends EditorPane {
     super.setOptions(options);
     this.updatePreReleaseVersionContext();
     if (this.input && this.template && currentOptions?.showPreReleaseVersion !== options?.showPreReleaseVersion) {
-      this.render(this.input.extension, this.template, !!options?.preserveFocus);
+      this.render(
+        this.input.extension,
+        this.template,
+        !!options?.preserveFocus
+      );
       return;
     }
     if (options?.tab) {
@@ -455,32 +687,67 @@ let ExtensionEditor = class extends EditorPane {
     if (!preRelease && !extension.hasReleaseVersion) {
       return null;
     }
-    return (await this.extensionGalleryService.getExtensions([{ ...extension.identifier, preRelease, hasPreRelease: extension.hasPreReleaseVersion }], CancellationToken.None))[0] || null;
+    return (await this.extensionGalleryService.getExtensions(
+      [
+        {
+          ...extension.identifier,
+          preRelease,
+          hasPreRelease: extension.hasPreReleaseVersion
+        }
+      ],
+      CancellationToken.None
+    ))[0] || null;
   }
   async render(extension, template, preserveFocus) {
     this.activeElement = null;
     this.transientDisposables.clear();
-    const token = this.transientDisposables.add(new CancellationTokenSource()).token;
-    const gallery = await this.getGalleryVersionToShow(extension, this.options?.showPreReleaseVersion);
+    const token = this.transientDisposables.add(
+      new CancellationTokenSource()
+    ).token;
+    const gallery = await this.getGalleryVersionToShow(
+      extension,
+      this.options?.showPreReleaseVersion
+    );
     if (token.isCancellationRequested) {
       return;
     }
-    this.extensionReadme = new Cache(() => gallery ? this.extensionGalleryService.getReadme(gallery, token) : extension.getReadme(token));
-    this.extensionChangelog = new Cache(() => gallery ? this.extensionGalleryService.getChangelog(gallery, token) : extension.getChangelog(token));
-    this.extensionManifest = new Cache(() => gallery ? this.extensionGalleryService.getManifest(gallery, token) : extension.getManifest(token));
+    this.extensionReadme = new Cache(
+      () => gallery ? this.extensionGalleryService.getReadme(gallery, token) : extension.getReadme(token)
+    );
+    this.extensionChangelog = new Cache(
+      () => gallery ? this.extensionGalleryService.getChangelog(gallery, token) : extension.getChangelog(token)
+    );
+    this.extensionManifest = new Cache(
+      () => gallery ? this.extensionGalleryService.getManifest(gallery, token) : extension.getManifest(token)
+    );
     template.extension = extension;
     template.gallery = gallery;
     template.manifest = null;
-    this.transientDisposables.add(addDisposableListener(template.icon, "error", () => template.icon.src = extension.iconUrlFallback, { once: true }));
+    this.transientDisposables.add(
+      addDisposableListener(
+        template.icon,
+        "error",
+        () => template.icon.src = extension.iconUrlFallback,
+        { once: true }
+      )
+    );
     template.icon.src = extension.iconUrl;
     template.name.textContent = extension.displayName;
     template.name.classList.toggle("clickable", !!extension.url);
-    template.name.classList.toggle("deprecated", !!extension.deprecationInfo);
+    template.name.classList.toggle(
+      "deprecated",
+      !!extension.deprecationInfo
+    );
     template.preview.style.display = extension.preview ? "inherit" : "none";
     template.builtin.style.display = extension.isBuiltin ? "inherit" : "none";
     template.description.textContent = extension.description;
     if (extension.url) {
-      this.transientDisposables.add(onClick(template.name, () => this.openerService.open(URI.parse(extension.url))));
+      this.transientDisposables.add(
+        onClick(
+          template.name,
+          () => this.openerService.open(URI.parse(extension.url))
+        )
+      );
     }
     const manifest = await this.extensionManifest.get().promise;
     if (token.isCancellationRequested) {
@@ -493,9 +760,14 @@ let ExtensionEditor = class extends EditorPane {
     const extRecommendations = this.extensionRecommendationsService.getAllRecommendationsWithReason();
     let recommendationsData = {};
     if (extRecommendations[extension.identifier.id.toLowerCase()]) {
-      recommendationsData = { recommendationReason: extRecommendations[extension.identifier.id.toLowerCase()].reasonId };
+      recommendationsData = {
+        recommendationReason: extRecommendations[extension.identifier.id.toLowerCase()].reasonId
+      };
     }
-    this.telemetryService.publicLog("extensionGallery:openExtension", { ...extension.telemetryData, ...recommendationsData });
+    this.telemetryService.publicLog("extensionGallery:openExtension", {
+      ...extension.telemetryData,
+      ...recommendationsData
+    });
   }
   renderNavbar(extension, manifest, template, preserveFocus) {
     template.content.innerText = "";
@@ -504,26 +776,71 @@ let ExtensionEditor = class extends EditorPane {
       this.initialScrollProgress.clear();
       this.currentIdentifier = extension.identifier.id;
     }
-    template.navbar.push(ExtensionEditorTab.Readme, localize("details", "Details"), localize("detailstooltip", "Extension details, rendered from the extension's 'README.md' file"));
+    template.navbar.push(
+      ExtensionEditorTab.Readme,
+      localize("details", "Details"),
+      localize(
+        "detailstooltip",
+        "Extension details, rendered from the extension's 'README.md' file"
+      )
+    );
     if (manifest) {
-      template.navbar.push(ExtensionEditorTab.Features, localize("features", "Features"), localize("featurestooltip", "Lists features contributed by this extension"));
+      template.navbar.push(
+        ExtensionEditorTab.Features,
+        localize("features", "Features"),
+        localize(
+          "featurestooltip",
+          "Lists features contributed by this extension"
+        )
+      );
     }
     if (extension.hasChangelog()) {
-      template.navbar.push(ExtensionEditorTab.Changelog, localize("changelog", "Changelog"), localize("changelogtooltip", "Extension update history, rendered from the extension's 'CHANGELOG.md' file"));
+      template.navbar.push(
+        ExtensionEditorTab.Changelog,
+        localize("changelog", "Changelog"),
+        localize(
+          "changelogtooltip",
+          "Extension update history, rendered from the extension's 'CHANGELOG.md' file"
+        )
+      );
     }
     if (extension.dependencies.length) {
-      template.navbar.push(ExtensionEditorTab.Dependencies, localize("dependencies", "Dependencies"), localize("dependenciestooltip", "Lists extensions this extension depends on"));
+      template.navbar.push(
+        ExtensionEditorTab.Dependencies,
+        localize("dependencies", "Dependencies"),
+        localize(
+          "dependenciestooltip",
+          "Lists extensions this extension depends on"
+        )
+      );
     }
-    if (manifest && manifest.extensionPack?.length && !this.shallRenderAsExtensionPack(manifest)) {
-      template.navbar.push(ExtensionEditorTab.ExtensionPack, localize("extensionpack", "Extension Pack"), localize("extensionpacktooltip", "Lists extensions those will be installed together with this extension"));
+    if (manifest?.extensionPack?.length && !this.shallRenderAsExtensionPack(manifest)) {
+      template.navbar.push(
+        ExtensionEditorTab.ExtensionPack,
+        localize("extensionpack", "Extension Pack"),
+        localize(
+          "extensionpacktooltip",
+          "Lists extensions those will be installed together with this extension"
+        )
+      );
     }
     if (this.options?.tab) {
-      template.navbar.switch(this.options.tab);
+      template.navbar.switch(
+        this.options.tab
+      );
     }
     if (template.navbar.currentId) {
-      this.onNavbarChange(extension, { id: template.navbar.currentId, focus: !preserveFocus }, template);
+      this.onNavbarChange(
+        extension,
+        { id: template.navbar.currentId, focus: !preserveFocus },
+        template
+      );
     }
-    template.navbar.onChange((e) => this.onNavbarChange(extension, e, template), this, this.transientDisposables);
+    template.navbar.onChange(
+      (e) => this.onNavbarChange(extension, e, template),
+      this,
+      this.transientDisposables
+    );
   }
   clearInput() {
     this.contentDisposables.clear();
@@ -553,15 +870,17 @@ let ExtensionEditor = class extends EditorPane {
     if (id) {
       const cts = new CancellationTokenSource();
       this.contentDisposables.add(toDisposable(() => cts.dispose(true)));
-      this.open(id, extension, template, cts.token).then((activeElement) => {
-        if (cts.token.isCancellationRequested) {
-          return;
+      this.open(id, extension, template, cts.token).then(
+        (activeElement) => {
+          if (cts.token.isCancellationRequested) {
+            return;
+          }
+          this.activeElement = activeElement;
+          if (focus) {
+            this.focus();
+          }
         }
-        this.activeElement = activeElement;
-        if (focus) {
-          this.focus();
-        }
-      });
+      );
     }
   }
   open(id, extension, template, token) {
@@ -573,7 +892,11 @@ let ExtensionEditor = class extends EditorPane {
       case ExtensionEditorTab.Changelog:
         return this.openChangelog(extension, template, token);
       case ExtensionEditorTab.Dependencies:
-        return this.openExtensionDependencies(extension, template, token);
+        return this.openExtensionDependencies(
+          extension,
+          template,
+          token
+        );
       case ExtensionEditorTab.ExtensionPack:
         return this.openExtensionPack(extension, template, token);
     }
@@ -581,55 +904,84 @@ let ExtensionEditor = class extends EditorPane {
   }
   async openMarkdown(extension, cacheResult, noContentCopy, container, webviewIndex, title, token) {
     try {
-      const body = await this.renderMarkdown(extension, cacheResult, container, token);
+      const body = await this.renderMarkdown(
+        extension,
+        cacheResult,
+        container,
+        token
+      );
       if (token.isCancellationRequested) {
         return Promise.resolve(null);
       }
-      const webview = this.contentDisposables.add(this.webviewService.createWebviewOverlay({
-        title,
-        options: {
-          enableFindWidget: true,
-          tryRestoreScrollPosition: true,
-          disableServiceWorker: true
-        },
-        contentOptions: {},
-        extension: void 0
-      }));
+      const webview = this.contentDisposables.add(
+        this.webviewService.createWebviewOverlay({
+          title,
+          options: {
+            enableFindWidget: true,
+            tryRestoreScrollPosition: true,
+            disableServiceWorker: true
+          },
+          contentOptions: {},
+          extension: void 0
+        })
+      );
       webview.initialScrollProgress = this.initialScrollProgress.get(webviewIndex) || 0;
       webview.claim(this, this.window, this.scopedContextKeyService);
       setParentFlowTo(webview.container, container);
       webview.layoutWebviewOverElement(container);
       webview.setHtml(body);
       webview.claim(this, this.window, void 0);
-      this.contentDisposables.add(webview.onDidFocus(() => this._onDidFocus?.fire()));
-      this.contentDisposables.add(webview.onDidScroll(() => this.initialScrollProgress.set(webviewIndex, webview.initialScrollProgress)));
-      const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
-        layout: /* @__PURE__ */ __name(() => {
-          webview.layoutWebviewOverElement(container);
-        }, "layout")
-      });
+      this.contentDisposables.add(
+        webview.onDidFocus(() => this._onDidFocus?.fire())
+      );
+      this.contentDisposables.add(
+        webview.onDidScroll(
+          () => this.initialScrollProgress.set(
+            webviewIndex,
+            webview.initialScrollProgress
+          )
+        )
+      );
+      const removeLayoutParticipant = arrays.insert(
+        this.layoutParticipants,
+        {
+          layout: /* @__PURE__ */ __name(() => {
+            webview.layoutWebviewOverElement(container);
+          }, "layout")
+        }
+      );
       this.contentDisposables.add(toDisposable(removeLayoutParticipant));
       let isDisposed = false;
-      this.contentDisposables.add(toDisposable(() => {
-        isDisposed = true;
-      }));
-      this.contentDisposables.add(this.themeService.onDidColorThemeChange(async () => {
-        const body2 = await this.renderMarkdown(extension, cacheResult, container);
-        if (!isDisposed) {
-          webview.setHtml(body2);
-        }
-      }));
-      this.contentDisposables.add(webview.onDidClickLink((link) => {
-        if (!link) {
-          return;
-        }
-        if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
-          this.openerService.open(link);
-        }
-        if (matchesScheme(link, Schemas.command) && extension.type === ExtensionType.System) {
-          this.openerService.open(link, { allowCommands: true });
-        }
-      }));
+      this.contentDisposables.add(
+        toDisposable(() => {
+          isDisposed = true;
+        })
+      );
+      this.contentDisposables.add(
+        this.themeService.onDidColorThemeChange(async () => {
+          const body2 = await this.renderMarkdown(
+            extension,
+            cacheResult,
+            container
+          );
+          if (!isDisposed) {
+            webview.setHtml(body2);
+          }
+        })
+      );
+      this.contentDisposables.add(
+        webview.onDidClickLink((link) => {
+          if (!link) {
+            return;
+          }
+          if (matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.mailto)) {
+            this.openerService.open(link);
+          }
+          if (matchesScheme(link, Schemas.command) && extension.type === ExtensionType.System) {
+            this.openerService.open(link, { allowCommands: true });
+          }
+        })
+      );
       return webview;
     } catch (e) {
       const p = append(container, $("p.nocontent"));
@@ -642,7 +994,12 @@ let ExtensionEditor = class extends EditorPane {
     if (token?.isCancellationRequested) {
       return "";
     }
-    const content = await renderMarkdownDocument(contents, this.extensionService, this.languageService, { shouldSanitize: extension.type !== ExtensionType.System, token });
+    const content = await renderMarkdownDocument(
+      contents,
+      this.extensionService,
+      this.languageService,
+      { shouldSanitize: extension.type !== ExtensionType.System, token }
+    );
     if (token?.isCancellationRequested) {
       return "";
     }
@@ -715,77 +1072,157 @@ let ExtensionEditor = class extends EditorPane {
   async openDetails(extension, template, token) {
     const details = append(template.content, $(".details"));
     const readmeContainer = append(details, $(".readme-container"));
-    const additionalDetailsContainer = append(details, $(".additional-details-container"));
-    const layout = /* @__PURE__ */ __name(() => details.classList.toggle("narrow", this.dimension && this.dimension.width < 500), "layout");
+    const additionalDetailsContainer = append(
+      details,
+      $(".additional-details-container")
+    );
+    const layout = /* @__PURE__ */ __name(() => details.classList.toggle(
+      "narrow",
+      this.dimension && this.dimension.width < 500
+    ), "layout");
     layout();
-    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout })));
+    this.contentDisposables.add(
+      toDisposable(arrays.insert(this.layoutParticipants, { layout }))
+    );
     let activeElement = null;
-    const manifest = await this.extensionManifest.get().promise;
-    if (manifest && manifest.extensionPack?.length && this.shallRenderAsExtensionPack(manifest)) {
-      activeElement = await this.openExtensionPackReadme(extension, manifest, readmeContainer, token);
+    const manifest = await this.extensionManifest?.get().promise;
+    if (manifest?.extensionPack?.length && this.shallRenderAsExtensionPack(manifest)) {
+      activeElement = await this.openExtensionPackReadme(
+        extension,
+        manifest,
+        readmeContainer,
+        token
+      );
     } else {
-      activeElement = await this.openMarkdown(extension, this.extensionReadme.get(), localize("noReadme", "No README available."), readmeContainer, 0 /* Readme */, localize("Readme title", "Readme"), token);
+      activeElement = await this.openMarkdown(
+        extension,
+        this.extensionReadme?.get(),
+        localize("noReadme", "No README available."),
+        readmeContainer,
+        0 /* Readme */,
+        localize("Readme title", "Readme"),
+        token
+      );
     }
     this.renderAdditionalDetails(additionalDetailsContainer, extension);
     return activeElement;
   }
   shallRenderAsExtensionPack(manifest) {
-    return !!manifest.categories?.some((category) => category.toLowerCase() === "extension packs");
+    return !!manifest.categories?.some(
+      (category) => category.toLowerCase() === "extension packs"
+    );
   }
   async openExtensionPackReadme(extension, manifest, container, token) {
     if (token.isCancellationRequested) {
       return Promise.resolve(null);
     }
-    const extensionPackReadme = append(container, $("div", { class: "extension-pack-readme" }));
+    const extensionPackReadme = append(
+      container,
+      $("div", { class: "extension-pack-readme" })
+    );
     extensionPackReadme.style.margin = "0 auto";
     extensionPackReadme.style.maxWidth = "882px";
-    const extensionPack = append(extensionPackReadme, $("div", { class: "extension-pack" }));
-    if (manifest.extensionPack.length <= 3) {
+    const extensionPack = append(
+      extensionPackReadme,
+      $("div", { class: "extension-pack" })
+    );
+    if (manifest.extensionPack?.length <= 3) {
       extensionPackReadme.classList.add("one-row");
-    } else if (manifest.extensionPack.length <= 6) {
+    } else if (manifest.extensionPack?.length <= 6) {
       extensionPackReadme.classList.add("two-rows");
-    } else if (manifest.extensionPack.length <= 9) {
+    } else if (manifest.extensionPack?.length <= 9) {
       extensionPackReadme.classList.add("three-rows");
     } else {
       extensionPackReadme.classList.add("more-rows");
     }
     const extensionPackHeader = append(extensionPack, $("div.header"));
-    extensionPackHeader.textContent = localize("extension pack", "Extension Pack ({0})", manifest.extensionPack.length);
-    const extensionPackContent = append(extensionPack, $("div", { class: "extension-pack-content" }));
+    extensionPackHeader.textContent = localize(
+      "extension pack",
+      "Extension Pack ({0})",
+      manifest.extensionPack?.length
+    );
+    const extensionPackContent = append(
+      extensionPack,
+      $("div", { class: "extension-pack-content" })
+    );
     extensionPackContent.setAttribute("tabindex", "0");
     append(extensionPack, $("div.footer"));
-    const readmeContent = append(extensionPackReadme, $("div.readme-content"));
+    const readmeContent = append(
+      extensionPackReadme,
+      $("div.readme-content")
+    );
     await Promise.all([
       this.renderExtensionPack(manifest, extensionPackContent, token),
-      this.openMarkdown(extension, this.extensionReadme.get(), localize("noReadme", "No README available."), readmeContent, 0 /* Readme */, localize("Readme title", "Readme"), token)
+      this.openMarkdown(
+        extension,
+        this.extensionReadme?.get(),
+        localize("noReadme", "No README available."),
+        readmeContent,
+        0 /* Readme */,
+        localize("Readme title", "Readme"),
+        token
+      )
     ]);
     return { focus: /* @__PURE__ */ __name(() => extensionPackContent.focus(), "focus") };
   }
   renderAdditionalDetails(container, extension) {
-    const content = $("div", { class: "additional-details-content", tabindex: "0" });
+    const content = $("div", {
+      class: "additional-details-content",
+      tabindex: "0"
+    });
     const scrollableContent = new DomScrollableElement(content, {});
     const layout = /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout");
-    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+      layout
+    });
     this.contentDisposables.add(toDisposable(removeLayoutParticipant));
     this.contentDisposables.add(scrollableContent);
-    this.contentDisposables.add(this.instantiationService.createInstance(AdditionalDetailsWidget, content, extension));
+    this.contentDisposables.add(
+      this.instantiationService.createInstance(
+        AdditionalDetailsWidget,
+        content,
+        extension
+      )
+    );
     append(container, scrollableContent.getDomNode());
     scrollableContent.scanDomNode();
   }
   openChangelog(extension, template, token) {
-    return this.openMarkdown(extension, this.extensionChangelog.get(), localize("noChangelog", "No Changelog available."), template.content, 1 /* Changelog */, localize("Changelog title", "Changelog"), token);
+    return this.openMarkdown(
+      extension,
+      this.extensionChangelog?.get(),
+      localize("noChangelog", "No Changelog available."),
+      template.content,
+      1 /* Changelog */,
+      localize("Changelog title", "Changelog"),
+      token
+    );
   }
   async openFeatures(template, token) {
-    const manifest = await this.loadContents(() => this.extensionManifest.get(), template.content);
+    const manifest = await this.loadContents(
+      () => this.extensionManifest?.get(),
+      template.content
+    );
     if (token.isCancellationRequested) {
       return null;
     }
     if (!manifest) {
       return null;
     }
-    const extensionFeaturesTab = this.contentDisposables.add(this.instantiationService.createInstance(ExtensionFeaturesTab, manifest, this.options?.feature));
-    const layout = /* @__PURE__ */ __name(() => extensionFeaturesTab.layout(template.content.clientHeight, template.content.clientWidth), "layout");
-    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+    const extensionFeaturesTab = this.contentDisposables.add(
+      this.instantiationService.createInstance(
+        ExtensionFeaturesTab,
+        manifest,
+        this.options?.feature
+      )
+    );
+    const layout = /* @__PURE__ */ __name(() => extensionFeaturesTab.layout(
+      template.content.clientHeight,
+      template.content.clientWidth
+    ), "layout");
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+      layout
+    });
     this.contentDisposables.add(toDisposable(removeLayoutParticipant));
     append(template.content, extensionFeaturesTab.domNode);
     layout();
@@ -796,7 +1233,10 @@ let ExtensionEditor = class extends EditorPane {
       return Promise.resolve(null);
     }
     if (arrays.isFalsyOrEmpty(extension.dependencies)) {
-      append(template.content, $("p.nocontent")).textContent = localize("noDependencies", "No Dependencies");
+      append(template.content, $("p.nocontent")).textContent = localize(
+        "noDependencies",
+        "No Dependencies"
+      );
       return Promise.resolve(template.content);
     }
     const content = $("div", { class: "subcontent" });
@@ -805,7 +1245,12 @@ let ExtensionEditor = class extends EditorPane {
     this.contentDisposables.add(scrollableContent);
     const dependenciesTree = this.instantiationService.createInstance(
       ExtensionsTree,
-      new ExtensionData(extension, null, (extension2) => extension2.dependencies || [], this.extensionsWorkbenchService),
+      new ExtensionData(
+        extension,
+        null,
+        (extension2) => extension2.dependencies || [],
+        this.extensionsWorkbenchService
+      ),
       content,
       {
         listBackground: editorBackground
@@ -816,19 +1261,26 @@ let ExtensionEditor = class extends EditorPane {
       const scrollDimensions = scrollableContent.getScrollDimensions();
       dependenciesTree.layout(scrollDimensions.height);
     }, "layout");
-    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, { layout });
+    const removeLayoutParticipant = arrays.insert(this.layoutParticipants, {
+      layout
+    });
     this.contentDisposables.add(toDisposable(removeLayoutParticipant));
     this.contentDisposables.add(dependenciesTree);
     scrollableContent.scanDomNode();
-    return Promise.resolve({ focus() {
-      dependenciesTree.domFocus();
-    } });
+    return Promise.resolve({
+      focus() {
+        dependenciesTree.domFocus();
+      }
+    });
   }
   async openExtensionPack(extension, template, token) {
     if (token.isCancellationRequested) {
       return Promise.resolve(null);
     }
-    const manifest = await this.loadContents(() => this.extensionManifest.get(), template.content);
+    const manifest = await this.loadContents(
+      () => this.extensionManifest?.get(),
+      template.content
+    );
     if (token.isCancellationRequested) {
       return null;
     }
@@ -842,15 +1294,30 @@ let ExtensionEditor = class extends EditorPane {
       return null;
     }
     const content = $("div", { class: "subcontent" });
-    const scrollableContent = new DomScrollableElement(content, { useShadows: false });
+    const scrollableContent = new DomScrollableElement(content, {
+      useShadows: false
+    });
     append(parent, scrollableContent.getDomNode());
-    const extensionsGridView = this.instantiationService.createInstance(ExtensionsGridView, content, new Delegate());
-    const extensions = await getExtensions(manifest.extensionPack, this.extensionsWorkbenchService);
+    const extensionsGridView = this.instantiationService.createInstance(
+      ExtensionsGridView,
+      content,
+      new Delegate()
+    );
+    const extensions = await getExtensions(
+      manifest.extensionPack,
+      this.extensionsWorkbenchService
+    );
     extensionsGridView.setExtensions(extensions);
     scrollableContent.scanDomNode();
     this.contentDisposables.add(scrollableContent);
     this.contentDisposables.add(extensionsGridView);
-    this.contentDisposables.add(toDisposable(arrays.insert(this.layoutParticipants, { layout: /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout") })));
+    this.contentDisposables.add(
+      toDisposable(
+        arrays.insert(this.layoutParticipants, {
+          layout: /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout")
+        })
+      )
+    );
     return content;
   }
   loadContents(loadingTask, container) {
@@ -901,11 +1368,13 @@ let AdditionalDetailsWidget = class extends Disposable {
     this.extensionsWorkbenchService = extensionsWorkbenchService;
     this.extensionGalleryManifestService = extensionGalleryManifestService;
     this.render(extension);
-    this._register(this.extensionsWorkbenchService.onChange((e) => {
-      if (e && areSameExtensions(e.identifier, extension.identifier) && e.server === extension.server) {
-        this.render(e);
-      }
-    }));
+    this._register(
+      this.extensionsWorkbenchService.onChange((e) => {
+        if (e && areSameExtensions(e.identifier, extension.identifier) && e.server === extension.server) {
+          this.render(e);
+        }
+      })
+    );
   }
   static {
     __name(this, "AdditionalDetailsWidget");
@@ -925,16 +1394,41 @@ let AdditionalDetailsWidget = class extends Disposable {
   }
   renderCategories(container, extension) {
     if (extension.categories.length) {
-      const categoriesContainer = append(container, $(".categories-container.additional-details-element"));
-      append(categoriesContainer, $(".additional-details-title", void 0, localize("categories", "Categories")));
-      const categoriesElement = append(categoriesContainer, $(".categories"));
+      const categoriesContainer = append(
+        container,
+        $(".categories-container.additional-details-element")
+      );
+      append(
+        categoriesContainer,
+        $(
+          ".additional-details-title",
+          void 0,
+          localize("categories", "Categories")
+        )
+      );
+      const categoriesElement = append(
+        categoriesContainer,
+        $(".categories")
+      );
       this.extensionGalleryManifestService.getExtensionGalleryManifest().then((manifest) => {
-        const hasCategoryFilter = manifest?.capabilities.extensionQuery.filtering?.some(({ name }) => name === FilterType.Category);
+        const hasCategoryFilter = manifest?.capabilities.extensionQuery.filtering?.some(
+          ({ name }) => name === FilterType.Category
+        );
         for (const category of extension.categories) {
-          const categoryElement = append(categoriesElement, $("span.category", { tabindex: "0" }, category));
+          const categoryElement = append(
+            categoriesElement,
+            $("span.category", { tabindex: "0" }, category)
+          );
           if (hasCategoryFilter) {
             categoryElement.classList.add("clickable");
-            this.disposables.add(onClick(categoryElement, () => this.extensionsWorkbenchService.openSearch(`@category:"${category}"`)));
+            this.disposables.add(
+              onClick(
+                categoryElement,
+                () => this.extensionsWorkbenchService.openSearch(
+                  `@category:"${category}"`
+                )
+              )
+            );
           }
         }
       });
@@ -943,50 +1437,103 @@ let AdditionalDetailsWidget = class extends Disposable {
   renderExtensionResources(container, extension) {
     const resources = [];
     if (extension.url) {
-      resources.push([localize("Marketplace", "Marketplace"), URI.parse(extension.url)]);
+      resources.push([
+        localize("Marketplace", "Marketplace"),
+        URI.parse(extension.url)
+      ]);
     }
     if (extension.supportUrl) {
       try {
-        resources.push([localize("issues", "Issues"), URI.parse(extension.supportUrl)]);
+        resources.push([
+          localize("issues", "Issues"),
+          URI.parse(extension.supportUrl)
+        ]);
       } catch (error) {
       }
     }
     if (extension.repository) {
       try {
-        resources.push([localize("repository", "Repository"), URI.parse(extension.repository)]);
+        resources.push([
+          localize("repository", "Repository"),
+          URI.parse(extension.repository)
+        ]);
       } catch (error) {
       }
     }
     if (extension.licenseUrl) {
       try {
-        resources.push([localize("license", "License"), URI.parse(extension.licenseUrl)]);
+        resources.push([
+          localize("license", "License"),
+          URI.parse(extension.licenseUrl)
+        ]);
       } catch (error) {
       }
     }
     if (extension.publisherUrl) {
-      resources.push([extension.publisherDisplayName, extension.publisherUrl]);
+      resources.push([
+        extension.publisherDisplayName,
+        extension.publisherUrl
+      ]);
     }
     if (resources.length || extension.publisherSponsorLink) {
-      const extensionResourcesContainer = append(container, $(".resources-container.additional-details-element"));
-      append(extensionResourcesContainer, $(".additional-details-title", void 0, localize("resources", "Resources")));
-      const resourcesElement = append(extensionResourcesContainer, $(".resources"));
+      const extensionResourcesContainer = append(
+        container,
+        $(".resources-container.additional-details-element")
+      );
+      append(
+        extensionResourcesContainer,
+        $(
+          ".additional-details-title",
+          void 0,
+          localize("resources", "Resources")
+        )
+      );
+      const resourcesElement = append(
+        extensionResourcesContainer,
+        $(".resources")
+      );
       for (const [label, uri] of resources) {
-        const resource = append(resourcesElement, $("a.resource", { tabindex: "0" }, label));
-        this.disposables.add(onClick(resource, () => this.openerService.open(uri)));
-        this.disposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("mouse"), resource, uri.toString()));
+        const resource = append(
+          resourcesElement,
+          $("a.resource", { tabindex: "0" }, label)
+        );
+        this.disposables.add(
+          onClick(resource, () => this.openerService.open(uri))
+        );
+        this.disposables.add(
+          this.hoverService.setupManagedHover(
+            getDefaultHoverDelegate("mouse"),
+            resource,
+            uri.toString()
+          )
+        );
       }
     }
   }
   renderInstallInfo(container, extension) {
-    const installInfoContainer = append(container, $(".more-info-container.additional-details-element"));
-    append(installInfoContainer, $(".additional-details-title", void 0, localize("Install Info", "Installation")));
+    const installInfoContainer = append(
+      container,
+      $(".more-info-container.additional-details-element")
+    );
+    append(
+      installInfoContainer,
+      $(
+        ".additional-details-title",
+        void 0,
+        localize("Install Info", "Installation")
+      )
+    );
     const installInfo = append(installInfoContainer, $(".more-info"));
     append(
       installInfo,
       $(
         ".more-info-entry",
         void 0,
-        $("div.more-info-entry-name", void 0, localize("id", "Identifier")),
+        $(
+          "div.more-info-entry-name",
+          void 0,
+          localize("id", "Identifier")
+        ),
         $("code", void 0, extension.identifier.id)
       )
     );
@@ -996,7 +1543,11 @@ let AdditionalDetailsWidget = class extends Disposable {
         $(
           ".more-info-entry",
           void 0,
-          $("div.more-info-entry-name", void 0, localize("Version", "Version")),
+          $(
+            "div.more-info-entry-name",
+            void 0,
+            localize("Version", "Version")
+          ),
           $("code", void 0, extension.manifest.version)
         )
       );
@@ -1007,43 +1558,86 @@ let AdditionalDetailsWidget = class extends Disposable {
         $(
           ".more-info-entry",
           void 0,
-          $("div.more-info-entry-name", void 0, localize("last updated", "Last Updated")),
-          $("div", void 0, toDateString(new Date(extension.installedTimestamp)))
+          $(
+            "div.more-info-entry-name",
+            void 0,
+            localize("last updated", "Last Updated")
+          ),
+          $(
+            "div",
+            void 0,
+            toDateString(new Date(extension.installedTimestamp))
+          )
         )
       );
     }
     if (!extension.isBuiltin && extension.source !== "gallery") {
-      const element = $("div", void 0, extension.source === "vsix" ? localize("vsix", "VSIX") : localize("other", "Local"));
+      const element = $(
+        "div",
+        void 0,
+        extension.source === "vsix" ? localize("vsix", "VSIX") : localize("other", "Local")
+      );
       append(
         installInfo,
         $(
           ".more-info-entry",
           void 0,
-          $("div.more-info-entry-name", void 0, localize("source", "Source")),
+          $(
+            "div.more-info-entry-name",
+            void 0,
+            localize("source", "Source")
+          ),
           element
         )
       );
       if (isNative && extension.source === "resource" && extension.location.scheme === Schemas.file) {
         element.classList.add("link");
         element.title = extension.location.fsPath;
-        this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
+        this.disposables.add(
+          onClick(
+            element,
+            () => this.openerService.open(extension.location, {
+              openExternal: true
+            })
+          )
+        );
       }
     }
     if (extension.size) {
-      const element = $("div", void 0, ByteSize.formatSize(extension.size));
+      const element = $(
+        "div",
+        void 0,
+        ByteSize.formatSize(extension.size)
+      );
       append(
         installInfo,
         $(
           ".more-info-entry",
           void 0,
-          $("div.more-info-entry-name", { title: localize("size when installed", "Size when installed") }, localize("size", "Size")),
+          $(
+            "div.more-info-entry-name",
+            {
+              title: localize(
+                "size when installed",
+                "Size when installed"
+              )
+            },
+            localize("size", "Size")
+          ),
           element
         )
       );
       if (isNative && extension.location.scheme === Schemas.file) {
         element.classList.add("link");
         element.title = extension.location.fsPath;
-        this.disposables.add(onClick(element, () => this.openerService.open(extension.location, { openExternal: true })));
+        this.disposables.add(
+          onClick(
+            element,
+            () => this.openerService.open(extension.location, {
+              openExternal: true
+            })
+          )
+        );
       }
     }
     this.getCacheLocation(extension).then((cacheLocation) => {
@@ -1054,39 +1648,76 @@ let AdditionalDetailsWidget = class extends Disposable {
         if (!cacheSize) {
           return;
         }
-        const element = $("div", void 0, ByteSize.formatSize(cacheSize));
+        const element = $(
+          "div",
+          void 0,
+          ByteSize.formatSize(cacheSize)
+        );
         append(
           installInfo,
           $(
             ".more-info-entry",
             void 0,
-            $("div.more-info-entry-name", { title: localize("disk space used", "Cache size") }, localize("cache size", "Cache")),
+            $(
+              "div.more-info-entry-name",
+              {
+                title: localize(
+                  "disk space used",
+                  "Cache size"
+                )
+              },
+              localize("cache size", "Cache")
+            ),
             element
           )
         );
         if (isNative && extension.location.scheme === Schemas.file) {
           element.classList.add("link");
           element.title = cacheLocation.fsPath;
-          this.disposables.add(onClick(element, () => this.openerService.open(cacheLocation.with({ scheme: Schemas.file }), { openExternal: true })));
+          this.disposables.add(
+            onClick(
+              element,
+              () => this.openerService.open(
+                cacheLocation.with({ scheme: Schemas.file }),
+                { openExternal: true }
+              )
+            )
+          );
         }
       });
     });
   }
   async getCacheLocation(extension) {
-    let extensionCacheLocation = this.uriIdentityService.extUri.joinPath(this.userDataProfilesService.defaultProfile.globalStorageHome, extension.identifier.id.toLowerCase());
+    let extensionCacheLocation = this.uriIdentityService.extUri.joinPath(
+      this.userDataProfilesService.defaultProfile.globalStorageHome,
+      extension.identifier.id.toLowerCase()
+    );
     if (extension.location.scheme === Schemas.vscodeRemote) {
       const environment = await this.remoteAgentService.getEnvironment();
       if (!environment) {
         return void 0;
       }
-      extensionCacheLocation = this.uriIdentityService.extUri.joinPath(environment.globalStorageHome, extension.identifier.id.toLowerCase());
+      extensionCacheLocation = this.uriIdentityService.extUri.joinPath(
+        environment.globalStorageHome,
+        extension.identifier.id.toLowerCase()
+      );
     }
     return extensionCacheLocation;
   }
   renderMarketplaceInfo(container, extension) {
     const gallery = extension.gallery;
-    const moreInfoContainer = append(container, $(".more-info-container.additional-details-element"));
-    append(moreInfoContainer, $(".additional-details-title", void 0, localize("Marketplace Info", "Marketplace")));
+    const moreInfoContainer = append(
+      container,
+      $(".more-info-container.additional-details-element")
+    );
+    append(
+      moreInfoContainer,
+      $(
+        ".additional-details-title",
+        void 0,
+        localize("Marketplace Info", "Marketplace")
+      )
+    );
     const moreInfo = append(moreInfoContainer, $(".more-info"));
     if (gallery) {
       if (!extension.local) {
@@ -1095,7 +1726,11 @@ let AdditionalDetailsWidget = class extends Disposable {
           $(
             ".more-info-entry",
             void 0,
-            $("div.more-info-entry-name", void 0, localize("id", "Identifier")),
+            $(
+              "div.more-info-entry-name",
+              void 0,
+              localize("id", "Identifier")
+            ),
             $("code", void 0, extension.identifier.id)
           )
         );
@@ -1104,7 +1739,11 @@ let AdditionalDetailsWidget = class extends Disposable {
           $(
             ".more-info-entry",
             void 0,
-            $("div.more-info-entry-name", void 0, localize("Version", "Version")),
+            $(
+              "div.more-info-entry-name",
+              void 0,
+              localize("Version", "Version")
+            ),
             $("code", void 0, gallery.version)
           )
         );
@@ -1114,14 +1753,30 @@ let AdditionalDetailsWidget = class extends Disposable {
         $(
           ".more-info-entry",
           void 0,
-          $("div.more-info-entry-name", void 0, localize("published", "Published")),
-          $("div", void 0, toDateString(new Date(gallery.releaseDate)))
+          $(
+            "div.more-info-entry-name",
+            void 0,
+            localize("published", "Published")
+          ),
+          $(
+            "div",
+            void 0,
+            toDateString(new Date(gallery.releaseDate))
+          )
         ),
         $(
           ".more-info-entry",
           void 0,
-          $("div.more-info-entry-name", void 0, localize("last released", "Last Released")),
-          $("div", void 0, toDateString(new Date(gallery.lastUpdated)))
+          $(
+            "div.more-info-entry-name",
+            void 0,
+            localize("last released", "Last Released")
+          ),
+          $(
+            "div",
+            void 0,
+            toDateString(new Date(gallery.lastUpdated))
+          )
         )
       );
     }
@@ -1137,95 +1792,116 @@ AdditionalDetailsWidget = __decorateClass([
   __decorateParam(8, IExtensionsWorkbenchService),
   __decorateParam(9, IExtensionGalleryManifestService)
 ], AdditionalDetailsWidget);
-const contextKeyExpr = ContextKeyExpr.and(ContextKeyExpr.equals("activeEditor", ExtensionEditor.ID), EditorContextKeys.focus.toNegated());
-registerAction2(class ShowExtensionEditorFindAction extends Action2 {
-  static {
-    __name(this, "ShowExtensionEditorFindAction");
+const contextKeyExpr = ContextKeyExpr.and(
+  ContextKeyExpr.equals("activeEditor", ExtensionEditor.ID),
+  EditorContextKeys.focus.toNegated()
+);
+registerAction2(
+  class ShowExtensionEditorFindAction extends Action2 {
+    static {
+      __name(this, "ShowExtensionEditorFindAction");
+    }
+    constructor() {
+      super({
+        id: "editor.action.extensioneditor.showfind",
+        title: localize("find", "Find"),
+        keybinding: {
+          when: contextKeyExpr,
+          weight: KeybindingWeight.EditorContrib,
+          primary: KeyMod.CtrlCmd | KeyCode.KeyF
+        }
+      });
+    }
+    run(accessor) {
+      const extensionEditor = getExtensionEditor(accessor);
+      extensionEditor?.showFind();
+    }
   }
-  constructor() {
-    super({
-      id: "editor.action.extensioneditor.showfind",
-      title: localize("find", "Find"),
-      keybinding: {
-        when: contextKeyExpr,
-        weight: KeybindingWeight.EditorContrib,
-        primary: KeyMod.CtrlCmd | KeyCode.KeyF
-      }
-    });
+);
+registerAction2(
+  class StartExtensionEditorFindNextAction extends Action2 {
+    static {
+      __name(this, "StartExtensionEditorFindNextAction");
+    }
+    constructor() {
+      super({
+        id: "editor.action.extensioneditor.findNext",
+        title: localize("find next", "Find Next"),
+        keybinding: {
+          when: ContextKeyExpr.and(
+            contextKeyExpr,
+            KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED
+          ),
+          primary: KeyCode.Enter,
+          weight: KeybindingWeight.EditorContrib
+        }
+      });
+    }
+    run(accessor) {
+      const extensionEditor = getExtensionEditor(accessor);
+      extensionEditor?.runFindAction(false);
+    }
   }
-  run(accessor) {
-    const extensionEditor = getExtensionEditor(accessor);
-    extensionEditor?.showFind();
+);
+registerAction2(
+  class StartExtensionEditorFindPreviousAction extends Action2 {
+    static {
+      __name(this, "StartExtensionEditorFindPreviousAction");
+    }
+    constructor() {
+      super({
+        id: "editor.action.extensioneditor.findPrevious",
+        title: localize("find previous", "Find Previous"),
+        keybinding: {
+          when: ContextKeyExpr.and(
+            contextKeyExpr,
+            KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED
+          ),
+          primary: KeyMod.Shift | KeyCode.Enter,
+          weight: KeybindingWeight.EditorContrib
+        }
+      });
+    }
+    run(accessor) {
+      const extensionEditor = getExtensionEditor(accessor);
+      extensionEditor?.runFindAction(true);
+    }
   }
-});
-registerAction2(class StartExtensionEditorFindNextAction extends Action2 {
-  static {
-    __name(this, "StartExtensionEditorFindNextAction");
-  }
-  constructor() {
-    super({
-      id: "editor.action.extensioneditor.findNext",
-      title: localize("find next", "Find Next"),
-      keybinding: {
-        when: ContextKeyExpr.and(
-          contextKeyExpr,
-          KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED
-        ),
-        primary: KeyCode.Enter,
-        weight: KeybindingWeight.EditorContrib
-      }
-    });
-  }
-  run(accessor) {
-    const extensionEditor = getExtensionEditor(accessor);
-    extensionEditor?.runFindAction(false);
-  }
-});
-registerAction2(class StartExtensionEditorFindPreviousAction extends Action2 {
-  static {
-    __name(this, "StartExtensionEditorFindPreviousAction");
-  }
-  constructor() {
-    super({
-      id: "editor.action.extensioneditor.findPrevious",
-      title: localize("find previous", "Find Previous"),
-      keybinding: {
-        when: ContextKeyExpr.and(
-          contextKeyExpr,
-          KEYBINDING_CONTEXT_WEBVIEW_FIND_WIDGET_FOCUSED
-        ),
-        primary: KeyMod.Shift | KeyCode.Enter,
-        weight: KeybindingWeight.EditorContrib
-      }
-    });
-  }
-  run(accessor) {
-    const extensionEditor = getExtensionEditor(accessor);
-    extensionEditor?.runFindAction(true);
-  }
-});
-registerThemingParticipant((theme, collector) => {
-  const link = theme.getColor(textLinkForeground);
-  if (link) {
-    collector.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource { color: ${link}; }`);
-    collector.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a { color: ${link}; }`);
-  }
-  const activeLink = theme.getColor(textLinkActiveForeground);
-  if (activeLink) {
-    collector.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:hover,
+);
+registerThemingParticipant(
+  (theme, collector) => {
+    const link = theme.getColor(textLinkForeground);
+    if (link) {
+      collector.addRule(
+        `.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource { color: ${link}; }`
+      );
+      collector.addRule(
+        `.monaco-workbench .extension-editor .content .feature-contributions a { color: ${link}; }`
+      );
+    }
+    const activeLink = theme.getColor(textLinkActiveForeground);
+    if (activeLink) {
+      collector.addRule(`.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:hover,
 			.monaco-workbench .extension-editor .content .details .additional-details-container .resources-container a.resource:active { color: ${activeLink}; }`);
-    collector.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a:hover,
+      collector.addRule(`.monaco-workbench .extension-editor .content .feature-contributions a:hover,
 			.monaco-workbench .extension-editor .content .feature-contributions a:active { color: ${activeLink}; }`);
+    }
+    const buttonHoverBackgroundColor = theme.getColor(
+      buttonHoverBackground
+    );
+    if (buttonHoverBackgroundColor) {
+      collector.addRule(
+        `.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { background-color: ${buttonHoverBackgroundColor}; border-color: ${buttonHoverBackgroundColor}; }`
+      );
+    }
+    const buttonForegroundColor = theme.getColor(buttonForeground);
+    if (buttonForegroundColor) {
+      collector.addRule(
+        `.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { color: ${buttonForegroundColor}; }`
+      );
+    }
   }
-  const buttonHoverBackgroundColor = theme.getColor(buttonHoverBackground);
-  if (buttonHoverBackgroundColor) {
-    collector.addRule(`.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { background-color: ${buttonHoverBackgroundColor}; border-color: ${buttonHoverBackgroundColor}; }`);
-  }
-  const buttonForegroundColor = theme.getColor(buttonForeground);
-  if (buttonForegroundColor) {
-    collector.addRule(`.monaco-workbench .extension-editor .content > .details > .additional-details-container .categories-container > .categories > .category.clickable:hover { color: ${buttonForegroundColor}; }`);
-  }
-});
+);
 function getExtensionEditor(accessor) {
   const activeEditorPane = accessor.get(IEditorService).activeEditorPane;
   if (activeEditorPane instanceof ExtensionEditor) {

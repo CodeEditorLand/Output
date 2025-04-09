@@ -23,25 +23,37 @@ class SimpleTypedRpcConnection {
         }
       }, "handleRequest")
     });
-    const requests = new Proxy({}, {
-      get: /* @__PURE__ */ __name((target, key) => {
-        return async (...args) => {
-          const result = await this._channel.sendRequest([key, args]);
-          if (result.type === "error") {
-            throw result.value;
-          } else {
-            return result.value;
-          }
-        };
-      }, "get")
-    });
-    const notifications = new Proxy({}, {
-      get: /* @__PURE__ */ __name((target, key) => {
-        return (...args) => {
-          this._channel.sendNotification([key, args]);
-        };
-      }, "get")
-    });
+    const requests = new Proxy(
+      {},
+      {
+        get: /* @__PURE__ */ __name((target, key) => {
+          return async (...args) => {
+            const result = await this._channel.sendRequest([
+              key,
+              args
+            ]);
+            if (result.type === "error") {
+              throw result.value;
+            } else {
+              return result.value;
+            }
+          };
+        }, "get")
+      }
+    );
+    const notifications = new Proxy(
+      {},
+      {
+        get: /* @__PURE__ */ __name((target, key) => {
+          return (...args) => {
+            this._channel.sendNotification([
+              key,
+              args
+            ]);
+          };
+        }, "get")
+      }
+    );
     this.api = { notifications, requests };
   }
   static {

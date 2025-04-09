@@ -13,9 +13,14 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { localize } from "../../../nls.js";
 import { IEnvironmentService } from "../../environment/common/environment.js";
-import { ILogger, ILoggerService } from "../../log/common/log.js";
+import { ILoggerService } from "../../log/common/log.js";
 import { IProductService } from "../../product/common/productService.js";
-import { ITelemetryAppender, TelemetryLogGroup, isLoggingOnly, telemetryLogId, validateTelemetryData } from "./telemetryUtils.js";
+import {
+  isLoggingOnly,
+  TelemetryLogGroup,
+  telemetryLogId,
+  validateTelemetryData
+} from "./telemetryUtils.js";
 let TelemetryLogAppender = class extends Disposable {
   constructor(prefix, remote, loggerService, environmentService, productService) {
     super();
@@ -25,16 +30,18 @@ let TelemetryLogAppender = class extends Disposable {
     if (logger) {
       this.logger = this._register(logger);
     } else {
-      const justLoggingAndNotSending = isLoggingOnly(productService, environmentService);
+      const justLoggingAndNotSending = isLoggingOnly(
+        productService,
+        environmentService
+      );
       const logSuffix = justLoggingAndNotSending ? " (Not Sent)" : "";
-      this.logger = this._register(loggerService.createLogger(
-        id,
-        {
+      this.logger = this._register(
+        loggerService.createLogger(id, {
           name: localize("telemetryLog", "Telemetry{0}", logSuffix),
           group: TelemetryLogGroup,
           hidden: true
-        }
-      ));
+        })
+      );
     }
   }
   static {
@@ -45,7 +52,10 @@ let TelemetryLogAppender = class extends Disposable {
     return Promise.resolve();
   }
   log(eventName, data) {
-    this.logger.trace(`${this.prefix}telemetry/${eventName}`, validateTelemetryData(data));
+    this.logger.trace(
+      `${this.prefix}telemetry/${eventName}`,
+      validateTelemetryData(data)
+    );
   }
 };
 TelemetryLogAppender = __decorateClass([

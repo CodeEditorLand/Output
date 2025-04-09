@@ -37,7 +37,7 @@ function computeDebugName(self, data) {
   if (cached) {
     return cached;
   }
-  const ownerStr = data.owner ? formatOwner(data.owner) + `.` : "";
+  const ownerStr = data.owner ? `${formatOwner(data.owner)}.` : "";
   let result;
   const debugNameSource = data.debugNameSource;
   if (debugNameSource !== void 0) {

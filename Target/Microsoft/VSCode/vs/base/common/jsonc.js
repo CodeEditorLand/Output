@@ -2,7 +2,7 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 const regexp = /("[^"\\]*(?:\\.[^"\\]*)*")|('[^'\\]*(?:\\.[^'\\]*)*')|(\/\*[^\/\*]*(?:(?:\*|\/)[^\/\*]*)*?\*\/)|(\/{2,}.*?(?:(?:\r?\n)|$))|(,\s*[}\]])/g;
 function stripComments(content) {
-  return content.replace(regexp, function(match, _m1, _m2, m3, m4, m5) {
+  return content.replace(regexp, (match, _m1, _m2, m3, m4, m5) => {
     if (m3) {
       return "";
     } else if (m4) {
@@ -25,7 +25,10 @@ function parse(content) {
   try {
     return JSON.parse(commentsStripped);
   } catch (error) {
-    const trailingCommasStriped = commentsStripped.replace(/,\s*([}\]])/g, "$1");
+    const trailingCommasStriped = commentsStripped.replace(
+      /,\s*([}\]])/g,
+      "$1"
+    );
     return JSON.parse(trailingCommasStriped);
   }
 }

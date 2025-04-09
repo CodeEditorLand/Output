@@ -1,10 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { ICanonicalUriService, ICanonicalUriProvider } from "../../../../platform/workspace/common/canonicalUri.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  ICanonicalUriService
+} from "../../../../platform/workspace/common/canonicalUri.js";
 class CanonicalUriService {
   static {
     __name(this, "CanonicalUriService");
@@ -24,7 +26,11 @@ class CanonicalUriService {
     return void 0;
   }
 }
-registerSingleton(ICanonicalUriService, CanonicalUriService, InstantiationType.Delayed);
+registerSingleton(
+  ICanonicalUriService,
+  CanonicalUriService,
+  InstantiationType.Delayed
+);
 export {
   CanonicalUriService
 };

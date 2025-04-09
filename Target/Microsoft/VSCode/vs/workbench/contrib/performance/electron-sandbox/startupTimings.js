@@ -10,27 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IWorkbenchContribution } from "../../../common/contributions.js";
+import { coalesce } from "../../../../base/common/arrays.js";
 import { timeout } from "../../../../base/common/async.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IUpdateService } from "../../../../platform/update/common/update.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { ITimerService } from "../../../services/timer/browser/timerService.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { URI } from "../../../../base/common/uri.js";
-import { VSBuffer } from "../../../../base/common/buffer.js";
 import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
 import { IPaneCompositePartService } from "../../../services/panecomposite/browser/panecomposite.js";
+import { ITimerService } from "../../../services/timer/browser/timerService.js";
 import { StartupTimings } from "../browser/startupTimings.js";
-import { coalesce } from "../../../../base/common/arrays.js";
 let NativeStartupTimings = class extends StartupTimings {
   constructor(_fileService, _timerService, _nativeHostService, editorService, paneCompositeService, _telemetryService, lifecycleService, updateService, _environmentService, _productService, workspaceTrustService) {
-    super(editorService, paneCompositeService, lifecycleService, updateService, workspaceTrustService);
+    super(
+      editorService,
+      paneCompositeService,
+      lifecycleService,
+      updateService,
+      workspaceTrustService
+    );
     this._fileService = _fileService;
     this._timerService = _timerService;
     this._nativeHostService = _nativeHostService;
@@ -65,7 +70,7 @@ let NativeStartupTimings = class extends StartupTimings {
         this._telemetryLogHeapStatistics(heapStatistics);
       }
       if (appendTo) {
-        const content = coalesce([
+        const content = `${coalesce([
           this._timerService.startupMetrics.ellapsed,
           this._productService.nameShort,
           (this._productService.commit || "").slice(0, 10) || "0000000000",
@@ -73,7 +78,8 @@ let NativeStartupTimings = class extends StartupTimings {
           standardStartupError === void 0 ? "standard_start" : `NO_standard_start : ${standardStartupError}`,
           `${String(perfBaseline).padStart(4, "0")}ms`,
           heapStatistics ? this._printStartupHeapStatistics(heapStatistics) : void 0
-        ]).join("	") + "\n";
+        ]).join("	")}
+`;
         await this._appendContent(URI.file(appendTo), content);
       }
       if (durationMarkers?.length) {
@@ -85,7 +91,10 @@ let NativeStartupTimings = class extends StartupTimings {
           } else if (durationMarker.indexOf("-") !== -1) {
             const markers = durationMarker.split("-");
             if (markers.length === 2) {
-              duration = this._timerService.getDuration(markers[0], markers[1]);
+              duration = this._timerService.getDuration(
+                markers[0],
+                markers[1]
+              );
             }
           }
           if (duration) {
@@ -96,7 +105,10 @@ let NativeStartupTimings = class extends StartupTimings {
         const durationsContent = `${durations.join("	")}
 `;
         if (durationMarkersFile) {
-          await this._appendContent(URI.file(durationMarkersFile), durationsContent);
+          await this._appendContent(
+            URI.file(durationMarkersFile),
+            durationsContent
+          );
         } else {
           console.log(durationsContent);
         }
@@ -133,7 +145,13 @@ let NativeStartupTimings = class extends StartupTimings {
     let garbage = 0;
     let duration = 0;
     try {
-      const traceContents = JSON.parse((await this._fileService.readFile(URI.file(this._environmentService.args["trace-startup-file"]))).value.toString());
+      const traceContents = JSON.parse(
+        (await this._fileService.readFile(
+          URI.file(
+            this._environmentService.args["trace-startup-file"]
+          )
+        )).value.toString()
+      );
       for (const event of traceContents.traceEvents) {
         if (event.pid !== windowProcessId) {
           continue;
@@ -159,13 +177,25 @@ let NativeStartupTimings = class extends StartupTimings {
           }
         }
       }
-      return { minorGCs, majorGCs, used, garbage, duration: Math.round(duration / 1e3) };
+      return {
+        minorGCs,
+        majorGCs,
+        used,
+        garbage,
+        duration: Math.round(duration / 1e3)
+      };
     } catch (error) {
       console.error(error);
     }
     return void 0;
   }
-  _telemetryLogHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }) {
+  _telemetryLogHeapStatistics({
+    used,
+    garbage,
+    majorGCs,
+    minorGCs,
+    duration
+  }) {
     this._telemetryService.publicLog2("startupHeapStatistics", {
       heapUsed: used,
       heapGarbage: garbage,
@@ -174,7 +204,13 @@ let NativeStartupTimings = class extends StartupTimings {
       gcsDuration: duration
     });
   }
-  _printStartupHeapStatistics({ used, garbage, majorGCs, minorGCs, duration }) {
+  _printStartupHeapStatistics({
+    used,
+    garbage,
+    majorGCs,
+    minorGCs,
+    duration
+  }) {
     const MB = 1024 * 1024;
     return `Heap: ${Math.round(used / MB)}MB (used) ${Math.round(garbage / MB)}MB (garbage) ${majorGCs} (MajorGC) ${minorGCs} (MinorGC) ${duration}ms (GC duration)`;
   }

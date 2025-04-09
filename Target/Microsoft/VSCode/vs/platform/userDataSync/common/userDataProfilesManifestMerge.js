@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { equals } from "../../../base/common/objects.js";
-import { IUserDataProfile, UseDefaultProfileFlags } from "../../userDataProfile/common/userDataProfile.js";
-import { ISyncUserDataProfile } from "./userDataSync.js";
 function merge(local, remote, lastSync, ignored) {
   const localResult = { added: [], removed: [], updated: [] };
   let remoteResult = { added: [], removed: [], updated: [] };
@@ -39,11 +37,15 @@ function merge(local, remote, lastSync, ignored) {
       }
     }
     for (const id of baseToRemote.updated) {
-      localResult.updated.push(remote.find((profile) => profile.id === id));
+      localResult.updated.push(
+        remote.find((profile) => profile.id === id)
+      );
     }
     for (const id of baseToLocal.added) {
       if (!baseToRemote.added.includes(id)) {
-        remoteResult.added.push(local.find((profile) => profile.id === id));
+        remoteResult.added.push(
+          local.find((profile) => profile.id === id)
+        );
       }
     }
     for (const id of baseToLocal.updated) {
@@ -51,7 +53,9 @@ function merge(local, remote, lastSync, ignored) {
         continue;
       }
       if (!baseToRemote.updated.includes(id)) {
-        remoteResult.updated.push(local.find((profile) => profile.id === id));
+        remoteResult.updated.push(
+          local.find((profile) => profile.id === id)
+        );
       }
     }
     for (const id of baseToLocal.removed) {

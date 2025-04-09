@@ -2,7 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { URI } from "../../../../../base/common/uri.js";
 import { localize } from "../../../../../nls.js";
-import { ITerminalQuickFixInternalOptions, ITerminalCommandMatchResult, ITerminalQuickFixTerminalCommandAction, TerminalQuickFixActionInternal, TerminalQuickFixType } from "./quickFix.js";
+import {
+  TerminalQuickFixType
+} from "./quickFix.js";
 const GitCommandLineRegex = /git/;
 const GitFastForwardPullOutputRegex = /and can be fast-forwarded/;
 const GitPushCommandLineRegex = /git\s+push/;
@@ -35,15 +37,22 @@ function gitSimilar() {
         return;
       }
       const actions = [];
-      const startIndex = matchResult.outputMatch.outputLines.findIndex((l) => l.includes(regexMatch)) + 1;
-      const results = matchResult.outputMatch.outputLines.map((r) => r.trim());
+      const startIndex = matchResult.outputMatch.outputLines.findIndex(
+        (l) => l.includes(regexMatch)
+      ) + 1;
+      const results = matchResult.outputMatch.outputLines.map(
+        (r) => r.trim()
+      );
       for (let i = startIndex; i < results.length; i++) {
         const fixedCommand = results[i];
         if (fixedCommand) {
           actions.push({
             id: "Git Similar",
             type: TerminalQuickFixType.TerminalCommand,
-            terminalCommand: matchResult.commandLine.replace(/git\s+[^\s]+/, () => `git ${fixedCommand}`),
+            terminalCommand: matchResult.commandLine.replace(
+              /git\s+[^\s]+/,
+              () => `git ${fixedCommand}`
+            ),
             shouldExecute: true,
             source: "builtin" /* Builtin */
           });
@@ -70,7 +79,7 @@ function gitFastForwardPull() {
       return {
         type: TerminalQuickFixType.TerminalCommand,
         id: "Git Fast Forward Pull",
-        terminalCommand: `git pull`,
+        terminalCommand: "git pull",
         shouldExecute: true,
         source: "builtin" /* Builtin */
       };
@@ -98,7 +107,10 @@ function gitTwoDashes() {
       return {
         type: TerminalQuickFixType.TerminalCommand,
         id: "Git Two Dashes",
-        terminalCommand: matchResult.commandLine.replace(` -${problemArg}`, () => ` --${problemArg}`),
+        terminalCommand: matchResult.commandLine.replace(
+          ` -${problemArg}`,
+          () => ` --${problemArg}`
+        ),
         shouldExecute: true,
         source: "builtin" /* Builtin */
       };
@@ -187,7 +199,10 @@ function gitPushSetUpstream() {
         if (!commandToRun.includes(varToResolve)) {
           return [];
         }
-        fixedCommand = fixedCommand.replaceAll(varToResolve, () => value);
+        fixedCommand = fixedCommand.replaceAll(
+          varToResolve,
+          () => value
+        );
       }
       if (fixedCommand) {
         actions.push({
@@ -330,7 +345,9 @@ function pwshUnixCommandNotFoundError() {
         if (line.length === 0) {
           break;
         }
-        const installCommand = line.match(/You also have .+ installed, you can run '(?<command>.+)' instead./)?.groups?.command;
+        const installCommand = line.match(
+          /You also have .+ installed, you can run '(?<command>.+)' instead./
+        )?.groups?.command;
         if (installCommand) {
           result.push({
             id: "Pwsh Unix Command Not Found Error",
@@ -341,7 +358,9 @@ function pwshUnixCommandNotFoundError() {
           inSuggestions = false;
           continue;
         }
-        if (line.match(/Command '.+' not found, but can be installed with:/)) {
+        if (line.match(
+          /Command '.+' not found, but can be installed with:/
+        )) {
           inSuggestions = true;
           continue;
         }

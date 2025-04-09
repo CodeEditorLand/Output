@@ -10,32 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as DOM from "../../../../base/browser/dom.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { MultiDiffEditorWidget } from "../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidget.js";
-import { IResourceLabel, IWorkbenchUIElementFactory } from "../../../../editor/browser/widget/multiDiffEditor/workbenchUIElementFactory.js";
+import { Range } from "../../../../editor/common/core/range.js";
 import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { InstantiationService } from "../../../../platform/instantiation/common/instantiationService.js";
+import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { ResourceLabel } from "../../../browser/labels.js";
 import { AbstractEditorWithViewState } from "../../../browser/parts/editor/editorWithViewState.js";
-import { ICompositeControl } from "../../../common/composite.js";
-import { IEditorOpenContext } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IDocumentDiffItemWithMultiDiffEditorItem, MultiDiffEditorInput } from "./multiDiffEditorInput.js";
-import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import {
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { URI } from "../../../../base/common/uri.js";
-import { MultiDiffEditorViewModel } from "../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorViewModel.js";
-import { IMultiDiffEditorOptions, IMultiDiffEditorViewState } from "../../../../editor/browser/widget/multiDiffEditor/multiDiffEditorWidgetImpl.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IDiffEditor } from "../../../../editor/common/editorCommon.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import { MultiDiffEditorItem } from "./multiDiffSourceResolverService.js";
-import { IEditorProgressService } from "../../../../platform/progress/common/progress.js";
+import {
+  MultiDiffEditorInput
+} from "./multiDiffEditorInput.js";
 let MultiDiffEditor = class extends AbstractEditorWithViewState {
   constructor(group, instantiationService, telemetryService, themeService, storageService, editorService, editorGroupService, textResourceConfigurationService, editorProgressService) {
     super(
@@ -62,22 +53,28 @@ let MultiDiffEditor = class extends AbstractEditorWithViewState {
     return this._viewModel;
   }
   createEditor(parent) {
-    this._multiDiffEditorWidget = this._register(this.instantiationService.createInstance(
-      MultiDiffEditorWidget,
-      parent,
-      this.instantiationService.createInstance(WorkbenchUIElementFactory)
-    ));
-    this._register(this._multiDiffEditorWidget.onDidChangeActiveControl(() => {
-      this._onDidChangeControl.fire();
-    }));
+    this._multiDiffEditorWidget = this._register(
+      this.instantiationService.createInstance(
+        MultiDiffEditorWidget,
+        parent,
+        this.instantiationService.createInstance(
+          WorkbenchUIElementFactory
+        )
+      )
+    );
+    this._register(
+      this._multiDiffEditorWidget.onDidChangeActiveControl(() => {
+        this._onDidChangeControl.fire();
+      })
+    );
   }
   async setInput(input, options, context, token) {
     await super.setInput(input, options, context, token);
     this._viewModel = await input.getViewModel();
-    this._multiDiffEditorWidget.setViewModel(this._viewModel);
+    this._multiDiffEditorWidget?.setViewModel(this._viewModel);
     const viewState = this.loadEditorViewState(input, context);
     if (viewState) {
-      this._multiDiffEditorWidget.setViewState(viewState);
+      this._multiDiffEditorWidget?.setViewState(viewState);
     }
     this._applyOptions(options);
   }
@@ -96,13 +93,13 @@ let MultiDiffEditor = class extends AbstractEditorWithViewState {
   }
   async clearInput() {
     await super.clearInput();
-    this._multiDiffEditorWidget.setViewModel(void 0);
+    this._multiDiffEditorWidget?.setViewModel(void 0);
   }
   layout(dimension) {
-    this._multiDiffEditorWidget.layout(dimension);
+    this._multiDiffEditorWidget?.layout(dimension);
   }
   getControl() {
-    return this._multiDiffEditorWidget.getActiveControl();
+    return this._multiDiffEditorWidget?.getActiveControl();
   }
   focus() {
     super.focus();
@@ -112,7 +109,7 @@ let MultiDiffEditor = class extends AbstractEditorWithViewState {
     return this._multiDiffEditorWidget?.getActiveControl()?.hasTextFocus() || super.hasFocus();
   }
   computeEditorViewState(resource) {
-    return this._multiDiffEditorWidget.getViewState();
+    return this._multiDiffEditorWidget?.getViewState();
   }
   tracksEditorViewState(input) {
     return input instanceof MultiDiffEditorInput;
@@ -121,10 +118,10 @@ let MultiDiffEditor = class extends AbstractEditorWithViewState {
     return input.resource;
   }
   tryGetCodeEditor(resource) {
-    return this._multiDiffEditorWidget.tryGetCodeEditor(resource);
+    return this._multiDiffEditorWidget?.tryGetCodeEditor(resource);
   }
   findDocumentDiffItem(resource) {
-    const i = this._multiDiffEditorWidget.findDocumentDiffItem(resource);
+    const i = this._multiDiffEditorWidget?.findDocumentDiffItem(resource);
     if (!i) {
       return void 0;
     }
@@ -153,13 +150,19 @@ let WorkbenchUIElementFactory = class {
     __name(this, "WorkbenchUIElementFactory");
   }
   createResourceLabel(element) {
-    const label = this._instantiationService.createInstance(ResourceLabel, element, {});
+    const label = this._instantiationService.createInstance(
+      ResourceLabel,
+      element,
+      {}
+    );
     return {
       setUri(uri, options = {}) {
         if (!uri) {
           label.element.clear();
         } else {
-          label.element.setFile(uri, { strikethrough: options.strikethrough });
+          label.element.setFile(uri, {
+            strikethrough: options.strikethrough
+          });
         }
       },
       dispose() {

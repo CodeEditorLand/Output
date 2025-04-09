@@ -10,20 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ResourceMap } from "../../../../../base/common/map.js";
 import { TernarySearchTree } from "../../../../../base/common/ternarySearchTree.js";
-import { URI } from "../../../../../base/common/uri.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IProgress, IProgressStep } from "../../../../../platform/progress/common/progress.js";
 import { IUriIdentityService } from "../../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IReplaceService } from "../replace.js";
-import { IFileMatch, ISearchComplete, ITextQuery, ITextSearchQuery } from "../../../../services/search/common/search.js";
-import { RangeHighlightDecorations } from "./rangeDecorations.js";
-import { FolderMatchNoRootImpl, FolderMatchWorkspaceRootImpl } from "./folderMatch.js";
-import { IChangeEvent, ISearchTreeFileMatch, ISearchTreeFolderMatch, ISearchTreeFolderMatchWithResource, ISearchTreeFolderMatchWorkspaceRoot, IPlainTextSearchHeading, ISearchResult, isSearchTreeFileMatch, isSearchTreeFolderMatch, ITextSearchHeading, ISearchTreeMatch, TEXT_SEARCH_HEADING_PREFIX, PLAIN_TEXT_SEARCH__RESULT_ID, ISearchTreeFolderMatchNoRoot } from "./searchTreeCommon.js";
 import { isNotebookFileMatch } from "../notebookSearch/notebookSearchModelBase.js";
+import { IReplaceService } from "../replace.js";
+import {
+  FolderMatchNoRootImpl,
+  FolderMatchWorkspaceRootImpl
+} from "./folderMatch.js";
+import { RangeHighlightDecorations } from "./rangeDecorations.js";
+import {
+  isSearchTreeFileMatch,
+  isSearchTreeFolderMatch,
+  PLAIN_TEXT_SEARCH__RESULT_ID,
+  TEXT_SEARCH_HEADING_PREFIX
+} from "./searchTreeCommon.js";
 let TextSearchHeadingImpl = class extends Disposable {
   constructor(_allowOtherResults, _parent, instantiationService, uriIdentityService) {
     super();
@@ -32,11 +37,13 @@ let TextSearchHeadingImpl = class extends Disposable {
     this.instantiationService = instantiationService;
     this.uriIdentityService = uriIdentityService;
     this._rangeHighlightDecorations = this.instantiationService.createInstance(RangeHighlightDecorations);
-    this._register(this.onChange((e) => {
-      if (e.removed) {
-        this._isDirty = !this.isEmpty();
-      }
-    }));
+    this._register(
+      this.onChange((e) => {
+        if (e.removed) {
+          this._isDirty = !this.isEmpty();
+        }
+      })
+    );
   }
   static {
     __name(this, "TextSearchHeadingImpl");
@@ -50,7 +57,9 @@ let TextSearchHeadingImpl = class extends Disposable {
   disposePastResults = /* @__PURE__ */ __name(() => Promise.resolve(), "disposePastResults");
   _folderMatches = [];
   _otherFilesMatch = null;
-  _folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+  _folderMatchesMap = TernarySearchTree.forUris(
+    (key) => this.uriIdentityService.extUri.ignorePathCasing(key)
+  );
   resource = null;
   hidden = false;
   cachedSearchComplete;
@@ -84,7 +93,11 @@ let TextSearchHeadingImpl = class extends Disposable {
       folderMatch?.addFileMatch(raw, silent, searchInstanceID);
     });
     if (!this.isAIContributed) {
-      this._otherFilesMatch?.addFileMatch(other, silent, searchInstanceID);
+      this._otherFilesMatch?.addFileMatch(
+        other,
+        silent,
+        searchInstanceID
+      );
     }
     this.disposePastResults();
   }
@@ -97,7 +110,9 @@ let TextSearchHeadingImpl = class extends Disposable {
         m.clear();
       }
     });
-    const fileMatches = matches.filter((m) => isSearchTreeFileMatch(m));
+    const fileMatches = matches.filter(
+      (m) => isSearchTreeFileMatch(m)
+    );
     const { byFolder, other } = this.groupFilesByFolder(fileMatches);
     byFolder.forEach((matches2) => {
       if (!matches2.length) {
@@ -106,7 +121,9 @@ let TextSearchHeadingImpl = class extends Disposable {
       this.getFolderMatch(matches2[0].resource)?.remove(matches2);
     });
     if (other.length) {
-      this.getFolderMatch(other[0].resource)?.remove(other);
+      this.getFolderMatch(other[0].resource)?.remove(
+        other
+      );
     }
   }
   groupFilesByFolder(fileMatches) {
@@ -120,7 +137,7 @@ let TextSearchHeadingImpl = class extends Disposable {
       }
       const resource = folderMatch.resource;
       if (resource) {
-        rawPerFolder.get(resource).push(rawFileMatch);
+        rawPerFolder.get(resource)?.push(rawFileMatch);
       } else {
         otherFileMatches.push(rawFileMatch);
       }
@@ -131,7 +148,9 @@ let TextSearchHeadingImpl = class extends Disposable {
     };
   }
   isEmpty() {
-    return this.folderMatches().every((folderMatch) => folderMatch.isEmpty());
+    return this.folderMatches().every(
+      (folderMatch) => folderMatch.isEmpty()
+    );
   }
   findFolderSubstr(resource) {
     return this._folderMatchesMap.findSubstr(resource);
@@ -145,18 +164,19 @@ let TextSearchHeadingImpl = class extends Disposable {
     };
     this.cachedSearchComplete = void 0;
     this._rangeHighlightDecorations.removeHighlightRange();
-    this._folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+    this._folderMatchesMap = TernarySearchTree.forUris(
+      (key) => this.uriIdentityService.extUri.ignorePathCasing(key)
+    );
   }
   folderMatches() {
-    return this._otherFilesMatch && this._allowOtherResults ? [
-      ...this._folderMatches,
-      this._otherFilesMatch
-    ] : this._folderMatches;
+    return this._otherFilesMatch && this._allowOtherResults ? [...this._folderMatches, this._otherFilesMatch] : this._folderMatches;
   }
   disposeMatches() {
     this.folderMatches().forEach((folderMatch) => folderMatch.dispose());
     this._folderMatches = [];
-    this._folderMatchesMap = TernarySearchTree.forUris((key) => this.uriIdentityService.extUri.ignorePathCasing(key));
+    this._folderMatchesMap = TernarySearchTree.forUris(
+      (key) => this.uriIdentityService.extUri.ignorePathCasing(key)
+    );
     this._rangeHighlightDecorations.removeHighlightRange();
   }
   matches() {
@@ -197,14 +217,22 @@ let TextSearchHeadingImpl = class extends Disposable {
     return this._rangeHighlightDecorations;
   }
   fileCount() {
-    return this.folderMatches().reduce((prev, match) => prev + match.recursiveFileCount(), 0);
+    return this.folderMatches().reduce(
+      (prev, match) => prev + match.recursiveFileCount(),
+      0
+    );
   }
   count() {
-    return this.matches().reduce((prev, match) => prev + match.count(), 0);
+    return this.matches().reduce(
+      (prev, match) => prev + match.count(),
+      0
+    );
   }
   clear(clearAll = true) {
     this.cachedSearchComplete = void 0;
-    this.folderMatches().forEach((folderMatch) => folderMatch.clear(clearAll));
+    this.folderMatches().forEach(
+      (folderMatch) => folderMatch.clear(clearAll)
+    );
     this.disposeMatches();
     this._folderMatches = [];
     this._otherFilesMatch = null;
@@ -243,12 +271,15 @@ let PlainTextSearchHeadingImpl = class extends TextSearchHeadingImpl {
   replaceAll(progress) {
     this.replacingAll = true;
     const promise = this.replaceService.replace(this.matches(), progress);
-    return promise.then(() => {
-      this.replacingAll = false;
-      this.clear();
-    }, () => {
-      this.replacingAll = false;
-    });
+    return promise.then(
+      () => {
+        this.replacingAll = false;
+        this.clear();
+      },
+      () => {
+        this.replacingAll = false;
+      }
+    );
   }
   set replacingAll(running) {
     this.folderMatches().forEach((folderMatch) => {
@@ -263,27 +294,67 @@ let PlainTextSearchHeadingImpl = class extends TextSearchHeadingImpl {
     if (!query) {
       return;
     }
-    this._folderMatches = (query && query.folderQueries || []).map((fq) => fq.folder).map((resource, index) => this._createBaseFolderMatch(resource, resource.toString(), index, query));
-    this._folderMatches.forEach((fm) => this._folderMatchesMap.set(fm.resource, fm));
-    this._otherFilesMatch = this._createBaseFolderMatch(null, "otherFiles", this._folderMatches.length + 1, query);
+    this._folderMatches = (query?.folderQueries || []).map((fq) => fq.folder).map(
+      (resource, index) => this._createBaseFolderMatch(
+        resource,
+        resource.toString(),
+        index,
+        query
+      )
+    );
+    this._folderMatches.forEach(
+      (fm) => this._folderMatchesMap.set(fm.resource, fm)
+    );
+    this._otherFilesMatch = this._createBaseFolderMatch(
+      null,
+      "otherFiles",
+      this._folderMatches.length + 1,
+      query
+    );
     this._query = query;
   }
   _createBaseFolderMatch(resource, id, index, query) {
     let folderMatch;
     if (resource) {
-      folderMatch = this._register(this.createWorkspaceRootWithResourceImpl(resource, id, index, query));
+      folderMatch = this._register(
+        this.createWorkspaceRootWithResourceImpl(
+          resource,
+          id,
+          index,
+          query
+        )
+      );
     } else {
-      folderMatch = this._register(this.createNoRootWorkspaceImpl(id, index, query));
+      folderMatch = this._register(
+        this.createNoRootWorkspaceImpl(id, index, query)
+      );
     }
-    const disposable = folderMatch.onChange((event) => this._onChange.fire(event));
+    const disposable = folderMatch.onChange(
+      (event) => this._onChange.fire(event)
+    );
     this._register(folderMatch.onDispose(() => disposable.dispose()));
     return folderMatch;
   }
   createWorkspaceRootWithResourceImpl(resource, id, index, query) {
-    return this.instantiationService.createInstance(FolderMatchWorkspaceRootImpl, resource, id, index, query, this);
+    return this.instantiationService.createInstance(
+      FolderMatchWorkspaceRootImpl,
+      resource,
+      id,
+      index,
+      query,
+      this
+    );
   }
   createNoRootWorkspaceImpl(id, index, query) {
-    return this._register(this.instantiationService.createInstance(FolderMatchNoRootImpl, id, index, query, this));
+    return this._register(
+      this.instantiationService.createInstance(
+        FolderMatchNoRootImpl,
+        id,
+        index,
+        query,
+        this
+      )
+    );
   }
 };
 PlainTextSearchHeadingImpl = __decorateClass([

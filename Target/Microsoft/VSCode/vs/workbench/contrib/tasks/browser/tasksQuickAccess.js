@@ -10,22 +10,31 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { IQuickPickSeparator, IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
-import { IPickerQuickAccessItem, PickerQuickAccessProvider, TriggerAction } from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
 import { matchesFuzzy } from "../../../../base/common/filters.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { ITaskService, Task } from "../common/taskService.js";
-import { CustomTask, ContributedTask, ConfiguringTask } from "../common/tasks.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { TaskQuickPick, ITaskTwoLevelQuickPickEntry } from "./taskQuickPick.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { isString } from "../../../../base/common/types.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import {
+  PickerQuickAccessProvider,
+  TriggerAction
+} from "../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import {
+  ConfiguringTask,
+  ContributedTask,
+  CustomTask
+} from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
+import {
+  TaskQuickPick
+} from "./taskQuickPick.js";
 let TasksQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(extensionService, _taskService, _configurationService, _quickInputService, _notificationService, _dialogService, _themeService, _storageService) {
     super(TasksQuickAccessProvider.PREFIX, {
@@ -49,7 +58,15 @@ let TasksQuickAccessProvider = class extends PickerQuickAccessProvider {
     if (token.isCancellationRequested) {
       return [];
     }
-    const taskQuickPick = new TaskQuickPick(this._taskService, this._configurationService, this._quickInputService, this._notificationService, this._themeService, this._dialogService, this._storageService);
+    const taskQuickPick = new TaskQuickPick(
+      this._taskService,
+      this._configurationService,
+      this._quickInputService,
+      this._notificationService,
+      this._themeService,
+      this._dialogService,
+      this._storageService
+    );
     const topLevelPicks = await taskQuickPick.getTopLevelEntries();
     const taskPicks = [];
     for (const entry of topLevelPicks.entries) {
@@ -81,12 +98,23 @@ let TasksQuickAccessProvider = class extends PickerQuickAccessProvider {
       };
       quickAccessEntry.accept = async () => {
         if (isString(task)) {
-          const showResult = await taskQuickPick.show(localize("TaskService.pickRunTask", "Select the task to run"), void 0, task);
+          const showResult = await taskQuickPick.show(
+            localize(
+              "TaskService.pickRunTask",
+              "Select the task to run"
+            ),
+            void 0,
+            task
+          );
           if (showResult) {
-            this._taskService.run(showResult, { attachProblemMatcher: true });
+            this._taskService.run(showResult, {
+              attachProblemMatcher: true
+            });
           }
         } else {
-          this._taskService.run(await this._toTask(task), { attachProblemMatcher: true });
+          this._taskService.run(await this._toTask(task), {
+            attachProblemMatcher: true
+          });
         }
       };
       taskPicks.push(quickAccessEntry);

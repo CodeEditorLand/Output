@@ -12,38 +12,52 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../../base/browser/dom.js";
 import * as domStylesheetsJs from "../../../../../base/browser/domStylesheets.js";
-import { IMouseWheelEvent } from "../../../../../base/browser/mouseEvent.js";
-import { IListRenderer, IListVirtualDelegate, ListError } from "../../../../../base/browser/ui/list/list.js";
-import { IListStyles, IStyleController } from "../../../../../base/browser/ui/list/listWidget.js";
+import { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import {
+  ListError
+} from "../../../../../base/browser/ui/list/list.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
-import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
+import { clamp } from "../../../../../base/common/numbers.js";
 import { isMacintosh } from "../../../../../base/common/platform.js";
-import { ScrollEvent } from "../../../../../base/common/scrollable.js";
-import { Range } from "../../../../../editor/common/core/range.js";
-import { Selection } from "../../../../../editor/common/core/selection.js";
 import { TrackedRangeStickiness } from "../../../../../editor/common/model.js";
 import { PrefixSumComputer } from "../../../../../editor/common/model/prefixSumComputer.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IListService, IWorkbenchListOptions, WorkbenchList } from "../../../../../platform/list/browser/listService.js";
-import { CursorAtBoundary, ICellViewModel, CellEditState, ICellOutputViewModel, CellRevealType, CellRevealRangeType, CursorAtLineBoundary, INotebookViewZoneChangeAccessor, INotebookCellOverlayChangeAccessor } from "../notebookBrowser.js";
-import { CellViewModel, NotebookViewModel } from "../viewModel/notebookViewModelImpl.js";
-import { diff, NOTEBOOK_EDITOR_CURSOR_BOUNDARY, CellKind, SelectionStateType, NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY } from "../../common/notebookCommon.js";
-import { ICellRange, cellRangesToIndexes, reduceCellRanges, cellRangesEqual } from "../../common/notebookRange.js";
-import { NOTEBOOK_CELL_LIST_FOCUSED } from "../../common/notebookContextKeys.js";
-import { clamp } from "../../../../../base/common/numbers.js";
-import { ISplice } from "../../../../../base/common/sequence.js";
-import { BaseCellRenderTemplate, INotebookCellList } from "./notebookRenderingCommon.js";
-import { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
-import { MarkupCellViewModel } from "../viewModel/markupCellViewModel.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IListViewOptions, IListView } from "../../../../../base/browser/ui/list/listView.js";
-import { NotebookCellListView } from "./notebookCellListView.js";
-import { NotebookOptions } from "../notebookOptions.js";
+import {
+  IListService,
+  WorkbenchList
+} from "../../../../../platform/list/browser/listService.js";
+import {
+  CellKind,
+  diff,
+  NOTEBOOK_EDITOR_CURSOR_BOUNDARY,
+  NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY,
+  SelectionStateType
+} from "../../common/notebookCommon.js";
+import { NOTEBOOK_CELL_LIST_FOCUSED } from "../../common/notebookContextKeys.js";
 import { INotebookExecutionStateService } from "../../common/notebookExecutionStateService.js";
-import { NotebookCellAnchor } from "./notebookCellAnchor.js";
-import { NotebookViewZones } from "../viewParts/notebookViewZones.js";
+import {
+  cellRangesEqual,
+  cellRangesToIndexes,
+  reduceCellRanges
+} from "../../common/notebookRange.js";
+import {
+  CellEditState,
+  CellRevealRangeType,
+  CellRevealType,
+  CursorAtBoundary,
+  CursorAtLineBoundary
+} from "../notebookBrowser.js";
+import { MarkupCellViewModel } from "../viewModel/markupCellViewModel.js";
 import { NotebookCellOverlays } from "../viewParts/notebookCellOverlays.js";
+import { NotebookViewZones } from "../viewParts/notebookViewZones.js";
+import { NotebookCellAnchor } from "./notebookCellAnchor.js";
+import { NotebookCellListView } from "./notebookCellListView.js";
 var CellRevealPosition = /* @__PURE__ */ ((CellRevealPosition2) => {
   CellRevealPosition2[CellRevealPosition2["Top"] = 0] = "Top";
   CellRevealPosition2[CellRevealPosition2["Center"] = 1] = "Center";
@@ -60,7 +74,9 @@ function getVisibleCells(cells, hiddenRanges) {
   const result = [];
   while (start < cells.length && hiddenRangeIndex < hiddenRanges.length) {
     if (start < hiddenRanges[hiddenRangeIndex].start) {
-      result.push(...cells.slice(start, hiddenRanges[hiddenRangeIndex].start));
+      result.push(
+        ...cells.slice(start, hiddenRanges[hiddenRangeIndex].start)
+      );
     }
     start = hiddenRanges[hiddenRangeIndex].end + 1;
     hiddenRangeIndex++;
@@ -73,32 +89,52 @@ function getVisibleCells(cells, hiddenRanges) {
 __name(getVisibleCells, "getVisibleCells");
 const NOTEBOOK_WEBVIEW_BOUNDARY = 5e3;
 function validateWebviewBoundary(element) {
-  const webviewTop = 0 - (parseInt(element.style.top, 10) || 0);
+  const webviewTop = 0 - (Number.parseInt(element.style.top, 10) || 0);
   return webviewTop >= 0 && webviewTop <= NOTEBOOK_WEBVIEW_BOUNDARY * 2;
 }
 __name(validateWebviewBoundary, "validateWebviewBoundary");
 let NotebookCellList = class extends WorkbenchList {
   constructor(listUser, container, notebookOptions, delegate, renderers, contextKeyService, options, listService, configurationService, instantiationService, notebookExecutionStateService) {
-    super(listUser, container, delegate, renderers, options, contextKeyService, listService, configurationService, instantiationService);
+    super(
+      listUser,
+      container,
+      delegate,
+      renderers,
+      options,
+      contextKeyService,
+      listService,
+      configurationService,
+      instantiationService
+    );
     this.listUser = listUser;
     this.notebookOptions = notebookOptions;
     NOTEBOOK_CELL_LIST_FOCUSED.bindTo(this.contextKeyService).set(true);
     this._previousFocusedElements = this.getFocusedElements();
-    this._localDisposableStore.add(this.onDidChangeFocus((e) => {
-      this._previousFocusedElements.forEach((element) => {
-        if (e.elements.indexOf(element) < 0) {
-          element.onDeselect();
-        }
-      });
-      this._previousFocusedElements = e.elements;
-    }));
+    this._localDisposableStore.add(
+      this.onDidChangeFocus((e) => {
+        this._previousFocusedElements.forEach((element) => {
+          if (e.elements.indexOf(element) < 0) {
+            element.onDeselect();
+          }
+        });
+        this._previousFocusedElements = e.elements;
+      })
+    );
     const notebookEditorCursorAtBoundaryContext = NOTEBOOK_EDITOR_CURSOR_BOUNDARY.bindTo(contextKeyService);
     notebookEditorCursorAtBoundaryContext.set("none");
     const notebookEditorCursorAtLineBoundaryContext = NOTEBOOK_EDITOR_CURSOR_LINE_BOUNDARY.bindTo(contextKeyService);
     notebookEditorCursorAtLineBoundaryContext.set("none");
-    const cursorSelectionListener = this._localDisposableStore.add(new MutableDisposable());
-    const textEditorAttachListener = this._localDisposableStore.add(new MutableDisposable());
-    this._notebookCellAnchor = new NotebookCellAnchor(notebookExecutionStateService, configurationService, this.onDidScroll);
+    const cursorSelectionListener = this._localDisposableStore.add(
+      new MutableDisposable()
+    );
+    const textEditorAttachListener = this._localDisposableStore.add(
+      new MutableDisposable()
+    );
+    this._notebookCellAnchor = new NotebookCellAnchor(
+      notebookExecutionStateService,
+      configurationService,
+      this.onDidScroll
+    );
     const recomputeContext = /* @__PURE__ */ __name((element) => {
       switch (element.cursorAtBoundary()) {
         case CursorAtBoundary.Both:
@@ -130,24 +166,26 @@ let NotebookCellList = class extends WorkbenchList {
       }
       return;
     }, "recomputeContext");
-    this._localDisposableStore.add(this.onDidChangeFocus((e) => {
-      if (e.elements.length) {
-        const focusedElement = e.elements[0];
-        cursorSelectionListener.value = focusedElement.onDidChangeState((e2) => {
-          if (e2.selectionChanged) {
-            recomputeContext(focusedElement);
-          }
-        });
-        textEditorAttachListener.value = focusedElement.onDidChangeEditorAttachState(() => {
-          if (focusedElement.editorAttached) {
-            recomputeContext(focusedElement);
-          }
-        });
-        recomputeContext(focusedElement);
-        return;
-      }
-      notebookEditorCursorAtBoundaryContext.set("none");
-    }));
+    this._localDisposableStore.add(
+      this.onDidChangeFocus((e) => {
+        if (e.elements.length) {
+          const focusedElement = e.elements[0];
+          cursorSelectionListener.value = focusedElement.onDidChangeState((e2) => {
+            if (e2.selectionChanged) {
+              recomputeContext(focusedElement);
+            }
+          });
+          textEditorAttachListener.value = focusedElement.onDidChangeEditorAttachState(() => {
+            if (focusedElement.editorAttached) {
+              recomputeContext(focusedElement);
+            }
+          });
+          recomputeContext(focusedElement);
+          return;
+        }
+        notebookEditorCursorAtBoundaryContext.set("none");
+      })
+    );
     const updateVisibleRanges = /* @__PURE__ */ __name(() => {
       if (!this.view.length) {
         return;
@@ -157,34 +195,59 @@ let NotebookCellList = class extends WorkbenchList {
       if (top >= bottom) {
         return;
       }
-      const topViewIndex = clamp(this.view.indexAt(top), 0, this.view.length - 1);
+      const topViewIndex = clamp(
+        this.view.indexAt(top),
+        0,
+        this.view.length - 1
+      );
       const topElement = this.view.element(topViewIndex);
-      const topModelIndex = this._viewModel.getCellIndex(topElement);
-      const bottomViewIndex = clamp(this.view.indexAt(bottom), 0, this.view.length - 1);
+      const topModelIndex = this._viewModel?.getCellIndex(topElement);
+      const bottomViewIndex = clamp(
+        this.view.indexAt(bottom),
+        0,
+        this.view.length - 1
+      );
       const bottomElement = this.view.element(bottomViewIndex);
-      const bottomModelIndex = this._viewModel.getCellIndex(bottomElement);
+      const bottomModelIndex = this._viewModel?.getCellIndex(bottomElement);
       if (bottomModelIndex - topModelIndex === bottomViewIndex - topViewIndex) {
-        this.visibleRanges = [{ start: topModelIndex, end: bottomModelIndex + 1 }];
+        this.visibleRanges = [
+          { start: topModelIndex, end: bottomModelIndex + 1 }
+        ];
       } else {
-        this.visibleRanges = this._getVisibleRangesFromIndex(topViewIndex, topModelIndex, bottomViewIndex, bottomModelIndex);
+        this.visibleRanges = this._getVisibleRangesFromIndex(
+          topViewIndex,
+          topModelIndex,
+          bottomViewIndex,
+          bottomModelIndex
+        );
       }
     }, "updateVisibleRanges");
-    this._localDisposableStore.add(this.view.onDidChangeContentHeight(() => {
-      if (this._isInLayout) {
-        DOM.scheduleAtNextAnimationFrame(DOM.getWindow(container), () => {
-          updateVisibleRanges();
-        });
-      }
-      updateVisibleRanges();
-    }));
-    this._localDisposableStore.add(this.view.onDidScroll(() => {
-      if (this._isInLayout) {
-        DOM.scheduleAtNextAnimationFrame(DOM.getWindow(container), () => {
-          updateVisibleRanges();
-        });
-      }
-      updateVisibleRanges();
-    }));
+    this._localDisposableStore.add(
+      this.view.onDidChangeContentHeight(() => {
+        if (this._isInLayout) {
+          DOM.scheduleAtNextAnimationFrame(
+            DOM.getWindow(container),
+            () => {
+              updateVisibleRanges();
+            }
+          );
+        }
+        updateVisibleRanges();
+      })
+    );
+    this._localDisposableStore.add(
+      this.view.onDidScroll(() => {
+        if (this._isInLayout) {
+          DOM.scheduleAtNextAnimationFrame(
+            DOM.getWindow(container),
+            () => {
+              updateVisibleRanges();
+            }
+          );
+        }
+        updateVisibleRanges();
+      })
+    );
   }
   static {
     __name(this, "NotebookCellList");
@@ -206,11 +269,17 @@ let NotebookCellList = class extends WorkbenchList {
   _viewModelStore = new DisposableStore();
   styleElement;
   _notebookCellAnchor;
-  _onDidRemoveOutputs = this._localDisposableStore.add(new Emitter());
+  _onDidRemoveOutputs = this._localDisposableStore.add(
+    new Emitter()
+  );
   onDidRemoveOutputs = this._onDidRemoveOutputs.event;
-  _onDidHideOutputs = this._localDisposableStore.add(new Emitter());
+  _onDidHideOutputs = this._localDisposableStore.add(
+    new Emitter()
+  );
   onDidHideOutputs = this._onDidHideOutputs.event;
-  _onDidRemoveCellsFromView = this._localDisposableStore.add(new Emitter());
+  _onDidRemoveCellsFromView = this._localDisposableStore.add(
+    new Emitter()
+  );
   onDidRemoveCellsFromView = this._onDidRemoveCellsFromView.event;
   _viewModel = null;
   get viewModel() {
@@ -218,7 +287,9 @@ let NotebookCellList = class extends WorkbenchList {
   }
   _hiddenRangeIds = [];
   hiddenRangesPrefixSum = null;
-  _onDidChangeVisibleRanges = this._localDisposableStore.add(new Emitter());
+  _onDidChangeVisibleRanges = this._localDisposableStore.add(
+    new Emitter()
+  );
   onDidChangeVisibleRanges = this._onDidChangeVisibleRanges.event;
   _visibleRanges = [];
   get visibleRanges() {
@@ -244,7 +315,12 @@ let NotebookCellList = class extends WorkbenchList {
     return this.view.inRenderingTransaction;
   }
   createListView(container, virtualDelegate, renderers, viewOptions) {
-    const listView = new NotebookCellListView(container, virtualDelegate, renderers, viewOptions);
+    const listView = new NotebookCellListView(
+      container,
+      virtualDelegate,
+      renderers,
+      viewOptions
+    );
     this.viewZones = new NotebookViewZones(listView, this);
     this.cellOverlays = new NotebookCellOverlays(listView);
     return listView;
@@ -283,51 +359,72 @@ let NotebookCellList = class extends WorkbenchList {
   }
   attachViewModel(model) {
     this._viewModel = model;
-    this._viewModelStore.add(model.onDidChangeViewCells((e) => {
-      if (this._isDisposed) {
-        return;
-      }
-      this.viewZones.onCellsChanged(e);
-      this.cellOverlays.onCellsChanged(e);
-      const currentRanges = this._hiddenRangeIds.map((id) => this._viewModel.getTrackedRange(id)).filter((range) => range !== null);
-      const newVisibleViewCells = getVisibleCells(this._viewModel.viewCells, currentRanges);
-      const oldVisibleViewCells = [];
-      const oldViewCellMapping = /* @__PURE__ */ new Set();
-      for (let i = 0; i < this.length; i++) {
-        oldVisibleViewCells.push(this.element(i));
-        oldViewCellMapping.add(this.element(i).uri.toString());
-      }
-      const viewDiffs = diff(oldVisibleViewCells, newVisibleViewCells, (a) => {
-        return oldViewCellMapping.has(a.uri.toString());
-      });
-      if (e.synchronous) {
-        this._updateElementsInWebview(viewDiffs);
-      } else {
-        this._viewModelStore.add(DOM.scheduleAtNextAnimationFrame(DOM.getWindow(this.rowsContainer), () => {
-          if (this._isDisposed) {
-            return;
+    this._viewModelStore.add(
+      model.onDidChangeViewCells((e) => {
+        if (this._isDisposed) {
+          return;
+        }
+        this.viewZones.onCellsChanged(e);
+        this.cellOverlays.onCellsChanged(e);
+        const currentRanges = this._hiddenRangeIds.map((id) => this._viewModel?.getTrackedRange(id)).filter((range) => range !== null);
+        const newVisibleViewCells = getVisibleCells(
+          this._viewModel?.viewCells,
+          currentRanges
+        );
+        const oldVisibleViewCells = [];
+        const oldViewCellMapping = /* @__PURE__ */ new Set();
+        for (let i = 0; i < this.length; i++) {
+          oldVisibleViewCells.push(this.element(i));
+          oldViewCellMapping.add(this.element(i).uri.toString());
+        }
+        const viewDiffs = diff(
+          oldVisibleViewCells,
+          newVisibleViewCells,
+          (a) => {
+            return oldViewCellMapping.has(a.uri.toString());
           }
+        );
+        if (e.synchronous) {
           this._updateElementsInWebview(viewDiffs);
-        }));
-      }
-    }));
-    this._viewModelStore.add(model.onDidChangeSelection((e) => {
-      if (e === "view") {
-        return;
-      }
-      const viewSelections = cellRangesToIndexes(model.getSelections()).map((index) => model.cellAt(index)).filter((cell) => !!cell).map((cell) => this._getViewIndexUpperBound(cell));
-      this.setSelection(viewSelections, void 0, true);
-      const primary = cellRangesToIndexes([model.getFocus()]).map((index) => model.cellAt(index)).filter((cell) => !!cell).map((cell) => this._getViewIndexUpperBound(cell));
-      if (primary.length) {
-        this.setFocus(primary, void 0, true);
-      }
-    }));
+        } else {
+          this._viewModelStore.add(
+            DOM.scheduleAtNextAnimationFrame(
+              DOM.getWindow(this.rowsContainer),
+              () => {
+                if (this._isDisposed) {
+                  return;
+                }
+                this._updateElementsInWebview(viewDiffs);
+              }
+            )
+          );
+        }
+      })
+    );
+    this._viewModelStore.add(
+      model.onDidChangeSelection((e) => {
+        if (e === "view") {
+          return;
+        }
+        const viewSelections = cellRangesToIndexes(
+          model.getSelections()
+        ).map((index) => model.cellAt(index)).filter((cell) => !!cell).map((cell) => this._getViewIndexUpperBound(cell));
+        this.setSelection(viewSelections, void 0, true);
+        const primary = cellRangesToIndexes([model.getFocus()]).map((index) => model.cellAt(index)).filter((cell) => !!cell).map((cell) => this._getViewIndexUpperBound(cell));
+        if (primary.length) {
+          this.setFocus(primary, void 0, true);
+        }
+      })
+    );
     const hiddenRanges = model.getHiddenRanges();
     this.setHiddenAreas(hiddenRanges, false);
     const newRanges = reduceCellRanges(hiddenRanges);
     const viewCells = model.viewCells.slice(0);
     newRanges.reverse().forEach((range) => {
-      const removedCells = viewCells.splice(range.start, range.end - range.start + 1);
+      const removedCells = viewCells.splice(
+        range.start,
+        range.end - range.start + 1
+      );
       this._onDidRemoveCellsFromView.fire(removedCells);
     });
     this.splice2(0, 0, viewCells);
@@ -340,7 +437,7 @@ let NotebookCellList = class extends WorkbenchList {
       for (let i = diff2.start; i < diff2.start + diff2.deleteCount; i++) {
         const cell = this.element(i);
         if (cell.cellKind === CellKind.Code) {
-          if (this._viewModel.hasCell(cell)) {
+          if (this._viewModel?.hasCell(cell)) {
             hiddenOutputs.push(...cell?.outputsViewModels);
           } else {
             deletedOutputs.push(...cell?.outputsViewModels);
@@ -363,7 +460,7 @@ let NotebookCellList = class extends WorkbenchList {
       return false;
     }
     const newRanges = reduceCellRanges(_ranges);
-    const oldRanges = this._hiddenRangeIds.map((id) => this._viewModel.getTrackedRange(id)).filter((range) => range !== null);
+    const oldRanges = this._hiddenRangeIds.map((id) => this._viewModel?.getTrackedRange(id)).filter((range) => range !== null);
     if (newRanges.length === oldRanges.length) {
       let hasDifference = false;
       for (let i = 0; i < newRanges.length; i++) {
@@ -381,8 +478,20 @@ let NotebookCellList = class extends WorkbenchList {
         return false;
       }
     }
-    this._hiddenRangeIds.forEach((id) => this._viewModel.setTrackedRange(id, null, TrackedRangeStickiness.GrowsOnlyWhenTypingAfter));
-    const hiddenAreaIds = newRanges.map((range) => this._viewModel.setTrackedRange(null, range, TrackedRangeStickiness.GrowsOnlyWhenTypingAfter)).filter((id) => id !== null);
+    this._hiddenRangeIds.forEach(
+      (id) => this._viewModel?.setTrackedRange(
+        id,
+        null,
+        TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
+      )
+    );
+    const hiddenAreaIds = newRanges.map(
+      (range) => this._viewModel?.setTrackedRange(
+        null,
+        range,
+        TrackedRangeStickiness.GrowsOnlyWhenTypingAfter
+      )
+    ).filter((id) => id !== null);
     this._hiddenRangeIds = hiddenAreaIds;
     this._updateHiddenRangePrefixSum(newRanges);
     this.viewZones.onHiddenRangesChange();
@@ -406,7 +515,7 @@ let NotebookCellList = class extends WorkbenchList {
       start = newRanges[index].end + 1;
       index++;
     }
-    for (let i = start; i < this._viewModel.length; i++) {
+    for (let i = start; i < this._viewModel?.length; i++) {
       ret.push(1);
     }
     const values = new Uint32Array(ret.length);
@@ -419,15 +528,25 @@ let NotebookCellList = class extends WorkbenchList {
    * oldRanges and newRanges are all reduced and sorted.
    */
   updateHiddenAreasInView(oldRanges, newRanges) {
-    const oldViewCellEntries = getVisibleCells(this._viewModel.viewCells, oldRanges);
+    const oldViewCellEntries = getVisibleCells(
+      this._viewModel?.viewCells,
+      oldRanges
+    );
     const oldViewCellMapping = /* @__PURE__ */ new Set();
     oldViewCellEntries.forEach((cell) => {
       oldViewCellMapping.add(cell.uri.toString());
     });
-    const newViewCellEntries = getVisibleCells(this._viewModel.viewCells, newRanges);
-    const viewDiffs = diff(oldViewCellEntries, newViewCellEntries, (a) => {
-      return oldViewCellMapping.has(a.uri.toString());
-    });
+    const newViewCellEntries = getVisibleCells(
+      this._viewModel?.viewCells,
+      newRanges
+    );
+    const viewDiffs = diff(
+      oldViewCellEntries,
+      newViewCellEntries,
+      (a) => {
+        return oldViewCellMapping.has(a.uri.toString());
+      }
+    );
     this._updateElementsInWebview(viewDiffs);
   }
   splice2(start, deleteCount, elements = []) {
@@ -441,12 +560,16 @@ let NotebookCellList = class extends WorkbenchList {
     }
     const selectionsLeft = [];
     this.getSelectedElements().forEach((el) => {
-      if (this._viewModel.hasCell(el)) {
+      if (this._viewModel?.hasCell(el)) {
         selectionsLeft.push(el.handle);
       }
     });
-    if (!selectionsLeft.length && this._viewModel.viewCells.length) {
-      this._viewModel.updateSelectionsState({ kind: SelectionStateType.Index, focus: { start: 0, end: 1 }, selections: [{ start: 0, end: 1 }] });
+    if (!selectionsLeft.length && this._viewModel?.viewCells.length) {
+      this._viewModel?.updateSelectionsState({
+        kind: SelectionStateType.Index,
+        focus: { start: 0, end: 1 },
+        selections: [{ start: 0, end: 1 }]
+      });
     }
     this.viewZones.layout();
     this.cellOverlays.layout();
@@ -459,11 +582,13 @@ let NotebookCellList = class extends WorkbenchList {
     if (!this.hiddenRangesPrefixSum) {
       return viewIndex;
     }
-    const modelIndex = this.hiddenRangesPrefixSum.getPrefixSum(viewIndex - 1);
+    const modelIndex = this.hiddenRangesPrefixSum.getPrefixSum(
+      viewIndex - 1
+    );
     return modelIndex;
   }
   getViewIndex(cell) {
-    const modelIndex = this._viewModel.getCellIndex(cell);
+    const modelIndex = this._viewModel?.getCellIndex(cell);
     return this.getViewIndex2(modelIndex);
   }
   getViewIndex2(modelIndex) {
@@ -485,7 +610,10 @@ let NotebookCellList = class extends WorkbenchList {
       return modelIndex;
     }
     if (modelIndex >= this.hiddenRangesPrefixSum.getTotalSum()) {
-      return Math.min(this.length, this.hiddenRangesPrefixSum.getTotalSum());
+      return Math.min(
+        this.length,
+        this.hiddenRangesPrefixSum.getTotalSum()
+      );
     }
     return this.hiddenRangesPrefixSum.getIndexOf(modelIndex).index;
   }
@@ -509,13 +637,19 @@ let NotebookCellList = class extends WorkbenchList {
     let index = topViewIndex;
     let modelIndex = topModelIndex;
     while (index <= bottomViewIndex) {
-      const accu = this.hiddenRangesPrefixSum.getPrefixSum(index);
+      const accu = this.hiddenRangesPrefixSum?.getPrefixSum(index);
       if (accu === modelIndex + 1) {
         if (stack.length) {
           if (stack[stack.length - 1] === modelIndex - 1) {
-            ranges.push({ start: stack[stack.length - 1], end: modelIndex + 1 });
+            ranges.push({
+              start: stack[stack.length - 1],
+              end: modelIndex + 1
+            });
           } else {
-            ranges.push({ start: stack[stack.length - 1], end: stack[stack.length - 1] + 1 });
+            ranges.push({
+              start: stack[stack.length - 1],
+              end: stack[stack.length - 1] + 1
+            });
           }
         }
         stack.push(modelIndex);
@@ -524,9 +658,15 @@ let NotebookCellList = class extends WorkbenchList {
       } else {
         if (stack.length) {
           if (stack[stack.length - 1] === modelIndex - 1) {
-            ranges.push({ start: stack[stack.length - 1], end: modelIndex + 1 });
+            ranges.push({
+              start: stack[stack.length - 1],
+              end: modelIndex + 1
+            });
           } else {
-            ranges.push({ start: stack[stack.length - 1], end: stack[stack.length - 1] + 1 });
+            ranges.push({
+              start: stack[stack.length - 1],
+              end: stack[stack.length - 1] + 1
+            });
           }
         }
         stack.push(modelIndex);
@@ -535,7 +675,10 @@ let NotebookCellList = class extends WorkbenchList {
       }
     }
     if (stack.length) {
-      ranges.push({ start: stack[stack.length - 1], end: stack[stack.length - 1] + 1 });
+      ranges.push({
+        start: stack[stack.length - 1],
+        end: stack[stack.length - 1] + 1
+      });
     }
     return reduceCellRanges(ranges);
   }
@@ -546,15 +689,28 @@ let NotebookCellList = class extends WorkbenchList {
     const top = Math.max(this.getViewScrollTop() - this.renderHeight, 0);
     const topViewIndex = this.view.indexAt(top);
     const topElement = this.view.element(topViewIndex);
-    const topModelIndex = this._viewModel.getCellIndex(topElement);
-    const bottom = clamp(this.getViewScrollBottom() + this.renderHeight, 0, this.scrollHeight);
-    const bottomViewIndex = clamp(this.view.indexAt(bottom), 0, this.view.length - 1);
+    const topModelIndex = this._viewModel?.getCellIndex(topElement);
+    const bottom = clamp(
+      this.getViewScrollBottom() + this.renderHeight,
+      0,
+      this.scrollHeight
+    );
+    const bottomViewIndex = clamp(
+      this.view.indexAt(bottom),
+      0,
+      this.view.length - 1
+    );
     const bottomElement = this.view.element(bottomViewIndex);
-    const bottomModelIndex = this._viewModel.getCellIndex(bottomElement);
+    const bottomModelIndex = this._viewModel?.getCellIndex(bottomElement);
     if (bottomModelIndex - topModelIndex === bottomViewIndex - topViewIndex) {
       return [{ start: topModelIndex, end: bottomModelIndex }];
     } else {
-      return this._getVisibleRangesFromIndex(topViewIndex, topModelIndex, bottomViewIndex, bottomModelIndex);
+      return this._getVisibleRangesFromIndex(
+        topViewIndex,
+        topModelIndex,
+        bottomViewIndex,
+        bottomModelIndex
+      );
     }
   }
   _getViewIndexUpperBound(cell) {
@@ -592,11 +748,14 @@ let NotebookCellList = class extends WorkbenchList {
     const index = this._getViewIndexUpperBound(cell);
     if (index >= 0 && this._viewModel) {
       const focusedElementHandle = this.element(index).handle;
-      this._viewModel.updateSelectionsState({
-        kind: SelectionStateType.Handle,
-        primary: focusedElementHandle,
-        selections: [focusedElementHandle]
-      }, "view");
+      this._viewModel.updateSelectionsState(
+        {
+          kind: SelectionStateType.Handle,
+          primary: focusedElementHandle,
+          selections: [focusedElementHandle]
+        },
+        "view"
+      );
       this.setFocus([index], void 0, false);
     }
   }
@@ -630,20 +789,28 @@ let NotebookCellList = class extends WorkbenchList {
         if (this.length) {
           return;
         }
-        this._viewModel.updateSelectionsState({
-          kind: SelectionStateType.Handle,
-          primary: null,
-          selections: []
-        }, "view");
+        this._viewModel.updateSelectionsState(
+          {
+            kind: SelectionStateType.Handle,
+            primary: null,
+            selections: []
+          },
+          "view"
+        );
       }
     } else {
       if (this._viewModel) {
         const focusedElementHandle = this.element(indexes[0]).handle;
-        this._viewModel.updateSelectionsState({
-          kind: SelectionStateType.Handle,
-          primary: focusedElementHandle,
-          selections: this.getSelection().map((selection) => this.element(selection).handle)
-        }, "view");
+        this._viewModel.updateSelectionsState(
+          {
+            kind: SelectionStateType.Handle,
+            primary: focusedElementHandle,
+            selections: this.getSelection().map(
+              (selection) => this.element(selection).handle
+            )
+          },
+          "view"
+        );
       }
     }
     super.setFocus(indexes, browserEvent);
@@ -655,19 +822,25 @@ let NotebookCellList = class extends WorkbenchList {
     }
     if (!indexes.length) {
       if (this._viewModel) {
-        this._viewModel.updateSelectionsState({
-          kind: SelectionStateType.Handle,
-          primary: this.getFocusedElements()[0]?.handle ?? null,
-          selections: []
-        }, "view");
+        this._viewModel.updateSelectionsState(
+          {
+            kind: SelectionStateType.Handle,
+            primary: this.getFocusedElements()[0]?.handle ?? null,
+            selections: []
+          },
+          "view"
+        );
       }
     } else {
       if (this._viewModel) {
-        this._viewModel.updateSelectionsState({
-          kind: SelectionStateType.Handle,
-          primary: this.getFocusedElements()[0]?.handle ?? null,
-          selections: indexes.map((index) => this.element(index)).map((cell) => cell.handle)
-        }, "view");
+        this._viewModel.updateSelectionsState(
+          {
+            kind: SelectionStateType.Handle,
+            primary: this.getFocusedElements()[0]?.handle ?? null,
+            selections: indexes.map((index) => this.element(index)).map((cell) => cell.handle)
+          },
+          "view"
+        );
       }
     }
     super.setSelection(indexes, browserEvent);
@@ -691,13 +864,23 @@ let NotebookCellList = class extends WorkbenchList {
         return;
       }
       if (endElementTop >= wrapperBottom) {
-        return this._revealInternal(endIndex, false, 2 /* Bottom */);
+        return this._revealInternal(
+          endIndex,
+          false,
+          2 /* Bottom */
+        );
       }
       if (endElementTop < wrapperBottom) {
         if (endElementTop + endElementHeight - wrapperBottom < elementTop - scrollTop) {
-          return this.view.setScrollTop(scrollTop + endElementTop + endElementHeight - wrapperBottom);
+          return this.view.setScrollTop(
+            scrollTop + endElementTop + endElementHeight - wrapperBottom
+          );
         } else {
-          return this._revealInternal(startIndex, false, 0 /* Top */);
+          return this._revealInternal(
+            startIndex,
+            false,
+            0 /* Top */
+          );
         }
       }
     }
@@ -709,7 +892,12 @@ let NotebookCellList = class extends WorkbenchList {
     if (viewIndex <= firstIndex || !firstLine && elementHeight >= this.view.renderHeight) {
       this._revealInternal(viewIndex, true, 0 /* Top */);
     } else {
-      this._revealInternal(viewIndex, true, 2 /* Bottom */, firstLine);
+      this._revealInternal(
+        viewIndex,
+        true,
+        2 /* Bottom */,
+        firstLine
+      );
     }
   }
   scrollToBottom() {
@@ -750,7 +938,8 @@ let NotebookCellList = class extends WorkbenchList {
     }
     if (
       // wait for the editor to be created if the cell is in editing mode
-      (cell.getEditState() === CellEditState.Editing || revealType === CellRevealType.FirstLineIfOutsideViewport && cell.cellKind === CellKind.Code) && !cell.editorAttached
+      (cell.getEditState() === CellEditState.Editing || // wait for the editor to be created if we are revealing the first line of the cell
+      revealType === CellRevealType.FirstLineIfOutsideViewport && cell.cellKind === CellKind.Code) && !cell.editorAttached
     ) {
       return getEditorAttachedPromise(cell);
     }
@@ -777,16 +966,22 @@ let NotebookCellList = class extends WorkbenchList {
       case 1 /* Center */:
       case 3 /* NearTop */:
         {
-          this.view.setScrollTop(elementTop - this.view.renderHeight / 2);
+          this.view.setScrollTop(
+            elementTop - this.view.renderHeight / 2
+          );
           const newElementTop = this.view.elementTop(viewIndex);
           const newElementHeight = this.view.elementHeight(viewIndex);
           const renderHeight = this.getViewScrollBottom() - this.getViewScrollTop();
           if (newElementHeight >= renderHeight) {
             this.view.setScrollTop(newElementTop);
           } else if (revealPosition === 1 /* Center */) {
-            this.view.setScrollTop(newElementTop + newElementHeight / 2 - renderHeight / 2);
+            this.view.setScrollTop(
+              newElementTop + newElementHeight / 2 - renderHeight / 2
+            );
           } else if (revealPosition === 3 /* NearTop */) {
-            this.view.setScrollTop(newElementTop - renderHeight / 5);
+            this.view.setScrollTop(
+              newElementTop - renderHeight / 5
+            );
           }
         }
         break;
@@ -798,11 +993,17 @@ let NotebookCellList = class extends WorkbenchList {
           if (firstLineLocation < wrapperBottom) {
             return;
           }
-          this.view.setScrollTop(this.scrollTop + (firstLineLocation - wrapperBottom));
+          this.view.setScrollTop(
+            this.scrollTop + (firstLineLocation - wrapperBottom)
+          );
           break;
         }
-        this.view.setScrollTop(this.scrollTop + (elementBottom - wrapperBottom));
-        this.view.setScrollTop(this.scrollTop + (this.view.elementTop(viewIndex) + this.view.elementHeight(viewIndex) - this.getViewScrollBottom()));
+        this.view.setScrollTop(
+          this.scrollTop + (elementBottom - wrapperBottom)
+        );
+        this.view.setScrollTop(
+          this.scrollTop + (this.view.elementTop(viewIndex) + this.view.elementHeight(viewIndex) - this.getViewScrollBottom())
+        );
         break;
       default:
         break;
@@ -820,7 +1021,10 @@ let NotebookCellList = class extends WorkbenchList {
       case CellRevealRangeType.Center:
         return this._revealRangeInCenterInternalAsync(index, range);
       case CellRevealRangeType.CenterIfOutsideViewport:
-        return this._revealRangeInCenterIfOutsideViewportInternalAsync(index, range);
+        return this._revealRangeInCenterIfOutsideViewportInternalAsync(
+          index,
+          range
+        );
     }
   }
   // List items have real dynamic heights, which means after we set `scrollTop` based on the `elementTop(index)`, the element at `index` might still be removed from the view once all relayouting tasks are done.
@@ -843,11 +1047,13 @@ let NotebookCellList = class extends WorkbenchList {
         this.view.setScrollTop(elementTop - this.view.renderHeight / 2);
         alignHint = "bottom";
       }
-      const editorAttachedPromise = new Promise((resolve, reject) => {
-        Event.once(element.onDidChangeEditorAttachState)(() => {
-          element.editorAttached ? resolve() : reject();
-        });
-      });
+      const editorAttachedPromise = new Promise(
+        (resolve, reject) => {
+          Event.once(element.onDidChangeEditorAttachState)(() => {
+            element.editorAttached ? resolve() : reject();
+          });
+        }
+      );
       return editorAttachedPromise.then(() => {
         this._revealRangeCommon(viewIndex, range, alignHint);
       });
@@ -858,7 +1064,9 @@ let NotebookCellList = class extends WorkbenchList {
       const element2 = this.view.element(viewIndex2);
       const positionOffset = element2.getPositionScrollTopOffset(range2);
       const positionOffsetInView = this.view.elementTop(viewIndex2) + positionOffset;
-      this.view.setScrollTop(positionOffsetInView - this.view.renderHeight / 2);
+      this.view.setScrollTop(
+        positionOffsetInView - this.view.renderHeight / 2
+      );
       element2.revealRangeInCenter(range2);
     }, "reveal");
     const elementTop = this.view.elementTop(viewIndex);
@@ -866,7 +1074,9 @@ let NotebookCellList = class extends WorkbenchList {
     this.view.setScrollTop(viewItemOffset - this.view.renderHeight / 2);
     const element = this.view.element(viewIndex);
     if (!element.editorAttached) {
-      return getEditorAttachedPromise(element).then(() => reveal(viewIndex, range));
+      return getEditorAttachedPromise(element).then(
+        () => reveal(viewIndex, range)
+      );
     } else {
       reveal(viewIndex, range);
     }
@@ -876,7 +1086,9 @@ let NotebookCellList = class extends WorkbenchList {
       const element2 = this.view.element(viewIndex2);
       const positionOffset2 = element2.getPositionScrollTopOffset(range2);
       const positionOffsetInView = this.view.elementTop(viewIndex2) + positionOffset2;
-      this.view.setScrollTop(positionOffsetInView - this.view.renderHeight / 2);
+      this.view.setScrollTop(
+        positionOffsetInView - this.view.renderHeight / 2
+      );
       element2.revealRangeInCenter(range2);
     }, "reveal");
     const scrollTop = this.getViewScrollTop();
@@ -888,16 +1100,22 @@ let NotebookCellList = class extends WorkbenchList {
     if (positionOffset < scrollTop || positionOffset > wrapperBottom) {
       this.view.setScrollTop(positionOffset - this.view.renderHeight / 2);
       const newPositionOffset = this.view.elementTop(viewIndex) + element.getPositionScrollTopOffset(range);
-      this.view.setScrollTop(newPositionOffset - this.view.renderHeight / 2);
+      this.view.setScrollTop(
+        newPositionOffset - this.view.renderHeight / 2
+      );
       if (!element.editorAttached) {
-        return getEditorAttachedPromise(element).then(() => reveal(viewIndex, range));
+        return getEditorAttachedPromise(element).then(
+          () => reveal(viewIndex, range)
+        );
       } else {
       }
     } else {
       if (element.editorAttached) {
         element.revealRangeInCenter(range);
       } else {
-        return getEditorAttachedPromise(element).then(() => reveal(viewIndex, range));
+        return getEditorAttachedPromise(element).then(
+          () => reveal(viewIndex, range)
+        );
       }
     }
   }
@@ -916,9 +1134,13 @@ let NotebookCellList = class extends WorkbenchList {
     if (positionTop < scrollTop) {
       this.view.setScrollTop(positionTop - 30);
     } else if (positionTop > wrapperBottom) {
-      this.view.setScrollTop(scrollTop + positionTop - wrapperBottom + 30);
+      this.view.setScrollTop(
+        scrollTop + positionTop - wrapperBottom + 30
+      );
     } else if (alignHint === "bottom") {
-      this.view.setScrollTop(scrollTop + positionTop - wrapperBottom + 30);
+      this.view.setScrollTop(
+        scrollTop + positionTop - wrapperBottom + 30
+      );
     } else if (alignHint === "top") {
       this.view.setScrollTop(positionTop - 30);
     }
@@ -938,7 +1160,9 @@ let NotebookCellList = class extends WorkbenchList {
       } else {
         const rangeOffset = element.layoutInfo.outputContainerOffset + Math.min(offset, element.layoutInfo.outputTotalHeight);
         this.view.setScrollTop(elementTop - this.view.renderHeight / 2);
-        this.view.setScrollTop(elementTop + rangeOffset - this.view.renderHeight / 2);
+        this.view.setScrollTop(
+          elementTop + rangeOffset - this.view.renderHeight / 2
+        );
       }
     }
   }
@@ -984,11 +1208,16 @@ let NotebookCellList = class extends WorkbenchList {
       const delta = oldHeight - size;
       if (this._webviewElement) {
         Event.once(this.view.onWillScroll)(() => {
-          const webviewTop = parseInt(this._webviewElement.domNode.style.top, 10);
-          if (validateWebviewBoundary(this._webviewElement.domNode)) {
-            this._webviewElement.setTop(webviewTop - delta);
+          const webviewTop = Number.parseInt(
+            this._webviewElement?.domNode.style.top,
+            10
+          );
+          if (validateWebviewBoundary(this._webviewElement?.domNode)) {
+            this._webviewElement?.setTop(webviewTop - delta);
           } else {
-            this._webviewElement.setTop(-NOTEBOOK_WEBVIEW_BOUNDARY);
+            this._webviewElement?.setTop(
+              -NOTEBOOK_WEBVIEW_BOUNDARY
+            );
           }
         });
       }
@@ -1007,7 +1236,12 @@ let NotebookCellList = class extends WorkbenchList {
     const focus = focused.length ? focused[0] : null;
     if (focus) {
       const heightDelta = size - this.view.elementHeight(index);
-      if (this._notebookCellAnchor.shouldAnchor(this.view, focus, heightDelta, this.element(index))) {
+      if (this._notebookCellAnchor.shouldAnchor(
+        this.view,
+        focus,
+        heightDelta,
+        this.element(index)
+      )) {
         this.view.updateElementHeight(index, size, focus);
         this.viewZones.layout();
         this.cellOverlays.layout();
@@ -1036,21 +1270,29 @@ let NotebookCellList = class extends WorkbenchList {
   domFocus() {
     const focused = this.getFocusedElements()[0];
     const focusedDomElement = focused && this.domElementOfElement(focused);
-    if (this.view.domNode.ownerDocument.activeElement && focusedDomElement && focusedDomElement.contains(this.view.domNode.ownerDocument.activeElement)) {
+    if (this.view.domNode.ownerDocument.activeElement && focusedDomElement && focusedDomElement.contains(
+      this.view.domNode.ownerDocument.activeElement
+    )) {
       return;
     }
-    if (!isMacintosh && this.view.domNode.ownerDocument.activeElement && !!DOM.findParentWithClass(this.view.domNode.ownerDocument.activeElement, "context-view")) {
+    if (!isMacintosh && this.view.domNode.ownerDocument.activeElement && !!DOM.findParentWithClass(
+      this.view.domNode.ownerDocument.activeElement,
+      "context-view"
+    )) {
       return;
     }
     super.domFocus();
   }
   focusContainer(clearSelection) {
     if (clearSelection) {
-      this._viewModel?.updateSelectionsState({
-        kind: SelectionStateType.Handle,
-        primary: null,
-        selections: []
-      }, "view");
+      this._viewModel?.updateSelectionsState(
+        {
+          kind: SelectionStateType.Handle,
+          primary: null,
+          selections: []
+        },
+        "view"
+      );
       this.setFocus([], void 0, true);
       this.setSelection([], void 0, true);
     }
@@ -1075,26 +1317,42 @@ let NotebookCellList = class extends WorkbenchList {
   style(styles) {
     const selectorSuffix = this.view.domId;
     if (!this.styleElement) {
-      this.styleElement = domStylesheetsJs.createStyleSheet(this.view.domNode);
+      this.styleElement = domStylesheetsJs.createStyleSheet(
+        this.view.domNode
+      );
     }
     const suffix = selectorSuffix && `.${selectorSuffix}`;
     const content = [];
     if (styles.listBackground) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows { background: ${styles.listBackground}; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows { background: ${styles.listBackground}; }`
+      );
     }
     if (styles.listFocusBackground) {
-      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color: ${styles.listFocusBackground}; }`);
-      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color: ${styles.listFocusBackground}; }`);
+      content.push(
+        `.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color: ${styles.listFocusBackground}; }`
+      );
+      content.push(
+        `.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color: ${styles.listFocusBackground}; }`
+      );
     }
     if (styles.listFocusForeground) {
-      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`);
+      content.push(
+        `.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`
+      );
     }
     if (styles.listActiveSelectionBackground) {
-      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color: ${styles.listActiveSelectionBackground}; }`);
-      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color: ${styles.listActiveSelectionBackground}; }`);
+      content.push(
+        `.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color: ${styles.listActiveSelectionBackground}; }`
+      );
+      content.push(
+        `.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color: ${styles.listActiveSelectionBackground}; }`
+      );
     }
     if (styles.listActiveSelectionForeground) {
-      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${styles.listActiveSelectionForeground}; }`);
+      content.push(
+        `.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${styles.listActiveSelectionForeground}; }`
+      );
     }
     if (styles.listFocusAndSelectionBackground) {
       content.push(`
@@ -1109,24 +1367,40 @@ let NotebookCellList = class extends WorkbenchList {
 			`);
     }
     if (styles.listInactiveFocusBackground) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color:  ${styles.listInactiveFocusBackground}; }`);
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color:  ${styles.listInactiveFocusBackground}; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color:  ${styles.listInactiveFocusBackground}; }`
+      );
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color:  ${styles.listInactiveFocusBackground}; }`
+      );
     }
     if (styles.listInactiveSelectionBackground) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color:  ${styles.listInactiveSelectionBackground}; }`);
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color:  ${styles.listInactiveSelectionBackground}; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color:  ${styles.listInactiveSelectionBackground}; }`
+      );
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color:  ${styles.listInactiveSelectionBackground}; }`
+      );
     }
     if (styles.listInactiveSelectionForeground) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${styles.listInactiveSelectionForeground}; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${styles.listInactiveSelectionForeground}; }`
+      );
     }
     if (styles.listHoverBackground) {
-      content.push(`.monaco-list${suffix}:not(.drop-target) > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { background-color:  ${styles.listHoverBackground}; }`);
+      content.push(
+        `.monaco-list${suffix}:not(.drop-target) > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { background-color:  ${styles.listHoverBackground}; }`
+      );
     }
     if (styles.listHoverForeground) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { color:  ${styles.listHoverForeground}; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { color:  ${styles.listHoverForeground}; }`
+      );
     }
     if (styles.listSelectionOutline) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { outline: 1px dotted ${styles.listSelectionOutline}; outline-offset: -1px; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { outline: 1px dotted ${styles.listSelectionOutline}; outline-offset: -1px; }`
+      );
     }
     if (styles.listFocusOutline) {
       content.push(`
@@ -1135,10 +1409,14 @@ let NotebookCellList = class extends WorkbenchList {
 			`);
     }
     if (styles.listInactiveFocusOutline) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { outline: 1px dotted ${styles.listInactiveFocusOutline}; outline-offset: -1px; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { outline: 1px dotted ${styles.listInactiveFocusOutline}; outline-offset: -1px; }`
+      );
     }
     if (styles.listHoverOutline) {
-      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover { outline: 1px dashed ${styles.listHoverOutline}; outline-offset: -1px; }`);
+      content.push(
+        `.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover { outline: 1px dashed ${styles.listHoverOutline}; outline-offset: -1px; }`
+      );
     }
     if (styles.listDropOverBackground) {
       content.push(`
@@ -1244,7 +1522,9 @@ class ListViewInfoAccessor extends Disposable {
 }
 function getEditorAttachedPromise(element) {
   return new Promise((resolve, reject) => {
-    Event.once(element.onDidChangeEditorAttachState)(() => element.editorAttached ? resolve() : reject());
+    Event.once(element.onDidChangeEditorAttachState)(
+      () => element.editorAttached ? resolve() : reject()
+    );
   });
 }
 __name(getEditorAttachedPromise, "getEditorAttachedPromise");

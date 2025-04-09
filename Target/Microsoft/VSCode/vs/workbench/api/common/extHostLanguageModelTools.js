@@ -3,28 +3,46 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { raceCancellation } from "../../../base/common/async.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { CancellationError } from "../../../base/common/errors.js";
-import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { IPreparedToolInvocation, isToolInvocationContext, IToolInvocation, IToolInvocationContext, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
-import { checkProposedApiEnabled, isProposedApiEnabled } from "../../services/extensions/common/extensions.js";
-import { ExtHostLanguageModelToolsShape, IMainContext, IToolDataDto, MainContext, MainThreadLanguageModelToolsShape } from "./extHost.protocol.js";
+import {
+  isToolInvocationContext
+} from "../../contrib/chat/common/languageModelToolsService.js";
+import {
+  EditToolData,
+  EditToolInputProcessor,
+  ExtensionEditToolId,
+  InternalEditToolId
+} from "../../contrib/chat/common/tools/editFileTool.js";
+import {
+  InternalFetchWebPageToolId
+} from "../../contrib/chat/common/tools/tools.js";
+import {
+  checkProposedApiEnabled,
+  isProposedApiEnabled
+} from "../../services/extensions/common/extensions.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
 import * as typeConvert from "./extHostTypeConverters.js";
-import { InternalFetchWebPageToolId, IToolInputProcessor } from "../../contrib/chat/common/tools/tools.js";
-import { EditToolData, InternalEditToolId, EditToolInputProcessor, ExtensionEditToolId } from "../../contrib/chat/common/tools/editFileTool.js";
-import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
-import { ExtHostLanguageModels } from "./extHostLanguageModels.js";
 class ExtHostLanguageModelTools {
   constructor(mainContext, _languageModels) {
     this._languageModels = _languageModels;
-    this._proxy = mainContext.getProxy(MainContext.MainThreadLanguageModelTools);
+    this._proxy = mainContext.getProxy(
+      MainContext.MainThreadLanguageModelTools
+    );
     this._proxy.$getTools().then((tools) => {
       for (const tool of tools) {
         this._allTools.set(tool.id, revive(tool));
       }
     });
-    this._toolInputProcessors.set(EditToolData.id, new EditToolInputProcessor());
+    this._toolInputProcessors.set(
+      EditToolData.id,
+      new EditToolInputProcessor()
+    );
   }
   static {
     __name(this, "ExtHostLanguageModelTools");
@@ -46,25 +64,37 @@ class ExtHostLanguageModelTools {
   async invokeTool(extension, toolId, options, token) {
     const callId = generateUuid();
     if (options.tokenizationOptions) {
-      this._tokenCountFuncs.set(callId, options.tokenizationOptions.countTokens);
+      this._tokenCountFuncs.set(
+        callId,
+        options.tokenizationOptions.countTokens
+      );
     }
     try {
       if (options.toolInvocationToken && !isToolInvocationContext(options.toolInvocationToken)) {
-        throw new Error(`Invalid tool invocation token`);
+        throw new Error("Invalid tool invocation token");
       }
       if ((toolId === InternalEditToolId || toolId === ExtensionEditToolId) && !isProposedApiEnabled(extension, "chatParticipantPrivate")) {
         throw new Error(`Invalid tool: ${toolId}`);
       }
       const processedInput = this._toolInputProcessors.get(toolId)?.processInput(options.input) ?? options.input;
-      const result = await this._proxy.$invokeTool({
-        toolId,
-        callId,
-        parameters: processedInput,
-        tokenBudget: options.tokenizationOptions?.tokenBudget,
-        context: options.toolInvocationToken,
-        chatRequestId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.chatRequestId : void 0,
-        chatInteractionId: isProposedApiEnabled(extension, "chatParticipantPrivate") ? options.chatInteractionId : void 0
-      }, token);
+      const result = await this._proxy.$invokeTool(
+        {
+          toolId,
+          callId,
+          parameters: processedInput,
+          tokenBudget: options.tokenizationOptions?.tokenBudget,
+          context: options.toolInvocationToken,
+          chatRequestId: isProposedApiEnabled(
+            extension,
+            "chatParticipantPrivate"
+          ) ? options.chatRequestId : void 0,
+          chatInteractionId: isProposedApiEnabled(
+            extension,
+            "chatParticipantPrivate"
+          ) ? options.chatInteractionId : void 0
+        },
+        token
+      );
       return typeConvert.LanguageModelToolResult.to(revive(result));
     } finally {
       this._tokenCountFuncs.delete(callId);
@@ -82,7 +112,10 @@ class ExtHostLanguageModelTools {
         case InternalEditToolId:
         case ExtensionEditToolId:
         case InternalFetchWebPageToolId:
-          return isProposedApiEnabled(extension, "chatParticipantPrivate");
+          return isProposedApiEnabled(
+            extension,
+            "chatParticipantPrivate"
+          );
         default:
           return true;
       }
@@ -111,19 +144,32 @@ class ExtHostLanguageModelTools {
     if (dto.tokenBudget !== void 0) {
       options.tokenizationOptions = {
         tokenBudget: dto.tokenBudget,
-        countTokens: this._tokenCountFuncs.get(dto.callId) || ((value, token2 = CancellationToken.None) => this._proxy.$countTokensForInvocation(dto.callId, value, token2))
+        countTokens: this._tokenCountFuncs.get(dto.callId) || ((value, token2 = CancellationToken.None) => this._proxy.$countTokensForInvocation(
+          dto.callId,
+          value,
+          token2
+        ))
       };
     }
-    const extensionResult = await raceCancellation(Promise.resolve(item.tool.invoke(options, token)), token);
+    const extensionResult = await raceCancellation(
+      Promise.resolve(item.tool.invoke(options, token)),
+      token
+    );
     if (!extensionResult) {
       throw new CancellationError();
     }
-    return typeConvert.LanguageModelToolResult.from(extensionResult, item.extension);
+    return typeConvert.LanguageModelToolResult.from(
+      extensionResult,
+      item.extension
+    );
   }
   async getModel(modelId, extension) {
     let model;
     if (modelId) {
-      model = await this._languageModels.getLanguageModelByIdentifier(extension, modelId);
+      model = await this._languageModels.getLanguageModelByIdentifier(
+        extension,
+        modelId
+      );
     }
     if (!model) {
       model = await this._languageModels.getDefaultLanguageModel(extension);
@@ -138,7 +184,9 @@ class ExtHostLanguageModelTools {
     if (!item) {
       throw new Error(`Unknown tool ${toolId}`);
     }
-    const options = { input };
+    const options = {
+      input
+    };
     if (isProposedApiEnabled(item.extension, "chatParticipantPrivate") && item.tool.prepareInvocation2) {
       const result = await item.tool.prepareInvocation2(options, token);
       if (!result) {
@@ -147,7 +195,9 @@ class ExtHostLanguageModelTools {
       return {
         confirmationMessages: result.confirmationMessages ? {
           title: result.confirmationMessages.title,
-          message: typeof result.confirmationMessages.message === "string" ? result.confirmationMessages.message : typeConvert.MarkdownString.from(result.confirmationMessages.message)
+          message: typeof result.confirmationMessages.message === "string" ? result.confirmationMessages.message : typeConvert.MarkdownString.from(
+            result.confirmationMessages.message
+          )
         } : void 0,
         toolSpecificData: {
           kind: "terminal",
@@ -161,15 +211,24 @@ class ExtHostLanguageModelTools {
         return void 0;
       }
       if (result.pastTenseMessage || result.presentation) {
-        checkProposedApiEnabled(item.extension, "chatParticipantPrivate");
+        checkProposedApiEnabled(
+          item.extension,
+          "chatParticipantPrivate"
+        );
       }
       return {
         confirmationMessages: result.confirmationMessages ? {
           title: result.confirmationMessages.title,
-          message: typeof result.confirmationMessages.message === "string" ? result.confirmationMessages.message : typeConvert.MarkdownString.from(result.confirmationMessages.message)
+          message: typeof result.confirmationMessages.message === "string" ? result.confirmationMessages.message : typeConvert.MarkdownString.from(
+            result.confirmationMessages.message
+          )
         } : void 0,
-        invocationMessage: typeConvert.MarkdownString.fromStrict(result.invocationMessage),
-        pastTenseMessage: typeConvert.MarkdownString.fromStrict(result.pastTenseMessage),
+        invocationMessage: typeConvert.MarkdownString.fromStrict(
+          result.invocationMessage
+        ),
+        pastTenseMessage: typeConvert.MarkdownString.fromStrict(
+          result.pastTenseMessage
+        ),
         presentation: result.presentation
       };
     }

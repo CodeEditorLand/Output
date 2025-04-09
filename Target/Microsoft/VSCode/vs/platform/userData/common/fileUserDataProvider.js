@@ -1,16 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { IFileSystemProviderWithFileReadWriteCapability, IFileChange, IWatchOptions, IStat, IFileOverwriteOptions, FileType, IFileWriteOptions, IFileDeleteOptions, FileSystemProviderCapabilities, IFileSystemProviderWithFileReadStreamCapability, IFileReadStreamOptions, IFileSystemProviderWithFileAtomicReadCapability, hasFileFolderCopyCapability, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileOpenOptions, IFileSystemProviderWithFileAtomicWriteCapability, IFileSystemProviderWithFileAtomicDeleteCapability, IFileSystemProviderWithFileFolderCopyCapability, IFileSystemProviderWithFileCloneCapability, hasFileCloneCapability, IFileAtomicReadOptions, IFileAtomicOptions } from "../../files/common/files.js";
-import { URI } from "../../../base/common/uri.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { ReadableStreamEvents } from "../../../base/common/stream.js";
-import { ILogService } from "../../log/common/log.js";
-import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
-import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { ResourceSet } from "../../../base/common/map.js";
-import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
+import {
+  hasFileCloneCapability,
+  hasFileFolderCopyCapability
+} from "../../files/common/files.js";
 class FileUserDataProvider extends Disposable {
   constructor(fileSystemScheme, fileSystemProvider, userDataScheme, userDataProfilesService, uriIdentityService, logService) {
     super();
@@ -24,11 +24,25 @@ class FileUserDataProvider extends Disposable {
     this.onDidChangeCapabilities = this.fileSystemProvider.onDidChangeCapabilities;
     this._onDidChangeFile = this._register(new Emitter());
     this.onDidChangeFile = this._onDidChangeFile.event;
-    this.watchResources = TernarySearchTree.forUris(() => !(this.capabilities & 1024));
-    this.atomicReadWriteResources = new ResourceSet((uri) => this.uriIdentityService.extUri.getComparisonKey(this.toFileSystemResource(uri)));
+    this.watchResources = TernarySearchTree.forUris(
+      () => !(this.capabilities & 1024)
+    );
+    this.atomicReadWriteResources = new ResourceSet(
+      (uri) => this.uriIdentityService.extUri.getComparisonKey(
+        this.toFileSystemResource(uri)
+      )
+    );
     this.updateAtomicReadWritesResources();
-    this._register(userDataProfilesService.onDidChangeProfiles(() => this.updateAtomicReadWritesResources()));
-    this._register(this.fileSystemProvider.onDidChangeFile((e) => this.handleFileChanges(e)));
+    this._register(
+      userDataProfilesService.onDidChangeProfiles(
+        () => this.updateAtomicReadWritesResources()
+      )
+    );
+    this._register(
+      this.fileSystemProvider.onDidChangeFile(
+        (e) => this.handleFileChanges(e)
+      )
+    );
   }
   static {
     __name(this, "FileUserDataProvider");
@@ -49,7 +63,10 @@ class FileUserDataProvider extends Disposable {
     }
   }
   open(resource, opts) {
-    return this.fileSystemProvider.open(this.toFileSystemResource(resource), opts);
+    return this.fileSystemProvider.open(
+      this.toFileSystemResource(resource),
+      opts
+    );
   }
   close(fd) {
     return this.fileSystemProvider.close(fd);
@@ -62,35 +79,59 @@ class FileUserDataProvider extends Disposable {
   }
   watch(resource, opts) {
     this.watchResources.set(resource, resource);
-    const disposable = this.fileSystemProvider.watch(this.toFileSystemResource(resource), opts);
+    const disposable = this.fileSystemProvider.watch(
+      this.toFileSystemResource(resource),
+      opts
+    );
     return toDisposable(() => {
       this.watchResources.delete(resource);
       disposable.dispose();
     });
   }
   stat(resource) {
-    return this.fileSystemProvider.stat(this.toFileSystemResource(resource));
+    return this.fileSystemProvider.stat(
+      this.toFileSystemResource(resource)
+    );
   }
   mkdir(resource) {
-    return this.fileSystemProvider.mkdir(this.toFileSystemResource(resource));
+    return this.fileSystemProvider.mkdir(
+      this.toFileSystemResource(resource)
+    );
   }
   rename(from, to, opts) {
-    return this.fileSystemProvider.rename(this.toFileSystemResource(from), this.toFileSystemResource(to), opts);
+    return this.fileSystemProvider.rename(
+      this.toFileSystemResource(from),
+      this.toFileSystemResource(to),
+      opts
+    );
   }
   readFile(resource, opts) {
-    return this.fileSystemProvider.readFile(this.toFileSystemResource(resource), opts);
+    return this.fileSystemProvider.readFile(
+      this.toFileSystemResource(resource),
+      opts
+    );
   }
   readFileStream(resource, opts, token) {
-    return this.fileSystemProvider.readFileStream(this.toFileSystemResource(resource), opts, token);
+    return this.fileSystemProvider.readFileStream(
+      this.toFileSystemResource(resource),
+      opts,
+      token
+    );
   }
   readdir(resource) {
-    return this.fileSystemProvider.readdir(this.toFileSystemResource(resource));
+    return this.fileSystemProvider.readdir(
+      this.toFileSystemResource(resource)
+    );
   }
   enforceAtomicReadFile(resource) {
     return this.atomicReadWriteResources.has(resource);
   }
   writeFile(resource, content, opts) {
-    return this.fileSystemProvider.writeFile(this.toFileSystemResource(resource), content, opts);
+    return this.fileSystemProvider.writeFile(
+      this.toFileSystemResource(resource),
+      content,
+      opts
+    );
   }
   enforceAtomicWriteFile(resource) {
     if (this.atomicReadWriteResources.has(resource)) {
@@ -99,17 +140,27 @@ class FileUserDataProvider extends Disposable {
     return false;
   }
   delete(resource, opts) {
-    return this.fileSystemProvider.delete(this.toFileSystemResource(resource), opts);
+    return this.fileSystemProvider.delete(
+      this.toFileSystemResource(resource),
+      opts
+    );
   }
   copy(from, to, opts) {
     if (hasFileFolderCopyCapability(this.fileSystemProvider)) {
-      return this.fileSystemProvider.copy(this.toFileSystemResource(from), this.toFileSystemResource(to), opts);
+      return this.fileSystemProvider.copy(
+        this.toFileSystemResource(from),
+        this.toFileSystemResource(to),
+        opts
+      );
     }
     throw new Error("copy not supported");
   }
   cloneFile(from, to) {
     if (hasFileCloneCapability(this.fileSystemProvider)) {
-      return this.fileSystemProvider.cloneFile(this.toFileSystemResource(from), this.toFileSystemResource(to));
+      return this.fileSystemProvider.cloneFile(
+        this.toFileSystemResource(from),
+        this.toFileSystemResource(to)
+      );
     }
     throw new Error("clone not supported");
   }

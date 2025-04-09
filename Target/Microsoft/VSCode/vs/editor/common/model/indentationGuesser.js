@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../base/common/charCode.js";
-import { ITextBuffer } from "../model.js";
 class SpacesDiffResult {
   static {
     __name(this, "SpacesDiffResult");
@@ -20,7 +19,8 @@ function spacesDiff(a, aLength, b, bLength, result) {
       break;
     }
   }
-  let aSpacesCnt = 0, aTabsCount = 0;
+  let aSpacesCnt = 0;
+  let aTabsCount = 0;
   for (let j = i; j < aLength; j++) {
     const aCharCode = a.charCodeAt(j);
     if (aCharCode === CharCode.Space) {
@@ -29,7 +29,8 @@ function spacesDiff(a, aLength, b, bLength, result) {
       aTabsCount++;
     }
   }
-  let bSpacesCnt = 0, bTabsCount = 0;
+  let bSpacesCnt = 0;
+  let bTabsCount = 0;
   for (let j = i; j < bLength; j++) {
     const bCharCode = b.charCodeAt(j);
     if (bCharCode === CharCode.Space) {
@@ -101,7 +102,13 @@ function guessIndentation(source, defaultTabSize, defaultInsertSpaces) {
     } else if (currentLineSpacesCount > 1) {
       linesIndentedWithSpacesCount++;
     }
-    spacesDiff(previousLineText, previousLineIndentation, currentLineText, currentLineIndentation, tmp);
+    spacesDiff(
+      previousLineText,
+      previousLineIndentation,
+      currentLineText,
+      currentLineIndentation,
+      tmp
+    );
     if (tmp.looksLikeAlignment) {
       if (!(defaultInsertSpaces && defaultTabSize === tmp.spacesDiff)) {
         continue;

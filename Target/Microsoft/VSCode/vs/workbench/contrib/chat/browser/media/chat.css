@@ -759,7 +759,7 @@
 .interactive-response .interactive-result-code-block .interactive-result-editor .monaco-editor,
 .interactive-response .interactive-result-code-block .interactive-result-editor .monaco-editor .margin,
 .interactive-response .interactive-result-code-block .interactive-result-editor .monaco-editor .monaco-editor-background {
-  background-color: var(--vscode-interactive-result-editor-background-color) !important;
+  background-color: var( --vscode-interactive-result-editor-background-color ) !important;
 }
 .interactive-item-compact .interactive-result-code-block {
   margin: 0 0 8px 0;
@@ -827,7 +827,7 @@
   margin-top: 1px;
 }
 .chat-used-context-list .codicon-warning {
-  color: var(--vscode-notificationsWarningIcon-foreground);
+  color: var( --vscode-notificationsWarningIcon-foreground );
 }
 .chat-used-context-list .monaco-icon-label-container {
   color: var(--vscode-interactive-session-foreground);
@@ -852,7 +852,7 @@
 }
 .chat-attached-context .chat-prompt-attachment .chat-implicit-hint {
   opacity: 0.7;
-  font-size: .9em;
+  font-size: 0.9em;
   margin-top: -0.5px;
 }
 .chat-attached-context .chat-prompt-attachment.warning {
@@ -901,15 +901,15 @@
 }
 .chat-notification-widget .chat-warning-codicon .codicon-warning,
 .chat-quota-error-widget .codicon-warning {
-  color: var(--vscode-notificationsWarningIcon-foreground) !important;
+  color: var( --vscode-notificationsWarningIcon-foreground ) !important;
 }
 .chat-notification-widget .chat-error-codicon .codicon-error,
 .interactive-response .interactive-response-error-details .codicon-error {
-  color: var(--vscode-errorForeground) !important;
+  color: var( --vscode-errorForeground ) !important;
 }
 .chat-notification-widget .chat-info-codicon .codicon-info,
 .interactive-response .interactive-response-error-details .codicon-info {
-  color: var(--vscode-notificationsInfoIcon-foreground) !important;
+  color: var( --vscode-notificationsInfoIcon-foreground ) !important;
 }
 .interactive-session .interactive-input-part {
   margin: 0px 16px;
@@ -937,7 +937,7 @@
   overflow: hidden;
   font-size: 11px;
   padding: 0 4px;
-  border: 1px solid var(--vscode-chat-requestBorder, var(--vscode-input-background, transparent));
+  border: 1px solid var( --vscode-chat-requestBorder, var(--vscode-input-background, transparent) );
   border-radius: 4px;
   height: 18px;
   max-width: 100%;
@@ -981,7 +981,7 @@
   }
 }
 .action-item.chat-attached-context-attachment.chat-add-files .action-label.codicon::before {
-  font: normal normal normal 16px/1 codicon;
+  font: normal normal normal 16px / 1 codicon;
 }
 .interactive-session .chat-attached-context .chat-attached-context-attachment .monaco-button {
   display: flex;
@@ -1055,7 +1055,7 @@
 }
 .interactive-session .chat-attached-context .chat-attached-context-attachment.implicit .chat-implicit-hint {
   opacity: 0.7;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 .interactive-session .chat-attached-context .chat-attached-context-attachment.implicit.disabled .chat-implicit-hint {
   font-style: italic;
@@ -1413,7 +1413,7 @@
 }
 .chat-attached-context-attachment .attachment-additional-info {
   opacity: 0.7;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 .chat-attached-context-attachment .chat-attached-context-pill-image {
   width: 14px;

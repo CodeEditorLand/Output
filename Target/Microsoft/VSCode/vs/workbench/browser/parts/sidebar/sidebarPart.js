@@ -12,39 +12,77 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/sidebarpart.css";
 import "./sidebarActions.js";
-import { ActivityBarPosition, IWorkbenchLayoutService, LayoutSettings, Parts, Position as SideBarPosition } from "../../../services/layout/browser/layoutService.js";
-import { SidebarFocusContext, ActiveViewletContext } from "../../../common/contextkeys.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { contrastBorder } from "../../../../platform/theme/common/colorRegistry.js";
-import { SIDE_BAR_TITLE_FOREGROUND, SIDE_BAR_TITLE_BORDER, SIDE_BAR_BACKGROUND, SIDE_BAR_FOREGROUND, SIDE_BAR_BORDER, SIDE_BAR_DRAG_AND_DROP_BACKGROUND, ACTIVITY_BAR_BADGE_BACKGROUND, ACTIVITY_BAR_BADGE_FOREGROUND, ACTIVITY_BAR_TOP_FOREGROUND, ACTIVITY_BAR_TOP_ACTIVE_BORDER, ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND, ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER } from "../../../common/theme.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { LayoutPriority } from "../../../../base/browser/ui/grid/grid.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { AbstractPaneCompositePart, CompositeBarPosition } from "../paneCompositePart.js";
-import { ActivityBarCompositeBar, ActivitybarPart } from "../activitybar/activitybarPart.js";
 import { ActionsOrientation } from "../../../../base/browser/ui/actionbar/actionbar.js";
+import { AnchorAlignment } from "../../../../base/browser/ui/contextview/contextview.js";
+import { LayoutPriority } from "../../../../base/browser/ui/grid/grid.js";
 import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import { IPaneCompositeBarOptions } from "../paneCompositeBar.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { Action2, IMenuService, registerAction2 } from "../../../../platform/actions/common/actions.js";
 import { Separator } from "../../../../base/common/actions.js";
-import { ToggleActivityBarVisibilityActionId } from "../../actions/layoutActions.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
 import { localize2 } from "../../../../nls.js";
+import {
+  Action2,
+  IMenuService,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { contrastBorder } from "../../../../platform/theme/common/colorRegistry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  ActiveViewletContext,
+  SidebarFocusContext
+} from "../../../common/contextkeys.js";
+import {
+  ACTIVITY_BAR_BADGE_BACKGROUND,
+  ACTIVITY_BAR_BADGE_FOREGROUND,
+  ACTIVITY_BAR_TOP_ACTIVE_BORDER,
+  ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER,
+  ACTIVITY_BAR_TOP_FOREGROUND,
+  ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND,
+  SIDE_BAR_BACKGROUND,
+  SIDE_BAR_BORDER,
+  SIDE_BAR_DRAG_AND_DROP_BACKGROUND,
+  SIDE_BAR_FOREGROUND,
+  SIDE_BAR_TITLE_BORDER,
+  SIDE_BAR_TITLE_FOREGROUND
+} from "../../../common/theme.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import {
+  ActivityBarPosition,
+  IWorkbenchLayoutService,
+  LayoutSettings,
+  Parts,
+  Position as SideBarPosition
+} from "../../../services/layout/browser/layoutService.js";
+import { ToggleActivityBarVisibilityActionId } from "../../actions/layoutActions.js";
+import {
+  ActivityBarCompositeBar,
+  ActivitybarPart
+} from "../activitybar/activitybarPart.js";
+import {
+  AbstractPaneCompositePart,
+  CompositeBarPosition
+} from "../paneCompositePart.js";
 let SidebarPart = class extends AbstractPaneCompositePart {
   //#endregion
   constructor(notificationService, storageService, contextMenuService, layoutService, keybindingService, hoverService, instantiationService, themeService, viewDescriptorService, contextKeyService, extensionService, configurationService, menuService) {
     super(
       Parts.SIDEBAR_PART,
-      { hasTitle: true, borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth") },
+      {
+        hasTitle: true,
+        borderWidth: /* @__PURE__ */ __name(() => this.getColor(SIDE_BAR_BORDER) || this.getColor(contrastBorder) ? 1 : 0, "borderWidth")
+      },
       SidebarPart.activeViewletSettingsKey,
       ActiveViewletContext.bindTo(contextKeyService),
       SidebarFocusContext.bindTo(contextKeyService),
@@ -67,11 +105,13 @@ let SidebarPart = class extends AbstractPaneCompositePart {
     );
     this.configurationService = configurationService;
     this.rememberActivityBarVisiblePosition();
-    this._register(configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(LayoutSettings.ACTIVITY_BAR_LOCATION)) {
-        this.onDidChangeActivityBarLocation();
-      }
-    }));
+    this._register(
+      configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(LayoutSettings.ACTIVITY_BAR_LOCATION)) {
+          this.onDidChangeActivityBarLocation();
+        }
+      })
+    );
     this.registerActions();
   }
   static {
@@ -98,7 +138,9 @@ let SidebarPart = class extends AbstractPaneCompositePart {
     }
     return Math.max(width, 300);
   }
-  activityBarPart = this._register(this.instantiationService.createInstance(ActivitybarPart, this));
+  activityBarPart = this._register(
+    this.instantiationService.createInstance(ActivitybarPart, this)
+  );
   onDidChangeActivityBarLocation() {
     this.activityBarPart.hide();
     this.updateCompositeBar();
@@ -136,7 +178,13 @@ let SidebarPart = class extends AbstractPaneCompositePart {
     return this.layoutService.getSideBarPosition() === SideBarPosition.LEFT ? AnchorAlignment.LEFT : AnchorAlignment.RIGHT;
   }
   createCompositeBar() {
-    return this.instantiationService.createInstance(ActivityBarCompositeBar, this.getCompositeBarOptions(), this.partId, this, false);
+    return this.instantiationService.createInstance(
+      ActivityBarCompositeBar,
+      this.getCompositeBarOptions(),
+      this.partId,
+      this,
+      false
+    );
   }
   getCompositeBarOptions() {
     return {
@@ -165,48 +213,69 @@ let SidebarPart = class extends AbstractPaneCompositePart {
       colors: /* @__PURE__ */ __name((theme) => ({
         activeBackgroundColor: theme.getColor(SIDE_BAR_BACKGROUND),
         inactiveBackgroundColor: theme.getColor(SIDE_BAR_BACKGROUND),
-        activeBorderBottomColor: theme.getColor(ACTIVITY_BAR_TOP_ACTIVE_BORDER),
-        activeForegroundColor: theme.getColor(ACTIVITY_BAR_TOP_FOREGROUND),
-        inactiveForegroundColor: theme.getColor(ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND),
+        activeBorderBottomColor: theme.getColor(
+          ACTIVITY_BAR_TOP_ACTIVE_BORDER
+        ),
+        activeForegroundColor: theme.getColor(
+          ACTIVITY_BAR_TOP_FOREGROUND
+        ),
+        inactiveForegroundColor: theme.getColor(
+          ACTIVITY_BAR_TOP_INACTIVE_FOREGROUND
+        ),
         badgeBackground: theme.getColor(ACTIVITY_BAR_BADGE_BACKGROUND),
         badgeForeground: theme.getColor(ACTIVITY_BAR_BADGE_FOREGROUND),
-        dragAndDropBorder: theme.getColor(ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER)
+        dragAndDropBorder: theme.getColor(
+          ACTIVITY_BAR_TOP_DRAG_AND_DROP_BORDER
+        )
       }), "colors"),
       compact: true
     };
   }
   shouldShowCompositeBar() {
-    const activityBarPosition = this.configurationService.getValue(LayoutSettings.ACTIVITY_BAR_LOCATION);
+    const activityBarPosition = this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    );
     return activityBarPosition === ActivityBarPosition.TOP || activityBarPosition === ActivityBarPosition.BOTTOM;
   }
   shouldShowActivityBar() {
     if (this.shouldShowCompositeBar()) {
       return false;
     }
-    return this.configurationService.getValue(LayoutSettings.ACTIVITY_BAR_LOCATION) !== ActivityBarPosition.HIDDEN;
+    return this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    ) !== ActivityBarPosition.HIDDEN;
   }
   getCompositeBarPosition() {
-    const activityBarPosition = this.configurationService.getValue(LayoutSettings.ACTIVITY_BAR_LOCATION);
+    const activityBarPosition = this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    );
     switch (activityBarPosition) {
       case ActivityBarPosition.TOP:
         return CompositeBarPosition.TOP;
       case ActivityBarPosition.BOTTOM:
         return CompositeBarPosition.BOTTOM;
-      case ActivityBarPosition.HIDDEN:
-      case ActivityBarPosition.DEFAULT:
-      // noop
       default:
         return CompositeBarPosition.TITLE;
     }
   }
   rememberActivityBarVisiblePosition() {
-    const activityBarPosition = this.configurationService.getValue(LayoutSettings.ACTIVITY_BAR_LOCATION);
+    const activityBarPosition = this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    );
     if (activityBarPosition !== ActivityBarPosition.HIDDEN) {
-      this.storageService.store(LayoutSettings.ACTIVITY_BAR_LOCATION, activityBarPosition, StorageScope.PROFILE, StorageTarget.USER);
+      this.storageService.store(
+        LayoutSettings.ACTIVITY_BAR_LOCATION,
+        activityBarPosition,
+        StorageScope.PROFILE,
+        StorageTarget.USER
+      );
     }
   }
   getRememberedActivityBarVisiblePosition() {
-    const activityBarPosition = this.storageService.get(LayoutSettings.ACTIVITY_BAR_LOCATION, StorageScope.PROFILE);
+    const activityBarPosition = this.storageService.get(
+      LayoutSettings.ACTIVITY_BAR_LOCATION,
+      StorageScope.PROFILE
+    );
     switch (activityBarPosition) {
       case ActivityBarPosition.TOP:
         return ActivityBarPosition.TOP;
@@ -226,8 +295,13 @@ let SidebarPart = class extends AbstractPaneCompositePart {
     return this.shouldShowCompositeBar() ? super.getPaneCompositeIds() : this.activityBarPart.getPaneCompositeIds();
   }
   async focusActivityBar() {
-    if (this.configurationService.getValue(LayoutSettings.ACTIVITY_BAR_LOCATION) === ActivityBarPosition.HIDDEN) {
-      await this.configurationService.updateValue(LayoutSettings.ACTIVITY_BAR_LOCATION, this.getRememberedActivityBarVisiblePosition());
+    if (this.configurationService.getValue(
+      LayoutSettings.ACTIVITY_BAR_LOCATION
+    ) === ActivityBarPosition.HIDDEN) {
+      await this.configurationService.updateValue(
+        LayoutSettings.ACTIVITY_BAR_LOCATION,
+        this.getRememberedActivityBarVisiblePosition()
+      );
       this.onDidChangeActivityBarLocation();
     }
     if (this.shouldShowCompositeBar()) {
@@ -241,18 +315,30 @@ let SidebarPart = class extends AbstractPaneCompositePart {
   }
   registerActions() {
     const that = this;
-    this._register(registerAction2(class extends Action2 {
-      constructor() {
-        super({
-          id: ToggleActivityBarVisibilityActionId,
-          title: localize2("toggleActivityBar", "Toggle Activity Bar Visibility")
-        });
-      }
-      run() {
-        const value = that.configurationService.getValue(LayoutSettings.ACTIVITY_BAR_LOCATION) === ActivityBarPosition.HIDDEN ? that.getRememberedActivityBarVisiblePosition() : ActivityBarPosition.HIDDEN;
-        return that.configurationService.updateValue(LayoutSettings.ACTIVITY_BAR_LOCATION, value);
-      }
-    }));
+    this._register(
+      registerAction2(
+        class extends Action2 {
+          constructor() {
+            super({
+              id: ToggleActivityBarVisibilityActionId,
+              title: localize2(
+                "toggleActivityBar",
+                "Toggle Activity Bar Visibility"
+              )
+            });
+          }
+          run() {
+            const value = that.configurationService.getValue(
+              LayoutSettings.ACTIVITY_BAR_LOCATION
+            ) === ActivityBarPosition.HIDDEN ? that.getRememberedActivityBarVisiblePosition() : ActivityBarPosition.HIDDEN;
+            return that.configurationService.updateValue(
+              LayoutSettings.ACTIVITY_BAR_LOCATION,
+              value
+            );
+          }
+        }
+      )
+    );
   }
   toJSON() {
     return {

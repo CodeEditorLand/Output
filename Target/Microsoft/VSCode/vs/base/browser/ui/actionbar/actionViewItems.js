@@ -1,19 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isFirefox } from "../../browser.js";
-import { DataTransfers } from "../../dnd.js";
-import { addDisposableListener, EventHelper, EventLike, EventType } from "../../dom.js";
-import { EventType as TouchEventType, Gesture } from "../../touch.js";
-import { IActionViewItem } from "./actionbar.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
-import { IHoverDelegate } from "../hover/hoverDelegate.js";
-import { ISelectBoxOptions, ISelectBoxStyles, ISelectOptionItem, SelectBox } from "../selectBox/selectBox.js";
-import { IToggleStyles } from "../toggle/toggle.js";
-import { Action, ActionRunner, IAction, IActionChangeEvent, IActionRunner, Separator } from "../../../common/actions.js";
+import {
+  Action,
+  ActionRunner,
+  Separator
+} from "../../../common/actions.js";
 import { Disposable } from "../../../common/lifecycle.js";
 import * as platform from "../../../common/platform.js";
 import * as types from "../../../common/types.js";
+import { isFirefox } from "../../browser.js";
+import { DataTransfers } from "../../dnd.js";
+import {
+  addDisposableListener,
+  EventHelper,
+  EventType
+} from "../../dom.js";
+import { Gesture, EventType as TouchEventType } from "../../touch.js";
+import { getDefaultHoverDelegate } from "../hover/hoverDelegateFactory.js";
+import {
+  SelectBox
+} from "../selectBox/selectBox.js";
 import "./actionbar.css";
 import * as nls from "../../../../nls.js";
 import { getBaseLayerHoverDelegate } from "../hover/hoverDelegate2.js";
@@ -24,12 +30,14 @@ class BaseActionViewItem extends Disposable {
     this._context = context || this;
     this._action = action;
     if (action instanceof Action) {
-      this._register(action.onDidChange((event) => {
-        if (!this.element) {
-          return;
-        }
-        this.handleActionChangeEvent(event);
-      }));
+      this._register(
+        action.onDidChange((event) => {
+          if (!this.element) {
+            return;
+          }
+          this.handleActionChangeEvent(event);
+        })
+      );
     }
   }
   static {
@@ -79,43 +87,68 @@ class BaseActionViewItem extends Disposable {
   render(container) {
     const element = this.element = container;
     this._register(Gesture.addTarget(container));
-    const enableDragging = this.options && this.options.draggable;
+    const enableDragging = this.options?.draggable;
     if (enableDragging) {
       container.draggable = true;
       if (isFirefox) {
-        this._register(addDisposableListener(container, EventType.DRAG_START, (e) => e.dataTransfer?.setData(DataTransfers.TEXT, this._action.label)));
+        this._register(
+          addDisposableListener(
+            container,
+            EventType.DRAG_START,
+            (e) => e.dataTransfer?.setData(
+              DataTransfers.TEXT,
+              this._action.label
+            )
+          )
+        );
       }
     }
-    this._register(addDisposableListener(element, TouchEventType.Tap, (e) => this.onClick(e, true)));
-    this._register(addDisposableListener(element, EventType.MOUSE_DOWN, (e) => {
-      if (!enableDragging) {
-        EventHelper.stop(e, true);
-      }
-      if (this._action.enabled && e.button === 0) {
-        element.classList.add("active");
-      }
-    }));
+    this._register(
+      addDisposableListener(
+        element,
+        TouchEventType.Tap,
+        (e) => this.onClick(e, true)
+      )
+    );
+    this._register(
+      addDisposableListener(element, EventType.MOUSE_DOWN, (e) => {
+        if (!enableDragging) {
+          EventHelper.stop(e, true);
+        }
+        if (this._action.enabled && e.button === 0) {
+          element.classList.add("active");
+        }
+      })
+    );
     if (platform.isMacintosh) {
-      this._register(addDisposableListener(element, EventType.CONTEXT_MENU, (e) => {
-        if (e.button === 0 && e.ctrlKey === true) {
+      this._register(
+        addDisposableListener(element, EventType.CONTEXT_MENU, (e) => {
+          if (e.button === 0 && e.ctrlKey === true) {
+            this.onClick(e);
+          }
+        })
+      );
+    }
+    this._register(
+      addDisposableListener(element, EventType.CLICK, (e) => {
+        EventHelper.stop(e, true);
+        if (!this.options?.isMenu) {
           this.onClick(e);
         }
-      }));
-    }
-    this._register(addDisposableListener(element, EventType.CLICK, (e) => {
-      EventHelper.stop(e, true);
-      if (!(this.options && this.options.isMenu)) {
-        this.onClick(e);
-      }
-    }));
-    this._register(addDisposableListener(element, EventType.DBLCLICK, (e) => {
-      EventHelper.stop(e, true);
-    }));
+      })
+    );
+    this._register(
+      addDisposableListener(element, EventType.DBLCLICK, (e) => {
+        EventHelper.stop(e, true);
+      })
+    );
     [EventType.MOUSE_UP, EventType.MOUSE_OUT].forEach((event) => {
-      this._register(addDisposableListener(element, event, (e) => {
-        EventHelper.stop(e);
-        element.classList.remove("active");
-      }));
+      this._register(
+        addDisposableListener(element, event, (e) => {
+          EventHelper.stop(e);
+          element.classList.remove("active");
+        })
+      );
     });
   }
   onClick(event, preserveFocus = false) {
@@ -171,7 +204,13 @@ class BaseActionViewItem extends Disposable {
     } else {
       if (!this.customHover && title !== "") {
         const hoverDelegate = this.options.hoverDelegate ?? getDefaultHoverDelegate("element");
-        this.customHover = this._store.add(getBaseLayerHoverDelegate().setupManagedHover(hoverDelegate, this.element, title));
+        this.customHover = this._store.add(
+          getBaseLayerHoverDelegate().setupManagedHover(
+            hoverDelegate,
+            this.element,
+            title
+          )
+        );
       } else if (this.customHover) {
         this.customHover.update(title);
       }
@@ -276,7 +315,15 @@ class ActionViewItem extends BaseActionViewItem {
     } else if (this.action.label) {
       title = this.action.label;
       if (this.options.keybinding) {
-        title = nls.localize({ key: "titleLabel", comment: ["action title", "action keybinding"] }, "{0} ({1})", title, this.options.keybinding);
+        title = nls.localize(
+          {
+            key: "titleLabel",
+            comment: ["action title", "action keybinding"]
+          },
+          "{0} ({1})",
+          title,
+          this.options.keybinding
+        );
       }
     }
     return title ?? void 0;
@@ -324,14 +371,22 @@ class ActionViewItem extends BaseActionViewItem {
       if (this.action.checked !== void 0) {
         this.label.classList.toggle("checked", this.action.checked);
         if (this.options.isTabList) {
-          this.label.setAttribute("aria-selected", this.action.checked ? "true" : "false");
+          this.label.setAttribute(
+            "aria-selected",
+            this.action.checked ? "true" : "false"
+          );
         } else {
-          this.label.setAttribute("aria-checked", this.action.checked ? "true" : "false");
+          this.label.setAttribute(
+            "aria-checked",
+            this.action.checked ? "true" : "false"
+          );
           this.label.setAttribute("role", "checkbox");
         }
       } else {
         this.label.classList.remove("checked");
-        this.label.removeAttribute(this.options.isTabList ? "aria-selected" : "aria-checked");
+        this.label.removeAttribute(
+          this.options.isTabList ? "aria-selected" : "aria-checked"
+        );
         this.label.setAttribute("role", this.getDefaultAriaRole());
       }
     }
@@ -344,7 +399,13 @@ class SelectActionViewItem extends BaseActionViewItem {
   selectBox;
   constructor(ctx, action, options, selected, contextViewProvider, styles, selectBoxOptions) {
     super(ctx, action);
-    this.selectBox = new SelectBox(options, selected, contextViewProvider, styles, selectBoxOptions);
+    this.selectBox = new SelectBox(
+      options,
+      selected,
+      contextViewProvider,
+      styles,
+      selectBoxOptions
+    );
     this.selectBox.setFocusable(false);
     this._register(this.selectBox);
     this.registerListeners();
@@ -356,10 +417,17 @@ class SelectActionViewItem extends BaseActionViewItem {
     this.selectBox.select(index);
   }
   registerListeners() {
-    this._register(this.selectBox.onDidSelect((e) => this.runAction(e.selected, e.index)));
+    this._register(
+      this.selectBox.onDidSelect(
+        (e) => this.runAction(e.selected, e.index)
+      )
+    );
   }
   runAction(option, index) {
-    this.actionRunner.run(this._action, this.getActionContext(option, index));
+    this.actionRunner.run(
+      this._action,
+      this.getActionContext(option, index)
+    );
   }
   getActionContext(option, index) {
     return option;

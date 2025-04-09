@@ -10,19 +10,32 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IEditorFactoryRegistry, IEditorIdentifier, GroupIdentifier, EditorExtensions, IEditorPartOptionsChangeEvent, EditorsOrder, GroupModelChangeKind, EditorInputCapabilities } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
-import { dispose, Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { IEditorGroupsService, IEditorGroup, GroupsOrder, IEditorGroupsContainer } from "../../../services/editor/common/editorGroupsService.js";
 import { coalesce } from "../../../../base/common/arrays.js";
-import { LinkedMap, Touch, ResourceMap } from "../../../../base/common/map.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { LinkedMap, ResourceMap, Touch } from "../../../../base/common/map.js";
 import { equals } from "../../../../base/common/objects.js";
-import { IResourceEditorInputIdentifier } from "../../../../platform/editor/common/editor.js";
-import { URI } from "../../../../base/common/uri.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import {
+  EditorExtensions,
+  EditorInputCapabilities,
+  EditorsOrder,
+  GroupModelChangeKind
+} from "../../../common/editor.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import {
+  GroupsOrder,
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
 let EditorsObserver = class extends Disposable {
   constructor(editorGroupsContainer, editorGroupService, storageService) {
     super();
@@ -40,7 +53,9 @@ let EditorsObserver = class extends Disposable {
   keyMap = /* @__PURE__ */ new Map();
   mostRecentEditorsMap = new LinkedMap();
   editorsPerResourceCounter = new ResourceMap();
-  _onDidMostRecentlyActiveEditorsChange = this._register(new Emitter());
+  _onDidMostRecentlyActiveEditorsChange = this._register(
+    new Emitter()
+  );
   onDidMostRecentlyActiveEditorsChange = this._onDidMostRecentlyActiveEditorsChange.event;
   get count() {
     return this.mostRecentEditorsMap.size;
@@ -67,19 +82,30 @@ let EditorsObserver = class extends Disposable {
   editorGroupsContainer;
   isScoped;
   registerListeners() {
-    this._register(this.editorGroupsContainer.onDidAddGroup((group) => this.onGroupAdded(group)));
-    this._register(this.editorGroupService.onDidChangeEditorPartOptions((e) => this.onDidChangeEditorPartOptions(e)));
-    this._register(this.storageService.onWillSaveState(() => this.saveState()));
+    this._register(
+      this.editorGroupsContainer.onDidAddGroup(
+        (group) => this.onGroupAdded(group)
+      )
+    );
+    this._register(
+      this.editorGroupService.onDidChangeEditorPartOptions(
+        (e) => this.onDidChangeEditorPartOptions(e)
+      )
+    );
+    this._register(
+      this.storageService.onWillSaveState(() => this.saveState())
+    );
   }
   onGroupAdded(group) {
-    const groupEditorsMru = group.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE);
+    const groupEditorsMru = group.getEditors(
+      EditorsOrder.MOST_RECENTLY_ACTIVE
+    );
     for (let i = groupEditorsMru.length - 1; i >= 0; i--) {
       this.addMostRecentEditor(
         group,
         groupEditorsMru[i],
         false,
         true
-        /* is new */
       );
     }
     if (this.editorGroupsContainer.activeGroup === group && group.activeEditor) {
@@ -88,61 +114,66 @@ let EditorsObserver = class extends Disposable {
         group.activeEditor,
         true,
         false
-        /* already added before */
       );
     }
     this.registerGroupListeners(group);
   }
   registerGroupListeners(group) {
     const groupDisposables = new DisposableStore();
-    groupDisposables.add(group.onDidModelChange((e) => {
-      switch (e.kind) {
-        // Group gets active: put active editor as most recent
-        case GroupModelChangeKind.GROUP_ACTIVE: {
-          if (this.editorGroupsContainer.activeGroup === group && group.activeEditor) {
-            this.addMostRecentEditor(
-              group,
-              group.activeEditor,
-              true,
-              false
-              /* editor already opened */
-            );
+    groupDisposables.add(
+      group.onDidModelChange((e) => {
+        switch (e.kind) {
+          // Group gets active: put active editor as most recent
+          case GroupModelChangeKind.GROUP_ACTIVE: {
+            if (this.editorGroupsContainer.activeGroup === group && group.activeEditor) {
+              this.addMostRecentEditor(
+                group,
+                group.activeEditor,
+                true,
+                false
+              );
+            }
+            break;
           }
-          break;
-        }
-        // Editor opens: put it as second most recent
-        //
-        // Also check for maximum allowed number of editors and
-        // start to close oldest ones if needed.
-        case GroupModelChangeKind.EDITOR_OPEN: {
-          if (e.editor) {
-            this.addMostRecentEditor(
-              group,
-              e.editor,
-              false,
-              true
-              /* is new */
-            );
-            this.ensureOpenedEditorsLimit({ groupId: group.id, editor: e.editor }, group.id);
+          // Editor opens: put it as second most recent
+          //
+          // Also check for maximum allowed number of editors and
+          // start to close oldest ones if needed.
+          case GroupModelChangeKind.EDITOR_OPEN: {
+            if (e.editor) {
+              this.addMostRecentEditor(
+                group,
+                e.editor,
+                false,
+                true
+              );
+              this.ensureOpenedEditorsLimit(
+                { groupId: group.id, editor: e.editor },
+                group.id
+              );
+            }
+            break;
           }
-          break;
         }
-      }
-    }));
-    groupDisposables.add(group.onDidCloseEditor((e) => {
-      this.removeMostRecentEditor(group, e.editor);
-    }));
-    groupDisposables.add(group.onDidActiveEditorChange((e) => {
-      if (e.editor) {
-        this.addMostRecentEditor(
-          group,
-          e.editor,
-          this.editorGroupsContainer.activeGroup === group,
-          false
-          /* editor already opened */
-        );
-      }
-    }));
+      })
+    );
+    groupDisposables.add(
+      group.onDidCloseEditor((e) => {
+        this.removeMostRecentEditor(group, e.editor);
+      })
+    );
+    groupDisposables.add(
+      group.onDidActiveEditorChange((e) => {
+        if (e.editor) {
+          this.addMostRecentEditor(
+            group,
+            e.editor,
+            this.editorGroupsContainer.activeGroup === group,
+            false
+          );
+        }
+      })
+    );
     Event.once(group.onWillDispose)(() => dispose(groupDisposables));
   }
   onDidChangeEditorPartOptions(event) {
@@ -150,7 +181,10 @@ let EditorsObserver = class extends Disposable {
       const activeGroup = this.editorGroupsContainer.activeGroup;
       let exclude = void 0;
       if (activeGroup.activeEditor) {
-        exclude = { editor: activeGroup.activeEditor, groupId: activeGroup.id };
+        exclude = {
+          editor: activeGroup.activeEditor,
+          groupId: activeGroup.id
+        };
       }
       this.ensureOpenedEditorsLimit(exclude);
     }
@@ -159,19 +193,21 @@ let EditorsObserver = class extends Disposable {
     const key = this.ensureKey(group, editor);
     const mostRecentEditor = this.mostRecentEditorsMap.first;
     if (isActive || !mostRecentEditor) {
-      this.mostRecentEditorsMap.set(key, key, mostRecentEditor ? Touch.AsOld : void 0);
+      this.mostRecentEditorsMap.set(
+        key,
+        key,
+        mostRecentEditor ? Touch.AsOld : void 0
+      );
     } else {
       this.mostRecentEditorsMap.set(
         key,
         key,
         Touch.AsOld
-        /* make first */
       );
       this.mostRecentEditorsMap.set(
         mostRecentEditor,
         mostRecentEditor,
         Touch.AsOld
-        /* make first */
       );
     }
     if (isNew) {
@@ -200,9 +236,15 @@ let EditorsObserver = class extends Disposable {
       let editorsPerResource = this.editorsPerResourceCounter.get(resource);
       if (!editorsPerResource) {
         editorsPerResource = /* @__PURE__ */ new Map();
-        this.editorsPerResourceCounter.set(resource, editorsPerResource);
+        this.editorsPerResourceCounter.set(
+          resource,
+          editorsPerResource
+        );
       }
-      editorsPerResource.set(identifier, (editorsPerResource.get(identifier) ?? 0) + 1);
+      editorsPerResource.set(
+        identifier,
+        (editorsPerResource.get(identifier) ?? 0) + 1
+      );
     } else {
       const editorsPerResource = this.editorsPerResourceCounter.get(resource);
       if (editorsPerResource) {
@@ -224,7 +266,7 @@ let EditorsObserver = class extends Disposable {
     if (key) {
       this.mostRecentEditorsMap.delete(key);
       const map = this.keyMap.get(group.id);
-      if (map && map.delete(key.editor) && map.size === 0) {
+      if (map?.delete(key.editor) && map.size === 0) {
         this.keyMap.delete(group.id);
       }
       this._onDidMostRecentlyActiveEditorsChange.fire();
@@ -259,7 +301,11 @@ let EditorsObserver = class extends Disposable {
       if (typeof groupId === "number") {
         const group = this.editorGroupsContainer.getGroup(groupId);
         if (group) {
-          await this.doEnsureOpenedEditorsLimit(limit, group.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE).map((editor) => ({ editor, groupId })), exclude);
+          await this.doEnsureOpenedEditorsLimit(
+            limit,
+            group.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE).map((editor) => ({ editor, groupId })),
+            exclude
+          );
         }
       } else {
         for (const group of this.editorGroupsContainer.groups) {
@@ -267,18 +313,24 @@ let EditorsObserver = class extends Disposable {
         }
       }
     } else {
-      await this.doEnsureOpenedEditorsLimit(limit, [...this.mostRecentEditorsMap.values()], exclude);
+      await this.doEnsureOpenedEditorsLimit(
+        limit,
+        [...this.mostRecentEditorsMap.values()],
+        exclude
+      );
     }
   }
   async doEnsureOpenedEditorsLimit(limit, mostRecentEditors, exclude) {
     let mostRecentEditorsCountingForLimit;
     if (this.editorGroupService.partOptions.limit?.excludeDirty) {
-      mostRecentEditorsCountingForLimit = mostRecentEditors.filter(({ editor }) => {
-        if (editor.isDirty() && !editor.isSaving() || editor.hasCapability(EditorInputCapabilities.Scratchpad)) {
-          return false;
+      mostRecentEditorsCountingForLimit = mostRecentEditors.filter(
+        ({ editor }) => {
+          if (editor.isDirty() && !editor.isSaving() || editor.hasCapability(EditorInputCapabilities.Scratchpad)) {
+            return false;
+          }
+          return true;
         }
-        return true;
-      });
+      );
     } else {
       mostRecentEditorsCountingForLimit = mostRecentEditors;
     }
@@ -323,35 +375,50 @@ let EditorsObserver = class extends Disposable {
       return;
     }
     if (this.mostRecentEditorsMap.isEmpty()) {
-      this.storageService.remove(EditorsObserver.STORAGE_KEY, StorageScope.WORKSPACE);
+      this.storageService.remove(
+        EditorsObserver.STORAGE_KEY,
+        StorageScope.WORKSPACE
+      );
     } else {
-      this.storageService.store(EditorsObserver.STORAGE_KEY, JSON.stringify(this.serialize()), StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      this.storageService.store(
+        EditorsObserver.STORAGE_KEY,
+        JSON.stringify(this.serialize()),
+        StorageScope.WORKSPACE,
+        StorageTarget.MACHINE
+      );
     }
   }
   serialize() {
-    const registry = Registry.as(EditorExtensions.EditorFactory);
+    const registry = Registry.as(
+      EditorExtensions.EditorFactory
+    );
     const entries = [...this.mostRecentEditorsMap.values()];
     const mapGroupToSerializableEditorsOfGroup = /* @__PURE__ */ new Map();
     return {
-      entries: coalesce(entries.map(({ editor, groupId }) => {
-        const group = this.editorGroupsContainer.getGroup(groupId);
-        if (!group) {
-          return void 0;
-        }
-        let serializableEditorsOfGroup = mapGroupToSerializableEditorsOfGroup.get(group);
-        if (!serializableEditorsOfGroup) {
-          serializableEditorsOfGroup = group.getEditors(EditorsOrder.SEQUENTIAL).filter((editor2) => {
-            const editorSerializer = registry.getEditorSerializer(editor2);
-            return editorSerializer?.canSerialize(editor2);
-          });
-          mapGroupToSerializableEditorsOfGroup.set(group, serializableEditorsOfGroup);
-        }
-        const index = serializableEditorsOfGroup.indexOf(editor);
-        if (index === -1) {
-          return void 0;
-        }
-        return { groupId, index };
-      }))
+      entries: coalesce(
+        entries.map(({ editor, groupId }) => {
+          const group = this.editorGroupsContainer.getGroup(groupId);
+          if (!group) {
+            return void 0;
+          }
+          let serializableEditorsOfGroup = mapGroupToSerializableEditorsOfGroup.get(group);
+          if (!serializableEditorsOfGroup) {
+            serializableEditorsOfGroup = group.getEditors(EditorsOrder.SEQUENTIAL).filter((editor2) => {
+              const editorSerializer = registry.getEditorSerializer(editor2);
+              return editorSerializer?.canSerialize(editor2);
+            });
+            mapGroupToSerializableEditorsOfGroup.set(
+              group,
+              serializableEditorsOfGroup
+            );
+          }
+          const index = serializableEditorsOfGroup.indexOf(editor);
+          if (index === -1) {
+            return void 0;
+          }
+          return { groupId, index };
+        })
+      )
     };
   }
   async loadState() {
@@ -360,24 +427,30 @@ let EditorsObserver = class extends Disposable {
     }
     let hasRestorableState = false;
     if (!this.isScoped) {
-      const serialized = this.storageService.get(EditorsObserver.STORAGE_KEY, StorageScope.WORKSPACE);
+      const serialized = this.storageService.get(
+        EditorsObserver.STORAGE_KEY,
+        StorageScope.WORKSPACE
+      );
       if (serialized) {
         hasRestorableState = true;
         this.deserialize(JSON.parse(serialized));
       }
     }
     if (!hasRestorableState) {
-      const groups = this.editorGroupsContainer.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
+      const groups = this.editorGroupsContainer.getGroups(
+        GroupsOrder.MOST_RECENTLY_ACTIVE
+      );
       for (let i = groups.length - 1; i >= 0; i--) {
         const group = groups[i];
-        const groupEditorsMru = group.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE);
+        const groupEditorsMru = group.getEditors(
+          EditorsOrder.MOST_RECENTLY_ACTIVE
+        );
         for (let i2 = groupEditorsMru.length - 1; i2 >= 0; i2--) {
           this.addMostRecentEditor(
             group,
             groupEditorsMru[i2],
             true,
             true
-            /* is new */
           );
         }
       }

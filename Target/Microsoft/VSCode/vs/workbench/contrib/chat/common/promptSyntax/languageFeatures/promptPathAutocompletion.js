@@ -10,24 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { assert, assertNever } from "../../../../../../base/common/assert.js";
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { Disposable } from "../../../../../../base/common/lifecycle.js";
+import { isWindows } from "../../../../../../base/common/platform.js";
+import { dirname, extUri } from "../../../../../../base/common/resources.js";
+import { assertOneOf } from "../../../../../../base/common/types.js";
+import {
+  CompletionItemKind
+} from "../../../../../../editor/common/languages.js";
+import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import {
+  Extensions as WorkbenchExtensions
+} from "../../../../../common/contributions.js";
+import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
 import { LANGUAGE_SELECTOR } from "../constants.js";
 import { IPromptsService } from "../service/types.js";
-import { URI } from "../../../../../../base/common/uri.js";
-import { assertOneOf } from "../../../../../../base/common/types.js";
-import { isWindows } from "../../../../../../base/common/platform.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
-import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { CancellationError } from "../../../../../../base/common/errors.js";
-import { Position } from "../../../../../../editor/common/core/position.js";
-import { dirname, extUri } from "../../../../../../base/common/resources.js";
-import { assert, assertNever } from "../../../../../../base/common/assert.js";
-import { IFileService } from "../../../../../../platform/files/common/files.js";
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
-import { Registry } from "../../../../../../platform/registry/common/platform.js";
-import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
-import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
-import { IWorkbenchContributionsRegistry, Extensions as WorkbenchExtensions } from "../../../../../common/contributions.js";
-import { CompletionContext, CompletionItem, CompletionItemKind, CompletionItemProvider, CompletionList } from "../../../../../../editor/common/languages.js";
 const findFileReference = /* @__PURE__ */ __name((references, position) => {
   for (const reference of references) {
     const { range } = reference;
@@ -51,7 +51,12 @@ let PromptPathAutocompletion = class extends Disposable {
     this.fileService = fileService;
     this.promptSyntaxService = promptSyntaxService;
     this.languageService = languageService;
-    this._register(this.languageService.completionProvider.register(LANGUAGE_SELECTOR, this));
+    this._register(
+      this.languageService.completionProvider.register(
+        LANGUAGE_SELECTOR,
+        this
+      )
+    );
   }
   static {
     __name(this, "PromptPathAutocompletion");
@@ -69,10 +74,7 @@ let PromptPathAutocompletion = class extends Disposable {
    * completion items based on the provided arguments.
    */
   async provideCompletionItems(model, position, context, token) {
-    assert(
-      !token.isCancellationRequested,
-      new CancellationError()
-    );
+    assert(!token.isCancellationRequested, new CancellationError());
     const { triggerCharacter } = context;
     if (!triggerCharacter) {
       return void 0;
@@ -80,18 +82,12 @@ let PromptPathAutocompletion = class extends Disposable {
     assertOneOf(
       triggerCharacter,
       this.triggerCharacters,
-      `Prompt path autocompletion provider`
+      "Prompt path autocompletion provider"
     );
     const parser = this.promptSyntaxService.getSyntaxParserFor(model);
-    assert(
-      !parser.disposed,
-      "Prompt parser must not be disposed."
-    );
+    assert(!parser.disposed, "Prompt parser must not be disposed.");
     const { references } = await parser.start().settled();
-    assert(
-      !token.isCancellationRequested,
-      new CancellationError()
-    );
+    assert(!token.isCancellationRequested, new CancellationError());
     const fileReference = findFileReference(references, position);
     if (!fileReference) {
       return void 0;
@@ -225,7 +221,12 @@ PromptPathAutocompletion = __decorateClass([
   __decorateParam(2, ILanguageFeaturesService)
 ], PromptPathAutocompletion);
 if (!isWindows) {
-  Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(PromptPathAutocompletion, LifecyclePhase.Eventually);
+  Registry.as(
+    WorkbenchExtensions.Workbench
+  ).registerWorkbenchContribution(
+    PromptPathAutocompletion,
+    LifecyclePhase.Eventually
+  );
 }
 export {
   PromptPathAutocompletion

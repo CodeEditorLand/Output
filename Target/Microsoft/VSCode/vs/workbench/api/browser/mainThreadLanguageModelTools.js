@@ -13,16 +13,30 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { CancellationToken } from "../../../base/common/cancellation.js";
 import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
 import { revive } from "../../../base/common/marshalling.js";
-import { CountTokensCallback, ILanguageModelToolsService, IToolData, IToolInvocation, IToolResult } from "../../contrib/chat/common/languageModelToolsService.js";
-import { IExtHostContext, extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-import { Dto } from "../../services/extensions/common/proxyIdentifier.js";
-import { ExtHostContext, ExtHostLanguageModelToolsShape, MainContext, MainThreadLanguageModelToolsShape } from "../common/extHost.protocol.js";
+import {
+  ILanguageModelToolsService
+} from "../../contrib/chat/common/languageModelToolsService.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadLanguageModelTools = class extends Disposable {
   constructor(extHostContext, _languageModelToolsService) {
     super();
     this._languageModelToolsService = _languageModelToolsService;
-    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostLanguageModelTools);
-    this._register(this._languageModelToolsService.onDidChangeTools((e) => this._proxy.$onDidChangeTools([...this._languageModelToolsService.getTools()])));
+    this._proxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostLanguageModelTools
+    );
+    this._register(
+      this._languageModelToolsService.onDidChangeTools(
+        (e) => this._proxy.$onDidChangeTools([
+          ...this._languageModelToolsService.getTools()
+        ])
+      )
+    );
   }
   _proxy;
   _tools = this._register(new DisposableMap());
@@ -48,21 +62,21 @@ let MainThreadLanguageModelTools = class extends Disposable {
     return fn(input, token);
   }
   $registerTool(id) {
-    const disposable = this._languageModelToolsService.registerToolImplementation(
-      id,
-      {
-        invoke: /* @__PURE__ */ __name(async (dto, countTokens, token) => {
-          try {
-            this._countTokenCallbacks.set(dto.callId, countTokens);
-            const resultDto = await this._proxy.$invokeTool(dto, token);
-            return revive(resultDto);
-          } finally {
-            this._countTokenCallbacks.delete(dto.callId);
-          }
-        }, "invoke"),
-        prepareToolInvocation: /* @__PURE__ */ __name((parameters, token) => this._proxy.$prepareToolInvocation(id, parameters, token), "prepareToolInvocation")
-      }
-    );
+    const disposable = this._languageModelToolsService.registerToolImplementation(id, {
+      invoke: /* @__PURE__ */ __name(async (dto, countTokens, token) => {
+        try {
+          this._countTokenCallbacks.set(dto.callId, countTokens);
+          const resultDto = await this._proxy.$invokeTool(
+            dto,
+            token
+          );
+          return revive(resultDto);
+        } finally {
+          this._countTokenCallbacks.delete(dto.callId);
+        }
+      }, "invoke"),
+      prepareToolInvocation: /* @__PURE__ */ __name((parameters, token) => this._proxy.$prepareToolInvocation(id, parameters, token), "prepareToolInvocation")
+    });
     this._tools.set(id, disposable);
   }
   $unregisterTool(name) {

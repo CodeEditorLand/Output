@@ -2,27 +2,49 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { raceTimeout } from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { IExtensionRecommendations } from "../../../../base/common/product.js";
 import { localize } from "../../../../nls.js";
 import { RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
-import { IExtensionGalleryService, IGalleryExtension } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { ISearchResult, ISettingsEditorModel } from "../../../services/preferences/common/preferences.js";
 const IPreferencesSearchService = createDecorator("preferencesSearchService");
 const SETTINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = "settings.action.clearSearchResults";
 const SETTINGS_EDITOR_COMMAND_SHOW_CONTEXT_MENU = "settings.action.showContextMenu";
 const SETTINGS_EDITOR_COMMAND_SUGGEST_FILTERS = "settings.action.suggestFilters";
-const CONTEXT_SETTINGS_EDITOR = new RawContextKey("inSettingsEditor", false);
-const CONTEXT_SETTINGS_JSON_EDITOR = new RawContextKey("inSettingsJSONEditor", false);
-const CONTEXT_SETTINGS_SEARCH_FOCUS = new RawContextKey("inSettingsSearch", false);
-const CONTEXT_TOC_ROW_FOCUS = new RawContextKey("settingsTocRowFocus", false);
-const CONTEXT_SETTINGS_ROW_FOCUS = new RawContextKey("settingRowFocus", false);
-const CONTEXT_KEYBINDINGS_EDITOR = new RawContextKey("inKeybindings", false);
-const CONTEXT_KEYBINDINGS_SEARCH_FOCUS = new RawContextKey("inKeybindingsSearch", false);
-const CONTEXT_KEYBINDING_FOCUS = new RawContextKey("keybindingFocus", false);
-const CONTEXT_WHEN_FOCUS = new RawContextKey("whenFocus", false);
+const CONTEXT_SETTINGS_EDITOR = new RawContextKey(
+  "inSettingsEditor",
+  false
+);
+const CONTEXT_SETTINGS_JSON_EDITOR = new RawContextKey(
+  "inSettingsJSONEditor",
+  false
+);
+const CONTEXT_SETTINGS_SEARCH_FOCUS = new RawContextKey(
+  "inSettingsSearch",
+  false
+);
+const CONTEXT_TOC_ROW_FOCUS = new RawContextKey(
+  "settingsTocRowFocus",
+  false
+);
+const CONTEXT_SETTINGS_ROW_FOCUS = new RawContextKey(
+  "settingRowFocus",
+  false
+);
+const CONTEXT_KEYBINDINGS_EDITOR = new RawContextKey(
+  "inKeybindings",
+  false
+);
+const CONTEXT_KEYBINDINGS_SEARCH_FOCUS = new RawContextKey(
+  "inKeybindingsSearch",
+  false
+);
+const CONTEXT_KEYBINDING_FOCUS = new RawContextKey(
+  "keybindingFocus",
+  false
+);
+const CONTEXT_WHEN_FOCUS = new RawContextKey(
+  "whenFocus",
+  false
+);
 const KEYBINDINGS_EDITOR_COMMAND_SEARCH = "keybindings.editor.searchKeybindings";
 const KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_RESULTS = "keybindings.editor.clearSearchResults";
 const KEYBINDINGS_EDITOR_COMMAND_CLEAR_SEARCH_HISTORY = "keybindings.editor.clearSearchHistory";
@@ -69,18 +91,26 @@ async function getExperimentalExtensionToggleData(extensionGalleryService, produ
   }
   if (productService.extensionRecommendations && productService.commonlyUsedSettings) {
     const settingsEditorRecommendedExtensions = {};
-    Object.keys(productService.extensionRecommendations).forEach((extensionId) => {
-      const extensionInfo = productService.extensionRecommendations[extensionId];
-      if (extensionInfo.onSettingsEditorOpen) {
-        settingsEditorRecommendedExtensions[extensionId] = extensionInfo;
+    Object.keys(productService.extensionRecommendations).forEach(
+      (extensionId) => {
+        const extensionInfo = productService.extensionRecommendations?.[extensionId];
+        if (extensionInfo.onSettingsEditorOpen) {
+          settingsEditorRecommendedExtensions[extensionId] = extensionInfo;
+        }
       }
-    });
+    );
     const recommendedExtensionsGalleryInfo = {};
     for (const key in settingsEditorRecommendedExtensions) {
       const extensionId = key;
       const isStable = productService.quality === "stable";
       try {
-        const extensions = await raceTimeout(extensionGalleryService.getExtensions([{ id: extensionId, preRelease: !isStable }], CancellationToken.None), EXTENSION_FETCH_TIMEOUT_MS);
+        const extensions = await raceTimeout(
+          extensionGalleryService.getExtensions(
+            [{ id: extensionId, preRelease: !isStable }],
+            CancellationToken.None
+          ),
+          EXTENSION_FETCH_TIMEOUT_MS
+        );
         if (extensions?.length === 1) {
           recommendedExtensionsGalleryInfo[key] = extensions[0];
         } else {
@@ -112,8 +142,14 @@ function compareTwoNullableNumbers(a, b) {
   }
 }
 __name(compareTwoNullableNumbers, "compareTwoNullableNumbers");
-const PREVIEW_INDICATOR_DESCRIPTION = localize("previewIndicatorDescription", "Preview setting: this setting controls a new feature that is still under refinement yet ready to use. Feedback is welcome.");
-const EXPERIMENTAL_INDICATOR_DESCRIPTION = localize("experimentalIndicatorDescription", "Experimental setting: this setting controls a new feature that is actively being developed and may be unstable. It is subject to change or removal.");
+const PREVIEW_INDICATOR_DESCRIPTION = localize(
+  "previewIndicatorDescription",
+  "Preview setting: this setting controls a new feature that is still under refinement yet ready to use. Feedback is welcome."
+);
+const EXPERIMENTAL_INDICATOR_DESCRIPTION = localize(
+  "experimentalIndicatorDescription",
+  "Experimental setting: this setting controls a new feature that is actively being developed and may be unstable. It is subject to change or removal."
+);
 export {
   CONTEXT_KEYBINDINGS_EDITOR,
   CONTEXT_KEYBINDINGS_SEARCH_FOCUS,

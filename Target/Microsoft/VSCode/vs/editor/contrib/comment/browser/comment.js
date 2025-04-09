@@ -1,18 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeyChord, KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, IActionOptions, registerEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
+import * as nls from "../../../../nls.js";
+import { MenuId } from "../../../../platform/actions/common/actions.js";
+import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  EditorAction,
+  registerEditorAction
+} from "../../../browser/editorExtensions.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
 import { Range } from "../../../common/core/range.js";
-import { ICommand } from "../../../common/editorCommon.js";
 import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
 import { BlockCommentCommand } from "./blockCommentCommand.js";
 import { LineCommentCommand, Type } from "./lineCommentCommand.js";
-import * as nls from "../../../../nls.js";
-import { MenuId } from "../../../../platform/actions/common/actions.js";
-import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
 class CommentLineAction extends EditorAction {
   static {
     __name(this, "CommentLineAction");
@@ -23,7 +24,9 @@ class CommentLineAction extends EditorAction {
     this._type = type;
   }
   run(accessor, editor) {
-    const languageConfigurationService = accessor.get(ILanguageConfigurationService);
+    const languageConfigurationService = accessor.get(
+      ILanguageConfigurationService
+    );
     if (!editor.hasModel()) {
       return;
     }
@@ -31,8 +34,14 @@ class CommentLineAction extends EditorAction {
     const commands = [];
     const modelOptions = model.getOptions();
     const commentsOptions = editor.getOption(EditorOption.comments);
-    const selections = editor.getSelections().map((selection, index) => ({ selection, index, ignoreFirstLine: false }));
-    selections.sort((a, b) => Range.compareRangesUsingStarts(a.selection, b.selection));
+    const selections = editor.getSelections().map((selection, index) => ({
+      selection,
+      index,
+      ignoreFirstLine: false
+    }));
+    selections.sort(
+      (a, b) => Range.compareRangesUsingStarts(a.selection, b.selection)
+    );
     let prev = selections[0];
     for (let i = 1; i < selections.length; i++) {
       const curr = selections[i];
@@ -46,15 +55,17 @@ class CommentLineAction extends EditorAction {
       }
     }
     for (const selection of selections) {
-      commands.push(new LineCommentCommand(
-        languageConfigurationService,
-        selection.selection,
-        modelOptions.indentSize,
-        this._type,
-        commentsOptions.insertSpace,
-        commentsOptions.ignoreEmptyLines,
-        selection.ignoreFirstLine
-      ));
+      commands.push(
+        new LineCommentCommand(
+          languageConfigurationService,
+          selection.selection,
+          modelOptions.indentSize,
+          this._type,
+          commentsOptions.insertSpace,
+          commentsOptions.ignoreEmptyLines,
+          selection.ignoreFirstLine
+        )
+      );
     }
     editor.pushUndoStop();
     editor.executeCommands(this.id, commands);
@@ -78,7 +89,13 @@ class ToggleCommentLineAction extends CommentLineAction {
       menuOpts: {
         menuId: MenuId.MenubarEditMenu,
         group: "5_insert",
-        title: nls.localize({ key: "miToggleLineComment", comment: ["&& denotes a mnemonic"] }, "&&Toggle Line Comment"),
+        title: nls.localize(
+          {
+            key: "miToggleLineComment",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "&&Toggle Line Comment"
+        ),
         order: 1
       }
     });
@@ -95,7 +112,10 @@ class AddLineCommentAction extends CommentLineAction {
       precondition: EditorContextKeys.writable,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
-        primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyC),
+        primary: KeyChord(
+          KeyMod.CtrlCmd | KeyCode.KeyK,
+          KeyMod.CtrlCmd | KeyCode.KeyC
+        ),
         weight: KeybindingWeight.EditorContrib
       }
     });
@@ -112,7 +132,10 @@ class RemoveLineCommentAction extends CommentLineAction {
       precondition: EditorContextKeys.writable,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
-        primary: KeyChord(KeyMod.CtrlCmd | KeyCode.KeyK, KeyMod.CtrlCmd | KeyCode.KeyU),
+        primary: KeyChord(
+          KeyMod.CtrlCmd | KeyCode.KeyK,
+          KeyMod.CtrlCmd | KeyCode.KeyU
+        ),
         weight: KeybindingWeight.EditorContrib
       }
     });
@@ -130,19 +153,29 @@ class BlockCommentAction extends EditorAction {
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
         primary: KeyMod.Shift | KeyMod.Alt | KeyCode.KeyA,
-        linux: { primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyA },
+        linux: {
+          primary: KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyA
+        },
         weight: KeybindingWeight.EditorContrib
       },
       menuOpts: {
         menuId: MenuId.MenubarEditMenu,
         group: "5_insert",
-        title: nls.localize({ key: "miToggleBlockComment", comment: ["&& denotes a mnemonic"] }, "Toggle &&Block Comment"),
+        title: nls.localize(
+          {
+            key: "miToggleBlockComment",
+            comment: ["&& denotes a mnemonic"]
+          },
+          "Toggle &&Block Comment"
+        ),
         order: 2
       }
     });
   }
   run(accessor, editor) {
-    const languageConfigurationService = accessor.get(ILanguageConfigurationService);
+    const languageConfigurationService = accessor.get(
+      ILanguageConfigurationService
+    );
     if (!editor.hasModel()) {
       return;
     }
@@ -150,7 +183,13 @@ class BlockCommentAction extends EditorAction {
     const commands = [];
     const selections = editor.getSelections();
     for (const selection of selections) {
-      commands.push(new BlockCommentCommand(selection, commentsOptions.insertSpace, languageConfigurationService));
+      commands.push(
+        new BlockCommentCommand(
+          selection,
+          commentsOptions.insertSpace,
+          languageConfigurationService
+        )
+      );
     }
     editor.pushUndoStop();
     editor.executeCommands(this.id, commands);

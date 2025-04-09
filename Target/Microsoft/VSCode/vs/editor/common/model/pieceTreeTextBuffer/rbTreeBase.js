@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Piece, PieceTreeBase } from "./pieceTreeBase.js";
 class TreeNode {
   static {
     __name(this, "TreeNode");

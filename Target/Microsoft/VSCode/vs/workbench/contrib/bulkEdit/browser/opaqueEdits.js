@@ -10,13 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { isObject } from "../../../../base/common/types.js";
-import { URI } from "../../../../base/common/uri.js";
 import { ResourceEdit } from "../../../../editor/browser/services/bulkEditService.js";
-import { ICustomEdit, WorkspaceEditMetadata } from "../../../../editor/common/languages.js";
-import { IProgress } from "../../../../platform/progress/common/progress.js";
-import { IUndoRedoService, UndoRedoElementType, UndoRedoGroup, UndoRedoSource } from "../../../../platform/undoRedo/common/undoRedo.js";
+import {
+  IUndoRedoService,
+  UndoRedoElementType
+} from "../../../../platform/undoRedo/common/undoRedo.js";
 class ResourceAttachmentEdit extends ResourceEdit {
   constructor(resource, undo, redo, metadata) {
     super(metadata);
@@ -31,14 +30,21 @@ class ResourceAttachmentEdit extends ResourceEdit {
     if (candidate instanceof ResourceAttachmentEdit) {
       return true;
     } else {
-      return isObject(candidate) && Boolean(candidate.undo && candidate.redo);
+      return isObject(candidate) && Boolean(
+        candidate.undo && candidate.redo
+      );
     }
   }
   static lift(edit) {
     if (edit instanceof ResourceAttachmentEdit) {
       return edit;
     } else {
-      return new ResourceAttachmentEdit(edit.resource, edit.undo, edit.redo, edit.metadata);
+      return new ResourceAttachmentEdit(
+        edit.resource,
+        edit.undo,
+        edit.redo,
+        edit.metadata
+      );
     }
   }
 }
@@ -61,14 +67,18 @@ let OpaqueEdits = class {
         break;
       }
       await edit.redo();
-      this._undoRedoService.pushElement({
-        type: UndoRedoElementType.Resource,
-        resource: edit.resource,
-        label: edit.metadata?.label || "Custom Edit",
-        code: "paste",
-        undo: edit.undo,
-        redo: edit.redo
-      }, this._undoRedoGroup, this._undoRedoSource);
+      this._undoRedoService.pushElement(
+        {
+          type: UndoRedoElementType.Resource,
+          resource: edit.resource,
+          label: edit.metadata?.label || "Custom Edit",
+          code: "paste",
+          undo: edit.undo,
+          redo: edit.redo
+        },
+        this._undoRedoGroup,
+        this._undoRedoSource
+      );
       this._progress.report(void 0);
       resources.push(edit.resource);
     }

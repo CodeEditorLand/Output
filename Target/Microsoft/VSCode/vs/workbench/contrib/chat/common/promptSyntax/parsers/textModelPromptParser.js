@@ -10,17 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { BasePromptParser } from "./basePromptParser.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
 import { TextModelContentsProvider } from "../contentProviders/textModelContentsProvider.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { BasePromptParser } from "./basePromptParser.js";
 let TextModelPromptParser = class extends BasePromptParser {
   static {
     __name(this, "TextModelPromptParser");
   }
-  constructor(model, seenReferences = [], initService, logService) {
-    const contentsProvider = initService.createInstance(TextModelContentsProvider, model);
+  constructor(model, seenReferences, initService, logService) {
+    const contentsProvider = initService.createInstance(
+      TextModelContentsProvider,
+      model
+    );
     super(contentsProvider, seenReferences, initService, logService);
     this._register(contentsProvider);
   }

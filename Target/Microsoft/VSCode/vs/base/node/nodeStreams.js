@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Transform } from "stream";
+import { Transform } from "node:stream";
 import { binaryIndexOf } from "../common/buffer.js";
 class StreamSplitter extends Transform {
   static {

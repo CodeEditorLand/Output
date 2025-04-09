@@ -18,8 +18,10 @@ import { IConfigurationService } from "../../../../platform/configuration/common
 import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { IV8Profile } from "../../../../platform/profiling/common/profiling.js";
-import { IProfileAnalysisWorkerService, ProfilingOutput } from "../../../../platform/profiling/electron-sandbox/profileAnalysisWorkerService.js";
+import {
+  IProfileAnalysisWorkerService,
+  ProfilingOutput
+} from "../../../../platform/profiling/electron-sandbox/profileAnalysisWorkerService.js";
 import { INativeWorkbenchEnvironmentService } from "../../../services/environment/electron-sandbox/environmentService.js";
 import { parseExtensionDevOptions } from "../../../services/extensions/common/extensionDevOptions.js";
 import { ITimerService } from "../../../services/timer/browser/timerService.js";
@@ -33,7 +35,9 @@ let RendererProfiling = class {
       return;
     }
     timerService.perfBaseline.then((perfBaseline) => {
-      (_environmentService.isBuilt ? _logService.info : _logService.trace).apply(_logService, [`[perf] Render performance baseline is ${perfBaseline}ms`]);
+      (_environmentService.isBuilt ? _logService.info : _logService.trace).apply(_logService, [
+        `[perf] Render performance baseline is ${perfBaseline}ms`
+      ]);
       if (perfBaseline < 0) {
         return;
       }
@@ -44,17 +48,31 @@ let RendererProfiling = class {
         if (maxDuration < slowThreshold) {
           return;
         }
-        if (!configService.getValue("application.experimental.rendererProfiling")) {
-          _logService.debug(`[perf] SLOW task detected (${maxDuration}ms) but renderer profiling is disabled via 'application.experimental.rendererProfiling'`);
+        if (!configService.getValue(
+          "application.experimental.rendererProfiling"
+        )) {
+          _logService.debug(
+            `[perf] SLOW task detected (${maxDuration}ms) but renderer profiling is disabled via 'application.experimental.rendererProfiling'`
+          );
           return;
         }
         const sessionId = generateUuid();
-        _logService.warn(`[perf] Renderer reported VERY LONG TASK (${maxDuration}ms), starting profiling session '${sessionId}'`);
+        _logService.warn(
+          `[perf] Renderer reported VERY LONG TASK (${maxDuration}ms), starting profiling session '${sessionId}'`
+        );
         obs.disconnect();
         for (let i = 0; i < 3; i++) {
           try {
-            const profile = await nativeHostService.profileRenderer(sessionId, 5e3);
-            const output = await profileAnalysisService.analyseBottomUp(profile, (_url) => "<<renderer>>", perfBaseline, true);
+            const profile = await nativeHostService.profileRenderer(
+              sessionId,
+              5e3
+            );
+            const output = await profileAnalysisService.analyseBottomUp(
+              profile,
+              (_url) => "<<renderer>>",
+              perfBaseline,
+              true
+            );
             if (output === ProfilingOutput.Interesting) {
               this._store(profile, sessionId);
               break;
@@ -79,9 +97,18 @@ let RendererProfiling = class {
     this._observer?.disconnect();
   }
   async _store(profile, sessionId) {
-    const path = joinPath(this._environmentService.tmpDir, `renderer-${Math.random().toString(16).slice(2, 8)}.cpuprofile.json`);
-    await this._fileService.writeFile(path, VSBuffer.fromString(JSON.stringify(profile)));
-    this._logService.info(`[perf] stored profile to DISK '${path}'`, sessionId);
+    const path = joinPath(
+      this._environmentService.tmpDir,
+      `renderer-${Math.random().toString(16).slice(2, 8)}.cpuprofile.json`
+    );
+    await this._fileService.writeFile(
+      path,
+      VSBuffer.fromString(JSON.stringify(profile))
+    );
+    this._logService.info(
+      `[perf] stored profile to DISK '${path}'`,
+      sessionId
+    );
   }
 };
 RendererProfiling = __decorateClass([

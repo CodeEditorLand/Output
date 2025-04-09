@@ -10,13 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IProgress, IProgressService, IProgressStep, ProgressLocation, IProgressOptions, IProgressNotificationOptions } from "../../../platform/progress/common/progress.js";
-import { MainThreadProgressShape, MainContext, ExtHostProgressShape, ExtHostContext } from "../common/extHost.protocol.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { ICommandService } from "../../../platform/commands/common/commands.js";
-import { localize } from "../../../nls.js";
-import { onUnexpectedExternalError } from "../../../base/common/errors.js";
 import { toAction } from "../../../base/common/actions.js";
+import { onUnexpectedExternalError } from "../../../base/common/errors.js";
+import { localize } from "../../../nls.js";
+import { ICommandService } from "../../../platform/commands/common/commands.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../platform/progress/common/progress.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadProgress = class {
   constructor(extHostContext, progressService, _commandService) {
     this._commandService = _commandService;
@@ -36,16 +44,25 @@ let MainThreadProgress = class {
       const notificationOptions = {
         ...options,
         location: ProgressLocation.Notification,
-        secondaryActions: [toAction({
-          id: extensionId,
-          label: localize("manageExtension", "Manage Extension"),
-          run: /* @__PURE__ */ __name(() => this._commandService.executeCommand("_extensions.manage", extensionId), "run")
-        })]
+        secondaryActions: [
+          toAction({
+            id: extensionId,
+            label: localize("manageExtension", "Manage Extension"),
+            run: /* @__PURE__ */ __name(() => this._commandService.executeCommand(
+              "_extensions.manage",
+              extensionId
+            ), "run")
+          })
+        ]
       };
       options = notificationOptions;
     }
     try {
-      this._progressService.withProgress(options, task, () => this._proxy.$acceptProgressCanceled(handle));
+      this._progressService.withProgress(
+        options,
+        task,
+        () => this._proxy.$acceptProgressCanceled(handle)
+      );
     } catch (err) {
       onUnexpectedExternalError(err);
     }

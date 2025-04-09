@@ -10,29 +10,38 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { BrowserWindow, BrowserWindowConstructorOptions, contentTracing, Display, IpcMainEvent, screen } from "electron";
+import {
+  BrowserWindow,
+  contentTracing,
+  screen
+} from "electron";
 import { randomPath } from "../../../base/common/extpath.js";
 import { DisposableStore } from "../../../base/common/lifecycle.js";
 import { FileAccess } from "../../../base/common/network.js";
-import { IProcessEnvironment, isMacintosh } from "../../../base/common/platform.js";
+import {
+  isMacintosh
+} from "../../../base/common/platform.js";
 import { listProcesses } from "../../../base/node/ps.js";
 import { validatedIpcMain } from "../../../base/parts/ipc/electron-main/ipcMain.js";
 import { getNLSLanguage, getNLSMessages, localize } from "../../../nls.js";
-import { IDiagnosticsService, isRemoteDiagnosticError, PerformanceInfo, SystemInfo } from "../../diagnostics/common/diagnostics.js";
+import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
+import {
+  IDiagnosticsService,
+  isRemoteDiagnosticError
+} from "../../diagnostics/common/diagnostics.js";
 import { IDiagnosticsMainService } from "../../diagnostics/electron-main/diagnosticsMainService.js";
 import { IDialogMainService } from "../../dialogs/electron-main/dialogMainService.js";
 import { IEnvironmentMainService } from "../../environment/electron-main/environmentMainService.js";
-import { ICSSDevelopmentService } from "../../cssDev/node/cssDevService.js";
-import { IProcessMainService, ProcessExplorerData, ProcessExplorerWindowConfiguration } from "../common/process.js";
 import { ILogService } from "../../log/common/log.js";
 import { INativeHostMainService } from "../../native/electron-main/nativeHostMainService.js";
 import product from "../../product/common/product.js";
 import { IProductService } from "../../product/common/productService.js";
-import { IIPCObjectUrl, IProtocolMainService } from "../../protocol/electron-main/protocol.js";
+import {
+  IProtocolMainService
+} from "../../protocol/electron-main/protocol.js";
 import { IStateService } from "../../state/node/state.js";
 import { UtilityProcess } from "../../utilityProcess/electron-main/utilityProcess.js";
 import { zoomLevelToZoomFactor } from "../../window/common/window.js";
-import { IWindowState } from "../../window/electron-main/window.js";
 const processExplorerWindowState = "issue.processExplorerWindowState";
 let ProcessMainService = class {
   constructor(userEnv, environmentMainService, logService, diagnosticsService, diagnosticsMainService, dialogMainService, nativeHostMainService, protocolMainService, productService, stateService, cssDevelopmentService) {
@@ -60,8 +69,13 @@ let ProcessMainService = class {
     validatedIpcMain.on("vscode:listProcesses", async (event) => {
       const processes = [];
       try {
-        processes.push({ name: localize("local", "Local"), rootProcess: await listProcesses(process.pid) });
-        const remoteDiagnostics = await this.diagnosticsMainService.getRemoteDiagnostics({ includeProcesses: true });
+        processes.push({
+          name: localize("local", "Local"),
+          rootProcess: await listProcesses(process.pid)
+        });
+        const remoteDiagnostics = await this.diagnosticsMainService.getRemoteDiagnostics({
+          includeProcesses: true
+        });
         remoteDiagnostics.forEach((data) => {
           if (isRemoteDiagnosticError(data)) {
             processes.push({
@@ -82,18 +96,25 @@ let ProcessMainService = class {
       }
       this.safeSend(event, "vscode:listProcessesResponse", processes);
     });
-    validatedIpcMain.on("vscode:workbenchCommand", (_, commandInfo) => {
-      const { id, from, args } = commandInfo;
-      let parentWindow;
-      switch (from) {
-        case "processExplorer":
-          parentWindow = this.processExplorerParentWindow;
-          break;
-        default:
-          throw new Error(`Unexpected command source: ${from}`);
+    validatedIpcMain.on(
+      "vscode:workbenchCommand",
+      (_, commandInfo) => {
+        const { id, from, args } = commandInfo;
+        let parentWindow;
+        switch (from) {
+          case "processExplorer":
+            parentWindow = this.processExplorerParentWindow;
+            break;
+          default:
+            throw new Error(`Unexpected command source: ${from}`);
+        }
+        parentWindow?.webContents.send("vscode:runAction", {
+          id,
+          from,
+          args
+        });
       }
-      parentWindow?.webContents.send("vscode:runAction", { id, from, args });
-    });
+    );
     validatedIpcMain.on("vscode:closeProcessExplorer", (event) => {
       this.processExplorerWindow?.close();
     });
@@ -101,7 +122,10 @@ let ProcessMainService = class {
       const mainProcessInfo = await this.diagnosticsMainService.getMainDiagnostics();
       const pidToNames = [];
       for (const window of mainProcessInfo.windows) {
-        pidToNames.push([window.pid, `window [${window.id}] (${window.title})`]);
+        pidToNames.push([
+          window.pid,
+          `window [${window.id}] (${window.title})`
+        ]);
       }
       for (const { pid, name } of UtilityProcess.getAll()) {
         pidToNames.push([pid, name]);
@@ -114,15 +138,29 @@ let ProcessMainService = class {
       this.processExplorerParentWindow = BrowserWindow.getFocusedWindow();
       if (this.processExplorerParentWindow) {
         const processExplorerDisposables = new DisposableStore();
-        const processExplorerWindowConfigUrl = processExplorerDisposables.add(this.protocolMainService.createIPCObjectUrl());
-        const savedPosition = this.stateService.getItem(processExplorerWindowState, void 0);
-        const position = isStrictWindowState(savedPosition) ? savedPosition : this.getWindowPosition(this.processExplorerParentWindow, 800, 500);
-        this.processExplorerWindow = this.createBrowserWindow(position, processExplorerWindowConfigUrl, {
-          backgroundColor: data.styles.backgroundColor,
-          title: localize("processExplorer", "Process Explorer"),
-          zoomLevel: data.zoomLevel,
-          alwaysOnTop: true
-        }, "process-explorer");
+        const processExplorerWindowConfigUrl = processExplorerDisposables.add(
+          this.protocolMainService.createIPCObjectUrl()
+        );
+        const savedPosition = this.stateService.getItem(
+          processExplorerWindowState,
+          void 0
+        );
+        const position = isStrictWindowState(savedPosition) ? savedPosition : this.getWindowPosition(
+          this.processExplorerParentWindow,
+          800,
+          500
+        );
+        this.processExplorerWindow = this.createBrowserWindow(
+          position,
+          processExplorerWindowConfigUrl,
+          {
+            backgroundColor: data.styles.backgroundColor,
+            title: localize("processExplorer", "Process Explorer"),
+            zoomLevel: data.zoomLevel,
+            alwaysOnTop: true
+          },
+          "process-explorer"
+        );
         processExplorerWindowConfigUrl.update({
           appRoot: this.environmentMainService.appRoot,
           windowId: this.processExplorerWindow.id,
@@ -136,7 +174,9 @@ let ProcessMainService = class {
           cssModules: this.cssDevelopmentService.isEnabled ? await this.cssDevelopmentService.getCssModules() : void 0
         });
         this.processExplorerWindow.loadURL(
-          FileAccess.asBrowserUri(`vs/code/electron-sandbox/processExplorer/processExplorer${this.environmentMainService.isBuilt ? "" : "-dev"}.html`).toString(true)
+          FileAccess.asBrowserUri(
+            `vs/code/electron-sandbox/processExplorer/processExplorer${this.environmentMainService.isBuilt ? "" : "-dev"}.html`
+          ).toString(true)
         );
         this.processExplorerWindow.on("close", () => {
           this.processExplorerWindow = null;
@@ -164,7 +204,10 @@ let ProcessMainService = class {
             x: position2[0],
             y: position2[1]
           };
-          this.stateService.setItem(processExplorerWindowState, state);
+          this.stateService.setItem(
+            processExplorerWindowState,
+            state
+          );
         }, "storeState");
         this.processExplorerWindow.on("moved", storeState);
         this.processExplorerWindow.on("resized", storeState);
@@ -191,7 +234,9 @@ let ProcessMainService = class {
         displayToUse = screen.getDisplayNearestPoint(cursorPoint);
       }
       if (!displayToUse && parentWindow) {
-        displayToUse = screen.getDisplayMatching(parentWindow.getBounds());
+        displayToUse = screen.getDisplayMatching(
+          parentWindow.getBounds()
+        );
       }
       if (!displayToUse) {
         displayToUse = screen.getPrimaryDisplay() || displays[0];
@@ -230,30 +275,74 @@ let ProcessMainService = class {
     if (!this.environmentMainService.args.trace) {
       return;
     }
-    const path = await contentTracing.stopRecording(`${randomPath(this.environmentMainService.userHome.fsPath, this.productService.applicationName)}.trace.txt`);
-    await this.dialogMainService.showMessageBox({
-      type: "info",
-      message: localize("trace.message", "Successfully created the trace file"),
-      detail: localize("trace.detail", "Please create an issue and manually attach the following file:\n{0}", path),
-      buttons: [localize({ key: "trace.ok", comment: ["&& denotes a mnemonic"] }, "&&OK")]
-    }, BrowserWindow.getFocusedWindow() ?? void 0);
+    const path = await contentTracing.stopRecording(
+      `${randomPath(this.environmentMainService.userHome.fsPath, this.productService.applicationName)}.trace.txt`
+    );
+    await this.dialogMainService.showMessageBox(
+      {
+        type: "info",
+        message: localize(
+          "trace.message",
+          "Successfully created the trace file"
+        ),
+        detail: localize(
+          "trace.detail",
+          "Please create an issue and manually attach the following file:\n{0}",
+          path
+        ),
+        buttons: [
+          localize(
+            { key: "trace.ok", comment: ["&& denotes a mnemonic"] },
+            "&&OK"
+          )
+        ]
+      },
+      BrowserWindow.getFocusedWindow() ?? void 0
+    );
     this.nativeHostMainService.showItemInFolder(void 0, path);
   }
   async getSystemStatus() {
-    const [info, remoteData] = await Promise.all([this.diagnosticsMainService.getMainDiagnostics(), this.diagnosticsMainService.getRemoteDiagnostics({ includeProcesses: false, includeWorkspaceMetadata: false })]);
+    const [info, remoteData] = await Promise.all([
+      this.diagnosticsMainService.getMainDiagnostics(),
+      this.diagnosticsMainService.getRemoteDiagnostics({
+        includeProcesses: false,
+        includeWorkspaceMetadata: false
+      })
+    ]);
     return this.diagnosticsService.getDiagnostics(info, remoteData);
   }
   async $getSystemInfo() {
-    const [info, remoteData] = await Promise.all([this.diagnosticsMainService.getMainDiagnostics(), this.diagnosticsMainService.getRemoteDiagnostics({ includeProcesses: false, includeWorkspaceMetadata: false })]);
-    const msg = await this.diagnosticsService.getSystemInfo(info, remoteData);
+    const [info, remoteData] = await Promise.all([
+      this.diagnosticsMainService.getMainDiagnostics(),
+      this.diagnosticsMainService.getRemoteDiagnostics({
+        includeProcesses: false,
+        includeWorkspaceMetadata: false
+      })
+    ]);
+    const msg = await this.diagnosticsService.getSystemInfo(
+      info,
+      remoteData
+    );
     return msg;
   }
   async $getPerformanceInfo() {
     try {
-      const [info, remoteData] = await Promise.all([this.diagnosticsMainService.getMainDiagnostics(), this.diagnosticsMainService.getRemoteDiagnostics({ includeProcesses: true, includeWorkspaceMetadata: true })]);
-      return await this.diagnosticsService.getPerformanceInfo(info, remoteData);
+      const [info, remoteData] = await Promise.all([
+        this.diagnosticsMainService.getMainDiagnostics(),
+        this.diagnosticsMainService.getRemoteDiagnostics({
+          includeProcesses: true,
+          includeWorkspaceMetadata: true
+        })
+      ]);
+      return await this.diagnosticsService.getPerformanceInfo(
+        info,
+        remoteData
+      );
     } catch (error) {
-      this.logService.warn("issueService#getPerformanceInfo ", error.message);
+      this.logService.warn(
+        "issueService#getPerformanceInfo ",
+        error.message
+      );
       throw error;
     }
   }
@@ -271,8 +360,12 @@ let ProcessMainService = class {
       title: options.title,
       backgroundColor: options.backgroundColor || ProcessMainService.DEFAULT_BACKGROUND_COLOR,
       webPreferences: {
-        preload: FileAccess.asFileUri("vs/base/parts/sandbox/electron-sandbox/preload.js").fsPath,
-        additionalArguments: [`--vscode-window-config=${ipcObjectUrl.resource.toString()}`],
+        preload: FileAccess.asFileUri(
+          "vs/base/parts/sandbox/electron-sandbox/preload.js"
+        ).fsPath,
+        additionalArguments: [
+          `--vscode-window-config=${ipcObjectUrl.resource.toString()}`
+        ],
         v8CacheOptions: this.environmentMainService.useCodeCache ? "bypassHeatCheck" : "none",
         enableWebSQL: false,
         spellcheck: false,

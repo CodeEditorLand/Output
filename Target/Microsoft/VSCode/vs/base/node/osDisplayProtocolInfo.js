@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { constants as FSConstants, promises as FSPromises } from "fs";
+import { constants as FSConstants, promises as FSPromises } from "node:fs";
 import { join } from "../common/path.js";
 import { env } from "../common/process.js";
 const XDG_SESSION_TYPE = "XDG_SESSION_TYPE";
@@ -28,7 +28,10 @@ async function getDisplayProtocol(errorLogger) {
       } else {
         const waylandServerPipe = join(xdgRuntimeDir, "wayland-0");
         try {
-          await FSPromises.access(waylandServerPipe, FSConstants.R_OK);
+          await FSPromises.access(
+            waylandServerPipe,
+            FSConstants.R_OK
+          );
           return "wayland" /* Wayland */;
         } catch (err) {
           errorLogger(err);

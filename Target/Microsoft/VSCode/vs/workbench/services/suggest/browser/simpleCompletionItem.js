@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { FuzzyScore } from "../../../../base/common/filters.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 class SimpleCompletionItem {
   constructor(completion) {
     this.completion = completion;

@@ -1,6 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IPartialEditorMouseEvent, MouseTargetType } from "../../../../browser/editorBrowser.js";
+import {
+  MouseTargetType
+} from "../../../../browser/editorBrowser.js";
 import { ColorDecorationInjectedTextMarker } from "../colorDetector.js";
 function isOnColorDecorator(mouseEvent) {
   const target = mouseEvent.target;

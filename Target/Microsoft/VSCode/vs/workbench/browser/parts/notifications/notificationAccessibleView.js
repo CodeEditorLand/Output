@@ -1,18 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IAction } from "../../../../base/common/actions.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { localize } from "../../../../nls.js";
-import { IAccessibleViewService, AccessibleViewProviderId, AccessibleViewType, AccessibleContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplementation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { IAccessibilitySignalService, AccessibilitySignal } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType,
+  IAccessibleViewService
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import {
+  AccessibilitySignal,
+  IAccessibilitySignalService
+} from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IListService, WorkbenchList } from "../../../../platform/list/browser/listService.js";
-import { getNotificationFromContext } from "./notificationsCommands.js";
+import {
+  IListService,
+  WorkbenchList
+} from "../../../../platform/list/browser/listService.js";
 import { NotificationFocusedContext } from "../../../common/contextkeys.js";
-import { INotificationViewItem } from "../../../common/notifications.js";
+import { getNotificationFromContext } from "./notificationsCommands.js";
 class NotificationAccessibleView {
   static {
     __name(this, "NotificationAccessibleView");
@@ -25,7 +32,9 @@ class NotificationAccessibleView {
     const accessibleViewService = accessor.get(IAccessibleViewService);
     const listService = accessor.get(IListService);
     const commandService = accessor.get(ICommandService);
-    const accessibilitySignalService = accessor.get(IAccessibilitySignalService);
+    const accessibilitySignalService = accessor.get(
+      IAccessibilitySignalService
+    );
     function getProvider() {
       const notification = getNotificationFromContext(listService);
       if (!notification) {
@@ -57,7 +66,12 @@ class NotificationAccessibleView {
         if (!notification2) {
           return;
         }
-        return notification2.source ? localize("notification.accessibleViewSrc", "{0} Source: {1}", message, notification2.source) : localize("notification.accessibleView", "{0}", message);
+        return notification2.source ? localize(
+          "notification.accessibleViewSrc",
+          "{0} Source: {1}",
+          message,
+          notification2.source
+        ) : localize("notification.accessibleView", "{0}", message);
       }
       __name(getContentForNotification, "getContentForNotification");
       const content = getContentForNotification();
@@ -72,7 +86,10 @@ class NotificationAccessibleView {
         () => focusList(),
         "accessibility.verbosity.notification",
         void 0,
-        getActionsFromNotification(notification, accessibilitySignalService),
+        getActionsFromNotification(
+          notification,
+          accessibilitySignalService
+        ),
         () => {
           if (!list) {
             return;
@@ -116,7 +133,9 @@ function getActionsFromNotification(notification, accessibilitySignalService) {
       };
     }
   }
-  const manageExtension = actions?.find((a) => a.label.includes("Manage Extension"));
+  const manageExtension = actions?.find(
+    (a) => a.label.includes("Manage Extension")
+  );
   if (manageExtension) {
     manageExtension.class = ThemeIcon.asClassName(Codicon.gear);
   }
@@ -127,7 +146,9 @@ function getActionsFromNotification(notification, accessibilitySignalService) {
       tooltip: localize("clearNotification", "Clear Notification"),
       run: /* @__PURE__ */ __name(() => {
         notification.close();
-        accessibilitySignalService.playSignal(AccessibilitySignal.clear);
+        accessibilitySignalService.playSignal(
+          AccessibilitySignal.clear
+        );
       }, "run"),
       enabled: true,
       class: ThemeIcon.asClassName(Codicon.clearAll)

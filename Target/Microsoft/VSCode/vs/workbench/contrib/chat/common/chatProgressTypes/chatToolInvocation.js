@@ -1,14 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { DeferredPromise } from "../../../../../base/common/async.js";
-import { IMarkdownString } from "../../../../../base/common/htmlContent.js";
 import { localize } from "../../../../../nls.js";
-import { IChatTerminalToolInvocationData, IChatToolInputInvocationData, IChatToolInvocation, IChatToolInvocationSerialized } from "../chatService.js";
-import { IPreparedToolInvocation, IToolConfirmationMessages, IToolData, IToolResult } from "../languageModelToolsService.js";
 class ChatToolInvocation {
   constructor(preparedInvocation, toolData, toolCallId) {
     this.toolCallId = toolCallId;
-    const defaultMessage = localize("toolInvocationMessage", "Using {0}", `"${toolData.displayName}"`);
+    const defaultMessage = localize(
+      "toolInvocationMessage",
+      "Using {0}",
+      `"${toolData.displayName}"`
+    );
     const invocationMessage = preparedInvocation?.invocationMessage ?? defaultMessage;
     this.invocationMessage = invocationMessage;
     this.pastTenseMessage = preparedInvocation?.pastTenseMessage;

@@ -11,23 +11,26 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../../base/browser/dom.js";
-import { IKeyboardEvent } from "../../../../../base/browser/keyboardEvent.js";
 import { CountBadge } from "../../../../../base/browser/ui/countBadge/countBadge.js";
 import { HighlightedLabel } from "../../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
 import { IconLabel } from "../../../../../base/browser/ui/iconLabel/iconLabel.js";
-import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListVirtualDelegate } from "../../../../../base/browser/ui/list/list.js";
-import { IListAccessibilityProvider } from "../../../../../base/browser/ui/list/listWidget.js";
-import { IAsyncDataSource, ITreeNode, ITreeRenderer } from "../../../../../base/browser/ui/tree/tree.js";
-import { createMatches, FuzzyScore, IMatch } from "../../../../../base/common/filters.js";
+import {
+  createMatches,
+  FuzzyScore
+} from "../../../../../base/common/filters.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { basename, dirname } from "../../../../../base/common/resources.js";
-import { ITextModelService } from "../../../../common/services/resolverService.js";
 import { localize } from "../../../../../nls.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { ILabelService } from "../../../../../platform/label/common/label.js";
 import { defaultCountBadgeStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
-import { FileReferences, OneReference, ReferencesModel } from "../referencesModel.js";
+import { ITextModelService } from "../../../../common/services/resolverService.js";
+import {
+  FileReferences,
+  OneReference,
+  ReferencesModel
+} from "../referencesModel.js";
 let DataSource = class {
   constructor(_resolverService) {
     this._resolverService = _resolverService;
@@ -111,8 +114,16 @@ let FileReferencesTemplate = class extends Disposable {
     this._labelService = _labelService;
     const parent = document.createElement("div");
     parent.classList.add("reference-file");
-    this.file = this._register(new IconLabel(parent, { supportHighlights: true }));
-    this.badge = this._register(new CountBadge(dom.append(parent, dom.$(".count")), {}, defaultCountBadgeStyles));
+    this.file = this._register(
+      new IconLabel(parent, { supportHighlights: true })
+    );
+    this.badge = this._register(
+      new CountBadge(
+        dom.append(parent, dom.$(".count")),
+        {},
+        defaultCountBadgeStyles
+      )
+    );
     container.appendChild(parent);
   }
   static {
@@ -130,9 +141,13 @@ let FileReferencesTemplate = class extends Disposable {
     const len = element.children.length;
     this.badge.setCount(len);
     if (len > 1) {
-      this.badge.setTitleFormat(localize("referencesCount", "{0} references", len));
+      this.badge.setTitleFormat(
+        localize("referencesCount", "{0} references", len)
+      );
     } else {
-      this.badge.setTitleFormat(localize("referenceCount", "{0} reference", len));
+      this.badge.setTitleFormat(
+        localize("referenceCount", "{0} reference", len)
+      );
     }
   }
 };
@@ -149,7 +164,10 @@ let FileReferencesRenderer = class {
   static id = "FileReferencesRenderer";
   templateId = FileReferencesRenderer.id;
   renderTemplate(container) {
-    return this._instantiationService.createInstance(FileReferencesTemplate, container);
+    return this._instantiationService.createInstance(
+      FileReferencesTemplate,
+      container
+    );
   }
   renderElement(node, index, template) {
     template.set(node.element, createMatches(node.filterData));
@@ -173,7 +191,9 @@ class OneReferenceTemplate extends Disposable {
   set(element, score) {
     const preview = element.parent.getPreview(element)?.preview(element.range);
     if (!preview || !preview.value) {
-      this.label.set(`${basename(element.uri)}:${element.range.startLineNumber + 1}:${element.range.startColumn + 1}`);
+      this.label.set(
+        `${basename(element.uri)}:${element.range.startLineNumber + 1}:${element.range.startColumn + 1}`
+      );
     } else {
       const { value, highlight } = preview;
       if (score && !FuzzyScore.isDefault(score)) {

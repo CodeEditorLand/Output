@@ -1,14 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Codicon } from "../../../../base/common/codicons.js";
-import { Color } from "../../../../base/common/color.js";
-import { Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { activityErrorBadgeBackground, activityErrorBadgeForeground, activityWarningBadgeBackground, activityWarningBadgeForeground } from "../../../../platform/theme/common/colors/miscColors.js";
-import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
-import { ViewContainer } from "../../../common/views.js";
+import {
+  activityErrorBadgeBackground,
+  activityErrorBadgeForeground,
+  activityWarningBadgeBackground,
+  activityWarningBadgeForeground
+} from "../../../../platform/theme/common/colors/miscColors.js";
 const IActivityService = createDecorator("activityService");
 class BaseBadge {
   constructor(descriptorFn, stylesFn) {

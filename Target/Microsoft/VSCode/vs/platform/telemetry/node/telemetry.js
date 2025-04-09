@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { join } from "../../../base/common/path.js";
 import { Promises } from "../../../base/node/pfs.js";
 async function buildTelemetryMessage(appRoot, extensionsPath) {
@@ -14,7 +14,9 @@ async function buildTelemetryMessage(appRoot, extensionsPath) {
     const files = await Promises.readdir(extensionsPath);
     for (const file of files) {
       try {
-        const fileStat = await fs.promises.stat(join(extensionsPath, file));
+        const fileStat = await fs.promises.stat(
+          join(extensionsPath, file)
+        );
         if (fileStat.isDirectory()) {
           dirs.push(file);
         }
@@ -29,7 +31,9 @@ async function buildTelemetryMessage(appRoot, extensionsPath) {
       }
     }
     for (const folder of telemetryJsonFolders) {
-      const contents2 = (await fs.promises.readFile(join(extensionsPath, folder, "telemetry.json"))).toString();
+      const contents2 = (await fs.promises.readFile(
+        join(extensionsPath, folder, "telemetry.json")
+      )).toString();
       mergeTelemetry(contents2, folder);
     }
   }

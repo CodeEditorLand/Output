@@ -10,7 +10,9 @@ var GPULifecycle;
       }
       const adapter = await navigator.gpu.requestAdapter();
       if (!adapter) {
-        throw new Error("This browser supports WebGPU but it appears to be disabled");
+        throw new Error(
+          "This browser supports WebGPU but it appears to be disabled"
+        );
       }
       return wrapDestroyableInDisposable(await adapter.requestDevice());
     } catch (e) {
@@ -25,7 +27,11 @@ var GPULifecycle;
   function createBuffer(device, descriptor, initialValues) {
     const buffer = device.createBuffer(descriptor);
     if (initialValues) {
-      device.queue.writeBuffer(buffer, 0, isFunction(initialValues) ? initialValues() : initialValues);
+      device.queue.writeBuffer(
+        buffer,
+        0,
+        isFunction(initialValues) ? initialValues() : initialValues
+      );
     }
     return wrapDestroyableInDisposable(buffer);
   }

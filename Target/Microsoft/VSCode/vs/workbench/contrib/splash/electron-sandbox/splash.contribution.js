@@ -10,12 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { ISplashStorageService } from "../browser/splash.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
 import { PartsSplash } from "../browser/partsSplash.js";
-import { IPartsSplash } from "../../../../platform/theme/common/themeService.js";
+import { ISplashStorageService } from "../browser/splash.js";
 let SplashStorageService = class {
   static {
     __name(this, "SplashStorageService");
@@ -29,7 +34,11 @@ let SplashStorageService = class {
 SplashStorageService = __decorateClass([
   __decorateParam(0, INativeHostService)
 ], SplashStorageService);
-registerSingleton(ISplashStorageService, SplashStorageService, InstantiationType.Delayed);
+registerSingleton(
+  ISplashStorageService,
+  SplashStorageService,
+  InstantiationType.Delayed
+);
 registerWorkbenchContribution2(
   PartsSplash.ID,
   PartsSplash,

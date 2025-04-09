@@ -1,10 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, registerEditorAction, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { InsertFinalNewLineCommand } from "./insertFinalNewLineCommand.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import * as nls from "../../../../nls.js";
+import {
+  EditorAction,
+  registerEditorAction
+} from "../../../browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { InsertFinalNewLineCommand } from "./insertFinalNewLineCommand.js";
 class InsertFinalNewLineAction extends EditorAction {
   static {
     __name(this, "InsertFinalNewLineAction");

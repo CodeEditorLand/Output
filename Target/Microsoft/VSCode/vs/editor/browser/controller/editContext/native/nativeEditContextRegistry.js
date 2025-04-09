@@ -1,7 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
-import { NativeEditContext } from "./nativeEditContext.js";
 class NativeEditContextRegistryImpl {
   static {
     __name(this, "NativeEditContextRegistryImpl");

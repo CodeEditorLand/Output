@@ -11,16 +11,28 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Event } from "../../../../../base/common/event.js";
-import { DisposableStore, IDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { localize, localize2 } from "../../../../../nls.js";
 import { Action2 } from "../../../../../platform/actions/common/actions.js";
 import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
 import { ExtensionIdentifier } from "../../../../../platform/extensions/common/extensions.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../platform/log/common/log.js";
-import { IQuickInputService, IQuickPick, IQuickPickItem, QuickPickInput } from "../../../../../platform/quickinput/common/quickInput.js";
-import { IAccountUsage, IAuthenticationUsageService } from "../../../../services/authentication/browser/authenticationUsageService.js";
-import { AuthenticationSessionAccount, IAuthenticationExtensionsService, IAuthenticationService, INTERNAL_AUTH_PROVIDER_PREFIX } from "../../../../services/authentication/common/authentication.js";
+import {
+  IQuickInputService
+} from "../../../../../platform/quickinput/common/quickInput.js";
+import {
+  IAuthenticationUsageService
+} from "../../../../services/authentication/browser/authenticationUsageService.js";
+import {
+  IAuthenticationExtensionsService,
+  IAuthenticationService,
+  INTERNAL_AUTH_PROVIDER_PREFIX
+} from "../../../../services/authentication/common/authentication.js";
 import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
 class ManageAccountPreferencesForExtensionAction extends Action2 {
   static {
@@ -29,7 +41,10 @@ class ManageAccountPreferencesForExtensionAction extends Action2 {
   constructor() {
     super({
       id: "_manageAccountPreferencesForExtension",
-      title: localize2("manageAccountPreferenceForExtension", "Manage Extension Account Preferences"),
+      title: localize2(
+        "manageAccountPreferenceForExtension",
+        "Manage Extension Account Preferences"
+      ),
       category: localize2("accounts", "Accounts"),
       f1: false
     });
@@ -63,7 +78,10 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
     const providerIdToAccounts = /* @__PURE__ */ new Map();
     if (providerId) {
       providerIds.push(providerId);
-      providerIdToAccounts.set(providerId, await this._authenticationService.getAccounts(providerId));
+      providerIdToAccounts.set(
+        providerId,
+        await this._authenticationService.getAccounts(providerId)
+      );
     } else {
       for (const providerId2 of this._authenticationService.getProviderIds()) {
         if (providerId2.startsWith(INTERNAL_AUTH_PROVIDER_PREFIX)) {
@@ -71,7 +89,12 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
         }
         const accounts2 = await this._authenticationService.getAccounts(providerId2);
         for (const account of accounts2) {
-          const usage = this._authenticationUsageService.readAccountUsages(providerId2, account.label).find((u) => ExtensionIdentifier.equals(u.extensionId, extensionId));
+          const usage = this._authenticationUsageService.readAccountUsages(providerId2, account.label).find(
+            (u) => ExtensionIdentifier.equals(
+              u.extensionId,
+              extensionId
+            )
+          );
           if (usage) {
             providerIds.push(providerId2);
             providerIdToAccounts.set(providerId2, accounts2);
@@ -88,22 +111,47 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
           id: providerId2
         })),
         {
-          placeHolder: localize("selectProvider", "Select an authentication provider to manage account preferences for"),
-          title: localize("pickAProviderTitle", "Manage Extension Account Preferences")
+          placeHolder: localize(
+            "selectProvider",
+            "Select an authentication provider to manage account preferences for"
+          ),
+          title: localize(
+            "pickAProviderTitle",
+            "Manage Extension Account Preferences"
+          )
         }
       );
       chosenProviderId = result?.id;
     }
     if (!chosenProviderId) {
-      await this._dialogService.info(localize("noAccountUsage", "This extension has not used any accounts yet."));
+      await this._dialogService.info(
+        localize(
+          "noAccountUsage",
+          "This extension has not used any accounts yet."
+        )
+      );
       return;
     }
-    const currentAccountNamePreference = this._authenticationExtensionsService.getAccountPreference(extensionId, chosenProviderId);
+    const currentAccountNamePreference = this._authenticationExtensionsService.getAccountPreference(
+      extensionId,
+      chosenProviderId
+    );
     const accounts = providerIdToAccounts.get(chosenProviderId);
-    const items = this._getItems(accounts, chosenProviderId, currentAccountNamePreference);
+    const items = this._getItems(
+      accounts,
+      chosenProviderId,
+      currentAccountNamePreference
+    );
     const provider = this._authenticationService.getProvider(chosenProviderId);
     if (provider.supportsMultipleAccounts) {
-      const lastUsedScopes = accounts.flatMap((account) => this._authenticationUsageService.readAccountUsages(chosenProviderId, account.label).find((u) => ExtensionIdentifier.equals(u.extensionId, extensionId))).filter((usage) => !!usage).sort((a, b) => b.lastUsed - a.lastUsed)?.[0]?.scopes;
+      const lastUsedScopes = accounts.flatMap(
+        (account) => this._authenticationUsageService.readAccountUsages(chosenProviderId, account.label).find(
+          (u) => ExtensionIdentifier.equals(
+            u.extensionId,
+            extensionId
+          )
+        )
+      ).filter((usage) => !!usage).sort((a, b) => b.lastUsed - a.lastUsed)?.[0]?.scopes;
       if (lastUsedScopes) {
         items.push({ type: "separator" });
         items.push({
@@ -114,7 +162,12 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
       }
     }
     const disposables = new DisposableStore();
-    const picker = this._createQuickPick(disposables, extensionId, extension.displayName ?? extension.name, provider.label);
+    const picker = this._createQuickPick(
+      disposables,
+      extensionId,
+      extension.displayName ?? extension.name,
+      provider.label
+    );
     if (items.length === 0) {
       disposables.add(this._handleNoAccounts(picker));
       return;
@@ -123,17 +176,34 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
     picker.show();
   }
   _createQuickPick(disposableStore, extensionId, extensionLabel, providerLabel) {
-    const picker = disposableStore.add(this._quickInputService.createQuickPick({ useSeparators: true }));
-    disposableStore.add(picker.onDidHide(() => {
-      disposableStore.dispose();
-    }));
-    picker.placeholder = localize("placeholder v2", "Manage '{0}' account preferences for {1}...", extensionLabel, providerLabel);
-    picker.title = localize("title", "'{0}' Account Preferences For This Workspace", extensionLabel);
+    const picker = disposableStore.add(
+      this._quickInputService.createQuickPick(
+        { useSeparators: true }
+      )
+    );
+    disposableStore.add(
+      picker.onDidHide(() => {
+        disposableStore.dispose();
+      })
+    );
+    picker.placeholder = localize(
+      "placeholder v2",
+      "Manage '{0}' account preferences for {1}...",
+      extensionLabel,
+      providerLabel
+    );
+    picker.title = localize(
+      "title",
+      "'{0}' Account Preferences For This Workspace",
+      extensionLabel
+    );
     picker.sortByLabel = false;
-    disposableStore.add(picker.onDidAccept(async () => {
-      picker.hide();
-      await this._accept(extensionId, picker.selectedItems);
-    }));
+    disposableStore.add(
+      picker.onDidAccept(async () => {
+        picker.hide();
+        await this._accept(extensionId, picker.selectedItems);
+      })
+    );
     return picker;
   }
   _getItems(accounts, providerId, currentAccountNamePreference) {
@@ -142,7 +212,10 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
         label: a.label,
         account: a,
         providerId,
-        description: localize("currentAccount", "Current account"),
+        description: localize(
+          "currentAccount",
+          "Current account"
+        ),
         picked: true
       } : {
         label: a.label,
@@ -152,17 +225,26 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
     );
   }
   _handleNoAccounts(picker) {
-    picker.validationMessage = localize("noAccounts", "No accounts are currently used by this extension.");
+    picker.validationMessage = localize(
+      "noAccounts",
+      "No accounts are currently used by this extension."
+    );
     picker.buttons = [this._quickInputService.backButton];
     picker.show();
-    return Event.filter(picker.onDidTriggerButton, (e) => e === this._quickInputService.backButton)(() => this.run());
+    return Event.filter(
+      picker.onDidTriggerButton,
+      (e) => e === this._quickInputService.backButton
+    )(() => this.run());
   }
   async _accept(extensionId, selectedItems) {
     for (const item of selectedItems) {
       let account;
       if (!item.account) {
         try {
-          const session = await this._authenticationService.createSession(item.providerId, item.scopes);
+          const session = await this._authenticationService.createSession(
+            item.providerId,
+            item.scopes
+          );
           account = session.account;
         } catch (e) {
           this._logService.error(e);
@@ -172,11 +254,18 @@ let ManageAccountPreferenceForExtensionActionImpl = class {
         account = item.account;
       }
       const providerId = item.providerId;
-      const currentAccountName = this._authenticationExtensionsService.getAccountPreference(extensionId, providerId);
+      const currentAccountName = this._authenticationExtensionsService.getAccountPreference(
+        extensionId,
+        providerId
+      );
       if (currentAccountName === account.label) {
         continue;
       }
-      this._authenticationExtensionsService.updateAccountPreference(extensionId, providerId, account);
+      this._authenticationExtensionsService.updateAccountPreference(
+        extensionId,
+        providerId,
+        account
+      );
     }
   }
 };

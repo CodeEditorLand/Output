@@ -3,13 +3,16 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { renderMarkdownAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { AccessibleViewProviderId, AccessibleViewType, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplementation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 import { ChatContextKeys } from "../common/chatContextKeys.js";
 import { isResponseVM } from "../common/chatViewModel.js";
-import { ChatTreeItem, IChatWidget, IChatWidgetService } from "./chat.js";
+import {
+  IChatWidgetService
+} from "./chat.js";
 class ChatResponseAccessibleView {
   static {
     __name(this, "ChatResponseAccessibleView");
@@ -33,7 +36,11 @@ class ChatResponseAccessibleView {
     if (!focusedItem) {
       return;
     }
-    return new ChatResponseAccessibleProvider(verifiedWidget, focusedItem, chatInputFocused);
+    return new ChatResponseAccessibleProvider(
+      verifiedWidget,
+      focusedItem,
+      chatInputFocused
+    );
   }
 }
 class ChatResponseAccessibleProvider extends Disposable {
@@ -58,7 +65,10 @@ class ChatResponseAccessibleProvider extends Disposable {
     if (!responseContent && "errorDetails" in item && item.errorDetails) {
       responseContent = item.errorDetails.message;
     }
-    return renderMarkdownAsPlaintext(new MarkdownString(responseContent), true);
+    return renderMarkdownAsPlaintext(
+      new MarkdownString(responseContent),
+      true
+    );
   }
   onClose() {
     this._widget.reveal(this._focusedItem);

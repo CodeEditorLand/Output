@@ -10,9 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IDebugModel, IDebugSession, AdapterEndEvent } from "./debug.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { Debugger } from "./debugger.js";
 let DebugTelemetry = class {
   constructor(model, telemetryService) {
     this.model = model;
@@ -36,7 +34,7 @@ let DebugTelemetry = class {
   logDebugSessionStop(session, adapterExitEvent) {
     const breakpoints = this.model.getBreakpoints();
     this.telemetryService.publicLog("debugSessionStop", {
-      type: session && session.configuration.type,
+      type: session?.configuration.type,
       success: adapterExitEvent.emittedStopped || breakpoints.length === 0,
       sessionLengthInSeconds: adapterExitEvent.sessionLengthInSeconds,
       breakpointCount: breakpoints.length,

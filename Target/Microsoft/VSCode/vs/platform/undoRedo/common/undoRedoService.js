@@ -11,15 +11,26 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { onUnexpectedError } from "../../../base/common/errors.js";
-import { Disposable, IDisposable, isDisposable } from "../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  isDisposable
+} from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import Severity from "../../../base/common/severity.js";
-import { URI } from "../../../base/common/uri.js";
 import * as nls from "../../../nls.js";
 import { IDialogService } from "../../dialogs/common/dialogs.js";
-import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
 import { INotificationService } from "../../notification/common/notification.js";
-import { IPastFutureElements, IResourceUndoRedoElement, IUndoRedoElement, IUndoRedoService, IWorkspaceUndoRedoElement, ResourceEditStackSnapshot, UndoRedoElementType, UndoRedoGroup, UndoRedoSource, UriComparisonKeyComputer } from "./undoRedo.js";
+import {
+  IUndoRedoService,
+  ResourceEditStackSnapshot,
+  UndoRedoElementType,
+  UndoRedoGroup,
+  UndoRedoSource
+} from "./undoRedo.js";
 const DEBUG = false;
 function getResourceLabel(resource) {
   return resource.scheme === Schemas.file ? resource.fsPath : resource.path;
@@ -95,7 +106,10 @@ class RemovedResources {
     if (externalRemoval.length > 0) {
       messages.push(
         nls.localize(
-          { key: "externalRemoval", comment: ["{0} is a list of filenames"] },
+          {
+            key: "externalRemoval",
+            comment: ["{0} is a list of filenames"]
+          },
           "The following files have been closed and modified on disk: {0}.",
           externalRemoval.join(", ")
         )
@@ -104,7 +118,10 @@ class RemovedResources {
     if (noParallelUniverses.length > 0) {
       messages.push(
         nls.localize(
-          { key: "noParallelUniverses", comment: ["{0} is a list of filenames"] },
+          {
+            key: "noParallelUniverses",
+            comment: ["{0} is a list of filenames"]
+          },
           "The following files have been modified in an incompatible way: {0}.",
           noParallelUniverses.join(", ")
         )
@@ -163,7 +180,10 @@ class WorkspaceStackElement {
       this.removedResources = new RemovedResources();
     }
     if (!this.removedResources.has(strResource)) {
-      this.removedResources.set(strResource, new ResourceReasonPair(resourceLabel, reason));
+      this.removedResources.set(
+        strResource,
+        new ResourceReasonPair(resourceLabel, reason)
+      );
     }
   }
   setValid(resourceLabel, strResource, isValid) {
@@ -179,7 +199,13 @@ class WorkspaceStackElement {
         this.invalidatedResources = new RemovedResources();
       }
       if (!this.invalidatedResources.has(strResource)) {
-        this.invalidatedResources.set(strResource, new ResourceReasonPair(resourceLabel, 0 /* ExternalRemoval */));
+        this.invalidatedResources.set(
+          strResource,
+          new ResourceReasonPair(
+            resourceLabel,
+            0 /* ExternalRemoval */
+          )
+        );
       }
     }
   }
@@ -208,12 +234,20 @@ class ResourceEditStack {
   dispose() {
     for (const element of this._past) {
       if (element.type === UndoRedoElementType.Workspace) {
-        element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0 /* ExternalRemoval */
+        );
       }
     }
     for (const element of this._future) {
       if (element.type === UndoRedoElementType.Workspace) {
-        element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0 /* ExternalRemoval */
+        );
       }
     }
     this.versionId++;
@@ -272,7 +306,11 @@ class ResourceEditStack {
   pushElement(element) {
     for (const futureElement of this._future) {
       if (futureElement.type === UndoRedoElementType.Workspace) {
-        futureElement.removeResource(this.resourceLabel, this.strResource, 1 /* NoParallelUniverses */);
+        futureElement.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          1 /* NoParallelUniverses */
+        );
       }
     }
     this._future = [];
@@ -301,7 +339,11 @@ class ResourceEditStack {
         removePastAfter = 0;
       }
       if (!isOK && element.type === UndoRedoElementType.Workspace) {
-        element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0 /* ExternalRemoval */
+        );
       }
     }
     let removeFutureBefore = -1;
@@ -312,7 +354,11 @@ class ResourceEditStack {
         removeFutureBefore = i;
       }
       if (!isOK && element.type === UndoRedoElementType.Workspace) {
-        element.removeResource(this.resourceLabel, this.strResource, 0 /* ExternalRemoval */);
+        element.removeResource(
+          this.resourceLabel,
+          this.strResource,
+          0 /* ExternalRemoval */
+        );
       }
     }
     if (removePastAfter !== -1) {
@@ -432,7 +478,10 @@ let UndoRedoService = class {
   _editStacks;
   _uriComparisonKeyComputers;
   registerUriComparisonKeyComputer(scheme, uriComparisonKeyComputer) {
-    this._uriComparisonKeyComputers.push([scheme, uriComparisonKeyComputer]);
+    this._uriComparisonKeyComputers.push([
+      scheme,
+      uriComparisonKeyComputer
+    ]);
     return {
       dispose: /* @__PURE__ */ __name(() => {
         for (let i = 0, len = this._uriComparisonKeyComputers.length; i < len; i++) {
@@ -453,7 +502,7 @@ let UndoRedoService = class {
     return resource.toString();
   }
   _print(label) {
-    console.log(`------------------------------------`);
+    console.log("------------------------------------");
     console.log(`AFTER ${label}: `);
     const str = [];
     for (const element of this._editStacks) {
@@ -465,7 +514,17 @@ let UndoRedoService = class {
     if (element.type === UndoRedoElementType.Resource) {
       const resourceLabel = getResourceLabel(element.resource);
       const strResource = this.getUriComparisonKey(element.resource);
-      this._pushElement(new ResourceStackElement(element, resourceLabel, strResource, group.id, group.nextOrder(), source.id, source.nextOrder()));
+      this._pushElement(
+        new ResourceStackElement(
+          element,
+          resourceLabel,
+          strResource,
+          group.id,
+          group.nextOrder(),
+          source.id,
+          source.nextOrder()
+        )
+      );
     } else {
       const seen = /* @__PURE__ */ new Set();
       const resourceLabels = [];
@@ -481,9 +540,29 @@ let UndoRedoService = class {
         strResources.push(strResource);
       }
       if (resourceLabels.length === 1) {
-        this._pushElement(new ResourceStackElement(element, resourceLabels[0], strResources[0], group.id, group.nextOrder(), source.id, source.nextOrder()));
+        this._pushElement(
+          new ResourceStackElement(
+            element,
+            resourceLabels[0],
+            strResources[0],
+            group.id,
+            group.nextOrder(),
+            source.id,
+            source.nextOrder()
+          )
+        );
       } else {
-        this._pushElement(new WorkspaceStackElement(element, resourceLabels, strResources, group.id, group.nextOrder(), source.id, source.nextOrder()));
+        this._pushElement(
+          new WorkspaceStackElement(
+            element,
+            resourceLabels,
+            strResources,
+            group.id,
+            group.nextOrder(),
+            source.id,
+            source.nextOrder()
+          )
+        );
       }
     }
     if (DEBUG) {
@@ -522,11 +601,19 @@ let UndoRedoService = class {
     for (const _element of individualArr) {
       const resourceLabel = getResourceLabel(_element.resource);
       const strResource = this.getUriComparisonKey(_element.resource);
-      const element = new ResourceStackElement(_element, resourceLabel, strResource, 0, 0, 0, 0);
+      const element = new ResourceStackElement(
+        _element,
+        resourceLabel,
+        strResource,
+        0,
+        0,
+        0,
+        0
+      );
       individualMap.set(element.strResource, element);
     }
     for (const strResource of toRemove.strResources) {
-      if (ignoreResources && ignoreResources.has(strResource)) {
+      if (ignoreResources?.has(strResource)) {
         continue;
       }
       const editStack = this._editStacks.get(strResource);
@@ -539,11 +626,19 @@ let UndoRedoService = class {
     for (const _element of individualArr) {
       const resourceLabel = getResourceLabel(_element.resource);
       const strResource = this.getUriComparisonKey(_element.resource);
-      const element = new ResourceStackElement(_element, resourceLabel, strResource, 0, 0, 0, 0);
+      const element = new ResourceStackElement(
+        _element,
+        resourceLabel,
+        strResource,
+        0,
+        0,
+        0,
+        0
+      );
       individualMap.set(element.strResource, element);
     }
     for (const strResource of toRemove.strResources) {
-      if (ignoreResources && ignoreResources.has(strResource)) {
+      if (ignoreResources?.has(strResource)) {
         continue;
       }
       const editStack = this._editStacks.get(strResource);
@@ -632,7 +727,7 @@ let UndoRedoService = class {
   canUndo(resourceOrSource) {
     if (resourceOrSource instanceof UndoRedoSource) {
       const [, matchedStrResource] = this._findClosestUndoElementWithSource(resourceOrSource.id);
-      return matchedStrResource ? true : false;
+      return !!matchedStrResource;
     }
     const strResource = this.getUriComparisonKey(resourceOrSource);
     if (this._editStacks.has(strResource)) {
@@ -720,7 +815,9 @@ let UndoRedoService = class {
   _getAffectedEditStacks(element) {
     const affectedEditStacks = [];
     for (const strResource of element.strResources) {
-      affectedEditStacks.push(this._editStacks.get(strResource) || missingEditStack);
+      affectedEditStacks.push(
+        this._editStacks.get(strResource) || missingEditStack
+      );
     }
     return new EditStackSnapshot(affectedEditStacks);
   }
@@ -728,7 +825,9 @@ let UndoRedoService = class {
     if (element.canSplit()) {
       this._splitPastWorkspaceElement(element, ignoreResources);
       this._notificationService.warn(message);
-      return new WorkspaceVerificationError(this._undo(strResource, 0, true));
+      return new WorkspaceVerificationError(
+        this._undo(strResource, 0, true)
+      );
     } else {
       for (const strResource2 of element.strResources) {
         this.removeElements(strResource2);
@@ -744,7 +843,12 @@ let UndoRedoService = class {
         element,
         element.removedResources,
         nls.localize(
-          { key: "cannotWorkspaceUndo", comment: ["{0} is a label for an operation. {1} is another message."] },
+          {
+            key: "cannotWorkspaceUndo",
+            comment: [
+              "{0} is a label for an operation. {1} is another message."
+            ]
+          },
           "Could not undo '{0}' across all files. {1}",
           element.label,
           element.removedResources.createMessage()
@@ -757,7 +861,12 @@ let UndoRedoService = class {
         element,
         element.invalidatedResources,
         nls.localize(
-          { key: "cannotWorkspaceUndo", comment: ["{0} is a label for an operation. {1} is another message."] },
+          {
+            key: "cannotWorkspaceUndo",
+            comment: [
+              "{0} is a label for an operation. {1} is another message."
+            ]
+          },
           "Could not undo '{0}' across all files. {1}",
           element.label,
           element.invalidatedResources.createMessage()
@@ -776,7 +885,12 @@ let UndoRedoService = class {
         element,
         null,
         nls.localize(
-          { key: "cannotWorkspaceUndoDueToChanges", comment: ["{0} is a label for an operation. {1} is a list of filenames."] },
+          {
+            key: "cannotWorkspaceUndoDueToChanges",
+            comment: [
+              "{0} is a label for an operation. {1} is a list of filenames."
+            ]
+          },
           "Could not undo '{0}' across all files because changes were made to {1}",
           element.label,
           cannotUndoDueToResources.join(", ")
@@ -795,7 +909,12 @@ let UndoRedoService = class {
         element,
         null,
         nls.localize(
-          { key: "cannotWorkspaceUndoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] },
+          {
+            key: "cannotWorkspaceUndoDueToInProgressUndoRedo",
+            comment: [
+              "{0} is a label for an operation. {1} is a list of filenames."
+            ]
+          },
           "Could not undo '{0}' across all files because there is already an undo or redo operation running on {1}",
           element.label,
           cannotLockDueToResources.join(", ")
@@ -808,7 +927,12 @@ let UndoRedoService = class {
         element,
         null,
         nls.localize(
-          { key: "cannotWorkspaceUndoDueToInMeantimeUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] },
+          {
+            key: "cannotWorkspaceUndoDueToInMeantimeUndoRedo",
+            comment: [
+              "{0} is a label for an operation. {1} is a list of filenames."
+            ]
+          },
           "Could not undo '{0}' across all files because an undo or redo operation occurred in the meantime",
           element.label
         )
@@ -828,7 +952,12 @@ let UndoRedoService = class {
     if (verificationError) {
       return verificationError.returnValue;
     }
-    return this._confirmAndExecuteWorkspaceUndo(strResource, element, affectedEditStacks, undoConfirmed);
+    return this._confirmAndExecuteWorkspaceUndo(
+      strResource,
+      element,
+      affectedEditStacks,
+      undoConfirmed
+    );
   }
   _isPartOfUndoGroup(element) {
     if (!element.groupId) {
@@ -861,14 +990,30 @@ let UndoRedoService = class {
       })(UndoChoice || (UndoChoice = {}));
       const { result } = await this._dialogService.prompt({
         type: Severity.Info,
-        message: nls.localize("confirmWorkspace", "Would you like to undo '{0}' across all files?", element.label),
+        message: nls.localize(
+          "confirmWorkspace",
+          "Would you like to undo '{0}' across all files?",
+          element.label
+        ),
         buttons: [
           {
-            label: nls.localize({ key: "ok", comment: ["{0} denotes a number that is > 1, && denotes a mnemonic"] }, "&&Undo in {0} Files", editStackSnapshot.editStacks.length),
+            label: nls.localize(
+              {
+                key: "ok",
+                comment: [
+                  "{0} denotes a number that is > 1, && denotes a mnemonic"
+                ]
+              },
+              "&&Undo in {0} Files",
+              editStackSnapshot.editStacks.length
+            ),
             run: /* @__PURE__ */ __name(() => 0 /* All */, "run")
           },
           {
-            label: nls.localize({ key: "nok", comment: ["&& denotes a mnemonic"] }, "Undo this &&File"),
+            label: nls.localize(
+              { key: "nok", comment: ["&& denotes a mnemonic"] },
+              "Undo this &&File"
+            ),
             run: /* @__PURE__ */ __name(() => 1 /* This */, "run")
           }
         ],
@@ -915,7 +1060,13 @@ let UndoRedoService = class {
     for (const editStack of editStackSnapshot.editStacks) {
       editStack.moveBackward(element);
     }
-    return this._safeInvokeWithLocks(element, () => element.actual.undo(), editStackSnapshot, cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
+    return this._safeInvokeWithLocks(
+      element,
+      () => element.actual.undo(),
+      editStackSnapshot,
+      cleanup,
+      () => this._continueUndoInGroup(element.groupId, undoConfirmed)
+    );
   }
   _resourceUndo(editStack, element, undoConfirmed) {
     if (!element.isValid) {
@@ -924,7 +1075,10 @@ let UndoRedoService = class {
     }
     if (editStack.locked) {
       const message = nls.localize(
-        { key: "cannotResourceUndoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation."] },
+        {
+          key: "cannotResourceUndoDueToInProgressUndoRedo",
+          comment: ["{0} is a label for an operation."]
+        },
         "Could not undo '{0}' because there is already an undo or redo operation running.",
         element.label
       );
@@ -933,7 +1087,13 @@ let UndoRedoService = class {
     }
     return this._invokeResourcePrepare(element, (cleanup) => {
       editStack.moveBackward(element);
-      return this._safeInvokeWithLocks(element, () => element.actual.undo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueUndoInGroup(element.groupId, undoConfirmed));
+      return this._safeInvokeWithLocks(
+        element,
+        () => element.actual.undo(),
+        new EditStackSnapshot([editStack]),
+        cleanup,
+        () => this._continueUndoInGroup(element.groupId, undoConfirmed)
+      );
     });
   }
   _findClosestUndoElementInGroup(groupId) {
@@ -975,7 +1135,7 @@ let UndoRedoService = class {
     }
     return this._undo(this.getUriComparisonKey(resourceOrSource), 0, false);
   }
-  _undo(strResource, sourceId = 0, undoConfirmed) {
+  _undo(strResource, sourceId, undoConfirmed) {
     if (!this._editStacks.has(strResource)) {
       return;
     }
@@ -1008,8 +1168,18 @@ let UndoRedoService = class {
   }
   async _confirmAndContinueUndo(strResource, sourceId, element) {
     const result = await this._dialogService.confirm({
-      message: nls.localize("confirmDifferentSource", "Would you like to undo '{0}'?", element.label),
-      primaryButton: nls.localize({ key: "confirmDifferentSource.yes", comment: ["&& denotes a mnemonic"] }, "&&Yes"),
+      message: nls.localize(
+        "confirmDifferentSource",
+        "Would you like to undo '{0}'?",
+        element.label
+      ),
+      primaryButton: nls.localize(
+        {
+          key: "confirmDifferentSource.yes",
+          comment: ["&& denotes a mnemonic"]
+        },
+        "&&Yes"
+      ),
       cancelButton: nls.localize("confirmDifferentSource.no", "No")
     });
     if (!result.confirmed) {
@@ -1040,7 +1210,7 @@ let UndoRedoService = class {
   canRedo(resourceOrSource) {
     if (resourceOrSource instanceof UndoRedoSource) {
       const [, matchedStrResource] = this._findClosestRedoElementWithSource(resourceOrSource.id);
-      return matchedStrResource ? true : false;
+      return !!matchedStrResource;
     }
     const strResource = this.getUriComparisonKey(resourceOrSource);
     if (this._editStacks.has(strResource)) {
@@ -1069,7 +1239,12 @@ let UndoRedoService = class {
         element,
         element.removedResources,
         nls.localize(
-          { key: "cannotWorkspaceRedo", comment: ["{0} is a label for an operation. {1} is another message."] },
+          {
+            key: "cannotWorkspaceRedo",
+            comment: [
+              "{0} is a label for an operation. {1} is another message."
+            ]
+          },
           "Could not redo '{0}' across all files. {1}",
           element.label,
           element.removedResources.createMessage()
@@ -1082,7 +1257,12 @@ let UndoRedoService = class {
         element,
         element.invalidatedResources,
         nls.localize(
-          { key: "cannotWorkspaceRedo", comment: ["{0} is a label for an operation. {1} is another message."] },
+          {
+            key: "cannotWorkspaceRedo",
+            comment: [
+              "{0} is a label for an operation. {1} is another message."
+            ]
+          },
           "Could not redo '{0}' across all files. {1}",
           element.label,
           element.invalidatedResources.createMessage()
@@ -1101,7 +1281,12 @@ let UndoRedoService = class {
         element,
         null,
         nls.localize(
-          { key: "cannotWorkspaceRedoDueToChanges", comment: ["{0} is a label for an operation. {1} is a list of filenames."] },
+          {
+            key: "cannotWorkspaceRedoDueToChanges",
+            comment: [
+              "{0} is a label for an operation. {1} is a list of filenames."
+            ]
+          },
           "Could not redo '{0}' across all files because changes were made to {1}",
           element.label,
           cannotRedoDueToResources.join(", ")
@@ -1120,7 +1305,12 @@ let UndoRedoService = class {
         element,
         null,
         nls.localize(
-          { key: "cannotWorkspaceRedoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] },
+          {
+            key: "cannotWorkspaceRedoDueToInProgressUndoRedo",
+            comment: [
+              "{0} is a label for an operation. {1} is a list of filenames."
+            ]
+          },
           "Could not redo '{0}' across all files because there is already an undo or redo operation running on {1}",
           element.label,
           cannotLockDueToResources.join(", ")
@@ -1133,7 +1323,12 @@ let UndoRedoService = class {
         element,
         null,
         nls.localize(
-          { key: "cannotWorkspaceRedoDueToInMeantimeUndoRedo", comment: ["{0} is a label for an operation. {1} is a list of filenames."] },
+          {
+            key: "cannotWorkspaceRedoDueToInMeantimeUndoRedo",
+            comment: [
+              "{0} is a label for an operation. {1} is a list of filenames."
+            ]
+          },
           "Could not redo '{0}' across all files because an undo or redo operation occurred in the meantime",
           element.label
         )
@@ -1153,7 +1348,11 @@ let UndoRedoService = class {
     if (verificationError) {
       return verificationError.returnValue;
     }
-    return this._executeWorkspaceRedo(strResource, element, affectedEditStacks);
+    return this._executeWorkspaceRedo(
+      strResource,
+      element,
+      affectedEditStacks
+    );
   }
   async _executeWorkspaceRedo(strResource, element, editStackSnapshot) {
     let cleanup;
@@ -1176,7 +1375,13 @@ let UndoRedoService = class {
     for (const editStack of editStackSnapshot.editStacks) {
       editStack.moveForward(element);
     }
-    return this._safeInvokeWithLocks(element, () => element.actual.redo(), editStackSnapshot, cleanup, () => this._continueRedoInGroup(element.groupId));
+    return this._safeInvokeWithLocks(
+      element,
+      () => element.actual.redo(),
+      editStackSnapshot,
+      cleanup,
+      () => this._continueRedoInGroup(element.groupId)
+    );
   }
   _resourceRedo(editStack, element) {
     if (!element.isValid) {
@@ -1185,7 +1390,10 @@ let UndoRedoService = class {
     }
     if (editStack.locked) {
       const message = nls.localize(
-        { key: "cannotResourceRedoDueToInProgressUndoRedo", comment: ["{0} is a label for an operation."] },
+        {
+          key: "cannotResourceRedoDueToInProgressUndoRedo",
+          comment: ["{0} is a label for an operation."]
+        },
         "Could not redo '{0}' because there is already an undo or redo operation running.",
         element.label
       );
@@ -1194,7 +1402,13 @@ let UndoRedoService = class {
     }
     return this._invokeResourcePrepare(element, (cleanup) => {
       editStack.moveForward(element);
-      return this._safeInvokeWithLocks(element, () => element.actual.redo(), new EditStackSnapshot([editStack]), cleanup, () => this._continueRedoInGroup(element.groupId));
+      return this._safeInvokeWithLocks(
+        element,
+        () => element.actual.redo(),
+        new EditStackSnapshot([editStack]),
+        cleanup,
+        () => this._continueRedoInGroup(element.groupId)
+      );
     });
   }
   _findClosestRedoElementInGroup(groupId) {

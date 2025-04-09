@@ -1,15 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { bufferToStream, VSBuffer } from "../../../common/buffer.js";
-import { CancellationToken } from "../../../common/cancellation.js";
 import { canceled } from "../../../common/errors.js";
-import { IHeaders, IRequestContext, IRequestOptions, OfflineError } from "./request.js";
+import {
+  OfflineError
+} from "./request.js";
 async function request(options, token, isOnline) {
   if (token.isCancellationRequested) {
     throw canceled();
   }
   const cancellation = new AbortController();
-  const disposable = token.onCancellationRequested(() => cancellation.abort());
+  const disposable = token.onCancellationRequested(
+    () => cancellation.abort()
+  );
   const signal = options.timeout ? AbortSignal.any([
     cancellation.signal,
     AbortSignal.timeout(options.timeout)
@@ -30,7 +33,9 @@ async function request(options, token, isOnline) {
         statusCode: res.status,
         headers: getResponseHeaders(res)
       },
-      stream: bufferToStream(VSBuffer.wrap(new Uint8Array(await res.arrayBuffer())))
+      stream: bufferToStream(
+        VSBuffer.wrap(new Uint8Array(await res.arrayBuffer()))
+      )
     };
   } catch (err) {
     if (isOnline && !isOnline()) {
@@ -68,7 +73,10 @@ function getRequestHeaders(options) {
       }
     }
     if (options.user || options.password) {
-      headers.set("Authorization", "Basic " + btoa(`${options.user || ""}:${options.password || ""}`));
+      headers.set(
+        "Authorization",
+        `Basic ${btoa(`${options.user || ""}:${options.password || ""}`)}`
+      );
     }
     if (options.proxyAuthorization) {
       headers.set("Proxy-Authorization", options.proxyAuthorization);

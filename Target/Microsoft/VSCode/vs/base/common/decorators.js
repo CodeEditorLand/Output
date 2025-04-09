@@ -24,8 +24,10 @@ function memoize(_target, key, descriptor) {
   if (typeof descriptor.value === "function") {
     fnKey = "value";
     fn = descriptor.value;
-    if (fn.length !== 0) {
-      console.warn("Memoize should only be used in functions with zero parameters");
+    if (fn?.length !== 0) {
+      console.warn(
+        "Memoize should only be used in functions with zero parameters"
+      );
     }
   } else if (typeof descriptor.get === "function") {
     fnKey = "get";

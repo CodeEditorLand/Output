@@ -27,7 +27,7 @@ function getDesktopEnvironment() {
       switch (value) {
         case "Unity": {
           const desktopSessionUnity = env["DESKTOP_SESSION"];
-          if (desktopSessionUnity && desktopSessionUnity.includes("gnome-fallback")) {
+          if (desktopSessionUnity?.includes("gnome-fallback")) {
             return "GNOME" /* GNOME */;
           }
           return "UNITY" /* UNITY */;

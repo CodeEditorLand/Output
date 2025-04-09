@@ -11,43 +11,67 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { WindowIntervalTimer } from "../../../../base/browser/dom.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Iterable } from "../../../../base/common/iterator.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { themeColorFromId, ThemeIcon } from "../../../../base/common/themables.js";
-import { ICodeEditor, IViewZone, IViewZoneChangeAccessor } from "../../../../editor/browser/editorBrowser.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { observableValue } from "../../../../base/common/observable.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import {
+  themeColorFromId,
+  ThemeIcon
+} from "../../../../base/common/themables.js";
+import { assertType } from "../../../../base/common/types.js";
 import { StableEditorScrollState } from "../../../../editor/browser/stableEditorScroll.js";
-import { LineSource, RenderOptions, renderLines } from "../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
-import { ISingleEditOperation } from "../../../../editor/common/core/editOperation.js";
+import {
+  LineSource,
+  renderLines,
+  RenderOptions
+} from "../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
 import { LineRange } from "../../../../editor/common/core/lineRange.js";
-import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { IEditorDecorationsCollection } from "../../../../editor/common/editorCommon.js";
-import { IModelDecorationsChangeAccessor, IModelDeltaDecoration, IValidEditOperation, MinimapPosition, OverviewRulerLane, TrackedRangeStickiness } from "../../../../editor/common/model.js";
+import {
+  MinimapPosition,
+  OverviewRulerLane,
+  TrackedRangeStickiness
+} from "../../../../editor/common/model.js";
 import { ModelDecorationOptions } from "../../../../editor/common/model/textModel.js";
 import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
-import { InlineDecoration, InlineDecorationType } from "../../../../editor/common/viewModel.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  InlineDecoration,
+  InlineDecorationType
+} from "../../../../editor/common/viewModel.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import {
+  IMenuService,
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { Progress } from "../../../../platform/progress/common/progress.js";
 import { SaveReason } from "../../../common/editor.js";
-import { countWords } from "../../chat/common/chatWordCounter.js";
-import { HunkInformation, Session, HunkState } from "./inlineChatSession.js";
-import { InlineChatZoneWidget } from "./inlineChatZoneWidget.js";
-import { ACTION_TOGGLE_DIFF, CTX_INLINE_CHAT_CHANGE_HAS_DIFF, CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF, InlineChatConfigKeys, MENU_INLINE_CHAT_ZONE, minimapInlineChatDiffInserted, overviewRulerInlineChatDiffInserted } from "../common/inlineChat.js";
-import { assertType } from "../../../../base/common/types.js";
-import { performAsyncTextEdit, asProgressiveEdit } from "./utils.js";
-import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IUntitledTextEditorModel } from "../../../services/untitled/common/untitledTextEditorModel.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { DefaultChatTextEditor } from "../../chat/browser/codeBlockPart.js";
-import { isEqual } from "../../../../base/common/resources.js";
-import { Iterable } from "../../../../base/common/iterator.js";
-import { ConflictActionsFactory, IContentWidgetAction } from "../../mergeEditor/browser/view/conflictActions.js";
-import { observableValue } from "../../../../base/common/observable.js";
-import { IMenuService, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { countWords } from "../../chat/common/chatWordCounter.js";
+import {
+  ConflictActionsFactory
+} from "../../mergeEditor/browser/view/conflictActions.js";
+import {
+  ACTION_TOGGLE_DIFF,
+  CTX_INLINE_CHAT_CHANGE_HAS_DIFF,
+  CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF,
+  InlineChatConfigKeys,
+  MENU_INLINE_CHAT_ZONE,
+  minimapInlineChatDiffInserted,
+  overviewRulerInlineChatDiffInserted
+} from "../common/inlineChat.js";
+import {
+  HunkState
+} from "./inlineChatSession.js";
+import { asProgressiveEdit, performAsyncTextEdit } from "./utils.js";
 var HunkAction = /* @__PURE__ */ ((HunkAction2) => {
   HunkAction2[HunkAction2["Accept"] = 0] = "Accept";
   HunkAction2[HunkAction2["Discard"] = 1] = "Discard";
@@ -72,7 +96,9 @@ let LiveStrategy = class {
     this._ctxCurrentChangeHasDiff = CTX_INLINE_CHAT_CHANGE_HAS_DIFF.bindTo(contextKeyService);
     this._ctxCurrentChangeShowsDiff = CTX_INLINE_CHAT_CHANGE_SHOWS_DIFF.bindTo(contextKeyService);
     this._progressiveEditingDecorations = this._editor.createDecorationsCollection();
-    this._lensActionsFactory = this._store.add(new ConflictActionsFactory(this._editor));
+    this._lensActionsFactory = this._store.add(
+      new ConflictActionsFactory(this._editor)
+    );
   }
   static {
     __name(this, "LiveStrategy");
@@ -131,13 +157,21 @@ let LiveStrategy = class {
     return this._session.hunkData.discardAll();
   }
   async makeChanges(edits, obs, undoStopBefore) {
-    return this._makeChanges(edits, obs, void 0, void 0, undoStopBefore);
+    return this._makeChanges(
+      edits,
+      obs,
+      void 0,
+      void 0,
+      undoStopBefore
+    );
   }
   async makeProgressiveChanges(edits, obs, opts, undoStopBefore) {
     const progress = new Progress((edits2) => {
       const newLines = /* @__PURE__ */ new Set();
       for (const edit of edits2) {
-        LineRange.fromRange(edit.range).forEach((line) => newLines.add(line));
+        LineRange.fromRange(edit.range).forEach(
+          (line) => newLines.add(line)
+        );
       }
       const existingRanges = this._progressiveEditingDecorations.getRanges().map(LineRange.fromRange);
       for (const existingRange of existingRanges) {
@@ -145,7 +179,10 @@ let LiveStrategy = class {
       }
       const newDecorations = [];
       for (const line of newLines) {
-        newDecorations.push({ range: new Range(line, 1, line, Number.MAX_VALUE), options: this._decoInsertedText });
+        newDecorations.push({
+          range: new Range(line, 1, line, Number.MAX_VALUE),
+          options: this._decoInsertedText
+        });
       }
       this._progressiveEditingDecorations.append(newDecorations);
     });
@@ -161,15 +198,29 @@ let LiveStrategy = class {
       for (const edit of edits) {
         const wordCount = countWords(edit.text ?? "");
         const speed = wordCount / durationInSec;
-        const asyncEdit = asProgressiveEdit(new WindowIntervalTimer(this._zone.domNode), edit, speed, opts.token);
-        await performAsyncTextEdit(this._session.textModelN, asyncEdit, progress, obs);
+        const asyncEdit = asProgressiveEdit(
+          new WindowIntervalTimer(this._zone.domNode),
+          edit,
+          speed,
+          opts.token
+        );
+        await performAsyncTextEdit(
+          this._session.textModelN,
+          asyncEdit,
+          progress,
+          obs
+        );
       }
     } else {
       obs.start();
-      this._session.textModelN.pushEditOperations(null, edits, (undoEdits) => {
-        progress?.report(undoEdits);
-        return null;
-      });
+      this._session.textModelN.pushEditOperations(
+        null,
+        edits,
+        (undoEdits) => {
+          progress?.report(undoEdits);
+          return null;
+        }
+      );
       obs.stop();
     }
   }
@@ -219,7 +270,12 @@ let LiveStrategy = class {
       }
     }
     if (!result) {
-      result = Iterable.first(Iterable.filter(this._hunkData.values(), (candidate) => candidate.hunk.getState() === HunkState.Pending));
+      result = Iterable.first(
+        Iterable.filter(
+          this._hunkData.values(),
+          (candidate) => candidate.hunk.getState() === HunkState.Pending
+        )
+      );
     }
     return result;
   }
@@ -227,171 +283,246 @@ let LiveStrategy = class {
     this._progressiveEditingDecorations.clear();
     const renderHunks = /* @__PURE__ */ __name(() => {
       let widgetData;
-      changeDecorationsAndViewZones(this._editor, (decorationsAccessor, viewZoneAccessor) => {
-        const keysNow = new Set(this._hunkData.keys());
-        widgetData = void 0;
-        for (const hunkData of this._session.hunkData.getInfo()) {
-          keysNow.delete(hunkData);
-          const hunkRanges = hunkData.getRangesN();
-          let data = this._hunkData.get(hunkData);
-          if (!data) {
-            const decorationIds = [];
-            for (let i = 0; i < hunkRanges.length; i++) {
-              decorationIds.push(
-                decorationsAccessor.addDecoration(hunkRanges[i], i === 0 ? this._decoInsertedText : this._decoInsertedTextRange)
+      changeDecorationsAndViewZones(
+        this._editor,
+        (decorationsAccessor, viewZoneAccessor) => {
+          const keysNow = new Set(this._hunkData.keys());
+          widgetData = void 0;
+          for (const hunkData of this._session.hunkData.getInfo()) {
+            keysNow.delete(hunkData);
+            const hunkRanges = hunkData.getRangesN();
+            let data = this._hunkData.get(hunkData);
+            if (!data) {
+              const decorationIds = [];
+              for (let i = 0; i < hunkRanges.length; i++) {
+                decorationIds.push(
+                  decorationsAccessor.addDecoration(
+                    hunkRanges[i],
+                    i === 0 ? this._decoInsertedText : this._decoInsertedTextRange
+                  )
+                );
+              }
+              const acceptHunk = /* @__PURE__ */ __name(() => {
+                hunkData.acceptChanges();
+                renderHunks();
+              }, "acceptHunk");
+              const discardHunk = /* @__PURE__ */ __name(() => {
+                hunkData.discardChanges();
+                renderHunks();
+              }, "discardHunk");
+              const mightContainNonBasicASCII = this._session.textModel0.mightContainNonBasicASCII();
+              const mightContainRTL = this._session.textModel0.mightContainRTL();
+              const renderOptions = RenderOptions.fromEditor(
+                this._editor
               );
-            }
-            const acceptHunk = /* @__PURE__ */ __name(() => {
-              hunkData.acceptChanges();
-              renderHunks();
-            }, "acceptHunk");
-            const discardHunk = /* @__PURE__ */ __name(() => {
-              hunkData.discardChanges();
-              renderHunks();
-            }, "discardHunk");
-            const mightContainNonBasicASCII = this._session.textModel0.mightContainNonBasicASCII();
-            const mightContainRTL = this._session.textModel0.mightContainRTL();
-            const renderOptions = RenderOptions.fromEditor(this._editor);
-            const originalRange = hunkData.getRanges0()[0];
-            const source = new LineSource(
-              LineRange.fromRangeInclusive(originalRange).mapToLineArray((l) => this._session.textModel0.tokenization.getLineTokens(l)),
-              [],
-              mightContainNonBasicASCII,
-              mightContainRTL
-            );
-            const domNode = document.createElement("div");
-            domNode.className = "inline-chat-original-zone2";
-            const result = renderLines(source, renderOptions, [new InlineDecoration(new Range(originalRange.startLineNumber, 1, originalRange.startLineNumber, 1), "", InlineDecorationType.Regular)], domNode);
-            const viewZoneData = {
-              afterLineNumber: -1,
-              heightInLines: result.heightInLines,
-              domNode,
-              ordinal: 5e4 + 2
-              // more than https://github.com/microsoft/vscode/blob/bf52a5cfb2c75a7327c9adeaefbddc06d529dcad/src/vs/workbench/contrib/inlineChat/browser/inlineChatZoneWidget.ts#L42
-            };
-            const toggleDiff = /* @__PURE__ */ __name(() => {
-              const scrollState = StableEditorScrollState.capture(this._editor);
-              changeDecorationsAndViewZones(this._editor, (_decorationsAccessor, viewZoneAccessor2) => {
-                assertType(data);
-                if (!data.diffViewZoneId) {
-                  const [hunkRange] = hunkData.getRangesN();
-                  viewZoneData.afterLineNumber = hunkRange.startLineNumber - 1;
-                  data.diffViewZoneId = viewZoneAccessor2.addZone(viewZoneData);
-                } else {
-                  viewZoneAccessor2.removeZone(data.diffViewZoneId);
-                  data.diffViewZoneId = void 0;
-                }
-              });
-              this._ctxCurrentChangeShowsDiff.set(typeof data?.diffViewZoneId === "string");
-              scrollState.restore(this._editor);
-            }, "toggleDiff");
-            let lensActions;
-            const lensActionsViewZoneIds = [];
-            if (this._showOverlayToolbar && hunkData.getState() === HunkState.Pending) {
-              lensActions = new DisposableStore();
-              const menu = this._menuService.createMenu(MENU_INLINE_CHAT_ZONE, this._contextService);
-              const makeActions = /* @__PURE__ */ __name(() => {
-                const actions = [];
-                const tuples = menu.getActions({ arg: hunkData });
-                for (const [, group] of tuples) {
-                  for (const item of group) {
-                    if (item instanceof MenuItemAction) {
-                      let text = item.label;
-                      if (item.id === ACTION_TOGGLE_DIFF) {
-                        text = item.checked ? "Hide Changes" : "Show Changes";
-                      } else if (ThemeIcon.isThemeIcon(item.item.icon)) {
-                        text = `$(${item.item.icon.id}) ${text}`;
-                      }
-                      actions.push({
-                        text,
-                        tooltip: item.tooltip,
-                        action: /* @__PURE__ */ __name(async () => item.run(), "action")
-                      });
+              const originalRange = hunkData.getRanges0()[0];
+              const source = new LineSource(
+                LineRange.fromRangeInclusive(
+                  originalRange
+                ).mapToLineArray(
+                  (l) => this._session.textModel0.tokenization.getLineTokens(
+                    l
+                  )
+                ),
+                [],
+                mightContainNonBasicASCII,
+                mightContainRTL
+              );
+              const domNode = document.createElement("div");
+              domNode.className = "inline-chat-original-zone2";
+              const result = renderLines(
+                source,
+                renderOptions,
+                [
+                  new InlineDecoration(
+                    new Range(
+                      originalRange.startLineNumber,
+                      1,
+                      originalRange.startLineNumber,
+                      1
+                    ),
+                    "",
+                    InlineDecorationType.Regular
+                  )
+                ],
+                domNode
+              );
+              const viewZoneData = {
+                afterLineNumber: -1,
+                heightInLines: result.heightInLines,
+                domNode,
+                ordinal: 5e4 + 2
+                // more than https://github.com/microsoft/vscode/blob/bf52a5cfb2c75a7327c9adeaefbddc06d529dcad/src/vs/workbench/contrib/inlineChat/browser/inlineChatZoneWidget.ts#L42
+              };
+              const toggleDiff = /* @__PURE__ */ __name(() => {
+                const scrollState = StableEditorScrollState.capture(
+                  this._editor
+                );
+                changeDecorationsAndViewZones(
+                  this._editor,
+                  (_decorationsAccessor, viewZoneAccessor2) => {
+                    assertType(data);
+                    if (!data.diffViewZoneId) {
+                      const [hunkRange] = hunkData.getRangesN();
+                      viewZoneData.afterLineNumber = hunkRange.startLineNumber - 1;
+                      data.diffViewZoneId = viewZoneAccessor2.addZone(
+                        viewZoneData
+                      );
+                    } else {
+                      viewZoneAccessor2.removeZone(
+                        data.diffViewZoneId
+                      );
+                      data.diffViewZoneId = void 0;
                     }
                   }
-                }
-                return actions;
-              }, "makeActions");
-              const obs = observableValue(this, makeActions());
-              lensActions.add(menu.onDidChange(() => obs.set(makeActions(), void 0)));
-              lensActions.add(menu);
-              lensActions.add(this._lensActionsFactory.createWidget(
-                viewZoneAccessor,
-                hunkRanges[0].startLineNumber - 1,
-                obs,
-                lensActionsViewZoneIds
-              ));
-            }
-            const remove = /* @__PURE__ */ __name(() => {
-              changeDecorationsAndViewZones(this._editor, (decorationsAccessor2, viewZoneAccessor2) => {
-                assertType(data);
-                for (const decorationId of data.decorationIds) {
-                  decorationsAccessor2.removeDecoration(decorationId);
-                }
-                if (data.diffViewZoneId) {
-                  viewZoneAccessor2.removeZone(data.diffViewZoneId);
-                }
-                data.decorationIds = [];
-                data.diffViewZoneId = void 0;
-                data.lensActionsViewZoneIds?.forEach(viewZoneAccessor2.removeZone);
-                data.lensActionsViewZoneIds = void 0;
-              });
-              lensActions?.dispose();
-            }, "remove");
-            const move = /* @__PURE__ */ __name((next) => {
-              const keys = Array.from(this._hunkData.keys());
-              const idx = keys.indexOf(hunkData);
-              const nextIdx = (idx + (next ? 1 : -1) + keys.length) % keys.length;
-              if (nextIdx !== idx) {
-                const nextData = this._hunkData.get(keys[nextIdx]);
-                this._zone.updatePositionAndHeight(nextData?.position);
-                renderHunks();
+                );
+                this._ctxCurrentChangeShowsDiff.set(
+                  typeof data?.diffViewZoneId === "string"
+                );
+                scrollState.restore(this._editor);
+              }, "toggleDiff");
+              let lensActions;
+              const lensActionsViewZoneIds = [];
+              if (this._showOverlayToolbar && hunkData.getState() === HunkState.Pending) {
+                lensActions = new DisposableStore();
+                const menu = this._menuService.createMenu(
+                  MENU_INLINE_CHAT_ZONE,
+                  this._contextService
+                );
+                const makeActions = /* @__PURE__ */ __name(() => {
+                  const actions = [];
+                  const tuples = menu.getActions({
+                    arg: hunkData
+                  });
+                  for (const [, group] of tuples) {
+                    for (const item of group) {
+                      if (item instanceof MenuItemAction) {
+                        let text = item.label;
+                        if (item.id === ACTION_TOGGLE_DIFF) {
+                          text = item.checked ? "Hide Changes" : "Show Changes";
+                        } else if (ThemeIcon.isThemeIcon(
+                          item.item.icon
+                        )) {
+                          text = `$(${item.item.icon.id}) ${text}`;
+                        }
+                        actions.push({
+                          text,
+                          tooltip: item.tooltip,
+                          action: /* @__PURE__ */ __name(async () => item.run(), "action")
+                        });
+                      }
+                    }
+                  }
+                  return actions;
+                }, "makeActions");
+                const obs = observableValue(
+                  this,
+                  makeActions()
+                );
+                lensActions.add(
+                  menu.onDidChange(
+                    () => obs.set(makeActions(), void 0)
+                  )
+                );
+                lensActions.add(menu);
+                lensActions.add(
+                  this._lensActionsFactory.createWidget(
+                    viewZoneAccessor,
+                    hunkRanges[0].startLineNumber - 1,
+                    obs,
+                    lensActionsViewZoneIds
+                  )
+                );
               }
-            }, "move");
-            const zoneLineNumber = this._zone.position?.lineNumber ?? this._editor.getPosition().lineNumber;
-            const myDistance = zoneLineNumber <= hunkRanges[0].startLineNumber ? hunkRanges[0].startLineNumber - zoneLineNumber : zoneLineNumber - hunkRanges[0].endLineNumber;
-            data = {
-              hunk: hunkData,
-              decorationIds,
-              diffViewZoneId: "",
-              diffViewZone: viewZoneData,
-              lensActionsViewZoneIds,
-              distance: myDistance,
-              position: hunkRanges[0].getStartPosition().delta(-1),
-              acceptHunk,
-              discardHunk,
-              toggleDiff: !hunkData.isInsertion() ? toggleDiff : void 0,
-              remove,
-              move
-            };
-            this._hunkData.set(hunkData, data);
-          } else if (hunkData.getState() !== HunkState.Pending) {
-            data.remove();
-          } else {
-            const zoneLineNumber = this._zone.position?.lineNumber ?? this._editor.getPosition().lineNumber;
-            const modifiedRangeNow = hunkRanges[0];
-            data.position = modifiedRangeNow.getStartPosition().delta(-1);
-            data.distance = zoneLineNumber <= modifiedRangeNow.startLineNumber ? modifiedRangeNow.startLineNumber - zoneLineNumber : zoneLineNumber - modifiedRangeNow.endLineNumber;
+              const remove = /* @__PURE__ */ __name(() => {
+                changeDecorationsAndViewZones(
+                  this._editor,
+                  (decorationsAccessor2, viewZoneAccessor2) => {
+                    assertType(data);
+                    for (const decorationId of data.decorationIds) {
+                      decorationsAccessor2.removeDecoration(
+                        decorationId
+                      );
+                    }
+                    if (data.diffViewZoneId) {
+                      viewZoneAccessor2.removeZone(
+                        data.diffViewZoneId
+                      );
+                    }
+                    data.decorationIds = [];
+                    data.diffViewZoneId = void 0;
+                    data.lensActionsViewZoneIds?.forEach(
+                      viewZoneAccessor2.removeZone
+                    );
+                    data.lensActionsViewZoneIds = void 0;
+                  }
+                );
+                lensActions?.dispose();
+              }, "remove");
+              const move = /* @__PURE__ */ __name((next) => {
+                const keys = Array.from(this._hunkData.keys());
+                const idx = keys.indexOf(hunkData);
+                const nextIdx = (idx + (next ? 1 : -1) + keys.length) % keys.length;
+                if (nextIdx !== idx) {
+                  const nextData = this._hunkData.get(
+                    keys[nextIdx]
+                  );
+                  this._zone.updatePositionAndHeight(
+                    nextData?.position
+                  );
+                  renderHunks();
+                }
+              }, "move");
+              const zoneLineNumber = this._zone.position?.lineNumber ?? this._editor.getPosition()?.lineNumber;
+              const myDistance = zoneLineNumber <= hunkRanges[0].startLineNumber ? hunkRanges[0].startLineNumber - zoneLineNumber : zoneLineNumber - hunkRanges[0].endLineNumber;
+              data = {
+                hunk: hunkData,
+                decorationIds,
+                diffViewZoneId: "",
+                diffViewZone: viewZoneData,
+                lensActionsViewZoneIds,
+                distance: myDistance,
+                position: hunkRanges[0].getStartPosition().delta(-1),
+                acceptHunk,
+                discardHunk,
+                toggleDiff: !hunkData.isInsertion() ? toggleDiff : void 0,
+                remove,
+                move
+              };
+              this._hunkData.set(hunkData, data);
+            } else if (hunkData.getState() !== HunkState.Pending) {
+              data.remove();
+            } else {
+              const zoneLineNumber = this._zone.position?.lineNumber ?? this._editor.getPosition()?.lineNumber;
+              const modifiedRangeNow = hunkRanges[0];
+              data.position = modifiedRangeNow.getStartPosition().delta(-1);
+              data.distance = zoneLineNumber <= modifiedRangeNow.startLineNumber ? modifiedRangeNow.startLineNumber - zoneLineNumber : zoneLineNumber - modifiedRangeNow.endLineNumber;
+            }
+            if (hunkData.getState() === HunkState.Pending && (!widgetData || data.distance < widgetData.distance)) {
+              widgetData = data;
+            }
           }
-          if (hunkData.getState() === HunkState.Pending && (!widgetData || data.distance < widgetData.distance)) {
-            widgetData = data;
+          for (const key of keysNow) {
+            const data = this._hunkData.get(key);
+            if (data) {
+              this._hunkData.delete(key);
+              data.remove();
+            }
           }
         }
-        for (const key of keysNow) {
-          const data = this._hunkData.get(key);
-          if (data) {
-            this._hunkData.delete(key);
-            data.remove();
-          }
-        }
-      });
+      );
       if (widgetData) {
         this._zone.reveal(widgetData.position);
         const mode = this._configService.getValue(InlineChatConfigKeys.AccessibleDiffView);
         if (mode === "on" || mode === "auto" && this._accessibilityService.isScreenReaderOptimized()) {
-          this._zone.widget.showAccessibleHunk(this._session, widgetData.hunk);
+          this._zone.widget.showAccessibleHunk(
+            this._session,
+            widgetData.hunk
+          );
         }
-        this._ctxCurrentChangeHasDiff.set(Boolean(widgetData.toggleDiff));
+        this._ctxCurrentChangeHasDiff.set(
+          Boolean(widgetData.toggleDiff)
+        );
       } else if (this._hunkData.size > 0) {
         let oneAccepted = false;
         for (const hunkData of this._session.hunkData.getInfo()) {
@@ -429,7 +560,9 @@ let LiveStrategy = class {
         }
         await editor.apply(request.response, item, void 0);
         if (item.uri.scheme === Schemas.untitled) {
-          const untitled = this._textFileService.untitled.get(item.uri);
+          const untitled = this._textFileService.untitled.get(
+            item.uri
+          );
           if (untitled) {
             untitledModels.push(untitled);
           }

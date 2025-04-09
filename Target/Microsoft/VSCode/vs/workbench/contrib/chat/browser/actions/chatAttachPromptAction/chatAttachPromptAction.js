@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ServicesAccessor } from "../../../../../../editor/browser/editorExtensions.js";
 import { localize2 } from "../../../../../../nls.js";
 import { Action2 } from "../../../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../../../platform/commands/common/commands.js";
@@ -13,7 +12,9 @@ import { IViewsService } from "../../../../../services/views/common/viewsService
 import { ChatContextKeys } from "../../../common/chatContextKeys.js";
 import { IPromptsService } from "../../../common/promptSyntax/service/types.js";
 import { CHAT_CATEGORY } from "../chatActions.js";
-import { ISelectPromptOptions, askToSelectPrompt } from "./dialogs/askToSelectPrompt/askToSelectPrompt.js";
+import {
+  askToSelectPrompt
+} from "./dialogs/askToSelectPrompt/askToSelectPrompt.js";
 const ATTACH_PROMPT_ACTION_ID = "workbench.action.chat.attach.prompt";
 class AttachPromptAction extends Action2 {
   static {
@@ -22,7 +23,10 @@ class AttachPromptAction extends Action2 {
   constructor() {
     super({
       id: ATTACH_PROMPT_ACTION_ID,
-      title: localize2("workbench.action.chat.attach.prompt.label", "Use Prompt"),
+      title: localize2(
+        "workbench.action.chat.attach.prompt.label",
+        "Use Prompt"
+      ),
       f1: false,
       precondition: ChatContextKeys.enabled,
       category: CHAT_CATEGORY

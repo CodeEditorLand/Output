@@ -12,18 +12,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { ProgressBar } from "../../../../../../base/browser/ui/progressbar/progressbar.js";
 import { defaultProgressBarStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
-import { ICellViewModel } from "../../notebookBrowser.js";
-import { CellViewModelStateChangeEvent } from "../../notebookViewEvents.js";
-import { CellContentPart } from "../cellPart.js";
 import { NotebookCellExecutionState } from "../../../common/notebookCommon.js";
-import { ICellExecutionStateChangedEvent, INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+import {
+  INotebookExecutionStateService
+} from "../../../common/notebookExecutionStateService.js";
+import { CellContentPart } from "../cellPart.js";
 let CellProgressBar = class extends CellContentPart {
   constructor(editorContainer, collapsedInputContainer, _notebookExecutionStateService) {
     super();
     this._notebookExecutionStateService = _notebookExecutionStateService;
-    this._progressBar = this._register(new ProgressBar(editorContainer, defaultProgressBarStyles));
+    this._progressBar = this._register(
+      new ProgressBar(editorContainer, defaultProgressBarStyles)
+    );
     this._progressBar.hide();
-    this._collapsedProgressBar = this._register(new ProgressBar(collapsedInputContainer, defaultProgressBarStyles));
+    this._collapsedProgressBar = this._register(
+      new ProgressBar(collapsedInputContainer, defaultProgressBarStyles)
+    );
     this._collapsedProgressBar.hide();
   }
   static {
@@ -42,7 +46,9 @@ let CellProgressBar = class extends CellContentPart {
       this._updateForExecutionState(element);
     }
     if (e.inputCollapsedChanged) {
-      const exeState = this._notebookExecutionStateService.getCellExecution(element.uri);
+      const exeState = this._notebookExecutionStateService.getCellExecution(
+        element.uri
+      );
       if (element.isInputCollapsed) {
         this._progressBar.hide();
         if (exeState?.state === NotebookCellExecutionState.Executing) {

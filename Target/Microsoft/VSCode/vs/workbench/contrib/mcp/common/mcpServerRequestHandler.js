@@ -1,16 +1,23 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { equals } from "../../../../base/common/arrays.js";
-import { DeferredPromise, IntervalTimer } from "../../../../base/common/async.js";
+import {
+  DeferredPromise,
+  IntervalTimer
+} from "../../../../base/common/async.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { CancellationError } from "../../../../base/common/errors.js";
 import { Emitter } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { autorun } from "../../../../base/common/observable.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { canLog, ILogger, LogLevel } from "../../../../platform/log/common/log.js";
+import {
+  canLog,
+  LogLevel
+} from "../../../../platform/log/common/log.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IMcpMessageTransport } from "./mcpRegistryTypes.js";
 import { McpConnectionState, MpcResponseError } from "./mcpTypes.js";
 import { MCP } from "./modelContextProtocol.js";
 class McpServerRequestHandler extends Disposable {
@@ -18,13 +25,19 @@ class McpServerRequestHandler extends Disposable {
     super();
     this.launch = launch;
     this.logger = logger;
-    this._register(launch.onDidReceiveMessage((message) => this.handleMessage(message)));
-    this._register(autorun((reader) => {
-      const state = launch.state.read(reader).state;
-      if (state === McpConnectionState.Kind.Error || state === McpConnectionState.Kind.Stopped) {
-        this.cancelAllRequests();
-      }
-    }));
+    this._register(
+      launch.onDidReceiveMessage(
+        (message) => this.handleMessage(message)
+      )
+    );
+    this._register(
+      autorun((reader) => {
+        const state = launch.state.read(reader).state;
+        if (state === McpConnectionState.Kind.Error || state === McpConnectionState.Kind.Stopped) {
+          this.cancelAllRequests();
+        }
+      })
+    );
   }
   static {
     __name(this, "McpServerRequestHandler");
@@ -37,7 +50,9 @@ class McpServerRequestHandler extends Disposable {
     if (!equals(this._roots, roots)) {
       this._roots = roots;
       if (this._hasAnnouncedRoots) {
-        this.sendNotification({ method: "notifications/roots/list_changed" });
+        this.sendNotification({
+          method: "notifications/roots/list_changed"
+        });
         this._hasAnnouncedRoots = false;
       }
     }
@@ -47,17 +62,27 @@ class McpServerRequestHandler extends Disposable {
     return this._serverInit.capabilities;
   }
   // Event emitters for server notifications
-  _onDidReceiveCancelledNotification = this._register(new Emitter());
+  _onDidReceiveCancelledNotification = this._register(
+    new Emitter()
+  );
   onDidReceiveCancelledNotification = this._onDidReceiveCancelledNotification.event;
-  _onDidReceiveProgressNotification = this._register(new Emitter());
+  _onDidReceiveProgressNotification = this._register(
+    new Emitter()
+  );
   onDidReceiveProgressNotification = this._onDidReceiveProgressNotification.event;
-  _onDidChangeResourceList = this._register(new Emitter());
+  _onDidChangeResourceList = this._register(
+    new Emitter()
+  );
   onDidChangeResourceList = this._onDidChangeResourceList.event;
-  _onDidUpdateResource = this._register(new Emitter());
+  _onDidUpdateResource = this._register(
+    new Emitter()
+  );
   onDidUpdateResource = this._onDidUpdateResource.event;
   _onDidChangeToolList = this._register(new Emitter());
   onDidChangeToolList = this._onDidChangeToolList.event;
-  _onDidChangePromptList = this._register(new Emitter());
+  _onDidChangePromptList = this._register(
+    new Emitter()
+  );
   onDidChangePromptList = this._onDidChangePromptList.event;
   /**
    * Connects to the MCP server and does the initialization handshake.
@@ -69,23 +94,28 @@ class McpServerRequestHandler extends Disposable {
     try {
       const timer = store.add(new IntervalTimer());
       timer.cancelAndSet(() => {
-        logger.info("Waiting for server to respond to `initialize` request...");
+        logger.info(
+          "Waiting for server to respond to `initialize` request..."
+        );
       }, 5e3);
       await instaService.invokeFunction(async (accessor) => {
         const productService = accessor.get(IProductService);
-        const initialized = await mcp.sendRequest({
-          method: "initialize",
-          params: {
-            protocolVersion: MCP.LATEST_PROTOCOL_VERSION,
-            capabilities: {
-              roots: { listChanged: true }
-            },
-            clientInfo: {
-              name: productService.nameLong,
-              version: productService.version
+        const initialized = await mcp.sendRequest(
+          {
+            method: "initialize",
+            params: {
+              protocolVersion: MCP.LATEST_PROTOCOL_VERSION,
+              capabilities: {
+                roots: { listChanged: true }
+              },
+              clientInfo: {
+                name: productService.nameLong,
+                version: productService.version
+              }
             }
-          }
-        }, token);
+          },
+          token
+        );
         mcp._serverInit = initialized;
         mcp.sendNotification({
           method: "notifications/initialized"
@@ -122,7 +152,10 @@ class McpServerRequestHandler extends Disposable {
     const cancelListener = token.onCancellationRequested(() => {
       if (!promise.isSettled) {
         this._pendingRequests.delete(id);
-        this.sendNotification({ method: "notifications/cancelled", params: { requestId: id } });
+        this.sendNotification({
+          method: "notifications/cancelled",
+          params: { requestId: id }
+        });
         promise.cancel();
       }
       cancelListener.dispose();
@@ -157,7 +190,10 @@ class McpServerRequestHandler extends Disposable {
         ...initialParams,
         cursor: nextCursor
       };
-      const result = await this.sendRequest({ method, params }, token);
+      const result = await this.sendRequest(
+        { method, params },
+        token
+      );
       allItems = allItems.concat(getItems(result));
       nextCursor = result.nextCursor;
     } while (nextCursor !== void 0 && !token.isCancellationRequested);
@@ -182,9 +218,13 @@ class McpServerRequestHandler extends Disposable {
     }
     if ("method" in message) {
       if ("id" in message) {
-        this.handleServerRequest(message);
+        this.handleServerRequest(
+          message
+        );
       } else {
-        this.handleServerNotification(message);
+        this.handleServerNotification(
+          message
+        );
       }
     }
   }
@@ -205,7 +245,13 @@ class McpServerRequestHandler extends Disposable {
     const request = this._pendingRequests.get(response.id);
     if (request) {
       this._pendingRequests.delete(response.id);
-      request.promise.error(new MpcResponseError(response.error.message, response.error.code, response.error.data));
+      request.promise.error(
+        new MpcResponseError(
+          response.error.message,
+          response.error.code,
+          response.error.data
+        )
+      );
     }
   }
   /**
@@ -216,7 +262,10 @@ class McpServerRequestHandler extends Disposable {
       case "ping":
         return this.respondToRequest(request, this.handlePing(request));
       case "roots/list":
-        return this.respondToRequest(request, this.handleRootsList(request));
+        return this.respondToRequest(
+          request,
+          this.handleRootsList(request)
+        );
       default: {
         const errorResponse = {
           jsonrpc: MCP.JSONRPC_VERSION,
@@ -259,7 +308,9 @@ class McpServerRequestHandler extends Disposable {
     }
   }
   handleCancelledNotification(request) {
-    const pendingRequest = this._pendingRequests.get(request.params.requestId);
+    const pendingRequest = this._pendingRequests.get(
+      request.params.requestId
+    );
     if (pendingRequest) {
       this._pendingRequests.delete(request.params.requestId);
       pendingRequest.promise.cancel();
@@ -328,7 +379,10 @@ class McpServerRequestHandler extends Disposable {
    * Send an initialize request
    */
   initialize(params, token) {
-    return this.sendRequest({ method: "initialize", params }, token);
+    return this.sendRequest(
+      { method: "initialize", params },
+      token
+    );
   }
   /**
    * List available resources
@@ -346,19 +400,30 @@ class McpServerRequestHandler extends Disposable {
    * List available resource templates
    */
   listResourceTemplates(params, token) {
-    return this.sendRequestPaginated("resources/templates/list", (result) => result.resourceTemplates, params, token);
+    return this.sendRequestPaginated(
+      "resources/templates/list",
+      (result) => result.resourceTemplates,
+      params,
+      token
+    );
   }
   /**
    * Subscribe to resource updates
    */
   subscribe(params, token) {
-    return this.sendRequest({ method: "resources/subscribe", params }, token);
+    return this.sendRequest(
+      { method: "resources/subscribe", params },
+      token
+    );
   }
   /**
    * Unsubscribe from resource updates
    */
   unsubscribe(params, token) {
-    return this.sendRequest({ method: "resources/unsubscribe", params }, token);
+    return this.sendRequest(
+      { method: "resources/unsubscribe", params },
+      token
+    );
   }
   /**
    * List available prompts
@@ -370,7 +435,10 @@ class McpServerRequestHandler extends Disposable {
    * Get a specific prompt
    */
   getPrompt(params, token) {
-    return this.sendRequest({ method: "prompts/get", params }, token);
+    return this.sendRequest(
+      { method: "prompts/get", params },
+      token
+    );
   }
   /**
    * List available tools
@@ -382,19 +450,28 @@ class McpServerRequestHandler extends Disposable {
    * Call a specific tool
    */
   callTool(params, token) {
-    return this.sendRequest({ method: "tools/call", params }, token);
+    return this.sendRequest(
+      { method: "tools/call", params },
+      token
+    );
   }
   /**
    * Set the logging level
    */
   setLevel(params, token) {
-    return this.sendRequest({ method: "logging/setLevel", params }, token);
+    return this.sendRequest(
+      { method: "logging/setLevel", params },
+      token
+    );
   }
   /**
    * Find completions for an argument
    */
   complete(params, token) {
-    return this.sendRequest({ method: "completion/complete", params }, token);
+    return this.sendRequest(
+      { method: "completion/complete", params },
+      token
+    );
   }
 }
 export {

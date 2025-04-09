@@ -10,16 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IPromptPath, IPromptsService } from "./types.js";
-import { URI } from "../../../../../../base/common/uri.js";
 import { assert } from "../../../../../../base/common/assert.js";
-import { PromptFilesLocator } from "../utils/promptFilesLocator.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
 import { ObjectCache } from "../../../../../../base/common/objectCache.js";
-import { TextModelPromptParser } from "../parsers/textModelPromptParser.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { IUserDataProfileService } from "../../../../../services/userDataProfile/common/userDataProfile.js";
+import { TextModelPromptParser } from "../parsers/textModelPromptParser.js";
+import { PromptFilesLocator } from "../utils/promptFilesLocator.js";
 let PromptsService = class extends Disposable {
   constructor(initService, userDataService) {
     super();

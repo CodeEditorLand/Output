@@ -1,9 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDiffEditorModel } from "../../../editor/common/editorCommon.js";
-import { BaseTextEditorModel } from "./textEditorModel.js";
 import { DiffEditorModel } from "./diffEditorModel.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
 class TextDiffEditorModel extends DiffEditorModel {
   static {
     __name(this, "TextDiffEditorModel");

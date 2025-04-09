@@ -1,8 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { SingleTextEdit } from "../../../../common/core/textEdit.js";
-import { Command } from "../../../../common/languages.js";
-import { InlineCompletionItem } from "./provideInlineCompletions.js";
 class InlineEdit {
   constructor(edit, commands, inlineCompletion) {
     this.edit = edit;

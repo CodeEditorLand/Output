@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../../base/common/charCode.js";
-import { LineRange } from "../../core/lineRange.js";
-import { DetailedLineRangeMapping } from "../rangeMapping.js";
 class Array2D {
   constructor(width, height) {
     this.width = width;
@@ -49,10 +47,10 @@ class LineRangeFragment {
   }
   static chrKeys = /* @__PURE__ */ new Map();
   static getKey(chr) {
-    let key = this.chrKeys.get(chr);
+    let key = LineRangeFragment.chrKeys.get(chr);
     if (key === void 0) {
-      key = this.chrKeys.size;
-      this.chrKeys.set(chr, key);
+      key = LineRangeFragment.chrKeys.size;
+      LineRangeFragment.chrKeys.set(chr, key);
     }
     return key;
   }
@@ -60,9 +58,14 @@ class LineRangeFragment {
   histogram = [];
   computeSimilarity(other) {
     let sumDifferences = 0;
-    const maxLength = Math.max(this.histogram.length, other.histogram.length);
+    const maxLength = Math.max(
+      this.histogram.length,
+      other.histogram.length
+    );
     for (let i = 0; i < maxLength; i++) {
-      sumDifferences += Math.abs((this.histogram[i] ?? 0) - (other.histogram[i] ?? 0));
+      sumDifferences += Math.abs(
+        (this.histogram[i] ?? 0) - (other.histogram[i] ?? 0)
+      );
     }
     return 1 - sumDifferences / (this.totalCount + other.totalCount);
   }

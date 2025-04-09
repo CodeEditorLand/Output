@@ -1,6 +1,10 @@
 import { KeyboardLayoutContribution } from "./_.contribution.js";
 KeyboardLayoutContribution.INSTANCE.registerKeyboardLayout({
-  layout: { id: "com.apple.keylayout.Dvorak", localizedName: "Dvorak", lang: "en" },
+  layout: {
+    id: "com.apple.keylayout.Dvorak",
+    localizedName: "Dvorak",
+    lang: "en"
+  },
   secondaryLayouts: [],
   mapping: {
     KeyA: ["a", "A", "\xE5", "\xC5", 0],

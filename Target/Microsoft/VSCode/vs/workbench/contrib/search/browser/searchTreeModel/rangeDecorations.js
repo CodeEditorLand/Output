@@ -10,12 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IDisposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import {
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { URI } from "../../../../../base/common/uri.js";
-import { ITextModel, TrackedRangeStickiness } from "../../../../../editor/common/model.js";
+import {
+  TrackedRangeStickiness
+} from "../../../../../editor/common/model.js";
 import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
-import { Range } from "../../../../../editor/common/core/range.js";
 let RangeHighlightDecorations = class {
   constructor(_modelService) {
     this._modelService = _modelService;
@@ -49,7 +52,10 @@ let RangeHighlightDecorations = class {
   doHighlightRange(model, range) {
     this.removeHighlightRange();
     model.changeDecorations((accessor) => {
-      this._decorationId = accessor.addDecoration(range, RangeHighlightDecorations._RANGE_HIGHLIGHT_DECORATION);
+      this._decorationId = accessor.addDecoration(
+        range,
+        RangeHighlightDecorations._RANGE_HIGHLIGHT_DECORATION
+      );
     });
     this.setModel(model);
   }
@@ -57,16 +63,20 @@ let RangeHighlightDecorations = class {
     if (this._model !== model) {
       this.clearModelListeners();
       this._model = model;
-      this._modelDisposables.add(this._model.onDidChangeDecorations((e) => {
-        this.clearModelListeners();
-        this.removeHighlightRange();
-        this._model = null;
-      }));
-      this._modelDisposables.add(this._model.onWillDispose(() => {
-        this.clearModelListeners();
-        this.removeHighlightRange();
-        this._model = null;
-      }));
+      this._modelDisposables.add(
+        this._model.onDidChangeDecorations((e) => {
+          this.clearModelListeners();
+          this.removeHighlightRange();
+          this._model = null;
+        })
+      );
+      this._modelDisposables.add(
+        this._model.onWillDispose(() => {
+          this.clearModelListeners();
+          this.removeHighlightRange();
+          this._model = null;
+        })
+      );
     }
   }
   clearModelListeners() {

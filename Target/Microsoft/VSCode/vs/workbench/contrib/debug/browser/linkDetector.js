@@ -10,11 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { getWindow, isHTMLElement, reset } from "../../../../base/browser/dom.js";
+import {
+  getWindow,
+  isHTMLElement,
+  reset
+} from "../../../../base/browser/dom.js";
 import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
 import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { Iterable } from "../../../../base/common/iterator.js";
 import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as osPath from "../../../../base/common/path.js";
 import * as platform from "../../../../base/common/platform.js";
@@ -25,21 +29,25 @@ import { IFileService } from "../../../../platform/files/common/files.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
 import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
-import { IWorkspaceFolder } from "../../../../platform/workspace/common/workspace.js";
-import { IDebugSession } from "../common/debug.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
 import { IPathService } from "../../../services/path/common/pathService.js";
-import { IHighlight } from "../../../../base/browser/ui/highlightedlabel/highlightedLabel.js";
-import { Iterable } from "../../../../base/common/iterator.js";
 const CONTROL_CODES = "\\u0000-\\u0020\\u007f-\\u009f";
-const WEB_LINK_REGEX = new RegExp("(?:[a-zA-Z][a-zA-Z0-9+.-]{2,}:\\/\\/|data:|www\\.)[^\\s" + CONTROL_CODES + '"]{2,}[^\\s' + CONTROL_CODES + `"')}\\],:;.!?]`, "ug");
+const WEB_LINK_REGEX = new RegExp(
+  `(?:[a-zA-Z][a-zA-Z0-9+.-]{2,}:\\/\\/|data:|www\\.)[^\\s${CONTROL_CODES}"]{2,}[^\\s${CONTROL_CODES}"')}\\],:;.!?]`,
+  "ug"
+);
 const WIN_ABSOLUTE_PATH = /(?:[a-zA-Z]:(?:(?:\\|\/)[\w\.-]*)+)/;
 const WIN_RELATIVE_PATH = /(?:(?:\~|\.)(?:(?:\\|\/)[\w\.-]*)+)/;
-const WIN_PATH = new RegExp(`(${WIN_ABSOLUTE_PATH.source}|${WIN_RELATIVE_PATH.source})`);
+const WIN_PATH = new RegExp(
+  `(${WIN_ABSOLUTE_PATH.source}|${WIN_RELATIVE_PATH.source})`
+);
 const POSIX_PATH = /((?:\~|\.)?(?:\/[\w\.-]*)+)/;
 const LINE_COLUMN = /(?:\:([\d]+))?(?:\:([\d]+))?/;
-const PATH_LINK_REGEX = new RegExp(`${platform.isWindows ? WIN_PATH.source : POSIX_PATH.source}${LINE_COLUMN.source}`, "g");
+const PATH_LINK_REGEX = new RegExp(
+  `${platform.isWindows ? WIN_PATH.source : POSIX_PATH.source}${LINE_COLUMN.source}`,
+  "g"
+);
 const LINE_COLUMN_REGEX = /:([\d]+)(?::([\d]+))?$/;
 const MAX_LENGTH = 2e3;
 var DebugLinkHoverBehavior = /* @__PURE__ */ ((DebugLinkHoverBehavior2) => {
@@ -72,18 +80,36 @@ let LinkDetector = class {
    * This should be preferred for new code where hovers are desirable.
    */
   linkify(text, splitLines, workspaceFolder, includeFulltext, hoverBehavior, highlights) {
-    return this._linkify(text, splitLines, workspaceFolder, includeFulltext, hoverBehavior, highlights);
+    return this._linkify(
+      text,
+      splitLines,
+      workspaceFolder,
+      includeFulltext,
+      hoverBehavior,
+      highlights
+    );
   }
   _linkify(text, splitLines, workspaceFolder, includeFulltext, hoverBehavior, highlights, defaultRef) {
     if (splitLines) {
       const lines = text.split("\n");
       for (let i = 0; i < lines.length - 1; i++) {
-        lines[i] = lines[i] + "\n";
+        lines[i] = `${lines[i]}
+`;
       }
       if (!lines[lines.length - 1]) {
         lines.pop();
       }
-      const elements = lines.map((line) => this._linkify(line, false, workspaceFolder, includeFulltext, hoverBehavior, highlights, defaultRef));
+      const elements = lines.map(
+        (line) => this._linkify(
+          line,
+          false,
+          workspaceFolder,
+          includeFulltext,
+          hoverBehavior,
+          highlights,
+          defaultRef
+        )
+      );
       if (elements.length === 1) {
         return elements[0];
       }
@@ -97,22 +123,46 @@ let LinkDetector = class {
         let node;
         switch (part.kind) {
           case "text":
-            node = defaultRef ? this.linkifyLocation(part.value, defaultRef.locationReference, defaultRef.session, hoverBehavior) : document.createTextNode(part.value);
+            node = defaultRef ? this.linkifyLocation(
+              part.value,
+              defaultRef.locationReference,
+              defaultRef.session,
+              hoverBehavior
+            ) : document.createTextNode(part.value);
             break;
           case "web":
-            node = this.createWebLink(includeFulltext ? text : void 0, part.value, hoverBehavior);
+            node = this.createWebLink(
+              includeFulltext ? text : void 0,
+              part.value,
+              hoverBehavior
+            );
             break;
           case "path": {
             const path = part.captures[0];
             const lineNumber = part.captures[1] ? Number(part.captures[1]) : 0;
             const columnNumber = part.captures[2] ? Number(part.captures[2]) : 0;
-            node = this.createPathLink(includeFulltext ? text : void 0, part.value, path, lineNumber, columnNumber, workspaceFolder, hoverBehavior);
+            node = this.createPathLink(
+              includeFulltext ? text : void 0,
+              part.value,
+              path,
+              lineNumber,
+              columnNumber,
+              workspaceFolder,
+              hoverBehavior
+            );
             break;
           }
           default:
             node = document.createTextNode(part.value);
         }
-        container.append(...this.applyHighlights(node, part.index, part.value.length, highlights));
+        container.append(
+          ...this.applyHighlights(
+            node,
+            part.index,
+            part.value.length,
+            highlights
+          )
+        );
       } catch (e) {
         container.appendChild(document.createTextNode(part.value));
       }
@@ -128,11 +178,19 @@ let LinkDetector = class {
         continue;
       }
       if (highlight.start > currentIndex) {
-        children.push(node.textContent.substring(currentIndex - startIndex, highlight.start - startIndex));
+        children.push(
+          node.textContent?.substring(
+            currentIndex - startIndex,
+            highlight.start - startIndex
+          )
+        );
         currentIndex = highlight.start;
       }
       const highlightEnd = Math.min(highlight.end, endIndex);
-      const highlightedText = node.textContent.substring(currentIndex - startIndex, highlightEnd - startIndex);
+      const highlightedText = node.textContent?.substring(
+        currentIndex - startIndex,
+        highlightEnd - startIndex
+      );
       const highlightSpan = document.createElement("span");
       highlightSpan.classList.add("highlight");
       if (highlight.extraClasses) {
@@ -146,7 +204,9 @@ let LinkDetector = class {
       return Iterable.single(node);
     }
     if (currentIndex < endIndex) {
-      children.push(node.textContent.substring(currentIndex - startIndex));
+      children.push(
+        node.textContent?.substring(currentIndex - startIndex)
+      );
     }
     if (isHTMLElement(node)) {
       reset(node, ...children);
@@ -159,15 +219,25 @@ let LinkDetector = class {
    */
   linkifyLocation(text, locationReference, session, hoverBehavior) {
     const link = this.createLink(text);
-    this.decorateLink(link, void 0, text, hoverBehavior, async (preserveFocus) => {
-      const location = await session.resolveLocationReference(locationReference);
-      await location.source.openInEditor(this.editorService, {
-        startLineNumber: location.line,
-        startColumn: location.column,
-        endLineNumber: location.endLine ?? location.line,
-        endColumn: location.endColumn ?? location.column
-      }, preserveFocus);
-    });
+    this.decorateLink(
+      link,
+      void 0,
+      text,
+      hoverBehavior,
+      async (preserveFocus) => {
+        const location = await session.resolveLocationReference(locationReference);
+        await location.source.openInEditor(
+          this.editorService,
+          {
+            startLineNumber: location.line,
+            startColumn: location.column,
+            endLineNumber: location.endLine ?? location.line,
+            endColumn: location.endColumn ?? location.column
+          },
+          preserveFocus
+        );
+      }
+    );
     return link;
   }
   /**
@@ -176,7 +246,15 @@ let LinkDetector = class {
    */
   makeReferencedLinkDetector(locationReference, session) {
     return {
-      linkify: /* @__PURE__ */ __name((text, splitLines, workspaceFolder, includeFulltext, hoverBehavior, highlights) => this._linkify(text, splitLines, workspaceFolder, includeFulltext, hoverBehavior, highlights, { locationReference, session }), "linkify"),
+      linkify: /* @__PURE__ */ __name((text, splitLines, workspaceFolder, includeFulltext, hoverBehavior, highlights) => this._linkify(
+        text,
+        splitLines,
+        workspaceFolder,
+        includeFulltext,
+        hoverBehavior,
+        highlights,
+        { locationReference, session }
+      ), "linkify"),
       linkifyLocation: this.linkifyLocation.bind(this)
     };
   }
@@ -194,7 +272,9 @@ let LinkDetector = class {
       if (uri.scheme === Schemas.file) {
         const fsPath = uri.fsPath;
         const path = await this.pathService.path;
-        const fileUrl = osPath.normalize(path.sep === osPath.posix.sep && platform.isWindows ? fsPath.replace(/\\/g, osPath.posix.sep) : fsPath);
+        const fileUrl = osPath.normalize(
+          path.sep === osPath.posix.sep && platform.isWindows ? fsPath.replace(/\\/g, osPath.posix.sep) : fsPath
+        );
         const fileUri = URI.parse(fileUrl);
         const exists = await this.fileService.exists(fileUri);
         if (!exists) {
@@ -204,12 +284,17 @@ let LinkDetector = class {
           resource: fileUri,
           options: {
             pinned: true,
-            selection: lineCol ? { startLineNumber: +lineCol[1], startColumn: +lineCol[2] } : void 0
+            selection: lineCol ? {
+              startLineNumber: +lineCol[1],
+              startColumn: +lineCol[2]
+            } : void 0
           }
         });
         return;
       }
-      this.openerService.open(url, { allowTunneling: !!this.environmentService.remoteAuthority && this.configurationService.getValue("remote.forwardOnOpen") });
+      this.openerService.open(url, {
+        allowTunneling: !!this.environmentService.remoteAuthority && this.configurationService.getValue("remote.forwardOnOpen")
+      });
     });
     return link;
   }
@@ -217,14 +302,28 @@ let LinkDetector = class {
     if (path[0] === "/" && path[1] === "/") {
       return document.createTextNode(text);
     }
-    const options = { selection: { startLineNumber: lineNumber, startColumn: columnNumber } };
+    const options = {
+      selection: {
+        startLineNumber: lineNumber,
+        startColumn: columnNumber
+      }
+    };
     if (path[0] === ".") {
       if (!workspaceFolder) {
         return document.createTextNode(text);
       }
       const uri2 = workspaceFolder.toResource(path);
       const link2 = this.createLink(text);
-      this.decorateLink(link2, uri2, fulltext, hoverBehavior, (preserveFocus) => this.editorService.openEditor({ resource: uri2, options: { ...options, preserveFocus } }));
+      this.decorateLink(
+        link2,
+        uri2,
+        fulltext,
+        hoverBehavior,
+        (preserveFocus) => this.editorService.openEditor({
+          resource: uri2,
+          options: { ...options, preserveFocus }
+        })
+      );
       return link2;
     }
     if (path[0] === "~") {
@@ -240,7 +339,16 @@ let LinkDetector = class {
       if (stat.isDirectory) {
         return;
       }
-      this.decorateLink(link, uri, fulltext, hoverBehavior, (preserveFocus) => this.editorService.openEditor({ resource: uri, options: { ...options, preserveFocus } }));
+      this.decorateLink(
+        link,
+        uri,
+        fulltext,
+        hoverBehavior,
+        (preserveFocus) => this.editorService.openEditor({
+          resource: uri,
+          options: { ...options, preserveFocus }
+        })
+      );
     }).catch(() => {
     });
     return link;
@@ -252,15 +360,37 @@ let LinkDetector = class {
   }
   decorateLink(link, uri, fulltext, hoverBehavior, onClick) {
     link.classList.add("link");
-    const followLink = uri && this.tunnelService.canTunnel(uri) ? localize("followForwardedLink", "follow link using forwarded port") : localize("followLink", "follow link");
-    const title = link.ariaLabel = fulltext ? platform.isMacintosh ? localize("fileLinkWithPathMac", "Cmd + click to {0}\n{1}", followLink, fulltext) : localize("fileLinkWithPath", "Ctrl + click to {0}\n{1}", followLink, fulltext) : platform.isMacintosh ? localize("fileLinkMac", "Cmd + click to {0}", followLink) : localize("fileLink", "Ctrl + click to {0}", followLink);
+    const followLink = uri && this.tunnelService.canTunnel(uri) ? localize(
+      "followForwardedLink",
+      "follow link using forwarded port"
+    ) : localize("followLink", "follow link");
+    const title = link.ariaLabel = fulltext ? platform.isMacintosh ? localize(
+      "fileLinkWithPathMac",
+      "Cmd + click to {0}\n{1}",
+      followLink,
+      fulltext
+    ) : localize(
+      "fileLinkWithPath",
+      "Ctrl + click to {0}\n{1}",
+      followLink,
+      fulltext
+    ) : platform.isMacintosh ? localize("fileLinkMac", "Cmd + click to {0}", followLink) : localize("fileLink", "Ctrl + click to {0}", followLink);
     if (hoverBehavior?.type === 0 /* Rich */) {
-      hoverBehavior.store.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), link, title));
+      hoverBehavior.store.add(
+        this.hoverService.setupManagedHover(
+          getDefaultHoverDelegate("element"),
+          link,
+          title
+        )
+      );
     } else if (hoverBehavior?.type !== 2 /* None */) {
       link.title = title;
     }
     link.onmousemove = (event) => {
-      link.classList.toggle("pointer", platform.isMacintosh ? event.metaKey : event.ctrlKey);
+      link.classList.toggle(
+        "pointer",
+        platform.isMacintosh ? event.metaKey : event.ctrlKey
+      );
     };
     link.onmouseleave = () => link.classList.remove("pointer");
     link.onclick = (event) => {
@@ -293,7 +423,12 @@ let LinkDetector = class {
     const result = [];
     const splitOne = /* @__PURE__ */ __name((text2, regexIndex, baseIndex) => {
       if (regexIndex >= regexes.length) {
-        result.push({ value: text2, kind: "text", captures: [], index: baseIndex });
+        result.push({
+          value: text2,
+          kind: "text",
+          captures: [],
+          index: baseIndex
+        });
         return;
       }
       const regex = regexes[regexIndex];
@@ -301,9 +436,16 @@ let LinkDetector = class {
       let match;
       regex.lastIndex = 0;
       while ((match = regex.exec(text2)) !== null) {
-        const stringBeforeMatch = text2.substring(currentIndex, match.index);
+        const stringBeforeMatch = text2.substring(
+          currentIndex,
+          match.index
+        );
         if (stringBeforeMatch) {
-          splitOne(stringBeforeMatch, regexIndex + 1, baseIndex + currentIndex);
+          splitOne(
+            stringBeforeMatch,
+            regexIndex + 1,
+            baseIndex + currentIndex
+          );
         }
         const value = match[0];
         result.push({
@@ -316,7 +458,11 @@ let LinkDetector = class {
       }
       const stringAfterMatches = text2.substring(currentIndex);
       if (stringAfterMatches) {
-        splitOne(stringAfterMatches, regexIndex + 1, baseIndex + currentIndex);
+        splitOne(
+          stringAfterMatches,
+          regexIndex + 1,
+          baseIndex + currentIndex
+        );
       }
     }, "splitOne");
     splitOne(text, 0, 0);

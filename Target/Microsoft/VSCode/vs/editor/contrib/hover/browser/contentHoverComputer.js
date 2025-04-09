@@ -1,12 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { coalesce } from "../../../../base/common/arrays.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IActiveCodeEditor, ICodeEditor } from "../../../browser/editorBrowser.js";
-import { IModelDecoration } from "../../../common/model.js";
-import { HoverStartSource, IHoverComputer } from "./hoverOperation.js";
-import { HoverAnchor, HoverAnchorType, IEditorHoverParticipant, IHoverPart } from "./hoverTypes.js";
 import { AsyncIterableObject } from "../../../../base/common/async.js";
+import {
+  HoverAnchorType
+} from "./hoverTypes.js";
 class ContentHoverComputer {
   constructor(_editor, _participants) {
     this._editor = _editor;
@@ -48,13 +46,21 @@ class ContentHoverComputer {
     if (!this._editor.hasModel() || !anchor) {
       return AsyncIterableObject.EMPTY;
     }
-    const lineDecorations = ContentHoverComputer._getLineDecorations(this._editor, anchor);
+    const lineDecorations = ContentHoverComputer._getLineDecorations(
+      this._editor,
+      anchor
+    );
     return AsyncIterableObject.merge(
       this._participants.map((participant) => {
         if (!participant.computeAsync) {
           return AsyncIterableObject.EMPTY;
         }
-        return participant.computeAsync(anchor, lineDecorations, options.source, token);
+        return participant.computeAsync(
+          anchor,
+          lineDecorations,
+          options.source,
+          token
+        );
       })
     );
   }
@@ -63,10 +69,19 @@ class ContentHoverComputer {
       return [];
     }
     const anchor = options.anchor;
-    const lineDecorations = ContentHoverComputer._getLineDecorations(this._editor, anchor);
+    const lineDecorations = ContentHoverComputer._getLineDecorations(
+      this._editor,
+      anchor
+    );
     let result = [];
     for (const participant of this._participants) {
-      result = result.concat(participant.computeSync(anchor, lineDecorations, options.source));
+      result = result.concat(
+        participant.computeSync(
+          anchor,
+          lineDecorations,
+          options.source
+        )
+      );
     }
     return coalesce(result);
   }

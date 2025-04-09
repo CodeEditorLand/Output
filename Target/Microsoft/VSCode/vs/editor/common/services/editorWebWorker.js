@@ -1,30 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { stringDiff } from "../../../base/common/diff/diff.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { URI } from "../../../base/common/uri.js";
-import { IWebWorkerServerRequestHandler } from "../../../base/common/worker/webWorker.js";
+import { BugIndicatingError } from "../../../base/common/errors.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
 import { Position } from "../core/position.js";
-import { IRange, Range } from "../core/range.js";
-import { EndOfLineSequence, ITextModel } from "../model.js";
-import { IMirrorTextModel, IModelChangedEvent } from "../model/mirrorTextModel.js";
-import { IColorInformation, IInplaceReplaceSupportResult, ILink, TextEdit } from "../languages.js";
+import { Range } from "../core/range.js";
+import { DiffComputer } from "../diff/legacyLinesDiffComputer.js";
+import { linesDiffComputers } from "../diff/linesDiffComputers.js";
+import { computeDefaultDocumentColors } from "../languages/defaultDocumentColorsComputer.js";
 import { computeLinks } from "../languages/linkComputer.js";
 import { BasicInplaceReplace } from "../languages/supports/inplaceReplaceSupport.js";
-import { DiffAlgorithmName, IDiffComputationResult, ILineChange, IUnicodeHighlightsResult } from "./editorWorker.js";
 import { createMonacoBaseAPI } from "./editorBaseApi.js";
-import { StopWatch } from "../../../base/common/stopwatch.js";
-import { UnicodeTextModelHighlighter, UnicodeHighlighterOptions } from "./unicodeTextModelHighlighter.js";
-import { DiffComputer, IChange } from "../diff/legacyLinesDiffComputer.js";
-import { ILinesDiffComputer, ILinesDiffComputerOptions } from "../diff/linesDiffComputer.js";
-import { DetailedLineRangeMapping } from "../diff/rangeMapping.js";
-import { linesDiffComputers } from "../diff/linesDiffComputers.js";
-import { IDocumentDiffProviderOptions } from "../diff/documentDiffProvider.js";
-import { BugIndicatingError } from "../../../base/common/errors.js";
-import { computeDefaultDocumentColors } from "../languages/defaultDocumentColorsComputer.js";
-import { FindSectionHeaderOptions, SectionHeader, findSectionHeaders } from "./findSectionHeaders.js";
-import { IRawModelData, IWorkerTextModelSyncChannelServer } from "./textModelSync/textModelSync.protocol.js";
-import { ICommonModel, WorkerTextModelSyncServer } from "./textModelSync/textModelSync.impl.js";
+import {
+  findSectionHeaders
+} from "./findSectionHeaders.js";
+import {
+  WorkerTextModelSyncServer
+} from "./textModelSync/textModelSync.impl.js";
+import {
+  UnicodeTextModelHighlighter
+} from "./unicodeTextModelHighlighter.js";
 class EditorWorker {
   constructor(_foreignModule = null) {
     this._foreignModule = _foreignModule;
@@ -57,9 +52,19 @@ class EditorWorker {
   async $computeUnicodeHighlights(url, options, range) {
     const model = this._getModel(url);
     if (!model) {
-      return { ranges: [], hasMore: false, ambiguousCharacterCount: 0, invisibleCharacterCount: 0, nonBasicAsciiCharacterCount: 0 };
+      return {
+        ranges: [],
+        hasMore: false,
+        ambiguousCharacterCount: 0,
+        invisibleCharacterCount: 0,
+        nonBasicAsciiCharacterCount: 0
+      };
     }
-    return UnicodeTextModelHighlighter.computeUnicodeHighlights(model, options, range);
+    return UnicodeTextModelHighlighter.computeUnicodeHighlights(
+      model,
+      options,
+      range
+    );
   }
   async $findSectionHeaders(url, options) {
     const model = this._getModel(url);
@@ -75,26 +80,44 @@ class EditorWorker {
     if (!original || !modified) {
       return null;
     }
-    const result = EditorWorker.computeDiff(original, modified, options, algorithm);
+    const result = EditorWorker.computeDiff(
+      original,
+      modified,
+      options,
+      algorithm
+    );
     return result;
   }
   static computeDiff(originalTextModel, modifiedTextModel, options, algorithm) {
     const diffAlgorithm = algorithm === "advanced" ? linesDiffComputers.getDefault() : linesDiffComputers.getLegacy();
     const originalLines = originalTextModel.getLinesContent();
     const modifiedLines = modifiedTextModel.getLinesContent();
-    const result = diffAlgorithm.computeDiff(originalLines, modifiedLines, options);
-    const identical = result.changes.length > 0 ? false : this._modelsAreIdentical(originalTextModel, modifiedTextModel);
+    const result = diffAlgorithm.computeDiff(
+      originalLines,
+      modifiedLines,
+      options
+    );
+    const identical = result.changes.length > 0 ? false : EditorWorker._modelsAreIdentical(
+      originalTextModel,
+      modifiedTextModel
+    );
     function getLineChanges(changes) {
-      return changes.map((m) => [m.original.startLineNumber, m.original.endLineNumberExclusive, m.modified.startLineNumber, m.modified.endLineNumberExclusive, m.innerChanges?.map((m2) => [
-        m2.originalRange.startLineNumber,
-        m2.originalRange.startColumn,
-        m2.originalRange.endLineNumber,
-        m2.originalRange.endColumn,
-        m2.modifiedRange.startLineNumber,
-        m2.modifiedRange.startColumn,
-        m2.modifiedRange.endLineNumber,
-        m2.modifiedRange.endColumn
-      ])]);
+      return changes.map((m) => [
+        m.original.startLineNumber,
+        m.original.endLineNumberExclusive,
+        m.modified.startLineNumber,
+        m.modified.endLineNumberExclusive,
+        m.innerChanges?.map((m2) => [
+          m2.originalRange.startLineNumber,
+          m2.originalRange.startColumn,
+          m2.originalRange.endLineNumber,
+          m2.originalRange.endColumn,
+          m2.modifiedRange.startLineNumber,
+          m2.modifiedRange.startColumn,
+          m2.modifiedRange.endLineNumber,
+          m2.modifiedRange.endColumn
+        ])
+      ]);
     }
     __name(getLineChanges, "getLineChanges");
     return {
@@ -162,8 +185,13 @@ class EditorWorker {
     });
     let writeIndex = 0;
     for (let readIndex = 1; readIndex < edits.length; readIndex++) {
-      if (Range.getEndPosition(edits[writeIndex].range).equals(Range.getStartPosition(edits[readIndex].range))) {
-        edits[writeIndex].range = Range.fromPositions(Range.getStartPosition(edits[writeIndex].range), Range.getEndPosition(edits[readIndex].range));
+      if (Range.getEndPosition(edits[writeIndex].range).equals(
+        Range.getStartPosition(edits[readIndex].range)
+      )) {
+        edits[writeIndex].range = Range.fromPositions(
+          Range.getStartPosition(edits[writeIndex].range),
+          Range.getEndPosition(edits[readIndex].range)
+        );
         edits[writeIndex].text += edits[readIndex].text;
       } else {
         writeIndex++;
@@ -188,13 +216,27 @@ class EditorWorker {
         continue;
       }
       const changes = stringDiff(original, text, pretty);
-      const editOffset = model.offsetAt(Range.lift(range).getStartPosition());
+      const editOffset = model.offsetAt(
+        Range.lift(range).getStartPosition()
+      );
       for (const change of changes) {
-        const start = model.positionAt(editOffset + change.originalStart);
-        const end = model.positionAt(editOffset + change.originalStart + change.originalLength);
+        const start = model.positionAt(
+          editOffset + change.originalStart
+        );
+        const end = model.positionAt(
+          editOffset + change.originalStart + change.originalLength
+        );
         const newEdit = {
-          text: text.substr(change.modifiedStart, change.modifiedLength),
-          range: { startLineNumber: start.lineNumber, startColumn: start.column, endLineNumber: end.lineNumber, endColumn: end.column }
+          text: text.substr(
+            change.modifiedStart,
+            change.modifiedLength
+          ),
+          range: {
+            startLineNumber: start.lineNumber,
+            startColumn: start.column,
+            endLineNumber: end.lineNumber,
+            endColumn: end.column
+          }
         };
         if (model.getValueInRange(newEdit.range) !== newEdit.text) {
           result.push(newEdit);
@@ -202,7 +244,16 @@ class EditorWorker {
       }
     }
     if (typeof lastEol === "number") {
-      result.push({ eol: lastEol, text: "", range: { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 } });
+      result.push({
+        eol: lastEol,
+        text: "",
+        range: {
+          startLineNumber: 0,
+          startColumn: 0,
+          endLineNumber: 0,
+          endColumn: 0
+        }
+      });
     }
     return result;
   }
@@ -223,13 +274,21 @@ class EditorWorker {
     });
     for (let { range, text, eol } of edits) {
       let addPositions2 = function(pos1, pos2) {
-        return new Position(pos1.lineNumber + pos2.lineNumber - 1, pos2.lineNumber === 1 ? pos1.column + pos2.column - 1 : pos2.column);
+        return new Position(
+          pos1.lineNumber + pos2.lineNumber - 1,
+          pos2.lineNumber === 1 ? pos1.column + pos2.column - 1 : pos2.column
+        );
       }, getText2 = function(lines, range2) {
         const result2 = [];
         for (let i = range2.startLineNumber; i <= range2.endLineNumber; i++) {
           const line = lines[i - 1];
           if (i === range2.startLineNumber && i === range2.endLineNumber) {
-            result2.push(line.substring(range2.startColumn - 1, range2.endColumn - 1));
+            result2.push(
+              line.substring(
+                range2.startColumn - 1,
+                range2.endColumn - 1
+              )
+            );
           } else if (i === range2.startLineNumber) {
             result2.push(line.substring(range2.startColumn - 1));
           } else if (i === range2.endLineNumber) {
@@ -267,19 +326,38 @@ class EditorWorker {
           for (const x of c.innerChanges) {
             result.push({
               range: Range.fromPositions(
-                addPositions2(start, x.originalRange.getStartPosition()),
-                addPositions2(start, x.originalRange.getEndPosition())
+                addPositions2(
+                  start,
+                  x.originalRange.getStartPosition()
+                ),
+                addPositions2(
+                  start,
+                  x.originalRange.getEndPosition()
+                )
               ),
-              text: getText2(modifiedLines, x.modifiedRange).join(model.eol)
+              text: getText2(modifiedLines, x.modifiedRange).join(
+                model.eol
+              )
             });
           }
         } else {
-          throw new BugIndicatingError("The experimental diff algorithm always produces inner changes");
+          throw new BugIndicatingError(
+            "The experimental diff algorithm always produces inner changes"
+          );
         }
       }
     }
     if (typeof lastEol === "number") {
-      result.push({ eol: lastEol, text: "", range: { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 } });
+      result.push({
+        eol: lastEol,
+        text: "",
+        range: {
+          startLineNumber: 0,
+          startColumn: 0,
+          endLineNumber: 0,
+          endColumn: 0
+        }
+      });
     }
     return result;
   }
@@ -311,7 +389,7 @@ class EditorWorker {
         continue;
       }
       for (const word of model.words(wordDefRegExp)) {
-        if (word === leadingWord || !isNaN(Number(word))) {
+        if (word === leadingWord || !Number.isNaN(Number(word))) {
           continue;
         }
         seen.add(word);
@@ -334,7 +412,7 @@ class EditorWorker {
     for (let line = range.startLineNumber; line < range.endLineNumber; line++) {
       const words = model.getLineWords(line, wordDefRegExp);
       for (const word of words) {
-        if (!isNaN(Number(word.word))) {
+        if (!Number.isNaN(Number(word.word))) {
           continue;
         }
         let array = result[word.word];
@@ -368,22 +446,35 @@ class EditorWorker {
       };
     }
     const selectionText = model.getValueInRange(range);
-    const wordRange = model.getWordAtPosition({ lineNumber: range.startLineNumber, column: range.startColumn }, wordDefRegExp);
+    const wordRange = model.getWordAtPosition(
+      { lineNumber: range.startLineNumber, column: range.startColumn },
+      wordDefRegExp
+    );
     if (!wordRange) {
       return null;
     }
     const word = model.getValueInRange(wordRange);
-    const result = BasicInplaceReplace.INSTANCE.navigateValueSet(range, selectionText, wordRange, word, up);
+    const result = BasicInplaceReplace.INSTANCE.navigateValueSet(
+      range,
+      selectionText,
+      wordRange,
+      word,
+      up
+    );
     return result;
   }
   // ---- BEGIN foreign module support --------------------------------------------------------------------------
   // foreign method request
   $fmr(method, args) {
     if (!this._foreignModule || typeof this._foreignModule[method] !== "function") {
-      return Promise.reject(new Error("Missing requestHandler or method: " + method));
+      return Promise.reject(
+        new Error(`Missing requestHandler or method: ${method}`)
+      );
     }
     try {
-      return Promise.resolve(this._foreignModule[method].apply(this._foreignModule, args));
+      return Promise.resolve(
+        this._foreignModule[method].apply(this._foreignModule, args)
+      );
     } catch (e) {
       return Promise.reject(e);
     }

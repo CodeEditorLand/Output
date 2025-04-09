@@ -10,18 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IInstantiationService, createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { StopWatch } from "../../../../base/common/stopwatch.js";
-import { LineRange } from "../../../common/core/lineRange.js";
-import { IDocumentDiff, IDocumentDiffProvider, IDocumentDiffProviderOptions } from "../../../common/diff/documentDiffProvider.js";
-import { DetailedLineRangeMapping, RangeMapping } from "../../../common/diff/rangeMapping.js";
-import { ITextModel } from "../../../common/model.js";
-import { DiffAlgorithmName, IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { LineRange } from "../../../common/core/lineRange.js";
+import {
+  DetailedLineRangeMapping,
+  RangeMapping
+} from "../../../common/diff/rangeMapping.js";
+import {
+  IEditorWorkerService
+} from "../../../common/services/editorWorker.js";
 const IDiffProviderFactoryService = createDecorator("diffProviderFactoryService");
 let WorkerBasedDiffProviderFactoryService = class {
   constructor(instantiationService) {
@@ -32,13 +39,20 @@ let WorkerBasedDiffProviderFactoryService = class {
   }
   _serviceBrand;
   createDiffProvider(options) {
-    return this.instantiationService.createInstance(WorkerBasedDocumentDiffProvider, options);
+    return this.instantiationService.createInstance(
+      WorkerBasedDocumentDiffProvider,
+      options
+    );
   }
 };
 WorkerBasedDiffProviderFactoryService = __decorateClass([
   __decorateParam(0, IInstantiationService)
 ], WorkerBasedDiffProviderFactoryService);
-registerSingleton(IDiffProviderFactoryService, WorkerBasedDiffProviderFactoryService, InstantiationType.Delayed);
+registerSingleton(
+  IDiffProviderFactoryService,
+  WorkerBasedDiffProviderFactoryService,
+  InstantiationType.Delayed
+);
 let WorkerBasedDocumentDiffProvider = class {
   constructor(options, editorWorkerService, telemetryService) {
     this.editorWorkerService = editorWorkerService;
@@ -58,7 +72,12 @@ let WorkerBasedDocumentDiffProvider = class {
   }
   async computeDiff(original, modified, options, cancellationToken) {
     if (typeof this.diffAlgorithm !== "string") {
-      return this.diffAlgorithm.computeDiff(original, modified, options, cancellationToken);
+      return this.diffAlgorithm.computeDiff(
+        original,
+        modified,
+        options,
+        cancellationToken
+      );
     }
     if (original.isDisposed() || modified.isDisposed()) {
       return {
@@ -95,14 +114,28 @@ let WorkerBasedDocumentDiffProvider = class {
         moves: []
       };
     }
-    const uriKey = JSON.stringify([original.uri.toString(), modified.uri.toString()]);
-    const context = JSON.stringify([original.id, modified.id, original.getAlternativeVersionId(), modified.getAlternativeVersionId(), JSON.stringify(options)]);
+    const uriKey = JSON.stringify([
+      original.uri.toString(),
+      modified.uri.toString()
+    ]);
+    const context = JSON.stringify([
+      original.id,
+      modified.id,
+      original.getAlternativeVersionId(),
+      modified.getAlternativeVersionId(),
+      JSON.stringify(options)
+    ]);
     const c = WorkerBasedDocumentDiffProvider.diffCache.get(uriKey);
     if (c && c.context === context) {
       return c.result;
     }
     const sw = StopWatch.create();
-    const result = await this.editorWorkerService.computeDiff(original.uri, modified.uri, options, this.diffAlgorithm);
+    const result = await this.editorWorkerService.computeDiff(
+      original.uri,
+      modified.uri,
+      options,
+      this.diffAlgorithm
+    );
     const timeMs = sw.elapsed();
     this.telemetryService.publicLog2("diffEditor.computeDiff", {
       timeMs,
@@ -121,9 +154,14 @@ let WorkerBasedDocumentDiffProvider = class {
       throw new Error("no diff result available");
     }
     if (WorkerBasedDocumentDiffProvider.diffCache.size > 10) {
-      WorkerBasedDocumentDiffProvider.diffCache.delete(WorkerBasedDocumentDiffProvider.diffCache.keys().next().value);
+      WorkerBasedDocumentDiffProvider.diffCache.delete(
+        WorkerBasedDocumentDiffProvider.diffCache.keys().next().value
+      );
     }
-    WorkerBasedDocumentDiffProvider.diffCache.set(uriKey, { result, context });
+    WorkerBasedDocumentDiffProvider.diffCache.set(uriKey, {
+      result,
+      context
+    });
     return result;
   }
   setOptions(newOptions) {
@@ -134,7 +172,9 @@ let WorkerBasedDocumentDiffProvider = class {
         this.diffAlgorithmOnDidChangeSubscription = void 0;
         this.diffAlgorithm = newOptions.diffAlgorithm;
         if (typeof newOptions.diffAlgorithm !== "string") {
-          this.diffAlgorithmOnDidChangeSubscription = newOptions.diffAlgorithm.onDidChange(() => this.onDidChangeEventEmitter.fire());
+          this.diffAlgorithmOnDidChangeSubscription = newOptions.diffAlgorithm.onDidChange(
+            () => this.onDidChangeEventEmitter.fire()
+          );
         }
         didChange = true;
       }

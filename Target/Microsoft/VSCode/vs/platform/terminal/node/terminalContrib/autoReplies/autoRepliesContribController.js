@@ -27,10 +27,17 @@ let AutoRepliesPtyServiceContribution = class {
     for (const persistentProcessId of this._autoResponders.keys()) {
       const process = this._terminalProcesses.get(persistentProcessId);
       if (!process) {
-        this._logService.error("Could not find terminal process to install auto reply");
+        this._logService.error(
+          "Could not find terminal process to install auto reply"
+        );
         continue;
       }
-      this._processInstallAutoReply(persistentProcessId, process, match, reply);
+      this._processInstallAutoReply(
+        persistentProcessId,
+        process,
+        match,
+        reply
+      );
     }
   }
   async uninstallAllAutoReplies() {
@@ -45,7 +52,12 @@ let AutoRepliesPtyServiceContribution = class {
     this._terminalProcesses.set(persistentProcessId, process);
     this._autoResponders.set(persistentProcessId, /* @__PURE__ */ new Map());
     for (const [match, reply] of this._autoReplies.entries()) {
-      this._processInstallAutoReply(persistentProcessId, process, match, reply);
+      this._processInstallAutoReply(
+        persistentProcessId,
+        process,
+        match,
+        reply
+      );
     }
   }
   handleProcessDispose(persistentProcessId) {
@@ -77,7 +89,15 @@ let AutoRepliesPtyServiceContribution = class {
     const processAutoResponders = this._autoResponders.get(persistentProcessId);
     if (processAutoResponders) {
       processAutoResponders.get(match)?.dispose();
-      processAutoResponders.set(match, new TerminalAutoResponder(terminalProcess, match, reply, this._logService));
+      processAutoResponders.set(
+        match,
+        new TerminalAutoResponder(
+          terminalProcess,
+          match,
+          reply,
+          this._logService
+        )
+      );
     }
   }
 };

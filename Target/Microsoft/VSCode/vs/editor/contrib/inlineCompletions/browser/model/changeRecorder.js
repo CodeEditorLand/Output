@@ -13,53 +13,62 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { autorunWithStore } from "../../../../../base/common/observable.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
 import { CodeEditorWidget } from "../../../../browser/widget/codeEditor/codeEditorWidget.js";
-import { IRecordableEditorLogEntry, StructuredLogger } from "../structuredLogger.js";
+import {
+  StructuredLogger
+} from "../structuredLogger.js";
 let TextModelChangeRecorder = class extends Disposable {
   constructor(_editor, _instantiationService) {
     super();
     this._editor = _editor;
     this._instantiationService = _instantiationService;
-    this._register(autorunWithStore((reader, store) => {
-      if (!(this._editor instanceof CodeEditorWidget)) {
-        return;
-      }
-      if (!this._structuredLogger.isEnabled.read(reader)) {
-        return;
-      }
-      const sources = [];
-      store.add(this._editor.onBeforeExecuteEdit(({ source }) => {
-        if (source) {
-          sources.push(source);
-        }
-      }));
-      store.add(this._editor.onDidChangeModelContent((e) => {
-        const tm = this._editor.getModel();
-        if (!tm) {
+    this._register(
+      autorunWithStore((reader, store) => {
+        if (!(this._editor instanceof CodeEditorWidget)) {
           return;
         }
-        for (const source of sources) {
-          const data = {
-            sourceId: "TextModel.setChangeReason",
-            source,
-            time: Date.now(),
-            modelUri: tm.uri.toString(),
-            modelVersion: tm.getVersionId()
-          };
-          this._structuredLogger.log(data);
+        if (!this._structuredLogger.isEnabled.read(reader)) {
+          return;
         }
-        sources.length = 0;
-      }));
-    }));
+        const sources = [];
+        store.add(
+          this._editor.onBeforeExecuteEdit(({ source }) => {
+            if (source) {
+              sources.push(source);
+            }
+          })
+        );
+        store.add(
+          this._editor.onDidChangeModelContent((e) => {
+            const tm = this._editor.getModel();
+            if (!tm) {
+              return;
+            }
+            for (const source of sources) {
+              const data = {
+                sourceId: "TextModel.setChangeReason",
+                source,
+                time: Date.now(),
+                modelUri: tm.uri.toString(),
+                modelVersion: tm.getVersionId()
+              };
+              this._structuredLogger.log(data);
+            }
+            sources.length = 0;
+          })
+        );
+      })
+    );
   }
   static {
     __name(this, "TextModelChangeRecorder");
   }
-  _structuredLogger = this._register(this._instantiationService.createInstance(
-    StructuredLogger.cast(),
-    "editor.inlineSuggest.logChangeReason.commandId"
-  ));
+  _structuredLogger = this._register(
+    this._instantiationService.createInstance(
+      StructuredLogger.cast(),
+      "editor.inlineSuggest.logChangeReason.commandId"
+    )
+  );
 };
 TextModelChangeRecorder = __decorateClass([
   __decorateParam(1, IInstantiationService)

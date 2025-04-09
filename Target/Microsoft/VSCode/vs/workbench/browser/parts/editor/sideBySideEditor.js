@@ -11,34 +11,50 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/sidebysideeditor.css";
-import { localize } from "../../../../nls.js";
-import { Dimension, $, clearNode, multibyteAwareBtoa } from "../../../../base/browser/dom.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IEditorControl, IEditorPane, IEditorOpenContext, EditorExtensions, SIDE_BY_SIDE_EDITOR_ID, SideBySideEditor as Side, IEditorPaneSelection, IEditorPaneWithSelection, IEditorPaneSelectionChangeEvent, isEditorPaneWithSelection, EditorPaneSelectionCompareResult } from "../../../common/editor.js";
-import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { EditorPane } from "./editorPane.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IEditorPaneRegistry } from "../../editor.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IEditorGroup, IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { SplitView, Sizing, Orientation } from "../../../../base/browser/ui/splitview/splitview.js";
-import { Event, Relay, Emitter } from "../../../../base/common/event.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
-import { IEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { IConfigurationChangeEvent, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { DEFAULT_EDITOR_MIN_DIMENSIONS } from "./editor.js";
+import {
+  $,
+  clearNode,
+  Dimension,
+  multibyteAwareBtoa
+} from "../../../../base/browser/dom.js";
+import {
+  Orientation,
+  Sizing,
+  SplitView
+} from "../../../../base/browser/ui/splitview/splitview.js";
+import { Emitter, Event, Relay } from "../../../../base/common/event.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER, SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER } from "../../../common/theme.js";
-import { AbstractEditorWithViewState } from "./editorWithViewState.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { isEqual } from "../../../../base/common/resources.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IBoundarySashes } from "../../../../base/browser/ui/sash/sash.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { localize } from "../../../../nls.js";
+import {
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  EditorExtensions,
+  EditorPaneSelectionCompareResult,
+  isEditorPaneWithSelection,
+  SideBySideEditor as Side,
+  SIDE_BY_SIDE_EDITOR_ID
+} from "../../../common/editor.js";
+import { SideBySideEditorInput } from "../../../common/editor/sideBySideEditorInput.js";
+import {
+  SIDE_BY_SIDE_EDITOR_HORIZONTAL_BORDER,
+  SIDE_BY_SIDE_EDITOR_VERTICAL_BORDER
+} from "../../../common/theme.js";
+import {
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { DEFAULT_EDITOR_MIN_DIMENSIONS } from "./editor.js";
+import { AbstractEditorWithViewState } from "./editorWithViewState.js";
 function isSideBySideEditorViewState(thing) {
   const candidate = thing;
   return typeof candidate?.primary === "object" && typeof candidate.secondary === "object";
@@ -46,9 +62,22 @@ function isSideBySideEditorViewState(thing) {
 __name(isSideBySideEditorViewState, "isSideBySideEditorViewState");
 let SideBySideEditor = class extends AbstractEditorWithViewState {
   constructor(group, telemetryService, instantiationService, themeService, storageService, configurationService, textResourceConfigurationService, editorService, editorGroupService) {
-    super(SideBySideEditor.ID, group, SideBySideEditor.VIEW_STATE_PREFERENCE_KEY, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService);
+    super(
+      SideBySideEditor.ID,
+      group,
+      SideBySideEditor.VIEW_STATE_PREFERENCE_KEY,
+      telemetryService,
+      instantiationService,
+      storageService,
+      textResourceConfigurationService,
+      themeService,
+      editorService,
+      editorGroupService
+    );
     this.configurationService = configurationService;
-    this.orientation = this.configurationService.getValue(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING) === "vertical" ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+    this.orientation = this.configurationService.getValue(
+      SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
+    ) === "vertical" ? Orientation.VERTICAL : Orientation.HORIZONTAL;
     this.registerListeners();
   }
   static {
@@ -105,10 +134,19 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
   _boundarySashes;
   //#endregion
   //#region Events
-  onDidCreateEditors = this._register(new Emitter());
-  _onDidChangeSizeConstraints = this._register(new Relay());
-  onDidChangeSizeConstraints = Event.any(this.onDidCreateEditors.event, this._onDidChangeSizeConstraints.event);
-  _onDidChangeSelection = this._register(new Emitter());
+  onDidCreateEditors = this._register(
+    new Emitter()
+  );
+  _onDidChangeSizeConstraints = this._register(
+    new Relay()
+  );
+  onDidChangeSizeConstraints = Event.any(
+    this.onDidCreateEditors.event,
+    this._onDidChangeSizeConstraints.event
+  );
+  _onDidChangeSelection = this._register(
+    new Emitter()
+  );
   onDidChangeSelection = this._onDidChangeSelection.event;
   //#endregion
   primaryEditorPane = void 0;
@@ -116,17 +154,27 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
   primaryEditorContainer;
   secondaryEditorContainer;
   splitview;
-  splitviewDisposables = this._register(new DisposableStore());
+  splitviewDisposables = this._register(
+    new DisposableStore()
+  );
   editorDisposables = this._register(new DisposableStore());
   orientation;
   dimension = new Dimension(0, 0);
   lastFocusedSide = void 0;
   registerListeners() {
-    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationUpdated(e)
+      )
+    );
   }
   onConfigurationUpdated(event) {
-    if (event.affectsConfiguration(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING)) {
-      this.orientation = this.configurationService.getValue(SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING) === "vertical" ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+    if (event.affectsConfiguration(
+      SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
+    )) {
+      this.orientation = this.configurationService.getValue(
+        SideBySideEditor.SIDE_BY_SIDE_LAYOUT_SETTING
+      ) === "vertical" ? Orientation.VERTICAL : Orientation.HORIZONTAL;
       if (this.splitview) {
         this.recreateSplitview();
       }
@@ -156,13 +204,23 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
   }
   createEditor(parent) {
     parent.classList.add("side-by-side-editor");
-    this.secondaryEditorContainer = $(".side-by-side-editor-container.editor-instance");
-    this.primaryEditorContainer = $(".side-by-side-editor-container.editor-instance");
+    this.secondaryEditorContainer = $(
+      ".side-by-side-editor-container.editor-instance"
+    );
+    this.primaryEditorContainer = $(
+      ".side-by-side-editor-container.editor-instance"
+    );
     this.createSplitView(parent);
   }
   createSplitView(parent, ratio) {
-    this.splitview = this.splitviewDisposables.add(new SplitView(parent, { orientation: this.orientation }));
-    this.splitviewDisposables.add(this.splitview.onDidSashReset(() => this.splitview?.distributeViewSizes()));
+    this.splitview = this.splitviewDisposables.add(
+      new SplitView(parent, { orientation: this.orientation })
+    );
+    this.splitviewDisposables.add(
+      this.splitview.onDidSashReset(
+        () => this.splitview?.distributeViewSizes()
+      )
+    );
     if (this.orientation === Orientation.HORIZONTAL) {
       this.splitview.orthogonalEndSash = this._boundarySashes?.bottom;
     } else {
@@ -175,24 +233,36 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
       const totalSize = this.splitview.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height;
       leftSizing = Math.round(totalSize * ratio);
       rightSizing = totalSize - leftSizing;
-      this.splitview.layout(this.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height);
+      this.splitview.layout(
+        this.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height
+      );
     }
-    const secondaryEditorContainer = assertIsDefined(this.secondaryEditorContainer);
-    this.splitview.addView({
-      element: secondaryEditorContainer,
-      layout: /* @__PURE__ */ __name((size) => this.layoutPane(this.secondaryEditorPane, size), "layout"),
-      minimumSize: this.orientation === Orientation.HORIZONTAL ? DEFAULT_EDITOR_MIN_DIMENSIONS.width : DEFAULT_EDITOR_MIN_DIMENSIONS.height,
-      maximumSize: Number.POSITIVE_INFINITY,
-      onDidChange: Event.None
-    }, leftSizing);
-    const primaryEditorContainer = assertIsDefined(this.primaryEditorContainer);
-    this.splitview.addView({
-      element: primaryEditorContainer,
-      layout: /* @__PURE__ */ __name((size) => this.layoutPane(this.primaryEditorPane, size), "layout"),
-      minimumSize: this.orientation === Orientation.HORIZONTAL ? DEFAULT_EDITOR_MIN_DIMENSIONS.width : DEFAULT_EDITOR_MIN_DIMENSIONS.height,
-      maximumSize: Number.POSITIVE_INFINITY,
-      onDidChange: Event.None
-    }, rightSizing);
+    const secondaryEditorContainer = assertIsDefined(
+      this.secondaryEditorContainer
+    );
+    this.splitview.addView(
+      {
+        element: secondaryEditorContainer,
+        layout: /* @__PURE__ */ __name((size) => this.layoutPane(this.secondaryEditorPane, size), "layout"),
+        minimumSize: this.orientation === Orientation.HORIZONTAL ? DEFAULT_EDITOR_MIN_DIMENSIONS.width : DEFAULT_EDITOR_MIN_DIMENSIONS.height,
+        maximumSize: Number.POSITIVE_INFINITY,
+        onDidChange: Event.None
+      },
+      leftSizing
+    );
+    const primaryEditorContainer = assertIsDefined(
+      this.primaryEditorContainer
+    );
+    this.splitview.addView(
+      {
+        element: primaryEditorContainer,
+        layout: /* @__PURE__ */ __name((size) => this.layoutPane(this.primaryEditorPane, size), "layout"),
+        minimumSize: this.orientation === Orientation.HORIZONTAL ? DEFAULT_EDITOR_MIN_DIMENSIONS.width : DEFAULT_EDITOR_MIN_DIMENSIONS.height,
+        maximumSize: Number.POSITIVE_INFINITY,
+        onDidChange: Event.None
+      },
+      rightSizing
+    );
     this.updateStyles();
   }
   getTitle() {
@@ -210,17 +280,34 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
       }
       this.createEditors(input);
     }
-    const { primary, secondary, viewState } = this.loadViewState(input, options, context);
+    const { primary, secondary, viewState } = this.loadViewState(
+      input,
+      options,
+      context
+    );
     this.lastFocusedSide = viewState?.focus;
     if (typeof viewState?.ratio === "number" && this.splitview) {
       const totalSize = this.splitview.orientation === Orientation.HORIZONTAL ? this.dimension.width : this.dimension.height;
-      this.splitview.resizeView(0, Math.round(totalSize * viewState.ratio));
+      this.splitview.resizeView(
+        0,
+        Math.round(totalSize * viewState.ratio)
+      );
     } else {
       this.splitview?.distributeViewSizes();
     }
     await Promise.all([
-      this.secondaryEditorPane?.setInput(input.secondary, secondary, context, token),
-      this.primaryEditorPane?.setInput(input.primary, primary, context, token)
+      this.secondaryEditorPane?.setInput(
+        input.secondary,
+        secondary,
+        context,
+        token
+      ),
+      this.primaryEditorPane?.setInput(
+        input.primary,
+        primary,
+        context,
+        token
+      )
     ]);
     if (typeof options?.target === "number") {
       this.lastFocusedSide = options.target;
@@ -243,30 +330,63 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
         secondaryOptions.viewState = viewState?.secondary;
       }
     }
-    return { primary: primaryOptions, secondary: secondaryOptions, viewState };
+    return {
+      primary: primaryOptions,
+      secondary: secondaryOptions,
+      viewState
+    };
   }
   createEditors(newInput) {
-    this.secondaryEditorPane = this.doCreateEditor(newInput.secondary, assertIsDefined(this.secondaryEditorContainer));
-    this.primaryEditorPane = this.doCreateEditor(newInput.primary, assertIsDefined(this.primaryEditorContainer));
+    this.secondaryEditorPane = this.doCreateEditor(
+      newInput.secondary,
+      assertIsDefined(this.secondaryEditorContainer)
+    );
+    this.primaryEditorPane = this.doCreateEditor(
+      newInput.primary,
+      assertIsDefined(this.primaryEditorContainer)
+    );
     this.layout(this.dimension);
     this._onDidChangeSizeConstraints.input = Event.any(
-      Event.map(this.secondaryEditorPane.onDidChangeSizeConstraints, () => void 0),
-      Event.map(this.primaryEditorPane.onDidChangeSizeConstraints, () => void 0)
+      Event.map(
+        this.secondaryEditorPane.onDidChangeSizeConstraints,
+        () => void 0
+      ),
+      Event.map(
+        this.primaryEditorPane.onDidChangeSizeConstraints,
+        () => void 0
+      )
     );
     this.onDidCreateEditors.fire(void 0);
-    this.editorDisposables.add(this.primaryEditorPane.onDidFocus(() => this.onDidFocusChange(Side.PRIMARY)));
-    this.editorDisposables.add(this.secondaryEditorPane.onDidFocus(() => this.onDidFocusChange(Side.SECONDARY)));
+    this.editorDisposables.add(
+      this.primaryEditorPane.onDidFocus(
+        () => this.onDidFocusChange(Side.PRIMARY)
+      )
+    );
+    this.editorDisposables.add(
+      this.secondaryEditorPane.onDidFocus(
+        () => this.onDidFocusChange(Side.SECONDARY)
+      )
+    );
   }
   doCreateEditor(editorInput, container) {
-    const editorPaneDescriptor = Registry.as(EditorExtensions.EditorPane).getEditorPane(editorInput);
+    const editorPaneDescriptor = Registry.as(
+      EditorExtensions.EditorPane
+    ).getEditorPane(editorInput);
     if (!editorPaneDescriptor) {
       throw new Error("No editor pane descriptor for editor found");
     }
-    const editorPane = editorPaneDescriptor.instantiate(this.instantiationService, this.group);
+    const editorPane = editorPaneDescriptor.instantiate(
+      this.instantiationService,
+      this.group
+    );
     editorPane.create(container);
     editorPane.setVisible(this.isVisible());
     if (isEditorPaneWithSelection(editorPane)) {
-      this.editorDisposables.add(editorPane.onDidChangeSelection((e) => this._onDidChangeSelection.fire(e)));
+      this.editorDisposables.add(
+        editorPane.onDidChangeSelection(
+          (e) => this._onDidChangeSelection.fire(e)
+        )
+      );
     }
     this.editorDisposables.add(editorPane);
     return editorPane;
@@ -280,7 +400,10 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
     if (isEditorPaneWithSelection(lastFocusedEditorPane)) {
       const selection = lastFocusedEditorPane.getSelection();
       if (selection) {
-        return new SideBySideAwareEditorPaneSelection(selection, lastFocusedEditorPane === this.primaryEditorPane ? Side.PRIMARY : Side.SECONDARY);
+        return new SideBySideAwareEditorPaneSelection(
+          selection,
+          lastFocusedEditorPane === this.primaryEditorPane ? Side.PRIMARY : Side.SECONDARY
+        );
       }
     }
     return void 0;
@@ -316,7 +439,9 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
   layout(dimension) {
     this.dimension = dimension;
     const splitview = assertIsDefined(this.splitview);
-    splitview.layout(this.orientation === Orientation.HORIZONTAL ? dimension.width : dimension.height);
+    splitview.layout(
+      this.orientation === Orientation.HORIZONTAL ? dimension.width : dimension.height
+    );
   }
   setBoundarySashes(sashes) {
     this._boundarySashes = sashes;
@@ -325,7 +450,9 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
     }
   }
   layoutPane(pane, size) {
-    pane?.layout(this.orientation === Orientation.HORIZONTAL ? new Dimension(size, this.dimension.height) : new Dimension(this.dimension.width, size));
+    pane?.layout(
+      this.orientation === Orientation.HORIZONTAL ? new Dimension(size, this.dimension.height) : new Dimension(this.dimension.width, size)
+    );
   }
   getControl() {
     return this.getLastFocusedEditorPane()?.getControl();
@@ -365,7 +492,10 @@ let SideBySideEditor = class extends AbstractEditorWithViewState {
     if (!secondary || !primary) {
       return void 0;
     }
-    return URI.from({ scheme: "sideBySide", path: `${multibyteAwareBtoa(secondary.toString())}${multibyteAwareBtoa(primary.toString())}` });
+    return URI.from({
+      scheme: "sideBySide",
+      path: `${multibyteAwareBtoa(secondary.toString())}${multibyteAwareBtoa(primary.toString())}`
+    });
   }
   updateStyles() {
     super.updateStyles();

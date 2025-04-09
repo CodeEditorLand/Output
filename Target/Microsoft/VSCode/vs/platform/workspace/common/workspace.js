@@ -1,14 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { localize } from "../../../nls.js";
-import { Event } from "../../../base/common/event.js";
-import { basename, extname } from "../../../base/common/path.js";
-import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
-import { extname as resourceExtname, basenameOrAuthority, joinPath, extUriBiasedIgnorePathCase } from "../../../base/common/resources.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
 import { Schemas } from "../../../base/common/network.js";
+import { basename, extname } from "../../../base/common/path.js";
+import {
+  basenameOrAuthority,
+  extUriBiasedIgnorePathCase,
+  joinPath,
+  extname as resourceExtname
+} from "../../../base/common/resources.js";
+import { TernarySearchTree } from "../../../base/common/ternarySearchTree.js";
+import { URI } from "../../../base/common/uri.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
 const IWorkspaceContextService = createDecorator("contextService");
 function isSingleFolderWorkspaceIdentifier(obj) {
   const singleFolderIdentifier = obj;
@@ -21,7 +24,9 @@ function isEmptyWorkspaceIdentifier(obj) {
 }
 __name(isEmptyWorkspaceIdentifier, "isEmptyWorkspaceIdentifier");
 const EXTENSION_DEVELOPMENT_EMPTY_WINDOW_WORKSPACE = { id: "ext-dev" };
-const UNKNOWN_EMPTY_WINDOW_WORKSPACE = { id: "empty-window" };
+const UNKNOWN_EMPTY_WINDOW_WORKSPACE = {
+  id: "empty-window"
+};
 function toWorkspaceIdentifier(arg0, isExtensionDevelopment) {
   if (typeof arg0 === "string" || typeof arg0 === "undefined") {
     if (typeof arg0 === "string") {
@@ -60,11 +65,17 @@ __name(isWorkspaceIdentifier, "isWorkspaceIdentifier");
 function reviveIdentifier(identifier) {
   const singleFolderIdentifierCandidate = identifier;
   if (singleFolderIdentifierCandidate?.uri) {
-    return { id: singleFolderIdentifierCandidate.id, uri: URI.revive(singleFolderIdentifierCandidate.uri) };
+    return {
+      id: singleFolderIdentifierCandidate.id,
+      uri: URI.revive(singleFolderIdentifierCandidate.uri)
+    };
   }
   const workspaceIdentifierCandidate = identifier;
   if (workspaceIdentifierCandidate?.configPath) {
-    return { id: workspaceIdentifierCandidate.id, configPath: URI.revive(workspaceIdentifierCandidate.configPath) };
+    return {
+      id: workspaceIdentifierCandidate.id,
+      configPath: URI.revive(workspaceIdentifierCandidate.configPath)
+    };
   }
   if (identifier?.id) {
     return { id: identifier.id };
@@ -94,7 +105,10 @@ class Workspace {
     this._transient = _transient;
     this._configuration = _configuration;
     this.ignorePathCasing = ignorePathCasing;
-    this.foldersMap = TernarySearchTree.forUris(this.ignorePathCasing, () => true);
+    this.foldersMap = TernarySearchTree.forUris(
+      this.ignorePathCasing,
+      () => true
+    );
     this.folders = folders;
   }
   static {
@@ -135,13 +149,21 @@ class Workspace {
     return this.foldersMap.findSubstr(resource) || null;
   }
   updateFoldersMap() {
-    this.foldersMap = TernarySearchTree.forUris(this.ignorePathCasing, () => true);
+    this.foldersMap = TernarySearchTree.forUris(
+      this.ignorePathCasing,
+      () => true
+    );
     for (const folder of this.folders) {
       this.foldersMap.set(folder.uri, folder);
     }
   }
   toJSON() {
-    return { id: this.id, folders: this.folders, transient: this.transient, configuration: this.configuration };
+    return {
+      id: this.id,
+      folders: this.folders,
+      transient: this.transient,
+      configuration: this.configuration
+    };
   }
 }
 class WorkspaceFolder {
@@ -165,15 +187,26 @@ class WorkspaceFolder {
   }
 }
 function toWorkspaceFolder(resource) {
-  return new WorkspaceFolder({ uri: resource, index: 0, name: basenameOrAuthority(resource) }, { uri: resource.toString() });
+  return new WorkspaceFolder(
+    { uri: resource, index: 0, name: basenameOrAuthority(resource) },
+    { uri: resource.toString() }
+  );
 }
 __name(toWorkspaceFolder, "toWorkspaceFolder");
 const WORKSPACE_EXTENSION = "code-workspace";
 const WORKSPACE_SUFFIX = `.${WORKSPACE_EXTENSION}`;
-const WORKSPACE_FILTER = [{ name: localize("codeWorkspace", "Code Workspace"), extensions: [WORKSPACE_EXTENSION] }];
+const WORKSPACE_FILTER = [
+  {
+    name: localize("codeWorkspace", "Code Workspace"),
+    extensions: [WORKSPACE_EXTENSION]
+  }
+];
 const UNTITLED_WORKSPACE_NAME = "workspace.json";
 function isUntitledWorkspace(path, environmentService) {
-  return extUriBiasedIgnorePathCase.isEqualOrParent(path, environmentService.untitledWorkspacesHome);
+  return extUriBiasedIgnorePathCase.isEqualOrParent(
+    path,
+    environmentService.untitledWorkspacesHome
+  );
 }
 __name(isUntitledWorkspace, "isUntitledWorkspace");
 function isTemporaryWorkspace(arg1) {

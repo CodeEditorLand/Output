@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { onUnexpectedError } from "../../../base/common/errors.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../extensions/common/extensions.js";
+import {
+  ExtensionIdentifier
+} from "../../extensions/common/extensions.js";
 class ImplicitActivationEventsImpl {
   static {
     __name(this, "ImplicitActivationEventsImpl");
@@ -17,7 +19,10 @@ class ImplicitActivationEventsImpl {
    */
   readActivationEvents(extensionDescription) {
     if (!this._cache.has(extensionDescription)) {
-      this._cache.set(extensionDescription, this._readActivationEvents(extensionDescription));
+      this._cache.set(
+        extensionDescription,
+        this._readActivationEvents(extensionDescription)
+      );
     }
     return this._cache.get(extensionDescription);
   }

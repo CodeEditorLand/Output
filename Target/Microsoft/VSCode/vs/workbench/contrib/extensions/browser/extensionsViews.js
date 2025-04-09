@@ -10,77 +10,151 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { Disposable, DisposableStore, isDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { isCancellationError, getErrorMessage, CancellationError } from "../../../../base/common/errors.js";
-import { createErrorWithActions } from "../../../../base/common/errorMessage.js";
-import { PagedModel, IPagedModel, DelayedPagedModel, IPager } from "../../../../base/common/paging.js";
-import { SortOrder, IQueryOptions as IGalleryQueryOptions, SortBy as GallerySortBy, InstallExtensionInfo, ExtensionGalleryErrorCode, ExtensionGalleryError } from "../../../../platform/extensionManagement/common/extensionManagement.js";
-import { IExtensionManagementServer, IExtensionManagementServerService, EnablementState, IWorkbenchExtensionManagementService, IWorkbenchExtensionEnablementService } from "../../../services/extensionManagement/common/extensionManagement.js";
-import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
-import { areSameExtensions, getExtensionDependencies } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { append, $ } from "../../../../base/browser/dom.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { Delegate, Renderer } from "./extensionsList.js";
-import { ExtensionResultsListFocused, ExtensionState, IExtension, IExtensionsViewState, IExtensionsWorkbenchService, IWorkspaceRecommendedExtensionsView } from "../common/extensions.js";
-import { Query } from "../common/extensionQuery.js";
-import { IExtensionService, toExtension } from "../../../services/extensions/common/extensions.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IViewletViewOptions } from "../../../browser/parts/views/viewsViewlet.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
-import { ManageExtensionAction, getContextMenuActions, ExtensionAction } from "./extensionsActions.js";
-import { WorkbenchPagedList } from "../../../../platform/list/browser/listService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
-import { ViewPane, IViewPaneOptions, ViewPaneShowActions } from "../../../browser/parts/views/viewPane.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { coalesce, distinct, range } from "../../../../base/common/arrays.js";
+import { $, append } from "../../../../base/browser/dom.js";
 import { alert } from "../../../../base/browser/ui/aria/aria.js";
-import { IListContextMenuEvent } from "../../../../base/browser/ui/list/list.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { IAction, Action, Separator, ActionRunner } from "../../../../base/common/actions.js";
-import { ExtensionIdentifier, ExtensionIdentifierMap, ExtensionUntrustedWorkspaceSupportType, ExtensionVirtualWorkspaceSupportType, IExtensionDescription, IExtensionIdentifier, isLanguagePackExtension } from "../../../../platform/extensions/common/extensions.js";
-import { CancelablePromise, createCancelablePromise, ThrottledDelayer } from "../../../../base/common/async.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IViewDescriptorService, ViewContainerLocation } from "../../../common/views.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
-import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IExtensionManifestPropertiesService } from "../../../services/extensions/common/extensionManifestPropertiesService.js";
-import { isVirtualWorkspace } from "../../../../platform/workspace/common/virtualWorkspace.js";
-import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
-import { IWorkbenchLayoutService, Position } from "../../../services/layout/browser/layoutService.js";
+import { CountBadge } from "../../../../base/browser/ui/countBadge/countBadge.js";
 import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { isOfflineError } from "../../../../base/parts/request/common/request.js";
-import { defaultCountBadgeStyles } from "../../../../platform/theme/browser/defaultStyles.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { Extensions, IExtensionFeatureRenderer, IExtensionFeaturesManagementService, IExtensionFeaturesRegistry } from "../../../services/extensionManagement/common/extensionFeatures.js";
-import { URI } from "../../../../base/common/uri.js";
+import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
+import {
+  Action,
+  ActionRunner,
+  Separator
+} from "../../../../base/common/actions.js";
+import { coalesce, distinct, range } from "../../../../base/common/arrays.js";
+import {
+  createCancelablePromise,
+  ThrottledDelayer
+} from "../../../../base/common/async.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
+import { createErrorWithActions } from "../../../../base/common/errorMessage.js";
+import {
+  CancellationError,
+  getErrorMessage,
+  isCancellationError
+} from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  isDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  DelayedPagedModel,
+  PagedModel
+} from "../../../../base/common/paging.js";
 import { isString } from "../../../../base/common/types.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { isOfflineError } from "../../../../base/parts/request/common/request.js";
+import { localize } from "../../../../nls.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import {
+  ExtensionGalleryError,
+  ExtensionGalleryErrorCode,
+  SortBy as GallerySortBy,
+  SortOrder
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
+import {
+  areSameExtensions,
+  getExtensionDependencies
+} from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import {
+  ExtensionIdentifier,
+  ExtensionIdentifierMap,
+  isLanguagePackExtension
+} from "../../../../platform/extensions/common/extensions.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { WorkbenchPagedList } from "../../../../platform/list/browser/listService.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { defaultCountBadgeStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { isVirtualWorkspace } from "../../../../platform/workspace/common/virtualWorkspace.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspaceTrustManagementService } from "../../../../platform/workspace/common/workspaceTrust.js";
+import {
+  ViewPane,
+  ViewPaneShowActions
+} from "../../../browser/parts/views/viewPane.js";
+import {
+  IViewDescriptorService,
+  ViewContainerLocation
+} from "../../../common/views.js";
+import {
+  Extensions,
+  IExtensionFeaturesManagementService
+} from "../../../services/extensionManagement/common/extensionFeatures.js";
+import {
+  EnablementState,
+  IExtensionManagementServerService,
+  IWorkbenchExtensionEnablementService,
+  IWorkbenchExtensionManagementService
+} from "../../../services/extensionManagement/common/extensionManagement.js";
+import { IExtensionRecommendationsService } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import { IExtensionManifestPropertiesService } from "../../../services/extensions/common/extensionManifestPropertiesService.js";
+import {
+  IExtensionService,
+  toExtension
+} from "../../../services/extensions/common/extensions.js";
+import {
+  IWorkbenchLayoutService,
+  Position
+} from "../../../services/layout/browser/layoutService.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+import { Query } from "../common/extensionQuery.js";
+import {
+  ExtensionResultsListFocused,
+  ExtensionState,
+  IExtensionsWorkbenchService
+} from "../common/extensions.js";
+import {
+  ExtensionAction,
+  getContextMenuActions,
+  ManageExtensionAction
+} from "./extensionsActions.js";
+import { Delegate, Renderer } from "./extensionsList.js";
 const NONE_CATEGORY = "none";
 class ExtensionsViewState extends Disposable {
   static {
     __name(this, "ExtensionsViewState");
   }
-  _onFocus = this._register(new Emitter());
+  _onFocus = this._register(
+    new Emitter()
+  );
   onFocus = this._onFocus.event;
-  _onBlur = this._register(new Emitter());
+  _onBlur = this._register(
+    new Emitter()
+  );
   onBlur = this._onBlur.event;
   currentlyFocusedItems = [];
   filters = {};
   onFocusChange(extensions) {
-    this.currentlyFocusedItems.forEach((extension) => this._onBlur.fire(extension));
+    this.currentlyFocusedItems.forEach(
+      (extension) => this._onBlur.fire(extension)
+    );
     this.currentlyFocusedItems = extensions;
-    this.currentlyFocusedItems.forEach((extension) => this._onFocus.fire(extension));
+    this.currentlyFocusedItems.forEach(
+      (extension) => this._onFocus.fire(extension)
+    );
   }
 }
 var LocalSortBy = /* @__PURE__ */ ((LocalSortBy2) => {
@@ -96,11 +170,26 @@ function isLocalSortBy(value) {
 __name(isLocalSortBy, "isLocalSortBy");
 let ExtensionsListView = class extends ViewPane {
   constructor(options, viewletViewOptions, notificationService, keybindingService, contextMenuService, instantiationService, themeService, extensionService, extensionsWorkbenchService, extensionRecommendationsService, telemetryService, hoverService, configurationService, contextService, extensionManagementServerService, extensionManifestPropertiesService, extensionManagementService, workspaceService, productService, contextKeyService, viewDescriptorService, openerService, preferencesService, storageService, workspaceTrustManagementService, extensionEnablementService, layoutService, extensionFeaturesManagementService, uriIdentityService, logService) {
-    super({
-      ...viewletViewOptions,
-      showActions: ViewPaneShowActions.Always,
-      maximumBodySize: options.flexibleHeight ? storageService.getNumber(`${viewletViewOptions.id}.size`, StorageScope.PROFILE, 0) ? void 0 : 0 : void 0
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    super(
+      {
+        ...viewletViewOptions,
+        showActions: ViewPaneShowActions.Always,
+        maximumBodySize: options.flexibleHeight ? storageService.getNumber(
+          `${viewletViewOptions.id}.size`,
+          StorageScope.PROFILE,
+          0
+        ) ? void 0 : 0 : void 0
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      hoverService
+    );
     this.options = options;
     this.notificationService = notificationService;
     this.extensionService = extensionService;
@@ -122,9 +211,17 @@ let ExtensionsListView = class extends ViewPane {
     this.uriIdentityService = uriIdentityService;
     this.logService = logService;
     if (this.options.onDidChangeTitle) {
-      this._register(this.options.onDidChangeTitle((title) => this.updateTitle(title)));
+      this._register(
+        this.options.onDidChangeTitle(
+          (title) => this.updateTitle(title)
+        )
+      );
     }
-    this._register(this.contextMenuActionRunner.onDidRun(({ error }) => error && this.notificationService.error(error)));
+    this._register(
+      this.contextMenuActionRunner.onDidRun(
+        ({ error }) => error && this.notificationService.error(error)
+      )
+    );
     this.registerActions();
   }
   static {
@@ -138,14 +235,22 @@ let ExtensionsListView = class extends ViewPane {
   queryRequest = null;
   queryResult;
   extensionsViewState;
-  contextMenuActionRunner = this._register(new ActionRunner());
+  contextMenuActionRunner = this._register(
+    new ActionRunner()
+  );
   registerActions() {
   }
   renderHeader(container) {
     container.classList.add("extension-view-header");
     super.renderHeader(container);
     if (!this.options.hideBadge) {
-      this.badge = this._register(new CountBadge(append(container, $(".count-badge-wrapper")), {}, defaultCountBadgeStyles));
+      this.badge = this._register(
+        new CountBadge(
+          append(container, $(".count-badge-wrapper")),
+          {},
+          defaultCountBadgeStyles
+        )
+      );
     }
   }
   renderBody(container) {
@@ -156,43 +261,75 @@ let ExtensionsListView = class extends ViewPane {
     const extensionsList = append(container, $(".extensions-list"));
     const delegate = new Delegate();
     this.extensionsViewState = new ExtensionsViewState();
-    const renderer = this.instantiationService.createInstance(Renderer, this.extensionsViewState, {
-      hoverOptions: {
-        position: /* @__PURE__ */ __name(() => {
-          const viewLocation = this.viewDescriptorService.getViewLocationById(this.id);
-          if (viewLocation === ViewContainerLocation.Sidebar) {
-            return this.layoutService.getSideBarPosition() === Position.LEFT ? HoverPosition.RIGHT : HoverPosition.LEFT;
-          }
-          if (viewLocation === ViewContainerLocation.AuxiliaryBar) {
-            return this.layoutService.getSideBarPosition() === Position.LEFT ? HoverPosition.LEFT : HoverPosition.RIGHT;
-          }
-          return HoverPosition.RIGHT;
-        }, "position")
-      }
-    });
-    this.list = this.instantiationService.createInstance(WorkbenchPagedList, "Extensions", extensionsList, delegate, [renderer], {
-      multipleSelectionSupport: false,
-      setRowLineHeight: false,
-      horizontalScrolling: false,
-      accessibilityProvider: {
-        getAriaLabel(extension) {
-          return getAriaLabelForExtension(extension);
-        },
-        getWidgetAriaLabel() {
-          return localize("extensions", "Extensions");
+    const renderer = this.instantiationService.createInstance(
+      Renderer,
+      this.extensionsViewState,
+      {
+        hoverOptions: {
+          position: /* @__PURE__ */ __name(() => {
+            const viewLocation = this.viewDescriptorService.getViewLocationById(
+              this.id
+            );
+            if (viewLocation === ViewContainerLocation.Sidebar) {
+              return this.layoutService.getSideBarPosition() === Position.LEFT ? HoverPosition.RIGHT : HoverPosition.LEFT;
+            }
+            if (viewLocation === ViewContainerLocation.AuxiliaryBar) {
+              return this.layoutService.getSideBarPosition() === Position.LEFT ? HoverPosition.LEFT : HoverPosition.RIGHT;
+            }
+            return HoverPosition.RIGHT;
+          }, "position")
         }
-      },
-      overrideStyles: this.getLocationBasedColors().listOverrideStyles,
-      openOnSingleClick: true
-    });
+      }
+    );
+    this.list = this.instantiationService.createInstance(
+      WorkbenchPagedList,
+      "Extensions",
+      extensionsList,
+      delegate,
+      [renderer],
+      {
+        multipleSelectionSupport: false,
+        setRowLineHeight: false,
+        horizontalScrolling: false,
+        accessibilityProvider: {
+          getAriaLabel(extension) {
+            return getAriaLabelForExtension(extension);
+          },
+          getWidgetAriaLabel() {
+            return localize("extensions", "Extensions");
+          }
+        },
+        overrideStyles: this.getLocationBasedColors().listOverrideStyles,
+        openOnSingleClick: true
+      }
+    );
     ExtensionResultsListFocused.bindTo(this.list.contextKeyService);
-    this._register(this.list.onContextMenu((e) => this.onContextMenu(e), this));
-    this._register(this.list.onDidChangeFocus((e) => this.extensionsViewState?.onFocusChange(coalesce(e.elements)), this));
+    this._register(
+      this.list.onContextMenu((e) => this.onContextMenu(e), this)
+    );
+    this._register(
+      this.list.onDidChangeFocus(
+        (e) => this.extensionsViewState?.onFocusChange(
+          coalesce(e.elements)
+        ),
+        this
+      )
+    );
     this._register(this.list);
     this._register(this.extensionsViewState);
-    this._register(Event.debounce(Event.filter(this.list.onDidOpen, (e) => e.element !== null), (_, event) => event, 75, true)((options) => {
-      this.openExtension(options.element, { sideByside: options.sideBySide, ...options.editorOptions });
-    }));
+    this._register(
+      Event.debounce(
+        Event.filter(this.list.onDidOpen, (e) => e.element !== null),
+        (_, event) => event,
+        75,
+        true
+      )((options) => {
+        this.openExtension(options.element, {
+          sideByside: options.sideBySide,
+          ...options.editorOptions
+        });
+      })
+    );
     this.bodyTemplate = {
       extensionsList,
       messageBox,
@@ -206,7 +343,7 @@ let ExtensionsListView = class extends ViewPane {
   layoutBody(height, width) {
     super.layoutBody(height, width);
     if (this.bodyTemplate) {
-      this.bodyTemplate.extensionsList.style.height = height + "px";
+      this.bodyTemplate.extensionsList.style.height = `${height}px`;
     }
     this.list?.layout(height, width);
   }
@@ -248,16 +385,28 @@ let ExtensionsListView = class extends ViewPane {
     }
     const request = createCancelablePromise(async (token) => {
       try {
-        this.queryResult = await this.query(parsedQuery, options, token);
+        this.queryResult = await this.query(
+          parsedQuery,
+          options,
+          token
+        );
         const model = this.queryResult.model;
-        this.setModel(model, this.queryResult.description ? { text: this.queryResult.description, severity: Severity.Info } : void 0);
+        this.setModel(
+          model,
+          this.queryResult.description ? {
+            text: this.queryResult.description,
+            severity: Severity.Info
+          } : void 0
+        );
         if (this.queryResult.onDidChangeModel) {
-          this.queryResult.disposables.add(this.queryResult.onDidChangeModel((model2) => {
-            if (this.queryResult) {
-              this.queryResult.model = model2;
-              this.updateModel(model2);
-            }
-          }));
+          this.queryResult.disposables.add(
+            this.queryResult.onDidChangeModel((model2) => {
+              if (this.queryResult) {
+                this.queryResult.model = model2;
+                this.updateModel(model2);
+              }
+            })
+          );
         }
         return model;
       } catch (e) {
@@ -284,19 +433,32 @@ let ExtensionsListView = class extends ViewPane {
   async onContextMenu(e) {
     if (e.element) {
       const disposables = new DisposableStore();
-      const manageExtensionAction = disposables.add(this.instantiationService.createInstance(ManageExtensionAction));
-      const extension = e.element ? this.extensionsWorkbenchService.local.find((local) => areSameExtensions(local.identifier, e.element.identifier) && (!e.element.server || e.element.server === local.server)) || e.element : e.element;
+      const manageExtensionAction = disposables.add(
+        this.instantiationService.createInstance(ManageExtensionAction)
+      );
+      const extension = e.element ? this.extensionsWorkbenchService.local.find(
+        (local) => areSameExtensions(
+          local.identifier,
+          e.element?.identifier
+        ) && (!e.element?.server || e.element?.server === local.server)
+      ) || e.element : e.element;
       manageExtensionAction.extension = extension;
       let groups = [];
       if (manageExtensionAction.enabled) {
         groups = await manageExtensionAction.getActionGroups();
       } else if (extension) {
-        groups = await getContextMenuActions(extension, this.contextKeyService, this.instantiationService);
-        groups.forEach((group) => group.forEach((extensionAction) => {
-          if (extensionAction instanceof ExtensionAction) {
-            extensionAction.extension = extension;
-          }
-        }));
+        groups = await getContextMenuActions(
+          extension,
+          this.contextKeyService,
+          this.instantiationService
+        );
+        groups.forEach(
+          (group) => group.forEach((extensionAction) => {
+            if (extensionAction instanceof ExtensionAction) {
+              extensionAction.extension = extension;
+            }
+          })
+        );
       }
       const actions = [];
       for (const menuActions of groups) {
@@ -339,8 +501,15 @@ let ExtensionsListView = class extends ViewPane {
       query.value = query.value.replace("@recentlyPublished", "");
       options.sortBy = !options.sortBy ? GallerySortBy.PublishedDate : options.sortBy;
     }
-    const galleryQueryOptions = { ...options, sortBy: isLocalSortBy(options.sortBy) ? void 0 : options.sortBy };
-    const model = await this.queryGallery(query, galleryQueryOptions, token);
+    const galleryQueryOptions = {
+      ...options,
+      sortBy: isLocalSortBy(options.sortBy) ? void 0 : options.sortBy
+    };
+    const model = await this.queryGallery(
+      query,
+      galleryQueryOptions,
+      token
+    );
     return { model, disposables: new DisposableStore() };
   }
   async queryByIds(ids, options, token) {
@@ -348,36 +517,73 @@ let ExtensionsListView = class extends ViewPane {
       result2.add(id.toLowerCase());
       return result2;
     }, /* @__PURE__ */ new Set());
-    const result = (await this.extensionsWorkbenchService.queryLocal(this.options.server)).filter((e) => idsSet.has(e.identifier.id.toLowerCase()));
-    const galleryIds = result.length ? ids.filter((id) => result.every((r) => !areSameExtensions(r.identifier, { id }))) : ids;
+    const result = (await this.extensionsWorkbenchService.queryLocal(
+      this.options.server
+    )).filter((e) => idsSet.has(e.identifier.id.toLowerCase()));
+    const galleryIds = result.length ? ids.filter(
+      (id) => result.every(
+        (r) => !areSameExtensions(r.identifier, { id })
+      )
+    ) : ids;
     if (galleryIds.length) {
-      const galleryResult = await this.extensionsWorkbenchService.getExtensions(galleryIds.map((id) => ({ id })), { source: "queryById" }, token);
+      const galleryResult = await this.extensionsWorkbenchService.getExtensions(
+        galleryIds.map((id) => ({ id })),
+        { source: "queryById" },
+        token
+      );
       result.push(...galleryResult);
     }
     return new PagedModel(result);
   }
   async queryLocal(query, options) {
-    const local = await this.extensionsWorkbenchService.queryLocal(this.options.server);
-    let { extensions, canIncludeInstalledExtensions, description } = await this.filterLocal(local, this.extensionService.extensions, query, options);
+    const local = await this.extensionsWorkbenchService.queryLocal(
+      this.options.server
+    );
+    let { extensions, canIncludeInstalledExtensions, description } = await this.filterLocal(
+      local,
+      this.extensionService.extensions,
+      query,
+      options
+    );
     const disposables = new DisposableStore();
-    const onDidChangeModel = disposables.add(new Emitter());
+    const onDidChangeModel = disposables.add(
+      new Emitter()
+    );
     if (canIncludeInstalledExtensions) {
       let isDisposed = false;
       disposables.add(toDisposable(() => isDisposed = true));
-      disposables.add(Event.debounce(Event.any(
-        Event.filter(this.extensionsWorkbenchService.onChange, (e) => e?.state === ExtensionState.Installed),
-        this.extensionService.onDidChangeExtensions
-      ), () => void 0)(async () => {
-        const local2 = this.options.server ? this.extensionsWorkbenchService.installed.filter((e) => e.server === this.options.server) : this.extensionsWorkbenchService.local;
-        const { extensions: newExtensions } = await this.filterLocal(local2, this.extensionService.extensions, query, options);
-        if (!isDisposed) {
-          const mergedExtensions = this.mergeAddedExtensions(extensions, newExtensions);
-          if (mergedExtensions) {
-            extensions = mergedExtensions;
-            onDidChangeModel.fire(new PagedModel(extensions));
+      disposables.add(
+        Event.debounce(
+          Event.any(
+            Event.filter(
+              this.extensionsWorkbenchService.onChange,
+              (e) => e?.state === ExtensionState.Installed
+            ),
+            this.extensionService.onDidChangeExtensions
+          ),
+          () => void 0
+        )(async () => {
+          const local2 = this.options.server ? this.extensionsWorkbenchService.installed.filter(
+            (e) => e.server === this.options.server
+          ) : this.extensionsWorkbenchService.local;
+          const { extensions: newExtensions } = await this.filterLocal(
+            local2,
+            this.extensionService.extensions,
+            query,
+            options
+          );
+          if (!isDisposed) {
+            const mergedExtensions = this.mergeAddedExtensions(
+              extensions,
+              newExtensions
+            );
+            if (mergedExtensions) {
+              extensions = mergedExtensions;
+              onDidChangeModel.fire(new PagedModel(extensions));
+            }
           }
-        }
-      }));
+        })
+      );
     }
     return {
       model: new PagedModel(extensions),
@@ -395,19 +601,46 @@ let ExtensionsListView = class extends ViewPane {
       extensions = this.filterBuiltinExtensions(local, query, options);
       canIncludeInstalledExtensions = false;
     } else if (/@installed/i.test(value)) {
-      extensions = this.filterInstalledExtensions(local, runningExtensions, query, options);
+      extensions = this.filterInstalledExtensions(
+        local,
+        runningExtensions,
+        query,
+        options
+      );
     } else if (/@outdated/i.test(value)) {
       extensions = this.filterOutdatedExtensions(local, query, options);
     } else if (/@disabled/i.test(value)) {
-      extensions = this.filterDisabledExtensions(local, runningExtensions, query, options);
+      extensions = this.filterDisabledExtensions(
+        local,
+        runningExtensions,
+        query,
+        options
+      );
     } else if (/@enabled/i.test(value)) {
-      extensions = this.filterEnabledExtensions(local, runningExtensions, query, options);
+      extensions = this.filterEnabledExtensions(
+        local,
+        runningExtensions,
+        query,
+        options
+      );
     } else if (/@workspaceUnsupported/i.test(value)) {
-      extensions = this.filterWorkspaceUnsupportedExtensions(local, query, options);
+      extensions = this.filterWorkspaceUnsupportedExtensions(
+        local,
+        query,
+        options
+      );
     } else if (/@deprecated/i.test(query.value)) {
-      extensions = await this.filterDeprecatedExtensions(local, query, options);
+      extensions = await this.filterDeprecatedExtensions(
+        local,
+        query,
+        options
+      );
     } else if (/@recentlyUpdated/i.test(query.value)) {
-      extensions = this.filterRecentlyUpdatedExtensions(local, query, options);
+      extensions = this.filterRecentlyUpdatedExtensions(
+        local,
+        query,
+        options
+      );
     } else if (/@feature:/i.test(query.value)) {
       const result = this.filterExtensionsByFeature(local, query);
       if (result) {
@@ -420,7 +653,13 @@ let ExtensionsListView = class extends ViewPane {
   filterBuiltinExtensions(local, query, options) {
     let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
     value = value.replace(/@builtin/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
-    const result = local.filter((e) => e.isBuiltin && (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories));
+    const result = local.filter(
+      (e) => e.isBuiltin && (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(
+        e,
+        includedCategories,
+        excludedCategories
+      )
+    );
     return this.sortExtensions(result, options);
   }
   filterExtensionByCategory(e, includedCategories, excludedCategories) {
@@ -428,10 +667,14 @@ let ExtensionsListView = class extends ViewPane {
       return true;
     }
     if (e.categories.length) {
-      if (excludedCategories.length && e.categories.some((category) => excludedCategories.includes(category.toLowerCase()))) {
+      if (excludedCategories.length && e.categories.some(
+        (category) => excludedCategories.includes(category.toLowerCase())
+      )) {
         return false;
       }
-      return e.categories.some((category) => includedCategories.includes(category.toLowerCase()));
+      return e.categories.some(
+        (category) => includedCategories.includes(category.toLowerCase())
+      );
     } else {
       return includedCategories.includes(NONE_CATEGORY);
     }
@@ -439,40 +682,56 @@ let ExtensionsListView = class extends ViewPane {
   parseCategories(value) {
     const includedCategories = [];
     const excludedCategories = [];
-    value = value.replace(/\bcategory:("([^"]*)"|([^"]\S*))(\s+|\b|$)/g, (_, quotedCategory, category) => {
-      const entry = (category || quotedCategory || "").toLowerCase();
-      if (entry.startsWith("-")) {
-        if (excludedCategories.indexOf(entry) === -1) {
-          excludedCategories.push(entry);
+    value = value.replace(
+      /\bcategory:("([^"]*)"|([^"]\S*))(\s+|\b|$)/g,
+      (_, quotedCategory, category) => {
+        const entry = (category || quotedCategory || "").toLowerCase();
+        if (entry.startsWith("-")) {
+          if (excludedCategories.indexOf(entry) === -1) {
+            excludedCategories.push(entry);
+          }
+        } else {
+          if (includedCategories.indexOf(entry) === -1) {
+            includedCategories.push(entry);
+          }
         }
-      } else {
-        if (includedCategories.indexOf(entry) === -1) {
-          includedCategories.push(entry);
-        }
+        return "";
       }
-      return "";
-    });
+    );
     return { value, includedCategories, excludedCategories };
   }
   filterInstalledExtensions(local, runningExtensions, query, options) {
     let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
     value = value.replace(/@installed/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
-    const matchingText = /* @__PURE__ */ __name((e) => (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1 || e.description.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories), "matchingText");
+    const matchingText = /* @__PURE__ */ __name((e) => (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1 || e.description.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(
+      e,
+      includedCategories,
+      excludedCategories
+    ), "matchingText");
     let result;
     if (options.sortBy !== void 0) {
       result = local.filter((e) => !e.isBuiltin && matchingText(e));
       result = this.sortExtensions(result, options);
     } else {
-      result = local.filter((e) => (!e.isBuiltin || e.outdated || e.runtimeState !== void 0) && matchingText(e));
-      const runningExtensionsById = runningExtensions.reduce((result2, e) => {
-        result2.set(e.identifier.value, e);
-        return result2;
-      }, new ExtensionIdentifierMap());
+      result = local.filter(
+        (e) => (!e.isBuiltin || e.outdated || e.runtimeState !== void 0) && matchingText(e)
+      );
+      const runningExtensionsById = runningExtensions.reduce(
+        (result2, e) => {
+          result2.set(e.identifier.value, e);
+          return result2;
+        },
+        new ExtensionIdentifierMap()
+      );
       const defaultSort = /* @__PURE__ */ __name((e1, e2) => {
         const running1 = runningExtensionsById.get(e1.identifier.id);
-        const isE1Running = !!running1 && this.extensionManagementServerService.getExtensionManagementServer(toExtension(running1)) === e1.server;
+        const isE1Running = !!running1 && this.extensionManagementServerService.getExtensionManagementServer(
+          toExtension(running1)
+        ) === e1.server;
         const running2 = runningExtensionsById.get(e2.identifier.id);
-        const isE2Running = running2 && this.extensionManagementServerService.getExtensionManagementServer(toExtension(running2)) === e2.server;
+        const isE2Running = running2 && this.extensionManagementServerService.getExtensionManagementServer(
+          toExtension(running2)
+        ) === e2.server;
         if (isE1Running && isE2Running) {
           return e1.displayName.localeCompare(e2.displayName);
         }
@@ -502,7 +761,9 @@ let ExtensionsListView = class extends ViewPane {
           incompatible.push(e);
         } else if (e.deprecationInfo) {
           deprecated.push(e);
-        } else if (e.outdated && this.extensionEnablementService.isEnabledEnablementState(e.enablementState)) {
+        } else if (e.outdated && this.extensionEnablementService.isEnabledEnablementState(
+          e.enablementState
+        )) {
           outdated.push(e);
         } else if (e.runtimeState) {
           actionRequired.push(e);
@@ -523,25 +784,55 @@ let ExtensionsListView = class extends ViewPane {
   filterOutdatedExtensions(local, query, options) {
     let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
     value = value.replace(/@outdated/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
-    const result = local.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName)).filter((extension) => extension.outdated && (extension.name.toLowerCase().indexOf(value) > -1 || extension.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(extension, includedCategories, excludedCategories));
+    const result = local.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName)).filter(
+      (extension) => extension.outdated && (extension.name.toLowerCase().indexOf(value) > -1 || extension.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(
+        extension,
+        includedCategories,
+        excludedCategories
+      )
+    );
     return this.sortExtensions(result, options);
   }
   filterDisabledExtensions(local, runningExtensions, query, options) {
     let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
     value = value.replace(/@disabled/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
-    const result = local.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName)).filter((e) => runningExtensions.every((r) => !areSameExtensions({ id: r.identifier.value, uuid: r.uuid }, e.identifier)) && (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories));
+    const result = local.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName)).filter(
+      (e) => runningExtensions.every(
+        (r) => !areSameExtensions(
+          { id: r.identifier.value, uuid: r.uuid },
+          e.identifier
+        )
+      ) && (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(
+        e,
+        includedCategories,
+        excludedCategories
+      )
+    );
     return this.sortExtensions(result, options);
   }
   filterEnabledExtensions(local, runningExtensions, query, options) {
     let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
     value = value ? value.replace(/@enabled/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase() : "";
     local = local.filter((e) => !e.isBuiltin);
-    const result = local.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName)).filter((e) => runningExtensions.some((r) => areSameExtensions({ id: r.identifier.value, uuid: r.uuid }, e.identifier)) && (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories));
+    const result = local.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName)).filter(
+      (e) => runningExtensions.some(
+        (r) => areSameExtensions(
+          { id: r.identifier.value, uuid: r.uuid },
+          e.identifier
+        )
+      ) && (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(
+        e,
+        includedCategories,
+        excludedCategories
+      )
+    );
     return this.sortExtensions(result, options);
   }
   filterWorkspaceUnsupportedExtensions(local, query, options) {
     const queryString = query.value;
-    const match = queryString.match(/^\s*@workspaceUnsupported(?::(untrusted|virtual)(Partial)?)?(?:\s+([^\s]*))?/i);
+    const match = queryString.match(
+      /^\s*@workspaceUnsupported(?::(untrusted|virtual)(Partial)?)?(?:\s+([^\s]*))?/i
+    );
     if (!match) {
       return [];
     }
@@ -549,73 +840,121 @@ let ExtensionsListView = class extends ViewPane {
     const partial = !!match[2];
     const nameFilter = match[3]?.toLowerCase();
     if (nameFilter) {
-      local = local.filter((extension) => extension.name.toLowerCase().indexOf(nameFilter) > -1 || extension.displayName.toLowerCase().indexOf(nameFilter) > -1);
+      local = local.filter(
+        (extension) => extension.name.toLowerCase().indexOf(nameFilter) > -1 || extension.displayName.toLowerCase().indexOf(nameFilter) > -1
+      );
     }
     const hasVirtualSupportType = /* @__PURE__ */ __name((extension, supportType) => {
-      return extension.local && this.extensionManifestPropertiesService.getExtensionVirtualWorkspaceSupportType(extension.local.manifest) === supportType;
+      return extension.local && this.extensionManifestPropertiesService.getExtensionVirtualWorkspaceSupportType(
+        extension.local.manifest
+      ) === supportType;
     }, "hasVirtualSupportType");
     const hasRestrictedSupportType = /* @__PURE__ */ __name((extension, supportType) => {
       if (!extension.local) {
         return false;
       }
-      const enablementState = this.extensionEnablementService.getEnablementState(extension.local);
+      const enablementState = this.extensionEnablementService.getEnablementState(
+        extension.local
+      );
       if (enablementState !== EnablementState.EnabledGlobally && enablementState !== EnablementState.EnabledWorkspace && enablementState !== EnablementState.DisabledByTrustRequirement && enablementState !== EnablementState.DisabledByExtensionDependency) {
         return false;
       }
-      if (this.extensionManifestPropertiesService.getExtensionUntrustedWorkspaceSupportType(extension.local.manifest) === supportType) {
+      if (this.extensionManifestPropertiesService.getExtensionUntrustedWorkspaceSupportType(
+        extension.local.manifest
+      ) === supportType) {
         return true;
       }
       if (supportType === false) {
-        const dependencies = getExtensionDependencies(local.map((ext) => ext.local), extension.local);
-        return dependencies.some((ext) => this.extensionManifestPropertiesService.getExtensionUntrustedWorkspaceSupportType(ext.manifest) === supportType);
+        const dependencies = getExtensionDependencies(
+          local.map((ext) => ext.local),
+          extension.local
+        );
+        return dependencies.some(
+          (ext) => this.extensionManifestPropertiesService.getExtensionUntrustedWorkspaceSupportType(
+            ext.manifest
+          ) === supportType
+        );
       }
       return false;
     }, "hasRestrictedSupportType");
-    const inVirtualWorkspace = isVirtualWorkspace(this.workspaceService.getWorkspace());
+    const inVirtualWorkspace = isVirtualWorkspace(
+      this.workspaceService.getWorkspace()
+    );
     const inRestrictedWorkspace = !this.workspaceTrustManagementService.isWorkspaceTrusted();
     if (type === "virtual") {
-      local = local.filter((extension) => inVirtualWorkspace && hasVirtualSupportType(extension, partial ? "limited" : false) && !(inRestrictedWorkspace && hasRestrictedSupportType(extension, false)));
+      local = local.filter(
+        (extension) => inVirtualWorkspace && hasVirtualSupportType(
+          extension,
+          partial ? "limited" : false
+        ) && !(inRestrictedWorkspace && hasRestrictedSupportType(extension, false))
+      );
     } else if (type === "untrusted") {
-      local = local.filter((extension) => hasRestrictedSupportType(extension, partial ? "limited" : false) && !(inVirtualWorkspace && hasVirtualSupportType(extension, false)));
+      local = local.filter(
+        (extension) => hasRestrictedSupportType(
+          extension,
+          partial ? "limited" : false
+        ) && !(inVirtualWorkspace && hasVirtualSupportType(extension, false))
+      );
     } else {
-      local = local.filter((extension) => inVirtualWorkspace && !hasVirtualSupportType(extension, true) || inRestrictedWorkspace && !hasRestrictedSupportType(extension, true));
+      local = local.filter(
+        (extension) => inVirtualWorkspace && !hasVirtualSupportType(extension, true) || inRestrictedWorkspace && !hasRestrictedSupportType(extension, true)
+      );
     }
     return this.sortExtensions(local, options);
   }
   async filterDeprecatedExtensions(local, query, options) {
     const value = query.value.replace(/@deprecated/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
     const extensionsControlManifest = await this.extensionManagementService.getExtensionsControlManifest();
-    const deprecatedExtensionIds = Object.keys(extensionsControlManifest.deprecated);
-    local = local.filter((e) => deprecatedExtensionIds.includes(e.identifier.id) && (!value || e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1));
+    const deprecatedExtensionIds = Object.keys(
+      extensionsControlManifest.deprecated
+    );
+    local = local.filter(
+      (e) => deprecatedExtensionIds.includes(e.identifier.id) && (!value || e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1)
+    );
     return this.sortExtensions(local, options);
   }
   filterRecentlyUpdatedExtensions(local, query, options) {
     let { value, includedCategories, excludedCategories } = this.parseCategories(query.value);
     const currentTime = Date.now();
-    local = local.filter((e) => !e.isBuiltin && !e.outdated && e.local?.updated && e.local?.installedTimestamp !== void 0 && currentTime - e.local.installedTimestamp < ExtensionsListView.RECENT_UPDATE_DURATION);
+    local = local.filter(
+      (e) => !e.isBuiltin && !e.outdated && e.local?.updated && e.local?.installedTimestamp !== void 0 && currentTime - e.local.installedTimestamp < ExtensionsListView.RECENT_UPDATE_DURATION
+    );
     value = value.replace(/@recentlyUpdated/g, "").replace(/@sort:(\w+)(-\w*)?/g, "").trim().toLowerCase();
-    const result = local.filter((e) => (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(e, includedCategories, excludedCategories));
+    const result = local.filter(
+      (e) => (e.name.toLowerCase().indexOf(value) > -1 || e.displayName.toLowerCase().indexOf(value) > -1) && this.filterExtensionByCategory(
+        e,
+        includedCategories,
+        excludedCategories
+      )
+    );
     options.sortBy = options.sortBy ?? "UpdateDate" /* UpdateDate */;
     return this.sortExtensions(result, options);
   }
   filterExtensionsByFeature(local, query) {
     const value = query.value.replace(/@feature:/g, "").trim();
     const featureId = value.split(" ")[0];
-    const feature = Registry.as(Extensions.ExtensionFeaturesRegistry).getExtensionFeature(featureId);
+    const feature = Registry.as(
+      Extensions.ExtensionFeaturesRegistry
+    ).getExtensionFeature(featureId);
     if (!feature) {
       return void 0;
     }
     if (this.extensionsViewState) {
       this.extensionsViewState.filters.featureId = featureId;
     }
-    const renderer = feature.renderer ? this.instantiationService.createInstance(feature.renderer) : void 0;
+    const renderer = feature.renderer ? this.instantiationService.createInstance(
+      feature.renderer
+    ) : void 0;
     try {
       const result = [];
       for (const e of local) {
         if (!e.local) {
           continue;
         }
-        const accessData = this.extensionFeaturesManagementService.getAccessData(new ExtensionIdentifier(e.identifier.id), featureId);
+        const accessData = this.extensionFeaturesManagementService.getAccessData(
+          new ExtensionIdentifier(e.identifier.id),
+          featureId
+        );
         const shouldRender = renderer?.shouldRender(e.local.manifest);
         if (accessData || shouldRender) {
           result.push([e, accessData?.accessTimes.length ?? 0]);
@@ -623,7 +962,11 @@ let ExtensionsListView = class extends ViewPane {
       }
       return {
         extensions: result.sort(([, a], [, b]) => b - a).map(([e]) => e),
-        description: localize("showingExtensionsForFeature", "Extensions using {0} in the last 30 days", feature.label)
+        description: localize(
+          "showingExtensionsForFeature",
+          "Extensions using {0} in the last 30 days",
+          feature.label
+        )
       };
     } finally {
       renderer?.dispose();
@@ -635,7 +978,12 @@ let ExtensionsListView = class extends ViewPane {
       let index = -1;
       const previousExtensionInNew = newExtensions[from];
       if (previousExtensionInNew) {
-        index = oldExtensions.findIndex((e) => areSameExtensions(e.identifier, previousExtensionInNew.identifier));
+        index = oldExtensions.findIndex(
+          (e) => areSameExtensions(
+            e.identifier,
+            previousExtensionInNew.identifier
+          )
+        );
         if (index === -1) {
           return findPreviousExtensionIndex(from - 1);
         }
@@ -645,9 +993,15 @@ let ExtensionsListView = class extends ViewPane {
     let hasChanged = false;
     for (let index = 0; index < newExtensions.length; index++) {
       const extension = newExtensions[index];
-      if (extensions.every((r) => !areSameExtensions(r.identifier, extension.identifier))) {
+      if (extensions.every(
+        (r) => !areSameExtensions(r.identifier, extension.identifier)
+      )) {
         hasChanged = true;
-        extensions.splice(findPreviousExtensionIndex(index - 1) + 1, 0, extension);
+        extensions.splice(
+          findPreviousExtensionIndex(index - 1) + 1,
+          0,
+          extension
+        );
       }
     }
     return hasChanged ? extensions : void 0;
@@ -663,29 +1017,43 @@ let ExtensionsListView = class extends ViewPane {
     const text = query.value;
     if (!text) {
       options.source = "viewlet";
-      const pager2 = await this.extensionsWorkbenchService.queryGallery(options, token);
+      const pager2 = await this.extensionsWorkbenchService.queryGallery(
+        options,
+        token
+      );
       return new PagedModel(pager2);
     }
     if (/\bext:([^\s]+)\b/g.test(text)) {
       options.text = text;
       options.source = "file-extension-tags";
-      const pager2 = await this.extensionsWorkbenchService.queryGallery(options, token);
+      const pager2 = await this.extensionsWorkbenchService.queryGallery(
+        options,
+        token
+      );
       return new PagedModel(pager2);
     }
     options.text = text.substring(0, 350);
     options.source = "searchText";
     if (hasUserDefinedSortOrder || /\b(category|tag):([^\s]+)\b/gi.test(text) || /\bfeatured(\s+|\b|$)/gi.test(text)) {
-      const pager2 = await this.extensionsWorkbenchService.queryGallery(options, token);
+      const pager2 = await this.extensionsWorkbenchService.queryGallery(
+        options,
+        token
+      );
       return new PagedModel(pager2);
     }
     const [pager, preferredExtensions] = await Promise.all([
       this.extensionsWorkbenchService.queryGallery(options, token),
-      this.getPreferredExtensions(options.text.toLowerCase(), token).catch(() => [])
+      this.getPreferredExtensions(
+        options.text.toLowerCase(),
+        token
+      ).catch(() => [])
     ]);
     return preferredExtensions.length ? new PreferredExtensionsPagedModel(preferredExtensions, pager) : new PagedModel(pager);
   }
   async getPreferredExtensions(searchText, token) {
-    const preferredExtensions = this.extensionsWorkbenchService.local.filter((e) => !e.isBuiltin && (e.name.toLowerCase().indexOf(searchText) > -1 || e.displayName.toLowerCase().indexOf(searchText) > -1 || e.description.toLowerCase().indexOf(searchText) > -1));
+    const preferredExtensions = this.extensionsWorkbenchService.local.filter(
+      (e) => !e.isBuiltin && (e.name.toLowerCase().indexOf(searchText) > -1 || e.displayName.toLowerCase().indexOf(searchText) > -1 || e.description.toLowerCase().indexOf(searchText) > -1)
+    );
     const preferredExtensionUUIDs = /* @__PURE__ */ new Set();
     if (preferredExtensions.length) {
       const extesionsToFetch = [];
@@ -716,7 +1084,10 @@ let ExtensionsListView = class extends ViewPane {
         }
       }
       if (preferredResults.length) {
-        const result = await this.extensionsWorkbenchService.getExtensions(preferredResults.map((id) => ({ id })), token);
+        const result = await this.extensionsWorkbenchService.getExtensions(
+          preferredResults.map((id) => ({ id })),
+          token
+        );
         for (const extension of result) {
           if (extension.identifier.uuid && !preferredExtensionUUIDs.has(extension.identifier.uuid)) {
             preferredExtensions.push(extension);
@@ -724,24 +1095,35 @@ let ExtensionsListView = class extends ViewPane {
         }
       }
     } catch (e) {
-      this.logService.warn("Failed to get preferred results from the extensions control manifest.", e);
+      this.logService.warn(
+        "Failed to get preferred results from the extensions control manifest.",
+        e
+      );
     }
     return preferredExtensions;
   }
   sortExtensions(extensions, options) {
     switch (options.sortBy) {
       case GallerySortBy.InstallCount:
-        extensions = extensions.sort((e1, e2) => typeof e2.installCount === "number" && typeof e1.installCount === "number" ? e2.installCount - e1.installCount : NaN);
+        extensions = extensions.sort(
+          (e1, e2) => typeof e2.installCount === "number" && typeof e1.installCount === "number" ? e2.installCount - e1.installCount : Number.NaN
+        );
         break;
       case "UpdateDate" /* UpdateDate */:
-        extensions = extensions.sort((e1, e2) => typeof e2.local?.installedTimestamp === "number" && typeof e1.local?.installedTimestamp === "number" ? e2.local.installedTimestamp - e1.local.installedTimestamp : typeof e2.local?.installedTimestamp === "number" ? 1 : typeof e1.local?.installedTimestamp === "number" ? -1 : NaN);
+        extensions = extensions.sort(
+          (e1, e2) => typeof e2.local?.installedTimestamp === "number" && typeof e1.local?.installedTimestamp === "number" ? e2.local.installedTimestamp - e1.local.installedTimestamp : typeof e2.local?.installedTimestamp === "number" ? 1 : typeof e1.local?.installedTimestamp === "number" ? -1 : Number.NaN
+        );
         break;
       case GallerySortBy.AverageRating:
       case GallerySortBy.WeightedRating:
-        extensions = extensions.sort((e1, e2) => typeof e2.rating === "number" && typeof e1.rating === "number" ? e2.rating - e1.rating : NaN);
+        extensions = extensions.sort(
+          (e1, e2) => typeof e2.rating === "number" && typeof e1.rating === "number" ? e2.rating - e1.rating : Number.NaN
+        );
         break;
       default:
-        extensions = extensions.sort((e1, e2) => e1.displayName.localeCompare(e2.displayName));
+        extensions = extensions.sort(
+          (e1, e2) => e1.displayName.localeCompare(e2.displayName)
+        );
         break;
     }
     if (options.sortOrder === SortOrder.Descending) {
@@ -750,10 +1132,22 @@ let ExtensionsListView = class extends ViewPane {
     return extensions;
   }
   isRecommendationsQuery(query) {
-    return ExtensionsListView.isWorkspaceRecommendedExtensionsQuery(query.value) || ExtensionsListView.isKeymapsRecommendedExtensionsQuery(query.value) || ExtensionsListView.isLanguageRecommendedExtensionsQuery(query.value) || ExtensionsListView.isExeRecommendedExtensionsQuery(query.value) || ExtensionsListView.isRemoteRecommendedExtensionsQuery(query.value) || /@recommended:all/i.test(query.value) || ExtensionsListView.isSearchRecommendedExtensionsQuery(query.value) || ExtensionsListView.isRecommendedExtensionsQuery(query.value);
+    return ExtensionsListView.isWorkspaceRecommendedExtensionsQuery(
+      query.value
+    ) || ExtensionsListView.isKeymapsRecommendedExtensionsQuery(
+      query.value
+    ) || ExtensionsListView.isLanguageRecommendedExtensionsQuery(
+      query.value
+    ) || ExtensionsListView.isExeRecommendedExtensionsQuery(query.value) || ExtensionsListView.isRemoteRecommendedExtensionsQuery(
+      query.value
+    ) || /@recommended:all/i.test(query.value) || ExtensionsListView.isSearchRecommendedExtensionsQuery(
+      query.value
+    ) || ExtensionsListView.isRecommendedExtensionsQuery(query.value);
   }
   async queryRecommendations(query, options, token) {
-    if (ExtensionsListView.isWorkspaceRecommendedExtensionsQuery(query.value)) {
+    if (ExtensionsListView.isWorkspaceRecommendedExtensionsQuery(
+      query.value
+    )) {
       return this.getWorkspaceRecommendationsModel(query, options, token);
     }
     if (ExtensionsListView.isKeymapsRecommendedExtensionsQuery(query.value)) {
@@ -771,7 +1165,9 @@ let ExtensionsListView = class extends ViewPane {
     if (/@recommended:all/i.test(query.value)) {
       return this.getAllRecommendationsModel(options, token);
     }
-    if (ExtensionsListView.isSearchRecommendedExtensionsQuery(query.value) || ExtensionsListView.isRecommendedExtensionsQuery(query.value) && options.sortBy !== void 0) {
+    if (ExtensionsListView.isSearchRecommendedExtensionsQuery(
+      query.value
+    ) || ExtensionsListView.isRecommendedExtensionsQuery(query.value) && options.sortBy !== void 0) {
       return this.searchRecommendations(query, options, token);
     }
     if (ExtensionsListView.isRecommendedExtensionsQuery(query.value)) {
@@ -793,9 +1189,15 @@ let ExtensionsListView = class extends ViewPane {
       }
       if (galleryExtensions.length) {
         try {
-          const extensions = await this.extensionsWorkbenchService.getExtensions(galleryExtensions.map((id) => ({ id })), { source: options.source }, token);
+          const extensions = await this.extensionsWorkbenchService.getExtensions(
+            galleryExtensions.map((id) => ({ id })),
+            { source: options.source },
+            token
+          );
           for (const extension of extensions) {
-            if (extension.gallery && !extension.deprecationInfo && await this.extensionManagementService.canInstall(extension.gallery) === true) {
+            if (extension.gallery && !extension.deprecationInfo && await this.extensionManagementService.canInstall(
+              extension.gallery
+            ) === true) {
               result.push(extension);
             }
           }
@@ -806,9 +1208,14 @@ let ExtensionsListView = class extends ViewPane {
         }
       }
       if (resourceExtensions.length) {
-        const extensions = await this.extensionsWorkbenchService.getResourceExtensions(resourceExtensions, true);
+        const extensions = await this.extensionsWorkbenchService.getResourceExtensions(
+          resourceExtensions,
+          true
+        );
         for (const extension of extensions) {
-          if (await this.extensionsWorkbenchService.canInstall(extension) === true) {
+          if (await this.extensionsWorkbenchService.canInstall(
+            extension
+          ) === true) {
             result.push(extension);
           }
         }
@@ -820,7 +1227,9 @@ let ExtensionsListView = class extends ViewPane {
     const recommendations = await this.extensionRecommendationsService.getWorkspaceRecommendations();
     const { important } = await this.extensionRecommendationsService.getConfigBasedRecommendations();
     for (const configBasedRecommendation of important) {
-      if (!recommendations.find((extensionId) => extensionId === configBasedRecommendation)) {
+      if (!recommendations.find(
+        (extensionId) => extensionId === configBasedRecommendation
+      )) {
         recommendations.push(configBasedRecommendation);
       }
     }
@@ -828,42 +1237,88 @@ let ExtensionsListView = class extends ViewPane {
   }
   async getWorkspaceRecommendationsModel(query, options, token) {
     const recommendations = await this.getWorkspaceRecommendations();
-    const installableRecommendations = await this.getInstallableRecommendations(recommendations, { ...options, source: "recommendations-workspace" }, token);
+    const installableRecommendations = await this.getInstallableRecommendations(
+      recommendations,
+      { ...options, source: "recommendations-workspace" },
+      token
+    );
     return new PagedModel(installableRecommendations);
   }
   async getKeymapRecommendationsModel(query, options, token) {
     const value = query.value.replace(/@recommended:keymaps/g, "").trim().toLowerCase();
     const recommendations = this.extensionRecommendationsService.getKeymapRecommendations();
-    const installableRecommendations = (await this.getInstallableRecommendations(recommendations, { ...options, source: "recommendations-keymaps" }, token)).filter((extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1);
+    const installableRecommendations = (await this.getInstallableRecommendations(
+      recommendations,
+      { ...options, source: "recommendations-keymaps" },
+      token
+    )).filter(
+      (extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1
+    );
     return new PagedModel(installableRecommendations);
   }
   async getLanguageRecommendationsModel(query, options, token) {
     const value = query.value.replace(/@recommended:languages/g, "").trim().toLowerCase();
     const recommendations = this.extensionRecommendationsService.getLanguageRecommendations();
-    const installableRecommendations = (await this.getInstallableRecommendations(recommendations, { ...options, source: "recommendations-languages" }, token)).filter((extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1);
+    const installableRecommendations = (await this.getInstallableRecommendations(
+      recommendations,
+      { ...options, source: "recommendations-languages" },
+      token
+    )).filter(
+      (extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1
+    );
     return new PagedModel(installableRecommendations);
   }
   async getRemoteRecommendationsModel(query, options, token) {
     const value = query.value.replace(/@recommended:remotes/g, "").trim().toLowerCase();
     const recommendations = this.extensionRecommendationsService.getRemoteRecommendations();
-    const installableRecommendations = (await this.getInstallableRecommendations(recommendations, { ...options, source: "recommendations-remotes" }, token)).filter((extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1);
+    const installableRecommendations = (await this.getInstallableRecommendations(
+      recommendations,
+      { ...options, source: "recommendations-remotes" },
+      token
+    )).filter(
+      (extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1
+    );
     return new PagedModel(installableRecommendations);
   }
   async getExeRecommendationsModel(query, options, token) {
     const exe = query.value.replace(/@exe:/g, "").trim().toLowerCase();
-    const { important, others } = await this.extensionRecommendationsService.getExeBasedRecommendations(exe.startsWith('"') ? exe.substring(1, exe.length - 1) : exe);
-    const installableRecommendations = await this.getInstallableRecommendations([...important, ...others], { ...options, source: "recommendations-exe" }, token);
+    const { important, others } = await this.extensionRecommendationsService.getExeBasedRecommendations(
+      exe.startsWith('"') ? exe.substring(1, exe.length - 1) : exe
+    );
+    const installableRecommendations = await this.getInstallableRecommendations(
+      [...important, ...others],
+      { ...options, source: "recommendations-exe" },
+      token
+    );
     return new PagedModel(installableRecommendations);
   }
   async getOtherRecommendationsModel(query, options, token) {
     const otherRecommendations = await this.getOtherRecommendations();
-    const installableRecommendations = await this.getInstallableRecommendations(otherRecommendations, { ...options, source: "recommendations-other", sortBy: void 0 }, token);
-    const result = coalesce(otherRecommendations.map((id) => installableRecommendations.find((i) => areSameExtensions(i.identifier, { id }))));
+    const installableRecommendations = await this.getInstallableRecommendations(
+      otherRecommendations,
+      {
+        ...options,
+        source: "recommendations-other",
+        sortBy: void 0
+      },
+      token
+    );
+    const result = coalesce(
+      otherRecommendations.map(
+        (id) => installableRecommendations.find(
+          (i) => areSameExtensions(i.identifier, { id })
+        )
+      )
+    );
     return new PagedModel(result);
   }
   async getOtherRecommendations() {
-    const local = (await this.extensionsWorkbenchService.queryLocal(this.options.server)).map((e) => e.identifier.id.toLowerCase());
-    const workspaceRecommendations = (await this.getWorkspaceRecommendations()).map((extensionId) => isString(extensionId) ? extensionId.toLowerCase() : extensionId);
+    const local = (await this.extensionsWorkbenchService.queryLocal(
+      this.options.server
+    )).map((e) => e.identifier.id.toLowerCase());
+    const workspaceRecommendations = (await this.getWorkspaceRecommendations()).map(
+      (extensionId) => isString(extensionId) ? extensionId.toLowerCase() : extensionId
+    );
     return distinct(
       (await Promise.all([
         // Order is important
@@ -871,15 +1326,21 @@ let ExtensionsListView = class extends ViewPane {
         this.extensionRecommendationsService.getFileBasedRecommendations(),
         this.extensionRecommendationsService.getOtherRecommendations()
       ])).flat().filter(
-        (extensionId) => !local.includes(extensionId.toLowerCase()) && !workspaceRecommendations.includes(extensionId.toLowerCase())
+        (extensionId) => !local.includes(extensionId.toLowerCase()) && !workspaceRecommendations.includes(
+          extensionId.toLowerCase()
+        )
       ),
       (extensionId) => extensionId.toLowerCase()
     );
   }
   // Get All types of recommendations, trimmed to show a max of 8 at any given time
   async getAllRecommendationsModel(options, token) {
-    const localExtensions = await this.extensionsWorkbenchService.queryLocal(this.options.server);
-    const localExtensionIds = localExtensions.map((e) => e.identifier.id.toLowerCase());
+    const localExtensions = await this.extensionsWorkbenchService.queryLocal(
+      this.options.server
+    );
+    const localExtensionIds = localExtensions.map(
+      (e) => e.identifier.id.toLowerCase()
+    );
     const allRecommendations = distinct(
       (await Promise.all([
         // Order is important
@@ -889,22 +1350,46 @@ let ExtensionsListView = class extends ViewPane {
         this.extensionRecommendationsService.getOtherRecommendations()
       ])).flat().filter((extensionId) => {
         if (isString(extensionId)) {
-          return !localExtensionIds.includes(extensionId.toLowerCase());
+          return !localExtensionIds.includes(
+            extensionId.toLowerCase()
+          );
         }
-        return !localExtensions.some((localExtension) => localExtension.local && this.uriIdentityService.extUri.isEqual(localExtension.local.location, extensionId));
+        return !localExtensions.some(
+          (localExtension) => localExtension.local && this.uriIdentityService.extUri.isEqual(
+            localExtension.local.location,
+            extensionId
+          )
+        );
       })
     );
-    const installableRecommendations = await this.getInstallableRecommendations(allRecommendations, { ...options, source: "recommendations-all", sortBy: void 0 }, token);
+    const installableRecommendations = await this.getInstallableRecommendations(
+      allRecommendations,
+      {
+        ...options,
+        source: "recommendations-all",
+        sortBy: void 0
+      },
+      token
+    );
     const result = [];
     for (let i = 0; i < installableRecommendations.length && result.length < 8; i++) {
       const recommendation = allRecommendations[i];
       if (isString(recommendation)) {
-        const extension = installableRecommendations.find((extension2) => areSameExtensions(extension2.identifier, { id: recommendation }));
+        const extension = installableRecommendations.find(
+          (extension2) => areSameExtensions(extension2.identifier, {
+            id: recommendation
+          })
+        );
         if (extension) {
           result.push(extension);
         }
       } else {
-        const extension = installableRecommendations.find((extension2) => extension2.resourceExtension && this.uriIdentityService.extUri.isEqual(extension2.resourceExtension.location, recommendation));
+        const extension = installableRecommendations.find(
+          (extension2) => extension2.resourceExtension && this.uriIdentityService.extUri.isEqual(
+            extension2.resourceExtension.location,
+            recommendation
+          )
+        );
         if (extension) {
           result.push(extension);
         }
@@ -914,9 +1399,20 @@ let ExtensionsListView = class extends ViewPane {
   }
   async searchRecommendations(query, options, token) {
     const value = query.value.replace(/@recommended/g, "").trim().toLowerCase();
-    const recommendations = distinct([...await this.getWorkspaceRecommendations(), ...await this.getOtherRecommendations()]);
-    const installableRecommendations = (await this.getInstallableRecommendations(recommendations, { ...options, source: "recommendations", sortBy: void 0 }, token)).filter((extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1);
-    return new PagedModel(this.sortExtensions(installableRecommendations, options));
+    const recommendations = distinct([
+      ...await this.getWorkspaceRecommendations(),
+      ...await this.getOtherRecommendations()
+    ]);
+    const installableRecommendations = (await this.getInstallableRecommendations(
+      recommendations,
+      { ...options, source: "recommendations", sortBy: void 0 },
+      token
+    )).filter(
+      (extension) => extension.identifier.id.toLowerCase().indexOf(value) > -1
+    );
+    return new PagedModel(
+      this.sortExtensions(installableRecommendations, options)
+    );
   }
   setModel(model, message, donotResetScrollTop) {
     if (this.list) {
@@ -942,15 +1438,24 @@ let ExtensionsListView = class extends ViewPane {
   updateBody(message) {
     if (this.bodyTemplate) {
       const count = this.count();
-      this.bodyTemplate.extensionsList.classList.toggle("hidden", count === 0);
-      this.bodyTemplate.messageContainer.classList.toggle("hidden", !message && count > 0);
+      this.bodyTemplate.extensionsList.classList.toggle(
+        "hidden",
+        count === 0
+      );
+      this.bodyTemplate.messageContainer.classList.toggle(
+        "hidden",
+        !message && count > 0
+      );
       if (this.isBodyVisible()) {
         if (message) {
           this.bodyTemplate.messageSeverityIcon.className = SeverityIcon.className(message.severity);
           this.bodyTemplate.messageBox.textContent = message.text;
         } else if (this.count() === 0) {
           this.bodyTemplate.messageSeverityIcon.className = "";
-          this.bodyTemplate.messageBox.textContent = localize("no extensions found", "No extensions found.");
+          this.bodyTemplate.messageBox.textContent = localize(
+            "no extensions found",
+            "No extensions found."
+          );
         }
         if (this.bodyTemplate.messageBox.textContent) {
           alert(this.bodyTemplate.messageBox.textContent);
@@ -961,9 +1466,22 @@ let ExtensionsListView = class extends ViewPane {
   }
   getMessage(error) {
     if (this.isOfflineError(error)) {
-      return { text: localize("offline error", "Unable to search the Marketplace when offline, please check your network connection."), severity: Severity.Warning };
+      return {
+        text: localize(
+          "offline error",
+          "Unable to search the Marketplace when offline, please check your network connection."
+        ),
+        severity: Severity.Warning
+      };
     } else {
-      return { text: localize("error", "Error while fetching extensions. {0}", getErrorMessage(error)), severity: Severity.Error };
+      return {
+        text: localize(
+          "error",
+          "Error while fetching extensions. {0}",
+          getErrorMessage(error)
+        ),
+        severity: Severity.Error
+      };
     }
   }
   isOfflineError(error) {
@@ -975,22 +1493,41 @@ let ExtensionsListView = class extends ViewPane {
   updateSize() {
     if (this.options.flexibleHeight) {
       this.maximumBodySize = this.list?.model.length ? Number.POSITIVE_INFINITY : 0;
-      this.storageService.store(`${this.id}.size`, this.list?.model.length || 0, StorageScope.PROFILE, StorageTarget.MACHINE);
+      this.storageService.store(
+        `${this.id}.size`,
+        this.list?.model.length || 0,
+        StorageScope.PROFILE,
+        StorageTarget.MACHINE
+      );
     }
   }
   openExtension(extension, options) {
-    extension = this.extensionsWorkbenchService.local.filter((e) => areSameExtensions(e.identifier, extension.identifier))[0] || extension;
+    extension = this.extensionsWorkbenchService.local.filter(
+      (e) => areSameExtensions(e.identifier, extension.identifier)
+    )[0] || extension;
     this.extensionsWorkbenchService.open(extension, options).then(void 0, (err) => this.onError(err));
   }
   onError(err) {
     if (isCancellationError(err)) {
       return;
     }
-    const message = err && err.message || "";
+    const message = err?.message || "";
     if (/ECONNREFUSED/.test(message)) {
-      const error = createErrorWithActions(localize("suggestProxyError", "Marketplace returned 'ECONNREFUSED'. Please check the 'http.proxy' setting."), [
-        new Action("open user settings", localize("open user settings", "Open User Settings"), void 0, true, () => this.preferencesService.openUserSettings())
-      ]);
+      const error = createErrorWithActions(
+        localize(
+          "suggestProxyError",
+          "Marketplace returned 'ECONNREFUSED'. Please check the 'http.proxy' setting."
+        ),
+        [
+          new Action(
+            "open user settings",
+            localize("open user settings", "Open User Settings"),
+            void 0,
+            true,
+            () => this.preferencesService.openUserSettings()
+          )
+        ]
+      );
       this.notificationService.error(error);
       return;
     }
@@ -1009,7 +1546,9 @@ let ExtensionsListView = class extends ViewPane {
     this.list = null;
   }
   static isLocalExtensionsQuery(query, sortBy) {
-    return this.isInstalledExtensionsQuery(query) || this.isSearchInstalledExtensionsQuery(query) || this.isOutdatedExtensionsQuery(query) || this.isEnabledExtensionsQuery(query) || this.isDisabledExtensionsQuery(query) || this.isBuiltInExtensionsQuery(query) || this.isSearchBuiltInExtensionsQuery(query) || this.isBuiltInGroupExtensionsQuery(query) || this.isSearchDeprecatedExtensionsQuery(query) || this.isSearchWorkspaceUnsupportedExtensionsQuery(query) || this.isSearchRecentlyUpdatedQuery(query) || this.isSearchExtensionUpdatesQuery(query) || this.isSortInstalledExtensionsQuery(query, sortBy) || this.isFeatureExtensionsQuery(query);
+    return ExtensionsListView.isInstalledExtensionsQuery(query) || ExtensionsListView.isSearchInstalledExtensionsQuery(query) || ExtensionsListView.isOutdatedExtensionsQuery(query) || ExtensionsListView.isEnabledExtensionsQuery(query) || ExtensionsListView.isDisabledExtensionsQuery(query) || ExtensionsListView.isBuiltInExtensionsQuery(query) || ExtensionsListView.isSearchBuiltInExtensionsQuery(query) || ExtensionsListView.isBuiltInGroupExtensionsQuery(query) || ExtensionsListView.isSearchDeprecatedExtensionsQuery(query) || ExtensionsListView.isSearchWorkspaceUnsupportedExtensionsQuery(
+      query
+    ) || ExtensionsListView.isSearchRecentlyUpdatedQuery(query) || ExtensionsListView.isSearchExtensionUpdatesQuery(query) || ExtensionsListView.isSortInstalledExtensionsQuery(query, sortBy) || ExtensionsListView.isFeatureExtensionsQuery(query);
   }
   static isSearchBuiltInExtensionsQuery(query) {
     return /@builtin\s.+/i.test(query);
@@ -1021,13 +1560,15 @@ let ExtensionsListView = class extends ViewPane {
     return /^\s*@builtin:.+$/i.test(query.trim());
   }
   static isSearchWorkspaceUnsupportedExtensionsQuery(query) {
-    return /^\s*@workspaceUnsupported(:(untrusted|virtual)(Partial)?)?(\s|$)/i.test(query);
+    return /^\s*@workspaceUnsupported(:(untrusted|virtual)(Partial)?)?(\s|$)/i.test(
+      query
+    );
   }
   static isInstalledExtensionsQuery(query) {
     return /@installed$/i.test(query);
   }
   static isSearchInstalledExtensionsQuery(query) {
-    return /@installed\s./i.test(query) || this.isFeatureExtensionsQuery(query);
+    return /@installed\s./i.test(query) || ExtensionsListView.isFeatureExtensionsQuery(query);
   }
   static isOutdatedExtensionsQuery(query) {
     return /@outdated/i.test(query);
@@ -1151,7 +1692,7 @@ class EnabledExtensionsView extends ExtensionsListView {
   }
   async show(query) {
     query = query || "@enabled";
-    return ExtensionsListView.isEnabledExtensionsQuery(query) ? super.show(query) : ExtensionsListView.isSortInstalledExtensionsQuery(query) ? super.show("@enabled " + query) : this.showEmptyModel();
+    return ExtensionsListView.isEnabledExtensionsQuery(query) ? super.show(query) : ExtensionsListView.isSortInstalledExtensionsQuery(query) ? super.show(`@enabled ${query}`) : this.showEmptyModel();
   }
 }
 class DisabledExtensionsView extends ExtensionsListView {
@@ -1160,7 +1701,7 @@ class DisabledExtensionsView extends ExtensionsListView {
   }
   async show(query) {
     query = query || "@disabled";
-    return ExtensionsListView.isDisabledExtensionsQuery(query) ? super.show(query) : ExtensionsListView.isSortInstalledExtensionsQuery(query) ? super.show("@disabled " + query) : this.showEmptyModel();
+    return ExtensionsListView.isDisabledExtensionsQuery(query) ? super.show(query) : ExtensionsListView.isSortInstalledExtensionsQuery(query) ? super.show(`@disabled ${query}`) : this.showEmptyModel();
   }
 }
 class OutdatedExtensionsView extends ExtensionsListView {
@@ -1266,12 +1807,17 @@ StaticQueryExtensionsView = __decorateClass([
 ], StaticQueryExtensionsView);
 function toSpecificWorkspaceUnsupportedQuery(query, qualifier) {
   if (!query) {
-    return "@workspaceUnsupported:" + qualifier;
+    return `@workspaceUnsupported:${qualifier}`;
   }
-  const match = query.match(new RegExp(`@workspaceUnsupported(:${qualifier})?(\\s|$)`, "i"));
+  const match = query.match(
+    new RegExp(`@workspaceUnsupported(:${qualifier})?(\\s|$)`, "i")
+  );
   if (match) {
     if (!match[1]) {
-      return query.replace(/@workspaceUnsupported/gi, "@workspaceUnsupported:" + qualifier);
+      return query.replace(
+        /@workspaceUnsupported/gi,
+        `@workspaceUnsupported:${qualifier}`
+      );
     }
     return query;
   }
@@ -1283,7 +1829,10 @@ class UntrustedWorkspaceUnsupportedExtensionsView extends ExtensionsListView {
     __name(this, "UntrustedWorkspaceUnsupportedExtensionsView");
   }
   async show(query) {
-    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(query, "untrusted");
+    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(
+      query,
+      "untrusted"
+    );
     return updatedQuery ? super.show(updatedQuery) : this.showEmptyModel();
   }
 }
@@ -1292,7 +1841,10 @@ class UntrustedWorkspacePartiallySupportedExtensionsView extends ExtensionsListV
     __name(this, "UntrustedWorkspacePartiallySupportedExtensionsView");
   }
   async show(query) {
-    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(query, "untrustedPartial");
+    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(
+      query,
+      "untrustedPartial"
+    );
     return updatedQuery ? super.show(updatedQuery) : this.showEmptyModel();
   }
 }
@@ -1301,7 +1853,10 @@ class VirtualWorkspaceUnsupportedExtensionsView extends ExtensionsListView {
     __name(this, "VirtualWorkspaceUnsupportedExtensionsView");
   }
   async show(query) {
-    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(query, "virtual");
+    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(
+      query,
+      "virtual"
+    );
     return updatedQuery ? super.show(updatedQuery) : this.showEmptyModel();
   }
 }
@@ -1310,7 +1865,10 @@ class VirtualWorkspacePartiallySupportedExtensionsView extends ExtensionsListVie
     __name(this, "VirtualWorkspacePartiallySupportedExtensionsView");
   }
   async show(query) {
-    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(query, "virtualPartial");
+    const updatedQuery = toSpecificWorkspaceUnsupportedQuery(
+      query,
+      "virtualPartial"
+    );
     return updatedQuery ? super.show(updatedQuery) : this.showEmptyModel();
   }
 }
@@ -1326,17 +1884,23 @@ class SearchMarketplaceExtensionsView extends ExtensionsListView {
   static {
     __name(this, "SearchMarketplaceExtensionsView");
   }
-  reportSearchFinishedDelayer = this._register(new ThrottledDelayer(2e3));
+  reportSearchFinishedDelayer = this._register(
+    new ThrottledDelayer(2e3)
+  );
   searchWaitPromise = Promise.resolve();
   async show(query) {
     const queryPromise = super.show(query);
-    this.reportSearchFinishedDelayer.trigger(() => this.reportSearchFinished());
+    this.reportSearchFinishedDelayer.trigger(
+      () => this.reportSearchFinished()
+    );
     this.searchWaitPromise = queryPromise.then(null, null);
     return queryPromise;
   }
   async reportSearchFinished() {
     await this.searchWaitPromise;
-    this.telemetryService.publicLog2("extensionsView:MarketplaceSearchFinished");
+    this.telemetryService.publicLog2(
+      "extensionsView:MarketplaceSearchFinished"
+    );
   }
 }
 class DefaultRecommendedExtensionsView extends ExtensionsListView {
@@ -1346,9 +1910,13 @@ class DefaultRecommendedExtensionsView extends ExtensionsListView {
   recommendedExtensionsQuery = "@recommended:all";
   renderBody(container) {
     super.renderBody(container);
-    this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => {
-      this.show("");
-    }));
+    this._register(
+      this.extensionRecommendationsService.onDidChangeRecommendations(
+        () => {
+          this.show("");
+        }
+      )
+    );
   }
   async show(query) {
     if (query && query.trim() !== this.recommendedExtensionsQuery) {
@@ -1368,9 +1936,13 @@ class RecommendedExtensionsView extends ExtensionsListView {
   recommendedExtensionsQuery = "@recommended";
   renderBody(container) {
     super.renderBody(container);
-    this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => {
-      this.show("");
-    }));
+    this._register(
+      this.extensionRecommendationsService.onDidChangeRecommendations(
+        () => {
+          this.show("");
+        }
+      )
+    );
   }
   async show(query) {
     return query && query.trim() !== this.recommendedExtensionsQuery ? this.showEmptyModel() : super.show(this.recommendedExtensionsQuery);
@@ -1383,8 +1955,16 @@ class WorkspaceRecommendedExtensionsView extends ExtensionsListView {
   recommendedExtensionsQuery = "@recommended:workspace";
   renderBody(container) {
     super.renderBody(container);
-    this._register(this.extensionRecommendationsService.onDidChangeRecommendations(() => this.show(this.recommendedExtensionsQuery)));
-    this._register(this.contextService.onDidChangeWorkbenchState(() => this.show(this.recommendedExtensionsQuery)));
+    this._register(
+      this.extensionRecommendationsService.onDidChangeRecommendations(
+        () => this.show(this.recommendedExtensionsQuery)
+      )
+    );
+    this._register(
+      this.contextService.onDidChangeWorkbenchState(
+        () => this.show(this.recommendedExtensionsQuery)
+      )
+    );
   }
   async show(query) {
     const shouldShowEmptyView = query && query.trim() !== "@recommended" && query.trim() !== "@recommended:workspace";
@@ -1393,9 +1973,25 @@ class WorkspaceRecommendedExtensionsView extends ExtensionsListView {
     return model;
   }
   async getInstallableWorkspaceRecommendations() {
-    const installed = (await this.extensionsWorkbenchService.queryLocal()).filter((l) => l.enablementState !== EnablementState.DisabledByExtensionKind);
-    const recommendations = (await this.getWorkspaceRecommendations()).filter((recommendation) => installed.every((local) => isString(recommendation) ? !areSameExtensions({ id: recommendation }, local.identifier) : !this.uriIdentityService.extUri.isEqual(recommendation, local.local?.location)));
-    return this.getInstallableRecommendations(recommendations, { source: "install-all-workspace-recommendations" }, CancellationToken.None);
+    const installed = (await this.extensionsWorkbenchService.queryLocal()).filter(
+      (l) => l.enablementState !== EnablementState.DisabledByExtensionKind
+    );
+    const recommendations = (await this.getWorkspaceRecommendations()).filter(
+      (recommendation) => installed.every(
+        (local) => isString(recommendation) ? !areSameExtensions(
+          { id: recommendation },
+          local.identifier
+        ) : !this.uriIdentityService.extUri.isEqual(
+          recommendation,
+          local.local?.location
+        )
+      )
+    );
+    return this.getInstallableRecommendations(
+      recommendations,
+      { source: "install-all-workspace-recommendations" },
+      CancellationToken.None
+    );
   }
   async installWorkspaceRecommendations() {
     const installableRecommendations = await this.getInstallableWorkspaceRecommendations();
@@ -1404,19 +2000,29 @@ class WorkspaceRecommendedExtensionsView extends ExtensionsListView {
       const resourceExtensions = [];
       for (const recommendation of installableRecommendations) {
         if (recommendation.gallery) {
-          galleryExtensions.push({ extension: recommendation.gallery, options: {} });
+          galleryExtensions.push({
+            extension: recommendation.gallery,
+            options: {}
+          });
         } else {
           resourceExtensions.push(recommendation);
         }
       }
       await Promise.all([
-        this.extensionManagementService.installGalleryExtensions(galleryExtensions),
-        ...resourceExtensions.map((extension) => this.extensionsWorkbenchService.install(extension))
+        this.extensionManagementService.installGalleryExtensions(
+          galleryExtensions
+        ),
+        ...resourceExtensions.map(
+          (extension) => this.extensionsWorkbenchService.install(extension)
+        )
       ]);
     } else {
       this.notificationService.notify({
         severity: Severity.Info,
-        message: localize("no local extensions", "There are no extensions to install.")
+        message: localize(
+          "no local extensions",
+          "There are no extensions to install."
+        )
       });
     }
   }
@@ -1425,9 +2031,22 @@ function getAriaLabelForExtension(extension) {
   if (!extension) {
     return "";
   }
-  const publisher = extension.publisherDomain?.verified ? localize("extension.arialabel.verifiedPublisher", "Verified Publisher {0}", extension.publisherDisplayName) : localize("extension.arialabel.publisher", "Publisher {0}", extension.publisherDisplayName);
+  const publisher = extension.publisherDomain?.verified ? localize(
+    "extension.arialabel.verifiedPublisher",
+    "Verified Publisher {0}",
+    extension.publisherDisplayName
+  ) : localize(
+    "extension.arialabel.publisher",
+    "Publisher {0}",
+    extension.publisherDisplayName
+  );
   const deprecated = extension?.deprecationInfo ? localize("extension.arialabel.deprecated", "Deprecated") : "";
-  const rating = extension?.rating ? localize("extension.arialabel.rating", "Rated {0} out of 5 stars by {1} users", extension.rating.toFixed(2), extension.ratingCount) : "";
+  const rating = extension?.rating ? localize(
+    "extension.arialabel.rating",
+    "Rated {0} out of 5 stars by {1} users",
+    extension.rating.toFixed(2),
+    extension.ratingCount
+  ) : "";
   return `${extension.displayName}, ${deprecated ? `${deprecated}, ` : ""}${extension.version}, ${publisher}, ${extension.description} ${rating ? `, ${rating}` : ""}`;
 }
 __name(getAriaLabelForExtension, "getAriaLabelForExtension");
@@ -1478,7 +2097,9 @@ class PreferredExtensionsPagedModel {
     const page = this.pages[pageIndex];
     if (!page.promise) {
       page.cts = new CancellationTokenSource();
-      page.promise = this.pager.getPage(pageIndex, page.cts.token).then((extensions) => this.populateResolvedExtensions(pageIndex, extensions)).catch((e) => {
+      page.promise = this.pager.getPage(pageIndex, page.cts.token).then(
+        (extensions) => this.populateResolvedExtensions(pageIndex, extensions)
+      ).catch((e) => {
         page.promise = null;
         throw e;
       }).finally(() => page.cts = null);
@@ -1509,7 +2130,10 @@ class PreferredExtensionsPagedModel {
         this.resolvedGalleryExtensionsFromQuery.push(e);
         adjustIndexOfNextPagesBy++;
       } else {
-        this.resolved.set(this.preferredExtensions.length - this.resolvedGalleryExtensionsFromQuery.length + pageStartIndex + i, e);
+        this.resolved.set(
+          this.preferredExtensions.length - this.resolvedGalleryExtensionsFromQuery.length + pageStartIndex + i,
+          e
+        );
       }
     }
     if (pageIndex !== 0 && adjustIndexOfNextPagesBy) {

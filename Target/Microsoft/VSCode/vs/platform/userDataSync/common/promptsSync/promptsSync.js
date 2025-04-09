@@ -10,23 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { Event } from "../../../../base/common/event.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
+import { Event } from "../../../../base/common/event.js";
 import { deepClone } from "../../../../base/common/objects.js";
+import { IConfigurationService } from "../../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../../environment/common/environment.js";
+import {
+  FileOperationError,
+  FileOperationResult,
+  IFileService
+} from "../../../files/common/files.js";
 import { isPromptFile } from "../../../prompts/common/constants.js";
 import { IStorageService } from "../../../storage/common/storage.js";
 import { ITelemetryService } from "../../../telemetry/common/telemetry.js";
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { IUriIdentityService } from "../../../uriIdentity/common/uriIdentity.js";
-import { IEnvironmentService } from "../../../environment/common/environment.js";
-import { IUserDataProfile } from "../../../userDataProfile/common/userDataProfile.js";
-import { IConfigurationService } from "../../../configuration/common/configuration.js";
-import { areSame, IMergeResult as IPromptsMergeResult, merge } from "./promptsMerge.js";
-import { AbstractSynchroniser, IAcceptResult, IFileResourcePreview, IMergeResult } from "../abstractSynchronizer.js";
-import { FileOperationError, FileOperationResult, IFileContent, IFileService, IFileStat } from "../../../files/common/files.js";
-import { Change, IRemoteUserData, ISyncData, IUserDataSyncLocalStoreService, IUserDataSynchroniser, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, SyncResource, USER_DATA_SYNC_SCHEME } from "../userDataSync.js";
+import {
+  AbstractSynchroniser
+} from "../abstractSynchronizer.js";
+import {
+  Change,
+  IUserDataSyncEnablementService,
+  IUserDataSyncLocalStoreService,
+  IUserDataSyncLogService,
+  IUserDataSyncStoreService,
+  SyncResource,
+  USER_DATA_SYNC_SCHEME
+} from "../userDataSync.js";
+import {
+  areSame,
+  merge
+} from "./promptsMerge.js";
 function parsePrompts(syncData) {
   return JSON.parse(syncData.content);
 }
@@ -54,23 +67,39 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       uriIdentityService
     );
     this.promptsFolder = profile.promptsHome;
-    this._register(this.fileService.watch(environmentService.userRoamingDataHome));
+    this._register(
+      this.fileService.watch(environmentService.userRoamingDataHome)
+    );
     this._register(this.fileService.watch(this.promptsFolder));
-    this._register(Event.filter(this.fileService.onDidFilesChange, (e) => e.affects(this.promptsFolder))(() => this.triggerLocalChange()));
+    this._register(
+      Event.filter(
+        this.fileService.onDidFilesChange,
+        (e) => e.affects(this.promptsFolder)
+      )(() => this.triggerLocalChange())
+    );
   }
   async generateSyncPreview(remoteUserData, lastSyncUserData, isRemoteDataFromCurrentMachine) {
     const local = await this.getPromptsFileContents();
     const localPrompts = this.toPromptContents(local);
     const remotePrompts = remoteUserData.syncData ? this.parsePrompts(remoteUserData.syncData) : null;
     lastSyncUserData = lastSyncUserData === null && isRemoteDataFromCurrentMachine ? remoteUserData : lastSyncUserData;
-    const lastSyncPrompts = lastSyncUserData && lastSyncUserData.syncData ? this.parsePrompts(lastSyncUserData.syncData) : null;
+    const lastSyncPrompts = lastSyncUserData?.syncData ? this.parsePrompts(lastSyncUserData.syncData) : null;
     if (remotePrompts) {
-      this.logService.trace(`${this.syncResourceLogLabel}: Merging remote prompts with local prompts...`);
+      this.logService.trace(
+        `${this.syncResourceLogLabel}: Merging remote prompts with local prompts...`
+      );
     } else {
-      this.logService.trace(`${this.syncResourceLogLabel}: Remote prompts does not exist. Synchronizing prompts for the first time.`);
+      this.logService.trace(
+        `${this.syncResourceLogLabel}: Remote prompts does not exist. Synchronizing prompts for the first time.`
+      );
     }
     const mergeResult = merge(localPrompts, remotePrompts, lastSyncPrompts);
-    return this.getResourcePreviews(mergeResult, local, remotePrompts || {}, lastSyncPrompts || {});
+    return this.getResourcePreviews(
+      mergeResult,
+      local,
+      remotePrompts || {},
+      lastSyncPrompts || {}
+    );
   }
   async hasRemoteChanged(lastSyncUserData) {
     const lastSync = lastSyncUserData.syncData ? this.parsePrompts(lastSyncUserData.syncData) : null;
@@ -86,14 +115,26 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
     return resourcePreview.previewResult;
   }
   async getAcceptResult(resourcePreview, resource, content, token) {
-    if (this.extUri.isEqualOrParent(resource, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }))) {
+    if (this.extUri.isEqualOrParent(
+      resource,
+      this.syncPreviewFolder.with({
+        scheme: USER_DATA_SYNC_SCHEME,
+        authority: "local"
+      })
+    )) {
       return {
         content: resourcePreview.fileContent ? resourcePreview.fileContent.value.toString() : null,
         localChange: Change.None,
         remoteChange: resourcePreview.fileContent ? resourcePreview.remoteContent !== null ? Change.Modified : Change.Added : Change.Deleted
       };
     }
-    if (this.extUri.isEqualOrParent(resource, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }))) {
+    if (this.extUri.isEqualOrParent(
+      resource,
+      this.syncPreviewFolder.with({
+        scheme: USER_DATA_SYNC_SCHEME,
+        authority: "remote"
+      })
+    )) {
       return {
         content: resourcePreview.remoteContent,
         localChange: resourcePreview.remoteContent !== null ? resourcePreview.fileContent ? Change.Modified : Change.Added : Change.Deleted,
@@ -118,21 +159,40 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
     throw new Error(`Invalid Resource: ${resource.toString()}`);
   }
   async applyResult(remoteUserData, lastSyncUserData, resourcePreviews, force) {
-    const accptedResourcePreviews = resourcePreviews.map(([resourcePreview, acceptResult]) => ({ ...resourcePreview, acceptResult }));
-    if (accptedResourcePreviews.every(({ localChange, remoteChange }) => localChange === Change.None && remoteChange === Change.None)) {
-      this.logService.info(`${this.syncResourceLogLabel}: No changes found during synchronizing prompts.`);
+    const accptedResourcePreviews = resourcePreviews.map(([resourcePreview, acceptResult]) => ({
+      ...resourcePreview,
+      acceptResult
+    }));
+    if (accptedResourcePreviews.every(
+      ({ localChange, remoteChange }) => localChange === Change.None && remoteChange === Change.None
+    )) {
+      this.logService.info(
+        `${this.syncResourceLogLabel}: No changes found during synchronizing prompts.`
+      );
     }
-    if (accptedResourcePreviews.some(({ localChange }) => localChange !== Change.None)) {
+    if (accptedResourcePreviews.some(
+      ({ localChange }) => localChange !== Change.None
+    )) {
       await this.updateLocalBackup(accptedResourcePreviews);
       await this.updateLocalPrompts(accptedResourcePreviews, force);
     }
-    if (accptedResourcePreviews.some(({ remoteChange }) => remoteChange !== Change.None)) {
-      remoteUserData = await this.updateRemotePrompts(accptedResourcePreviews, remoteUserData, force);
+    if (accptedResourcePreviews.some(
+      ({ remoteChange }) => remoteChange !== Change.None
+    )) {
+      remoteUserData = await this.updateRemotePrompts(
+        accptedResourcePreviews,
+        remoteUserData,
+        force
+      );
     }
     if (lastSyncUserData?.ref !== remoteUserData.ref) {
-      this.logService.trace(`${this.syncResourceLogLabel}: Updating last synchronized prompts...`);
+      this.logService.trace(
+        `${this.syncResourceLogLabel}: Updating last synchronized prompts...`
+      );
       await this.updateLastSyncUserData(remoteUserData);
-      this.logService.info(`${this.syncResourceLogLabel}: Updated last synchronized prompts`);
+      this.logService.info(
+        `${this.syncResourceLogLabel}: Updated last synchronized prompts`
+      );
     }
     for (const { previewResource } of accptedResourcePreviews) {
       try {
@@ -154,15 +214,27 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: null,
         fileContent: null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         localContent: null,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: remote[key],
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of Object.keys(mergeResult.local.updated)) {
@@ -176,16 +248,28 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       resourcePreviews.set(key, {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: base[key] ?? null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         fileContent: localFileContent[key],
         localContent,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: remote[key],
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of mergeResult.local.removed) {
@@ -199,16 +283,28 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       resourcePreviews.set(key, {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: base[key] ?? null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         fileContent: localFileContent[key],
         localContent,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: null,
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of Object.keys(mergeResult.remote.added)) {
@@ -222,16 +318,28 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       resourcePreviews.set(key, {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: base[key] ?? null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         fileContent: localFileContent[key],
         localContent,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: null,
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of Object.keys(mergeResult.remote.updated)) {
@@ -245,16 +353,28 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       resourcePreviews.set(key, {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: base[key] ?? null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         fileContent: localFileContent[key],
         localContent,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: remote[key],
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of mergeResult.remote.removed) {
@@ -267,16 +387,28 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       resourcePreviews.set(key, {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: base[key] ?? null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         fileContent: null,
         localContent: null,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: remote[key],
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of mergeResult.conflicts) {
@@ -290,16 +422,28 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       resourcePreviews.set(key, {
         baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
         baseContent: base[key] ?? null,
-        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "local"
+        }),
         fileContent: localFileContent[key] || null,
         localContent,
-        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "remote"
+        }),
         remoteContent: remote[key] || null,
-        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResource: this.extUri.joinPath(
+          this.syncPreviewFolder,
+          key
+        ),
         previewResult,
         localChange: previewResult.localChange,
         remoteChange: previewResult.remoteChange,
-        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+          scheme: USER_DATA_SYNC_SCHEME,
+          authority: "accepted"
+        })
       });
     }
     for (const key of Object.keys(localFileContent)) {
@@ -312,25 +456,64 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
         };
         const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
         resourcePreviews.set(key, {
-          baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+          baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+            scheme: USER_DATA_SYNC_SCHEME,
+            authority: "base"
+          }),
           baseContent: base[key] ?? null,
-          localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+          localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+            scheme: USER_DATA_SYNC_SCHEME,
+            authority: "local"
+          }),
           fileContent: localFileContent[key] || null,
           localContent,
-          remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+          remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+            scheme: USER_DATA_SYNC_SCHEME,
+            authority: "remote"
+          }),
           remoteContent: remote[key] || null,
-          previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+          previewResource: this.extUri.joinPath(
+            this.syncPreviewFolder,
+            key
+          ),
           previewResult,
           localChange: previewResult.localChange,
           remoteChange: previewResult.remoteChange,
-          acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+          acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({
+            scheme: USER_DATA_SYNC_SCHEME,
+            authority: "accepted"
+          })
         });
       }
     }
     return [...resourcePreviews.values()];
   }
   async resolveContent(uri) {
-    if (this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" })) || this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" })) || this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" })) || this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" }))) {
+    if (this.extUri.isEqualOrParent(
+      uri,
+      this.syncPreviewFolder.with({
+        scheme: USER_DATA_SYNC_SCHEME,
+        authority: "remote"
+      })
+    ) || this.extUri.isEqualOrParent(
+      uri,
+      this.syncPreviewFolder.with({
+        scheme: USER_DATA_SYNC_SCHEME,
+        authority: "local"
+      })
+    ) || this.extUri.isEqualOrParent(
+      uri,
+      this.syncPreviewFolder.with({
+        scheme: USER_DATA_SYNC_SCHEME,
+        authority: "base"
+      })
+    ) || this.extUri.isEqualOrParent(
+      uri,
+      this.syncPreviewFolder.with({
+        scheme: USER_DATA_SYNC_SCHEME,
+        authority: "accepted"
+      })
+    )) {
       return this.resolvePreviewContent(uri);
     }
     return null;
@@ -355,22 +538,54 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
     await this.backupLocal(JSON.stringify(this.toPromptContents(local)));
   }
   async updateLocalPrompts(resourcePreviews, force) {
-    for (const { fileContent, acceptResult, localResource, remoteResource, localChange } of resourcePreviews) {
+    for (const {
+      fileContent,
+      acceptResult,
+      localResource,
+      remoteResource,
+      localChange
+    } of resourcePreviews) {
       if (localChange !== Change.None) {
         const key = remoteResource ? this.extUri.basename(remoteResource) : this.extUri.basename(localResource);
         const resource = this.extUri.joinPath(this.promptsFolder, key);
         if (localChange === Change.Deleted) {
-          this.logService.trace(`${this.syncResourceLogLabel}: Deleting prompt...`, this.extUri.basename(resource));
+          this.logService.trace(
+            `${this.syncResourceLogLabel}: Deleting prompt...`,
+            this.extUri.basename(resource)
+          );
           await this.fileService.del(resource);
-          this.logService.info(`${this.syncResourceLogLabel}: Deleted prompt`, this.extUri.basename(resource));
+          this.logService.info(
+            `${this.syncResourceLogLabel}: Deleted prompt`,
+            this.extUri.basename(resource)
+          );
         } else if (localChange === Change.Added) {
-          this.logService.trace(`${this.syncResourceLogLabel}: Creating prompt...`, this.extUri.basename(resource));
-          await this.fileService.createFile(resource, VSBuffer.fromString(acceptResult.content), { overwrite: force });
-          this.logService.info(`${this.syncResourceLogLabel}: Created prompt`, this.extUri.basename(resource));
+          this.logService.trace(
+            `${this.syncResourceLogLabel}: Creating prompt...`,
+            this.extUri.basename(resource)
+          );
+          await this.fileService.createFile(
+            resource,
+            VSBuffer.fromString(acceptResult.content),
+            { overwrite: force }
+          );
+          this.logService.info(
+            `${this.syncResourceLogLabel}: Created prompt`,
+            this.extUri.basename(resource)
+          );
         } else {
-          this.logService.trace(`${this.syncResourceLogLabel}: Updating prompt...`, this.extUri.basename(resource));
-          await this.fileService.writeFile(resource, VSBuffer.fromString(acceptResult.content), force ? void 0 : fileContent);
-          this.logService.info(`${this.syncResourceLogLabel}: Updated prompt`, this.extUri.basename(resource));
+          this.logService.trace(
+            `${this.syncResourceLogLabel}: Updating prompt...`,
+            this.extUri.basename(resource)
+          );
+          await this.fileService.writeFile(
+            resource,
+            VSBuffer.fromString(acceptResult.content),
+            force ? void 0 : fileContent
+          );
+          this.logService.info(
+            `${this.syncResourceLogLabel}: Updated prompt`,
+            this.extUri.basename(resource)
+          );
         }
       }
     }
@@ -378,7 +593,12 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
   async updateRemotePrompts(resourcePreviews, remoteUserData, forcePush) {
     const currentPrompts = remoteUserData.syncData ? this.parsePrompts(remoteUserData.syncData) : {};
     const newPrompts = deepClone(currentPrompts);
-    for (const { acceptResult, localResource, remoteResource, remoteChange } of resourcePreviews) {
+    for (const {
+      acceptResult,
+      localResource,
+      remoteResource,
+      remoteChange
+    } of resourcePreviews) {
       if (remoteChange !== Change.None) {
         const key = localResource ? this.extUri.basename(localResource) : this.extUri.basename(remoteResource);
         if (remoteChange === Change.Deleted) {
@@ -389,9 +609,16 @@ let PromptsSynchronizer = class extends AbstractSynchroniser {
       }
     }
     if (!areSame(currentPrompts, newPrompts)) {
-      this.logService.trace(`${this.syncResourceLogLabel}: Updating remote prompts...`);
-      remoteUserData = await this.updateRemoteUserData(JSON.stringify(newPrompts), forcePush ? null : remoteUserData.ref);
-      this.logService.info(`${this.syncResourceLogLabel}: Updated remote prompts`);
+      this.logService.trace(
+        `${this.syncResourceLogLabel}: Updating remote prompts...`
+      );
+      remoteUserData = await this.updateRemoteUserData(
+        JSON.stringify(newPrompts),
+        forcePush ? null : remoteUserData.ref
+      );
+      this.logService.info(
+        `${this.syncResourceLogLabel}: Updated remote prompts`
+      );
     }
     return remoteUserData;
   }

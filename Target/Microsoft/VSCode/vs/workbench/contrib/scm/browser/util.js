@@ -1,20 +1,23 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ISCMHistoryItem, ISCMHistoryItemRef, SCMHistoryItemLoadMoreTreeElement, SCMHistoryItemViewModelTreeElement } from "../common/history.js";
-import { ISCMResource, ISCMRepository, ISCMResourceGroup, ISCMInput, ISCMActionButton, ISCMViewService, ISCMProvider } from "../common/scm.js";
-import { IMenu, MenuItemAction } from "../../../../platform/actions/common/actions.js";
-import { IActionViewItemProvider } from "../../../../base/browser/ui/actionbar/actionbar.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { Action, IAction } from "../../../../base/common/actions.js";
-import { createActionViewItem, getActionBarActions, getContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { equals } from "../../../../base/common/arrays.js";
-import { ActionViewItem, IBaseActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
-import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
-import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { Command } from "../../../../editor/common/languages.js";
 import { reset } from "../../../../base/browser/dom.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IResourceNode, ResourceTree } from "../../../../base/common/resourceTree.js";
+import {
+  ActionViewItem
+} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { Action } from "../../../../base/common/actions.js";
+import { equals } from "../../../../base/common/arrays.js";
+import {
+  ResourceTree
+} from "../../../../base/common/resourceTree.js";
+import {
+  createActionViewItem,
+  getActionBarActions,
+  getContextMenuActions
+} from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import {
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
 function isSCMViewService(element) {
   return Array.isArray(element.repositories) && Array.isArray(element.visibleRepositories);
 }
@@ -61,7 +64,10 @@ function connectPrimaryMenu(menu, callback, primaryGroup) {
   let cachedPrimary = [];
   let cachedSecondary = [];
   const updateActions = /* @__PURE__ */ __name(() => {
-    const { primary, secondary } = getActionBarActions(menu.getActions({ shouldForwardArgs: true }), primaryGroup);
+    const { primary, secondary } = getActionBarActions(
+      menu.getActions({ shouldForwardArgs: true }),
+      primaryGroup
+    );
     if (equals(cachedPrimary, primary, compareActions) && equals(cachedSecondary, secondary, compareActions)) {
       return;
     }
@@ -74,7 +80,10 @@ function connectPrimaryMenu(menu, callback, primaryGroup) {
 }
 __name(connectPrimaryMenu, "connectPrimaryMenu");
 function collectContextMenuActions(menu) {
-  return getContextMenuActions(menu.getActions({ shouldForwardArgs: true }), "inline").secondary;
+  return getContextMenuActions(
+    menu.getActions({ shouldForwardArgs: true }),
+    "inline"
+  ).secondary;
 }
 __name(collectContextMenuActions, "collectContextMenuActions");
 class StatusBarAction extends Action {
@@ -88,7 +97,10 @@ class StatusBarAction extends Action {
     __name(this, "StatusBarAction");
   }
   run() {
-    return this.commandService.executeCommand(this.command.id, ...this.command.arguments || []);
+    return this.commandService.executeCommand(
+      this.command.id,
+      ...this.command.arguments || []
+    );
   }
 }
 class StatusBarActionViewItem extends ActionViewItem {

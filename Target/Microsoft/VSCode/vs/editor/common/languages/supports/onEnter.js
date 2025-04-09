@@ -2,8 +2,10 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import * as strings from "../../../../base/common/strings.js";
-import { CharacterPair, EnterAction, IndentAction, OnEnterRule } from "../languageConfiguration.js";
 import { EditorAutoIndentStrategy } from "../../config/editorOptions.js";
+import {
+  IndentAction
+} from "../languageConfiguration.js";
 class OnEnterSupport {
   static {
     __name(this, "OnEnterSupport");
@@ -19,8 +21,12 @@ class OnEnterSupport {
     ];
     this._brackets = [];
     opts.brackets.forEach((bracket) => {
-      const openRegExp = OnEnterSupport._createOpenBracketRegExp(bracket[0]);
-      const closeRegExp = OnEnterSupport._createCloseBracketRegExp(bracket[1]);
+      const openRegExp = OnEnterSupport._createOpenBracketRegExp(
+        bracket[0]
+      );
+      const closeRegExp = OnEnterSupport._createCloseBracketRegExp(
+        bracket[1]
+      );
       if (openRegExp && closeRegExp) {
         this._brackets.push({
           open: bracket[0],
@@ -36,16 +42,20 @@ class OnEnterSupport {
     if (autoIndent >= EditorAutoIndentStrategy.Advanced) {
       for (let i = 0, len = this._regExpRules.length; i < len; i++) {
         const rule = this._regExpRules[i];
-        const regResult = [{
-          reg: rule.beforeText,
-          text: beforeEnterText
-        }, {
-          reg: rule.afterText,
-          text: afterEnterText
-        }, {
-          reg: rule.previousLineText,
-          text: previousLineText
-        }].every((obj) => {
+        const regResult = [
+          {
+            reg: rule.beforeText,
+            text: beforeEnterText
+          },
+          {
+            reg: rule.afterText,
+            text: afterEnterText
+          },
+          {
+            reg: rule.previousLineText,
+            text: previousLineText
+          }
+        ].every((obj) => {
           if (!obj.reg) {
             return true;
           }
@@ -82,7 +92,7 @@ class OnEnterSupport {
   static _createOpenBracketRegExp(bracket) {
     let str = strings.escapeRegExpCharacters(bracket);
     if (!/\B/.test(str.charAt(0))) {
-      str = "\\b" + str;
+      str = `\\b${str}`;
     }
     str += "\\s*$";
     return OnEnterSupport._safeRegExp(str);
@@ -90,9 +100,9 @@ class OnEnterSupport {
   static _createCloseBracketRegExp(bracket) {
     let str = strings.escapeRegExpCharacters(bracket);
     if (!/\B/.test(str.charAt(str.length - 1))) {
-      str = str + "\\b";
+      str = `${str}\\b`;
     }
-    str = "^\\s*" + str;
+    str = `^\\s*${str}`;
     return OnEnterSupport._safeRegExp(str);
   }
   static _safeRegExp(def) {

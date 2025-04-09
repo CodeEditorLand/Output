@@ -1,14 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { AccessibleViewProviderId, AccessibleViewType, AccessibleContentProvider } from "../../../../../platform/accessibility/browser/accessibleView.js";
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../../platform/accessibility/browser/accessibleView.js";
+import {
+  IMenuService,
+  MenuItemAction
+} from "../../../../../platform/actions/common/actions.js";
 import { AccessibilityVerbositySettingId } from "../../../accessibility/browser/accessibilityConfiguration.js";
 import { ITerminalService } from "../../../terminal/browser/terminal.js";
+import {
+  MENU_TERMINAL_CHAT_WIDGET_STATUS,
+  TerminalChatContextKeys
+} from "./terminalChat.js";
 import { TerminalChatController } from "./terminalChatController.js";
-import { IAccessibleViewImplementation } from "../../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { ServicesAccessor } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IMenuService, MenuItemAction } from "../../../../../platform/actions/common/actions.js";
-import { MENU_TERMINAL_CHAT_WIDGET_STATUS, TerminalChatContextKeys } from "./terminalChat.js";
-import { IAction } from "../../../../../base/common/actions.js";
 class TerminalInlineChatAccessibleView {
   static {
     __name(this, "TerminalInlineChatAccessibleView");
@@ -23,7 +30,10 @@ class TerminalInlineChatAccessibleView {
     const actions = [];
     const contextKeyService = TerminalChatController.activeChatController?.scopedContextKeyService;
     if (contextKeyService) {
-      const menuActions = menuService.getMenuActions(MENU_TERMINAL_CHAT_WIDGET_STATUS, contextKeyService);
+      const menuActions = menuService.getMenuActions(
+        MENU_TERMINAL_CHAT_WIDGET_STATUS,
+        contextKeyService
+      );
       for (const action of menuActions) {
         for (const a of action[1]) {
           if (a instanceof MenuItemAction) {
@@ -32,7 +42,9 @@ class TerminalInlineChatAccessibleView {
         }
       }
     }
-    const controller = terminalService.activeInstance?.getContribution(TerminalChatController.ID) ?? void 0;
+    const controller = terminalService.activeInstance?.getContribution(
+      TerminalChatController.ID
+    ) ?? void 0;
     if (!controller?.lastResponseContent) {
       return;
     }

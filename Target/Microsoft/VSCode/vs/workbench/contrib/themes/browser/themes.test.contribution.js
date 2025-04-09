@@ -10,27 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IWorkbenchThemeService, IWorkbenchColorTheme } from "../../../services/themes/common/workbenchThemeService.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { EditorResourceAccessor } from "../../../common/editor.js";
-import { ITextMateTokenizationService } from "../../../services/textMate/browser/textMateTokenizationFeature.js";
-import { TokenizationRegistry, TreeSitterTokenizationRegistry } from "../../../../editor/common/languages.js";
-import { TokenMetadata } from "../../../../editor/common/encodedTokenAttributes.js";
-import { ThemeRule, findMatchingThemeRule } from "../../../services/textMate/common/TMHelper.js";
 import { Color } from "../../../../base/common/color.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { basename } from "../../../../base/common/resources.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { splitLines } from "../../../../base/common/strings.js";
-import { ITextModelTreeSitter, ITreeSitterParserService } from "../../../../editor/common/services/treeSitterParserService.js";
-import { ColorThemeData, findMetadata } from "../../../services/themes/common/colorThemeData.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
 import { Event } from "../../../../base/common/event.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { basename } from "../../../../base/common/resources.js";
+import { splitLines } from "../../../../base/common/strings.js";
+import { URI } from "../../../../base/common/uri.js";
 import { Range } from "../../../../editor/common/core/range.js";
+import { TokenMetadata } from "../../../../editor/common/encodedTokenAttributes.js";
+import {
+  TokenizationRegistry,
+  TreeSitterTokenizationRegistry
+} from "../../../../editor/common/languages.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import {
+  ITreeSitterParserService
+} from "../../../../editor/common/services/treeSitterParserService.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { EditorResourceAccessor } from "../../../common/editor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { ITextMateTokenizationService } from "../../../services/textMate/browser/textMateTokenizationFeature.js";
+import {
+  findMatchingThemeRule
+} from "../../../services/textMate/common/TMHelper.js";
+import {
+  findMetadata
+} from "../../../services/themes/common/colorThemeData.js";
+import {
+  IWorkbenchThemeService
+} from "../../../services/themes/common/workbenchThemeService.js";
 class ThemeDocument {
   static {
     __name(this, "ThemeDocument");
@@ -57,19 +70,26 @@ class ThemeDocument {
     if (!matchingRule) {
       const expected2 = Color.fromHex(this._defaultColor);
       if (!color.equals(expected2)) {
-        throw new Error(`[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected default ${Color.Format.CSS.formatHexA(expected2)}`);
+        throw new Error(
+          `[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected default ${Color.Format.CSS.formatHexA(expected2)}`
+        );
       }
       return this._generateExplanation("default", color);
     }
     const expected = Color.fromHex(matchingRule.settings.foreground);
     if (!color.equals(expected)) {
-      throw new Error(`[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected ${Color.Format.CSS.formatHexA(expected)} coming in from ${matchingRule.rawSelector}`);
+      throw new Error(
+        `[${this._theme.label}]: Unexpected color ${Color.Format.CSS.formatHexA(color)} for ${scopes}. Expected ${Color.Format.CSS.formatHexA(expected)} coming in from ${matchingRule.rawSelector}`
+      );
     }
     return this._generateExplanation(matchingRule.rawSelector, color);
   }
   _findMatchingThemeRule(scopes) {
     if (!this._cache[scopes]) {
-      this._cache[scopes] = findMatchingThemeRule(this._theme, scopes.split(" "));
+      this._cache[scopes] = findMatchingThemeRule(
+        this._theme,
+        scopes.split(" ")
+      );
     }
     return this._cache[scopes];
   }
@@ -101,7 +121,7 @@ let Snapper = class {
         const color = TokenMetadata.getForeground(metadata);
         result[resultLen++] = {
           text: tokenText,
-          color: colorMap[color]
+          color: colorMap?.[color]
         };
       }
       state = tokenizationResult.ruleStack;
@@ -115,11 +135,18 @@ let Snapper = class {
     for (let i = 0, len = tokens.length; i < len; i++) {
       const token = tokens[i];
       const scopes = token.t.split(" ");
-      const metadata = findMetadata(colorThemeData, scopes, this.languageService.languageIdCodec.encodeLanguageId(languageId), false);
+      const metadata = findMetadata(
+        colorThemeData,
+        scopes,
+        this.languageService.languageIdCodec.encodeLanguageId(
+          languageId
+        ),
+        false
+      );
       const color = TokenMetadata.getForeground(metadata);
       result[i] = {
         text: token.c,
-        color: colorMap[color]
+        color: colorMap?.[color]
       };
     }
     return result;
@@ -134,7 +161,10 @@ let Snapper = class {
       let lastScopes = null;
       for (let j = 0, lenJ = tokenizationResult.tokens.length; j < lenJ; j++) {
         const token = tokenizationResult.tokens[j];
-        const tokenText = line.substring(token.startIndex, token.endIndex);
+        const tokenText = line.substring(
+          token.startIndex,
+          token.endIndex
+        );
         const tokenScopes = token.scopes.join(" ");
         if (lastScopes === tokenScopes) {
           result[resultLen - 1].c += tokenText;
@@ -169,14 +199,21 @@ let Snapper = class {
     }, "getThemeName");
     const result = {};
     const themeDatas = await this.themeService.getColorThemes();
-    const defaultThemes = themeDatas.filter((themeData) => !!getThemeName(themeData.id));
+    const defaultThemes = themeDatas.filter(
+      (themeData) => !!getThemeName(themeData.id)
+    );
     for (const defaultTheme of defaultThemes) {
       const themeId = defaultTheme.id;
-      const success = await this.themeService.setColorTheme(themeId, void 0);
+      const success = await this.themeService.setColorTheme(
+        themeId,
+        void 0
+      );
       if (success) {
         const themeName = getThemeName(themeId);
         result[themeName] = {
-          document: new ThemeDocument(this.themeService.getColorTheme()),
+          document: new ThemeDocument(
+            this.themeService.getColorTheme()
+          ),
           tokens: this._themedTokenize(grammar, lines)
         };
       }
@@ -196,14 +233,21 @@ let Snapper = class {
     }, "getThemeName");
     const result = {};
     const themeDatas = await this.themeService.getColorThemes();
-    const defaultThemes = themeDatas.filter((themeData) => !!getThemeName(themeData.id));
+    const defaultThemes = themeDatas.filter(
+      (themeData) => !!getThemeName(themeData.id)
+    );
     for (const defaultTheme of defaultThemes) {
       const themeId = defaultTheme.id;
-      const success = await this.themeService.setColorTheme(themeId, void 0);
+      const success = await this.themeService.setColorTheme(
+        themeId,
+        void 0
+      );
       if (success) {
         const themeName = getThemeName(themeId);
         result[themeName] = {
-          document: new ThemeDocument(this.themeService.getColorTheme()),
+          document: new ThemeDocument(
+            this.themeService.getColorTheme()
+          ),
           tokens: this._themedTokenizeTreeSitter(tokens, languageId)
         };
       }
@@ -247,26 +291,55 @@ let Snapper = class {
     let cursorResult = true;
     const tokens = [];
     const tokenizationSupport = TreeSitterTokenizationRegistry.get(languageId);
-    const cursors = [{ cursor, languageId, startOffset: 0, endOffset: textModelTreeSitter.textModel.getValueLength() }];
+    const cursors = [
+      {
+        cursor,
+        languageId,
+        startOffset: 0,
+        endOffset: textModelTreeSitter.textModel.getValueLength()
+      }
+    ];
     do {
       const current = cursors[cursors.length - 1];
       const currentCursor = current.cursor;
       const currentLanguageId = current.languageId;
       const isOutsideRange = currentCursor.currentNode.endIndex > current.endOffset;
       if (!isOutsideRange && currentCursor.currentNode.childCount === 0) {
-        const range = new Range(currentCursor.currentNode.startPosition.row + 1, currentCursor.currentNode.startPosition.column + 1, currentCursor.currentNode.endPosition.row + 1, currentCursor.currentNode.endPosition.column + 1);
-        const injection = textModelTreeSitter.getInjection(currentCursor.currentNode.startIndex, currentLanguageId);
-        const treeSitterRange = injection?.ranges.find((r) => r.startIndex <= currentCursor.currentNode.startIndex && r.endIndex >= currentCursor.currentNode.endIndex);
+        const range = new Range(
+          currentCursor.currentNode.startPosition.row + 1,
+          currentCursor.currentNode.startPosition.column + 1,
+          currentCursor.currentNode.endPosition.row + 1,
+          currentCursor.currentNode.endPosition.column + 1
+        );
+        const injection = textModelTreeSitter.getInjection(
+          currentCursor.currentNode.startIndex,
+          currentLanguageId
+        );
+        const treeSitterRange = injection?.ranges?.find(
+          (r) => r.startIndex <= currentCursor.currentNode.startIndex && r.endIndex >= currentCursor.currentNode.endIndex
+        );
         if (injection?.tree && treeSitterRange && treeSitterRange.startIndex === currentCursor.currentNode.startIndex) {
           const injectionLanguageId = injection.languageId;
           const injectionTree = injection.tree;
           const injectionCursor = injectionTree.walk();
-          this._moveInjectionCursorToRange(injectionCursor, treeSitterRange);
-          cursors.push({ cursor: injectionCursor, languageId: injectionLanguageId, startOffset: treeSitterRange.startIndex, endOffset: treeSitterRange.endIndex });
+          this._moveInjectionCursorToRange(
+            injectionCursor,
+            treeSitterRange
+          );
+          cursors.push({
+            cursor: injectionCursor,
+            languageId: injectionLanguageId,
+            startOffset: treeSitterRange.startIndex,
+            endOffset: treeSitterRange.endIndex
+          });
           while (currentCursor.endIndex <= treeSitterRange.endIndex && (currentCursor.gotoNextSibling() || currentCursor.gotoParent())) {
           }
         } else {
-          const capture = tokenizationSupport?.captureAtRangeTree(range, tree, textModelTreeSitter);
+          const capture = tokenizationSupport?.captureAtRangeTree(
+            range,
+            tree,
+            textModelTreeSitter
+          );
           tokens.push({
             c: currentCursor.currentNode.text.replace(/\r/g, ""),
             t: capture?.map((cap) => cap.name).join(" ") ?? "",
@@ -295,17 +368,21 @@ let Snapper = class {
     return tokens;
   }
   captureSyntaxTokens(fileName, content) {
-    const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(URI.file(fileName));
+    const languageId = this.languageService.guessLanguageIdByFilepathOrFirstLine(
+      URI.file(fileName)
+    );
     return this.textMateService.createTokenizer(languageId).then((grammar) => {
       if (!grammar) {
         return [];
       }
       const lines = splitLines(content);
       const result = this._tokenize(grammar, lines);
-      return this._getThemesResult(grammar, lines).then((themesResult) => {
-        this._enrichResult(result, themesResult);
-        return result.filter((t) => t.c.length > 0);
-      });
+      return this._getThemesResult(grammar, lines).then(
+        (themesResult) => {
+          this._enrichResult(result, themesResult);
+          return result.filter((t) => t.c.length > 0);
+        }
+      );
     });
   }
   async captureTreeSitterSyntaxTokens(resource, content) {
@@ -315,16 +392,24 @@ let Snapper = class {
       if (!hasLanguage) {
         return [];
       }
-      const model = this.modelService.getModel(resource) ?? this.modelService.createModel(content, { languageId, onDidChange: Event.None }, resource);
+      const model = this.modelService.getModel(resource) ?? this.modelService.createModel(
+        content,
+        { languageId, onDidChange: Event.None },
+        resource
+      );
       let textModelTreeSitter = this.treeSitterParserService.getParseResult(model);
       let tree = textModelTreeSitter?.parseResult?.tree;
       if (!textModelTreeSitter) {
         return [];
       }
       if (!tree) {
-        let e = await Event.toPromise(this.treeSitterParserService.onDidUpdateTree);
+        let e = await Event.toPromise(
+          this.treeSitterParserService.onDidUpdateTree
+        );
         if (e.hasInjections) {
-          e = await Event.toPromise(this.treeSitterParserService.onDidUpdateTree);
+          e = await Event.toPromise(
+            this.treeSitterParserService.onDidUpdateTree
+          );
         }
         textModelTreeSitter = e.tree;
         tree = textModelTreeSitter.parseResult?.tree;
@@ -332,8 +417,15 @@ let Snapper = class {
       if (!tree) {
         return [];
       }
-      const result = (await this._treeSitterTokenize(textModelTreeSitter, tree, languageId)).filter((t) => t.c.length > 0);
-      const themeTokens = await this._getTreeSitterThemesResult(result, languageId);
+      const result = (await this._treeSitterTokenize(
+        textModelTreeSitter,
+        tree,
+        languageId
+      )).filter((t) => t.c.length > 0);
+      const themeTokens = await this._getTreeSitterThemesResult(
+        result,
+        languageId
+      );
       this._enrichResult(result, themeTokens);
       return result;
     }
@@ -354,15 +446,24 @@ async function captureTokens(accessor, resource, treeSitter = false) {
     const snapper = accessor.get(IInstantiationService).createInstance(Snapper);
     return fileService.readFile(resource2).then((content) => {
       if (treeSitter) {
-        return snapper.captureTreeSitterSyntaxTokens(resource2, content.value.toString());
+        return snapper.captureTreeSitterSyntaxTokens(
+          resource2,
+          content.value.toString()
+        );
       } else {
-        return snapper.captureSyntaxTokens(fileName, content.value.toString());
+        return snapper.captureSyntaxTokens(
+          fileName,
+          content.value.toString()
+        );
       }
     });
   }, "process");
   if (!resource) {
     const editorService = accessor.get(IEditorService);
-    const file = editorService.activeEditor ? EditorResourceAccessor.getCanonicalUri(editorService.activeEditor, { filterByScheme: Schemas.file }) : null;
+    const file = editorService.activeEditor ? EditorResourceAccessor.getCanonicalUri(
+      editorService.activeEditor,
+      { filterByScheme: Schemas.file }
+    ) : null;
     if (file) {
       process(file).then((result) => {
         console.log(result);
@@ -377,14 +478,18 @@ async function captureTokens(accessor, resource, treeSitter = false) {
   return void 0;
 }
 __name(captureTokens, "captureTokens");
-CommandsRegistry.registerCommand("_workbench.captureSyntaxTokens", function(accessor, resource) {
-  return captureTokens(accessor, resource);
-});
-CommandsRegistry.registerCommand("_workbench.captureTreeSitterSyntaxTokens", function(accessor, resource) {
-  if (!resource) {
-    const editorService = accessor.get(IEditorService);
-    resource = editorService.activeEditor?.resource;
+CommandsRegistry.registerCommand(
+  "_workbench.captureSyntaxTokens",
+  (accessor, resource) => captureTokens(accessor, resource)
+);
+CommandsRegistry.registerCommand(
+  "_workbench.captureTreeSitterSyntaxTokens",
+  (accessor, resource) => {
+    if (!resource) {
+      const editorService = accessor.get(IEditorService);
+      resource = editorService.activeEditor?.resource;
+    }
+    return captureTokens(accessor, resource, true);
   }
-  return captureTokens(accessor, resource, true);
-});
+);
 //# sourceMappingURL=themes.test.contribution.js.map

@@ -2,15 +2,16 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { cloneAndChange, safeStringify } from "../../../base/common/objects.js";
 import { isObject } from "../../../base/common/types.js";
-import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { LoggerGroup } from "../../log/common/log.js";
-import { IProductService } from "../../product/common/productService.js";
 import { getRemoteName } from "../../remote/common/remoteHosts.js";
 import { verifyMicrosoftInternalDomain } from "./commonProperties.js";
-import { ICustomEndpointTelemetryService, ITelemetryData, ITelemetryEndpoint, ITelemetryService, TelemetryConfiguration, TelemetryLevel, TELEMETRY_CRASH_REPORTER_SETTING_ID, TELEMETRY_OLD_SETTING_ID, TELEMETRY_SETTING_ID } from "./telemetry.js";
+import {
+  TELEMETRY_CRASH_REPORTER_SETTING_ID,
+  TELEMETRY_OLD_SETTING_ID,
+  TELEMETRY_SETTING_ID,
+  TelemetryConfiguration,
+  TelemetryLevel
+} from "./telemetry.js";
 class TelemetryTrustedValue {
   constructor(value) {
     this.value = value;
@@ -55,8 +56,14 @@ class NullEndpointTelemetryService {
   }
 }
 const telemetryLogId = "telemetry";
-const TelemetryLogGroup = { id: telemetryLogId, name: localize("telemetryLogName", "Telemetry") };
-const NullAppender = { log: /* @__PURE__ */ __name(() => null, "log"), flush: /* @__PURE__ */ __name(() => Promise.resolve(void 0), "flush") };
+const TelemetryLogGroup = {
+  id: telemetryLogId,
+  name: localize("telemetryLogName", "Telemetry")
+};
+const NullAppender = {
+  log: /* @__PURE__ */ __name(() => null, "log"),
+  flush: /* @__PURE__ */ __name(() => Promise.resolve(void 0), "flush")
+};
 function supportsTelemetry(productService, environmentService) {
   if (!environmentService.isBuilt && !environmentService.disableTelemetry) {
     return true;
@@ -81,9 +88,13 @@ function isLoggingOnly(productService, environmentService) {
 }
 __name(isLoggingOnly, "isLoggingOnly");
 function getTelemetryLevel(configurationService) {
-  const newConfig = configurationService.getValue(TELEMETRY_SETTING_ID);
+  const newConfig = configurationService.getValue(
+    TELEMETRY_SETTING_ID
+  );
   const crashReporterConfig = configurationService.getValue(TELEMETRY_CRASH_REPORTER_SETTING_ID);
-  const oldConfig = configurationService.getValue(TELEMETRY_OLD_SETTING_ID);
+  const oldConfig = configurationService.getValue(
+    TELEMETRY_OLD_SETTING_ID
+  );
   if (oldConfig === false || crashReporterConfig === false) {
     return TelemetryLevel.NONE;
   }
@@ -113,7 +124,9 @@ function validateTelemetryData(data) {
       measurements[prop] = value ? 1 : 0;
     } else if (typeof value === "string") {
       if (value.length > 8192) {
-        console.warn(`Telemetry property: ${prop} has been trimmed to 8192, the original length is ${value.length}`);
+        console.warn(
+          `Telemetry property: ${prop} has been trimmed to 8192, the original length is ${value.length}`
+        );
       }
       properties[prop] = value.substring(0, 8191);
     } else if (typeof value !== "undefined" && value !== null) {
@@ -126,7 +139,15 @@ function validateTelemetryData(data) {
   };
 }
 __name(validateTelemetryData, "validateTelemetryData");
-const telemetryAllowedAuthorities = /* @__PURE__ */ new Set(["ssh-remote", "dev-container", "attached-container", "wsl", "tunnel", "codespaces", "amlext"]);
+const telemetryAllowedAuthorities = /* @__PURE__ */ new Set([
+  "ssh-remote",
+  "dev-container",
+  "attached-container",
+  "wsl",
+  "tunnel",
+  "codespaces",
+  "amlext"
+]);
 function cleanRemoteAuthority(remoteAuthority) {
   if (!remoteAuthority) {
     return "none";
@@ -148,7 +169,7 @@ function flatten(obj, result, order = 0, prefix) {
       result[index] = value.toISOString();
     } else if (isObject(value)) {
       if (order < 2) {
-        flatten(value, result, order + 1, index + ".");
+        flatten(value, result, order + 1, `${index}.`);
       } else {
         result[index] = safeStringify(value);
       }
@@ -160,12 +181,20 @@ function flatten(obj, result, order = 0, prefix) {
 __name(flatten, "flatten");
 function isInternalTelemetry(productService, configService) {
   const msftInternalDomains = productService.msftInternalDomains || [];
-  const internalTesting = configService.getValue("telemetry.internalTesting");
+  const internalTesting = configService.getValue(
+    "telemetry.internalTesting"
+  );
   return verifyMicrosoftInternalDomain(msftInternalDomains) || internalTesting;
 }
 __name(isInternalTelemetry, "isInternalTelemetry");
 function getPiiPathsFromEnvironment(paths) {
-  return [paths.appRoot, paths.extensionsPath, paths.userHome.fsPath, paths.tmpDir.fsPath, paths.userDataPath];
+  return [
+    paths.appRoot,
+    paths.extensionsPath,
+    paths.userHome.fsPath,
+    paths.tmpDir.fsPath,
+    paths.userDataPath
+  ];
 }
 __name(getPiiPathsFromEnvironment, "getPiiPathsFromEnvironment");
 function anonymizeFilePaths(stack, cleanupPatterns) {
@@ -192,9 +221,11 @@ function anonymizeFilePaths(stack, cleanupPatterns) {
     if (!result) {
       break;
     }
-    const overlappingRange = cleanUpIndexes.some(([start, end]) => result.index < end && start < fileRegex.lastIndex);
+    const overlappingRange = cleanUpIndexes.some(
+      ([start, end]) => result.index < end && start < fileRegex.lastIndex
+    );
     if (!nodeModulesRegex.test(result[0]) && !overlappingRange) {
-      updatedStack += stack.substring(lastIndex, result.index) + "<REDACTED: user-file-path>";
+      updatedStack += `${stack.substring(lastIndex, result.index)}<REDACTED: user-file-path>`;
       lastIndex = fileRegex.lastIndex;
     }
   }
@@ -211,11 +242,26 @@ function removePropertiesWithPossibleUserInfo(property) {
   const userDataRegexes = [
     { label: "Google API Key", regex: /AIza[A-Za-z0-9_\\\-]{35}/ },
     { label: "Slack Token", regex: /xox[pbar]\-[A-Za-z0-9]/ },
-    { label: "GitHub Token", regex: /(gh[psuro]_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59})/ },
-    { label: "Generic Secret", regex: /(key|token|sig|secret|signature|password|passwd|pwd|android:value)[^a-zA-Z0-9]/i },
-    { label: "CLI Credentials", regex: /((login|psexec|(certutil|psexec)\.exe).{1,50}(\s-u(ser(name)?)?\s+.{3,100})?\s-(admin|user|vm|root)?p(ass(word)?)?\s+["']?[^$\-\/\s]|(^|[\s\r\n\\])net(\.exe)?.{1,5}(user\s+|share\s+\/user:| user -? secrets ? set) \s + [^ $\s \/])/ },
-    { label: "Microsoft Entra ID", regex: /eyJ(?:0eXAiOiJKV1Qi|hbGci|[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.)/ },
-    { label: "Email", regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/ }
+    {
+      label: "GitHub Token",
+      regex: /(gh[psuro]_[a-zA-Z0-9]{36}|github_pat_[a-zA-Z0-9]{22}_[a-zA-Z0-9]{59})/
+    },
+    {
+      label: "Generic Secret",
+      regex: /(key|token|sig|secret|signature|password|passwd|pwd|android:value)[^a-zA-Z0-9]/i
+    },
+    {
+      label: "CLI Credentials",
+      regex: /((login|psexec|(certutil|psexec)\.exe).{1,50}(\s-u(ser(name)?)?\s+.{3,100})?\s-(admin|user|vm|root)?p(ass(word)?)?\s+["']?[^$\-\/\s]|(^|[\s\r\n\\])net(\.exe)?.{1,5}(user\s+|share\s+\/user:| user -? secrets ? set) \s + [^ $\s \/])/
+    },
+    {
+      label: "Microsoft Entra ID",
+      regex: /eyJ(?:0eXAiOiJKV1Qi|hbGci|[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\.)/
+    },
+    {
+      label: "Email",
+      regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+    }
   ];
   for (const secretRegex of userDataRegexes) {
     if (secretRegex.regex.test(property)) {
@@ -232,7 +278,10 @@ function cleanData(data, cleanUpPatterns) {
     }
     if (typeof value === "string") {
       let updatedProperty = value.replaceAll("%20", " ");
-      updatedProperty = anonymizeFilePaths(updatedProperty, cleanUpPatterns);
+      updatedProperty = anonymizeFilePaths(
+        updatedProperty,
+        cleanUpPatterns
+      );
       for (const regexp of cleanUpPatterns) {
         updatedProperty = updatedProperty.replace(regexp, "");
       }

@@ -11,19 +11,21 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { coalesce } from "../../../base/common/arrays.js";
-import { IStringDictionary } from "../../../base/common/collections.js";
+import { getErrorMessage } from "../../../base/common/errors.js";
 import { Emitter, Event } from "../../../base/common/event.js";
+import * as json from "../../../base/common/json.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { deepClone, equals } from "../../../base/common/objects.js";
 import { isEmptyObject, isString } from "../../../base/common/types.js";
-import { ConfigurationModel } from "./configurationModels.js";
-import { Extensions, IConfigurationRegistry, IRegisteredConfigurationPropertySchema } from "./configurationRegistry.js";
 import { ILogService, NullLogService } from "../../log/common/log.js";
-import { IPolicyService, PolicyDefinition } from "../../policy/common/policy.js";
+import {
+  IPolicyService
+} from "../../policy/common/policy.js";
 import { Registry } from "../../registry/common/platform.js";
-import { getErrorMessage } from "../../../base/common/errors.js";
-import * as json from "../../../base/common/json.js";
-import { PolicyName } from "../../../base/common/policy.js";
+import { ConfigurationModel } from "./configurationModels.js";
+import {
+  Extensions
+} from "./configurationRegistry.js";
 class DefaultConfiguration extends Disposable {
   constructor(logService) {
     super();
@@ -33,7 +35,9 @@ class DefaultConfiguration extends Disposable {
   static {
     __name(this, "DefaultConfiguration");
   }
-  _onDidChangeConfiguration = this._register(new Emitter());
+  _onDidChangeConfiguration = this._register(
+    new Emitter()
+  );
   onDidChangeConfiguration = this._onDidChangeConfiguration.event;
   _configurationModel;
   get configurationModel() {
@@ -41,7 +45,16 @@ class DefaultConfiguration extends Disposable {
   }
   async initialize() {
     this.resetConfigurationModel();
-    this._register(Registry.as(Extensions.Configuration).onDidUpdateConfiguration(({ properties, defaultsOverrides }) => this.onDidUpdateConfiguration(Array.from(properties), defaultsOverrides)));
+    this._register(
+      Registry.as(
+        Extensions.Configuration
+      ).onDidUpdateConfiguration(
+        ({ properties, defaultsOverrides }) => this.onDidUpdateConfiguration(
+          Array.from(properties),
+          defaultsOverrides
+        )
+      )
+    );
     return this.configurationModel;
   }
   reload() {
@@ -49,15 +62,27 @@ class DefaultConfiguration extends Disposable {
     return this.configurationModel;
   }
   onDidUpdateConfiguration(properties, defaultsOverrides) {
-    this.updateConfigurationModel(properties, Registry.as(Extensions.Configuration).getConfigurationProperties());
-    this._onDidChangeConfiguration.fire({ defaults: this.configurationModel, properties });
+    this.updateConfigurationModel(
+      properties,
+      Registry.as(
+        Extensions.Configuration
+      ).getConfigurationProperties()
+    );
+    this._onDidChangeConfiguration.fire({
+      defaults: this.configurationModel,
+      properties
+    });
   }
   getConfigurationDefaultOverrides() {
     return {};
   }
   resetConfigurationModel() {
-    this._configurationModel = ConfigurationModel.createEmptyModel(this.logService);
-    const properties = Registry.as(Extensions.Configuration).getConfigurationProperties();
+    this._configurationModel = ConfigurationModel.createEmptyModel(
+      this.logService
+    );
+    const properties = Registry.as(
+      Extensions.Configuration
+    ).getConfigurationProperties();
     this.updateConfigurationModel(Object.keys(properties), properties);
   }
   updateConfigurationModel(properties, configurationProperties) {
@@ -68,7 +93,10 @@ class DefaultConfiguration extends Disposable {
       if (defaultOverrideValue !== void 0) {
         this._configurationModel.setValue(key, defaultOverrideValue);
       } else if (propertySchema) {
-        this._configurationModel.setValue(key, deepClone(propertySchema.default));
+        this._configurationModel.setValue(
+          key,
+          deepClone(propertySchema.default)
+        );
       } else {
         this._configurationModel.removeValue(key);
       }
@@ -80,7 +108,9 @@ class NullPolicyConfiguration {
     __name(this, "NullPolicyConfiguration");
   }
   onDidChangeConfiguration = Event.None;
-  configurationModel = ConfigurationModel.createEmptyModel(new NullLogService());
+  configurationModel = ConfigurationModel.createEmptyModel(
+    new NullLogService()
+  );
   async initialize() {
     return this.configurationModel;
   }
@@ -91,13 +121,19 @@ let PolicyConfiguration = class extends Disposable {
     this.defaultConfiguration = defaultConfiguration;
     this.policyService = policyService;
     this.logService = logService;
-    this._configurationModel = ConfigurationModel.createEmptyModel(this.logService);
-    this.configurationRegistry = Registry.as(Extensions.Configuration);
+    this._configurationModel = ConfigurationModel.createEmptyModel(
+      this.logService
+    );
+    this.configurationRegistry = Registry.as(
+      Extensions.Configuration
+    );
   }
   static {
     __name(this, "PolicyConfiguration");
   }
-  _onDidChangeConfiguration = this._register(new Emitter());
+  _onDidChangeConfiguration = this._register(
+    new Emitter()
+  );
   onDidChangeConfiguration = this._onDidChangeConfiguration.event;
   configurationRegistry;
   _configurationModel;
@@ -106,14 +142,40 @@ let PolicyConfiguration = class extends Disposable {
   }
   async initialize() {
     this.logService.trace("PolicyConfiguration#initialize");
-    this.update(await this.updatePolicyDefinitions(this.defaultConfiguration.configurationModel.keys), false);
-    this.update(await this.updatePolicyDefinitions(Object.keys(this.configurationRegistry.getExcludedConfigurationProperties())), false);
-    this._register(this.policyService.onDidChange((policyNames) => this.onDidChangePolicies(policyNames)));
-    this._register(this.defaultConfiguration.onDidChangeConfiguration(async ({ properties }) => this.update(await this.updatePolicyDefinitions(properties), true)));
+    this.update(
+      await this.updatePolicyDefinitions(
+        this.defaultConfiguration.configurationModel.keys
+      ),
+      false
+    );
+    this.update(
+      await this.updatePolicyDefinitions(
+        Object.keys(
+          this.configurationRegistry.getExcludedConfigurationProperties()
+        )
+      ),
+      false
+    );
+    this._register(
+      this.policyService.onDidChange(
+        (policyNames) => this.onDidChangePolicies(policyNames)
+      )
+    );
+    this._register(
+      this.defaultConfiguration.onDidChangeConfiguration(
+        async ({ properties }) => this.update(
+          await this.updatePolicyDefinitions(properties),
+          true
+        )
+      )
+    );
     return this._configurationModel;
   }
   async updatePolicyDefinitions(properties) {
-    this.logService.trace("PolicyConfiguration#updatePolicyDefinitions", properties);
+    this.logService.trace(
+      "PolicyConfiguration#updatePolicyDefinitions",
+      properties
+    );
     const policyDefinitions = {};
     const keys = [];
     const configurationProperties = this.configurationRegistry.getConfigurationProperties();
@@ -126,7 +188,9 @@ let PolicyConfiguration = class extends Disposable {
       }
       if (config.policy) {
         if (config.type !== "string" && config.type !== "number" && config.type !== "array" && config.type !== "object" && config.type !== "boolean") {
-          this.logService.warn(`Policy ${config.policy.name} has unsupported type ${config.type}`);
+          this.logService.warn(
+            `Policy ${config.policy.name} has unsupported type ${config.type}`
+          );
           continue;
         }
         const { defaultValue, previewFeature } = config.policy;
@@ -144,9 +208,16 @@ let PolicyConfiguration = class extends Disposable {
     return keys;
   }
   onDidChangePolicies(policyNames) {
-    this.logService.trace("PolicyConfiguration#onDidChangePolicies", policyNames);
+    this.logService.trace(
+      "PolicyConfiguration#onDidChangePolicies",
+      policyNames
+    );
     const policyConfigurations = this.configurationRegistry.getPolicyConfigurations();
-    const keys = coalesce(policyNames.map((policyName) => policyConfigurations.get(policyName)));
+    const keys = coalesce(
+      policyNames.map(
+        (policyName) => policyConfigurations.get(policyName)
+      )
+    );
     this.update(keys, true);
   }
   update(keys, trigger) {
@@ -164,11 +235,17 @@ let PolicyConfiguration = class extends Disposable {
           try {
             policyValue = this.parse(policyValue);
           } catch (e) {
-            this.logService.error(`Error parsing policy value ${policyName}:`, getErrorMessage(e));
+            this.logService.error(
+              `Error parsing policy value ${policyName}:`,
+              getErrorMessage(e)
+            );
             continue;
           }
         }
-        if (wasEmpty ? policyValue !== void 0 : !equals(this._configurationModel.getValue(key), policyValue)) {
+        if (wasEmpty ? policyValue !== void 0 : !equals(
+          this._configurationModel.getValue(key),
+          policyValue
+        )) {
           changed.push([key, policyValue]);
         }
       } else {
@@ -180,7 +257,9 @@ let PolicyConfiguration = class extends Disposable {
     if (changed.length) {
       this.logService.trace("PolicyConfiguration#changed", changed);
       const old = this._configurationModel;
-      this._configurationModel = ConfigurationModel.createEmptyModel(this.logService);
+      this._configurationModel = ConfigurationModel.createEmptyModel(
+        this.logService
+      );
       for (const key of old.keys) {
         this._configurationModel.setValue(key, old.getValue(key));
       }
@@ -207,7 +286,9 @@ let PolicyConfiguration = class extends Disposable {
         currentParent.push(value);
       } else if (currentProperty !== null) {
         if (currentParent[currentProperty] !== void 0) {
-          throw new Error(`Duplicate property found: ${currentProperty}`);
+          throw new Error(
+            `Duplicate property found: ${currentProperty}`
+          );
         }
         currentParent[currentProperty] = value;
       }
@@ -247,7 +328,9 @@ let PolicyConfiguration = class extends Disposable {
       raw = currentParent[0] || {};
     }
     if (parseErrors.length > 0) {
-      throw new Error(parseErrors.map((e) => getErrorMessage(e.error)).join("\n"));
+      throw new Error(
+        parseErrors.map((e) => getErrorMessage(e.error)).join("\n")
+      );
     }
     return raw;
   }

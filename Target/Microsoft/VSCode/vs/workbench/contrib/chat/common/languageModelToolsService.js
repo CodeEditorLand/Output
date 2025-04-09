@@ -1,19 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
-import { IMarkdownString } from "../../../../base/common/htmlContent.js";
-import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ContextKeyExpression } from "../../../../platform/contextkey/common/contextkey.js";
-import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { Location } from "../../../../editor/common/languages.js";
-import { IChatTerminalToolInvocationData, IChatToolInputInvocationData } from "./chatService.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { PromptElementJSON, stringifyPromptElementJSON } from "./tools/promptTsxTypes.js";
+import { URI } from "../../../../base/common/uri.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  stringifyPromptElementJSON
+} from "./tools/promptTsxTypes.js";
 var ToolDataSource;
 ((ToolDataSource2) => {
   function toKey(source) {
@@ -46,14 +38,21 @@ function createToolInputUri(toolOrId) {
   if (typeof toolOrId !== "string") {
     toolOrId = toolOrId.id;
   }
-  return URI.from({ scheme: Schemas.inMemory, path: `/lm/tool/${toolOrId}/tool_input.json` });
+  return URI.from({
+    scheme: Schemas.inMemory,
+    path: `/lm/tool/${toolOrId}/tool_input.json`
+  });
 }
 __name(createToolInputUri, "createToolInputUri");
 function createToolSchemaUri(toolOrId) {
   if (typeof toolOrId !== "string") {
     toolOrId = toolOrId.id;
   }
-  return URI.from({ scheme: Schemas.vscode, authority: "schemas", path: `/lm/tool/${toolOrId}` });
+  return URI.from({
+    scheme: Schemas.vscode,
+    authority: "schemas",
+    path: `/lm/tool/${toolOrId}`
+  });
 }
 __name(createToolSchemaUri, "createToolSchemaUri");
 export {

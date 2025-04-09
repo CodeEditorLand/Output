@@ -17,17 +17,26 @@ import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { revive } from "../../../../base/common/marshalling.js";
 import { joinPath } from "../../../../base/common/resources.js";
-import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
 import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { FileOperationResult, IFileService, toFileOperationResult } from "../../../../platform/files/common/files.js";
+import {
+  FileOperationResult,
+  IFileService,
+  toFileOperationResult
+} from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
 import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { ChatModel, ISerializableChatData, ISerializableChatDataIn, ISerializableChatsData, normalizeSerializableChatData } from "./chatModel.js";
-import { ChatAgentLocation, ChatMode } from "./constants.js";
+import {
+  ChatModel,
+  normalizeSerializableChatData
+} from "./chatModel.js";
 const maxPersistedSessions = 25;
 const ChatIndexStorageKey = "chat.ChatSessionStore.index";
 let ChatSessionStore = class extends Disposable {
@@ -43,17 +52,26 @@ let ChatSessionStore = class extends Disposable {
     const workspace = this.workspaceContextService.getWorkspace();
     const isEmptyWindow = !workspace.configuration && workspace.folders.length === 0;
     const workspaceId = isEmptyWindow ? "no-workspace" : this.workspaceContextService.getWorkspace().id;
-    this.storageRoot = joinPath(this.environmentService.workspaceStorageHome, workspaceId, "chatSessions");
-    this._register(this.lifecycleService.onWillShutdown((e) => {
-      this.shuttingDown = true;
-      if (!this.storeTask) {
-        return;
-      }
-      e.join(this.storeTask, {
-        id: "join.chatSessionStore",
-        label: localize("join.chatSessionStore", "Saving chat history")
-      });
-    }));
+    this.storageRoot = joinPath(
+      this.environmentService.workspaceStorageHome,
+      workspaceId,
+      "chatSessions"
+    );
+    this._register(
+      this.lifecycleService.onWillShutdown((e) => {
+        this.shuttingDown = true;
+        if (!this.storeTask) {
+          return;
+        }
+        e.join(this.storeTask, {
+          id: "join.chatSessionStore",
+          label: localize(
+            "join.chatSessionStore",
+            "Saving chat history"
+          )
+        });
+      })
+    );
   }
   static {
     __name(this, "ChatSessionStore");
@@ -70,11 +88,17 @@ let ChatSessionStore = class extends Disposable {
     try {
       this.storeTask = this.storeQueue.queue(async () => {
         try {
-          await Promise.all(sessions.map((session) => this.writeSession(session)));
+          await Promise.all(
+            sessions.map((session) => this.writeSession(session))
+          );
           await this.trimEntries();
           await this.flushIndex();
         } catch (e) {
-          this.reportError("storeSessions", "Error storing chat sessions", e);
+          this.reportError(
+            "storeSessions",
+            "Error storing chat sessions",
+            e
+          );
         }
       });
       await this.storeTask;
@@ -112,7 +136,10 @@ let ChatSessionStore = class extends Disposable {
       const index = this.internalGetIndex();
       const storageLocation = this.getStorageLocation(session.sessionId);
       const content = JSON.stringify(session, void 0, 2);
-      await this.fileService.writeFile(storageLocation, VSBuffer.fromString(content));
+      await this.fileService.writeFile(
+        storageLocation,
+        VSBuffer.fromString(content)
+      );
       index.entries[session.sessionId] = getSessionMetadata(session);
     } catch (e) {
       this.reportError("sessionWrite", "Error writing chat session", e);
@@ -121,7 +148,12 @@ let ChatSessionStore = class extends Disposable {
   async flushIndex() {
     const index = this.internalGetIndex();
     try {
-      this.storageService.store(ChatIndexStorageKey, index, this.getIndexStorageScope(), StorageTarget.MACHINE);
+      this.storageService.store(
+        ChatIndexStorageKey,
+        index,
+        this.getIndexStorageScope(),
+        StorageTarget.MACHINE
+      );
     } catch (e) {
       this.reportError("indexWrite", "Error writing index", e);
     }
@@ -139,7 +171,9 @@ let ChatSessionStore = class extends Disposable {
       for (const entry of entriesToDelete) {
         delete index.entries[entry];
       }
-      this.logService.trace(`ChatSessionStore: Trimmed ${entriesToDelete.length} old chat sessions from index`);
+      this.logService.trace(
+        `ChatSessionStore: Trimmed ${entriesToDelete.length} old chat sessions from index`
+      );
     }
   }
   async internalDeleteSession(sessionId) {
@@ -152,7 +186,11 @@ let ChatSessionStore = class extends Disposable {
       await this.fileService.del(storageLocation);
     } catch (e) {
       if (toFileOperationResult(e) !== FileOperationResult.FILE_NOT_FOUND) {
-        this.reportError("sessionDelete", "Error deleting chat session", e);
+        this.reportError(
+          "sessionDelete",
+          "Error deleting chat session",
+          e
+        );
       }
     } finally {
       delete index.entries[sessionId];
@@ -175,8 +213,12 @@ let ChatSessionStore = class extends Disposable {
     await this.storeQueue.queue(async () => {
       const index = this.internalGetIndex();
       const entries = Object.keys(index.entries);
-      this.logService.info(`ChatSessionStore: Clearing ${entries.length} chat sessions`);
-      await Promise.all(entries.map((entry) => this.internalDeleteSession(entry)));
+      this.logService.info(
+        `ChatSessionStore: Clearing ${entries.length} chat sessions`
+      );
+      await Promise.all(
+        entries.map((entry) => this.internalDeleteSession(entry))
+      );
       await this.flushIndex();
     });
   }
@@ -189,7 +231,10 @@ let ChatSessionStore = class extends Disposable {
     });
   }
   reportError(reasonForTelemetry, message, error) {
-    this.logService.error(`ChatSessionStore: ` + message, toErrorMessage(error));
+    this.logService.error(
+      `ChatSessionStore: ${message}`,
+      toErrorMessage(error)
+    );
     const fileOperationReason = error && toFileOperationResult(error);
     this.telemetryService.publicLog2("chatSessionStoreError", {
       reason: reasonForTelemetry,
@@ -201,7 +246,11 @@ let ChatSessionStore = class extends Disposable {
     if (this.indexCache) {
       return this.indexCache;
     }
-    const data = this.storageService.get(ChatIndexStorageKey, this.getIndexStorageScope(), void 0);
+    const data = this.storageService.get(
+      ChatIndexStorageKey,
+      this.getIndexStorageScope(),
+      void 0
+    );
     if (!data) {
       this.indexCache = { version: 1, entries: {} };
       return this.indexCache;
@@ -211,7 +260,10 @@ let ChatSessionStore = class extends Disposable {
       if (isChatSessionIndex(index)) {
         this.indexCache = index;
       } else {
-        this.reportError("invalidIndexFormat", `Invalid index format: ${data}`);
+        this.reportError(
+          "invalidIndexFormat",
+          `Invalid index format: ${data}`
+        );
         this.indexCache = { version: 1, entries: {} };
       }
       return this.indexCache;
@@ -227,12 +279,20 @@ let ChatSessionStore = class extends Disposable {
     });
   }
   logIndex() {
-    const data = this.storageService.get(ChatIndexStorageKey, this.getIndexStorageScope(), void 0);
+    const data = this.storageService.get(
+      ChatIndexStorageKey,
+      this.getIndexStorageScope(),
+      void 0
+    );
     this.logService.info("ChatSessionStore index: ", data);
   }
   async migrateDataIfNeeded(getInitialData) {
     await this.storeQueue.queue(async () => {
-      const data = this.storageService.get(ChatIndexStorageKey, this.getIndexStorageScope(), void 0);
+      const data = this.storageService.get(
+        ChatIndexStorageKey,
+        this.getIndexStorageScope(),
+        void 0
+      );
       const needsMigrationFromStorageService = !data;
       if (needsMigrationFromStorageService) {
         const initialData = getInitialData();
@@ -244,10 +304,14 @@ let ChatSessionStore = class extends Disposable {
   }
   async migrate(initialData) {
     const numSessions = Object.keys(initialData).length;
-    this.logService.info(`ChatSessionStore: Migrating ${numSessions} chat sessions from storage service to file system`);
-    await Promise.all(Object.values(initialData).map(async (session) => {
-      await this.writeSession(session);
-    }));
+    this.logService.info(
+      `ChatSessionStore: Migrating ${numSessions} chat sessions from storage service to file system`
+    );
+    await Promise.all(
+      Object.values(initialData).map(async (session) => {
+        await this.writeSession(session);
+      })
+    );
     await this.flushIndex();
   }
   async readSession(sessionId) {
@@ -257,11 +321,17 @@ let ChatSessionStore = class extends Disposable {
       try {
         rawData = (await this.fileService.readFile(storageLocation)).value.toString();
       } catch (e) {
-        this.reportError("sessionReadFile", `Error reading chat session file ${sessionId}`, e);
+        this.reportError(
+          "sessionReadFile",
+          `Error reading chat session file ${sessionId}`,
+          e
+        );
         return void 0;
       }
       try {
-        const session = revive(JSON.parse(rawData));
+        const session = revive(
+          JSON.parse(rawData)
+        );
         for (const request of session.requests) {
           if (Array.isArray(request.response)) {
             request.response = request.response.map((response) => {
@@ -271,12 +341,18 @@ let ChatSessionStore = class extends Disposable {
               return response;
             });
           } else if (typeof request.response === "string") {
-            request.response = [new MarkdownString(request.response)];
+            request.response = [
+              new MarkdownString(request.response)
+            ];
           }
         }
         return normalizeSerializableChatData(session);
       } catch (err) {
-        this.reportError("malformedSession", `Malformed session data in ${storageLocation.fsPath}: [${rawData.substring(0, 20)}${rawData.length > 20 ? "..." : ""}]`, err);
+        this.reportError(
+          "malformedSession",
+          `Malformed session data in ${storageLocation.fsPath}: [${rawData.substring(0, 20)}${rawData.length > 20 ? "..." : ""}]`,
+          err
+        );
         return void 0;
       }
     });

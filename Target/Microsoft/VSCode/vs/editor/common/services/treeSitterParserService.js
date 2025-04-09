@@ -1,11 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
-import { ITextModel } from "../model.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { Range } from "../core/range.js";
 import { importAMDNodeModule } from "../../../amdX.js";
-import { IModelContentChangedEvent } from "../textModelEvents.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
 const EDITOR_EXPERIMENTAL_PREFER_TREESITTER = "editor.experimental.preferTreeSitter";
 const TREESITTER_ALLOWED_SUPPORT = ["css", "typescript", "ini", "regex"];
 const ITreeSitterParserService = createDecorator("treeSitterParserService");
@@ -16,8 +12,6 @@ class TreeSitterImporter {
   }
   _serviceBrand;
   _treeSitterImport;
-  constructor() {
-  }
   async _getTreeSitterImport() {
     if (!this._treeSitterImport) {
       this._treeSitterImport = await importAMDNodeModule("@vscode/tree-sitter-wasm", "wasm/tree-sitter.js");

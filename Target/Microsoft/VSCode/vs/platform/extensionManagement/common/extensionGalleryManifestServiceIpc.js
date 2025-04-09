@@ -12,15 +12,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Barrier } from "../../../base/common/async.js";
 import { Emitter, Event } from "../../../base/common/event.js";
-import { IPCServer } from "../../../base/parts/ipc/common/ipc.js";
 import { IProductService } from "../../product/common/productService.js";
-import { IExtensionGalleryManifest, IExtensionGalleryManifestService } from "./extensionGalleryManifest.js";
 import { ExtensionGalleryManifestService } from "./extensionGalleryManifestService.js";
 let ExtensionGalleryManifestIPCService = class extends ExtensionGalleryManifestService {
   static {
     __name(this, "ExtensionGalleryManifestIPCService");
   }
-  _onDidChangeExtensionGalleryManifest = this._register(new Emitter());
+  _onDidChangeExtensionGalleryManifest = this._register(
+    new Emitter()
+  );
   onDidChangeExtensionGalleryManifest = this._onDidChangeExtensionGalleryManifest.event;
   extensionGalleryManifest;
   barrier = new Barrier();
@@ -31,7 +31,9 @@ let ExtensionGalleryManifestIPCService = class extends ExtensionGalleryManifestS
       call: /* @__PURE__ */ __name(async (context, command, args) => {
         switch (command) {
           case "setExtensionGalleryManifest":
-            return Promise.resolve(this.setExtensionGalleryManifest(args[0]));
+            return Promise.resolve(
+              this.setExtensionGalleryManifest(args[0])
+            );
         }
         throw new Error("Invalid call");
       }, "call")

@@ -1,14 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { constants as FSConstants, promises as FSPromises } from "fs";
-import { createInterface as readLines } from "readline";
+import { constants as FSConstants, promises as FSPromises } from "node:fs";
+import { createInterface as readLines } from "node:readline";
 import * as Platform from "../common/platform.js";
 async function getOSReleaseInfo(errorLogger) {
   if (Platform.isMacintosh || Platform.isWindows) {
     return;
   }
   let handle;
-  for (const filePath of ["/etc/os-release", "/usr/lib/os-release", "/etc/lsb-release"]) {
+  for (const filePath of [
+    "/etc/os-release",
+    "/usr/lib/os-release",
+    "/etc/lsb-release"
+  ]) {
     try {
       handle = await FSPromises.open(filePath, FSConstants.R_OK);
       break;
@@ -16,7 +20,9 @@ async function getOSReleaseInfo(errorLogger) {
     }
   }
   if (!handle) {
-    errorLogger("Unable to retrieve release information from known identifier paths.");
+    errorLogger(
+      "Unable to retrieve release information from known identifier paths."
+    );
     return;
   }
   try {
@@ -30,7 +36,10 @@ async function getOSReleaseInfo(errorLogger) {
     const releaseInfo = {
       id: "unknown"
     };
-    for await (const line of readLines({ input: handle.createReadStream(), crlfDelay: Infinity })) {
+    for await (const line of readLines({
+      input: handle.createReadStream(),
+      crlfDelay: Number.POSITIVE_INFINITY
+    })) {
       if (!line.includes("=")) {
         continue;
       }

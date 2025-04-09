@@ -1,9 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IURITransformer } from "../../../base/common/uriIpc.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-const IURITransformerService = createDecorator("IURITransformerService");
+const IURITransformerService = createDecorator(
+  "IURITransformerService"
+);
 class URITransformerService {
   static {
     __name(this, "URITransformerService");

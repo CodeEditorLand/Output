@@ -12,14 +12,19 @@ function handleVetos(vetos, onError) {
       return Promise.resolve(true);
     }
     if (isThenable(valueOrPromise)) {
-      promises.push(valueOrPromise.then((value) => {
-        if (value) {
-          lazyValue = true;
-        }
-      }, (err) => {
-        onError(err);
-        lazyValue = true;
-      }));
+      promises.push(
+        valueOrPromise.then(
+          (value) => {
+            if (value) {
+              lazyValue = true;
+            }
+          },
+          (err) => {
+            onError(err);
+            lazyValue = true;
+          }
+        )
+      );
     }
   }
   return Promises.settled(promises).then(() => lazyValue);

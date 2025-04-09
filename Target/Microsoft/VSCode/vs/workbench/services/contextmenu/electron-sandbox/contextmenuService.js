@@ -10,30 +10,44 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IAction, WorkbenchActionExecutedEvent, WorkbenchActionExecutedClassification, Separator, SubmenuAction } from "../../../../base/common/actions.js";
-import * as dom from "../../../../base/browser/dom.js";
-import { IContextMenuMenuDelegate, IContextMenuService, IContextViewService } from "../../../../platform/contextview/browser/contextView.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { getZoomFactor } from "../../../../base/browser/browser.js";
-import { unmnemonicLabel } from "../../../../base/common/labels.js";
-import { INotificationService } from "../../../../platform/notification/common/notification.js";
-import { IContextMenuDelegate, IContextMenuEvent } from "../../../../base/browser/contextmenu.js";
-import { createSingleCallFunction } from "../../../../base/common/functional.js";
-import { IContextMenuItem } from "../../../../base/parts/contextmenu/common/contextmenu.js";
-import { popup } from "../../../../base/parts/contextmenu/electron-sandbox/contextmenu.js";
-import { hasNativeTitlebar } from "../../../../platform/window/common/window.js";
-import { isMacintosh, isWindows } from "../../../../base/common/platform.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ContextMenuMenuDelegate, ContextMenuService as HTMLContextMenuService } from "../../../../platform/contextview/browser/contextMenuService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { stripIcons } from "../../../../base/common/iconLabels.js";
+import * as dom from "../../../../base/browser/dom.js";
+import {
+  AnchorAlignment,
+  AnchorAxisAlignment,
+  isAnchor
+} from "../../../../base/browser/ui/contextview/contextview.js";
+import {
+  Separator,
+  SubmenuAction
+} from "../../../../base/common/actions.js";
 import { coalesce } from "../../../../base/common/arrays.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { AnchorAlignment, AnchorAxisAlignment, isAnchor } from "../../../../base/browser/ui/contextview/contextview.js";
-import { IMenuService } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { createSingleCallFunction } from "../../../../base/common/functional.js";
+import { stripIcons } from "../../../../base/common/iconLabels.js";
+import { unmnemonicLabel } from "../../../../base/common/labels.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
+import { isMacintosh, isWindows } from "../../../../base/common/platform.js";
+import { popup } from "../../../../base/parts/contextmenu/electron-sandbox/contextmenu.js";
+import { IMenuService } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  ContextMenuMenuDelegate,
+  ContextMenuService as HTMLContextMenuService
+} from "../../../../platform/contextview/browser/contextMenuService.js";
+import {
+  IContextMenuService,
+  IContextViewService
+} from "../../../../platform/contextview/browser/contextView.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { hasNativeTitlebar } from "../../../../platform/window/common/window.js";
 let ContextMenuService = class {
   static {
     __name(this, "ContextMenuService");
@@ -47,9 +61,22 @@ let ContextMenuService = class {
   }
   constructor(notificationService, telemetryService, keybindingService, configurationService, contextViewService, menuService, contextKeyService) {
     if (!isMacintosh && !hasNativeTitlebar(configurationService)) {
-      this.impl = new HTMLContextMenuService(telemetryService, notificationService, contextViewService, keybindingService, menuService, contextKeyService);
+      this.impl = new HTMLContextMenuService(
+        telemetryService,
+        notificationService,
+        contextViewService,
+        keybindingService,
+        menuService,
+        contextKeyService
+      );
     } else {
-      this.impl = new NativeContextMenuService(notificationService, telemetryService, keybindingService, menuService, contextKeyService);
+      this.impl = new NativeContextMenuService(
+        notificationService,
+        telemetryService,
+        keybindingService,
+        menuService,
+        contextKeyService
+      );
     }
   }
   dispose() {
@@ -80,12 +107,20 @@ let NativeContextMenuService = class extends Disposable {
   static {
     __name(this, "NativeContextMenuService");
   }
-  _onDidShowContextMenu = this._store.add(new Emitter());
+  _onDidShowContextMenu = this._store.add(
+    new Emitter()
+  );
   onDidShowContextMenu = this._onDidShowContextMenu.event;
-  _onDidHideContextMenu = this._store.add(new Emitter());
+  _onDidHideContextMenu = this._store.add(
+    new Emitter()
+  );
   onDidHideContextMenu = this._onDidHideContextMenu.event;
   showContextMenu(delegate) {
-    delegate = ContextMenuMenuDelegate.transform(delegate, this.menuService, this.contextKeyService);
+    delegate = ContextMenuMenuDelegate.transform(
+      delegate,
+      this.menuService,
+      this.contextKeyService
+    );
     const actions = delegate.getActions();
     if (actions.length) {
       const onHide = createSingleCallFunction(() => {
@@ -97,7 +132,9 @@ let NativeContextMenuService = class extends Disposable {
       const anchor = delegate.getAnchor();
       let x;
       let y;
-      let zoom = getZoomFactor(dom.isHTMLElement(anchor) ? dom.getWindow(anchor) : dom.getActiveWindow());
+      let zoom = getZoomFactor(
+        dom.isHTMLElement(anchor) ? dom.getWindow(anchor) : dom.getActiveWindow()
+      );
       if (dom.isHTMLElement(anchor)) {
         const elementPosition = dom.getDomNodePagePosition(anchor);
         zoom *= dom.getDomNodeZoomLevel(anchor);
@@ -139,12 +176,24 @@ let NativeContextMenuService = class extends Disposable {
       if (typeof y === "number") {
         y = Math.floor(y * zoom);
       }
-      popup(menu, { x, y, positioningItem: delegate.autoSelectFirstItem ? 0 : void 0 }, () => onHide());
+      popup(
+        menu,
+        {
+          x,
+          y,
+          positioningItem: delegate.autoSelectFirstItem ? 0 : void 0
+        },
+        () => onHide()
+      );
       this._onDidShowContextMenu.fire();
     }
   }
   createMenu(delegate, entries, onHide, submenuIds = /* @__PURE__ */ new Set()) {
-    return coalesce(entries.map((entry) => this.createMenuItem(delegate, entry, onHide, submenuIds)));
+    return coalesce(
+      entries.map(
+        (entry) => this.createMenuItem(delegate, entry, onHide, submenuIds)
+      )
+    );
   }
   createMenuItem(delegate, entry, onHide, submenuIds) {
     if (entry instanceof Separator) {
@@ -157,11 +206,16 @@ let NativeContextMenuService = class extends Disposable {
       }
       return {
         label: unmnemonicLabel(stripIcons(entry.label)).trim(),
-        submenu: this.createMenu(delegate, entry.actions, onHide, /* @__PURE__ */ new Set([...submenuIds, entry.id]))
+        submenu: this.createMenu(
+          delegate,
+          entry.actions,
+          onHide,
+          /* @__PURE__ */ new Set([...submenuIds, entry.id])
+        )
       };
     } else {
       let type = void 0;
-      if (!!entry.checked) {
+      if (entry.checked) {
         if (typeof delegate.getCheckedActionsRepresentation === "function") {
           type = delegate.getCheckedActionsRepresentation(entry);
         } else {
@@ -178,7 +232,7 @@ let NativeContextMenuService = class extends Disposable {
           this.runAction(entry, delegate, event);
         }, "click")
       };
-      const keybinding = !!delegate.getKeyBinding ? delegate.getKeyBinding(entry) : this.keybindingService.lookupKeybinding(entry.id);
+      const keybinding = delegate.getKeyBinding ? delegate.getKeyBinding(entry) : this.keybindingService.lookupKeybinding(entry.id);
       if (keybinding) {
         const electronAccelerator = keybinding.getElectronAccelerator();
         if (electronAccelerator) {
@@ -195,7 +249,10 @@ let NativeContextMenuService = class extends Disposable {
   }
   async runAction(actionToRun, delegate, event) {
     if (!delegate.skipTelemetry) {
-      this.telemetryService.publicLog2("workbenchActionExecuted", { id: actionToRun.id, from: "contextMenu" });
+      this.telemetryService.publicLog2("workbenchActionExecuted", {
+        id: actionToRun.id,
+        from: "contextMenu"
+      });
     }
     const context = delegate.getActionsContext ? delegate.getActionsContext(event) : void 0;
     try {
@@ -216,7 +273,11 @@ NativeContextMenuService = __decorateClass([
   __decorateParam(3, IMenuService),
   __decorateParam(4, IContextKeyService)
 ], NativeContextMenuService);
-registerSingleton(IContextMenuService, ContextMenuService, InstantiationType.Delayed);
+registerSingleton(
+  IContextMenuService,
+  ContextMenuService,
+  InstantiationType.Delayed
+);
 export {
   ContextMenuService
 };

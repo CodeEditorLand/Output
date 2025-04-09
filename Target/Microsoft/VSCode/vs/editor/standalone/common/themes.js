@@ -1,6 +1,13 @@
-import { editorActiveIndentGuide1, editorIndentGuide1 } from "../../common/core/editorColorRegistry.js";
-import { IStandaloneThemeData } from "./standaloneTheme.js";
-import { editorBackground, editorForeground, editorInactiveSelection, editorSelectionHighlight } from "../../../platform/theme/common/colorRegistry.js";
+import {
+  editorBackground,
+  editorForeground,
+  editorInactiveSelection,
+  editorSelectionHighlight
+} from "../../../platform/theme/common/colorRegistry.js";
+import {
+  editorActiveIndentGuide1,
+  editorIndentGuide1
+} from "../../common/core/editorColorRegistry.js";
 const vs = {
   base: "vs",
   inherit: false,

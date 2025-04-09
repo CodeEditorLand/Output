@@ -1,12 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ICodeMapperResult } from "../../contrib/chat/common/chatCodeMapperService.js";
+import { asArray } from "../../../base/common/arrays.js";
+import { URI } from "../../../base/common/uri.js";
 import * as extHostProtocol from "./extHost.protocol.js";
 import { NotebookEdit, TextEdit } from "./extHostTypeConverters.js";
-import { URI } from "../../../base/common/uri.js";
-import { asArray } from "../../../base/common/arrays.js";
 class ExtHostCodeMapper {
   static {
     __name(this, "ExtHostCodeMapper");
@@ -15,12 +12,16 @@ class ExtHostCodeMapper {
   _proxy;
   providers = /* @__PURE__ */ new Map();
   constructor(mainContext) {
-    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadCodeMapper);
+    this._proxy = mainContext.getProxy(
+      extHostProtocol.MainContext.MainThreadCodeMapper
+    );
   }
   async $mapCode(handle, internalRequest, token) {
     const provider = this.providers.get(handle);
     if (!provider) {
-      throw new Error(`Received request to map code for unknown provider handle ${handle}`);
+      throw new Error(
+        `Received request to map code for unknown provider handle ${handle}`
+      );
     }
     const stream = {
       textEdit: /* @__PURE__ */ __name((target, edits) => {
@@ -49,12 +50,19 @@ class ExtHostCodeMapper {
         };
       })
     };
-    const result = await provider.provideMappedEdits(request, stream, token);
+    const result = await provider.provideMappedEdits(
+      request,
+      stream,
+      token
+    );
     return result ?? null;
   }
   registerMappedEditsProvider(extension, provider) {
     const handle = ExtHostCodeMapper._providerHandlePool++;
-    this._proxy.$registerCodeMapperProvider(handle, extension.displayName ?? extension.name);
+    this._proxy.$registerCodeMapperProvider(
+      handle,
+      extension.displayName ?? extension.name
+    );
     this.providers.set(handle, provider);
     return {
       dispose: /* @__PURE__ */ __name(() => {

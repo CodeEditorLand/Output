@@ -75,9 +75,9 @@ class TokenMetadata {
     return (metadata & 4278190080 /* BACKGROUND_MASK */) >>> 24 /* BACKGROUND_OFFSET */;
   }
   static getClassNameFromMetadata(metadata) {
-    const foreground = this.getForeground(metadata);
-    let className = "mtk" + foreground;
-    const fontStyle = this.getFontStyle(metadata);
+    const foreground = TokenMetadata.getForeground(metadata);
+    let className = `mtk${foreground}`;
+    const fontStyle = TokenMetadata.getFontStyle(metadata);
     if (fontStyle & 1 /* Italic */) {
       className += " mtki";
     }
@@ -93,8 +93,8 @@ class TokenMetadata {
     return className;
   }
   static getInlineStyleFromMetadata(metadata, colorMap) {
-    const foreground = this.getForeground(metadata);
-    const fontStyle = this.getFontStyle(metadata);
+    const foreground = TokenMetadata.getForeground(metadata);
+    const fontStyle = TokenMetadata.getFontStyle(metadata);
     let result = `color: ${colorMap[foreground]};`;
     if (fontStyle & 1 /* Italic */) {
       result += "font-style: italic;";
@@ -115,8 +115,8 @@ class TokenMetadata {
     return result;
   }
   static getPresentationFromMetadata(metadata) {
-    const foreground = this.getForeground(metadata);
-    const fontStyle = this.getFontStyle(metadata);
+    const foreground = TokenMetadata.getForeground(metadata);
+    const fontStyle = TokenMetadata.getFontStyle(metadata);
     return {
       foreground,
       italic: Boolean(fontStyle & 1 /* Italic */),

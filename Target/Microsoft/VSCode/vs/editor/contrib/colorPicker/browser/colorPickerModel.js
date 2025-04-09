@@ -1,8 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Color } from "../../../../base/common/color.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IColorPresentation } from "../../../common/languages.js";
+import { Emitter } from "../../../../base/common/event.js";
 class ColorPickerModel {
   constructor(color, availableColorPresentations, presentationIndex) {
     this.presentationIndex = presentationIndex;

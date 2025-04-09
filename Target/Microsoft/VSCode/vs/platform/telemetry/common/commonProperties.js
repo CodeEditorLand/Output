@@ -1,9 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isLinuxSnap, platform, Platform, PlatformToString } from "../../../base/common/platform.js";
+import {
+  isLinuxSnap,
+  Platform,
+  platform,
+  PlatformToString
+} from "../../../base/common/platform.js";
 import { env, platform as nodePlatform } from "../../../base/common/process.js";
 import { generateUuid } from "../../../base/common/uuid.js";
-import { ICommonProperties } from "./telemetry.js";
 function getPlatformDetail(hostname) {
   if (platform === Platform.Linux && /^penguin(\.|$)/i.test(hostname)) {
     return "chromebook";
@@ -19,7 +23,10 @@ function resolveCommonProperties(release, hostname, arch, commit, version, machi
   result["sessionID"] = generateUuid() + Date.now();
   result["commitHash"] = commit;
   result["version"] = version;
-  result["common.platformVersion"] = (release || "").replace(/^(\d+)(\.\d+)?(\.\d+)?(.*)/, "$1$2$3");
+  result["common.platformVersion"] = (release || "").replace(
+    /^(\d+)(\.\d+)?(\.\d+)?(.*)/,
+    "$1$2$3"
+  );
   result["common.platform"] = PlatformToString(platform);
   result["common.nodePlatform"] = nodePlatform;
   result["common.nodeArch"] = arch;
@@ -31,7 +38,7 @@ function resolveCommonProperties(release, hostname, arch, commit, version, machi
   const startTime = Date.now();
   Object.defineProperties(result, {
     // __GDPR__COMMON__ "timestamp" : { "classification": "SystemMetaData", "purpose": "FeatureInsight" }
-    "timestamp": {
+    timestamp: {
       get: /* @__PURE__ */ __name(() => /* @__PURE__ */ new Date(), "get"),
       enumerable: true
     },

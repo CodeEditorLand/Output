@@ -9,15 +9,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import { URI } from "../../../../../../base/common/uri.js";
-import { Emitter } from "../../../../../../base/common/event.js";
 import { assert } from "../../../../../../base/common/assert.js";
-import { CancellationError } from "../../../../../../base/common/errors.js";
-import { VSBufferReadableStream } from "../../../../../../base/common/buffer.js";
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
-import { ObservableDisposable } from "../../../../../../base/common/observableDisposable.js";
-import { FailedToResolveContentsStream, ResolveError } from "../../promptFileReferenceErrors.js";
 import { cancelPreviousCalls } from "../../../../../../base/common/decorators/cancelPreviousCalls.js";
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { Emitter } from "../../../../../../base/common/event.js";
+import { ObservableDisposable } from "../../../../../../base/common/observableDisposable.js";
+import {
+  FailedToResolveContentsStream,
+  ResolveError
+} from "../../promptFileReferenceErrors.js";
 class PromptContentsProviderBase extends ObservableDisposable {
   static {
     __name(this, "PromptContentsProviderBase");
@@ -27,17 +27,25 @@ class PromptContentsProviderBase extends ObservableDisposable {
    * this abstract class are responsible to use this emitter to fire the contents change
    * event when the prompt contents get modified.
    */
-  onChangeEmitter = this._register(new Emitter());
+  onChangeEmitter = this._register(
+    new Emitter()
+  );
   constructor() {
     super();
-    this.onChangeEmitter.fire = this.onChangeEmitter.fire.bind(this.onChangeEmitter);
-    this._register(this.onChangeEmitter.event(this.onContentsChanged, this));
+    this.onChangeEmitter.fire = this.onChangeEmitter.fire.bind(
+      this.onChangeEmitter
+    );
+    this._register(
+      this.onChangeEmitter.event(this.onContentsChanged, this)
+    );
   }
   /**
    * Event emitter for the prompt contents change event.
    * See {@linkcode onContentChanged} for more details.
    */
-  onContentChangedEmitter = this._register(new Emitter());
+  onContentChangedEmitter = this._register(
+    new Emitter()
+  );
   /**
    * Event that fires when the prompt contents change. The event is either
    * a `VSBufferReadableStream` stream with changed contents or an instance of

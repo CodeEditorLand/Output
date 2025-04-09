@@ -203,7 +203,7 @@
   font-family: var(--monaco-monospace-font);
   white-space: pre;
   box-sizing: border-box;
-  opacity: .7;
+  opacity: 0.7;
   width: 35px;
   right: 0px;
   text-align: center;
@@ -318,7 +318,7 @@
 .notebookOverlay .cell .monaco-editor-background,
 .notebookOverlay .cell .margin-view-overlays,
 .notebookOverlay .cell .cell-statusbar-container {
-  background: var(--vscode-notebook-cellEditorBackground, var(--vscode-editor-background));
+  background: var( --vscode-notebook-cellEditorBackground, var(--vscode-editor-background) );
 }
 .notebookOverlay .monaco-list-row .cell-title-toolbar,
 .notebookOverlay .cell-bottom-toolbar-container .action-item,
@@ -342,13 +342,13 @@
 .notebookOverlay .monaco-list.selection-multiple .code-cell-row.selected .cell-focus-indicator-left,
 .notebookOverlay .monaco-list.selection-multiple .code-cell-row.selected .cell-focus-indicator-right,
 .notebookOverlay .monaco-list.selection-multiple .code-cell-row.selected .cell-focus-indicator-bottom {
-  background-color: var(--vscode-notebook-selectedCellBackground, inherit) !important;
+  background-color: var( --vscode-notebook-selectedCellBackground, inherit ) !important;
 }
 .notebookOverlay .monaco-list.selection-multiple:focus-within .monaco-list-row.selected .cell-focus-indicator-top:before,
 .notebookOverlay .monaco-list.selection-multiple:focus-within .monaco-list-row.selected .cell-focus-indicator-bottom:before,
 .notebookOverlay .monaco-list.selection-multiple:focus-within .monaco-list-row.selected .cell-inner-container:not(.cell-editor-focus) .cell-focus-indicator-left:before,
 .notebookOverlay .monaco-list.selection-multiple:focus-within .monaco-list-row.selected .cell-inner-container:not(.cell-editor-focus) .cell-focus-indicator-right:before {
-  border-color: var(--vscode-notebook-inactiveSelectedCellBorder, transparent) !important;
+  border-color: var( --vscode-notebook-inactiveSelectedCellBorder, transparent ) !important;
 }
 .notebookOverlay .code-cell-row:not(.focused):hover .cell-focus-indicator,
 .notebookOverlay .code-cell-row:not(.focused).cell-output-hover .cell-focus-indicator,
@@ -361,7 +361,7 @@
 }
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.code-cell-row.nb-symbolHighlight .cell-focus-indicator,
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.markdown-cell-row.nb-symbolHighlight {
-  background-color: var(--vscode-notebook-symbolHighlightBackground) !important;
+  background-color: var( --vscode-notebook-symbolHighlightBackground ) !important;
 }
 .nb-inline-value {
   background-color: var(--vscode-editorInlayHint-background);
@@ -381,7 +381,7 @@
 .nb-multicursor-cursor {
   top: 0;
   min-width: 1.9px;
-  background-color: #AEAFAD;
+  background-color: #aeafad;
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -462,7 +462,7 @@
 }
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.code-cell-row.nb-multiCellHighlight .cell-focus-indicator,
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.markdown-cell-row.nb-multiCellHighlight {
-  background-color: var(--vscode-notebook-symbolHighlightBackground) !important;
+  background-color: var( --vscode-notebook-symbolHighlightBackground ) !important;
 }
 .notebookOverlay .monaco-list:focus-within .monaco-list-row.focused .cell-editor-focus .cell-editor-part:before {
   outline: solid 1px var(--vscode-notebook-focusedEditorBorder);
@@ -501,10 +501,10 @@
   background-color: var(--vscode-editorGutter-modifiedBackground) !important;
 }
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.code-cell-row.nb-cell-added .cell-focus-indicator {
-  background-color: var(--vscode-diffEditor-insertedTextBackground) !important;
+  background-color: var( --vscode-diffEditor-insertedTextBackground ) !important;
 }
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.markdown-cell-row.nb-cell-added {
-  background-color: var(--vscode-diffEditor-insertedTextBackground) !important;
+  background-color: var( --vscode-diffEditor-insertedTextBackground ) !important;
 }
 .monaco-workbench .notebookOverlay .monaco-list .monaco-list-row.code-cell-row.nb-cell-deleted .cell-focus-indicator {
   background-color: var(--vscode-diffEditor-removedTextBackground) !important;

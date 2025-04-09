@@ -19,10 +19,15 @@ import { IConfigurationService } from "../../configuration/common/configuration.
 import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
 import { IStateService } from "../../state/node/state.js";
-import { INativeWindowConfiguration, IWindowSettings } from "../../window/common/window.js";
+import {
+  defaultWindowState,
+  WindowMode
+} from "../../window/electron-main/window.js";
+import {
+  isSingleFolderWorkspaceIdentifier,
+  isWorkspaceIdentifier
+} from "../../workspace/common/workspace.js";
 import { IWindowsMainService } from "./windows.js";
-import { defaultWindowState, ICodeWindow, IWindowState as IWindowUIState, WindowMode } from "../../window/electron-main/window.js";
-import { isSingleFolderWorkspaceIdentifier, isWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 let WindowsStateHandler = class extends Disposable {
   constructor(windowsMainService, stateService, lifecycleMainService, logService, configurationService) {
     super();
@@ -31,7 +36,11 @@ let WindowsStateHandler = class extends Disposable {
     this.lifecycleMainService = lifecycleMainService;
     this.logService = logService;
     this.configurationService = configurationService;
-    this._state = restoreWindowsState(this.stateService.getItem(WindowsStateHandler.windowsStateStorageKey));
+    this._state = restoreWindowsState(
+      this.stateService.getItem(
+        WindowsStateHandler.windowsStateStorageKey
+      )
+    );
     this.registerListeners();
   }
   static {
@@ -50,14 +59,28 @@ let WindowsStateHandler = class extends Disposable {
         this.saveWindowsState();
       }
     });
-    this._register(this.lifecycleMainService.onBeforeCloseWindow((window) => this.onBeforeCloseWindow(window)));
-    this._register(this.lifecycleMainService.onBeforeShutdown(() => this.onBeforeShutdown()));
-    this._register(this.windowsMainService.onDidChangeWindowsCount((e) => {
-      if (e.newCount - e.oldCount > 0) {
-        this.lastClosedState = void 0;
-      }
-    }));
-    this._register(this.windowsMainService.onDidDestroyWindow((window) => this.onBeforeCloseWindow(window)));
+    this._register(
+      this.lifecycleMainService.onBeforeCloseWindow(
+        (window) => this.onBeforeCloseWindow(window)
+      )
+    );
+    this._register(
+      this.lifecycleMainService.onBeforeShutdown(
+        () => this.onBeforeShutdown()
+      )
+    );
+    this._register(
+      this.windowsMainService.onDidChangeWindowsCount((e) => {
+        if (e.newCount - e.oldCount > 0) {
+          this.lastClosedState = void 0;
+        }
+      })
+    );
+    this._register(
+      this.windowsMainService.onDidDestroyWindow(
+        (window) => this.onBeforeCloseWindow(window)
+      )
+    );
   }
   // Note that onBeforeShutdown() and onBeforeCloseWindow() are fired in different order depending on the OS:
   // - macOS: since the app will not quit when closing the last window, you will always first get
@@ -115,20 +138,28 @@ let WindowsStateHandler = class extends Disposable {
       if (activeWindow) {
         currentWindowsState.lastActiveWindow = this.toWindowState(activeWindow);
         if (currentWindowsState.lastActiveWindow.uiState.mode === WindowMode.Fullscreen) {
-          displaysWithFullScreenWindow.add(currentWindowsState.lastActiveWindow.uiState.display);
+          displaysWithFullScreenWindow.add(
+            currentWindowsState.lastActiveWindow.uiState.display
+          );
         }
       }
     }
-    const extensionHostWindow = this.windowsMainService.getWindows().find((window) => window.isExtensionDevelopmentHost && !window.isExtensionTestHost);
+    const extensionHostWindow = this.windowsMainService.getWindows().find(
+      (window) => window.isExtensionDevelopmentHost && !window.isExtensionTestHost
+    );
     if (extensionHostWindow) {
       currentWindowsState.lastPluginDevelopmentHostWindow = this.toWindowState(extensionHostWindow);
       if (currentWindowsState.lastPluginDevelopmentHostWindow.uiState.mode === WindowMode.Fullscreen) {
-        if (displaysWithFullScreenWindow.has(currentWindowsState.lastPluginDevelopmentHostWindow.uiState.display)) {
+        if (displaysWithFullScreenWindow.has(
+          currentWindowsState.lastPluginDevelopmentHostWindow.uiState.display
+        )) {
           if (isMacintosh && !extensionHostWindow.win?.isSimpleFullScreen()) {
             currentWindowsState.lastPluginDevelopmentHostWindow.uiState.mode = WindowMode.Normal;
           }
         } else {
-          displaysWithFullScreenWindow.add(currentWindowsState.lastPluginDevelopmentHostWindow.uiState.display);
+          displaysWithFullScreenWindow.add(
+            currentWindowsState.lastPluginDevelopmentHostWindow.uiState.display
+          );
         }
       }
     }
@@ -136,21 +167,31 @@ let WindowsStateHandler = class extends Disposable {
       currentWindowsState.openedWindows = this.windowsMainService.getWindows().filter((window) => !window.isExtensionDevelopmentHost).map((window) => {
         const windowState = this.toWindowState(window);
         if (windowState.uiState.mode === WindowMode.Fullscreen) {
-          if (displaysWithFullScreenWindow.has(windowState.uiState.display)) {
+          if (displaysWithFullScreenWindow.has(
+            windowState.uiState.display
+          )) {
             if (isMacintosh && windowState.windowId !== currentWindowsState.lastActiveWindow?.windowId && !window.win?.isSimpleFullScreen()) {
               windowState.uiState.mode = WindowMode.Normal;
             }
           } else {
-            displaysWithFullScreenWindow.add(windowState.uiState.display);
+            displaysWithFullScreenWindow.add(
+              windowState.uiState.display
+            );
           }
         }
         return windowState;
       });
     }
     const state = getWindowsStateStoreData(currentWindowsState);
-    this.stateService.setItem(WindowsStateHandler.windowsStateStorageKey, state);
+    this.stateService.setItem(
+      WindowsStateHandler.windowsStateStorageKey,
+      state
+    );
     if (this.shuttingDown) {
-      this.logService.trace("[WindowsStateHandler] onBeforeShutdown", state);
+      this.logService.trace(
+        "[WindowsStateHandler] onBeforeShutdown",
+        state
+      );
     }
   }
   // See note on #onBeforeShutdown() for details how these events are flowing
@@ -164,7 +205,10 @@ let WindowsStateHandler = class extends Disposable {
     } else if (!window.isExtensionDevelopmentHost && window.openedWorkspace) {
       this._state.openedWindows.forEach((openedWindow) => {
         const sameWorkspace = isWorkspaceIdentifier(window.openedWorkspace) && openedWindow.workspace?.id === window.openedWorkspace.id;
-        const sameFolder = isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && openedWindow.folderUri && extUriBiasedIgnorePathCase.isEqual(openedWindow.folderUri, window.openedWorkspace.uri);
+        const sameFolder = isSingleFolderWorkspaceIdentifier(window.openedWorkspace) && openedWindow.folderUri && extUriBiasedIgnorePathCase.isEqual(
+          openedWindow.folderUri,
+          window.openedWorkspace.uri
+        );
         if (sameWorkspace || sameFolder) {
           openedWindow.uiState = state.uiState;
         }
@@ -190,7 +234,9 @@ let WindowsStateHandler = class extends Disposable {
     if (state.mode === WindowMode.Fullscreen) {
       let allowFullscreen;
       if (state.hasDefaultState) {
-        allowFullscreen = !!(windowConfig?.newWindowDimensions && ["fullscreen", "inherit", "offset"].indexOf(windowConfig.newWindowDimensions) >= 0);
+        allowFullscreen = !!(windowConfig?.newWindowDimensions && ["fullscreen", "inherit", "offset"].indexOf(
+          windowConfig.newWindowDimensions
+        ) >= 0);
       } else {
         allowFullscreen = !!(this.lifecycleMainService.wasRestarted || windowConfig?.restoreFullscreen);
       }
@@ -208,18 +254,27 @@ let WindowsStateHandler = class extends Disposable {
       }
       const workspace = configuration.workspace;
       if (isWorkspaceIdentifier(workspace)) {
-        const stateForWorkspace = this.state.openedWindows.filter((openedWindow) => openedWindow.workspace && openedWindow.workspace.id === workspace.id).map((openedWindow) => openedWindow.uiState);
+        const stateForWorkspace = this.state.openedWindows.filter(
+          (openedWindow) => openedWindow.workspace && openedWindow.workspace.id === workspace.id
+        ).map((openedWindow) => openedWindow.uiState);
         if (stateForWorkspace.length) {
           return stateForWorkspace[0];
         }
       }
       if (isSingleFolderWorkspaceIdentifier(workspace)) {
-        const stateForFolder = this.state.openedWindows.filter((openedWindow) => openedWindow.folderUri && extUriBiasedIgnorePathCase.isEqual(openedWindow.folderUri, workspace.uri)).map((openedWindow) => openedWindow.uiState);
+        const stateForFolder = this.state.openedWindows.filter(
+          (openedWindow) => openedWindow.folderUri && extUriBiasedIgnorePathCase.isEqual(
+            openedWindow.folderUri,
+            workspace.uri
+          )
+        ).map((openedWindow) => openedWindow.uiState);
         if (stateForFolder.length) {
           return stateForFolder[0];
         }
       } else if (configuration.backupPath) {
-        const stateForEmptyWindow = this.state.openedWindows.filter((openedWindow) => openedWindow.backupPath === configuration.backupPath).map((openedWindow) => openedWindow.uiState);
+        const stateForEmptyWindow = this.state.openedWindows.filter(
+          (openedWindow) => openedWindow.backupPath === configuration.backupPath
+        ).map((openedWindow) => openedWindow.uiState);
         if (stateForEmptyWindow.length) {
           return stateForEmptyWindow[0];
         }
@@ -239,15 +294,21 @@ let WindowsStateHandler = class extends Disposable {
         displayToUse = electron.screen.getDisplayNearestPoint(cursorPoint);
       }
       if (!displayToUse && lastActive) {
-        displayToUse = electron.screen.getDisplayMatching(lastActive.getBounds());
+        displayToUse = electron.screen.getDisplayMatching(
+          lastActive.getBounds()
+        );
       }
       if (!displayToUse) {
         displayToUse = electron.screen.getPrimaryDisplay() || displays[0];
       }
     }
     let state = defaultWindowState();
-    state.x = Math.round(displayToUse.bounds.x + displayToUse.bounds.width / 2 - state.width / 2);
-    state.y = Math.round(displayToUse.bounds.y + displayToUse.bounds.height / 2 - state.height / 2);
+    state.x = Math.round(
+      displayToUse.bounds.x + displayToUse.bounds.width / 2 - state.width / 2
+    );
+    state.y = Math.round(
+      displayToUse.bounds.y + displayToUse.bounds.height / 2 - state.height / 2
+    );
     const windowConfig = this.configurationService.getValue("window");
     let ensureNoOverlap = true;
     if (windowConfig?.newWindowDimensions) {
@@ -284,7 +345,9 @@ let WindowsStateHandler = class extends Disposable {
     state.x = typeof state.x === "number" ? state.x : 0;
     state.y = typeof state.y === "number" ? state.y : 0;
     const existingWindowBounds = this.windowsMainService.getWindows().map((window) => window.getBounds());
-    while (existingWindowBounds.some((bounds) => bounds.x === state.x || bounds.y === state.y)) {
+    while (existingWindowBounds.some(
+      (bounds) => bounds.x === state.x || bounds.y === state.y
+    )) {
       state.x += 30;
       state.y += 30;
     }
@@ -302,13 +365,19 @@ function restoreWindowsState(data) {
   const result = { openedWindows: [] };
   const windowsState = data || { openedWindows: [] };
   if (windowsState.lastActiveWindow) {
-    result.lastActiveWindow = restoreWindowState(windowsState.lastActiveWindow);
+    result.lastActiveWindow = restoreWindowState(
+      windowsState.lastActiveWindow
+    );
   }
   if (windowsState.lastPluginDevelopmentHostWindow) {
-    result.lastPluginDevelopmentHostWindow = restoreWindowState(windowsState.lastPluginDevelopmentHostWindow);
+    result.lastPluginDevelopmentHostWindow = restoreWindowState(
+      windowsState.lastPluginDevelopmentHostWindow
+    );
   }
   if (Array.isArray(windowsState.openedWindows)) {
-    result.openedWindows = windowsState.openedWindows.map((windowState) => restoreWindowState(windowState));
+    result.openedWindows = windowsState.openedWindows.map(
+      (windowState) => restoreWindowState(windowState)
+    );
   }
   return result;
 }
@@ -325,7 +394,12 @@ function restoreWindowState(windowState) {
     result.folderUri = URI.parse(windowState.folder);
   }
   if (windowState.workspaceIdentifier) {
-    result.workspace = { id: windowState.workspaceIdentifier.id, configPath: URI.parse(windowState.workspaceIdentifier.configURIPath) };
+    result.workspace = {
+      id: windowState.workspaceIdentifier.id,
+      configPath: URI.parse(
+        windowState.workspaceIdentifier.configURIPath
+      )
+    };
   }
   return result;
 }
@@ -334,14 +408,19 @@ function getWindowsStateStoreData(windowsState) {
   return {
     lastActiveWindow: windowsState.lastActiveWindow && serializeWindowState(windowsState.lastActiveWindow),
     lastPluginDevelopmentHostWindow: windowsState.lastPluginDevelopmentHostWindow && serializeWindowState(windowsState.lastPluginDevelopmentHostWindow),
-    openedWindows: windowsState.openedWindows.map((ws) => serializeWindowState(ws))
+    openedWindows: windowsState.openedWindows.map(
+      (ws) => serializeWindowState(ws)
+    )
   };
 }
 __name(getWindowsStateStoreData, "getWindowsStateStoreData");
 function serializeWindowState(windowState) {
   return {
-    workspaceIdentifier: windowState.workspace && { id: windowState.workspace.id, configURIPath: windowState.workspace.configPath.toString() },
-    folder: windowState.folderUri && windowState.folderUri.toString(),
+    workspaceIdentifier: windowState.workspace && {
+      id: windowState.workspace.id,
+      configURIPath: windowState.workspace.configPath.toString()
+    },
+    folder: windowState.folderUri?.toString(),
     backupPath: windowState.backupPath,
     remoteAuthority: windowState.remoteAuthority,
     uiState: windowState.uiState

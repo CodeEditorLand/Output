@@ -1,9 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { BaseToken } from "../../baseToken.js";
-import { Range } from "../../../core/range.js";
-import { MarkdownToken } from "./markdownToken.js";
 import { assert } from "../../../../../base/common/assert.js";
+import { MarkdownToken } from "./markdownToken.js";
 class MarkdownComment extends MarkdownToken {
   constructor(range, text) {
     assert(

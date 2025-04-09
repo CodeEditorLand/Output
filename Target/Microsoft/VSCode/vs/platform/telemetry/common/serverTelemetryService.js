@@ -13,9 +13,13 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { refineServiceDecorator } from "../../instantiation/common/instantiation.js";
 import { IProductService } from "../../product/common/productService.js";
-import { ClassifiedEvent, IGDPRProperty, OmitMetadata, StrictPropertyCheck } from "./gdprTypings.js";
-import { ITelemetryData, ITelemetryService, TelemetryLevel } from "./telemetry.js";
-import { ITelemetryServiceConfig, TelemetryService } from "./telemetryService.js";
+import {
+  ITelemetryService,
+  TelemetryLevel
+} from "./telemetry.js";
+import {
+  TelemetryService
+} from "./telemetryService.js";
 import { NullTelemetryServiceShape } from "./telemetryUtils.js";
 let ServerTelemetryService = class extends TelemetryService {
   static {
@@ -45,12 +49,17 @@ let ServerTelemetryService = class extends TelemetryService {
     return super.publicLogError(errorEventName, data);
   }
   publicLogError2(eventName, data) {
-    return this.publicLogError(eventName, data);
+    return this.publicLogError(
+      eventName,
+      data
+    );
   }
   async updateInjectedTelemetryLevel(telemetryLevel) {
     if (telemetryLevel === void 0) {
       this._injectedTelemetryLevel = TelemetryLevel.NONE;
-      throw new Error("Telemetry level cannot be undefined. This will cause infinite looping!");
+      throw new Error(
+        "Telemetry level cannot be undefined. This will cause infinite looping!"
+      );
     }
     this._injectedTelemetryLevel = this._injectedTelemetryLevel ? Math.min(this._injectedTelemetryLevel, telemetryLevel) : telemetryLevel;
     if (this._injectedTelemetryLevel === TelemetryLevel.NONE) {

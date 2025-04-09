@@ -10,11 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { throttle } from "../../../../../base/common/decorators.js";
 import { Emitter, Event } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { ILogService, LogLevel } from "../../../../log/common/log.js";
-import { throttle } from "../../../../../base/common/decorators.js";
-import { PosixShellType, TerminalShellType } from "../../terminal.js";
+import { PosixShellType } from "../../terminal.js";
 var PromptInputState = /* @__PURE__ */ ((PromptInputState2) => {
   PromptInputState2[PromptInputState2["Unknown"] = 0] = "Unknown";
   PromptInputState2[PromptInputState2["Input"] = 1] = "Input";
@@ -26,19 +26,51 @@ let PromptInputModel = class extends Disposable {
     super();
     this._xterm = _xterm;
     this._logService = _logService;
-    this._register(Event.any(
-      this._xterm.onCursorMove,
-      this._xterm.onData,
-      this._xterm.onWriteParsed
-    )(() => this._sync()));
+    this._register(
+      Event.any(
+        this._xterm.onCursorMove,
+        this._xterm.onData,
+        this._xterm.onWriteParsed
+      )(() => this._sync())
+    );
     this._register(this._xterm.onData((e) => this._handleUserInput(e)));
-    this._register(onCommandStart((e) => this._handleCommandStart(e)));
-    this._register(onCommandStartChanged(() => this._handleCommandStartChanged()));
+    this._register(
+      onCommandStart(
+        (e) => this._handleCommandStart(e)
+      )
+    );
+    this._register(
+      onCommandStartChanged(() => this._handleCommandStartChanged())
+    );
     this._register(onCommandExecuted(() => this._handleCommandExecuted()));
-    this._register(this.onDidStartInput(() => this._logCombinedStringIfTrace("PromptInputModel#onDidStartInput")));
-    this._register(this.onDidChangeInput(() => this._logCombinedStringIfTrace("PromptInputModel#onDidChangeInput")));
-    this._register(this.onDidFinishInput(() => this._logCombinedStringIfTrace("PromptInputModel#onDidFinishInput")));
-    this._register(this.onDidInterrupt(() => this._logCombinedStringIfTrace("PromptInputModel#onDidInterrupt")));
+    this._register(
+      this.onDidStartInput(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidStartInput"
+        )
+      )
+    );
+    this._register(
+      this.onDidChangeInput(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidChangeInput"
+        )
+      )
+    );
+    this._register(
+      this.onDidFinishInput(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidFinishInput"
+        )
+      )
+    );
+    this._register(
+      this.onDidInterrupt(
+        () => this._logCombinedStringIfTrace(
+          "PromptInputModel#onDidInterrupt"
+        )
+      )
+    );
   }
   static {
     __name(this, "PromptInputModel");
@@ -58,7 +90,10 @@ let PromptInputModel = class extends Disposable {
     return this._value.substring(0, this._cursorIndex);
   }
   get suffix() {
-    return this._value.substring(this._cursorIndex, this._ghostTextIndex === -1 ? void 0 : this._ghostTextIndex);
+    return this._value.substring(
+      this._cursorIndex,
+      this._ghostTextIndex === -1 ? void 0 : this._ghostTextIndex
+    );
   }
   _cursorIndex = 0;
   get cursorIndex() {
@@ -68,13 +103,21 @@ let PromptInputModel = class extends Disposable {
   get ghostTextIndex() {
     return this._ghostTextIndex;
   }
-  _onDidStartInput = this._register(new Emitter());
+  _onDidStartInput = this._register(
+    new Emitter()
+  );
   onDidStartInput = this._onDidStartInput.event;
-  _onDidChangeInput = this._register(new Emitter());
+  _onDidChangeInput = this._register(
+    new Emitter()
+  );
   onDidChangeInput = this._onDidChangeInput.event;
-  _onDidFinishInput = this._register(new Emitter());
+  _onDidFinishInput = this._register(
+    new Emitter()
+  );
   onDidFinishInput = this._onDidFinishInput.event;
-  _onDidInterrupt = this._register(new Emitter());
+  _onDidInterrupt = this._register(
+    new Emitter()
+  );
   onDidInterrupt = this._onDidInterrupt.event;
   _logCombinedStringIfTrace(message) {
     if (this._logService.getLevel() === LogLevel.Trace) {
@@ -148,7 +191,9 @@ let PromptInputModel = class extends Disposable {
     this._onDidChangeInput.fire(this._createStateObject());
     if (this._lastPromptLine) {
       if (this._commandStartX !== this._lastPromptLine.length) {
-        const line = this._xterm.buffer.active.getLine(this._commandStartMarker.line);
+        const line = this._xterm.buffer.active.getLine(
+          this._commandStartMarker.line
+        );
         if (line?.translateToString(true).startsWith(this._lastPromptLine)) {
           this._commandStartX = this._lastPromptLine.length;
           this._sync();
@@ -211,14 +256,18 @@ let PromptInputModel = class extends Disposable {
       }
     }
     if (line === void 0 || commandLine === void 0) {
-      this._logService.trace(`PromptInputModel#_sync: no line`);
+      this._logService.trace("PromptInputModel#_sync: no line");
       return;
     }
     let value = commandLine;
     let ghostTextIndex = -1;
     if (cursorIndex === void 0) {
       if (absoluteCursorY === commandStartY) {
-        cursorIndex = this._getRelativeCursorIndex(this._commandStartX, buffer, line);
+        cursorIndex = this._getRelativeCursorIndex(
+          this._commandStartX,
+          buffer,
+          line
+        );
       } else {
         cursorIndex = commandLine.trimEnd().length;
       }
@@ -229,7 +278,11 @@ let PromptInputModel = class extends Disposable {
       if (lineText && nextLine) {
         if (nextLine.isWrapped || absoluteCursorY === y && this._continuationPrompt && !this._lineContainsContinuationPrompt(lineText)) {
           value += `${lineText}`;
-          const relativeCursorIndex = this._getRelativeCursorIndex(0, buffer, nextLine);
+          const relativeCursorIndex = this._getRelativeCursorIndex(
+            0,
+            buffer,
+            nextLine
+          );
           if (absoluteCursorY === y) {
             cursorIndex += relativeCursorIndex;
           } else {
@@ -255,8 +308,15 @@ ${lineText.trim()}`;
           value += `
 ${trimmedLineText}`;
           if (absoluteCursorY === y) {
-            const continuationCellWidth = this._getContinuationPromptCellWidth(nextLine, lineText);
-            const relativeCursorIndex = this._getRelativeCursorIndex(continuationCellWidth, buffer, nextLine);
+            const continuationCellWidth = this._getContinuationPromptCellWidth(
+              nextLine,
+              lineText
+            );
+            const relativeCursorIndex = this._getRelativeCursorIndex(
+              continuationCellWidth,
+              buffer,
+              nextLine
+            );
             cursorIndex += relativeCursorIndex + 1;
           } else {
             cursorIndex += trimmedLineText.length + 1;
@@ -281,7 +341,9 @@ ${this._trimContinuationPrompt(lineText)}`;
       }
     }
     if (this._logService.getLevel() === LogLevel.Trace) {
-      this._logService.trace(`PromptInputModel#_sync: ${this.getCombinedString()}`);
+      this._logService.trace(
+        `PromptInputModel#_sync: ${this.getCombinedString()}`
+      );
     }
     {
       let trailingWhitespace = this._value.length - this._value.trimEnd().length;
@@ -289,9 +351,15 @@ ${this._trimContinuationPrompt(lineText)}`;
         this._lastUserInput = "";
         if (cursorIndex === this._cursorIndex - 1) {
           if (this._value.trimEnd().length > value.trimEnd().length && value.trimEnd().length <= cursorIndex) {
-            trailingWhitespace = Math.max(this._value.length - 1 - value.trimEnd().length, 0);
+            trailingWhitespace = Math.max(
+              this._value.length - 1 - value.trimEnd().length,
+              0
+            );
           } else {
-            trailingWhitespace = Math.max(trailingWhitespace - 1, 0);
+            trailingWhitespace = Math.max(
+              trailingWhitespace - 1,
+              0
+            );
           }
         }
       }
@@ -312,7 +380,11 @@ ${this._trimContinuationPrompt(lineText)}`;
               trailingWhitespace++;
             }
           }
-          trailingWhitespace = Math.max(cursorIndex - valueEndTrimmed.length, trailingWhitespace, 0);
+          trailingWhitespace = Math.max(
+            cursorIndex - valueEndTrimmed.length,
+            trailingWhitespace,
+            0
+          );
         }
         const charBeforeCursor = cursorIndex === 0 ? "" : value[cursorIndex - 1];
         if (trailingWhitespace > 0 && cursorIndex === this._cursorIndex + 1 && this._lastUserInput !== "" && charBeforeCursor !== " ") {
@@ -322,7 +394,10 @@ ${this._trimContinuationPrompt(lineText)}`;
       if (isMultiLine) {
         valueLines[valueLines.length - 1] = valueLines.at(-1)?.trimEnd() ?? "";
         const continuationOffset = (valueLines.length - 1) * (this._continuationPrompt?.length ?? 0);
-        trailingWhitespace = Math.max(0, cursorIndex - value.length - continuationOffset);
+        trailingWhitespace = Math.max(
+          0,
+          cursorIndex - value.length - continuationOffset
+        );
       }
       value = valueLines.map((e) => e.trimEnd()).join("\n") + " ".repeat(trailingWhitespace);
     }
@@ -374,7 +449,11 @@ ${this._trimContinuationPrompt(lineText)}`;
       }
     }
     if (ghostTextIndex === -1) {
-      ghostTextIndex = this._scanForGhostTextAdvanced(buffer, line, cursorIndex);
+      ghostTextIndex = this._scanForGhostTextAdvanced(
+        buffer,
+        line,
+        cursorIndex
+      );
     }
     if (ghostTextIndex > -1 && this.value.substring(ghostTextIndex).endsWith(" ")) {
       this._value = this.value.trim();
@@ -392,16 +471,24 @@ ${this._trimContinuationPrompt(lineText)}`;
     let nextCell = lastNonWhitespaceCell;
     while (nextCell && currentPos < line.length) {
       const styleKey = this._getCellStyleAsString(nextCell);
-      styleMap.set(styleKey, [...styleMap.get(styleKey) ?? [], currentPos]);
+      styleMap.set(styleKey, [
+        ...styleMap.get(styleKey) ?? [],
+        currentPos
+      ]);
       nextCell = line.getCell(++currentPos);
       if (nextCell?.getChars().trim().length) {
         lastNonWhitespaceCell = nextCell;
       }
     }
-    if (!lastNonWhitespaceCell?.getChars().trim().length || this._cellStylesMatch(line.getCell(this._commandStartX), lastNonWhitespaceCell)) {
+    if (!lastNonWhitespaceCell?.getChars().trim().length || this._cellStylesMatch(
+      line.getCell(this._commandStartX),
+      lastNonWhitespaceCell
+    )) {
       return -1;
     }
-    const positionsWithGhostStyle = styleMap.get(this._getCellStyleAsString(lastNonWhitespaceCell));
+    const positionsWithGhostStyle = styleMap.get(
+      this._getCellStyleAsString(lastNonWhitespaceCell)
+    );
     if (positionsWithGhostStyle) {
       for (let i = 1; i < positionsWithGhostStyle.length; i++) {
         if (positionsWithGhostStyle[i] !== positionsWithGhostStyle[i - 1] + 1) {
@@ -438,7 +525,7 @@ ${this._trimContinuationPrompt(lineText)}`;
   }
   _trimContinuationPrompt(lineText) {
     if (this._lineContainsContinuationPrompt(lineText)) {
-      lineText = lineText.substring(this._continuationPrompt.length);
+      lineText = lineText.substring(this._continuationPrompt?.length);
     }
     return lineText;
   }

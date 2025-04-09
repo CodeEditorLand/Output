@@ -1,20 +1,25 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
-import { ILogService } from "../../../../../platform/log/common/log.js";
-import { NotebookTextModel } from "../../common/model/notebookTextModel.js";
-import { IOutputItemDto, isTextStreamMime } from "../../common/notebookCommon.js";
-import { ICellOutputViewModel, ICellViewModel } from "../notebookBrowser.js";
+import {
+  isTextStreamMime
+} from "../../common/notebookCommon.js";
 function getAllOutputsText(notebook, viewCell, shortErrors = false) {
   const outputText = [];
   for (let i = 0; i < viewCell.outputsViewModels.length; i++) {
     const outputViewModel = viewCell.outputsViewModels[i];
     const outputTextModel = viewCell.model.outputs[i];
-    const [mimeTypes, pick] = outputViewModel.resolveMimeTypes(notebook, void 0);
+    const [mimeTypes, pick] = outputViewModel.resolveMimeTypes(
+      notebook,
+      void 0
+    );
     const mimeType = mimeTypes[pick].mimeType;
-    let buffer = outputTextModel.outputs.find((output) => output.mime === mimeType);
+    let buffer = outputTextModel.outputs.find(
+      (output) => output.mime === mimeType
+    );
     if (!buffer || mimeType.startsWith("image")) {
-      buffer = outputTextModel.outputs.find((output) => !output.mime.startsWith("image"));
+      buffer = outputTextModel.outputs.find(
+        (output) => !output.mime.startsWith("image")
+      );
     }
     if (!buffer) {
       continue;
@@ -50,7 +55,9 @@ function getOutputStreamText(output) {
   let count = 0;
   while (index < cellViewModel.model.outputs.length) {
     const nextCellOutput = cellViewModel.model.outputs[index];
-    const nextOutput = nextCellOutput.outputs.find((output2) => isTextStreamMime(output2.mime));
+    const nextOutput = nextCellOutput.outputs.find(
+      (output2) => isTextStreamMime(output2.mime)
+    );
     if (!nextOutput) {
       break;
     }
@@ -67,7 +74,7 @@ function getOutputText(mimeType, buffer, shortError = false) {
   const charLimit = 1e5;
   text = decoder.decode(buffer.data.slice(0, charLimit).buffer);
   if (buffer.data.byteLength > charLimit) {
-    text = text + "...(truncated)";
+    text = `${text}...(truncated)`;
   } else if (mimeType === "application/vnd.code.notebook.error") {
     text = text.replace(/\\u001b\[[0-9;]*m/gi, "");
     try {
@@ -85,7 +92,9 @@ function getOutputText(mimeType, buffer, shortError = false) {
 __name(getOutputText, "getOutputText");
 async function copyCellOutput(mimeType, outputViewModel, clipboardService, logService) {
   const cellOutput = outputViewModel.model;
-  const output = mimeType && TEXT_BASED_MIMETYPES.includes(mimeType) ? cellOutput.outputs.find((output2) => output2.mime === mimeType) : cellOutput.outputs.find((output2) => TEXT_BASED_MIMETYPES.includes(output2.mime));
+  const output = mimeType && TEXT_BASED_MIMETYPES.includes(mimeType) ? cellOutput.outputs.find((output2) => output2.mime === mimeType) : cellOutput.outputs.find(
+    (output2) => TEXT_BASED_MIMETYPES.includes(output2.mime)
+  );
   mimeType = output?.mime;
   if (!mimeType || !output) {
     return;

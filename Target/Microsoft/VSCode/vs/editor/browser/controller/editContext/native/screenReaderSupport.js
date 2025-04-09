@@ -11,22 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { getActiveWindow } from "../../../../../base/browser/dom.js";
-import { FastDomNode } from "../../../../../base/browser/fastDomNode.js";
 import { localize } from "../../../../../nls.js";
-import { AccessibilitySupport, IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import {
+  AccessibilitySupport,
+  IAccessibilityService
+} from "../../../../../platform/accessibility/common/accessibility.js";
 import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
 import { EditorOption } from "../../../../common/config/editorOptions.js";
-import { FontInfo } from "../../../../common/config/fontInfo.js";
-import { Position } from "../../../../common/core/position.js";
-import { Range } from "../../../../common/core/range.js";
 import { Selection } from "../../../../common/core/selection.js";
-import { EndOfLinePreference } from "../../../../common/model.js";
-import { ViewConfigurationChangedEvent, ViewCursorStateChangedEvent } from "../../../../common/viewEvents.js";
-import { ViewContext } from "../../../../common/viewModel/viewContext.js";
 import { applyFontInfo } from "../../../config/domFontInfo.js";
-import { IEditorAriaOptions } from "../../../editorBrowser.js";
-import { RestrictedRenderingContext, RenderingContext, HorizontalPosition } from "../../../view/renderingContext.js";
-import { ariaLabelForScreenReaderContent, ISimpleModel, PagedScreenReaderStrategy, ScreenReaderContentState } from "../screenReaderUtils.js";
+import {
+  ariaLabelForScreenReaderContent,
+  PagedScreenReaderStrategy
+} from "../screenReaderUtils.js";
 let ScreenReaderSupport = class {
   constructor(_domNode, _context, _keybindingService, _accessibilityService) {
     this._domNode = _domNode;
@@ -76,17 +73,33 @@ let ScreenReaderSupport = class {
     this._contentHeight = layoutInfo.height;
     this._fontInfo = options.get(EditorOption.fontInfo);
     this._lineHeight = options.get(EditorOption.lineHeight);
-    this._accessibilityPageSize = options.get(EditorOption.accessibilityPageSize);
-    this._divWidth = Math.round(wrappingColumn * this._fontInfo.typicalHalfwidthCharacterWidth);
+    this._accessibilityPageSize = options.get(
+      EditorOption.accessibilityPageSize
+    );
+    this._divWidth = Math.round(
+      wrappingColumn * this._fontInfo.typicalHalfwidthCharacterWidth
+    );
   }
   _updateDomAttributes() {
     const options = this._context.configuration.options;
     this._domNode.domNode.setAttribute("role", "textbox");
-    this._domNode.domNode.setAttribute("aria-required", options.get(EditorOption.ariaRequired) ? "true" : "false");
+    this._domNode.domNode.setAttribute(
+      "aria-required",
+      options.get(EditorOption.ariaRequired) ? "true" : "false"
+    );
     this._domNode.domNode.setAttribute("aria-multiline", "true");
-    this._domNode.domNode.setAttribute("aria-autocomplete", options.get(EditorOption.readOnly) ? "none" : "both");
-    this._domNode.domNode.setAttribute("aria-roledescription", localize("editor", "editor"));
-    this._domNode.domNode.setAttribute("aria-label", ariaLabelForScreenReaderContent(options, this._keybindingService));
+    this._domNode.domNode.setAttribute(
+      "aria-autocomplete",
+      options.get(EditorOption.readOnly) ? "none" : "both"
+    );
+    this._domNode.domNode.setAttribute(
+      "aria-roledescription",
+      localize("editor", "editor")
+    );
+    this._domNode.domNode.setAttribute(
+      "aria-label",
+      ariaLabelForScreenReaderContent(options, this._keybindingService)
+    );
     const tabSize = this._context.viewModel.model.getOptions().tabSize;
     const spaceWidth = options.get(EditorOption.fontInfo).spaceWidth;
     this._domNode.domNode.style.tabSize = `${tabSize * spaceWidth}px`;
@@ -99,7 +112,9 @@ let ScreenReaderSupport = class {
   }
   prepareRender(ctx) {
     this.writeScreenReaderContent();
-    this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(this._primarySelection.getPosition());
+    this._primaryCursorVisibleRange = ctx.visibleRangeForPosition(
+      this._primarySelection.getPosition()
+    );
   }
   render(ctx) {
     if (!this._screenReaderContentState) {
@@ -117,15 +132,27 @@ let ScreenReaderSupport = class {
     }
     const editorScrollTop = this._context.viewLayout.getCurrentScrollTop();
     const positionLineNumber = this._primarySelection.positionLineNumber;
-    const top = this._context.viewLayout.getVerticalOffsetForLineNumber(positionLineNumber) - editorScrollTop;
+    const top = this._context.viewLayout.getVerticalOffsetForLineNumber(
+      positionLineNumber
+    ) - editorScrollTop;
     if (top < 0 || top > this._contentHeight) {
       this._renderAtTopLeft();
       return;
     }
-    const offsetForStartPositionWithinEditor = this._context.viewLayout.getVerticalOffsetForLineNumber(this._screenReaderContentState.startPositionWithinEditor.lineNumber);
-    const offsetForPositionLineNumber = this._context.viewLayout.getVerticalOffsetForLineNumber(positionLineNumber);
+    const offsetForStartPositionWithinEditor = this._context.viewLayout.getVerticalOffsetForLineNumber(
+      this._screenReaderContentState.startPositionWithinEditor.lineNumber
+    );
+    const offsetForPositionLineNumber = this._context.viewLayout.getVerticalOffsetForLineNumber(
+      positionLineNumber
+    );
     const scrollTop = offsetForPositionLineNumber - offsetForStartPositionWithinEditor;
-    this._doRender(scrollTop, top, this._contentLeft, this._divWidth, this._lineHeight);
+    this._doRender(
+      scrollTop,
+      top,
+      this._contentLeft,
+      this._divWidth,
+      this._lineHeight
+    );
   }
   _renderAtTopLeft() {
     this._doRender(0, 0, 0, this._contentWidth, 1);
@@ -142,7 +169,10 @@ let ScreenReaderSupport = class {
     if (options.activeDescendant) {
       this._domNode.setAttribute("aria-haspopup", "true");
       this._domNode.setAttribute("aria-autocomplete", "list");
-      this._domNode.setAttribute("aria-activedescendant", options.activeDescendant);
+      this._domNode.setAttribute(
+        "aria-activedescendant",
+        options.activeDescendant
+      );
     } else {
       this._domNode.setAttribute("aria-haspopup", "false");
       this._domNode.setAttribute("aria-autocomplete", "both");
@@ -164,7 +194,10 @@ let ScreenReaderSupport = class {
         this.setIgnoreSelectionChangeTime("setValue");
         this._domNode.domNode.textContent = this._screenReaderContentState.value;
       }
-      this._setSelectionOfScreenReaderContent(this._screenReaderContentState.selectionStart, this._screenReaderContentState.selectionEnd);
+      this._setSelectionOfScreenReaderContent(
+        this._screenReaderContentState.selectionStart,
+        this._screenReaderContentState.selectionEnd
+      );
     } else {
       this._screenReaderContentState = void 0;
       this.setIgnoreSelectionChangeTime("setValue");
@@ -186,13 +219,21 @@ let ScreenReaderSupport = class {
         return this._context.viewModel.getValueInRange(range, eol);
       }, "getValueInRange"),
       getValueLengthInRange: /* @__PURE__ */ __name((range, eol) => {
-        return this._context.viewModel.getValueLengthInRange(range, eol);
+        return this._context.viewModel.getValueLengthInRange(
+          range,
+          eol
+        );
       }, "getValueLengthInRange"),
       modifyPosition: /* @__PURE__ */ __name((position, offset) => {
         return this._context.viewModel.modifyPosition(position, offset);
       }, "modifyPosition")
     };
-    return PagedScreenReaderStrategy.fromEditorSelection(simpleModel, this._primarySelection, this._accessibilityPageSize, this._accessibilityService.getAccessibilitySupport() === AccessibilitySupport.Unknown);
+    return PagedScreenReaderStrategy.fromEditorSelection(
+      simpleModel,
+      this._primarySelection,
+      this._accessibilityPageSize,
+      this._accessibilityService.getAccessibilitySupport() === AccessibilitySupport.Unknown
+    );
   }
   _setSelectionOfScreenReaderContent(selectionOffsetStart, selectionOffsetEnd) {
     const activeDocument = getActiveWindow().document;

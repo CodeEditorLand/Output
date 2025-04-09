@@ -16,7 +16,13 @@ import { IProductService } from "../../product/common/productService.js";
 import { IStorageService } from "../../storage/common/storage.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
 import { UserDataAutoSyncService as BaseUserDataAutoSyncService } from "../common/userDataAutoSyncService.js";
-import { IUserDataSyncEnablementService, IUserDataSyncLogService, IUserDataSyncService, IUserDataSyncStoreManagementService, IUserDataSyncStoreService } from "../common/userDataSync.js";
+import {
+  IUserDataSyncEnablementService,
+  IUserDataSyncLogService,
+  IUserDataSyncService,
+  IUserDataSyncStoreManagementService,
+  IUserDataSyncStoreService
+} from "../common/userDataSync.js";
 import { IUserDataSyncAccountService } from "../common/userDataSyncAccount.js";
 import { IUserDataSyncMachinesService } from "../common/userDataSyncMachines.js";
 let UserDataAutoSyncService = class extends BaseUserDataAutoSyncService {
@@ -24,11 +30,36 @@ let UserDataAutoSyncService = class extends BaseUserDataAutoSyncService {
     __name(this, "UserDataAutoSyncService");
   }
   constructor(productService, userDataSyncStoreManagementService, userDataSyncStoreService, userDataSyncEnablementService, userDataSyncService, nativeHostService, logService, authTokenService, telemetryService, userDataSyncMachinesService, storageService) {
-    super(productService, userDataSyncStoreManagementService, userDataSyncStoreService, userDataSyncEnablementService, userDataSyncService, logService, authTokenService, telemetryService, userDataSyncMachinesService, storageService);
-    this._register(Event.debounce(Event.any(
-      Event.map(nativeHostService.onDidFocusMainWindow, () => "windowFocus"),
-      Event.map(nativeHostService.onDidOpenMainWindow, () => "windowOpen")
-    ), (last, source) => last ? [...last, source] : [source], 1e3)((sources) => this.triggerSync(sources, { skipIfSyncedRecently: true })));
+    super(
+      productService,
+      userDataSyncStoreManagementService,
+      userDataSyncStoreService,
+      userDataSyncEnablementService,
+      userDataSyncService,
+      logService,
+      authTokenService,
+      telemetryService,
+      userDataSyncMachinesService,
+      storageService
+    );
+    this._register(
+      Event.debounce(
+        Event.any(
+          Event.map(
+            nativeHostService.onDidFocusMainWindow,
+            () => "windowFocus"
+          ),
+          Event.map(
+            nativeHostService.onDidOpenMainWindow,
+            () => "windowOpen"
+          )
+        ),
+        (last, source) => last ? [...last, source] : [source],
+        1e3
+      )(
+        (sources) => this.triggerSync(sources, { skipIfSyncedRecently: true })
+      )
+    );
   }
 };
 UserDataAutoSyncService = __decorateClass([

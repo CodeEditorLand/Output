@@ -11,17 +11,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as DOM from "../../../../base/browser/dom.js";
-import { Action, IAction } from "../../../../base/common/actions.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import Messages from "./messages.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { Marker } from "./markersModel.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
+import {
+  ActionViewItem
+} from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { Action } from "../../../../base/common/actions.js";
 import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
-import { ActionViewItem, IActionViewItemOptions } from "../../../../base/browser/ui/actionbar/actionViewItems.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
 import { MarkersContextKeys } from "../common/markers.js";
+import Messages from "./messages.js";
 import "./markersViewActions.css";
 class MarkersFilters extends Disposable {
   static {
@@ -31,15 +31,25 @@ class MarkersFilters extends Disposable {
   onDidChange = this._onDidChange.event;
   constructor(options, contextKeyService) {
     super();
-    this._excludedFiles = MarkersContextKeys.ShowExcludedFilesFilterContextKey.bindTo(contextKeyService);
+    this._excludedFiles = MarkersContextKeys.ShowExcludedFilesFilterContextKey.bindTo(
+      contextKeyService
+    );
     this._excludedFiles.set(options.excludedFiles);
-    this._activeFile = MarkersContextKeys.ShowActiveFileFilterContextKey.bindTo(contextKeyService);
+    this._activeFile = MarkersContextKeys.ShowActiveFileFilterContextKey.bindTo(
+      contextKeyService
+    );
     this._activeFile.set(options.activeFile);
-    this._showWarnings = MarkersContextKeys.ShowWarningsFilterContextKey.bindTo(contextKeyService);
+    this._showWarnings = MarkersContextKeys.ShowWarningsFilterContextKey.bindTo(
+      contextKeyService
+    );
     this._showWarnings.set(options.showWarnings);
-    this._showInfos = MarkersContextKeys.ShowInfoFilterContextKey.bindTo(contextKeyService);
+    this._showInfos = MarkersContextKeys.ShowInfoFilterContextKey.bindTo(
+      contextKeyService
+    );
     this._showInfos.set(options.showInfos);
-    this._showErrors = MarkersContextKeys.ShowErrorsFilterContextKey.bindTo(contextKeyService);
+    this._showErrors = MarkersContextKeys.ShowErrorsFilterContextKey.bindTo(
+      contextKeyService
+    );
     this._showErrors.set(options.showErrors);
     this.filterHistory = options.filterHistory;
   }
@@ -97,15 +107,20 @@ class MarkersFilters extends Disposable {
 }
 class QuickFixAction extends Action {
   constructor(marker) {
-    super(QuickFixAction.ID, Messages.MARKERS_PANEL_ACTION_TOOLTIP_QUICKFIX, QuickFixAction.CLASS, false);
+    super(
+      QuickFixAction.ID,
+      Messages.MARKERS_PANEL_ACTION_TOOLTIP_QUICKFIX,
+      QuickFixAction.CLASS,
+      false
+    );
     this.marker = marker;
   }
   static {
     __name(this, "QuickFixAction");
   }
   static ID = "workbench.actions.problems.quickfix";
-  static CLASS = "markers-panel-action-quickfix " + ThemeIcon.asClassName(Codicon.lightBulb);
-  static AUTO_FIX_CLASS = QuickFixAction.CLASS + " autofixable";
+  static CLASS = `markers-panel-action-quickfix ${ThemeIcon.asClassName(Codicon.lightBulb)}`;
+  static AUTO_FIX_CLASS = `${QuickFixAction.CLASS} autofixable`;
   _onShowQuickFixes = this._register(new Emitter());
   onShowQuickFixes = this._onShowQuickFixes.event;
   _quickFixes = [];
@@ -147,7 +162,10 @@ let QuickFixActionViewItem = class extends ActionViewItem {
     const quickFixes = this.action.quickFixes;
     if (quickFixes.length) {
       this.contextMenuService.showContextMenu({
-        getAnchor: /* @__PURE__ */ __name(() => ({ x: elementPosition.left + 10, y: elementPosition.top + elementPosition.height + 4 }), "getAnchor"),
+        getAnchor: /* @__PURE__ */ __name(() => ({
+          x: elementPosition.left + 10,
+          y: elementPosition.top + elementPosition.height + 4
+        }), "getAnchor"),
         getActions: /* @__PURE__ */ __name(() => quickFixes, "getActions")
       });
     }

@@ -8,13 +8,19 @@ class ErrorHandler {
   listeners;
   constructor() {
     this.listeners = [];
-    this.unexpectedErrorHandler = function(e) {
+    this.unexpectedErrorHandler = (e) => {
       setTimeout(() => {
         if (e.stack) {
           if (ErrorNoTelemetry.isErrorNoTelemetry(e)) {
-            throw new ErrorNoTelemetry(e.message + "\n\n" + e.stack);
+            throw new ErrorNoTelemetry(
+              `${e.message}
+
+${e.stack}`
+            );
           }
-          throw new Error(e.message + "\n\n" + e.stack);
+          throw new Error(`${e.message}
+
+${e.stack}`);
         }
         throw e;
       }, 0);
@@ -161,7 +167,9 @@ class ReadonlyError extends TypeError {
     __name(this, "ReadonlyError");
   }
   constructor(name) {
-    super(name ? `${name} is read-only and cannot be changed` : "Cannot change read-only property");
+    super(
+      name ? `${name} is read-only and cannot be changed` : "Cannot change read-only property"
+    );
   }
 }
 function getErrorMessage(err) {

@@ -10,24 +10,48 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DisposableStore, toDisposable } from "../../../../../../base/common/lifecycle.js";
-import { autorunWithStore, derived, observableFromEvent } from "../../../../../../base/common/observable.js";
-import { INotebookEditor } from "../../notebookBrowser.js";
 import { ThrottledDelayer } from "../../../../../../base/common/async.js";
-import { ICodeEditor, IViewZone } from "../../../../../../editor/browser/editorBrowser.js";
-import { IEditorWorkerService } from "../../../../../../editor/common/services/editorWorker.js";
-import { EditorOption } from "../../../../../../editor/common/config/editorOptions.js";
+import {
+  DisposableStore,
+  toDisposable
+} from "../../../../../../base/common/lifecycle.js";
+import {
+  autorunWithStore,
+  derived,
+  observableFromEvent
+} from "../../../../../../base/common/observable.js";
 import { themeColorFromId } from "../../../../../../base/common/themables.js";
-import { RenderOptions, LineSource, renderLines } from "../../../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
-import { diffAddDecoration, diffWholeLineAddDecoration, diffDeleteDecoration } from "../../../../../../editor/browser/widget/diffEditor/registrations.contribution.js";
-import { IDocumentDiff } from "../../../../../../editor/common/diff/documentDiffProvider.js";
-import { ITextModel, TrackedRangeStickiness, MinimapPosition, IModelDeltaDecoration, OverviewRulerLane } from "../../../../../../editor/common/model.js";
-import { ModelDecorationOptions } from "../../../../../../editor/common/model/textModel.js";
-import { InlineDecoration, InlineDecorationType } from "../../../../../../editor/common/viewModel.js";
+import {
+  LineSource,
+  renderLines,
+  RenderOptions
+} from "../../../../../../editor/browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
+import {
+  diffAddDecoration,
+  diffDeleteDecoration,
+  diffWholeLineAddDecoration
+} from "../../../../../../editor/browser/widget/diffEditor/registrations.contribution.js";
+import { EditorOption } from "../../../../../../editor/common/config/editorOptions.js";
 import { Range } from "../../../../../../editor/common/core/range.js";
-import { NotebookCellTextModel } from "../../../common/model/notebookCellTextModel.js";
-import { DetailedLineRangeMapping } from "../../../../../../editor/common/diff/rangeMapping.js";
-import { minimapGutterAddedBackground, minimapGutterDeletedBackground, minimapGutterModifiedBackground, overviewRulerAddedForeground, overviewRulerDeletedForeground, overviewRulerModifiedForeground } from "../../../../scm/common/quickDiff.js";
+import {
+  MinimapPosition,
+  OverviewRulerLane,
+  TrackedRangeStickiness
+} from "../../../../../../editor/common/model.js";
+import { ModelDecorationOptions } from "../../../../../../editor/common/model/textModel.js";
+import { IEditorWorkerService } from "../../../../../../editor/common/services/editorWorker.js";
+import {
+  InlineDecoration,
+  InlineDecorationType
+} from "../../../../../../editor/common/viewModel.js";
+import {
+  minimapGutterAddedBackground,
+  minimapGutterDeletedBackground,
+  minimapGutterModifiedBackground,
+  overviewRulerAddedForeground,
+  overviewRulerDeletedForeground,
+  overviewRulerModifiedForeground
+} from "../../../../scm/common/quickDiff.js";
 import { INotebookOriginalCellModelFactory } from "./notebookOriginalCellModelFactory.js";
 let NotebookCellDiffDecorator = class extends DisposableStore {
   constructor(notebookEditor, modifiedCell, originalCell, editor, _editorWorkerService, originalCellModelFactory) {
@@ -37,37 +61,50 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
     this.editor = editor;
     this._editorWorkerService = _editorWorkerService;
     this.originalCellModelFactory = originalCellModelFactory;
-    const onDidChangeVisibleRanges = observableFromEvent(notebookEditor.onDidChangeVisibleRanges, () => notebookEditor.visibleRanges);
+    const onDidChangeVisibleRanges = observableFromEvent(
+      notebookEditor.onDidChangeVisibleRanges,
+      () => notebookEditor.visibleRanges
+    );
     const editorObs = derived((r) => {
       const visibleRanges = onDidChangeVisibleRanges.read(r);
-      const visibleCellHandles = visibleRanges.map((range) => notebookEditor.getCellsInRange(range)).flat().map((c) => c.handle);
+      const visibleCellHandles = visibleRanges.flatMap((range) => notebookEditor.getCellsInRange(range)).map((c) => c.handle);
       if (!visibleCellHandles.includes(modifiedCell.handle)) {
         return;
       }
-      const editor2 = notebookEditor.codeEditors.find((item) => item[0].handle === modifiedCell.handle)?.[1];
+      const editor2 = notebookEditor.codeEditors.find(
+        (item) => item[0].handle === modifiedCell.handle
+      )?.[1];
       if (editor2?.getModel() !== this.modifiedCell.textModel) {
         return;
       }
       return editor2;
     });
-    this.add(autorunWithStore((r, store) => {
-      const editor2 = editorObs.read(r);
-      this.perEditorDisposables.clear();
-      if (editor2) {
-        store.add(editor2.onDidChangeModel(() => {
-          this.perEditorDisposables.clear();
-        }));
-        store.add(editor2.onDidChangeModelContent(() => {
+    this.add(
+      autorunWithStore((r, store) => {
+        const editor2 = editorObs.read(r);
+        this.perEditorDisposables.clear();
+        if (editor2) {
+          store.add(
+            editor2.onDidChangeModel(() => {
+              this.perEditorDisposables.clear();
+            })
+          );
+          store.add(
+            editor2.onDidChangeModelContent(() => {
+              this.update(editor2);
+            })
+          );
+          store.add(
+            editor2.onDidChangeConfiguration((e) => {
+              if (e.hasChanged(EditorOption.fontInfo) || e.hasChanged(EditorOption.lineHeight)) {
+                this.update(editor2);
+              }
+            })
+          );
           this.update(editor2);
-        }));
-        store.add(editor2.onDidChangeConfiguration((e) => {
-          if (e.hasChanged(EditorOption.fontInfo) || e.hasChanged(EditorOption.lineHeight)) {
-            this.update(editor2);
-          }
-        }));
-        this.update(editor2);
-      }
-    }));
+        }
+      })
+    );
   }
   static {
     __name(this, "NotebookCellDiffDecorator");
@@ -101,14 +138,23 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
     const diff = await this._editorWorkerService.computeDiff(
       originalModel.uri,
       model.uri,
-      { computeMoves: true, ignoreTrimWhitespace: false, maxComputationTimeMs: Number.MAX_SAFE_INTEGER },
+      {
+        computeMoves: true,
+        ignoreTrimWhitespace: false,
+        maxComputationTimeMs: Number.MAX_SAFE_INTEGER
+      },
       "advanced"
     );
     if (this.isDisposed) {
       return;
     }
     if (diff && !diff.identical && this.modifiedCell.textModel && originalModel && model === editor.getModel() && editor.getModel()?.getVersionId() === version) {
-      this._updateWithDiff(editor, originalModel, diff, this.modifiedCell.textModel);
+      this._updateWithDiff(
+        editor,
+        originalModel,
+        diff,
+        this.modifiedCell.textModel
+      );
     } else {
       this.perEditorDisposables.clear();
     }
@@ -120,7 +166,14 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
       if (!model) {
         return;
       }
-      this._originalModel = this.add(this.originalCellModelFactory.getOrCreate(model.uri, this.originalCell.getValue(), model.getLanguageId(), this.modifiedCell.cellKind)).object;
+      this._originalModel = this.add(
+        this.originalCellModelFactory.getOrCreate(
+          model.uri,
+          this.originalCell.getValue(),
+          model.getLanguageId(),
+          this.modifiedCell.cellKind
+        )
+      ).object;
     }
     return this._originalModel;
   }
@@ -130,16 +183,18 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
     }
     this.perEditorDisposables.clear();
     const decorations = editor.createDecorationsCollection();
-    this.perEditorDisposables.add(toDisposable(() => {
-      editor.changeViewZones((viewZoneChangeAccessor) => {
-        for (const id of this._viewZones) {
-          viewZoneChangeAccessor.removeZone(id);
-        }
-      });
-      this._viewZones = [];
-      decorations.clear();
-      this.diffForPreviouslyAppliedDecorators = void 0;
-    }));
+    this.perEditorDisposables.add(
+      toDisposable(() => {
+        editor.changeViewZones((viewZoneChangeAccessor) => {
+          for (const id of this._viewZones) {
+            viewZoneChangeAccessor.removeZone(id);
+          }
+        });
+        this._viewZones = [];
+        decorations.clear();
+        this.diffForPreviouslyAppliedDecorators = void 0;
+      })
+    );
     this.diffForPreviouslyAppliedDecorators = diff;
     const chatDiffAddDecoration = ModelDecorationOptions.createDynamic({
       ...diffAddDecoration,
@@ -152,13 +207,28 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
     const createOverviewDecoration = /* @__PURE__ */ __name((overviewRulerColor, minimapColor) => {
       return ModelDecorationOptions.createDynamic({
         description: "chat-editing-decoration",
-        overviewRuler: { color: themeColorFromId(overviewRulerColor), position: OverviewRulerLane.Left },
-        minimap: { color: themeColorFromId(minimapColor), position: MinimapPosition.Gutter }
+        overviewRuler: {
+          color: themeColorFromId(overviewRulerColor),
+          position: OverviewRulerLane.Left
+        },
+        minimap: {
+          color: themeColorFromId(minimapColor),
+          position: MinimapPosition.Gutter
+        }
       });
     }, "createOverviewDecoration");
-    const modifiedDecoration = createOverviewDecoration(overviewRulerModifiedForeground, minimapGutterModifiedBackground);
-    const addedDecoration = createOverviewDecoration(overviewRulerAddedForeground, minimapGutterAddedBackground);
-    const deletedDecoration = createOverviewDecoration(overviewRulerDeletedForeground, minimapGutterDeletedBackground);
+    const modifiedDecoration = createOverviewDecoration(
+      overviewRulerModifiedForeground,
+      minimapGutterModifiedBackground
+    );
+    const addedDecoration = createOverviewDecoration(
+      overviewRulerAddedForeground,
+      minimapGutterAddedBackground
+    );
+    const deletedDecoration = createOverviewDecoration(
+      overviewRulerDeletedForeground,
+      minimapGutterDeletedBackground
+    );
     editor.changeViewZones((viewZoneChangeAccessor) => {
       for (const id of this._viewZones) {
         viewZoneChangeAccessor.removeZone(id);
@@ -171,20 +241,28 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
       const editorLineCount = currentModel.getLineCount();
       for (const diffEntry of diff.changes) {
         const originalRange = diffEntry.original;
-        originalModel.tokenization.forceTokenization(Math.max(1, originalRange.endLineNumberExclusive - 1));
+        originalModel.tokenization.forceTokenization(
+          Math.max(1, originalRange.endLineNumberExclusive - 1)
+        );
         const source = new LineSource(
-          originalRange.mapToLineArray((l) => originalModel.tokenization.getLineTokens(l)),
+          originalRange.mapToLineArray(
+            (l) => originalModel.tokenization.getLineTokens(l)
+          ),
           [],
           mightContainNonBasicASCII,
           mightContainRTL
         );
         const decorations2 = [];
         for (const i of diffEntry.innerChanges || []) {
-          decorations2.push(new InlineDecoration(
-            i.originalRange.delta(-(diffEntry.original.startLineNumber - 1)),
-            diffDeleteDecoration.className,
-            InlineDecorationType.Regular
-          ));
+          decorations2.push(
+            new InlineDecoration(
+              i.originalRange.delta(
+                -(diffEntry.original.startLineNumber - 1)
+              ),
+              diffDeleteDecoration.className,
+              InlineDecorationType.Regular
+            )
+          );
           if (!(i.originalRange.isEmpty() && i.originalRange.startLineNumber === 1 && i.modifiedRange.endLineNumber === editorLineCount) && !i.modifiedRange.isEmpty()) {
             modifiedVisualDecorations.push({
               range: i.modifiedRange,
@@ -206,7 +284,12 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
           });
         } else if (diffEntry.modified.isEmpty) {
           modifiedVisualDecorations.push({
-            range: new Range(diffEntry.modified.startLineNumber - 1, 1, diffEntry.modified.startLineNumber, 1),
+            range: new Range(
+              diffEntry.modified.startLineNumber - 1,
+              1,
+              diffEntry.modified.startLineNumber,
+              1
+            ),
             options: deletedDecoration
           });
         } else {
@@ -217,7 +300,12 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
         }
         const domNode = document.createElement("div");
         domNode.className = "chat-editing-original-zone view-lines line-delete monaco-mouse-cursor-text";
-        const result = renderLines(source, renderOptions, decorations2, domNode);
+        const result = renderLines(
+          source,
+          renderOptions,
+          decorations2,
+          domNode
+        );
         if (!isCreatedContent) {
           const viewZoneData = {
             afterLineNumber: diffEntry.modified.startLineNumber - 1,
@@ -226,7 +314,9 @@ let NotebookCellDiffDecorator = class extends DisposableStore {
             ordinal: 5e4 + 2
             // more than https://github.com/microsoft/vscode/blob/bf52a5cfb2c75a7327c9adeaefbddc06d529dcad/src/vs/workbench/contrib/inlineChat/browser/inlineChatZoneWidget.ts#L42
           };
-          this._viewZones.push(viewZoneChangeAccessor.addZone(viewZoneData));
+          this._viewZones.push(
+            viewZoneChangeAccessor.addZone(viewZoneData)
+          );
         }
       }
       decorations.set(modifiedVisualDecorations);
@@ -256,10 +346,14 @@ function areDiffsEqual(a, b) {
       if (move.lineRangeMapping.changedLineCount !== bMove.lineRangeMapping.changedLineCount) {
         return true;
       }
-      if (!move.lineRangeMapping.modified.equals(bMove.lineRangeMapping.modified)) {
+      if (!move.lineRangeMapping.modified.equals(
+        bMove.lineRangeMapping.modified
+      )) {
         return true;
       }
-      if (!move.lineRangeMapping.original.equals(bMove.lineRangeMapping.original)) {
+      if (!move.lineRangeMapping.original.equals(
+        bMove.lineRangeMapping.original
+      )) {
         return true;
       }
       return false;
@@ -287,7 +381,7 @@ function areLineRangeMappinsEqual(a, b) {
       return true;
     }
     if ((c.innerChanges || []).some((innerC, innerIdx) => {
-      const bInnerC = bChange.innerChanges[innerIdx];
+      const bInnerC = bChange.innerChanges?.[innerIdx];
       if (!innerC.modifiedRange.equalsRange(bInnerC.modifiedRange)) {
         return true;
       }

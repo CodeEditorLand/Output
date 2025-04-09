@@ -11,12 +11,11 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import * as dom from "../../../../base/browser/dom.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
 import { HoverAction } from "../../../../base/browser/ui/hover/hoverWidget.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IEditorHoverAction, IEditorHoverStatusBar } from "./hoverTypes.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 const $ = dom.$;
 let EditorHoverStatusBar = class extends Disposable {
   constructor(_keybindingService, _hoverService) {
@@ -38,11 +37,25 @@ let EditorHoverStatusBar = class extends Disposable {
     return this._hasContent;
   }
   addAction(actionOptions) {
-    const keybinding = this._keybindingService.lookupKeybinding(actionOptions.commandId);
+    const keybinding = this._keybindingService.lookupKeybinding(
+      actionOptions.commandId
+    );
     const keybindingLabel = keybinding ? keybinding.getLabel() : null;
     this._hasContent = true;
-    const action = this._register(HoverAction.render(this.actionsElement, actionOptions, keybindingLabel));
-    this._register(this._hoverService.setupManagedHover(getDefaultHoverDelegate("element"), action.actionContainer, action.actionRenderedLabel));
+    const action = this._register(
+      HoverAction.render(
+        this.actionsElement,
+        actionOptions,
+        keybindingLabel
+      )
+    );
+    this._register(
+      this._hoverService.setupManagedHover(
+        getDefaultHoverDelegate("element"),
+        action.actionContainer,
+        action.actionRenderedLabel
+      )
+    );
     this.actions.push(action);
     return action;
   }

@@ -1,9 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { PromptVariableWithData } from "./promptVariable.js";
 import { assert } from "../../../../../../../base/common/assert.js";
-import { IRange, Range } from "../../../../../../../editor/common/core/range.js";
-import { BaseToken } from "../../../../../../../editor/common/codecs/baseToken.js";
+import { PromptVariableWithData } from "./promptVariable.js";
 const VARIABLE_NAME = "file";
 class FileReference extends PromptVariableWithData {
   constructor(range, path) {
@@ -22,10 +20,7 @@ class FileReference extends PromptVariableWithData {
       variable.name === VARIABLE_NAME,
       `Variable name must be '${VARIABLE_NAME}', got '${variable.name}'.`
     );
-    return new FileReference(
-      variable.range,
-      variable.data
-    );
+    return new FileReference(variable.range, variable.data);
   }
   /**
    * Check if this token is equal to another one.

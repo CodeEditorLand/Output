@@ -10,9 +10,10 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IStringDictionary } from "../../../../base/common/collections.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { AbstractPolicyService, IPolicyService, PolicyDefinition } from "../../../../platform/policy/common/policy.js";
+import {
+  AbstractPolicyService
+} from "../../../../platform/policy/common/policy.js";
 import { IDefaultAccountService } from "../../accounts/common/defaultAccount.js";
 let AccountPolicyService = class extends AbstractPolicyService {
   constructor(logService, defaultAccountService) {
@@ -21,7 +22,13 @@ let AccountPolicyService = class extends AbstractPolicyService {
     this.defaultAccountService = defaultAccountService;
     this.defaultAccountService.getDefaultAccount().then((account) => {
       this._update(account?.chat_preview_features_enabled ?? true);
-      this._register(this.defaultAccountService.onDidChangeDefaultAccount((account2) => this._update(account2?.chat_preview_features_enabled ?? true)));
+      this._register(
+        this.defaultAccountService.onDidChangeDefaultAccount(
+          (account2) => this._update(
+            account2?.chat_preview_features_enabled ?? true
+          )
+        )
+      );
     });
   }
   static {
@@ -36,7 +43,9 @@ let AccountPolicyService = class extends AbstractPolicyService {
     }
   }
   async _updatePolicyDefinitions(policyDefinitions) {
-    this.logService.trace(`AccountPolicyService#_updatePolicyDefinitions: Got ${Object.keys(policyDefinitions).length} policy definitions`);
+    this.logService.trace(
+      `AccountPolicyService#_updatePolicyDefinitions: Got ${Object.keys(policyDefinitions).length} policy definitions`
+    );
     const update = [];
     for (const key in policyDefinitions) {
       const policy = policyDefinitions[key];

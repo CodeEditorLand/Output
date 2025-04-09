@@ -10,37 +10,64 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import * as resources from "../../../../base/common/resources.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { URI } from "../../../../base/common/uri.js";
+import { binarySearch, sortedDiff } from "../../../../base/common/arrays.js";
 import { Promises, ThrottledDelayer } from "../../../../base/common/async.js";
-import { FileOperationResult, IFileService, toFileOperationResult } from "../../../../platform/files/common/files.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ILanguageSelection } from "../../../../editor/common/languages/language.js";
-import { Disposable, toDisposable, IDisposable, MutableDisposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import {
+  CancellationTokenSource
+} from "../../../../base/common/cancellation.js";
+import { isCancellationError } from "../../../../base/common/errors.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import * as resources from "../../../../base/common/resources.js";
 import { isNumber } from "../../../../base/common/types.js";
-import { EditOperation, ISingleEditOperation } from "../../../../editor/common/core/editOperation.js";
+import {
+  EditOperation
+} from "../../../../editor/common/core/editOperation.js";
 import { Position } from "../../../../editor/common/core/position.js";
 import { Range } from "../../../../editor/common/core/range.js";
-import { VSBuffer } from "../../../../base/common/buffer.js";
-import { ILogger, ILoggerService, ILogService, LogLevel } from "../../../../platform/log/common/log.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { ILogEntry, IOutputContentSource, LOG_MIME, OutputChannelUpdateMode } from "../../../services/output/common/output.js";
-import { isCancellationError } from "../../../../base/common/errors.js";
 import { TextModel } from "../../../../editor/common/model/textModel.js";
-import { binarySearch, sortedDiff } from "../../../../base/common/arrays.js";
+import { IEditorWorkerService } from "../../../../editor/common/services/editorWorker.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import {
+  FileOperationResult,
+  IFileService,
+  toFileOperationResult
+} from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  ILoggerService,
+  ILogService,
+  LogLevel
+} from "../../../../platform/log/common/log.js";
+import {
+  LOG_MIME,
+  OutputChannelUpdateMode
+} from "../../../services/output/common/output.js";
 const LOG_ENTRY_REGEX = /^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3})\s(\[(info|trace|debug|error|warning)\])\s(\[(.*?)\])?/;
 function parseLogEntryAt(model, lineNumber) {
   const lineContent = model.getLineContent(lineNumber);
   const match = LOG_ENTRY_REGEX.exec(lineContent);
   if (match) {
     const timestamp = new Date(match[1]).getTime();
-    const timestampRange = new Range(lineNumber, 1, lineNumber, match[1].length);
+    const timestampRange = new Range(
+      lineNumber,
+      1,
+      lineNumber,
+      match[1].length
+    );
     const logLevel = parseLogLevel(match[3]);
-    const logLevelRange = new Range(lineNumber, timestampRange.endColumn + 1, lineNumber, timestampRange.endColumn + 1 + match[2].length);
+    const logLevelRange = new Range(
+      lineNumber,
+      timestampRange.endColumn + 1,
+      lineNumber,
+      timestampRange.endColumn + 1 + match[2].length
+    );
     const category = match[5];
     const startLine = lineNumber;
     let endLine = lineNumber;
@@ -53,8 +80,20 @@ function parseLogEntryAt(model, lineNumber) {
       }
       endLine++;
     }
-    const range = new Range(startLine, 1, endLine, model.getLineMaxColumn(endLine));
-    return { range, timestamp, timestampRange, logLevel, logLevelRange, category };
+    const range = new Range(
+      startLine,
+      1,
+      endLine,
+      model.getLineMaxColumn(endLine)
+    );
+    return {
+      range,
+      timestamp,
+      timestampRange,
+      logLevel,
+      logLevelRange,
+      category
+    };
   }
   return null;
 }
@@ -72,9 +111,24 @@ __name(logEntryIterator, "logEntryIterator");
 function changeStartLineNumber(logEntry, lineNumber) {
   return {
     ...logEntry,
-    range: new Range(lineNumber, logEntry.range.startColumn, lineNumber + logEntry.range.endLineNumber - logEntry.range.startLineNumber, logEntry.range.endColumn),
-    timestampRange: new Range(lineNumber, logEntry.timestampRange.startColumn, lineNumber, logEntry.timestampRange.endColumn),
-    logLevelRange: new Range(lineNumber, logEntry.logLevelRange.startColumn, lineNumber, logEntry.logLevelRange.endColumn)
+    range: new Range(
+      lineNumber,
+      logEntry.range.startColumn,
+      lineNumber + logEntry.range.endLineNumber - logEntry.range.startLineNumber,
+      logEntry.range.endColumn
+    ),
+    timestampRange: new Range(
+      lineNumber,
+      logEntry.timestampRange.startColumn,
+      lineNumber,
+      logEntry.timestampRange.endColumn
+    ),
+    logLevelRange: new Range(
+      lineNumber,
+      logEntry.logLevelRange.startColumn,
+      lineNumber,
+      logEntry.logLevelRange.endColumn
+    )
   };
 }
 __name(changeStartLineNumber, "changeStartLineNumber");
@@ -185,9 +239,14 @@ let FileContentProvider = class extends Disposable {
           }, "consume")
         };
       }
-      const fileContent = await this.fileService.readFile(this.resource, { position: this.endOffset });
+      const fileContent = await this.fileService.readFile(this.resource, {
+        position: this.endOffset
+      });
       const content = fileContent.value.toString();
-      const logEntries = donotConsumeLogEntries ? [] : this.parseLogEntries(content, this.logEntries[this.logEntries.length - 1]);
+      const logEntries = donotConsumeLogEntries ? [] : this.parseLogEntries(
+        content,
+        this.logEntries[this.logEntries.length - 1]
+      );
       let consumed = false;
       return {
         name: this.name,
@@ -214,14 +273,23 @@ let FileContentProvider = class extends Disposable {
     }
   }
   parseLogEntries(content, lastLogEntry) {
-    const model = this.instantiationService.createInstance(TextModel, content, LOG_MIME, TextModel.DEFAULT_CREATION_OPTIONS, null);
+    const model = this.instantiationService.createInstance(
+      TextModel,
+      content,
+      LOG_MIME,
+      TextModel.DEFAULT_CREATION_OPTIONS,
+      null
+    );
     try {
       if (!parseLogEntryAt(model, 1)) {
         return [];
       }
       const logEntries = [];
       let logEntryStartLineNumber = lastLogEntry ? lastLogEntry.range.endLineNumber + 1 : 1;
-      for (const entry of logEntryIterator(model, (e) => changeStartLineNumber(e, logEntryStartLineNumber))) {
+      for (const entry of logEntryIterator(
+        model,
+        (e) => changeStartLineNumber(e, logEntryStartLineNumber)
+      )) {
         logEntries.push(entry);
         logEntryStartLineNumber = entry.range.endLineNumber + 1;
       }
@@ -243,13 +311,17 @@ let MultiFileContentProvider = class extends Disposable {
     this.fileService = fileService;
     this.logService = logService;
     for (const file of filesInfos) {
-      this.fileContentProviderItems.push(this.createFileContentProvider(file));
+      this.fileContentProviderItems.push(
+        this.createFileContentProvider(file)
+      );
     }
-    this._register(toDisposable(() => {
-      for (const [, disposables] of this.fileContentProviderItems) {
-        disposables.dispose();
-      }
-    }));
+    this._register(
+      toDisposable(() => {
+        for (const [, disposables] of this.fileContentProviderItems) {
+          disposables.dispose();
+        }
+      })
+    );
   }
   static {
     __name(this, "MultiFileContentProvider");
@@ -262,7 +334,14 @@ let MultiFileContentProvider = class extends Disposable {
   watching = false;
   createFileContentProvider(file) {
     const disposables = new DisposableStore();
-    const fileOutput = disposables.add(new FileContentProvider(file, this.fileService, this.instantiationService, this.logService));
+    const fileOutput = disposables.add(
+      new FileContentProvider(
+        file,
+        this.fileService,
+        this.instantiationService,
+        this.logService
+      )
+    );
     disposables.add(fileOutput.onDidAppend(() => this._onDidAppend.fire()));
     return [fileOutput, disposables];
   }
@@ -287,10 +366,20 @@ let MultiFileContentProvider = class extends Disposable {
     if (wasWatching) {
       this.unwatch();
     }
-    const result = sortedDiff(this.fileContentProviderItems.map(([output]) => output), files, (a, b) => resources.extUri.compare(a.resource, b.resource));
+    const result = sortedDiff(
+      this.fileContentProviderItems.map(([output]) => output),
+      files,
+      (a, b) => resources.extUri.compare(a.resource, b.resource)
+    );
     for (const { start, deleteCount, toInsert } of result) {
-      const outputs = toInsert.map((file) => this.createFileContentProvider(file));
-      const outputsToRemove = this.fileContentProviderItems.splice(start, deleteCount, ...outputs);
+      const outputs = toInsert.map(
+        (file) => this.createFileContentProvider(file)
+      );
+      const outputsToRemove = this.fileContentProviderItems.splice(
+        start,
+        deleteCount,
+        ...outputs
+      );
       for (const [, disposables] of outputsToRemove) {
         disposables.dispose();
       }
@@ -315,8 +404,15 @@ let MultiFileContentProvider = class extends Disposable {
     return this.logEntries;
   }
   async getContent() {
-    const outputs = await Promise.all(this.fileContentProviderItems.map(([output]) => output.getContent(true)));
-    const { content, logEntries } = this.combineLogEntries(outputs, this.logEntries[this.logEntries.length - 1]);
+    const outputs = await Promise.all(
+      this.fileContentProviderItems.map(
+        ([output]) => output.getContent(true)
+      )
+    );
+    const { content, logEntries } = this.combineLogEntries(
+      outputs,
+      this.logEntries[this.logEntries.length - 1]
+    );
     let consumed = false;
     return {
       content,
@@ -339,15 +435,32 @@ let MultiFileContentProvider = class extends Disposable {
     const process = /* @__PURE__ */ __name((model2, logEntry, name) => {
       const lineContent = model2.getValueInRange(logEntry.range);
       const content2 = name ? `${lineContent.substring(0, logEntry.logLevelRange.endColumn)} [${name}]${lineContent.substring(logEntry.logLevelRange.endColumn)}` : lineContent;
-      return [{
-        ...logEntry,
-        category: name,
-        range: new Range(logEntry.range.startLineNumber, logEntry.logLevelRange.startColumn, logEntry.range.endLineNumber, name ? logEntry.range.endColumn + name.length + 3 : logEntry.range.endColumn)
-      }, content2];
+      return [
+        {
+          ...logEntry,
+          category: name,
+          range: new Range(
+            logEntry.range.startLineNumber,
+            logEntry.logLevelRange.startColumn,
+            logEntry.range.endLineNumber,
+            name ? logEntry.range.endColumn + name.length + 3 : logEntry.range.endColumn
+          )
+        },
+        content2
+      ];
     }, "process");
-    const model = this.instantiationService.createInstance(TextModel, outputs[0].content, LOG_MIME, TextModel.DEFAULT_CREATION_OPTIONS, null);
+    const model = this.instantiationService.createInstance(
+      TextModel,
+      outputs[0].content,
+      LOG_MIME,
+      TextModel.DEFAULT_CREATION_OPTIONS,
+      null
+    );
     try {
-      for (const [logEntry, content2] of logEntryIterator(model, (e) => process(model, e, outputs[0].name))) {
+      for (const [logEntry, content2] of logEntryIterator(
+        model,
+        (e) => process(model, e, outputs[0].name)
+      )) {
         logEntries.push(logEntry);
         contents.push(content2);
       }
@@ -356,9 +469,18 @@ let MultiFileContentProvider = class extends Disposable {
     }
     for (let index = 1; index < outputs.length; index++) {
       const { content: content2, name } = outputs[index];
-      const model2 = this.instantiationService.createInstance(TextModel, content2, LOG_MIME, TextModel.DEFAULT_CREATION_OPTIONS, null);
+      const model2 = this.instantiationService.createInstance(
+        TextModel,
+        content2,
+        LOG_MIME,
+        TextModel.DEFAULT_CREATION_OPTIONS,
+        null
+      );
       try {
-        const iterator = logEntryIterator(model2, (e) => process(model2, e, name));
+        const iterator = logEntryIterator(
+          model2,
+          (e) => process(model2, e, name)
+        );
         let next = iterator.next();
         while (!next.done) {
           const [logEntry, content3] = next.value;
@@ -375,7 +497,11 @@ let MultiFileContentProvider = class extends Disposable {
             if (logEntry.timestamp <= logEntries[0].timestamp) {
               insertionIndex = 0;
             } else {
-              const idx = binarySearch(logEntries, logEntry, (a, b) => a.timestamp - b.timestamp);
+              const idx = binarySearch(
+                logEntries,
+                logEntry,
+                (a, b) => a.timestamp - b.timestamp
+              );
               insertionIndex = idx < 0 ? ~idx : idx;
             }
             for (next = iterator.next(); !next.done && next.value[0].timestamp <= logEntries[insertionIndex].timestamp; next = iterator.next()) {
@@ -394,8 +520,12 @@ let MultiFileContentProvider = class extends Disposable {
     const updatedLogEntries = [];
     let logEntryStartLineNumber = lastEntry ? lastEntry.range.endLineNumber + 1 : 1;
     for (let i = 0; i < logEntries.length; i++) {
-      content += contents[i] + "\n";
-      const updatedLogEntry = changeStartLineNumber(logEntries[i], logEntryStartLineNumber);
+      content += `${contents[i]}
+`;
+      const updatedLogEntry = changeStartLineNumber(
+        logEntries[i],
+        logEntryStartLineNumber
+      );
       updatedLogEntries.push(updatedLogEntry);
       logEntryStartLineNumber = updatedLogEntry.range.endLineNumber + 1;
     }
@@ -422,35 +552,61 @@ let AbstractFileOutputChannelModel = class extends Disposable {
   _onDispose = this._register(new Emitter());
   onDispose = this._onDispose.event;
   loadModelPromise = null;
-  modelDisposable = this._register(new MutableDisposable());
+  modelDisposable = this._register(
+    new MutableDisposable()
+  );
   model = null;
   modelUpdateInProgress = false;
-  modelUpdateCancellationSource = this._register(new MutableDisposable());
-  appendThrottler = this._register(new ThrottledDelayer(300));
+  modelUpdateCancellationSource = this._register(
+    new MutableDisposable()
+  );
+  appendThrottler = this._register(
+    new ThrottledDelayer(300)
+  );
   replacePromise;
   async loadModel() {
-    this.loadModelPromise = Promises.withAsyncBody(async (c, e) => {
-      try {
-        this.modelDisposable.value = new DisposableStore();
-        this.model = this.modelService.createModel("", this.language, this.modelUri);
-        const { content, consume } = await this.outputContentProvider.getContent();
-        consume();
-        this.doAppendContent(this.model, content);
-        this.modelDisposable.value.add(this.outputContentProvider.onDidReset(() => this.onDidContentChange(true, true)));
-        this.modelDisposable.value.add(this.outputContentProvider.onDidAppend(() => this.onDidContentChange(false, false)));
-        this.outputContentProvider.watch();
-        this.modelDisposable.value.add(toDisposable(() => this.outputContentProvider.unwatch()));
-        this.modelDisposable.value.add(this.model.onWillDispose(() => {
-          this.outputContentProvider.reset();
-          this.modelDisposable.value = void 0;
-          this.cancelModelUpdate();
-          this.model = null;
-        }));
-        c(this.model);
-      } catch (error) {
-        e(error);
+    this.loadModelPromise = Promises.withAsyncBody(
+      async (c, e) => {
+        try {
+          this.modelDisposable.value = new DisposableStore();
+          this.model = this.modelService.createModel(
+            "",
+            this.language,
+            this.modelUri
+          );
+          const { content, consume } = await this.outputContentProvider.getContent();
+          consume();
+          this.doAppendContent(this.model, content);
+          this.modelDisposable.value.add(
+            this.outputContentProvider.onDidReset(
+              () => this.onDidContentChange(true, true)
+            )
+          );
+          this.modelDisposable.value.add(
+            this.outputContentProvider.onDidAppend(
+              () => this.onDidContentChange(false, false)
+            )
+          );
+          this.outputContentProvider.watch();
+          this.modelDisposable.value.add(
+            toDisposable(
+              () => this.outputContentProvider.unwatch()
+            )
+          );
+          this.modelDisposable.value.add(
+            this.model.onWillDispose(() => {
+              this.outputContentProvider.reset();
+              this.modelDisposable.value = void 0;
+              this.cancelModelUpdate();
+              this.model = null;
+            })
+          );
+          c(this.model);
+        } catch (error) {
+          e(error);
+        }
       }
-    });
+    );
     return this.loadModelPromise;
   }
   getLogEntries() {
@@ -477,7 +633,10 @@ let AbstractFileOutputChannelModel = class extends Disposable {
     if (mode === OutputChannelUpdateMode.Clear) {
       this.clearContent(this.model);
     } else if (mode === OutputChannelUpdateMode.Replace) {
-      this.replacePromise = this.replaceContent(this.model, token).finally(() => this.replacePromise = void 0);
+      this.replacePromise = this.replaceContent(
+        this.model,
+        token
+      ).finally(() => this.replacePromise = void 0);
     } else {
       this.appendContent(this.model, immediate, token);
     }
@@ -487,27 +646,30 @@ let AbstractFileOutputChannelModel = class extends Disposable {
     this.modelUpdateInProgress = false;
   }
   appendContent(model, immediate, token) {
-    this.appendThrottler.trigger(async () => {
-      if (token.isCancellationRequested) {
-        return;
-      }
-      if (this.replacePromise) {
-        try {
-          await this.replacePromise;
-        } catch (e) {
-        }
+    this.appendThrottler.trigger(
+      async () => {
         if (token.isCancellationRequested) {
           return;
         }
-      }
-      const { content, consume } = await this.outputContentProvider.getContent();
-      if (token.isCancellationRequested) {
-        return;
-      }
-      consume();
-      this.doAppendContent(model, content);
-      this.modelUpdateInProgress = false;
-    }, immediate ? 0 : void 0).catch((error) => {
+        if (this.replacePromise) {
+          try {
+            await this.replacePromise;
+          } catch (e) {
+          }
+          if (token.isCancellationRequested) {
+            return;
+          }
+        }
+        const { content, consume } = await this.outputContentProvider.getContent();
+        if (token.isCancellationRequested) {
+          return;
+        }
+        consume();
+        this.doAppendContent(model, content);
+        this.modelUpdateInProgress = false;
+      },
+      immediate ? 0 : void 0
+    ).catch((error) => {
       if (!isCancellationError(error)) {
         throw error;
       }
@@ -516,7 +678,12 @@ let AbstractFileOutputChannelModel = class extends Disposable {
   doAppendContent(model, content) {
     const lastLine = model.getLineCount();
     const lastLineMaxColumn = model.getLineMaxColumn(lastLine);
-    model.applyEdits([EditOperation.insert(new Position(lastLine, lastLineMaxColumn), content)]);
+    model.applyEdits([
+      EditOperation.insert(
+        new Position(lastLine, lastLineMaxColumn),
+        content
+      )
+    ]);
   }
   async replaceContent(model, token) {
     const { content, consume } = await this.outputContentProvider.getContent();
@@ -538,9 +705,19 @@ let AbstractFileOutputChannelModel = class extends Disposable {
       return [EditOperation.delete(model.getFullModelRange())];
     }
     if (contentToReplace !== model.getValue()) {
-      const edits = await this.editorWorkerService.computeMoreMinimalEdits(model.uri, [{ text: contentToReplace.toString(), range: model.getFullModelRange() }]);
+      const edits = await this.editorWorkerService.computeMoreMinimalEdits(
+        model.uri,
+        [
+          {
+            text: contentToReplace.toString(),
+            range: model.getFullModelRange()
+          }
+        ]
+      );
       if (edits?.length) {
-        return edits.map((edit) => EditOperation.replace(Range.lift(edit.range), edit.text));
+        return edits.map(
+          (edit) => EditOperation.replace(Range.lift(edit.range), edit.text)
+        );
       }
     }
     return [];
@@ -572,8 +749,19 @@ AbstractFileOutputChannelModel = __decorateClass([
 ], AbstractFileOutputChannelModel);
 let FileOutputChannelModel = class extends AbstractFileOutputChannelModel {
   constructor(modelUri, language, source, fileService, modelService, instantiationService, logService, editorWorkerService) {
-    const fileOutput = new FileContentProvider(source, fileService, instantiationService, logService);
-    super(modelUri, language, fileOutput, modelService, editorWorkerService);
+    const fileOutput = new FileContentProvider(
+      source,
+      fileService,
+      instantiationService,
+      logService
+    );
+    super(
+      modelUri,
+      language,
+      fileOutput,
+      modelService,
+      editorWorkerService
+    );
     this.source = source;
     this.fileOutput = this._register(fileOutput);
   }
@@ -610,8 +798,19 @@ FileOutputChannelModel = __decorateClass([
 ], FileOutputChannelModel);
 let MultiFileOutputChannelModel = class extends AbstractFileOutputChannelModel {
   constructor(modelUri, language, source, fileService, modelService, logService, editorWorkerService, instantiationService) {
-    const multifileOutput = new MultiFileContentProvider(source, instantiationService, fileService, logService);
-    super(modelUri, language, multifileOutput, modelService, editorWorkerService);
+    const multifileOutput = new MultiFileContentProvider(
+      source,
+      instantiationService,
+      fileService,
+      logService
+    );
+    super(
+      modelUri,
+      language,
+      multifileOutput,
+      modelService,
+      editorWorkerService
+    );
     this.source = source;
     this.multifileOutput = this._register(multifileOutput);
   }
@@ -653,13 +852,31 @@ let OutputChannelBackedByFile = class extends FileOutputChannelModel {
   logger;
   _offset;
   constructor(id, modelUri, language, file, fileService, modelService, loggerService, instantiationService, logService, editorWorkerService) {
-    super(modelUri, language, { resource: file, name: "" }, fileService, modelService, instantiationService, logService, editorWorkerService);
-    this.logger = loggerService.createLogger(file, { logLevel: "always", donotRotate: true, donotUseFormatters: true, hidden: true });
+    super(
+      modelUri,
+      language,
+      { resource: file, name: "" },
+      fileService,
+      modelService,
+      instantiationService,
+      logService,
+      editorWorkerService
+    );
+    this.logger = loggerService.createLogger(file, {
+      logLevel: "always",
+      donotRotate: true,
+      donotUseFormatters: true,
+      hidden: true
+    });
     this._offset = 0;
   }
   append(message) {
     this.write(message);
-    this.update(OutputChannelUpdateMode.Append, void 0, this.isVisible());
+    this.update(
+      OutputChannelUpdateMode.Append,
+      void 0,
+      this.isVisible()
+    );
   }
   replace(message) {
     const till = this._offset;
@@ -687,45 +904,81 @@ let DelegatedOutputChannelModel = class extends Disposable {
     super();
     this.instantiationService = instantiationService;
     this.fileService = fileService;
-    this.outputChannelModel = this.createOutputChannelModel(id, modelUri, language, outputDir, outputDirCreationPromise);
-    const resource = resources.joinPath(outputDir, `${id.replace(/[\\/:\*\?"<>\|]/g, "")}.log`);
+    this.outputChannelModel = this.createOutputChannelModel(
+      id,
+      modelUri,
+      language,
+      outputDir,
+      outputDirCreationPromise
+    );
+    const resource = resources.joinPath(
+      outputDir,
+      `${id.replace(/[\\/:\*\?"<>\|]/g, "")}.log`
+    );
     this.source = { resource };
   }
   static {
     __name(this, "DelegatedOutputChannelModel");
   }
-  _onDispose = this._register(new Emitter());
+  _onDispose = this._register(
+    new Emitter()
+  );
   onDispose = this._onDispose.event;
   outputChannelModel;
   source;
   async createOutputChannelModel(id, modelUri, language, outputDir, outputDirPromise) {
     await outputDirPromise;
-    const file = resources.joinPath(outputDir, `${id.replace(/[\\/:\*\?"<>\|]/g, "")}.log`);
+    const file = resources.joinPath(
+      outputDir,
+      `${id.replace(/[\\/:\*\?"<>\|]/g, "")}.log`
+    );
     await this.fileService.createFile(file);
-    const outputChannelModel = this._register(this.instantiationService.createInstance(OutputChannelBackedByFile, id, modelUri, language, file));
-    this._register(outputChannelModel.onDispose(() => this._onDispose.fire()));
+    const outputChannelModel = this._register(
+      this.instantiationService.createInstance(
+        OutputChannelBackedByFile,
+        id,
+        modelUri,
+        language,
+        file
+      )
+    );
+    this._register(
+      outputChannelModel.onDispose(() => this._onDispose.fire())
+    );
     return outputChannelModel;
   }
   getLogEntries() {
     return [];
   }
   append(output) {
-    this.outputChannelModel.then((outputChannelModel) => outputChannelModel.append(output));
+    this.outputChannelModel.then(
+      (outputChannelModel) => outputChannelModel.append(output)
+    );
   }
   update(mode, till, immediate) {
-    this.outputChannelModel.then((outputChannelModel) => outputChannelModel.update(mode, till, immediate));
+    this.outputChannelModel.then(
+      (outputChannelModel) => outputChannelModel.update(mode, till, immediate)
+    );
   }
   loadModel() {
-    return this.outputChannelModel.then((outputChannelModel) => outputChannelModel.loadModel());
+    return this.outputChannelModel.then(
+      (outputChannelModel) => outputChannelModel.loadModel()
+    );
   }
   clear() {
-    this.outputChannelModel.then((outputChannelModel) => outputChannelModel.clear());
+    this.outputChannelModel.then(
+      (outputChannelModel) => outputChannelModel.clear()
+    );
   }
   replace(value) {
-    this.outputChannelModel.then((outputChannelModel) => outputChannelModel.replace(value));
+    this.outputChannelModel.then(
+      (outputChannelModel) => outputChannelModel.replace(value)
+    );
   }
   updateChannelSources(files) {
-    this.outputChannelModel.then((outputChannelModel) => outputChannelModel.updateChannelSources(files));
+    this.outputChannelModel.then(
+      (outputChannelModel) => outputChannelModel.updateChannelSources(files)
+    );
   }
 };
 DelegatedOutputChannelModel = __decorateClass([

@@ -11,24 +11,38 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { RunOnceScheduler } from "../../../../../base/common/async.js";
+import { Emitter } from "../../../../../base/common/event.js";
 import { Lazy } from "../../../../../base/common/lazy.js";
-import { Disposable, DisposableStore } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../../base/common/lifecycle.js";
 import { themeColorFromId } from "../../../../../base/common/themables.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { TrackedRangeStickiness, MinimapPosition, ITextModel, FindMatch, IModelDeltaDecoration } from "../../../../../editor/common/model.js";
+import {
+  MinimapPosition,
+  TrackedRangeStickiness
+} from "../../../../../editor/common/model.js";
 import { ModelDecorationOptions } from "../../../../../editor/common/model/textModel.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
-import { IFileStatWithPartialMetadata, IFileService } from "../../../../../platform/files/common/files.js";
-import { ILabelService } from "../../../../../platform/label/common/label.js";
-import { overviewRulerFindMatchForeground, minimapFindMatch } from "../../../../../platform/theme/common/colorRegistry.js";
-import { IFileMatch, IPatternInfo, ITextSearchPreviewOptions, resultIsMatch, DEFAULT_MAX_SEARCH_RESULTS, ITextSearchResult, ITextSearchContext } from "../../../../services/search/common/search.js";
-import { editorMatchesToTextSearchResults, getTextSearchMatchWithModelContext } from "../../../../services/search/common/searchHelpers.js";
-import { FindMatchDecorationModel } from "../../../notebook/browser/contrib/find/findMatchDecorationModel.js";
-import { IReplaceService } from "../replace.js";
-import { FILE_MATCH_PREFIX, ISearchTreeFileMatch, ISearchTreeFolderMatch, ISearchTreeFolderMatchWorkspaceRoot, ISearchTreeMatch } from "./searchTreeCommon.js";
-import { Emitter, Event } from "../../../../../base/common/event.js";
-import { textSearchResultToMatches } from "./match.js";
 import { OverviewRulerLane } from "../../../../../editor/common/standalone/standaloneEnums.js";
+import { ILabelService } from "../../../../../platform/label/common/label.js";
+import {
+  minimapFindMatch,
+  overviewRulerFindMatchForeground
+} from "../../../../../platform/theme/common/colorRegistry.js";
+import {
+  DEFAULT_MAX_SEARCH_RESULTS,
+  resultIsMatch
+} from "../../../../services/search/common/search.js";
+import {
+  editorMatchesToTextSearchResults,
+  getTextSearchMatchWithModelContext
+} from "../../../../services/search/common/searchHelpers.js";
+import { IReplaceService } from "../replace.js";
+import { textSearchResultToMatches } from "./match.js";
+import {
+  FILE_MATCH_PREFIX
+} from "./searchTreeCommon.js";
 let FileMatchImpl = class extends Disposable {
   constructor(_query, _previewOptions, _maxResults, _parent, rawMatch, _closestRoot, modelService, replaceService, labelService) {
     super();
@@ -43,8 +57,13 @@ let FileMatchImpl = class extends Disposable {
     this._resource = this.rawMatch.resource;
     this._textMatches = /* @__PURE__ */ new Map();
     this._removedTextMatches = /* @__PURE__ */ new Set();
-    this._updateScheduler = new RunOnceScheduler(this.updateMatchesForModel.bind(this), 250);
-    this._name = new Lazy(() => labelService.getUriBasenameLabel(this.resource));
+    this._updateScheduler = new RunOnceScheduler(
+      this.updateMatchesForModel.bind(this),
+      250
+    );
+    this._name = new Lazy(
+      () => labelService.getUriBasenameLabel(this.resource)
+    );
   }
   static {
     __name(this, "FileMatchImpl");
@@ -82,7 +101,9 @@ let FileMatchImpl = class extends Disposable {
     return selected ? FileMatchImpl._CURRENT_FIND_MATCH : FileMatchImpl._FIND_MATCH;
   }
   _findMatchDecorationModel;
-  _onChange = this._register(new Emitter());
+  _onChange = this._register(
+    new Emitter()
+  );
   onChange = this._onChange.event;
   _onDispose = this._register(new Emitter());
   onDispose = this._onDispose.event;
@@ -114,7 +135,11 @@ let FileMatchImpl = class extends Disposable {
     } else {
       if (this.rawMatch.results) {
         this.rawMatch.results.filter(resultIsMatch).forEach((rawMatch) => {
-          textSearchResultToMatches(rawMatch, this, false).forEach((m) => this.add(m));
+          textSearchResultToMatches(
+            rawMatch,
+            this,
+            false
+          ).forEach((m) => this.add(m));
         });
       }
     }
@@ -122,10 +147,14 @@ let FileMatchImpl = class extends Disposable {
   bindModel(model) {
     this._model = model;
     this._modelListener = new DisposableStore();
-    this._modelListener.add(this._model.onDidChangeContent(() => {
-      this._updateScheduler.schedule();
-    }));
-    this._modelListener.add(this._model.onWillDispose(() => this.onModelWillDispose()));
+    this._modelListener.add(
+      this._model.onDidChangeContent(() => {
+        this._updateScheduler.schedule();
+      })
+    );
+    this._modelListener.add(
+      this._model.onWillDispose(() => this.onModelWillDispose())
+    );
     this.updateHighlights();
   }
   onModelWillDispose() {
@@ -136,10 +165,13 @@ let FileMatchImpl = class extends Disposable {
     if (this._model) {
       this._updateScheduler.cancel();
       this._model.changeDecorations((accessor) => {
-        this._modelDecorations = accessor.deltaDecorations(this._modelDecorations, []);
+        this._modelDecorations = accessor.deltaDecorations(
+          this._modelDecorations,
+          []
+        );
       });
       this._model = null;
-      this._modelListener.dispose();
+      this._modelListener?.dispose();
     }
   }
   updateMatchesForModel() {
@@ -148,7 +180,15 @@ let FileMatchImpl = class extends Disposable {
     }
     this._textMatches = /* @__PURE__ */ new Map();
     const wordSeparators = this._query.isWordMatch && this._query.wordSeparators ? this._query.wordSeparators : null;
-    const matches = this._model.findMatches(this._query.pattern, this._model.getFullModelRange(), !!this._query.isRegExp, !!this._query.isCaseSensitive, wordSeparators, false, this._maxResults ?? DEFAULT_MAX_SEARCH_RESULTS);
+    const matches = this._model.findMatches(
+      this._query.pattern,
+      this._model.getFullModelRange(),
+      !!this._query.isRegExp,
+      !!this._query.isCaseSensitive,
+      wordSeparators,
+      false,
+      this._maxResults ?? DEFAULT_MAX_SEARCH_RESULTS
+    );
     this.updateMatches(matches, true, this._model, false);
   }
   async updatesMatchesForLineAfterReplace(lineNumber, modelChange) {
@@ -161,16 +201,34 @@ let FileMatchImpl = class extends Disposable {
       endLineNumber: lineNumber,
       endColumn: this._model.getLineMaxColumn(lineNumber)
     };
-    const oldMatches = Array.from(this._textMatches.values()).filter((match) => match.range().startLineNumber === lineNumber);
+    const oldMatches = Array.from(this._textMatches.values()).filter(
+      (match) => match.range().startLineNumber === lineNumber
+    );
     oldMatches.forEach((match) => this._textMatches.delete(match.id()));
     const wordSeparators = this._query.isWordMatch && this._query.wordSeparators ? this._query.wordSeparators : null;
-    const matches = this._model.findMatches(this._query.pattern, range, !!this._query.isRegExp, !!this._query.isCaseSensitive, wordSeparators, false, this._maxResults ?? DEFAULT_MAX_SEARCH_RESULTS);
+    const matches = this._model.findMatches(
+      this._query.pattern,
+      range,
+      !!this._query.isRegExp,
+      !!this._query.isCaseSensitive,
+      wordSeparators,
+      false,
+      this._maxResults ?? DEFAULT_MAX_SEARCH_RESULTS
+    );
     this.updateMatches(matches, modelChange, this._model, false);
   }
   updateMatches(matches, modelChange, model, isAiContributed) {
-    const textSearchResults = editorMatchesToTextSearchResults(matches, model, this._previewOptions);
+    const textSearchResults = editorMatchesToTextSearchResults(
+      matches,
+      model,
+      this._previewOptions
+    );
     textSearchResults.forEach((textSearchResult) => {
-      textSearchResultToMatches(textSearchResult, this, isAiContributed).forEach((match) => {
+      textSearchResultToMatches(
+        textSearchResult,
+        this,
+        isAiContributed
+      ).forEach((match) => {
         if (!this._removedTextMatches.has(match.id())) {
           this.add(match);
           if (this.isMatchSelected(match)) {
@@ -179,7 +237,13 @@ let FileMatchImpl = class extends Disposable {
         }
       });
     });
-    this.addContext(getTextSearchMatchWithModelContext(textSearchResults, model, this.parent().parent().query));
+    this.addContext(
+      getTextSearchMatchWithModelContext(
+        textSearchResults,
+        model,
+        this.parent().parent().query
+      )
+    );
     this._onChange.fire({ forceUpdateModel: modelChange });
     this.updateHighlights();
   }
@@ -188,11 +252,18 @@ let FileMatchImpl = class extends Disposable {
       return;
     }
     this._model.changeDecorations((accessor) => {
-      const newDecorations = this.parent().showHighlights ? this.matches().map((match) => ({
-        range: match.range(),
-        options: FileMatchImpl.getDecorationOption(this.isMatchSelected(match))
-      })) : [];
-      this._modelDecorations = accessor.deltaDecorations(this._modelDecorations, newDecorations);
+      const newDecorations = this.parent().showHighlights ? this.matches().map(
+        (match) => ({
+          range: match.range(),
+          options: FileMatchImpl.getDecorationOption(
+            this.isMatchSelected(match)
+          )
+        })
+      ) : [];
+      this._modelDecorations = accessor.deltaDecorations(
+        this._modelDecorations,
+        newDecorations
+      );
     });
   }
   id() {
@@ -224,7 +295,10 @@ let FileMatchImpl = class extends Disposable {
   async replace(toReplace) {
     return this.replaceQ = this.replaceQ.finally(async () => {
       await this.replaceService.replace(toReplace);
-      await this.updatesMatchesForLineAfterReplace(toReplace.range().startLineNumber, false);
+      await this.updatesMatchesForLineAfterReplace(
+        toReplace.range().startLineNumber,
+        false
+      );
     });
   }
   setSelectedMatch(match) {
@@ -258,8 +332,12 @@ let FileMatchImpl = class extends Disposable {
     if (!results) {
       return;
     }
-    const contexts = results.filter((result) => !resultIsMatch(result));
-    return contexts.forEach((context) => this._context.set(context.lineNumber, context.text));
+    const contexts = results.filter(
+      (result) => !resultIsMatch(result)
+    );
+    return contexts.forEach(
+      (context) => this._context.set(context.lineNumber, context.text)
+    );
   }
   add(match, trigger) {
     this._textMatches.set(match.id(), match);

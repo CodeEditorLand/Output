@@ -1,11 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IViewModel } from "../../../common/viewModel.js";
-import { Range } from "../../../common/core/range.js";
-import { isWindows } from "../../../../base/common/platform.js";
 import { Mimes } from "../../../../base/common/mime.js";
+import { isWindows } from "../../../../base/common/platform.js";
 function getDataToCopy(viewModel, modelSelections, emptySelectionClipboard, copyWithSyntaxHighlighting) {
-  const rawTextToCopy = viewModel.getPlainTextToCopy(modelSelections, emptySelectionClipboard, isWindows);
+  const rawTextToCopy = viewModel.getPlainTextToCopy(
+    modelSelections,
+    emptySelectionClipboard,
+    isWindows
+  );
   const newLineCharacter = viewModel.model.getEOL();
   const isFromEmptySelection = emptySelectionClipboard && modelSelections.length === 1 && modelSelections[0].isEmpty();
   const multicursorText = Array.isArray(rawTextToCopy) ? rawTextToCopy : null;
@@ -13,7 +15,10 @@ function getDataToCopy(viewModel, modelSelections, emptySelectionClipboard, copy
   let html = void 0;
   let mode = null;
   if (CopyOptions.forceCopyWithSyntaxHighlighting || copyWithSyntaxHighlighting && text.length < 65536) {
-    const richText = viewModel.getRichTextToCopy(modelSelections, emptySelectionClipboard);
+    const richText = viewModel.getRichTextToCopy(
+      modelSelections,
+      emptySelectionClipboard
+    );
     if (richText) {
       html = richText.html;
       mode = richText.mode;
@@ -67,7 +72,10 @@ const ClipboardEventUtils = {
       }
     }
     if (text.length === 0 && metadata === null && clipboardData.files.length > 0) {
-      const files = Array.prototype.slice.call(clipboardData.files, 0);
+      const files = Array.prototype.slice.call(
+        clipboardData.files,
+        0
+      );
       return [files.map((file) => file.name).join("\n"), null];
     }
     return [text, metadata];

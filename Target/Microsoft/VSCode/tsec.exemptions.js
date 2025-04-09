@@ -1,4 +1,4 @@
-var tsec_exemptions_default = "./Asset/tsec.exemptions-CTKODKIW.json";
+var tsec_exemptions_default = "./Asset/tsec.exemptions-WGWOOFIV.json";
 export {
   tsec_exemptions_default as default
 };

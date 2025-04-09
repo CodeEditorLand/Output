@@ -3,8 +3,6 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { LinkedList } from "../../../../base/common/linkedList.js";
 import { Position } from "../../../common/core/position.js";
 import { Range } from "../../../common/core/range.js";
-import { ITextModel } from "../../../common/model.js";
-import { SelectionRange, SelectionRangeProvider } from "../../../common/languages.js";
 class BracketSelectionRangeProvider {
   static {
     __name(this, "BracketSelectionRangeProvider");
@@ -15,8 +13,25 @@ class BracketSelectionRangeProvider {
       const bucket = [];
       result.push(bucket);
       const ranges = /* @__PURE__ */ new Map();
-      await new Promise((resolve) => BracketSelectionRangeProvider._bracketsRightYield(resolve, 0, model, position, ranges));
-      await new Promise((resolve) => BracketSelectionRangeProvider._bracketsLeftYield(resolve, 0, model, position, ranges, bucket));
+      await new Promise(
+        (resolve) => BracketSelectionRangeProvider._bracketsRightYield(
+          resolve,
+          0,
+          model,
+          position,
+          ranges
+        )
+      );
+      await new Promise(
+        (resolve) => BracketSelectionRangeProvider._bracketsLeftYield(
+          resolve,
+          0,
+          model,
+          position,
+          ranges,
+          bucket
+        )
+      );
     }
     return result;
   }
@@ -41,7 +56,15 @@ class BracketSelectionRangeProvider {
       }
       const d = Date.now() - t1;
       if (d > BracketSelectionRangeProvider._maxDuration) {
-        setTimeout(() => BracketSelectionRangeProvider._bracketsRightYield(resolve, round + 1, model, pos, ranges));
+        setTimeout(
+          () => BracketSelectionRangeProvider._bracketsRightYield(
+            resolve,
+            round + 1,
+            model,
+            pos,
+            ranges
+          )
+        );
         break;
       }
       if (bracket.bracketInfo.isOpeningBracket) {
@@ -84,7 +107,16 @@ class BracketSelectionRangeProvider {
       }
       const d = Date.now() - t1;
       if (d > BracketSelectionRangeProvider._maxDuration) {
-        setTimeout(() => BracketSelectionRangeProvider._bracketsLeftYield(resolve, round + 1, model, pos, ranges, bucket));
+        setTimeout(
+          () => BracketSelectionRangeProvider._bracketsLeftYield(
+            resolve,
+            round + 1,
+            model,
+            pos,
+            ranges,
+            bucket
+          )
+        );
         break;
       }
       if (!bracket.bracketInfo.isOpeningBracket) {
@@ -103,11 +135,21 @@ class BracketSelectionRangeProvider {
             if (list.size === 0) {
               ranges.delete(key);
             }
-            const innerBracket = Range.fromPositions(bracket.range.getEndPosition(), closing.getStartPosition());
-            const outerBracket = Range.fromPositions(bracket.range.getStartPosition(), closing.getEndPosition());
+            const innerBracket = Range.fromPositions(
+              bracket.range.getEndPosition(),
+              closing?.getStartPosition()
+            );
+            const outerBracket = Range.fromPositions(
+              bracket.range.getStartPosition(),
+              closing?.getEndPosition()
+            );
             bucket.push({ range: innerBracket });
             bucket.push({ range: outerBracket });
-            BracketSelectionRangeProvider._addBracketLeading(model, outerBracket, bucket);
+            BracketSelectionRangeProvider._addBracketLeading(
+              model,
+              outerBracket,
+              bucket
+            );
           }
         }
       }
@@ -121,15 +163,35 @@ class BracketSelectionRangeProvider {
     const startLine = bracket.startLineNumber;
     const column = model.getLineFirstNonWhitespaceColumn(startLine);
     if (column !== 0 && column !== bracket.startColumn) {
-      bucket.push({ range: Range.fromPositions(new Position(startLine, column), bracket.getEndPosition()) });
-      bucket.push({ range: Range.fromPositions(new Position(startLine, 1), bracket.getEndPosition()) });
+      bucket.push({
+        range: Range.fromPositions(
+          new Position(startLine, column),
+          bracket.getEndPosition()
+        )
+      });
+      bucket.push({
+        range: Range.fromPositions(
+          new Position(startLine, 1),
+          bracket.getEndPosition()
+        )
+      });
     }
     const aboveLine = startLine - 1;
     if (aboveLine > 0) {
       const column2 = model.getLineFirstNonWhitespaceColumn(aboveLine);
       if (column2 === bracket.startColumn && column2 !== model.getLineLastNonWhitespaceColumn(aboveLine)) {
-        bucket.push({ range: Range.fromPositions(new Position(aboveLine, column2), bracket.getEndPosition()) });
-        bucket.push({ range: Range.fromPositions(new Position(aboveLine, 1), bracket.getEndPosition()) });
+        bucket.push({
+          range: Range.fromPositions(
+            new Position(aboveLine, column2),
+            bracket.getEndPosition()
+          )
+        });
+        bucket.push({
+          range: Range.fromPositions(
+            new Position(aboveLine, 1),
+            bracket.getEndPosition()
+          )
+        });
       }
     }
   }

@@ -1,18 +1,31 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createHash } from "crypto";
-import { Server as NetServer, Socket, createServer, createConnection } from "net";
-import { tmpdir } from "os";
-import { createDeflateRaw, ZlibOptions, InflateRaw, DeflateRaw, createInflateRaw } from "zlib";
+import { createHash } from "node:crypto";
+import {
+  createConnection,
+  createServer
+} from "node:net";
+import { tmpdir } from "node:os";
+import {
+  createDeflateRaw,
+  createInflateRaw
+} from "node:zlib";
 import { VSBuffer } from "../../../common/buffer.js";
 import { onUnexpectedError } from "../../../common/errors.js";
 import { Emitter, Event } from "../../../common/event.js";
-import { Disposable, IDisposable } from "../../../common/lifecycle.js";
+import { Disposable } from "../../../common/lifecycle.js";
 import { join } from "../../../common/path.js";
 import { Platform, platform } from "../../../common/platform.js";
 import { generateUuid } from "../../../common/uuid.js";
-import { ClientConnectionEvent, IPCServer } from "../common/ipc.js";
-import { ChunkStream, Client, ISocket, Protocol, SocketCloseEvent, SocketCloseEventType, SocketDiagnostics, SocketDiagnosticsEventType } from "../common/ipc.net.js";
+import { IPCServer } from "../common/ipc.js";
+import {
+  ChunkStream,
+  Client,
+  Protocol,
+  SocketCloseEventType,
+  SocketDiagnostics,
+  SocketDiagnosticsEventType
+} from "../common/ipc.net.js";
 const socketEndTimeoutMs = 3e4;
 class NodeSocket {
   static {
@@ -25,14 +38,24 @@ class NodeSocket {
   _endListener;
   _canWrite = true;
   traceSocketEvent(type, data) {
-    SocketDiagnostics.traceSocketEvent(this.socket, this.debugLabel, type, data);
+    SocketDiagnostics.traceSocketEvent(
+      this.socket,
+      this.debugLabel,
+      type,
+      data
+    );
   }
   constructor(socket, debugLabel = "") {
     this.debugLabel = debugLabel;
     this.socket = socket;
-    this.traceSocketEvent(SocketDiagnosticsEventType.Created, { type: "NodeSocket" });
+    this.traceSocketEvent(SocketDiagnosticsEventType.Created, {
+      type: "NodeSocket"
+    });
     this._errorListener = (err) => {
-      this.traceSocketEvent(SocketDiagnosticsEventType.Error, { code: err?.code, message: err?.message });
+      this.traceSocketEvent(SocketDiagnosticsEventType.Error, {
+        code: err?.code,
+        message: err?.message
+      });
       if (err) {
         if (err.code === "EPIPE") {
           return;
@@ -43,7 +66,9 @@ class NodeSocket {
     this.socket.on("error", this._errorListener);
     let endTimeoutHandle;
     this._closeListener = (hadError) => {
-      this.traceSocketEvent(SocketDiagnosticsEventType.Close, { hadError });
+      this.traceSocketEvent(SocketDiagnosticsEventType.Close, {
+        hadError
+      });
       this._canWrite = false;
       if (endTimeoutHandle) {
         clearTimeout(endTimeoutHandle);
@@ -53,7 +78,10 @@ class NodeSocket {
     this._endListener = () => {
       this.traceSocketEvent(SocketDiagnosticsEventType.NodeEndReceived);
       this._canWrite = false;
-      endTimeoutHandle = setTimeout(() => socket.destroy(), socketEndTimeoutMs);
+      endTimeoutHandle = setTimeout(
+        () => socket.destroy(),
+        socketEndTimeoutMs
+      );
     };
     this.socket.on("end", this._endListener);
   }
@@ -200,38 +228,53 @@ class WebSocketNodeSocket extends Disposable {
   constructor(socket, permessageDeflate, inflateBytes, recordInflateBytes) {
     super();
     this.socket = socket;
-    this.traceSocketEvent(SocketDiagnosticsEventType.Created, { type: "WebSocketNodeSocket", permessageDeflate, inflateBytesLength: inflateBytes?.byteLength || 0, recordInflateBytes });
-    this._flowManager = this._register(new WebSocketFlowManager(
-      this,
+    this.traceSocketEvent(SocketDiagnosticsEventType.Created, {
+      type: "WebSocketNodeSocket",
       permessageDeflate,
-      inflateBytes,
-      recordInflateBytes,
-      this._onData,
-      (data, options) => this._write(data, options)
-    ));
-    this._register(this._flowManager.onError((err) => {
-      console.error(err);
-      onUnexpectedError(err);
-      this._onClose.fire({
-        type: SocketCloseEventType.NodeSocketCloseEvent,
-        hadError: true,
-        error: err
-      });
-    }));
+      inflateBytesLength: inflateBytes?.byteLength || 0,
+      recordInflateBytes
+    });
+    this._flowManager = this._register(
+      new WebSocketFlowManager(
+        this,
+        permessageDeflate,
+        inflateBytes,
+        recordInflateBytes,
+        this._onData,
+        (data, options) => this._write(data, options)
+      )
+    );
+    this._register(
+      this._flowManager.onError((err) => {
+        console.error(err);
+        onUnexpectedError(err);
+        this._onClose.fire({
+          type: SocketCloseEventType.NodeSocketCloseEvent,
+          hadError: true,
+          error: err
+        });
+      })
+    );
     this._incomingData = new ChunkStream();
     this._register(this.socket.onData((data) => this._acceptChunk(data)));
-    this._register(this.socket.onClose(async (e) => {
-      if (this._flowManager.isProcessingReadQueue()) {
-        await Event.toPromise(this._flowManager.onDidFinishProcessingReadQueue);
-      }
-      this._onClose.fire(e);
-    }));
+    this._register(
+      this.socket.onClose(async (e) => {
+        if (this._flowManager.isProcessingReadQueue()) {
+          await Event.toPromise(
+            this._flowManager.onDidFinishProcessingReadQueue
+          );
+        }
+        this._onClose.fire(e);
+      })
+    );
   }
   dispose() {
     if (this._flowManager.isProcessingWriteQueue()) {
-      this._register(this._flowManager.onDidFinishProcessingWriteQueue(() => {
-        this.dispose();
-      }));
+      this._register(
+        this._flowManager.onDidFinishProcessingWriteQueue(() => {
+          this.dispose();
+        })
+      );
     } else {
       this.socket.dispose();
       super.dispose();
@@ -249,11 +292,20 @@ class WebSocketNodeSocket extends Disposable {
   write(buffer) {
     let start = 0;
     while (start < buffer.byteLength) {
-      this._flowManager.writeMessage(buffer.slice(start, Math.min(start + 262144 /* MaxWebSocketMessageLength */, buffer.byteLength)), {
-        compressed: true,
-        opcode: 2
-        /* Binary frame */
-      });
+      this._flowManager.writeMessage(
+        buffer.slice(
+          start,
+          Math.min(
+            start + 262144 /* MaxWebSocketMessageLength */,
+            buffer.byteLength
+          )
+        ),
+        {
+          compressed: true,
+          opcode: 2
+          /* Binary frame */
+        }
+      );
       start += 262144 /* MaxWebSocketMessageLength */;
     }
   }
@@ -261,7 +313,10 @@ class WebSocketNodeSocket extends Disposable {
     if (this._isEnded) {
       return;
     }
-    this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketWrite, buffer);
+    this.traceSocketEvent(
+      SocketDiagnosticsEventType.WebSocketNodeSocketWrite,
+      buffer
+    );
     let headerLen = 2 /* MinHeaderByteSize */;
     if (buffer.byteLength < 126) {
       headerLen += 0;
@@ -288,8 +343,14 @@ class WebSocketNodeSocket extends Disposable {
       header.writeUInt8(0, ++offset);
       header.writeUInt8(0, ++offset);
       header.writeUInt8(0, ++offset);
-      header.writeUInt8(buffer.byteLength >>> 24 & 255, ++offset);
-      header.writeUInt8(buffer.byteLength >>> 16 & 255, ++offset);
+      header.writeUInt8(
+        buffer.byteLength >>> 24 & 255,
+        ++offset
+      );
+      header.writeUInt8(
+        buffer.byteLength >>> 16 & 255,
+        ++offset
+      );
       header.writeUInt8(buffer.byteLength >>> 8 & 255, ++offset);
       header.writeUInt8(buffer.byteLength >>> 0 & 255, ++offset);
     }
@@ -323,7 +384,15 @@ class WebSocketNodeSocket extends Disposable {
         this._state.firstFrameOfMessage = Boolean(finBit);
         this._state.mask = 0;
         this._state.opcode = opcode;
-        this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketPeekedHeader, { headerSize: this._state.readLen, compressed: this._state.compressed, fin: this._state.fin, opcode: this._state.opcode });
+        this.traceSocketEvent(
+          SocketDiagnosticsEventType.WebSocketNodeSocketPeekedHeader,
+          {
+            headerSize: this._state.readLen,
+            compressed: this._state.compressed,
+            fin: this._state.fin,
+            opcode: this._state.opcode
+          }
+        );
       } else if (this._state.state === 2 /* ReadHeader */) {
         const header = this._incomingData.read(this._state.readLen);
         const secondByte = header.readUInt8(1);
@@ -342,34 +411,58 @@ class WebSocketNodeSocket extends Disposable {
         this._state.state = 3 /* ReadBody */;
         this._state.readLen = len;
         this._state.mask = mask;
-        this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketPeekedHeader, { bodySize: this._state.readLen, compressed: this._state.compressed, fin: this._state.fin, mask: this._state.mask, opcode: this._state.opcode });
+        this.traceSocketEvent(
+          SocketDiagnosticsEventType.WebSocketNodeSocketPeekedHeader,
+          {
+            bodySize: this._state.readLen,
+            compressed: this._state.compressed,
+            fin: this._state.fin,
+            mask: this._state.mask,
+            opcode: this._state.opcode
+          }
+        );
       } else if (this._state.state === 3 /* ReadBody */) {
         const body = this._incomingData.read(this._state.readLen);
-        this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketReadData, body);
+        this.traceSocketEvent(
+          SocketDiagnosticsEventType.WebSocketNodeSocketReadData,
+          body
+        );
         unmask(body, this._state.mask);
-        this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketUnmaskedData, body);
+        this.traceSocketEvent(
+          SocketDiagnosticsEventType.WebSocketNodeSocketUnmaskedData,
+          body
+        );
         this._state.state = 1 /* PeekHeader */;
         this._state.readLen = 2 /* MinHeaderByteSize */;
         this._state.mask = 0;
         if (this._state.opcode <= 2) {
-          this._flowManager.acceptFrame(body, this._state.compressed, !!this._state.fin);
+          this._flowManager.acceptFrame(
+            body,
+            this._state.compressed,
+            !!this._state.fin
+          );
         } else if (this._state.opcode === 9) {
           this._flowManager.writeMessage(body, {
             compressed: false,
             opcode: 10
-            /* Pong frame */
           });
         }
       }
     }
   }
   async drain() {
-    this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketDrainBegin);
+    this.traceSocketEvent(
+      SocketDiagnosticsEventType.WebSocketNodeSocketDrainBegin
+    );
     if (this._flowManager.isProcessingWriteQueue()) {
-      await Event.toPromise(this._flowManager.onDidFinishProcessingWriteQueue);
+      await Event.toPromise(
+        this._flowManager.onDidFinishProcessingWriteQueue
+      );
     }
     await this.socket.drain();
-    this.traceSocketEvent(SocketDiagnosticsEventType.WebSocketNodeSocketDrainEnd);
+    this.traceSocketEvent(
+      SocketDiagnosticsEventType.WebSocketNodeSocketDrainEnd
+    );
   }
 }
 class WebSocketFlowManager extends Disposable {
@@ -379,10 +472,27 @@ class WebSocketFlowManager extends Disposable {
     this._onData = _onData;
     this._writeFn = _writeFn;
     if (permessageDeflate) {
-      this._zlibInflateStream = this._register(new ZlibInflateStream(this._tracer, recordInflateBytes, inflateBytes, { windowBits: 15 }));
-      this._zlibDeflateStream = this._register(new ZlibDeflateStream(this._tracer, { windowBits: 15 }));
-      this._register(this._zlibInflateStream.onError((err) => this._onError.fire(err)));
-      this._register(this._zlibDeflateStream.onError((err) => this._onError.fire(err)));
+      this._zlibInflateStream = this._register(
+        new ZlibInflateStream(
+          this._tracer,
+          recordInflateBytes,
+          inflateBytes,
+          { windowBits: 15 }
+        )
+      );
+      this._zlibDeflateStream = this._register(
+        new ZlibDeflateStream(this._tracer, { windowBits: 15 })
+      );
+      this._register(
+        this._zlibInflateStream.onError(
+          (err) => this._onError.fire(err)
+        )
+      );
+      this._register(
+        this._zlibDeflateStream.onError(
+          (err) => this._onError.fire(err)
+        )
+      );
     } else {
       this._zlibInflateStream = null;
       this._zlibDeflateStream = null;
@@ -397,9 +507,13 @@ class WebSocketFlowManager extends Disposable {
   _zlibDeflateStream;
   _writeQueue = [];
   _readQueue = [];
-  _onDidFinishProcessingReadQueue = this._register(new Emitter());
+  _onDidFinishProcessingReadQueue = this._register(
+    new Emitter()
+  );
   onDidFinishProcessingReadQueue = this._onDidFinishProcessingReadQueue.event;
-  _onDidFinishProcessingWriteQueue = this._register(new Emitter());
+  _onDidFinishProcessingWriteQueue = this._register(
+    new Emitter()
+  );
   onDidFinishProcessingWriteQueue = this._onDidFinishProcessingWriteQueue.event;
   get permessageDeflate() {
     return Boolean(this._zlibInflateStream && this._zlibDeflateStream);
@@ -423,7 +537,10 @@ class WebSocketFlowManager extends Disposable {
     while (this._writeQueue.length > 0) {
       const { data, options } = this._writeQueue.shift();
       if (this._zlibDeflateStream && options.compressed) {
-        const compressedData = await this._deflateMessage(this._zlibDeflateStream, data);
+        const compressedData = await this._deflateMessage(
+          this._zlibDeflateStream,
+          data
+        );
         this._writeFn(compressedData, options);
       } else {
         this._writeFn(data, { ...options, compressed: false });
@@ -457,7 +574,11 @@ class WebSocketFlowManager extends Disposable {
     while (this._readQueue.length > 0) {
       const frameInfo = this._readQueue.shift();
       if (this._zlibInflateStream && frameInfo.isCompressed) {
-        const data = await this._inflateFrame(this._zlibInflateStream, frameInfo.data, frameInfo.isLastFrameOfMessage);
+        const data = await this._inflateFrame(
+          this._zlibInflateStream,
+          frameInfo.data,
+          frameInfo.isLastFrameOfMessage
+        );
         this._onData.fire(data);
       } else {
         this._onData.fire(frameInfo.data);
@@ -476,7 +597,9 @@ class WebSocketFlowManager extends Disposable {
     return new Promise((resolve, reject) => {
       zlibInflateStream.write(buffer);
       if (isLastFrameOfMessage) {
-        zlibInflateStream.write(VSBuffer.fromByteArray([0, 0, 255, 255]));
+        zlibInflateStream.write(
+          VSBuffer.fromByteArray([0, 0, 255, 255])
+        );
       }
       zlibInflateStream.flush((data) => resolve(data));
     });
@@ -489,18 +612,29 @@ class ZlibInflateStream extends Disposable {
     this._recordInflateBytes = _recordInflateBytes;
     this._zlibInflate = createInflateRaw(options);
     this._zlibInflate.on("error", (err) => {
-      this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibInflateError, { message: err?.message, code: err?.code });
+      this._tracer.traceSocketEvent(
+        SocketDiagnosticsEventType.zlibInflateError,
+        { message: err?.message, code: err?.code }
+      );
       this._onError.fire(err);
     });
     this._zlibInflate.on("data", (data) => {
-      this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibInflateData, data);
+      this._tracer.traceSocketEvent(
+        SocketDiagnosticsEventType.zlibInflateData,
+        data
+      );
       this._pendingInflateData.push(VSBuffer.wrap(data));
     });
     if (inflateBytes) {
-      this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibInflateInitialWrite, inflateBytes.buffer);
+      this._tracer.traceSocketEvent(
+        SocketDiagnosticsEventType.zlibInflateInitialWrite,
+        inflateBytes.buffer
+      );
       this._zlibInflate.write(inflateBytes.buffer);
       this._zlibInflate.flush(() => {
-        this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibInflateInitialFlushFired);
+        this._tracer.traceSocketEvent(
+          SocketDiagnosticsEventType.zlibInflateInitialFlushFired
+        );
         this._pendingInflateData.length = 0;
       });
     }
@@ -523,12 +657,17 @@ class ZlibInflateStream extends Disposable {
     if (this._recordInflateBytes) {
       this._recordedInflateBytes.push(buffer.clone());
     }
-    this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibInflateWrite, buffer);
+    this._tracer.traceSocketEvent(
+      SocketDiagnosticsEventType.zlibInflateWrite,
+      buffer
+    );
     this._zlibInflate.write(buffer.buffer);
   }
   flush(callback) {
     this._zlibInflate.flush(() => {
-      this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibInflateFlushFired);
+      this._tracer.traceSocketEvent(
+        SocketDiagnosticsEventType.zlibInflateFlushFired
+      );
       const data = VSBuffer.concat(this._pendingInflateData);
       this._pendingInflateData.length = 0;
       callback(data);
@@ -543,11 +682,17 @@ class ZlibDeflateStream extends Disposable {
       windowBits: 15
     });
     this._zlibDeflate.on("error", (err) => {
-      this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibDeflateError, { message: err?.message, code: err?.code });
+      this._tracer.traceSocketEvent(
+        SocketDiagnosticsEventType.zlibDeflateError,
+        { message: err?.message, code: err?.code }
+      );
       this._onError.fire(err);
     });
     this._zlibDeflate.on("data", (data) => {
-      this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibDeflateData, data);
+      this._tracer.traceSocketEvent(
+        SocketDiagnosticsEventType.zlibDeflateData,
+        data
+      );
       this._pendingDeflateData.push(VSBuffer.wrap(data));
     });
   }
@@ -559,7 +704,10 @@ class ZlibDeflateStream extends Disposable {
   _zlibDeflate;
   _pendingDeflateData = [];
   write(buffer) {
-    this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibDeflateWrite, buffer.buffer);
+    this._tracer.traceSocketEvent(
+      SocketDiagnosticsEventType.zlibDeflateWrite,
+      buffer.buffer
+    );
     this._zlibDeflate.write(buffer.buffer);
   }
   flush(callback) {
@@ -567,7 +715,9 @@ class ZlibDeflateStream extends Disposable {
       /*Z_SYNC_FLUSH*/
       2,
       () => {
-        this._tracer.traceSocketEvent(SocketDiagnosticsEventType.zlibDeflateFlushFired);
+        this._tracer.traceSocketEvent(
+          SocketDiagnosticsEventType.zlibDeflateFlushFired
+        );
         let data = VSBuffer.concat(this._pendingDeflateData);
         this._pendingDeflateData.length = 0;
         data = data.slice(0, data.byteLength - 4);
@@ -627,9 +777,15 @@ function createStaticIPCHandle(directoryPath, type, version) {
   const typeForSocket = type.substr(0, 6);
   let result;
   if (process.platform !== "darwin" && XDG_RUNTIME_DIR && !process.env["VSCODE_PORTABLE"]) {
-    result = join(XDG_RUNTIME_DIR, `vscode-${scopeForSocket}-${versionForSocket}-${typeForSocket}.sock`);
+    result = join(
+      XDG_RUNTIME_DIR,
+      `vscode-${scopeForSocket}-${versionForSocket}-${typeForSocket}.sock`
+    );
   } else {
-    result = join(directoryPath, `${versionForSocket}-${typeForSocket}.sock`);
+    result = join(
+      directoryPath,
+      `${versionForSocket}-${typeForSocket}.sock`
+    );
   }
   validateIPCHandleLength(result);
   return result;
@@ -638,7 +794,9 @@ __name(createStaticIPCHandle, "createStaticIPCHandle");
 function validateIPCHandleLength(handle) {
   const limit = safeIpcPathLengths[platform];
   if (typeof limit === "number" && handle.length >= limit) {
-    console.warn(`WARNING: IPC handle "${handle}" is longer than ${limit} chars, try a shorter --user-data-dir`);
+    console.warn(
+      `WARNING: IPC handle "${handle}" is longer than ${limit} chars, try a shorter --user-data-dir`
+    );
   }
 }
 __name(validateIPCHandleLength, "validateIPCHandleLength");
@@ -647,10 +805,17 @@ class Server extends IPCServer {
     __name(this, "Server");
   }
   static toClientConnectionEvent(server) {
-    const onConnection = Event.fromNodeEventEmitter(server, "connection");
+    const onConnection = Event.fromNodeEventEmitter(
+      server,
+      "connection"
+    );
     return Event.map(onConnection, (socket) => ({
-      protocol: new Protocol(new NodeSocket(socket, "ipc-server-connection")),
-      onDidClientDisconnect: Event.once(Event.fromNodeEventEmitter(socket, "close"))
+      protocol: new Protocol(
+        new NodeSocket(socket, "ipc-server-connection")
+      ),
+      onDidClientDisconnect: Event.once(
+        Event.fromNodeEventEmitter(socket, "close")
+      )
     }));
   }
   server;
@@ -681,7 +846,12 @@ function connect(hook, clientId) {
   return new Promise((c, e) => {
     const socket = createConnection(hook, () => {
       socket.removeListener("error", e);
-      c(Client.fromSocket(new NodeSocket(socket, `ipc-client${clientId}`), clientId));
+      c(
+        Client.fromSocket(
+          new NodeSocket(socket, `ipc-client${clientId}`),
+          clientId
+        )
+      );
     });
     socket.once("error", e);
   });

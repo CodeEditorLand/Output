@@ -10,24 +10,34 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable, markAsSingleton, toDisposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable,
+  markAsSingleton,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import * as strings from "../../../base/common/strings.js";
-import { ITextModel } from "../model.js";
-import { DEFAULT_WORD_REGEXP, ensureValidWordDefinition } from "../core/wordHelper.js";
-import { EnterAction, FoldingRules, IAutoClosingPair, IndentationRule, LanguageConfiguration, AutoClosingPairs, CharacterPair, ExplicitLanguageConfiguration } from "./languageConfiguration.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+import {
+  DEFAULT_WORD_REGEXP,
+  ensureValidWordDefinition
+} from "../core/wordHelper.js";
+import { ILanguageService } from "./language.js";
+import {
+  AutoClosingPairs
+} from "./languageConfiguration.js";
+import { PLAINTEXT_LANGUAGE_ID } from "./modesRegistry.js";
 import { CharacterPairSupport } from "./supports/characterPair.js";
 import { BracketElectricCharacterSupport } from "./supports/electricCharacter.js";
 import { IndentRulesSupport } from "./supports/indentRules.js";
+import { LanguageBracketsConfiguration } from "./supports/languageBracketsConfiguration.js";
 import { OnEnterSupport } from "./supports/onEnter.js";
 import { RichEditBrackets } from "./supports/richEditBrackets.js";
-import { EditorAutoIndentStrategy } from "../config/editorOptions.js";
-import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { ILanguageService } from "./language.js";
-import { InstantiationType, registerSingleton } from "../../../platform/instantiation/common/extensions.js";
-import { PLAINTEXT_LANGUAGE_ID } from "./modesRegistry.js";
-import { LanguageBracketsConfiguration } from "./supports/languageBracketsConfiguration.js";
 class LanguageConfigurationServiceChangeEvent {
   constructor(languageId) {
     this.languageId = languageId;
@@ -39,43 +49,65 @@ class LanguageConfigurationServiceChangeEvent {
     return !this.languageId ? true : this.languageId === languageId;
   }
 }
-const ILanguageConfigurationService = createDecorator("languageConfigurationService");
+const ILanguageConfigurationService = createDecorator(
+  "languageConfigurationService"
+);
 let LanguageConfigurationService = class extends Disposable {
   constructor(configurationService, languageService) {
     super();
     this.configurationService = configurationService;
     this.languageService = languageService;
-    const languageConfigKeys = new Set(Object.values(customizedLanguageConfigKeys));
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      const globalConfigChanged = e.change.keys.some(
-        (k) => languageConfigKeys.has(k)
-      );
-      const localConfigChanged = e.change.overrides.filter(
-        ([overrideLangName, keys]) => keys.some((k) => languageConfigKeys.has(k))
-      ).map(([overrideLangName]) => overrideLangName);
-      if (globalConfigChanged) {
-        this.configurations.clear();
-        this.onDidChangeEmitter.fire(new LanguageConfigurationServiceChangeEvent(void 0));
-      } else {
-        for (const languageId of localConfigChanged) {
-          if (this.languageService.isRegisteredLanguageId(languageId)) {
-            this.configurations.delete(languageId);
-            this.onDidChangeEmitter.fire(new LanguageConfigurationServiceChangeEvent(languageId));
+    const languageConfigKeys = new Set(
+      Object.values(customizedLanguageConfigKeys)
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        const globalConfigChanged = e.change.keys.some(
+          (k) => languageConfigKeys.has(k)
+        );
+        const localConfigChanged = e.change.overrides.filter(
+          ([overrideLangName, keys]) => keys.some((k) => languageConfigKeys.has(k))
+        ).map(([overrideLangName]) => overrideLangName);
+        if (globalConfigChanged) {
+          this.configurations.clear();
+          this.onDidChangeEmitter.fire(
+            new LanguageConfigurationServiceChangeEvent(void 0)
+          );
+        } else {
+          for (const languageId of localConfigChanged) {
+            if (this.languageService.isRegisteredLanguageId(
+              languageId
+            )) {
+              this.configurations.delete(languageId);
+              this.onDidChangeEmitter.fire(
+                new LanguageConfigurationServiceChangeEvent(
+                  languageId
+                )
+              );
+            }
           }
         }
-      }
-    }));
-    this._register(this._registry.onDidChange((e) => {
-      this.configurations.delete(e.languageId);
-      this.onDidChangeEmitter.fire(new LanguageConfigurationServiceChangeEvent(e.languageId));
-    }));
+      })
+    );
+    this._register(
+      this._registry.onDidChange((e) => {
+        this.configurations.delete(e.languageId);
+        this.onDidChangeEmitter.fire(
+          new LanguageConfigurationServiceChangeEvent(e.languageId)
+        );
+      })
+    );
   }
   static {
     __name(this, "LanguageConfigurationService");
   }
   _serviceBrand;
-  _registry = this._register(new LanguageConfigurationRegistry());
-  onDidChangeEmitter = this._register(new Emitter());
+  _registry = this._register(
+    new LanguageConfigurationRegistry()
+  );
+  onDidChangeEmitter = this._register(
+    new Emitter()
+  );
   onDidChange = this.onDidChangeEmitter.event;
   configurations = /* @__PURE__ */ new Map();
   register(languageId, configuration, priority) {
@@ -84,7 +116,12 @@ let LanguageConfigurationService = class extends Disposable {
   getLanguageConfiguration(languageId) {
     let result = this.configurations.get(languageId);
     if (!result) {
-      result = computeConfig(languageId, this._registry, this.configurationService, this.languageService);
+      result = computeConfig(
+        languageId,
+        this._registry,
+        this.configurationService,
+        this.languageService
+      );
       this.configurations.set(languageId, result);
     }
     return result;
@@ -102,9 +139,18 @@ function computeConfig(languageId, registry, configurationService, languageServi
     }
     languageConfig = new ResolvedLanguageConfiguration(languageId, {});
   }
-  const customizedConfig = getCustomizedLanguageConfig(languageConfig.languageId, configurationService);
-  const data = combineLanguageConfigurations([languageConfig.underlyingConfig, customizedConfig]);
-  const config = new ResolvedLanguageConfiguration(languageConfig.languageId, data);
+  const customizedConfig = getCustomizedLanguageConfig(
+    languageConfig.languageId,
+    configurationService
+  );
+  const data = combineLanguageConfigurations([
+    languageConfig.underlyingConfig,
+    customizedConfig
+  ]);
+  const config = new ResolvedLanguageConfiguration(
+    languageConfig.languageId,
+    data
+  );
   return config;
 }
 __name(computeConfig, "computeConfig");
@@ -113,12 +159,18 @@ const customizedLanguageConfigKeys = {
   colorizedBracketPairs: "editor.language.colorizedBracketPairs"
 };
 function getCustomizedLanguageConfig(languageId, configurationService) {
-  const brackets = configurationService.getValue(customizedLanguageConfigKeys.brackets, {
-    overrideIdentifier: languageId
-  });
-  const colorizedBracketPairs = configurationService.getValue(customizedLanguageConfigKeys.colorizedBracketPairs, {
-    overrideIdentifier: languageId
-  });
+  const brackets = configurationService.getValue(
+    customizedLanguageConfigKeys.brackets,
+    {
+      overrideIdentifier: languageId
+    }
+  );
+  const colorizedBracketPairs = configurationService.getValue(
+    customizedLanguageConfigKeys.colorizedBracketPairs,
+    {
+      overrideIdentifier: languageId
+    }
+  );
   return {
     brackets: validateBracketPairs(brackets),
     colorizedBracketPairs: validateBracketPairs(colorizedBracketPairs)
@@ -167,15 +219,17 @@ class ComposedLanguageConfiguration {
     );
     this._entries.push(entry);
     this._resolved = null;
-    return markAsSingleton(toDisposable(() => {
-      for (let i = 0; i < this._entries.length; i++) {
-        if (this._entries[i] === entry) {
-          this._entries.splice(i, 1);
-          this._resolved = null;
-          break;
+    return markAsSingleton(
+      toDisposable(() => {
+        for (let i = 0; i < this._entries.length; i++) {
+          if (this._entries[i] === entry) {
+            this._entries.splice(i, 1);
+            this._resolved = null;
+            break;
+          }
         }
-      }
-    }));
+      })
+    );
   }
   getResolvedConfiguration() {
     if (!this._resolved) {
@@ -194,7 +248,9 @@ class ComposedLanguageConfiguration {
       return null;
     }
     this._entries.sort(LanguageConfigurationContribution.cmp);
-    return combineLanguageConfigurations(this._entries.map((e) => e.configuration));
+    return combineLanguageConfigurations(
+      this._entries.map((e) => e.configuration)
+    );
   }
 }
 function combineLanguageConfigurations(configs) {
@@ -258,30 +314,38 @@ class LanguageConfigurationRegistry extends Disposable {
     __name(this, "LanguageConfigurationRegistry");
   }
   _entries = /* @__PURE__ */ new Map();
-  _onDidChange = this._register(new Emitter());
+  _onDidChange = this._register(
+    new Emitter()
+  );
   onDidChange = this._onDidChange.event;
   constructor() {
     super();
-    this._register(this.register(PLAINTEXT_LANGUAGE_ID, {
-      brackets: [
-        ["(", ")"],
-        ["[", "]"],
-        ["{", "}"]
-      ],
-      surroundingPairs: [
-        { open: "{", close: "}" },
-        { open: "[", close: "]" },
-        { open: "(", close: ")" },
-        { open: "<", close: ">" },
-        { open: '"', close: '"' },
-        { open: "'", close: "'" },
-        { open: "`", close: "`" }
-      ],
-      colorizedBracketPairs: [],
-      folding: {
-        offSide: true
-      }
-    }, 0));
+    this._register(
+      this.register(
+        PLAINTEXT_LANGUAGE_ID,
+        {
+          brackets: [
+            ["(", ")"],
+            ["[", "]"],
+            ["{", "}"]
+          ],
+          surroundingPairs: [
+            { open: "{", close: "}" },
+            { open: "[", close: "]" },
+            { open: "(", close: ")" },
+            { open: "<", close: ">" },
+            { open: '"', close: '"' },
+            { open: "'", close: "'" },
+            { open: "`", close: "`" }
+          ],
+          colorizedBracketPairs: [],
+          folding: {
+            offSide: true
+          }
+        },
+        0
+      )
+    );
   }
   /**
    * @param priority Use a higher number for higher priority
@@ -293,11 +357,17 @@ class LanguageConfigurationRegistry extends Disposable {
       this._entries.set(languageId, entries);
     }
     const disposable = entries.register(configuration, priority);
-    this._onDidChange.fire(new LanguageConfigurationChangeEvent(languageId));
-    return markAsSingleton(toDisposable(() => {
-      disposable.dispose();
-      this._onDidChange.fire(new LanguageConfigurationChangeEvent(languageId));
-    }));
+    this._onDidChange.fire(
+      new LanguageConfigurationChangeEvent(languageId)
+    );
+    return markAsSingleton(
+      toDisposable(() => {
+        disposable.dispose();
+        this._onDidChange.fire(
+          new LanguageConfigurationChangeEvent(languageId)
+        );
+      })
+    );
   }
   getLanguageConfiguration(languageId) {
     const entries = this._entries.get(languageId);
@@ -311,7 +381,9 @@ class ResolvedLanguageConfiguration {
     this._brackets = null;
     this._electricCharacter = null;
     this._onEnterSupport = this.underlyingConfig.brackets || this.underlyingConfig.indentationRules || this.underlyingConfig.onEnterRules ? new OnEnterSupport(this.underlyingConfig) : null;
-    this.comments = ResolvedLanguageConfiguration._handleComments(this.underlyingConfig);
+    this.comments = ResolvedLanguageConfiguration._handleComments(
+      this.underlyingConfig
+    );
     this.characterPair = new CharacterPairSupport(this.underlyingConfig);
     this.wordDefinition = this.underlyingConfig.wordPattern || DEFAULT_WORD_REGEXP;
     this.indentationRules = this.underlyingConfig.indentationRules;
@@ -398,7 +470,11 @@ class ResolvedLanguageConfiguration {
     return comments;
   }
 }
-registerSingleton(ILanguageConfigurationService, LanguageConfigurationService, InstantiationType.Delayed);
+registerSingleton(
+  ILanguageConfigurationService,
+  LanguageConfigurationService,
+  InstantiationType.Delayed
+);
 export {
   ILanguageConfigurationService,
   LanguageConfigurationChangeEvent,

@@ -2,13 +2,15 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, EditorContributionInstantiation, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { Selection } from "../../../common/core/selection.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 import * as nls from "../../../../nls.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  EditorAction,
+  EditorContributionInstantiation,
+  registerEditorAction,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
 class CursorState {
   static {
     __name(this, "CursorState");
@@ -47,7 +49,9 @@ class CursorUndoRedoController extends Disposable {
   }
   static ID = "editor.contrib.cursorUndoRedoController";
   static get(editor) {
-    return editor.getContribution(CursorUndoRedoController.ID);
+    return editor.getContribution(
+      CursorUndoRedoController.ID
+    );
   }
   _editor;
   _isCursorUndoRedo;
@@ -59,47 +63,71 @@ class CursorUndoRedoController extends Disposable {
     this._isCursorUndoRedo = false;
     this._undoStack = [];
     this._redoStack = [];
-    this._register(editor.onDidChangeModel((e) => {
-      this._undoStack = [];
-      this._redoStack = [];
-    }));
-    this._register(editor.onDidChangeModelContent((e) => {
-      this._undoStack = [];
-      this._redoStack = [];
-    }));
-    this._register(editor.onDidChangeCursorSelection((e) => {
-      if (this._isCursorUndoRedo) {
-        return;
-      }
-      if (!e.oldSelections) {
-        return;
-      }
-      if (e.oldModelVersionId !== e.modelVersionId) {
-        return;
-      }
-      const prevState = new CursorState(e.oldSelections);
-      const isEqualToLastUndoStack = this._undoStack.length > 0 && this._undoStack[this._undoStack.length - 1].cursorState.equals(prevState);
-      if (!isEqualToLastUndoStack) {
-        this._undoStack.push(new StackElement(prevState, editor.getScrollTop(), editor.getScrollLeft()));
+    this._register(
+      editor.onDidChangeModel((e) => {
+        this._undoStack = [];
         this._redoStack = [];
-        if (this._undoStack.length > 50) {
-          this._undoStack.shift();
+      })
+    );
+    this._register(
+      editor.onDidChangeModelContent((e) => {
+        this._undoStack = [];
+        this._redoStack = [];
+      })
+    );
+    this._register(
+      editor.onDidChangeCursorSelection((e) => {
+        if (this._isCursorUndoRedo) {
+          return;
         }
-      }
-    }));
+        if (!e.oldSelections) {
+          return;
+        }
+        if (e.oldModelVersionId !== e.modelVersionId) {
+          return;
+        }
+        const prevState = new CursorState(e.oldSelections);
+        const isEqualToLastUndoStack = this._undoStack.length > 0 && this._undoStack[this._undoStack.length - 1].cursorState.equals(prevState);
+        if (!isEqualToLastUndoStack) {
+          this._undoStack.push(
+            new StackElement(
+              prevState,
+              editor.getScrollTop(),
+              editor.getScrollLeft()
+            )
+          );
+          this._redoStack = [];
+          if (this._undoStack.length > 50) {
+            this._undoStack.shift();
+          }
+        }
+      })
+    );
   }
   cursorUndo() {
     if (!this._editor.hasModel() || this._undoStack.length === 0) {
       return;
     }
-    this._redoStack.push(new StackElement(new CursorState(this._editor.getSelections()), this._editor.getScrollTop(), this._editor.getScrollLeft()));
+    this._redoStack.push(
+      new StackElement(
+        new CursorState(this._editor.getSelections()),
+        this._editor.getScrollTop(),
+        this._editor.getScrollLeft()
+      )
+    );
     this._applyState(this._undoStack.pop());
   }
   cursorRedo() {
     if (!this._editor.hasModel() || this._redoStack.length === 0) {
       return;
     }
-    this._undoStack.push(new StackElement(new CursorState(this._editor.getSelections()), this._editor.getScrollTop(), this._editor.getScrollLeft()));
+    this._undoStack.push(
+      new StackElement(
+        new CursorState(this._editor.getSelections()),
+        this._editor.getScrollTop(),
+        this._editor.getScrollLeft()
+      )
+    );
     this._applyState(this._redoStack.pop());
   }
   _applyState(stackElement) {
@@ -147,7 +175,11 @@ class CursorRedo extends EditorAction {
     CursorUndoRedoController.get(editor)?.cursorRedo();
   }
 }
-registerEditorContribution(CursorUndoRedoController.ID, CursorUndoRedoController, EditorContributionInstantiation.Eager);
+registerEditorContribution(
+  CursorUndoRedoController.ID,
+  CursorUndoRedoController,
+  EditorContributionInstantiation.Eager
+);
 registerEditorAction(CursorUndo);
 registerEditorAction(CursorRedo);
 export {

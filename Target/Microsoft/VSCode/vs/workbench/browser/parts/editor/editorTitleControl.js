@@ -11,20 +11,21 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./media/editortitlecontrol.css";
-import { $, Dimension, clearNode } from "../../../../base/browser/dom.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
-import { BreadcrumbsControl, BreadcrumbsControlFactory } from "./breadcrumbsControl.js";
-import { IEditorGroupsView, IEditorGroupTitleHeight, IEditorGroupView, IEditorPartsView, IInternalEditorOpenOptions } from "./editor.js";
-import { IEditorTabsControl } from "./editorTabsControl.js";
-import { MultiEditorTabsControl } from "./multiEditorTabsControl.js";
-import { SingleEditorTabsControl } from "./singleEditorTabsControl.js";
-import { IEditorPartOptions } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
+import { $, clearNode, Dimension } from "../../../../base/browser/dom.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IThemeService,
+  Themable
+} from "../../../../platform/theme/common/themeService.js";
+import {
+  BreadcrumbsControl,
+  BreadcrumbsControlFactory
+} from "./breadcrumbsControl.js";
+import { MultiEditorTabsControl } from "./multiEditorTabsControl.js";
 import { MultiRowEditorControl } from "./multiRowEditorTabsControl.js";
-import { IReadonlyEditorGroupModel } from "../../../common/editor/editorGroupModel.js";
 import { NoEditorTabsControl } from "./noEditorTabsControl.js";
+import { SingleEditorTabsControl } from "./singleEditorTabsControl.js";
 let EditorTitleControl = class extends Themable {
   constructor(parent, editorPartsView, groupsView, groupView, model, instantiationService, themeService) {
     super(themeService);
@@ -41,9 +42,13 @@ let EditorTitleControl = class extends Themable {
     __name(this, "EditorTitleControl");
   }
   editorTabsControl;
-  editorTabsControlDisposable = this._register(new DisposableStore());
+  editorTabsControlDisposable = this._register(
+    new DisposableStore()
+  );
   breadcrumbsControlFactory;
-  breadcrumbsControlDisposables = this._register(new DisposableStore());
+  breadcrumbsControlDisposables = this._register(
+    new DisposableStore()
+  );
   get breadcrumbsControl() {
     return this.breadcrumbsControlFactory?.control;
   }
@@ -56,12 +61,18 @@ let EditorTitleControl = class extends Themable {
       case "single":
         tabsControlType = SingleEditorTabsControl;
         break;
-      case "multiple":
       default:
         tabsControlType = this.groupsView.partOptions.pinnedTabsOnSeparateRow ? MultiRowEditorControl : MultiEditorTabsControl;
         break;
     }
-    const control = this.instantiationService.createInstance(tabsControlType, this.parent, this.editorPartsView, this.groupsView, this.groupView, this.model);
+    const control = this.instantiationService.createInstance(
+      tabsControlType,
+      this.parent,
+      this.editorPartsView,
+      this.groupsView,
+      this.groupView,
+      this.model
+    );
     return this.editorTabsControlDisposable.add(control);
   }
   createBreadcrumbsControl() {
@@ -70,15 +81,30 @@ let EditorTitleControl = class extends Themable {
     }
     const breadcrumbsContainer = $(".breadcrumbs-below-tabs");
     this.parent.appendChild(breadcrumbsContainer);
-    const breadcrumbsControlFactory = this.breadcrumbsControlDisposables.add(this.instantiationService.createInstance(BreadcrumbsControlFactory, breadcrumbsContainer, this.groupView, {
-      showFileIcons: true,
-      showSymbolIcons: true,
-      showDecorationColors: false,
-      showPlaceholder: true,
-      dragEditor: false
-    }));
-    this.breadcrumbsControlDisposables.add(breadcrumbsControlFactory.onDidEnablementChange(() => this.groupView.relayout()));
-    this.breadcrumbsControlDisposables.add(breadcrumbsControlFactory.onDidVisibilityChange(() => this.groupView.relayout()));
+    const breadcrumbsControlFactory = this.breadcrumbsControlDisposables.add(
+      this.instantiationService.createInstance(
+        BreadcrumbsControlFactory,
+        breadcrumbsContainer,
+        this.groupView,
+        {
+          showFileIcons: true,
+          showSymbolIcons: true,
+          showDecorationColors: false,
+          showPlaceholder: true,
+          dragEditor: false
+        }
+      )
+    );
+    this.breadcrumbsControlDisposables.add(
+      breadcrumbsControlFactory.onDidEnablementChange(
+        () => this.groupView.relayout()
+      )
+    );
+    this.breadcrumbsControlDisposables.add(
+      breadcrumbsControlFactory.onDidVisibilityChange(
+        () => this.groupView.relayout()
+      )
+    );
     return breadcrumbsControlFactory;
   }
   openEditor(editor, options) {
@@ -113,7 +139,12 @@ let EditorTitleControl = class extends Themable {
     }
   }
   moveEditor(editor, fromIndex, targetIndex, stickyStateChange) {
-    return this.editorTabsControl.moveEditor(editor, fromIndex, targetIndex, stickyStateChange);
+    return this.editorTabsControl.moveEditor(
+      editor,
+      fromIndex,
+      targetIndex,
+      stickyStateChange
+    );
   }
   pinEditor(editor) {
     return this.editorTabsControl.pinEditor(editor);
@@ -151,7 +182,10 @@ let EditorTitleControl = class extends Themable {
     const tabsControlDimension = this.editorTabsControl.layout(dimensions);
     let breadcrumbsControlDimension = void 0;
     if (this.breadcrumbsControl?.isHidden() === false) {
-      breadcrumbsControlDimension = new Dimension(dimensions.container.width, BreadcrumbsControl.HEIGHT);
+      breadcrumbsControlDimension = new Dimension(
+        dimensions.container.width,
+        BreadcrumbsControl.HEIGHT
+      );
       this.breadcrumbsControl.layout(breadcrumbsControlDimension);
     }
     return new Dimension(

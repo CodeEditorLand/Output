@@ -1,12 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IActionViewItemProvider } from "../../../base/browser/ui/actionbar/actionbar.js";
 import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
-import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
 import { MenuId } from "../common/actions.js";
-const IActionViewItemService = createDecorator("IActionViewItemService");
+const IActionViewItemService = createDecorator(
+  "IActionViewItemService"
+);
 class NullActionViewItemService {
   static {
     __name(this, "NullActionViewItemService");
@@ -33,7 +40,9 @@ class ActionViewItemService {
   register(menu, commandOrSubmenuId, provider, event) {
     const id = this._makeKey(menu, commandOrSubmenuId);
     if (this._providers.has(id)) {
-      throw new Error(`A provider for the command ${commandOrSubmenuId} and menu ${menu} is already registered.`);
+      throw new Error(
+        `A provider for the command ${commandOrSubmenuId} and menu ${menu} is already registered.`
+      );
     }
     this._providers.set(id, provider);
     const listener = event?.(() => {
@@ -51,7 +60,11 @@ class ActionViewItemService {
     return `${menu.id}/${commandOrMenuId instanceof MenuId ? commandOrMenuId.id : commandOrMenuId}`;
   }
 }
-registerSingleton(IActionViewItemService, ActionViewItemService, InstantiationType.Delayed);
+registerSingleton(
+  IActionViewItemService,
+  ActionViewItemService,
+  InstantiationType.Delayed
+);
 export {
   IActionViewItemService,
   NullActionViewItemService

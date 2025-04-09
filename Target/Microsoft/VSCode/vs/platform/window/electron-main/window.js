@@ -1,14 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import electron from "electron";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { Event } from "../../../base/common/event.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
-import { ISerializableCommandAction } from "../../action/common/action.js";
-import { NativeParsedArgs } from "../../environment/common/argv.js";
-import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import { DEFAULT_AUX_WINDOW_SIZE, DEFAULT_WINDOW_SIZE, INativeWindowConfiguration } from "../common/window.js";
-import { ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
+import {
+  DEFAULT_AUX_WINDOW_SIZE,
+  DEFAULT_WINDOW_SIZE
+} from "../common/window.js";
 var LoadReason = /* @__PURE__ */ ((LoadReason2) => {
   LoadReason2[LoadReason2["INITIAL"] = 1] = "INITIAL";
   LoadReason2[LoadReason2["LOAD"] = 2] = "LOAD";
@@ -22,14 +18,12 @@ var UnloadReason = /* @__PURE__ */ ((UnloadReason2) => {
   UnloadReason2[UnloadReason2["LOAD"] = 4] = "LOAD";
   return UnloadReason2;
 })(UnloadReason || {});
-const defaultWindowState = /* @__PURE__ */ __name(function(mode = 1 /* Normal */) {
-  return {
-    width: DEFAULT_WINDOW_SIZE.width,
-    height: DEFAULT_WINDOW_SIZE.height,
-    mode
-  };
-}, "defaultWindowState");
-const defaultAuxWindowState = /* @__PURE__ */ __name(function() {
+const defaultWindowState = /* @__PURE__ */ __name((mode = 1 /* Normal */) => ({
+  width: DEFAULT_WINDOW_SIZE.width,
+  height: DEFAULT_WINDOW_SIZE.height,
+  mode
+}), "defaultWindowState");
+const defaultAuxWindowState = /* @__PURE__ */ __name(() => {
   const width = DEFAULT_AUX_WINDOW_SIZE.width;
   const height = DEFAULT_AUX_WINDOW_SIZE.height;
   const workArea = electron.screen.getPrimaryDisplay().workArea;

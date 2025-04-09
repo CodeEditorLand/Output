@@ -1,10 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { BaseObservable, IObservable, IObservableWithChange, IObserver, IReader, ISettableObservable, ITransaction, _setDerivedOpts } from "./base.js";
-import { DebugNameData, DebugOwner, IDebugNameData } from "./debugName.js";
-import { BugIndicatingError, DisposableStore, EqualityComparer, IDisposable, assertFn, onBugIndicatingError, strictEquals } from "./commonFacade/deps.js";
+import {
+  _setDerivedOpts,
+  BaseObservable
+} from "./base.js";
+import {
+  assertFn,
+  BugIndicatingError,
+  DisposableStore,
+  onBugIndicatingError,
+  strictEquals
+} from "./commonFacade/deps.js";
+import {
+  DebugNameData
+} from "./debugName.js";
 import { getLogger } from "./logging/logging.js";
-import { IChangeTracker } from "./changeTracker.js";
 function derived(computeFnOrOwner, computeFn) {
   if (computeFn !== void 0) {
     return new Derived(
@@ -37,7 +47,11 @@ function derivedWithSetter(owner, computeFn, setter) {
 __name(derivedWithSetter, "derivedWithSetter");
 function derivedOpts(options, computeFn) {
   return new Derived(
-    new DebugNameData(options.owner, options.debugName, options.debugReferenceFn),
+    new DebugNameData(
+      options.owner,
+      options.debugName,
+      options.debugReferenceFn
+    ),
     computeFn,
     void 0,
     options.onLastObserverRemoved,
@@ -127,7 +141,7 @@ var DerivedState = /* @__PURE__ */ ((DerivedState2) => {
   return DerivedState2;
 })(DerivedState || {});
 class Derived extends BaseObservable {
-  constructor(_debugNameData, _computeFn, _changeTracker, _handleLastObserverRemoved = void 0, _equalityComparator) {
+  constructor(_debugNameData, _computeFn, _changeTracker, _handleLastObserverRemoved, _equalityComparator) {
     super();
     this._debugNameData = _debugNameData;
     this._computeFn = _computeFn;
@@ -163,7 +177,9 @@ class Derived extends BaseObservable {
   get() {
     const checkEnabled = false;
     if (this._isComputing && checkEnabled) {
-      throw new BugIndicatingError("Cyclic deriveds are not supported yet!");
+      throw new BugIndicatingError(
+        "Cyclic deriveds are not supported yet!"
+      );
     }
     if (this._observers.size === 0) {
       let result;
@@ -249,7 +265,9 @@ class Derived extends BaseObservable {
   // IObserver Implementation
   beginUpdate(_observable) {
     if (this._isUpdating) {
-      throw new BugIndicatingError("Cyclic deriveds are not supported yet!");
+      throw new BugIndicatingError(
+        "Cyclic deriveds are not supported yet!"
+      );
     }
     this._updateCount++;
     this._isUpdating = true;
@@ -300,14 +318,21 @@ class Derived extends BaseObservable {
   }
   handleChange(observable, change) {
     if (this._dependencies.has(observable) && !this._dependenciesToBeRemoved.has(observable)) {
-      getLogger()?.handleDerivedDependencyChanged(this, observable, change);
+      getLogger()?.handleDerivedDependencyChanged(
+        this,
+        observable,
+        change
+      );
       let shouldReact = false;
       try {
-        shouldReact = this._changeTracker ? this._changeTracker.handleChange({
-          changedObservable: observable,
-          change,
-          didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
-        }, this._changeSummary) : true;
+        shouldReact = this._changeTracker ? this._changeTracker.handleChange(
+          {
+            changedObservable: observable,
+            change,
+            didChange: /* @__PURE__ */ __name((o) => o === observable, "didChange")
+          },
+          this._changeSummary
+        ) : true;
       } catch (e) {
         onBugIndicatingError(e);
       }
@@ -326,7 +351,9 @@ class Derived extends BaseObservable {
   _isReaderValid = false;
   readObservable(observable) {
     if (!this._isReaderValid) {
-      throw new BugIndicatingError("The reader object cannot be used outside its compute function!");
+      throw new BugIndicatingError(
+        "The reader object cannot be used outside its compute function!"
+      );
     }
     observable.addObserver(this);
     const value = observable.get();
@@ -338,7 +365,7 @@ class Derived extends BaseObservable {
     const shouldCallBeginUpdate = !this._observers.has(observer) && this._updateCount > 0;
     super.addObserver(observer);
     if (shouldCallBeginUpdate) {
-      if (this._removedObserverToCallEndUpdateOn && this._removedObserverToCallEndUpdateOn.has(observer)) {
+      if (this._removedObserverToCallEndUpdateOn?.has(observer)) {
         this._removedObserverToCallEndUpdateOn.delete(observer);
       } else {
         observer.beginUpdate(this);
@@ -368,7 +395,7 @@ class Derived extends BaseObservable {
   }
 }
 class DerivedWithSetter extends Derived {
-  constructor(debugNameData, computeFn, changeTracker, handleLastObserverRemoved = void 0, equalityComparator, set) {
+  constructor(debugNameData, computeFn, changeTracker, handleLastObserverRemoved, equalityComparator, set) {
     super(
       debugNameData,
       computeFn,

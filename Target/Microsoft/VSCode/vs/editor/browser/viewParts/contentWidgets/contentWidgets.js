@@ -1,18 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as dom from "../../../../base/browser/dom.js";
-import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
-import { ContentWidgetPositionPreference, IContentWidget, IContentWidgetRenderedCoordinate } from "../../editorBrowser.js";
-import { PartFingerprint, PartFingerprints, ViewPart } from "../../view/viewPart.js";
-import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
+import {
+  createFastDomNode
+} from "../../../../base/browser/fastDomNode.js";
 import { EditorOption } from "../../../common/config/editorOptions.js";
-import { IDimension } from "../../../common/core/dimension.js";
 import { PositionAffinity } from "../../../common/model.js";
-import { IPosition, Position } from "../../../common/core/position.js";
-import { IViewModel } from "../../../common/viewModel.js";
+import {
+  ContentWidgetPositionPreference
+} from "../../editorBrowser.js";
+import {
+  PartFingerprint,
+  PartFingerprints,
+  ViewPart
+} from "../../view/viewPart.js";
 class ViewContentWidgets extends ViewPart {
   static {
     __name(this, "ViewContentWidgets");
@@ -30,9 +31,16 @@ class ViewContentWidgets extends ViewPart {
     this.domNode.setClassName("contentWidgets");
     this.domNode.setPosition("absolute");
     this.domNode.setTop(0);
-    this.overflowingContentWidgetsDomNode = createFastDomNode(document.createElement("div"));
-    PartFingerprints.write(this.overflowingContentWidgetsDomNode, PartFingerprint.OverflowingContentWidgets);
-    this.overflowingContentWidgetsDomNode.setClassName("overflowingContentWidgets");
+    this.overflowingContentWidgetsDomNode = createFastDomNode(
+      document.createElement("div")
+    );
+    PartFingerprints.write(
+      this.overflowingContentWidgetsDomNode,
+      PartFingerprint.OverflowingContentWidgets
+    );
+    this.overflowingContentWidgetsDomNode.setClassName(
+      "overflowingContentWidgets"
+    );
   }
   dispose() {
     super.dispose();
@@ -93,7 +101,12 @@ class ViewContentWidgets extends ViewPart {
   }
   setWidgetPosition(widget, primaryAnchor, secondaryAnchor, preference, affinity) {
     const myWidget = this._widgets[widget.getId()];
-    myWidget.setPosition(primaryAnchor, secondaryAnchor, preference, affinity);
+    myWidget.setPosition(
+      primaryAnchor,
+      secondaryAnchor,
+      preference,
+      affinity
+    );
     this.setShouldRender();
   }
   removeWidget(widget) {
@@ -166,7 +179,9 @@ class Widget {
     this.suppressMouseDown = this._actual.suppressMouseDown || false;
     const options = this._context.configuration.options;
     const layoutInfo = options.get(EditorOption.layoutInfo);
-    this._fixedOverflowWidgets = options.get(EditorOption.fixedOverflowWidgets);
+    this._fixedOverflowWidgets = options.get(
+      EditorOption.fixedOverflowWidgets
+    );
     this._contentWidth = layoutInfo.contentWidth;
     this._contentLeft = layoutInfo.contentLeft;
     this._lineHeight = options.get(EditorOption.lineHeight);
@@ -177,7 +192,9 @@ class Widget {
     this._maxWidth = this._getMaxWidth();
     this._isVisible = false;
     this._renderData = null;
-    this.domNode.setPosition(this._fixedOverflowWidgets && this.allowEditorOverflow ? "fixed" : "absolute");
+    this.domNode.setPosition(
+      this._fixedOverflowWidgets && this.allowEditorOverflow ? "fixed" : "absolute"
+    );
     this.domNode.setDisplay("none");
     this.domNode.setVisibility("hidden");
     this.domNode.setAttribute("widgetId", this.id);
@@ -194,19 +211,36 @@ class Widget {
     }
   }
   updateAnchorViewPosition() {
-    this._setPosition(this._affinity, this._primaryAnchor.modelPosition, this._secondaryAnchor.modelPosition);
+    this._setPosition(
+      this._affinity,
+      this._primaryAnchor.modelPosition,
+      this._secondaryAnchor.modelPosition
+    );
   }
   _setPosition(affinity, primaryAnchor, secondaryAnchor) {
     this._affinity = affinity;
-    this._primaryAnchor = getValidPositionPair(primaryAnchor, this._context.viewModel, this._affinity);
-    this._secondaryAnchor = getValidPositionPair(secondaryAnchor, this._context.viewModel, this._affinity);
+    this._primaryAnchor = getValidPositionPair(
+      primaryAnchor,
+      this._context.viewModel,
+      this._affinity
+    );
+    this._secondaryAnchor = getValidPositionPair(
+      secondaryAnchor,
+      this._context.viewModel,
+      this._affinity
+    );
     function getValidPositionPair(position, viewModel, affinity2) {
       if (!position) {
         return new PositionPair(null, null);
       }
       const validModelPosition = viewModel.model.validatePosition(position);
-      if (viewModel.coordinatesConverter.modelPositionIsVisible(validModelPosition)) {
-        const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(validModelPosition, affinity2 ?? void 0);
+      if (viewModel.coordinatesConverter.modelPositionIsVisible(
+        validModelPosition
+      )) {
+        const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(
+          validModelPosition,
+          affinity2 ?? void 0
+        );
         return new PositionPair(position, viewPosition);
       }
       return new PositionPair(position, null);
@@ -251,7 +285,10 @@ class Widget {
     const LEFT_PADDING = 15;
     const RIGHT_PADDING = 15;
     const MIN_LIMIT = Math.max(LEFT_PADDING, domNodePosition.left - width);
-    const MAX_LIMIT = Math.min(domNodePosition.left + domNodePosition.width + width, windowSize.width - RIGHT_PADDING);
+    const MAX_LIMIT = Math.min(
+      domNodePosition.left + domNodePosition.width + width,
+      windowSize.width - RIGHT_PADDING
+    );
     const elDocument = this._viewDomNode.domNode.ownerDocument;
     const elWindow = elDocument.defaultView;
     let absoluteLeft = domNodePosition.left + left - (elWindow?.scrollX ?? 0);
@@ -270,13 +307,20 @@ class Widget {
   _layoutBoxInPage(anchor, width, height, ctx) {
     const aboveTop = anchor.top - height;
     const belowTop = anchor.top + anchor.height;
-    const domNodePosition = dom.getDomNodePagePosition(this._viewDomNode.domNode);
+    const domNodePosition = dom.getDomNodePagePosition(
+      this._viewDomNode.domNode
+    );
     const elDocument = this._viewDomNode.domNode.ownerDocument;
     const elWindow = elDocument.defaultView;
     const absoluteAboveTop = domNodePosition.top + aboveTop - (elWindow?.scrollY ?? 0);
     const absoluteBelowTop = domNodePosition.top + belowTop - (elWindow?.scrollY ?? 0);
     const windowSize = dom.getClientArea(elDocument.body);
-    const [left, absoluteAboveLeft] = this._layoutHorizontalSegmentInPage(windowSize, domNodePosition, anchor.left - ctx.scrollLeft + this._contentLeft, width);
+    const [left, absoluteAboveLeft] = this._layoutHorizontalSegmentInPage(
+      windowSize,
+      domNodePosition,
+      anchor.left - ctx.scrollLeft + this._contentLeft,
+      width
+    );
     const TOP_PADDING = 22;
     const BOTTOM_PADDING = 22;
     const fitsAbove = absoluteAboveTop >= TOP_PADDING;
@@ -301,9 +345,17 @@ class Widget {
    * The content widget should touch if possible the secondary anchor.
    */
   _getAnchorsCoordinates(ctx) {
-    const primary = getCoordinates(this._primaryAnchor.viewPosition, this._affinity, this._lineHeight);
+    const primary = getCoordinates(
+      this._primaryAnchor.viewPosition,
+      this._affinity,
+      this._lineHeight
+    );
     const secondaryViewPosition = this._secondaryAnchor.viewPosition?.lineNumber === this._primaryAnchor.viewPosition?.lineNumber ? this._secondaryAnchor.viewPosition : null;
-    const secondary = getCoordinates(secondaryViewPosition, this._affinity, this._lineHeight);
+    const secondary = getCoordinates(
+      secondaryViewPosition,
+      this._affinity,
+      this._lineHeight
+    );
     return { primary, secondary };
     function getCoordinates(position, affinity, lineHeight) {
       if (!position) {
@@ -323,12 +375,20 @@ class Widget {
     if (!secondary) {
       return primary;
     }
-    const fontInfo = this._context.configuration.options.get(EditorOption.fontInfo);
+    const fontInfo = this._context.configuration.options.get(
+      EditorOption.fontInfo
+    );
     let left = secondary.left;
     if (left < primary.left) {
-      left = Math.max(left, primary.left - width + fontInfo.typicalFullwidthCharacterWidth);
+      left = Math.max(
+        left,
+        primary.left - width + fontInfo.typicalFullwidthCharacterWidth
+      );
     } else {
-      left = Math.min(left, primary.left + width - fontInfo.typicalFullwidthCharacterWidth);
+      left = Math.min(
+        left,
+        primary.left + width - fontInfo.typicalFullwidthCharacterWidth
+      );
     }
     return new AnchorCoordinate(primary.top, left, primary.height);
   }
@@ -340,13 +400,18 @@ class Widget {
     if (!primary) {
       return {
         kind: "offViewport",
-        preserveFocus: this.domNode.domNode.contains(this.domNode.domNode.ownerDocument.activeElement)
+        preserveFocus: this.domNode.domNode.contains(
+          this.domNode.domNode.ownerDocument.activeElement
+        )
       };
     }
     if (this._cachedDomNodeOffsetWidth === -1 || this._cachedDomNodeOffsetHeight === -1) {
       let preferredDimensions = null;
       if (typeof this._actual.beforeRender === "function") {
-        preferredDimensions = safeInvoke(this._actual.beforeRender, this._actual);
+        preferredDimensions = safeInvoke(
+          this._actual.beforeRender,
+          this._actual
+        );
       }
       if (preferredDimensions) {
         this._cachedDomNodeOffsetWidth = preferredDimensions.width;
@@ -358,12 +423,26 @@ class Widget {
         this._cachedDomNodeOffsetHeight = Math.round(clientRect.height);
       }
     }
-    const anchor = this._reduceAnchorCoordinates(primary, secondary, this._cachedDomNodeOffsetWidth);
+    const anchor = this._reduceAnchorCoordinates(
+      primary,
+      secondary,
+      this._cachedDomNodeOffsetWidth
+    );
     let placement;
     if (this.allowEditorOverflow) {
-      placement = this._layoutBoxInPage(anchor, this._cachedDomNodeOffsetWidth, this._cachedDomNodeOffsetHeight, ctx);
+      placement = this._layoutBoxInPage(
+        anchor,
+        this._cachedDomNodeOffsetWidth,
+        this._cachedDomNodeOffsetHeight,
+        ctx
+      );
     } else {
-      placement = this._layoutBoxInViewport(anchor, this._cachedDomNodeOffsetWidth, this._cachedDomNodeOffsetHeight, ctx);
+      placement = this._layoutBoxInViewport(
+        anchor,
+        this._cachedDomNodeOffsetWidth,
+        this._cachedDomNodeOffsetHeight,
+        ctx
+      );
     }
     for (let pass = 1; pass <= 2; pass++) {
       for (const pref of this._preference) {
@@ -374,7 +453,10 @@ class Widget {
           if (pass === 2 || placement.fitsAbove) {
             return {
               kind: "inViewport",
-              coordinate: new Coordinate(placement.aboveTop, placement.left),
+              coordinate: new Coordinate(
+                placement.aboveTop,
+                placement.left
+              ),
               position: ContentWidgetPositionPreference.ABOVE
             };
           }
@@ -385,7 +467,10 @@ class Widget {
           if (pass === 2 || placement.fitsBelow) {
             return {
               kind: "inViewport",
-              coordinate: new Coordinate(placement.belowTop, placement.left),
+              coordinate: new Coordinate(
+                placement.belowTop,
+                placement.left
+              ),
               position: ContentWidgetPositionPreference.BELOW
             };
           }
@@ -393,7 +478,9 @@ class Widget {
           if (this.allowEditorOverflow) {
             return {
               kind: "inViewport",
-              coordinate: this._prepareRenderWidgetAtExactPositionOverflowing(new Coordinate(anchor.top, anchor.left)),
+              coordinate: this._prepareRenderWidgetAtExactPositionOverflowing(
+                new Coordinate(anchor.top, anchor.left)
+              ),
               position: ContentWidgetPositionPreference.EXACT
             };
           } else {
@@ -443,7 +530,9 @@ class Widget {
       this.domNode.setTop(this._renderData.coordinate.top);
       this.domNode.setLeft(this._renderData.coordinate.left);
     } else {
-      this.domNode.setTop(this._renderData.coordinate.top + ctx.scrollTop - ctx.bigNumbersDelta);
+      this.domNode.setTop(
+        this._renderData.coordinate.top + ctx.scrollTop - ctx.bigNumbersDelta
+      );
       this.domNode.setLeft(this._renderData.coordinate.left);
     }
     if (!this._isVisible) {
@@ -452,7 +541,12 @@ class Widget {
       this._isVisible = true;
     }
     if (typeof this._actual.afterRender === "function") {
-      safeInvoke(this._actual.afterRender, this._actual, this._renderData.position, this._renderData.coordinate);
+      safeInvoke(
+        this._actual.afterRender,
+        this._actual,
+        this._renderData.position,
+        this._renderData.coordinate
+      );
     }
   }
 }

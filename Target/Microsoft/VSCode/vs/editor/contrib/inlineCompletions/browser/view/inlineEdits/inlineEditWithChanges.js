@@ -1,10 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { SingleLineEdit } from "../../../../../common/core/lineEdit.js";
-import { Position } from "../../../../../common/core/position.js";
-import { AbstractText, TextEdit } from "../../../../../common/core/textEdit.js";
-import { Command } from "../../../../../common/languages.js";
-import { InlineCompletionItem } from "../../model/provideInlineCompletions.js";
 class InlineEditWithChanges {
   constructor(originalText, edit, cursorPosition, commands, inlineCompletion) {
     this.originalText = originalText;
@@ -16,7 +12,10 @@ class InlineEditWithChanges {
   static {
     __name(this, "InlineEditWithChanges");
   }
-  lineEdit = SingleLineEdit.fromSingleTextEdit(this.edit.toSingle(this.originalText), this.originalText);
+  lineEdit = SingleLineEdit.fromSingleTextEdit(
+    this.edit.toSingle(this.originalText),
+    this.originalText
+  );
   originalLineRange = this.lineEdit.lineRange;
   modifiedLineRange = this.lineEdit.toLineEdit().getNewLineRanges()[0];
   equals(other) {

@@ -1,4 +1,4 @@
-var tsconfig_tsec_default = "./Asset/tsconfig.tsec-73SWN2DO.json";
+var tsconfig_tsec_default = "./Asset/tsconfig.tsec-JHJ3CBCN.json";
 export {
   tsconfig_tsec_default as default
 };

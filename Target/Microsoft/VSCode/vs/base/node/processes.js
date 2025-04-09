@@ -1,12 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
-import { Stats, promises } from "fs";
+import { promises } from "node:fs";
 import { getCaseInsensitive } from "../common/objects.js";
 import * as path from "../common/path.js";
 import * as Platform from "../common/platform.js";
 import * as process from "../common/process.js";
-import { CommandOptions, ForkOptions, Source, SuccessData, TerminateResponse, TerminateResponseCode } from "../common/processes.js";
+import {
+  Source,
+  TerminateResponseCode
+} from "../common/processes.js";
 import * as Types from "../common/types.js";
 import * as pfs from "./pfs.js";
 function getWindowsShell(env = process.env) {
@@ -16,7 +18,7 @@ __name(getWindowsShell, "getWindowsShell");
 function createQueuedSender(childProcess) {
   let msgQueue = [];
   let useQueue = false;
-  const send = /* @__PURE__ */ __name(function(msg) {
+  const send = /* @__PURE__ */ __name((msg) => {
     if (useQueue) {
       msgQueue.push(msg);
       return;

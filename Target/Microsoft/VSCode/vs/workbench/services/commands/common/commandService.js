@@ -10,14 +10,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICommandService, ICommandEvent, CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { IExtensionService } from "../../extensions/common/extensions.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
 import { timeout } from "../../../../base/common/async.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import {
+  CommandsRegistry,
+  ICommandService
+} from "../../../../platform/commands/common/commands.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IExtensionService } from "../../extensions/common/extensions.js";
 let CommandService = class extends Disposable {
   constructor(_instantiationService, _extensionService, _logService) {
     super();
@@ -39,7 +45,7 @@ let CommandService = class extends Disposable {
   _activateStar() {
     if (!this._starActivation) {
       this._starActivation = Promise.race([
-        this._extensionService.activateByEvent(`*`),
+        this._extensionService.activateByEvent("*"),
         timeout(3e4)
       ]);
     }
@@ -65,7 +71,12 @@ let CommandService = class extends Disposable {
       Promise.race([
         // race * activation against command registration
         this._activateStar(),
-        Event.toPromise(Event.filter(CommandsRegistry.onDidRegisterCommand, (e) => e === id))
+        Event.toPromise(
+          Event.filter(
+            CommandsRegistry.onDidRegisterCommand,
+            (e) => e === id
+          )
+        )
       ])
     ]);
     return this._tryExecuteCommand(id, args);
@@ -77,7 +88,10 @@ let CommandService = class extends Disposable {
     }
     try {
       this._onWillExecuteCommand.fire({ commandId: id, args });
-      const result = this._instantiationService.invokeFunction(command.handler, ...args);
+      const result = this._instantiationService.invokeFunction(
+        command.handler,
+        ...args
+      );
       this._onDidExecuteCommand.fire({ commandId: id, args });
       return Promise.resolve(result);
     } catch (err) {

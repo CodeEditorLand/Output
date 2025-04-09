@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-(async function() {
+(async () => {
   performance.mark("code/didStartRenderer");
   const bootstrapWindow = window.MonacoBootstrapWindow;
   const preloadGlobals = window.vscode;
@@ -67,15 +67,24 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
         borderElement.style.width = "calc(100vw - 2px)";
         borderElement.style.height = "calc(100vh - 2px)";
         borderElement.style.zIndex = "1";
-        borderElement.style.border = `1px solid var(--window-border-color)`;
-        borderElement.style.setProperty("--window-border-color", colorInfo.windowBorder);
+        borderElement.style.border = "1px solid var(--window-border-color)";
+        borderElement.style.setProperty(
+          "--window-border-color",
+          colorInfo.windowBorder
+        );
         if (layoutInfo.windowBorderRadius) {
           borderElement.style.borderRadius = layoutInfo.windowBorderRadius;
         }
         splash.appendChild(borderElement);
       }
-      layoutInfo.auxiliarySideBarWidth = Math.min(layoutInfo.auxiliarySideBarWidth, window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth + layoutInfo.sideBarWidth));
-      layoutInfo.sideBarWidth = Math.min(layoutInfo.sideBarWidth, window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth + layoutInfo.auxiliarySideBarWidth));
+      layoutInfo.auxiliarySideBarWidth = Math.min(
+        layoutInfo.auxiliarySideBarWidth,
+        window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth + layoutInfo.sideBarWidth)
+      );
+      layoutInfo.sideBarWidth = Math.min(
+        layoutInfo.sideBarWidth,
+        window.innerWidth - (layoutInfo.activityBarWidth + layoutInfo.editorPartMinWidth + layoutInfo.auxiliarySideBarWidth)
+      );
       if (layoutInfo.titleBarHeight > 0) {
         const titleDiv = document.createElement("div");
         titleDiv.style.position = "absolute";
@@ -212,34 +221,32 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
     performance.mark("code/didShowPartsSplash");
   }
   __name(showSplash, "showSplash");
-  const { result, configuration } = await bootstrapWindow.load(
-    "vs/workbench/workbench.desktop.main",
-    {
-      configureDeveloperSettings: /* @__PURE__ */ __name(function(windowConfig) {
-        return {
-          // disable automated devtools opening on error when running extension tests
-          // as this can lead to nondeterministic test execution (devtools steals focus)
-          forceDisableShowDevtoolsOnError: typeof windowConfig.extensionTestsPath === "string" || windowConfig["enable-smoke-test-driver"] === true,
-          // enable devtools keybindings in extension development window
-          forceEnableDeveloperKeybindings: Array.isArray(windowConfig.extensionDevelopmentPath) && windowConfig.extensionDevelopmentPath.length > 0,
-          removeDeveloperKeybindingsAfterLoad: true
-        };
-      }, "configureDeveloperSettings"),
-      beforeImport: /* @__PURE__ */ __name(function(windowConfig) {
-        showSplash(windowConfig);
-        Object.defineProperty(window, "vscodeWindowId", {
-          get: /* @__PURE__ */ __name(() => windowConfig.windowId, "get")
-        });
-        window.requestIdleCallback(() => {
+  const { result, configuration } = await bootstrapWindow.load("vs/workbench/workbench.desktop.main", {
+    configureDeveloperSettings: /* @__PURE__ */ __name((windowConfig) => ({
+      // disable automated devtools opening on error when running extension tests
+      // as this can lead to nondeterministic test execution (devtools steals focus)
+      forceDisableShowDevtoolsOnError: typeof windowConfig.extensionTestsPath === "string" || windowConfig["enable-smoke-test-driver"] === true,
+      // enable devtools keybindings in extension development window
+      forceEnableDeveloperKeybindings: Array.isArray(windowConfig.extensionDevelopmentPath) && windowConfig.extensionDevelopmentPath.length > 0,
+      removeDeveloperKeybindingsAfterLoad: true
+    }), "configureDeveloperSettings"),
+    beforeImport: /* @__PURE__ */ __name((windowConfig) => {
+      showSplash(windowConfig);
+      Object.defineProperty(window, "vscodeWindowId", {
+        get: /* @__PURE__ */ __name(() => windowConfig.windowId, "get")
+      });
+      window.requestIdleCallback(
+        () => {
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           context?.clearRect(0, 0, canvas.width, canvas.height);
           canvas.remove();
-        }, { timeout: 50 });
-        performance.mark("code/willLoadWorkbenchMain");
-      }, "beforeImport")
-    }
-  );
+        },
+        { timeout: 50 }
+      );
+      performance.mark("code/willLoadWorkbenchMain");
+    }, "beforeImport")
+  });
   performance.mark("code/didLoadWorkbenchMain");
   result.main(configuration);
 })();

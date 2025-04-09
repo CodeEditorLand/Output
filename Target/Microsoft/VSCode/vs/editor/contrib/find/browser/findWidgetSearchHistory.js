@@ -10,9 +10,12 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IHistory } from "../../../../base/common/history.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 let FindWidgetSearchHistory = class {
   constructor(storageService) {
     this.storageService = storageService;
@@ -30,7 +33,9 @@ let FindWidgetSearchHistory = class {
   static _instance = null;
   static getOrCreate(storageService) {
     if (!FindWidgetSearchHistory._instance) {
-      FindWidgetSearchHistory._instance = new FindWidgetSearchHistory(storageService);
+      FindWidgetSearchHistory._instance = new FindWidgetSearchHistory(
+        storageService
+      );
     }
     return FindWidgetSearchHistory._instance;
   }

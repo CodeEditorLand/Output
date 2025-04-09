@@ -1,13 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IStringDictionary } from "../../../../base/common/collections.js";
 import { ErrorNoTelemetry } from "../../../../base/common/errors.js";
-import { IProcessEnvironment } from "../../../../base/common/platform.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
-import { ConfigurationResolverExpression } from "./configurationResolverExpression.js";
-const IConfigurationResolverService = createDecorator("configurationResolverService");
+const IConfigurationResolverService = createDecorator(
+  "configurationResolverService"
+);
 var VariableKind = /* @__PURE__ */ ((VariableKind2) => {
   VariableKind2["Unknown"] = "unknown";
   VariableKind2["Env"] = "env";
@@ -38,7 +35,9 @@ var VariableKind = /* @__PURE__ */ ((VariableKind2) => {
   VariableKind2["PathSeparatorAlias"] = "/";
   return VariableKind2;
 })(VariableKind || {});
-const allVariableKinds = Object.values(VariableKind).filter((value) => typeof value === "string");
+const allVariableKinds = Object.values(VariableKind).filter(
+  (value) => typeof value === "string"
+);
 class VariableError extends ErrorNoTelemetry {
   constructor(variable, message) {
     super(message);

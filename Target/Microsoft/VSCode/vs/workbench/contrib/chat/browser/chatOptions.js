@@ -10,10 +10,8 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Color } from "../../../../base/common/color.js";
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IBracketPairColorizationOptions, IEditorOptions } from "../../../../editor/common/config/editorOptions.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
 import { IViewDescriptorService } from "../../../common/views.js";
@@ -26,17 +24,25 @@ let ChatEditorOptions = class extends Disposable {
     this.configurationService = configurationService;
     this.themeService = themeService;
     this.viewDescriptorService = viewDescriptorService;
-    this._register(this.themeService.onDidColorThemeChange((e) => this.update()));
-    this._register(this.viewDescriptorService.onDidChangeLocation((e) => {
-      if (e.views.some((v) => v.id === viewId)) {
-        this.update();
-      }
-    }));
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (ChatEditorOptions.relevantSettingIds.some((id) => e.affectsConfiguration(id))) {
-        this.update();
-      }
-    }));
+    this._register(
+      this.themeService.onDidColorThemeChange((e) => this.update())
+    );
+    this._register(
+      this.viewDescriptorService.onDidChangeLocation((e) => {
+        if (e.views.some((v) => v.id === viewId)) {
+          this.update();
+        }
+      })
+    );
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (ChatEditorOptions.relevantSettingIds.some(
+          (id) => e.affectsConfiguration(id)
+        )) {
+          this.update();
+        }
+      })
+    );
     this.update();
   }
   static {
@@ -63,7 +69,9 @@ let ChatEditorOptions = class extends Disposable {
   ];
   update() {
     const editorConfig = this.configurationService.getValue("editor");
-    const chatEditorConfig = this.configurationService.getValue("chat")?.editor;
+    const chatEditorConfig = this.configurationService.getValue(
+      "chat"
+    )?.editor;
     const accessibilitySupport = this.configurationService.getValue("editor.accessibilitySupport");
     this._config = {
       foreground: this.themeService.getColorTheme().getColor(this.foreground),
@@ -78,8 +86,12 @@ let ChatEditorOptions = class extends Disposable {
         fontWeight: chatEditorConfig.fontWeight,
         lineHeight: chatEditorConfig.lineHeight ? chatEditorConfig.lineHeight : ChatEditorOptions.lineHeightEm * chatEditorConfig.fontSize,
         bracketPairColorization: {
-          enabled: this.configurationService.getValue("editor.bracketPairColorization.enabled"),
-          independentColorPoolPerBracketType: this.configurationService.getValue("editor.bracketPairColorization.independentColorPoolPerBracketType")
+          enabled: this.configurationService.getValue(
+            "editor.bracketPairColorization.enabled"
+          ),
+          independentColorPoolPerBracketType: this.configurationService.getValue(
+            "editor.bracketPairColorization.independentColorPoolPerBracketType"
+          )
         },
         wordWrap: chatEditorConfig.wordWrap,
         fontLigatures: editorConfig.fontLigatures

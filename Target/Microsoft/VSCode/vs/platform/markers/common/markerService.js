@@ -1,14 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { isFalsyOrEmpty, isNonEmptyArray } from "../../../base/common/arrays.js";
+import {
+  isFalsyOrEmpty,
+  isNonEmptyArray
+} from "../../../base/common/arrays.js";
 import { DebounceEmitter } from "../../../base/common/event.js";
 import { Iterable } from "../../../base/common/iterator.js";
-import { IDisposable, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { ResourceMap, ResourceSet } from "../../../base/common/map.js";
 import { Schemas } from "../../../base/common/network.js";
 import { URI } from "../../../base/common/uri.js";
 import { localize } from "../../../nls.js";
-import { IMarker, IMarkerData, IMarkerService, IResourceMarker, MarkerSeverity, MarkerStatistics } from "./markers.js";
+import {
+  MarkerSeverity
+} from "./markers.js";
 const unsupportedSchemas = /* @__PURE__ */ new Set([
   Schemas.inMemory,
   Schemas.vscodeSourceControl,
@@ -63,7 +70,10 @@ class DoubleResourceMap {
     if (URI.isUri(key)) {
       return this._byResource.get(key)?.values() ?? Iterable.empty();
     }
-    return Iterable.map(Iterable.concat(...this._byOwner.values()), (map) => map[1]);
+    return Iterable.map(
+      Iterable.concat(...this._byOwner.values()),
+      (map) => map[1]
+    );
   }
 }
 class MarkerStats {
@@ -96,7 +106,12 @@ class MarkerStats {
     }
   }
   _resourceStats(resource) {
-    const result = { errors: 0, warnings: 0, infos: 0, unknowns: 0 };
+    const result = {
+      errors: 0,
+      warnings: 0,
+      infos: 0,
+      unknowns: 0
+    };
     if (unsupportedSchemas.has(resource.scheme)) {
       return result;
     }
@@ -241,7 +256,11 @@ class MarkerService {
     if (isNonEmptyArray(data)) {
       const groups = new ResourceMap();
       for (const { resource, marker: markerData } of data) {
-        const marker = MarkerService._toMarker(owner, resource, markerData);
+        const marker = MarkerService._toMarker(
+          owner,
+          resource,
+          markerData
+        );
         if (!marker) {
           continue;
         }
@@ -265,7 +284,16 @@ class MarkerService {
    * Creates an information marker for filtered resources
    */
   _createFilteredMarker(resource, reasons) {
-    const message = reasons.length === 1 ? localize("filtered", 'Problems are paused because: "{0}"', reasons[0]) : localize("filtered.network", 'Problems are paused because: "{0}" and {1} more', reasons[0], reasons.length - 1);
+    const message = reasons.length === 1 ? localize(
+      "filtered",
+      'Problems are paused because: "{0}"',
+      reasons[0]
+    ) : localize(
+      "filtered.network",
+      'Problems are paused because: "{0}" and {1} more',
+      reasons[0],
+      reasons.length - 1
+    );
     return {
       owner: "markersFilter",
       resource,
@@ -285,7 +313,10 @@ class MarkerService {
     if (owner && resource) {
       const reasons = this._filteredResources.get(resource);
       if (reasons?.length) {
-        const infoMarker = this._createFilteredMarker(resource, reasons);
+        const infoMarker = this._createFilteredMarker(
+          resource,
+          reasons
+        );
         return [infoMarker];
       }
       const data = this._data.get(resource, owner);
@@ -319,7 +350,9 @@ class MarkerService {
           }
           const reasons = this._filteredResources.get(data.resource);
           if (reasons?.length) {
-            result.push(this._createFilteredMarker(data.resource, reasons));
+            result.push(
+              this._createFilteredMarker(data.resource, reasons)
+            );
             filtered.add(data.resource);
           } else if (MarkerService._accept(data, severities)) {
             result.push(data);

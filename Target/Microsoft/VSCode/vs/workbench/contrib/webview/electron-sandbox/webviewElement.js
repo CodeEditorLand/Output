@@ -11,7 +11,6 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Delayer } from "../../../../base/common/async.js";
-import { VSBuffer, VSBufferReadableStream } from "../../../../base/common/buffer.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { consumeStream } from "../../../../base/common/stream.js";
 import { ProxyChannel } from "../../../../base/parts/ipc/common/ipc.js";
@@ -26,10 +25,7 @@ import { INativeHostService } from "../../../../platform/native/common/native.js
 import { INotificationService } from "../../../../platform/notification/common/notification.js";
 import { IRemoteAuthorityResolverService } from "../../../../platform/remote/common/remoteAuthorityResolver.js";
 import { ITunnelService } from "../../../../platform/tunnel/common/tunnel.js";
-import { FindInFrameOptions, IWebviewManagerService } from "../../../../platform/webview/common/webviewManagerService.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
-import { WebviewThemeDataProvider } from "../browser/themeing.js";
-import { WebviewInitInfo } from "../browser/webview.js";
 import { WebviewElement } from "../browser/webviewElement.js";
 import { WindowIgnoreMenuShortcutsManager } from "./windowIgnoreMenuShortcutsManager.js";
 let ElectronWebviewElement = class extends WebviewElement {
@@ -49,18 +45,28 @@ let ElectronWebviewElement = class extends WebviewElement {
       accessibilityService
     );
     this._nativeHostService = _nativeHostService;
-    this._webviewKeyboardHandler = new WindowIgnoreMenuShortcutsManager(configurationService, mainProcessService, _nativeHostService);
-    this._webviewMainService = ProxyChannel.toService(mainProcessService.getChannel("webview"));
+    this._webviewKeyboardHandler = new WindowIgnoreMenuShortcutsManager(
+      configurationService,
+      mainProcessService,
+      _nativeHostService
+    );
+    this._webviewMainService = ProxyChannel.toService(
+      mainProcessService.getChannel("webview")
+    );
     if (initInfo.options.enableFindWidget) {
-      this._register(this.onDidHtmlChange((newContent) => {
-        if (this._findStarted && this._cachedHtmlContent !== newContent) {
-          this.stopFind(false);
-          this._cachedHtmlContent = newContent;
-        }
-      }));
-      this._register(this._webviewMainService.onFoundInFrame((result) => {
-        this._hasFindResult.fire(result.matches > 0);
-      }));
+      this._register(
+        this.onDidHtmlChange((newContent) => {
+          if (this._findStarted && this._cachedHtmlContent !== newContent) {
+            this.stopFind(false);
+            this._cachedHtmlContent = newContent;
+          }
+        })
+      );
+      this._register(
+        this._webviewMainService.onFoundInFrame((result) => {
+          this._hasFindResult.fire(result.matches > 0);
+        })
+      );
     }
   }
   static {
@@ -82,17 +88,23 @@ let ElectronWebviewElement = class extends WebviewElement {
     return `${Schemas.vscodeWebview}://${iframeId}`;
   }
   streamToBuffer(stream) {
-    return consumeStream(stream, (buffers) => {
-      const totalLength = buffers.reduce((prev, curr) => prev + curr.byteLength, 0);
-      const ret = new ArrayBuffer(totalLength);
-      const view = new Uint8Array(ret);
-      let offset = 0;
-      for (const element of buffers) {
-        view.set(element.buffer, offset);
-        offset += element.byteLength;
+    return consumeStream(
+      stream,
+      (buffers) => {
+        const totalLength = buffers.reduce(
+          (prev, curr) => prev + curr.byteLength,
+          0
+        );
+        const ret = new ArrayBuffer(totalLength);
+        const view = new Uint8Array(ret);
+        let offset = 0;
+        for (const element of buffers) {
+          view.set(element.buffer, offset);
+          offset += element.byteLength;
+        }
+        return ret;
       }
-      return ret;
-    });
+    );
   }
   /**
    * Webviews expose a stateful find API.
@@ -108,8 +120,17 @@ let ElectronWebviewElement = class extends WebviewElement {
     if (!this._findStarted) {
       this.updateFind(value);
     } else {
-      const options = { forward: !previous, findNext: false, matchCase: false };
-      this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
+      const options = {
+        forward: !previous,
+        findNext: false,
+        matchCase: false
+      };
+      this._webviewMainService.findInFrame(
+        { windowId: this._nativeHostService.windowId },
+        this.id,
+        value,
+        options
+      );
     }
   }
   updateFind(value) {
@@ -123,7 +144,12 @@ let ElectronWebviewElement = class extends WebviewElement {
     };
     this._iframeDelayer.trigger(() => {
       this._findStarted = true;
-      this._webviewMainService.findInFrame({ windowId: this._nativeHostService.windowId }, this.id, value, options);
+      this._webviewMainService.findInFrame(
+        { windowId: this._nativeHostService.windowId },
+        this.id,
+        value,
+        options
+      );
     });
   }
   stopFind(keepSelection) {
@@ -132,9 +158,13 @@ let ElectronWebviewElement = class extends WebviewElement {
     }
     this._iframeDelayer.cancel();
     this._findStarted = false;
-    this._webviewMainService.stopFindInFrame({ windowId: this._nativeHostService.windowId }, this.id, {
-      keepSelection
-    });
+    this._webviewMainService.stopFindInFrame(
+      { windowId: this._nativeHostService.windowId },
+      this.id,
+      {
+        keepSelection
+      }
+    );
     this._onDidStopFind.fire();
   }
   handleFocusChange(isFocused) {

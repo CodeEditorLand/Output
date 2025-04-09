@@ -10,11 +10,13 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ExtensionRecommendations, ExtensionRecommendation } from "./extensionRecommendations.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
-import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
 import { localize } from "../../../../nls.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
 import { IExtensionManagementServerService } from "../../../services/extensionManagement/common/extensionManagement.js";
+import { ExtensionRecommendationReason } from "../../../services/extensionRecommendations/common/extensionRecommendations.js";
+import {
+  ExtensionRecommendations
+} from "./extensionRecommendations.js";
 let WebRecommendations = class extends ExtensionRecommendations {
   constructor(productService, extensionManagementServerService) {
     super();
@@ -31,13 +33,19 @@ let WebRecommendations = class extends ExtensionRecommendations {
   async doActivate() {
     const isOnlyWeb = this.extensionManagementServerService.webExtensionManagementServer && !this.extensionManagementServerService.localExtensionManagementServer && !this.extensionManagementServerService.remoteExtensionManagementServer;
     if (isOnlyWeb && Array.isArray(this.productService.webExtensionTips)) {
-      this._recommendations = this.productService.webExtensionTips.map((extensionId) => ({
-        extension: extensionId.toLowerCase(),
-        reason: {
-          reasonId: ExtensionRecommendationReason.Application,
-          reasonText: localize("reason", "This extension is recommended for {0} for the Web", this.productService.nameLong)
-        }
-      }));
+      this._recommendations = this.productService.webExtensionTips.map(
+        (extensionId) => ({
+          extension: extensionId.toLowerCase(),
+          reason: {
+            reasonId: ExtensionRecommendationReason.Application,
+            reasonText: localize(
+              "reason",
+              "This extension is recommended for {0} for the Web",
+              this.productService.nameLong
+            )
+          }
+        })
+      );
     }
   }
 };

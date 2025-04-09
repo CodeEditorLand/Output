@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as os from "os";
-import * as path from "path";
-import { NativeParsedArgs } from "../common/argv.js";
+import * as os from "node:os";
+import * as path from "node:path";
 const cwd = process.env["VSCODE_CWD"] || process.cwd();
 function getUserDataPath(cliArgs, productName) {
   const userDataPath = doGetUserDataPath(cliArgs, productName);
@@ -35,13 +34,19 @@ function doGetUserDataPath(cliArgs, productName) {
       if (!appDataPath) {
         const userProfile = process.env["USERPROFILE"];
         if (typeof userProfile !== "string") {
-          throw new Error("Windows: Unexpected undefined %USERPROFILE% environment variable");
+          throw new Error(
+            "Windows: Unexpected undefined %USERPROFILE% environment variable"
+          );
         }
         appDataPath = path.join(userProfile, "AppData", "Roaming");
       }
       break;
     case "darwin":
-      appDataPath = path.join(os.homedir(), "Library", "Application Support");
+      appDataPath = path.join(
+        os.homedir(),
+        "Library",
+        "Application Support"
+      );
       break;
     case "linux":
       appDataPath = process.env["XDG_CONFIG_HOME"] || path.join(os.homedir(), ".config");

@@ -10,20 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize, localize2 } from "../../../../nls.js";
-import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
-import { Action } from "../../../../base/common/actions.js";
-import { Parts, IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { KeyCode } from "../../../../base/common/keyCodes.js";
-import { KeybindingsRegistry, KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { StatusbarViewModel } from "./statusbarModel.js";
-import { StatusBarFocused } from "../../../common/contextkeys.js";
 import { getActiveWindow } from "../../../../base/browser/dom.js";
+import { Action } from "../../../../base/common/actions.js";
+import { KeyCode } from "../../../../base/common/keyCodes.js";
+import { localize, localize2 } from "../../../../nls.js";
+import { Categories } from "../../../../platform/action/common/actionCommonCategories.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import {
+  KeybindingsRegistry,
+  KeybindingWeight
+} from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import { StatusBarFocused } from "../../../common/contextkeys.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  IWorkbenchLayoutService,
+  Parts
+} from "../../../services/layout/browser/layoutService.js";
+import { IStatusbarService } from "../../../services/statusbar/browser/statusbar.js";
 class ToggleStatusbarEntryVisibilityAction extends Action {
   constructor(id, label, model) {
     super(id, label, void 0, true);
@@ -55,7 +62,10 @@ class HideStatusbarEntryAction extends Action {
 }
 let ManageExtensionAction = class extends Action {
   constructor(extensionId, commandService) {
-    super("statusbar.manage.extension", localize("manageExtension", "Manage Extension"));
+    super(
+      "statusbar.manage.extension",
+      localize("manageExtension", "Manage Extension")
+    );
     this.extensionId = extensionId;
     this.commandService = commandService;
   }
@@ -63,7 +73,10 @@ let ManageExtensionAction = class extends Action {
     __name(this, "ManageExtensionAction");
   }
   run() {
-    return this.commandService.executeCommand("_extensions.manage", this.extensionId);
+    return this.commandService.executeCommand(
+      "_extensions.manage",
+      this.extensionId
+    );
   }
 };
 ManageExtensionAction = __decorateClass([

@@ -90,49 +90,45 @@ import "./services/userActivity/common/userActivityService.js";
 import "./services/userActivity/browser/userActivityBrowser.js";
 import "./services/editor/browser/editorPaneService.js";
 import "./services/editor/common/customEditorLabelService.js";
-import { InstantiationType, registerSingleton } from "../platform/instantiation/common/extensions.js";
-import { GlobalExtensionEnablementService } from "../platform/extensionManagement/common/extensionEnablementService.js";
-import { IAllowedExtensionsService, IGlobalExtensionEnablementService } from "../platform/extensionManagement/common/extensionManagement.js";
-import { ContextViewService } from "../platform/contextview/browser/contextViewService.js";
-import { IContextViewService } from "../platform/contextview/browser/contextView.js";
-import { IListService, ListService } from "../platform/list/browser/listService.js";
+import { OpenerService } from "../editor/browser/services/openerService.js";
 import { IEditorWorkerService } from "../editor/common/services/editorWorker.js";
-import { WorkbenchEditorWorkerService } from "./contrib/codeEditor/browser/workbenchEditorWorkerService.js";
-import { MarkerDecorationsService } from "../editor/common/services/markerDecorationsService.js";
 import { IMarkerDecorationsService } from "../editor/common/services/markerDecorations.js";
-import { IMarkerService } from "../platform/markers/common/markers.js";
-import { MarkerService } from "../platform/markers/common/markerService.js";
-import { ContextKeyService } from "../platform/contextkey/browser/contextKeyService.js";
-import { IContextKeyService } from "../platform/contextkey/common/contextkey.js";
+import { MarkerDecorationsService } from "../editor/common/services/markerDecorationsService.js";
 import { ITextResourceConfigurationService } from "../editor/common/services/textResourceConfiguration.js";
 import { TextResourceConfigurationService } from "../editor/common/services/textResourceConfigurationService.js";
+import { ContextKeyService } from "../platform/contextkey/browser/contextKeyService.js";
+import { IContextKeyService } from "../platform/contextkey/common/contextkey.js";
+import { IContextViewService } from "../platform/contextview/browser/contextView.js";
+import { ContextViewService } from "../platform/contextview/browser/contextViewService.js";
 import { IDownloadService } from "../platform/download/common/download.js";
 import { DownloadService } from "../platform/download/common/downloadService.js";
-import { OpenerService } from "../editor/browser/services/openerService.js";
+import { GlobalExtensionEnablementService } from "../platform/extensionManagement/common/extensionEnablementService.js";
+import {
+  IAllowedExtensionsService,
+  IGlobalExtensionEnablementService
+} from "../platform/extensionManagement/common/extensionManagement.js";
+import {
+  ExtensionStorageService,
+  IExtensionStorageService
+} from "../platform/extensionManagement/common/extensionStorage.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../platform/instantiation/common/extensions.js";
+import {
+  IListService,
+  ListService
+} from "../platform/list/browser/listService.js";
+import { IMarkerService } from "../platform/markers/common/markers.js";
+import { MarkerService } from "../platform/markers/common/markerService.js";
 import { IOpenerService } from "../platform/opener/common/opener.js";
-import { IgnoredExtensionsManagementService, IIgnoredExtensionsManagementService } from "../platform/userDataSync/common/ignoredExtensions.js";
-import { ExtensionStorageService, IExtensionStorageService } from "../platform/extensionManagement/common/extensionStorage.js";
+import {
+  IgnoredExtensionsManagementService,
+  IIgnoredExtensionsManagementService
+} from "../platform/userDataSync/common/ignoredExtensions.js";
 import { IUserDataSyncLogService } from "../platform/userDataSync/common/userDataSync.js";
 import { UserDataSyncLogService } from "../platform/userDataSync/common/userDataSyncLog.js";
-registerSingleton(IUserDataSyncLogService, UserDataSyncLogService, InstantiationType.Delayed);
-registerSingleton(IAllowedExtensionsService, AllowedExtensionsService, InstantiationType.Delayed);
-registerSingleton(IIgnoredExtensionsManagementService, IgnoredExtensionsManagementService, InstantiationType.Delayed);
-registerSingleton(IGlobalExtensionEnablementService, GlobalExtensionEnablementService, InstantiationType.Delayed);
-registerSingleton(IExtensionStorageService, ExtensionStorageService, InstantiationType.Delayed);
-registerSingleton(IContextViewService, ContextViewService, InstantiationType.Delayed);
-registerSingleton(IListService, ListService, InstantiationType.Delayed);
-registerSingleton(
-  IEditorWorkerService,
-  WorkbenchEditorWorkerService,
-  InstantiationType.Eager
-  /* registers link detection and word based suggestions for any document */
-);
-registerSingleton(IMarkerDecorationsService, MarkerDecorationsService, InstantiationType.Delayed);
-registerSingleton(IMarkerService, MarkerService, InstantiationType.Delayed);
-registerSingleton(IContextKeyService, ContextKeyService, InstantiationType.Delayed);
-registerSingleton(ITextResourceConfigurationService, TextResourceConfigurationService, InstantiationType.Delayed);
-registerSingleton(IDownloadService, DownloadService, InstantiationType.Delayed);
-registerSingleton(IOpenerService, OpenerService, InstantiationType.Delayed);
+import { WorkbenchEditorWorkerService } from "./contrib/codeEditor/browser/workbenchEditorWorkerService.js";
 import "./contrib/telemetry/browser/telemetry.contribution.js";
 import "./contrib/preferences/browser/preferences.contribution.js";
 import "./contrib/preferences/browser/keybindingsEditorContribution.js";
@@ -227,4 +223,58 @@ import "./contrib/scrollLocking/browser/scrollLocking.contribution.js";
 import "./contrib/inlineCompletions/browser/inlineCompletions.contribution.js";
 import "./contrib/dropOrPasteInto/browser/dropOrPasteInto.contribution.js";
 import { AllowedExtensionsService } from "../platform/extensionManagement/common/allowedExtensionsService.js";
+registerSingleton(
+  IUserDataSyncLogService,
+  UserDataSyncLogService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IAllowedExtensionsService,
+  AllowedExtensionsService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IIgnoredExtensionsManagementService,
+  IgnoredExtensionsManagementService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IGlobalExtensionEnablementService,
+  GlobalExtensionEnablementService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IExtensionStorageService,
+  ExtensionStorageService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  IContextViewService,
+  ContextViewService,
+  InstantiationType.Delayed
+);
+registerSingleton(IListService, ListService, InstantiationType.Delayed);
+registerSingleton(
+  IEditorWorkerService,
+  WorkbenchEditorWorkerService,
+  InstantiationType.Eager
+);
+registerSingleton(
+  IMarkerDecorationsService,
+  MarkerDecorationsService,
+  InstantiationType.Delayed
+);
+registerSingleton(IMarkerService, MarkerService, InstantiationType.Delayed);
+registerSingleton(
+  IContextKeyService,
+  ContextKeyService,
+  InstantiationType.Delayed
+);
+registerSingleton(
+  ITextResourceConfigurationService,
+  TextResourceConfigurationService,
+  InstantiationType.Delayed
+);
+registerSingleton(IDownloadService, DownloadService, InstantiationType.Delayed);
+registerSingleton(IOpenerService, OpenerService, InstantiationType.Delayed);
 //# sourceMappingURL=workbench.common.main.js.map

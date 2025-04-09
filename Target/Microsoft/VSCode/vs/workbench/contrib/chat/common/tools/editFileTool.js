@@ -10,26 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
 import { autorun } from "../../../../../base/common/observable.js";
 import { isEqual } from "../../../../../base/common/resources.js";
-import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { URI } from "../../../../../base/common/uri.js";
 import { generateUuid } from "../../../../../base/common/uuid.js";
 import { localize } from "../../../../../nls.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
 import { SaveReason } from "../../../../common/editor.js";
-import { GroupsOrder, IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+import {
+  GroupsOrder,
+  IEditorGroupsService
+} from "../../../../services/editor/common/editorGroupsService.js";
 import { ITextFileService } from "../../../../services/textfile/common/textfiles.js";
 import { CellUri } from "../../../notebook/common/notebookCommon.js";
 import { INotebookService } from "../../../notebook/common/notebookService.js";
 import { ICodeMapperService } from "../../common/chatCodeMapperService.js";
-import { ChatModel } from "../../common/chatModel.js";
 import { IChatService } from "../../common/chatService.js";
 import { ILanguageModelIgnoredFilesService } from "../../common/ignoredFiles.js";
-import { CountTokensCallback, IPreparedToolInvocation, IToolData, IToolImpl, IToolInvocation, IToolResult } from "../../common/languageModelToolsService.js";
-import { IToolInputProcessor } from "./tools.js";
 const codeInstructions = `
 The user is very smart and can understand how to apply your edits to their files, you just need to provide minimal hints.
 Avoid repeating existing code, instead use comments to represent regions of unchanged code. The user prefers that you are as concise as possible. For example:
@@ -69,7 +67,7 @@ const EditToolData = {
       },
       code: {
         type: "string",
-        description: "The code change to apply to the file. " + codeInstructions
+        description: `The code change to apply to the file. ${codeInstructions}`
       }
     },
     required: ["explanation", "filePath", "code"]
@@ -96,20 +94,28 @@ let EditTool = class {
     const fileUri = URI.revive(parameters.file);
     const uri = CellUri.parse(fileUri)?.notebook || fileUri;
     if (!this.workspaceContextService.isInsideWorkspace(uri) && !this.notebookService.getNotebookTextModel(uri)) {
-      const groupsByLastActive = this.editorGroupsService.getGroups(GroupsOrder.MOST_RECENTLY_ACTIVE);
+      const groupsByLastActive = this.editorGroupsService.getGroups(
+        GroupsOrder.MOST_RECENTLY_ACTIVE
+      );
       const uriIsOpenInSomeEditor = groupsByLastActive.some((group) => {
         return group.editors.some((editor) => {
           return isEqual(editor.resource, uri);
         });
       });
       if (!uriIsOpenInSomeEditor) {
-        throw new Error(`File ${uri.fsPath} can't be edited because it's not inside the current workspace`);
+        throw new Error(
+          `File ${uri.fsPath} can't be edited because it's not inside the current workspace`
+        );
       }
     }
     if (await this.ignoredFilesService.fileIsIgnored(uri, token)) {
-      throw new Error(`File ${uri.fsPath} can't be edited because it is configured to be ignored by Copilot`);
+      throw new Error(
+        `File ${uri.fsPath} can't be edited because it is configured to be ignored by Copilot`
+      );
     }
-    const model = this.chatService.getSession(invocation.context?.sessionId);
+    const model = this.chatService.getSession(
+      invocation.context?.sessionId
+    );
     const request = model.getRequests().at(-1);
     if (request.response?.response.getMarkdown().length) {
       model.acceptResponseProgress(request, {
@@ -128,7 +134,9 @@ let EditTool = class {
     });
     model.acceptResponseProgress(request, {
       kind: "markdownContent",
-      content: new MarkdownString(parameters.code + "\n````\n")
+      content: new MarkdownString(`${parameters.code}
+\`\`\`\`
+`)
     });
     if (this.notebookService.hasSupportedNotebooks(uri) && this.notebookService.getNotebookTextModel(uri)) {
       model.acceptResponseProgress(request, {
@@ -145,24 +153,54 @@ let EditTool = class {
     }
     const editSession = model.editingSession;
     if (!editSession) {
-      throw new Error("This tool must be called from within an editing session");
+      throw new Error(
+        "This tool must be called from within an editing session"
+      );
     }
-    const result = await this.codeMapperService.mapCode({
-      codeBlocks: [{ code: parameters.code, resource: uri, markdownBeforeBlock: parameters.explanation }],
-      location: "tool",
-      chatRequestId: invocation.chatRequestId
-    }, {
-      textEdit: /* @__PURE__ */ __name((target, edits) => {
-        model.acceptResponseProgress(request, { kind: "textEdit", uri: target, edits });
-      }, "textEdit"),
-      notebookEdit(target, edits) {
-        model.acceptResponseProgress(request, { kind: "notebookEdit", uri: target, edits });
-      }
-    }, token);
+    const result = await this.codeMapperService.mapCode(
+      {
+        codeBlocks: [
+          {
+            code: parameters.code,
+            resource: uri,
+            markdownBeforeBlock: parameters.explanation
+          }
+        ],
+        location: "tool",
+        chatRequestId: invocation.chatRequestId
+      },
+      {
+        textEdit: /* @__PURE__ */ __name((target, edits) => {
+          model.acceptResponseProgress(request, {
+            kind: "textEdit",
+            uri: target,
+            edits
+          });
+        }, "textEdit"),
+        notebookEdit(target, edits) {
+          model.acceptResponseProgress(request, {
+            kind: "notebookEdit",
+            uri: target,
+            edits
+          });
+        }
+      },
+      token
+    );
     if (this.notebookService.hasSupportedNotebooks(uri) && this.notebookService.getNotebookTextModel(uri)) {
-      model.acceptResponseProgress(request, { kind: "notebookEdit", uri, edits: [], done: true });
+      model.acceptResponseProgress(request, {
+        kind: "notebookEdit",
+        uri,
+        edits: [],
+        done: true
+      });
     } else {
-      model.acceptResponseProgress(request, { kind: "textEdit", uri, edits: [], done: true });
+      model.acceptResponseProgress(request, {
+        kind: "textEdit",
+        uri,
+        edits: [],
+        done: true
+      });
     }
     if (result?.errorMessage) {
       throw new Error(result.errorMessage);
@@ -172,7 +210,9 @@ let EditTool = class {
       let wasFileBeingModified = false;
       dispose = autorun((r) => {
         const entries = editSession.entries.read(r);
-        const currentFile = entries?.find((e) => e.modifiedURI.toString() === uri.toString());
+        const currentFile = entries?.find(
+          (e) => e.modifiedURI.toString() === uri.toString()
+        );
         if (currentFile) {
           if (currentFile.isCurrentlyBeingModifiedBy.read(r)) {
             wasFileBeingModified = true;
@@ -189,7 +229,9 @@ let EditTool = class {
       skipSaveParticipants: true
     });
     return {
-      content: [{ kind: "text", value: "The file was edited successfully" }]
+      content: [
+        { kind: "text", value: "The file was edited successfully" }
+      ]
     };
   }
   async prepareToolInvocation(parameters, token) {

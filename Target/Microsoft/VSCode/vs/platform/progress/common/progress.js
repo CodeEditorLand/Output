@@ -10,12 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IAction } from "../../../base/common/actions.js";
 import { DeferredPromise } from "../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
-import { Disposable, DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  CancellationTokenSource
+} from "../../../base/common/cancellation.js";
+import {
+  Disposable,
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { INotificationSource, NotificationPriority } from "../../notification/common/notification.js";
 const IProgressService = createDecorator("progressService");
 var ProgressLocation = /* @__PURE__ */ ((ProgressLocation2) => {
   ProgressLocation2[ProgressLocation2["Explorer"] = 1] = "Explorer";
@@ -80,7 +84,7 @@ class AsyncProgress {
     }
     try {
       this._processingAsyncQueue = true;
-      while (this._asyncQueue && this._asyncQueue.length) {
+      while (this._asyncQueue?.length) {
         const item = this._asyncQueue.shift();
         this._value = item;
         await this.callback(this._value);
@@ -143,7 +147,9 @@ class LongRunningOperation extends Disposable {
     __name(this, "LongRunningOperation");
   }
   currentOperationId = 0;
-  currentOperationDisposables = this._register(new DisposableStore());
+  currentOperationDisposables = this._register(
+    new DisposableStore()
+  );
   currentProgressRunner;
   currentProgressTimeout;
   start(progressDelay) {
@@ -155,9 +161,17 @@ class LongRunningOperation extends Disposable {
         this.currentProgressRunner = this.progressIndicator.show(true);
       }
     }, progressDelay);
-    this.currentOperationDisposables.add(toDisposable(() => clearTimeout(this.currentProgressTimeout)));
-    this.currentOperationDisposables.add(toDisposable(() => newOperationToken.cancel()));
-    this.currentOperationDisposables.add(toDisposable(() => this.currentProgressRunner ? this.currentProgressRunner.done() : void 0));
+    this.currentOperationDisposables.add(
+      toDisposable(() => clearTimeout(this.currentProgressTimeout))
+    );
+    this.currentOperationDisposables.add(
+      toDisposable(() => newOperationToken.cancel())
+    );
+    this.currentOperationDisposables.add(
+      toDisposable(
+        () => this.currentProgressRunner ? this.currentProgressRunner.done() : void 0
+      )
+    );
     return {
       id: newOperationId,
       token: newOperationToken.token,
@@ -174,7 +188,9 @@ class LongRunningOperation extends Disposable {
     }
   }
 }
-const IEditorProgressService = createDecorator("editorProgressService");
+const IEditorProgressService = createDecorator(
+  "editorProgressService"
+);
 export {
   AsyncProgress,
   IEditorProgressService,

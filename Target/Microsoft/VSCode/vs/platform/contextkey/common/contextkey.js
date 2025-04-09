@@ -1,14 +1,21 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../../../base/common/charCode.js";
-import { Event } from "../../../base/common/event.js";
-import { isChrome, isEdge, isFirefox, isLinux, isMacintosh, isSafari, isWeb, isWindows } from "../../../base/common/platform.js";
-import { isFalsyOrWhitespace } from "../../../base/common/strings.js";
-import { Scanner, LexingError, Token, TokenType } from "./scanner.js";
-import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { localize } from "../../../nls.js";
-import { IDisposable } from "../../../base/common/lifecycle.js";
 import { illegalArgument } from "../../../base/common/errors.js";
+import {
+  isChrome,
+  isEdge,
+  isFirefox,
+  isLinux,
+  isMacintosh,
+  isSafari,
+  isWeb,
+  isWindows
+} from "../../../base/common/platform.js";
+import { isFalsyOrWhitespace } from "../../../base/common/strings.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { Scanner, TokenType } from "./scanner.js";
 const CONSTANT_VALUES = /* @__PURE__ */ new Map();
 CONSTANT_VALUES.set("false", false);
 CONSTANT_VALUES.set("true", true);
@@ -23,7 +30,9 @@ CONSTANT_VALUES.set("isChrome", isChrome);
 CONSTANT_VALUES.set("isSafari", isSafari);
 function setConstant(key, value) {
   if (CONSTANT_VALUES.get(key) !== void 0) {
-    throw illegalArgument("contextkey.setConstant(k, v) invoked with already set constant `k`");
+    throw illegalArgument(
+      "contextkey.setConstant(k, v) invoked with already set constant `k`"
+    );
   }
   CONSTANT_VALUES.set(key, value);
 }
@@ -51,14 +60,38 @@ var ContextKeyExprType = /* @__PURE__ */ ((ContextKeyExprType2) => {
 const defaultConfig = {
   regexParsingWithErrorRecovery: true
 };
-const errorEmptyString = localize("contextkey.parser.error.emptyString", "Empty context key expression");
-const hintEmptyString = localize("contextkey.parser.error.emptyString.hint", "Did you forget to write an expression? You can also put 'false' or 'true' to always evaluate to false or true, respectively.");
-const errorNoInAfterNot = localize("contextkey.parser.error.noInAfterNot", "'in' after 'not'.");
-const errorClosingParenthesis = localize("contextkey.parser.error.closingParenthesis", "closing parenthesis ')'");
-const errorUnexpectedToken = localize("contextkey.parser.error.unexpectedToken", "Unexpected token");
-const hintUnexpectedToken = localize("contextkey.parser.error.unexpectedToken.hint", "Did you forget to put && or || before the token?");
-const errorUnexpectedEOF = localize("contextkey.parser.error.unexpectedEOF", "Unexpected end of expression");
-const hintUnexpectedEOF = localize("contextkey.parser.error.unexpectedEOF.hint", "Did you forget to put a context key?");
+const errorEmptyString = localize(
+  "contextkey.parser.error.emptyString",
+  "Empty context key expression"
+);
+const hintEmptyString = localize(
+  "contextkey.parser.error.emptyString.hint",
+  "Did you forget to write an expression? You can also put 'false' or 'true' to always evaluate to false or true, respectively."
+);
+const errorNoInAfterNot = localize(
+  "contextkey.parser.error.noInAfterNot",
+  "'in' after 'not'."
+);
+const errorClosingParenthesis = localize(
+  "contextkey.parser.error.closingParenthesis",
+  "closing parenthesis ')'"
+);
+const errorUnexpectedToken = localize(
+  "contextkey.parser.error.unexpectedToken",
+  "Unexpected token"
+);
+const hintUnexpectedToken = localize(
+  "contextkey.parser.error.unexpectedToken.hint",
+  "Did you forget to put && or || before the token?"
+);
+const errorUnexpectedEOF = localize(
+  "contextkey.parser.error.unexpectedEOF",
+  "Unexpected end of expression"
+);
+const hintUnexpectedEOF = localize(
+  "contextkey.parser.error.unexpectedEOF.hint",
+  "Did you forget to put a context key?"
+);
 class Parser {
   constructor(_config = defaultConfig) {
     this._config = _config;
@@ -90,7 +123,12 @@ class Parser {
    */
   parse(input) {
     if (input === "") {
-      this._parsingErrors.push({ message: errorEmptyString, offset: 0, lexeme: "", additionalInfo: hintEmptyString });
+      this._parsingErrors.push({
+        message: errorEmptyString,
+        offset: 0,
+        lexeme: "",
+        additionalInfo: hintEmptyString
+      });
       return void 0;
     }
     this._tokens = this._scanner.reset(input).scan();
@@ -101,7 +139,12 @@ class Parser {
       if (!this._isAtEnd()) {
         const peek = this._peek();
         const additionalInfo = peek.type === TokenType.Str ? hintUnexpectedToken : void 0;
-        this._parsingErrors.push({ message: errorUnexpectedToken, offset: peek.offset, lexeme: Scanner.getLexeme(peek), additionalInfo });
+        this._parsingErrors.push({
+          message: errorUnexpectedToken,
+          offset: peek.offset,
+          lexeme: Scanner.getLexeme(peek),
+          additionalInfo
+        });
         throw Parser._parseError;
       }
       return expr;
@@ -151,7 +194,10 @@ class Parser {
           this._advance();
           return ContextKeyNotExpr.create(peek.lexeme);
         default:
-          throw this._errExpectedButGot(`KEY | true | false | '(' expression ')'`, peek);
+          throw this._errExpectedButGot(
+            `KEY | true | false | '(' expression ')'`,
+            peek
+          );
       }
     }
     return this._primary();
@@ -179,16 +225,23 @@ class Parser {
           if (!this._config.regexParsingWithErrorRecovery) {
             this._advance();
             if (expr.type !== TokenType.RegexStr) {
-              throw this._errExpectedButGot(`REGEX`, expr);
+              throw this._errExpectedButGot("REGEX", expr);
             }
             const regexLexeme = expr.lexeme;
             const closingSlashIndex = regexLexeme.lastIndexOf("/");
-            const flags = closingSlashIndex === regexLexeme.length - 1 ? void 0 : this._removeFlagsGY(regexLexeme.substring(closingSlashIndex + 1));
+            const flags = closingSlashIndex === regexLexeme.length - 1 ? void 0 : this._removeFlagsGY(
+              regexLexeme.substring(
+                closingSlashIndex + 1
+              )
+            );
             let regexp;
             try {
-              regexp = new RegExp(regexLexeme.substring(1, closingSlashIndex), flags);
+              regexp = new RegExp(
+                regexLexeme.substring(1, closingSlashIndex),
+                flags
+              );
             } catch (e) {
-              throw this._errExpectedButGot(`REGEX`, expr);
+              throw this._errExpectedButGot("REGEX", expr);
             }
             return ContextKeyRegexExpr.create(key, regexp);
           }
@@ -217,7 +270,9 @@ class Parser {
                   case TokenType.RegexStr:
                   case TokenType.QuotedStr:
                     for (let i = 0; i < followingToken.lexeme.length; i++) {
-                      if (followingToken.lexeme.charCodeAt(i) === CharCode.OpenParen) {
+                      if (followingToken.lexeme.charCodeAt(
+                        i
+                      ) === CharCode.OpenParen) {
                         parenBalance++;
                       } else if (expr.lexeme.charCodeAt(i) === CharCode.CloseParen) {
                         parenBalance--;
@@ -227,18 +282,27 @@ class Parser {
                 if (parenBalance < 0) {
                   break;
                 }
-                lexemeReconstruction.push(Scanner.getLexeme(followingToken));
+                lexemeReconstruction.push(
+                  Scanner.getLexeme(followingToken)
+                );
                 this._advance();
                 followingToken = this._peek();
               }
               const regexLexeme = lexemeReconstruction.join("");
               const closingSlashIndex = regexLexeme.lastIndexOf("/");
-              const flags = closingSlashIndex === regexLexeme.length - 1 ? void 0 : this._removeFlagsGY(regexLexeme.substring(closingSlashIndex + 1));
+              const flags = closingSlashIndex === regexLexeme.length - 1 ? void 0 : this._removeFlagsGY(
+                regexLexeme.substring(
+                  closingSlashIndex + 1
+                )
+              );
               let regexp;
               try {
-                regexp = new RegExp(regexLexeme.substring(1, closingSlashIndex), flags);
+                regexp = new RegExp(
+                  regexLexeme.substring(1, closingSlashIndex),
+                  flags
+                );
               } catch (e) {
-                throw this._errExpectedButGot(`REGEX`, expr);
+                throw this._errExpectedButGot("REGEX", expr);
               }
               return ContextKeyExpr.regex(key, regexp);
             }
@@ -250,12 +314,21 @@ class Parser {
                 const start = serializedValue.indexOf("/");
                 const end = serializedValue.lastIndexOf("/");
                 if (start !== end && start >= 0) {
-                  const value = serializedValue.slice(start + 1, end);
+                  const value = serializedValue.slice(
+                    start + 1,
+                    end
+                  );
                   const caseIgnoreFlag = serializedValue[end + 1] === "i" ? "i" : "";
                   try {
-                    regex = new RegExp(value, caseIgnoreFlag);
+                    regex = new RegExp(
+                      value,
+                      caseIgnoreFlag
+                    );
                   } catch (_e) {
-                    throw this._errExpectedButGot(`REGEX`, expr);
+                    throw this._errExpectedButGot(
+                      "REGEX",
+                      expr
+                    );
                   }
                 }
               }
@@ -265,7 +338,10 @@ class Parser {
               return ContextKeyRegexExpr.create(key, regex);
             }
             default:
-              throw this._errExpectedButGot("REGEX", this._peek());
+              throw this._errExpectedButGot(
+                "REGEX",
+                this._peek()
+              );
           }
         }
         if (this._matchOne(TokenType.Not)) {
@@ -312,13 +388,19 @@ class Parser {
             return ContextKeySmallerExpr.create(key, this._value());
           case TokenType.LtEq:
             this._advance();
-            return ContextKeySmallerEqualsExpr.create(key, this._value());
+            return ContextKeySmallerEqualsExpr.create(
+              key,
+              this._value()
+            );
           case TokenType.Gt:
             this._advance();
             return ContextKeyGreaterExpr.create(key, this._value());
           case TokenType.GtEq:
             this._advance();
-            return ContextKeyGreaterEqualsExpr.create(key, this._value());
+            return ContextKeyGreaterEqualsExpr.create(
+              key,
+              this._value()
+            );
           case TokenType.In:
             this._advance();
             return ContextKeyExpr.in(key, this._value());
@@ -327,12 +409,20 @@ class Parser {
         }
       }
       case TokenType.EOF:
-        this._parsingErrors.push({ message: errorUnexpectedEOF, offset: peek.offset, lexeme: "", additionalInfo: hintUnexpectedEOF });
+        this._parsingErrors.push({
+          message: errorUnexpectedEOF,
+          offset: peek.offset,
+          lexeme: "",
+          additionalInfo: hintUnexpectedEOF
+        });
         throw Parser._parseError;
       default:
-        throw this._errExpectedButGot(`true | false | KEY 
+        throw this._errExpectedButGot(
+          `true | false | KEY 
 	| KEY '=~' REGEX 
-	| KEY ('==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in') value`, this._peek());
+	| KEY ('==' | '!=' | '<' | '<=' | '>' | '>=' | 'in' | 'not' 'in') value`,
+          this._peek()
+        );
     }
   }
   _value() {
@@ -383,7 +473,12 @@ class Parser {
     throw this._errExpectedButGot(message, this._peek());
   }
   _errExpectedButGot(expected, got, additionalInfo) {
-    const message = localize("contextkey.parser.error.expectedButGot", "Expected: {0}\nReceived: '{1}'.", expected, Scanner.getLexeme(got));
+    const message = localize(
+      "contextkey.parser.error.expectedButGot",
+      "Expected: {0}\nReceived: '{1}'.",
+      expected,
+      Scanner.getLexeme(got)
+    );
     const offset = got.offset;
     const lexeme = Scanner.getLexeme(got);
     this._parsingErrors.push({ message, offset, lexeme, additionalInfo });
@@ -448,12 +543,14 @@ class ContextKeyExpr {
   static smallerEquals(key, value) {
     return ContextKeySmallerEqualsExpr.create(key, value);
   }
-  static _parser = new Parser({ regexParsingWithErrorRecovery: false });
+  static _parser = new Parser({
+    regexParsingWithErrorRecovery: false
+  });
   static deserialize(serialized) {
     if (serialized === void 0 || serialized === null) {
       return void 0;
     }
-    const expr = this._parser.parse(serialized);
+    const expr = ContextKeyExpr._parser.parse(serialized);
     return expr;
   }
 }
@@ -463,7 +560,14 @@ function validateWhenClauses(whenClauses) {
     parser.parse(whenClause);
     if (parser.lexingErrors.length > 0) {
       return parser.lexingErrors.map((se) => ({
-        errorMessage: se.additionalInfo ? localize("contextkey.scanner.errorForLinterWithHint", "Unexpected token. Hint: {0}", se.additionalInfo) : localize("contextkey.scanner.errorForLinter", "Unexpected token."),
+        errorMessage: se.additionalInfo ? localize(
+          "contextkey.scanner.errorForLinterWithHint",
+          "Unexpected token. Hint: {0}",
+          se.additionalInfo
+        ) : localize(
+          "contextkey.scanner.errorForLinter",
+          "Unexpected token."
+        ),
         offset: se.offset,
         length: se.lexeme.length
       }));
@@ -657,7 +761,7 @@ class ContextKeyEqualsExpr {
     return this;
   }
   evaluate(context) {
-    return context.getValue(this.key) == this.value;
+    return context.getValue(this.key) === this.value;
   }
   serialize() {
     return `${this.key} == '${this.value}'`;
@@ -670,7 +774,11 @@ class ContextKeyEqualsExpr {
   }
   negate() {
     if (!this.negated) {
-      this.negated = ContextKeyNotEqualsExpr.create(this.key, this.value, this);
+      this.negated = ContextKeyNotEqualsExpr.create(
+        this.key,
+        this.value,
+        this
+      );
     }
     return this.negated;
   }
@@ -820,7 +928,7 @@ class ContextKeyNotEqualsExpr {
     return this;
   }
   evaluate(context) {
-    return context.getValue(this.key) != this.value;
+    return context.getValue(this.key) !== this.value;
   }
   serialize() {
     return `${this.key} != '${this.value}'`;
@@ -833,7 +941,11 @@ class ContextKeyNotEqualsExpr {
   }
   negate() {
     if (!this.negated) {
-      this.negated = ContextKeyEqualsExpr.create(this.key, this.value, this);
+      this.negated = ContextKeyEqualsExpr.create(
+        this.key,
+        this.value,
+        this
+      );
     }
     return this.negated;
   }
@@ -894,8 +1006,8 @@ class ContextKeyNotExpr {
 }
 function withFloatOrStr(value, callback) {
   if (typeof value === "string") {
-    const n = parseFloat(value);
-    if (!isNaN(n)) {
+    const n = Number.parseFloat(value);
+    if (!Number.isNaN(n)) {
       value = n;
     }
   }
@@ -915,7 +1027,10 @@ class ContextKeyGreaterExpr {
     __name(this, "ContextKeyGreaterExpr");
   }
   static create(key, _value, negated = null) {
-    return withFloatOrStr(_value, (value) => new ContextKeyGreaterExpr(key, value, negated));
+    return withFloatOrStr(
+      _value,
+      (value) => new ContextKeyGreaterExpr(key, value, negated)
+    );
   }
   type = 12 /* Greater */;
   cmp(other) {
@@ -937,7 +1052,7 @@ class ContextKeyGreaterExpr {
     if (typeof this.value === "string") {
       return false;
     }
-    return parseFloat(context.getValue(this.key)) > this.value;
+    return Number.parseFloat(context.getValue(this.key)) > this.value;
   }
   serialize() {
     return `${this.key} > ${this.value}`;
@@ -950,7 +1065,11 @@ class ContextKeyGreaterExpr {
   }
   negate() {
     if (!this.negated) {
-      this.negated = ContextKeySmallerEqualsExpr.create(this.key, this.value, this);
+      this.negated = ContextKeySmallerEqualsExpr.create(
+        this.key,
+        this.value,
+        this
+      );
     }
     return this.negated;
   }
@@ -965,7 +1084,10 @@ class ContextKeyGreaterEqualsExpr {
     __name(this, "ContextKeyGreaterEqualsExpr");
   }
   static create(key, _value, negated = null) {
-    return withFloatOrStr(_value, (value) => new ContextKeyGreaterEqualsExpr(key, value, negated));
+    return withFloatOrStr(
+      _value,
+      (value) => new ContextKeyGreaterEqualsExpr(key, value, negated)
+    );
   }
   type = 13 /* GreaterEquals */;
   cmp(other) {
@@ -987,7 +1109,7 @@ class ContextKeyGreaterEqualsExpr {
     if (typeof this.value === "string") {
       return false;
     }
-    return parseFloat(context.getValue(this.key)) >= this.value;
+    return Number.parseFloat(context.getValue(this.key)) >= this.value;
   }
   serialize() {
     return `${this.key} >= ${this.value}`;
@@ -1000,7 +1122,11 @@ class ContextKeyGreaterEqualsExpr {
   }
   negate() {
     if (!this.negated) {
-      this.negated = ContextKeySmallerExpr.create(this.key, this.value, this);
+      this.negated = ContextKeySmallerExpr.create(
+        this.key,
+        this.value,
+        this
+      );
     }
     return this.negated;
   }
@@ -1015,7 +1141,10 @@ class ContextKeySmallerExpr {
     __name(this, "ContextKeySmallerExpr");
   }
   static create(key, _value, negated = null) {
-    return withFloatOrStr(_value, (value) => new ContextKeySmallerExpr(key, value, negated));
+    return withFloatOrStr(
+      _value,
+      (value) => new ContextKeySmallerExpr(key, value, negated)
+    );
   }
   type = 14 /* Smaller */;
   cmp(other) {
@@ -1037,7 +1166,7 @@ class ContextKeySmallerExpr {
     if (typeof this.value === "string") {
       return false;
     }
-    return parseFloat(context.getValue(this.key)) < this.value;
+    return Number.parseFloat(context.getValue(this.key)) < this.value;
   }
   serialize() {
     return `${this.key} < ${this.value}`;
@@ -1050,7 +1179,11 @@ class ContextKeySmallerExpr {
   }
   negate() {
     if (!this.negated) {
-      this.negated = ContextKeyGreaterEqualsExpr.create(this.key, this.value, this);
+      this.negated = ContextKeyGreaterEqualsExpr.create(
+        this.key,
+        this.value,
+        this
+      );
     }
     return this.negated;
   }
@@ -1065,7 +1198,10 @@ class ContextKeySmallerEqualsExpr {
     __name(this, "ContextKeySmallerEqualsExpr");
   }
   static create(key, _value, negated = null) {
-    return withFloatOrStr(_value, (value) => new ContextKeySmallerEqualsExpr(key, value, negated));
+    return withFloatOrStr(
+      _value,
+      (value) => new ContextKeySmallerEqualsExpr(key, value, negated)
+    );
   }
   type = 15 /* SmallerEquals */;
   cmp(other) {
@@ -1087,7 +1223,7 @@ class ContextKeySmallerEqualsExpr {
     if (typeof this.value === "string") {
       return false;
     }
-    return parseFloat(context.getValue(this.key)) <= this.value;
+    return Number.parseFloat(context.getValue(this.key)) <= this.value;
   }
   serialize() {
     return `${this.key} <= ${this.value}`;
@@ -1100,7 +1236,11 @@ class ContextKeySmallerEqualsExpr {
   }
   negate() {
     if (!this.negated) {
-      this.negated = ContextKeyGreaterExpr.create(this.key, this.value, this);
+      this.negated = ContextKeyGreaterExpr.create(
+        this.key,
+        this.value,
+        this
+      );
     }
     return this.negated;
   }
@@ -1243,7 +1383,11 @@ class ContextKeyAndExpr {
     __name(this, "ContextKeyAndExpr");
   }
   static create(_expr, negated, extraRedundantCheck) {
-    return ContextKeyAndExpr._normalizeArr(_expr, negated, extraRedundantCheck);
+    return ContextKeyAndExpr._normalizeArr(
+      _expr,
+      negated,
+      extraRedundantCheck
+    );
   }
   type = 6 /* And */;
   cmp(other) {
@@ -1341,7 +1485,13 @@ class ContextKeyAndExpr {
       const secondToLastElement = expr.pop();
       const isFinished = expr.length === 0;
       const resultElement = ContextKeyOrExpr.create(
-        lastElement.expr.map((el) => ContextKeyAndExpr.create([el, secondToLastElement], null, extraRedundantCheck)),
+        lastElement.expr.map(
+          (el) => ContextKeyAndExpr.create(
+            [el, secondToLastElement],
+            null,
+            extraRedundantCheck
+          )
+        ),
         null,
         isFinished
       );
@@ -1378,7 +1528,10 @@ class ContextKeyAndExpr {
     return result;
   }
   map(mapFnc) {
-    return new ContextKeyAndExpr(this.expr.map((expr) => expr.map(mapFnc)), null);
+    return new ContextKeyAndExpr(
+      this.expr.map((expr) => expr.map(mapFnc)),
+      null
+    );
   }
   negate() {
     if (!this.negated) {
@@ -1400,7 +1553,11 @@ class ContextKeyOrExpr {
     __name(this, "ContextKeyOrExpr");
   }
   static create(_expr, negated, extraRedundantCheck) {
-    return ContextKeyOrExpr._normalizeArr(_expr, negated, extraRedundantCheck);
+    return ContextKeyOrExpr._normalizeArr(
+      _expr,
+      negated,
+      extraRedundantCheck
+    );
   }
   type = 9 /* Or */;
   cmp(other) {
@@ -1517,7 +1674,10 @@ class ContextKeyOrExpr {
     return result;
   }
   map(mapFnc) {
-    return new ContextKeyOrExpr(this.expr.map((expr) => expr.map(mapFnc)), null);
+    return new ContextKeyOrExpr(
+      this.expr.map((expr) => expr.map(mapFnc)),
+      null
+    );
   }
   negate() {
     if (!this.negated) {
@@ -1531,7 +1691,13 @@ class ContextKeyOrExpr {
         const all = [];
         for (const left of getTerminals(LEFT)) {
           for (const right of getTerminals(RIGHT)) {
-            all.push(ContextKeyAndExpr.create([left, right], null, false));
+            all.push(
+              ContextKeyAndExpr.create(
+                [left, right],
+                null,
+                false
+              )
+            );
           }
         }
         result.unshift(ContextKeyOrExpr.create(all, null, false));
@@ -1556,7 +1722,11 @@ class RawContextKey extends ContextKeyDefinedExpr {
     if (typeof metaOrHide === "object") {
       RawContextKey._info.push({ ...metaOrHide, key });
     } else if (metaOrHide !== true) {
-      RawContextKey._info.push({ key, description: metaOrHide, type: defaultValue !== null && defaultValue !== void 0 ? typeof defaultValue : void 0 });
+      RawContextKey._info.push({
+        key,
+        description: metaOrHide,
+        type: defaultValue !== null && defaultValue !== void 0 ? typeof defaultValue : void 0
+      });
     }
   }
   bindTo(target) {

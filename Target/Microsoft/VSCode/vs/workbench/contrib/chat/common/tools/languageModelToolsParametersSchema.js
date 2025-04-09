@@ -1,5 +1,6 @@
-import { IJSONSchema } from "../../../../../base/common/jsonSchema.js";
-import { Extensions as JSONExtensions, IJSONContributionRegistry } from "../../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
+import {
+  Extensions as JSONExtensions
+} from "../../../../../platform/jsonschemas/common/jsonContributionRegistry.js";
 import { Registry } from "../../../../../platform/registry/common/platform.js";
 const toolsParametersSchemaSchemaId = "vscode://schemas/toolsParameters";
 const toolsParametersSchemaSchema = {
@@ -232,20 +233,27 @@ const toolsParametersSchemaSchema = {
       $ref: "#"
     }
   },
-  defaultSnippets: [{
-    body: {
-      type: "object",
-      properties: {
-        "${1:paramName}": {
-          type: "string",
-          description: "${2:description}"
+  defaultSnippets: [
+    {
+      body: {
+        type: "object",
+        properties: {
+          "${1:paramName}": {
+            type: "string",
+            description: "${2:description}"
+          }
         }
       }
     }
-  }]
+  ]
 };
-const contributionRegistry = Registry.as(JSONExtensions.JSONContribution);
-contributionRegistry.registerSchema(toolsParametersSchemaSchemaId, toolsParametersSchemaSchema);
+const contributionRegistry = Registry.as(
+  JSONExtensions.JSONContribution
+);
+contributionRegistry.registerSchema(
+  toolsParametersSchemaSchemaId,
+  toolsParametersSchemaSchema
+);
 export {
   toolsParametersSchemaSchemaId
 };

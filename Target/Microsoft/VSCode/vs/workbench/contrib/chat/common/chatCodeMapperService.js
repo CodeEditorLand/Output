@@ -1,11 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { TextEdit } from "../../../../editor/common/languages.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { ICellEditOperation } from "../../notebook/common/notebookCommon.js";
 const ICodeMapperService = createDecorator("codeMapperService");
 class CodeMapperService {
   static {

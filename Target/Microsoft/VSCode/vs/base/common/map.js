@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { URI } from "./uri.js";
 function getOrSet(map, key, value) {
   let result = map.get(key);
   if (result === void 0) {
@@ -63,7 +62,10 @@ class ResourceMap {
     }
   }
   set(resource, value) {
-    this.map.set(this.toKey(resource), new ResourceMapEntry(resource, value));
+    this.map.set(
+      this.toKey(resource),
+      new ResourceMapEntry(resource, value)
+    );
     return this;
   }
   get(resource) {
@@ -138,7 +140,9 @@ class ResourceSet {
     return this._map.delete(value);
   }
   forEach(callbackfn, thisArg) {
-    this._map.forEach((_value, key) => callbackfn.call(thisArg, key, key, this));
+    this._map.forEach(
+      (_value, key) => callbackfn.call(thisArg, key, key, this)
+    );
   }
   has(value) {
     return this._map.has(value);
@@ -275,7 +279,7 @@ class LinkedMap {
         callbackfn(current.value, current.key, this);
       }
       if (this._state !== state) {
-        throw new Error(`LinkedMap got modified during iteration.`);
+        throw new Error("LinkedMap got modified during iteration.");
       }
       current = current.next;
     }
@@ -290,7 +294,7 @@ class LinkedMap {
       },
       next() {
         if (map._state !== state) {
-          throw new Error(`LinkedMap got modified during iteration.`);
+          throw new Error("LinkedMap got modified during iteration.");
         }
         if (current) {
           const result = { value: current.key, done: false };
@@ -313,7 +317,7 @@ class LinkedMap {
       },
       next() {
         if (map._state !== state) {
-          throw new Error(`LinkedMap got modified during iteration.`);
+          throw new Error("LinkedMap got modified during iteration.");
         }
         if (current) {
           const result = { value: current.value, done: false };
@@ -336,10 +340,13 @@ class LinkedMap {
       },
       next() {
         if (map._state !== state) {
-          throw new Error(`LinkedMap got modified during iteration.`);
+          throw new Error("LinkedMap got modified during iteration.");
         }
         if (current) {
-          const result = { value: [current.key, current.value], done: false };
+          const result = {
+            value: [current.key, current.value],
+            done: false
+          };
           current = current.next;
           return result;
         } else {
@@ -771,7 +778,8 @@ class NKeyMap {
       for (const [key, value] of map) {
         result += `${"  ".repeat(depth)}${key}: `;
         if (value instanceof Map) {
-          result += "\n" + printMap(value, depth + 1);
+          result += `
+${printMap(value, depth + 1)}`;
         } else {
           result += `${value}
 `;

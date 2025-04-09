@@ -10,16 +10,21 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ITerminalLinkResolver, ResolvedLink } from "./links.js";
-import { removeLinkSuffix, removeLinkQueryString, winDrivePrefix } from "./terminalLinkParsing.js";
-import { URI } from "../../../../../base/common/uri.js";
-import { ITerminalProcessManager } from "../../../terminal/common/terminal.js";
-import { Schemas } from "../../../../../base/common/network.js";
-import { isWindows, OperatingSystem, OS } from "../../../../../base/common/platform.js";
-import { IFileService } from "../../../../../platform/files/common/files.js";
-import { IPath, posix, win32 } from "../../../../../base/common/path.js";
-import { ITerminalBackend } from "../../../../../platform/terminal/common/terminal.js";
 import { mainWindow } from "../../../../../base/browser/window.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { posix, win32 } from "../../../../../base/common/path.js";
+import {
+  isWindows,
+  OperatingSystem,
+  OS
+} from "../../../../../base/common/platform.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IFileService } from "../../../../../platform/files/common/files.js";
+import {
+  removeLinkQueryString,
+  removeLinkSuffix,
+  winDrivePrefix
+} from "./terminalLinkParsing.js";
 let TerminalLinkResolver = class {
   constructor(_fileService) {
     this._fileService = _fileService;
@@ -37,10 +42,15 @@ let TerminalLinkResolver = class {
         authority: processManager.remoteAuthority
       });
     }
-    let cache = this._resolvedLinkCaches.get(processManager.remoteAuthority ?? "");
+    let cache = this._resolvedLinkCaches.get(
+      processManager.remoteAuthority ?? ""
+    );
     if (!cache) {
       cache = new LinkCache();
-      this._resolvedLinkCaches.set(processManager.remoteAuthority ?? "", cache);
+      this._resolvedLinkCaches.set(
+        processManager.remoteAuthority ?? "",
+        cache
+      );
     }
     const cached = cache.get(uri || link);
     if (cached !== void 0) {
@@ -64,10 +74,18 @@ let TerminalLinkResolver = class {
       return null;
     }
     if (isWindows && link.match(/^\/mnt\/[a-z]/i) && processManager.backend) {
-      linkUrl = await processManager.backend.getWslPath(linkUrl, "unix-to-win");
+      linkUrl = await processManager.backend.getWslPath(
+        linkUrl,
+        "unix-to-win"
+      );
     } else if (isWindows && link.match(/^(?:\/\/|\\\\)wsl(?:\$|\.localhost)(\/|\\)/)) {
     } else {
-      const preprocessedLink = this._preprocessPath(linkUrl, processManager.initialCwd, processManager.os, processManager.userHome);
+      const preprocessedLink = this._preprocessPath(
+        linkUrl,
+        processManager.initialCwd,
+        processManager.os,
+        processManager.userHome
+      );
       if (!preprocessedLink) {
         cache.set(link, null);
         return null;
@@ -108,7 +126,7 @@ let TerminalLinkResolver = class {
       link = osPath.join(userHome, link.substring(1));
     } else if (link.charAt(0) !== "/" && link.charAt(0) !== "~") {
       if (os === OperatingSystem.Windows) {
-        if (!link.match("^" + winDrivePrefix) && !link.startsWith("\\\\?\\")) {
+        if (!link.match(`^${winDrivePrefix}`) && !link.startsWith("\\\\?\\")) {
           if (!initialCwd) {
             return null;
           }
@@ -147,7 +165,10 @@ class LinkCache {
     if (this._cacheTilTimeout) {
       mainWindow.clearTimeout(this._cacheTilTimeout);
     }
-    this._cacheTilTimeout = mainWindow.setTimeout(() => this._cache.clear(), 1e4 /* TTL */);
+    this._cacheTilTimeout = mainWindow.setTimeout(
+      () => this._cache.clear(),
+      1e4 /* TTL */
+    );
     this._cache.set(this._getKey(link), value);
   }
   get(link) {

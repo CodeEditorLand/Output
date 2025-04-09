@@ -10,7 +10,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IWorkbenchContribution } from "../../../../common/contributions.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { IChatTransferService } from "../../common/chatTransferService.js";
 let ChatTransferContribution = class extends Disposable {

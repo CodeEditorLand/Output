@@ -1,15 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IContextViewProvider } from "../../../../base/browser/ui/contextview/contextview.js";
-import { IFindInputOptions } from "../../../../base/browser/ui/findinput/findInput.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { ContextScopedFindInput } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { NotebookFindFilters } from "../../notebook/browser/contrib/find/findFilters.js";
-import { NotebookFindInputFilterButton } from "../../notebook/browser/contrib/find/notebookFindReplaceWidget.js";
-import * as nls from "../../../../nls.js";
 import { Emitter } from "../../../../base/common/event.js";
+import * as nls from "../../../../nls.js";
+import { ContextScopedFindInput } from "../../../../platform/history/browser/contextScopedHistoryWidget.js";
+import { NotebookFindInputFilterButton } from "../../notebook/browser/contrib/find/notebookFindReplaceWidget.js";
 class SearchFindInput extends ContextScopedFindInput {
   constructor(container, contextViewProvider, options, contextKeyService, contextMenuService, instantiationService, filters, filterStartVisiblitity) {
     super(container, contextViewProvider, options, contextKeyService);
@@ -22,7 +16,10 @@ class SearchFindInput extends ContextScopedFindInput {
         contextMenuService,
         instantiationService,
         options,
-        nls.localize("searchFindInputNotebookFilter.label", "Notebook Find Filters")
+        nls.localize(
+          "searchFindInputNotebookFilter.label",
+          "Notebook Find Filters"
+        )
       )
     );
     this._updatePadding();
@@ -35,7 +32,9 @@ class SearchFindInput extends ContextScopedFindInput {
   }
   _findFilter;
   _filterChecked = false;
-  _onDidChangeAIToggle = this._register(new Emitter());
+  _onDidChangeAIToggle = this._register(
+    new Emitter()
+  );
   onDidChangeAIToggle = this._onDidChangeAIToggle.event;
   _updatePadding() {
     this.inputBox.paddingRight = (this.caseSensitive?.visible ? this.caseSensitive.width() : 0) + (this.wholeWords?.visible ? this.wholeWords.width() : 0) + (this.regex?.visible ? this.regex.width() : 0) + (this._findFilter.visible ? this._findFilter.width() : 0);

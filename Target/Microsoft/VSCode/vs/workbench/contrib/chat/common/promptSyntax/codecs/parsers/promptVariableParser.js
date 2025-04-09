@@ -11,25 +11,51 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 import { pick } from "../../../../../../../base/common/arrays.js";
 import { assert } from "../../../../../../../base/common/assert.js";
-import { Range } from "../../../../../../../editor/common/core/range.js";
-import { PromptVariable, PromptVariableWithData } from "../tokens/promptVariable.js";
-import { Tab } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/tab.js";
+import { CarriageReturn } from "../../../../../../../editor/common/codecs/linesCodec/tokens/carriageReturn.js";
+import { NewLine } from "../../../../../../../editor/common/codecs/linesCodec/tokens/newLine.js";
+import {
+  assertNotConsumed,
+  ParserBase
+} from "../../../../../../../editor/common/codecs/simpleCodec/parserBase.js";
+import {
+  LeftAngleBracket,
+  RightAngleBracket
+} from "../../../../../../../editor/common/codecs/simpleCodec/tokens/angleBrackets.js";
+import {
+  LeftBracket,
+  RightBracket
+} from "../../../../../../../editor/common/codecs/simpleCodec/tokens/brackets.js";
+import { Colon } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/colon.js";
+import { ExclamationMark } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/exclamationMark.js";
+import { FormFeed } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/formFeed.js";
 import { Hash } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/hash.js";
 import { Space } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/space.js";
-import { Colon } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/colon.js";
-import { NewLine } from "../../../../../../../editor/common/codecs/linesCodec/tokens/newLine.js";
-import { FormFeed } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/formFeed.js";
-import { TSimpleToken } from "../../../../../../../editor/common/codecs/simpleCodec/simpleDecoder.js";
+import { Tab } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/tab.js";
 import { VerticalTab } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/verticalTab.js";
-import { CarriageReturn } from "../../../../../../../editor/common/codecs/linesCodec/tokens/carriageReturn.js";
-import { ExclamationMark } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/exclamationMark.js";
-import { LeftBracket, RightBracket } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/brackets.js";
-import { LeftAngleBracket, RightAngleBracket } from "../../../../../../../editor/common/codecs/simpleCodec/tokens/angleBrackets.js";
-import { assertNotConsumed, ParserBase, TAcceptTokenResult } from "../../../../../../../editor/common/codecs/simpleCodec/parserBase.js";
-const STOP_CHARACTERS = [Space, Tab, NewLine, CarriageReturn, VerticalTab, FormFeed].map((token) => {
+import { Range } from "../../../../../../../editor/common/core/range.js";
+import {
+  PromptVariable,
+  PromptVariableWithData
+} from "../tokens/promptVariable.js";
+const STOP_CHARACTERS = [
+  Space,
+  Tab,
+  NewLine,
+  CarriageReturn,
+  VerticalTab,
+  FormFeed
+].map((token) => {
   return token.symbol;
 });
-const INVALID_NAME_CHARACTERS = [Hash, Colon, ExclamationMark, LeftAngleBracket, RightAngleBracket, LeftBracket, RightBracket].map((token) => {
+const INVALID_NAME_CHARACTERS = [
+  Hash,
+  Colon,
+  ExclamationMark,
+  LeftAngleBracket,
+  RightAngleBracket,
+  LeftBracket,
+  RightBracket
+].map((token) => {
   return token.symbol;
 });
 class PartialPromptVariableName extends ParserBase {
@@ -66,7 +92,10 @@ class PartialPromptVariableName extends ParserBase {
       }
       return {
         result: "success",
-        nextParser: new PartialPromptVariableWithData([...this.currentTokens, token]),
+        nextParser: new PartialPromptVariableWithData([
+          ...this.currentTokens,
+          token
+        ]),
         wasTokenConsumed: true
       };
     }
@@ -139,8 +168,13 @@ class PartialPromptVariableWithData extends ParserBase {
       this.isConsumed = true;
       const firstToken = this.currentTokens[0];
       const lastToken = this.currentTokens[this.currentTokens.length - 1];
-      const variableNameTokens = this.currentTokens.slice(1, this.startTokensCount - 1);
-      const variableDataTokens = this.currentTokens.slice(this.startTokensCount);
+      const variableNameTokens = this.currentTokens.slice(
+        1,
+        this.startTokensCount - 1
+      );
+      const variableDataTokens = this.currentTokens.slice(
+        this.startTokensCount
+      );
       const fullRange = new Range(
         firstToken.range.startLineNumber,
         firstToken.range.startColumn,
@@ -170,8 +204,13 @@ class PartialPromptVariableWithData extends ParserBase {
    * Try to convert current parser instance into a fully-parsed {@link asPromptVariableWithData} token.
    */
   asPromptVariableWithData() {
-    const variableNameTokens = this.currentTokens.slice(1, this.startTokensCount - 1);
-    const variableDataTokens = this.currentTokens.slice(this.startTokensCount);
+    const variableNameTokens = this.currentTokens.slice(
+      1,
+      this.startTokensCount - 1
+    );
+    const variableDataTokens = this.currentTokens.slice(
+      this.startTokensCount
+    );
     const variableName = variableNameTokens.map(pick("text")).join("");
     const variableData = variableDataTokens.map(pick("text")).join("");
     const firstToken = this.currentTokens[0];

@@ -1,10 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IShellEnvDetectionCapability, TerminalCapability, TerminalShellIntegrationEnvironment } from "./capabilities.js";
 import { Emitter } from "../../../../base/common/event.js";
-import { equals } from "../../../../base/common/objects.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
 import { mapsStrictEqualIgnoreOrder } from "../../../../base/common/map.js";
+import { equals } from "../../../../base/common/objects.js";
+import {
+  TerminalCapability
+} from "./capabilities.js";
 class ShellEnvDetectionCapability extends Disposable {
   static {
     __name(this, "ShellEnvDetectionCapability");
@@ -15,7 +17,9 @@ class ShellEnvDetectionCapability extends Disposable {
   get env() {
     return this._createStateObject();
   }
-  _onDidChangeEnv = this._register(new Emitter());
+  _onDidChangeEnv = this._register(
+    new Emitter()
+  );
   onDidChangeEnv = this._onDidChangeEnv.event;
   setEnvironment(env, isTrusted) {
     if (equals(this.env.value, env)) {
@@ -57,7 +61,10 @@ class ShellEnvDetectionCapability extends Disposable {
       return;
     }
     this._pendingEnv.isTrusted &&= isTrusted;
-    const envDiffers = !mapsStrictEqualIgnoreOrder(this._env.value, this._pendingEnv.value);
+    const envDiffers = !mapsStrictEqualIgnoreOrder(
+      this._env.value,
+      this._pendingEnv.value
+    );
     if (envDiffers) {
       this._env = this._pendingEnv;
       this._fireEnvChange();

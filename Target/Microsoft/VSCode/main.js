@@ -1,22 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as path from "path";
-import * as fs from "original-fs";
-import * as os from "os";
-import { performance } from "perf_hooks";
-import { configurePortable } from "./bootstrap-node.js";
-import { bootstrapESM } from "./bootstrap-esm.js";
-import { fileURLToPath } from "url";
-import { app, protocol, crashReporter, Menu, contentTracing } from "electron";
+import * as os from "node:os";
+import * as path from "node:path";
+import { performance } from "node:perf_hooks";
+import { fileURLToPath } from "node:url";
+import { Menu, app, contentTracing, crashReporter, protocol } from "electron";
 import minimist from "minimist";
+import * as fs from "original-fs";
+import { bootstrapESM } from "./bootstrap-esm.js";
 import { product } from "./bootstrap-meta.js";
+import { configurePortable } from "./bootstrap-node.js";
 import { parse } from "./vs/base/common/jsonc.js";
-import { getUserDataPath } from "./vs/platform/environment/node/userDataPath.js";
 import * as perf from "./vs/base/common/performance.js";
 import { resolveNLSConfiguration } from "./vs/base/node/nls.js";
-import { getUNCHost, addUNCHostToAllowlist } from "./vs/base/node/unc.js";
-import { INLSConfiguration } from "./vs/nls.js";
-import { NativeParsedArgs } from "./vs/platform/environment/common/argv.js";
+import { addUNCHostToAllowlist, getUNCHost } from "./vs/base/node/unc.js";
+import { getUserDataPath } from "./vs/platform/environment/node/userDataPath.js";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 perf.mark("code/didStartMain");
 perf.mark("code/willLoadMainBundle", {
@@ -52,22 +50,37 @@ if (args["crash-reporter-directory"] || argvConfig["enable-crash-reporter"] && !
   configureCrashReporter();
 }
 perf.mark("code/didStartCrashReporter");
-if (portable && portable.isPortable) {
+if (portable?.isPortable) {
   app.setAppLogsPath(path.join(userDataPath, "logs"));
 }
 protocol.registerSchemesAsPrivileged([
   {
     scheme: "vscode-webview",
-    privileges: { standard: true, secure: true, supportFetchAPI: true, corsEnabled: true, allowServiceWorkers: true, codeCache: true }
+    privileges: {
+      standard: true,
+      secure: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      allowServiceWorkers: true,
+      codeCache: true
+    }
   },
   {
     scheme: "vscode-file",
-    privileges: { secure: true, standard: true, supportFetchAPI: true, corsEnabled: true, codeCache: true }
+    privileges: {
+      secure: true,
+      standard: true,
+      supportFetchAPI: true,
+      corsEnabled: true,
+      codeCache: true
+    }
   }
 ]);
 registerListeners();
 let nlsConfigurationPromise = void 0;
-const osLocale = processZhLocale((app.getPreferredSystemLanguages()?.[0] ?? "en").toLowerCase());
+const osLocale = processZhLocale(
+  (app.getPreferredSystemLanguages()?.[0] ?? "en").toLowerCase()
+);
 const userLocale = getUserDefinedLocale(argvConfig);
 if (userLocale) {
   nlsConfigurationPromise = resolveNLSConfiguration({
@@ -82,12 +95,15 @@ if (process.platform === "win32" || process.platform === "linux") {
   const electronLocale = !userLocale || userLocale === "qps-ploc" ? "en" : userLocale;
   app.commandLine.appendSwitch("lang", electronLocale);
 }
-app.once("ready", function() {
+app.once("ready", () => {
   if (args["trace"]) {
     let traceOptions;
     if (args["trace-memory-infra"]) {
       const customCategories = args["trace-category-filter"]?.split(",") || [];
-      customCategories.push("disabled-by-default-memory-infra", "disabled-by-default-memory-infra.v8.code_stats");
+      customCategories.push(
+        "disabled-by-default-memory-infra",
+        "disabled-by-default-memory-infra.v8.code_stats"
+      );
       traceOptions = {
         included_categories: customCategories,
         excluded_categories: ["*"],
@@ -187,9 +203,13 @@ function configureCommandlineSwitchesSync(cliArgs) {
       switch (argvKey) {
         case "enable-proposed-api":
           if (Array.isArray(argvValue)) {
-            argvValue.forEach((id) => id && typeof id === "string" && process.argv.push("--enable-proposed-api", id));
+            argvValue.forEach(
+              (id) => id && typeof id === "string" && process.argv.push("--enable-proposed-api", id)
+            );
           } else {
-            console.error(`Unexpected value for \`enable-proposed-api\` in argv.json. Expected array of extension ids.`);
+            console.error(
+              "Unexpected value for `enable-proposed-api` in argv.json. Expected array of extension ids."
+            );
           }
           break;
         case "log-level":
@@ -214,7 +234,10 @@ function configureCommandlineSwitchesSync(cliArgs) {
   const featuresToDisable = `CalculateNativeWinOcclusion,${app.commandLine.getSwitchValue("disable-features")}`;
   app.commandLine.appendSwitch("disable-features", featuresToDisable);
   const blinkFeaturesToDisable = `FontMatchingCTMigration,StandardizedBrowserZoom,${app.commandLine.getSwitchValue("disable-blink-features")}`;
-  app.commandLine.appendSwitch("disable-blink-features", blinkFeaturesToDisable);
+  app.commandLine.appendSwitch(
+    "disable-blink-features",
+    blinkFeaturesToDisable
+  );
   const jsFlags = getJSFlags(cliArgs);
   if (jsFlags) {
     app.commandLine.appendSwitch("js-flags", jsFlags);
@@ -232,7 +255,9 @@ function readArgvConfigSync() {
     if (error && error.code === "ENOENT") {
       createDefaultArgvConfigSync(argvConfigPath);
     } else {
-      console.warn(`Unable to read argv.json configuration file in ${argvConfigPath}, falling back to defaults (${error})`);
+      console.warn(
+        `Unable to read argv.json configuration file in ${argvConfigPath}, falling back to defaults (${error})`
+      );
     }
   }
   if (!argvConfig2) {
@@ -263,7 +288,9 @@ function createDefaultArgvConfigSync(argvConfigPath) {
     ];
     fs.writeFileSync(argvConfigPath, defaultArgvConfigContent.join("\n"));
   } catch (error) {
-    console.error(`Unable to create argv.json configuration file in ${argvConfigPath}, falling back to defaults (${error})`);
+    console.error(
+      `Unable to create argv.json configuration file in ${argvConfigPath}, falling back to defaults (${error})`
+    );
   }
 }
 __name(createDefaultArgvConfigSync, "createDefaultArgvConfigSync");
@@ -285,18 +312,24 @@ function configureCrashReporter() {
   if (crashReporterDirectory) {
     crashReporterDirectory = path.normalize(crashReporterDirectory);
     if (!path.isAbsolute(crashReporterDirectory)) {
-      console.error(`The path '${crashReporterDirectory}' specified for --crash-reporter-directory must be absolute.`);
+      console.error(
+        `The path '${crashReporterDirectory}' specified for --crash-reporter-directory must be absolute.`
+      );
       app.exit(1);
     }
     if (!fs.existsSync(crashReporterDirectory)) {
       try {
         fs.mkdirSync(crashReporterDirectory, { recursive: true });
       } catch (error) {
-        console.error(`The path '${crashReporterDirectory}' specified for --crash-reporter-directory does not seem to exist or cannot be created.`);
+        console.error(
+          `The path '${crashReporterDirectory}' specified for --crash-reporter-directory does not seem to exist or cannot be created.`
+        );
         app.exit(1);
       }
     }
-    console.log(`Found --crash-reporter-directory argument. Setting crashDumps directory to be '${crashReporterDirectory}'`);
+    console.log(
+      `Found --crash-reporter-directory argument. Setting crashDumps directory to be '${crashReporterDirectory}'`
+    );
     app.setPath("crashDumps", crashReporterDirectory);
   } else {
     const appCenter = product.appCenter;
@@ -332,20 +365,34 @@ function configureCrashReporter() {
         } else if (isLinux) {
           submitURL = appCenter["linux-x64"];
         }
-        submitURL = submitURL.concat("&uid=", crashReporterId, "&iid=", crashReporterId, "&sid=", crashReporterId);
+        submitURL = submitURL.concat(
+          "&uid=",
+          crashReporterId,
+          "&iid=",
+          crashReporterId,
+          "&sid=",
+          crashReporterId
+        );
         const argv = process.argv;
         const endOfArgsMarkerIndex = argv.indexOf("--");
         if (endOfArgsMarkerIndex === -1) {
           argv.push("--crash-reporter-id", crashReporterId);
         } else {
-          argv.splice(endOfArgsMarkerIndex, 0, "--crash-reporter-id", crashReporterId);
+          argv.splice(
+            endOfArgsMarkerIndex,
+            0,
+            "--crash-reporter-id",
+            crashReporterId
+          );
         }
       }
     }
   }
   const productName = (product.crashReporter ? product.crashReporter.productName : void 0) || product.nameShort;
   const companyName = (product.crashReporter ? product.crashReporter.companyName : void 0) || "Microsoft";
-  const uploadToServer = Boolean(!process.env["VSCODE_DEV"] && submitURL && !crashReporterDirectory);
+  const uploadToServer = Boolean(
+    !process.env["VSCODE_DEV"] && submitURL && !crashReporterDirectory
+  );
   crashReporter.start({
     companyName,
     productName: process.env["VSCODE_DEV"] ? `${productName} Dev` : productName,
@@ -374,11 +421,9 @@ function parseCLIArgs() {
       "js-flags",
       "crash-reporter-directory"
     ],
-    boolean: [
-      "disable-chromium-sandbox"
-    ],
+    boolean: ["disable-chromium-sandbox"],
     default: {
-      "sandbox": true
+      sandbox: true
     },
     alias: {
       "no-sandbox": "sandbox"
@@ -389,18 +434,18 @@ __name(parseCLIArgs, "parseCLIArgs");
 function registerListeners() {
   const macOpenFiles = [];
   globalThis["macOpenFiles"] = macOpenFiles;
-  app.on("open-file", function(event, path2) {
+  app.on("open-file", (event, path2) => {
     macOpenFiles.push(path2);
   });
   const openUrls = [];
-  const onOpenUrl = /* @__PURE__ */ __name(function(event, url) {
+  const onOpenUrl = /* @__PURE__ */ __name((event, url) => {
     event.preventDefault();
     openUrls.push(url);
   }, "onOpenUrl");
-  app.on("will-finish-launching", function() {
+  app.on("will-finish-launching", () => {
     app.on("open-url", onOpenUrl);
   });
-  globalThis["getOpenUrls"] = function() {
+  globalThis["getOpenUrls"] = () => {
     app.removeListener("open-url", onOpenUrl);
     return openUrls;
   };

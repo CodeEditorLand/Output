@@ -10,35 +10,48 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ISaveOptions } from "../../../common/editor.js";
-import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
-import { URI } from "../../../../base/common/uri.js";
-import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { IWorkingCopyBackupService } from "../../workingCopy/common/workingCopyBackup.js";
-import { ITextResourceConfigurationChangeEvent, ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { createTextBufferFactory, createTextBufferFactoryFromStream } from "../../../../editor/common/model/textModel.js";
-import { ITextEditorModel } from "../../../../editor/common/services/resolverService.js";
-import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
-import { IWorkingCopy, WorkingCopyCapabilities, IWorkingCopyBackup, NO_TYPE_ID, IWorkingCopySaveEvent } from "../../workingCopy/common/workingCopy.js";
-import { IEncodingSupport, ILanguageSupport, ITextFileService } from "../../textfile/common/textfiles.js";
-import { IModelContentChangedEvent } from "../../../../editor/common/textModelEvents.js";
-import { assertIsDefined } from "../../../../base/common/types.js";
-import { ILabelService } from "../../../../platform/label/common/label.js";
-import { ensureValidWordDefinition } from "../../../../editor/common/core/wordHelper.js";
-import { IEditorService } from "../../editor/common/editorService.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
+import {
+  bufferToReadable,
+  bufferToStream,
+  VSBuffer
+} from "../../../../base/common/buffer.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { getCharContainingOffset } from "../../../../base/common/strings.js";
-import { UTF8 } from "../../textfile/common/encoding.js";
-import { bufferToReadable, bufferToStream, VSBuffer, VSBufferReadable, VSBufferReadableStream } from "../../../../base/common/buffer.js";
-import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { ensureValidWordDefinition } from "../../../../editor/common/core/wordHelper.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import {
+  createTextBufferFactory,
+  createTextBufferFactoryFromStream
+} from "../../../../editor/common/model/textModel.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import {
+  ITextResourceConfigurationService
+} from "../../../../editor/common/services/textResourceConfiguration.js";
 import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { BaseTextEditorModel } from "../../../common/editor/textEditorModel.js";
+import { IEditorService } from "../../editor/common/editorService.js";
+import { ILanguageDetectionService } from "../../languageDetection/common/languageDetectionWorkerService.js";
+import { UTF8 } from "../../textfile/common/encoding.js";
+import {
+  ITextFileService
+} from "../../textfile/common/textfiles.js";
+import {
+  NO_TYPE_ID,
+  WorkingCopyCapabilities
+} from "../../workingCopy/common/workingCopy.js";
+import { IWorkingCopyBackupService } from "../../workingCopy/common/workingCopyBackup.js";
+import { IWorkingCopyService } from "../../workingCopy/common/workingCopyService.js";
 let UntitledTextEditorModel = class extends BaseTextEditorModel {
   //#endregion
   constructor(resource, hasAssociatedFilePath, initialValue, preferredLanguageId, preferredEncoding, languageService, modelService, workingCopyBackupService, textResourceConfigurationService, workingCopyService, textFileService, labelService, editorService, languageDetectionService, accessibilityService) {
-    super(modelService, languageService, languageDetectionService, accessibilityService);
+    super(
+      modelService,
+      languageService,
+      languageDetectionService,
+      accessibilityService
+    );
     this.resource = resource;
     this.hasAssociatedFilePath = hasAssociatedFilePath;
     this.initialValue = initialValue;
@@ -78,7 +91,9 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
   onDidChangeDirty = this._onDidChangeDirty.event;
   _onDidChangeEncoding = this._register(new Emitter());
   onDidChangeEncoding = this._onDidChangeEncoding.event;
-  _onDidSave = this._register(new Emitter());
+  _onDidSave = this._register(
+    new Emitter()
+  );
   onDidSave = this._onDidSave.event;
   _onDidRevert = this._register(new Emitter());
   onDidRevert = this._onDidRevert.event;
@@ -96,11 +111,18 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
     return this.labelService.getUriBasenameLabel(this.resource);
   }
   registerListeners() {
-    this._register(this.textResourceConfigurationService.onDidChangeConfiguration((e) => this.onConfigurationChange(e, true)));
+    this._register(
+      this.textResourceConfigurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationChange(e, true)
+      )
+    );
   }
   onConfigurationChange(e, fromEvent) {
     if (!e || e.affectsConfiguration(this.resource, "files.encoding")) {
-      const configuredEncoding = this.textResourceConfigurationService.getValue(this.resource, "files.encoding");
+      const configuredEncoding = this.textResourceConfigurationService.getValue(
+        this.resource,
+        "files.encoding"
+      );
       if (this.configuredEncoding !== configuredEncoding && typeof configuredEncoding === "string") {
         this.configuredEncoding = configuredEncoding;
         if (fromEvent && !this.preferredEncoding) {
@@ -108,8 +130,14 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
         }
       }
     }
-    if (!e || e.affectsConfiguration(this.resource, "workbench.editor.untitled.labelFormat")) {
-      const configuredLabelFormat = this.textResourceConfigurationService.getValue(this.resource, "workbench.editor.untitled.labelFormat");
+    if (!e || e.affectsConfiguration(
+      this.resource,
+      "workbench.editor.untitled.labelFormat"
+    )) {
+      const configuredLabelFormat = this.textResourceConfigurationService.getValue(
+        this.resource,
+        "workbench.editor.untitled.labelFormat"
+      );
       if (this.configuredLabelFormat !== configuredLabelFormat && (configuredLabelFormat === "content" || configuredLabelFormat === "name")) {
         this.configuredLabelFormat = configuredLabelFormat;
         if (fromEvent) {
@@ -166,7 +194,10 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
   async save(options) {
     const target = await this.textFileService.save(this.resource, options);
     if (target) {
-      this._onDidSave.fire({ reason: options?.reason, source: options?.source });
+      this._onDidSave.fire({
+        reason: options?.reason,
+        source: options?.source
+      });
     }
     return !!target;
   }
@@ -183,7 +214,11 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
   async backup(token) {
     let content = void 0;
     if (this.isResolved()) {
-      content = await this.textFileService.getEncodedReadable(this.resource, this.createSnapshot() ?? void 0, { encoding: UTF8 });
+      content = await this.textFileService.getEncodedReadable(
+        this.resource,
+        this.createSnapshot() ?? void 0,
+        { encoding: UTF8 }
+      );
     } else if (typeof this.initialValue === "string") {
       content = bufferToReadable(VSBuffer.fromString(this.initialValue));
     }
@@ -202,10 +237,22 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
         untitledContents = backup.value;
         hasBackup = true;
       } else {
-        untitledContents = bufferToStream(VSBuffer.fromString(this.initialValue || ""));
+        untitledContents = bufferToStream(
+          VSBuffer.fromString(this.initialValue || "")
+        );
       }
-      const untitledContentsFactory = await createTextBufferFactoryFromStream(await this.textFileService.getDecodedStream(this.resource, untitledContents, { encoding: UTF8 }));
-      this.createTextEditorModel(untitledContentsFactory, this.resource, this.preferredLanguageId);
+      const untitledContentsFactory = await createTextBufferFactoryFromStream(
+        await this.textFileService.getDecodedStream(
+          this.resource,
+          untitledContents,
+          { encoding: UTF8 }
+        )
+      );
+      this.createTextEditorModel(
+        untitledContentsFactory,
+        this.resource,
+        this.preferredLanguageId
+      );
       createdUntitledModel = true;
     } else {
       this.updateTextEditorModel(void 0, this.preferredLanguageId);
@@ -216,7 +263,9 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
       if (hasBackup || this.initialValue) {
         this.updateNameFromFirstLine(textEditorModel);
       }
-      this.setDirty(this.hasAssociatedFilePath || !!hasBackup || !!this.initialValue);
+      this.setDirty(
+        this.hasAssociatedFilePath || !!hasBackup || !!this.initialValue
+      );
       if (hasBackup || this.initialValue) {
         this._onDidChangeContent.fire();
       }
@@ -224,8 +273,16 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
     return super.resolve();
   }
   installModelListeners(model) {
-    this._register(model.onDidChangeContent((e) => this.onModelContentChanged(model, e)));
-    this._register(model.onDidChangeLanguage(() => this.onConfigurationChange(void 0, true)));
+    this._register(
+      model.onDidChangeContent(
+        (e) => this.onModelContentChanged(model, e)
+      )
+    );
+    this._register(
+      model.onDidChangeLanguage(
+        () => this.onConfigurationChange(void 0, true)
+      )
+    );
     super.installModelListeners(model);
   }
   onModelContentChanged(textEditorModel, e) {
@@ -236,7 +293,9 @@ let UntitledTextEditorModel = class extends BaseTextEditorModel {
         this.setDirty(true);
       }
     }
-    if (e.changes.some((change) => (change.range.startLineNumber === 1 || change.range.endLineNumber === 1) && change.range.startColumn <= UntitledTextEditorModel.FIRST_LINE_NAME_CANDIDATE_MAX_LENGTH)) {
+    if (e.changes.some(
+      (change) => (change.range.startLineNumber === 1 || change.range.endLineNumber === 1) && change.range.startColumn <= UntitledTextEditorModel.FIRST_LINE_NAME_CANDIDATE_MAX_LENGTH
+    )) {
       this.updateNameFromFirstLine(textEditorModel);
     }
     this._onDidChangeContent.fire();

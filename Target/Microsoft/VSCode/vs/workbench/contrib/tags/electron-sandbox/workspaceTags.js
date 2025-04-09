@@ -11,20 +11,31 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IFileService, IFileStat } from "../../../../platform/files/common/files.js";
-import { ITelemetryService, TelemetryLevel } from "../../../../platform/telemetry/common/telemetry.js";
-import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
-import { IWorkspaceTagsService, Tags, getHashedRemotesFromConfig as baseGetHashedRemotesFromConfig } from "../common/workspaceTags.js";
-import { IDiagnosticsService, IWorkspaceInformation } from "../../../../platform/diagnostics/common/diagnostics.js";
-import { IRequestService } from "../../../../platform/request/common/request.js";
+import { hashAsync } from "../../../../base/common/hash.js";
 import { isWindows } from "../../../../base/common/platform.js";
-import { AllowedSecondLevelDomains, getDomainsOfRemotes } from "../../../../platform/extensionManagement/common/configRemotes.js";
+import {
+  IDiagnosticsService
+} from "../../../../platform/diagnostics/common/diagnostics.js";
+import {
+  AllowedSecondLevelDomains,
+  getDomainsOfRemotes
+} from "../../../../platform/extensionManagement/common/configRemotes.js";
+import {
+  IFileService
+} from "../../../../platform/files/common/files.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { hashAsync } from "../../../../base/common/hash.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
+import {
+  ITelemetryService,
+  TelemetryLevel
+} from "../../../../platform/telemetry/common/telemetry.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ITextFileService } from "../../../services/textfile/common/textfiles.js";
+import {
+  getHashedRemotesFromConfig as baseGetHashedRemotesFromConfig,
+  IWorkspaceTagsService
+} from "../common/workspaceTags.js";
 async function getHashedRemotesFromConfig(text, stripEndingDotGit = false) {
   return baseGetHashedRemotesFromConfig(text, stripEndingDotGit, hashAsync);
 }
@@ -49,16 +60,25 @@ let WorkspaceTags = class {
   }
   async report() {
     this.reportWindowsEdition();
-    this.workspaceTagsService.getTags().then((tags) => this.reportWorkspaceTags(tags), (error) => onUnexpectedError(error));
+    this.workspaceTagsService.getTags().then(
+      (tags) => this.reportWorkspaceTags(tags),
+      (error) => onUnexpectedError(error)
+    );
     this.reportCloudStats();
     this.reportProxyStats();
-    this.getWorkspaceInformation().then((stats) => this.diagnosticsService.reportWorkspaceStats(stats));
+    this.getWorkspaceInformation().then(
+      (stats) => this.diagnosticsService.reportWorkspaceStats(stats)
+    );
   }
   async reportWindowsEdition() {
     if (!isWindows) {
       return;
     }
-    let value = await this.nativeHostService.windowsGetStringRegKey("HKEY_LOCAL_MACHINE", "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "EditionID");
+    let value = await this.nativeHostService.windowsGetStringRegKey(
+      "HKEY_LOCAL_MACHINE",
+      "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion",
+      "EditionID"
+    );
     if (value === void 0) {
       value = "Unknown";
     }
@@ -67,7 +87,10 @@ let WorkspaceTags = class {
   async getWorkspaceInformation() {
     const workspace = this.contextService.getWorkspace();
     const state = this.contextService.getWorkbenchState();
-    const telemetryId = await this.workspaceTagsService.getTelemetryWorkspaceId(workspace, state);
+    const telemetryId = await this.workspaceTagsService.getTelemetryWorkspaceId(
+      workspace,
+      state
+    );
     return {
       id: workspace.id,
       telemetryId,
@@ -81,30 +104,47 @@ let WorkspaceTags = class {
     this.telemetryService.publicLog("workspce.tags", tags);
   }
   reportRemoteDomains(workspaceUris) {
-    Promise.all(workspaceUris.map((workspaceUri) => {
-      const path = workspaceUri.path;
-      const uri = workspaceUri.with({ path: `${path !== "/" ? path : ""}/.git/config` });
-      return this.fileService.exists(uri).then((exists) => {
-        if (!exists) {
-          return [];
-        }
-        return this.textFileService.read(uri, { acceptTextOnly: true }).then(
-          (content) => getDomainsOfRemotes(content.value, AllowedSecondLevelDomains),
-          (err) => []
-          // ignore missing or binary file
-        );
-      });
-    })).then((domains) => {
-      const set = domains.reduce((set2, list2) => list2.reduce((set3, item) => set3.add(item), set2), /* @__PURE__ */ new Set());
+    Promise.all(
+      workspaceUris.map((workspaceUri) => {
+        const path = workspaceUri.path;
+        const uri = workspaceUri.with({
+          path: `${path !== "/" ? path : ""}/.git/config`
+        });
+        return this.fileService.exists(uri).then((exists) => {
+          if (!exists) {
+            return [];
+          }
+          return this.textFileService.read(uri, { acceptTextOnly: true }).then(
+            (content) => getDomainsOfRemotes(
+              content.value,
+              AllowedSecondLevelDomains
+            ),
+            (err) => []
+            // ignore missing or binary file
+          );
+        });
+      })
+    ).then((domains) => {
+      const set = domains.reduce(
+        (set2, list2) => list2.reduce((set3, item) => set3.add(item), set2),
+        /* @__PURE__ */ new Set()
+      );
       const list = [];
       set.forEach((item) => list.push(item));
-      this.telemetryService.publicLog("workspace.remotes", { domains: list.sort() });
+      this.telemetryService.publicLog("workspace.remotes", {
+        domains: list.sort()
+      });
     }, onUnexpectedError);
   }
   reportRemotes(workspaceUris) {
-    Promise.all(workspaceUris.map((workspaceUri) => {
-      return this.workspaceTagsService.getHashedRemotesFromUri(workspaceUri, true);
-    })).then(() => {
+    Promise.all(
+      workspaceUris.map((workspaceUri) => {
+        return this.workspaceTagsService.getHashedRemotesFromUri(
+          workspaceUri,
+          true
+        );
+      })
+    ).then(() => {
     }, onUnexpectedError);
   }
   /* __GDPR__FRAGMENT__
@@ -115,12 +155,21 @@ let WorkspaceTags = class {
   reportAzureNode(workspaceUris, tags) {
     const uris = workspaceUris.map((workspaceUri) => {
       const path = workspaceUri.path;
-      return workspaceUri.with({ path: `${path !== "/" ? path : ""}/node_modules` });
+      return workspaceUri.with({
+        path: `${path !== "/" ? path : ""}/node_modules`
+      });
     });
     return this.fileService.resolveAll(uris.map((resource) => ({ resource }))).then(
       (results) => {
-        const names = [].concat(...results.map((result) => result.success ? result.stat.children || [] : [])).map((c) => c.name);
-        const referencesAzure = WorkspaceTags.searchArray(names, /azure/i);
+        const names = [].concat(
+          ...results.map(
+            (result) => result.success ? result.stat?.children || [] : []
+          )
+        ).map((c) => c.name);
+        const referencesAzure = WorkspaceTags.searchArray(
+          names,
+          /azure/i
+        );
         if (referencesAzure) {
           tags["node"] = true;
         }
@@ -140,19 +189,23 @@ let WorkspaceTags = class {
   	}
   */
   reportAzureJava(workspaceUris, tags) {
-    return Promise.all(workspaceUris.map((workspaceUri) => {
-      const path = workspaceUri.path;
-      const uri = workspaceUri.with({ path: `${path !== "/" ? path : ""}/pom.xml` });
-      return this.fileService.exists(uri).then((exists) => {
-        if (!exists) {
-          return false;
-        }
-        return this.textFileService.read(uri, { acceptTextOnly: true }).then(
-          (content) => !!content.value.match(/azure/i),
-          (err) => false
-        );
-      });
-    })).then((javas) => {
+    return Promise.all(
+      workspaceUris.map((workspaceUri) => {
+        const path = workspaceUri.path;
+        const uri = workspaceUri.with({
+          path: `${path !== "/" ? path : ""}/pom.xml`
+        });
+        return this.fileService.exists(uri).then((exists) => {
+          if (!exists) {
+            return false;
+          }
+          return this.textFileService.read(uri, { acceptTextOnly: true }).then(
+            (content) => !!content.value.match(/azure/i),
+            (err) => false
+          );
+        });
+      })
+    ).then((javas) => {
       if (javas.indexOf(true) !== -1) {
         tags["java"] = true;
       }
@@ -184,7 +237,9 @@ let WorkspaceTags = class {
     }
     this.requestService.resolveProxy(downloadUrl).then((proxy) => {
       let type = proxy ? String(proxy).trim().split(/\s+/, 1)[0] : "EMPTY";
-      if (["DIRECT", "PROXY", "HTTPS", "SOCKS", "EMPTY"].indexOf(type) === -1) {
+      if (["DIRECT", "PROXY", "HTTPS", "SOCKS", "EMPTY"].indexOf(
+        type
+      ) === -1) {
         type = "UNKNOWN";
       }
     }).then(void 0, onUnexpectedError);

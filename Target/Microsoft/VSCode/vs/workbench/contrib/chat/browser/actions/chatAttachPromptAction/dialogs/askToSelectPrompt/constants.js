@@ -1,11 +1,12 @@
-import { localize } from "../../../../../../../../nls.js";
-import { URI } from "../../../../../../../../base/common/uri.js";
 import { Codicon } from "../../../../../../../../base/common/codicons.js";
-import { WithUriValue } from "../../../../../../../../base/common/types.js";
+import {
+  isLinux,
+  isWindows
+} from "../../../../../../../../base/common/platform.js";
 import { ThemeIcon } from "../../../../../../../../base/common/themables.js";
+import { URI } from "../../../../../../../../base/common/uri.js";
+import { localize } from "../../../../../../../../nls.js";
 import { DOCUMENTATION_URL } from "../../../../../common/promptSyntax/constants.js";
-import { isLinux, isWindows } from "../../../../../../../../base/common/platform.js";
-import { IQuickInputButton, IQuickPickItem } from "../../../../../../../../platform/quickinput/common/quickInput.js";
 const SUPER_KEY_NAME = isWindows || isLinux ? "Ctrl" : "\u2318";
 const ALT_KEY_NAME = isWindows || isLinux ? "Alt" : "\u2325";
 const DOCS_OPTION = Object.freeze({

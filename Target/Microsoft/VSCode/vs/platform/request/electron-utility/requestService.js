@@ -11,12 +11,12 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { net } from "electron";
-import { CancellationToken } from "../../../base/common/cancellation.js";
-import { IRequestContext, IRequestOptions } from "../../../base/parts/request/common/request.js";
-import { IRawRequestFunction, RequestService as NodeRequestService } from "../node/requestService.js";
 import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
 import { ILogService } from "../../log/common/log.js";
+import {
+  RequestService as NodeRequestService
+} from "../node/requestService.js";
 function getRawRequest(options) {
   return net.request;
 }
@@ -29,7 +29,10 @@ let RequestService = class extends NodeRequestService {
     super("local", configurationService, environmentService, logService);
   }
   request(options, token) {
-    return super.request({ ...options || {}, getRawRequest, isChromiumNetwork: true }, token);
+    return super.request(
+      { ...options || {}, getRawRequest, isChromiumNetwork: true },
+      token
+    );
   }
 };
 RequestService = __decorateClass([

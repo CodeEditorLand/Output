@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IProcessEnvironment, isLinux } from "./platform.js";
+import { isLinux } from "./platform.js";
 var Source = /* @__PURE__ */ ((Source2) => {
   Source2[Source2["stdout"] = 0] = "stdout";
   Source2[Source2["stderr"] = 1] = "stderr";
@@ -39,9 +39,9 @@ function removeDangerousEnvVariables(env) {
   if (!env) {
     return;
   }
-  delete env["DEBUG"];
+  env["DEBUG"] = void 0;
   if (isLinux) {
-    delete env["LD_PRELOAD"];
+    env["LD_PRELOAD"] = void 0;
   }
 }
 __name(removeDangerousEnvVariables, "removeDangerousEnvVariables");

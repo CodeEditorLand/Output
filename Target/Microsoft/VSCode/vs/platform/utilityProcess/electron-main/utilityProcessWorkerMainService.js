@@ -10,17 +10,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
+import { DeferredPromise } from "../../../base/common/async.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import { hash } from "../../../base/common/hash.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
 import { ILogService } from "../../log/common/log.js";
-import { IUtilityProcessWorkerCreateConfiguration, IOnDidTerminateUtilityrocessWorkerProcess, IUtilityProcessWorkerConfiguration, IUtilityProcessWorkerProcessExit, IUtilityProcessWorkerService } from "../common/utilityProcessWorkerService.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
 import { IWindowsMainService } from "../../windows/electron-main/windows.js";
 import { WindowUtilityProcess } from "./utilityProcess.js";
-import { ITelemetryService } from "../../telemetry/common/telemetry.js";
-import { hash } from "../../../base/common/hash.js";
-import { Event, Emitter } from "../../../base/common/event.js";
-import { DeferredPromise } from "../../../base/common/async.js";
-import { ILifecycleMainService } from "../../lifecycle/electron-main/lifecycleMainService.js";
 const IUtilityProcessWorkerMainService = createDecorator("utilityProcessWorker");
 let UtilityProcessWorkerMainService = class extends Disposable {
   constructor(logService, windowsMainService, telemetryService, lifecycleMainService) {
@@ -36,13 +35,23 @@ let UtilityProcessWorkerMainService = class extends Disposable {
   workers = /* @__PURE__ */ new Map();
   async createWorker(configuration) {
     const workerLogId = `window: ${configuration.reply.windowId}, moduleId: ${configuration.process.moduleId}`;
-    this.logService.trace(`[UtilityProcessWorker]: createWorker(${workerLogId})`);
+    this.logService.trace(
+      `[UtilityProcessWorker]: createWorker(${workerLogId})`
+    );
     const workerId = this.hash(configuration);
     if (this.workers.has(workerId)) {
-      this.logService.warn(`[UtilityProcessWorker]: createWorker() found an existing worker that will be terminated (${workerLogId})`);
+      this.logService.warn(
+        `[UtilityProcessWorker]: createWorker() found an existing worker that will be terminated (${workerLogId})`
+      );
       this.disposeWorker(configuration);
     }
-    const worker = new UtilityProcessWorker(this.logService, this.windowsMainService, this.telemetryService, this.lifecycleMainService, configuration);
+    const worker = new UtilityProcessWorker(
+      this.logService,
+      this.windowsMainService,
+      this.telemetryService,
+      this.lifecycleMainService,
+      configuration
+    );
     if (!worker.spawn()) {
       return { reason: { code: 1, signal: "EINVALID" } };
     }
@@ -50,9 +59,13 @@ let UtilityProcessWorkerMainService = class extends Disposable {
     const onDidTerminate = new DeferredPromise();
     Event.once(worker.onDidTerminate)((reason) => {
       if (reason.code === 0) {
-        this.logService.trace(`[UtilityProcessWorker]: terminated normally with code ${reason.code}, signal: ${reason.signal}`);
+        this.logService.trace(
+          `[UtilityProcessWorker]: terminated normally with code ${reason.code}, signal: ${reason.signal}`
+        );
       } else {
-        this.logService.error(`[UtilityProcessWorker]: terminated unexpectedly with code ${reason.code}, signal: ${reason.signal}`);
+        this.logService.error(
+          `[UtilityProcessWorker]: terminated unexpectedly with code ${reason.code}, signal: ${reason.signal}`
+        );
       }
       this.workers.delete(workerId);
       onDidTerminate.complete({ reason });
@@ -71,7 +84,9 @@ let UtilityProcessWorkerMainService = class extends Disposable {
     if (!worker) {
       return;
     }
-    this.logService.trace(`[UtilityProcessWorker]: disposeWorker(window: ${configuration.reply.windowId}, moduleId: ${configuration.process.moduleId})`);
+    this.logService.trace(
+      `[UtilityProcessWorker]: disposeWorker(window: ${configuration.reply.windowId}, moduleId: ${configuration.process.moduleId})`
+    );
     worker.kill();
     worker.dispose();
     this.workers.delete(workerId);
@@ -88,21 +103,40 @@ let UtilityProcessWorker = class extends Disposable {
     super();
     this.windowsMainService = windowsMainService;
     this.configuration = configuration;
-    this.utilityProcess = this._register(new WindowUtilityProcess(logService, windowsMainService, telemetryService, lifecycleMainService));
+    this.utilityProcess = this._register(
+      new WindowUtilityProcess(
+        logService,
+        windowsMainService,
+        telemetryService,
+        lifecycleMainService
+      )
+    );
     this.registerListeners();
   }
   static {
     __name(this, "UtilityProcessWorker");
   }
-  _onDidTerminate = this._register(new Emitter());
+  _onDidTerminate = this._register(
+    new Emitter()
+  );
   onDidTerminate = this._onDidTerminate.event;
   utilityProcess;
   registerListeners() {
-    this._register(this.utilityProcess.onExit((e) => this._onDidTerminate.fire({ code: e.code, signal: e.signal })));
-    this._register(this.utilityProcess.onCrash((e) => this._onDidTerminate.fire({ code: e.code, signal: "ECRASH" })));
+    this._register(
+      this.utilityProcess.onExit(
+        (e) => this._onDidTerminate.fire({ code: e.code, signal: e.signal })
+      )
+    );
+    this._register(
+      this.utilityProcess.onCrash(
+        (e) => this._onDidTerminate.fire({ code: e.code, signal: "ECRASH" })
+      )
+    );
   }
   spawn() {
-    const window = this.windowsMainService.getWindowById(this.configuration.reply.windowId);
+    const window = this.windowsMainService.getWindowById(
+      this.configuration.reply.windowId
+    );
     const windowPid = window?.win?.webContents.getOSProcessId();
     return this.utilityProcess.start({
       type: this.configuration.process.type,

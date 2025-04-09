@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
 import { createDecorator } from "../../instantiation/common/instantiation.js";
-import { IKeyboardEvent } from "../../keybinding/common/keybinding.js";
-import { IPickerQuickAccessItem } from "../../quickinput/browser/pickerQuickAccess.js";
-import { Event } from "../../../base/common/event.js";
-import { IAction } from "../../../base/common/actions.js";
-import { IQuickPickItem } from "../../quickinput/common/quickInput.js";
-import { IDisposable, Disposable } from "../../../base/common/lifecycle.js";
-const IAccessibleViewService = createDecorator("accessibleViewService");
+const IAccessibleViewService = createDecorator(
+  "accessibleViewService"
+);
 var AccessibleViewProviderId = /* @__PURE__ */ ((AccessibleViewProviderId2) => {
   AccessibleViewProviderId2["Terminal"] = "terminal";
   AccessibleViewProviderId2["TerminalChat"] = "terminal-chat";
@@ -67,7 +66,7 @@ class AccessibleContentProvider extends Disposable {
   }
 }
 function isIAccessibleViewContentProvider(obj) {
-  return obj && obj.id && obj.options && obj.provideContent && obj.onClose && obj.verbositySettingKey;
+  return obj?.id && obj.options && obj.provideContent && obj.onClose && obj.verbositySettingKey;
 }
 __name(isIAccessibleViewContentProvider, "isIAccessibleViewContentProvider");
 class ExtensionContentProvider extends Disposable {

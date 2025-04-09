@@ -14,7 +14,6 @@ import { $, reset } from "../../../../base/browser/dom.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
 import { CancellationError } from "../../../../base/common/errors.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { IProductConfiguration } from "../../../../base/common/product.js";
 import { joinPath } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
 import { localize } from "../../../../nls.js";
@@ -24,16 +23,32 @@ import { IFileService } from "../../../../platform/files/common/files.js";
 import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { IProcessMainService } from "../../../../platform/process/common/process.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IUpdateService, StateType } from "../../../../platform/update/common/update.js";
+import {
+  IUpdateService,
+  StateType
+} from "../../../../platform/update/common/update.js";
 import { applyZoom } from "../../../../platform/window/electron-sandbox/window.js";
 import { BaseIssueReporterService } from "../browser/baseIssueReporterService.js";
-import { IssueReporterData as IssueReporterModelData } from "../browser/issueReporterModel.js";
-import { IIssueFormService, IssueReporterData, IssueType } from "../common/issue.js";
+import {
+  IIssueFormService,
+  IssueType
+} from "../common/issue.js";
 const MAX_URL_LENGTH = 7500;
 const MAX_GITHUB_API_LENGTH = 65500;
 let IssueReporter = class extends BaseIssueReporterService {
   constructor(disableExtensions, data, os, product, window, nativeHostService, issueFormService, processMainService, themeService, fileService, fileDialogService, updateService) {
-    super(disableExtensions, data, os, product, window, false, issueFormService, themeService, fileService, fileDialogService);
+    super(
+      disableExtensions,
+      data,
+      os,
+      product,
+      window,
+      false,
+      issueFormService,
+      themeService,
+      fileService,
+      fileDialogService
+    );
     this.nativeHostService = nativeHostService;
     this.updateService = updateService;
     this.processMainService = processMainService;
@@ -63,28 +78,41 @@ let IssueReporter = class extends BaseIssueReporterService {
     const updateState = this.updateService.state;
     if (updateState.type === StateType.Ready || updateState.type === StateType.Downloaded) {
       this.needsUpdate = true;
-      const includeAcknowledgement = this.getElementById("version-acknowledgements");
+      const includeAcknowledgement = this.getElementById(
+        "version-acknowledgements"
+      );
       const updateBanner = this.getElementById("update-banner");
       if (updateBanner && includeAcknowledgement) {
         includeAcknowledgement.classList.remove("hidden");
         updateBanner.classList.remove("hidden");
-        updateBanner.textContent = localize("updateAvailable", "A new version of {0} is available.", this.product.nameLong);
+        updateBanner.textContent = localize(
+          "updateAvailable",
+          "A new version of {0} is available.",
+          this.product.nameLong
+        );
       }
     }
   }
   setEventHandlers() {
     super.setEventHandlers();
     this.addEventListener("issue-type", "change", (event) => {
-      const issueType = parseInt(event.target.value);
+      const issueType = Number.parseInt(
+        event.target.value
+      );
       this.issueReporterModel.update({ issueType });
       if (issueType === IssueType.PerformanceIssue && !this.receivedPerformanceInfo) {
         this.processMainService.$getPerformanceInfo().then((info) => {
-          this.updatePerformanceInfo(info);
+          this.updatePerformanceInfo(
+            info
+          );
         });
       }
       const descriptionTextArea = this.getElementById("issue-title");
       if (descriptionTextArea) {
-        descriptionTextArea.placeholder = localize("undefinedPlaceholder", "Please enter a title");
+        descriptionTextArea.placeholder = localize(
+          "undefinedPlaceholder",
+          "Please enter a title"
+        );
       }
       this.updatePreviewButtonState();
       this.setSourceOptions();
@@ -102,12 +130,23 @@ let IssueReporter = class extends BaseIssueReporterService {
         const fileName = `extensionData_${formattedDate}_${formattedTime}.md`;
         try {
           const downloadPath = await this.fileDialogService.showSaveDialog({
-            title: localize("saveExtensionData", "Save Extension Data"),
+            title: localize(
+              "saveExtensionData",
+              "Save Extension Data"
+            ),
             availableFileSystems: [Schemas.file],
-            defaultUri: joinPath(await this.fileDialogService.defaultFilePath(Schemas.file), fileName)
+            defaultUri: joinPath(
+              await this.fileDialogService.defaultFilePath(
+                Schemas.file
+              ),
+              fileName
+            )
           });
           if (downloadPath) {
-            await this.fileService.writeFile(downloadPath, VSBuffer.fromString(extensionData));
+            await this.fileService.writeFile(
+              downloadPath,
+              VSBuffer.fromString(extensionData)
+            );
           }
         } catch (e) {
           console.error("Writing extension data to file failed");
@@ -127,7 +166,7 @@ let IssueReporter = class extends BaseIssueReporterService {
       }),
       headers: new Headers({
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${this.data.githubAccessToken}`
+        Authorization: `Bearer ${this.data.githubAccessToken}`
       })
     };
     const response = await fetch(url, init);
@@ -186,8 +225,11 @@ let IssueReporter = class extends BaseIssueReporterService {
       issueUrl = uri.toString();
     }
     const gitHubDetails = this.parseGitHubUrl(issueUrl);
-    const baseUrl = this.getIssueUrlWithTitle(this.getElementById("issue-title").value, issueUrl);
-    let url = baseUrl + `&body=${encodeURIComponent(issueBody)}`;
+    const baseUrl = this.getIssueUrlWithTitle(
+      this.getElementById("issue-title").value,
+      issueUrl
+    );
+    let url = `${baseUrl}&body=${encodeURIComponent(issueBody)}`;
     if (this.data.githubAccessToken && gitHubDetails) {
       if (await this.submitToGitHub(issueTitle, issueBody, gitHubDetails)) {
         return true;
@@ -210,10 +252,12 @@ let IssueReporter = class extends BaseIssueReporterService {
       throw new CancellationError();
     }
     await this.nativeHostService.writeClipboardText(issueBody);
-    return baseUrl + `&body=${encodeURIComponent(localize("pasteData", "We have written the needed data into your clipboard because it was too large to send. Please paste."))}`;
+    return `${baseUrl}&body=${encodeURIComponent(localize("pasteData", "We have written the needed data into your clipboard because it was too large to send. Please paste."))}`;
   }
   updateSystemInfo(state) {
-    const target = this.window.document.querySelector(".block-system .block-info");
+    const target = this.window.document.querySelector(
+      ".block-system .block-info"
+    );
     if (target) {
       const systemInfo = state.systemInfo;
       const renderedDataTable = $(
@@ -229,7 +273,13 @@ let IssueReporter = class extends BaseIssueReporterService {
           "tr",
           void 0,
           $("td", void 0, "GPU Status"),
-          $("td", void 0, Object.keys(systemInfo.gpuStatus).map((key) => `${key}: ${systemInfo.gpuStatus[key]}`).join("\n"))
+          $(
+            "td",
+            void 0,
+            Object.keys(systemInfo.gpuStatus).map(
+              (key) => `${key}: ${systemInfo.gpuStatus[key]}`
+            ).join("\n")
+          )
         ),
         $(
           "tr",
@@ -291,7 +341,11 @@ let IssueReporter = class extends BaseIssueReporterService {
               "tr",
               void 0,
               $("td", void 0, "Remote"),
-              $("td", void 0, remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName)
+              $(
+                "td",
+                void 0,
+                remote.latency ? `${remote.hostName} (latency: ${remote.latency.current.toFixed(2)}ms last, ${remote.latency.average.toFixed(2)}ms average)` : remote.hostName
+              )
             ),
             $(
               "tr",
@@ -331,7 +385,9 @@ let IssueReporter = class extends BaseIssueReporterService {
   }
   updateExperimentsInfo(experimentInfo) {
     this.issueReporterModel.update({ experimentInfo });
-    const target = this.window.document.querySelector(".block-experiments .block-info");
+    const target = this.window.document.querySelector(
+      ".block-experiments .block-info"
+    );
     if (target) {
       target.textContent = experimentInfo ? experimentInfo : localize("noCurrentExperiments", "No current experiments.");
     }

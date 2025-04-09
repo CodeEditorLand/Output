@@ -4,12 +4,20 @@ import { importAMDNodeModule } from "../../../amdX.js";
 import { onUnexpectedError } from "../../../base/common/errors.js";
 import { mixin } from "../../../base/common/objects.js";
 import { isWeb } from "../../../base/common/platform.js";
-import { ITelemetryAppender, validateTelemetryData } from "./telemetryUtils.js";
+import {
+  validateTelemetryData
+} from "./telemetryUtils.js";
 const endpointUrl = "https://mobile.events.data.microsoft.com/OneCollector/1.0";
 const endpointHealthUrl = "https://mobile.events.data.microsoft.com/ping";
 async function getClient(instrumentationKey, addInternalFlag, xhrOverride) {
-  const oneDs = isWeb ? await importAMDNodeModule("@microsoft/1ds-core-js", "bundle/ms.core.min.js") : await import("@microsoft/1ds-core-js");
-  const postPlugin = isWeb ? await importAMDNodeModule("@microsoft/1ds-post-js", "bundle/ms.post.min.js") : await import("@microsoft/1ds-post-js");
+  const oneDs = isWeb ? await importAMDNodeModule(
+    "@microsoft/1ds-core-js",
+    "bundle/ms.core.min.js"
+  ) : await import("@microsoft/1ds-core-js");
+  const postPlugin = isWeb ? await importAMDNodeModule(
+    "@microsoft/1ds-post-js",
+    "bundle/ms.post.min.js"
+  ) : await import("@microsoft/1ds-post-js");
   const appInsightsCore = new oneDs.AppInsightsCore();
   const collectorChannelPlugin = new postPlugin.PostChannel();
   const coreConfig = {
@@ -20,9 +28,7 @@ async function getClient(instrumentationKey, addInternalFlag, xhrOverride) {
     disableCookiesUsage: true,
     disableDbgExt: true,
     disableInstrumentationKeyValidation: true,
-    channels: [[
-      collectorChannelPlugin
-    ]]
+    channels: [[collectorChannelPlugin]]
   };
   if (xhrOverride) {
     coreConfig.extensionConfig = {};
@@ -78,7 +84,11 @@ class AbstractOneDataSystemAppender {
       return;
     }
     if (!this._asyncAiCore) {
-      this._asyncAiCore = getClient(this._aiCoreOrKey, this._isInternalTelemetry, this._xhrOverride);
+      this._asyncAiCore = getClient(
+        this._aiCoreOrKey,
+        this._isInternalTelemetry,
+        this._xhrOverride
+      );
     }
     this._asyncAiCore.then(
       (aiClient) => {
@@ -96,13 +106,17 @@ class AbstractOneDataSystemAppender {
     }
     data = mixin(data, this._defaultData);
     data = validateTelemetryData(data);
-    const name = this._eventPrefix + "/" + eventName;
+    const name = `${this._eventPrefix}/${eventName}`;
     try {
       this._withAIClient((aiClient) => {
         aiClient.pluginVersionString = data?.properties.version ?? "Unknown";
         aiClient.track({
           name,
-          baseData: { name, properties: data?.properties, measurements: data?.measurements }
+          baseData: {
+            name,
+            properties: data?.properties,
+            measurements: data?.measurements
+          }
         });
       });
     } catch {

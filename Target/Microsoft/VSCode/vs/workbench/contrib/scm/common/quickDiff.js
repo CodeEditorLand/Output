@@ -1,79 +1,130 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as nls from "../../../../nls.js";
-import { URI } from "../../../../base/common/uri.js";
-import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { LanguageSelector } from "../../../../editor/common/languageSelector.js";
-import { Event } from "../../../../base/common/event.js";
-import { LineRangeMapping } from "../../../../editor/common/diff/rangeMapping.js";
-import { IChange } from "../../../../editor/common/diff/legacyLinesDiffComputer.js";
-import { IColorTheme } from "../../../../platform/theme/common/themeService.js";
 import { Color } from "../../../../base/common/color.js";
+import * as nls from "../../../../nls.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
 import {
   darken,
   editorBackground,
+  editorErrorForeground,
   editorForeground,
   listInactiveSelectionBackground,
   opaque,
-  editorErrorForeground,
   registerColor,
   transparent
 } from "../../../../platform/theme/common/colorRegistry.js";
 const IQuickDiffService = createDecorator("quickDiff");
-const editorGutterModifiedBackground = registerColor("editorGutter.modifiedBackground", {
-  dark: "#1B81A8",
-  light: "#2090D3",
-  hcDark: "#1B81A8",
-  hcLight: "#2090D3"
-}, nls.localize("editorGutterModifiedBackground", "Editor gutter background color for lines that are modified."));
-const editorGutterAddedBackground = registerColor("editorGutter.addedBackground", {
-  dark: "#487E02",
-  light: "#48985D",
-  hcDark: "#487E02",
-  hcLight: "#48985D"
-}, nls.localize("editorGutterAddedBackground", "Editor gutter background color for lines that are added."));
+const editorGutterModifiedBackground = registerColor(
+  "editorGutter.modifiedBackground",
+  {
+    dark: "#1B81A8",
+    light: "#2090D3",
+    hcDark: "#1B81A8",
+    hcLight: "#2090D3"
+  },
+  nls.localize(
+    "editorGutterModifiedBackground",
+    "Editor gutter background color for lines that are modified."
+  )
+);
+const editorGutterAddedBackground = registerColor(
+  "editorGutter.addedBackground",
+  {
+    dark: "#487E02",
+    light: "#48985D",
+    hcDark: "#487E02",
+    hcLight: "#48985D"
+  },
+  nls.localize(
+    "editorGutterAddedBackground",
+    "Editor gutter background color for lines that are added."
+  )
+);
 const editorGutterDeletedBackground = registerColor(
   "editorGutter.deletedBackground",
   editorErrorForeground,
-  nls.localize("editorGutterDeletedBackground", "Editor gutter background color for lines that are deleted.")
+  nls.localize(
+    "editorGutterDeletedBackground",
+    "Editor gutter background color for lines that are deleted."
+  )
 );
 const minimapGutterModifiedBackground = registerColor(
   "minimapGutter.modifiedBackground",
   editorGutterModifiedBackground,
-  nls.localize("minimapGutterModifiedBackground", "Minimap gutter background color for lines that are modified.")
+  nls.localize(
+    "minimapGutterModifiedBackground",
+    "Minimap gutter background color for lines that are modified."
+  )
 );
 const minimapGutterAddedBackground = registerColor(
   "minimapGutter.addedBackground",
   editorGutterAddedBackground,
-  nls.localize("minimapGutterAddedBackground", "Minimap gutter background color for lines that are added.")
+  nls.localize(
+    "minimapGutterAddedBackground",
+    "Minimap gutter background color for lines that are added."
+  )
 );
 const minimapGutterDeletedBackground = registerColor(
   "minimapGutter.deletedBackground",
   editorGutterDeletedBackground,
-  nls.localize("minimapGutterDeletedBackground", "Minimap gutter background color for lines that are deleted.")
+  nls.localize(
+    "minimapGutterDeletedBackground",
+    "Minimap gutter background color for lines that are deleted."
+  )
 );
 const overviewRulerModifiedForeground = registerColor(
   "editorOverviewRuler.modifiedForeground",
   transparent(editorGutterModifiedBackground, 0.6),
-  nls.localize("overviewRulerModifiedForeground", "Overview ruler marker color for modified content.")
+  nls.localize(
+    "overviewRulerModifiedForeground",
+    "Overview ruler marker color for modified content."
+  )
 );
 const overviewRulerAddedForeground = registerColor(
   "editorOverviewRuler.addedForeground",
   transparent(editorGutterAddedBackground, 0.6),
-  nls.localize("overviewRulerAddedForeground", "Overview ruler marker color for added content.")
+  nls.localize(
+    "overviewRulerAddedForeground",
+    "Overview ruler marker color for added content."
+  )
 );
 const overviewRulerDeletedForeground = registerColor(
   "editorOverviewRuler.deletedForeground",
   transparent(editorGutterDeletedBackground, 0.6),
-  nls.localize("overviewRulerDeletedForeground", "Overview ruler marker color for deleted content.")
+  nls.localize(
+    "overviewRulerDeletedForeground",
+    "Overview ruler marker color for deleted content."
+  )
 );
 const editorGutterItemGlyphForeground = registerColor(
   "editorGutter.itemGlyphForeground",
-  { dark: editorForeground, light: editorForeground, hcDark: Color.black, hcLight: Color.white },
-  nls.localize("editorGutterItemGlyphForeground", "Editor gutter decoration color for gutter item glyphs.")
+  {
+    dark: editorForeground,
+    light: editorForeground,
+    hcDark: Color.black,
+    hcLight: Color.white
+  },
+  nls.localize(
+    "editorGutterItemGlyphForeground",
+    "Editor gutter decoration color for gutter item glyphs."
+  )
 );
-const editorGutterItemBackground = registerColor("editorGutter.itemBackground", { dark: opaque(listInactiveSelectionBackground, editorBackground), light: darken(opaque(listInactiveSelectionBackground, editorBackground), 0.05), hcDark: Color.white, hcLight: Color.black }, nls.localize("editorGutterItemBackground", "Editor gutter decoration color for gutter item background. This color should be opaque."));
+const editorGutterItemBackground = registerColor(
+  "editorGutter.itemBackground",
+  {
+    dark: opaque(listInactiveSelectionBackground, editorBackground),
+    light: darken(
+      opaque(listInactiveSelectionBackground, editorBackground),
+      0.05
+    ),
+    hcDark: Color.white,
+    hcLight: Color.black
+  },
+  nls.localize(
+    "editorGutterItemBackground",
+    "Editor gutter decoration color for gutter item background. This color should be opaque."
+  )
+);
 var ChangeType = /* @__PURE__ */ ((ChangeType2) => {
   ChangeType2[ChangeType2["Modify"] = 0] = "Modify";
   ChangeType2[ChangeType2["Add"] = 1] = "Add";

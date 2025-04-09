@@ -10,13 +10,19 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../../base/common/event.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { EditorsOrder, IEditorIdentifier } from "../../../common/editor.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { IWorkingCopy, IWorkingCopyIdentifier } from "./workingCopy.js";
-import { Disposable, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  EditorsOrder
+} from "../../../common/editor.js";
 import { IEditorService } from "../../editor/common/editorService.js";
 const IWorkingCopyEditorService = createDecorator("workingCopyEditorService");
 let WorkingCopyEditorService = class extends Disposable {
@@ -27,7 +33,9 @@ let WorkingCopyEditorService = class extends Disposable {
   static {
     __name(this, "WorkingCopyEditorService");
   }
-  _onDidRegisterHandler = this._register(new Emitter());
+  _onDidRegisterHandler = this._register(
+    new Emitter()
+  );
   onDidRegisterHandler = this._onDidRegisterHandler.event;
   handlers = /* @__PURE__ */ new Set();
   registerHandler(handler) {
@@ -36,7 +44,9 @@ let WorkingCopyEditorService = class extends Disposable {
     return toDisposable(() => this.handlers.delete(handler));
   }
   findEditor(workingCopy) {
-    for (const editorIdentifier of this.editorService.getEditors(EditorsOrder.MOST_RECENTLY_ACTIVE)) {
+    for (const editorIdentifier of this.editorService.getEditors(
+      EditorsOrder.MOST_RECENTLY_ACTIVE
+    )) {
       if (this.isOpen(workingCopy, editorIdentifier.editor)) {
         return editorIdentifier;
       }
@@ -55,7 +65,11 @@ let WorkingCopyEditorService = class extends Disposable {
 WorkingCopyEditorService = __decorateClass([
   __decorateParam(0, IEditorService)
 ], WorkingCopyEditorService);
-registerSingleton(IWorkingCopyEditorService, WorkingCopyEditorService, InstantiationType.Delayed);
+registerSingleton(
+  IWorkingCopyEditorService,
+  WorkingCopyEditorService,
+  InstantiationType.Delayed
+);
 export {
   IWorkingCopyEditorService,
   WorkingCopyEditorService

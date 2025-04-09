@@ -1,20 +1,24 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IShellIntegration, ShellIntegrationStatus } from "../terminal.js";
-import { Disposable, dispose, IDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
-import { TerminalCapabilityStore } from "../capabilities/terminalCapabilityStore.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  dispose,
+  toDisposable
+} from "../../../../base/common/lifecycle.js";
+import { removeAnsiEscapeCodesFromPrompt } from "../../../../base/common/strings.js";
+import { URI } from "../../../../base/common/uri.js";
+import { BufferMarkCapability } from "../capabilities/bufferMarkCapability.js";
+import {
+  TerminalCapability
+} from "../capabilities/capabilities.js";
 import { CommandDetectionCapability } from "../capabilities/commandDetectionCapability.js";
 import { CwdDetectionCapability } from "../capabilities/cwdDetectionCapability.js";
-import { IBufferMarkCapability, ICommandDetectionCapability, ICwdDetectionCapability, ISerializedCommandDetectionCapability, IShellEnvDetectionCapability, TerminalCapability } from "../capabilities/capabilities.js";
 import { PartialCommandDetectionCapability } from "../capabilities/partialCommandDetectionCapability.js";
-import { ILogService } from "../../../log/common/log.js";
-import { ITelemetryService } from "../../../telemetry/common/telemetry.js";
-import { Emitter } from "../../../../base/common/event.js";
-import { BufferMarkCapability } from "../capabilities/bufferMarkCapability.js";
-import { URI } from "../../../../base/common/uri.js";
-import { sanitizeCwd } from "../terminalEnvironment.js";
-import { removeAnsiEscapeCodesFromPrompt } from "../../../../base/common/strings.js";
 import { ShellEnvDetectionCapability } from "../capabilities/shellEnvDetectionCapability.js";
+import { TerminalCapabilityStore } from "../capabilities/terminalCapabilityStore.js";
+import { ShellIntegrationStatus } from "../terminal.js";
+import { sanitizeCwd } from "../terminalEnvironment.js";
 var ShellIntegrationOscPs = /* @__PURE__ */ ((ShellIntegrationOscPs2) => {
   ShellIntegrationOscPs2[ShellIntegrationOscPs2["FinalTerm"] = 133] = "FinalTerm";
   ShellIntegrationOscPs2[ShellIntegrationOscPs2["VSCode"] = 633] = "VSCode";
@@ -61,10 +65,12 @@ class ShellIntegrationAddon extends Disposable {
     this._disableTelemetry = _disableTelemetry;
     this._telemetryService = _telemetryService;
     this._logService = _logService;
-    this._register(toDisposable(() => {
-      this._clearActivationTimeout();
-      this._disposeCommonProtocol();
-    }));
+    this._register(
+      toDisposable(() => {
+        this._clearActivationTimeout();
+        this._disposeCommonProtocol();
+      })
+    );
   }
   static {
     __name(this, "ShellIntegrationAddon");
@@ -92,14 +98,42 @@ class ShellIntegrationAddon extends Disposable {
   }
   activate(xterm) {
     this._terminal = xterm;
-    this.capabilities.add(TerminalCapability.PartialCommandDetection, this._register(new PartialCommandDetectionCapability(this._terminal)));
-    this._register(xterm.parser.registerOscHandler(633 /* VSCode */, (data) => this._handleVSCodeSequence(data)));
-    this._register(xterm.parser.registerOscHandler(1337 /* ITerm */, (data) => this._doHandleITermSequence(data)));
-    this._commonProtocolDisposables.push(
-      xterm.parser.registerOscHandler(133 /* FinalTerm */, (data) => this._handleFinalTermSequence(data))
+    this.capabilities.add(
+      TerminalCapability.PartialCommandDetection,
+      this._register(
+        new PartialCommandDetectionCapability(this._terminal)
+      )
     );
-    this._register(xterm.parser.registerOscHandler(7 /* SetCwd */, (data) => this._doHandleSetCwd(data)));
-    this._register(xterm.parser.registerOscHandler(9 /* SetWindowsFriendlyCwd */, (data) => this._doHandleSetWindowsFriendlyCwd(data)));
+    this._register(
+      xterm.parser.registerOscHandler(
+        633 /* VSCode */,
+        (data) => this._handleVSCodeSequence(data)
+      )
+    );
+    this._register(
+      xterm.parser.registerOscHandler(
+        1337 /* ITerm */,
+        (data) => this._doHandleITermSequence(data)
+      )
+    );
+    this._commonProtocolDisposables.push(
+      xterm.parser.registerOscHandler(
+        133 /* FinalTerm */,
+        (data) => this._handleFinalTermSequence(data)
+      )
+    );
+    this._register(
+      xterm.parser.registerOscHandler(
+        7 /* SetCwd */,
+        (data) => this._doHandleSetCwd(data)
+      )
+    );
+    this._register(
+      xterm.parser.registerOscHandler(
+        9 /* SetWindowsFriendlyCwd */,
+        (data) => this._doHandleSetWindowsFriendlyCwd(data)
+      )
+    );
     this._ensureCapabilitiesOrAddFailureTelemetry();
   }
   getMarkerId(terminal, vscodeMarkerId) {
@@ -127,17 +161,25 @@ class ShellIntegrationAddon extends Disposable {
     this._markSequenceSeen(command);
     switch (command) {
       case "A" /* PromptStart */:
-        this._createOrGetCommandDetection(this._terminal).handlePromptStart();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handlePromptStart();
         return true;
       case "B" /* CommandStart */:
-        this._createOrGetCommandDetection(this._terminal).handleCommandStart({ ignoreCommandLine: true });
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleCommandStart({ ignoreCommandLine: true });
         return true;
       case "C" /* CommandExecuted */:
-        this._createOrGetCommandDetection(this._terminal).handleCommandExecuted();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleCommandExecuted();
         return true;
       case "D" /* CommandFinished */: {
-        const exitCode = args.length === 1 ? parseInt(args[0]) : void 0;
-        this._createOrGetCommandDetection(this._terminal).handleCommandFinished(exitCode);
+        const exitCode = args.length === 1 ? Number.parseInt(args[0]) : void 0;
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleCommandFinished(exitCode);
         return true;
       }
     }
@@ -163,7 +205,9 @@ class ShellIntegrationAddon extends Disposable {
     this._activationTimeout = setTimeout(() => {
       if (!this.capabilities.get(TerminalCapability.CommandDetection) && !this.capabilities.get(TerminalCapability.CwdDetection)) {
         this._telemetryService?.publicLog2("terminal/shellIntegrationActivationTimeout");
-        this._logService.warn("Shell integration failed to add capabilities within 10 seconds");
+        this._logService.warn(
+          "Shell integration failed to add capabilities within 10 seconds"
+        );
       }
       this._hasUpdatedTelemetry = true;
     }, 1e4);
@@ -184,18 +228,26 @@ class ShellIntegrationAddon extends Disposable {
     const args = argsIndex === -1 ? [] : data.substring(argsIndex + 1).split(";");
     switch (command) {
       case "A" /* PromptStart */:
-        this._createOrGetCommandDetection(this._terminal).handlePromptStart();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handlePromptStart();
         return true;
       case "B" /* CommandStart */:
-        this._createOrGetCommandDetection(this._terminal).handleCommandStart();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleCommandStart();
         return true;
       case "C" /* CommandExecuted */:
-        this._createOrGetCommandDetection(this._terminal).handleCommandExecuted();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleCommandExecuted();
         return true;
       case "D" /* CommandFinished */: {
         const arg0 = args[0];
-        const exitCode = arg0 !== void 0 ? parseInt(arg0) : void 0;
-        this._createOrGetCommandDetection(this._terminal).handleCommandFinished(exitCode);
+        const exitCode = arg0 !== void 0 ? Number.parseInt(arg0) : void 0;
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleCommandFinished(exitCode);
         return true;
       }
       case "E" /* CommandLine */: {
@@ -207,15 +259,21 @@ class ShellIntegrationAddon extends Disposable {
         } else {
           commandLine = "";
         }
-        this._createOrGetCommandDetection(this._terminal).setCommandLine(commandLine, arg1 === this._nonce);
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).setCommandLine(commandLine, arg1 === this._nonce);
         return true;
       }
       case "F" /* ContinuationStart */: {
-        this._createOrGetCommandDetection(this._terminal).handleContinuationStart();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleContinuationStart();
         return true;
       }
       case "G" /* ContinuationEnd */: {
-        this._createOrGetCommandDetection(this._terminal).handleContinuationEnd();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleContinuationEnd();
         return true;
       }
       case "EnvJson" /* EnvJson */: {
@@ -224,15 +282,24 @@ class ShellIntegrationAddon extends Disposable {
         if (arg0 !== void 0) {
           try {
             const env = JSON.parse(deserializeMessage(arg0));
-            this._createOrGetShellEnvDetection().setEnvironment(env, arg1 === this._nonce);
+            this._createOrGetShellEnvDetection().setEnvironment(
+              env,
+              arg1 === this._nonce
+            );
           } catch (e) {
-            this._logService.warn("Failed to parse environment from shell integration sequence", arg0);
+            this._logService.warn(
+              "Failed to parse environment from shell integration sequence",
+              arg0
+            );
           }
         }
         return true;
       }
       case "EnvSingleStart" /* EnvSingleStart */: {
-        this._createOrGetShellEnvDetection().startEnvironmentSingleVar(args[0] === "1", args[1] === this._nonce);
+        this._createOrGetShellEnvDetection().startEnvironmentSingleVar(
+          args[0] === "1",
+          args[1] === this._nonce
+        );
         return true;
       }
       case "EnvSingleDelete" /* EnvSingleDelete */: {
@@ -241,7 +308,11 @@ class ShellIntegrationAddon extends Disposable {
         const arg2 = args[2];
         if (arg0 !== void 0 && arg1 !== void 0) {
           const env = deserializeMessage(arg1);
-          this._createOrGetShellEnvDetection().deleteEnvironmentSingleVar(arg0, env, arg2 === this._nonce);
+          this._createOrGetShellEnvDetection().deleteEnvironmentSingleVar(
+            arg0,
+            env,
+            arg2 === this._nonce
+          );
         }
         return true;
       }
@@ -251,20 +322,30 @@ class ShellIntegrationAddon extends Disposable {
         const arg2 = args[2];
         if (arg0 !== void 0 && arg1 !== void 0) {
           const env = deserializeMessage(arg1);
-          this._createOrGetShellEnvDetection().setEnvironmentSingleVar(arg0, env, arg2 === this._nonce);
+          this._createOrGetShellEnvDetection().setEnvironmentSingleVar(
+            arg0,
+            env,
+            arg2 === this._nonce
+          );
         }
         return true;
       }
       case "EnvSingleEnd" /* EnvSingleEnd */: {
-        this._createOrGetShellEnvDetection().endEnvironmentSingleVar(args[0] === this._nonce);
+        this._createOrGetShellEnvDetection().endEnvironmentSingleVar(
+          args[0] === this._nonce
+        );
         return true;
       }
       case "H" /* RightPromptStart */: {
-        this._createOrGetCommandDetection(this._terminal).handleRightPromptStart();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleRightPromptStart();
         return true;
       }
       case "I" /* RightPromptEnd */: {
-        this._createOrGetCommandDetection(this._terminal).handleRightPromptEnd();
+        this._createOrGetCommandDetection(
+          this._terminal
+        ).handleRightPromptEnd();
         return true;
       }
       case "P" /* Property */: {
@@ -276,7 +357,9 @@ class ShellIntegrationAddon extends Disposable {
         }
         switch (key) {
           case "ContinuationPrompt": {
-            this._updateContinuationPrompt(removeAnsiEscapeCodesFromPrompt(value));
+            this._updateContinuationPrompt(
+              removeAnsiEscapeCodesFromPrompt(value)
+            );
             return true;
           }
           case "Cwd": {
@@ -284,20 +367,29 @@ class ShellIntegrationAddon extends Disposable {
             return true;
           }
           case "IsWindows": {
-            this._createOrGetCommandDetection(this._terminal).setIsWindowsPty(value === "True" ? true : false);
+            this._createOrGetCommandDetection(
+              this._terminal
+            ).setIsWindowsPty(value === "True");
             return true;
           }
           case "HasRichCommandDetection": {
-            this._createOrGetCommandDetection(this._terminal).setHasRichCommandDetection(value === "True" ? true : false);
+            this._createOrGetCommandDetection(
+              this._terminal
+            ).setHasRichCommandDetection(value === "True");
             return true;
           }
           case "Prompt": {
-            const sanitizedValue = value.replace(/\x1b\[[0-9;]*m/g, "");
+            const sanitizedValue = value.replace(
+              /\x1b\[[0-9;]*m/g,
+              ""
+            );
             this._updatePromptTerminator(sanitizedValue);
             return true;
           }
           case "PromptType": {
-            this._createOrGetCommandDetection(this._terminal).setPromptType(value);
+            this._createOrGetCommandDetection(
+              this._terminal
+            ).setPromptType(value);
             return true;
           }
           case "Task": {
@@ -308,7 +400,9 @@ class ShellIntegrationAddon extends Disposable {
         }
       }
       case "SetMark" /* SetMark */: {
-        this._createOrGetBufferMarkDetection(this._terminal).addMark(parseMarkSequence(args));
+        this._createOrGetBufferMarkDetection(this._terminal).addMark(
+          parseMarkSequence(args)
+        );
         return true;
       }
     }
@@ -318,22 +412,30 @@ class ShellIntegrationAddon extends Disposable {
     if (!this._terminal) {
       return;
     }
-    this._createOrGetCommandDetection(this._terminal).setContinuationPrompt(value);
+    this._createOrGetCommandDetection(this._terminal).setContinuationPrompt(
+      value
+    );
   }
   _updatePromptTerminator(prompt) {
     if (!this._terminal) {
       return;
     }
     const lastPromptLine = prompt.substring(prompt.lastIndexOf("\n") + 1);
-    const promptTerminator = lastPromptLine.substring(lastPromptLine.lastIndexOf(" "));
+    const promptTerminator = lastPromptLine.substring(
+      lastPromptLine.lastIndexOf(" ")
+    );
     if (promptTerminator) {
-      this._createOrGetCommandDetection(this._terminal).setPromptTerminator(promptTerminator, lastPromptLine);
+      this._createOrGetCommandDetection(
+        this._terminal
+      ).setPromptTerminator(promptTerminator, lastPromptLine);
     }
   }
   _updateCwd(value) {
     value = sanitizeCwd(value);
     this._createOrGetCwdDetection().updateCwd(value);
-    const commandDetection = this.capabilities.get(TerminalCapability.CommandDetection);
+    const commandDetection = this.capabilities.get(
+      TerminalCapability.CommandDetection
+    );
     commandDetection?.setCwd(value);
   }
   _doHandleITermSequence(data) {
@@ -365,7 +467,9 @@ class ShellIntegrationAddon extends Disposable {
       return false;
     }
     const [command, ...args] = data.split(";");
-    this._markSequenceSeen(`${9 /* SetWindowsFriendlyCwd */};${command}`);
+    this._markSequenceSeen(
+      `${9 /* SetWindowsFriendlyCwd */};${command}`
+    );
     switch (command) {
       case "9":
         if (args.length) {
@@ -402,48 +506,80 @@ class ShellIntegrationAddon extends Disposable {
         promptInputModel: void 0
       };
     }
-    const result = this._createOrGetCommandDetection(this._terminal).serialize();
+    const result = this._createOrGetCommandDetection(
+      this._terminal
+    ).serialize();
     return result;
   }
   deserialize(serialized) {
     if (!this._terminal) {
-      throw new Error("Cannot restore commands before addon is activated");
+      throw new Error(
+        "Cannot restore commands before addon is activated"
+      );
     }
-    const commandDetection = this._createOrGetCommandDetection(this._terminal);
+    const commandDetection = this._createOrGetCommandDetection(
+      this._terminal
+    );
     commandDetection.deserialize(serialized);
     if (commandDetection.cwd) {
       this._updateCwd(commandDetection.cwd);
     }
   }
   _createOrGetCwdDetection() {
-    let cwdDetection = this.capabilities.get(TerminalCapability.CwdDetection);
+    let cwdDetection = this.capabilities.get(
+      TerminalCapability.CwdDetection
+    );
     if (!cwdDetection) {
       cwdDetection = this._register(new CwdDetectionCapability());
-      this.capabilities.add(TerminalCapability.CwdDetection, cwdDetection);
+      this.capabilities.add(
+        TerminalCapability.CwdDetection,
+        cwdDetection
+      );
     }
     return cwdDetection;
   }
   _createOrGetCommandDetection(terminal) {
-    let commandDetection = this.capabilities.get(TerminalCapability.CommandDetection);
+    let commandDetection = this.capabilities.get(
+      TerminalCapability.CommandDetection
+    );
     if (!commandDetection) {
-      commandDetection = this._register(new CommandDetectionCapability(terminal, this._logService));
-      this.capabilities.add(TerminalCapability.CommandDetection, commandDetection);
+      commandDetection = this._register(
+        new CommandDetectionCapability(terminal, this._logService)
+      );
+      this.capabilities.add(
+        TerminalCapability.CommandDetection,
+        commandDetection
+      );
     }
     return commandDetection;
   }
   _createOrGetBufferMarkDetection(terminal) {
-    let bufferMarkDetection = this.capabilities.get(TerminalCapability.BufferMarkDetection);
+    let bufferMarkDetection = this.capabilities.get(
+      TerminalCapability.BufferMarkDetection
+    );
     if (!bufferMarkDetection) {
-      bufferMarkDetection = this._register(new BufferMarkCapability(terminal));
-      this.capabilities.add(TerminalCapability.BufferMarkDetection, bufferMarkDetection);
+      bufferMarkDetection = this._register(
+        new BufferMarkCapability(terminal)
+      );
+      this.capabilities.add(
+        TerminalCapability.BufferMarkDetection,
+        bufferMarkDetection
+      );
     }
     return bufferMarkDetection;
   }
   _createOrGetShellEnvDetection() {
-    let shellEnvDetection = this.capabilities.get(TerminalCapability.ShellEnvDetection);
+    let shellEnvDetection = this.capabilities.get(
+      TerminalCapability.ShellEnvDetection
+    );
     if (!shellEnvDetection) {
-      shellEnvDetection = this._register(new ShellEnvDetectionCapability());
-      this.capabilities.add(TerminalCapability.ShellEnvDetection, shellEnvDetection);
+      shellEnvDetection = this._register(
+        new ShellEnvDetectionCapability()
+      );
+      this.capabilities.add(
+        TerminalCapability.ShellEnvDetection,
+        shellEnvDetection
+      );
     }
     return shellEnvDetection;
   }
@@ -454,7 +590,7 @@ function deserializeMessage(message) {
     /\\(\\|x([0-9a-f]{2}))/gi,
     // If it's a hex value, parse it to a character.
     // Otherwise the operator is '\', which we return literally, now unescaped.
-    (_match, op, hex) => hex ? String.fromCharCode(parseInt(hex, 16)) : op
+    (_match, op, hex) => hex ? String.fromCharCode(Number.parseInt(hex, 16)) : op
   );
 }
 __name(deserializeMessage, "deserializeMessage");

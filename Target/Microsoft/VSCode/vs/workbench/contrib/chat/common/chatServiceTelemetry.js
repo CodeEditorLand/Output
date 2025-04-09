@@ -11,7 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { ChatAgentVoteDirection, ChatCopyKind, IChatUserActionEvent } from "./chatService.js";
+import {
+  ChatAgentVoteDirection,
+  ChatCopyKind
+} from "./chatService.js";
 let ChatServiceTelemetry = class {
   constructor(telemetryService) {
     this.telemetryService = telemetryService;

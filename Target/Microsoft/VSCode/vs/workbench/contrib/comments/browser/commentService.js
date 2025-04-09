@@ -10,26 +10,36 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CommentThreadChangedEvent, CommentInfo, Comment, CommentReaction, CommentingRanges, CommentThread, CommentOptions, PendingCommentThread, CommentingRangeResourceHint } from "../../../../editor/common/languages.js";
-import { createDecorator, IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI, UriComponents } from "../../../../base/common/uri.js";
-import { Range, IRange } from "../../../../editor/common/core/range.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { ICommentThreadChangedEvent } from "../common/commentModel.js";
-import { CommentMenus } from "./commentMenus.js";
-import { ICellRange } from "../../notebook/common/notebookRange.js";
-import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { COMMENTS_SECTION, ICommentsConfiguration } from "../common/commentsConfiguration.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { CommentContextKeys } from "../common/commentContextKeys.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
-import { CommentsModel, ICommentsModel } from "./commentsModel.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import {
+  createDecorator,
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { CommentContextKeys } from "../common/commentContextKeys.js";
+import {
+  COMMENTS_SECTION
+} from "../common/commentsConfiguration.js";
+import { CommentMenus } from "./commentMenus.js";
+import { CommentsModel } from "./commentsModel.js";
 const ICommentService = createDecorator("commentService");
 const CONTINUE_ON_COMMENTS = "comments.continueOnComments";
 let CommentService = class extends Disposable {
@@ -47,55 +57,79 @@ let CommentService = class extends Disposable {
     this._workspaceHasCommenting = CommentContextKeys.WorkspaceHasCommenting.bindTo(contextKeyService);
     this._commentingEnabled = CommentContextKeys.commentingEnabled.bindTo(contextKeyService);
     const storageListener = this._register(new DisposableStore());
-    const storageEvent = Event.debounce(this.storageService.onDidChangeValue(StorageScope.WORKSPACE, CONTINUE_ON_COMMENTS, storageListener), (last, event) => last?.external ? last : event, 500);
-    storageListener.add(storageEvent((v) => {
-      if (!v.external) {
-        return;
-      }
-      const commentsToRestore = this.storageService.getObject(CONTINUE_ON_COMMENTS, StorageScope.WORKSPACE);
-      if (!commentsToRestore) {
-        return;
-      }
-      this.logService.debug(`Comments: URIs of continue on comments from storage ${commentsToRestore.map((thread) => thread.uri.toString()).join(", ")}.`);
-      const changedOwners = this._addContinueOnComments(commentsToRestore, this._continueOnComments);
-      for (const uniqueOwner of changedOwners) {
-        const control = this._commentControls.get(uniqueOwner);
-        if (!control) {
-          continue;
+    const storageEvent = Event.debounce(
+      this.storageService.onDidChangeValue(
+        StorageScope.WORKSPACE,
+        CONTINUE_ON_COMMENTS,
+        storageListener
+      ),
+      (last, event) => last?.external ? last : event,
+      500
+    );
+    storageListener.add(
+      storageEvent((v) => {
+        if (!v.external) {
+          return;
         }
-        const evt = {
-          uniqueOwner,
-          owner: control.owner,
-          ownerLabel: control.label,
-          pending: this._continueOnComments.get(uniqueOwner) || [],
-          added: [],
-          removed: [],
-          changed: []
-        };
-        this.updateModelThreads(evt);
-      }
-    }));
-    this._register(storageService.onWillSaveState(() => {
-      const map = /* @__PURE__ */ new Map();
-      for (const provider of this._continueOnCommentProviders) {
-        const pendingComments = provider.provideContinueOnComments();
-        this._addContinueOnComments(pendingComments, map);
-      }
-      this._saveContinueOnComments(map);
-    }));
-    this._register(this.modelService.onModelAdded((model) => {
-      if (model.uri.scheme === Schemas.vscodeSourceControl) {
-        return;
-      }
-      if (!this._commentingRangeResources.has(model.uri.toString())) {
-        this.getDocumentComments(model.uri);
-      }
-    }));
+        const commentsToRestore = this.storageService.getObject(
+          CONTINUE_ON_COMMENTS,
+          StorageScope.WORKSPACE
+        );
+        if (!commentsToRestore) {
+          return;
+        }
+        this.logService.debug(
+          `Comments: URIs of continue on comments from storage ${commentsToRestore.map((thread) => thread.uri.toString()).join(", ")}.`
+        );
+        const changedOwners = this._addContinueOnComments(
+          commentsToRestore,
+          this._continueOnComments
+        );
+        for (const uniqueOwner of changedOwners) {
+          const control = this._commentControls.get(uniqueOwner);
+          if (!control) {
+            continue;
+          }
+          const evt = {
+            uniqueOwner,
+            owner: control.owner,
+            ownerLabel: control.label,
+            pending: this._continueOnComments.get(uniqueOwner) || [],
+            added: [],
+            removed: [],
+            changed: []
+          };
+          this.updateModelThreads(evt);
+        }
+      })
+    );
+    this._register(
+      storageService.onWillSaveState(() => {
+        const map = /* @__PURE__ */ new Map();
+        for (const provider of this._continueOnCommentProviders) {
+          const pendingComments = provider.provideContinueOnComments();
+          this._addContinueOnComments(pendingComments, map);
+        }
+        this._saveContinueOnComments(map);
+      })
+    );
+    this._register(
+      this.modelService.onModelAdded((model) => {
+        if (model.uri.scheme === Schemas.vscodeSourceControl) {
+          return;
+        }
+        if (!this._commentingRangeResources.has(model.uri.toString())) {
+          this.getDocumentComments(model.uri);
+        }
+      })
+    );
   }
   static {
     __name(this, "CommentService");
   }
-  _onDidSetDataProvider = this._register(new Emitter());
+  _onDidSetDataProvider = this._register(
+    new Emitter()
+  );
   onDidSetDataProvider = this._onDidSetDataProvider.event;
   _onDidDeleteDataProvider = this._register(new Emitter());
   onDidDeleteDataProvider = this._onDidDeleteDataProvider.event;
@@ -109,15 +143,25 @@ let CommentService = class extends Disposable {
   onDidUpdateNotebookCommentThreads = this._onDidUpdateNotebookCommentThreads.event;
   _onDidUpdateCommentingRanges = this._register(new Emitter());
   onDidUpdateCommentingRanges = this._onDidUpdateCommentingRanges.event;
-  _onDidChangeActiveEditingCommentThread = this._register(new Emitter());
+  _onDidChangeActiveEditingCommentThread = this._register(
+    new Emitter()
+  );
   onDidChangeActiveEditingCommentThread = this._onDidChangeActiveEditingCommentThread.event;
-  _onDidChangeCurrentCommentThread = this._register(new Emitter());
+  _onDidChangeCurrentCommentThread = this._register(
+    new Emitter()
+  );
   onDidChangeCurrentCommentThread = this._onDidChangeCurrentCommentThread.event;
-  _onDidChangeCommentingEnabled = this._register(new Emitter());
+  _onDidChangeCommentingEnabled = this._register(
+    new Emitter()
+  );
   onDidChangeCommentingEnabled = this._onDidChangeCommentingEnabled.event;
-  _onResourceHasCommentingRanges = this._register(new Emitter());
+  _onResourceHasCommentingRanges = this._register(
+    new Emitter()
+  );
   onResourceHasCommentingRanges = this._onResourceHasCommentingRanges.event;
-  _onDidChangeActiveCommentingRange = this._register(new Emitter());
+  _onDidChangeActiveCommentingRange = this._register(
+    new Emitter()
+  );
   onDidChangeActiveCommentingRange = this._onDidChangeActiveCommentingRange.event;
   _commentControls = /* @__PURE__ */ new Map();
   _commentMenus = /* @__PURE__ */ new Map();
@@ -127,7 +171,9 @@ let CommentService = class extends Disposable {
   _continueOnComments = /* @__PURE__ */ new Map();
   // uniqueOwner -> PendingCommentThread[]
   _continueOnCommentProviders = /* @__PURE__ */ new Set();
-  _commentsModel = this._register(new CommentsModel());
+  _commentsModel = this._register(
+    new CommentsModel()
+  );
   commentsModel = this._commentsModel;
   _commentingRangeResources = /* @__PURE__ */ new Set();
   // URIs
@@ -146,22 +192,26 @@ let CommentService = class extends Disposable {
   }
   _handleConfiguration() {
     this._isCommentingEnabled = this._defaultCommentingEnablement;
-    this._register(this.configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("comments.visible")) {
-        this.enableCommenting(this._defaultCommentingEnablement);
-      }
-    }));
+    this._register(
+      this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("comments.visible")) {
+          this.enableCommenting(this._defaultCommentingEnablement);
+        }
+      })
+    );
   }
   _handleZenMode() {
     let preZenModeValue = this._isCommentingEnabled;
-    this._register(this.layoutService.onDidChangeZenMode((e) => {
-      if (e) {
-        preZenModeValue = this._isCommentingEnabled;
-        this.enableCommenting(false);
-      } else {
-        this.enableCommenting(preZenModeValue);
-      }
-    }));
+    this._register(
+      this.layoutService.onDidChangeZenMode((e) => {
+        if (e) {
+          preZenModeValue = this._isCommentingEnabled;
+          this.enableCommenting(false);
+        } else {
+          this.enableCommenting(preZenModeValue);
+        }
+      })
+    );
   }
   get _defaultCommentingEnablement() {
     return !!this.configurationService.getValue(COMMENTS_SECTION)?.visible;
@@ -200,7 +250,9 @@ let CommentService = class extends Disposable {
       return;
     }
     if (commentController !== this._lastActiveCommentController) {
-      await this._lastActiveCommentController?.setActiveCommentAndThread(void 0);
+      await this._lastActiveCommentController?.setActiveCommentAndThread(
+        void 0
+      );
     }
     this._lastActiveCommentController = commentController;
     return commentController.setActiveCommentAndThread(commentInfo);
@@ -209,8 +261,17 @@ let CommentService = class extends Disposable {
     this._onDidSetResourceCommentInfos.fire({ resource, commentInfos });
   }
   setModelThreads(ownerId, owner, ownerLabel, commentThreads) {
-    this._commentsModel.setCommentThreads(ownerId, owner, ownerLabel, commentThreads);
-    this._onDidSetAllCommentThreads.fire({ ownerId, ownerLabel, commentThreads });
+    this._commentsModel.setCommentThreads(
+      ownerId,
+      owner,
+      ownerLabel,
+      commentThreads
+    );
+    this._onDidSetAllCommentThreads.fire({
+      ownerId,
+      ownerLabel,
+      commentThreads
+    });
   }
   updateModelThreads(event) {
     this._commentsModel.updateCommentThreads(event);
@@ -222,7 +283,12 @@ let CommentService = class extends Disposable {
     }
     const control = this._commentControls.get(uniqueOwner);
     if (control) {
-      this.setModelThreads(uniqueOwner, control.owner, control.label, commentsByResource);
+      this.setModelThreads(
+        uniqueOwner,
+        control.owner,
+        control.label,
+        commentsByResource
+      );
     }
   }
   removeWorkspaceComments(uniqueOwner) {
@@ -252,14 +318,21 @@ let CommentService = class extends Disposable {
     if (!commentController) {
       return;
     }
-    return commentController.createCommentThreadTemplate(resource, range, editorId);
+    return commentController.createCommentThreadTemplate(
+      resource,
+      range,
+      editorId
+    );
   }
   async updateCommentThreadTemplate(uniqueOwner, threadHandle, range) {
     const commentController = this._commentControls.get(uniqueOwner);
     if (!commentController) {
       return;
     }
-    await commentController.updateCommentThreadTemplate(threadHandle, range);
+    await commentController.updateCommentThreadTemplate(
+      threadHandle,
+      range
+    );
   }
   disposeCommentThread(uniqueOwner, threadId) {
     const controller = this.getCommentController(uniqueOwner);
@@ -276,12 +349,20 @@ let CommentService = class extends Disposable {
   updateComments(ownerId, event) {
     const control = this._commentControls.get(ownerId);
     if (control) {
-      const evt = Object.assign({}, event, { uniqueOwner: ownerId, ownerLabel: control.label, owner: control.owner });
+      const evt = Object.assign({}, event, {
+        uniqueOwner: ownerId,
+        ownerLabel: control.label,
+        owner: control.owner
+      });
       this.updateModelThreads(evt);
     }
   }
   updateNotebookComments(ownerId, event) {
-    const evt = Object.assign({}, event, { uniqueOwner: ownerId });
+    const evt = Object.assign(
+      {},
+      event,
+      { uniqueOwner: ownerId }
+    );
     this._onDidUpdateNotebookCommentThreads.fire(evt);
   }
   updateCommentingRanges(ownerId, resourceHints) {
@@ -296,7 +377,13 @@ let CommentService = class extends Disposable {
   async toggleReaction(uniqueOwner, resource, thread, comment, reaction) {
     const commentController = this._commentControls.get(uniqueOwner);
     if (commentController) {
-      return commentController.toggleReaction(resource, thread, comment, reaction, CancellationToken.None);
+      return commentController.toggleReaction(
+        resource,
+        thread,
+        comment,
+        reaction,
+        CancellationToken.None
+      );
     } else {
       throw new Error("Not supported");
     }
@@ -311,18 +398,28 @@ let CommentService = class extends Disposable {
   async getDocumentComments(resource) {
     const commentControlResult = [];
     for (const control of this._commentControls.values()) {
-      commentControlResult.push(control.getDocumentComments(resource, CancellationToken.None).then((documentComments) => {
-        for (const documentCommentThread of documentComments.threads) {
-          if (documentCommentThread.comments?.length === 0 && documentCommentThread.range) {
-            this.removeContinueOnComment({ range: documentCommentThread.range, uri: resource, uniqueOwner: documentComments.uniqueOwner });
+      commentControlResult.push(
+        control.getDocumentComments(resource, CancellationToken.None).then((documentComments) => {
+          for (const documentCommentThread of documentComments.threads) {
+            if (documentCommentThread.comments?.length === 0 && documentCommentThread.range) {
+              this.removeContinueOnComment({
+                range: documentCommentThread.range,
+                uri: resource,
+                uniqueOwner: documentComments.uniqueOwner
+              });
+            }
           }
-        }
-        const pendingComments = this._continueOnComments.get(documentComments.uniqueOwner);
-        documentComments.pendingCommentThreads = pendingComments?.filter((pendingComment) => pendingComment.uri.toString() === resource.toString());
-        return documentComments;
-      }).catch((_) => {
-        return null;
-      }));
+          const pendingComments = this._continueOnComments.get(
+            documentComments.uniqueOwner
+          );
+          documentComments.pendingCommentThreads = pendingComments?.filter(
+            (pendingComment) => pendingComment.uri.toString() === resource.toString()
+          );
+          return documentComments;
+        }).catch((_) => {
+          return null;
+        })
+      );
     }
     const commentInfos = await Promise.all(commentControlResult);
     this._updateResourcesWithCommentingRanges(resource, commentInfos);
@@ -331,9 +428,11 @@ let CommentService = class extends Disposable {
   async getNotebookComments(resource) {
     const commentControlResult = [];
     this._commentControls.forEach((control) => {
-      commentControlResult.push(control.getNotebookComments(resource, CancellationToken.None).catch((_) => {
-        return null;
-      }));
+      commentControlResult.push(
+        control.getNotebookComments(resource, CancellationToken.None).catch((_) => {
+          return null;
+        })
+      );
     });
     return Promise.all(commentControlResult);
   }
@@ -350,13 +449,24 @@ let CommentService = class extends Disposable {
     for (const pendingComments of map.values()) {
       commentsToSave.push(...pendingComments);
     }
-    this.logService.debug(`Comments: URIs of continue on comments to add to storage ${commentsToSave.map((thread) => thread.uri.toString()).join(", ")}.`);
-    this.storageService.store(CONTINUE_ON_COMMENTS, commentsToSave, StorageScope.WORKSPACE, StorageTarget.USER);
+    this.logService.debug(
+      `Comments: URIs of continue on comments to add to storage ${commentsToSave.map((thread) => thread.uri.toString()).join(", ")}.`
+    );
+    this.storageService.store(
+      CONTINUE_ON_COMMENTS,
+      commentsToSave,
+      StorageScope.WORKSPACE,
+      StorageTarget.USER
+    );
   }
   removeContinueOnComment(pendingComment) {
-    const pendingComments = this._continueOnComments.get(pendingComment.uniqueOwner);
+    const pendingComments = this._continueOnComments.get(
+      pendingComment.uniqueOwner
+    );
     if (pendingComments) {
-      const commentIndex = pendingComments.findIndex((comment) => comment.uri.toString() === pendingComment.uri.toString() && Range.equalsRange(comment.range, pendingComment.range) && (pendingComment.isReply === void 0 || comment.isReply === pendingComment.isReply));
+      const commentIndex = pendingComments.findIndex(
+        (comment) => comment.uri.toString() === pendingComment.uri.toString() && Range.equalsRange(comment.range, pendingComment.range) && (pendingComment.isReply === void 0 || comment.isReply === pendingComment.isReply)
+      );
       if (commentIndex > -1) {
         return pendingComments.splice(commentIndex, 1)[0];
       }
@@ -371,7 +481,12 @@ let CommentService = class extends Disposable {
         changedOwners.add(pendingComment.uniqueOwner);
       } else {
         const commentsForOwner = map.get(pendingComment.uniqueOwner);
-        if (commentsForOwner.every((comment) => comment.uri.toString() !== pendingComment.uri.toString() || !Range.equalsRange(comment.range, pendingComment.range))) {
+        if (commentsForOwner.every(
+          (comment) => comment.uri.toString() !== pendingComment.uri.toString() || !Range.equalsRange(
+            comment.range,
+            pendingComment.range
+          )
+        )) {
           commentsForOwner.push(pendingComment);
           changedOwners.add(pendingComment.uniqueOwner);
         }

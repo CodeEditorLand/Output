@@ -2,8 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { shuffle } from "./arrays.js";
 import { CharCode } from "./charCode.js";
-import { compare, compareIgnoreCase, compareSubstring, compareSubstringIgnoreCase } from "./strings.js";
-import { URI } from "./uri.js";
+import {
+  compare,
+  compareIgnoreCase,
+  compareSubstring,
+  compareSubstringIgnoreCase
+} from "./strings.js";
 class StringIterator {
   static {
     __name(this, "StringIterator");
@@ -68,7 +72,21 @@ class ConfigKeysIterator {
     return this;
   }
   cmp(a) {
-    return this._caseSensitive ? compareSubstring(a, this._value, 0, a.length, this._from, this._to) : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
+    return this._caseSensitive ? compareSubstring(
+      a,
+      this._value,
+      0,
+      a.length,
+      this._from,
+      this._to
+    ) : compareSubstringIgnoreCase(
+      a,
+      this._value,
+      0,
+      a.length,
+      this._from,
+      this._to
+    );
   }
   value() {
     return this._value.substring(this._from, this._to);
@@ -120,7 +138,21 @@ class PathIterator {
     return this;
   }
   cmp(a) {
-    return this._caseSensitive ? compareSubstring(a, this._value, 0, a.length, this._from, this._to) : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
+    return this._caseSensitive ? compareSubstring(
+      a,
+      this._value,
+      0,
+      a.length,
+      this._from,
+      this._to
+    ) : compareSubstringIgnoreCase(
+      a,
+      this._value,
+      0,
+      a.length,
+      this._from,
+      this._to
+    );
   }
   value() {
     return this._value.substring(this._from, this._to);
@@ -156,7 +188,10 @@ class UriIterator {
       this._states.push(2 /* Authority */);
     }
     if (this._value.path) {
-      this._pathIterator = new PathIterator(false, !this._ignorePathCasing(key));
+      this._pathIterator = new PathIterator(
+        false,
+        !this._ignorePathCasing(key)
+      );
       this._pathIterator.reset(key.path);
       if (this._pathIterator.value()) {
         this._states.push(3 /* Path */);
@@ -279,10 +314,14 @@ class TernarySearchTree {
     __name(this, "TernarySearchTree");
   }
   static forUris(ignorePathCasing = () => false, ignoreQueryAndFragment = () => false) {
-    return new TernarySearchTree(new UriIterator(ignorePathCasing, ignoreQueryAndFragment));
+    return new TernarySearchTree(
+      new UriIterator(ignorePathCasing, ignoreQueryAndFragment)
+    );
   }
   static forPaths(ignorePathCasing = false) {
-    return new TernarySearchTree(new PathIterator(void 0, !ignorePathCasing));
+    return new TernarySearchTree(
+      new PathIterator(void 0, !ignorePathCasing)
+    );
   }
   static forStrings() {
     return new TernarySearchTree(new StringIterator());
@@ -490,17 +529,17 @@ class TernarySearchTree {
       node2.updateHeight();
       const bf = node2.balanceFactor();
       if (bf > 1) {
-        if (node2.right.balanceFactor() >= 0) {
+        if (node2.right?.balanceFactor() >= 0) {
           stack[i][1] = node2.rotateLeft();
         } else {
-          node2.right = node2.right.rotateRight();
+          node2.right = node2.right?.rotateRight();
           stack[i][1] = node2.rotateLeft();
         }
       } else if (bf < -1) {
-        if (node2.left.balanceFactor() <= 0) {
+        if (node2.left?.balanceFactor() <= 0) {
           stack[i][1] = node2.rotateRight();
         } else {
-          node2.left = node2.left.rotateLeft();
+          node2.left = node2.left?.rotateLeft();
           stack[i][1] = node2.rotateRight();
         }
       }

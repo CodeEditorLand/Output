@@ -10,21 +10,37 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../base/common/uri.js";
-import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
-import { IFileService } from "../../files/common/files.js";
-import { IProductService } from "../../product/common/productService.js";
-import { asTextOrError, IRequestService } from "../../request/common/request.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { IEnvironmentService } from "../../environment/common/environment.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { AbstractExtensionResourceLoaderService, IExtensionResourceLoaderService } from "./extensionResourceLoader.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
 import { IExtensionGalleryManifestService } from "../../extensionManagement/common/extensionGalleryManifest.js";
+import { IFileService } from "../../files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
 import { ILogService } from "../../log/common/log.js";
+import { IProductService } from "../../product/common/productService.js";
+import {
+  asTextOrError,
+  IRequestService
+} from "../../request/common/request.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import {
+  AbstractExtensionResourceLoaderService,
+  IExtensionResourceLoaderService
+} from "./extensionResourceLoader.js";
 let ExtensionResourceLoaderService = class extends AbstractExtensionResourceLoaderService {
   constructor(fileService, storageService, productService, environmentService, configurationService, extensionGalleryManifestService, _requestService, logService) {
-    super(fileService, storageService, productService, environmentService, configurationService, extensionGalleryManifestService, logService);
+    super(
+      fileService,
+      storageService,
+      productService,
+      environmentService,
+      configurationService,
+      extensionGalleryManifestService,
+      logService
+    );
     this._requestService = _requestService;
   }
   static {
@@ -33,7 +49,10 @@ let ExtensionResourceLoaderService = class extends AbstractExtensionResourceLoad
   async readExtensionResource(uri) {
     if (await this.isExtensionGalleryResource(uri)) {
       const headers = await this.getExtensionGalleryRequestHeaders();
-      const requestContext = await this._requestService.request({ url: uri.toString(), headers }, CancellationToken.None);
+      const requestContext = await this._requestService.request(
+        { url: uri.toString(), headers },
+        CancellationToken.None
+      );
       return await asTextOrError(requestContext) || "";
     }
     const result = await this._fileService.readFile(uri);
@@ -50,7 +69,11 @@ ExtensionResourceLoaderService = __decorateClass([
   __decorateParam(6, IRequestService),
   __decorateParam(7, ILogService)
 ], ExtensionResourceLoaderService);
-registerSingleton(IExtensionResourceLoaderService, ExtensionResourceLoaderService, InstantiationType.Delayed);
+registerSingleton(
+  IExtensionResourceLoaderService,
+  ExtensionResourceLoaderService,
+  InstantiationType.Delayed
+);
 export {
   ExtensionResourceLoaderService
 };

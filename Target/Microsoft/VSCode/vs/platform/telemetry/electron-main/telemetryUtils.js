@@ -1,10 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getdevDeviceId } from "../../../base/node/id.js";
-import { ILogService } from "../../log/common/log.js";
-import { IStateService } from "../../state/node/state.js";
-import { machineIdKey, sqmIdKey, devDeviceIdKey } from "../common/telemetry.js";
-import { resolveMachineId as resolveNodeMachineId, resolveSqmId as resolveNodeSqmId, resolvedevDeviceId as resolveNodedevDeviceId } from "../node/telemetryUtils.js";
+import { devDeviceIdKey, machineIdKey, sqmIdKey } from "../common/telemetry.js";
+import {
+  resolvedevDeviceId as resolveNodedevDeviceId,
+  resolveMachineId as resolveNodeMachineId,
+  resolveSqmId as resolveNodeSqmId
+} from "../node/telemetryUtils.js";
 async function resolveMachineId(stateService, logService) {
   const machineId = await resolveNodeMachineId(stateService, logService);
   stateService.setItem(machineIdKey, machineId);
@@ -24,8 +26,13 @@ async function resolvedevDeviceId(stateService, logService) {
 }
 __name(resolvedevDeviceId, "resolvedevDeviceId");
 async function validatedevDeviceId(stateService, logService) {
-  const actualDeviceId = await getdevDeviceId(logService.error.bind(logService));
-  const currentDeviceId = await resolveNodedevDeviceId(stateService, logService);
+  const actualDeviceId = await getdevDeviceId(
+    logService.error.bind(logService)
+  );
+  const currentDeviceId = await resolveNodedevDeviceId(
+    stateService,
+    logService
+  );
   if (actualDeviceId !== currentDeviceId) {
     stateService.setItem(devDeviceIdKey, actualDeviceId);
   }

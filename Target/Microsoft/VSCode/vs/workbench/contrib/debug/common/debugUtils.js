@@ -1,26 +1,20 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { equalsIgnoreCase } from "../../../../base/common/strings.js";
-import { IDebuggerContribution, IDebugSession, IConfigPresentation } from "./debug.js";
-import { URI as uri } from "../../../../base/common/uri.js";
-import { isAbsolute } from "../../../../base/common/path.js";
-import { deepClone } from "../../../../base/common/objects.js";
-import { Schemas } from "../../../../base/common/network.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { IRange, Range } from "../../../../editor/common/core/range.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { coalesce } from "../../../../base/common/arrays.js";
-import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { deepClone } from "../../../../base/common/objects.js";
+import { isAbsolute } from "../../../../base/common/path.js";
+import { equalsIgnoreCase } from "../../../../base/common/strings.js";
+import { URI as uri } from "../../../../base/common/uri.js";
+import { Range } from "../../../../editor/common/core/range.js";
 const _formatPIIRegexp = /{([^}]+)}/g;
 function formatPII(value, excludePII, args) {
-  return value.replace(_formatPIIRegexp, function(match, group) {
+  return value.replace(_formatPIIRegexp, (match, group) => {
     if (excludePII && group.length > 0 && group[0] !== "_") {
       return match;
     }
-    return args && args.hasOwnProperty(group) ? args[group] : match;
+    return args?.hasOwnProperty(group) ? args[group] : match;
   });
 }
 __name(formatPII, "formatPII");
@@ -80,38 +74,66 @@ function getExactExpressionStartAndEnd(lineContent, looseStart, looseEnd) {
       }
     }
     if (subExpressionResult) {
-      matchingExpression = matchingExpression.substring(0, subExpression.lastIndex);
+      matchingExpression = matchingExpression.substring(
+        0,
+        subExpression.lastIndex
+      );
     }
   }
-  return matchingExpression ? { start: startOffset, end: startOffset + matchingExpression.length - 1 } : { start: 0, end: 0 };
+  return matchingExpression ? {
+    start: startOffset,
+    end: startOffset + matchingExpression.length - 1
+  } : { start: 0, end: 0 };
 }
 __name(getExactExpressionStartAndEnd, "getExactExpressionStartAndEnd");
 async function getEvaluatableExpressionAtPosition(languageFeaturesService, model, position, token) {
   if (languageFeaturesService.evaluatableExpressionProvider.has(model)) {
-    const supports = languageFeaturesService.evaluatableExpressionProvider.ordered(model);
-    const results = coalesce(await Promise.all(supports.map(async (support) => {
-      try {
-        return await support.provideEvaluatableExpression(model, position, token ?? CancellationToken.None);
-      } catch (err) {
-        return void 0;
-      }
-    })));
+    const supports = languageFeaturesService.evaluatableExpressionProvider.ordered(
+      model
+    );
+    const results = coalesce(
+      await Promise.all(
+        supports.map(async (support) => {
+          try {
+            return await support.provideEvaluatableExpression(
+              model,
+              position,
+              token ?? CancellationToken.None
+            );
+          } catch (err) {
+            return void 0;
+          }
+        })
+      )
+    );
     if (results.length > 0) {
       let matchingExpression = results[0].expression;
       const range = results[0].range;
       if (!matchingExpression) {
         const lineContent = model.getLineContent(position.lineNumber);
-        matchingExpression = lineContent.substring(range.startColumn - 1, range.endColumn - 1);
+        matchingExpression = lineContent.substring(
+          range.startColumn - 1,
+          range.endColumn - 1
+        );
       }
       return { range, matchingExpression };
     }
   } else {
     const lineContent = model.getLineContent(position.lineNumber);
-    const { start, end } = getExactExpressionStartAndEnd(lineContent, position.column, position.column);
+    const { start, end } = getExactExpressionStartAndEnd(
+      lineContent,
+      position.column,
+      position.column
+    );
     const matchingExpression = lineContent.substring(start - 1, end);
     return {
       matchingExpression,
-      range: new Range(position.lineNumber, start, position.lineNumber, start + matchingExpression.length)
+      range: new Range(
+        position.lineNumber,
+        start,
+        position.lineNumber,
+        start + matchingExpression.length
+      )
     };
   }
   return null;
@@ -119,7 +141,7 @@ async function getEvaluatableExpressionAtPosition(languageFeaturesService, model
 __name(getEvaluatableExpressionAtPosition, "getEvaluatableExpressionAtPosition");
 const _schemePattern = /^[a-zA-Z][a-zA-Z0-9\+\-\.]+:/;
 function isUri(s) {
-  return !!(s && s.match(_schemePattern));
+  return !!s?.match(_schemePattern);
 }
 __name(isUri, "isUri");
 function stringToUri(source) {
@@ -181,13 +203,22 @@ function convertPaths(msg, fixSourcePath) {
       const event = msg;
       switch (event.event) {
         case "output":
-          fixSourcePath(false, event.body.source);
+          fixSourcePath(
+            false,
+            event.body.source
+          );
           break;
         case "loadedSource":
-          fixSourcePath(false, event.body.source);
+          fixSourcePath(
+            false,
+            event.body.source
+          );
           break;
         case "breakpoint":
-          fixSourcePath(false, event.body.breakpoint.source);
+          fixSourcePath(
+            false,
+            event.body.breakpoint.source
+          );
           break;
         default:
           break;
@@ -198,19 +229,33 @@ function convertPaths(msg, fixSourcePath) {
       const request = msg;
       switch (request.command) {
         case "setBreakpoints":
-          fixSourcePath(true, request.arguments.source);
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
           break;
         case "breakpointLocations":
-          fixSourcePath(true, request.arguments.source);
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
           break;
         case "source":
-          fixSourcePath(true, request.arguments.source);
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
           break;
         case "gotoTargets":
-          fixSourcePath(true, request.arguments.source);
+          fixSourcePath(
+            true,
+            request.arguments.source
+          );
           break;
         case "launchVSCode":
-          request.arguments.args.forEach((arg) => fixSourcePath(false, arg));
+          request.arguments.args.forEach(
+            (arg) => fixSourcePath(false, arg)
+          );
           break;
         default:
           break;
@@ -222,28 +267,43 @@ function convertPaths(msg, fixSourcePath) {
       if (response.success && response.body) {
         switch (response.command) {
           case "stackTrace":
-            response.body.stackFrames.forEach((frame) => fixSourcePath(false, frame.source));
+            response.body.stackFrames.forEach(
+              (frame) => fixSourcePath(false, frame.source)
+            );
             break;
           case "loadedSources":
-            response.body.sources.forEach((source) => fixSourcePath(false, source));
+            response.body.sources.forEach(
+              (source) => fixSourcePath(false, source)
+            );
             break;
           case "scopes":
-            response.body.scopes.forEach((scope) => fixSourcePath(false, scope.source));
+            response.body.scopes.forEach(
+              (scope) => fixSourcePath(false, scope.source)
+            );
             break;
           case "setFunctionBreakpoints":
-            response.body.breakpoints.forEach((bp) => fixSourcePath(false, bp.source));
+            response.body.breakpoints.forEach(
+              (bp) => fixSourcePath(false, bp.source)
+            );
             break;
           case "setBreakpoints":
-            response.body.breakpoints.forEach((bp) => fixSourcePath(false, bp.source));
+            response.body.breakpoints.forEach(
+              (bp) => fixSourcePath(false, bp.source)
+            );
             break;
           case "disassemble":
             {
               const di = response;
-              di.body?.instructions.forEach((di2) => fixSourcePath(false, di2.location));
+              di.body?.instructions.forEach(
+                (di2) => fixSourcePath(false, di2.location)
+              );
             }
             break;
           case "locations":
-            fixSourcePath(false, response.body?.source);
+            fixSourcePath(
+              false,
+              response.body?.source
+            );
             break;
           default:
             break;
@@ -267,7 +327,10 @@ function getVisibleAndSorted(array) {
     }
     if (!first.presentation.group) {
       if (!second.presentation.group) {
-        return compareOrders(first.presentation.order, second.presentation.order);
+        return compareOrders(
+          first.presentation.order,
+          second.presentation.order
+        );
       }
       return 1;
     }
@@ -275,9 +338,14 @@ function getVisibleAndSorted(array) {
       return -1;
     }
     if (first.presentation.group !== second.presentation.group) {
-      return first.presentation.group.localeCompare(second.presentation.group);
+      return first.presentation.group.localeCompare(
+        second.presentation.group
+      );
     }
-    return compareOrders(first.presentation.order, second.presentation.order);
+    return compareOrders(
+      first.presentation.order,
+      second.presentation.order
+    );
   });
 }
 __name(getVisibleAndSorted, "getVisibleAndSorted");
@@ -295,13 +363,19 @@ function compareOrders(first, second) {
 }
 __name(compareOrders, "compareOrders");
 async function saveAllBeforeDebugStart(configurationService, editorService) {
-  const saveBeforeStartConfig = configurationService.getValue("debug.saveBeforeStart", { overrideIdentifier: editorService.activeTextEditorLanguageId });
+  const saveBeforeStartConfig = configurationService.getValue(
+    "debug.saveBeforeStart",
+    { overrideIdentifier: editorService.activeTextEditorLanguageId }
+  );
   if (saveBeforeStartConfig !== "none") {
     await editorService.saveAll();
     if (saveBeforeStartConfig === "allEditorsInActiveGroup") {
       const activeEditor = editorService.activeEditorPane;
       if (activeEditor && activeEditor.input.resource?.scheme === Schemas.untitled) {
-        await editorService.save({ editor: activeEditor.input, groupId: activeEditor.group.id });
+        await editorService.save({
+          editor: activeEditor.input,
+          groupId: activeEditor.group.id
+        });
       }
     }
   }

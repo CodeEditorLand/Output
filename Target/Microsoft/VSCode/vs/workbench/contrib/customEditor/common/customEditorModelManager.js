@@ -1,10 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { createSingleCallFunction } from "../../../../base/common/functional.js";
-import { IReference } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { ICustomEditorModel, ICustomEditorModelManager } from "./customEditor.js";
 class CustomEditorModelManager {
   static {
     __name(this, "CustomEditorModelManager");

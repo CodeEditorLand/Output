@@ -1,5 +1,7 @@
-import { LanguageFilter } from "../../../../../editor/common/languageSelector.js";
-import { COPILOT_CUSTOM_INSTRUCTIONS_FILENAME, PROMPT_FILE_EXTENSION } from "../../../../../platform/prompts/common/constants.js";
+import {
+  COPILOT_CUSTOM_INSTRUCTIONS_FILENAME,
+  PROMPT_FILE_EXTENSION
+} from "../../../../../platform/prompts/common/constants.js";
 const DOCUMENTATION_URL = "https://aka.ms/vscode-ghcp-prompt-snippets";
 const REUSABLE_PROMPT_FILE_PATTERNS = Object.freeze([
   /**

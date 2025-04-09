@@ -1,11 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { BrowserWindow } from "electron";
-import { IWebContentExtractorService } from "../common/webContentExtractor.js";
-import { URI } from "../../../base/common/uri.js";
-import { AXNode, convertAXTreeToMarkdown } from "./cdpAccessibilityDomain.js";
 import { Limiter } from "../../../base/common/async.js";
 import { ResourceMap } from "../../../base/common/map.js";
+import {
+  convertAXTreeToMarkdown
+} from "./cdpAccessibilityDomain.js";
 class NativeWebContentExtractorService {
   static {
     __name(this, "NativeWebContentExtractorService");
@@ -24,7 +24,9 @@ class NativeWebContentExtractorService {
     if (uris.length === 0) {
       return Promise.resolve([]);
     }
-    return Promise.all(uris.map((uri) => this._limiter.queue(() => this.doExtract(uri))));
+    return Promise.all(
+      uris.map((uri) => this._limiter.queue(() => this.doExtract(uri)))
+    );
   }
   async doExtract(uri) {
     const cached = this._webContentsCache.get(uri);
@@ -49,9 +51,14 @@ class NativeWebContentExtractorService {
     try {
       await win.loadURL(uri.toString(true));
       win.webContents.debugger.attach("1.1");
-      const result = await win.webContents.debugger.sendCommand("Accessibility.getFullAXTree");
+      const result = await win.webContents.debugger.sendCommand(
+        "Accessibility.getFullAXTree"
+      );
       const str = convertAXTreeToMarkdown(uri, result.nodes);
-      this._webContentsCache.set(uri, { content: str, timestamp: Date.now() });
+      this._webContentsCache.set(uri, {
+        content: str,
+        timestamp: Date.now()
+      });
       return str;
     } catch (err) {
       console.log(err);

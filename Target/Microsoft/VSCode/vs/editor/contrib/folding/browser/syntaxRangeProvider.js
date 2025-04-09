@@ -1,11 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../base/common/errors.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { ITextModel } from "../../../common/model.js";
-import { FoldingContext, FoldingRange, FoldingRangeProvider } from "../../../common/languages.js";
-import { FoldingLimitReporter, RangeProvider } from "./folding.js";
 import { FoldingRegions, MAX_LINE_NUMBER } from "./foldingRanges.js";
 const foldingContext = {};
 const ID_SYNTAX_PROVIDER = "syntax";
@@ -22,7 +18,9 @@ class SyntaxRangeProvider {
     }
     for (const provider of providers) {
       if (typeof provider.onDidChange === "function") {
-        this.disposables.add(provider.onDidChange(handleFoldingRangesChange));
+        this.disposables.add(
+          provider.onDidChange(handleFoldingRangesChange)
+        );
       }
     }
   }
@@ -32,7 +30,11 @@ class SyntaxRangeProvider {
   id = ID_SYNTAX_PROVIDER;
   disposables;
   compute(cancellationToken) {
-    return collectSyntaxRanges(this.providers, this.editorModel, cancellationToken).then((ranges) => {
+    return collectSyntaxRanges(
+      this.providers,
+      this.editorModel,
+      cancellationToken
+    ).then((ranges) => {
       if (this.editorModel.isDisposed()) {
         return null;
       }
@@ -50,7 +52,13 @@ class SyntaxRangeProvider {
 function collectSyntaxRanges(providers, model, cancellationToken) {
   let rangeData = null;
   const promises = providers.map((provider, i) => {
-    return Promise.resolve(provider.provideFoldingRanges(model, foldingContext, cancellationToken)).then((ranges) => {
+    return Promise.resolve(
+      provider.provideFoldingRanges(
+        model,
+        foldingContext,
+        cancellationToken
+      )
+    ).then((ranges) => {
       if (cancellationToken.isCancellationRequested) {
         return;
       }
@@ -61,7 +69,12 @@ function collectSyntaxRanges(providers, model, cancellationToken) {
         const nLines = model.getLineCount();
         for (const r of ranges) {
           if (r.start > 0 && r.end > r.start && r.end <= nLines) {
-            rangeData.push({ start: r.start, end: r.end, rank: i, kind: r.kind });
+            rangeData.push({
+              start: r.start,
+              end: r.end,
+              rank: i,
+              kind: r.kind
+            });
           }
         }
       }
@@ -161,13 +174,23 @@ function sanitizeRanges(rangeData, foldingRangesLimit) {
   for (const entry of sorted) {
     if (!top) {
       top = entry;
-      collector.add(entry.start, entry.end, entry.kind && entry.kind.value, previous.length);
+      collector.add(
+        entry.start,
+        entry.end,
+        entry.kind?.value,
+        previous.length
+      );
     } else {
       if (entry.start > top.start) {
         if (entry.end <= top.end) {
           previous.push(top);
           top = entry;
-          collector.add(entry.start, entry.end, entry.kind && entry.kind.value, previous.length);
+          collector.add(
+            entry.start,
+            entry.end,
+            entry.kind?.value,
+            previous.length
+          );
         } else {
           if (entry.start > top.end) {
             do {
@@ -178,7 +201,12 @@ function sanitizeRanges(rangeData, foldingRangesLimit) {
             }
             top = entry;
           }
-          collector.add(entry.start, entry.end, entry.kind && entry.kind.value, previous.length);
+          collector.add(
+            entry.start,
+            entry.end,
+            entry.kind?.value,
+            previous.length
+          );
         }
       }
     }

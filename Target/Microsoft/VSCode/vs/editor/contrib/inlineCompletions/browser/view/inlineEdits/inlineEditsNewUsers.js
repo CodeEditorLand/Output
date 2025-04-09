@@ -12,13 +12,25 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { timeout } from "../../../../../../base/common/async.js";
 import { BugIndicatingError } from "../../../../../../base/common/errors.js";
-import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
-import { autorun, autorunWithStore, derived, IObservable, observableValue, runOnChange, runOnChangeWithCancellationToken } from "../../../../../../base/common/observable.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../../base/common/lifecycle.js";
+import {
+  autorun,
+  autorunWithStore,
+  derived,
+  observableValue,
+  runOnChange,
+  runOnChangeWithCancellationToken
+} from "../../../../../../base/common/observable.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../../../platform/storage/common/storage.js";
-import { InlineEditsGutterIndicator } from "./components/gutterIndicatorView.js";
-import { IInlineEditHost, IInlineEditModel } from "./inlineEditsViewInterface.js";
-import { InlineEditsCollapsedView } from "./inlineEditsViews/inlineEditsCollapsedView.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../../../platform/storage/common/storage.js";
 var UserKind = /* @__PURE__ */ ((UserKind2) => {
   UserKind2["FirstTime"] = "firstTime";
   UserKind2["SecondTime"] = "secondTime";
@@ -38,15 +50,19 @@ let InlineEditsOnboardingExperience = class extends Disposable {
     if (this.getNewUserType() === "active" /* Active */) {
       this._disposables.value = this.setupNewUserExperience();
     }
-    this._register(autorunWithStore((reader, store) => {
-      const host = this._host.read(reader);
-      if (!host) {
-        return;
-      }
-      store.add(host.onDidAccept(() => {
-        this.setNewUserType("active" /* Active */);
-      }));
-    }));
+    this._register(
+      autorunWithStore((reader, store) => {
+        const host = this._host.read(reader);
+        if (!host) {
+          return;
+        }
+        store.add(
+          host.onDidAccept(() => {
+            this.setNewUserType("active" /* Active */);
+          })
+        );
+      })
+    );
     this._setupDone.set(true, void 0);
   }
   static {
@@ -54,20 +70,22 @@ let InlineEditsOnboardingExperience = class extends Disposable {
   }
   _disposables = this._register(new MutableDisposable());
   _setupDone = observableValue({ name: "setupDone" }, false);
-  _activeCompletionId = derived((reader) => {
-    const model = this._model.read(reader);
-    if (!model) {
-      return void 0;
+  _activeCompletionId = derived(
+    (reader) => {
+      const model = this._model.read(reader);
+      if (!model) {
+        return void 0;
+      }
+      if (!this._setupDone.read(reader)) {
+        return void 0;
+      }
+      const indicator = this._indicator.read(reader);
+      if (!indicator || !indicator.isVisible.read(reader)) {
+        return void 0;
+      }
+      return model.inlineEdit.inlineCompletion.id;
     }
-    if (!this._setupDone.read(reader)) {
-      return void 0;
-    }
-    const indicator = this._indicator.read(reader);
-    if (!indicator || !indicator.isVisible.read(reader)) {
-      return void 0;
-    }
-    return model.inlineEdit.inlineCompletion.id;
-  });
+  );
   setupNewUserExperience() {
     if (this.getNewUserType() === "active" /* Active */) {
       return Disposable.None;
@@ -77,95 +95,132 @@ let InlineEditsOnboardingExperience = class extends Disposable {
     let inlineEditHasBeenAccepted = false;
     let firstTimeUserAnimationCount = 0;
     let secondTimeUserAnimationCount = 0;
-    disposableStore.add(runOnChangeWithCancellationToken(this._activeCompletionId, async (id, _, __, token) => {
-      if (id === void 0) {
-        return;
-      }
-      let userType = this.getNewUserType();
-      switch (userType) {
-        case "firstTime" /* FirstTime */: {
-          if (firstTimeUserAnimationCount++ >= 5 || userHasHoveredOverIcon) {
-            userType = "secondTime" /* SecondTime */;
-            this.setNewUserType(userType);
+    disposableStore.add(
+      runOnChangeWithCancellationToken(
+        this._activeCompletionId,
+        async (id, _, __, token) => {
+          if (id === void 0) {
+            return;
           }
-          break;
-        }
-        case "secondTime" /* SecondTime */: {
-          if (secondTimeUserAnimationCount++ >= 5 && inlineEditHasBeenAccepted) {
-            userType = "active" /* Active */;
-            this.setNewUserType(userType);
+          let userType = this.getNewUserType();
+          switch (userType) {
+            case "firstTime" /* FirstTime */: {
+              if (firstTimeUserAnimationCount++ >= 5 || userHasHoveredOverIcon) {
+                userType = "secondTime" /* SecondTime */;
+                this.setNewUserType(userType);
+              }
+              break;
+            }
+            case "secondTime" /* SecondTime */: {
+              if (secondTimeUserAnimationCount++ >= 5 && inlineEditHasBeenAccepted) {
+                userType = "active" /* Active */;
+                this.setNewUserType(userType);
+              }
+              break;
+            }
           }
-          break;
-        }
-      }
-      switch (userType) {
-        case "firstTime" /* FirstTime */: {
-          for (let i = 0; i < 3 && !token.isCancellationRequested; i++) {
-            await this._indicator.get()?.triggerAnimation();
-            await timeout(500);
+          switch (userType) {
+            case "firstTime" /* FirstTime */: {
+              for (let i = 0; i < 3 && !token.isCancellationRequested; i++) {
+                await this._indicator.get()?.triggerAnimation();
+                await timeout(500);
+              }
+              break;
+            }
+            case "secondTime" /* SecondTime */: {
+              this._indicator.get()?.triggerAnimation();
+              break;
+            }
           }
-          break;
         }
-        case "secondTime" /* SecondTime */: {
-          this._indicator.get()?.triggerAnimation();
-          break;
+      )
+    );
+    disposableStore.add(
+      autorun((reader) => {
+        if (this._collapsedView.isVisible.read(reader)) {
+          if (this.getNewUserType() !== "active" /* Active */) {
+            this._collapsedView.triggerAnimation();
+          }
         }
-      }
-    }));
-    disposableStore.add(autorun((reader) => {
-      if (this._collapsedView.isVisible.read(reader)) {
-        if (this.getNewUserType() !== "active" /* Active */) {
-          this._collapsedView.triggerAnimation();
+      })
+    );
+    disposableStore.add(
+      autorunWithStore((reader, store) => {
+        const indicator = this._indicator.read(reader);
+        if (!indicator) {
+          return;
         }
-      }
-    }));
-    disposableStore.add(autorunWithStore((reader, store) => {
-      const indicator = this._indicator.read(reader);
-      if (!indicator) {
-        return;
-      }
-      store.add(runOnChange(indicator.isHoveredOverIcon, async (isHovered) => {
-        if (isHovered) {
-          userHasHoveredOverIcon = true;
+        store.add(
+          runOnChange(
+            indicator.isHoveredOverIcon,
+            async (isHovered) => {
+              if (isHovered) {
+                userHasHoveredOverIcon = true;
+              }
+            }
+          )
+        );
+      })
+    );
+    disposableStore.add(
+      autorunWithStore((reader, store) => {
+        const host = this._host.read(reader);
+        if (!host) {
+          return;
         }
-      }));
-    }));
-    disposableStore.add(autorunWithStore((reader, store) => {
-      const host = this._host.read(reader);
-      if (!host) {
-        return;
-      }
-      store.add(host.onDidAccept(() => {
-        inlineEditHasBeenAccepted = true;
-      }));
-    }));
+        store.add(
+          host.onDidAccept(() => {
+            inlineEditHasBeenAccepted = true;
+          })
+        );
+      })
+    );
     return disposableStore;
   }
   getNewUserType() {
-    return this._storageService.get("inlineEditsGutterIndicatorUserKind", StorageScope.APPLICATION, "firstTime" /* FirstTime */);
+    return this._storageService.get(
+      "inlineEditsGutterIndicatorUserKind",
+      StorageScope.APPLICATION,
+      "firstTime" /* FirstTime */
+    );
   }
   setNewUserType(value) {
     switch (value) {
       case "firstTime" /* FirstTime */:
-        throw new BugIndicatingError("UserKind should not be set to first time");
+        throw new BugIndicatingError(
+          "UserKind should not be set to first time"
+        );
       case "secondTime" /* SecondTime */:
         break;
       case "active" /* Active */:
         this._disposables.clear();
         break;
     }
-    this._storageService.store("inlineEditsGutterIndicatorUserKind", value, StorageScope.APPLICATION, StorageTarget.USER);
+    this._storageService.store(
+      "inlineEditsGutterIndicatorUserKind",
+      value,
+      StorageScope.APPLICATION,
+      StorageTarget.USER
+    );
   }
   _initializeDebugSetting() {
     const hiddenDebugSetting = "editor.inlineSuggest.edits.resetNewUserExperience";
     if (this._configurationService.getValue(hiddenDebugSetting)) {
-      this._storageService.remove("inlineEditsGutterIndicatorUserKind", StorageScope.APPLICATION);
+      this._storageService.remove(
+        "inlineEditsGutterIndicatorUserKind",
+        StorageScope.APPLICATION
+      );
     }
-    const disposable = this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration(hiddenDebugSetting) && this._configurationService.getValue(hiddenDebugSetting)) {
-        this._storageService.remove("inlineEditsGutterIndicatorUserKind", StorageScope.APPLICATION);
+    const disposable = this._configurationService.onDidChangeConfiguration(
+      (e) => {
+        if (e.affectsConfiguration(hiddenDebugSetting) && this._configurationService.getValue(hiddenDebugSetting)) {
+          this._storageService.remove(
+            "inlineEditsGutterIndicatorUserKind",
+            StorageScope.APPLICATION
+          );
+        }
       }
-    });
+    );
     return disposable;
   }
 };

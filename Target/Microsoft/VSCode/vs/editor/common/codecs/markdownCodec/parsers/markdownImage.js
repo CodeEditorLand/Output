@@ -9,13 +9,16 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import { MarkdownLink } from "../tokens/markdownLink.js";
-import { MarkdownImage } from "../tokens/markdownImage.js";
-import { TSimpleToken } from "../../simpleCodec/simpleDecoder.js";
+import {
+  assertNotConsumed,
+  ParserBase
+} from "../../simpleCodec/parserBase.js";
 import { LeftBracket } from "../../simpleCodec/tokens/brackets.js";
-import { ExclamationMark } from "../../simpleCodec/tokens/exclamationMark.js";
-import { assertNotConsumed, ParserBase, TAcceptTokenResult } from "../../simpleCodec/parserBase.js";
-import { MarkdownLinkCaption, PartialMarkdownLink, PartialMarkdownLinkCaption } from "./markdownLink.js";
+import { MarkdownImage } from "../tokens/markdownImage.js";
+import { MarkdownLink } from "../tokens/markdownLink.js";
+import {
+  PartialMarkdownLinkCaption
+} from "./markdownLink.js";
 class PartialMarkdownImage extends ParserBase {
   static {
     __name(this, "PartialMarkdownImage");
@@ -32,10 +35,7 @@ class PartialMarkdownImage extends ParserBase {
    */
   get tokens() {
     const linkTokens = this.markdownLinkParser?.tokens ?? [];
-    return [
-      ...this.currentTokens,
-      ...linkTokens
-    ];
+    return [...this.currentTokens, ...linkTokens];
   }
   accept(token) {
     if (!this.markdownLinkParser) {

@@ -2,23 +2,17 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { assert } from "../../../../base/common/assert.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { Event } from "../../../../base/common/event.js";
 import { Iterable } from "../../../../base/common/iterator.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { LinkedList } from "../../../../base/common/linkedList.js";
 import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { IObservable } from "../../../../base/common/observable.js";
-import { IPrefixTreeNode, WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
-import { URI } from "../../../../base/common/uri.js";
-import { Position } from "../../../../editor/common/core/position.js";
-import { Location } from "../../../../editor/common/languages.js";
+import {
+  WellDefinedPrefixTree
+} from "../../../../base/common/prefixTree.js";
 import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { MutableObservableValue } from "./observableValue.js";
-import { TestExclusions } from "./testExclusions.js";
 import { TestId } from "./testId.js";
-import { ITestResult } from "./testResult.js";
-import { AbstractIncrementalTestCollection, ICallProfileRunHandler, IncrementalTestCollectionItem, InternalTestItem, IStartControllerTests, IStartControllerTestsResult, ITestItemContext, ResolvedTestRunRequest, TestControllerCapability, TestItemExpandState, TestMessageFollowupRequest, TestMessageFollowupResponse, TestRunProfileBitset, TestsDiff } from "./testTypes.js";
+import {
+  TestItemExpandState
+} from "./testTypes.js";
 const ITestService = createDecorator("testService");
 const testCollectionIsEmpty = /* @__PURE__ */ __name((collection) => !Iterable.some(collection.rootItems, (r) => r.children.size > 0), "testCollectionIsEmpty");
 const getContextForTestItem = /* @__PURE__ */ __name((collection, id) => {
@@ -28,7 +22,10 @@ const getContextForTestItem = /* @__PURE__ */ __name((collection, id) => {
   if (id.isRoot) {
     return { controller: id.toString() };
   }
-  const context = { $mid: MarshalledId.TestItemContext, tests: [] };
+  const context = {
+    $mid: MarshalledId.TestItemContext,
+    tests: []
+  };
   for (const i of id.idsFromRoot()) {
     if (!i.isRoot) {
       const test = collection.getNodeById(i.toString());
@@ -76,7 +73,9 @@ const waitForTestToBeIdle = /* @__PURE__ */ __name((testService, test) => {
 const testsInFile = /* @__PURE__ */ __name(async function* (testService, ident, uri, waitForIdle = true) {
   const queue = new LinkedList();
   const existing = [...testService.collection.getNodeByUrl(uri)];
-  queue.push(existing.length ? existing.map((e) => e.item.extId) : testService.collection.rootIds);
+  queue.push(
+    existing.length ? existing.map((e) => e.item.extId) : testService.collection.rootIds
+  );
   let n = 0;
   while (queue.size > 0) {
     for (const id of queue.pop()) {

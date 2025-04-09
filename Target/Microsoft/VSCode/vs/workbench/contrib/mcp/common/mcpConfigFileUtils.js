@@ -1,8 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { findNodeAtLocation, parseTree as jsonParseTree } from "../../../../base/common/json.js";
-import { Location } from "../../../../editor/common/languages.js";
-import { ITextModel } from "../../../../editor/common/model.js";
+import {
+  findNodeAtLocation,
+  parseTree as jsonParseTree
+} from "../../../../base/common/json.js";
 const getMcpServerMapping = /* @__PURE__ */ __name((opts) => {
   const tree = jsonParseTree(opts.model.getValue());
   const servers = findNodeAtLocation(tree, opts.pathToServers);

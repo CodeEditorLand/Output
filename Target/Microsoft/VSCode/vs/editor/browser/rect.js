@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { BugIndicatingError } from "../../base/common/errors.js";
-import { OffsetRange } from "../common/core/offsetRange.js";
 import { Point } from "./point.js";
 class Rect {
   constructor(left, top, right, bottom) {
@@ -32,7 +31,12 @@ class Rect {
     return new Rect(left, top, left + width, top + height);
   }
   static fromRanges(leftRight, topBottom) {
-    return new Rect(leftRight.start, topBottom.start, leftRight.endExclusive, topBottom.endExclusive);
+    return new Rect(
+      leftRight.start,
+      topBottom.start,
+      leftRight.endExclusive,
+      topBottom.endExclusive
+    );
   }
   static hull(rects) {
     let left = Number.MAX_SAFE_INTEGER;
@@ -54,7 +58,10 @@ class Rect {
     return this.bottom - this.top;
   }
   withMargin(marginOrVerticalOrTop, rightOrHorizontal, bottom, left) {
-    let marginLeft, marginRight, marginTop, marginBottom;
+    let marginLeft;
+    let marginRight;
+    let marginTop;
+    let marginBottom;
     if (rightOrHorizontal === void 0 && bottom === void 0 && left === void 0) {
       marginLeft = marginRight = marginTop = marginBottom = marginOrVerticalOrTop;
     } else if (bottom === void 0 && left === void 0) {
@@ -150,10 +157,20 @@ class Rect {
     return new Rect(left, this.top, this.right, this.bottom);
   }
   translateX(delta) {
-    return new Rect(this.left + delta, this.top, this.right + delta, this.bottom);
+    return new Rect(
+      this.left + delta,
+      this.top,
+      this.right + delta,
+      this.bottom
+    );
   }
   translateY(delta) {
-    return new Rect(this.left, this.top + delta, this.right, this.bottom + delta);
+    return new Rect(
+      this.left,
+      this.top + delta,
+      this.right,
+      this.bottom + delta
+    );
   }
   deltaRight(delta) {
     return new Rect(this.left, this.top, this.right + delta, this.bottom);

@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CONTEXT_MENU_CHANNEL, CONTEXT_MENU_CLOSE_CHANNEL, IContextMenuEvent, IContextMenuItem, IPopupOptions, ISerializableContextMenuItem } from "../common/contextmenu.js";
 import { ipcRenderer } from "../../sandbox/electron-sandbox/globals.js";
+import {
+  CONTEXT_MENU_CHANNEL,
+  CONTEXT_MENU_CLOSE_CHANNEL
+} from "../common/contextmenu.js";
 let contextMenuIdPool = 0;
 function popup(items, options, onHide) {
   const processedItems = [];
@@ -12,14 +15,23 @@ function popup(items, options, onHide) {
     item.click?.(context);
   }, "onClickChannelHandler");
   ipcRenderer.once(onClickChannel, onClickChannelHandler);
-  ipcRenderer.once(CONTEXT_MENU_CLOSE_CHANNEL, (event, closedContextMenuId) => {
-    if (closedContextMenuId !== contextMenuId) {
-      return;
+  ipcRenderer.once(
+    CONTEXT_MENU_CLOSE_CHANNEL,
+    (event, closedContextMenuId) => {
+      if (closedContextMenuId !== contextMenuId) {
+        return;
+      }
+      ipcRenderer.removeListener(onClickChannel, onClickChannelHandler);
+      onHide?.();
     }
-    ipcRenderer.removeListener(onClickChannel, onClickChannelHandler);
-    onHide?.();
-  });
-  ipcRenderer.send(CONTEXT_MENU_CHANNEL, contextMenuId, items.map((item) => createItem(item, processedItems)), onClickChannel, options);
+  );
+  ipcRenderer.send(
+    CONTEXT_MENU_CHANNEL,
+    contextMenuId,
+    items.map((item) => createItem(item, processedItems)),
+    onClickChannel,
+    options
+  );
 }
 __name(popup, "popup");
 function createItem(item, processedItems) {
@@ -34,7 +46,9 @@ function createItem(item, processedItems) {
   };
   processedItems.push(item);
   if (Array.isArray(item.submenu)) {
-    serializableItem.submenu = item.submenu.map((submenuItem) => createItem(submenuItem, processedItems));
+    serializableItem.submenu = item.submenu.map(
+      (submenuItem) => createItem(submenuItem, processedItems)
+    );
   }
   return serializableItem;
 }

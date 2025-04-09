@@ -10,20 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../base/common/uri.js";
 import { Event } from "../../../../base/common/event.js";
-import { IEditorMemento, IEditorCloseEvent, IEditorOpenContext, EditorResourceAccessor, SideBySideEditor } from "../../../common/editor.js";
-import { EditorPane } from "./editorPane.js";
-import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import {
+  MutableDisposable
+} from "../../../../base/common/lifecycle.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
 import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IEditorGroupsService, IEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+import {
+  EditorResourceAccessor,
+  SideBySideEditor
+} from "../../../common/editor.js";
+import {
+  IEditorGroupsService
+} from "../../../services/editor/common/editorGroupsService.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { IExtUri } from "../../../../base/common/resources.js";
-import { IDisposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
-import { EditorInput } from "../../../common/editor/editorInput.js";
+import { EditorPane } from "./editorPane.js";
 let AbstractEditorWithViewState = class extends EditorPane {
   constructor(id, group, viewStateStorageKey, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorService, editorGroupService) {
     super(id, group, telemetryService, themeService, storageService);
@@ -31,7 +35,12 @@ let AbstractEditorWithViewState = class extends EditorPane {
     this.textResourceConfigurationService = textResourceConfigurationService;
     this.editorService = editorService;
     this.editorGroupService = editorGroupService;
-    this.viewState = this.getEditorMemento(editorGroupService, textResourceConfigurationService, viewStateStorageKey, 100);
+    this.viewState = this.getEditorMemento(
+      editorGroupService,
+      textResourceConfigurationService,
+      viewStateStorageKey,
+      100
+    );
   }
   static {
     __name(this, "AbstractEditorWithViewState");
@@ -40,7 +49,9 @@ let AbstractEditorWithViewState = class extends EditorPane {
   groupListener = this._register(new MutableDisposable());
   editorViewStateDisposables;
   setEditorVisible(visible) {
-    this.groupListener.value = this.group.onWillCloseEditor((e) => this.onWillCloseEditor(e));
+    this.groupListener.value = this.group.onWillCloseEditor(
+      (e) => this.onWillCloseEditor(e)
+    );
     super.setEditorVisible(visible);
   }
   onWillCloseEditor(e) {
@@ -70,10 +81,13 @@ let AbstractEditorWithViewState = class extends EditorPane {
         this.editorViewStateDisposables = /* @__PURE__ */ new Map();
       }
       if (!this.editorViewStateDisposables.has(input)) {
-        this.editorViewStateDisposables.set(input, Event.once(input.onWillDispose)(() => {
-          this.clearEditorViewState(resource, this.group);
-          this.editorViewStateDisposables?.delete(input);
-        }));
+        this.editorViewStateDisposables.set(
+          input,
+          Event.once(input.onWillDispose)(() => {
+            this.clearEditorViewState(resource, this.group);
+            this.editorViewStateDisposables?.delete(input);
+          })
+        );
       }
     }
     if (input.isDisposed() && !this.tracksDisposedEditorViewState() || !this.shouldRestoreEditorViewState(input) && !this.group.contains(input)) {
@@ -84,7 +98,12 @@ let AbstractEditorWithViewState = class extends EditorPane {
   }
   shouldRestoreEditorViewState(input, context) {
     if (context?.newInGroup) {
-      return this.textResourceConfigurationService.getValue(EditorResourceAccessor.getOriginalUri(input, { supportSideBySide: SideBySideEditor.PRIMARY }), "workbench.editor.restoreViewState") === false ? false : true;
+      return this.textResourceConfigurationService.getValue(
+        EditorResourceAccessor.getOriginalUri(input, {
+          supportSideBySide: SideBySideEditor.PRIMARY
+        }),
+        "workbench.editor.restoreViewState"
+      ) !== false;
     }
     return true;
   }

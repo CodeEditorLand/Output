@@ -1,11 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IReader, IObservable } from "./base.js";
-import { DebugOwner, DebugNameData } from "./debugName.js";
-import { CancellationError, CancellationToken, CancellationTokenSource } from "./commonFacade/cancellation.js";
-import { Derived } from "./derived.js";
-import { strictEquals } from "./commonFacade/deps.js";
 import { autorun } from "./autorun.js";
+import {
+  CancellationError,
+  CancellationTokenSource
+} from "./commonFacade/cancellation.js";
+import { strictEquals } from "./commonFacade/deps.js";
+import { DebugNameData } from "./debugName.js";
+import { Derived } from "./derived.js";
 function waitForState(observable, predicate, isError, cancellationToken) {
   if (!predicate) {
     predicate = /* @__PURE__ */ __name((state) => state !== null && state !== void 0, "predicate");

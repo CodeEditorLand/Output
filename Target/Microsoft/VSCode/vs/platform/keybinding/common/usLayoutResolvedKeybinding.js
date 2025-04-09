@@ -1,7 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { KeyCode, KeyCodeUtils, IMMUTABLE_CODE_TO_KEY_CODE, ScanCode } from "../../../base/common/keyCodes.js";
-import { SingleModifierChord, Chord, KeyCodeChord, Keybinding } from "../../../base/common/keybindings.js";
+import {
+  KeyCodeChord
+} from "../../../base/common/keybindings.js";
+import {
+  IMMUTABLE_CODE_TO_KEY_CODE,
+  KeyCode,
+  KeyCodeUtils,
+  ScanCode
+} from "../../../base/common/keyCodes.js";
 import { OperatingSystem } from "../../../base/common/platform.js";
 import { BaseResolvedKeybinding } from "./baseResolvedKeybinding.js";
 import { toEmptyArrayIfContainsNull } from "./resolvedKeybindingItem.js";
@@ -208,14 +215,26 @@ class USLayoutResolvedKeybinding extends BaseResolvedKeybinding {
     if (chord instanceof KeyCodeChord) {
       return chord;
     }
-    const keyCode = this._scanCodeToKeyCode(chord.scanCode);
+    const keyCode = USLayoutResolvedKeybinding._scanCodeToKeyCode(
+      chord.scanCode
+    );
     if (keyCode === KeyCode.Unknown) {
       return null;
     }
-    return new KeyCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, keyCode);
+    return new KeyCodeChord(
+      chord.ctrlKey,
+      chord.shiftKey,
+      chord.altKey,
+      chord.metaKey,
+      keyCode
+    );
   }
   static resolveKeybinding(keybinding, os) {
-    const chords = toEmptyArrayIfContainsNull(keybinding.chords.map((chord) => this._toKeyCodeChord(chord)));
+    const chords = toEmptyArrayIfContainsNull(
+      keybinding.chords.map(
+        (chord) => USLayoutResolvedKeybinding._toKeyCodeChord(chord)
+      )
+    );
     if (chords.length > 0) {
       return [new USLayoutResolvedKeybinding(chords, os)];
     }

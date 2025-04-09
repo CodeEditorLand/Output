@@ -10,24 +10,53 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IAction, Separator, toAction } from "../../../base/common/actions.js";
-import { localize } from "../../../nls.js";
-import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
-import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
-import { Disposable } from "../../../base/common/lifecycle.js";
-import { EventHelper, addDisposableListener, getActiveDocument, getWindow, isHTMLInputElement, isHTMLTextAreaElement } from "../../../base/browser/dom.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../common/contributions.js";
-import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import {
+  addDisposableListener,
+  EventHelper,
+  getActiveDocument,
+  getWindow,
+  isHTMLInputElement,
+  isHTMLTextAreaElement
+} from "../../../base/browser/dom.js";
 import { StandardMouseEvent } from "../../../base/browser/mouseEvent.js";
+import {
+  Separator,
+  toAction
+} from "../../../base/common/actions.js";
 import { Event as BaseEvent } from "../../../base/common/event.js";
 import { Lazy } from "../../../base/common/lazy.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { localize } from "../../../nls.js";
+import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { IContextMenuService } from "../../../platform/contextview/browser/contextView.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../common/contributions.js";
+import { IWorkbenchLayoutService } from "../../services/layout/browser/layoutService.js";
 function createTextInputActions(clipboardService) {
   return [
-    toAction({ id: "undo", label: localize("undo", "Undo"), run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("undo"), "run") }),
-    toAction({ id: "redo", label: localize("redo", "Redo"), run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("redo"), "run") }),
+    toAction({
+      id: "undo",
+      label: localize("undo", "Undo"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("undo"), "run")
+    }),
+    toAction({
+      id: "redo",
+      label: localize("redo", "Redo"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("redo"), "run")
+    }),
     new Separator(),
-    toAction({ id: "editor.action.clipboardCutAction", label: localize("cut", "Cut"), run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("cut"), "run") }),
-    toAction({ id: "editor.action.clipboardCopyAction", label: localize("copy", "Copy"), run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("copy"), "run") }),
+    toAction({
+      id: "editor.action.clipboardCutAction",
+      label: localize("cut", "Cut"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("cut"), "run")
+    }),
+    toAction({
+      id: "editor.action.clipboardCopyAction",
+      label: localize("copy", "Copy"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("copy"), "run")
+    }),
     toAction({
       id: "editor.action.clipboardPasteAction",
       label: localize("paste", "Paste"),
@@ -39,12 +68,18 @@ function createTextInputActions(clipboardService) {
           element.value = `${element.value.substring(0, selectionStart)}${clipboardText}${element.value.substring(selectionEnd, element.value.length)}`;
           element.selectionStart = selectionStart + clipboardText.length;
           element.selectionEnd = element.selectionStart;
-          element.dispatchEvent(new Event("input", { bubbles: true, cancelable: true }));
+          element.dispatchEvent(
+            new Event("input", { bubbles: true, cancelable: true })
+          );
         }
       }, "run")
     }),
     new Separator(),
-    toAction({ id: "editor.action.selectAll", label: localize("selectAll", "Select All"), run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("selectAll"), "run") })
+    toAction({
+      id: "editor.action.selectAll",
+      label: localize("selectAll", "Select All"),
+      run: /* @__PURE__ */ __name(() => getActiveDocument().execCommand("selectAll"), "run")
+    })
   ];
 }
 __name(createTextInputActions, "createTextInputActions");
@@ -60,11 +95,28 @@ let TextInputActionsProvider = class extends Disposable {
     __name(this, "TextInputActionsProvider");
   }
   static ID = "workbench.contrib.textInputActionsProvider";
-  textInputActions = new Lazy(() => createTextInputActions(this.clipboardService));
+  textInputActions = new Lazy(
+    () => createTextInputActions(this.clipboardService)
+  );
   registerListeners() {
-    this._register(BaseEvent.runAndSubscribe(this.layoutService.onDidAddContainer, ({ container, disposables }) => {
-      disposables.add(addDisposableListener(container, "contextmenu", (e) => this.onContextMenu(getWindow(container), e)));
-    }, { container: this.layoutService.mainContainer, disposables: this._store }));
+    this._register(
+      BaseEvent.runAndSubscribe(
+        this.layoutService.onDidAddContainer,
+        ({ container, disposables }) => {
+          disposables.add(
+            addDisposableListener(
+              container,
+              "contextmenu",
+              (e) => this.onContextMenu(getWindow(container), e)
+            )
+          );
+        },
+        {
+          container: this.layoutService.mainContainer,
+          disposables: this._store
+        }
+      )
+    );
   }
   onContextMenu(targetWindow, e) {
     if (e.defaultPrevented) {

@@ -1,11 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { isHTMLElement } from "../../../../base/browser/dom.js";
-import { isManagedHoverTooltipMarkdownString } from "../../../../base/browser/ui/hover/hover.js";
+import {
+  isManagedHoverTooltipMarkdownString
+} from "../../../../base/browser/ui/hover/hover.js";
 import { HoverPosition } from "../../../../base/browser/ui/hover/hoverWidget.js";
 import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
-import { isMarkdownString } from "../../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  isMarkdownString
+} from "../../../../base/common/htmlContent.js";
 import { isFunction, isString } from "../../../../base/common/types.js";
 import { localize } from "../../../../nls.js";
 class ManagedHoverWidget {
@@ -36,7 +39,9 @@ class ManagedHoverWidget {
       let managedContent;
       if (isManagedHoverTooltipMarkdownString(content)) {
         if (isFunction(content.markdown)) {
-          managedContent = content.markdown(token).then((resolvedContent2) => resolvedContent2 ?? content.markdownNotSupportedFallback);
+          managedContent = content.markdown(token).then(
+            (resolvedContent2) => resolvedContent2 ?? content.markdownNotSupportedFallback
+          );
         } else {
           managedContent = content.markdown ?? content.markdownNotSupportedFallback;
         }
@@ -45,7 +50,11 @@ class ManagedHoverWidget {
       }
       if (managedContent instanceof Promise) {
         if (!this._hoverWidget) {
-          this.show(localize("iconLabel.loading", "Loading..."), focus, options);
+          this.show(
+            localize("iconLabel.loading", "Loading..."),
+            focus,
+            options
+          );
         }
         resolvedContent = await managedContent;
       } else {
@@ -76,7 +85,10 @@ class ManagedHoverWidget {
           hoverPosition: HoverPosition.BELOW
         }
       };
-      this._hoverWidget = this.hoverDelegate.showHover(hoverOptions, focus);
+      this._hoverWidget = this.hoverDelegate.showHover(
+        hoverOptions,
+        focus
+      );
     }
     oldHoverWidget?.dispose();
   }

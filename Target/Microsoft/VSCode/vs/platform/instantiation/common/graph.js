@@ -60,10 +60,12 @@ class Graph {
   toString() {
     const data = [];
     for (const [key, value] of this._nodes) {
-      data.push(`${key}
+      data.push(
+        `${key}
 	(-> incoming)[${[...value.incoming.keys()].join(", ")}]
 	(outgoing ->)[${[...value.outgoing.keys()].join(",")}]
-`);
+`
+      );
     }
     return data.join("\n");
   }

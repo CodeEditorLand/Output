@@ -18,7 +18,7 @@ function toPosixPath(osPath) {
     osPath = toSlashes(osPath);
   }
   if (/^[a-zA-Z]:(\/|$)/.test(osPath)) {
-    osPath = "/" + osPath;
+    osPath = `/${osPath}`;
   }
   return osPath;
 }
@@ -98,7 +98,7 @@ function isUNC(path) {
     return false;
   }
   code = path.charCodeAt(pos + 1);
-  if (isNaN(code) || code === CharCode.Backslash) {
+  if (Number.isNaN(code) || code === CharCode.Backslash) {
     return false;
   }
   return true;
@@ -249,7 +249,7 @@ function parseLineAndColumnAware(rawPath) {
   for (const segment of segments) {
     const segmentAsNumber = Number(segment);
     if (!isNumber(segmentAsNumber)) {
-      path = !!path ? [path, segment].join(":") : segment;
+      path = path ? [path, segment].join(":") : segment;
     } else if (line === void 0) {
       line = segmentAsNumber;
     } else if (column === void 0) {
@@ -278,7 +278,9 @@ function randomPath(parent, prefix, randomLength = 8) {
     } else {
       pathCharsTouse = pathChars;
     }
-    suffix += pathCharsTouse.charAt(Math.floor(Math.random() * pathCharsTouse.length));
+    suffix += pathCharsTouse.charAt(
+      Math.floor(Math.random() * pathCharsTouse.length)
+    );
   }
   let randomFileName;
   if (prefix) {

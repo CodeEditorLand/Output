@@ -1,20 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { VSBuffer } from "../../../base/common/buffer.js";
-import { IStringDictionary } from "../../../base/common/collections.js";
-import { PerformanceMark } from "../../../base/common/performance.js";
 import { isMacintosh, isNative, isWeb } from "../../../base/common/platform.js";
-import { URI, UriComponents, UriDto } from "../../../base/common/uri.js";
-import { ISandboxConfiguration } from "../../../base/parts/sandbox/common/sandboxTypes.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { IEditorOptions } from "../../editor/common/editor.js";
-import { NativeParsedArgs } from "../../environment/common/argv.js";
-import { FileType } from "../../files/common/files.js";
-import { ILoggerResource, LogLevel } from "../../log/common/log.js";
-import { PolicyDefinition, PolicyValue } from "../../policy/common/policy.js";
-import { IPartsSplash } from "../../theme/common/themeService.js";
-import { IUserDataProfile } from "../../userDataProfile/common/userDataProfile.js";
-import { IAnyWorkspaceIdentifier, ISingleFolderWorkspaceIdentifier, IWorkspaceIdentifier } from "../../workspace/common/workspace.js";
 const WindowMinimumSize = {
   WIDTH: 400,
   WIDTH_WITH_VERTICAL_PANEL: 600,
@@ -142,7 +128,7 @@ function useNativeFullScreen(configurationService) {
 }
 __name(useNativeFullScreen, "useNativeFullScreen");
 function zoomLevelToZoomFactor(zoomLevel = 0) {
-  return Math.pow(1.2, zoomLevel);
+  return 1.2 ** zoomLevel;
 }
 __name(zoomLevelToZoomFactor, "zoomLevelToZoomFactor");
 const DEFAULT_WINDOW_SIZE = { width: 1200, height: 800 };

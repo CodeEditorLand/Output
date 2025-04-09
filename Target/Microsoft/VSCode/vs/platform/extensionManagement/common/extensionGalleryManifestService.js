@@ -13,7 +13,10 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Event } from "../../../base/common/event.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { IProductService } from "../../product/common/productService.js";
-import { ExtensionGalleryResourceType, Flag, IExtensionGalleryManifest, IExtensionGalleryManifestService } from "./extensionGalleryManifest.js";
+import {
+  ExtensionGalleryResourceType,
+  Flag
+} from "./extensionGalleryManifest.js";
 import { FilterType, SortBy } from "./extensionManagement.js";
 let ExtensionGalleryManifestService = class extends Disposable {
   constructor(productService) {

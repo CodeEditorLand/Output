@@ -10,11 +10,9 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
 import { MarkdownString } from "../../../../../base/common/htmlContent.js";
-import { IDisposable } from "../../../../../base/common/lifecycle.js";
 import { autorun } from "../../../../../base/common/observable.js";
-import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { URI } from "../../../../../base/common/uri.js";
 import { generateUuid } from "../../../../../base/common/uuid.js";
 import { localize } from "../../../../../nls.js";
 import { IWorkspaceContextService } from "../../../../../platform/workspace/common/workspace.js";
@@ -24,11 +22,8 @@ import { CellUri } from "../../../notebook/common/notebookCommon.js";
 import { INotebookService } from "../../../notebook/common/notebookService.js";
 import { ICodeMapperService } from "../chatCodeMapperService.js";
 import { IChatEditingService } from "../chatEditingService.js";
-import { ChatModel } from "../chatModel.js";
 import { IChatService } from "../chatService.js";
 import { ILanguageModelIgnoredFilesService } from "../ignoredFiles.js";
-import { CountTokensCallback, IPreparedToolInvocation, IToolData, IToolImpl, IToolInvocation, IToolResult } from "../languageModelToolsService.js";
-import { IToolInputProcessor } from "./tools.js";
 const codeInstructions = `
 The user is very smart and can understand how to insert cells to their new Notebook files
 `;
@@ -52,7 +47,7 @@ const EditToolData = {
       },
       cells: {
         type: "array",
-        description: "The cells to insert to apply to the file. " + codeInstructions
+        description: `The cells to insert to apply to the file. ${codeInstructions}`
       }
     },
     required: ["explanation", "filePath", "code"]
@@ -78,12 +73,18 @@ let EditTool = class {
     const parameters = invocation.parameters;
     const uri = URI.revive(parameters.file);
     if (!this.workspaceContextService.isInsideWorkspace(uri)) {
-      throw new Error(`File ${uri.fsPath} can't be edited because it's not inside the current workspace`);
+      throw new Error(
+        `File ${uri.fsPath} can't be edited because it's not inside the current workspace`
+      );
     }
     if (await this.ignoredFilesService.fileIsIgnored(uri, token)) {
-      throw new Error(`File ${uri.fsPath} can't be edited because it is configured to be ignored by Copilot`);
+      throw new Error(
+        `File ${uri.fsPath} can't be edited because it is configured to be ignored by Copilot`
+      );
     }
-    const model = this.chatService.getSession(invocation.context?.sessionId);
+    const model = this.chatService.getSession(
+      invocation.context?.sessionId
+    );
     const request = model.getRequests().at(-1);
     if (request.response?.response.getMarkdown().length) {
       model.acceptResponseProgress(request, {
@@ -101,7 +102,9 @@ let EditTool = class {
     });
     model.acceptResponseProgress(request, {
       kind: "markdownContent",
-      content: new MarkdownString(parameters.code + "\n````\n")
+      content: new MarkdownString(`${parameters.code}
+\`\`\`\`
+`)
     });
     const notebookUri = CellUri.parse(uri)?.notebook || uri;
     if (this.notebookService.hasSupportedNotebooks(notebookUri) && this.notebookService.getNotebookTextModel(notebookUri)) {
@@ -117,26 +120,58 @@ let EditTool = class {
         uri
       });
     }
-    const editSession = this.chatEditingService.getEditingSession(model.sessionId);
+    const editSession = this.chatEditingService.getEditingSession(
+      model.sessionId
+    );
     if (!editSession) {
-      throw new Error("This tool must be called from within an editing session");
+      throw new Error(
+        "This tool must be called from within an editing session"
+      );
     }
-    const result = await this.codeMapperService.mapCode({
-      codeBlocks: [{ code: parameters.code, resource: uri, markdownBeforeBlock: parameters.explanation }],
-      location: "tool",
-      chatRequestId: invocation.chatRequestId
-    }, {
-      textEdit: /* @__PURE__ */ __name((target, edits) => {
-        model.acceptResponseProgress(request, { kind: "textEdit", uri: target, edits });
-      }, "textEdit"),
-      notebookEdit(target, edits) {
-        model.acceptResponseProgress(request, { kind: "notebookEdit", uri: target, edits });
-      }
-    }, token);
+    const result = await this.codeMapperService.mapCode(
+      {
+        codeBlocks: [
+          {
+            code: parameters.code,
+            resource: uri,
+            markdownBeforeBlock: parameters.explanation
+          }
+        ],
+        location: "tool",
+        chatRequestId: invocation.chatRequestId
+      },
+      {
+        textEdit: /* @__PURE__ */ __name((target, edits) => {
+          model.acceptResponseProgress(request, {
+            kind: "textEdit",
+            uri: target,
+            edits
+          });
+        }, "textEdit"),
+        notebookEdit(target, edits) {
+          model.acceptResponseProgress(request, {
+            kind: "notebookEdit",
+            uri: target,
+            edits
+          });
+        }
+      },
+      token
+    );
     if (this.notebookService.hasSupportedNotebooks(notebookUri) && this.notebookService.getNotebookTextModel(notebookUri)) {
-      model.acceptResponseProgress(request, { kind: "notebookEdit", uri: notebookUri, edits: [], done: true });
+      model.acceptResponseProgress(request, {
+        kind: "notebookEdit",
+        uri: notebookUri,
+        edits: [],
+        done: true
+      });
     } else {
-      model.acceptResponseProgress(request, { kind: "textEdit", uri, edits: [], done: true });
+      model.acceptResponseProgress(request, {
+        kind: "textEdit",
+        uri,
+        edits: [],
+        done: true
+      });
     }
     if (result?.errorMessage) {
       throw new Error(result.errorMessage);
@@ -146,7 +181,9 @@ let EditTool = class {
       let wasFileBeingModified = false;
       dispose = autorun((r) => {
         const entries = editSession.entries.read(r);
-        const currentFile = entries?.find((e) => e.modifiedURI.toString() === uri.toString());
+        const currentFile = entries?.find(
+          (e) => e.modifiedURI.toString() === uri.toString()
+        );
         if (currentFile) {
           if (currentFile.isCurrentlyBeingModifiedBy.read(r)) {
             wasFileBeingModified = true;
@@ -163,7 +200,9 @@ let EditTool = class {
       skipSaveParticipants: true
     });
     return {
-      content: [{ kind: "text", value: "The file was edited successfully" }]
+      content: [
+        { kind: "text", value: "The file was edited successfully" }
+      ]
     };
   }
   async prepareToolInvocation(parameters, token) {

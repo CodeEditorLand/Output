@@ -1,16 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../../../../base/common/event.js";
-import { derived, IObservable } from "../../../../../../base/common/observable.js";
+import {
+  derived
+} from "../../../../../../base/common/observable.js";
 import { localize } from "../../../../../../nls.js";
-import { ICodeEditor } from "../../../../../browser/editorBrowser.js";
 import { observableCodeEditor } from "../../../../../browser/observableCodeEditor.js";
-import { LineRange } from "../../../../../common/core/lineRange.js";
 import { StringText, TextEdit } from "../../../../../common/core/textEdit.js";
-import { Command } from "../../../../../common/languages.js";
-import { InlineCompletionsModel } from "../../model/inlineCompletionsModel.js";
-import { InlineCompletionWithUpdatedRange } from "../../model/inlineCompletionsSource.js";
-import { IInlineEditHost, IInlineEditModel, InlineEditTabAction } from "./inlineEditsViewInterface.js";
+import {
+  InlineEditTabAction
+} from "./inlineEditsViewInterface.js";
 import { InlineEditWithChanges } from "./inlineEditWithChanges.js";
 class InlineEditModel {
   constructor(_model, inlineEdit, tabAction) {

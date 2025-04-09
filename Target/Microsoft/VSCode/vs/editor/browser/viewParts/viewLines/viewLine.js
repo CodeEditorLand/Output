@@ -1,21 +1,27 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as browser from "../../../../base/browser/browser.js";
-import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import {
+  createFastDomNode
+} from "../../../../base/browser/fastDomNode.js";
 import * as platform from "../../../../base/common/platform.js";
-import { IVisibleLine } from "../../view/viewLayer.js";
-import { RangeUtil } from "./rangeUtil.js";
-import { StringBuilder } from "../../../common/core/stringBuilder.js";
-import { FloatHorizontalRange, VisibleRanges } from "../../view/renderingContext.js";
-import { LineDecoration } from "../../../common/viewLayout/lineDecorations.js";
-import { CharacterMapping, ForeignElementType, RenderLineInput, renderViewLine, LineRange, DomPosition } from "../../../common/viewLayout/viewLineRenderer.js";
-import { ViewportData } from "../../../common/viewLayout/viewLinesViewportData.js";
-import { InlineDecorationType } from "../../../common/viewModel.js";
 import { isHighContrast } from "../../../../platform/theme/common/theme.js";
 import { EditorFontLigatures } from "../../../common/config/editorOptions.js";
-import { DomReadingContext } from "./domReadingContext.js";
-import { ViewGpuContext } from "../../gpu/viewGpuContext.js";
-const canUseFastRenderedViewLine = function() {
+import { LineDecoration } from "../../../common/viewLayout/lineDecorations.js";
+import {
+  DomPosition,
+  ForeignElementType,
+  LineRange,
+  RenderLineInput,
+  renderViewLine
+} from "../../../common/viewLayout/viewLineRenderer.js";
+import { InlineDecorationType } from "../../../common/viewModel.js";
+import {
+  FloatHorizontalRange,
+  VisibleRanges
+} from "../../view/renderingContext.js";
+import { RangeUtil } from "./rangeUtil.js";
+const canUseFastRenderedViewLine = (() => {
   if (platform.isNative) {
     return true;
   }
@@ -23,7 +29,7 @@ const canUseFastRenderedViewLine = function() {
     return false;
   }
   return true;
-}();
+})();
 let monospaceAssumptionsAreValid = true;
 class ViewLine {
   constructor(_viewGpuContext, options) {
@@ -41,7 +47,7 @@ class ViewLine {
   _renderedViewLine;
   // --- begin IVisibleLineData
   getDomNode() {
-    if (this._renderedViewLine && this._renderedViewLine.domNode) {
+    if (this._renderedViewLine?.domNode) {
       return this._renderedViewLine.domNode.domNode;
     }
     return null;
@@ -50,7 +56,9 @@ class ViewLine {
     if (this._renderedViewLine) {
       this._renderedViewLine.domNode = createFastDomNode(domNode);
     } else {
-      throw new Error("I have no rendered view line to set the dom node to...");
+      throw new Error(
+        "I have no rendered view line to set the dom node to..."
+      );
     }
   }
   onContentChanged() {
@@ -74,7 +82,11 @@ class ViewLine {
     return false;
   }
   renderLine(lineNumber, deltaTop, lineHeight, viewportData, sb) {
-    if (this._options.useGpu && this._viewGpuContext?.canRender(this._options, viewportData, lineNumber)) {
+    if (this._options.useGpu && this._viewGpuContext?.canRender(
+      this._options,
+      viewportData,
+      lineNumber
+    )) {
       this._renderedViewLine?.domNode?.domNode.remove();
       this._renderedViewLine = null;
       return false;
@@ -85,7 +97,12 @@ class ViewLine {
     this._isMaybeInvalid = false;
     const lineData = viewportData.getViewLineRenderingData(lineNumber);
     const options = this._options;
-    const actualInlineDecorations = LineDecoration.filter(lineData.inlineDecorations, lineNumber, lineData.minColumn, lineData.maxColumn);
+    const actualInlineDecorations = LineDecoration.filter(
+      lineData.inlineDecorations,
+      lineNumber,
+      lineData.minColumn,
+      lineData.maxColumn
+    );
     let selectionsOnLine = null;
     if (isHighContrast(options.themeType) || this._options.renderWhitespace === "selection") {
       const selections = viewportData.selections;
@@ -97,13 +114,22 @@ class ViewLine {
         const endColumn = selection.endLineNumber === lineNumber ? selection.endColumn : lineData.maxColumn;
         if (startColumn < endColumn) {
           if (isHighContrast(options.themeType)) {
-            actualInlineDecorations.push(new LineDecoration(startColumn, endColumn, "inline-selected-text", InlineDecorationType.Regular));
+            actualInlineDecorations.push(
+              new LineDecoration(
+                startColumn,
+                endColumn,
+                "inline-selected-text",
+                InlineDecorationType.Regular
+              )
+            );
           }
           if (this._options.renderWhitespace === "selection") {
             if (!selectionsOnLine) {
               selectionsOnLine = [];
             }
-            selectionsOnLine.push(new LineRange(startColumn - 1, endColumn - 1));
+            selectionsOnLine.push(
+              new LineRange(startColumn - 1, endColumn - 1)
+            );
           }
         }
       }
@@ -129,7 +155,7 @@ class ViewLine {
       options.fontLigatures !== EditorFontLigatures.OFF,
       selectionsOnLine
     );
-    if (this._renderedViewLine && this._renderedViewLine.input.equals(renderLineInput)) {
+    if (this._renderedViewLine?.input.equals(renderLineInput)) {
       return false;
     }
     sb.appendString('<div style="top:');
@@ -162,7 +188,7 @@ class ViewLine {
     return true;
   }
   layoutLine(lineNumber, deltaTop, lineHeight) {
-    if (this._renderedViewLine && this._renderedViewLine.domNode) {
+    if (this._renderedViewLine?.domNode) {
       this._renderedViewLine.domNode.setTop(deltaTop);
       this._renderedViewLine.domNode.setHeight(lineHeight);
     }
@@ -204,11 +230,19 @@ class ViewLine {
     if (!this._renderedViewLine) {
       return null;
     }
-    startColumn = Math.min(this._renderedViewLine.input.lineContent.length + 1, Math.max(1, startColumn));
-    endColumn = Math.min(this._renderedViewLine.input.lineContent.length + 1, Math.max(1, endColumn));
+    startColumn = Math.min(
+      this._renderedViewLine.input.lineContent.length + 1,
+      Math.max(1, startColumn)
+    );
+    endColumn = Math.min(
+      this._renderedViewLine.input.lineContent.length + 1,
+      Math.max(1, endColumn)
+    );
     const stopRenderingLineAfter = this._renderedViewLine.input.stopRenderingLineAfter;
     if (stopRenderingLineAfter !== -1 && startColumn > stopRenderingLineAfter + 1 && endColumn > stopRenderingLineAfter + 1) {
-      return new VisibleRanges(true, [new FloatHorizontalRange(this.getWidth(context), 0)]);
+      return new VisibleRanges(true, [
+        new FloatHorizontalRange(this.getWidth(context), 0)
+      ]);
     }
     if (stopRenderingLineAfter !== -1 && startColumn > stopRenderingLineAfter + 1) {
       startColumn = stopRenderingLineAfter + 1;
@@ -216,7 +250,12 @@ class ViewLine {
     if (stopRenderingLineAfter !== -1 && endColumn > stopRenderingLineAfter + 1) {
       endColumn = stopRenderingLineAfter + 1;
     }
-    const horizontalRanges = this._renderedViewLine.getVisibleRangesForRange(lineNumber, startColumn, endColumn, context);
+    const horizontalRanges = this._renderedViewLine.getVisibleRangesForRange(
+      lineNumber,
+      startColumn,
+      endColumn,
+      context
+    );
     if (horizontalRanges && horizontalRanges.length > 0) {
       return new VisibleRanges(false, horizontalRanges);
     }
@@ -246,7 +285,9 @@ class FastRenderedViewLine {
   constructor(domNode, renderLineInput, characterMapping) {
     this.domNode = domNode;
     this.input = renderLineInput;
-    const keyColumnCount = Math.floor(renderLineInput.lineContent.length / 300 /* MaxMonospaceDistance */);
+    const keyColumnCount = Math.floor(
+      renderLineInput.lineContent.length / 300 /* MaxMonospaceDistance */
+    );
     if (keyColumnCount > 0) {
       this._keyColumnPixelOffsetCache = new Float32Array(keyColumnCount);
       for (let i = 0; i < keyColumnCount; i++) {
@@ -260,11 +301,15 @@ class FastRenderedViewLine {
   }
   getWidth(context) {
     if (!this.domNode || this.input.lineContent.length < 300 /* MaxMonospaceDistance */) {
-      const horizontalOffset = this._characterMapping.getHorizontalOffset(this._characterMapping.length);
+      const horizontalOffset = this._characterMapping.getHorizontalOffset(
+        this._characterMapping.length
+      );
       return Math.round(this._charWidth * horizontalOffset);
     }
     if (this._cachedWidth === -1) {
-      this._cachedWidth = this._getReadingTarget(this.domNode).offsetWidth;
+      this._cachedWidth = this._getReadingTarget(
+        this.domNode
+      ).offsetWidth;
       context?.markDidDomLayout();
     }
     return this._cachedWidth;
@@ -280,19 +325,40 @@ class FastRenderedViewLine {
       const expectedWidth = this.getWidth(null);
       const actualWidth = this.domNode.domNode.firstChild.offsetWidth;
       if (Math.abs(expectedWidth - actualWidth) >= 2) {
-        console.warn(`monospace assumptions have been violated, therefore disabling monospace optimizations!`);
+        console.warn(
+          "monospace assumptions have been violated, therefore disabling monospace optimizations!"
+        );
         monospaceAssumptionsAreValid = false;
       }
     }
     return monospaceAssumptionsAreValid;
   }
   toSlowRenderedLine() {
-    return createRenderedLine(this.domNode, this.input, this._characterMapping, false, ForeignElementType.None);
+    return createRenderedLine(
+      this.domNode,
+      this.input,
+      this._characterMapping,
+      false,
+      ForeignElementType.None
+    );
   }
   getVisibleRangesForRange(lineNumber, startColumn, endColumn, context) {
-    const startPosition = this._getColumnPixelOffset(lineNumber, startColumn, context);
-    const endPosition = this._getColumnPixelOffset(lineNumber, endColumn, context);
-    return [new FloatHorizontalRange(startPosition, endPosition - startPosition)];
+    const startPosition = this._getColumnPixelOffset(
+      lineNumber,
+      startColumn,
+      context
+    );
+    const endPosition = this._getColumnPixelOffset(
+      lineNumber,
+      endColumn,
+      context
+    );
+    return [
+      new FloatHorizontalRange(
+        startPosition,
+        endPosition - startPosition
+      )
+    ];
   }
   _getColumnPixelOffset(lineNumber, column, context) {
     if (column <= 300 /* MaxMonospaceDistance */) {
@@ -305,7 +371,11 @@ class FastRenderedViewLine {
     if (this._keyColumnPixelOffsetCache) {
       keyColumnPixelOffset = this._keyColumnPixelOffsetCache[keyColumnOrdinal];
       if (keyColumnPixelOffset === -1) {
-        keyColumnPixelOffset = this._actualReadPixelOffset(lineNumber, keyColumn, context);
+        keyColumnPixelOffset = this._actualReadPixelOffset(
+          lineNumber,
+          keyColumn,
+          context
+        );
         this._keyColumnPixelOffsetCache[keyColumnOrdinal] = keyColumnPixelOffset;
       }
     }
@@ -325,7 +395,14 @@ class FastRenderedViewLine {
       return -1;
     }
     const domPosition = this._characterMapping.getDomPosition(column);
-    const r = RangeUtil.readHorizontalRanges(this._getReadingTarget(this.domNode), domPosition.partIndex, domPosition.charIndex, domPosition.partIndex, domPosition.charIndex, context);
+    const r = RangeUtil.readHorizontalRanges(
+      this._getReadingTarget(this.domNode),
+      domPosition.partIndex,
+      domPosition.charIndex,
+      domPosition.partIndex,
+      domPosition.charIndex,
+      context
+    );
     if (!r || r.length === 0) {
       return -1;
     }
@@ -358,7 +435,9 @@ class RenderedViewLine {
     this._cachedWidth = -1;
     this._pixelOffsetCache = null;
     if (!containsRTL || this._characterMapping.length === 0) {
-      this._pixelOffsetCache = new Float32Array(Math.max(2, this._characterMapping.length + 1));
+      this._pixelOffsetCache = new Float32Array(
+        Math.max(2, this._characterMapping.length + 1)
+      );
       for (let column = 0, len = this._characterMapping.length; column <= len; column++) {
         this._pixelOffsetCache[column] = -1;
       }
@@ -376,7 +455,9 @@ class RenderedViewLine {
       return 0;
     }
     if (this._cachedWidth === -1) {
-      this._cachedWidth = this._getReadingTarget(this.domNode).offsetWidth;
+      this._cachedWidth = this._getReadingTarget(
+        this.domNode
+      ).offsetWidth;
       context?.markDidDomLayout();
     }
     return this._cachedWidth;
@@ -395,28 +476,56 @@ class RenderedViewLine {
       return null;
     }
     if (this._pixelOffsetCache !== null) {
-      const startOffset = this._readPixelOffset(this.domNode, lineNumber, startColumn, context);
+      const startOffset = this._readPixelOffset(
+        this.domNode,
+        lineNumber,
+        startColumn,
+        context
+      );
       if (startOffset === -1) {
         return null;
       }
-      const endOffset = this._readPixelOffset(this.domNode, lineNumber, endColumn, context);
+      const endOffset = this._readPixelOffset(
+        this.domNode,
+        lineNumber,
+        endColumn,
+        context
+      );
       if (endOffset === -1) {
         return null;
       }
-      return [new FloatHorizontalRange(startOffset, endOffset - startOffset)];
+      return [
+        new FloatHorizontalRange(startOffset, endOffset - startOffset)
+      ];
     }
-    return this._readVisibleRangesForRange(this.domNode, lineNumber, startColumn, endColumn, context);
+    return this._readVisibleRangesForRange(
+      this.domNode,
+      lineNumber,
+      startColumn,
+      endColumn,
+      context
+    );
   }
   _readVisibleRangesForRange(domNode, lineNumber, startColumn, endColumn, context) {
     if (startColumn === endColumn) {
-      const pixelOffset = this._readPixelOffset(domNode, lineNumber, startColumn, context);
+      const pixelOffset = this._readPixelOffset(
+        domNode,
+        lineNumber,
+        startColumn,
+        context
+      );
       if (pixelOffset === -1) {
         return null;
       } else {
         return [new FloatHorizontalRange(pixelOffset, 0)];
       }
     } else {
-      return this._readRawVisibleRangesForRange(domNode, startColumn, endColumn, context);
+      return this._readRawVisibleRangesForRange(
+        domNode,
+        startColumn,
+        endColumn,
+        context
+      );
     }
   }
   _readPixelOffset(domNode, lineNumber, column, context) {
@@ -443,15 +552,32 @@ class RenderedViewLine {
       if (cachedPixelOffset !== -1) {
         return cachedPixelOffset;
       }
-      const result = this._actualReadPixelOffset(domNode, lineNumber, column, context);
+      const result = this._actualReadPixelOffset(
+        domNode,
+        lineNumber,
+        column,
+        context
+      );
       this._pixelOffsetCache[column] = result;
       return result;
     }
-    return this._actualReadPixelOffset(domNode, lineNumber, column, context);
+    return this._actualReadPixelOffset(
+      domNode,
+      lineNumber,
+      column,
+      context
+    );
   }
   _actualReadPixelOffset(domNode, lineNumber, column, context) {
     if (this._characterMapping.length === 0) {
-      const r2 = RangeUtil.readHorizontalRanges(this._getReadingTarget(domNode), 0, 0, 0, 0, context);
+      const r2 = RangeUtil.readHorizontalRanges(
+        this._getReadingTarget(domNode),
+        0,
+        0,
+        0,
+        0,
+        context
+      );
       if (!r2 || r2.length === 0) {
         return -1;
       }
@@ -461,14 +587,23 @@ class RenderedViewLine {
       return this.getWidth(context);
     }
     const domPosition = this._characterMapping.getDomPosition(column);
-    const r = RangeUtil.readHorizontalRanges(this._getReadingTarget(domNode), domPosition.partIndex, domPosition.charIndex, domPosition.partIndex, domPosition.charIndex, context);
+    const r = RangeUtil.readHorizontalRanges(
+      this._getReadingTarget(domNode),
+      domPosition.partIndex,
+      domPosition.charIndex,
+      domPosition.partIndex,
+      domPosition.charIndex,
+      context
+    );
     if (!r || r.length === 0) {
       return -1;
     }
     const result = r[0].left;
     if (this.input.isBasicASCII) {
       const horizontalOffset = this._characterMapping.getHorizontalOffset(column);
-      const expectedResult = Math.round(this.input.spaceWidth * horizontalOffset);
+      const expectedResult = Math.round(
+        this.input.spaceWidth * horizontalOffset
+      );
       if (Math.abs(expectedResult - result) <= 1) {
         return expectedResult;
       }
@@ -481,7 +616,14 @@ class RenderedViewLine {
     }
     const startDomPosition = this._characterMapping.getDomPosition(startColumn);
     const endDomPosition = this._characterMapping.getDomPosition(endColumn);
-    return RangeUtil.readHorizontalRanges(this._getReadingTarget(domNode), startDomPosition.partIndex, startDomPosition.charIndex, endDomPosition.partIndex, endDomPosition.charIndex, context);
+    return RangeUtil.readHorizontalRanges(
+      this._getReadingTarget(domNode),
+      startDomPosition.partIndex,
+      startDomPosition.charIndex,
+      endDomPosition.partIndex,
+      endDomPosition.charIndex,
+      context
+    );
   }
   /**
    * Returns the column for the text found at a specific offset inside a rendered dom node
@@ -495,12 +637,23 @@ class WebKitRenderedViewLine extends RenderedViewLine {
     __name(this, "WebKitRenderedViewLine");
   }
   _readVisibleRangesForRange(domNode, lineNumber, startColumn, endColumn, context) {
-    const output = super._readVisibleRangesForRange(domNode, lineNumber, startColumn, endColumn, context);
+    const output = super._readVisibleRangesForRange(
+      domNode,
+      lineNumber,
+      startColumn,
+      endColumn,
+      context
+    );
     if (!output || output.length === 0 || startColumn === endColumn || startColumn === 1 && endColumn === this._characterMapping.length) {
       return output;
     }
     if (!this.input.containsRTL) {
-      const endPixelOffset = this._readPixelOffset(domNode, lineNumber, endColumn, context);
+      const endPixelOffset = this._readPixelOffset(
+        domNode,
+        lineNumber,
+        endColumn,
+        context
+      );
       if (endPixelOffset !== -1) {
         const lastRange = output[output.length - 1];
         if (lastRange.left < endPixelOffset) {
@@ -511,28 +664,43 @@ class WebKitRenderedViewLine extends RenderedViewLine {
     return output;
   }
 }
-const createRenderedLine = function() {
+const createRenderedLine = (() => {
   if (browser.isWebKit) {
     return createWebKitRenderedLine;
   }
   return createNormalRenderedLine;
-}();
+})();
 function createWebKitRenderedLine(domNode, renderLineInput, characterMapping, containsRTL, containsForeignElements) {
-  return new WebKitRenderedViewLine(domNode, renderLineInput, characterMapping, containsRTL, containsForeignElements);
+  return new WebKitRenderedViewLine(
+    domNode,
+    renderLineInput,
+    characterMapping,
+    containsRTL,
+    containsForeignElements
+  );
 }
 __name(createWebKitRenderedLine, "createWebKitRenderedLine");
 function createNormalRenderedLine(domNode, renderLineInput, characterMapping, containsRTL, containsForeignElements) {
-  return new RenderedViewLine(domNode, renderLineInput, characterMapping, containsRTL, containsForeignElements);
+  return new RenderedViewLine(
+    domNode,
+    renderLineInput,
+    characterMapping,
+    containsRTL,
+    containsForeignElements
+  );
 }
 __name(createNormalRenderedLine, "createNormalRenderedLine");
 function getColumnOfNodeOffset(characterMapping, spanNode, offset) {
-  const spanNodeTextContentLength = spanNode.textContent.length;
+  const spanNodeTextContentLength = spanNode.textContent?.length;
   let spanIndex = -1;
   while (spanNode) {
     spanNode = spanNode.previousSibling;
     spanIndex++;
   }
-  return characterMapping.getColumn(new DomPosition(spanIndex, offset), spanNodeTextContentLength);
+  return characterMapping.getColumn(
+    new DomPosition(spanIndex, offset),
+    spanNodeTextContentLength
+  );
 }
 __name(getColumnOfNodeOffset, "getColumnOfNodeOffset");
 export {

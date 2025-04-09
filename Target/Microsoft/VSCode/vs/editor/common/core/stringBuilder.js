@@ -1,8 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as strings from "../../../base/common/strings.js";
-import * as platform from "../../../base/common/platform.js";
 import * as buffer from "../../../base/common/buffer.js";
+import * as platform from "../../../base/common/platform.js";
+import * as strings from "../../../base/common/strings.js";
 let _utf16LE_TextDecoder;
 function getUTF16LE_TextDecoder() {
   if (!_utf16LE_TextDecoder) {
@@ -75,7 +75,11 @@ class StringBuilder {
     if (this._bufferLength === 0) {
       return "";
     }
-    const view = new Uint16Array(this._buffer.buffer, 0, this._bufferLength);
+    const view = new Uint16Array(
+      this._buffer.buffer,
+      0,
+      this._bufferLength
+    );
     return getPlatformTextDecoder().decode(view);
   }
   _flushBuffer() {
@@ -112,7 +116,7 @@ class StringBuilder {
     const strLen = str.length;
     if (this._bufferLength + strLen >= this._capacity) {
       this._flushBuffer();
-      this._completedStrings[this._completedStrings.length] = str;
+      this._completedStrings[this._completedStrings?.length] = str;
       return;
     }
     for (let i = 0; i < strLen; i++) {

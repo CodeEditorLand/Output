@@ -1,17 +1,24 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
-import { Event } from "../../../../base/common/event.js";
-import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
-import { Part } from "../../../browser/part.js";
-import { IDimension } from "../../../../base/browser/dom.js";
-import { Direction, IViewSize } from "../../../../base/browser/ui/grid/grid.js";
-import { isMacintosh, isNative, isWeb } from "../../../../base/common/platform.js";
+import {
+  isFullscreen,
+  isWCOEnabled
+} from "../../../../base/browser/browser.js";
 import { isAuxiliaryWindow } from "../../../../base/browser/window.js";
-import { CustomTitleBarVisibility, TitleBarSetting, getMenuBarVisibility, hasCustomTitlebar, hasNativeTitlebar } from "../../../../platform/window/common/window.js";
-import { isFullscreen, isWCOEnabled } from "../../../../base/browser/browser.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
+import {
+  isMacintosh,
+  isNative,
+  isWeb
+} from "../../../../base/common/platform.js";
+import { refineServiceDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+import {
+  CustomTitleBarVisibility,
+  getMenuBarVisibility,
+  hasCustomTitlebar,
+  hasNativeTitlebar,
+  TitleBarSetting
+} from "../../../../platform/window/common/window.js";
 const IWorkbenchLayoutService = refineServiceDecorator(ILayoutService);
 var Parts = /* @__PURE__ */ ((Parts2) => {
   Parts2["TITLEBAR_PART"] = "workbench.parts.titlebar";
@@ -120,7 +127,9 @@ __name(panelOpensMaximizedSettingToString, "panelOpensMaximizedSettingToString")
 const panelOpensMaximizedByString = {
   [panelOpensMaximizedSettingToString(0 /* ALWAYS */)]: 0 /* ALWAYS */,
   [panelOpensMaximizedSettingToString(1 /* NEVER */)]: 1 /* NEVER */,
-  [panelOpensMaximizedSettingToString(2 /* REMEMBER_LAST */)]: 2 /* REMEMBER_LAST */
+  [panelOpensMaximizedSettingToString(
+    2 /* REMEMBER_LAST */
+  )]: 2 /* REMEMBER_LAST */
 };
 function panelOpensMaximizedFromString(str) {
   return panelOpensMaximizedByString[str];
@@ -137,7 +146,9 @@ function shouldShowCustomTitleBar(configurationService, window, menuBarToggled) 
   const inFullscreen = isFullscreen(window);
   const nativeTitleBarEnabled = hasNativeTitlebar(configurationService);
   if (!isWeb) {
-    const showCustomTitleBar = configurationService.getValue(TitleBarSetting.CUSTOM_TITLE_BAR_VISIBILITY);
+    const showCustomTitleBar = configurationService.getValue(
+      TitleBarSetting.CUSTOM_TITLE_BAR_VISIBILITY
+    );
     if (showCustomTitleBar === CustomTitleBarVisibility.NEVER && nativeTitleBarEnabled || showCustomTitleBar === CustomTitleBarVisibility.WINDOWED && inFullscreen) {
       return false;
     }
@@ -177,12 +188,18 @@ function isTitleBarEmpty(configurationService) {
   if (configurationService.getValue("window.commandCenter" /* COMMAND_CENTER */)) {
     return false;
   }
-  const activityBarPosition = configurationService.getValue("workbench.activityBar.location" /* ACTIVITY_BAR_LOCATION */);
+  const activityBarPosition = configurationService.getValue(
+    "workbench.activityBar.location" /* ACTIVITY_BAR_LOCATION */
+  );
   if (activityBarPosition === "top" /* TOP */ || activityBarPosition === "bottom" /* BOTTOM */) {
     return false;
   }
-  const editorActionsLocation = configurationService.getValue("workbench.editor.editorActionsLocation" /* EDITOR_ACTIONS_LOCATION */);
-  const editorTabsMode = configurationService.getValue("workbench.editor.showTabs" /* EDITOR_TABS_MODE */);
+  const editorActionsLocation = configurationService.getValue(
+    "workbench.editor.editorActionsLocation" /* EDITOR_ACTIONS_LOCATION */
+  );
+  const editorTabsMode = configurationService.getValue(
+    "workbench.editor.showTabs" /* EDITOR_TABS_MODE */
+  );
   if (editorActionsLocation === "titleBar" /* TITLEBAR */ || editorActionsLocation === "default" /* DEFAULT */ && editorTabsMode === "none" /* NONE */) {
     return false;
   }

@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Event } from "../../../base/common/event.js";
 import { ResourceMap } from "../../../base/common/map.js";
 import { URI } from "../../../base/common/uri.js";
-import { IServerChannel } from "../../../base/parts/ipc/common/ipc.js";
-import { ILogger, ILoggerOptions, isLogLevel, log, LogLevel } from "../common/log.js";
-import { ILoggerMainService } from "./loggerService.js";
+import {
+  isLogLevel,
+  log,
+  LogLevel
+} from "../common/log.js";
 class LoggerChannel {
   constructor(loggerService) {
     this.loggerService = loggerService;
@@ -35,18 +36,30 @@ class LoggerChannel {
       case "consoleLog":
         return this.consoleLog(arg[0], arg[1]);
       case "setLogLevel":
-        return isLogLevel(arg[0]) ? this.loggerService.setLogLevel(arg[0]) : this.loggerService.setLogLevel(URI.revive(arg[0]), arg[1]);
+        return isLogLevel(arg[0]) ? this.loggerService.setLogLevel(arg[0]) : this.loggerService.setLogLevel(
+          URI.revive(arg[0]),
+          arg[1]
+        );
       case "setVisibility":
-        return this.loggerService.setVisibility(URI.revive(arg[0]), arg[1]);
+        return this.loggerService.setVisibility(
+          URI.revive(arg[0]),
+          arg[1]
+        );
       case "registerLogger":
-        return this.loggerService.registerLogger({ ...arg[0], resource: URI.revive(arg[0].resource) }, arg[1]);
+        return this.loggerService.registerLogger(
+          { ...arg[0], resource: URI.revive(arg[0].resource) },
+          arg[1]
+        );
       case "deregisterLogger":
         return this.loggerService.deregisterLogger(URI.revive(arg[0]));
     }
     throw new Error(`Call not found: ${command}`);
   }
   createLogger(file, options, windowId) {
-    this.loggers.set(file, this.loggerService.createLogger(file, options, windowId));
+    this.loggers.set(
+      file,
+      this.loggerService.createLogger(file, options, windowId)
+    );
   }
   consoleLog(level, args) {
     let consoleFn = console.log;

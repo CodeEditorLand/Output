@@ -1,10 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { RunOnceScheduler } from "../../../common/async.js";
+import {
+  Disposable,
+  MutableDisposable
+} from "../../../common/lifecycle.js";
+import { isNumber } from "../../../common/types.js";
 import { hide, show } from "../../dom.js";
 import { getProgressAcccessibilitySignalScheduler } from "./progressAccessibilitySignal.js";
-import { RunOnceScheduler } from "../../../common/async.js";
-import { Disposable, IDisposable, MutableDisposable } from "../../../common/lifecycle.js";
-import { isNumber } from "../../../common/types.js";
 import "./progressbar.css";
 const CSS_DONE = "done";
 const CSS_ACTIVE = "active";
@@ -34,12 +37,21 @@ class ProgressBar extends Disposable {
   totalWork;
   showDelayedScheduler;
   longRunningScheduler;
-  progressSignal = this._register(new MutableDisposable());
+  progressSignal = this._register(
+    new MutableDisposable()
+  );
   constructor(container, options) {
     super();
     this.workedVal = 0;
-    this.showDelayedScheduler = this._register(new RunOnceScheduler(() => show(this.element), 0));
-    this.longRunningScheduler = this._register(new RunOnceScheduler(() => this.infiniteLongRunning(), ProgressBar.LONG_RUNNING_INFINITE_THRESHOLD));
+    this.showDelayedScheduler = this._register(
+      new RunOnceScheduler(() => show(this.element), 0)
+    );
+    this.longRunningScheduler = this._register(
+      new RunOnceScheduler(
+        () => this.infiniteLongRunning(),
+        ProgressBar.LONG_RUNNING_INFINITE_THRESHOLD
+      )
+    );
     this.create(container, options);
   }
   create(container, options) {
@@ -56,7 +68,12 @@ class ProgressBar extends Disposable {
   off() {
     this.bit.style.width = "inherit";
     this.bit.style.opacity = "1";
-    this.element.classList.remove(CSS_ACTIVE, CSS_INFINITE, CSS_INFINITE_LONG_RUNNING, CSS_DISCRETE);
+    this.element.classList.remove(
+      CSS_ACTIVE,
+      CSS_INFINITE,
+      CSS_INFINITE_LONG_RUNNING,
+      CSS_DISCRETE
+    );
     this.workedVal = 0;
     this.totalWork = void 0;
     this.longRunningScheduler.cancel();
@@ -99,7 +116,11 @@ class ProgressBar extends Disposable {
   infinite() {
     this.bit.style.width = "2%";
     this.bit.style.opacity = "1";
-    this.element.classList.remove(CSS_DISCRETE, CSS_DONE, CSS_INFINITE_LONG_RUNNING);
+    this.element.classList.remove(
+      CSS_DISCRETE,
+      CSS_DONE,
+      CSS_INFINITE_LONG_RUNNING
+    );
     this.element.classList.add(CSS_ACTIVE, CSS_INFINITE);
     this.longRunningScheduler.schedule();
     return this;
@@ -141,10 +162,14 @@ class ProgressBar extends Disposable {
     const totalWork = this.totalWork || 100;
     this.workedVal = value;
     this.workedVal = Math.min(totalWork, this.workedVal);
-    this.element.classList.remove(CSS_INFINITE, CSS_INFINITE_LONG_RUNNING, CSS_DONE);
+    this.element.classList.remove(
+      CSS_INFINITE,
+      CSS_INFINITE_LONG_RUNNING,
+      CSS_DONE
+    );
     this.element.classList.add(CSS_ACTIVE, CSS_DISCRETE);
     this.element.setAttribute("aria-valuenow", value.toString());
-    this.bit.style.width = 100 * (this.workedVal / totalWork) + "%";
+    this.bit.style.width = `${100 * (this.workedVal / totalWork)}%`;
     return this;
   }
   getContainer() {
@@ -152,7 +177,9 @@ class ProgressBar extends Disposable {
   }
   show(delay) {
     this.showDelayedScheduler.cancel();
-    this.progressSignal.value = getProgressAcccessibilitySignalScheduler(ProgressBar.PROGRESS_SIGNAL_DEFAULT_DELAY);
+    this.progressSignal.value = getProgressAcccessibilitySignalScheduler(
+      ProgressBar.PROGRESS_SIGNAL_DEFAULT_DELAY
+    );
     if (typeof delay === "number") {
       this.showDelayedScheduler.schedule(delay);
     } else {

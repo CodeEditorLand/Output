@@ -10,24 +10,59 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../base/common/event.js";
-import { IDisposable, toDisposable, DisposableStore, DisposableMap } from "../../../base/common/lifecycle.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { IFileWriteOptions, FileSystemProviderCapabilities, IFileChange, IFileService, IStat, IWatchOptions, FileType, IFileOverwriteOptions, IFileDeleteOptions, IFileOpenOptions, FileOperationError, FileOperationResult, FileSystemProviderErrorCode, IFileSystemProviderWithOpenReadWriteCloseCapability, IFileSystemProviderWithFileReadWriteCapability, IFileSystemProviderWithFileFolderCopyCapability, FilePermission, toFileSystemProviderErrorCode, IFileStatWithPartialMetadata, IFileStat } from "../../../platform/files/common/files.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { ExtHostContext, ExtHostFileSystemShape, IFileChangeDto, MainContext, MainThreadFileSystemShape } from "../common/extHost.protocol.js";
 import { VSBuffer } from "../../../base/common/buffer.js";
-import { IMarkdownString } from "../../../base/common/htmlContent.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import {
+  DisposableMap,
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  FileOperationError,
+  FileOperationResult,
+  FilePermission,
+  FileSystemProviderErrorCode,
+  FileType,
+  IFileService,
+  toFileSystemProviderErrorCode
+} from "../../../platform/files/common/files.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadFileSystem = class {
   constructor(extHostContext, _fileService) {
     this._fileService = _fileService;
     this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostFileSystem);
-    const infoProxy = extHostContext.getProxy(ExtHostContext.ExtHostFileSystemInfo);
+    const infoProxy = extHostContext.getProxy(
+      ExtHostContext.ExtHostFileSystemInfo
+    );
     for (const entry of _fileService.listCapabilities()) {
-      infoProxy.$acceptProviderInfos(URI.from({ scheme: entry.scheme, path: "/dummy" }), entry.capabilities);
+      infoProxy.$acceptProviderInfos(
+        URI.from({ scheme: entry.scheme, path: "/dummy" }),
+        entry.capabilities
+      );
     }
-    this._disposables.add(_fileService.onDidChangeFileSystemProviderRegistrations((e) => infoProxy.$acceptProviderInfos(URI.from({ scheme: e.scheme, path: "/dummy" }), e.provider?.capabilities ?? null)));
-    this._disposables.add(_fileService.onDidChangeFileSystemProviderCapabilities((e) => infoProxy.$acceptProviderInfos(URI.from({ scheme: e.scheme, path: "/dummy" }), e.provider.capabilities)));
+    this._disposables.add(
+      _fileService.onDidChangeFileSystemProviderRegistrations(
+        (e) => infoProxy.$acceptProviderInfos(
+          URI.from({ scheme: e.scheme, path: "/dummy" }),
+          e.provider?.capabilities ?? null
+        )
+      )
+    );
+    this._disposables.add(
+      _fileService.onDidChangeFileSystemProviderCapabilities(
+        (e) => infoProxy.$acceptProviderInfos(
+          URI.from({ scheme: e.scheme, path: "/dummy" }),
+          e.provider.capabilities
+        )
+      )
+    );
   }
   _proxy;
   _fileProvider = new DisposableMap();
@@ -37,7 +72,17 @@ let MainThreadFileSystem = class {
     this._fileProvider.dispose();
   }
   async $registerFileSystemProvider(handle, scheme, capabilities, readonlyMessage) {
-    this._fileProvider.set(handle, new RemoteFileSystemProvider(this._fileService, scheme, capabilities, readonlyMessage, handle, this._proxy));
+    this._fileProvider.set(
+      handle,
+      new RemoteFileSystemProvider(
+        this._fileService,
+        scheme,
+        capabilities,
+        readonlyMessage,
+        handle,
+        this._proxy
+      )
+    );
   }
   $unregisterProvider(handle) {
     this._fileProvider.deleteAndDispose(handle);
@@ -66,13 +111,20 @@ let MainThreadFileSystem = class {
   }
   async $readdir(uri) {
     try {
-      const stat = await this._fileService.resolve(URI.revive(uri), { resolveMetadata: false });
+      const stat = await this._fileService.resolve(URI.revive(uri), {
+        resolveMetadata: false
+      });
       if (!stat.isDirectory) {
         const err = new Error(stat.name);
         err.name = FileSystemProviderErrorCode.FileNotADirectory;
         throw err;
       }
-      return !stat.children ? [] : stat.children.map((child) => [child.name, MainThreadFileSystem._asFileType(child)]);
+      return !stat.children ? [] : stat.children.map(
+        (child) => [
+          child.name,
+          MainThreadFileSystem._asFileType(child)
+        ]
+      );
     } catch (err) {
       return MainThreadFileSystem._handleError(err);
     }
@@ -106,14 +158,22 @@ let MainThreadFileSystem = class {
   }
   async $rename(source, target, opts) {
     try {
-      await this._fileService.move(URI.revive(source), URI.revive(target), opts.overwrite);
+      await this._fileService.move(
+        URI.revive(source),
+        URI.revive(target),
+        opts.overwrite
+      );
     } catch (err) {
       return MainThreadFileSystem._handleError(err);
     }
   }
   async $copy(source, target, opts) {
     try {
-      await this._fileService.copy(URI.revive(source), URI.revive(target), opts.overwrite);
+      await this._fileService.copy(
+        URI.revive(source),
+        URI.revive(target),
+        opts.overwrite
+      );
     } catch (err) {
       return MainThreadFileSystem._handleError(err);
     }
@@ -193,25 +253,28 @@ class RemoteFileSystemProvider {
     });
   }
   $onFileSystemChange(changes) {
-    this._onDidChange.fire(changes.map(RemoteFileSystemProvider._createFileChange));
+    this._onDidChange.fire(
+      changes.map(RemoteFileSystemProvider._createFileChange)
+    );
   }
   static _createFileChange(dto) {
     return { resource: URI.revive(dto.resource), type: dto.type };
   }
   // --- forwarding calls
   async stat(resource) {
-    try {
-      return await this._proxy.$stat(this._handle, resource);
-    } catch (err) {
-      throw err;
-    }
+    return await this._proxy.$stat(this._handle, resource);
   }
   async readFile(resource) {
     const buffer = await this._proxy.$readFile(this._handle, resource);
     return buffer.buffer;
   }
   writeFile(resource, content, opts) {
-    return this._proxy.$writeFile(this._handle, resource, VSBuffer.wrap(content), opts);
+    return this._proxy.$writeFile(
+      this._handle,
+      resource,
+      VSBuffer.wrap(content),
+      opts
+    );
   }
   delete(resource, opts) {
     return this._proxy.$delete(this._handle, resource, opts);
@@ -240,7 +303,12 @@ class RemoteFileSystemProvider {
     return readData.byteLength;
   }
   write(fd, pos, data, offset, length) {
-    return this._proxy.$write(this._handle, fd, pos, VSBuffer.wrap(data).slice(offset, offset + length));
+    return this._proxy.$write(
+      this._handle,
+      fd,
+      pos,
+      VSBuffer.wrap(data).slice(offset, offset + length)
+    );
   }
 }
 export {

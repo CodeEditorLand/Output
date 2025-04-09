@@ -10,19 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancellationToken } from "../../../../../base/common/cancellation.js";
-import { Disposable, IDisposable, toDisposable } from "../../../../../base/common/lifecycle.js";
+import { timeout } from "../../../../../base/common/async.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { basename } from "../../../../../base/common/path.js";
-import { URI, UriComponents } from "../../../../../base/common/uri.js";
+import { env as processEnv } from "../../../../../base/common/process.js";
+import { URI } from "../../../../../base/common/uri.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { IFileService } from "../../../../../platform/files/common/files.js";
 import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
-import { TerminalCapability } from "../../../../../platform/terminal/common/capabilities/capabilities.js";
-import { GeneralShellType, TerminalShellType } from "../../../../../platform/terminal/common/terminal.js";
+import {
+  TerminalCapability
+} from "../../../../../platform/terminal/common/capabilities/capabilities.js";
+import {
+  GeneralShellType
+} from "../../../../../platform/terminal/common/terminal.js";
 import { TerminalSuggestSettingId } from "../common/terminalSuggestConfiguration.js";
-import { TerminalCompletionItemKind } from "./terminalCompletionItem.js";
-import { env as processEnv } from "../../../../../base/common/process.js";
-import { timeout } from "../../../../../base/common/async.js";
+import {
+  TerminalCompletionItemKind
+} from "./terminalCompletionItem.js";
 const ITerminalCompletionService = createDecorator("terminalCompletionService");
 class TerminalCompletionList {
   static {
@@ -111,13 +119,25 @@ let TerminalCompletionService = class extends Disposable {
       }
       providers = providersToRequest;
     } else {
-      providers = [...this._providers.values()].flatMap((providerMap) => [...providerMap.values()]);
+      providers = [...this._providers.values()].flatMap((providerMap) => [
+        ...providerMap.values()
+      ]);
     }
     if (skipExtensionCompletions) {
       providers = providers.filter((p) => p.isBuiltin);
-      return this._collectCompletions(providers, shellType, promptValue, cursorPosition, allowFallbackCompletions, capabilities, token);
+      return this._collectCompletions(
+        providers,
+        shellType,
+        promptValue,
+        cursorPosition,
+        allowFallbackCompletions,
+        capabilities,
+        token
+      );
     }
-    const providerConfig = this._configurationService.getValue(TerminalSuggestSettingId.Providers);
+    const providerConfig = this._configurationService.getValue(
+      TerminalSuggestSettingId.Providers
+    );
     providers = providers.filter((p) => {
       const providerId = p.id;
       return providerId && providerId in providerConfig && providerConfig[providerId] !== false;
@@ -125,7 +145,15 @@ let TerminalCompletionService = class extends Disposable {
     if (!providers.length) {
       return;
     }
-    return this._collectCompletions(providers, shellType, promptValue, cursorPosition, allowFallbackCompletions, capabilities, token);
+    return this._collectCompletions(
+      providers,
+      shellType,
+      promptValue,
+      cursorPosition,
+      allowFallbackCompletions,
+      capabilities,
+      token
+    );
   }
   async _collectCompletions(providers, shellType, promptValue, cursorPosition, allowFallbackCompletions, capabilities, token) {
     const completionPromises = providers.map(async (provider) => {
@@ -133,7 +161,12 @@ let TerminalCompletionService = class extends Disposable {
         return void 0;
       }
       const completions = await Promise.race([
-        provider.provideCompletions(promptValue, cursorPosition, allowFallbackCompletions, token),
+        provider.provideCompletions(
+          promptValue,
+          cursorPosition,
+          allowFallbackCompletions,
+          token
+        ),
         timeout(5e3)
       ]);
       if (!completions) {
@@ -154,7 +187,13 @@ let TerminalCompletionService = class extends Disposable {
         return completionItems;
       }
       if (completions.resourceRequestConfig) {
-        const resourceCompletions = await this.resolveResources(completions.resourceRequestConfig, promptValue, cursorPosition, provider.id, capabilities);
+        const resourceCompletions = await this.resolveResources(
+          completions.resourceRequestConfig,
+          promptValue,
+          cursorPosition,
+          provider.id,
+          capabilities
+        );
         if (resourceCompletions) {
           completionItems.push(...resourceCompletions);
         }
@@ -167,7 +206,10 @@ let TerminalCompletionService = class extends Disposable {
   async resolveResources(resourceRequestConfig, promptValue, cursorPosition, provider, capabilities) {
     const useWindowsStylePath = resourceRequestConfig.pathSeparator === "\\";
     if (useWindowsStylePath) {
-      promptValue = promptValue.replaceAll(/[\\/]/g, resourceRequestConfig.pathSeparator);
+      promptValue = promptValue.replaceAll(
+        /[\\/]/g,
+        resourceRequestConfig.pathSeparator
+      );
     }
     const foldersRequested = (resourceRequestConfig.foldersRequested || resourceRequestConfig.filesRequested) ?? false;
     const filesRequested = resourceRequestConfig.filesRequested ?? false;
@@ -190,9 +232,14 @@ let TerminalCompletionService = class extends Disposable {
           }
         }
       }
-      lastSlashIndex = Math.max(lastBackslashIndex, lastWord.lastIndexOf("/"));
+      lastSlashIndex = Math.max(
+        lastBackslashIndex,
+        lastWord.lastIndexOf("/")
+      );
     } else {
-      lastSlashIndex = lastWord.lastIndexOf(resourceRequestConfig.pathSeparator);
+      lastSlashIndex = lastWord.lastIndexOf(
+        resourceRequestConfig.pathSeparator
+      );
     }
     let lastWordFolder = lastSlashIndex === -1 ? "" : lastWord.slice(0, lastSlashIndex + 1);
     if (useWindowsStylePath) {
@@ -205,9 +252,15 @@ let TerminalCompletionService = class extends Disposable {
     const type = lastWordFolderHasTildePrefix ? "tilde" : isAbsolutePath ? "absolute" : "relative";
     switch (type) {
       case "tilde": {
-        const home = this._getHomeDir(useWindowsStylePath, capabilities);
+        const home = this._getHomeDir(
+          useWindowsStylePath,
+          capabilities
+        );
         if (home) {
-          lastWordFolderResource = URI.joinPath(URI.file(home), lastWordFolder.slice(1).replaceAll("\\ ", " "));
+          lastWordFolderResource = URI.joinPath(
+            URI.file(home),
+            lastWordFolder.slice(1).replaceAll("\\ ", " ")
+          );
         }
         if (!lastWordFolderResource) {
           if (lastWord.match(/^~[\\\/]$/)) {
@@ -217,7 +270,9 @@ let TerminalCompletionService = class extends Disposable {
         break;
       }
       case "absolute": {
-        lastWordFolderResource = URI.file(lastWordFolder.replaceAll("\\ ", " "));
+        lastWordFolderResource = URI.file(
+          lastWordFolder.replaceAll("\\ ", " ")
+        );
         break;
       }
       case "relative": {
@@ -239,7 +294,9 @@ let TerminalCompletionService = class extends Disposable {
       });
       return resourceCompletions;
     }
-    const stat = await this._fileService.resolve(lastWordFolderResource, { resolveSingleChildDescendants: true });
+    const stat = await this._fileService.resolve(lastWordFolderResource, {
+      resolveSingleChildDescendants: true
+    });
     if (!stat?.children) {
       return;
     }
@@ -257,7 +314,11 @@ let TerminalCompletionService = class extends Disposable {
         case "relative": {
           label = ".";
           if (lastWordFolder.length > 0) {
-            label = addPathRelativePrefix(lastWordFolder, resourceRequestConfig, lastWordFolderHasDotPrefix);
+            label = addPathRelativePrefix(
+              lastWordFolder,
+              resourceRequestConfig,
+              lastWordFolderHasDotPrefix
+            );
           }
           break;
         }
@@ -266,7 +327,11 @@ let TerminalCompletionService = class extends Disposable {
         label,
         provider,
         kind: TerminalCompletionItemKind.Folder,
-        detail: getFriendlyPath(lastWordFolderResource, resourceRequestConfig.pathSeparator, TerminalCompletionItemKind.Folder),
+        detail: getFriendlyPath(
+          lastWordFolderResource,
+          resourceRequestConfig.pathSeparator,
+          TerminalCompletionItemKind.Folder
+        ),
         replacementIndex: cursorPosition - lastWord.length,
         replacementLength: lastWord.length
       });
@@ -287,7 +352,11 @@ let TerminalCompletionService = class extends Disposable {
       }
       label += child.name;
       if (type === "relative") {
-        label = addPathRelativePrefix(label, resourceRequestConfig, lastWordFolderHasDotPrefix);
+        label = addPathRelativePrefix(
+          label,
+          resourceRequestConfig,
+          lastWordFolderHasDotPrefix
+        );
       }
       if (child.isDirectory && !label.endsWith(resourceRequestConfig.pathSeparator)) {
         label += resourceRequestConfig.pathSeparator;
@@ -302,21 +371,32 @@ let TerminalCompletionService = class extends Disposable {
         label,
         provider,
         kind,
-        detail: getFriendlyPath(child.resource, resourceRequestConfig.pathSeparator, kind),
+        detail: getFriendlyPath(
+          child.resource,
+          resourceRequestConfig.pathSeparator,
+          kind
+        ),
         replacementIndex: cursorPosition - lastWord.length,
         replacementLength: lastWord.length
       });
     }
     if (type === "relative" && foldersRequested) {
       if (promptValue.startsWith("cd ")) {
-        const config = this._configurationService.getValue(TerminalSuggestSettingId.CdPath);
+        const config = this._configurationService.getValue(
+          TerminalSuggestSettingId.CdPath
+        );
         if (config === "absolute" || config === "relative") {
           const cdPath = this._getEnvVar("CDPATH", capabilities);
           if (cdPath) {
-            const cdPathEntries = cdPath.split(useWindowsStylePath ? ";" : ":");
+            const cdPathEntries = cdPath.split(
+              useWindowsStylePath ? ";" : ":"
+            );
             for (const cdPathEntry of cdPathEntries) {
               try {
-                const fileStat = await this._fileService.resolve(URI.file(cdPathEntry), { resolveSingleChildDescendants: true });
+                const fileStat = await this._fileService.resolve(
+                  URI.file(cdPathEntry),
+                  { resolveSingleChildDescendants: true }
+                );
                 if (fileStat?.children) {
                   for (const child of fileStat.children) {
                     if (!child.isDirectory) {
@@ -324,8 +404,12 @@ let TerminalCompletionService = class extends Disposable {
                     }
                     const useRelative = config === "relative";
                     const kind = TerminalCompletionItemKind.Folder;
-                    const label = useRelative ? basename(child.resource.fsPath) : getFriendlyPath(child.resource, resourceRequestConfig.pathSeparator, kind);
-                    const detail = useRelative ? `CDPATH ${getFriendlyPath(child.resource, resourceRequestConfig.pathSeparator, kind)}` : `CDPATH`;
+                    const label = useRelative ? basename(child.resource.fsPath) : getFriendlyPath(
+                      child.resource,
+                      resourceRequestConfig.pathSeparator,
+                      kind
+                    );
+                    const detail = useRelative ? `CDPATH ${getFriendlyPath(child.resource, resourceRequestConfig.pathSeparator, kind)}` : "CDPATH";
                     resourceCompletions.push({
                       label,
                       provider,
@@ -346,14 +430,25 @@ let TerminalCompletionService = class extends Disposable {
     if (type === "relative" && foldersRequested) {
       let label = `..${resourceRequestConfig.pathSeparator}`;
       if (lastWordFolder.length > 0) {
-        label = addPathRelativePrefix(lastWordFolder + label, resourceRequestConfig, lastWordFolderHasDotPrefix);
+        label = addPathRelativePrefix(
+          lastWordFolder + label,
+          resourceRequestConfig,
+          lastWordFolderHasDotPrefix
+        );
       }
-      const parentDir = URI.joinPath(cwd, ".." + resourceRequestConfig.pathSeparator);
+      const parentDir = URI.joinPath(
+        cwd,
+        `..${resourceRequestConfig.pathSeparator}`
+      );
       resourceCompletions.push({
         label,
         provider,
         kind: TerminalCompletionItemKind.Folder,
-        detail: getFriendlyPath(parentDir, resourceRequestConfig.pathSeparator, TerminalCompletionItemKind.Folder),
+        detail: getFriendlyPath(
+          parentDir,
+          resourceRequestConfig.pathSeparator,
+          TerminalCompletionItemKind.Folder
+        ),
         replacementIndex: cursorPosition - lastWord.length,
         replacementLength: lastWord.length
       });
@@ -362,7 +457,10 @@ let TerminalCompletionService = class extends Disposable {
       let homeResource;
       const home = this._getHomeDir(useWindowsStylePath, capabilities);
       if (home) {
-        homeResource = URI.joinPath(URI.file(home), lastWordFolder.slice(1).replaceAll("\\ ", " "));
+        homeResource = URI.joinPath(
+          URI.file(home),
+          lastWordFolder.slice(1).replaceAll("\\ ", " ")
+        );
       }
       if (!homeResource) {
         homeResource = useWindowsStylePath ? "Home directory" : "$HOME";
@@ -371,7 +469,11 @@ let TerminalCompletionService = class extends Disposable {
         label: "~",
         provider,
         kind: TerminalCompletionItemKind.Folder,
-        detail: typeof homeResource === "string" ? homeResource : getFriendlyPath(homeResource, resourceRequestConfig.pathSeparator, TerminalCompletionItemKind.Folder),
+        detail: typeof homeResource === "string" ? homeResource : getFriendlyPath(
+          homeResource,
+          resourceRequestConfig.pathSeparator,
+          TerminalCompletionItemKind.Folder
+        ),
         replacementIndex: cursorPosition - lastWord.length,
         replacementLength: lastWord.length
       });

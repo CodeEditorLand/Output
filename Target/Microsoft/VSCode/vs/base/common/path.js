@@ -279,7 +279,12 @@ const win32 = {
         rootEnd = 3;
       }
     }
-    let tail = rootEnd < len ? normalizeString(path.slice(rootEnd), !isAbsolute2, "\\", isPathSeparator) : "";
+    let tail = rootEnd < len ? normalizeString(
+      path.slice(rootEnd),
+      !isAbsolute2,
+      "\\",
+      isPathSeparator
+    ) : "";
     if (tail.length === 0 && !isAbsolute2) {
       tail = ".";
     }
@@ -403,7 +408,7 @@ const win32 = {
           return toSplit.slice(i2).join("\\");
         }
         if (fromLen2 > length2) {
-          return "..\\".repeat(fromLen2 - 1 - i2) + "..";
+          return `${"..\\".repeat(fromLen2 - 1 - i2)}..`;
         }
         return "";
       }

@@ -10,17 +10,18 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../base/common/uri.js";
 import { Emitter } from "../../../../../base/common/event.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
-import { FilePromptParser } from "../../common/promptSyntax/parsers/filePromptParser.js";
 import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { FilePromptParser } from "../../common/promptSyntax/parsers/filePromptParser.js";
 let ChatPromptAttachmentModel = class extends Disposable {
   constructor(uri, initService) {
     super();
     this.initService = initService;
     this._onUpdate.fire = this._onUpdate.fire.bind(this._onUpdate);
-    this._reference = this._register(this.initService.createInstance(FilePromptParser, uri, [])).onUpdate(this._onUpdate.fire);
+    this._reference = this._register(
+      this.initService.createInstance(FilePromptParser, uri, [])
+    ).onUpdate(this._onUpdate.fire);
   }
   static {
     __name(this, "ChatPromptAttachmentModel");
@@ -46,10 +47,7 @@ let ChatPromptAttachmentModel = class extends Disposable {
     if (errorCondition) {
       return [];
     }
-    return [
-      ...reference.allValidReferencesUris,
-      reference.uri
-    ];
+    return [...reference.allValidReferencesUris, reference.uri];
   }
   /**
    * Promise that resolves when the prompt is fully parsed,

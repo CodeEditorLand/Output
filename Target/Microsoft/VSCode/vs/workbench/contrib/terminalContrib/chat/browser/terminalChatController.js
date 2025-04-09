@@ -13,12 +13,20 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { Lazy } from "../../../../../base/common/lazy.js";
 import { Disposable } from "../../../../../base/common/lifecycle.js";
 import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
-import { IChatCodeBlockContextProviderService, showChatView } from "../../../chat/browser/chat.js";
-import { IChatService } from "../../../chat/common/chatService.js";
-import { isDetachedTerminalInstance, ITerminalContribution, ITerminalInstance, ITerminalService, IXtermTerminal } from "../../../terminal/browser/terminal.js";
-import { TerminalChatWidget } from "./terminalChatWidget.js";
+import {
+  IInstantiationService
+} from "../../../../../platform/instantiation/common/instantiation.js";
 import { IViewsService } from "../../../../services/views/common/viewsService.js";
+import {
+  IChatCodeBlockContextProviderService,
+  showChatView
+} from "../../../chat/browser/chat.js";
+import { IChatService } from "../../../chat/common/chatService.js";
+import {
+  isDetachedTerminalInstance,
+  ITerminalService
+} from "../../../terminal/browser/terminal.js";
+import { TerminalChatWidget } from "./terminalChatWidget.js";
 let TerminalChatController = class extends Disposable {
   constructor(_ctx, chatCodeBlockContextProviderService, _contextKeyService, _instantiationService, _terminalService) {
     super();
@@ -26,26 +34,33 @@ let TerminalChatController = class extends Disposable {
     this._contextKeyService = _contextKeyService;
     this._instantiationService = _instantiationService;
     this._terminalService = _terminalService;
-    this._register(chatCodeBlockContextProviderService.registerProvider({
-      getCodeBlockContext: /* @__PURE__ */ __name((editor) => {
-        if (!editor || !this._terminalChatWidget?.hasValue || !this.hasFocus()) {
-          return;
-        }
-        return {
-          element: editor,
-          code: editor.getValue(),
-          codeBlockIndex: 0,
-          languageId: editor.getModel().getLanguageId()
-        };
-      }, "getCodeBlockContext")
-    }, "terminal"));
+    this._register(
+      chatCodeBlockContextProviderService.registerProvider(
+        {
+          getCodeBlockContext: /* @__PURE__ */ __name((editor) => {
+            if (!editor || !this._terminalChatWidget?.hasValue || !this.hasFocus()) {
+              return;
+            }
+            return {
+              element: editor,
+              code: editor.getValue(),
+              codeBlockIndex: 0,
+              languageId: editor.getModel()?.getLanguageId()
+            };
+          }, "getCodeBlockContext")
+        },
+        "terminal"
+      )
+    );
   }
   static {
     __name(this, "TerminalChatController");
   }
   static ID = "terminal.chat";
   static get(instance) {
-    return instance.getContribution(TerminalChatController.ID);
+    return instance.getContribution(
+      TerminalChatController.ID
+    );
   }
   /**
    * The controller for the currently focused chat widget. This is used to track action context since 'active terminals'
@@ -73,19 +88,34 @@ let TerminalChatController = class extends Disposable {
   }
   xtermReady(xterm) {
     this._terminalChatWidget = new Lazy(() => {
-      const chatWidget = this._register(this._instantiationService.createInstance(TerminalChatWidget, this._ctx.instance.domElement, this._ctx.instance, xterm));
-      this._register(chatWidget.focusTracker.onDidFocus(() => {
-        TerminalChatController.activeChatController = this;
-        if (!isDetachedTerminalInstance(this._ctx.instance)) {
-          this._terminalService.setActiveInstance(this._ctx.instance);
-        }
-      }));
-      this._register(chatWidget.focusTracker.onDidBlur(() => {
-        TerminalChatController.activeChatController = void 0;
-        this._ctx.instance.resetScrollbarVisibility();
-      }));
+      const chatWidget = this._register(
+        this._instantiationService.createInstance(
+          TerminalChatWidget,
+          this._ctx.instance.domElement,
+          this._ctx.instance,
+          xterm
+        )
+      );
+      this._register(
+        chatWidget.focusTracker.onDidFocus(() => {
+          TerminalChatController.activeChatController = this;
+          if (!isDetachedTerminalInstance(this._ctx.instance)) {
+            this._terminalService.setActiveInstance(
+              this._ctx.instance
+            );
+          }
+        })
+      );
+      this._register(
+        chatWidget.focusTracker.onDidBlur(() => {
+          TerminalChatController.activeChatController = void 0;
+          this._ctx.instance.resetScrollbarVisibility();
+        })
+      );
       if (!this._ctx.instance.domElement) {
-        throw new Error("FindWidget expected terminal DOM to be initialized");
+        throw new Error(
+          "FindWidget expected terminal DOM to be initialized"
+        );
       }
       return chatWidget;
     });
@@ -126,7 +156,10 @@ let TerminalChatController = class extends Disposable {
   async viewInChat() {
     const chatModel = this.terminalChatWidget?.inlineChatWidget.chatWidget.viewModel?.model;
     if (chatModel) {
-      await this._instantiationService.invokeFunction(moveToPanelChat, chatModel);
+      await this._instantiationService.invokeFunction(
+        moveToPanelChat,
+        chatModel
+      );
     }
     this._terminalChatWidget?.rawValue?.hide();
   }
@@ -141,9 +174,12 @@ async function moveToPanelChat(accessor, model) {
   const viewsService = accessor.get(IViewsService);
   const chatService = accessor.get(IChatService);
   const widget = await showChatView(viewsService);
-  if (widget && widget.viewModel && model) {
+  if (widget?.viewModel && model) {
     for (const request of model.getRequests().slice()) {
-      await chatService.adoptRequest(widget.viewModel.model.sessionId, request);
+      await chatService.adoptRequest(
+        widget.viewModel.model.sessionId,
+        request
+      );
     }
     widget.focusLastMessage();
   }

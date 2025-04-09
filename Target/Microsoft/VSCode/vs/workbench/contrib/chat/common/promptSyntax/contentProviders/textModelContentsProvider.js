@@ -10,24 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { URI } from "../../../../../../base/common/uri.js";
 import { VSBuffer } from "../../../../../../base/common/buffer.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
 import { CancellationError } from "../../../../../../base/common/errors.js";
+import {
+  newWriteableStream
+} from "../../../../../../base/common/stream.js";
+import { TextModel } from "../../../../../../editor/common/model/textModel.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { FilePromptContentProvider } from "./filePromptContentsProvider.js";
 import { PromptContentsProviderBase } from "./promptContentsProviderBase.js";
-import { TextModel } from "../../../../../../editor/common/model/textModel.js";
-import { CancellationToken } from "../../../../../../base/common/cancellation.js";
-import { newWriteableStream, ReadableStream } from "../../../../../../base/common/stream.js";
-import { IModelContentChangedEvent } from "../../../../../../editor/common/textModelEvents.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 let TextModelContentsProvider = class extends PromptContentsProviderBase {
   constructor(model, initService) {
     super();
     this.model = model;
     this.initService = initService;
     this._register(this.model.onWillDispose(this.dispose.bind(this)));
-    this._register(this.model.onDidChangeContent(this.onChangeEmitter.fire));
+    this._register(
+      this.model.onDidChangeContent(this.onChangeEmitter.fire)
+    );
   }
   static {
     __name(this, "TextModelContentsProvider");
@@ -66,13 +66,9 @@ let TextModelContentsProvider = class extends PromptContentsProviderBase {
         return;
       }
       try {
-        stream.write(
-          VSBuffer.fromString(this.model.getLineContent(i))
-        );
+        stream.write(VSBuffer.fromString(this.model.getLineContent(i)));
         if (i !== linesCount) {
-          stream.write(
-            VSBuffer.fromString(this.model.getEOL())
-          );
+          stream.write(VSBuffer.fromString(this.model.getEOL()));
         }
       } catch (error) {
         console.log(this.uri, i, error);

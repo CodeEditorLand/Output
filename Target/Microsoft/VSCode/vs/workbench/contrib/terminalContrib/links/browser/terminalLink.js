@@ -10,14 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Disposable, DisposableStore, MutableDisposable } from "../../../../../base/common/lifecycle.js";
 import * as dom from "../../../../../base/browser/dom.js";
 import { RunOnceScheduler } from "../../../../../base/common/async.js";
-import { convertBufferRangeToViewport } from "./terminalLinkHelpers.js";
+import { Emitter } from "../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../base/common/lifecycle.js";
 import { isMacintosh } from "../../../../../base/common/platform.js";
-import { Emitter, Event } from "../../../../../base/common/event.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
-import { TerminalLinkType } from "./links.js";
+import { convertBufferRangeToViewport } from "./terminalLinkHelpers.js";
 let TerminalLink = class extends Disposable {
   constructor(_xterm, range, text, uri, parsedLink, actions, _viewportY, _activateCallback, _tooltipCallback, _isHighConfidenceLink, label, _type, _configurationService) {
     super();
@@ -59,22 +62,28 @@ let TerminalLink = class extends Disposable {
     const w = dom.getWindow(event);
     const d = w.document;
     const hoverListeners = this._hoverListeners.value = new DisposableStore();
-    hoverListeners.add(dom.addDisposableListener(d, "keydown", (e) => {
-      if (!e.repeat && this._isModifierDown(e)) {
-        this._enableDecorations();
-      }
-    }));
-    hoverListeners.add(dom.addDisposableListener(d, "keyup", (e) => {
-      if (!e.repeat && !this._isModifierDown(e)) {
-        this._disableDecorations();
-      }
-    }));
-    hoverListeners.add(this._xterm.onRender((e) => {
-      const viewportRangeY = this.range.start.y - this._viewportY;
-      if (viewportRangeY >= e.start && viewportRangeY <= e.end) {
-        this._onInvalidated.fire();
-      }
-    }));
+    hoverListeners.add(
+      dom.addDisposableListener(d, "keydown", (e) => {
+        if (!e.repeat && this._isModifierDown(e)) {
+          this._enableDecorations();
+        }
+      })
+    );
+    hoverListeners.add(
+      dom.addDisposableListener(d, "keyup", (e) => {
+        if (!e.repeat && !this._isModifierDown(e)) {
+          this._disableDecorations();
+        }
+      })
+    );
+    hoverListeners.add(
+      this._xterm.onRender((e) => {
+        const viewportRangeY = this.range.start.y - this._viewportY;
+        if (viewportRangeY >= e.start && viewportRangeY <= e.end) {
+          this._onInvalidated.fire();
+        }
+      })
+    );
     if (this._isHighConfidenceLink) {
       this._tooltipScheduler.value = new RunOnceScheduler(() => {
         this._tooltipCallback(
@@ -88,18 +97,20 @@ let TerminalLink = class extends Disposable {
       this._tooltipScheduler.value.schedule();
     }
     const origin = { x: event.pageX, y: event.pageY };
-    hoverListeners.add(dom.addDisposableListener(d, dom.EventType.MOUSE_MOVE, (e) => {
-      if (this._isModifierDown(e)) {
-        this._enableDecorations();
-      } else {
-        this._disableDecorations();
-      }
-      if (Math.abs(e.pageX - origin.x) > w.devicePixelRatio * 2 || Math.abs(e.pageY - origin.y) > w.devicePixelRatio * 2) {
-        origin.x = e.pageX;
-        origin.y = e.pageY;
-        this._tooltipScheduler.value?.schedule();
-      }
-    }));
+    hoverListeners.add(
+      dom.addDisposableListener(d, dom.EventType.MOUSE_MOVE, (e) => {
+        if (this._isModifierDown(e)) {
+          this._enableDecorations();
+        } else {
+          this._disableDecorations();
+        }
+        if (Math.abs(e.pageX - origin.x) > w.devicePixelRatio * 2 || Math.abs(e.pageY - origin.y) > w.devicePixelRatio * 2) {
+          origin.x = e.pageX;
+          origin.y = e.pageY;
+          this._tooltipScheduler.value?.schedule();
+        }
+      })
+    );
   }
   leave() {
     this._hoverListeners.clear();

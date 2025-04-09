@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "./event.js";
-import { Disposable, IDisposable } from "./lifecycle.js";
+import { Emitter } from "./event.js";
+import { Disposable } from "./lifecycle.js";
 var ScrollbarVisibility = /* @__PURE__ */ ((ScrollbarVisibility2) => {
   ScrollbarVisibility2[ScrollbarVisibility2["Auto"] = 1] = "Auto";
   ScrollbarVisibility2[ScrollbarVisibility2["Hidden"] = 2] = "Hidden";
@@ -128,7 +128,15 @@ class Scrollable extends Disposable {
     super();
     this._smoothScrollDuration = options.smoothScrollDuration;
     this._scheduleAtNextAnimationFrame = options.scheduleAtNextAnimationFrame;
-    this._state = new ScrollState(options.forceIntegerValues, 0, 0, 0, 0, 0, 0);
+    this._state = new ScrollState(
+      options.forceIntegerValues,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    );
     this._smoothScrolling = null;
   }
   dispose() {
@@ -148,7 +156,10 @@ class Scrollable extends Disposable {
     return this._state;
   }
   setScrollDimensions(dimensions, useRawScrollPositions) {
-    const newState = this._state.withScrollDimensions(dimensions, useRawScrollPositions);
+    const newState = this._state.withScrollDimensions(
+      dimensions,
+      useRawScrollPositions
+    );
     this._setState(newState, Boolean(this._smoothScrolling));
     this._smoothScrolling?.acceptScrollDimensions(this._state);
   }
@@ -192,15 +203,28 @@ class Scrollable extends Disposable {
       }
       let newSmoothScrolling;
       if (reuseAnimation) {
-        newSmoothScrolling = new SmoothScrollingOperation(this._smoothScrolling.from, validTarget, this._smoothScrolling.startTime, this._smoothScrolling.duration);
+        newSmoothScrolling = new SmoothScrollingOperation(
+          this._smoothScrolling.from,
+          validTarget,
+          this._smoothScrolling.startTime,
+          this._smoothScrolling.duration
+        );
       } else {
-        newSmoothScrolling = this._smoothScrolling.combine(this._state, validTarget, this._smoothScrollDuration);
+        newSmoothScrolling = this._smoothScrolling.combine(
+          this._state,
+          validTarget,
+          this._smoothScrollDuration
+        );
       }
       this._smoothScrolling.dispose();
       this._smoothScrolling = newSmoothScrolling;
     } else {
       const validTarget = this._state.withScrollPosition(update);
-      this._smoothScrolling = SmoothScrollingOperation.start(this._state, validTarget, this._smoothScrollDuration);
+      this._smoothScrolling = SmoothScrollingOperation.start(
+        this._state,
+        validTarget,
+        this._smoothScrollDuration
+      );
     }
     this._smoothScrolling.animationFrameDisposable = this._scheduleAtNextAnimationFrame(() => {
       if (!this._smoothScrolling) {
@@ -242,7 +266,9 @@ class Scrollable extends Disposable {
       return;
     }
     this._state = newState;
-    this._onScroll.fire(this._state.createScrollEvent(oldState, inSmoothScrolling));
+    this._onScroll.fire(
+      this._state.createScrollEvent(oldState, inSmoothScrolling)
+    );
   }
 }
 class SmoothScrollingUpdate {
@@ -260,13 +286,11 @@ class SmoothScrollingUpdate {
 }
 function createEaseOutCubic(from, to) {
   const delta = to - from;
-  return function(completion) {
-    return from + delta * easeOutCubic(completion);
-  };
+  return (completion) => from + delta * easeOutCubic(completion);
 }
 __name(createEaseOutCubic, "createEaseOutCubic");
 function createComposed(a, b, cut) {
-  return function(completion) {
+  return (completion) => {
     if (completion < cut) {
       return a(completion / cut);
     }
@@ -294,13 +318,22 @@ class SmoothScrollingOperation {
     this._initAnimations();
   }
   _initAnimations() {
-    this.scrollLeft = this._initAnimation(this.from.scrollLeft, this.to.scrollLeft, this.to.width);
-    this.scrollTop = this._initAnimation(this.from.scrollTop, this.to.scrollTop, this.to.height);
+    this.scrollLeft = this._initAnimation(
+      this.from.scrollLeft,
+      this.to.scrollLeft,
+      this.to.width
+    );
+    this.scrollTop = this._initAnimation(
+      this.from.scrollTop,
+      this.to.scrollTop,
+      this.to.height
+    );
   }
   _initAnimation(from, to, viewportSize) {
     const delta = Math.abs(from - to);
     if (delta > 2.5 * viewportSize) {
-      let stop1, stop2;
+      let stop1;
+      let stop2;
       if (from < to) {
         stop1 = from + 0.75 * viewportSize;
         stop2 = to - 0.75 * viewportSize;
@@ -308,7 +341,11 @@ class SmoothScrollingOperation {
         stop1 = from - 0.75 * viewportSize;
         stop2 = to + 0.75 * viewportSize;
       }
-      return createComposed(createEaseOutCubic(from, stop1), createEaseOutCubic(stop2, to), 0.33);
+      return createComposed(
+        createEaseOutCubic(from, stop1),
+        createEaseOutCubic(stop2, to),
+        0.33
+      );
     }
     return createEaseOutCubic(from, to);
   }
@@ -330,9 +367,17 @@ class SmoothScrollingOperation {
     if (completion < 1) {
       const newScrollLeft = this.scrollLeft(completion);
       const newScrollTop = this.scrollTop(completion);
-      return new SmoothScrollingUpdate(newScrollLeft, newScrollTop, false);
+      return new SmoothScrollingUpdate(
+        newScrollLeft,
+        newScrollTop,
+        false
+      );
     }
-    return new SmoothScrollingUpdate(this.to.scrollLeft, this.to.scrollTop, true);
+    return new SmoothScrollingUpdate(
+      this.to.scrollLeft,
+      this.to.scrollTop,
+      true
+    );
   }
   combine(from, to, duration) {
     return SmoothScrollingOperation.start(from, to, duration);
@@ -344,7 +389,7 @@ class SmoothScrollingOperation {
   }
 }
 function easeInCubic(t) {
-  return Math.pow(t, 3);
+  return t ** 3;
 }
 __name(easeInCubic, "easeInCubic");
 function easeOutCubic(t) {

@@ -10,18 +10,30 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IUserDataProfileStorageService, RemoteUserDataProfileStorageService } from "../common/userDataProfileStorageService.js";
-import { InstantiationType, registerSingleton } from "../../instantiation/common/extensions.js";
-import { IStorageService } from "../../storage/common/storage.js";
-import { ILogService } from "../../log/common/log.js";
-import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../instantiation/common/extensions.js";
 import { IMainProcessService } from "../../ipc/common/mainProcessService.js";
+import { ILogService } from "../../log/common/log.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IUserDataProfilesService } from "../common/userDataProfile.js";
+import {
+  IUserDataProfileStorageService,
+  RemoteUserDataProfileStorageService
+} from "../common/userDataProfileStorageService.js";
 let NativeUserDataProfileStorageService = class extends RemoteUserDataProfileStorageService {
   static {
     __name(this, "NativeUserDataProfileStorageService");
   }
   constructor(mainProcessService, userDataProfilesService, storageService, logService) {
-    super(false, mainProcessService, userDataProfilesService, storageService, logService);
+    super(
+      false,
+      mainProcessService,
+      userDataProfilesService,
+      storageService,
+      logService
+    );
   }
 };
 NativeUserDataProfileStorageService = __decorateClass([
@@ -30,7 +42,11 @@ NativeUserDataProfileStorageService = __decorateClass([
   __decorateParam(2, IStorageService),
   __decorateParam(3, ILogService)
 ], NativeUserDataProfileStorageService);
-registerSingleton(IUserDataProfileStorageService, NativeUserDataProfileStorageService, InstantiationType.Delayed);
+registerSingleton(
+  IUserDataProfileStorageService,
+  NativeUserDataProfileStorageService,
+  InstantiationType.Delayed
+);
 export {
   NativeUserDataProfileStorageService
 };

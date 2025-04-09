@@ -11,15 +11,26 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Iterable } from "../../../../base/common/iterator.js";
-import { Disposable, IReference } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { URI } from "../../../../base/common/uri.js";
 import { Range } from "../../../../editor/common/core/range.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { EndOfLinePreference, ITextModel } from "../../../../editor/common/model.js";
-import { IResolvedTextEditorModel, ITextModelService } from "../../../../editor/common/services/resolverService.js";
-import { extractCodeblockUrisFromText, extractVulnerabilitiesFromText, IMarkdownVulnerability } from "./annotations.js";
-import { IChatRequestViewModel, IChatResponseViewModel, isResponseVM } from "./chatViewModel.js";
+import {
+  EndOfLinePreference
+} from "../../../../editor/common/model.js";
+import {
+  ITextModelService
+} from "../../../../editor/common/services/resolverService.js";
+import {
+  extractCodeblockUrisFromText,
+  extractVulnerabilitiesFromText
+} from "./annotations.js";
+import {
+  isResponseVM
+} from "./chatViewModel.js";
 let CodeBlockModelCollection = class extends Disposable {
   constructor(tag, languageService, textModelService) {
     super();
@@ -42,7 +53,9 @@ let CodeBlockModelCollection = class extends Disposable {
     this.clear();
   }
   get(sessionId, chat, codeBlockIndex) {
-    const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+    const entry = this._models.get(
+      this.getKey(sessionId, chat, codeBlockIndex)
+    );
     if (!entry) {
       return;
     }
@@ -72,7 +85,11 @@ let CodeBlockModelCollection = class extends Disposable {
       }
       this.delete(first);
     }
-    return { model: model.then((x) => x.object.textEditorModel), vulns: [], codemapperUri: void 0 };
+    return {
+      model: model.then((x) => x.object.textEditorModel),
+      vulns: [],
+      codemapperUri: void 0
+    };
   }
   delete(key) {
     const entry = this._models.get(key);
@@ -90,10 +107,21 @@ let CodeBlockModelCollection = class extends Disposable {
     const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
     const extractedVulns = extractVulnerabilitiesFromText(content.text);
     const newText = fixCodeText(extractedVulns.newText, content.languageId);
-    this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
+    this.setVulns(
+      sessionId,
+      chat,
+      codeBlockIndex,
+      extractedVulns.vulnerabilities
+    );
     const codeblockUri = extractCodeblockUrisFromText(newText);
     if (codeblockUri) {
-      this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri, codeblockUri.isEdit);
+      this.setCodemapperUri(
+        sessionId,
+        chat,
+        codeBlockIndex,
+        codeblockUri.uri,
+        codeblockUri.isEdit
+      );
     }
     if (content.isComplete) {
       this.markCodeBlockCompleted(sessionId, chat, codeBlockIndex);
@@ -101,7 +129,9 @@ let CodeBlockModelCollection = class extends Disposable {
     return this.get(sessionId, chat, codeBlockIndex) ?? entry;
   }
   markCodeBlockCompleted(sessionId, chat, codeBlockIndex) {
-    const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+    const entry = this._models.get(
+      this.getKey(sessionId, chat, codeBlockIndex)
+    );
     if (!entry) {
       return;
     }
@@ -110,10 +140,21 @@ let CodeBlockModelCollection = class extends Disposable {
     const entry = this.getOrCreate(sessionId, chat, codeBlockIndex);
     const extractedVulns = extractVulnerabilitiesFromText(content.text);
     let newText = fixCodeText(extractedVulns.newText, content.languageId);
-    this.setVulns(sessionId, chat, codeBlockIndex, extractedVulns.vulnerabilities);
+    this.setVulns(
+      sessionId,
+      chat,
+      codeBlockIndex,
+      extractedVulns.vulnerabilities
+    );
     const codeblockUri = extractCodeblockUrisFromText(newText);
     if (codeblockUri) {
-      this.setCodemapperUri(sessionId, chat, codeBlockIndex, codeblockUri.uri, codeblockUri.isEdit);
+      this.setCodemapperUri(
+        sessionId,
+        chat,
+        codeBlockIndex,
+        codeblockUri.uri,
+        codeblockUri.isEdit
+      );
       newText = codeblockUri.textWithoutResult;
     }
     if (content.isComplete) {
@@ -124,7 +165,9 @@ let CodeBlockModelCollection = class extends Disposable {
       return entry;
     }
     if (content.languageId) {
-      const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(content.languageId);
+      const vscodeLanguageId = this.languageService.getLanguageIdByLanguageName(
+        content.languageId
+      );
       if (vscodeLanguageId && vscodeLanguageId !== textModel.getLanguageId()) {
         textModel.setLanguage(vscodeLanguageId);
       }
@@ -137,21 +180,30 @@ let CodeBlockModelCollection = class extends Disposable {
       const text = newText.slice(currentText.length);
       const lastLine = textModel.getLineCount();
       const lastCol = textModel.getLineMaxColumn(lastLine);
-      textModel.applyEdits([{ range: new Range(lastLine, lastCol, lastLine, lastCol), text }]);
+      textModel.applyEdits([
+        {
+          range: new Range(lastLine, lastCol, lastLine, lastCol),
+          text
+        }
+      ]);
     } else {
       textModel.setValue(newText);
     }
     return entry;
   }
   setCodemapperUri(sessionId, chat, codeBlockIndex, codemapperUri, isEdit) {
-    const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+    const entry = this._models.get(
+      this.getKey(sessionId, chat, codeBlockIndex)
+    );
     if (entry) {
       entry.codemapperUri = codemapperUri;
       entry.isEdit = isEdit;
     }
   }
   setVulns(sessionId, chat, codeBlockIndex, vulnerabilities) {
-    const entry = this._models.get(this.getKey(sessionId, chat, codeBlockIndex));
+    const entry = this._models.get(
+      this.getKey(sessionId, chat, codeBlockIndex)
+    );
     if (entry) {
       entry.vulns = vulnerabilities;
     }

@@ -1,13 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ScrollEvent } from "../../base/common/scrollable.js";
-import { ConfigurationChangedEvent, EditorOption } from "./config/editorOptions.js";
-import { Range } from "./core/range.js";
-import { Selection } from "./core/selection.js";
-import { CursorChangeReason } from "./cursorEvents.js";
-import { ScrollType } from "./editorCommon.js";
-import { IModelDecorationsChangedEvent } from "./textModelEvents.js";
-import { IColorTheme } from "../../platform/theme/common/themeService.js";
 var ViewEventType = /* @__PURE__ */ ((ViewEventType2) => {
   ViewEventType2[ViewEventType2["ViewCompositionStart"] = 0] = "ViewCompositionStart";
   ViewEventType2[ViewEventType2["ViewCompositionEnd"] = 1] = "ViewCompositionEnd";
@@ -34,16 +26,12 @@ class ViewCompositionStartEvent {
     __name(this, "ViewCompositionStartEvent");
   }
   type = 0 /* ViewCompositionStart */;
-  constructor() {
-  }
 }
 class ViewCompositionEndEvent {
   static {
     __name(this, "ViewCompositionEndEvent");
   }
   type = 1 /* ViewCompositionEnd */;
-  constructor() {
-  }
 }
 class ViewConfigurationChangedEvent {
   static {
@@ -97,8 +85,6 @@ class ViewFlushedEvent {
     __name(this, "ViewFlushedEvent");
   }
   type = 5 /* ViewFlushed */;
-  constructor() {
-  }
 }
 class ViewFocusChangedEvent {
   static {
@@ -121,8 +107,6 @@ class ViewLineMappingChangedEvent {
     __name(this, "ViewLineMappingChangedEvent");
   }
   type = 8 /* ViewLineMappingChanged */;
-  constructor() {
-  }
 }
 class ViewLinesChangedEvent {
   constructor(fromLineNumber, count) {
@@ -243,16 +227,12 @@ class ViewTokensColorsChangedEvent {
     __name(this, "ViewTokensColorsChangedEvent");
   }
   type = 16 /* ViewTokensColorsChanged */;
-  constructor() {
-  }
 }
 class ViewZonesChangedEvent {
   static {
     __name(this, "ViewZonesChangedEvent");
   }
   type = 17 /* ViewZonesChanged */;
-  constructor() {
-  }
 }
 export {
   VerticalRevealType,

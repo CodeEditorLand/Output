@@ -22,12 +22,19 @@ import product from "../../../../platform/product/common/product.js";
 import { IAuxiliaryWindowService } from "../../../services/auxiliaryWindow/browser/auxiliaryWindowService.js";
 import { IHostService } from "../../../services/host/browser/host.js";
 import { IssueFormService } from "../browser/issueFormService.js";
-import { IIssueFormService, IssueReporterData } from "../common/issue.js";
 import { IssueReporter } from "./issueReporterService.js";
 import "./media/issueReporter.css";
 let NativeIssueFormService = class extends IssueFormService {
   constructor(instantiationService, auxiliaryWindowService, logService, dialogService, menuService, contextKeyService, hostService, nativeHostService, environmentService) {
-    super(instantiationService, auxiliaryWindowService, menuService, contextKeyService, logService, dialogService, hostService);
+    super(
+      instantiationService,
+      auxiliaryWindowService,
+      menuService,
+      contextKeyService,
+      logService,
+      dialogService,
+      hostService
+    );
     this.nativeHostService = nativeHostService;
     this.environmentService = environmentService;
   }
@@ -50,7 +57,16 @@ let NativeIssueFormService = class extends IssueFormService {
     this.release = release;
     this.type = type;
     if (this.issueReporterWindow) {
-      const issueReporter = this.store.add(this.instantiationService.createInstance(IssueReporter, !!this.environmentService.disableExtensions, data, { type: this.type, arch: this.arch, release: this.release }, product, this.issueReporterWindow));
+      const issueReporter = this.store.add(
+        this.instantiationService.createInstance(
+          IssueReporter,
+          !!this.environmentService.disableExtensions,
+          data,
+          { type: this.type, arch: this.arch, release: this.release },
+          product,
+          this.issueReporterWindow
+        )
+      );
       issueReporter.render();
     } else {
       this.store.dispose();

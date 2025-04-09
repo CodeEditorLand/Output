@@ -10,14 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IWorkbenchContribution } from "../../../common/contributions.js";
-import { IExtensionService } from "../../../services/extensions/common/extensions.js";
-import { IProgressService, ProgressLocation } from "../../../../platform/progress/common/progress.js";
-import { localize } from "../../../../nls.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
 import { DeferredPromise, timeout } from "../../../../base/common/async.js";
-import { ILogService } from "../../../../platform/log/common/log.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { localize } from "../../../../nls.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  IProgressService,
+  ProgressLocation
+} from "../../../../platform/progress/common/progress.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
 let ExtensionActivationProgress = class {
   static {
     __name(this, "ExtensionActivationProgress");
@@ -34,12 +35,15 @@ let ExtensionActivationProgress = class {
       logService.trace("onWillActivateByEvent: ", e.event);
       if (!deferred) {
         deferred = new DeferredPromise();
-        progressService.withProgress(options, (_) => deferred.p);
+        progressService.withProgress(options, (_) => deferred?.p);
       }
       count++;
-      Promise.race([e.activation, timeout(5e3, CancellationToken.None)]).finally(() => {
+      Promise.race([
+        e.activation,
+        timeout(5e3, CancellationToken.None)
+      ]).finally(() => {
         if (--count === 0) {
-          deferred.complete(void 0);
+          deferred?.complete(void 0);
           deferred = void 0;
         }
       });

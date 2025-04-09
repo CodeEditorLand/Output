@@ -81,11 +81,14 @@ function isPointWithinTriangle(x, y, ax, ay, bx, by, cx, cy) {
 }
 __name(isPointWithinTriangle, "isPointWithinTriangle");
 const randomInt = /* @__PURE__ */ __name((max, min = 0) => {
-  assert(!isNaN(min), '"min" param is not a number.');
-  assert(!isNaN(max), '"max" param is not a number.');
-  assert(isFinite(max), '"max" param is not finite.');
-  assert(isFinite(min), '"min" param is not finite.');
-  assert(max > min, `"max"(${max}) param should be greater than "min"(${min}).`);
+  assert(!Number.isNaN(min), '"min" param is not a number.');
+  assert(!Number.isNaN(max), '"max" param is not a number.');
+  assert(Number.isFinite(max), '"max" param is not finite.');
+  assert(Number.isFinite(min), '"min" param is not finite.');
+  assert(
+    max > min,
+    `"max"(${max}) param should be greater than "min"(${min}).`
+  );
   const delta = max - min;
   const randomFloat = delta * Math.random();
   return Math.round(min + randomFloat);

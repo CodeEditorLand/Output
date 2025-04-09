@@ -10,16 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Emitter, Event } from "../../../base/common/event.js";
+import { decodeBase64 } from "../../../base/common/buffer.js";
+import { Emitter } from "../../../base/common/event.js";
 import { Schemas } from "../../../base/common/network.js";
 import { isFalsyOrWhitespace } from "../../../base/common/strings.js";
 import { URI } from "../../../base/common/uri.js";
 import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
-import { IExtHostRpcService } from "./extHostRpcService.js";
-import { WindowState } from "vscode";
-import { ExtHostWindowShape, IOpenUriOptions, MainContext, MainThreadWindowShape } from "./extHost.protocol.js";
+import {
+  MainContext
+} from "./extHost.protocol.js";
 import { IExtHostInitDataService } from "./extHostInitDataService.js";
-import { decodeBase64 } from "../../../base/common/buffer.js";
+import { IExtHostRpcService } from "./extHostRpcService.js";
 let ExtHostWindow = class {
   static {
     __name(this, "ExtHostWindow");

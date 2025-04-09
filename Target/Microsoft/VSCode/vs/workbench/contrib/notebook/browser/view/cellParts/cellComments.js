@@ -11,18 +11,22 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { coalesce } from "../../../../../../base/common/arrays.js";
-import { DisposableMap, DisposableStore } from "../../../../../../base/common/lifecycle.js";
-import { EDITOR_FONT_DEFAULTS, IEditorOptions } from "../../../../../../editor/common/config/editorOptions.js";
-import * as languages from "../../../../../../editor/common/languages.js";
+import {
+  DisposableMap,
+  DisposableStore
+} from "../../../../../../base/common/lifecycle.js";
+import {
+  EDITOR_FONT_DEFAULTS
+} from "../../../../../../editor/common/config/editorOptions.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IContextKeyService } from "../../../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { IThemeService } from "../../../../../../platform/theme/common/themeService.js";
-import { ICommentService, INotebookCommentInfo } from "../../../../comments/browser/commentService.js";
+import {
+  ICommentService
+} from "../../../../comments/browser/commentService.js";
 import { CommentThreadWidget } from "../../../../comments/browser/commentThreadWidget.js";
-import { ICellViewModel, INotebookEditorDelegate } from "../../notebookBrowser.js";
 import { CellContentPart } from "../cellPart.js";
-import { ICellRange } from "../../../common/notebookRange.js";
 let CellComments = class extends CellContentPart {
   constructor(notebookEditor, container, contextKeyService, themeService, commentService, configurationService, instantiationService) {
     super();
@@ -34,8 +38,12 @@ let CellComments = class extends CellContentPart {
     this.configurationService = configurationService;
     this.instantiationService = instantiationService;
     this.container.classList.add("review-widget");
-    this._register(this._commentThreadWidgets = new DisposableMap());
-    this._register(this.themeService.onDidColorThemeChange(this._applyTheme, this));
+    this._register(
+      this._commentThreadWidgets = new DisposableMap()
+    );
+    this._register(
+      this.themeService.onDidColorThemeChange(this._applyTheme, this)
+    );
     this._applyTheme();
   }
   static {
@@ -58,7 +66,7 @@ let CellComments = class extends CellContentPart {
       this.container,
       this.notebookEditor,
       owner,
-      this.notebookEditor.textModel.uri,
+      this.notebookEditor.textModel?.uri,
       this.contextKeyService,
       this.instantiationService,
       commentThread,
@@ -77,18 +85,29 @@ let CellComments = class extends CellContentPart {
       }
     );
     widgetDisposables.add(widget);
-    this._commentThreadWidgets.set(commentThread.threadId, { widget, dispose: /* @__PURE__ */ __name(() => widgetDisposables.dispose(), "dispose") });
+    this._commentThreadWidgets.set(commentThread.threadId, {
+      widget,
+      dispose: /* @__PURE__ */ __name(() => widgetDisposables.dispose(), "dispose")
+    });
     const layoutInfo = this.notebookEditor.getLayoutInfo();
     await widget.display(layoutInfo.fontInfo.lineHeight, true);
     this._applyTheme();
-    widgetDisposables.add(widget.onDidResize(() => {
-      if (this.currentElement) {
-        this.currentElement.commentHeight = this._calculateCommentThreadHeight(widget.getDimensions().height);
-      }
-    }));
+    widgetDisposables.add(
+      widget.onDidResize(() => {
+        if (this.currentElement) {
+          this.currentElement.commentHeight = this._calculateCommentThreadHeight(
+            widget.getDimensions().height
+          );
+        }
+      })
+    );
   }
   _bindListeners() {
-    this.cellDisposables.add(this.commentService.onDidUpdateCommentThreads(async () => this._updateThread()));
+    this.cellDisposables.add(
+      this.commentService.onDidUpdateCommentThreads(
+        async () => this._updateThread()
+      )
+    );
   }
   async _updateThread() {
     if (!this.currentElement) {
@@ -104,11 +123,16 @@ let CellComments = class extends CellContentPart {
       }
       for (const thread of info.threads) {
         widgetsToDelete.delete(thread.threadId);
-        const widget = this._commentThreadWidgets.get(thread.threadId)?.widget;
+        const widget = this._commentThreadWidgets.get(
+          thread.threadId
+        )?.widget;
         if (widget) {
           await widget.updateCommentThread(thread);
         } else {
-          await this._createCommentTheadWidget(info.uniqueOwner, thread);
+          await this._createCommentTheadWidget(
+            info.uniqueOwner,
+            thread
+          );
         }
       }
     }
@@ -132,13 +156,17 @@ let CellComments = class extends CellContentPart {
     }
     let height = 0;
     for (const { widget } of this._commentThreadWidgets.values()) {
-      height += this._calculateCommentThreadHeight(widget.getDimensions().height);
+      height += this._calculateCommentThreadHeight(
+        widget.getDimensions().height
+      );
     }
     this.currentElement.commentHeight = height;
   }
   async _getCommentThreadsForCell(element) {
     if (this.notebookEditor.hasModel()) {
-      return coalesce(await this.commentService.getNotebookComments(element.uri));
+      return coalesce(
+        await this.commentService.getNotebookComments(element.uri)
+      );
     }
     return [];
   }

@@ -1,15 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { BaseToken } from "../../baseToken.js";
-import { MarkdownToken } from "./markdownToken.js";
-import { IRange, Range } from "../../../core/range.js";
 import { assert } from "../../../../../base/common/assert.js";
+import { Range } from "../../../core/range.js";
+import { MarkdownToken } from "./markdownToken.js";
 class MarkdownLink extends MarkdownToken {
   constructor(lineNumber, columnNumber, caption, reference) {
-    assert(
-      !isNaN(lineNumber),
-      `The line number must not be a NaN.`
-    );
+    assert(!Number.isNaN(lineNumber), "The line number must not be a NaN.");
     assert(
       lineNumber > 0,
       `The line number must be >= 1, got "${lineNumber}".`

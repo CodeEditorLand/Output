@@ -17,20 +17,35 @@ import { untildify } from "../../../../base/common/labels.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
 import * as path from "../../../../base/common/path.js";
-import { isEqual, basename, relativePath, isAbsolutePath } from "../../../../base/common/resources.js";
+import {
+  basename,
+  isAbsolutePath,
+  isEqual,
+  relativePath
+} from "../../../../base/common/resources.js";
 import * as strings from "../../../../base/common/strings.js";
 import { assertIsDefined, isDefined } from "../../../../base/common/types.js";
-import { URI, URI as uri, UriComponents } from "../../../../base/common/uri.js";
+import {
+  URI,
+  URI as uri
+} from "../../../../base/common/uri.js";
 import { isMultilineRegexSource } from "../../../../editor/common/model/textModelSearch.js";
 import * as nls from "../../../../nls.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { IWorkspaceContextService, IWorkspaceFolderData, toWorkspaceFolder, WorkbenchState } from "../../../../platform/workspace/common/workspace.js";
+import {
+  IWorkspaceContextService,
+  toWorkspaceFolder,
+  WorkbenchState
+} from "../../../../platform/workspace/common/workspace.js";
 import { IEditorGroupsService } from "../../editor/common/editorGroupsService.js";
 import { IPathService } from "../../path/common/pathService.js";
-import { ExcludeGlobPattern, getExcludes, IAITextQuery, ICommonQueryProps, IFileQuery, IFolderQuery, IPatternInfo, ISearchConfiguration, ITextQuery, ITextSearchPreviewOptions, pathIncludedInQuery, QueryType } from "./search.js";
-import { GlobPattern } from "./searchExtTypes.js";
+import {
+  getExcludes,
+  pathIncludedInQuery,
+  QueryType
+} from "./search.js";
 function isISearchPatternBuilder(object) {
   return typeof object === "object" && "uri" in object && "pattern" in object;
 }
@@ -60,7 +75,10 @@ let QueryBuilder = class {
     __name(this, "QueryBuilder");
   }
   aiText(contentPattern, folderResources, options = {}) {
-    const commonQuery = this.commonQuery(folderResources?.map(toWorkspaceFolder), options);
+    const commonQuery = this.commonQuery(
+      folderResources?.map(toWorkspaceFolder),
+      options
+    );
     return {
       ...commonQuery,
       type: QueryType.aiText,
@@ -70,11 +88,16 @@ let QueryBuilder = class {
   text(contentPattern, folderResources, options = {}) {
     contentPattern = this.getContentPattern(contentPattern, options);
     const searchConfig = this.configurationService.getValue();
-    const fallbackToPCRE = folderResources && folderResources.some((folder) => {
-      const folderConfig = this.configurationService.getValue({ resource: folder });
+    const fallbackToPCRE = folderResources?.some((folder) => {
+      const folderConfig = this.configurationService.getValue({
+        resource: folder
+      });
       return !folderConfig.search.useRipgrep;
     });
-    const commonQuery = this.commonQuery(folderResources?.map(toWorkspaceFolder), options);
+    const commonQuery = this.commonQuery(
+      folderResources?.map(toWorkspaceFolder),
+      options
+    );
     return {
       ...commonQuery,
       type: QueryType.Text,
@@ -92,7 +115,10 @@ let QueryBuilder = class {
   getContentPattern(inputPattern, options) {
     const searchConfig = this.configurationService.getValue();
     if (inputPattern.isRegExp) {
-      inputPattern.pattern = inputPattern.pattern.replace(/\r?\n/g, "\\n");
+      inputPattern.pattern = inputPattern.pattern.replace(
+        /\r?\n/g,
+        "\\n"
+      );
     }
     const newPattern = {
       ...inputPattern,
@@ -154,19 +180,41 @@ let QueryBuilder = class {
     } else {
       pattern = normalizeSlashes(pattern);
     }
-    return expandPatterns ? this.parseSearchPaths(pattern) : { pattern: patternListToIExpression(...Array.isArray(pattern) ? pattern : [pattern]) };
+    return expandPatterns ? this.parseSearchPaths(pattern) : {
+      pattern: patternListToIExpression(
+        ...Array.isArray(pattern) ? pattern : [pattern]
+      )
+    };
   }
   commonQuery(folderResources = [], options = {}) {
-    let excludePatterns = Array.isArray(options.excludePattern) ? options.excludePattern.map((p) => p.pattern).flat() : options.excludePattern;
+    let excludePatterns = Array.isArray(
+      options.excludePattern
+    ) ? options.excludePattern.flatMap((p) => p.pattern) : options.excludePattern;
     excludePatterns = excludePatterns?.length === 1 ? excludePatterns[0] : excludePatterns;
-    const includeSearchPathsInfo = this.handleIncludeExclude(options.includePattern, options.expandPatterns);
+    const includeSearchPathsInfo = this.handleIncludeExclude(
+      options.includePattern,
+      options.expandPatterns
+    );
     const excludeSearchPathsInfo = this.handleIncludeExclude(excludePatterns, options.expandPatterns);
     const includeFolderName = folderResources.length > 1;
-    const folderQueries = (includeSearchPathsInfo.searchPaths && includeSearchPathsInfo.searchPaths.length ? includeSearchPathsInfo.searchPaths.map((searchPath) => this.getFolderQueryForSearchPath(searchPath, options, excludeSearchPathsInfo)) : folderResources.map((folder) => this.getFolderQueryForRoot(folder, options, excludeSearchPathsInfo, includeFolderName))).filter((query) => !!query);
+    const folderQueries = (includeSearchPathsInfo.searchPaths?.length ? includeSearchPathsInfo.searchPaths.map(
+      (searchPath) => this.getFolderQueryForSearchPath(
+        searchPath,
+        options,
+        excludeSearchPathsInfo
+      )
+    ) : folderResources.map(
+      (folder) => this.getFolderQueryForRoot(
+        folder,
+        options,
+        excludeSearchPathsInfo,
+        includeFolderName
+      )
+    )).filter((query) => !!query);
     const queryProps = {
       _reason: options._reason,
       folderQueries,
-      usingSearchPaths: !!(includeSearchPathsInfo.searchPaths && includeSearchPathsInfo.searchPaths.length),
+      usingSearchPaths: !!includeSearchPathsInfo.searchPaths?.length,
       extraFileResources: options.extraFileResources,
       excludePattern: excludeSearchPathsInfo.pattern,
       includePattern: includeSearchPathsInfo.pattern,
@@ -175,15 +223,29 @@ let QueryBuilder = class {
       onlyFileScheme: options.onlyFileScheme
     };
     if (options.onlyOpenEditors) {
-      const openEditors = arrays.coalesce(this.editorGroupsService.groups.flatMap((group) => group.editors.map((editor) => editor.resource)));
-      this.logService.trace("QueryBuilder#commonQuery - openEditor URIs", JSON.stringify(openEditors));
-      const openEditorsInQuery = openEditors.filter((editor) => pathIncludedInQuery(queryProps, editor.fsPath));
+      const openEditors = arrays.coalesce(
+        this.editorGroupsService.groups.flatMap(
+          (group) => group.editors.map((editor) => editor.resource)
+        )
+      );
+      this.logService.trace(
+        "QueryBuilder#commonQuery - openEditor URIs",
+        JSON.stringify(openEditors)
+      );
+      const openEditorsInQuery = openEditors.filter(
+        (editor) => pathIncludedInQuery(queryProps, editor.fsPath)
+      );
       const openEditorsQueryProps = this.commonQueryFromFileList(openEditorsInQuery);
-      this.logService.trace("QueryBuilder#commonQuery - openEditor Query", JSON.stringify(openEditorsQueryProps));
+      this.logService.trace(
+        "QueryBuilder#commonQuery - openEditor Query",
+        JSON.stringify(openEditorsQueryProps)
+      );
       return { ...queryProps, ...openEditorsQueryProps };
     }
-    const extraFileResources = options.extraFileResources && options.extraFileResources.filter((extraFile) => pathIncludedInQuery(queryProps, extraFile.fsPath));
-    queryProps.extraFileResources = extraFileResources && extraFileResources.length ? extraFileResources : void 0;
+    const extraFileResources = options.extraFileResources?.filter(
+      (extraFile) => pathIncludedInQuery(queryProps, extraFile.fsPath)
+    );
+    queryProps.extraFileResources = extraFileResources?.length ? extraFileResources : void 0;
     return queryProps;
   }
   commonQueryFromFileList(files) {
@@ -227,7 +289,10 @@ let QueryBuilder = class {
   isCaseSensitive(contentPattern, options) {
     if (options.isSmartCase) {
       if (contentPattern.isRegExp) {
-        if (strings.containsUppercaseCharacter(contentPattern.pattern, true)) {
+        if (strings.containsUppercaseCharacter(
+          contentPattern.pattern,
+          true
+        )) {
           return true;
         }
       } else if (strings.containsUppercaseCharacter(contentPattern.pattern)) {
@@ -262,7 +327,10 @@ let QueryBuilder = class {
     const segments = patterns.map((segment) => {
       const userHome = this.pathService.resolvedUserHome;
       if (userHome) {
-        return untildify(segment, userHome.scheme === Schemas.file ? userHome.fsPath : userHome.path);
+        return untildify(
+          segment,
+          userHome.scheme === Schemas.file ? userHome.fsPath : userHome.path
+        );
       }
       return segment;
     });
@@ -272,13 +340,15 @@ let QueryBuilder = class {
     );
     const expandedExprSegments = (groups.exprSegments || []).map((s) => strings.rtrim(s, "/")).map((s) => strings.rtrim(s, "\\")).map((p) => {
       if (p[0] === ".") {
-        p = "*" + p;
+        p = `*${p}`;
       }
       return expandGlobalGlob(p);
     });
     const result = {};
-    const searchPaths = this.expandSearchPathPatterns(groups.searchPaths || []);
-    if (searchPaths && searchPaths.length) {
+    const searchPaths = this.expandSearchPathPatterns(
+      groups.searchPaths || []
+    );
+    if (searchPaths?.length) {
       result.searchPaths = searchPaths;
     }
     const exprSegments = expandedExprSegments.flat();
@@ -289,7 +359,10 @@ let QueryBuilder = class {
     return result;
   }
   getExcludesForFolder(folderConfig, options) {
-    return options.disregardExcludeSettings ? void 0 : getExcludes(folderConfig, !options.disregardSearchExcludeSettings);
+    return options.disregardExcludeSettings ? void 0 : getExcludes(
+      folderConfig,
+      !options.disregardSearchExcludeSettings
+    );
   }
   /**
    * Split search paths (./ or ../ or absolute paths in the includePatterns) into absolute paths and globs applied to those paths
@@ -304,7 +377,12 @@ let QueryBuilder = class {
         globPortion = normalizeGlobPattern(globPortion);
       }
       const oneExpanded = this.expandOneSearchPath(pathPortion);
-      return oneExpanded.flatMap((oneExpandedResult) => this.resolveOneSearchPathPattern(oneExpandedResult, globPortion));
+      return oneExpanded.flatMap(
+        (oneExpandedResult) => this.resolveOneSearchPathPattern(
+          oneExpandedResult,
+          globPortion
+        )
+      );
     });
     const searchPathPatternMap = /* @__PURE__ */ new Map();
     expandedSearchPaths.forEach((oneSearchPathPattern) => {
@@ -331,35 +409,55 @@ let QueryBuilder = class {
     if (path.isAbsolute(searchPath)) {
       const workspaceFolders = this.workspaceContextService.getWorkspace().folders;
       if (workspaceFolders[0] && workspaceFolders[0].uri.scheme !== Schemas.file) {
-        return [{
-          searchPath: workspaceFolders[0].uri.with({ path: searchPath })
-        }];
+        return [
+          {
+            searchPath: workspaceFolders[0].uri.with({
+              path: searchPath
+            })
+          }
+        ];
       }
-      return [{
-        searchPath: uri.file(path.normalize(searchPath))
-      }];
+      return [
+        {
+          searchPath: uri.file(path.normalize(searchPath))
+        }
+      ];
     }
     if (this.workspaceContextService.getWorkbenchState() === WorkbenchState.FOLDER) {
       const workspaceUri = this.workspaceContextService.getWorkspace().folders[0].uri;
       searchPath = normalizeSlashes(searchPath);
       if (searchPath.startsWith("../") || searchPath === "..") {
-        const resolvedPath = path.posix.resolve(workspaceUri.path, searchPath);
-        return [{
-          searchPath: workspaceUri.with({ path: resolvedPath })
-        }];
+        const resolvedPath = path.posix.resolve(
+          workspaceUri.path,
+          searchPath
+        );
+        return [
+          {
+            searchPath: workspaceUri.with({ path: resolvedPath })
+          }
+        ];
       }
       const cleanedPattern = normalizeGlobPattern(searchPath);
-      return [{
-        searchPath: workspaceUri,
-        pattern: cleanedPattern
-      }];
+      return [
+        {
+          searchPath: workspaceUri,
+          pattern: cleanedPattern
+        }
+      ];
     } else if (searchPath === "./" || searchPath === ".\\") {
       return [];
     } else {
-      const searchPathWithoutDotSlash = searchPath.replace(/^\.[\/\\]/, "");
+      const searchPathWithoutDotSlash = searchPath.replace(
+        /^\.[\/\\]/,
+        ""
+      );
       const folders = this.workspaceContextService.getWorkspace().folders;
       const folderMatches = folders.map((folder) => {
-        const match = searchPathWithoutDotSlash.match(new RegExp(`^${strings.escapeRegExpCharacters(folder.name)}(?:/(.*)|$)`));
+        const match = searchPathWithoutDotSlash.match(
+          new RegExp(
+            `^${strings.escapeRegExpCharacters(folder.name)}(?:/(.*)|$)`
+          )
+        );
         return match ? {
           match,
           folder
@@ -376,7 +474,11 @@ let QueryBuilder = class {
       } else {
         const probableWorkspaceFolderNameMatch = searchPath.match(/\.[\/\\](.+)[\/\\]?/);
         const probableWorkspaceFolderName = probableWorkspaceFolderNameMatch ? probableWorkspaceFolderNameMatch[1] : searchPath;
-        const searchPathNotFoundError = nls.localize("search.noWorkspaceWithName", "Workspace folder does not exist: {0}", probableWorkspaceFolderName);
+        const searchPathNotFoundError = nls.localize(
+          "search.noWorkspaceWithName",
+          "Workspace folder does not exist: {0}",
+          probableWorkspaceFolderName
+        );
         throw new Error(searchPathNotFoundError);
       }
     }
@@ -392,13 +494,18 @@ let QueryBuilder = class {
     if (pattern && !pattern.endsWith("**")) {
       results.push({
         searchPath: oneExpandedResult.searchPath,
-        pattern: pattern + "/**"
+        pattern: `${pattern}/**`
       });
     }
     return results;
   }
   getFolderQueryForSearchPath(searchPath, options, searchPathExcludes) {
-    const rootConfig = this.getFolderQueryForRoot(toWorkspaceFolder(searchPath.searchPath), options, searchPathExcludes, false);
+    const rootConfig = this.getFolderQueryForRoot(
+      toWorkspaceFolder(searchPath.searchPath),
+      options,
+      searchPathExcludes,
+      false
+    );
     if (!rootConfig) {
       return null;
     }
@@ -412,24 +519,36 @@ let QueryBuilder = class {
   getFolderQueryForRoot(folder, options, searchPathExcludes, includeFolderName) {
     let thisFolderExcludeSearchPathPattern;
     const folderUri = URI.isUri(folder) ? folder : folder.uri;
-    let excludeFolderRoots = options.excludePattern?.map((excludePattern2) => {
-      const excludeRoot = options.excludePattern && isISearchPatternBuilder(excludePattern2) ? excludePattern2.uri : void 0;
-      const shouldUseExcludeRoot = !excludeRoot || !(URI.isUri(folder) && this.uriIdentityService.extUri.isEqual(folder, excludeRoot));
-      return shouldUseExcludeRoot ? excludeRoot : void 0;
-    });
+    let excludeFolderRoots = options.excludePattern?.map(
+      (excludePattern2) => {
+        const excludeRoot = options.excludePattern && isISearchPatternBuilder(excludePattern2) ? excludePattern2.uri : void 0;
+        const shouldUseExcludeRoot = !excludeRoot || !(URI.isUri(folder) && this.uriIdentityService.extUri.isEqual(
+          folder,
+          excludeRoot
+        ));
+        return shouldUseExcludeRoot ? excludeRoot : void 0;
+      }
+    );
     if (!excludeFolderRoots?.length) {
       excludeFolderRoots = [void 0];
     }
     if (searchPathExcludes.searchPaths) {
-      const thisFolderExcludeSearchPath = searchPathExcludes.searchPaths.filter((sp) => isEqual(sp.searchPath, folderUri))[0];
+      const thisFolderExcludeSearchPath = searchPathExcludes.searchPaths.filter(
+        (sp) => isEqual(sp.searchPath, folderUri)
+      )[0];
       if (thisFolderExcludeSearchPath && !thisFolderExcludeSearchPath.pattern) {
         return null;
       } else if (thisFolderExcludeSearchPath) {
         thisFolderExcludeSearchPathPattern = thisFolderExcludeSearchPath.pattern;
       }
     }
-    const folderConfig = this.configurationService.getValue({ resource: folderUri });
-    const settingExcludes = this.getExcludesForFolder(folderConfig, options);
+    const folderConfig = this.configurationService.getValue({
+      resource: folderUri
+    });
+    const settingExcludes = this.getExcludesForFolder(
+      folderConfig,
+      options
+    );
     const excludePattern = {
       ...settingExcludes || {},
       ...thisFolderExcludeSearchPathPattern || {}
@@ -445,7 +564,7 @@ let QueryBuilder = class {
       folder: folderUri,
       folderName: includeFolderName ? folderName : void 0,
       excludePattern: excludePatternRet,
-      fileEncoding: folderConfig.files && folderConfig.files.encoding,
+      fileEncoding: folderConfig.files?.encoding,
       disregardIgnoreFiles: typeof options.disregardIgnoreFiles === "boolean" ? options.disregardIgnoreFiles : !folderConfig.search.useIgnoreFiles,
       disregardGlobalIgnoreFiles: typeof options.disregardGlobalIgnoreFiles === "boolean" ? options.disregardGlobalIgnoreFiles : !folderConfig.search.useGlobalIgnoreFiles,
       disregardParentIgnoreFiles: typeof options.disregardParentIgnoreFiles === "boolean" ? options.disregardParentIgnoreFiles : !folderConfig.search.useParentIgnoreFiles,
@@ -494,10 +613,7 @@ function splitGlobPattern(pattern) {
 }
 __name(splitGlobPattern, "splitGlobPattern");
 function expandGlobalGlob(pattern) {
-  const patterns = [
-    `**/${pattern}/**`,
-    `**/${pattern}`
-  ];
+  const patterns = [`**/${pattern}/**`, `**/${pattern}`];
   return patterns.map((p) => p.replace(/\*\*\/\*\*/g, "**"));
 }
 __name(expandGlobalGlob, "expandGlobalGlob");
@@ -523,15 +639,20 @@ function resolveResourcesForSearchIncludes(resources, contextService) {
       if (contextService.getWorkbenchState() === WorkbenchState.FOLDER) {
         folderPath = relativePath(workspace.folders[0].uri, resource);
         if (folderPath && folderPath !== ".") {
-          folderPath = "./" + folderPath;
+          folderPath = `./${folderPath}`;
         }
       } else {
         const owningFolder = contextService.getWorkspaceFolder(resource);
         if (owningFolder) {
           const owningRootName = owningFolder.name;
-          const isUniqueFolder = workspace.folders.filter((folder) => folder.name === owningRootName).length === 1;
+          const isUniqueFolder = workspace.folders.filter(
+            (folder) => folder.name === owningRootName
+          ).length === 1;
           if (isUniqueFolder) {
-            const relPath = relativePath(owningFolder.uri, resource);
+            const relPath = relativePath(
+              owningFolder.uri,
+              resource
+            );
             if (relPath === "") {
               folderPath = `./${owningFolder.name}`;
             } else {

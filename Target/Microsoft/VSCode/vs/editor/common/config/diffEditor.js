@@ -1,4 +1,3 @@
-import { ValidDiffEditorBaseOptions } from "./editorOptions.js";
 const diffEditorDefaultOptions = {
   enableSplitViewResizing: true,
   splitViewDefaultRatio: 0.5,

@@ -14,18 +14,12 @@ import * as dom from "../../../../base/browser/dom.js";
 import { Delayer } from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { OperatingSystem } from "../../../../base/common/platform.js";
 import { MicrotaskDelay } from "../../../../base/common/symbols.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { TerminalCapabilityStore } from "../../../../platform/terminal/common/capabilities/terminalCapabilityStore.js";
-import { IMergedEnvironmentVariableCollection } from "../../../../platform/terminal/common/environmentVariable.js";
-import { ITerminalBackend } from "../../../../platform/terminal/common/terminal.js";
-import { IDetachedTerminalInstance, IDetachedXTermOptions, IDetachedXtermTerminal, ITerminalContribution, IXtermAttachToElementOptions } from "./terminal.js";
+import { ProcessState } from "../common/terminal.js";
 import { TerminalExtensionsRegistry } from "./terminalExtensions.js";
 import { TerminalWidgetManager } from "./widgets/widgetManager.js";
-import { XtermTerminal } from "./xterm/xtermTerminal.js";
-import { IEnvironmentVariableInfo } from "../common/environmentVariable.js";
-import { ITerminalProcessInfo, ProcessState } from "../common/terminal.js";
 let DetachedTerminal = class extends Disposable {
   constructor(_xterm, options, instantiationService) {
     super();
@@ -34,7 +28,11 @@ let DetachedTerminal = class extends Disposable {
     const contributionDescs = TerminalExtensionsRegistry.getTerminalContributions();
     for (const desc of contributionDescs) {
       if (this._contributions.has(desc.id)) {
-        onUnexpectedError(new Error(`Cannot have two terminal contributions with the same id ${desc.id}`));
+        onUnexpectedError(
+          new Error(
+            `Cannot have two terminal contributions with the same id ${desc.id}`
+          )
+        );
         continue;
       }
       if (desc.canRunInDetachedTerminals === false) {

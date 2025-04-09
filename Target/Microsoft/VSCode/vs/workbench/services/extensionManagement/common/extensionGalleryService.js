@@ -10,25 +10,43 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IAllowedExtensionsService, IExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
+import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
+import { AbstractExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionGalleryService.js";
+import {
+  IAllowedExtensionsService,
+  IExtensionGalleryService
+} from "../../../../platform/extensionManagement/common/extensionManagement.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IRequestService } from "../../../../platform/request/common/request.js";
 import { IStorageService } from "../../../../platform/storage/common/storage.js";
 import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IRequestService } from "../../../../platform/request/common/request.js";
-import { IEnvironmentService } from "../../../../platform/environment/common/environment.js";
-import { AbstractExtensionGalleryService } from "../../../../platform/extensionManagement/common/extensionGalleryService.js";
 import { IWorkbenchAssignmentService } from "../../assignment/common/assignmentService.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IExtensionGalleryManifestService } from "../../../../platform/extensionManagement/common/extensionGalleryManifest.js";
 let WorkbenchExtensionGalleryService = class extends AbstractExtensionGalleryService {
   static {
     __name(this, "WorkbenchExtensionGalleryService");
   }
   constructor(storageService, assignmentService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService) {
-    super(storageService, assignmentService, requestService, logService, environmentService, telemetryService, fileService, productService, configurationService, allowedExtensionsService, extensionGalleryManifestService);
+    super(
+      storageService,
+      assignmentService,
+      requestService,
+      logService,
+      environmentService,
+      telemetryService,
+      fileService,
+      productService,
+      configurationService,
+      allowedExtensionsService,
+      extensionGalleryManifestService
+    );
   }
 };
 WorkbenchExtensionGalleryService = __decorateClass([
@@ -44,7 +62,11 @@ WorkbenchExtensionGalleryService = __decorateClass([
   __decorateParam(9, IAllowedExtensionsService),
   __decorateParam(10, IExtensionGalleryManifestService)
 ], WorkbenchExtensionGalleryService);
-registerSingleton(IExtensionGalleryService, WorkbenchExtensionGalleryService, InstantiationType.Delayed);
+registerSingleton(
+  IExtensionGalleryService,
+  WorkbenchExtensionGalleryService,
+  InstantiationType.Delayed
+);
 export {
   WorkbenchExtensionGalleryService
 };

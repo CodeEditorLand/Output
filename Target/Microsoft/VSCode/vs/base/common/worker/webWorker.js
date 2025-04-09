@@ -1,9 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { CharCode } from "../charCode.js";
-import { onUnexpectedError, transformErrorForSerialization } from "../errors.js";
-import { Emitter, Event } from "../event.js";
-import { Disposable, IDisposable } from "../lifecycle.js";
+import {
+  onUnexpectedError,
+  transformErrorForSerialization
+} from "../errors.js";
+import { Emitter } from "../event.js";
+import { Disposable } from "../lifecycle.js";
 import { isWeb } from "../platform.js";
 import * as strings from "../strings.js";
 const DEFAULT_CHANNEL = "default";
@@ -15,7 +18,9 @@ function logOnceWebWorkerWarning(err) {
   }
   if (!webWorkerWarningLogged) {
     webWorkerWarningLogged = true;
-    console.warn("Could not create web worker(s). Falling back to loading web worker code in main thread, which might cause UI freezes. Please see https://github.com/microsoft/monaco-editor#faq");
+    console.warn(
+      "Could not create web worker(s). Falling back to loading web worker code in main thread, which might cause UI freezes. Please see https://github.com/microsoft/monaco-editor#faq"
+    );
   }
   console.warn(err.message);
 }
@@ -115,7 +120,9 @@ class WebWorkerProtocol {
         resolve,
         reject
       };
-      this._send(new RequestMessage(this._workerId, req, channel, method, args));
+      this._send(
+        new RequestMessage(this._workerId, req, channel, method, args)
+      );
     });
   }
   listen(channel, eventName, arg) {
@@ -124,7 +131,15 @@ class WebWorkerProtocol {
       onWillAddFirstListener: /* @__PURE__ */ __name(() => {
         req = String(++this._lastSentReq);
         this._pendingEmitters.set(req, emitter);
-        this._send(new SubscribeEventMessage(this._workerId, req, channel, eventName, arg));
+        this._send(
+          new SubscribeEventMessage(
+            this._workerId,
+            req,
+            channel,
+            eventName,
+            arg
+          )
+        );
       }, "onWillAddFirstListener"),
       onDidRemoveLastListener: /* @__PURE__ */ __name(() => {
         this._pendingEmitters.delete(req);
@@ -201,19 +216,37 @@ class WebWorkerProtocol {
   }
   _handleRequestMessage(requestMessage) {
     const req = requestMessage.req;
-    const result = this._handler.handleMessage(requestMessage.channel, requestMessage.method, requestMessage.args);
-    result.then((r) => {
-      this._send(new ReplyMessage(this._workerId, req, r, void 0));
-    }, (e) => {
-      if (e.detail instanceof Error) {
-        e.detail = transformErrorForSerialization(e.detail);
+    const result = this._handler.handleMessage(
+      requestMessage.channel,
+      requestMessage.method,
+      requestMessage.args
+    );
+    result.then(
+      (r) => {
+        this._send(new ReplyMessage(this._workerId, req, r, void 0));
+      },
+      (e) => {
+        if (e.detail instanceof Error) {
+          e.detail = transformErrorForSerialization(e.detail);
+        }
+        this._send(
+          new ReplyMessage(
+            this._workerId,
+            req,
+            void 0,
+            transformErrorForSerialization(e)
+          )
+        );
       }
-      this._send(new ReplyMessage(this._workerId, req, void 0, transformErrorForSerialization(e)));
-    });
+    );
   }
   _handleSubscribeEventMessage(msg) {
     const req = msg.req;
-    const disposable = this._handler.handleEvent(msg.channel, msg.eventName, msg.arg)((event) => {
+    const disposable = this._handler.handleEvent(
+      msg.channel,
+      msg.eventName,
+      msg.arg
+    )((event) => {
       this._send(new EventMessage(this._workerId, req, event));
     });
     this._pendingEvents.set(req, disposable);
@@ -223,14 +256,14 @@ class WebWorkerProtocol {
       console.warn("Got event for unknown req");
       return;
     }
-    this._pendingEmitters.get(msg.req).fire(msg.event);
+    this._pendingEmitters.get(msg.req)?.fire(msg.event);
   }
   _handleUnsubscribeEventMessage(msg) {
     if (!this._pendingEvents.has(msg.req)) {
       console.warn("Got unsubscribe for unknown req");
       return;
     }
-    this._pendingEvents.get(msg.req).dispose();
+    this._pendingEvents.get(msg.req)?.dispose();
     this._pendingEvents.delete(msg.req);
   }
   _send(msg) {
@@ -262,13 +295,17 @@ class WebWorkerClient extends Disposable {
   constructor(worker) {
     super();
     this._worker = worker;
-    this._register(this._worker.onMessage((msg) => {
-      this._protocol.handleMessage(msg);
-    }));
-    this._register(this._worker.onError((err) => {
-      logOnceWebWorkerWarning(err);
-      onUnexpectedError(err);
-    }));
+    this._register(
+      this._worker.onMessage((msg) => {
+        this._protocol.handleMessage(msg);
+      })
+    );
+    this._register(
+      this._worker.onError((err) => {
+        logOnceWebWorkerWarning(err);
+        onUnexpectedError(err);
+      })
+    );
     this._protocol = new WebWorkerProtocol({
       sendMessage: /* @__PURE__ */ __name((msg, transfer) => {
         this._worker.postMessage(msg, transfer);
@@ -281,12 +318,17 @@ class WebWorkerClient extends Disposable {
       }, "handleEvent")
     });
     this._protocol.setWorkerId(this._worker.getId());
-    this._onModuleLoaded = this._protocol.sendMessage(DEFAULT_CHANNEL, INITIALIZE, [
-      this._worker.getId()
-    ]);
-    this.proxy = this._protocol.createProxyToRemoteChannel(DEFAULT_CHANNEL, async () => {
-      await this._onModuleLoaded;
-    });
+    this._onModuleLoaded = this._protocol.sendMessage(
+      DEFAULT_CHANNEL,
+      INITIALIZE,
+      [this._worker.getId()]
+    );
+    this.proxy = this._protocol.createProxyToRemoteChannel(
+      DEFAULT_CHANNEL,
+      async () => {
+        await this._onModuleLoaded;
+      }
+    );
     this._onModuleLoaded.catch((e) => {
       this._onError("Worker failed to load ", e);
     });
@@ -294,13 +336,21 @@ class WebWorkerClient extends Disposable {
   _handleMessage(channelName, method, args) {
     const channel = this._localChannels.get(channelName);
     if (!channel) {
-      return Promise.reject(new Error(`Missing channel ${channelName} on main thread`));
+      return Promise.reject(
+        new Error(`Missing channel ${channelName} on main thread`)
+      );
     }
     if (typeof channel[method] !== "function") {
-      return Promise.reject(new Error(`Missing method ${method} on main thread channel ${channelName}`));
+      return Promise.reject(
+        new Error(
+          `Missing method ${method} on main thread channel ${channelName}`
+        )
+      );
     }
     try {
-      return Promise.resolve(channel[method].apply(channel, args));
+      return Promise.resolve(
+        channel[method].apply(channel, args)
+      );
     } catch (e) {
       return Promise.reject(e);
     }
@@ -313,14 +363,18 @@ class WebWorkerClient extends Disposable {
     if (propertyIsDynamicEvent(eventName)) {
       const event = channel[eventName].call(channel, arg);
       if (typeof event !== "function") {
-        throw new Error(`Missing dynamic event ${eventName} on main thread channel ${channelName}.`);
+        throw new Error(
+          `Missing dynamic event ${eventName} on main thread channel ${channelName}.`
+        );
       }
       return event;
     }
     if (propertyIsEvent(eventName)) {
       const event = channel[eventName];
       if (typeof event !== "function") {
-        throw new Error(`Missing event ${eventName} on main thread channel ${channelName}.`);
+        throw new Error(
+          `Missing event ${eventName} on main thread channel ${channelName}.`
+        );
       }
       return event;
     }
@@ -331,9 +385,12 @@ class WebWorkerClient extends Disposable {
   }
   getChannel(channel) {
     if (!this._remoteChannels.has(channel)) {
-      const inst = this._protocol.createProxyToRemoteChannel(channel, async () => {
-        await this._onModuleLoaded;
-      });
+      const inst = this._protocol.createProxyToRemoteChannel(
+        channel,
+        async () => {
+          await this._onModuleLoaded;
+        }
+      );
       this._remoteChannels.set(channel, inst);
     }
     return this._remoteChannels.get(channel);
@@ -378,13 +435,21 @@ class WebWorkerServer {
     }
     const requestHandler = channel === DEFAULT_CHANNEL ? this.requestHandler : this._localChannels.get(channel);
     if (!requestHandler) {
-      return Promise.reject(new Error(`Missing channel ${channel} on worker thread`));
+      return Promise.reject(
+        new Error(`Missing channel ${channel} on worker thread`)
+      );
     }
     if (typeof requestHandler[method] !== "function") {
-      return Promise.reject(new Error(`Missing method ${method} on worker thread channel ${channel}`));
+      return Promise.reject(
+        new Error(
+          `Missing method ${method} on worker thread channel ${channel}`
+        )
+      );
     }
     try {
-      return Promise.resolve(requestHandler[method].apply(requestHandler, args));
+      return Promise.resolve(
+        requestHandler[method].apply(requestHandler, args)
+      );
     } catch (e) {
       return Promise.reject(e);
     }
@@ -395,16 +460,23 @@ class WebWorkerServer {
       throw new Error(`Missing channel ${channel} on worker thread`);
     }
     if (propertyIsDynamicEvent(eventName)) {
-      const event = requestHandler[eventName].call(requestHandler, arg);
+      const event = requestHandler[eventName].call(
+        requestHandler,
+        arg
+      );
       if (typeof event !== "function") {
-        throw new Error(`Missing dynamic event ${eventName} on request handler.`);
+        throw new Error(
+          `Missing dynamic event ${eventName} on request handler.`
+        );
       }
       return event;
     }
     if (propertyIsEvent(eventName)) {
       const event = requestHandler[eventName];
       if (typeof event !== "function") {
-        throw new Error(`Missing event ${eventName} on request handler.`);
+        throw new Error(
+          `Missing event ${eventName} on request handler.`
+        );
       }
       return event;
     }

@@ -1,18 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ViewEventHandler } from "./viewEventHandler.js";
-import { ViewEvent } from "./viewEvents.js";
-import { IContentSizeChangedEvent } from "./editorCommon.js";
 import { Emitter } from "../../base/common/event.js";
-import { Selection } from "./core/selection.js";
 import { Disposable } from "../../base/common/lifecycle.js";
-import { CursorChangeReason } from "./cursorEvents.js";
-import { IModelContentChangedEvent, IModelDecorationsChangedEvent, IModelLanguageChangedEvent, IModelLanguageConfigurationChangedEvent, IModelOptionsChangedEvent, IModelTokensChangedEvent } from "./textModelEvents.js";
 class ViewModelEventDispatcher extends Disposable {
   static {
     __name(this, "ViewModelEventDispatcher");
   }
-  _onEvent = this._register(new Emitter());
+  _onEvent = this._register(
+    new Emitter()
+  );
   onEvent = this._onEvent.event;
   _eventHandlers;
   _viewEventQueue;
@@ -58,7 +54,10 @@ class ViewModelEventDispatcher extends Disposable {
   addViewEventHandler(eventHandler) {
     for (let i = 0, len = this._eventHandlers.length; i < len; i++) {
       if (this._eventHandlers[i] === eventHandler) {
-        console.warn("Detected duplicate listener in ViewEventDispatcher", eventHandler);
+        console.warn(
+          "Detected duplicate listener in ViewEventDispatcher",
+          eventHandler
+        );
       }
     }
     this._eventHandlers.push(eventHandler);
@@ -81,8 +80,8 @@ class ViewModelEventDispatcher extends Disposable {
   endEmitViewEvents() {
     this._collectorCnt--;
     if (this._collectorCnt === 0) {
-      const outgoingEvents = this._collector.outgoingEvents;
-      const viewEvents = this._collector.viewEvents;
+      const outgoingEvents = this._collector?.outgoingEvents;
+      const viewEvents = this._collector?.viewEvents;
       this._collector = null;
       for (const outgoingEvent of outgoingEvents) {
         this._addOutgoingEvent(outgoingEvent);
@@ -190,7 +189,12 @@ class ContentSizeChangedEvent {
     if (other.kind !== this.kind) {
       return null;
     }
-    return new ContentSizeChangedEvent(this._oldContentWidth, this._oldContentHeight, other.contentWidth, other.contentHeight);
+    return new ContentSizeChangedEvent(
+      this._oldContentWidth,
+      this._oldContentHeight,
+      other.contentWidth,
+      other.contentHeight
+    );
   }
 }
 class FocusChangedEvent {
@@ -290,8 +294,6 @@ class ViewZonesChangedEvent {
     __name(this, "ViewZonesChangedEvent");
   }
   kind = 4 /* ViewZonesChanged */;
-  constructor() {
-  }
   isNoOp() {
     return false;
   }
@@ -307,8 +309,6 @@ class HiddenAreasChangedEvent {
     __name(this, "HiddenAreasChangedEvent");
   }
   kind = 5 /* HiddenAreasChanged */;
-  constructor() {
-  }
   isNoOp() {
     return false;
   }
@@ -360,7 +360,10 @@ class CursorStateChangedEvent {
     return true;
   }
   isNoOp() {
-    return CursorStateChangedEvent._selectionsAreEqual(this.oldSelections, this.selections) && this.oldModelVersionId === this.modelVersionId;
+    return CursorStateChangedEvent._selectionsAreEqual(
+      this.oldSelections,
+      this.selections
+    ) && this.oldModelVersionId === this.modelVersionId;
   }
   attemptToMerge(other) {
     if (other.kind !== this.kind) {
@@ -382,8 +385,6 @@ class ReadOnlyEditAttemptEvent {
     __name(this, "ReadOnlyEditAttemptEvent");
   }
   kind = 6 /* ReadOnlyEditAttempt */;
-  constructor() {
-  }
   isNoOp() {
     return false;
   }

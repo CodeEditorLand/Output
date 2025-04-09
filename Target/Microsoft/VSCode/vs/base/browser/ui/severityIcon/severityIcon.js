@@ -2,14 +2,14 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import "./media/severityIcon.css";
 import { Codicon } from "../../../common/codicons.js";
-import { ThemeIcon } from "../../../common/themables.js";
 import Severity from "../../../common/severity.js";
+import { ThemeIcon } from "../../../common/themables.js";
 var SeverityIcon;
 ((SeverityIcon2) => {
   function className(severity) {
     switch (severity) {
       case Severity.Ignore:
-        return "severity-ignore " + ThemeIcon.asClassName(Codicon.info);
+        return `severity-ignore ${ThemeIcon.asClassName(Codicon.info)}`;
       case Severity.Info:
         return ThemeIcon.asClassName(Codicon.info);
       case Severity.Warning:

@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IObservable, observableValue, transaction } from "./base.js";
+import { observableValue, transaction } from "./base.js";
 import { derived } from "./derived.js";
 class ObservableLazy {
   constructor(_computeValue) {
@@ -37,7 +37,10 @@ class ObservablePromise {
   static fromFn(fn) {
     return new ObservablePromise(fn());
   }
-  _value = observableValue(this, void 0);
+  _value = observableValue(
+    this,
+    void 0
+  );
   /**
    * The promise that this object wraps.
    */
@@ -48,17 +51,20 @@ class ObservablePromise {
    */
   promiseResult = this._value;
   constructor(promise) {
-    this.promise = promise.then((value) => {
-      transaction((tx) => {
-        this._value.set(new PromiseResult(value, void 0), tx);
-      });
-      return value;
-    }, (error) => {
-      transaction((tx) => {
-        this._value.set(new PromiseResult(void 0, error), tx);
-      });
-      throw error;
-    });
+    this.promise = promise.then(
+      (value) => {
+        transaction((tx) => {
+          this._value.set(new PromiseResult(value, void 0), tx);
+        });
+        return value;
+      },
+      (error) => {
+        transaction((tx) => {
+          this._value.set(new PromiseResult(void 0, error), tx);
+        });
+        throw error;
+      }
+    );
   }
 }
 class PromiseResult {
@@ -86,12 +92,17 @@ class ObservableLazyPromise {
   static {
     __name(this, "ObservableLazyPromise");
   }
-  _lazyValue = new ObservableLazy(() => new ObservablePromise(this._computePromise()));
+  _lazyValue = new ObservableLazy(
+    () => new ObservablePromise(this._computePromise())
+  );
   /**
    * Does not enforce evaluation of the promise compute function.
    * Is undefined if the promise has not been computed yet.
    */
-  cachedPromiseResult = derived(this, (reader) => this._lazyValue.cachedValue.read(reader)?.promiseResult.read(reader));
+  cachedPromiseResult = derived(
+    this,
+    (reader) => this._lazyValue.cachedValue.read(reader)?.promiseResult.read(reader)
+  );
   getPromise() {
     return this._lazyValue.getValue().promise;
   }

@@ -10,25 +10,40 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as nls from "../../../../../../nls.js";
-import { Disposable, DisposableStore, IDisposable, MutableDisposable } from "../../../../../../base/common/lifecycle.js";
+import { Event } from "../../../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  MutableDisposable
+} from "../../../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../../../base/common/network.js";
 import { ILanguageFeaturesService } from "../../../../../../editor/common/services/languageFeatures.js";
+import * as nls from "../../../../../../nls.js";
 import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
 import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
 import { ILogService } from "../../../../../../platform/log/common/log.js";
-import { IWorkbenchContribution, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../../../common/contributions.js";
-import { CENTER_ACTIVE_CELL } from "../navigation/arrow.js";
+import {
+  registerWorkbenchContribution2,
+  WorkbenchPhase
+} from "../../../../../common/contributions.js";
+import {
+  IEditorGroupsService
+} from "../../../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+import {
+  IStatusbarService,
+  StatusbarAlignment
+} from "../../../../../services/statusbar/browser/statusbar.js";
+import { NotebookCellsChangeType } from "../../../common/notebookCommon.js";
+import {
+  INotebookKernelService
+} from "../../../common/notebookKernelService.js";
 import { SELECT_KERNEL_ID } from "../../controller/coreActions.js";
 import { SELECT_NOTEBOOK_INDENTATION_ID } from "../../controller/editActions.js";
-import { INotebookEditor, getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
-import { NotebookTextModel } from "../../../common/model/notebookTextModel.js";
-import { NotebookCellsChangeType } from "../../../common/notebookCommon.js";
-import { INotebookKernel, INotebookKernelService } from "../../../common/notebookKernelService.js";
-import { IEditorService } from "../../../../../services/editor/common/editorService.js";
-import { IStatusbarEntry, IStatusbarEntryAccessor, IStatusbarService, StatusbarAlignment } from "../../../../../services/statusbar/browser/statusbar.js";
-import { IEditorGroupsService, IEditorPart } from "../../../../../services/editor/common/editorGroupsService.js";
-import { Event } from "../../../../../../base/common/event.js";
+import {
+  getNotebookEditorFromEditorPane
+} from "../../notebookBrowser.js";
+import { CENTER_ACTIVE_CELL } from "../navigation/arrow.js";
 let ImplictKernelSelector = class {
   static {
     __name(this, "ImplictKernelSelector");
@@ -41,26 +56,41 @@ let ImplictKernelSelector = class {
       disposables.clear();
       notebookKernelService.selectKernelForNotebook(suggested, notebook);
     }, "selectKernel");
-    disposables.add(notebook.onDidChangeContent((e) => {
-      for (const event of e.rawEvents) {
-        switch (event.kind) {
-          case NotebookCellsChangeType.ChangeCellContent:
-          case NotebookCellsChangeType.ModelChange:
-          case NotebookCellsChangeType.Move:
-          case NotebookCellsChangeType.ChangeCellLanguage:
-            logService.trace("IMPLICIT kernel selection because of change event", event.kind);
-            selectKernel();
-            break;
+    disposables.add(
+      notebook.onDidChangeContent((e) => {
+        for (const event of e.rawEvents) {
+          switch (event.kind) {
+            case NotebookCellsChangeType.ChangeCellContent:
+            case NotebookCellsChangeType.ModelChange:
+            case NotebookCellsChangeType.Move:
+            case NotebookCellsChangeType.ChangeCellLanguage:
+              logService.trace(
+                "IMPLICIT kernel selection because of change event",
+                event.kind
+              );
+              selectKernel();
+              break;
+          }
         }
-      }
-    }));
-    disposables.add(languageFeaturesService.hoverProvider.register({ scheme: Schemas.vscodeNotebookCell, pattern: notebook.uri.path }, {
-      provideHover() {
-        logService.trace("IMPLICIT kernel selection because of hover");
-        selectKernel();
-        return void 0;
-      }
-    }));
+      })
+    );
+    disposables.add(
+      languageFeaturesService.hoverProvider.register(
+        {
+          scheme: Schemas.vscodeNotebookCell,
+          pattern: notebook.uri.path
+        },
+        {
+          provideHover() {
+            logService.trace(
+              "IMPLICIT kernel selection because of hover"
+            );
+            selectKernel();
+            return void 0;
+          }
+        }
+      )
+    );
   }
 };
 ImplictKernelSelector = __decorateClass([
@@ -75,7 +105,11 @@ let KernelStatus = class extends Disposable {
     this._statusbarService = _statusbarService;
     this._notebookKernelService = _notebookKernelService;
     this._instantiationService = _instantiationService;
-    this._register(this._editorService.onDidActiveEditorChange(() => this._updateStatusbar()));
+    this._register(
+      this._editorService.onDidActiveEditorChange(
+        () => this._updateStatusbar()
+      )
+    );
     this._updateStatusbar();
   }
   static {
@@ -85,7 +119,9 @@ let KernelStatus = class extends Disposable {
   _kernelInfoElement = this._register(new DisposableStore());
   _updateStatusbar() {
     this._editorDisposables.clear();
-    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+    const activeEditor = getNotebookEditorFromEditorPane(
+      this._editorService.activeEditorPane
+    );
     if (!activeEditor) {
       this._kernelInfoElement.clear();
       return;
@@ -102,11 +138,25 @@ let KernelStatus = class extends Disposable {
         this._kernelInfoElement.clear();
       }
     }, "updateStatus");
-    this._editorDisposables.add(this._notebookKernelService.onDidAddKernel(updateStatus));
-    this._editorDisposables.add(this._notebookKernelService.onDidChangeSelectedNotebooks(updateStatus));
-    this._editorDisposables.add(this._notebookKernelService.onDidChangeNotebookAffinity(updateStatus));
-    this._editorDisposables.add(activeEditor.onDidChangeModel(updateStatus));
-    this._editorDisposables.add(activeEditor.notebookOptions.onDidChangeOptions(updateStatus));
+    this._editorDisposables.add(
+      this._notebookKernelService.onDidAddKernel(updateStatus)
+    );
+    this._editorDisposables.add(
+      this._notebookKernelService.onDidChangeSelectedNotebooks(
+        updateStatus
+      )
+    );
+    this._editorDisposables.add(
+      this._notebookKernelService.onDidChangeNotebookAffinity(
+        updateStatus
+      )
+    );
+    this._editorDisposables.add(
+      activeEditor.onDidChangeModel(updateStatus)
+    );
+    this._editorDisposables.add(
+      activeEditor.notebookOptions.onDidChangeOptions(updateStatus)
+    );
     updateStatus();
   }
   _showKernelStatus(notebook) {
@@ -121,35 +171,63 @@ let KernelStatus = class extends Disposable {
       if (!kernel) {
         kernel = suggested;
         isSuggested = true;
-        this._kernelInfoElement.add(this._instantiationService.createInstance(ImplictKernelSelector, notebook, kernel));
+        this._kernelInfoElement.add(
+          this._instantiationService.createInstance(
+            ImplictKernelSelector,
+            notebook,
+            kernel
+          )
+        );
       }
       const tooltip = kernel.description ?? kernel.detail ?? kernel.label;
-      this._kernelInfoElement.add(this._statusbarService.addEntry(
-        {
-          name: nls.localize("notebook.info", "Notebook Kernel Info"),
-          text: `$(notebook-kernel-select) ${kernel.label}`,
-          ariaLabel: kernel.label,
-          tooltip: isSuggested ? nls.localize("tooltop", "{0} (suggestion)", tooltip) : tooltip,
-          command: SELECT_KERNEL_ID
-        },
-        SELECT_KERNEL_ID,
-        StatusbarAlignment.RIGHT,
-        10
-      ));
-      this._kernelInfoElement.add(kernel.onDidChange(() => this._showKernelStatus(notebook)));
+      this._kernelInfoElement.add(
+        this._statusbarService.addEntry(
+          {
+            name: nls.localize(
+              "notebook.info",
+              "Notebook Kernel Info"
+            ),
+            text: `$(notebook-kernel-select) ${kernel.label}`,
+            ariaLabel: kernel.label,
+            tooltip: isSuggested ? nls.localize(
+              "tooltop",
+              "{0} (suggestion)",
+              tooltip
+            ) : tooltip,
+            command: SELECT_KERNEL_ID
+          },
+          SELECT_KERNEL_ID,
+          StatusbarAlignment.RIGHT,
+          10
+        )
+      );
+      this._kernelInfoElement.add(
+        kernel.onDidChange(() => this._showKernelStatus(notebook))
+      );
     } else {
-      this._kernelInfoElement.add(this._statusbarService.addEntry(
-        {
-          name: nls.localize("notebook.select", "Notebook Kernel Selection"),
-          text: nls.localize("kernel.select.label", "Select Kernel"),
-          ariaLabel: nls.localize("kernel.select.label", "Select Kernel"),
-          command: SELECT_KERNEL_ID,
-          kind: "prominent"
-        },
-        SELECT_KERNEL_ID,
-        StatusbarAlignment.RIGHT,
-        10
-      ));
+      this._kernelInfoElement.add(
+        this._statusbarService.addEntry(
+          {
+            name: nls.localize(
+              "notebook.select",
+              "Notebook Kernel Selection"
+            ),
+            text: nls.localize(
+              "kernel.select.label",
+              "Select Kernel"
+            ),
+            ariaLabel: nls.localize(
+              "kernel.select.label",
+              "Select Kernel"
+            ),
+            command: SELECT_KERNEL_ID,
+            kind: "prominent"
+          },
+          SELECT_KERNEL_ID,
+          StatusbarAlignment.RIGHT,
+          10
+        )
+      );
     }
   }
 };
@@ -164,20 +242,34 @@ let ActiveCellStatus = class extends Disposable {
     super();
     this._editorService = _editorService;
     this._statusbarService = _statusbarService;
-    this._register(this._editorService.onDidActiveEditorChange(() => this._update()));
+    this._register(
+      this._editorService.onDidActiveEditorChange(() => this._update())
+    );
     this._update();
   }
   static {
     __name(this, "ActiveCellStatus");
   }
   _itemDisposables = this._register(new DisposableStore());
-  _accessor = this._register(new MutableDisposable());
+  _accessor = this._register(
+    new MutableDisposable()
+  );
   _update() {
     this._itemDisposables.clear();
-    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+    const activeEditor = getNotebookEditorFromEditorPane(
+      this._editorService.activeEditorPane
+    );
     if (activeEditor) {
-      this._itemDisposables.add(activeEditor.onDidChangeSelection(() => this._show(activeEditor)));
-      this._itemDisposables.add(activeEditor.onDidChangeActiveCell(() => this._show(activeEditor)));
+      this._itemDisposables.add(
+        activeEditor.onDidChangeSelection(
+          () => this._show(activeEditor)
+        )
+      );
+      this._itemDisposables.add(
+        activeEditor.onDidChangeActiveCell(
+          () => this._show(activeEditor)
+        )
+      );
       this._show(activeEditor);
     } else {
       this._accessor.clear();
@@ -194,7 +286,10 @@ let ActiveCellStatus = class extends Disposable {
       return;
     }
     const entry = {
-      name: nls.localize("notebook.activeCellStatusName", "Notebook Editor Selections"),
+      name: nls.localize(
+        "notebook.activeCellStatusName",
+        "Notebook Editor Selections"
+      ),
       text: newText,
       ariaLabel: newText,
       command: CENTER_ACTIVE_CELL
@@ -221,7 +316,17 @@ let ActiveCellStatus = class extends Disposable {
     const idxFocused = editor.getCellIndex(activeCell) + 1;
     const numSelected = editor.getSelections().reduce((prev, range) => prev + (range.end - range.start), 0);
     const totalCells = editor.getLength();
-    return numSelected > 1 ? nls.localize("notebook.multiActiveCellIndicator", "Cell {0} ({1} selected)", idxFocused, numSelected) : nls.localize("notebook.singleActiveCellIndicator", "Cell {0} of {1}", idxFocused, totalCells);
+    return numSelected > 1 ? nls.localize(
+      "notebook.multiActiveCellIndicator",
+      "Cell {0} ({1} selected)",
+      idxFocused,
+      numSelected
+    ) : nls.localize(
+      "notebook.singleActiveCellIndicator",
+      "Cell {0} of {1}",
+      idxFocused,
+      totalCells
+    );
   }
 };
 ActiveCellStatus = __decorateClass([
@@ -234,29 +339,39 @@ let NotebookIndentationStatus = class extends Disposable {
     this._editorService = _editorService;
     this._statusbarService = _statusbarService;
     this._configurationService = _configurationService;
-    this._register(this._editorService.onDidActiveEditorChange(() => this._update()));
-    this._register(this._configurationService.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("editor") || e.affectsConfiguration("notebook")) {
-        this._update();
-      }
-    }));
+    this._register(
+      this._editorService.onDidActiveEditorChange(() => this._update())
+    );
+    this._register(
+      this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration("editor") || e.affectsConfiguration("notebook")) {
+          this._update();
+        }
+      })
+    );
     this._update();
   }
   static {
     __name(this, "NotebookIndentationStatus");
   }
   _itemDisposables = this._register(new DisposableStore());
-  _accessor = this._register(new MutableDisposable());
+  _accessor = this._register(
+    new MutableDisposable()
+  );
   static ID = "selectNotebookIndentation";
   _update() {
     this._itemDisposables.clear();
-    const activeEditor = getNotebookEditorFromEditorPane(this._editorService.activeEditorPane);
+    const activeEditor = getNotebookEditorFromEditorPane(
+      this._editorService.activeEditorPane
+    );
     if (activeEditor) {
       this._show(activeEditor);
-      this._itemDisposables.add(activeEditor.onDidChangeSelection(() => {
-        this._accessor.clear();
-        this._show(activeEditor);
-      }));
+      this._itemDisposables.add(
+        activeEditor.onDidChangeSelection(() => {
+          this._accessor.clear();
+          this._show(activeEditor);
+        })
+      );
     } else {
       this._accessor.clear();
     }
@@ -286,7 +401,10 @@ let NotebookIndentationStatus = class extends Disposable {
       name: nls.localize("notebook.indentation", "Notebook Indentation"),
       text: newText,
       ariaLabel: newText,
-      tooltip: nls.localize("selectNotebookIndentation", "Select Indentation"),
+      tooltip: nls.localize(
+        "selectNotebookIndentation",
+        "Select Indentation"
+      ),
       command: SELECT_NOTEBOOK_INDENTATION_ID
     };
     if (!this._accessor.value) {
@@ -313,7 +431,11 @@ let NotebookEditorStatusContribution = class extends Disposable {
     for (const part of editorGroupService.parts) {
       this.createNotebookStatus(part);
     }
-    this._register(editorGroupService.onDidCreateAuxiliaryEditorPart((part) => this.createNotebookStatus(part)));
+    this._register(
+      editorGroupService.onDidCreateAuxiliaryEditorPart(
+        (part) => this.createNotebookStatus(part)
+      )
+    );
   }
   static {
     __name(this, "NotebookEditorStatusContribution");
@@ -323,13 +445,25 @@ let NotebookEditorStatusContribution = class extends Disposable {
     const disposables = new DisposableStore();
     Event.once(part.onWillDispose)(() => disposables.dispose());
     const scopedInstantiationService = this.editorGroupService.getScopedInstantiationService(part);
-    disposables.add(scopedInstantiationService.createInstance(KernelStatus));
-    disposables.add(scopedInstantiationService.createInstance(ActiveCellStatus));
-    disposables.add(scopedInstantiationService.createInstance(NotebookIndentationStatus));
+    disposables.add(
+      scopedInstantiationService.createInstance(KernelStatus)
+    );
+    disposables.add(
+      scopedInstantiationService.createInstance(ActiveCellStatus)
+    );
+    disposables.add(
+      scopedInstantiationService.createInstance(
+        NotebookIndentationStatus
+      )
+    );
   }
 };
 NotebookEditorStatusContribution = __decorateClass([
   __decorateParam(0, IEditorGroupsService)
 ], NotebookEditorStatusContribution);
-registerWorkbenchContribution2(NotebookEditorStatusContribution.ID, NotebookEditorStatusContribution, WorkbenchPhase.AfterRestored);
+registerWorkbenchContribution2(
+  NotebookEditorStatusContribution.ID,
+  NotebookEditorStatusContribution,
+  WorkbenchPhase.AfterRestored
+);
 //# sourceMappingURL=editorStatusBar.js.map

@@ -21,10 +21,10 @@ class LinePart {
   }
   _linePartBrand = void 0;
   isWhitespace() {
-    return this.metadata & 1 /* IS_WHITESPACE_MASK */ ? true : false;
+    return !!(this.metadata & 1 /* IS_WHITESPACE_MASK */);
   }
   isPseudoAfter() {
-    return this.metadata & 4 /* PSEUDO_AFTER_MASK */ ? true : false;
+    return !!(this.metadata & 4 /* PSEUDO_AFTER_MASK */);
   }
 }
 export {

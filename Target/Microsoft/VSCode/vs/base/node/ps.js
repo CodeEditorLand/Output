@@ -1,8 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { exec } from "child_process";
+import { exec } from "node:child_process";
 import { FileAccess } from "../common/network.js";
-import { ProcessItem } from "../common/processes.js";
 function listProcesses(rootPid) {
   return new Promise((resolve, reject) => {
     let rootItem;
@@ -28,7 +27,9 @@ function listProcesses(rootPid) {
           }
           parent.children.push(item);
           if (parent.children.length > 1) {
-            parent.children = parent.children.sort((a, b) => a.pid - b.pid);
+            parent.children = parent.children.sort(
+              (a, b) => a.pid - b.pid
+            );
           }
         }
       }
@@ -52,7 +53,7 @@ function listProcesses(rootPid) {
       let matches = TYPE.exec(cmd);
       if (matches && matches.length === 2) {
         if (matches[1] === "renderer") {
-          return `window`;
+          return "window";
         } else if (matches[1] === "utility") {
           if (UTILITY_NETWORK_HINT.exec(cmd)) {
             return "utility-network-service";
@@ -68,7 +69,7 @@ function listProcesses(rootPid) {
       do {
         matches = JS.exec(cmd);
         if (matches) {
-          result += matches + " ";
+          result += `${matches} `;
         }
       } while (matches);
       if (result) {
@@ -86,55 +87,78 @@ function listProcesses(rootPid) {
         } else if (value.indexOf("\\??\\") === 0) {
           return value.substring(4);
         } else if (value.indexOf('"\\\\?\\') === 0) {
-          return '"' + value.substring(5);
+          return `"${value.substring(5)}`;
         } else if (value.indexOf('"\\??\\') === 0) {
-          return '"' + value.substring(5);
+          return `"${value.substring(5)}`;
         } else {
           return value;
         }
       }, "cleanUNCPrefix");
-      import("@vscode/windows-process-tree").then((windowsProcessTree) => {
-        windowsProcessTree.getProcessList(rootPid, (processList) => {
-          if (!processList) {
-            reject(new Error(`Root process ${rootPid} not found`));
-            return;
-          }
-          windowsProcessTree.getProcessCpuUsage(processList, (completeProcessList) => {
-            const processItems = /* @__PURE__ */ new Map();
-            completeProcessList.forEach((process2) => {
-              const commandLine = cleanUNCPrefix(process2.commandLine || "");
-              processItems.set(process2.pid, {
-                name: findName(commandLine),
-                cmd: commandLine,
-                pid: process2.pid,
-                ppid: process2.ppid,
-                load: process2.cpu || 0,
-                mem: process2.memory || 0
-              });
-            });
-            rootItem = processItems.get(rootPid);
-            if (rootItem) {
-              processItems.forEach((item) => {
-                const parent = processItems.get(item.ppid);
-                if (parent) {
-                  if (!parent.children) {
-                    parent.children = [];
+      import("@vscode/windows-process-tree").then(
+        (windowsProcessTree) => {
+          windowsProcessTree.getProcessList(
+            rootPid,
+            (processList) => {
+              if (!processList) {
+                reject(
+                  new Error(
+                    `Root process ${rootPid} not found`
+                  )
+                );
+                return;
+              }
+              windowsProcessTree.getProcessCpuUsage(
+                processList,
+                (completeProcessList) => {
+                  const processItems = /* @__PURE__ */ new Map();
+                  completeProcessList.forEach((process2) => {
+                    const commandLine = cleanUNCPrefix(
+                      process2.commandLine || ""
+                    );
+                    processItems.set(process2.pid, {
+                      name: findName(commandLine),
+                      cmd: commandLine,
+                      pid: process2.pid,
+                      ppid: process2.ppid,
+                      load: process2.cpu || 0,
+                      mem: process2.memory || 0
+                    });
+                  });
+                  rootItem = processItems.get(rootPid);
+                  if (rootItem) {
+                    processItems.forEach((item) => {
+                      const parent = processItems.get(
+                        item.ppid
+                      );
+                      if (parent) {
+                        if (!parent.children) {
+                          parent.children = [];
+                        }
+                        parent.children.push(item);
+                      }
+                    });
+                    processItems.forEach((item) => {
+                      if (item.children) {
+                        item.children = item.children.sort(
+                          (a, b) => a.pid - b.pid
+                        );
+                      }
+                    });
+                    resolve(rootItem);
+                  } else {
+                    reject(
+                      new Error(
+                        `Root process ${rootPid} not found`
+                      )
+                    );
                   }
-                  parent.children.push(item);
                 }
-              });
-              processItems.forEach((item) => {
-                if (item.children) {
-                  item.children = item.children.sort((a, b) => a.pid - b.pid);
-                }
-              });
-              resolve(rootItem);
-            } else {
-              reject(new Error(`Root process ${rootPid} not found`));
-            }
-          });
-        }, windowsProcessTree.ProcessDataFlag.CommandLine | windowsProcessTree.ProcessDataFlag.Memory);
-      });
+              );
+            },
+            windowsProcessTree.ProcessDataFlag.CommandLine | windowsProcessTree.ProcessDataFlag.Memory
+          );
+        }
+      );
     } else {
       let calculateLinuxCpuUsage2 = function() {
         let processes = [rootItem];
@@ -148,8 +172,10 @@ function listProcesses(rootPid) {
             }
           }
         }
-        let cmd = JSON.stringify(FileAccess.asFileUri("vs/base/node/cpuUsage.sh").fsPath);
-        cmd += " " + pids.join(" ");
+        let cmd = JSON.stringify(
+          FileAccess.asFileUri("vs/base/node/cpuUsage.sh").fsPath
+        );
+        cmd += ` ${pids.join(" ")}`;
         exec(cmd, {}, (err, stdout, stderr) => {
           if (err || stderr) {
             reject(err || new Error(stderr.toString()));
@@ -157,10 +183,12 @@ function listProcesses(rootPid) {
             const cpuUsage = stdout.toString().split("\n");
             for (let i = 0; i < pids.length; i++) {
               const processInfo = map.get(pids[i]);
-              processInfo.load = parseFloat(cpuUsage[i]);
+              processInfo.load = Number.parseFloat(cpuUsage[i]);
             }
             if (!rootItem) {
-              reject(new Error(`Root process ${rootPid} not found`));
+              reject(
+                new Error(`Root process ${rootPid} not found`)
+              );
               return;
             }
             resolve(rootItem);
@@ -174,7 +202,9 @@ function listProcesses(rootPid) {
           if (process.platform !== "linux") {
             reject(err || new Error(stderr.toString()));
           } else {
-            const cmd = JSON.stringify(FileAccess.asFileUri("vs/base/node/ps.sh").fsPath);
+            const cmd = JSON.stringify(
+              FileAccess.asFileUri("vs/base/node/ps.sh").fsPath
+            );
             exec(cmd, {}, (err2, stdout2, stderr2) => {
               if (err2 || stderr2) {
                 reject(err2 || new Error(stderr2.toString()));
@@ -187,22 +217,33 @@ function listProcesses(rootPid) {
         } else {
           const ps = stdout.toString().trim();
           const args = "-ax -o pid=,ppid=,pcpu=,pmem=,command=";
-          exec(`${ps} ${args}`, { maxBuffer: 1e3 * 1024, env: { LC_NUMERIC: "en_US.UTF-8" } }, (err2, stdout2, stderr2) => {
-            if (err2 || stderr2 && !stderr2.includes("screen size is bogus")) {
-              reject(err2 || new Error(stderr2.toString()));
-            } else {
-              parsePsOutput(stdout2, addToTree);
-              if (process.platform === "linux") {
-                calculateLinuxCpuUsage2();
+          exec(
+            `${ps} ${args}`,
+            {
+              maxBuffer: 1e3 * 1024,
+              env: { LC_NUMERIC: "en_US.UTF-8" }
+            },
+            (err2, stdout2, stderr2) => {
+              if (err2 || stderr2 && !stderr2.includes("screen size is bogus")) {
+                reject(err2 || new Error(stderr2.toString()));
               } else {
-                if (!rootItem) {
-                  reject(new Error(`Root process ${rootPid} not found`));
+                parsePsOutput(stdout2, addToTree);
+                if (process.platform === "linux") {
+                  calculateLinuxCpuUsage2();
                 } else {
-                  resolve(rootItem);
+                  if (!rootItem) {
+                    reject(
+                      new Error(
+                        `Root process ${rootPid} not found`
+                      )
+                    );
+                  } else {
+                    resolve(rootItem);
+                  }
                 }
               }
             }
-          });
+          );
         }
       });
     }
@@ -215,7 +256,13 @@ function parsePsOutput(stdout, addToTree) {
   for (const line of lines) {
     const matches = PID_CMD.exec(line.trim());
     if (matches && matches.length === 6) {
-      addToTree(parseInt(matches[1]), parseInt(matches[2]), matches[5], parseFloat(matches[3]), parseFloat(matches[4]));
+      addToTree(
+        Number.parseInt(matches[1]),
+        Number.parseInt(matches[2]),
+        matches[5],
+        Number.parseFloat(matches[3]),
+        Number.parseFloat(matches[4])
+      );
     }
   }
 }

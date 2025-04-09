@@ -10,19 +10,44 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { localize } from "../../../../nls.js";
-import { INotificationService, INotification, INotificationHandle, Severity, NotificationMessage, INotificationActions, IPromptChoice, IPromptOptions, IStatusMessageOptions, NoOpNotification, NeverShowAgainScope, NotificationsFilter, INeverShowAgainOptions, INotificationSource, INotificationSourceFilter, isNotificationSource } from "../../../../platform/notification/common/notification.js";
-import { NotificationsModel, ChoiceAction, NotificationChangeType } from "../../../common/notifications.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
+import { Action } from "../../../../base/common/actions.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { IAction, Action } from "../../../../base/common/actions.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import {
+  INotificationService,
+  isNotificationSource,
+  NeverShowAgainScope,
+  NoOpNotification,
+  NotificationsFilter,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import {
+  ChoiceAction,
+  NotificationChangeType,
+  NotificationsModel
+} from "../../../common/notifications.js";
 let NotificationService = class extends Disposable {
   constructor(storageService) {
     super();
     this.storageService = storageService;
-    this.globalFilterEnabled = this.storageService.getBoolean(NotificationService.GLOBAL_FILTER_SETTINGS_KEY, StorageScope.APPLICATION, false);
+    this.globalFilterEnabled = this.storageService.getBoolean(
+      NotificationService.GLOBAL_FILTER_SETTINGS_KEY,
+      StorageScope.APPLICATION,
+      false
+    );
     this.updateFilters();
     this.registerListeners();
   }
@@ -30,39 +55,48 @@ let NotificationService = class extends Disposable {
     __name(this, "NotificationService");
   }
   model = this._register(new NotificationsModel());
-  _onDidAddNotification = this._register(new Emitter());
+  _onDidAddNotification = this._register(
+    new Emitter()
+  );
   onDidAddNotification = this._onDidAddNotification.event;
-  _onDidRemoveNotification = this._register(new Emitter());
+  _onDidRemoveNotification = this._register(
+    new Emitter()
+  );
   onDidRemoveNotification = this._onDidRemoveNotification.event;
   registerListeners() {
-    this._register(this.model.onDidChangeNotification((e) => {
-      switch (e.kind) {
-        case NotificationChangeType.ADD:
-        case NotificationChangeType.REMOVE: {
-          const source = typeof e.item.sourceId === "string" && typeof e.item.source === "string" ? { id: e.item.sourceId, label: e.item.source } : e.item.source;
-          const notification = {
-            message: e.item.message.original,
-            severity: e.item.severity,
-            source,
-            priority: e.item.priority
-          };
-          if (e.kind === NotificationChangeType.ADD) {
-            if (isNotificationSource(source)) {
-              if (!this.mapSourceToFilter.has(source.id)) {
-                this.setFilter({ ...source, filter: NotificationsFilter.OFF });
-              } else {
-                this.updateSourceFilter(source);
+    this._register(
+      this.model.onDidChangeNotification((e) => {
+        switch (e.kind) {
+          case NotificationChangeType.ADD:
+          case NotificationChangeType.REMOVE: {
+            const source = typeof e.item.sourceId === "string" && typeof e.item.source === "string" ? { id: e.item.sourceId, label: e.item.source } : e.item.source;
+            const notification = {
+              message: e.item.message.original,
+              severity: e.item.severity,
+              source,
+              priority: e.item.priority
+            };
+            if (e.kind === NotificationChangeType.ADD) {
+              if (isNotificationSource(source)) {
+                if (!this.mapSourceToFilter.has(source.id)) {
+                  this.setFilter({
+                    ...source,
+                    filter: NotificationsFilter.OFF
+                  });
+                } else {
+                  this.updateSourceFilter(source);
+                }
               }
+              this._onDidAddNotification.fire(notification);
             }
-            this._onDidAddNotification.fire(notification);
+            if (e.kind === NotificationChangeType.REMOVE) {
+              this._onDidRemoveNotification.fire(notification);
+            }
+            break;
           }
-          if (e.kind === NotificationChangeType.REMOVE) {
-            this._onDidRemoveNotification.fire(notification);
-          }
-          break;
         }
-      }
-    }));
+      })
+    );
   }
   //#region Filters
   static GLOBAL_FILTER_SETTINGS_KEY = "notifications.doNotDisturbMode";
@@ -72,7 +106,11 @@ let NotificationService = class extends Disposable {
   globalFilterEnabled;
   mapSourceToFilter = (() => {
     const map = /* @__PURE__ */ new Map();
-    for (const sourceFilter of this.storageService.getObject(NotificationService.PER_SOURCE_FILTER_SETTINGS_KEY, StorageScope.APPLICATION, [])) {
+    for (const sourceFilter of this.storageService.getObject(
+      NotificationService.PER_SOURCE_FILTER_SETTINGS_KEY,
+      StorageScope.APPLICATION,
+      []
+    )) {
       map.set(sourceFilter.id, sourceFilter);
     }
     return map;
@@ -83,7 +121,12 @@ let NotificationService = class extends Disposable {
         return;
       }
       this.globalFilterEnabled = filter === NotificationsFilter.ERROR;
-      this.storageService.store(NotificationService.GLOBAL_FILTER_SETTINGS_KEY, this.globalFilterEnabled, StorageScope.APPLICATION, StorageTarget.MACHINE);
+      this.storageService.store(
+        NotificationService.GLOBAL_FILTER_SETTINGS_KEY,
+        this.globalFilterEnabled,
+        StorageScope.APPLICATION,
+        StorageTarget.MACHINE
+      );
       this.updateFilters();
       this._onDidChangeFilter.fire();
     } else {
@@ -91,7 +134,11 @@ let NotificationService = class extends Disposable {
       if (existing?.filter === filter.filter && existing.label === filter.label) {
         return;
       }
-      this.mapSourceToFilter.set(filter.id, { id: filter.id, label: filter.label, filter: filter.filter });
+      this.mapSourceToFilter.set(filter.id, {
+        id: filter.id,
+        label: filter.label,
+        filter: filter.filter
+      });
       this.saveSourceFilters();
       this.updateFilters();
     }
@@ -108,12 +155,21 @@ let NotificationService = class extends Disposable {
       return;
     }
     if (existing.label !== source.label) {
-      this.mapSourceToFilter.set(source.id, { id: source.id, label: source.label, filter: existing.filter });
+      this.mapSourceToFilter.set(source.id, {
+        id: source.id,
+        label: source.label,
+        filter: existing.filter
+      });
       this.saveSourceFilters();
     }
   }
   saveSourceFilters() {
-    this.storageService.store(NotificationService.PER_SOURCE_FILTER_SETTINGS_KEY, JSON.stringify([...this.mapSourceToFilter.values()]), StorageScope.APPLICATION, StorageTarget.MACHINE);
+    this.storageService.store(
+      NotificationService.PER_SOURCE_FILTER_SETTINGS_KEY,
+      JSON.stringify([...this.mapSourceToFilter.values()]),
+      StorageScope.APPLICATION,
+      StorageTarget.MACHINE
+    );
   }
   getFilters() {
     return [...this.mapSourceToFilter.values()];
@@ -121,7 +177,12 @@ let NotificationService = class extends Disposable {
   updateFilters() {
     this.model.setFilter({
       global: this.globalFilterEnabled ? NotificationsFilter.ERROR : NotificationsFilter.OFF,
-      sources: new Map([...this.mapSourceToFilter.values()].map((source) => [source.id, source.filter]))
+      sources: new Map(
+        [...this.mapSourceToFilter.values()].map((source) => [
+          source.id,
+          source.filter
+        ])
+      )
     });
   }
   removeFilter(sourceId) {
@@ -166,16 +227,23 @@ let NotificationService = class extends Disposable {
       if (this.storageService.getBoolean(id, scope)) {
         return new NoOpNotification();
       }
-      const neverShowAgainAction = toDispose.add(new Action(
-        "workbench.notification.neverShowAgain",
-        localize("neverShowAgain", "Don't Show Again"),
-        void 0,
-        true,
-        async () => {
-          handle.close();
-          this.storageService.store(id, true, scope, StorageTarget.USER);
-        }
-      ));
+      const neverShowAgainAction = toDispose.add(
+        new Action(
+          "workbench.notification.neverShowAgain",
+          localize("neverShowAgain", "Don't Show Again"),
+          void 0,
+          true,
+          async () => {
+            handle.close();
+            this.storageService.store(
+              id,
+              true,
+              scope,
+              StorageTarget.USER
+            );
+          }
+        )
+      );
       const actions = {
         primary: notification.actions?.primary || [],
         secondary: notification.actions?.secondary || []
@@ -183,7 +251,10 @@ let NotificationService = class extends Disposable {
       if (!notification.neverShowAgain.isSecondary) {
         actions.primary = [neverShowAgainAction, ...actions.primary];
       } else {
-        actions.secondary = [...actions.secondary, neverShowAgainAction];
+        actions.secondary = [
+          ...actions.secondary,
+          neverShowAgainAction
+        ];
       }
       notification.actions = actions;
     }
@@ -212,7 +283,12 @@ let NotificationService = class extends Disposable {
       }
       const neverShowAgainChoice = {
         label: localize("neverShowAgain", "Don't Show Again"),
-        run: /* @__PURE__ */ __name(() => this.storageService.store(id, true, scope, StorageTarget.USER), "run"),
+        run: /* @__PURE__ */ __name(() => this.storageService.store(
+          id,
+          true,
+          scope,
+          StorageTarget.USER
+        ), "run"),
         isSecondary: options.neverShowAgain.isSecondary
       };
       if (!options.neverShowAgain.isSecondary) {
@@ -226,22 +302,36 @@ let NotificationService = class extends Disposable {
     const primaryActions = [];
     const secondaryActions = [];
     choices.forEach((choice, index) => {
-      const action = new ChoiceAction(`workbench.dialog.choice.${index}`, choice);
+      const action = new ChoiceAction(
+        `workbench.dialog.choice.${index}`,
+        choice
+      );
       if (!choice.isSecondary) {
         primaryActions.push(action);
       } else {
         secondaryActions.push(action);
       }
-      toDispose.add(action.onDidRun(() => {
-        choiceClicked = true;
-        if (!choice.keepOpen) {
-          handle.close();
-        }
-      }));
+      toDispose.add(
+        action.onDidRun(() => {
+          choiceClicked = true;
+          if (!choice.keepOpen) {
+            handle.close();
+          }
+        })
+      );
       toDispose.add(action);
     });
-    const actions = { primary: primaryActions, secondary: secondaryActions };
-    const handle = this.notify({ severity, message, actions, sticky: options?.sticky, priority: options?.priority });
+    const actions = {
+      primary: primaryActions,
+      secondary: secondaryActions
+    };
+    const handle = this.notify({
+      severity,
+      message,
+      actions,
+      sticky: options?.sticky,
+      priority: options?.priority
+    });
     Event.once(handle.onDidClose)(() => {
       toDispose.dispose();
       if (options && typeof options.onCancel === "function" && !choiceClicked) {
@@ -257,7 +347,11 @@ let NotificationService = class extends Disposable {
 NotificationService = __decorateClass([
   __decorateParam(0, IStorageService)
 ], NotificationService);
-registerSingleton(INotificationService, NotificationService, InstantiationType.Delayed);
+registerSingleton(
+  INotificationService,
+  NotificationService,
+  InstantiationType.Delayed
+);
 export {
   NotificationService
 };

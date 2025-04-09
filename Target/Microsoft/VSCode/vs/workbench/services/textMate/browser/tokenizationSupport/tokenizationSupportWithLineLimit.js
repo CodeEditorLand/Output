@@ -1,11 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { LanguageId } from "../../../../../editor/common/encodedTokenAttributes.js";
-import { EncodedTokenizationResult, IBackgroundTokenizationStore, IBackgroundTokenizer, IState, ITokenizationSupport, TokenizationResult } from "../../../../../editor/common/languages.js";
+import {
+  Disposable
+} from "../../../../../base/common/lifecycle.js";
+import {
+  keepObserved
+} from "../../../../../base/common/observable.js";
 import { nullTokenizeEncoded } from "../../../../../editor/common/languages/nullTokenize.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
-import { IObservable, keepObserved } from "../../../../../base/common/observable.js";
 class TokenizationSupportWithLineLimit extends Disposable {
   constructor(_encodedLanguageId, _actual, disposable, _maxTokenizationLineLength) {
     super();

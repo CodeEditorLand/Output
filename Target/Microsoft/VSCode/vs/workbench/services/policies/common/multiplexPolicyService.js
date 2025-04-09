@@ -10,31 +10,44 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IStringDictionary } from "../../../../base/common/collections.js";
-import { Iterable } from "../../../../base/common/iterator.js";
 import { Event } from "../../../../base/common/event.js";
+import { Iterable } from "../../../../base/common/iterator.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { AbstractPolicyService, IPolicyService, PolicyDefinition, PolicyValue } from "../../../../platform/policy/common/policy.js";
+import {
+  AbstractPolicyService
+} from "../../../../platform/policy/common/policy.js";
 let MultiplexPolicyService = class extends AbstractPolicyService {
   constructor(policyServices, logService) {
     super();
     this.policyServices = policyServices;
     this.logService = logService;
     this.updatePolicies();
-    this._register(Event.any(...this.policyServices.map((service) => service.onDidChange))((names) => {
-      this.updatePolicies();
-      this._onDidChange.fire(names);
-    }));
+    this._register(
+      Event.any(
+        ...this.policyServices.map((service) => service.onDidChange)
+      )((names) => {
+        this.updatePolicies();
+        this._onDidChange.fire(names);
+      })
+    );
   }
   static {
     __name(this, "MultiplexPolicyService");
   }
   async updatePolicyDefinitions(policyDefinitions) {
     await this._updatePolicyDefinitions(policyDefinitions);
-    return Iterable.reduce(this.policies.entries(), (r, [name, value]) => ({ ...r, [name]: value }), {});
+    return Iterable.reduce(
+      this.policies.entries(),
+      (r, [name, value]) => ({ ...r, [name]: value }),
+      {}
+    );
   }
   async _updatePolicyDefinitions(policyDefinitions) {
-    await Promise.all(this.policyServices.map((service) => service.updatePolicyDefinitions(policyDefinitions)));
+    await Promise.all(
+      this.policyServices.map(
+        (service) => service.updatePolicyDefinitions(policyDefinitions)
+      )
+    );
     this.updatePolicies();
   }
   updatePolicies() {
@@ -54,7 +67,9 @@ let MultiplexPolicyService = class extends AbstractPolicyService {
     const changed = /* @__PURE__ */ new Set();
     for (const key of updated) {
       if (changed.has(key)) {
-        this.logService.warn(`MultiplexPolicyService#_updatePolicyDefinitions - Found overlapping keys in policy services: ${key}`);
+        this.logService.warn(
+          `MultiplexPolicyService#_updatePolicyDefinitions - Found overlapping keys in policy services: ${key}`
+        );
       }
       changed.add(key);
     }

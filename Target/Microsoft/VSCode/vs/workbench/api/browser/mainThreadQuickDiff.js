@@ -11,11 +11,20 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { CancellationToken } from "../../../base/common/cancellation.js";
-import { DisposableMap, IDisposable } from "../../../base/common/lifecycle.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { ExtHostContext, ExtHostQuickDiffShape, IDocumentFilterDto, MainContext, MainThreadQuickDiffShape } from "../common/extHost.protocol.js";
-import { IQuickDiffService, QuickDiffProvider } from "../../contrib/scm/common/quickDiff.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
+import {
+  DisposableMap
+} from "../../../base/common/lifecycle.js";
+import { URI } from "../../../base/common/uri.js";
+import {
+  IQuickDiffService
+} from "../../contrib/scm/common/quickDiff.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadQuickDiff = class {
   constructor(extHostContext, quickDiffService) {
     this.quickDiffService = quickDiffService;
@@ -31,7 +40,13 @@ let MainThreadQuickDiff = class {
       isSCM: false,
       visible,
       getOriginalResource: /* @__PURE__ */ __name(async (uri) => {
-        return URI.revive(await this.proxy.$provideOriginalResource(handle, uri, CancellationToken.None));
+        return URI.revive(
+          await this.proxy.$provideOriginalResource(
+            handle,
+            uri,
+            CancellationToken.None
+          )
+        );
       }, "getOriginalResource")
     };
     const disposable = this.quickDiffService.addQuickDiffProvider(provider);

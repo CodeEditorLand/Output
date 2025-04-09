@@ -8,7 +8,9 @@ class OffsetEdit {
     let lastEndEx = -1;
     for (const edit of edits) {
       if (!(edit.replaceRange.start >= lastEndEx)) {
-        throw new BugIndicatingError(`Edits must be disjoint and sorted. Found ${edit} after ${lastEndEx}`);
+        throw new BugIndicatingError(
+          `Edits must be disjoint and sorted. Found ${edit} after ${lastEndEx}`
+        );
       }
       lastEndEx = edit.replaceRange.endExclusive;
     }
@@ -75,10 +77,18 @@ class OffsetEdit {
     const edits = [];
     let offset = 0;
     for (const e of this.edits) {
-      edits.push(new SingleOffsetEdit(
-        OffsetRange.ofStartAndLength(e.replaceRange.start + offset, e.newText.length),
-        originalStr.substring(e.replaceRange.start, e.replaceRange.endExclusive)
-      ));
+      edits.push(
+        new SingleOffsetEdit(
+          OffsetRange.ofStartAndLength(
+            e.replaceRange.start + offset,
+            e.newText.length
+          ),
+          originalStr.substring(
+            e.replaceRange.start,
+            e.replaceRange.endExclusive
+          )
+        )
+      );
       offset += e.newText.length - e.replaceRange.length;
     }
     return new OffsetEdit(edits);
@@ -87,7 +97,12 @@ class OffsetEdit {
     const ranges = [];
     let offset = 0;
     for (const e of this.edits) {
-      ranges.push(OffsetRange.ofStartAndLength(e.replaceRange.start + offset, e.newText.length));
+      ranges.push(
+        OffsetRange.ofStartAndLength(
+          e.replaceRange.start + offset,
+          e.newText.length
+        )
+      );
       offset += e.newText.length - e.replaceRange.length;
     }
     return ranges;
@@ -106,10 +121,12 @@ class OffsetEdit {
       if (!ourEdit) {
         break;
       } else if (!baseEdit) {
-        newEdits.push(new SingleOffsetEdit(
-          ourEdit.replaceRange.delta(offset),
-          ourEdit.newText
-        ));
+        newEdits.push(
+          new SingleOffsetEdit(
+            ourEdit.replaceRange.delta(offset),
+            ourEdit.newText
+          )
+        );
         ourIdx++;
       } else if (ourEdit.replaceRange.intersectsOrTouches(baseEdit.replaceRange)) {
         ourIdx++;
@@ -117,10 +134,12 @@ class OffsetEdit {
           return void 0;
         }
       } else if (ourEdit.replaceRange.start < baseEdit.replaceRange.start) {
-        newEdits.push(new SingleOffsetEdit(
-          ourEdit.replaceRange.delta(offset),
-          ourEdit.newText
-        ));
+        newEdits.push(
+          new SingleOffsetEdit(
+            ourEdit.replaceRange.delta(offset),
+            ourEdit.newText
+          )
+        );
         ourIdx++;
       } else {
         baseIdx++;
@@ -185,7 +204,10 @@ class SingleOffsetEdit {
     __name(this, "SingleOffsetEdit");
   }
   static fromJson(data) {
-    return new SingleOffsetEdit(OffsetRange.ofStartAndLength(data.pos, data.len), data.txt);
+    return new SingleOffsetEdit(
+      OffsetRange.ofStartAndLength(data.pos, data.len),
+      data.txt
+    );
   }
   static insert(offset, text) {
     return new SingleOffsetEdit(OffsetRange.emptyAt(offset), text);
@@ -203,7 +225,10 @@ class SingleOffsetEdit {
     return str.substring(0, this.replaceRange.start) + this.newText + str.substring(this.replaceRange.endExclusive);
   }
   getRangeAfterApply() {
-    return new OffsetRange(this.replaceRange.start, this.replaceRange.start + this.newText.length);
+    return new OffsetRange(
+      this.replaceRange.start,
+      this.replaceRange.start + this.newText.length
+    );
   }
   equals(other) {
     return this.replaceRange.equals(other.replaceRange) && this.newText === other.newText;
@@ -247,22 +272,36 @@ function joinEdits(edits1, edits2) {
       edit1ToEdit2 += edit1.newText.length - edit1.replaceRange.length;
     }
     if (!firstIntersecting) {
-      result.push(new SingleOffsetEdit(edit2.replaceRange.delta(-edit1ToEdit2), edit2.newText));
+      result.push(
+        new SingleOffsetEdit(
+          edit2.replaceRange.delta(-edit1ToEdit2),
+          edit2.newText
+        )
+      );
     } else {
       let prefix = "";
       const prefixLength = edit2.replaceRange.start - (firstIntersecting.replaceRange.start + firstEdit1ToEdit2);
       if (prefixLength > 0) {
         prefix = firstIntersecting.newText.slice(0, prefixLength);
       }
-      const suffixLength = lastIntersecting.replaceRange.endExclusive + edit1ToEdit2 - edit2.replaceRange.endExclusive;
+      const suffixLength = lastIntersecting?.replaceRange.endExclusive + edit1ToEdit2 - edit2.replaceRange.endExclusive;
       if (suffixLength > 0) {
-        const e = new SingleOffsetEdit(OffsetRange.ofStartAndLength(lastIntersecting.replaceRange.endExclusive, 0), lastIntersecting.newText.slice(-suffixLength));
+        const e = new SingleOffsetEdit(
+          OffsetRange.ofStartAndLength(
+            lastIntersecting?.replaceRange.endExclusive,
+            0
+          ),
+          lastIntersecting?.newText.slice(-suffixLength)
+        );
         edit1Queue.unshift(e);
         edit1ToEdit2 -= e.newText.length - e.replaceRange.length;
       }
       const newText = prefix + edit2.newText;
       const newReplaceRange = new OffsetRange(
-        Math.min(firstIntersecting.replaceRange.start, edit2.replaceRange.start - firstEdit1ToEdit2),
+        Math.min(
+          firstIntersecting.replaceRange.start,
+          edit2.replaceRange.start - firstEdit1ToEdit2
+        ),
         edit2.replaceRange.endExclusive - edit1ToEdit2
       );
       result.push(new SingleOffsetEdit(newReplaceRange, newText));
@@ -302,7 +341,7 @@ function applyEditsToRanges(sortedRanges, edits) {
     }
     for (let i = intersecting.length - 1; i >= 0; i--) {
       let r = intersecting[i];
-      const overlap = r.intersect(e.replaceRange).length;
+      const overlap = r.intersect(e.replaceRange)?.length;
       r = r.deltaEnd(-overlap + (i === 0 ? e.newText.length : 0));
       const rangeAheadOfReplaceRange = r.start - e.replaceRange.start;
       if (rangeAheadOfReplaceRange > 0) {

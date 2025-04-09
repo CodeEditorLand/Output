@@ -1,9 +1,13 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  findFirstIdxMonotonousOrArrLen,
+  findLastIdxMonotonous,
+  findLastMonotonous
+} from "../../../base/common/arraysFind.js";
 import { BugIndicatingError } from "../../../base/common/errors.js";
 import { OffsetRange } from "./offsetRange.js";
 import { Range } from "./range.js";
-import { findFirstIdxMonotonousOrArrLen, findLastIdxMonotonous, findLastMonotonous } from "../../../base/common/arraysFind.js";
 class LineRange {
   static {
     __name(this, "LineRange");
@@ -21,14 +25,27 @@ class LineRange {
     if (a.startLineNumber < b.startLineNumber && b.endLineNumberExclusive < a.endLineNumberExclusive) {
       return [
         new LineRange(a.startLineNumber, b.startLineNumber),
-        new LineRange(b.endLineNumberExclusive, a.endLineNumberExclusive)
+        new LineRange(
+          b.endLineNumberExclusive,
+          a.endLineNumberExclusive
+        )
       ];
     } else if (b.startLineNumber <= a.startLineNumber && a.endLineNumberExclusive <= b.endLineNumberExclusive) {
       return [];
     } else if (b.endLineNumberExclusive < a.endLineNumberExclusive) {
-      return [new LineRange(Math.max(b.endLineNumberExclusive, a.startLineNumber), a.endLineNumberExclusive)];
+      return [
+        new LineRange(
+          Math.max(b.endLineNumberExclusive, a.startLineNumber),
+          a.endLineNumberExclusive
+        )
+      ];
     } else {
-      return [new LineRange(a.startLineNumber, Math.min(b.startLineNumber, a.endLineNumberExclusive))];
+      return [
+        new LineRange(
+          a.startLineNumber,
+          Math.min(b.startLineNumber, a.endLineNumberExclusive)
+        )
+      ];
     }
   }
   /**
@@ -51,8 +68,14 @@ class LineRange {
     let startLineNumber = lineRanges[0].startLineNumber;
     let endLineNumberExclusive = lineRanges[0].endLineNumberExclusive;
     for (let i = 1; i < lineRanges.length; i++) {
-      startLineNumber = Math.min(startLineNumber, lineRanges[i].startLineNumber);
-      endLineNumberExclusive = Math.max(endLineNumberExclusive, lineRanges[i].endLineNumberExclusive);
+      startLineNumber = Math.min(
+        startLineNumber,
+        lineRanges[i].startLineNumber
+      );
+      endLineNumberExclusive = Math.max(
+        endLineNumberExclusive,
+        lineRanges[i].endLineNumberExclusive
+      );
     }
     return new LineRange(startLineNumber, endLineNumberExclusive);
   }
@@ -75,7 +98,9 @@ class LineRange {
   endLineNumberExclusive;
   constructor(startLineNumber, endLineNumberExclusive) {
     if (startLineNumber > endLineNumberExclusive) {
-      throw new BugIndicatingError(`startLineNumber ${startLineNumber} cannot be after endLineNumberExclusive ${endLineNumberExclusive}`);
+      throw new BugIndicatingError(
+        `startLineNumber ${startLineNumber} cannot be after endLineNumberExclusive ${endLineNumberExclusive}`
+      );
     }
     this.startLineNumber = startLineNumber;
     this.endLineNumberExclusive = endLineNumberExclusive;
@@ -96,10 +121,16 @@ class LineRange {
    * Moves this line range by the given offset of line numbers.
    */
   delta(offset) {
-    return new LineRange(this.startLineNumber + offset, this.endLineNumberExclusive + offset);
+    return new LineRange(
+      this.startLineNumber + offset,
+      this.endLineNumberExclusive + offset
+    );
   }
   deltaLength(offset) {
-    return new LineRange(this.startLineNumber, this.endLineNumberExclusive + offset);
+    return new LineRange(
+      this.startLineNumber,
+      this.endLineNumberExclusive + offset
+    );
   }
   /**
    * The number of lines this line range spans.
@@ -124,8 +155,14 @@ class LineRange {
    * If the ranges don't even touch, the result is undefined.
    */
   intersect(other) {
-    const startLineNumber = Math.max(this.startLineNumber, other.startLineNumber);
-    const endLineNumberExclusive = Math.min(this.endLineNumberExclusive, other.endLineNumberExclusive);
+    const startLineNumber = Math.max(
+      this.startLineNumber,
+      other.startLineNumber
+    );
+    const endLineNumberExclusive = Math.min(
+      this.endLineNumberExclusive,
+      other.endLineNumberExclusive
+    );
     if (startLineNumber <= endLineNumberExclusive) {
       return new LineRange(startLineNumber, endLineNumberExclusive);
     }
@@ -144,13 +181,23 @@ class LineRange {
     if (this.isEmpty) {
       return null;
     }
-    return new Range(this.startLineNumber, 1, this.endLineNumberExclusive - 1, Number.MAX_SAFE_INTEGER);
+    return new Range(
+      this.startLineNumber,
+      1,
+      this.endLineNumberExclusive - 1,
+      Number.MAX_SAFE_INTEGER
+    );
   }
   /**
    * @deprecated Using this function is discouraged because it might lead to bugs: The end position is not guaranteed to be a valid position!
-  */
+   */
   toExclusiveRange() {
-    return new Range(this.startLineNumber, 1, this.endLineNumberExclusive, 1);
+    return new Range(
+      this.startLineNumber,
+      1,
+      this.endLineNumberExclusive,
+      1
+    );
   }
   mapToLineArray(f) {
     const result = [];
@@ -178,7 +225,10 @@ class LineRange {
    * @internal
    */
   toOffsetRange() {
-    return new OffsetRange(this.startLineNumber - 1, this.endLineNumberExclusive - 1);
+    return new OffsetRange(
+      this.startLineNumber - 1,
+      this.endLineNumberExclusive - 1
+    );
   }
   distanceToRange(other) {
     if (this.endLineNumberExclusive <= other.startLineNumber) {
@@ -219,8 +269,14 @@ class LineRangeSet {
     if (range.length === 0) {
       return;
     }
-    const joinRangeStartIdx = findFirstIdxMonotonousOrArrLen(this._normalizedRanges, (r) => r.endLineNumberExclusive >= range.startLineNumber);
-    const joinRangeEndIdxExclusive = findLastIdxMonotonous(this._normalizedRanges, (r) => r.startLineNumber <= range.endLineNumberExclusive) + 1;
+    const joinRangeStartIdx = findFirstIdxMonotonousOrArrLen(
+      this._normalizedRanges,
+      (r) => r.endLineNumberExclusive >= range.startLineNumber
+    );
+    const joinRangeEndIdxExclusive = findLastIdxMonotonous(
+      this._normalizedRanges,
+      (r) => r.startLineNumber <= range.endLineNumberExclusive
+    ) + 1;
     if (joinRangeStartIdx === joinRangeEndIdxExclusive) {
       this._normalizedRanges.splice(joinRangeStartIdx, 0, range);
     } else if (joinRangeStartIdx === joinRangeEndIdxExclusive - 1) {
@@ -228,15 +284,25 @@ class LineRangeSet {
       this._normalizedRanges[joinRangeStartIdx] = joinRange.join(range);
     } else {
       const joinRange = this._normalizedRanges[joinRangeStartIdx].join(this._normalizedRanges[joinRangeEndIdxExclusive - 1]).join(range);
-      this._normalizedRanges.splice(joinRangeStartIdx, joinRangeEndIdxExclusive - joinRangeStartIdx, joinRange);
+      this._normalizedRanges.splice(
+        joinRangeStartIdx,
+        joinRangeEndIdxExclusive - joinRangeStartIdx,
+        joinRange
+      );
     }
   }
   contains(lineNumber) {
-    const rangeThatStartsBeforeEnd = findLastMonotonous(this._normalizedRanges, (r) => r.startLineNumber <= lineNumber);
+    const rangeThatStartsBeforeEnd = findLastMonotonous(
+      this._normalizedRanges,
+      (r) => r.startLineNumber <= lineNumber
+    );
     return !!rangeThatStartsBeforeEnd && rangeThatStartsBeforeEnd.endLineNumberExclusive > lineNumber;
   }
   intersects(range) {
-    const rangeThatStartsBeforeEnd = findLastMonotonous(this._normalizedRanges, (r) => r.startLineNumber < range.endLineNumberExclusive);
+    const rangeThatStartsBeforeEnd = findLastMonotonous(
+      this._normalizedRanges,
+      (r) => r.startLineNumber < range.endLineNumberExclusive
+    );
     return !!rangeThatStartsBeforeEnd && rangeThatStartsBeforeEnd.endLineNumberExclusive > range.startLineNumber;
   }
   getUnion(other) {
@@ -273,7 +339,13 @@ class LineRangeSet {
         current = next;
       } else {
         if (current.endLineNumberExclusive >= next.startLineNumber) {
-          current = new LineRange(current.startLineNumber, Math.max(current.endLineNumberExclusive, next.endLineNumberExclusive));
+          current = new LineRange(
+            current.startLineNumber,
+            Math.max(
+              current.endLineNumberExclusive,
+              next.endLineNumberExclusive
+            )
+          );
         } else {
           result.push(current);
           current = next;
@@ -289,8 +361,14 @@ class LineRangeSet {
    * Subtracts all ranges in this set from `range` and returns the result.
    */
   subtractFrom(range) {
-    const joinRangeStartIdx = findFirstIdxMonotonousOrArrLen(this._normalizedRanges, (r) => r.endLineNumberExclusive >= range.startLineNumber);
-    const joinRangeEndIdxExclusive = findLastIdxMonotonous(this._normalizedRanges, (r) => r.startLineNumber <= range.endLineNumberExclusive) + 1;
+    const joinRangeStartIdx = findFirstIdxMonotonousOrArrLen(
+      this._normalizedRanges,
+      (r) => r.endLineNumberExclusive >= range.startLineNumber
+    );
+    const joinRangeEndIdxExclusive = findLastIdxMonotonous(
+      this._normalizedRanges,
+      (r) => r.startLineNumber <= range.endLineNumberExclusive
+    ) + 1;
     if (joinRangeStartIdx === joinRangeEndIdxExclusive) {
       return new LineRangeSet([range]);
     }
@@ -304,7 +382,9 @@ class LineRangeSet {
       startLineNumber = r.endLineNumberExclusive;
     }
     if (startLineNumber < range.endLineNumberExclusive) {
-      result.push(new LineRange(startLineNumber, range.endLineNumberExclusive));
+      result.push(
+        new LineRange(startLineNumber, range.endLineNumberExclusive)
+      );
     }
     return new LineRangeSet(result);
   }
@@ -331,7 +411,9 @@ class LineRangeSet {
     return new LineRangeSet(result);
   }
   getWithDelta(value) {
-    return new LineRangeSet(this._normalizedRanges.map((r) => r.delta(value)));
+    return new LineRangeSet(
+      this._normalizedRanges.map((r) => r.delta(value))
+    );
   }
 }
 export {

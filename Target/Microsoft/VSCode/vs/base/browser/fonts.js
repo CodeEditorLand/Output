@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { mainWindow } from "./window.js";
 import { isElectron, isMacintosh, isWindows } from "../common/platform.js";
+import { mainWindow } from "./window.js";
 const DEFAULT_FONT_FAMILY = isWindows ? '"Segoe WPC", "Segoe UI", sans-serif' : isMacintosh ? "-apple-system, BlinkMacSystemFont, sans-serif" : 'system-ui, "Ubuntu", "Droid Sans", sans-serif';
 const getFonts = /* @__PURE__ */ __name(async () => {
   try {

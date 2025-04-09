@@ -1,4 +1,4 @@
-var cgmanifest_default = "../../../../Asset/cgmanifest-HY3FAPMG.json";
+var cgmanifest_default = "../../../../Asset/cgmanifest-UTROPLVT.json";
 export {
   cgmanifest_default as default
 };

@@ -1,13 +1,12 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as dom from "../../dom.js";
-import { EventType, Gesture } from "../../touch.js";
-import { ISelectBoxDelegate, ISelectBoxOptions, ISelectBoxStyles, ISelectData, ISelectOptionItem } from "./selectBox.js";
 import * as arrays from "../../../common/arrays.js";
-import { Emitter, Event } from "../../../common/event.js";
+import { Emitter } from "../../../common/event.js";
 import { KeyCode } from "../../../common/keyCodes.js";
 import { Disposable } from "../../../common/lifecycle.js";
 import { isMacintosh } from "../../../common/platform.js";
+import * as dom from "../../dom.js";
+import { EventType, Gesture } from "../../touch.js";
 class SelectBoxNative extends Disposable {
   static {
     __name(this, "SelectBoxNative");
@@ -25,10 +24,16 @@ class SelectBoxNative extends Disposable {
     this.selectElement = document.createElement("select");
     this.selectElement.className = "monaco-select-box";
     if (typeof this.selectBoxOptions.ariaLabel === "string") {
-      this.selectElement.setAttribute("aria-label", this.selectBoxOptions.ariaLabel);
+      this.selectElement.setAttribute(
+        "aria-label",
+        this.selectBoxOptions.ariaLabel
+      );
     }
     if (typeof this.selectBoxOptions.ariaDescription === "string") {
-      this.selectElement.setAttribute("aria-description", this.selectBoxOptions.ariaDescription);
+      this.selectElement.setAttribute(
+        "aria-description",
+        this.selectBoxOptions.ariaDescription
+      );
     }
     this._onDidSelect = this._register(new Emitter());
     this.styles = styles;
@@ -38,35 +43,59 @@ class SelectBoxNative extends Disposable {
   registerListeners() {
     this._register(Gesture.addTarget(this.selectElement));
     [EventType.Tap].forEach((eventType) => {
-      this._register(dom.addDisposableListener(this.selectElement, eventType, (e) => {
-        this.selectElement.focus();
-      }));
+      this._register(
+        dom.addDisposableListener(
+          this.selectElement,
+          eventType,
+          (e) => {
+            this.selectElement.focus();
+          }
+        )
+      );
     });
-    this._register(dom.addStandardDisposableListener(this.selectElement, "click", (e) => {
-      dom.EventHelper.stop(e, true);
-    }));
-    this._register(dom.addStandardDisposableListener(this.selectElement, "change", (e) => {
-      this.selectElement.title = e.target.value;
-      this._onDidSelect.fire({
-        index: e.target.selectedIndex,
-        selected: e.target.value
-      });
-    }));
-    this._register(dom.addStandardDisposableListener(this.selectElement, "keydown", (e) => {
-      let showSelect = false;
-      if (isMacintosh) {
-        if (e.keyCode === KeyCode.DownArrow || e.keyCode === KeyCode.UpArrow || e.keyCode === KeyCode.Space) {
-          showSelect = true;
+    this._register(
+      dom.addStandardDisposableListener(
+        this.selectElement,
+        "click",
+        (e) => {
+          dom.EventHelper.stop(e, true);
         }
-      } else {
-        if (e.keyCode === KeyCode.DownArrow && e.altKey || e.keyCode === KeyCode.Space || e.keyCode === KeyCode.Enter) {
-          showSelect = true;
+      )
+    );
+    this._register(
+      dom.addStandardDisposableListener(
+        this.selectElement,
+        "change",
+        (e) => {
+          this.selectElement.title = e.target.value;
+          this._onDidSelect.fire({
+            index: e.target.selectedIndex,
+            selected: e.target.value
+          });
         }
-      }
-      if (showSelect) {
-        e.stopPropagation();
-      }
-    }));
+      )
+    );
+    this._register(
+      dom.addStandardDisposableListener(
+        this.selectElement,
+        "keydown",
+        (e) => {
+          let showSelect = false;
+          if (isMacintosh) {
+            if (e.keyCode === KeyCode.DownArrow || e.keyCode === KeyCode.UpArrow || e.keyCode === KeyCode.Space) {
+              showSelect = true;
+            }
+          } else {
+            if (e.keyCode === KeyCode.DownArrow && e.altKey || e.keyCode === KeyCode.Space || e.keyCode === KeyCode.Enter) {
+              showSelect = true;
+            }
+          }
+          if (showSelect) {
+            e.stopPropagation();
+          }
+        }
+      )
+    );
   }
   get onDidSelect() {
     return this._onDidSelect.event;
@@ -76,7 +105,9 @@ class SelectBoxNative extends Disposable {
       this.options = options;
       this.selectElement.options.length = 0;
       this.options.forEach((option, index) => {
-        this.selectElement.add(this.createOption(option.text, index, option.isDisabled));
+        this.selectElement.add(
+          this.createOption(option.text, index, option.isDisabled)
+        );
       });
     }
     if (selected !== void 0) {

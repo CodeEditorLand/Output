@@ -11,24 +11,39 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { toAction } from "../../../../base/common/actions.js";
-import { CopyPasteController, pasteAsPreferenceConfig } from "../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";
-import { DropIntoEditorController, dropAsPreferenceConfig } from "../../../../editor/contrib/dropOrPasteInto/browser/dropIntoEditorController.js";
+import {
+  CopyPasteController,
+  pasteAsPreferenceConfig
+} from "../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";
+import {
+  dropAsPreferenceConfig,
+  DropIntoEditorController
+} from "../../../../editor/contrib/dropOrPasteInto/browser/dropIntoEditorController.js";
 import { localize } from "../../../../nls.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
 import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
 let DropOrPasteIntoCommands = class {
   constructor(_preferencesService) {
     this._preferencesService = _preferencesService;
-    CopyPasteController.setConfigureDefaultAction(toAction({
-      id: "workbench.action.configurePreferredPasteAction",
-      label: localize("configureDefaultPaste.label", "Configure preferred paste action..."),
-      run: /* @__PURE__ */ __name(() => this.configurePreferredPasteAction(), "run")
-    }));
-    DropIntoEditorController.setConfigureDefaultAction(toAction({
-      id: "workbench.action.configurePreferredDropAction",
-      label: localize("configureDefaultDrop.label", "Configure preferred drop action..."),
-      run: /* @__PURE__ */ __name(() => this.configurePreferredDropAction(), "run")
-    }));
+    CopyPasteController.setConfigureDefaultAction(
+      toAction({
+        id: "workbench.action.configurePreferredPasteAction",
+        label: localize(
+          "configureDefaultPaste.label",
+          "Configure preferred paste action..."
+        ),
+        run: /* @__PURE__ */ __name(() => this.configurePreferredPasteAction(), "run")
+      })
+    );
+    DropIntoEditorController.setConfigureDefaultAction(
+      toAction({
+        id: "workbench.action.configurePreferredDropAction",
+        label: localize(
+          "configureDefaultDrop.label",
+          "Configure preferred drop action..."
+        ),
+        run: /* @__PURE__ */ __name(() => this.configurePreferredDropAction(), "run")
+      })
+    );
   }
   static {
     __name(this, "DropOrPasteIntoCommands");

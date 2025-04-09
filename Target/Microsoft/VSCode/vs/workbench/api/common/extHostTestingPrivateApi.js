@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ExtHostTestItemEvent, InvalidTestItemError } from "../../contrib/testing/common/testItemCollection.js";
-import * as vscode from "vscode";
+import {
+  InvalidTestItemError
+} from "../../contrib/testing/common/testItemCollection.js";
 const eventPrivateApis = /* @__PURE__ */ new WeakMap();
 const createPrivateApiFor = /* @__PURE__ */ __name((impl, controllerId) => {
   const api = { controllerId };

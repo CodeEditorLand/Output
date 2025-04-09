@@ -37,7 +37,9 @@ class MonotonousIndexTransformer {
     __name(this, "MonotonousIndexTransformer");
   }
   static fromMany(transformations) {
-    const transformers = transformations.map((t) => new MonotonousIndexTransformer(t));
+    const transformers = transformations.map(
+      (t) => new MonotonousIndexTransformer(t)
+    );
     return new CombinedIndexTransformer(transformers);
   }
   idx = 0;

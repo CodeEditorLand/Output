@@ -12,11 +12,17 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { ArrayQueue, CompareResult } from "../../../../base/common/arrays.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, autorunOpts } from "../../../../base/common/observable.js";
-import { CodeEditorWidget } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import { IModelDeltaDecoration } from "../../../../editor/common/model.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import {
+  autorunOpts
+} from "../../../../base/common/observable.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 function setStyle(element, style) {
   Object.entries(style).forEach(([key, value]) => {
     element.style.setProperty(key, toSize(value));
@@ -30,12 +36,19 @@ __name(toSize, "toSize");
 function applyObservableDecorations(editor, decorations) {
   const d = new DisposableStore();
   let decorationIds = [];
-  d.add(autorunOpts({ debugName: /* @__PURE__ */ __name(() => `Apply decorations from ${decorations.debugName}`, "debugName") }, (reader) => {
-    const d2 = decorations.read(reader);
-    editor.changeDecorations((a) => {
-      decorationIds = a.deltaDecorations(decorationIds, d2);
-    });
-  }));
+  d.add(
+    autorunOpts(
+      {
+        debugName: /* @__PURE__ */ __name(() => `Apply decorations from ${decorations.debugName}`, "debugName")
+      },
+      (reader) => {
+        const d2 = decorations.read(reader);
+        editor.changeDecorations((a) => {
+          decorationIds = a.deltaDecorations(decorationIds, d2);
+        });
+      }
+    )
+  );
   d.add({
     dispose: /* @__PURE__ */ __name(() => {
       editor.changeDecorations((a) => {
@@ -49,8 +62,14 @@ __name(applyObservableDecorations, "applyObservableDecorations");
 function* leftJoin(left, right, compare) {
   const rightQueue = new ArrayQueue(right);
   for (const leftElement of left) {
-    rightQueue.takeWhile((rightElement) => CompareResult.isGreaterThan(compare(leftElement, rightElement)));
-    const equals = rightQueue.takeWhile((rightElement) => CompareResult.isNeitherLessOrGreaterThan(compare(leftElement, rightElement)));
+    rightQueue.takeWhile(
+      (rightElement) => CompareResult.isGreaterThan(compare(leftElement, rightElement))
+    );
+    const equals = rightQueue.takeWhile(
+      (rightElement) => CompareResult.isNeitherLessOrGreaterThan(
+        compare(leftElement, rightElement)
+      )
+    );
     yield { left: leftElement, rights: equals || [] };
   }
 }
@@ -58,11 +77,17 @@ __name(leftJoin, "leftJoin");
 function* join(left, right, compare) {
   const rightQueue = new ArrayQueue(right);
   for (const leftElement of left) {
-    const skipped = rightQueue.takeWhile((rightElement) => CompareResult.isGreaterThan(compare(leftElement, rightElement)));
+    const skipped = rightQueue.takeWhile(
+      (rightElement) => CompareResult.isGreaterThan(compare(leftElement, rightElement))
+    );
     if (skipped) {
       yield { rights: skipped };
     }
-    const equals = rightQueue.takeWhile((rightElement) => CompareResult.isNeitherLessOrGreaterThan(compare(leftElement, rightElement)));
+    const equals = rightQueue.takeWhile(
+      (rightElement) => CompareResult.isNeitherLessOrGreaterThan(
+        compare(leftElement, rightElement)
+      )
+    );
     yield { left: leftElement, rights: equals || [] };
   }
 }
@@ -107,7 +132,10 @@ let PersistentStore = class {
   value = void 0;
   get() {
     if (!this.hasValue) {
-      const value = this.storageService.get(this.key, StorageScope.PROFILE);
+      const value = this.storageService.get(
+        this.key,
+        StorageScope.PROFILE
+      );
       if (value !== void 0) {
         try {
           this.value = JSON.parse(value);

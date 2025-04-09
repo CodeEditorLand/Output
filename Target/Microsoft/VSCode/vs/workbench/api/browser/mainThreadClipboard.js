@@ -10,9 +10,11 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
-import { MainContext, MainThreadClipboardShape } from "../common/extHost.protocol.js";
 import { IClipboardService } from "../../../platform/clipboard/common/clipboardService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import {
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadClipboard = class {
   constructor(_context, _clipboardService) {
     this._clipboardService = _clipboardService;

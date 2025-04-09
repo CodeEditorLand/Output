@@ -12,7 +12,9 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Event } from "../../../../../base/common/event.js";
 import { DisposableStore } from "../../../../../base/common/lifecycle.js";
-import { IContextKey, IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import {
+  IContextKeyService
+} from "../../../../../platform/contextkey/common/contextkey.js";
 import { IChatAgentService } from "../../../chat/common/chatAgents.js";
 import { ChatAgentLocation } from "../../../chat/common/constants.js";
 import { TerminalChatContextKeys } from "./terminalChat.js";
@@ -25,10 +27,16 @@ let TerminalChatEnabler = class {
   _store = new DisposableStore();
   constructor(chatAgentService, contextKeyService) {
     this._ctxHasProvider = TerminalChatContextKeys.hasChatAgent.bindTo(contextKeyService);
-    this._store.add(Event.runAndSubscribe(chatAgentService.onDidChangeAgents, () => {
-      const hasTerminalAgent = Boolean(chatAgentService.getDefaultAgent(ChatAgentLocation.Terminal));
-      this._ctxHasProvider.set(hasTerminalAgent);
-    }));
+    this._store.add(
+      Event.runAndSubscribe(chatAgentService.onDidChangeAgents, () => {
+        const hasTerminalAgent = Boolean(
+          chatAgentService.getDefaultAgent(
+            ChatAgentLocation.Terminal
+          )
+        );
+        this._ctxHasProvider.set(hasTerminalAgent);
+      })
+    );
   }
   dispose() {
     this._ctxHasProvider.reset();

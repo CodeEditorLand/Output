@@ -1,11 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { illegalArgument } from "../../../base/common/errors.js";
-import { MainThreadNotebookEditorsShape } from "./extHost.protocol.js";
 import * as extHostConverter from "./extHostTypeConverters.js";
 import * as extHostTypes from "./extHostTypes.js";
-import * as vscode from "vscode";
-import { ExtHostNotebookDocument } from "./extHostNotebookDocument.js";
 class ExtHostNotebookEditor {
   constructor(id, _proxy, notebookData, _visibleRanges, _selections, _viewColumn, viewType) {
     this.id = id;
@@ -85,7 +82,10 @@ class ExtHostNotebookEditor {
     this._selections = selections;
   }
   _trySetSelections(value) {
-    this._proxy.$trySetSelections(this.id, value.map(extHostConverter.NotebookRange.from));
+    this._proxy.$trySetSelections(
+      this.id,
+      value.map(extHostConverter.NotebookRange.from)
+    );
   }
   _acceptViewColumn(value) {
     this._viewColumn = value;

@@ -11,10 +11,10 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { URI } from "../../../../../base/common/uri.js";
-import { ITextModel } from "../../../../../editor/common/model.js";
 import { IModelService } from "../../../../../editor/common/services/model.js";
-import { ITextModelContentProvider } from "../../../../../editor/common/services/resolverService.js";
-import { chatEditingSnapshotScheme, IChatEditingService } from "../../common/chatEditingService.js";
+import {
+  chatEditingSnapshotScheme
+} from "../../common/chatEditingService.js";
 import { ChatEditingSession } from "./chatEditingSession.js";
 let ChatEditingTextModelContentProvider = class {
   constructor(_chatEditingService, _modelService) {
@@ -29,7 +29,11 @@ let ChatEditingTextModelContentProvider = class {
     return URI.from({
       scheme: ChatEditingTextModelContentProvider.scheme,
       path,
-      query: JSON.stringify({ kind: "doc", documentId, chatSessionId })
+      query: JSON.stringify({
+        kind: "doc",
+        documentId,
+        chatSessionId
+      })
     });
   }
   async provideTextContent(resource) {
@@ -37,8 +41,12 @@ let ChatEditingTextModelContentProvider = class {
     if (existing && !existing.isDisposed()) {
       return existing;
     }
-    const data = JSON.parse(resource.query);
-    const session = this._chatEditingService.getEditingSession(data.chatSessionId);
+    const data = JSON.parse(
+      resource.query
+    );
+    const session = this._chatEditingService.getEditingSession(
+      data.chatSessionId
+    );
     const entry = session?.entries.get().find((candidate) => candidate.entryId === data.documentId);
     if (!entry) {
       return null;
@@ -61,7 +69,11 @@ let ChatEditingSnapshotTextModelContentProvider = class {
     return URI.from({
       scheme: chatEditingSnapshotScheme,
       path,
-      query: JSON.stringify({ sessionId: chatSessionId, requestId: requestId ?? "", undoStop: undoStop ?? "" })
+      query: JSON.stringify({
+        sessionId: chatSessionId,
+        requestId: requestId ?? "",
+        undoStop: undoStop ?? ""
+      })
     });
   }
   async provideTextContent(resource) {
@@ -69,12 +81,20 @@ let ChatEditingSnapshotTextModelContentProvider = class {
     if (existing && !existing.isDisposed()) {
       return existing;
     }
-    const data = JSON.parse(resource.query);
-    const session = this._chatEditingService.getEditingSession(data.sessionId);
+    const data = JSON.parse(
+      resource.query
+    );
+    const session = this._chatEditingService.getEditingSession(
+      data.sessionId
+    );
     if (!(session instanceof ChatEditingSession) || !data.requestId) {
       return null;
     }
-    return session.getSnapshotModel(data.requestId, data.undoStop || void 0, resource);
+    return session.getSnapshotModel(
+      data.requestId,
+      data.undoStop || void 0,
+      resource
+    );
   }
 };
 ChatEditingSnapshotTextModelContentProvider = __decorateClass([

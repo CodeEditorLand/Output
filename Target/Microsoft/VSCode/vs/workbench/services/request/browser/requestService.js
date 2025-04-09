@@ -10,22 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IRequestOptions, IRequestContext } from "../../../../base/parts/request/common/request.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { RequestChannelClient } from "../../../../platform/request/common/requestIpc.js";
-import { IRemoteAgentService, IRemoteAgentConnection } from "../../remote/common/remoteAgentService.js";
-import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
-import { AbstractRequestService, AuthInfo, Credentials, IRequestService } from "../../../../platform/request/common/request.js";
 import { request } from "../../../../base/parts/request/common/requestImpl.js";
-import { ILoggerService } from "../../../../platform/log/common/log.js";
 import { localize } from "../../../../nls.js";
+import { CommandsRegistry } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILoggerService } from "../../../../platform/log/common/log.js";
 import { LogService } from "../../../../platform/log/common/logService.js";
+import {
+  AbstractRequestService
+} from "../../../../platform/request/common/request.js";
+import { RequestChannelClient } from "../../../../platform/request/common/requestIpc.js";
 import { windowLogGroup } from "../../log/common/logConstants.js";
+import {
+  IRemoteAgentService
+} from "../../remote/common/remoteAgentService.js";
 let BrowserRequestService = class extends AbstractRequestService {
   constructor(remoteAgentService, configurationService, loggerService) {
-    const logger = loggerService.createLogger(`network`, { name: localize("network", "Network"), group: windowLogGroup });
+    const logger = loggerService.createLogger("network", {
+      name: localize("network", "Network"),
+      group: windowLogGroup
+    });
     const logService = new LogService(logger);
     super(logService);
     this.remoteAgentService = remoteAgentService;
@@ -39,9 +43,14 @@ let BrowserRequestService = class extends AbstractRequestService {
   async request(options, token) {
     try {
       if (!options.proxyAuthorization) {
-        options.proxyAuthorization = this.configurationService.inspect("http.proxyAuthorization").userLocalValue;
+        options.proxyAuthorization = this.configurationService.inspect(
+          "http.proxyAuthorization"
+        ).userLocalValue;
       }
-      const context = await this.logAndRequest(options, () => request(options, token, () => navigator.onLine));
+      const context = await this.logAndRequest(
+        options,
+        () => request(options, token, () => navigator.onLine)
+      );
       const connection = this.remoteAgentService.getConnection();
       if (connection && context.res.statusCode === 405) {
         return this._makeRemoteRequest(connection, options, token);
@@ -68,7 +77,10 @@ let BrowserRequestService = class extends AbstractRequestService {
     return [];
   }
   _makeRemoteRequest(connection, options, token) {
-    return connection.withChannel("request", (channel) => new RequestChannelClient(channel).request(options, token));
+    return connection.withChannel(
+      "request",
+      (channel) => new RequestChannelClient(channel).request(options, token)
+    );
   }
 };
 BrowserRequestService = __decorateClass([
@@ -76,14 +88,20 @@ BrowserRequestService = __decorateClass([
   __decorateParam(1, IConfigurationService),
   __decorateParam(2, ILoggerService)
 ], BrowserRequestService);
-CommandsRegistry.registerCommand("_workbench.fetchJSON", async function(accessor, url, method) {
-  const result = await fetch(url, { method, headers: { Accept: "application/json" } });
-  if (result.ok) {
-    return result.json();
-  } else {
-    throw new Error(result.statusText);
+CommandsRegistry.registerCommand(
+  "_workbench.fetchJSON",
+  async (accessor, url, method) => {
+    const result = await fetch(url, {
+      method,
+      headers: { Accept: "application/json" }
+    });
+    if (result.ok) {
+      return result.json();
+    } else {
+      throw new Error(result.statusText);
+    }
   }
-});
+);
 export {
   BrowserRequestService
 };

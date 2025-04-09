@@ -10,15 +10,14 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IContextMenuProvider } from "../../../base/browser/contextmenu.js";
-import { IActionProvider } from "../../../base/browser/ui/dropdown/dropdown.js";
-import { DropdownMenuActionViewItem, IDropdownMenuActionViewItemOptions } from "../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
-import { IAction } from "../../../base/common/actions.js";
+import {
+  DropdownMenuActionViewItem
+} from "../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
 import * as nls from "../../../nls.js";
 import { IContextKeyService } from "../../contextkey/common/contextkey.js";
 import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 let DropdownMenuActionViewItemWithKeybinding = class extends DropdownMenuActionViewItem {
-  constructor(action, menuActionsOrProvider, contextMenuProvider, options = /* @__PURE__ */ Object.create(null), keybindingService, contextKeyService) {
+  constructor(action, menuActionsOrProvider, contextMenuProvider, options, keybindingService, contextKeyService) {
     super(action, menuActionsOrProvider, contextMenuProvider, options);
     this.keybindingService = keybindingService;
     this.contextKeyService = contextKeyService;
@@ -27,8 +26,11 @@ let DropdownMenuActionViewItemWithKeybinding = class extends DropdownMenuActionV
     __name(this, "DropdownMenuActionViewItemWithKeybinding");
   }
   getTooltip() {
-    const keybinding = this.keybindingService.lookupKeybinding(this.action.id, this.contextKeyService);
-    const keybindingLabel = keybinding && keybinding.getLabel();
+    const keybinding = this.keybindingService.lookupKeybinding(
+      this.action.id,
+      this.contextKeyService
+    );
+    const keybindingLabel = keybinding?.getLabel();
     const tooltip = this.action.tooltip ?? this.action.label;
     return keybindingLabel ? nls.localize("titleAndKb", "{0} ({1})", tooltip, keybindingLabel) : tooltip;
   }

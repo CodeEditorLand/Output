@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { localize } from "../../../../../../../../../nls.js";
-import { ISelectPromptOptions } from "../askToSelectPrompt.js";
 import { SUPER_KEY_NAME } from "../constants.js";
 const createPlaceholderText = /* @__PURE__ */ __name((options) => {
   const { widget } = options;

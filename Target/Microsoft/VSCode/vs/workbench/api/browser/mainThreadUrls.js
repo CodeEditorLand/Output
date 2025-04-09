@@ -10,14 +10,24 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ExtHostContext, MainContext, MainThreadUrlsShape, ExtHostUrlsShape } from "../common/extHost.protocol.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IURLService, IOpenURLOptions } from "../../../platform/url/common/url.js";
-import { URI, UriComponents } from "../../../base/common/uri.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
-import { IExtensionContributedURLHandler, IExtensionUrlHandler } from "../../services/extensions/browser/extensionUrlHandler.js";
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
 import { ExtensionIdentifier } from "../../../platform/extensions/common/extensions.js";
+import {
+  IURLService
+} from "../../../platform/url/common/url.js";
 import { ITrustedDomainService } from "../../contrib/url/browser/trustedDomainService.js";
+import {
+  IExtensionUrlHandler
+} from "../../services/extensions/browser/extensionUrlHandler.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  ExtHostContext,
+  MainContext
+} from "../common/extHost.protocol.js";
 class ExtensionUrlHandler {
   constructor(proxy, handle, extensionId, extensionDisplayName) {
     this.proxy = proxy;
@@ -46,7 +56,12 @@ let MainThreadUrls = class extends Disposable {
   proxy;
   handlers = /* @__PURE__ */ new Map();
   async $registerUriHandler(handle, extensionId, extensionDisplayName) {
-    const handler = new ExtensionUrlHandler(this.proxy, handle, extensionId, extensionDisplayName);
+    const handler = new ExtensionUrlHandler(
+      this.proxy,
+      handle,
+      extensionId,
+      extensionDisplayName
+    );
     const disposable = this.urlService.registerHandler(handler);
     this.handlers.set(handle, { extensionId, disposable });
     this.extensionUrlHandler.registerExtensionHandler(extensionId, handler);

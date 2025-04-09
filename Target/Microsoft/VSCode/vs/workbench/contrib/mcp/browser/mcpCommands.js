@@ -15,31 +15,47 @@ import { assertNever } from "../../../../base/common/assert.js";
 import { Codicon } from "../../../../base/common/codicons.js";
 import { groupBy } from "../../../../base/common/collections.js";
 import { Event } from "../../../../base/common/event.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { autorun, derived } from "../../../../base/common/observable.js";
 import { ThemeIcon } from "../../../../base/common/themables.js";
 import { URI } from "../../../../base/common/uri.js";
-import { ILocalizedString, localize, localize2 } from "../../../../nls.js";
+import { localize, localize2 } from "../../../../nls.js";
 import { IActionViewItemService } from "../../../../platform/actions/browser/actionViewItemService.js";
 import { MenuEntryActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { Action2, MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  MenuId,
+  MenuItemAction
+} from "../../../../platform/actions/common/actions.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
-import { ConfigurationTarget } from "../../../../platform/configuration/common/configuration.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IInstantiationService, ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { IQuickInputService, IQuickPickItem, IQuickPickSeparator } from "../../../../platform/quickinput/common/quickInput.js";
-import { StorageScope } from "../../../../platform/storage/common/storage.js";
+import {
+  IInstantiationService
+} from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  IQuickInputService
+} from "../../../../platform/quickinput/common/quickInput.js";
 import { spinningLoading } from "../../../../platform/theme/common/iconRegistry.js";
 import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
-import { ActiveEditorContext, ResourceContextKey } from "../../../common/contextkeys.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
+import {
+  ActiveEditorContext,
+  ResourceContextKey
+} from "../../../common/contextkeys.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { ChatContextKeys } from "../../chat/common/chatContextKeys.js";
 import { ChatMode } from "../../chat/common/constants.js";
 import { TEXT_FILE_EDITOR_ID } from "../../files/common/files.js";
 import { McpContextKeys } from "../common/mcpContextKeys.js";
 import { IMcpRegistry } from "../common/mcpRegistryTypes.js";
-import { IMcpServer, IMcpService, LazyCollectionState, McpConnectionState, McpServerToolsState } from "../common/mcpTypes.js";
+import {
+  IMcpService,
+  LazyCollectionState,
+  McpConnectionState,
+  McpServerToolsState
+} from "../common/mcpTypes.js";
 import { McpAddConfigurationCommand } from "./mcpCommandsAddConfiguration.js";
 import { McpUrlHandler } from "./mcpUrlHandler.js";
 const category = {
@@ -60,7 +76,10 @@ class ListMcpServerCommand extends Action2 {
       f1: true,
       menu: {
         when: ContextKeyExpr.and(
-          ContextKeyExpr.or(McpContextKeys.hasUnknownTools, McpContextKeys.hasServersWithErrors),
+          ContextKeyExpr.or(
+            McpContextKeys.hasUnknownTools,
+            McpContextKeys.hasServersWithErrors
+          ),
           ChatContextKeys.chatMode.isEqualTo(ChatMode.Agent)
         ),
         id: MenuId.ChatInputAttachmentToolbar,
@@ -74,34 +93,64 @@ class ListMcpServerCommand extends Action2 {
     const commandService = accessor.get(ICommandService);
     const quickInput = accessor.get(IQuickInputService);
     const store = new DisposableStore();
-    const pick = quickInput.createQuickPick({ useSeparators: true });
+    const pick = quickInput.createQuickPick({
+      useSeparators: true
+    });
     pick.placeholder = localize("mcp.selectServer", "Select an MCP Server");
     store.add(pick);
-    store.add(autorun((reader) => {
-      const servers = groupBy(mcpService.servers.read(reader).slice().sort((a, b) => (a.collection.presentation?.order || 0) - (b.collection.presentation?.order || 0)), (s) => s.collection.id);
-      const firstRun = pick.items.length === 0;
-      pick.items = [
-        { id: "$add", label: localize("mcp.addServer", "Add Server"), description: localize("mcp.addServer.description", "Add a new server configuration"), alwaysShow: true, iconClass: ThemeIcon.asClassName(Codicon.add) },
-        ...Object.values(servers).filter((s) => s.length).flatMap((servers2) => [
-          { type: "separator", label: servers2[0].collection.label, id: servers2[0].collection.id },
-          ...servers2.map((server) => ({
-            id: server.definition.id,
-            label: server.definition.label,
-            description: McpConnectionState.toString(server.connectionState.read(reader))
-          }))
-        ])
-      ];
-      if (firstRun && pick.items.length > 3) {
-        pick.activeItems = pick.items.slice(2, 3);
-      }
-    }));
+    store.add(
+      autorun((reader) => {
+        const servers = groupBy(
+          mcpService.servers.read(reader).slice().sort(
+            (a, b) => (a.collection.presentation?.order || 0) - (b.collection.presentation?.order || 0)
+          ),
+          (s) => s.collection.id
+        );
+        const firstRun = pick.items.length === 0;
+        pick.items = [
+          {
+            id: "$add",
+            label: localize("mcp.addServer", "Add Server"),
+            description: localize(
+              "mcp.addServer.description",
+              "Add a new server configuration"
+            ),
+            alwaysShow: true,
+            iconClass: ThemeIcon.asClassName(Codicon.add)
+          },
+          ...Object.values(servers).filter((s) => s.length).flatMap(
+            (servers2) => [
+              {
+                type: "separator",
+                label: servers2[0].collection.label,
+                id: servers2[0].collection.id
+              },
+              ...servers2.map((server) => ({
+                id: server.definition.id,
+                label: server.definition.label,
+                description: McpConnectionState.toString(
+                  server.connectionState.read(reader)
+                )
+              }))
+            ]
+          )
+        ];
+        if (firstRun && pick.items.length > 3) {
+          pick.activeItems = pick.items.slice(2, 3);
+        }
+      })
+    );
     const picked = await new Promise((resolve) => {
-      store.add(pick.onDidAccept(() => {
-        resolve(pick.activeItems[0]);
-      }));
-      store.add(pick.onDidHide(() => {
-        resolve(void 0);
-      }));
+      store.add(
+        pick.onDidAccept(() => {
+          resolve(pick.activeItems[0]);
+        })
+      );
+      store.add(
+        pick.onDidHide(() => {
+          resolve(void 0);
+        })
+      );
       pick.show();
     });
     store.dispose();
@@ -109,7 +158,10 @@ class ListMcpServerCommand extends Action2 {
     } else if (picked.id === "$add") {
       commandService.executeCommand(AddConfigurationAction.ID);
     } else {
-      commandService.executeCommand(McpServerOptionsCommand.id, picked.id);
+      commandService.executeCommand(
+        McpServerOptionsCommand.id,
+        picked.id
+      );
     }
   }
 }
@@ -189,8 +241,10 @@ class McpServerOptionsCommand extends Action2 {
         break;
       case "config":
         editorService.openEditor({
-          resource: URI.isUri(configTarget) ? configTarget : configTarget.uri,
-          options: { selection: URI.isUri(configTarget) ? void 0 : configTarget.range }
+          resource: URI.isUri(configTarget) ? configTarget : configTarget?.uri,
+          options: {
+            selection: URI.isUri(configTarget) ? void 0 : configTarget?.range
+          }
         });
         break;
       default:
@@ -242,76 +296,133 @@ let MCPServerActionRendering = class extends Disposable {
         serversPerState[1 /* NewTools */] ??= [];
       }
       const maxState = serversPerState.length - 1;
-      return { state: maxState, servers: serversPerState[maxState] || [] };
+      return {
+        state: maxState,
+        servers: serversPerState[maxState] || []
+      };
     });
-    this._store.add(actionViewItemService.register(MenuId.ChatInputAttachmentToolbar, ListMcpServerCommand.id, (action, options) => {
-      if (!(action instanceof MenuItemAction)) {
-        return void 0;
-      }
-      return instaService.createInstance(class extends MenuEntryActionViewItem {
-        render(container) {
-          super.render(container);
-          container.classList.add("chat-mcp");
-          const action2 = h("button.chat-mcp-action", [h("span@icon")]);
-          this._register(autorun((r) => {
-            const { state } = displayedState.read(r);
-            const { root, icon } = action2;
-            this.updateTooltip();
-            container.classList.toggle("chat-mcp-has-action", state !== 0 /* None */);
-            if (!root.parentElement) {
-              container.appendChild(root);
-            }
-            root.ariaLabel = this.getLabelForState(displayedState.read(r));
-            root.className = "chat-mcp-action";
-            icon.className = "";
-            if (state === 1 /* NewTools */) {
-              root.classList.add("chat-mcp-action-new");
-              icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.refresh));
-            } else if (state === 2 /* Error */) {
-              root.classList.add("chat-mcp-action-error");
-              icon.classList.add(...ThemeIcon.asClassNameArray(Codicon.warning));
-            } else if (state === 3 /* Refreshing */) {
-              root.classList.add("chat-mcp-action-refreshing");
-              icon.classList.add(...ThemeIcon.asClassNameArray(spinningLoading));
-            } else {
-              root.remove();
-            }
-          }));
-        }
-        async onClick(e) {
-          e.preventDefault();
-          e.stopPropagation();
-          const { state, servers } = displayedState.get();
-          if (state === 1 /* NewTools */) {
-            servers.forEach((server) => server.start());
-            mcpService.activateCollections();
-          } else if (state === 3 /* Refreshing */) {
-            servers.at(-1)?.showOutput();
-          } else if (state === 2 /* Error */) {
-            const server = servers.at(-1);
-            if (server) {
-              commandService.executeCommand(McpServerOptionsCommand.id, server.definition.id);
-            }
-          } else {
-            commandService.executeCommand(ListMcpServerCommand.id);
+    this._store.add(
+      actionViewItemService.register(
+        MenuId.ChatInputAttachmentToolbar,
+        ListMcpServerCommand.id,
+        (action, options) => {
+          if (!(action instanceof MenuItemAction)) {
+            return void 0;
           }
-        }
-        getTooltip() {
-          return this.getLabelForState() || super.getTooltip();
-        }
-        getLabelForState({ state, servers } = displayedState.get()) {
-          if (state === 1 /* NewTools */) {
-            return localize("mcp.newTools", "New tools available ({0})", servers.length || 1);
-          } else if (state === 2 /* Error */) {
-            return localize("mcp.toolError", "Error loading {0} tool(s)", servers.length || 1);
-          } else if (state === 3 /* Refreshing */) {
-            return localize("mcp.toolRefresh", "Discovering tools...");
-          } else {
-            return null;
-          }
-        }
-      }, action, { ...options, keybindingNotRenderedWithLabel: true });
-    }, Event.fromObservable(displayedState)));
+          return instaService.createInstance(
+            class extends MenuEntryActionViewItem {
+              render(container) {
+                super.render(container);
+                container.classList.add("chat-mcp");
+                const action2 = h("button.chat-mcp-action", [
+                  h("span@icon")
+                ]);
+                this._register(
+                  autorun((r) => {
+                    const { state } = displayedState.read(r);
+                    const { root, icon } = action2;
+                    this.updateTooltip();
+                    container.classList.toggle(
+                      "chat-mcp-has-action",
+                      state !== 0 /* None */
+                    );
+                    if (!root.parentElement) {
+                      container.appendChild(root);
+                    }
+                    root.ariaLabel = this.getLabelForState(
+                      displayedState.read(r)
+                    );
+                    root.className = "chat-mcp-action";
+                    icon.className = "";
+                    if (state === 1 /* NewTools */) {
+                      root.classList.add(
+                        "chat-mcp-action-new"
+                      );
+                      icon.classList.add(
+                        ...ThemeIcon.asClassNameArray(
+                          Codicon.refresh
+                        )
+                      );
+                    } else if (state === 2 /* Error */) {
+                      root.classList.add(
+                        "chat-mcp-action-error"
+                      );
+                      icon.classList.add(
+                        ...ThemeIcon.asClassNameArray(
+                          Codicon.warning
+                        )
+                      );
+                    } else if (state === 3 /* Refreshing */) {
+                      root.classList.add(
+                        "chat-mcp-action-refreshing"
+                      );
+                      icon.classList.add(
+                        ...ThemeIcon.asClassNameArray(
+                          spinningLoading
+                        )
+                      );
+                    } else {
+                      root.remove();
+                    }
+                  })
+                );
+              }
+              async onClick(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const { state, servers } = displayedState.get();
+                if (state === 1 /* NewTools */) {
+                  servers.forEach((server) => server.start());
+                  mcpService.activateCollections();
+                } else if (state === 3 /* Refreshing */) {
+                  servers.at(-1)?.showOutput();
+                } else if (state === 2 /* Error */) {
+                  const server = servers.at(-1);
+                  if (server) {
+                    commandService.executeCommand(
+                      McpServerOptionsCommand.id,
+                      server.definition.id
+                    );
+                  }
+                } else {
+                  commandService.executeCommand(
+                    ListMcpServerCommand.id
+                  );
+                }
+              }
+              getTooltip() {
+                return this.getLabelForState() || super.getTooltip();
+              }
+              getLabelForState({ state, servers } = displayedState.get()) {
+                if (state === 1 /* NewTools */) {
+                  return localize(
+                    "mcp.newTools",
+                    "New tools available ({0})",
+                    servers.length || 1
+                  );
+                } else if (state === 2 /* Error */) {
+                  return localize(
+                    "mcp.toolError",
+                    "Error loading {0} tool(s)",
+                    servers.length || 1
+                  );
+                } else if (state === 3 /* Refreshing */) {
+                  return localize(
+                    "mcp.toolRefresh",
+                    "Discovering tools..."
+                  );
+                } else {
+                  return null;
+                }
+              }
+            },
+            action,
+            { ...options, keybindingNotRenderedWithLabel: true }
+          );
+        },
+        Event.fromObservable(displayedState)
+      )
+    );
   }
 };
 MCPServerActionRendering = __decorateClass([
@@ -368,14 +479,20 @@ class AddConfigurationAction extends Action2 {
       id: AddConfigurationAction.ID,
       title: localize2("mcp.addConfiguration", "Add Server..."),
       metadata: {
-        description: localize2("mcp.addConfiguration.description", "Installs a new Model Context protocol to the mcp.json settings")
+        description: localize2(
+          "mcp.addConfiguration.description",
+          "Installs a new Model Context protocol to the mcp.json settings"
+        )
       },
       category,
       f1: true,
       menu: {
         id: MenuId.EditorContent,
         when: ContextKeyExpr.and(
-          ContextKeyExpr.regex(ResourceContextKey.Path.key, /\.vscode[/\\]mcp\.json$/),
+          ContextKeyExpr.regex(
+            ResourceContextKey.Path.key,
+            /\.vscode[/\\]mcp\.json$/
+          ),
           ActiveEditorContext.isEqualTo(TEXT_FILE_EDITOR_ID)
         )
       }
@@ -417,7 +534,12 @@ class EditStoredInput extends Action2 {
   }
   run(accessor, inputId, uri, configSection, target) {
     const workspaceFolder = uri && accessor.get(IWorkspaceContextService).getWorkspaceFolder(uri);
-    accessor.get(IMcpRegistry).editSavedInput(inputId, workspaceFolder || void 0, configSection, target);
+    accessor.get(IMcpRegistry).editSavedInput(
+      inputId,
+      workspaceFolder || void 0,
+      configSection,
+      target
+    );
   }
 }
 class ShowOutput extends Action2 {
@@ -506,7 +628,10 @@ class InstallFromActivation extends Action2 {
       f1: false,
       menu: {
         id: MenuId.EditorContent,
-        when: ContextKeyExpr.equals("resourceScheme", McpUrlHandler.scheme)
+        when: ContextKeyExpr.equals(
+          "resourceScheme",
+          McpUrlHandler.scheme
+        )
       }
     });
   }

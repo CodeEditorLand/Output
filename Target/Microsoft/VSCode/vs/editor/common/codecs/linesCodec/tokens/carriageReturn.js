@@ -1,10 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Line } from "./line.js";
-import { BaseToken } from "../../baseToken.js";
-import { Range } from "../../../core/range.js";
-import { Position } from "../../../core/position.js";
 import { VSBuffer } from "../../../../../base/common/buffer.js";
+import { Position } from "../../../core/position.js";
+import { Range } from "../../../core/range.js";
+import { BaseToken } from "../../baseToken.js";
 class CarriageReturn extends BaseToken {
   static {
     __name(this, "CarriageReturn");
@@ -35,12 +34,17 @@ class CarriageReturn extends BaseToken {
    */
   static newOnLine(line, atColumnNumber) {
     const { range } = line;
-    const startPosition = new Position(range.startLineNumber, atColumnNumber);
-    const endPosition = new Position(range.startLineNumber, atColumnNumber + this.symbol.length);
-    return new CarriageReturn(Range.fromPositions(
-      startPosition,
-      endPosition
-    ));
+    const startPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber
+    );
+    const endPosition = new Position(
+      range.startLineNumber,
+      atColumnNumber + CarriageReturn.symbol.length
+    );
+    return new CarriageReturn(
+      Range.fromPositions(startPosition, endPosition)
+    );
   }
   /**
    * Returns a string representation of the token.

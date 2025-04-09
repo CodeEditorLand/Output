@@ -10,18 +10,25 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { DisposableStore, dispose, IDisposable } from "../../../../base/common/lifecycle.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IUntitledFileWorkingCopy, IUntitledFileWorkingCopyInitialContents, IUntitledFileWorkingCopyModel, IUntitledFileWorkingCopyModelFactory, IUntitledFileWorkingCopySaveDelegate, UntitledFileWorkingCopy } from "./untitledFileWorkingCopy.js";
-import { Event, Emitter } from "../../../../base/common/event.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  DisposableStore,
+  dispose
+} from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
 import { Schemas } from "../../../../base/common/network.js";
-import { IWorkingCopyService } from "./workingCopyService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import {
+  BaseFileWorkingCopyManager
+} from "./abstractFileWorkingCopyManager.js";
+import {
+  UntitledFileWorkingCopy
+} from "./untitledFileWorkingCopy.js";
 import { IWorkingCopyBackupService } from "./workingCopyBackup.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { BaseFileWorkingCopyManager, IBaseFileWorkingCopyManager } from "./abstractFileWorkingCopyManager.js";
-import { ResourceMap } from "../../../../base/common/map.js";
+import { IWorkingCopyService } from "./workingCopyService.js";
 let UntitledFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   constructor(workingCopyTypeId, modelFactory, saveDelegate, fileService, labelService, logService, workingCopyBackupService, workingCopyService) {
     super(fileService, logService, workingCopyBackupService);
@@ -35,11 +42,17 @@ let UntitledFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
     __name(this, "UntitledFileWorkingCopyManager");
   }
   //#region Events
-  _onDidSave = this._register(new Emitter());
+  _onDidSave = this._register(
+    new Emitter()
+  );
   onDidSave = this._onDidSave.event;
-  _onDidChangeDirty = this._register(new Emitter());
+  _onDidChangeDirty = this._register(
+    new Emitter()
+  );
   onDidChangeDirty = this._onDidChangeDirty.event;
-  _onWillDispose = this._register(new Emitter());
+  _onWillDispose = this._register(
+    new Emitter()
+  );
   onWillDispose = this._onWillDispose.event;
   //#endregion
   mapResourceToWorkingCopyListeners = new ResourceMap();
@@ -51,7 +64,9 @@ let UntitledFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   doCreateOrGet(options = /* @__PURE__ */ Object.create(null)) {
     const massagedOptions = this.massageOptions(options);
     if (massagedOptions.untitledResource) {
-      const existingWorkingCopy = this.get(massagedOptions.untitledResource);
+      const existingWorkingCopy = this.get(
+        massagedOptions.untitledResource
+      );
       if (existingWorkingCopy) {
         return existingWorkingCopy;
       }
@@ -113,9 +128,20 @@ let UntitledFileWorkingCopyManager = class extends BaseFileWorkingCopyManager {
   }
   registerWorkingCopy(workingCopy) {
     const workingCopyListeners = new DisposableStore();
-    workingCopyListeners.add(workingCopy.onDidChangeDirty(() => this._onDidChangeDirty.fire(workingCopy)));
-    workingCopyListeners.add(workingCopy.onWillDispose(() => this._onWillDispose.fire(workingCopy)));
-    this.mapResourceToWorkingCopyListeners.set(workingCopy.resource, workingCopyListeners);
+    workingCopyListeners.add(
+      workingCopy.onDidChangeDirty(
+        () => this._onDidChangeDirty.fire(workingCopy)
+      )
+    );
+    workingCopyListeners.add(
+      workingCopy.onWillDispose(
+        () => this._onWillDispose.fire(workingCopy)
+      )
+    );
+    this.mapResourceToWorkingCopyListeners.set(
+      workingCopy.resource,
+      workingCopyListeners
+    );
     this.add(workingCopy.resource, workingCopy);
     if (workingCopy.isDirty()) {
       this._onDidChangeDirty.fire(workingCopy);

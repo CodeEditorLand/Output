@@ -11,5 +11,8 @@ if (isUtilityProcess(process)) {
   server = new ChildProcessServer("watcher");
 }
 const service = new UniversalWatcher();
-server.registerChannel("watcher", ProxyChannel.fromService(service, new DisposableStore()));
+server.registerChannel(
+  "watcher",
+  ProxyChannel.fromService(service, new DisposableStore())
+);
 //# sourceMappingURL=watcherMain.js.map

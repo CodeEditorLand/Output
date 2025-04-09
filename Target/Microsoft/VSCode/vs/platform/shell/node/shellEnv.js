@@ -1,24 +1,31 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { spawn } from "child_process";
-import { basename } from "../../../base/common/path.js";
-import { localize } from "../../../nls.js";
-import { CancellationToken, CancellationTokenSource } from "../../../base/common/cancellation.js";
+import { spawn } from "node:child_process";
+import { Promises } from "../../../base/common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
-import { CancellationError, isCancellationError } from "../../../base/common/errors.js";
-import { IProcessEnvironment, isWindows, OS } from "../../../base/common/platform.js";
+import {
+  CancellationError,
+  isCancellationError
+} from "../../../base/common/errors.js";
+import { clamp } from "../../../base/common/numbers.js";
+import { basename } from "../../../base/common/path.js";
+import {
+  isWindows,
+  OS
+} from "../../../base/common/platform.js";
 import { generateUuid } from "../../../base/common/uuid.js";
 import { getSystemShell } from "../../../base/node/shell.js";
-import { NativeParsedArgs } from "../../environment/common/argv.js";
+import { localize } from "../../../nls.js";
 import { isLaunchedFromCli } from "../../environment/node/argvHelper.js";
-import { ILogService } from "../../log/common/log.js";
-import { Promises } from "../../../base/common/async.js";
-import { IConfigurationService } from "../../configuration/common/configuration.js";
-import { clamp } from "../../../base/common/numbers.js";
 let unixShellEnvPromise = void 0;
 async function getResolvedShellEnv(configurationService, logService, args, env) {
   if (args["force-disable-user-env"]) {
-    logService.trace("resolveShellEnv(): skipped (--force-disable-user-env)");
+    logService.trace(
+      "resolveShellEnv(): skipped (--force-disable-user-env)"
+    );
     return {};
   } else if (isWindows) {
     logService.trace("resolveShellEnv(): skipped (Windows)");
@@ -33,30 +40,51 @@ async function getResolvedShellEnv(configurationService, logService, args, env) 
       logService.trace("resolveShellEnv(): running (macOS/Linux)");
     }
     if (!unixShellEnvPromise) {
-      unixShellEnvPromise = Promises.withAsyncBody(async (resolve, reject) => {
-        const cts = new CancellationTokenSource();
-        let timeoutValue = 1e4;
-        const configuredTimeoutValue = configurationService.getValue("application.shellEnvironmentResolutionTimeout");
-        if (typeof configuredTimeoutValue === "number") {
-          timeoutValue = clamp(configuredTimeoutValue, 1, 120) * 1e3;
-        }
-        const timeout = setTimeout(() => {
-          cts.dispose(true);
-          reject(new Error(localize("resolveShellEnvTimeout", "Unable to resolve your shell environment in a reasonable time. Please review your shell configuration and restart.")));
-        }, timeoutValue);
-        try {
-          resolve(await doResolveUnixShellEnv(logService, cts.token));
-        } catch (error) {
-          if (!isCancellationError(error) && !cts.token.isCancellationRequested) {
-            reject(new Error(localize("resolveShellEnvError", "Unable to resolve your shell environment: {0}", toErrorMessage(error))));
-          } else {
-            resolve({});
+      unixShellEnvPromise = Promises.withAsyncBody(
+        async (resolve, reject) => {
+          const cts = new CancellationTokenSource();
+          let timeoutValue = 1e4;
+          const configuredTimeoutValue = configurationService.getValue(
+            "application.shellEnvironmentResolutionTimeout"
+          );
+          if (typeof configuredTimeoutValue === "number") {
+            timeoutValue = clamp(configuredTimeoutValue, 1, 120) * 1e3;
           }
-        } finally {
-          clearTimeout(timeout);
-          cts.dispose();
+          const timeout = setTimeout(() => {
+            cts.dispose(true);
+            reject(
+              new Error(
+                localize(
+                  "resolveShellEnvTimeout",
+                  "Unable to resolve your shell environment in a reasonable time. Please review your shell configuration and restart."
+                )
+              )
+            );
+          }, timeoutValue);
+          try {
+            resolve(
+              await doResolveUnixShellEnv(logService, cts.token)
+            );
+          } catch (error) {
+            if (!isCancellationError(error) && !cts.token.isCancellationRequested) {
+              reject(
+                new Error(
+                  localize(
+                    "resolveShellEnvError",
+                    "Unable to resolve your shell environment: {0}",
+                    toErrorMessage(error)
+                  )
+                )
+              );
+            } else {
+              resolve({});
+            }
+          } finally {
+            clearTimeout(timeout);
+            cts.dispose();
+          }
         }
-      });
+      );
     }
     return unixShellEnvPromise;
   }
@@ -68,7 +96,7 @@ async function doResolveUnixShellEnv(logService, token) {
   const noAttach = process.env["ELECTRON_NO_ATTACH_CONSOLE"];
   logService.trace("getUnixShellEnvironment#noAttach", noAttach);
   const mark = generateUuid().replace(/-/g, "").substr(0, 12);
-  const regex = new RegExp(mark + "({.*})" + mark);
+  const regex = new RegExp(`${mark}({.*})${mark}`);
   const env = {
     ...process.env,
     ELECTRON_RUN_AS_NODE: "1",
@@ -83,7 +111,8 @@ async function doResolveUnixShellEnv(logService, token) {
       return reject(new CancellationError());
     }
     const name = basename(systemShellUnix);
-    let command, shellArgs;
+    let command;
+    let shellArgs;
     const extraArgs = "";
     if (/^(?:pwsh|powershell)(?:-preview)?$/.test(name)) {
       command = `& '${process.execPath}' ${extraArgs} -p '''${mark}'' + JSON.stringify(process.env) + ''${mark}'''`;
@@ -102,7 +131,11 @@ async function doResolveUnixShellEnv(logService, token) {
         shellArgs = ["-i", "-l", "-c"];
       }
     }
-    logService.trace("getUnixShellEnvironment#spawn", JSON.stringify(shellArgs), command);
+    logService.trace(
+      "getUnixShellEnvironment#spawn",
+      JSON.stringify(shellArgs),
+      command
+    );
     const child = spawn(systemShellUnix, [...shellArgs, command], {
       detached: true,
       stdio: ["ignore", "pipe", "pipe"],
@@ -113,7 +146,10 @@ async function doResolveUnixShellEnv(logService, token) {
       return reject(new CancellationError());
     });
     child.on("error", (err) => {
-      logService.error("getUnixShellEnvironment#errorChildProcess", toErrorMessage(err));
+      logService.error(
+        "getUnixShellEnvironment#errorChildProcess",
+        toErrorMessage(err)
+      );
       reject(err);
     });
     const buffers = [];
@@ -128,7 +164,16 @@ async function doResolveUnixShellEnv(logService, token) {
         logService.trace("getUnixShellEnvironment#stderr", stderrStr);
       }
       if (code || signal) {
-        return reject(new Error(localize("resolveShellEnvExitError", "Unexpected exit code from spawned shell (code {0}, signal {1})", code, signal)));
+        return reject(
+          new Error(
+            localize(
+              "resolveShellEnvExitError",
+              "Unexpected exit code from spawned shell (code {0}, signal {1})",
+              code,
+              signal
+            )
+          )
+        );
       }
       const match = regex.exec(raw);
       const rawStripped = match ? match[1] : "{}";
@@ -137,19 +182,22 @@ async function doResolveUnixShellEnv(logService, token) {
         if (runAsNode) {
           env2["ELECTRON_RUN_AS_NODE"] = runAsNode;
         } else {
-          delete env2["ELECTRON_RUN_AS_NODE"];
+          env2["ELECTRON_RUN_AS_NODE"] = void 0;
         }
         if (noAttach) {
           env2["ELECTRON_NO_ATTACH_CONSOLE"] = noAttach;
         } else {
-          delete env2["ELECTRON_NO_ATTACH_CONSOLE"];
+          env2["ELECTRON_NO_ATTACH_CONSOLE"] = void 0;
         }
-        delete env2["VSCODE_RESOLVING_ENVIRONMENT"];
-        delete env2["XDG_RUNTIME_DIR"];
+        env2["VSCODE_RESOLVING_ENVIRONMENT"] = void 0;
+        env2["XDG_RUNTIME_DIR"] = void 0;
         logService.trace("getUnixShellEnvironment#result", env2);
         resolve(env2);
       } catch (err) {
-        logService.error("getUnixShellEnvironment#errorCaught", toErrorMessage(err));
+        logService.error(
+          "getUnixShellEnvironment#errorCaught",
+          toErrorMessage(err)
+        );
         reject(err);
       }
     });

@@ -1,12 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { ITextModel } from "../../../common/model.js";
 import { computeIndentLevel } from "../../../common/model/utils.js";
-import { FoldingMarkers } from "../../../common/languages/languageConfiguration.js";
-import { ILanguageConfigurationService } from "../../../common/languages/languageConfigurationRegistry.js";
 import { FoldingRegions, MAX_LINE_NUMBER } from "./foldingRanges.js";
-import { FoldingLimitReporter, RangeProvider } from "./folding.js";
 const MAX_FOLDING_REGIONS_FOR_INDENT_DEFAULT = 5e3;
 const ID_INDENT_PROVIDER = "indent";
 class IndentRangeProvider {
@@ -22,10 +17,19 @@ class IndentRangeProvider {
   dispose() {
   }
   compute(cancelationToken) {
-    const foldingRules = this.languageConfigurationService.getLanguageConfiguration(this.editorModel.getLanguageId()).foldingRules;
+    const foldingRules = this.languageConfigurationService.getLanguageConfiguration(
+      this.editorModel.getLanguageId()
+    ).foldingRules;
     const offSide = foldingRules && !!foldingRules.offSide;
-    const markers = foldingRules && foldingRules.markers;
-    return Promise.resolve(computeRanges(this.editorModel, offSide, markers, this.foldingRangesLimit));
+    const markers = foldingRules?.markers;
+    return Promise.resolve(
+      computeRanges(
+        this.editorModel,
+        offSide,
+        markers,
+        this.foldingRangesLimit
+      )
+    );
   }
 }
 class RangesCollector {
@@ -108,7 +112,9 @@ function computeRanges(model, offSide, markers, foldingRangesLimit = foldingRang
   const result = new RangesCollector(foldingRangesLimit);
   let pattern = void 0;
   if (markers) {
-    pattern = new RegExp(`(${markers.start.source})|(?:${markers.end.source})`);
+    pattern = new RegExp(
+      `(${markers.start.source})|(?:${markers.end.source})`
+    );
   }
   const previousRegions = [];
   const line = model.getLineCount() + 1;

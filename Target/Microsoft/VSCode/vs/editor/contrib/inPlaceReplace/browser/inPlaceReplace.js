@@ -10,21 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { CancelablePromise, createCancelablePromise, timeout } from "../../../../base/common/async.js";
+import {
+  createCancelablePromise,
+  timeout
+} from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { KeyCode, KeyMod } from "../../../../base/common/keyCodes.js";
-import { CodeEditorStateFlag, EditorState } from "../../editorState/browser/editorState.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
-import { EditorAction, EditorContributionInstantiation, registerEditorAction, registerEditorContribution, ServicesAccessor } from "../../../browser/editorExtensions.js";
-import { Range } from "../../../common/core/range.js";
-import { Selection } from "../../../common/core/selection.js";
-import { IEditorContribution, IEditorDecorationsCollection } from "../../../common/editorCommon.js";
-import { EditorContextKeys } from "../../../common/editorContextKeys.js";
-import { ModelDecorationOptions } from "../../../common/model/textModel.js";
-import { IInplaceReplaceSupportResult } from "../../../common/languages.js";
-import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
 import * as nls from "../../../../nls.js";
 import { KeybindingWeight } from "../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  EditorAction,
+  EditorContributionInstantiation,
+  registerEditorAction,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import { Range } from "../../../common/core/range.js";
+import { Selection } from "../../../common/core/selection.js";
+import { EditorContextKeys } from "../../../common/editorContextKeys.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { IEditorWorkerService } from "../../../common/services/editorWorker.js";
+import {
+  CodeEditorStateFlag,
+  EditorState
+} from "../../editorState/browser/editorState.js";
 import { InPlaceReplaceCommand } from "./inPlaceReplaceCommand.js";
 import "./inPlaceReplace.css";
 let InPlaceReplaceController = class {
@@ -33,7 +41,9 @@ let InPlaceReplaceController = class {
   }
   static ID = "editor.contrib.inPlaceReplaceController";
   static get(editor) {
-    return editor.getContribution(InPlaceReplaceController.ID);
+    return editor.getContribution(
+      InPlaceReplaceController.ID
+    );
   }
   static DECORATION = ModelDecorationOptions.register({
     description: "in-place-replace",
@@ -62,12 +72,17 @@ let InPlaceReplaceController = class {
     if (selection.startLineNumber !== selection.endLineNumber) {
       return void 0;
     }
-    const state = new EditorState(this.editor, CodeEditorStateFlag.Value | CodeEditorStateFlag.Position);
+    const state = new EditorState(
+      this.editor,
+      CodeEditorStateFlag.Value | CodeEditorStateFlag.Position
+    );
     const modelURI = model.uri;
     if (!this.editorWorkerService.canNavigateValueSet(modelURI)) {
       return Promise.resolve(void 0);
     }
-    this.currentRequest = createCancelablePromise((token) => this.editorWorkerService.navigateValueSet(modelURI, selection, up));
+    this.currentRequest = createCancelablePromise(
+      (token) => this.editorWorkerService.navigateValueSet(modelURI, selection, up)
+    );
     return this.currentRequest.then((result) => {
       if (!result || !result.range || !result.value) {
         return;
@@ -85,16 +100,27 @@ let InPlaceReplaceController = class {
         endColumn: highlightRange.startColumn + result.value.length
       };
       if (diff > 1) {
-        selection = new Selection(selection.startLineNumber, selection.startColumn, selection.endLineNumber, selection.endColumn + diff - 1);
+        selection = new Selection(
+          selection.startLineNumber,
+          selection.startColumn,
+          selection.endLineNumber,
+          selection.endColumn + diff - 1
+        );
       }
-      const command = new InPlaceReplaceCommand(editRange, selection, result.value);
+      const command = new InPlaceReplaceCommand(
+        editRange,
+        selection,
+        result.value
+      );
       this.editor.pushUndoStop();
       this.editor.executeCommand(source, command);
       this.editor.pushUndoStop();
-      this.decorations.set([{
-        range: highlightRange,
-        options: InPlaceReplaceController.DECORATION
-      }]);
+      this.decorations.set([
+        {
+          range: highlightRange,
+          options: InPlaceReplaceController.DECORATION
+        }
+      ]);
       this.decorationRemover?.cancel();
       this.decorationRemover = timeout(350);
       this.decorationRemover.then(() => this.decorations.clear()).catch(onUnexpectedError);
@@ -111,7 +137,10 @@ class InPlaceReplaceUp extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inPlaceReplace.up",
-      label: nls.localize2("InPlaceReplaceAction.previous.label", "Replace with Previous Value"),
+      label: nls.localize2(
+        "InPlaceReplaceAction.previous.label",
+        "Replace with Previous Value"
+      ),
       precondition: EditorContextKeys.writable,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
@@ -135,7 +164,10 @@ class InPlaceReplaceDown extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inPlaceReplace.down",
-      label: nls.localize2("InPlaceReplaceAction.next.label", "Replace with Next Value"),
+      label: nls.localize2(
+        "InPlaceReplaceAction.next.label",
+        "Replace with Next Value"
+      ),
       precondition: EditorContextKeys.writable,
       kbOpts: {
         kbExpr: EditorContextKeys.editorTextFocus,
@@ -152,7 +184,11 @@ class InPlaceReplaceDown extends EditorAction {
     return controller.run(this.id, true);
   }
 }
-registerEditorContribution(InPlaceReplaceController.ID, InPlaceReplaceController, EditorContributionInstantiation.Lazy);
+registerEditorContribution(
+  InPlaceReplaceController.ID,
+  InPlaceReplaceController,
+  EditorContributionInstantiation.Lazy
+);
 registerEditorAction(InPlaceReplaceUp);
 registerEditorAction(InPlaceReplaceDown);
 //# sourceMappingURL=inPlaceReplace.js.map

@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Disposable, DisposableMap } from "../../base/common/lifecycle.js";
-import { ObservableDisposable, assertNotDisposed } from "./observableDisposable.js";
+import {
+  assertNotDisposed
+} from "./observableDisposable.js";
 class ObjectCache extends Disposable {
   constructor(factory) {
     super();
@@ -10,7 +12,9 @@ class ObjectCache extends Disposable {
   static {
     __name(this, "ObjectCache");
   }
-  cache = this._register(new DisposableMap());
+  cache = this._register(
+    new DisposableMap()
+  );
   /**
    * Get an existing object from the cache. If a requested object is not yet
    * in the cache or is disposed already, the {@linkcode factory} callback is
@@ -26,17 +30,11 @@ class ObjectCache extends Disposable {
       object = void 0;
     }
     if (object) {
-      assertNotDisposed(
-        object,
-        "Object must not be disposed."
-      );
+      assertNotDisposed(object, "Object must not be disposed.");
       return object;
     }
     object = this.factory(key);
-    assertNotDisposed(
-      object,
-      "Newly created object must not be disposed."
-    );
+    assertNotDisposed(object, "Newly created object must not be disposed.");
     object.onDispose(() => {
       this.cache.deleteAndLeak(key);
     });

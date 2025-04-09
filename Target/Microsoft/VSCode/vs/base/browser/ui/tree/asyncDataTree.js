@@ -1,28 +1,51 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IDragAndDropData } from "../../dnd.js";
-import { IIdentityProvider, IKeyboardNavigationLabelProvider, IListDragAndDrop, IListDragOverReaction, IListVirtualDelegate } from "../list/list.js";
-import { ElementsDragAndDropData, ListViewTargetSector } from "../list/listView.js";
-import { IListStyles } from "../list/listWidget.js";
-import { ComposedTreeDelegate, TreeFindMode, IAbstractTreeOptions, IAbstractTreeOptionsUpdate, TreeFindMatchType, AbstractTreePart, LabelFuzzyScore, FindFilter, FindController, ITreeFindToggleChangeEvent, IFindControllerOptions } from "./abstractTree.js";
-import { ICompressedTreeElement, ICompressedTreeNode } from "./compressedObjectTreeModel.js";
-import { getVisibleState, isFilterResult } from "./indexTreeModel.js";
-import { CompressibleObjectTree, ICompressibleKeyboardNavigationLabelProvider, ICompressibleObjectTreeOptions, ICompressibleTreeRenderer, IObjectTreeOptions, IObjectTreeSetChildrenOptions, ObjectTree } from "./objectTree.js";
-import { IAsyncDataSource, ICollapseStateChangeEvent, IObjectTreeElement, ITreeContextMenuEvent, ITreeDragAndDrop, ITreeEvent, ITreeFilter, ITreeMouseEvent, ITreeNavigator, ITreeNode, ITreeRenderer, ITreeSorter, ObjectTreeElementCollapseState, TreeError, TreeFilterResult, TreeVisibility, WeakMapper } from "./tree.js";
-import { CancelablePromise, createCancelablePromise, Promises, ThrottledDelayer, timeout } from "../../../common/async.js";
-import { Codicon } from "../../../common/codicons.js";
-import { ThemeIcon } from "../../../common/themables.js";
-import { isCancellationError, onUnexpectedError } from "../../../common/errors.js";
-import { Emitter, Event } from "../../../common/event.js";
-import { Iterable } from "../../../common/iterator.js";
-import { DisposableStore, dispose, IDisposable, toDisposable } from "../../../common/lifecycle.js";
-import { ScrollEvent } from "../../../common/scrollable.js";
-import { isIterable } from "../../../common/types.js";
-import { CancellationToken, CancellationTokenSource } from "../../../common/cancellation.js";
-import { IContextViewProvider } from "../contextview/contextview.js";
-import { FuzzyScore } from "../../../common/filters.js";
-import { insertInto, splice } from "../../../common/arrays.js";
 import { localize } from "../../../../nls.js";
+import { insertInto, splice } from "../../../common/arrays.js";
+import {
+  createCancelablePromise,
+  Promises,
+  ThrottledDelayer,
+  timeout
+} from "../../../common/async.js";
+import {
+  CancellationTokenSource
+} from "../../../common/cancellation.js";
+import { Codicon } from "../../../common/codicons.js";
+import {
+  isCancellationError,
+  onUnexpectedError
+} from "../../../common/errors.js";
+import { Emitter, Event } from "../../../common/event.js";
+import { FuzzyScore } from "../../../common/filters.js";
+import { Iterable } from "../../../common/iterator.js";
+import {
+  DisposableStore,
+  dispose,
+  toDisposable
+} from "../../../common/lifecycle.js";
+import { ThemeIcon } from "../../../common/themables.js";
+import { isIterable } from "../../../common/types.js";
+import {
+  ElementsDragAndDropData
+} from "../list/listView.js";
+import {
+  ComposedTreeDelegate,
+  FindController,
+  FindFilter,
+  TreeFindMode
+} from "./abstractTree.js";
+import { getVisibleState, isFilterResult } from "./indexTreeModel.js";
+import {
+  CompressibleObjectTree,
+  ObjectTree
+} from "./objectTree.js";
+import {
+  ObjectTreeElementCollapseState,
+  TreeError,
+  TreeVisibility,
+  WeakMapper
+} from "./tree.js";
 function createAsyncDataTreeNode(props) {
   return {
     ...props,
@@ -56,10 +79,12 @@ class AsyncDataTreeNodeWrapper {
     __name(this, "AsyncDataTreeNodeWrapper");
   }
   get element() {
-    return this.node.element.element;
+    return this.node.element?.element;
   }
   get children() {
-    return this.node.children.map((node) => new AsyncDataTreeNodeWrapper(node));
+    return this.node.children.map(
+      (node) => new AsyncDataTreeNodeWrapper(node)
+    );
   }
   get depth() {
     return this.node.depth;
@@ -100,19 +125,33 @@ class AsyncDataTreeRenderer {
     return { templateData };
   }
   renderElement(node, index, templateData, height) {
-    this.renderer.renderElement(this.nodeMapper.map(node), index, templateData.templateData, height);
+    this.renderer.renderElement(
+      this.nodeMapper.map(node),
+      index,
+      templateData.templateData,
+      height
+    );
   }
   renderTwistie(element, twistieElement) {
     if (element.slow) {
-      twistieElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
+      twistieElement.classList.add(
+        ...ThemeIcon.asClassNameArray(Codicon.treeItemLoading)
+      );
       return true;
     } else {
-      twistieElement.classList.remove(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
+      twistieElement.classList.remove(
+        ...ThemeIcon.asClassNameArray(Codicon.treeItemLoading)
+      );
       return false;
     }
   }
   disposeElement(node, index, templateData, height) {
-    this.renderer.disposeElement?.(this.nodeMapper.map(node), index, templateData.templateData, height);
+    this.renderer.disposeElement?.(
+      this.nodeMapper.map(node),
+      index,
+      templateData.templateData,
+      height
+    );
   }
   disposeTemplate(templateData) {
     this.renderer.disposeTemplate(templateData.templateData);
@@ -124,7 +163,7 @@ class AsyncDataTreeRenderer {
 function asTreeEvent(e) {
   return {
     browserEvent: e.browserEvent,
-    elements: e.elements.map((e2) => e2.element)
+    elements: e.elements.map((e2) => e2?.element)
   };
 }
 __name(asTreeEvent, "asTreeEvent");
@@ -179,18 +218,36 @@ class AsyncDataTreeNodeListDragAndDrop {
   }
   getDragLabel(nodes, originalEvent) {
     if (this.dnd.getDragLabel) {
-      return this.dnd.getDragLabel(nodes.map((node) => node.element), originalEvent);
+      return this.dnd.getDragLabel(
+        nodes.map((node) => node.element),
+        originalEvent
+      );
     }
     return void 0;
   }
   onDragStart(data, originalEvent) {
-    this.dnd.onDragStart?.(asAsyncDataTreeDragAndDropData(data), originalEvent);
+    this.dnd.onDragStart?.(
+      asAsyncDataTreeDragAndDropData(data),
+      originalEvent
+    );
   }
   onDragOver(data, targetNode, targetIndex, targetSector, originalEvent, raw = true) {
-    return this.dnd.onDragOver(asAsyncDataTreeDragAndDropData(data), targetNode && targetNode.element, targetIndex, targetSector, originalEvent);
+    return this.dnd.onDragOver(
+      asAsyncDataTreeDragAndDropData(data),
+      targetNode && targetNode.element,
+      targetIndex,
+      targetSector,
+      originalEvent
+    );
   }
   drop(data, targetNode, targetIndex, targetSector, originalEvent) {
-    this.dnd.drop(asAsyncDataTreeDragAndDropData(data), targetNode && targetNode.element, targetIndex, targetSector, originalEvent);
+    this.dnd.drop(
+      asAsyncDataTreeDragAndDropData(data),
+      targetNode && targetNode.element,
+      targetIndex,
+      targetSector,
+      originalEvent
+    );
   }
   onDragEnd(originalEvent) {
     this.dnd.onDragEnd?.(originalEvent);
@@ -225,11 +282,13 @@ class AsyncFindController extends FindController {
     super(tree, filter, contextViewProvider, options);
     this.findProvider = findProvider;
     this.filter = filter;
-    this.disposables.add(toDisposable(async () => {
-      if (this.activeSession) {
-        await this.findProvider.endSession?.();
-      }
-    }));
+    this.disposables.add(
+      toDisposable(async () => {
+        if (this.activeSession) {
+          await this.findProvider.endSession?.();
+        }
+      })
+    );
   }
   static {
     __name(this, "AsyncFindController");
@@ -268,7 +327,11 @@ class AsyncFindController extends FindController {
     }
     this.asyncWorkInProgress = true;
     this.activeFindMetadata = void 0;
-    const findMetadata = await this.findProvider.find(pattern, { matchType: this.matchType, findMode: this.mode }, token);
+    const findMetadata = await this.findProvider.find(
+      pattern,
+      { matchType: this.matchType, findMode: this.mode },
+      token
+    );
     if (token.isCancellationRequested || findMetadata === void 0) {
       return;
     }
@@ -308,7 +371,9 @@ class AsyncFindController extends FindController {
     this.applyPattern(this.pattern);
   }
   shouldAllowFocus(node) {
-    return this.shouldFocusWhenNavigating(node);
+    return this.shouldFocusWhenNavigating(
+      node
+    );
   }
   shouldFocusWhenNavigating(node) {
     if (!this.activeSession || !this.activeFindMetadata) {
@@ -327,16 +392,20 @@ function asObjectTreeOptions(options) {
     collapseByDefault: true,
     identityProvider: options.identityProvider && {
       getId(el) {
-        return options.identityProvider.getId(el.element);
+        return options.identityProvider?.getId(el.element);
       }
     },
     dnd: options.dnd && new AsyncDataTreeNodeListDragAndDrop(options.dnd),
     multipleSelectionController: options.multipleSelectionController && {
       isSelectionSingleChangeEvent(e) {
-        return options.multipleSelectionController.isSelectionSingleChangeEvent({ ...e, element: e.element });
+        return options.multipleSelectionController?.isSelectionSingleChangeEvent(
+          { ...e, element: e.element }
+        );
       },
       isSelectionRangeChangeEvent(e) {
-        return options.multipleSelectionController.isSelectionRangeChangeEvent({ ...e, element: e.element });
+        return options.multipleSelectionController?.isSelectionRangeChangeEvent(
+          { ...e, element: e.element }
+        );
       }
     },
     accessibilityProvider: options.accessibilityProvider && {
@@ -344,34 +413,49 @@ function asObjectTreeOptions(options) {
       getPosInSet: void 0,
       getSetSize: void 0,
       getRole: options.accessibilityProvider.getRole ? (el) => {
-        return options.accessibilityProvider.getRole(el.element);
+        return options.accessibilityProvider?.getRole?.(
+          el.element
+        );
       } : () => "treeitem",
       isChecked: options.accessibilityProvider.isChecked ? (e) => {
-        return !!options.accessibilityProvider?.isChecked(e.element);
+        return !!options.accessibilityProvider?.isChecked?.(
+          e.element
+        );
       } : void 0,
       getAriaLabel(e) {
-        return options.accessibilityProvider.getAriaLabel(e.element);
+        return options.accessibilityProvider?.getAriaLabel(
+          e.element
+        );
       },
       getWidgetAriaLabel() {
-        return options.accessibilityProvider.getWidgetAriaLabel();
+        return options.accessibilityProvider?.getWidgetAriaLabel();
       },
-      getWidgetRole: options.accessibilityProvider.getWidgetRole ? () => options.accessibilityProvider.getWidgetRole() : () => "tree",
+      getWidgetRole: options.accessibilityProvider.getWidgetRole ? () => options.accessibilityProvider?.getWidgetRole?.() : () => "tree",
       getAriaLevel: options.accessibilityProvider.getAriaLevel && ((node) => {
-        return options.accessibilityProvider.getAriaLevel(node.element);
+        return options.accessibilityProvider?.getAriaLevel?.(
+          node.element
+        );
       }),
       getActiveDescendantId: options.accessibilityProvider.getActiveDescendantId && ((node) => {
-        return options.accessibilityProvider.getActiveDescendantId(node.element);
+        return options.accessibilityProvider?.getActiveDescendantId?.(
+          node.element
+        );
       })
     },
     filter: options.filter && {
       filter(e, parentVisibility) {
-        return options.filter.filter(e.element, parentVisibility);
+        return options.filter?.filter(
+          e.element,
+          parentVisibility
+        );
       }
     },
     keyboardNavigationLabelProvider: options.keyboardNavigationLabelProvider && {
       ...options.keyboardNavigationLabelProvider,
       getKeyboardNavigationLabel(e) {
-        return options.keyboardNavigationLabelProvider.getKeyboardNavigationLabel(e.element);
+        return options.keyboardNavigationLabelProvider?.getKeyboardNavigationLabel(
+          e.element
+        );
       }
     },
     sorter: void 0,
@@ -407,9 +491,17 @@ class AsyncDataTree {
     let findFilter;
     if (options.findProvider && (options.findWidgetEnabled ?? true) && options.keyboardNavigationLabelProvider && options.contextViewProvider) {
       asyncFindEnabled = true;
-      findFilter = new AsyncFindFilter(options.findProvider, options.keyboardNavigationLabelProvider, options.filter);
+      findFilter = new AsyncFindFilter(
+        options.findProvider,
+        options.keyboardNavigationLabelProvider,
+        options.filter
+      );
     }
-    this.tree = this.createTree(user, container, delegate, renderers, { ...options, findWidgetEnabled: !asyncFindEnabled, filter: findFilter ?? options.filter });
+    this.tree = this.createTree(user, container, delegate, renderers, {
+      ...options,
+      findWidgetEnabled: !asyncFindEnabled,
+      filter: findFilter ?? options.filter
+    });
     this.root = createAsyncDataTreeNode({
       element: void 0,
       parent: null,
@@ -423,7 +515,11 @@ class AsyncDataTree {
       };
     }
     this.nodes.set(null, this.root);
-    this.tree.onDidChangeCollapseState(this._onDidChangeCollapseState, this, this.disposables);
+    this.tree.onDidChangeCollapseState(
+      this._onDidChangeCollapseState,
+      this,
+      this.disposables
+    );
     if (asyncFindEnabled) {
       const findOptions = {
         styles: options.findWidgetStyles,
@@ -431,11 +527,19 @@ class AsyncDataTree {
         defaultFindMatchType: options.defaultFindMatchType,
         defaultFindMode: options.defaultFindMode
       };
-      this.findController = this.disposables.add(new AsyncFindController(this.tree, options.findProvider, findFilter, this.tree.options.contextViewProvider, findOptions));
-      this.focusNavigationFilter = (node) => this.findController.shouldFocusWhenNavigating(node);
-      this.onDidChangeFindOpenState = this.findController.onDidChangeOpenState;
-      this.onDidChangeFindMode = this.findController.onDidChangeMode;
-      this.onDidChangeFindMatchType = this.findController.onDidChangeMatchType;
+      this.findController = this.disposables.add(
+        new AsyncFindController(
+          this.tree,
+          options.findProvider,
+          findFilter,
+          this.tree.options.contextViewProvider,
+          findOptions
+        )
+      );
+      this.focusNavigationFilter = (node) => this.findController?.shouldFocusWhenNavigating(node);
+      this.onDidChangeFindOpenState = this.findController?.onDidChangeOpenState;
+      this.onDidChangeFindMode = this.findController?.onDidChangeMode;
+      this.onDidChangeFindMatchType = this.findController?.onDidChangeMatchType;
     } else {
       this.onDidChangeFindOpenState = this.tree.onDidChangeFindOpenState;
       this.onDidChangeFindMode = this.tree.onDidChangeFindMode;
@@ -529,16 +633,32 @@ class AsyncDataTree {
       return this.tree.expandOnlyOnTwistieClick;
     }
     const fn = this.tree.expandOnlyOnTwistieClick;
-    return (element) => fn(this.nodes.get(element === this.root.element ? null : element) || null);
+    return (element) => fn(
+      this.nodes.get(
+        element === this.root.element ? null : element
+      ) || null
+    );
   }
   get onDidDispose() {
     return this.tree.onDidDispose;
   }
   createTree(user, container, delegate, renderers, options) {
     const objectTreeDelegate = new ComposedTreeDelegate(delegate);
-    const objectTreeRenderers = renderers.map((r) => new AsyncDataTreeRenderer(r, this.nodeMapper, this._onDidChangeNodeSlowState.event));
+    const objectTreeRenderers = renderers.map(
+      (r) => new AsyncDataTreeRenderer(
+        r,
+        this.nodeMapper,
+        this._onDidChangeNodeSlowState.event
+      )
+    );
     const objectTreeOptions = asObjectTreeOptions(options) || {};
-    return new ObjectTree(user, container, objectTreeDelegate, objectTreeRenderers, objectTreeOptions);
+    return new ObjectTree(
+      user,
+      container,
+      objectTreeDelegate,
+      objectTreeRenderers,
+      objectTreeOptions
+    );
   }
   updateOptions(optionsUpdate = {}) {
     if (this.findController) {
@@ -589,7 +709,7 @@ class AsyncDataTree {
     return this.tree.renderHeight;
   }
   get lastVisibleElement() {
-    return this.tree.lastVisibleElement.element;
+    return this.tree.lastVisibleElement?.element;
   }
   get ariaLabel() {
     return this.tree.ariaLabel;
@@ -635,7 +755,13 @@ class AsyncDataTree {
     }
   }
   async updateChildren(element = this.root.element, recursive = true, rerender = false, options) {
-    await this._updateChildren(element, recursive, rerender, void 0, options);
+    await this._updateChildren(
+      element,
+      recursive,
+      rerender,
+      void 0,
+      options
+    );
   }
   async _updateChildren(element = this.root.element, recursive = true, rerender = false, viewStateContext, options) {
     if (typeof this.root.element === "undefined") {
@@ -646,7 +772,12 @@ class AsyncDataTree {
       await Event.toPromise(this._onDidRender.event);
     }
     const node = this.getDataNode(element);
-    await this.refreshAndRenderNode(node, recursive, viewStateContext, options);
+    await this.refreshAndRenderNode(
+      node,
+      recursive,
+      viewStateContext,
+      options
+    );
     if (rerender) {
       try {
         this.tree.rerender(node);
@@ -680,7 +811,9 @@ class AsyncDataTree {
   // Tree
   getNode(element = this.root.element) {
     const dataNode = this.getDataNode(element);
-    const node = this.tree.getNode(dataNode === this.root ? null : dataNode);
+    const node = this.tree.getNode(
+      dataNode === this.root ? null : dataNode
+    );
     return this.nodeMapper.map(node);
   }
   collapse(element, recursive = false) {
@@ -706,7 +839,10 @@ class AsyncDataTree {
     if (node !== this.root && !node.refreshPromise && !this.tree.isCollapsed(node)) {
       return false;
     }
-    const result = this.tree.expand(node === this.root ? null : node, recursive);
+    const result = this.tree.expand(
+      node === this.root ? null : node,
+      recursive
+    );
     if (node.refreshPromise) {
       await this.root.refreshPromise;
       await Event.toPromise(this._onDidRender.event);
@@ -765,7 +901,9 @@ class AsyncDataTree {
     this.tree.refilter();
   }
   setAnchor(element) {
-    this.tree.setAnchor(typeof element === "undefined" ? void 0 : this.getDataNode(element));
+    this.tree.setAnchor(
+      typeof element === "undefined" ? void 0 : this.getDataNode(element)
+    );
   }
   getAnchor() {
     const node = this.tree.getAnchor();
@@ -777,7 +915,7 @@ class AsyncDataTree {
   }
   getSelection() {
     const nodes = this.tree.getSelection();
-    return nodes.map((n) => n.element);
+    return nodes.map((n) => n?.element);
   }
   setFocus(elements, browserEvent) {
     const nodes = elements.map((e) => this.getDataNode(e));
@@ -787,13 +925,24 @@ class AsyncDataTree {
     this.tree.focusNext(n, loop, browserEvent, this.focusNavigationFilter);
   }
   focusPrevious(n = 1, loop = false, browserEvent) {
-    this.tree.focusPrevious(n, loop, browserEvent, this.focusNavigationFilter);
+    this.tree.focusPrevious(
+      n,
+      loop,
+      browserEvent,
+      this.focusNavigationFilter
+    );
   }
   focusNextPage(browserEvent) {
-    return this.tree.focusNextPage(browserEvent, this.focusNavigationFilter);
+    return this.tree.focusNextPage(
+      browserEvent,
+      this.focusNavigationFilter
+    );
   }
   focusPreviousPage(browserEvent) {
-    return this.tree.focusPreviousPage(browserEvent, this.focusNavigationFilter);
+    return this.tree.focusPreviousPage(
+      browserEvent,
+      this.focusNavigationFilter
+    );
   }
   focusLast(browserEvent) {
     this.tree.focusLast(browserEvent, this.focusNavigationFilter);
@@ -803,11 +952,11 @@ class AsyncDataTree {
   }
   getFocus() {
     const nodes = this.tree.getFocus();
-    return nodes.map((n) => n.element);
+    return nodes.map((n) => n?.element);
   }
   getStickyScrollFocus() {
     const nodes = this.tree.getStickyScrollFocus();
-    return nodes.map((n) => n.element);
+    return nodes.map((n) => n?.element);
   }
   getFocusedPart() {
     return this.tree.getFocusedPart();
@@ -821,19 +970,26 @@ class AsyncDataTree {
   // Tree navigation
   getParentElement(element) {
     const node = this.tree.getParentElement(this.getDataNode(element));
-    return node && node.element;
+    return node?.element;
   }
   getFirstElementChild(element = this.root.element) {
     const dataNode = this.getDataNode(element);
-    const node = this.tree.getFirstElementChild(dataNode === this.root ? null : dataNode);
-    return node && node.element;
+    const node = this.tree.getFirstElementChild(
+      dataNode === this.root ? null : dataNode
+    );
+    return node?.element;
   }
   // Implementation
   getDataNode(element) {
-    const node = this.nodes.get(element === this.root.element ? null : element);
+    const node = this.nodes.get(
+      element === this.root.element ? null : element
+    );
     if (!node) {
       const nodeIdentity = this.identityProvider?.getId(element).toString();
-      throw new TreeError(this.user, `Data tree node not found${nodeIdentity ? `: ${nodeIdentity}` : ""}`);
+      throw new TreeError(
+        this.user,
+        `Data tree node not found${nodeIdentity ? `: ${nodeIdentity}` : ""}`
+      );
     }
     return node;
   }
@@ -851,7 +1007,9 @@ class AsyncDataTree {
     let result;
     this.subTreeRefreshPromises.forEach((refreshPromise, refreshNode) => {
       if (!result && intersects(refreshNode, node)) {
-        result = refreshPromise.then(() => this.refreshNode(node, recursive, viewStateContext));
+        result = refreshPromise.then(
+          () => this.refreshNode(node, recursive, viewStateContext)
+        );
       }
     });
     if (result) {
@@ -877,11 +1035,19 @@ class AsyncDataTree {
       this.subTreeRefreshPromises.delete(node);
     });
     try {
-      const childrenToRefresh = await this.doRefreshNode(node, recursive, viewStateContext);
+      const childrenToRefresh = await this.doRefreshNode(
+        node,
+        recursive,
+        viewStateContext
+      );
       node.stale = false;
-      await Promises.settled(childrenToRefresh.map((child) => this.doRefreshSubTree(child, recursive, viewStateContext)));
+      await Promises.settled(
+        childrenToRefresh.map(
+          (child) => this.doRefreshSubTree(child, recursive, viewStateContext)
+        )
+      );
     } finally {
-      done();
+      done?.();
     }
   }
   async doRefreshNode(node, recursive, viewStateContext) {
@@ -895,16 +1061,24 @@ class AsyncDataTree {
         childrenPromise = Promise.resolve(children);
       } else {
         const slowTimeout = timeout(800);
-        slowTimeout.then(() => {
-          node.slow = true;
-          this._onDidChangeNodeSlowState.fire(node);
-        }, (_) => null);
+        slowTimeout.then(
+          () => {
+            node.slow = true;
+            this._onDidChangeNodeSlowState.fire(node);
+          },
+          (_) => null
+        );
         childrenPromise = children.finally(() => slowTimeout.cancel());
       }
     }
     try {
       const children = await childrenPromise;
-      return this.setChildren(node, children, recursive, viewStateContext);
+      return this.setChildren(
+        node,
+        children,
+        recursive,
+        viewStateContext
+      );
     } catch (err) {
       if (node !== this.root && this.tree.hasElement(node)) {
         this.tree.collapse(node);
@@ -929,14 +1103,19 @@ class AsyncDataTree {
     if (isIterable(children)) {
       return this.processChildren(children);
     } else {
-      result = createCancelablePromise(async () => this.processChildren(await children));
+      result = createCancelablePromise(
+        async () => this.processChildren(await children)
+      );
       this.refreshPromises.set(node, result);
       return result.finally(() => {
         this.refreshPromises.delete(node);
       });
     }
   }
-  _onDidChangeCollapseState({ node, deep }) {
+  _onDidChangeCollapseState({
+    node,
+    deep
+  }) {
     if (node.element === null) {
       return;
     }
@@ -944,7 +1123,9 @@ class AsyncDataTree {
       if (deep) {
         this.collapse(node.element.element);
       } else {
-        this.refreshAndRenderNode(node.element, false).catch(onUnexpectedError);
+        this.refreshAndRenderNode(node.element, false).catch(
+          onUnexpectedError
+        );
       }
     }
   }
@@ -958,55 +1139,79 @@ class AsyncDataTree {
     for (const child of node.children) {
       nodesToForget.set(child.element, child);
       if (this.identityProvider) {
-        childrenTreeNodesById.set(child.id, { node: child, collapsed: this.tree.hasElement(child) && this.tree.isCollapsed(child) });
+        childrenTreeNodesById.set(child.id, {
+          node: child,
+          collapsed: this.tree.hasElement(child) && this.tree.isCollapsed(child)
+        });
       }
     }
     const childrenToRefresh = [];
-    const children = childrenElements.map((element) => {
-      const hasChildren = !!this.dataSource.hasChildren(element);
-      if (!this.identityProvider) {
-        const asyncDataTreeNode = createAsyncDataTreeNode({ element, parent: node, hasChildren, defaultCollapseState: this.getDefaultCollapseState(element) });
-        if (hasChildren && asyncDataTreeNode.defaultCollapseState === ObjectTreeElementCollapseState.PreserveOrExpanded) {
-          childrenToRefresh.push(asyncDataTreeNode);
-        }
-        return asyncDataTreeNode;
-      }
-      const id = this.identityProvider.getId(element).toString();
-      const result = childrenTreeNodesById.get(id);
-      if (result) {
-        const asyncDataTreeNode = result.node;
-        nodesToForget.delete(asyncDataTreeNode.element);
-        this.nodes.delete(asyncDataTreeNode.element);
-        this.nodes.set(element, asyncDataTreeNode);
-        asyncDataTreeNode.element = element;
-        asyncDataTreeNode.hasChildren = hasChildren;
-        if (recursive) {
-          if (result.collapsed) {
-            asyncDataTreeNode.children.forEach((node2) => dfs(node2, (node3) => this.nodes.delete(node3.element)));
-            asyncDataTreeNode.children.splice(0, asyncDataTreeNode.children.length);
-            asyncDataTreeNode.stale = true;
-          } else {
+    const children = childrenElements.map(
+      (element) => {
+        const hasChildren = !!this.dataSource.hasChildren(element);
+        if (!this.identityProvider) {
+          const asyncDataTreeNode = createAsyncDataTreeNode({
+            element,
+            parent: node,
+            hasChildren,
+            defaultCollapseState: this.getDefaultCollapseState(element)
+          });
+          if (hasChildren && asyncDataTreeNode.defaultCollapseState === ObjectTreeElementCollapseState.PreserveOrExpanded) {
             childrenToRefresh.push(asyncDataTreeNode);
           }
-        } else if (hasChildren && !result.collapsed) {
-          childrenToRefresh.push(asyncDataTreeNode);
+          return asyncDataTreeNode;
         }
-        return asyncDataTreeNode;
+        const id = this.identityProvider.getId(element).toString();
+        const result = childrenTreeNodesById.get(id);
+        if (result) {
+          const asyncDataTreeNode = result.node;
+          nodesToForget.delete(asyncDataTreeNode.element);
+          this.nodes.delete(asyncDataTreeNode.element);
+          this.nodes.set(element, asyncDataTreeNode);
+          asyncDataTreeNode.element = element;
+          asyncDataTreeNode.hasChildren = hasChildren;
+          if (recursive) {
+            if (result.collapsed) {
+              asyncDataTreeNode.children.forEach(
+                (node2) => dfs(
+                  node2,
+                  (node3) => this.nodes.delete(node3.element)
+                )
+              );
+              asyncDataTreeNode.children.splice(
+                0,
+                asyncDataTreeNode.children.length
+              );
+              asyncDataTreeNode.stale = true;
+            } else {
+              childrenToRefresh.push(asyncDataTreeNode);
+            }
+          } else if (hasChildren && !result.collapsed) {
+            childrenToRefresh.push(asyncDataTreeNode);
+          }
+          return asyncDataTreeNode;
+        }
+        const childAsyncDataTreeNode = createAsyncDataTreeNode({
+          element,
+          parent: node,
+          id,
+          hasChildren,
+          defaultCollapseState: this.getDefaultCollapseState(element)
+        });
+        if (viewStateContext?.viewState.focus && viewStateContext.viewState.focus.indexOf(id) > -1) {
+          viewStateContext.focus.push(childAsyncDataTreeNode);
+        }
+        if (viewStateContext?.viewState.selection && viewStateContext.viewState.selection.indexOf(id) > -1) {
+          viewStateContext.selection.push(childAsyncDataTreeNode);
+        }
+        if (viewStateContext?.viewState.expanded && viewStateContext.viewState.expanded.indexOf(id) > -1) {
+          childrenToRefresh.push(childAsyncDataTreeNode);
+        } else if (hasChildren && childAsyncDataTreeNode.defaultCollapseState === ObjectTreeElementCollapseState.PreserveOrExpanded) {
+          childrenToRefresh.push(childAsyncDataTreeNode);
+        }
+        return childAsyncDataTreeNode;
       }
-      const childAsyncDataTreeNode = createAsyncDataTreeNode({ element, parent: node, id, hasChildren, defaultCollapseState: this.getDefaultCollapseState(element) });
-      if (viewStateContext && viewStateContext.viewState.focus && viewStateContext.viewState.focus.indexOf(id) > -1) {
-        viewStateContext.focus.push(childAsyncDataTreeNode);
-      }
-      if (viewStateContext && viewStateContext.viewState.selection && viewStateContext.viewState.selection.indexOf(id) > -1) {
-        viewStateContext.selection.push(childAsyncDataTreeNode);
-      }
-      if (viewStateContext && viewStateContext.viewState.expanded && viewStateContext.viewState.expanded.indexOf(id) > -1) {
-        childrenToRefresh.push(childAsyncDataTreeNode);
-      } else if (hasChildren && childAsyncDataTreeNode.defaultCollapseState === ObjectTreeElementCollapseState.PreserveOrExpanded) {
-        childrenToRefresh.push(childAsyncDataTreeNode);
-      }
-      return childAsyncDataTreeNode;
-    });
+    );
     for (const node2 of nodesToForget.values()) {
       dfs(node2, (node3) => this.nodes.delete(node3.element));
     }
@@ -1021,16 +1226,24 @@ class AsyncDataTree {
     return childrenToRefresh;
   }
   render(node, viewStateContext, options) {
-    const children = node.children.map((node2) => this.asTreeElement(node2, viewStateContext));
+    const children = node.children.map(
+      (node2) => this.asTreeElement(node2, viewStateContext)
+    );
     const objectTreeOptions = options && {
       ...options,
       diffIdentityProvider: options.diffIdentityProvider && {
         getId(node2) {
-          return options.diffIdentityProvider.getId(node2.element);
+          return options.diffIdentityProvider?.getId(
+            node2.element
+          );
         }
       }
     };
-    this.tree.setChildren(node === this.root ? null : node, children, objectTreeOptions);
+    this.tree.setChildren(
+      node === this.root ? null : node,
+      children,
+      objectTreeOptions
+    );
     if (node !== this.root) {
       this.tree.setCollapsible(node, node.hasChildren);
     }
@@ -1045,7 +1258,7 @@ class AsyncDataTree {
       };
     }
     let collapsed;
-    if (viewStateContext && viewStateContext.viewState.expanded && node.id && viewStateContext.viewState.expanded.indexOf(node.id) > -1) {
+    if (viewStateContext?.viewState.expanded && node.id && viewStateContext.viewState.expanded.indexOf(node.id) > -1) {
       collapsed = false;
     } else if (node.forceExpanded) {
       collapsed = false;
@@ -1055,23 +1268,31 @@ class AsyncDataTree {
     }
     return {
       element: node,
-      children: node.hasChildren ? Iterable.map(node.children, (child) => this.asTreeElement(child, viewStateContext)) : [],
+      children: node.hasChildren ? Iterable.map(
+        node.children,
+        (child) => this.asTreeElement(child, viewStateContext)
+      ) : [],
       collapsible: node.hasChildren,
       collapsed
     };
   }
   processChildren(children) {
     if (this.sorter) {
-      children = [...children].sort(this.sorter.compare.bind(this.sorter));
+      children = [...children].sort(
+        this.sorter.compare.bind(this.sorter)
+      );
     }
     return children;
   }
   // view state
   getViewState() {
     if (!this.identityProvider) {
-      throw new TreeError(this.user, "Can't get tree view state without an identity provider");
+      throw new TreeError(
+        this.user,
+        "Can't get tree view state without an identity provider"
+      );
     }
-    const getId = /* @__PURE__ */ __name((element) => this.identityProvider.getId(element).toString(), "getId");
+    const getId = /* @__PURE__ */ __name((element) => this.identityProvider?.getId(element).toString(), "getId");
     const focus = this.getFocus().map(getId);
     const selection = this.getSelection().map(getId);
     const expanded = [];
@@ -1080,7 +1301,7 @@ class AsyncDataTree {
     while (stack.length > 0) {
       const node = stack.pop();
       if (node !== root && node.collapsible && !node.collapsed) {
-        expanded.push(getId(node.element.element));
+        expanded.push(getId(node.element?.element));
       }
       insertInto(stack, stack.length, node.children);
     }
@@ -1105,7 +1326,9 @@ class CompressibleAsyncDataTreeNodeWrapper {
     };
   }
   get children() {
-    return this.node.children.map((node) => new CompressibleAsyncDataTreeNodeWrapper(node));
+    return this.node.children.map(
+      (node) => new CompressibleAsyncDataTreeNodeWrapper(node)
+    );
   }
   get depth() {
     return this.node.depth;
@@ -1148,25 +1371,49 @@ class CompressibleAsyncDataTreeRenderer {
     return { templateData };
   }
   renderElement(node, index, templateData, height) {
-    this.renderer.renderElement(this.nodeMapper.map(node), index, templateData.templateData, height);
+    this.renderer.renderElement(
+      this.nodeMapper.map(node),
+      index,
+      templateData.templateData,
+      height
+    );
   }
   renderCompressedElements(node, index, templateData, height) {
-    this.renderer.renderCompressedElements(this.compressibleNodeMapperProvider().map(node), index, templateData.templateData, height);
+    this.renderer.renderCompressedElements(
+      this.compressibleNodeMapperProvider().map(node),
+      index,
+      templateData.templateData,
+      height
+    );
   }
   renderTwistie(element, twistieElement) {
     if (element.slow) {
-      twistieElement.classList.add(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
+      twistieElement.classList.add(
+        ...ThemeIcon.asClassNameArray(Codicon.treeItemLoading)
+      );
       return true;
     } else {
-      twistieElement.classList.remove(...ThemeIcon.asClassNameArray(Codicon.treeItemLoading));
+      twistieElement.classList.remove(
+        ...ThemeIcon.asClassNameArray(Codicon.treeItemLoading)
+      );
       return false;
     }
   }
   disposeElement(node, index, templateData, height) {
-    this.renderer.disposeElement?.(this.nodeMapper.map(node), index, templateData.templateData, height);
+    this.renderer.disposeElement?.(
+      this.nodeMapper.map(node),
+      index,
+      templateData.templateData,
+      height
+    );
   }
   disposeCompressedElements(node, index, templateData, height) {
-    this.renderer.disposeCompressedElements?.(this.compressibleNodeMapperProvider().map(node), index, templateData.templateData, height);
+    this.renderer.disposeCompressedElements?.(
+      this.compressibleNodeMapperProvider().map(node),
+      index,
+      templateData.templateData,
+      height
+    );
   }
   disposeTemplate(templateData) {
     this.renderer.disposeTemplate(templateData.templateData);
@@ -1183,7 +1430,9 @@ function asCompressibleObjectTreeOptions(options) {
     keyboardNavigationLabelProvider: objectTreeOptions.keyboardNavigationLabelProvider && {
       ...objectTreeOptions.keyboardNavigationLabelProvider,
       getCompressedNodeKeyboardNavigationLabel(els) {
-        return options.keyboardNavigationLabelProvider.getCompressedNodeKeyboardNavigationLabel(els.map((e) => e.element));
+        return options.keyboardNavigationLabelProvider?.getCompressedNodeKeyboardNavigationLabel(
+          els.map((e) => e.element)
+        );
       }
     }
   };
@@ -1198,7 +1447,9 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
   static {
     __name(this, "CompressibleAsyncDataTree");
   }
-  compressibleNodeMapper = new WeakMapper((node) => new CompressibleAsyncDataTreeNodeWrapper(node));
+  compressibleNodeMapper = new WeakMapper(
+    (node) => new CompressibleAsyncDataTreeNodeWrapper(node)
+  );
   filter;
   getCompressedTreeNode(e) {
     const node = this.getDataNode(e);
@@ -1206,21 +1457,39 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
   }
   createTree(user, container, delegate, renderers, options) {
     const objectTreeDelegate = new ComposedTreeDelegate(delegate);
-    const objectTreeRenderers = renderers.map((r) => new CompressibleAsyncDataTreeRenderer(r, this.nodeMapper, () => this.compressibleNodeMapper, this._onDidChangeNodeSlowState.event));
+    const objectTreeRenderers = renderers.map(
+      (r) => new CompressibleAsyncDataTreeRenderer(
+        r,
+        this.nodeMapper,
+        () => this.compressibleNodeMapper,
+        this._onDidChangeNodeSlowState.event
+      )
+    );
     const objectTreeOptions = asCompressibleObjectTreeOptions(options) || {};
-    return new CompressibleObjectTree(user, container, objectTreeDelegate, objectTreeRenderers, objectTreeOptions);
+    return new CompressibleObjectTree(
+      user,
+      container,
+      objectTreeDelegate,
+      objectTreeRenderers,
+      objectTreeOptions
+    );
   }
   asTreeElement(node, viewStateContext) {
     return {
-      incompressible: this.compressionDelegate.isIncompressible(node.element),
+      incompressible: this.compressionDelegate.isIncompressible(
+        node.element
+      ),
       ...super.asTreeElement(node, viewStateContext)
     };
   }
   getViewState() {
     if (!this.identityProvider) {
-      throw new TreeError(this.user, "Can't get tree view state without an identity provider");
+      throw new TreeError(
+        this.user,
+        "Can't get tree view state without an identity provider"
+      );
     }
-    const getId = /* @__PURE__ */ __name((element) => this.identityProvider.getId(element).toString(), "getId");
+    const getId = /* @__PURE__ */ __name((element) => this.identityProvider?.getId(element).toString(), "getId");
     const focus = this.getFocus().map(getId);
     const selection = this.getSelection().map(getId);
     const expanded = [];
@@ -1229,7 +1498,7 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
     while (stack.length > 0) {
       const node = stack.pop();
       if (node !== root && node.collapsible && !node.collapsed) {
-        for (const asyncNode of node.element.elements) {
+        for (const asyncNode of node.element?.elements) {
           expanded.push(getId(asyncNode.element));
         }
       }
@@ -1241,11 +1510,13 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
     if (!this.identityProvider) {
       return super.render(node, viewStateContext);
     }
-    const getId = /* @__PURE__ */ __name((element) => this.identityProvider.getId(element).toString(), "getId");
+    const getId = /* @__PURE__ */ __name((element) => this.identityProvider?.getId(element).toString(), "getId");
     const getUncompressedIds = /* @__PURE__ */ __name((nodes) => {
       const result = /* @__PURE__ */ new Set();
       for (const node2 of nodes) {
-        const compressedNode = this.tree.getCompressedTreeNode(node2 === this.root ? null : node2);
+        const compressedNode = this.tree.getCompressedTreeNode(
+          node2 === this.root ? null : node2
+        );
         if (!compressedNode.element) {
           continue;
         }
@@ -1255,8 +1526,12 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
       }
       return result;
     }, "getUncompressedIds");
-    const oldSelection = getUncompressedIds(this.tree.getSelection());
-    const oldFocus = getUncompressedIds(this.tree.getFocus());
+    const oldSelection = getUncompressedIds(
+      this.tree.getSelection()
+    );
+    const oldFocus = getUncompressedIds(
+      this.tree.getFocus()
+    );
     super.render(node, viewStateContext, options);
     const selection = this.getSelection();
     let didChangeSelection = false;
@@ -1280,7 +1555,9 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
       }
       node2.children.forEach(visit);
     }, "visit");
-    visit(this.tree.getCompressedTreeNode(node === this.root ? null : node));
+    visit(
+      this.tree.getCompressedTreeNode(node === this.root ? null : node)
+    );
     if (didChangeSelection) {
       this.setSelection(selection);
     }
@@ -1294,10 +1571,12 @@ class CompressibleAsyncDataTree extends AsyncDataTree {
   processChildren(children) {
     if (this.filter) {
       children = Iterable.filter(children, (e) => {
-        const result = this.filter.filter(e, TreeVisibility.Visible);
+        const result = this.filter?.filter(e, TreeVisibility.Visible);
         const visibility = getVisibility(result);
         if (visibility === TreeVisibility.Recurse) {
-          throw new Error("Recursive tree visibility not supported in async data compressed trees");
+          throw new Error(
+            "Recursive tree visibility not supported in async data compressed trees"
+          );
         }
         return visibility === TreeVisibility.Visible;
       });

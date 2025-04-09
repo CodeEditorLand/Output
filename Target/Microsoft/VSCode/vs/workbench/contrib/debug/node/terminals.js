@@ -1,6 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as cp from "child_process";
+import * as cp from "node:child_process";
 import { getDriveLetter } from "../../../../base/common/extpath.js";
 import * as platform from "../../../../base/common/platform.js";
 function spawnAsPromised(command, args) {
@@ -31,16 +31,22 @@ async function hasChildProcesses(processId) {
         });
       });
     } else {
-      return spawnAsPromised("/usr/bin/pgrep", ["-lP", String(processId)]).then((stdout) => {
-        const r = stdout.trim();
-        if (r.length === 0 || r.indexOf(" tmux") >= 0) {
-          return false;
-        } else {
+      return spawnAsPromised("/usr/bin/pgrep", [
+        "-lP",
+        String(processId)
+      ]).then(
+        (stdout) => {
+          const r = stdout.trim();
+          if (r.length === 0 || r.indexOf(" tmux") >= 0) {
+            return false;
+          } else {
+            return true;
+          }
+        },
+        (error) => {
           return true;
         }
-      }, (error) => {
-        return true;
-      });
+      );
     }
   }
   return Promise.resolve(true);

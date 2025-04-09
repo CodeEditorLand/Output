@@ -543,11 +543,11 @@
   line-height: 62px;
 }
 .extension-editor .subcontent .monaco-list-row .content .unknown-extension > .error-marker {
-  background-color: #BE1100;
+  background-color: #be1100;
   padding: 2px 4px;
   font-weight: bold;
   font-size: 11px;
-  color: #CCC;
+  color: #ccc;
 }
 .extension-editor .subcontent .monaco-list-row .unknown-extension > .message {
   padding-left: 10px;

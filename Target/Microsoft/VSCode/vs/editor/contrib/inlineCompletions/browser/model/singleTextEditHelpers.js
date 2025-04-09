@@ -2,18 +2,25 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { commonPrefixLength } from "../../../../../base/common/strings.js";
 import { Range } from "../../../../common/core/range.js";
-import { TextLength } from "../../../../common/core/textLength.js";
 import { SingleTextEdit } from "../../../../common/core/textEdit.js";
-import { EndOfLinePreference, ITextModel } from "../../../../common/model.js";
+import { TextLength } from "../../../../common/core/textLength.js";
+import {
+  EndOfLinePreference
+} from "../../../../common/model.js";
 function singleTextRemoveCommonPrefix(edit, model, validModelRange) {
   const modelRange = validModelRange ? edit.range.intersectRanges(validModelRange) : edit.range;
   if (!modelRange) {
     return edit;
   }
   const normalizedText = edit.text.replaceAll("\r\n", "\n");
-  const valueToReplace = model.getValueInRange(modelRange, EndOfLinePreference.LF);
+  const valueToReplace = model.getValueInRange(
+    modelRange,
+    EndOfLinePreference.LF
+  );
   const commonPrefixLen = commonPrefixLength(valueToReplace, normalizedText);
-  const start = TextLength.ofText(valueToReplace.substring(0, commonPrefixLen)).addToPosition(edit.range.getStartPosition());
+  const start = TextLength.ofText(
+    valueToReplace.substring(0, commonPrefixLen)
+  ).addToPosition(edit.range.getStartPosition());
   const text = normalizedText.substring(commonPrefixLen);
   const range = Range.fromPositions(start, edit.range.getEndPosition());
   return new SingleTextEdit(range, text);

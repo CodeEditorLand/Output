@@ -1,12 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import * as fs from "fs";
+import * as fs from "node:fs";
 import { timeout } from "../../../common/async.js";
 import { Event } from "../../../common/event.js";
 import { mapToString, setToString } from "../../../common/map.js";
 import { basename } from "../../../common/path.js";
 import { Promises } from "../../../node/pfs.js";
-import { IStorageDatabase, IStorageItemsChangeEvent, IUpdateRequest } from "../common/storage.js";
 class SQLiteStorageDatabase {
   constructor(path, options = /* @__PURE__ */ Object.create(null)) {
     this.path = path;
@@ -35,7 +34,9 @@ class SQLiteStorageDatabase {
     const rows = await this.all(connection, "SELECT * FROM ItemTable");
     rows.forEach((row) => items.set(row.key, row.value));
     if (this.logger.isTracing) {
-      this.logger.trace(`[storage ${this.name}] getItems(): ${items.size} rows`);
+      this.logger.trace(
+        `[storage ${this.name}] getItems(): ${items.size} rows`
+      );
     }
     return items;
   }
@@ -45,7 +46,9 @@ class SQLiteStorageDatabase {
   }
   doUpdateItems(connection, request) {
     if (this.logger.isTracing) {
-      this.logger.trace(`[storage ${this.name}] updateItems(): insert(${request.insert ? mapToString(request.insert) : "0"}), delete(${request.delete ? setToString(request.delete) : "0"})`);
+      this.logger.trace(
+        `[storage ${this.name}] updateItems(): insert(${request.insert ? mapToString(request.insert) : "0"}), delete(${request.delete ? setToString(request.delete) : "0"})`
+      );
     }
     return this.transaction(connection, () => {
       const toInsert = request.insert;
@@ -64,18 +67,23 @@ class SQLiteStorageDatabase {
           keyValueChunk.push(key, value);
         });
         keysValuesChunks.forEach((keysValuesChunk) => {
-          this.prepare(connection, `INSERT INTO ItemTable VALUES ${new Array(keysValuesChunk.length / 2).fill("(?,?)").join(",")}`, (stmt) => stmt.run(keysValuesChunk), () => {
-            const keys = [];
-            let length = 0;
-            toInsert.forEach((value, key) => {
-              keys.push(key);
-              length += value.length;
-            });
-            return `Keys: ${keys.join(", ")} Length: ${length}`;
-          });
+          this.prepare(
+            connection,
+            `INSERT INTO ItemTable VALUES ${new Array(keysValuesChunk.length / 2).fill("(?,?)").join(",")}`,
+            (stmt) => stmt.run(keysValuesChunk),
+            () => {
+              const keys = [];
+              let length = 0;
+              toInsert.forEach((value, key) => {
+                keys.push(key);
+                length += value.length;
+              });
+              return `Keys: ${keys.join(", ")} Length: ${length}`;
+            }
+          );
         });
       }
-      if (toDelete && toDelete.size) {
+      if (toDelete?.size) {
         const keysChunks = [];
         keysChunks.push([]);
         let currentChunkIndex = 0;
@@ -89,13 +97,18 @@ class SQLiteStorageDatabase {
           keyChunk.push(key);
         });
         keysChunks.forEach((keysChunk) => {
-          this.prepare(connection, `DELETE FROM ItemTable WHERE key IN (${new Array(keysChunk.length).fill("?").join(",")})`, (stmt) => stmt.run(keysChunk), () => {
-            const keys = [];
-            toDelete.forEach((key) => {
-              keys.push(key);
-            });
-            return `Keys: ${keys.join(", ")}`;
-          });
+          this.prepare(
+            connection,
+            `DELETE FROM ItemTable WHERE key IN (${new Array(keysChunk.length).fill("?").join(",")})`,
+            (stmt) => stmt.run(keysChunk),
+            () => {
+              const keys = [];
+              toDelete.forEach((key) => {
+                keys.push(key);
+              });
+              return `Keys: ${keys.join(", ")}`;
+            }
+          );
         });
       }
     });
@@ -114,49 +127,72 @@ class SQLiteStorageDatabase {
     return new Promise((resolve, reject) => {
       connection.db.close((closeError) => {
         if (closeError) {
-          this.handleSQLiteError(connection, `[storage ${this.name}] close(): ${closeError}`);
+          this.handleSQLiteError(
+            connection,
+            `[storage ${this.name}] close(): ${closeError}`
+          );
         }
         if (this.path === SQLiteStorageDatabase.IN_MEMORY_PATH) {
           return resolve();
         }
         if (!connection.isErroneous && !connection.isInMemory) {
           return this.backup().then(resolve, (error) => {
-            this.logger.error(`[storage ${this.name}] backup(): ${error}`);
+            this.logger.error(
+              `[storage ${this.name}] backup(): ${error}`
+            );
             return resolve();
           });
         }
         if (typeof recovery === "function") {
           return fs.promises.unlink(this.path).then(() => {
-            return this.doConnect(this.path).then((recoveryConnection) => {
-              const closeRecoveryConnection = /* @__PURE__ */ __name(() => {
-                return this.doClose(
+            return this.doConnect(this.path).then(
+              (recoveryConnection) => {
+                const closeRecoveryConnection = /* @__PURE__ */ __name(() => {
+                  return this.doClose(
+                    recoveryConnection,
+                    void 0
+                  );
+                }, "closeRecoveryConnection");
+                return this.doUpdateItems(
                   recoveryConnection,
-                  void 0
-                  /* do not attempt to recover again */
+                  { insert: recovery() }
+                ).then(
+                  () => closeRecoveryConnection(),
+                  (error) => {
+                    closeRecoveryConnection();
+                    return Promise.reject(error);
+                  }
                 );
-              }, "closeRecoveryConnection");
-              return this.doUpdateItems(recoveryConnection, { insert: recovery() }).then(() => closeRecoveryConnection(), (error) => {
-                closeRecoveryConnection();
-                return Promise.reject(error);
-              });
-            });
+              }
+            );
           }).then(resolve, reject);
         }
-        return reject(closeError || new Error("Database has errors or is in-memory without recovery option"));
+        return reject(
+          closeError || new Error(
+            "Database has errors or is in-memory without recovery option"
+          )
+        );
       });
     });
   }
   backup() {
     const backupPath = this.toBackupPath(this.path);
-    return Promises.copy(this.path, backupPath, { preserveSymlinks: false });
+    return Promises.copy(this.path, backupPath, {
+      preserveSymlinks: false
+    });
   }
   toBackupPath(path) {
     return `${path}.backup`;
   }
   async checkIntegrity(full) {
-    this.logger.trace(`[storage ${this.name}] checkIntegrity(full: ${full})`);
+    this.logger.trace(
+      `[storage ${this.name}] checkIntegrity(full: ${full})`
+    );
     const connection = await this.whenConnected;
-    const row = await this.get(connection, full ? "PRAGMA integrity_check" : "PRAGMA quick_check");
+    const row = await this.get(
+      connection,
+      full ? "PRAGMA integrity_check" : "PRAGMA quick_check"
+    );
     const integrity = full ? row["integrity_check"] : row["quick_check"];
     if (connection.isErroneous) {
       return `${integrity} (last error: ${connection.lastError})`;
@@ -167,11 +203,15 @@ class SQLiteStorageDatabase {
     return integrity;
   }
   async connect(path, retryOnBusy = true) {
-    this.logger.trace(`[storage ${this.name}] open(${path}, retryOnBusy: ${retryOnBusy})`);
+    this.logger.trace(
+      `[storage ${this.name}] open(${path}, retryOnBusy: ${retryOnBusy})`
+    );
     try {
       return await this.doConnect(path);
     } catch (error) {
-      this.logger.error(`[storage ${this.name}] open(): Unable to open DB due to ${error}`);
+      this.logger.error(
+        `[storage ${this.name}] open(): Unable to open DB due to ${error}`
+      );
       if (error.code === "SQLITE_BUSY" && retryOnBusy) {
         await timeout(SQLiteStorageDatabase.BUSY_OPEN_TIMEOUT);
         return this.connect(
@@ -187,13 +227,14 @@ class SQLiteStorageDatabase {
             this.toBackupPath(path),
             path,
             false
-            /* no retry */
           );
         } catch (error2) {
         }
         return await this.doConnect(path);
       } catch (error2) {
-        this.logger.error(`[storage ${this.name}] open(): Unable to use backup due to ${error2}`);
+        this.logger.error(
+          `[storage ${this.name}] open(): Unable to use backup due to ${error2}`
+        );
         return this.doConnect(SQLiteStorageDatabase.IN_MEMORY_PATH);
       }
     }
@@ -208,24 +249,46 @@ class SQLiteStorageDatabase {
       import("@vscode/sqlite3").then((sqlite3) => {
         const ctor = this.logger.isTracing ? sqlite3.default.verbose().Database : sqlite3.default.Database;
         const connection = {
-          db: new ctor(path, (error) => {
-            if (error) {
-              return connection.db && error.code !== "SQLITE_CANTOPEN" ? connection.db.close(() => reject(error)) : reject(error);
+          db: new ctor(
+            path,
+            (error) => {
+              if (error) {
+                return connection.db && error.code !== "SQLITE_CANTOPEN" ? connection.db.close(() => reject(error)) : reject(error);
+              }
+              return this.exec(
+                connection,
+                [
+                  "PRAGMA user_version = 1;",
+                  "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB)"
+                ].join("")
+              ).then(
+                () => {
+                  return resolve(connection);
+                },
+                (error2) => {
+                  return connection.db.close(
+                    () => reject(error2)
+                  );
+                }
+              );
             }
-            return this.exec(connection, [
-              "PRAGMA user_version = 1;",
-              "CREATE TABLE IF NOT EXISTS ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value BLOB)"
-            ].join("")).then(() => {
-              return resolve(connection);
-            }, (error2) => {
-              return connection.db.close(() => reject(error2));
-            });
-          }),
+          ),
           isInMemory: path === SQLiteStorageDatabase.IN_MEMORY_PATH
         };
-        connection.db.on("error", (error) => this.handleSQLiteError(connection, `[storage ${this.name}] Error (event): ${error}`));
+        connection.db.on(
+          "error",
+          (error) => this.handleSQLiteError(
+            connection,
+            `[storage ${this.name}] Error (event): ${error}`
+          )
+        );
         if (this.logger.isTracing) {
-          connection.db.on("trace", (sql) => this.logger.trace(`[storage ${this.name}] Trace (event): ${sql}`));
+          connection.db.on(
+            "trace",
+            (sql) => this.logger.trace(
+              `[storage ${this.name}] Trace (event): ${sql}`
+            )
+          );
         }
       }, reject);
     });
@@ -234,7 +297,10 @@ class SQLiteStorageDatabase {
     return new Promise((resolve, reject) => {
       connection.db.exec(sql, (error) => {
         if (error) {
-          this.handleSQLiteError(connection, `[storage ${this.name}] exec(): ${error}`);
+          this.handleSQLiteError(
+            connection,
+            `[storage ${this.name}] exec(): ${error}`
+          );
           return reject(error);
         }
         return resolve();
@@ -245,7 +311,10 @@ class SQLiteStorageDatabase {
     return new Promise((resolve, reject) => {
       connection.db.get(sql, (error, row) => {
         if (error) {
-          this.handleSQLiteError(connection, `[storage ${this.name}] get(): ${error}`);
+          this.handleSQLiteError(
+            connection,
+            `[storage ${this.name}] get(): ${error}`
+          );
           return reject(error);
         }
         return resolve(row);
@@ -256,7 +325,10 @@ class SQLiteStorageDatabase {
     return new Promise((resolve, reject) => {
       connection.db.all(sql, (error, rows) => {
         if (error) {
-          this.handleSQLiteError(connection, `[storage ${this.name}] all(): ${error}`);
+          this.handleSQLiteError(
+            connection,
+            `[storage ${this.name}] all(): ${error}`
+          );
           return reject(error);
         }
         return resolve(rows);
@@ -270,7 +342,10 @@ class SQLiteStorageDatabase {
         transactions();
         connection.db.run("END TRANSACTION", (error) => {
           if (error) {
-            this.handleSQLiteError(connection, `[storage ${this.name}] transaction(): ${error}`);
+            this.handleSQLiteError(
+              connection,
+              `[storage ${this.name}] transaction(): ${error}`
+            );
             return reject(error);
           }
           return resolve();
@@ -281,7 +356,10 @@ class SQLiteStorageDatabase {
   prepare(connection, sql, runCallback, errorDetails) {
     const stmt = connection.db.prepare(sql);
     const statementErrorListener = /* @__PURE__ */ __name((error) => {
-      this.handleSQLiteError(connection, `[storage ${this.name}] prepare(): ${error} (${sql}). Details: ${errorDetails()}`);
+      this.handleSQLiteError(
+        connection,
+        `[storage ${this.name}] prepare(): ${error} (${sql}). Details: ${errorDetails()}`
+      );
     }, "statementErrorListener");
     stmt.on("error", statementErrorListener);
     runCallback(stmt);

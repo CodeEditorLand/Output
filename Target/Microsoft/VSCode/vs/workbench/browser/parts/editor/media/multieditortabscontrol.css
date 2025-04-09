@@ -80,7 +80,7 @@
   box-shadow: none;
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title > .tabs-and-actions-container.wrapping .tabs-container > .tab:last-child {
-  margin-right: var(--last-tab-margin-right);
+  margin-right: var( --last-tab-margin-right );
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title > .tabs-and-actions-container.wrapping .tabs-container > .tab.last-in-row:not(:last-child) {
   border-right: 0 !important;
@@ -97,12 +97,12 @@
   flex-shrink: 0;
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab.sizing-fixed {
-  min-width: var(--tab-sizing-current-width, var(--tab-sizing-fixed-min-width, 50px));
-  max-width: var(--tab-sizing-current-width, var(--tab-sizing-fixed-max-width, 160px));
+  min-width: var( --tab-sizing-current-width, var(--tab-sizing-fixed-min-width, 50px) );
+  max-width: var( --tab-sizing-current-width, var(--tab-sizing-fixed-max-width, 160px) );
   flex: 1 0 0;
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab.sizing-fixed.last-in-row {
-  min-width: calc(var(--tab-sizing-current-width, var(--tab-sizing-fixed-min-width, 50px)) - 1px);
+  min-width: calc(var( --tab-sizing-current-width, var(--tab-sizing-fixed-min-width, 50px) ) - 1px);
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title > .tabs-and-actions-container.wrapping .tabs-container > .tab.sizing-fit.last-in-row:not(:last-child) {
   flex-grow: 1;
@@ -206,7 +206,7 @@
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab .tab-label {
   margin-top: auto;
   margin-bottom: auto;
-  line-height: var(--editor-group-tab-height);
+  line-height: var( --editor-group-tab-height );
 }
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab.sizing-shrink .tab-label,
 .monaco-workbench .part.editor > .content .editor-group-container > .title .tabs-container > .tab.sizing-fixed .tab-label {

@@ -10,18 +10,26 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IAction } from "../../../../base/common/actions.js";
 import { equals } from "../../../../base/common/arrays.js";
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { DisposableStore, IDisposable, dispose } from "../../../../base/common/lifecycle.js";
+import {
+  DisposableStore,
+  dispose
+} from "../../../../base/common/lifecycle.js";
 import "./media/scm.css";
 import { localize } from "../../../../nls.js";
 import { getActionBarActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { IMenu, IMenuService, MenuId, MenuRegistry } from "../../../../platform/actions/common/actions.js";
+import {
+  IMenuService,
+  MenuId,
+  MenuRegistry
+} from "../../../../platform/actions/common/actions.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
 import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { ISCMMenus, ISCMProvider, ISCMRepository, ISCMRepositoryMenus, ISCMResource, ISCMResourceGroup, ISCMService } from "../common/scm.js";
+import {
+  ISCMService
+} from "../common/scm.js";
 function actionEquals(a, b) {
   return a.id === b.id;
 }
@@ -49,7 +57,9 @@ let SCMTitleMenu = class {
     this.updateTitleActions();
   }
   updateTitleActions() {
-    const { primary, secondary } = getActionBarActions(this.menu.getActions({ shouldForwardArgs: true }));
+    const { primary, secondary } = getActionBarActions(
+      this.menu.getActions({ shouldForwardArgs: true })
+    );
     if (equals(primary, this._actions, actionEquals) && equals(secondary, this._secondaryActions, actionEquals)) {
       return;
     }
@@ -76,7 +86,10 @@ class SCMMenusItem {
   _resourceFolderMenu;
   get resourceFolderMenu() {
     if (!this._resourceFolderMenu) {
-      this._resourceFolderMenu = this.menuService.createMenu(MenuId.SCMResourceFolderContext, this.contextKeyService);
+      this._resourceFolderMenu = this.menuService.createMenu(
+        MenuId.SCMResourceFolderContext,
+        this.contextKeyService
+      );
     }
     return this._resourceFolderMenu;
   }
@@ -87,31 +100,47 @@ class SCMMenusItem {
   getResourceGroupMenu(resourceGroup) {
     if (typeof resourceGroup.contextValue === "undefined") {
       if (!this.genericResourceGroupMenu) {
-        this.genericResourceGroupMenu = this.menuService.createMenu(MenuId.SCMResourceGroupContext, this.contextKeyService);
+        this.genericResourceGroupMenu = this.menuService.createMenu(
+          MenuId.SCMResourceGroupContext,
+          this.contextKeyService
+        );
       }
       return this.genericResourceGroupMenu;
     }
     if (!this.contextualResourceGroupMenus) {
       this.contextualResourceGroupMenus = /* @__PURE__ */ new Map();
     }
-    let item = this.contextualResourceGroupMenus.get(resourceGroup.contextValue);
+    let item = this.contextualResourceGroupMenus.get(
+      resourceGroup.contextValue
+    );
     if (!item) {
-      const contextKeyService = this.contextKeyService.createOverlay([["scmResourceGroupState", resourceGroup.contextValue]]);
-      const menu = this.menuService.createMenu(MenuId.SCMResourceGroupContext, contextKeyService);
+      const contextKeyService = this.contextKeyService.createOverlay([
+        ["scmResourceGroupState", resourceGroup.contextValue]
+      ]);
+      const menu = this.menuService.createMenu(
+        MenuId.SCMResourceGroupContext,
+        contextKeyService
+      );
       item = {
         menu,
         dispose() {
           menu.dispose();
         }
       };
-      this.contextualResourceGroupMenus.set(resourceGroup.contextValue, item);
+      this.contextualResourceGroupMenus.set(
+        resourceGroup.contextValue,
+        item
+      );
     }
     return item.menu;
   }
   getResourceMenu(resource) {
     if (typeof resource.contextValue === "undefined") {
       if (!this.genericResourceMenu) {
-        this.genericResourceMenu = this.menuService.createMenu(MenuId.SCMResourceContext, this.contextKeyService);
+        this.genericResourceMenu = this.menuService.createMenu(
+          MenuId.SCMResourceContext,
+          this.contextKeyService
+        );
       }
       return this.genericResourceMenu;
     }
@@ -120,8 +149,13 @@ class SCMMenusItem {
     }
     let item = this.contextualResourceMenus.get(resource.contextValue);
     if (!item) {
-      const contextKeyService = this.contextKeyService.createOverlay([["scmResourceState", resource.contextValue]]);
-      const menu = this.menuService.createMenu(MenuId.SCMResourceContext, contextKeyService);
+      const contextKeyService = this.contextKeyService.createOverlay([
+        ["scmResourceState", resource.contextValue]
+      ]);
+      const menu = this.menuService.createMenu(
+        MenuId.SCMResourceContext,
+        contextKeyService
+      );
       item = {
         menu,
         dispose() {
@@ -157,13 +191,26 @@ let SCMRepositoryMenus = class {
       ["scmProviderRootUri", provider.rootUri?.toString()],
       ["scmProviderHasRootUri", !!provider.rootUri]
     ]);
-    const serviceCollection = new ServiceCollection([IContextKeyService, this.contextKeyService]);
-    instantiationService = instantiationService.createChild(serviceCollection, this.disposables);
+    const serviceCollection = new ServiceCollection([
+      IContextKeyService,
+      this.contextKeyService
+    ]);
+    instantiationService = instantiationService.createChild(
+      serviceCollection,
+      this.disposables
+    );
     this.titleMenu = instantiationService.createInstance(SCMTitleMenu);
     this.disposables.add(this.titleMenu);
-    this.repositoryMenu = menuService.createMenu(MenuId.SCMSourceControlInline, this.contextKeyService);
+    this.repositoryMenu = menuService.createMenu(
+      MenuId.SCMSourceControlInline,
+      this.contextKeyService
+    );
     this.disposables.add(this.repositoryMenu);
-    provider.onDidChangeResourceGroups(this.onDidChangeResourceGroups, this, this.disposables);
+    provider.onDidChangeResourceGroups(
+      this.onDidChangeResourceGroups,
+      this,
+      this.disposables
+    );
     this.onDidChangeResourceGroups();
   }
   static {
@@ -176,17 +223,24 @@ let SCMRepositoryMenus = class {
   _repositoryContextMenu;
   get repositoryContextMenu() {
     if (!this._repositoryContextMenu) {
-      this._repositoryContextMenu = this.menuService.createMenu(MenuId.SCMSourceControl, this.contextKeyService);
+      this._repositoryContextMenu = this.menuService.createMenu(
+        MenuId.SCMSourceControl,
+        this.contextKeyService
+      );
       this.disposables.add(this._repositoryContextMenu);
     }
     return this._repositoryContextMenu;
   }
   disposables = new DisposableStore();
   getResourceGroupMenu(group) {
-    return this.getOrCreateResourceGroupMenusItem(group).getResourceGroupMenu(group);
+    return this.getOrCreateResourceGroupMenusItem(
+      group
+    ).getResourceGroupMenu(group);
   }
   getResourceMenu(resource) {
-    return this.getOrCreateResourceGroupMenusItem(resource.resourceGroup).getResourceMenu(resource);
+    return this.getOrCreateResourceGroupMenusItem(
+      resource.resourceGroup
+    ).getResourceMenu(resource);
   }
   getResourceFolderMenu(group) {
     return this.getOrCreateResourceGroupMenusItem(group).resourceFolderMenu;
@@ -196,7 +250,10 @@ let SCMRepositoryMenus = class {
     if (!result) {
       const contextKeyService = this.contextKeyService.createOverlay([
         ["scmResourceGroup", group.id],
-        ["multiDiffEditorEnableViewChanges", group.multiDiffEditorEnableViewChanges]
+        [
+          "multiDiffEditorEnableViewChanges",
+          group.multiDiffEditorEnableViewChanges
+        ]
       ]);
       result = new SCMMenusItem(contextKeyService, this.menuService);
       this.resourceGroupMenusItems.set(group, result);
@@ -225,16 +282,29 @@ let SCMMenus = class {
   constructor(scmService, instantiationService) {
     this.instantiationService = instantiationService;
     this.titleMenu = instantiationService.createInstance(SCMTitleMenu);
-    scmService.onDidRemoveRepository(this.onDidRemoveRepository, this, this.disposables);
-    this.disposables.add(Event.runAndSubscribe(MenuRegistry.onDidChangeMenu, (e) => {
-      if (e && !e.has(MenuId.SCMTitle)) {
-        return;
-      }
-      this.repositoryMenuDisposables.clear();
-      for (const menuItem of MenuRegistry.getMenuItems(MenuId.SCMTitle)) {
-        this.repositoryMenuDisposables.add(MenuRegistry.appendMenuItem(MenuId.SCMSourceControlInline, menuItem));
-      }
-    }));
+    scmService.onDidRemoveRepository(
+      this.onDidRemoveRepository,
+      this,
+      this.disposables
+    );
+    this.disposables.add(
+      Event.runAndSubscribe(MenuRegistry.onDidChangeMenu, (e) => {
+        if (e && !e.has(MenuId.SCMTitle)) {
+          return;
+        }
+        this.repositoryMenuDisposables.clear();
+        for (const menuItem of MenuRegistry.getMenuItems(
+          MenuId.SCMTitle
+        )) {
+          this.repositoryMenuDisposables.add(
+            MenuRegistry.appendMenuItem(
+              MenuId.SCMSourceControlInline,
+              menuItem
+            )
+          );
+        }
+      })
+    );
   }
   static {
     __name(this, "SCMMenus");
@@ -251,7 +321,10 @@ let SCMMenus = class {
   getRepositoryMenus(provider) {
     let result = this.menus.get(provider);
     if (!result) {
-      const menus = this.instantiationService.createInstance(SCMRepositoryMenus, provider);
+      const menus = this.instantiationService.createInstance(
+        SCMRepositoryMenus,
+        provider
+      );
       const dispose2 = /* @__PURE__ */ __name(() => {
         menus.dispose();
         this.menus.delete(provider);

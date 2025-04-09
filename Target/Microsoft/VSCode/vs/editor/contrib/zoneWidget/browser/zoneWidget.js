@@ -2,17 +2,23 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import * as dom from "../../../../base/browser/dom.js";
 import * as domStylesheetsJs from "../../../../base/browser/domStylesheets.js";
-import { IHorizontalSashLayoutProvider, ISashEvent, Orientation, Sash, SashState } from "../../../../base/browser/ui/sash/sash.js";
+import {
+  Orientation,
+  Sash,
+  SashState
+} from "../../../../base/browser/ui/sash/sash.js";
 import { Color, RGBA } from "../../../../base/common/color.js";
 import { IdGenerator } from "../../../../base/common/idGenerator.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
 import * as objects from "../../../../base/common/objects.js";
 import "./zoneWidget.css";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, IViewZone, IViewZoneChangeAccessor } from "../../../browser/editorBrowser.js";
-import { EditorLayoutInfo, EditorOption } from "../../../common/config/editorOptions.js";
-import { IPosition, Position } from "../../../common/core/position.js";
-import { IRange, Range } from "../../../common/core/range.js";
-import { IEditorDecorationsCollection, ScrollType } from "../../../common/editorCommon.js";
+import {
+  EditorOption
+} from "../../../common/config/editorOptions.js";
+import { Range } from "../../../common/core/range.js";
+import {
+  ScrollType
+} from "../../../common/editorCommon.js";
 import { TrackedRangeStickiness } from "../../../common/model.js";
 import { ModelDecorationOptions } from "../../../common/model/textModel.js";
 const defaultColor = new Color(new RGBA(0, 122, 204));
@@ -84,7 +90,9 @@ class Arrow {
   static {
     __name(this, "Arrow");
   }
-  static _IdGenerator = new IdGenerator(".arrow-decoration-");
+  static _IdGenerator = new IdGenerator(
+    ".arrow-decoration-"
+  );
   _ruleName = Arrow._IdGenerator.nextId();
   _decorations;
   _color = null;
@@ -116,14 +124,16 @@ class Arrow {
     if (where.column === 1) {
       where = { lineNumber: where.lineNumber, column: 2 };
     }
-    this._decorations.set([{
-      range: Range.fromPositions(where),
-      options: {
-        description: "zone-widget-arrow",
-        className: this._ruleName,
-        stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+    this._decorations.set([
+      {
+        range: Range.fromPositions(where),
+        options: {
+          description: "zone-widget-arrow",
+          className: this._ruleName,
+          stickiness: TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
+        }
       }
-    }]);
+    ]);
   }
   hide() {
     this._decorations.clear();
@@ -154,12 +164,14 @@ class ZoneWidget {
       this.domNode.setAttribute("aria-hidden", "true");
       this.domNode.setAttribute("role", "presentation");
     }
-    this._disposables.add(this.editor.onDidLayoutChange((info) => {
-      const width = this._getWidth(info);
-      this.domNode.style.width = width + "px";
-      this.domNode.style.left = this._getLeft(info) + "px";
-      this._onWidth(width);
-    }));
+    this._disposables.add(
+      this.editor.onDidLayoutChange((info) => {
+        const width = this._getWidth(info);
+        this.domNode.style.width = `${width}px`;
+        this.domNode.style.left = `${this._getLeft(info)}px`;
+        this._onWidth(width);
+      })
+    );
   }
   dispose() {
     if (this._overlayWidget) {
@@ -223,7 +235,7 @@ class ZoneWidget {
     return 0;
   }
   _onViewZoneTop(top) {
-    this.domNode.style.top = top + "px";
+    this.domNode.style.top = `${top}px`;
   }
   _onViewZoneHeight(height) {
     this.domNode.style.height = `${height}px`;
@@ -251,7 +263,9 @@ class ZoneWidget {
     this._isShowing = true;
     this._showImpl(range, heightInLines);
     this._isShowing = false;
-    this._positionMarkerId.set([{ range, options: ModelDecorationOptions.EMPTY }]);
+    this._positionMarkerId.set([
+      { range, options: ModelDecorationOptions.EMPTY }
+    ]);
   }
   updatePositionAndHeight(rangeOrPos, heightInLines) {
     if (this._viewZone) {
@@ -260,12 +274,14 @@ class ZoneWidget {
       this._viewZone.afterColumn = rangeOrPos.column;
       this._viewZone.heightInLines = heightInLines ?? this._viewZone.heightInLines;
       this.editor.changeViewZones((accessor) => {
-        accessor.layoutZone(this._viewZone.id);
+        accessor.layoutZone(this._viewZone?.id);
       });
-      this._positionMarkerId.set([{
-        range: Range.isIRange(rangeOrPos) ? rangeOrPos : Range.fromPositions(rangeOrPos),
-        options: ModelDecorationOptions.EMPTY
-      }]);
+      this._positionMarkerId.set([
+        {
+          range: Range.isIRange(rangeOrPos) ? rangeOrPos : Range.fromPositions(rangeOrPos),
+          options: ModelDecorationOptions.EMPTY
+        }
+      ]);
       this._updateSashEnablement();
     }
   }
@@ -301,14 +317,17 @@ class ZoneWidget {
   }
   /** Gets the maximum widget height in lines. */
   _getMaximumHeightInLines() {
-    return Math.max(12, this.editor.getLayoutInfo().height / this.editor.getOption(EditorOption.lineHeight) * 0.8);
+    return Math.max(
+      12,
+      this.editor.getLayoutInfo().height / this.editor.getOption(EditorOption.lineHeight) * 0.8
+    );
   }
   _showImpl(where, heightInLines) {
     const position = where.getStartPosition();
     const layoutInfo = this.editor.getLayoutInfo();
     const width = this._getWidth(layoutInfo);
     this.domNode.style.width = `${width}px`;
-    this.domNode.style.left = this._getLeft(layoutInfo) + "px";
+    this.domNode.style.left = `${this._getLeft(layoutInfo)}px`;
     const viewZoneDomNode = document.createElement("div");
     viewZoneDomNode.style.overflow = "hidden";
     const lineHeight = this.editor.getOption(EditorOption.lineHeight);
@@ -346,19 +365,22 @@ class ZoneWidget {
         this.options.ordinal
       );
       this._viewZone.id = accessor.addZone(this._viewZone);
-      this._overlayWidget = new OverlayWidgetDelegate(WIDGET_ID + this._viewZone.id, this.domNode);
+      this._overlayWidget = new OverlayWidgetDelegate(
+        WIDGET_ID + this._viewZone.id,
+        this.domNode
+      );
       this.editor.addOverlayWidget(this._overlayWidget);
     });
     this._updateSashEnablement();
     if (this.container && this.options.showFrame) {
       const width2 = this.options.frameWidth ? this.options.frameWidth : frameThickness;
-      this.container.style.borderTopWidth = width2 + "px";
-      this.container.style.borderBottomWidth = width2 + "px";
+      this.container.style.borderTopWidth = `${width2}px`;
+      this.container.style.borderBottomWidth = `${width2}px`;
     }
     const containerHeight = heightInLines * lineHeight - this._decoratingElementsHeight();
     if (this.container) {
-      this.container.style.top = arrowHeight + "px";
-      this.container.style.height = containerHeight + "px";
+      this.container.style.top = `${arrowHeight}px`;
+      this.container.style.height = `${containerHeight}px`;
       this.container.style.overflow = "hidden";
     }
     this._doLayout(containerHeight, width);
@@ -367,13 +389,21 @@ class ZoneWidget {
     }
     const model = this.editor.getModel();
     if (model) {
-      const range = model.validateRange(new Range(where.startLineNumber, 1, where.endLineNumber + 1, 1));
-      this.revealRange(range, range.startLineNumber === model.getLineCount());
+      const range = model.validateRange(
+        new Range(where.startLineNumber, 1, where.endLineNumber + 1, 1)
+      );
+      this.revealRange(
+        range,
+        range.startLineNumber === model.getLineCount()
+      );
     }
   }
   revealRange(range, isLastLine) {
     if (isLastLine) {
-      this.editor.revealLineNearTop(range.endLineNumber, ScrollType.Smooth);
+      this.editor.revealLineNearTop(
+        range.endLineNumber,
+        ScrollType.Smooth
+      );
     } else {
       this.editor.revealRange(range, ScrollType.Smooth);
     }
@@ -409,34 +439,44 @@ class ZoneWidget {
     if (this._resizeSash) {
       return;
     }
-    this._resizeSash = this._disposables.add(new Sash(this.domNode, this, { orientation: Orientation.HORIZONTAL }));
+    this._resizeSash = this._disposables.add(
+      new Sash(this.domNode, this, {
+        orientation: Orientation.HORIZONTAL
+      })
+    );
     if (!this.options.isResizeable) {
       this._resizeSash.state = SashState.Disabled;
     }
     let data;
-    this._disposables.add(this._resizeSash.onDidStart((e) => {
-      if (this._viewZone) {
-        data = {
-          startY: e.startY,
-          heightInLines: this._viewZone.heightInLines,
-          ...this._getResizeBounds()
-        };
-      }
-    }));
-    this._disposables.add(this._resizeSash.onDidEnd(() => {
-      data = void 0;
-    }));
-    this._disposables.add(this._resizeSash.onDidChange((evt) => {
-      if (data) {
-        const lineDelta = (evt.currentY - data.startY) / this.editor.getOption(EditorOption.lineHeight);
-        const roundedLineDelta = lineDelta < 0 ? Math.ceil(lineDelta) : Math.floor(lineDelta);
-        const newHeightInLines = data.heightInLines + roundedLineDelta;
-        if (newHeightInLines > data.minLines && newHeightInLines < data.maxLines) {
-          this._isSashResizeHeight = true;
-          this._relayout(newHeightInLines);
+    this._disposables.add(
+      this._resizeSash.onDidStart((e) => {
+        if (this._viewZone) {
+          data = {
+            startY: e.startY,
+            heightInLines: this._viewZone.heightInLines,
+            ...this._getResizeBounds()
+          };
         }
-      }
-    }));
+      })
+    );
+    this._disposables.add(
+      this._resizeSash.onDidEnd(() => {
+        data = void 0;
+      })
+    );
+    this._disposables.add(
+      this._resizeSash.onDidChange((evt) => {
+        if (data) {
+          const lineDelta = (evt.currentY - data.startY) / this.editor.getOption(EditorOption.lineHeight);
+          const roundedLineDelta = lineDelta < 0 ? Math.ceil(lineDelta) : Math.floor(lineDelta);
+          const newHeightInLines = data.heightInLines + roundedLineDelta;
+          if (newHeightInLines > data.minLines && newHeightInLines < data.maxLines) {
+            this._isSashResizeHeight = true;
+            this._relayout(newHeightInLines);
+          }
+        }
+      })
+    );
   }
   _updateSashEnablement() {
     if (this._resizeSash) {
@@ -454,7 +494,7 @@ class ZoneWidget {
     return 0;
   }
   getHorizontalSashTop() {
-    return (this.domNode.style.height === null ? 0 : parseInt(this.domNode.style.height)) - this._decoratingElementsHeight() / 2;
+    return (this.domNode.style.height === null ? 0 : Number.parseInt(this.domNode.style.height)) - this._decoratingElementsHeight() / 2;
   }
   getHorizontalSashWidth() {
     const layoutInfo = this.editor.getLayoutInfo();

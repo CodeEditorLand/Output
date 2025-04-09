@@ -5,7 +5,7 @@ function isUUID(value) {
   return _UUIDPattern.test(value);
 }
 __name(isUUID, "isUUID");
-const generateUuid = function() {
+const generateUuid = (() => {
   if (typeof crypto.randomUUID === "function") {
     return crypto.randomUUID.bind(crypto);
   }
@@ -42,7 +42,7 @@ const generateUuid = function() {
     result += _hex[_data[i++]];
     return result;
   }, "generateUuid");
-}();
+})();
 export {
   generateUuid,
   isUUID

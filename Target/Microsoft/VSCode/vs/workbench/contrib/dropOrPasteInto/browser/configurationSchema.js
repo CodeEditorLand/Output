@@ -11,8 +11,6 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../../base/common/event.js";
-import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
-import { IJSONSchema } from "../../../../base/common/jsonSchema.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { editorConfigurationBaseNode } from "../../../../editor/common/config/editorConfigurationSchema.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
@@ -20,36 +18,44 @@ import { pasteAsCommandId } from "../../../../editor/contrib/dropOrPasteInto/bro
 import { pasteAsPreferenceConfig } from "../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";
 import { dropAsPreferenceConfig } from "../../../../editor/contrib/dropOrPasteInto/browser/dropIntoEditorController.js";
 import * as nls from "../../../../nls.js";
-import { ConfigurationScope, Extensions, IConfigurationNode, IConfigurationPropertySchema, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  ConfigurationScope,
+  Extensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
 const dropEnumValues = [];
 const dropAsPreferenceSchema = {
   type: "array",
   scope: ConfigurationScope.LANGUAGE_OVERRIDABLE,
-  description: nls.localize("dropPreferredDescription", "Configures the preferred type of edit to use when dropping content.\n\nThis is an ordered list of edit kinds. The first available edit of a preferred kind will be used."),
+  description: nls.localize(
+    "dropPreferredDescription",
+    "Configures the preferred type of edit to use when dropping content.\n\nThis is an ordered list of edit kinds. The first available edit of a preferred kind will be used."
+  ),
   default: [],
   items: {
-    description: nls.localize("dropKind", "The kind identifier of the drop edit."),
-    anyOf: [
-      { type: "string" },
-      { enum: dropEnumValues }
-    ]
+    description: nls.localize(
+      "dropKind",
+      "The kind identifier of the drop edit."
+    ),
+    anyOf: [{ type: "string" }, { enum: dropEnumValues }]
   }
 };
 const pasteEnumValues = [];
 const pasteAsPreferenceSchema = {
   type: "array",
   scope: ConfigurationScope.LANGUAGE_OVERRIDABLE,
-  description: nls.localize("pastePreferredDescription", "Configures the preferred type of edit to use when pasting content.\n\nThis is an ordered list of edit kinds. The first available edit of a preferred kind will be used."),
+  description: nls.localize(
+    "pastePreferredDescription",
+    "Configures the preferred type of edit to use when pasting content.\n\nThis is an ordered list of edit kinds. The first available edit of a preferred kind will be used."
+  ),
   default: [],
   items: {
-    description: nls.localize("pasteKind", "The kind identifier of the paste edit."),
-    anyOf: [
-      { type: "string" },
-      { enum: pasteEnumValues }
-    ]
+    description: nls.localize(
+      "pasteKind",
+      "The kind identifier of the paste edit."
+    ),
+    anyOf: [{ type: "string" }, { enum: pasteEnumValues }]
   }
 };
 const editorConfiguration = Object.freeze({
@@ -66,7 +72,10 @@ let DropOrPasteSchemaContribution = class extends Disposable {
     this._register(
       Event.runAndSubscribe(
         Event.debounce(
-          Event.any(languageFeatures.documentPasteEditProvider.onDidChange, languageFeatures.documentPasteEditProvider.onDidChange),
+          Event.any(
+            languageFeatures.documentPasteEditProvider.onDidChange,
+            languageFeatures.documentPasteEditProvider.onDidChange
+          ),
           () => {
           },
           1e3
@@ -87,7 +96,9 @@ let DropOrPasteSchemaContribution = class extends Disposable {
     __name(this, "DropOrPasteSchemaContribution");
   }
   static ID = "workbench.contrib.dropOrPasteIntoSchema";
-  _onDidChangeSchemaContributions = this._register(new Emitter());
+  _onDidChangeSchemaContributions = this._register(
+    new Emitter()
+  );
   _allProvidedDropKinds = [];
   _allProvidedPasteKinds = [];
   updateProvidedKinds() {
@@ -115,7 +126,9 @@ let DropOrPasteSchemaContribution = class extends Disposable {
     for (const codeActionKind of this._allProvidedDropKinds) {
       dropEnumValues.push(codeActionKind.value);
     }
-    Registry.as(Extensions.Configuration).notifyConfigurationSchemaUpdated(editorConfiguration);
+    Registry.as(
+      Extensions.Configuration
+    ).notifyConfigurationSchemaUpdated(editorConfiguration);
   }
   getKeybindingSchemaAdditions() {
     return [
@@ -123,19 +136,25 @@ let DropOrPasteSchemaContribution = class extends Disposable {
         if: {
           required: ["command"],
           properties: {
-            "command": { const: pasteAsCommandId }
+            command: { const: pasteAsCommandId }
           }
         },
         then: {
           properties: {
-            "args": {
+            args: {
               oneOf: [
                 {
                   required: ["kind"],
                   properties: {
-                    "kind": {
+                    kind: {
                       anyOf: [
-                        { enum: Array.from(this._allProvidedPasteKinds.map((x) => x.value)) },
+                        {
+                          enum: Array.from(
+                            this._allProvidedPasteKinds.map(
+                              (x) => x.value
+                            )
+                          )
+                        },
                         { type: "string" }
                       ]
                     }
@@ -144,11 +163,17 @@ let DropOrPasteSchemaContribution = class extends Disposable {
                 {
                   required: ["preferences"],
                   properties: {
-                    "preferences": {
+                    preferences: {
                       type: "array",
                       items: {
                         anyOf: [
-                          { enum: Array.from(this._allProvidedPasteKinds.map((x) => x.value)) },
+                          {
+                            enum: Array.from(
+                              this._allProvidedPasteKinds.map(
+                                (x) => x.value
+                              )
+                            )
+                          },
                           { type: "string" }
                         ]
                       }

@@ -10,27 +10,33 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import * as fs from "fs";
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
+import * as fs from "node:fs";
 import { equals } from "../../../base/common/arrays.js";
 import { Queue } from "../../../base/common/async.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { Schemas } from "../../../base/common/network.js";
 import { join } from "../../../base/common/path.js";
+import { URI } from "../../../base/common/uri.js";
 import { Promises } from "../../../base/node/pfs.js";
 import { INativeEnvironmentService } from "../../environment/common/environment.js";
-import { IExtensionGalleryService, IExtensionIdentifier, IExtensionManagementService, ILocalExtension } from "../../extensionManagement/common/extensionManagement.js";
+import {
+  IExtensionGalleryService,
+  IExtensionManagementService
+} from "../../extensionManagement/common/extensionManagement.js";
 import { areSameExtensions } from "../../extensionManagement/common/extensionManagementUtil.js";
 import { ILogService } from "../../log/common/log.js";
-import { ILocalizationContribution } from "../../extensions/common/extensions.js";
-import { ILanguagePackItem, LanguagePackBaseService } from "../common/languagePacks.js";
-import { URI } from "../../../base/common/uri.js";
+import {
+  LanguagePackBaseService
+} from "../common/languagePacks.js";
 let NativeLanguagePackService = class extends LanguagePackBaseService {
   constructor(extensionManagementService, environmentService, extensionGalleryService, logService) {
     super(extensionGalleryService);
     this.extensionManagementService = extensionManagementService;
     this.logService = logService;
-    this.cache = this._register(new LanguagePacksCache(environmentService, logService));
+    this.cache = this._register(
+      new LanguagePacksCache(environmentService, logService)
+    );
     this.extensionManagementService.registerParticipant({
       postInstall: /* @__PURE__ */ __name(async (extension) => {
         return this.postInstallExtension(extension);
@@ -56,33 +62,54 @@ let NativeLanguagePackService = class extends LanguagePackBaseService {
   }
   async getInstalledLanguages() {
     const languagePacks = await this.cache.getLanguagePacks();
-    const languages = Object.keys(languagePacks).map((locale) => {
-      const languagePack = languagePacks[locale];
-      const baseQuickPick = this.createQuickPickItem(locale, languagePack.label);
-      return {
-        ...baseQuickPick,
-        extensionId: languagePack.extensions[0].extensionIdentifier.id
-      };
-    });
+    const languages = Object.keys(languagePacks).map(
+      (locale) => {
+        const languagePack = languagePacks[locale];
+        const baseQuickPick = this.createQuickPickItem(
+          locale,
+          languagePack.label
+        );
+        return {
+          ...baseQuickPick,
+          extensionId: languagePack.extensions[0].extensionIdentifier.id
+        };
+      }
+    );
     languages.push(this.createQuickPickItem("en", "English"));
     languages.sort((a, b) => a.label.localeCompare(b.label));
     return languages;
   }
   async postInstallExtension(extension) {
-    if (extension && extension.manifest && extension.manifest.contributes && extension.manifest.contributes.localizations && extension.manifest.contributes.localizations.length) {
-      this.logService.info("Adding language packs from the extension", extension.identifier.id);
+    if (extension?.manifest?.contributes?.localizations?.length) {
+      this.logService.info(
+        "Adding language packs from the extension",
+        extension.identifier.id
+      );
       await this.update();
     }
   }
   async postUninstallExtension(extension) {
     const languagePacks = await this.cache.getLanguagePacks();
-    if (Object.keys(languagePacks).some((language) => languagePacks[language] && languagePacks[language].extensions.some((e) => areSameExtensions(e.extensionIdentifier, extension.identifier)))) {
-      this.logService.info("Removing language packs from the extension", extension.identifier.id);
+    if (Object.keys(languagePacks).some(
+      (language) => languagePacks[language]?.extensions.some(
+        (e) => areSameExtensions(
+          e.extensionIdentifier,
+          extension.identifier
+        )
+      )
+    )) {
+      this.logService.info(
+        "Removing language packs from the extension",
+        extension.identifier.id
+      );
       await this.update();
     }
   }
   async update() {
-    const [current, installed] = await Promise.all([this.cache.getLanguagePacks(), this.extensionManagementService.getInstalled()]);
+    const [current, installed] = await Promise.all([
+      this.cache.getLanguagePacks(),
+      this.extensionManagementService.getInstalled()
+    ]);
     const updated = await this.cache.update(installed);
     return !equals(Object.keys(current), Object.keys(updated));
   }
@@ -97,7 +124,10 @@ let LanguagePacksCache = class extends Disposable {
   constructor(environmentService, logService) {
     super();
     this.logService = logService;
-    this.languagePacksFilePath = join(environmentService.userDataPath, "languagepacks.json");
+    this.languagePacksFilePath = join(
+      environmentService.userDataPath,
+      "languagepacks.json"
+    );
     this.languagePacksFileLimiter = new Queue();
   }
   static {
@@ -115,21 +145,28 @@ let LanguagePacksCache = class extends Disposable {
   }
   update(extensions) {
     return this.withLanguagePacks((languagePacks) => {
-      Object.keys(languagePacks).forEach((language) => delete languagePacks[language]);
-      this.createLanguagePacksFromExtensions(languagePacks, ...extensions);
+      Object.keys(languagePacks).forEach(
+        (language) => delete languagePacks[language]
+      );
+      this.createLanguagePacksFromExtensions(
+        languagePacks,
+        ...extensions
+      );
     }).then(() => this.languagePacks);
   }
   createLanguagePacksFromExtensions(languagePacks, ...extensions) {
     for (const extension of extensions) {
-      if (extension && extension.manifest && extension.manifest.contributes && extension.manifest.contributes.localizations && extension.manifest.contributes.localizations.length) {
+      if (extension?.manifest?.contributes?.localizations?.length) {
         this.createLanguagePacksFromExtension(languagePacks, extension);
       }
     }
-    Object.keys(languagePacks).forEach((languageId) => this.updateHash(languagePacks[languageId]));
+    Object.keys(languagePacks).forEach(
+      (languageId) => this.updateHash(languagePacks[languageId])
+    );
   }
   createLanguagePacksFromExtension(languagePacks, extension) {
     const extensionIdentifier = extension.identifier;
-    const localizations = extension.manifest.contributes && extension.manifest.contributes.localizations ? extension.manifest.contributes.localizations : [];
+    const localizations = extension.manifest.contributes?.localizations ? extension.manifest.contributes.localizations : [];
     for (const localizationContribution of localizations) {
       if (extension.location.scheme === Schemas.file && isValidLocalization(localizationContribution)) {
         let languagePack = languagePacks[localizationContribution.languageId];
@@ -142,14 +179,25 @@ let LanguagePacksCache = class extends Disposable {
           };
           languagePacks[localizationContribution.languageId] = languagePack;
         }
-        const extensionInLanguagePack = languagePack.extensions.filter((e) => areSameExtensions(e.extensionIdentifier, extensionIdentifier))[0];
+        const extensionInLanguagePack = languagePack.extensions.filter(
+          (e) => areSameExtensions(
+            e.extensionIdentifier,
+            extensionIdentifier
+          )
+        )[0];
         if (extensionInLanguagePack) {
           extensionInLanguagePack.version = extension.manifest.version;
         } else {
-          languagePack.extensions.push({ extensionIdentifier, version: extension.manifest.version });
+          languagePack.extensions.push({
+            extensionIdentifier,
+            version: extension.manifest.version
+          });
         }
         for (const translation of localizationContribution.translations) {
-          languagePack.translations[translation.id] = join(extension.location.fsPath, translation.path);
+          languagePack.translations[translation.id] = join(
+            extension.location.fsPath,
+            translation.path
+          );
         }
       }
     }
@@ -158,7 +206,9 @@ let LanguagePacksCache = class extends Disposable {
     if (languagePack) {
       const md5 = createHash("md5");
       for (const extension of languagePack.extensions) {
-        md5.update(extension.extensionIdentifier.uuid || extension.extensionIdentifier.id).update(extension.version);
+        md5.update(
+          extension.extensionIdentifier.uuid || extension.extensionIdentifier.id
+        ).update(extension.version);
       }
       languagePack.hash = md5.digest("hex");
     }
@@ -166,7 +216,10 @@ let LanguagePacksCache = class extends Disposable {
   withLanguagePacks(fn = () => null) {
     return this.languagePacksFileLimiter.queue(() => {
       let result = null;
-      return fs.promises.readFile(this.languagePacksFilePath, "utf8").then(void 0, (err) => err.code === "ENOENT" ? Promise.resolve("{}") : Promise.reject(err)).then((raw) => {
+      return fs.promises.readFile(this.languagePacksFilePath, "utf8").then(
+        void 0,
+        (err) => err.code === "ENOENT" ? Promise.resolve("{}") : Promise.reject(err)
+      ).then((raw) => {
         try {
           return JSON.parse(raw);
         } catch (e) {
@@ -186,7 +239,10 @@ let LanguagePacksCache = class extends Disposable {
         const raw = JSON.stringify(this.languagePacks);
         this.logService.debug("Writing language packs", raw);
         return Promises.writeFile(this.languagePacksFilePath, raw);
-      }).then(() => result, (error) => this.logService.error(error));
+      }).then(
+        () => result,
+        (error) => this.logService.error(error)
+      );
     });
   }
 };

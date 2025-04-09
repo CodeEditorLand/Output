@@ -1,20 +1,22 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { FastDomNode, createFastDomNode } from "../../../../base/browser/fastDomNode.js";
-import { Color } from "../../../../base/common/color.js";
-import { IDisposable } from "../../../../base/common/lifecycle.js";
-import { ViewPart } from "../../view/viewPart.js";
-import { Position } from "../../../common/core/position.js";
-import { IEditorConfiguration } from "../../../common/config/editorConfiguration.js";
-import { TokenizationRegistry } from "../../../common/languages.js";
-import { editorCursorForeground, editorOverviewRulerBorder, editorOverviewRulerBackground, editorMultiCursorSecondaryForeground, editorMultiCursorPrimaryForeground } from "../../../common/core/editorColorRegistry.js";
-import { RenderingContext, RestrictedRenderingContext } from "../../view/renderingContext.js";
-import { ViewContext } from "../../../common/viewModel/viewContext.js";
-import { EditorTheme } from "../../../common/editorTheme.js";
-import * as viewEvents from "../../../common/viewEvents.js";
-import { EditorOption } from "../../../common/config/editorOptions.js";
-import { OverviewRulerDecorationsGroup } from "../../../common/viewModel.js";
+import {
+  createFastDomNode
+} from "../../../../base/browser/fastDomNode.js";
 import { equals } from "../../../../base/common/arrays.js";
+import { Color } from "../../../../base/common/color.js";
+import { EditorOption } from "../../../common/config/editorOptions.js";
+import {
+  editorCursorForeground,
+  editorMultiCursorPrimaryForeground,
+  editorMultiCursorSecondaryForeground,
+  editorOverviewRulerBackground,
+  editorOverviewRulerBorder
+} from "../../../common/core/editorColorRegistry.js";
+import { Position } from "../../../common/core/position.js";
+import { TokenizationRegistry } from "../../../common/languages.js";
+import { OverviewRulerDecorationsGroup } from "../../../common/viewModel.js";
+import { ViewPart } from "../../view/viewPart.js";
 class Settings {
   static {
     __name(this, "Settings");
@@ -49,9 +51,13 @@ class Settings {
     this.hideCursor = options.get(EditorOption.hideCursorInOverviewRuler);
     const cursorColorSingle = theme.getColor(editorCursorForeground);
     this.cursorColorSingle = cursorColorSingle ? cursorColorSingle.transparent(0.7).toString() : null;
-    const cursorColorPrimary = theme.getColor(editorMultiCursorPrimaryForeground);
+    const cursorColorPrimary = theme.getColor(
+      editorMultiCursorPrimaryForeground
+    );
     this.cursorColorPrimary = cursorColorPrimary ? cursorColorPrimary.transparent(0.7).toString() : null;
-    const cursorColorSecondary = theme.getColor(editorMultiCursorSecondaryForeground);
+    const cursorColorSecondary = theme.getColor(
+      editorMultiCursorSecondaryForeground
+    );
     this.cursorColorSecondary = cursorColorSecondary ? cursorColorSecondary.transparent(0.7).toString() : null;
     this.themeType = theme.type;
     const minimapOpts = options.get(EditorOption.minimap);
@@ -79,7 +85,11 @@ class Settings {
       this.canvasWidth = this.domWidth * this.pixelRatio | 0;
       this.canvasHeight = this.domHeight * this.pixelRatio | 0;
     }
-    const [x, w] = this._initLanes(1, this.canvasWidth, this.overviewRulerLanes);
+    const [x, w] = this._initLanes(
+      1,
+      this.canvasWidth,
+      this.overviewRulerLanes
+    );
     this.x = x;
     this.w = w;
   }
@@ -251,20 +261,30 @@ class DecorationsOverviewRuler extends ViewPart {
     this._domNode.setContain("strict");
     this._domNode.setAttribute("aria-hidden", "true");
     this._updateSettings(false);
-    this._tokensColorTrackerListener = TokenizationRegistry.onDidChange((e) => {
-      if (e.changedColorMap) {
-        this._updateSettings(true);
+    this._tokensColorTrackerListener = TokenizationRegistry.onDidChange(
+      (e) => {
+        if (e.changedColorMap) {
+          this._updateSettings(true);
+        }
       }
-    });
-    this._cursorPositions = [{ position: new Position(1, 1), color: this._settings.cursorColorSingle }];
+    );
+    this._cursorPositions = [
+      {
+        position: new Position(1, 1),
+        color: this._settings.cursorColorSingle
+      }
+    ];
   }
   dispose() {
     super.dispose();
     this._tokensColorTrackerListener.dispose();
   }
   _updateSettings(renderNow) {
-    const newSettings = new Settings(this._context.configuration, this._context.theme);
-    if (this._settings && this._settings.equals(newSettings)) {
+    const newSettings = new Settings(
+      this._context.configuration,
+      this._context.theme
+    );
+    if (this._settings?.equals(newSettings)) {
       return false;
     }
     this._settings = newSettings;
@@ -298,9 +318,14 @@ class DecorationsOverviewRuler extends ViewPart {
       if (len > 1) {
         color = i === 0 ? this._settings.cursorColorPrimary : this._settings.cursorColorSecondary;
       }
-      this._cursorPositions.push({ position: e.selections[i].getPosition(), color });
+      this._cursorPositions.push({
+        position: e.selections[i].getPosition(),
+        color
+      });
     }
-    this._cursorPositions.sort((a, b) => Position.compare(a.position, b.position));
+    this._cursorPositions.sort(
+      (a, b) => Position.compare(a.position, b.position)
+    );
     return this._markRenderingIsMaybeNeeded();
   }
   onDecorationsChanged(e) {
@@ -334,16 +359,27 @@ class DecorationsOverviewRuler extends ViewPart {
   _render() {
     const backgroundColor = this._settings.backgroundColor;
     if (this._settings.overviewRulerLanes === 0) {
-      this._domNode.setBackgroundColor(backgroundColor ? Color.Format.CSS.formatHexA(backgroundColor) : "");
+      this._domNode.setBackgroundColor(
+        backgroundColor ? Color.Format.CSS.formatHexA(backgroundColor) : ""
+      );
       this._domNode.setDisplay("none");
       return;
     }
-    const decorations = this._context.viewModel.getAllOverviewRulerDecorations(this._context.theme);
+    const decorations = this._context.viewModel.getAllOverviewRulerDecorations(
+      this._context.theme
+    );
     decorations.sort(OverviewRulerDecorationsGroup.compareByRenderingProps);
-    if (this._actualShouldRender === 1 /* Maybe */ && !OverviewRulerDecorationsGroup.equalsArr(this._renderedDecorations, decorations)) {
+    if (this._actualShouldRender === 1 /* Maybe */ && !OverviewRulerDecorationsGroup.equalsArr(
+      this._renderedDecorations,
+      decorations
+    )) {
       this._actualShouldRender = 2 /* Needed */;
     }
-    if (this._actualShouldRender === 1 /* Maybe */ && !equals(this._renderedCursorPositions, this._cursorPositions, (a, b) => a.position.lineNumber === b.position.lineNumber && a.color === b.color)) {
+    if (this._actualShouldRender === 1 /* Maybe */ && !equals(
+      this._renderedCursorPositions,
+      this._cursorPositions,
+      (a, b) => a.position.lineNumber === b.position.lineNumber && a.color === b.color
+    )) {
       this._actualShouldRender = 2 /* Needed */;
     }
     if (this._actualShouldRender === 1 /* Maybe */) {
@@ -386,7 +422,9 @@ class DecorationsOverviewRuler extends ViewPart {
         const lane = decorationGroupData[3 * i];
         const startLineNumber = decorationGroupData[3 * i + 1];
         const endLineNumber = decorationGroupData[3 * i + 2];
-        let y1 = viewLayout.getVerticalOffsetForLineNumber(startLineNumber) * heightRatio | 0;
+        let y1 = viewLayout.getVerticalOffsetForLineNumber(
+          startLineNumber
+        ) * heightRatio | 0;
         let y2 = (viewLayout.getVerticalOffsetForLineNumber(endLineNumber) + lineHeight) * heightRatio | 0;
         const height = y2 - y1;
         if (height < minDecorationHeight) {
@@ -401,7 +439,12 @@ class DecorationsOverviewRuler extends ViewPart {
         }
         if (y1 > prevY2 + 1 || lane !== prevLane) {
           if (i !== 0) {
-            canvasCtx.fillRect(x[prevLane], prevY1, w[prevLane], prevY2 - prevY1);
+            canvasCtx.fillRect(
+              x[prevLane],
+              prevY1,
+              w[prevLane],
+              prevY2 - prevY1
+            );
           }
           prevLane = lane;
           prevY1 = y1;
@@ -412,7 +455,12 @@ class DecorationsOverviewRuler extends ViewPart {
           }
         }
       }
-      canvasCtx.fillRect(x[prevLane], prevY1, w[prevLane], prevY2 - prevY1);
+      canvasCtx.fillRect(
+        x[prevLane],
+        prevY1,
+        w[prevLane],
+        prevY2 - prevY1
+      );
     }
     if (!this._settings.hideCursor) {
       const cursorHeight = 2 * this._settings.pixelRatio | 0;
@@ -428,7 +476,9 @@ class DecorationsOverviewRuler extends ViewPart {
           continue;
         }
         const cursor = this._cursorPositions[i].position;
-        let yCenter = viewLayout.getVerticalOffsetForLineNumber(cursor.lineNumber) * heightRatio | 0;
+        let yCenter = viewLayout.getVerticalOffsetForLineNumber(
+          cursor.lineNumber
+        ) * heightRatio | 0;
         if (yCenter < halfCursorHeight) {
           yCenter = halfCursorHeight;
         } else if (yCenter + halfCursorHeight > canvasHeight) {
@@ -438,7 +488,12 @@ class DecorationsOverviewRuler extends ViewPart {
         const y2 = y1 + cursorHeight;
         if (y1 > prevY2 + 1 || color !== prevColor) {
           if (i !== 0 && prevColor) {
-            canvasCtx.fillRect(cursorX, prevY1, cursorW, prevY2 - prevY1);
+            canvasCtx.fillRect(
+              cursorX,
+              prevY1,
+              cursorW,
+              prevY2 - prevY1
+            );
           }
           prevY1 = y1;
           prevY2 = y2;

@@ -1,11 +1,17 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { EditorInput } from "../../../common/editor/editorInput.js";
-import { localize } from "../../../../nls.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
 import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
 import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
-const DisassemblyEditorIcon = registerIcon("disassembly-editor-label-icon", Codicon.debug, localize("disassemblyEditorLabelIcon", "Icon of the disassembly editor label."));
+import { EditorInput } from "../../../common/editor/editorInput.js";
+const DisassemblyEditorIcon = registerIcon(
+  "disassembly-editor-label-icon",
+  Codicon.debug,
+  localize(
+    "disassemblyEditorLabelIcon",
+    "Icon of the disassembly editor label."
+  )
+);
 class DisassemblyViewInput extends EditorInput {
   static {
     __name(this, "DisassemblyViewInput");

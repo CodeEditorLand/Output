@@ -17,12 +17,21 @@ import { IInstantiationService } from "../../../../platform/instantiation/common
 import { IMainProcessService } from "../../../../platform/ipc/common/mainProcessService.js";
 import { ILabelService } from "../../../../platform/label/common/label.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { INativeMcpDiscoveryHelperService, NativeMcpDiscoveryHelperChannelName } from "../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";
+import {
+  NativeMcpDiscoveryHelperChannelName
+} from "../../../../platform/mcp/common/nativeMcpDiscoveryHelper.js";
 import { NativeFilesystemMcpDiscovery } from "../common/discovery/nativeMcpDiscoveryAbstract.js";
 import { IMcpRegistry } from "../common/mcpRegistryTypes.js";
 let NativeMcpDiscovery = class extends NativeFilesystemMcpDiscovery {
   constructor(mainProcess, logService, labelService, fileService, instantiationService, mcpRegistry, configurationService) {
-    super(null, labelService, fileService, instantiationService, mcpRegistry, configurationService);
+    super(
+      null,
+      labelService,
+      fileService,
+      instantiationService,
+      mcpRegistry,
+      configurationService
+    );
     this.mainProcess = mainProcess;
     this.logService = logService;
   }
@@ -31,12 +40,17 @@ let NativeMcpDiscovery = class extends NativeFilesystemMcpDiscovery {
   }
   start() {
     const service = ProxyChannel.toService(
-      this.mainProcess.getChannel(NativeMcpDiscoveryHelperChannelName)
+      this.mainProcess.getChannel(
+        NativeMcpDiscoveryHelperChannelName
+      )
     );
     service.load().then(
       (data) => this.setDetails(data),
       (err) => {
-        this.logService.warn("Error getting main process MCP environment", err);
+        this.logService.warn(
+          "Error getting main process MCP environment",
+          err
+        );
         this.setDetails(void 0);
       }
     );

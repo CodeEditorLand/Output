@@ -1,7 +1,8 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ExtensionKind } from "../../../../platform/environment/common/environment.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../../platform/extensions/common/extensions.js";
+import {
+  ExtensionIdentifier
+} from "../../../../platform/extensions/common/extensions.js";
 var ExtensionHostKind = /* @__PURE__ */ ((ExtensionHostKind2) => {
   ExtensionHostKind2[ExtensionHostKind2["LocalProcess"] = 1] = "LocalProcess";
   ExtensionHostKind2[ExtensionHostKind2["LocalWebWorker"] = 2] = "LocalWebWorker";
@@ -40,8 +41,14 @@ function extensionRunningPreferenceToString(preference) {
 }
 __name(extensionRunningPreferenceToString, "extensionRunningPreferenceToString");
 function determineExtensionHostKinds(_localExtensions, _remoteExtensions, getExtensionKind, pickExtensionHostKind) {
-  const localExtensions = toExtensionWithKind(_localExtensions, getExtensionKind);
-  const remoteExtensions = toExtensionWithKind(_remoteExtensions, getExtensionKind);
+  const localExtensions = toExtensionWithKind(
+    _localExtensions,
+    getExtensionKind
+  );
+  const remoteExtensions = toExtensionWithKind(
+    _remoteExtensions,
+    getExtensionKind
+  );
   const allExtensions = /* @__PURE__ */ new Map();
   const collectExtension = /* @__PURE__ */ __name((ext) => {
     if (allExtensions.has(ext.key)) {
@@ -58,15 +65,28 @@ function determineExtensionHostKinds(_localExtensions, _remoteExtensions, getExt
   allExtensions.forEach((ext) => {
     const isInstalledLocally = Boolean(ext.local);
     const isInstalledRemotely = Boolean(ext.remote);
-    const isLocallyUnderDevelopment = Boolean(ext.local && ext.local.isUnderDevelopment);
-    const isRemotelyUnderDevelopment = Boolean(ext.remote && ext.remote.isUnderDevelopment);
+    const isLocallyUnderDevelopment = Boolean(
+      ext.local?.isUnderDevelopment
+    );
+    const isRemotelyUnderDevelopment = Boolean(
+      ext.remote?.isUnderDevelopment
+    );
     let preference = 0 /* None */;
     if (isLocallyUnderDevelopment && !isRemotelyUnderDevelopment) {
       preference = 1 /* Local */;
     } else if (isRemotelyUnderDevelopment && !isLocallyUnderDevelopment) {
       preference = 2 /* Remote */;
     }
-    extensionHostKinds.set(ext.key, pickExtensionHostKind(ext.identifier, ext.kind, isInstalledLocally, isInstalledRemotely, preference));
+    extensionHostKinds.set(
+      ext.key,
+      pickExtensionHostKind(
+        ext.identifier,
+        ext.kind,
+        isInstalledLocally,
+        isInstalledRemotely,
+        preference
+      )
+    );
   });
   return extensionHostKinds;
 }
@@ -107,19 +127,19 @@ class ExtensionInfo {
     if (this.local) {
       return this.local.key;
     }
-    return this.remote.key;
+    return this.remote?.key;
   }
   get identifier() {
     if (this.local) {
       return this.local.desc.identifier;
     }
-    return this.remote.desc.identifier;
+    return this.remote?.desc.identifier;
   }
   get kind() {
     if (this.local) {
       return this.local.kind;
     }
-    return this.remote.kind;
+    return this.remote?.kind;
   }
 }
 export {

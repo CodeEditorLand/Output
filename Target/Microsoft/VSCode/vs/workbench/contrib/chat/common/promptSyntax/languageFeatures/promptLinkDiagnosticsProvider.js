@@ -10,25 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IPromptsService } from "../service/types.js";
 import { assert } from "../../../../../../base/common/assert.js";
-import { NotPromptFile } from "../../promptFileReferenceErrors.js";
-import { ITextModel } from "../../../../../../editor/common/model.js";
-import { assertDefined } from "../../../../../../base/common/types.js";
 import { Disposable } from "../../../../../../base/common/lifecycle.js";
-import { IEditor } from "../../../../../../editor/common/editorCommon.js";
 import { ObjectCache } from "../../../../../../base/common/objectCache.js";
-import { TextModelPromptParser } from "../parsers/textModelPromptParser.js";
-import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import { ObservableDisposable } from "../../../../../../base/common/observableDisposable.js";
+import { assertDefined } from "../../../../../../base/common/types.js";
+import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import {
+  IMarkerService,
+  MarkerSeverity
+} from "../../../../../../platform/markers/common/markers.js";
 import { PromptsConfig } from "../../../../../../platform/prompts/common/config.js";
 import { isPromptFile } from "../../../../../../platform/prompts/common/constants.js";
-import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
+import { Registry } from "../../../../../../platform/registry/common/platform.js";
+import {
+  Extensions
+} from "../../../../../common/contributions.js";
 import { IEditorService } from "../../../../../services/editor/common/editorService.js";
-import { ObservableDisposable } from "../../../../../../base/common/observableDisposable.js";
-import { IWorkbenchContributionsRegistry, Extensions } from "../../../../../common/contributions.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
-import { IConfigurationService } from "../../../../../../platform/configuration/common/configuration.js";
-import { IMarkerData, IMarkerService, MarkerSeverity } from "../../../../../../platform/markers/common/markers.js";
+import { LifecyclePhase } from "../../../../../services/lifecycle/common/lifecycle.js";
+import { NotPromptFile } from "../../promptFileReferenceErrors.js";
+import { IPromptsService } from "../service/types.js";
 const MARKERS_OWNER_ID = "reusable-prompts-syntax";
 let PromptLinkDiagnosticsProvider = class extends ObservableDisposable {
   constructor(editor, markerService, promptsService) {
@@ -77,14 +79,8 @@ PromptLinkDiagnosticsProvider = __decorateClass([
 ], PromptLinkDiagnosticsProvider);
 const toMarker = /* @__PURE__ */ __name((link) => {
   const { topError, linkRange } = link;
-  assertDefined(
-    topError,
-    "Top error must to be defined."
-  );
-  assertDefined(
-    linkRange,
-    "Link range must to be defined."
-  );
+  assertDefined(topError, "Top error must to be defined.");
+  assertDefined(linkRange, "Link range must to be defined.");
   const { originalError } = topError;
   assert(
     !(originalError instanceof NotPromptFile),
@@ -122,14 +118,18 @@ let PromptLinkDiagnosticsInstanceManager = class extends Disposable {
     if (!PromptsConfig.enabled(configService)) {
       return;
     }
-    this._register(editorService.onDidActiveEditorChange(() => {
-      const { activeTextEditorControl } = editorService;
-      if (!activeTextEditorControl) {
-        return;
-      }
-      this.handleNewEditor(activeTextEditorControl);
-    }));
-    editorService.visibleTextEditorControls.forEach(this.handleNewEditor.bind(this));
+    this._register(
+      editorService.onDidActiveEditorChange(() => {
+        const { activeTextEditorControl } = editorService;
+        if (!activeTextEditorControl) {
+          return;
+        }
+        this.handleNewEditor(activeTextEditorControl);
+      })
+    );
+    editorService.visibleTextEditorControls.forEach(
+      this.handleNewEditor.bind(this)
+    );
   }
   /**
    * Initialize a new {@link PromptLinkDiagnosticsProvider} for the given editor.
@@ -154,7 +154,12 @@ PromptLinkDiagnosticsInstanceManager = __decorateClass([
   __decorateParam(1, IInstantiationService),
   __decorateParam(2, IConfigurationService)
 ], PromptLinkDiagnosticsInstanceManager);
-Registry.as(Extensions.Workbench).registerWorkbenchContribution(PromptLinkDiagnosticsInstanceManager, LifecyclePhase.Eventually);
+Registry.as(
+  Extensions.Workbench
+).registerWorkbenchContribution(
+  PromptLinkDiagnosticsInstanceManager,
+  LifecyclePhase.Eventually
+);
 export {
   PromptLinkDiagnosticsInstanceManager
 };

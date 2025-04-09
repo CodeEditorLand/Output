@@ -10,12 +10,15 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
-import { URI } from "../../../../base/common/uri.js";
-import { isMacintosh } from "../../../../base/common/platform.js";
-import { InstantiationType, registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
-import { INativeHostService } from "../../../../platform/native/common/native.js";
 import { VSBuffer } from "../../../../base/common/buffer.js";
+import { isMacintosh } from "../../../../base/common/platform.js";
+import { URI } from "../../../../base/common/uri.js";
+import { IClipboardService } from "../../../../platform/clipboard/common/clipboardService.js";
+import {
+  InstantiationType,
+  registerSingleton
+} from "../../../../platform/instantiation/common/extensions.js";
+import { INativeHostService } from "../../../../platform/native/common/native.js";
 let NativeClipboardService = class {
   constructor(nativeHostService) {
     this.nativeHostService = nativeHostService;
@@ -49,17 +52,28 @@ let NativeClipboardService = class {
   }
   async writeResources(resources) {
     if (resources.length) {
-      return this.nativeHostService.writeClipboardBuffer(NativeClipboardService.FILE_FORMAT, this.resourcesToBuffer(resources));
+      return this.nativeHostService.writeClipboardBuffer(
+        NativeClipboardService.FILE_FORMAT,
+        this.resourcesToBuffer(resources)
+      );
     }
   }
   async readResources() {
-    return this.bufferToResources(await this.nativeHostService.readClipboardBuffer(NativeClipboardService.FILE_FORMAT));
+    return this.bufferToResources(
+      await this.nativeHostService.readClipboardBuffer(
+        NativeClipboardService.FILE_FORMAT
+      )
+    );
   }
   async hasResources() {
-    return this.nativeHostService.hasClipboard(NativeClipboardService.FILE_FORMAT);
+    return this.nativeHostService.hasClipboard(
+      NativeClipboardService.FILE_FORMAT
+    );
   }
   resourcesToBuffer(resources) {
-    return VSBuffer.fromString(resources.map((r) => r.toString()).join("\n"));
+    return VSBuffer.fromString(
+      resources.map((r) => r.toString()).join("\n")
+    );
   }
   bufferToResources(buffer) {
     if (!buffer) {
@@ -79,7 +93,11 @@ let NativeClipboardService = class {
 NativeClipboardService = __decorateClass([
   __decorateParam(0, INativeHostService)
 ], NativeClipboardService);
-registerSingleton(IClipboardService, NativeClipboardService, InstantiationType.Delayed);
+registerSingleton(
+  IClipboardService,
+  NativeClipboardService,
+  InstantiationType.Delayed
+);
 export {
   NativeClipboardService
 };

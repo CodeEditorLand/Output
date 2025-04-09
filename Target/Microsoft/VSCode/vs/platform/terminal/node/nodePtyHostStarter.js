@@ -12,11 +12,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
 import { FileAccess, Schemas } from "../../../base/common/network.js";
-import { Client, IIPCOptions } from "../../../base/parts/ipc/node/ipc.cp.js";
-import { IEnvironmentService, INativeEnvironmentService } from "../../environment/common/environment.js";
+import {
+  Client
+} from "../../../base/parts/ipc/node/ipc.cp.js";
+import {
+  IEnvironmentService
+} from "../../environment/common/environment.js";
 import { parsePtyHostDebugPort } from "../../environment/node/environmentService.js";
-import { IReconnectConstants } from "../common/terminal.js";
-import { IPtyHostConnection, IPtyHostStarter } from "./ptyHost.js";
 let NodePtyHostStarter = class extends Disposable {
   constructor(_reconnectConstants, _environmentService) {
     super();
@@ -29,7 +31,11 @@ let NodePtyHostStarter = class extends Disposable {
   start() {
     const opts = {
       serverName: "Pty Host",
-      args: ["--type=ptyHost", "--logsPath", this._environmentService.logsHome.with({ scheme: Schemas.file }).fsPath],
+      args: [
+        "--type=ptyHost",
+        "--logsPath",
+        this._environmentService.logsHome.with({ scheme: Schemas.file }).fsPath
+      ],
       env: {
         VSCODE_ESM_ENTRYPOINT: "vs/platform/terminal/node/ptyHostMain",
         VSCODE_PIPE_LOGGING: "true",
@@ -40,7 +46,10 @@ let NodePtyHostStarter = class extends Disposable {
         VSCODE_RECONNECT_SCROLLBACK: this._reconnectConstants.scrollback
       }
     };
-    const ptyHostDebug = parsePtyHostDebugPort(this._environmentService.args, this._environmentService.isBuilt);
+    const ptyHostDebug = parsePtyHostDebugPort(
+      this._environmentService.args,
+      this._environmentService.isBuilt
+    );
     if (ptyHostDebug) {
       if (ptyHostDebug.break && ptyHostDebug.port) {
         opts.debugBrk = ptyHostDebug.port;
@@ -48,7 +57,10 @@ let NodePtyHostStarter = class extends Disposable {
         opts.debug = ptyHostDebug.port;
       }
     }
-    const client = new Client(FileAccess.asFileUri("bootstrap-fork").fsPath, opts);
+    const client = new Client(
+      FileAccess.asFileUri("bootstrap-fork").fsPath,
+      opts
+    );
     const store = new DisposableStore();
     store.add(client);
     return {

@@ -1,15 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { StandardMouseEvent } from "../../../../base/browser/mouseEvent.js";
-import { ActionRunner, IAction } from "../../../../base/common/actions.js";
+import { ActionRunner } from "../../../../base/common/actions.js";
 import { asArray } from "../../../../base/common/arrays.js";
 import { MarshalledId } from "../../../../base/common/marshallingIds.js";
-import { SingleOrMany } from "../../../../base/common/types.js";
 import { getFlatContextMenuActions } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { IMenu } from "../../../../platform/actions/common/actions.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { ITerminalInstance } from "./terminal.js";
-import { ISerializedTerminalInstanceContext } from "../common/terminal.js";
 class InstanceContext {
   static {
     __name(this, "InstanceContext");
@@ -40,7 +35,9 @@ class TerminalContextActionRunner extends ActionRunner {
 }
 function openContextMenu(targetWindow, event, contextInstances, menu, contextMenuService, extraActions) {
   const standardEvent = new StandardMouseEvent(targetWindow, event);
-  const actions = getFlatContextMenuActions(menu.getActions({ shouldForwardArgs: true }));
+  const actions = getFlatContextMenuActions(
+    menu.getActions({ shouldForwardArgs: true })
+  );
   if (extraActions) {
     actions.push(...extraActions);
   }

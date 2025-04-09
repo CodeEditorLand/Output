@@ -1,12 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { assert } from "../assert.js";
-import { Emitter } from "../event.js";
-import { IDisposable } from "../lifecycle.js";
-import { ReadableStream } from "../stream.js";
 import { DeferredPromise } from "../async.js";
-import { AsyncDecoder } from "./asyncDecoder.js";
+import { Emitter } from "../event.js";
 import { ObservableDisposable } from "../observableDisposable.js";
+import { AsyncDecoder } from "./asyncDecoder.js";
 class BaseDecoder extends ObservableDisposable {
   /**
    * @param stream The input stream to decode.
@@ -65,10 +63,7 @@ class BaseDecoder extends ObservableDisposable {
    * @throws if the decoder stream has already ended.
    */
   start() {
-    assert(
-      !this._ended,
-      "Cannot start stream that has already ended."
-    );
+    assert(!this._ended, "Cannot start stream that has already ended.");
     assert(
       !this.disposed,
       "Cannot start stream that has already disposed."

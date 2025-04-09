@@ -10,16 +10,17 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { URI } from "../../../../base/common/uri.js";
-import { IModelService } from "../../../../editor/common/services/model.js";
-import { ResourceMap } from "../../../../base/common/map.js";
+import { Emitter } from "../../../../base/common/event.js";
 import { DisposableStore } from "../../../../base/common/lifecycle.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { ResourceEdit, ResourceFileEdit, ResourceTextEdit } from "../../../../editor/browser/services/bulkEditService.js";
-import { ResourceNotebookCellEdit } from "./bulkCellEdits.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import {
+  ResourceFileEdit,
+  ResourceTextEdit
+} from "../../../../editor/browser/services/bulkEditService.js";
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
+import { ResourceNotebookCellEdit } from "./bulkCellEdits.js";
 let ConflictDetector = class {
   static {
     __name(this, "ConflictDetector");
@@ -52,15 +53,17 @@ let ConflictDetector = class {
         logService.warn("UNKNOWN edit type", edit);
       }
     }
-    this._disposables.add(fileService.onDidFilesChange((e) => {
-      for (const uri of _workspaceEditResources.keys()) {
-        if (!modelService.getModel(uri) && e.contains(uri)) {
-          this._conflicts.set(uri, true);
-          this._onDidConflict.fire(this);
-          break;
+    this._disposables.add(
+      fileService.onDidFilesChange((e) => {
+        for (const uri of _workspaceEditResources.keys()) {
+          if (!modelService.getModel(uri) && e.contains(uri)) {
+            this._conflicts.set(uri, true);
+            this._onDidConflict.fire(this);
+            break;
+          }
         }
-      }
-    }));
+      })
+    );
     const onDidChangeModel = /* @__PURE__ */ __name((model) => {
       if (_workspaceEditResources.has(model.uri)) {
         this._conflicts.set(model.uri, true);
@@ -68,7 +71,9 @@ let ConflictDetector = class {
       }
     }, "onDidChangeModel");
     for (const model of modelService.getModels()) {
-      this._disposables.add(model.onDidChangeContent(() => onDidChangeModel(model)));
+      this._disposables.add(
+        model.onDidChangeContent(() => onDidChangeModel(model))
+      );
     }
   }
   dispose() {

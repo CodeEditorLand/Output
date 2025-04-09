@@ -11,65 +11,103 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./output.css";
-import * as nls from "../../../../nls.js";
-import { ICodeEditor } from "../../../../editor/browser/editorBrowser.js";
-import { IEditorOptions as ICodeEditorOptions } from "../../../../editor/common/config/editorOptions.js";
-import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IContextKeyService, IContextKey, ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { IEditorOpenContext } from "../../../common/editor.js";
-import { AbstractTextResourceEditor } from "../../../browser/parts/editor/textResourceEditor.js";
-import { OUTPUT_VIEW_ID, CONTEXT_IN_OUTPUT, IOutputChannel, CONTEXT_OUTPUT_SCROLL_LOCK, IOutputService, IOutputViewFilters, OUTPUT_FILTER_FOCUS_CONTEXT, ILogEntry, HIDE_CATEGORY_FILTER_CONTEXT } from "../../../services/output/common/output.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
-import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
-import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IEditorService } from "../../../services/editor/common/editorService.js";
-import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
-import { IViewPaneOptions, FilterViewPane } from "../../../browser/parts/views/viewPane.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IViewDescriptorService } from "../../../common/views.js";
-import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
-import { IOpenerService } from "../../../../platform/opener/common/opener.js";
 import { Dimension } from "../../../../base/browser/dom.js";
-import { ITextEditorOptions } from "../../../../platform/editor/common/editor.js";
-import { CancelablePromise, createCancelablePromise } from "../../../../base/common/async.js";
-import { IFileService } from "../../../../platform/files/common/files.js";
-import { ResourceContextKey } from "../../../common/contextkeys.js";
-import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
-import { IEditorConfiguration } from "../../../browser/parts/editor/textEditor.js";
-import { computeEditorAriaLabel } from "../../../browser/editor.js";
-import { IHoverService } from "../../../../platform/hover/browser/hover.js";
-import { localize } from "../../../../nls.js";
-import { Disposable, DisposableStore } from "../../../../base/common/lifecycle.js";
-import { LogLevel } from "../../../../platform/log/common/log.js";
-import { IEditorContributionDescription, EditorExtensionsRegistry, EditorContributionInstantiation, EditorContributionCtor } from "../../../../editor/browser/editorExtensions.js";
-import { ICodeEditorWidgetOptions } from "../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
-import { IEditorContribution, IEditorDecorationsCollection } from "../../../../editor/common/editorCommon.js";
-import { IModelDeltaDecoration, ITextModel } from "../../../../editor/common/model.js";
-import { Range } from "../../../../editor/common/core/range.js";
-import { FindDecorations } from "../../../../editor/contrib/find/browser/findDecorations.js";
-import { Memento, MementoObject } from "../../../common/memento.js";
-import { Markers } from "../../markers/common/markers.js";
-import { Action2, registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { viewFilterSubmenu } from "../../../browser/parts/views/viewFilter.js";
+import {
+  createCancelablePromise
+} from "../../../../base/common/async.js";
+import {
+  Disposable,
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
 import { escapeRegExpCharacters } from "../../../../base/common/strings.js";
+import {
+  EditorContributionInstantiation,
+  EditorExtensionsRegistry
+} from "../../../../editor/browser/editorExtensions.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { CursorChangeReason } from "../../../../editor/common/cursorEvents.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { FindDecorations } from "../../../../editor/contrib/find/browser/findDecorations.js";
+import * as nls from "../../../../nls.js";
+import { localize } from "../../../../nls.js";
+import {
+  Action2,
+  registerAction2
+} from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  ContextKeyExpr,
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { LogLevel } from "../../../../platform/log/common/log.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { computeEditorAriaLabel } from "../../../browser/editor.js";
+import { AbstractTextResourceEditor } from "../../../browser/parts/editor/textResourceEditor.js";
+import { viewFilterSubmenu } from "../../../browser/parts/views/viewFilter.js";
+import {
+  FilterViewPane
+} from "../../../browser/parts/views/viewPane.js";
+import { ResourceContextKey } from "../../../common/contextkeys.js";
+import { TextResourceEditorInput } from "../../../common/editor/textResourceEditorInput.js";
+import { Memento } from "../../../common/memento.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  CONTEXT_IN_OUTPUT,
+  CONTEXT_OUTPUT_SCROLL_LOCK,
+  HIDE_CATEGORY_FILTER_CONTEXT,
+  IOutputService,
+  OUTPUT_FILTER_FOCUS_CONTEXT,
+  OUTPUT_VIEW_ID
+} from "../../../services/output/common/output.js";
+import { Markers } from "../../markers/common/markers.js";
 let OutputViewPane = class extends FilterViewPane {
   constructor(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService, outputService, storageService) {
-    const memento = new Memento(Markers.MARKERS_VIEW_STORAGE_ID, storageService);
-    const viewState = memento.getMemento(StorageScope.WORKSPACE, StorageTarget.MACHINE);
-    super({
-      ...options,
-      filterOptions: {
-        placeholder: localize("outputView.filter.placeholder", "Filter"),
-        focusContextKey: OUTPUT_FILTER_FOCUS_CONTEXT.key,
-        text: viewState["filter"] || "",
-        history: []
-      }
-    }, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    const memento = new Memento(
+      Markers.MARKERS_VIEW_STORAGE_ID,
+      storageService
+    );
+    const viewState = memento.getMemento(
+      StorageScope.WORKSPACE,
+      StorageTarget.MACHINE
+    );
+    super(
+      {
+        ...options,
+        filterOptions: {
+          placeholder: localize(
+            "outputView.filter.placeholder",
+            "Filter"
+          ),
+          focusContextKey: OUTPUT_FILTER_FOCUS_CONTEXT.key,
+          text: viewState["filter"] || "",
+          history: []
+        }
+      },
+      keybindingService,
+      contextMenuService,
+      configurationService,
+      contextKeyService,
+      viewDescriptorService,
+      instantiationService,
+      openerService,
+      themeService,
+      hoverService
+    );
     this.outputService = outputService;
     this.memento = memento;
     this.panelState = viewState;
@@ -81,17 +119,40 @@ let OutputViewPane = class extends FilterViewPane {
     filters.warning = this.panelState["showWarning"] ?? true;
     filters.error = this.panelState["showError"] ?? true;
     filters.categories = this.panelState["categories"] ?? "";
-    this.scrollLockContextKey = CONTEXT_OUTPUT_SCROLL_LOCK.bindTo(this.contextKeyService);
-    const editorInstantiationService = this._register(instantiationService.createChild(new ServiceCollection([IContextKeyService, this.scopedContextKeyService])));
-    this.editor = this._register(editorInstantiationService.createInstance(OutputEditor));
-    this._register(this.editor.onTitleAreaUpdate(() => {
-      this.updateTitle(this.editor.getTitle());
-      this.updateActions();
-    }));
-    this._register(this.onDidChangeBodyVisibility(() => this.onDidChangeVisibility(this.isBodyVisible())));
-    this._register(this.filterWidget.onDidChangeFilterText((text) => outputService.filters.text = text));
+    this.scrollLockContextKey = CONTEXT_OUTPUT_SCROLL_LOCK.bindTo(
+      this.contextKeyService
+    );
+    const editorInstantiationService = this._register(
+      instantiationService.createChild(
+        new ServiceCollection([
+          IContextKeyService,
+          this.scopedContextKeyService
+        ])
+      )
+    );
+    this.editor = this._register(
+      editorInstantiationService.createInstance(OutputEditor)
+    );
+    this._register(
+      this.editor.onTitleAreaUpdate(() => {
+        this.updateTitle(this.editor.getTitle());
+        this.updateActions();
+      })
+    );
+    this._register(
+      this.onDidChangeBodyVisibility(
+        () => this.onDidChangeVisibility(this.isBodyVisible())
+      )
+    );
+    this._register(
+      this.filterWidget.onDidChangeFilterText(
+        (text) => outputService.filters.text = text
+      )
+    );
     this.checkMoreFilters();
-    this._register(outputService.filters.onDidChange(() => this.checkMoreFilters()));
+    this._register(
+      outputService.filters.onDidChange(() => this.checkMoreFilters())
+    );
   }
   static {
     __name(this, "OutputViewPane");
@@ -128,26 +189,35 @@ let OutputViewPane = class extends FilterViewPane {
     this.editor.create(container);
     container.classList.add("output-view");
     const codeEditor = this.editor.getControl();
-    codeEditor.setAriaOptions({ role: "document", activeDescendant: void 0 });
-    this._register(codeEditor.onDidChangeModelContent(() => {
-      if (!this.scrollLock) {
-        this.editor.revealLastLine();
-      }
-    }));
-    this._register(codeEditor.onDidChangeCursorPosition((e) => {
-      if (e.reason !== CursorChangeReason.Explicit) {
-        return;
-      }
-      if (!this.configurationService.getValue("output.smartScroll.enabled")) {
-        return;
-      }
-      const model = codeEditor.getModel();
-      if (model) {
-        const newPositionLine = e.position.lineNumber;
-        const lastLine = model.getLineCount();
-        this.scrollLock = lastLine !== newPositionLine;
-      }
-    }));
+    codeEditor.setAriaOptions({
+      role: "document",
+      activeDescendant: void 0
+    });
+    this._register(
+      codeEditor.onDidChangeModelContent(() => {
+        if (!this.scrollLock) {
+          this.editor.revealLastLine();
+        }
+      })
+    );
+    this._register(
+      codeEditor.onDidChangeCursorPosition((e) => {
+        if (e.reason !== CursorChangeReason.Explicit) {
+          return;
+        }
+        if (!this.configurationService.getValue(
+          "output.smartScroll.enabled"
+        )) {
+          return;
+        }
+        const model = codeEditor.getModel();
+        if (model) {
+          const newPositionLine = e.position.lineNumber;
+          const lastLine = model.getLineCount();
+          this.scrollLock = lastLine !== newPositionLine;
+        }
+      })
+    );
   }
   layoutBodyContent(height, width) {
     this.editor.layout(new Dimension(width, height));
@@ -164,12 +234,21 @@ let OutputViewPane = class extends FilterViewPane {
     const input = this.createInput(channel);
     if (!this.editor.input || !input.matches(this.editor.input)) {
       this.editorPromise?.cancel();
-      this.editorPromise = createCancelablePromise((token) => this.editor.setInput(this.createInput(channel), { preserveFocus: true }, /* @__PURE__ */ Object.create(null), token).then(() => this.editor));
+      this.editorPromise = createCancelablePromise(
+        (token) => this.editor.setInput(
+          this.createInput(channel),
+          { preserveFocus: true },
+          /* @__PURE__ */ Object.create(null),
+          token
+        ).then(() => this.editor)
+      );
     }
   }
   checkMoreFilters() {
     const filters = this.outputService.filters;
-    this.filterWidget.checkMoreFilters(!filters.trace || !filters.debug || !filters.info || !filters.warning || !filters.error || !!this.channelId && filters.categories.includes(`,${this.channelId}:`));
+    this.filterWidget.checkMoreFilters(
+      !filters.trace || !filters.debug || !filters.info || !filters.warning || !filters.error || !!this.channelId && filters.categories.includes(`,${this.channelId}:`)
+    );
   }
   clearInput() {
     this.channelId = void 0;
@@ -177,7 +256,14 @@ let OutputViewPane = class extends FilterViewPane {
     this.editorPromise = null;
   }
   createInput(channel) {
-    return this.instantiationService.createInstance(TextResourceEditorInput, channel.uri, nls.localize("output model title", "{0} - Output", channel.label), nls.localize("channel", "Output channel for '{0}'", channel.label), void 0, void 0);
+    return this.instantiationService.createInstance(
+      TextResourceEditorInput,
+      channel.uri,
+      nls.localize("output model title", "{0} - Output", channel.label),
+      nls.localize("channel", "Output channel for '{0}'", channel.label),
+      void 0,
+      void 0
+    );
   }
   saveState() {
     const filters = this.outputService.filters;
@@ -207,9 +293,22 @@ OutputViewPane = __decorateClass([
 ], OutputViewPane);
 let OutputEditor = class extends AbstractTextResourceEditor {
   constructor(telemetryService, instantiationService, storageService, configurationService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService) {
-    super(OUTPUT_VIEW_ID, editorGroupService.activeGroup, telemetryService, instantiationService, storageService, textResourceConfigurationService, themeService, editorGroupService, editorService, fileService);
+    super(
+      OUTPUT_VIEW_ID,
+      editorGroupService.activeGroup,
+      telemetryService,
+      instantiationService,
+      storageService,
+      textResourceConfigurationService,
+      themeService,
+      editorGroupService,
+      editorService,
+      fileService
+    );
     this.configurationService = configurationService;
-    this.resourceContext = this._register(instantiationService.createInstance(ResourceContextKey));
+    this.resourceContext = this._register(
+      instantiationService.createInstance(ResourceContextKey)
+    );
   }
   static {
     __name(this, "OutputEditor");
@@ -256,10 +355,15 @@ let OutputEditor = class extends AbstractTextResourceEditor {
     return this.input ? this.input.getAriaLabel() : nls.localize("outputViewAriaLabel", "Output panel");
   }
   computeAriaLabel() {
-    return this.input ? computeEditorAriaLabel(this.input, void 0, void 0, this.editorGroupService.count) : this.getAriaLabel();
+    return this.input ? computeEditorAriaLabel(
+      this.input,
+      void 0,
+      void 0,
+      this.editorGroupService.count
+    ) : this.getAriaLabel();
   }
   async setInput(input, options, context, token) {
-    const focus = !(options && options.preserveFocus);
+    const focus = !options?.preserveFocus;
     if (this.input && input.matches(this.input)) {
       return;
     }
@@ -320,13 +424,19 @@ let FilterController = class extends Disposable {
     this.outputService = outputService;
     this.decorationsCollection = editor.createDecorationsCollection();
     this._register(editor.onDidChangeModel(() => this.onDidChangeModel()));
-    this._register(this.outputService.filters.onDidChange(() => editor.hasModel() && this.filter(editor.getModel())));
+    this._register(
+      this.outputService.filters.onDidChange(
+        () => editor.hasModel() && this.filter(editor.getModel())
+      )
+    );
   }
   static {
     __name(this, "FilterController");
   }
   static ID = "output.editor.contrib.filterController";
-  modelDisposables = this._register(new DisposableStore());
+  modelDisposables = this._register(
+    new DisposableStore()
+  );
   hiddenAreas = [];
   categories = /* @__PURE__ */ new Map();
   decorationsCollection;
@@ -344,14 +454,18 @@ let FilterController = class extends Disposable {
       return endLineNumber2 > 1 && model.getLineMaxColumn(endLineNumber2) === 1 ? endLineNumber2 - 1 : endLineNumber2;
     }, "computeEndLineNumber");
     let endLineNumber = computeEndLineNumber();
-    this.modelDisposables.add(model.onDidChangeContent((e) => {
-      if (e.changes.every((e2) => e2.range.startLineNumber > endLineNumber)) {
-        this.filterIncremental(model, endLineNumber + 1);
-      } else {
-        this.filter(model);
-      }
-      endLineNumber = computeEndLineNumber();
-    }));
+    this.modelDisposables.add(
+      model.onDidChangeContent((e) => {
+        if (e.changes.every(
+          (e2) => e2.range.startLineNumber > endLineNumber
+        )) {
+          this.filterIncremental(model, endLineNumber + 1);
+        } else {
+          this.filter(model);
+        }
+        endLineNumber = computeEndLineNumber();
+      })
+    );
   }
   filter(model) {
     this.hiddenAreas = [];
@@ -359,7 +473,11 @@ let FilterController = class extends Disposable {
     this.filterIncremental(model, 1);
   }
   filterIncremental(model, fromLineNumber) {
-    const { findMatches, hiddenAreas, categories: sources } = this.compute(model, fromLineNumber);
+    const {
+      findMatches,
+      hiddenAreas,
+      categories: sources
+    } = this.compute(model, fromLineNumber);
     this.hiddenAreas.push(...hiddenAreas);
     this.editor.setHiddenAreas(this.hiddenAreas, this);
     if (findMatches.length) {
@@ -372,23 +490,39 @@ let FilterController = class extends Disposable {
           continue;
         }
         this.categories.set(categoryFilter, categoryName);
-        this.modelDisposables.add(registerAction2(class extends Action2 {
-          constructor() {
-            super({
-              id: `workbench.actions.${OUTPUT_VIEW_ID}.toggle.${categoryFilter}`,
-              title: categoryName,
-              toggled: ContextKeyExpr.regex(HIDE_CATEGORY_FILTER_CONTEXT.key, new RegExp(`.*,${escapeRegExpCharacters(categoryFilter)},.*`)).negate(),
-              menu: {
-                id: viewFilterSubmenu,
-                group: "1_category_filter",
-                when: ContextKeyExpr.and(ContextKeyExpr.equals("view", OUTPUT_VIEW_ID))
+        this.modelDisposables.add(
+          registerAction2(
+            class extends Action2 {
+              constructor() {
+                super({
+                  id: `workbench.actions.${OUTPUT_VIEW_ID}.toggle.${categoryFilter}`,
+                  title: categoryName,
+                  toggled: ContextKeyExpr.regex(
+                    HIDE_CATEGORY_FILTER_CONTEXT.key,
+                    new RegExp(
+                      `.*,${escapeRegExpCharacters(categoryFilter)},.*`
+                    )
+                  ).negate(),
+                  menu: {
+                    id: viewFilterSubmenu,
+                    group: "1_category_filter",
+                    when: ContextKeyExpr.and(
+                      ContextKeyExpr.equals(
+                        "view",
+                        OUTPUT_VIEW_ID
+                      )
+                    )
+                  }
+                });
               }
-            });
-          }
-          async run() {
-            that.outputService.filters.toggleCategory(categoryFilter);
-          }
-        }));
+              async run() {
+                that.outputService.filters.toggleCategory(
+                  categoryFilter
+                );
+              }
+            }
+          )
+        );
       }
     }
   }
@@ -401,14 +535,19 @@ let FilterController = class extends Disposable {
     const logEntries = activeChannel?.getLogEntries();
     if (activeChannel && logEntries?.length) {
       const hasLogLevelFilter = !filters.trace || !filters.debug || !filters.info || !filters.warning || !filters.error;
-      const fromLogLevelEntryIndex = logEntries.findIndex((entry) => fromLineNumber >= entry.range.startLineNumber && fromLineNumber <= entry.range.endLineNumber);
+      const fromLogLevelEntryIndex = logEntries.findIndex(
+        (entry) => fromLineNumber >= entry.range.startLineNumber && fromLineNumber <= entry.range.endLineNumber
+      );
       if (fromLogLevelEntryIndex === -1) {
         return { findMatches, hiddenAreas, categories };
       }
       for (let i = fromLogLevelEntryIndex; i < logEntries.length; i++) {
         const entry = logEntries[i];
         if (entry.category) {
-          categories.set(`${activeChannel.id}:${entry.category}`, entry.category);
+          categories.set(
+            `${activeChannel.id}:${entry.category}`,
+            entry.category
+          );
         }
         if (hasLogLevelFilter && !this.shouldShowLogLevel(entry, filters)) {
           hiddenAreas.push(entry.range);
@@ -419,10 +558,20 @@ let FilterController = class extends Disposable {
           continue;
         }
         if (filters.text) {
-          const matches = model.findMatches(filters.text, entry.range, false, false, null, false);
+          const matches = model.findMatches(
+            filters.text,
+            entry.range,
+            false,
+            false,
+            null,
+            false
+          );
           if (matches.length) {
             for (const match of matches) {
-              findMatches.push({ range: match.range, options: FindDecorations._FIND_MATCH_DECORATION });
+              findMatches.push({
+                range: match.range,
+                options: FindDecorations._FIND_MATCH_DECORATION
+              });
             }
           } else {
             hiddenAreas.push(entry.range);
@@ -436,11 +585,26 @@ let FilterController = class extends Disposable {
     }
     const lineCount = model.getLineCount();
     for (let lineNumber = fromLineNumber; lineNumber <= lineCount; lineNumber++) {
-      const lineRange = new Range(lineNumber, 1, lineNumber, model.getLineMaxColumn(lineNumber));
-      const matches = model.findMatches(filters.text, lineRange, false, false, null, false);
+      const lineRange = new Range(
+        lineNumber,
+        1,
+        lineNumber,
+        model.getLineMaxColumn(lineNumber)
+      );
+      const matches = model.findMatches(
+        filters.text,
+        lineRange,
+        false,
+        false,
+        null,
+        false
+      );
       if (matches.length) {
         for (const match of matches) {
-          findMatches.push({ range: match.range, options: FindDecorations._FIND_MATCH_DECORATION });
+          findMatches.push({
+            range: match.range,
+            options: FindDecorations._FIND_MATCH_DECORATION
+          });
         }
       } else {
         hiddenAreas.push(lineRange);

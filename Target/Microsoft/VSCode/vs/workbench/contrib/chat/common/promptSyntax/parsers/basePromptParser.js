@@ -10,27 +10,29 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { TopError } from "./topError.js";
-import { URI } from "../../../../../../base/common/uri.js";
-import { ChatPromptCodec } from "../codecs/chatPromptCodec.js";
-import { Emitter } from "../../../../../../base/common/event.js";
-import { FileReference } from "../codecs/tokens/fileReference.js";
-import { ChatPromptDecoder } from "../codecs/chatPromptDecoder.js";
-import { assertDefined } from "../../../../../../base/common/types.js";
-import { DeferredPromise } from "../../../../../../base/common/async.js";
-import { ILogService } from "../../../../../../platform/log/common/log.js";
-import { PromptVariableWithData } from "../codecs/tokens/promptVariable.js";
-import { basename, extUri } from "../../../../../../base/common/resources.js";
 import { assert, assertNever } from "../../../../../../base/common/assert.js";
-import { IRange, Range } from "../../../../../../editor/common/core/range.js";
-import { VSBufferReadableStream } from "../../../../../../base/common/buffer.js";
-import { isPromptFile } from "../../../../../../platform/prompts/common/constants.js";
+import { DeferredPromise } from "../../../../../../base/common/async.js";
+import { Emitter } from "../../../../../../base/common/event.js";
 import { ObservableDisposable } from "../../../../../../base/common/observableDisposable.js";
-import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { basename, extUri } from "../../../../../../base/common/resources.js";
+import { assertDefined } from "../../../../../../base/common/types.js";
+import { URI } from "../../../../../../base/common/uri.js";
 import { MarkdownLink } from "../../../../../../editor/common/codecs/markdownCodec/tokens/markdownLink.js";
-import { OpenFailed, NotPromptFile, RecursiveReference, FolderReference, ResolveError } from "../../promptFileReferenceErrors.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { isPromptFile } from "../../../../../../platform/prompts/common/constants.js";
+import {
+  FolderReference,
+  NotPromptFile,
+  RecursiveReference,
+  ResolveError
+} from "../../promptFileReferenceErrors.js";
+import { ChatPromptCodec } from "../codecs/chatPromptCodec.js";
+import { FileReference } from "../codecs/tokens/fileReference.js";
+import { PromptVariableWithData } from "../codecs/tokens/promptVariable.js";
+import { TopError } from "./topError.js";
 let BasePromptParser = class extends ObservableDisposable {
-  constructor(promptContentsProvider, seenReferences = [], instantiationService, logService) {
+  constructor(promptContentsProvider, seenReferences, instantiationService, logService) {
     super();
     this.promptContentsProvider = promptContentsProvider;
     this.instantiationService = instantiationService;
@@ -119,10 +121,7 @@ let BasePromptParser = class extends ObservableDisposable {
     if (this.errorCondition) {
       return this;
     }
-    assertDefined(
-      this.stream,
-      "No stream reference found."
-    );
+    assertDefined(this.stream, "No stream reference found.");
     await this.stream.settled;
     return this;
   }
@@ -155,8 +154,8 @@ let BasePromptParser = class extends ObservableDisposable {
    */
   onContentsChanged(streamOrError, seenReferences) {
     this.stream?.dispose();
-    delete this.stream;
-    delete this._errorCondition;
+    this.stream = void 0;
+    this._errorCondition = void 0;
     this.disposeReferences();
     if (streamOrError instanceof ResolveError) {
       this._errorCondition = streamOrError;
@@ -169,7 +168,9 @@ let BasePromptParser = class extends ObservableDisposable {
     this.stream.on("data", (token) => {
       if (token instanceof PromptVariableWithData) {
         try {
-          this.onReference(FileReference.from(token), [...seenReferences]);
+          this.onReference(FileReference.from(token), [
+            ...seenReferences
+          ]);
         } catch (error) {
         }
       }
@@ -190,8 +191,15 @@ let BasePromptParser = class extends ObservableDisposable {
    */
   onReference(token, seenReferences) {
     const referenceUri = extUri.resolvePath(this.dirname, token.path);
-    const contentProvider = this.promptContentsProvider.createNew({ uri: referenceUri });
-    const reference = this.instantiationService.createInstance(PromptReference, contentProvider, token, seenReferences);
+    const contentProvider = this.promptContentsProvider.createNew({
+      uri: referenceUri
+    });
+    const reference = this.instantiationService.createInstance(
+      PromptReference,
+      contentProvider,
+      token,
+      seenReferences
+    );
     reference.onDispose(contentProvider.dispose.bind(contentProvider));
     this._references.push(reference);
     reference.onUpdate(this._onUpdate.fire);
@@ -398,15 +406,17 @@ BasePromptParser = __decorateClass([
   __decorateParam(3, ILogService)
 ], BasePromptParser);
 let PromptReference = class extends ObservableDisposable {
-  constructor(promptContentsProvider, token, seenReferences = [], initService) {
+  constructor(promptContentsProvider, token, seenReferences, initService) {
     super();
     this.promptContentsProvider = promptContentsProvider;
     this.token = token;
-    this.parser = this._register(initService.createInstance(
-      BasePromptParser,
-      this.promptContentsProvider,
-      seenReferences
-    ));
+    this.parser = this._register(
+      initService.createInstance(
+        BasePromptParser,
+        this.promptContentsProvider,
+        seenReferences
+      )
+    );
   }
   static {
     __name(this, "PromptReference");
@@ -438,10 +448,7 @@ let PromptReference = class extends ObservableDisposable {
     if (this.token instanceof MarkdownLink) {
       return "file";
     }
-    assertNever(
-      this.token,
-      `Unknown token type '${this.token}'.`
-    );
+    assertNever(this.token, `Unknown token type '${this.token}'.`);
   }
   /**
    * Subtype of the reference, - either a prompt `#file` variable,
@@ -454,10 +461,7 @@ let PromptReference = class extends ObservableDisposable {
     if (this.token instanceof MarkdownLink) {
       return "markdown";
     }
-    assertNever(
-      this.token,
-      `Unknown token type '${this.token}'.`
-    );
+    assertNever(this.token, `Unknown token type '${this.token}'.`);
   }
   /**
    * Start parsing the reference contents.

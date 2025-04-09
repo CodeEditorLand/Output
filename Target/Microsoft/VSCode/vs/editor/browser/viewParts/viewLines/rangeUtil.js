@@ -2,7 +2,6 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Constants } from "../../../../base/common/uint.js";
 import { FloatHorizontalRange } from "../../view/renderingContext.js";
-import { DomReadingContext } from "./domReadingContext.js";
 class RangeUtil {
   static {
     __name(this, "RangeUtil");
@@ -14,16 +13,16 @@ class RangeUtil {
    */
   static _handyReadyRange;
   static _createRange() {
-    if (!this._handyReadyRange) {
-      this._handyReadyRange = document.createRange();
+    if (!RangeUtil._handyReadyRange) {
+      RangeUtil._handyReadyRange = document.createRange();
     }
-    return this._handyReadyRange;
+    return RangeUtil._handyReadyRange;
   }
   static _detachRange(range, endNode) {
     range.selectNodeContents(endNode);
   }
   static _readClientRects(startElement, startOffset, endElement, endOffset, endNode) {
-    const range = this._createRange();
+    const range = RangeUtil._createRange();
     try {
       range.setStart(startElement, startOffset);
       range.setEnd(endElement, endOffset);
@@ -31,7 +30,7 @@ class RangeUtil {
     } catch (e) {
       return null;
     } finally {
-      this._detachRange(range, endNode);
+      RangeUtil._detachRange(range, endNode);
     }
   }
   static _mergeAdjacentRanges(ranges) {
@@ -45,7 +44,10 @@ class RangeUtil {
     for (let i = 1, len = ranges.length; i < len; i++) {
       const range = ranges[i];
       if (prev.left + prev.width + 0.9 >= range.left) {
-        prev.width = Math.max(prev.width, range.left + range.width - prev.left);
+        prev.width = Math.max(
+          prev.width,
+          range.left + range.width - prev.left
+        );
       } else {
         result[resultLen++] = prev;
         prev = range;
@@ -61,9 +63,15 @@ class RangeUtil {
     const result = [];
     for (let i = 0, len = clientRects.length; i < len; i++) {
       const clientRect = clientRects[i];
-      result[i] = new FloatHorizontalRange(Math.max(0, (clientRect.left - clientRectDeltaLeft) / clientRectScale), clientRect.width / clientRectScale);
+      result[i] = new FloatHorizontalRange(
+        Math.max(
+          0,
+          (clientRect.left - clientRectDeltaLeft) / clientRectScale
+        ),
+        clientRect.width / clientRectScale
+      );
     }
-    return this._mergeAdjacentRanges(result);
+    return RangeUtil._mergeAdjacentRanges(result);
   }
   static readHorizontalRanges(domNode, startChildIndex, startOffset, endChildIndex, endOffset, context) {
     const min = 0;
@@ -76,7 +84,11 @@ class RangeUtil {
     if (startChildIndex === endChildIndex && startOffset === endOffset && startOffset === 0 && !domNode.children[startChildIndex].firstChild) {
       const clientRects2 = domNode.children[startChildIndex].getClientRects();
       context.markDidDomLayout();
-      return this._createHorizontalRangesFromClientRects(clientRects2, context.clientRectDeltaLeft, context.clientRectScale);
+      return RangeUtil._createHorizontalRangesFromClientRects(
+        clientRects2,
+        context.clientRectDeltaLeft,
+        context.clientRectScale
+      );
     }
     if (startChildIndex !== endChildIndex) {
       if (endChildIndex > 0 && endOffset === 0) {
@@ -99,11 +111,27 @@ class RangeUtil {
     if (!startElement || !endElement) {
       return null;
     }
-    startOffset = Math.min(startElement.textContent.length, Math.max(0, startOffset));
-    endOffset = Math.min(endElement.textContent.length, Math.max(0, endOffset));
-    const clientRects = this._readClientRects(startElement, startOffset, endElement, endOffset, context.endNode);
+    startOffset = Math.min(
+      startElement.textContent?.length,
+      Math.max(0, startOffset)
+    );
+    endOffset = Math.min(
+      endElement.textContent?.length,
+      Math.max(0, endOffset)
+    );
+    const clientRects = RangeUtil._readClientRects(
+      startElement,
+      startOffset,
+      endElement,
+      endOffset,
+      context.endNode
+    );
     context.markDidDomLayout();
-    return this._createHorizontalRangesFromClientRects(clientRects, context.clientRectDeltaLeft, context.clientRectScale);
+    return RangeUtil._createHorizontalRangesFromClientRects(
+      clientRects,
+      context.clientRectDeltaLeft,
+      context.clientRectScale
+    );
   }
 }
 export {

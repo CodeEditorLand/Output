@@ -1,6 +1,6 @@
+import * as platform from "../common/platform.js";
 import * as browser from "./browser.js";
 import { mainWindow } from "./window.js";
-import * as platform from "../common/platform.js";
 var KeyboardSupport = /* @__PURE__ */ ((KeyboardSupport2) => {
   KeyboardSupport2[KeyboardSupport2["Always"] = 0] = "Always";
   KeyboardSupport2[KeyboardSupport2["FullScreen"] = 1] = "FullScreen";
@@ -9,8 +9,8 @@ var KeyboardSupport = /* @__PURE__ */ ((KeyboardSupport2) => {
 })(KeyboardSupport || {});
 const BrowserFeatures = {
   clipboard: {
-    writeText: platform.isNative || document.queryCommandSupported && document.queryCommandSupported("copy") || !!(navigator && navigator.clipboard && navigator.clipboard.writeText),
-    readText: platform.isNative || !!(navigator && navigator.clipboard && navigator.clipboard.readText)
+    writeText: platform.isNative || document.queryCommandSupported?.("copy") || !!navigator?.clipboard?.writeText,
+    readText: platform.isNative || !!navigator?.clipboard?.readText
   },
   keyboard: (() => {
     if (platform.isNative || browser.isStandalone()) {

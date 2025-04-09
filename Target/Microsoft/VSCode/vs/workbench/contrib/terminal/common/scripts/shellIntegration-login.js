@@ -1,4 +1,4 @@
-var shellIntegration_login_default = "../../../../../../Asset/shellIntegration-login-YVOFJ25O.zsh";
+var shellIntegration_login_default = "../../../../../../Asset/shellIntegration-login-32NYW2EL.zsh";
 export {
   shellIntegration_login_default as default
 };

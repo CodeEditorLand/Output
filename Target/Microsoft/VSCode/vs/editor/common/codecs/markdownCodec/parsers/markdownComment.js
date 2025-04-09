@@ -9,15 +9,20 @@ var __decorateClass = (decorators, target, key, kind) => {
   if (kind && result) __defProp(target, key, result);
   return result;
 };
-import { Range } from "../../../core/range.js";
-import { Dash } from "../../simpleCodec/tokens/dash.js";
 import { pick } from "../../../../../base/common/arrays.js";
 import { assert } from "../../../../../base/common/assert.js";
-import { MarkdownComment } from "../tokens/markdownComment.js";
-import { TSimpleToken } from "../../simpleCodec/simpleDecoder.js";
+import { Range } from "../../../core/range.js";
+import {
+  assertNotConsumed,
+  ParserBase
+} from "../../simpleCodec/parserBase.js";
+import {
+  LeftAngleBracket,
+  RightAngleBracket
+} from "../../simpleCodec/tokens/angleBrackets.js";
+import { Dash } from "../../simpleCodec/tokens/dash.js";
 import { ExclamationMark } from "../../simpleCodec/tokens/exclamationMark.js";
-import { LeftAngleBracket, RightAngleBracket } from "../../simpleCodec/tokens/angleBrackets.js";
-import { assertNotConsumed, ParserBase, TAcceptTokenResult } from "../../simpleCodec/parserBase.js";
+import { MarkdownComment } from "../tokens/markdownComment.js";
 class PartialMarkdownCommentStart extends ParserBase {
   static {
     __name(this, "PartialMarkdownCommentStart");
@@ -68,7 +73,12 @@ class PartialMarkdownCommentStart extends ParserBase {
         this.isConsumed = true;
         return {
           result: "success",
-          nextParser: new MarkdownCommentStart([token1, token2, token3, token4]),
+          nextParser: new MarkdownCommentStart([
+            token1,
+            token2,
+            token3,
+            token4
+          ]),
           wasTokenConsumed: true
         };
       }
@@ -86,9 +96,6 @@ __decorateClass([
 class MarkdownCommentStart extends ParserBase {
   static {
     __name(this, "MarkdownCommentStart");
-  }
-  constructor(tokens) {
-    super(tokens);
   }
   accept(token) {
     if (token instanceof RightAngleBracket && this.endsWithDashes) {
@@ -115,10 +122,7 @@ class MarkdownCommentStart extends ParserBase {
   asMarkdownComment() {
     this.isConsumed = true;
     const text = this.currentTokens.map(pick("text")).join("");
-    return new MarkdownComment(
-      this.range,
-      text
-    );
+    return new MarkdownComment(this.range, text);
   }
   /**
    * Get range of current token sequence.

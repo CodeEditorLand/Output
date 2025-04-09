@@ -1,22 +1,28 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { assertNever } from "../../../../../base/common/assert.js";
-import { AsyncIterableObject, DeferredPromise } from "../../../../../base/common/async.js";
-import { CancellationToken, CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import {
+  AsyncIterableObject,
+  DeferredPromise
+} from "../../../../../base/common/async.js";
+import {
+  CancellationToken,
+  CancellationTokenSource
+} from "../../../../../base/common/cancellation.js";
 import { onUnexpectedExternalError } from "../../../../../base/common/errors.js";
-import { Disposable, IDisposable } from "../../../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../../../base/common/lifecycle.js";
 import { SetMap } from "../../../../../base/common/map.js";
 import { generateUuid } from "../../../../../base/common/uuid.js";
-import { ISingleEditOperation } from "../../../../common/core/editOperation.js";
 import { SingleOffsetEdit } from "../../../../common/core/offsetEdit.js";
 import { OffsetRange } from "../../../../common/core/offsetRange.js";
 import { Position } from "../../../../common/core/position.js";
 import { Range } from "../../../../common/core/range.js";
 import { SingleTextEdit } from "../../../../common/core/textEdit.js";
-import { LanguageFeatureRegistry } from "../../../../common/languageFeatureRegistry.js";
-import { Command, InlineCompletion, InlineCompletionContext, InlineCompletionProviderGroupId, InlineCompletions, InlineCompletionsProvider, InlineCompletionTriggerKind } from "../../../../common/languages.js";
-import { ILanguageConfigurationService } from "../../../../common/languages/languageConfigurationRegistry.js";
-import { ITextModel } from "../../../../common/model.js";
+import {
+  InlineCompletionTriggerKind
+} from "../../../../common/languages.js";
 import { fixBracketsInLine } from "../../../../common/model/bracketPairsTextModelPart/fixBrackets.js";
 import { TextModelText } from "../../../../common/model/textModelText.js";
 import { SnippetParser, Text } from "../../../snippet/browser/snippetParser.js";
@@ -77,7 +83,11 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
     }
     const circle = findPreferredProviderCircle(provider, []);
     if (circle) {
-      onUnexpectedExternalError(new Error(`Inline completions: cyclic yield-to dependency detected. Path: ${circle.map((s) => s.toString ? s.toString() : "" + s).join(" -> ")}`));
+      onUnexpectedExternalError(
+        new Error(
+          `Inline completions: cyclic yield-to dependency detected. Path: ${circle.map((s) => s.toString ? s.toString() : `${s}`).join(" -> ")}`
+        )
+      );
     }
     const deferredPromise = new DeferredPromise();
     states.set(provider, deferredPromise.p);
@@ -92,7 +102,10 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
         }
       }
       return query(provider);
-    })().then((c) => deferredPromise.complete(c), (e) => deferredPromise.error(e));
+    })().then(
+      (c) => deferredPromise.complete(c),
+      (e) => deferredPromise.error(e)
+    );
     return deferredPromise.p;
   }
   __name(queryProviderOrPreferredProvider, "queryProviderOrPreferredProvider");
@@ -100,9 +113,19 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
     let result2;
     try {
       if (positionOrRange instanceof Position) {
-        result2 = await provider.provideInlineCompletions(model, positionOrRange, contextWithUuid, token);
+        result2 = await provider.provideInlineCompletions(
+          model,
+          positionOrRange,
+          contextWithUuid,
+          token
+        );
       } else {
-        result2 = await provider.provideInlineEditsForRange?.(model, positionOrRange, contextWithUuid, token);
+        result2 = await provider.provideInlineEditsForRange?.(
+          model,
+          positionOrRange,
+          contextWithUuid,
+          token
+        );
       }
     } catch (e) {
       onUnexpectedExternalError(e);
@@ -116,12 +139,20 @@ async function provideInlineCompletions(registry, positionOrRange, model, contex
     return list;
   }
   __name(query, "query");
-  const inlineCompletionLists = AsyncIterableObject.fromPromisesResolveOrder(providers.map(queryProviderOrPreferredProvider));
+  const inlineCompletionLists = AsyncIterableObject.fromPromisesResolveOrder(
+    providers.map(queryProviderOrPreferredProvider)
+  );
   if (token.isCancellationRequested) {
     tokenSource.dispose(true);
     return new InlineCompletionProviderResult([], /* @__PURE__ */ new Set(), []);
   }
-  const result = await addRefAndCreateResult(contextWithUuid, inlineCompletionLists, defaultReplaceRange, model, languageConfigurationService);
+  const result = await addRefAndCreateResult(
+    contextWithUuid,
+    inlineCompletionLists,
+    defaultReplaceRange,
+    model,
+    languageConfigurationService
+  );
   tokenSource.dispose(true);
   return result;
 }
@@ -175,7 +206,11 @@ async function addRefAndCreateResult(context, inlineCompletionLists, defaultRepl
       break;
     }
   }
-  return new InlineCompletionProviderResult(Array.from(itemsByHash.values()), new Set(itemsByHash.keys()), lists);
+  return new InlineCompletionProviderResult(
+    Array.from(itemsByHash.values()),
+    new Set(itemsByHash.keys()),
+    lists
+  );
 }
 __name(addRefAndCreateResult, "addRefAndCreateResult");
 class InlineCompletionProviderResult {
@@ -192,7 +227,9 @@ class InlineCompletionProviderResult {
   }
   // TODO: This is not complete as it does not take the textmodel into account
   isEmpty() {
-    return this.completions.length === 0 || this.completions.every((c) => c.range.isEmpty() && c.insertText.length === 0);
+    return this.completions.length === 0 || this.completions.every(
+      (c) => c.range.isEmpty() && c.insertText.length === 0
+    );
   }
   dispose() {
     for (const result of this.providerResults) {
@@ -252,7 +289,12 @@ class InlineCompletionItem {
         );
         const diff = insertText.length - inlineCompletion.insertText.length;
         if (diff !== 0) {
-          range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn + diff);
+          range = new Range(
+            range.startLineNumber,
+            range.startColumn,
+            range.endLineNumber,
+            range.endColumn + diff
+          );
         }
       }
       snippetInfo = void 0;
@@ -267,10 +309,17 @@ class InlineCompletionItem {
         );
         const diff = inlineCompletion.insertText.snippet.length - preBracketCompletionLength;
         if (diff !== 0) {
-          range = new Range(range.startLineNumber, range.startColumn, range.endLineNumber, range.endColumn + diff);
+          range = new Range(
+            range.startLineNumber,
+            range.startColumn,
+            range.endLineNumber,
+            range.endColumn + diff
+          );
         }
       }
-      const snippet = new SnippetParser().parse(inlineCompletion.insertText.snippet);
+      const snippet = new SnippetParser().parse(
+        inlineCompletion.insertText.snippet
+      );
       if (snippet.children.length === 1 && snippet.children[0] instanceof Text) {
         insertText = snippet.children[0].value;
         snippetInfo = void 0;
@@ -326,7 +375,10 @@ class InlineCompletionItem {
     );
   }
   hash() {
-    return JSON.stringify({ insertText: this.insertText, range: this.range.toString() });
+    return JSON.stringify({
+      insertText: this.insertText,
+      range: this.range.toString()
+    });
   }
   toSingleTextEdit() {
     return new SingleTextEdit(this.range, this.insertText);
@@ -335,18 +387,34 @@ class InlineCompletionItem {
 function getDefaultRange(position, model) {
   const word = model.getWordAtPosition(position);
   const maxColumn = model.getLineMaxColumn(position.lineNumber);
-  return word ? new Range(position.lineNumber, word.startColumn, position.lineNumber, maxColumn) : Range.fromPositions(position, position.with(void 0, maxColumn));
+  return word ? new Range(
+    position.lineNumber,
+    word.startColumn,
+    position.lineNumber,
+    maxColumn
+  ) : Range.fromPositions(position, position.with(void 0, maxColumn));
 }
 __name(getDefaultRange, "getDefaultRange");
 function closeBrackets(text, position, model, languageConfigurationService) {
   const currentLine = model.getLineContent(position.lineNumber);
-  const edit = SingleOffsetEdit.replace(new OffsetRange(position.column - 1, currentLine.length), text);
-  const proposedLineTokens = model.tokenization.tokenizeLinesAt(position.lineNumber, [edit.apply(currentLine)]);
-  const textTokens = proposedLineTokens?.[0].sliceZeroCopy(edit.getRangeAfterApply());
+  const edit = SingleOffsetEdit.replace(
+    new OffsetRange(position.column - 1, currentLine.length),
+    text
+  );
+  const proposedLineTokens = model.tokenization.tokenizeLinesAt(
+    position.lineNumber,
+    [edit.apply(currentLine)]
+  );
+  const textTokens = proposedLineTokens?.[0].sliceZeroCopy(
+    edit.getRangeAfterApply()
+  );
   if (!textTokens) {
     return text;
   }
-  const fixedText = fixBracketsInLine(textTokens, languageConfigurationService);
+  const fixedText = fixBracketsInLine(
+    textTokens,
+    languageConfigurationService
+  );
   return fixedText;
 }
 __name(closeBrackets, "closeBrackets");

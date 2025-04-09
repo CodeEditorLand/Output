@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { DisposableStore, toDisposable, IDisposable } from "../common/lifecycle.js";
+import {
+  DisposableStore,
+  toDisposable
+} from "../common/lifecycle.js";
 import { getWindows, sharedMutationObserver } from "./dom.js";
 import { mainWindow } from "./window.js";
 const globalStylesheets = /* @__PURE__ */ new Map();
@@ -24,7 +27,10 @@ class WrappedStyleElement {
     }
     this._currentCssStyle = cssStyle;
     if (!this._styleSheet) {
-      this._styleSheet = createStyleSheet(mainWindow.document.head, (s) => s.innerText = cssStyle);
+      this._styleSheet = createStyleSheet(
+        mainWindow.document.head,
+        (s) => s.innerText = cssStyle
+      );
     } else {
       this._styleSheet.innerText = cssStyle;
     }
@@ -52,7 +58,13 @@ function createStyleSheet(container = mainWindow.document.head, beforeAppend, di
       if (targetWindow === mainWindow) {
         continue;
       }
-      const cloneDisposable = disposables.add(cloneGlobalStyleSheet(style, globalStylesheetClones, targetWindow));
+      const cloneDisposable = disposables.add(
+        cloneGlobalStyleSheet(
+          style,
+          globalStylesheetClones,
+          targetWindow
+        )
+      );
       disposableStore?.add(cloneDisposable);
     }
   }
@@ -61,8 +73,17 @@ function createStyleSheet(container = mainWindow.document.head, beforeAppend, di
 __name(createStyleSheet, "createStyleSheet");
 function cloneGlobalStylesheets(targetWindow) {
   const disposables = new DisposableStore();
-  for (const [globalStylesheet, clonedGlobalStylesheets] of globalStylesheets) {
-    disposables.add(cloneGlobalStyleSheet(globalStylesheet, clonedGlobalStylesheets, targetWindow));
+  for (const [
+    globalStylesheet,
+    clonedGlobalStylesheets
+  ] of globalStylesheets) {
+    disposables.add(
+      cloneGlobalStyleSheet(
+        globalStylesheet,
+        clonedGlobalStylesheets,
+        targetWindow
+      )
+    );
   }
   return disposables;
 }
@@ -75,9 +96,13 @@ function cloneGlobalStyleSheet(globalStylesheet, globalStylesheetClones, targetW
   for (const rule of getDynamicStyleSheetRules(globalStylesheet)) {
     clone.sheet?.insertRule(rule.cssText, clone.sheet?.cssRules.length);
   }
-  disposables.add(sharedMutationObserver.observe(globalStylesheet, disposables, { childList: true })(() => {
-    clone.textContent = globalStylesheet.textContent;
-  }));
+  disposables.add(
+    sharedMutationObserver.observe(globalStylesheet, disposables, {
+      childList: true
+    })(() => {
+      clone.textContent = globalStylesheet.textContent;
+    })
+  );
   globalStylesheetClones.add(clone);
   disposables.add(toDisposable(() => globalStylesheetClones.delete(clone)));
   return disposables;

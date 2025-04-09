@@ -21,7 +21,7 @@ function _format(message, args) {
     });
   }
   if (isPseudo) {
-    result = "\uFF3B" + result.replace(/[aouei]/g, "$&$&") + "\uFF3D";
+    result = `\uFF3B${result.replace(/[aouei]/g, "$&$&")}\uFF3D`;
   }
   return result;
 }

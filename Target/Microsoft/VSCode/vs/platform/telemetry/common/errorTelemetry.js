@@ -2,10 +2,12 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { binarySearch } from "../../../base/common/arrays.js";
 import { errorHandler, ErrorNoTelemetry } from "../../../base/common/errors.js";
-import { DisposableStore, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  DisposableStore,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 import { safeStringify } from "../../../base/common/objects.js";
 import { FileOperationError } from "../../files/common/files.js";
-import { ITelemetryService } from "./telemetry.js";
 var ErrorEvent;
 ((ErrorEvent2) => {
   function compare(a, b) {
@@ -32,7 +34,9 @@ class BaseErrorTelemetry {
   constructor(telemetryService, flushDelay = BaseErrorTelemetry.ERROR_FLUSH_TIMEOUT) {
     this._telemetryService = telemetryService;
     this._flushDelay = flushDelay;
-    const unbind = errorHandler.addListener((err) => this._onErrorEvent(err));
+    const unbind = errorHandler.addListener(
+      (err) => this._onErrorEvent(err)
+    );
     this._disposables.add(toDisposable(unbind));
     this.installErrorListeners();
   }
@@ -47,7 +51,7 @@ class BaseErrorTelemetry {
     if (!err || err.code) {
       return;
     }
-    if (err.detail && err.detail.stack) {
+    if (err.detail?.stack) {
       err = err.detail;
     }
     if (ErrorNoTelemetry.isErrorNoTelemetry(err) || err instanceof FileOperationError || typeof err?.message === "string" && err.message.includes("Unable to read file")) {

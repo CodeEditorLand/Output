@@ -24,19 +24,27 @@ let TextureAtlasPage = class extends Disposable {
     this._colorMap = themeService.getColorTheme().tokenColorMap;
     switch (allocatorType) {
       case "shelf":
-        this._allocator = new TextureAtlasShelfAllocator(this._canvas, textureIndex);
+        this._allocator = new TextureAtlasShelfAllocator(
+          this._canvas,
+          textureIndex
+        );
         break;
       case "slab":
-        this._allocator = new TextureAtlasSlabAllocator(this._canvas, textureIndex);
+        this._allocator = new TextureAtlasSlabAllocator(
+          this._canvas,
+          textureIndex
+        );
         break;
       default:
         this._allocator = allocatorType(this._canvas, textureIndex);
         break;
     }
-    this._register(toDisposable(() => {
-      this._canvas.width = 1;
-      this._canvas.height = 1;
-    }));
+    this._register(
+      toDisposable(() => {
+        this._canvas.width = 1;
+        this._canvas.height = 1;
+      })
+    );
   }
   static {
     __name(this, "TextureAtlasPage");
@@ -66,22 +74,49 @@ let TextureAtlasPage = class extends Disposable {
   _allocator;
   _colorMap;
   getGlyph(rasterizer, chars, tokenMetadata, decorationStyleSetId) {
-    return this._glyphMap.get(chars, tokenMetadata, decorationStyleSetId, rasterizer.cacheKey) ?? this._createGlyph(rasterizer, chars, tokenMetadata, decorationStyleSetId);
+    return this._glyphMap.get(
+      chars,
+      tokenMetadata,
+      decorationStyleSetId,
+      rasterizer.cacheKey
+    ) ?? this._createGlyph(
+      rasterizer,
+      chars,
+      tokenMetadata,
+      decorationStyleSetId
+    );
   }
   _createGlyph(rasterizer, chars, tokenMetadata, decorationStyleSetId) {
     if (this._glyphInOrderSet.size >= TextureAtlasPage.maximumGlyphCount) {
       return void 0;
     }
-    const rasterizedGlyph = rasterizer.rasterizeGlyph(chars, tokenMetadata, decorationStyleSetId, this._colorMap);
+    const rasterizedGlyph = rasterizer.rasterizeGlyph(
+      chars,
+      tokenMetadata,
+      decorationStyleSetId,
+      this._colorMap
+    );
     const glyph = this._allocator.allocate(rasterizedGlyph);
     if (glyph === void 0) {
       return void 0;
     }
-    this._glyphMap.set(glyph, chars, tokenMetadata, decorationStyleSetId, rasterizer.cacheKey);
+    this._glyphMap.set(
+      glyph,
+      chars,
+      tokenMetadata,
+      decorationStyleSetId,
+      rasterizer.cacheKey
+    );
     this._glyphInOrderSet.add(glyph);
     this._version++;
-    this._usedArea.right = Math.max(this._usedArea.right, glyph.x + glyph.w - 1);
-    this._usedArea.bottom = Math.max(this._usedArea.bottom, glyph.y + glyph.h - 1);
+    this._usedArea.right = Math.max(
+      this._usedArea.right,
+      glyph.x + glyph.w - 1
+    );
+    this._usedArea.bottom = Math.max(
+      this._usedArea.bottom,
+      glyph.y + glyph.h - 1
+    );
     if (this._logService.getLevel() === LogLevel.Trace) {
       this._logService.trace("New glyph", {
         chars,

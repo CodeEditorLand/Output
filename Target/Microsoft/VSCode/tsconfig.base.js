@@ -1,4 +1,4 @@
-var tsconfig_base_default = "./Asset/tsconfig.base-NKZ2YNKK.json";
+var tsconfig_base_default = "./Asset/tsconfig.base-XHJK263A.json";
 export {
   tsconfig_base_default as default
 };

@@ -1,11 +1,23 @@
 import { localize } from "../../../../nls.js";
+import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
 import { registerAction2 } from "../../../../platform/actions/common/actions.js";
-import { Extensions, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  Extensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
 import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { EditorPaneDescriptor, IEditorPaneRegistry } from "../../../browser/editor.js";
-import { Extensions as WorkbenchExtensions, IWorkbenchContributionsRegistry, WorkbenchPhase, registerWorkbenchContribution2 } from "../../../common/contributions.js";
-import { EditorExtensions, IEditorFactoryRegistry } from "../../../common/editor.js";
+import {
+  EditorPaneDescriptor
+} from "../../../browser/editor.js";
+import {
+  registerWorkbenchContribution2,
+  Extensions as WorkbenchExtensions,
+  WorkbenchPhase
+} from "../../../common/contributions.js";
+import {
+  EditorExtensions
+} from "../../../common/editor.js";
+import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
 import {
   AcceptAllInput1,
   AcceptAllInput2,
@@ -17,47 +29,60 @@ import {
   OpenBaseFile,
   OpenMergeEditor,
   OpenResultResource,
+  ResetCloseWithConflictsChoice,
   ResetToBaseAndAutoMergeCommand,
   SetColumnLayout,
   SetMixedLayout,
-  ShowHideTopBase,
-  ShowHideCenterBase,
   ShowHideBase,
+  ShowHideCenterBase,
+  ShowHideTopBase,
   ShowNonConflictingChanges,
   ToggleActiveConflictInput1,
-  ToggleActiveConflictInput2,
-  ResetCloseWithConflictsChoice
+  ToggleActiveConflictInput2
 } from "./commands/commands.js";
-import { MergeEditorCopyContentsToJSON, MergeEditorLoadContentsFromFolder, MergeEditorSaveContentsToFolder } from "./commands/devCommands.js";
-import { MergeEditorInput } from "./mergeEditorInput.js";
-import { MergeEditor, MergeEditorOpenHandlerContribution, MergeEditorResolverContribution } from "./view/mergeEditor.js";
-import { LifecyclePhase } from "../../../services/lifecycle/common/lifecycle.js";
-import { MergeEditorSerializer } from "./mergeEditorSerializer.js";
-import { AccessibleViewRegistry } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import {
+  MergeEditorCopyContentsToJSON,
+  MergeEditorLoadContentsFromFolder,
+  MergeEditorSaveContentsToFolder
+} from "./commands/devCommands.js";
 import { MergeEditorAccessibilityHelpProvider } from "./mergeEditorAccessibilityHelp.js";
-Registry.as(EditorExtensions.EditorPane).registerEditorPane(
+import { MergeEditorInput } from "./mergeEditorInput.js";
+import { MergeEditorSerializer } from "./mergeEditorSerializer.js";
+import {
+  MergeEditor,
+  MergeEditorOpenHandlerContribution,
+  MergeEditorResolverContribution
+} from "./view/mergeEditor.js";
+Registry.as(
+  EditorExtensions.EditorPane
+).registerEditorPane(
   EditorPaneDescriptor.create(
     MergeEditor,
     MergeEditor.ID,
     localize("name", "Merge Editor")
   ),
-  [
-    new SyncDescriptor(MergeEditorInput)
-  ]
+  [new SyncDescriptor(MergeEditorInput)]
 );
-Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(
-  MergeEditorInput.ID,
-  MergeEditorSerializer
-);
-Registry.as(Extensions.Configuration).registerConfiguration({
+Registry.as(
+  EditorExtensions.EditorFactory
+).registerEditorSerializer(MergeEditorInput.ID, MergeEditorSerializer);
+Registry.as(
+  Extensions.Configuration
+).registerConfiguration({
   properties: {
     "mergeEditor.diffAlgorithm": {
       type: "string",
       enum: ["legacy", "advanced"],
       default: "advanced",
       markdownEnumDescriptions: [
-        localize("diffAlgorithm.legacy", "Uses the legacy diffing algorithm."),
-        localize("diffAlgorithm.advanced", "Uses the advanced diffing algorithm.")
+        localize(
+          "diffAlgorithm.legacy",
+          "Uses the legacy diffing algorithm."
+        ),
+        localize(
+          "diffAlgorithm.advanced",
+          "Uses the advanced diffing algorithm."
+        )
       ]
     },
     "mergeEditor.showDeletionMarkers": {
@@ -90,12 +115,16 @@ registerAction2(ResetCloseWithConflictsChoice);
 registerAction2(MergeEditorCopyContentsToJSON);
 registerAction2(MergeEditorSaveContentsToFolder);
 registerAction2(MergeEditorLoadContentsFromFolder);
-Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(MergeEditorOpenHandlerContribution, LifecyclePhase.Restored);
+Registry.as(
+  WorkbenchExtensions.Workbench
+).registerWorkbenchContribution(
+  MergeEditorOpenHandlerContribution,
+  LifecyclePhase.Restored
+);
 registerWorkbenchContribution2(
   MergeEditorResolverContribution.ID,
   MergeEditorResolverContribution,
   WorkbenchPhase.BlockStartup
-  /* only registers an editor resolver */
 );
 AccessibleViewRegistry.register(new MergeEditorAccessibilityHelpProvider());
 //# sourceMappingURL=mergeEditor.contribution.js.map

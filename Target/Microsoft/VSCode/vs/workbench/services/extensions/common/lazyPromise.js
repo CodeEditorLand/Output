@@ -1,6 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { CancellationError, onUnexpectedError } from "../../../../base/common/errors.js";
+import {
+  CancellationError,
+  onUnexpectedError
+} from "../../../../base/common/errors.js";
 class LazyPromise {
   static {
     __name(this, "LazyPromise");
@@ -46,7 +49,7 @@ class LazyPromise {
     this._hasValue = true;
     this._value = value;
     if (this._actual) {
-      this._actualOk(value);
+      this._actualOk?.(value);
     }
   }
   resolveErr(err) {
@@ -56,7 +59,7 @@ class LazyPromise {
     this._hasErr = true;
     this._err = err;
     if (this._actual) {
-      this._actualErr(err);
+      this._actualErr?.(err);
     } else {
       onUnexpectedError(err);
     }

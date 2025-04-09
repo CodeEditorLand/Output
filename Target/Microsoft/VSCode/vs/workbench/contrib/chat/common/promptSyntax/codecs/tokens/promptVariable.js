@@ -1,10 +1,14 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { PromptToken } from "./promptToken.js";
 import { assert } from "../../../../../../../base/common/assert.js";
-import { IRange, Range } from "../../../../../../../editor/common/core/range.js";
-import { BaseToken } from "../../../../../../../editor/common/codecs/baseToken.js";
-import { INVALID_NAME_CHARACTERS, STOP_CHARACTERS } from "../parsers/promptVariableParser.js";
+import {
+  Range
+} from "../../../../../../../editor/common/core/range.js";
+import {
+  INVALID_NAME_CHARACTERS,
+  STOP_CHARACTERS
+} from "../parsers/promptVariableParser.js";
+import { PromptToken } from "./promptToken.js";
 const START_CHARACTER = "#";
 const DATA_SEPARATOR = ":";
 class PromptVariable extends PromptToken {

@@ -1,7 +1,6 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { OffsetRange } from "../core/offsetRange.js";
-import { ILanguageIdCodec } from "../languages.js";
 import { LineTokens } from "./lineTokens.js";
 class TokenWithTextArray {
   constructor(_tokenInfo) {
@@ -13,7 +12,12 @@ class TokenWithTextArray {
   static fromLineTokens(lineTokens) {
     const tokenInfo = [];
     for (let i = 0; i < lineTokens.getCount(); i++) {
-      tokenInfo.push(new TokenWithTextInfo(lineTokens.getTokenText(i), lineTokens.getMetadata(i)));
+      tokenInfo.push(
+        new TokenWithTextInfo(
+          lineTokens.getTokenText(i),
+          lineTokens.getMetadata(i)
+        )
+      );
     }
     return TokenWithTextArray.create(tokenInfo);
   }
@@ -21,12 +25,18 @@ class TokenWithTextArray {
     return new TokenWithTextArray(tokenInfo);
   }
   toLineTokens(decoder) {
-    return LineTokens.createFromTextAndMetadata(this.map((_r, t) => ({ text: t.text, metadata: t.metadata })), decoder);
+    return LineTokens.createFromTextAndMetadata(
+      this.map((_r, t) => ({ text: t.text, metadata: t.metadata })),
+      decoder
+    );
   }
   forEach(cb) {
     let lengthSum = 0;
     for (const tokenInfo of this._tokenInfo) {
-      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.text.length);
+      const range = new OffsetRange(
+        lengthSum,
+        lengthSum + tokenInfo.text.length
+      );
       cb(range, tokenInfo);
       lengthSum += tokenInfo.text.length;
     }
@@ -35,7 +45,10 @@ class TokenWithTextArray {
     const result = [];
     let lengthSum = 0;
     for (const tokenInfo of this._tokenInfo) {
-      const range = new OffsetRange(lengthSum, lengthSum + tokenInfo.text.length);
+      const range = new OffsetRange(
+        lengthSum,
+        lengthSum + tokenInfo.text.length
+      );
       result.push(cb(range, tokenInfo));
       lengthSum += tokenInfo.text.length;
     }
@@ -53,14 +66,24 @@ class TokenWithTextArray {
         }
         const deltaBefore = Math.max(0, range.start - tokenStart);
         const deltaAfter = Math.max(0, tokenEndEx - range.endExclusive);
-        result.push(new TokenWithTextInfo(tokenInfo.text.slice(deltaBefore, tokenInfo.text.length - deltaAfter), tokenInfo.metadata));
+        result.push(
+          new TokenWithTextInfo(
+            tokenInfo.text.slice(
+              deltaBefore,
+              tokenInfo.text.length - deltaAfter
+            ),
+            tokenInfo.metadata
+          )
+        );
       }
       lengthSum += tokenInfo.text.length;
     }
     return TokenWithTextArray.create(result);
   }
   append(other) {
-    const result = this._tokenInfo.concat(other._tokenInfo);
+    const result = this._tokenInfo.concat(
+      other._tokenInfo
+    );
     return TokenWithTextArray.create(result);
   }
 }

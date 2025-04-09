@@ -10,16 +10,23 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { ContextView, ContextViewDOMPosition, IContextViewProvider } from "../../../base/browser/ui/contextview/contextview.js";
+import { getWindow } from "../../../base/browser/dom.js";
+import {
+  ContextView,
+  ContextViewDOMPosition
+} from "../../../base/browser/ui/contextview/contextview.js";
 import { Disposable } from "../../../base/common/lifecycle.js";
 import { ILayoutService } from "../../layout/browser/layoutService.js";
-import { IContextViewDelegate, IContextViewService, IOpenContextView } from "./contextView.js";
-import { getWindow } from "../../../base/browser/dom.js";
 let ContextViewHandler = class extends Disposable {
   constructor(layoutService) {
     super();
     this.layoutService = layoutService;
-    this.contextView = this._register(new ContextView(this.layoutService.mainContainer, ContextViewDOMPosition.ABSOLUTE));
+    this.contextView = this._register(
+      new ContextView(
+        this.layoutService.mainContainer,
+        ContextViewDOMPosition.ABSOLUTE
+      )
+    );
     this.layout();
     this._register(layoutService.onDidLayoutContainer(() => this.layout()));
   }
@@ -42,7 +49,10 @@ let ContextViewHandler = class extends Disposable {
     } else {
       domPosition = ContextViewDOMPosition.ABSOLUTE;
     }
-    this.contextView.setContainer(container ?? this.layoutService.activeContainer, domPosition);
+    this.contextView.setContainer(
+      container ?? this.layoutService.activeContainer,
+      domPosition
+    );
     this.contextView.show(delegate);
     const openContextView = {
       close: /* @__PURE__ */ __name(() => {

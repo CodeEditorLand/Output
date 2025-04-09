@@ -2,7 +2,9 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { Emitter } from "../../../../base/common/event.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { ICwdDetectionCapability, TerminalCapability } from "./capabilities.js";
+import {
+  TerminalCapability
+} from "./capabilities.js";
 class CwdDetectionCapability extends Disposable {
   static {
     __name(this, "CwdDetectionCapability");

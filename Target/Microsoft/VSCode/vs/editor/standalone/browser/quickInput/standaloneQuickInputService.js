@@ -11,21 +11,23 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import "./standaloneQuickInput.css";
-import { Event } from "../../../../base/common/event.js";
-import { ICodeEditor, IOverlayWidget, IOverlayWidgetPosition, OverlayWidgetPositionPreference } from "../../../browser/editorBrowser.js";
-import { EditorContributionInstantiation, registerEditorContribution } from "../../../browser/editorExtensions.js";
-import { IEditorContribution } from "../../../common/editorCommon.js";
-import { IThemeService } from "../../../../platform/theme/common/themeService.js";
-import { IQuickInputService, IQuickPickItem, IQuickPick, IInputBox, IQuickNavigateConfiguration, IPickOptions, QuickPickInput, IInputOptions, IQuickWidget } from "../../../../platform/quickinput/common/quickInput.js";
 import { CancellationToken } from "../../../../base/common/cancellation.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { EditorScopedLayoutService } from "../standaloneLayoutService.js";
-import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
-import { QuickInputController, IQuickInputControllerHost } from "../../../../platform/quickinput/browser/quickInputController.js";
-import { QuickInputService } from "../../../../platform/quickinput/browser/quickInputService.js";
+import { Event } from "../../../../base/common/event.js";
 import { createSingleCallFunction } from "../../../../base/common/functional.js";
 import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { QuickInputService } from "../../../../platform/quickinput/browser/quickInputService.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import {
+  OverlayWidgetPositionPreference
+} from "../../../browser/editorBrowser.js";
+import {
+  EditorContributionInstantiation,
+  registerEditorContribution
+} from "../../../browser/editorExtensions.js";
+import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { EditorScopedLayoutService } from "../standaloneLayoutService.js";
 let EditorScopedQuickInputService = class extends QuickInputService {
   static {
     __name(this, "EditorScopedQuickInputService");
@@ -36,7 +38,10 @@ let EditorScopedQuickInputService = class extends QuickInputService {
       instantiationService,
       contextKeyService,
       themeService,
-      new EditorScopedLayoutService(editor.getContainerDomNode(), codeEditorService),
+      new EditorScopedLayoutService(
+        editor.getContainerDomNode(),
+        codeEditorService
+      ),
       configurationService
     );
     const contribution = QuickInputEditorContribution.get(editor);
@@ -72,7 +77,10 @@ let EditorScopedQuickInputService = class extends QuickInputService {
           return editor.onDidLayoutChange;
         },
         get onDidLayoutContainer() {
-          return Event.map(editor.onDidLayoutChange, (dimension) => ({ container: widget.getDomNode(), dimension }));
+          return Event.map(editor.onDidLayoutChange, (dimension) => ({
+            container: widget.getDomNode(),
+            dimension
+          }));
         },
         get onDidChangeActiveContainer() {
           return Event.None;
@@ -115,11 +123,16 @@ let StandaloneQuickInputService = class {
   get activeService() {
     const editor = this.codeEditorService.getFocusedCodeEditor();
     if (!editor) {
-      throw new Error("Quick input service needs a focused editor to work.");
+      throw new Error(
+        "Quick input service needs a focused editor to work."
+      );
     }
     let quickInputService = this.mapEditorToService.get(editor);
     if (!quickInputService) {
-      const newQuickInputService = quickInputService = this.instantiationService.createInstance(EditorScopedQuickInputService, editor);
+      const newQuickInputService = quickInputService = this.instantiationService.createInstance(
+        EditorScopedQuickInputService,
+        editor
+      );
       this.mapEditorToService.set(editor, quickInputService);
       createSingleCallFunction(editor.onDidDispose)(() => {
         newQuickInputService.dispose();
@@ -197,7 +210,9 @@ class QuickInputEditorContribution {
   }
   static ID = "editor.controller.quickInput";
   static get(editor) {
-    return editor.getContribution(QuickInputEditorContribution.ID);
+    return editor.getContribution(
+      QuickInputEditorContribution.ID
+    );
   }
   widget;
   dispose() {
@@ -228,7 +243,11 @@ class QuickInputEditorWidget {
     this.codeEditor.removeOverlayWidget(this);
   }
 }
-registerEditorContribution(QuickInputEditorContribution.ID, QuickInputEditorContribution, EditorContributionInstantiation.Lazy);
+registerEditorContribution(
+  QuickInputEditorContribution.ID,
+  QuickInputEditorContribution,
+  EditorContributionInstantiation.Lazy
+);
 export {
   QuickInputEditorContribution,
   QuickInputEditorWidget,

@@ -12,27 +12,44 @@ var __decorateClass = (decorators, target, key, kind) => {
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Emitter, Event } from "../../../../base/common/event.js";
 import { HierarchicalKind } from "../../../../base/common/hierarchicalKind.js";
-import { IJSONSchema, IJSONSchemaMap } from "../../../../base/common/jsonSchema.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { editorConfigurationBaseNode } from "../../../../editor/common/config/editorConfigurationSchema.js";
 import { ILanguageFeaturesService } from "../../../../editor/common/services/languageFeatures.js";
-import { codeActionCommandId, refactorCommandId, sourceActionCommandId } from "../../../../editor/contrib/codeAction/browser/codeAction.js";
+import {
+  codeActionCommandId,
+  refactorCommandId,
+  sourceActionCommandId
+} from "../../../../editor/contrib/codeAction/browser/codeAction.js";
 import { CodeActionKind } from "../../../../editor/contrib/codeAction/common/types.js";
 import * as nls from "../../../../nls.js";
-import { ConfigurationScope, Extensions, IConfigurationNode, IConfigurationPropertySchema, IConfigurationRegistry } from "../../../../platform/configuration/common/configurationRegistry.js";
+import {
+  ConfigurationScope,
+  Extensions
+} from "../../../../platform/configuration/common/configurationRegistry.js";
 import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
 import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IWorkbenchContribution } from "../../../common/contributions.js";
 const createCodeActionsAutoSave = /* @__PURE__ */ __name((description) => {
   return {
     type: "string",
     enum: ["always", "explicit", "never", true, false],
     enumDescriptions: [
-      nls.localize("alwaysSave", "Triggers Code Actions on explicit saves and auto saves triggered by window or focus changes."),
-      nls.localize("explicitSave", "Triggers Code Actions only when explicitly saved"),
+      nls.localize(
+        "alwaysSave",
+        "Triggers Code Actions on explicit saves and auto saves triggered by window or focus changes."
+      ),
+      nls.localize(
+        "explicitSave",
+        "Triggers Code Actions only when explicitly saved"
+      ),
       nls.localize("neverSave", "Never triggers Code Actions on save"),
-      nls.localize("explicitSaveBoolean", 'Triggers Code Actions only when explicitly saved. This value will be deprecated in favor of "explicit".'),
-      nls.localize("neverSaveBoolean", 'Never triggers Code Actions on save. This value will be deprecated in favor of "never".')
+      nls.localize(
+        "explicitSaveBoolean",
+        'Triggers Code Actions only when explicitly saved. This value will be deprecated in favor of "explicit".'
+      ),
+      nls.localize(
+        "neverSaveBoolean",
+        'Never triggers Code Actions on save. This value will be deprecated in favor of "never".'
+      )
     ],
     default: "explicit",
     description
@@ -43,10 +60,19 @@ const createNotebookCodeActionsAutoSave = /* @__PURE__ */ __name((description) =
     type: ["string", "boolean"],
     enum: ["explicit", "never", true, false],
     enumDescriptions: [
-      nls.localize("explicit", "Triggers Code Actions only when explicitly saved."),
+      nls.localize(
+        "explicit",
+        "Triggers Code Actions only when explicitly saved."
+      ),
       nls.localize("never", "Never triggers Code Actions on save."),
-      nls.localize("explicitBoolean", 'Triggers Code Actions only when explicitly saved. This value will be deprecated in favor of "explicit".'),
-      nls.localize("neverBoolean", 'Triggers Code Actions only when explicitly saved. This value will be deprecated in favor of "never".')
+      nls.localize(
+        "explicitBoolean",
+        'Triggers Code Actions only when explicitly saved. This value will be deprecated in favor of "explicit".'
+      ),
+      nls.localize(
+        "neverBoolean",
+        'Triggers Code Actions only when explicitly saved. This value will be deprecated in favor of "never".'
+      )
     ],
     default: "explicit",
     description
@@ -65,7 +91,11 @@ const codeActionsOnSaveSchema = {
       items: { type: "string" }
     }
   ],
-  markdownDescription: nls.localize("editor.codeActionsOnSave", 'Run Code Actions for the editor on save. Code Actions must be specified and the editor must not be shutting down. When {0} is set to `afterDelay`, Code Actions will only be run when the file is saved explicitly. Example: `"source.organizeImports": "explicit" `', "`#files.autoSave#`"),
+  markdownDescription: nls.localize(
+    "editor.codeActionsOnSave",
+    'Run Code Actions for the editor on save. Code Actions must be specified and the editor must not be shutting down. When {0} is set to `afterDelay`, Code Actions will only be run when the file is saved explicitly. Example: `"source.organizeImports": "explicit" `',
+    "`#files.autoSave#`"
+  ),
   type: ["object", "array"],
   additionalProperties: {
     type: "string",
@@ -93,7 +123,11 @@ const notebookCodeActionsOnSaveSchema = {
       items: { type: "string" }
     }
   ],
-  markdownDescription: nls.localize("notebook.codeActionsOnSave", 'Run a series of Code Actions for a notebook on save. Code Actions must be specified and the editor must not be shutting down. When {0} is set to `afterDelay`, Code Actions will only be run when the file is saved explicitly. Example: `"notebook.source.organizeImports": "explicit"`', "`#files.autoSave#`"),
+  markdownDescription: nls.localize(
+    "notebook.codeActionsOnSave",
+    'Run a series of Code Actions for a notebook on save. Code Actions must be specified and the editor must not be shutting down. When {0} is set to `afterDelay`, Code Actions will only be run when the file is saved explicitly. Example: `"notebook.source.organizeImports": "explicit"`',
+    "`#files.autoSave#`"
+  ),
   type: "object",
   additionalProperties: {
     type: ["string", "boolean"],
@@ -115,11 +149,17 @@ let CodeActionsContribution = class extends Disposable {
     this.languageFeatures = languageFeatures;
     this._register(
       Event.runAndSubscribe(
-        Event.debounce(languageFeatures.codeActionProvider.onDidChange, () => {
-        }, 1e3),
+        Event.debounce(
+          languageFeatures.codeActionProvider.onDidChange,
+          () => {
+          },
+          1e3
+        ),
         () => {
           this._allProvidedCodeActionKinds = this.getAllProvidedCodeActionKinds();
-          this.updateConfigurationSchema(this._allProvidedCodeActionKinds);
+          this.updateConfigurationSchema(
+            this._allProvidedCodeActionKinds
+          );
           this._onDidChangeSchemaContributions.fire();
         }
       )
@@ -132,7 +172,9 @@ let CodeActionsContribution = class extends Disposable {
   static {
     __name(this, "CodeActionsContribution");
   }
-  _onDidChangeSchemaContributions = this._register(new Emitter());
+  _onDidChangeSchemaContributions = this._register(
+    new Emitter()
+  );
   _allProvidedCodeActionKinds = [];
   getAllProvidedCodeActionKinds() {
     const out = /* @__PURE__ */ new Map();
@@ -144,17 +186,35 @@ let CodeActionsContribution = class extends Disposable {
     return Array.from(out.values());
   }
   updateConfigurationSchema(allProvidedKinds) {
-    const properties = { ...codeActionsOnSaveSchema.properties };
-    const notebookProperties = { ...notebookCodeActionsOnSaveSchema.properties };
+    const properties = {
+      ...codeActionsOnSaveSchema.properties
+    };
+    const notebookProperties = {
+      ...notebookCodeActionsOnSaveSchema.properties
+    };
     for (const codeActionKind of allProvidedKinds) {
       if (CodeActionKind.Source.contains(codeActionKind) && !properties[codeActionKind.value]) {
-        properties[codeActionKind.value] = createCodeActionsAutoSave(nls.localize("codeActionsOnSave.generic", "Controls whether '{0}' actions should be run on file save.", codeActionKind.value));
-        notebookProperties[codeActionKind.value] = createNotebookCodeActionsAutoSave(nls.localize("codeActionsOnSave.generic", "Controls whether '{0}' actions should be run on file save.", codeActionKind.value));
+        properties[codeActionKind.value] = createCodeActionsAutoSave(
+          nls.localize(
+            "codeActionsOnSave.generic",
+            "Controls whether '{0}' actions should be run on file save.",
+            codeActionKind.value
+          )
+        );
+        notebookProperties[codeActionKind.value] = createNotebookCodeActionsAutoSave(
+          nls.localize(
+            "codeActionsOnSave.generic",
+            "Controls whether '{0}' actions should be run on file save.",
+            codeActionKind.value
+          )
+        );
       }
     }
     codeActionsOnSaveSchema.properties = properties;
     notebookCodeActionsOnSaveSchema.properties = notebookProperties;
-    Registry.as(Extensions.Configuration).notifyConfigurationSchemaUpdated(editorConfiguration);
+    Registry.as(
+      Extensions.Configuration
+    ).notifyConfigurationSchemaUpdated(editorConfiguration);
   }
   getKeybindingSchemaAdditions() {
     const conditionalSchema = /* @__PURE__ */ __name((command, kinds) => {
@@ -162,15 +222,15 @@ let CodeActionsContribution = class extends Disposable {
         if: {
           required: ["command"],
           properties: {
-            "command": { const: command }
+            command: { const: command }
           }
         },
         then: {
           properties: {
-            "args": {
+            args: {
               required: ["kind"],
               properties: {
-                "kind": {
+                kind: {
                   anyOf: [
                     { enum: Array.from(kinds) },
                     { type: "string" }
@@ -192,9 +252,18 @@ let CodeActionsContribution = class extends Disposable {
       return Array.from(out);
     }, "filterProvidedKinds");
     return [
-      conditionalSchema(codeActionCommandId, filterProvidedKinds(HierarchicalKind.Empty)),
-      conditionalSchema(refactorCommandId, filterProvidedKinds(CodeActionKind.Refactor)),
-      conditionalSchema(sourceActionCommandId, filterProvidedKinds(CodeActionKind.Source))
+      conditionalSchema(
+        codeActionCommandId,
+        filterProvidedKinds(HierarchicalKind.Empty)
+      ),
+      conditionalSchema(
+        refactorCommandId,
+        filterProvidedKinds(CodeActionKind.Refactor)
+      ),
+      conditionalSchema(
+        sourceActionCommandId,
+        filterProvidedKinds(CodeActionKind.Source)
+      )
     ];
   }
 };

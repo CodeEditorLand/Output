@@ -1,14 +1,15 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { equals } from "../../../base/common/arrays.js";
 import { ok } from "../../../base/common/assert.js";
 import { Schemas } from "../../../base/common/network.js";
 import { regExpLeadsToEndlessLoop } from "../../../base/common/strings.js";
-import { URI } from "../../../base/common/uri.js";
+import {
+  ensureValidWordDefinition,
+  getWordAtText
+} from "../../../editor/common/core/wordHelper.js";
 import { MirrorTextModel } from "../../../editor/common/model/mirrorTextModel.js";
-import { ensureValidWordDefinition, getWordAtText } from "../../../editor/common/core/wordHelper.js";
-import { MainThreadDocumentsShape } from "./extHost.protocol.js";
 import { EndOfLine, Position, Range } from "./extHostTypes.js";
-import { equals } from "../../../base/common/arrays.js";
 const _languageId2WordDefinition = /* @__PURE__ */ new Map();
 function setWordDefinitionFor(languageId, wordDefinition) {
   if (!wordDefinition) {
@@ -133,14 +134,24 @@ class ExtHostDocumentData extends MirrorTextModel {
       return "";
     }
     if (range.isSingleLine) {
-      return this._lines[range.start.line].substring(range.start.character, range.end.character);
+      return this._lines[range.start.line].substring(
+        range.start.character,
+        range.end.character
+      );
     }
-    const lineEnding = this._eol, startLineIndex = range.start.line, endLineIndex = range.end.line, resultLines = [];
-    resultLines.push(this._lines[startLineIndex].substring(range.start.character));
+    const lineEnding = this._eol;
+    const startLineIndex = range.start.line;
+    const endLineIndex = range.end.line;
+    const resultLines = [];
+    resultLines.push(
+      this._lines[startLineIndex].substring(range.start.character)
+    );
     for (let i = startLineIndex + 1; i < endLineIndex; i++) {
       resultLines.push(this._lines[i]);
     }
-    resultLines.push(this._lines[endLineIndex].substring(0, range.end.character));
+    resultLines.push(
+      this._lines[endLineIndex].substring(0, range.end.character)
+    );
     return resultLines.join(lineEnding);
   }
   _lineAt(lineOrPosition) {
@@ -153,18 +164,22 @@ class ExtHostDocumentData extends MirrorTextModel {
     if (typeof line !== "number" || line < 0 || line >= this._lines.length || Math.floor(line) !== line) {
       throw new Error("Illegal value for `line`");
     }
-    return new ExtHostDocumentLine(line, this._lines[line], line === this._lines.length - 1);
+    return new ExtHostDocumentLine(
+      line,
+      this._lines[line],
+      line === this._lines.length - 1
+    );
   }
   _offsetAt(position) {
     position = this._validatePosition(position);
     this._ensureLineStarts();
-    return this._lineStarts.getPrefixSum(position.line - 1) + position.character;
+    return this._lineStarts?.getPrefixSum(position.line - 1) + position.character;
   }
   _positionAt(offset) {
     offset = Math.floor(offset);
     offset = Math.max(0, offset);
     this._ensureLineStarts();
-    const out = this._lineStarts.getIndexOf(offset);
+    const out = this._lineStarts?.getIndexOf(offset);
     const lineLength = this._lines[out.index].length;
     return new Position(out.index, Math.min(out.remainder, lineLength));
   }
@@ -217,7 +232,9 @@ class ExtHostDocumentData extends MirrorTextModel {
     if (!regexp) {
       regexp = getWordDefinitionFor(this._languageId);
     } else if (regExpLeadsToEndlessLoop(regexp)) {
-      throw new Error(`[getWordRangeAtPosition]: ignoring custom regexp '${regexp.source}' because it matches the empty string.`);
+      throw new Error(
+        `[getWordRangeAtPosition]: ignoring custom regexp '${regexp.source}' because it matches the empty string.`
+      );
     }
     const wordAtText = getWordAtText(
       position.character + 1,
@@ -226,7 +243,12 @@ class ExtHostDocumentData extends MirrorTextModel {
       0
     );
     if (wordAtText) {
-      return new Range(position.line, wordAtText.startColumn - 1, position.line, wordAtText.endColumn - 1);
+      return new Range(
+        position.line,
+        wordAtText.startColumn - 1,
+        position.line,
+        wordAtText.endColumn - 1
+      );
     }
     return void 0;
   }
@@ -259,7 +281,7 @@ class ExtHostDocumentLine {
     return new Range(this._line, 0, this._line + 1, 0);
   }
   get firstNonWhitespaceCharacterIndex() {
-    return /^(\s*)/.exec(this._text)[1].length;
+    return /^(\s*)/.exec(this._text)?.[1].length;
   }
   get isEmptyOrWhitespace() {
     return this.firstNonWhitespaceCharacterIndex === this._text.length;

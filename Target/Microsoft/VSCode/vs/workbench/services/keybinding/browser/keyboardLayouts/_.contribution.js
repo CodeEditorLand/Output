@@ -1,6 +1,5 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { IKeymapInfo } from "../../common/keymapInfo.js";
 class KeyboardLayoutContribution {
   static {
     __name(this, "KeyboardLayoutContribution");

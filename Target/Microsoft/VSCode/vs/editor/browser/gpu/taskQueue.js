@@ -1,7 +1,10 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { getActiveWindow } from "../../../base/browser/dom.js";
-import { Disposable, toDisposable } from "../../../base/common/lifecycle.js";
+import {
+  Disposable,
+  toDisposable
+} from "../../../base/common/lifecycle.js";
 /**
  * Copyright (c) 2022 The xterm.js authors. All rights reserved.
  * @license MIT
@@ -39,7 +42,9 @@ class TaskQueue extends Disposable {
   }
   _start() {
     if (!this._idleCallback) {
-      this._idleCallback = this._requestCallback(this._process.bind(this));
+      this._idleCallback = this._requestCallback(
+        this._process.bind(this)
+      );
     }
   }
   _process(deadline) {
@@ -58,7 +63,9 @@ class TaskQueue extends Disposable {
       deadlineRemaining = deadline.timeRemaining();
       if (longestTask * 1.5 > deadlineRemaining) {
         if (lastDeadlineRemaining - taskDuration < -20) {
-          console.warn(`task queue exceeded allotted deadline by ${Math.abs(Math.round(lastDeadlineRemaining - taskDuration))}ms`);
+          console.warn(
+            `task queue exceeded allotted deadline by ${Math.abs(Math.round(lastDeadlineRemaining - taskDuration))}ms`
+          );
         }
         this._start();
         return;
@@ -73,7 +80,9 @@ class PriorityTaskQueue extends TaskQueue {
     __name(this, "PriorityTaskQueue");
   }
   _requestCallback(callback) {
-    return getActiveWindow().setTimeout(() => callback(this._createDeadline(16)));
+    return getActiveWindow().setTimeout(
+      () => callback(this._createDeadline(16))
+    );
   }
   _cancelCallback(identifier) {
     getActiveWindow().clearTimeout(identifier);

@@ -1,13 +1,18 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { ServicesAccessor } from "../../../../editor/browser/editorExtensions.js";
-import { AccessibleViewType, AccessibleContentProvider, AccessibleViewProviderId } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplementation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
+import {
+  AccessibleContentProvider,
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
 import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { IEditorService } from "../../../services/editor/common/editorService.js";
 import { AccessibilityVerbositySettingId } from "../../accessibility/browser/accessibilityConfiguration.js";
 import { isReplEditorControl } from "../../replNotebook/browser/replEditor.js";
-import { IS_COMPOSITE_NOTEBOOK, NOTEBOOK_CELL_LIST_FOCUSED } from "../common/notebookContextKeys.js";
+import {
+  IS_COMPOSITE_NOTEBOOK,
+  NOTEBOOK_CELL_LIST_FOCUSED
+} from "../common/notebookContextKeys.js";
 import { getAllOutputsText } from "./viewModel/cellOutputTextHelper.js";
 class ReplEditorAccessibleView {
   static {
@@ -16,7 +21,10 @@ class ReplEditorAccessibleView {
   priority = 100;
   name = "replEditorInput";
   type = AccessibleViewType.View;
-  when = ContextKeyExpr.and(IS_COMPOSITE_NOTEBOOK, NOTEBOOK_CELL_LIST_FOCUSED.negate());
+  when = ContextKeyExpr.and(
+    IS_COMPOSITE_NOTEBOOK,
+    NOTEBOOK_CELL_LIST_FOCUSED.negate()
+  );
   getProvider(accessor) {
     const editorService = accessor.get(IEditorService);
     return getAccessibleOutputProvider(editorService);
@@ -31,7 +39,10 @@ function getAccessibleOutputProvider(editorService) {
       const lastCellIndex = viewModel.length - 1;
       if (lastCellIndex >= 0) {
         const cell = viewModel.viewCells[lastCellIndex];
-        const outputContent = getAllOutputsText(viewModel.notebookDocument, cell);
+        const outputContent = getAllOutputsText(
+          viewModel.notebookDocument,
+          cell
+        );
         if (outputContent) {
           return new AccessibleContentProvider(
             AccessibleViewProviderId.Notebook,

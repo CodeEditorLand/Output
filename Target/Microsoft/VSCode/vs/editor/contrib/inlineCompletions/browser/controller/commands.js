@@ -1,20 +1,41 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { KeyCode, KeyMod } from "../../../../../base/common/keyCodes.js";
-import { asyncTransaction, transaction } from "../../../../../base/common/observable.js";
+import {
+  asyncTransaction,
+  transaction
+} from "../../../../../base/common/observable.js";
 import { splitLines } from "../../../../../base/common/strings.js";
 import * as nls from "../../../../../nls.js";
-import { Action2, MenuId } from "../../../../../platform/actions/common/actions.js";
+import {
+  Action2,
+  MenuId
+} from "../../../../../platform/actions/common/actions.js";
 import { IClipboardService } from "../../../../../platform/clipboard/common/clipboardService.js";
 import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
 import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
-import { KeybindingsRegistry, KeybindingWeight } from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
-import { INotificationService, Severity } from "../../../../../platform/notification/common/notification.js";
-import { ICodeEditor } from "../../../../browser/editorBrowser.js";
-import { EditorAction, EditorCommand, ServicesAccessor } from "../../../../browser/editorExtensions.js";
+import {
+  KeybindingsRegistry,
+  KeybindingWeight
+} from "../../../../../platform/keybinding/common/keybindingsRegistry.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../../platform/notification/common/notification.js";
+import {
+  EditorAction,
+  EditorCommand
+} from "../../../../browser/editorExtensions.js";
 import { EditorContextKeys } from "../../../../common/editorContextKeys.js";
 import { Context as SuggestContext } from "../../../suggest/browser/suggest.js";
-import { hideInlineCompletionId, inlineSuggestCommitId, jumpToNextInlineEditId, showNextInlineSuggestionActionId, showPreviousInlineSuggestionActionId, toggleShowCollapsedId } from "./commandIds.js";
+import {
+  hideInlineCompletionId,
+  inlineSuggestCommitId,
+  jumpToNextInlineEditId,
+  showNextInlineSuggestionActionId,
+  showPreviousInlineSuggestionActionId,
+  toggleShowCollapsedId
+} from "./commandIds.js";
 import { InlineCompletionContextKeys } from "./inlineCompletionContextKeys.js";
 import { InlineCompletionsController } from "./inlineCompletionsController.js";
 class ShowNextInlineSuggestionAction extends EditorAction {
@@ -25,8 +46,14 @@ class ShowNextInlineSuggestionAction extends EditorAction {
   constructor() {
     super({
       id: ShowNextInlineSuggestionAction.ID,
-      label: nls.localize2("action.inlineSuggest.showNext", "Show Next Inline Suggestion"),
-      precondition: ContextKeyExpr.and(EditorContextKeys.writable, InlineCompletionContextKeys.inlineSuggestionVisible),
+      label: nls.localize2(
+        "action.inlineSuggest.showNext",
+        "Show Next Inline Suggestion"
+      ),
+      precondition: ContextKeyExpr.and(
+        EditorContextKeys.writable,
+        InlineCompletionContextKeys.inlineSuggestionVisible
+      ),
       kbOpts: {
         weight: 100,
         primary: KeyMod.Alt | KeyCode.BracketRight
@@ -46,8 +73,14 @@ class ShowPreviousInlineSuggestionAction extends EditorAction {
   constructor() {
     super({
       id: ShowPreviousInlineSuggestionAction.ID,
-      label: nls.localize2("action.inlineSuggest.showPrevious", "Show Previous Inline Suggestion"),
-      precondition: ContextKeyExpr.and(EditorContextKeys.writable, InlineCompletionContextKeys.inlineSuggestionVisible),
+      label: nls.localize2(
+        "action.inlineSuggest.showPrevious",
+        "Show Previous Inline Suggestion"
+      ),
+      precondition: ContextKeyExpr.and(
+        EditorContextKeys.writable,
+        InlineCompletionContextKeys.inlineSuggestionVisible
+      ),
       kbOpts: {
         weight: 100,
         primary: KeyMod.Alt | KeyCode.BracketLeft
@@ -66,7 +99,10 @@ class TriggerInlineSuggestionAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inlineSuggest.trigger",
-      label: nls.localize2("action.inlineSuggest.trigger", "Trigger Inline Suggestion"),
+      label: nls.localize2(
+        "action.inlineSuggest.trigger",
+        "Trigger Inline Suggestion"
+      ),
       precondition: EditorContextKeys.writable
     });
   }
@@ -85,18 +121,24 @@ class ExplicitTriggerInlineEditAction extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inlineSuggest.triggerInlineEditExplicit",
-      label: nls.localize2("action.inlineSuggest.trigger.explicitInlineEdit", "Trigger Next Edit Suggestion"),
+      label: nls.localize2(
+        "action.inlineSuggest.trigger.explicitInlineEdit",
+        "Trigger Next Edit Suggestion"
+      ),
       precondition: EditorContextKeys.writable
     });
   }
   async run(accessor, editor) {
-    const notificationService = accessor.get(INotificationService);
+    const notificationService = accessor?.get(INotificationService);
     const controller = InlineCompletionsController.get(editor);
     await controller?.model.get()?.triggerExplicitly(void 0, true);
     if (!controller?.model.get()?.inlineEditAvailable.get()) {
       notificationService.notify({
         severity: Severity.Info,
-        message: nls.localize("noInlineEditAvailable", "No inline edit is available.")
+        message: nls.localize(
+          "noInlineEditAvailable",
+          "No inline edit is available."
+        )
       });
     }
   }
@@ -123,19 +165,30 @@ class AcceptNextWordOfInlineCompletion extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inlineSuggest.acceptNextWord",
-      label: nls.localize2("action.inlineSuggest.acceptNextWord", "Accept Next Word Of Inline Suggestion"),
-      precondition: ContextKeyExpr.and(EditorContextKeys.writable, InlineCompletionContextKeys.inlineSuggestionVisible),
+      label: nls.localize2(
+        "action.inlineSuggest.acceptNextWord",
+        "Accept Next Word Of Inline Suggestion"
+      ),
+      precondition: ContextKeyExpr.and(
+        EditorContextKeys.writable,
+        InlineCompletionContextKeys.inlineSuggestionVisible
+      ),
       kbOpts: {
         weight: KeybindingWeight.EditorContrib + 1,
         primary: KeyMod.CtrlCmd | KeyCode.RightArrow,
-        kbExpr: ContextKeyExpr.and(EditorContextKeys.writable, InlineCompletionContextKeys.inlineSuggestionVisible)
+        kbExpr: ContextKeyExpr.and(
+          EditorContextKeys.writable,
+          InlineCompletionContextKeys.inlineSuggestionVisible
+        )
       },
-      menuOpts: [{
-        menuId: MenuId.InlineSuggestionToolbar,
-        title: nls.localize("acceptWord", "Accept Word"),
-        group: "primary",
-        order: 2
-      }]
+      menuOpts: [
+        {
+          menuId: MenuId.InlineSuggestionToolbar,
+          title: nls.localize("acceptWord", "Accept Word"),
+          group: "primary",
+          order: 2
+        }
+      ]
     });
   }
   async run(accessor, editor) {
@@ -150,17 +203,25 @@ class AcceptNextLineOfInlineCompletion extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inlineSuggest.acceptNextLine",
-      label: nls.localize2("action.inlineSuggest.acceptNextLine", "Accept Next Line Of Inline Suggestion"),
-      precondition: ContextKeyExpr.and(EditorContextKeys.writable, InlineCompletionContextKeys.inlineSuggestionVisible),
+      label: nls.localize2(
+        "action.inlineSuggest.acceptNextLine",
+        "Accept Next Line Of Inline Suggestion"
+      ),
+      precondition: ContextKeyExpr.and(
+        EditorContextKeys.writable,
+        InlineCompletionContextKeys.inlineSuggestionVisible
+      ),
       kbOpts: {
         weight: KeybindingWeight.EditorContrib + 1
       },
-      menuOpts: [{
-        menuId: MenuId.InlineSuggestionToolbar,
-        title: nls.localize("acceptLine", "Accept Line"),
-        group: "secondary",
-        order: 2
-      }]
+      menuOpts: [
+        {
+          menuId: MenuId.InlineSuggestionToolbar,
+          title: nls.localize("acceptLine", "Accept Line"),
+          group: "secondary",
+          order: 2
+        }
+      ]
     });
   }
   async run(accessor, editor) {
@@ -175,19 +236,28 @@ class AcceptInlineCompletion extends EditorAction {
   constructor() {
     super({
       id: inlineSuggestCommitId,
-      label: nls.localize2("action.inlineSuggest.accept", "Accept Inline Suggestion"),
-      precondition: ContextKeyExpr.or(InlineCompletionContextKeys.inlineSuggestionVisible, InlineCompletionContextKeys.inlineEditVisible),
-      menuOpts: [{
-        menuId: MenuId.InlineSuggestionToolbar,
-        title: nls.localize("accept", "Accept"),
-        group: "primary",
-        order: 2
-      }, {
-        menuId: MenuId.InlineEditsActions,
-        title: nls.localize("accept", "Accept"),
-        group: "primary",
-        order: 2
-      }],
+      label: nls.localize2(
+        "action.inlineSuggest.accept",
+        "Accept Inline Suggestion"
+      ),
+      precondition: ContextKeyExpr.or(
+        InlineCompletionContextKeys.inlineSuggestionVisible,
+        InlineCompletionContextKeys.inlineEditVisible
+      ),
+      menuOpts: [
+        {
+          menuId: MenuId.InlineSuggestionToolbar,
+          title: nls.localize("accept", "Accept"),
+          group: "primary",
+          order: 2
+        },
+        {
+          menuId: MenuId.InlineEditsActions,
+          title: nls.localize("accept", "Accept"),
+          group: "primary",
+          order: 2
+        }
+      ],
       kbOpts: [
         {
           primary: KeyCode.Tab,
@@ -225,7 +295,9 @@ KeybindingsRegistry.registerKeybindingRule({
   weight: 202,
   // greater than jump
   primary: KeyCode.Tab,
-  when: ContextKeyExpr.and(InlineCompletionContextKeys.inInlineEditsPreviewEditor)
+  when: ContextKeyExpr.and(
+    InlineCompletionContextKeys.inInlineEditsPreviewEditor
+  )
 });
 class JumpToNextInlineEdit extends EditorAction {
   static {
@@ -234,15 +306,20 @@ class JumpToNextInlineEdit extends EditorAction {
   constructor() {
     super({
       id: jumpToNextInlineEditId,
-      label: nls.localize2("action.inlineSuggest.jump", "Jump to next inline edit"),
+      label: nls.localize2(
+        "action.inlineSuggest.jump",
+        "Jump to next inline edit"
+      ),
       precondition: InlineCompletionContextKeys.inlineEditVisible,
-      menuOpts: [{
-        menuId: MenuId.InlineEditsActions,
-        title: nls.localize("jump", "Jump"),
-        group: "primary",
-        order: 1,
-        when: InlineCompletionContextKeys.cursorAtInlineEdit.toNegated()
-      }],
+      menuOpts: [
+        {
+          menuId: MenuId.InlineEditsActions,
+          title: nls.localize("jump", "Jump"),
+          group: "primary",
+          order: 1,
+          when: InlineCompletionContextKeys.cursorAtInlineEdit.toNegated()
+        }
+      ],
       kbOpts: {
         primary: KeyCode.Tab,
         weight: 201,
@@ -271,19 +348,27 @@ class HideInlineCompletion extends EditorAction {
   constructor() {
     super({
       id: HideInlineCompletion.ID,
-      label: nls.localize2("action.inlineSuggest.hide", "Hide Inline Suggestion"),
-      precondition: ContextKeyExpr.or(InlineCompletionContextKeys.inlineSuggestionVisible, InlineCompletionContextKeys.inlineEditVisible),
+      label: nls.localize2(
+        "action.inlineSuggest.hide",
+        "Hide Inline Suggestion"
+      ),
+      precondition: ContextKeyExpr.or(
+        InlineCompletionContextKeys.inlineSuggestionVisible,
+        InlineCompletionContextKeys.inlineEditVisible
+      ),
       kbOpts: {
         weight: KeybindingWeight.EditorContrib + 90,
         // same as hiding the suggest widget
         primary: KeyCode.Escape
       },
-      menuOpts: [{
-        menuId: MenuId.InlineEditsActions,
-        title: nls.localize("reject", "Reject"),
-        group: "primary",
-        order: 3
-      }]
+      menuOpts: [
+        {
+          menuId: MenuId.InlineEditsActions,
+          title: nls.localize("reject", "Reject"),
+          group: "primary",
+          order: 3
+        }
+      ]
     });
   }
   async run(accessor, editor) {
@@ -302,14 +387,22 @@ class ToggleInlineCompletionShowCollapsed extends EditorAction {
   constructor() {
     super({
       id: ToggleInlineCompletionShowCollapsed.ID,
-      label: nls.localize2("action.inlineSuggest.toggleShowCollapsed", "Toggle Inline Suggestions Show Collapsed"),
+      label: nls.localize2(
+        "action.inlineSuggest.toggleShowCollapsed",
+        "Toggle Inline Suggestions Show Collapsed"
+      ),
       precondition: ContextKeyExpr.true()
     });
   }
   async run(accessor, editor) {
     const configurationService = accessor.get(IConfigurationService);
-    const showCollapsed = configurationService.getValue("editor.inlineSuggest.edits.showCollapsed");
-    configurationService.updateValue("editor.inlineSuggest.edits.showCollapsed", !showCollapsed);
+    const showCollapsed = configurationService.getValue(
+      "editor.inlineSuggest.edits.showCollapsed"
+    );
+    configurationService.updateValue(
+      "editor.inlineSuggest.edits.showCollapsed",
+      !showCollapsed
+    );
   }
 }
 KeybindingsRegistry.registerKeybindingRule({
@@ -318,7 +411,9 @@ KeybindingsRegistry.registerKeybindingRule({
   // very weak
   primary: KeyCode.Escape,
   secondary: [KeyMod.Shift | KeyCode.Escape],
-  when: ContextKeyExpr.and(InlineCompletionContextKeys.inInlineEditsPreviewEditor)
+  when: ContextKeyExpr.and(
+    InlineCompletionContextKeys.inInlineEditsPreviewEditor
+  )
 });
 class ToggleAlwaysShowInlineSuggestionToolbar extends Action2 {
   static {
@@ -328,20 +423,30 @@ class ToggleAlwaysShowInlineSuggestionToolbar extends Action2 {
   constructor() {
     super({
       id: ToggleAlwaysShowInlineSuggestionToolbar.ID,
-      title: nls.localize("action.inlineSuggest.alwaysShowToolbar", "Always Show Toolbar"),
+      title: nls.localize(
+        "action.inlineSuggest.alwaysShowToolbar",
+        "Always Show Toolbar"
+      ),
       f1: false,
       precondition: void 0,
-      menu: [{
-        id: MenuId.InlineSuggestionToolbar,
-        group: "secondary",
-        order: 10
-      }],
-      toggled: ContextKeyExpr.equals("config.editor.inlineSuggest.showToolbar", "always")
+      menu: [
+        {
+          id: MenuId.InlineSuggestionToolbar,
+          group: "secondary",
+          order: 10
+        }
+      ],
+      toggled: ContextKeyExpr.equals(
+        "config.editor.inlineSuggest.showToolbar",
+        "always"
+      )
     });
   }
   async run(accessor) {
     const configService = accessor.get(IConfigurationService);
-    const currentValue = configService.getValue("editor.inlineSuggest.showToolbar");
+    const currentValue = configService.getValue(
+      "editor.inlineSuggest.showToolbar"
+    );
     const newValue = currentValue === "always" ? "onHover" : "always";
     configService.updateValue("editor.inlineSuggest.showToolbar", newValue);
   }
@@ -353,7 +458,10 @@ class DevExtractReproSample extends EditorAction {
   constructor() {
     super({
       id: "editor.action.inlineSuggest.dev.extractRepro",
-      label: nls.localize("action.inlineSuggest.dev.extractRepro", "Developer: Extract Inline Suggest State"),
+      label: nls.localize(
+        "action.inlineSuggest.dev.extractRepro",
+        "Developer: Extract Inline Suggest State"
+      ),
       alias: "Developer: Inline Suggest Extract Repro",
       precondition: InlineCompletionContextKeys.inlineEditVisible
     });
@@ -366,8 +474,14 @@ class DevExtractReproSample extends EditorAction {
       return;
     }
     const repro = m.extractReproSample();
-    const inlineCompletionLines = splitLines(JSON.stringify({ inlineCompletion: repro.inlineCompletion }, null, 4));
-    const json = inlineCompletionLines.map((l) => "// " + l).join("\n");
+    const inlineCompletionLines = splitLines(
+      JSON.stringify(
+        { inlineCompletion: repro.inlineCompletion },
+        null,
+        4
+      )
+    );
+    const json = inlineCompletionLines.map((l) => `// ${l}`).join("\n");
     const reproStr = `${repro.documentValue}
 
 // <json>

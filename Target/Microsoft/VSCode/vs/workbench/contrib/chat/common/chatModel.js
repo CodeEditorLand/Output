@@ -13,29 +13,52 @@ var __decorateParam = (index, decorator) => (target, key) => decorator(target, k
 import { asArray } from "../../../../base/common/arrays.js";
 import { DeferredPromise } from "../../../../base/common/async.js";
 import { Codicon } from "../../../../base/common/codicons.js";
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { IMarkdownString, MarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
+import { Emitter } from "../../../../base/common/event.js";
+import {
+  isMarkdownString,
+  MarkdownString
+} from "../../../../base/common/htmlContent.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
 import { revive } from "../../../../base/common/marshalling.js";
 import { Schemas } from "../../../../base/common/network.js";
 import { equals } from "../../../../base/common/objects.js";
-import { IObservable, ITransaction, ObservablePromise, observableValue } from "../../../../base/common/observable.js";
+import {
+  ObservablePromise,
+  observableValue
+} from "../../../../base/common/observable.js";
 import { basename, isEqual } from "../../../../base/common/resources.js";
-import { ThemeIcon } from "../../../../base/common/themables.js";
-import { URI, UriComponents, UriDto, isUriComponents } from "../../../../base/common/uri.js";
+import {
+  isUriComponents,
+  URI
+} from "../../../../base/common/uri.js";
 import { generateUuid } from "../../../../base/common/uuid.js";
-import { IOffsetRange, OffsetRange } from "../../../../editor/common/core/offsetRange.js";
-import { IRange } from "../../../../editor/common/core/range.js";
-import { Location, SymbolKind, TextEdit } from "../../../../editor/common/languages.js";
+import {
+  OffsetRange
+} from "../../../../editor/common/core/offsetRange.js";
+import {
+  TextEdit
+} from "../../../../editor/common/languages.js";
 import { localize } from "../../../../nls.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
-import { IMarker, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
-import { CellUri, ICellEditOperation } from "../../notebook/common/notebookCommon.js";
-import { IChatAgentCommand, IChatAgentData, IChatAgentResult, IChatAgentService, reviveSerializedAgent } from "./chatAgents.js";
-import { IChatEditingService, IChatEditingSession } from "./chatEditingService.js";
-import { ChatRequestTextPart, IParsedChatRequest, reviveParsedChatRequest } from "./chatParserTypes.js";
-import { ChatAgentVoteDirection, ChatAgentVoteDownReason, IChatAgentMarkdownContentWithVulnerability, IChatCodeCitation, IChatCommandButton, IChatConfirmation, IChatContentInlineReference, IChatContentReference, IChatFollowup, IChatLocationData, IChatMarkdownContent, IChatNotebookEdit, IChatProgress, IChatProgressMessage, IChatResponseCodeblockUriPart, IChatResponseProgressFileTreeData, IChatTask, IChatTextEdit, IChatToolInvocation, IChatToolInvocationSerialized, IChatTreeData, IChatUndoStop, IChatUsedContext, IChatWarningMessage, isIUsedContext } from "./chatService.js";
-import { IChatRequestVariableValue } from "./chatVariables.js";
+import {
+  CellUri
+} from "../../notebook/common/notebookCommon.js";
+import {
+  IChatAgentService,
+  reviveSerializedAgent
+} from "./chatAgents.js";
+import {
+  IChatEditingService
+} from "./chatEditingService.js";
+import {
+  ChatRequestTextPart,
+  reviveParsedChatRequest
+} from "./chatParserTypes.js";
+import {
+  isIUsedContext
+} from "./chatService.js";
 import { ChatAgentLocation } from "./constants.js";
 var OmittedState = /* @__PURE__ */ ((OmittedState2) => {
   OmittedState2[OmittedState2["NotOmitted"] = 0] = "NotOmitted";
@@ -51,7 +74,12 @@ var IDiagnosticVariableEntryFilterData;
       filterUri: marker.resource,
       owner: marker.owner,
       problemMessage: marker.message,
-      filterRange: { startLineNumber: marker.startLineNumber, endLineNumber: marker.endLineNumber, startColumn: marker.startColumn, endColumn: marker.endColumn }
+      filterRange: {
+        startLineNumber: marker.startLineNumber,
+        endLineNumber: marker.endLineNumber,
+        startColumn: marker.startColumn,
+        endColumn: marker.endColumn
+      }
     };
   }
   IDiagnosticVariableEntryFilterData2.fromMarker = fromMarker;
@@ -63,14 +91,22 @@ var IDiagnosticVariableEntryFilterData;
       icon: IDiagnosticVariableEntryFilterData2.icon,
       value: data,
       kind: "diagnostic",
-      range: data.filterRange ? new OffsetRange(data.filterRange.startLineNumber, data.filterRange.endLineNumber) : void 0,
+      range: data.filterRange ? new OffsetRange(
+        data.filterRange.startLineNumber,
+        data.filterRange.endLineNumber
+      ) : void 0,
       ...data
     };
   }
   IDiagnosticVariableEntryFilterData2.toEntry = toEntry;
   __name(toEntry, "toEntry");
   function id(data) {
-    return [data.filterUri, data.owner, data.filterSeverity, data.filterRange?.startLineNumber].join(":");
+    return [
+      data.filterUri,
+      data.owner,
+      data.filterSeverity,
+      data.filterRange?.startLineNumber
+    ].join(":");
   }
   IDiagnosticVariableEntryFilterData2.id = id;
   __name(id, "id");
@@ -84,15 +120,22 @@ var IDiagnosticVariableEntryFilterData;
       if (data.problemMessage.length < 30 /* MaxChars */) {
         return data.problemMessage;
       }
-      const lastSpace = data.problemMessage.lastIndexOf(" ", 30 /* MaxChars */);
+      const lastSpace = data.problemMessage.lastIndexOf(
+        " ",
+        30 /* MaxChars */
+      );
       if (lastSpace === -1 || lastSpace + 10 /* MaxSpaceLookback */ < 30 /* MaxChars */) {
-        return data.problemMessage.substring(0, 30 /* MaxChars */) + "\u2026";
+        return `${data.problemMessage.substring(0, 30 /* MaxChars */)}\u2026`;
       }
-      return data.problemMessage.substring(0, lastSpace) + "\u2026";
+      return `${data.problemMessage.substring(0, lastSpace)}\u2026`;
     }
     let labelStr = localize("chat.attachment.problems.all", "All Problems");
     if (data.filterUri) {
-      labelStr = localize("chat.attachment.problems.inFile", "Problems in {0}", basename(data.filterUri));
+      labelStr = localize(
+        "chat.attachment.problems.inFile",
+        "Problems in {0}",
+        basename(data.filterUri)
+      );
     }
     return labelStr;
   }
@@ -134,7 +177,9 @@ function toChatHistoryContent(content) {
   return content.filter(isChatProgressHistoryResponseContent);
 }
 __name(toChatHistoryContent, "toChatHistoryContent");
-const defaultChatResponseModelChangeReason = { reason: "other" };
+const defaultChatResponseModelChangeReason = {
+  reason: "other"
+};
 class ChatRequestModel {
   static {
     __name(this, "ChatRequestModel");
@@ -190,7 +235,7 @@ class ChatRequestModel {
     this._attachedContext = params.attachedContext;
     this.isCompleteAddedRequest = params.isCompleteAddedRequest ?? false;
     this.modelId = params.modelId;
-    this.id = params.restoredId ?? "request_" + generateUuid();
+    this.id = params.restoredId ?? `request_${generateUuid()}`;
   }
   adoptTo(session) {
     this._session = session;
@@ -258,11 +303,17 @@ class AbstractResponse {
           break;
         case "textEditGroup":
         case "notebookEditGroup":
-          segment = { text: localize("editsSummary", "Made changes."), isBlock: true };
+          segment = {
+            text: localize("editsSummary", "Made changes."),
+            isBlock: true
+          };
           break;
         case "confirmation":
-          segment = { text: `${part.title}
-${part.message}`, isBlock: true };
+          segment = {
+            text: `${part.title}
+${part.message}`,
+            isBlock: true
+          };
           break;
         default:
           segment = { text: part.content.value };
@@ -287,7 +338,7 @@ ${part.message}`, isBlock: true };
     if ("uri" in part.inlineReference) {
       return this.uriToRepr(part.inlineReference.uri);
     }
-    return "name" in part.inlineReference ? "`" + part.inlineReference.name + "`" : this.uriToRepr(part.inlineReference);
+    return "name" in part.inlineReference ? `\`${part.inlineReference.name}\`` : this.uriToRepr(part.inlineReference);
   }
   uriToRepr(uri) {
     if (uri.scheme === Schemas.http || uri.scheme === Schemas.https) {
@@ -298,8 +349,12 @@ ${part.message}`, isBlock: true };
 }
 class ResponseView extends AbstractResponse {
   constructor(_response, undoStop) {
-    const idx = _response.value.findIndex((v) => v.kind === "undoStop" && v.id === undoStop);
-    super(idx === -1 ? _response.value.slice() : _response.value.slice(0, idx));
+    const idx = _response.value.findIndex(
+      (v) => v.kind === "undoStop" && v.id === undoStop
+    );
+    super(
+      idx === -1 ? _response.value.slice() : _response.value.slice(0, idx)
+    );
     this.undoStop = undoStop;
   }
   static {
@@ -316,7 +371,14 @@ class Response extends AbstractResponse {
   }
   _citations = [];
   constructor(value) {
-    super(asArray(value).map((v) => isMarkdownString(v) ? { content: v, kind: "markdownContent" } : "kind" in v ? v : { kind: "treeData", treeData: v }));
+    super(
+      asArray(value).map(
+        (v) => isMarkdownString(v) ? {
+          content: v,
+          kind: "markdownContent"
+        } : "kind" in v ? v : { kind: "treeData", treeData: v }
+      )
+    );
   }
   dispose() {
     this._onDidChangeValue.dispose();
@@ -328,20 +390,33 @@ class Response extends AbstractResponse {
   updateContent(progress, quiet) {
     if (progress.kind === "markdownContent") {
       const lastResponsePart = this._responseParts.filter((p) => p.kind !== "textEditGroup").at(-1);
-      if (!lastResponsePart || lastResponsePart.kind !== "markdownContent" || !canMergeMarkdownStrings(lastResponsePart.content, progress.content)) {
+      if (!lastResponsePart || lastResponsePart.kind !== "markdownContent" || !canMergeMarkdownStrings(
+        lastResponsePart.content,
+        progress.content
+      )) {
         this._responseParts.push(progress);
       } else {
         const idx = this._responseParts.indexOf(lastResponsePart);
-        this._responseParts[idx] = { ...lastResponsePart, content: appendMarkdownString(lastResponsePart.content, progress.content) };
+        this._responseParts[idx] = {
+          ...lastResponsePart,
+          content: appendMarkdownString(
+            lastResponsePart.content,
+            progress.content
+          )
+        };
       }
       this._updateRepr(quiet);
     } else if (progress.kind === "textEdit" || progress.kind === "notebookEdit") {
-      const useOldApproachForInlineNotebook = progress.uri.scheme === Schemas.vscodeNotebookCell && !this._responseParts.find((part) => part.kind === "notebookEditGroup");
+      const useOldApproachForInlineNotebook = progress.uri.scheme === Schemas.vscodeNotebookCell && !this._responseParts.find(
+        (part) => part.kind === "notebookEditGroup"
+      );
       const notebookUri = useOldApproachForInlineNotebook ? void 0 : CellUri.parse(progress.uri)?.notebook;
       const uri = notebookUri ?? progress.uri;
       let found = false;
       const groupKind = progress.kind === "textEdit" && !notebookUri ? "textEditGroup" : "notebookEditGroup";
-      const edits = groupKind === "textEditGroup" ? progress.edits : progress.edits.map((edit) => TextEdit.isTextEdit(edit) ? { uri: progress.uri, edit } : edit);
+      const edits = groupKind === "textEditGroup" ? progress.edits : progress.edits.map(
+        (edit) => TextEdit.isTextEdit(edit) ? { uri: progress.uri, edit } : edit
+      );
       for (let i = 0; !found && i < this._responseParts.length; i++) {
         const candidate = this._responseParts[i];
         if (candidate.kind === groupKind && !candidate.done && isEqual(candidate.uri, uri)) {
@@ -397,7 +472,9 @@ class Response extends AbstractResponse {
     if (!this._onDidChangeValue) {
       return;
     }
-    this._responseRepr += this._citations.length ? "\n\n" + getCodeCitationsMessage(this._citations) : "";
+    this._responseRepr += this._citations.length ? `
+
+${getCodeCitationsMessage(this._citations)}` : "";
     if (!quiet) {
       this._onDidChangeValue.fire();
     }
@@ -407,7 +484,9 @@ class ChatResponseModel extends Disposable {
   static {
     __name(this, "ChatResponseModel");
   }
-  _onDidChange = this._register(new Emitter());
+  _onDidChange = this._register(
+    new Emitter()
+  );
   onDidChange = this._onDidChange.event;
   id;
   requestId;
@@ -496,7 +575,9 @@ class ChatResponseModel extends Disposable {
     return this._isPaused;
   }
   get isPendingConfirmation() {
-    return this._response.value.some((part) => part.kind === "toolInvocation" && part.isConfirmed === void 0 || part.kind === "confirmation" && part.isUsed === false);
+    return this._response.value.some(
+      (part) => part.kind === "toolInvocation" && part.isConfirmed === void 0 || part.kind === "confirmation" && part.isUsed === false
+    );
   }
   _responseView;
   get response() {
@@ -527,14 +608,20 @@ class ChatResponseModel extends Disposable {
     this._shouldBeRemovedOnSend = params.shouldBeRemovedOnSend;
     this._isStale = Array.isArray(params.responseContent) && (params.responseContent.length !== 0 || isMarkdownString(params.responseContent) && params.responseContent.value.length !== 0);
     this._response = this._register(new Response(params.responseContent));
-    this._register(this._response.onDidChangeValue(() => this._onDidChange.fire(defaultChatResponseModelChangeReason)));
-    this.id = params.restoredId ?? "response_" + generateUuid();
+    this._register(
+      this._response.onDidChangeValue(
+        () => this._onDidChange.fire(defaultChatResponseModelChangeReason)
+      )
+    );
+    this.id = params.restoredId ?? `response_${generateUuid()}`;
   }
   /**
    * Apply a progress update to the actual response content.
    */
   updateContent(responsePart, quiet) {
-    this.bufferWhenPaused(() => this._response.updateContent(responsePart, quiet));
+    this.bufferWhenPaused(
+      () => this._response.updateContent(responsePart, quiet)
+    );
   }
   /**
    * Adds an undo stop at the current position in the stream.
@@ -710,7 +797,9 @@ let ChatModel = class extends Disposable {
     this.chatEditingService = chatEditingService;
     const isValid = isSerializableSessionData(initialData);
     if (initialData && !isValid) {
-      this.logService.warn(`ChatModel#constructor: Loaded malformed session data: ${JSON.stringify(initialData)}`);
+      this.logService.warn(
+        `ChatModel#constructor: Loaded malformed session data: ${JSON.stringify(initialData)}`
+      );
     }
     this._isImported = !!initialData && !isValid || (initialData?.isImported ?? false);
     this._sessionId = isValid && initialData.sessionId || generateUuid();
@@ -719,7 +808,9 @@ let ChatModel = class extends Disposable {
     this._lastMessageDate = isValid && initialData.lastMessageDate || this._creationDate;
     this._customTitle = isValid ? initialData.customTitle : void 0;
     this._initialRequesterAvatarIconUri = initialData?.requesterAvatarIconUri && URI.revive(initialData.requesterAvatarIconUri);
-    this._initialResponderAvatarIconUri = isUriComponents(initialData?.responderAvatarIconUri) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
+    this._initialResponderAvatarIconUri = isUriComponents(
+      initialData?.responderAvatarIconUri
+    ) ? URI.revive(initialData.responderAvatarIconUri) : initialData?.responderAvatarIconUri;
   }
   static {
     __name(this, "ChatModel");
@@ -731,7 +822,9 @@ let ChatModel = class extends Disposable {
   }
   _onDidDispose = this._register(new Emitter());
   onDidDispose = this._onDidDispose.event;
-  _onDidChange = this._register(new Emitter());
+  _onDidChange = this._register(
+    new Emitter()
+  );
   onDidChange = this._onDidChange.event;
   _requests;
   _initState = 0 /* Created */;
@@ -821,12 +914,16 @@ let ChatModel = class extends Disposable {
   startEditingSession(isGlobalEditingSession) {
     const editingSessionPromise = isGlobalEditingSession ? this.chatEditingService.startOrContinueGlobalEditingSession(this) : this.chatEditingService.createEditingSession(this);
     this._editingSession = new ObservablePromise(editingSessionPromise);
-    this._editingSession.promise.then((editingSession) => this._store.isDisposed ? editingSession.dispose() : this._register(editingSession));
+    this._editingSession.promise.then(
+      (editingSession) => this._store.isDisposed ? editingSession.dispose() : this._register(editingSession)
+    );
   }
   _deserialize(obj) {
     const requests = obj.requests;
     if (!Array.isArray(requests)) {
-      this.logService.error(`Ignoring malformed session data: ${JSON.stringify(obj)}`);
+      this.logService.error(
+        `Ignoring malformed session data: ${JSON.stringify(obj)}`
+      );
       return [];
     }
     try {
@@ -848,10 +945,14 @@ let ChatModel = class extends Disposable {
           ) : void 0;
           const result = "responseErrorDetails" in raw ? (
             // eslint-disable-next-line local/code-no-dangerous-type-assertions
-            { errorDetails: raw.responseErrorDetails }
+            {
+              errorDetails: raw.responseErrorDetails
+            }
           ) : raw.result;
           request.response = new ChatResponseModel({
-            responseContent: raw.response ?? [new MarkdownString(raw.response)],
+            responseContent: raw.response ?? [
+              new MarkdownString(raw.response)
+            ],
             session: this,
             agent,
             slashCommand: raw.slashCommand,
@@ -866,10 +967,16 @@ let ChatModel = class extends Disposable {
           });
           request.response.shouldBeRemovedOnSend = raw.isHidden ? { requestId: raw.requestId } : raw.shouldBeRemovedOnSend;
           if (raw.usedContext) {
-            request.response.applyReference(revive(raw.usedContext));
+            request.response.applyReference(
+              revive(raw.usedContext)
+            );
           }
-          raw.contentReferences?.forEach((r) => request.response.applyReference(revive(r)));
-          raw.codeCitations?.forEach((c) => request.response.applyCodeCitation(revive(c)));
+          raw.contentReferences?.forEach(
+            (r) => request.response?.applyReference(revive(r))
+          );
+          raw.codeCitations?.forEach(
+            (c) => request.response?.applyCodeCitation(revive(c))
+          );
         }
         return request;
       });
@@ -880,24 +987,37 @@ let ChatModel = class extends Disposable {
   }
   reviveVariableData(raw) {
     const variableData = raw && Array.isArray(raw.variables) ? raw : { variables: [] };
-    variableData.variables = variableData.variables.map((v) => {
-      if (v && "values" in v && Array.isArray(v.values)) {
-        return {
-          id: v.id ?? "",
-          name: v.name,
-          value: v.values[0]?.value,
-          range: v.range,
-          modelDescription: v.modelDescription,
-          references: v.references
-        };
-      } else {
-        return v;
+    variableData.variables = variableData.variables.map(
+      (v) => {
+        if (v && "values" in v && Array.isArray(v.values)) {
+          return {
+            id: v.id ?? "",
+            name: v.name,
+            value: v.values[0]?.value,
+            range: v.range,
+            modelDescription: v.modelDescription,
+            references: v.references
+          };
+        } else {
+          return v;
+        }
       }
-    });
+    );
     return variableData;
   }
   getParsedRequestFromString(message) {
-    const parts = [new ChatRequestTextPart(new OffsetRange(0, message.length), { startColumn: 1, startLineNumber: 1, endColumn: 1, endLineNumber: 1 }, message)];
+    const parts = [
+      new ChatRequestTextPart(
+        new OffsetRange(0, message.length),
+        {
+          startColumn: 1,
+          startLineNumber: 1,
+          endColumn: 1,
+          endLineNumber: 1
+        },
+        message
+      )
+    ];
     return {
       text: message,
       parts
@@ -907,13 +1027,22 @@ let ChatModel = class extends Disposable {
     if (this.requestPausibility !== 0 /* NotPausable */ && this.lastRequest?.response?.agent) {
       const pausedValue = isPaused ?? !this.lastRequest.response.isPaused.get();
       this.lastRequest.response.setPaused(pausedValue);
-      this.chatAgentService.setRequestPaused(this.lastRequest.response.agent.id, this.lastRequest.id, pausedValue);
-      this._onDidChange.fire({ kind: "changedRequest", request: this.lastRequest });
+      this.chatAgentService.setRequestPaused(
+        this.lastRequest.response.agent.id,
+        this.lastRequest.id,
+        pausedValue
+      );
+      this._onDidChange.fire({
+        kind: "changedRequest",
+        request: this.lastRequest
+      });
     }
   }
   startInitialize() {
     if (this.initState !== 0 /* Created */) {
-      throw new Error(`ChatModel is in the wrong state for startInitialize: ${ChatModelInitState[this.initState]}`);
+      throw new Error(
+        `ChatModel is in the wrong state for startInitialize: ${ChatModelInitState[this.initState]}`
+      );
     }
     this._initState = 1 /* Initializing */;
   }
@@ -923,7 +1052,9 @@ let ChatModel = class extends Disposable {
   }
   initialize(sampleQuestions) {
     if (this.initState !== 1 /* Initializing */) {
-      throw new Error(`ChatModel is in the wrong state for initialize: ${ChatModelInitState[this.initState]}`);
+      throw new Error(
+        `ChatModel is in the wrong state for initialize: ${ChatModelInitState[this.initState]}`
+      );
     }
     this._initState = 2 /* Initialized */;
     this._sampleQuestions = sampleQuestions;
@@ -932,7 +1063,9 @@ let ChatModel = class extends Disposable {
   }
   setInitializationError(error) {
     if (this.initState !== 1 /* Initializing */) {
-      throw new Error(`ChatModel is in the wrong state for setInitializationError: ${ChatModelInitState[this.initState]}`);
+      throw new Error(
+        `ChatModel is in the wrong state for setInitializationError: ${ChatModelInitState[this.initState]}`
+      );
     }
     if (!this._isInitializedDeferred.isSettled) {
       this._isInitializedDeferred.error(error);
@@ -950,7 +1083,9 @@ let ChatModel = class extends Disposable {
   }
   setDisabledRequests(requestIds) {
     this._requests.forEach((request) => {
-      const shouldBeRemovedOnSend = requestIds.find((r) => r.requestId === request.id);
+      const shouldBeRemovedOnSend = requestIds.find(
+        (r) => r.requestId === request.id
+      );
       request.shouldBeRemovedOnSend = shouldBeRemovedOnSend;
       if (request.response) {
         request.response.shouldBeRemovedOnSend = shouldBeRemovedOnSend;
@@ -996,7 +1131,9 @@ let ChatModel = class extends Disposable {
   }
   adoptRequest(request) {
     const oldOwner = request.session;
-    const index = oldOwner._requests.findIndex((candidate) => candidate.id === request.id);
+    const index = oldOwner._requests.findIndex(
+      (candidate) => candidate.id === request.id
+    );
     if (index === -1) {
       return;
     }
@@ -1004,7 +1141,12 @@ let ChatModel = class extends Disposable {
     request.adoptTo(this);
     request.response?.adoptTo(this);
     this._requests.push(request);
-    oldOwner._onDidChange.fire({ kind: "removeRequest", requestId: request.id, responseId: request.response?.id, reason: 2 /* Adoption */ });
+    oldOwner._onDidChange.fire({
+      kind: "removeRequest",
+      requestId: request.id,
+      responseId: request.response?.id,
+      reason: 2 /* Adoption */
+    });
     this._onDidChange.fire({ kind: "addRequest", request });
   }
   acceptResponseProgress(request, progress, quiet) {
@@ -1016,7 +1158,9 @@ let ChatModel = class extends Disposable {
       });
     }
     if (request.response.isComplete) {
-      throw new Error("acceptResponseProgress: Adding progress to a completed response");
+      throw new Error(
+        "acceptResponseProgress: Adding progress to a completed response"
+      );
     }
     if (progress.kind === "markdownContent" || progress.kind === "treeData" || progress.kind === "inlineReference" || progress.kind === "codeblockUri" || progress.kind === "markdownVuln" || progress.kind === "progressMessage" || progress.kind === "command" || progress.kind === "textEdit" || progress.kind === "notebookEdit" || progress.kind === "warning" || progress.kind === "progressTask" || progress.kind === "confirmation" || progress.kind === "toolInvocation") {
       request.response.updateContent(progress, quiet);
@@ -1025,18 +1169,29 @@ let ChatModel = class extends Disposable {
     } else if (progress.kind === "codeCitation") {
       request.response.applyCodeCitation(progress);
     } else if (progress.kind === "move") {
-      this._onDidChange.fire({ kind: "move", target: progress.uri, range: progress.range });
+      this._onDidChange.fire({
+        kind: "move",
+        target: progress.uri,
+        range: progress.range
+      });
     } else if (progress.kind === "undoStop") {
       request.response.addUndoStop(progress);
     } else {
-      this.logService.error(`Couldn't handle progress: ${JSON.stringify(progress)}`);
+      this.logService.error(
+        `Couldn't handle progress: ${JSON.stringify(progress)}`
+      );
     }
   }
   removeRequest(id, reason = 0 /* Removal */) {
     const index = this._requests.findIndex((request2) => request2.id === id);
     const request = this._requests[index];
     if (index !== -1) {
-      this._onDidChange.fire({ kind: "removeRequest", requestId: request.id, responseId: request.response?.id, reason });
+      this._onDidChange.fire({
+        kind: "removeRequest",
+        requestId: request.id,
+        responseId: request.response?.id,
+        reason
+      });
       this._requests.splice(index, 1);
       request.response?.dispose();
     }
@@ -1083,7 +1238,9 @@ let ChatModel = class extends Disposable {
       requests: this._requests.map((r) => {
         const message = {
           ...r.message,
-          parts: r.message.parts.map((p) => p && "toJSON" in p ? p.toJSON() : p)
+          parts: r.message.parts.map(
+            (p) => p && "toJSON" in p ? p.toJSON() : p
+          )
         };
         const agent = r.response?.agent;
         const agentJson = agent && "toJSON" in agent ? agent.toJSON() : agent ? { ...agent } : void 0;
@@ -1178,8 +1335,19 @@ function getCodeCitationsMessage(citations) {
   if (citations.length === 0) {
     return "";
   }
-  const licenseTypes = citations.reduce((set, c) => set.add(c.license), /* @__PURE__ */ new Set());
-  const label = licenseTypes.size === 1 ? localize("codeCitation", "Similar code found with 1 license type", licenseTypes.size) : localize("codeCitations", "Similar code found with {0} license types", licenseTypes.size);
+  const licenseTypes = citations.reduce(
+    (set, c) => set.add(c.license),
+    /* @__PURE__ */ new Set()
+  );
+  const label = licenseTypes.size === 1 ? localize(
+    "codeCitation",
+    "Similar code found with 1 license type",
+    licenseTypes.size
+  ) : localize(
+    "codeCitations",
+    "Similar code found with {0} license types",
+    licenseTypes.size
+  );
   return label;
 }
 __name(getCodeCitationsMessage, "getCodeCitationsMessage");

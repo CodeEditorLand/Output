@@ -2,7 +2,6 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 import { distinct } from "./arrays.js";
 import { Iterable } from "./iterator.js";
-import { URI } from "./uri.js";
 import { generateUuid } from "./uuid.js";
 function createStringDataTransferItem(stringOrPromise, id) {
   return {
@@ -115,7 +114,7 @@ function matchesMimeType_normalized(normalizedPattern, normalizedMimeTypes) {
   }
   const [_, type, subtype] = wildcard;
   if (subtype === "*") {
-    return normalizedMimeTypes.some((mime) => mime.startsWith(type + "/"));
+    return normalizedMimeTypes.some((mime) => mime.startsWith(`${type}/`));
   }
   return false;
 }

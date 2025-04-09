@@ -1,20 +1,19 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Emitter, Event } from "../../../../base/common/event.js";
-import { ICodeEditor } from "../../../browser/editorBrowser.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { localize } from "../../../../nls.js";
+import {
+  AccessibleViewProviderId,
+  AccessibleViewType
+} from "../../../../platform/accessibility/browser/accessibleView.js";
+import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
 import { ICodeEditorService } from "../../../browser/services/codeEditorService.js";
+import { LineEdit } from "../../../common/core/lineEdit.js";
+import { TextEdit } from "../../../common/core/textEdit.js";
+import { TextModelText } from "../../../common/model/textModelText.js";
 import { InlineCompletionContextKeys } from "./controller/inlineCompletionContextKeys.js";
 import { InlineCompletionsController } from "./controller/inlineCompletionsController.js";
-import { AccessibleViewType, AccessibleViewProviderId, IAccessibleViewContentProvider } from "../../../../platform/accessibility/browser/accessibleView.js";
-import { IAccessibleViewImplementation } from "../../../../platform/accessibility/browser/accessibleViewRegistry.js";
-import { ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
-import { ServicesAccessor } from "../../../../platform/instantiation/common/instantiation.js";
-import { Disposable } from "../../../../base/common/lifecycle.js";
-import { InlineCompletionsModel } from "./model/inlineCompletionsModel.js";
-import { TextEdit } from "../../../common/core/textEdit.js";
-import { LineEdit } from "../../../common/core/lineEdit.js";
-import { TextModelText } from "../../../common/model/textModelText.js";
-import { localize } from "../../../../nls.js";
 class InlineCompletionsAccessibleView {
   static {
     __name(this, "InlineCompletionsAccessibleView");
@@ -22,7 +21,10 @@ class InlineCompletionsAccessibleView {
   type = AccessibleViewType.View;
   priority = 95;
   name = "inline-completions";
-  when = ContextKeyExpr.or(InlineCompletionContextKeys.inlineSuggestionVisible, InlineCompletionContextKeys.inlineEditVisible);
+  when = ContextKeyExpr.or(
+    InlineCompletionContextKeys.inlineSuggestionVisible,
+    InlineCompletionContextKeys.inlineEditVisible
+  );
   getProvider(accessor) {
     const codeEditorService = accessor.get(ICodeEditorService);
     const editor = codeEditorService.getActiveCodeEditor() || codeEditorService.getFocusedCodeEditor();
@@ -33,7 +35,10 @@ class InlineCompletionsAccessibleView {
     if (!model?.state.get()) {
       return;
     }
-    return new InlineCompletionsAccessibleViewContentProvider(editor, model);
+    return new InlineCompletionsAccessibleViewContentProvider(
+      editor,
+      model
+    );
   }
 }
 class InlineCompletionsAccessibleViewContentProvider extends Disposable {
@@ -45,27 +50,45 @@ class InlineCompletionsAccessibleViewContentProvider extends Disposable {
   static {
     __name(this, "InlineCompletionsAccessibleViewContentProvider");
   }
-  _onDidChangeContent = this._register(new Emitter());
+  _onDidChangeContent = this._register(
+    new Emitter()
+  );
   onDidChangeContent = this._onDidChangeContent.event;
   id = AccessibleViewProviderId.InlineCompletions;
   verbositySettingKey = "accessibility.verbosity.inlineCompletions";
-  options = { language: this._editor.getModel()?.getLanguageId() ?? void 0, type: AccessibleViewType.View };
+  options = {
+    language: this._editor.getModel()?.getLanguageId() ?? void 0,
+    type: AccessibleViewType.View
+  };
   provideContent() {
     const state = this._model.state.get();
     if (!state) {
-      throw new Error("Inline completion is visible but state is not available");
+      throw new Error(
+        "Inline completion is visible but state is not available"
+      );
     }
     if (state.kind === "ghostText") {
-      const lineText = this._model.textModel.getLineContent(state.primaryGhostText.lineNumber);
+      const lineText = this._model.textModel.getLineContent(
+        state.primaryGhostText.lineNumber
+      );
       const ghostText = state.primaryGhostText.renderForScreenReader(lineText);
       if (!ghostText) {
-        throw new Error("Inline completion is visible but ghost text is not available");
+        throw new Error(
+          "Inline completion is visible but ghost text is not available"
+        );
       }
       return lineText + ghostText;
     } else {
       const text = new TextModelText(this._model.textModel);
-      const lineEdit = LineEdit.fromTextEdit(new TextEdit(state.edits), text);
-      return localize("inlineEditAvailable", "There is an inline edit available:") + "\n" + lineEdit.humanReadablePatch(text.getLines());
+      const lineEdit = LineEdit.fromTextEdit(
+        new TextEdit(state.edits),
+        text
+      );
+      return `${localize(
+        "inlineEditAvailable",
+        "There is an inline edit available:"
+      )}
+${lineEdit.humanReadablePatch(text.getLines())}`;
     }
   }
   provideNextContent() {

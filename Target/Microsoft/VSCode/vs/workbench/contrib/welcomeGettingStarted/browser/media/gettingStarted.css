@@ -42,7 +42,7 @@
   flex: 1 100%;
 }
 .monaco-workbench .part.editor > .content .gettingStartedContainer .subtitle {
-  margin-top: .6em;
+  margin-top: 0.6em;
   font-size: 2em;
   display: block;
 }
@@ -78,7 +78,7 @@
 }
 .monaco-workbench.reduce-motion .part.editor > .content .gettingStartedContainer .gettingStartedSlide,
 .monaco-workbench.reduce-motion .part.editor > .content .gettingStartedContainer.animatable .gettingStartedSlide {
-  transition: left 0.0s, opacity 0.0s;
+  transition: left 0s, opacity 0s;
 }
 .monaco-workbench .part.editor > .content .gettingStartedContainer .gettingStartedSlideCategories > .gettingStartedCategoriesContainer {
   display: grid;
@@ -753,7 +753,7 @@
 }
 .monaco-workbench .part.editor > .content .gettingStartedContainer button:hover {
   background: var(--vscode-welcomePage-tileHoverBackground);
-  outline-color: var(--vscode-contrastActiveBorder, var(--vscode-focusBorder));
+  outline-color: var( --vscode-contrastActiveBorder, var(--vscode-focusBorder) );
 }
 .monaco-workbench .part.editor > .content .gettingStartedContainer button.expanded:hover {
   background: var(--vscode-welcomePage-tileBackground);

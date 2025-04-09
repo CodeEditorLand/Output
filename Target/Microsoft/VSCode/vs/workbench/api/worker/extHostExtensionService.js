@@ -1,13 +1,11 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { createApiFactoryAndRegisterActors } from "../common/extHost.api.impl.js";
-import { ExtensionActivationTimesBuilder } from "../common/extHostExtensionActivator.js";
-import { AbstractExtHostExtensionService } from "../common/extHostExtensionService.js";
-import { URI } from "../../../base/common/uri.js";
-import { RequireInterceptor } from "../common/extHostRequireInterceptor.js";
-import { IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
-import { ExtensionRuntime } from "../common/extHostTypes.js";
 import { timeout } from "../../../base/common/async.js";
+import { URI } from "../../../base/common/uri.js";
+import { createApiFactoryAndRegisterActors } from "../common/extHost.api.impl.js";
+import { AbstractExtHostExtensionService } from "../common/extHostExtensionService.js";
+import { RequireInterceptor } from "../common/extHostRequireInterceptor.js";
+import { ExtensionRuntime } from "../common/extHostTypes.js";
 import { ExtHostConsoleForwarder } from "./extHostConsoleForwarder.js";
 class WorkerRequireInterceptor extends RequireInterceptor {
   static {
@@ -24,7 +22,7 @@ class WorkerRequireInterceptor extends RequireInterceptor {
       }
     }
     if (this._factories.has(request)) {
-      return this._factories.get(request).load(request, parent, () => {
+      return this._factories.get(request)?.load(request, parent, () => {
         throw new Error("CANNOT LOAD MODULE from here.");
       });
     }
@@ -39,8 +37,14 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
   _fakeModules;
   async _beforeAlmostReadyToRunExtensions() {
     this._instaService.createInstance(ExtHostConsoleForwarder);
-    const apiFactory = this._instaService.invokeFunction(createApiFactoryAndRegisterActors);
-    this._fakeModules = this._instaService.createInstance(WorkerRequireInterceptor, apiFactory, { mine: this._myRegistry, all: this._globalRegistry });
+    const apiFactory = this._instaService.invokeFunction(
+      createApiFactoryAndRegisterActors
+    );
+    this._fakeModules = this._instaService.createInstance(
+      WorkerRequireInterceptor,
+      apiFactory,
+      { mine: this._myRegistry, all: this._globalRegistry }
+    );
     await this._fakeModules.install();
     performance.mark("code/extHost/didInitAPI");
     await this._waitForDebuggerAttachment();
@@ -52,12 +56,18 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
     module = module.with({ path: ensureSuffix(module.path, ".js") });
     const extensionId = extension?.identifier.value;
     if (extensionId) {
-      performance.mark(`code/extHost/willFetchExtensionCode/${extensionId}`);
+      performance.mark(
+        `code/extHost/willFetchExtensionCode/${extensionId}`
+      );
     }
-    const browserUri = URI.revive(await this._mainThreadExtensionsProxy.$asBrowserUri(module));
+    const browserUri = URI.revive(
+      await this._mainThreadExtensionsProxy.$asBrowserUri(module)
+    );
     const response = await fetch(browserUri.toString(true));
     if (extensionId) {
-      performance.mark(`code/extHost/didFetchExtensionCode/${extensionId}`);
+      performance.mark(
+        `code/extHost/didFetchExtensionCode/${extensionId}`
+      );
     }
     if (response.status !== 200) {
       throw new Error(response.statusText);
@@ -71,21 +81,27 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
       initFn = new Function("module", "exports", "require", fullSource);
     } catch (err) {
       if (extensionId) {
-        console.error(`Loading code for extension ${extensionId} failed: ${err.message}`);
+        console.error(
+          `Loading code for extension ${extensionId} failed: ${err.message}`
+        );
       } else {
         console.error(`Loading code failed: ${err.message}`);
       }
-      console.error(`${module.toString(true)}${typeof err.line === "number" ? ` line ${err.line}` : ""}${typeof err.column === "number" ? ` column ${err.column}` : ""}`);
+      console.error(
+        `${module.toString(true)}${typeof err.line === "number" ? ` line ${err.line}` : ""}${typeof err.column === "number" ? ` column ${err.column}` : ""}`
+      );
       console.error(err);
       throw err;
     }
     if (extension) {
-      await this._extHostLocalizationService.initializeLocalizedMessages(extension);
+      await this._extHostLocalizationService.initializeLocalizedMessages(
+        extension
+      );
     }
     const _exports = {};
     const _module = { exports: _exports };
     const _require = /* @__PURE__ */ __name((request) => {
-      const result = this._fakeModules.getModule(request, module);
+      const result = this._fakeModules?.getModule(request, module);
       if (result === void 0) {
         throw new Error(`Cannot load module '${request}'`);
       }
@@ -94,19 +110,25 @@ class ExtHostExtensionService extends AbstractExtHostExtensionService {
     try {
       activationTimesBuilder.codeLoadingStart();
       if (extensionId) {
-        performance.mark(`code/extHost/willLoadExtensionCode/${extensionId}`);
+        performance.mark(
+          `code/extHost/willLoadExtensionCode/${extensionId}`
+        );
       }
       initFn(_module, _exports, _require);
       return _module.exports !== _exports ? _module.exports : _exports;
     } finally {
       if (extensionId) {
-        performance.mark(`code/extHost/didLoadExtensionCode/${extensionId}`);
+        performance.mark(
+          `code/extHost/didLoadExtensionCode/${extensionId}`
+        );
       }
       activationTimesBuilder.codeLoadingStop();
     }
   }
   _loadESMModule(extension, module, activationTimesBuilder) {
-    throw new Error("ESM modules are not supported in the web worker extension host");
+    throw new Error(
+      "ESM modules are not supported in the web worker extension host"
+    );
   }
   async $setRemoteEnvironment(_env) {
     return;

@@ -14,10 +14,18 @@ class RangeSingleLine {
     if (range.endLineNumber !== range.startLineNumber) {
       return void 0;
     }
-    return new RangeSingleLine(range.startLineNumber, new ColumnRange(range.startColumn, range.endColumn));
+    return new RangeSingleLine(
+      range.startLineNumber,
+      new ColumnRange(range.startColumn, range.endColumn)
+    );
   }
   toRange() {
-    return new Range(this.lineNumber, this.columnRange.startColumn, this.lineNumber, this.columnRange.endColumnExclusive);
+    return new Range(
+      this.lineNumber,
+      this.columnRange.startColumn,
+      this.lineNumber,
+      this.columnRange.endColumnExclusive
+    );
   }
 }
 export {

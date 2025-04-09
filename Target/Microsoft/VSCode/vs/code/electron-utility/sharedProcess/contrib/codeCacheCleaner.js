@@ -10,7 +10,7 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { promises } from "fs";
+import { promises } from "node:fs";
 import { RunOnceScheduler } from "../../../../base/common/async.js";
 import { onUnexpectedError } from "../../../../base/common/errors.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
@@ -24,13 +24,15 @@ let CodeCacheCleaner = class extends Disposable {
     this.logService = logService;
     this.dataMaxAge = productService.quality !== "stable" ? 1e3 * 60 * 60 * 24 * 7 : 1e3 * 60 * 60 * 24 * 30 * 3;
     if (currentCodeCachePath) {
-      const scheduler = this._register(new RunOnceScheduler(
-        () => {
-          this.cleanUpCodeCaches(currentCodeCachePath);
-        },
-        30 * 1e3
-        /* after 30s */
-      ));
+      const scheduler = this._register(
+        new RunOnceScheduler(
+          () => {
+            this.cleanUpCodeCaches(currentCodeCachePath);
+          },
+          30 * 1e3
+          /* after 30s */
+        )
+      );
       scheduler.schedule();
     }
   }
@@ -39,23 +41,32 @@ let CodeCacheCleaner = class extends Disposable {
   }
   dataMaxAge;
   async cleanUpCodeCaches(currentCodeCachePath) {
-    this.logService.trace("[code cache cleanup]: Starting to clean up old code cache folders.");
+    this.logService.trace(
+      "[code cache cleanup]: Starting to clean up old code cache folders."
+    );
     try {
       const now = Date.now();
       const codeCacheRootPath = dirname(currentCodeCachePath);
       const currentCodeCache = basename(currentCodeCachePath);
       const codeCaches = await Promises.readdir(codeCacheRootPath);
-      await Promise.all(codeCaches.map(async (codeCache) => {
-        if (codeCache === currentCodeCache) {
-          return;
-        }
-        const codeCacheEntryPath = join(codeCacheRootPath, codeCache);
-        const codeCacheEntryStat = await promises.stat(codeCacheEntryPath);
-        if (codeCacheEntryStat.isDirectory() && now - codeCacheEntryStat.mtime.getTime() > this.dataMaxAge) {
-          this.logService.trace(`[code cache cleanup]: Removing code cache folder ${codeCache}.`);
-          return Promises.rm(codeCacheEntryPath);
-        }
-      }));
+      await Promise.all(
+        codeCaches.map(async (codeCache) => {
+          if (codeCache === currentCodeCache) {
+            return;
+          }
+          const codeCacheEntryPath = join(
+            codeCacheRootPath,
+            codeCache
+          );
+          const codeCacheEntryStat = await promises.stat(codeCacheEntryPath);
+          if (codeCacheEntryStat.isDirectory() && now - codeCacheEntryStat.mtime.getTime() > this.dataMaxAge) {
+            this.logService.trace(
+              `[code cache cleanup]: Removing code cache folder ${codeCache}.`
+            );
+            return Promises.rm(codeCacheEntryPath);
+          }
+        })
+      );
     } catch (error) {
       onUnexpectedError(error);
     }

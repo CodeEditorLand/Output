@@ -10,28 +10,42 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { WorkbenchActionExecutedClassification, WorkbenchActionExecutedEvent } from "../../../base/common/actions.js";
-import { CancellationToken } from "../../../base/common/cancellation.js";
 import { toErrorMessage } from "../../../base/common/errorMessage.js";
 import { isCancellationError } from "../../../base/common/errors.js";
-import { matchesContiguousSubString, matchesPrefix, matchesWords, or } from "../../../base/common/filters.js";
+import {
+  matchesContiguousSubString,
+  matchesPrefix,
+  matchesWords,
+  or
+} from "../../../base/common/filters.js";
 import { createSingleCallFunction } from "../../../base/common/functional.js";
-import { Disposable, DisposableStore, IDisposable } from "../../../base/common/lifecycle.js";
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
 import { LRUCache } from "../../../base/common/map.js";
-import { TfIdfCalculator, normalizeTfIdfScores } from "../../../base/common/tfIdf.js";
+import {
+  normalizeTfIdfScores,
+  TfIdfCalculator
+} from "../../../base/common/tfIdf.js";
 import { localize } from "../../../nls.js";
-import { ILocalizedString } from "../../action/common/action.js";
 import { ICommandService } from "../../commands/common/commands.js";
-import { IConfigurationChangeEvent, IConfigurationService } from "../../configuration/common/configuration.js";
+import {
+  IConfigurationService
+} from "../../configuration/common/configuration.js";
 import { IDialogService } from "../../dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../instantiation/common/instantiation.js";
 import { IKeybindingService } from "../../keybinding/common/keybinding.js";
 import { ILogService } from "../../log/common/log.js";
-import { FastAndSlowPicks, IPickerQuickAccessItem, IPickerQuickAccessProviderOptions, PickerQuickAccessProvider, Picks } from "./pickerQuickAccess.js";
-import { IQuickAccessProviderRunOptions } from "../common/quickAccess.js";
-import { IQuickPickSeparator } from "../common/quickInput.js";
-import { IStorageService, StorageScope, StorageTarget, WillSaveStateReason } from "../../storage/common/storage.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget,
+  WillSaveStateReason
+} from "../../storage/common/storage.js";
 import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import {
+  PickerQuickAccessProvider
+} from "./pickerQuickAccess.js";
 let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvider {
   constructor(options, instantiationService, keybindingService, commandService, telemetryService, dialogService) {
     super(AbstractCommandsQuickAccessProvider.PREFIX, options);
@@ -39,7 +53,9 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
     this.commandService = commandService;
     this.telemetryService = telemetryService;
     this.dialogService = dialogService;
-    this.commandsHistory = this._register(instantiationService.createInstance(CommandsHistory));
+    this.commandsHistory = this._register(
+      instantiationService.createInstance(CommandsHistory)
+    );
     this.options = options;
   }
   static {
@@ -48,7 +64,11 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
   static PREFIX = ">";
   static TFIDF_THRESHOLD = 0.5;
   static TFIDF_MAX_RESULTS = 5;
-  static WORD_FILTER = or(matchesPrefix, matchesWords, matchesContiguousSubString);
+  static WORD_FILTER = or(
+    matchesPrefix,
+    matchesWords,
+    matchesContiguousSubString
+  );
   commandsHistory;
   options;
   async _getPicks(filter, _disposables, token, runOptions) {
@@ -58,17 +78,30 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
     }
     const runTfidf = createSingleCallFunction(() => {
       const tfidf = new TfIdfCalculator();
-      tfidf.updateDocuments(allCommandPicks.map((commandPick) => ({
-        key: commandPick.commandId,
-        textChunks: [this.getTfIdfChunk(commandPick)]
-      })));
+      tfidf.updateDocuments(
+        allCommandPicks.map((commandPick) => ({
+          key: commandPick.commandId,
+          textChunks: [this.getTfIdfChunk(commandPick)]
+        }))
+      );
       const result = tfidf.calculateScores(filter, token);
-      return normalizeTfIdfScores(result).filter((score) => score.score > AbstractCommandsQuickAccessProvider.TFIDF_THRESHOLD).slice(0, AbstractCommandsQuickAccessProvider.TFIDF_MAX_RESULTS);
+      return normalizeTfIdfScores(result).filter(
+        (score) => score.score > AbstractCommandsQuickAccessProvider.TFIDF_THRESHOLD
+      ).slice(
+        0,
+        AbstractCommandsQuickAccessProvider.TFIDF_MAX_RESULTS
+      );
     });
     const filteredCommandPicks = [];
     for (const commandPick of allCommandPicks) {
-      const labelHighlights = AbstractCommandsQuickAccessProvider.WORD_FILTER(filter, commandPick.label) ?? void 0;
-      const aliasHighlights = commandPick.commandAlias ? AbstractCommandsQuickAccessProvider.WORD_FILTER(filter, commandPick.commandAlias) ?? void 0 : void 0;
+      const labelHighlights = AbstractCommandsQuickAccessProvider.WORD_FILTER(
+        filter,
+        commandPick.label
+      ) ?? void 0;
+      const aliasHighlights = commandPick.commandAlias ? AbstractCommandsQuickAccessProvider.WORD_FILTER(
+        filter,
+        commandPick.commandAlias
+      ) ?? void 0 : void 0;
       if (labelHighlights || aliasHighlights) {
         commandPick.highlights = {
           label: labelHighlights,
@@ -82,7 +115,9 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
         if (token.isCancellationRequested) {
           return [];
         }
-        const tfidfScore = tfidf.find((score) => score.key === commandPick.commandId);
+        const tfidfScore = tfidf.find(
+          (score) => score.key === commandPick.commandId
+        );
         if (tfidfScore) {
           commandPick.tfIdfScore = tfidfScore.score;
           filteredCommandPicks.push(commandPick);
@@ -91,7 +126,9 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
     }
     const mapLabelToCommand = /* @__PURE__ */ new Map();
     for (const commandPick of filteredCommandPicks) {
-      const existingCommandForLabel = mapLabelToCommand.get(commandPick.label);
+      const existingCommandForLabel = mapLabelToCommand.get(
+        commandPick.label
+      );
       if (existingCommandForLabel) {
         commandPick.description = commandPick.commandId;
         existingCommandForLabel.description = existingCommandForLabel.commandId;
@@ -110,8 +147,12 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
       } else if (commandPickB.tfIdfScore) {
         return -1;
       }
-      const commandACounter = this.commandsHistory.peek(commandPickA.commandId);
-      const commandBCounter = this.commandsHistory.peek(commandPickB.commandId);
+      const commandACounter = this.commandsHistory.peek(
+        commandPickA.commandId
+      );
+      const commandBCounter = this.commandsHistory.peek(
+        commandPickB.commandId
+      );
       if (commandACounter && commandBCounter) {
         return commandACounter > commandBCounter ? -1 : 1;
       }
@@ -122,8 +163,12 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
         return 1;
       }
       if (this.options.suggestedCommandIds) {
-        const commandASuggestion = this.options.suggestedCommandIds.has(commandPickA.commandId);
-        const commandBSuggestion = this.options.suggestedCommandIds.has(commandPickB.commandId);
+        const commandASuggestion = this.options.suggestedCommandIds.has(
+          commandPickA.commandId
+        );
+        const commandBSuggestion = this.options.suggestedCommandIds.has(
+          commandPickB.commandId
+        );
         if (commandASuggestion && commandBSuggestion) {
           return 0;
         }
@@ -143,20 +188,32 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
     for (let i = 0; i < filteredCommandPicks.length; i++) {
       const commandPick = filteredCommandPicks[i];
       if (i === 0 && this.commandsHistory.peek(commandPick.commandId)) {
-        commandPicks.push({ type: "separator", label: localize("recentlyUsed", "recently used") });
+        commandPicks.push({
+          type: "separator",
+          label: localize("recentlyUsed", "recently used")
+        });
         addOtherSeparator = true;
       }
       if (addSuggestedSeparator && commandPick.tfIdfScore !== void 0) {
-        commandPicks.push({ type: "separator", label: localize("suggested", "similar commands") });
+        commandPicks.push({
+          type: "separator",
+          label: localize("suggested", "similar commands")
+        });
         addSuggestedSeparator = false;
       }
       if (addCommonlyUsedSeparator && commandPick.tfIdfScore === void 0 && !this.commandsHistory.peek(commandPick.commandId) && this.options.suggestedCommandIds?.has(commandPick.commandId)) {
-        commandPicks.push({ type: "separator", label: localize("commonlyUsed", "commonly used") });
+        commandPicks.push({
+          type: "separator",
+          label: localize("commonlyUsed", "commonly used")
+        });
         addOtherSeparator = true;
         addCommonlyUsedSeparator = false;
       }
       if (addOtherSeparator && commandPick.tfIdfScore === void 0 && !this.commandsHistory.peek(commandPick.commandId) && !this.options.suggestedCommandIds?.has(commandPick.commandId)) {
-        commandPicks.push({ type: "separator", label: localize("morecCommands", "other commands") });
+        commandPicks.push({
+          type: "separator",
+          label: localize("morecCommands", "other commands")
+        });
         addOtherSeparator = false;
       }
       commandPicks.push(this.toCommandPick(commandPick, runOptions));
@@ -167,13 +224,23 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
     return {
       picks: commandPicks,
       additionalPicks: (async () => {
-        const additionalCommandPicks = await this.getAdditionalCommandPicks(allCommandPicks, filteredCommandPicks, filter, token);
+        const additionalCommandPicks = await this.getAdditionalCommandPicks(
+          allCommandPicks,
+          filteredCommandPicks,
+          filter,
+          token
+        );
         if (token.isCancellationRequested) {
           return [];
         }
-        const commandPicks2 = additionalCommandPicks.map((commandPick) => this.toCommandPick(commandPick, runOptions));
+        const commandPicks2 = additionalCommandPicks.map(
+          (commandPick) => this.toCommandPick(commandPick, runOptions)
+        );
         if (addSuggestedSeparator && commandPicks2[0]?.type !== "separator") {
-          commandPicks2.unshift({ type: "separator", label: localize("suggested", "similar commands") });
+          commandPicks2.unshift({
+            type: "separator",
+            label: localize("suggested", "similar commands")
+          });
         }
         return commandPicks2;
       })()
@@ -183,8 +250,15 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
     if (commandPick.type === "separator") {
       return commandPick;
     }
-    const keybinding = this.keybindingService.lookupKeybinding(commandPick.commandId);
-    const ariaLabel = keybinding ? localize("commandPickAriaLabelWithKeybinding", "{0}, {1}", commandPick.label, keybinding.getAriaLabel()) : commandPick.label;
+    const keybinding = this.keybindingService.lookupKeybinding(
+      commandPick.commandId
+    );
+    const ariaLabel = keybinding ? localize(
+      "commandPickAriaLabelWithKeybinding",
+      "{0}, {1}",
+      commandPick.label,
+      keybinding.getAriaLabel()
+    ) : commandPick.label;
     return {
       ...commandPick,
       ariaLabel,
@@ -197,17 +271,33 @@ let AbstractCommandsQuickAccessProvider = class extends PickerQuickAccessProvide
           from: runOptions?.from ?? "quick open"
         });
         try {
-          commandPick.args?.length ? await this.commandService.executeCommand(commandPick.commandId, ...commandPick.args) : await this.commandService.executeCommand(commandPick.commandId);
+          commandPick.args?.length ? await this.commandService.executeCommand(
+            commandPick.commandId,
+            ...commandPick.args
+          ) : await this.commandService.executeCommand(
+            commandPick.commandId
+          );
         } catch (error) {
           if (!isCancellationError(error)) {
-            this.dialogService.error(localize("canNotRun", "Command '{0}' resulted in an error", commandPick.label), toErrorMessage(error));
+            this.dialogService.error(
+              localize(
+                "canNotRun",
+                "Command '{0}' resulted in an error",
+                commandPick.label
+              ),
+              toErrorMessage(error)
+            );
           }
         }
       }, "accept")
     };
   }
   // TF-IDF string to be indexed
-  getTfIdfChunk({ label, commandAlias, commandDescription }) {
+  getTfIdfChunk({
+    label,
+    commandAlias,
+    commandDescription
+  }) {
     let chunk = label;
     if (commandAlias && commandAlias !== label) {
       chunk += ` - ${commandAlias}`;
@@ -246,44 +336,66 @@ let CommandsHistory = class extends Disposable {
   static hasChanges = false;
   configuredCommandsHistoryLength = 0;
   registerListeners() {
-    this._register(this.configurationService.onDidChangeConfiguration((e) => this.updateConfiguration(e)));
-    this._register(this.storageService.onWillSaveState((e) => {
-      if (e.reason === WillSaveStateReason.SHUTDOWN) {
-        this.saveState();
-      }
-    }));
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.updateConfiguration(e)
+      )
+    );
+    this._register(
+      this.storageService.onWillSaveState((e) => {
+        if (e.reason === WillSaveStateReason.SHUTDOWN) {
+          this.saveState();
+        }
+      })
+    );
   }
   updateConfiguration(e) {
     if (e && !e.affectsConfiguration("workbench.commandPalette.history")) {
       return;
     }
-    this.configuredCommandsHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(this.configurationService);
+    this.configuredCommandsHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(
+      this.configurationService
+    );
     if (CommandsHistory.cache && CommandsHistory.cache.limit !== this.configuredCommandsHistoryLength) {
       CommandsHistory.cache.limit = this.configuredCommandsHistoryLength;
       CommandsHistory.hasChanges = true;
     }
   }
   load() {
-    const raw = this.storageService.get(CommandsHistory.PREF_KEY_CACHE, StorageScope.PROFILE);
+    const raw = this.storageService.get(
+      CommandsHistory.PREF_KEY_CACHE,
+      StorageScope.PROFILE
+    );
     let serializedCache;
     if (raw) {
       try {
         serializedCache = JSON.parse(raw);
       } catch (error) {
-        this.logService.error(`[CommandsHistory] invalid data: ${error}`);
+        this.logService.error(
+          `[CommandsHistory] invalid data: ${error}`
+        );
       }
     }
-    const cache = CommandsHistory.cache = new LRUCache(this.configuredCommandsHistoryLength, 1);
+    const cache = CommandsHistory.cache = new LRUCache(
+      this.configuredCommandsHistoryLength,
+      1
+    );
     if (serializedCache) {
       let entries;
       if (serializedCache.usesLRU) {
         entries = serializedCache.entries;
       } else {
-        entries = serializedCache.entries.sort((a, b) => a.value - b.value);
+        entries = serializedCache.entries.sort(
+          (a, b) => a.value - b.value
+        );
       }
       entries.forEach((entry) => cache.set(entry.key, entry.value));
     }
-    CommandsHistory.counter = this.storageService.getNumber(CommandsHistory.PREF_KEY_COUNTER, StorageScope.PROFILE, CommandsHistory.counter);
+    CommandsHistory.counter = this.storageService.getNumber(
+      CommandsHistory.PREF_KEY_COUNTER,
+      StorageScope.PROFILE,
+      CommandsHistory.counter
+    );
   }
   push(commandId) {
     if (!CommandsHistory.cache) {
@@ -302,10 +414,25 @@ let CommandsHistory = class extends Disposable {
     if (!CommandsHistory.hasChanges) {
       return;
     }
-    const serializedCache = { usesLRU: true, entries: [] };
-    CommandsHistory.cache.forEach((value, key) => serializedCache.entries.push({ key, value }));
-    this.storageService.store(CommandsHistory.PREF_KEY_CACHE, JSON.stringify(serializedCache), StorageScope.PROFILE, StorageTarget.USER);
-    this.storageService.store(CommandsHistory.PREF_KEY_COUNTER, CommandsHistory.counter, StorageScope.PROFILE, StorageTarget.USER);
+    const serializedCache = {
+      usesLRU: true,
+      entries: []
+    };
+    CommandsHistory.cache.forEach(
+      (value, key) => serializedCache.entries.push({ key, value })
+    );
+    this.storageService.store(
+      CommandsHistory.PREF_KEY_CACHE,
+      JSON.stringify(serializedCache),
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
+    this.storageService.store(
+      CommandsHistory.PREF_KEY_COUNTER,
+      CommandsHistory.counter,
+      StorageScope.PROFILE,
+      StorageTarget.USER
+    );
     CommandsHistory.hasChanges = false;
   }
   static getConfiguredCommandHistoryLength(configurationService) {
@@ -317,8 +444,12 @@ let CommandsHistory = class extends Disposable {
     return CommandsHistory.DEFAULT_COMMANDS_HISTORY_LENGTH;
   }
   static clearHistory(configurationService, storageService) {
-    const commandHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(configurationService);
-    CommandsHistory.cache = new LRUCache(commandHistoryLength);
+    const commandHistoryLength = CommandsHistory.getConfiguredCommandHistoryLength(
+      configurationService
+    );
+    CommandsHistory.cache = new LRUCache(
+      commandHistoryLength
+    );
     CommandsHistory.counter = 1;
     CommandsHistory.hasChanges = true;
   }

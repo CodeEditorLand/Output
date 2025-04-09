@@ -10,33 +10,70 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event, Emitter } from "../../../../base/common/event.js";
+import { VSBuffer } from "../../../../base/common/buffer.js";
+import { toLocalISOString } from "../../../../base/common/date.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableMap
+} from "../../../../base/common/lifecycle.js";
 import { Schemas } from "../../../../base/common/network.js";
+import { joinPath } from "../../../../base/common/resources.js";
 import { URI } from "../../../../base/common/uri.js";
-import { Disposable, DisposableMap } from "../../../../base/common/lifecycle.js";
-import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { Registry } from "../../../../platform/registry/common/platform.js";
-import { IOutputChannel, IOutputService, OUTPUT_VIEW_ID, LOG_MIME, OUTPUT_MIME, OutputChannelUpdateMode, IOutputChannelDescriptor, Extensions, IOutputChannelRegistry, ACTIVE_OUTPUT_CHANNEL_CONTEXT, CONTEXT_ACTIVE_FILE_OUTPUT, CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE, CONTEXT_ACTIVE_OUTPUT_LEVEL, CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT, IOutputViewFilters, SHOW_DEBUG_FILTER_CONTEXT, SHOW_ERROR_FILTER_CONTEXT, SHOW_INFO_FILTER_CONTEXT, SHOW_TRACE_FILTER_CONTEXT, SHOW_WARNING_FILTER_CONTEXT, CONTEXT_ACTIVE_LOG_FILE_OUTPUT, IMultiSourceOutputChannelDescriptor, isSingleSourceOutputChannelDescriptor, HIDE_CATEGORY_FILTER_CONTEXT, isMultiSourceOutputChannelDescriptor, ILogEntry } from "../../../services/output/common/output.js";
-import { OutputLinkProvider } from "./outputLinkProvider.js";
-import { ITextModelService, ITextModelContentProvider } from "../../../../editor/common/services/resolverService.js";
-import { ITextModel } from "../../../../editor/common/model.js";
-import { ILogService, ILoggerService, LogLevel, LogLevelToString } from "../../../../platform/log/common/log.js";
-import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
-import { DelegatedOutputChannelModel, FileOutputChannelModel, IOutputChannelModel, MultiFileOutputChannelModel } from "../common/outputChannelModel.js";
-import { IViewsService } from "../../../services/views/common/viewsService.js";
-import { OutputViewPane } from "./outputView.js";
 import { ILanguageService } from "../../../../editor/common/languages/language.js";
-import { IContextKey, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IDefaultLogLevelsService } from "../../logs/common/defaultLogLevels.js";
+import {
+  ITextModelService
+} from "../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../nls.js";
+import {
+  IContextKeyService
+} from "../../../../platform/contextkey/common/contextkey.js";
 import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IFileService } from "../../../../platform/files/common/files.js";
-import { localize } from "../../../../nls.js";
-import { joinPath } from "../../../../base/common/resources.js";
-import { VSBuffer } from "../../../../base/common/buffer.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import {
+  ILoggerService,
+  ILogService,
+  LogLevel,
+  LogLevelToString
+} from "../../../../platform/log/common/log.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { telemetryLogId } from "../../../../platform/telemetry/common/telemetryUtils.js";
-import { toLocalISOString } from "../../../../base/common/date.js";
 import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { ILifecycleService } from "../../../services/lifecycle/common/lifecycle.js";
+import {
+  ACTIVE_OUTPUT_CHANNEL_CONTEXT,
+  CONTEXT_ACTIVE_FILE_OUTPUT,
+  CONTEXT_ACTIVE_LOG_FILE_OUTPUT,
+  CONTEXT_ACTIVE_OUTPUT_LEVEL,
+  CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT,
+  CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE,
+  Extensions,
+  HIDE_CATEGORY_FILTER_CONTEXT,
+  isMultiSourceOutputChannelDescriptor,
+  isSingleSourceOutputChannelDescriptor,
+  LOG_MIME,
+  OUTPUT_MIME,
+  OUTPUT_VIEW_ID,
+  SHOW_DEBUG_FILTER_CONTEXT,
+  SHOW_ERROR_FILTER_CONTEXT,
+  SHOW_INFO_FILTER_CONTEXT,
+  SHOW_TRACE_FILTER_CONTEXT,
+  SHOW_WARNING_FILTER_CONTEXT
+} from "../../../services/output/common/output.js";
+import { IViewsService } from "../../../services/views/common/viewsService.js";
+import { IDefaultLogLevelsService } from "../../logs/common/defaultLogLevels.js";
+import {
+  DelegatedOutputChannelModel,
+  FileOutputChannelModel,
+  MultiFileOutputChannelModel
+} from "../common/outputChannelModel.js";
+import { OutputLinkProvider } from "./outputLinkProvider.js";
 const OUTPUT_ACTIVE_CHANNEL_KEY = "output.activechannel";
 let OutputChannel = class extends Disposable {
   constructor(outputChannelDescriptor, outputLocation, outputDirPromise, languageService, instantiationService) {
@@ -49,7 +86,9 @@ let OutputChannel = class extends Disposable {
     this.id = outputChannelDescriptor.id;
     this.label = outputChannelDescriptor.label;
     this.uri = URI.from({ scheme: Schemas.outputChannel, path: this.id });
-    this.model = this._register(this.createOutputChannelModel(this.uri, outputChannelDescriptor));
+    this.model = this._register(
+      this.createOutputChannelModel(this.uri, outputChannelDescriptor)
+    );
   }
   static {
     __name(this, "OutputChannel");
@@ -60,14 +99,35 @@ let OutputChannel = class extends Disposable {
   label;
   uri;
   createOutputChannelModel(uri, outputChannelDescriptor) {
-    const language = outputChannelDescriptor.languageId ? this.languageService.createById(outputChannelDescriptor.languageId) : this.languageService.createByMimeType(outputChannelDescriptor.log ? LOG_MIME : OUTPUT_MIME);
+    const language = outputChannelDescriptor.languageId ? this.languageService.createById(
+      outputChannelDescriptor.languageId
+    ) : this.languageService.createByMimeType(
+      outputChannelDescriptor.log ? LOG_MIME : OUTPUT_MIME
+    );
     if (isMultiSourceOutputChannelDescriptor(outputChannelDescriptor)) {
-      return this.instantiationService.createInstance(MultiFileOutputChannelModel, uri, language, [...outputChannelDescriptor.source]);
+      return this.instantiationService.createInstance(
+        MultiFileOutputChannelModel,
+        uri,
+        language,
+        [...outputChannelDescriptor.source]
+      );
     }
     if (isSingleSourceOutputChannelDescriptor(outputChannelDescriptor)) {
-      return this.instantiationService.createInstance(FileOutputChannelModel, uri, language, outputChannelDescriptor.source);
+      return this.instantiationService.createInstance(
+        FileOutputChannelModel,
+        uri,
+        language,
+        outputChannelDescriptor.source
+      );
     }
-    return this.instantiationService.createInstance(DelegatedOutputChannelModel, this.id, uri, language, this.outputLocation, this.outputDirPromise);
+    return this.instantiationService.createInstance(
+      DelegatedOutputChannelModel,
+      this.id,
+      uri,
+      language,
+      this.outputLocation,
+      this.outputDirPromise
+    );
   }
   getLogEntries() {
     return this.model.getLogEntries();
@@ -99,11 +159,15 @@ class OutputViewFilters extends Disposable {
     this._debug.set(options.debug);
     this._info = SHOW_INFO_FILTER_CONTEXT.bindTo(this.contextKeyService);
     this._info.set(options.info);
-    this._warning = SHOW_WARNING_FILTER_CONTEXT.bindTo(this.contextKeyService);
+    this._warning = SHOW_WARNING_FILTER_CONTEXT.bindTo(
+      this.contextKeyService
+    );
     this._warning.set(options.warning);
     this._error = SHOW_ERROR_FILTER_CONTEXT.bindTo(this.contextKeyService);
     this._error.set(options.error);
-    this._categories = HIDE_CATEGORY_FILTER_CONTEXT.bindTo(this.contextKeyService);
+    this._categories = HIDE_CATEGORY_FILTER_CONTEXT.bindTo(
+      this.contextKeyService
+    );
     this._categories.set(options.sources);
     this.filterHistory = options.filterHistory;
   }
@@ -209,60 +273,112 @@ let OutputService = class extends Disposable {
     this.defaultLogLevelsService = defaultLogLevelsService;
     this.fileDialogService = fileDialogService;
     this.fileService = fileService;
-    this.activeChannelIdInStorage = this.storageService.get(OUTPUT_ACTIVE_CHANNEL_KEY, StorageScope.WORKSPACE, "");
+    this.activeChannelIdInStorage = this.storageService.get(
+      OUTPUT_ACTIVE_CHANNEL_KEY,
+      StorageScope.WORKSPACE,
+      ""
+    );
     this.activeOutputChannelContext = ACTIVE_OUTPUT_CHANNEL_CONTEXT.bindTo(contextKeyService);
     this.activeOutputChannelContext.set(this.activeChannelIdInStorage);
-    this._register(this.onActiveOutputChannel((channel) => this.activeOutputChannelContext.set(channel)));
+    this._register(
+      this.onActiveOutputChannel(
+        (channel) => this.activeOutputChannelContext.set(channel)
+      )
+    );
     this.activeFileOutputChannelContext = CONTEXT_ACTIVE_FILE_OUTPUT.bindTo(contextKeyService);
     this.activeLogOutputChannelContext = CONTEXT_ACTIVE_LOG_FILE_OUTPUT.bindTo(contextKeyService);
     this.activeOutputChannelLevelSettableContext = CONTEXT_ACTIVE_OUTPUT_LEVEL_SETTABLE.bindTo(contextKeyService);
     this.activeOutputChannelLevelContext = CONTEXT_ACTIVE_OUTPUT_LEVEL.bindTo(contextKeyService);
     this.activeOutputChannelLevelIsDefaultContext = CONTEXT_ACTIVE_OUTPUT_LEVEL_IS_DEFAULT.bindTo(contextKeyService);
-    this.outputLocation = joinPath(environmentService.windowLogsPath, `output_${toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")}`);
-    this._register(textModelService.registerTextModelContentProvider(Schemas.outputChannel, this));
+    this.outputLocation = joinPath(
+      environmentService.windowLogsPath,
+      `output_${toLocalISOString(/* @__PURE__ */ new Date()).replace(/-|:|\.\d+Z$/g, "")}`
+    );
+    this._register(
+      textModelService.registerTextModelContentProvider(
+        Schemas.outputChannel,
+        this
+      )
+    );
     this._register(instantiationService.createInstance(OutputLinkProvider));
-    const registry = Registry.as(Extensions.OutputChannels);
+    const registry = Registry.as(
+      Extensions.OutputChannels
+    );
     for (const channelIdentifier of registry.getChannels()) {
       this.onDidRegisterChannel(channelIdentifier.id);
     }
-    this._register(registry.onDidRegisterChannel((id) => this.onDidRegisterChannel(id)));
-    this._register(registry.onDidUpdateChannelSources((channel) => this.onDidUpdateChannelSources(channel)));
-    this._register(registry.onDidRemoveChannel((channel) => this.onDidRemoveChannel(channel)));
+    this._register(
+      registry.onDidRegisterChannel(
+        (id) => this.onDidRegisterChannel(id)
+      )
+    );
+    this._register(
+      registry.onDidUpdateChannelSources(
+        (channel) => this.onDidUpdateChannelSources(channel)
+      )
+    );
+    this._register(
+      registry.onDidRemoveChannel(
+        (channel) => this.onDidRemoveChannel(channel)
+      )
+    );
     if (!this.activeChannel) {
       const channels = this.getChannelDescriptors();
-      this.setActiveChannel(channels && channels.length > 0 ? this.getChannel(channels[0].id) : void 0);
+      this.setActiveChannel(
+        channels && channels.length > 0 ? this.getChannel(channels[0].id) : void 0
+      );
     }
-    this._register(Event.filter(this.viewsService.onDidChangeViewVisibility, (e) => e.id === OUTPUT_VIEW_ID && e.visible)(() => {
-      if (this.activeChannel) {
-        this.viewsService.getActiveViewWithId(OUTPUT_VIEW_ID)?.showChannel(this.activeChannel, true);
-      }
-    }));
-    this._register(this.loggerService.onDidChangeLogLevel(() => {
-      this.resetLogLevelFilters();
-      this.setLevelContext();
-      this.setLevelIsDefaultContext();
-    }));
-    this._register(this.defaultLogLevelsService.onDidChangeDefaultLogLevels(() => {
-      this.setLevelIsDefaultContext();
-    }));
-    this._register(this.lifecycleService.onDidShutdown(() => this.dispose()));
-    this.filters = this._register(new OutputViewFilters({
-      filterHistory: [],
-      trace: true,
-      debug: true,
-      info: true,
-      warning: true,
-      error: true,
-      sources: ""
-    }, contextKeyService));
+    this._register(
+      Event.filter(
+        this.viewsService.onDidChangeViewVisibility,
+        (e) => e.id === OUTPUT_VIEW_ID && e.visible
+      )(() => {
+        if (this.activeChannel) {
+          this.viewsService.getActiveViewWithId(OUTPUT_VIEW_ID)?.showChannel(this.activeChannel, true);
+        }
+      })
+    );
+    this._register(
+      this.loggerService.onDidChangeLogLevel(() => {
+        this.resetLogLevelFilters();
+        this.setLevelContext();
+        this.setLevelIsDefaultContext();
+      })
+    );
+    this._register(
+      this.defaultLogLevelsService.onDidChangeDefaultLogLevels(() => {
+        this.setLevelIsDefaultContext();
+      })
+    );
+    this._register(
+      this.lifecycleService.onDidShutdown(() => this.dispose())
+    );
+    this.filters = this._register(
+      new OutputViewFilters(
+        {
+          filterHistory: [],
+          trace: true,
+          debug: true,
+          info: true,
+          warning: true,
+          error: true,
+          sources: ""
+        },
+        contextKeyService
+      )
+    );
   }
   static {
     __name(this, "OutputService");
   }
-  channels = this._register(new DisposableMap());
+  channels = this._register(
+    new DisposableMap()
+  );
   activeChannelIdInStorage;
   activeChannel;
-  _onActiveOutputChannel = this._register(new Emitter());
+  _onActiveOutputChannel = this._register(
+    new Emitter()
+  );
   onActiveOutputChannel = this._onActiveOutputChannel.event;
   activeOutputChannelContext;
   activeFileOutputChannelContext;
@@ -285,7 +401,10 @@ let OutputService = class extends Disposable {
       this.setActiveChannel(channel);
       this._onActiveOutputChannel.fire(id);
     }
-    const outputView = await this.viewsService.openView(OUTPUT_VIEW_ID, !preserveFocus);
+    const outputView = await this.viewsService.openView(
+      OUTPUT_VIEW_ID,
+      !preserveFocus
+    );
     if (outputView && channel) {
       outputView.showChannel(channel, !!preserveFocus);
     }
@@ -294,10 +413,14 @@ let OutputService = class extends Disposable {
     return this.channels.get(id);
   }
   getChannelDescriptor(id) {
-    return Registry.as(Extensions.OutputChannels).getChannel(id);
+    return Registry.as(
+      Extensions.OutputChannels
+    ).getChannel(id);
   }
   getChannelDescriptors() {
-    return Registry.as(Extensions.OutputChannels).getChannels();
+    return Registry.as(
+      Extensions.OutputChannels
+    ).getChannels();
   }
   getActiveChannel() {
     return this.activeChannel;
@@ -314,7 +437,13 @@ let OutputService = class extends Disposable {
       return void 0;
     }
     const logLevel = this.loggerService.getLogLevel();
-    return sources.reduce((prev, curr) => Math.min(prev, this.loggerService.getLogLevel(curr.resource) ?? logLevel), LogLevel.Error);
+    return sources.reduce(
+      (prev, curr) => Math.min(
+        prev,
+        this.loggerService.getLogLevel(curr.resource) ?? logLevel
+      ),
+      LogLevel.Error
+    );
   }
   setLogLevel(channel, logLevel) {
     if (!channel.log) {
@@ -329,7 +458,9 @@ let OutputService = class extends Disposable {
     }
   }
   registerCompoundLogChannel(descriptors) {
-    const outputChannelRegistry = Registry.as(Extensions.OutputChannels);
+    const outputChannelRegistry = Registry.as(
+      Extensions.OutputChannels
+    );
     descriptors.sort((a, b) => a.label.localeCompare(b.label));
     const id = descriptors.map((r) => r.id.toLowerCase()).join("-");
     if (!outputChannelRegistry.getChannel(id)) {
@@ -338,9 +469,14 @@ let OutputService = class extends Disposable {
         label: descriptors.map((r) => r.label).join(", "),
         log: descriptors.some((r) => r.log),
         user: true,
-        source: descriptors.map((descriptor) => {
+        source: descriptors.flatMap((descriptor) => {
           if (isSingleSourceOutputChannelDescriptor(descriptor)) {
-            return [{ resource: descriptor.source.resource, name: descriptor.source.name ?? descriptor.label }];
+            return [
+              {
+                resource: descriptor.source.resource,
+                name: descriptor.source.name ?? descriptor.label
+              }
+            ];
           }
           if (isMultiSourceOutputChannelDescriptor(descriptor)) {
             return descriptor.source;
@@ -350,7 +486,7 @@ let OutputService = class extends Disposable {
             return channel.model.source;
           }
           return [];
-        }).flat()
+        })
       });
     }
     return id;
@@ -371,25 +507,39 @@ let OutputService = class extends Disposable {
       const uri = await this.fileDialogService.showSaveDialog({
         title: localize("saveLog.dialogTitle", "Save Output As"),
         availableFileSystems: [Schemas.file],
-        defaultUri: joinPath(await this.fileDialogService.defaultFilePath(), `${name}.log`),
-        filters: [{
-          name,
-          extensions: ["log"]
-        }]
+        defaultUri: joinPath(
+          await this.fileDialogService.defaultFilePath(),
+          `${name}.log`
+        ),
+        filters: [
+          {
+            name,
+            extensions: ["log"]
+          }
+        ]
       });
       if (!uri) {
         return;
       }
-      const modelRef = await this.textModelService.createModelReference(channel.uri);
+      const modelRef = await this.textModelService.createModelReference(
+        channel.uri
+      );
       try {
-        await this.fileService.writeFile(uri, VSBuffer.fromString(modelRef.object.textEditorModel.getValue()));
+        await this.fileService.writeFile(
+          uri,
+          VSBuffer.fromString(
+            modelRef.object.textEditorModel.getValue()
+          )
+        );
       } finally {
         modelRef.dispose();
       }
       return;
     } finally {
       if (channels.length > 1) {
-        Registry.as(Extensions.OutputChannels).removeChannel(channel.id);
+        Registry.as(
+          Extensions.OutputChannels
+        ).removeChannel(channel.id);
       }
     }
   }
@@ -399,7 +549,9 @@ let OutputService = class extends Disposable {
     if (!this.activeChannel || this.activeChannelIdInStorage === channelId) {
       this.setActiveChannel(channel);
       this._onActiveOutputChannel.fire(channelId);
-      const outputView = this.viewsService.getActiveViewWithId(OUTPUT_VIEW_ID);
+      const outputView = this.viewsService.getActiveViewWithId(
+        OUTPUT_VIEW_ID
+      );
       outputView?.showChannel(channel, true);
     }
   }
@@ -420,23 +572,29 @@ let OutputService = class extends Disposable {
   }
   createChannel(id) {
     const channel = this.instantiateChannel(id);
-    this._register(Event.once(channel.model.onDispose)(() => {
-      if (this.activeChannel === channel) {
-        const channels = this.getChannelDescriptors();
-        const channel2 = channels.length ? this.getChannel(channels[0].id) : void 0;
-        if (channel2 && this.viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
-          this.showChannel(channel2.id);
-        } else {
-          this.setActiveChannel(void 0);
+    this._register(
+      Event.once(channel.model.onDispose)(() => {
+        if (this.activeChannel === channel) {
+          const channels = this.getChannelDescriptors();
+          const channel2 = channels.length ? this.getChannel(channels[0].id) : void 0;
+          if (channel2 && this.viewsService.isViewVisible(OUTPUT_VIEW_ID)) {
+            this.showChannel(channel2.id);
+          } else {
+            this.setActiveChannel(void 0);
+          }
         }
-      }
-      Registry.as(Extensions.OutputChannels).removeChannel(id);
-    }));
+        Registry.as(
+          Extensions.OutputChannels
+        ).removeChannel(id);
+      })
+    );
     return channel;
   }
   outputFolderCreationPromise = null;
   instantiateChannel(id) {
-    const channelData = Registry.as(Extensions.OutputChannels).getChannel(id);
+    const channelData = Registry.as(
+      Extensions.OutputChannels
+    ).getChannel(id);
     if (!channelData) {
       this.logService.error(`Channel '${id}' is not registered yet`);
       throw new Error(`Channel '${id}' is not registered yet`);
@@ -444,7 +602,12 @@ let OutputService = class extends Disposable {
     if (!this.outputFolderCreationPromise) {
       this.outputFolderCreationPromise = this.fileService.createFolder(this.outputLocation).then(() => void 0);
     }
-    return this.instantiationService.createInstance(OutputChannel, channelData, this.outputLocation, this.outputFolderCreationPromise);
+    return this.instantiationService.createInstance(
+      OutputChannel,
+      channelData,
+      this.outputLocation,
+      this.outputFolderCreationPromise
+    );
   }
   resetLogLevelFilters() {
     const descriptor = this.activeChannel?.outputChannelDescriptor;
@@ -460,14 +623,20 @@ let OutputService = class extends Disposable {
   setLevelContext() {
     const descriptor = this.activeChannel?.outputChannelDescriptor;
     const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : void 0;
-    this.activeOutputChannelLevelContext.set(channelLogLevel !== void 0 ? LogLevelToString(channelLogLevel) : "");
+    this.activeOutputChannelLevelContext.set(
+      channelLogLevel !== void 0 ? LogLevelToString(channelLogLevel) : ""
+    );
   }
   async setLevelIsDefaultContext() {
     const descriptor = this.activeChannel?.outputChannelDescriptor;
     const channelLogLevel = descriptor ? this.getLogLevel(descriptor) : void 0;
     if (channelLogLevel !== void 0) {
-      const channelDefaultLogLevel = await this.defaultLogLevelsService.getDefaultLogLevel(descriptor?.extensionId);
-      this.activeOutputChannelLevelIsDefaultContext.set(channelDefaultLogLevel === channelLogLevel);
+      const channelDefaultLogLevel = await this.defaultLogLevelsService.getDefaultLogLevel(
+        descriptor?.extensionId
+      );
+      this.activeOutputChannelLevelIsDefaultContext.set(
+        channelDefaultLogLevel === channelLogLevel
+      );
     } else {
       this.activeOutputChannelLevelIsDefaultContext.set(false);
     }
@@ -475,15 +644,27 @@ let OutputService = class extends Disposable {
   setActiveChannel(channel) {
     this.activeChannel = channel;
     const descriptor = channel?.outputChannelDescriptor;
-    this.activeFileOutputChannelContext.set(!!descriptor && isSingleSourceOutputChannelDescriptor(descriptor));
+    this.activeFileOutputChannelContext.set(
+      !!descriptor && isSingleSourceOutputChannelDescriptor(descriptor)
+    );
     this.activeLogOutputChannelContext.set(!!descriptor?.log);
-    this.activeOutputChannelLevelSettableContext.set(descriptor !== void 0 && this.canSetLogLevel(descriptor));
+    this.activeOutputChannelLevelSettableContext.set(
+      descriptor !== void 0 && this.canSetLogLevel(descriptor)
+    );
     this.setLevelIsDefaultContext();
     this.setLevelContext();
     if (this.activeChannel) {
-      this.storageService.store(OUTPUT_ACTIVE_CHANNEL_KEY, this.activeChannel.id, StorageScope.WORKSPACE, StorageTarget.MACHINE);
+      this.storageService.store(
+        OUTPUT_ACTIVE_CHANNEL_KEY,
+        this.activeChannel.id,
+        StorageScope.WORKSPACE,
+        StorageTarget.MACHINE
+      );
     } else {
-      this.storageService.remove(OUTPUT_ACTIVE_CHANNEL_KEY, StorageScope.WORKSPACE);
+      this.storageService.remove(
+        OUTPUT_ACTIVE_CHANNEL_KEY,
+        StorageScope.WORKSPACE
+      );
     }
   }
 };

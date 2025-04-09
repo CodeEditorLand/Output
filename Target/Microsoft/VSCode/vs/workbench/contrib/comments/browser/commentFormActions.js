@@ -1,12 +1,16 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { Button, ButtonWithDropdown } from "../../../../base/browser/ui/button/button.js";
-import { ActionRunner, IAction } from "../../../../base/common/actions.js";
-import { DisposableStore, IDisposable } from "../../../../base/common/lifecycle.js";
-import { IMenu, SubmenuItemAction } from "../../../../platform/actions/common/actions.js";
-import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
-import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
-import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import {
+  Button,
+  ButtonWithDropdown
+} from "../../../../base/browser/ui/button/button.js";
+import { ActionRunner } from "../../../../base/common/actions.js";
+import {
+  DisposableStore
+} from "../../../../base/common/lifecycle.js";
+import {
+  SubmenuItemAction
+} from "../../../../platform/actions/common/actions.js";
 import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
 import { CommentCommandId } from "../common/commentCommandIds.js";
 class CommentFormActions {
@@ -39,31 +43,44 @@ class CommentFormActions {
         const action = dropDownActions.length ? dropDownActions[0] : current;
         let keybinding = this.keybindingService.lookupKeybinding(action.id, this.contextKeyService)?.getLabel();
         if (!keybinding && isPrimary) {
-          keybinding = this.keybindingService.lookupKeybinding(CommentCommandId.Submit, this.contextKeyService)?.getLabel();
+          keybinding = this.keybindingService.lookupKeybinding(
+            CommentCommandId.Submit,
+            this.contextKeyService
+          )?.getLabel();
         }
         const title = keybinding ? `${action.label} (${keybinding})` : action.label;
         const actionHandler = this.actionHandler;
         const button = dropDownActions.length ? new ButtonWithDropdown(this.container, {
           contextMenuProvider: this.contextMenuService,
           actions: dropDownActions,
-          actionRunner: this._toDispose.add(new class extends ActionRunner {
-            async runAction(action2, context) {
-              return actionHandler(action2);
-            }
-          }()),
+          actionRunner: this._toDispose.add(
+            new class extends ActionRunner {
+              async runAction(action2, context) {
+                return actionHandler(action2);
+              }
+            }()
+          ),
           secondary: !isPrimary,
           title,
           addPrimaryActionToDropdown: false,
           ...defaultButtonStyles
-        }) : new Button(this.container, { secondary: !isPrimary, title, ...defaultButtonStyles });
+        }) : new Button(this.container, {
+          secondary: !isPrimary,
+          title,
+          ...defaultButtonStyles
+        });
         isPrimary = false;
         this._buttonElements.push(button.element);
         this._toDispose.add(button);
-        this._toDispose.add(button.onDidClick(() => this.actionHandler(action)));
+        this._toDispose.add(
+          button.onDidClick(() => this.actionHandler(action))
+        );
         button.enabled = action.enabled;
         button.label = action.label;
         if (this.maxActions !== void 0 && this._buttonElements.length >= this.maxActions) {
-          console.warn(`An extension has contributed more than the allowable number of actions to a comments menu.`);
+          console.warn(
+            "An extension has contributed more than the allowable number of actions to a comments menu."
+          );
           return;
         }
       }

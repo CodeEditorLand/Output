@@ -1,27 +1,41 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
-import { getDomNodePagePosition, h } from "../../../../../../../base/browser/dom.js";
-import { KeybindingLabel, unthemedKeybindingLabelOptions } from "../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import {
+  getDomNodePagePosition,
+  h
+} from "../../../../../../../base/browser/dom.js";
+import {
+  KeybindingLabel,
+  unthemedKeybindingLabelOptions
+} from "../../../../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
 import { numberComparator } from "../../../../../../../base/common/arrays.js";
 import { findFirstMin } from "../../../../../../../base/common/arraysFind.js";
-import { DisposableStore, toDisposable } from "../../../../../../../base/common/lifecycle.js";
-import { derived, derivedObservableWithCache, derivedOpts, IObservable, IReader, observableValue, transaction } from "../../../../../../../base/common/observable.js";
+import {
+  toDisposable
+} from "../../../../../../../base/common/lifecycle.js";
+import {
+  derived,
+  derivedObservableWithCache,
+  derivedOpts,
+  observableValue,
+  transaction
+} from "../../../../../../../base/common/observable.js";
 import { OS } from "../../../../../../../base/common/platform.js";
-import { getIndentationLength, splitLines } from "../../../../../../../base/common/strings.js";
+import {
+  getIndentationLength,
+  splitLines
+} from "../../../../../../../base/common/strings.js";
 import { URI } from "../../../../../../../base/common/uri.js";
 import { MenuEntryActionViewItem } from "../../../../../../../platform/actions/browser/menuEntryActionViewItem.js";
-import { ICodeEditor } from "../../../../../../browser/editorBrowser.js";
-import { ObservableCodeEditor } from "../../../../../../browser/observableCodeEditor.js";
-import { Point } from "../../../../../../browser/point.js";
-import { Rect } from "../../../../../../browser/rect.js";
 import { EditorOption } from "../../../../../../common/config/editorOptions.js";
-import { LineRange } from "../../../../../../common/core/lineRange.js";
 import { OffsetRange } from "../../../../../../common/core/offsetRange.js";
 import { Position } from "../../../../../../common/core/position.js";
 import { Range } from "../../../../../../common/core/range.js";
-import { SingleTextEdit, TextEdit } from "../../../../../../common/core/textEdit.js";
+import {
+  SingleTextEdit,
+  TextEdit
+} from "../../../../../../common/core/textEdit.js";
 import { RangeMapping } from "../../../../../../common/diff/rangeMapping.js";
-import { ITextModel } from "../../../../../../common/model.js";
 import { indentOfLine } from "../../../../../../common/model/textModel.js";
 function maxContentWidthInRange(editor, range, reader) {
   editor.layoutInfo.read(reader);
@@ -36,7 +50,9 @@ function maxContentWidthInRange(editor, range, reader) {
     const column = model.getLineMaxColumn(i);
     let lineContentWidth = editor.editor.getOffsetForColumn(i, column);
     if (lineContentWidth === -1) {
-      const typicalHalfwidthCharacterWidth = editor.editor.getOption(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
+      const typicalHalfwidthCharacterWidth = editor.editor.getOption(
+        EditorOption.fontInfo
+      ).typicalHalfwidthCharacterWidth;
       const approximation = column * typicalHalfwidthCharacterWidth;
       lineContentWidth = approximation;
     }
@@ -57,7 +73,10 @@ function getOffsetForPos(editor, pos, reader) {
     return 0;
   }
   editor.scrollTop.read(reader);
-  const lineContentWidth = editor.editor.getOffsetForColumn(pos.lineNumber, pos.column);
+  const lineContentWidth = editor.editor.getOffsetForColumn(
+    pos.lineNumber,
+    pos.column
+  );
   return lineContentWidth;
 }
 __name(getOffsetForPos, "getOffsetForPos");
@@ -66,16 +85,33 @@ function getPrefixTrim(diffRanges, originalLinesRange, modifiedLines, editor) {
   if (!textModel) {
     return { prefixTrim: 0, prefixLeftOffset: 0 };
   }
-  const replacementStart = diffRanges.map((r) => r.isSingleLine() ? r.startColumn - 1 : 0);
-  const originalIndents = originalLinesRange.mapToLineArray((line) => indentOfLine(textModel.getLineContent(line)));
+  const replacementStart = diffRanges.map(
+    (r) => r.isSingleLine() ? r.startColumn - 1 : 0
+  );
+  const originalIndents = originalLinesRange.mapToLineArray(
+    (line) => indentOfLine(textModel.getLineContent(line))
+  );
   const modifiedIndents = modifiedLines.filter((line) => line !== "").map((line) => indentOfLine(line));
-  const prefixTrim = Math.min(...replacementStart, ...originalIndents, ...modifiedIndents);
+  const prefixTrim = Math.min(
+    ...replacementStart,
+    ...originalIndents,
+    ...modifiedIndents
+  );
   let prefixLeftOffset;
-  const startLineIndent = textModel.getLineIndentColumn(originalLinesRange.startLineNumber);
+  const startLineIndent = textModel.getLineIndentColumn(
+    originalLinesRange.startLineNumber
+  );
   if (startLineIndent >= prefixTrim + 1) {
-    prefixLeftOffset = editor.getOffsetForColumn(originalLinesRange.startLineNumber, prefixTrim + 1);
+    prefixLeftOffset = editor.getOffsetForColumn(
+      originalLinesRange.startLineNumber,
+      prefixTrim + 1
+    );
   } else if (modifiedLines.length > 0) {
-    prefixLeftOffset = getContentRenderWidth(modifiedLines[0].slice(0, prefixTrim), editor, textModel);
+    prefixLeftOffset = getContentRenderWidth(
+      modifiedLines[0].slice(0, prefixTrim),
+      editor,
+      textModel
+    );
   } else {
     return { prefixTrim: 0, prefixLeftOffset: 0 };
   }
@@ -83,7 +119,9 @@ function getPrefixTrim(diffRanges, originalLinesRange, modifiedLines, editor) {
 }
 __name(getPrefixTrim, "getPrefixTrim");
 function getContentRenderWidth(content, editor, textModel) {
-  const w = editor.getOption(EditorOption.fontInfo).typicalHalfwidthCharacterWidth;
+  const w = editor.getOption(
+    EditorOption.fontInfo
+  ).typicalHalfwidthCharacterWidth;
   const tabSize = textModel.getOptions().tabSize * w;
   const numTabs = content.split("	").length - 1;
   const numNoneTabs = content.length - numTabs;
@@ -94,17 +132,28 @@ class StatusBarViewItem extends MenuEntryActionViewItem {
   static {
     __name(this, "StatusBarViewItem");
   }
-  _updateLabelListener = this._register(this._contextKeyService.onDidChangeContext(() => {
-    this.updateLabel();
-  }));
+  _updateLabelListener = this._register(
+    this._contextKeyService.onDidChangeContext(() => {
+      this.updateLabel();
+    })
+  );
   updateLabel() {
-    const kb = this._keybindingService.lookupKeybinding(this._action.id, this._contextKeyService, true);
+    const kb = this._keybindingService.lookupKeybinding(
+      this._action.id,
+      this._contextKeyService,
+      true
+    );
     if (!kb) {
       return super.updateLabel();
     }
     if (this.label) {
       const div = h("div.keybinding").root;
-      const keybindingLabel = this._register(new KeybindingLabel(div, OS, { disableTitle: true, ...unthemedKeybindingLabelOptions }));
+      const keybindingLabel = this._register(
+        new KeybindingLabel(div, OS, {
+          disableTitle: true,
+          ...unthemedKeybindingLabelOptions
+        })
+      );
       keybindingLabel.set(kb);
       this.label.textContent = this._action.label;
       this.label.appendChild(div);
@@ -123,7 +172,10 @@ class UniqueUriGenerator {
   }
   static _modelId = 0;
   getUniqueUri() {
-    return URI.from({ scheme: this.scheme, path: (/* @__PURE__ */ new Date()).toString() + String(UniqueUriGenerator._modelId++) });
+    return URI.from({
+      scheme: this.scheme,
+      path: (/* @__PURE__ */ new Date()).toString() + String(UniqueUriGenerator._modelId++)
+    });
   }
 }
 function applyEditToModifiedRangeMappings(rangeMapping, edit) {
@@ -151,9 +203,20 @@ __name(offsetRangeToRange, "offsetRangeToRange");
 function createReindentEdit(text, range) {
   const newLines = splitLines(text);
   const edits = [];
-  const minIndent = findFirstMin(range.mapToLineArray((l) => getIndentationLength(newLines[l - 1])), numberComparator);
+  const minIndent = findFirstMin(
+    range.mapToLineArray((l) => getIndentationLength(newLines[l - 1])),
+    numberComparator
+  );
   range.forEach((lineNumber) => {
-    edits.push(new SingleTextEdit(offsetRangeToRange(new OffsetRange(0, minIndent), new Position(lineNumber, 1)), ""));
+    edits.push(
+      new SingleTextEdit(
+        offsetRangeToRange(
+          new OffsetRange(0, minIndent),
+          new Position(lineNumber, 1)
+        ),
+        ""
+      )
+    );
   });
   return new TextEdit(edits);
 }
@@ -188,8 +251,23 @@ function createRectangle(layout, padding, borderRadius, options = {}) {
   const topRightInner = topLeftInner.deltaX(layout.width);
   const bottomLeftInner = topLeftInner.deltaY(layout.height);
   const bottomRightInner = bottomLeftInner.deltaX(layout.width);
-  const { top: paddingTop, bottom: paddingBottom, left: paddingLeft, right: paddingRight } = typeof padding === "number" ? { top: padding, bottom: padding, left: padding, right: padding } : padding;
-  const { topLeft: radiusTL, topRight: radiusTR, bottomLeft: radiusBL, bottomRight: radiusBR } = typeof borderRadius === "number" ? { topLeft: borderRadius, topRight: borderRadius, bottomLeft: borderRadius, bottomRight: borderRadius } : borderRadius;
+  const {
+    top: paddingTop,
+    bottom: paddingBottom,
+    left: paddingLeft,
+    right: paddingRight
+  } = typeof padding === "number" ? { top: padding, bottom: padding, left: padding, right: padding } : padding;
+  const {
+    topLeft: radiusTL,
+    topRight: radiusTR,
+    bottomLeft: radiusBL,
+    bottomRight: radiusBR
+  } = typeof borderRadius === "number" ? {
+    topLeft: borderRadius,
+    topRight: borderRadius,
+    bottomLeft: borderRadius,
+    bottomRight: borderRadius
+  } : borderRadius;
   const totalHeight = layout.height + paddingTop + paddingBottom;
   const totalWidth = layout.width + paddingLeft + paddingRight;
   const topLeft = topLeftInner.deltaX(-paddingLeft).deltaY(-paddingTop);
@@ -200,10 +278,18 @@ function createRectangle(layout, padding, borderRadius, options = {}) {
   const topRightAfter = topRight.deltaY(Math.min(radiusTR, totalHeight / 2));
   const bottomLeft = bottomLeftInner.deltaX(-paddingLeft).deltaY(paddingBottom);
   const bottomRight = bottomRightInner.deltaX(paddingRight).deltaY(paddingBottom);
-  const bottomLeftBefore = bottomLeft.deltaX(Math.min(radiusBL, totalWidth / 2));
-  const bottomLeftAfter = bottomLeft.deltaY(-Math.min(radiusBL, totalHeight / 2));
-  const bottomRightBefore = bottomRight.deltaY(-Math.min(radiusBR, totalHeight / 2));
-  const bottomRightAfter = bottomRight.deltaX(-Math.min(radiusBR, totalWidth / 2));
+  const bottomLeftBefore = bottomLeft.deltaX(
+    Math.min(radiusBL, totalWidth / 2)
+  );
+  const bottomLeftAfter = bottomLeft.deltaY(
+    -Math.min(radiusBL, totalHeight / 2)
+  );
+  const bottomRightBefore = bottomRight.deltaY(
+    -Math.min(radiusBR, totalHeight / 2)
+  );
+  const bottomRightAfter = bottomRight.deltaX(
+    -Math.min(radiusBR, totalWidth / 2)
+  );
   const path = new PathBuilder();
   if (!options.hideLeft) {
     path.moveTo(bottomLeftAfter).lineTo(topLeftBefore);
@@ -242,16 +328,19 @@ function createRectangle(layout, padding, borderRadius, options = {}) {
 __name(createRectangle, "createRectangle");
 function mapOutFalsy(obs) {
   const nonUndefinedObs = derivedObservableWithCache(void 0, (reader, lastValue) => obs.read(reader) || lastValue);
-  return derivedOpts({
-    debugName: /* @__PURE__ */ __name(() => `${obs.debugName}.mapOutFalsy`, "debugName")
-  }, (reader) => {
-    nonUndefinedObs.read(reader);
-    const val = obs.read(reader);
-    if (!val) {
-      return void 0;
+  return derivedOpts(
+    {
+      debugName: /* @__PURE__ */ __name(() => `${obs.debugName}.mapOutFalsy`, "debugName")
+    },
+    (reader) => {
+      nonUndefinedObs.read(reader);
+      const val = obs.read(reader);
+      if (!val) {
+        return void 0;
+      }
+      return nonUndefinedObs;
     }
-    return nonUndefinedObs;
-  });
+  );
 }
 __name(mapOutFalsy, "mapOutFalsy");
 function observeElementPosition(element, store) {
@@ -283,14 +372,18 @@ function rectToProps(fn) {
       /** @description top */
       fn(reader).top
     )),
-    width: derived((reader) => (
-      /** @description width */
-      fn(reader).right - fn(reader).left
-    )),
-    height: derived((reader) => (
-      /** @description height */
-      fn(reader).bottom - fn(reader).top
-    ))
+    width: derived(
+      (reader) => (
+        /** @description width */
+        fn(reader).right - fn(reader).left
+      )
+    ),
+    height: derived(
+      (reader) => (
+        /** @description height */
+        fn(reader).bottom - fn(reader).top
+      )
+    )
   };
 }
 __name(rectToProps, "rectToProps");

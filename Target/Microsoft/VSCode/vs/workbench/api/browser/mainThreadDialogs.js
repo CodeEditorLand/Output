@@ -11,9 +11,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { URI } from "../../../base/common/uri.js";
-import { MainThreadDiaglogsShape, MainContext, MainThreadDialogOpenOptions, MainThreadDialogSaveOptions } from "../common/extHost.protocol.js";
-import { extHostNamedCustomer, IExtHostContext } from "../../services/extensions/common/extHostCustomers.js";
-import { IFileDialogService, IOpenDialogOptions, ISaveDialogOptions } from "../../../platform/dialogs/common/dialogs.js";
+import {
+  IFileDialogService
+} from "../../../platform/dialogs/common/dialogs.js";
+import {
+  extHostNamedCustomer
+} from "../../services/extensions/common/extHostCustomers.js";
+import {
+  MainContext
+} from "../common/extHost.protocol.js";
 let MainThreadDialogs = class {
   constructor(context, _fileDialogService) {
     this._fileDialogService = _fileDialogService;
@@ -25,14 +31,18 @@ let MainThreadDialogs = class {
     if (!convertedOptions.defaultUri) {
       convertedOptions.defaultUri = await this._fileDialogService.defaultFilePath();
     }
-    return Promise.resolve(this._fileDialogService.showOpenDialog(convertedOptions));
+    return Promise.resolve(
+      this._fileDialogService.showOpenDialog(convertedOptions)
+    );
   }
   async $showSaveDialog(options) {
     const convertedOptions = MainThreadDialogs._convertSaveOptions(options);
     if (!convertedOptions.defaultUri) {
       convertedOptions.defaultUri = await this._fileDialogService.defaultFilePath();
     }
-    return Promise.resolve(this._fileDialogService.showSaveDialog(convertedOptions));
+    return Promise.resolve(
+      this._fileDialogService.showSaveDialog(convertedOptions)
+    );
   }
   static _convertOpenOptions(options) {
     const result = {

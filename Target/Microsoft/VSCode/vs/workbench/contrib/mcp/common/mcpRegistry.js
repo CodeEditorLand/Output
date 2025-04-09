@@ -15,32 +15,54 @@ import { Emitter } from "../../../../base/common/event.js";
 import { StringSHA1 } from "../../../../base/common/hash.js";
 import { MarkdownString } from "../../../../base/common/htmlContent.js";
 import { Lazy } from "../../../../base/common/lazy.js";
-import { Disposable, IDisposable } from "../../../../base/common/lifecycle.js";
-import { derived, IObservable, observableValue } from "../../../../base/common/observable.js";
+import {
+  Disposable
+} from "../../../../base/common/lifecycle.js";
+import {
+  derived,
+  observableValue
+} from "../../../../base/common/observable.js";
 import { basename } from "../../../../base/common/resources.js";
 import { indexOfPattern } from "../../../../base/common/strings.js";
 import { localize } from "../../../../nls.js";
-import { ConfigurationTarget, IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import {
+  ConfigurationTarget,
+  IConfigurationService
+} from "../../../../platform/configuration/common/configuration.js";
 import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
 import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
-import { INotificationService, Severity } from "../../../../platform/notification/common/notification.js";
+import {
+  INotificationService,
+  Severity
+} from "../../../../platform/notification/common/notification.js";
 import { observableMemento } from "../../../../platform/observable/common/observableMemento.js";
 import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
 import { IProductService } from "../../../../platform/product/common/productService.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IWorkspaceFolderData } from "../../../../platform/workspace/common/workspace.js";
+import {
+  IStorageService,
+  StorageScope,
+  StorageTarget
+} from "../../../../platform/storage/common/storage.js";
 import { IConfigurationResolverService } from "../../../services/configurationResolver/common/configurationResolver.js";
-import { ConfigurationResolverExpression, IResolvedValue } from "../../../services/configurationResolver/common/configurationResolverExpression.js";
-import { AUX_WINDOW_GROUP, IEditorService } from "../../../services/editor/common/editorService.js";
+import {
+  ConfigurationResolverExpression
+} from "../../../services/configurationResolver/common/configurationResolverExpression.js";
+import {
+  AUX_WINDOW_GROUP,
+  IEditorService
+} from "../../../services/editor/common/editorService.js";
 import { mcpEnabledSection } from "./mcpConfiguration.js";
 import { McpRegistryInputStorage } from "./mcpRegistryInputStorage.js";
-import { IMcpHostDelegate, IMcpRegistry, IMcpResolveConnectionOptions } from "./mcpRegistryTypes.js";
 import { McpServerConnection } from "./mcpServerConnection.js";
-import { IMcpServerConnection, LazyCollectionState, McpCollectionDefinition, McpCollectionReference, McpServerDefinition, McpServerLaunch } from "./mcpTypes.js";
-const createTrustMemento = observableMemento({
-  defaultValue: {},
-  key: "mcp.trustedCollections"
-});
+import {
+  LazyCollectionState
+} from "./mcpTypes.js";
+const createTrustMemento = observableMemento(
+  {
+    defaultValue: {},
+    key: "mcp.trustedCollections"
+  }
+);
 const collectionPrefixLen = 3;
 let McpRegistry = class extends Disposable {
   constructor(_instantiationService, _configurationResolverService, _dialogService, _storageService, _productService, _notificationService, _editorService, configurationService) {
@@ -52,7 +74,11 @@ let McpRegistry = class extends Disposable {
     this._productService = _productService;
     this._notificationService = _notificationService;
     this._editorService = _editorService;
-    this._enabled = observableConfigValue(mcpEnabledSection, true, configurationService);
+    this._enabled = observableConfigValue(
+      mcpEnabledSection,
+      true,
+      configurationService
+    );
   }
   static {
     __name(this, "McpRegistry");
@@ -77,7 +103,9 @@ let McpRegistry = class extends Disposable {
     const view = /* @__PURE__ */ __name((h) => h.hash.slice(h.view, h.view + collectionPrefixLen), "view");
     let collided = false;
     do {
-      hashes.sort((a, b) => view(a).localeCompare(view(b)) || a.collection.id.localeCompare(b.collection.id));
+      hashes.sort(
+        (a, b) => view(a).localeCompare(view(b)) || a.collection.id.localeCompare(b.collection.id)
+      );
       collided = false;
       for (let i = 1; i < hashes.length; i++) {
         const prev = hashes[i - 1];
@@ -88,11 +116,37 @@ let McpRegistry = class extends Disposable {
         }
       }
     } while (collided);
-    return Object.fromEntries(hashes.map((h) => [h.collection.id, view(h) + "."]));
+    return Object.fromEntries(
+      hashes.map((h) => [h.collection.id, `${view(h)}.`])
+    );
   });
-  _workspaceStorage = new Lazy(() => this._register(this._instantiationService.createInstance(McpRegistryInputStorage, StorageScope.WORKSPACE, StorageTarget.USER)));
-  _profileStorage = new Lazy(() => this._register(this._instantiationService.createInstance(McpRegistryInputStorage, StorageScope.PROFILE, StorageTarget.USER)));
-  _trustMemento = new Lazy(() => this._register(createTrustMemento(StorageScope.APPLICATION, StorageTarget.MACHINE, this._storageService)));
+  _workspaceStorage = new Lazy(
+    () => this._register(
+      this._instantiationService.createInstance(
+        McpRegistryInputStorage,
+        StorageScope.WORKSPACE,
+        StorageTarget.USER
+      )
+    )
+  );
+  _profileStorage = new Lazy(
+    () => this._register(
+      this._instantiationService.createInstance(
+        McpRegistryInputStorage,
+        StorageScope.PROFILE,
+        StorageTarget.USER
+      )
+    )
+  );
+  _trustMemento = new Lazy(
+    () => this._register(
+      createTrustMemento(
+        StorageScope.APPLICATION,
+        StorageTarget.MACHINE,
+        this._storageService
+      )
+    )
+  );
   _lazyCollectionsToUpdate = /* @__PURE__ */ new Set();
   _ongoingLazyActivations = observableValue(this, 0);
   lazyCollectionState = derived((reader) => {
@@ -124,17 +178,30 @@ let McpRegistry = class extends Disposable {
   }
   registerCollection(collection) {
     const currentCollections = this._collections.get();
-    const toReplace = currentCollections.find((c) => c.lazy && c.id === collection.id);
+    const toReplace = currentCollections.find(
+      (c) => c.lazy && c.id === collection.id
+    );
     if (toReplace) {
       this._lazyCollectionsToUpdate.add(collection.id);
-      this._collections.set(currentCollections.map((c) => c === toReplace ? collection : c), void 0);
+      this._collections.set(
+        currentCollections.map(
+          (c) => c === toReplace ? collection : c
+        ),
+        void 0
+      );
     } else {
-      this._collections.set([...currentCollections, collection], void 0);
+      this._collections.set(
+        [...currentCollections, collection],
+        void 0
+      );
     }
     return {
       dispose: /* @__PURE__ */ __name(() => {
         const currentCollections2 = this._collections.get();
-        this._collections.set(currentCollections2.filter((c) => c !== collection), void 0);
+        this._collections.set(
+          currentCollections2.filter((c) => c !== collection),
+          void 0
+        );
       }, "dispose")
     };
   }
@@ -143,9 +210,15 @@ let McpRegistry = class extends Disposable {
   }
   async discoverCollections() {
     const toDiscover = this._collections.get().filter((c) => c.lazy && !c.lazy.isCached);
-    this._ongoingLazyActivations.set(this._ongoingLazyActivations.get() + 1, void 0);
+    this._ongoingLazyActivations.set(
+      this._ongoingLazyActivations.get() + 1,
+      void 0
+    );
     await Promise.all(toDiscover.map((c) => c.lazy?.load())).finally(() => {
-      this._ongoingLazyActivations.set(this._ongoingLazyActivations.get() - 1, void 0);
+      this._ongoingLazyActivations.set(
+        this._ongoingLazyActivations.get() - 1,
+        void 0
+      );
     });
     const found = [];
     const current = this._collections.get();
@@ -182,7 +255,13 @@ let McpRegistry = class extends Disposable {
     const expr = ConfigurationResolverExpression.parse(inputId);
     const stored = await storage.getMap();
     const previous = stored[inputId].value;
-    await this._configurationResolverService.resolveWithInteraction(folderData, expr, configSection, previous ? { [inputId.slice(2, -1)]: previous } : {}, target);
+    await this._configurationResolverService.resolveWithInteraction(
+      folderData,
+      expr,
+      configSection,
+      previous ? { [inputId.slice(2, -1)]: previous } : {},
+      target
+    );
     await this._updateStorageWithExpressionInputs(storage, expr);
   }
   getSavedInputs(scope) {
@@ -203,34 +282,55 @@ let McpRegistry = class extends Disposable {
   }
   _promptForTrust(collection) {
     let resultPromise = this._trustPrompts.get(collection.id);
-    resultPromise ??= this._promptForTrustOpenDialog(collection).finally(() => {
-      this._trustPrompts.delete(collection.id);
-    });
+    resultPromise ??= this._promptForTrustOpenDialog(collection).finally(
+      () => {
+        this._trustPrompts.delete(collection.id);
+      }
+    );
     this._trustPrompts.set(collection.id, resultPromise);
     return resultPromise;
   }
   async _promptForTrustOpenDialog(collection) {
     const originURI = collection.presentation?.origin;
     const labelWithOrigin = originURI ? `[\`${basename(originURI)}\`](${originURI})` : collection.label;
-    const result = await this._dialogService.prompt(
-      {
-        message: localize("trustTitleWithOrigin", "Trust MCP servers from {0}?", collection.label),
-        custom: {
-          icon: Codicon.shield,
-          markdownDetails: [{
-            markdown: new MarkdownString(localize("mcp.trust.details", "{0} discovered Model Context Protocol servers from {1} (`{2}`). {0} can use their capabilities in Chat.\n\nDo you want to allow running MCP servers from {3}?", this._productService.nameShort, collection.label, collection.serverDefinitions.get().map((s) => s.label).join("`, `"), labelWithOrigin)),
+    const result = await this._dialogService.prompt({
+      message: localize(
+        "trustTitleWithOrigin",
+        "Trust MCP servers from {0}?",
+        collection.label
+      ),
+      custom: {
+        icon: Codicon.shield,
+        markdownDetails: [
+          {
+            markdown: new MarkdownString(
+              localize(
+                "mcp.trust.details",
+                "{0} discovered Model Context Protocol servers from {1} (`{2}`). {0} can use their capabilities in Chat.\n\nDo you want to allow running MCP servers from {3}?",
+                this._productService.nameShort,
+                collection.label,
+                collection.serverDefinitions.get().map((s) => s.label).join("`, `"),
+                labelWithOrigin
+              )
+            ),
             actionHandler: /* @__PURE__ */ __name(() => {
-              const editor = this._editorService.openEditor({ resource: collection.presentation.origin }, AUX_WINDOW_GROUP);
+              const editor = this._editorService.openEditor(
+                { resource: collection.presentation?.origin },
+                AUX_WINDOW_GROUP
+              );
               return editor.then(Boolean);
             }, "actionHandler")
-          }]
-        },
-        buttons: [
-          { label: localize("mcp.trust.yes", "Trust"), run: /* @__PURE__ */ __name(() => true, "run") },
-          { label: localize("mcp.trust.no", "Do not trust"), run: /* @__PURE__ */ __name(() => false, "run") }
+          }
         ]
-      }
-    );
+      },
+      buttons: [
+        { label: localize("mcp.trust.yes", "Trust"), run: /* @__PURE__ */ __name(() => true, "run") },
+        {
+          label: localize("mcp.trust.no", "Do not trust"),
+          run: /* @__PURE__ */ __name(() => false, "run")
+        }
+      ]
+    });
     return result.result;
   }
   async _updateStorageWithExpressionInputs(inputStorage, expr) {
@@ -260,17 +360,35 @@ let McpRegistry = class extends Disposable {
         expr.resolve(replacement, previouslyStored[replacement.id]);
       }
     }
-    await this._configurationResolverService.resolveWithInteraction(folder, expr, section, void 0, target);
+    await this._configurationResolverService.resolveWithInteraction(
+      folder,
+      expr,
+      section,
+      void 0,
+      target
+    );
     await this._updateStorageWithExpressionInputs(inputStorage, expr);
-    return await this._configurationResolverService.resolveAsync(folder, expr);
+    return await this._configurationResolverService.resolveAsync(
+      folder,
+      expr
+    );
   }
-  async resolveConnection({ collectionRef, definitionRef, forceTrust, logger }) {
+  async resolveConnection({
+    collectionRef,
+    definitionRef,
+    forceTrust,
+    logger
+  }) {
     const collection = this._collections.get().find((c) => c.id === collectionRef.id);
     const definition = collection?.serverDefinitions.get().find((s) => s.id === definitionRef.id);
     if (!collection || !definition) {
-      throw new Error(`Collection or definition not found for ${collectionRef.id} and ${definitionRef.id}`);
+      throw new Error(
+        `Collection or definition not found for ${collectionRef.id} and ${definitionRef.id}`
+      );
     }
-    const delegate = this._delegates.find((d) => d.canStart(collection, definition));
+    const delegate = this._delegates.find(
+      (d) => d.canStart(collection, definition)
+    );
     if (!delegate) {
       throw new Error("No delegate found that can handle the connection");
     }
@@ -281,7 +399,10 @@ let McpRegistry = class extends Disposable {
       } else if (trusted === void 0 || forceTrust) {
         const trustValue = await this._promptForTrust(collection);
         if (trustValue !== void 0) {
-          this._trustMemento.value.set({ ...memento, [collection.id]: trustValue }, void 0);
+          this._trustMemento.value.set(
+            { ...memento, [collection.id]: trustValue },
+            void 0
+          );
         }
         if (!trustValue) {
           return;
@@ -292,11 +413,19 @@ let McpRegistry = class extends Disposable {
     }
     let launch;
     try {
-      launch = await this._replaceVariablesInLaunch(definition, definition.launch);
+      launch = await this._replaceVariablesInLaunch(
+        definition,
+        definition.launch
+      );
     } catch (e) {
       this._notificationService.notify({
         severity: Severity.Error,
-        message: localize("mcp.launchError", "Error starting {0}: {1}", definition.label, String(e)),
+        message: localize(
+          "mcp.launchError",
+          "Error starting {0}: {1}",
+          definition.label,
+          String(e)
+        ),
         actions: {
           primary: collection.presentation?.origin && [
             {
@@ -304,10 +433,15 @@ let McpRegistry = class extends Disposable {
               class: void 0,
               enabled: true,
               tooltip: "",
-              label: localize("mcp.launchError.openConfig", "Open Configuration"),
+              label: localize(
+                "mcp.launchError.openConfig",
+                "Open Configuration"
+              ),
               run: /* @__PURE__ */ __name(() => this._editorService.openEditor({
-                resource: collection.presentation.origin,
-                options: { selection: definition.presentation?.origin?.range }
+                resource: collection.presentation?.origin,
+                options: {
+                  selection: definition.presentation?.origin?.range
+                }
               }), "run")
             }
           ]

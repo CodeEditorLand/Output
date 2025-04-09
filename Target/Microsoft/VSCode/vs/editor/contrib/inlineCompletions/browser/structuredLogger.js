@@ -11,11 +11,13 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Disposable } from "../../../../base/common/lifecycle.js";
-import { IObservable, observableFromEvent } from "../../../../base/common/observable.js";
+import {
+  observableFromEvent
+} from "../../../../base/common/observable.js";
 import { ICommandService } from "../../../../platform/commands/common/commands.js";
 import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
 function formatRecordableLogEntry(entry) {
-  return entry.sourceId + " @@ " + JSON.stringify({ ...entry, sourceId: void 0 });
+  return `${entry.sourceId} @@ ${JSON.stringify({ ...entry, sourceId: void 0 })}`;
 }
 __name(formatRecordableLogEntry, "formatRecordableLogEntry");
 let StructuredLogger = class extends Disposable {
@@ -24,14 +26,17 @@ let StructuredLogger = class extends Disposable {
     this._contextKey = _contextKey;
     this._contextKeyService = _contextKeyService;
     this._commandService = _commandService;
-    this._contextKeyValue = observableContextKey(this._contextKey, this._contextKeyService).recomputeInitiallyAndOnChange(this._store);
+    this._contextKeyValue = observableContextKey(
+      this._contextKey,
+      this._contextKeyService
+    ).recomputeInitiallyAndOnChange(this._store);
     this.isEnabled = this._contextKeyValue.map((v) => v !== void 0);
   }
   static {
     __name(this, "StructuredLogger");
   }
   static cast() {
-    return this;
+    return StructuredLogger;
   }
   isEnabled;
   _contextKeyValue;
@@ -49,7 +54,10 @@ StructuredLogger = __decorateClass([
   __decorateParam(2, ICommandService)
 ], StructuredLogger);
 function observableContextKey(key, contextKeyService) {
-  return observableFromEvent(contextKeyService.onDidChangeContext, () => contextKeyService.getContextKeyValue(key));
+  return observableFromEvent(
+    contextKeyService.onDidChangeContext,
+    () => contextKeyService.getContextKeyValue(key)
+  );
 }
 __name(observableContextKey, "observableContextKey");
 export {

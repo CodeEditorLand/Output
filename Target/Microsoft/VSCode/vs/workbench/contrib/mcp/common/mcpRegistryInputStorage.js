@@ -11,14 +11,19 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
 import { Sequencer } from "../../../../base/common/async.js";
-import { decodeBase64, encodeBase64, VSBuffer } from "../../../../base/common/buffer.js";
+import {
+  decodeBase64,
+  encodeBase64,
+  VSBuffer
+} from "../../../../base/common/buffer.js";
 import { Lazy } from "../../../../base/common/lazy.js";
 import { Disposable } from "../../../../base/common/lifecycle.js";
 import { isEmptyObject } from "../../../../base/common/types.js";
 import { ILogService } from "../../../../platform/log/common/log.js";
 import { ISecretStorageService } from "../../../../platform/secrets/common/secrets.js";
-import { IStorageService, StorageScope, StorageTarget } from "../../../../platform/storage/common/storage.js";
-import { IResolvedValue } from "../../../services/configurationResolver/common/configurationResolverExpression.js";
+import {
+  IStorageService
+} from "../../../../platform/storage/common/storage.js";
 const MCP_ENCRYPTION_KEY_NAME = "mcpEncryptionKey";
 const MCP_ENCRYPTION_KEY_ALGORITHM = "AES-GCM";
 const MCP_ENCRYPTION_KEY_LEN = 256;
@@ -32,16 +37,23 @@ let McpRegistryInputStorage = class extends Disposable {
     this._storageService = _storageService;
     this._secretStorageService = _secretStorageService;
     this._logService = _logService;
-    this._register(_storageService.onWillSaveState(() => {
-      if (this._didChange) {
-        this._storageService.store(MCP_DATA_STORED_KEY, {
-          version: MCP_DATA_STORED_VERSION,
-          values: this._record.value.values,
-          secrets: this._record.value.secrets
-        }, this._scope, _target);
-        this._didChange = false;
-      }
-    }));
+    this._register(
+      _storageService.onWillSaveState(() => {
+        if (this._didChange) {
+          this._storageService.store(
+            MCP_DATA_STORED_KEY,
+            {
+              version: MCP_DATA_STORED_VERSION,
+              values: this._record.value.values,
+              secrets: this._record.value.secrets
+            },
+            this._scope,
+            _target
+          );
+          this._didChange = false;
+        }
+      })
+    );
   }
   static {
     __name(this, "McpRegistryInputStorage");
@@ -50,27 +62,44 @@ let McpRegistryInputStorage = class extends Disposable {
   _secretsSealerSequencer = new Sequencer();
   _getEncryptionKey = new Lazy(() => {
     return McpRegistryInputStorage.secretSequencer.queue(async () => {
-      const existing = await this._secretStorageService.get(MCP_ENCRYPTION_KEY_NAME);
+      const existing = await this._secretStorageService.get(
+        MCP_ENCRYPTION_KEY_NAME
+      );
       if (existing) {
         try {
           const parsed = JSON.parse(existing);
-          return await crypto.subtle.importKey("jwk", parsed, MCP_ENCRYPTION_KEY_ALGORITHM, false, ["encrypt", "decrypt"]);
+          return await crypto.subtle.importKey(
+            "jwk",
+            parsed,
+            MCP_ENCRYPTION_KEY_ALGORITHM,
+            false,
+            ["encrypt", "decrypt"]
+          );
         } catch {
         }
       }
       const key = await crypto.subtle.generateKey(
-        { name: MCP_ENCRYPTION_KEY_ALGORITHM, length: MCP_ENCRYPTION_KEY_LEN },
+        {
+          name: MCP_ENCRYPTION_KEY_ALGORITHM,
+          length: MCP_ENCRYPTION_KEY_LEN
+        },
         true,
         ["encrypt", "decrypt"]
       );
       const exported = await crypto.subtle.exportKey("jwk", key);
-      await this._secretStorageService.set(MCP_ENCRYPTION_KEY_NAME, JSON.stringify(exported));
+      await this._secretStorageService.set(
+        MCP_ENCRYPTION_KEY_NAME,
+        JSON.stringify(exported)
+      );
       return key;
     });
   });
   _didChange = false;
   _record = new Lazy(() => {
-    const stored = this._storageService.getObject(MCP_DATA_STORED_KEY, this._scope);
+    const stored = this._storageService.getObject(
+      MCP_DATA_STORED_KEY,
+      this._scope
+    );
     return stored?.version === MCP_DATA_STORED_VERSION ? { ...stored } : { version: MCP_DATA_STORED_VERSION, values: {} };
   });
   /** Deletes all collection data from storage. */
@@ -114,14 +143,19 @@ let McpRegistryInputStorage = class extends Disposable {
         return;
       }
       const toSeal = JSON.stringify(this._record.value.unsealedSecrets);
-      const iv = crypto.getRandomValues(new Uint8Array(MCP_ENCRYPTION_IV_LENGTH));
+      const iv = crypto.getRandomValues(
+        new Uint8Array(MCP_ENCRYPTION_IV_LENGTH)
+      );
       const encrypted = await crypto.subtle.encrypt(
         { name: MCP_ENCRYPTION_KEY_ALGORITHM, iv: iv.buffer },
         key,
         new TextEncoder().encode(toSeal).buffer
       );
       const enc = encodeBase64(VSBuffer.wrap(new Uint8Array(encrypted)));
-      this._record.value.secrets = { iv: encodeBase64(VSBuffer.wrap(iv)), value: enc };
+      this._record.value.secrets = {
+        iv: encodeBase64(VSBuffer.wrap(iv)),
+        value: enc
+      };
       this._didChange = true;
     });
   }
@@ -141,7 +175,9 @@ let McpRegistryInputStorage = class extends Disposable {
         key,
         encrypted.buffer
       );
-      const unsealedSecrets = JSON.parse(new TextDecoder().decode(decrypted));
+      const unsealedSecrets = JSON.parse(
+        new TextDecoder().decode(decrypted)
+      );
       this._record.value.unsealedSecrets = unsealedSecrets;
       return unsealedSecrets;
     } catch (e) {

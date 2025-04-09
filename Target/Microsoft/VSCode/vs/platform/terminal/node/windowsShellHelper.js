@@ -11,10 +11,15 @@ var __decorateClass = (decorators, target, key, kind) => {
 };
 import { timeout } from "../../../base/common/async.js";
 import { debounce } from "../../../base/common/decorators.js";
-import { Emitter, Event } from "../../../base/common/event.js";
-import { Disposable, IDisposable } from "../../../base/common/lifecycle.js";
+import { Emitter } from "../../../base/common/event.js";
+import {
+  Disposable
+} from "../../../base/common/lifecycle.js";
 import { isWindows, platform } from "../../../base/common/platform.js";
-import { GeneralShellType, TerminalShellType, WindowsShellType } from "../common/terminal.js";
+import {
+  GeneralShellType,
+  WindowsShellType
+} from "../common/terminal.js";
 const SHELL_EXECUTABLES = [
   "cmd.exe",
   "powershell.exe",
@@ -32,16 +37,16 @@ const SHELL_EXECUTABLES = [
   "nu.exe",
   "node.exe"
 ];
-const SHELL_EXECUTABLE_REGEXES = [
-  /^python(\d(\.\d{0,2})?)?\.exe$/
-];
+const SHELL_EXECUTABLE_REGEXES = [/^python(\d(\.\d{0,2})?)?\.exe$/];
 let windowsProcessTree;
 class WindowsShellHelper extends Disposable {
   constructor(_rootProcessId) {
     super();
     this._rootProcessId = _rootProcessId;
     if (!isWindows) {
-      throw new Error(`WindowsShellHelper cannot be instantiated on ${platform}`);
+      throw new Error(
+        `WindowsShellHelper cannot be instantiated on ${platform}`
+      );
     }
     this._startMonitoringShell();
   }

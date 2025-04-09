@@ -3,13 +3,17 @@ var __name = (target, value) => __defProp(target, "name", { value, configurable:
 import { CancellationToken } from "../../../../base/common/cancellation.js";
 import { ResourceMap } from "../../../../base/common/map.js";
 import { deepClone } from "../../../../base/common/objects.js";
-import { ITransaction, observableSignal } from "../../../../base/common/observable.js";
-import { IPrefixTreeNode, WellDefinedPrefixTree } from "../../../../base/common/prefixTree.js";
+import {
+  observableSignal
+} from "../../../../base/common/observable.js";
+import {
+  WellDefinedPrefixTree
+} from "../../../../base/common/prefixTree.js";
 import { URI } from "../../../../base/common/uri.js";
-import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
-import { TestId } from "./testId.js";
-import { LiveTestResult } from "./testResult.js";
-import { CoverageDetails, DetailType, ICoverageCount, IFileCoverage } from "./testTypes.js";
+import {
+  DetailType,
+  ICoverageCount
+} from "./testTypes.js";
 let incId = 0;
 class TestCoverage {
   constructor(result, fromTaskId, uriIdentityService, accessor) {
@@ -29,7 +33,7 @@ class TestCoverage {
   *allPerTestIDs() {
     const seen = /* @__PURE__ */ new Set();
     for (const root of this.tree.nodes) {
-      if (root.value && root.value.perTestData) {
+      if (root.value?.perTestData) {
         for (const id of root.value.perTestData) {
           if (!seen.has(id)) {
             seen.add(id);
@@ -52,49 +56,63 @@ class TestCoverage {
         node[kind].total += (coverage[kind]?.total || 0) - (previous?.[kind]?.total || 0);
       }
     }, "applyDelta");
-    const canonical = [...this.treePathForUri(
-      coverage.uri,
-      /* canonical = */
-      true
-    )];
+    const canonical = [
+      ...this.treePathForUri(
+        coverage.uri,
+        /* canonical = */
+        true
+      )
+    ];
     const chain = [];
-    this.tree.mutatePath(this.treePathForUri(
-      coverage.uri,
-      /* canonical = */
-      false
-    ), (node) => {
-      chain.push(node);
-      if (chain.length === canonical.length) {
-        if (node.value) {
-          const v = node.value;
-          v.id = coverage.id;
-          v.statement = coverage.statement;
-          v.branch = coverage.branch;
-          v.declaration = coverage.declaration;
+    this.tree.mutatePath(
+      this.treePathForUri(
+        coverage.uri,
+        /* canonical = */
+        false
+      ),
+      (node) => {
+        chain.push(node);
+        if (chain.length === canonical.length) {
+          if (node.value) {
+            const v = node.value;
+            v.id = coverage.id;
+            v.statement = coverage.statement;
+            v.branch = coverage.branch;
+            v.declaration = coverage.declaration;
+          } else {
+            const v = node.value = new FileCoverage(
+              coverage,
+              result,
+              this.accessor
+            );
+            this.fileCoverage.set(coverage.uri, v);
+          }
         } else {
-          const v = node.value = new FileCoverage(coverage, result, this.accessor);
-          this.fileCoverage.set(coverage.uri, v);
+          if (!node.value) {
+            const intermediate = deepClone(coverage);
+            intermediate.id = String(incId++);
+            intermediate.uri = this.treePathToUri(
+              canonical.slice(0, chain.length)
+            );
+            node.value = new ComputedFileCoverage(
+              intermediate,
+              result
+            );
+          } else {
+            applyDelta("statement", node.value);
+            applyDelta("branch", node.value);
+            applyDelta("declaration", node.value);
+            node.value.didChange.trigger(tx);
+          }
         }
-      } else {
-        if (!node.value) {
-          const intermediate = deepClone(coverage);
-          intermediate.id = String(incId++);
-          intermediate.uri = this.treePathToUri(canonical.slice(0, chain.length));
-          node.value = new ComputedFileCoverage(intermediate, result);
-        } else {
-          applyDelta("statement", node.value);
-          applyDelta("branch", node.value);
-          applyDelta("declaration", node.value);
-          node.value.didChange.trigger(tx);
+        if (coverage.testIds) {
+          node.value.perTestData ??= /* @__PURE__ */ new Set();
+          for (const id of coverage.testIds) {
+            node.value?.perTestData.add(id);
+          }
         }
       }
-      if (coverage.testIds) {
-        node.value.perTestData ??= /* @__PURE__ */ new Set();
-        for (const id of coverage.testIds) {
-          node.value.perTestData.add(id);
-        }
-      }
-    });
+    );
     if (chain) {
       this.didAddCoverage.trigger(tx, chain);
     }
@@ -109,20 +127,30 @@ class TestCoverage {
         if (!node.perTestData?.has(testId.toString())) {
           continue;
         }
-        const canonical = [...this.treePathForUri(
-          node.uri,
-          /* canonical = */
-          true
-        )];
+        const canonical = [
+          ...this.treePathForUri(
+            node.uri,
+            /* canonical = */
+            true
+          )
+        ];
         const chain = [];
-        tree.mutatePath(this.treePathForUri(
-          node.uri,
-          /* canonical = */
-          false
-        ), (n) => {
-          chain.push(n);
-          n.value ??= new BypassedFileCoverage(this.treePathToUri(canonical.slice(0, chain.length)), node.fromResult);
-        });
+        tree.mutatePath(
+          this.treePathForUri(
+            node.uri,
+            /* canonical = */
+            false
+          ),
+          (n) => {
+            chain.push(n);
+            n.value ??= new BypassedFileCoverage(
+              this.treePathToUri(
+                canonical.slice(0, chain.length)
+              ),
+              node.fromResult
+            );
+          }
+        );
       }
     }
     return tree;
@@ -144,11 +172,13 @@ class TestCoverage {
    * from child tests.
    */
   getComputedForUri(uri) {
-    return this.tree.find(this.treePathForUri(
-      uri,
-      /* canonical = */
-      false
-    ));
+    return this.tree.find(
+      this.treePathForUri(
+        uri,
+        /* canonical = */
+        false
+      )
+    );
   }
   *treePathForUri(uri, canconicalPath) {
     yield uri.scheme;
@@ -157,7 +187,11 @@ class TestCoverage {
     yield* path.split("/");
   }
   treePathToUri(path) {
-    return URI.from({ scheme: path[0], authority: path[1], path: path.slice(2).join("/") });
+    return URI.from({
+      scheme: path[0],
+      authority: path[1],
+      path: path.slice(2).join("/")
+    });
   }
 }
 const getTotalCoveragePercent = /* @__PURE__ */ __name((statement, branch, function_) => {
@@ -196,7 +230,11 @@ class AbstractFileCoverage {
    * This is based on the Clover total coverage formula
    */
   get tpc() {
-    return getTotalCoveragePercent(this.statement, this.branch, this.declaration);
+    return getTotalCoveragePercent(
+      this.statement,
+      this.branch,
+      this.declaration
+    );
   }
   /**
    * Per-test coverage data for this file, if available.
@@ -213,7 +251,10 @@ class BypassedFileCoverage extends ComputedFileCoverage {
     __name(this, "BypassedFileCoverage");
   }
   constructor(uri, result) {
-    super({ id: String(incId++), uri, statement: { covered: 0, total: 0 } }, result);
+    super(
+      { id: String(incId++), uri, statement: { covered: 0, total: 0 } },
+      result
+    );
   }
 }
 class FileCoverage extends AbstractFileCoverage {
@@ -229,7 +270,7 @@ class FileCoverage extends AbstractFileCoverage {
   _detailsForTest;
   /** Gets whether details are synchronously available */
   get hasSynchronousDetails() {
-    return this._details instanceof Array || this.resolved;
+    return Array.isArray(this._details) || this.resolved;
   }
   /**
    * Gets per-line coverage details.
@@ -243,7 +284,11 @@ class FileCoverage extends AbstractFileCoverage {
     }
     const promise = (async () => {
       try {
-        return await this.accessor.getCoverageDetails(this.id, testId, token);
+        return await this.accessor.getCoverageDetails(
+          this.id,
+          testId,
+          token
+        );
       } catch (e) {
         this._detailsForTest?.delete(testId);
         throw e;
@@ -256,7 +301,11 @@ class FileCoverage extends AbstractFileCoverage {
    * Gets per-line coverage details.
    */
   async details(token = CancellationToken.None) {
-    this._details ??= this.accessor.getCoverageDetails(this.id, void 0, token);
+    this._details ??= this.accessor.getCoverageDetails(
+      this.id,
+      void 0,
+      token
+    );
     try {
       const d = await this._details;
       this.resolved = true;

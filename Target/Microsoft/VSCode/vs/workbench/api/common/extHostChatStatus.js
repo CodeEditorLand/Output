@@ -1,7 +1,9 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import {
+  ExtensionIdentifier
+} from "../../../platform/extensions/common/extensions.js";
 import * as extHostProtocol from "./extHost.protocol.js";
-import { ExtensionIdentifier, IExtensionDescription } from "../../../platform/extensions/common/extensions.js";
 class ExtHostChatStatus {
   static {
     __name(this, "ExtHostChatStatus");
@@ -9,7 +11,9 @@ class ExtHostChatStatus {
   _proxy;
   _items = /* @__PURE__ */ new Map();
   constructor(mainContext) {
-    this._proxy = mainContext.getProxy(extHostProtocol.MainContext.MainThreadChatStatus);
+    this._proxy = mainContext.getProxy(
+      extHostProtocol.MainContext.MainThreadChatStatus
+    );
   }
   createChatStatusItem(extension, id) {
     const internalId = asChatItemIdentifier(extension.identifier, id);

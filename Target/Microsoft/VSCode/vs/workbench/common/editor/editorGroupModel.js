@@ -10,15 +10,27 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 var __decorateParam = (index, decorator) => (target, key) => decorator(target, key, index);
-import { Event, Emitter } from "../../../base/common/event.js";
-import { IEditorFactoryRegistry, GroupIdentifier, EditorsOrder, EditorExtensions, IUntypedEditorInput, SideBySideEditor, EditorCloseContext, IMatchEditorOptions, GroupModelChangeKind } from "../editor.js";
+import { coalesce } from "../../../base/common/arrays.js";
+import { Emitter, Event } from "../../../base/common/event.js";
+import {
+  Disposable,
+  DisposableStore,
+  dispose
+} from "../../../base/common/lifecycle.js";
+import {
+  IConfigurationService
+} from "../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+import { Registry } from "../../../platform/registry/common/platform.js";
+import {
+  EditorCloseContext,
+  EditorExtensions,
+  EditorsOrder,
+  GroupModelChangeKind,
+  SideBySideEditor
+} from "../editor.js";
 import { EditorInput } from "./editorInput.js";
 import { SideBySideEditorInput } from "./sideBySideEditorInput.js";
-import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
-import { IConfigurationChangeEvent, IConfigurationService } from "../../../platform/configuration/common/configuration.js";
-import { dispose, Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
-import { Registry } from "../../../platform/registry/common/platform.js";
-import { coalesce } from "../../../base/common/arrays.js";
 const EditorOpenPositioning = {
   LEFT: "left",
   RIGHT: "right",
@@ -68,10 +80,11 @@ let EditorGroupModel = class extends Disposable {
   }
   static IDS = 0;
   //#region events
-  _onDidModelChange = this._register(new Emitter({
-    leakWarningThreshold: 500
-    /* increased for users with hundreds of inputs opened */
-  }));
+  _onDidModelChange = this._register(
+    new Emitter({
+      leakWarningThreshold: 500
+    })
+  );
   onDidModelChange = this._onDidModelChange.event;
   //#endregion
   _id;
@@ -96,14 +109,24 @@ let EditorGroupModel = class extends Disposable {
   editorOpenPositioning;
   focusRecentEditorAfterClose;
   registerListeners() {
-    this._register(this.configurationService.onDidChangeConfiguration((e) => this.onConfigurationUpdated(e)));
+    this._register(
+      this.configurationService.onDidChangeConfiguration(
+        (e) => this.onConfigurationUpdated(e)
+      )
+    );
   }
   onConfigurationUpdated(e) {
-    if (e && !e.affectsConfiguration("workbench.editor.openPositioning") && !e.affectsConfiguration("workbench.editor.focusRecentEditorAfterClose")) {
+    if (e && !e.affectsConfiguration("workbench.editor.openPositioning") && !e.affectsConfiguration(
+      "workbench.editor.focusRecentEditorAfterClose"
+    )) {
       return;
     }
-    this.editorOpenPositioning = this.configurationService.getValue("workbench.editor.openPositioning");
-    this.focusRecentEditorAfterClose = this.configurationService.getValue("workbench.editor.focusRecentEditorAfterClose");
+    this.editorOpenPositioning = this.configurationService.getValue(
+      "workbench.editor.openPositioning"
+    );
+    this.focusRecentEditorAfterClose = this.configurationService.getValue(
+      "workbench.editor.focusRecentEditorAfterClose"
+    );
   }
   get count() {
     return this.editors.length;
@@ -184,7 +207,12 @@ let EditorGroupModel = class extends Disposable {
           if (targetIndex > indexOfPreview) {
             targetIndex--;
           }
-          this.replaceEditor(this.preview, newEditor, targetIndex, !makeActive);
+          this.replaceEditor(
+            this.preview,
+            newEditor,
+            targetIndex,
+            !makeActive
+          );
         }
         this.preview = newEditor;
       }
@@ -195,18 +223,28 @@ let EditorGroupModel = class extends Disposable {
         editorIndex: targetIndex
       };
       this._onDidModelChange.fire(event);
-      this.setSelection(makeActive ? newEditor : this.activeEditor, options?.inactiveSelection ?? []);
+      this.setSelection(
+        makeActive ? newEditor : this.activeEditor,
+        options?.inactiveSelection ?? []
+      );
       return {
         editor: newEditor,
         isNew: true
       };
     } else {
       const [existingEditor, existingEditorIndex] = existingEditorAndIndex;
-      this.doSetTransient(existingEditor, existingEditorIndex, makeTransient === false ? false : this.isTransient(existingEditor));
+      this.doSetTransient(
+        existingEditor,
+        existingEditorIndex,
+        makeTransient === false ? false : this.isTransient(existingEditor)
+      );
       if (makePinned) {
         this.doPin(existingEditor, existingEditorIndex);
       }
-      this.setSelection(makeActive ? existingEditor : this.activeEditor, options?.inactiveSelection ?? []);
+      this.setSelection(
+        makeActive ? existingEditor : this.activeEditor,
+        options?.inactiveSelection ?? []
+      );
       if (options && typeof options.index === "number") {
         this.moveEditor(existingEditor, options.index);
       }
@@ -222,50 +260,64 @@ let EditorGroupModel = class extends Disposable {
   registerEditorListeners(editor) {
     const listeners = new DisposableStore();
     this.editorListeners.add(listeners);
-    listeners.add(Event.once(editor.onWillDispose)(() => {
-      const editorIndex = this.editors.indexOf(editor);
-      if (editorIndex >= 0) {
+    listeners.add(
+      Event.once(editor.onWillDispose)(() => {
+        const editorIndex = this.editors.indexOf(editor);
+        if (editorIndex >= 0) {
+          const event = {
+            kind: GroupModelChangeKind.EDITOR_WILL_DISPOSE,
+            editor,
+            editorIndex
+          };
+          this._onDidModelChange.fire(event);
+        }
+      })
+    );
+    listeners.add(
+      editor.onDidChangeDirty(() => {
         const event = {
-          kind: GroupModelChangeKind.EDITOR_WILL_DISPOSE,
+          kind: GroupModelChangeKind.EDITOR_DIRTY,
           editor,
-          editorIndex
+          editorIndex: this.editors.indexOf(editor)
         };
         this._onDidModelChange.fire(event);
-      }
-    }));
-    listeners.add(editor.onDidChangeDirty(() => {
-      const event = {
-        kind: GroupModelChangeKind.EDITOR_DIRTY,
-        editor,
-        editorIndex: this.editors.indexOf(editor)
-      };
-      this._onDidModelChange.fire(event);
-    }));
-    listeners.add(editor.onDidChangeLabel(() => {
-      const event = {
-        kind: GroupModelChangeKind.EDITOR_LABEL,
-        editor,
-        editorIndex: this.editors.indexOf(editor)
-      };
-      this._onDidModelChange.fire(event);
-    }));
-    listeners.add(editor.onDidChangeCapabilities(() => {
-      const event = {
-        kind: GroupModelChangeKind.EDITOR_CAPABILITIES,
-        editor,
-        editorIndex: this.editors.indexOf(editor)
-      };
-      this._onDidModelChange.fire(event);
-    }));
-    listeners.add(this.onDidModelChange((event) => {
-      if (event.kind === GroupModelChangeKind.EDITOR_CLOSE && event.editor?.matches(editor)) {
-        dispose(listeners);
-        this.editorListeners.delete(listeners);
-      }
-    }));
+      })
+    );
+    listeners.add(
+      editor.onDidChangeLabel(() => {
+        const event = {
+          kind: GroupModelChangeKind.EDITOR_LABEL,
+          editor,
+          editorIndex: this.editors.indexOf(editor)
+        };
+        this._onDidModelChange.fire(event);
+      })
+    );
+    listeners.add(
+      editor.onDidChangeCapabilities(() => {
+        const event = {
+          kind: GroupModelChangeKind.EDITOR_CAPABILITIES,
+          editor,
+          editorIndex: this.editors.indexOf(editor)
+        };
+        this._onDidModelChange.fire(event);
+      })
+    );
+    listeners.add(
+      this.onDidModelChange((event) => {
+        if (event.kind === GroupModelChangeKind.EDITOR_CLOSE && event.editor?.matches(editor)) {
+          dispose(listeners);
+          this.editorListeners.delete(listeners);
+        }
+      })
+    );
   }
   replaceEditor(toReplace, replaceWith, replaceIndex, openNext = true) {
-    const closeResult = this.doCloseEditor(toReplace, EditorCloseContext.REPLACE, openNext);
+    const closeResult = this.doCloseEditor(
+      toReplace,
+      EditorCloseContext.REPLACE,
+      openNext
+    );
     this.splice(replaceIndex, false, replaceWith);
     if (closeResult) {
       const event = {
@@ -307,15 +359,27 @@ let EditorGroupModel = class extends Disposable {
             newActive = this.editors[index + 1];
           }
         }
-        const newInactiveSelectedEditors = this.selection.filter((selected) => selected !== editor && selected !== newActive);
-        this.doSetSelection(newActive, this.editors.indexOf(newActive), newInactiveSelectedEditors);
+        const newInactiveSelectedEditors = this.selection.filter(
+          (selected) => selected !== editor && selected !== newActive
+        );
+        this.doSetSelection(
+          newActive,
+          this.editors.indexOf(newActive),
+          newInactiveSelectedEditors
+        );
       } else {
         this.doSetSelection(null, void 0, []);
       }
     } else if (!isActiveEditor) {
       if (this.doIsSelected(editor)) {
-        const newInactiveSelectedEditors = this.selection.filter((selected) => selected !== editor && selected !== this.activeEditor);
-        this.doSetSelection(this.activeEditor, this.indexOf(this.activeEditor), newInactiveSelectedEditors);
+        const newInactiveSelectedEditors = this.selection.filter(
+          (selected) => selected !== editor && selected !== this.activeEditor
+        );
+        this.doSetSelection(
+          this.activeEditor,
+          this.indexOf(this.activeEditor),
+          newInactiveSelectedEditors
+        );
       }
     }
     if (this.preview === editor) {
@@ -371,7 +435,9 @@ let EditorGroupModel = class extends Disposable {
     return result;
   }
   setGroupActive() {
-    this._onDidModelChange.fire({ kind: GroupModelChangeKind.GROUP_ACTIVE });
+    this._onDidModelChange.fire({
+      kind: GroupModelChangeKind.GROUP_ACTIVE
+    });
   }
   setEditorActive(candidate) {
     const res = this.findEditor(candidate);
@@ -415,7 +481,11 @@ let EditorGroupModel = class extends Disposable {
       }
       inactiveSelectedEditors.add(inactiveSelectedEditor);
     }
-    this.doSetSelection(activeSelectedEditor, activeSelectedEditorIndex, Array.from(inactiveSelectedEditors));
+    this.doSetSelection(
+      activeSelectedEditor,
+      activeSelectedEditorIndex,
+      Array.from(inactiveSelectedEditors)
+    );
   }
   doSetSelection(activeSelectedEditor, activeSelectedEditorIndex, inactiveSelectedEditors) {
     const previousActiveEditor = this.activeEditor;
@@ -631,7 +701,10 @@ let EditorGroupModel = class extends Disposable {
           this.mru.splice(1, 0, editor);
         }
       } else {
-        const indexInMRU = this.indexOf(editorToDeleteOrReplace, this.mru);
+        const indexInMRU = this.indexOf(
+          editorToDeleteOrReplace,
+          this.mru
+        );
         if (del && !editor) {
           this.mru.splice(indexInMRU, 1);
         } else if (del && editor) {
@@ -704,11 +777,16 @@ let EditorGroupModel = class extends Disposable {
   lock(locked) {
     if (this.isLocked !== locked) {
       this.locked = locked;
-      this._onDidModelChange.fire({ kind: GroupModelChangeKind.GROUP_LOCKED });
+      this._onDidModelChange.fire({
+        kind: GroupModelChangeKind.GROUP_LOCKED
+      });
     }
   }
   clone() {
-    const clone = this.instantiationService.createInstance(EditorGroupModel, void 0);
+    const clone = this.instantiationService.createInstance(
+      EditorGroupModel,
+      void 0
+    );
     clone.editors = this.editors.slice(0);
     clone.mru = this.mru.slice(0);
     clone.preview = this.preview;
@@ -720,7 +798,9 @@ let EditorGroupModel = class extends Disposable {
     return clone;
   }
   serialize() {
-    const registry = Registry.as(EditorExtensions.EditorFactory);
+    const registry = Registry.as(
+      EditorExtensions.EditorFactory
+    );
     const serializableEditors = [];
     const serializedEditors = [];
     let serializablePreviewIndex;
@@ -757,7 +837,9 @@ let EditorGroupModel = class extends Disposable {
     };
   }
   deserialize(data) {
-    const registry = Registry.as(EditorExtensions.EditorFactory);
+    const registry = Registry.as(
+      EditorExtensions.EditorFactory
+    );
     if (typeof data.id === "number") {
       this._id = data.id;
       EditorGroupModel.IDS = Math.max(data.id + 1, EditorGroupModel.IDS);
@@ -767,21 +849,26 @@ let EditorGroupModel = class extends Disposable {
     if (data.locked) {
       this.locked = true;
     }
-    this.editors = coalesce(data.editors.map((e, index) => {
-      let editor = void 0;
-      const editorSerializer = registry.getEditorSerializer(e.id);
-      if (editorSerializer) {
-        const deserializedEditor = editorSerializer.deserialize(this.instantiationService, e.value);
-        if (deserializedEditor instanceof EditorInput) {
-          editor = deserializedEditor;
-          this.registerEditorListeners(editor);
+    this.editors = coalesce(
+      data.editors.map((e, index) => {
+        let editor = void 0;
+        const editorSerializer = registry.getEditorSerializer(e.id);
+        if (editorSerializer) {
+          const deserializedEditor = editorSerializer.deserialize(
+            this.instantiationService,
+            e.value
+          );
+          if (deserializedEditor instanceof EditorInput) {
+            editor = deserializedEditor;
+            this.registerEditorListeners(editor);
+          }
         }
-      }
-      if (!editor && typeof data.sticky === "number" && index <= data.sticky) {
-        data.sticky--;
-      }
-      return editor;
-    }));
+        if (!editor && typeof data.sticky === "number" && index <= data.sticky) {
+          data.sticky--;
+        }
+        return editor;
+      })
+    );
     this.mru = coalesce(data.mru.map((i) => this.editors[i]));
     this.selection = this.mru.length > 0 ? [this.mru[0]] : [];
     if (typeof data.preview === "number") {

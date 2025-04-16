@@ -1,0 +1,1 @@
+import{BaseToken as e}from"../../baseToken.js";import{FrontMatterValueToken as o}from"./frontMatterToken.js";import"../../simpleCodec/tokens/index.js";class T extends o{constructor(t){super(e.fullRange(t));this.tokens=t}get text(){return e.render(this.tokens)}toString(){return`front-matter-string(${this.shortText()})${this.range}`}}export{T as FrontMatterString};

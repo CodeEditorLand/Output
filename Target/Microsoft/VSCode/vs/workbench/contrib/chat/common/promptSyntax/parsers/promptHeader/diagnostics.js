@@ -1,0 +1,1 @@
+import"../../../../../../../editor/common/core/range.js";class t{constructor(a,e){this.range=a;this.message=e}}class i extends t{toString(){return`warning(${this.message})${this.range}`}}class o extends t{toString(){return`error(${this.message})${this.range}`}}export{t as PromptMetadataDiagnostic,o as PromptMetadataError,i as PromptMetadataWarning};

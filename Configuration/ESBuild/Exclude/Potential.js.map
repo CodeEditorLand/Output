@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Source/ESBuild/Exclude/Potential.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\n\t// --- 9. Other Potential Excludes (Lower Confidence - Test!) ---\n\t// `${Prefix}/platform/profiling`,\n\t// `${Prefix}/platform/cssDev`,\n\t// `${Prefix}/base/common/marked`, // If no core markdown rendering needed\n\t// `${Prefix}/base/browser/dompurify`, // If no HTML sanitization needed by core\n];\n"],
-  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA;AAAA;AAAA;AAAA;AAAA;AAMnC,GANe;",
+  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/platform/profiling`,\n\t`${Prefix}/platform/cssDev`,\n\t// If no core markdown rendering needed\n\t// `${Prefix}/base/common/marked`,\n\t// `${Prefix}/base/browser/dompurify`,\n];\n"],
+  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AAAA;AAAA;AAAA;AAIV,GANe;",
   "names": []
 }

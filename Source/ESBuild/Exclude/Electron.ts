@@ -1,20 +1,56 @@
 export default (Prefix: string) => [
-	`${Prefix}/code/electron-*`, // All electron-main, electron-sandbox, electron-utility
-	`${Prefix}/platform/**/electron-*`, // All electron-main, electron-sandbox platform code
-	`${Prefix}/workbench/electron-*`, // All electron-sandbox workbench code
-	`${Prefix}/workbench/services/**/electron-*`, // All electron-sandbox services code
-	`${Prefix}/base/node`, // All base node utilities (handled by Cocoon shims)
+	`${Prefix}/base/node`,
+	`${Prefix}/base/parts/contextmenu/electron-main`,
+	`${Prefix}/base/parts/contextmenu/electron-sandbox`,
+	`${Prefix}/base/parts/ipc/common/ipc.electron.js`,
+	`${Prefix}/base/parts/ipc/electron-main/ipc.electron.js`,
+	`${Prefix}/base/parts/ipc/electron-main`,
+	`${Prefix}/base/parts/ipc/electron-sandbox/ipc.electron.js`,
+	`${Prefix}/base/parts/ipc/electron-sandbox`,
 	`${Prefix}/base/parts/ipc/node`,
+	`${Prefix}/base/parts/sandbox/common/electronTypes.js`,
+	`${Prefix}/base/parts/sandbox/electron-sandbox/electronTypes.js`,
+	`${Prefix}/base/parts/sandbox/electron-sandbox`,
+	`${Prefix}/base/parts/sandbox/node`,
 	`${Prefix}/base/parts/storage/node`,
-	`${Prefix}/base/parts/sandbox/node`, // Should already be covered by sandbox/*
-	`${Prefix}/platform/files/node/watcher`, // Native watchers
+	`${Prefix}/code/electron-*`,
+	`${Prefix}/platform/**/electron-*`,
+	`${Prefix}/platform/files/node/watcher`,
+	`${Prefix}/platform/policy/node`,
+	`${Prefix}/platform/remote/common/electronRemoteResources.js`,
 	`${Prefix}/platform/shell/node`,
 	`${Prefix}/platform/sign/node`,
 	`${Prefix}/platform/state/node`,
-	`${Prefix}/platform/terminal/node`, // Node PTY host logic
+	`${Prefix}/platform/terminal/node`,
 	`${Prefix}/platform/tunnel/node`,
+	`${Prefix}/platform/webContentExtractor/test/electron-main`,
 	`${Prefix}/platform/workspaces/node`,
-	`${Prefix}/platform/policy/node`,
-	`${Prefix}/workbench/api/node`, // Node specific ExtHost parts
-	`${Prefix}/workbench/services/search/node`, // Node specific search implementation
+	`${Prefix}/workbench/api/node`,
+	`${Prefix}/workbench/contrib/chat/electron-sandbox`,
+	`${Prefix}/workbench/contrib/codeEditor/electron-sandbox`,
+	`${Prefix}/workbench/contrib/debug/electron-sandbox`,
+	`${Prefix}/workbench/contrib/emergencyAlert/electron-sandbox`,
+	`${Prefix}/workbench/contrib/encryption/electron-sandbox`,
+	`${Prefix}/workbench/contrib/extensions/electron-sandbox`,
+	`${Prefix}/workbench/contrib/externalTerminal/electron-sandbox`,
+	`${Prefix}/workbench/contrib/files/electron-sandbox`,
+	`${Prefix}/workbench/contrib/inlineChat/electron-sandbox`,
+	`${Prefix}/workbench/contrib/issue/electron-sandbox`,
+	`${Prefix}/workbench/contrib/localHistory/electron-sandbox`,
+	`${Prefix}/workbench/contrib/localization/electron-sandbox`,
+	`${Prefix}/workbench/contrib/logs/electron-sandbox`,
+	`${Prefix}/workbench/contrib/mcp/electron-sandbox`,
+	`${Prefix}/workbench/contrib/mergeEditor/electron-sandbox`,
+	`${Prefix}/workbench/contrib/performance/electron-sandbox`,
+	`${Prefix}/workbench/contrib/remote/electron-sandbox`,
+	`${Prefix}/workbench/contrib/remoteTunnel/electron-sandbox`,
+	`${Prefix}/workbench/contrib/splash/electron-sandbox`,
+	`${Prefix}/workbench/contrib/tags/electron-sandbox`,
+	`${Prefix}/workbench/contrib/tasks/electron-sandbox`,
+	`${Prefix}/workbench/contrib/terminal/electron-sandbox`,
+	`${Prefix}/workbench/contrib/userDataSync/electron-sandbox`,
+	`${Prefix}/workbench/contrib/webview/electron-sandbox`,
+	`${Prefix}/workbench/electron-*`,
+	`${Prefix}/workbench/services/**/electron-*`,
+	`${Prefix}/workbench/services/search/node`,
 ];

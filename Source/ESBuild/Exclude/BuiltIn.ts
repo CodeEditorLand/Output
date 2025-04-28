@@ -8,8 +8,10 @@ export default (Prefix: string) => [
 	// `${Prefix}/extensions/jake`,
 	// `${Prefix}/extensions/ipynb`,
 	// `${Prefix}/extensions/markdown-math`,
-	// `${Prefix}/extensions/media-preview`, // Keep if image/audio/video preview needed
-	// `${Prefix}/extensions/merge-conflict`, // Keep if using built-in merge editor
+	// Keep if image/audio/video preview needed
+	// `${Prefix}/extensions/media-preview`,
+	// Keep if using built-in merge editor
+	// `${Prefix}/extensions/merge-conflict`,
 	// `${Prefix}/extensions/github-authentication`,
 	// `${Prefix}/extensions/microsoft-authentication`,
 	// `${Prefix}/extensions/search-result`,

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["../../../Source/ESBuild/Exclude/Standalone.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/editor/editor.main.js`, // Standalone entry\n\t`${Prefix}/editor/standalone`,\n\n\t`${Prefix}/editor/contrib/snippet/browser/snippet.md`,\n];\n"],
-  "mappings": ";;AAAA,IAAO,qBAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA;AAAA,EACT,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AACV,GALe;",
+  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/editor/editor.main.js`,\n\t`${Prefix}/editor/standalone`,\n\n\t`${Prefix}/editor/contrib/snippet/browser/snippet.md`,\n];\n"],
+  "mappings": ";;AAAA,IAAO,qBAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AACV,GALe;",
   "names": []
 }

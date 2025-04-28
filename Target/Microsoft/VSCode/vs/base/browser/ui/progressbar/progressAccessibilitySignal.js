@@ -1,1 +1,1 @@
-import"../../../common/lifecycle.js";const r=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let s=r;function l(e){s=e}function t(e,i){return s(e,i)}export{t as getProgressAcccessibilitySignalScheduler,l as setProgressAcccessibilitySignalScheduler};
+const c=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let s=c;function r(e){s=e}function l(e,i){return s(e,i)}export{l as getProgressAcccessibilitySignalScheduler,r as setProgressAcccessibilitySignalScheduler};

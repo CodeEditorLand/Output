@@ -1,1 +1,0 @@
-var o="./Asset/tsconfig.base-NKZ2YNKK.json";export{o as default};

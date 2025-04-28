@@ -1,1 +1,1 @@
-import{createDecorator as r}from"../../../../platform/instantiation/common/instantiation.js";import"../../../browser/parts/titlebar/titlebarPart.js";import"../../editor/common/editorGroupsService.js";const l=r("titleService");export{l as ITitleService};
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("titleService");export{t as ITitleService};

@@ -16,7 +16,7 @@ export default {
 	logLevel: "debug",
 	metafile: true,
 	minify: !On,
-	outdir: `Target`,
+	outdir: `Configuration`,
 	platform: "node",
 	target: "esnext",
 	tsconfig: "tsconfig.json",

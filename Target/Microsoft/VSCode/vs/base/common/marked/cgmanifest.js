@@ -1,1 +1,0 @@
-var i="../../../../Asset/cgmanifest-HY3FAPMG.json";export{i as default};

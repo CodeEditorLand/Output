@@ -1,1 +1,1 @@
-import"../../baseToken.js";import{SimpleToken as t}from"./simpleToken.js";class e extends t{static symbol="'";get text(){return e.symbol}sameType(r){return r instanceof this.constructor}toString(){return`quote${this.range}`}}export{e as Quote};
+import{SimpleToken as r}from"./simpleToken.js";class t extends r{static{this.symbol="'"}get text(){return t.symbol}sameType(e){return e instanceof this.constructor}toString(){return`quote${this.range}`}}export{t as Quote};

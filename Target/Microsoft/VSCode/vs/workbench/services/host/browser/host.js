@@ -1,1 +1,1 @@
-import"../../../../base/common/buffer.js";import"../../../../base/common/cancellation.js";import"../../../../base/common/event.js";import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";import"../../../../platform/native/common/native.js";import"../../../../platform/window/common/window.js";const v=e("hostService");export{v as IHostService};
+import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("hostService");export{r as IHostService};

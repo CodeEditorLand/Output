@@ -1,1 +1,1 @@
-import"../../../base/common/platform.js";import"../../workspace/common/workspace.js";var n=(e=>(e[e.Replace=1]="Replace",e[e.Append=2]="Append",e[e.Prepend=3]="Prepend",e))(n||{});export{n as EnvironmentVariableMutatorType};
+var d;(function(p){p[p.Replace=1]="Replace",p[p.Append=2]="Append",p[p.Prepend=3]="Prepend"})(d||(d={}));export{d as EnvironmentVariableMutatorType};

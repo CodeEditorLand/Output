@@ -1,1 +1,1 @@
-var t=(e=>(e.Unused="#808080",e.Used="#4040FF",e.Wasted="#FF0000",e.Restricted="#FF000088",e))(t||{});export{t as UsagePreviewColors};
+var t;(function(F){F.Unused="#808080",F.Used="#4040FF",F.Wasted="#FF0000",F.Restricted="#FF000088"})(t||(t={}));export{t as UsagePreviewColors};

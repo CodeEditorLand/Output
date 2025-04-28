@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../../platform/instantiation/common/instantiation.js";import"./searchTreeCommon.js";const i=e("searchViewModelWorkbenchService");export{i as ISearchViewModelWorkbenchService};
+import{createDecorator as e}from"../../../../../platform/instantiation/common/instantiation.js";const o=e("searchViewModelWorkbenchService");export{o as ISearchViewModelWorkbenchService};

@@ -1,1 +1,1 @@
-import"../../../../../../base/common/uri.js";import"../../../../../../base/common/worker/webWorker.js";import"./textMateTokenizationWorker.worker.js";class t{static CHANNEL_NAME="textMateWorkerHost";static getChannel(e){return e.getChannel(t.CHANNEL_NAME)}static setChannel(e,r){e.setChannel(t.CHANNEL_NAME,r)}}export{t as TextMateWorkerHost};
+class e{static{this.CHANNEL_NAME="textMateWorkerHost"}static getChannel(t){return t.getChannel(e.CHANNEL_NAME)}static setChannel(t,n){t.setChannel(e.CHANNEL_NAME,n)}}export{e as TextMateWorkerHost};

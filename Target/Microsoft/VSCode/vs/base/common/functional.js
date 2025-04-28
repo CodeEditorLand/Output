@@ -1,1 +1,1 @@
-function i(t,e){const r=this;let u=!1,n;return function(){if(u)return n;if(u=!0,e)try{n=t.apply(r,arguments)}finally{e()}else n=t.apply(r,arguments);return n}}export{i as createSingleCallFunction};
+function i(e,r){const l=this;let n=!1,t;return function(){if(n)return t;if(n=!0,r)try{t=e.apply(l,arguments)}finally{r()}else t=e.apply(l,arguments);return t}}export{i as createSingleCallFunction};

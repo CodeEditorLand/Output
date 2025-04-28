@@ -1,1 +1,0 @@
-var r="./Asset/tsec.exemptions-CTKODKIW.json";export{r as default};

@@ -1,1 +1,1 @@
-import{InstantiationType as e,registerSingleton as i}from"../../../../platform/instantiation/common/extensions.js";import{IWebviewService as r}from"./webview.js";import{WebviewService as o}from"./webviewService.js";i(r,o,e.Delayed);
+import{registerSingleton as e}from"../../../../platform/instantiation/common/extensions.js";import{IWebviewService as r}from"./webview.js";import{WebviewService as i}from"./webviewService.js";e(r,i,1);

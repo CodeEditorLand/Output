@@ -1,1 +1,1 @@
-import"../../../../../../../../../../platform/theme/common/colorUtils.js";const t=e=>`var(--vscode-${e.replaceAll(".","-")})`;import{DecorationBase as i}from"./decorationBase.js";import{ReactiveDecorationBase as n}from"./reactiveDecorationBase.js";export{i as DecorationBase,n as ReactiveDecorationBase,t as asCssVariable};
+const r=e=>`var(--vscode-${e.replaceAll(".","-")})`;import{DecorationBase as t}from"./decorationBase.js";import{ReactiveDecorationBase as c}from"./reactiveDecorationBase.js";export{t as DecorationBase,c as ReactiveDecorationBase,r as asCssVariable};

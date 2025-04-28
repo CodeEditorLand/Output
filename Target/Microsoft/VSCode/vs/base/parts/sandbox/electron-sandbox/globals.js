@@ -1,1 +1,1 @@
-import"../../../common/platform.js";import"../common/sandboxTypes.js";import"./electronTypes.js";const e=globalThis.vscode,l=e.ipcRenderer,b=e.ipcMessagePort,x=e.webFrame,m=e.process,I=e.context,g=e.webUtils;export{I as context,b as ipcMessagePort,l as ipcRenderer,m as process,x as webFrame,g as webUtils};
+const e=globalThis.vscode,o=e.ipcRenderer,t=e.ipcMessagePort,s=e.webFrame,c=e.process,r=e.context,p=e.webUtils;export{r as context,t as ipcMessagePort,o as ipcRenderer,c as process,s as webFrame,p as webUtils};

@@ -1,4 +1,4 @@
-var o=(t=>(t[t.Shapes=0]="Shapes",t[t.LayoutInfoUniform=1]="LayoutInfoUniform",t[t.ScrollOffset=2]="ScrollOffset",t))(o||{});const e=`
+var o;(function(t){t[t.Shapes=0]="Shapes",t[t.LayoutInfoUniform=1]="LayoutInfoUniform",t[t.ScrollOffset=2]="ScrollOffset"})(o||(o={}));const e=`
 
 struct Vertex {
 	@location(0) position: vec2f,

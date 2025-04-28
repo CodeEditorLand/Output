@@ -1,1 +1,1 @@
-import{WorkbenchPhase as r,registerWorkbenchContribution2 as e}from"../../../common/contributions.js";import{UserDataProfilesWorkbenchContribution as o}from"./userDataProfile.js";import"./userDataProfileActions.js";e(o.ID,o,r.BlockRestore);
+import{registerWorkbenchContribution2 as o}from"../../../common/contributions.js";import{UserDataProfilesWorkbenchContribution as r}from"./userDataProfile.js";import"./userDataProfileActions.js";o(r.ID,r,2);

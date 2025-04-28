@@ -1,1 +1,1 @@
-import"../../../../../../../../editor/common/core/range.js";import"../../../../../../../../editor/common/model/textModel.js";var t=(e=>(e.default="prompt-decoration",e.fileReference="prompt-decoration",e))(t||{}),n=(o=>(o.inactive=".prompt-decoration-inactive",o))(n||{});export{n as CssClassModifiers,t as DecorationClassNames};
+var o;(function(e){e.default="prompt-decoration",e.fileReference="prompt-decoration"})(o||(o={}));var t;(function(e){e.inactive=".prompt-decoration-inactive"})(t||(t={}));export{t as CssClassModifiers,o as DecorationClassNames};

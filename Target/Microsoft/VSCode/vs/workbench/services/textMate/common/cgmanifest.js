@@ -1,1 +1,0 @@
-var I="../../../../../Asset/cgmanifest-IDFLAZJV.json";export{I as default};

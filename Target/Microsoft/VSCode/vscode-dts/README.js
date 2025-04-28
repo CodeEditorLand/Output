@@ -1,1 +1,0 @@
-var s="../Asset/README-E6G77BW2.md";export{s as default};

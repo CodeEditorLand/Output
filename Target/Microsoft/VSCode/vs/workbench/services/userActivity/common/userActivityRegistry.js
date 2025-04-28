@@ -1,1 +1,1 @@
-import"../../../../platform/instantiation/common/instantiation.js";import"./userActivityService.js";class r{todo=[];add=t=>{this.todo.push(t)};take(t,i){this.add=e=>i.createInstance(e,t),this.todo.forEach(this.add),this.todo=[]}}const v=new r;export{v as userActivityRegistry};
+class o{constructor(){this.todo=[],this.add=t=>{this.todo.push(t)}}take(t,s){this.add=i=>s.createInstance(i,t),this.todo.forEach(this.add),this.todo=[]}}const e=new o;export{e as userActivityRegistry};

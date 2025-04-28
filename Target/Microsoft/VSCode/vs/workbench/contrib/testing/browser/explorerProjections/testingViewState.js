@@ -1,1 +1,1 @@
-import{TestId as l}from"../../common/testId.js";function a(n,e){e instanceof l||(e=l.fromString(e));let r=n;for(const t of e.path){if(!r.children?.hasOwnProperty(t))return;r=r.children[t]}return r.collapsed}export{a as isCollapsedInSerializedTestTree};
+import{TestId as t}from"../../common/testId.js";function i(o,e){e instanceof t||(e=t.fromString(e));let r=o;for(const n of e.path){if(!r.children?.hasOwnProperty(n))return;r=r.children[n]}return r.collapsed}export{i as isCollapsedInSerializedTestTree};

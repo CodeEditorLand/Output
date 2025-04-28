@@ -1,1 +1,1 @@
-import"../../../base/common/worker/webWorker.js";class e{static CHANNEL_NAME="editorWorkerHost";static getChannel(r){return r.getChannel(e.CHANNEL_NAME)}static setChannel(r,t){r.setChannel(e.CHANNEL_NAME,t)}}export{e as EditorWorkerHost};
+class e{static{this.CHANNEL_NAME="editorWorkerHost"}static getChannel(t){return t.getChannel(e.CHANNEL_NAME)}static setChannel(t,n){t.setChannel(e.CHANNEL_NAME,n)}}export{e as EditorWorkerHost};

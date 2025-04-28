@@ -1,1 +1,0 @@
-var D="../../../../../../Asset/shellIntegration-profile-66LM72UQ.zsh";export{D as default};

@@ -1,1 +1,0 @@
-import"electron";import"../../../base/common/event.js";import"./auxiliaryWindow.js";import{createDecorator as n}from"../../instantiation/common/instantiation.js";const s=n("auxiliaryWindowsMainService");export{s as IAuxiliaryWindowsMainService};

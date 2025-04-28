@@ -1,1 +1,0 @@
-var c="../../../../../../Asset/profiles-P37GO75W.svg";export{c as default};

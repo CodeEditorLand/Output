@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Source/ESBuild/Exclude/NLS.ts"],
+  "sourcesContent": ["export default (Prefix: string) => [\n\t// --- 8. NLS (If English-only MVP) ---\n\t// Be cautious here, sometimes core logic might expect nls structure\n\t// `nls.metadata.json`, // At root level\n\t// `${Prefix}/**/nls.metadata.json`, // Deeper nls metadata\n\t// Might need more specific patterns for the actual translation files if they exist\n];\n"],
+  "mappings": ";;AAAA,IAAO,cAAQ,wBAAC,WAAmB;AAAA;AAAA;AAAA;AAAA;AAAA;AAMnC,GANe;",
+  "names": []
+}

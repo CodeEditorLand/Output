@@ -1,1 +1,1 @@
-import"../../../../../../base/common/buffer.js";import"../../../../../../base/common/stream.js";import{ChatPromptDecoder as r}from"./chatPromptDecoder.js";import"../../../../../../base/common/codecs/types/ICodec.js";const C=Object.freeze({encode:e=>{throw new Error("The `encode` method is not implemented.")},decode:e=>new r(e)});export{C as ChatPromptCodec};
+import{ChatPromptDecoder as o}from"./chatPromptDecoder.js";const t=Object.freeze({encode:e=>{throw new Error("The `encode` method is not implemented.")},decode:e=>new o(e)});export{t as ChatPromptCodec};

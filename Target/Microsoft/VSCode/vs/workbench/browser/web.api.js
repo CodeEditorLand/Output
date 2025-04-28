@@ -1,1 +1,1 @@
-var r=(e=>(e[e.CommandPalette=0]="CommandPalette",e[e.StatusBarWindowIndicatorMenu=1]="StatusBarWindowIndicatorMenu",e))(r||{}),n=(o=>(o.DARK="dark",o.LIGHT="light",o.HIGH_CONTRAST_LIGHT="hcLight",o.HIGH_CONTRAST_DARK="hcDark",o))(n||{});export{n as ColorScheme,r as Menu};
+var a;(function(t){t[t.CommandPalette=0]="CommandPalette",t[t.StatusBarWindowIndicatorMenu=1]="StatusBarWindowIndicatorMenu"})(a||(a={}));var n;(function(t){t.DARK="dark",t.LIGHT="light",t.HIGH_CONTRAST_LIGHT="hcLight",t.HIGH_CONTRAST_DARK="hcDark"})(n||(n={}));export{n as ColorScheme,a as Menu};

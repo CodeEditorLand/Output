@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Source/ESBuild/Exclude/BuiltIn.ts"],
+  "sourcesContent": ["export default (Prefix: string) => [\n\t// --- 7. Built-in Extensions (Selectively Exclude - HIGH RISK, Test Carefully!) ---\n\t// Keep: typescript-language-features, json-language-features, html-language-features, css-language-features, emmet, git-base\n\t// Potential excludes (examples only, VERIFY based on YOUR MVP needs):\n\t// `${Prefix}/extensions/php-language-features`,\n\t// `${Prefix}/extensions/npm`,\n\t// `${Prefix}/extensions/grunt`,\n\t// `${Prefix}/extensions/jake`,\n\t// `${Prefix}/extensions/ipynb`,\n\t// `${Prefix}/extensions/markdown-math`,\n\t// `${Prefix}/extensions/media-preview`, // Keep if image/audio/video preview needed\n\t// `${Prefix}/extensions/merge-conflict`, // Keep if using built-in merge editor\n\t// `${Prefix}/extensions/github-authentication`,\n\t// `${Prefix}/extensions/microsoft-authentication`,\n\t// `${Prefix}/extensions/search-result`,\n\t// `${Prefix}/extensions/simple-browser`,\n\t// `${Prefix}/extensions/vscode-api-tests`,\n\t// `${Prefix}/extensions/vscode-colorize-tests`,\n\t// `${Prefix}/extensions/vscode-test-resolver`,\n\t// ... other language extensions ...\n];\n"],
+  "mappings": ";;AAAA,IAAO,kBAAQ,wBAAC,WAAmB;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAoBnC,GApBe;",
+  "names": []
+}

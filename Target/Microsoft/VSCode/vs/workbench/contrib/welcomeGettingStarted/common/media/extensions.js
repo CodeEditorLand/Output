@@ -1,1 +1,0 @@
-var g="../../../../../../Asset/extensions-VZEPM32M.svg";export{g as default};

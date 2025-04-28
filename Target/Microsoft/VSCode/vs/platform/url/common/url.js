@@ -1,1 +1,1 @@
-import"../../../base/common/lifecycle.js";import"../../../base/common/uri.js";import{createDecorator as e}from"../../instantiation/common/instantiation.js";const p=e("urlService");export{p as IURLService};
+import{createDecorator as r}from"../../instantiation/common/instantiation.js";const o=r("urlService");export{o as IURLService};

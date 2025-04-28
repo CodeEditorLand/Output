@@ -1,1 +1,1 @@
-import"../../../../base/common/worker/webWorker.js";class t{static CHANNEL_NAME="languageDetectionWorkerHost";static getChannel(e){return e.getChannel(t.CHANNEL_NAME)}static setChannel(e,r){e.setChannel(t.CHANNEL_NAME,r)}}export{t as LanguageDetectionWorkerHost};
+class e{static{this.CHANNEL_NAME="languageDetectionWorkerHost"}static getChannel(t){return t.getChannel(e.CHANNEL_NAME)}static setChannel(t,n){t.setChannel(e.CHANNEL_NAME,n)}}export{e as LanguageDetectionWorkerHost};

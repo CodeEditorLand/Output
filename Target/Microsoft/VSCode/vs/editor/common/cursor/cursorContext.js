@@ -1,1 +1,1 @@
-import"../model.js";import"../viewModel.js";import"../cursorCommon.js";class c{_cursorContextBrand=void 0;model;viewModel;coordinatesConverter;cursorConfig;constructor(o,r,e,i){this.model=o,this.viewModel=r,this.coordinatesConverter=e,this.cursorConfig=i}}export{c as CursorContext};
+class i{constructor(o,t,r,s){this._cursorContextBrand=void 0,this.model=o,this.viewModel=t,this.coordinatesConverter=r,this.cursorConfig=s}}export{i as CursorContext};

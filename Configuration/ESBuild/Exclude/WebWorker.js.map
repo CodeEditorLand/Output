@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Source/ESBuild/Exclude/WebWorker.ts"],
+  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/workbench/api/worker`, // Exclude if confident Cocoon is the only host\n\n\t// extensionService.js:1\n\t// GET http://localhost:3000/Static/VSCode/vs/workbench/services/extensions/browser/webWorkerExtensionHost.js net::ERR_ABORTED 404 (Not Found)\n\t// `${Prefix}/workbench/services/extensions/browser/webWorkerExtensionHost.js`, // Specific file\n\n\t`${Prefix}/workbench/services/extensions/worker`, // Polyfill helper\n];\n"],
+  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA;AAAA;AAAA;AAAA;AAAA,EAMT,GAAG,MAAM;AAAA;AACV,GARe;",
+  "names": []
+}

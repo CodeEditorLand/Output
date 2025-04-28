@@ -1,2 +1,2 @@
-function o(e){const t=[];return r(e.node,t),t.join("")}function r(e,t){if(e.type===PromptNodeType.Text)e.lineBreakBefore&&t.push(`
-`),typeof e.text=="string"&&t.push(e.text);else if(e.ctor===PieceCtorKind.ImageChatMessage)t.push("<image>");else if(e.ctor===PieceCtorKind.BaseChatMessage||e.ctor===PieceCtorKind.Other)for(const i of e.children)r(i,t)}export{o as stringifyPromptElementJSON};
+function r(t){const i=[];return e(t.node,i),i.join("")}function e(t,i){if(t.type===2)t.lineBreakBefore&&i.push(`
+`),typeof t.text=="string"&&i.push(t.text);else if(t.ctor===3)i.push("<image>");else if(t.ctor===1||t.ctor===2)for(const f of t.children)e(f,i)}export{r as stringifyPromptElementJSON};

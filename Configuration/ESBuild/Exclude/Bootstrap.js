@@ -1,0 +1,1 @@
+var s=o=>["out/bootstrap-cli.js","out/bootstrap-fork.js","out/bootstrap-node.js","out/bootstrap-server.js","out/cli.js","out/main.js ","out/server-cli.js","out/server-main.js",`${o}/code/node/cli.js`,`${o}/code/node/cliProcessMain.js`,`${o}/workbench/workbench.desktop.main.js `];export{s as default};

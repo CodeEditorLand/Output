@@ -1,1 +1,1 @@
-class n{constructor(){this._frameId=0,this._domFrameLog()}_domFrameLog(){}debug(...t){const e=new Date;console.log(`${e.getSeconds()}:${e.getMilliseconds().toString().padStart(3,"0")}`,`frame #${this._frameId}: `,...t)}}const s=new n;function a(...o){s.debug(...o)}export{a as notebookDebug};
+class o{constructor(){this._frameId=0,this._domFrameLog()}_domFrameLog(){}debug(...a){const s=new Date}}const t=new o;function n(...e){t.debug(...e)}export{n as notebookDebug};

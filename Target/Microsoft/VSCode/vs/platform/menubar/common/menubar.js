@@ -1,1 +1,0 @@
-function n(e){return e.submenu!==void 0}function r(e){return e.id==="vscode.menubar.separator"}function u(e){return e.uri!==void 0}function t(e){return!n(e)&&!r(e)&&!u(e)}export{t as isMenubarMenuItemAction,u as isMenubarMenuItemRecentAction,r as isMenubarMenuItemSeparator,n as isMenubarMenuItemSubmenu};

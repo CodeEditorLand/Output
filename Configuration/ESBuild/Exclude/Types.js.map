@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/ESBuild/Exclude/Types.ts"],
-  "sourcesContent": ["export default () => [\n\t\"tsconfig.base.json\",\n\t\"tsconfig.exemptions.json\",\n\t\"tsconfig.json\",\n\t\"tsconfig.monaco.json\",\n\t\"tsconfig.tsec.json\",\n\t\"tsconfig.vscode-dts.json\",\n\t\"tsconfig.vscode-proposed-dts.json\",\n\n\t\".d.ts\",\n\n\t\"vscode-dts/README.md\",\n];\n"],
-  "mappings": ";;AAAA,IAAO,gBAAQ,6BAAM;AAAA,EACpB;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EAEA;AAAA,EAEA;AACD,GAZe;",
-  "names": []
-}

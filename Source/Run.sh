@@ -7,7 +7,7 @@ fi
 # shellcheck disable=SC2154
 case "$Dependency" in
 "Microsoft/VSCode")
-	Build="src"
+	Build="out"
 	;;
 "CodeEditorLand/Editor")
 	Build="Source"
@@ -20,4 +20,4 @@ esac
 Build "Source/**/*.{ts,json}" --ESBuild Source/ESBuild/Output.ts
 
 Build "../../Dependency/Microsoft/Dependency/Editor/$Build/**/*.{css,map,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}" \
-	--ESBuild Target/ESBuild/"$Dependency".js --Watch
+	--ESBuild Configuration/ESBuild/"$Dependency".js --Watch

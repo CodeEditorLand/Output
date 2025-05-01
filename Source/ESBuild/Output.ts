@@ -16,7 +16,7 @@ export default {
 	logLevel: "debug",
 	metafile: true,
 	minify: !On,
-	outdir: `Configuration`,
+	outdir: "Configuration",
 	platform: "node",
 	target: "esnext",
 	tsconfig: "tsconfig.json",
@@ -40,7 +40,7 @@ export default {
 								outdir
 									? await (
 											await import("node:fs/promises")
-										).rm("Target", {
+										).rm(outdir, {
 											recursive: true,
 										})
 									: {};

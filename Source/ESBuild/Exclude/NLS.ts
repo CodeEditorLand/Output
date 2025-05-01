@@ -1,4 +1,4 @@
-export default (Prefix: string) => [
+export default (_Prefix: string) => [
 	// --- 8. NLS (If English-only MVP) ---
 	// Be cautious here, sometimes core logic might expect nls structure
 	// At root level

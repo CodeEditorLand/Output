@@ -4,4 +4,4 @@ ${JSON.stringify(p)}
 \`\`\`vscode-extensions
 extensionId1,extensionId2
 \`\`\`
-.`}],toolResultDetails:{input:JSON.stringify(t),output:JSON.stringify(p.map(n=>n.id))}}}};f=u([m(0,v)],f);export{f as SearchExtensionsTool,I as SearchExtensionsToolData,w as SearchExtensionsToolId};
+.`}],toolResultDetails:{input:JSON.stringify(t),output:[{type:"text",value:JSON.stringify(p.map(n=>n.id))}]}}}};f=u([m(0,v)],f);export{f as SearchExtensionsTool,I as SearchExtensionsToolData,w as SearchExtensionsToolId};

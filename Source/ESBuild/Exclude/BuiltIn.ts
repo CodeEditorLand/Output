@@ -1,4 +1,4 @@
-export default (Prefix: string) => [
+export default (_Prefix: string) => [
 	// --- 7. Built-in Extensions (Selectively Exclude - HIGH RISK, Test Carefully!) ---
 	// Keep: typescript-language-features, json-language-features, html-language-features, css-language-features, emmet, git-base
 	// Potential excludes (examples only, VERIFY based on YOUR MVP needs):

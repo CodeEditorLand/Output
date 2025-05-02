@@ -55,11 +55,11 @@ export default (Prefix: string) => [
 
 	`${Prefix}/code/browser/workbench/workbench.html`,
 
-	`${Prefix}/workbench/contrib/webview/browser/pre/fake.html`,
+	// `${Prefix}/workbench/contrib/webview/browser/pre/fake.html`,
 
-	`${Prefix}/workbench/contrib/webview/browser/pre/index-no-csp.html`,
+	// `${Prefix}/workbench/contrib/webview/browser/pre/index-no-csp.html`,
 
-	`${Prefix}/workbench/contrib/webview/browser/pre/index.html`,
+	// `${Prefix}/workbench/contrib/webview/browser/pre/index.html`,
 
 	`${Prefix}/workbench/contrib/terminalContrib/README.md`,
 ];

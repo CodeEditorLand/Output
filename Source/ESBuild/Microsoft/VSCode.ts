@@ -27,6 +27,58 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 			},
 
 			treeShaking: true,
+			target: ((Browser: string[]) => {
+				const Target = new Set<string>();
+
+				const Supported = new Set([
+					"chrome",
+					"edge",
+					"firefox",
+					"ios",
+					"safari",
+					"opera",
+				]);
+
+				const _Map: Record<string, string> = {
+					"ios_saf": "ios",
+				};
+
+				for (const _Browser of Browser) {
+					const Part = _Browser.split(" ");
+
+					if (Part.length !== 2) {
+						continue;
+					}
+
+					let [Name, Version] = Part;
+
+					Name = Name?.toLowerCase();
+
+					const NameMap = (_Map[Name ?? 0] || Name) ?? "";
+
+					if (!Supported.has(NameMap)) {
+						continue;
+					}
+
+					if (Version?.includes("-")) {
+						Version = Version.split("-")[0];
+					}
+
+					if (Version?.includes(".")) {
+						Version = Version.split(".")[0];
+					}
+
+					if (!/^\d+$/.test(Version ?? "")) {
+						continue;
+					}
+
+					Target.add(`${NameMap}${Version}`);
+				}
+
+				console.log(Target);
+
+				return Array.from(Target).sort();
+			})((await import("browserslist")).default("defaults")),
 
 			entryPoints: (await import("../Exclude/Entry.js")).default(
 				Current,
@@ -65,6 +117,10 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 					),
 
 					...(await import("../Exclude/Node.js")).default(Prefix),
+
+					// ...(await import("../Exclude/Telemetry.js")).default(
+					// 	Prefix,
+					// ),
 
 					"tsec.exemptions.json",
 

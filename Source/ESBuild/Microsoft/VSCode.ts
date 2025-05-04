@@ -75,8 +75,6 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 					Target.add(`${NameMap}${Version}`);
 				}
 
-				console.log(Target);
-
 				return Array.from(Target).sort();
 			})((await import("browserslist")).default("defaults")),
 

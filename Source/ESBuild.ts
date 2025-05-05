@@ -8,6 +8,8 @@ export const Dependency = process.env["Dependency"] ?? "CodeEditorLand/Editor";
 
 export const Clean = process.env["Clean"] === "true";
 
+export const Browser = process.env["Browser"] === "true";
+
 /**
  * @module ESBuild
  *

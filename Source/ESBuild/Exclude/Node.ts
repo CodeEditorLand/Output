@@ -1,8 +1,6 @@
 export default (Prefix: string) => [
 	`${Prefix}/base/node/`,
 
-	// `${Prefix}/base/parts/ipc/common/ipc.net.js`,
-
 	`${Prefix}/base/parts/ipc/node/`,
 
 	`${Prefix}/base/parts/sandbox/node/`,
@@ -77,9 +75,11 @@ export default (Prefix: string) => [
 
 	`${Prefix}/workbench/contrib/terminal/node/`,
 
-	// `${Prefix}/workbench/services/extensions/browser/extensionsScannerService.js`,
-
 	`${Prefix}/workbench/services/integrity/node/`,
 
 	`${Prefix}/workbench/services/search/node/`,
+
+	// `${Prefix}/base/parts/ipc/common/ipc.net.js`,
+
+	// `${Prefix}/workbench/services/extensions/browser/extensionsScannerService.js`,
 ];

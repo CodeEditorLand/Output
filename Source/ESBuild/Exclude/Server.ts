@@ -1,1 +1,1 @@
-export default (Prefix: string) => [`${Prefix}/server`];
+export default (Prefix: string) => [`${Prefix}/server/`];

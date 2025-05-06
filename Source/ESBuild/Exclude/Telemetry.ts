@@ -1,11 +1,11 @@
 export default (Prefix: string) => [
-	`${Prefix}/platform/telemetry/`,
+	`${Prefix}/platform/telemetry/*`,
 
-	`${Prefix}/workbench/contrib/bracketPairColorizer2Telemetry/`,
+	`${Prefix}/workbench/contrib/bracketPairColorizer2Telemetry/*`,
 
-	`${Prefix}/workbench/contrib/telemetry/`,
+	`${Prefix}/workbench/contrib/telemetry/*`,
 
-	`${Prefix}/workbench/services/telemetry/`,
+	`${Prefix}/workbench/services/telemetry/*`,
 
 	`${Prefix}/platform/telemetry/browser/errorTelemetry.js`,
 

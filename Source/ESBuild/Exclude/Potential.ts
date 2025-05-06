@@ -1,7 +1,7 @@
 export default (Prefix: string) => [
-	`${Prefix}/platform/profiling/`,
+	`${Prefix}/platform/profiling/*`,
 
-	`${Prefix}/platform/cssDev/`,
+	`${Prefix}/platform/cssDev/*`,
 
 	// If no core markdown rendering needed
 	// `${Prefix}/base/common/marked`,

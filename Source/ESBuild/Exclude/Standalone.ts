@@ -1,5 +1,5 @@
 export default (Prefix: string) => [
-	`${Prefix}/editor/standalone/`,
+	`${Prefix}/editor/standalone/*`,
 
 	`${Prefix}/editor/editor.main.js`,
 

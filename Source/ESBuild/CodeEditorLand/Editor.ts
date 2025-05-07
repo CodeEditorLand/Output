@@ -12,7 +12,9 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 		(await import("../../ESBuild.js")).default,
 
 		{
-			entryPoints: (await import("../Exclude/Entry.js")).default(
+			entryPoints: (
+				await import("@playform/build/Target/Function/Entry.js")
+			).default(
 				Current,
 
 				[

@@ -78,7 +78,7 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 				return Array.from(Target).sort();
 			})((await import("browserslist")).default("defaults")),
 
-			entryPoints: (await import("../Exclude/Entry.js")).default(
+			entryPoints: (await import("@playform/build/Target/Function/Entry.js")).default(
 				Current,
 
 				[

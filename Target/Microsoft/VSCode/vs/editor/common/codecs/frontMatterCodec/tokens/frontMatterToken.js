@@ -1,1 +1,1 @@
-import{BaseToken as t}from"../../baseToken.js";class o extends t{}class n extends o{}export{o as FrontMatterToken,n as FrontMatterValueToken};
+import{CompositeToken as t}from"../../compositeToken.js";class o extends t{}class n extends o{}export{o as FrontMatterToken,n as FrontMatterValueToken};

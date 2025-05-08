@@ -1,1 +1,1 @@
-var o;(function(e){e.default="prompt-decoration",e.fileReference="prompt-decoration"})(o||(o={}));var t;(function(e){e.inactive=".prompt-decoration-inactive"})(t||(t={}));export{t as CssClassModifiers,o as DecorationClassNames};
+var o;(function(e){e.Default="prompt-decoration",e.FileReference="prompt-decoration"})(o||(o={}));var t;(function(e){e.Inactive=".prompt-decoration-inactive"})(t||(t={}));export{t as CssClassModifiers,o as DecorationClassNames};

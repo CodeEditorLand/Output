@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../Source/ESBuild/Exclude/Bootstrap.ts"],
-  "sourcesContent": ["export default (Prefix: string) => [\r\n\t\"out/bootstrap-cli.js\",\r\n\t\"out/bootstrap-fork.js\",\r\n\t\"out/bootstrap-node.js\",\r\n\t\"out/bootstrap-server.js\",\r\n\t\"out/cli.js\",\r\n\t\"out/main.js \",\r\n\t\"out/server-cli.js\",\r\n\t\"out/server-main.js\",\r\n\t`${Prefix}/code/node/cli.js`,\r\n\t`${Prefix}/code/node/cliProcessMain.js`,\r\n\t`${Prefix}/workbench/workbench.desktop.main.js `,\r\n];\r\n"],
-  "mappings": ";;AAAA,IAAO,oBAAQ,wBAAC,WAAmB;AAAA,EAClC;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA;AAAA,EACA,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AAAA,EACT,GAAG,MAAM;AACV,GAZe;",
-  "names": []
-}

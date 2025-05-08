@@ -1,1 +1,788 @@
-import{Emitter as O}from"../../../../../base/common/event.js";import{hash as y}from"../../../../../base/common/hash.js";import{Disposable as F}from"../../../../../base/common/lifecycle.js";import{DiffEditorWidget as C}from"../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";import{getEditorPadding as I}from"./diffCellEditorOptions.js";import{DiffNestedCellViewModel as x}from"./diffNestedCellViewModel.js";import{NotebookDiffViewEventType as L}from"./eventDispatcher.js";import{DIFF_CELL_MARGIN as M,DiffSide as w}from"./notebookDiffEditorBrowser.js";import{CellLayoutState as m}from"../notebookBrowser.js";import{getFormattedMetadataJSON as D}from"../../common/model/notebookCellTextModel.js";import{CellUri as T}from"../../common/notebookCommon.js";import{Schemas as V}from"../../../../../base/common/network.js";import{NotebookDocumentMetadataTextModel as b}from"../../common/model/notebookMetadataTextModel.js";const S=25,Z=24,$=17;var d;(function(o){o[o.Expanded=0]="Expanded",o[o.Collapsed=1]="Collapsed"})(d||(d={}));const k=1440;class E extends F{constructor(t,e,i){super(),this.mainDocumentTextModel=t,this.editorEventDispatcher=e,this.initData=i,this._layoutInfoEmitter=this._register(new O),this.onDidLayoutChange=this._layoutInfoEmitter.event,this._register(this.editorEventDispatcher.onDidChangeLayout(a=>this._layoutInfoEmitter.fire({outerWidth:!0})))}}class tt extends E{constructor(t,e,i){super(t,e,i),this.type="placeholder",this.hiddenCells=[],this._unfoldHiddenCells=this._register(new O),this.onUnfoldHiddenCells=this._unfoldHiddenCells.event,this.renderOutput=!1}get totalHeight(){return 24+2*M}getHeight(t){return this.totalHeight}layoutChange(){}showHiddenCells(){this._unfoldHiddenCells.fire()}}class et extends E{set editorHeight(t){this._layout({editorHeight:t})}get editorHeight(){throw new Error("Use Cell.layoutInfo.editorHeight")}set editorMargin(t){this._layout({editorMargin:t})}get editorMargin(){throw new Error("Use Cell.layoutInfo.editorMargin")}get layoutInfo(){return this._layoutInfo}get totalHeight(){return this.layoutInfo.totalHeight}constructor(t,e,i,a,u,h,s){super(t,a,u),this.originalDocumentTextModel=t,this.modifiedDocumentTextModel=e,this.type=i,this.editorHeightCalculator=s,this.renderOutput=!1,this._sourceEditorViewState=null;const n=S;this._layoutInfo={width:0,editorHeight:0,editorMargin:0,metadataHeight:0,cellStatusHeight:n,metadataStatusHeight:0,rawOutputHeight:0,outputTotalHeight:0,outputStatusHeight:0,outputMetadataHeight:0,bodyMargin:32,totalHeight:82+n+0,layoutState:m.Uninitialized},this.cellFoldingState=i==="modifiedMetadata"?d.Expanded:d.Collapsed,this.originalMetadata=this._register(new b(t)),this.modifiedMetadata=this._register(new b(e))}async computeHeights(){if(this.type==="unchangedMetadata")this.editorHeight=this.editorHeightCalculator.computeHeightFromLines(this.originalMetadata.textBuffer.getLineCount());else{const t=this.originalMetadata.uri,e=this.modifiedMetadata.uri;this.editorHeight=await this.editorHeightCalculator.diffAndComputeHeight(t,e)}}layoutChange(){this._layout({recomputeOutput:!0})}_layout(t){const e=t.width!==void 0?t.width:this._layoutInfo.width,i=t.editorHeight!==void 0?t.editorHeight:this._layoutInfo.editorHeight,a=t.editorMargin!==void 0?t.editorMargin:this._layoutInfo.editorMargin,u=t.cellStatusHeight!==void 0?t.cellStatusHeight:this._layoutInfo.cellStatusHeight,h=t.bodyMargin!==void 0?t.bodyMargin:this._layoutInfo.bodyMargin,s=i+a+u+h,n={width:e,editorHeight:i,editorMargin:a,metadataHeight:0,cellStatusHeight:u,metadataStatusHeight:0,outputTotalHeight:0,outputStatusHeight:0,bodyMargin:h,rawOutputHeight:0,outputMetadataHeight:0,totalHeight:s,layoutState:m.Measured};let r=!1;const l={};n.width!==this._layoutInfo.width&&(l.width=!0,r=!0),n.editorHeight!==this._layoutInfo.editorHeight&&(l.editorHeight=!0,r=!0),n.editorMargin!==this._layoutInfo.editorMargin&&(l.editorMargin=!0,r=!0),n.cellStatusHeight!==this._layoutInfo.cellStatusHeight&&(l.cellStatusHeight=!0,r=!0),n.bodyMargin!==this._layoutInfo.bodyMargin&&(l.bodyMargin=!0,r=!0),n.totalHeight!==this._layoutInfo.totalHeight&&(l.totalHeight=!0,r=!0),r&&(this._layoutInfo=n,this._fireLayoutChangeEvent(l))}getHeight(t){if(this._layoutInfo.layoutState===m.Uninitialized){const e=this.cellFoldingState===d.Collapsed?0:this.computeInputEditorHeight(t);return this._computeTotalHeight(e)}else return this._layoutInfo.totalHeight}_computeTotalHeight(t){return t+this._layoutInfo.editorMargin+this._layoutInfo.metadataHeight+this._layoutInfo.cellStatusHeight+this._layoutInfo.metadataStatusHeight+this._layoutInfo.outputTotalHeight+this._layoutInfo.outputStatusHeight+this._layoutInfo.outputMetadataHeight+this._layoutInfo.bodyMargin}computeInputEditorHeight(t){return this.editorHeightCalculator.computeHeightFromLines(Math.max(this.originalMetadata.textBuffer.getLineCount(),this.modifiedMetadata.textBuffer.getLineCount()))}_fireLayoutChangeEvent(t){this._layoutInfoEmitter.fire(t),this.editorEventDispatcher.emit([{type:L.CellLayoutChanged,source:this._layoutInfo}])}getComputedCellContainerWidth(t,e,i){return i?t.width-2*M+(e?C.ENTIRE_DIFF_OVERVIEW_WIDTH:0)-2:(t.width-2*M+(e?C.ENTIRE_DIFF_OVERVIEW_WIDTH:0))/2-18-2}getSourceEditorViewState(){return this._sourceEditorViewState}saveSpirceEditorViewState(t){this._sourceEditorViewState=t}}class v extends E{hideUnchangedCells(){this._hideUnchangedCells.fire()}set rawOutputHeight(t){this._layout({rawOutputHeight:Math.min(k,t)})}get rawOutputHeight(){throw new Error("Use Cell.layoutInfo.rawOutputHeight")}set outputStatusHeight(t){this._layout({outputStatusHeight:t})}get outputStatusHeight(){throw new Error("Use Cell.layoutInfo.outputStatusHeight")}set outputMetadataHeight(t){this._layout({outputMetadataHeight:t})}get outputMetadataHeight(){throw new Error("Use Cell.layoutInfo.outputStatusHeight")}set editorHeight(t){this._layout({editorHeight:t})}get editorHeight(){throw new Error("Use Cell.layoutInfo.editorHeight")}set editorMargin(t){this._layout({editorMargin:t})}get editorMargin(){throw new Error("Use Cell.layoutInfo.editorMargin")}set metadataStatusHeight(t){this._layout({metadataStatusHeight:t})}get metadataStatusHeight(){throw new Error("Use Cell.layoutInfo.outputStatusHeight")}set metadataHeight(t){this._layout({metadataHeight:t})}get metadataHeight(){throw new Error("Use Cell.layoutInfo.metadataHeight")}set renderOutput(t){this._renderOutput=t,this._layout({recomputeOutput:!0}),this._stateChangeEmitter.fire({renderOutput:this._renderOutput})}get renderOutput(){return this._renderOutput}get layoutInfo(){return this._layoutInfo}get totalHeight(){return this.layoutInfo.totalHeight}get ignoreOutputs(){return this.configurationService.getValue("notebook.diff.ignoreOutputs")||!!this.mainDocumentTextModel?.transientOptions.transientOutputs}get ignoreMetadata(){return this.configurationService.getValue("notebook.diff.ignoreMetadata")}constructor(t,e,i,a,u,h,s,n,r,l){super(t,u,h),this.type=a,this.index=n,this.configurationService=r,this.diffEditorHeightCalculator=l,this._stateChangeEmitter=this._register(new O),this.onDidStateChange=this._stateChangeEmitter.event,this._hideUnchangedCells=this._register(new O),this.onHideUnchangedCells=this._hideUnchangedCells.event,this._renderOutput=!0,this._sourceEditorViewState=null,this._outputEditorViewState=null,this._metadataEditorViewState=null,this.original=e?this._register(new x(e,s)):void 0,this.modified=i?this._register(new x(i,s)):void 0;const c=this._estimateEditorHeight(h.fontInfo),H=S;this._layoutInfo={width:0,editorHeight:c,editorMargin:0,metadataHeight:0,cellStatusHeight:H,metadataStatusHeight:this.ignoreMetadata?0:S,rawOutputHeight:0,outputTotalHeight:0,outputStatusHeight:this.ignoreOutputs?0:S,outputMetadataHeight:0,bodyMargin:32,totalHeight:82+H+c,layoutState:m.Uninitialized},this.cellFoldingState=i?.getTextBufferHash()!==e?.getTextBufferHash()?d.Expanded:d.Collapsed,this.metadataFoldingState=d.Collapsed,this.outputFoldingState=d.Collapsed}layoutChange(){this._layout({recomputeOutput:!0})}_estimateEditorHeight(t){const e=t?.lineHeight??17;switch(this.type){case"unchanged":case"insert":{const i=this.modified.textModel.textBuffer.getLineCount();return i*e+I(i).top+I(i).bottom}case"delete":case"modified":{const i=this.original.textModel.textBuffer.getLineCount();return i*e+I(i).top+I(i).bottom}}}_layout(t){const e=t.width!==void 0?t.width:this._layoutInfo.width,i=t.editorHeight!==void 0?t.editorHeight:this._layoutInfo.editorHeight,a=t.editorMargin!==void 0?t.editorMargin:this._layoutInfo.editorMargin,u=t.metadataHeight!==void 0?t.metadataHeight:this._layoutInfo.metadataHeight,h=t.cellStatusHeight!==void 0?t.cellStatusHeight:this._layoutInfo.cellStatusHeight,s=t.metadataStatusHeight!==void 0?t.metadataStatusHeight:this._layoutInfo.metadataStatusHeight,n=t.rawOutputHeight!==void 0?t.rawOutputHeight:this._layoutInfo.rawOutputHeight,r=t.outputStatusHeight!==void 0?t.outputStatusHeight:this._layoutInfo.outputStatusHeight,l=t.bodyMargin!==void 0?t.bodyMargin:this._layoutInfo.bodyMargin,c=t.outputMetadataHeight!==void 0?t.outputMetadataHeight:this._layoutInfo.outputMetadataHeight,H=this.ignoreOutputs?0:t.recomputeOutput||t.rawOutputHeight!==void 0||t.outputMetadataHeight!==void 0?this._getOutputTotalHeight(n,c):this._layoutInfo.outputTotalHeight,_=i+a+h+u+s+H+r+l,f={width:e,editorHeight:i,editorMargin:a,metadataHeight:u,cellStatusHeight:h,metadataStatusHeight:s,outputTotalHeight:H,outputStatusHeight:r,bodyMargin:l,rawOutputHeight:n,outputMetadataHeight:c,totalHeight:_,layoutState:m.Measured};let g=!1;const p={};f.width!==this._layoutInfo.width&&(p.width=!0,g=!0),f.editorHeight!==this._layoutInfo.editorHeight&&(p.editorHeight=!0,g=!0),f.editorMargin!==this._layoutInfo.editorMargin&&(p.editorMargin=!0,g=!0),f.metadataHeight!==this._layoutInfo.metadataHeight&&(p.metadataHeight=!0,g=!0),f.cellStatusHeight!==this._layoutInfo.cellStatusHeight&&(p.cellStatusHeight=!0,g=!0),f.metadataStatusHeight!==this._layoutInfo.metadataStatusHeight&&(p.metadataStatusHeight=!0,g=!0),f.outputTotalHeight!==this._layoutInfo.outputTotalHeight&&(p.outputTotalHeight=!0,g=!0),f.outputStatusHeight!==this._layoutInfo.outputStatusHeight&&(p.outputStatusHeight=!0,g=!0),f.bodyMargin!==this._layoutInfo.bodyMargin&&(p.bodyMargin=!0,g=!0),f.outputMetadataHeight!==this._layoutInfo.outputMetadataHeight&&(p.outputMetadataHeight=!0,g=!0),f.totalHeight!==this._layoutInfo.totalHeight&&(p.totalHeight=!0,g=!0),g&&(this._layoutInfo=f,this._fireLayoutChangeEvent(p))}getHeight(t){if(this._layoutInfo.layoutState===m.Uninitialized){const e=this.cellFoldingState===d.Collapsed?0:this.computeInputEditorHeight(t);return this._computeTotalHeight(e)}else return this._layoutInfo.totalHeight}_computeTotalHeight(t){return t+this._layoutInfo.editorMargin+this._layoutInfo.metadataHeight+this._layoutInfo.cellStatusHeight+this._layoutInfo.metadataStatusHeight+this._layoutInfo.outputTotalHeight+this._layoutInfo.outputStatusHeight+this._layoutInfo.outputMetadataHeight+this._layoutInfo.bodyMargin}computeInputEditorHeight(t){const e=Math.max(this.original?.textModel.textBuffer.getLineCount()??1,this.modified?.textModel.textBuffer.getLineCount()??1);return this.diffEditorHeightCalculator.computeHeightFromLines(e)}_getOutputTotalHeight(t,e){return this.outputFoldingState===d.Collapsed?0:this.renderOutput?this.isOutputEmpty()?24:this.getRichOutputTotalHeight()+e:t}_fireLayoutChangeEvent(t){this._layoutInfoEmitter.fire(t),this.editorEventDispatcher.emit([{type:L.CellLayoutChanged,source:this._layoutInfo}])}getComputedCellContainerWidth(t,e,i){return i?t.width-2*M+(e?C.ENTIRE_DIFF_OVERVIEW_WIDTH:0)-2:(t.width-2*M+(e?C.ENTIRE_DIFF_OVERVIEW_WIDTH:0))/2-18-2}getOutputEditorViewState(){return this._outputEditorViewState}saveOutputEditorViewState(t){this._outputEditorViewState=t}getMetadataEditorViewState(){return this._metadataEditorViewState}saveMetadataEditorViewState(t){this._metadataEditorViewState=t}getSourceEditorViewState(){return this._sourceEditorViewState}saveSpirceEditorViewState(t){this._sourceEditorViewState=t}}class it extends v{get originalDocument(){return this.otherDocumentTextModel}get modifiedDocument(){return this.mainDocumentTextModel}constructor(t,e,i,a,u,h,s,n,r,l,c){super(t,i,a,u,h,s,n,l,r,c),this.otherDocumentTextModel=e,this.type=u,this.cellFoldingState=this.modified.textModel.getValue()!==this.original.textModel.getValue()?d.Expanded:d.Collapsed,this.metadataFoldingState=d.Collapsed,this.outputFoldingState=d.Collapsed,this.checkMetadataIfModified()&&(this.metadataFoldingState=d.Expanded),this.checkIfOutputsModified()&&(this.outputFoldingState=d.Expanded),this._register(this.original.onDidChangeOutputLayout(()=>{this._layout({recomputeOutput:!0})})),this._register(this.modified.onDidChangeOutputLayout(()=>{this._layout({recomputeOutput:!0})})),this._register(this.modified.textModel.onDidChangeContent(()=>{if(t.transientOptions.cellContentMetadata){const H=[...Object.keys(t.transientOptions.cellContentMetadata)],_=Object.assign({},this.modified.metadata),f=this.original.metadata;for(const g of H)g in f&&(_[g]=f[g]);this.modified.textModel.metadata=_}}))}checkIfInputModified(){return this.original.textModel.getTextBufferHash()===this.modified.textModel.getTextBufferHash()?!1:{reason:"Cell content has changed"}}checkIfOutputsModified(){if(this.mainDocumentTextModel.transientOptions.transientOutputs||this.ignoreOutputs)return!1;const t=B(this.original?.outputs??[],this.modified?.outputs??[]);return t===0?!1:{reason:t===1?"Output metadata has changed":void 0,kind:t}}checkMetadataIfModified(){return this.ignoreMetadata?!1:y(D(this.mainDocumentTextModel.transientOptions.transientCellMetadata,this.original?.metadata||{},this.original?.language))!==y(D(this.mainDocumentTextModel.transientOptions.transientCellMetadata,this.modified?.metadata??{},this.modified?.language))?{reason:void 0}:!1}updateOutputHeight(t,e,i){t===w.Original?this.original.updateOutputHeight(e,i):this.modified.updateOutputHeight(e,i)}getOutputOffsetInContainer(t,e){return t===w.Original?this.original.getOutputOffset(e):this.modified.getOutputOffset(e)}getOutputOffsetInCell(t,e){const i=this.getOutputOffsetInContainer(t,e);return this._layoutInfo.editorHeight+this._layoutInfo.editorMargin+this._layoutInfo.metadataHeight+this._layoutInfo.cellStatusHeight+this._layoutInfo.metadataStatusHeight+this._layoutInfo.outputStatusHeight+this._layoutInfo.bodyMargin/2+i}isOutputEmpty(){return this.mainDocumentTextModel.transientOptions.transientOutputs?!0:this.checkIfOutputsModified()?!1:(this.original?.outputs||[]).length===0}getRichOutputTotalHeight(){return Math.max(this.original.getOutputTotalHeight(),this.modified.getOutputTotalHeight())}getNestedCellViewModel(t){return t===w.Original?this.original:this.modified}getCellByUri(t){return t.toString()===this.original.uri.toString()?this.original:this.modified}computeInputEditorHeight(t){return this.type==="modified"&&typeof this.editorHeightWithUnchangedLinesCollapsed=="number"&&this.checkIfInputModified()?this.editorHeightWithUnchangedLinesCollapsed:super.computeInputEditorHeight(t)}async computeModifiedInputEditorHeight(){this.checkIfInputModified()&&(this.editorHeightWithUnchangedLinesCollapsed=this._layoutInfo.editorHeight=await this.diffEditorHeightCalculator.diffAndComputeHeight(this.original.uri,this.modified.uri))}async computeModifiedMetadataEditorHeight(){if(this.checkMetadataIfModified()){const t=T.generateCellPropertyUri(this.originalDocument.uri,this.original.handle,V.vscodeNotebookCellMetadata),e=T.generateCellPropertyUri(this.modifiedDocument.uri,this.modified.handle,V.vscodeNotebookCellMetadata);this._layoutInfo.metadataHeight=await this.diffEditorHeightCalculator.diffAndComputeHeight(t,e)}}async computeEditorHeights(){this.type!=="unchanged"&&await Promise.all([this.computeModifiedInputEditorHeight(),this.computeModifiedMetadataEditorHeight()])}}class ot extends v{get cellViewModel(){return this.type==="insert"?this.modified:this.original}get originalDocument(){return this.type==="insert"?this.otherDocumentTextModel:this.mainDocumentTextModel}get modifiedDocument(){return this.type==="insert"?this.mainDocumentTextModel:this.otherDocumentTextModel}constructor(t,e,i,a,u,h,s,n,r,l,c){super(t,i,a,u,h,s,n,c,r,l),this.otherDocumentTextModel=e,this.type=u,this._register(this.cellViewModel.onDidChangeOutputLayout(()=>{this._layout({recomputeOutput:!0})}))}checkIfInputModified(){return{reason:"Cell content has changed"}}getNestedCellViewModel(t){return this.type==="insert"?this.modified:this.original}checkIfOutputsModified(){return!1}checkMetadataIfModified(){return!1}updateOutputHeight(t,e,i){this.cellViewModel?.updateOutputHeight(e,i)}getOutputOffsetInContainer(t,e){return this.cellViewModel.getOutputOffset(e)}getOutputOffsetInCell(t,e){const i=this.cellViewModel.getOutputOffset(e);return this._layoutInfo.editorHeight+this._layoutInfo.editorMargin+this._layoutInfo.metadataHeight+this._layoutInfo.cellStatusHeight+this._layoutInfo.metadataStatusHeight+this._layoutInfo.outputStatusHeight+this._layoutInfo.bodyMargin/2+i}isOutputEmpty(){return this.mainDocumentTextModel.transientOptions.transientOutputs?!0:(this.original?.outputs||this.modified?.outputs||[]).length===0}getRichOutputTotalHeight(){return this.cellViewModel?.getOutputTotalHeight()??0}getCellByUri(t){return this.cellViewModel}}var U;(function(o){o[o.Unchanged=0]="Unchanged",o[o.Metadata=1]="Metadata",o[o.Other=2]="Other"})(U||(U={}));function at(o,t){if(y(o.metadata)===y(t.metadata))return 2;for(let e=0;e<o.outputs.length;e++){const i=o.outputs[e],a=t.outputs[e];if(i.mime!==a.mime||i.data.buffer.length!==a.data.buffer.length)return 2;for(let u=0;u<i.data.buffer.length;u++)if(i.data.buffer[u]!==a.data.buffer[u])return 2}return 1}function B(o,t){if(o.length!==t.length)return 2;const e=o.length;for(let i=0;i<e;i++){const a=o[i],u=t[i];if(y(a.metadata)!==y(u.metadata))return 1;if(a.outputs.length!==u.outputs.length)return 2;for(let h=0;h<a.outputs.length;h++){const s=a.outputs[h],n=u.outputs[h];if(s.mime!==n.mime||s.data.buffer.length!==n.data.buffer.length)return 2;for(let r=0;r<s.data.buffer.length;r++)if(s.data.buffer[r]!==n.data.buffer[r])return 2}}return 0}function N(o){if(!o.length)return null;const e=o[0].mime;return o.find(a=>a.mime!==e)?null:o.map(a=>a.data.toString()).join("")}function ut(o){if(o.length===1){const t=N(o[0].outputs);if(t)return t}return JSON.stringify(o.map(t=>({metadata:t.metadata,outputItems:t.outputs.map(e=>({mimeType:e.mime,data:e.data.toString()}))})),void 0,"	")}export{$ as DefaultLineHeight,v as DiffElementCellViewModelBase,tt as DiffElementPlaceholderViewModel,E as DiffElementViewModelBase,Z as HeightOfHiddenLinesRegionInDiffEditor,et as NotebookDocumentMetadataViewModel,k as OUTPUT_EDITOR_HEIGHT_MAGIC,U as OutputComparison,d as PropertyFoldingState,it as SideBySideDiffElementViewModel,ot as SingleSideDiffElementViewModel,ut as getFormattedOutputJSON,N as getStreamOutputData,at as outputEqual};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../../base/common/event.js";
+import { hash } from "../../../../../base/common/hash.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
+import { getEditorPadding } from "./diffCellEditorOptions.js";
+import { DiffNestedCellViewModel } from "./diffNestedCellViewModel.js";
+import { NotebookDiffViewEventType } from "./eventDispatcher.js";
+import { DIFF_CELL_MARGIN, DiffSide } from "./notebookDiffEditorBrowser.js";
+import { CellLayoutState } from "../notebookBrowser.js";
+import { getFormattedMetadataJSON } from "../../common/model/notebookCellTextModel.js";
+import { CellUri } from "../../common/notebookCommon.js";
+import { Schemas } from "../../../../../base/common/network.js";
+import { NotebookDocumentMetadataTextModel } from "../../common/model/notebookMetadataTextModel.js";
+const PropertyHeaderHeight = 25;
+const HeightOfHiddenLinesRegionInDiffEditor = 24;
+const DefaultLineHeight = 17;
+var PropertyFoldingState;
+(function(PropertyFoldingState2) {
+  PropertyFoldingState2[PropertyFoldingState2["Expanded"] = 0] = "Expanded";
+  PropertyFoldingState2[PropertyFoldingState2["Collapsed"] = 1] = "Collapsed";
+})(PropertyFoldingState || (PropertyFoldingState = {}));
+const OUTPUT_EDITOR_HEIGHT_MAGIC = 1440;
+class DiffElementViewModelBase extends Disposable {
+  static {
+    __name(this, "DiffElementViewModelBase");
+  }
+  constructor(mainDocumentTextModel, editorEventDispatcher, initData) {
+    super();
+    this.mainDocumentTextModel = mainDocumentTextModel;
+    this.editorEventDispatcher = editorEventDispatcher;
+    this.initData = initData;
+    this._layoutInfoEmitter = this._register(new Emitter());
+    this.onDidLayoutChange = this._layoutInfoEmitter.event;
+    this._register(this.editorEventDispatcher.onDidChangeLayout((e) => this._layoutInfoEmitter.fire({ outerWidth: true })));
+  }
+}
+class DiffElementPlaceholderViewModel extends DiffElementViewModelBase {
+  static {
+    __name(this, "DiffElementPlaceholderViewModel");
+  }
+  constructor(mainDocumentTextModel, editorEventDispatcher, initData) {
+    super(mainDocumentTextModel, editorEventDispatcher, initData);
+    this.type = "placeholder";
+    this.hiddenCells = [];
+    this._unfoldHiddenCells = this._register(new Emitter());
+    this.onUnfoldHiddenCells = this._unfoldHiddenCells.event;
+    this.renderOutput = false;
+  }
+  get totalHeight() {
+    return 24 + 2 * DIFF_CELL_MARGIN;
+  }
+  getHeight(_) {
+    return this.totalHeight;
+  }
+  layoutChange() {
+  }
+  showHiddenCells() {
+    this._unfoldHiddenCells.fire();
+  }
+}
+class NotebookDocumentMetadataViewModel extends DiffElementViewModelBase {
+  static {
+    __name(this, "NotebookDocumentMetadataViewModel");
+  }
+  set editorHeight(height) {
+    this._layout({ editorHeight: height });
+  }
+  get editorHeight() {
+    throw new Error("Use Cell.layoutInfo.editorHeight");
+  }
+  set editorMargin(margin) {
+    this._layout({ editorMargin: margin });
+  }
+  get editorMargin() {
+    throw new Error("Use Cell.layoutInfo.editorMargin");
+  }
+  get layoutInfo() {
+    return this._layoutInfo;
+  }
+  get totalHeight() {
+    return this.layoutInfo.totalHeight;
+  }
+  constructor(originalDocumentTextModel, modifiedDocumentTextModel, type, editorEventDispatcher, initData, notebookService, editorHeightCalculator) {
+    super(originalDocumentTextModel, editorEventDispatcher, initData);
+    this.originalDocumentTextModel = originalDocumentTextModel;
+    this.modifiedDocumentTextModel = modifiedDocumentTextModel;
+    this.type = type;
+    this.editorHeightCalculator = editorHeightCalculator;
+    this.renderOutput = false;
+    this._sourceEditorViewState = null;
+    const cellStatusHeight = PropertyHeaderHeight;
+    this._layoutInfo = {
+      width: 0,
+      editorHeight: 0,
+      editorMargin: 0,
+      metadataHeight: 0,
+      cellStatusHeight,
+      metadataStatusHeight: 0,
+      rawOutputHeight: 0,
+      outputTotalHeight: 0,
+      outputStatusHeight: 0,
+      outputMetadataHeight: 0,
+      bodyMargin: 32,
+      totalHeight: 82 + cellStatusHeight + 0,
+      layoutState: CellLayoutState.Uninitialized
+    };
+    this.cellFoldingState = type === "modifiedMetadata" ? PropertyFoldingState.Expanded : PropertyFoldingState.Collapsed;
+    this.originalMetadata = this._register(new NotebookDocumentMetadataTextModel(originalDocumentTextModel));
+    this.modifiedMetadata = this._register(new NotebookDocumentMetadataTextModel(modifiedDocumentTextModel));
+  }
+  async computeHeights() {
+    if (this.type === "unchangedMetadata") {
+      this.editorHeight = this.editorHeightCalculator.computeHeightFromLines(this.originalMetadata.textBuffer.getLineCount());
+    } else {
+      const original = this.originalMetadata.uri;
+      const modified = this.modifiedMetadata.uri;
+      this.editorHeight = await this.editorHeightCalculator.diffAndComputeHeight(original, modified);
+    }
+  }
+  layoutChange() {
+    this._layout({ recomputeOutput: true });
+  }
+  _layout(delta) {
+    const width = delta.width !== void 0 ? delta.width : this._layoutInfo.width;
+    const editorHeight = delta.editorHeight !== void 0 ? delta.editorHeight : this._layoutInfo.editorHeight;
+    const editorMargin = delta.editorMargin !== void 0 ? delta.editorMargin : this._layoutInfo.editorMargin;
+    const cellStatusHeight = delta.cellStatusHeight !== void 0 ? delta.cellStatusHeight : this._layoutInfo.cellStatusHeight;
+    const bodyMargin = delta.bodyMargin !== void 0 ? delta.bodyMargin : this._layoutInfo.bodyMargin;
+    const totalHeight = editorHeight + editorMargin + cellStatusHeight + bodyMargin;
+    const newLayout = {
+      width,
+      editorHeight,
+      editorMargin,
+      metadataHeight: 0,
+      cellStatusHeight,
+      metadataStatusHeight: 0,
+      outputTotalHeight: 0,
+      outputStatusHeight: 0,
+      bodyMargin,
+      rawOutputHeight: 0,
+      outputMetadataHeight: 0,
+      totalHeight,
+      layoutState: CellLayoutState.Measured
+    };
+    let somethingChanged = false;
+    const changeEvent = {};
+    if (newLayout.width !== this._layoutInfo.width) {
+      changeEvent.width = true;
+      somethingChanged = true;
+    }
+    if (newLayout.editorHeight !== this._layoutInfo.editorHeight) {
+      changeEvent.editorHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.editorMargin !== this._layoutInfo.editorMargin) {
+      changeEvent.editorMargin = true;
+      somethingChanged = true;
+    }
+    if (newLayout.cellStatusHeight !== this._layoutInfo.cellStatusHeight) {
+      changeEvent.cellStatusHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.bodyMargin !== this._layoutInfo.bodyMargin) {
+      changeEvent.bodyMargin = true;
+      somethingChanged = true;
+    }
+    if (newLayout.totalHeight !== this._layoutInfo.totalHeight) {
+      changeEvent.totalHeight = true;
+      somethingChanged = true;
+    }
+    if (somethingChanged) {
+      this._layoutInfo = newLayout;
+      this._fireLayoutChangeEvent(changeEvent);
+    }
+  }
+  getHeight(lineHeight) {
+    if (this._layoutInfo.layoutState === CellLayoutState.Uninitialized) {
+      const editorHeight = this.cellFoldingState === PropertyFoldingState.Collapsed ? 0 : this.computeInputEditorHeight(lineHeight);
+      return this._computeTotalHeight(editorHeight);
+    } else {
+      return this._layoutInfo.totalHeight;
+    }
+  }
+  _computeTotalHeight(editorHeight) {
+    const totalHeight = editorHeight + this._layoutInfo.editorMargin + this._layoutInfo.metadataHeight + this._layoutInfo.cellStatusHeight + this._layoutInfo.metadataStatusHeight + this._layoutInfo.outputTotalHeight + this._layoutInfo.outputStatusHeight + this._layoutInfo.outputMetadataHeight + this._layoutInfo.bodyMargin;
+    return totalHeight;
+  }
+  computeInputEditorHeight(_lineHeight) {
+    return this.editorHeightCalculator.computeHeightFromLines(Math.max(this.originalMetadata.textBuffer.getLineCount(), this.modifiedMetadata.textBuffer.getLineCount()));
+  }
+  _fireLayoutChangeEvent(state) {
+    this._layoutInfoEmitter.fire(state);
+    this.editorEventDispatcher.emit([{ type: NotebookDiffViewEventType.CellLayoutChanged, source: this._layoutInfo }]);
+  }
+  getComputedCellContainerWidth(layoutInfo, diffEditor, fullWidth) {
+    if (fullWidth) {
+      return layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0) - 2;
+    }
+    return (layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0)) / 2 - 18 - 2;
+  }
+  getSourceEditorViewState() {
+    return this._sourceEditorViewState;
+  }
+  saveSpirceEditorViewState(viewState) {
+    this._sourceEditorViewState = viewState;
+  }
+}
+class DiffElementCellViewModelBase extends DiffElementViewModelBase {
+  static {
+    __name(this, "DiffElementCellViewModelBase");
+  }
+  hideUnchangedCells() {
+    this._hideUnchangedCells.fire();
+  }
+  set rawOutputHeight(height) {
+    this._layout({ rawOutputHeight: Math.min(OUTPUT_EDITOR_HEIGHT_MAGIC, height) });
+  }
+  get rawOutputHeight() {
+    throw new Error("Use Cell.layoutInfo.rawOutputHeight");
+  }
+  set outputStatusHeight(height) {
+    this._layout({ outputStatusHeight: height });
+  }
+  get outputStatusHeight() {
+    throw new Error("Use Cell.layoutInfo.outputStatusHeight");
+  }
+  set outputMetadataHeight(height) {
+    this._layout({ outputMetadataHeight: height });
+  }
+  get outputMetadataHeight() {
+    throw new Error("Use Cell.layoutInfo.outputStatusHeight");
+  }
+  set editorHeight(height) {
+    this._layout({ editorHeight: height });
+  }
+  get editorHeight() {
+    throw new Error("Use Cell.layoutInfo.editorHeight");
+  }
+  set editorMargin(margin) {
+    this._layout({ editorMargin: margin });
+  }
+  get editorMargin() {
+    throw new Error("Use Cell.layoutInfo.editorMargin");
+  }
+  set metadataStatusHeight(height) {
+    this._layout({ metadataStatusHeight: height });
+  }
+  get metadataStatusHeight() {
+    throw new Error("Use Cell.layoutInfo.outputStatusHeight");
+  }
+  set metadataHeight(height) {
+    this._layout({ metadataHeight: height });
+  }
+  get metadataHeight() {
+    throw new Error("Use Cell.layoutInfo.metadataHeight");
+  }
+  set renderOutput(value) {
+    this._renderOutput = value;
+    this._layout({ recomputeOutput: true });
+    this._stateChangeEmitter.fire({ renderOutput: this._renderOutput });
+  }
+  get renderOutput() {
+    return this._renderOutput;
+  }
+  get layoutInfo() {
+    return this._layoutInfo;
+  }
+  get totalHeight() {
+    return this.layoutInfo.totalHeight;
+  }
+  get ignoreOutputs() {
+    return this.configurationService.getValue("notebook.diff.ignoreOutputs") || !!this.mainDocumentTextModel?.transientOptions.transientOutputs;
+  }
+  get ignoreMetadata() {
+    return this.configurationService.getValue("notebook.diff.ignoreMetadata");
+  }
+  constructor(mainDocumentTextModel, original, modified, type, editorEventDispatcher, initData, notebookService, index, configurationService, diffEditorHeightCalculator) {
+    super(mainDocumentTextModel, editorEventDispatcher, initData);
+    this.type = type;
+    this.index = index;
+    this.configurationService = configurationService;
+    this.diffEditorHeightCalculator = diffEditorHeightCalculator;
+    this._stateChangeEmitter = this._register(new Emitter());
+    this.onDidStateChange = this._stateChangeEmitter.event;
+    this._hideUnchangedCells = this._register(new Emitter());
+    this.onHideUnchangedCells = this._hideUnchangedCells.event;
+    this._renderOutput = true;
+    this._sourceEditorViewState = null;
+    this._outputEditorViewState = null;
+    this._metadataEditorViewState = null;
+    this.original = original ? this._register(new DiffNestedCellViewModel(original, notebookService)) : void 0;
+    this.modified = modified ? this._register(new DiffNestedCellViewModel(modified, notebookService)) : void 0;
+    const editorHeight = this._estimateEditorHeight(initData.fontInfo);
+    const cellStatusHeight = PropertyHeaderHeight;
+    this._layoutInfo = {
+      width: 0,
+      editorHeight,
+      editorMargin: 0,
+      metadataHeight: 0,
+      cellStatusHeight,
+      metadataStatusHeight: this.ignoreMetadata ? 0 : PropertyHeaderHeight,
+      rawOutputHeight: 0,
+      outputTotalHeight: 0,
+      outputStatusHeight: this.ignoreOutputs ? 0 : PropertyHeaderHeight,
+      outputMetadataHeight: 0,
+      bodyMargin: 32,
+      totalHeight: 82 + cellStatusHeight + editorHeight,
+      layoutState: CellLayoutState.Uninitialized
+    };
+    this.cellFoldingState = modified?.getTextBufferHash() !== original?.getTextBufferHash() ? PropertyFoldingState.Expanded : PropertyFoldingState.Collapsed;
+    this.metadataFoldingState = PropertyFoldingState.Collapsed;
+    this.outputFoldingState = PropertyFoldingState.Collapsed;
+  }
+  layoutChange() {
+    this._layout({ recomputeOutput: true });
+  }
+  _estimateEditorHeight(fontInfo) {
+    const lineHeight = fontInfo?.lineHeight ?? 17;
+    switch (this.type) {
+      case "unchanged":
+      case "insert": {
+        const lineCount = this.modified.textModel.textBuffer.getLineCount();
+        const editorHeight = lineCount * lineHeight + getEditorPadding(lineCount).top + getEditorPadding(lineCount).bottom;
+        return editorHeight;
+      }
+      case "delete":
+      case "modified": {
+        const lineCount = this.original.textModel.textBuffer.getLineCount();
+        const editorHeight = lineCount * lineHeight + getEditorPadding(lineCount).top + getEditorPadding(lineCount).bottom;
+        return editorHeight;
+      }
+    }
+  }
+  _layout(delta) {
+    const width = delta.width !== void 0 ? delta.width : this._layoutInfo.width;
+    const editorHeight = delta.editorHeight !== void 0 ? delta.editorHeight : this._layoutInfo.editorHeight;
+    const editorMargin = delta.editorMargin !== void 0 ? delta.editorMargin : this._layoutInfo.editorMargin;
+    const metadataHeight = delta.metadataHeight !== void 0 ? delta.metadataHeight : this._layoutInfo.metadataHeight;
+    const cellStatusHeight = delta.cellStatusHeight !== void 0 ? delta.cellStatusHeight : this._layoutInfo.cellStatusHeight;
+    const metadataStatusHeight = delta.metadataStatusHeight !== void 0 ? delta.metadataStatusHeight : this._layoutInfo.metadataStatusHeight;
+    const rawOutputHeight = delta.rawOutputHeight !== void 0 ? delta.rawOutputHeight : this._layoutInfo.rawOutputHeight;
+    const outputStatusHeight = delta.outputStatusHeight !== void 0 ? delta.outputStatusHeight : this._layoutInfo.outputStatusHeight;
+    const bodyMargin = delta.bodyMargin !== void 0 ? delta.bodyMargin : this._layoutInfo.bodyMargin;
+    const outputMetadataHeight = delta.outputMetadataHeight !== void 0 ? delta.outputMetadataHeight : this._layoutInfo.outputMetadataHeight;
+    const outputHeight = this.ignoreOutputs ? 0 : delta.recomputeOutput || delta.rawOutputHeight !== void 0 || delta.outputMetadataHeight !== void 0 ? this._getOutputTotalHeight(rawOutputHeight, outputMetadataHeight) : this._layoutInfo.outputTotalHeight;
+    const totalHeight = editorHeight + editorMargin + cellStatusHeight + metadataHeight + metadataStatusHeight + outputHeight + outputStatusHeight + bodyMargin;
+    const newLayout = {
+      width,
+      editorHeight,
+      editorMargin,
+      metadataHeight,
+      cellStatusHeight,
+      metadataStatusHeight,
+      outputTotalHeight: outputHeight,
+      outputStatusHeight,
+      bodyMargin,
+      rawOutputHeight,
+      outputMetadataHeight,
+      totalHeight,
+      layoutState: CellLayoutState.Measured
+    };
+    let somethingChanged = false;
+    const changeEvent = {};
+    if (newLayout.width !== this._layoutInfo.width) {
+      changeEvent.width = true;
+      somethingChanged = true;
+    }
+    if (newLayout.editorHeight !== this._layoutInfo.editorHeight) {
+      changeEvent.editorHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.editorMargin !== this._layoutInfo.editorMargin) {
+      changeEvent.editorMargin = true;
+      somethingChanged = true;
+    }
+    if (newLayout.metadataHeight !== this._layoutInfo.metadataHeight) {
+      changeEvent.metadataHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.cellStatusHeight !== this._layoutInfo.cellStatusHeight) {
+      changeEvent.cellStatusHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.metadataStatusHeight !== this._layoutInfo.metadataStatusHeight) {
+      changeEvent.metadataStatusHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.outputTotalHeight !== this._layoutInfo.outputTotalHeight) {
+      changeEvent.outputTotalHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.outputStatusHeight !== this._layoutInfo.outputStatusHeight) {
+      changeEvent.outputStatusHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.bodyMargin !== this._layoutInfo.bodyMargin) {
+      changeEvent.bodyMargin = true;
+      somethingChanged = true;
+    }
+    if (newLayout.outputMetadataHeight !== this._layoutInfo.outputMetadataHeight) {
+      changeEvent.outputMetadataHeight = true;
+      somethingChanged = true;
+    }
+    if (newLayout.totalHeight !== this._layoutInfo.totalHeight) {
+      changeEvent.totalHeight = true;
+      somethingChanged = true;
+    }
+    if (somethingChanged) {
+      this._layoutInfo = newLayout;
+      this._fireLayoutChangeEvent(changeEvent);
+    }
+  }
+  getHeight(lineHeight) {
+    if (this._layoutInfo.layoutState === CellLayoutState.Uninitialized) {
+      const editorHeight = this.cellFoldingState === PropertyFoldingState.Collapsed ? 0 : this.computeInputEditorHeight(lineHeight);
+      return this._computeTotalHeight(editorHeight);
+    } else {
+      return this._layoutInfo.totalHeight;
+    }
+  }
+  _computeTotalHeight(editorHeight) {
+    const totalHeight = editorHeight + this._layoutInfo.editorMargin + this._layoutInfo.metadataHeight + this._layoutInfo.cellStatusHeight + this._layoutInfo.metadataStatusHeight + this._layoutInfo.outputTotalHeight + this._layoutInfo.outputStatusHeight + this._layoutInfo.outputMetadataHeight + this._layoutInfo.bodyMargin;
+    return totalHeight;
+  }
+  computeInputEditorHeight(lineHeight) {
+    const lineCount = Math.max(this.original?.textModel.textBuffer.getLineCount() ?? 1, this.modified?.textModel.textBuffer.getLineCount() ?? 1);
+    return this.diffEditorHeightCalculator.computeHeightFromLines(lineCount);
+  }
+  _getOutputTotalHeight(rawOutputHeight, metadataHeight) {
+    if (this.outputFoldingState === PropertyFoldingState.Collapsed) {
+      return 0;
+    }
+    if (this.renderOutput) {
+      if (this.isOutputEmpty()) {
+        return 24;
+      }
+      return this.getRichOutputTotalHeight() + metadataHeight;
+    } else {
+      return rawOutputHeight;
+    }
+  }
+  _fireLayoutChangeEvent(state) {
+    this._layoutInfoEmitter.fire(state);
+    this.editorEventDispatcher.emit([{ type: NotebookDiffViewEventType.CellLayoutChanged, source: this._layoutInfo }]);
+  }
+  getComputedCellContainerWidth(layoutInfo, diffEditor, fullWidth) {
+    if (fullWidth) {
+      return layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0) - 2;
+    }
+    return (layoutInfo.width - 2 * DIFF_CELL_MARGIN + (diffEditor ? DiffEditorWidget.ENTIRE_DIFF_OVERVIEW_WIDTH : 0)) / 2 - 18 - 2;
+  }
+  getOutputEditorViewState() {
+    return this._outputEditorViewState;
+  }
+  saveOutputEditorViewState(viewState) {
+    this._outputEditorViewState = viewState;
+  }
+  getMetadataEditorViewState() {
+    return this._metadataEditorViewState;
+  }
+  saveMetadataEditorViewState(viewState) {
+    this._metadataEditorViewState = viewState;
+  }
+  getSourceEditorViewState() {
+    return this._sourceEditorViewState;
+  }
+  saveSpirceEditorViewState(viewState) {
+    this._sourceEditorViewState = viewState;
+  }
+}
+class SideBySideDiffElementViewModel extends DiffElementCellViewModelBase {
+  static {
+    __name(this, "SideBySideDiffElementViewModel");
+  }
+  get originalDocument() {
+    return this.otherDocumentTextModel;
+  }
+  get modifiedDocument() {
+    return this.mainDocumentTextModel;
+  }
+  constructor(mainDocumentTextModel, otherDocumentTextModel, original, modified, type, editorEventDispatcher, initData, notebookService, configurationService, index, diffEditorHeightCalculator) {
+    super(mainDocumentTextModel, original, modified, type, editorEventDispatcher, initData, notebookService, index, configurationService, diffEditorHeightCalculator);
+    this.otherDocumentTextModel = otherDocumentTextModel;
+    this.type = type;
+    this.cellFoldingState = this.modified.textModel.getValue() !== this.original.textModel.getValue() ? PropertyFoldingState.Expanded : PropertyFoldingState.Collapsed;
+    this.metadataFoldingState = PropertyFoldingState.Collapsed;
+    this.outputFoldingState = PropertyFoldingState.Collapsed;
+    if (this.checkMetadataIfModified()) {
+      this.metadataFoldingState = PropertyFoldingState.Expanded;
+    }
+    if (this.checkIfOutputsModified()) {
+      this.outputFoldingState = PropertyFoldingState.Expanded;
+    }
+    this._register(this.original.onDidChangeOutputLayout(() => {
+      this._layout({ recomputeOutput: true });
+    }));
+    this._register(this.modified.onDidChangeOutputLayout(() => {
+      this._layout({ recomputeOutput: true });
+    }));
+    this._register(this.modified.textModel.onDidChangeContent(() => {
+      if (mainDocumentTextModel.transientOptions.cellContentMetadata) {
+        const cellMetadataKeys = [...Object.keys(mainDocumentTextModel.transientOptions.cellContentMetadata)];
+        const modifiedMedataRaw = Object.assign({}, this.modified.metadata);
+        const originalCellMetadata = this.original.metadata;
+        for (const key of cellMetadataKeys) {
+          if (key in originalCellMetadata) {
+            modifiedMedataRaw[key] = originalCellMetadata[key];
+          }
+        }
+        this.modified.textModel.metadata = modifiedMedataRaw;
+      }
+    }));
+  }
+  checkIfInputModified() {
+    if (this.original.textModel.getTextBufferHash() === this.modified.textModel.getTextBufferHash()) {
+      return false;
+    }
+    return {
+      reason: "Cell content has changed"
+    };
+  }
+  checkIfOutputsModified() {
+    if (this.mainDocumentTextModel.transientOptions.transientOutputs || this.ignoreOutputs) {
+      return false;
+    }
+    const ret = outputsEqual(this.original?.outputs ?? [], this.modified?.outputs ?? []);
+    if (ret === 0) {
+      return false;
+    }
+    return {
+      reason: ret === 1 ? "Output metadata has changed" : void 0,
+      kind: ret
+    };
+  }
+  checkMetadataIfModified() {
+    if (this.ignoreMetadata) {
+      return false;
+    }
+    const modified = hash(getFormattedMetadataJSON(this.mainDocumentTextModel.transientOptions.transientCellMetadata, this.original?.metadata || {}, this.original?.language)) !== hash(getFormattedMetadataJSON(this.mainDocumentTextModel.transientOptions.transientCellMetadata, this.modified?.metadata ?? {}, this.modified?.language));
+    if (modified) {
+      return { reason: void 0 };
+    } else {
+      return false;
+    }
+  }
+  updateOutputHeight(diffSide, index, height) {
+    if (diffSide === DiffSide.Original) {
+      this.original.updateOutputHeight(index, height);
+    } else {
+      this.modified.updateOutputHeight(index, height);
+    }
+  }
+  getOutputOffsetInContainer(diffSide, index) {
+    if (diffSide === DiffSide.Original) {
+      return this.original.getOutputOffset(index);
+    } else {
+      return this.modified.getOutputOffset(index);
+    }
+  }
+  getOutputOffsetInCell(diffSide, index) {
+    const offsetInOutputsContainer = this.getOutputOffsetInContainer(diffSide, index);
+    return this._layoutInfo.editorHeight + this._layoutInfo.editorMargin + this._layoutInfo.metadataHeight + this._layoutInfo.cellStatusHeight + this._layoutInfo.metadataStatusHeight + this._layoutInfo.outputStatusHeight + this._layoutInfo.bodyMargin / 2 + offsetInOutputsContainer;
+  }
+  isOutputEmpty() {
+    if (this.mainDocumentTextModel.transientOptions.transientOutputs) {
+      return true;
+    }
+    if (this.checkIfOutputsModified()) {
+      return false;
+    }
+    return (this.original?.outputs || []).length === 0;
+  }
+  getRichOutputTotalHeight() {
+    return Math.max(this.original.getOutputTotalHeight(), this.modified.getOutputTotalHeight());
+  }
+  getNestedCellViewModel(diffSide) {
+    return diffSide === DiffSide.Original ? this.original : this.modified;
+  }
+  getCellByUri(cellUri) {
+    if (cellUri.toString() === this.original.uri.toString()) {
+      return this.original;
+    } else {
+      return this.modified;
+    }
+  }
+  computeInputEditorHeight(lineHeight) {
+    if (this.type === "modified" && typeof this.editorHeightWithUnchangedLinesCollapsed === "number" && this.checkIfInputModified()) {
+      return this.editorHeightWithUnchangedLinesCollapsed;
+    }
+    return super.computeInputEditorHeight(lineHeight);
+  }
+  async computeModifiedInputEditorHeight() {
+    if (this.checkIfInputModified()) {
+      this.editorHeightWithUnchangedLinesCollapsed = this._layoutInfo.editorHeight = await this.diffEditorHeightCalculator.diffAndComputeHeight(this.original.uri, this.modified.uri);
+    }
+  }
+  async computeModifiedMetadataEditorHeight() {
+    if (this.checkMetadataIfModified()) {
+      const originalMetadataUri = CellUri.generateCellPropertyUri(this.originalDocument.uri, this.original.handle, Schemas.vscodeNotebookCellMetadata);
+      const modifiedMetadataUri = CellUri.generateCellPropertyUri(this.modifiedDocument.uri, this.modified.handle, Schemas.vscodeNotebookCellMetadata);
+      this._layoutInfo.metadataHeight = await this.diffEditorHeightCalculator.diffAndComputeHeight(originalMetadataUri, modifiedMetadataUri);
+    }
+  }
+  async computeEditorHeights() {
+    if (this.type === "unchanged") {
+      return;
+    }
+    await Promise.all([this.computeModifiedInputEditorHeight(), this.computeModifiedMetadataEditorHeight()]);
+  }
+}
+class SingleSideDiffElementViewModel extends DiffElementCellViewModelBase {
+  static {
+    __name(this, "SingleSideDiffElementViewModel");
+  }
+  get cellViewModel() {
+    return this.type === "insert" ? this.modified : this.original;
+  }
+  get originalDocument() {
+    if (this.type === "insert") {
+      return this.otherDocumentTextModel;
+    } else {
+      return this.mainDocumentTextModel;
+    }
+  }
+  get modifiedDocument() {
+    if (this.type === "insert") {
+      return this.mainDocumentTextModel;
+    } else {
+      return this.otherDocumentTextModel;
+    }
+  }
+  constructor(mainDocumentTextModel, otherDocumentTextModel, original, modified, type, editorEventDispatcher, initData, notebookService, configurationService, diffEditorHeightCalculator, index) {
+    super(mainDocumentTextModel, original, modified, type, editorEventDispatcher, initData, notebookService, index, configurationService, diffEditorHeightCalculator);
+    this.otherDocumentTextModel = otherDocumentTextModel;
+    this.type = type;
+    this._register(this.cellViewModel.onDidChangeOutputLayout(() => {
+      this._layout({ recomputeOutput: true });
+    }));
+  }
+  checkIfInputModified() {
+    return {
+      reason: "Cell content has changed"
+    };
+  }
+  getNestedCellViewModel(diffSide) {
+    return this.type === "insert" ? this.modified : this.original;
+  }
+  checkIfOutputsModified() {
+    return false;
+  }
+  checkMetadataIfModified() {
+    return false;
+  }
+  updateOutputHeight(diffSide, index, height) {
+    this.cellViewModel?.updateOutputHeight(index, height);
+  }
+  getOutputOffsetInContainer(diffSide, index) {
+    return this.cellViewModel.getOutputOffset(index);
+  }
+  getOutputOffsetInCell(diffSide, index) {
+    const offsetInOutputsContainer = this.cellViewModel.getOutputOffset(index);
+    return this._layoutInfo.editorHeight + this._layoutInfo.editorMargin + this._layoutInfo.metadataHeight + this._layoutInfo.cellStatusHeight + this._layoutInfo.metadataStatusHeight + this._layoutInfo.outputStatusHeight + this._layoutInfo.bodyMargin / 2 + offsetInOutputsContainer;
+  }
+  isOutputEmpty() {
+    if (this.mainDocumentTextModel.transientOptions.transientOutputs) {
+      return true;
+    }
+    return (this.original?.outputs || this.modified?.outputs || []).length === 0;
+  }
+  getRichOutputTotalHeight() {
+    return this.cellViewModel?.getOutputTotalHeight() ?? 0;
+  }
+  getCellByUri(cellUri) {
+    return this.cellViewModel;
+  }
+}
+var OutputComparison;
+(function(OutputComparison2) {
+  OutputComparison2[OutputComparison2["Unchanged"] = 0] = "Unchanged";
+  OutputComparison2[OutputComparison2["Metadata"] = 1] = "Metadata";
+  OutputComparison2[OutputComparison2["Other"] = 2] = "Other";
+})(OutputComparison || (OutputComparison = {}));
+function outputEqual(a, b) {
+  if (hash(a.metadata) === hash(b.metadata)) {
+    return 2;
+  }
+  for (let j = 0; j < a.outputs.length; j++) {
+    const aOutputItem = a.outputs[j];
+    const bOutputItem = b.outputs[j];
+    if (aOutputItem.mime !== bOutputItem.mime) {
+      return 2;
+    }
+    if (aOutputItem.data.buffer.length !== bOutputItem.data.buffer.length) {
+      return 2;
+    }
+    for (let k = 0; k < aOutputItem.data.buffer.length; k++) {
+      if (aOutputItem.data.buffer[k] !== bOutputItem.data.buffer[k]) {
+        return 2;
+      }
+    }
+  }
+  return 1;
+}
+__name(outputEqual, "outputEqual");
+function outputsEqual(original, modified) {
+  if (original.length !== modified.length) {
+    return 2;
+  }
+  const len = original.length;
+  for (let i = 0; i < len; i++) {
+    const a = original[i];
+    const b = modified[i];
+    if (hash(a.metadata) !== hash(b.metadata)) {
+      return 1;
+    }
+    if (a.outputs.length !== b.outputs.length) {
+      return 2;
+    }
+    for (let j = 0; j < a.outputs.length; j++) {
+      const aOutputItem = a.outputs[j];
+      const bOutputItem = b.outputs[j];
+      if (aOutputItem.mime !== bOutputItem.mime) {
+        return 2;
+      }
+      if (aOutputItem.data.buffer.length !== bOutputItem.data.buffer.length) {
+        return 2;
+      }
+      for (let k = 0; k < aOutputItem.data.buffer.length; k++) {
+        if (aOutputItem.data.buffer[k] !== bOutputItem.data.buffer[k]) {
+          return 2;
+        }
+      }
+    }
+  }
+  return 0;
+}
+__name(outputsEqual, "outputsEqual");
+function getStreamOutputData(outputs) {
+  if (!outputs.length) {
+    return null;
+  }
+  const first = outputs[0];
+  const mime = first.mime;
+  const sameStream = !outputs.find((op) => op.mime !== mime);
+  if (sameStream) {
+    return outputs.map((opit) => opit.data.toString()).join("");
+  } else {
+    return null;
+  }
+}
+__name(getStreamOutputData, "getStreamOutputData");
+function getFormattedOutputJSON(outputs) {
+  if (outputs.length === 1) {
+    const streamOutputData = getStreamOutputData(outputs[0].outputs);
+    if (streamOutputData) {
+      return streamOutputData;
+    }
+  }
+  return JSON.stringify(outputs.map((output) => {
+    return {
+      metadata: output.metadata,
+      outputItems: output.outputs.map((opit) => ({
+        mimeType: opit.mime,
+        data: opit.data.toString()
+      }))
+    };
+  }), void 0, "	");
+}
+__name(getFormattedOutputJSON, "getFormattedOutputJSON");
+export {
+  DefaultLineHeight,
+  DiffElementCellViewModelBase,
+  DiffElementPlaceholderViewModel,
+  DiffElementViewModelBase,
+  HeightOfHiddenLinesRegionInDiffEditor,
+  NotebookDocumentMetadataViewModel,
+  OUTPUT_EDITOR_HEIGHT_MAGIC,
+  OutputComparison,
+  PropertyFoldingState,
+  SideBySideDiffElementViewModel,
+  SingleSideDiffElementViewModel,
+  getFormattedOutputJSON,
+  getStreamOutputData,
+  outputEqual
+};
+//# sourceMappingURL=diffElementViewModel.js.map

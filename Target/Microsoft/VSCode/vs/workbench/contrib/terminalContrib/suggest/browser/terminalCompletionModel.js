@@ -1,1 +1,145 @@
-import{isWindows as c}from"../../../../../base/common/platform.js";import{count as t}from"../../../../../base/common/strings.js";import{SimpleCompletionModel as d}from"../../../../services/suggest/browser/simpleCompletionModel.js";import{TerminalCompletionItemKind as i}from"./terminalCompletionItem.js";class h extends d{constructor(e,o){super(e,o,m)}}const m=(n,e,o)=>{if(e.completion.kind===i.InlineSuggestionAlwaysOnTop&&e.completion.kind!==o.completion.kind)return-1;if(o.completion.kind===i.InlineSuggestionAlwaysOnTop&&e.completion.kind!==o.completion.kind)return 1;let l=o.score[0]-e.score[0];if(l!==0)return l;if(e.completion.kind===i.InlineSuggestion&&e.completion.kind!==o.completion.kind)return-1;if(o.completion.kind===i.InlineSuggestion&&e.completion.kind!==o.completion.kind)return 1;if(e.underscorePenalty!==o.underscorePenalty)return e.underscorePenalty-o.underscorePenalty;if(!n.includes(" ")&&e.completion.kind===i.File&&o.completion.kind===i.File){if(e.labelLowExcludeFileExt!==o.labelLowExcludeFileExt)return e.labelLowExcludeFileExt.localeCompare(o.labelLowExcludeFileExt,void 0,{ignorePunctuation:!0});if(l=e.labelLowExcludeFileExt.length-o.labelLowExcludeFileExt.length,l!==0||(l=r(o.fileExtLow)-r(e.fileExtLow),l!==0)||(l=e.fileExtLow.length-o.fileExtLow.length,l!==0))return l}if(e.completion.kind===i.Method&&o.completion.kind===i.Method&&(typeof e.completion.label!="string"&&e.completion.label.description&&typeof o.completion.label!="string"&&o.completion.label.description?l=0:typeof e.completion.label!="string"&&e.completion.label.description?l=-2:typeof o.completion.label!="string"&&o.completion.label.description&&(l=2),l+=(o.completion.detail?1:0)+(o.completion.documentation?2:0)-(e.completion.detail?1:0)-(e.completion.documentation?2:0),l!==0))return l;if(e.completion.kind===i.Folder&&o.completion.kind===i.Folder&&e.labelLowNormalizedPath&&o.labelLowNormalizedPath){if(l=t(e.labelLowNormalizedPath,"/")-t(o.labelLowNormalizedPath,"/"),l!==0)return l;if(o.labelLowNormalizedPath.startsWith(e.labelLowNormalizedPath))return-1;if(e.labelLowNormalizedPath.startsWith(o.labelLowNormalizedPath))return 1}if(e.completion.kind!==o.completion.kind){if((e.completion.kind===i.Method||e.completion.kind===i.Alias)&&o.completion.kind!==i.Method&&o.completion.kind!==i.Alias)return-1;if((o.completion.kind===i.Method||o.completion.kind===i.Alias)&&e.completion.kind!==i.Method&&e.completion.kind!==i.Alias||(e.completion.kind===i.File||e.completion.kind===i.Folder)&&o.completion.kind!==i.File&&o.completion.kind!==i.Folder)return 1;if((o.completion.kind===i.File||o.completion.kind===i.Folder)&&e.completion.kind!==i.File&&e.completion.kind!==i.Folder)return-1}return e.labelLow.localeCompare(o.labelLow,void 0,{ignorePunctuation:!0})},p=new Map(c?[["ps1",.09],["exe",.08],["bat",.07],["cmd",.07],["msi",.06],["com",.06],["sh",-.05],["bash",-.05],["zsh",-.05],["fish",-.05],["csh",-.06],["ksh",-.06]]:[["ps1",.05],["bat",-.05],["cmd",-.05],["exe",-.05],["sh",.05],["bash",.05],["zsh",.05],["fish",.05],["csh",.04],["ksh",.04],["py",.05],["pl",.05]]);function r(n){return p.get(n)||0}export{h as TerminalCompletionModel};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isWindows } from "../../../../../base/common/platform.js";
+import { count } from "../../../../../base/common/strings.js";
+import { SimpleCompletionModel } from "../../../../services/suggest/browser/simpleCompletionModel.js";
+import { TerminalCompletionItemKind } from "./terminalCompletionItem.js";
+class TerminalCompletionModel extends SimpleCompletionModel {
+  static {
+    __name(this, "TerminalCompletionModel");
+  }
+  constructor(items, lineContext) {
+    super(items, lineContext, compareCompletionsFn);
+  }
+}
+const compareCompletionsFn = /* @__PURE__ */ __name((leadingLineContent, a, b) => {
+  if (a.completion.kind === TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop && a.completion.kind !== b.completion.kind) {
+    return -1;
+  }
+  if (b.completion.kind === TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop && a.completion.kind !== b.completion.kind) {
+    return 1;
+  }
+  let score = b.score[0] - a.score[0];
+  if (score !== 0) {
+    return score;
+  }
+  if (a.completion.kind === TerminalCompletionItemKind.InlineSuggestion && a.completion.kind !== b.completion.kind) {
+    return -1;
+  }
+  if (b.completion.kind === TerminalCompletionItemKind.InlineSuggestion && a.completion.kind !== b.completion.kind) {
+    return 1;
+  }
+  if (a.underscorePenalty !== b.underscorePenalty) {
+    return a.underscorePenalty - b.underscorePenalty;
+  }
+  const isArg = leadingLineContent.includes(" ");
+  if (!isArg && a.completion.kind === TerminalCompletionItemKind.File && b.completion.kind === TerminalCompletionItemKind.File) {
+    if (a.labelLowExcludeFileExt !== b.labelLowExcludeFileExt) {
+      return a.labelLowExcludeFileExt.localeCompare(b.labelLowExcludeFileExt, void 0, { ignorePunctuation: true });
+    }
+    score = a.labelLowExcludeFileExt.length - b.labelLowExcludeFileExt.length;
+    if (score !== 0) {
+      return score;
+    }
+    score = fileExtScore(b.fileExtLow) - fileExtScore(a.fileExtLow);
+    if (score !== 0) {
+      return score;
+    }
+    score = a.fileExtLow.length - b.fileExtLow.length;
+    if (score !== 0) {
+      return score;
+    }
+  }
+  if (a.completion.kind === TerminalCompletionItemKind.Method && b.completion.kind === TerminalCompletionItemKind.Method) {
+    if (typeof a.completion.label !== "string" && a.completion.label.description && typeof b.completion.label !== "string" && b.completion.label.description) {
+      score = 0;
+    } else if (typeof a.completion.label !== "string" && a.completion.label.description) {
+      score = -2;
+    } else if (typeof b.completion.label !== "string" && b.completion.label.description) {
+      score = 2;
+    }
+    score += (b.completion.detail ? 1 : 0) + (b.completion.documentation ? 2 : 0) - (a.completion.detail ? 1 : 0) - (a.completion.documentation ? 2 : 0);
+    if (score !== 0) {
+      return score;
+    }
+  }
+  if (a.completion.kind === TerminalCompletionItemKind.Folder && b.completion.kind === TerminalCompletionItemKind.Folder) {
+    if (a.labelLowNormalizedPath && b.labelLowNormalizedPath) {
+      score = count(a.labelLowNormalizedPath, "/") - count(b.labelLowNormalizedPath, "/");
+      if (score !== 0) {
+        return score;
+      }
+      if (b.labelLowNormalizedPath.startsWith(a.labelLowNormalizedPath)) {
+        return -1;
+      }
+      if (a.labelLowNormalizedPath.startsWith(b.labelLowNormalizedPath)) {
+        return 1;
+      }
+    }
+  }
+  if (a.completion.kind !== b.completion.kind) {
+    if ((a.completion.kind === TerminalCompletionItemKind.Method || a.completion.kind === TerminalCompletionItemKind.Alias) && (b.completion.kind !== TerminalCompletionItemKind.Method && b.completion.kind !== TerminalCompletionItemKind.Alias)) {
+      return -1;
+    }
+    if ((b.completion.kind === TerminalCompletionItemKind.Method || b.completion.kind === TerminalCompletionItemKind.Alias) && (a.completion.kind !== TerminalCompletionItemKind.Method && a.completion.kind !== TerminalCompletionItemKind.Alias)) {
+      return 1;
+    }
+    if ((a.completion.kind === TerminalCompletionItemKind.File || a.completion.kind === TerminalCompletionItemKind.Folder) && (b.completion.kind !== TerminalCompletionItemKind.File && b.completion.kind !== TerminalCompletionItemKind.Folder)) {
+      return 1;
+    }
+    if ((b.completion.kind === TerminalCompletionItemKind.File || b.completion.kind === TerminalCompletionItemKind.Folder) && (a.completion.kind !== TerminalCompletionItemKind.File && a.completion.kind !== TerminalCompletionItemKind.Folder)) {
+      return -1;
+    }
+  }
+  return a.labelLow.localeCompare(b.labelLow, void 0, { ignorePunctuation: true });
+}, "compareCompletionsFn");
+const fileExtScores = new Map(isWindows ? [
+  // Windows - .ps1 > .exe > .bat > .cmd. This is the command precedence when running the files
+  //           without an extension, tested manually in pwsh v7.4.4
+  ["ps1", 0.09],
+  ["exe", 0.08],
+  ["bat", 0.07],
+  ["cmd", 0.07],
+  ["msi", 0.06],
+  ["com", 0.06],
+  // Non-Windows
+  ["sh", -0.05],
+  ["bash", -0.05],
+  ["zsh", -0.05],
+  ["fish", -0.05],
+  ["csh", -0.06],
+  // C shell
+  ["ksh", -0.06]
+  // Korn shell
+  // Scripting language files are excluded here as the standard behavior on Windows will just open
+  // the file in a text editor, not run the file
+] : [
+  // Pwsh
+  ["ps1", 0.05],
+  // Windows
+  ["bat", -0.05],
+  ["cmd", -0.05],
+  ["exe", -0.05],
+  // Non-Windows
+  ["sh", 0.05],
+  ["bash", 0.05],
+  ["zsh", 0.05],
+  ["fish", 0.05],
+  ["csh", 0.04],
+  // C shell
+  ["ksh", 0.04],
+  // Korn shell
+  // Scripting languages
+  ["py", 0.05],
+  // Python
+  ["pl", 0.05]
+  // Perl
+]);
+function fileExtScore(ext) {
+  return fileExtScores.get(ext) || 0;
+}
+__name(fileExtScore, "fileExtScore");
+export {
+  TerminalCompletionModel
+};
+//# sourceMappingURL=terminalCompletionModel.js.map

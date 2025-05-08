@@ -1,1 +1,334 @@
-import{DebugNameData as u,getFunctionName as f}from"./debugName.js";import{strictEquals as c}from"./commonFacade/deps.js";import{getLogger as i,logObservable as O}from"./logging/logging.js";import{onUnexpectedError as x}from"../errors.js";let v;function z(s){v=s}let p;function A(s){p=s}let h;function T(s){h=s}class y{get TChange(){return null}reportChanges(){this.get()}read(e){return e?e.readObservable(this):this.get()}map(e,t){const r=t===void 0?void 0:e,n=t===void 0?e:t;return h({owner:r,debugName:()=>{const a=f(n);if(a!==void 0)return a;const b=/^\s*\(?\s*([a-zA-Z_$][a-zA-Z_$0-9]*)\s*\)?\s*=>\s*\1(?:\??)\.([a-zA-Z_$][a-zA-Z_$0-9]*)\s*$/.exec(n.toString());if(b)return`${this.debugName}.${b[2]}`;if(!r)return`${this.debugName} (mapped)`},debugReferenceFn:n},a=>n(this.read(a),a))}flatten(){return h({owner:void 0,debugName:()=>`${this.debugName} (flattened)`},e=>this.read(e).read(e))}recomputeInitiallyAndOnChange(e,t){return e.add(v(this,t)),this}keepObserved(e){return e.add(p(this)),this}get debugValue(){return this.get()}}class N extends y{constructor(){super(),this._observers=new Set,i()?.handleObservableCreated(this)}addObserver(e){const t=this._observers.size;this._observers.add(e),t===0&&this.onFirstObserverAdded(),t!==this._observers.size&&i()?.handleOnListenerCountChanged(this,this._observers.size)}removeObserver(e){const t=this._observers.delete(e);t&&this._observers.size===0&&this.onLastObserverRemoved(),t&&i()?.handleOnListenerCountChanged(this,this._observers.size)}onFirstObserverAdded(){}onLastObserverRemoved(){}log(){const e=!!i();return O(this),e||i()?.handleObservableCreated(this),this}debugGetObservers(){return this._observers}}function _(s,e){const t=new o(s,e);try{s(t)}finally{t.finish()}}let d;function E(s){if(d)s(d);else{const e=new o(s,void 0);d=e;try{s(e)}finally{e.finish(),d=void 0}}}async function I(s,e){const t=new o(s,e);try{await s(t)}finally{t.finish()}}function L(s,e,t){s?e(s):_(e,t)}class o{constructor(e,t){this._fn=e,this._getDebugName=t,this._updatingObservers=[],i()?.handleBeginTransaction(this)}getDebugName(){return this._getDebugName?this._getDebugName():f(this._fn)}updateObserver(e,t){if(!this._updatingObservers){g("Transaction already finished!"),_(r=>{r.updateObserver(e,t)});return}this._updatingObservers.push({observer:e,observable:t}),e.beginUpdate(t)}finish(){const e=this._updatingObservers;if(!e){g("transaction.finish() has already been called!");return}for(let t=0;t<e.length;t++){const{observer:r,observable:n}=e[t];r.endUpdate(n)}this._updatingObservers=null,i()?.handleEndTransaction(this)}debugGetUpdatingObservers(){return this._updatingObservers}}function g(s){const e=new Error("BugIndicatingErrorRecovery: "+s);x(e)}function R(s,e){let t;return typeof s=="string"?t=new u(void 0,s,void 0):t=new u(s,void 0,void 0),new m(t,e,c)}class m extends N{get debugName(){return this._debugNameData.getDebugName(this)??"ObservableValue"}constructor(e,t,r){super(),this._debugNameData=e,this._equalityComparator=r,this._value=t,i()?.handleObservableUpdated(this,{hadValue:!1,newValue:t,change:void 0,didChange:!0,oldValue:void 0})}get(){return this._value}set(e,t,r){if(r===void 0&&this._equalityComparator(this._value,e))return;let n;t||(t=n=new o(()=>{},()=>`Setting ${this.debugName}`));try{const a=this._value;this._setValue(e),i()?.handleObservableUpdated(this,{oldValue:a,newValue:e,change:r,didChange:!0,hadValue:!0});for(const l of this._observers)t.updateObserver(l,this),l.handleChange(this,r)}finally{n&&n.finish()}}toString(){return`${this.debugName}: ${this._value}`}_setValue(e){this._value=e}debugGetState(){return{value:this._value}}debugSetValue(e){this._value=e}}function S(s,e){let t;return typeof s=="string"?t=new u(void 0,s,void 0):t=new u(s,void 0,void 0),new C(t,e,c)}class C extends m{_setValue(e){this._value!==e&&(this._value&&this._value.dispose(),this._value=e)}dispose(){this._value?.dispose()}}export{N as BaseObservable,y as ConvenientObservable,C as DisposableObservableValue,m as ObservableValue,o as TransactionImpl,T as _setDerivedOpts,A as _setKeepObserved,z as _setRecomputeInitiallyAndOnChange,I as asyncTransaction,S as disposableObservableValue,E as globalTransaction,R as observableValue,L as subtransaction,_ as transaction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DebugNameData, getFunctionName } from "./debugName.js";
+import { strictEquals } from "./commonFacade/deps.js";
+import { getLogger, logObservable } from "./logging/logging.js";
+import { onUnexpectedError } from "../errors.js";
+let _recomputeInitiallyAndOnChange;
+function _setRecomputeInitiallyAndOnChange(recomputeInitiallyAndOnChange) {
+  _recomputeInitiallyAndOnChange = recomputeInitiallyAndOnChange;
+}
+__name(_setRecomputeInitiallyAndOnChange, "_setRecomputeInitiallyAndOnChange");
+let _keepObserved;
+function _setKeepObserved(keepObserved) {
+  _keepObserved = keepObserved;
+}
+__name(_setKeepObserved, "_setKeepObserved");
+let _derived;
+function _setDerivedOpts(derived) {
+  _derived = derived;
+}
+__name(_setDerivedOpts, "_setDerivedOpts");
+class ConvenientObservable {
+  static {
+    __name(this, "ConvenientObservable");
+  }
+  get TChange() {
+    return null;
+  }
+  reportChanges() {
+    this.get();
+  }
+  /** @sealed */
+  read(reader) {
+    if (reader) {
+      return reader.readObservable(this);
+    } else {
+      return this.get();
+    }
+  }
+  map(fnOrOwner, fnOrUndefined) {
+    const owner = fnOrUndefined === void 0 ? void 0 : fnOrOwner;
+    const fn = fnOrUndefined === void 0 ? fnOrOwner : fnOrUndefined;
+    return _derived({
+      owner,
+      debugName: /* @__PURE__ */ __name(() => {
+        const name = getFunctionName(fn);
+        if (name !== void 0) {
+          return name;
+        }
+        const regexp = /^\s*\(?\s*([a-zA-Z_$][a-zA-Z_$0-9]*)\s*\)?\s*=>\s*\1(?:\??)\.([a-zA-Z_$][a-zA-Z_$0-9]*)\s*$/;
+        const match = regexp.exec(fn.toString());
+        if (match) {
+          return `${this.debugName}.${match[2]}`;
+        }
+        if (!owner) {
+          return `${this.debugName} (mapped)`;
+        }
+        return void 0;
+      }, "debugName"),
+      debugReferenceFn: fn
+    }, (reader) => fn(this.read(reader), reader));
+  }
+  /**
+   * @sealed
+   * Converts an observable of an observable value into a direct observable of the value.
+  */
+  flatten() {
+    return _derived({
+      owner: void 0,
+      debugName: /* @__PURE__ */ __name(() => `${this.debugName} (flattened)`, "debugName")
+    }, (reader) => this.read(reader).read(reader));
+  }
+  recomputeInitiallyAndOnChange(store, handleValue) {
+    store.add(_recomputeInitiallyAndOnChange(this, handleValue));
+    return this;
+  }
+  /**
+   * Ensures that this observable is observed. This keeps the cache alive.
+   * However, in case of deriveds, it does not force eager evaluation (only when the value is read/get).
+   * Use `recomputeInitiallyAndOnChange` for eager evaluation.
+   */
+  keepObserved(store) {
+    store.add(_keepObserved(this));
+    return this;
+  }
+  get debugValue() {
+    return this.get();
+  }
+}
+class BaseObservable extends ConvenientObservable {
+  static {
+    __name(this, "BaseObservable");
+  }
+  constructor() {
+    super();
+    this._observers = /* @__PURE__ */ new Set();
+    getLogger()?.handleObservableCreated(this);
+  }
+  addObserver(observer) {
+    const len = this._observers.size;
+    this._observers.add(observer);
+    if (len === 0) {
+      this.onFirstObserverAdded();
+    }
+    if (len !== this._observers.size) {
+      getLogger()?.handleOnListenerCountChanged(this, this._observers.size);
+    }
+  }
+  removeObserver(observer) {
+    const deleted = this._observers.delete(observer);
+    if (deleted && this._observers.size === 0) {
+      this.onLastObserverRemoved();
+    }
+    if (deleted) {
+      getLogger()?.handleOnListenerCountChanged(this, this._observers.size);
+    }
+  }
+  onFirstObserverAdded() {
+  }
+  onLastObserverRemoved() {
+  }
+  log() {
+    const hadLogger = !!getLogger();
+    logObservable(this);
+    if (!hadLogger) {
+      getLogger()?.handleObservableCreated(this);
+    }
+    return this;
+  }
+  debugGetObservers() {
+    return this._observers;
+  }
+}
+function transaction(fn, getDebugName) {
+  const tx = new TransactionImpl(fn, getDebugName);
+  try {
+    fn(tx);
+  } finally {
+    tx.finish();
+  }
+}
+__name(transaction, "transaction");
+let _globalTransaction = void 0;
+function globalTransaction(fn) {
+  if (_globalTransaction) {
+    fn(_globalTransaction);
+  } else {
+    const tx = new TransactionImpl(fn, void 0);
+    _globalTransaction = tx;
+    try {
+      fn(tx);
+    } finally {
+      tx.finish();
+      _globalTransaction = void 0;
+    }
+  }
+}
+__name(globalTransaction, "globalTransaction");
+async function asyncTransaction(fn, getDebugName) {
+  const tx = new TransactionImpl(fn, getDebugName);
+  try {
+    await fn(tx);
+  } finally {
+    tx.finish();
+  }
+}
+__name(asyncTransaction, "asyncTransaction");
+function subtransaction(tx, fn, getDebugName) {
+  if (!tx) {
+    transaction(fn, getDebugName);
+  } else {
+    fn(tx);
+  }
+}
+__name(subtransaction, "subtransaction");
+class TransactionImpl {
+  static {
+    __name(this, "TransactionImpl");
+  }
+  constructor(_fn, _getDebugName) {
+    this._fn = _fn;
+    this._getDebugName = _getDebugName;
+    this._updatingObservers = [];
+    getLogger()?.handleBeginTransaction(this);
+  }
+  getDebugName() {
+    if (this._getDebugName) {
+      return this._getDebugName();
+    }
+    return getFunctionName(this._fn);
+  }
+  updateObserver(observer, observable) {
+    if (!this._updatingObservers) {
+      handleBugIndicatingErrorRecovery("Transaction already finished!");
+      transaction((tx) => {
+        tx.updateObserver(observer, observable);
+      });
+      return;
+    }
+    this._updatingObservers.push({ observer, observable });
+    observer.beginUpdate(observable);
+  }
+  finish() {
+    const updatingObservers = this._updatingObservers;
+    if (!updatingObservers) {
+      handleBugIndicatingErrorRecovery("transaction.finish() has already been called!");
+      return;
+    }
+    for (let i = 0; i < updatingObservers.length; i++) {
+      const { observer, observable } = updatingObservers[i];
+      observer.endUpdate(observable);
+    }
+    this._updatingObservers = null;
+    getLogger()?.handleEndTransaction(this);
+  }
+  debugGetUpdatingObservers() {
+    return this._updatingObservers;
+  }
+}
+function handleBugIndicatingErrorRecovery(message) {
+  const err = new Error("BugIndicatingErrorRecovery: " + message);
+  onUnexpectedError(err);
+  console.error("recovered from an error that indicates a bug", err);
+}
+__name(handleBugIndicatingErrorRecovery, "handleBugIndicatingErrorRecovery");
+function observableValue(nameOrOwner, initialValue) {
+  let debugNameData;
+  if (typeof nameOrOwner === "string") {
+    debugNameData = new DebugNameData(void 0, nameOrOwner, void 0);
+  } else {
+    debugNameData = new DebugNameData(nameOrOwner, void 0, void 0);
+  }
+  return new ObservableValue(debugNameData, initialValue, strictEquals);
+}
+__name(observableValue, "observableValue");
+class ObservableValue extends BaseObservable {
+  static {
+    __name(this, "ObservableValue");
+  }
+  get debugName() {
+    return this._debugNameData.getDebugName(this) ?? "ObservableValue";
+  }
+  constructor(_debugNameData, initialValue, _equalityComparator) {
+    super();
+    this._debugNameData = _debugNameData;
+    this._equalityComparator = _equalityComparator;
+    this._value = initialValue;
+    getLogger()?.handleObservableUpdated(this, { hadValue: false, newValue: initialValue, change: void 0, didChange: true, oldValue: void 0 });
+  }
+  get() {
+    return this._value;
+  }
+  set(value, tx, change) {
+    if (change === void 0 && this._equalityComparator(this._value, value)) {
+      return;
+    }
+    let _tx;
+    if (!tx) {
+      tx = _tx = new TransactionImpl(() => {
+      }, () => `Setting ${this.debugName}`);
+    }
+    try {
+      const oldValue = this._value;
+      this._setValue(value);
+      getLogger()?.handleObservableUpdated(this, { oldValue, newValue: value, change, didChange: true, hadValue: true });
+      for (const observer of this._observers) {
+        tx.updateObserver(observer, this);
+        observer.handleChange(this, change);
+      }
+    } finally {
+      if (_tx) {
+        _tx.finish();
+      }
+    }
+  }
+  toString() {
+    return `${this.debugName}: ${this._value}`;
+  }
+  _setValue(newValue) {
+    this._value = newValue;
+  }
+  debugGetState() {
+    return {
+      value: this._value
+    };
+  }
+  debugSetValue(value) {
+    this._value = value;
+  }
+}
+function disposableObservableValue(nameOrOwner, initialValue) {
+  let debugNameData;
+  if (typeof nameOrOwner === "string") {
+    debugNameData = new DebugNameData(void 0, nameOrOwner, void 0);
+  } else {
+    debugNameData = new DebugNameData(nameOrOwner, void 0, void 0);
+  }
+  return new DisposableObservableValue(debugNameData, initialValue, strictEquals);
+}
+__name(disposableObservableValue, "disposableObservableValue");
+class DisposableObservableValue extends ObservableValue {
+  static {
+    __name(this, "DisposableObservableValue");
+  }
+  _setValue(newValue) {
+    if (this._value === newValue) {
+      return;
+    }
+    if (this._value) {
+      this._value.dispose();
+    }
+    this._value = newValue;
+  }
+  dispose() {
+    this._value?.dispose();
+  }
+}
+export {
+  BaseObservable,
+  ConvenientObservable,
+  DisposableObservableValue,
+  ObservableValue,
+  TransactionImpl,
+  _setDerivedOpts,
+  _setKeepObserved,
+  _setRecomputeInitiallyAndOnChange,
+  asyncTransaction,
+  disposableObservableValue,
+  globalTransaction,
+  observableValue,
+  subtransaction,
+  transaction
+};
+//# sourceMappingURL=base.js.map

@@ -1,1 +1,63 @@
-import{isMacintosh as n,isWindows as o}from"./platform.js";let e;const t=globalThis.vscode;if(typeof t<"u"&&typeof t.process<"u"){const r=t.process;e={get platform(){return r.platform},get arch(){return r.arch},get env(){return r.env},cwd(){return r.cwd()}}}else typeof process<"u"&&typeof process?.versions?.node=="string"?e={get platform(){return process.platform},get arch(){return process.arch},get env(){return process.env},cwd(){return process.env.VSCODE_CWD||process.cwd()}}:e={get platform(){return o?"win32":n?"darwin":"linux"},get arch(){},get env(){return{}},cwd(){return"/"}};const c=e.cwd,p=e.env,d=e.platform,a=e.arch;export{a as arch,c as cwd,p as env,d as platform};
+import { isMacintosh, isWindows } from "./platform.js";
+let safeProcess;
+const vscodeGlobal = globalThis.vscode;
+if (typeof vscodeGlobal !== "undefined" && typeof vscodeGlobal.process !== "undefined") {
+  const sandboxProcess = vscodeGlobal.process;
+  safeProcess = {
+    get platform() {
+      return sandboxProcess.platform;
+    },
+    get arch() {
+      return sandboxProcess.arch;
+    },
+    get env() {
+      return sandboxProcess.env;
+    },
+    cwd() {
+      return sandboxProcess.cwd();
+    }
+  };
+} else if (typeof process !== "undefined" && typeof process?.versions?.node === "string") {
+  safeProcess = {
+    get platform() {
+      return process.platform;
+    },
+    get arch() {
+      return process.arch;
+    },
+    get env() {
+      return process.env;
+    },
+    cwd() {
+      return process.env["VSCODE_CWD"] || process.cwd();
+    }
+  };
+} else {
+  safeProcess = {
+    // Supported
+    get platform() {
+      return isWindows ? "win32" : isMacintosh ? "darwin" : "linux";
+    },
+    get arch() {
+      return void 0;
+    },
+    // Unsupported
+    get env() {
+      return {};
+    },
+    cwd() {
+      return "/";
+    }
+  };
+}
+const cwd = safeProcess.cwd;
+const env = safeProcess.env;
+const platform = safeProcess.platform;
+const arch = safeProcess.arch;
+export {
+  arch,
+  cwd,
+  env,
+  platform
+};
+//# sourceMappingURL=process.js.map

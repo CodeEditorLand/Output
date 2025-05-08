@@ -1,1 +1,98 @@
-import{match as A}from"../../base/common/glob.js";import{normalize as y}from"../../base/common/path.js";function x(e,l,i,m,o,p){if(Array.isArray(e)){let t=0;for(const s of e){const f=x(s,l,i,m,o,p);if(f===10)return f;f>t&&(t=f)}return t}else{if(typeof e=="string")return m?e==="*"?5:e===i?10:0:0;if(e){const{language:t,pattern:s,scheme:f,hasAccessToAllModels:h,notebookType:u}=e;if(!m&&!h)return 0;u&&o&&(l=o);let r=0;if(f)if(f===l.scheme)r=10;else if(f==="*")r=5;else return 0;if(t)if(t===i)r=10;else if(t==="*")r=Math.max(r,5);else return 0;if(u)if(u===p)r=10;else if(u==="*"&&p!==void 0)r=Math.max(r,5);else return 0;if(s){let n;if(typeof s=="string"?n=s:n={...s,base:y(s.base)},n===l.fsPath||A(n,l.fsPath))r=10;else return 0}return r}else return 0}}function P(e){return typeof e=="string"?!1:Array.isArray(e)?e.some(P):!!e.notebookType}export{x as score,P as targetsNotebooks};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { match as matchGlobPattern } from "../../base/common/glob.js";
+import { normalize } from "../../base/common/path.js";
+function score(selector, candidateUri, candidateLanguage, candidateIsSynchronized, candidateNotebookUri, candidateNotebookType) {
+  if (Array.isArray(selector)) {
+    let ret = 0;
+    for (const filter of selector) {
+      const value = score(filter, candidateUri, candidateLanguage, candidateIsSynchronized, candidateNotebookUri, candidateNotebookType);
+      if (value === 10) {
+        return value;
+      }
+      if (value > ret) {
+        ret = value;
+      }
+    }
+    return ret;
+  } else if (typeof selector === "string") {
+    if (!candidateIsSynchronized) {
+      return 0;
+    }
+    if (selector === "*") {
+      return 5;
+    } else if (selector === candidateLanguage) {
+      return 10;
+    } else {
+      return 0;
+    }
+  } else if (selector) {
+    const { language, pattern, scheme, hasAccessToAllModels, notebookType } = selector;
+    if (!candidateIsSynchronized && !hasAccessToAllModels) {
+      return 0;
+    }
+    if (notebookType && candidateNotebookUri) {
+      candidateUri = candidateNotebookUri;
+    }
+    let ret = 0;
+    if (scheme) {
+      if (scheme === candidateUri.scheme) {
+        ret = 10;
+      } else if (scheme === "*") {
+        ret = 5;
+      } else {
+        return 0;
+      }
+    }
+    if (language) {
+      if (language === candidateLanguage) {
+        ret = 10;
+      } else if (language === "*") {
+        ret = Math.max(ret, 5);
+      } else {
+        return 0;
+      }
+    }
+    if (notebookType) {
+      if (notebookType === candidateNotebookType) {
+        ret = 10;
+      } else if (notebookType === "*" && candidateNotebookType !== void 0) {
+        ret = Math.max(ret, 5);
+      } else {
+        return 0;
+      }
+    }
+    if (pattern) {
+      let normalizedPattern;
+      if (typeof pattern === "string") {
+        normalizedPattern = pattern;
+      } else {
+        normalizedPattern = { ...pattern, base: normalize(pattern.base) };
+      }
+      if (normalizedPattern === candidateUri.fsPath || matchGlobPattern(normalizedPattern, candidateUri.fsPath)) {
+        ret = 10;
+      } else {
+        return 0;
+      }
+    }
+    return ret;
+  } else {
+    return 0;
+  }
+}
+__name(score, "score");
+function targetsNotebooks(selector) {
+  if (typeof selector === "string") {
+    return false;
+  } else if (Array.isArray(selector)) {
+    return selector.some(targetsNotebooks);
+  } else {
+    return !!selector.notebookType;
+  }
+}
+__name(targetsNotebooks, "targetsNotebooks");
+export {
+  score,
+  targetsNotebooks
+};
+//# sourceMappingURL=languageSelector.js.map

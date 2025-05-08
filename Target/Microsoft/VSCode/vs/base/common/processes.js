@@ -1,1 +1,54 @@
-import{isLinux as u}from"./platform.js";var E;(function(t){t[t.stdout=0]="stdout",t[t.stderr=1]="stderr"})(E||(E={}));var n;(function(t){t[t.Success=0]="Success",t[t.Unknown=1]="Unknown",t[t.AccessDenied=2]="AccessDenied",t[t.ProcessNotFound=3]="ProcessNotFound"})(n||(n={}));function f(t,...o){const e=o.reduce((r,c)=>(r[c]=!0,r),{}),s=[/^ELECTRON_.+$/,/^VSCODE_(?!(PORTABLE|SHELL_LOGIN|ENV_REPLACE|ENV_APPEND|ENV_PREPEND)).+$/,/^SNAP(|_.*)$/,/^GDK_PIXBUF_.+$/];Object.keys(t).filter(r=>!e[r]).forEach(r=>{for(let c=0;c<s.length;c++)if(r.search(s[c])!==-1){delete t[r];break}})}function D(t){t&&(delete t.DEBUG,u&&delete t.LD_PRELOAD)}export{E as Source,n as TerminateResponseCode,D as removeDangerousEnvVariables,f as sanitizeProcessEnvironment};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isLinux } from "./platform.js";
+var Source;
+(function(Source2) {
+  Source2[Source2["stdout"] = 0] = "stdout";
+  Source2[Source2["stderr"] = 1] = "stderr";
+})(Source || (Source = {}));
+var TerminateResponseCode;
+(function(TerminateResponseCode2) {
+  TerminateResponseCode2[TerminateResponseCode2["Success"] = 0] = "Success";
+  TerminateResponseCode2[TerminateResponseCode2["Unknown"] = 1] = "Unknown";
+  TerminateResponseCode2[TerminateResponseCode2["AccessDenied"] = 2] = "AccessDenied";
+  TerminateResponseCode2[TerminateResponseCode2["ProcessNotFound"] = 3] = "ProcessNotFound";
+})(TerminateResponseCode || (TerminateResponseCode = {}));
+function sanitizeProcessEnvironment(env, ...preserve) {
+  const set = preserve.reduce((set2, key) => {
+    set2[key] = true;
+    return set2;
+  }, {});
+  const keysToRemove = [
+    /^ELECTRON_.+$/,
+    /^VSCODE_(?!(PORTABLE|SHELL_LOGIN|ENV_REPLACE|ENV_APPEND|ENV_PREPEND)).+$/,
+    /^SNAP(|_.*)$/,
+    /^GDK_PIXBUF_.+$/
+  ];
+  const envKeys = Object.keys(env);
+  envKeys.filter((key) => !set[key]).forEach((envKey) => {
+    for (let i = 0; i < keysToRemove.length; i++) {
+      if (envKey.search(keysToRemove[i]) !== -1) {
+        delete env[envKey];
+        break;
+      }
+    }
+  });
+}
+__name(sanitizeProcessEnvironment, "sanitizeProcessEnvironment");
+function removeDangerousEnvVariables(env) {
+  if (!env) {
+    return;
+  }
+  delete env["DEBUG"];
+  if (isLinux) {
+    delete env["LD_PRELOAD"];
+  }
+}
+__name(removeDangerousEnvVariables, "removeDangerousEnvVariables");
+export {
+  Source,
+  TerminateResponseCode,
+  removeDangerousEnvVariables,
+  sanitizeProcessEnvironment
+};
+//# sourceMappingURL=processes.js.map

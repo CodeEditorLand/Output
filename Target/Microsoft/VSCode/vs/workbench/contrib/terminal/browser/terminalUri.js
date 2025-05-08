@@ -1,1 +1,54 @@
-import{Schemas as a}from"../../../../base/common/network.js";import{URI as o}from"../../../../base/common/uri.js";function f(n){const[,e,r]=n.path.split("/");if(!e||!Number.parseInt(r))throw new Error(`Could not parse terminal uri for resource ${n}`);return{workspaceId:e,instanceId:Number.parseInt(r)}}function c(n,e,r){return o.from({scheme:a.vscodeTerminal,path:`/${n}/${e}`,fragment:r||void 0})}function p(n){const e=n.dataTransfer?.getData("Terminals");if(e){const r=JSON.parse(e),t=[];for(const s of r)t.push(o.parse(s));return t.length===0?void 0:t}}function m(n,e){if(e){for(const r of n)if(r.resource.path===e.path)return r}}export{m as getInstanceFromResource,p as getTerminalResourcesFromDragEvent,c as getTerminalUri,f as parseTerminalUri};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Schemas } from "../../../../base/common/network.js";
+import { URI } from "../../../../base/common/uri.js";
+function parseTerminalUri(resource) {
+  const [, workspaceId, instanceId] = resource.path.split("/");
+  if (!workspaceId || !Number.parseInt(instanceId)) {
+    throw new Error(`Could not parse terminal uri for resource ${resource}`);
+  }
+  return { workspaceId, instanceId: Number.parseInt(instanceId) };
+}
+__name(parseTerminalUri, "parseTerminalUri");
+function getTerminalUri(workspaceId, instanceId, title) {
+  return URI.from({
+    scheme: Schemas.vscodeTerminal,
+    path: `/${workspaceId}/${instanceId}`,
+    fragment: title || void 0
+  });
+}
+__name(getTerminalUri, "getTerminalUri");
+function getTerminalResourcesFromDragEvent(event) {
+  const resources = event.dataTransfer?.getData(
+    "Terminals"
+    /* TerminalDataTransfers.Terminals */
+  );
+  if (resources) {
+    const json = JSON.parse(resources);
+    const result = [];
+    for (const entry of json) {
+      result.push(URI.parse(entry));
+    }
+    return result.length === 0 ? void 0 : result;
+  }
+  return void 0;
+}
+__name(getTerminalResourcesFromDragEvent, "getTerminalResourcesFromDragEvent");
+function getInstanceFromResource(instances, resource) {
+  if (resource) {
+    for (const instance of instances) {
+      if (instance.resource.path === resource.path) {
+        return instance;
+      }
+    }
+  }
+  return void 0;
+}
+__name(getInstanceFromResource, "getInstanceFromResource");
+export {
+  getInstanceFromResource,
+  getTerminalResourcesFromDragEvent,
+  getTerminalUri,
+  parseTerminalUri
+};
+//# sourceMappingURL=terminalUri.js.map

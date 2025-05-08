@@ -1,2 +1,129 @@
-import{createScanner as O}from"../../../../base/common/json.js";import{Position as E}from"../../../../editor/common/core/position.js";import{Range as A}from"../../../../editor/common/core/range.js";class N{static hasOpenBrace(n){for(;n.scan()!==17;)if(n.getToken()===1)return!0;return!1}static offsetToPosition(n,a){let c=0;const e=n.getEOL().length,i=n.getLineCount();for(let o=1;o<=i;o++){const p=n.getLineLength(o)+e,s=c+p;if(s>a)return new E(o,a-c+1);c=s}return new E(i,n.getLineMaxColumn(i))}static insertSnippet(n,a){const c=n.getValueLengthInRange(new A(1,1,a.lineNumber,a.column));let e;(function(t){t[t.INVALID=0]="INVALID",t[t.AFTER_OBJECT=1]="AFTER_OBJECT",t[t.BEFORE_OBJECT=2]="BEFORE_OBJECT"})(e||(e={}));let i=e.INVALID,o=-1,p=e.INVALID;const s=O(n.getValue());let L=0,I=0;const l=(t,u)=>{u!==e.INVALID&&L===1&&I===0?(i=u,o=t,p=u):i!==e.INVALID&&(i=e.INVALID,o=s.getTokenOffset())};for(;s.scan()!==17;){const t=s.getPosition(),u=s.getToken();let r=!1;switch(u){case 3:r=!0,L++,l(t,e.BEFORE_OBJECT);break;case 4:r=!0,L--,l(t,e.INVALID);break;case 5:r=!0,l(t,e.BEFORE_OBJECT);break;case 1:r=!0,I++,l(t,e.INVALID);break;case 2:r=!0,I--,l(t,e.AFTER_OBJECT);break;case 15:case 14:r=!0}if(t>=c&&(i!==e.INVALID||o!==-1)){let f,g;return i!==e.INVALID?(f=r?t:s.getTokenOffset(),g=i):(f=o,g=p),g===e.AFTER_OBJECT?{position:this.offsetToPosition(n,f),prepend:",",append:""}:(s.setPosition(f),{position:this.offsetToPosition(n,f),prepend:"",append:this.hasOpenBrace(s)?",":""})}}const T=n.getLineCount();return{position:new E(T,n.getLineMaxColumn(T)),prepend:`
-[`,append:"]"}}}export{N as SmartSnippetInserter};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createScanner as createJSONScanner } from "../../../../base/common/json.js";
+import { Position } from "../../../../editor/common/core/position.js";
+import { Range } from "../../../../editor/common/core/range.js";
+class SmartSnippetInserter {
+  static {
+    __name(this, "SmartSnippetInserter");
+  }
+  static hasOpenBrace(scanner) {
+    while (scanner.scan() !== 17) {
+      const kind = scanner.getToken();
+      if (kind === 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+  static offsetToPosition(model, offset) {
+    let offsetBeforeLine = 0;
+    const eolLength = model.getEOL().length;
+    const lineCount = model.getLineCount();
+    for (let lineNumber = 1; lineNumber <= lineCount; lineNumber++) {
+      const lineTotalLength = model.getLineLength(lineNumber) + eolLength;
+      const offsetAfterLine = offsetBeforeLine + lineTotalLength;
+      if (offsetAfterLine > offset) {
+        return new Position(lineNumber, offset - offsetBeforeLine + 1);
+      }
+      offsetBeforeLine = offsetAfterLine;
+    }
+    return new Position(lineCount, model.getLineMaxColumn(lineCount));
+  }
+  static insertSnippet(model, _position) {
+    const desiredPosition = model.getValueLengthInRange(new Range(1, 1, _position.lineNumber, _position.column));
+    let State;
+    (function(State2) {
+      State2[State2["INVALID"] = 0] = "INVALID";
+      State2[State2["AFTER_OBJECT"] = 1] = "AFTER_OBJECT";
+      State2[State2["BEFORE_OBJECT"] = 2] = "BEFORE_OBJECT";
+    })(State || (State = {}));
+    let currentState = State.INVALID;
+    let lastValidPos = -1;
+    let lastValidState = State.INVALID;
+    const scanner = createJSONScanner(model.getValue());
+    let arrayLevel = 0;
+    let objLevel = 0;
+    const checkRangeStatus = /* @__PURE__ */ __name((pos, state) => {
+      if (state !== State.INVALID && arrayLevel === 1 && objLevel === 0) {
+        currentState = state;
+        lastValidPos = pos;
+        lastValidState = state;
+      } else {
+        if (currentState !== State.INVALID) {
+          currentState = State.INVALID;
+          lastValidPos = scanner.getTokenOffset();
+        }
+      }
+    }, "checkRangeStatus");
+    while (scanner.scan() !== 17) {
+      const currentPos = scanner.getPosition();
+      const kind = scanner.getToken();
+      let goodKind = false;
+      switch (kind) {
+        case 3:
+          goodKind = true;
+          arrayLevel++;
+          checkRangeStatus(currentPos, State.BEFORE_OBJECT);
+          break;
+        case 4:
+          goodKind = true;
+          arrayLevel--;
+          checkRangeStatus(currentPos, State.INVALID);
+          break;
+        case 5:
+          goodKind = true;
+          checkRangeStatus(currentPos, State.BEFORE_OBJECT);
+          break;
+        case 1:
+          goodKind = true;
+          objLevel++;
+          checkRangeStatus(currentPos, State.INVALID);
+          break;
+        case 2:
+          goodKind = true;
+          objLevel--;
+          checkRangeStatus(currentPos, State.AFTER_OBJECT);
+          break;
+        case 15:
+        case 14:
+          goodKind = true;
+      }
+      if (currentPos >= desiredPosition && (currentState !== State.INVALID || lastValidPos !== -1)) {
+        let acceptPosition;
+        let acceptState;
+        if (currentState !== State.INVALID) {
+          acceptPosition = goodKind ? currentPos : scanner.getTokenOffset();
+          acceptState = currentState;
+        } else {
+          acceptPosition = lastValidPos;
+          acceptState = lastValidState;
+        }
+        if (acceptState === State.AFTER_OBJECT) {
+          return {
+            position: this.offsetToPosition(model, acceptPosition),
+            prepend: ",",
+            append: ""
+          };
+        } else {
+          scanner.setPosition(acceptPosition);
+          return {
+            position: this.offsetToPosition(model, acceptPosition),
+            prepend: "",
+            append: this.hasOpenBrace(scanner) ? "," : ""
+          };
+        }
+      }
+    }
+    const modelLineCount = model.getLineCount();
+    return {
+      position: new Position(modelLineCount, model.getLineMaxColumn(modelLineCount)),
+      prepend: "\n[",
+      append: "]"
+    };
+  }
+}
+export {
+  SmartSnippetInserter
+};
+//# sourceMappingURL=smartSnippetInserter.js.map

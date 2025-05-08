@@ -1,1 +1,51 @@
-import{CancellationToken as d}from"../../../base/common/cancellation.js";import{Disposable as p,DisposableMap as c}from"../../../base/common/lifecycle.js";import{ExtHostContext as R,MainContext as h}from"../common/extHost.protocol.js";import{IAiRelatedInformationService as _}from"../../services/aiRelatedInformation/common/aiRelatedInformation.js";import{extHostNamedCustomer as I}from"../../services/extensions/common/extHostCustomers.js";var m=function(o,e,t,i){var n=arguments.length,r=n<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,i);else for(var s=o.length-1;s>=0;s--)(a=o[s])&&(r=(n<3?a(r):n>3?a(e,t,r):a(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},l=function(o,e){return function(t,i){e(t,i,o)}};let f=class extends p{constructor(e,t){super(),this._aiRelatedInformationService=t,this._registrations=this._register(new c),this._proxy=e.getProxy(R.ExtHostAiRelatedInformation)}$getAiRelatedInformation(e,t){return this._aiRelatedInformationService.getRelatedInformation(e,t,d.None)}$registerAiRelatedInformationProvider(e,t){const i={provideAiRelatedInformation:(n,r)=>this._proxy.$provideAiRelatedInformation(e,n,r)};this._registrations.set(e,this._aiRelatedInformationService.registerAiRelatedInformationProvider(t,i))}$unregisterAiRelatedInformationProvider(e){this._registrations.deleteAndDispose(e)}};f=m([I(h.MainThreadAiRelatedInformation),l(1,_)],f);export{f as MainThreadAiRelatedInformation};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IAiRelatedInformationService } from "../../services/aiRelatedInformation/common/aiRelatedInformation.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let MainThreadAiRelatedInformation = class MainThreadAiRelatedInformation2 extends Disposable {
+  static {
+    __name(this, "MainThreadAiRelatedInformation");
+  }
+  constructor(context, _aiRelatedInformationService) {
+    super();
+    this._aiRelatedInformationService = _aiRelatedInformationService;
+    this._registrations = this._register(new DisposableMap());
+    this._proxy = context.getProxy(ExtHostContext.ExtHostAiRelatedInformation);
+  }
+  $getAiRelatedInformation(query, types) {
+    return this._aiRelatedInformationService.getRelatedInformation(query, types, CancellationToken.None);
+  }
+  $registerAiRelatedInformationProvider(handle, type) {
+    const provider = {
+      provideAiRelatedInformation: /* @__PURE__ */ __name((query, token) => {
+        return this._proxy.$provideAiRelatedInformation(handle, query, token);
+      }, "provideAiRelatedInformation")
+    };
+    this._registrations.set(handle, this._aiRelatedInformationService.registerAiRelatedInformationProvider(type, provider));
+  }
+  $unregisterAiRelatedInformationProvider(handle) {
+    this._registrations.deleteAndDispose(handle);
+  }
+};
+MainThreadAiRelatedInformation = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadAiRelatedInformation),
+  __param(1, IAiRelatedInformationService)
+], MainThreadAiRelatedInformation);
+export {
+  MainThreadAiRelatedInformation
+};
+//# sourceMappingURL=mainThreadAiRelatedInformation.js.map

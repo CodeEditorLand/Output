@@ -1,1 +1,41 @@
-import{Disposable as u}from"../../../../../base/common/lifecycle.js";import{IInstantiationService as m}from"../../../../../platform/instantiation/common/instantiation.js";import{ILanguageModelToolsService as h}from"../../common/languageModelToolsService.js";import{EditTool as _,EditToolData as c}from"./editFileTool.js";var p=function(r,t,e,o){var n=arguments.length,i=n<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,e):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,t,e,o);else for(var a=r.length-1;a>=0;a--)(l=r[a])&&(i=(n<3?l(i):n>3?l(t,e,i):l(t,e))||i);return n>3&&i&&Object.defineProperty(t,e,i),i},s=function(r,t){return function(e,o){t(e,o,r)}};let f=class extends u{static{this.ID="chat.builtinTools"}constructor(t,e){super();const o=e.createInstance(_);this._register(t.registerToolData(c)),this._register(t.registerToolImplementation(c.id,o))}};f=p([s(0,h),s(1,m)],f);const v="vscode_fetchWebPage_internal";export{f as BuiltinToolsContribution,v as InternalFetchWebPageToolId};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { ILanguageModelToolsService } from "../../common/languageModelToolsService.js";
+import { EditTool, EditToolData } from "./editFileTool.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let BuiltinToolsContribution = class BuiltinToolsContribution2 extends Disposable {
+  static {
+    __name(this, "BuiltinToolsContribution");
+  }
+  static {
+    this.ID = "chat.builtinTools";
+  }
+  constructor(toolsService, instantiationService) {
+    super();
+    const editTool = instantiationService.createInstance(EditTool);
+    this._register(toolsService.registerToolData(EditToolData));
+    this._register(toolsService.registerToolImplementation(EditToolData.id, editTool));
+  }
+};
+BuiltinToolsContribution = __decorate([
+  __param(0, ILanguageModelToolsService),
+  __param(1, IInstantiationService)
+], BuiltinToolsContribution);
+const InternalFetchWebPageToolId = "vscode_fetchWebPage_internal";
+export {
+  BuiltinToolsContribution,
+  InternalFetchWebPageToolId
+};
+//# sourceMappingURL=tools.js.map

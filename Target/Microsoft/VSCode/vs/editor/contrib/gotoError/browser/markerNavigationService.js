@@ -1,1 +1,226 @@
-import{binarySearch2 as S,equals as I}from"../../../../base/common/arrays.js";import{Emitter as M}from"../../../../base/common/event.js";import{DisposableStore as C,toDisposable as L}from"../../../../base/common/lifecycle.js";import{LinkedList as y}from"../../../../base/common/linkedList.js";import{compare as d}from"../../../../base/common/strings.js";import{URI as g}from"../../../../base/common/uri.js";import{Range as f}from"../../../common/core/range.js";import{registerSingleton as N}from"../../../../platform/instantiation/common/extensions.js";import{createDecorator as P}from"../../../../platform/instantiation/common/instantiation.js";import{IMarkerService as p,MarkerSeverity as _}from"../../../../platform/markers/common/markers.js";import{IConfigurationService as v}from"../../../../platform/configuration/common/configuration.js";import{isEqual as D}from"../../../../base/common/resources.js";var k=function(m,e,r,t){var n=arguments.length,o=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(m,e,r,t);else for(var s=m.length-1;s>=0;s--)(h=m[s])&&(o=(n<3?h(o):n>3?h(e,r,o):h(e,r))||o);return n>3&&o&&Object.defineProperty(e,r,o),o},c=function(m,e){return function(r,t){e(r,t,m)}};class x{constructor(e,r,t){this.marker=e,this.index=r,this.total=t}}let l=class{constructor(e,r,t){this._markerService=r,this._configService=t,this._onDidChange=new M,this.onDidChange=this._onDidChange.event,this._dispoables=new C,this._markers=[],this._nextIdx=-1,g.isUri(e)?this._resourceFilter=s=>s.toString()===e.toString():e&&(this._resourceFilter=e);const n=this._configService.getValue("problems.sortOrder"),o=(s,i)=>{let a=d(s.resource.toString(),i.resource.toString());return a===0&&(n==="position"?a=f.compareRangesUsingStarts(s,i)||_.compare(s.severity,i.severity):a=_.compare(s.severity,i.severity)||f.compareRangesUsingStarts(s,i)),a},h=()=>{let s=this._markerService.read({resource:g.isUri(e)?e:void 0,severities:_.Error|_.Warning|_.Info});return typeof e=="function"&&(s=s.filter(i=>this._resourceFilter(i.resource))),s.sort(o),I(s,this._markers,(i,a)=>i.resource.toString()===a.resource.toString()&&i.startLineNumber===a.startLineNumber&&i.startColumn===a.startColumn&&i.endLineNumber===a.endLineNumber&&i.endColumn===a.endColumn&&i.severity===a.severity&&i.message===a.message)?!1:(this._markers=s,!0)};h(),this._dispoables.add(r.onMarkerChanged(s=>{(!this._resourceFilter||s.some(i=>this._resourceFilter(i)))&&h()&&(this._nextIdx=-1,this._onDidChange.fire())}))}dispose(){this._dispoables.dispose(),this._onDidChange.dispose()}matches(e){return!this._resourceFilter&&!e?!0:!this._resourceFilter||!e?!1:this._resourceFilter(e)}get selected(){const e=this._markers[this._nextIdx];return e&&new x(e,this._nextIdx+1,this._markers.length)}_initIdx(e,r,t){let n=this._markers.findIndex(o=>D(o.resource,e.uri));if(n<0)n=S(this._markers.length,o=>d(this._markers[o].resource.toString(),e.uri.toString())),n<0&&(n=~n),t?this._nextIdx=n:this._nextIdx=(this._markers.length+n-1)%this._markers.length;else{let o=!1,h=!1;for(let s=n;s<this._markers.length;s++){let i=f.lift(this._markers[s]);if(i.isEmpty()){const a=e.getWordAtPosition(i.getStartPosition());a&&(i=new f(i.startLineNumber,a.startColumn,i.startLineNumber,a.endColumn))}if(r&&(i.containsPosition(r)||r.isBeforeOrEqual(i.getStartPosition()))){this._nextIdx=s,o=!0,h=!i.containsPosition(r);break}if(this._markers[s].resource.toString()!==e.uri.toString())break}o?h&&!t&&(this._nextIdx-=1):this._nextIdx=t?0:this._markers.length-1}this._nextIdx<0&&(this._nextIdx=this._markers.length-1)}resetIndex(){this._nextIdx=-1}move(e,r,t){if(this._markers.length===0)return!1;const n=this._nextIdx;return this._nextIdx===-1?this._initIdx(r,t,e):e?this._nextIdx=(this._nextIdx+1)%this._markers.length:e||(this._nextIdx=(this._nextIdx-1+this._markers.length)%this._markers.length),n!==this._nextIdx}find(e,r){let t=this._markers.findIndex(n=>n.resource.toString()===e.toString());if(!(t<0)){for(;t<this._markers.length;t++)if(f.containsPosition(this._markers[t],r))return new x(this._markers[t],t+1,this._markers.length)}}};l=k([c(1,p),c(2,v)],l);const b=P("IMarkerNavigationService");let u=class{constructor(e,r){this._markerService=e,this._configService=r,this._provider=new y}registerProvider(e){const r=this._provider.unshift(e);return L(()=>r())}getMarkerList(e){for(const r of this._provider){const t=r.getMarkerList(e);if(t)return t}return new l(e,this._markerService,this._configService)}};u=k([c(0,p),c(1,v)],u);N(b,u,1);export{b as IMarkerNavigationService,x as MarkerCoordinate,l as MarkerList};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { binarySearch2, equals } from "../../../../base/common/arrays.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
+import { compare } from "../../../../base/common/strings.js";
+import { URI } from "../../../../base/common/uri.js";
+import { Range } from "../../../common/core/range.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { IMarkerService, MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { isEqual } from "../../../../base/common/resources.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+class MarkerCoordinate {
+  static {
+    __name(this, "MarkerCoordinate");
+  }
+  constructor(marker, index, total) {
+    this.marker = marker;
+    this.index = index;
+    this.total = total;
+  }
+}
+let MarkerList = class MarkerList2 {
+  static {
+    __name(this, "MarkerList");
+  }
+  constructor(resourceFilter, _markerService, _configService) {
+    this._markerService = _markerService;
+    this._configService = _configService;
+    this._onDidChange = new Emitter();
+    this.onDidChange = this._onDidChange.event;
+    this._dispoables = new DisposableStore();
+    this._markers = [];
+    this._nextIdx = -1;
+    if (URI.isUri(resourceFilter)) {
+      this._resourceFilter = (uri) => uri.toString() === resourceFilter.toString();
+    } else if (resourceFilter) {
+      this._resourceFilter = resourceFilter;
+    }
+    const compareOrder = this._configService.getValue("problems.sortOrder");
+    const compareMarker = /* @__PURE__ */ __name((a, b) => {
+      let res = compare(a.resource.toString(), b.resource.toString());
+      if (res === 0) {
+        if (compareOrder === "position") {
+          res = Range.compareRangesUsingStarts(a, b) || MarkerSeverity.compare(a.severity, b.severity);
+        } else {
+          res = MarkerSeverity.compare(a.severity, b.severity) || Range.compareRangesUsingStarts(a, b);
+        }
+      }
+      return res;
+    }, "compareMarker");
+    const updateMarker = /* @__PURE__ */ __name(() => {
+      let newMarkers = this._markerService.read({
+        resource: URI.isUri(resourceFilter) ? resourceFilter : void 0,
+        severities: MarkerSeverity.Error | MarkerSeverity.Warning | MarkerSeverity.Info
+      });
+      if (typeof resourceFilter === "function") {
+        newMarkers = newMarkers.filter((m) => this._resourceFilter(m.resource));
+      }
+      newMarkers.sort(compareMarker);
+      if (equals(newMarkers, this._markers, (a, b) => a.resource.toString() === b.resource.toString() && a.startLineNumber === b.startLineNumber && a.startColumn === b.startColumn && a.endLineNumber === b.endLineNumber && a.endColumn === b.endColumn && a.severity === b.severity && a.message === b.message)) {
+        return false;
+      }
+      this._markers = newMarkers;
+      return true;
+    }, "updateMarker");
+    updateMarker();
+    this._dispoables.add(_markerService.onMarkerChanged((uris) => {
+      if (!this._resourceFilter || uris.some((uri) => this._resourceFilter(uri))) {
+        if (updateMarker()) {
+          this._nextIdx = -1;
+          this._onDidChange.fire();
+        }
+      }
+    }));
+  }
+  dispose() {
+    this._dispoables.dispose();
+    this._onDidChange.dispose();
+  }
+  matches(uri) {
+    if (!this._resourceFilter && !uri) {
+      return true;
+    }
+    if (!this._resourceFilter || !uri) {
+      return false;
+    }
+    return this._resourceFilter(uri);
+  }
+  get selected() {
+    const marker = this._markers[this._nextIdx];
+    return marker && new MarkerCoordinate(marker, this._nextIdx + 1, this._markers.length);
+  }
+  _initIdx(model, position, fwd) {
+    let idx = this._markers.findIndex((marker) => isEqual(marker.resource, model.uri));
+    if (idx < 0) {
+      idx = binarySearch2(this._markers.length, (idx2) => compare(this._markers[idx2].resource.toString(), model.uri.toString()));
+      if (idx < 0) {
+        idx = ~idx;
+      }
+      if (fwd) {
+        this._nextIdx = idx;
+      } else {
+        this._nextIdx = (this._markers.length + idx - 1) % this._markers.length;
+      }
+    } else {
+      let found = false;
+      let wentPast = false;
+      for (let i = idx; i < this._markers.length; i++) {
+        let range = Range.lift(this._markers[i]);
+        if (range.isEmpty()) {
+          const word = model.getWordAtPosition(range.getStartPosition());
+          if (word) {
+            range = new Range(range.startLineNumber, word.startColumn, range.startLineNumber, word.endColumn);
+          }
+        }
+        if (position && (range.containsPosition(position) || position.isBeforeOrEqual(range.getStartPosition()))) {
+          this._nextIdx = i;
+          found = true;
+          wentPast = !range.containsPosition(position);
+          break;
+        }
+        if (this._markers[i].resource.toString() !== model.uri.toString()) {
+          break;
+        }
+      }
+      if (!found) {
+        this._nextIdx = fwd ? 0 : this._markers.length - 1;
+      } else if (wentPast && !fwd) {
+        this._nextIdx -= 1;
+      }
+    }
+    if (this._nextIdx < 0) {
+      this._nextIdx = this._markers.length - 1;
+    }
+  }
+  resetIndex() {
+    this._nextIdx = -1;
+  }
+  move(fwd, model, position) {
+    if (this._markers.length === 0) {
+      return false;
+    }
+    const oldIdx = this._nextIdx;
+    if (this._nextIdx === -1) {
+      this._initIdx(model, position, fwd);
+    } else if (fwd) {
+      this._nextIdx = (this._nextIdx + 1) % this._markers.length;
+    } else if (!fwd) {
+      this._nextIdx = (this._nextIdx - 1 + this._markers.length) % this._markers.length;
+    }
+    if (oldIdx !== this._nextIdx) {
+      return true;
+    }
+    return false;
+  }
+  find(uri, position) {
+    let idx = this._markers.findIndex((marker) => marker.resource.toString() === uri.toString());
+    if (idx < 0) {
+      return void 0;
+    }
+    for (; idx < this._markers.length; idx++) {
+      if (Range.containsPosition(this._markers[idx], position)) {
+        return new MarkerCoordinate(this._markers[idx], idx + 1, this._markers.length);
+      }
+    }
+    return void 0;
+  }
+};
+MarkerList = __decorate([
+  __param(1, IMarkerService),
+  __param(2, IConfigurationService)
+], MarkerList);
+const IMarkerNavigationService = createDecorator("IMarkerNavigationService");
+let MarkerNavigationService = class MarkerNavigationService2 {
+  static {
+    __name(this, "MarkerNavigationService");
+  }
+  constructor(_markerService, _configService) {
+    this._markerService = _markerService;
+    this._configService = _configService;
+    this._provider = new LinkedList();
+  }
+  registerProvider(provider) {
+    const remove = this._provider.unshift(provider);
+    return toDisposable(() => remove());
+  }
+  getMarkerList(resource) {
+    for (const provider of this._provider) {
+      const result = provider.getMarkerList(resource);
+      if (result) {
+        return result;
+      }
+    }
+    return new MarkerList(resource, this._markerService, this._configService);
+  }
+};
+MarkerNavigationService = __decorate([
+  __param(0, IMarkerService),
+  __param(1, IConfigurationService)
+], MarkerNavigationService);
+registerSingleton(
+  IMarkerNavigationService,
+  MarkerNavigationService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  IMarkerNavigationService,
+  MarkerCoordinate,
+  MarkerList
+};
+//# sourceMappingURL=markerNavigationService.js.map

@@ -1,1 +1,318 @@
-import{isThenable as P}from"../../../../base/common/async.js";import{CancellationTokenSource as b}from"../../../../base/common/cancellation.js";import{toErrorMessage as F}from"../../../../base/common/errorMessage.js";import{Schemas as C}from"../../../../base/common/network.js";import*as _ from"../../../../base/common/path.js";import*as S from"../../../../base/common/resources.js";import{URI as v}from"../../../../base/common/uri.js";import{FolderQuerySearchTree as w}from"./folderQuerySearchTree.js";import{DEFAULT_MAX_SEARCH_RESULTS as I,hasSiblingPromiseFn as M,excludeToGlobPattern as E,QueryGlobTester as q,resolvePatternsForProvider as y,DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS as z}from"./search.js";import{TextSearchMatch2 as m,AISearchKeyword as R}from"./searchExtTypes.js";class D{constructor(e,t,n){this.queryProviderPair=e,this.fileUtils=t,this.processType=n,this.collector=null,this.isLimitHit=!1,this.resultCount=0}get query(){return this.queryProviderPair.query}search(e,t,n){const l=this.query.folderQueries||[],h=new b(t);return new Promise((a,f)=>{this.collector=new U(e);let g=!1;const u=(i,r)=>{if(!(i instanceof R)&&!g&&!this.isLimitHit){const o=this.resultSize(i);i instanceof m&&typeof this.query.maxResults=="number"&&this.resultCount+o>this.query.maxResults&&(this.isLimitHit=!0,g=!0,h.cancel(),i=this.trimResultToSize(i,this.query.maxResults-this.resultCount));const c=this.resultSize(i);this.resultCount+=c;const d=i instanceof m;(c>0||!d)&&this.collector.add(i,r)}};this.doSearch(l,u,h.token,n).then(i=>{h.dispose(),this.collector.flush(),a({limitHit:this.isLimitHit||i?.limitHit,messages:this.getMessagesFromResults(i),stats:{type:this.processType}})},i=>{h.dispose();const r=F(i);f(new Error(r))})})}getMessagesFromResults(e){return e?.message?Array.isArray(e.message)?e.message:[e.message]:[]}resultSize(e){return e instanceof m?Array.isArray(e.ranges)?e.ranges.length:1:0}trimResultToSize(e,t){return new m(e.uri,e.ranges.slice(0,t),e.previewText)}async doSearch(e,t,n,l){const h=new w(e,(r,o)=>({queryTester:new q(this.query,r),folder:r.folder,folderIdx:o}),()=>!0),a=[],f={report:r=>{if(r instanceof R)l?.(r);else{if(r.uri===void 0)throw Error("Text search result URI is undefined. Please check provider implementation.");const o=h.findQueryFragmentAwareSubstr(r.uri),c=o.folder.scheme===C.file?M(()=>this.fileUtils.readdir(S.dirname(r.uri))):void 0,d=S.relativePath(o.folder,r.uri);if(d){const T=o.queryTester.includedInQuery(d,_.basename(d),c);P(T)?a.push(T.then(x=>{x&&t(r,o.folderIdx)})):T&&t(r,o.folderIdx)}}}},u={folderOptions:e.map(r=>this.getSearchOptionsForFolder(r)),maxFileSize:this.query.maxFileSize,maxResults:this.query.maxResults??I,previewOptions:this.query.previewOptions??z,surroundingContext:this.query.surroundingContext??0};"usePCRE2"in this.query&&(u.usePCRE2=this.query.usePCRE2);let i;return this.queryProviderPair.query.type===3?i=await this.queryProviderPair.provider.provideAITextSearchResults(this.queryProviderPair.query.contentPattern,u,f,n):i=await this.queryProviderPair.provider.provideTextSearchResults(A(this.queryProviderPair.query.contentPattern),u,f,n),a.length&&await Promise.all(a),i}getSearchOptionsForFolder(e){const t=y(this.query.includePattern,e.includePattern);let n=e.excludePattern?.map(a=>({folder:a.folder,patterns:y(this.query.excludePattern,a.pattern)}));(!n||n.length===0)&&(n=[{folder:void 0,patterns:y(this.query.excludePattern,void 0)}]);const l=E(n);return{folder:v.from(e.folder),excludes:l,includes:t,useIgnoreFiles:{local:!e.disregardIgnoreFiles,parent:!e.disregardParentIgnoreFiles,global:!e.disregardGlobalIgnoreFiles},followSymlinks:!e.ignoreSymlinks,encoding:(e.fileEncoding&&this.fileUtils.toCanonicalName(e.fileEncoding))??""}}}function A(s){return{isCaseSensitive:s.isCaseSensitive||!1,isRegExp:s.isRegExp||!1,isWordMatch:s.isWordMatch||!1,isMultiline:s.isMultiline||!1,pattern:s.pattern}}class U{constructor(e){this._onResult=e,this._currentFolderIdx=-1,this._currentFileMatch=null,this._batchedCollector=new p(512,t=>this.sendItems(t))}add(e,t){this._currentFileMatch&&(this._currentFolderIdx!==t||!S.isEqual(this._currentUri,e.uri))&&(this.pushToCollector(),this._currentFileMatch=null),this._currentFileMatch||(this._currentFolderIdx=t,this._currentFileMatch={resource:e.uri,results:[]}),this._currentFileMatch.results.push(H(e))}pushToCollector(){const e=this._currentFileMatch&&this._currentFileMatch.results?this._currentFileMatch.results.length:0;this._batchedCollector.addItem(this._currentFileMatch,e)}flush(){this.pushToCollector(),this._batchedCollector.flush()}sendItems(e){this._onResult(e)}}function H(s){return s instanceof m?{previewText:s.previewText,rangeLocations:s.ranges.map(e=>({preview:{startLineNumber:e.previewRange.start.line,startColumn:e.previewRange.start.character,endLineNumber:e.previewRange.end.line,endColumn:e.previewRange.end.character},source:{startLineNumber:e.sourceRange.start.line,startColumn:e.sourceRange.start.character,endLineNumber:e.sourceRange.end.line,endColumn:e.sourceRange.end.character}}))}:{text:s.text,lineNumber:s.lineNumber}}class p{static{this.TIMEOUT=4e3}static{this.START_BATCH_AFTER_COUNT=50}constructor(e,t){this.maxBatchSize=e,this.cb=t,this.totalNumberCompleted=0,this.batch=[],this.batchSize=0}addItem(e,t){e&&this.addItemToBatch(e,t)}addItems(e,t){e&&this.addItemsToBatch(e,t)}addItemToBatch(e,t){this.batch.push(e),this.batchSize+=t,this.onUpdate()}addItemsToBatch(e,t){this.batch=this.batch.concat(e),this.batchSize+=t,this.onUpdate()}onUpdate(){this.totalNumberCompleted<p.START_BATCH_AFTER_COUNT?this.flush():this.batchSize>=this.maxBatchSize?this.flush():this.timeoutHandle||(this.timeoutHandle=setTimeout(()=>{this.flush()},p.TIMEOUT))}flush(){this.batchSize&&(this.totalNumberCompleted+=this.batchSize,this.cb(this.batch),this.batch=[],this.batchSize=0,this.timeoutHandle&&(clearTimeout(this.timeoutHandle),this.timeoutHandle=0))}}export{p as BatchedCollector,D as TextSearchManager,U as TextSearchResultsCollector};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isThenable } from "../../../../base/common/async.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { Schemas } from "../../../../base/common/network.js";
+import * as path from "../../../../base/common/path.js";
+import * as resources from "../../../../base/common/resources.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FolderQuerySearchTree } from "./folderQuerySearchTree.js";
+import { DEFAULT_MAX_SEARCH_RESULTS, hasSiblingPromiseFn, excludeToGlobPattern, QueryGlobTester, resolvePatternsForProvider, DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS } from "./search.js";
+import { TextSearchMatch2, AISearchKeyword } from "./searchExtTypes.js";
+class TextSearchManager {
+  static {
+    __name(this, "TextSearchManager");
+  }
+  constructor(queryProviderPair, fileUtils, processType) {
+    this.queryProviderPair = queryProviderPair;
+    this.fileUtils = fileUtils;
+    this.processType = processType;
+    this.collector = null;
+    this.isLimitHit = false;
+    this.resultCount = 0;
+  }
+  get query() {
+    return this.queryProviderPair.query;
+  }
+  search(onProgress, token, onKeywordResult) {
+    const folderQueries = this.query.folderQueries || [];
+    const tokenSource = new CancellationTokenSource(token);
+    return new Promise((resolve, reject) => {
+      this.collector = new TextSearchResultsCollector(onProgress);
+      let isCanceled = false;
+      const onResult = /* @__PURE__ */ __name((result, folderIdx) => {
+        if (result instanceof AISearchKeyword) {
+          return;
+        }
+        if (isCanceled) {
+          return;
+        }
+        if (!this.isLimitHit) {
+          const resultSize = this.resultSize(result);
+          if (result instanceof TextSearchMatch2 && typeof this.query.maxResults === "number" && this.resultCount + resultSize > this.query.maxResults) {
+            this.isLimitHit = true;
+            isCanceled = true;
+            tokenSource.cancel();
+            result = this.trimResultToSize(result, this.query.maxResults - this.resultCount);
+          }
+          const newResultSize = this.resultSize(result);
+          this.resultCount += newResultSize;
+          const a = result instanceof TextSearchMatch2;
+          if (newResultSize > 0 || !a) {
+            this.collector.add(result, folderIdx);
+          }
+        }
+      }, "onResult");
+      this.doSearch(folderQueries, onResult, tokenSource.token, onKeywordResult).then((result) => {
+        tokenSource.dispose();
+        this.collector.flush();
+        resolve({
+          limitHit: this.isLimitHit || result?.limitHit,
+          messages: this.getMessagesFromResults(result),
+          stats: {
+            type: this.processType
+          }
+        });
+      }, (err) => {
+        tokenSource.dispose();
+        const errMsg = toErrorMessage(err);
+        reject(new Error(errMsg));
+      });
+    });
+  }
+  getMessagesFromResults(result) {
+    if (!result?.message) {
+      return [];
+    }
+    if (Array.isArray(result.message)) {
+      return result.message;
+    }
+    return [result.message];
+  }
+  resultSize(result) {
+    if (result instanceof TextSearchMatch2) {
+      return Array.isArray(result.ranges) ? result.ranges.length : 1;
+    } else {
+      return 0;
+    }
+  }
+  trimResultToSize(result, size) {
+    return new TextSearchMatch2(result.uri, result.ranges.slice(0, size), result.previewText);
+  }
+  async doSearch(folderQueries, onResult, token, onKeywordResult) {
+    const folderMappings = new FolderQuerySearchTree(folderQueries, (fq, i) => {
+      const queryTester = new QueryGlobTester(this.query, fq);
+      return { queryTester, folder: fq.folder, folderIdx: i };
+    }, () => true);
+    const testingPs = [];
+    const progress = {
+      report: /* @__PURE__ */ __name((result2) => {
+        if (result2 instanceof AISearchKeyword) {
+          onKeywordResult?.(result2);
+        } else {
+          if (result2.uri === void 0) {
+            throw Error("Text search result URI is undefined. Please check provider implementation.");
+          }
+          const folderQuery = folderMappings.findQueryFragmentAwareSubstr(result2.uri);
+          const hasSibling = folderQuery.folder.scheme === Schemas.file ? hasSiblingPromiseFn(() => {
+            return this.fileUtils.readdir(resources.dirname(result2.uri));
+          }) : void 0;
+          const relativePath = resources.relativePath(folderQuery.folder, result2.uri);
+          if (relativePath) {
+            const included = folderQuery.queryTester.includedInQuery(relativePath, path.basename(relativePath), hasSibling);
+            if (isThenable(included)) {
+              testingPs.push(included.then((isIncluded) => {
+                if (isIncluded) {
+                  onResult(result2, folderQuery.folderIdx);
+                }
+              }));
+            } else if (included) {
+              onResult(result2, folderQuery.folderIdx);
+            }
+          }
+        }
+      }, "report")
+    };
+    const folderOptions = folderQueries.map((fq) => this.getSearchOptionsForFolder(fq));
+    const searchOptions = {
+      folderOptions,
+      maxFileSize: this.query.maxFileSize,
+      maxResults: this.query.maxResults ?? DEFAULT_MAX_SEARCH_RESULTS,
+      previewOptions: this.query.previewOptions ?? DEFAULT_TEXT_SEARCH_PREVIEW_OPTIONS,
+      surroundingContext: this.query.surroundingContext ?? 0
+    };
+    if ("usePCRE2" in this.query) {
+      searchOptions.usePCRE2 = this.query.usePCRE2;
+    }
+    let result;
+    if (this.queryProviderPair.query.type === 3) {
+      result = await this.queryProviderPair.provider.provideAITextSearchResults(this.queryProviderPair.query.contentPattern, searchOptions, progress, token);
+    } else {
+      result = await this.queryProviderPair.provider.provideTextSearchResults(patternInfoToQuery(this.queryProviderPair.query.contentPattern), searchOptions, progress, token);
+    }
+    if (testingPs.length) {
+      await Promise.all(testingPs);
+    }
+    return result;
+  }
+  getSearchOptionsForFolder(fq) {
+    const includes = resolvePatternsForProvider(this.query.includePattern, fq.includePattern);
+    let excludePattern = fq.excludePattern?.map((e) => ({
+      folder: e.folder,
+      patterns: resolvePatternsForProvider(this.query.excludePattern, e.pattern)
+    }));
+    if (!excludePattern || excludePattern.length === 0) {
+      excludePattern = [{
+        folder: void 0,
+        patterns: resolvePatternsForProvider(this.query.excludePattern, void 0)
+      }];
+    }
+    const excludes = excludeToGlobPattern(excludePattern);
+    const options = {
+      folder: URI.from(fq.folder),
+      excludes,
+      includes,
+      useIgnoreFiles: {
+        local: !fq.disregardIgnoreFiles,
+        parent: !fq.disregardParentIgnoreFiles,
+        global: !fq.disregardGlobalIgnoreFiles
+      },
+      followSymlinks: !fq.ignoreSymlinks,
+      encoding: (fq.fileEncoding && this.fileUtils.toCanonicalName(fq.fileEncoding)) ?? ""
+    };
+    return options;
+  }
+}
+function patternInfoToQuery(patternInfo) {
+  return {
+    isCaseSensitive: patternInfo.isCaseSensitive || false,
+    isRegExp: patternInfo.isRegExp || false,
+    isWordMatch: patternInfo.isWordMatch || false,
+    isMultiline: patternInfo.isMultiline || false,
+    pattern: patternInfo.pattern
+  };
+}
+__name(patternInfoToQuery, "patternInfoToQuery");
+class TextSearchResultsCollector {
+  static {
+    __name(this, "TextSearchResultsCollector");
+  }
+  constructor(_onResult) {
+    this._onResult = _onResult;
+    this._currentFolderIdx = -1;
+    this._currentFileMatch = null;
+    this._batchedCollector = new BatchedCollector(512, (items) => this.sendItems(items));
+  }
+  add(data, folderIdx) {
+    if (this._currentFileMatch && (this._currentFolderIdx !== folderIdx || !resources.isEqual(this._currentUri, data.uri))) {
+      this.pushToCollector();
+      this._currentFileMatch = null;
+    }
+    if (!this._currentFileMatch) {
+      this._currentFolderIdx = folderIdx;
+      this._currentFileMatch = {
+        resource: data.uri,
+        results: []
+      };
+    }
+    this._currentFileMatch.results.push(extensionResultToFrontendResult(data));
+  }
+  pushToCollector() {
+    const size = this._currentFileMatch && this._currentFileMatch.results ? this._currentFileMatch.results.length : 0;
+    this._batchedCollector.addItem(this._currentFileMatch, size);
+  }
+  flush() {
+    this.pushToCollector();
+    this._batchedCollector.flush();
+  }
+  sendItems(items) {
+    this._onResult(items);
+  }
+}
+function extensionResultToFrontendResult(data) {
+  if (data instanceof TextSearchMatch2) {
+    return {
+      previewText: data.previewText,
+      rangeLocations: data.ranges.map((r) => ({
+        preview: {
+          startLineNumber: r.previewRange.start.line,
+          startColumn: r.previewRange.start.character,
+          endLineNumber: r.previewRange.end.line,
+          endColumn: r.previewRange.end.character
+        },
+        source: {
+          startLineNumber: r.sourceRange.start.line,
+          startColumn: r.sourceRange.start.character,
+          endLineNumber: r.sourceRange.end.line,
+          endColumn: r.sourceRange.end.character
+        }
+      }))
+    };
+  } else {
+    return {
+      text: data.text,
+      lineNumber: data.lineNumber
+    };
+  }
+}
+__name(extensionResultToFrontendResult, "extensionResultToFrontendResult");
+class BatchedCollector {
+  static {
+    __name(this, "BatchedCollector");
+  }
+  static {
+    this.TIMEOUT = 4e3;
+  }
+  static {
+    this.START_BATCH_AFTER_COUNT = 50;
+  }
+  constructor(maxBatchSize, cb) {
+    this.maxBatchSize = maxBatchSize;
+    this.cb = cb;
+    this.totalNumberCompleted = 0;
+    this.batch = [];
+    this.batchSize = 0;
+  }
+  addItem(item, size) {
+    if (!item) {
+      return;
+    }
+    this.addItemToBatch(item, size);
+  }
+  addItems(items, size) {
+    if (!items) {
+      return;
+    }
+    this.addItemsToBatch(items, size);
+  }
+  addItemToBatch(item, size) {
+    this.batch.push(item);
+    this.batchSize += size;
+    this.onUpdate();
+  }
+  addItemsToBatch(item, size) {
+    this.batch = this.batch.concat(item);
+    this.batchSize += size;
+    this.onUpdate();
+  }
+  onUpdate() {
+    if (this.totalNumberCompleted < BatchedCollector.START_BATCH_AFTER_COUNT) {
+      this.flush();
+    } else if (this.batchSize >= this.maxBatchSize) {
+      this.flush();
+    } else if (!this.timeoutHandle) {
+      this.timeoutHandle = setTimeout(() => {
+        this.flush();
+      }, BatchedCollector.TIMEOUT);
+    }
+  }
+  flush() {
+    if (this.batchSize) {
+      this.totalNumberCompleted += this.batchSize;
+      this.cb(this.batch);
+      this.batch = [];
+      this.batchSize = 0;
+      if (this.timeoutHandle) {
+        clearTimeout(this.timeoutHandle);
+        this.timeoutHandle = 0;
+      }
+    }
+  }
+}
+export {
+  BatchedCollector,
+  TextSearchManager,
+  TextSearchResultsCollector
+};
+//# sourceMappingURL=textSearchManager.js.map

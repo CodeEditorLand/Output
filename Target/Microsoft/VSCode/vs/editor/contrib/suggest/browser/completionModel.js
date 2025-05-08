@@ -1,1 +1,190 @@
-import{quickSelect as g}from"../../../../base/common/arrays.js";import{anyScore as S,fuzzyScore as I,FuzzyScore as C,fuzzyScoreGracefulAggressive as w,FuzzyScoreOptions as L}from"../../../../base/common/filters.js";import{compareIgnoreCase as y}from"../../../../base/common/strings.js";class k{constructor(t,i){this.leadingLineContent=t,this.characterCountDelta=i}}var x;(function(s){s[s.Nothing=0]="Nothing",s[s.All=1]="All",s[s.Incr=2]="Incr"})(x||(x={}));class p{constructor(t,i,c,n,l,a,d=L.default,f=void 0){this.clipboardText=f,this._snippetCompareFn=p._compareCompletionItems,this._items=t,this._column=i,this._wordDistance=n,this._options=l,this._refilterKind=1,this._lineContext=c,this._fuzzyScoreOptions=d,a==="top"?this._snippetCompareFn=p._compareCompletionItemsSnippetsUp:a==="bottom"&&(this._snippetCompareFn=p._compareCompletionItemsSnippetsDown)}get lineContext(){return this._lineContext}set lineContext(t){(this._lineContext.leadingLineContent!==t.leadingLineContent||this._lineContext.characterCountDelta!==t.characterCountDelta)&&(this._refilterKind=this._lineContext.characterCountDelta<t.characterCountDelta&&this._filteredItems?2:1,this._lineContext=t)}get items(){return this._ensureCachedState(),this._filteredItems}getItemsByProvider(){return this._ensureCachedState(),this._itemsByProvider}getIncompleteProvider(){this._ensureCachedState();const t=new Set;for(const[i,c]of this.getItemsByProvider())c.length>0&&c[0].container.incomplete&&t.add(i);return t}get stats(){return this._ensureCachedState(),this._stats}_ensureCachedState(){this._refilterKind!==0&&this._createCachedState()}_createCachedState(){this._itemsByProvider=new Map;const t=[],{leadingLineContent:i,characterCountDelta:c}=this._lineContext;let n="",l="";const a=this._refilterKind===1?this._items:this._filteredItems,d=[],f=!this._options.filterGraceful||a.length>2e3?I:w;for(let h=0;h<a.length;h++){const e=a[h];if(e.isInvalid)continue;const u=this._itemsByProvider.get(e.provider);u?u.push(e):this._itemsByProvider.set(e.provider,[e]);const _=e.position.column-e.editStart.column,m=_+c-(e.position.column-this._column);if(n.length!==m&&(n=m===0?"":i.slice(-m),l=n.toLowerCase()),e.word=n,m===0)e.score=C.Default;else{let r=0;for(;r<_;){const o=n.charCodeAt(r);if(o===32||o===9)r+=1;else break}if(r>=m)e.score=C.Default;else if(typeof e.completion.filterText=="string"){const o=f(n,l,r,e.completion.filterText,e.filterTextLow,0,this._fuzzyScoreOptions);if(!o)continue;y(e.completion.filterText,e.textLabel)===0?e.score=o:(e.score=S(n,l,r,e.textLabel,e.labelLow,0),e.score[0]=o[0])}else{const o=f(n,l,r,e.textLabel,e.labelLow,0,this._fuzzyScoreOptions);if(!o)continue;e.score=o}}e.idx=h,e.distance=this._wordDistance.distance(e.position,e.completion),d.push(e),t.push(e.textLabel.length)}this._filteredItems=d.sort(this._snippetCompareFn),this._refilterKind=0,this._stats={pLabelLen:t.length?g(t.length-.85,t,(h,e)=>h-e):0}}static _compareCompletionItems(t,i){return t.score[0]>i.score[0]?-1:t.score[0]<i.score[0]?1:t.distance<i.distance?-1:t.distance>i.distance?1:t.idx<i.idx?-1:t.idx>i.idx?1:0}static _compareCompletionItemsSnippetsDown(t,i){if(t.completion.kind!==i.completion.kind){if(t.completion.kind===27)return 1;if(i.completion.kind===27)return-1}return p._compareCompletionItems(t,i)}static _compareCompletionItemsSnippetsUp(t,i){if(t.completion.kind!==i.completion.kind){if(t.completion.kind===27)return-1;if(i.completion.kind===27)return 1}return p._compareCompletionItems(t,i)}}export{p as CompletionModel,k as LineContext};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { quickSelect } from "../../../../base/common/arrays.js";
+import { anyScore, fuzzyScore, FuzzyScore, fuzzyScoreGracefulAggressive, FuzzyScoreOptions } from "../../../../base/common/filters.js";
+import { compareIgnoreCase } from "../../../../base/common/strings.js";
+class LineContext {
+  static {
+    __name(this, "LineContext");
+  }
+  constructor(leadingLineContent, characterCountDelta) {
+    this.leadingLineContent = leadingLineContent;
+    this.characterCountDelta = characterCountDelta;
+  }
+}
+var Refilter;
+(function(Refilter2) {
+  Refilter2[Refilter2["Nothing"] = 0] = "Nothing";
+  Refilter2[Refilter2["All"] = 1] = "All";
+  Refilter2[Refilter2["Incr"] = 2] = "Incr";
+})(Refilter || (Refilter = {}));
+class CompletionModel {
+  static {
+    __name(this, "CompletionModel");
+  }
+  constructor(items, column, lineContext, wordDistance, options, snippetSuggestions, fuzzyScoreOptions = FuzzyScoreOptions.default, clipboardText = void 0) {
+    this.clipboardText = clipboardText;
+    this._snippetCompareFn = CompletionModel._compareCompletionItems;
+    this._items = items;
+    this._column = column;
+    this._wordDistance = wordDistance;
+    this._options = options;
+    this._refilterKind = 1;
+    this._lineContext = lineContext;
+    this._fuzzyScoreOptions = fuzzyScoreOptions;
+    if (snippetSuggestions === "top") {
+      this._snippetCompareFn = CompletionModel._compareCompletionItemsSnippetsUp;
+    } else if (snippetSuggestions === "bottom") {
+      this._snippetCompareFn = CompletionModel._compareCompletionItemsSnippetsDown;
+    }
+  }
+  get lineContext() {
+    return this._lineContext;
+  }
+  set lineContext(value) {
+    if (this._lineContext.leadingLineContent !== value.leadingLineContent || this._lineContext.characterCountDelta !== value.characterCountDelta) {
+      this._refilterKind = this._lineContext.characterCountDelta < value.characterCountDelta && this._filteredItems ? 2 : 1;
+      this._lineContext = value;
+    }
+  }
+  get items() {
+    this._ensureCachedState();
+    return this._filteredItems;
+  }
+  getItemsByProvider() {
+    this._ensureCachedState();
+    return this._itemsByProvider;
+  }
+  getIncompleteProvider() {
+    this._ensureCachedState();
+    const result = /* @__PURE__ */ new Set();
+    for (const [provider, items] of this.getItemsByProvider()) {
+      if (items.length > 0 && items[0].container.incomplete) {
+        result.add(provider);
+      }
+    }
+    return result;
+  }
+  get stats() {
+    this._ensureCachedState();
+    return this._stats;
+  }
+  _ensureCachedState() {
+    if (this._refilterKind !== 0) {
+      this._createCachedState();
+    }
+  }
+  _createCachedState() {
+    this._itemsByProvider = /* @__PURE__ */ new Map();
+    const labelLengths = [];
+    const { leadingLineContent, characterCountDelta } = this._lineContext;
+    let word = "";
+    let wordLow = "";
+    const source = this._refilterKind === 1 ? this._items : this._filteredItems;
+    const target = [];
+    const scoreFn = !this._options.filterGraceful || source.length > 2e3 ? fuzzyScore : fuzzyScoreGracefulAggressive;
+    for (let i = 0; i < source.length; i++) {
+      const item = source[i];
+      if (item.isInvalid) {
+        continue;
+      }
+      const arr = this._itemsByProvider.get(item.provider);
+      if (arr) {
+        arr.push(item);
+      } else {
+        this._itemsByProvider.set(item.provider, [item]);
+      }
+      const overwriteBefore = item.position.column - item.editStart.column;
+      const wordLen = overwriteBefore + characterCountDelta - (item.position.column - this._column);
+      if (word.length !== wordLen) {
+        word = wordLen === 0 ? "" : leadingLineContent.slice(-wordLen);
+        wordLow = word.toLowerCase();
+      }
+      item.word = word;
+      if (wordLen === 0) {
+        item.score = FuzzyScore.Default;
+      } else {
+        let wordPos = 0;
+        while (wordPos < overwriteBefore) {
+          const ch = word.charCodeAt(wordPos);
+          if (ch === 32 || ch === 9) {
+            wordPos += 1;
+          } else {
+            break;
+          }
+        }
+        if (wordPos >= wordLen) {
+          item.score = FuzzyScore.Default;
+        } else if (typeof item.completion.filterText === "string") {
+          const match = scoreFn(word, wordLow, wordPos, item.completion.filterText, item.filterTextLow, 0, this._fuzzyScoreOptions);
+          if (!match) {
+            continue;
+          }
+          if (compareIgnoreCase(item.completion.filterText, item.textLabel) === 0) {
+            item.score = match;
+          } else {
+            item.score = anyScore(word, wordLow, wordPos, item.textLabel, item.labelLow, 0);
+            item.score[0] = match[0];
+          }
+        } else {
+          const match = scoreFn(word, wordLow, wordPos, item.textLabel, item.labelLow, 0, this._fuzzyScoreOptions);
+          if (!match) {
+            continue;
+          }
+          item.score = match;
+        }
+      }
+      item.idx = i;
+      item.distance = this._wordDistance.distance(item.position, item.completion);
+      target.push(item);
+      labelLengths.push(item.textLabel.length);
+    }
+    this._filteredItems = target.sort(this._snippetCompareFn);
+    this._refilterKind = 0;
+    this._stats = {
+      pLabelLen: labelLengths.length ? quickSelect(labelLengths.length - 0.85, labelLengths, (a, b) => a - b) : 0
+    };
+  }
+  static _compareCompletionItems(a, b) {
+    if (a.score[0] > b.score[0]) {
+      return -1;
+    } else if (a.score[0] < b.score[0]) {
+      return 1;
+    } else if (a.distance < b.distance) {
+      return -1;
+    } else if (a.distance > b.distance) {
+      return 1;
+    } else if (a.idx < b.idx) {
+      return -1;
+    } else if (a.idx > b.idx) {
+      return 1;
+    } else {
+      return 0;
+    }
+  }
+  static _compareCompletionItemsSnippetsDown(a, b) {
+    if (a.completion.kind !== b.completion.kind) {
+      if (a.completion.kind === 27) {
+        return 1;
+      } else if (b.completion.kind === 27) {
+        return -1;
+      }
+    }
+    return CompletionModel._compareCompletionItems(a, b);
+  }
+  static _compareCompletionItemsSnippetsUp(a, b) {
+    if (a.completion.kind !== b.completion.kind) {
+      if (a.completion.kind === 27) {
+        return -1;
+      } else if (b.completion.kind === 27) {
+        return 1;
+      }
+    }
+    return CompletionModel._compareCompletionItems(a, b);
+  }
+}
+export {
+  CompletionModel,
+  LineContext
+};
+//# sourceMappingURL=completionModel.js.map

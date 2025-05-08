@@ -1,1 +1,86 @@
-import{IPromptsService as h}from"../../../service/types.js";import{ProviderInstanceBase as g}from"./providerInstanceBase.js";import{assert as v}from"../../../../../../../../base/common/assert.js";import{NotPromptFile as u}from"../../../../promptFileReferenceErrors.js";import{assertDefined as p}from"../../../../../../../../base/common/types.js";import{ProviderInstanceManagerBase as k}from"./providerInstanceManagerBase.js";import{IMarkerService as P,MarkerSeverity as f}from"../../../../../../../../platform/markers/common/markers.js";var d=function(n,r,e,t){var i=arguments.length,o=i<3?r:t===null?t=Object.getOwnPropertyDescriptor(r,e):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,r,e,t);else for(var a=n.length-1;a>=0;a--)(s=n[a])&&(o=(i<3?s(o):i>3?s(r,e,o):s(r,e))||o);return i>3&&o&&Object.defineProperty(r,e,o),o},m=function(n,r){return function(e,t){r(e,t,n)}};const l="prompt-link-diagnostics-provider";let c=class extends g{constructor(r,e,t){super(r,e),this.markerService=t}async onPromptSettled(){await this.parser.allSettled(),this.markerService.remove(l,[this.model.uri]);const r=[];for(const e of this.parser.references){const{topError:t,linkRange:i}=e;if(!t||!i)continue;const{originalError:o}=t;o instanceof u||r.push(S(e))}return this.markerService.changeOne(l,this.model.uri,r),this}toString(){return`prompt-link-diagnostics:${this.model.uri.path}`}};c=d([m(1,h),m(2,P)],c);const S=n=>{const{topError:r,linkRange:e}=n;p(r,"Top error must to be defined."),p(e,"Link range must to be defined.");const{originalError:t}=r;v(!(t instanceof u),'Error must not be of "not prompt file" type.');const i=r.errorSubject==="root"?f.Error:f.Warning;return{message:r.localizedMessage,severity:i,...e}};class j extends k{get InstanceClass(){return c}}export{j as PromptLinkDiagnosticsInstanceManager};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IPromptsService } from "../../../service/types.js";
+import { ProviderInstanceBase } from "./providerInstanceBase.js";
+import { assert } from "../../../../../../../../base/common/assert.js";
+import { NotPromptFile } from "../../../../promptFileReferenceErrors.js";
+import { assertDefined } from "../../../../../../../../base/common/types.js";
+import { ProviderInstanceManagerBase } from "./providerInstanceManagerBase.js";
+import { IMarkerService, MarkerSeverity } from "../../../../../../../../platform/markers/common/markers.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const MARKERS_OWNER_ID = "prompt-link-diagnostics-provider";
+let PromptLinkDiagnosticsProvider = class PromptLinkDiagnosticsProvider2 extends ProviderInstanceBase {
+  static {
+    __name(this, "PromptLinkDiagnosticsProvider");
+  }
+  constructor(model, promptsService, markerService) {
+    super(model, promptsService);
+    this.markerService = markerService;
+  }
+  /**
+   * Update diagnostic markers for the current editor.
+   */
+  async onPromptSettled() {
+    await this.parser.allSettled();
+    this.markerService.remove(MARKERS_OWNER_ID, [this.model.uri]);
+    const markers = [];
+    for (const link of this.parser.references) {
+      const { topError, linkRange } = link;
+      if (!topError || !linkRange) {
+        continue;
+      }
+      const { originalError } = topError;
+      if (originalError instanceof NotPromptFile) {
+        continue;
+      }
+      markers.push(toMarker(link));
+    }
+    this.markerService.changeOne(MARKERS_OWNER_ID, this.model.uri, markers);
+    return this;
+  }
+  /**
+   * Returns a string representation of this object.
+   */
+  toString() {
+    return `prompt-link-diagnostics:${this.model.uri.path}`;
+  }
+};
+PromptLinkDiagnosticsProvider = __decorate([
+  __param(1, IPromptsService),
+  __param(2, IMarkerService)
+], PromptLinkDiagnosticsProvider);
+const toMarker = /* @__PURE__ */ __name((link) => {
+  const { topError, linkRange } = link;
+  assertDefined(topError, "Top error must to be defined.");
+  assertDefined(linkRange, "Link range must to be defined.");
+  const { originalError } = topError;
+  assert(!(originalError instanceof NotPromptFile), 'Error must not be of "not prompt file" type.');
+  const severity = topError.errorSubject === "root" ? MarkerSeverity.Error : MarkerSeverity.Warning;
+  return {
+    message: topError.localizedMessage,
+    severity,
+    ...linkRange
+  };
+}, "toMarker");
+class PromptLinkDiagnosticsInstanceManager extends ProviderInstanceManagerBase {
+  static {
+    __name(this, "PromptLinkDiagnosticsInstanceManager");
+  }
+  get InstanceClass() {
+    return PromptLinkDiagnosticsProvider;
+  }
+}
+export {
+  PromptLinkDiagnosticsInstanceManager
+};
+//# sourceMappingURL=promptLinkDiagnosticsProvider.js.map

@@ -1,1 +1,81 @@
-import{createDecorator as n}from"../../instantiation/common/instantiation.js";import{Schemas as S}from"../../../base/common/network.js";const N={ctrlCmd:!1,alt:!1};var t;(function(e){e[e.Blur=1]="Blur",e[e.Gesture=2]="Gesture",e[e.Other=3]="Other"})(t||(t={}));var o;(function(e){e.QuickPick="quickPick",e.InputBox="inputBox",e.QuickWidget="quickWidget"})(o||(o={}));var s;(function(e){e[e.NONE=0]="NONE",e[e.FIRST=1]="FIRST",e[e.SECOND=2]="SECOND",e[e.LAST=3]="LAST"})(s||(s={}));var a;(function(e){e[e.First=1]="First",e[e.Second=2]="Second",e[e.Last=3]="Last",e[e.Next=4]="Next",e[e.Previous=5]="Previous",e[e.NextPage=6]="NextPage",e[e.PreviousPage=7]="PreviousPage",e[e.NextSeparator=8]="NextSeparator",e[e.PreviousSeparator=9]="PreviousSeparator"})(a||(a={}));var p;(function(e){e[e.Title=1]="Title",e[e.Inline=2]="Inline"})(p||(p={}));class x{constructor(r){this.options=r}getItemLabel(r){return r.label}getItemDescription(r){if(!this.options?.skipDescription)return r.description}getItemPath(r){if(!this.options?.skipPath)return r.resource?.scheme===S.file?r.resource.fsPath:r.resource?.path}}const h=new x,g=n("quickInputService");export{g as IQuickInputService,s as ItemActivation,N as NO_KEY_MODS,p as QuickInputButtonLocation,t as QuickInputHideReason,o as QuickInputType,a as QuickPickFocus,x as QuickPickItemScorerAccessor,h as quickPickItemScorerAccessor};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+import { Schemas } from "../../../base/common/network.js";
+const NO_KEY_MODS = { ctrlCmd: false, alt: false };
+var QuickInputHideReason;
+(function(QuickInputHideReason2) {
+  QuickInputHideReason2[QuickInputHideReason2["Blur"] = 1] = "Blur";
+  QuickInputHideReason2[QuickInputHideReason2["Gesture"] = 2] = "Gesture";
+  QuickInputHideReason2[QuickInputHideReason2["Other"] = 3] = "Other";
+})(QuickInputHideReason || (QuickInputHideReason = {}));
+var QuickInputType;
+(function(QuickInputType2) {
+  QuickInputType2["QuickPick"] = "quickPick";
+  QuickInputType2["InputBox"] = "inputBox";
+  QuickInputType2["QuickWidget"] = "quickWidget";
+})(QuickInputType || (QuickInputType = {}));
+var ItemActivation;
+(function(ItemActivation2) {
+  ItemActivation2[ItemActivation2["NONE"] = 0] = "NONE";
+  ItemActivation2[ItemActivation2["FIRST"] = 1] = "FIRST";
+  ItemActivation2[ItemActivation2["SECOND"] = 2] = "SECOND";
+  ItemActivation2[ItemActivation2["LAST"] = 3] = "LAST";
+})(ItemActivation || (ItemActivation = {}));
+var QuickPickFocus;
+(function(QuickPickFocus2) {
+  QuickPickFocus2[QuickPickFocus2["First"] = 1] = "First";
+  QuickPickFocus2[QuickPickFocus2["Second"] = 2] = "Second";
+  QuickPickFocus2[QuickPickFocus2["Last"] = 3] = "Last";
+  QuickPickFocus2[QuickPickFocus2["Next"] = 4] = "Next";
+  QuickPickFocus2[QuickPickFocus2["Previous"] = 5] = "Previous";
+  QuickPickFocus2[QuickPickFocus2["NextPage"] = 6] = "NextPage";
+  QuickPickFocus2[QuickPickFocus2["PreviousPage"] = 7] = "PreviousPage";
+  QuickPickFocus2[QuickPickFocus2["NextSeparator"] = 8] = "NextSeparator";
+  QuickPickFocus2[QuickPickFocus2["PreviousSeparator"] = 9] = "PreviousSeparator";
+})(QuickPickFocus || (QuickPickFocus = {}));
+var QuickInputButtonLocation;
+(function(QuickInputButtonLocation2) {
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Title"] = 1] = "Title";
+  QuickInputButtonLocation2[QuickInputButtonLocation2["Inline"] = 2] = "Inline";
+})(QuickInputButtonLocation || (QuickInputButtonLocation = {}));
+class QuickPickItemScorerAccessor {
+  static {
+    __name(this, "QuickPickItemScorerAccessor");
+  }
+  constructor(options) {
+    this.options = options;
+  }
+  getItemLabel(entry) {
+    return entry.label;
+  }
+  getItemDescription(entry) {
+    if (this.options?.skipDescription) {
+      return void 0;
+    }
+    return entry.description;
+  }
+  getItemPath(entry) {
+    if (this.options?.skipPath) {
+      return void 0;
+    }
+    if (entry.resource?.scheme === Schemas.file) {
+      return entry.resource.fsPath;
+    }
+    return entry.resource?.path;
+  }
+}
+const quickPickItemScorerAccessor = new QuickPickItemScorerAccessor();
+const IQuickInputService = createDecorator("quickInputService");
+export {
+  IQuickInputService,
+  ItemActivation,
+  NO_KEY_MODS,
+  QuickInputButtonLocation,
+  QuickInputHideReason,
+  QuickInputType,
+  QuickPickFocus,
+  QuickPickItemScorerAccessor,
+  quickPickItemScorerAccessor
+};
+//# sourceMappingURL=quickInput.js.map

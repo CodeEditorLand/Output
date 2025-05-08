@@ -1,1 +1,76 @@
-import{IURLService as a}from"../../../../platform/url/common/url.js";import{URI as u}from"../../../../base/common/uri.js";import{registerSingleton as h}from"../../../../platform/instantiation/common/extensions.js";import{AbstractURLService as m}from"../../../../platform/url/common/urlService.js";import{IBrowserWorkbenchEnvironmentService as v}from"../../environment/browser/environmentService.js";import{IOpenerService as d}from"../../../../platform/opener/common/opener.js";import{matchesScheme as S}from"../../../../base/common/network.js";import{IProductService as _}from"../../../../platform/product/common/productService.js";var l=function(o,r,e,t){var n=arguments.length,i=n<3?r:t===null?t=Object.getOwnPropertyDescriptor(r,e):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,r,e,t);else for(var c=o.length-1;c>=0;c--)(s=o[c])&&(i=(n<3?s(i):n>3?s(r,e,i):s(r,e))||i);return n>3&&i&&Object.defineProperty(r,e,i),i},p=function(o,r){return function(e,t){r(e,t,o)}};class R{constructor(r,e){this.urlService=r,this.productService=e}async open(r,e){return e?.openExternal||!S(r,this.productService.urlProtocol)?!1:(typeof r=="string"&&(r=u.parse(r)),this.urlService.open(r,{trusted:!0}))}}let f=class extends m{constructor(r,e,t){super(),this.provider=r.options?.urlCallbackProvider,this.provider&&this._register(this.provider.onCallback(n=>this.open(n,{trusted:!0}))),this._register(e.registerOpener(new R(this,t)))}create(r){return this.provider?this.provider.create(r):u.parse("unsupported://")}};f=l([p(0,v),p(1,d),p(2,_)],f);h(a,f,1);export{f as BrowserURLService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IURLService } from "../../../../platform/url/common/url.js";
+import { URI } from "../../../../base/common/uri.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { AbstractURLService } from "../../../../platform/url/common/urlService.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { matchesScheme } from "../../../../base/common/network.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+class BrowserURLOpener {
+  static {
+    __name(this, "BrowserURLOpener");
+  }
+  constructor(urlService, productService) {
+    this.urlService = urlService;
+    this.productService = productService;
+  }
+  async open(resource, options) {
+    if (options?.openExternal) {
+      return false;
+    }
+    if (!matchesScheme(resource, this.productService.urlProtocol)) {
+      return false;
+    }
+    if (typeof resource === "string") {
+      resource = URI.parse(resource);
+    }
+    return this.urlService.open(resource, { trusted: true });
+  }
+}
+let BrowserURLService = class BrowserURLService2 extends AbstractURLService {
+  static {
+    __name(this, "BrowserURLService");
+  }
+  constructor(environmentService, openerService, productService) {
+    super();
+    this.provider = environmentService.options?.urlCallbackProvider;
+    if (this.provider) {
+      this._register(this.provider.onCallback((uri) => this.open(uri, { trusted: true })));
+    }
+    this._register(openerService.registerOpener(new BrowserURLOpener(this, productService)));
+  }
+  create(options) {
+    if (this.provider) {
+      return this.provider.create(options);
+    }
+    return URI.parse("unsupported://");
+  }
+};
+BrowserURLService = __decorate([
+  __param(0, IBrowserWorkbenchEnvironmentService),
+  __param(1, IOpenerService),
+  __param(2, IProductService)
+], BrowserURLService);
+registerSingleton(
+  IURLService,
+  BrowserURLService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BrowserURLService
+};
+//# sourceMappingURL=urlService.js.map

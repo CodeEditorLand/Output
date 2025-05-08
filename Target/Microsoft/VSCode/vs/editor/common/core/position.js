@@ -1,1 +1,136 @@
-class u{constructor(e,r){this.lineNumber=e,this.column=r}with(e=this.lineNumber,r=this.column){return e===this.lineNumber&&r===this.column?this:new u(e,r)}delta(e=0,r=0){return this.with(Math.max(1,this.lineNumber+e),Math.max(1,this.column+r))}equals(e){return u.equals(this,e)}static equals(e,r){return!e&&!r?!0:!!e&&!!r&&e.lineNumber===r.lineNumber&&e.column===r.column}isBefore(e){return u.isBefore(this,e)}static isBefore(e,r){return e.lineNumber<r.lineNumber?!0:r.lineNumber<e.lineNumber?!1:e.column<r.column}isBeforeOrEqual(e){return u.isBeforeOrEqual(this,e)}static isBeforeOrEqual(e,r){return e.lineNumber<r.lineNumber?!0:r.lineNumber<e.lineNumber?!1:e.column<=r.column}static compare(e,r){const n=e.lineNumber|0,t=r.lineNumber|0;if(n===t){const i=e.column|0,l=r.column|0;return i-l}return n-t}clone(){return new u(this.lineNumber,this.column)}toString(){return"("+this.lineNumber+","+this.column+")"}static lift(e){return new u(e.lineNumber,e.column)}static isIPosition(e){return e&&typeof e.lineNumber=="number"&&typeof e.column=="number"}toJSON(){return{lineNumber:this.lineNumber,column:this.column}}}export{u as Position};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class Position {
+  static {
+    __name(this, "Position");
+  }
+  constructor(lineNumber, column) {
+    this.lineNumber = lineNumber;
+    this.column = column;
+  }
+  /**
+   * Create a new position from this position.
+   *
+   * @param newLineNumber new line number
+   * @param newColumn new column
+   */
+  with(newLineNumber = this.lineNumber, newColumn = this.column) {
+    if (newLineNumber === this.lineNumber && newColumn === this.column) {
+      return this;
+    } else {
+      return new Position(newLineNumber, newColumn);
+    }
+  }
+  /**
+   * Derive a new position from this position.
+   *
+   * @param deltaLineNumber line number delta
+   * @param deltaColumn column delta
+   */
+  delta(deltaLineNumber = 0, deltaColumn = 0) {
+    return this.with(Math.max(1, this.lineNumber + deltaLineNumber), Math.max(1, this.column + deltaColumn));
+  }
+  /**
+   * Test if this position equals other position
+   */
+  equals(other) {
+    return Position.equals(this, other);
+  }
+  /**
+   * Test if position `a` equals position `b`
+   */
+  static equals(a, b) {
+    if (!a && !b) {
+      return true;
+    }
+    return !!a && !!b && a.lineNumber === b.lineNumber && a.column === b.column;
+  }
+  /**
+   * Test if this position is before other position.
+   * If the two positions are equal, the result will be false.
+   */
+  isBefore(other) {
+    return Position.isBefore(this, other);
+  }
+  /**
+   * Test if position `a` is before position `b`.
+   * If the two positions are equal, the result will be false.
+   */
+  static isBefore(a, b) {
+    if (a.lineNumber < b.lineNumber) {
+      return true;
+    }
+    if (b.lineNumber < a.lineNumber) {
+      return false;
+    }
+    return a.column < b.column;
+  }
+  /**
+   * Test if this position is before other position.
+   * If the two positions are equal, the result will be true.
+   */
+  isBeforeOrEqual(other) {
+    return Position.isBeforeOrEqual(this, other);
+  }
+  /**
+   * Test if position `a` is before position `b`.
+   * If the two positions are equal, the result will be true.
+   */
+  static isBeforeOrEqual(a, b) {
+    if (a.lineNumber < b.lineNumber) {
+      return true;
+    }
+    if (b.lineNumber < a.lineNumber) {
+      return false;
+    }
+    return a.column <= b.column;
+  }
+  /**
+   * A function that compares positions, useful for sorting
+   */
+  static compare(a, b) {
+    const aLineNumber = a.lineNumber | 0;
+    const bLineNumber = b.lineNumber | 0;
+    if (aLineNumber === bLineNumber) {
+      const aColumn = a.column | 0;
+      const bColumn = b.column | 0;
+      return aColumn - bColumn;
+    }
+    return aLineNumber - bLineNumber;
+  }
+  /**
+   * Clone this position.
+   */
+  clone() {
+    return new Position(this.lineNumber, this.column);
+  }
+  /**
+   * Convert to a human-readable representation.
+   */
+  toString() {
+    return "(" + this.lineNumber + "," + this.column + ")";
+  }
+  // ---
+  /**
+   * Create a `Position` from an `IPosition`.
+   */
+  static lift(pos) {
+    return new Position(pos.lineNumber, pos.column);
+  }
+  /**
+   * Test if `obj` is an `IPosition`.
+   */
+  static isIPosition(obj) {
+    return obj && typeof obj.lineNumber === "number" && typeof obj.column === "number";
+  }
+  toJSON() {
+    return {
+      lineNumber: this.lineNumber,
+      column: this.column
+    };
+  }
+}
+export {
+  Position
+};
+//# sourceMappingURL=position.js.map

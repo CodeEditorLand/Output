@@ -1,1 +1,138 @@
-import i from"../../../base/common/severity.js";import{localize as c}from"../../../nls.js";import{createDecorator as I}from"../../instantiation/common/instantiation.js";var r;(function(n){n[n.Unnecessary=1]="Unnecessary",n[n.Deprecated=2]="Deprecated"})(r||(r={}));var l;(function(n){n[n.Hint=1]="Hint",n[n.Info=2]="Info",n[n.Warning=4]="Warning",n[n.Error=8]="Error"})(l||(l={}));(function(n){function u(e,h){return h-e}n.compare=u;const t=Object.create(null);t[n.Error]=c("sev.error","Error"),t[n.Warning]=c("sev.warning","Warning"),t[n.Info]=c("sev.info","Info");function f(e){return t[e]||""}n.toString=f;const o=Object.create(null);o[n.Error]=c("sev.errors","Errors"),o[n.Warning]=c("sev.warnings","Warnings"),o[n.Info]=c("sev.infos","Infos");function p(e){return o[e]||""}n.toStringPlural=p;function s(e){switch(e){case i.Error:return n.Error;case i.Warning:return n.Warning;case i.Info:return n.Info;case i.Ignore:return n.Hint}}n.fromSeverity=s;function d(e){switch(e){case n.Error:return i.Error;case n.Warning:return i.Warning;case n.Info:return i.Info;case n.Hint:return i.Ignore}}n.toSeverity=d})(l||(l={}));var g;(function(n){const u="";function t(o){return f(o,!0)}n.makeKey=t;function f(o,p){const s=[u];return o.source?s.push(o.source.replace("\xA6","\\\xA6")):s.push(u),o.code?typeof o.code=="string"?s.push(o.code.replace("\xA6","\\\xA6")):s.push(o.code.value.replace("\xA6","\\\xA6")):s.push(u),o.severity!==void 0&&o.severity!==null?s.push(l.toString(o.severity)):s.push(u),o.message&&p?s.push(o.message.replace("\xA6","\\\xA6")):s.push(u),o.startLineNumber!==void 0&&o.startLineNumber!==null?s.push(o.startLineNumber.toString()):s.push(u),o.startColumn!==void 0&&o.startColumn!==null?s.push(o.startColumn.toString()):s.push(u),o.endLineNumber!==void 0&&o.endLineNumber!==null?s.push(o.endLineNumber.toString()):s.push(u),o.endColumn!==void 0&&o.endColumn!==null?s.push(o.endColumn.toString()):s.push(u),s.push(u),s.join("\xA6")}n.makeKeyOptionalMessage=f})(g||(g={}));const m=I("markerService");export{g as IMarkerData,m as IMarkerService,l as MarkerSeverity,r as MarkerTag};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import Severity from "../../../base/common/severity.js";
+import { localize } from "../../../nls.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+var MarkerTag;
+(function(MarkerTag2) {
+  MarkerTag2[MarkerTag2["Unnecessary"] = 1] = "Unnecessary";
+  MarkerTag2[MarkerTag2["Deprecated"] = 2] = "Deprecated";
+})(MarkerTag || (MarkerTag = {}));
+var MarkerSeverity;
+(function(MarkerSeverity2) {
+  MarkerSeverity2[MarkerSeverity2["Hint"] = 1] = "Hint";
+  MarkerSeverity2[MarkerSeverity2["Info"] = 2] = "Info";
+  MarkerSeverity2[MarkerSeverity2["Warning"] = 4] = "Warning";
+  MarkerSeverity2[MarkerSeverity2["Error"] = 8] = "Error";
+})(MarkerSeverity || (MarkerSeverity = {}));
+(function(MarkerSeverity2) {
+  function compare(a, b) {
+    return b - a;
+  }
+  __name(compare, "compare");
+  MarkerSeverity2.compare = compare;
+  const _displayStrings = /* @__PURE__ */ Object.create(null);
+  _displayStrings[MarkerSeverity2.Error] = localize("sev.error", "Error");
+  _displayStrings[MarkerSeverity2.Warning] = localize("sev.warning", "Warning");
+  _displayStrings[MarkerSeverity2.Info] = localize("sev.info", "Info");
+  function toString(a) {
+    return _displayStrings[a] || "";
+  }
+  __name(toString, "toString");
+  MarkerSeverity2.toString = toString;
+  const _displayStringsPlural = /* @__PURE__ */ Object.create(null);
+  _displayStringsPlural[MarkerSeverity2.Error] = localize("sev.errors", "Errors");
+  _displayStringsPlural[MarkerSeverity2.Warning] = localize("sev.warnings", "Warnings");
+  _displayStringsPlural[MarkerSeverity2.Info] = localize("sev.infos", "Infos");
+  function toStringPlural(a) {
+    return _displayStringsPlural[a] || "";
+  }
+  __name(toStringPlural, "toStringPlural");
+  MarkerSeverity2.toStringPlural = toStringPlural;
+  function fromSeverity(severity) {
+    switch (severity) {
+      case Severity.Error:
+        return MarkerSeverity2.Error;
+      case Severity.Warning:
+        return MarkerSeverity2.Warning;
+      case Severity.Info:
+        return MarkerSeverity2.Info;
+      case Severity.Ignore:
+        return MarkerSeverity2.Hint;
+    }
+  }
+  __name(fromSeverity, "fromSeverity");
+  MarkerSeverity2.fromSeverity = fromSeverity;
+  function toSeverity(severity) {
+    switch (severity) {
+      case MarkerSeverity2.Error:
+        return Severity.Error;
+      case MarkerSeverity2.Warning:
+        return Severity.Warning;
+      case MarkerSeverity2.Info:
+        return Severity.Info;
+      case MarkerSeverity2.Hint:
+        return Severity.Ignore;
+    }
+  }
+  __name(toSeverity, "toSeverity");
+  MarkerSeverity2.toSeverity = toSeverity;
+})(MarkerSeverity || (MarkerSeverity = {}));
+var IMarkerData;
+(function(IMarkerData2) {
+  const emptyString = "";
+  function makeKey(markerData) {
+    return makeKeyOptionalMessage(markerData, true);
+  }
+  __name(makeKey, "makeKey");
+  IMarkerData2.makeKey = makeKey;
+  function makeKeyOptionalMessage(markerData, useMessage) {
+    const result = [emptyString];
+    if (markerData.source) {
+      result.push(markerData.source.replace("\xA6", "\\\xA6"));
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.code) {
+      if (typeof markerData.code === "string") {
+        result.push(markerData.code.replace("\xA6", "\\\xA6"));
+      } else {
+        result.push(markerData.code.value.replace("\xA6", "\\\xA6"));
+      }
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.severity !== void 0 && markerData.severity !== null) {
+      result.push(MarkerSeverity.toString(markerData.severity));
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.message && useMessage) {
+      result.push(markerData.message.replace("\xA6", "\\\xA6"));
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.startLineNumber !== void 0 && markerData.startLineNumber !== null) {
+      result.push(markerData.startLineNumber.toString());
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.startColumn !== void 0 && markerData.startColumn !== null) {
+      result.push(markerData.startColumn.toString());
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.endLineNumber !== void 0 && markerData.endLineNumber !== null) {
+      result.push(markerData.endLineNumber.toString());
+    } else {
+      result.push(emptyString);
+    }
+    if (markerData.endColumn !== void 0 && markerData.endColumn !== null) {
+      result.push(markerData.endColumn.toString());
+    } else {
+      result.push(emptyString);
+    }
+    result.push(emptyString);
+    return result.join("\xA6");
+  }
+  __name(makeKeyOptionalMessage, "makeKeyOptionalMessage");
+  IMarkerData2.makeKeyOptionalMessage = makeKeyOptionalMessage;
+})(IMarkerData || (IMarkerData = {}));
+const IMarkerService = createDecorator("markerService");
+export {
+  IMarkerData,
+  IMarkerService,
+  MarkerSeverity,
+  MarkerTag
+};
+//# sourceMappingURL=markers.js.map

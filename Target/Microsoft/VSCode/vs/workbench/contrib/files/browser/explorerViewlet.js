@@ -1,8 +1,337 @@
-import"./media/explorerviewlet.css";import{localize as a,localize2 as I}from"../../../../nls.js";import{mark as W}from"../../../../base/common/performance.js";import{VIEWLET_ID as y,VIEW_ID as V,ExplorerViewletVisibleContext as L}from"../common/files.js";import{IConfigurationService as Y}from"../../../../platform/configuration/common/configuration.js";import{ExplorerView as F}from"./views/explorerView.js";import{EmptyView as l}from"./views/emptyView.js";import{OpenEditorsView as g}from"./views/openEditorsView.js";import{IStorageService as j}from"../../../../platform/storage/common/storage.js";import{IInstantiationService as z}from"../../../../platform/instantiation/common/instantiation.js";import{IExtensionService as G}from"../../../services/extensions/common/extensions.js";import{IWorkspaceContextService as A}from"../../../../platform/workspace/common/workspace.js";import{ITelemetryService as U}from"../../../../platform/telemetry/common/telemetry.js";import{IContextKeyService as J,ContextKeyExpr as s}from"../../../../platform/contextkey/common/contextkey.js";import{IThemeService as Q}from"../../../../platform/theme/common/themeService.js";import{Extensions as _,IViewDescriptorService as X,ViewContentGroups as h}from"../../../common/views.js";import{IContextMenuService as Z}from"../../../../platform/contextview/browser/contextView.js";import{Disposable as ee}from"../../../../base/common/lifecycle.js";import{IWorkbenchLayoutService as oe}from"../../../services/layout/browser/layoutService.js";import{ViewPaneContainer as te}from"../../../browser/parts/views/viewPaneContainer.js";import{KeyChord as re}from"../../../../base/common/keyCodes.js";import{Registry as P}from"../../../../platform/registry/common/platform.js";import{IProgressService as ie}from"../../../../platform/progress/common/progress.js";import{SyncDescriptor as E}from"../../../../platform/instantiation/common/descriptors.js";import{WorkbenchStateContext as f,RemoteNameContext as C,OpenFolderWorkspaceSupportContext as q}from"../../../common/contextkeys.js";import{IsWebContext as k}from"../../../../platform/contextkey/common/contextkeys.js";import{AddRootFolderAction as $,OpenFolderAction as ne,OpenFileFolderAction as se,OpenFolderViaWorkspaceAction as ce}from"../../../browser/actions/workspaceActions.js";import{OpenRecentAction as ae}from"../../../browser/actions/windowActions.js";import{isMacintosh as pe,isWeb as le}from"../../../../base/common/platform.js";import{Codicon as N}from"../../../../base/common/codicons.js";import{registerIcon as B}from"../../../../platform/theme/common/iconRegistry.js";import{isMouseEvent as S}from"../../../../base/browser/dom.js";import{ILogService as de}from"../../../../platform/log/common/log.js";var R=function(m,e,o,t){var n=arguments.length,r=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(m,e,o,t);else for(var p=m.length-1;p>=0;p--)(c=m[p])&&(r=(n<3?c(r):n>3?c(e,o,r):c(e,o))||r);return n>3&&r&&Object.defineProperty(e,o,r),r},i=function(m,e){return function(o,t){e(o,t,m)}};const D=B("explorer-view-icon",N.files,a("explorerViewIcon","View icon of the explorer view.")),me=B("open-editors-view-icon",N.book,a("openEditorsIcon","View icon of the open editors view."));let T=class extends ee{static{this.ID="workbench.contrib.explorerViewletViews"}constructor(e,o){super(),this.workspaceContextService=e,o.withProgress({location:1},()=>e.getCompleteWorkspace()).finally(()=>{this.registerViews(),this._register(e.onDidChangeWorkbenchState(()=>this.registerViews())),this._register(e.onDidChangeWorkspaceFolders(()=>this.registerViews()))})}registerViews(){W("code/willRegisterExplorerViews");const e=d.getViews(x),o=[],t=[],n=this.createOpenEditorsViewDescriptor();e.some(w=>w.id===n.id)||o.push(n);const r=this.createExplorerViewDescriptor(),c=e.find(w=>w.id===r.id),p=this.createEmptyViewDescriptor(),u=e.find(w=>w.id===p.id);this.workspaceContextService.getWorkbenchState()===1||this.workspaceContextService.getWorkspace().folders.length===0?(c&&t.push(c),u||o.push(p)):(u&&t.push(u),c||o.push(r)),t.length&&d.deregisterViews(t,x),o.length&&d.registerViews(o,x),W("code/didRegisterExplorerViews")}createOpenEditorsViewDescriptor(){return{id:g.ID,name:g.NAME,ctorDescriptor:new E(g),containerIcon:me,order:0,canToggleVisibility:!0,canMoveView:!0,collapsed:!1,hideByDefault:!0,focusCommand:{id:"workbench.files.action.focusOpenEditorsView",keybindings:{primary:re(2089,35)}}}}createEmptyViewDescriptor(){return{id:l.ID,name:l.NAME,containerIcon:D,ctorDescriptor:new E(l),order:1,canToggleVisibility:!0,focusCommand:{id:"workbench.explorer.fileView.focus"}}}createExplorerViewDescriptor(){return{id:V,name:I("folders","Folders"),containerIcon:D,ctorDescriptor:new E(F),order:1,canMoveView:!0,canToggleVisibility:!1,focusCommand:{id:"workbench.explorer.fileView.focus"}}}};T=R([i(0,A),i(1,ie)],T);let v=class extends te{constructor(e,o,t,n,r,c,p,u,w,M,H,K){super(y,{mergeViewWithContainerWhenSingleView:!0},c,r,e,w,o,M,u,n,t,H,K),this.viewletVisibleContextKey=L.bindTo(p),this._register(this.contextService.onDidChangeWorkspaceName(xe=>this.updateTitleArea()))}create(e){super.create(e),e.classList.add("explorer-viewlet")}createView(e,o){return e.id===V?this.instantiationService.createInstance(F,{...o,delegate:{willOpenElement:t=>{if(!S(t))return;const n=this.getOpenEditorsView();if(n){let r=0;this.configurationService.getValue().workbench?.editor?.enablePreview&&(r=250),n.setStructuralRefreshDelay(r)}},didOpenElement:t=>{if(!S(t))return;this.getOpenEditorsView()?.setStructuralRefreshDelay(0)}}}):super.createView(e,o)}getExplorerView(){return this.getView(V)}getOpenEditorsView(){return this.getView(g.ID)}setVisible(e){this.viewletVisibleContextKey.set(e),super.setVisible(e)}focus(){const e=this.getView(V);e&&this.panes.every(o=>!o.isExpanded())&&e.setExpanded(!0),e?.isExpanded()?e.focus():super.focus()}};v=R([i(0,oe),i(1,U),i(2,A),i(3,j),i(4,Y),i(5,z),i(6,J),i(7,Q),i(8,Z),i(9,G),i(10,X),i(11,de)],v);const we=P.as(_.ViewContainersRegistry),x=we.registerViewContainer({id:y,title:I("explore","Explorer"),ctorDescriptor:new E(v),storageId:"workbench.explorer.views.state",icon:D,alwaysUseContainerInfo:!0,hideIfEmpty:!0,order:0,openCommandActionDescriptor:{id:y,title:I("explore","Explorer"),mnemonicTitle:a({key:"miViewExplorer",comment:["&& denotes a mnemonic"]},"&&Explorer"),keybindings:{primary:3107},order:0}},0,{isDefault:!0}),b=a("openFolder","Open Folder"),fe=a("addAFolder","add a folder"),ue=a("openRecent","Open Recent"),he=`[${b}](command:${$.ID})`,Ve=`[${fe}](command:${$.ID})`,O=`[${b}](command:${pe&&!le?se.ID:ne.ID})`,ge=`[${b}](command:${ce.ID})`,Ee=`[${ue}](command:${ae.ID})`,d=P.as(_.ViewsRegistry);d.registerViewWelcomeContent(l.ID,{content:a({key:"noWorkspaceHelp",comment:['Please do not translate the word "command", it is part of our internal syntax which must not change']},`You have not yet added a folder to the workspace.
-{0}`,he),when:s.and(f.isEqualTo("workspace"),q),group:h.Open,order:1});d.registerViewWelcomeContent(l.ID,{content:a({key:"noFolderHelpWeb",comment:['Please do not translate the word "command", it is part of our internal syntax which must not change']},`You have not yet opened a folder.
-{0}
-{1}`,ge,Ee),when:s.and(f.isEqualTo("workspace"),q.toNegated()),group:h.Open,order:1});d.registerViewWelcomeContent(l.ID,{content:a({key:"remoteNoFolderHelp",comment:['Please do not translate the word "command", it is part of our internal syntax which must not change']},`Connected to remote.
-{0}`,O),when:s.and(f.notEqualsTo("workspace"),C.notEqualsTo(""),k.toNegated()),group:h.Open,order:1});d.registerViewWelcomeContent(l.ID,{content:a({key:"noFolderButEditorsHelp",comment:['Please do not translate the word "command", it is part of our internal syntax which must not change']},`You have not yet opened a folder.
-{0}
-Opening a folder will close all currently open editors. To keep them open, {1} instead.`,O,Ve),when:s.and(s.has("editorIsOpen"),s.or(s.and(f.notEqualsTo("workspace"),C.isEqualTo("")),s.and(f.notEqualsTo("workspace"),k))),group:h.Open,order:1});d.registerViewWelcomeContent(l.ID,{content:a({key:"noFolderHelp",comment:['Please do not translate the word "command", it is part of our internal syntax which must not change']},`You have not yet opened a folder.
-{0}`,O),when:s.and(s.has("editorIsOpen")?.negate(),s.or(s.and(f.notEqualsTo("workspace"),C.isEqualTo("")),s.and(f.notEqualsTo("workspace"),k))),group:h.Open,order:1});export{v as ExplorerViewPaneContainer,T as ExplorerViewletViewsContribution,x as VIEW_CONTAINER};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/explorerviewlet.css";
+import { localize, localize2 } from "../../../../nls.js";
+import { mark } from "../../../../base/common/performance.js";
+import { VIEWLET_ID, VIEW_ID, ExplorerViewletVisibleContext } from "../common/files.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ExplorerView } from "./views/explorerView.js";
+import { EmptyView } from "./views/emptyView.js";
+import { OpenEditorsView } from "./views/openEditorsView.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { IContextKeyService, ContextKeyExpr } from "../../../../platform/contextkey/common/contextkey.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { Extensions, IViewDescriptorService, ViewContentGroups } from "../../../common/views.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+import { ViewPaneContainer } from "../../../browser/parts/views/viewPaneContainer.js";
+import { KeyChord } from "../../../../base/common/keyCodes.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IProgressService } from "../../../../platform/progress/common/progress.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { WorkbenchStateContext, RemoteNameContext, OpenFolderWorkspaceSupportContext } from "../../../common/contextkeys.js";
+import { IsWebContext } from "../../../../platform/contextkey/common/contextkeys.js";
+import { AddRootFolderAction, OpenFolderAction, OpenFileFolderAction, OpenFolderViaWorkspaceAction } from "../../../browser/actions/workspaceActions.js";
+import { OpenRecentAction } from "../../../browser/actions/windowActions.js";
+import { isMacintosh, isWeb } from "../../../../base/common/platform.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { isMouseEvent } from "../../../../base/browser/dom.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const explorerViewIcon = registerIcon("explorer-view-icon", Codicon.files, localize("explorerViewIcon", "View icon of the explorer view."));
+const openEditorsViewIcon = registerIcon("open-editors-view-icon", Codicon.book, localize("openEditorsIcon", "View icon of the open editors view."));
+let ExplorerViewletViewsContribution = class ExplorerViewletViewsContribution2 extends Disposable {
+  static {
+    __name(this, "ExplorerViewletViewsContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.explorerViewletViews";
+  }
+  constructor(workspaceContextService, progressService) {
+    super();
+    this.workspaceContextService = workspaceContextService;
+    progressService.withProgress({
+      location: 1
+      /* ProgressLocation.Explorer */
+    }, () => workspaceContextService.getCompleteWorkspace()).finally(() => {
+      this.registerViews();
+      this._register(workspaceContextService.onDidChangeWorkbenchState(() => this.registerViews()));
+      this._register(workspaceContextService.onDidChangeWorkspaceFolders(() => this.registerViews()));
+    });
+  }
+  registerViews() {
+    mark("code/willRegisterExplorerViews");
+    const viewDescriptors = viewsRegistry.getViews(VIEW_CONTAINER);
+    const viewDescriptorsToRegister = [];
+    const viewDescriptorsToDeregister = [];
+    const openEditorsViewDescriptor = this.createOpenEditorsViewDescriptor();
+    if (!viewDescriptors.some((v) => v.id === openEditorsViewDescriptor.id)) {
+      viewDescriptorsToRegister.push(openEditorsViewDescriptor);
+    }
+    const explorerViewDescriptor = this.createExplorerViewDescriptor();
+    const registeredExplorerViewDescriptor = viewDescriptors.find((v) => v.id === explorerViewDescriptor.id);
+    const emptyViewDescriptor = this.createEmptyViewDescriptor();
+    const registeredEmptyViewDescriptor = viewDescriptors.find((v) => v.id === emptyViewDescriptor.id);
+    if (this.workspaceContextService.getWorkbenchState() === 1 || this.workspaceContextService.getWorkspace().folders.length === 0) {
+      if (registeredExplorerViewDescriptor) {
+        viewDescriptorsToDeregister.push(registeredExplorerViewDescriptor);
+      }
+      if (!registeredEmptyViewDescriptor) {
+        viewDescriptorsToRegister.push(emptyViewDescriptor);
+      }
+    } else {
+      if (registeredEmptyViewDescriptor) {
+        viewDescriptorsToDeregister.push(registeredEmptyViewDescriptor);
+      }
+      if (!registeredExplorerViewDescriptor) {
+        viewDescriptorsToRegister.push(explorerViewDescriptor);
+      }
+    }
+    if (viewDescriptorsToDeregister.length) {
+      viewsRegistry.deregisterViews(viewDescriptorsToDeregister, VIEW_CONTAINER);
+    }
+    if (viewDescriptorsToRegister.length) {
+      viewsRegistry.registerViews(viewDescriptorsToRegister, VIEW_CONTAINER);
+    }
+    mark("code/didRegisterExplorerViews");
+  }
+  createOpenEditorsViewDescriptor() {
+    return {
+      id: OpenEditorsView.ID,
+      name: OpenEditorsView.NAME,
+      ctorDescriptor: new SyncDescriptor(OpenEditorsView),
+      containerIcon: openEditorsViewIcon,
+      order: 0,
+      canToggleVisibility: true,
+      canMoveView: true,
+      collapsed: false,
+      hideByDefault: true,
+      focusCommand: {
+        id: "workbench.files.action.focusOpenEditorsView",
+        keybindings: { primary: KeyChord(
+          2048 | 41,
+          35
+          /* KeyCode.KeyE */
+        ) }
+      }
+    };
+  }
+  createEmptyViewDescriptor() {
+    return {
+      id: EmptyView.ID,
+      name: EmptyView.NAME,
+      containerIcon: explorerViewIcon,
+      ctorDescriptor: new SyncDescriptor(EmptyView),
+      order: 1,
+      canToggleVisibility: true,
+      focusCommand: {
+        id: "workbench.explorer.fileView.focus"
+      }
+    };
+  }
+  createExplorerViewDescriptor() {
+    return {
+      id: VIEW_ID,
+      name: localize2("folders", "Folders"),
+      containerIcon: explorerViewIcon,
+      ctorDescriptor: new SyncDescriptor(ExplorerView),
+      order: 1,
+      canMoveView: true,
+      canToggleVisibility: false,
+      focusCommand: {
+        id: "workbench.explorer.fileView.focus"
+      }
+    };
+  }
+};
+ExplorerViewletViewsContribution = __decorate([
+  __param(0, IWorkspaceContextService),
+  __param(1, IProgressService)
+], ExplorerViewletViewsContribution);
+let ExplorerViewPaneContainer = class ExplorerViewPaneContainer2 extends ViewPaneContainer {
+  static {
+    __name(this, "ExplorerViewPaneContainer");
+  }
+  constructor(layoutService, telemetryService, contextService, storageService, configurationService, instantiationService, contextKeyService, themeService, contextMenuService, extensionService, viewDescriptorService, logService) {
+    super(VIEWLET_ID, { mergeViewWithContainerWhenSingleView: true }, instantiationService, configurationService, layoutService, contextMenuService, telemetryService, extensionService, themeService, storageService, contextService, viewDescriptorService, logService);
+    this.viewletVisibleContextKey = ExplorerViewletVisibleContext.bindTo(contextKeyService);
+    this._register(this.contextService.onDidChangeWorkspaceName((e) => this.updateTitleArea()));
+  }
+  create(parent) {
+    super.create(parent);
+    parent.classList.add("explorer-viewlet");
+  }
+  createView(viewDescriptor, options) {
+    if (viewDescriptor.id === VIEW_ID) {
+      return this.instantiationService.createInstance(ExplorerView, {
+        ...options,
+        delegate: {
+          willOpenElement: /* @__PURE__ */ __name((e) => {
+            if (!isMouseEvent(e)) {
+              return;
+            }
+            const openEditorsView = this.getOpenEditorsView();
+            if (openEditorsView) {
+              let delay = 0;
+              const config = this.configurationService.getValue();
+              if (!!config.workbench?.editor?.enablePreview) {
+                delay = 250;
+              }
+              openEditorsView.setStructuralRefreshDelay(delay);
+            }
+          }, "willOpenElement"),
+          didOpenElement: /* @__PURE__ */ __name((e) => {
+            if (!isMouseEvent(e)) {
+              return;
+            }
+            const openEditorsView = this.getOpenEditorsView();
+            openEditorsView?.setStructuralRefreshDelay(0);
+          }, "didOpenElement")
+        }
+      });
+    }
+    return super.createView(viewDescriptor, options);
+  }
+  getExplorerView() {
+    return this.getView(VIEW_ID);
+  }
+  getOpenEditorsView() {
+    return this.getView(OpenEditorsView.ID);
+  }
+  setVisible(visible) {
+    this.viewletVisibleContextKey.set(visible);
+    super.setVisible(visible);
+  }
+  focus() {
+    const explorerView = this.getView(VIEW_ID);
+    if (explorerView && this.panes.every((p) => !p.isExpanded())) {
+      explorerView.setExpanded(true);
+    }
+    if (explorerView?.isExpanded()) {
+      explorerView.focus();
+    } else {
+      super.focus();
+    }
+  }
+};
+ExplorerViewPaneContainer = __decorate([
+  __param(0, IWorkbenchLayoutService),
+  __param(1, ITelemetryService),
+  __param(2, IWorkspaceContextService),
+  __param(3, IStorageService),
+  __param(4, IConfigurationService),
+  __param(5, IInstantiationService),
+  __param(6, IContextKeyService),
+  __param(7, IThemeService),
+  __param(8, IContextMenuService),
+  __param(9, IExtensionService),
+  __param(10, IViewDescriptorService),
+  __param(11, ILogService)
+], ExplorerViewPaneContainer);
+const viewContainerRegistry = Registry.as(Extensions.ViewContainersRegistry);
+const VIEW_CONTAINER = viewContainerRegistry.registerViewContainer({
+  id: VIEWLET_ID,
+  title: localize2("explore", "Explorer"),
+  ctorDescriptor: new SyncDescriptor(ExplorerViewPaneContainer),
+  storageId: "workbench.explorer.views.state",
+  icon: explorerViewIcon,
+  alwaysUseContainerInfo: true,
+  hideIfEmpty: true,
+  order: 0,
+  openCommandActionDescriptor: {
+    id: VIEWLET_ID,
+    title: localize2("explore", "Explorer"),
+    mnemonicTitle: localize({ key: "miViewExplorer", comment: ["&& denotes a mnemonic"] }, "&&Explorer"),
+    keybindings: {
+      primary: 2048 | 1024 | 35
+      /* KeyCode.KeyE */
+    },
+    order: 0
+  }
+}, 0, { isDefault: true });
+const openFolder = localize("openFolder", "Open Folder");
+const addAFolder = localize("addAFolder", "add a folder");
+const openRecent = localize("openRecent", "Open Recent");
+const addRootFolderButton = `[${openFolder}](command:${AddRootFolderAction.ID})`;
+const addAFolderButton = `[${addAFolder}](command:${AddRootFolderAction.ID})`;
+const openFolderButton = `[${openFolder}](command:${isMacintosh && !isWeb ? OpenFileFolderAction.ID : OpenFolderAction.ID})`;
+const openFolderViaWorkspaceButton = `[${openFolder}](command:${OpenFolderViaWorkspaceAction.ID})`;
+const openRecentButton = `[${openRecent}](command:${OpenRecentAction.ID})`;
+const viewsRegistry = Registry.as(Extensions.ViewsRegistry);
+viewsRegistry.registerViewWelcomeContent(EmptyView.ID, {
+  content: localize({ key: "noWorkspaceHelp", comment: ['Please do not translate the word "command", it is part of our internal syntax which must not change'] }, "You have not yet added a folder to the workspace.\n{0}", addRootFolderButton),
+  when: ContextKeyExpr.and(
+    // inside a .code-workspace
+    WorkbenchStateContext.isEqualTo("workspace"),
+    // unless we cannot enter or open workspaces (e.g. web serverless)
+    OpenFolderWorkspaceSupportContext
+  ),
+  group: ViewContentGroups.Open,
+  order: 1
+});
+viewsRegistry.registerViewWelcomeContent(EmptyView.ID, {
+  content: localize({ key: "noFolderHelpWeb", comment: ['Please do not translate the word "command", it is part of our internal syntax which must not change'] }, "You have not yet opened a folder.\n{0}\n{1}", openFolderViaWorkspaceButton, openRecentButton),
+  when: ContextKeyExpr.and(
+    // inside a .code-workspace
+    WorkbenchStateContext.isEqualTo("workspace"),
+    // we cannot enter workspaces (e.g. web serverless)
+    OpenFolderWorkspaceSupportContext.toNegated()
+  ),
+  group: ViewContentGroups.Open,
+  order: 1
+});
+viewsRegistry.registerViewWelcomeContent(EmptyView.ID, {
+  content: localize({ key: "remoteNoFolderHelp", comment: ['Please do not translate the word "command", it is part of our internal syntax which must not change'] }, "Connected to remote.\n{0}", openFolderButton),
+  when: ContextKeyExpr.and(
+    // not inside a .code-workspace
+    WorkbenchStateContext.notEqualsTo("workspace"),
+    // connected to a remote
+    RemoteNameContext.notEqualsTo(""),
+    // but not in web
+    IsWebContext.toNegated()
+  ),
+  group: ViewContentGroups.Open,
+  order: 1
+});
+viewsRegistry.registerViewWelcomeContent(EmptyView.ID, {
+  content: localize({ key: "noFolderButEditorsHelp", comment: ['Please do not translate the word "command", it is part of our internal syntax which must not change'] }, "You have not yet opened a folder.\n{0}\nOpening a folder will close all currently open editors. To keep them open, {1} instead.", openFolderButton, addAFolderButton),
+  when: ContextKeyExpr.and(
+    // editors are opened
+    ContextKeyExpr.has("editorIsOpen"),
+    ContextKeyExpr.or(
+      // not inside a .code-workspace and local
+      ContextKeyExpr.and(WorkbenchStateContext.notEqualsTo("workspace"), RemoteNameContext.isEqualTo("")),
+      // not inside a .code-workspace and web
+      ContextKeyExpr.and(WorkbenchStateContext.notEqualsTo("workspace"), IsWebContext)
+    )
+  ),
+  group: ViewContentGroups.Open,
+  order: 1
+});
+viewsRegistry.registerViewWelcomeContent(EmptyView.ID, {
+  content: localize({ key: "noFolderHelp", comment: ['Please do not translate the word "command", it is part of our internal syntax which must not change'] }, "You have not yet opened a folder.\n{0}", openFolderButton),
+  when: ContextKeyExpr.and(
+    // no editor is open
+    ContextKeyExpr.has("editorIsOpen")?.negate(),
+    ContextKeyExpr.or(
+      // not inside a .code-workspace and local
+      ContextKeyExpr.and(WorkbenchStateContext.notEqualsTo("workspace"), RemoteNameContext.isEqualTo("")),
+      // not inside a .code-workspace and web
+      ContextKeyExpr.and(WorkbenchStateContext.notEqualsTo("workspace"), IsWebContext)
+    )
+  ),
+  group: ViewContentGroups.Open,
+  order: 1
+});
+export {
+  ExplorerViewPaneContainer,
+  ExplorerViewletViewsContribution,
+  VIEW_CONTAINER
+};
+//# sourceMappingURL=explorerViewlet.js.map

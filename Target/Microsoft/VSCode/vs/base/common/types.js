@@ -1,1 +1,160 @@
-import{assert as i}from"./assert.js";function u(e){return typeof e=="string"}function d(e){return Array.isArray(e)&&e.every(t=>u(t))}function s(e){return typeof e=="object"&&e!==null&&!Array.isArray(e)&&!(e instanceof RegExp)&&!(e instanceof Date)}function y(e){const t=Object.getPrototypeOf(Uint8Array);return typeof e=="object"&&e instanceof t}function x(e){return typeof e=="number"&&!isNaN(e)}function h(e){return!!e&&typeof e[Symbol.iterator]=="function"}function w(e){return e===!0||e===!1}function c(e){return typeof e>"u"}function g(e){return!o(e)}function o(e){return c(e)||e===null}function m(e,t){if(!e)throw new Error(t?`Unexpected type, expected '${t}'`:"Unexpected type")}function A(e){return i(e!=null,"Argument is `undefined` or `null`."),e}function O(e,t){if(e==null)throw typeof t=="string"?new Error(t):t}function E(...e){const t=[];for(let n=0;n<e.length;n++){const r=e[n];if(o(r))throw new Error(`Assertion Failed: argument at index ${n} is undefined or null`);t.push(r)}return t}function T(e,t,n){i(t.includes(e),`${n}: Expected '${e}' to be one of [${t.join(", ")}].`)}function $(e){}const p=Object.prototype.hasOwnProperty;function D(e){if(!s(e))return!1;for(const t in e)if(p.call(e,t))return!1;return!0}function f(e){return typeof e=="function"}function U(...e){return e.length>0&&e.every(f)}function N(e,t){const n=Math.min(e.length,t.length);for(let r=0;r<n;r++)a(e[r],t[r])}function a(e,t){if(u(t)){if(typeof e!==t)throw new Error(`argument does not match constraint: typeof ${t}`)}else if(f(t)){try{if(e instanceof t)return}catch{}if(!o(e)&&e.constructor===t||t.length===1&&t.call(void 0,e)===!0)return;throw new Error("argument does not match one of these constraints: arg instanceof constraint, arg.constructor === constraint, nor constraint(arg) === true")}}function C(e){return e}export{U as areFunctions,E as assertAllDefined,O as assertDefined,A as assertIsDefined,T as assertOneOf,m as assertType,w as isBoolean,g as isDefined,D as isEmptyObject,f as isFunction,h as isIterable,x as isNumber,s as isObject,u as isString,d as isStringArray,y as isTypedArray,c as isUndefined,o as isUndefinedOrNull,$ as typeCheck,C as upcast,a as validateConstraint,N as validateConstraints};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assert } from "./assert.js";
+function isString(str) {
+  return typeof str === "string";
+}
+__name(isString, "isString");
+function isStringArray(value) {
+  return Array.isArray(value) && value.every((elem) => isString(elem));
+}
+__name(isStringArray, "isStringArray");
+function isObject(obj) {
+  return typeof obj === "object" && obj !== null && !Array.isArray(obj) && !(obj instanceof RegExp) && !(obj instanceof Date);
+}
+__name(isObject, "isObject");
+function isTypedArray(obj) {
+  const TypedArray = Object.getPrototypeOf(Uint8Array);
+  return typeof obj === "object" && obj instanceof TypedArray;
+}
+__name(isTypedArray, "isTypedArray");
+function isNumber(obj) {
+  return typeof obj === "number" && !isNaN(obj);
+}
+__name(isNumber, "isNumber");
+function isIterable(obj) {
+  return !!obj && typeof obj[Symbol.iterator] === "function";
+}
+__name(isIterable, "isIterable");
+function isBoolean(obj) {
+  return obj === true || obj === false;
+}
+__name(isBoolean, "isBoolean");
+function isUndefined(obj) {
+  return typeof obj === "undefined";
+}
+__name(isUndefined, "isUndefined");
+function isDefined(arg) {
+  return !isUndefinedOrNull(arg);
+}
+__name(isDefined, "isDefined");
+function isUndefinedOrNull(obj) {
+  return isUndefined(obj) || obj === null;
+}
+__name(isUndefinedOrNull, "isUndefinedOrNull");
+function assertType(condition, type) {
+  if (!condition) {
+    throw new Error(type ? `Unexpected type, expected '${type}'` : "Unexpected type");
+  }
+}
+__name(assertType, "assertType");
+function assertIsDefined(arg) {
+  assert(arg !== null && arg !== void 0, "Argument is `undefined` or `null`.");
+  return arg;
+}
+__name(assertIsDefined, "assertIsDefined");
+function assertDefined(value, error) {
+  if (value === null || value === void 0) {
+    const errorToThrow = typeof error === "string" ? new Error(error) : error;
+    throw errorToThrow;
+  }
+}
+__name(assertDefined, "assertDefined");
+function assertAllDefined(...args) {
+  const result = [];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (isUndefinedOrNull(arg)) {
+      throw new Error(`Assertion Failed: argument at index ${i} is undefined or null`);
+    }
+    result.push(arg);
+  }
+  return result;
+}
+__name(assertAllDefined, "assertAllDefined");
+function assertOneOf(item, list, errorPrefix) {
+  assert(list.includes(item), `${errorPrefix}: Expected '${item}' to be one of [${list.join(", ")}].`);
+}
+__name(assertOneOf, "assertOneOf");
+function typeCheck(_thing) {
+}
+__name(typeCheck, "typeCheck");
+const hasOwnProperty = Object.prototype.hasOwnProperty;
+function isEmptyObject(obj) {
+  if (!isObject(obj)) {
+    return false;
+  }
+  for (const key in obj) {
+    if (hasOwnProperty.call(obj, key)) {
+      return false;
+    }
+  }
+  return true;
+}
+__name(isEmptyObject, "isEmptyObject");
+function isFunction(obj) {
+  return typeof obj === "function";
+}
+__name(isFunction, "isFunction");
+function areFunctions(...objects) {
+  return objects.length > 0 && objects.every(isFunction);
+}
+__name(areFunctions, "areFunctions");
+function validateConstraints(args, constraints) {
+  const len = Math.min(args.length, constraints.length);
+  for (let i = 0; i < len; i++) {
+    validateConstraint(args[i], constraints[i]);
+  }
+}
+__name(validateConstraints, "validateConstraints");
+function validateConstraint(arg, constraint) {
+  if (isString(constraint)) {
+    if (typeof arg !== constraint) {
+      throw new Error(`argument does not match constraint: typeof ${constraint}`);
+    }
+  } else if (isFunction(constraint)) {
+    try {
+      if (arg instanceof constraint) {
+        return;
+      }
+    } catch {
+    }
+    if (!isUndefinedOrNull(arg) && arg.constructor === constraint) {
+      return;
+    }
+    if (constraint.length === 1 && constraint.call(void 0, arg) === true) {
+      return;
+    }
+    throw new Error(`argument does not match one of these constraints: arg instanceof constraint, arg.constructor === constraint, nor constraint(arg) === true`);
+  }
+}
+__name(validateConstraint, "validateConstraint");
+function upcast(x) {
+  return x;
+}
+__name(upcast, "upcast");
+export {
+  areFunctions,
+  assertAllDefined,
+  assertDefined,
+  assertIsDefined,
+  assertOneOf,
+  assertType,
+  isBoolean,
+  isDefined,
+  isEmptyObject,
+  isFunction,
+  isIterable,
+  isNumber,
+  isObject,
+  isString,
+  isStringArray,
+  isTypedArray,
+  isUndefined,
+  isUndefinedOrNull,
+  typeCheck,
+  upcast,
+  validateConstraint,
+  validateConstraints
+};
+//# sourceMappingURL=types.js.map

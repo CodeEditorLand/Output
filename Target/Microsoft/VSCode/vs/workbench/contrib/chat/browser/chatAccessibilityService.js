@@ -1,1 +1,67 @@
-import{status as f}from"../../../../base/browser/ui/aria/aria.js";import{Disposable as h,DisposableMap as u}from"../../../../base/common/lifecycle.js";import{AccessibilitySignal as l,IAccessibilitySignalService as _}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";import{IInstantiationService as g}from"../../../../platform/instantiation/common/instantiation.js";import{AccessibilityProgressSignalScheduler as m}from"../../../../platform/accessibilitySignal/browser/progressAccessibilitySignalScheduler.js";import{renderStringAsPlaintext as v}from"../../../../base/browser/markdownRenderer.js";import{MarkdownString as d}from"../../../../base/common/htmlContent.js";import{IConfigurationService as y}from"../../../../platform/configuration/common/configuration.js";var S=function(r,e,i,n){var s=arguments.length,t=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,i):n,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(r,e,i,n);else for(var c=r.length-1;c>=0;c--)(a=r[c])&&(t=(s<3?a(t):s>3?a(e,i,t):a(e,i))||t);return s>3&&t&&Object.defineProperty(e,i,t),t},o=function(r,e){return function(i,n){e(i,n,r)}};const b=4e3;let p=class extends h{constructor(e,i,n){super(),this._accessibilitySignalService=e,this._instantiationService=i,this._configurationService=n,this._pendingSignalMap=this._register(new u),this._requestId=0}acceptRequest(){return this._requestId++,this._accessibilitySignalService.playSignal(l.chatRequestSent,{allowManyInParallel:!0}),this._pendingSignalMap.set(this._requestId,this._instantiationService.createInstance(m,b,void 0)),this._requestId}acceptResponse(e,i,n){this._pendingSignalMap.deleteAndDispose(i);const s=typeof e!="string",t=typeof e=="string"?e:e?.response.toString();if(this._accessibilitySignalService.playSignal(l.chatResponseReceived,{allowManyInParallel:!0}),!e||!t)return;const a=s&&e.errorDetails?` ${e.errorDetails.message}`:"",c=v(new d(t));(!n||this._configurationService.getValue("accessibility.voice.autoSynthesize")!=="on")&&f(c+a)}};p=S([o(0,_),o(1,g),o(2,y)],p);export{p as ChatAccessibilityService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { status } from "../../../../base/browser/ui/aria/aria.js";
+import { Disposable, DisposableMap } from "../../../../base/common/lifecycle.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { AccessibilityProgressSignalScheduler } from "../../../../platform/accessibilitySignal/browser/progressAccessibilitySignalScheduler.js";
+import { renderStringAsPlaintext } from "../../../../base/browser/markdownRenderer.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const CHAT_RESPONSE_PENDING_ALLOWANCE_MS = 4e3;
+let ChatAccessibilityService = class ChatAccessibilityService2 extends Disposable {
+  static {
+    __name(this, "ChatAccessibilityService");
+  }
+  constructor(_accessibilitySignalService, _instantiationService, _configurationService) {
+    super();
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this._instantiationService = _instantiationService;
+    this._configurationService = _configurationService;
+    this._pendingSignalMap = this._register(new DisposableMap());
+    this._requestId = 0;
+  }
+  acceptRequest() {
+    this._requestId++;
+    this._accessibilitySignalService.playSignal(AccessibilitySignal.chatRequestSent, { allowManyInParallel: true });
+    this._pendingSignalMap.set(this._requestId, this._instantiationService.createInstance(AccessibilityProgressSignalScheduler, CHAT_RESPONSE_PENDING_ALLOWANCE_MS, void 0));
+    return this._requestId;
+  }
+  acceptResponse(response, requestId, isVoiceInput) {
+    this._pendingSignalMap.deleteAndDispose(requestId);
+    const isPanelChat = typeof response !== "string";
+    const responseContent = typeof response === "string" ? response : response?.response.toString();
+    this._accessibilitySignalService.playSignal(AccessibilitySignal.chatResponseReceived, { allowManyInParallel: true });
+    if (!response || !responseContent) {
+      return;
+    }
+    const errorDetails = isPanelChat && response.errorDetails ? ` ${response.errorDetails.message}` : "";
+    const plainTextResponse = renderStringAsPlaintext(new MarkdownString(responseContent));
+    if (!isVoiceInput || this._configurationService.getValue(
+      "accessibility.voice.autoSynthesize"
+      /* AccessibilityVoiceSettingId.AutoSynthesize */
+    ) !== "on") {
+      status(plainTextResponse + errorDetails);
+    }
+  }
+};
+ChatAccessibilityService = __decorate([
+  __param(0, IAccessibilitySignalService),
+  __param(1, IInstantiationService),
+  __param(2, IConfigurationService)
+], ChatAccessibilityService);
+export {
+  ChatAccessibilityService
+};
+//# sourceMappingURL=chatAccessibilityService.js.map

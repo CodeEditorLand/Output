@@ -1,1 +1,274 @@
-import"./media/editorplaceholder.css";import{localize as c}from"../../../../nls.js";import{truncate as q}from"../../../../base/common/strings.js";import R from"../../../../base/common/severity.js";import{isEditorOpenError as S}from"../../../common/editor.js";import{EditorPane as N}from"./editorPane.js";import{ITelemetryService as D}from"../../../../platform/telemetry/common/telemetry.js";import{DomScrollableElement as $}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{IThemeService as L}from"../../../../platform/theme/common/themeService.js";import{size as F,clearNode as _,$ as f,EventHelper as M}from"../../../../base/browser/dom.js";import{DisposableStore as H,MutableDisposable as j}from"../../../../base/common/lifecycle.js";import{IStorageService as w}from"../../../../platform/storage/common/storage.js";import{assertAllDefined as k}from"../../../../base/common/types.js";import{ICommandService as z}from"../../../../platform/commands/common/commands.js";import{IWorkspaceContextService as G,isSingleFolderWorkspaceIdentifier as X,toWorkspaceIdentifier as U}from"../../../../platform/workspace/common/workspace.js";import{EditorOpenSource as J}from"../../../../platform/editor/common/editor.js";import{computeEditorAriaLabel as K,EditorPaneDescriptor as W}from"../../editor.js";import{ButtonBar as Q}from"../../../../base/browser/ui/button/button.js";import{defaultButtonStyles as V}from"../../../../platform/theme/browser/defaultStyles.js";import{SimpleIconLabel as Y}from"../../../../base/browser/ui/iconLabel/simpleIconLabel.js";import{IFileService as Z}from"../../../../platform/files/common/files.js";import{toErrorMessage as ee}from"../../../../base/common/errorMessage.js";import{IDialogService as te}from"../../../../platform/dialogs/common/dialogs.js";var I=function(l,t,r,o){var i=arguments.length,e=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(l,t,r,o);else for(var a=l.length-1;a>=0;a--)(s=l[a])&&(e=(i<3?s(e):i>3?s(t,r,e):s(t,r))||e);return i>3&&e&&Object.defineProperty(t,r,e),e},n=function(l,t){return function(r,o){t(r,o,l)}},T,m,b;let g=class extends N{static{T=this}static{this.PLACEHOLDER_LABEL_MAX_LENGTH=1024}constructor(t,r,o,i,e){super(t,r,o,i,e),this.inputDisposable=this._register(new j)}createEditor(t){this.container=f(".monaco-editor-pane-placeholder",{tabIndex:0}),this.container.style.outline="none",this.scrollbar=this._register(new $(this.container,{horizontal:1,vertical:1})),t.appendChild(this.scrollbar.getDomNode())}async setInput(t,r,o,i){await super.setInput(t,r,o,i),!i.isCancellationRequested&&(this.inputDisposable.value=await this.renderInput(t,r))}async renderInput(t,r){const[o,i]=k(this.container,this.scrollbar);_(o);const e=new H,{icon:s,label:a,actions:d}=await this.getContents(t,r,e),u=q(a,T.PLACEHOLDER_LABEL_MAX_LENGTH),h=o.appendChild(f(".editor-placeholder-icon-container")),E=e.add(new Y(h));E.text=s;const v=o.appendChild(f(".editor-placeholder-label-container")),C=f("span");if(C.textContent=u,v.appendChild(C),o.setAttribute("aria-label",`${K(t,void 0,this.group,void 0)}, ${u}`),d.length){const B=o.appendChild(f(".editor-placeholder-buttons-container")),O=e.add(new Q(B));for(let p=0;p<d.length;p++){const x=e.add(O.addButton({...V,secondary:p!==0}));x.label=d[p].label,e.add(x.onDidClick(P=>{P&&M.stop(P,!0),d[p].run()}))}}return i.scanDomNode(),e}clearInput(){this.container&&_(this.container),this.inputDisposable.clear(),super.clearInput()}layout(t){const[r,o]=k(this.container,this.scrollbar);F(r,t.width,t.height),o.scanDomNode(),r.classList.toggle("max-height-200px",t.height<=200)}focus(){super.focus(),this.container?.focus()}dispose(){this.container?.remove(),super.dispose()}};g=T=I([n(2,D),n(3,L),n(4,w)],g);let y=class extends g{static{m=this}static{this.ID="workbench.editors.workspaceTrustRequiredEditor"}static{this.LABEL=c("trustRequiredEditor","Workspace Trust Required")}static{this.DESCRIPTOR=W.create(m,this.ID,this.LABEL)}constructor(t,r,o,i,e,s){super(m.ID,t,r,o,s),this.commandService=i,this.workspaceService=e}getTitle(){return m.LABEL}async getContents(){return{icon:"$(workspace-untrusted)",label:X(U(this.workspaceService.getWorkspace()))?c("requiresFolderTrustText","The file is not displayed in the editor because trust has not been granted to the folder."):c("requiresWorkspaceTrustText","The file is not displayed in the editor because trust has not been granted to the workspace."),actions:[{label:c("manageTrust","Manage Workspace Trust"),run:()=>this.commandService.executeCommand("workbench.trust.manage")}]}}};y=m=I([n(1,D),n(2,L),n(3,z),n(4,G),n(5,w)],y);let A=class extends g{static{b=this}static{this.ID="workbench.editors.errorEditor"}static{this.LABEL=c("errorEditor","Error Editor")}static{this.DESCRIPTOR=W.create(b,this.ID,this.LABEL)}constructor(t,r,o,i,e,s){super(b.ID,t,r,o,i),this.fileService=e,this.dialogService=s}async getContents(t,r,o){const i=t.resource,e=r.error,s=e?.fileOperationResult===1;let a;s?a=c("unavailableResourceErrorEditorText","The editor could not be opened because the file was not found."):S(e)&&e.forceMessage?a=e.message:e?a=c("unknownErrorEditorTextWithError","The editor could not be opened due to an unexpected error. Please consult the log for more details."):a=c("unknownErrorEditorTextWithoutError","The editor could not be opened due to an unexpected error.");let d="$(error)";S(e)&&(e.forceSeverity===R.Info?d="$(info)":e.forceSeverity===R.Warning&&(d="$(warning)"));let u;return S(e)&&e.actions.length>0?u=e.actions.map(h=>({label:h.label,run:()=>{const E=h.run();E instanceof Promise&&E.catch(v=>this.dialogService.error(ee(v)))}})):u=[{label:c("retry","Try Again"),run:()=>this.group.openEditor(t,{...r,source:J.USER})}],s&&i&&this.fileService.hasProvider(i)&&o.add(this.fileService.onDidFilesChange(h=>{h.contains(i,1,0)&&this.group.openEditor(t,r)})),{icon:d,label:a,actions:u??[]}}};A=b=I([n(1,D),n(2,L),n(3,w),n(4,Z),n(5,te)],A);export{g as EditorPlaceholder,A as ErrorPlaceholderEditor,y as WorkspaceTrustRequiredPlaceholderEditor};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./media/editorplaceholder.css";
+import { localize } from "../../../../nls.js";
+import { truncate } from "../../../../base/common/strings.js";
+import Severity from "../../../../base/common/severity.js";
+import { isEditorOpenError } from "../../../common/editor.js";
+import { EditorPane } from "./editorPane.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { size, clearNode, $, EventHelper } from "../../../../base/browser/dom.js";
+import { DisposableStore, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { assertAllDefined } from "../../../../base/common/types.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IWorkspaceContextService, isSingleFolderWorkspaceIdentifier, toWorkspaceIdentifier } from "../../../../platform/workspace/common/workspace.js";
+import { EditorOpenSource } from "../../../../platform/editor/common/editor.js";
+import { computeEditorAriaLabel, EditorPaneDescriptor } from "../../editor.js";
+import { ButtonBar } from "../../../../base/browser/ui/button/button.js";
+import { defaultButtonStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { SimpleIconLabel } from "../../../../base/browser/ui/iconLabel/simpleIconLabel.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { toErrorMessage } from "../../../../base/common/errorMessage.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var EditorPlaceholder_1;
+var WorkspaceTrustRequiredPlaceholderEditor_1;
+var ErrorPlaceholderEditor_1;
+let EditorPlaceholder = class EditorPlaceholder2 extends EditorPane {
+  static {
+    __name(this, "EditorPlaceholder");
+  }
+  static {
+    EditorPlaceholder_1 = this;
+  }
+  static {
+    this.PLACEHOLDER_LABEL_MAX_LENGTH = 1024;
+  }
+  constructor(id, group, telemetryService, themeService, storageService) {
+    super(id, group, telemetryService, themeService, storageService);
+    this.inputDisposable = this._register(new MutableDisposable());
+  }
+  createEditor(parent) {
+    this.container = $(".monaco-editor-pane-placeholder", {
+      tabIndex: 0
+      // enable focus support from the editor part (do not remove)
+    });
+    this.container.style.outline = "none";
+    this.scrollbar = this._register(new DomScrollableElement(this.container, {
+      horizontal: 1,
+      vertical: 1
+      /* ScrollbarVisibility.Auto */
+    }));
+    parent.appendChild(this.scrollbar.getDomNode());
+  }
+  async setInput(input, options, context, token) {
+    await super.setInput(input, options, context, token);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    this.inputDisposable.value = await this.renderInput(input, options);
+  }
+  async renderInput(input, options) {
+    const [container, scrollbar] = assertAllDefined(this.container, this.scrollbar);
+    clearNode(container);
+    const disposables = new DisposableStore();
+    const { icon, label, actions } = await this.getContents(input, options, disposables);
+    const truncatedLabel = truncate(label, EditorPlaceholder_1.PLACEHOLDER_LABEL_MAX_LENGTH);
+    const iconContainer = container.appendChild($(".editor-placeholder-icon-container"));
+    const iconWidget = disposables.add(new SimpleIconLabel(iconContainer));
+    iconWidget.text = icon;
+    const labelContainer = container.appendChild($(".editor-placeholder-label-container"));
+    const labelWidget = $("span");
+    labelWidget.textContent = truncatedLabel;
+    labelContainer.appendChild(labelWidget);
+    container.setAttribute("aria-label", `${computeEditorAriaLabel(input, void 0, this.group, void 0)}, ${truncatedLabel}`);
+    if (actions.length) {
+      const actionsContainer = container.appendChild($(".editor-placeholder-buttons-container"));
+      const buttons = disposables.add(new ButtonBar(actionsContainer));
+      for (let i = 0; i < actions.length; i++) {
+        const button = disposables.add(buttons.addButton({
+          ...defaultButtonStyles,
+          secondary: i !== 0
+        }));
+        button.label = actions[i].label;
+        disposables.add(button.onDidClick((e) => {
+          if (e) {
+            EventHelper.stop(e, true);
+          }
+          actions[i].run();
+        }));
+      }
+    }
+    scrollbar.scanDomNode();
+    return disposables;
+  }
+  clearInput() {
+    if (this.container) {
+      clearNode(this.container);
+    }
+    this.inputDisposable.clear();
+    super.clearInput();
+  }
+  layout(dimension) {
+    const [container, scrollbar] = assertAllDefined(this.container, this.scrollbar);
+    size(container, dimension.width, dimension.height);
+    scrollbar.scanDomNode();
+    container.classList.toggle("max-height-200px", dimension.height <= 200);
+  }
+  focus() {
+    super.focus();
+    this.container?.focus();
+  }
+  dispose() {
+    this.container?.remove();
+    super.dispose();
+  }
+};
+EditorPlaceholder = EditorPlaceholder_1 = __decorate([
+  __param(2, ITelemetryService),
+  __param(3, IThemeService),
+  __param(4, IStorageService)
+], EditorPlaceholder);
+let WorkspaceTrustRequiredPlaceholderEditor = class WorkspaceTrustRequiredPlaceholderEditor2 extends EditorPlaceholder {
+  static {
+    __name(this, "WorkspaceTrustRequiredPlaceholderEditor");
+  }
+  static {
+    WorkspaceTrustRequiredPlaceholderEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editors.workspaceTrustRequiredEditor";
+  }
+  static {
+    this.LABEL = localize("trustRequiredEditor", "Workspace Trust Required");
+  }
+  static {
+    this.DESCRIPTOR = EditorPaneDescriptor.create(WorkspaceTrustRequiredPlaceholderEditor_1, this.ID, this.LABEL);
+  }
+  constructor(group, telemetryService, themeService, commandService, workspaceService, storageService) {
+    super(WorkspaceTrustRequiredPlaceholderEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.commandService = commandService;
+    this.workspaceService = workspaceService;
+  }
+  getTitle() {
+    return WorkspaceTrustRequiredPlaceholderEditor_1.LABEL;
+  }
+  async getContents() {
+    return {
+      icon: "$(workspace-untrusted)",
+      label: isSingleFolderWorkspaceIdentifier(toWorkspaceIdentifier(this.workspaceService.getWorkspace())) ? localize("requiresFolderTrustText", "The file is not displayed in the editor because trust has not been granted to the folder.") : localize("requiresWorkspaceTrustText", "The file is not displayed in the editor because trust has not been granted to the workspace."),
+      actions: [
+        {
+          label: localize("manageTrust", "Manage Workspace Trust"),
+          run: /* @__PURE__ */ __name(() => this.commandService.executeCommand("workbench.trust.manage"), "run")
+        }
+      ]
+    };
+  }
+};
+WorkspaceTrustRequiredPlaceholderEditor = WorkspaceTrustRequiredPlaceholderEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, ICommandService),
+  __param(4, IWorkspaceContextService),
+  __param(5, IStorageService)
+], WorkspaceTrustRequiredPlaceholderEditor);
+let ErrorPlaceholderEditor = class ErrorPlaceholderEditor2 extends EditorPlaceholder {
+  static {
+    __name(this, "ErrorPlaceholderEditor");
+  }
+  static {
+    ErrorPlaceholderEditor_1 = this;
+  }
+  static {
+    this.ID = "workbench.editors.errorEditor";
+  }
+  static {
+    this.LABEL = localize("errorEditor", "Error Editor");
+  }
+  static {
+    this.DESCRIPTOR = EditorPaneDescriptor.create(ErrorPlaceholderEditor_1, this.ID, this.LABEL);
+  }
+  constructor(group, telemetryService, themeService, storageService, fileService, dialogService) {
+    super(ErrorPlaceholderEditor_1.ID, group, telemetryService, themeService, storageService);
+    this.fileService = fileService;
+    this.dialogService = dialogService;
+  }
+  async getContents(input, options, disposables) {
+    const resource = input.resource;
+    const error = options.error;
+    const isFileNotFound = error?.fileOperationResult === 1;
+    let label;
+    if (isFileNotFound) {
+      label = localize("unavailableResourceErrorEditorText", "The editor could not be opened because the file was not found.");
+    } else if (isEditorOpenError(error) && error.forceMessage) {
+      label = error.message;
+    } else if (error) {
+      label = localize("unknownErrorEditorTextWithError", "The editor could not be opened due to an unexpected error. Please consult the log for more details.");
+    } else {
+      label = localize("unknownErrorEditorTextWithoutError", "The editor could not be opened due to an unexpected error.");
+    }
+    let icon = "$(error)";
+    if (isEditorOpenError(error)) {
+      if (error.forceSeverity === Severity.Info) {
+        icon = "$(info)";
+      } else if (error.forceSeverity === Severity.Warning) {
+        icon = "$(warning)";
+      }
+    }
+    let actions = void 0;
+    if (isEditorOpenError(error) && error.actions.length > 0) {
+      actions = error.actions.map((action) => {
+        return {
+          label: action.label,
+          run: /* @__PURE__ */ __name(() => {
+            const result = action.run();
+            if (result instanceof Promise) {
+              result.catch((error2) => this.dialogService.error(toErrorMessage(error2)));
+            }
+          }, "run")
+        };
+      });
+    } else {
+      actions = [
+        {
+          label: localize("retry", "Try Again"),
+          run: /* @__PURE__ */ __name(() => this.group.openEditor(input, {
+            ...options,
+            source: EditorOpenSource.USER
+            /* explicit user gesture */
+          }), "run")
+        }
+      ];
+    }
+    if (isFileNotFound && resource && this.fileService.hasProvider(resource)) {
+      disposables.add(this.fileService.onDidFilesChange((e) => {
+        if (e.contains(
+          resource,
+          1,
+          0
+          /* FileChangeType.UPDATED */
+        )) {
+          this.group.openEditor(input, options);
+        }
+      }));
+    }
+    return { icon, label, actions: actions ?? [] };
+  }
+};
+ErrorPlaceholderEditor = ErrorPlaceholderEditor_1 = __decorate([
+  __param(1, ITelemetryService),
+  __param(2, IThemeService),
+  __param(3, IStorageService),
+  __param(4, IFileService),
+  __param(5, IDialogService)
+], ErrorPlaceholderEditor);
+export {
+  EditorPlaceholder,
+  ErrorPlaceholderEditor,
+  WorkspaceTrustRequiredPlaceholderEditor
+};
+//# sourceMappingURL=editorPlaceholder.js.map

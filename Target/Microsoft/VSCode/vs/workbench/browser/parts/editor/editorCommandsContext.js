@@ -1,1 +1,139 @@
-import{getActiveElement as m}from"../../../../base/browser/dom.js";import{List as h}from"../../../../base/browser/ui/list/listWidget.js";import{URI as F}from"../../../../base/common/uri.js";import{isEditorCommandsContext as l,isEditorIdentifier as A}from"../../../common/editor.js";import{isEditorGroup as E}from"../../../services/editor/common/editorGroupsService.js";function U(t,e,r,n){const s=L(t,e,r,n),d=s.length&&s[0].preserveFocus||!1,o={groupedEditors:[],preserveFocus:d};for(const i of s){const u=G(i,r);if(!u)continue;const{group:f,editor:p}=u;let g;for(const I of o.groupedEditors)if(I.group.id===f.id){g=I;break}g||(g={group:f,editors:[]},o.groupedEditors.push(g)),p&&g.editors.push(p)}return o}function L(t,e,r,n){const s=n.lastFocusedList;let d=s instanceof h&&s.getHTMLElement()===m(),o=C(t,d,e,r,n);if(!o){const u=r.activeGroup,f=u.activeEditor;o={groupId:u.id,editorIndex:f?u.getIndexOfEditor(f):void 0},d=!1}const i=a(o,d,e,r,n);return O(o,i)}function O(t,e){if(e.length<=1)return e;const r=e.findIndex(n=>n.groupId===t.groupId&&n.editorIndex===t.editorIndex);if(r!==-1)e.splice(r,1),e.unshift(t);else if(t.editorIndex===void 0)e.unshift(t);else throw new Error("Editor context not found in multi editor context");return e}function C(t,e,r,n,s){const d=t.filter(o=>l(o)||F.isUri(o));for(const o of d)if(l(o))return o;for(const o of d){const i=r.findEditors(o);if(i.length){const u=i[0],f=n.getGroup(u.groupId);return{groupId:u.groupId,editorIndex:f?.getIndexOfEditor(u.editor)}}}if(e){const o=s.lastFocusedList;for(const i of o.getFocusedElements())if(x(i))return c(i,void 0,n)}}function a(t,e,r,n,s){if(e){const o=s.lastFocusedList.getSelectedElements().filter(x);if(o.length>1)return o.map(i=>c(i,t.preserveFocus,n));if(o.length===0)return a(t,!1,r,n,s)}else{const d=n.getGroup(t.groupId),o=t.editorIndex!==void 0?d?.getEditorByIndex(t.editorIndex):d?.activeEditor;if(d&&o&&d.isSelected(o))return d.selectedEditors.map(i=>c({editor:i,groupId:d.id},t.preserveFocus,n))}return[t]}function c(t,e,r){if(E(t))return{groupId:t.id,editorIndex:void 0,preserveFocus:e};const n=r.getGroup(t.groupId);return{groupId:t.groupId,editorIndex:n?n.getIndexOfEditor(t.editor):-1,preserveFocus:e}}function x(t){return E(t)||A(t)}function G(t,e){const r=e.getGroup(t.groupId);if(!r)return;if(t.editorIndex===void 0)return{group:r,editor:void 0};const n=r.getEditorByIndex(t.editorIndex);return{group:r,editor:n}}export{U as resolveCommandsContext};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getActiveElement } from "../../../../base/browser/dom.js";
+import { List } from "../../../../base/browser/ui/list/listWidget.js";
+import { URI } from "../../../../base/common/uri.js";
+import { isEditorCommandsContext, isEditorIdentifier } from "../../../common/editor.js";
+import { isEditorGroup } from "../../../services/editor/common/editorGroupsService.js";
+function resolveCommandsContext(commandArgs, editorService, editorGroupsService, listService) {
+  const commandContext = getCommandsContext(commandArgs, editorService, editorGroupsService, listService);
+  const preserveFocus = commandContext.length ? commandContext[0].preserveFocus || false : false;
+  const resolvedContext = { groupedEditors: [], preserveFocus };
+  for (const editorContext of commandContext) {
+    const groupAndEditor = getEditorAndGroupFromContext(editorContext, editorGroupsService);
+    if (!groupAndEditor) {
+      continue;
+    }
+    const { group, editor } = groupAndEditor;
+    let groupContext = void 0;
+    for (const targetGroupContext of resolvedContext.groupedEditors) {
+      if (targetGroupContext.group.id === group.id) {
+        groupContext = targetGroupContext;
+        break;
+      }
+    }
+    if (!groupContext) {
+      groupContext = { group, editors: [] };
+      resolvedContext.groupedEditors.push(groupContext);
+    }
+    if (editor) {
+      groupContext.editors.push(editor);
+    }
+  }
+  return resolvedContext;
+}
+__name(resolveCommandsContext, "resolveCommandsContext");
+function getCommandsContext(commandArgs, editorService, editorGroupsService, listService) {
+  const list = listService.lastFocusedList;
+  let isListAction = list instanceof List && list.getHTMLElement() === getActiveElement();
+  let editorContext = getEditorContextFromCommandArgs(commandArgs, isListAction, editorService, editorGroupsService, listService);
+  if (!editorContext) {
+    const activeGroup = editorGroupsService.activeGroup;
+    const activeEditor = activeGroup.activeEditor;
+    editorContext = { groupId: activeGroup.id, editorIndex: activeEditor ? activeGroup.getIndexOfEditor(activeEditor) : void 0 };
+    isListAction = false;
+  }
+  const multiEditorContext = getMultiSelectContext(editorContext, isListAction, editorService, editorGroupsService, listService);
+  return moveCurrentEditorContextToFront(editorContext, multiEditorContext);
+}
+__name(getCommandsContext, "getCommandsContext");
+function moveCurrentEditorContextToFront(editorContext, multiEditorContext) {
+  if (multiEditorContext.length <= 1) {
+    return multiEditorContext;
+  }
+  const editorContextIndex = multiEditorContext.findIndex((context) => context.groupId === editorContext.groupId && context.editorIndex === editorContext.editorIndex);
+  if (editorContextIndex !== -1) {
+    multiEditorContext.splice(editorContextIndex, 1);
+    multiEditorContext.unshift(editorContext);
+  } else if (editorContext.editorIndex === void 0) {
+    multiEditorContext.unshift(editorContext);
+  } else {
+    throw new Error("Editor context not found in multi editor context");
+  }
+  return multiEditorContext;
+}
+__name(moveCurrentEditorContextToFront, "moveCurrentEditorContextToFront");
+function getEditorContextFromCommandArgs(commandArgs, isListAction, editorService, editorGroupsService, listService) {
+  const filteredArgs = commandArgs.filter((arg) => isEditorCommandsContext(arg) || URI.isUri(arg));
+  for (const arg of filteredArgs) {
+    if (isEditorCommandsContext(arg)) {
+      return arg;
+    }
+  }
+  for (const uri of filteredArgs) {
+    const editorIdentifiers = editorService.findEditors(uri);
+    if (editorIdentifiers.length) {
+      const editorIdentifier = editorIdentifiers[0];
+      const group = editorGroupsService.getGroup(editorIdentifier.groupId);
+      return { groupId: editorIdentifier.groupId, editorIndex: group?.getIndexOfEditor(editorIdentifier.editor) };
+    }
+  }
+  if (isListAction) {
+    const list = listService.lastFocusedList;
+    for (const focusedElement of list.getFocusedElements()) {
+      if (isGroupOrEditor(focusedElement)) {
+        return groupOrEditorToEditorContext(focusedElement, void 0, editorGroupsService);
+      }
+    }
+  }
+  return void 0;
+}
+__name(getEditorContextFromCommandArgs, "getEditorContextFromCommandArgs");
+function getMultiSelectContext(editorContext, isListAction, editorService, editorGroupsService, listService) {
+  if (isListAction) {
+    const list = listService.lastFocusedList;
+    const selection = list.getSelectedElements().filter(isGroupOrEditor);
+    if (selection.length > 1) {
+      return selection.map((e) => groupOrEditorToEditorContext(e, editorContext.preserveFocus, editorGroupsService));
+    }
+    if (selection.length === 0) {
+      return getMultiSelectContext(editorContext, false, editorService, editorGroupsService, listService);
+    }
+  } else {
+    const group = editorGroupsService.getGroup(editorContext.groupId);
+    const editor = editorContext.editorIndex !== void 0 ? group?.getEditorByIndex(editorContext.editorIndex) : group?.activeEditor;
+    if (group && editor && group.isSelected(editor)) {
+      return group.selectedEditors.map((editor2) => groupOrEditorToEditorContext({ editor: editor2, groupId: group.id }, editorContext.preserveFocus, editorGroupsService));
+    }
+  }
+  return [editorContext];
+}
+__name(getMultiSelectContext, "getMultiSelectContext");
+function groupOrEditorToEditorContext(element, preserveFocus, editorGroupsService) {
+  if (isEditorGroup(element)) {
+    return { groupId: element.id, editorIndex: void 0, preserveFocus };
+  }
+  const group = editorGroupsService.getGroup(element.groupId);
+  return { groupId: element.groupId, editorIndex: group ? group.getIndexOfEditor(element.editor) : -1, preserveFocus };
+}
+__name(groupOrEditorToEditorContext, "groupOrEditorToEditorContext");
+function isGroupOrEditor(element) {
+  return isEditorGroup(element) || isEditorIdentifier(element);
+}
+__name(isGroupOrEditor, "isGroupOrEditor");
+function getEditorAndGroupFromContext(commandContext, editorGroupsService) {
+  const group = editorGroupsService.getGroup(commandContext.groupId);
+  if (!group) {
+    return void 0;
+  }
+  if (commandContext.editorIndex === void 0) {
+    return { group, editor: void 0 };
+  }
+  const editor = group.getEditorByIndex(commandContext.editorIndex);
+  return { group, editor };
+}
+__name(getEditorAndGroupFromContext, "getEditorAndGroupFromContext");
+export {
+  resolveCommandsContext
+};
+//# sourceMappingURL=editorCommandsContext.js.map

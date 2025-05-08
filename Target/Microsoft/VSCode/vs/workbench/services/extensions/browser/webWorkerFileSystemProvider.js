@@ -1,1 +1,60 @@
-import{FileType as a,FileSystemProviderErrorCode as o,createFileSystemProviderError as i}from"../../../../platform/files/common/files.js";import{Event as n}from"../../../../base/common/event.js";import{Disposable as c}from"../../../../base/common/lifecycle.js";import{NotSupportedError as t}from"../../../../base/common/errors.js";class l{constructor(){this.capabilities=3074,this.onDidChangeCapabilities=n.None,this.onDidChangeFile=n.None}async readFile(e){try{const r=await fetch(e.toString(!0));if(r.status===200)return new Uint8Array(await r.arrayBuffer());throw i(r.statusText,o.Unknown)}catch(r){throw i(r,o.Unknown)}}async stat(e){return{type:a.File,size:0,mtime:0,ctime:0}}watch(){return c.None}writeFile(e,r,s){throw new t}readdir(e){throw new t}mkdir(e){throw new t}delete(e,r){throw new t}rename(e,r,s){throw new t}}export{l as FetchFileSystemProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FileType, FileSystemProviderErrorCode, createFileSystemProviderError } from "../../../../platform/files/common/files.js";
+import { Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { NotSupportedError } from "../../../../base/common/errors.js";
+class FetchFileSystemProvider {
+  static {
+    __name(this, "FetchFileSystemProvider");
+  }
+  constructor() {
+    this.capabilities = 2048 + 2 + 1024;
+    this.onDidChangeCapabilities = Event.None;
+    this.onDidChangeFile = Event.None;
+  }
+  // working implementations
+  async readFile(resource) {
+    try {
+      const res = await fetch(resource.toString(true));
+      if (res.status === 200) {
+        return new Uint8Array(await res.arrayBuffer());
+      }
+      throw createFileSystemProviderError(res.statusText, FileSystemProviderErrorCode.Unknown);
+    } catch (err) {
+      throw createFileSystemProviderError(err, FileSystemProviderErrorCode.Unknown);
+    }
+  }
+  // fake implementations
+  async stat(_resource) {
+    return {
+      type: FileType.File,
+      size: 0,
+      mtime: 0,
+      ctime: 0
+    };
+  }
+  watch() {
+    return Disposable.None;
+  }
+  // error implementations
+  writeFile(_resource, _content, _opts) {
+    throw new NotSupportedError();
+  }
+  readdir(_resource) {
+    throw new NotSupportedError();
+  }
+  mkdir(_resource) {
+    throw new NotSupportedError();
+  }
+  delete(_resource, _opts) {
+    throw new NotSupportedError();
+  }
+  rename(_from, _to, _opts) {
+    throw new NotSupportedError();
+  }
+}
+export {
+  FetchFileSystemProvider
+};
+//# sourceMappingURL=webWorkerFileSystemProvider.js.map

@@ -1,1 +1,115 @@
-import{localize as h}from"../../nls.js";import{ContextKeyExpr as a,RawContextKey as l}from"../../platform/contextkey/common/contextkey.js";import{IKeybindingService as S}from"../../platform/keybinding/common/keybinding.js";import{IQuickInputService as v}from"../../platform/quickinput/common/quickInput.js";import{Disposable as k}from"../../base/common/lifecycle.js";import{getIEditor as m}from"../../editor/browser/editorBrowser.js";import{IEditorGroupsService as w}from"../services/editor/common/editorGroupsService.js";import{IEditorService as g}from"../services/editor/common/editorService.js";var f=function(o,e,t,i){var n=arguments.length,r=n<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,i);else for(var c=o.length-1;c>=0;c--)(s=o[c])&&(r=(n<3?s(r):n>3?s(e,t,r):s(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},p=function(o,e){return function(t,i){e(t,i,o)}};const u="inQuickOpen",K=new l(u,!1,h("inQuickOpen","Whether keyboard focus is inside the quick open control")),_=a.has(u),x="inFilesPicker",T=a.and(_,a.has(x));function O(o,e){return t=>{const i=t.get(S),n=t.get(v),s={keybindings:i.lookupKeybindings(o)};n.navigate(!!e,s)}}let d=class extends k{constructor(e,t){super(),this.editorService=e,this.editorGroupsService=t,this._editorViewState=void 0,this.openedTransientEditors=new Set}set(){if(this._editorViewState)return;const e=this.editorService.activeEditorPane;e&&(this._editorViewState={group:e.group,editor:e.input,state:m(e.getControl())?.saveViewState()??void 0})}async openTransientEditor(e,t){e.options={...e.options,transient:!0};const i=await this.editorService.openEditor(e,t);return i?.input&&i.input!==this._editorViewState?.editor&&i.group.isTransient(i.input)&&this.openedTransientEditors.add(i.input),i}async restore(){if(this._editorViewState){for(const e of this.openedTransientEditors)if(!e.isDirty())for(const t of this.editorGroupsService.groups)t.isTransient(e)&&await t.closeEditor(e,{preserveFocus:!0});await this._editorViewState.group.openEditor(this._editorViewState.editor,{viewState:this._editorViewState.state,preserveFocus:!0}),this.reset()}}reset(){this._editorViewState=void 0,this.openedTransientEditors.clear()}dispose(){super.dispose(),this.reset()}};d=f([p(0,g),p(1,w)],d);export{K as InQuickPickContextKey,d as PickerEditorState,T as defaultQuickAccessContext,x as defaultQuickAccessContextKeyValue,O as getQuickNavigateHandler,_ as inQuickPickContext,u as inQuickPickContextKeyValue};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../nls.js";
+import { ContextKeyExpr, RawContextKey } from "../../platform/contextkey/common/contextkey.js";
+import { IKeybindingService } from "../../platform/keybinding/common/keybinding.js";
+import { IQuickInputService } from "../../platform/quickinput/common/quickInput.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+import { getIEditor } from "../../editor/browser/editorBrowser.js";
+import { IEditorGroupsService } from "../services/editor/common/editorGroupsService.js";
+import { IEditorService } from "../services/editor/common/editorService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const inQuickPickContextKeyValue = "inQuickOpen";
+const InQuickPickContextKey = new RawContextKey(inQuickPickContextKeyValue, false, localize("inQuickOpen", "Whether keyboard focus is inside the quick open control"));
+const inQuickPickContext = ContextKeyExpr.has(inQuickPickContextKeyValue);
+const defaultQuickAccessContextKeyValue = "inFilesPicker";
+const defaultQuickAccessContext = ContextKeyExpr.and(inQuickPickContext, ContextKeyExpr.has(defaultQuickAccessContextKeyValue));
+function getQuickNavigateHandler(id, next) {
+  return (accessor) => {
+    const keybindingService = accessor.get(IKeybindingService);
+    const quickInputService = accessor.get(IQuickInputService);
+    const keys = keybindingService.lookupKeybindings(id);
+    const quickNavigate = { keybindings: keys };
+    quickInputService.navigate(!!next, quickNavigate);
+  };
+}
+__name(getQuickNavigateHandler, "getQuickNavigateHandler");
+let PickerEditorState = class PickerEditorState2 extends Disposable {
+  static {
+    __name(this, "PickerEditorState");
+  }
+  constructor(editorService, editorGroupsService) {
+    super();
+    this.editorService = editorService;
+    this.editorGroupsService = editorGroupsService;
+    this._editorViewState = void 0;
+    this.openedTransientEditors = /* @__PURE__ */ new Set();
+  }
+  set() {
+    if (this._editorViewState) {
+      return;
+    }
+    const activeEditorPane = this.editorService.activeEditorPane;
+    if (activeEditorPane) {
+      this._editorViewState = {
+        group: activeEditorPane.group,
+        editor: activeEditorPane.input,
+        state: getIEditor(activeEditorPane.getControl())?.saveViewState() ?? void 0
+      };
+    }
+  }
+  /**
+   * Open a transient editor such that it may be closed when the state is restored.
+   * Note that, when the state is restored, if the editor is no longer transient, it will not be closed.
+   */
+  async openTransientEditor(editor, group) {
+    editor.options = { ...editor.options, transient: true };
+    const editorPane = await this.editorService.openEditor(editor, group);
+    if (editorPane?.input && editorPane.input !== this._editorViewState?.editor && editorPane.group.isTransient(editorPane.input)) {
+      this.openedTransientEditors.add(editorPane.input);
+    }
+    return editorPane;
+  }
+  async restore() {
+    if (this._editorViewState) {
+      for (const editor of this.openedTransientEditors) {
+        if (editor.isDirty()) {
+          continue;
+        }
+        for (const group of this.editorGroupsService.groups) {
+          if (group.isTransient(editor)) {
+            await group.closeEditor(editor, { preserveFocus: true });
+          }
+        }
+      }
+      await this._editorViewState.group.openEditor(this._editorViewState.editor, {
+        viewState: this._editorViewState.state,
+        preserveFocus: true
+        // important to not close the picker as a result
+      });
+      this.reset();
+    }
+  }
+  reset() {
+    this._editorViewState = void 0;
+    this.openedTransientEditors.clear();
+  }
+  dispose() {
+    super.dispose();
+    this.reset();
+  }
+};
+PickerEditorState = __decorate([
+  __param(0, IEditorService),
+  __param(1, IEditorGroupsService)
+], PickerEditorState);
+export {
+  InQuickPickContextKey,
+  PickerEditorState,
+  defaultQuickAccessContext,
+  defaultQuickAccessContextKeyValue,
+  getQuickNavigateHandler,
+  inQuickPickContext,
+  inQuickPickContextKeyValue
+};
+//# sourceMappingURL=quickaccess.js.map

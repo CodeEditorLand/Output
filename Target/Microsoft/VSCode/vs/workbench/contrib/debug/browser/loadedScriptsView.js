@@ -1,1 +1,684 @@
-import{TreeFindMode as F}from"../../../../base/browser/ui/tree/abstractTree.js";import{RunOnceScheduler as A}from"../../../../base/common/async.js";import{Codicon as N}from"../../../../base/common/codicons.js";import{createMatches as V}from"../../../../base/common/filters.js";import{normalizeDriveLetter as M,tildify as z}from"../../../../base/common/labels.js";import{dispose as L}from"../../../../base/common/lifecycle.js";import{isAbsolute as B,normalize as C,posix as I}from"../../../../base/common/path.js";import{isWindows as H}from"../../../../base/common/platform.js";import{ltrim as W}from"../../../../base/common/strings.js";import{URI as w}from"../../../../base/common/uri.js";import*as m from"../../../../nls.js";import{MenuId as $,registerAction2 as k}from"../../../../platform/actions/common/actions.js";import{IConfigurationService as K}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as U,IContextKeyService as j}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as X}from"../../../../platform/contextview/browser/contextView.js";import{FileKind as v}from"../../../../platform/files/common/files.js";import{IHoverService as q}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as G}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as Y}from"../../../../platform/keybinding/common/keybinding.js";import{ILabelService as Z}from"../../../../platform/label/common/label.js";import{WorkbenchCompressibleObjectTree as J}from"../../../../platform/list/browser/listService.js";import{IOpenerService as Q}from"../../../../platform/opener/common/opener.js";import{IThemeService as ee}from"../../../../platform/theme/common/themeService.js";import{IWorkspaceContextService as te}from"../../../../platform/workspace/common/workspace.js";import{ResourceLabels as ie}from"../../../browser/labels.js";import{ViewAction as re,ViewPane as se}from"../../../browser/parts/views/viewPane.js";import{IViewDescriptorService as ne}from"../../../common/views.js";import{IEditorService as oe}from"../../../services/editor/common/editorService.js";import{IPathService as ae}from"../../../services/path/common/pathService.js";import{CONTEXT_LOADED_SCRIPTS_ITEM_TYPE as le,IDebugService as ce,LOADED_SCRIPTS_VIEW_ID as y}from"../common/debug.js";import{DebugContentProvider as he}from"../common/debugContentProvider.js";import{renderViewTree as de}from"./baseDebugView.js";var x=function(c,e,t,i){var r=arguments.length,n=r<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(c,e,t,i);else for(var l=c.length-1;l>=0;l--)(o=c[l])&&(n=(r<3?o(n):r>3?o(e,t,n):o(e,t))||n);return r>3&&n&&Object.defineProperty(e,t,n),n},d=function(c,e){return function(t,i){e(t,i,c)}};const R=!0,ue=/^[a-zA-Z][a-zA-Z0-9\+\-\.]+:/;class p{constructor(e,t,i=!1){this._parent=e,this._label=t,this.isIncompressible=i,this._children=new Map,this._showedMoreThanOne=!1}updateLabel(e){this._label=e}isLeaf(){return this._children.size===0}getSession(){if(this._parent)return this._parent.getSession()}setSource(e,t){if(this._source=t,this._children.clear(),t.raw&&t.raw.sources){for(const i of t.raw.sources)if(i.name&&i.path){const r=new p(this,i.name);this._children.set(i.path,r);const n=e.getSource(i);r.setSource(e,n)}}}createIfNeeded(e,t){let i=this._children.get(e);return i||(i=t(this,e),this._children.set(e,i)),i}getChild(e){return this._children.get(e)}remove(e){this._children.delete(e)}removeFromParent(){this._parent&&(this._parent.remove(this._label),this._parent._children.size===0&&this._parent.removeFromParent())}getTemplateId(){return"id"}getId(){const e=this.getParent();return e?`${e.getId()}/${this.getInternalId()}`:this.getInternalId()}getInternalId(){return this._label}getParent(){if(this._parent)return this._parent.isSkipped()?this._parent.getParent():this._parent}isSkipped(){return this._parent?!!this._parent.oneChild():!0}hasChildren(){const e=this.oneChild();return e?e.hasChildren():this._children.size>0}getChildren(){const e=this.oneChild();if(e)return e.getChildren();const t=[];for(const i of this._children.values())t.push(i);return t.sort((i,r)=>this.compare(i,r))}getLabel(e=!0){const t=this.oneChild();if(t){const i=this instanceof b&&e?" \u2022 ":I.sep;return`${this._label}${i}${t.getLabel()}`}return this._label}getHoverLabel(){if(this._source&&this._parent&&this._parent._source)return this._source.raw.path||this._source.raw.name;const e=this.getLabel(!1),t=this.getParent();if(t){const i=t.getHoverLabel();if(i)return`${i}/${e}`}return e}getSource(){const e=this.oneChild();return e?e.getSource():this._source}compare(e,t){return e._label&&t._label?e._label.localeCompare(t._label):0}oneChild(){if(!this._source&&!this._showedMoreThanOne&&this.skipOneChild()){if(this._children.size===1)return this._children.values().next().value;this._children.size>1&&(this._showedMoreThanOne=!0)}}skipOneChild(){return R?this instanceof T:!(this instanceof b)&&!(this instanceof g)}}class b extends p{constructor(e,t){super(e,t.name,!0),this.folder=t}}class T extends p{constructor(e,t,i){super(void 0,"Root"),this._pathService=e,this._contextService=t,this._labelService=i}add(e){return this.createIfNeeded(e.getId(),()=>new g(this._labelService,this,e,this._pathService,this._contextService))}find(e){return this.getChild(e.getId())}}class g extends p{static{this.URL_REGEXP=/^(https?:\/\/[^/]+)(\/.*)$/}constructor(e,t,i,r,n){super(t,i.getLabel(),!0),this._pathService=r,this.rootProvider=n,this._map=new Map,this._labelService=e,this._session=i}getInternalId(){return this._session.getId()}getSession(){return this._session}getHoverLabel(){}hasChildren(){return!0}compare(e,t){const i=this.category(e),r=this.category(t);return i!==r?i-r:super.compare(e,t)}category(e){if(e instanceof b)return e.folder.index;const t=e.getLabel();return t&&/^<.+>$/.test(t)?1e3:999}async addPath(e){let t,i,r=e.raw.path;if(!r)return;this._labelService&&ue.test(r)&&(r=this._labelService.getUriLabel(w.parse(r)));const n=g.URL_REGEXP.exec(r);if(n&&n.length===3)i=n[1],r=decodeURI(n[2]);else if(B(r)){const l=w.file(r);t=this.rootProvider?this.rootProvider.getWorkspaceFolder(l):null,t?(r=C(W(l.path.substring(t.uri.path.length),I.sep)),this.rootProvider.getWorkspace().folders.length>1?r=I.sep+r:t=null):(r=C(r),H?r=M(r):r=z(r,(await this._pathService.userHome()).fsPath))}let o=this;r.split(/[\/\\]/).forEach((l,u)=>{if(u===0&&t){const s=t;o=o.createIfNeeded(t.name,a=>new b(a,s))}else u===0&&i?o=o.createIfNeeded(i,s=>new p(s,i)):o=o.createIfNeeded(l,s=>new p(s,l))}),o.setSource(this._session,e),e.raw.path&&this._map.set(e.raw.path,o)}removePath(e){if(e.raw.path){const t=this._map.get(e.raw.path);if(t)return t.removeFromParent(),!0}return!1}}function D(c,e){const t=c.getChildren(),i=e?!e.expanded.has(c.getId()):!(c instanceof g);return{element:c,collapsed:i,collapsible:c.hasChildren(),children:t.map(r=>D(r,e))}}let P=class extends se{constructor(e,t,i,r,n,o,l,u,s,a,h,f,_,E,O){super(e,i,t,o,u,n,r,_,E,O),this.editorService=l,this.contextService=s,this.debugService=a,this.labelService=h,this.pathService=f,this.treeNeedsRefreshOnVisible=!1,this.loadedScriptsItemType=le.bindTo(u)}renderBody(e){super.renderBody(e),this.element.classList.add("debug-pane"),e.classList.add("debug-loaded-scripts","show-file-icons"),this.treeContainer=de(e),this.filter=new ge;const t=new T(this.pathService,this.contextService,this.labelService);this.treeLabels=this.instantiationService.createInstance(ie,{onDidChangeVisibility:this.onDidChangeBodyVisibility}),this._register(this.treeLabels);const i=s=>{this.treeContainer.classList.toggle("align-icons-and-twisties",s.hasFileIcons&&!s.hasFolderIcons),this.treeContainer.classList.toggle("hide-arrows",s.hidesExplorerArrows===!0)};this._register(this.themeService.onDidFileIconThemeChange(i)),i(this.themeService.getFileIconTheme()),this.tree=this.instantiationService.createInstance(J,"LoadedScriptsView",this.treeContainer,new pe,[new S(this.treeLabels)],{compressionEnabled:R,collapseByDefault:!0,hideTwistiesOfChildlessElements:!0,identityProvider:{getId:s=>s.getId()},keyboardNavigationLabelProvider:{getKeyboardNavigationLabel:s=>s.getLabel(),getCompressedNodeKeyboardNavigationLabel:s=>s.map(a=>a.getLabel()).join("/")},filter:this.filter,accessibilityProvider:new fe,overrideStyles:this.getLocationBasedColors().listOverrideStyles});const r=s=>this.tree.setChildren(null,D(t,s).children);r(),this.changeScheduler=new A(()=>{this.treeNeedsRefreshOnVisible=!1,this.tree&&r()},300),this._register(this.changeScheduler),this._register(this.tree.onDidOpen(s=>{if(s.element instanceof p){const a=s.element.getSource();if(a&&a.available){const h={startLineNumber:0,startColumn:0,endLineNumber:0,endColumn:0};a.openInEditor(this.editorService,h,s.editorOptions.preserveFocus,s.sideBySide,s.editorOptions.pinned)}}})),this._register(this.tree.onDidChangeFocus(()=>{this.tree.getFocus()instanceof g?this.loadedScriptsItemType.set("session"):this.loadedScriptsItemType.reset()}));const n=()=>{this.isBodyVisible()?this.changeScheduler.schedule():this.treeNeedsRefreshOnVisible=!0},o=async s=>{if(s.capabilities.supportsLoadedSourcesRequest){const a=t.add(s),h=await s.getLoadedSources();for(const f of h)await a.addPath(f);n()}},l=s=>{this._register(s.onDidChangeName(async()=>{const a=t.find(s);a&&(a.updateLabel(s.getLabel()),n())})),this._register(s.onDidLoadedSource(async a=>{let h;switch(a.reason){case"new":case"changed":h=t.add(s),await h.addPath(a.source),n(),a.reason==="changed"&&he.refreshDebugContent(a.source.uri);break;case"removed":h=t.find(s),h&&h.removePath(a.source)&&n();break;default:this.filter.setFilter(a.source.name),this.tree.refilter();break}}))};this._register(this.debugService.onDidNewSession(l)),this.debugService.getModel().getSessions().forEach(l),this._register(this.debugService.onDidEndSession(({session:s})=>{t.remove(s.getId()),this.changeScheduler.schedule()})),this.changeScheduler.schedule(0),this._register(this.onDidChangeBodyVisibility(s=>{s&&this.treeNeedsRefreshOnVisible&&this.changeScheduler.schedule()}));let u;this._register(this.tree.onDidChangeFindPattern(s=>{if(this.tree.findMode!==F.Highlight)if(!u&&s){const a=new Set,h=f=>{f.element&&!f.collapsed&&a.add(f.element.getId());for(const _ of f.children)h(_)};h(this.tree.getNode()),u={expanded:a},this.tree.expandAll()}else!s&&u&&(this.tree.setFocus([]),r(u),u=void 0)})),this.debugService.getModel().getSessions().forEach(s=>o(s))}layoutBody(e,t){super.layoutBody(e,t),this.tree.layout(e,t)}collapseAll(){this.tree.collapseAll()}dispose(){L(this.tree),L(this.treeLabels),super.dispose()}};P=x([d(1,X),d(2,Y),d(3,G),d(4,ne),d(5,K),d(6,oe),d(7,j),d(8,te),d(9,ce),d(10,Z),d(11,ae),d(12,Q),d(13,ee),d(14,q)],P);class pe{getHeight(e){return 22}getTemplateId(e){return S.ID}}class S{static{this.ID="lsrenderer"}constructor(e){this.labels=e}get templateId(){return S.ID}renderTemplate(e){return{label:this.labels.create(e,{supportHighlights:!0})}}renderElement(e,t,i){const r=e.element,n=r.getLabel();this.render(r,n,i,e.filterData)}renderCompressedElements(e,t,i,r){const n=e.element.elements[e.element.elements.length-1],o=e.element.elements.map(l=>l.getLabel());this.render(n,o,i,e.filterData)}render(e,t,i,r){const n={name:t},o={title:e.getHoverLabel()};if(e instanceof b)o.fileKind=v.ROOT_FOLDER;else if(e instanceof g)o.title=m.localize("loadedScriptsSession","Debug Session"),o.hideIcon=!0;else if(e instanceof p){const l=e.getSource();l&&l.uri?(n.resource=l.uri,o.fileKind=v.FILE):o.fileKind=v.FOLDER}o.matches=V(r),i.label.setResource(n,o)}disposeTemplate(e){e.label.dispose()}}class fe{getWidgetAriaLabel(){return m.localize({comment:["Debug is a noun in this context, not a verb."],key:"loadedScriptsAriaLabel"},"Debug Loaded Scripts")}getAriaLabel(e){return e instanceof b?m.localize("loadedScriptsRootFolderAriaLabel","Workspace folder {0}, loaded script, debug",e.getLabel()):e instanceof g?m.localize("loadedScriptsSessionAriaLabel","Session {0}, loaded script, debug",e.getLabel()):e.hasChildren()?m.localize("loadedScriptsFolderAriaLabel","Folder {0}, loaded script, debug",e.getLabel()):m.localize("loadedScriptsSourceAriaLabel","{0}, loaded script, debug",e.getLabel())}}class ge{setFilter(e){this.filterText=e}filter(e,t){return this.filterText?e.isLeaf()?e.getLabel().indexOf(this.filterText)>=0?1:0:2:1}}k(class extends re{constructor(){super({id:"loadedScripts.collapse",viewId:y,title:m.localize("collapse","Collapse All"),f1:!1,icon:N.collapseAll,menu:{id:$.ViewTitle,order:30,group:"navigation",when:U.equals("view",y)}})}runInView(e,t){t.collapseAll()}});export{P as LoadedScriptsView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { TreeFindMode } from "../../../../base/browser/ui/tree/abstractTree.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { createMatches } from "../../../../base/common/filters.js";
+import { normalizeDriveLetter, tildify } from "../../../../base/common/labels.js";
+import { dispose } from "../../../../base/common/lifecycle.js";
+import { isAbsolute, normalize, posix } from "../../../../base/common/path.js";
+import { isWindows } from "../../../../base/common/platform.js";
+import { ltrim } from "../../../../base/common/strings.js";
+import { URI } from "../../../../base/common/uri.js";
+import * as nls from "../../../../nls.js";
+import { MenuId, registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { FileKind } from "../../../../platform/files/common/files.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { WorkbenchCompressibleObjectTree } from "../../../../platform/list/browser/listService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkspaceContextService } from "../../../../platform/workspace/common/workspace.js";
+import { ResourceLabels } from "../../../browser/labels.js";
+import { ViewAction, ViewPane } from "../../../browser/parts/views/viewPane.js";
+import { IViewDescriptorService } from "../../../common/views.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IPathService } from "../../../services/path/common/pathService.js";
+import { CONTEXT_LOADED_SCRIPTS_ITEM_TYPE, IDebugService, LOADED_SCRIPTS_VIEW_ID } from "../common/debug.js";
+import { DebugContentProvider } from "../common/debugContentProvider.js";
+import { renderViewTree } from "./baseDebugView.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const NEW_STYLE_COMPRESS = true;
+const URI_SCHEMA_PATTERN = /^[a-zA-Z][a-zA-Z0-9\+\-\.]+:/;
+class BaseTreeItem {
+  static {
+    __name(this, "BaseTreeItem");
+  }
+  constructor(_parent, _label, isIncompressible = false) {
+    this._parent = _parent;
+    this._label = _label;
+    this.isIncompressible = isIncompressible;
+    this._children = /* @__PURE__ */ new Map();
+    this._showedMoreThanOne = false;
+  }
+  updateLabel(label) {
+    this._label = label;
+  }
+  isLeaf() {
+    return this._children.size === 0;
+  }
+  getSession() {
+    if (this._parent) {
+      return this._parent.getSession();
+    }
+    return void 0;
+  }
+  setSource(session, source) {
+    this._source = source;
+    this._children.clear();
+    if (source.raw && source.raw.sources) {
+      for (const src of source.raw.sources) {
+        if (src.name && src.path) {
+          const s = new BaseTreeItem(this, src.name);
+          this._children.set(src.path, s);
+          const ss = session.getSource(src);
+          s.setSource(session, ss);
+        }
+      }
+    }
+  }
+  createIfNeeded(key, factory) {
+    let child = this._children.get(key);
+    if (!child) {
+      child = factory(this, key);
+      this._children.set(key, child);
+    }
+    return child;
+  }
+  getChild(key) {
+    return this._children.get(key);
+  }
+  remove(key) {
+    this._children.delete(key);
+  }
+  removeFromParent() {
+    if (this._parent) {
+      this._parent.remove(this._label);
+      if (this._parent._children.size === 0) {
+        this._parent.removeFromParent();
+      }
+    }
+  }
+  getTemplateId() {
+    return "id";
+  }
+  // a dynamic ID based on the parent chain; required for reparenting (see #55448)
+  getId() {
+    const parent = this.getParent();
+    return parent ? `${parent.getId()}/${this.getInternalId()}` : this.getInternalId();
+  }
+  getInternalId() {
+    return this._label;
+  }
+  // skips intermediate single-child nodes
+  getParent() {
+    if (this._parent) {
+      if (this._parent.isSkipped()) {
+        return this._parent.getParent();
+      }
+      return this._parent;
+    }
+    return void 0;
+  }
+  isSkipped() {
+    if (this._parent) {
+      if (this._parent.oneChild()) {
+        return true;
+      }
+      return false;
+    }
+    return true;
+  }
+  // skips intermediate single-child nodes
+  hasChildren() {
+    const child = this.oneChild();
+    if (child) {
+      return child.hasChildren();
+    }
+    return this._children.size > 0;
+  }
+  // skips intermediate single-child nodes
+  getChildren() {
+    const child = this.oneChild();
+    if (child) {
+      return child.getChildren();
+    }
+    const array = [];
+    for (const child2 of this._children.values()) {
+      array.push(child2);
+    }
+    return array.sort((a, b) => this.compare(a, b));
+  }
+  // skips intermediate single-child nodes
+  getLabel(separateRootFolder = true) {
+    const child = this.oneChild();
+    if (child) {
+      const sep = this instanceof RootFolderTreeItem && separateRootFolder ? " \u2022 " : posix.sep;
+      return `${this._label}${sep}${child.getLabel()}`;
+    }
+    return this._label;
+  }
+  // skips intermediate single-child nodes
+  getHoverLabel() {
+    if (this._source && this._parent && this._parent._source) {
+      return this._source.raw.path || this._source.raw.name;
+    }
+    const label = this.getLabel(false);
+    const parent = this.getParent();
+    if (parent) {
+      const hover = parent.getHoverLabel();
+      if (hover) {
+        return `${hover}/${label}`;
+      }
+    }
+    return label;
+  }
+  // skips intermediate single-child nodes
+  getSource() {
+    const child = this.oneChild();
+    if (child) {
+      return child.getSource();
+    }
+    return this._source;
+  }
+  compare(a, b) {
+    if (a._label && b._label) {
+      return a._label.localeCompare(b._label);
+    }
+    return 0;
+  }
+  oneChild() {
+    if (!this._source && !this._showedMoreThanOne && this.skipOneChild()) {
+      if (this._children.size === 1) {
+        return this._children.values().next().value;
+      }
+      if (this._children.size > 1) {
+        this._showedMoreThanOne = true;
+      }
+    }
+    return void 0;
+  }
+  skipOneChild() {
+    if (NEW_STYLE_COMPRESS) {
+      return this instanceof RootTreeItem;
+    } else {
+      return !(this instanceof RootFolderTreeItem) && !(this instanceof SessionTreeItem);
+    }
+  }
+}
+class RootFolderTreeItem extends BaseTreeItem {
+  static {
+    __name(this, "RootFolderTreeItem");
+  }
+  constructor(parent, folder) {
+    super(parent, folder.name, true);
+    this.folder = folder;
+  }
+}
+class RootTreeItem extends BaseTreeItem {
+  static {
+    __name(this, "RootTreeItem");
+  }
+  constructor(_pathService, _contextService, _labelService) {
+    super(void 0, "Root");
+    this._pathService = _pathService;
+    this._contextService = _contextService;
+    this._labelService = _labelService;
+  }
+  add(session) {
+    return this.createIfNeeded(session.getId(), () => new SessionTreeItem(this._labelService, this, session, this._pathService, this._contextService));
+  }
+  find(session) {
+    return this.getChild(session.getId());
+  }
+}
+class SessionTreeItem extends BaseTreeItem {
+  static {
+    __name(this, "SessionTreeItem");
+  }
+  static {
+    this.URL_REGEXP = /^(https?:\/\/[^/]+)(\/.*)$/;
+  }
+  constructor(labelService, parent, session, _pathService, rootProvider) {
+    super(parent, session.getLabel(), true);
+    this._pathService = _pathService;
+    this.rootProvider = rootProvider;
+    this._map = /* @__PURE__ */ new Map();
+    this._labelService = labelService;
+    this._session = session;
+  }
+  getInternalId() {
+    return this._session.getId();
+  }
+  getSession() {
+    return this._session;
+  }
+  getHoverLabel() {
+    return void 0;
+  }
+  hasChildren() {
+    return true;
+  }
+  compare(a, b) {
+    const acat = this.category(a);
+    const bcat = this.category(b);
+    if (acat !== bcat) {
+      return acat - bcat;
+    }
+    return super.compare(a, b);
+  }
+  category(item) {
+    if (item instanceof RootFolderTreeItem) {
+      return item.folder.index;
+    }
+    const l = item.getLabel();
+    if (l && /^<.+>$/.test(l)) {
+      return 1e3;
+    }
+    return 999;
+  }
+  async addPath(source) {
+    let folder;
+    let url;
+    let path = source.raw.path;
+    if (!path) {
+      return;
+    }
+    if (this._labelService && URI_SCHEMA_PATTERN.test(path)) {
+      path = this._labelService.getUriLabel(URI.parse(path));
+    }
+    const match = SessionTreeItem.URL_REGEXP.exec(path);
+    if (match && match.length === 3) {
+      url = match[1];
+      path = decodeURI(match[2]);
+    } else {
+      if (isAbsolute(path)) {
+        const resource = URI.file(path);
+        folder = this.rootProvider ? this.rootProvider.getWorkspaceFolder(resource) : null;
+        if (folder) {
+          path = normalize(ltrim(resource.path.substring(folder.uri.path.length), posix.sep));
+          const hasMultipleRoots = this.rootProvider.getWorkspace().folders.length > 1;
+          if (hasMultipleRoots) {
+            path = posix.sep + path;
+          } else {
+            folder = null;
+          }
+        } else {
+          path = normalize(path);
+          if (isWindows) {
+            path = normalizeDriveLetter(path);
+          } else {
+            path = tildify(path, (await this._pathService.userHome()).fsPath);
+          }
+        }
+      }
+    }
+    let leaf = this;
+    path.split(/[\/\\]/).forEach((segment, i) => {
+      if (i === 0 && folder) {
+        const f = folder;
+        leaf = leaf.createIfNeeded(folder.name, (parent) => new RootFolderTreeItem(parent, f));
+      } else if (i === 0 && url) {
+        leaf = leaf.createIfNeeded(url, (parent) => new BaseTreeItem(parent, url));
+      } else {
+        leaf = leaf.createIfNeeded(segment, (parent) => new BaseTreeItem(parent, segment));
+      }
+    });
+    leaf.setSource(this._session, source);
+    if (source.raw.path) {
+      this._map.set(source.raw.path, leaf);
+    }
+  }
+  removePath(source) {
+    if (source.raw.path) {
+      const leaf = this._map.get(source.raw.path);
+      if (leaf) {
+        leaf.removeFromParent();
+        return true;
+      }
+    }
+    return false;
+  }
+}
+function asTreeElement(item, viewState) {
+  const children = item.getChildren();
+  const collapsed = viewState ? !viewState.expanded.has(item.getId()) : !(item instanceof SessionTreeItem);
+  return {
+    element: item,
+    collapsed,
+    collapsible: item.hasChildren(),
+    children: children.map((i) => asTreeElement(i, viewState))
+  };
+}
+__name(asTreeElement, "asTreeElement");
+let LoadedScriptsView = class LoadedScriptsView2 extends ViewPane {
+  static {
+    __name(this, "LoadedScriptsView");
+  }
+  constructor(options, contextMenuService, keybindingService, instantiationService, viewDescriptorService, configurationService, editorService, contextKeyService, contextService, debugService, labelService, pathService, openerService, themeService, hoverService) {
+    super(options, keybindingService, contextMenuService, configurationService, contextKeyService, viewDescriptorService, instantiationService, openerService, themeService, hoverService);
+    this.editorService = editorService;
+    this.contextService = contextService;
+    this.debugService = debugService;
+    this.labelService = labelService;
+    this.pathService = pathService;
+    this.treeNeedsRefreshOnVisible = false;
+    this.loadedScriptsItemType = CONTEXT_LOADED_SCRIPTS_ITEM_TYPE.bindTo(contextKeyService);
+  }
+  renderBody(container) {
+    super.renderBody(container);
+    this.element.classList.add("debug-pane");
+    container.classList.add("debug-loaded-scripts", "show-file-icons");
+    this.treeContainer = renderViewTree(container);
+    this.filter = new LoadedScriptsFilter();
+    const root = new RootTreeItem(this.pathService, this.contextService, this.labelService);
+    this.treeLabels = this.instantiationService.createInstance(ResourceLabels, { onDidChangeVisibility: this.onDidChangeBodyVisibility });
+    this._register(this.treeLabels);
+    const onFileIconThemeChange = /* @__PURE__ */ __name((fileIconTheme) => {
+      this.treeContainer.classList.toggle("align-icons-and-twisties", fileIconTheme.hasFileIcons && !fileIconTheme.hasFolderIcons);
+      this.treeContainer.classList.toggle("hide-arrows", fileIconTheme.hidesExplorerArrows === true);
+    }, "onFileIconThemeChange");
+    this._register(this.themeService.onDidFileIconThemeChange(onFileIconThemeChange));
+    onFileIconThemeChange(this.themeService.getFileIconTheme());
+    this.tree = this.instantiationService.createInstance(WorkbenchCompressibleObjectTree, "LoadedScriptsView", this.treeContainer, new LoadedScriptsDelegate(), [new LoadedScriptsRenderer(this.treeLabels)], {
+      compressionEnabled: NEW_STYLE_COMPRESS,
+      collapseByDefault: true,
+      hideTwistiesOfChildlessElements: true,
+      identityProvider: {
+        getId: /* @__PURE__ */ __name((element) => element.getId(), "getId")
+      },
+      keyboardNavigationLabelProvider: {
+        getKeyboardNavigationLabel: /* @__PURE__ */ __name((element) => {
+          return element.getLabel();
+        }, "getKeyboardNavigationLabel"),
+        getCompressedNodeKeyboardNavigationLabel: /* @__PURE__ */ __name((elements) => {
+          return elements.map((e) => e.getLabel()).join("/");
+        }, "getCompressedNodeKeyboardNavigationLabel")
+      },
+      filter: this.filter,
+      accessibilityProvider: new LoadedSciptsAccessibilityProvider(),
+      overrideStyles: this.getLocationBasedColors().listOverrideStyles
+    });
+    const updateView = /* @__PURE__ */ __name((viewState2) => this.tree.setChildren(null, asTreeElement(root, viewState2).children), "updateView");
+    updateView();
+    this.changeScheduler = new RunOnceScheduler(() => {
+      this.treeNeedsRefreshOnVisible = false;
+      if (this.tree) {
+        updateView();
+      }
+    }, 300);
+    this._register(this.changeScheduler);
+    this._register(this.tree.onDidOpen((e) => {
+      if (e.element instanceof BaseTreeItem) {
+        const source = e.element.getSource();
+        if (source && source.available) {
+          const nullRange = { startLineNumber: 0, startColumn: 0, endLineNumber: 0, endColumn: 0 };
+          source.openInEditor(this.editorService, nullRange, e.editorOptions.preserveFocus, e.sideBySide, e.editorOptions.pinned);
+        }
+      }
+    }));
+    this._register(this.tree.onDidChangeFocus(() => {
+      const focus = this.tree.getFocus();
+      if (focus instanceof SessionTreeItem) {
+        this.loadedScriptsItemType.set("session");
+      } else {
+        this.loadedScriptsItemType.reset();
+      }
+    }));
+    const scheduleRefreshOnVisible = /* @__PURE__ */ __name(() => {
+      if (this.isBodyVisible()) {
+        this.changeScheduler.schedule();
+      } else {
+        this.treeNeedsRefreshOnVisible = true;
+      }
+    }, "scheduleRefreshOnVisible");
+    const addSourcePathsToSession = /* @__PURE__ */ __name(async (session) => {
+      if (session.capabilities.supportsLoadedSourcesRequest) {
+        const sessionNode = root.add(session);
+        const paths = await session.getLoadedSources();
+        for (const path of paths) {
+          await sessionNode.addPath(path);
+        }
+        scheduleRefreshOnVisible();
+      }
+    }, "addSourcePathsToSession");
+    const registerSessionListeners = /* @__PURE__ */ __name((session) => {
+      this._register(session.onDidChangeName(async () => {
+        const sessionRoot = root.find(session);
+        if (sessionRoot) {
+          sessionRoot.updateLabel(session.getLabel());
+          scheduleRefreshOnVisible();
+        }
+      }));
+      this._register(session.onDidLoadedSource(async (event) => {
+        let sessionRoot;
+        switch (event.reason) {
+          case "new":
+          case "changed":
+            sessionRoot = root.add(session);
+            await sessionRoot.addPath(event.source);
+            scheduleRefreshOnVisible();
+            if (event.reason === "changed") {
+              DebugContentProvider.refreshDebugContent(event.source.uri);
+            }
+            break;
+          case "removed":
+            sessionRoot = root.find(session);
+            if (sessionRoot && sessionRoot.removePath(event.source)) {
+              scheduleRefreshOnVisible();
+            }
+            break;
+          default:
+            this.filter.setFilter(event.source.name);
+            this.tree.refilter();
+            break;
+        }
+      }));
+    }, "registerSessionListeners");
+    this._register(this.debugService.onDidNewSession(registerSessionListeners));
+    this.debugService.getModel().getSessions().forEach(registerSessionListeners);
+    this._register(this.debugService.onDidEndSession(({ session }) => {
+      root.remove(session.getId());
+      this.changeScheduler.schedule();
+    }));
+    this.changeScheduler.schedule(0);
+    this._register(this.onDidChangeBodyVisibility((visible) => {
+      if (visible && this.treeNeedsRefreshOnVisible) {
+        this.changeScheduler.schedule();
+      }
+    }));
+    let viewState;
+    this._register(this.tree.onDidChangeFindPattern((pattern) => {
+      if (this.tree.findMode === TreeFindMode.Highlight) {
+        return;
+      }
+      if (!viewState && pattern) {
+        const expanded = /* @__PURE__ */ new Set();
+        const visit = /* @__PURE__ */ __name((node) => {
+          if (node.element && !node.collapsed) {
+            expanded.add(node.element.getId());
+          }
+          for (const child of node.children) {
+            visit(child);
+          }
+        }, "visit");
+        visit(this.tree.getNode());
+        viewState = { expanded };
+        this.tree.expandAll();
+      } else if (!pattern && viewState) {
+        this.tree.setFocus([]);
+        updateView(viewState);
+        viewState = void 0;
+      }
+    }));
+    this.debugService.getModel().getSessions().forEach((session) => addSourcePathsToSession(session));
+  }
+  layoutBody(height, width) {
+    super.layoutBody(height, width);
+    this.tree.layout(height, width);
+  }
+  collapseAll() {
+    this.tree.collapseAll();
+  }
+  dispose() {
+    dispose(this.tree);
+    dispose(this.treeLabels);
+    super.dispose();
+  }
+};
+LoadedScriptsView = __decorate([
+  __param(1, IContextMenuService),
+  __param(2, IKeybindingService),
+  __param(3, IInstantiationService),
+  __param(4, IViewDescriptorService),
+  __param(5, IConfigurationService),
+  __param(6, IEditorService),
+  __param(7, IContextKeyService),
+  __param(8, IWorkspaceContextService),
+  __param(9, IDebugService),
+  __param(10, ILabelService),
+  __param(11, IPathService),
+  __param(12, IOpenerService),
+  __param(13, IThemeService),
+  __param(14, IHoverService)
+], LoadedScriptsView);
+class LoadedScriptsDelegate {
+  static {
+    __name(this, "LoadedScriptsDelegate");
+  }
+  getHeight(element) {
+    return 22;
+  }
+  getTemplateId(element) {
+    return LoadedScriptsRenderer.ID;
+  }
+}
+class LoadedScriptsRenderer {
+  static {
+    __name(this, "LoadedScriptsRenderer");
+  }
+  static {
+    this.ID = "lsrenderer";
+  }
+  constructor(labels) {
+    this.labels = labels;
+  }
+  get templateId() {
+    return LoadedScriptsRenderer.ID;
+  }
+  renderTemplate(container) {
+    const label = this.labels.create(container, { supportHighlights: true });
+    return { label };
+  }
+  renderElement(node, index, data) {
+    const element = node.element;
+    const label = element.getLabel();
+    this.render(element, label, data, node.filterData);
+  }
+  renderCompressedElements(node, index, data, height) {
+    const element = node.element.elements[node.element.elements.length - 1];
+    const labels = node.element.elements.map((e) => e.getLabel());
+    this.render(element, labels, data, node.filterData);
+  }
+  render(element, labels, data, filterData) {
+    const label = {
+      name: labels
+    };
+    const options = {
+      title: element.getHoverLabel()
+    };
+    if (element instanceof RootFolderTreeItem) {
+      options.fileKind = FileKind.ROOT_FOLDER;
+    } else if (element instanceof SessionTreeItem) {
+      options.title = nls.localize("loadedScriptsSession", "Debug Session");
+      options.hideIcon = true;
+    } else if (element instanceof BaseTreeItem) {
+      const src = element.getSource();
+      if (src && src.uri) {
+        label.resource = src.uri;
+        options.fileKind = FileKind.FILE;
+      } else {
+        options.fileKind = FileKind.FOLDER;
+      }
+    }
+    options.matches = createMatches(filterData);
+    data.label.setResource(label, options);
+  }
+  disposeTemplate(templateData) {
+    templateData.label.dispose();
+  }
+}
+class LoadedSciptsAccessibilityProvider {
+  static {
+    __name(this, "LoadedSciptsAccessibilityProvider");
+  }
+  getWidgetAriaLabel() {
+    return nls.localize({ comment: ["Debug is a noun in this context, not a verb."], key: "loadedScriptsAriaLabel" }, "Debug Loaded Scripts");
+  }
+  getAriaLabel(element) {
+    if (element instanceof RootFolderTreeItem) {
+      return nls.localize("loadedScriptsRootFolderAriaLabel", "Workspace folder {0}, loaded script, debug", element.getLabel());
+    }
+    if (element instanceof SessionTreeItem) {
+      return nls.localize("loadedScriptsSessionAriaLabel", "Session {0}, loaded script, debug", element.getLabel());
+    }
+    if (element.hasChildren()) {
+      return nls.localize("loadedScriptsFolderAriaLabel", "Folder {0}, loaded script, debug", element.getLabel());
+    } else {
+      return nls.localize("loadedScriptsSourceAriaLabel", "{0}, loaded script, debug", element.getLabel());
+    }
+  }
+}
+class LoadedScriptsFilter {
+  static {
+    __name(this, "LoadedScriptsFilter");
+  }
+  setFilter(filterText) {
+    this.filterText = filterText;
+  }
+  filter(element, parentVisibility) {
+    if (!this.filterText) {
+      return 1;
+    }
+    if (element.isLeaf()) {
+      const name = element.getLabel();
+      if (name.indexOf(this.filterText) >= 0) {
+        return 1;
+      }
+      return 0;
+    }
+    return 2;
+  }
+}
+registerAction2(class Collapse extends ViewAction {
+  static {
+    __name(this, "Collapse");
+  }
+  constructor() {
+    super({
+      id: "loadedScripts.collapse",
+      viewId: LOADED_SCRIPTS_VIEW_ID,
+      title: nls.localize("collapse", "Collapse All"),
+      f1: false,
+      icon: Codicon.collapseAll,
+      menu: {
+        id: MenuId.ViewTitle,
+        order: 30,
+        group: "navigation",
+        when: ContextKeyExpr.equals("view", LOADED_SCRIPTS_VIEW_ID)
+      }
+    });
+  }
+  runInView(_accessor, view) {
+    view.collapseAll();
+  }
+});
+export {
+  LoadedScriptsView
+};
+//# sourceMappingURL=loadedScriptsView.js.map

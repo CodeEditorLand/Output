@@ -1,3 +1,77 @@
-import{Range as x}from"../../../../editor/common/core/range.js";import{TextSearchMatch as d}from"./search.js";function f(n,o,e){const i=n[0].range.startLineNumber,a=n[n.length-1].range.endLineNumber,r=[];for(let t=i;t<=a;t++)r.push(o.getLineContent(t));return new d(r.join(`
-`)+`
-`,n.map(t=>new x(t.range.startLineNumber-1,t.range.startColumn-1,t.range.endLineNumber-1,t.range.endColumn-1)),e)}function m(n,o,e){let i=-1;const a=[];let r=[];return n.forEach(t=>{t.range.startLineNumber!==i&&(r=[],a.push(r)),r.push(t),i=t.range.endLineNumber}),a.map(t=>f(t,o,e))}function b(n,o,e){const i=[];let a=-1;for(let r=0;r<n.length;r++){const{start:t,end:s}=L(n[r]);if(typeof e.surroundingContext=="number"&&e.surroundingContext>0){const c=Math.max(a+1,t-e.surroundingContext);for(let u=c;u<t;u++)i.push({text:o.getLineContent(u+1),lineNumber:u+1})}i.push(n[r]);const g=n[r+1],h=g?L(g).start:Number.MAX_VALUE;if(typeof e.surroundingContext=="number"&&e.surroundingContext>0){const c=Math.min(h-1,s+e.surroundingContext,o.getLineCount()-1);for(let u=s+1;u<=c;u++)i.push({text:o.getLineContent(u+1),lineNumber:u+1})}a=s}return i}function L(n){const o=n.rangeLocations.map(a=>a.source),e=o[0].startLineNumber,i=o[o.length-1].endLineNumber;return{start:e,end:i}}export{m as editorMatchesToTextSearchResults,b as getTextSearchMatchWithModelContext};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Range } from "../../../../editor/common/core/range.js";
+import { TextSearchMatch } from "./search.js";
+function editorMatchToTextSearchResult(matches, model, previewOptions) {
+  const firstLine = matches[0].range.startLineNumber;
+  const lastLine = matches[matches.length - 1].range.endLineNumber;
+  const lineTexts = [];
+  for (let i = firstLine; i <= lastLine; i++) {
+    lineTexts.push(model.getLineContent(i));
+  }
+  return new TextSearchMatch(lineTexts.join("\n") + "\n", matches.map((m) => new Range(m.range.startLineNumber - 1, m.range.startColumn - 1, m.range.endLineNumber - 1, m.range.endColumn - 1)), previewOptions);
+}
+__name(editorMatchToTextSearchResult, "editorMatchToTextSearchResult");
+function editorMatchesToTextSearchResults(matches, model, previewOptions) {
+  let previousEndLine = -1;
+  const groupedMatches = [];
+  let currentMatches = [];
+  matches.forEach((match) => {
+    if (match.range.startLineNumber !== previousEndLine) {
+      currentMatches = [];
+      groupedMatches.push(currentMatches);
+    }
+    currentMatches.push(match);
+    previousEndLine = match.range.endLineNumber;
+  });
+  return groupedMatches.map((sameLineMatches) => {
+    return editorMatchToTextSearchResult(sameLineMatches, model, previewOptions);
+  });
+}
+__name(editorMatchesToTextSearchResults, "editorMatchesToTextSearchResults");
+function getTextSearchMatchWithModelContext(matches, model, query) {
+  const results = [];
+  let prevLine = -1;
+  for (let i = 0; i < matches.length; i++) {
+    const { start: matchStartLine, end: matchEndLine } = getMatchStartEnd(matches[i]);
+    if (typeof query.surroundingContext === "number" && query.surroundingContext > 0) {
+      const beforeContextStartLine = Math.max(prevLine + 1, matchStartLine - query.surroundingContext);
+      for (let b = beforeContextStartLine; b < matchStartLine; b++) {
+        results.push({
+          text: model.getLineContent(b + 1),
+          lineNumber: b + 1
+        });
+      }
+    }
+    results.push(matches[i]);
+    const nextMatch = matches[i + 1];
+    const nextMatchStartLine = nextMatch ? getMatchStartEnd(nextMatch).start : Number.MAX_VALUE;
+    if (typeof query.surroundingContext === "number" && query.surroundingContext > 0) {
+      const afterContextToLine = Math.min(nextMatchStartLine - 1, matchEndLine + query.surroundingContext, model.getLineCount() - 1);
+      for (let a = matchEndLine + 1; a <= afterContextToLine; a++) {
+        results.push({
+          text: model.getLineContent(a + 1),
+          lineNumber: a + 1
+        });
+      }
+    }
+    prevLine = matchEndLine;
+  }
+  return results;
+}
+__name(getTextSearchMatchWithModelContext, "getTextSearchMatchWithModelContext");
+function getMatchStartEnd(match) {
+  const matchRanges = match.rangeLocations.map((e) => e.source);
+  const matchStartLine = matchRanges[0].startLineNumber;
+  const matchEndLine = matchRanges[matchRanges.length - 1].endLineNumber;
+  return {
+    start: matchStartLine,
+    end: matchEndLine
+  };
+}
+__name(getMatchStartEnd, "getMatchStartEnd");
+export {
+  editorMatchesToTextSearchResults,
+  getTextSearchMatchWithModelContext
+};
+//# sourceMappingURL=searchHelpers.js.map

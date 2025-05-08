@@ -1,1 +1,151 @@
-import{ITextModelService as R}from"../../../../editor/common/services/resolverService.js";import{ITextResourceConfigurationService as S}from"../../../../editor/common/services/textResourceConfiguration.js";import{IConfigurationService as x}from"../../../../platform/configuration/common/configuration.js";import{IFileDialogService as M}from"../../../../platform/dialogs/common/dialogs.js";import{IFileService as L}from"../../../../platform/files/common/files.js";import{ILabelService as C}from"../../../../platform/label/common/label.js";import{IInteractiveHistoryService as _}from"../../interactive/browser/interactiveHistoryService.js";import{CellKind as d,NotebookSetting as y}from"../../notebook/common/notebookCommon.js";import{NotebookEditorInput as P}from"../../notebook/common/notebookEditorInput.js";import{INotebookEditorModelResolverService as w}from"../../notebook/common/notebookEditorModelResolverService.js";import{INotebookService as j}from"../../notebook/common/notebookService.js";import{ICustomEditorLabelService as D}from"../../../services/editor/common/customEditorLabelService.js";import{IEditorService as T}from"../../../services/editor/common/editorService.js";import{IExtensionService as N}from"../../../services/extensions/common/extensions.js";import{IFilesConfigurationService as O}from"../../../services/filesConfiguration/common/filesConfigurationService.js";import{Codicon as B}from"../../../../base/common/codicons.js";import{localize as F}from"../../../../nls.js";import{registerIcon as K}from"../../../../platform/theme/common/iconRegistry.js";var E=function(n,e,t,r){var l=arguments.length,o=l<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(n,e,t,r);else for(var c=n.length-1;c>=0;c--)(s=n[c])&&(o=(l<3?s(o):l>3?s(e,t,o):s(e,t))||o);return l>3&&o&&Object.defineProperty(e,t,o),o},i=function(n,e){return function(t,r){e(t,r,n)}},p;const $=K("repl-editor-label-icon",B.debugLineByLine,F("replEditorLabelIcon","Icon of the REPL editor label."));let a=class extends P{static{p=this}static{this.ID="workbench.editorinputs.replEditorInput"}constructor(e,t,r,l,o,s,c,u,f,m,h,I,v,b,g){super(e,void 0,"jupyter-notebook",{},r,l,o,s,c,u,f,m,h,I),this.historyService=v,this._textModelService=b,this.isDisposing=!1,this.isScratchpad=e.scheme==="untitled"&&g.getValue(y.InteractiveWindowPromptToSave)!==!0,this.label=t??this.createEditorLabel(e)}getIcon(){return $}createEditorLabel(e){if(!e)return"REPL";if(e.scheme==="untitled"){const r=new RegExp("Untitled-(\\d+).").exec(e.path);if(r?.length===2)return`REPL - ${r[1]}`}const t=e.path.split("/").pop();return t?`REPL - ${t}`:"REPL"}get typeId(){return p.ID}get editorId(){return"repl"}getName(){return this.label}get editorInputs(){return[this]}get capabilities(){const e=super.capabilities,t=this.isScratchpad?512:0;return e|2|t}async resolve(){const e=await super.resolve();return e&&this.ensureInputBoxCell(e.notebook),e}ensureInputBoxCell(e){const t=e.cells[e.cells.length-1];(!t||t.cellKind===d.Markup||t.outputs.length>0||t.internalMetadata.executionOrder!==void 0)&&e.applyEdits([{editType:1,index:e.cells.length,count:0,cells:[{cellKind:d.Code,language:"python",mime:void 0,outputs:[],source:""}]}],!0,void 0,()=>{},void 0,!1)}async resolveInput(e){if(this.inputModelRef)return this.inputModelRef.object.textEditorModel;const t=e.cells[e.cells.length-1];if(!t)throw new Error("The REPL editor requires at least one cell for the input box.");return this.inputModelRef=await this._textModelService.createModelReference(t.uri),this.inputModelRef.object.textEditorModel}dispose(){this.isDisposing||(this.isDisposing=!0,this.editorModelReference?.object.revert({soft:!0}),this.inputModelRef?.dispose(),super.dispose())}};a=p=E([i(2,j),i(3,w),i(4,M),i(5,C),i(6,L),i(7,O),i(8,N),i(9,T),i(10,S),i(11,D),i(12,_),i(13,R),i(14,x)],a);export{a as ReplEditorInput};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { ITextResourceConfigurationService } from "../../../../editor/common/services/textResourceConfiguration.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IFileDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { IInteractiveHistoryService } from "../../interactive/browser/interactiveHistoryService.js";
+import { CellKind, NotebookSetting } from "../../notebook/common/notebookCommon.js";
+import { NotebookEditorInput } from "../../notebook/common/notebookEditorInput.js";
+import { INotebookEditorModelResolverService } from "../../notebook/common/notebookEditorModelResolverService.js";
+import { INotebookService } from "../../notebook/common/notebookService.js";
+import { ICustomEditorLabelService } from "../../../services/editor/common/customEditorLabelService.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IFilesConfigurationService } from "../../../services/filesConfiguration/common/filesConfigurationService.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { localize } from "../../../../nls.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ReplEditorInput_1;
+const replTabIcon = registerIcon("repl-editor-label-icon", Codicon.debugLineByLine, localize("replEditorLabelIcon", "Icon of the REPL editor label."));
+let ReplEditorInput = class ReplEditorInput2 extends NotebookEditorInput {
+  static {
+    __name(this, "ReplEditorInput");
+  }
+  static {
+    ReplEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.editorinputs.replEditorInput";
+  }
+  constructor(resource, label, _notebookService, _notebookModelResolverService, _fileDialogService, labelService, fileService, filesConfigurationService, extensionService, editorService, textResourceConfigurationService, customEditorLabelService, historyService, _textModelService, configurationService) {
+    super(resource, void 0, "jupyter-notebook", {}, _notebookService, _notebookModelResolverService, _fileDialogService, labelService, fileService, filesConfigurationService, extensionService, editorService, textResourceConfigurationService, customEditorLabelService);
+    this.historyService = historyService;
+    this._textModelService = _textModelService;
+    this.isDisposing = false;
+    this.isScratchpad = resource.scheme === "untitled" && configurationService.getValue(NotebookSetting.InteractiveWindowPromptToSave) !== true;
+    this.label = label ?? this.createEditorLabel(resource);
+  }
+  getIcon() {
+    return replTabIcon;
+  }
+  createEditorLabel(resource) {
+    if (!resource) {
+      return "REPL";
+    }
+    if (resource.scheme === "untitled") {
+      const match = new RegExp("Untitled-(\\d+).").exec(resource.path);
+      if (match?.length === 2) {
+        return `REPL - ${match[1]}`;
+      }
+    }
+    const filename = resource.path.split("/").pop();
+    return filename ? `REPL - ${filename}` : "REPL";
+  }
+  get typeId() {
+    return ReplEditorInput_1.ID;
+  }
+  get editorId() {
+    return "repl";
+  }
+  getName() {
+    return this.label;
+  }
+  get editorInputs() {
+    return [this];
+  }
+  get capabilities() {
+    const capabilities = super.capabilities;
+    const scratchPad = this.isScratchpad ? 512 : 0;
+    return capabilities | 2 | scratchPad;
+  }
+  async resolve() {
+    const model = await super.resolve();
+    if (model) {
+      this.ensureInputBoxCell(model.notebook);
+    }
+    return model;
+  }
+  ensureInputBoxCell(notebook) {
+    const lastCell = notebook.cells[notebook.cells.length - 1];
+    if (!lastCell || lastCell.cellKind === CellKind.Markup || lastCell.outputs.length > 0 || lastCell.internalMetadata.executionOrder !== void 0) {
+      notebook.applyEdits([
+        {
+          editType: 1,
+          index: notebook.cells.length,
+          count: 0,
+          cells: [
+            {
+              cellKind: CellKind.Code,
+              language: "python",
+              mime: void 0,
+              outputs: [],
+              source: ""
+            }
+          ]
+        }
+      ], true, void 0, () => void 0, void 0, false);
+    }
+  }
+  async resolveInput(notebook) {
+    if (this.inputModelRef) {
+      return this.inputModelRef.object.textEditorModel;
+    }
+    const lastCell = notebook.cells[notebook.cells.length - 1];
+    if (!lastCell) {
+      throw new Error("The REPL editor requires at least one cell for the input box.");
+    }
+    this.inputModelRef = await this._textModelService.createModelReference(lastCell.uri);
+    return this.inputModelRef.object.textEditorModel;
+  }
+  dispose() {
+    if (!this.isDisposing) {
+      this.isDisposing = true;
+      this.editorModelReference?.object.revert({ soft: true });
+      this.inputModelRef?.dispose();
+      super.dispose();
+    }
+  }
+};
+ReplEditorInput = ReplEditorInput_1 = __decorate([
+  __param(2, INotebookService),
+  __param(3, INotebookEditorModelResolverService),
+  __param(4, IFileDialogService),
+  __param(5, ILabelService),
+  __param(6, IFileService),
+  __param(7, IFilesConfigurationService),
+  __param(8, IExtensionService),
+  __param(9, IEditorService),
+  __param(10, ITextResourceConfigurationService),
+  __param(11, ICustomEditorLabelService),
+  __param(12, IInteractiveHistoryService),
+  __param(13, ITextModelService),
+  __param(14, IConfigurationService)
+], ReplEditorInput);
+export {
+  ReplEditorInput
+};
+//# sourceMappingURL=replEditorInput.js.map

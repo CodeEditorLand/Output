@@ -1,1 +1,494 @@
-import*as v from"../../../../base/browser/dom.js";import{createFastDomNode as g}from"../../../../base/browser/fastDomNode.js";import{PartFingerprints as b,ViewPart as A}from"../../view/viewPart.js";class V extends A{constructor(e,t){super(e),this._viewDomNode=t,this._widgets={},this.domNode=g(document.createElement("div")),b.write(this.domNode,1),this.domNode.setClassName("contentWidgets"),this.domNode.setPosition("absolute"),this.domNode.setTop(0),this.overflowingContentWidgetsDomNode=g(document.createElement("div")),b.write(this.overflowingContentWidgetsDomNode,2),this.overflowingContentWidgetsDomNode.setClassName("overflowingContentWidgets")}dispose(){super.dispose(),this._widgets={}}onConfigurationChanged(e){const t=Object.keys(this._widgets);for(const o of t)this._widgets[o].onConfigurationChanged(e);return!0}onDecorationsChanged(e){return!0}onFlushed(e){return!0}onLineMappingChanged(e){return this._updateAnchorsViewPositions(),!0}onLinesChanged(e){return this._updateAnchorsViewPositions(),!0}onLinesDeleted(e){return this._updateAnchorsViewPositions(),!0}onLinesInserted(e){return this._updateAnchorsViewPositions(),!0}onScrollChanged(e){return!0}onZonesChanged(e){return!0}_updateAnchorsViewPositions(){const e=Object.keys(this._widgets);for(const t of e)this._widgets[t].updateAnchorViewPosition()}addWidget(e){const t=new O(this._context,this._viewDomNode,e);this._widgets[t.id]=t,t.allowEditorOverflow?this.overflowingContentWidgetsDomNode.appendChild(t.domNode):this.domNode.appendChild(t.domNode),this.setShouldRender()}setWidgetPosition(e,t,o,i,s){this._widgets[e.getId()].setPosition(t,o,i,s),this.setShouldRender()}removeWidget(e){const t=e.getId();if(this._widgets.hasOwnProperty(t)){const o=this._widgets[t];delete this._widgets[t];const i=o.domNode.domNode;i.remove(),i.removeAttribute("monaco-visible-content-widget"),this.setShouldRender()}}shouldSuppressMouseDownOnWidget(e){return this._widgets.hasOwnProperty(e)?this._widgets[e].suppressMouseDown:!1}onBeforeRender(e){const t=Object.keys(this._widgets);for(const o of t)this._widgets[o].onBeforeRender(e)}prepareRender(e){const t=Object.keys(this._widgets);for(const o of t)this._widgets[o].prepareRender(e)}render(e){const t=Object.keys(this._widgets);for(const o of t)this._widgets[o].render(e)}}class O{constructor(e,t,o){this._primaryAnchor=new _(null,null),this._secondaryAnchor=new _(null,null),this._context=e,this._viewDomNode=t,this._actual=o,this.domNode=g(this._actual.getDomNode()),this.id=this._actual.getId(),this.allowEditorOverflow=this._actual.allowEditorOverflow||!1,this.suppressMouseDown=this._actual.suppressMouseDown||!1;const i=this._context.configuration.options,s=i.get(151);this._fixedOverflowWidgets=i.get(44),this._contentWidth=s.contentWidth,this._contentLeft=s.contentLeft,this._affinity=null,this._preference=[],this._cachedDomNodeOffsetWidth=-1,this._cachedDomNodeOffsetHeight=-1,this._maxWidth=this._getMaxWidth(),this._isVisible=!1,this._renderData=null,this.domNode.setPosition(this._fixedOverflowWidgets&&this.allowEditorOverflow?"fixed":"absolute"),this.domNode.setDisplay("none"),this.domNode.setVisibility("hidden"),this.domNode.setAttribute("widgetId",this.id),this.domNode.setMaxWidth(this._maxWidth)}onConfigurationChanged(e){const t=this._context.configuration.options;if(e.hasChanged(151)){const o=t.get(151);this._contentLeft=o.contentLeft,this._contentWidth=o.contentWidth,this._maxWidth=this._getMaxWidth()}}updateAnchorViewPosition(){this._setPosition(this._affinity,this._primaryAnchor.modelPosition,this._secondaryAnchor.modelPosition)}_setPosition(e,t,o){this._affinity=e,this._primaryAnchor=i(t,this._context.viewModel,this._affinity),this._secondaryAnchor=i(o,this._context.viewModel,this._affinity);function i(s,n,r){if(!s)return new _(null,null);const d=n.model.validatePosition(s);if(n.coordinatesConverter.modelPositionIsVisible(d)){const a=n.coordinatesConverter.convertModelPositionToViewPosition(d,r??void 0);return new _(s,a)}return new _(s,null)}}_getMaxWidth(){const e=this.domNode.domNode.ownerDocument,t=e.defaultView;return this.allowEditorOverflow?t?.innerWidth||e.documentElement.offsetWidth||e.body.offsetWidth:this._contentWidth}setPosition(e,t,o,i){this._setPosition(i,e,t),this._preference=o,this._primaryAnchor.viewPosition&&this._preference&&this._preference.length>0?this.domNode.setDisplay("block"):this.domNode.setDisplay("none"),this._cachedDomNodeOffsetWidth=-1,this._cachedDomNodeOffsetHeight=-1}_layoutBoxInViewport(e,t,o,i){const s=e.top,n=s,r=e.top+e.height,d=i.viewportHeight-r,a=s-o,c=n>=o,h=r,l=d>=o;let f=e.left;return f+t>i.scrollLeft+i.viewportWidth&&(f=i.scrollLeft+i.viewportWidth-t),f<i.scrollLeft&&(f=i.scrollLeft),{fitsAbove:c,aboveTop:a,fitsBelow:l,belowTop:h,left:f}}_layoutHorizontalSegmentInPage(e,t,o,i){const r=Math.max(15,t.left-i),d=Math.min(t.left+t.width+i,e.width-15),c=this._viewDomNode.domNode.ownerDocument.defaultView;let h=t.left+o-(c?.scrollX??0);if(h+i>d){const l=h-(d-i);h-=l,o-=l}if(h<r){const l=h-r;h-=l,o-=l}return[o,h]}_layoutBoxInPage(e,t,o,i){const s=e.top-o,n=e.top+e.height,r=v.getDomNodePagePosition(this._viewDomNode.domNode),d=this._viewDomNode.domNode.ownerDocument,a=d.defaultView,c=r.top+s-(a?.scrollY??0),h=r.top+n-(a?.scrollY??0),l=v.getClientArea(d.body),[f,P]=this._layoutHorizontalSegmentInPage(l,r,e.left-i.scrollLeft+this._contentLeft,t),p=22,W=22,N=c>=p,D=h+o<=l.height-W;return this._fixedOverflowWidgets?{fitsAbove:N,aboveTop:Math.max(c,p),fitsBelow:D,belowTop:h,left:P}:{fitsAbove:N,aboveTop:s,fitsBelow:D,belowTop:n,left:f}}_prepareRenderWidgetAtExactPositionOverflowing(e){return new m(e.top,e.left+this._contentLeft)}_getAnchorsCoordinates(e){const t=s(this._primaryAnchor.viewPosition,this._affinity),o=this._secondaryAnchor.viewPosition?.lineNumber===this._primaryAnchor.viewPosition?.lineNumber?this._secondaryAnchor.viewPosition:null,i=s(o,this._affinity);return{primary:t,secondary:i};function s(n,r){if(!n)return null;const d=e.visibleRangeForPosition(n);if(!d)return null;const a=n.column===1&&r===3?0:d.left,c=e.getVerticalOffsetForLineNumber(n.lineNumber)-e.scrollTop,h=e.getLineHeightForLineNumber(n.lineNumber);return new y(c,a,h)}}_reduceAnchorCoordinates(e,t,o){if(!t)return e;const i=this._context.configuration.options.get(52);let s=t.left;return s<e.left?s=Math.max(s,e.left-o+i.typicalFullwidthCharacterWidth):s=Math.min(s,e.left+o-i.typicalFullwidthCharacterWidth),new y(e.top,s,e.height)}_prepareRenderWidget(e){if(!this._preference||this._preference.length===0)return null;const{primary:t,secondary:o}=this._getAnchorsCoordinates(e);if(!t)return{kind:"offViewport",preserveFocus:this.domNode.domNode.contains(this.domNode.domNode.ownerDocument.activeElement)};if(this._cachedDomNodeOffsetWidth===-1||this._cachedDomNodeOffsetHeight===-1){let n=null;if(typeof this._actual.beforeRender=="function"&&(n=w(this._actual.beforeRender,this._actual)),n)this._cachedDomNodeOffsetWidth=n.width,this._cachedDomNodeOffsetHeight=n.height;else{const d=this.domNode.domNode.getBoundingClientRect();this._cachedDomNodeOffsetWidth=Math.round(d.width),this._cachedDomNodeOffsetHeight=Math.round(d.height)}}const i=this._reduceAnchorCoordinates(t,o,this._cachedDomNodeOffsetWidth);let s;this.allowEditorOverflow?s=this._layoutBoxInPage(i,this._cachedDomNodeOffsetWidth,this._cachedDomNodeOffsetHeight,e):s=this._layoutBoxInViewport(i,this._cachedDomNodeOffsetWidth,this._cachedDomNodeOffsetHeight,e);for(let n=1;n<=2;n++)for(const r of this._preference)if(r===1){if(!s)return null;if(n===2||s.fitsAbove)return{kind:"inViewport",coordinate:new m(s.aboveTop,s.left),position:1}}else if(r===2){if(!s)return null;if(n===2||s.fitsBelow)return{kind:"inViewport",coordinate:new m(s.belowTop,s.left),position:2}}else return this.allowEditorOverflow?{kind:"inViewport",coordinate:this._prepareRenderWidgetAtExactPositionOverflowing(new m(i.top,i.left)),position:0}:{kind:"inViewport",coordinate:new m(i.top,i.left),position:0};return null}onBeforeRender(e){!this._primaryAnchor.viewPosition||!this._preference||this._primaryAnchor.viewPosition.lineNumber<e.startLineNumber||this._primaryAnchor.viewPosition.lineNumber>e.endLineNumber||this.domNode.setMaxWidth(this._maxWidth)}prepareRender(e){this._renderData=this._prepareRenderWidget(e)}render(e){if(!this._renderData||this._renderData.kind==="offViewport"){this._isVisible&&(this.domNode.removeAttribute("monaco-visible-content-widget"),this._isVisible=!1,this._renderData?.kind==="offViewport"&&this._renderData.preserveFocus?this.domNode.setTop(-1e3):this.domNode.setVisibility("hidden")),typeof this._actual.afterRender=="function"&&w(this._actual.afterRender,this._actual,null,null);return}this.allowEditorOverflow?(this.domNode.setTop(this._renderData.coordinate.top),this.domNode.setLeft(this._renderData.coordinate.left)):(this.domNode.setTop(this._renderData.coordinate.top+e.scrollTop-e.bigNumbersDelta),this.domNode.setLeft(this._renderData.coordinate.left)),this._isVisible||(this.domNode.setVisibility("inherit"),this.domNode.setAttribute("monaco-visible-content-widget","true"),this._isVisible=!0),typeof this._actual.afterRender=="function"&&w(this._actual.afterRender,this._actual,this._renderData.position,this._renderData.coordinate)}}class _{constructor(e,t){this.modelPosition=e,this.viewPosition=t}}class m{constructor(e,t){this.top=e,this.left=t,this._coordinateBrand=void 0}}class y{constructor(e,t,o){this.top=e,this.left=t,this.height=o,this._anchorCoordinateBrand=void 0}}function w(u,e,...t){try{return u.call(e,...t)}catch{return null}}export{V as ViewContentWidgets};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../../base/browser/fastDomNode.js";
+import { PartFingerprints, ViewPart } from "../../view/viewPart.js";
+class ViewContentWidgets extends ViewPart {
+  static {
+    __name(this, "ViewContentWidgets");
+  }
+  constructor(context, viewDomNode) {
+    super(context);
+    this._viewDomNode = viewDomNode;
+    this._widgets = {};
+    this.domNode = createFastDomNode(document.createElement("div"));
+    PartFingerprints.write(
+      this.domNode,
+      1
+      /* PartFingerprint.ContentWidgets */
+    );
+    this.domNode.setClassName("contentWidgets");
+    this.domNode.setPosition("absolute");
+    this.domNode.setTop(0);
+    this.overflowingContentWidgetsDomNode = createFastDomNode(document.createElement("div"));
+    PartFingerprints.write(
+      this.overflowingContentWidgetsDomNode,
+      2
+      /* PartFingerprint.OverflowingContentWidgets */
+    );
+    this.overflowingContentWidgetsDomNode.setClassName("overflowingContentWidgets");
+  }
+  dispose() {
+    super.dispose();
+    this._widgets = {};
+  }
+  // --- begin event handlers
+  onConfigurationChanged(e) {
+    const keys = Object.keys(this._widgets);
+    for (const widgetId of keys) {
+      this._widgets[widgetId].onConfigurationChanged(e);
+    }
+    return true;
+  }
+  onDecorationsChanged(e) {
+    return true;
+  }
+  onFlushed(e) {
+    return true;
+  }
+  onLineMappingChanged(e) {
+    this._updateAnchorsViewPositions();
+    return true;
+  }
+  onLinesChanged(e) {
+    this._updateAnchorsViewPositions();
+    return true;
+  }
+  onLinesDeleted(e) {
+    this._updateAnchorsViewPositions();
+    return true;
+  }
+  onLinesInserted(e) {
+    this._updateAnchorsViewPositions();
+    return true;
+  }
+  onScrollChanged(e) {
+    return true;
+  }
+  onZonesChanged(e) {
+    return true;
+  }
+  // ---- end view event handlers
+  _updateAnchorsViewPositions() {
+    const keys = Object.keys(this._widgets);
+    for (const widgetId of keys) {
+      this._widgets[widgetId].updateAnchorViewPosition();
+    }
+  }
+  addWidget(_widget) {
+    const myWidget = new Widget(this._context, this._viewDomNode, _widget);
+    this._widgets[myWidget.id] = myWidget;
+    if (myWidget.allowEditorOverflow) {
+      this.overflowingContentWidgetsDomNode.appendChild(myWidget.domNode);
+    } else {
+      this.domNode.appendChild(myWidget.domNode);
+    }
+    this.setShouldRender();
+  }
+  setWidgetPosition(widget, primaryAnchor, secondaryAnchor, preference, affinity) {
+    const myWidget = this._widgets[widget.getId()];
+    myWidget.setPosition(primaryAnchor, secondaryAnchor, preference, affinity);
+    this.setShouldRender();
+  }
+  removeWidget(widget) {
+    const widgetId = widget.getId();
+    if (this._widgets.hasOwnProperty(widgetId)) {
+      const myWidget = this._widgets[widgetId];
+      delete this._widgets[widgetId];
+      const domNode = myWidget.domNode.domNode;
+      domNode.remove();
+      domNode.removeAttribute("monaco-visible-content-widget");
+      this.setShouldRender();
+    }
+  }
+  shouldSuppressMouseDownOnWidget(widgetId) {
+    if (this._widgets.hasOwnProperty(widgetId)) {
+      return this._widgets[widgetId].suppressMouseDown;
+    }
+    return false;
+  }
+  onBeforeRender(viewportData) {
+    const keys = Object.keys(this._widgets);
+    for (const widgetId of keys) {
+      this._widgets[widgetId].onBeforeRender(viewportData);
+    }
+  }
+  prepareRender(ctx) {
+    const keys = Object.keys(this._widgets);
+    for (const widgetId of keys) {
+      this._widgets[widgetId].prepareRender(ctx);
+    }
+  }
+  render(ctx) {
+    const keys = Object.keys(this._widgets);
+    for (const widgetId of keys) {
+      this._widgets[widgetId].render(ctx);
+    }
+  }
+}
+class Widget {
+  static {
+    __name(this, "Widget");
+  }
+  constructor(context, viewDomNode, actual) {
+    this._primaryAnchor = new PositionPair(null, null);
+    this._secondaryAnchor = new PositionPair(null, null);
+    this._context = context;
+    this._viewDomNode = viewDomNode;
+    this._actual = actual;
+    this.domNode = createFastDomNode(this._actual.getDomNode());
+    this.id = this._actual.getId();
+    this.allowEditorOverflow = this._actual.allowEditorOverflow || false;
+    this.suppressMouseDown = this._actual.suppressMouseDown || false;
+    const options = this._context.configuration.options;
+    const layoutInfo = options.get(
+      151
+      /* EditorOption.layoutInfo */
+    );
+    this._fixedOverflowWidgets = options.get(
+      44
+      /* EditorOption.fixedOverflowWidgets */
+    );
+    this._contentWidth = layoutInfo.contentWidth;
+    this._contentLeft = layoutInfo.contentLeft;
+    this._affinity = null;
+    this._preference = [];
+    this._cachedDomNodeOffsetWidth = -1;
+    this._cachedDomNodeOffsetHeight = -1;
+    this._maxWidth = this._getMaxWidth();
+    this._isVisible = false;
+    this._renderData = null;
+    this.domNode.setPosition(this._fixedOverflowWidgets && this.allowEditorOverflow ? "fixed" : "absolute");
+    this.domNode.setDisplay("none");
+    this.domNode.setVisibility("hidden");
+    this.domNode.setAttribute("widgetId", this.id);
+    this.domNode.setMaxWidth(this._maxWidth);
+  }
+  onConfigurationChanged(e) {
+    const options = this._context.configuration.options;
+    if (e.hasChanged(
+      151
+      /* EditorOption.layoutInfo */
+    )) {
+      const layoutInfo = options.get(
+        151
+        /* EditorOption.layoutInfo */
+      );
+      this._contentLeft = layoutInfo.contentLeft;
+      this._contentWidth = layoutInfo.contentWidth;
+      this._maxWidth = this._getMaxWidth();
+    }
+  }
+  updateAnchorViewPosition() {
+    this._setPosition(this._affinity, this._primaryAnchor.modelPosition, this._secondaryAnchor.modelPosition);
+  }
+  _setPosition(affinity, primaryAnchor, secondaryAnchor) {
+    this._affinity = affinity;
+    this._primaryAnchor = getValidPositionPair(primaryAnchor, this._context.viewModel, this._affinity);
+    this._secondaryAnchor = getValidPositionPair(secondaryAnchor, this._context.viewModel, this._affinity);
+    function getValidPositionPair(position, viewModel, affinity2) {
+      if (!position) {
+        return new PositionPair(null, null);
+      }
+      const validModelPosition = viewModel.model.validatePosition(position);
+      if (viewModel.coordinatesConverter.modelPositionIsVisible(validModelPosition)) {
+        const viewPosition = viewModel.coordinatesConverter.convertModelPositionToViewPosition(validModelPosition, affinity2 ?? void 0);
+        return new PositionPair(position, viewPosition);
+      }
+      return new PositionPair(position, null);
+    }
+    __name(getValidPositionPair, "getValidPositionPair");
+  }
+  _getMaxWidth() {
+    const elDocument = this.domNode.domNode.ownerDocument;
+    const elWindow = elDocument.defaultView;
+    return this.allowEditorOverflow ? elWindow?.innerWidth || elDocument.documentElement.offsetWidth || elDocument.body.offsetWidth : this._contentWidth;
+  }
+  setPosition(primaryAnchor, secondaryAnchor, preference, affinity) {
+    this._setPosition(affinity, primaryAnchor, secondaryAnchor);
+    this._preference = preference;
+    if (this._primaryAnchor.viewPosition && this._preference && this._preference.length > 0) {
+      this.domNode.setDisplay("block");
+    } else {
+      this.domNode.setDisplay("none");
+    }
+    this._cachedDomNodeOffsetWidth = -1;
+    this._cachedDomNodeOffsetHeight = -1;
+  }
+  _layoutBoxInViewport(anchor, width, height, ctx) {
+    const aboveLineTop = anchor.top;
+    const heightAvailableAboveLine = aboveLineTop;
+    const underLineTop = anchor.top + anchor.height;
+    const heightAvailableUnderLine = ctx.viewportHeight - underLineTop;
+    const aboveTop = aboveLineTop - height;
+    const fitsAbove = heightAvailableAboveLine >= height;
+    const belowTop = underLineTop;
+    const fitsBelow = heightAvailableUnderLine >= height;
+    let left = anchor.left;
+    if (left + width > ctx.scrollLeft + ctx.viewportWidth) {
+      left = ctx.scrollLeft + ctx.viewportWidth - width;
+    }
+    if (left < ctx.scrollLeft) {
+      left = ctx.scrollLeft;
+    }
+    return { fitsAbove, aboveTop, fitsBelow, belowTop, left };
+  }
+  _layoutHorizontalSegmentInPage(windowSize, domNodePosition, left, width) {
+    const LEFT_PADDING = 15;
+    const RIGHT_PADDING = 15;
+    const MIN_LIMIT = Math.max(LEFT_PADDING, domNodePosition.left - width);
+    const MAX_LIMIT = Math.min(domNodePosition.left + domNodePosition.width + width, windowSize.width - RIGHT_PADDING);
+    const elDocument = this._viewDomNode.domNode.ownerDocument;
+    const elWindow = elDocument.defaultView;
+    let absoluteLeft = domNodePosition.left + left - (elWindow?.scrollX ?? 0);
+    if (absoluteLeft + width > MAX_LIMIT) {
+      const delta = absoluteLeft - (MAX_LIMIT - width);
+      absoluteLeft -= delta;
+      left -= delta;
+    }
+    if (absoluteLeft < MIN_LIMIT) {
+      const delta = absoluteLeft - MIN_LIMIT;
+      absoluteLeft -= delta;
+      left -= delta;
+    }
+    return [left, absoluteLeft];
+  }
+  _layoutBoxInPage(anchor, width, height, ctx) {
+    const aboveTop = anchor.top - height;
+    const belowTop = anchor.top + anchor.height;
+    const domNodePosition = dom.getDomNodePagePosition(this._viewDomNode.domNode);
+    const elDocument = this._viewDomNode.domNode.ownerDocument;
+    const elWindow = elDocument.defaultView;
+    const absoluteAboveTop = domNodePosition.top + aboveTop - (elWindow?.scrollY ?? 0);
+    const absoluteBelowTop = domNodePosition.top + belowTop - (elWindow?.scrollY ?? 0);
+    const windowSize = dom.getClientArea(elDocument.body);
+    const [left, absoluteAboveLeft] = this._layoutHorizontalSegmentInPage(windowSize, domNodePosition, anchor.left - ctx.scrollLeft + this._contentLeft, width);
+    const TOP_PADDING = 22;
+    const BOTTOM_PADDING = 22;
+    const fitsAbove = absoluteAboveTop >= TOP_PADDING;
+    const fitsBelow = absoluteBelowTop + height <= windowSize.height - BOTTOM_PADDING;
+    if (this._fixedOverflowWidgets) {
+      return {
+        fitsAbove,
+        aboveTop: Math.max(absoluteAboveTop, TOP_PADDING),
+        fitsBelow,
+        belowTop: absoluteBelowTop,
+        left: absoluteAboveLeft
+      };
+    }
+    return { fitsAbove, aboveTop, fitsBelow, belowTop, left };
+  }
+  _prepareRenderWidgetAtExactPositionOverflowing(topLeft) {
+    return new Coordinate(topLeft.top, topLeft.left + this._contentLeft);
+  }
+  /**
+   * Compute the coordinates above and below the primary and secondary anchors.
+   * The content widget *must* touch the primary anchor.
+   * The content widget should touch if possible the secondary anchor.
+   */
+  _getAnchorsCoordinates(ctx) {
+    const primary = getCoordinates(this._primaryAnchor.viewPosition, this._affinity);
+    const secondaryViewPosition = this._secondaryAnchor.viewPosition?.lineNumber === this._primaryAnchor.viewPosition?.lineNumber ? this._secondaryAnchor.viewPosition : null;
+    const secondary = getCoordinates(secondaryViewPosition, this._affinity);
+    return { primary, secondary };
+    function getCoordinates(position, affinity) {
+      if (!position) {
+        return null;
+      }
+      const horizontalPosition = ctx.visibleRangeForPosition(position);
+      if (!horizontalPosition) {
+        return null;
+      }
+      const left = position.column === 1 && affinity === 3 ? 0 : horizontalPosition.left;
+      const top = ctx.getVerticalOffsetForLineNumber(position.lineNumber) - ctx.scrollTop;
+      const lineHeight = ctx.getLineHeightForLineNumber(position.lineNumber);
+      return new AnchorCoordinate(top, left, lineHeight);
+    }
+    __name(getCoordinates, "getCoordinates");
+  }
+  _reduceAnchorCoordinates(primary, secondary, width) {
+    if (!secondary) {
+      return primary;
+    }
+    const fontInfo = this._context.configuration.options.get(
+      52
+      /* EditorOption.fontInfo */
+    );
+    let left = secondary.left;
+    if (left < primary.left) {
+      left = Math.max(left, primary.left - width + fontInfo.typicalFullwidthCharacterWidth);
+    } else {
+      left = Math.min(left, primary.left + width - fontInfo.typicalFullwidthCharacterWidth);
+    }
+    return new AnchorCoordinate(primary.top, left, primary.height);
+  }
+  _prepareRenderWidget(ctx) {
+    if (!this._preference || this._preference.length === 0) {
+      return null;
+    }
+    const { primary, secondary } = this._getAnchorsCoordinates(ctx);
+    if (!primary) {
+      return {
+        kind: "offViewport",
+        preserveFocus: this.domNode.domNode.contains(this.domNode.domNode.ownerDocument.activeElement)
+      };
+    }
+    if (this._cachedDomNodeOffsetWidth === -1 || this._cachedDomNodeOffsetHeight === -1) {
+      let preferredDimensions = null;
+      if (typeof this._actual.beforeRender === "function") {
+        preferredDimensions = safeInvoke(this._actual.beforeRender, this._actual);
+      }
+      if (preferredDimensions) {
+        this._cachedDomNodeOffsetWidth = preferredDimensions.width;
+        this._cachedDomNodeOffsetHeight = preferredDimensions.height;
+      } else {
+        const domNode = this.domNode.domNode;
+        const clientRect = domNode.getBoundingClientRect();
+        this._cachedDomNodeOffsetWidth = Math.round(clientRect.width);
+        this._cachedDomNodeOffsetHeight = Math.round(clientRect.height);
+      }
+    }
+    const anchor = this._reduceAnchorCoordinates(primary, secondary, this._cachedDomNodeOffsetWidth);
+    let placement;
+    if (this.allowEditorOverflow) {
+      placement = this._layoutBoxInPage(anchor, this._cachedDomNodeOffsetWidth, this._cachedDomNodeOffsetHeight, ctx);
+    } else {
+      placement = this._layoutBoxInViewport(anchor, this._cachedDomNodeOffsetWidth, this._cachedDomNodeOffsetHeight, ctx);
+    }
+    for (let pass = 1; pass <= 2; pass++) {
+      for (const pref of this._preference) {
+        if (pref === 1) {
+          if (!placement) {
+            return null;
+          }
+          if (pass === 2 || placement.fitsAbove) {
+            return {
+              kind: "inViewport",
+              coordinate: new Coordinate(placement.aboveTop, placement.left),
+              position: 1
+              /* ContentWidgetPositionPreference.ABOVE */
+            };
+          }
+        } else if (pref === 2) {
+          if (!placement) {
+            return null;
+          }
+          if (pass === 2 || placement.fitsBelow) {
+            return {
+              kind: "inViewport",
+              coordinate: new Coordinate(placement.belowTop, placement.left),
+              position: 2
+              /* ContentWidgetPositionPreference.BELOW */
+            };
+          }
+        } else {
+          if (this.allowEditorOverflow) {
+            return {
+              kind: "inViewport",
+              coordinate: this._prepareRenderWidgetAtExactPositionOverflowing(new Coordinate(anchor.top, anchor.left)),
+              position: 0
+              /* ContentWidgetPositionPreference.EXACT */
+            };
+          } else {
+            return {
+              kind: "inViewport",
+              coordinate: new Coordinate(anchor.top, anchor.left),
+              position: 0
+              /* ContentWidgetPositionPreference.EXACT */
+            };
+          }
+        }
+      }
+    }
+    return null;
+  }
+  /**
+   * On this first pass, we ensure that the content widget (if it is in the viewport) has the max width set correctly.
+   */
+  onBeforeRender(viewportData) {
+    if (!this._primaryAnchor.viewPosition || !this._preference) {
+      return;
+    }
+    if (this._primaryAnchor.viewPosition.lineNumber < viewportData.startLineNumber || this._primaryAnchor.viewPosition.lineNumber > viewportData.endLineNumber) {
+      return;
+    }
+    this.domNode.setMaxWidth(this._maxWidth);
+  }
+  prepareRender(ctx) {
+    this._renderData = this._prepareRenderWidget(ctx);
+  }
+  render(ctx) {
+    if (!this._renderData || this._renderData.kind === "offViewport") {
+      if (this._isVisible) {
+        this.domNode.removeAttribute("monaco-visible-content-widget");
+        this._isVisible = false;
+        if (this._renderData?.kind === "offViewport" && this._renderData.preserveFocus) {
+          this.domNode.setTop(-1e3);
+        } else {
+          this.domNode.setVisibility("hidden");
+        }
+      }
+      if (typeof this._actual.afterRender === "function") {
+        safeInvoke(this._actual.afterRender, this._actual, null, null);
+      }
+      return;
+    }
+    if (this.allowEditorOverflow) {
+      this.domNode.setTop(this._renderData.coordinate.top);
+      this.domNode.setLeft(this._renderData.coordinate.left);
+    } else {
+      this.domNode.setTop(this._renderData.coordinate.top + ctx.scrollTop - ctx.bigNumbersDelta);
+      this.domNode.setLeft(this._renderData.coordinate.left);
+    }
+    if (!this._isVisible) {
+      this.domNode.setVisibility("inherit");
+      this.domNode.setAttribute("monaco-visible-content-widget", "true");
+      this._isVisible = true;
+    }
+    if (typeof this._actual.afterRender === "function") {
+      safeInvoke(this._actual.afterRender, this._actual, this._renderData.position, this._renderData.coordinate);
+    }
+  }
+}
+class PositionPair {
+  static {
+    __name(this, "PositionPair");
+  }
+  constructor(modelPosition, viewPosition) {
+    this.modelPosition = modelPosition;
+    this.viewPosition = viewPosition;
+  }
+}
+class Coordinate {
+  static {
+    __name(this, "Coordinate");
+  }
+  constructor(top, left) {
+    this.top = top;
+    this.left = left;
+    this._coordinateBrand = void 0;
+  }
+}
+class AnchorCoordinate {
+  static {
+    __name(this, "AnchorCoordinate");
+  }
+  constructor(top, left, height) {
+    this.top = top;
+    this.left = left;
+    this.height = height;
+    this._anchorCoordinateBrand = void 0;
+  }
+}
+function safeInvoke(fn, thisArg, ...args) {
+  try {
+    return fn.call(thisArg, ...args);
+  } catch {
+    return null;
+  }
+}
+__name(safeInvoke, "safeInvoke");
+export {
+  ViewContentWidgets
+};
+//# sourceMappingURL=contentWidgets.js.map

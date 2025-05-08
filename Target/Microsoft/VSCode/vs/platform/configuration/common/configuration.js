@@ -1,1 +1,194 @@
-import{assertNever as O}from"../../../base/common/assert.js";import*as l from"../../../base/common/types.js";import{URI as p}from"../../../base/common/uri.js";import{createDecorator as E}from"../../instantiation/common/instantiation.js";const I=E("configurationService");function L(e){return e&&typeof e=="object"&&(!e.overrideIdentifier||typeof e.overrideIdentifier=="string")&&(!e.resource||e.resource instanceof p)}function x(e){return e&&typeof e=="object"&&(!e.overrideIdentifiers||Array.isArray(e.overrideIdentifiers))&&!e.overrideIdentifier&&(!e.resource||e.resource instanceof p)}var a;(function(e){e[e.APPLICATION=1]="APPLICATION",e[e.USER=2]="USER",e[e.USER_LOCAL=3]="USER_LOCAL",e[e.USER_REMOTE=4]="USER_REMOTE",e[e.WORKSPACE=5]="WORKSPACE",e[e.WORKSPACE_FOLDER=6]="WORKSPACE_FOLDER",e[e.DEFAULT=7]="DEFAULT",e[e.MEMORY=8]="MEMORY"})(a||(a={}));function U(e){switch(e){case 1:return"APPLICATION";case 2:return"USER";case 3:return"USER_LOCAL";case 4:return"USER_REMOTE";case 5:return"WORKSPACE";case 6:return"WORKSPACE_FOLDER";case 7:return"DEFAULT";case 8:return"MEMORY"}}function P(e,t){switch(t){case 1:return e.applicationValue;case 2:return e.userValue;case 3:return e.userLocalValue;case 4:return e.userRemoteValue;case 5:return e.workspaceValue;case 6:return e.workspaceFolderValue;case 7:return e.defaultValue;case 8:return e.memoryValue;default:O(t)}}function _(e){return e.applicationValue!==void 0||e.userValue!==void 0||e.userLocalValue!==void 0||e.userRemoteValue!==void 0||e.workspaceValue!==void 0||e.workspaceFolderValue!==void 0}function b(e,t){const n=Object.create(null);for(const r in e)R(n,r,e[r],t);return n}function R(e,t,n,r){const o=t.split("."),f=o.pop();let s=e;for(let c=0;c<o.length;c++){const u=o[c];let i=s[u];switch(typeof i){case"undefined":i=s[u]=Object.create(null);break;case"object":if(i===null){r(`Ignoring ${t} as ${o.slice(0,c+1).join(".")} is null`);return}break;default:r(`Ignoring ${t} as ${o.slice(0,c+1).join(".")} is ${JSON.stringify(i)}`);return}s=i}if(typeof s=="object"&&s!==null)try{s[f]=n}catch{r(`Ignoring ${t} as ${o.join(".")} is ${JSON.stringify(s)}`)}else r(`Ignoring ${t} as ${o.join(".")} is ${JSON.stringify(s)}`)}function $(e,t){const n=t.split(".");d(e,n)}function d(e,t){if(!e)return;const n=t.shift();if(t.length===0){delete e[n];return}if(Object.keys(e).indexOf(n)!==-1){const r=e[n];typeof r=="object"&&!Array.isArray(r)&&(d(r,t),Object.keys(r).length===0&&delete e[n])}}function y(e,t,n){function r(s,c){let u=s;for(const i of c){if(typeof u!="object"||u===null)return;u=u[i]}return u}const o=t.split("."),f=r(e,o);return typeof f>"u"?n:f}function S(e,t,n){Object.keys(t).forEach(r=>{r!=="__proto__"&&(r in e?l.isObject(e[r])&&l.isObject(t[r])?S(e[r],t[r],n):n&&(e[r]=t[r]):e[r]=t[r])})}function F(e){return e.replace(/[\[\]]/g,"")}export{a as ConfigurationTarget,U as ConfigurationTargetToString,I as IConfigurationService,R as addToValueTree,P as getConfigValueInTarget,y as getConfigurationValue,F as getLanguageTagSettingPlainKey,L as isConfigurationOverrides,x as isConfigurationUpdateOverrides,_ as isConfigured,S as merge,$ as removeFromValueTree,b as toValuesTree};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { assertNever } from "../../../base/common/assert.js";
+import * as types from "../../../base/common/types.js";
+import { URI } from "../../../base/common/uri.js";
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IConfigurationService = createDecorator("configurationService");
+function isConfigurationOverrides(thing) {
+  return thing && typeof thing === "object" && (!thing.overrideIdentifier || typeof thing.overrideIdentifier === "string") && (!thing.resource || thing.resource instanceof URI);
+}
+__name(isConfigurationOverrides, "isConfigurationOverrides");
+function isConfigurationUpdateOverrides(thing) {
+  return thing && typeof thing === "object" && (!thing.overrideIdentifiers || Array.isArray(thing.overrideIdentifiers)) && !thing.overrideIdentifier && (!thing.resource || thing.resource instanceof URI);
+}
+__name(isConfigurationUpdateOverrides, "isConfigurationUpdateOverrides");
+var ConfigurationTarget;
+(function(ConfigurationTarget2) {
+  ConfigurationTarget2[ConfigurationTarget2["APPLICATION"] = 1] = "APPLICATION";
+  ConfigurationTarget2[ConfigurationTarget2["USER"] = 2] = "USER";
+  ConfigurationTarget2[ConfigurationTarget2["USER_LOCAL"] = 3] = "USER_LOCAL";
+  ConfigurationTarget2[ConfigurationTarget2["USER_REMOTE"] = 4] = "USER_REMOTE";
+  ConfigurationTarget2[ConfigurationTarget2["WORKSPACE"] = 5] = "WORKSPACE";
+  ConfigurationTarget2[ConfigurationTarget2["WORKSPACE_FOLDER"] = 6] = "WORKSPACE_FOLDER";
+  ConfigurationTarget2[ConfigurationTarget2["DEFAULT"] = 7] = "DEFAULT";
+  ConfigurationTarget2[ConfigurationTarget2["MEMORY"] = 8] = "MEMORY";
+})(ConfigurationTarget || (ConfigurationTarget = {}));
+function ConfigurationTargetToString(configurationTarget) {
+  switch (configurationTarget) {
+    case 1:
+      return "APPLICATION";
+    case 2:
+      return "USER";
+    case 3:
+      return "USER_LOCAL";
+    case 4:
+      return "USER_REMOTE";
+    case 5:
+      return "WORKSPACE";
+    case 6:
+      return "WORKSPACE_FOLDER";
+    case 7:
+      return "DEFAULT";
+    case 8:
+      return "MEMORY";
+  }
+}
+__name(ConfigurationTargetToString, "ConfigurationTargetToString");
+function getConfigValueInTarget(configValue, scope) {
+  switch (scope) {
+    case 1:
+      return configValue.applicationValue;
+    case 2:
+      return configValue.userValue;
+    case 3:
+      return configValue.userLocalValue;
+    case 4:
+      return configValue.userRemoteValue;
+    case 5:
+      return configValue.workspaceValue;
+    case 6:
+      return configValue.workspaceFolderValue;
+    case 7:
+      return configValue.defaultValue;
+    case 8:
+      return configValue.memoryValue;
+    default:
+      assertNever(scope);
+  }
+}
+__name(getConfigValueInTarget, "getConfigValueInTarget");
+function isConfigured(configValue) {
+  return configValue.applicationValue !== void 0 || configValue.userValue !== void 0 || configValue.userLocalValue !== void 0 || configValue.userRemoteValue !== void 0 || configValue.workspaceValue !== void 0 || configValue.workspaceFolderValue !== void 0;
+}
+__name(isConfigured, "isConfigured");
+function toValuesTree(properties, conflictReporter) {
+  const root = /* @__PURE__ */ Object.create(null);
+  for (const key in properties) {
+    addToValueTree(root, key, properties[key], conflictReporter);
+  }
+  return root;
+}
+__name(toValuesTree, "toValuesTree");
+function addToValueTree(settingsTreeRoot, key, value, conflictReporter) {
+  const segments = key.split(".");
+  const last = segments.pop();
+  let curr = settingsTreeRoot;
+  for (let i = 0; i < segments.length; i++) {
+    const s = segments[i];
+    let obj = curr[s];
+    switch (typeof obj) {
+      case "undefined":
+        obj = curr[s] = /* @__PURE__ */ Object.create(null);
+        break;
+      case "object":
+        if (obj === null) {
+          conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1).join(".")} is null`);
+          return;
+        }
+        break;
+      default:
+        conflictReporter(`Ignoring ${key} as ${segments.slice(0, i + 1).join(".")} is ${JSON.stringify(obj)}`);
+        return;
+    }
+    curr = obj;
+  }
+  if (typeof curr === "object" && curr !== null) {
+    try {
+      curr[last] = value;
+    } catch (e) {
+      conflictReporter(`Ignoring ${key} as ${segments.join(".")} is ${JSON.stringify(curr)}`);
+    }
+  } else {
+    conflictReporter(`Ignoring ${key} as ${segments.join(".")} is ${JSON.stringify(curr)}`);
+  }
+}
+__name(addToValueTree, "addToValueTree");
+function removeFromValueTree(valueTree, key) {
+  const segments = key.split(".");
+  doRemoveFromValueTree(valueTree, segments);
+}
+__name(removeFromValueTree, "removeFromValueTree");
+function doRemoveFromValueTree(valueTree, segments) {
+  if (!valueTree) {
+    return;
+  }
+  const first = segments.shift();
+  if (segments.length === 0) {
+    delete valueTree[first];
+    return;
+  }
+  if (Object.keys(valueTree).indexOf(first) !== -1) {
+    const value = valueTree[first];
+    if (typeof value === "object" && !Array.isArray(value)) {
+      doRemoveFromValueTree(value, segments);
+      if (Object.keys(value).length === 0) {
+        delete valueTree[first];
+      }
+    }
+  }
+}
+__name(doRemoveFromValueTree, "doRemoveFromValueTree");
+function getConfigurationValue(config, settingPath, defaultValue) {
+  function accessSetting(config2, path2) {
+    let current = config2;
+    for (const component of path2) {
+      if (typeof current !== "object" || current === null) {
+        return void 0;
+      }
+      current = current[component];
+    }
+    return current;
+  }
+  __name(accessSetting, "accessSetting");
+  const path = settingPath.split(".");
+  const result = accessSetting(config, path);
+  return typeof result === "undefined" ? defaultValue : result;
+}
+__name(getConfigurationValue, "getConfigurationValue");
+function merge(base, add, overwrite) {
+  Object.keys(add).forEach((key) => {
+    if (key !== "__proto__") {
+      if (key in base) {
+        if (types.isObject(base[key]) && types.isObject(add[key])) {
+          merge(base[key], add[key], overwrite);
+        } else if (overwrite) {
+          base[key] = add[key];
+        }
+      } else {
+        base[key] = add[key];
+      }
+    }
+  });
+}
+__name(merge, "merge");
+function getLanguageTagSettingPlainKey(settingKey) {
+  return settingKey.replace(/[\[\]]/g, "");
+}
+__name(getLanguageTagSettingPlainKey, "getLanguageTagSettingPlainKey");
+export {
+  ConfigurationTarget,
+  ConfigurationTargetToString,
+  IConfigurationService,
+  addToValueTree,
+  getConfigValueInTarget,
+  getConfigurationValue,
+  getLanguageTagSettingPlainKey,
+  isConfigurationOverrides,
+  isConfigurationUpdateOverrides,
+  isConfigured,
+  merge,
+  removeFromValueTree,
+  toValuesTree
+};
+//# sourceMappingURL=configuration.js.map

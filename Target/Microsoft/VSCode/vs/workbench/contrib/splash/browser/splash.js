@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("ISplashStorageService");export{o as ISplashStorageService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ISplashStorageService = createDecorator("ISplashStorageService");
+export {
+  ISplashStorageService
+};
+//# sourceMappingURL=splash.js.map

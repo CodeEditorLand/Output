@@ -1,1 +1,40 @@
-import*as e from"../../../../../nls.js";import{CommandsRegistry as s}from"../../../../../platform/commands/common/commands.js";import{ContextKeyExpr as l}from"../../../../../platform/contextkey/common/contextkey.js";import{Extensions as k}from"../../../../../platform/quickinput/common/quickAccess.js";import{IQuickInputService as p}from"../../../../../platform/quickinput/common/quickInput.js";import{Registry as u}from"../../../../../platform/registry/common/platform.js";import{getQuickNavigateHandler as a}from"../../../../browser/quickaccess.js";import{registerTerminalAction as d}from"../../../terminal/browser/terminalActions.js";import{TerminalContextKeys as c}from"../../../terminal/common/terminalContextKey.js";import{TerminalQuickAccessProvider as i}from"../../../terminalContrib/quickAccess/browser/terminalQuickAccess.js";var n;(function(r){r.QuickOpenTerm="workbench.action.quickOpenTerm"})(n||(n={}));const T=u.as(k.Quickaccess),f="inTerminalPicker";T.registerQuickAccessProvider({ctor:i,prefix:i.PREFIX,contextKey:f,placeholder:e.localize("tasksQuickAccessPlaceholder","Type the name of a terminal to open."),helpEntries:[{description:e.localize("tasksQuickAccessHelp","Show All Opened Terminals"),commandId:"workbench.action.quickOpenTerm"}]});const o="workbench.action.quickOpenNavigateNextInTerminalPicker";s.registerCommand({id:o,handler:a(o,!0)});const t="workbench.action.quickOpenNavigatePreviousInTerminalPicker";s.registerCommand({id:t,handler:a(t,!1)});d({id:"workbench.action.quickOpenTerm",title:e.localize2("quickAccessTerminal","Switch Active Terminal"),precondition:l.or(c.processSupported,c.terminalHasBeenCreated),run:(r,m)=>m.get(p).quickAccess.show(i.PREFIX)});
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../../nls.js";
+import { CommandsRegistry } from "../../../../../platform/commands/common/commands.js";
+import { ContextKeyExpr } from "../../../../../platform/contextkey/common/contextkey.js";
+import { Extensions as QuickAccessExtensions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { getQuickNavigateHandler } from "../../../../browser/quickaccess.js";
+import { registerTerminalAction } from "../../../terminal/browser/terminalActions.js";
+import { TerminalContextKeys } from "../../../terminal/common/terminalContextKey.js";
+import { TerminalQuickAccessProvider } from "../../../terminalContrib/quickAccess/browser/terminalQuickAccess.js";
+var TerminalQuickAccessCommandId;
+(function(TerminalQuickAccessCommandId2) {
+  TerminalQuickAccessCommandId2["QuickOpenTerm"] = "workbench.action.quickOpenTerm";
+})(TerminalQuickAccessCommandId || (TerminalQuickAccessCommandId = {}));
+const quickAccessRegistry = Registry.as(QuickAccessExtensions.Quickaccess);
+const inTerminalsPicker = "inTerminalPicker";
+quickAccessRegistry.registerQuickAccessProvider({
+  ctor: TerminalQuickAccessProvider,
+  prefix: TerminalQuickAccessProvider.PREFIX,
+  contextKey: inTerminalsPicker,
+  placeholder: nls.localize("tasksQuickAccessPlaceholder", "Type the name of a terminal to open."),
+  helpEntries: [{
+    description: nls.localize("tasksQuickAccessHelp", "Show All Opened Terminals"),
+    commandId: "workbench.action.quickOpenTerm"
+    /* TerminalQuickAccessCommandId.QuickOpenTerm */
+  }]
+});
+const quickAccessNavigateNextInTerminalPickerId = "workbench.action.quickOpenNavigateNextInTerminalPicker";
+CommandsRegistry.registerCommand({ id: quickAccessNavigateNextInTerminalPickerId, handler: getQuickNavigateHandler(quickAccessNavigateNextInTerminalPickerId, true) });
+const quickAccessNavigatePreviousInTerminalPickerId = "workbench.action.quickOpenNavigatePreviousInTerminalPicker";
+CommandsRegistry.registerCommand({ id: quickAccessNavigatePreviousInTerminalPickerId, handler: getQuickNavigateHandler(quickAccessNavigatePreviousInTerminalPickerId, false) });
+registerTerminalAction({
+  id: "workbench.action.quickOpenTerm",
+  title: nls.localize2("quickAccessTerminal", "Switch Active Terminal"),
+  precondition: ContextKeyExpr.or(TerminalContextKeys.processSupported, TerminalContextKeys.terminalHasBeenCreated),
+  run: /* @__PURE__ */ __name((c, accessor) => accessor.get(IQuickInputService).quickAccess.show(TerminalQuickAccessProvider.PREFIX), "run")
+});
+//# sourceMappingURL=terminal.quickAccess.contribution.js.map

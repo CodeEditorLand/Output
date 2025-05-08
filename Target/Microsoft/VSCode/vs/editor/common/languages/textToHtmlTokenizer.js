@@ -1,1 +1,134 @@
-import*as S from"../../../base/common/strings.js";import{LineTokens as h}from"../tokens/lineTokens.js";import{TokenizationRegistry as I}from"../languages.js";import{NullState as T,nullTokenizeEncoded as z}from"./nullTokenize.js";const b={getInitialState:()=>T,tokenizeEncoded:(s,n,o)=>z(0,o)};function v(s,n,o){return m(n,s.languageIdCodec,I.get(o)||b)}async function L(s,n,o){if(!o)return m(n,s.languageIdCodec,b);const r=await I.getOrCreate(o);return m(n,s.languageIdCodec,r||b)}function $(s,n,o,r,f,k,c){let g="<div>",a=r,d=0,e=!0;for(let l=0,p=n.getCount();l<p;l++){const i=n.getEndOffset(l);if(i<=r)continue;let t="";for(;a<i&&a<f;a++){const C=s.charCodeAt(a);switch(C){case 9:{let u=k-(a+d)%k;for(d+=u-1;u>0;)c&&e?(t+="&#160;",e=!1):(t+=" ",e=!0),u--;break}case 60:t+="&lt;",e=!1;break;case 62:t+="&gt;",e=!1;break;case 38:t+="&amp;",e=!1;break;case 0:t+="&#00;",e=!1;break;case 65279:case 8232:case 8233:case 133:t+="\uFFFD",e=!1;break;case 13:t+="&#8203",e=!1;break;case 32:c&&e?(t+="&#160;",e=!1):(t+=" ",e=!0);break;default:t+=String.fromCharCode(C),e=!1}}if(g+=`<span style="${n.getInlineStyle(l,o)}">${t}</span>`,i>f||a>=f)break}return g+="</div>",g}function m(s,n,o){let r='<div class="monaco-tokenized-source">';const f=S.splitLines(s);let k=o.getInitialState();for(let c=0,g=f.length;c<g;c++){const a=f[c];c>0&&(r+="<br/>");const d=o.tokenizeEncoded(a,!0,k);h.convertToEndOffset(d.tokens,a.length);const l=new h(d.tokens,a,n).inflate();let p=0;for(let i=0,t=l.getCount();i<t;i++){const C=l.getClassName(i),u=l.getEndOffset(i);r+=`<span class="${C}">${S.escape(a.substring(p,u))}</span>`,p=u}k=d.endState}return r+="</div>",r}export{m as _tokenizeToString,$ as tokenizeLineToHTML,L as tokenizeToString,v as tokenizeToStringSync};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+import { LineTokens } from "../tokens/lineTokens.js";
+import { TokenizationRegistry } from "../languages.js";
+import { NullState, nullTokenizeEncoded } from "./nullTokenize.js";
+const fallback = {
+  getInitialState: /* @__PURE__ */ __name(() => NullState, "getInitialState"),
+  tokenizeEncoded: /* @__PURE__ */ __name((buffer, hasEOL, state) => nullTokenizeEncoded(0, state), "tokenizeEncoded")
+};
+function tokenizeToStringSync(languageService, text, languageId) {
+  return _tokenizeToString(text, languageService.languageIdCodec, TokenizationRegistry.get(languageId) || fallback);
+}
+__name(tokenizeToStringSync, "tokenizeToStringSync");
+async function tokenizeToString(languageService, text, languageId) {
+  if (!languageId) {
+    return _tokenizeToString(text, languageService.languageIdCodec, fallback);
+  }
+  const tokenizationSupport = await TokenizationRegistry.getOrCreate(languageId);
+  return _tokenizeToString(text, languageService.languageIdCodec, tokenizationSupport || fallback);
+}
+__name(tokenizeToString, "tokenizeToString");
+function tokenizeLineToHTML(text, viewLineTokens, colorMap, startOffset, endOffset, tabSize, useNbsp) {
+  let result = `<div>`;
+  let charIndex = startOffset;
+  let tabsCharDelta = 0;
+  let prevIsSpace = true;
+  for (let tokenIndex = 0, tokenCount = viewLineTokens.getCount(); tokenIndex < tokenCount; tokenIndex++) {
+    const tokenEndIndex = viewLineTokens.getEndOffset(tokenIndex);
+    if (tokenEndIndex <= startOffset) {
+      continue;
+    }
+    let partContent = "";
+    for (; charIndex < tokenEndIndex && charIndex < endOffset; charIndex++) {
+      const charCode = text.charCodeAt(charIndex);
+      switch (charCode) {
+        case 9: {
+          let insertSpacesCount = tabSize - (charIndex + tabsCharDelta) % tabSize;
+          tabsCharDelta += insertSpacesCount - 1;
+          while (insertSpacesCount > 0) {
+            if (useNbsp && prevIsSpace) {
+              partContent += "&#160;";
+              prevIsSpace = false;
+            } else {
+              partContent += " ";
+              prevIsSpace = true;
+            }
+            insertSpacesCount--;
+          }
+          break;
+        }
+        case 60:
+          partContent += "&lt;";
+          prevIsSpace = false;
+          break;
+        case 62:
+          partContent += "&gt;";
+          prevIsSpace = false;
+          break;
+        case 38:
+          partContent += "&amp;";
+          prevIsSpace = false;
+          break;
+        case 0:
+          partContent += "&#00;";
+          prevIsSpace = false;
+          break;
+        case 65279:
+        case 8232:
+        case 8233:
+        case 133:
+          partContent += "\uFFFD";
+          prevIsSpace = false;
+          break;
+        case 13:
+          partContent += "&#8203";
+          prevIsSpace = false;
+          break;
+        case 32:
+          if (useNbsp && prevIsSpace) {
+            partContent += "&#160;";
+            prevIsSpace = false;
+          } else {
+            partContent += " ";
+            prevIsSpace = true;
+          }
+          break;
+        default:
+          partContent += String.fromCharCode(charCode);
+          prevIsSpace = false;
+      }
+    }
+    result += `<span style="${viewLineTokens.getInlineStyle(tokenIndex, colorMap)}">${partContent}</span>`;
+    if (tokenEndIndex > endOffset || charIndex >= endOffset) {
+      break;
+    }
+  }
+  result += `</div>`;
+  return result;
+}
+__name(tokenizeLineToHTML, "tokenizeLineToHTML");
+function _tokenizeToString(text, languageIdCodec, tokenizationSupport) {
+  let result = `<div class="monaco-tokenized-source">`;
+  const lines = strings.splitLines(text);
+  let currentState = tokenizationSupport.getInitialState();
+  for (let i = 0, len = lines.length; i < len; i++) {
+    const line = lines[i];
+    if (i > 0) {
+      result += `<br/>`;
+    }
+    const tokenizationResult = tokenizationSupport.tokenizeEncoded(line, true, currentState);
+    LineTokens.convertToEndOffset(tokenizationResult.tokens, line.length);
+    const lineTokens = new LineTokens(tokenizationResult.tokens, line, languageIdCodec);
+    const viewLineTokens = lineTokens.inflate();
+    let startOffset = 0;
+    for (let j = 0, lenJ = viewLineTokens.getCount(); j < lenJ; j++) {
+      const type = viewLineTokens.getClassName(j);
+      const endIndex = viewLineTokens.getEndOffset(j);
+      result += `<span class="${type}">${strings.escape(line.substring(startOffset, endIndex))}</span>`;
+      startOffset = endIndex;
+    }
+    currentState = tokenizationResult.endState;
+  }
+  result += `</div>`;
+  return result;
+}
+__name(_tokenizeToString, "_tokenizeToString");
+export {
+  _tokenizeToString,
+  tokenizeLineToHTML,
+  tokenizeToString,
+  tokenizeToStringSync
+};
+//# sourceMappingURL=textToHtmlTokenizer.js.map

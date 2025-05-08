@@ -1,1 +1,72 @@
-import{toUint8 as l}from"../../../base/common/uint.js";class i{constructor(t){const a=l(t);this._defaultValue=a,this._asciiMap=i._createAsciiMap(a),this._map=new Map}static _createAsciiMap(t){const a=new Uint8Array(256);return a.fill(t),a}set(t,a){const e=l(a);t>=0&&t<256?this._asciiMap[t]=e:this._map.set(t,e)}get(t){return t>=0&&t<256?this._asciiMap[t]:this._map.get(t)||this._defaultValue}clear(){this._asciiMap.fill(this._defaultValue),this._map.clear()}}var r;(function(s){s[s.False=0]="False",s[s.True=1]="True"})(r||(r={}));class u{constructor(){this._actual=new i(0)}add(t){this._actual.set(t,1)}has(t){return this._actual.get(t)===1}clear(){return this._actual.clear()}}export{i as CharacterClassifier,u as CharacterSet};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { toUint8 } from "../../../base/common/uint.js";
+class CharacterClassifier {
+  static {
+    __name(this, "CharacterClassifier");
+  }
+  constructor(_defaultValue) {
+    const defaultValue = toUint8(_defaultValue);
+    this._defaultValue = defaultValue;
+    this._asciiMap = CharacterClassifier._createAsciiMap(defaultValue);
+    this._map = /* @__PURE__ */ new Map();
+  }
+  static _createAsciiMap(defaultValue) {
+    const asciiMap = new Uint8Array(256);
+    asciiMap.fill(defaultValue);
+    return asciiMap;
+  }
+  set(charCode, _value) {
+    const value = toUint8(_value);
+    if (charCode >= 0 && charCode < 256) {
+      this._asciiMap[charCode] = value;
+    } else {
+      this._map.set(charCode, value);
+    }
+  }
+  get(charCode) {
+    if (charCode >= 0 && charCode < 256) {
+      return this._asciiMap[charCode];
+    } else {
+      return this._map.get(charCode) || this._defaultValue;
+    }
+  }
+  clear() {
+    this._asciiMap.fill(this._defaultValue);
+    this._map.clear();
+  }
+}
+var Boolean;
+(function(Boolean2) {
+  Boolean2[Boolean2["False"] = 0] = "False";
+  Boolean2[Boolean2["True"] = 1] = "True";
+})(Boolean || (Boolean = {}));
+class CharacterSet {
+  static {
+    __name(this, "CharacterSet");
+  }
+  constructor() {
+    this._actual = new CharacterClassifier(
+      0
+      /* Boolean.False */
+    );
+  }
+  add(charCode) {
+    this._actual.set(
+      charCode,
+      1
+      /* Boolean.True */
+    );
+  }
+  has(charCode) {
+    return this._actual.get(charCode) === 1;
+  }
+  clear() {
+    return this._actual.clear();
+  }
+}
+export {
+  CharacterClassifier,
+  CharacterSet
+};
+//# sourceMappingURL=characterClassifier.js.map

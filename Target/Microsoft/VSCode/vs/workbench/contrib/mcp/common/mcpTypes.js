@@ -1,1 +1,190 @@
-import{equals as k}from"../../../../base/common/arrays.js";import{assertNever as f}from"../../../../base/common/assert.js";import{equals as s}from"../../../../base/common/objects.js";import{URI as u}from"../../../../base/common/uri.js";import{localize as o}from"../../../../nls.js";import{ExtensionIdentifier as E}from"../../../../platform/extensions/common/extensions.js";import{createDecorator as z}from"../../../../platform/instantiation/common/instantiation.js";const b="ext.";function A(e,t){return E.toKey(e)+"/"+t}var c;(function(e){e[e.WorkspaceFolder=0]="WorkspaceFolder",e[e.Workspace=100]="Workspace",e[e.User=200]="User",e[e.Extension=300]="Extension",e[e.Filesystem=400]="Filesystem",e[e.RemoteBoost=-50]="RemoteBoost"})(c||(c={}));var l;(function(e){function t(r,n){return r.id===n.id&&r.remoteAuthority===n.remoteAuthority&&r.label===n.label&&r.isTrustedByDefault===n.isTrustedByDefault}e.equals=t})(l||(l={}));var p;(function(e){function t(i){return i}e.toSerialized=t;function r(i){return{id:i.id,label:i.label,cacheNonce:i.cacheNonce,launch:m.fromSerialized(i.launch),variableReplacement:i.variableReplacement?d.fromSerialized(i.variableReplacement):void 0}}e.fromSerialized=r;function n(i,a){return i.id===a.id&&i.label===a.label&&k(i.roots,a.roots,(w,h)=>w.toString()===h.toString())&&s(i.launch,a.launch)&&s(i.presentation,a.presentation)&&s(i.variableReplacement,a.variableReplacement)}e.equals=n})(p||(p={}));var d;(function(e){function t(n){return n}e.toSerialized=t;function r(n){return{section:n.section,folder:n.folder?{...n.folder,uri:u.revive(n.folder.uri)}:void 0,target:n.target}}e.fromSerialized=r})(d||(d={}));var g;(function(e){e[e.HasUnknown=0]="HasUnknown",e[e.LoadingUnknown=1]="LoadingUnknown",e[e.AllKnown=2]="AllKnown"})(g||(g={}));const H=z("IMcpService");var x;(function(e){e[e.Unknown=0]="Unknown",e[e.Cached=1]="Cached",e[e.Outdated=2]="Outdated",e[e.RefreshingFromUnknown=3]="RefreshingFromUnknown",e[e.RefreshingFromCached=4]="RefreshingFromCached",e[e.Live=5]="Live"})(x||(x={}));var R;(function(e){e[e.Stdio=1]="Stdio",e[e.HTTP=2]="HTTP"})(R||(R={}));var m;(function(e){function t(n){return n}e.toSerialized=t;function r(n){switch(n.type){case 2:return{type:n.type,uri:u.revive(n.uri),headers:n.headers};case 1:return{type:n.type,cwd:n.cwd?u.revive(n.cwd):void 0,command:n.command,args:n.args,env:n.env,envFile:n.envFile}}}e.fromSerialized=r})(m||(m={}));var v;(function(e){let t;(function(r){r[r.Stopped=0]="Stopped",r[r.Starting=1]="Starting",r[r.Running=2]="Running",r[r.Error=3]="Error"})(t=e.Kind||(e.Kind={})),e.toString=r=>{switch(r.state){case 0:return o("mcpstate.stopped","Stopped");case 1:return o("mcpstate.starting","Starting");case 2:return o("mcpstate.running","Running");case 3:return o("mcpstate.error","Error {0}",r.message);default:f(r)}},e.toKindString=r=>{switch(r){case 0:return"stopped";case 1:return"starting";case 2:return"running";case 3:return"error";default:f(r)}},e.canBeStarted=r=>r===3||r===0,e.isRunning=r=>!e.canBeStarted(r.state)})(v||(v={}));class W extends Error{constructor(t,r,n){super(`MPC ${r}: ${t}`),this.code=r,this.data=n}}class D extends Error{}export{H as IMcpService,g as LazyCollectionState,l as McpCollectionDefinition,c as McpCollectionSortOrder,D as McpConnectionFailedError,v as McpConnectionState,p as McpServerDefinition,d as McpServerDefinitionVariableReplacement,m as McpServerLaunch,x as McpServerToolsState,R as McpServerTransportType,W as MpcResponseError,b as extensionMcpCollectionPrefix,A as extensionPrefixedIdentifier};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { equals as arraysEqual } from "../../../../base/common/arrays.js";
+import { assertNever } from "../../../../base/common/assert.js";
+import { equals as objectsEqual } from "../../../../base/common/objects.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const extensionMcpCollectionPrefix = "ext.";
+function extensionPrefixedIdentifier(identifier, id) {
+  return ExtensionIdentifier.toKey(identifier) + "/" + id;
+}
+__name(extensionPrefixedIdentifier, "extensionPrefixedIdentifier");
+var McpCollectionSortOrder;
+(function(McpCollectionSortOrder2) {
+  McpCollectionSortOrder2[McpCollectionSortOrder2["WorkspaceFolder"] = 0] = "WorkspaceFolder";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Workspace"] = 100] = "Workspace";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["User"] = 200] = "User";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Extension"] = 300] = "Extension";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["Filesystem"] = 400] = "Filesystem";
+  McpCollectionSortOrder2[McpCollectionSortOrder2["RemoteBoost"] = -50] = "RemoteBoost";
+})(McpCollectionSortOrder || (McpCollectionSortOrder = {}));
+var McpCollectionDefinition;
+(function(McpCollectionDefinition2) {
+  function equals(a, b) {
+    return a.id === b.id && a.remoteAuthority === b.remoteAuthority && a.label === b.label && a.isTrustedByDefault === b.isTrustedByDefault;
+  }
+  __name(equals, "equals");
+  McpCollectionDefinition2.equals = equals;
+})(McpCollectionDefinition || (McpCollectionDefinition = {}));
+var McpServerDefinition;
+(function(McpServerDefinition2) {
+  function toSerialized(def) {
+    return def;
+  }
+  __name(toSerialized, "toSerialized");
+  McpServerDefinition2.toSerialized = toSerialized;
+  function fromSerialized(def) {
+    return {
+      id: def.id,
+      label: def.label,
+      cacheNonce: def.cacheNonce,
+      launch: McpServerLaunch.fromSerialized(def.launch),
+      variableReplacement: def.variableReplacement ? McpServerDefinitionVariableReplacement.fromSerialized(def.variableReplacement) : void 0
+    };
+  }
+  __name(fromSerialized, "fromSerialized");
+  McpServerDefinition2.fromSerialized = fromSerialized;
+  function equals(a, b) {
+    return a.id === b.id && a.label === b.label && arraysEqual(a.roots, b.roots, (a2, b2) => a2.toString() === b2.toString()) && objectsEqual(a.launch, b.launch) && objectsEqual(a.presentation, b.presentation) && objectsEqual(a.variableReplacement, b.variableReplacement);
+  }
+  __name(equals, "equals");
+  McpServerDefinition2.equals = equals;
+})(McpServerDefinition || (McpServerDefinition = {}));
+var McpServerDefinitionVariableReplacement;
+(function(McpServerDefinitionVariableReplacement2) {
+  function toSerialized(def) {
+    return def;
+  }
+  __name(toSerialized, "toSerialized");
+  McpServerDefinitionVariableReplacement2.toSerialized = toSerialized;
+  function fromSerialized(def) {
+    return {
+      section: def.section,
+      folder: def.folder ? { ...def.folder, uri: URI.revive(def.folder.uri) } : void 0,
+      target: def.target
+    };
+  }
+  __name(fromSerialized, "fromSerialized");
+  McpServerDefinitionVariableReplacement2.fromSerialized = fromSerialized;
+})(McpServerDefinitionVariableReplacement || (McpServerDefinitionVariableReplacement = {}));
+var LazyCollectionState;
+(function(LazyCollectionState2) {
+  LazyCollectionState2[LazyCollectionState2["HasUnknown"] = 0] = "HasUnknown";
+  LazyCollectionState2[LazyCollectionState2["LoadingUnknown"] = 1] = "LoadingUnknown";
+  LazyCollectionState2[LazyCollectionState2["AllKnown"] = 2] = "AllKnown";
+})(LazyCollectionState || (LazyCollectionState = {}));
+const IMcpService = createDecorator("IMcpService");
+var McpServerToolsState;
+(function(McpServerToolsState2) {
+  McpServerToolsState2[McpServerToolsState2["Unknown"] = 0] = "Unknown";
+  McpServerToolsState2[McpServerToolsState2["Cached"] = 1] = "Cached";
+  McpServerToolsState2[McpServerToolsState2["Outdated"] = 2] = "Outdated";
+  McpServerToolsState2[McpServerToolsState2["RefreshingFromUnknown"] = 3] = "RefreshingFromUnknown";
+  McpServerToolsState2[McpServerToolsState2["RefreshingFromCached"] = 4] = "RefreshingFromCached";
+  McpServerToolsState2[McpServerToolsState2["Live"] = 5] = "Live";
+})(McpServerToolsState || (McpServerToolsState = {}));
+var McpServerTransportType;
+(function(McpServerTransportType2) {
+  McpServerTransportType2[McpServerTransportType2["Stdio"] = 1] = "Stdio";
+  McpServerTransportType2[McpServerTransportType2["HTTP"] = 2] = "HTTP";
+})(McpServerTransportType || (McpServerTransportType = {}));
+var McpServerLaunch;
+(function(McpServerLaunch2) {
+  function toSerialized(launch) {
+    return launch;
+  }
+  __name(toSerialized, "toSerialized");
+  McpServerLaunch2.toSerialized = toSerialized;
+  function fromSerialized(launch) {
+    switch (launch.type) {
+      case 2:
+        return { type: launch.type, uri: URI.revive(launch.uri), headers: launch.headers };
+      case 1:
+        return {
+          type: launch.type,
+          cwd: launch.cwd ? URI.revive(launch.cwd) : void 0,
+          command: launch.command,
+          args: launch.args,
+          env: launch.env,
+          envFile: launch.envFile
+        };
+    }
+  }
+  __name(fromSerialized, "fromSerialized");
+  McpServerLaunch2.fromSerialized = fromSerialized;
+})(McpServerLaunch || (McpServerLaunch = {}));
+var McpConnectionState;
+(function(McpConnectionState2) {
+  let Kind;
+  (function(Kind2) {
+    Kind2[Kind2["Stopped"] = 0] = "Stopped";
+    Kind2[Kind2["Starting"] = 1] = "Starting";
+    Kind2[Kind2["Running"] = 2] = "Running";
+    Kind2[Kind2["Error"] = 3] = "Error";
+  })(Kind = McpConnectionState2.Kind || (McpConnectionState2.Kind = {}));
+  McpConnectionState2.toString = (s) => {
+    switch (s.state) {
+      case 0:
+        return localize("mcpstate.stopped", "Stopped");
+      case 1:
+        return localize("mcpstate.starting", "Starting");
+      case 2:
+        return localize("mcpstate.running", "Running");
+      case 3:
+        return localize("mcpstate.error", "Error {0}", s.message);
+      default:
+        assertNever(s);
+    }
+  };
+  McpConnectionState2.toKindString = (s) => {
+    switch (s) {
+      case 0:
+        return "stopped";
+      case 1:
+        return "starting";
+      case 2:
+        return "running";
+      case 3:
+        return "error";
+      default:
+        assertNever(s);
+    }
+  };
+  McpConnectionState2.canBeStarted = (s) => s === 3 || s === 0;
+  McpConnectionState2.isRunning = (s) => !McpConnectionState2.canBeStarted(s.state);
+})(McpConnectionState || (McpConnectionState = {}));
+class MpcResponseError extends Error {
+  static {
+    __name(this, "MpcResponseError");
+  }
+  constructor(message, code, data) {
+    super(`MPC ${code}: ${message}`);
+    this.code = code;
+    this.data = data;
+  }
+}
+class McpConnectionFailedError extends Error {
+  static {
+    __name(this, "McpConnectionFailedError");
+  }
+}
+export {
+  IMcpService,
+  LazyCollectionState,
+  McpCollectionDefinition,
+  McpCollectionSortOrder,
+  McpConnectionFailedError,
+  McpConnectionState,
+  McpServerDefinition,
+  McpServerDefinitionVariableReplacement,
+  McpServerLaunch,
+  McpServerToolsState,
+  McpServerTransportType,
+  MpcResponseError,
+  extensionMcpCollectionPrefix,
+  extensionPrefixedIdentifier
+};
+//# sourceMappingURL=mcpTypes.js.map

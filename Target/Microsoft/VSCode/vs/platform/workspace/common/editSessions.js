@@ -1,1 +1,13 @@
-import{createDecorator as o}from"../../instantiation/common/instantiation.js";const l=o("editSessionIdentityService");var r;(function(e){e[e.Complete=100]="Complete",e[e.Partial=50]="Partial",e[e.None=0]="None"})(r||(r={}));export{r as EditSessionIdentityMatch,l as IEditSessionIdentityService};
+import { createDecorator } from "../../instantiation/common/instantiation.js";
+const IEditSessionIdentityService = createDecorator("editSessionIdentityService");
+var EditSessionIdentityMatch;
+(function(EditSessionIdentityMatch2) {
+  EditSessionIdentityMatch2[EditSessionIdentityMatch2["Complete"] = 100] = "Complete";
+  EditSessionIdentityMatch2[EditSessionIdentityMatch2["Partial"] = 50] = "Partial";
+  EditSessionIdentityMatch2[EditSessionIdentityMatch2["None"] = 0] = "None";
+})(EditSessionIdentityMatch || (EditSessionIdentityMatch = {}));
+export {
+  EditSessionIdentityMatch,
+  IEditSessionIdentityService
+};
+//# sourceMappingURL=editSessions.js.map

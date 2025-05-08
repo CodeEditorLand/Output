@@ -1,3 +1,88 @@
-import{localize as t}from"../../../../../nls.js";import{IConfigurationService as L}from"../../../../../platform/configuration/common/configuration.js";import{IDialogService as y}from"../../../../../platform/dialogs/common/dialogs.js";async function k(s,r,m){const l=s.get(L),g=s.get(y),n=r.split(/\r?\n/);if(n.length===1)return!0;function d(e){return typeof e=="string"&&(e==="auto"||e==="always"||e==="never")?e:typeof e=="boolean"?e?"auto":"never":"auto"}const u=d(l.getValue("terminal.integrated.enableMultiLinePasteWarning"));if(u==="never")return!0;if(u==="auto"){if(m)return!0;const e=r.split(/\r?\n/);if(e.length===2&&e[1].trim().length===0)return!0}const c=3,f=30;let o=t("preview","Preview:");for(let e=0;e<Math.min(n.length,c);e++){const a=n[e],h=a.length>f?`${a.slice(0,f)}\u2026`:a;o+=`
-${h}`}n.length>c&&(o+=`
-\u2026`);const{result:i,checkboxChecked:p}=await g.prompt({message:t("confirmMoveTrashMessageFilesAndDirectories","Are you sure you want to paste {0} lines of text into the terminal?",n.length),detail:o,type:"warning",buttons:[{label:t({key:"multiLinePasteButton",comment:["&& denotes a mnemonic"]},"&&Paste"),run:()=>({confirmed:!0,singleLine:!1})},{label:t({key:"multiLinePasteButton.oneLine",comment:["&& denotes a mnemonic"]},"Paste as &&one line"),run:()=>({confirmed:!0,singleLine:!0})}],cancelButton:!0,checkbox:{label:t("doNotAskAgain","Do not ask me again")}});return i?(i.confirmed&&p&&await l.updateValue("terminal.integrated.enableMultiLinePasteWarning","never"),i.singleLine?{modifiedText:r.replace(/\r?\n/g,"")}:i.confirmed):!1}export{k as shouldPasteTerminalText};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../../nls.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IDialogService } from "../../../../../platform/dialogs/common/dialogs.js";
+async function shouldPasteTerminalText(accessor, text, bracketedPasteMode) {
+  const configurationService = accessor.get(IConfigurationService);
+  const dialogService = accessor.get(IDialogService);
+  const textForLines = text.split(/\r?\n/);
+  if (textForLines.length === 1) {
+    return true;
+  }
+  function parseConfigValue(value) {
+    if (typeof value === "string") {
+      if (value === "auto" || value === "always" || value === "never") {
+        return value;
+      }
+    }
+    if (typeof value === "boolean") {
+      return value ? "auto" : "never";
+    }
+    return "auto";
+  }
+  __name(parseConfigValue, "parseConfigValue");
+  const configValue = parseConfigValue(configurationService.getValue(
+    "terminal.integrated.enableMultiLinePasteWarning"
+    /* TerminalSettingId.EnableMultiLinePasteWarning */
+  ));
+  if (configValue === "never") {
+    return true;
+  }
+  if (configValue === "auto") {
+    if (bracketedPasteMode) {
+      return true;
+    }
+    const textForLines2 = text.split(/\r?\n/);
+    if (textForLines2.length === 2 && textForLines2[1].trim().length === 0) {
+      return true;
+    }
+  }
+  const displayItemsCount = 3;
+  const maxPreviewLineLength = 30;
+  let detail = localize("preview", "Preview:");
+  for (let i = 0; i < Math.min(textForLines.length, displayItemsCount); i++) {
+    const line = textForLines[i];
+    const cleanedLine = line.length > maxPreviewLineLength ? `${line.slice(0, maxPreviewLineLength)}\u2026` : line;
+    detail += `
+${cleanedLine}`;
+  }
+  if (textForLines.length > displayItemsCount) {
+    detail += `
+\u2026`;
+  }
+  const { result, checkboxChecked } = await dialogService.prompt({
+    message: localize("confirmMoveTrashMessageFilesAndDirectories", "Are you sure you want to paste {0} lines of text into the terminal?", textForLines.length),
+    detail,
+    type: "warning",
+    buttons: [
+      {
+        label: localize({ key: "multiLinePasteButton", comment: ["&& denotes a mnemonic"] }, "&&Paste"),
+        run: /* @__PURE__ */ __name(() => ({ confirmed: true, singleLine: false }), "run")
+      },
+      {
+        label: localize({ key: "multiLinePasteButton.oneLine", comment: ["&& denotes a mnemonic"] }, "Paste as &&one line"),
+        run: /* @__PURE__ */ __name(() => ({ confirmed: true, singleLine: true }), "run")
+      }
+    ],
+    cancelButton: true,
+    checkbox: {
+      label: localize("doNotAskAgain", "Do not ask me again")
+    }
+  });
+  if (!result) {
+    return false;
+  }
+  if (result.confirmed && checkboxChecked) {
+    await configurationService.updateValue("terminal.integrated.enableMultiLinePasteWarning", "never");
+  }
+  if (result.singleLine) {
+    return { modifiedText: text.replace(/\r?\n/g, "") };
+  }
+  return result.confirmed;
+}
+__name(shouldPasteTerminalText, "shouldPasteTerminalText");
+export {
+  shouldPasteTerminalText
+};
+//# sourceMappingURL=terminalClipboard.js.map

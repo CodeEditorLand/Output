@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("textMateTokenizationFeature");export{o as ITextMateTokenizationService};
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+const ITextMateTokenizationService = createDecorator("textMateTokenizationFeature");
+export {
+  ITextMateTokenizationService
+};
+//# sourceMappingURL=textMateTokenizationFeature.js.map

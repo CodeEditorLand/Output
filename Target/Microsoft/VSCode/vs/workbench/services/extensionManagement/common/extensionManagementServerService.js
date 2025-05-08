@@ -1,1 +1,80 @@
-import{localize as l}from"../../../../nls.js";import{IExtensionManagementServerService as f}from"./extensionManagement.js";import{IRemoteAgentService as S}from"../../remote/common/remoteAgentService.js";import{Schemas as v}from"../../../../base/common/network.js";import{registerSingleton as h}from"../../../../platform/instantiation/common/extensions.js";import{ILabelService as x}from"../../../../platform/label/common/label.js";import{isWeb as E}from"../../../../base/common/platform.js";import{IInstantiationService as p}from"../../../../platform/instantiation/common/instantiation.js";import{WebExtensionManagementService as M}from"./webExtensionManagementService.js";import{RemoteExtensionManagementService as u}from"./remoteExtensionManagementService.js";var g=function(i,e,t,r){var o=arguments.length,n=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,e,t,r);else for(var m=i.length-1;m>=0;m--)(a=i[m])&&(n=(o<3?a(n):o>3?a(e,t,n):a(e,t))||n);return o>3&&n&&Object.defineProperty(e,t,n),n},s=function(i,e){return function(t,r){e(t,r,i)}};let c=class{constructor(e,t,r){this.localExtensionManagementServer=null,this.remoteExtensionManagementServer=null,this.webExtensionManagementServer=null;const o=e.getConnection();if(o){const n=r.createInstance(u,o.getChannel("extensions"));this.remoteExtensionManagementServer={id:"remote",extensionManagementService:n,get label(){return t.getHostLabel(v.vscodeRemote,o.remoteAuthority)||l("remote","Remote")}}}if(E){const n=r.createInstance(M);this.webExtensionManagementServer={id:"web",extensionManagementService:n,label:l("browser","Browser")}}}getExtensionManagementServer(e){if(e.location.scheme===v.vscodeRemote)return this.remoteExtensionManagementServer;if(this.webExtensionManagementServer)return this.webExtensionManagementServer;throw new Error(`Invalid Extension ${e.location}`)}getExtensionInstallLocation(e){return this.getExtensionManagementServer(e)===this.remoteExtensionManagementServer?2:3}};c=g([s(0,S),s(1,x),s(2,p)],c);h(f,c,1);export{c as ExtensionManagementServerService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../nls.js";
+import { IExtensionManagementServerService } from "./extensionManagement.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { WebExtensionManagementService } from "./webExtensionManagementService.js";
+import { RemoteExtensionManagementService } from "./remoteExtensionManagementService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ExtensionManagementServerService = class ExtensionManagementServerService2 {
+  static {
+    __name(this, "ExtensionManagementServerService");
+  }
+  constructor(remoteAgentService, labelService, instantiationService) {
+    this.localExtensionManagementServer = null;
+    this.remoteExtensionManagementServer = null;
+    this.webExtensionManagementServer = null;
+    const remoteAgentConnection = remoteAgentService.getConnection();
+    if (remoteAgentConnection) {
+      const extensionManagementService = instantiationService.createInstance(RemoteExtensionManagementService, remoteAgentConnection.getChannel("extensions"));
+      this.remoteExtensionManagementServer = {
+        id: "remote",
+        extensionManagementService,
+        get label() {
+          return labelService.getHostLabel(Schemas.vscodeRemote, remoteAgentConnection.remoteAuthority) || localize("remote", "Remote");
+        }
+      };
+    }
+    if (isWeb) {
+      const extensionManagementService = instantiationService.createInstance(WebExtensionManagementService);
+      this.webExtensionManagementServer = {
+        id: "web",
+        extensionManagementService,
+        label: localize("browser", "Browser")
+      };
+    }
+  }
+  getExtensionManagementServer(extension) {
+    if (extension.location.scheme === Schemas.vscodeRemote) {
+      return this.remoteExtensionManagementServer;
+    }
+    if (this.webExtensionManagementServer) {
+      return this.webExtensionManagementServer;
+    }
+    throw new Error(`Invalid Extension ${extension.location}`);
+  }
+  getExtensionInstallLocation(extension) {
+    const server = this.getExtensionManagementServer(extension);
+    return server === this.remoteExtensionManagementServer ? 2 : 3;
+  }
+};
+ExtensionManagementServerService = __decorate([
+  __param(0, IRemoteAgentService),
+  __param(1, ILabelService),
+  __param(2, IInstantiationService)
+], ExtensionManagementServerService);
+registerSingleton(
+  IExtensionManagementServerService,
+  ExtensionManagementServerService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ExtensionManagementServerService
+};
+//# sourceMappingURL=extensionManagementServerService.js.map

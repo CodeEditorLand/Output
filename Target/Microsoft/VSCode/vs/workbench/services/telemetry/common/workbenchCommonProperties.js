@@ -1,1 +1,31 @@
-import{resolveCommonProperties as h}from"../../../../platform/telemetry/common/commonProperties.js";import{firstSessionDateStorageKey as v,lastSessionDateStorageKey as u}from"../../../../platform/telemetry/common/telemetry.js";import{cleanRemoteAuthority as y}from"../../../../platform/telemetry/common/telemetryUtils.js";function A(t,r,s,m,i,c,a,l,S,e,f){const o=h(r,s,e.arch,m,i,c,a,l,S),D=t.get(v,-1),n=t.get(u,-1);return o["common.version.shell"]=e.versions?.electron,o["common.version.renderer"]=e.versions?.chrome,o["common.firstSessionDate"]=D,o["common.lastSessionDate"]=n||"",o["common.isNewSession"]=n?"0":"1",o["common.remoteAuthority"]=y(f),o["common.cli"]=!!e.env.VSCODE_CLI,o}export{A as resolveWorkbenchCommonProperties};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { resolveCommonProperties } from "../../../../platform/telemetry/common/commonProperties.js";
+import { firstSessionDateStorageKey, lastSessionDateStorageKey } from "../../../../platform/telemetry/common/telemetry.js";
+import { cleanRemoteAuthority } from "../../../../platform/telemetry/common/telemetryUtils.js";
+function resolveWorkbenchCommonProperties(storageService, release, hostname, commit, version, machineId, sqmId, devDeviceId, isInternalTelemetry, process, remoteAuthority) {
+  const result = resolveCommonProperties(release, hostname, process.arch, commit, version, machineId, sqmId, devDeviceId, isInternalTelemetry);
+  const firstSessionDate = storageService.get(
+    firstSessionDateStorageKey,
+    -1
+    /* StorageScope.APPLICATION */
+  );
+  const lastSessionDate = storageService.get(
+    lastSessionDateStorageKey,
+    -1
+    /* StorageScope.APPLICATION */
+  );
+  result["common.version.shell"] = process.versions?.["electron"];
+  result["common.version.renderer"] = process.versions?.["chrome"];
+  result["common.firstSessionDate"] = firstSessionDate;
+  result["common.lastSessionDate"] = lastSessionDate || "";
+  result["common.isNewSession"] = !lastSessionDate ? "1" : "0";
+  result["common.remoteAuthority"] = cleanRemoteAuthority(remoteAuthority);
+  result["common.cli"] = !!process.env["VSCODE_CLI"];
+  return result;
+}
+__name(resolveWorkbenchCommonProperties, "resolveWorkbenchCommonProperties");
+export {
+  resolveWorkbenchCommonProperties
+};
+//# sourceMappingURL=workbenchCommonProperties.js.map

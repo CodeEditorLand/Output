@@ -1,1 +1,87 @@
-import{EditorCommand as l,registerEditorCommand as p}from"../../../browser/editorExtensions.js";import{IContextKeyService as d,RawContextKey as m}from"../../../../platform/contextkey/common/contextkey.js";import{CancellationTokenSource as k}from"../../../../base/common/cancellation.js";import{LinkedList as u}from"../../../../base/common/linkedList.js";import{createDecorator as h}from"../../../../platform/instantiation/common/instantiation.js";import{registerSingleton as f}from"../../../../platform/instantiation/common/extensions.js";import{localize as g}from"../../../../nls.js";const r=h("IEditorCancelService"),i=new m("cancellableOperation",!1,g("cancellableOperation","Whether the editor runs a cancellable operation, e.g. like 'Peek References'"));f(r,class{constructor(){this._tokens=new WeakMap}add(n,e){let t=this._tokens.get(n);t||(t=n.invokeWithinContext(s=>{const a=i.bindTo(s.get(d)),c=new u;return{key:a,tokens:c}}),this._tokens.set(n,t));let o;return t.key.set(!0),o=t.tokens.push(e),()=>{o&&(o(),t.key.set(!t.tokens.isEmpty()),o=void 0)}}cancel(n){const e=this._tokens.get(n);if(!e)return;const t=e.tokens.pop();t&&(t.cancel(),e.key.set(!e.tokens.isEmpty()))}},1);class v extends k{constructor(e,t){super(t),this.editor=e,this._unregister=e.invokeWithinContext(o=>o.get(r).add(e,this))}dispose(){this._unregister(),super.dispose()}}p(new class extends l{constructor(){super({id:"editor.cancelOperation",kbOpts:{weight:100,primary:9},precondition:i})}runEditorCommand(n,e){n.get(r).cancel(e)}});export{v as EditorKeybindingCancellationTokenSource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { EditorCommand, registerEditorCommand } from "../../../browser/editorExtensions.js";
+import { IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { CancellationTokenSource } from "../../../../base/common/cancellation.js";
+import { LinkedList } from "../../../../base/common/linkedList.js";
+import { createDecorator } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { localize } from "../../../../nls.js";
+const IEditorCancellationTokens = createDecorator("IEditorCancelService");
+const ctxCancellableOperation = new RawContextKey("cancellableOperation", false, localize("cancellableOperation", "Whether the editor runs a cancellable operation, e.g. like 'Peek References'"));
+registerSingleton(
+  IEditorCancellationTokens,
+  class {
+    constructor() {
+      this._tokens = /* @__PURE__ */ new WeakMap();
+    }
+    add(editor, cts) {
+      let data = this._tokens.get(editor);
+      if (!data) {
+        data = editor.invokeWithinContext((accessor) => {
+          const key = ctxCancellableOperation.bindTo(accessor.get(IContextKeyService));
+          const tokens = new LinkedList();
+          return { key, tokens };
+        });
+        this._tokens.set(editor, data);
+      }
+      let removeFn;
+      data.key.set(true);
+      removeFn = data.tokens.push(cts);
+      return () => {
+        if (removeFn) {
+          removeFn();
+          data.key.set(!data.tokens.isEmpty());
+          removeFn = void 0;
+        }
+      };
+    }
+    cancel(editor) {
+      const data = this._tokens.get(editor);
+      if (!data) {
+        return;
+      }
+      const cts = data.tokens.pop();
+      if (cts) {
+        cts.cancel();
+        data.key.set(!data.tokens.isEmpty());
+      }
+    }
+  },
+  1
+  /* InstantiationType.Delayed */
+);
+class EditorKeybindingCancellationTokenSource extends CancellationTokenSource {
+  static {
+    __name(this, "EditorKeybindingCancellationTokenSource");
+  }
+  constructor(editor, parent) {
+    super(parent);
+    this.editor = editor;
+    this._unregister = editor.invokeWithinContext((accessor) => accessor.get(IEditorCancellationTokens).add(editor, this));
+  }
+  dispose() {
+    this._unregister();
+    super.dispose();
+  }
+}
+registerEditorCommand(new class extends EditorCommand {
+  constructor() {
+    super({
+      id: "editor.cancelOperation",
+      kbOpts: {
+        weight: 100,
+        primary: 9
+        /* KeyCode.Escape */
+      },
+      precondition: ctxCancellableOperation
+    });
+  }
+  runEditorCommand(accessor, editor) {
+    accessor.get(IEditorCancellationTokens).cancel(editor);
+  }
+}());
+export {
+  EditorKeybindingCancellationTokenSource
+};
+//# sourceMappingURL=keybindingCancellation.js.map

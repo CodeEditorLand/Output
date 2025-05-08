@@ -1,1 +1,52 @@
-import{OS as o}from"../../../base/common/platform.js";function a(n){let e=n;e.includes("\\")&&(e=e.replace(/\\/g,"\\\\"));const t=/[\`\$\|\&\>\~\#\!\^\*\;\<\"\']/g;return e=e.replace(t,""),`'${e}'`}function s(n,e,t){if(!n)return"";if(!e)return n;e.match(/[\/\\]$/)&&(e=e.slice(0,e.length-1));const r=n.replace(/\\/g,"/").toLowerCase(),i=e.replace(/\\/g,"/").toLowerCase();return r.includes(i)?`~${t}${n.slice(e.length+1)}`:n}function c(n){return n.match(/^['"].*['"]$/)&&(n=n.substring(1,n.length-1)),o===1&&n&&n[1]===":"?n[0].toUpperCase()+n.substring(1):n}function f(n){return!n.strictEnv}export{s as collapseTildePath,a as escapeNonWindowsPath,c as sanitizeCwd,f as shouldUseEnvironmentVariableCollection};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { OS } from "../../../base/common/platform.js";
+function escapeNonWindowsPath(path) {
+  let newPath = path;
+  if (newPath.includes("\\")) {
+    newPath = newPath.replace(/\\/g, "\\\\");
+  }
+  const bannedChars = /[\`\$\|\&\>\~\#\!\^\*\;\<\"\']/g;
+  newPath = newPath.replace(bannedChars, "");
+  return `'${newPath}'`;
+}
+__name(escapeNonWindowsPath, "escapeNonWindowsPath");
+function collapseTildePath(path, userHome, separator) {
+  if (!path) {
+    return "";
+  }
+  if (!userHome) {
+    return path;
+  }
+  if (userHome.match(/[\/\\]$/)) {
+    userHome = userHome.slice(0, userHome.length - 1);
+  }
+  const normalizedPath = path.replace(/\\/g, "/").toLowerCase();
+  const normalizedUserHome = userHome.replace(/\\/g, "/").toLowerCase();
+  if (!normalizedPath.includes(normalizedUserHome)) {
+    return path;
+  }
+  return `~${separator}${path.slice(userHome.length + 1)}`;
+}
+__name(collapseTildePath, "collapseTildePath");
+function sanitizeCwd(cwd) {
+  if (cwd.match(/^['"].*['"]$/)) {
+    cwd = cwd.substring(1, cwd.length - 1);
+  }
+  if (OS === 1 && cwd && cwd[1] === ":") {
+    return cwd[0].toUpperCase() + cwd.substring(1);
+  }
+  return cwd;
+}
+__name(sanitizeCwd, "sanitizeCwd");
+function shouldUseEnvironmentVariableCollection(slc) {
+  return !slc.strictEnv;
+}
+__name(shouldUseEnvironmentVariableCollection, "shouldUseEnvironmentVariableCollection");
+export {
+  collapseTildePath,
+  escapeNonWindowsPath,
+  sanitizeCwd,
+  shouldUseEnvironmentVariableCollection
+};
+//# sourceMappingURL=terminalEnvironment.js.map

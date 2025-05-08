@@ -1,1 +1,21 @@
-import{createDecorator as s}from"../../../platform/instantiation/common/instantiation.js";const d=s("IExtHostRpcService");class n{constructor(e){this.getProxy=e.getProxy.bind(e),this.set=e.set.bind(e),this.dispose=e.dispose.bind(e),this.assertRegistered=e.assertRegistered.bind(e),this.drain=e.drain.bind(e)}}export{n as ExtHostRpcService,d as IExtHostRpcService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { createDecorator } from "../../../platform/instantiation/common/instantiation.js";
+const IExtHostRpcService = createDecorator("IExtHostRpcService");
+class ExtHostRpcService {
+  static {
+    __name(this, "ExtHostRpcService");
+  }
+  constructor(rpcProtocol) {
+    this.getProxy = rpcProtocol.getProxy.bind(rpcProtocol);
+    this.set = rpcProtocol.set.bind(rpcProtocol);
+    this.dispose = rpcProtocol.dispose.bind(rpcProtocol);
+    this.assertRegistered = rpcProtocol.assertRegistered.bind(rpcProtocol);
+    this.drain = rpcProtocol.drain.bind(rpcProtocol);
+  }
+}
+export {
+  ExtHostRpcService,
+  IExtHostRpcService
+};
+//# sourceMappingURL=extHostRpcService.js.map

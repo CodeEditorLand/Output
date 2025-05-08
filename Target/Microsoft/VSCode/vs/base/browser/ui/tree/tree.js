@@ -1,1 +1,88 @@
-var c;(function(r){r[r.Hidden=0]="Hidden",r[r.Visible=1]="Visible",r[r.Recurse=2]="Recurse"})(c||(c={}));var o;(function(r){r[r.Expanded=0]="Expanded",r[r.Collapsed=1]="Collapsed",r[r.PreserveOrExpanded=2]="PreserveOrExpanded",r[r.PreserveOrCollapsed=3]="PreserveOrCollapsed"})(o||(o={}));var t;(function(r){r[r.Unknown=0]="Unknown",r[r.Twistie=1]="Twistie",r[r.Element=2]="Element",r[r.Filter=3]="Filter"})(t||(t={}));var d;(function(r){r[r.Down=0]="Down",r[r.Up=1]="Up"})(d||(d={}));const s={acceptBubbleUp(){return{accept:!0,bubble:1}},acceptBubbleDown(r=!1){return{accept:!0,bubble:0,autoExpand:r}},acceptCopyBubbleUp(){return{accept:!0,bubble:1,effect:{type:0,position:"drop-target"}}},acceptCopyBubbleDown(r=!1){return{accept:!0,bubble:0,effect:{type:0,position:"drop-target"},autoExpand:r}}};class u extends Error{constructor(p,n){super(`TreeError [${p}] ${n}`)}}class a{constructor(p){this.fn=p,this._map=new WeakMap}map(p){let n=this._map.get(p);return n||(n=this.fn(p),this._map.set(p,n)),n}}export{o as ObjectTreeElementCollapseState,d as TreeDragOverBubble,s as TreeDragOverReactions,u as TreeError,t as TreeMouseEventTarget,c as TreeVisibility,a as WeakMapper};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var TreeVisibility;
+(function(TreeVisibility2) {
+  TreeVisibility2[TreeVisibility2["Hidden"] = 0] = "Hidden";
+  TreeVisibility2[TreeVisibility2["Visible"] = 1] = "Visible";
+  TreeVisibility2[TreeVisibility2["Recurse"] = 2] = "Recurse";
+})(TreeVisibility || (TreeVisibility = {}));
+var ObjectTreeElementCollapseState;
+(function(ObjectTreeElementCollapseState2) {
+  ObjectTreeElementCollapseState2[ObjectTreeElementCollapseState2["Expanded"] = 0] = "Expanded";
+  ObjectTreeElementCollapseState2[ObjectTreeElementCollapseState2["Collapsed"] = 1] = "Collapsed";
+  ObjectTreeElementCollapseState2[ObjectTreeElementCollapseState2["PreserveOrExpanded"] = 2] = "PreserveOrExpanded";
+  ObjectTreeElementCollapseState2[ObjectTreeElementCollapseState2["PreserveOrCollapsed"] = 3] = "PreserveOrCollapsed";
+})(ObjectTreeElementCollapseState || (ObjectTreeElementCollapseState = {}));
+var TreeMouseEventTarget;
+(function(TreeMouseEventTarget2) {
+  TreeMouseEventTarget2[TreeMouseEventTarget2["Unknown"] = 0] = "Unknown";
+  TreeMouseEventTarget2[TreeMouseEventTarget2["Twistie"] = 1] = "Twistie";
+  TreeMouseEventTarget2[TreeMouseEventTarget2["Element"] = 2] = "Element";
+  TreeMouseEventTarget2[TreeMouseEventTarget2["Filter"] = 3] = "Filter";
+})(TreeMouseEventTarget || (TreeMouseEventTarget = {}));
+var TreeDragOverBubble;
+(function(TreeDragOverBubble2) {
+  TreeDragOverBubble2[TreeDragOverBubble2["Down"] = 0] = "Down";
+  TreeDragOverBubble2[TreeDragOverBubble2["Up"] = 1] = "Up";
+})(TreeDragOverBubble || (TreeDragOverBubble = {}));
+const TreeDragOverReactions = {
+  acceptBubbleUp() {
+    return {
+      accept: true,
+      bubble: 1
+      /* TreeDragOverBubble.Up */
+    };
+  },
+  acceptBubbleDown(autoExpand = false) {
+    return { accept: true, bubble: 0, autoExpand };
+  },
+  acceptCopyBubbleUp() {
+    return { accept: true, bubble: 1, effect: {
+      type: 0,
+      position: "drop-target"
+      /* ListDragOverEffectPosition.Over */
+    } };
+  },
+  acceptCopyBubbleDown(autoExpand = false) {
+    return { accept: true, bubble: 0, effect: {
+      type: 0,
+      position: "drop-target"
+      /* ListDragOverEffectPosition.Over */
+    }, autoExpand };
+  }
+};
+class TreeError extends Error {
+  static {
+    __name(this, "TreeError");
+  }
+  constructor(user, message) {
+    super(`TreeError [${user}] ${message}`);
+  }
+}
+class WeakMapper {
+  static {
+    __name(this, "WeakMapper");
+  }
+  constructor(fn) {
+    this.fn = fn;
+    this._map = /* @__PURE__ */ new WeakMap();
+  }
+  map(key) {
+    let result = this._map.get(key);
+    if (!result) {
+      result = this.fn(key);
+      this._map.set(key, result);
+    }
+    return result;
+  }
+}
+export {
+  ObjectTreeElementCollapseState,
+  TreeDragOverBubble,
+  TreeDragOverReactions,
+  TreeError,
+  TreeMouseEventTarget,
+  TreeVisibility,
+  WeakMapper
+};
+//# sourceMappingURL=tree.js.map

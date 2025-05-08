@@ -1,1 +1,56 @@
-function m(e){return function(t){s.INSTANCE.registerNamedCustomer(e,t)}}function n(e){s.INSTANCE.registerCustomer(e)}var o;(function(e){function t(){return s.INSTANCE.getNamedCustomers()}e.getNamedCustomers=t;function r(){return s.INSTANCE.getCustomers()}e.getCustomers=r})(o||(o={}));class s{static{this.INSTANCE=new s}constructor(){this._namedCustomers=[],this._customers=[]}registerNamedCustomer(t,r){const u=[t,r];this._namedCustomers.push(u)}getNamedCustomers(){return this._namedCustomers}registerCustomer(t){this._customers.push(t)}getCustomers(){return this._customers}}export{o as ExtHostCustomersRegistry,n as extHostCustomer,m as extHostNamedCustomer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function extHostNamedCustomer(id) {
+  return function(ctor) {
+    ExtHostCustomersRegistryImpl.INSTANCE.registerNamedCustomer(id, ctor);
+  };
+}
+__name(extHostNamedCustomer, "extHostNamedCustomer");
+function extHostCustomer(ctor) {
+  ExtHostCustomersRegistryImpl.INSTANCE.registerCustomer(ctor);
+}
+__name(extHostCustomer, "extHostCustomer");
+var ExtHostCustomersRegistry;
+(function(ExtHostCustomersRegistry2) {
+  function getNamedCustomers() {
+    return ExtHostCustomersRegistryImpl.INSTANCE.getNamedCustomers();
+  }
+  __name(getNamedCustomers, "getNamedCustomers");
+  ExtHostCustomersRegistry2.getNamedCustomers = getNamedCustomers;
+  function getCustomers() {
+    return ExtHostCustomersRegistryImpl.INSTANCE.getCustomers();
+  }
+  __name(getCustomers, "getCustomers");
+  ExtHostCustomersRegistry2.getCustomers = getCustomers;
+})(ExtHostCustomersRegistry || (ExtHostCustomersRegistry = {}));
+class ExtHostCustomersRegistryImpl {
+  static {
+    __name(this, "ExtHostCustomersRegistryImpl");
+  }
+  static {
+    this.INSTANCE = new ExtHostCustomersRegistryImpl();
+  }
+  constructor() {
+    this._namedCustomers = [];
+    this._customers = [];
+  }
+  registerNamedCustomer(id, ctor) {
+    const entry = [id, ctor];
+    this._namedCustomers.push(entry);
+  }
+  getNamedCustomers() {
+    return this._namedCustomers;
+  }
+  registerCustomer(ctor) {
+    this._customers.push(ctor);
+  }
+  getCustomers() {
+    return this._customers;
+  }
+}
+export {
+  ExtHostCustomersRegistry,
+  extHostCustomer,
+  extHostNamedCustomer
+};
+//# sourceMappingURL=extHostCustomers.js.map

@@ -1,2 +1,515 @@
-import{KeyCodeUtils as f,IMMUTABLE_CODE_TO_KEY_CODE as S,ScanCodeUtils as m,NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE as L}from"../../../../base/common/keyCodes.js";import{KeyCodeChord as p,ScanCodeChord as T}from"../../../../base/common/keybindings.js";import{UILabelProvider as I}from"../../../../base/common/keybindingLabels.js";import{BaseResolvedKeybinding as W}from"../../../../platform/keybinding/common/baseResolvedKeybinding.js";import{toEmptyArrayIfContainsNull as Y}from"../../../../platform/keybinding/common/resolvedKeybindingItem.js";class _ extends W{constructor(e,t){super(1,t),this._mapper=e}_getLabel(e){return e.isDuplicateModifierCase()?"":this._mapper.getUILabelForKeyCode(e.keyCode)}_getUSLabelForKeybinding(e){return e.isDuplicateModifierCase()?"":f.toString(e.keyCode)}getUSLabel(){return I.toLabel(this._os,this._chords,e=>this._getUSLabelForKeybinding(e))}_getAriaLabel(e){return e.isDuplicateModifierCase()?"":this._mapper.getAriaLabelForKeyCode(e.keyCode)}_getElectronAccelerator(e){return this._mapper.getElectronAcceleratorForKeyBinding(e)}_getUserSettingsLabel(e){if(e.isDuplicateModifierCase())return"";const t=this._mapper.getUserSettingsLabelForKeyCode(e.keyCode);return t&&t.toLowerCase()}_isWYSIWYG(e){return this.__isWYSIWYG(e.keyCode)}__isWYSIWYG(e){if(e===15||e===16||e===17||e===18)return!0;const t=this._mapper.getAriaLabelForKeyCode(e),n=this._mapper.getUserSettingsLabelForKeyCode(e);return t===n}_getChordDispatch(e){if(e.isModifierKey())return null;let t="";return e.ctrlKey&&(t+="ctrl+"),e.shiftKey&&(t+="shift+"),e.altKey&&(t+="alt+"),e.metaKey&&(t+="meta+"),t+=f.toString(e.keyCode),t}_getSingleModifierChordDispatch(e){return e.keyCode===5&&!e.shiftKey&&!e.altKey&&!e.metaKey?"ctrl":e.keyCode===4&&!e.ctrlKey&&!e.altKey&&!e.metaKey?"shift":e.keyCode===6&&!e.ctrlKey&&!e.shiftKey&&!e.metaKey?"alt":e.keyCode===57&&!e.ctrlKey&&!e.shiftKey&&!e.altKey?"meta":null}static getProducedCharCode(e,t){return t?e.ctrlKey&&e.shiftKey&&e.altKey?t.withShiftAltGr:e.ctrlKey&&e.altKey?t.withAltGr:e.shiftKey?t.withShift:t.value:null}static getProducedChar(e,t){const n=this.getProducedCharCode(e,t);return n===null||n.length===0?" --- ":"  "+n+"  "}}class P{constructor(e,t,n){this._isUSStandard=e,this._mapAltGrToCtrlAlt=n,this._keyCodeToLabel=[],this._scanCodeToKeyCode=[],this._keyCodeToLabel=[],this._keyCodeExists=[],this._keyCodeToLabel[0]=f.toString(0);for(let o=0;o<193;o++){const r=S[o];r!==-1&&(this._scanCodeToKeyCode[o]=r,this._keyCodeToLabel[r]=f.toString(r),this._keyCodeExists[r]=!0)}const l=[];let c=!1;this._codeInfo=[];for(const o in t)if(t.hasOwnProperty(o)){const r=m.toEnum(o);if(r===0){`${o}`;continue}const u=t[o],y=S[r];if(y!==-1){const a=L[u.vkey]||0;if(a===0||y===a||r!==134)continue}const C=u.value,h=u.withShift,d=u.withAltGr,K=u.withShiftAltGr,s=L[u.vkey]||0,g={scanCode:r,keyCode:s,value:C,withShift:h,withAltGr:d,withShiftAltGr:K};if(this._codeInfo[r]=g,this._scanCodeToKeyCode[r]=s,s===0)continue;if(this._keyCodeExists[s]=!0,C.length===0)this._keyCodeToLabel[s]=null;else if(C.length>1)this._keyCodeToLabel[s]=C;else{const a=C.charCodeAt(0);if(a>=97&&a<=122){const b=65+(a-97);l[b]=!0,c=!0,this._keyCodeToLabel[s]=String.fromCharCode(65+(a-97))}else a>=65&&a<=90?(l[a]=!0,c=!0,this._keyCodeToLabel[s]=C):this._keyCodeToLabel[s]=C}}const i=(o,r)=>{l[o]||(this._keyCodeToLabel[r]=String.fromCharCode(o))};if(i(65,31),i(66,32),i(67,33),i(68,34),i(69,35),i(70,36),i(71,37),i(72,38),i(73,39),i(74,40),i(75,41),i(76,42),i(77,43),i(78,44),i(79,45),i(80,46),i(81,47),i(82,48),i(83,49),i(84,50),i(85,51),i(86,52),i(87,53),i(88,54),i(89,55),i(90,56),!c){const o=(r,u)=>{this._keyCodeToLabel[r]=String.fromCharCode(u)};o(85,59),o(86,61),o(87,44),o(88,45),o(89,46),o(90,47),o(91,96),o(92,91),o(93,92),o(94,93),o(95,39)}}dumpDebugInfo(){const e=[],t=[88,104];let n=0;e.push("-----------------------------------------------------------------------------------------------------------------------------------------");for(let l=0;l<193;l++){if(S[l]!==-1&&t.indexOf(l)===-1)continue;n%6===0&&(e.push("|       HW Code combination      |  Key  |    KeyCode combination    |          UI label         |        User settings       | WYSIWYG |"),e.push("-----------------------------------------------------------------------------------------------------------------------------------------")),n++;const c=this._codeInfo[l],i=m.toString(l),o=[0,2,5,7];for(const r of o){const u=!!(r&1),y=!!(r&2),C=!!(r&4),h=new T(u,y,C,!1,l),d=this._resolveChord(h),K=d?f.toString(d.keyCode):null,s=d?new _(this,[d]):null,g=`${u?"Ctrl+":""}${y?"Shift+":""}${C?"Alt+":""}${i}`,a=s?s.getAriaLabel():null,b=a?a.replace(/Control\+/,"Ctrl+"):null,k=s?s.getUserSettingsLabel():null,U=_.getProducedChar(h,c),w=K?`${u?"Ctrl+":""}${y?"Shift+":""}${C?"Alt+":""}${K}`:null,G=(s?s.isWYSIWYG():!1)?"       ":"   NO  ";e.push(`| ${this._leftPad(g,30)} | ${U} | ${this._leftPad(w,25)} | ${this._leftPad(b,25)} |  ${this._leftPad(k,25)} | ${G} |`)}e.push("-----------------------------------------------------------------------------------------------------------------------------------------")}return e.join(`
-`)}_leftPad(e,t){for(e===null&&(e="null");e.length<t;)e=" "+e;return e}getUILabelForKeyCode(e){return this._getLabelForKeyCode(e)}getAriaLabelForKeyCode(e){return this._getLabelForKeyCode(e)}getUserSettingsLabelForKeyCode(e){return this._isUSStandard?f.toUserSettingsUS(e):f.toUserSettingsGeneral(e)}getElectronAcceleratorForKeyBinding(e){return f.toElectronAccelerator(e.keyCode)}_getLabelForKeyCode(e){return this._keyCodeToLabel[e]||f.toString(0)}resolveKeyboardEvent(e){const t=e.ctrlKey||this._mapAltGrToCtrlAlt&&e.altGraphKey,n=e.altKey||this._mapAltGrToCtrlAlt&&e.altGraphKey,l=new p(t,e.shiftKey,n,e.metaKey,e.keyCode);return new _(this,[l])}_resolveChord(e){if(!e)return null;if(e instanceof p)return this._keyCodeExists[e.keyCode]?e:null;const t=this._scanCodeToKeyCode[e.scanCode]||0;return t===0||!this._keyCodeExists[t]?null:new p(e.ctrlKey,e.shiftKey,e.altKey,e.metaKey,t)}resolveKeybinding(e){const t=Y(e.chords.map(n=>this._resolveChord(n)));return t.length>0?[new _(this,t)]:[]}}export{P as WindowsKeyboardMapper,_ as WindowsNativeResolvedKeybinding};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { KeyCodeUtils, IMMUTABLE_CODE_TO_KEY_CODE, ScanCodeUtils, NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE } from "../../../../base/common/keyCodes.js";
+import { KeyCodeChord, ScanCodeChord } from "../../../../base/common/keybindings.js";
+import { UILabelProvider } from "../../../../base/common/keybindingLabels.js";
+import { BaseResolvedKeybinding } from "../../../../platform/keybinding/common/baseResolvedKeybinding.js";
+import { toEmptyArrayIfContainsNull } from "../../../../platform/keybinding/common/resolvedKeybindingItem.js";
+const LOG = false;
+function log(str) {
+  if (LOG) {
+    console.info(str);
+  }
+}
+__name(log, "log");
+class WindowsNativeResolvedKeybinding extends BaseResolvedKeybinding {
+  static {
+    __name(this, "WindowsNativeResolvedKeybinding");
+  }
+  constructor(mapper, chords) {
+    super(1, chords);
+    this._mapper = mapper;
+  }
+  _getLabel(chord) {
+    if (chord.isDuplicateModifierCase()) {
+      return "";
+    }
+    return this._mapper.getUILabelForKeyCode(chord.keyCode);
+  }
+  _getUSLabelForKeybinding(chord) {
+    if (chord.isDuplicateModifierCase()) {
+      return "";
+    }
+    return KeyCodeUtils.toString(chord.keyCode);
+  }
+  getUSLabel() {
+    return UILabelProvider.toLabel(this._os, this._chords, (keybinding) => this._getUSLabelForKeybinding(keybinding));
+  }
+  _getAriaLabel(chord) {
+    if (chord.isDuplicateModifierCase()) {
+      return "";
+    }
+    return this._mapper.getAriaLabelForKeyCode(chord.keyCode);
+  }
+  _getElectronAccelerator(chord) {
+    return this._mapper.getElectronAcceleratorForKeyBinding(chord);
+  }
+  _getUserSettingsLabel(chord) {
+    if (chord.isDuplicateModifierCase()) {
+      return "";
+    }
+    const result = this._mapper.getUserSettingsLabelForKeyCode(chord.keyCode);
+    return result ? result.toLowerCase() : result;
+  }
+  _isWYSIWYG(chord) {
+    return this.__isWYSIWYG(chord.keyCode);
+  }
+  __isWYSIWYG(keyCode) {
+    if (keyCode === 15 || keyCode === 16 || keyCode === 17 || keyCode === 18) {
+      return true;
+    }
+    const ariaLabel = this._mapper.getAriaLabelForKeyCode(keyCode);
+    const userSettingsLabel = this._mapper.getUserSettingsLabelForKeyCode(keyCode);
+    return ariaLabel === userSettingsLabel;
+  }
+  _getChordDispatch(chord) {
+    if (chord.isModifierKey()) {
+      return null;
+    }
+    let result = "";
+    if (chord.ctrlKey) {
+      result += "ctrl+";
+    }
+    if (chord.shiftKey) {
+      result += "shift+";
+    }
+    if (chord.altKey) {
+      result += "alt+";
+    }
+    if (chord.metaKey) {
+      result += "meta+";
+    }
+    result += KeyCodeUtils.toString(chord.keyCode);
+    return result;
+  }
+  _getSingleModifierChordDispatch(chord) {
+    if (chord.keyCode === 5 && !chord.shiftKey && !chord.altKey && !chord.metaKey) {
+      return "ctrl";
+    }
+    if (chord.keyCode === 4 && !chord.ctrlKey && !chord.altKey && !chord.metaKey) {
+      return "shift";
+    }
+    if (chord.keyCode === 6 && !chord.ctrlKey && !chord.shiftKey && !chord.metaKey) {
+      return "alt";
+    }
+    if (chord.keyCode === 57 && !chord.ctrlKey && !chord.shiftKey && !chord.altKey) {
+      return "meta";
+    }
+    return null;
+  }
+  static getProducedCharCode(chord, mapping) {
+    if (!mapping) {
+      return null;
+    }
+    if (chord.ctrlKey && chord.shiftKey && chord.altKey) {
+      return mapping.withShiftAltGr;
+    }
+    if (chord.ctrlKey && chord.altKey) {
+      return mapping.withAltGr;
+    }
+    if (chord.shiftKey) {
+      return mapping.withShift;
+    }
+    return mapping.value;
+  }
+  static getProducedChar(chord, mapping) {
+    const char = this.getProducedCharCode(chord, mapping);
+    if (char === null || char.length === 0) {
+      return " --- ";
+    }
+    return "  " + char + "  ";
+  }
+}
+class WindowsKeyboardMapper {
+  static {
+    __name(this, "WindowsKeyboardMapper");
+  }
+  constructor(_isUSStandard, rawMappings, _mapAltGrToCtrlAlt) {
+    this._isUSStandard = _isUSStandard;
+    this._mapAltGrToCtrlAlt = _mapAltGrToCtrlAlt;
+    this._keyCodeToLabel = [];
+    this._scanCodeToKeyCode = [];
+    this._keyCodeToLabel = [];
+    this._keyCodeExists = [];
+    this._keyCodeToLabel[
+      0
+      /* KeyCode.Unknown */
+    ] = KeyCodeUtils.toString(
+      0
+      /* KeyCode.Unknown */
+    );
+    for (let scanCode = 0; scanCode < 193; scanCode++) {
+      const immutableKeyCode = IMMUTABLE_CODE_TO_KEY_CODE[scanCode];
+      if (immutableKeyCode !== -1) {
+        this._scanCodeToKeyCode[scanCode] = immutableKeyCode;
+        this._keyCodeToLabel[immutableKeyCode] = KeyCodeUtils.toString(immutableKeyCode);
+        this._keyCodeExists[immutableKeyCode] = true;
+      }
+    }
+    const producesLetter = [];
+    let producesLetters = false;
+    this._codeInfo = [];
+    for (const strCode in rawMappings) {
+      if (rawMappings.hasOwnProperty(strCode)) {
+        const scanCode = ScanCodeUtils.toEnum(strCode);
+        if (scanCode === 0) {
+          log(`Unknown scanCode ${strCode} in mapping.`);
+          continue;
+        }
+        const rawMapping = rawMappings[strCode];
+        const immutableKeyCode = IMMUTABLE_CODE_TO_KEY_CODE[scanCode];
+        if (immutableKeyCode !== -1) {
+          const keyCode2 = NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE[rawMapping.vkey] || 0;
+          if (keyCode2 === 0 || immutableKeyCode === keyCode2) {
+            continue;
+          }
+          if (scanCode !== 134) {
+            continue;
+          }
+        }
+        const value = rawMapping.value;
+        const withShift = rawMapping.withShift;
+        const withAltGr = rawMapping.withAltGr;
+        const withShiftAltGr = rawMapping.withShiftAltGr;
+        const keyCode = NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE[rawMapping.vkey] || 0;
+        const mapping = {
+          scanCode,
+          keyCode,
+          value,
+          withShift,
+          withAltGr,
+          withShiftAltGr
+        };
+        this._codeInfo[scanCode] = mapping;
+        this._scanCodeToKeyCode[scanCode] = keyCode;
+        if (keyCode === 0) {
+          continue;
+        }
+        this._keyCodeExists[keyCode] = true;
+        if (value.length === 0) {
+          this._keyCodeToLabel[keyCode] = null;
+        } else if (value.length > 1) {
+          this._keyCodeToLabel[keyCode] = value;
+        } else {
+          const charCode = value.charCodeAt(0);
+          if (charCode >= 97 && charCode <= 122) {
+            const upperCaseValue = 65 + (charCode - 97);
+            producesLetter[upperCaseValue] = true;
+            producesLetters = true;
+            this._keyCodeToLabel[keyCode] = String.fromCharCode(65 + (charCode - 97));
+          } else if (charCode >= 65 && charCode <= 90) {
+            producesLetter[charCode] = true;
+            producesLetters = true;
+            this._keyCodeToLabel[keyCode] = value;
+          } else {
+            this._keyCodeToLabel[keyCode] = value;
+          }
+        }
+      }
+    }
+    const _registerLetterIfMissing = /* @__PURE__ */ __name((charCode, keyCode) => {
+      if (!producesLetter[charCode]) {
+        this._keyCodeToLabel[keyCode] = String.fromCharCode(charCode);
+      }
+    }, "_registerLetterIfMissing");
+    _registerLetterIfMissing(
+      65,
+      31
+      /* KeyCode.KeyA */
+    );
+    _registerLetterIfMissing(
+      66,
+      32
+      /* KeyCode.KeyB */
+    );
+    _registerLetterIfMissing(
+      67,
+      33
+      /* KeyCode.KeyC */
+    );
+    _registerLetterIfMissing(
+      68,
+      34
+      /* KeyCode.KeyD */
+    );
+    _registerLetterIfMissing(
+      69,
+      35
+      /* KeyCode.KeyE */
+    );
+    _registerLetterIfMissing(
+      70,
+      36
+      /* KeyCode.KeyF */
+    );
+    _registerLetterIfMissing(
+      71,
+      37
+      /* KeyCode.KeyG */
+    );
+    _registerLetterIfMissing(
+      72,
+      38
+      /* KeyCode.KeyH */
+    );
+    _registerLetterIfMissing(
+      73,
+      39
+      /* KeyCode.KeyI */
+    );
+    _registerLetterIfMissing(
+      74,
+      40
+      /* KeyCode.KeyJ */
+    );
+    _registerLetterIfMissing(
+      75,
+      41
+      /* KeyCode.KeyK */
+    );
+    _registerLetterIfMissing(
+      76,
+      42
+      /* KeyCode.KeyL */
+    );
+    _registerLetterIfMissing(
+      77,
+      43
+      /* KeyCode.KeyM */
+    );
+    _registerLetterIfMissing(
+      78,
+      44
+      /* KeyCode.KeyN */
+    );
+    _registerLetterIfMissing(
+      79,
+      45
+      /* KeyCode.KeyO */
+    );
+    _registerLetterIfMissing(
+      80,
+      46
+      /* KeyCode.KeyP */
+    );
+    _registerLetterIfMissing(
+      81,
+      47
+      /* KeyCode.KeyQ */
+    );
+    _registerLetterIfMissing(
+      82,
+      48
+      /* KeyCode.KeyR */
+    );
+    _registerLetterIfMissing(
+      83,
+      49
+      /* KeyCode.KeyS */
+    );
+    _registerLetterIfMissing(
+      84,
+      50
+      /* KeyCode.KeyT */
+    );
+    _registerLetterIfMissing(
+      85,
+      51
+      /* KeyCode.KeyU */
+    );
+    _registerLetterIfMissing(
+      86,
+      52
+      /* KeyCode.KeyV */
+    );
+    _registerLetterIfMissing(
+      87,
+      53
+      /* KeyCode.KeyW */
+    );
+    _registerLetterIfMissing(
+      88,
+      54
+      /* KeyCode.KeyX */
+    );
+    _registerLetterIfMissing(
+      89,
+      55
+      /* KeyCode.KeyY */
+    );
+    _registerLetterIfMissing(
+      90,
+      56
+      /* KeyCode.KeyZ */
+    );
+    if (!producesLetters) {
+      const _registerLabel = /* @__PURE__ */ __name((keyCode, charCode) => {
+        this._keyCodeToLabel[keyCode] = String.fromCharCode(charCode);
+      }, "_registerLabel");
+      _registerLabel(
+        85,
+        59
+        /* CharCode.Semicolon */
+      );
+      _registerLabel(
+        86,
+        61
+        /* CharCode.Equals */
+      );
+      _registerLabel(
+        87,
+        44
+        /* CharCode.Comma */
+      );
+      _registerLabel(
+        88,
+        45
+        /* CharCode.Dash */
+      );
+      _registerLabel(
+        89,
+        46
+        /* CharCode.Period */
+      );
+      _registerLabel(
+        90,
+        47
+        /* CharCode.Slash */
+      );
+      _registerLabel(
+        91,
+        96
+        /* CharCode.BackTick */
+      );
+      _registerLabel(
+        92,
+        91
+        /* CharCode.OpenSquareBracket */
+      );
+      _registerLabel(
+        93,
+        92
+        /* CharCode.Backslash */
+      );
+      _registerLabel(
+        94,
+        93
+        /* CharCode.CloseSquareBracket */
+      );
+      _registerLabel(
+        95,
+        39
+        /* CharCode.SingleQuote */
+      );
+    }
+  }
+  dumpDebugInfo() {
+    const result = [];
+    const immutableSamples = [
+      88,
+      104
+      /* ScanCode.Numpad0 */
+    ];
+    let cnt = 0;
+    result.push(`-----------------------------------------------------------------------------------------------------------------------------------------`);
+    for (let scanCode = 0; scanCode < 193; scanCode++) {
+      if (IMMUTABLE_CODE_TO_KEY_CODE[scanCode] !== -1) {
+        if (immutableSamples.indexOf(scanCode) === -1) {
+          continue;
+        }
+      }
+      if (cnt % 6 === 0) {
+        result.push(`|       HW Code combination      |  Key  |    KeyCode combination    |          UI label         |        User settings       | WYSIWYG |`);
+        result.push(`-----------------------------------------------------------------------------------------------------------------------------------------`);
+      }
+      cnt++;
+      const mapping = this._codeInfo[scanCode];
+      const strCode = ScanCodeUtils.toString(scanCode);
+      const mods = [0, 2, 5, 7];
+      for (const mod of mods) {
+        const ctrlKey = mod & 1 ? true : false;
+        const shiftKey = mod & 2 ? true : false;
+        const altKey = mod & 4 ? true : false;
+        const scanCodeChord = new ScanCodeChord(ctrlKey, shiftKey, altKey, false, scanCode);
+        const keyCodeChord = this._resolveChord(scanCodeChord);
+        const strKeyCode = keyCodeChord ? KeyCodeUtils.toString(keyCodeChord.keyCode) : null;
+        const resolvedKb = keyCodeChord ? new WindowsNativeResolvedKeybinding(this, [keyCodeChord]) : null;
+        const outScanCode = `${ctrlKey ? "Ctrl+" : ""}${shiftKey ? "Shift+" : ""}${altKey ? "Alt+" : ""}${strCode}`;
+        const ariaLabel = resolvedKb ? resolvedKb.getAriaLabel() : null;
+        const outUILabel = ariaLabel ? ariaLabel.replace(/Control\+/, "Ctrl+") : null;
+        const outUserSettings = resolvedKb ? resolvedKb.getUserSettingsLabel() : null;
+        const outKey = WindowsNativeResolvedKeybinding.getProducedChar(scanCodeChord, mapping);
+        const outKb = strKeyCode ? `${ctrlKey ? "Ctrl+" : ""}${shiftKey ? "Shift+" : ""}${altKey ? "Alt+" : ""}${strKeyCode}` : null;
+        const isWYSIWYG = resolvedKb ? resolvedKb.isWYSIWYG() : false;
+        const outWYSIWYG = isWYSIWYG ? "       " : "   NO  ";
+        result.push(`| ${this._leftPad(outScanCode, 30)} | ${outKey} | ${this._leftPad(outKb, 25)} | ${this._leftPad(outUILabel, 25)} |  ${this._leftPad(outUserSettings, 25)} | ${outWYSIWYG} |`);
+      }
+      result.push(`-----------------------------------------------------------------------------------------------------------------------------------------`);
+    }
+    return result.join("\n");
+  }
+  _leftPad(str, cnt) {
+    if (str === null) {
+      str = "null";
+    }
+    while (str.length < cnt) {
+      str = " " + str;
+    }
+    return str;
+  }
+  getUILabelForKeyCode(keyCode) {
+    return this._getLabelForKeyCode(keyCode);
+  }
+  getAriaLabelForKeyCode(keyCode) {
+    return this._getLabelForKeyCode(keyCode);
+  }
+  getUserSettingsLabelForKeyCode(keyCode) {
+    if (this._isUSStandard) {
+      return KeyCodeUtils.toUserSettingsUS(keyCode);
+    }
+    return KeyCodeUtils.toUserSettingsGeneral(keyCode);
+  }
+  getElectronAcceleratorForKeyBinding(chord) {
+    return KeyCodeUtils.toElectronAccelerator(chord.keyCode);
+  }
+  _getLabelForKeyCode(keyCode) {
+    return this._keyCodeToLabel[keyCode] || KeyCodeUtils.toString(
+      0
+      /* KeyCode.Unknown */
+    );
+  }
+  resolveKeyboardEvent(keyboardEvent) {
+    const ctrlKey = keyboardEvent.ctrlKey || this._mapAltGrToCtrlAlt && keyboardEvent.altGraphKey;
+    const altKey = keyboardEvent.altKey || this._mapAltGrToCtrlAlt && keyboardEvent.altGraphKey;
+    const chord = new KeyCodeChord(ctrlKey, keyboardEvent.shiftKey, altKey, keyboardEvent.metaKey, keyboardEvent.keyCode);
+    return new WindowsNativeResolvedKeybinding(this, [chord]);
+  }
+  _resolveChord(chord) {
+    if (!chord) {
+      return null;
+    }
+    if (chord instanceof KeyCodeChord) {
+      if (!this._keyCodeExists[chord.keyCode]) {
+        return null;
+      }
+      return chord;
+    }
+    const keyCode = this._scanCodeToKeyCode[chord.scanCode] || 0;
+    if (keyCode === 0 || !this._keyCodeExists[keyCode]) {
+      return null;
+    }
+    return new KeyCodeChord(chord.ctrlKey, chord.shiftKey, chord.altKey, chord.metaKey, keyCode);
+  }
+  resolveKeybinding(keybinding) {
+    const chords = toEmptyArrayIfContainsNull(keybinding.chords.map((chord) => this._resolveChord(chord)));
+    if (chords.length > 0) {
+      return [new WindowsNativeResolvedKeybinding(this, chords)];
+    }
+    return [];
+  }
+}
+export {
+  WindowsKeyboardMapper,
+  WindowsNativeResolvedKeybinding
+};
+//# sourceMappingURL=windowsKeyboardMapper.js.map

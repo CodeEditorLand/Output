@@ -1,1 +1,458 @@
-import{runWhenGlobalIdle as k}from"../../../base/common/async.js";import{BugIndicatingError as c,onUnexpectedError as m}from"../../../base/common/errors.js";import{setTimeout0 as p}from"../../../base/common/platform.js";import{StopWatch as L}from"../../../base/common/stopwatch.js";import{countEOL as _}from"../core/eolCounter.js";import{LineRange as g}from"../core/lineRange.js";import{OffsetRange as l}from"../core/offsetRange.js";import{nullTokenizeEncoded as E}from"../languages/nullTokenize.js";import{FixedArray as T}from"./fixedArray.js";import{ContiguousMultilineTokensBuilder as I}from"../tokens/contiguousMultilineTokensBuilder.js";import{LineTokens as u}from"../tokens/lineTokens.js";var S;(function(o){o[o.CHEAP_TOKENIZATION_LENGTH_LIMIT=2048]="CHEAP_TOKENIZATION_LENGTH_LIMIT"})(S||(S={}));class x{constructor(t,e){this.tokenizationSupport=e,this.initialState=this.tokenizationSupport.getInitialState(),this.store=new b(t)}getStartState(t){return this.store.getStartState(t,this.initialState)}getFirstInvalidLine(){return this.store.getFirstInvalidLine(this.initialState)}}class H extends x{constructor(t,e,n,s){super(t,e),this._textModel=n,this._languageIdCodec=s}updateTokensUntilLine(t,e){const n=this._textModel.getLanguageId();for(;;){const s=this.getFirstInvalidLine();if(!s||s.lineNumber>e)break;const r=this._textModel.getLineContent(s.lineNumber),i=h(this._languageIdCodec,n,this.tokenizationSupport,r,!0,s.startState);t.add(s.lineNumber,i.tokens),this.store.setEndState(s.lineNumber,i.endState)}}getTokenTypeIfInsertingCharacter(t,e){const n=this.getStartState(t.lineNumber);if(!n)return 0;const s=this._textModel.getLanguageId(),r=this._textModel.getLineContent(t.lineNumber),i=r.substring(0,t.column-1)+e+r.substring(t.column-1),a=h(this._languageIdCodec,s,this.tokenizationSupport,i,!0,n),d=new u(a.tokens,i,this._languageIdCodec);if(d.getCount()===0)return 0;const f=d.findTokenIndexAtOffset(t.column-1);return d.getStandardTokenType(f)}tokenizeLinesAt(t,e){const n=this.getStartState(t);if(!n)return null;const s=this._textModel.getLanguageId(),r=[];let i=n;for(const a of e){const d=h(this._languageIdCodec,s,this.tokenizationSupport,a,!0,i);r.push(new u(d.tokens,a,this._languageIdCodec)),i=d.endState}return r}hasAccurateTokensForLine(t){const e=this.store.getFirstInvalidEndStateLineNumberOrMax();return t<e}isCheapToTokenize(t){const e=this.store.getFirstInvalidEndStateLineNumberOrMax();return t<e||t===e&&this._textModel.getLineLength(t)<2048}tokenizeHeuristically(t,e,n){if(n<=this.store.getFirstInvalidEndStateLineNumberOrMax())return{heuristicTokens:!1};if(e<=this.store.getFirstInvalidEndStateLineNumberOrMax())return this.updateTokensUntilLine(t,n),{heuristicTokens:!1};let s=this.guessStartState(e);const r=this._textModel.getLanguageId();for(let i=e;i<=n;i++){const a=this._textModel.getLineContent(i),d=h(this._languageIdCodec,r,this.tokenizationSupport,a,!0,s);t.add(i,d.tokens),s=d.endState}return{heuristicTokens:!0}}guessStartState(t){let{likelyRelevantLines:e,initialState:n}=z(this._textModel,t,this);n||(n=this.tokenizationSupport.getInitialState());const s=this._textModel.getLanguageId();let r=n;for(const i of e)r=h(this._languageIdCodec,s,this.tokenizationSupport,i,!1,r).endState;return r}}function z(o,t,e){let n=o.getLineFirstNonWhitespaceColumn(t);const s=[];let r=null;for(let i=t-1;n>1&&i>=1;i--){const a=o.getLineFirstNonWhitespaceColumn(i);if(a!==0&&a<n&&(s.push(o.getLineContent(i)),n=a,r=e?.getStartState(i),r))break}return s.reverse(),{likelyRelevantLines:s,initialState:r??void 0}}class b{constructor(t){this.lineCount=t,this._tokenizationStateStore=new v,this._invalidEndStatesLineNumbers=new N,this._invalidEndStatesLineNumbers.addRange(new l(1,t+1))}getEndState(t){return this._tokenizationStateStore.getEndState(t)}setEndState(t,e){if(!e)throw new c("Cannot set null/undefined state");this._invalidEndStatesLineNumbers.delete(t);const n=this._tokenizationStateStore.setEndState(t,e);return n&&t<this.lineCount&&this._invalidEndStatesLineNumbers.addRange(new l(t+1,t+2)),n}acceptChange(t,e){this.lineCount+=e-t.length,this._tokenizationStateStore.acceptChange(t,e),this._invalidEndStatesLineNumbers.addRangeAndResize(new l(t.startLineNumber,t.endLineNumberExclusive),e)}acceptChanges(t){for(const e of t){const[n]=_(e.text);this.acceptChange(new g(e.range.startLineNumber,e.range.endLineNumber+1),n+1)}}invalidateEndStateRange(t){this._invalidEndStatesLineNumbers.addRange(new l(t.startLineNumber,t.endLineNumberExclusive))}getFirstInvalidEndStateLineNumber(){return this._invalidEndStatesLineNumbers.min}getFirstInvalidEndStateLineNumberOrMax(){return this.getFirstInvalidEndStateLineNumber()||Number.MAX_SAFE_INTEGER}allStatesValid(){return this._invalidEndStatesLineNumbers.min===null}getStartState(t,e){return t===1?e:this.getEndState(t-1)}getFirstInvalidLine(t){const e=this.getFirstInvalidEndStateLineNumber();if(e===null)return null;const n=this.getStartState(e,t);if(!n)throw new c("Start state must be defined");return{lineNumber:e,startState:n}}}class v{constructor(){this._lineEndStates=new T(null)}getEndState(t){return this._lineEndStates.get(t)}setEndState(t,e){const n=this._lineEndStates.get(t);return n&&n.equals(e)?!1:(this._lineEndStates.set(t,e),!0)}acceptChange(t,e){let n=t.length;e>0&&n>0&&(n--,e--),this._lineEndStates.replace(t.startLineNumber,n,e)}acceptChanges(t){for(const e of t){const[n]=_(e.text);this.acceptChange(new g(e.range.startLineNumber,e.range.endLineNumber+1),n+1)}}}class N{constructor(){this._ranges=[]}getRanges(){return this._ranges}get min(){return this._ranges.length===0?null:this._ranges[0].start}removeMin(){if(this._ranges.length===0)return null;const t=this._ranges[0];return t.start+1===t.endExclusive?this._ranges.shift():this._ranges[0]=new l(t.start+1,t.endExclusive),t.start}delete(t){const e=this._ranges.findIndex(n=>n.contains(t));if(e!==-1){const n=this._ranges[e];n.start===t?n.endExclusive===t+1?this._ranges.splice(e,1):this._ranges[e]=new l(t+1,n.endExclusive):n.endExclusive===t+1?this._ranges[e]=new l(n.start,t):this._ranges.splice(e,1,new l(n.start,t),new l(t+1,n.endExclusive))}}addRange(t){l.addRange(t,this._ranges)}addRangeAndResize(t,e){let n=0;for(;!(n>=this._ranges.length||t.start<=this._ranges[n].endExclusive);)n++;let s=n;for(;!(s>=this._ranges.length||t.endExclusive<this._ranges[s].start);)s++;const r=e-t.length;for(let i=s;i<this._ranges.length;i++)this._ranges[i]=this._ranges[i].delta(r);if(n===s){const i=new l(t.start,t.start+e);i.isEmpty||this._ranges.splice(n,0,i)}else{const i=Math.min(t.start,this._ranges[n].start),a=Math.max(t.endExclusive,this._ranges[s-1].endExclusive),d=new l(i,a+r);d.isEmpty?this._ranges.splice(n,s-n):this._ranges.splice(n,s-n,d)}}toString(){return this._ranges.map(t=>t.toString()).join(" + ")}}function h(o,t,e,n,s,r){let i=null;if(e)try{i=e.tokenizeEncoded(n,s,r.clone())}catch(a){m(a)}return i||(i=E(o.encodeLanguageId(t),r)),u.convertToEndOffset(i.tokens,n.length),i}class G{constructor(t,e){this._tokenizerWithStateStore=t,this._backgroundTokenStore=e,this._isDisposed=!1,this._isScheduled=!1}dispose(){this._isDisposed=!0}handleChanges(){this._beginBackgroundTokenization()}_beginBackgroundTokenization(){this._isScheduled||!this._tokenizerWithStateStore._textModel.isAttachedToEditor()||!this._hasLinesToTokenize()||(this._isScheduled=!0,k(t=>{this._isScheduled=!1,this._backgroundTokenizeWithDeadline(t)}))}_backgroundTokenizeWithDeadline(t){const e=Date.now()+t.timeRemaining(),n=()=>{this._isDisposed||!this._tokenizerWithStateStore._textModel.isAttachedToEditor()||!this._hasLinesToTokenize()||(this._backgroundTokenizeForAtLeast1ms(),Date.now()<e?p(n):this._beginBackgroundTokenization())};n()}_backgroundTokenizeForAtLeast1ms(){const t=this._tokenizerWithStateStore._textModel.getLineCount(),e=new I,n=L.create(!1);do if(n.elapsed()>1||this._tokenizeOneInvalidLine(e)>=t)break;while(this._hasLinesToTokenize());this._backgroundTokenStore.setTokens(e.finalize()),this.checkFinished()}_hasLinesToTokenize(){return this._tokenizerWithStateStore?!this._tokenizerWithStateStore.store.allStatesValid():!1}_tokenizeOneInvalidLine(t){const e=this._tokenizerWithStateStore?.getFirstInvalidLine();return e?(this._tokenizerWithStateStore.updateTokensUntilLine(t,e.lineNumber),e.lineNumber):this._tokenizerWithStateStore._textModel.getLineCount()+1}checkFinished(){this._isDisposed||this._tokenizerWithStateStore.store.allStatesValid()&&this._backgroundTokenStore.backgroundTokenizationFinished()}requestTokens(t,e){this._tokenizerWithStateStore.store.invalidateEndStateRange(new g(t,e))}}export{G as DefaultBackgroundTokenizer,N as RangePriorityQueueImpl,v as TokenizationStateStore,x as TokenizerWithStateStore,H as TokenizerWithStateStoreAndTextModel,b as TrackingTokenizationStateStore,z as findLikelyRelevantLines};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { runWhenGlobalIdle } from "../../../base/common/async.js";
+import { BugIndicatingError, onUnexpectedError } from "../../../base/common/errors.js";
+import { setTimeout0 } from "../../../base/common/platform.js";
+import { StopWatch } from "../../../base/common/stopwatch.js";
+import { countEOL } from "../core/eolCounter.js";
+import { LineRange } from "../core/lineRange.js";
+import { OffsetRange } from "../core/offsetRange.js";
+import { nullTokenizeEncoded } from "../languages/nullTokenize.js";
+import { FixedArray } from "./fixedArray.js";
+import { ContiguousMultilineTokensBuilder } from "../tokens/contiguousMultilineTokensBuilder.js";
+import { LineTokens } from "../tokens/lineTokens.js";
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["CHEAP_TOKENIZATION_LENGTH_LIMIT"] = 2048] = "CHEAP_TOKENIZATION_LENGTH_LIMIT";
+})(Constants || (Constants = {}));
+class TokenizerWithStateStore {
+  static {
+    __name(this, "TokenizerWithStateStore");
+  }
+  constructor(lineCount, tokenizationSupport) {
+    this.tokenizationSupport = tokenizationSupport;
+    this.initialState = this.tokenizationSupport.getInitialState();
+    this.store = new TrackingTokenizationStateStore(lineCount);
+  }
+  getStartState(lineNumber) {
+    return this.store.getStartState(lineNumber, this.initialState);
+  }
+  getFirstInvalidLine() {
+    return this.store.getFirstInvalidLine(this.initialState);
+  }
+}
+class TokenizerWithStateStoreAndTextModel extends TokenizerWithStateStore {
+  static {
+    __name(this, "TokenizerWithStateStoreAndTextModel");
+  }
+  constructor(lineCount, tokenizationSupport, _textModel, _languageIdCodec) {
+    super(lineCount, tokenizationSupport);
+    this._textModel = _textModel;
+    this._languageIdCodec = _languageIdCodec;
+  }
+  updateTokensUntilLine(builder, lineNumber) {
+    const languageId = this._textModel.getLanguageId();
+    while (true) {
+      const lineToTokenize = this.getFirstInvalidLine();
+      if (!lineToTokenize || lineToTokenize.lineNumber > lineNumber) {
+        break;
+      }
+      const text = this._textModel.getLineContent(lineToTokenize.lineNumber);
+      const r = safeTokenize(this._languageIdCodec, languageId, this.tokenizationSupport, text, true, lineToTokenize.startState);
+      builder.add(lineToTokenize.lineNumber, r.tokens);
+      this.store.setEndState(lineToTokenize.lineNumber, r.endState);
+    }
+  }
+  /** assumes state is up to date */
+  getTokenTypeIfInsertingCharacter(position, character) {
+    const lineStartState = this.getStartState(position.lineNumber);
+    if (!lineStartState) {
+      return 0;
+    }
+    const languageId = this._textModel.getLanguageId();
+    const lineContent = this._textModel.getLineContent(position.lineNumber);
+    const text = lineContent.substring(0, position.column - 1) + character + lineContent.substring(position.column - 1);
+    const r = safeTokenize(this._languageIdCodec, languageId, this.tokenizationSupport, text, true, lineStartState);
+    const lineTokens = new LineTokens(r.tokens, text, this._languageIdCodec);
+    if (lineTokens.getCount() === 0) {
+      return 0;
+    }
+    const tokenIndex = lineTokens.findTokenIndexAtOffset(position.column - 1);
+    return lineTokens.getStandardTokenType(tokenIndex);
+  }
+  /** assumes state is up to date */
+  tokenizeLinesAt(lineNumber, lines) {
+    const lineStartState = this.getStartState(lineNumber);
+    if (!lineStartState) {
+      return null;
+    }
+    const languageId = this._textModel.getLanguageId();
+    const result = [];
+    let state = lineStartState;
+    for (const line of lines) {
+      const r = safeTokenize(this._languageIdCodec, languageId, this.tokenizationSupport, line, true, state);
+      result.push(new LineTokens(r.tokens, line, this._languageIdCodec));
+      state = r.endState;
+    }
+    return result;
+  }
+  hasAccurateTokensForLine(lineNumber) {
+    const firstInvalidLineNumber = this.store.getFirstInvalidEndStateLineNumberOrMax();
+    return lineNumber < firstInvalidLineNumber;
+  }
+  isCheapToTokenize(lineNumber) {
+    const firstInvalidLineNumber = this.store.getFirstInvalidEndStateLineNumberOrMax();
+    if (lineNumber < firstInvalidLineNumber) {
+      return true;
+    }
+    if (lineNumber === firstInvalidLineNumber && this._textModel.getLineLength(lineNumber) < 2048) {
+      return true;
+    }
+    return false;
+  }
+  /**
+   * The result is not cached.
+   */
+  tokenizeHeuristically(builder, startLineNumber, endLineNumber) {
+    if (endLineNumber <= this.store.getFirstInvalidEndStateLineNumberOrMax()) {
+      return { heuristicTokens: false };
+    }
+    if (startLineNumber <= this.store.getFirstInvalidEndStateLineNumberOrMax()) {
+      this.updateTokensUntilLine(builder, endLineNumber);
+      return { heuristicTokens: false };
+    }
+    let state = this.guessStartState(startLineNumber);
+    const languageId = this._textModel.getLanguageId();
+    for (let lineNumber = startLineNumber; lineNumber <= endLineNumber; lineNumber++) {
+      const text = this._textModel.getLineContent(lineNumber);
+      const r = safeTokenize(this._languageIdCodec, languageId, this.tokenizationSupport, text, true, state);
+      builder.add(lineNumber, r.tokens);
+      state = r.endState;
+    }
+    return { heuristicTokens: true };
+  }
+  guessStartState(lineNumber) {
+    let { likelyRelevantLines, initialState } = findLikelyRelevantLines(this._textModel, lineNumber, this);
+    if (!initialState) {
+      initialState = this.tokenizationSupport.getInitialState();
+    }
+    const languageId = this._textModel.getLanguageId();
+    let state = initialState;
+    for (const line of likelyRelevantLines) {
+      const r = safeTokenize(this._languageIdCodec, languageId, this.tokenizationSupport, line, false, state);
+      state = r.endState;
+    }
+    return state;
+  }
+}
+function findLikelyRelevantLines(model, lineNumber, store) {
+  let nonWhitespaceColumn = model.getLineFirstNonWhitespaceColumn(lineNumber);
+  const likelyRelevantLines = [];
+  let initialState = null;
+  for (let i = lineNumber - 1; nonWhitespaceColumn > 1 && i >= 1; i--) {
+    const newNonWhitespaceIndex = model.getLineFirstNonWhitespaceColumn(i);
+    if (newNonWhitespaceIndex === 0) {
+      continue;
+    }
+    if (newNonWhitespaceIndex < nonWhitespaceColumn) {
+      likelyRelevantLines.push(model.getLineContent(i));
+      nonWhitespaceColumn = newNonWhitespaceIndex;
+      initialState = store?.getStartState(i);
+      if (initialState) {
+        break;
+      }
+    }
+  }
+  likelyRelevantLines.reverse();
+  return { likelyRelevantLines, initialState: initialState ?? void 0 };
+}
+__name(findLikelyRelevantLines, "findLikelyRelevantLines");
+class TrackingTokenizationStateStore {
+  static {
+    __name(this, "TrackingTokenizationStateStore");
+  }
+  constructor(lineCount) {
+    this.lineCount = lineCount;
+    this._tokenizationStateStore = new TokenizationStateStore();
+    this._invalidEndStatesLineNumbers = new RangePriorityQueueImpl();
+    this._invalidEndStatesLineNumbers.addRange(new OffsetRange(1, lineCount + 1));
+  }
+  getEndState(lineNumber) {
+    return this._tokenizationStateStore.getEndState(lineNumber);
+  }
+  /**
+   * @returns if the end state has changed.
+   */
+  setEndState(lineNumber, state) {
+    if (!state) {
+      throw new BugIndicatingError("Cannot set null/undefined state");
+    }
+    this._invalidEndStatesLineNumbers.delete(lineNumber);
+    const r = this._tokenizationStateStore.setEndState(lineNumber, state);
+    if (r && lineNumber < this.lineCount) {
+      this._invalidEndStatesLineNumbers.addRange(new OffsetRange(lineNumber + 1, lineNumber + 2));
+    }
+    return r;
+  }
+  acceptChange(range, newLineCount) {
+    this.lineCount += newLineCount - range.length;
+    this._tokenizationStateStore.acceptChange(range, newLineCount);
+    this._invalidEndStatesLineNumbers.addRangeAndResize(new OffsetRange(range.startLineNumber, range.endLineNumberExclusive), newLineCount);
+  }
+  acceptChanges(changes) {
+    for (const c of changes) {
+      const [eolCount] = countEOL(c.text);
+      this.acceptChange(new LineRange(c.range.startLineNumber, c.range.endLineNumber + 1), eolCount + 1);
+    }
+  }
+  invalidateEndStateRange(range) {
+    this._invalidEndStatesLineNumbers.addRange(new OffsetRange(range.startLineNumber, range.endLineNumberExclusive));
+  }
+  getFirstInvalidEndStateLineNumber() {
+    return this._invalidEndStatesLineNumbers.min;
+  }
+  getFirstInvalidEndStateLineNumberOrMax() {
+    return this.getFirstInvalidEndStateLineNumber() || Number.MAX_SAFE_INTEGER;
+  }
+  allStatesValid() {
+    return this._invalidEndStatesLineNumbers.min === null;
+  }
+  getStartState(lineNumber, initialState) {
+    if (lineNumber === 1) {
+      return initialState;
+    }
+    return this.getEndState(lineNumber - 1);
+  }
+  getFirstInvalidLine(initialState) {
+    const lineNumber = this.getFirstInvalidEndStateLineNumber();
+    if (lineNumber === null) {
+      return null;
+    }
+    const startState = this.getStartState(lineNumber, initialState);
+    if (!startState) {
+      throw new BugIndicatingError("Start state must be defined");
+    }
+    return { lineNumber, startState };
+  }
+}
+class TokenizationStateStore {
+  static {
+    __name(this, "TokenizationStateStore");
+  }
+  constructor() {
+    this._lineEndStates = new FixedArray(null);
+  }
+  getEndState(lineNumber) {
+    return this._lineEndStates.get(lineNumber);
+  }
+  setEndState(lineNumber, state) {
+    const oldState = this._lineEndStates.get(lineNumber);
+    if (oldState && oldState.equals(state)) {
+      return false;
+    }
+    this._lineEndStates.set(lineNumber, state);
+    return true;
+  }
+  acceptChange(range, newLineCount) {
+    let length = range.length;
+    if (newLineCount > 0 && length > 0) {
+      length--;
+      newLineCount--;
+    }
+    this._lineEndStates.replace(range.startLineNumber, length, newLineCount);
+  }
+  acceptChanges(changes) {
+    for (const c of changes) {
+      const [eolCount] = countEOL(c.text);
+      this.acceptChange(new LineRange(c.range.startLineNumber, c.range.endLineNumber + 1), eolCount + 1);
+    }
+  }
+}
+class RangePriorityQueueImpl {
+  static {
+    __name(this, "RangePriorityQueueImpl");
+  }
+  constructor() {
+    this._ranges = [];
+  }
+  getRanges() {
+    return this._ranges;
+  }
+  get min() {
+    if (this._ranges.length === 0) {
+      return null;
+    }
+    return this._ranges[0].start;
+  }
+  removeMin() {
+    if (this._ranges.length === 0) {
+      return null;
+    }
+    const range = this._ranges[0];
+    if (range.start + 1 === range.endExclusive) {
+      this._ranges.shift();
+    } else {
+      this._ranges[0] = new OffsetRange(range.start + 1, range.endExclusive);
+    }
+    return range.start;
+  }
+  delete(value) {
+    const idx = this._ranges.findIndex((r) => r.contains(value));
+    if (idx !== -1) {
+      const range = this._ranges[idx];
+      if (range.start === value) {
+        if (range.endExclusive === value + 1) {
+          this._ranges.splice(idx, 1);
+        } else {
+          this._ranges[idx] = new OffsetRange(value + 1, range.endExclusive);
+        }
+      } else {
+        if (range.endExclusive === value + 1) {
+          this._ranges[idx] = new OffsetRange(range.start, value);
+        } else {
+          this._ranges.splice(idx, 1, new OffsetRange(range.start, value), new OffsetRange(value + 1, range.endExclusive));
+        }
+      }
+    }
+  }
+  addRange(range) {
+    OffsetRange.addRange(range, this._ranges);
+  }
+  addRangeAndResize(range, newLength) {
+    let idxFirstMightBeIntersecting = 0;
+    while (!(idxFirstMightBeIntersecting >= this._ranges.length || range.start <= this._ranges[idxFirstMightBeIntersecting].endExclusive)) {
+      idxFirstMightBeIntersecting++;
+    }
+    let idxFirstIsAfter = idxFirstMightBeIntersecting;
+    while (!(idxFirstIsAfter >= this._ranges.length || range.endExclusive < this._ranges[idxFirstIsAfter].start)) {
+      idxFirstIsAfter++;
+    }
+    const delta = newLength - range.length;
+    for (let i = idxFirstIsAfter; i < this._ranges.length; i++) {
+      this._ranges[i] = this._ranges[i].delta(delta);
+    }
+    if (idxFirstMightBeIntersecting === idxFirstIsAfter) {
+      const newRange = new OffsetRange(range.start, range.start + newLength);
+      if (!newRange.isEmpty) {
+        this._ranges.splice(idxFirstMightBeIntersecting, 0, newRange);
+      }
+    } else {
+      const start = Math.min(range.start, this._ranges[idxFirstMightBeIntersecting].start);
+      const endEx = Math.max(range.endExclusive, this._ranges[idxFirstIsAfter - 1].endExclusive);
+      const newRange = new OffsetRange(start, endEx + delta);
+      if (!newRange.isEmpty) {
+        this._ranges.splice(idxFirstMightBeIntersecting, idxFirstIsAfter - idxFirstMightBeIntersecting, newRange);
+      } else {
+        this._ranges.splice(idxFirstMightBeIntersecting, idxFirstIsAfter - idxFirstMightBeIntersecting);
+      }
+    }
+  }
+  toString() {
+    return this._ranges.map((r) => r.toString()).join(" + ");
+  }
+}
+function safeTokenize(languageIdCodec, languageId, tokenizationSupport, text, hasEOL, state) {
+  let r = null;
+  if (tokenizationSupport) {
+    try {
+      r = tokenizationSupport.tokenizeEncoded(text, hasEOL, state.clone());
+    } catch (e) {
+      onUnexpectedError(e);
+    }
+  }
+  if (!r) {
+    r = nullTokenizeEncoded(languageIdCodec.encodeLanguageId(languageId), state);
+  }
+  LineTokens.convertToEndOffset(r.tokens, text.length);
+  return r;
+}
+__name(safeTokenize, "safeTokenize");
+class DefaultBackgroundTokenizer {
+  static {
+    __name(this, "DefaultBackgroundTokenizer");
+  }
+  constructor(_tokenizerWithStateStore, _backgroundTokenStore) {
+    this._tokenizerWithStateStore = _tokenizerWithStateStore;
+    this._backgroundTokenStore = _backgroundTokenStore;
+    this._isDisposed = false;
+    this._isScheduled = false;
+  }
+  dispose() {
+    this._isDisposed = true;
+  }
+  handleChanges() {
+    this._beginBackgroundTokenization();
+  }
+  _beginBackgroundTokenization() {
+    if (this._isScheduled || !this._tokenizerWithStateStore._textModel.isAttachedToEditor() || !this._hasLinesToTokenize()) {
+      return;
+    }
+    this._isScheduled = true;
+    runWhenGlobalIdle((deadline) => {
+      this._isScheduled = false;
+      this._backgroundTokenizeWithDeadline(deadline);
+    });
+  }
+  /**
+   * Tokenize until the deadline occurs, but try to yield every 1-2ms.
+   */
+  _backgroundTokenizeWithDeadline(deadline) {
+    const endTime = Date.now() + deadline.timeRemaining();
+    const execute = /* @__PURE__ */ __name(() => {
+      if (this._isDisposed || !this._tokenizerWithStateStore._textModel.isAttachedToEditor() || !this._hasLinesToTokenize()) {
+        return;
+      }
+      this._backgroundTokenizeForAtLeast1ms();
+      if (Date.now() < endTime) {
+        setTimeout0(execute);
+      } else {
+        this._beginBackgroundTokenization();
+      }
+    }, "execute");
+    execute();
+  }
+  /**
+   * Tokenize for at least 1ms.
+   */
+  _backgroundTokenizeForAtLeast1ms() {
+    const lineCount = this._tokenizerWithStateStore._textModel.getLineCount();
+    const builder = new ContiguousMultilineTokensBuilder();
+    const sw = StopWatch.create(false);
+    do {
+      if (sw.elapsed() > 1) {
+        break;
+      }
+      const tokenizedLineNumber = this._tokenizeOneInvalidLine(builder);
+      if (tokenizedLineNumber >= lineCount) {
+        break;
+      }
+    } while (this._hasLinesToTokenize());
+    this._backgroundTokenStore.setTokens(builder.finalize());
+    this.checkFinished();
+  }
+  _hasLinesToTokenize() {
+    if (!this._tokenizerWithStateStore) {
+      return false;
+    }
+    return !this._tokenizerWithStateStore.store.allStatesValid();
+  }
+  _tokenizeOneInvalidLine(builder) {
+    const firstInvalidLine = this._tokenizerWithStateStore?.getFirstInvalidLine();
+    if (!firstInvalidLine) {
+      return this._tokenizerWithStateStore._textModel.getLineCount() + 1;
+    }
+    this._tokenizerWithStateStore.updateTokensUntilLine(builder, firstInvalidLine.lineNumber);
+    return firstInvalidLine.lineNumber;
+  }
+  checkFinished() {
+    if (this._isDisposed) {
+      return;
+    }
+    if (this._tokenizerWithStateStore.store.allStatesValid()) {
+      this._backgroundTokenStore.backgroundTokenizationFinished();
+    }
+  }
+  requestTokens(startLineNumber, endLineNumberExclusive) {
+    this._tokenizerWithStateStore.store.invalidateEndStateRange(new LineRange(startLineNumber, endLineNumberExclusive));
+  }
+}
+export {
+  DefaultBackgroundTokenizer,
+  RangePriorityQueueImpl,
+  TokenizationStateStore,
+  TokenizerWithStateStore,
+  TokenizerWithStateStoreAndTextModel,
+  TrackingTokenizationStateStore,
+  findLikelyRelevantLines
+};
+//# sourceMappingURL=textModelTokens.js.map

@@ -1,1 +1,53 @@
-import*as a from"./strings.js";var o;(function(n){n[n.Ignore=0]="Ignore",n[n.Info=1]="Info",n[n.Warning=2]="Warning",n[n.Error=3]="Error"})(o||(o={}));(function(n){const s="error",f="warning",u="warn",g="info",c="ignore";function t(r){return r?a.equalsIgnoreCase(s,r)?n.Error:a.equalsIgnoreCase(f,r)||a.equalsIgnoreCase(u,r)?n.Warning:a.equalsIgnoreCase(g,r)?n.Info:n.Ignore:n.Ignore}n.fromValue=t;function I(r){switch(r){case n.Error:return s;case n.Warning:return f;case n.Info:return g;default:return c}}n.toString=I})(o||(o={}));var i=o;export{i as default};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "./strings.js";
+var Severity;
+(function(Severity2) {
+  Severity2[Severity2["Ignore"] = 0] = "Ignore";
+  Severity2[Severity2["Info"] = 1] = "Info";
+  Severity2[Severity2["Warning"] = 2] = "Warning";
+  Severity2[Severity2["Error"] = 3] = "Error";
+})(Severity || (Severity = {}));
+(function(Severity2) {
+  const _error = "error";
+  const _warning = "warning";
+  const _warn = "warn";
+  const _info = "info";
+  const _ignore = "ignore";
+  function fromValue(value) {
+    if (!value) {
+      return Severity2.Ignore;
+    }
+    if (strings.equalsIgnoreCase(_error, value)) {
+      return Severity2.Error;
+    }
+    if (strings.equalsIgnoreCase(_warning, value) || strings.equalsIgnoreCase(_warn, value)) {
+      return Severity2.Warning;
+    }
+    if (strings.equalsIgnoreCase(_info, value)) {
+      return Severity2.Info;
+    }
+    return Severity2.Ignore;
+  }
+  __name(fromValue, "fromValue");
+  Severity2.fromValue = fromValue;
+  function toString(severity) {
+    switch (severity) {
+      case Severity2.Error:
+        return _error;
+      case Severity2.Warning:
+        return _warning;
+      case Severity2.Info:
+        return _info;
+      default:
+        return _ignore;
+    }
+  }
+  __name(toString, "toString");
+  Severity2.toString = toString;
+})(Severity || (Severity = {}));
+var severity_default = Severity;
+export {
+  severity_default as default
+};
+//# sourceMappingURL=severity.js.map

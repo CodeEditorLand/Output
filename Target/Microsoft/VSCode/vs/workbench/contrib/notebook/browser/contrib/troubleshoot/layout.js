@@ -1,1 +1,155 @@
-import{Disposable as f,DisposableStore as E,dispose as u}from"../../../../../../base/common/lifecycle.js";import{localize2 as n}from"../../../../../../nls.js";import{Categories as c}from"../../../../../../platform/action/common/actionCommonCategories.js";import{Action2 as a,registerAction2 as d}from"../../../../../../platform/actions/common/actions.js";import{getNotebookEditorFromEditorPane as g}from"../../notebookBrowser.js";import{registerNotebookContribution as y}from"../../notebookEditorExtensions.js";import{INotebookService as S}from"../../../common/notebookService.js";import{IEditorService as b}from"../../../../../services/editor/common/editorService.js";class l extends f{static{this.id="workbench.notebook.troubleshoot"}constructor(t){super(),this._notebookEditor=t,this._localStore=this._register(new E),this._cellStateListeners=[],this._enabled=!1,this._cellStatusItems=[],this._register(this._notebookEditor.onDidChangeModel(()=>{this._update()})),this._update()}toggle(){this._enabled=!this._enabled,this._update()}_update(){this._localStore.clear(),this._cellStateListeners.forEach(t=>t.dispose()),this._notebookEditor.hasModel()&&this._updateListener()}_log(t,e){if(this._enabled){const o=this._notebookEditor.getViewHeight(t)}}_updateListener(){if(!this._notebookEditor.hasModel())return;for(let o=0;o<this._notebookEditor.getLength();o++){const i=this._notebookEditor.cellAt(o);this._cellStateListeners.push(i.onDidChangeLayout(r=>{this._log(i,r)}))}this._localStore.add(this._notebookEditor.onDidChangeViewCells(o=>{[...o.splices].reverse().forEach(i=>{const[r,p,_]=i,k=this._cellStateListeners.splice(r,p,..._.map(h=>h.onDidChangeLayout(m=>{this._log(h,m)})));u(k)})}));const t=this._notebookEditor.getViewModel();let e=[];this._enabled&&(e=this._getItemsForCells()),this._cellStatusItems=t.deltaCellStatusBarItems(this._cellStatusItems,e)}_getItemsForCells(){const t=[];for(let e=0;e<this._notebookEditor.getLength();e++)t.push({handle:e,items:[{text:`index: ${e}`,alignment:1,priority:Number.MAX_SAFE_INTEGER}]});return t}dispose(){u(this._cellStateListeners),super.dispose()}}y(l.id,l);d(class extends a{constructor(){super({id:"notebook.toggleLayoutTroubleshoot",title:n("workbench.notebook.toggleLayoutTroubleshoot","Toggle Layout Troubleshoot"),category:c.Developer,f1:!0})}async run(s){const t=s.get(b),e=g(t.activeEditorPane);if(!e)return;e.getContribution(l.id)?.toggle()}});d(class extends a{constructor(){super({id:"notebook.inspectLayout",title:n("workbench.notebook.inspectLayout","Inspect Notebook Layout"),category:c.Developer,f1:!0})}async run(s){const t=s.get(b),e=g(t.activeEditorPane);if(!(!e||!e.hasModel()))for(let o=0;o<e.getLength();o++){const i=e.cellAt(o)}}});d(class extends a{constructor(){super({id:"notebook.clearNotebookEdtitorTypeCache",title:n("workbench.notebook.clearNotebookEdtitorTypeCache","Clear Notebook Editor Type Cache"),category:c.Developer,f1:!0})}async run(s){s.get(S).clearEditorCache()}});export{l as TroubleshootController};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableStore, dispose } from "../../../../../../base/common/lifecycle.js";
+import { localize2 } from "../../../../../../nls.js";
+import { Categories } from "../../../../../../platform/action/common/actionCommonCategories.js";
+import { Action2, registerAction2 } from "../../../../../../platform/actions/common/actions.js";
+import { getNotebookEditorFromEditorPane } from "../../notebookBrowser.js";
+import { registerNotebookContribution } from "../../notebookEditorExtensions.js";
+import { INotebookService } from "../../../common/notebookService.js";
+import { IEditorService } from "../../../../../services/editor/common/editorService.js";
+class TroubleshootController extends Disposable {
+  static {
+    __name(this, "TroubleshootController");
+  }
+  static {
+    this.id = "workbench.notebook.troubleshoot";
+  }
+  constructor(_notebookEditor) {
+    super();
+    this._notebookEditor = _notebookEditor;
+    this._localStore = this._register(new DisposableStore());
+    this._cellStateListeners = [];
+    this._enabled = false;
+    this._cellStatusItems = [];
+    this._register(this._notebookEditor.onDidChangeModel(() => {
+      this._update();
+    }));
+    this._update();
+  }
+  toggle() {
+    this._enabled = !this._enabled;
+    this._update();
+  }
+  _update() {
+    this._localStore.clear();
+    this._cellStateListeners.forEach((listener) => listener.dispose());
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    this._updateListener();
+  }
+  _log(cell, e) {
+    if (this._enabled) {
+      const oldHeight = this._notebookEditor.getViewHeight(cell);
+      console.log(`cell#${cell.handle}`, e, `${oldHeight} -> ${cell.layoutInfo.totalHeight}`);
+    }
+  }
+  _updateListener() {
+    if (!this._notebookEditor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      const cell = this._notebookEditor.cellAt(i);
+      this._cellStateListeners.push(cell.onDidChangeLayout((e) => {
+        this._log(cell, e);
+      }));
+    }
+    this._localStore.add(this._notebookEditor.onDidChangeViewCells((e) => {
+      [...e.splices].reverse().forEach((splice) => {
+        const [start, deleted, newCells] = splice;
+        const deletedCells = this._cellStateListeners.splice(start, deleted, ...newCells.map((cell) => {
+          return cell.onDidChangeLayout((e2) => {
+            this._log(cell, e2);
+          });
+        }));
+        dispose(deletedCells);
+      });
+    }));
+    const vm = this._notebookEditor.getViewModel();
+    let items = [];
+    if (this._enabled) {
+      items = this._getItemsForCells();
+    }
+    this._cellStatusItems = vm.deltaCellStatusBarItems(this._cellStatusItems, items);
+  }
+  _getItemsForCells() {
+    const items = [];
+    for (let i = 0; i < this._notebookEditor.getLength(); i++) {
+      items.push({
+        handle: i,
+        items: [
+          {
+            text: `index: ${i}`,
+            alignment: 1,
+            priority: Number.MAX_SAFE_INTEGER
+          }
+        ]
+      });
+    }
+    return items;
+  }
+  dispose() {
+    dispose(this._cellStateListeners);
+    super.dispose();
+  }
+}
+registerNotebookContribution(TroubleshootController.id, TroubleshootController);
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.toggleLayoutTroubleshoot",
+      title: localize2("workbench.notebook.toggleLayoutTroubleshoot", "Toggle Layout Troubleshoot"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor) {
+      return;
+    }
+    const controller = editor.getContribution(TroubleshootController.id);
+    controller?.toggle();
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.inspectLayout",
+      title: localize2("workbench.notebook.inspectLayout", "Inspect Notebook Layout"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const editorService = accessor.get(IEditorService);
+    const editor = getNotebookEditorFromEditorPane(editorService.activeEditorPane);
+    if (!editor || !editor.hasModel()) {
+      return;
+    }
+    for (let i = 0; i < editor.getLength(); i++) {
+      const cell = editor.cellAt(i);
+      console.log(`cell#${cell.handle}`, cell.layoutInfo);
+    }
+  }
+});
+registerAction2(class extends Action2 {
+  constructor() {
+    super({
+      id: "notebook.clearNotebookEdtitorTypeCache",
+      title: localize2("workbench.notebook.clearNotebookEdtitorTypeCache", "Clear Notebook Editor Type Cache"),
+      category: Categories.Developer,
+      f1: true
+    });
+  }
+  async run(accessor) {
+    const notebookService = accessor.get(INotebookService);
+    notebookService.clearEditorCache();
+  }
+});
+export {
+  TroubleshootController
+};
+//# sourceMappingURL=layout.js.map

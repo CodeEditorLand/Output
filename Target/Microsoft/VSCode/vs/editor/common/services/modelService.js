@@ -1,6 +1,487 @@
-import{Emitter as R}from"../../../base/common/event.js";import{Disposable as E,DisposableStore as O}from"../../../base/common/lifecycle.js";import*as L from"../../../base/common/platform.js";import{EditOperation as A}from"../core/editOperation.js";import{Range as _}from"../core/range.js";import{TextModel as D,createTextBuffer as b}from"../model/textModel.js";import{EDITOR_MODEL_DEFAULTS as S}from"../core/textModelDefaults.js";import{PLAINTEXT_LANGUAGE_ID as U}from"../languages/modesRegistry.js";import{ITextResourcePropertiesService as k}from"./textResourceConfiguration.js";import{IConfigurationService as y}from"../../../platform/configuration/common/configuration.js";import{IUndoRedoService as P}from"../../../platform/undoRedo/common/undoRedo.js";import{StringSHA1 as F}from"../../../base/common/hash.js";import{isEditStackElement as g}from"../model/editStack.js";import{Schemas as C}from"../../../base/common/network.js";import{equals as W}from"../../../base/common/objects.js";import{IInstantiationService as x}from"../../../platform/instantiation/common/instantiation.js";var z=function(h,e,i,t){var o=arguments.length,s=o<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(h,e,i,t);else for(var r=h.length-1;r>=0;r--)(a=h[r])&&(s=(o<3?a(s):o>3?a(e,i,s):a(e,i))||s);return o>3&&s&&Object.defineProperty(e,i,s),s},M=function(h,e){return function(i,t){e(i,t,h)}},m;function u(h){return h.toString()}class H{constructor(e,i,t){this.model=e,this._modelEventListeners=new O,this.model=e,this._modelEventListeners.add(e.onWillDispose(()=>i(e))),this._modelEventListeners.add(e.onDidChangeLanguage(o=>t(e,o)))}dispose(){this._modelEventListeners.dispose()}}const T=L.isLinux||L.isMacintosh?1:2;class V{constructor(e,i,t,o,s,a,r,d){this.uri=e,this.initialUndoRedoSnapshot=i,this.time=t,this.sharesUndoRedoStack=o,this.heapSize=s,this.sha1=a,this.versionId=r,this.alternativeVersionId=d}}let I=class extends E{static{m=this}static{this.MAX_MEMORY_FOR_CLOSED_FILES_UNDO_STACK=20*1024*1024}constructor(e,i,t,o){super(),this._configurationService=e,this._resourcePropertiesService=i,this._undoRedoService=t,this._instantiationService=o,this._onModelAdded=this._register(new R),this.onModelAdded=this._onModelAdded.event,this._onModelRemoved=this._register(new R),this.onModelRemoved=this._onModelRemoved.event,this._onModelModeChanged=this._register(new R),this.onModelLanguageChanged=this._onModelModeChanged.event,this._modelCreationOptionsByLanguageAndResource=Object.create(null),this._models={},this._disposedModels=new Map,this._disposedModelsHeapSize=0,this._register(this._configurationService.onDidChangeConfiguration(s=>this._updateModelOptions(s))),this._updateModelOptions(void 0)}static _readModelOptions(e,i){let t=S.tabSize;if(e.editor&&typeof e.editor.tabSize<"u"){const p=parseInt(e.editor.tabSize,10);isNaN(p)||(t=p),t<1&&(t=1)}let o="tabSize";if(e.editor&&typeof e.editor.indentSize<"u"&&e.editor.indentSize!=="tabSize"){const p=parseInt(e.editor.indentSize,10);isNaN(p)||(o=Math.max(p,1))}let s=S.insertSpaces;e.editor&&typeof e.editor.insertSpaces<"u"&&(s=e.editor.insertSpaces==="false"?!1:!!e.editor.insertSpaces);let a=T;const r=e.eol;r===`\r
-`?a=2:r===`
-`&&(a=1);let d=S.trimAutoWhitespace;e.editor&&typeof e.editor.trimAutoWhitespace<"u"&&(d=e.editor.trimAutoWhitespace==="false"?!1:!!e.editor.trimAutoWhitespace);let n=S.detectIndentation;e.editor&&typeof e.editor.detectIndentation<"u"&&(n=e.editor.detectIndentation==="false"?!1:!!e.editor.detectIndentation);let l=S.largeFileOptimizations;e.editor&&typeof e.editor.largeFileOptimizations<"u"&&(l=e.editor.largeFileOptimizations==="false"?!1:!!e.editor.largeFileOptimizations);let f=S.bracketPairColorizationOptions;return e.editor?.bracketPairColorization&&typeof e.editor.bracketPairColorization=="object"&&(f={enabled:!!e.editor.bracketPairColorization.enabled,independentColorPoolPerBracketType:!!e.editor.bracketPairColorization.independentColorPoolPerBracketType}),{isForSimpleWidget:i,tabSize:t,indentSize:o,insertSpaces:s,detectIndentation:n,defaultEOL:a,trimAutoWhitespace:d,largeFileOptimizations:l,bracketPairColorizationOptions:f}}_getEOL(e,i){if(e)return this._resourcePropertiesService.getEOL(e,i);const t=this._configurationService.getValue("files.eol",{overrideIdentifier:i});return t&&typeof t=="string"&&t!=="auto"?t:L.OS===3||L.OS===2?`
-`:`\r
-`}_shouldRestoreUndoStack(){const e=this._configurationService.getValue("files.restoreUndoStack");return typeof e=="boolean"?e:!0}getCreationOptions(e,i,t){const o=typeof e=="string"?e:e.languageId;let s=this._modelCreationOptionsByLanguageAndResource[o+i];if(!s){const a=this._configurationService.getValue("editor",{overrideIdentifier:o,resource:i}),r=this._getEOL(i,o);s=m._readModelOptions({editor:a,eol:r},t),this._modelCreationOptionsByLanguageAndResource[o+i]=s}return s}_updateModelOptions(e){const i=this._modelCreationOptionsByLanguageAndResource;this._modelCreationOptionsByLanguageAndResource=Object.create(null);const t=Object.keys(this._models);for(let o=0,s=t.length;o<s;o++){const a=t[o],r=this._models[a],d=r.model.getLanguageId(),n=r.model.uri;if(e&&!e.affectsConfiguration("editor",{overrideIdentifier:d,resource:n})&&!e.affectsConfiguration("files.eol",{overrideIdentifier:d,resource:n}))continue;const l=i[d+n],f=this.getCreationOptions(d,n,r.model.isForSimpleWidget);m._setModelOptionsForModel(r.model,f,l)}}static _setModelOptionsForModel(e,i,t){t&&t.defaultEOL!==i.defaultEOL&&e.getLineCount()===1&&e.setEOL(i.defaultEOL===1?0:1),!(t&&t.detectIndentation===i.detectIndentation&&t.insertSpaces===i.insertSpaces&&t.tabSize===i.tabSize&&t.indentSize===i.indentSize&&t.trimAutoWhitespace===i.trimAutoWhitespace&&W(t.bracketPairColorizationOptions,i.bracketPairColorizationOptions))&&(i.detectIndentation?(e.detectIndentation(i.insertSpaces,i.tabSize),e.updateOptions({trimAutoWhitespace:i.trimAutoWhitespace,bracketColorizationOptions:i.bracketPairColorizationOptions})):e.updateOptions({insertSpaces:i.insertSpaces,tabSize:i.tabSize,indentSize:i.indentSize,trimAutoWhitespace:i.trimAutoWhitespace,bracketColorizationOptions:i.bracketPairColorizationOptions}))}_insertDisposedModel(e){this._disposedModels.set(u(e.uri),e),this._disposedModelsHeapSize+=e.heapSize}_removeDisposedModel(e){const i=this._disposedModels.get(u(e));return i&&(this._disposedModelsHeapSize-=i.heapSize),this._disposedModels.delete(u(e)),i}_ensureDisposedModelsHeapSize(e){if(this._disposedModelsHeapSize>e){const i=[];for(this._disposedModels.forEach(t=>{t.sharesUndoRedoStack||i.push(t)}),i.sort((t,o)=>t.time-o.time);i.length>0&&this._disposedModelsHeapSize>e;){const t=i.shift();this._removeDisposedModel(t.uri),t.initialUndoRedoSnapshot!==null&&this._undoRedoService.restoreSnapshot(t.initialUndoRedoSnapshot)}}}_createModelData(e,i,t,o){const s=this.getCreationOptions(i,t,o),a=this._instantiationService.createInstance(D,e,i,s,t);if(t&&this._disposedModels.has(u(t))){const n=this._removeDisposedModel(t),l=this._undoRedoService.getElements(t),f=this._getSHA1Computer(),p=f.canComputeSHA1(a)?f.computeSHA1(a)===n.sha1:!1;if(p||n.sharesUndoRedoStack){for(const c of l.past)g(c)&&c.matchesResource(t)&&c.setModel(a);for(const c of l.future)g(c)&&c.matchesResource(t)&&c.setModel(a);this._undoRedoService.setElementsValidFlag(t,!0,c=>g(c)&&c.matchesResource(t)),p&&(a._overwriteVersionId(n.versionId),a._overwriteAlternativeVersionId(n.alternativeVersionId),a._overwriteInitialUndoRedoSnapshot(n.initialUndoRedoSnapshot))}else n.initialUndoRedoSnapshot!==null&&this._undoRedoService.restoreSnapshot(n.initialUndoRedoSnapshot)}const r=u(a.uri);if(this._models[r])throw new Error("ModelService: Cannot add model because it already exists!");const d=new H(a,n=>this._onWillDispose(n),(n,l)=>this._onDidChangeLanguage(n,l));return this._models[r]=d,d}updateModel(e,i){const t=this.getCreationOptions(e.getLanguageId(),e.uri,e.isForSimpleWidget),{textBuffer:o,disposable:s}=b(i,t.defaultEOL);if(e.equalsTextBuffer(o)){s.dispose();return}e.pushStackElement(),e.pushEOL(o.getEOL()===`\r
-`?1:0),e.pushEditOperations([],m._computeEdits(e,o),()=>[]),e.pushStackElement(),s.dispose()}static _commonPrefix(e,i,t,o,s,a){const r=Math.min(i,s);let d=0;for(let n=0;n<r&&e.getLineContent(t+n)===o.getLineContent(a+n);n++)d++;return d}static _commonSuffix(e,i,t,o,s,a){const r=Math.min(i,s);let d=0;for(let n=0;n<r&&e.getLineContent(t+i-n)===o.getLineContent(a+s-n);n++)d++;return d}static _computeEdits(e,i){const t=e.getLineCount(),o=i.getLineCount(),s=this._commonPrefix(e,t,1,i,o,1);if(t===o&&s===t)return[];const a=this._commonSuffix(e,t-s,s,i,o-s,s);let r,d;return a>0?(r=new _(s+1,1,t-a+1,1),d=new _(s+1,1,o-a+1,1)):s>0?(r=new _(s,e.getLineMaxColumn(s),t,e.getLineMaxColumn(t)),d=new _(s,1+i.getLineLength(s),o,1+i.getLineLength(o))):(r=new _(1,1,t,e.getLineMaxColumn(t)),d=new _(1,1,o,1+i.getLineLength(o))),[A.replaceMove(r,i.getValueInRange(d,0))]}createModel(e,i,t,o=!1){let s;return i?s=this._createModelData(e,i,t,o):s=this._createModelData(e,U,t,o),this._onModelAdded.fire(s.model),s.model}destroyModel(e){const i=this._models[u(e)];i&&i.model.dispose()}getModels(){const e=[],i=Object.keys(this._models);for(let t=0,o=i.length;t<o;t++){const s=i[t];e.push(this._models[s].model)}return e}getModel(e){const i=u(e),t=this._models[i];return t?t.model:null}_schemaShouldMaintainUndoRedoElements(e){return e.scheme===C.file||e.scheme===C.vscodeRemote||e.scheme===C.vscodeUserData||e.scheme===C.vscodeNotebookCell||e.scheme==="fake-fs"}_onWillDispose(e){const i=u(e.uri),t=this._models[i],o=this._undoRedoService.getUriComparisonKey(e.uri)!==e.uri.toString();let s=!1,a=0;if(o||this._shouldRestoreUndoStack()&&this._schemaShouldMaintainUndoRedoElements(e.uri)){const n=this._undoRedoService.getElements(e.uri);if(n.past.length>0||n.future.length>0){for(const l of n.past)g(l)&&l.matchesResource(e.uri)&&(s=!0,a+=l.heapSize(e.uri),l.setModel(e.uri));for(const l of n.future)g(l)&&l.matchesResource(e.uri)&&(s=!0,a+=l.heapSize(e.uri),l.setModel(e.uri))}}const r=m.MAX_MEMORY_FOR_CLOSED_FILES_UNDO_STACK,d=this._getSHA1Computer();if(s)if(!o&&(a>r||!d.canComputeSHA1(e))){const n=t.model.getInitialUndoRedoSnapshot();n!==null&&this._undoRedoService.restoreSnapshot(n)}else this._ensureDisposedModelsHeapSize(r-a),this._undoRedoService.setElementsValidFlag(e.uri,!1,n=>g(n)&&n.matchesResource(e.uri)),this._insertDisposedModel(new V(e.uri,t.model.getInitialUndoRedoSnapshot(),Date.now(),o,a,d.computeSHA1(e),e.getVersionId(),e.getAlternativeVersionId()));else if(!o){const n=t.model.getInitialUndoRedoSnapshot();n!==null&&this._undoRedoService.restoreSnapshot(n)}delete this._models[i],t.dispose(),delete this._modelCreationOptionsByLanguageAndResource[e.getLanguageId()+e.uri],this._onModelRemoved.fire(e)}_onDidChangeLanguage(e,i){const t=i.oldLanguage,o=e.getLanguageId(),s=this.getCreationOptions(t,e.uri,e.isForSimpleWidget),a=this.getCreationOptions(o,e.uri,e.isForSimpleWidget);m._setModelOptionsForModel(e,a,s),this._onModelModeChanged.fire({model:e,oldLanguageId:t})}_getSHA1Computer(){return new v}};I=m=z([M(0,y),M(1,k),M(2,P),M(3,x)],I);class v{static{this.MAX_MODEL_SIZE=10*1024*1024}canComputeSHA1(e){return e.getValueLength()<=v.MAX_MODEL_SIZE}computeSHA1(e){const i=new F,t=e.createSnapshot();let o;for(;o=t.read();)i.update(o);return i.digest()}}export{v as DefaultModelSHA1Computer,I as ModelService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../base/common/event.js";
+import { Disposable, DisposableStore } from "../../../base/common/lifecycle.js";
+import * as platform from "../../../base/common/platform.js";
+import { EditOperation } from "../core/editOperation.js";
+import { Range } from "../core/range.js";
+import { TextModel, createTextBuffer } from "../model/textModel.js";
+import { EDITOR_MODEL_DEFAULTS } from "../core/textModelDefaults.js";
+import { PLAINTEXT_LANGUAGE_ID } from "../languages/modesRegistry.js";
+import { ITextResourcePropertiesService } from "./textResourceConfiguration.js";
+import { IConfigurationService } from "../../../platform/configuration/common/configuration.js";
+import { IUndoRedoService } from "../../../platform/undoRedo/common/undoRedo.js";
+import { StringSHA1 } from "../../../base/common/hash.js";
+import { isEditStackElement } from "../model/editStack.js";
+import { Schemas } from "../../../base/common/network.js";
+import { equals } from "../../../base/common/objects.js";
+import { IInstantiationService } from "../../../platform/instantiation/common/instantiation.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ModelService_1;
+function MODEL_ID(resource) {
+  return resource.toString();
+}
+__name(MODEL_ID, "MODEL_ID");
+class ModelData {
+  static {
+    __name(this, "ModelData");
+  }
+  constructor(model, onWillDispose, onDidChangeLanguage) {
+    this.model = model;
+    this._modelEventListeners = new DisposableStore();
+    this.model = model;
+    this._modelEventListeners.add(model.onWillDispose(() => onWillDispose(model)));
+    this._modelEventListeners.add(model.onDidChangeLanguage((e) => onDidChangeLanguage(model, e)));
+  }
+  dispose() {
+    this._modelEventListeners.dispose();
+  }
+}
+const DEFAULT_EOL = platform.isLinux || platform.isMacintosh ? 1 : 2;
+class DisposedModelInfo {
+  static {
+    __name(this, "DisposedModelInfo");
+  }
+  constructor(uri, initialUndoRedoSnapshot, time, sharesUndoRedoStack, heapSize, sha1, versionId, alternativeVersionId) {
+    this.uri = uri;
+    this.initialUndoRedoSnapshot = initialUndoRedoSnapshot;
+    this.time = time;
+    this.sharesUndoRedoStack = sharesUndoRedoStack;
+    this.heapSize = heapSize;
+    this.sha1 = sha1;
+    this.versionId = versionId;
+    this.alternativeVersionId = alternativeVersionId;
+  }
+}
+let ModelService = class ModelService2 extends Disposable {
+  static {
+    __name(this, "ModelService");
+  }
+  static {
+    ModelService_1 = this;
+  }
+  static {
+    this.MAX_MEMORY_FOR_CLOSED_FILES_UNDO_STACK = 20 * 1024 * 1024;
+  }
+  constructor(_configurationService, _resourcePropertiesService, _undoRedoService, _instantiationService) {
+    super();
+    this._configurationService = _configurationService;
+    this._resourcePropertiesService = _resourcePropertiesService;
+    this._undoRedoService = _undoRedoService;
+    this._instantiationService = _instantiationService;
+    this._onModelAdded = this._register(new Emitter());
+    this.onModelAdded = this._onModelAdded.event;
+    this._onModelRemoved = this._register(new Emitter());
+    this.onModelRemoved = this._onModelRemoved.event;
+    this._onModelModeChanged = this._register(new Emitter());
+    this.onModelLanguageChanged = this._onModelModeChanged.event;
+    this._modelCreationOptionsByLanguageAndResource = /* @__PURE__ */ Object.create(null);
+    this._models = {};
+    this._disposedModels = /* @__PURE__ */ new Map();
+    this._disposedModelsHeapSize = 0;
+    this._register(this._configurationService.onDidChangeConfiguration((e) => this._updateModelOptions(e)));
+    this._updateModelOptions(void 0);
+  }
+  static _readModelOptions(config, isForSimpleWidget) {
+    let tabSize = EDITOR_MODEL_DEFAULTS.tabSize;
+    if (config.editor && typeof config.editor.tabSize !== "undefined") {
+      const parsedTabSize = parseInt(config.editor.tabSize, 10);
+      if (!isNaN(parsedTabSize)) {
+        tabSize = parsedTabSize;
+      }
+      if (tabSize < 1) {
+        tabSize = 1;
+      }
+    }
+    let indentSize = "tabSize";
+    if (config.editor && typeof config.editor.indentSize !== "undefined" && config.editor.indentSize !== "tabSize") {
+      const parsedIndentSize = parseInt(config.editor.indentSize, 10);
+      if (!isNaN(parsedIndentSize)) {
+        indentSize = Math.max(parsedIndentSize, 1);
+      }
+    }
+    let insertSpaces = EDITOR_MODEL_DEFAULTS.insertSpaces;
+    if (config.editor && typeof config.editor.insertSpaces !== "undefined") {
+      insertSpaces = config.editor.insertSpaces === "false" ? false : Boolean(config.editor.insertSpaces);
+    }
+    let newDefaultEOL = DEFAULT_EOL;
+    const eol = config.eol;
+    if (eol === "\r\n") {
+      newDefaultEOL = 2;
+    } else if (eol === "\n") {
+      newDefaultEOL = 1;
+    }
+    let trimAutoWhitespace = EDITOR_MODEL_DEFAULTS.trimAutoWhitespace;
+    if (config.editor && typeof config.editor.trimAutoWhitespace !== "undefined") {
+      trimAutoWhitespace = config.editor.trimAutoWhitespace === "false" ? false : Boolean(config.editor.trimAutoWhitespace);
+    }
+    let detectIndentation = EDITOR_MODEL_DEFAULTS.detectIndentation;
+    if (config.editor && typeof config.editor.detectIndentation !== "undefined") {
+      detectIndentation = config.editor.detectIndentation === "false" ? false : Boolean(config.editor.detectIndentation);
+    }
+    let largeFileOptimizations = EDITOR_MODEL_DEFAULTS.largeFileOptimizations;
+    if (config.editor && typeof config.editor.largeFileOptimizations !== "undefined") {
+      largeFileOptimizations = config.editor.largeFileOptimizations === "false" ? false : Boolean(config.editor.largeFileOptimizations);
+    }
+    let bracketPairColorizationOptions = EDITOR_MODEL_DEFAULTS.bracketPairColorizationOptions;
+    if (config.editor?.bracketPairColorization && typeof config.editor.bracketPairColorization === "object") {
+      bracketPairColorizationOptions = {
+        enabled: !!config.editor.bracketPairColorization.enabled,
+        independentColorPoolPerBracketType: !!config.editor.bracketPairColorization.independentColorPoolPerBracketType
+      };
+    }
+    return {
+      isForSimpleWidget,
+      tabSize,
+      indentSize,
+      insertSpaces,
+      detectIndentation,
+      defaultEOL: newDefaultEOL,
+      trimAutoWhitespace,
+      largeFileOptimizations,
+      bracketPairColorizationOptions
+    };
+  }
+  _getEOL(resource, language) {
+    if (resource) {
+      return this._resourcePropertiesService.getEOL(resource, language);
+    }
+    const eol = this._configurationService.getValue("files.eol", { overrideIdentifier: language });
+    if (eol && typeof eol === "string" && eol !== "auto") {
+      return eol;
+    }
+    return platform.OS === 3 || platform.OS === 2 ? "\n" : "\r\n";
+  }
+  _shouldRestoreUndoStack() {
+    const result = this._configurationService.getValue("files.restoreUndoStack");
+    if (typeof result === "boolean") {
+      return result;
+    }
+    return true;
+  }
+  getCreationOptions(languageIdOrSelection, resource, isForSimpleWidget) {
+    const language = typeof languageIdOrSelection === "string" ? languageIdOrSelection : languageIdOrSelection.languageId;
+    let creationOptions = this._modelCreationOptionsByLanguageAndResource[language + resource];
+    if (!creationOptions) {
+      const editor = this._configurationService.getValue("editor", { overrideIdentifier: language, resource });
+      const eol = this._getEOL(resource, language);
+      creationOptions = ModelService_1._readModelOptions({ editor, eol }, isForSimpleWidget);
+      this._modelCreationOptionsByLanguageAndResource[language + resource] = creationOptions;
+    }
+    return creationOptions;
+  }
+  _updateModelOptions(e) {
+    const oldOptionsByLanguageAndResource = this._modelCreationOptionsByLanguageAndResource;
+    this._modelCreationOptionsByLanguageAndResource = /* @__PURE__ */ Object.create(null);
+    const keys = Object.keys(this._models);
+    for (let i = 0, len = keys.length; i < len; i++) {
+      const modelId = keys[i];
+      const modelData = this._models[modelId];
+      const language = modelData.model.getLanguageId();
+      const uri = modelData.model.uri;
+      if (e && !e.affectsConfiguration("editor", { overrideIdentifier: language, resource: uri }) && !e.affectsConfiguration("files.eol", { overrideIdentifier: language, resource: uri })) {
+        continue;
+      }
+      const oldOptions = oldOptionsByLanguageAndResource[language + uri];
+      const newOptions = this.getCreationOptions(language, uri, modelData.model.isForSimpleWidget);
+      ModelService_1._setModelOptionsForModel(modelData.model, newOptions, oldOptions);
+    }
+  }
+  static _setModelOptionsForModel(model, newOptions, currentOptions) {
+    if (currentOptions && currentOptions.defaultEOL !== newOptions.defaultEOL && model.getLineCount() === 1) {
+      model.setEOL(
+        newOptions.defaultEOL === 1 ? 0 : 1
+        /* EndOfLineSequence.CRLF */
+      );
+    }
+    if (currentOptions && currentOptions.detectIndentation === newOptions.detectIndentation && currentOptions.insertSpaces === newOptions.insertSpaces && currentOptions.tabSize === newOptions.tabSize && currentOptions.indentSize === newOptions.indentSize && currentOptions.trimAutoWhitespace === newOptions.trimAutoWhitespace && equals(currentOptions.bracketPairColorizationOptions, newOptions.bracketPairColorizationOptions)) {
+      return;
+    }
+    if (newOptions.detectIndentation) {
+      model.detectIndentation(newOptions.insertSpaces, newOptions.tabSize);
+      model.updateOptions({
+        trimAutoWhitespace: newOptions.trimAutoWhitespace,
+        bracketColorizationOptions: newOptions.bracketPairColorizationOptions
+      });
+    } else {
+      model.updateOptions({
+        insertSpaces: newOptions.insertSpaces,
+        tabSize: newOptions.tabSize,
+        indentSize: newOptions.indentSize,
+        trimAutoWhitespace: newOptions.trimAutoWhitespace,
+        bracketColorizationOptions: newOptions.bracketPairColorizationOptions
+      });
+    }
+  }
+  // --- begin IModelService
+  _insertDisposedModel(disposedModelData) {
+    this._disposedModels.set(MODEL_ID(disposedModelData.uri), disposedModelData);
+    this._disposedModelsHeapSize += disposedModelData.heapSize;
+  }
+  _removeDisposedModel(resource) {
+    const disposedModelData = this._disposedModels.get(MODEL_ID(resource));
+    if (disposedModelData) {
+      this._disposedModelsHeapSize -= disposedModelData.heapSize;
+    }
+    this._disposedModels.delete(MODEL_ID(resource));
+    return disposedModelData;
+  }
+  _ensureDisposedModelsHeapSize(maxModelsHeapSize) {
+    if (this._disposedModelsHeapSize > maxModelsHeapSize) {
+      const disposedModels = [];
+      this._disposedModels.forEach((entry) => {
+        if (!entry.sharesUndoRedoStack) {
+          disposedModels.push(entry);
+        }
+      });
+      disposedModels.sort((a, b) => a.time - b.time);
+      while (disposedModels.length > 0 && this._disposedModelsHeapSize > maxModelsHeapSize) {
+        const disposedModel = disposedModels.shift();
+        this._removeDisposedModel(disposedModel.uri);
+        if (disposedModel.initialUndoRedoSnapshot !== null) {
+          this._undoRedoService.restoreSnapshot(disposedModel.initialUndoRedoSnapshot);
+        }
+      }
+    }
+  }
+  _createModelData(value, languageIdOrSelection, resource, isForSimpleWidget) {
+    const options = this.getCreationOptions(languageIdOrSelection, resource, isForSimpleWidget);
+    const model = this._instantiationService.createInstance(TextModel, value, languageIdOrSelection, options, resource);
+    if (resource && this._disposedModels.has(MODEL_ID(resource))) {
+      const disposedModelData = this._removeDisposedModel(resource);
+      const elements = this._undoRedoService.getElements(resource);
+      const sha1Computer = this._getSHA1Computer();
+      const sha1IsEqual = sha1Computer.canComputeSHA1(model) ? sha1Computer.computeSHA1(model) === disposedModelData.sha1 : false;
+      if (sha1IsEqual || disposedModelData.sharesUndoRedoStack) {
+        for (const element of elements.past) {
+          if (isEditStackElement(element) && element.matchesResource(resource)) {
+            element.setModel(model);
+          }
+        }
+        for (const element of elements.future) {
+          if (isEditStackElement(element) && element.matchesResource(resource)) {
+            element.setModel(model);
+          }
+        }
+        this._undoRedoService.setElementsValidFlag(resource, true, (element) => isEditStackElement(element) && element.matchesResource(resource));
+        if (sha1IsEqual) {
+          model._overwriteVersionId(disposedModelData.versionId);
+          model._overwriteAlternativeVersionId(disposedModelData.alternativeVersionId);
+          model._overwriteInitialUndoRedoSnapshot(disposedModelData.initialUndoRedoSnapshot);
+        }
+      } else {
+        if (disposedModelData.initialUndoRedoSnapshot !== null) {
+          this._undoRedoService.restoreSnapshot(disposedModelData.initialUndoRedoSnapshot);
+        }
+      }
+    }
+    const modelId = MODEL_ID(model.uri);
+    if (this._models[modelId]) {
+      throw new Error("ModelService: Cannot add model because it already exists!");
+    }
+    const modelData = new ModelData(model, (model2) => this._onWillDispose(model2), (model2, e) => this._onDidChangeLanguage(model2, e));
+    this._models[modelId] = modelData;
+    return modelData;
+  }
+  updateModel(model, value) {
+    const options = this.getCreationOptions(model.getLanguageId(), model.uri, model.isForSimpleWidget);
+    const { textBuffer, disposable } = createTextBuffer(value, options.defaultEOL);
+    if (model.equalsTextBuffer(textBuffer)) {
+      disposable.dispose();
+      return;
+    }
+    model.pushStackElement();
+    model.pushEOL(
+      textBuffer.getEOL() === "\r\n" ? 1 : 0
+      /* EndOfLineSequence.LF */
+    );
+    model.pushEditOperations([], ModelService_1._computeEdits(model, textBuffer), () => []);
+    model.pushStackElement();
+    disposable.dispose();
+  }
+  static _commonPrefix(a, aLen, aDelta, b, bLen, bDelta) {
+    const maxResult = Math.min(aLen, bLen);
+    let result = 0;
+    for (let i = 0; i < maxResult && a.getLineContent(aDelta + i) === b.getLineContent(bDelta + i); i++) {
+      result++;
+    }
+    return result;
+  }
+  static _commonSuffix(a, aLen, aDelta, b, bLen, bDelta) {
+    const maxResult = Math.min(aLen, bLen);
+    let result = 0;
+    for (let i = 0; i < maxResult && a.getLineContent(aDelta + aLen - i) === b.getLineContent(bDelta + bLen - i); i++) {
+      result++;
+    }
+    return result;
+  }
+  /**
+   * Compute edits to bring `model` to the state of `textSource`.
+   */
+  static _computeEdits(model, textBuffer) {
+    const modelLineCount = model.getLineCount();
+    const textBufferLineCount = textBuffer.getLineCount();
+    const commonPrefix = this._commonPrefix(model, modelLineCount, 1, textBuffer, textBufferLineCount, 1);
+    if (modelLineCount === textBufferLineCount && commonPrefix === modelLineCount) {
+      return [];
+    }
+    const commonSuffix = this._commonSuffix(model, modelLineCount - commonPrefix, commonPrefix, textBuffer, textBufferLineCount - commonPrefix, commonPrefix);
+    let oldRange;
+    let newRange;
+    if (commonSuffix > 0) {
+      oldRange = new Range(commonPrefix + 1, 1, modelLineCount - commonSuffix + 1, 1);
+      newRange = new Range(commonPrefix + 1, 1, textBufferLineCount - commonSuffix + 1, 1);
+    } else if (commonPrefix > 0) {
+      oldRange = new Range(commonPrefix, model.getLineMaxColumn(commonPrefix), modelLineCount, model.getLineMaxColumn(modelLineCount));
+      newRange = new Range(commonPrefix, 1 + textBuffer.getLineLength(commonPrefix), textBufferLineCount, 1 + textBuffer.getLineLength(textBufferLineCount));
+    } else {
+      oldRange = new Range(1, 1, modelLineCount, model.getLineMaxColumn(modelLineCount));
+      newRange = new Range(1, 1, textBufferLineCount, 1 + textBuffer.getLineLength(textBufferLineCount));
+    }
+    return [EditOperation.replaceMove(oldRange, textBuffer.getValueInRange(
+      newRange,
+      0
+      /* EndOfLinePreference.TextDefined */
+    ))];
+  }
+  createModel(value, languageSelection, resource, isForSimpleWidget = false) {
+    let modelData;
+    if (languageSelection) {
+      modelData = this._createModelData(value, languageSelection, resource, isForSimpleWidget);
+    } else {
+      modelData = this._createModelData(value, PLAINTEXT_LANGUAGE_ID, resource, isForSimpleWidget);
+    }
+    this._onModelAdded.fire(modelData.model);
+    return modelData.model;
+  }
+  destroyModel(resource) {
+    const modelData = this._models[MODEL_ID(resource)];
+    if (!modelData) {
+      return;
+    }
+    modelData.model.dispose();
+  }
+  getModels() {
+    const ret = [];
+    const keys = Object.keys(this._models);
+    for (let i = 0, len = keys.length; i < len; i++) {
+      const modelId = keys[i];
+      ret.push(this._models[modelId].model);
+    }
+    return ret;
+  }
+  getModel(resource) {
+    const modelId = MODEL_ID(resource);
+    const modelData = this._models[modelId];
+    if (!modelData) {
+      return null;
+    }
+    return modelData.model;
+  }
+  // --- end IModelService
+  _schemaShouldMaintainUndoRedoElements(resource) {
+    return resource.scheme === Schemas.file || resource.scheme === Schemas.vscodeRemote || resource.scheme === Schemas.vscodeUserData || resource.scheme === Schemas.vscodeNotebookCell || resource.scheme === "fake-fs";
+  }
+  _onWillDispose(model) {
+    const modelId = MODEL_ID(model.uri);
+    const modelData = this._models[modelId];
+    const sharesUndoRedoStack = this._undoRedoService.getUriComparisonKey(model.uri) !== model.uri.toString();
+    let maintainUndoRedoStack = false;
+    let heapSize = 0;
+    if (sharesUndoRedoStack || this._shouldRestoreUndoStack() && this._schemaShouldMaintainUndoRedoElements(model.uri)) {
+      const elements = this._undoRedoService.getElements(model.uri);
+      if (elements.past.length > 0 || elements.future.length > 0) {
+        for (const element of elements.past) {
+          if (isEditStackElement(element) && element.matchesResource(model.uri)) {
+            maintainUndoRedoStack = true;
+            heapSize += element.heapSize(model.uri);
+            element.setModel(model.uri);
+          }
+        }
+        for (const element of elements.future) {
+          if (isEditStackElement(element) && element.matchesResource(model.uri)) {
+            maintainUndoRedoStack = true;
+            heapSize += element.heapSize(model.uri);
+            element.setModel(model.uri);
+          }
+        }
+      }
+    }
+    const maxMemory = ModelService_1.MAX_MEMORY_FOR_CLOSED_FILES_UNDO_STACK;
+    const sha1Computer = this._getSHA1Computer();
+    if (!maintainUndoRedoStack) {
+      if (!sharesUndoRedoStack) {
+        const initialUndoRedoSnapshot = modelData.model.getInitialUndoRedoSnapshot();
+        if (initialUndoRedoSnapshot !== null) {
+          this._undoRedoService.restoreSnapshot(initialUndoRedoSnapshot);
+        }
+      }
+    } else if (!sharesUndoRedoStack && (heapSize > maxMemory || !sha1Computer.canComputeSHA1(model))) {
+      const initialUndoRedoSnapshot = modelData.model.getInitialUndoRedoSnapshot();
+      if (initialUndoRedoSnapshot !== null) {
+        this._undoRedoService.restoreSnapshot(initialUndoRedoSnapshot);
+      }
+    } else {
+      this._ensureDisposedModelsHeapSize(maxMemory - heapSize);
+      this._undoRedoService.setElementsValidFlag(model.uri, false, (element) => isEditStackElement(element) && element.matchesResource(model.uri));
+      this._insertDisposedModel(new DisposedModelInfo(model.uri, modelData.model.getInitialUndoRedoSnapshot(), Date.now(), sharesUndoRedoStack, heapSize, sha1Computer.computeSHA1(model), model.getVersionId(), model.getAlternativeVersionId()));
+    }
+    delete this._models[modelId];
+    modelData.dispose();
+    delete this._modelCreationOptionsByLanguageAndResource[model.getLanguageId() + model.uri];
+    this._onModelRemoved.fire(model);
+  }
+  _onDidChangeLanguage(model, e) {
+    const oldLanguageId = e.oldLanguage;
+    const newLanguageId = model.getLanguageId();
+    const oldOptions = this.getCreationOptions(oldLanguageId, model.uri, model.isForSimpleWidget);
+    const newOptions = this.getCreationOptions(newLanguageId, model.uri, model.isForSimpleWidget);
+    ModelService_1._setModelOptionsForModel(model, newOptions, oldOptions);
+    this._onModelModeChanged.fire({ model, oldLanguageId });
+  }
+  _getSHA1Computer() {
+    return new DefaultModelSHA1Computer();
+  }
+};
+ModelService = ModelService_1 = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ITextResourcePropertiesService),
+  __param(2, IUndoRedoService),
+  __param(3, IInstantiationService)
+], ModelService);
+class DefaultModelSHA1Computer {
+  static {
+    __name(this, "DefaultModelSHA1Computer");
+  }
+  static {
+    this.MAX_MODEL_SIZE = 10 * 1024 * 1024;
+  }
+  // takes 200ms to compute a sha1 on a 10MB model on a new machine
+  canComputeSHA1(model) {
+    return model.getValueLength() <= DefaultModelSHA1Computer.MAX_MODEL_SIZE;
+  }
+  computeSHA1(model) {
+    const shaComputer = new StringSHA1();
+    const snapshot = model.createSnapshot();
+    let text;
+    while (text = snapshot.read()) {
+      shaComputer.update(text);
+    }
+    return shaComputer.digest();
+  }
+}
+export {
+  DefaultModelSHA1Computer,
+  ModelService
+};
+//# sourceMappingURL=modelService.js.map

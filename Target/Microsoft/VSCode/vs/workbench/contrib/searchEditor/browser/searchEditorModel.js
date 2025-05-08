@@ -1,1 +1,154 @@
-import{IModelService as m}from"../../../../editor/common/services/model.js";import{ILanguageService as f}from"../../../../editor/common/languages/language.js";import{IInstantiationService as p}from"../../../../platform/instantiation/common/instantiation.js";import{parseSavedSearchEditor as y,parseSerializedSearchEditor as M}from"./searchEditorSerialization.js";import{IWorkingCopyBackupService as u}from"../../../services/workingCopy/common/workingCopyBackup.js";import{SearchEditorWorkingCopyTypeId as S}from"./constants.js";import{assertIsDefined as w}from"../../../../base/common/types.js";import{createTextBufferFactoryFromStream as k}from"../../../../editor/common/model/textModel.js";import{Emitter as F}from"../../../../base/common/event.js";import{ResourceMap as E}from"../../../../base/common/map.js";import{SEARCH_RESULT_LANGUAGE_ID as d}from"../../../services/search/common/search.js";class g{constructor(e){this.config=e,this._onConfigDidUpdate=new F,this.onConfigDidUpdate=this._onConfigDidUpdate.event}updateConfig(e){this.config=e,this._onConfigDidUpdate.fire(e)}}class G{constructor(e){this.resource=e}async resolve(){return w(I.models.get(this.resource)).resolve()}}class B{constructor(){this.models=new E}initializeModelFromExistingModel(e,t,r){if(this.models.has(t))throw Error("Unable to contruct model for resource that already exists");const l=e.get(f),n=e.get(m),a=e.get(p),s=e.get(u);let o;this.models.set(t,{resolve:()=>(o||(o=(async()=>{const i=await this.tryFetchModelFromBackupService(t,l,n,s,a);return i||Promise.resolve({resultsModel:n.getModel(t)??n.createModel("",l.createById(d),t),configurationModel:new g(r)})})()),o)})}initializeModelFromRawData(e,t,r,l){if(this.models.has(t))throw Error("Unable to contruct model for resource that already exists");const n=e.get(f),a=e.get(m),s=e.get(p),o=e.get(u);let i;this.models.set(t,{resolve:()=>(i||(i=(async()=>{const c=await this.tryFetchModelFromBackupService(t,n,a,o,s);return c||Promise.resolve({resultsModel:a.createModel(l??"",n.createById(d),t),configurationModel:new g(r)})})()),i)})}initializeModelFromExistingFile(e,t,r){if(this.models.has(t))throw Error("Unable to contruct model for resource that already exists");const l=e.get(f),n=e.get(m),a=e.get(p),s=e.get(u);let o;this.models.set(t,{resolve:async()=>(o||(o=(async()=>{const i=await this.tryFetchModelFromBackupService(t,l,n,s,a);if(i)return i;const{text:c,config:v}=await a.invokeFunction(y,r);return{resultsModel:n.createModel(c??"",l.createById(d),t),configurationModel:new g(v)}})()),o)})}async tryFetchModelFromBackupService(e,t,r,l,n){const a=await l.resolve({resource:e,typeId:S});let s=r.getModel(e);if(!s&&a){const o=await k(a.value);s=r.createModel(o,t.createById(d),e)}if(s){const o=s.getValue(),{text:i,config:c}=M(o);return r.destroyModel(e),{resultsModel:r.createModel(i??"",t.createById(d),e),configurationModel:new g(c)}}else return}}const I=new B;export{g as SearchConfigurationModel,G as SearchEditorModel,I as searchEditorModelFactory};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IModelService } from "../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { parseSavedSearchEditor, parseSerializedSearchEditor } from "./searchEditorSerialization.js";
+import { IWorkingCopyBackupService } from "../../../services/workingCopy/common/workingCopyBackup.js";
+import { SearchEditorWorkingCopyTypeId } from "./constants.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { createTextBufferFactoryFromStream } from "../../../../editor/common/model/textModel.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { SEARCH_RESULT_LANGUAGE_ID } from "../../../services/search/common/search.js";
+class SearchConfigurationModel {
+  static {
+    __name(this, "SearchConfigurationModel");
+  }
+  constructor(config) {
+    this.config = config;
+    this._onConfigDidUpdate = new Emitter();
+    this.onConfigDidUpdate = this._onConfigDidUpdate.event;
+  }
+  updateConfig(config) {
+    this.config = config;
+    this._onConfigDidUpdate.fire(config);
+  }
+}
+class SearchEditorModel {
+  static {
+    __name(this, "SearchEditorModel");
+  }
+  constructor(resource) {
+    this.resource = resource;
+  }
+  async resolve() {
+    return assertIsDefined(searchEditorModelFactory.models.get(this.resource)).resolve();
+  }
+}
+class SearchEditorModelFactory {
+  static {
+    __name(this, "SearchEditorModelFactory");
+  }
+  constructor() {
+    this.models = new ResourceMap();
+  }
+  initializeModelFromExistingModel(accessor, resource, config) {
+    if (this.models.has(resource)) {
+      throw Error("Unable to contruct model for resource that already exists");
+    }
+    const languageService = accessor.get(ILanguageService);
+    const modelService = accessor.get(IModelService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const workingCopyBackupService = accessor.get(IWorkingCopyBackupService);
+    let ongoingResolve;
+    this.models.set(resource, {
+      resolve: /* @__PURE__ */ __name(() => {
+        if (!ongoingResolve) {
+          ongoingResolve = (async () => {
+            const backup = await this.tryFetchModelFromBackupService(resource, languageService, modelService, workingCopyBackupService, instantiationService);
+            if (backup) {
+              return backup;
+            }
+            return Promise.resolve({
+              resultsModel: modelService.getModel(resource) ?? modelService.createModel("", languageService.createById(SEARCH_RESULT_LANGUAGE_ID), resource),
+              configurationModel: new SearchConfigurationModel(config)
+            });
+          })();
+        }
+        return ongoingResolve;
+      }, "resolve")
+    });
+  }
+  initializeModelFromRawData(accessor, resource, config, contents) {
+    if (this.models.has(resource)) {
+      throw Error("Unable to contruct model for resource that already exists");
+    }
+    const languageService = accessor.get(ILanguageService);
+    const modelService = accessor.get(IModelService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const workingCopyBackupService = accessor.get(IWorkingCopyBackupService);
+    let ongoingResolve;
+    this.models.set(resource, {
+      resolve: /* @__PURE__ */ __name(() => {
+        if (!ongoingResolve) {
+          ongoingResolve = (async () => {
+            const backup = await this.tryFetchModelFromBackupService(resource, languageService, modelService, workingCopyBackupService, instantiationService);
+            if (backup) {
+              return backup;
+            }
+            return Promise.resolve({
+              resultsModel: modelService.createModel(contents ?? "", languageService.createById(SEARCH_RESULT_LANGUAGE_ID), resource),
+              configurationModel: new SearchConfigurationModel(config)
+            });
+          })();
+        }
+        return ongoingResolve;
+      }, "resolve")
+    });
+  }
+  initializeModelFromExistingFile(accessor, resource, existingFile) {
+    if (this.models.has(resource)) {
+      throw Error("Unable to contruct model for resource that already exists");
+    }
+    const languageService = accessor.get(ILanguageService);
+    const modelService = accessor.get(IModelService);
+    const instantiationService = accessor.get(IInstantiationService);
+    const workingCopyBackupService = accessor.get(IWorkingCopyBackupService);
+    let ongoingResolve;
+    this.models.set(resource, {
+      resolve: /* @__PURE__ */ __name(async () => {
+        if (!ongoingResolve) {
+          ongoingResolve = (async () => {
+            const backup = await this.tryFetchModelFromBackupService(resource, languageService, modelService, workingCopyBackupService, instantiationService);
+            if (backup) {
+              return backup;
+            }
+            const { text, config } = await instantiationService.invokeFunction(parseSavedSearchEditor, existingFile);
+            return {
+              resultsModel: modelService.createModel(text ?? "", languageService.createById(SEARCH_RESULT_LANGUAGE_ID), resource),
+              configurationModel: new SearchConfigurationModel(config)
+            };
+          })();
+        }
+        return ongoingResolve;
+      }, "resolve")
+    });
+  }
+  async tryFetchModelFromBackupService(resource, languageService, modelService, workingCopyBackupService, instantiationService) {
+    const backup = await workingCopyBackupService.resolve({ resource, typeId: SearchEditorWorkingCopyTypeId });
+    let model = modelService.getModel(resource);
+    if (!model && backup) {
+      const factory = await createTextBufferFactoryFromStream(backup.value);
+      model = modelService.createModel(factory, languageService.createById(SEARCH_RESULT_LANGUAGE_ID), resource);
+    }
+    if (model) {
+      const existingFile = model.getValue();
+      const { text, config } = parseSerializedSearchEditor(existingFile);
+      modelService.destroyModel(resource);
+      return {
+        resultsModel: modelService.createModel(text ?? "", languageService.createById(SEARCH_RESULT_LANGUAGE_ID), resource),
+        configurationModel: new SearchConfigurationModel(config)
+      };
+    } else {
+      return void 0;
+    }
+  }
+}
+const searchEditorModelFactory = new SearchEditorModelFactory();
+export {
+  SearchConfigurationModel,
+  SearchEditorModel,
+  searchEditorModelFactory
+};
+//# sourceMappingURL=searchEditorModel.js.map

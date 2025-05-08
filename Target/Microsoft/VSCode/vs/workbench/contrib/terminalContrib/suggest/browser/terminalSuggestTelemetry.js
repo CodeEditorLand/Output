@@ -1,1 +1,97 @@
-import{Disposable as f}from"../../../../../base/common/lifecycle.js";import{ITelemetryService as m}from"../../../../../platform/telemetry/common/telemetry.js";import{TerminalCompletionItemKind as r}from"./terminalCompletionItem.js";var a=function(t,e,n,i){var o=arguments.length,l=o<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")l=Reflect.decorate(t,e,n,i);else for(var s=t.length-1;s>=0;s--)(d=t[s])&&(l=(o<3?d(l):o>3?d(e,n,l):d(e,n))||l);return o>3&&l&&Object.defineProperty(e,n,l),l},u=function(t,e){return function(n,i){e(n,i,t)}};let p=class extends f{constructor(e,n,i){super(),this._promptInputModel=n,this._telemetryService=i,this._kindMap=new Map([[r.File,"File"],[r.Folder,"Folder"],[r.Method,"Method"],[r.Alias,"Alias"],[r.Argument,"Argument"],[r.Option,"Option"],[r.OptionValue,"Option Value"],[r.Flag,"Flag"],[r.InlineSuggestion,"Inline Suggestion"],[r.InlineSuggestionAlwaysOnTop,"Inline Suggestion"]]),this._register(e.onCommandFinished(o=>{this._sendTelemetryInfo(!1,o.exitCode),this._acceptedCompletions=void 0})),this._register(this._promptInputModel.onDidInterrupt(()=>{this._sendTelemetryInfo(!0),this._acceptedCompletions=void 0}))}acceptCompletion(e,n){if(!e||!n){this._acceptedCompletions=void 0;return}this._acceptedCompletions=this._acceptedCompletions||[],this._acceptedCompletions.push({label:typeof e.label=="string"?e.label:e.label.label,kind:this._kindMap.get(e.kind)})}_sendTelemetryInfo(e,n){const i=this._promptInputModel?.value;for(const o of this._acceptedCompletions||[]){const l=o?.label,d=o?.kind;if(l===void 0||i===void 0||d===void 0)return;let s;e?s="Interrupted":i.trim()&&i.includes(l)?s="Accepted":h(i,l)?s="AcceptedWithEdit":s="Deleted",this._telemetryService.publicLog2("terminal.suggest.acceptedCompletion",{kind:d,outcome:s,exitCode:n})}}};p=a([u(2,m)],p);var c;(function(t){t.Accepted="Accepted",t.Deleted="Deleted",t.AcceptedWithEdit="AcceptedWithEdit",t.Interrupted="Interrupted"})(c||(c={}));function h(t,e){return t.includes(e.substring(0,Math.ceil(e.length/2)))}export{p as TerminalSuggestTelemetry};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { ITelemetryService } from "../../../../../platform/telemetry/common/telemetry.js";
+import { TerminalCompletionItemKind } from "./terminalCompletionItem.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let TerminalSuggestTelemetry = class TerminalSuggestTelemetry2 extends Disposable {
+  static {
+    __name(this, "TerminalSuggestTelemetry");
+  }
+  constructor(commandDetection, _promptInputModel, _telemetryService) {
+    super();
+    this._promptInputModel = _promptInputModel;
+    this._telemetryService = _telemetryService;
+    this._kindMap = /* @__PURE__ */ new Map([
+      [TerminalCompletionItemKind.File, "File"],
+      [TerminalCompletionItemKind.Folder, "Folder"],
+      [TerminalCompletionItemKind.Method, "Method"],
+      [TerminalCompletionItemKind.Alias, "Alias"],
+      [TerminalCompletionItemKind.Argument, "Argument"],
+      [TerminalCompletionItemKind.Option, "Option"],
+      [TerminalCompletionItemKind.OptionValue, "Option Value"],
+      [TerminalCompletionItemKind.Flag, "Flag"],
+      [TerminalCompletionItemKind.InlineSuggestion, "Inline Suggestion"],
+      [TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop, "Inline Suggestion"]
+    ]);
+    this._register(commandDetection.onCommandFinished((e) => {
+      this._sendTelemetryInfo(false, e.exitCode);
+      this._acceptedCompletions = void 0;
+    }));
+    this._register(this._promptInputModel.onDidInterrupt(() => {
+      this._sendTelemetryInfo(true);
+      this._acceptedCompletions = void 0;
+    }));
+  }
+  acceptCompletion(completion, commandLine) {
+    if (!completion || !commandLine) {
+      this._acceptedCompletions = void 0;
+      return;
+    }
+    this._acceptedCompletions = this._acceptedCompletions || [];
+    this._acceptedCompletions.push({ label: typeof completion.label === "string" ? completion.label : completion.label.label, kind: this._kindMap.get(completion.kind) });
+  }
+  _sendTelemetryInfo(fromInterrupt, exitCode) {
+    const commandLine = this._promptInputModel?.value;
+    for (const completion of this._acceptedCompletions || []) {
+      const label = completion?.label;
+      const kind = completion?.kind;
+      if (label === void 0 || commandLine === void 0 || kind === void 0) {
+        return;
+      }
+      let outcome;
+      if (fromInterrupt) {
+        outcome = "Interrupted";
+      } else if (commandLine.trim() && commandLine.includes(label)) {
+        outcome = "Accepted";
+      } else if (inputContainsFirstHalfOfLabel(commandLine, label)) {
+        outcome = "AcceptedWithEdit";
+      } else {
+        outcome = "Deleted";
+      }
+      this._telemetryService.publicLog2("terminal.suggest.acceptedCompletion", {
+        kind,
+        outcome,
+        exitCode
+      });
+    }
+  }
+};
+TerminalSuggestTelemetry = __decorate([
+  __param(2, ITelemetryService)
+], TerminalSuggestTelemetry);
+var CompletionOutcome;
+(function(CompletionOutcome2) {
+  CompletionOutcome2["Accepted"] = "Accepted";
+  CompletionOutcome2["Deleted"] = "Deleted";
+  CompletionOutcome2["AcceptedWithEdit"] = "AcceptedWithEdit";
+  CompletionOutcome2["Interrupted"] = "Interrupted";
+})(CompletionOutcome || (CompletionOutcome = {}));
+function inputContainsFirstHalfOfLabel(commandLine, label) {
+  return commandLine.includes(label.substring(0, Math.ceil(label.length / 2)));
+}
+__name(inputContainsFirstHalfOfLabel, "inputContainsFirstHalfOfLabel");
+export {
+  TerminalSuggestTelemetry
+};
+//# sourceMappingURL=terminalSuggestTelemetry.js.map

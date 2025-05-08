@@ -1,2 +1,98 @@
-import{Range as R}from"../../../../editor/common/core/range.js";const E=(a,T,s)=>{let l;if(a[0]===255&&a[1]===254)l=new TextDecoder("utf-16le").decode(a);else if(a[0]===254&&a[1]===255)l=new TextDecoder("utf-16be").decode(a);else if(l=new TextDecoder("utf8").decode(a),l.slice(0,1e3).includes("\uFFFD")&&a.includes(0))return[];const u=[],x=[];let f=null,g=s.remainingResultQuota;for(;g>=0&&(f=T.exec(l));)x.push({matchStartIndex:f.index,matchedText:f[0]}),g--;if(x.length){const w=new Set,p=new Set,e=[],m=t=>l.slice(e[t].start,e[t].end);let c=0,d=null;const M=/\r?\n/g;for(;d=M.exec(l);)e.push({start:c,end:d.index}),c=d.index+d[0].length;c<l.length&&e.push({start:c,end:l.length});let n=0;for(const{matchStartIndex:t,matchedText:L}of x){if(g<0)break;for(;e[n+1]&&t>e[n].end;)n++;let i=n;for(;e[i+1]&&t+L.length>e[i].end;)i++;if(s.surroundingContext)for(let r=Math.max(0,n-s.surroundingContext);r<n;r++)w.add(r);let v="",o=0;for(let r=n;r<=i;r++){let h=m(r);s.previewOptions?.charsPerLine&&h.length>s.previewOptions.charsPerLine&&(o=Math.max(t-e[n].start-20,0),h=h.substr(o,s.previewOptions.charsPerLine)),v+=`${h}
-`,p.add(r)}const C=new R(n,t-e[n].start,i,t+L.length-e[i].start),D=new R(0,t-e[n].start-o,i-n,t+L.length-e[i].start-(i===n?o:0)),F={rangeLocations:[{source:C,preview:D}],previewText:v};if(u.push(F),s.surroundingContext)for(let r=i+1;r<=Math.min(i+s.surroundingContext,e.length-1);r++)w.add(r)}for(const t of w)p.has(t)||u.push({text:m(t),lineNumber:t+1})}return u};export{E as getFileResults};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Range } from "../../../../editor/common/core/range.js";
+const getFileResults = /* @__PURE__ */ __name((bytes, pattern, options) => {
+  let text;
+  if (bytes[0] === 255 && bytes[1] === 254) {
+    text = new TextDecoder("utf-16le").decode(bytes);
+  } else if (bytes[0] === 254 && bytes[1] === 255) {
+    text = new TextDecoder("utf-16be").decode(bytes);
+  } else {
+    text = new TextDecoder("utf8").decode(bytes);
+    if (text.slice(0, 1e3).includes("\uFFFD") && bytes.includes(0)) {
+      return [];
+    }
+  }
+  const results = [];
+  const patternIndecies = [];
+  let patternMatch = null;
+  let remainingResultQuota = options.remainingResultQuota;
+  while (remainingResultQuota >= 0 && (patternMatch = pattern.exec(text))) {
+    patternIndecies.push({ matchStartIndex: patternMatch.index, matchedText: patternMatch[0] });
+    remainingResultQuota--;
+  }
+  if (patternIndecies.length) {
+    const contextLinesNeeded = /* @__PURE__ */ new Set();
+    const resultLines = /* @__PURE__ */ new Set();
+    const lineRanges = [];
+    const readLine = /* @__PURE__ */ __name((lineNumber) => text.slice(lineRanges[lineNumber].start, lineRanges[lineNumber].end), "readLine");
+    let prevLineEnd = 0;
+    let lineEndingMatch = null;
+    const lineEndRegex = /\r?\n/g;
+    while (lineEndingMatch = lineEndRegex.exec(text)) {
+      lineRanges.push({ start: prevLineEnd, end: lineEndingMatch.index });
+      prevLineEnd = lineEndingMatch.index + lineEndingMatch[0].length;
+    }
+    if (prevLineEnd < text.length) {
+      lineRanges.push({ start: prevLineEnd, end: text.length });
+    }
+    let startLine = 0;
+    for (const { matchStartIndex, matchedText } of patternIndecies) {
+      if (remainingResultQuota < 0) {
+        break;
+      }
+      while (Boolean(lineRanges[startLine + 1]) && matchStartIndex > lineRanges[startLine].end) {
+        startLine++;
+      }
+      let endLine = startLine;
+      while (Boolean(lineRanges[endLine + 1]) && matchStartIndex + matchedText.length > lineRanges[endLine].end) {
+        endLine++;
+      }
+      if (options.surroundingContext) {
+        for (let contextLine = Math.max(0, startLine - options.surroundingContext); contextLine < startLine; contextLine++) {
+          contextLinesNeeded.add(contextLine);
+        }
+      }
+      let previewText = "";
+      let offset = 0;
+      for (let matchLine = startLine; matchLine <= endLine; matchLine++) {
+        let previewLine = readLine(matchLine);
+        if (options.previewOptions?.charsPerLine && previewLine.length > options.previewOptions.charsPerLine) {
+          offset = Math.max(matchStartIndex - lineRanges[startLine].start - 20, 0);
+          previewLine = previewLine.substr(offset, options.previewOptions.charsPerLine);
+        }
+        previewText += `${previewLine}
+`;
+        resultLines.add(matchLine);
+      }
+      const fileRange = new Range(startLine, matchStartIndex - lineRanges[startLine].start, endLine, matchStartIndex + matchedText.length - lineRanges[endLine].start);
+      const previewRange = new Range(0, matchStartIndex - lineRanges[startLine].start - offset, endLine - startLine, matchStartIndex + matchedText.length - lineRanges[endLine].start - (endLine === startLine ? offset : 0));
+      const match = {
+        rangeLocations: [{
+          source: fileRange,
+          preview: previewRange
+        }],
+        previewText
+      };
+      results.push(match);
+      if (options.surroundingContext) {
+        for (let contextLine = endLine + 1; contextLine <= Math.min(endLine + options.surroundingContext, lineRanges.length - 1); contextLine++) {
+          contextLinesNeeded.add(contextLine);
+        }
+      }
+    }
+    for (const contextLine of contextLinesNeeded) {
+      if (!resultLines.has(contextLine)) {
+        results.push({
+          text: readLine(contextLine),
+          lineNumber: contextLine + 1
+        });
+      }
+    }
+  }
+  return results;
+}, "getFileResults");
+export {
+  getFileResults
+};
+//# sourceMappingURL=getFileResults.js.map

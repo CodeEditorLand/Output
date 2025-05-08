@@ -1,1 +1,47 @@
-import{Disposable as a,DisposableMap as g}from"../../../base/common/lifecycle.js";import{ExtHostContext as b,MainContext as f}from"../common/extHost.protocol.js";import{IAiEmbeddingVectorService as h}from"../../services/aiEmbeddingVector/common/aiEmbeddingVectorService.js";import{extHostNamedCustomer as _}from"../../services/extensions/common/extHostCustomers.js";var m=function(o,e,r,t){var n=arguments.length,i=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,e,r,t);else for(var s=o.length-1;s>=0;s--)(d=o[s])&&(i=(n<3?d(i):n>3?d(e,r,i):d(e,r))||i);return n>3&&i&&Object.defineProperty(e,r,i),i},p=function(o,e){return function(r,t){e(r,t,o)}};let c=class extends a{constructor(e,r){super(),this._AiEmbeddingVectorService=r,this._registrations=this._register(new g),this._proxy=e.getProxy(b.ExtHostAiEmbeddingVector)}$registerAiEmbeddingVectorProvider(e,r){const t={provideAiEmbeddingVector:(n,i)=>this._proxy.$provideAiEmbeddingVector(r,n,i)};this._registrations.set(r,this._AiEmbeddingVectorService.registerAiEmbeddingVectorProvider(e,t))}$unregisterAiEmbeddingVectorProvider(e){this._registrations.deleteAndDispose(e)}};c=m([_(f.MainThreadAiEmbeddingVector),p(1,h)],c);export{c as MainThreadAiEmbeddingVector};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableMap } from "../../../base/common/lifecycle.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { IAiEmbeddingVectorService } from "../../services/aiEmbeddingVector/common/aiEmbeddingVectorService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let MainThreadAiEmbeddingVector = class MainThreadAiEmbeddingVector2 extends Disposable {
+  static {
+    __name(this, "MainThreadAiEmbeddingVector");
+  }
+  constructor(context, _AiEmbeddingVectorService) {
+    super();
+    this._AiEmbeddingVectorService = _AiEmbeddingVectorService;
+    this._registrations = this._register(new DisposableMap());
+    this._proxy = context.getProxy(ExtHostContext.ExtHostAiEmbeddingVector);
+  }
+  $registerAiEmbeddingVectorProvider(model, handle) {
+    const provider = {
+      provideAiEmbeddingVector: /* @__PURE__ */ __name((strings, token) => {
+        return this._proxy.$provideAiEmbeddingVector(handle, strings, token);
+      }, "provideAiEmbeddingVector")
+    };
+    this._registrations.set(handle, this._AiEmbeddingVectorService.registerAiEmbeddingVectorProvider(model, provider));
+  }
+  $unregisterAiEmbeddingVectorProvider(handle) {
+    this._registrations.deleteAndDispose(handle);
+  }
+};
+MainThreadAiEmbeddingVector = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadAiEmbeddingVector),
+  __param(1, IAiEmbeddingVectorService)
+], MainThreadAiEmbeddingVector);
+export {
+  MainThreadAiEmbeddingVector
+};
+//# sourceMappingURL=mainThreadAiEmbeddingVector.js.map

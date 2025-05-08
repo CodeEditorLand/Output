@@ -1,1 +1,122 @@
-import{Disposable as m}from"../../../../../base/common/lifecycle.js";import{escapeRegExpCharacters as x}from"../../../../../base/common/strings.js";import{URI as d}from"../../../../../base/common/uri.js";import{IConfigurationService as g}from"../../../../../platform/configuration/common/configuration.js";import{matchesScheme as _}from"../../../../../base/common/network.js";import{IProductService as S}from"../../../../../platform/product/common/productService.js";import{convertLinkRangeToBuffer as C,getXtermLineContent as v}from"./terminalLinkHelpers.js";import{TERMINAL_CONFIG_SECTION as L}from"../../../terminal/common/terminal.js";var l=function(s,n,r,e){var i=arguments.length,t=i<3?n:e===null?e=Object.getOwnPropertyDescriptor(n,r):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,n,r,e);else for(var o=s.length-1;o>=0;o--)(a=s[o])&&(t=(i<3?a(t):i>3?a(n,r,t):a(n,r))||t);return i>3&&t&&Object.defineProperty(n,r,t),t},h=function(s,n){return function(r,e){n(r,e,s)}},p;(function(s){s[s.MaxLineLength=2e3]="MaxLineLength"})(p||(p={}));let u=class extends m{static{this.id="word"}constructor(n,r,e){super(),this.xterm=n,this._configurationService=r,this._productService=e,this.maxLinkLength=100,this._refreshSeparatorCodes(),this._register(this._configurationService.onDidChangeConfiguration(i=>{i.affectsConfiguration("terminal.integrated.wordSeparators")&&this._refreshSeparatorCodes()}))}detect(n,r,e){const i=[],t=v(this.xterm.buffer.active,r,e,this.xterm.cols);if(t===""||t.length>2e3)return[];const a=this._parseWords(t);for(const o of a){if(o.text==="")continue;o.text.length>0&&o.text.charAt(o.text.length-1)===":"&&(o.text=o.text.slice(0,-1),o.endIndex--);const c=C(n,this.xterm.cols,{startColumn:o.startIndex+1,startLineNumber:1,endColumn:o.endIndex+1,endLineNumber:1},r);if(_(o.text,this._productService.urlProtocol)){const f=d.parse(o.text);f&&i.push({text:o.text,uri:f,bufferRange:c,type:"Url"});continue}i.push({text:o.text,bufferRange:c,type:"Search",contextLine:t})}return i}_parseWords(n){const r=[],e=n.split(this._separatorRegex);let i=0;for(let t=0;t<e.length;t++)r.push({text:e[t],startIndex:i,endIndex:i+e[t].length}),i+=e[t].length+1;return r}_refreshSeparatorCodes(){const n=this._configurationService.getValue(L).wordSeparators;let r="";for(let e=57520;e<=57535;e++)r+=String.fromCharCode(e);this._separatorRegex=new RegExp(`[${x(n)}${r}]`,"g")}};u=l([h(1,g),h(2,S)],u);export{u as TerminalWordLinkDetector};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { escapeRegExpCharacters } from "../../../../../base/common/strings.js";
+import { URI } from "../../../../../base/common/uri.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { matchesScheme } from "../../../../../base/common/network.js";
+import { IProductService } from "../../../../../platform/product/common/productService.js";
+import { convertLinkRangeToBuffer, getXtermLineContent } from "./terminalLinkHelpers.js";
+import { TERMINAL_CONFIG_SECTION } from "../../../terminal/common/terminal.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var Constants;
+(function(Constants2) {
+  Constants2[Constants2["MaxLineLength"] = 2e3] = "MaxLineLength";
+})(Constants || (Constants = {}));
+let TerminalWordLinkDetector = class TerminalWordLinkDetector2 extends Disposable {
+  static {
+    __name(this, "TerminalWordLinkDetector");
+  }
+  static {
+    this.id = "word";
+  }
+  constructor(xterm, _configurationService, _productService) {
+    super();
+    this.xterm = xterm;
+    this._configurationService = _configurationService;
+    this._productService = _productService;
+    this.maxLinkLength = 100;
+    this._refreshSeparatorCodes();
+    this._register(this._configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(
+        "terminal.integrated.wordSeparators"
+        /* TerminalSettingId.WordSeparators */
+      )) {
+        this._refreshSeparatorCodes();
+      }
+    }));
+  }
+  detect(lines, startLine, endLine) {
+    const links = [];
+    const text = getXtermLineContent(this.xterm.buffer.active, startLine, endLine, this.xterm.cols);
+    if (text === "" || text.length > 2e3) {
+      return [];
+    }
+    const words = this._parseWords(text);
+    for (const word of words) {
+      if (word.text === "") {
+        continue;
+      }
+      if (word.text.length > 0 && word.text.charAt(word.text.length - 1) === ":") {
+        word.text = word.text.slice(0, -1);
+        word.endIndex--;
+      }
+      const bufferRange = convertLinkRangeToBuffer(lines, this.xterm.cols, {
+        startColumn: word.startIndex + 1,
+        startLineNumber: 1,
+        endColumn: word.endIndex + 1,
+        endLineNumber: 1
+      }, startLine);
+      if (matchesScheme(word.text, this._productService.urlProtocol)) {
+        const uri = URI.parse(word.text);
+        if (uri) {
+          links.push({
+            text: word.text,
+            uri,
+            bufferRange,
+            type: "Url"
+            /* TerminalBuiltinLinkType.Url */
+          });
+        }
+        continue;
+      }
+      links.push({
+        text: word.text,
+        bufferRange,
+        type: "Search",
+        contextLine: text
+      });
+    }
+    return links;
+  }
+  _parseWords(text) {
+    const words = [];
+    const splitWords = text.split(this._separatorRegex);
+    let runningIndex = 0;
+    for (let i = 0; i < splitWords.length; i++) {
+      words.push({
+        text: splitWords[i],
+        startIndex: runningIndex,
+        endIndex: runningIndex + splitWords[i].length
+      });
+      runningIndex += splitWords[i].length + 1;
+    }
+    return words;
+  }
+  _refreshSeparatorCodes() {
+    const separators = this._configurationService.getValue(TERMINAL_CONFIG_SECTION).wordSeparators;
+    let powerlineSymbols = "";
+    for (let i = 57520; i <= 57535; i++) {
+      powerlineSymbols += String.fromCharCode(i);
+    }
+    this._separatorRegex = new RegExp(`[${escapeRegExpCharacters(separators)}${powerlineSymbols}]`, "g");
+  }
+};
+TerminalWordLinkDetector = __decorate([
+  __param(1, IConfigurationService),
+  __param(2, IProductService)
+], TerminalWordLinkDetector);
+export {
+  TerminalWordLinkDetector
+};
+//# sourceMappingURL=terminalWordLinkDetector.js.map

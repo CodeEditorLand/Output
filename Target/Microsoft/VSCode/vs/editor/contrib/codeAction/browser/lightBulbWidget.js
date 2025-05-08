@@ -1,1 +1,436 @@
-import*as b from"../../../../base/browser/dom.js";import{Gesture as X}from"../../../../base/browser/touch.js";import{Codicon as d}from"../../../../base/common/codicons.js";import{Emitter as j,Event as $}from"../../../../base/common/event.js";import{Disposable as Q}from"../../../../base/common/lifecycle.js";import{ThemeIcon as A}from"../../../../base/common/themables.js";import"./lightBulbWidget.css";import{GlyphMarginLane as T}from"../../../common/model.js";import{ModelDecorationOptions as N}from"../../../common/model/textModel.js";import{computeIndentLevel as J}from"../../../common/model/utils.js";import{autoFixCommandId as V,quickFixCommandId as Y}from"./codeAction.js";import*as u from"../../../../nls.js";import{IKeybindingService as Z}from"../../../../platform/keybinding/common/keybinding.js";import{registerIcon as m}from"../../../../platform/theme/common/iconRegistry.js";import{Range as y}from"../../../common/core/range.js";var z=function(h,t,i,e){var n=arguments.length,r=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,i):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(h,t,i,e);else for(var o=h.length-1;o>=0;o--)(s=h[o])&&(r=(n<3?s(r):n>3?s(t,i,r):s(t,i))||r);return n>3&&r&&Object.defineProperty(t,i,r),r},q=function(h,t){return function(i,e){t(i,e,h)}},p;const F=m("gutter-lightbulb",d.lightBulb,u.localize("gutterLightbulbWidget","Icon which spawns code actions menu from the gutter when there is no space in the editor.")),k=m("gutter-lightbulb-auto-fix",d.lightbulbAutofix,u.localize("gutterLightbulbAutoFixWidget","Icon which spawns code actions menu from the gutter when there is no space in the editor and a quick fix is available.")),G=m("gutter-lightbulb-sparkle",d.lightbulbSparkle,u.localize("gutterLightbulbAIFixWidget","Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix is available.")),O=m("gutter-lightbulb-aifix-auto-fix",d.lightbulbSparkleAutofix,u.localize("gutterLightbulbAIFixAutoFixWidget","Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix and a quick fix is available.")),H=m("gutter-lightbulb-sparkle-filled",d.sparkleFilled,u.localize("gutterLightbulbSparkleFilledWidget","Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix and a quick fix is available."));var l;(function(h){let t;(function(e){e[e.Hidden=0]="Hidden",e[e.Showing=1]="Showing"})(t=h.Type||(h.Type={})),h.Hidden={type:0};class i{constructor(n,r,s,o){this.actions=n,this.trigger=r,this.editorPosition=s,this.widgetPosition=o,this.type=1}}h.Showing=i})(l||(l={}));let P=class extends Q{static{p=this}static{this.GUTTER_DECORATION=N.register({description:"codicon-gutter-lightbulb-decoration",glyphMarginClassName:A.asClassName(d.lightBulb),glyphMargin:{position:T.Left},stickiness:1})}static{this.ID="editor.contrib.lightbulbWidget"}static{this._posPref=[0]}constructor(t,i){super(),this._editor=t,this._keybindingService=i,this._onClick=this._register(new j),this.onClick=this._onClick.event,this._state=l.Hidden,this._gutterState=l.Hidden,this._iconClasses=[],this.lightbulbClasses=["codicon-"+F.id,"codicon-"+O.id,"codicon-"+k.id,"codicon-"+G.id,"codicon-"+H.id],this.gutterDecoration=p.GUTTER_DECORATION,this._domNode=b.$("div.lightBulbWidget"),this._domNode.role="listbox",this._register(X.ignoreTarget(this._domNode)),this._editor.addContentWidget(this),this._register(this._editor.onDidChangeModelContent(e=>{const n=this._editor.getModel();(this.state.type!==1||!n||this.state.editorPosition.lineNumber>=n.getLineCount())&&this.hide(),(this.gutterState.type!==1||!n||this.gutterState.editorPosition.lineNumber>=n.getLineCount())&&this.gutterHide()})),this._register(b.addStandardDisposableGenericMouseDownListener(this._domNode,e=>{if(this.state.type!==1)return;this._editor.focus(),e.preventDefault();const{top:n,height:r}=b.getDomNodePagePosition(this._domNode),s=this._editor.getOption(68);let o=Math.floor(s/3);this.state.widgetPosition.position!==null&&this.state.widgetPosition.position.lineNumber<this.state.editorPosition.lineNumber&&(o+=s),this._onClick.fire({x:e.posx,y:n+r+o,actions:this.state.actions,trigger:this.state.trigger})})),this._register(b.addDisposableListener(this._domNode,"mouseenter",e=>{(e.buttons&1)===1&&this.hide()})),this._register($.runAndSubscribe(this._keybindingService.onDidUpdateKeybindings,()=>{this._preferredKbLabel=this._keybindingService.lookupKeybinding(V)?.getLabel()??void 0,this._quickFixKbLabel=this._keybindingService.lookupKeybinding(Y)?.getLabel()??void 0,this._updateLightBulbTitleAndIcon()})),this._register(this._editor.onMouseDown(async e=>{if(!e.target.element||!this.lightbulbClasses.some(I=>e.target.element&&e.target.element.classList.contains(I))||this.gutterState.type!==1)return;this._editor.focus();const{top:n,height:r}=b.getDomNodePagePosition(e.target.element),s=this._editor.getOption(68);let o=Math.floor(s/3);this.gutterState.widgetPosition.position!==null&&this.gutterState.widgetPosition.position.lineNumber<this.gutterState.editorPosition.lineNumber&&(o+=s),this._onClick.fire({x:e.event.posx,y:n+r+o,actions:this.gutterState.actions,trigger:this.gutterState.trigger})}))}dispose(){super.dispose(),this._editor.removeContentWidget(this),this._gutterDecorationID&&this._removeGutterDecoration(this._gutterDecorationID)}getId(){return"LightBulbWidget"}getDomNode(){return this._domNode}getPosition(){return this._state.type===1?this._state.widgetPosition:null}update(t,i,e){if(t.validActions.length<=0)return this.gutterHide(),this.hide();if(!this._editor.hasTextFocus())return this.gutterHide(),this.hide();if(!this._editor.getOptions().get(66).enabled)return this.gutterHide(),this.hide();const s=this._editor.getModel();if(!s)return this.gutterHide(),this.hide();const{lineNumber:o,column:I}=s.validatePosition(e),E=s.getOptions().tabSize,S=this._editor.getOptions().get(52),R=s.getLineContent(o),W=J(R,E),B=S.spaceWidth*W>22,x=a=>a>2&&this._editor.getTopForLineNumber(a)===this._editor.getTopForLineNumber(a-1),v=this._editor.getLineDecorations(o);let D=!1;if(v)for(const a of v){const f=a.options.glyphMarginClassName;if(f&&!this.lightbulbClasses.some(g=>f.includes(g))){D=!0;break}}let c=o,_=1;if(!B){const a=f=>{const g=s.getLineContent(f);return/^\s*$|^\s+/.test(g)||g.length<=_};if(o>1&&!x(o-1)){const f=s.getLineCount(),g=o===f,L=o>1&&a(o-1),C=!g&&a(o+1),w=a(o),K=!C&&!L;if(!C&&!L&&!D)return this.gutterState=new l.Showing(t,i,e,{position:{lineNumber:c,column:_},preference:p._posPref}),this.renderGutterLightbub(),this.hide();L||g||L&&!w?c-=1:(C||K&&w)&&(c+=1)}else if(o===1&&(o===s.getLineCount()||!a(o+1)&&!a(o)))if(this.gutterState=new l.Showing(t,i,e,{position:{lineNumber:c,column:_},preference:p._posPref}),D)this.gutterHide();else return this.renderGutterLightbub(),this.hide();else if(o<s.getLineCount()&&!x(o+1))c+=1;else if(I*S.spaceWidth<22)return this.hide();_=/^\S\s*$/.test(s.getLineContent(c))?2:1}this.state=new l.Showing(t,i,e,{position:{lineNumber:c,column:_},preference:p._posPref}),this._gutterDecorationID&&(this._removeGutterDecoration(this._gutterDecorationID),this.gutterHide());const M=t.validActions,U=t.validActions[0].action.kind;if(M.length!==1||!U){this._editor.layoutContentWidget(this);return}this._editor.layoutContentWidget(this)}hide(){this.state!==l.Hidden&&(this.state=l.Hidden,this._editor.layoutContentWidget(this))}gutterHide(){this.gutterState!==l.Hidden&&(this._gutterDecorationID&&this._removeGutterDecoration(this._gutterDecorationID),this.gutterState=l.Hidden)}get state(){return this._state}set state(t){this._state=t,this._updateLightBulbTitleAndIcon()}get gutterState(){return this._gutterState}set gutterState(t){this._gutterState=t,this._updateGutterLightBulbTitleAndIcon()}_updateLightBulbTitleAndIcon(){if(this._domNode.classList.remove(...this._iconClasses),this._iconClasses=[],this.state.type!==1)return;let t,i=!1;this.state.actions.allAIFixes?(t=d.sparkleFilled,this.state.actions.validActions.length===1&&(i=!0)):this.state.actions.hasAutoFix?this.state.actions.hasAIFix?t=d.lightbulbSparkleAutofix:t=d.lightbulbAutofix:this.state.actions.hasAIFix?t=d.lightbulbSparkle:t=d.lightBulb,this._updateLightbulbTitle(this.state.actions.hasAutoFix,i),this._iconClasses=A.asClassNameArray(t),this._domNode.classList.add(...this._iconClasses)}_updateGutterLightBulbTitleAndIcon(){if(this.gutterState.type!==1)return;let t,i=!1;this.gutterState.actions.allAIFixes?(t=H,this.gutterState.actions.validActions.length===1&&(i=!0)):this.gutterState.actions.hasAutoFix?this.gutterState.actions.hasAIFix?t=O:t=k:this.gutterState.actions.hasAIFix?t=G:t=F,this._updateLightbulbTitle(this.gutterState.actions.hasAutoFix,i);const e=N.register({description:"codicon-gutter-lightbulb-decoration",glyphMarginClassName:A.asClassName(t),glyphMargin:{position:T.Left},stickiness:1});this.gutterDecoration=e}renderGutterLightbub(){const t=this._editor.getSelection();t&&(this._gutterDecorationID===void 0?this._addGutterDecoration(t.startLineNumber):this._updateGutterDecoration(this._gutterDecorationID,t.startLineNumber))}_addGutterDecoration(t){this._editor.changeDecorations(i=>{this._gutterDecorationID=i.addDecoration(new y(t,0,t,0),this.gutterDecoration)})}_removeGutterDecoration(t){this._editor.changeDecorations(i=>{i.removeDecoration(t),this._gutterDecorationID=void 0})}_updateGutterDecoration(t,i){this._editor.changeDecorations(e=>{e.changeDecoration(t,new y(i,0,i,0)),e.changeDecorationOptions(t,this.gutterDecoration)})}_updateLightbulbTitle(t,i){this.state.type===1&&(i?this.title=u.localize("codeActionAutoRun","Run: {0}",this.state.actions.validActions[0].action.title):t&&this._preferredKbLabel?this.title=u.localize("preferredcodeActionWithKb","Show Code Actions. Preferred Quick Fix Available ({0})",this._preferredKbLabel):!t&&this._quickFixKbLabel?this.title=u.localize("codeActionWithKb","Show Code Actions ({0})",this._quickFixKbLabel):t||(this.title=u.localize("codeAction","Show Code Actions")))}set title(t){this._domNode.title=t}};P=p=z([q(1,Z)],P);export{P as LightBulbWidget};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { Gesture } from "../../../../base/browser/touch.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import "./lightBulbWidget.css";
+import { GlyphMarginLane } from "../../../common/model.js";
+import { ModelDecorationOptions } from "../../../common/model/textModel.js";
+import { computeIndentLevel } from "../../../common/model/utils.js";
+import { autoFixCommandId, quickFixCommandId } from "./codeAction.js";
+import * as nls from "../../../../nls.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { Range } from "../../../common/core/range.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var LightBulbWidget_1;
+const GUTTER_LIGHTBULB_ICON = registerIcon("gutter-lightbulb", Codicon.lightBulb, nls.localize("gutterLightbulbWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor."));
+const GUTTER_LIGHTBULB_AUTO_FIX_ICON = registerIcon("gutter-lightbulb-auto-fix", Codicon.lightbulbAutofix, nls.localize("gutterLightbulbAutoFixWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and a quick fix is available."));
+const GUTTER_LIGHTBULB_AIFIX_ICON = registerIcon("gutter-lightbulb-sparkle", Codicon.lightbulbSparkle, nls.localize("gutterLightbulbAIFixWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix is available."));
+const GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON = registerIcon("gutter-lightbulb-aifix-auto-fix", Codicon.lightbulbSparkleAutofix, nls.localize("gutterLightbulbAIFixAutoFixWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix and a quick fix is available."));
+const GUTTER_SPARKLE_FILLED_ICON = registerIcon("gutter-lightbulb-sparkle-filled", Codicon.sparkleFilled, nls.localize("gutterLightbulbSparkleFilledWidget", "Icon which spawns code actions menu from the gutter when there is no space in the editor and an AI fix and a quick fix is available."));
+var LightBulbState;
+(function(LightBulbState2) {
+  let Type;
+  (function(Type2) {
+    Type2[Type2["Hidden"] = 0] = "Hidden";
+    Type2[Type2["Showing"] = 1] = "Showing";
+  })(Type = LightBulbState2.Type || (LightBulbState2.Type = {}));
+  LightBulbState2.Hidden = {
+    type: 0
+    /* Type.Hidden */
+  };
+  class Showing {
+    static {
+      __name(this, "Showing");
+    }
+    constructor(actions, trigger, editorPosition, widgetPosition) {
+      this.actions = actions;
+      this.trigger = trigger;
+      this.editorPosition = editorPosition;
+      this.widgetPosition = widgetPosition;
+      this.type = 1;
+    }
+  }
+  LightBulbState2.Showing = Showing;
+})(LightBulbState || (LightBulbState = {}));
+let LightBulbWidget = class LightBulbWidget2 extends Disposable {
+  static {
+    __name(this, "LightBulbWidget");
+  }
+  static {
+    LightBulbWidget_1 = this;
+  }
+  static {
+    this.GUTTER_DECORATION = ModelDecorationOptions.register({
+      description: "codicon-gutter-lightbulb-decoration",
+      glyphMarginClassName: ThemeIcon.asClassName(Codicon.lightBulb),
+      glyphMargin: { position: GlyphMarginLane.Left },
+      stickiness: 1
+    });
+  }
+  static {
+    this.ID = "editor.contrib.lightbulbWidget";
+  }
+  static {
+    this._posPref = [
+      0
+      /* ContentWidgetPositionPreference.EXACT */
+    ];
+  }
+  constructor(_editor, _keybindingService) {
+    super();
+    this._editor = _editor;
+    this._keybindingService = _keybindingService;
+    this._onClick = this._register(new Emitter());
+    this.onClick = this._onClick.event;
+    this._state = LightBulbState.Hidden;
+    this._gutterState = LightBulbState.Hidden;
+    this._iconClasses = [];
+    this.lightbulbClasses = [
+      "codicon-" + GUTTER_LIGHTBULB_ICON.id,
+      "codicon-" + GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON.id,
+      "codicon-" + GUTTER_LIGHTBULB_AUTO_FIX_ICON.id,
+      "codicon-" + GUTTER_LIGHTBULB_AIFIX_ICON.id,
+      "codicon-" + GUTTER_SPARKLE_FILLED_ICON.id
+    ];
+    this.gutterDecoration = LightBulbWidget_1.GUTTER_DECORATION;
+    this._domNode = dom.$("div.lightBulbWidget");
+    this._domNode.role = "listbox";
+    this._register(Gesture.ignoreTarget(this._domNode));
+    this._editor.addContentWidget(this);
+    this._register(this._editor.onDidChangeModelContent((_) => {
+      const editorModel = this._editor.getModel();
+      if (this.state.type !== 1 || !editorModel || this.state.editorPosition.lineNumber >= editorModel.getLineCount()) {
+        this.hide();
+      }
+      if (this.gutterState.type !== 1 || !editorModel || this.gutterState.editorPosition.lineNumber >= editorModel.getLineCount()) {
+        this.gutterHide();
+      }
+    }));
+    this._register(dom.addStandardDisposableGenericMouseDownListener(this._domNode, (e) => {
+      if (this.state.type !== 1) {
+        return;
+      }
+      this._editor.focus();
+      e.preventDefault();
+      const { top, height } = dom.getDomNodePagePosition(this._domNode);
+      const lineHeight = this._editor.getOption(
+        68
+        /* EditorOption.lineHeight */
+      );
+      let pad = Math.floor(lineHeight / 3);
+      if (this.state.widgetPosition.position !== null && this.state.widgetPosition.position.lineNumber < this.state.editorPosition.lineNumber) {
+        pad += lineHeight;
+      }
+      this._onClick.fire({
+        x: e.posx,
+        y: top + height + pad,
+        actions: this.state.actions,
+        trigger: this.state.trigger
+      });
+    }));
+    this._register(dom.addDisposableListener(this._domNode, "mouseenter", (e) => {
+      if ((e.buttons & 1) !== 1) {
+        return;
+      }
+      this.hide();
+    }));
+    this._register(Event.runAndSubscribe(this._keybindingService.onDidUpdateKeybindings, () => {
+      this._preferredKbLabel = this._keybindingService.lookupKeybinding(autoFixCommandId)?.getLabel() ?? void 0;
+      this._quickFixKbLabel = this._keybindingService.lookupKeybinding(quickFixCommandId)?.getLabel() ?? void 0;
+      this._updateLightBulbTitleAndIcon();
+    }));
+    this._register(this._editor.onMouseDown(async (e) => {
+      if (!e.target.element || !this.lightbulbClasses.some((cls) => e.target.element && e.target.element.classList.contains(cls))) {
+        return;
+      }
+      if (this.gutterState.type !== 1) {
+        return;
+      }
+      this._editor.focus();
+      const { top, height } = dom.getDomNodePagePosition(e.target.element);
+      const lineHeight = this._editor.getOption(
+        68
+        /* EditorOption.lineHeight */
+      );
+      let pad = Math.floor(lineHeight / 3);
+      if (this.gutterState.widgetPosition.position !== null && this.gutterState.widgetPosition.position.lineNumber < this.gutterState.editorPosition.lineNumber) {
+        pad += lineHeight;
+      }
+      this._onClick.fire({
+        x: e.event.posx,
+        y: top + height + pad,
+        actions: this.gutterState.actions,
+        trigger: this.gutterState.trigger
+      });
+    }));
+  }
+  dispose() {
+    super.dispose();
+    this._editor.removeContentWidget(this);
+    if (this._gutterDecorationID) {
+      this._removeGutterDecoration(this._gutterDecorationID);
+    }
+  }
+  getId() {
+    return "LightBulbWidget";
+  }
+  getDomNode() {
+    return this._domNode;
+  }
+  getPosition() {
+    return this._state.type === 1 ? this._state.widgetPosition : null;
+  }
+  update(actions, trigger, atPosition) {
+    if (actions.validActions.length <= 0) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const hasTextFocus = this._editor.hasTextFocus();
+    if (!hasTextFocus) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const options = this._editor.getOptions();
+    if (!options.get(
+      66
+      /* EditorOption.lightbulb */
+    ).enabled) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const model = this._editor.getModel();
+    if (!model) {
+      this.gutterHide();
+      return this.hide();
+    }
+    const { lineNumber, column } = model.validatePosition(atPosition);
+    const tabSize = model.getOptions().tabSize;
+    const fontInfo = this._editor.getOptions().get(
+      52
+      /* EditorOption.fontInfo */
+    );
+    const lineContent = model.getLineContent(lineNumber);
+    const indent = computeIndentLevel(lineContent, tabSize);
+    const lineHasSpace = fontInfo.spaceWidth * indent > 22;
+    const isFolded = /* @__PURE__ */ __name((lineNumber2) => {
+      return lineNumber2 > 2 && this._editor.getTopForLineNumber(lineNumber2) === this._editor.getTopForLineNumber(lineNumber2 - 1);
+    }, "isFolded");
+    const currLineDecorations = this._editor.getLineDecorations(lineNumber);
+    let hasDecoration = false;
+    if (currLineDecorations) {
+      for (const decoration of currLineDecorations) {
+        const glyphClass = decoration.options.glyphMarginClassName;
+        if (glyphClass && !this.lightbulbClasses.some((className) => glyphClass.includes(className))) {
+          hasDecoration = true;
+          break;
+        }
+      }
+    }
+    let effectiveLineNumber = lineNumber;
+    let effectiveColumnNumber = 1;
+    if (!lineHasSpace) {
+      const isLineEmptyOrIndented = /* @__PURE__ */ __name((lineNumber2) => {
+        const lineContent2 = model.getLineContent(lineNumber2);
+        return /^\s*$|^\s+/.test(lineContent2) || lineContent2.length <= effectiveColumnNumber;
+      }, "isLineEmptyOrIndented");
+      if (lineNumber > 1 && !isFolded(lineNumber - 1)) {
+        const lineCount = model.getLineCount();
+        const endLine = lineNumber === lineCount;
+        const prevLineEmptyOrIndented = lineNumber > 1 && isLineEmptyOrIndented(lineNumber - 1);
+        const nextLineEmptyOrIndented = !endLine && isLineEmptyOrIndented(lineNumber + 1);
+        const currLineEmptyOrIndented = isLineEmptyOrIndented(lineNumber);
+        const notEmpty = !nextLineEmptyOrIndented && !prevLineEmptyOrIndented;
+        if (!nextLineEmptyOrIndented && !prevLineEmptyOrIndented && !hasDecoration) {
+          this.gutterState = new LightBulbState.Showing(actions, trigger, atPosition, {
+            position: { lineNumber: effectiveLineNumber, column: effectiveColumnNumber },
+            preference: LightBulbWidget_1._posPref
+          });
+          this.renderGutterLightbub();
+          return this.hide();
+        } else if (prevLineEmptyOrIndented || endLine || prevLineEmptyOrIndented && !currLineEmptyOrIndented) {
+          effectiveLineNumber -= 1;
+        } else if (nextLineEmptyOrIndented || notEmpty && currLineEmptyOrIndented) {
+          effectiveLineNumber += 1;
+        }
+      } else if (lineNumber === 1 && (lineNumber === model.getLineCount() || !isLineEmptyOrIndented(lineNumber + 1) && !isLineEmptyOrIndented(lineNumber))) {
+        this.gutterState = new LightBulbState.Showing(actions, trigger, atPosition, {
+          position: { lineNumber: effectiveLineNumber, column: effectiveColumnNumber },
+          preference: LightBulbWidget_1._posPref
+        });
+        if (hasDecoration) {
+          this.gutterHide();
+        } else {
+          this.renderGutterLightbub();
+          return this.hide();
+        }
+      } else if (lineNumber < model.getLineCount() && !isFolded(lineNumber + 1)) {
+        effectiveLineNumber += 1;
+      } else if (column * fontInfo.spaceWidth < 22) {
+        return this.hide();
+      }
+      effectiveColumnNumber = /^\S\s*$/.test(model.getLineContent(effectiveLineNumber)) ? 2 : 1;
+    }
+    this.state = new LightBulbState.Showing(actions, trigger, atPosition, {
+      position: { lineNumber: effectiveLineNumber, column: effectiveColumnNumber },
+      preference: LightBulbWidget_1._posPref
+    });
+    if (this._gutterDecorationID) {
+      this._removeGutterDecoration(this._gutterDecorationID);
+      this.gutterHide();
+    }
+    const validActions = actions.validActions;
+    const actionKind = actions.validActions[0].action.kind;
+    if (validActions.length !== 1 || !actionKind) {
+      this._editor.layoutContentWidget(this);
+      return;
+    }
+    this._editor.layoutContentWidget(this);
+  }
+  hide() {
+    if (this.state === LightBulbState.Hidden) {
+      return;
+    }
+    this.state = LightBulbState.Hidden;
+    this._editor.layoutContentWidget(this);
+  }
+  gutterHide() {
+    if (this.gutterState === LightBulbState.Hidden) {
+      return;
+    }
+    if (this._gutterDecorationID) {
+      this._removeGutterDecoration(this._gutterDecorationID);
+    }
+    this.gutterState = LightBulbState.Hidden;
+  }
+  get state() {
+    return this._state;
+  }
+  set state(value) {
+    this._state = value;
+    this._updateLightBulbTitleAndIcon();
+  }
+  get gutterState() {
+    return this._gutterState;
+  }
+  set gutterState(value) {
+    this._gutterState = value;
+    this._updateGutterLightBulbTitleAndIcon();
+  }
+  _updateLightBulbTitleAndIcon() {
+    this._domNode.classList.remove(...this._iconClasses);
+    this._iconClasses = [];
+    if (this.state.type !== 1) {
+      return;
+    }
+    let icon;
+    let autoRun = false;
+    if (this.state.actions.allAIFixes) {
+      icon = Codicon.sparkleFilled;
+      if (this.state.actions.validActions.length === 1) {
+        autoRun = true;
+      }
+    } else if (this.state.actions.hasAutoFix) {
+      if (this.state.actions.hasAIFix) {
+        icon = Codicon.lightbulbSparkleAutofix;
+      } else {
+        icon = Codicon.lightbulbAutofix;
+      }
+    } else if (this.state.actions.hasAIFix) {
+      icon = Codicon.lightbulbSparkle;
+    } else {
+      icon = Codicon.lightBulb;
+    }
+    this._updateLightbulbTitle(this.state.actions.hasAutoFix, autoRun);
+    this._iconClasses = ThemeIcon.asClassNameArray(icon);
+    this._domNode.classList.add(...this._iconClasses);
+  }
+  _updateGutterLightBulbTitleAndIcon() {
+    if (this.gutterState.type !== 1) {
+      return;
+    }
+    let icon;
+    let autoRun = false;
+    if (this.gutterState.actions.allAIFixes) {
+      icon = GUTTER_SPARKLE_FILLED_ICON;
+      if (this.gutterState.actions.validActions.length === 1) {
+        autoRun = true;
+      }
+    } else if (this.gutterState.actions.hasAutoFix) {
+      if (this.gutterState.actions.hasAIFix) {
+        icon = GUTTER_LIGHTBULB_AIFIX_AUTO_FIX_ICON;
+      } else {
+        icon = GUTTER_LIGHTBULB_AUTO_FIX_ICON;
+      }
+    } else if (this.gutterState.actions.hasAIFix) {
+      icon = GUTTER_LIGHTBULB_AIFIX_ICON;
+    } else {
+      icon = GUTTER_LIGHTBULB_ICON;
+    }
+    this._updateLightbulbTitle(this.gutterState.actions.hasAutoFix, autoRun);
+    const GUTTER_DECORATION = ModelDecorationOptions.register({
+      description: "codicon-gutter-lightbulb-decoration",
+      glyphMarginClassName: ThemeIcon.asClassName(icon),
+      glyphMargin: { position: GlyphMarginLane.Left },
+      stickiness: 1
+    });
+    this.gutterDecoration = GUTTER_DECORATION;
+  }
+  /* Gutter Helper Functions */
+  renderGutterLightbub() {
+    const selection = this._editor.getSelection();
+    if (!selection) {
+      return;
+    }
+    if (this._gutterDecorationID === void 0) {
+      this._addGutterDecoration(selection.startLineNumber);
+    } else {
+      this._updateGutterDecoration(this._gutterDecorationID, selection.startLineNumber);
+    }
+  }
+  _addGutterDecoration(lineNumber) {
+    this._editor.changeDecorations((accessor) => {
+      this._gutterDecorationID = accessor.addDecoration(new Range(lineNumber, 0, lineNumber, 0), this.gutterDecoration);
+    });
+  }
+  _removeGutterDecoration(decorationId) {
+    this._editor.changeDecorations((accessor) => {
+      accessor.removeDecoration(decorationId);
+      this._gutterDecorationID = void 0;
+    });
+  }
+  _updateGutterDecoration(decorationId, lineNumber) {
+    this._editor.changeDecorations((accessor) => {
+      accessor.changeDecoration(decorationId, new Range(lineNumber, 0, lineNumber, 0));
+      accessor.changeDecorationOptions(decorationId, this.gutterDecoration);
+    });
+  }
+  _updateLightbulbTitle(autoFix, autoRun) {
+    if (this.state.type !== 1) {
+      return;
+    }
+    if (autoRun) {
+      this.title = nls.localize("codeActionAutoRun", "Run: {0}", this.state.actions.validActions[0].action.title);
+    } else if (autoFix && this._preferredKbLabel) {
+      this.title = nls.localize("preferredcodeActionWithKb", "Show Code Actions. Preferred Quick Fix Available ({0})", this._preferredKbLabel);
+    } else if (!autoFix && this._quickFixKbLabel) {
+      this.title = nls.localize("codeActionWithKb", "Show Code Actions ({0})", this._quickFixKbLabel);
+    } else if (!autoFix) {
+      this.title = nls.localize("codeAction", "Show Code Actions");
+    }
+  }
+  set title(value) {
+    this._domNode.title = value;
+  }
+};
+LightBulbWidget = LightBulbWidget_1 = __decorate([
+  __param(1, IKeybindingService)
+], LightBulbWidget);
+export {
+  LightBulbWidget
+};
+//# sourceMappingURL=lightBulbWidget.js.map

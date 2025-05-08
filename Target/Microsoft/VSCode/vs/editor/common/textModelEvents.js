@@ -1,1 +1,211 @@
-var g;(function(o){o[o.Flush=1]="Flush",o[o.LineChanged=2]="LineChanged",o[o.LinesDeleted=3]="LinesDeleted",o[o.LinesInserted=4]="LinesInserted",o[o.EOLChanged=5]="EOLChanged"})(g||(g={}));class m{constructor(){this.changeType=1}}class r{static applyInjectedText(t,e){if(!e||e.length===0)return t;let n="",s=0;for(const i of e)n+=t.substring(s,i.column-1),s=i.column-1,n+=i.options.content;return n+=t.substring(s),n}static fromDecorations(t){const e=[];for(const n of t)n.options.before&&n.options.before.content.length>0&&e.push(new r(n.ownerId,n.range.startLineNumber,n.range.startColumn,n.options.before,0)),n.options.after&&n.options.after.content.length>0&&e.push(new r(n.ownerId,n.range.endLineNumber,n.range.endColumn,n.options.after,1));return e.sort((n,s)=>n.lineNumber===s.lineNumber?n.column===s.column?n.order-s.order:n.column-s.column:n.lineNumber-s.lineNumber),e}constructor(t,e,n,s,i){this.ownerId=t,this.lineNumber=e,this.column=n,this.options=s,this.order=i}withText(t){return new r(this.ownerId,this.lineNumber,this.column,{...this.options,content:t},this.order)}}class f{constructor(t,e,n){this.changeType=2,this.lineNumber=t,this.detail=e,this.injectedText=n}}class p{constructor(t,e,n,s){this.ownerId=t,this.decorationId=e,this.lineNumber=n,this.lineHeight=s}}class v{constructor(t,e){this.changeType=3,this.fromLineNumber=t,this.toLineNumber=e}}class E{constructor(t,e,n,s){this.changeType=4,this.injectedTexts=s,this.fromLineNumber=t,this.toLineNumber=e,this.detail=n}}class L{constructor(){this.changeType=5}}class l{constructor(t,e,n,s){this.changes=t,this.versionId=e,this.isUndoing=n,this.isRedoing=s,this.resultingSelection=null}containsEvent(t){for(let e=0,n=this.changes.length;e<n;e++)if(this.changes[e].changeType===t)return!0;return!1}static merge(t,e){const n=[].concat(t.changes).concat(e.changes),s=e.versionId,i=t.isUndoing||e.isUndoing,c=t.isRedoing||e.isRedoing;return new l(n,s,i,c)}}class I{constructor(t){this.changes=t}}class N{constructor(t){this.changes=t}}class h{constructor(t,e){this.rawContentChangedEvent=t,this.contentChangedEvent=e}merge(t){const e=l.merge(this.rawContentChangedEvent,t.rawContentChangedEvent),n=h._mergeChangeEvents(this.contentChangedEvent,t.contentChangedEvent);return new h(e,n)}static _mergeChangeEvents(t,e){const n=[].concat(t.changes).concat(e.changes),s=e.eol,i=e.versionId,c=t.isUndoing||e.isUndoing,u=t.isRedoing||e.isRedoing,a=t.isFlush||e.isFlush,d=t.isEolChange&&e.isEolChange;return{changes:n,eol:s,isEolChange:d,versionId:i,isUndoing:c,isRedoing:u,isFlush:a}}}export{h as InternalModelContentChangeEvent,r as LineInjectedText,I as ModelInjectedTextChangedEvent,p as ModelLineHeightChanged,N as ModelLineHeightChangedEvent,l as ModelRawContentChangedEvent,L as ModelRawEOLChanged,m as ModelRawFlush,f as ModelRawLineChanged,v as ModelRawLinesDeleted,E as ModelRawLinesInserted,g as RawContentChangedType};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var RawContentChangedType;
+(function(RawContentChangedType2) {
+  RawContentChangedType2[RawContentChangedType2["Flush"] = 1] = "Flush";
+  RawContentChangedType2[RawContentChangedType2["LineChanged"] = 2] = "LineChanged";
+  RawContentChangedType2[RawContentChangedType2["LinesDeleted"] = 3] = "LinesDeleted";
+  RawContentChangedType2[RawContentChangedType2["LinesInserted"] = 4] = "LinesInserted";
+  RawContentChangedType2[RawContentChangedType2["EOLChanged"] = 5] = "EOLChanged";
+})(RawContentChangedType || (RawContentChangedType = {}));
+class ModelRawFlush {
+  static {
+    __name(this, "ModelRawFlush");
+  }
+  constructor() {
+    this.changeType = 1;
+  }
+}
+class LineInjectedText {
+  static {
+    __name(this, "LineInjectedText");
+  }
+  static applyInjectedText(lineText, injectedTexts) {
+    if (!injectedTexts || injectedTexts.length === 0) {
+      return lineText;
+    }
+    let result = "";
+    let lastOriginalOffset = 0;
+    for (const injectedText of injectedTexts) {
+      result += lineText.substring(lastOriginalOffset, injectedText.column - 1);
+      lastOriginalOffset = injectedText.column - 1;
+      result += injectedText.options.content;
+    }
+    result += lineText.substring(lastOriginalOffset);
+    return result;
+  }
+  static fromDecorations(decorations) {
+    const result = [];
+    for (const decoration of decorations) {
+      if (decoration.options.before && decoration.options.before.content.length > 0) {
+        result.push(new LineInjectedText(decoration.ownerId, decoration.range.startLineNumber, decoration.range.startColumn, decoration.options.before, 0));
+      }
+      if (decoration.options.after && decoration.options.after.content.length > 0) {
+        result.push(new LineInjectedText(decoration.ownerId, decoration.range.endLineNumber, decoration.range.endColumn, decoration.options.after, 1));
+      }
+    }
+    result.sort((a, b) => {
+      if (a.lineNumber === b.lineNumber) {
+        if (a.column === b.column) {
+          return a.order - b.order;
+        }
+        return a.column - b.column;
+      }
+      return a.lineNumber - b.lineNumber;
+    });
+    return result;
+  }
+  constructor(ownerId, lineNumber, column, options, order) {
+    this.ownerId = ownerId;
+    this.lineNumber = lineNumber;
+    this.column = column;
+    this.options = options;
+    this.order = order;
+  }
+  withText(text) {
+    return new LineInjectedText(this.ownerId, this.lineNumber, this.column, { ...this.options, content: text }, this.order);
+  }
+}
+class ModelRawLineChanged {
+  static {
+    __name(this, "ModelRawLineChanged");
+  }
+  constructor(lineNumber, detail, injectedText) {
+    this.changeType = 2;
+    this.lineNumber = lineNumber;
+    this.detail = detail;
+    this.injectedText = injectedText;
+  }
+}
+class ModelLineHeightChanged {
+  static {
+    __name(this, "ModelLineHeightChanged");
+  }
+  constructor(ownerId, decorationId, lineNumber, lineHeight) {
+    this.ownerId = ownerId;
+    this.decorationId = decorationId;
+    this.lineNumber = lineNumber;
+    this.lineHeight = lineHeight;
+  }
+}
+class ModelRawLinesDeleted {
+  static {
+    __name(this, "ModelRawLinesDeleted");
+  }
+  constructor(fromLineNumber, toLineNumber) {
+    this.changeType = 3;
+    this.fromLineNumber = fromLineNumber;
+    this.toLineNumber = toLineNumber;
+  }
+}
+class ModelRawLinesInserted {
+  static {
+    __name(this, "ModelRawLinesInserted");
+  }
+  constructor(fromLineNumber, toLineNumber, detail, injectedTexts) {
+    this.changeType = 4;
+    this.injectedTexts = injectedTexts;
+    this.fromLineNumber = fromLineNumber;
+    this.toLineNumber = toLineNumber;
+    this.detail = detail;
+  }
+}
+class ModelRawEOLChanged {
+  static {
+    __name(this, "ModelRawEOLChanged");
+  }
+  constructor() {
+    this.changeType = 5;
+  }
+}
+class ModelRawContentChangedEvent {
+  static {
+    __name(this, "ModelRawContentChangedEvent");
+  }
+  constructor(changes, versionId, isUndoing, isRedoing) {
+    this.changes = changes;
+    this.versionId = versionId;
+    this.isUndoing = isUndoing;
+    this.isRedoing = isRedoing;
+    this.resultingSelection = null;
+  }
+  containsEvent(type) {
+    for (let i = 0, len = this.changes.length; i < len; i++) {
+      const change = this.changes[i];
+      if (change.changeType === type) {
+        return true;
+      }
+    }
+    return false;
+  }
+  static merge(a, b) {
+    const changes = [].concat(a.changes).concat(b.changes);
+    const versionId = b.versionId;
+    const isUndoing = a.isUndoing || b.isUndoing;
+    const isRedoing = a.isRedoing || b.isRedoing;
+    return new ModelRawContentChangedEvent(changes, versionId, isUndoing, isRedoing);
+  }
+}
+class ModelInjectedTextChangedEvent {
+  static {
+    __name(this, "ModelInjectedTextChangedEvent");
+  }
+  constructor(changes) {
+    this.changes = changes;
+  }
+}
+class ModelLineHeightChangedEvent {
+  static {
+    __name(this, "ModelLineHeightChangedEvent");
+  }
+  constructor(changes) {
+    this.changes = changes;
+  }
+}
+class InternalModelContentChangeEvent {
+  static {
+    __name(this, "InternalModelContentChangeEvent");
+  }
+  constructor(rawContentChangedEvent, contentChangedEvent) {
+    this.rawContentChangedEvent = rawContentChangedEvent;
+    this.contentChangedEvent = contentChangedEvent;
+  }
+  merge(other) {
+    const rawContentChangedEvent = ModelRawContentChangedEvent.merge(this.rawContentChangedEvent, other.rawContentChangedEvent);
+    const contentChangedEvent = InternalModelContentChangeEvent._mergeChangeEvents(this.contentChangedEvent, other.contentChangedEvent);
+    return new InternalModelContentChangeEvent(rawContentChangedEvent, contentChangedEvent);
+  }
+  static _mergeChangeEvents(a, b) {
+    const changes = [].concat(a.changes).concat(b.changes);
+    const eol = b.eol;
+    const versionId = b.versionId;
+    const isUndoing = a.isUndoing || b.isUndoing;
+    const isRedoing = a.isRedoing || b.isRedoing;
+    const isFlush = a.isFlush || b.isFlush;
+    const isEolChange = a.isEolChange && b.isEolChange;
+    return {
+      changes,
+      eol,
+      isEolChange,
+      versionId,
+      isUndoing,
+      isRedoing,
+      isFlush
+    };
+  }
+}
+export {
+  InternalModelContentChangeEvent,
+  LineInjectedText,
+  ModelInjectedTextChangedEvent,
+  ModelLineHeightChanged,
+  ModelLineHeightChangedEvent,
+  ModelRawContentChangedEvent,
+  ModelRawEOLChanged,
+  ModelRawFlush,
+  ModelRawLineChanged,
+  ModelRawLinesDeleted,
+  ModelRawLinesInserted,
+  RawContentChangedType
+};
+//# sourceMappingURL=textModelEvents.js.map

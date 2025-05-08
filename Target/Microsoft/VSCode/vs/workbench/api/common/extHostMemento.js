@@ -1,1 +1,89 @@
-import{DeferredPromise as h,RunOnceScheduler as d}from"../../../base/common/async.js";class a{constructor(e,t,i){this._deferredPromises=new Map,this._id=e,this._shared=t,this._storage=i,this._init=this._storage.initializeExtensionStorage(this._shared,this._id,Object.create(null)).then(s=>(this._value=s,this)),this._storageListener=this._storage.onDidChangeStorage(s=>{s.shared===this._shared&&s.key===this._id&&(this._value=s.value)}),this._scheduler=new d(()=>{const s=this._deferredPromises;this._deferredPromises=new Map,(async()=>{try{await this._storage.setValue(this._shared,this._id,this._value);for(const r of s.values())r.complete()}catch(r){for(const o of s.values())o.error(r)}})()},0)}keys(){return Object.entries(this._value??{}).filter(([,e])=>e!==void 0).map(([e])=>e)}get whenReady(){return this._init}get(e,t){let i=this._value[e];return typeof i>"u"&&(i=t),i}update(e,t){t!==null&&typeof t=="object"?this._value[e]=JSON.parse(JSON.stringify(t)):this._value[e]=t;const i=this._deferredPromises.get(e);if(i!==void 0)return i.p;const s=new h;return this._deferredPromises.set(e,s),this._scheduler.isScheduled()||this._scheduler.schedule(),s.p}dispose(){this._storageListener.dispose()}}class _ extends a{setKeysForSync(e){this._storage.registerExtensionStorageKeysToSync({id:this._id,version:this._extension.version},e)}constructor(e,t){super(e.identifier.value,!0,t),this._extension=e}}export{_ as ExtensionGlobalMemento,a as ExtensionMemento};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DeferredPromise, RunOnceScheduler } from "../../../base/common/async.js";
+class ExtensionMemento {
+  static {
+    __name(this, "ExtensionMemento");
+  }
+  constructor(id, global, storage) {
+    this._deferredPromises = /* @__PURE__ */ new Map();
+    this._id = id;
+    this._shared = global;
+    this._storage = storage;
+    this._init = this._storage.initializeExtensionStorage(this._shared, this._id, /* @__PURE__ */ Object.create(null)).then((value) => {
+      this._value = value;
+      return this;
+    });
+    this._storageListener = this._storage.onDidChangeStorage((e) => {
+      if (e.shared === this._shared && e.key === this._id) {
+        this._value = e.value;
+      }
+    });
+    this._scheduler = new RunOnceScheduler(() => {
+      const records = this._deferredPromises;
+      this._deferredPromises = /* @__PURE__ */ new Map();
+      (async () => {
+        try {
+          await this._storage.setValue(this._shared, this._id, this._value);
+          for (const value of records.values()) {
+            value.complete();
+          }
+        } catch (e) {
+          for (const value of records.values()) {
+            value.error(e);
+          }
+        }
+      })();
+    }, 0);
+  }
+  keys() {
+    return Object.entries(this._value ?? {}).filter(([, value]) => value !== void 0).map(([key]) => key);
+  }
+  get whenReady() {
+    return this._init;
+  }
+  get(key, defaultValue) {
+    let value = this._value[key];
+    if (typeof value === "undefined") {
+      value = defaultValue;
+    }
+    return value;
+  }
+  update(key, value) {
+    if (value !== null && typeof value === "object") {
+      this._value[key] = JSON.parse(JSON.stringify(value));
+    } else {
+      this._value[key] = value;
+    }
+    const record = this._deferredPromises.get(key);
+    if (record !== void 0) {
+      return record.p;
+    }
+    const promise = new DeferredPromise();
+    this._deferredPromises.set(key, promise);
+    if (!this._scheduler.isScheduled()) {
+      this._scheduler.schedule();
+    }
+    return promise.p;
+  }
+  dispose() {
+    this._storageListener.dispose();
+  }
+}
+class ExtensionGlobalMemento extends ExtensionMemento {
+  static {
+    __name(this, "ExtensionGlobalMemento");
+  }
+  setKeysForSync(keys) {
+    this._storage.registerExtensionStorageKeysToSync({ id: this._id, version: this._extension.version }, keys);
+  }
+  constructor(extensionDescription, storage) {
+    super(extensionDescription.identifier.value, true, storage);
+    this._extension = extensionDescription;
+  }
+}
+export {
+  ExtensionGlobalMemento,
+  ExtensionMemento
+};
+//# sourceMappingURL=extHostMemento.js.map

@@ -1,2 +1,84 @@
-import*as l from"./arrays.js";import*as c from"./types.js";import*as s from"../../nls.js";function o(r,t){return t&&(r.stack||r.stacktrace)?s.localize("stackTrace.format","{0}: {1}",i(r),a(r.stack)||a(r.stacktrace)):i(r)}function a(r){return Array.isArray(r)?r.join(`
-`):r}function i(r){return r.code==="ERR_UNC_HOST_NOT_ALLOWED"?`${r.message}. Please update the 'security.allowedUNCHosts' setting if you want to allow this host.`:typeof r.code=="string"&&typeof r.errno=="number"&&typeof r.syscall=="string"?s.localize("nodeExceptionMessage","A system error occurred ({0})",r.message):r.message||s.localize("error.defaultMessage","An unknown error occurred. Please consult the log for more details.")}function u(r=null,t=!1){if(!r)return s.localize("error.defaultMessage","An unknown error occurred. Please consult the log for more details.");if(Array.isArray(r)){const e=l.coalesce(r),n=u(e[0],t);return e.length>1?s.localize("error.moreErrors","{0} ({1} errors in total)",n,e.length):n}if(c.isString(r))return r;if(r.detail){const e=r.detail;if(e.error)return o(e.error,t);if(e.exception)return o(e.exception,t)}return r.stack?o(r,t):r.message?r.message:s.localize("error.defaultMessage","An unknown error occurred. Please consult the log for more details.")}function f(r){const t=r;return t instanceof Error&&Array.isArray(t.actions)}function g(r,t){let e;return typeof r=="string"?e=new Error(r):e=r,e.actions=t,e}export{g as createErrorWithActions,f as isErrorWithActions,u as toErrorMessage};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as arrays from "./arrays.js";
+import * as types from "./types.js";
+import * as nls from "../../nls.js";
+function exceptionToErrorMessage(exception, verbose) {
+  if (verbose && (exception.stack || exception.stacktrace)) {
+    return nls.localize("stackTrace.format", "{0}: {1}", detectSystemErrorMessage(exception), stackToString(exception.stack) || stackToString(exception.stacktrace));
+  }
+  return detectSystemErrorMessage(exception);
+}
+__name(exceptionToErrorMessage, "exceptionToErrorMessage");
+function stackToString(stack) {
+  if (Array.isArray(stack)) {
+    return stack.join("\n");
+  }
+  return stack;
+}
+__name(stackToString, "stackToString");
+function detectSystemErrorMessage(exception) {
+  if (exception.code === "ERR_UNC_HOST_NOT_ALLOWED") {
+    return `${exception.message}. Please update the 'security.allowedUNCHosts' setting if you want to allow this host.`;
+  }
+  if (typeof exception.code === "string" && typeof exception.errno === "number" && typeof exception.syscall === "string") {
+    return nls.localize("nodeExceptionMessage", "A system error occurred ({0})", exception.message);
+  }
+  return exception.message || nls.localize("error.defaultMessage", "An unknown error occurred. Please consult the log for more details.");
+}
+__name(detectSystemErrorMessage, "detectSystemErrorMessage");
+function toErrorMessage(error = null, verbose = false) {
+  if (!error) {
+    return nls.localize("error.defaultMessage", "An unknown error occurred. Please consult the log for more details.");
+  }
+  if (Array.isArray(error)) {
+    const errors = arrays.coalesce(error);
+    const msg = toErrorMessage(errors[0], verbose);
+    if (errors.length > 1) {
+      return nls.localize("error.moreErrors", "{0} ({1} errors in total)", msg, errors.length);
+    }
+    return msg;
+  }
+  if (types.isString(error)) {
+    return error;
+  }
+  if (error.detail) {
+    const detail = error.detail;
+    if (detail.error) {
+      return exceptionToErrorMessage(detail.error, verbose);
+    }
+    if (detail.exception) {
+      return exceptionToErrorMessage(detail.exception, verbose);
+    }
+  }
+  if (error.stack) {
+    return exceptionToErrorMessage(error, verbose);
+  }
+  if (error.message) {
+    return error.message;
+  }
+  return nls.localize("error.defaultMessage", "An unknown error occurred. Please consult the log for more details.");
+}
+__name(toErrorMessage, "toErrorMessage");
+function isErrorWithActions(obj) {
+  const candidate = obj;
+  return candidate instanceof Error && Array.isArray(candidate.actions);
+}
+__name(isErrorWithActions, "isErrorWithActions");
+function createErrorWithActions(messageOrError, actions) {
+  let error;
+  if (typeof messageOrError === "string") {
+    error = new Error(messageOrError);
+  } else {
+    error = messageOrError;
+  }
+  error.actions = actions;
+  return error;
+}
+__name(createErrorWithActions, "createErrorWithActions");
+export {
+  createErrorWithActions,
+  isErrorWithActions,
+  toErrorMessage
+};
+//# sourceMappingURL=errorMessage.js.map

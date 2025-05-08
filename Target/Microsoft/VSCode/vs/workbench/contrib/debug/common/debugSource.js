@@ -1,1 +1,131 @@
-import*as l from"../../../../nls.js";import{URI as u}from"../../../../base/common/uri.js";import{normalize as h,isAbsolute as p}from"../../../../base/common/path.js";import*as f from"../../../../base/common/resources.js";import{DEBUG_SCHEME as o}from"./debug.js";import{SIDE_GROUP as g,ACTIVE_GROUP as b}from"../../../services/editor/common/editorService.js";import{Schemas as w}from"../../../../base/common/network.js";import{isUri as y}from"./debugUtils.js";const m=l.localize("unknownSource","Unknown Source");class C{constructor(e,r,s,n){let i;e?(this.raw=e,i=this.raw.path||this.raw.name||"",this.available=!0):(this.raw={name:m},this.available=!1,i=`${o}:${m}`),this.uri=E(this.raw,i,r,s,n)}get name(){return this.raw.name||f.basenameOrAuthority(this.uri)}get origin(){return this.raw.origin}get presentationHint(){return this.raw.presentationHint}get reference(){return this.raw.sourceReference}get inMemory(){return this.uri.scheme===o}openInEditor(e,r,s,n,i){return this.available?e.openEditor({resource:this.uri,description:this.origin,options:{preserveFocus:s,selection:r,revealIfOpened:!0,selectionRevealType:1,pinned:i}},n?g:b):Promise.resolve(void 0)}static getEncodedDebugData(e){let r,s,n;switch(e.scheme){case w.file:r=h(e.fsPath);break;case o:if(r=e.path,e.query){const i=e.query.split("&");for(const t of i){const c=t.split("=");if(c.length===2)switch(c[0]){case"session":n=c[1];break;case"ref":s=parseInt(c[1]);break}}}break;default:r=e.toString();break}return{name:f.basenameOrAuthority(e),path:r,sourceReference:s,sessionId:n}}}function E(a,e,r,s,n){const i=t=>typeof a.sourceReference=="number"&&a.sourceReference>0?u.from({scheme:o,path:t?.replace(/^\/+/g,"/"),query:`session=${r}&ref=${a.sourceReference}`}):t&&y(t)?s.asCanonicalUri(u.parse(t)):t&&p(t)?s.asCanonicalUri(u.file(t)):s.asCanonicalUri(u.from({scheme:o,path:t,query:`session=${r}`}));try{return i(e)}catch{return n.error("Invalid path from debug adapter: "+e),i("/invalidDebugSource")}}export{C as Source,m as UNKNOWN_SOURCE_LABEL,E as getUriFromSource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { URI } from "../../../../base/common/uri.js";
+import { normalize, isAbsolute } from "../../../../base/common/path.js";
+import * as resources from "../../../../base/common/resources.js";
+import { DEBUG_SCHEME } from "./debug.js";
+import { SIDE_GROUP, ACTIVE_GROUP } from "../../../services/editor/common/editorService.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { isUri } from "./debugUtils.js";
+const UNKNOWN_SOURCE_LABEL = nls.localize("unknownSource", "Unknown Source");
+class Source {
+  static {
+    __name(this, "Source");
+  }
+  constructor(raw_, sessionId, uriIdentityService, logService) {
+    let path;
+    if (raw_) {
+      this.raw = raw_;
+      path = this.raw.path || this.raw.name || "";
+      this.available = true;
+    } else {
+      this.raw = { name: UNKNOWN_SOURCE_LABEL };
+      this.available = false;
+      path = `${DEBUG_SCHEME}:${UNKNOWN_SOURCE_LABEL}`;
+    }
+    this.uri = getUriFromSource(this.raw, path, sessionId, uriIdentityService, logService);
+  }
+  get name() {
+    return this.raw.name || resources.basenameOrAuthority(this.uri);
+  }
+  get origin() {
+    return this.raw.origin;
+  }
+  get presentationHint() {
+    return this.raw.presentationHint;
+  }
+  get reference() {
+    return this.raw.sourceReference;
+  }
+  get inMemory() {
+    return this.uri.scheme === DEBUG_SCHEME;
+  }
+  openInEditor(editorService, selection, preserveFocus, sideBySide, pinned) {
+    return !this.available ? Promise.resolve(void 0) : editorService.openEditor({
+      resource: this.uri,
+      description: this.origin,
+      options: {
+        preserveFocus,
+        selection,
+        revealIfOpened: true,
+        selectionRevealType: 1,
+        pinned
+      }
+    }, sideBySide ? SIDE_GROUP : ACTIVE_GROUP);
+  }
+  static getEncodedDebugData(modelUri) {
+    let path;
+    let sourceReference;
+    let sessionId;
+    switch (modelUri.scheme) {
+      case Schemas.file:
+        path = normalize(modelUri.fsPath);
+        break;
+      case DEBUG_SCHEME:
+        path = modelUri.path;
+        if (modelUri.query) {
+          const keyvalues = modelUri.query.split("&");
+          for (const keyvalue of keyvalues) {
+            const pair = keyvalue.split("=");
+            if (pair.length === 2) {
+              switch (pair[0]) {
+                case "session":
+                  sessionId = pair[1];
+                  break;
+                case "ref":
+                  sourceReference = parseInt(pair[1]);
+                  break;
+              }
+            }
+          }
+        }
+        break;
+      default:
+        path = modelUri.toString();
+        break;
+    }
+    return {
+      name: resources.basenameOrAuthority(modelUri),
+      path,
+      sourceReference,
+      sessionId
+    };
+  }
+}
+function getUriFromSource(raw, path, sessionId, uriIdentityService, logService) {
+  const _getUriFromSource = /* @__PURE__ */ __name((path2) => {
+    if (typeof raw.sourceReference === "number" && raw.sourceReference > 0) {
+      return URI.from({
+        scheme: DEBUG_SCHEME,
+        path: path2?.replace(/^\/+/g, "/"),
+        // #174054
+        query: `session=${sessionId}&ref=${raw.sourceReference}`
+      });
+    }
+    if (path2 && isUri(path2)) {
+      return uriIdentityService.asCanonicalUri(URI.parse(path2));
+    }
+    if (path2 && isAbsolute(path2)) {
+      return uriIdentityService.asCanonicalUri(URI.file(path2));
+    }
+    return uriIdentityService.asCanonicalUri(URI.from({
+      scheme: DEBUG_SCHEME,
+      path: path2,
+      query: `session=${sessionId}`
+    }));
+  }, "_getUriFromSource");
+  try {
+    return _getUriFromSource(path);
+  } catch (err) {
+    logService.error("Invalid path from debug adapter: " + path);
+    return _getUriFromSource("/invalidDebugSource");
+  }
+}
+__name(getUriFromSource, "getUriFromSource");
+export {
+  Source,
+  UNKNOWN_SOURCE_LABEL,
+  getUriFromSource
+};
+//# sourceMappingURL=debugSource.js.map

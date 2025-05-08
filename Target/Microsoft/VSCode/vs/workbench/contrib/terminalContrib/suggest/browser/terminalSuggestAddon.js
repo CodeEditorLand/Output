@@ -1,1 +1,727 @@
-import*as _ from"../../../../../base/browser/dom.js";import{Emitter as I,Event as x}from"../../../../../base/common/event.js";import{combinedDisposable as A,Disposable as k,MutableDisposable as R}from"../../../../../base/common/lifecycle.js";import{sep as w}from"../../../../../base/common/path.js";import{commonPrefixLength as O}from"../../../../../base/common/strings.js";import{editorSuggestWidgetSelectedBackground as E}from"../../../../../editor/contrib/suggest/browser/suggestWidget.js";import{IConfigurationService as q}from"../../../../../platform/configuration/common/configuration.js";import{IInstantiationService as V}from"../../../../../platform/instantiation/common/instantiation.js";import{IStorageService as K}from"../../../../../platform/storage/common/storage.js";import{getListStyles as B}from"../../../../../platform/theme/browser/defaultStyles.js";import{activeContrastBorder as z}from"../../../../../platform/theme/common/colorRegistry.js";import{terminalSuggestConfigSection as S}from"../common/terminalSuggestConfiguration.js";import{LineContext as D}from"../../../../services/suggest/browser/simpleCompletionModel.js";import{SimpleSuggestWidget as N}from"../../../../services/suggest/browser/simpleSuggestWidget.js";import{ITerminalCompletionService as H}from"./terminalCompletionService.js";import{CancellationTokenSource as U}from"../../../../../base/common/cancellation.js";import{IExtensionService as $}from"../../../../services/extensions/common/extensions.js";import{MenuId as j}from"../../../../../platform/actions/common/actions.js";import{ITerminalConfigurationService as Q}from"../../../terminal/browser/terminal.js";import{GOLDEN_LINE_HEIGHT_RATIO as G,MINIMUM_LINE_HEIGHT as b}from"../../../../../editor/common/config/fontInfo.js";import{TerminalCompletionModel as J}from"./terminalCompletionModel.js";import{TerminalCompletionItem as v,TerminalCompletionItemKind as l}from"./terminalCompletionItem.js";import{IntervalTimer as X,TimeoutTimer as Y}from"../../../../../base/common/async.js";import{localize as m}from"../../../../../nls.js";import{TerminalSuggestTelemetry as Z}from"./terminalSuggestTelemetry.js";import{terminalSymbolAliasIcon as ee,terminalSymbolArgumentIcon as te,terminalSymbolEnumMember as ie,terminalSymbolFileIcon as ne,terminalSymbolFlagIcon as se,terminalSymbolInlineSuggestionIcon as P,terminalSymbolMethodIcon as oe,terminalSymbolOptionIcon as re,terminalSymbolFolderIcon as le}from"./terminalSymbolIcons.js";var L=function(u,e,n,i){var t=arguments.length,o=t<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,n):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(u,e,n,i);else for(var r=u.length-1;r>=0;r--)(s=u[r])&&(o=(t<3?s(o):t>3?s(e,n,o):s(e,n))||o);return t>3&&o&&Object.defineProperty(e,n,o),o},p=function(u,e){return function(n,i){e(n,i,u)}},f;let W=class extends k{static{f=this}static{this.lastAcceptedCompletionTimestamp=0}constructor(e,n,i,t,o,s,r,h){if(super(),this._capabilities=n,this._terminalSuggestWidgetVisibleContextKey=i,this._terminalCompletionService=t,this._configurationService=o,this._instantiationService=s,this._extensionService=r,this._terminalConfigurationService=h,this._promptInputModelSubscriptions=this._register(new R),this._enableWidget=!0,this._pathSeparator=w,this._isFilteringDirectories=!1,this._cursorIndexDelta=0,this._requestedCompletionsIndex=0,this._lastUserDataTimestamp=0,this.isPasting=!1,this._onBell=this._register(new I),this.onBell=this._onBell.event,this._onAcceptedCompletion=this._register(new I),this.onAcceptedCompletion=this._onAcceptedCompletion.event,this._onDidReceiveCompletions=this._register(new I),this.onDidReceiveCompletions=this._onDidReceiveCompletions.event,this._onDidFontConfigurationChange=this._register(new I),this.onDidFontConfigurationChange=this._onDidFontConfigurationChange.event,this._kindToIconMap=new Map([[l.File,ne],[l.Folder,le],[l.Method,oe],[l.Alias,ee],[l.Argument,te],[l.Option,re],[l.OptionValue,ie],[l.Flag,se],[l.InlineSuggestion,P],[l.InlineSuggestionAlwaysOnTop,P]]),this._kindToKindLabelMap=new Map([[l.File,m("file","File")],[l.Folder,m("folder","Folder")],[l.Method,m("method","Method")],[l.Alias,m("alias","Alias")],[l.Argument,m("argument","Argument")],[l.Option,m("option","Option")],[l.OptionValue,m("optionValue","Option Value")],[l.Flag,m("flag","Flag")],[l.InlineSuggestion,m("inlineSuggestion","Inline Suggestion")],[l.InlineSuggestionAlwaysOnTop,m("inlineSuggestionAlwaysOnTop","Inline Suggestion")]]),this._inlineCompletion={label:"",inputData:"\x1B[C",replacementIndex:0,replacementLength:0,provider:"core",detail:"Inline suggestion",kind:l.InlineSuggestion,kindLabel:"Inline suggestion",icon:this._kindToIconMap.get(l.InlineSuggestion)},this._inlineCompletionItem=new v(this._inlineCompletion),this._shouldSyncWhenReady=!1,this.shellType=e,this.shellType)this._shellTypeInit=Promise.resolve();else{const a=this._register(new X),g=this._register(new Y);this._shellTypeInit=new Promise(d=>{a.cancelAndSet(()=>{this.shellType&&d()},50),g.cancelAndSet(d,5e3)}).then(()=>{this._store.delete(a),this._store.delete(g)})}this._register(x.runAndSubscribe(x.any(this._capabilities.onDidAddCapabilityType,this._capabilities.onDidRemoveCapabilityType),()=>{const a=this._capabilities.get(2);a?this._promptInputModel!==a.promptInputModel&&(this._promptInputModel=a.promptInputModel,this._suggestTelemetry=this._register(this._instantiationService.createInstance(Z,a,this._promptInputModel)),this._promptInputModelSubscriptions.value=A(this._promptInputModel.onDidChangeInput(g=>this._sync(g)),this._promptInputModel.onDidFinishInput(()=>{this.hideSuggestWidget(!0)})),this._shouldSyncWhenReady&&(this._sync(this._promptInputModel),this._shouldSyncWhenReady=!1)):this._promptInputModel=void 0})),this._register(this._terminalConfigurationService.onConfigChanged(()=>this._cachedFontInfo=void 0)),this._register(x.runAndSubscribe(this._configurationService.onDidChangeConfiguration,a=>{if(!a||a.affectsConfiguration("terminal.integrated.suggest.inlineSuggestion")){const g=this._configurationService.getValue(S).inlineSuggestion;switch(this._inlineCompletionItem.isInvalid=g==="off",g){case"alwaysOnTopExceptExactMatch":{this._inlineCompletion.kind=l.InlineSuggestion;break}case"alwaysOnTop":default:{this._inlineCompletion.kind=l.InlineSuggestionAlwaysOnTop;break}}this._model?.forceRefilterAll()}}))}activate(e){this._terminal=e,this._register(e.onKey(async n=>{this._lastUserData=n.key,this._lastUserDataTimestamp=Date.now()})),this._register(e.onScroll(()=>this.hideSuggestWidget(!0)))}async _handleCompletionProviders(e,n,i){if(!e?.element||!this._enableWidget||!this._promptInputModel||!_.isAncestorOfActiveElement(e.element)||(await this._shellTypeInit,!this.shellType))return;let t=!1;this._lastUserDataTimestamp<f.lastAcceptedCompletionTimestamp&&(t=!0),t||await this._extensionService.activateByEvent("onTerminalCompletionsRequested"),this._currentPromptInputState={value:this._promptInputModel.value,prefix:this._promptInputModel.prefix,suffix:this._promptInputModel.suffix,cursorIndex:this._promptInputModel.cursorIndex,ghostTextIndex:this._promptInputModel.ghostTextIndex},this._requestedCompletionsIndex=this._currentPromptInputState.cursorIndex;const o=this._configurationService.getValue(S).quickSuggestions,s=i||o.unknown==="on",r=await this._terminalCompletionService.provideCompletions(this._currentPromptInputState.prefix,this._currentPromptInputState.cursorIndex,s,this.shellType,this._capabilities,n,t);if(n.isCancellationRequested)return;this._onDidReceiveCompletions.fire(),this._cursorIndexDelta=this._promptInputModel.cursorIndex-this._requestedCompletionsIndex,this._leadingLineContent=this._promptInputModel.prefix.substring(0,this._requestedCompletionsIndex+this._cursorIndexDelta);const h=r?.flat()||[];if(!i&&!h.length){this.hideSuggestWidget(!0);return}const a=this._leadingLineContent.length===0?"":this._leadingLineContent[0];(this._leadingLineContent.includes(" ")||a==="[")&&(this._leadingLineContent=this._promptInputModel.prefix);let g=this._leadingLineContent;if(this._isFilteringDirectories=h.some(c=>c.kind===l.Folder),this._isFilteringDirectories){const c=h.find(F=>F.kind===l.Folder),T=typeof c?.label=="string"?c.label:c?.label.label;this._pathSeparator=T?.match(/(?<sep>[\\\/])/)?.groups?.sep??w,g=M(g,this._pathSeparator)}this._refreshInlineCompletion(h);for(const c of h)!c.icon&&c.kind!==void 0&&(c.icon=this._kindToIconMap.get(c.kind),c.kindLabel=this._kindToKindLabelMap.get(c.kind));const d=new D(g,this._cursorIndexDelta),C=new J([...h.filter(c=>!!c.label).map(c=>new v(c)),this._inlineCompletionItem],d);n.isCancellationRequested||this._showCompletions(C,i)}setContainerWithOverflow(e){this._container=e}setScreen(e){this._screen=e}toggleExplainMode(){this._suggestWidget?.toggleExplainMode()}toggleSuggestionFocus(){this._suggestWidget?.toggleDetailsFocus()}toggleSuggestionDetails(){this._suggestWidget?.toggleDetails()}resetWidgetSize(){this._suggestWidget?.resetWidgetSize()}async requestCompletions(e){if(!this._promptInputModel){this._shouldSyncWhenReady=!0;return}if(this.isPasting)return;this._cancellationTokenSource&&(this._cancellationTokenSource.cancel(),this._cancellationTokenSource.dispose()),this._cancellationTokenSource=new U;const n=this._cancellationTokenSource.token;await this._handleCompletionProviders(this._terminal,n,e)}_addPropertiesToInlineCompletionItem(e){const n=(typeof this._inlineCompletionItem.completion.label=="string"?this._inlineCompletionItem.completion.label:this._inlineCompletionItem.completion.label.label).trim(),i=e.findIndex(t=>typeof t.label=="string"?t.label===n:t.label.label===n);if(i!==-1){const t=e.splice(i,1)[0];this._inlineCompletionItem.completion.label=t.label,this._inlineCompletionItem.completion.detail=t.detail,this._inlineCompletionItem.completion.documentation=t.documentation}else this._inlineCompletionItem.completion&&(this._inlineCompletionItem.completion.detail=void 0,this._inlineCompletionItem.completion.documentation=void 0)}_requestTriggerCharQuickSuggestCompletions(){return!this._wasLastInputVerticalArrowKey()&&(!this._wasLastInputIncludedEscape()||this._terminalSuggestWidgetVisibleContextKey.get())?(this.requestCompletions(),!0):!1}_wasLastInputRightArrowKey(){return!!this._lastUserData?.match(/^\x1b[\[O]?C$/)}_wasLastInputVerticalArrowKey(){return!!this._lastUserData?.match(/^\x1b[\[O]?[A-B]$/)}_wasLastInputIncludedEscape(){return!!this._lastUserData?.includes("\x1B")}_wasLastInputArrowKey(){return!!this._lastUserData?.match(/^\x1b[\[O]?[A-D]$/)}_sync(e){const n=this._configurationService.getValue(S);{let s=!1;if(!this._mostRecentPromptInputState||e.cursorIndex>this._mostRecentPromptInputState.cursorIndex){if(!this._terminalSuggestWidgetVisibleContextKey.get()){const r=e.prefix.trim().match(/\s/);(!r&&n.quickSuggestions.commands!=="off"||r&&n.quickSuggestions.arguments!=="off")&&e.prefix.match(/[^\s]$/)&&(s=this._requestTriggerCharQuickSuggestCompletions())}if(n.suggestOnTriggerCharacters&&!s){const r=e.prefix;if((r?.match(/\s[\-]$/)||this._isFilteringDirectories&&r?.match(/[\\\/]$/))&&(s=this._requestTriggerCharQuickSuggestCompletions()),!s){for(const h of this._terminalCompletionService.providers)if(h.triggerCharacters){for(const a of h.triggerCharacters)if(r?.endsWith(a)){s=this._requestTriggerCharQuickSuggestCompletions();break}}}}}if(this._mostRecentPromptInputState&&e.cursorIndex<this._mostRecentPromptInputState.cursorIndex&&e.cursorIndex>0&&this._terminalSuggestWidgetVisibleContextKey.get()&&n.suggestOnTriggerCharacters&&!s&&this._mostRecentPromptInputState.cursorIndex>0){const r=this._mostRecentPromptInputState.value[this._mostRecentPromptInputState.cursorIndex-1];this._isFilteringDirectories&&r.match(/[\\\/]$/)&&(s=this._requestTriggerCharQuickSuggestCompletions())}}if(this._wasLastInputRightArrowKey()&&this._mostRecentPromptInputState?.ghostTextIndex!==-1&&e.ghostTextIndex===-1&&this._mostRecentPromptInputState?.value===e.value&&this.hideSuggestWidget(!1),this._mostRecentPromptInputState=e,!this._promptInputModel||!this._terminal||!this._suggestWidget||this._leadingLineContent===void 0)return;const i=this._currentPromptInputState;if(this._currentPromptInputState=e,this._currentPromptInputState.cursorIndex>1&&this._currentPromptInputState.value.at(this._currentPromptInputState.cursorIndex-1)===" "&&!this._wasLastInputArrowKey()){this.hideSuggestWidget(!1);return}if(this._currentPromptInputState&&this._currentPromptInputState.cursorIndex<this._leadingLineContent.length&&(this._currentPromptInputState.cursorIndex<=0||i?.value[this._currentPromptInputState.cursorIndex]?.match(/[\\\/\s]/))){this.hideSuggestWidget(!1);return}if(this._terminalSuggestWidgetVisibleContextKey.get()){this._cursorIndexDelta=this._currentPromptInputState.cursorIndex-this._requestedCompletionsIndex;let s=this._currentPromptInputState.value.substring(0,this._requestedCompletionsIndex+this._cursorIndexDelta);this._isFilteringDirectories&&(s=M(s,this._pathSeparator));const r=new D(s,this._cursorIndexDelta);this._suggestWidget.setLineContext(r)}if(this._refreshInlineCompletion(this._model?.items.map(s=>s.completion)||[]),!this._suggestWidget.hasCompletions()){this.hideSuggestWidget(!1);return}const t=this._getTerminalDimensions();if(!t.width||!t.height)return;const o=this._screen.getBoundingClientRect();this._suggestWidget.showSuggestions(0,!1,!0,{left:o.left+this._terminal.buffer.active.cursorX*t.width,top:o.top+this._terminal.buffer.active.cursorY*t.height,height:t.height})}_refreshInlineCompletion(e){const n=this._inlineCompletionItem.isInvalid;if(!this._currentPromptInputState||this._currentPromptInputState.ghostTextIndex===-1)this._inlineCompletionItem.isInvalid=!0;else{this._inlineCompletionItem.isInvalid=!1;const i=this._currentPromptInputState.value.lastIndexOf(" ",this._currentPromptInputState.ghostTextIndex-1),t=i===-1?0:i+1,o=this._currentPromptInputState.value.substring(t);this._inlineCompletion.label=o,this._inlineCompletion.replacementIndex=t,this._inlineCompletion.replacementLength=this._currentPromptInputState.cursorIndex-t-this._cursorIndexDelta,this._addPropertiesToInlineCompletionItem(e);const s=new v(this._inlineCompletion);this._inlineCompletionItem.idx=s.idx,this._inlineCompletionItem.score=s.score,this._inlineCompletionItem.labelLow=s.labelLow,this._inlineCompletionItem.textLabel=s.textLabel,this._inlineCompletionItem.fileExtLow=s.fileExtLow,this._inlineCompletionItem.labelLowExcludeFileExt=s.labelLowExcludeFileExt,this._inlineCompletionItem.labelLowNormalizedPath=s.labelLowNormalizedPath,this._inlineCompletionItem.underscorePenalty=s.underscorePenalty,this._inlineCompletionItem.word=s.word,this._model?.forceRefilterAll()}this._inlineCompletionItem.isInvalid!==n&&this._model?.forceRefilterAll()}_getTerminalDimensions(){const e=this._terminal._core._renderService.dimensions.css.cell;return{width:e.width,height:e.height}}_getFontInfo(){if(this._cachedFontInfo)return this._cachedFontInfo;const e=this._terminal._core,n=this._terminalConfigurationService.getFont(_.getActiveWindow(),e);let i=n.lineHeight;const t=n.fontSize,o=n.fontFamily,s=n.letterSpacing,r=this._configurationService.getValue("editor.fontWeight");i<=1?i=G*t:i<b&&(i=i*t),i=Math.round(i),i<b&&(i=b);const h={fontSize:t,lineHeight:i,fontWeight:r.toString(),letterSpacing:s,fontFamily:o};return this._cachedFontInfo=h,h}_getAdvancedExplainModeDetails(){return`promptInputModel: ${this._promptInputModel?.getCombinedString()}`}_showCompletions(e,n){if(!this._terminal?.element)return;const i=this._ensureSuggestWidget(this._terminal);if(i.setCompletionModel(e),this._register(i.onDidFocus(()=>this._terminal?.focus())),!this._promptInputModel||!n&&e.items.length===0)return;this._model=e;const t=this._getTerminalDimensions();if(!t.width||!t.height)return;const o=this._screen.getBoundingClientRect();i.showSuggestions(0,!1,!n,{left:o.left+this._terminal.buffer.active.cursorX*t.width,top:o.top+this._terminal.buffer.active.cursorY*t.height,height:t.height})}_ensureSuggestWidget(e){return this._suggestWidget||(this._suggestWidget=this._register(this._instantiationService.createInstance(N,this._container,this._instantiationService.createInstance(y),{statusBarMenuId:j.MenubarTerminalSuggestStatusMenu,showStatusBarSettingId:"terminal.integrated.suggest.showStatusBar"},this._getFontInfo.bind(this),this._onDidFontConfigurationChange.event.bind(this),this._getAdvancedExplainModeDetails.bind(this))),this._suggestWidget.list.style(B({listInactiveFocusBackground:E,listInactiveFocusOutline:z})),this._register(this._suggestWidget.onDidSelect(async i=>this.acceptSelectedSuggestion(i))),this._register(this._suggestWidget.onDidHide(()=>this._terminalSuggestWidgetVisibleContextKey.reset())),this._register(this._suggestWidget.onDidShow(()=>this._terminalSuggestWidgetVisibleContextKey.set(!0))),this._register(this._configurationService.onDidChangeConfiguration(i=>{(i.affectsConfiguration("terminal.integrated.fontFamily")||i.affectsConfiguration("terminal.integrated.fontSize")||i.affectsConfiguration("terminal.integrated.lineHeight")||i.affectsConfiguration("terminal.integrated.fontFamily")||i.affectsConfiguration("editor.fontSize")||i.affectsConfiguration("editor.fontFamily"))&&this._onDidFontConfigurationChange.fire()})),this._terminal?.element?.querySelector(".xterm-helper-textarea")&&this._register(_.addDisposableListener(_.getActiveDocument(),"click",i=>{const t=i.target;this._terminal?.element?.contains(t)&&this._suggestWidget?.hide()})),this._register(this._suggestWidget.onDidBlurDetails(i=>{const t=i.relatedTarget;this._terminal?.element?.contains(t)||this._suggestWidget?.hide()})),this._terminalSuggestWidgetVisibleContextKey.set(!1)),this._suggestWidget}selectPreviousSuggestion(){this._suggestWidget?.selectPrevious()}selectPreviousPageSuggestion(){this._suggestWidget?.selectPreviousPage()}selectNextSuggestion(){this._suggestWidget?.selectNext()}selectNextPageSuggestion(){this._suggestWidget?.selectNextPage()}acceptSelectedSuggestion(e,n){e||(e=this._suggestWidget?.getFocusedItem());const i=this._mostRecentPromptInputState;if(!e||!i||this._leadingLineContent===void 0||!this._model){this._suggestTelemetry?.acceptCompletion(void 0,this._mostRecentPromptInputState?.value);return}f.lastAcceptedCompletionTimestamp=Date.now(),this._suggestWidget?.hide();const t=this._currentPromptInputState??i,o=t.value.substring(e.item.completion.replacementIndex,t.cursorIndex);let s="";if((t.ghostTextIndex===-1||t.ghostTextIndex>t.cursorIndex)&&t.value.length>t.cursorIndex+1&&t.value.at(t.cursorIndex)!==" "){const a=t.value.substring(t.cursorIndex,t.ghostTextIndex===-1?void 0:t.ghostTextIndex).indexOf(" ");s=t.value.substring(t.cursorIndex,a===-1?void 0:t.cursorIndex+a)}const r=e.item.completion;let h=r.inputData;if(h===void 0){let a=typeof r.label=="string"?r.label:r.label.label;(r.kind===l.Folder||r.isFileOverride)&&a.includes(" ")&&(a=a.replaceAll(" ","\\ "));let g=!1;if(n)switch(this._configurationService.getValue(S).runOnEnter){case"always":{g=!0;break}case"exactMatch":{g=o.toLowerCase()===a.toLowerCase();break}case"exactMatchIgnoreExtension":{g=o.toLowerCase()===a.toLowerCase(),r.isFileOverride&&(g||=o.toLowerCase()===a.toLowerCase().replace(/\.[^\.]+$/,""));break}}const d=O(o,a),C=o.substring(o.length-1-d,o.length-1),c=a.substring(d);t.suffix.length>0&&t.prefix.endsWith(C)&&t.suffix.startsWith(c)?h="\x1BOC".repeat(a.length-d):h=["\x7F".repeat(o.length-d),"\x1B[3~".repeat(s.length),c,g?"\r":""].join("")}r.kind===l.Folder&&(f.lastAcceptedCompletionTimestamp=0),this._onAcceptedCompletion.fire(h),this._suggestTelemetry?.acceptCompletion(r,this._mostRecentPromptInputState?.value),this.hideSuggestWidget(!0)}hideSuggestWidget(e){e&&(this._cancellationTokenSource?.cancel(),this._cancellationTokenSource=void 0),this._currentPromptInputState=void 0,this._leadingLineContent=void 0,this._suggestWidget?.hide()}};W=f=L([p(3,H),p(4,q),p(5,V),p(6,$),p(7,Q)],W);let y=class{constructor(e){this._storageService=e,this._key="terminal.integrated.suggestSize"}restore(){const e=this._storageService.get(this._key,0)??"";try{const n=JSON.parse(e);if(_.Dimension.is(n))return _.Dimension.lift(n)}catch{}}store(e){this._storageService.store(this._key,JSON.stringify(e),0,1)}reset(){this._storageService.remove(this._key,0)}};y=L([p(0,K)],y);function M(u,e){return e==="/"?u.replaceAll("\\","/"):u.replaceAll("/","\\")}export{W as SuggestAddon,M as normalizePathSeparator};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../../base/browser/dom.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { combinedDisposable, Disposable, MutableDisposable } from "../../../../../base/common/lifecycle.js";
+import { sep } from "../../../../../base/common/path.js";
+import { commonPrefixLength } from "../../../../../base/common/strings.js";
+import { editorSuggestWidgetSelectedBackground } from "../../../../../editor/contrib/suggest/browser/suggestWidget.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IStorageService } from "../../../../../platform/storage/common/storage.js";
+import { getListStyles } from "../../../../../platform/theme/browser/defaultStyles.js";
+import { activeContrastBorder } from "../../../../../platform/theme/common/colorRegistry.js";
+import { terminalSuggestConfigSection } from "../common/terminalSuggestConfiguration.js";
+import { LineContext } from "../../../../services/suggest/browser/simpleCompletionModel.js";
+import { SimpleSuggestWidget } from "../../../../services/suggest/browser/simpleSuggestWidget.js";
+import { ITerminalCompletionService } from "./terminalCompletionService.js";
+import { CancellationTokenSource } from "../../../../../base/common/cancellation.js";
+import { IExtensionService } from "../../../../services/extensions/common/extensions.js";
+import { MenuId } from "../../../../../platform/actions/common/actions.js";
+import { ITerminalConfigurationService } from "../../../terminal/browser/terminal.js";
+import { GOLDEN_LINE_HEIGHT_RATIO, MINIMUM_LINE_HEIGHT } from "../../../../../editor/common/config/fontInfo.js";
+import { TerminalCompletionModel } from "./terminalCompletionModel.js";
+import { TerminalCompletionItem, TerminalCompletionItemKind } from "./terminalCompletionItem.js";
+import { IntervalTimer, TimeoutTimer } from "../../../../../base/common/async.js";
+import { localize } from "../../../../../nls.js";
+import { TerminalSuggestTelemetry } from "./terminalSuggestTelemetry.js";
+import { terminalSymbolAliasIcon, terminalSymbolArgumentIcon, terminalSymbolEnumMember, terminalSymbolFileIcon, terminalSymbolFlagIcon, terminalSymbolInlineSuggestionIcon, terminalSymbolMethodIcon, terminalSymbolOptionIcon, terminalSymbolFolderIcon } from "./terminalSymbolIcons.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var SuggestAddon_1;
+let SuggestAddon = class SuggestAddon2 extends Disposable {
+  static {
+    __name(this, "SuggestAddon");
+  }
+  static {
+    SuggestAddon_1 = this;
+  }
+  static {
+    this.lastAcceptedCompletionTimestamp = 0;
+  }
+  constructor(shellType, _capabilities, _terminalSuggestWidgetVisibleContextKey, _terminalCompletionService, _configurationService, _instantiationService, _extensionService, _terminalConfigurationService) {
+    super();
+    this._capabilities = _capabilities;
+    this._terminalSuggestWidgetVisibleContextKey = _terminalSuggestWidgetVisibleContextKey;
+    this._terminalCompletionService = _terminalCompletionService;
+    this._configurationService = _configurationService;
+    this._instantiationService = _instantiationService;
+    this._extensionService = _extensionService;
+    this._terminalConfigurationService = _terminalConfigurationService;
+    this._promptInputModelSubscriptions = this._register(new MutableDisposable());
+    this._enableWidget = true;
+    this._pathSeparator = sep;
+    this._isFilteringDirectories = false;
+    this._cursorIndexDelta = 0;
+    this._requestedCompletionsIndex = 0;
+    this._lastUserDataTimestamp = 0;
+    this.isPasting = false;
+    this._onBell = this._register(new Emitter());
+    this.onBell = this._onBell.event;
+    this._onAcceptedCompletion = this._register(new Emitter());
+    this.onAcceptedCompletion = this._onAcceptedCompletion.event;
+    this._onDidReceiveCompletions = this._register(new Emitter());
+    this.onDidReceiveCompletions = this._onDidReceiveCompletions.event;
+    this._onDidFontConfigurationChange = this._register(new Emitter());
+    this.onDidFontConfigurationChange = this._onDidFontConfigurationChange.event;
+    this._kindToIconMap = /* @__PURE__ */ new Map([
+      [TerminalCompletionItemKind.File, terminalSymbolFileIcon],
+      [TerminalCompletionItemKind.Folder, terminalSymbolFolderIcon],
+      [TerminalCompletionItemKind.Method, terminalSymbolMethodIcon],
+      [TerminalCompletionItemKind.Alias, terminalSymbolAliasIcon],
+      [TerminalCompletionItemKind.Argument, terminalSymbolArgumentIcon],
+      [TerminalCompletionItemKind.Option, terminalSymbolOptionIcon],
+      [TerminalCompletionItemKind.OptionValue, terminalSymbolEnumMember],
+      [TerminalCompletionItemKind.Flag, terminalSymbolFlagIcon],
+      [TerminalCompletionItemKind.InlineSuggestion, terminalSymbolInlineSuggestionIcon],
+      [TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop, terminalSymbolInlineSuggestionIcon]
+    ]);
+    this._kindToKindLabelMap = /* @__PURE__ */ new Map([
+      [TerminalCompletionItemKind.File, localize("file", "File")],
+      [TerminalCompletionItemKind.Folder, localize("folder", "Folder")],
+      [TerminalCompletionItemKind.Method, localize("method", "Method")],
+      [TerminalCompletionItemKind.Alias, localize("alias", "Alias")],
+      [TerminalCompletionItemKind.Argument, localize("argument", "Argument")],
+      [TerminalCompletionItemKind.Option, localize("option", "Option")],
+      [TerminalCompletionItemKind.OptionValue, localize("optionValue", "Option Value")],
+      [TerminalCompletionItemKind.Flag, localize("flag", "Flag")],
+      [TerminalCompletionItemKind.InlineSuggestion, localize("inlineSuggestion", "Inline Suggestion")],
+      [TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop, localize("inlineSuggestionAlwaysOnTop", "Inline Suggestion")]
+    ]);
+    this._inlineCompletion = {
+      label: "",
+      // Right arrow is used to accept the completion. This is a common keybinding in pwsh, zsh
+      // and fish.
+      inputData: "\x1B[C",
+      replacementIndex: 0,
+      replacementLength: 0,
+      provider: "core",
+      detail: "Inline suggestion",
+      kind: TerminalCompletionItemKind.InlineSuggestion,
+      kindLabel: "Inline suggestion",
+      icon: this._kindToIconMap.get(TerminalCompletionItemKind.InlineSuggestion)
+    };
+    this._inlineCompletionItem = new TerminalCompletionItem(this._inlineCompletion);
+    this._shouldSyncWhenReady = false;
+    this.shellType = shellType;
+    if (this.shellType) {
+      this._shellTypeInit = Promise.resolve();
+    } else {
+      const intervalTimer = this._register(new IntervalTimer());
+      const timeoutTimer = this._register(new TimeoutTimer());
+      this._shellTypeInit = new Promise((r) => {
+        intervalTimer.cancelAndSet(() => {
+          if (this.shellType) {
+            r();
+          }
+        }, 50);
+        timeoutTimer.cancelAndSet(r, 5e3);
+      }).then(() => {
+        this._store.delete(intervalTimer);
+        this._store.delete(timeoutTimer);
+      });
+    }
+    this._register(Event.runAndSubscribe(Event.any(this._capabilities.onDidAddCapabilityType, this._capabilities.onDidRemoveCapabilityType), () => {
+      const commandDetection = this._capabilities.get(
+        2
+        /* TerminalCapability.CommandDetection */
+      );
+      if (commandDetection) {
+        if (this._promptInputModel !== commandDetection.promptInputModel) {
+          this._promptInputModel = commandDetection.promptInputModel;
+          this._suggestTelemetry = this._register(this._instantiationService.createInstance(TerminalSuggestTelemetry, commandDetection, this._promptInputModel));
+          this._promptInputModelSubscriptions.value = combinedDisposable(this._promptInputModel.onDidChangeInput((e) => this._sync(e)), this._promptInputModel.onDidFinishInput(() => {
+            this.hideSuggestWidget(true);
+          }));
+          if (this._shouldSyncWhenReady) {
+            this._sync(this._promptInputModel);
+            this._shouldSyncWhenReady = false;
+          }
+        }
+      } else {
+        this._promptInputModel = void 0;
+      }
+    }));
+    this._register(this._terminalConfigurationService.onConfigChanged(() => this._cachedFontInfo = void 0));
+    this._register(Event.runAndSubscribe(this._configurationService.onDidChangeConfiguration, (e) => {
+      if (!e || e.affectsConfiguration(
+        "terminal.integrated.suggest.inlineSuggestion"
+        /* TerminalSuggestSettingId.InlineSuggestion */
+      )) {
+        const value = this._configurationService.getValue(terminalSuggestConfigSection).inlineSuggestion;
+        this._inlineCompletionItem.isInvalid = value === "off";
+        switch (value) {
+          case "alwaysOnTopExceptExactMatch": {
+            this._inlineCompletion.kind = TerminalCompletionItemKind.InlineSuggestion;
+            break;
+          }
+          case "alwaysOnTop":
+          default: {
+            this._inlineCompletion.kind = TerminalCompletionItemKind.InlineSuggestionAlwaysOnTop;
+            break;
+          }
+        }
+        this._model?.forceRefilterAll();
+      }
+    }));
+  }
+  activate(xterm) {
+    this._terminal = xterm;
+    this._register(xterm.onKey(async (e) => {
+      this._lastUserData = e.key;
+      this._lastUserDataTimestamp = Date.now();
+    }));
+    this._register(xterm.onScroll(() => this.hideSuggestWidget(true)));
+  }
+  async _handleCompletionProviders(terminal, token, explicitlyInvoked) {
+    if (!terminal?.element || !this._enableWidget || !this._promptInputModel) {
+      return;
+    }
+    if (!dom.isAncestorOfActiveElement(terminal.element)) {
+      return;
+    }
+    await this._shellTypeInit;
+    if (!this.shellType) {
+      return;
+    }
+    let doNotRequestExtensionCompletions = false;
+    if (this._lastUserDataTimestamp < SuggestAddon_1.lastAcceptedCompletionTimestamp) {
+      doNotRequestExtensionCompletions = true;
+    }
+    if (!doNotRequestExtensionCompletions) {
+      await this._extensionService.activateByEvent("onTerminalCompletionsRequested");
+    }
+    this._currentPromptInputState = {
+      value: this._promptInputModel.value,
+      prefix: this._promptInputModel.prefix,
+      suffix: this._promptInputModel.suffix,
+      cursorIndex: this._promptInputModel.cursorIndex,
+      ghostTextIndex: this._promptInputModel.ghostTextIndex
+    };
+    this._requestedCompletionsIndex = this._currentPromptInputState.cursorIndex;
+    const quickSuggestionsConfig = this._configurationService.getValue(terminalSuggestConfigSection).quickSuggestions;
+    const allowFallbackCompletions = explicitlyInvoked || quickSuggestionsConfig.unknown === "on";
+    const providedCompletions = await this._terminalCompletionService.provideCompletions(this._currentPromptInputState.prefix, this._currentPromptInputState.cursorIndex, allowFallbackCompletions, this.shellType, this._capabilities, token, doNotRequestExtensionCompletions);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    this._onDidReceiveCompletions.fire();
+    this._cursorIndexDelta = this._promptInputModel.cursorIndex - this._requestedCompletionsIndex;
+    this._leadingLineContent = this._promptInputModel.prefix.substring(0, this._requestedCompletionsIndex + this._cursorIndexDelta);
+    const completions = providedCompletions?.flat() || [];
+    if (!explicitlyInvoked && !completions.length) {
+      this.hideSuggestWidget(true);
+      return;
+    }
+    const firstChar = this._leadingLineContent.length === 0 ? "" : this._leadingLineContent[0];
+    if (this._leadingLineContent.includes(" ") || firstChar === "[") {
+      this._leadingLineContent = this._promptInputModel.prefix;
+    }
+    let normalizedLeadingLineContent = this._leadingLineContent;
+    this._isFilteringDirectories = completions.some((e) => e.kind === TerminalCompletionItemKind.Folder);
+    if (this._isFilteringDirectories) {
+      const firstDir = completions.find((e) => e.kind === TerminalCompletionItemKind.Folder);
+      const textLabel = typeof firstDir?.label === "string" ? firstDir.label : firstDir?.label.label;
+      this._pathSeparator = textLabel?.match(/(?<sep>[\\\/])/)?.groups?.sep ?? sep;
+      normalizedLeadingLineContent = normalizePathSeparator(normalizedLeadingLineContent, this._pathSeparator);
+    }
+    this._refreshInlineCompletion(completions);
+    for (const completion of completions) {
+      if (!completion.icon && completion.kind !== void 0) {
+        completion.icon = this._kindToIconMap.get(completion.kind);
+        completion.kindLabel = this._kindToKindLabelMap.get(completion.kind);
+      }
+    }
+    const lineContext = new LineContext(normalizedLeadingLineContent, this._cursorIndexDelta);
+    const model = new TerminalCompletionModel([
+      ...completions.filter((c) => !!c.label).map((c) => new TerminalCompletionItem(c)),
+      this._inlineCompletionItem
+    ], lineContext);
+    if (token.isCancellationRequested) {
+      return;
+    }
+    this._showCompletions(model, explicitlyInvoked);
+  }
+  setContainerWithOverflow(container) {
+    this._container = container;
+  }
+  setScreen(screen) {
+    this._screen = screen;
+  }
+  toggleExplainMode() {
+    this._suggestWidget?.toggleExplainMode();
+  }
+  toggleSuggestionFocus() {
+    this._suggestWidget?.toggleDetailsFocus();
+  }
+  toggleSuggestionDetails() {
+    this._suggestWidget?.toggleDetails();
+  }
+  resetWidgetSize() {
+    this._suggestWidget?.resetWidgetSize();
+  }
+  async requestCompletions(explicitlyInvoked) {
+    if (!this._promptInputModel) {
+      this._shouldSyncWhenReady = true;
+      return;
+    }
+    if (this.isPasting) {
+      return;
+    }
+    if (this._cancellationTokenSource) {
+      this._cancellationTokenSource.cancel();
+      this._cancellationTokenSource.dispose();
+    }
+    this._cancellationTokenSource = new CancellationTokenSource();
+    const token = this._cancellationTokenSource.token;
+    await this._handleCompletionProviders(this._terminal, token, explicitlyInvoked);
+  }
+  _addPropertiesToInlineCompletionItem(completions) {
+    const inlineCompletionLabel = (typeof this._inlineCompletionItem.completion.label === "string" ? this._inlineCompletionItem.completion.label : this._inlineCompletionItem.completion.label.label).trim();
+    const inlineCompletionMatchIndex = completions.findIndex((c) => typeof c.label === "string" ? c.label === inlineCompletionLabel : c.label.label === inlineCompletionLabel);
+    if (inlineCompletionMatchIndex !== -1) {
+      const richCompletionMatchingInline = completions.splice(inlineCompletionMatchIndex, 1)[0];
+      this._inlineCompletionItem.completion.label = richCompletionMatchingInline.label;
+      this._inlineCompletionItem.completion.detail = richCompletionMatchingInline.detail;
+      this._inlineCompletionItem.completion.documentation = richCompletionMatchingInline.documentation;
+    } else if (this._inlineCompletionItem.completion) {
+      this._inlineCompletionItem.completion.detail = void 0;
+      this._inlineCompletionItem.completion.documentation = void 0;
+    }
+  }
+  _requestTriggerCharQuickSuggestCompletions() {
+    if (!this._wasLastInputVerticalArrowKey()) {
+      if (!this._wasLastInputIncludedEscape() || this._terminalSuggestWidgetVisibleContextKey.get()) {
+        this.requestCompletions();
+        return true;
+      }
+    }
+    return false;
+  }
+  _wasLastInputRightArrowKey() {
+    return !!this._lastUserData?.match(/^\x1b[\[O]?C$/);
+  }
+  _wasLastInputVerticalArrowKey() {
+    return !!this._lastUserData?.match(/^\x1b[\[O]?[A-B]$/);
+  }
+  /**
+   * Whether the last input included the escape character. Typically this will mean it was more
+   * than just a simple character, such as arrow keys, home, end, etc.
+   */
+  _wasLastInputIncludedEscape() {
+    return !!this._lastUserData?.includes("\x1B");
+  }
+  _wasLastInputArrowKey() {
+    return !!this._lastUserData?.match(/^\x1b[\[O]?[A-D]$/);
+  }
+  _sync(promptInputState) {
+    const config = this._configurationService.getValue(terminalSuggestConfigSection);
+    {
+      let sent = false;
+      if (!this._mostRecentPromptInputState || promptInputState.cursorIndex > this._mostRecentPromptInputState.cursorIndex) {
+        if (!this._terminalSuggestWidgetVisibleContextKey.get()) {
+          const commandLineHasSpace = promptInputState.prefix.trim().match(/\s/);
+          if (!commandLineHasSpace && config.quickSuggestions.commands !== "off" || commandLineHasSpace && config.quickSuggestions.arguments !== "off") {
+            if (promptInputState.prefix.match(/[^\s]$/)) {
+              sent = this._requestTriggerCharQuickSuggestCompletions();
+            }
+          }
+        }
+        if (config.suggestOnTriggerCharacters && !sent) {
+          const prefix = promptInputState.prefix;
+          if (
+            // Only trigger on `-` if it's after a space. This is required to not clear
+            // completions when typing the `-` in `git cherry-pick`
+            prefix?.match(/\s[\-]$/) || // Only trigger on `\` and `/` if it's a directory. Not doing so causes problems
+            // with git branches in particular
+            this._isFilteringDirectories && prefix?.match(/[\\\/]$/)
+          ) {
+            sent = this._requestTriggerCharQuickSuggestCompletions();
+          }
+          if (!sent) {
+            for (const provider of this._terminalCompletionService.providers) {
+              if (!provider.triggerCharacters) {
+                continue;
+              }
+              for (const char of provider.triggerCharacters) {
+                if (prefix?.endsWith(char)) {
+                  sent = this._requestTriggerCharQuickSuggestCompletions();
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (this._mostRecentPromptInputState && promptInputState.cursorIndex < this._mostRecentPromptInputState.cursorIndex && promptInputState.cursorIndex > 0) {
+        if (this._terminalSuggestWidgetVisibleContextKey.get()) {
+          if (config.suggestOnTriggerCharacters && !sent && this._mostRecentPromptInputState.cursorIndex > 0) {
+            const char = this._mostRecentPromptInputState.value[this._mostRecentPromptInputState.cursorIndex - 1];
+            if (
+              // Only trigger on `\` and `/` if it's a directory. Not doing so causes problems
+              // with git branches in particular
+              this._isFilteringDirectories && char.match(/[\\\/]$/)
+            ) {
+              sent = this._requestTriggerCharQuickSuggestCompletions();
+            }
+          }
+        }
+      }
+    }
+    if (this._wasLastInputRightArrowKey() && this._mostRecentPromptInputState?.ghostTextIndex !== -1 && promptInputState.ghostTextIndex === -1 && this._mostRecentPromptInputState?.value === promptInputState.value) {
+      this.hideSuggestWidget(false);
+    }
+    this._mostRecentPromptInputState = promptInputState;
+    if (!this._promptInputModel || !this._terminal || !this._suggestWidget || this._leadingLineContent === void 0) {
+      return;
+    }
+    const previousPromptInputState = this._currentPromptInputState;
+    this._currentPromptInputState = promptInputState;
+    if (this._currentPromptInputState.cursorIndex > 1 && this._currentPromptInputState.value.at(this._currentPromptInputState.cursorIndex - 1) === " ") {
+      if (!this._wasLastInputArrowKey()) {
+        this.hideSuggestWidget(false);
+        return;
+      }
+    }
+    if (this._currentPromptInputState && this._currentPromptInputState.cursorIndex < this._leadingLineContent.length) {
+      if (this._currentPromptInputState.cursorIndex <= 0 || previousPromptInputState?.value[this._currentPromptInputState.cursorIndex]?.match(/[\\\/\s]/)) {
+        this.hideSuggestWidget(false);
+        return;
+      }
+    }
+    if (this._terminalSuggestWidgetVisibleContextKey.get()) {
+      this._cursorIndexDelta = this._currentPromptInputState.cursorIndex - this._requestedCompletionsIndex;
+      let normalizedLeadingLineContent = this._currentPromptInputState.value.substring(0, this._requestedCompletionsIndex + this._cursorIndexDelta);
+      if (this._isFilteringDirectories) {
+        normalizedLeadingLineContent = normalizePathSeparator(normalizedLeadingLineContent, this._pathSeparator);
+      }
+      const lineContext = new LineContext(normalizedLeadingLineContent, this._cursorIndexDelta);
+      this._suggestWidget.setLineContext(lineContext);
+    }
+    this._refreshInlineCompletion(this._model?.items.map((i) => i.completion) || []);
+    if (!this._suggestWidget.hasCompletions()) {
+      this.hideSuggestWidget(false);
+      return;
+    }
+    const dimensions = this._getTerminalDimensions();
+    if (!dimensions.width || !dimensions.height) {
+      return;
+    }
+    const xtermBox = this._screen.getBoundingClientRect();
+    this._suggestWidget.showSuggestions(0, false, true, {
+      left: xtermBox.left + this._terminal.buffer.active.cursorX * dimensions.width,
+      top: xtermBox.top + this._terminal.buffer.active.cursorY * dimensions.height,
+      height: dimensions.height
+    });
+  }
+  _refreshInlineCompletion(completions) {
+    const oldIsInvalid = this._inlineCompletionItem.isInvalid;
+    if (!this._currentPromptInputState || this._currentPromptInputState.ghostTextIndex === -1) {
+      this._inlineCompletionItem.isInvalid = true;
+    } else {
+      this._inlineCompletionItem.isInvalid = false;
+      const spaceIndex = this._currentPromptInputState.value.lastIndexOf(" ", this._currentPromptInputState.ghostTextIndex - 1);
+      const replacementIndex = spaceIndex === -1 ? 0 : spaceIndex + 1;
+      const suggestion = this._currentPromptInputState.value.substring(replacementIndex);
+      this._inlineCompletion.label = suggestion;
+      this._inlineCompletion.replacementIndex = replacementIndex;
+      this._inlineCompletion.replacementLength = this._currentPromptInputState.cursorIndex - replacementIndex - this._cursorIndexDelta;
+      this._addPropertiesToInlineCompletionItem(completions);
+      const x = new TerminalCompletionItem(this._inlineCompletion);
+      this._inlineCompletionItem.idx = x.idx;
+      this._inlineCompletionItem.score = x.score;
+      this._inlineCompletionItem.labelLow = x.labelLow;
+      this._inlineCompletionItem.textLabel = x.textLabel;
+      this._inlineCompletionItem.fileExtLow = x.fileExtLow;
+      this._inlineCompletionItem.labelLowExcludeFileExt = x.labelLowExcludeFileExt;
+      this._inlineCompletionItem.labelLowNormalizedPath = x.labelLowNormalizedPath;
+      this._inlineCompletionItem.underscorePenalty = x.underscorePenalty;
+      this._inlineCompletionItem.word = x.word;
+      this._model?.forceRefilterAll();
+    }
+    if (this._inlineCompletionItem.isInvalid !== oldIsInvalid) {
+      this._model?.forceRefilterAll();
+    }
+  }
+  _getTerminalDimensions() {
+    const cssCellDims = this._terminal._core._renderService.dimensions.css.cell;
+    return {
+      width: cssCellDims.width,
+      height: cssCellDims.height
+    };
+  }
+  _getFontInfo() {
+    if (this._cachedFontInfo) {
+      return this._cachedFontInfo;
+    }
+    const core = this._terminal._core;
+    const font = this._terminalConfigurationService.getFont(dom.getActiveWindow(), core);
+    let lineHeight = font.lineHeight;
+    const fontSize = font.fontSize;
+    const fontFamily = font.fontFamily;
+    const letterSpacing = font.letterSpacing;
+    const fontWeight = this._configurationService.getValue("editor.fontWeight");
+    if (lineHeight <= 1) {
+      lineHeight = GOLDEN_LINE_HEIGHT_RATIO * fontSize;
+    } else if (lineHeight < MINIMUM_LINE_HEIGHT) {
+      lineHeight = lineHeight * fontSize;
+    }
+    lineHeight = Math.round(lineHeight);
+    if (lineHeight < MINIMUM_LINE_HEIGHT) {
+      lineHeight = MINIMUM_LINE_HEIGHT;
+    }
+    const fontInfo = {
+      fontSize,
+      lineHeight,
+      fontWeight: fontWeight.toString(),
+      letterSpacing,
+      fontFamily
+    };
+    this._cachedFontInfo = fontInfo;
+    return fontInfo;
+  }
+  _getAdvancedExplainModeDetails() {
+    return `promptInputModel: ${this._promptInputModel?.getCombinedString()}`;
+  }
+  _showCompletions(model, explicitlyInvoked) {
+    if (!this._terminal?.element) {
+      return;
+    }
+    const suggestWidget = this._ensureSuggestWidget(this._terminal);
+    suggestWidget.setCompletionModel(model);
+    this._register(suggestWidget.onDidFocus(() => this._terminal?.focus()));
+    if (!this._promptInputModel || !explicitlyInvoked && model.items.length === 0) {
+      return;
+    }
+    this._model = model;
+    const dimensions = this._getTerminalDimensions();
+    if (!dimensions.width || !dimensions.height) {
+      return;
+    }
+    const xtermBox = this._screen.getBoundingClientRect();
+    suggestWidget.showSuggestions(0, false, !explicitlyInvoked, {
+      left: xtermBox.left + this._terminal.buffer.active.cursorX * dimensions.width,
+      top: xtermBox.top + this._terminal.buffer.active.cursorY * dimensions.height,
+      height: dimensions.height
+    });
+  }
+  _ensureSuggestWidget(terminal) {
+    if (!this._suggestWidget) {
+      this._suggestWidget = this._register(this._instantiationService.createInstance(SimpleSuggestWidget, this._container, this._instantiationService.createInstance(PersistedWidgetSize), {
+        statusBarMenuId: MenuId.MenubarTerminalSuggestStatusMenu,
+        showStatusBarSettingId: "terminal.integrated.suggest.showStatusBar"
+        /* TerminalSuggestSettingId.ShowStatusBar */
+      }, this._getFontInfo.bind(this), this._onDidFontConfigurationChange.event.bind(this), this._getAdvancedExplainModeDetails.bind(this)));
+      this._suggestWidget.list.style(getListStyles({
+        listInactiveFocusBackground: editorSuggestWidgetSelectedBackground,
+        listInactiveFocusOutline: activeContrastBorder
+      }));
+      this._register(this._suggestWidget.onDidSelect(async (e) => this.acceptSelectedSuggestion(e)));
+      this._register(this._suggestWidget.onDidHide(() => this._terminalSuggestWidgetVisibleContextKey.reset()));
+      this._register(this._suggestWidget.onDidShow(() => this._terminalSuggestWidgetVisibleContextKey.set(true)));
+      this._register(this._configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(
+          "terminal.integrated.fontFamily"
+          /* TerminalSettingId.FontFamily */
+        ) || e.affectsConfiguration(
+          "terminal.integrated.fontSize"
+          /* TerminalSettingId.FontSize */
+        ) || e.affectsConfiguration(
+          "terminal.integrated.lineHeight"
+          /* TerminalSettingId.LineHeight */
+        ) || e.affectsConfiguration(
+          "terminal.integrated.fontFamily"
+          /* TerminalSettingId.FontFamily */
+        ) || e.affectsConfiguration("editor.fontSize") || e.affectsConfiguration("editor.fontFamily")) {
+          this._onDidFontConfigurationChange.fire();
+        }
+      }));
+      const element = this._terminal?.element?.querySelector(".xterm-helper-textarea");
+      if (element) {
+        this._register(dom.addDisposableListener(dom.getActiveDocument(), "click", (event) => {
+          const target = event.target;
+          if (this._terminal?.element?.contains(target)) {
+            this._suggestWidget?.hide();
+          }
+        }));
+      }
+      this._register(this._suggestWidget.onDidBlurDetails((e) => {
+        const elt = e.relatedTarget;
+        if (this._terminal?.element?.contains(elt)) {
+          return;
+        }
+        this._suggestWidget?.hide();
+      }));
+      this._terminalSuggestWidgetVisibleContextKey.set(false);
+    }
+    return this._suggestWidget;
+  }
+  selectPreviousSuggestion() {
+    this._suggestWidget?.selectPrevious();
+  }
+  selectPreviousPageSuggestion() {
+    this._suggestWidget?.selectPreviousPage();
+  }
+  selectNextSuggestion() {
+    this._suggestWidget?.selectNext();
+  }
+  selectNextPageSuggestion() {
+    this._suggestWidget?.selectNextPage();
+  }
+  acceptSelectedSuggestion(suggestion, respectRunOnEnter) {
+    if (!suggestion) {
+      suggestion = this._suggestWidget?.getFocusedItem();
+    }
+    const initialPromptInputState = this._mostRecentPromptInputState;
+    if (!suggestion || !initialPromptInputState || this._leadingLineContent === void 0 || !this._model) {
+      this._suggestTelemetry?.acceptCompletion(void 0, this._mostRecentPromptInputState?.value);
+      return;
+    }
+    SuggestAddon_1.lastAcceptedCompletionTimestamp = Date.now();
+    this._suggestWidget?.hide();
+    const currentPromptInputState = this._currentPromptInputState ?? initialPromptInputState;
+    const replacementText = currentPromptInputState.value.substring(suggestion.item.completion.replacementIndex, currentPromptInputState.cursorIndex);
+    let rightSideReplacementText = "";
+    if (
+      // The line didn't end with ghost text
+      (currentPromptInputState.ghostTextIndex === -1 || currentPromptInputState.ghostTextIndex > currentPromptInputState.cursorIndex) && // There is more than one charatcer
+      currentPromptInputState.value.length > currentPromptInputState.cursorIndex + 1 && // THe next character is not a space
+      currentPromptInputState.value.at(currentPromptInputState.cursorIndex) !== " "
+    ) {
+      const spaceIndex = currentPromptInputState.value.substring(currentPromptInputState.cursorIndex, currentPromptInputState.ghostTextIndex === -1 ? void 0 : currentPromptInputState.ghostTextIndex).indexOf(" ");
+      rightSideReplacementText = currentPromptInputState.value.substring(currentPromptInputState.cursorIndex, spaceIndex === -1 ? void 0 : currentPromptInputState.cursorIndex + spaceIndex);
+    }
+    const completion = suggestion.item.completion;
+    let resultSequence = completion.inputData;
+    if (resultSequence === void 0) {
+      let completionText = typeof completion.label === "string" ? completion.label : completion.label.label;
+      if ((completion.kind === TerminalCompletionItemKind.Folder || completion.isFileOverride) && completionText.includes(" ")) {
+        completionText = completionText.replaceAll(" ", "\\ ");
+      }
+      let runOnEnter = false;
+      if (respectRunOnEnter) {
+        const runOnEnterConfig = this._configurationService.getValue(terminalSuggestConfigSection).runOnEnter;
+        switch (runOnEnterConfig) {
+          case "always": {
+            runOnEnter = true;
+            break;
+          }
+          case "exactMatch": {
+            runOnEnter = replacementText.toLowerCase() === completionText.toLowerCase();
+            break;
+          }
+          case "exactMatchIgnoreExtension": {
+            runOnEnter = replacementText.toLowerCase() === completionText.toLowerCase();
+            if (completion.isFileOverride) {
+              runOnEnter ||= replacementText.toLowerCase() === completionText.toLowerCase().replace(/\.[^\.]+$/, "");
+            }
+            break;
+          }
+        }
+      }
+      const commonPrefixLen = commonPrefixLength(replacementText, completionText);
+      const commonPrefix = replacementText.substring(replacementText.length - 1 - commonPrefixLen, replacementText.length - 1);
+      const completionSuffix = completionText.substring(commonPrefixLen);
+      if (currentPromptInputState.suffix.length > 0 && currentPromptInputState.prefix.endsWith(commonPrefix) && currentPromptInputState.suffix.startsWith(completionSuffix)) {
+        resultSequence = "\x1BOC".repeat(completionText.length - commonPrefixLen);
+      } else {
+        resultSequence = [
+          // Backspace (left) to remove all additional input
+          "\x7F".repeat(replacementText.length - commonPrefixLen),
+          // Delete (right) to remove any additional text in the same word
+          "\x1B[3~".repeat(rightSideReplacementText.length),
+          // Write the completion
+          completionSuffix,
+          // Run on enter if needed
+          runOnEnter ? "\r" : ""
+        ].join("");
+      }
+    }
+    if (completion.kind === TerminalCompletionItemKind.Folder) {
+      SuggestAddon_1.lastAcceptedCompletionTimestamp = 0;
+    }
+    this._onAcceptedCompletion.fire(resultSequence);
+    this._suggestTelemetry?.acceptCompletion(completion, this._mostRecentPromptInputState?.value);
+    this.hideSuggestWidget(true);
+  }
+  hideSuggestWidget(cancelAnyRequest) {
+    if (cancelAnyRequest) {
+      this._cancellationTokenSource?.cancel();
+      this._cancellationTokenSource = void 0;
+    }
+    this._currentPromptInputState = void 0;
+    this._leadingLineContent = void 0;
+    this._suggestWidget?.hide();
+  }
+};
+SuggestAddon = SuggestAddon_1 = __decorate([
+  __param(3, ITerminalCompletionService),
+  __param(4, IConfigurationService),
+  __param(5, IInstantiationService),
+  __param(6, IExtensionService),
+  __param(7, ITerminalConfigurationService)
+], SuggestAddon);
+let PersistedWidgetSize = class PersistedWidgetSize2 {
+  static {
+    __name(this, "PersistedWidgetSize");
+  }
+  constructor(_storageService) {
+    this._storageService = _storageService;
+    this._key = "terminal.integrated.suggestSize";
+  }
+  restore() {
+    const raw = this._storageService.get(
+      this._key,
+      0
+      /* StorageScope.PROFILE */
+    ) ?? "";
+    try {
+      const obj = JSON.parse(raw);
+      if (dom.Dimension.is(obj)) {
+        return dom.Dimension.lift(obj);
+      }
+    } catch {
+    }
+    return void 0;
+  }
+  store(size) {
+    this._storageService.store(
+      this._key,
+      JSON.stringify(size),
+      0,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  reset() {
+    this._storageService.remove(
+      this._key,
+      0
+      /* StorageScope.PROFILE */
+    );
+  }
+};
+PersistedWidgetSize = __decorate([
+  __param(0, IStorageService)
+], PersistedWidgetSize);
+function normalizePathSeparator(path, sep2) {
+  if (sep2 === "/") {
+    return path.replaceAll("\\", "/");
+  }
+  return path.replaceAll("/", "\\");
+}
+__name(normalizePathSeparator, "normalizePathSeparator");
+export {
+  SuggestAddon,
+  normalizePathSeparator
+};
+//# sourceMappingURL=terminalSuggestAddon.js.map

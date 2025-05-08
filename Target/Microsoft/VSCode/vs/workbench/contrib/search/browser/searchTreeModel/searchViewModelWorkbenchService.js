@@ -1,1 +1,6 @@
-import{createDecorator as e}from"../../../../../platform/instantiation/common/instantiation.js";const o=e("searchViewModelWorkbenchService");export{o as ISearchViewModelWorkbenchService};
+import { createDecorator } from "../../../../../platform/instantiation/common/instantiation.js";
+const ISearchViewModelWorkbenchService = createDecorator("searchViewModelWorkbenchService");
+export {
+  ISearchViewModelWorkbenchService
+};
+//# sourceMappingURL=searchViewModelWorkbenchService.js.map

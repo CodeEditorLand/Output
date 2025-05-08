@@ -1,1 +1,46 @@
-import{Disposable as p}from"../../../../base/common/lifecycle.js";import{IOpenerService as u}from"../../../../platform/opener/common/opener.js";import{IBrowserWorkbenchEnvironmentService as v}from"../../../services/environment/browser/environmentService.js";var f=function(i,e,r,t){var n=arguments.length,o=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(i,e,r,t);else for(var l=i.length-1;l>=0;l--)(s=i[l])&&(o=(n<3?s(o):n>3?s(e,r,o):s(e,r))||o);return n>3&&o&&Object.defineProperty(e,r,o),o},a=function(i,e){return function(r,t){e(r,t,i)}};let c=class extends p{static{this.ID="workbench.contrib.externalUriResolver"}constructor(e,r){super(),r.options?.resolveExternalUri&&this._register(e.registerExternalUriResolver({resolveExternalUri:async t=>({resolved:await r.options.resolveExternalUri(t),dispose:()=>{}})}))}};c=f([a(0,u),a(1,v)],c);export{c as ExternalUriResolverContribution};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ExternalUriResolverContribution = class ExternalUriResolverContribution2 extends Disposable {
+  static {
+    __name(this, "ExternalUriResolverContribution");
+  }
+  static {
+    this.ID = "workbench.contrib.externalUriResolver";
+  }
+  constructor(_openerService, _workbenchEnvironmentService) {
+    super();
+    if (_workbenchEnvironmentService.options?.resolveExternalUri) {
+      this._register(_openerService.registerExternalUriResolver({
+        resolveExternalUri: /* @__PURE__ */ __name(async (resource) => {
+          return {
+            resolved: await _workbenchEnvironmentService.options.resolveExternalUri(resource),
+            dispose: /* @__PURE__ */ __name(() => {
+            }, "dispose")
+          };
+        }, "resolveExternalUri")
+      }));
+    }
+  }
+};
+ExternalUriResolverContribution = __decorate([
+  __param(0, IOpenerService),
+  __param(1, IBrowserWorkbenchEnvironmentService)
+], ExternalUriResolverContribution);
+export {
+  ExternalUriResolverContribution
+};
+//# sourceMappingURL=externalUriResolver.js.map

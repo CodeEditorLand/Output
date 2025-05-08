@@ -1,7 +1,2460 @@
-async function Fe(p){const S=navigator.userAgent.indexOf("Chrome")>=0,$=new TextEncoder,x=new TextDecoder;function H(){let n,e;return{promise:new Promise((r,s)=>{n=r,e=s}),resolve:n,reject:e}}let I=p.options;const J=p.isWorkspaceTrusted;let k=p.renderOptions;const G=Y(),de=globalThis.acquireVsCodeApi,M=de();delete globalThis.acquireVsCodeApi;const N=new CSSStyleSheet;N.replaceSync(p.style.tokenizationCss);const ue=typeof requestIdleCallback!="function"||typeof cancelIdleCallback!="function"?n=>{setTimeout(()=>{if(e)return;const t=Date.now()+15;n(Object.freeze({didTimeout:!0,timeRemaining(){return Math.max(0,t-Date.now())}}))});let e=!1;return{dispose(){e||(e=!0)}}}:(n,e)=>{const t=requestIdleCallback(n,typeof e=="number"?{timeout:e}:void 0);let r=!1;return{dispose(){r||(r=!0,cancelIdleCallback(t))}}};function K(n){for(const e of n.composedPath())if(e instanceof HTMLElement&&e.classList.contains("output"))return{id:e.id}}let C;const ce=n=>{const e=n&&K(n);e&&(C=void 0,setTimeout(()=>{C?.id!==e.id&&l("outputBlur",e)},0))},T=n=>n.tagName.toLowerCase()==="input"||n.tagName.toLowerCase()==="textarea"||"editContext"in n&&!!n.editContext,he=n=>{C=K(n);const e=window.document.activeElement;if(!e)return;const t=C?.id;t&&(T(e)||e.tagName==="SELECT")&&(l("outputInputFocus",{inputFocused:!0,id:t}),e.addEventListener("blur",()=>{l("outputInputFocus",{inputFocused:!1,id:t})},{once:!0}))},pe=n=>{if(!n||!n.view||!n.view.document)return;const e=C=K(n);for(const t of n.composedPath())if(t instanceof HTMLAnchorElement&&t.href){if(t.href.startsWith("blob:"))e&&l("outputFocus",e),Ce(t.href,t.download);else if(t.href.startsWith("data:"))e&&l("outputFocus",e),Z(t.href,t.download);else if(t.getAttribute("href")?.trim().startsWith("#")){if(!t.hash){l("scroll-to-reveal",{scrollTop:0});return}const r=t.hash.substring(1);let s=n.view.document.getElementById(r);if(!s){for(const o of n.view.document.querySelectorAll(".preview"))if(s=o.shadowRoot?.getElementById(r),s)break}if(s){const o=s.getBoundingClientRect().top+n.view.scrollY;l("scroll-to-reveal",{scrollTop:o});return}}else{const r=t.getAttribute("href");r&&(r.startsWith("command:")&&e&&l("outputFocus",e),l("clicked-link",{href:r}))}n.preventDefault(),n.stopPropagation();return}e&&l("outputFocus",e)},ge=()=>{const n=window.getSelection();n&&n.removeAllRanges()},fe=n=>{const e=window.getSelection();if(!e)return;const t=window.document.getElementById(n);if(!t)return;e.removeAllRanges();const r=document.createRange();r.selectNode(t),e.addRange(r)},me=n=>{if(!window.document.getElementById(n))return;const t=window.document.activeElement;t&&T(t)&&t.select()},we=n=>{if(!C?.id||!n.shiftKey)return;if(n.shiftKey&&(n.code==="ArrowUp"||n.code==="ArrowDown")){n.stopPropagation();return}if(!(n.code==="PageUp"||n.code==="PageDown")&&!(n.metaKey&&(n.code==="ArrowDown"||n.code==="ArrowUp")))return;const e=window.document.getElementById(C.id),t=window.getSelection();if(!e||!t?.anchorNode)return;const r=window.document.activeElement;if(r&&T(r))return;n.stopPropagation(),n.preventDefault();const{anchorNode:s,anchorOffset:o}=t,i=document.createRange();n.code==="PageDown"||n.code==="ArrowDown"?(i.setStart(s,o),i.setEnd(e,1)):(i.setStart(e,0),i.setEnd(s,o)),t.removeAllRanges(),t.addRange(i)},ye=n=>{if(!C?.id)return;const e=window.document.activeElement;if(!(e&&T(e))&&(n.key==="a"&&n.ctrlKey||n.metaKey&&n.key==="a")){n.preventDefault();return}},Z=async(n,e)=>{l("clicked-data-url",{data:n,downloadName:e})},Ce=async(n,e)=>{try{const r=await(await fetch(n)).blob(),s=new FileReader;s.addEventListener("load",()=>{Z(s.result,e)}),s.readAsDataURL(r)}catch{}};window.document.body.addEventListener("click",pe),window.document.body.addEventListener("focusin",he),window.document.body.addEventListener("focusout",ce),window.document.body.addEventListener("keydown",we),window.document.body.addEventListener("keydown",ye);function ve(){return Object.freeze({onDidReceiveKernelMessage:se.event,postKernelMessage:n=>l("customKernelMessage",{message:n})})}async function be(n){try{return await Ie(n)}catch(e){throw e}}async function Ie(n){const e=await __import(n);if(e.activate)return e.activate(ve())}const O=new class{constructor(){this.pending=new Map}updateHeight(n,e,t){this.pending.size||setTimeout(()=>{this.updateImmediately()},0);const r=this.pending.get(n);r&&r.isOutput?this.pending.set(n,{id:n,height:e,init:r.init,isOutput:r.isOutput}):this.pending.set(n,{id:n,height:e,...t})}updateImmediately(){this.pending.size&&(l("dimension",{updates:Array.from(this.pending.values())}),this.pending.clear())}};function z(n){return n>2.1}const Q=new class{constructor(){this._observedElements=new WeakMap,this._observer=new ResizeObserver(n=>{for(const e of n){if(!window.document.body.contains(e.target))continue;const t=this._observedElements.get(e.target);if(!t||(this.postResizeMessage(t.cellId),e.target.id!==t.id)||!e.contentRect)continue;if(!t.output){this.updateHeight(t,e.target.offsetHeight);continue}const r=z(e.contentRect.height);r&&t.lastKnownPadding===0||!r&&t.lastKnownPadding!==0?window.requestAnimationFrame(()=>{r?e.target.style.padding=`${p.style.outputNodePadding}px ${p.style.outputNodePadding}px ${p.style.outputNodePadding}px ${p.style.outputNodeLeftPadding}px`:e.target.style.padding="0px",this.updateHeight(t,r?e.target.offsetHeight:0)}):this.updateHeight(t,r?e.target.offsetHeight:0)}})}updateHeight(n,e){n.lastKnownHeight!==e&&(n.lastKnownHeight=e,O.updateHeight(n.id,e,{isOutput:n.output}))}observe(n,e,t,r){this._observedElements.has(n)||(this._observedElements.set(n,{id:e,output:t,lastKnownPadding:p.style.outputNodePadding,lastKnownHeight:-1,cellId:r}),this._observer.observe(n))}postResizeMessage(n){clearTimeout(this._outputResizeTimer),this._outputResizeTimer=setTimeout(()=>{l("outputResized",{cellId:n})},250)}};let E,v,R,W;function j(n,e){if(R=n,e===void 0)return W=Date.now(),E=void 0,n.setAttribute("recentlyScrolled","true"),clearTimeout(v),v=setTimeout(()=>{R?.removeAttribute("recentlyScrolled")},300),!0;if(n.hasAttribute("recentlyScrolled")){if(W&&Date.now()-W>400){if(E&&e<0&&e<E-8)return clearTimeout(v),R?.removeAttribute("recentlyScrolled"),!1;if(E&&e>0&&e>E+8)return clearTimeout(v),R?.removeAttribute("recentlyScrolled"),!1;clearTimeout(v),v=setTimeout(()=>{R?.removeAttribute("recentlyScrolled")},50)}else clearTimeout(v),v=setTimeout(()=>{R?.removeAttribute("recentlyScrolled")},300);return E=e,!0}return!1}function ke(n){for(let e=n.target;e;e=e.parentNode){if(!(e instanceof Element)||e.id==="container"||e.classList.contains("cell_container")||e.classList.contains("markup")||e.classList.contains("output_container"))return!1;if(n.deltaY<0&&e.scrollTop>0)return j(e),!0;if(n.deltaY>0&&e.scrollTop+e.clientHeight<e.scrollHeight){if(e.scrollHeight-e.scrollTop-e.clientHeight<2||window.getComputedStyle(e).overflowY==="hidden"||window.getComputedStyle(e).overflowY==="visible")continue;return j(e),!0}if(j(e,n.deltaY))return!0}return!1}const Oe=n=>{n.defaultPrevented||ke(n)||l("did-scroll-wheel",{payload:{deltaMode:n.deltaMode,deltaX:n.deltaX,deltaY:n.deltaY,deltaZ:n.deltaZ,wheelDelta:n.wheelDelta&&S?n.wheelDelta/window.devicePixelRatio:n.wheelDelta,wheelDeltaX:n.wheelDeltaX&&S?n.wheelDeltaX/window.devicePixelRatio:n.wheelDeltaX,wheelDeltaY:n.wheelDeltaY&&S?n.wheelDeltaY/window.devicePixelRatio:n.wheelDeltaY,detail:n.detail,shiftKey:n.shiftKey,type:n.type}})};function Ee(n,e){const t=window.document.getElementById(n)??(e?window.document.getElementById(e):void 0);if(t){if(t.contains(window.document.activeElement))return;const r=t.id;let s=t.querySelector('[tabindex="0"], [href], button, input, option, select, textarea');if(!s)s=t,s.tabIndex=-1,l("outputInputFocus",{inputFocused:!1,id:r});else{const o=T(s);l("outputInputFocus",{inputFocused:o,id:r})}C=t,l("outputFocus",{id:t.id}),s.focus()}}function ee(n,e){const t=document.createElement("div");return t.id=`focus-sink-${n}`,t.tabIndex=0,t.addEventListener("focus",()=>{l("focus-editor",{cellId:n,focusNext:e})}),t}function Re(n,e="mark",t={}){function r(a){if(!a.startContainer.ownerDocument)return[];if(a.startContainer.nodeType===Node.TEXT_NODE&&a.startOffset>0){const w=a.startContainer,F=a.endOffset,A=w.splitText(a.startOffset);a.endContainer===w&&a.setEnd(A,F-a.startOffset),a.setStart(A,0)}a.endContainer.nodeType===Node.TEXT_NODE&&a.endOffset<a.endContainer.length&&a.endContainer.splitText(a.endOffset);const c=a.startContainer.ownerDocument.createTreeWalker(a.commonAncestorContainer,NodeFilter.SHOW_TEXT,w=>a.intersectsNode(w)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT);c.currentNode=a.startContainer;const f=[];for(c.currentNode.nodeType===Node.TEXT_NODE&&f.push(c.currentNode);c.nextNode()&&a.comparePoint(c.currentNode,0)!==1;)c.currentNode.nodeType===Node.TEXT_NODE&&f.push(c.currentNode);return f}function s(a,c,f){const w=a.ownerDocument.createElement(c);Object.keys(f).forEach(A=>{w.setAttribute(A,f[A])});const F=a.ownerDocument.createRange();return F.selectNode(a),F.surroundContents(w),w}if(n.collapsed)return{remove:()=>{},update:()=>{}};const o=r(n),i=[];for(const a in o){const c=s(o[a],e,t);i.push(c)}function d(a){if(a.childNodes.length===1)a.parentNode?.replaceChild(a.firstChild,a);else{for(;a.firstChild;)a.parentNode?.insertBefore(a.firstChild,a);a.remove()}}function h(){for(const a in i)d(i[a])}function u(a,c={}){Object.keys(c).forEach(f=>{a.setAttribute(f,c[f])})}function g(a){for(const c in i)u(i[c],a)}return{remove:h,update:g}}function te(n){const e=window.getSelection();if(e)try{e.removeAllRanges();const t=document.createRange();t.setStart(n.startContainer,n.startOffset),t.setEnd(n.endContainer,n.endOffset),e.addRange(t)}catch{}}function _e(n,e,t="mark",r={}){if(e){const s=Re(n,t,r);return{range:n,dispose:s.remove,update:(o,i)=>{i===void 0?s.update({style:`background-color: ${o}`}):s.update({class:i})}}}else{window.document.execCommand("hiliteColor",!1,L);const s=window.getSelection().getRangeAt(0).cloneRange(),o={collapsed:s.collapsed,commonAncestorContainer:s.commonAncestorContainer,endContainer:s.endContainer,endOffset:s.endOffset,startContainer:s.startContainer,startOffset:s.startOffset};return{range:o,dispose:()=>{te(o);try{document.designMode="On",window.document.execCommand("removeFormat",!1,void 0),document.designMode="Off",window.getSelection()?.removeAllRanges()}catch{}},update:(i,d)=>{te(o);try{document.designMode="On",window.document.execCommand("removeFormat",!1,void 0),window.document.execCommand("hiliteColor",!1,i),document.designMode="Off",window.getSelection()?.removeAllRanges()}catch{}}}}}function Y(n=()=>{}){const e=new Set;return{fire(t){for(const r of[...e])r.fn.call(r.thisArg,t)},event(t,r,s){const o={fn:t,thisArg:r},i={dispose:()=>{e.delete(o),n(e)}};return e.add(o),n(e),s instanceof Array?s.push(i):s&&s.add(i),i}}}function P(n,e,t){e.innerText=n;const r=document.createElement("ul");for(const s of t){const o=document.createElement("li");o.innerText=s.message,r.appendChild(o)}e.appendChild(r)}const ne=new class{constructor(){this._requestPool=0,this._requests=new Map}getOutputItem(n,e){const t=this._requestPool++,{promise:r,resolve:s}=H();return this._requests.set(t,{resolve:s}),l("getOutputItem",{requestId:t,outputId:n,mime:e}),r}resolveOutputItem(n,e){const t=this._requests.get(n);t&&(this._requests.delete(n),t.resolve(e))}};let re=!1;function Se(n,e,t,r,s,o){function i(g,a,c,f,w){return Object.freeze({id:g,mime:a,metadata:c,appendedText(){if(w)return x.decode(w.valueBytes)},data(){return f},text(){return x.decode(f)},json(){return JSON.parse(this.text())},blob(){return new Blob([f],{type:this.mime})},get _allOutputItems(){return re||(re=!0),h}})}const d=new Map,h=Object.freeze(s.map(g=>{const a=g.mime;return Object.freeze({mime:a,getItem(){const c=d.get(a);if(c)return c;const f=ne.getOutputItem(n,a).then(w=>w?i(n,w.mime,t,w.valueBytes):void 0);return d.set(a,f),f}})})),u=i(n,e,t,r,o);return d.set(e,Promise.resolve(u)),u}const se=Y(),oe=window.trustedTypes?.createPolicy("notebookRenderer",{createHTML:n=>n,createScript:n=>n});window.addEventListener("wheel",Oe);const L=window.getComputedStyle(window.document.getElementById("_defaultColorPalatte")).color,Me=window.getComputedStyle(window.document.getElementById("_defaultColorPalatte")).backgroundColor;class Te{constructor(){this._activeHighlightInfo=new Map}addHighlights(e,t){for(let s=e.length-1;s>=0;s--){const o=e[s],i=_e(o.originalRange,!0,"mark",o.isShadow?{style:"background-color: "+L+";"}:{class:"find-match"});o.highlightResult=i}const r={matches:e,currentMatchIndex:-1};this._activeHighlightInfo.set(t,r)}removeHighlights(e){this._activeHighlightInfo.get(e)?.matches.forEach(t=>{t.highlightResult?.dispose()}),this._activeHighlightInfo.delete(e)}highlightCurrentMatch(e,t){const r=this._activeHighlightInfo.get(t);if(!r)return;const s=r.matches[r.currentMatchIndex];s?.highlightResult?.update(L,s.isShadow?void 0:"find-match");const o=r.matches[e];r.currentMatchIndex=e;const i=window.getSelection();if(o&&i&&o.highlightResult){let d=0;try{const h=window.document.getElementById(o.id).getBoundingClientRect().top,u=document.createRange();u.selectNode(o.highlightResult.range.startContainer),o.highlightResult.range.startContainer.parentElement?.scrollIntoView({behavior:"auto",block:"end",inline:"nearest"});const g=u.getBoundingClientRect().top;u.detach(),d=g-h}catch{}o.highlightResult?.update(Me,o.isShadow?void 0:"current-find-match"),window.document.getSelection()?.removeAllRanges(),l("didFindHighlightCurrent",{offset:d})}}unHighlightCurrentMatch(e,t){const r=this._activeHighlightInfo.get(t);if(!r)return;const s=r.matches[e];s&&s.highlightResult&&s.highlightResult.update(L,s.isShadow?void 0:"find-match")}dispose(){window.document.getSelection()?.removeAllRanges(),this._activeHighlightInfo.forEach(e=>{e.matches.forEach(t=>{t.highlightResult?.dispose()})})}}class De{constructor(){this._activeHighlightInfo=new Map,this._matchesHighlight=new Highlight,this._matchesHighlight.priority=1,this._currentMatchesHighlight=new Highlight,this._currentMatchesHighlight.priority=2,CSS.highlights?.set("find-highlight",this._matchesHighlight),CSS.highlights?.set("current-find-highlight",this._currentMatchesHighlight)}_refreshRegistry(e=!0){e&&this._matchesHighlight.clear(),this._currentMatchesHighlight.clear(),this._activeHighlightInfo.forEach(t=>{if(e)for(let r=0;r<t.matches.length;r++)this._matchesHighlight.add(t.matches[r].originalRange);t.currentMatchIndex<t.matches.length&&t.currentMatchIndex>=0&&this._currentMatchesHighlight.add(t.matches[t.currentMatchIndex].originalRange)})}addHighlights(e,t){for(let s=0;s<e.length;s++)this._matchesHighlight.add(e[s].originalRange);const r={matches:e,currentMatchIndex:-1};this._activeHighlightInfo.set(t,r)}highlightCurrentMatch(e,t){const r=this._activeHighlightInfo.get(t);if(!r)return;r.currentMatchIndex=e;const s=r.matches[e];if(s){let o=0;try{const i=window.document.getElementById(s.id).getBoundingClientRect().top;s.originalRange.startContainer.parentElement?.scrollIntoView({behavior:"auto",block:"end",inline:"nearest"}),o=s.originalRange.getBoundingClientRect().top-i,l("didFindHighlightCurrent",{offset:o})}catch{}}this._refreshRegistry(!1)}unHighlightCurrentMatch(e,t){const r=this._activeHighlightInfo.get(t);r&&(r.currentMatchIndex=-1)}removeHighlights(e){this._activeHighlightInfo.delete(e),this._refreshRegistry()}dispose(){window.document.getSelection()?.removeAllRanges(),this._currentMatchesHighlight.clear(),this._matchesHighlight.clear()}}const D=CSS.highlights?new De:new Te;function q(n){const t=n.getRangeAt(0).cloneRange(),r=n.toString().length;n.collapseToStart(),n.modify("move","backward","lineboundary"),n.modify("extend","forward","lineboundary");const s=n.toString(),o=Ae(n.getRangeAt(0),t),i={start:o,end:o+r};return n.removeAllRanges(),n.addRange(t),{line:s,range:i}}function Ae(n,e){const t=xe(n.startContainer,e.startContainer),r=U(t,n.startContainer)+n.startOffset;return U(t,e.startContainer)+e.startOffset-r}function xe(n,e){const t=new Range;return t.setStart(n,0),t.setEnd(e,0),t.commonAncestorContainer}function ie(n){let e=0;if(n.nodeType===Node.TEXT_NODE)e+=n.textContent?.length||0;else for(const t of n.childNodes)e+=ie(t);return e}function U(n,e){if(!e)return 0;let t=0;if(e===n||!n.contains(e))return t;let r=e.previousSibling;for(;r;)t+=ie(r),r=r.previousSibling;return t+U(n,e.parentNode)}const He=(n,e)=>{let t=!0,r=[];const s=document.createRange();s.selectNodeContents(window.document.getElementById("findStart"));const o=window.getSelection();o?.removeAllRanges(),o?.addRange(s),m.toggleDragDropEnabled(!1);try{for(document.designMode="On";t&&r.length<500;)if(t=window.find(n,!!e.caseSensitive,!1,!1,!!e.wholeWord,!0,!1),t){const i=window.getSelection();if(!i)break;if(e.includeMarkup&&i.rangeCount>0&&i.getRangeAt(0).startContainer.nodeType===1&&i.getRangeAt(0).startContainer.classList.contains("markup")){const h=i.anchorNode?.firstChild,u=h.shadowRoot,g=u?.getSelection?u?.getSelection():null;g&&g.anchorNode&&r.push({type:"preview",id:h.id,cellId:h.id,container:h,isShadow:!0,originalRange:g.getRangeAt(0),searchPreviewInfo:e.shouldGetSearchPreviewInfo?q(g):void 0})}if(e.includeOutput&&i.rangeCount>0&&i.getRangeAt(0).startContainer.nodeType===1&&i.getRangeAt(0).startContainer.classList.contains("output_container")){const h=i.getRangeAt(0).startContainer.parentElement.id,u=i.anchorNode?.firstChild,g=u.shadowRoot,a=g?.getSelection?g?.getSelection():null;a&&a.anchorNode&&r.push({type:"output",id:u.id,cellId:h,container:u,isShadow:!0,originalRange:a.getRangeAt(0),searchPreviewInfo:e.shouldGetSearchPreviewInfo?q(a):void 0})}const d=i.anchorNode?.parentElement;if(d){const h=r.length?r[r.length-1]:null;if(h&&h.container.contains(d)&&e.includeOutput)r.push({type:h.type,id:h.id,cellId:h.cellId,container:h.container,isShadow:!1,originalRange:i.getRangeAt(0),searchPreviewInfo:e.shouldGetSearchPreviewInfo?q(i):void 0});else for(let u=d;u&&u instanceof Element;u=u.parentElement){if(u.classList.contains("output")&&e.includeOutput){const g=u.parentElement?.parentElement?.id;g&&r.push({type:"output",id:u.id,cellId:g,container:u,isShadow:!1,originalRange:i.getRangeAt(0),searchPreviewInfo:e.shouldGetSearchPreviewInfo?q(i):void 0});break}if(u.id==="container"||u===window.document.body)break}}else break}}catch{}r=r.filter(i=>e.findIds.length?e.findIds.includes(i.cellId):!0),D.addHighlights(r,e.ownerID),window.document.getSelection()?.removeAllRanges(),m.toggleDragDropEnabled(I.dragAndDropEnabled),document.designMode="Off",l("didFind",{matches:r.map((i,d)=>({type:i.type,id:i.id,cellId:i.cellId,index:d,searchPreviewInfo:i.searchPreviewInfo}))})},ae=async(n,e,t=5)=>{if(!window.document.hasFocus()&&t>0){setTimeout(()=>{ae(n,e,t-1)},50);return}try{const r=window.document.getElementById(n)??window.document.getElementById(e);let s=r?.querySelector("img");if(!s){const o=r?.querySelector("svg.output-image")??r?.querySelector("div.svgContainerStyle > svg");o&&(s=new Image,s.src="data:image/svg+xml,"+encodeURIComponent(o.outerHTML))}if(s){const o=s;await navigator.clipboard.write([new ClipboardItem({"image/png":new Promise(i=>{const d=document.createElement("canvas");d.width=o.naturalWidth,d.height=o.naturalHeight,d.getContext("2d").drawImage(o,0,0),d.toBlob(u=>{u&&i(u),d.remove()},"image/png")})})])}}catch{}};window.addEventListener("message",async n=>{const e=n;switch(e.data.type){case"initializeMarkup":{try{await Promise.all(e.data.cells.map(t=>m.ensureMarkupCell(t)))}finally{O.updateImmediately(),l("initializedMarkup",{requestId:e.data.requestId})}break}case"createMarkupCell":m.ensureMarkupCell(e.data.cell);break;case"showMarkupCell":m.showMarkupCell(e.data.id,e.data.top,e.data.content,e.data.metadata);break;case"hideMarkupCells":for(const t of e.data.ids)m.hideMarkupCell(t);break;case"unhideMarkupCells":for(const t of e.data.ids)m.unhideMarkupCell(t);break;case"deleteMarkupCell":for(const t of e.data.ids)m.deleteMarkupCell(t);break;case"updateSelectedMarkupCells":m.updateSelectedCells(e.data.selectedCellIds);break;case"html":{const t=e.data;t.createOnIdle?y.enqueueIdle(t.outputId,r=>m.renderOutputCell(t,r)):y.enqueue(t.outputId,r=>m.renderOutputCell(t,r));break}case"view-scroll":{e.data.widgets.forEach(t=>{y.enqueue(t.outputId,()=>{m.updateOutputsScroll([t])})}),m.updateMarkupScrolls(e.data.markupCells);break}case"clear":b.clearAll(),m.clearAll(),window.document.getElementById("container").innerText="";break;case"clearOutput":{const{cellId:t,rendererId:r,outputId:s}=e.data;y.cancelOutput(s),m.clearOutput(t,s,r);break}case"hideOutput":{const{cellId:t,outputId:r}=e.data;y.enqueue(r,()=>{m.hideOutput(t)});break}case"showOutput":{const{outputId:t,cellTop:r,cellId:s,content:o}=e.data;y.enqueue(t,()=>{m.showOutput(s,t,r),o&&m.updateAndRerender(s,t,o)});break}case"copyImage":{await ae(e.data.outputId,e.data.altOutputId);break}case"ack-dimension":{for(const{cellId:t,outputId:r,height:s}of e.data.updates)m.updateOutputHeight(t,r,s);break}case"preload":{const t=e.data.resources;for(const{uri:r}of t)B.load(r);break}case"updateRenderers":{const{rendererData:t}=e.data;b.updateRendererData(t);break}case"focus-output":Ee(e.data.cellOrOutputId,e.data.alternateId);break;case"blur-output":ge();break;case"select-output-contents":fe(e.data.cellOrOutputId);break;case"select-input-contents":me(e.data.cellOrOutputId);break;case"decorations":{let t=window.document.getElementById(e.data.cellId);t||(m.ensureOutputCell(e.data.cellId,-1e5,!0),t=window.document.getElementById(e.data.cellId)),t?.classList.add(...e.data.addedClassNames),t?.classList.remove(...e.data.removedClassNames);break}case"markupDecorations":{const t=window.document.getElementById(e.data.cellId);t&&(t?.classList.add(...e.data.addedClassNames),t?.classList.remove(...e.data.removedClassNames));break}case"customKernelMessage":se.fire(e.data.message);break;case"customRendererMessage":b.getRenderer(e.data.rendererId)?.receiveMessage(e.data.message);break;case"notebookStyles":{const t=window.document.documentElement.style;for(let r=t.length-1;r>=0;r--){const s=t[r];s&&s.startsWith("--notebook-")&&t.removeProperty(s)}for(const[r,s]of Object.entries(e.data.styles))t.setProperty(`--${r}`,s);break}case"notebookOptions":I=e.data.options,m.toggleDragDropEnabled(I.dragAndDropEnabled),k=e.data.renderOptions,G.fire(k);break;case"tokenizedCodeBlock":{const{codeBlockId:t,html:r}=e.data;_.highlightCodeBlock(t,r);break}case"tokenizedStylesChanged":{N.replaceSync(e.data.css);break}case"find":{D.removeHighlights(e.data.options.ownerID),He(e.data.query,e.data.options);break}case"findHighlightCurrent":{D?.highlightCurrentMatch(e.data.index,e.data.ownerID);break}case"findUnHighlightCurrent":{D?.unHighlightCurrentMatch(e.data.index,e.data.ownerID);break}case"findStop":{D.removeHighlights(e.data.ownerID);break}case"returnOutputItem":ne.resolveOutputItem(e.data.requestId,e.data.output)}});const le="vscode.fallbackToNextRenderer";class Ne{constructor(e){this.data=e,this._onMessageEvent=Y()}receiveMessage(e){this._onMessageEvent.fire(e)}async renderOutputItem(e,t,r){try{await this.load()}catch(s){r.aborted||P(`Error loading renderer '${this.data.id}'`,t,s instanceof Error?[s]:[]);return}if(!this._api){r.aborted||P(`Renderer '${this.data.id}' does not implement renderOutputItem`,t,[]);return}try{const s=performance.now();await this._api.renderOutputItem(e,t,r),this.postDebugMessage("Rendered output item",{id:e.id,duration:`${performance.now()-s}ms`})}catch(s){if(r.aborted)return;if(s instanceof Error&&s.name===le)throw s;P(`Error rendering output item using '${this.data.id}'`,t,s instanceof Error?[s]:[]),this.postDebugMessage("Rendering output item failed",{id:e.id,error:s+""})}}disposeOutputItem(e){this._api?.disposeOutputItem?.(e)}createRendererContext(){const{id:e,messaging:t}=this.data,r={setState:s=>M.setState({...M.getState(),[e]:s}),getState:()=>{const s=M.getState();return typeof s=="object"&&s?s[e]:void 0},getRenderer:async s=>{const o=b.getRenderer(s);if(o)return o._api?o._api:o.load()},workspace:{get isTrusted(){return J}},settings:{get lineLimit(){return k.lineLimit},get outputScrolling(){return k.outputScrolling},get outputWordWrap(){return k.outputWordWrap},get linkifyFilePaths(){return k.linkifyFilePaths},get minimalError(){return k.minimalError}},get onDidChangeSettings(){return G.event}};return t&&(r.onDidReceiveMessage=this._onMessageEvent.event,r.postMessage=s=>l("customRendererMessage",{rendererId:e,message:s})),Object.freeze(r)}load(){return this._loadPromise??=this._load(),this._loadPromise}async _load(){this.postDebugMessage("Start loading renderer");try{await B.waitForAllCurrent();const e=performance.now(),t=await __import(this.data.entrypoint.path);if(this.postDebugMessage("Imported renderer",{duration:`${performance.now()-e}ms`}),!t)return;this._api=await t.activate(this.createRendererContext()),this.postDebugMessage("Activated renderer",{duration:`${performance.now()-e}ms`});const r=p.rendererData.filter(s=>s.entrypoint.extends===this.data.id);return r.length&&this.postDebugMessage("Activating dependant renderers",{dependents:r.map(s=>s.id).join(", ")}),await Promise.all(r.map(async s=>{const o=b.getRenderer(s.id);if(!o)throw new Error(`Could not find extending renderer: ${s.id}`);try{return await o.load()}catch(i){this.postDebugMessage("Activating dependant renderer failed",{dependent:s.id,error:i+""});return}})),this._api}catch(e){throw this.postDebugMessage("Loading renderer failed"),e}}postDebugMessage(e,t){l("logRendererDebugMessage",{message:`[renderer ${this.data.id}] - ${e}`,data:t})}}const B=new class{constructor(){this.preloads=new Map}waitFor(n){return this.preloads.get(n)||Promise.resolve(new Error(`Preload not ready: ${n}`))}load(n){const e=Promise.all([be(n),this.waitForAllCurrent()]);return this.preloads.set(n,e),e}waitForAllCurrent(){return Promise.all([...this.preloads.values()].map(n=>n.catch(e=>e)))}},y=new class{constructor(){this.outputs=new Map,this.pendingOutputCreationRequest=new Map}enqueue(n,e){this.pendingOutputCreationRequest.get(n)?.dispose(),this.pendingOutputCreationRequest.delete(n);const t=this.outputs.get(n);if(t)t.queue=t.queue.then(async r=>{t.abort.signal.aborted||await e(t.abort.signal)});else{const r=new AbortController;this.outputs.set(n,{abort:r,queue:new Promise(s=>s(e(r.signal)))})}}enqueueIdle(n,e){this.pendingOutputCreationRequest.get(n)?.dispose(),y.pendingOutputCreationRequest.set(n,ue(()=>{y.enqueue(n,e),y.pendingOutputCreationRequest.delete(n)}))}cancelAll(){this.pendingOutputCreationRequest.forEach(n=>n.dispose()),this.pendingOutputCreationRequest.clear();for(const{abort:n}of this.outputs.values())n.abort();this.outputs.clear()}cancelOutput(n){this.pendingOutputCreationRequest.get(n)?.dispose(),this.pendingOutputCreationRequest.delete(n);const e=this.outputs.get(n);e&&(e.abort.abort(),this.outputs.delete(n))}},b=new class{constructor(){this._renderers=new Map;for(const n of p.rendererData)this.addRenderer(n)}getRenderer(n){return this._renderers.get(n)}rendererEqual(n,e){if(n.id!==e.id||n.entrypoint.path!==e.entrypoint.path||n.entrypoint.extends!==e.entrypoint.extends||n.messaging!==e.messaging||n.mimeTypes.length!==e.mimeTypes.length)return!1;for(let t=0;t<n.mimeTypes.length;t++)if(n.mimeTypes[t]!==e.mimeTypes[t])return!1;return!0}updateRendererData(n){const e=new Set(this._renderers.keys()),t=new Set(n.map(r=>r.id));for(const r of n){const s=this._renderers.get(r.id);s&&this.rendererEqual(s.data,r)||this.addRenderer(r)}for(const r of e)t.has(r)||this._renderers.delete(r)}addRenderer(n){this._renderers.set(n.id,new Ne(n))}clearAll(){y.cancelAll();for(const n of this._renderers.values())n.disposeOutputItem()}clearOutput(n,e){y.cancelOutput(e),this._renderers.get(n)?.disposeOutputItem(e)}async render(n,e,t,r){const s=this.findRenderer(e,n);if(!s){const i=(window.document.documentElement.style.getPropertyValue("--notebook-cell-renderer-not-found-error")||"").replace("$0",()=>n.mime);this.showRenderError(n,t,i);return}if(!(await this._doRender(n,t,s,r)).continue)return;for(const i of n._allOutputItems){if(i.mime===n.mime)continue;const d=await i.getItem();if(r.aborted)return;if(d){const h=this.findRenderer(void 0,d);if(h&&!(await this._doRender(d,t,h,r)).continue)return}}const o=(window.document.documentElement.style.getPropertyValue("--notebook-cell-renderer-fallbacks-exhausted")||"").replace("$0",()=>n.mime);this.showRenderError(n,t,o)}async _doRender(n,e,t,r){try{return await t.renderOutputItem(n,e,r),{continue:!1}}catch(s){if(r.aborted)return{continue:!1};if(s instanceof Error&&s.name===le)return{continue:!0};throw s}}findRenderer(n,e){let t;if(typeof n=="string")t=Array.from(this._renderers.values()).find(r=>r.data.id===n);else{const r=Array.from(this._renderers.values()).filter(s=>s.data.mimeTypes.includes(e.mime)&&!s.data.entrypoint.extends);r.length&&(r.sort((s,o)=>+s.data.isBuiltin-+o.data.isBuiltin),t=r[0])}return t}showRenderError(n,e,t){const r=document.createElement("div"),s=document.createElement("div");s.className="no-renderer-error",s.innerText=t;const o=document.createElement("div");o.innerText=n.text(),r.appendChild(s),r.appendChild(o),e.innerText="",e.appendChild(r)}},m=new class{constructor(){this._markupCells=new Map,this._outputCells=new Map}clearAll(){for(const e of this._markupCells.values())e.dispose();this._markupCells.clear();for(const e of this._outputCells.values())e.dispose();this._outputCells.clear()}async createMarkupCell(e,t,r){const s=this._markupCells.get(e.cellId);if(s)return s;const o=new Pe(e.cellId,e.mime,e.content,t,e.metadata);return o.element.style.visibility=r?"":"hidden",this._markupCells.set(e.cellId,o),await o.ready,o}async ensureMarkupCell(e){let t=this._markupCells.get(e.cellId);t?(t.element.style.visibility=e.visible?"":"hidden",await t.updateContentAndRender(e.content,e.metadata)):t=await this.createMarkupCell(e,e.offset,e.visible)}deleteMarkupCell(e){const t=this.getExpectedMarkupCell(e);t&&(t.remove(),t.dispose(),this._markupCells.delete(e))}async updateMarkupContent(e,t,r){await this.getExpectedMarkupCell(e)?.updateContentAndRender(t,r)}showMarkupCell(e,t,r,s){this.getExpectedMarkupCell(e)?.show(t,r,s)}hideMarkupCell(e){this.getExpectedMarkupCell(e)?.hide()}unhideMarkupCell(e){this.getExpectedMarkupCell(e)?.unhide()}getExpectedMarkupCell(e){const t=this._markupCells.get(e);if(t)return t}updateSelectedCells(e){const t=new Set(e);for(const r of this._markupCells.values())r.setSelected(t.has(r.id))}toggleDragDropEnabled(e){for(const t of this._markupCells.values())t.toggleDragDropEnabled(e)}updateMarkupScrolls(e){for(const{id:t,top:r}of e){const s=this._markupCells.get(t);s&&(s.element.style.top=`${r}px`)}}async renderOutputCell(e,t){const r=await Promise.all(e.requiredPreloads.map(o=>B.waitFor(o.uri).then(()=>{},i=>i)));return t.aborted?void 0:this.ensureOutputCell(e.cellId,e.cellTop,!1).renderOutputElement(e,r,t)}ensureOutputCell(e,t,r){let s=this._outputCells.get(e);const o=!!s;return s||(s=new Le(e),this._outputCells.set(e,s)),o&&r||(s.element.style.top=t+"px"),s}clearOutput(e,t,r){this._outputCells.get(e)?.clearOutput(t,r)}showOutput(e,t,r){this._outputCells.get(e)?.show(t,r)}updateAndRerender(e,t,r){this._outputCells.get(e)?.updateContentAndRerender(t,r)}hideOutput(e){this._outputCells.get(e)?.hide()}updateOutputHeight(e,t,r){this._outputCells.get(e)?.updateOutputHeight(t,r)}updateOutputsScroll(e){for(const t of e)this._outputCells.get(t.cellId)?.updateScroll(t)}};class _{static{this.pendingCodeBlocksToHighlight=new Map}static highlightCodeBlock(e,t){const r=_.pendingCodeBlocksToHighlight.get(e);if(!r)return;const s=oe?.createHTML(t)??t;r.innerHTML=s;const o=r.getRootNode();o instanceof ShadowRoot&&(o.adoptedStyleSheets.includes(N)||o.adoptedStyleSheets.push(N))}static requestHighlightCodeBlock(e){const t=[];let r=0;for(const s of e.querySelectorAll(".vscode-code-block")){const o=s.getAttribute("data-vscode-code-block-lang");if(s.textContent&&o){const i=`${Date.now()}-${r++}`;t.push({value:s.textContent,lang:o,id:i}),_.pendingCodeBlocksToHighlight.set(i,s)}}return t}}class Pe{constructor(e,t,r,s,o){this._isDisposed=!1;const i=this;this.id=e,this._content={value:r,version:0,metadata:o};const{promise:d,resolve:h,reject:u}=H();this.ready=d;let g;this.outputItem=Object.freeze({id:e,mime:t,get metadata(){return i._content.metadata},text:()=>this._content.value,json:()=>{},data:()=>{if(g?.version===this._content.version)return g.value;const f=$.encode(this._content.value);return g={version:this._content.version,value:f},f},blob(){return new Blob([this.data()],{type:this.mime})},_allOutputItems:[{mime:t,getItem:async()=>this.outputItem}]});const a=window.document.getElementById("container"),c=document.createElement("div");c.className="markup",c.style.position="absolute",c.style.width="100%",this.element=document.createElement("div"),this.element.id=this.id,this.element.classList.add("preview"),this.element.style.position="absolute",this.element.style.top=s+"px",this.toggleDragDropEnabled(I.dragAndDropEnabled),c.appendChild(this.element),a.appendChild(c),this.addEventListeners(),this.updateContentAndRender(this._content.value,this._content.metadata).then(()=>{this._isDisposed||Q.observe(this.element,this.id,!1,this.id),h()},()=>u())}dispose(){this._isDisposed=!0,this.renderTaskAbort?.abort(),this.renderTaskAbort=void 0}addEventListeners(){this.element.addEventListener("dblclick",()=>{l("toggleMarkupPreview",{cellId:this.id})}),this.element.addEventListener("click",e=>{l("clickMarkupCell",{cellId:this.id,altKey:e.altKey,ctrlKey:e.ctrlKey,metaKey:e.metaKey,shiftKey:e.shiftKey})}),this.element.addEventListener("contextmenu",e=>{l("contextMenuMarkupCell",{cellId:this.id,clientX:e.clientX,clientY:e.clientY})}),this.element.addEventListener("mouseenter",()=>{l("mouseEnterMarkupCell",{cellId:this.id})}),this.element.addEventListener("mouseleave",()=>{l("mouseLeaveMarkupCell",{cellId:this.id})}),this.element.addEventListener("dragstart",e=>{X.startDrag(e,this.id)}),this.element.addEventListener("drag",e=>{X.updateDrag(e,this.id)}),this.element.addEventListener("dragend",e=>{X.endDrag(e,this.id)})}async updateContentAndRender(e,t){this._content={value:e,version:this._content.version+1,metadata:t},this.renderTaskAbort?.abort();const r=new AbortController;this.renderTaskAbort=r;try{await b.render(this.outputItem,void 0,this.element,this.renderTaskAbort.signal)}finally{this.renderTaskAbort===r&&(this.renderTaskAbort=void 0)}const s=this.element.shadowRoot??this.element,o=[];for(const d of s.children)switch(d.tagName){case"LINK":case"SCRIPT":case"STYLE":break;default:o.push(d.outerHTML);break}const i=_.requestHighlightCodeBlock(s);l("renderedMarkup",{cellId:this.id,html:o.join(""),codeBlocks:i}),O.updateHeight(this.id,this.element.offsetHeight,{isOutput:!1})}show(e,t,r){this.element.style.visibility="",this.element.style.top=`${e}px`,typeof t=="string"||r?this.updateContentAndRender(t??this._content.value,r??this._content.metadata):this.updateMarkupDimensions()}hide(){this.element.style.visibility="hidden"}unhide(){this.element.style.visibility="",this.updateMarkupDimensions()}remove(){this.element.remove()}async updateMarkupDimensions(){O.updateHeight(this.id,this.element.offsetHeight,{isOutput:!1})}setSelected(e){this.element.classList.toggle("selected",e)}toggleDragDropEnabled(e){e?(this.element.classList.add("draggable"),this.element.setAttribute("draggable","true")):(this.element.classList.remove("draggable"),this.element.removeAttribute("draggable"))}}class Le{constructor(e){this.outputElements=new Map;const t=window.document.getElementById("container"),r=ee(e);t.appendChild(r),this.element=document.createElement("div"),this.element.style.position="absolute",this.element.style.outline="0",this.element.id=e,this.element.classList.add("cell_container"),t.appendChild(this.element),this.element=this.element;const s=ee(e,!0);t.appendChild(s)}dispose(){for(const e of this.outputElements.values())e.dispose();this.outputElements.clear()}createOutputElement(e){let t=this.outputElements.get(e.outputId);return t||(t=new qe(e.outputId),this.element.appendChild(t.element),this.outputElements.set(e.outputId,t)),t.createOutputElement(e.outputId,e.outputOffset,e.left,e.cellId)}async renderOutputElement(e,t,r){const s=Date.now(),o=this.createOutputElement(e);if(await o.render(e.content,e.rendererId,t,r),o.element.style.visibility=e.initiallyHidden?"hidden":"",e.executionId&&e.rendererId){let i;e.content.type===1&&(i=e.content.output.valueBytes.length),i!==void 0&&i>0&&i<100*1024&&l("notebookPerformanceMessage",{cellId:e.cellId,executionId:e.executionId,duration:Date.now()-s,rendererId:e.rendererId,outputSize:i})}}clearOutput(e,t){const r=this.outputElements.get(e);r?.clear(t),r?.dispose(),this.outputElements.delete(e)}show(e,t){this.outputElements.get(e)&&(this.element.style.visibility="",this.element.style.top=`${t}px`)}hide(){this.element.style.visibility="hidden"}updateContentAndRerender(e,t){this.outputElements.get(e)?.updateContentAndRender(t)}updateOutputHeight(e,t){this.outputElements.get(e)?.updateHeight(t)}updateScroll(e){this.element.style.top=`${e.cellTop}px`;const t=this.outputElements.get(e.outputId);t&&(t.updateScroll(e.outputOffset),e.forceDisplay&&t.outputNode&&(t.outputNode.element.style.visibility="")),e.forceDisplay&&(this.element.style.visibility="")}}class qe{get outputNode(){return this._outputNode}constructor(e){this.outputId=e,this.element=document.createElement("div"),this.element.classList.add("output_container"),this.element.setAttribute("data-vscode-context",JSON.stringify({preventDefaultContextMenuItems:!0})),this.element.style.position="absolute",this.element.style.overflow="hidden"}dispose(){this._outputNode?.dispose()}clear(e){e&&b.clearOutput(e,this.outputId),this.element.remove()}updateHeight(e){this.element.style.maxHeight=`${e}px`,this.element.style.height=`${e}px`}updateScroll(e){this.element.style.top=`${e}px`}createOutputElement(e,t,r,s){return this.element.innerText="",this.element.style.maxHeight="0px",this.element.style.top=`${t}px`,this._outputNode?.dispose(),this._outputNode=new Be(e,r,s),this.element.appendChild(this._outputNode.element),this._outputNode}updateContentAndRender(e){this._outputNode?.updateAndRerender(e)}}M.postMessage({__vscode_notebook_message:!0,type:"initialized"});for(const n of p.staticPreloadsData)B.load(n.entrypoint);function l(n,e){M.postMessage({__vscode_notebook_message:!0,type:n,...e})}class Be{constructor(e,t,r){this.outputId=e,this.cellId=r,this.hasResizeObserver=!1,this.isImageOutput=!1,this.element=document.createElement("div"),this.element.id=e,this.element.classList.add("output"),this.element.style.position="absolute",this.element.style.top="0px",this.element.style.left=t+"px",this.element.style.padding=`${p.style.outputNodePadding}px ${p.style.outputNodePadding}px ${p.style.outputNodePadding}px ${p.style.outputNodeLeftPadding}`,this.element.addEventListener("mouseenter",()=>{l("mouseenter",{id:e})}),this.element.addEventListener("mouseleave",()=>{l("mouseleave",{id:e})}),this.element.addEventListener("dragstart",s=>{if(!s.dataTransfer)return;const o={outputId:this.outputId};s.dataTransfer.setData("notebook-cell-output",JSON.stringify(o))}),window.addEventListener("keydown",s=>{s.altKey&&(this.element.draggable=!0)}),window.addEventListener("keyup",s=>{s.altKey||(this.element.draggable=this.isImageOutput)}),window.addEventListener("blur",()=>{this.element.draggable=this.isImageOutput})}dispose(){this.renderTaskAbort?.abort(),this.renderTaskAbort=void 0}async render(e,t,r,s){if(this.renderTaskAbort?.abort(),this.renderTaskAbort=void 0,this._content={preferredRendererId:t,preloadErrors:r},e.type===0){const a=oe?.createHTML(e.htmlContent)??e.htmlContent;this.element.innerHTML=a}else if(r.some(a=>a instanceof Error)){const a=r.filter(c=>c instanceof Error);P("Error loading preloads",this.element,a)}else{const a=["image/png","image/jpeg","image/svg"];this.isImageOutput=a.includes(e.output.mime),this.element.draggable=this.isImageOutput;const c=Se(this.outputId,e.output.mime,e.metadata,e.output.valueBytes,e.allOutputs,e.output.appended),f=new AbortController;this.renderTaskAbort=f,s?.addEventListener("abort",()=>f.abort());try{await b.render(c,t,this.element,f.signal)}finally{this.renderTaskAbort===f&&(this.renderTaskAbort=void 0)}}this.hasResizeObserver||(this.hasResizeObserver=!0,Q.observe(this.element,this.outputId,!0,this.cellId));const o=this.element.offsetHeight,i=document.defaultView.getComputedStyle(this.element),d=parseFloat(i.paddingTop)+parseFloat(i.paddingBottom),h=o-d;z(h)&&i.padding==="0px"?(O.updateHeight(this.outputId,o+p.style.outputNodePadding*2,{isOutput:!0,init:!0}),this.element.style.padding=`${p.style.outputNodePadding}px ${p.style.outputNodePadding}px ${p.style.outputNodePadding}px ${p.style.outputNodeLeftPadding}`):z(h)?(O.updateHeight(this.outputId,this.element.offsetHeight,{isOutput:!0,init:!0}),this.element.style.padding=`0 ${p.style.outputNodePadding}px 0 ${p.style.outputNodeLeftPadding}`):O.updateHeight(this.outputId,0,{isOutput:!0,init:!0});const u=this.element.shadowRoot??this.element,g=_.requestHighlightCodeBlock(u);g.length>0&&l("renderedCellOutput",{codeBlocks:g})}updateAndRerender(e){this._content&&this.render(e,this._content.preferredRendererId,this._content.preloadErrors)}}const X=new class{constructor(){window.document.addEventListener("dragover",e=>{e.preventDefault()}),window.document.addEventListener("drop",e=>{e.preventDefault();const t=this.currentDrag;t&&(this.currentDrag=void 0,l("cell-drop",{cellId:t.cellId,ctrlKey:e.ctrlKey,altKey:e.altKey,dragOffsetY:e.clientY}))})}startDrag(e,t){if(!e.dataTransfer||!I.dragAndDropEnabled)return;this.currentDrag={cellId:t,clientY:e.clientY};const r=9999;this.dragOverlay||(this.dragOverlay=document.createElement("div"),this.dragOverlay.style.position="absolute",this.dragOverlay.style.top="0",this.dragOverlay.style.left="0",this.dragOverlay.style.zIndex=`${r}`,this.dragOverlay.style.width="100%",this.dragOverlay.style.height="100%",this.dragOverlay.style.background="transparent",window.document.body.appendChild(this.dragOverlay)),e.target.style.zIndex=`${r+1}`,e.target.classList.add("dragging"),l("cell-drag-start",{cellId:t,dragOffsetY:e.clientY});const s=()=>{this.currentDrag?.cellId===t&&(l("cell-drag",{cellId:t,dragOffsetY:this.currentDrag.clientY}),window.requestAnimationFrame(s))};window.requestAnimationFrame(s)}updateDrag(e,t){t!==this.currentDrag?.cellId?this.currentDrag=void 0:this.currentDrag={cellId:t,clientY:e.clientY}}endDrag(e,t){this.currentDrag=void 0,e.target.classList.remove("dragging"),l("cell-drag-end",{cellId:t}),this.dragOverlay&&(this.dragOverlay.remove(),this.dragOverlay=void 0),e.target.style.zIndex=""}}}function ze(p,V,S,$,x,H,I){return`
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+async function webviewPreloads(ctx) {
+  const userAgent = navigator.userAgent;
+  const isChrome = userAgent.indexOf("Chrome") >= 0;
+  const textEncoder = new TextEncoder();
+  const textDecoder = new TextDecoder();
+  function promiseWithResolvers() {
+    let resolve;
+    let reject;
+    const promise = new Promise((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    return { promise, resolve, reject };
+  }
+  __name(promiseWithResolvers, "promiseWithResolvers");
+  let currentOptions = ctx.options;
+  const isWorkspaceTrusted = ctx.isWorkspaceTrusted;
+  let currentRenderOptions = ctx.renderOptions;
+  const settingChange = createEmitter();
+  const acquireVsCodeApi = globalThis.acquireVsCodeApi;
+  const vscode = acquireVsCodeApi();
+  delete globalThis.acquireVsCodeApi;
+  const tokenizationStyle = new CSSStyleSheet();
+  tokenizationStyle.replaceSync(ctx.style.tokenizationCss);
+  const runWhenIdle = typeof requestIdleCallback !== "function" || typeof cancelIdleCallback !== "function" ? (runner) => {
+    setTimeout(() => {
+      if (disposed) {
+        return;
+      }
+      const end = Date.now() + 15;
+      runner(Object.freeze({
+        didTimeout: true,
+        timeRemaining() {
+          return Math.max(0, end - Date.now());
+        }
+      }));
+    });
+    let disposed = false;
+    return {
+      dispose() {
+        if (disposed) {
+          return;
+        }
+        disposed = true;
+      }
+    };
+  } : (runner, timeout) => {
+    const handle = requestIdleCallback(runner, typeof timeout === "number" ? { timeout } : void 0);
+    let disposed = false;
+    return {
+      dispose() {
+        if (disposed) {
+          return;
+        }
+        disposed = true;
+        cancelIdleCallback(handle);
+      }
+    };
+  };
+  function getOutputContainer(event) {
+    for (const node of event.composedPath()) {
+      if (node instanceof HTMLElement && node.classList.contains("output")) {
+        return {
+          id: node.id
+        };
+      }
+    }
+    return;
+  }
+  __name(getOutputContainer, "getOutputContainer");
+  let lastFocusedOutput = void 0;
+  const handleOutputFocusOut = /* @__PURE__ */ __name((event) => {
+    const outputFocus = event && getOutputContainer(event);
+    if (!outputFocus) {
+      return;
+    }
+    lastFocusedOutput = void 0;
+    setTimeout(() => {
+      if (lastFocusedOutput?.id === outputFocus.id) {
+        return;
+      }
+      postNotebookMessage("outputBlur", outputFocus);
+    }, 0);
+  }, "handleOutputFocusOut");
+  const isEditableElement = /* @__PURE__ */ __name((element) => {
+    return element.tagName.toLowerCase() === "input" || element.tagName.toLowerCase() === "textarea" || "editContext" in element && !!element.editContext;
+  }, "isEditableElement");
+  const checkOutputInputFocus = /* @__PURE__ */ __name((e) => {
+    lastFocusedOutput = getOutputContainer(e);
+    const activeElement = window.document.activeElement;
+    if (!activeElement) {
+      return;
+    }
+    const id = lastFocusedOutput?.id;
+    if (id && (isEditableElement(activeElement) || activeElement.tagName === "SELECT")) {
+      postNotebookMessage("outputInputFocus", { inputFocused: true, id });
+      activeElement.addEventListener("blur", () => {
+        postNotebookMessage("outputInputFocus", { inputFocused: false, id });
+      }, { once: true });
+    }
+  }, "checkOutputInputFocus");
+  const handleInnerClick = /* @__PURE__ */ __name((event) => {
+    if (!event || !event.view || !event.view.document) {
+      return;
+    }
+    const outputFocus = lastFocusedOutput = getOutputContainer(event);
+    for (const node of event.composedPath()) {
+      if (node instanceof HTMLAnchorElement && node.href) {
+        if (node.href.startsWith("blob:")) {
+          if (outputFocus) {
+            postNotebookMessage("outputFocus", outputFocus);
+          }
+          handleBlobUrlClick(node.href, node.download);
+        } else if (node.href.startsWith("data:")) {
+          if (outputFocus) {
+            postNotebookMessage("outputFocus", outputFocus);
+          }
+          handleDataUrl(node.href, node.download);
+        } else if (node.getAttribute("href")?.trim().startsWith("#")) {
+          if (!node.hash) {
+            postNotebookMessage("scroll-to-reveal", { scrollTop: 0 });
+            return;
+          }
+          const targetId = node.hash.substring(1);
+          let scrollTarget = event.view.document.getElementById(targetId);
+          if (!scrollTarget) {
+            for (const preview of event.view.document.querySelectorAll(".preview")) {
+              scrollTarget = preview.shadowRoot?.getElementById(targetId);
+              if (scrollTarget) {
+                break;
+              }
+            }
+          }
+          if (scrollTarget) {
+            const scrollTop = scrollTarget.getBoundingClientRect().top + event.view.scrollY;
+            postNotebookMessage("scroll-to-reveal", { scrollTop });
+            return;
+          }
+        } else {
+          const href = node.getAttribute("href");
+          if (href) {
+            if (href.startsWith("command:") && outputFocus) {
+              postNotebookMessage("outputFocus", outputFocus);
+            }
+            postNotebookMessage("clicked-link", { href });
+          }
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+    }
+    if (outputFocus) {
+      postNotebookMessage("outputFocus", outputFocus);
+    }
+  }, "handleInnerClick");
+  const blurOutput = /* @__PURE__ */ __name(() => {
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
+    selection.removeAllRanges();
+  }, "blurOutput");
+  const selectOutputContents = /* @__PURE__ */ __name((cellOrOutputId) => {
+    const selection = window.getSelection();
+    if (!selection) {
+      return;
+    }
+    const cellOutputContainer = window.document.getElementById(cellOrOutputId);
+    if (!cellOutputContainer) {
+      return;
+    }
+    selection.removeAllRanges();
+    const range = document.createRange();
+    range.selectNode(cellOutputContainer);
+    selection.addRange(range);
+  }, "selectOutputContents");
+  const selectInputContents = /* @__PURE__ */ __name((cellOrOutputId) => {
+    const cellOutputContainer = window.document.getElementById(cellOrOutputId);
+    if (!cellOutputContainer) {
+      return;
+    }
+    const activeElement = window.document.activeElement;
+    if (activeElement && isEditableElement(activeElement)) {
+      activeElement.select();
+    }
+  }, "selectInputContents");
+  const onPageUpDownSelectionHandler = /* @__PURE__ */ __name((e) => {
+    if (!lastFocusedOutput?.id || !e.shiftKey) {
+      return;
+    }
+    if (e.shiftKey && (e.code === "ArrowUp" || e.code === "ArrowDown")) {
+      e.stopPropagation();
+      return;
+    }
+    if (!(e.code === "PageUp" || e.code === "PageDown") && !(e.metaKey && (e.code === "ArrowDown" || e.code === "ArrowUp"))) {
+      return;
+    }
+    const outputContainer = window.document.getElementById(lastFocusedOutput.id);
+    const selection = window.getSelection();
+    if (!outputContainer || !selection?.anchorNode) {
+      return;
+    }
+    const activeElement = window.document.activeElement;
+    if (activeElement && isEditableElement(activeElement)) {
+      return;
+    }
+    e.stopPropagation();
+    e.preventDefault();
+    const { anchorNode, anchorOffset } = selection;
+    const range = document.createRange();
+    if (e.code === "PageDown" || e.code === "ArrowDown") {
+      range.setStart(anchorNode, anchorOffset);
+      range.setEnd(outputContainer, 1);
+    } else {
+      range.setStart(outputContainer, 0);
+      range.setEnd(anchorNode, anchorOffset);
+    }
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }, "onPageUpDownSelectionHandler");
+  const disableNativeSelectAll = /* @__PURE__ */ __name((e) => {
+    if (!lastFocusedOutput?.id) {
+      return;
+    }
+    const activeElement = window.document.activeElement;
+    if (activeElement && isEditableElement(activeElement)) {
+      return;
+    }
+    if (e.key === "a" && e.ctrlKey || e.metaKey && e.key === "a") {
+      e.preventDefault();
+      return;
+    }
+  }, "disableNativeSelectAll");
+  const handleDataUrl = /* @__PURE__ */ __name(async (data, downloadName) => {
+    postNotebookMessage("clicked-data-url", {
+      data,
+      downloadName
+    });
+  }, "handleDataUrl");
+  const handleBlobUrlClick = /* @__PURE__ */ __name(async (url, downloadName) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        handleDataUrl(reader.result, downloadName);
+      });
+      reader.readAsDataURL(blob);
+    } catch (e) {
+      console.error(e.message);
+    }
+  }, "handleBlobUrlClick");
+  window.document.body.addEventListener("click", handleInnerClick);
+  window.document.body.addEventListener("focusin", checkOutputInputFocus);
+  window.document.body.addEventListener("focusout", handleOutputFocusOut);
+  window.document.body.addEventListener("keydown", onPageUpDownSelectionHandler);
+  window.document.body.addEventListener("keydown", disableNativeSelectAll);
+  function createKernelContext() {
+    return Object.freeze({
+      onDidReceiveKernelMessage: onDidReceiveKernelMessage.event,
+      postKernelMessage: /* @__PURE__ */ __name((data) => postNotebookMessage("customKernelMessage", { message: data }), "postKernelMessage")
+    });
+  }
+  __name(createKernelContext, "createKernelContext");
+  async function runKernelPreload(url) {
+    try {
+      return await activateModuleKernelPreload(url);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+  __name(runKernelPreload, "runKernelPreload");
+  async function activateModuleKernelPreload(url) {
+    const module = await __import(url);
+    if (!module.activate) {
+      console.error(`Notebook preload '${url}' was expected to be a module but it does not export an 'activate' function`);
+      return;
+    }
+    return module.activate(createKernelContext());
+  }
+  __name(activateModuleKernelPreload, "activateModuleKernelPreload");
+  const dimensionUpdater = new class {
+    constructor() {
+      this.pending = /* @__PURE__ */ new Map();
+    }
+    updateHeight(id, height, options) {
+      if (!this.pending.size) {
+        setTimeout(() => {
+          this.updateImmediately();
+        }, 0);
+      }
+      const update = this.pending.get(id);
+      if (update && update.isOutput) {
+        this.pending.set(id, {
+          id,
+          height,
+          init: update.init,
+          isOutput: update.isOutput
+        });
+      } else {
+        this.pending.set(id, {
+          id,
+          height,
+          ...options
+        });
+      }
+    }
+    updateImmediately() {
+      if (!this.pending.size) {
+        return;
+      }
+      postNotebookMessage("dimension", {
+        updates: Array.from(this.pending.values())
+      });
+      this.pending.clear();
+    }
+  }();
+  function elementHasContent(height) {
+    return height > 2.1;
+  }
+  __name(elementHasContent, "elementHasContent");
+  const resizeObserver = new class {
+    constructor() {
+      this._observedElements = /* @__PURE__ */ new WeakMap();
+      this._observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          if (!window.document.body.contains(entry.target)) {
+            continue;
+          }
+          const observedElementInfo = this._observedElements.get(entry.target);
+          if (!observedElementInfo) {
+            continue;
+          }
+          this.postResizeMessage(observedElementInfo.cellId);
+          if (entry.target.id !== observedElementInfo.id) {
+            continue;
+          }
+          if (!entry.contentRect) {
+            continue;
+          }
+          if (!observedElementInfo.output) {
+            this.updateHeight(observedElementInfo, entry.target.offsetHeight);
+            continue;
+          }
+          const hasContent = elementHasContent(entry.contentRect.height);
+          const shouldUpdatePadding = hasContent && observedElementInfo.lastKnownPadding === 0 || !hasContent && observedElementInfo.lastKnownPadding !== 0;
+          if (shouldUpdatePadding) {
+            window.requestAnimationFrame(() => {
+              if (hasContent) {
+                entry.target.style.padding = `${ctx.style.outputNodePadding}px ${ctx.style.outputNodePadding}px ${ctx.style.outputNodePadding}px ${ctx.style.outputNodeLeftPadding}px`;
+              } else {
+                entry.target.style.padding = `0px`;
+              }
+              this.updateHeight(observedElementInfo, hasContent ? entry.target.offsetHeight : 0);
+            });
+          } else {
+            this.updateHeight(observedElementInfo, hasContent ? entry.target.offsetHeight : 0);
+          }
+        }
+      });
+    }
+    updateHeight(observedElementInfo, offsetHeight) {
+      if (observedElementInfo.lastKnownHeight !== offsetHeight) {
+        observedElementInfo.lastKnownHeight = offsetHeight;
+        dimensionUpdater.updateHeight(observedElementInfo.id, offsetHeight, {
+          isOutput: observedElementInfo.output
+        });
+      }
+    }
+    observe(container, id, output, cellId) {
+      if (this._observedElements.has(container)) {
+        return;
+      }
+      this._observedElements.set(container, { id, output, lastKnownPadding: ctx.style.outputNodePadding, lastKnownHeight: -1, cellId });
+      this._observer.observe(container);
+    }
+    postResizeMessage(cellId) {
+      clearTimeout(this._outputResizeTimer);
+      this._outputResizeTimer = setTimeout(() => {
+        postNotebookMessage("outputResized", {
+          cellId
+        });
+      }, 250);
+    }
+  }();
+  let previousDelta;
+  let scrollTimeout;
+  let scrolledElement;
+  let lastTimeScrolled;
+  function flagRecentlyScrolled(node, deltaY) {
+    scrolledElement = node;
+    if (deltaY === void 0) {
+      lastTimeScrolled = Date.now();
+      previousDelta = void 0;
+      node.setAttribute("recentlyScrolled", "true");
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        scrolledElement?.removeAttribute("recentlyScrolled");
+      }, 300);
+      return true;
+    }
+    if (node.hasAttribute("recentlyScrolled")) {
+      if (lastTimeScrolled && Date.now() - lastTimeScrolled > 400) {
+        if (!!previousDelta && deltaY < 0 && deltaY < previousDelta - 8) {
+          clearTimeout(scrollTimeout);
+          scrolledElement?.removeAttribute("recentlyScrolled");
+          return false;
+        } else if (!!previousDelta && deltaY > 0 && deltaY > previousDelta + 8) {
+          clearTimeout(scrollTimeout);
+          scrolledElement?.removeAttribute("recentlyScrolled");
+          return false;
+        }
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          scrolledElement?.removeAttribute("recentlyScrolled");
+        }, 50);
+      } else {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+          scrolledElement?.removeAttribute("recentlyScrolled");
+        }, 300);
+      }
+      previousDelta = deltaY;
+      return true;
+    }
+    return false;
+  }
+  __name(flagRecentlyScrolled, "flagRecentlyScrolled");
+  function eventTargetShouldHandleScroll(event) {
+    for (let node = event.target; node; node = node.parentNode) {
+      if (!(node instanceof Element) || node.id === "container" || node.classList.contains("cell_container") || node.classList.contains("markup") || node.classList.contains("output_container")) {
+        return false;
+      }
+      if (event.deltaY < 0 && node.scrollTop > 0) {
+        flagRecentlyScrolled(node);
+        return true;
+      }
+      if (event.deltaY > 0 && node.scrollTop + node.clientHeight < node.scrollHeight) {
+        if (node.scrollHeight - node.scrollTop - node.clientHeight < 2) {
+          continue;
+        }
+        if (window.getComputedStyle(node).overflowY === "hidden" || window.getComputedStyle(node).overflowY === "visible") {
+          continue;
+        }
+        flagRecentlyScrolled(node);
+        return true;
+      }
+      if (flagRecentlyScrolled(node, event.deltaY)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  __name(eventTargetShouldHandleScroll, "eventTargetShouldHandleScroll");
+  const handleWheel = /* @__PURE__ */ __name((event) => {
+    if (event.defaultPrevented || eventTargetShouldHandleScroll(event)) {
+      return;
+    }
+    postNotebookMessage("did-scroll-wheel", {
+      payload: {
+        deltaMode: event.deltaMode,
+        deltaX: event.deltaX,
+        deltaY: event.deltaY,
+        deltaZ: event.deltaZ,
+        // Refs https://github.com/microsoft/vscode/issues/146403#issuecomment-1854538928
+        wheelDelta: event.wheelDelta && isChrome ? event.wheelDelta / window.devicePixelRatio : event.wheelDelta,
+        wheelDeltaX: event.wheelDeltaX && isChrome ? event.wheelDeltaX / window.devicePixelRatio : event.wheelDeltaX,
+        wheelDeltaY: event.wheelDeltaY && isChrome ? event.wheelDeltaY / window.devicePixelRatio : event.wheelDeltaY,
+        detail: event.detail,
+        shiftKey: event.shiftKey,
+        type: event.type
+      }
+    });
+  }, "handleWheel");
+  function focusFirstFocusableOrContainerInOutput(cellOrOutputId, alternateId) {
+    const cellOutputContainer = window.document.getElementById(cellOrOutputId) ?? (alternateId ? window.document.getElementById(alternateId) : void 0);
+    if (cellOutputContainer) {
+      if (cellOutputContainer.contains(window.document.activeElement)) {
+        return;
+      }
+      const id = cellOutputContainer.id;
+      let focusableElement = cellOutputContainer.querySelector('[tabindex="0"], [href], button, input, option, select, textarea');
+      if (!focusableElement) {
+        focusableElement = cellOutputContainer;
+        focusableElement.tabIndex = -1;
+        postNotebookMessage("outputInputFocus", { inputFocused: false, id });
+      } else {
+        const inputFocused = isEditableElement(focusableElement);
+        postNotebookMessage("outputInputFocus", { inputFocused, id });
+      }
+      lastFocusedOutput = cellOutputContainer;
+      postNotebookMessage("outputFocus", { id: cellOutputContainer.id });
+      focusableElement.focus();
+    }
+  }
+  __name(focusFirstFocusableOrContainerInOutput, "focusFirstFocusableOrContainerInOutput");
+  function createFocusSink(cellId, focusNext) {
+    const element = document.createElement("div");
+    element.id = `focus-sink-${cellId}`;
+    element.tabIndex = 0;
+    element.addEventListener("focus", () => {
+      postNotebookMessage("focus-editor", {
+        cellId,
+        focusNext
+      });
+    });
+    return element;
+  }
+  __name(createFocusSink, "createFocusSink");
+  function _internalHighlightRange(range, tagName = "mark", attributes = {}) {
+    function _textNodesInRange(range2) {
+      if (!range2.startContainer.ownerDocument) {
+        return [];
+      }
+      if (range2.startContainer.nodeType === Node.TEXT_NODE && range2.startOffset > 0) {
+        const startContainer = range2.startContainer;
+        const endOffset = range2.endOffset;
+        const createdNode = startContainer.splitText(range2.startOffset);
+        if (range2.endContainer === startContainer) {
+          range2.setEnd(createdNode, endOffset - range2.startOffset);
+        }
+        range2.setStart(createdNode, 0);
+      }
+      if (range2.endContainer.nodeType === Node.TEXT_NODE && range2.endOffset < range2.endContainer.length) {
+        range2.endContainer.splitText(range2.endOffset);
+      }
+      const walker = range2.startContainer.ownerDocument.createTreeWalker(range2.commonAncestorContainer, NodeFilter.SHOW_TEXT, (node) => range2.intersectsNode(node) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT);
+      walker.currentNode = range2.startContainer;
+      const nodes2 = [];
+      if (walker.currentNode.nodeType === Node.TEXT_NODE) {
+        nodes2.push(walker.currentNode);
+      }
+      while (walker.nextNode() && range2.comparePoint(walker.currentNode, 0) !== 1) {
+        if (walker.currentNode.nodeType === Node.TEXT_NODE) {
+          nodes2.push(walker.currentNode);
+        }
+      }
+      return nodes2;
+    }
+    __name(_textNodesInRange, "_textNodesInRange");
+    function wrapNodeInHighlight(node, tagName2, attributes2) {
+      const highlightElement = node.ownerDocument.createElement(tagName2);
+      Object.keys(attributes2).forEach((key) => {
+        highlightElement.setAttribute(key, attributes2[key]);
+      });
+      const tempRange = node.ownerDocument.createRange();
+      tempRange.selectNode(node);
+      tempRange.surroundContents(highlightElement);
+      return highlightElement;
+    }
+    __name(wrapNodeInHighlight, "wrapNodeInHighlight");
+    if (range.collapsed) {
+      return {
+        remove: /* @__PURE__ */ __name(() => {
+        }, "remove"),
+        update: /* @__PURE__ */ __name(() => {
+        }, "update")
+      };
+    }
+    const nodes = _textNodesInRange(range);
+    const highlightElements = [];
+    for (const nodeIdx in nodes) {
+      const highlightElement = wrapNodeInHighlight(nodes[nodeIdx], tagName, attributes);
+      highlightElements.push(highlightElement);
+    }
+    function _removeHighlight(highlightElement) {
+      if (highlightElement.childNodes.length === 1) {
+        highlightElement.parentNode?.replaceChild(highlightElement.firstChild, highlightElement);
+      } else {
+        while (highlightElement.firstChild) {
+          highlightElement.parentNode?.insertBefore(highlightElement.firstChild, highlightElement);
+        }
+        highlightElement.remove();
+      }
+    }
+    __name(_removeHighlight, "_removeHighlight");
+    function _removeHighlights() {
+      for (const highlightIdx in highlightElements) {
+        _removeHighlight(highlightElements[highlightIdx]);
+      }
+    }
+    __name(_removeHighlights, "_removeHighlights");
+    function _updateHighlight(highlightElement, attributes2 = {}) {
+      Object.keys(attributes2).forEach((key) => {
+        highlightElement.setAttribute(key, attributes2[key]);
+      });
+    }
+    __name(_updateHighlight, "_updateHighlight");
+    function updateHighlights(attributes2) {
+      for (const highlightIdx in highlightElements) {
+        _updateHighlight(highlightElements[highlightIdx], attributes2);
+      }
+    }
+    __name(updateHighlights, "updateHighlights");
+    return {
+      remove: _removeHighlights,
+      update: updateHighlights
+    };
+  }
+  __name(_internalHighlightRange, "_internalHighlightRange");
+  function selectRange(_range) {
+    const sel = window.getSelection();
+    if (sel) {
+      try {
+        sel.removeAllRanges();
+        const r = document.createRange();
+        r.setStart(_range.startContainer, _range.startOffset);
+        r.setEnd(_range.endContainer, _range.endOffset);
+        sel.addRange(r);
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  }
+  __name(selectRange, "selectRange");
+  function highlightRange(range, useCustom, tagName = "mark", attributes = {}) {
+    if (useCustom) {
+      const ret = _internalHighlightRange(range, tagName, attributes);
+      return {
+        range,
+        dispose: ret.remove,
+        update: /* @__PURE__ */ __name((color, className) => {
+          if (className === void 0) {
+            ret.update({
+              "style": `background-color: ${color}`
+            });
+          } else {
+            ret.update({
+              "class": className
+            });
+          }
+        }, "update")
+      };
+    } else {
+      window.document.execCommand("hiliteColor", false, matchColor);
+      const cloneRange = window.getSelection().getRangeAt(0).cloneRange();
+      const _range = {
+        collapsed: cloneRange.collapsed,
+        commonAncestorContainer: cloneRange.commonAncestorContainer,
+        endContainer: cloneRange.endContainer,
+        endOffset: cloneRange.endOffset,
+        startContainer: cloneRange.startContainer,
+        startOffset: cloneRange.startOffset
+      };
+      return {
+        range: _range,
+        dispose: /* @__PURE__ */ __name(() => {
+          selectRange(_range);
+          try {
+            document.designMode = "On";
+            window.document.execCommand("removeFormat", false, void 0);
+            document.designMode = "Off";
+            window.getSelection()?.removeAllRanges();
+          } catch (e) {
+            console.log(e);
+          }
+        }, "dispose"),
+        update: /* @__PURE__ */ __name((color, className) => {
+          selectRange(_range);
+          try {
+            document.designMode = "On";
+            window.document.execCommand("removeFormat", false, void 0);
+            window.document.execCommand("hiliteColor", false, color);
+            document.designMode = "Off";
+            window.getSelection()?.removeAllRanges();
+          } catch (e) {
+            console.log(e);
+          }
+        }, "update")
+      };
+    }
+  }
+  __name(highlightRange, "highlightRange");
+  function createEmitter(listenerChange = () => void 0) {
+    const listeners = /* @__PURE__ */ new Set();
+    return {
+      fire(data) {
+        for (const listener of [...listeners]) {
+          listener.fn.call(listener.thisArg, data);
+        }
+      },
+      event(fn, thisArg, disposables) {
+        const listenerObj = { fn, thisArg };
+        const disposable = {
+          dispose: /* @__PURE__ */ __name(() => {
+            listeners.delete(listenerObj);
+            listenerChange(listeners);
+          }, "dispose")
+        };
+        listeners.add(listenerObj);
+        listenerChange(listeners);
+        if (disposables instanceof Array) {
+          disposables.push(disposable);
+        } else if (disposables) {
+          disposables.add(disposable);
+        }
+        return disposable;
+      }
+    };
+  }
+  __name(createEmitter, "createEmitter");
+  function showRenderError(errorText, outputNode, errors) {
+    outputNode.innerText = errorText;
+    const errList = document.createElement("ul");
+    for (const result of errors) {
+      console.error(result);
+      const item = document.createElement("li");
+      item.innerText = result.message;
+      errList.appendChild(item);
+    }
+    outputNode.appendChild(errList);
+  }
+  __name(showRenderError, "showRenderError");
+  const outputItemRequests = new class {
+    constructor() {
+      this._requestPool = 0;
+      this._requests = /* @__PURE__ */ new Map();
+    }
+    getOutputItem(outputId, mime) {
+      const requestId = this._requestPool++;
+      const { promise, resolve } = promiseWithResolvers();
+      this._requests.set(requestId, { resolve });
+      postNotebookMessage("getOutputItem", { requestId, outputId, mime });
+      return promise;
+    }
+    resolveOutputItem(requestId, output) {
+      const request = this._requests.get(requestId);
+      if (!request) {
+        return;
+      }
+      this._requests.delete(requestId);
+      request.resolve(output);
+    }
+  }();
+  let hasWarnedAboutAllOutputItemsProposal = false;
+  function createOutputItem(id, mime, metadata, valueBytes, allOutputItemData, appended) {
+    function create(id2, mime2, metadata2, valueBytes2, appended2) {
+      return Object.freeze({
+        id: id2,
+        mime: mime2,
+        metadata: metadata2,
+        appendedText() {
+          if (appended2) {
+            return textDecoder.decode(appended2.valueBytes);
+          }
+          return void 0;
+        },
+        data() {
+          return valueBytes2;
+        },
+        text() {
+          return textDecoder.decode(valueBytes2);
+        },
+        json() {
+          return JSON.parse(this.text());
+        },
+        blob() {
+          return new Blob([valueBytes2], { type: this.mime });
+        },
+        get _allOutputItems() {
+          if (!hasWarnedAboutAllOutputItemsProposal) {
+            hasWarnedAboutAllOutputItemsProposal = true;
+            console.warn(`'_allOutputItems' is proposed API. DO NOT ship an extension that depends on it!`);
+          }
+          return allOutputItemList;
+        }
+      });
+    }
+    __name(create, "create");
+    const allOutputItemCache = /* @__PURE__ */ new Map();
+    const allOutputItemList = Object.freeze(allOutputItemData.map((outputItem) => {
+      const mime2 = outputItem.mime;
+      return Object.freeze({
+        mime: mime2,
+        getItem() {
+          const existingTask = allOutputItemCache.get(mime2);
+          if (existingTask) {
+            return existingTask;
+          }
+          const task = outputItemRequests.getOutputItem(id, mime2).then((item2) => {
+            return item2 ? create(id, item2.mime, metadata, item2.valueBytes) : void 0;
+          });
+          allOutputItemCache.set(mime2, task);
+          return task;
+        }
+      });
+    }));
+    const item = create(id, mime, metadata, valueBytes, appended);
+    allOutputItemCache.set(mime, Promise.resolve(item));
+    return item;
+  }
+  __name(createOutputItem, "createOutputItem");
+  const onDidReceiveKernelMessage = createEmitter();
+  const ttPolicy = window.trustedTypes?.createPolicy("notebookRenderer", {
+    createHTML: /* @__PURE__ */ __name((value) => value, "createHTML"),
+    // CodeQL [SM03712] The rendered content is provided by renderer extensions, which are responsible for sanitizing their content themselves. The notebook webview is also sandboxed.
+    createScript: /* @__PURE__ */ __name((value) => value, "createScript")
+    // CodeQL [SM03712] The rendered content is provided by renderer extensions, which are responsible for sanitizing their content themselves. The notebook webview is also sandboxed.
+  });
+  window.addEventListener("wheel", handleWheel);
+  const matchColor = window.getComputedStyle(window.document.getElementById("_defaultColorPalatte")).color;
+  const currentMatchColor = window.getComputedStyle(window.document.getElementById("_defaultColorPalatte")).backgroundColor;
+  class JSHighlighter {
+    static {
+      __name(this, "JSHighlighter");
+    }
+    constructor() {
+      this._activeHighlightInfo = /* @__PURE__ */ new Map();
+    }
+    addHighlights(matches, ownerID) {
+      for (let i = matches.length - 1; i >= 0; i--) {
+        const match = matches[i];
+        const ret = highlightRange(match.originalRange, true, "mark", match.isShadow ? {
+          "style": "background-color: " + matchColor + ";"
+        } : {
+          "class": "find-match"
+        });
+        match.highlightResult = ret;
+      }
+      const highlightInfo = {
+        matches,
+        currentMatchIndex: -1
+      };
+      this._activeHighlightInfo.set(ownerID, highlightInfo);
+    }
+    removeHighlights(ownerID) {
+      this._activeHighlightInfo.get(ownerID)?.matches.forEach((match) => {
+        match.highlightResult?.dispose();
+      });
+      this._activeHighlightInfo.delete(ownerID);
+    }
+    highlightCurrentMatch(index, ownerID) {
+      const highlightInfo = this._activeHighlightInfo.get(ownerID);
+      if (!highlightInfo) {
+        console.error("Modified current highlight match before adding highlight list.");
+        return;
+      }
+      const oldMatch = highlightInfo.matches[highlightInfo.currentMatchIndex];
+      oldMatch?.highlightResult?.update(matchColor, oldMatch.isShadow ? void 0 : "find-match");
+      const match = highlightInfo.matches[index];
+      highlightInfo.currentMatchIndex = index;
+      const sel = window.getSelection();
+      if (!!match && !!sel && match.highlightResult) {
+        let offset = 0;
+        try {
+          const outputOffset = window.document.getElementById(match.id).getBoundingClientRect().top;
+          const tempRange = document.createRange();
+          tempRange.selectNode(match.highlightResult.range.startContainer);
+          match.highlightResult.range.startContainer.parentElement?.scrollIntoView({ behavior: "auto", block: "end", inline: "nearest" });
+          const rangeOffset = tempRange.getBoundingClientRect().top;
+          tempRange.detach();
+          offset = rangeOffset - outputOffset;
+        } catch (e) {
+          console.error(e);
+        }
+        match.highlightResult?.update(currentMatchColor, match.isShadow ? void 0 : "current-find-match");
+        window.document.getSelection()?.removeAllRanges();
+        postNotebookMessage("didFindHighlightCurrent", {
+          offset
+        });
+      }
+    }
+    unHighlightCurrentMatch(index, ownerID) {
+      const highlightInfo = this._activeHighlightInfo.get(ownerID);
+      if (!highlightInfo) {
+        return;
+      }
+      const oldMatch = highlightInfo.matches[index];
+      if (oldMatch && oldMatch.highlightResult) {
+        oldMatch.highlightResult.update(matchColor, oldMatch.isShadow ? void 0 : "find-match");
+      }
+    }
+    dispose() {
+      window.document.getSelection()?.removeAllRanges();
+      this._activeHighlightInfo.forEach((highlightInfo) => {
+        highlightInfo.matches.forEach((match) => {
+          match.highlightResult?.dispose();
+        });
+      });
+    }
+  }
+  class CSSHighlighter {
+    static {
+      __name(this, "CSSHighlighter");
+    }
+    constructor() {
+      this._activeHighlightInfo = /* @__PURE__ */ new Map();
+      this._matchesHighlight = new Highlight();
+      this._matchesHighlight.priority = 1;
+      this._currentMatchesHighlight = new Highlight();
+      this._currentMatchesHighlight.priority = 2;
+      CSS.highlights?.set(`find-highlight`, this._matchesHighlight);
+      CSS.highlights?.set(`current-find-highlight`, this._currentMatchesHighlight);
+    }
+    _refreshRegistry(updateMatchesHighlight = true) {
+      if (updateMatchesHighlight) {
+        this._matchesHighlight.clear();
+      }
+      this._currentMatchesHighlight.clear();
+      this._activeHighlightInfo.forEach((highlightInfo) => {
+        if (updateMatchesHighlight) {
+          for (let i = 0; i < highlightInfo.matches.length; i++) {
+            this._matchesHighlight.add(highlightInfo.matches[i].originalRange);
+          }
+        }
+        if (highlightInfo.currentMatchIndex < highlightInfo.matches.length && highlightInfo.currentMatchIndex >= 0) {
+          this._currentMatchesHighlight.add(highlightInfo.matches[highlightInfo.currentMatchIndex].originalRange);
+        }
+      });
+    }
+    addHighlights(matches, ownerID) {
+      for (let i = 0; i < matches.length; i++) {
+        this._matchesHighlight.add(matches[i].originalRange);
+      }
+      const newEntry = {
+        matches,
+        currentMatchIndex: -1
+      };
+      this._activeHighlightInfo.set(ownerID, newEntry);
+    }
+    highlightCurrentMatch(index, ownerID) {
+      const highlightInfo = this._activeHighlightInfo.get(ownerID);
+      if (!highlightInfo) {
+        console.error("Modified current highlight match before adding highlight list.");
+        return;
+      }
+      highlightInfo.currentMatchIndex = index;
+      const match = highlightInfo.matches[index];
+      if (match) {
+        let offset = 0;
+        try {
+          const outputOffset = window.document.getElementById(match.id).getBoundingClientRect().top;
+          match.originalRange.startContainer.parentElement?.scrollIntoView({ behavior: "auto", block: "end", inline: "nearest" });
+          const rangeOffset = match.originalRange.getBoundingClientRect().top;
+          offset = rangeOffset - outputOffset;
+          postNotebookMessage("didFindHighlightCurrent", {
+            offset
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      this._refreshRegistry(false);
+    }
+    unHighlightCurrentMatch(index, ownerID) {
+      const highlightInfo = this._activeHighlightInfo.get(ownerID);
+      if (!highlightInfo) {
+        return;
+      }
+      highlightInfo.currentMatchIndex = -1;
+    }
+    removeHighlights(ownerID) {
+      this._activeHighlightInfo.delete(ownerID);
+      this._refreshRegistry();
+    }
+    dispose() {
+      window.document.getSelection()?.removeAllRanges();
+      this._currentMatchesHighlight.clear();
+      this._matchesHighlight.clear();
+    }
+  }
+  const _highlighter = CSS.highlights ? new CSSHighlighter() : new JSHighlighter();
+  function extractSelectionLine(selection) {
+    const range = selection.getRangeAt(0);
+    const oldRange = range.cloneRange();
+    const captureLength = selection.toString().length;
+    selection.collapseToStart();
+    selection.modify("move", "backward", "lineboundary");
+    selection.modify("extend", "forward", "lineboundary");
+    const line = selection.toString();
+    const rangeStart = getStartOffset(selection.getRangeAt(0), oldRange);
+    const lineRange = {
+      start: rangeStart,
+      end: rangeStart + captureLength
+    };
+    selection.removeAllRanges();
+    selection.addRange(oldRange);
+    return { line, range: lineRange };
+  }
+  __name(extractSelectionLine, "extractSelectionLine");
+  function getStartOffset(lineRange, originalRange) {
+    const firstCommonAncestor = findFirstCommonAncestor(lineRange.startContainer, originalRange.startContainer);
+    const selectionOffset = getSelectionOffsetRelativeTo(firstCommonAncestor, lineRange.startContainer) + lineRange.startOffset;
+    const textOffset = getSelectionOffsetRelativeTo(firstCommonAncestor, originalRange.startContainer) + originalRange.startOffset;
+    return textOffset - selectionOffset;
+  }
+  __name(getStartOffset, "getStartOffset");
+  function findFirstCommonAncestor(nodeA, nodeB) {
+    const range = new Range();
+    range.setStart(nodeA, 0);
+    range.setEnd(nodeB, 0);
+    return range.commonAncestorContainer;
+  }
+  __name(findFirstCommonAncestor, "findFirstCommonAncestor");
+  function getTextContentLength(node) {
+    let length = 0;
+    if (node.nodeType === Node.TEXT_NODE) {
+      length += node.textContent?.length || 0;
+    } else {
+      for (const childNode of node.childNodes) {
+        length += getTextContentLength(childNode);
+      }
+    }
+    return length;
+  }
+  __name(getTextContentLength, "getTextContentLength");
+  function getSelectionOffsetRelativeTo(parentElement, currentNode) {
+    if (!currentNode) {
+      return 0;
+    }
+    let offset = 0;
+    if (currentNode === parentElement || !parentElement.contains(currentNode)) {
+      return offset;
+    }
+    let prevSibling = currentNode.previousSibling;
+    while (prevSibling) {
+      offset += getTextContentLength(prevSibling);
+      prevSibling = prevSibling.previousSibling;
+    }
+    return offset + getSelectionOffsetRelativeTo(parentElement, currentNode.parentNode);
+  }
+  __name(getSelectionOffsetRelativeTo, "getSelectionOffsetRelativeTo");
+  const find = /* @__PURE__ */ __name((query, options) => {
+    let find2 = true;
+    let matches = [];
+    const range = document.createRange();
+    range.selectNodeContents(window.document.getElementById("findStart"));
+    const sel = window.getSelection();
+    sel?.removeAllRanges();
+    sel?.addRange(range);
+    viewModel.toggleDragDropEnabled(false);
+    try {
+      document.designMode = "On";
+      while (find2 && matches.length < 500) {
+        find2 = window.find(
+          query,
+          /* caseSensitive*/
+          !!options.caseSensitive,
+          /* backwards*/
+          false,
+          /* wrapAround*/
+          false,
+          /* wholeWord */
+          !!options.wholeWord,
+          /* searchInFrames*/
+          true,
+          false
+        );
+        if (find2) {
+          const selection = window.getSelection();
+          if (!selection) {
+            console.log("no selection");
+            break;
+          }
+          if (options.includeMarkup && selection.rangeCount > 0 && selection.getRangeAt(0).startContainer.nodeType === 1 && selection.getRangeAt(0).startContainer.classList.contains("markup")) {
+            const preview = selection.anchorNode?.firstChild;
+            const root = preview.shadowRoot;
+            const shadowSelection = root?.getSelection ? root?.getSelection() : null;
+            if (shadowSelection && shadowSelection.anchorNode) {
+              matches.push({
+                type: "preview",
+                id: preview.id,
+                cellId: preview.id,
+                container: preview,
+                isShadow: true,
+                originalRange: shadowSelection.getRangeAt(0),
+                searchPreviewInfo: options.shouldGetSearchPreviewInfo ? extractSelectionLine(shadowSelection) : void 0
+              });
+            }
+          }
+          if (options.includeOutput && selection.rangeCount > 0 && selection.getRangeAt(0).startContainer.nodeType === 1 && selection.getRangeAt(0).startContainer.classList.contains("output_container")) {
+            const cellId = selection.getRangeAt(0).startContainer.parentElement.id;
+            const outputNode = selection.anchorNode?.firstChild;
+            const root = outputNode.shadowRoot;
+            const shadowSelection = root?.getSelection ? root?.getSelection() : null;
+            if (shadowSelection && shadowSelection.anchorNode) {
+              matches.push({
+                type: "output",
+                id: outputNode.id,
+                cellId,
+                container: outputNode,
+                isShadow: true,
+                originalRange: shadowSelection.getRangeAt(0),
+                searchPreviewInfo: options.shouldGetSearchPreviewInfo ? extractSelectionLine(shadowSelection) : void 0
+              });
+            }
+          }
+          const anchorNode = selection.anchorNode?.parentElement;
+          if (anchorNode) {
+            const lastEl = matches.length ? matches[matches.length - 1] : null;
+            if (lastEl && lastEl.container.contains(anchorNode) && options.includeOutput) {
+              matches.push({
+                type: lastEl.type,
+                id: lastEl.id,
+                cellId: lastEl.cellId,
+                container: lastEl.container,
+                isShadow: false,
+                originalRange: selection.getRangeAt(0),
+                searchPreviewInfo: options.shouldGetSearchPreviewInfo ? extractSelectionLine(selection) : void 0
+              });
+            } else {
+              for (let node = anchorNode; node; node = node.parentElement) {
+                if (!(node instanceof Element)) {
+                  break;
+                }
+                if (node.classList.contains("output") && options.includeOutput) {
+                  const cellId = node.parentElement?.parentElement?.id;
+                  if (cellId) {
+                    matches.push({
+                      type: "output",
+                      id: node.id,
+                      cellId,
+                      container: node,
+                      isShadow: false,
+                      originalRange: selection.getRangeAt(0),
+                      searchPreviewInfo: options.shouldGetSearchPreviewInfo ? extractSelectionLine(selection) : void 0
+                    });
+                  }
+                  break;
+                }
+                if (node.id === "container" || node === window.document.body) {
+                  break;
+                }
+              }
+            }
+          } else {
+            break;
+          }
+        }
+      }
+    } catch (e) {
+      console.log(e);
+    }
+    matches = matches.filter((match) => options.findIds.length ? options.findIds.includes(match.cellId) : true);
+    _highlighter.addHighlights(matches, options.ownerID);
+    window.document.getSelection()?.removeAllRanges();
+    viewModel.toggleDragDropEnabled(currentOptions.dragAndDropEnabled);
+    document.designMode = "Off";
+    postNotebookMessage("didFind", {
+      matches: matches.map((match, index) => ({
+        type: match.type,
+        id: match.id,
+        cellId: match.cellId,
+        index,
+        searchPreviewInfo: match.searchPreviewInfo
+      }))
+    });
+  }, "find");
+  const copyOutputImage = /* @__PURE__ */ __name(async (outputId, altOutputId, retries = 5) => {
+    if (!window.document.hasFocus() && retries > 0) {
+      setTimeout(() => {
+        copyOutputImage(outputId, altOutputId, retries - 1);
+      }, 50);
+      return;
+    }
+    try {
+      const outputElement = window.document.getElementById(outputId) ?? window.document.getElementById(altOutputId);
+      let image = outputElement?.querySelector("img");
+      if (!image) {
+        const svgImage = outputElement?.querySelector("svg.output-image") ?? outputElement?.querySelector("div.svgContainerStyle > svg");
+        if (svgImage) {
+          image = new Image();
+          image.src = "data:image/svg+xml," + encodeURIComponent(svgImage.outerHTML);
+        }
+      }
+      if (image) {
+        const imageToCopy = image;
+        await navigator.clipboard.write([new ClipboardItem({
+          "image/png": new Promise((resolve) => {
+            const canvas = document.createElement("canvas");
+            canvas.width = imageToCopy.naturalWidth;
+            canvas.height = imageToCopy.naturalHeight;
+            const context = canvas.getContext("2d");
+            context.drawImage(imageToCopy, 0, 0);
+            canvas.toBlob((blob) => {
+              if (blob) {
+                resolve(blob);
+              } else {
+                console.error("No blob data to write to clipboard");
+              }
+              canvas.remove();
+            }, "image/png");
+          })
+        })]);
+      } else {
+        console.error("Could not find image element to copy for output with id", outputId);
+      }
+    } catch (e) {
+      console.error("Could not copy image:", e);
+    }
+  }, "copyOutputImage");
+  window.addEventListener("message", async (rawEvent) => {
+    const event = rawEvent;
+    switch (event.data.type) {
+      case "initializeMarkup": {
+        try {
+          await Promise.all(event.data.cells.map((info) => viewModel.ensureMarkupCell(info)));
+        } finally {
+          dimensionUpdater.updateImmediately();
+          postNotebookMessage("initializedMarkup", { requestId: event.data.requestId });
+        }
+        break;
+      }
+      case "createMarkupCell":
+        viewModel.ensureMarkupCell(event.data.cell);
+        break;
+      case "showMarkupCell":
+        viewModel.showMarkupCell(event.data.id, event.data.top, event.data.content, event.data.metadata);
+        break;
+      case "hideMarkupCells":
+        for (const id of event.data.ids) {
+          viewModel.hideMarkupCell(id);
+        }
+        break;
+      case "unhideMarkupCells":
+        for (const id of event.data.ids) {
+          viewModel.unhideMarkupCell(id);
+        }
+        break;
+      case "deleteMarkupCell":
+        for (const id of event.data.ids) {
+          viewModel.deleteMarkupCell(id);
+        }
+        break;
+      case "updateSelectedMarkupCells":
+        viewModel.updateSelectedCells(event.data.selectedCellIds);
+        break;
+      case "html": {
+        const data = event.data;
+        if (data.createOnIdle) {
+          outputRunner.enqueueIdle(data.outputId, (signal) => {
+            return viewModel.renderOutputCell(data, signal);
+          });
+        } else {
+          outputRunner.enqueue(data.outputId, (signal) => {
+            return viewModel.renderOutputCell(data, signal);
+          });
+        }
+        break;
+      }
+      case "view-scroll": {
+        event.data.widgets.forEach((widget) => {
+          outputRunner.enqueue(widget.outputId, () => {
+            viewModel.updateOutputsScroll([widget]);
+          });
+        });
+        viewModel.updateMarkupScrolls(event.data.markupCells);
+        break;
+      }
+      case "clear":
+        renderers.clearAll();
+        viewModel.clearAll();
+        window.document.getElementById("container").innerText = "";
+        break;
+      case "clearOutput": {
+        const { cellId, rendererId, outputId } = event.data;
+        outputRunner.cancelOutput(outputId);
+        viewModel.clearOutput(cellId, outputId, rendererId);
+        break;
+      }
+      case "hideOutput": {
+        const { cellId, outputId } = event.data;
+        outputRunner.enqueue(outputId, () => {
+          viewModel.hideOutput(cellId);
+        });
+        break;
+      }
+      case "showOutput": {
+        const { outputId, cellTop, cellId, content } = event.data;
+        outputRunner.enqueue(outputId, () => {
+          viewModel.showOutput(cellId, outputId, cellTop);
+          if (content) {
+            viewModel.updateAndRerender(cellId, outputId, content);
+          }
+        });
+        break;
+      }
+      case "copyImage": {
+        await copyOutputImage(event.data.outputId, event.data.altOutputId);
+        break;
+      }
+      case "ack-dimension": {
+        for (const { cellId, outputId, height } of event.data.updates) {
+          viewModel.updateOutputHeight(cellId, outputId, height);
+        }
+        break;
+      }
+      case "preload": {
+        const resources = event.data.resources;
+        for (const { uri } of resources) {
+          kernelPreloads.load(uri);
+        }
+        break;
+      }
+      case "updateRenderers": {
+        const { rendererData } = event.data;
+        renderers.updateRendererData(rendererData);
+        break;
+      }
+      case "focus-output":
+        focusFirstFocusableOrContainerInOutput(event.data.cellOrOutputId, event.data.alternateId);
+        break;
+      case "blur-output":
+        blurOutput();
+        break;
+      case "select-output-contents":
+        selectOutputContents(event.data.cellOrOutputId);
+        break;
+      case "select-input-contents":
+        selectInputContents(event.data.cellOrOutputId);
+        break;
+      case "decorations": {
+        let outputContainer = window.document.getElementById(event.data.cellId);
+        if (!outputContainer) {
+          viewModel.ensureOutputCell(event.data.cellId, -1e5, true);
+          outputContainer = window.document.getElementById(event.data.cellId);
+        }
+        outputContainer?.classList.add(...event.data.addedClassNames);
+        outputContainer?.classList.remove(...event.data.removedClassNames);
+        break;
+      }
+      case "markupDecorations": {
+        const markupCell = window.document.getElementById(event.data.cellId);
+        if (markupCell) {
+          markupCell?.classList.add(...event.data.addedClassNames);
+          markupCell?.classList.remove(...event.data.removedClassNames);
+        }
+        break;
+      }
+      case "customKernelMessage":
+        onDidReceiveKernelMessage.fire(event.data.message);
+        break;
+      case "customRendererMessage":
+        renderers.getRenderer(event.data.rendererId)?.receiveMessage(event.data.message);
+        break;
+      case "notebookStyles": {
+        const documentStyle = window.document.documentElement.style;
+        for (let i = documentStyle.length - 1; i >= 0; i--) {
+          const property = documentStyle[i];
+          if (property && property.startsWith("--notebook-")) {
+            documentStyle.removeProperty(property);
+          }
+        }
+        for (const [name, value] of Object.entries(event.data.styles)) {
+          documentStyle.setProperty(`--${name}`, value);
+        }
+        break;
+      }
+      case "notebookOptions":
+        currentOptions = event.data.options;
+        viewModel.toggleDragDropEnabled(currentOptions.dragAndDropEnabled);
+        currentRenderOptions = event.data.renderOptions;
+        settingChange.fire(currentRenderOptions);
+        break;
+      case "tokenizedCodeBlock": {
+        const { codeBlockId, html } = event.data;
+        MarkdownCodeBlock.highlightCodeBlock(codeBlockId, html);
+        break;
+      }
+      case "tokenizedStylesChanged": {
+        tokenizationStyle.replaceSync(event.data.css);
+        break;
+      }
+      case "find": {
+        _highlighter.removeHighlights(event.data.options.ownerID);
+        find(event.data.query, event.data.options);
+        break;
+      }
+      case "findHighlightCurrent": {
+        _highlighter?.highlightCurrentMatch(event.data.index, event.data.ownerID);
+        break;
+      }
+      case "findUnHighlightCurrent": {
+        _highlighter?.unHighlightCurrentMatch(event.data.index, event.data.ownerID);
+        break;
+      }
+      case "findStop": {
+        _highlighter.removeHighlights(event.data.ownerID);
+        break;
+      }
+      case "returnOutputItem": {
+        outputItemRequests.resolveOutputItem(event.data.requestId, event.data.output);
+      }
+    }
+  });
+  const renderFallbackErrorName = "vscode.fallbackToNextRenderer";
+  class Renderer {
+    static {
+      __name(this, "Renderer");
+    }
+    constructor(data) {
+      this.data = data;
+      this._onMessageEvent = createEmitter();
+    }
+    receiveMessage(message) {
+      this._onMessageEvent.fire(message);
+    }
+    async renderOutputItem(item, element, signal) {
+      try {
+        await this.load();
+      } catch (e) {
+        if (!signal.aborted) {
+          showRenderError(`Error loading renderer '${this.data.id}'`, element, e instanceof Error ? [e] : []);
+        }
+        return;
+      }
+      if (!this._api) {
+        if (!signal.aborted) {
+          showRenderError(`Renderer '${this.data.id}' does not implement renderOutputItem`, element, []);
+        }
+        return;
+      }
+      try {
+        const renderStart = performance.now();
+        await this._api.renderOutputItem(item, element, signal);
+        this.postDebugMessage("Rendered output item", { id: item.id, duration: `${performance.now() - renderStart}ms` });
+      } catch (e) {
+        if (signal.aborted) {
+          return;
+        }
+        if (e instanceof Error && e.name === renderFallbackErrorName) {
+          throw e;
+        }
+        showRenderError(`Error rendering output item using '${this.data.id}'`, element, e instanceof Error ? [e] : []);
+        this.postDebugMessage("Rendering output item failed", { id: item.id, error: e + "" });
+      }
+    }
+    disposeOutputItem(id) {
+      this._api?.disposeOutputItem?.(id);
+    }
+    createRendererContext() {
+      const { id, messaging } = this.data;
+      const context = {
+        setState: /* @__PURE__ */ __name((newState) => vscode.setState({ ...vscode.getState(), [id]: newState }), "setState"),
+        getState: /* @__PURE__ */ __name(() => {
+          const state = vscode.getState();
+          return typeof state === "object" && state ? state[id] : void 0;
+        }, "getState"),
+        getRenderer: /* @__PURE__ */ __name(async (id2) => {
+          const renderer = renderers.getRenderer(id2);
+          if (!renderer) {
+            return void 0;
+          }
+          if (renderer._api) {
+            return renderer._api;
+          }
+          return renderer.load();
+        }, "getRenderer"),
+        workspace: {
+          get isTrusted() {
+            return isWorkspaceTrusted;
+          }
+        },
+        settings: {
+          get lineLimit() {
+            return currentRenderOptions.lineLimit;
+          },
+          get outputScrolling() {
+            return currentRenderOptions.outputScrolling;
+          },
+          get outputWordWrap() {
+            return currentRenderOptions.outputWordWrap;
+          },
+          get linkifyFilePaths() {
+            return currentRenderOptions.linkifyFilePaths;
+          },
+          get minimalError() {
+            return currentRenderOptions.minimalError;
+          }
+        },
+        get onDidChangeSettings() {
+          return settingChange.event;
+        }
+      };
+      if (messaging) {
+        context.onDidReceiveMessage = this._onMessageEvent.event;
+        context.postMessage = (message) => postNotebookMessage("customRendererMessage", { rendererId: id, message });
+      }
+      return Object.freeze(context);
+    }
+    load() {
+      this._loadPromise ??= this._load();
+      return this._loadPromise;
+    }
+    /** Inner function cached in the _loadPromise(). */
+    async _load() {
+      this.postDebugMessage("Start loading renderer");
+      try {
+        await kernelPreloads.waitForAllCurrent();
+        const importStart = performance.now();
+        const module = await __import(this.data.entrypoint.path);
+        this.postDebugMessage("Imported renderer", { duration: `${performance.now() - importStart}ms` });
+        if (!module) {
+          return;
+        }
+        this._api = await module.activate(this.createRendererContext());
+        this.postDebugMessage("Activated renderer", { duration: `${performance.now() - importStart}ms` });
+        const dependantRenderers = ctx.rendererData.filter((d) => d.entrypoint.extends === this.data.id);
+        if (dependantRenderers.length) {
+          this.postDebugMessage("Activating dependant renderers", { dependents: dependantRenderers.map((x) => x.id).join(", ") });
+        }
+        await Promise.all(dependantRenderers.map(async (d) => {
+          const renderer = renderers.getRenderer(d.id);
+          if (!renderer) {
+            throw new Error(`Could not find extending renderer: ${d.id}`);
+          }
+          try {
+            return await renderer.load();
+          } catch (e) {
+            console.error(e);
+            this.postDebugMessage("Activating dependant renderer failed", { dependent: d.id, error: e + "" });
+            return void 0;
+          }
+        }));
+        return this._api;
+      } catch (e) {
+        this.postDebugMessage("Loading renderer failed");
+        throw e;
+      }
+    }
+    postDebugMessage(msg, data) {
+      postNotebookMessage("logRendererDebugMessage", {
+        message: `[renderer ${this.data.id}] - ${msg}`,
+        data
+      });
+    }
+  }
+  const kernelPreloads = new class {
+    constructor() {
+      this.preloads = /* @__PURE__ */ new Map();
+    }
+    /**
+     * Returns a promise that resolves when the given preload is activated.
+     */
+    waitFor(uri) {
+      return this.preloads.get(uri) || Promise.resolve(new Error(`Preload not ready: ${uri}`));
+    }
+    /**
+     * Loads a preload.
+     * @param uri URI to load from
+     * @param originalUri URI to show in an error message if the preload is invalid.
+     */
+    load(uri) {
+      const promise = Promise.all([
+        runKernelPreload(uri),
+        this.waitForAllCurrent()
+      ]);
+      this.preloads.set(uri, promise);
+      return promise;
+    }
+    /**
+     * Returns a promise that waits for all currently-registered preloads to
+     * activate before resolving.
+     */
+    waitForAllCurrent() {
+      return Promise.all([...this.preloads.values()].map((p) => p.catch((err) => err)));
+    }
+  }();
+  const outputRunner = new class {
+    constructor() {
+      this.outputs = /* @__PURE__ */ new Map();
+      this.pendingOutputCreationRequest = /* @__PURE__ */ new Map();
+    }
+    /**
+     * Pushes the action onto the list of actions for the given output ID,
+     * ensuring that it's run in-order.
+     */
+    enqueue(outputId, action) {
+      this.pendingOutputCreationRequest.get(outputId)?.dispose();
+      this.pendingOutputCreationRequest.delete(outputId);
+      const record = this.outputs.get(outputId);
+      if (!record) {
+        const controller = new AbortController();
+        this.outputs.set(outputId, { abort: controller, queue: new Promise((r) => r(action(controller.signal))) });
+      } else {
+        record.queue = record.queue.then(async (r) => {
+          if (!record.abort.signal.aborted) {
+            await action(record.abort.signal);
+          }
+        });
+      }
+    }
+    enqueueIdle(outputId, action) {
+      this.pendingOutputCreationRequest.get(outputId)?.dispose();
+      outputRunner.pendingOutputCreationRequest.set(outputId, runWhenIdle(() => {
+        outputRunner.enqueue(outputId, action);
+        outputRunner.pendingOutputCreationRequest.delete(outputId);
+      }));
+    }
+    /**
+     * Cancels the rendering of all outputs.
+     */
+    cancelAll() {
+      this.pendingOutputCreationRequest.forEach((r) => r.dispose());
+      this.pendingOutputCreationRequest.clear();
+      for (const { abort } of this.outputs.values()) {
+        abort.abort();
+      }
+      this.outputs.clear();
+    }
+    /**
+     * Cancels any ongoing rendering out an output.
+     */
+    cancelOutput(outputId) {
+      this.pendingOutputCreationRequest.get(outputId)?.dispose();
+      this.pendingOutputCreationRequest.delete(outputId);
+      const output = this.outputs.get(outputId);
+      if (output) {
+        output.abort.abort();
+        this.outputs.delete(outputId);
+      }
+    }
+  }();
+  const renderers = new class {
+    constructor() {
+      this._renderers = /* @__PURE__ */ new Map();
+      for (const renderer of ctx.rendererData) {
+        this.addRenderer(renderer);
+      }
+    }
+    getRenderer(id) {
+      return this._renderers.get(id);
+    }
+    rendererEqual(a, b) {
+      if (a.id !== b.id || a.entrypoint.path !== b.entrypoint.path || a.entrypoint.extends !== b.entrypoint.extends || a.messaging !== b.messaging) {
+        return false;
+      }
+      if (a.mimeTypes.length !== b.mimeTypes.length) {
+        return false;
+      }
+      for (let i = 0; i < a.mimeTypes.length; i++) {
+        if (a.mimeTypes[i] !== b.mimeTypes[i]) {
+          return false;
+        }
+      }
+      return true;
+    }
+    updateRendererData(rendererData) {
+      const oldKeys = new Set(this._renderers.keys());
+      const newKeys = new Set(rendererData.map((d) => d.id));
+      for (const renderer of rendererData) {
+        const existing = this._renderers.get(renderer.id);
+        if (existing && this.rendererEqual(existing.data, renderer)) {
+          continue;
+        }
+        this.addRenderer(renderer);
+      }
+      for (const key of oldKeys) {
+        if (!newKeys.has(key)) {
+          this._renderers.delete(key);
+        }
+      }
+    }
+    addRenderer(renderer) {
+      this._renderers.set(renderer.id, new Renderer(renderer));
+    }
+    clearAll() {
+      outputRunner.cancelAll();
+      for (const renderer of this._renderers.values()) {
+        renderer.disposeOutputItem();
+      }
+    }
+    clearOutput(rendererId, outputId) {
+      outputRunner.cancelOutput(outputId);
+      this._renderers.get(rendererId)?.disposeOutputItem(outputId);
+    }
+    async render(item, preferredRendererId, element, signal) {
+      const primaryRenderer = this.findRenderer(preferredRendererId, item);
+      if (!primaryRenderer) {
+        const errorMessage2 = (window.document.documentElement.style.getPropertyValue("--notebook-cell-renderer-not-found-error") || "").replace("$0", () => item.mime);
+        this.showRenderError(item, element, errorMessage2);
+        return;
+      }
+      if (!(await this._doRender(item, element, primaryRenderer, signal)).continue) {
+        return;
+      }
+      for (const additionalItemData of item._allOutputItems) {
+        if (additionalItemData.mime === item.mime) {
+          continue;
+        }
+        const additionalItem = await additionalItemData.getItem();
+        if (signal.aborted) {
+          return;
+        }
+        if (additionalItem) {
+          const renderer = this.findRenderer(void 0, additionalItem);
+          if (renderer) {
+            if (!(await this._doRender(additionalItem, element, renderer, signal)).continue) {
+              return;
+            }
+          }
+        }
+      }
+      const errorMessage = (window.document.documentElement.style.getPropertyValue("--notebook-cell-renderer-fallbacks-exhausted") || "").replace("$0", () => item.mime);
+      this.showRenderError(item, element, errorMessage);
+    }
+    async _doRender(item, element, renderer, signal) {
+      try {
+        await renderer.renderOutputItem(item, element, signal);
+        return { continue: false };
+      } catch (e) {
+        if (signal.aborted) {
+          return { continue: false };
+        }
+        if (e instanceof Error && e.name === renderFallbackErrorName) {
+          return { continue: true };
+        } else {
+          throw e;
+        }
+      }
+    }
+    findRenderer(preferredRendererId, info) {
+      let renderer;
+      if (typeof preferredRendererId === "string") {
+        renderer = Array.from(this._renderers.values()).find((renderer2) => renderer2.data.id === preferredRendererId);
+      } else {
+        const renderers2 = Array.from(this._renderers.values()).filter((renderer2) => renderer2.data.mimeTypes.includes(info.mime) && !renderer2.data.entrypoint.extends);
+        if (renderers2.length) {
+          renderers2.sort((a, b) => +a.data.isBuiltin - +b.data.isBuiltin);
+          renderer = renderers2[0];
+        }
+      }
+      return renderer;
+    }
+    showRenderError(info, element, errorMessage) {
+      const errorContainer = document.createElement("div");
+      const error = document.createElement("div");
+      error.className = "no-renderer-error";
+      error.innerText = errorMessage;
+      const cellText = document.createElement("div");
+      cellText.innerText = info.text();
+      errorContainer.appendChild(error);
+      errorContainer.appendChild(cellText);
+      element.innerText = "";
+      element.appendChild(errorContainer);
+    }
+  }();
+  const viewModel = new class ViewModel {
+    static {
+      __name(this, "ViewModel");
+    }
+    constructor() {
+      this._markupCells = /* @__PURE__ */ new Map();
+      this._outputCells = /* @__PURE__ */ new Map();
+    }
+    clearAll() {
+      for (const cell of this._markupCells.values()) {
+        cell.dispose();
+      }
+      this._markupCells.clear();
+      for (const output of this._outputCells.values()) {
+        output.dispose();
+      }
+      this._outputCells.clear();
+    }
+    async createMarkupCell(init, top, visible) {
+      const existing = this._markupCells.get(init.cellId);
+      if (existing) {
+        console.error(`Trying to create markup that already exists: ${init.cellId}`);
+        return existing;
+      }
+      const cell = new MarkupCell(init.cellId, init.mime, init.content, top, init.metadata);
+      cell.element.style.visibility = visible ? "" : "hidden";
+      this._markupCells.set(init.cellId, cell);
+      await cell.ready;
+      return cell;
+    }
+    async ensureMarkupCell(info) {
+      let cell = this._markupCells.get(info.cellId);
+      if (cell) {
+        cell.element.style.visibility = info.visible ? "" : "hidden";
+        await cell.updateContentAndRender(info.content, info.metadata);
+      } else {
+        cell = await this.createMarkupCell(info, info.offset, info.visible);
+      }
+    }
+    deleteMarkupCell(id) {
+      const cell = this.getExpectedMarkupCell(id);
+      if (cell) {
+        cell.remove();
+        cell.dispose();
+        this._markupCells.delete(id);
+      }
+    }
+    async updateMarkupContent(id, newContent, metadata) {
+      const cell = this.getExpectedMarkupCell(id);
+      await cell?.updateContentAndRender(newContent, metadata);
+    }
+    showMarkupCell(id, top, newContent, metadata) {
+      const cell = this.getExpectedMarkupCell(id);
+      cell?.show(top, newContent, metadata);
+    }
+    hideMarkupCell(id) {
+      const cell = this.getExpectedMarkupCell(id);
+      cell?.hide();
+    }
+    unhideMarkupCell(id) {
+      const cell = this.getExpectedMarkupCell(id);
+      cell?.unhide();
+    }
+    getExpectedMarkupCell(id) {
+      const cell = this._markupCells.get(id);
+      if (!cell) {
+        console.log(`Could not find markup cell '${id}'`);
+        return void 0;
+      }
+      return cell;
+    }
+    updateSelectedCells(selectedCellIds) {
+      const selectedCellSet = new Set(selectedCellIds);
+      for (const cell of this._markupCells.values()) {
+        cell.setSelected(selectedCellSet.has(cell.id));
+      }
+    }
+    toggleDragDropEnabled(dragAndDropEnabled) {
+      for (const cell of this._markupCells.values()) {
+        cell.toggleDragDropEnabled(dragAndDropEnabled);
+      }
+    }
+    updateMarkupScrolls(markupCells) {
+      for (const { id, top } of markupCells) {
+        const cell = this._markupCells.get(id);
+        if (cell) {
+          cell.element.style.top = `${top}px`;
+        }
+      }
+    }
+    async renderOutputCell(data, signal) {
+      const preloadErrors = await Promise.all(data.requiredPreloads.map((p) => kernelPreloads.waitFor(p.uri).then(() => void 0, (err) => err)));
+      if (signal.aborted) {
+        return;
+      }
+      const cellOutput = this.ensureOutputCell(data.cellId, data.cellTop, false);
+      return cellOutput.renderOutputElement(data, preloadErrors, signal);
+    }
+    ensureOutputCell(cellId, cellTop, skipCellTopUpdateIfExist) {
+      let cell = this._outputCells.get(cellId);
+      const existed = !!cell;
+      if (!cell) {
+        cell = new OutputCell(cellId);
+        this._outputCells.set(cellId, cell);
+      }
+      if (existed && skipCellTopUpdateIfExist) {
+        return cell;
+      }
+      cell.element.style.top = cellTop + "px";
+      return cell;
+    }
+    clearOutput(cellId, outputId, rendererId) {
+      const cell = this._outputCells.get(cellId);
+      cell?.clearOutput(outputId, rendererId);
+    }
+    showOutput(cellId, outputId, top) {
+      const cell = this._outputCells.get(cellId);
+      cell?.show(outputId, top);
+    }
+    updateAndRerender(cellId, outputId, content) {
+      const cell = this._outputCells.get(cellId);
+      cell?.updateContentAndRerender(outputId, content);
+    }
+    hideOutput(cellId) {
+      const cell = this._outputCells.get(cellId);
+      cell?.hide();
+    }
+    updateOutputHeight(cellId, outputId, height) {
+      const cell = this._outputCells.get(cellId);
+      cell?.updateOutputHeight(outputId, height);
+    }
+    updateOutputsScroll(updates) {
+      for (const request of updates) {
+        const cell = this._outputCells.get(request.cellId);
+        cell?.updateScroll(request);
+      }
+    }
+  }();
+  class MarkdownCodeBlock {
+    static {
+      __name(this, "MarkdownCodeBlock");
+    }
+    static {
+      this.pendingCodeBlocksToHighlight = /* @__PURE__ */ new Map();
+    }
+    static highlightCodeBlock(id, html) {
+      const el = MarkdownCodeBlock.pendingCodeBlocksToHighlight.get(id);
+      if (!el) {
+        return;
+      }
+      const trustedHtml = ttPolicy?.createHTML(html) ?? html;
+      el.innerHTML = trustedHtml;
+      const root = el.getRootNode();
+      if (root instanceof ShadowRoot) {
+        if (!root.adoptedStyleSheets.includes(tokenizationStyle)) {
+          root.adoptedStyleSheets.push(tokenizationStyle);
+        }
+      }
+    }
+    static requestHighlightCodeBlock(root) {
+      const codeBlocks = [];
+      let i = 0;
+      for (const el of root.querySelectorAll(".vscode-code-block")) {
+        const lang = el.getAttribute("data-vscode-code-block-lang");
+        if (el.textContent && lang) {
+          const id = `${Date.now()}-${i++}`;
+          codeBlocks.push({ value: el.textContent, lang, id });
+          MarkdownCodeBlock.pendingCodeBlocksToHighlight.set(id, el);
+        }
+      }
+      return codeBlocks;
+    }
+  }
+  class MarkupCell {
+    static {
+      __name(this, "MarkupCell");
+    }
+    constructor(id, mime, content, top, metadata) {
+      this._isDisposed = false;
+      const self = this;
+      this.id = id;
+      this._content = { value: content, version: 0, metadata };
+      const { promise, resolve, reject } = promiseWithResolvers();
+      this.ready = promise;
+      let cachedData;
+      this.outputItem = Object.freeze({
+        id,
+        mime,
+        get metadata() {
+          return self._content.metadata;
+        },
+        text: /* @__PURE__ */ __name(() => {
+          return this._content.value;
+        }, "text"),
+        json: /* @__PURE__ */ __name(() => {
+          return void 0;
+        }, "json"),
+        data: /* @__PURE__ */ __name(() => {
+          if (cachedData?.version === this._content.version) {
+            return cachedData.value;
+          }
+          const data = textEncoder.encode(this._content.value);
+          cachedData = { version: this._content.version, value: data };
+          return data;
+        }, "data"),
+        blob() {
+          return new Blob([this.data()], { type: this.mime });
+        },
+        _allOutputItems: [{
+          mime,
+          getItem: /* @__PURE__ */ __name(async () => this.outputItem, "getItem")
+        }]
+      });
+      const root = window.document.getElementById("container");
+      const markupCell = document.createElement("div");
+      markupCell.className = "markup";
+      markupCell.style.position = "absolute";
+      markupCell.style.width = "100%";
+      this.element = document.createElement("div");
+      this.element.id = this.id;
+      this.element.classList.add("preview");
+      this.element.style.position = "absolute";
+      this.element.style.top = top + "px";
+      this.toggleDragDropEnabled(currentOptions.dragAndDropEnabled);
+      markupCell.appendChild(this.element);
+      root.appendChild(markupCell);
+      this.addEventListeners();
+      this.updateContentAndRender(this._content.value, this._content.metadata).then(() => {
+        if (!this._isDisposed) {
+          resizeObserver.observe(this.element, this.id, false, this.id);
+        }
+        resolve();
+      }, () => reject());
+    }
+    dispose() {
+      this._isDisposed = true;
+      this.renderTaskAbort?.abort();
+      this.renderTaskAbort = void 0;
+    }
+    addEventListeners() {
+      this.element.addEventListener("dblclick", () => {
+        postNotebookMessage("toggleMarkupPreview", { cellId: this.id });
+      });
+      this.element.addEventListener("click", (e) => {
+        postNotebookMessage("clickMarkupCell", {
+          cellId: this.id,
+          altKey: e.altKey,
+          ctrlKey: e.ctrlKey,
+          metaKey: e.metaKey,
+          shiftKey: e.shiftKey
+        });
+      });
+      this.element.addEventListener("contextmenu", (e) => {
+        postNotebookMessage("contextMenuMarkupCell", {
+          cellId: this.id,
+          clientX: e.clientX,
+          clientY: e.clientY
+        });
+      });
+      this.element.addEventListener("mouseenter", () => {
+        postNotebookMessage("mouseEnterMarkupCell", { cellId: this.id });
+      });
+      this.element.addEventListener("mouseleave", () => {
+        postNotebookMessage("mouseLeaveMarkupCell", { cellId: this.id });
+      });
+      this.element.addEventListener("dragstart", (e) => {
+        markupCellDragManager.startDrag(e, this.id);
+      });
+      this.element.addEventListener("drag", (e) => {
+        markupCellDragManager.updateDrag(e, this.id);
+      });
+      this.element.addEventListener("dragend", (e) => {
+        markupCellDragManager.endDrag(e, this.id);
+      });
+    }
+    async updateContentAndRender(newContent, metadata) {
+      this._content = { value: newContent, version: this._content.version + 1, metadata };
+      this.renderTaskAbort?.abort();
+      const controller = new AbortController();
+      this.renderTaskAbort = controller;
+      try {
+        await renderers.render(this.outputItem, void 0, this.element, this.renderTaskAbort.signal);
+      } finally {
+        if (this.renderTaskAbort === controller) {
+          this.renderTaskAbort = void 0;
+        }
+      }
+      const root = this.element.shadowRoot ?? this.element;
+      const html = [];
+      for (const child of root.children) {
+        switch (child.tagName) {
+          case "LINK":
+          case "SCRIPT":
+          case "STYLE":
+            break;
+          default:
+            html.push(child.outerHTML);
+            break;
+        }
+      }
+      const codeBlocks = MarkdownCodeBlock.requestHighlightCodeBlock(root);
+      postNotebookMessage("renderedMarkup", {
+        cellId: this.id,
+        html: html.join(""),
+        codeBlocks
+      });
+      dimensionUpdater.updateHeight(this.id, this.element.offsetHeight, {
+        isOutput: false
+      });
+    }
+    show(top, newContent, metadata) {
+      this.element.style.visibility = "";
+      this.element.style.top = `${top}px`;
+      if (typeof newContent === "string" || metadata) {
+        this.updateContentAndRender(newContent ?? this._content.value, metadata ?? this._content.metadata);
+      } else {
+        this.updateMarkupDimensions();
+      }
+    }
+    hide() {
+      this.element.style.visibility = "hidden";
+    }
+    unhide() {
+      this.element.style.visibility = "";
+      this.updateMarkupDimensions();
+    }
+    remove() {
+      this.element.remove();
+    }
+    async updateMarkupDimensions() {
+      dimensionUpdater.updateHeight(this.id, this.element.offsetHeight, {
+        isOutput: false
+      });
+    }
+    setSelected(selected) {
+      this.element.classList.toggle("selected", selected);
+    }
+    toggleDragDropEnabled(enabled) {
+      if (enabled) {
+        this.element.classList.add("draggable");
+        this.element.setAttribute("draggable", "true");
+      } else {
+        this.element.classList.remove("draggable");
+        this.element.removeAttribute("draggable");
+      }
+    }
+  }
+  class OutputCell {
+    static {
+      __name(this, "OutputCell");
+    }
+    constructor(cellId) {
+      this.outputElements = /* @__PURE__ */ new Map();
+      const container = window.document.getElementById("container");
+      const upperWrapperElement = createFocusSink(cellId);
+      container.appendChild(upperWrapperElement);
+      this.element = document.createElement("div");
+      this.element.style.position = "absolute";
+      this.element.style.outline = "0";
+      this.element.id = cellId;
+      this.element.classList.add("cell_container");
+      container.appendChild(this.element);
+      this.element = this.element;
+      const lowerWrapperElement = createFocusSink(cellId, true);
+      container.appendChild(lowerWrapperElement);
+    }
+    dispose() {
+      for (const output of this.outputElements.values()) {
+        output.dispose();
+      }
+      this.outputElements.clear();
+    }
+    createOutputElement(data) {
+      let outputContainer = this.outputElements.get(data.outputId);
+      if (!outputContainer) {
+        outputContainer = new OutputContainer(data.outputId);
+        this.element.appendChild(outputContainer.element);
+        this.outputElements.set(data.outputId, outputContainer);
+      }
+      return outputContainer.createOutputElement(data.outputId, data.outputOffset, data.left, data.cellId);
+    }
+    async renderOutputElement(data, preloadErrors, signal) {
+      const startTime = Date.now();
+      const outputElement = this.createOutputElement(data);
+      await outputElement.render(data.content, data.rendererId, preloadErrors, signal);
+      outputElement.element.style.visibility = data.initiallyHidden ? "hidden" : "";
+      if (!!data.executionId && !!data.rendererId) {
+        let outputSize = void 0;
+        if (data.content.type === 1) {
+          outputSize = data.content.output.valueBytes.length;
+        }
+        if (outputSize !== void 0 && outputSize > 0 && outputSize < 100 * 1024) {
+          postNotebookMessage("notebookPerformanceMessage", {
+            cellId: data.cellId,
+            executionId: data.executionId,
+            duration: Date.now() - startTime,
+            rendererId: data.rendererId,
+            outputSize
+          });
+        }
+      }
+    }
+    clearOutput(outputId, rendererId) {
+      const output = this.outputElements.get(outputId);
+      output?.clear(rendererId);
+      output?.dispose();
+      this.outputElements.delete(outputId);
+    }
+    show(outputId, top) {
+      const outputContainer = this.outputElements.get(outputId);
+      if (!outputContainer) {
+        return;
+      }
+      this.element.style.visibility = "";
+      this.element.style.top = `${top}px`;
+    }
+    hide() {
+      this.element.style.visibility = "hidden";
+    }
+    updateContentAndRerender(outputId, content) {
+      this.outputElements.get(outputId)?.updateContentAndRender(content);
+    }
+    updateOutputHeight(outputId, height) {
+      this.outputElements.get(outputId)?.updateHeight(height);
+    }
+    updateScroll(request) {
+      this.element.style.top = `${request.cellTop}px`;
+      const outputElement = this.outputElements.get(request.outputId);
+      if (outputElement) {
+        outputElement.updateScroll(request.outputOffset);
+        if (request.forceDisplay && outputElement.outputNode) {
+          outputElement.outputNode.element.style.visibility = "";
+        }
+      }
+      if (request.forceDisplay) {
+        this.element.style.visibility = "";
+      }
+    }
+  }
+  class OutputContainer {
+    static {
+      __name(this, "OutputContainer");
+    }
+    get outputNode() {
+      return this._outputNode;
+    }
+    constructor(outputId) {
+      this.outputId = outputId;
+      this.element = document.createElement("div");
+      this.element.classList.add("output_container");
+      this.element.setAttribute("data-vscode-context", JSON.stringify({ "preventDefaultContextMenuItems": true }));
+      this.element.style.position = "absolute";
+      this.element.style.overflow = "hidden";
+    }
+    dispose() {
+      this._outputNode?.dispose();
+    }
+    clear(rendererId) {
+      if (rendererId) {
+        renderers.clearOutput(rendererId, this.outputId);
+      }
+      this.element.remove();
+    }
+    updateHeight(height) {
+      this.element.style.maxHeight = `${height}px`;
+      this.element.style.height = `${height}px`;
+    }
+    updateScroll(outputOffset) {
+      this.element.style.top = `${outputOffset}px`;
+    }
+    createOutputElement(outputId, outputOffset, left, cellId) {
+      this.element.innerText = "";
+      this.element.style.maxHeight = "0px";
+      this.element.style.top = `${outputOffset}px`;
+      this._outputNode?.dispose();
+      this._outputNode = new OutputElement(outputId, left, cellId);
+      this.element.appendChild(this._outputNode.element);
+      return this._outputNode;
+    }
+    updateContentAndRender(content) {
+      this._outputNode?.updateAndRerender(content);
+    }
+  }
+  vscode.postMessage({
+    __vscode_notebook_message: true,
+    type: "initialized"
+  });
+  for (const preload of ctx.staticPreloadsData) {
+    kernelPreloads.load(preload.entrypoint);
+  }
+  function postNotebookMessage(type, properties) {
+    vscode.postMessage({
+      __vscode_notebook_message: true,
+      type,
+      ...properties
+    });
+  }
+  __name(postNotebookMessage, "postNotebookMessage");
+  class OutputElement {
+    static {
+      __name(this, "OutputElement");
+    }
+    constructor(outputId, left, cellId) {
+      this.outputId = outputId;
+      this.cellId = cellId;
+      this.hasResizeObserver = false;
+      this.isImageOutput = false;
+      this.element = document.createElement("div");
+      this.element.id = outputId;
+      this.element.classList.add("output");
+      this.element.style.position = "absolute";
+      this.element.style.top = `0px`;
+      this.element.style.left = left + "px";
+      this.element.style.padding = `${ctx.style.outputNodePadding}px ${ctx.style.outputNodePadding}px ${ctx.style.outputNodePadding}px ${ctx.style.outputNodeLeftPadding}`;
+      this.element.addEventListener("mouseenter", () => {
+        postNotebookMessage("mouseenter", { id: outputId });
+      });
+      this.element.addEventListener("mouseleave", () => {
+        postNotebookMessage("mouseleave", { id: outputId });
+      });
+      this.element.addEventListener("dragstart", (e) => {
+        if (!e.dataTransfer) {
+          return;
+        }
+        const outputData = {
+          outputId: this.outputId
+        };
+        e.dataTransfer.setData("notebook-cell-output", JSON.stringify(outputData));
+      });
+      window.addEventListener("keydown", (e) => {
+        if (e.altKey) {
+          this.element.draggable = true;
+        }
+      });
+      window.addEventListener("keyup", (e) => {
+        if (!e.altKey) {
+          this.element.draggable = this.isImageOutput;
+        }
+      });
+      window.addEventListener("blur", () => {
+        this.element.draggable = this.isImageOutput;
+      });
+    }
+    dispose() {
+      this.renderTaskAbort?.abort();
+      this.renderTaskAbort = void 0;
+    }
+    async render(content, preferredRendererId, preloadErrors, signal) {
+      this.renderTaskAbort?.abort();
+      this.renderTaskAbort = void 0;
+      this._content = { preferredRendererId, preloadErrors };
+      if (content.type === 0) {
+        const trustedHtml = ttPolicy?.createHTML(content.htmlContent) ?? content.htmlContent;
+        this.element.innerHTML = trustedHtml;
+      } else if (preloadErrors.some((e) => e instanceof Error)) {
+        const errors = preloadErrors.filter((e) => e instanceof Error);
+        showRenderError(`Error loading preloads`, this.element, errors);
+      } else {
+        const imageMimeTypes = ["image/png", "image/jpeg", "image/svg"];
+        this.isImageOutput = imageMimeTypes.includes(content.output.mime);
+        this.element.draggable = this.isImageOutput;
+        const item = createOutputItem(this.outputId, content.output.mime, content.metadata, content.output.valueBytes, content.allOutputs, content.output.appended);
+        const controller = new AbortController();
+        this.renderTaskAbort = controller;
+        signal?.addEventListener("abort", () => controller.abort());
+        try {
+          await renderers.render(item, preferredRendererId, this.element, controller.signal);
+        } finally {
+          if (this.renderTaskAbort === controller) {
+            this.renderTaskAbort = void 0;
+          }
+        }
+      }
+      if (!this.hasResizeObserver) {
+        this.hasResizeObserver = true;
+        resizeObserver.observe(this.element, this.outputId, true, this.cellId);
+      }
+      const offsetHeight = this.element.offsetHeight;
+      const cps = document.defaultView.getComputedStyle(this.element);
+      const verticalPadding = parseFloat(cps.paddingTop) + parseFloat(cps.paddingBottom);
+      const contentHeight = offsetHeight - verticalPadding;
+      if (elementHasContent(contentHeight) && cps.padding === "0px") {
+        dimensionUpdater.updateHeight(this.outputId, offsetHeight + ctx.style.outputNodePadding * 2, {
+          isOutput: true,
+          init: true
+        });
+        this.element.style.padding = `${ctx.style.outputNodePadding}px ${ctx.style.outputNodePadding}px ${ctx.style.outputNodePadding}px ${ctx.style.outputNodeLeftPadding}`;
+      } else if (elementHasContent(contentHeight)) {
+        dimensionUpdater.updateHeight(this.outputId, this.element.offsetHeight, {
+          isOutput: true,
+          init: true
+        });
+        this.element.style.padding = `0 ${ctx.style.outputNodePadding}px 0 ${ctx.style.outputNodeLeftPadding}`;
+      } else {
+        dimensionUpdater.updateHeight(this.outputId, 0, {
+          isOutput: true,
+          init: true
+        });
+      }
+      const root = this.element.shadowRoot ?? this.element;
+      const codeBlocks = MarkdownCodeBlock.requestHighlightCodeBlock(root);
+      if (codeBlocks.length > 0) {
+        postNotebookMessage("renderedCellOutput", {
+          codeBlocks
+        });
+      }
+    }
+    updateAndRerender(content) {
+      if (this._content) {
+        this.render(content, this._content.preferredRendererId, this._content.preloadErrors);
+      }
+    }
+  }
+  const markupCellDragManager = new class MarkupCellDragManager {
+    static {
+      __name(this, "MarkupCellDragManager");
+    }
+    constructor() {
+      window.document.addEventListener("dragover", (e) => {
+        e.preventDefault();
+      });
+      window.document.addEventListener("drop", (e) => {
+        e.preventDefault();
+        const drag = this.currentDrag;
+        if (!drag) {
+          return;
+        }
+        this.currentDrag = void 0;
+        postNotebookMessage("cell-drop", {
+          cellId: drag.cellId,
+          ctrlKey: e.ctrlKey,
+          altKey: e.altKey,
+          dragOffsetY: e.clientY
+        });
+      });
+    }
+    startDrag(e, cellId) {
+      if (!e.dataTransfer) {
+        return;
+      }
+      if (!currentOptions.dragAndDropEnabled) {
+        return;
+      }
+      this.currentDrag = { cellId, clientY: e.clientY };
+      const overlayZIndex = 9999;
+      if (!this.dragOverlay) {
+        this.dragOverlay = document.createElement("div");
+        this.dragOverlay.style.position = "absolute";
+        this.dragOverlay.style.top = "0";
+        this.dragOverlay.style.left = "0";
+        this.dragOverlay.style.zIndex = `${overlayZIndex}`;
+        this.dragOverlay.style.width = "100%";
+        this.dragOverlay.style.height = "100%";
+        this.dragOverlay.style.background = "transparent";
+        window.document.body.appendChild(this.dragOverlay);
+      }
+      e.target.style.zIndex = `${overlayZIndex + 1}`;
+      e.target.classList.add("dragging");
+      postNotebookMessage("cell-drag-start", {
+        cellId,
+        dragOffsetY: e.clientY
+      });
+      const trySendDragUpdate = /* @__PURE__ */ __name(() => {
+        if (this.currentDrag?.cellId !== cellId) {
+          return;
+        }
+        postNotebookMessage("cell-drag", {
+          cellId,
+          dragOffsetY: this.currentDrag.clientY
+        });
+        window.requestAnimationFrame(trySendDragUpdate);
+      }, "trySendDragUpdate");
+      window.requestAnimationFrame(trySendDragUpdate);
+    }
+    updateDrag(e, cellId) {
+      if (cellId !== this.currentDrag?.cellId) {
+        this.currentDrag = void 0;
+      } else {
+        this.currentDrag = { cellId, clientY: e.clientY };
+      }
+    }
+    endDrag(e, cellId) {
+      this.currentDrag = void 0;
+      e.target.classList.remove("dragging");
+      postNotebookMessage("cell-drag-end", {
+        cellId
+      });
+      if (this.dragOverlay) {
+        this.dragOverlay.remove();
+        this.dragOverlay = void 0;
+      }
+      e.target.style.zIndex = "";
+    }
+  }();
+}
+__name(webviewPreloads, "webviewPreloads");
+function preloadsScriptStr(styleValues, options, renderOptions, renderers, preloads, isWorkspaceTrusted, nonce) {
+  const ctx = {
+    style: styleValues,
+    options,
+    renderOptions,
+    rendererData: renderers,
+    staticPreloadsData: preloads,
+    isWorkspaceTrusted,
+    nonce
+  };
+  return `
 		const __import = (x) => import(x);
-		(${Fe})(
-			JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify({style:p,options:V,renderOptions:S,rendererData:$,staticPreloadsData:x,isWorkspaceTrusted:H,nonce:I}))}"))
+		(${webviewPreloads})(
+			JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify(ctx))}"))
 		)
 //# sourceURL=notebookWebviewPreloads.js
-`}export{ze as preloadsScriptStr};
+`;
+}
+__name(preloadsScriptStr, "preloadsScriptStr");
+export {
+  preloadsScriptStr
+};
+//# sourceMappingURL=webviewPreloads.js.map

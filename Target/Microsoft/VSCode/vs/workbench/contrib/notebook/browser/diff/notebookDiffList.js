@@ -1,15 +1,607 @@
-import"./notebookDiff.css";import*as t from"../../../../../base/browser/dom.js";import*as ee from"../../../../../base/browser/domStylesheets.js";import{isMonacoEditor as oe,MouseController as te}from"../../../../../base/browser/ui/list/listWidget.js";import{DisposableStore as I}from"../../../../../base/common/lifecycle.js";import{IConfigurationService as R}from"../../../../../platform/configuration/common/configuration.js";import{IContextKeyService as N}from"../../../../../platform/contextkey/common/contextkey.js";import{IInstantiationService as E}from"../../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as W}from"../../../../../platform/keybinding/common/keybinding.js";import{IListService as ie,WorkbenchList as ne}from"../../../../../platform/list/browser/listService.js";import{IThemeService as V}from"../../../../../platform/theme/common/themeService.js";import{DIFF_CELL_MARGIN as re}from"./notebookDiffEditorBrowser.js";import{CellDiffPlaceholderElement as ce,CollapsedCellOverlayWidget as se,DeletedElement as le,getOptimizedNestedCodeEditorWidgetOptions as A,InsertElement as ae,ModifiedElement as P,NotebookDocumentMetadataElement as de,UnchangedCellOverlayWidget as K}from"./diffComponents.js";import{CodeEditorWidget as ue}from"../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";import{DiffEditorWidget as me}from"../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";import{IMenuService as j,MenuItemAction as z}from"../../../../../platform/actions/common/actions.js";import{IContextMenuService as G}from"../../../../../platform/contextview/browser/contextView.js";import{INotificationService as U}from"../../../../../platform/notification/common/notification.js";import{CodiconActionViewItem as q}from"../view/cellParts/cellActionView.js";import{BareFontInfo as pe}from"../../../../../editor/common/config/fontInfo.js";import{PixelRatio as fe}from"../../../../../base/browser/pixelRatio.js";import{WorkbenchToolBar as J}from"../../../../../platform/actions/browser/toolbar.js";import{fixedDiffEditorOptions as he,fixedEditorOptions as be}from"./diffCellEditorOptions.js";import{IAccessibilityService as Q}from"../../../../../platform/accessibility/common/accessibility.js";import{localize as ge}from"../../../../../nls.js";import{EditorExtensionsRegistry as ve}from"../../../../../editor/browser/editorExtensions.js";var h=function(a,e,i,o){var n=arguments.length,r=n<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,i):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(a,e,i,o);else for(var l=a.length-1;l>=0;l--)(s=a[l])&&(r=(n<3?s(r):n>3?s(e,i,r):s(e,i))||r);return n>3&&r&&Object.defineProperty(e,i,r),r},c=function(a,e){return function(i,o){e(i,o,a)}},C,k,T,D;let y=class{constructor(e,i){this.configurationService=i;const o=this.configurationService.getValue("editor");this.lineHeight=pe.createFromRawSettings(o,fe.getInstance(e).value).lineHeight}getHeight(e){return e.getHeight(this.lineHeight)}hasDynamicHeight(e){return!1}getTemplateId(e){switch(e.type){case"delete":case"insert":return F.TEMPLATE_ID;case"modified":case"unchanged":return M.TEMPLATE_ID;case"placeholder":return _.TEMPLATE_ID;case"modifiedMetadata":case"unchangedMetadata":return B.TEMPLATE_ID}}};y=h([c(1,R)],y);let _=class{static{C=this}static{this.TEMPLATE_ID="cell_diff_placeholder"}constructor(e,i){this.notebookEditor=e,this.instantiationService=i}get templateId(){return C.TEMPLATE_ID}renderTemplate(e){const i=t.$(".cell-placeholder-body");t.append(e,i);const o=new I,n=new se(i),r=t.append(i,t.$(".contents")),s=t.append(r,t.$("span.text",{title:ge("notebook.diff.hiddenCells.expandAll","Double click to show")}));return{body:i,container:e,placeholder:s,marginOverlay:n,elementDisposables:o}}renderElement(e,i,o,n){o.body.classList.remove("left","right","full"),o.elementDisposables.add(this.instantiationService.createInstance(ce,e,o))}disposeTemplate(e){e.container.innerText=""}disposeElement(e,i,o){o.elementDisposables.clear()}};_=C=h([c(1,E)],_);let B=class{static{k=this}static{this.TEMPLATE_ID="notebook_metadata_diff_side_by_side"}constructor(e,i,o,n,r,s,l,d,u){this.notebookEditor=e,this.instantiationService=i,this.contextMenuService=o,this.keybindingService=n,this.menuService=r,this.contextKeyService=s,this.notificationService=l,this.themeService=d,this.accessibilityService=u}get templateId(){return k.TEMPLATE_ID}renderTemplate(e){const i=t.$(".cell-body");t.append(e,i);const o=t.$(".cell-diff-editor-container");t.append(i,o);const n=t.append(o,t.$(".input-header-container")),r=t.append(o,t.$(".source-container")),{editor:s,editorContainer:l}=this._buildSourceEditor(r),d=t.append(r,t.$(".editor-input-toolbar-container")),u=t.append(d,t.$("div.property-toolbar")),b=this.instantiationService.createInstance(J,u,{actionViewItemProvider:(w,x)=>{if(w instanceof z)return new q(w,{hoverDelegate:x.hoverDelegate},this.keybindingService,this.notificationService,this.contextKeyService,this.themeService,this.contextMenuService,this.accessibilityService)},highlightToggledItems:!0}),m=t.append(i,t.$(".border-container")),g=t.append(m,t.$(".left-border")),p=t.append(m,t.$(".right-border")),v=t.append(m,t.$(".top-border")),f=t.append(m,t.$(".bottom-border")),S=new K(i),$=new I;return{body:i,container:e,diffEditorContainer:o,cellHeaderContainer:n,sourceEditor:s,editorContainer:l,inputToolbarContainer:d,toolbar:b,leftBorder:g,rightBorder:p,topBorder:v,bottomBorder:f,marginOverlay:S,elementDisposables:$}}_buildSourceEditor(e){return X(this.instantiationService,this.notebookEditor,e,{readOnly:!0})}renderElement(e,i,o,n){o.body.classList.remove("full"),o.elementDisposables.add(this.instantiationService.createInstance(de,this.notebookEditor,e,o))}disposeTemplate(e){e.container.innerText="",e.sourceEditor.dispose(),e.toolbar?.dispose(),e.elementDisposables.dispose()}disposeElement(e,i,o){o.toolbar&&(o.toolbar.context=void 0),o.elementDisposables.clear()}};B=k=h([c(1,E),c(2,G),c(3,W),c(4,j),c(5,N),c(6,U),c(7,V),c(8,Q)],B);let F=class{static{T=this}static{this.TEMPLATE_ID="cell_diff_single"}constructor(e,i){this.notebookEditor=e,this.instantiationService=i}get templateId(){return T.TEMPLATE_ID}renderTemplate(e){const i=t.$(".cell-body");t.append(e,i);const o=t.$(".cell-diff-editor-container");t.append(i,o);const n=t.append(i,t.$(".diagonal-fill")),r=t.append(o,t.$(".input-header-container")),s=t.append(o,t.$(".source-container")),{editor:l,editorContainer:d}=this._buildSourceEditor(s),u=t.append(o,t.$(".metadata-header-container")),b=t.append(o,t.$(".metadata-info-container")),m=t.append(o,t.$(".output-header-container")),g=t.append(o,t.$(".output-info-container")),p=t.append(i,t.$(".border-container")),v=t.append(p,t.$(".left-border")),f=t.append(p,t.$(".right-border")),S=t.append(p,t.$(".top-border")),$=t.append(p,t.$(".bottom-border"));return{body:i,container:e,editorContainer:d,diffEditorContainer:o,diagonalFill:n,cellHeaderContainer:r,sourceEditor:l,metadataHeaderContainer:u,metadataInfoContainer:b,outputHeaderContainer:m,outputInfoContainer:g,leftBorder:v,rightBorder:f,topBorder:S,bottomBorder:$,elementDisposables:new I}}_buildSourceEditor(e){return $e(this.instantiationService,this.notebookEditor,e)}renderElement(e,i,o,n){switch(o.body.classList.remove("left","right","full"),e.type){case"delete":o.elementDisposables.add(this.instantiationService.createInstance(le,this.notebookEditor,e,o));return;case"insert":o.elementDisposables.add(this.instantiationService.createInstance(ae,this.notebookEditor,e,o));return;default:break}}disposeTemplate(e){e.container.innerText="",e.sourceEditor.dispose(),e.elementDisposables.dispose()}disposeElement(e,i,o){o.elementDisposables.clear()}};F=T=h([c(1,E)],F);let M=class{static{D=this}static{this.TEMPLATE_ID="cell_diff_side_by_side"}constructor(e,i,o,n,r,s,l,d,u){this.notebookEditor=e,this.instantiationService=i,this.contextMenuService=o,this.keybindingService=n,this.menuService=r,this.contextKeyService=s,this.notificationService=l,this.themeService=d,this.accessibilityService=u}get templateId(){return D.TEMPLATE_ID}renderTemplate(e){const i=t.$(".cell-body");t.append(e,i);const o=t.$(".cell-diff-editor-container");t.append(i,o);const n=t.append(o,t.$(".input-header-container")),r=t.append(o,t.$(".source-container")),{editor:s,editorContainer:l}=this._buildSourceEditor(r),d=t.append(r,t.$(".editor-input-toolbar-container")),u=t.append(d,t.$("div.property-toolbar")),b=this.instantiationService.createInstance(J,u,{actionViewItemProvider:(L,Z)=>{if(L instanceof z)return new q(L,{hoverDelegate:Z.hoverDelegate},this.keybindingService,this.notificationService,this.contextKeyService,this.themeService,this.contextMenuService,this.accessibilityService)},highlightToggledItems:!0}),m=t.append(o,t.$(".metadata-header-container")),g=t.append(o,t.$(".metadata-info-container")),p=t.append(o,t.$(".output-header-container")),v=t.append(o,t.$(".output-info-container")),f=t.append(i,t.$(".border-container")),S=t.append(f,t.$(".left-border")),$=t.append(f,t.$(".right-border")),w=t.append(f,t.$(".top-border")),x=t.append(f,t.$(".bottom-border")),O=new K(i),Y=new I;return{body:i,container:e,diffEditorContainer:o,cellHeaderContainer:n,sourceEditor:s,editorContainer:l,inputToolbarContainer:d,toolbar:b,metadataHeaderContainer:m,metadataInfoContainer:g,outputHeaderContainer:p,outputInfoContainer:v,leftBorder:S,rightBorder:$,topBorder:w,bottomBorder:x,marginOverlay:O,elementDisposables:Y}}_buildSourceEditor(e){return X(this.instantiationService,this.notebookEditor,e)}renderElement(e,i,o,n){switch(o.body.classList.remove("left","right","full"),e.type){case"unchanged":o.elementDisposables.add(this.instantiationService.createInstance(P,this.notebookEditor,e,o));return;case"modified":o.elementDisposables.add(this.instantiationService.createInstance(P,this.notebookEditor,e,o));return;default:break}}disposeTemplate(e){e.container.innerText="",e.sourceEditor.dispose(),e.toolbar?.dispose(),e.elementDisposables.dispose()}disposeElement(e,i,o){o.toolbar&&(o.toolbar.context=void 0),o.elementDisposables.clear()}};M=D=h([c(1,E),c(2,G),c(3,W),c(4,j),c(5,N),c(6,U),c(7,V),c(8,Q)],M);class Se extends te{onViewPointer(e){if(oe(e.browserEvent.target)){const i=typeof e.index>"u"?[]:[e.index];this.list.setFocus(i,e.browserEvent)}else super.onViewPointer(e)}}let H=class extends ne{get rowsContainer(){return this.view.containerDomNode}constructor(e,i,o,n,r,s,l,d,u){super(e,i,o,n,s,r,l,d,u)}createMouseController(e){return new Se(this)}getCellViewScrollTop(e){const i=this.indexOf(e);return this.view.elementTop(i)}getScrollHeight(){return this.view.scrollHeight}triggerScrollFromMouseWheelEvent(e){this.view.delegateScrollFromMouseWheelEvent(e)}delegateVerticalScrollbarPointerDown(e){this.view.delegateVerticalScrollbarPointerDown(e)}clear(){super.splice(0,this.length)}updateElementHeight2(e,i){const o=this.indexOf(e),n=this.getFocus();this.view.updateElementHeight(o,i,n.length?n[0]:null)}style(e){const i=this.view.domId;this.styleElement||(this.styleElement=ee.createStyleSheet(this.view.domNode));const o=i&&`.${i}`,n=[];e.listBackground&&n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows { background: ${e.listBackground}; }`),e.listFocusBackground&&(n.push(`.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color: ${e.listFocusBackground}; }`),n.push(`.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color: ${e.listFocusBackground}; }`)),e.listFocusForeground&&n.push(`.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { color: ${e.listFocusForeground}; }`),e.listActiveSelectionBackground&&(n.push(`.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color: ${e.listActiveSelectionBackground}; }`),n.push(`.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color: ${e.listActiveSelectionBackground}; }`)),e.listActiveSelectionForeground&&n.push(`.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${e.listActiveSelectionForeground}; }`),e.listFocusAndSelectionBackground&&n.push(`
-				.monaco-drag-image${o},
-				.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected.focused { background-color: ${e.listFocusAndSelectionBackground}; }
-			`),e.listFocusAndSelectionForeground&&n.push(`
-				.monaco-drag-image${o},
-				.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected.focused { color: ${e.listFocusAndSelectionForeground}; }
-			`),e.listInactiveFocusBackground&&(n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color:  ${e.listInactiveFocusBackground}; }`),n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color:  ${e.listInactiveFocusBackground}; }`)),e.listInactiveSelectionBackground&&(n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color:  ${e.listInactiveSelectionBackground}; }`),n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color:  ${e.listInactiveSelectionBackground}; }`)),e.listInactiveSelectionForeground&&n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${e.listInactiveSelectionForeground}; }`),e.listHoverBackground&&n.push(`.monaco-list${o}:not(.drop-target) > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { background-color:  ${e.listHoverBackground}; }`),e.listHoverForeground&&n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { color:  ${e.listHoverForeground}; }`),e.listSelectionOutline&&n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { outline: 1px dotted ${e.listSelectionOutline}; outline-offset: -1px; }`),e.listFocusOutline&&n.push(`
-				.monaco-drag-image${o},
-				.monaco-list${o}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { outline: 1px solid ${e.listFocusOutline}; outline-offset: -1px; }
-			`),e.listInactiveFocusOutline&&n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { outline: 1px dotted ${e.listInactiveFocusOutline}; outline-offset: -1px; }`),e.listHoverOutline&&n.push(`.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover { outline: 1px dashed ${e.listHoverOutline}; outline-offset: -1px; }`),e.listDropOverBackground&&n.push(`
-				.monaco-list${o}.drop-target,
-				.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-rows.drop-target,
-				.monaco-list${o} > div.monaco-scrollable-element > .monaco-list-row.drop-target { background-color: ${e.listDropOverBackground} !important; color: inherit !important; }
-			`);const r=n.join(`
-`);r!==this.styleElement.textContent&&(this.styleElement.textContent=r)}};H=h([c(6,ie),c(7,R),c(8,E)],H);function X(a,e,i,o={}){const n=t.append(i,t.$(".editor-container"));return{editor:a.createInstance(me,n,{...he,overflowWidgetsDomNode:e.getOverflowContainerDomNode(),originalEditable:!1,ignoreTrimWhitespace:!1,automaticLayout:!1,dimension:{height:0,width:0},renderSideBySide:!0,useInlineViewWhenSpaceIsLimited:!1,...o},{originalEditor:A(),modifiedEditor:A()}),editorContainer:n}}function $e(a,e,i,o={}){const n=t.append(i,t.$(".editor-container")),r=["editor.contrib.emptyTextEditorHint"];return{editor:a.createInstance(ue,n,{...be,glyphMargin:!1,dimension:{width:(e.getLayoutInfo().width-2*re)/2-18,height:0},automaticLayout:!1,overflowWidgetsDomNode:e.getOverflowContainerDomNode(),readOnly:!0},{contributions:ve.getEditorContributions().filter(l=>r.indexOf(l.id)===-1)}),editorContainer:n}}export{_ as CellDiffPlaceholderRenderer,M as CellDiffSideBySideRenderer,F as CellDiffSingleSideRenderer,y as NotebookCellTextDiffListDelegate,B as NotebookDocumentMetadataDiffRenderer,Se as NotebookMouseController,H as NotebookTextDiffList};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import "./notebookDiff.css";
+import * as DOM from "../../../../../base/browser/dom.js";
+import * as domStylesheets from "../../../../../base/browser/domStylesheets.js";
+import { isMonacoEditor, MouseController } from "../../../../../base/browser/ui/list/listWidget.js";
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../../platform/contextkey/common/contextkey.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { IListService, WorkbenchList } from "../../../../../platform/list/browser/listService.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { DIFF_CELL_MARGIN } from "./notebookDiffEditorBrowser.js";
+import { CellDiffPlaceholderElement, CollapsedCellOverlayWidget, DeletedElement, getOptimizedNestedCodeEditorWidgetOptions, InsertElement, ModifiedElement, NotebookDocumentMetadataElement, UnchangedCellOverlayWidget } from "./diffComponents.js";
+import { CodeEditorWidget } from "../../../../../editor/browser/widget/codeEditor/codeEditorWidget.js";
+import { DiffEditorWidget } from "../../../../../editor/browser/widget/diffEditor/diffEditorWidget.js";
+import { IMenuService, MenuItemAction } from "../../../../../platform/actions/common/actions.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { INotificationService } from "../../../../../platform/notification/common/notification.js";
+import { CodiconActionViewItem } from "../view/cellParts/cellActionView.js";
+import { BareFontInfo } from "../../../../../editor/common/config/fontInfo.js";
+import { PixelRatio } from "../../../../../base/browser/pixelRatio.js";
+import { WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { fixedDiffEditorOptions, fixedEditorOptions } from "./diffCellEditorOptions.js";
+import { IAccessibilityService } from "../../../../../platform/accessibility/common/accessibility.js";
+import { localize } from "../../../../../nls.js";
+import { EditorExtensionsRegistry } from "../../../../../editor/browser/editorExtensions.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var CellDiffPlaceholderRenderer_1;
+var NotebookDocumentMetadataDiffRenderer_1;
+var CellDiffSingleSideRenderer_1;
+var CellDiffSideBySideRenderer_1;
+let NotebookCellTextDiffListDelegate = class NotebookCellTextDiffListDelegate2 {
+  static {
+    __name(this, "NotebookCellTextDiffListDelegate");
+  }
+  constructor(targetWindow, configurationService) {
+    this.configurationService = configurationService;
+    const editorOptions = this.configurationService.getValue("editor");
+    this.lineHeight = BareFontInfo.createFromRawSettings(editorOptions, PixelRatio.getInstance(targetWindow).value).lineHeight;
+  }
+  getHeight(element) {
+    return element.getHeight(this.lineHeight);
+  }
+  hasDynamicHeight(element) {
+    return false;
+  }
+  getTemplateId(element) {
+    switch (element.type) {
+      case "delete":
+      case "insert":
+        return CellDiffSingleSideRenderer.TEMPLATE_ID;
+      case "modified":
+      case "unchanged":
+        return CellDiffSideBySideRenderer.TEMPLATE_ID;
+      case "placeholder":
+        return CellDiffPlaceholderRenderer.TEMPLATE_ID;
+      case "modifiedMetadata":
+      case "unchangedMetadata":
+        return NotebookDocumentMetadataDiffRenderer.TEMPLATE_ID;
+    }
+  }
+};
+NotebookCellTextDiffListDelegate = __decorate([
+  __param(1, IConfigurationService)
+], NotebookCellTextDiffListDelegate);
+let CellDiffPlaceholderRenderer = class CellDiffPlaceholderRenderer2 {
+  static {
+    __name(this, "CellDiffPlaceholderRenderer");
+  }
+  static {
+    CellDiffPlaceholderRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "cell_diff_placeholder";
+  }
+  constructor(notebookEditor, instantiationService) {
+    this.notebookEditor = notebookEditor;
+    this.instantiationService = instantiationService;
+  }
+  get templateId() {
+    return CellDiffPlaceholderRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const body = DOM.$(".cell-placeholder-body");
+    DOM.append(container, body);
+    const elementDisposables = new DisposableStore();
+    const marginOverlay = new CollapsedCellOverlayWidget(body);
+    const contents = DOM.append(body, DOM.$(".contents"));
+    const placeholder = DOM.append(contents, DOM.$("span.text", { title: localize("notebook.diff.hiddenCells.expandAll", "Double click to show") }));
+    return {
+      body,
+      container,
+      placeholder,
+      marginOverlay,
+      elementDisposables
+    };
+  }
+  renderElement(element, index, templateData, height) {
+    templateData.body.classList.remove("left", "right", "full");
+    templateData.elementDisposables.add(this.instantiationService.createInstance(CellDiffPlaceholderElement, element, templateData));
+  }
+  disposeTemplate(templateData) {
+    templateData.container.innerText = "";
+  }
+  disposeElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+  }
+};
+CellDiffPlaceholderRenderer = CellDiffPlaceholderRenderer_1 = __decorate([
+  __param(1, IInstantiationService)
+], CellDiffPlaceholderRenderer);
+let NotebookDocumentMetadataDiffRenderer = class NotebookDocumentMetadataDiffRenderer2 {
+  static {
+    __name(this, "NotebookDocumentMetadataDiffRenderer");
+  }
+  static {
+    NotebookDocumentMetadataDiffRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "notebook_metadata_diff_side_by_side";
+  }
+  constructor(notebookEditor, instantiationService, contextMenuService, keybindingService, menuService, contextKeyService, notificationService, themeService, accessibilityService) {
+    this.notebookEditor = notebookEditor;
+    this.instantiationService = instantiationService;
+    this.contextMenuService = contextMenuService;
+    this.keybindingService = keybindingService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.notificationService = notificationService;
+    this.themeService = themeService;
+    this.accessibilityService = accessibilityService;
+  }
+  get templateId() {
+    return NotebookDocumentMetadataDiffRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const body = DOM.$(".cell-body");
+    DOM.append(container, body);
+    const diffEditorContainer = DOM.$(".cell-diff-editor-container");
+    DOM.append(body, diffEditorContainer);
+    const cellHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".input-header-container"));
+    const sourceContainer = DOM.append(diffEditorContainer, DOM.$(".source-container"));
+    const { editor, editorContainer } = this._buildSourceEditor(sourceContainer);
+    const inputToolbarContainer = DOM.append(sourceContainer, DOM.$(".editor-input-toolbar-container"));
+    const cellToolbarContainer = DOM.append(inputToolbarContainer, DOM.$("div.property-toolbar"));
+    const toolbar = this.instantiationService.createInstance(WorkbenchToolBar, cellToolbarContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof MenuItemAction) {
+          const item = new CodiconActionViewItem(action, { hoverDelegate: options.hoverDelegate }, this.keybindingService, this.notificationService, this.contextKeyService, this.themeService, this.contextMenuService, this.accessibilityService);
+          return item;
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      highlightToggledItems: true
+    });
+    const borderContainer = DOM.append(body, DOM.$(".border-container"));
+    const leftBorder = DOM.append(borderContainer, DOM.$(".left-border"));
+    const rightBorder = DOM.append(borderContainer, DOM.$(".right-border"));
+    const topBorder = DOM.append(borderContainer, DOM.$(".top-border"));
+    const bottomBorder = DOM.append(borderContainer, DOM.$(".bottom-border"));
+    const marginOverlay = new UnchangedCellOverlayWidget(body);
+    const elementDisposables = new DisposableStore();
+    return {
+      body,
+      container,
+      diffEditorContainer,
+      cellHeaderContainer,
+      sourceEditor: editor,
+      editorContainer,
+      inputToolbarContainer,
+      toolbar,
+      leftBorder,
+      rightBorder,
+      topBorder,
+      bottomBorder,
+      marginOverlay,
+      elementDisposables
+    };
+  }
+  _buildSourceEditor(sourceContainer) {
+    return buildDiffEditorWidget(this.instantiationService, this.notebookEditor, sourceContainer, { readOnly: true });
+  }
+  renderElement(element, index, templateData, height) {
+    templateData.body.classList.remove("full");
+    templateData.elementDisposables.add(this.instantiationService.createInstance(NotebookDocumentMetadataElement, this.notebookEditor, element, templateData));
+  }
+  disposeTemplate(templateData) {
+    templateData.container.innerText = "";
+    templateData.sourceEditor.dispose();
+    templateData.toolbar?.dispose();
+    templateData.elementDisposables.dispose();
+  }
+  disposeElement(element, index, templateData) {
+    if (templateData.toolbar) {
+      templateData.toolbar.context = void 0;
+    }
+    templateData.elementDisposables.clear();
+  }
+};
+NotebookDocumentMetadataDiffRenderer = NotebookDocumentMetadataDiffRenderer_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IContextMenuService),
+  __param(3, IKeybindingService),
+  __param(4, IMenuService),
+  __param(5, IContextKeyService),
+  __param(6, INotificationService),
+  __param(7, IThemeService),
+  __param(8, IAccessibilityService)
+], NotebookDocumentMetadataDiffRenderer);
+let CellDiffSingleSideRenderer = class CellDiffSingleSideRenderer2 {
+  static {
+    __name(this, "CellDiffSingleSideRenderer");
+  }
+  static {
+    CellDiffSingleSideRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "cell_diff_single";
+  }
+  constructor(notebookEditor, instantiationService) {
+    this.notebookEditor = notebookEditor;
+    this.instantiationService = instantiationService;
+  }
+  get templateId() {
+    return CellDiffSingleSideRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const body = DOM.$(".cell-body");
+    DOM.append(container, body);
+    const diffEditorContainer = DOM.$(".cell-diff-editor-container");
+    DOM.append(body, diffEditorContainer);
+    const diagonalFill = DOM.append(body, DOM.$(".diagonal-fill"));
+    const cellHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".input-header-container"));
+    const sourceContainer = DOM.append(diffEditorContainer, DOM.$(".source-container"));
+    const { editor, editorContainer } = this._buildSourceEditor(sourceContainer);
+    const metadataHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".metadata-header-container"));
+    const metadataInfoContainer = DOM.append(diffEditorContainer, DOM.$(".metadata-info-container"));
+    const outputHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".output-header-container"));
+    const outputInfoContainer = DOM.append(diffEditorContainer, DOM.$(".output-info-container"));
+    const borderContainer = DOM.append(body, DOM.$(".border-container"));
+    const leftBorder = DOM.append(borderContainer, DOM.$(".left-border"));
+    const rightBorder = DOM.append(borderContainer, DOM.$(".right-border"));
+    const topBorder = DOM.append(borderContainer, DOM.$(".top-border"));
+    const bottomBorder = DOM.append(borderContainer, DOM.$(".bottom-border"));
+    return {
+      body,
+      container,
+      editorContainer,
+      diffEditorContainer,
+      diagonalFill,
+      cellHeaderContainer,
+      sourceEditor: editor,
+      metadataHeaderContainer,
+      metadataInfoContainer,
+      outputHeaderContainer,
+      outputInfoContainer,
+      leftBorder,
+      rightBorder,
+      topBorder,
+      bottomBorder,
+      elementDisposables: new DisposableStore()
+    };
+  }
+  _buildSourceEditor(sourceContainer) {
+    return buildSourceEditor(this.instantiationService, this.notebookEditor, sourceContainer);
+  }
+  renderElement(element, index, templateData, height) {
+    templateData.body.classList.remove("left", "right", "full");
+    switch (element.type) {
+      case "delete":
+        templateData.elementDisposables.add(this.instantiationService.createInstance(DeletedElement, this.notebookEditor, element, templateData));
+        return;
+      case "insert":
+        templateData.elementDisposables.add(this.instantiationService.createInstance(InsertElement, this.notebookEditor, element, templateData));
+        return;
+      default:
+        break;
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.container.innerText = "";
+    templateData.sourceEditor.dispose();
+    templateData.elementDisposables.dispose();
+  }
+  disposeElement(element, index, templateData) {
+    templateData.elementDisposables.clear();
+  }
+};
+CellDiffSingleSideRenderer = CellDiffSingleSideRenderer_1 = __decorate([
+  __param(1, IInstantiationService)
+], CellDiffSingleSideRenderer);
+let CellDiffSideBySideRenderer = class CellDiffSideBySideRenderer2 {
+  static {
+    __name(this, "CellDiffSideBySideRenderer");
+  }
+  static {
+    CellDiffSideBySideRenderer_1 = this;
+  }
+  static {
+    this.TEMPLATE_ID = "cell_diff_side_by_side";
+  }
+  constructor(notebookEditor, instantiationService, contextMenuService, keybindingService, menuService, contextKeyService, notificationService, themeService, accessibilityService) {
+    this.notebookEditor = notebookEditor;
+    this.instantiationService = instantiationService;
+    this.contextMenuService = contextMenuService;
+    this.keybindingService = keybindingService;
+    this.menuService = menuService;
+    this.contextKeyService = contextKeyService;
+    this.notificationService = notificationService;
+    this.themeService = themeService;
+    this.accessibilityService = accessibilityService;
+  }
+  get templateId() {
+    return CellDiffSideBySideRenderer_1.TEMPLATE_ID;
+  }
+  renderTemplate(container) {
+    const body = DOM.$(".cell-body");
+    DOM.append(container, body);
+    const diffEditorContainer = DOM.$(".cell-diff-editor-container");
+    DOM.append(body, diffEditorContainer);
+    const cellHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".input-header-container"));
+    const sourceContainer = DOM.append(diffEditorContainer, DOM.$(".source-container"));
+    const { editor, editorContainer } = this._buildSourceEditor(sourceContainer);
+    const inputToolbarContainer = DOM.append(sourceContainer, DOM.$(".editor-input-toolbar-container"));
+    const cellToolbarContainer = DOM.append(inputToolbarContainer, DOM.$("div.property-toolbar"));
+    const toolbar = this.instantiationService.createInstance(WorkbenchToolBar, cellToolbarContainer, {
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof MenuItemAction) {
+          const item = new CodiconActionViewItem(action, { hoverDelegate: options.hoverDelegate }, this.keybindingService, this.notificationService, this.contextKeyService, this.themeService, this.contextMenuService, this.accessibilityService);
+          return item;
+        }
+        return void 0;
+      }, "actionViewItemProvider"),
+      highlightToggledItems: true
+    });
+    const metadataHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".metadata-header-container"));
+    const metadataInfoContainer = DOM.append(diffEditorContainer, DOM.$(".metadata-info-container"));
+    const outputHeaderContainer = DOM.append(diffEditorContainer, DOM.$(".output-header-container"));
+    const outputInfoContainer = DOM.append(diffEditorContainer, DOM.$(".output-info-container"));
+    const borderContainer = DOM.append(body, DOM.$(".border-container"));
+    const leftBorder = DOM.append(borderContainer, DOM.$(".left-border"));
+    const rightBorder = DOM.append(borderContainer, DOM.$(".right-border"));
+    const topBorder = DOM.append(borderContainer, DOM.$(".top-border"));
+    const bottomBorder = DOM.append(borderContainer, DOM.$(".bottom-border"));
+    const marginOverlay = new UnchangedCellOverlayWidget(body);
+    const elementDisposables = new DisposableStore();
+    return {
+      body,
+      container,
+      diffEditorContainer,
+      cellHeaderContainer,
+      sourceEditor: editor,
+      editorContainer,
+      inputToolbarContainer,
+      toolbar,
+      metadataHeaderContainer,
+      metadataInfoContainer,
+      outputHeaderContainer,
+      outputInfoContainer,
+      leftBorder,
+      rightBorder,
+      topBorder,
+      bottomBorder,
+      marginOverlay,
+      elementDisposables
+    };
+  }
+  _buildSourceEditor(sourceContainer) {
+    return buildDiffEditorWidget(this.instantiationService, this.notebookEditor, sourceContainer);
+  }
+  renderElement(element, index, templateData, height) {
+    templateData.body.classList.remove("left", "right", "full");
+    switch (element.type) {
+      case "unchanged":
+        templateData.elementDisposables.add(this.instantiationService.createInstance(ModifiedElement, this.notebookEditor, element, templateData));
+        return;
+      case "modified":
+        templateData.elementDisposables.add(this.instantiationService.createInstance(ModifiedElement, this.notebookEditor, element, templateData));
+        return;
+      default:
+        break;
+    }
+  }
+  disposeTemplate(templateData) {
+    templateData.container.innerText = "";
+    templateData.sourceEditor.dispose();
+    templateData.toolbar?.dispose();
+    templateData.elementDisposables.dispose();
+  }
+  disposeElement(element, index, templateData) {
+    if (templateData.toolbar) {
+      templateData.toolbar.context = void 0;
+    }
+    templateData.elementDisposables.clear();
+  }
+};
+CellDiffSideBySideRenderer = CellDiffSideBySideRenderer_1 = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IContextMenuService),
+  __param(3, IKeybindingService),
+  __param(4, IMenuService),
+  __param(5, IContextKeyService),
+  __param(6, INotificationService),
+  __param(7, IThemeService),
+  __param(8, IAccessibilityService)
+], CellDiffSideBySideRenderer);
+class NotebookMouseController extends MouseController {
+  static {
+    __name(this, "NotebookMouseController");
+  }
+  onViewPointer(e) {
+    if (isMonacoEditor(e.browserEvent.target)) {
+      const focus = typeof e.index === "undefined" ? [] : [e.index];
+      this.list.setFocus(focus, e.browserEvent);
+    } else {
+      super.onViewPointer(e);
+    }
+  }
+}
+let NotebookTextDiffList = class NotebookTextDiffList2 extends WorkbenchList {
+  static {
+    __name(this, "NotebookTextDiffList");
+  }
+  get rowsContainer() {
+    return this.view.containerDomNode;
+  }
+  constructor(listUser, container, delegate, renderers, contextKeyService, options, listService, configurationService, instantiationService) {
+    super(listUser, container, delegate, renderers, options, contextKeyService, listService, configurationService, instantiationService);
+  }
+  createMouseController(options) {
+    return new NotebookMouseController(this);
+  }
+  getCellViewScrollTop(element) {
+    const index = this.indexOf(element);
+    return this.view.elementTop(index);
+  }
+  getScrollHeight() {
+    return this.view.scrollHeight;
+  }
+  triggerScrollFromMouseWheelEvent(browserEvent) {
+    this.view.delegateScrollFromMouseWheelEvent(browserEvent);
+  }
+  delegateVerticalScrollbarPointerDown(browserEvent) {
+    this.view.delegateVerticalScrollbarPointerDown(browserEvent);
+  }
+  clear() {
+    super.splice(0, this.length);
+  }
+  updateElementHeight2(element, size) {
+    const viewIndex = this.indexOf(element);
+    const focused = this.getFocus();
+    this.view.updateElementHeight(viewIndex, size, focused.length ? focused[0] : null);
+  }
+  style(styles) {
+    const selectorSuffix = this.view.domId;
+    if (!this.styleElement) {
+      this.styleElement = domStylesheets.createStyleSheet(this.view.domNode);
+    }
+    const suffix = selectorSuffix && `.${selectorSuffix}`;
+    const content = [];
+    if (styles.listBackground) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows { background: ${styles.listBackground}; }`);
+    }
+    if (styles.listFocusBackground) {
+      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color: ${styles.listFocusBackground}; }`);
+      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color: ${styles.listFocusBackground}; }`);
+    }
+    if (styles.listFocusForeground) {
+      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { color: ${styles.listFocusForeground}; }`);
+    }
+    if (styles.listActiveSelectionBackground) {
+      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color: ${styles.listActiveSelectionBackground}; }`);
+      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color: ${styles.listActiveSelectionBackground}; }`);
+    }
+    if (styles.listActiveSelectionForeground) {
+      content.push(`.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${styles.listActiveSelectionForeground}; }`);
+    }
+    if (styles.listFocusAndSelectionBackground) {
+      content.push(`
+				.monaco-drag-image${suffix},
+				.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected.focused { background-color: ${styles.listFocusAndSelectionBackground}; }
+			`);
+    }
+    if (styles.listFocusAndSelectionForeground) {
+      content.push(`
+				.monaco-drag-image${suffix},
+				.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected.focused { color: ${styles.listFocusAndSelectionForeground}; }
+			`);
+    }
+    if (styles.listInactiveFocusBackground) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { background-color:  ${styles.listInactiveFocusBackground}; }`);
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused:hover { background-color:  ${styles.listInactiveFocusBackground}; }`);
+    }
+    if (styles.listInactiveSelectionBackground) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { background-color:  ${styles.listInactiveSelectionBackground}; }`);
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected:hover { background-color:  ${styles.listInactiveSelectionBackground}; }`);
+    }
+    if (styles.listInactiveSelectionForeground) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { color: ${styles.listInactiveSelectionForeground}; }`);
+    }
+    if (styles.listHoverBackground) {
+      content.push(`.monaco-list${suffix}:not(.drop-target) > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { background-color:  ${styles.listHoverBackground}; }`);
+    }
+    if (styles.listHoverForeground) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover:not(.selected):not(.focused) { color:  ${styles.listHoverForeground}; }`);
+    }
+    if (styles.listSelectionOutline) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.selected { outline: 1px dotted ${styles.listSelectionOutline}; outline-offset: -1px; }`);
+    }
+    if (styles.listFocusOutline) {
+      content.push(`
+				.monaco-drag-image${suffix},
+				.monaco-list${suffix}:focus > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { outline: 1px solid ${styles.listFocusOutline}; outline-offset: -1px; }
+			`);
+    }
+    if (styles.listInactiveFocusOutline) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row.focused { outline: 1px dotted ${styles.listInactiveFocusOutline}; outline-offset: -1px; }`);
+    }
+    if (styles.listHoverOutline) {
+      content.push(`.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows > .monaco-list-row:hover { outline: 1px dashed ${styles.listHoverOutline}; outline-offset: -1px; }`);
+    }
+    if (styles.listDropOverBackground) {
+      content.push(`
+				.monaco-list${suffix}.drop-target,
+				.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-rows.drop-target,
+				.monaco-list${suffix} > div.monaco-scrollable-element > .monaco-list-row.drop-target { background-color: ${styles.listDropOverBackground} !important; color: inherit !important; }
+			`);
+    }
+    const newStyles = content.join("\n");
+    if (newStyles !== this.styleElement.textContent) {
+      this.styleElement.textContent = newStyles;
+    }
+  }
+};
+NotebookTextDiffList = __decorate([
+  __param(6, IListService),
+  __param(7, IConfigurationService),
+  __param(8, IInstantiationService)
+], NotebookTextDiffList);
+function buildDiffEditorWidget(instantiationService, notebookEditor, sourceContainer, options = {}) {
+  const editorContainer = DOM.append(sourceContainer, DOM.$(".editor-container"));
+  const editor = instantiationService.createInstance(DiffEditorWidget, editorContainer, {
+    ...fixedDiffEditorOptions,
+    overflowWidgetsDomNode: notebookEditor.getOverflowContainerDomNode(),
+    originalEditable: false,
+    ignoreTrimWhitespace: false,
+    automaticLayout: false,
+    dimension: {
+      height: 0,
+      width: 0
+    },
+    renderSideBySide: true,
+    useInlineViewWhenSpaceIsLimited: false,
+    ...options
+  }, {
+    originalEditor: getOptimizedNestedCodeEditorWidgetOptions(),
+    modifiedEditor: getOptimizedNestedCodeEditorWidgetOptions()
+  });
+  return {
+    editor,
+    editorContainer
+  };
+}
+__name(buildDiffEditorWidget, "buildDiffEditorWidget");
+function buildSourceEditor(instantiationService, notebookEditor, sourceContainer, options = {}) {
+  const editorContainer = DOM.append(sourceContainer, DOM.$(".editor-container"));
+  const skipContributions = [
+    "editor.contrib.emptyTextEditorHint"
+  ];
+  const editor = instantiationService.createInstance(CodeEditorWidget, editorContainer, {
+    ...fixedEditorOptions,
+    glyphMargin: false,
+    dimension: {
+      width: (notebookEditor.getLayoutInfo().width - 2 * DIFF_CELL_MARGIN) / 2 - 18,
+      height: 0
+    },
+    automaticLayout: false,
+    overflowWidgetsDomNode: notebookEditor.getOverflowContainerDomNode(),
+    readOnly: true
+  }, {
+    contributions: EditorExtensionsRegistry.getEditorContributions().filter((c) => skipContributions.indexOf(c.id) === -1)
+  });
+  return { editor, editorContainer };
+}
+__name(buildSourceEditor, "buildSourceEditor");
+export {
+  CellDiffPlaceholderRenderer,
+  CellDiffSideBySideRenderer,
+  CellDiffSingleSideRenderer,
+  NotebookCellTextDiffListDelegate,
+  NotebookDocumentMetadataDiffRenderer,
+  NotebookMouseController,
+  NotebookTextDiffList
+};
+//# sourceMappingURL=notebookDiffList.js.map

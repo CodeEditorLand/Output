@@ -1,1 +1,102 @@
-import{DisposableStore as v}from"../../../../../base/common/lifecycle.js";import{Range as p}from"../../../../../editor/common/core/range.js";import{HoverParticipantRegistry as f,RenderedHoverParts as m}from"../../../../../editor/contrib/hover/browser/hoverTypes.js";import{ICommandService as u}from"../../../../../platform/commands/common/commands.js";import{IInstantiationService as C}from"../../../../../platform/instantiation/common/instantiation.js";import{IChatWidgetService as P}from"../chat.js";import{ChatAgentHover as S,getChatAgentHoverOptions as A}from"../chatAgentHover.js";import{ChatEditorHoverWrapper as H}from"./editorHoverWrapper.js";import{extractAgentAndCommand as w}from"../../common/chatParserTypes.js";import*as _ from"../../../../../nls.js";var l=function(o,t,r,e){var n=arguments.length,i=n<3?t:e===null?e=Object.getOwnPropertyDescriptor(t,r):e,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,r,e);else for(var s=o.length-1;s>=0;s--)(a=o[s])&&(i=(n<3?a(i):n>3?a(t,r,i):a(t,r))||i);return n>3&&i&&Object.defineProperty(t,r,i),i},c=function(o,t){return function(r,e){t(r,e,o)}};let d=class{constructor(t,r,e,n){this.editor=t,this.instantiationService=r,this.chatWidgetService=e,this.commandService=n,this.hoverOrdinal=1}computeSync(t,r){if(!this.editor.hasModel())return[];const e=this.chatWidgetService.getWidgetByInputUri(this.editor.getModel().uri);if(!e)return[];const{agentPart:n}=w(e.parsedInput);return n?p.containsPosition(n.editorRange,t.range.getStartPosition())?[new I(this,p.lift(n.editorRange),n.agent)]:[]:[]}renderHoverParts(t,r){if(!r.length)return new m([]);const e=new v,n=e.add(this.instantiationService.createInstance(S));e.add(n.onDidChangeContents(()=>t.onContentsChanged()));const i=r[0],a=i.agent;n.setAgent(a.id);const s=A(()=>a,this.commandService).actions,h=this.instantiationService.createInstance(H,n.domNode,s).domNode;t.fragment.appendChild(h);const g={hoverPart:i,hoverElement:h,dispose(){e.dispose()}};return new m([g])}getAccessibleContent(t){return _.localize("hoverAccessibilityChatAgent","There is a chat agent hover part here.")}};d=l([c(1,C),c(2,P),c(3,u)],d);class I{constructor(t,r,e){this.owner=t,this.range=r,this.agent=e}isValidForHoverAnchor(t){return t.type===1&&this.range.startColumn<=t.range.startColumn&&this.range.endColumn>=t.range.endColumn}}f.register(d);export{I as ChatAgentHoverPart,d as ChatAgentHoverParticipant};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DisposableStore } from "../../../../../base/common/lifecycle.js";
+import { Range } from "../../../../../editor/common/core/range.js";
+import { HoverParticipantRegistry, RenderedHoverParts } from "../../../../../editor/contrib/hover/browser/hoverTypes.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IChatWidgetService } from "../chat.js";
+import { ChatAgentHover, getChatAgentHoverOptions } from "../chatAgentHover.js";
+import { ChatEditorHoverWrapper } from "./editorHoverWrapper.js";
+import { extractAgentAndCommand } from "../../common/chatParserTypes.js";
+import * as nls from "../../../../../nls.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ChatAgentHoverParticipant = class ChatAgentHoverParticipant2 {
+  static {
+    __name(this, "ChatAgentHoverParticipant");
+  }
+  constructor(editor, instantiationService, chatWidgetService, commandService) {
+    this.editor = editor;
+    this.instantiationService = instantiationService;
+    this.chatWidgetService = chatWidgetService;
+    this.commandService = commandService;
+    this.hoverOrdinal = 1;
+  }
+  computeSync(anchor, _lineDecorations) {
+    if (!this.editor.hasModel()) {
+      return [];
+    }
+    const widget = this.chatWidgetService.getWidgetByInputUri(this.editor.getModel().uri);
+    if (!widget) {
+      return [];
+    }
+    const { agentPart } = extractAgentAndCommand(widget.parsedInput);
+    if (!agentPart) {
+      return [];
+    }
+    if (Range.containsPosition(agentPart.editorRange, anchor.range.getStartPosition())) {
+      return [new ChatAgentHoverPart(this, Range.lift(agentPart.editorRange), agentPart.agent)];
+    }
+    return [];
+  }
+  renderHoverParts(context, hoverParts) {
+    if (!hoverParts.length) {
+      return new RenderedHoverParts([]);
+    }
+    const disposables = new DisposableStore();
+    const hover = disposables.add(this.instantiationService.createInstance(ChatAgentHover));
+    disposables.add(hover.onDidChangeContents(() => context.onContentsChanged()));
+    const hoverPart = hoverParts[0];
+    const agent = hoverPart.agent;
+    hover.setAgent(agent.id);
+    const actions = getChatAgentHoverOptions(() => agent, this.commandService).actions;
+    const wrapper = this.instantiationService.createInstance(ChatEditorHoverWrapper, hover.domNode, actions);
+    const wrapperNode = wrapper.domNode;
+    context.fragment.appendChild(wrapperNode);
+    const renderedHoverPart = {
+      hoverPart,
+      hoverElement: wrapperNode,
+      dispose() {
+        disposables.dispose();
+      }
+    };
+    return new RenderedHoverParts([renderedHoverPart]);
+  }
+  getAccessibleContent(hoverPart) {
+    return nls.localize("hoverAccessibilityChatAgent", "There is a chat agent hover part here.");
+  }
+};
+ChatAgentHoverParticipant = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IChatWidgetService),
+  __param(3, ICommandService)
+], ChatAgentHoverParticipant);
+class ChatAgentHoverPart {
+  static {
+    __name(this, "ChatAgentHoverPart");
+  }
+  constructor(owner, range, agent) {
+    this.owner = owner;
+    this.range = range;
+    this.agent = agent;
+  }
+  isValidForHoverAnchor(anchor) {
+    return anchor.type === 1 && this.range.startColumn <= anchor.range.startColumn && this.range.endColumn >= anchor.range.endColumn;
+  }
+}
+HoverParticipantRegistry.register(ChatAgentHoverParticipant);
+export {
+  ChatAgentHoverPart,
+  ChatAgentHoverParticipant
+};
+//# sourceMappingURL=chatInputEditorHover.js.map

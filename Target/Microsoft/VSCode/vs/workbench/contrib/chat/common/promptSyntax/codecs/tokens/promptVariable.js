@@ -1,1 +1,91 @@
-import{PromptToken as l}from"./promptToken.js";import{assert as i}from"../../../../../../../base/common/assert.js";import{Range as f}from"../../../../../../../editor/common/core/range.js";import{INVALID_NAME_CHARACTERS as m,STOP_CHARACTERS as c}from"../parsers/promptVariableParser.js";const r="#",o=":";class s extends l{constructor(t,n){for(const e of n)i(m.includes(e)===!1&&c.includes(e)===!1,`Variable 'name' cannot contain character '${e}', got '${n}'.`);super(t),this.name=n}get text(){return`${r}${this.name}`}equals(t){return!super.sameRange(t.range)||!(t instanceof s)||this.text.length!==t.text.length?!1:this.text===t.text}toString(){return`${this.text}${this.range}`}}class u extends s{constructor(t,n,e){super(t,n),this.data=e;for(const a of e)i(c.includes(a)===!1,`Variable 'data' cannot contain character '${a}', got '${e}'.`)}get text(){return`${r}${this.name}${o}${this.data}`}equals(t){return t instanceof u?super.equals(t):!1}get dataRange(){const{range:t}=this,n=t.startColumn+r.length+this.name.length+o.length,e=new f(t.startLineNumber,n,t.endLineNumber,t.endColumn);if(!e.isEmpty())return e}}export{s as PromptVariable,u as PromptVariableWithData};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { PromptToken } from "./promptToken.js";
+import { assert } from "../../../../../../../base/common/assert.js";
+import { Range } from "../../../../../../../editor/common/core/range.js";
+import { INVALID_NAME_CHARACTERS, STOP_CHARACTERS } from "../parsers/promptVariableParser.js";
+const START_CHARACTER = "#";
+const DATA_SEPARATOR = ":";
+class PromptVariable extends PromptToken {
+  static {
+    __name(this, "PromptVariable");
+  }
+  constructor(range, name) {
+    for (const character of name) {
+      assert(INVALID_NAME_CHARACTERS.includes(character) === false && STOP_CHARACTERS.includes(character) === false, `Variable 'name' cannot contain character '${character}', got '${name}'.`);
+    }
+    super(range);
+    this.name = name;
+  }
+  /**
+   * Get full text of the token.
+   */
+  get text() {
+    return `${START_CHARACTER}${this.name}`;
+  }
+  /**
+   * Check if this token is equal to another one.
+   */
+  equals(other) {
+    if (!super.sameRange(other.range)) {
+      return false;
+    }
+    if (other instanceof PromptVariable === false) {
+      return false;
+    }
+    if (this.text.length !== other.text.length) {
+      return false;
+    }
+    return this.text === other.text;
+  }
+  /**
+   * Return a string representation of the token.
+   */
+  toString() {
+    return `${this.text}${this.range}`;
+  }
+}
+class PromptVariableWithData extends PromptVariable {
+  static {
+    __name(this, "PromptVariableWithData");
+  }
+  constructor(fullRange, name, data) {
+    super(fullRange, name);
+    this.data = data;
+    for (const character of data) {
+      assert(STOP_CHARACTERS.includes(character) === false, `Variable 'data' cannot contain character '${character}', got '${data}'.`);
+    }
+  }
+  /**
+   * Get full text of the token.
+   */
+  get text() {
+    return `${START_CHARACTER}${this.name}${DATA_SEPARATOR}${this.data}`;
+  }
+  /**
+   * Check if this token is equal to another one.
+   */
+  equals(other) {
+    if (other instanceof PromptVariableWithData === false) {
+      return false;
+    }
+    return super.equals(other);
+  }
+  /**
+   * Range of the `data` part of the variable.
+   */
+  get dataRange() {
+    const { range } = this;
+    const dataStartColumn = range.startColumn + START_CHARACTER.length + this.name.length + DATA_SEPARATOR.length;
+    const result = new Range(range.startLineNumber, dataStartColumn, range.endLineNumber, range.endColumn);
+    if (result.isEmpty()) {
+      return void 0;
+    }
+    return result;
+  }
+}
+export {
+  PromptVariable,
+  PromptVariableWithData
+};
+//# sourceMappingURL=promptVariable.js.map

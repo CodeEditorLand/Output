@@ -1,1 +1,65 @@
-import{Codicon as f}from"../../../../base/common/codicons.js";import{OS as b}from"../../../../base/common/platform.js";import*as p from"../../../../nls.js";import{IInstantiationService as m}from"../../../../platform/instantiation/common/instantiation.js";import{registerIcon as h}from"../../../../platform/theme/common/iconRegistry.js";import{EditorInput as y}from"../../../common/editor/editorInput.js";import{KeybindingsEditorModel as g}from"./keybindingsEditorModel.js";var l=function(i,e,t,o){var r=arguments.length,n=r<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,t):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,e,t,o);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(n=(r<3?s(n):r>3?s(e,t,n):s(e,t))||n);return r>3&&n&&Object.defineProperty(e,t,n),n},u=function(i,e){return function(t,o){e(t,o,i)}},d;const I=h("keybindings-editor-label-icon",f.keyboard,p.localize("keybindingsEditorLabelIcon","Icon of the keybindings editor label."));let a=class extends y{static{d=this}static{this.ID="workbench.input.keybindings"}constructor(e){super(),this.searchOptions=null,this.resource=void 0,this.keybindingsModel=e.createInstance(g,b)}get typeId(){return d.ID}getName(){return p.localize("keybindingsInputName","Keyboard Shortcuts")}getIcon(){return I}async resolve(){return this.keybindingsModel}matches(e){return e instanceof d}dispose(){this.keybindingsModel.dispose(),super.dispose()}};a=d=l([u(0,m)],a);export{a as KeybindingsEditorInput};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Codicon } from "../../../../base/common/codicons.js";
+import { OS } from "../../../../base/common/platform.js";
+import * as nls from "../../../../nls.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { registerIcon } from "../../../../platform/theme/common/iconRegistry.js";
+import { EditorInput } from "../../../common/editor/editorInput.js";
+import { KeybindingsEditorModel } from "./keybindingsEditorModel.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var KeybindingsEditorInput_1;
+const KeybindingsEditorIcon = registerIcon("keybindings-editor-label-icon", Codicon.keyboard, nls.localize("keybindingsEditorLabelIcon", "Icon of the keybindings editor label."));
+let KeybindingsEditorInput = class KeybindingsEditorInput2 extends EditorInput {
+  static {
+    __name(this, "KeybindingsEditorInput");
+  }
+  static {
+    KeybindingsEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.input.keybindings";
+  }
+  constructor(instantiationService) {
+    super();
+    this.searchOptions = null;
+    this.resource = void 0;
+    this.keybindingsModel = instantiationService.createInstance(KeybindingsEditorModel, OS);
+  }
+  get typeId() {
+    return KeybindingsEditorInput_1.ID;
+  }
+  getName() {
+    return nls.localize("keybindingsInputName", "Keyboard Shortcuts");
+  }
+  getIcon() {
+    return KeybindingsEditorIcon;
+  }
+  async resolve() {
+    return this.keybindingsModel;
+  }
+  matches(otherInput) {
+    return otherInput instanceof KeybindingsEditorInput_1;
+  }
+  dispose() {
+    this.keybindingsModel.dispose();
+    super.dispose();
+  }
+};
+KeybindingsEditorInput = KeybindingsEditorInput_1 = __decorate([
+  __param(0, IInstantiationService)
+], KeybindingsEditorInput);
+export {
+  KeybindingsEditorInput
+};
+//# sourceMappingURL=keybindingsEditorInput.js.map

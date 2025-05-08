@@ -1,3 +1,161 @@
-(function(){const a=window.vscode,d=a.process;async function p(t,e){const o=await f();e?.beforeImport?.(o);const{enableDeveloperKeybindings:s,removeDeveloperKeybindingsAfterLoad:l,developerDeveloperKeybindingsDisposable:c,forceDisableShowDevtoolsOnError:i}=u(o,e);w(o);const n=new URL(`${v(o.appRoot,{isWindows:d.platform==="win32",scheme:"vscode-file",fallbackAuthority:"vscode-app"})}/out/`);globalThis._VSCODE_FILE_ROOT=n.toString(),b(o,n);try{const r=await import(new URL(`${t}.js`,n).href);return c&&l&&c(),{result:r,configuration:o}}catch(r){throw g(r,s&&!i),r}}async function f(){const t=setTimeout(()=>{},1e4);performance.mark("code/willWaitForWindowConfig");const e=await a.context.resolveConfiguration();return performance.mark("code/didWaitForWindowConfig"),clearTimeout(t),e}function u(t,e){const{forceEnableDeveloperKeybindings:o,disallowReloadKeybinding:s,removeDeveloperKeybindingsAfterLoad:l,forceDisableShowDevtoolsOnError:c}=typeof e?.configureDeveloperSettings=="function"?e.configureDeveloperSettings(t):{forceEnableDeveloperKeybindings:!1,disallowReloadKeybinding:!1,removeDeveloperKeybindingsAfterLoad:!1,forceDisableShowDevtoolsOnError:!1},n=!!(!!d.env.VSCODE_DEV||o);let r;return n&&(r=m(s)),{enableDeveloperKeybindings:n,removeDeveloperKeybindingsAfterLoad:l,developerDeveloperKeybindingsDisposable:r,forceDisableShowDevtoolsOnError:c}}function m(t){const e=a.ipcRenderer,o=function(n){return[n.ctrlKey?"ctrl-":"",n.metaKey?"meta-":"",n.altKey?"alt-":"",n.shiftKey?"shift-":"",n.keyCode].join("")},s=d.platform==="darwin"?"meta-alt-73":"ctrl-shift-73",l="123",c=d.platform==="darwin"?"meta-82":"ctrl-82";let i=function(n){const r=o(n);r===s||r===l?e.send("vscode:toggleDevTools"):r===c&&!t&&e.send("vscode:reloadWindow")};return window.addEventListener("keydown",i),function(){i&&(window.removeEventListener("keydown",i),i=void 0)}}function w(t){globalThis._VSCODE_NLS_MESSAGES=t.nls.messages,globalThis._VSCODE_NLS_LANGUAGE=t.nls.language;let e=t.nls.language||"en";e==="zh-tw"?e="zh-Hant":e==="zh-cn"&&(e="zh-Hans"),window.document.documentElement.setAttribute("lang",e)}function g(t,e){e&&a.ipcRenderer.send("vscode:openDevTools"),t&&typeof t!="string"&&t.stack}function v(t,e){let o=t.replace(/\\/g,"/");o.length>0&&o.charAt(0)!=="/"&&(o=`/${o}`);let s;return e.isWindows&&o.startsWith("//")?s=encodeURI(`${e.scheme||"file"}:${o}`):s=encodeURI(`${e.scheme||"file"}://${e.fallbackAuthority||""}${o}`),s.replace(/#/g,"%23")}function b(t,e){if(Array.isArray(t.cssModules)&&t.cssModules.length>0){performance.mark("code/willAddCssLoader");const o=document.createElement("style");o.type="text/css",o.media="screen",o.id="vscode-css-loading",document.head.appendChild(o),globalThis._VSCODE_CSS_LOAD=function(n){o.textContent+=`@import url(${n});
-`};const s={imports:{}};for(const n of t.cssModules){const r=new URL(n,e).href,y=`globalThis._VSCODE_CSS_LOAD('${r}');
-`,h=new Blob([y],{type:"application/javascript"});s.imports[r]=URL.createObjectURL(h)}const l=window.trustedTypes?.createPolicy("vscode-bootstrapImportMap",{createScript(n){return n}}),c=JSON.stringify(s,void 0,2),i=document.createElement("script");i.type="importmap",i.setAttribute("nonce","0c6a828f1297"),i.textContent=l?.createScript(c)??c,document.head.appendChild(i),performance.mark("code/didAddCssLoader")}}globalThis.MonacoBootstrapWindow={load:p}})();
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+(function() {
+  const preloadGlobals = window.vscode;
+  const safeProcess = preloadGlobals.process;
+  async function load(esModule, options) {
+    const configuration = await resolveWindowConfiguration();
+    options?.beforeImport?.(configuration);
+    const { enableDeveloperKeybindings, removeDeveloperKeybindingsAfterLoad, developerDeveloperKeybindingsDisposable, forceDisableShowDevtoolsOnError } = setupDeveloperKeybindings(configuration, options);
+    setupNLS(configuration);
+    const baseUrl = new URL(`${fileUriFromPath(configuration.appRoot, { isWindows: safeProcess.platform === "win32", scheme: "vscode-file", fallbackAuthority: "vscode-app" })}/out/`);
+    globalThis._VSCODE_FILE_ROOT = baseUrl.toString();
+    setupCSSImportMaps(configuration, baseUrl);
+    try {
+      const result = await import(new URL(`${esModule}.js`, baseUrl).href);
+      if (developerDeveloperKeybindingsDisposable && removeDeveloperKeybindingsAfterLoad) {
+        developerDeveloperKeybindingsDisposable();
+      }
+      return { result, configuration };
+    } catch (error) {
+      onUnexpectedError(error, enableDeveloperKeybindings && !forceDisableShowDevtoolsOnError);
+      throw error;
+    }
+  }
+  __name(load, "load");
+  async function resolveWindowConfiguration() {
+    const timeout = setTimeout(() => {
+      console.error(`[resolve window config] Could not resolve window configuration within 10 seconds, but will continue to wait...`);
+    }, 1e4);
+    performance.mark("code/willWaitForWindowConfig");
+    const configuration = await preloadGlobals.context.resolveConfiguration();
+    performance.mark("code/didWaitForWindowConfig");
+    clearTimeout(timeout);
+    return configuration;
+  }
+  __name(resolveWindowConfiguration, "resolveWindowConfiguration");
+  function setupDeveloperKeybindings(configuration, options) {
+    const { forceEnableDeveloperKeybindings, disallowReloadKeybinding, removeDeveloperKeybindingsAfterLoad, forceDisableShowDevtoolsOnError } = typeof options?.configureDeveloperSettings === "function" ? options.configureDeveloperSettings(configuration) : {
+      forceEnableDeveloperKeybindings: false,
+      disallowReloadKeybinding: false,
+      removeDeveloperKeybindingsAfterLoad: false,
+      forceDisableShowDevtoolsOnError: false
+    };
+    const isDev = !!safeProcess.env["VSCODE_DEV"];
+    const enableDeveloperKeybindings = Boolean(isDev || forceEnableDeveloperKeybindings);
+    let developerDeveloperKeybindingsDisposable = void 0;
+    if (enableDeveloperKeybindings) {
+      developerDeveloperKeybindingsDisposable = registerDeveloperKeybindings(disallowReloadKeybinding);
+    }
+    return {
+      enableDeveloperKeybindings,
+      removeDeveloperKeybindingsAfterLoad,
+      developerDeveloperKeybindingsDisposable,
+      forceDisableShowDevtoolsOnError
+    };
+  }
+  __name(setupDeveloperKeybindings, "setupDeveloperKeybindings");
+  function registerDeveloperKeybindings(disallowReloadKeybinding) {
+    const ipcRenderer = preloadGlobals.ipcRenderer;
+    const extractKey = /* @__PURE__ */ __name(function(e) {
+      return [
+        e.ctrlKey ? "ctrl-" : "",
+        e.metaKey ? "meta-" : "",
+        e.altKey ? "alt-" : "",
+        e.shiftKey ? "shift-" : "",
+        e.keyCode
+      ].join("");
+    }, "extractKey");
+    const TOGGLE_DEV_TOOLS_KB = safeProcess.platform === "darwin" ? "meta-alt-73" : "ctrl-shift-73";
+    const TOGGLE_DEV_TOOLS_KB_ALT = "123";
+    const RELOAD_KB = safeProcess.platform === "darwin" ? "meta-82" : "ctrl-82";
+    let listener = /* @__PURE__ */ __name(function(e) {
+      const key = extractKey(e);
+      if (key === TOGGLE_DEV_TOOLS_KB || key === TOGGLE_DEV_TOOLS_KB_ALT) {
+        ipcRenderer.send("vscode:toggleDevTools");
+      } else if (key === RELOAD_KB && !disallowReloadKeybinding) {
+        ipcRenderer.send("vscode:reloadWindow");
+      }
+    }, "listener");
+    window.addEventListener("keydown", listener);
+    return function() {
+      if (listener) {
+        window.removeEventListener("keydown", listener);
+        listener = void 0;
+      }
+    };
+  }
+  __name(registerDeveloperKeybindings, "registerDeveloperKeybindings");
+  function setupNLS(configuration) {
+    globalThis._VSCODE_NLS_MESSAGES = configuration.nls.messages;
+    globalThis._VSCODE_NLS_LANGUAGE = configuration.nls.language;
+    let language = configuration.nls.language || "en";
+    if (language === "zh-tw") {
+      language = "zh-Hant";
+    } else if (language === "zh-cn") {
+      language = "zh-Hans";
+    }
+    window.document.documentElement.setAttribute("lang", language);
+  }
+  __name(setupNLS, "setupNLS");
+  function onUnexpectedError(error, showDevtoolsOnError) {
+    if (showDevtoolsOnError) {
+      const ipcRenderer = preloadGlobals.ipcRenderer;
+      ipcRenderer.send("vscode:openDevTools");
+    }
+    console.error(`[uncaught exception]: ${error}`);
+    if (error && typeof error !== "string" && error.stack) {
+      console.error(error.stack);
+    }
+  }
+  __name(onUnexpectedError, "onUnexpectedError");
+  function fileUriFromPath(path, config) {
+    let pathName = path.replace(/\\/g, "/");
+    if (pathName.length > 0 && pathName.charAt(0) !== "/") {
+      pathName = `/${pathName}`;
+    }
+    let uri;
+    if (config.isWindows && pathName.startsWith("//")) {
+      uri = encodeURI(`${config.scheme || "file"}:${pathName}`);
+    } else {
+      uri = encodeURI(`${config.scheme || "file"}://${config.fallbackAuthority || ""}${pathName}`);
+    }
+    return uri.replace(/#/g, "%23");
+  }
+  __name(fileUriFromPath, "fileUriFromPath");
+  function setupCSSImportMaps(configuration, baseUrl) {
+    if (Array.isArray(configuration.cssModules) && configuration.cssModules.length > 0) {
+      performance.mark("code/willAddCssLoader");
+      const style = document.createElement("style");
+      style.type = "text/css";
+      style.media = "screen";
+      style.id = "vscode-css-loading";
+      document.head.appendChild(style);
+      globalThis._VSCODE_CSS_LOAD = function(url) {
+        style.textContent += `@import url(${url});
+`;
+      };
+      const importMap = { imports: {} };
+      for (const cssModule of configuration.cssModules) {
+        const cssUrl = new URL(cssModule, baseUrl).href;
+        const jsSrc = `globalThis._VSCODE_CSS_LOAD('${cssUrl}');
+`;
+        const blob = new Blob([jsSrc], { type: "application/javascript" });
+        importMap.imports[cssUrl] = URL.createObjectURL(blob);
+      }
+      const ttp = window.trustedTypes?.createPolicy("vscode-bootstrapImportMap", { createScript(value) {
+        return value;
+      } });
+      const importMapSrc = JSON.stringify(importMap, void 0, 2);
+      const importMapScript = document.createElement("script");
+      importMapScript.type = "importmap";
+      importMapScript.setAttribute("nonce", "0c6a828f1297");
+      importMapScript.textContent = ttp?.createScript(importMapSrc) ?? importMapSrc;
+      document.head.appendChild(importMapScript);
+      performance.mark("code/didAddCssLoader");
+    }
+  }
+  __name(setupCSSImportMaps, "setupCSSImportMaps");
+  globalThis.MonacoBootstrapWindow = { load };
+})();
+//# sourceMappingURL=bootstrap-window.js.map

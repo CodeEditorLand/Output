@@ -1,1 +1,58 @@
-import{toAction as s}from"../../../../base/common/actions.js";import{CopyPasteController as d,pasteAsPreferenceConfig as P}from"../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";import{DropIntoEditorController as g,dropAsPreferenceConfig as m}from"../../../../editor/contrib/dropOrPasteInto/browser/dropIntoEditorController.js";import{localize as a}from"../../../../nls.js";import{IPreferencesService as h}from"../../../services/preferences/common/preferences.js";var u=function(o,e,t,n){var i=arguments.length,r=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,t,n);else for(var f=o.length-1;f>=0;f--)(c=o[f])&&(r=(i<3?c(r):i>3?c(e,t,r):c(e,t))||r);return i>3&&r&&Object.defineProperty(e,t,r),r},l=function(o,e){return function(t,n){e(t,n,o)}};let p=class{static{this.ID="workbench.contrib.dropOrPasteInto"}constructor(e){this._preferencesService=e,d.setConfigureDefaultAction(s({id:"workbench.action.configurePreferredPasteAction",label:a("configureDefaultPaste.label","Configure preferred paste action..."),run:()=>this.configurePreferredPasteAction()})),g.setConfigureDefaultAction(s({id:"workbench.action.configurePreferredDropAction",label:a("configureDefaultDrop.label","Configure preferred drop action..."),run:()=>this.configurePreferredDropAction()}))}configurePreferredPasteAction(){return this._preferencesService.openUserSettings({jsonEditor:!0,revealSetting:{key:P,edit:!0}})}configurePreferredDropAction(){return this._preferencesService.openUserSettings({jsonEditor:!0,revealSetting:{key:m,edit:!0}})}};p=u([l(0,h)],p);export{p as DropOrPasteIntoCommands};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { toAction } from "../../../../base/common/actions.js";
+import { CopyPasteController, pasteAsPreferenceConfig } from "../../../../editor/contrib/dropOrPasteInto/browser/copyPasteController.js";
+import { DropIntoEditorController, dropAsPreferenceConfig } from "../../../../editor/contrib/dropOrPasteInto/browser/dropIntoEditorController.js";
+import { localize } from "../../../../nls.js";
+import { IPreferencesService } from "../../../services/preferences/common/preferences.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let DropOrPasteIntoCommands = class DropOrPasteIntoCommands2 {
+  static {
+    __name(this, "DropOrPasteIntoCommands");
+  }
+  static {
+    this.ID = "workbench.contrib.dropOrPasteInto";
+  }
+  constructor(_preferencesService) {
+    this._preferencesService = _preferencesService;
+    CopyPasteController.setConfigureDefaultAction(toAction({
+      id: "workbench.action.configurePreferredPasteAction",
+      label: localize("configureDefaultPaste.label", "Configure preferred paste action..."),
+      run: /* @__PURE__ */ __name(() => this.configurePreferredPasteAction(), "run")
+    }));
+    DropIntoEditorController.setConfigureDefaultAction(toAction({
+      id: "workbench.action.configurePreferredDropAction",
+      label: localize("configureDefaultDrop.label", "Configure preferred drop action..."),
+      run: /* @__PURE__ */ __name(() => this.configurePreferredDropAction(), "run")
+    }));
+  }
+  configurePreferredPasteAction() {
+    return this._preferencesService.openUserSettings({
+      jsonEditor: true,
+      revealSetting: { key: pasteAsPreferenceConfig, edit: true }
+    });
+  }
+  configurePreferredDropAction() {
+    return this._preferencesService.openUserSettings({
+      jsonEditor: true,
+      revealSetting: { key: dropAsPreferenceConfig, edit: true }
+    });
+  }
+};
+DropOrPasteIntoCommands = __decorate([
+  __param(0, IPreferencesService)
+], DropOrPasteIntoCommands);
+export {
+  DropOrPasteIntoCommands
+};
+//# sourceMappingURL=commands.js.map

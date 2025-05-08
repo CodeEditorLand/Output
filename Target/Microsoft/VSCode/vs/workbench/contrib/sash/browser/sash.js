@@ -1,1 +1,61 @@
-import{clamp as l}from"../../../../base/common/numbers.js";import{setGlobalSashSize as v,setGlobalHoverDelay as d}from"../../../../base/browser/ui/sash/sash.js";import{Event as c}from"../../../../base/common/event.js";import{DisposableStore as g}from"../../../../base/common/lifecycle.js";import{IConfigurationService as u}from"../../../../platform/configuration/common/configuration.js";import{ILayoutService as D}from"../../../../platform/layout/browser/layoutService.js";var p=function(n,e,o,t){var s=arguments.length,i=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,e,o,t);else for(var a=n.length-1;a>=0;a--)(r=n[a])&&(i=(s<3?r(i):s>3?r(e,o,i):r(e,o))||i);return s>3&&i&&Object.defineProperty(e,o,i),i},h=function(n,e){return function(o,t){e(o,t,n)}};const _=1,w=20;let f=class{constructor(e,o){this.configurationService=e,this.layoutService=o,this.disposables=new g,c.filter(e.onDidChangeConfiguration,i=>i.affectsConfiguration("workbench.sash.size"))(this.onDidChangeSize,this,this.disposables),this.onDidChangeSize(),c.filter(e.onDidChangeConfiguration,i=>i.affectsConfiguration("workbench.sash.hoverDelay"))(this.onDidChangeHoverDelay,this,this.disposables),this.onDidChangeHoverDelay()}onDidChangeSize(){const e=this.configurationService.getValue("workbench.sash.size"),o=l(e,4,20),t=l(e,1,8);this.layoutService.mainContainer.style.setProperty("--vscode-sash-size",o+"px"),this.layoutService.mainContainer.style.setProperty("--vscode-sash-hover-size",t+"px"),v(o)}onDidChangeHoverDelay(){d(this.configurationService.getValue("workbench.sash.hoverDelay"))}dispose(){this.disposables.dispose()}};f=p([h(0,u),h(1,D)],f);export{f as SashSettingsController,w as maxSize,_ as minSize};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { clamp } from "../../../../base/common/numbers.js";
+import { setGlobalSashSize, setGlobalHoverDelay } from "../../../../base/browser/ui/sash/sash.js";
+import { Event } from "../../../../base/common/event.js";
+import { DisposableStore } from "../../../../base/common/lifecycle.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ILayoutService } from "../../../../platform/layout/browser/layoutService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const minSize = 1;
+const maxSize = 20;
+let SashSettingsController = class SashSettingsController2 {
+  static {
+    __name(this, "SashSettingsController");
+  }
+  constructor(configurationService, layoutService) {
+    this.configurationService = configurationService;
+    this.layoutService = layoutService;
+    this.disposables = new DisposableStore();
+    const onDidChangeSize = Event.filter(configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sash.size"));
+    onDidChangeSize(this.onDidChangeSize, this, this.disposables);
+    this.onDidChangeSize();
+    const onDidChangeHoverDelay = Event.filter(configurationService.onDidChangeConfiguration, (e) => e.affectsConfiguration("workbench.sash.hoverDelay"));
+    onDidChangeHoverDelay(this.onDidChangeHoverDelay, this, this.disposables);
+    this.onDidChangeHoverDelay();
+  }
+  onDidChangeSize() {
+    const configuredSize = this.configurationService.getValue("workbench.sash.size");
+    const size = clamp(configuredSize, 4, 20);
+    const hoverSize = clamp(configuredSize, 1, 8);
+    this.layoutService.mainContainer.style.setProperty("--vscode-sash-size", size + "px");
+    this.layoutService.mainContainer.style.setProperty("--vscode-sash-hover-size", hoverSize + "px");
+    setGlobalSashSize(size);
+  }
+  onDidChangeHoverDelay() {
+    setGlobalHoverDelay(this.configurationService.getValue("workbench.sash.hoverDelay"));
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+};
+SashSettingsController = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, ILayoutService)
+], SashSettingsController);
+export {
+  SashSettingsController,
+  maxSize,
+  minSize
+};
+//# sourceMappingURL=sash.js.map

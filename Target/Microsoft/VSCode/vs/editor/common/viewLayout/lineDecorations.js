@@ -1,1 +1,205 @@
-import*as C from"../../../base/common/strings.js";class u{constructor(s,t,n,e){this.startColumn=s,this.endColumn=t,this.className=n,this.type=e,this._lineDecorationBrand=void 0}static _equals(s,t){return s.startColumn===t.startColumn&&s.endColumn===t.endColumn&&s.className===t.className&&s.type===t.type}static equalsArr(s,t){const n=s.length,e=t.length;if(n!==e)return!1;for(let o=0;o<n;o++)if(!u._equals(s[o],t[o]))return!1;return!0}static extractWrapped(s,t,n){if(s.length===0)return s;const e=t+1,o=n+1,c=n-t,l=[];let i=0;for(const r of s)r.endColumn<=e||r.startColumn>=o||(l[i++]=new u(Math.max(1,r.startColumn-e+1),Math.min(c+1,r.endColumn-e+1),r.className,r.type));return l}static filter(s,t,n,e){if(s.length===0)return[];const o=[];let c=0;for(let l=0,i=s.length;l<i;l++){const r=s[l],a=r.range;if(a.endLineNumber<t||a.startLineNumber>t||a.isEmpty()&&(r.type===0||r.type===3))continue;const m=a.startLineNumber===t?a.startColumn:n,p=a.endLineNumber===t?a.endColumn:e;o[c++]=new u(m,p,r.inlineClassName,r.type)}return o}static _typeCompare(s,t){const n=[2,0,1,3];return n[s]-n[t]}static compare(s,t){if(s.startColumn!==t.startColumn)return s.startColumn-t.startColumn;if(s.endColumn!==t.endColumn)return s.endColumn-t.endColumn;const n=u._typeCompare(s.type,t.type);return n!==0?n:s.className!==t.className?s.className<t.className?-1:1:0}}class N{constructor(s,t,n,e){this.startOffset=s,this.endOffset=t,this.className=n,this.metadata=e}}class h{constructor(){this.stopOffsets=[],this.classNames=[],this.metadata=[],this.count=0}static _metadata(s){let t=0;for(let n=0,e=s.length;n<e;n++)t|=s[n];return t}consumeLowerThan(s,t,n){for(;this.count>0&&this.stopOffsets[0]<s;){let e=0;for(;e+1<this.count&&this.stopOffsets[e]===this.stopOffsets[e+1];)e++;n.push(new N(t,this.stopOffsets[e],this.classNames.join(" "),h._metadata(this.metadata))),t=this.stopOffsets[e]+1,this.stopOffsets.splice(0,e+1),this.classNames.splice(0,e+1),this.metadata.splice(0,e+1),this.count-=e+1}return this.count>0&&t<s&&(n.push(new N(t,s-1,this.classNames.join(" "),h._metadata(this.metadata))),t=s),t}insert(s,t,n){if(this.count===0||this.stopOffsets[this.count-1]<=s)this.stopOffsets.push(s),this.classNames.push(t),this.metadata.push(n);else for(let e=0;e<this.count;e++)if(this.stopOffsets[e]>=s){this.stopOffsets.splice(e,0,s),this.classNames.splice(e,0,t),this.metadata.splice(e,0,n);break}this.count++}}class w{static normalize(s,t){if(t.length===0)return[];const n=[],e=new h;let o=0;for(let c=0,l=t.length;c<l;c++){const i=t[c];let r=i.startColumn,a=i.endColumn;const m=i.className,p=i.type===1?2:i.type===2?4:0;if(r>1){const f=s.charCodeAt(r-2);C.isHighSurrogate(f)&&r--}if(a>1){const f=s.charCodeAt(a-2);C.isHighSurrogate(f)&&a--}const d=r-1,y=a-2;o=e.consumeLowerThan(d,o,n),e.count===0&&(o=d),e.insert(y,m,p)}return e.consumeLowerThan(1073741824,o,n),n}}export{N as DecorationSegment,u as LineDecoration,w as LineDecorationsNormalizer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../base/common/strings.js";
+class LineDecoration {
+  static {
+    __name(this, "LineDecoration");
+  }
+  constructor(startColumn, endColumn, className, type) {
+    this.startColumn = startColumn;
+    this.endColumn = endColumn;
+    this.className = className;
+    this.type = type;
+    this._lineDecorationBrand = void 0;
+  }
+  static _equals(a, b) {
+    return a.startColumn === b.startColumn && a.endColumn === b.endColumn && a.className === b.className && a.type === b.type;
+  }
+  static equalsArr(a, b) {
+    const aLen = a.length;
+    const bLen = b.length;
+    if (aLen !== bLen) {
+      return false;
+    }
+    for (let i = 0; i < aLen; i++) {
+      if (!LineDecoration._equals(a[i], b[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  static extractWrapped(arr, startOffset, endOffset) {
+    if (arr.length === 0) {
+      return arr;
+    }
+    const startColumn = startOffset + 1;
+    const endColumn = endOffset + 1;
+    const lineLength = endOffset - startOffset;
+    const r = [];
+    let rLength = 0;
+    for (const dec of arr) {
+      if (dec.endColumn <= startColumn || dec.startColumn >= endColumn) {
+        continue;
+      }
+      r[rLength++] = new LineDecoration(Math.max(1, dec.startColumn - startColumn + 1), Math.min(lineLength + 1, dec.endColumn - startColumn + 1), dec.className, dec.type);
+    }
+    return r;
+  }
+  static filter(lineDecorations, lineNumber, minLineColumn, maxLineColumn) {
+    if (lineDecorations.length === 0) {
+      return [];
+    }
+    const result = [];
+    let resultLen = 0;
+    for (let i = 0, len = lineDecorations.length; i < len; i++) {
+      const d = lineDecorations[i];
+      const range = d.range;
+      if (range.endLineNumber < lineNumber || range.startLineNumber > lineNumber) {
+        continue;
+      }
+      if (range.isEmpty() && (d.type === 0 || d.type === 3)) {
+        continue;
+      }
+      const startColumn = range.startLineNumber === lineNumber ? range.startColumn : minLineColumn;
+      const endColumn = range.endLineNumber === lineNumber ? range.endColumn : maxLineColumn;
+      result[resultLen++] = new LineDecoration(startColumn, endColumn, d.inlineClassName, d.type);
+    }
+    return result;
+  }
+  static _typeCompare(a, b) {
+    const ORDER = [2, 0, 1, 3];
+    return ORDER[a] - ORDER[b];
+  }
+  static compare(a, b) {
+    if (a.startColumn !== b.startColumn) {
+      return a.startColumn - b.startColumn;
+    }
+    if (a.endColumn !== b.endColumn) {
+      return a.endColumn - b.endColumn;
+    }
+    const typeCmp = LineDecoration._typeCompare(a.type, b.type);
+    if (typeCmp !== 0) {
+      return typeCmp;
+    }
+    if (a.className !== b.className) {
+      return a.className < b.className ? -1 : 1;
+    }
+    return 0;
+  }
+}
+class DecorationSegment {
+  static {
+    __name(this, "DecorationSegment");
+  }
+  constructor(startOffset, endOffset, className, metadata) {
+    this.startOffset = startOffset;
+    this.endOffset = endOffset;
+    this.className = className;
+    this.metadata = metadata;
+  }
+}
+class Stack {
+  static {
+    __name(this, "Stack");
+  }
+  constructor() {
+    this.stopOffsets = [];
+    this.classNames = [];
+    this.metadata = [];
+    this.count = 0;
+  }
+  static _metadata(metadata) {
+    let result = 0;
+    for (let i = 0, len = metadata.length; i < len; i++) {
+      result |= metadata[i];
+    }
+    return result;
+  }
+  consumeLowerThan(maxStopOffset, nextStartOffset, result) {
+    while (this.count > 0 && this.stopOffsets[0] < maxStopOffset) {
+      let i = 0;
+      while (i + 1 < this.count && this.stopOffsets[i] === this.stopOffsets[i + 1]) {
+        i++;
+      }
+      result.push(new DecorationSegment(nextStartOffset, this.stopOffsets[i], this.classNames.join(" "), Stack._metadata(this.metadata)));
+      nextStartOffset = this.stopOffsets[i] + 1;
+      this.stopOffsets.splice(0, i + 1);
+      this.classNames.splice(0, i + 1);
+      this.metadata.splice(0, i + 1);
+      this.count -= i + 1;
+    }
+    if (this.count > 0 && nextStartOffset < maxStopOffset) {
+      result.push(new DecorationSegment(nextStartOffset, maxStopOffset - 1, this.classNames.join(" "), Stack._metadata(this.metadata)));
+      nextStartOffset = maxStopOffset;
+    }
+    return nextStartOffset;
+  }
+  insert(stopOffset, className, metadata) {
+    if (this.count === 0 || this.stopOffsets[this.count - 1] <= stopOffset) {
+      this.stopOffsets.push(stopOffset);
+      this.classNames.push(className);
+      this.metadata.push(metadata);
+    } else {
+      for (let i = 0; i < this.count; i++) {
+        if (this.stopOffsets[i] >= stopOffset) {
+          this.stopOffsets.splice(i, 0, stopOffset);
+          this.classNames.splice(i, 0, className);
+          this.metadata.splice(i, 0, metadata);
+          break;
+        }
+      }
+    }
+    this.count++;
+    return;
+  }
+}
+class LineDecorationsNormalizer {
+  static {
+    __name(this, "LineDecorationsNormalizer");
+  }
+  /**
+   * Normalize line decorations. Overlapping decorations will generate multiple segments
+   */
+  static normalize(lineContent, lineDecorations) {
+    if (lineDecorations.length === 0) {
+      return [];
+    }
+    const result = [];
+    const stack = new Stack();
+    let nextStartOffset = 0;
+    for (let i = 0, len = lineDecorations.length; i < len; i++) {
+      const d = lineDecorations[i];
+      let startColumn = d.startColumn;
+      let endColumn = d.endColumn;
+      const className = d.className;
+      const metadata = d.type === 1 ? 2 : d.type === 2 ? 4 : 0;
+      if (startColumn > 1) {
+        const charCodeBefore = lineContent.charCodeAt(startColumn - 2);
+        if (strings.isHighSurrogate(charCodeBefore)) {
+          startColumn--;
+        }
+      }
+      if (endColumn > 1) {
+        const charCodeBefore = lineContent.charCodeAt(endColumn - 2);
+        if (strings.isHighSurrogate(charCodeBefore)) {
+          endColumn--;
+        }
+      }
+      const currentStartOffset = startColumn - 1;
+      const currentEndOffset = endColumn - 2;
+      nextStartOffset = stack.consumeLowerThan(currentStartOffset, nextStartOffset, result);
+      if (stack.count === 0) {
+        nextStartOffset = currentStartOffset;
+      }
+      stack.insert(currentEndOffset, className, metadata);
+    }
+    stack.consumeLowerThan(1073741824, nextStartOffset, result);
+    return result;
+  }
+}
+export {
+  DecorationSegment,
+  LineDecoration,
+  LineDecorationsNormalizer
+};
+//# sourceMappingURL=lineDecorations.js.map

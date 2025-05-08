@@ -1,1 +1,170 @@
-import{illegalArgument as C}from"./errors.js";var n;(function(s){s[s.CtrlCmd=2048]="CtrlCmd",s[s.Shift=1024]="Shift",s[s.Alt=512]="Alt",s[s.WinCtrl=256]="WinCtrl",s[s.KeyCode=255]="KeyCode"})(n||(n={}));function u(s,t){if(typeof s=="number"){if(s===0)return null;const e=(s&65535)>>>0,h=(s&4294901760)>>>16;return h!==0?new l([r(e,t),r(h,t)]):new l([r(e,t)])}else{const e=[];for(let h=0;h<s.length;h++)e.push(r(s[h],t));return new l(e)}}function r(s,t){const e=!!(s&2048),h=!!(s&256),i=t===2?h:e,o=!!(s&1024),c=!!(s&512),y=t===2?e:h,f=s&255;return new a(i,o,c,y,f)}class a{constructor(t,e,h,i,o){this.ctrlKey=t,this.shiftKey=e,this.altKey=h,this.metaKey=i,this.keyCode=o}equals(t){return t instanceof a&&this.ctrlKey===t.ctrlKey&&this.shiftKey===t.shiftKey&&this.altKey===t.altKey&&this.metaKey===t.metaKey&&this.keyCode===t.keyCode}getHashCode(){const t=this.ctrlKey?"1":"0",e=this.shiftKey?"1":"0",h=this.altKey?"1":"0",i=this.metaKey?"1":"0";return`K${t}${e}${h}${i}${this.keyCode}`}isModifierKey(){return this.keyCode===0||this.keyCode===5||this.keyCode===57||this.keyCode===6||this.keyCode===4}toKeybinding(){return new l([this])}isDuplicateModifierCase(){return this.ctrlKey&&this.keyCode===5||this.shiftKey&&this.keyCode===4||this.altKey&&this.keyCode===6||this.metaKey&&this.keyCode===57}}class K{constructor(t,e,h,i,o){this.ctrlKey=t,this.shiftKey=e,this.altKey=h,this.metaKey=i,this.scanCode=o}equals(t){return t instanceof K&&this.ctrlKey===t.ctrlKey&&this.shiftKey===t.shiftKey&&this.altKey===t.altKey&&this.metaKey===t.metaKey&&this.scanCode===t.scanCode}getHashCode(){const t=this.ctrlKey?"1":"0",e=this.shiftKey?"1":"0",h=this.altKey?"1":"0",i=this.metaKey?"1":"0";return`S${t}${e}${h}${i}${this.scanCode}`}isDuplicateModifierCase(){return this.ctrlKey&&(this.scanCode===157||this.scanCode===161)||this.shiftKey&&(this.scanCode===158||this.scanCode===162)||this.altKey&&(this.scanCode===159||this.scanCode===163)||this.metaKey&&(this.scanCode===160||this.scanCode===164)}}class l{constructor(t){if(t.length===0)throw C("chords");this.chords=t}getHashCode(){let t="";for(let e=0,h=this.chords.length;e<h;e++)e!==0&&(t+=";"),t+=this.chords[e].getHashCode();return t}equals(t){if(t===null||this.chords.length!==t.chords.length)return!1;for(let e=0;e<this.chords.length;e++)if(!this.chords[e].equals(t.chords[e]))return!1;return!0}}class m{constructor(t,e,h,i,o,c){this.ctrlKey=t,this.shiftKey=e,this.altKey=h,this.metaKey=i,this.keyLabel=o,this.keyAriaLabel=c}}class p{}export{a as KeyCodeChord,l as Keybinding,m as ResolvedChord,p as ResolvedKeybinding,K as ScanCodeChord,r as createSimpleKeybinding,u as decodeKeybinding};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { illegalArgument } from "./errors.js";
+var BinaryKeybindingsMask;
+(function(BinaryKeybindingsMask2) {
+  BinaryKeybindingsMask2[BinaryKeybindingsMask2["CtrlCmd"] = 2048] = "CtrlCmd";
+  BinaryKeybindingsMask2[BinaryKeybindingsMask2["Shift"] = 1024] = "Shift";
+  BinaryKeybindingsMask2[BinaryKeybindingsMask2["Alt"] = 512] = "Alt";
+  BinaryKeybindingsMask2[BinaryKeybindingsMask2["WinCtrl"] = 256] = "WinCtrl";
+  BinaryKeybindingsMask2[BinaryKeybindingsMask2["KeyCode"] = 255] = "KeyCode";
+})(BinaryKeybindingsMask || (BinaryKeybindingsMask = {}));
+function decodeKeybinding(keybinding, OS) {
+  if (typeof keybinding === "number") {
+    if (keybinding === 0) {
+      return null;
+    }
+    const firstChord = (keybinding & 65535) >>> 0;
+    const secondChord = (keybinding & 4294901760) >>> 16;
+    if (secondChord !== 0) {
+      return new Keybinding([
+        createSimpleKeybinding(firstChord, OS),
+        createSimpleKeybinding(secondChord, OS)
+      ]);
+    }
+    return new Keybinding([createSimpleKeybinding(firstChord, OS)]);
+  } else {
+    const chords = [];
+    for (let i = 0; i < keybinding.length; i++) {
+      chords.push(createSimpleKeybinding(keybinding[i], OS));
+    }
+    return new Keybinding(chords);
+  }
+}
+__name(decodeKeybinding, "decodeKeybinding");
+function createSimpleKeybinding(keybinding, OS) {
+  const ctrlCmd = keybinding & 2048 ? true : false;
+  const winCtrl = keybinding & 256 ? true : false;
+  const ctrlKey = OS === 2 ? winCtrl : ctrlCmd;
+  const shiftKey = keybinding & 1024 ? true : false;
+  const altKey = keybinding & 512 ? true : false;
+  const metaKey = OS === 2 ? ctrlCmd : winCtrl;
+  const keyCode = keybinding & 255;
+  return new KeyCodeChord(ctrlKey, shiftKey, altKey, metaKey, keyCode);
+}
+__name(createSimpleKeybinding, "createSimpleKeybinding");
+class KeyCodeChord {
+  static {
+    __name(this, "KeyCodeChord");
+  }
+  constructor(ctrlKey, shiftKey, altKey, metaKey, keyCode) {
+    this.ctrlKey = ctrlKey;
+    this.shiftKey = shiftKey;
+    this.altKey = altKey;
+    this.metaKey = metaKey;
+    this.keyCode = keyCode;
+  }
+  equals(other) {
+    return other instanceof KeyCodeChord && this.ctrlKey === other.ctrlKey && this.shiftKey === other.shiftKey && this.altKey === other.altKey && this.metaKey === other.metaKey && this.keyCode === other.keyCode;
+  }
+  getHashCode() {
+    const ctrl = this.ctrlKey ? "1" : "0";
+    const shift = this.shiftKey ? "1" : "0";
+    const alt = this.altKey ? "1" : "0";
+    const meta = this.metaKey ? "1" : "0";
+    return `K${ctrl}${shift}${alt}${meta}${this.keyCode}`;
+  }
+  isModifierKey() {
+    return this.keyCode === 0 || this.keyCode === 5 || this.keyCode === 57 || this.keyCode === 6 || this.keyCode === 4;
+  }
+  toKeybinding() {
+    return new Keybinding([this]);
+  }
+  /**
+   * Does this keybinding refer to the key code of a modifier and it also has the modifier flag?
+   */
+  isDuplicateModifierCase() {
+    return this.ctrlKey && this.keyCode === 5 || this.shiftKey && this.keyCode === 4 || this.altKey && this.keyCode === 6 || this.metaKey && this.keyCode === 57;
+  }
+}
+class ScanCodeChord {
+  static {
+    __name(this, "ScanCodeChord");
+  }
+  constructor(ctrlKey, shiftKey, altKey, metaKey, scanCode) {
+    this.ctrlKey = ctrlKey;
+    this.shiftKey = shiftKey;
+    this.altKey = altKey;
+    this.metaKey = metaKey;
+    this.scanCode = scanCode;
+  }
+  equals(other) {
+    return other instanceof ScanCodeChord && this.ctrlKey === other.ctrlKey && this.shiftKey === other.shiftKey && this.altKey === other.altKey && this.metaKey === other.metaKey && this.scanCode === other.scanCode;
+  }
+  getHashCode() {
+    const ctrl = this.ctrlKey ? "1" : "0";
+    const shift = this.shiftKey ? "1" : "0";
+    const alt = this.altKey ? "1" : "0";
+    const meta = this.metaKey ? "1" : "0";
+    return `S${ctrl}${shift}${alt}${meta}${this.scanCode}`;
+  }
+  /**
+   * Does this keybinding refer to the key code of a modifier and it also has the modifier flag?
+   */
+  isDuplicateModifierCase() {
+    return this.ctrlKey && (this.scanCode === 157 || this.scanCode === 161) || this.shiftKey && (this.scanCode === 158 || this.scanCode === 162) || this.altKey && (this.scanCode === 159 || this.scanCode === 163) || this.metaKey && (this.scanCode === 160 || this.scanCode === 164);
+  }
+}
+class Keybinding {
+  static {
+    __name(this, "Keybinding");
+  }
+  constructor(chords) {
+    if (chords.length === 0) {
+      throw illegalArgument(`chords`);
+    }
+    this.chords = chords;
+  }
+  getHashCode() {
+    let result = "";
+    for (let i = 0, len = this.chords.length; i < len; i++) {
+      if (i !== 0) {
+        result += ";";
+      }
+      result += this.chords[i].getHashCode();
+    }
+    return result;
+  }
+  equals(other) {
+    if (other === null) {
+      return false;
+    }
+    if (this.chords.length !== other.chords.length) {
+      return false;
+    }
+    for (let i = 0; i < this.chords.length; i++) {
+      if (!this.chords[i].equals(other.chords[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+}
+class ResolvedChord {
+  static {
+    __name(this, "ResolvedChord");
+  }
+  constructor(ctrlKey, shiftKey, altKey, metaKey, keyLabel, keyAriaLabel) {
+    this.ctrlKey = ctrlKey;
+    this.shiftKey = shiftKey;
+    this.altKey = altKey;
+    this.metaKey = metaKey;
+    this.keyLabel = keyLabel;
+    this.keyAriaLabel = keyAriaLabel;
+  }
+}
+class ResolvedKeybinding {
+  static {
+    __name(this, "ResolvedKeybinding");
+  }
+}
+export {
+  KeyCodeChord,
+  Keybinding,
+  ResolvedChord,
+  ResolvedKeybinding,
+  ScanCodeChord,
+  createSimpleKeybinding,
+  decodeKeybinding
+};
+//# sourceMappingURL=keybindings.js.map

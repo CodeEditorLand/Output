@@ -1,1 +1,177 @@
-var n;class f{constructor(e,r,l){this.level=e,this.key=r,this.value=l,this.forward=[]}}const s=void 0;class h{constructor(e,r=2**16){this.comparator=e,this[n]="SkipList",this._level=0,this._size=0,this._maxLevel=Math.max(1,Math.log2(r)|0),this._header=new f(this._maxLevel,s,s)}get size(){return this._size}clear(){this._header=new f(this._maxLevel,s,s),this._size=0}has(e){return!!h._search(this,e,this.comparator)}get(e){return h._search(this,e,this.comparator)?.value}set(e,r){return h._insert(this,e,r,this.comparator)&&(this._size+=1),this}delete(e){const r=h._delete(this,e,this.comparator);return r&&(this._size-=1),r}forEach(e,r){let l=this._header.forward[0];for(;l;)e.call(r,l.value,l.key,this),l=l.forward[0]}[(n=Symbol.toStringTag,Symbol.iterator)](){return this.entries()}*entries(){let e=this._header.forward[0];for(;e;)yield[e.key,e.value],e=e.forward[0]}*keys(){let e=this._header.forward[0];for(;e;)yield e.key,e=e.forward[0]}*values(){let e=this._header.forward[0];for(;e;)yield e.value,e=e.forward[0]}toString(){let e="[SkipList]:",r=this._header.forward[0];for(;r;)e+=`node(${r.key}, ${r.value}, lvl:${r.level})`,r=r.forward[0];return e}static _search(e,r,l){let o=e._header;for(let a=e._level-1;a>=0;a--)for(;o.forward[a]&&l(o.forward[a].key,r)<0;)o=o.forward[a];if(o=o.forward[0],o&&l(o.key,r)===0)return o}static _insert(e,r,l,o){const a=[];let t=e._header;for(let d=e._level-1;d>=0;d--){for(;t.forward[d]&&o(t.forward[d].key,r)<0;)t=t.forward[d];a[d]=t}if(t=t.forward[0],t&&o(t.key,r)===0)return t.value=l,!1;{const d=h._randomLevel(e);if(d>e._level){for(let i=e._level;i<d;i++)a[i]=e._header;e._level=d}t=new f(d,r,l);for(let i=0;i<d;i++)t.forward[i]=a[i].forward[i],a[i].forward[i]=t;return!0}}static _randomLevel(e,r=.5){let l=1;for(;Math.random()<r&&l<e._maxLevel;)l+=1;return l}static _delete(e,r,l){const o=[];let a=e._header;for(let t=e._level-1;t>=0;t--){for(;a.forward[t]&&l(a.forward[t].key,r)<0;)a=a.forward[t];o[t]=a}if(a=a.forward[0],!a||l(a.key,r)!==0)return!1;for(let t=0;t<e._level&&o[t].forward[t]===a;t++)o[t].forward[t]=a.forward[t];for(;e._level>0&&e._header.forward[e._level-1]===s;)e._level-=1;return!0}}export{h as SkipList};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var _a;
+class Node {
+  static {
+    __name(this, "Node");
+  }
+  constructor(level, key, value) {
+    this.level = level;
+    this.key = key;
+    this.value = value;
+    this.forward = [];
+  }
+}
+const NIL = void 0;
+class SkipList {
+  static {
+    __name(this, "SkipList");
+  }
+  /**
+   *
+   * @param capacity Capacity at which the list performs best
+   */
+  constructor(comparator, capacity = 2 ** 16) {
+    this.comparator = comparator;
+    this[_a] = "SkipList";
+    this._level = 0;
+    this._size = 0;
+    this._maxLevel = Math.max(1, Math.log2(capacity) | 0);
+    this._header = new Node(this._maxLevel, NIL, NIL);
+  }
+  get size() {
+    return this._size;
+  }
+  clear() {
+    this._header = new Node(this._maxLevel, NIL, NIL);
+    this._size = 0;
+  }
+  has(key) {
+    return Boolean(SkipList._search(this, key, this.comparator));
+  }
+  get(key) {
+    return SkipList._search(this, key, this.comparator)?.value;
+  }
+  set(key, value) {
+    if (SkipList._insert(this, key, value, this.comparator)) {
+      this._size += 1;
+    }
+    return this;
+  }
+  delete(key) {
+    const didDelete = SkipList._delete(this, key, this.comparator);
+    if (didDelete) {
+      this._size -= 1;
+    }
+    return didDelete;
+  }
+  // --- iteration
+  forEach(callbackfn, thisArg) {
+    let node = this._header.forward[0];
+    while (node) {
+      callbackfn.call(thisArg, node.value, node.key, this);
+      node = node.forward[0];
+    }
+  }
+  [(_a = Symbol.toStringTag, Symbol.iterator)]() {
+    return this.entries();
+  }
+  *entries() {
+    let node = this._header.forward[0];
+    while (node) {
+      yield [node.key, node.value];
+      node = node.forward[0];
+    }
+  }
+  *keys() {
+    let node = this._header.forward[0];
+    while (node) {
+      yield node.key;
+      node = node.forward[0];
+    }
+  }
+  *values() {
+    let node = this._header.forward[0];
+    while (node) {
+      yield node.value;
+      node = node.forward[0];
+    }
+  }
+  toString() {
+    let result = "[SkipList]:";
+    let node = this._header.forward[0];
+    while (node) {
+      result += `node(${node.key}, ${node.value}, lvl:${node.level})`;
+      node = node.forward[0];
+    }
+    return result;
+  }
+  // from https://www.epaperpress.com/sortsearch/download/skiplist.pdf
+  static _search(list, searchKey, comparator) {
+    let x = list._header;
+    for (let i = list._level - 1; i >= 0; i--) {
+      while (x.forward[i] && comparator(x.forward[i].key, searchKey) < 0) {
+        x = x.forward[i];
+      }
+    }
+    x = x.forward[0];
+    if (x && comparator(x.key, searchKey) === 0) {
+      return x;
+    }
+    return void 0;
+  }
+  static _insert(list, searchKey, value, comparator) {
+    const update = [];
+    let x = list._header;
+    for (let i = list._level - 1; i >= 0; i--) {
+      while (x.forward[i] && comparator(x.forward[i].key, searchKey) < 0) {
+        x = x.forward[i];
+      }
+      update[i] = x;
+    }
+    x = x.forward[0];
+    if (x && comparator(x.key, searchKey) === 0) {
+      x.value = value;
+      return false;
+    } else {
+      const lvl = SkipList._randomLevel(list);
+      if (lvl > list._level) {
+        for (let i = list._level; i < lvl; i++) {
+          update[i] = list._header;
+        }
+        list._level = lvl;
+      }
+      x = new Node(lvl, searchKey, value);
+      for (let i = 0; i < lvl; i++) {
+        x.forward[i] = update[i].forward[i];
+        update[i].forward[i] = x;
+      }
+      return true;
+    }
+  }
+  static _randomLevel(list, p = 0.5) {
+    let lvl = 1;
+    while (Math.random() < p && lvl < list._maxLevel) {
+      lvl += 1;
+    }
+    return lvl;
+  }
+  static _delete(list, searchKey, comparator) {
+    const update = [];
+    let x = list._header;
+    for (let i = list._level - 1; i >= 0; i--) {
+      while (x.forward[i] && comparator(x.forward[i].key, searchKey) < 0) {
+        x = x.forward[i];
+      }
+      update[i] = x;
+    }
+    x = x.forward[0];
+    if (!x || comparator(x.key, searchKey) !== 0) {
+      return false;
+    }
+    for (let i = 0; i < list._level; i++) {
+      if (update[i].forward[i] !== x) {
+        break;
+      }
+      update[i].forward[i] = x.forward[i];
+    }
+    while (list._level > 0 && list._header.forward[list._level - 1] === NIL) {
+      list._level -= 1;
+    }
+    return true;
+  }
+}
+export {
+  SkipList
+};
+//# sourceMappingURL=skipList.js.map

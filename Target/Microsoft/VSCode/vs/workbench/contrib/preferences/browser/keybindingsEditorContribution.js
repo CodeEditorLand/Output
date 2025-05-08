@@ -1,2 +1,251 @@
-import*as p from"../../../../nls.js";import{RunOnceScheduler as E}from"../../../../base/common/async.js";import{MarkdownString as h}from"../../../../base/common/htmlContent.js";import{Disposable as R,MutableDisposable as I}from"../../../../base/common/lifecycle.js";import{IKeybindingService as K}from"../../../../platform/keybinding/common/keybinding.js";import{IInstantiationService as k}from"../../../../platform/instantiation/common/instantiation.js";import{Range as C}from"../../../../editor/common/core/range.js";import{registerEditorContribution as L}from"../../../../editor/browser/editorExtensions.js";import{SnippetController2 as P}from"../../../../editor/contrib/snippet/browser/snippetController2.js";import{SmartSnippetInserter as A}from"../common/smartSnippetInserter.js";import{DefineKeybindingOverlayWidget as M}from"./keybindingWidgets.js";import{parseTree as N}from"../../../../base/common/json.js";import{WindowsNativeResolvedKeybinding as O}from"../../../services/keybinding/common/windowsKeyboardMapper.js";import{themeColorFromId as b}from"../../../../platform/theme/common/themeService.js";import{overviewRulerInfo as x,overviewRulerError as T}from"../../../../editor/common/core/editorColorRegistry.js";import{OverviewRulerLane as U}from"../../../../editor/common/model.js";import{KeybindingParser as v}from"../../../../base/common/keybindingParser.js";import{assertIsDefined as D}from"../../../../base/common/types.js";import{isEqual as z}from"../../../../base/common/resources.js";import{IUserDataProfileService as F}from"../../../services/userDataProfile/common/userDataProfile.js";import{DEFINE_KEYBINDING_EDITOR_CONTRIB_ID as W}from"../../../services/preferences/common/preferences.js";var S=function(l,e,t,i){var n=arguments.length,r=n<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,t):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(l,e,t,i);else for(var o=l.length-1;o>=0;o--)(s=l[o])&&(r=(n<3?s(r):n>3?s(e,t,r):s(e,t))||r);return n>3&&r&&Object.defineProperty(e,t,r),r},f=function(l,e){return function(t,i){e(t,i,l)}},g;const B=p.localize("defineKeybinding.kbLayoutErrorMessage","You won't be able to produce this key combination under your current keyboard layout.");let _=class extends R{constructor(e,t,i){super(),this._editor=e,this._instantiationService=t,this._userDataProfileService=i,this._keybindingDecorationRenderer=this._register(new I),this._defineWidget=this._register(this._instantiationService.createInstance(M,this._editor)),this._register(this._editor.onDidChangeModel(n=>this._update())),this._update()}_update(){this._keybindingDecorationRenderer.value=w(this._editor,this._userDataProfileService)?this._instantiationService.createInstance(m,this._editor):void 0}showDefineKeybindingWidget(){w(this._editor,this._userDataProfileService)&&this._defineWidget.start().then(e=>this._onAccepted(e))}_onAccepted(e){if(this._editor.focus(),e&&this._editor.hasModel()){new RegExp(/\\/g).test(e)&&(e=e.slice(0,-1)+"\\\\");let n=["{",'	"key": '+JSON.stringify(e)+",",'	"command": "${1:commandId}",','	"when": "${2:editorTextFocus}"',"}$0"].join(`
-`);const r=A.insertSnippet(this._editor.getModel(),this._editor.getPosition());n=r.prepend+n+r.append,this._editor.setPosition(r.position),P.get(this._editor)?.insert(n,{overwriteBefore:0,overwriteAfter:0})}}};_=S([f(1,k),f(2,F)],_);let m=g=class extends R{constructor(e,t){super(),this._editor=e,this._keybindingService=t,this._dec=this._editor.createDecorationsCollection(),this._updateDecorations=this._register(new E(()=>this._updateDecorationsNow(),500));const i=D(this._editor.getModel());this._register(i.onDidChangeContent(()=>this._updateDecorations.schedule())),this._register(this._keybindingService.onDidUpdateKeybindings(()=>this._updateDecorations.schedule())),this._register({dispose:()=>{this._dec.clear(),this._updateDecorations.cancel()}}),this._updateDecorations.schedule()}_updateDecorationsNow(){const e=D(this._editor.getModel()),t=[],i=N(e.getValue());if(i&&Array.isArray(i.children))for(let n=0,r=i.children.length;n<r;n++){const s=i.children[n],o=this._getDecorationForEntry(e,s);o!==null&&t.push(o)}this._dec.set(t)}_getDecorationForEntry(e,t){if(!Array.isArray(t.children))return null;for(let i=0,n=t.children.length;i<n;i++){const r=t.children[i];if(r.type!=="property"||!Array.isArray(r.children)||r.children.length!==2||r.children[0].value!=="key")continue;const o=r.children[1];if(o.type!=="string")continue;const d=this._keybindingService.resolveUserBinding(o.value);if(d.length===0)return this._createDecoration(!0,null,null,e,o);const a=d[0];let c=null;if(a instanceof O&&(c=a.getUSLabel()),!a.isWYSIWYG()){const y=a.getLabel();return typeof y=="string"&&o.value.toLowerCase()===y.toLowerCase()?null:this._createDecoration(!1,a.getLabel(),c,e,o)}if(/abnt_|oem_/.test(o.value))return this._createDecoration(!1,a.getLabel(),c,e,o);const u=a.getUserSettingsLabel();return typeof u=="string"&&!g._userSettingsFuzzyEquals(o.value,u)?this._createDecoration(!1,a.getLabel(),c,e,o):null}return null}static _userSettingsFuzzyEquals(e,t){if(e=e.trim().toLowerCase(),t=t.trim().toLowerCase(),e===t)return!0;const i=v.parseKeybinding(e),n=v.parseKeybinding(t);return i===null&&n===null?!0:!i||!n?!1:i.equals(n)}_createDecoration(e,t,i,n,r){let s,o,d;e?(s=new h().appendText(B),o="keybindingError",d=b(T)):(i&&t!==i?s=new h(p.localize({key:"defineKeybinding.kbLayoutLocalAndUSMessage",comment:["Please translate maintaining the stars (*) around the placeholders such that they will be rendered in bold.","The placeholders will contain a keyboard combination e.g. Ctrl+Shift+/"]},"**{0}** for your current keyboard layout (**{1}** for US standard).",t,i)):s=new h(p.localize({key:"defineKeybinding.kbLayoutLocalMessage",comment:["Please translate maintaining the stars (*) around the placeholder such that it will be rendered in bold.","The placeholder will contain a keyboard combination e.g. Ctrl+Shift+/"]},"**{0}** for your current keyboard layout.",t)),o="keybindingInfo",d=b(x));const a=n.getPositionAt(r.offset),c=n.getPositionAt(r.offset+r.length);return{range:new C(a.lineNumber,a.column,c.lineNumber,c.column),options:{description:"keybindings-widget",stickiness:1,className:o,hoverMessage:s,overviewRuler:{color:d,position:U.Right}}}}};m=g=S([f(1,K)],m);function w(l,e){const t=l.getModel();return t?z(t.uri,e.currentProfile.keybindingsResource):!1}L(W,_,1);export{m as KeybindingEditorDecorationsRenderer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { RunOnceScheduler } from "../../../../base/common/async.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Disposable, MutableDisposable } from "../../../../base/common/lifecycle.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { Range } from "../../../../editor/common/core/range.js";
+import { registerEditorContribution } from "../../../../editor/browser/editorExtensions.js";
+import { SnippetController2 } from "../../../../editor/contrib/snippet/browser/snippetController2.js";
+import { SmartSnippetInserter } from "../common/smartSnippetInserter.js";
+import { DefineKeybindingOverlayWidget } from "./keybindingWidgets.js";
+import { parseTree } from "../../../../base/common/json.js";
+import { WindowsNativeResolvedKeybinding } from "../../../services/keybinding/common/windowsKeyboardMapper.js";
+import { themeColorFromId } from "../../../../platform/theme/common/themeService.js";
+import { overviewRulerInfo, overviewRulerError } from "../../../../editor/common/core/editorColorRegistry.js";
+import { OverviewRulerLane } from "../../../../editor/common/model.js";
+import { KeybindingParser } from "../../../../base/common/keybindingParser.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { isEqual } from "../../../../base/common/resources.js";
+import { IUserDataProfileService } from "../../../services/userDataProfile/common/userDataProfile.js";
+import { DEFINE_KEYBINDING_EDITOR_CONTRIB_ID } from "../../../services/preferences/common/preferences.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var KeybindingEditorDecorationsRenderer_1;
+const NLS_KB_LAYOUT_ERROR_MESSAGE = nls.localize("defineKeybinding.kbLayoutErrorMessage", "You won't be able to produce this key combination under your current keyboard layout.");
+let DefineKeybindingEditorContribution = class DefineKeybindingEditorContribution2 extends Disposable {
+  static {
+    __name(this, "DefineKeybindingEditorContribution");
+  }
+  constructor(_editor, _instantiationService, _userDataProfileService) {
+    super();
+    this._editor = _editor;
+    this._instantiationService = _instantiationService;
+    this._userDataProfileService = _userDataProfileService;
+    this._keybindingDecorationRenderer = this._register(new MutableDisposable());
+    this._defineWidget = this._register(this._instantiationService.createInstance(DefineKeybindingOverlayWidget, this._editor));
+    this._register(this._editor.onDidChangeModel((e) => this._update()));
+    this._update();
+  }
+  _update() {
+    this._keybindingDecorationRenderer.value = isInterestingEditorModel(this._editor, this._userDataProfileService) ? this._instantiationService.createInstance(KeybindingEditorDecorationsRenderer, this._editor) : void 0;
+  }
+  showDefineKeybindingWidget() {
+    if (isInterestingEditorModel(this._editor, this._userDataProfileService)) {
+      this._defineWidget.start().then((keybinding) => this._onAccepted(keybinding));
+    }
+  }
+  _onAccepted(keybinding) {
+    this._editor.focus();
+    if (keybinding && this._editor.hasModel()) {
+      const regexp = new RegExp(/\\/g);
+      const backslash = regexp.test(keybinding);
+      if (backslash) {
+        keybinding = keybinding.slice(0, -1) + "\\\\";
+      }
+      let snippetText = [
+        "{",
+        '	"key": ' + JSON.stringify(keybinding) + ",",
+        '	"command": "${1:commandId}",',
+        '	"when": "${2:editorTextFocus}"',
+        "}$0"
+      ].join("\n");
+      const smartInsertInfo = SmartSnippetInserter.insertSnippet(this._editor.getModel(), this._editor.getPosition());
+      snippetText = smartInsertInfo.prepend + snippetText + smartInsertInfo.append;
+      this._editor.setPosition(smartInsertInfo.position);
+      SnippetController2.get(this._editor)?.insert(snippetText, { overwriteBefore: 0, overwriteAfter: 0 });
+    }
+  }
+};
+DefineKeybindingEditorContribution = __decorate([
+  __param(1, IInstantiationService),
+  __param(2, IUserDataProfileService)
+], DefineKeybindingEditorContribution);
+let KeybindingEditorDecorationsRenderer = KeybindingEditorDecorationsRenderer_1 = class KeybindingEditorDecorationsRenderer2 extends Disposable {
+  static {
+    __name(this, "KeybindingEditorDecorationsRenderer");
+  }
+  constructor(_editor, _keybindingService) {
+    super();
+    this._editor = _editor;
+    this._keybindingService = _keybindingService;
+    this._dec = this._editor.createDecorationsCollection();
+    this._updateDecorations = this._register(new RunOnceScheduler(() => this._updateDecorationsNow(), 500));
+    const model = assertIsDefined(this._editor.getModel());
+    this._register(model.onDidChangeContent(() => this._updateDecorations.schedule()));
+    this._register(this._keybindingService.onDidUpdateKeybindings(() => this._updateDecorations.schedule()));
+    this._register({
+      dispose: /* @__PURE__ */ __name(() => {
+        this._dec.clear();
+        this._updateDecorations.cancel();
+      }, "dispose")
+    });
+    this._updateDecorations.schedule();
+  }
+  _updateDecorationsNow() {
+    const model = assertIsDefined(this._editor.getModel());
+    const newDecorations = [];
+    const root = parseTree(model.getValue());
+    if (root && Array.isArray(root.children)) {
+      for (let i = 0, len = root.children.length; i < len; i++) {
+        const entry = root.children[i];
+        const dec = this._getDecorationForEntry(model, entry);
+        if (dec !== null) {
+          newDecorations.push(dec);
+        }
+      }
+    }
+    this._dec.set(newDecorations);
+  }
+  _getDecorationForEntry(model, entry) {
+    if (!Array.isArray(entry.children)) {
+      return null;
+    }
+    for (let i = 0, len = entry.children.length; i < len; i++) {
+      const prop = entry.children[i];
+      if (prop.type !== "property") {
+        continue;
+      }
+      if (!Array.isArray(prop.children) || prop.children.length !== 2) {
+        continue;
+      }
+      const key = prop.children[0];
+      if (key.value !== "key") {
+        continue;
+      }
+      const value = prop.children[1];
+      if (value.type !== "string") {
+        continue;
+      }
+      const resolvedKeybindings = this._keybindingService.resolveUserBinding(value.value);
+      if (resolvedKeybindings.length === 0) {
+        return this._createDecoration(true, null, null, model, value);
+      }
+      const resolvedKeybinding = resolvedKeybindings[0];
+      let usLabel = null;
+      if (resolvedKeybinding instanceof WindowsNativeResolvedKeybinding) {
+        usLabel = resolvedKeybinding.getUSLabel();
+      }
+      if (!resolvedKeybinding.isWYSIWYG()) {
+        const uiLabel = resolvedKeybinding.getLabel();
+        if (typeof uiLabel === "string" && value.value.toLowerCase() === uiLabel.toLowerCase()) {
+          return null;
+        }
+        return this._createDecoration(false, resolvedKeybinding.getLabel(), usLabel, model, value);
+      }
+      if (/abnt_|oem_/.test(value.value)) {
+        return this._createDecoration(false, resolvedKeybinding.getLabel(), usLabel, model, value);
+      }
+      const expectedUserSettingsLabel = resolvedKeybinding.getUserSettingsLabel();
+      if (typeof expectedUserSettingsLabel === "string" && !KeybindingEditorDecorationsRenderer_1._userSettingsFuzzyEquals(value.value, expectedUserSettingsLabel)) {
+        return this._createDecoration(false, resolvedKeybinding.getLabel(), usLabel, model, value);
+      }
+      return null;
+    }
+    return null;
+  }
+  static _userSettingsFuzzyEquals(a, b) {
+    a = a.trim().toLowerCase();
+    b = b.trim().toLowerCase();
+    if (a === b) {
+      return true;
+    }
+    const aKeybinding = KeybindingParser.parseKeybinding(a);
+    const bKeybinding = KeybindingParser.parseKeybinding(b);
+    if (aKeybinding === null && bKeybinding === null) {
+      return true;
+    }
+    if (!aKeybinding || !bKeybinding) {
+      return false;
+    }
+    return aKeybinding.equals(bKeybinding);
+  }
+  _createDecoration(isError, uiLabel, usLabel, model, keyNode) {
+    let msg;
+    let className;
+    let overviewRulerColor;
+    if (isError) {
+      msg = new MarkdownString().appendText(NLS_KB_LAYOUT_ERROR_MESSAGE);
+      className = "keybindingError";
+      overviewRulerColor = themeColorFromId(overviewRulerError);
+    } else {
+      if (usLabel && uiLabel !== usLabel) {
+        msg = new MarkdownString(nls.localize({
+          key: "defineKeybinding.kbLayoutLocalAndUSMessage",
+          comment: [
+            "Please translate maintaining the stars (*) around the placeholders such that they will be rendered in bold.",
+            "The placeholders will contain a keyboard combination e.g. Ctrl+Shift+/"
+          ]
+        }, "**{0}** for your current keyboard layout (**{1}** for US standard).", uiLabel, usLabel));
+      } else {
+        msg = new MarkdownString(nls.localize({
+          key: "defineKeybinding.kbLayoutLocalMessage",
+          comment: [
+            "Please translate maintaining the stars (*) around the placeholder such that it will be rendered in bold.",
+            "The placeholder will contain a keyboard combination e.g. Ctrl+Shift+/"
+          ]
+        }, "**{0}** for your current keyboard layout.", uiLabel));
+      }
+      className = "keybindingInfo";
+      overviewRulerColor = themeColorFromId(overviewRulerInfo);
+    }
+    const startPosition = model.getPositionAt(keyNode.offset);
+    const endPosition = model.getPositionAt(keyNode.offset + keyNode.length);
+    const range = new Range(startPosition.lineNumber, startPosition.column, endPosition.lineNumber, endPosition.column);
+    return {
+      range,
+      options: {
+        description: "keybindings-widget",
+        stickiness: 1,
+        className,
+        hoverMessage: msg,
+        overviewRuler: {
+          color: overviewRulerColor,
+          position: OverviewRulerLane.Right
+        }
+      }
+    };
+  }
+};
+KeybindingEditorDecorationsRenderer = KeybindingEditorDecorationsRenderer_1 = __decorate([
+  __param(1, IKeybindingService)
+], KeybindingEditorDecorationsRenderer);
+function isInterestingEditorModel(editor, userDataProfileService) {
+  const model = editor.getModel();
+  if (!model) {
+    return false;
+  }
+  return isEqual(model.uri, userDataProfileService.currentProfile.keybindingsResource);
+}
+__name(isInterestingEditorModel, "isInterestingEditorModel");
+registerEditorContribution(
+  DEFINE_KEYBINDING_EDITOR_CONTRIB_ID,
+  DefineKeybindingEditorContribution,
+  1
+  /* EditorContributionInstantiation.AfterFirstRender */
+);
+export {
+  KeybindingEditorDecorationsRenderer
+};
+//# sourceMappingURL=keybindingsEditorContribution.js.map

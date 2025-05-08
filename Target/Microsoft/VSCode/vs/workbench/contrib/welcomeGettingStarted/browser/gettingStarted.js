@@ -1,3 +1,1766 @@
-import{$ as n,addDisposableListener as L,append as ie,clearNode as se,reset as k}from"../../../../base/browser/dom.js";import{renderFormattedText as ve}from"../../../../base/browser/formattedTextRenderer.js";import{StandardKeyboardEvent as j}from"../../../../base/browser/keyboardEvent.js";import{Button as we}from"../../../../base/browser/ui/button/button.js";import{renderLabelWithIcons as N}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{DomScrollableElement as $}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{Toggle as ke}from"../../../../base/browser/ui/toggle/toggle.js";import{coalesce as xe,equals as oe}from"../../../../base/common/arrays.js";import{Delayer as De,Throttler as re}from"../../../../base/common/async.js";import{Codicon as We}from"../../../../base/common/codicons.js";import{onUnexpectedError as Ie}from"../../../../base/common/errors.js";import{splitRecentLabel as Ee}from"../../../../base/common/labels.js";import{DisposableStore as H,toDisposable as z}from"../../../../base/common/lifecycle.js";import{parse as ne}from"../../../../base/common/marshalling.js";import{Schemas as R,matchesScheme as q}from"../../../../base/common/network.js";import{isMacintosh as Le,OS as Te}from"../../../../base/common/platform.js";import{ThemeIcon as B}from"../../../../base/common/themables.js";import{assertIsDefined as _}from"../../../../base/common/types.js";import{URI as ae}from"../../../../base/common/uri.js";import{generateUuid as Pe}from"../../../../base/common/uuid.js";import"./media/gettingStarted.css";import{ILanguageService as Ae}from"../../../../editor/common/languages/language.js";import{MarkdownRenderer as Me}from"../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";import{localize as p}from"../../../../nls.js";import{IAccessibilityService as Ne}from"../../../../platform/accessibility/common/accessibility.js";import{ICommandService as Oe}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as Re}from"../../../../platform/configuration/common/configuration.js";import{ContextKeyExpr as V,IContextKeyService as qe,RawContextKey as be}from"../../../../platform/contextkey/common/contextkey.js";import{IFileService as Fe}from"../../../../platform/files/common/files.js";import{IInstantiationService as Be}from"../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as _e}from"../../../../platform/keybinding/common/keybinding.js";import{ILabelService as Ke}from"../../../../platform/label/common/label.js";import{INotificationService as Ge}from"../../../../platform/notification/common/notification.js";import{Link as Ue}from"../../../../platform/opener/browser/link.js";import{IOpenerService as He}from"../../../../platform/opener/common/opener.js";import{IProductService as Ve}from"../../../../platform/product/common/productService.js";import{IQuickInputService as $e}from"../../../../platform/quickinput/common/quickInput.js";import{IStorageService as ze,WillSaveStateReason as Je}from"../../../../platform/storage/common/storage.js";import{ITelemetryService as Xe,firstSessionDateStorageKey as je}from"../../../../platform/telemetry/common/telemetry.js";import{getTelemetryLevel as ce}from"../../../../platform/telemetry/common/telemetryUtils.js";import{defaultButtonStyles as Ye,defaultKeybindingLabelStyles as Qe,defaultToggleStyles as Ze}from"../../../../platform/theme/browser/defaultStyles.js";import{IWorkspaceContextService as et,UNKNOWN_EMPTY_WINDOW_WORKSPACE as de}from"../../../../platform/workspace/common/workspace.js";import{IWorkspacesService as tt,isRecentFolder as it,isRecentWorkspace as le}from"../../../../platform/workspaces/common/workspaces.js";import{OpenRecentAction as he}from"../../../browser/actions/windowActions.js";import{OpenFileFolderAction as st,OpenFolderAction as ot,OpenFolderViaWorkspaceAction as rt}from"../../../browser/actions/workspaceActions.js";import{EditorPane as nt}from"../../../browser/parts/editor/editorPane.js";import{WorkbenchStateContext as at}from"../../../common/contextkeys.js";import{IWebviewService as ct}from"../../webview/browser/webview.js";import"./gettingStartedColors.js";import{GettingStartedDetailsRenderer as dt}from"./gettingStartedDetailsRenderer.js";import{gettingStartedCheckedCodicon as Y,gettingStartedUncheckedCodicon as Q}from"./gettingStartedIcons.js";import{GettingStartedInput as X}from"./gettingStartedInput.js";import{IWalkthroughsService as lt,hiddenEntriesConfigurationKey as pe,parseDescription as ge}from"./gettingStartedService.js";import{restoreWalkthroughsConfigurationKey as Z}from"./startupPage.js";import{NEW_WELCOME_EXPERIENCE as F,startEntries as Ce}from"../common/gettingStartedContent.js";import{IEditorGroupsService as ht}from"../../../services/editor/common/editorGroupsService.js";import{IExtensionService as pt}from"../../../services/extensions/common/extensions.js";import{IHostService as gt}from"../../../services/host/browser/host.js";import{IWorkbenchThemeService as ut}from"../../../services/themes/common/workbenchThemeService.js";import{GettingStartedIndexList as ee}from"./gettingStartedList.js";import{AccessibleViewAction as mt}from"../../accessibility/browser/accessibleViewActions.js";import{KeybindingLabel as St}from"../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{IGettingStartedExperimentService as ft}from"./gettingStartedExpService.js";var ye=function(W,e,s,t){var i=arguments.length,o=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,s):t,r;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(W,e,s,t);else for(var a=W.length-1;a>=0;a--)(r=W[a])&&(o=(i<3?r(o):i>3?r(e,s,o):r(e,s))||o);return i>3&&o&&Object.defineProperty(e,s,o),o},C=function(W,e){return function(s,t){e(s,t,W)}},J;const ue=250,te="workbench.startupEditor",me=new be("allWalkthroughsHidden",!1),bt=new be("inWelcome",!1),Ct=Ce.map((W,e)=>({command:W.content.command,description:W.description,icon:{type:"icon",icon:W.icon},id:W.id,order:e,title:W.title,when:V.deserialize(W.when)??V.true()})),Se="workbench.welcomePage.preferReducedMotion";let fe=class extends nt{static{J=this}static{this.ID="gettingStartedPage"}constructor(e,s,t,i,o,r,a,d,g,c,l,w,I,v,f,m,x,h,u,y,O,K,U,E,P){super(J.ID,e,a,l,w),this.commandService=s,this.productService=t,this.keybindingService=i,this.gettingStartedService=o,this.configurationService=r,this.languageService=d,this.fileService=g,this.openerService=c,this.themeService=l,this.storageService=w,this.extensionService=I,this.instantiationService=v,this.notificationService=f,this.groupsService=m,this.quickInputService=h,this.workspacesService=u,this.labelService=y,this.hostService=O,this.webviewService=K,this.workspaceContextService=U,this.accessibilityService=E,this.gettingStartedExperimentService=P,this.inProgressScroll=Promise.resolve(),this.dispatchListeners=new H,this.stepDisposables=new H,this.detailsPageDisposables=new H,this.mediaDisposables=new H,this.buildSlideThrottle=new re,this.hasScrolledToFirstCategory=!1,this.showFeaturedWalkthrough=!0,this.currentMediaComponent=void 0,this.currentMediaType=void 0,this.container=n(".gettingStartedContainer",{role:"document",tabindex:0,"aria-label":p("welcomeAriaLabel","Overview of how to get up to speed with your editor.")}),this.stepMediaComponent=n(".getting-started-media"),this.stepMediaComponent.id=Pe(),this.categoriesSlideDisposables=this._register(new H),this.detailsRenderer=new dt(this.fileService,this.notificationService,this.extensionService,this.languageService),this.contextService=this._register(x.createScoped(this.container)),bt.bindTo(this.contextService).set(!0),this.gettingStartedCategories=this.gettingStartedService.getWalkthroughs(),this._register(this.dispatchListeners),this.buildSlideThrottle=new re;const A=()=>{if(this.gettingStartedCategories=this.gettingStartedService.getWalkthroughs(),this.currentWalkthrough){const S=this.currentWalkthrough.steps.map(b=>b.id),D=this.gettingStartedCategories.find(b=>this.currentWalkthrough?.id===b.id);if(D){const b=D.steps.map(G=>G.id);oe(b,S)||this.buildSlideThrottle.queue(()=>this.buildCategoriesSlide())}}else this.buildSlideThrottle.queue(()=>this.buildCategoriesSlide())};this._register(this.gettingStartedService.onDidAddWalkthrough(A)),this._register(this.gettingStartedService.onDidRemoveWalkthrough(A)),this.recentlyOpened=this.workspacesService.getRecentlyOpened(),this._register(u.onDidChangeRecentlyOpened(()=>{this.recentlyOpened=u.getRecentlyOpened(),A()})),this._register(this.gettingStartedService.onDidChangeWalkthrough(S=>{const D=this.gettingStartedCategories.find(b=>b.id===S.id);D&&(D.title=S.title,D.description=S.description,this.container.querySelectorAll(`[x-category-title-for="${S.id}"]`).forEach(b=>b.innerText=D.title),this.container.querySelectorAll(`[x-category-description-for="${S.id}"]`).forEach(b=>b.innerText=D.description))})),this._register(this.gettingStartedService.onDidProgressStep(S=>{const D=S.category===F?this.gettingStartedService.getWalkthrough(S.category):this.gettingStartedCategories.find(M=>M.id===S.category);if(!D)throw Error("Could not find category with ID: "+S.category);const b=D.steps.find(M=>M.id===S.id);if(!b)throw Error("Could not find step with ID: "+S.id);const G=this.getWalkthroughCompletionStats(D);!b.done&&G.stepsComplete===G.stepsTotal-1&&this.hideCategory(D.id),this._register(this.configurationService.onDidChangeConfiguration(M=>{M.affectsConfiguration(Se)&&this.container.classList.toggle("animatable",this.shouldAnimate())})),b.done=S.done,D.id===this.currentWalkthrough?.id&&_(this.window.document.querySelectorAll(`[data-done-step-id="${S.id}"]`)).forEach(T=>{S.done?(T.setAttribute("aria-checked","true"),T.parentElement?.setAttribute("aria-checked","true"),T.classList.remove(...B.asClassNameArray(Q)),T.classList.add("complete",...B.asClassNameArray(Y)),T.setAttribute("aria-label",p("stepDone","Checkbox for Step {0}: Completed",S.title))):(T.setAttribute("aria-checked","false"),T.parentElement?.setAttribute("aria-checked","false"),T.classList.remove("complete",...B.asClassNameArray(Y)),T.classList.add(...B.asClassNameArray(Q)),T.setAttribute("aria-label",p("stepNotDone","Checkbox for Step {0}: Not completed",S.title)))}),this.updateCategoryProgress()})),this._register(this.storageService.onWillSaveState(S=>{if(S.reason!==Je.SHUTDOWN||this.workspaceContextService.getWorkspace().folders.length!==0||!this.editorInput||!this.currentWalkthrough||!this.editorInput.selectedCategory||!this.editorInput.selectedStep||!(this.groupsService.activeGroup.activeEditorPane instanceof J))return;const b={folder:de.id,category:this.editorInput.selectedCategory,step:this.editorInput.selectedStep};this.storageService.store(Z,JSON.stringify(b),0,1)}))}shouldAnimate(){return!(this.configurationService.getValue(Se)||this.accessibilityService.isMotionReduced())}getWalkthroughCompletionStats(e){const s=e.steps.filter(t=>this.contextService.contextMatchesRules(t.when));return{stepsComplete:s.filter(t=>t.done).length,stepsTotal:s.length}}async setInput(e,s,t,i){this.container.classList.remove("animatable"),this.editorInput=e,this.editorInput.showTelemetryNotice=s?.showTelemetryNotice??!0,await super.setInput(e,s,t,i),await this.buildCategoriesSlide(),this.shouldAnimate()&&setTimeout(()=>this.container.classList.add("animatable"),0)}async makeCategoryVisibleWhenAvailable(e,s){this.scrollToCategory(e,s)}registerDispatchListeners(){this.dispatchListeners.clear(),this.container.querySelectorAll("[x-dispatch]").forEach(e=>{const s=e.getAttribute("x-dispatch")??"";let t,i;s.startsWith("openLink:https")?[t,i]=["openLink",s.replace("openLink:","")]:[t,i]=s.split(":"),t&&(this.dispatchListeners.add(L(e,"click",o=>{o.stopPropagation(),this.runDispatchCommand(t,i)})),this.dispatchListeners.add(L(e,"keyup",o=>{const r=new j(o);switch(o.stopPropagation(),r.keyCode){case 3:case 10:this.runDispatchCommand(t,i);return}})))})}async runDispatchCommand(e,s){switch(this.commandService.executeCommand("workbench.action.keepEditor"),this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:e,argument:s,walkthroughId:this.currentWalkthrough?.id}),e){case"scrollPrev":{this.scrollPrev();break}case"skip":{this.runSkip();break}case"showMoreRecents":{this.commandService.executeCommand(he.ID);break}case"seeAllWalkthroughs":{await this.openWalkthroughSelector();break}case"openFolder":{this.contextService.contextMatchesRules(V.and(at.isEqualTo("workspace")))?this.commandService.executeCommand(rt.ID):this.commandService.executeCommand(Le?"workbench.action.files.openFileFolder":"workbench.action.files.openFolder");break}case"selectCategory":{this.scrollToCategory(s),this.gettingStartedService.markWalkthroughOpened(s);break}case"selectStartEntry":{const t=Ce.find(i=>i.id===s);if(t)this.runStepCommand(t.content.command);else throw Error("could not find start entry with id: "+s);break}case"hideCategory":{this.hideCategory(s);break}case"selectTask":{this.selectStep(s);break}case"toggleStepCompletion":{this.toggleStepCompletion(s);break}case"allDone":{this.markAllStepsComplete();break}case"nextSection":{const t=this.currentWalkthrough?.next;t&&(this.prevWalkthrough=this.currentWalkthrough,this.scrollToCategory(t));break}case"openLink":{this.openerService.open(s);break}default:break}}hideCategory(e){if(!this.gettingStartedCategories.find(t=>t.id===e))throw Error("Could not find category with ID "+e);this.setHiddenCategories([...this.getHiddenCategories().add(e)]),this.gettingStartedList?.rerender()}markAllStepsComplete(){if(this.currentWalkthrough)this.currentWalkthrough?.steps.forEach(e=>{e.done||this.gettingStartedService.progressStep(e.id)}),this.hideCategory(this.currentWalkthrough?.id),this.scrollPrev();else throw Error("No walkthrough opened")}toggleStepCompletion(e){_(this.currentWalkthrough?.steps.find(t=>t.id===e)).done?this.gettingStartedService.deprogressStep(e):this.gettingStartedService.progressStep(e)}async openWalkthroughSelector(){const e=await this.quickInputService.pick(this.gettingStartedCategories.filter(s=>this.contextService.contextMatchesRules(s.when)).map(s=>({id:s.id,label:s.title,detail:s.description,description:s.source})),{canPickMany:!1,matchOnDescription:!0,matchOnDetail:!0,title:p("pickWalkthroughs","Open Walkthrough...")});e&&this.runDispatchCommand("selectCategory",e.id)}getHiddenCategories(){return new Set(JSON.parse(this.storageService.get(pe,0,"[]")))}setHiddenCategories(e){this.storageService.store(pe,JSON.stringify(e),0,0)}async buildMediaComponent(e,s=!1){if(!this.currentWalkthrough)throw Error("no walkthrough selected");const t=_(this.currentWalkthrough.steps.find(i=>i.id===e));if(!(!s&&this.currentMediaComponent===e)){if(this.currentMediaComponent=e,this.stepDisposables.clear(),this.stepDisposables.add({dispose:()=>{this.currentMediaComponent=void 0}}),this.currentMediaType!==t.media.type&&(this.currentMediaType=t.media.type,this.mediaDisposables.add(z(()=>{this.currentMediaType=void 0})),se(this.stepMediaComponent),t.media.type==="svg"?(this.webview=this.mediaDisposables.add(this.webviewService.createWebviewElement({title:void 0,options:{disableServiceWorker:!0},contentOptions:{},extension:void 0})),this.webview.mountTo(this.stepMediaComponent,this.window)):t.media.type==="markdown"?(this.webview=this.mediaDisposables.add(this.webviewService.createWebviewElement({options:{},contentOptions:{localResourceRoots:[t.media.root],allowScripts:!0},title:"",extension:void 0})),this.webview.mountTo(this.stepMediaComponent,this.window)):t.media.type==="video"&&(this.webview=this.mediaDisposables.add(this.webviewService.createWebviewElement({options:{},contentOptions:{localResourceRoots:[t.media.root],allowScripts:!0},title:"",extension:void 0})),this.webview.mountTo(this.stepMediaComponent,this.window))),t.media.type==="image"){this.stepsContent.classList.add("image"),this.stepsContent.classList.remove("markdown"),this.stepsContent.classList.remove("video");const i=t.media,o=n("img");se(this.stepMediaComponent),this.stepMediaComponent.appendChild(o),o.setAttribute("alt",i.altText),this.updateMediaSourceForColorMode(o,i.path),this.stepDisposables.add(L(this.stepMediaComponent,"click",()=>{const r=t.description.map(a=>a.nodes.filter(d=>typeof d!="string").map(d=>d.href)).flat();if(r.length===1){const a=r[0];a.startsWith("http")&&(this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"runStepAction",argument:a,walkthroughId:this.currentWalkthrough?.id}),this.openerService.open(a))}})),this.stepDisposables.add(this.themeService.onDidColorThemeChange(()=>this.updateMediaSourceForColorMode(o,i.path)))}else if(t.media.type==="svg"){this.stepsContent.classList.add("image"),this.stepsContent.classList.remove("markdown"),this.stepsContent.classList.remove("video");const i=t.media;this.webview.setHtml(await this.detailsRenderer.renderSVG(i.path));let o=!1;this.stepDisposables.add(z(()=>{o=!0})),this.stepDisposables.add(this.themeService.onDidColorThemeChange(async()=>{const r=await this.detailsRenderer.renderSVG(i.path);o||this.webview.setHtml(r)})),this.stepDisposables.add(L(this.stepMediaComponent,"click",()=>{const r=t.description.map(a=>a.nodes.filter(d=>typeof d!="string").map(d=>d.href)).flat();if(r.length===1){const a=r[0];a.startsWith("http")&&(this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"runStepAction",argument:a,walkthroughId:this.currentWalkthrough?.id}),this.openerService.open(a))}})),this.stepDisposables.add(this.webview.onDidClickLink(r=>{(q(r,R.https)||q(r,R.http)||q(r,R.command))&&this.openerService.open(r,{allowCommands:!0})}))}else if(t.media.type==="markdown"){this.stepsContent.classList.remove("image"),this.stepsContent.classList.add("markdown"),this.stepsContent.classList.remove("video");const i=t.media,o=await this.detailsRenderer.renderMarkdown(i.path,i.base);this.webview.setHtml(o);const r=o.match(/checked-on=\"([^'][^"]*)\"/g)?.map(c=>c.slice(12,-1).replace(/&#39;/g,"'").replace(/&amp;/g,"&")),a=()=>{const c=r?.filter(l=>this.contextService.contextMatchesRules(V.deserialize(l)));c&&this.webview.postMessage({enabledContextKeys:c})};if(r){const c=xe(r.map(w=>V.deserialize(w))),l=new Set(c.flatMap(w=>w.keys()));this.stepDisposables.add(this.contextService.onDidChangeContext(w=>{w.affectsSome(l)&&a()}))}let d=!1;this.stepDisposables.add(z(()=>{d=!0})),this.stepDisposables.add(this.webview.onDidClickLink(c=>{if(q(c,R.https)||q(c,R.http)||q(c,R.command)){const l=c.startsWith("command:toSide:");l&&(c=c.replace("command:toSide:","command:"),this.focusSideEditorGroup()),this.openerService.open(c,{allowCommands:!0,openToSide:l})}})),o.indexOf("<code>")>=0&&this.stepDisposables.add(this.themeService.onDidColorThemeChange(async()=>{const c=await this.detailsRenderer.renderMarkdown(i.path,i.base);d||(this.webview.setHtml(c),a())}));const g=new De(50);this.layoutMarkdown=()=>{g.trigger(()=>{this.webview.postMessage({layoutMeNow:!0})})},this.stepDisposables.add(g),this.stepDisposables.add({dispose:()=>this.layoutMarkdown=void 0}),a(),this.stepDisposables.add(this.webview.onMessage(async c=>{const l=c.message;if(l.startsWith("command:"))this.openerService.open(l,{allowCommands:!0});else if(l.startsWith("setTheme:")){const w=l.slice(9),I=(await this.themeService.getColorThemes()).find(v=>v.settingsId===w);I&&this.themeService.setColorTheme(I.id,2)}}))}else if(t.media.type==="video"){this.stepsContent.classList.add("video"),this.stepsContent.classList.remove("markdown"),this.stepsContent.classList.remove("image");const i=t.media,o=this.themeService.getColorTheme().type,r=i.path[o],a=i.poster?i.poster[o]:void 0,d=i.altText?i.altText:p("videoAltText","Video for {0}",t.title),g=await this.detailsRenderer.renderVideo(r,a,d);this.webview.setHtml(g);let c=!1;this.stepDisposables.add(z(()=>{c=!0})),this.stepDisposables.add(this.themeService.onDidColorThemeChange(async()=>{const l=this.themeService.getColorTheme().type,w=i.path[l],I=i.poster?i.poster[l]:void 0,v=await this.detailsRenderer.renderVideo(w,I,d);c||this.webview.setHtml(v)}))}}}async selectStepLoose(e){if(e.startsWith(`${this.editorInput.selectedCategory}#`))this.selectStep(e);else{const s=this.editorInput.selectedCategory+"#"+e;this.selectStep(s)}}provideScreenReaderUpdate(){if(this.configurationService.getValue("accessibility.verbosity.walkthrough")){const e=this.keybindingService.lookupKeybinding(mt.id)?.getAriaLabel();return e?p("acessibleViewHint",`Inspect this in the accessible view ({0}).
-`,e):p("acessibleViewHintNoKbOpen",`Inspect this in the accessible view via the command Open Accessible View which is currently not triggerable via keybinding.
-`)}return""}async selectStep(e,s=!0){if(e){let t=this.container.querySelector(`[data-step-id="${e}"]`);if(!t){if(t=this.container.querySelector("[data-step-id]"),!t)return;e=_(t.getAttribute("data-step-id"))}t.parentElement?.querySelectorAll(".expanded").forEach(r=>{if(r.getAttribute("data-step-id")!==e){r.classList.remove("expanded"),r.setAttribute("aria-expanded","false");const a=r.querySelector(".codicon");a&&a.removeAttribute("tabindex")}}),setTimeout(()=>t.focus(),s&&this.shouldAnimate()?ue:0),this.editorInput.selectedStep=e,t.classList.add("expanded"),t.setAttribute("aria-expanded","true"),this.buildMediaComponent(e,!0);const i=t.querySelector(".codicon");i&&i.setAttribute("tabindex","0"),this.gettingStartedService.progressByEvent("stepSelected:"+e);const o=this.currentWalkthrough?.steps?.find(r=>r.id===e);o&&t.setAttribute("aria-label",`${this.provideScreenReaderUpdate()} ${o.title}`)}else this.editorInput.selectedStep=void 0;this.detailsPageScrollbar?.scanDomNode(),this.detailsScrollbar?.scanDomNode()}updateMediaSourceForColorMode(e,s){const t=this.themeService.getColorTheme().type,i=s[t].toString(!0).replace(/ /g,"%20");e.srcset=i.toLowerCase().endsWith(".svg")?i:i+" 1.5x"}createEditor(e){this.detailsPageScrollbar&&this.detailsPageScrollbar.dispose(),this.categoriesPageScrollbar&&this.categoriesPageScrollbar.dispose(),this.categoriesSlide=n(".gettingStartedSlideCategories.gettingStartedSlide");const s=n("button.prev-button.button-link",{"x-dispatch":"scrollPrev"},n("span.scroll-button.codicon.codicon-chevron-left"),n("span.moreText",{},p("goBack","Go Back")));this.stepsSlide=n(".gettingStartedSlideDetails.gettingStartedSlide",{},s),this.stepsContent=n(".gettingStartedDetailsContent",{}),this.detailsPageScrollbar=this._register(new $(this.stepsContent,{className:"full-height-scrollable",vertical:2})),this.categoriesPageScrollbar=this._register(new $(this.categoriesSlide,{className:"full-height-scrollable categoriesScrollbar",vertical:2})),this.stepsSlide.appendChild(this.detailsPageScrollbar.getDomNode());const t=n(".gettingStarted",{},this.categoriesPageScrollbar.getDomNode(),this.stepsSlide);this.container.appendChild(t),this.categoriesPageScrollbar.scanDomNode(),this.detailsPageScrollbar.scanDomNode(),e.appendChild(this.container)}async buildCategoriesSlide(){this.categoriesSlideDisposables.clear();const e=new ke({icon:We.check,actionClassName:"getting-started-checkbox",isChecked:this.configurationService.getValue(te)==="welcomePage",title:p("checkboxTitle","When checked, this page will be shown on startup."),...Ze});e.domNode.id="showOnStartup";const s=n("label.caption",{for:"showOnStartup"},p("welcomePage.showOnStartup","Show welcome page on startup")),t=()=>{e.checked?(this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"showOnStartupChecked",argument:void 0,walkthroughId:this.currentWalkthrough?.id}),this.configurationService.updateValue(te,"welcomePage")):(this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"showOnStartupUnchecked",argument:void 0,walkthroughId:this.currentWalkthrough?.id}),this.configurationService.updateValue(te,"none"))};this.categoriesSlideDisposables.add(e),this.categoriesSlideDisposables.add(e.onChange(()=>{t()})),this.categoriesSlideDisposables.add(L(s,"click",()=>{e.checked=!e.checked,t()}));const i=n(".header",{},n("h1.product-name.caption",{},this.productService.nameLong),n("p.subtitle.description",{},p({key:"gettingStarted.editingEvolved",comment:["Shown as subtitle on the Welcome page."]},"Editing evolved"))),o=n(".categories-column.categories-column-left",{}),r=n(".categories-column.categories-column-right",{}),a=this.buildStartList(),d=this.buildRecentlyOpenedList(),g=this.buildGettingStartedWalkthroughsList(),c=n(".footer",{},n("p.showOnStartup",{},e.domNode,s)),l=()=>{g.itemCount?(this.container.classList.remove("noWalkthroughs"),k(r,g.getDomElement())):(this.container.classList.add("noWalkthroughs"),k(r)),setTimeout(()=>this.categoriesPageScrollbar?.scanDomNode(),50),w()},w=()=>{this.container.classList.contains("noWalkthroughs")?(d.setLimit(10),k(o,a.getDomElement()),k(r,d.getDomElement())):(d.setLimit(5),k(o,a.getDomElement(),d.getDomElement()))};if(g.onDidChange(l),l(),k(this.categoriesSlide,n(".gettingStartedCategoriesContainer",{},i,o,r,c)),this.categoriesPageScrollbar?.scanDomNode(),this.updateCategoryProgress(),this.registerDispatchListeners(),this.editorInput.selectedCategory){const v=this.editorInput.selectedCategory===F;if(this.currentWalkthrough=this.gettingStartedCategories.find(f=>f.id===this.editorInput.selectedCategory),this.currentWalkthrough){v?this.buildNewCategorySlide(this.editorInput.selectedCategory,this.editorInput.selectedStep):this.buildCategorySlide(this.editorInput.selectedCategory,this.editorInput.selectedStep),this.setSlide("details");return}else if(this.gettingStartedCategories=this.gettingStartedService.getWalkthroughs(),this.currentWalkthrough=v?this.gettingStartedService.getWalkthrough(this.editorInput.selectedCategory):this.gettingStartedCategories.find(f=>f.id===this.editorInput.selectedCategory),this.currentWalkthrough){v?this.buildNewCategorySlide(this.editorInput.selectedCategory,this.editorInput.selectedStep):this.buildCategorySlide(this.editorInput.selectedCategory,this.editorInput.selectedStep),this.setSlide("details");return}}const I=this.gettingStartedCategories.some(v=>v.steps.find(f=>f.done));if(this.editorInput.showTelemetryNotice&&this.productService.openToWelcomeMainPage){const v=n("p.telemetry-notice");this.buildTelemetryFooter(v),c.appendChild(v)}else if(!this.productService.openToWelcomeMainPage&&!I&&!this.hasScrolledToFirstCategory&&this.showFeaturedWalkthrough){const v=this.storageService.get(je,-1)||new Date().toUTCString();if(((+new Date-+new Date(v))/1e3/60/60/24<1?"openToFirstCategory":"index")==="openToFirstCategory"){const x=this.gettingStartedExperimentService.getCurrentExperiment(),h=x?.walkthroughId?this.gettingStartedService.getWalkthrough(x.walkthroughId):this.gettingStartedCategories.filter(u=>!u.when||this.contextService.contextMatchesRules(u.when))[0];if(h){this.hasScrolledToFirstCategory=!0,this.currentWalkthrough=h,this.editorInput.selectedCategory=this.currentWalkthrough?.id,this.editorInput.walkthroughPageTitle=this.currentWalkthrough.walkthroughPageTitle,h.id===F?this.buildNewCategorySlide(this.editorInput.selectedCategory,void 0):this.buildCategorySlide(this.editorInput.selectedCategory,void 0),this.setSlide("details",!0);return}}}this.setSlide("categories")}buildRecentlyOpenedList(){const e=t=>{let i,o;it(t)?(o={folderUri:t.folderUri},i=t.label||this.labelService.getWorkspaceLabel(t.folderUri,{verbose:2})):(i=t.label||this.labelService.getWorkspaceLabel(t.workspace,{verbose:2}),o={workspaceUri:t.workspace.configPath});const{name:r,parentPath:a}=Ee(i),d=n("li"),g=n("button.button-link");g.innerText=r,g.title=i,g.setAttribute("aria-label",p("welcomePage.openFolderWithPath","Open folder {0} with path {1}",r,a)),g.addEventListener("click",l=>{this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"openRecent",argument:void 0,walkthroughId:this.currentWalkthrough?.id}),this.hostService.openWindow([o],{forceNewWindow:l.ctrlKey||l.metaKey,remoteAuthority:t.remoteAuthority||null}),l.preventDefault(),l.stopPropagation()}),d.appendChild(g);const c=n("span");return c.classList.add("path"),c.classList.add("detail"),c.innerText=a,c.title=i,d.appendChild(c),d};this.recentlyOpenedList&&this.recentlyOpenedList.dispose();const s=this.recentlyOpenedList=new ee({title:p("recent","Recent"),klass:"recently-opened",limit:5,empty:n(".empty-recent",{},p("noRecents","You have no recent folders,"),n("button.button-link",{"x-dispatch":"openFolder"},p("openFolder","open a folder")),p("toStart","to start.")),more:n(".more",{},n("button.button-link",{"x-dispatch":"showMoreRecents",title:p("show more recents","Show All Recent Folders {0}",this.getKeybindingLabel(he.ID))},p("showAll","More..."))),renderElement:e,contextService:this.contextService});return s.onDidChange(()=>this.registerDispatchListeners()),this.recentlyOpened.then(({workspaces:t})=>{const i=t.filter(r=>!this.workspaceContextService.isCurrentWorkspace(le(r)?r.workspace:r.folderUri)).map(r=>({...r,id:le(r)?r.workspace.id:r.folderUri.toString()})),o=()=>{s.setEntries(i)};o(),s.register(this.labelService.onDidChangeFormatters(()=>o()))}).catch(Ie),s}buildStartList(){const e=t=>n("li",{},n("button.button-link",{"x-dispatch":"selectStartEntry:"+t.id,title:t.description+" "+this.getKeybindingLabel(t.command)},this.iconWidgetFor(t),n("span",{},t.title)));this.startList&&this.startList.dispose();const s=this.startList=new ee({title:p("start","Start"),klass:"start-container",limit:10,renderElement:e,rankElement:t=>-t.order,contextService:this.contextService});return s.setEntries(Ct),s.onDidChange(()=>this.registerDispatchListeners()),s}buildGettingStartedWalkthroughsList(){const e=i=>{const o=(i.newItems||i.newEntry)&&!i.isFeatured,r=n(".new-badge",{});i.newEntry?k(r,n(".new-category",{},p("new","New"))):i.newItems&&k(r,n(".new-items",{},p({key:"newItems",comment:["Shown when a list of items has changed based on an update from a remote source"]},"Updated")));const a=n(".featured-badge",{}),d=n(".description-content",{});i.isFeatured&&this.showFeaturedWalkthrough&&(k(a,n(".featured",{},n("span.featured-icon.codicon.codicon-star-full"))),k(d,...N(i.description)));const g=n("h3.category-title.max-lines-3",{"x-category-title-for":i.id});return k(g,...N(i.title)),n("button.getting-started-category"+(i.isFeatured&&this.showFeaturedWalkthrough?".featured":""),{"x-dispatch":"selectCategory:"+i.id,title:i.description},a,n(".main-content",{},this.iconWidgetFor(i),g,o?r:n(".no-badge"),n("a.codicon.codicon-close.hide-category-button",{tabindex:0,"x-dispatch":"hideCategory:"+i.id,title:p("close","Hide"),role:"button","aria-label":p("closeAriaLabel","Hide")})),d,n(".category-progress",{"x-data-category-id":i.id},n(".progress-bar-outer",{role:"progressbar"},n(".progress-bar-inner"))))};this.gettingStartedList&&this.gettingStartedList.dispose();const s=i=>{let o=i.order;return i.isFeatured&&(o+=7),i.newEntry&&(o+=3),i.newItems&&(o+=2),i.recencyBonus&&(o+=4*i.recencyBonus),this.getHiddenCategories().has(i.id)&&(o=null),o},t=this.gettingStartedList=new ee({title:p("walkthroughs","Walkthroughs"),klass:"getting-started",limit:5,footer:n("span.button-link.see-all-walkthroughs",{"x-dispatch":"seeAllWalkthroughs",tabindex:0},p("showAll","More...")),renderElement:e,rankElement:s,contextService:this.contextService});return t.onDidChange(()=>{const o=this.getHiddenCategories().size||t.itemCount<this.gettingStartedCategories.filter(r=>this.contextService.contextMatchesRules(r.when)).length;this.container.classList.toggle("someWalkthroughsHidden",!!o),this.registerDispatchListeners(),me.bindTo(this.contextService).set(t.itemCount===0),this.updateCategoryProgress()}),t.setEntries(this.gettingStartedCategories),me.bindTo(this.contextService).set(t.itemCount===0),t}layout(e){this.detailsScrollbar?.scanDomNode(),this.categoriesPageScrollbar?.scanDomNode(),this.detailsPageScrollbar?.scanDomNode(),this.startList?.layout(e),this.gettingStartedList?.layout(e),this.recentlyOpenedList?.layout(e),this.editorInput?.selectedStep&&this.currentMediaType&&(this.mediaDisposables.clear(),this.stepDisposables.clear(),this.buildMediaComponent(this.editorInput.selectedStep)),this.layoutMarkdown?.(),this.container.classList.toggle("height-constrained",e.height<=600),this.container.classList.toggle("width-constrained",e.width<=400),this.container.classList.toggle("width-semi-constrained",e.width<=950),this.container.classList.toggle("new-layout-width-constrained",e.width<=800),this.categoriesPageScrollbar?.scanDomNode(),this.detailsPageScrollbar?.scanDomNode(),this.detailsScrollbar?.scanDomNode()}updateCategoryProgress(){this.window.document.querySelectorAll(".category-progress").forEach(e=>{const s=e.getAttribute("x-data-category-id"),t=s===F?this.gettingStartedService.getWalkthrough(s):this.gettingStartedCategories.find(a=>a.id===s);if(!t)throw Error("Could not find category with ID "+s);const i=this.getWalkthroughCompletionStats(t),o=_(e.querySelector(".progress-bar-inner"));o.setAttribute("aria-valuemin","0"),o.setAttribute("aria-valuenow",""+i.stepsComplete),o.setAttribute("aria-valuemax",""+i.stepsTotal);const r=i.stepsComplete/i.stepsTotal*100;o.style.width=`${r}%`,e.parentElement.classList.toggle("no-progress",i.stepsComplete===0),i.stepsTotal===i.stepsComplete?o.title=p("gettingStarted.allStepsComplete","All {0} steps complete!",i.stepsComplete):o.title=p("gettingStarted.someStepsComplete","{0} of {1} steps complete",i.stepsComplete,i.stepsTotal)})}async scrollToCategory(e,s){this.gettingStartedCategories.some(i=>i.id===e)||(this.gettingStartedCategories=this.gettingStartedService.getWalkthroughs());const t=e===F?this.gettingStartedService.getWalkthrough(e):this.gettingStartedCategories.find(i=>i.id===e);if(!t)throw Error("Could not find category with ID: "+e);this.inProgressScroll=this.inProgressScroll.then(async()=>{k(this.stepsContent),this.editorInput.selectedCategory=e,this.editorInput.selectedStep=s,this.editorInput.walkthroughPageTitle=t.walkthroughPageTitle,this.currentWalkthrough=t,this.buildCategorySlide(e,s),this.setSlide("details")})}iconWidgetFor(e){const s=e.icon.type==="icon"?n(B.asCSSSelector(e.icon.icon)):n("img.category-icon",{src:e.icon.path});return s.classList.add("icon-widget"),s}focusSideEditorGroup(){const e=this.groupsService.getPart(this.group).contentDimension;if(!e||e.width<=700)return;if(this.groupsService.count===1){const t=this.groupsService.addGroup(this.groupsService.groups[0],3);this.groupsService.activateGroup(t);const i=Math.floor(e.width/2),o=this.groupsService.getGroups(1).find(r=>r.activeEditor instanceof X);this.groupsService.setSize(_(o),{width:i,height:e.height})}const s=this.groupsService.getGroups(1).find(t=>!(t.activeEditor instanceof X));s&&(this.groupsService.activateGroup(s),s.focus())}runStepCommand(e){const s=e.startsWith("command:"),t=e.startsWith("command:toSide:"),i=e.replace(/command:(toSide:)?/,"command:");if(this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"runStepAction",argument:e,walkthroughId:this.currentWalkthrough?.id}),t&&this.focusSideEditorGroup(),s){const o=ae.parse(i);let r=[];try{r=ne(decodeURIComponent(o.query))}catch{try{r=ne(o.query)}catch{}}if(Array.isArray(r)||(r=[r]),(o.path===st.ID.toString()||o.path===ot.ID.toString())&&this.workspaceContextService.getWorkspace().folders.length===0){const a=this.currentWalkthrough?.steps.findIndex(d=>d.id===this.editorInput.selectedStep);if(a!==void 0&&a>-1&&this.currentWalkthrough?.steps.slice(a+1).some(d=>!d.done)){const d={folder:de.id,category:this.editorInput.selectedCategory,step:this.editorInput.selectedStep};this.storageService.store(Z,JSON.stringify(d),0,1)}}this.commandService.executeCommand(o.path,...r).then(a=>{const d=a?.openFolder;if(d){if(!ae.isUri(d))return;const g={folder:d.toString(),category:this.editorInput.selectedCategory,step:this.editorInput.selectedStep};this.storageService.store(Z,JSON.stringify(g),0,1),this.hostService.openWindow([{folderUri:d}])}})}else this.openerService.open(i,{allowCommands:!0});!s&&(e.startsWith("https://")||e.startsWith("http://"))&&this.gettingStartedService.progressByEvent("onLink:"+e)}buildMarkdownDescription(e,s){for(;e.firstChild;)e.firstChild.remove();for(const t of s)if(t.nodes.length===1&&typeof t.nodes[0]!="string"){const i=t.nodes[0],o=ie(e,n(".button-container")),r=new we(o,{title:i.title,supportIcons:!0,...Ye}),a=i.href.startsWith("command:"),d=i.href.replace(/command:(toSide:)?/,"command:");if(r.label=i.label,r.onDidClick(g=>{g.stopPropagation(),g.preventDefault(),this.runStepCommand(i.href)},null,this.detailsPageDisposables),a){const g=this.getKeyBinding(d);if(g&&this.editorInput.selectedCategory!==F){const c=n("span.shortcut-message",{},p("gettingStarted.keyboardTip","Tip: Use keyboard shortcut "));e.appendChild(c);const l=new St(c,Te,{...Qe});l.set(g),this.detailsPageDisposables.add(l)}}this.detailsPageDisposables.add(r)}else{const i=ie(e,n("p"));for(const o of t.nodes)if(typeof o=="string"){const r=N(o);for(const a of r)typeof a=="string"?i.appendChild(ve(a,{inline:!0,renderCodeSegments:!0})):i.appendChild(a)}else{const r=q(o.href,R.http)||q(o.href,R.https)?{...o,title:o.href}:o,a=this.instantiationService.createInstance(Ue,i,r,{opener:d=>this.runStepCommand(d)});this.detailsPageDisposables.add(a)}}return e}clearInput(){this.stepDisposables.clear(),super.clearInput()}selectStepByIndex(e,s,t){this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"selectTask",argument:s[e].id,walkthroughId:this.currentWalkthrough?.id});const i=s.findIndex(d=>d.id===this.editorInput.selectedStep);this.selectSlide(s[e].id);const o=this.stepsContent.querySelector(".getting-started-footer");if(o&&e!==0?o.style.display="none":o&&(o.style.display="block"),this.updateNavButtons(e,s),this.stepsContent.querySelectorAll(".step-dot").forEach((d,g)=>{g===e?d.classList.add("active"):d.classList.remove("active")}),i===e)return;const a=this.stepsContent.querySelector(".step-slides-container");if(a){const d=a.querySelectorAll(".step-slide");d.forEach((g,c)=>{const l=g;c===i?(l.style.display="block",l.style.transform="translateX(0)"):c===e?(l.style.display="block",l.style.transform=`translateX(${t<0?"-100%":"100%"})`):l.style.display="none"}),a.getBoundingClientRect(),setTimeout(()=>{d.forEach((g,c)=>{const l=g;c===i?(l.style.transform=`translateX(${t>0?"-100%":"100%"})`,setTimeout(()=>{l.style.display="none"},ue)):c===e&&(l.style.transform="translateX(0)")})},20)}}updateNavButtons(e,s){const t=this.stepsContent.querySelector(".button-link.navigation.back");e===0?t&&(t.classList.add("inactive"),t.setAttribute("aria-hidden","true"),t.setAttribute("tabindex","-1")):t&&(t.classList.remove("inactive"),t.removeAttribute("aria-hidden"),t.removeAttribute("tabindex"))}buildNewCategorySlide(e,s){this.container.classList.add("newSlide"),this.detailsScrollbar&&this.detailsScrollbar.dispose(),this.detailsPageDisposables.clear(),this.mediaDisposables.clear();const t=this.gettingStartedService.getWalkthrough(e);if(!t)throw Error("could not find category with ID "+e);const i=t.steps.filter(h=>this.contextService.contextMatchesRules(h.when)),o=new Map;i.forEach(h=>{const u=h.id.match(/^([^.]+)\./),y=u?u[1]:h.id;o.has(y)||o.set(y,[]),o.get(y)?.push(h)});const r=n(".step-slides-container"),a=n(".step-dots-container"),d=n("button.button-link.navigation.back",{"aria-label":p("previousStep","Previous Step"),tabindex:"0"},n("span.codicon.codicon-arrow-left"),p("back","Back")),g=n(".dots-centered");a.appendChild(d),a.appendChild(g);const c=[];o.forEach((h,u)=>{h.length===1?c.push({id:h[0].id,steps:[h[0]]}):c.push({id:u,steps:h})}),c.forEach((h,u)=>{const y=n(".step-slide",{"data-step":h.id}),O=n(".step-slide-content"),K=n(".step-text-content");if(h.steps.length===1){const E=h.steps[0],P=n("h3.step-title",{"x-step-title-for":E.id});k(P,...N(E.title)),K.appendChild(P);const A=n(".step-description",{"x-step-description-for":E.id});this.buildMarkdownDescription(A,E.description),K.appendChild(A)}else{const E=n(".multi-step-container");h.steps.forEach((S,D)=>{const b=n(".sub-step",{"data-sub-step-id":S.id});this.detailsPageDisposables.add(L(b,"click",()=>{this.selectSubStep(S.id)})),this.detailsPageDisposables.add(L(b,"mouseenter",()=>{this.selectSubStep(S.id)}));const G=n(".sub-step-title",{},...N(S.title));b.appendChild(G);const M=n(".sub-step-description");this.buildMarkdownDescription(M,[S.description[0]]),b.appendChild(M),D===0||S.id===this.editorInput.selectedStep?b.classList.add("active"):b.classList.remove("active"),E.appendChild(b)});const P=h.steps[h.steps.length-1],A=P.description.length>1?P.description[1]:void 0;if(A){const S=n(".multi-step-action");this.buildMarkdownDescription(S,[A]),E.appendChild(S)}K.appendChild(E)}O.appendChild(K),y.appendChild(O),r.appendChild(y);const U=n("button.step-dot",{"data-step-dot-index":`${u}`,role:"button"});u===0&&U.classList.add("active"),g.appendChild(U),this.detailsPageDisposables.add(L(U,"click",()=>{const E=this.getCurrentSlideIndex(c);E!==u&&this.selectStepByIndex(u,c.map(P=>P.steps[0]),u>E?1:-1)}))});const l=n("button.button-link.navigation.next",{"aria-label":p("nextStep","Next")},p("next","Next"),n("span.codicon.codicon-arrow-right"));a.appendChild(l),this.detailsPageDisposables.add(L(d,"click",()=>{const h=this.getCurrentSlideIndex(c);h>0&&this.selectStepByIndex(h-1,c.map(u=>u.steps[0]),-1)})),this.detailsPageDisposables.add(L(l,"click",()=>{const h=this.getCurrentSlideIndex(c);h<c.length-1?this.selectStepByIndex(h+1,c.map(u=>u.steps[0]),1):this.scrollPrev()})),this.currentWalkthrough=t,this.editorInput.selectedCategory=e,this.editorInput.selectedStep=this.currentWalkthrough.steps[0].id;const w=n(".category-header"),I=n("h2.category-title",{"x-category-title-for":t.id});k(I,...N(t.title)),w.appendChild(I);const v=n(".category-description.description.max-lines-3",{"x-category-description-for":t.id});this.buildMarkdownDescription(v,ge(t.description)),k(v,...N(t.description)),w.appendChild(v);const f=n(".getting-started-footer");this.editorInput.showTelemetryNotice&&ce(this.configurationService)!==0&&this.productService.enableTelemetry&&this.buildTelemetryFooter(f);const m=n(".getting-started-steps-container",{},w,r,a,f);this.detailsScrollbar=this._register(new $(m,{className:"steps-container"}));const x=this.detailsScrollbar.getDomNode();k(this.stepsContent,x),x.tabIndex=0,x.focus(),this.selectStepByIndex(0,this.currentWalkthrough.steps,1),this.detailsPageDisposables.add(L(x,"keydown",h=>{const u=new j(h);if(u.keyCode===17){const y=this.getCurrentSlideIndex(c);y<c.length-1?this.selectStepByIndex(y+1,c.map(O=>O.steps[0]),1):this.scrollPrev()}else if(u.keyCode===15){const y=this.getCurrentSlideIndex(c);y>0&&this.selectStepByIndex(y-1,c.map(O=>O.steps[0]),-1)}else if(u.keyCode===16||u.keyCode===18){if(this.getCurrentSlideIndex(c)>0)return;this.navigateWithinMultiStepContainer(u.keyCode)}})),this.registerDispatchListeners(),this.detailsScrollbar.scanDomNode(),this.detailsPageScrollbar?.scanDomNode()}navigateWithinMultiStepContainer(e){const s=this.container.querySelector(".multi-step-container");if(!s)return;const t=s.querySelector(".sub-step.active"),i=Array.from(this.container.querySelectorAll(".sub-step")),o=t?i.indexOf(t):-1;let r;if(e===16&&o>0?r=i[o-1]:e===18&&o<i.length-1&&(r=i[o+1]),r){const a=r.getAttribute("data-sub-step-id");this.selectSubStep(a),r.focus()}}selectSubStep(e){if(this.telemetryService.publicLog2("gettingStarted.ActionExecuted",{command:"selectTask",argument:e,walkthroughId:this.currentWalkthrough?.id}),this.editorInput.selectedStep===e)return;this.editorInput.selectedStep=e;const s=this.container.querySelector(".multi-step-container");if(!s)return;s.querySelectorAll(".sub-step").forEach(r=>{r.getAttribute("data-sub-step-id")===e?r.classList.add("active"):r.classList.remove("active")});const i=e.match(/^([^.]+)\./),o=i?i[1]:e;this.selectSlideWithPrefix(e,o),this.gettingStartedService.progressByEvent("stepSelected:"+e)}selectSlideWithPrefix(e,s){if(this.editorInput.selectedStep=e,!this.currentWalkthrough?.steps.find(o=>o.id===e))return;const i=this.stepsContent.querySelector(`.step-slide[data-step="${s}"]`);if(i){const o=i.querySelector(".step-slide-content");this.mediaDisposables.clear(),this.stepDisposables.clear(),this.buildMediaComponent(this.editorInput.selectedStep),o?.appendChild(this.stepMediaComponent),setTimeout(()=>o.focus(),0)}this.gettingStartedService.progressByEvent("stepSelected:"+e),this.detailsPageScrollbar?.scanDomNode(),this.detailsScrollbar?.scanDomNode()}getCurrentSlideIndex(e){if(!this.editorInput.selectedStep)return 0;const s=e.findIndex(t=>t.id===this.editorInput.selectedStep);return s!==-1?s:e.findIndex(t=>t.steps.some(i=>i.id===this.editorInput.selectedStep))}selectSlide(e){if(this.editorInput.selectedStep=e,!this.currentWalkthrough?.steps.find(o=>o.id===e))return;const t=e.match(/^([^.]+)\./)?.[1]??e,i=this.stepsContent.querySelector(`.step-slide[data-step="${t}"]`);if(i){const o=i.querySelector(".step-slide-content");this.mediaDisposables.clear(),this.stepDisposables.clear(),this.buildMediaComponent(this.editorInput.selectedStep),o?.appendChild(this.stepMediaComponent),setTimeout(()=>o.focus(),0)}this.gettingStartedService.progressByEvent("stepSelected:"+e),this.detailsPageScrollbar?.scanDomNode(),this.detailsScrollbar?.scanDomNode()}buildCategorySlide(e,s){this.container.classList.remove("newSlide"),this.detailsScrollbar&&this.detailsScrollbar.dispose(),this.extensionService.whenInstalledExtensionsRegistered().then(()=>{this.extensionService.activateByEvent(`onWalkthrough:${e.replace(/[^#]+#/,"")}`)}),this.detailsPageDisposables.clear(),this.mediaDisposables.clear();const t=e===F?this.gettingStartedService.getWalkthrough(e):this.gettingStartedCategories.find(f=>f.id===e);if(!t)throw Error("could not find category with ID "+e);const i=n(".category-description.description.max-lines-3",{"x-category-description-for":t.id});this.buildMarkdownDescription(i,ge(t.description));const o=n(".getting-started-category",{},n(".category-description-container",{},n("h2.category-title.max-lines-3",{"x-category-title-for":t.id},...N(t.title)),i)),r=n(".step-list-container");this.detailsPageDisposables.add(L(r,"keydown",f=>{const m=new j(f),x=()=>t.steps.findIndex(h=>h.id===this.editorInput.selectedStep);if(m.keyCode===16){const h=t.steps.filter((u,y)=>y<x()&&this.contextService.contextMatchesRules(u.when));h.length&&this.selectStep(h[h.length-1].id,!1)}if(m.keyCode===18){const h=t.steps.find((u,y)=>y>x()&&this.contextService.contextMatchesRules(u.when));h&&this.selectStep(h.id,!1)}}));let a;const d=new Set(t.steps.flatMap(f=>f.when.keys())),g=()=>{t.steps.sort((m,x)=>m.order-x.order);const f=t.steps.filter(m=>this.contextService.contextMatchesRules(m.when));oe(a,f,(m,x)=>m.id===x.id)||(a=f,k(r,...a.map(m=>{const x=n(".codicon"+(m.done?".complete"+B.asCSSSelector(Y):B.asCSSSelector(Q)),{"data-done-step-id":m.id,"x-dispatch":"toggleStepCompletion:"+m.id,role:"checkbox","aria-checked":m.done?"true":"false","aria-label":m.done?p("stepDone","Checkbox for Step {0}: Completed",m.title):p("stepNotDone","Checkbox for Step {0}: Not completed",m.title)}),h=n(".step-description-container",{"x-step-description-for":m.id});this.buildMarkdownDescription(h,m.description);const u=n("h3.step-title.max-lines-3",{"x-step-title-for":m.id});k(u,...N(m.title));const y=n(".step-container",{},u,h);return m.media.type==="image"?y.appendChild(n(".image-description",{"aria-label":p("imageShowing","Image showing {0}",m.media.altText)})):m.media.type==="video"&&y.appendChild(n(".video-description",{"aria-label":p("videoShowing","Video showing {0}",m.media.altText)})),n("button.getting-started-step",{"x-dispatch":"selectTask:"+m.id,"data-step-id":m.id,"aria-expanded":"false","aria-checked":m.done?"true":"false",role:"button"},x,y)})))};g(),this.detailsPageDisposables.add(this.contextService.onDidChangeContext(f=>{f.affectsSome(d)&&this.currentWalkthrough&&(g(),this.registerDispatchListeners(),this.selectStep(this.editorInput.selectedStep,!1))}));const c=this.gettingStartedCategories.find(f=>f.id===t.next),l=n(".getting-started-detail-container",{role:"list"},r,n(".done-next-container",{},n("button.button-link.all-done",{"x-dispatch":"allDone"},n("span.codicon.codicon-check-all"),p("allDone","Mark Done")),...c?[n("button.button-link.next",{"x-dispatch":"nextSection"},p("nextOne","Next Section"),n("span.codicon.codicon-arrow-right"))]:[]));this.detailsScrollbar=this._register(new $(l,{className:"steps-container"}));const w=this.detailsScrollbar.getDomNode(),I=n(".getting-started-footer");this.editorInput.showTelemetryNotice&&ce(this.configurationService)!==0&&this.productService.enableTelemetry&&this.buildTelemetryFooter(I),k(this.stepsContent,o,w,this.stepMediaComponent,I);const v=t.steps.find(f=>this.contextService.contextMatchesRules(f.when)&&!f.done)??t.steps[0];this.selectStep(s??v.id,!s),this.detailsScrollbar.scanDomNode(),this.detailsPageScrollbar?.scanDomNode(),this.registerDispatchListeners()}buildTelemetryFooter(e){const s=this.instantiationService.createInstance(Me,{}),i=`[${p("privacy statement","privacy statement")}](command:workbench.action.openPrivacyStatementUrl)`,r=`[${p("optOut","opt out")}](command:settings.filterByTelemetry)`,a=p({key:"footer",comment:['fist substitution is "vs code", second is "privacy statement", third is "opt out".']},"{0} collects usage data. Read our {1} and learn how to {2}.",this.productService.nameShort,i,r),d=this.detailsPageDisposables.add(s.render({value:a,isTrusted:!0}));e.append(d.element)}getKeybindingLabel(e){e=e.replace(/^command:/,"");const s=this.keybindingService.lookupKeybinding(e)?.getLabel();return s?`(${s})`:""}getKeyBinding(e){return e=e.replace(/^command:/,""),this.keybindingService.lookupKeybinding(e)}async scrollPrev(){this.inProgressScroll=this.inProgressScroll.then(async()=>{this.prevWalkthrough&&this.prevWalkthrough!==this.currentWalkthrough?(this.currentWalkthrough=this.prevWalkthrough,this.prevWalkthrough=void 0,this.makeCategoryVisibleWhenAvailable(this.currentWalkthrough.id)):(this.currentWalkthrough=void 0,this.editorInput.selectedCategory=void 0,this.editorInput.selectedStep=void 0,this.editorInput.showTelemetryNotice=!1,this.editorInput.walkthroughPageTitle=void 0,this.gettingStartedCategories.length!==this.gettingStartedList?.itemCount&&this.buildCategoriesSlide(),this.selectStep(void 0),this.setSlide("categories"),this.container.focus())})}runSkip(){this.commandService.executeCommand("workbench.action.closeActiveEditor")}escape(){this.editorInput.selectedCategory?this.scrollPrev():this.runSkip()}setSlide(e,s=!1){const t=_(this.container.querySelector(".gettingStarted"));if(e==="categories")t.classList.remove("showDetails"),t.classList.add("showCategories"),this.container.querySelector(".prev-button.button-link").style.display="none",this.container.querySelector(".gettingStartedSlideDetails").querySelectorAll("button").forEach(i=>i.disabled=!0),this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("button").forEach(i=>i.disabled=!1),this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("input").forEach(i=>i.disabled=!1);else{t.classList.add("showDetails"),t.classList.remove("showCategories");const i=this.container.querySelector(".prev-button.button-link");if(i.style.display=this.editorInput.showWelcome||this.prevWalkthrough?"block":"none",this.editorInput.selectedCategory===F)i.style.display="none";else{const o=i.querySelector(".moreText");o.textContent=s?p("welcome","Welcome"):p("goBack","Go Back")}this.container.querySelector(".gettingStartedSlideDetails").querySelectorAll("button").forEach(o=>o.disabled=!1),this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("button").forEach(o=>o.disabled=!0),this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("input").forEach(o=>o.disabled=!0)}}focus(){super.focus();const e=this.container.ownerDocument.activeElement;let s=this.container.parentElement;for(;s&&s!==e;)s=s.parentElement;s&&this.container.focus()}};fe=J=ye([C(1,Oe),C(2,Ve),C(3,_e),C(4,lt),C(5,Re),C(6,Xe),C(7,Ae),C(8,Fe),C(9,He),C(10,ut),C(11,ze),C(12,pt),C(13,Be),C(14,Ge),C(15,ht),C(16,qe),C(17,$e),C(18,tt),C(19,Ke),C(20,gt),C(21,ct),C(22,et),C(23,Ne),C(24,ft)],fe);class Ti{canSerialize(e){return!0}serialize(e){return JSON.stringify({selectedCategory:e.selectedCategory,selectedStep:e.selectedStep})}deserialize(e,s){return e.invokeFunction(t=>{try{const{selectedCategory:i,selectedStep:o}=JSON.parse(s);return new X({selectedCategory:i,selectedStep:o})}catch{}return new X({})})}}export{Ti as GettingStartedInputSerializer,fe as GettingStartedPage,me as allWalkthroughsHiddenContext,bt as inWelcomeContext};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { $, addDisposableListener, append, clearNode, reset } from "../../../../base/browser/dom.js";
+import { renderFormattedText } from "../../../../base/browser/formattedTextRenderer.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { Toggle } from "../../../../base/browser/ui/toggle/toggle.js";
+import { coalesce, equals } from "../../../../base/common/arrays.js";
+import { Delayer, Throttler } from "../../../../base/common/async.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { onUnexpectedError } from "../../../../base/common/errors.js";
+import { splitRecentLabel } from "../../../../base/common/labels.js";
+import { DisposableStore, toDisposable } from "../../../../base/common/lifecycle.js";
+import { parse } from "../../../../base/common/marshalling.js";
+import { Schemas, matchesScheme } from "../../../../base/common/network.js";
+import { isMacintosh, OS } from "../../../../base/common/platform.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { assertIsDefined } from "../../../../base/common/types.js";
+import { URI } from "../../../../base/common/uri.js";
+import { generateUuid } from "../../../../base/common/uuid.js";
+import "./media/gettingStarted.css";
+import { ILanguageService } from "../../../../editor/common/languages/language.js";
+import { MarkdownRenderer } from "../../../../editor/browser/widget/markdownRenderer/browser/markdownRenderer.js";
+import { localize } from "../../../../nls.js";
+import { IAccessibilityService } from "../../../../platform/accessibility/common/accessibility.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { ContextKeyExpr, IContextKeyService, RawContextKey } from "../../../../platform/contextkey/common/contextkey.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../platform/keybinding/common/keybinding.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { INotificationService } from "../../../../platform/notification/common/notification.js";
+import { Link } from "../../../../platform/opener/browser/link.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IQuickInputService } from "../../../../platform/quickinput/common/quickInput.js";
+import { IStorageService, WillSaveStateReason } from "../../../../platform/storage/common/storage.js";
+import { ITelemetryService, firstSessionDateStorageKey } from "../../../../platform/telemetry/common/telemetry.js";
+import { getTelemetryLevel } from "../../../../platform/telemetry/common/telemetryUtils.js";
+import { defaultButtonStyles, defaultKeybindingLabelStyles, defaultToggleStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { IWorkspaceContextService, UNKNOWN_EMPTY_WINDOW_WORKSPACE } from "../../../../platform/workspace/common/workspace.js";
+import { IWorkspacesService, isRecentFolder, isRecentWorkspace } from "../../../../platform/workspaces/common/workspaces.js";
+import { OpenRecentAction } from "../../../browser/actions/windowActions.js";
+import { OpenFileFolderAction, OpenFolderAction, OpenFolderViaWorkspaceAction } from "../../../browser/actions/workspaceActions.js";
+import { EditorPane } from "../../../browser/parts/editor/editorPane.js";
+import { WorkbenchStateContext } from "../../../common/contextkeys.js";
+import { IWebviewService } from "../../webview/browser/webview.js";
+import "./gettingStartedColors.js";
+import { GettingStartedDetailsRenderer } from "./gettingStartedDetailsRenderer.js";
+import { gettingStartedCheckedCodicon, gettingStartedUncheckedCodicon } from "./gettingStartedIcons.js";
+import { GettingStartedInput } from "./gettingStartedInput.js";
+import { IWalkthroughsService, hiddenEntriesConfigurationKey, parseDescription } from "./gettingStartedService.js";
+import { restoreWalkthroughsConfigurationKey } from "./startupPage.js";
+import { NEW_WELCOME_EXPERIENCE, startEntries } from "../common/gettingStartedContent.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IWorkbenchThemeService } from "../../../services/themes/common/workbenchThemeService.js";
+import { GettingStartedIndexList } from "./gettingStartedList.js";
+import { AccessibleViewAction } from "../../accessibility/browser/accessibleViewActions.js";
+import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { IGettingStartedExperimentService } from "./gettingStartedExpService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var GettingStartedPage_1;
+const SLIDE_TRANSITION_TIME_MS = 250;
+const configurationKey = "workbench.startupEditor";
+const allWalkthroughsHiddenContext = new RawContextKey("allWalkthroughsHidden", false);
+const inWelcomeContext = new RawContextKey("inWelcome", false);
+const parsedStartEntries = startEntries.map((e, i) => ({
+  command: e.content.command,
+  description: e.description,
+  icon: { type: "icon", icon: e.icon },
+  id: e.id,
+  order: i,
+  title: e.title,
+  when: ContextKeyExpr.deserialize(e.when) ?? ContextKeyExpr.true()
+}));
+const REDUCED_MOTION_KEY = "workbench.welcomePage.preferReducedMotion";
+let GettingStartedPage = class GettingStartedPage2 extends EditorPane {
+  static {
+    __name(this, "GettingStartedPage");
+  }
+  static {
+    GettingStartedPage_1 = this;
+  }
+  static {
+    this.ID = "gettingStartedPage";
+  }
+  constructor(group, commandService, productService, keybindingService, gettingStartedService, configurationService, telemetryService, languageService, fileService, openerService, themeService, storageService, extensionService, instantiationService, notificationService, groupsService, contextService, quickInputService, workspacesService, labelService, hostService, webviewService, workspaceContextService, accessibilityService, gettingStartedExperimentService) {
+    super(GettingStartedPage_1.ID, group, telemetryService, themeService, storageService);
+    this.commandService = commandService;
+    this.productService = productService;
+    this.keybindingService = keybindingService;
+    this.gettingStartedService = gettingStartedService;
+    this.configurationService = configurationService;
+    this.languageService = languageService;
+    this.fileService = fileService;
+    this.openerService = openerService;
+    this.themeService = themeService;
+    this.storageService = storageService;
+    this.extensionService = extensionService;
+    this.instantiationService = instantiationService;
+    this.notificationService = notificationService;
+    this.groupsService = groupsService;
+    this.quickInputService = quickInputService;
+    this.workspacesService = workspacesService;
+    this.labelService = labelService;
+    this.hostService = hostService;
+    this.webviewService = webviewService;
+    this.workspaceContextService = workspaceContextService;
+    this.accessibilityService = accessibilityService;
+    this.gettingStartedExperimentService = gettingStartedExperimentService;
+    this.inProgressScroll = Promise.resolve();
+    this.dispatchListeners = new DisposableStore();
+    this.stepDisposables = new DisposableStore();
+    this.detailsPageDisposables = new DisposableStore();
+    this.mediaDisposables = new DisposableStore();
+    this.buildSlideThrottle = new Throttler();
+    this.hasScrolledToFirstCategory = false;
+    this.showFeaturedWalkthrough = true;
+    this.currentMediaComponent = void 0;
+    this.currentMediaType = void 0;
+    this.container = $(".gettingStartedContainer", {
+      role: "document",
+      tabindex: 0,
+      "aria-label": localize("welcomeAriaLabel", "Overview of how to get up to speed with your editor.")
+    });
+    this.stepMediaComponent = $(".getting-started-media");
+    this.stepMediaComponent.id = generateUuid();
+    this.categoriesSlideDisposables = this._register(new DisposableStore());
+    this.detailsRenderer = new GettingStartedDetailsRenderer(this.fileService, this.notificationService, this.extensionService, this.languageService);
+    this.contextService = this._register(contextService.createScoped(this.container));
+    inWelcomeContext.bindTo(this.contextService).set(true);
+    this.gettingStartedCategories = this.gettingStartedService.getWalkthroughs();
+    this._register(this.dispatchListeners);
+    this.buildSlideThrottle = new Throttler();
+    const rerender = /* @__PURE__ */ __name(() => {
+      this.gettingStartedCategories = this.gettingStartedService.getWalkthroughs();
+      if (this.currentWalkthrough) {
+        const existingSteps = this.currentWalkthrough.steps.map((step) => step.id);
+        const newCategory = this.gettingStartedCategories.find((category) => this.currentWalkthrough?.id === category.id);
+        if (newCategory) {
+          const newSteps = newCategory.steps.map((step) => step.id);
+          if (!equals(newSteps, existingSteps)) {
+            this.buildSlideThrottle.queue(() => this.buildCategoriesSlide());
+          }
+        }
+      } else {
+        this.buildSlideThrottle.queue(() => this.buildCategoriesSlide());
+      }
+    }, "rerender");
+    this._register(this.gettingStartedService.onDidAddWalkthrough(rerender));
+    this._register(this.gettingStartedService.onDidRemoveWalkthrough(rerender));
+    this.recentlyOpened = this.workspacesService.getRecentlyOpened();
+    this._register(workspacesService.onDidChangeRecentlyOpened(() => {
+      this.recentlyOpened = workspacesService.getRecentlyOpened();
+      rerender();
+    }));
+    this._register(this.gettingStartedService.onDidChangeWalkthrough((category) => {
+      const ourCategory = this.gettingStartedCategories.find((c) => c.id === category.id);
+      if (!ourCategory) {
+        return;
+      }
+      ourCategory.title = category.title;
+      ourCategory.description = category.description;
+      this.container.querySelectorAll(`[x-category-title-for="${category.id}"]`).forEach((step) => step.innerText = ourCategory.title);
+      this.container.querySelectorAll(`[x-category-description-for="${category.id}"]`).forEach((step) => step.innerText = ourCategory.description);
+    }));
+    this._register(this.gettingStartedService.onDidProgressStep((step) => {
+      const category = step.category === NEW_WELCOME_EXPERIENCE ? this.gettingStartedService.getWalkthrough(step.category) : this.gettingStartedCategories.find((c) => c.id === step.category);
+      if (!category) {
+        throw Error("Could not find category with ID: " + step.category);
+      }
+      const ourStep = category.steps.find((_step) => _step.id === step.id);
+      if (!ourStep) {
+        throw Error("Could not find step with ID: " + step.id);
+      }
+      const stats = this.getWalkthroughCompletionStats(category);
+      if (!ourStep.done && stats.stepsComplete === stats.stepsTotal - 1) {
+        this.hideCategory(category.id);
+      }
+      this._register(this.configurationService.onDidChangeConfiguration((e) => {
+        if (e.affectsConfiguration(REDUCED_MOTION_KEY)) {
+          this.container.classList.toggle("animatable", this.shouldAnimate());
+        }
+      }));
+      ourStep.done = step.done;
+      if (category.id === this.currentWalkthrough?.id) {
+        const badgeelements = assertIsDefined(this.window.document.querySelectorAll(`[data-done-step-id="${step.id}"]`));
+        badgeelements.forEach((badgeelement) => {
+          if (step.done) {
+            badgeelement.setAttribute("aria-checked", "true");
+            badgeelement.parentElement?.setAttribute("aria-checked", "true");
+            badgeelement.classList.remove(...ThemeIcon.asClassNameArray(gettingStartedUncheckedCodicon));
+            badgeelement.classList.add("complete", ...ThemeIcon.asClassNameArray(gettingStartedCheckedCodicon));
+            badgeelement.setAttribute("aria-label", localize("stepDone", "Checkbox for Step {0}: Completed", step.title));
+          } else {
+            badgeelement.setAttribute("aria-checked", "false");
+            badgeelement.parentElement?.setAttribute("aria-checked", "false");
+            badgeelement.classList.remove("complete", ...ThemeIcon.asClassNameArray(gettingStartedCheckedCodicon));
+            badgeelement.classList.add(...ThemeIcon.asClassNameArray(gettingStartedUncheckedCodicon));
+            badgeelement.setAttribute("aria-label", localize("stepNotDone", "Checkbox for Step {0}: Not completed", step.title));
+          }
+        });
+      }
+      this.updateCategoryProgress();
+    }));
+    this._register(this.storageService.onWillSaveState((e) => {
+      if (e.reason !== WillSaveStateReason.SHUTDOWN) {
+        return;
+      }
+      if (this.workspaceContextService.getWorkspace().folders.length !== 0) {
+        return;
+      }
+      if (!this.editorInput || !this.currentWalkthrough || !this.editorInput.selectedCategory || !this.editorInput.selectedStep) {
+        return;
+      }
+      const editorPane = this.groupsService.activeGroup.activeEditorPane;
+      if (!(editorPane instanceof GettingStartedPage_1)) {
+        return;
+      }
+      const restoreData = { folder: UNKNOWN_EMPTY_WINDOW_WORKSPACE.id, category: this.editorInput.selectedCategory, step: this.editorInput.selectedStep };
+      this.storageService.store(
+        restoreWalkthroughsConfigurationKey,
+        JSON.stringify(restoreData),
+        0,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }));
+  }
+  // remove when 'workbench.welcomePage.preferReducedMotion' deprecated
+  shouldAnimate() {
+    if (this.configurationService.getValue(REDUCED_MOTION_KEY)) {
+      return false;
+    }
+    if (this.accessibilityService.isMotionReduced()) {
+      return false;
+    }
+    return true;
+  }
+  getWalkthroughCompletionStats(walkthrough) {
+    const activeSteps = walkthrough.steps.filter((s) => this.contextService.contextMatchesRules(s.when));
+    return {
+      stepsComplete: activeSteps.filter((s) => s.done).length,
+      stepsTotal: activeSteps.length
+    };
+  }
+  async setInput(newInput, options, context, token) {
+    this.container.classList.remove("animatable");
+    this.editorInput = newInput;
+    this.editorInput.showTelemetryNotice = options?.showTelemetryNotice ?? true;
+    await super.setInput(newInput, options, context, token);
+    await this.buildCategoriesSlide();
+    if (this.shouldAnimate()) {
+      setTimeout(() => this.container.classList.add("animatable"), 0);
+    }
+  }
+  async makeCategoryVisibleWhenAvailable(categoryID, stepId) {
+    this.scrollToCategory(categoryID, stepId);
+  }
+  registerDispatchListeners() {
+    this.dispatchListeners.clear();
+    this.container.querySelectorAll("[x-dispatch]").forEach((element) => {
+      const dispatch = element.getAttribute("x-dispatch") ?? "";
+      let command, argument;
+      if (dispatch.startsWith("openLink:https")) {
+        [command, argument] = ["openLink", dispatch.replace("openLink:", "")];
+      } else {
+        [command, argument] = dispatch.split(":");
+      }
+      if (command) {
+        this.dispatchListeners.add(addDisposableListener(element, "click", (e) => {
+          e.stopPropagation();
+          this.runDispatchCommand(command, argument);
+        }));
+        this.dispatchListeners.add(addDisposableListener(element, "keyup", (e) => {
+          const keyboardEvent = new StandardKeyboardEvent(e);
+          e.stopPropagation();
+          switch (keyboardEvent.keyCode) {
+            case 3:
+            case 10:
+              this.runDispatchCommand(command, argument);
+              return;
+          }
+        }));
+      }
+    });
+  }
+  async runDispatchCommand(command, argument) {
+    this.commandService.executeCommand("workbench.action.keepEditor");
+    this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command, argument, walkthroughId: this.currentWalkthrough?.id });
+    switch (command) {
+      case "scrollPrev": {
+        this.scrollPrev();
+        break;
+      }
+      case "skip": {
+        this.runSkip();
+        break;
+      }
+      case "showMoreRecents": {
+        this.commandService.executeCommand(OpenRecentAction.ID);
+        break;
+      }
+      case "seeAllWalkthroughs": {
+        await this.openWalkthroughSelector();
+        break;
+      }
+      case "openFolder": {
+        if (this.contextService.contextMatchesRules(ContextKeyExpr.and(WorkbenchStateContext.isEqualTo("workspace")))) {
+          this.commandService.executeCommand(OpenFolderViaWorkspaceAction.ID);
+        } else {
+          this.commandService.executeCommand(isMacintosh ? "workbench.action.files.openFileFolder" : "workbench.action.files.openFolder");
+        }
+        break;
+      }
+      case "selectCategory": {
+        this.scrollToCategory(argument);
+        this.gettingStartedService.markWalkthroughOpened(argument);
+        break;
+      }
+      case "selectStartEntry": {
+        const selected = startEntries.find((e) => e.id === argument);
+        if (selected) {
+          this.runStepCommand(selected.content.command);
+        } else {
+          throw Error("could not find start entry with id: " + argument);
+        }
+        break;
+      }
+      case "hideCategory": {
+        this.hideCategory(argument);
+        break;
+      }
+      // Use selectTask over selectStep to keep telemetry consistant:https://github.com/microsoft/vscode/issues/122256
+      case "selectTask": {
+        this.selectStep(argument);
+        break;
+      }
+      case "toggleStepCompletion": {
+        this.toggleStepCompletion(argument);
+        break;
+      }
+      case "allDone": {
+        this.markAllStepsComplete();
+        break;
+      }
+      case "nextSection": {
+        const next = this.currentWalkthrough?.next;
+        if (next) {
+          this.prevWalkthrough = this.currentWalkthrough;
+          this.scrollToCategory(next);
+        } else {
+          console.error("Error scrolling to next section of", this.currentWalkthrough);
+        }
+        break;
+      }
+      case "openLink": {
+        this.openerService.open(argument);
+        break;
+      }
+      default: {
+        console.error("Dispatch to", command, argument, "not defined");
+        break;
+      }
+    }
+  }
+  hideCategory(categoryId) {
+    const selectedCategory = this.gettingStartedCategories.find((category) => category.id === categoryId);
+    if (!selectedCategory) {
+      throw Error("Could not find category with ID " + categoryId);
+    }
+    this.setHiddenCategories([...this.getHiddenCategories().add(categoryId)]);
+    this.gettingStartedList?.rerender();
+  }
+  markAllStepsComplete() {
+    if (this.currentWalkthrough) {
+      this.currentWalkthrough?.steps.forEach((step) => {
+        if (!step.done) {
+          this.gettingStartedService.progressStep(step.id);
+        }
+      });
+      this.hideCategory(this.currentWalkthrough?.id);
+      this.scrollPrev();
+    } else {
+      throw Error("No walkthrough opened");
+    }
+  }
+  toggleStepCompletion(argument) {
+    const stepToggle = assertIsDefined(this.currentWalkthrough?.steps.find((step) => step.id === argument));
+    if (stepToggle.done) {
+      this.gettingStartedService.deprogressStep(argument);
+    } else {
+      this.gettingStartedService.progressStep(argument);
+    }
+  }
+  async openWalkthroughSelector() {
+    const selection = await this.quickInputService.pick(this.gettingStartedCategories.filter((c) => this.contextService.contextMatchesRules(c.when)).map((x) => ({
+      id: x.id,
+      label: x.title,
+      detail: x.description,
+      description: x.source
+    })), { canPickMany: false, matchOnDescription: true, matchOnDetail: true, title: localize("pickWalkthroughs", "Open Walkthrough...") });
+    if (selection) {
+      this.runDispatchCommand("selectCategory", selection.id);
+    }
+  }
+  getHiddenCategories() {
+    return new Set(JSON.parse(this.storageService.get(hiddenEntriesConfigurationKey, 0, "[]")));
+  }
+  setHiddenCategories(hidden) {
+    this.storageService.store(
+      hiddenEntriesConfigurationKey,
+      JSON.stringify(hidden),
+      0,
+      0
+      /* StorageTarget.USER */
+    );
+  }
+  async buildMediaComponent(stepId, forceRebuild = false) {
+    if (!this.currentWalkthrough) {
+      throw Error("no walkthrough selected");
+    }
+    const stepToExpand = assertIsDefined(this.currentWalkthrough.steps.find((step) => step.id === stepId));
+    if (!forceRebuild && this.currentMediaComponent === stepId) {
+      return;
+    }
+    this.currentMediaComponent = stepId;
+    this.stepDisposables.clear();
+    this.stepDisposables.add({
+      dispose: /* @__PURE__ */ __name(() => {
+        this.currentMediaComponent = void 0;
+      }, "dispose")
+    });
+    if (this.currentMediaType !== stepToExpand.media.type) {
+      this.currentMediaType = stepToExpand.media.type;
+      this.mediaDisposables.add(toDisposable(() => {
+        this.currentMediaType = void 0;
+      }));
+      clearNode(this.stepMediaComponent);
+      if (stepToExpand.media.type === "svg") {
+        this.webview = this.mediaDisposables.add(this.webviewService.createWebviewElement({ title: void 0, options: { disableServiceWorker: true }, contentOptions: {}, extension: void 0 }));
+        this.webview.mountTo(this.stepMediaComponent, this.window);
+      } else if (stepToExpand.media.type === "markdown") {
+        this.webview = this.mediaDisposables.add(this.webviewService.createWebviewElement({ options: {}, contentOptions: { localResourceRoots: [stepToExpand.media.root], allowScripts: true }, title: "", extension: void 0 }));
+        this.webview.mountTo(this.stepMediaComponent, this.window);
+      } else if (stepToExpand.media.type === "video") {
+        this.webview = this.mediaDisposables.add(this.webviewService.createWebviewElement({ options: {}, contentOptions: { localResourceRoots: [stepToExpand.media.root], allowScripts: true }, title: "", extension: void 0 }));
+        this.webview.mountTo(this.stepMediaComponent, this.window);
+      }
+    }
+    if (stepToExpand.media.type === "image") {
+      this.stepsContent.classList.add("image");
+      this.stepsContent.classList.remove("markdown");
+      this.stepsContent.classList.remove("video");
+      const media = stepToExpand.media;
+      const mediaElement = $("img");
+      clearNode(this.stepMediaComponent);
+      this.stepMediaComponent.appendChild(mediaElement);
+      mediaElement.setAttribute("alt", media.altText);
+      this.updateMediaSourceForColorMode(mediaElement, media.path);
+      this.stepDisposables.add(addDisposableListener(this.stepMediaComponent, "click", () => {
+        const hrefs = stepToExpand.description.map((lt) => lt.nodes.filter((node) => typeof node !== "string").map((node) => node.href)).flat();
+        if (hrefs.length === 1) {
+          const href = hrefs[0];
+          if (href.startsWith("http")) {
+            this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "runStepAction", argument: href, walkthroughId: this.currentWalkthrough?.id });
+            this.openerService.open(href);
+          }
+        }
+      }));
+      this.stepDisposables.add(this.themeService.onDidColorThemeChange(() => this.updateMediaSourceForColorMode(mediaElement, media.path)));
+    } else if (stepToExpand.media.type === "svg") {
+      this.stepsContent.classList.add("image");
+      this.stepsContent.classList.remove("markdown");
+      this.stepsContent.classList.remove("video");
+      const media = stepToExpand.media;
+      this.webview.setHtml(await this.detailsRenderer.renderSVG(media.path));
+      let isDisposed = false;
+      this.stepDisposables.add(toDisposable(() => {
+        isDisposed = true;
+      }));
+      this.stepDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+        const body = await this.detailsRenderer.renderSVG(media.path);
+        if (!isDisposed) {
+          this.webview.setHtml(body);
+        }
+      }));
+      this.stepDisposables.add(addDisposableListener(this.stepMediaComponent, "click", () => {
+        const hrefs = stepToExpand.description.map((lt) => lt.nodes.filter((node) => typeof node !== "string").map((node) => node.href)).flat();
+        if (hrefs.length === 1) {
+          const href = hrefs[0];
+          if (href.startsWith("http")) {
+            this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "runStepAction", argument: href, walkthroughId: this.currentWalkthrough?.id });
+            this.openerService.open(href);
+          }
+        }
+      }));
+      this.stepDisposables.add(this.webview.onDidClickLink((link) => {
+        if (matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.command)) {
+          this.openerService.open(link, { allowCommands: true });
+        }
+      }));
+    } else if (stepToExpand.media.type === "markdown") {
+      this.stepsContent.classList.remove("image");
+      this.stepsContent.classList.add("markdown");
+      this.stepsContent.classList.remove("video");
+      const media = stepToExpand.media;
+      const rawHTML = await this.detailsRenderer.renderMarkdown(media.path, media.base);
+      this.webview.setHtml(rawHTML);
+      const serializedContextKeyExprs = rawHTML.match(/checked-on=\"([^'][^"]*)\"/g)?.map((attr) => attr.slice('checked-on="'.length, -1).replace(/&#39;/g, "'").replace(/&amp;/g, "&"));
+      const postTrueKeysMessage = /* @__PURE__ */ __name(() => {
+        const enabledContextKeys = serializedContextKeyExprs?.filter((expr) => this.contextService.contextMatchesRules(ContextKeyExpr.deserialize(expr)));
+        if (enabledContextKeys) {
+          this.webview.postMessage({
+            enabledContextKeys
+          });
+        }
+      }, "postTrueKeysMessage");
+      if (serializedContextKeyExprs) {
+        const contextKeyExprs = coalesce(serializedContextKeyExprs.map((expr) => ContextKeyExpr.deserialize(expr)));
+        const watchingKeys = new Set(contextKeyExprs.flatMap((expr) => expr.keys()));
+        this.stepDisposables.add(this.contextService.onDidChangeContext((e) => {
+          if (e.affectsSome(watchingKeys)) {
+            postTrueKeysMessage();
+          }
+        }));
+      }
+      let isDisposed = false;
+      this.stepDisposables.add(toDisposable(() => {
+        isDisposed = true;
+      }));
+      this.stepDisposables.add(this.webview.onDidClickLink((link) => {
+        if (matchesScheme(link, Schemas.https) || matchesScheme(link, Schemas.http) || matchesScheme(link, Schemas.command)) {
+          const toSide = link.startsWith("command:toSide:");
+          if (toSide) {
+            link = link.replace("command:toSide:", "command:");
+            this.focusSideEditorGroup();
+          }
+          this.openerService.open(link, { allowCommands: true, openToSide: toSide });
+        }
+      }));
+      if (rawHTML.indexOf("<code>") >= 0) {
+        this.stepDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+          const body = await this.detailsRenderer.renderMarkdown(media.path, media.base);
+          if (!isDisposed) {
+            this.webview.setHtml(body);
+            postTrueKeysMessage();
+          }
+        }));
+      }
+      const layoutDelayer = new Delayer(50);
+      this.layoutMarkdown = () => {
+        layoutDelayer.trigger(() => {
+          this.webview.postMessage({ layoutMeNow: true });
+        });
+      };
+      this.stepDisposables.add(layoutDelayer);
+      this.stepDisposables.add({ dispose: /* @__PURE__ */ __name(() => this.layoutMarkdown = void 0, "dispose") });
+      postTrueKeysMessage();
+      this.stepDisposables.add(this.webview.onMessage(async (e) => {
+        const message = e.message;
+        if (message.startsWith("command:")) {
+          this.openerService.open(message, { allowCommands: true });
+        } else if (message.startsWith("setTheme:")) {
+          const themeId = message.slice("setTheme:".length);
+          const theme = (await this.themeService.getColorThemes()).find((theme2) => theme2.settingsId === themeId);
+          if (theme) {
+            this.themeService.setColorTheme(
+              theme.id,
+              2
+              /* ConfigurationTarget.USER */
+            );
+          }
+        } else {
+          console.error("Unexpected message", message);
+        }
+      }));
+    } else if (stepToExpand.media.type === "video") {
+      this.stepsContent.classList.add("video");
+      this.stepsContent.classList.remove("markdown");
+      this.stepsContent.classList.remove("image");
+      const media = stepToExpand.media;
+      const themeType = this.themeService.getColorTheme().type;
+      const videoPath = media.path[themeType];
+      const videoPoster = media.poster ? media.poster[themeType] : void 0;
+      const altText = media.altText ? media.altText : localize("videoAltText", "Video for {0}", stepToExpand.title);
+      const rawHTML = await this.detailsRenderer.renderVideo(videoPath, videoPoster, altText);
+      this.webview.setHtml(rawHTML);
+      let isDisposed = false;
+      this.stepDisposables.add(toDisposable(() => {
+        isDisposed = true;
+      }));
+      this.stepDisposables.add(this.themeService.onDidColorThemeChange(async () => {
+        const themeType2 = this.themeService.getColorTheme().type;
+        const videoPath2 = media.path[themeType2];
+        const videoPoster2 = media.poster ? media.poster[themeType2] : void 0;
+        const body = await this.detailsRenderer.renderVideo(videoPath2, videoPoster2, altText);
+        if (!isDisposed) {
+          this.webview.setHtml(body);
+        }
+      }));
+    }
+  }
+  async selectStepLoose(id) {
+    if (id.startsWith(`${this.editorInput.selectedCategory}#`)) {
+      this.selectStep(id);
+    } else {
+      const toSelect = this.editorInput.selectedCategory + "#" + id;
+      this.selectStep(toSelect);
+    }
+  }
+  provideScreenReaderUpdate() {
+    if (this.configurationService.getValue(
+      "accessibility.verbosity.walkthrough"
+      /* AccessibilityVerbositySettingId.Walkthrough */
+    )) {
+      const kbLabel = this.keybindingService.lookupKeybinding(AccessibleViewAction.id)?.getAriaLabel();
+      return kbLabel ? localize("acessibleViewHint", "Inspect this in the accessible view ({0}).\n", kbLabel) : localize("acessibleViewHintNoKbOpen", "Inspect this in the accessible view via the command Open Accessible View which is currently not triggerable via keybinding.\n");
+    }
+    return "";
+  }
+  async selectStep(id, delayFocus = true) {
+    if (id) {
+      let stepElement = this.container.querySelector(`[data-step-id="${id}"]`);
+      if (!stepElement) {
+        stepElement = this.container.querySelector(`[data-step-id]`);
+        if (!stepElement) {
+          return;
+        }
+        id = assertIsDefined(stepElement.getAttribute("data-step-id"));
+      }
+      stepElement.parentElement?.querySelectorAll(".expanded").forEach((node) => {
+        if (node.getAttribute("data-step-id") !== id) {
+          node.classList.remove("expanded");
+          node.setAttribute("aria-expanded", "false");
+          const codiconElement2 = node.querySelector(".codicon");
+          if (codiconElement2) {
+            codiconElement2.removeAttribute("tabindex");
+          }
+        }
+      });
+      setTimeout(() => stepElement.focus(), delayFocus && this.shouldAnimate() ? SLIDE_TRANSITION_TIME_MS : 0);
+      this.editorInput.selectedStep = id;
+      stepElement.classList.add("expanded");
+      stepElement.setAttribute("aria-expanded", "true");
+      this.buildMediaComponent(id, true);
+      const codiconElement = stepElement.querySelector(".codicon");
+      if (codiconElement) {
+        codiconElement.setAttribute("tabindex", "0");
+      }
+      this.gettingStartedService.progressByEvent("stepSelected:" + id);
+      const step = this.currentWalkthrough?.steps?.find((step2) => step2.id === id);
+      if (step) {
+        stepElement.setAttribute("aria-label", `${this.provideScreenReaderUpdate()} ${step.title}`);
+      }
+    } else {
+      this.editorInput.selectedStep = void 0;
+    }
+    this.detailsPageScrollbar?.scanDomNode();
+    this.detailsScrollbar?.scanDomNode();
+  }
+  updateMediaSourceForColorMode(element, sources) {
+    const themeType = this.themeService.getColorTheme().type;
+    const src = sources[themeType].toString(true).replace(/ /g, "%20");
+    element.srcset = src.toLowerCase().endsWith(".svg") ? src : src + " 1.5x";
+  }
+  createEditor(parent) {
+    if (this.detailsPageScrollbar) {
+      this.detailsPageScrollbar.dispose();
+    }
+    if (this.categoriesPageScrollbar) {
+      this.categoriesPageScrollbar.dispose();
+    }
+    this.categoriesSlide = $(".gettingStartedSlideCategories.gettingStartedSlide");
+    const prevButton = $("button.prev-button.button-link", { "x-dispatch": "scrollPrev" }, $("span.scroll-button.codicon.codicon-chevron-left"), $("span.moreText", {}, localize("goBack", "Go Back")));
+    this.stepsSlide = $(".gettingStartedSlideDetails.gettingStartedSlide", {}, prevButton);
+    this.stepsContent = $(".gettingStartedDetailsContent", {});
+    this.detailsPageScrollbar = this._register(new DomScrollableElement(this.stepsContent, {
+      className: "full-height-scrollable",
+      vertical: 2
+      /* ScrollbarVisibility.Hidden */
+    }));
+    this.categoriesPageScrollbar = this._register(new DomScrollableElement(this.categoriesSlide, {
+      className: "full-height-scrollable categoriesScrollbar",
+      vertical: 2
+      /* ScrollbarVisibility.Hidden */
+    }));
+    this.stepsSlide.appendChild(this.detailsPageScrollbar.getDomNode());
+    const gettingStartedPage = $(".gettingStarted", {}, this.categoriesPageScrollbar.getDomNode(), this.stepsSlide);
+    this.container.appendChild(gettingStartedPage);
+    this.categoriesPageScrollbar.scanDomNode();
+    this.detailsPageScrollbar.scanDomNode();
+    parent.appendChild(this.container);
+  }
+  async buildCategoriesSlide() {
+    this.categoriesSlideDisposables.clear();
+    const showOnStartupCheckbox = new Toggle({
+      icon: Codicon.check,
+      actionClassName: "getting-started-checkbox",
+      isChecked: this.configurationService.getValue(configurationKey) === "welcomePage",
+      title: localize("checkboxTitle", "When checked, this page will be shown on startup."),
+      ...defaultToggleStyles
+    });
+    showOnStartupCheckbox.domNode.id = "showOnStartup";
+    const showOnStartupLabel = $("label.caption", { for: "showOnStartup" }, localize("welcomePage.showOnStartup", "Show welcome page on startup"));
+    const onShowOnStartupChanged = /* @__PURE__ */ __name(() => {
+      if (showOnStartupCheckbox.checked) {
+        this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "showOnStartupChecked", argument: void 0, walkthroughId: this.currentWalkthrough?.id });
+        this.configurationService.updateValue(configurationKey, "welcomePage");
+      } else {
+        this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "showOnStartupUnchecked", argument: void 0, walkthroughId: this.currentWalkthrough?.id });
+        this.configurationService.updateValue(configurationKey, "none");
+      }
+    }, "onShowOnStartupChanged");
+    this.categoriesSlideDisposables.add(showOnStartupCheckbox);
+    this.categoriesSlideDisposables.add(showOnStartupCheckbox.onChange(() => {
+      onShowOnStartupChanged();
+    }));
+    this.categoriesSlideDisposables.add(addDisposableListener(showOnStartupLabel, "click", () => {
+      showOnStartupCheckbox.checked = !showOnStartupCheckbox.checked;
+      onShowOnStartupChanged();
+    }));
+    const header = $(".header", {}, $("h1.product-name.caption", {}, this.productService.nameLong), $("p.subtitle.description", {}, localize({ key: "gettingStarted.editingEvolved", comment: ["Shown as subtitle on the Welcome page."] }, "Editing evolved")));
+    const leftColumn = $(".categories-column.categories-column-left", {});
+    const rightColumn = $(".categories-column.categories-column-right", {});
+    const startList = this.buildStartList();
+    const recentList = this.buildRecentlyOpenedList();
+    const gettingStartedList = this.buildGettingStartedWalkthroughsList();
+    const footer = $(".footer", {}, $("p.showOnStartup", {}, showOnStartupCheckbox.domNode, showOnStartupLabel));
+    const layoutLists = /* @__PURE__ */ __name(() => {
+      if (gettingStartedList.itemCount) {
+        this.container.classList.remove("noWalkthroughs");
+        reset(rightColumn, gettingStartedList.getDomElement());
+      } else {
+        this.container.classList.add("noWalkthroughs");
+        reset(rightColumn);
+      }
+      setTimeout(() => this.categoriesPageScrollbar?.scanDomNode(), 50);
+      layoutRecentList();
+    }, "layoutLists");
+    const layoutRecentList = /* @__PURE__ */ __name(() => {
+      if (this.container.classList.contains("noWalkthroughs")) {
+        recentList.setLimit(10);
+        reset(leftColumn, startList.getDomElement());
+        reset(rightColumn, recentList.getDomElement());
+      } else {
+        recentList.setLimit(5);
+        reset(leftColumn, startList.getDomElement(), recentList.getDomElement());
+      }
+    }, "layoutRecentList");
+    gettingStartedList.onDidChange(layoutLists);
+    layoutLists();
+    reset(this.categoriesSlide, $(".gettingStartedCategoriesContainer", {}, header, leftColumn, rightColumn, footer));
+    this.categoriesPageScrollbar?.scanDomNode();
+    this.updateCategoryProgress();
+    this.registerDispatchListeners();
+    if (this.editorInput.selectedCategory) {
+      const showNewExperience = this.editorInput.selectedCategory === NEW_WELCOME_EXPERIENCE;
+      this.currentWalkthrough = this.gettingStartedCategories.find((category) => category.id === this.editorInput.selectedCategory);
+      if (!this.currentWalkthrough) {
+        this.gettingStartedCategories = this.gettingStartedService.getWalkthroughs();
+        this.currentWalkthrough = showNewExperience ? this.gettingStartedService.getWalkthrough(this.editorInput.selectedCategory) : this.gettingStartedCategories.find((category) => category.id === this.editorInput.selectedCategory);
+        if (this.currentWalkthrough) {
+          if (showNewExperience) {
+            this.buildNewCategorySlide(this.editorInput.selectedCategory, this.editorInput.selectedStep);
+          } else {
+            this.buildCategorySlide(this.editorInput.selectedCategory, this.editorInput.selectedStep);
+          }
+          this.setSlide("details");
+          return;
+        }
+      } else {
+        if (showNewExperience) {
+          this.buildNewCategorySlide(this.editorInput.selectedCategory, this.editorInput.selectedStep);
+        } else {
+          this.buildCategorySlide(this.editorInput.selectedCategory, this.editorInput.selectedStep);
+        }
+        this.setSlide("details");
+        return;
+      }
+    }
+    const someStepsComplete = this.gettingStartedCategories.some((category) => category.steps.find((s) => s.done));
+    if (this.editorInput.showTelemetryNotice && this.productService.openToWelcomeMainPage) {
+      const telemetryNotice = $("p.telemetry-notice");
+      this.buildTelemetryFooter(telemetryNotice);
+      footer.appendChild(telemetryNotice);
+    } else if (!this.productService.openToWelcomeMainPage && !someStepsComplete && !this.hasScrolledToFirstCategory && this.showFeaturedWalkthrough) {
+      const firstSessionDateString = this.storageService.get(
+        firstSessionDateStorageKey,
+        -1
+        /* StorageScope.APPLICATION */
+      ) || (/* @__PURE__ */ new Date()).toUTCString();
+      const daysSinceFirstSession = (+/* @__PURE__ */ new Date() - +new Date(firstSessionDateString)) / 1e3 / 60 / 60 / 24;
+      const fistContentBehaviour = daysSinceFirstSession < 1 ? "openToFirstCategory" : "index";
+      if (fistContentBehaviour === "openToFirstCategory") {
+        const exp = this.gettingStartedExperimentService.getCurrentExperiment();
+        const first = exp?.walkthroughId ? this.gettingStartedService.getWalkthrough(exp.walkthroughId) : this.gettingStartedCategories.filter((c) => !c.when || this.contextService.contextMatchesRules(c.when))[0];
+        if (first) {
+          this.hasScrolledToFirstCategory = true;
+          this.currentWalkthrough = first;
+          this.editorInput.selectedCategory = this.currentWalkthrough?.id;
+          this.editorInput.walkthroughPageTitle = this.currentWalkthrough.walkthroughPageTitle;
+          if (first.id === NEW_WELCOME_EXPERIENCE) {
+            this.buildNewCategorySlide(this.editorInput.selectedCategory, void 0);
+          } else {
+            this.buildCategorySlide(this.editorInput.selectedCategory, void 0);
+          }
+          this.setSlide(
+            "details",
+            true
+            /* firstLaunch */
+          );
+          return;
+        }
+      }
+    }
+    this.setSlide("categories");
+  }
+  buildRecentlyOpenedList() {
+    const renderRecent = /* @__PURE__ */ __name((recent) => {
+      let fullPath;
+      let windowOpenable;
+      if (isRecentFolder(recent)) {
+        windowOpenable = { folderUri: recent.folderUri };
+        fullPath = recent.label || this.labelService.getWorkspaceLabel(recent.folderUri, {
+          verbose: 2
+          /* Verbosity.LONG */
+        });
+      } else {
+        fullPath = recent.label || this.labelService.getWorkspaceLabel(recent.workspace, {
+          verbose: 2
+          /* Verbosity.LONG */
+        });
+        windowOpenable = { workspaceUri: recent.workspace.configPath };
+      }
+      const { name, parentPath } = splitRecentLabel(fullPath);
+      const li = $("li");
+      const link = $("button.button-link");
+      link.innerText = name;
+      link.title = fullPath;
+      link.setAttribute("aria-label", localize("welcomePage.openFolderWithPath", "Open folder {0} with path {1}", name, parentPath));
+      link.addEventListener("click", (e) => {
+        this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "openRecent", argument: void 0, walkthroughId: this.currentWalkthrough?.id });
+        this.hostService.openWindow([windowOpenable], {
+          forceNewWindow: e.ctrlKey || e.metaKey,
+          remoteAuthority: recent.remoteAuthority || null
+          // local window if remoteAuthority is not set or can not be deducted from the openable
+        });
+        e.preventDefault();
+        e.stopPropagation();
+      });
+      li.appendChild(link);
+      const span = $("span");
+      span.classList.add("path");
+      span.classList.add("detail");
+      span.innerText = parentPath;
+      span.title = fullPath;
+      li.appendChild(span);
+      return li;
+    }, "renderRecent");
+    if (this.recentlyOpenedList) {
+      this.recentlyOpenedList.dispose();
+    }
+    const recentlyOpenedList = this.recentlyOpenedList = new GettingStartedIndexList({
+      title: localize("recent", "Recent"),
+      klass: "recently-opened",
+      limit: 5,
+      empty: $(".empty-recent", {}, localize("noRecents", "You have no recent folders,"), $("button.button-link", { "x-dispatch": "openFolder" }, localize("openFolder", "open a folder")), localize("toStart", "to start.")),
+      more: $(".more", {}, $("button.button-link", {
+        "x-dispatch": "showMoreRecents",
+        title: localize("show more recents", "Show All Recent Folders {0}", this.getKeybindingLabel(OpenRecentAction.ID))
+      }, localize("showAll", "More..."))),
+      renderElement: renderRecent,
+      contextService: this.contextService
+    });
+    recentlyOpenedList.onDidChange(() => this.registerDispatchListeners());
+    this.recentlyOpened.then(({ workspaces }) => {
+      const workspacesWithID = workspaces.filter((recent) => !this.workspaceContextService.isCurrentWorkspace(isRecentWorkspace(recent) ? recent.workspace : recent.folderUri)).map((recent) => ({ ...recent, id: isRecentWorkspace(recent) ? recent.workspace.id : recent.folderUri.toString() }));
+      const updateEntries = /* @__PURE__ */ __name(() => {
+        recentlyOpenedList.setEntries(workspacesWithID);
+      }, "updateEntries");
+      updateEntries();
+      recentlyOpenedList.register(this.labelService.onDidChangeFormatters(() => updateEntries()));
+    }).catch(onUnexpectedError);
+    return recentlyOpenedList;
+  }
+  buildStartList() {
+    const renderStartEntry = /* @__PURE__ */ __name((entry) => $("li", {}, $("button.button-link", {
+      "x-dispatch": "selectStartEntry:" + entry.id,
+      title: entry.description + " " + this.getKeybindingLabel(entry.command)
+    }, this.iconWidgetFor(entry), $("span", {}, entry.title))), "renderStartEntry");
+    if (this.startList) {
+      this.startList.dispose();
+    }
+    const startList = this.startList = new GettingStartedIndexList({
+      title: localize("start", "Start"),
+      klass: "start-container",
+      limit: 10,
+      renderElement: renderStartEntry,
+      rankElement: /* @__PURE__ */ __name((e) => -e.order, "rankElement"),
+      contextService: this.contextService
+    });
+    startList.setEntries(parsedStartEntries);
+    startList.onDidChange(() => this.registerDispatchListeners());
+    return startList;
+  }
+  buildGettingStartedWalkthroughsList() {
+    const renderGetttingStaredWalkthrough = /* @__PURE__ */ __name((category) => {
+      const renderNewBadge = (category.newItems || category.newEntry) && !category.isFeatured;
+      const newBadge = $(".new-badge", {});
+      if (category.newEntry) {
+        reset(newBadge, $(".new-category", {}, localize("new", "New")));
+      } else if (category.newItems) {
+        reset(newBadge, $(".new-items", {}, localize({ key: "newItems", comment: ["Shown when a list of items has changed based on an update from a remote source"] }, "Updated")));
+      }
+      const featuredBadge = $(".featured-badge", {});
+      const descriptionContent = $(".description-content", {});
+      if (category.isFeatured && this.showFeaturedWalkthrough) {
+        reset(featuredBadge, $(".featured", {}, $("span.featured-icon.codicon.codicon-star-full")));
+        reset(descriptionContent, ...renderLabelWithIcons(category.description));
+      }
+      const titleContent = $("h3.category-title.max-lines-3", { "x-category-title-for": category.id });
+      reset(titleContent, ...renderLabelWithIcons(category.title));
+      return $("button.getting-started-category" + (category.isFeatured && this.showFeaturedWalkthrough ? ".featured" : ""), {
+        "x-dispatch": "selectCategory:" + category.id,
+        "title": category.description
+      }, featuredBadge, $(".main-content", {}, this.iconWidgetFor(category), titleContent, renderNewBadge ? newBadge : $(".no-badge"), $("a.codicon.codicon-close.hide-category-button", {
+        "tabindex": 0,
+        "x-dispatch": "hideCategory:" + category.id,
+        "title": localize("close", "Hide"),
+        "role": "button",
+        "aria-label": localize("closeAriaLabel", "Hide")
+      })), descriptionContent, $(".category-progress", { "x-data-category-id": category.id }, $(".progress-bar-outer", { "role": "progressbar" }, $(".progress-bar-inner"))));
+    }, "renderGetttingStaredWalkthrough");
+    if (this.gettingStartedList) {
+      this.gettingStartedList.dispose();
+    }
+    const rankWalkthrough = /* @__PURE__ */ __name((e) => {
+      let rank = e.order;
+      if (e.isFeatured) {
+        rank += 7;
+      }
+      if (e.newEntry) {
+        rank += 3;
+      }
+      if (e.newItems) {
+        rank += 2;
+      }
+      if (e.recencyBonus) {
+        rank += 4 * e.recencyBonus;
+      }
+      if (this.getHiddenCategories().has(e.id)) {
+        rank = null;
+      }
+      return rank;
+    }, "rankWalkthrough");
+    const gettingStartedList = this.gettingStartedList = new GettingStartedIndexList({
+      title: localize("walkthroughs", "Walkthroughs"),
+      klass: "getting-started",
+      limit: 5,
+      footer: $("span.button-link.see-all-walkthroughs", { "x-dispatch": "seeAllWalkthroughs", "tabindex": 0 }, localize("showAll", "More...")),
+      renderElement: renderGetttingStaredWalkthrough,
+      rankElement: rankWalkthrough,
+      contextService: this.contextService
+    });
+    gettingStartedList.onDidChange(() => {
+      const hidden = this.getHiddenCategories();
+      const someWalkthroughsHidden = hidden.size || gettingStartedList.itemCount < this.gettingStartedCategories.filter((c) => this.contextService.contextMatchesRules(c.when)).length;
+      this.container.classList.toggle("someWalkthroughsHidden", !!someWalkthroughsHidden);
+      this.registerDispatchListeners();
+      allWalkthroughsHiddenContext.bindTo(this.contextService).set(gettingStartedList.itemCount === 0);
+      this.updateCategoryProgress();
+    });
+    gettingStartedList.setEntries(this.gettingStartedCategories);
+    allWalkthroughsHiddenContext.bindTo(this.contextService).set(gettingStartedList.itemCount === 0);
+    return gettingStartedList;
+  }
+  layout(size) {
+    this.detailsScrollbar?.scanDomNode();
+    this.categoriesPageScrollbar?.scanDomNode();
+    this.detailsPageScrollbar?.scanDomNode();
+    this.startList?.layout(size);
+    this.gettingStartedList?.layout(size);
+    this.recentlyOpenedList?.layout(size);
+    if (this.editorInput?.selectedStep && this.currentMediaType) {
+      this.mediaDisposables.clear();
+      this.stepDisposables.clear();
+      this.buildMediaComponent(this.editorInput.selectedStep);
+    }
+    this.layoutMarkdown?.();
+    this.container.classList.toggle("height-constrained", size.height <= 600);
+    this.container.classList.toggle("width-constrained", size.width <= 400);
+    this.container.classList.toggle("width-semi-constrained", size.width <= 950);
+    this.container.classList.toggle("new-layout-width-constrained", size.width <= 800);
+    this.categoriesPageScrollbar?.scanDomNode();
+    this.detailsPageScrollbar?.scanDomNode();
+    this.detailsScrollbar?.scanDomNode();
+  }
+  updateCategoryProgress() {
+    this.window.document.querySelectorAll(".category-progress").forEach((element) => {
+      const categoryID = element.getAttribute("x-data-category-id");
+      const category = categoryID === NEW_WELCOME_EXPERIENCE ? this.gettingStartedService.getWalkthrough(categoryID) : this.gettingStartedCategories.find((c) => c.id === categoryID);
+      if (!category) {
+        throw Error("Could not find category with ID " + categoryID);
+      }
+      const stats = this.getWalkthroughCompletionStats(category);
+      const bar = assertIsDefined(element.querySelector(".progress-bar-inner"));
+      bar.setAttribute("aria-valuemin", "0");
+      bar.setAttribute("aria-valuenow", "" + stats.stepsComplete);
+      bar.setAttribute("aria-valuemax", "" + stats.stepsTotal);
+      const progress = stats.stepsComplete / stats.stepsTotal * 100;
+      bar.style.width = `${progress}%`;
+      element.parentElement.classList.toggle("no-progress", stats.stepsComplete === 0);
+      if (stats.stepsTotal === stats.stepsComplete) {
+        bar.title = localize("gettingStarted.allStepsComplete", "All {0} steps complete!", stats.stepsComplete);
+      } else {
+        bar.title = localize("gettingStarted.someStepsComplete", "{0} of {1} steps complete", stats.stepsComplete, stats.stepsTotal);
+      }
+    });
+  }
+  async scrollToCategory(categoryID, stepId) {
+    if (!this.gettingStartedCategories.some((c) => c.id === categoryID)) {
+      this.gettingStartedCategories = this.gettingStartedService.getWalkthroughs();
+    }
+    const ourCategory = categoryID === NEW_WELCOME_EXPERIENCE ? this.gettingStartedService.getWalkthrough(categoryID) : this.gettingStartedCategories.find((c) => c.id === categoryID);
+    if (!ourCategory) {
+      throw Error("Could not find category with ID: " + categoryID);
+    }
+    this.inProgressScroll = this.inProgressScroll.then(async () => {
+      reset(this.stepsContent);
+      this.editorInput.selectedCategory = categoryID;
+      this.editorInput.selectedStep = stepId;
+      this.editorInput.walkthroughPageTitle = ourCategory.walkthroughPageTitle;
+      this.currentWalkthrough = ourCategory;
+      this.buildCategorySlide(categoryID, stepId);
+      this.setSlide("details");
+    });
+  }
+  iconWidgetFor(category) {
+    const widget = category.icon.type === "icon" ? $(ThemeIcon.asCSSSelector(category.icon.icon)) : $("img.category-icon", { src: category.icon.path });
+    widget.classList.add("icon-widget");
+    return widget;
+  }
+  focusSideEditorGroup() {
+    const fullSize = this.groupsService.getPart(this.group).contentDimension;
+    if (!fullSize || fullSize.width <= 700) {
+      return;
+    }
+    if (this.groupsService.count === 1) {
+      const sideGroup = this.groupsService.addGroup(
+        this.groupsService.groups[0],
+        3
+        /* GroupDirection.RIGHT */
+      );
+      this.groupsService.activateGroup(sideGroup);
+      const gettingStartedSize = Math.floor(fullSize.width / 2);
+      const gettingStartedGroup = this.groupsService.getGroups(
+        1
+        /* GroupsOrder.MOST_RECENTLY_ACTIVE */
+      ).find((group) => group.activeEditor instanceof GettingStartedInput);
+      this.groupsService.setSize(assertIsDefined(gettingStartedGroup), { width: gettingStartedSize, height: fullSize.height });
+    }
+    const nonGettingStartedGroup = this.groupsService.getGroups(
+      1
+      /* GroupsOrder.MOST_RECENTLY_ACTIVE */
+    ).find((group) => !(group.activeEditor instanceof GettingStartedInput));
+    if (nonGettingStartedGroup) {
+      this.groupsService.activateGroup(nonGettingStartedGroup);
+      nonGettingStartedGroup.focus();
+    }
+  }
+  runStepCommand(href) {
+    const isCommand = href.startsWith("command:");
+    const toSide = href.startsWith("command:toSide:");
+    const command = href.replace(/command:(toSide:)?/, "command:");
+    this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "runStepAction", argument: href, walkthroughId: this.currentWalkthrough?.id });
+    if (toSide) {
+      this.focusSideEditorGroup();
+    }
+    if (isCommand) {
+      const commandURI = URI.parse(command);
+      let args = [];
+      try {
+        args = parse(decodeURIComponent(commandURI.query));
+      } catch {
+        try {
+          args = parse(commandURI.query);
+        } catch {
+        }
+      }
+      if (!Array.isArray(args)) {
+        args = [args];
+      }
+      if ((commandURI.path === OpenFileFolderAction.ID.toString() || commandURI.path === OpenFolderAction.ID.toString()) && this.workspaceContextService.getWorkspace().folders.length === 0) {
+        const selectedStepIndex = this.currentWalkthrough?.steps.findIndex((step) => step.id === this.editorInput.selectedStep);
+        if (selectedStepIndex !== void 0 && selectedStepIndex > -1 && this.currentWalkthrough?.steps.slice(selectedStepIndex + 1).some((step) => !step.done)) {
+          const restoreData = { folder: UNKNOWN_EMPTY_WINDOW_WORKSPACE.id, category: this.editorInput.selectedCategory, step: this.editorInput.selectedStep };
+          this.storageService.store(
+            restoreWalkthroughsConfigurationKey,
+            JSON.stringify(restoreData),
+            0,
+            1
+            /* StorageTarget.MACHINE */
+          );
+        }
+      }
+      this.commandService.executeCommand(commandURI.path, ...args).then((result) => {
+        const toOpen = result?.openFolder;
+        if (toOpen) {
+          if (!URI.isUri(toOpen)) {
+            console.warn("Warn: Running walkthrough command", href, "yielded non-URI `openFolder` result", toOpen, ". It will be disregarded.");
+            return;
+          }
+          const restoreData = { folder: toOpen.toString(), category: this.editorInput.selectedCategory, step: this.editorInput.selectedStep };
+          this.storageService.store(
+            restoreWalkthroughsConfigurationKey,
+            JSON.stringify(restoreData),
+            0,
+            1
+            /* StorageTarget.MACHINE */
+          );
+          this.hostService.openWindow([{ folderUri: toOpen }]);
+        }
+      });
+    } else {
+      this.openerService.open(command, { allowCommands: true });
+    }
+    if (!isCommand && (href.startsWith("https://") || href.startsWith("http://"))) {
+      this.gettingStartedService.progressByEvent("onLink:" + href);
+    }
+  }
+  buildMarkdownDescription(container, text) {
+    while (container.firstChild) {
+      container.firstChild.remove();
+    }
+    for (const linkedText of text) {
+      if (linkedText.nodes.length === 1 && typeof linkedText.nodes[0] !== "string") {
+        const node = linkedText.nodes[0];
+        const buttonContainer = append(container, $(".button-container"));
+        const button = new Button(buttonContainer, { title: node.title, supportIcons: true, ...defaultButtonStyles });
+        const isCommand = node.href.startsWith("command:");
+        const command = node.href.replace(/command:(toSide:)?/, "command:");
+        button.label = node.label;
+        button.onDidClick((e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          this.runStepCommand(node.href);
+        }, null, this.detailsPageDisposables);
+        if (isCommand) {
+          const keybinding = this.getKeyBinding(command);
+          if (keybinding && this.editorInput.selectedCategory !== NEW_WELCOME_EXPERIENCE) {
+            const shortcutMessage = $("span.shortcut-message", {}, localize("gettingStarted.keyboardTip", "Tip: Use keyboard shortcut "));
+            container.appendChild(shortcutMessage);
+            const label = new KeybindingLabel(shortcutMessage, OS, { ...defaultKeybindingLabelStyles });
+            label.set(keybinding);
+            this.detailsPageDisposables.add(label);
+          }
+        }
+        this.detailsPageDisposables.add(button);
+      } else {
+        const p = append(container, $("p"));
+        for (const node of linkedText.nodes) {
+          if (typeof node === "string") {
+            const labelWithIcon = renderLabelWithIcons(node);
+            for (const element of labelWithIcon) {
+              if (typeof element === "string") {
+                p.appendChild(renderFormattedText(element, { inline: true, renderCodeSegments: true }));
+              } else {
+                p.appendChild(element);
+              }
+            }
+          } else {
+            const nodeWithTitle = matchesScheme(node.href, Schemas.http) || matchesScheme(node.href, Schemas.https) ? { ...node, title: node.href } : node;
+            const link = this.instantiationService.createInstance(Link, p, nodeWithTitle, { opener: /* @__PURE__ */ __name((href) => this.runStepCommand(href), "opener") });
+            this.detailsPageDisposables.add(link);
+          }
+        }
+      }
+    }
+    return container;
+  }
+  clearInput() {
+    this.stepDisposables.clear();
+    super.clearInput();
+  }
+  selectStepByIndex(newIndex, steps, direction) {
+    this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "selectTask", argument: steps[newIndex].id, walkthroughId: this.currentWalkthrough?.id });
+    const currentIndex = steps.findIndex((step) => step.id === this.editorInput.selectedStep);
+    this.selectSlide(steps[newIndex].id);
+    const footer = this.stepsContent.querySelector(".getting-started-footer");
+    if (footer && newIndex !== 0) {
+      footer.style.display = "none";
+    } else if (footer) {
+      footer.style.display = "block";
+    }
+    this.updateNavButtons(newIndex, steps);
+    const dots = this.stepsContent.querySelectorAll(".step-dot");
+    dots.forEach((dot, index) => {
+      if (index === newIndex) {
+        dot.classList.add("active");
+      } else {
+        dot.classList.remove("active");
+      }
+    });
+    if (currentIndex === newIndex) {
+      return;
+    }
+    const slidesContainer = this.stepsContent.querySelector(".step-slides-container");
+    if (slidesContainer) {
+      const slides = slidesContainer.querySelectorAll(".step-slide");
+      slides.forEach((slide, index) => {
+        const slideElement = slide;
+        if (index === currentIndex) {
+          slideElement.style.display = "block";
+          slideElement.style.transform = "translateX(0)";
+        } else if (index === newIndex) {
+          slideElement.style.display = "block";
+          slideElement.style.transform = `translateX(${direction < 0 ? "-100%" : "100%"})`;
+        } else {
+          slideElement.style.display = "none";
+        }
+      });
+      slidesContainer.getBoundingClientRect();
+      setTimeout(() => {
+        slides.forEach((slide, index) => {
+          const slideElement = slide;
+          if (index === currentIndex) {
+            slideElement.style.transform = `translateX(${direction > 0 ? "-100%" : "100%"})`;
+            setTimeout(() => {
+              slideElement.style.display = "none";
+            }, SLIDE_TRANSITION_TIME_MS);
+          } else if (index === newIndex) {
+            slideElement.style.transform = "translateX(0)";
+          }
+        });
+      }, 20);
+    }
+  }
+  updateNavButtons(newIndex, steps) {
+    const prevButton = this.stepsContent.querySelector(".button-link.navigation.back");
+    if (newIndex === 0) {
+      if (prevButton) {
+        prevButton.classList.add("inactive");
+        prevButton.setAttribute("aria-hidden", "true");
+        prevButton.setAttribute("tabindex", "-1");
+      }
+    } else {
+      if (prevButton) {
+        prevButton.classList.remove("inactive");
+        prevButton.removeAttribute("aria-hidden");
+        prevButton.removeAttribute("tabindex");
+      }
+    }
+  }
+  buildNewCategorySlide(categoryID, selectedStep) {
+    this.container.classList.add("newSlide");
+    if (this.detailsScrollbar) {
+      this.detailsScrollbar.dispose();
+    }
+    this.detailsPageDisposables.clear();
+    this.mediaDisposables.clear();
+    const category = this.gettingStartedService.getWalkthrough(categoryID);
+    if (!category) {
+      throw Error("could not find category with ID " + categoryID);
+    }
+    const steps = category.steps.filter((step) => this.contextService.contextMatchesRules(step.when));
+    const groupedSteps = /* @__PURE__ */ new Map();
+    steps.forEach((step) => {
+      const prefixMatch = step.id.match(/^([^.]+)\./);
+      const prefix = prefixMatch ? prefixMatch[1] : step.id;
+      if (!groupedSteps.has(prefix)) {
+        groupedSteps.set(prefix, []);
+      }
+      groupedSteps.get(prefix)?.push(step);
+    });
+    const slidesContainer = $(".step-slides-container");
+    const navigationContainer = $(".step-dots-container");
+    const prevButton = $("button.button-link.navigation.back", {
+      "aria-label": localize("previousStep", "Previous Step"),
+      "tabindex": "0"
+    }, $("span.codicon.codicon-arrow-left"), localize("back", "Back"));
+    const dotsContainer = $(".dots-centered");
+    navigationContainer.appendChild(prevButton);
+    navigationContainer.appendChild(dotsContainer);
+    const allSlides = [];
+    groupedSteps.forEach((stepsInGroup, prefix) => {
+      if (stepsInGroup.length === 1) {
+        allSlides.push({ id: stepsInGroup[0].id, steps: [stepsInGroup[0]] });
+      } else {
+        allSlides.push({ id: prefix, steps: stepsInGroup });
+      }
+    });
+    allSlides.forEach((slide, index) => {
+      const slideElement = $(".step-slide", { "data-step": slide.id });
+      const slideContent = $(".step-slide-content");
+      const textContent = $(".step-text-content");
+      if (slide.steps.length === 1) {
+        const step = slide.steps[0];
+        const titleElement = $("h3.step-title", { "x-step-title-for": step.id });
+        reset(titleElement, ...renderLabelWithIcons(step.title));
+        textContent.appendChild(titleElement);
+        const descriptionContainer2 = $(".step-description", { "x-step-description-for": step.id });
+        this.buildMarkdownDescription(descriptionContainer2, step.description);
+        textContent.appendChild(descriptionContainer2);
+      } else {
+        const multiStepContainer = $(".multi-step-container");
+        slide.steps.forEach((step, i) => {
+          const subStep = $(".sub-step", { "data-sub-step-id": step.id });
+          this.detailsPageDisposables.add(addDisposableListener(subStep, "click", () => {
+            this.selectSubStep(step.id);
+          }));
+          this.detailsPageDisposables.add(addDisposableListener(subStep, "mouseenter", () => {
+            this.selectSubStep(step.id);
+          }));
+          const subStepTitleEl = $(".sub-step-title", {}, ...renderLabelWithIcons(step.title));
+          subStep.appendChild(subStepTitleEl);
+          const subStepDesc = $(".sub-step-description");
+          this.buildMarkdownDescription(subStepDesc, [step.description[0]]);
+          subStep.appendChild(subStepDesc);
+          if (i === 0 || step.id === this.editorInput.selectedStep) {
+            subStep.classList.add("active");
+          } else {
+            subStep.classList.remove("active");
+          }
+          multiStepContainer.appendChild(subStep);
+        });
+        const lastStep = slide.steps[slide.steps.length - 1];
+        const linkedText = lastStep.description.length > 1 ? lastStep.description[1] : void 0;
+        if (linkedText) {
+          const descElement = $(".multi-step-action");
+          this.buildMarkdownDescription(descElement, [linkedText]);
+          multiStepContainer.appendChild(descElement);
+        }
+        textContent.appendChild(multiStepContainer);
+      }
+      slideContent.appendChild(textContent);
+      slideElement.appendChild(slideContent);
+      slidesContainer.appendChild(slideElement);
+      const dot = $("button.step-dot", {
+        "data-step-dot-index": `${index}`,
+        "role": "button"
+      });
+      if (index === 0) {
+        dot.classList.add("active");
+      }
+      dotsContainer.appendChild(dot);
+      this.detailsPageDisposables.add(addDisposableListener(dot, "click", () => {
+        const currentIndex = this.getCurrentSlideIndex(allSlides);
+        if (currentIndex === index) {
+          return;
+        }
+        this.selectStepByIndex(index, allSlides.map((s) => s.steps[0]), index > currentIndex ? 1 : -1);
+      }));
+    });
+    const nextButton = $("button.button-link.navigation.next", {
+      "aria-label": localize("nextStep", "Next")
+    }, localize("next", "Next"), $("span.codicon.codicon-arrow-right"));
+    navigationContainer.appendChild(nextButton);
+    this.detailsPageDisposables.add(addDisposableListener(prevButton, "click", () => {
+      const currentIndex = this.getCurrentSlideIndex(allSlides);
+      if (currentIndex > 0) {
+        this.selectStepByIndex(currentIndex - 1, allSlides.map((s) => s.steps[0]), -1);
+      }
+    }));
+    this.detailsPageDisposables.add(addDisposableListener(nextButton, "click", () => {
+      const currentIndex = this.getCurrentSlideIndex(allSlides);
+      if (currentIndex < allSlides.length - 1) {
+        this.selectStepByIndex(currentIndex + 1, allSlides.map((s) => s.steps[0]), 1);
+      } else {
+        this.scrollPrev();
+      }
+    }));
+    this.currentWalkthrough = category;
+    this.editorInput.selectedCategory = categoryID;
+    this.editorInput.selectedStep = this.currentWalkthrough.steps[0].id;
+    const categoryHeader = $(".category-header");
+    const categoryTitle = $("h2.category-title", { "x-category-title-for": category.id });
+    reset(categoryTitle, ...renderLabelWithIcons(category.title));
+    categoryHeader.appendChild(categoryTitle);
+    const descriptionContainer = $(".category-description.description.max-lines-3", { "x-category-description-for": category.id });
+    this.buildMarkdownDescription(descriptionContainer, parseDescription(category.description));
+    reset(descriptionContainer, ...renderLabelWithIcons(category.description));
+    categoryHeader.appendChild(descriptionContainer);
+    const categoryFooter = $(".getting-started-footer");
+    if (this.editorInput.showTelemetryNotice && getTelemetryLevel(this.configurationService) !== 0 && this.productService.enableTelemetry) {
+      this.buildTelemetryFooter(categoryFooter);
+    }
+    const stepsContainer = $(".getting-started-steps-container", {}, categoryHeader, slidesContainer, navigationContainer, categoryFooter);
+    this.detailsScrollbar = this._register(new DomScrollableElement(stepsContainer, { className: "steps-container" }));
+    const stepListComponent = this.detailsScrollbar.getDomNode();
+    reset(this.stepsContent, stepListComponent);
+    stepListComponent.tabIndex = 0;
+    stepListComponent.focus();
+    this.selectStepByIndex(0, this.currentWalkthrough.steps, 1);
+    this.detailsPageDisposables.add(addDisposableListener(stepListComponent, "keydown", (e) => {
+      const event = new StandardKeyboardEvent(e);
+      if (event.keyCode === 17) {
+        const currentIndex = this.getCurrentSlideIndex(allSlides);
+        if (currentIndex < allSlides.length - 1) {
+          this.selectStepByIndex(currentIndex + 1, allSlides.map((s) => s.steps[0]), 1);
+        } else {
+          this.scrollPrev();
+        }
+      } else if (event.keyCode === 15) {
+        const currentIndex = this.getCurrentSlideIndex(allSlides);
+        if (currentIndex > 0) {
+          this.selectStepByIndex(currentIndex - 1, allSlides.map((s) => s.steps[0]), -1);
+        }
+      } else if (event.keyCode === 16 || event.keyCode === 18) {
+        const currentIndex = this.getCurrentSlideIndex(allSlides);
+        if (currentIndex > 0) {
+          return;
+        }
+        this.navigateWithinMultiStepContainer(event.keyCode);
+      }
+    }));
+    this.registerDispatchListeners();
+    this.detailsScrollbar.scanDomNode();
+    this.detailsPageScrollbar?.scanDomNode();
+  }
+  navigateWithinMultiStepContainer(keyCode) {
+    const currentElement = this.container.querySelector(`.multi-step-container`);
+    if (!currentElement) {
+      return;
+    }
+    const currentSubStep = currentElement.querySelector(".sub-step.active");
+    const allElements = Array.from(this.container.querySelectorAll(".sub-step"));
+    const currentIndex = currentSubStep ? allElements.indexOf(currentSubStep) : -1;
+    let targetElement;
+    if (keyCode === 16 && currentIndex > 0) {
+      targetElement = allElements[currentIndex - 1];
+    } else if (keyCode === 18 && currentIndex < allElements.length - 1) {
+      targetElement = allElements[currentIndex + 1];
+    }
+    if (targetElement) {
+      const stepId = targetElement.getAttribute("data-sub-step-id");
+      this.selectSubStep(stepId);
+      targetElement.focus();
+    }
+  }
+  selectSubStep(selectedStepId) {
+    this.telemetryService.publicLog2("gettingStarted.ActionExecuted", { command: "selectTask", argument: selectedStepId, walkthroughId: this.currentWalkthrough?.id });
+    if (this.editorInput.selectedStep === selectedStepId) {
+      return;
+    }
+    this.editorInput.selectedStep = selectedStepId;
+    const multiStepContainer = this.container.querySelector(".multi-step-container");
+    if (!multiStepContainer) {
+      return;
+    }
+    const subSteps = multiStepContainer.querySelectorAll(".sub-step");
+    subSteps.forEach((subStepEl) => {
+      const stepId = subStepEl.getAttribute("data-sub-step-id");
+      if (stepId === selectedStepId) {
+        subStepEl.classList.add("active");
+      } else {
+        subStepEl.classList.remove("active");
+      }
+    });
+    const prefixMatch = selectedStepId.match(/^([^.]+)\./);
+    const prefix = prefixMatch ? prefixMatch[1] : selectedStepId;
+    this.selectSlideWithPrefix(selectedStepId, prefix);
+    this.gettingStartedService.progressByEvent("stepSelected:" + selectedStepId);
+  }
+  selectSlideWithPrefix(stepId, prefix) {
+    this.editorInput.selectedStep = stepId;
+    const step = this.currentWalkthrough?.steps.find((step2) => step2.id === stepId);
+    if (!step) {
+      return;
+    }
+    const selectedSlide = this.stepsContent.querySelector(`.step-slide[data-step="${prefix}"]`);
+    if (selectedSlide) {
+      const selectedSlideContent = selectedSlide.querySelector(".step-slide-content");
+      this.mediaDisposables.clear();
+      this.stepDisposables.clear();
+      this.buildMediaComponent(this.editorInput.selectedStep);
+      selectedSlideContent?.appendChild(this.stepMediaComponent);
+      setTimeout(() => selectedSlideContent.focus(), 0);
+    }
+    this.gettingStartedService.progressByEvent("stepSelected:" + stepId);
+    this.detailsPageScrollbar?.scanDomNode();
+    this.detailsScrollbar?.scanDomNode();
+  }
+  getCurrentSlideIndex(allSlides) {
+    if (!this.editorInput.selectedStep) {
+      return 0;
+    }
+    const directMatch = allSlides.findIndex((slide) => slide.id === this.editorInput.selectedStep);
+    if (directMatch !== -1) {
+      return directMatch;
+    }
+    return allSlides.findIndex((slide) => slide.steps.some((step) => step.id === this.editorInput.selectedStep));
+  }
+  selectSlide(stepId) {
+    this.editorInput.selectedStep = stepId;
+    const step = this.currentWalkthrough?.steps.find((step2) => step2.id === stepId);
+    if (!step) {
+      return;
+    }
+    const effectiveStepId = stepId.match(/^([^.]+)\./)?.[1] ?? stepId;
+    const selectedSlide = this.stepsContent.querySelector(`.step-slide[data-step="${effectiveStepId}"]`);
+    if (selectedSlide) {
+      const selectedSlideContent = selectedSlide.querySelector(".step-slide-content");
+      this.mediaDisposables.clear();
+      this.stepDisposables.clear();
+      this.buildMediaComponent(this.editorInput.selectedStep);
+      selectedSlideContent?.appendChild(this.stepMediaComponent);
+      setTimeout(() => selectedSlideContent.focus(), 0);
+    }
+    this.gettingStartedService.progressByEvent("stepSelected:" + stepId);
+    this.detailsPageScrollbar?.scanDomNode();
+    this.detailsScrollbar?.scanDomNode();
+  }
+  buildCategorySlide(categoryID, selectedStep) {
+    this.container.classList.remove("newSlide");
+    if (this.detailsScrollbar) {
+      this.detailsScrollbar.dispose();
+    }
+    this.extensionService.whenInstalledExtensionsRegistered().then(() => {
+      this.extensionService.activateByEvent(`onWalkthrough:${categoryID.replace(/[^#]+#/, "")}`);
+    });
+    this.detailsPageDisposables.clear();
+    this.mediaDisposables.clear();
+    const category = categoryID === NEW_WELCOME_EXPERIENCE ? this.gettingStartedService.getWalkthrough(categoryID) : this.gettingStartedCategories.find((category2) => category2.id === categoryID);
+    if (!category) {
+      throw Error("could not find category with ID " + categoryID);
+    }
+    const descriptionContainer = $(".category-description.description.max-lines-3", { "x-category-description-for": category.id });
+    this.buildMarkdownDescription(descriptionContainer, parseDescription(category.description));
+    const categoryDescriptorComponent = $(".getting-started-category", {}, $(".category-description-container", {}, $("h2.category-title.max-lines-3", { "x-category-title-for": category.id }, ...renderLabelWithIcons(category.title)), descriptionContainer));
+    const stepListContainer = $(".step-list-container");
+    this.detailsPageDisposables.add(addDisposableListener(stepListContainer, "keydown", (e) => {
+      const event = new StandardKeyboardEvent(e);
+      const currentStepIndex = /* @__PURE__ */ __name(() => category.steps.findIndex((e2) => e2.id === this.editorInput.selectedStep), "currentStepIndex");
+      if (event.keyCode === 16) {
+        const toExpand2 = category.steps.filter((step, index) => index < currentStepIndex() && this.contextService.contextMatchesRules(step.when));
+        if (toExpand2.length) {
+          this.selectStep(toExpand2[toExpand2.length - 1].id, false);
+        }
+      }
+      if (event.keyCode === 18) {
+        const toExpand2 = category.steps.find((step, index) => index > currentStepIndex() && this.contextService.contextMatchesRules(step.when));
+        if (toExpand2) {
+          this.selectStep(toExpand2.id, false);
+        }
+      }
+    }));
+    let renderedSteps = void 0;
+    const contextKeysToWatch = new Set(category.steps.flatMap((step) => step.when.keys()));
+    const buildStepList = /* @__PURE__ */ __name(() => {
+      category.steps.sort((a, b) => a.order - b.order);
+      const toRender = category.steps.filter((step) => this.contextService.contextMatchesRules(step.when));
+      if (equals(renderedSteps, toRender, (a, b) => a.id === b.id)) {
+        return;
+      }
+      renderedSteps = toRender;
+      reset(stepListContainer, ...renderedSteps.map((step) => {
+        const codicon = $(".codicon" + (step.done ? ".complete" + ThemeIcon.asCSSSelector(gettingStartedCheckedCodicon) : ThemeIcon.asCSSSelector(gettingStartedUncheckedCodicon)), {
+          "data-done-step-id": step.id,
+          "x-dispatch": "toggleStepCompletion:" + step.id,
+          "role": "checkbox",
+          "aria-checked": step.done ? "true" : "false",
+          "aria-label": step.done ? localize("stepDone", "Checkbox for Step {0}: Completed", step.title) : localize("stepNotDone", "Checkbox for Step {0}: Not completed", step.title)
+        });
+        const container = $(".step-description-container", { "x-step-description-for": step.id });
+        this.buildMarkdownDescription(container, step.description);
+        const stepTitle = $("h3.step-title.max-lines-3", { "x-step-title-for": step.id });
+        reset(stepTitle, ...renderLabelWithIcons(step.title));
+        const stepDescription = $(".step-container", {}, stepTitle, container);
+        if (step.media.type === "image") {
+          stepDescription.appendChild($(".image-description", { "aria-label": localize("imageShowing", "Image showing {0}", step.media.altText) }));
+        } else if (step.media.type === "video") {
+          stepDescription.appendChild($(".video-description", { "aria-label": localize("videoShowing", "Video showing {0}", step.media.altText) }));
+        }
+        return $("button.getting-started-step", {
+          "x-dispatch": "selectTask:" + step.id,
+          "data-step-id": step.id,
+          "aria-expanded": "false",
+          "aria-checked": step.done ? "true" : "false",
+          "role": "button"
+        }, codicon, stepDescription);
+      }));
+    }, "buildStepList");
+    buildStepList();
+    this.detailsPageDisposables.add(this.contextService.onDidChangeContext((e) => {
+      if (e.affectsSome(contextKeysToWatch) && this.currentWalkthrough) {
+        buildStepList();
+        this.registerDispatchListeners();
+        this.selectStep(this.editorInput.selectedStep, false);
+      }
+    }));
+    const showNextCategory = this.gettingStartedCategories.find((_category) => _category.id === category.next);
+    const stepsContainer = $(".getting-started-detail-container", { "role": "list" }, stepListContainer, $(".done-next-container", {}, $("button.button-link.all-done", { "x-dispatch": "allDone" }, $("span.codicon.codicon-check-all"), localize("allDone", "Mark Done")), ...showNextCategory ? [$("button.button-link.next", { "x-dispatch": "nextSection" }, localize("nextOne", "Next Section"), $("span.codicon.codicon-arrow-right"))] : []));
+    this.detailsScrollbar = this._register(new DomScrollableElement(stepsContainer, { className: "steps-container" }));
+    const stepListComponent = this.detailsScrollbar.getDomNode();
+    const categoryFooter = $(".getting-started-footer");
+    if (this.editorInput.showTelemetryNotice && getTelemetryLevel(this.configurationService) !== 0 && this.productService.enableTelemetry) {
+      this.buildTelemetryFooter(categoryFooter);
+    }
+    reset(this.stepsContent, categoryDescriptorComponent, stepListComponent, this.stepMediaComponent, categoryFooter);
+    const toExpand = category.steps.find((step) => this.contextService.contextMatchesRules(step.when) && !step.done) ?? category.steps[0];
+    this.selectStep(selectedStep ?? toExpand.id, !selectedStep);
+    this.detailsScrollbar.scanDomNode();
+    this.detailsPageScrollbar?.scanDomNode();
+    this.registerDispatchListeners();
+  }
+  buildTelemetryFooter(parent) {
+    const mdRenderer = this.instantiationService.createInstance(MarkdownRenderer, {});
+    const privacyStatementCopy = localize("privacy statement", "privacy statement");
+    const privacyStatementButton = `[${privacyStatementCopy}](command:workbench.action.openPrivacyStatementUrl)`;
+    const optOutCopy = localize("optOut", "opt out");
+    const optOutButton = `[${optOutCopy}](command:settings.filterByTelemetry)`;
+    const text = localize({ key: "footer", comment: ['fist substitution is "vs code", second is "privacy statement", third is "opt out".'] }, "{0} collects usage data. Read our {1} and learn how to {2}.", this.productService.nameShort, privacyStatementButton, optOutButton);
+    const renderedContents = this.detailsPageDisposables.add(mdRenderer.render({ value: text, isTrusted: true }));
+    parent.append(renderedContents.element);
+  }
+  getKeybindingLabel(command) {
+    command = command.replace(/^command:/, "");
+    const label = this.keybindingService.lookupKeybinding(command)?.getLabel();
+    if (!label) {
+      return "";
+    } else {
+      return `(${label})`;
+    }
+  }
+  getKeyBinding(command) {
+    command = command.replace(/^command:/, "");
+    return this.keybindingService.lookupKeybinding(command);
+  }
+  async scrollPrev() {
+    this.inProgressScroll = this.inProgressScroll.then(async () => {
+      if (this.prevWalkthrough && this.prevWalkthrough !== this.currentWalkthrough) {
+        this.currentWalkthrough = this.prevWalkthrough;
+        this.prevWalkthrough = void 0;
+        this.makeCategoryVisibleWhenAvailable(this.currentWalkthrough.id);
+      } else {
+        this.currentWalkthrough = void 0;
+        this.editorInput.selectedCategory = void 0;
+        this.editorInput.selectedStep = void 0;
+        this.editorInput.showTelemetryNotice = false;
+        this.editorInput.walkthroughPageTitle = void 0;
+        if (this.gettingStartedCategories.length !== this.gettingStartedList?.itemCount) {
+          this.buildCategoriesSlide();
+        }
+        this.selectStep(void 0);
+        this.setSlide("categories");
+        this.container.focus();
+      }
+    });
+  }
+  runSkip() {
+    this.commandService.executeCommand("workbench.action.closeActiveEditor");
+  }
+  escape() {
+    if (this.editorInput.selectedCategory) {
+      this.scrollPrev();
+    } else {
+      this.runSkip();
+    }
+  }
+  setSlide(toEnable, firstLaunch = false) {
+    const slideManager = assertIsDefined(this.container.querySelector(".gettingStarted"));
+    if (toEnable === "categories") {
+      slideManager.classList.remove("showDetails");
+      slideManager.classList.add("showCategories");
+      this.container.querySelector(".prev-button.button-link").style.display = "none";
+      this.container.querySelector(".gettingStartedSlideDetails").querySelectorAll("button").forEach((button) => button.disabled = true);
+      this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("button").forEach((button) => button.disabled = false);
+      this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("input").forEach((button) => button.disabled = false);
+    } else {
+      slideManager.classList.add("showDetails");
+      slideManager.classList.remove("showCategories");
+      const prevButton = this.container.querySelector(".prev-button.button-link");
+      prevButton.style.display = this.editorInput.showWelcome || this.prevWalkthrough ? "block" : "none";
+      if (this.editorInput.selectedCategory === NEW_WELCOME_EXPERIENCE) {
+        prevButton.style.display = "none";
+      } else {
+        const moreTextElement = prevButton.querySelector(".moreText");
+        moreTextElement.textContent = firstLaunch ? localize("welcome", "Welcome") : localize("goBack", "Go Back");
+      }
+      this.container.querySelector(".gettingStartedSlideDetails").querySelectorAll("button").forEach((button) => button.disabled = false);
+      this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("button").forEach((button) => button.disabled = true);
+      this.container.querySelector(".gettingStartedSlideCategories").querySelectorAll("input").forEach((button) => button.disabled = true);
+    }
+  }
+  focus() {
+    super.focus();
+    const active = this.container.ownerDocument.activeElement;
+    let parent = this.container.parentElement;
+    while (parent && parent !== active) {
+      parent = parent.parentElement;
+    }
+    if (parent) {
+      this.container.focus();
+    }
+  }
+};
+GettingStartedPage = GettingStartedPage_1 = __decorate([
+  __param(1, ICommandService),
+  __param(2, IProductService),
+  __param(3, IKeybindingService),
+  __param(4, IWalkthroughsService),
+  __param(5, IConfigurationService),
+  __param(6, ITelemetryService),
+  __param(7, ILanguageService),
+  __param(8, IFileService),
+  __param(9, IOpenerService),
+  __param(10, IWorkbenchThemeService),
+  __param(11, IStorageService),
+  __param(12, IExtensionService),
+  __param(13, IInstantiationService),
+  __param(14, INotificationService),
+  __param(15, IEditorGroupsService),
+  __param(16, IContextKeyService),
+  __param(17, IQuickInputService),
+  __param(18, IWorkspacesService),
+  __param(19, ILabelService),
+  __param(20, IHostService),
+  __param(21, IWebviewService),
+  __param(22, IWorkspaceContextService),
+  __param(23, IAccessibilityService),
+  __param(24, IGettingStartedExperimentService)
+], GettingStartedPage);
+class GettingStartedInputSerializer {
+  static {
+    __name(this, "GettingStartedInputSerializer");
+  }
+  canSerialize(editorInput) {
+    return true;
+  }
+  serialize(editorInput) {
+    return JSON.stringify({ selectedCategory: editorInput.selectedCategory, selectedStep: editorInput.selectedStep });
+  }
+  deserialize(instantiationService, serializedEditorInput) {
+    return instantiationService.invokeFunction((accessor) => {
+      try {
+        const { selectedCategory, selectedStep } = JSON.parse(serializedEditorInput);
+        return new GettingStartedInput({ selectedCategory, selectedStep });
+      } catch {
+      }
+      return new GettingStartedInput({});
+    });
+  }
+}
+export {
+  GettingStartedInputSerializer,
+  GettingStartedPage,
+  allWalkthroughsHiddenContext,
+  inWelcomeContext
+};
+//# sourceMappingURL=gettingStarted.js.map

@@ -1,1 +1,70 @@
-import{ViewEventHandler as v}from"../../common/viewEventHandler.js";class n extends v{constructor(t){super(),this._context=t,this._context.addEventHandler(this)}dispose(){this._context.removeEventHandler(this),super.dispose()}}var w;(function(e){e[e.None=0]="None",e[e.ContentWidgets=1]="ContentWidgets",e[e.OverflowingContentWidgets=2]="OverflowingContentWidgets",e[e.OverflowGuard=3]="OverflowGuard",e[e.OverlayWidgets=4]="OverlayWidgets",e[e.OverflowingOverlayWidgets=5]="OverflowingOverlayWidgets",e[e.ScrollableElement=6]="ScrollableElement",e[e.TextArea=7]="TextArea",e[e.ViewLines=8]="ViewLines",e[e.Minimap=9]="Minimap",e[e.ViewLinesGpu=10]="ViewLinesGpu"})(w||(w={}));class f{static write(t,s){t.setAttribute("data-mprt",String(s))}static read(t){const s=t.getAttribute("data-mprt");return s===null?0:parseInt(s,10)}static collect(t,s){const u=[];let o=0;for(;t&&t!==t.ownerDocument.body&&t!==s;)t.nodeType===t.ELEMENT_NODE&&(u[o++]=this.read(t)),t=t.parentElement;const d=new Uint8Array(o);for(let l=0;l<o;l++)d[l]=u[o-l-1];return d}}export{w as PartFingerprint,f as PartFingerprints,n as ViewPart};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ViewEventHandler } from "../../common/viewEventHandler.js";
+class ViewPart extends ViewEventHandler {
+  static {
+    __name(this, "ViewPart");
+  }
+  constructor(context) {
+    super();
+    this._context = context;
+    this._context.addEventHandler(this);
+  }
+  dispose() {
+    this._context.removeEventHandler(this);
+    super.dispose();
+  }
+}
+var PartFingerprint;
+(function(PartFingerprint2) {
+  PartFingerprint2[PartFingerprint2["None"] = 0] = "None";
+  PartFingerprint2[PartFingerprint2["ContentWidgets"] = 1] = "ContentWidgets";
+  PartFingerprint2[PartFingerprint2["OverflowingContentWidgets"] = 2] = "OverflowingContentWidgets";
+  PartFingerprint2[PartFingerprint2["OverflowGuard"] = 3] = "OverflowGuard";
+  PartFingerprint2[PartFingerprint2["OverlayWidgets"] = 4] = "OverlayWidgets";
+  PartFingerprint2[PartFingerprint2["OverflowingOverlayWidgets"] = 5] = "OverflowingOverlayWidgets";
+  PartFingerprint2[PartFingerprint2["ScrollableElement"] = 6] = "ScrollableElement";
+  PartFingerprint2[PartFingerprint2["TextArea"] = 7] = "TextArea";
+  PartFingerprint2[PartFingerprint2["ViewLines"] = 8] = "ViewLines";
+  PartFingerprint2[PartFingerprint2["Minimap"] = 9] = "Minimap";
+  PartFingerprint2[PartFingerprint2["ViewLinesGpu"] = 10] = "ViewLinesGpu";
+})(PartFingerprint || (PartFingerprint = {}));
+class PartFingerprints {
+  static {
+    __name(this, "PartFingerprints");
+  }
+  static write(target, partId) {
+    target.setAttribute("data-mprt", String(partId));
+  }
+  static read(target) {
+    const r = target.getAttribute("data-mprt");
+    if (r === null) {
+      return 0;
+    }
+    return parseInt(r, 10);
+  }
+  static collect(child, stopAt) {
+    const result = [];
+    let resultLen = 0;
+    while (child && child !== child.ownerDocument.body) {
+      if (child === stopAt) {
+        break;
+      }
+      if (child.nodeType === child.ELEMENT_NODE) {
+        result[resultLen++] = this.read(child);
+      }
+      child = child.parentElement;
+    }
+    const r = new Uint8Array(resultLen);
+    for (let i = 0; i < resultLen; i++) {
+      r[i] = result[resultLen - i - 1];
+    }
+    return r;
+  }
+}
+export {
+  PartFingerprint,
+  PartFingerprints,
+  ViewPart
+};
+//# sourceMappingURL=viewPart.js.map

@@ -1,1 +1,39 @@
-import*as o from"../../../../base/common/strings.js";import{EditOperation as s}from"../../../common/core/editOperation.js";import{Position as r}from"../../../common/core/position.js";class p{constructor(t){this._selection=t,this._selectionId=null}getEditOperations(t,e){const i=c(t);i&&e.addEditOperation(i.range,i.text),this._selectionId=e.trackSelection(this._selection)}computeCursorState(t,e){return e.getTrackedSelection(this._selectionId)}}function c(n){const t=n.getLineCount(),e=n.getLineContent(t),i=o.lastNonWhitespaceIndex(e)===-1;if(!(!t||i))return s.insert(new r(t,n.getLineMaxColumn(t)),n.getEOL())}export{p as InsertFinalNewLineCommand,c as insertFinalNewLine};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as strings from "../../../../base/common/strings.js";
+import { EditOperation } from "../../../common/core/editOperation.js";
+import { Position } from "../../../common/core/position.js";
+class InsertFinalNewLineCommand {
+  static {
+    __name(this, "InsertFinalNewLineCommand");
+  }
+  constructor(selection) {
+    this._selection = selection;
+    this._selectionId = null;
+  }
+  getEditOperations(model, builder) {
+    const op = insertFinalNewLine(model);
+    if (op) {
+      builder.addEditOperation(op.range, op.text);
+    }
+    this._selectionId = builder.trackSelection(this._selection);
+  }
+  computeCursorState(model, helper) {
+    return helper.getTrackedSelection(this._selectionId);
+  }
+}
+function insertFinalNewLine(model) {
+  const lineCount = model.getLineCount();
+  const lastLine = model.getLineContent(lineCount);
+  const lastLineIsEmptyOrWhitespace = strings.lastNonWhitespaceIndex(lastLine) === -1;
+  if (!lineCount || lastLineIsEmptyOrWhitespace) {
+    return;
+  }
+  return EditOperation.insert(new Position(lineCount, model.getLineMaxColumn(lineCount)), model.getEOL());
+}
+__name(insertFinalNewLine, "insertFinalNewLine");
+export {
+  InsertFinalNewLineCommand,
+  insertFinalNewLine
+};
+//# sourceMappingURL=insertFinalNewLineCommand.js.map

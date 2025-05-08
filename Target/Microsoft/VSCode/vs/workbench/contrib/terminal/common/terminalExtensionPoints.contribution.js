@@ -1,1 +1,9 @@
-import{registerSingleton as i}from"../../../../platform/instantiation/common/extensions.js";import{ITerminalContributionService as r,TerminalContributionService as e}from"./terminalExtensionPoints.js";i(r,e,1);
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { ITerminalContributionService, TerminalContributionService } from "./terminalExtensionPoints.js";
+registerSingleton(
+  ITerminalContributionService,
+  TerminalContributionService,
+  1
+  /* InstantiationType.Delayed */
+);
+//# sourceMappingURL=terminalExtensionPoints.contribution.js.map

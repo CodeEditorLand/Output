@@ -1,1 +1,85 @@
-import{USUAL_WORD_SEPARATORS as l}from"../../../common/core/wordHelper.js";import{ILanguageFeaturesService as p}from"../../../common/services/languageFeatures.js";import{DocumentHighlightKind as m}from"../../../common/languages.js";import{Disposable as D}from"../../../../base/common/lifecycle.js";import{ResourceMap as _}from"../../../../base/common/map.js";var g=function(s,e,r,i){var u=arguments.length,t=u<3?e:i===null?i=Object.getOwnPropertyDescriptor(e,r):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(s,e,r,i);else for(var o=s.length-1;o>=0;o--)(n=s[o])&&(t=(u<3?n(t):u>3?n(e,r,t):n(e,r))||t);return u>3&&t&&Object.defineProperty(e,r,t),t},d=function(s,e){return function(r,i){e(r,i,s)}};class h{constructor(){this.selector={language:"*"}}provideDocumentHighlights(e,r,i){const u=[],t=e.getWordAtPosition({lineNumber:r.lineNumber,column:r.column});return t?e.isDisposed()?void 0:e.findMatches(t.word,!0,!1,!0,l,!1).map(o=>({range:o.range,kind:m.Text})):Promise.resolve(u)}provideMultiDocumentHighlights(e,r,i,u){const t=new _,n=e.getWordAtPosition({lineNumber:r.lineNumber,column:r.column});if(!n)return Promise.resolve(t);for(const o of[e,...i]){if(o.isDisposed())continue;const c=o.findMatches(n.word,!0,!1,!0,l,!1).map(f=>({range:f.range,kind:m.Text}));c&&t.set(o.uri,c)}return t}}let a=class extends D{constructor(e){super(),this._register(e.documentHighlightProvider.register("*",new h)),this._register(e.multiDocumentHighlightProvider.register("*",new h))}};a=g([d(0,p)],a);export{a as TextualMultiDocumentHighlightFeature};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { USUAL_WORD_SEPARATORS } from "../../../common/core/wordHelper.js";
+import { ILanguageFeaturesService } from "../../../common/services/languageFeatures.js";
+import { DocumentHighlightKind } from "../../../common/languages.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+class TextualDocumentHighlightProvider {
+  static {
+    __name(this, "TextualDocumentHighlightProvider");
+  }
+  constructor() {
+    this.selector = { language: "*" };
+  }
+  provideDocumentHighlights(model, position, token) {
+    const result = [];
+    const word = model.getWordAtPosition({
+      lineNumber: position.lineNumber,
+      column: position.column
+    });
+    if (!word) {
+      return Promise.resolve(result);
+    }
+    if (model.isDisposed()) {
+      return;
+    }
+    const matches = model.findMatches(word.word, true, false, true, USUAL_WORD_SEPARATORS, false);
+    return matches.map((m) => ({
+      range: m.range,
+      kind: DocumentHighlightKind.Text
+    }));
+  }
+  provideMultiDocumentHighlights(primaryModel, position, otherModels, token) {
+    const result = new ResourceMap();
+    const word = primaryModel.getWordAtPosition({
+      lineNumber: position.lineNumber,
+      column: position.column
+    });
+    if (!word) {
+      return Promise.resolve(result);
+    }
+    for (const model of [primaryModel, ...otherModels]) {
+      if (model.isDisposed()) {
+        continue;
+      }
+      const matches = model.findMatches(word.word, true, false, true, USUAL_WORD_SEPARATORS, false);
+      const highlights = matches.map((m) => ({
+        range: m.range,
+        kind: DocumentHighlightKind.Text
+      }));
+      if (highlights) {
+        result.set(model.uri, highlights);
+      }
+    }
+    return result;
+  }
+}
+let TextualMultiDocumentHighlightFeature = class TextualMultiDocumentHighlightFeature2 extends Disposable {
+  static {
+    __name(this, "TextualMultiDocumentHighlightFeature");
+  }
+  constructor(languageFeaturesService) {
+    super();
+    this._register(languageFeaturesService.documentHighlightProvider.register("*", new TextualDocumentHighlightProvider()));
+    this._register(languageFeaturesService.multiDocumentHighlightProvider.register("*", new TextualDocumentHighlightProvider()));
+  }
+};
+TextualMultiDocumentHighlightFeature = __decorate([
+  __param(0, ILanguageFeaturesService)
+], TextualMultiDocumentHighlightFeature);
+export {
+  TextualMultiDocumentHighlightFeature
+};
+//# sourceMappingURL=textualHighlightProvider.js.map

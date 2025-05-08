@@ -1,1 +1,164 @@
-import*as r from"../../../../nls.js";import{Codicon as o}from"../../../../base/common/codicons.js";import{Disposable as k,MutableDisposable as _,toDisposable as v}from"../../../../base/common/lifecycle.js";import a from"../../../../base/common/severity.js";import{StartStopProblemCollector as g}from"../common/problemCollectors.js";import{TaskEventKind as S}from"../common/tasks.js";import{ITaskService as I}from"../common/taskService.js";import{MarkerSeverity as c}from"../../../../platform/markers/common/markers.js";import{spinningLoading as M}from"../../../../platform/theme/common/iconRegistry.js";import{AccessibilitySignal as u,IAccessibilitySignalService as A}from"../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";var T=function(m,t,e,i){var l=arguments.length,n=l<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(m,t,e,i);else for(var f=m.length-1;f>=0;f--)(d=m[f])&&(n=(l<3?d(n):l>3?d(t,e,n):d(t,e))||n);return l>3&&n&&Object.defineProperty(t,e,n),n},p=function(m,t){return function(e,i){t(e,i,m)}};const s="task_terminal_status",y={id:s,icon:M,severity:a.Info,tooltip:r.localize("taskTerminalStatus.active","Task is running")},b={id:s,icon:o.check,severity:a.Info,tooltip:r.localize("taskTerminalStatus.succeeded","Task succeeded")},E={id:s,icon:o.check,severity:a.Info,tooltip:r.localize("taskTerminalStatus.succeededInactive","Task succeeded and waiting...")},L={id:s,icon:o.error,severity:a.Error,tooltip:r.localize("taskTerminalStatus.errors","Task has errors")},D={id:s,icon:o.error,severity:a.Error,tooltip:r.localize("taskTerminalStatus.errorsInactive","Task has errors and is waiting...")},C={id:s,icon:o.warning,severity:a.Warning,tooltip:r.localize("taskTerminalStatus.warnings","Task has warnings")},x={id:s,icon:o.warning,severity:a.Warning,tooltip:r.localize("taskTerminalStatus.warningsInactive","Task has warnings and is waiting...")},w={id:s,icon:o.info,severity:a.Info,tooltip:r.localize("taskTerminalStatus.infos","Task has infos")},F={id:s,icon:o.info,severity:a.Info,tooltip:r.localize("taskTerminalStatus.infosInactive","Task has infos and is waiting...")};let h=class extends k{constructor(t,e){super(),this._accessibilitySignalService=e,this.terminalMap=new Map,this._register(t.onDidStateChange(i=>{switch(i.kind){case S.ProcessStarted:case S.Active:this.eventActive(i);break;case S.Inactive:this.eventInactive(i);break;case S.ProcessEnded:this.eventEnd(i);break}})),this._register(v(()=>{for(const i of this.terminalMap.values())i.disposeListener?.dispose();this.terminalMap.clear()}))}addTerminal(t,e,i){const l={id:s,severity:a.Info};e.statusList.add(l),this._register(i.onDidFindFirstMatch(()=>{this._marker=e.registerMarker(),this._marker&&this._register(this._marker)})),this._register(i.onDidFindErrors(()=>{this._marker&&e.addBufferMarker({marker:this._marker,hoverMessage:r.localize("task.watchFirstError","Beginning of detected errors for this run"),disableCommandStorage:!0})})),this._register(i.onDidRequestInvalidateLastMarker(()=>{this._marker?.dispose(),this._marker=void 0})),this.terminalMap.set(e.instanceId,{terminal:e,task:t,status:l,problemMatcher:i,taskRunEnded:!1})}terminalFromEvent(t){if(!(!("terminalId"in t)||!t.terminalId))return this.terminalMap.get(t.terminalId)}eventEnd(t){const e=this.terminalFromEvent(t);if(e)if(e.taskRunEnded=!0,e.terminal.statusList.remove(e.status),t.exitCode===0&&(!e.problemMatcher.maxMarkerSeverity||e.problemMatcher.maxMarkerSeverity<c.Warning))if(this._accessibilitySignalService.playSignal(u.taskCompleted),e.task.configurationProperties.isBackground)for(const i of e.terminal.statusList.statuses)e.terminal.statusList.remove(i);else e.terminal.statusList.add(b);else t.exitCode||e.problemMatcher.maxMarkerSeverity!==void 0&&e.problemMatcher.maxMarkerSeverity>=c.Warning?(this._accessibilitySignalService.playSignal(u.taskFailed),e.terminal.statusList.add(L)):e.problemMatcher.maxMarkerSeverity===c.Warning?e.terminal.statusList.add(C):e.problemMatcher.maxMarkerSeverity===c.Info&&e.terminal.statusList.add(w)}eventInactive(t){const e=this.terminalFromEvent(t);!e||!e.problemMatcher||e.taskRunEnded||(e.terminal.statusList.remove(e.status),e.problemMatcher.numberOfMatches===0?(this._accessibilitySignalService.playSignal(u.taskCompleted),e.terminal.statusList.add(E)):e.problemMatcher.maxMarkerSeverity===c.Error?(this._accessibilitySignalService.playSignal(u.taskFailed),e.terminal.statusList.add(D)):e.problemMatcher.maxMarkerSeverity===c.Warning?e.terminal.statusList.add(x):e.problemMatcher.maxMarkerSeverity===c.Info&&e.terminal.statusList.add(F))}eventActive(t){const e=this.terminalFromEvent(t);e&&(e.disposeListener||(e.disposeListener=this._register(new _),e.disposeListener.value=e.terminal.onDisposed(()=>{t.terminalId&&(this.terminalMap.delete(t.terminalId),e.disposeListener?.dispose())})),e.taskRunEnded=!1,e.terminal.statusList.remove(e.status),(e.problemMatcher instanceof g||e.problemMatcher?.problemMatchers.length>0||t.runType==="singleRun")&&e.terminal.statusList.add(y))}};h=T([p(0,I),p(1,A)],h);export{y as ACTIVE_TASK_STATUS,L as FAILED_TASK_STATUS,b as SUCCEEDED_TASK_STATUS,h as TaskTerminalStatus};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Disposable, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import Severity from "../../../../base/common/severity.js";
+import { StartStopProblemCollector } from "../common/problemCollectors.js";
+import { TaskEventKind } from "../common/tasks.js";
+import { ITaskService } from "../common/taskService.js";
+import { MarkerSeverity } from "../../../../platform/markers/common/markers.js";
+import { spinningLoading } from "../../../../platform/theme/common/iconRegistry.js";
+import { AccessibilitySignal, IAccessibilitySignalService } from "../../../../platform/accessibilitySignal/browser/accessibilitySignalService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const TASK_TERMINAL_STATUS_ID = "task_terminal_status";
+const ACTIVE_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: spinningLoading, severity: Severity.Info, tooltip: nls.localize("taskTerminalStatus.active", "Task is running") };
+const SUCCEEDED_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.check, severity: Severity.Info, tooltip: nls.localize("taskTerminalStatus.succeeded", "Task succeeded") };
+const SUCCEEDED_INACTIVE_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.check, severity: Severity.Info, tooltip: nls.localize("taskTerminalStatus.succeededInactive", "Task succeeded and waiting...") };
+const FAILED_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.error, severity: Severity.Error, tooltip: nls.localize("taskTerminalStatus.errors", "Task has errors") };
+const FAILED_INACTIVE_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.error, severity: Severity.Error, tooltip: nls.localize("taskTerminalStatus.errorsInactive", "Task has errors and is waiting...") };
+const WARNING_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.warning, severity: Severity.Warning, tooltip: nls.localize("taskTerminalStatus.warnings", "Task has warnings") };
+const WARNING_INACTIVE_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.warning, severity: Severity.Warning, tooltip: nls.localize("taskTerminalStatus.warningsInactive", "Task has warnings and is waiting...") };
+const INFO_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.info, severity: Severity.Info, tooltip: nls.localize("taskTerminalStatus.infos", "Task has infos") };
+const INFO_INACTIVE_TASK_STATUS = { id: TASK_TERMINAL_STATUS_ID, icon: Codicon.info, severity: Severity.Info, tooltip: nls.localize("taskTerminalStatus.infosInactive", "Task has infos and is waiting...") };
+let TaskTerminalStatus = class TaskTerminalStatus2 extends Disposable {
+  static {
+    __name(this, "TaskTerminalStatus");
+  }
+  constructor(taskService, _accessibilitySignalService) {
+    super();
+    this._accessibilitySignalService = _accessibilitySignalService;
+    this.terminalMap = /* @__PURE__ */ new Map();
+    this._register(taskService.onDidStateChange((event) => {
+      switch (event.kind) {
+        case TaskEventKind.ProcessStarted:
+        case TaskEventKind.Active:
+          this.eventActive(event);
+          break;
+        case TaskEventKind.Inactive:
+          this.eventInactive(event);
+          break;
+        case TaskEventKind.ProcessEnded:
+          this.eventEnd(event);
+          break;
+      }
+    }));
+    this._register(toDisposable(() => {
+      for (const terminalData of this.terminalMap.values()) {
+        terminalData.disposeListener?.dispose();
+      }
+      this.terminalMap.clear();
+    }));
+  }
+  addTerminal(task, terminal, problemMatcher) {
+    const status = { id: TASK_TERMINAL_STATUS_ID, severity: Severity.Info };
+    terminal.statusList.add(status);
+    this._register(problemMatcher.onDidFindFirstMatch(() => {
+      this._marker = terminal.registerMarker();
+      if (this._marker) {
+        this._register(this._marker);
+      }
+    }));
+    this._register(problemMatcher.onDidFindErrors(() => {
+      if (this._marker) {
+        terminal.addBufferMarker({ marker: this._marker, hoverMessage: nls.localize("task.watchFirstError", "Beginning of detected errors for this run"), disableCommandStorage: true });
+      }
+    }));
+    this._register(problemMatcher.onDidRequestInvalidateLastMarker(() => {
+      this._marker?.dispose();
+      this._marker = void 0;
+    }));
+    this.terminalMap.set(terminal.instanceId, { terminal, task, status, problemMatcher, taskRunEnded: false });
+  }
+  terminalFromEvent(event) {
+    if (!("terminalId" in event) || !event.terminalId) {
+      return void 0;
+    }
+    return this.terminalMap.get(event.terminalId);
+  }
+  eventEnd(event) {
+    const terminalData = this.terminalFromEvent(event);
+    if (!terminalData) {
+      return;
+    }
+    terminalData.taskRunEnded = true;
+    terminalData.terminal.statusList.remove(terminalData.status);
+    if (event.exitCode === 0 && (!terminalData.problemMatcher.maxMarkerSeverity || terminalData.problemMatcher.maxMarkerSeverity < MarkerSeverity.Warning)) {
+      this._accessibilitySignalService.playSignal(AccessibilitySignal.taskCompleted);
+      if (terminalData.task.configurationProperties.isBackground) {
+        for (const status of terminalData.terminal.statusList.statuses) {
+          terminalData.terminal.statusList.remove(status);
+        }
+      } else {
+        terminalData.terminal.statusList.add(SUCCEEDED_TASK_STATUS);
+      }
+    } else if (event.exitCode || terminalData.problemMatcher.maxMarkerSeverity !== void 0 && terminalData.problemMatcher.maxMarkerSeverity >= MarkerSeverity.Warning) {
+      this._accessibilitySignalService.playSignal(AccessibilitySignal.taskFailed);
+      terminalData.terminal.statusList.add(FAILED_TASK_STATUS);
+    } else if (terminalData.problemMatcher.maxMarkerSeverity === MarkerSeverity.Warning) {
+      terminalData.terminal.statusList.add(WARNING_TASK_STATUS);
+    } else if (terminalData.problemMatcher.maxMarkerSeverity === MarkerSeverity.Info) {
+      terminalData.terminal.statusList.add(INFO_TASK_STATUS);
+    }
+  }
+  eventInactive(event) {
+    const terminalData = this.terminalFromEvent(event);
+    if (!terminalData || !terminalData.problemMatcher || terminalData.taskRunEnded) {
+      return;
+    }
+    terminalData.terminal.statusList.remove(terminalData.status);
+    if (terminalData.problemMatcher.numberOfMatches === 0) {
+      this._accessibilitySignalService.playSignal(AccessibilitySignal.taskCompleted);
+      terminalData.terminal.statusList.add(SUCCEEDED_INACTIVE_TASK_STATUS);
+    } else if (terminalData.problemMatcher.maxMarkerSeverity === MarkerSeverity.Error) {
+      this._accessibilitySignalService.playSignal(AccessibilitySignal.taskFailed);
+      terminalData.terminal.statusList.add(FAILED_INACTIVE_TASK_STATUS);
+    } else if (terminalData.problemMatcher.maxMarkerSeverity === MarkerSeverity.Warning) {
+      terminalData.terminal.statusList.add(WARNING_INACTIVE_TASK_STATUS);
+    } else if (terminalData.problemMatcher.maxMarkerSeverity === MarkerSeverity.Info) {
+      terminalData.terminal.statusList.add(INFO_INACTIVE_TASK_STATUS);
+    }
+  }
+  eventActive(event) {
+    const terminalData = this.terminalFromEvent(event);
+    if (!terminalData) {
+      return;
+    }
+    if (!terminalData.disposeListener) {
+      terminalData.disposeListener = this._register(new MutableDisposable());
+      terminalData.disposeListener.value = terminalData.terminal.onDisposed(() => {
+        if (!event.terminalId) {
+          return;
+        }
+        this.terminalMap.delete(event.terminalId);
+        terminalData.disposeListener?.dispose();
+      });
+    }
+    terminalData.taskRunEnded = false;
+    terminalData.terminal.statusList.remove(terminalData.status);
+    if (terminalData.problemMatcher instanceof StartStopProblemCollector || terminalData.problemMatcher?.problemMatchers.length > 0 || event.runType === "singleRun") {
+      terminalData.terminal.statusList.add(ACTIVE_TASK_STATUS);
+    }
+  }
+};
+TaskTerminalStatus = __decorate([
+  __param(0, ITaskService),
+  __param(1, IAccessibilitySignalService)
+], TaskTerminalStatus);
+export {
+  ACTIVE_TASK_STATUS,
+  FAILED_TASK_STATUS,
+  SUCCEEDED_TASK_STATUS,
+  TaskTerminalStatus
+};
+//# sourceMappingURL=taskTerminalStatus.js.map

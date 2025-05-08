@@ -1,1 +1,1004 @@
-import*as c from"../../../../base/browser/dom.js";import{renderFormattedText as ce}from"../../../../base/browser/formattedTextRenderer.js";import{StandardKeyboardEvent as he}from"../../../../base/browser/keyboardEvent.js";import{DropdownMenuActionViewItem as le}from"../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";import{getDefaultHoverDelegate as ue}from"../../../../base/browser/ui/hover/hoverDelegateFactory.js";import{coalesce as fe,distinct as ge}from"../../../../base/common/arrays.js";import{Codicon as B}from"../../../../base/common/codicons.js";import{Emitter as T}from"../../../../base/common/event.js";import{MarkdownString as D}from"../../../../base/common/htmlContent.js";import{Iterable as pe}from"../../../../base/common/iterator.js";import{Disposable as Ce,DisposableStore as q,dispose as j,thenIfNotDisposed as me,toDisposable as L}from"../../../../base/common/lifecycle.js";import{ResourceMap as ve}from"../../../../base/common/map.js";import{FileAccess as Ie}from"../../../../base/common/network.js";import{clamp as Re}from"../../../../base/common/numbers.js";import{autorun as ke}from"../../../../base/common/observable.js";import{ThemeIcon as re}from"../../../../base/common/themables.js";import{URI as Pe}from"../../../../base/common/uri.js";import{localize as C}from"../../../../nls.js";import{createActionViewItem as Se}from"../../../../platform/actions/browser/menuEntryActionViewItem.js";import{MenuWorkbenchToolBar as G}from"../../../../platform/actions/browser/toolbar.js";import{MenuId as z,MenuItemAction as we}from"../../../../platform/actions/common/actions.js";import{ICommandService as ne}from"../../../../platform/commands/common/commands.js";import{IConfigurationService as be}from"../../../../platform/configuration/common/configuration.js";import{IContextKeyService as oe}from"../../../../platform/contextkey/common/contextkey.js";import{IContextMenuService as ye}from"../../../../platform/contextview/browser/contextView.js";import{IHoverService as Te}from"../../../../platform/hover/browser/hover.js";import{IInstantiationService as De}from"../../../../platform/instantiation/common/instantiation.js";import{ServiceCollection as Le}from"../../../../platform/instantiation/common/serviceCollection.js";import{ILogService as M}from"../../../../platform/log/common/log.js";import{ColorScheme as _e}from"../../../../platform/theme/common/theme.js";import{IThemeService as Ee}from"../../../../platform/theme/common/themeService.js";import{IWorkbenchIssueService as We}from"../../issue/common/issue.js";import{annotateSpecialMarkdownContent as Q}from"../common/annotations.js";import{checkModeOption as _}from"../common/chat.js";import{ChatContextKeys as k}from"../common/chatContextKeys.js";import{chatSubcommandLeader as Ae}from"../common/chatParserTypes.js";import{ChatAgentVoteDirection as J,ChatAgentVoteDownReason as f,ChatErrorLevel as A}from"../common/chatService.js";import{isRequestVM as P,isResponseVM as l}from"../common/chatViewModel.js";import{getNWords as He}from"../common/chatWordCounter.js";import{CodeBlockModelCollection as Be}from"../common/codeBlockModelCollection.js";import{ChatAgentLocation as xe}from"../common/constants.js";import{MarkUnhelpfulActionId as E}from"./actions/chatTitleActions.js";import{IChatWidgetService as Ne}from"./chat.js";import{ChatAgentHover as Oe,getChatAgentHoverOptions as Me}from"./chatAgentHover.js";import{ChatAgentCommandContentPart as Fe}from"./chatContentParts/chatAgentCommandContentPart.js";import{ChatAttachmentsContentPart as $e}from"./chatContentParts/chatAttachmentsContentPart.js";import{ChatCodeCitationContentPart as Ve}from"./chatContentParts/chatCodeCitationContentPart.js";import{ChatCommandButtonContentPart as Ue}from"./chatContentParts/chatCommandContentPart.js";import{ChatConfirmationContentPart as Ke}from"./chatContentParts/chatConfirmationContentPart.js";import{ChatExtensionsContentPart as qe}from"./chatContentParts/chatExtensionsContentPart.js";import{ChatMarkdownContentPart as je,EditorPool as Y}from"./chatContentParts/chatMarkdownContentPart.js";import{ChatProgressContentPart as Ge,ChatWorkingProgressContentPart as ze}from"./chatContentParts/chatProgressContentPart.js";import{ChatQuotaExceededPart as Qe}from"./chatContentParts/chatQuotaExceededPart.js";import{ChatUsedReferencesListContentPart as Je,CollapsibleListPool as Ye}from"./chatContentParts/chatReferencesContentPart.js";import{ChatTaskContentPart as Xe}from"./chatContentParts/chatTaskContentPart.js";import{ChatTextEditContentPart as Ze,DiffEditorPool as et}from"./chatContentParts/chatTextEditContentPart.js";import{ChatToolInvocationPart as tt}from"./chatContentParts/chatToolInvocationPart.js";import{ChatTreeContentPart as X,TreePool as rt}from"./chatContentParts/chatTreeContentPart.js";import{ChatWarningContentPart as Z}from"./chatContentParts/chatWarningContentPart.js";import{ChatMarkdownDecorationsRenderer as nt}from"./chatMarkdownDecorationsRenderer.js";import{ChatMarkdownRenderer as ot}from"./chatMarkdownRenderer.js";import{ChatCodeBlockContentProvider as it}from"./codeBlockPart.js";var O=function(S,e,r,t){var n=arguments.length,o=n<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,i;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(S,e,r,t);else for(var s=S.length-1;s>=0;s--)(i=S[s])&&(o=(n<3?i(o):n>3?i(e,r,o):i(e,r))||o);return n>3&&o&&Object.defineProperty(e,r,o),o},v=function(S,e){return function(r,t){e(r,t,S)}},H;const m=c.$,ie=!1,st="chat-most-recent-response";let x=class extends Ce{static{H=this}static{this.ID="item"}constructor(e,r,t,n,o,i,s,a,d,u,h,p,g){super(),this.rendererOptions=r,this.delegate=t,this.codeBlockModelCollection=n,this.instantiationService=i,this.logService=a,this.contextKeyService=d,this.themeService=u,this.commandService=h,this.hoverService=p,this.chatWidgetService=g,this.codeBlocksByResponseId=new Map,this.codeBlocksByEditorUri=new ve,this.fileTreesByResponseId=new Map,this.focusedFileTreesByResponseId=new Map,this._onDidClickFollowup=this._register(new T),this.onDidClickFollowup=this._onDidClickFollowup.event,this._onDidClickRerunWithAgentOrCommandDetection=new T,this.onDidClickRerunWithAgentOrCommandDetection=this._onDidClickRerunWithAgentOrCommandDetection.event,this._onDidChangeItemHeight=this._register(new T),this.onDidChangeItemHeight=this._onDidChangeItemHeight.event,this._currentLayoutWidth=0,this._isVisible=!0,this._onDidChangeVisibility=this._register(new T),this.renderer=this.instantiationService.createInstance(ot,void 0),this.markdownDecorationsRenderer=this.instantiationService.createInstance(nt),this._editorPool=this._register(this.instantiationService.createInstance(Y,e,t,o)),this._toolEditorPool=this._register(this.instantiationService.createInstance(Y,e,t,o)),this._diffEditorPool=this._register(this.instantiationService.createInstance(et,e,t,o)),this._treePool=this._register(this.instantiationService.createInstance(rt,this._onDidChangeVisibility.event)),this._contentReferencesListPool=this._register(this.instantiationService.createInstance(Ye,this._onDidChangeVisibility.event,void 0)),this._register(this.instantiationService.createInstance(it)),this._toolInvocationCodeBlockCollection=this._register(this.instantiationService.createInstance(Be,"tools"))}get templateId(){return H.ID}editorsInUse(){return pe.concat(this._editorPool.inUse(),this._toolEditorPool.inUse())}traceLayout(e,r){ie?this.logService.info(`ChatListItemRenderer#${e}: ${r}`):this.logService.trace(`ChatListItemRenderer#${e}: ${r}`)}getProgressiveRenderRate(e){let r;if(function(t){t[t.Min=5]="Min",t[t.Max=80]="Max"}(r||(r={})),e.isComplete||e.isPaused.get())return 80;if(e.contentUpdateTimings&&e.contentUpdateTimings.impliedWordLoadRate){const t=e.contentUpdateTimings.impliedWordLoadRate;return Re(t,5,80)}return 8}getCodeBlockInfosForResponse(e){return this.codeBlocksByResponseId.get(e.id)??[]}getCodeBlockInfoForEditor(e){return this.codeBlocksByEditorUri.get(e)}getFileTreeInfosForResponse(e){return this.fileTreesByResponseId.get(e.id)??[]}getLastFocusedFileTreeForResponse(e){const r=this.fileTreesByResponseId.get(e.id),t=this.focusedFileTreesByResponseId.get(e.id);if(r?.length&&t!==void 0&&t<r.length)return r[t]}setVisible(e){this._isVisible=e,this._onDidChangeVisibility.fire(e)}layout(e){const r=e-40;if(r!==this._currentLayoutWidth){this._currentLayoutWidth=r;for(const t of this._editorPool.inUse())t.layout(this._currentLayoutWidth);for(const t of this._toolEditorPool.inUse())t.layout(this._currentLayoutWidth);for(const t of this._diffEditorPool.inUse())t.layout(this._currentLayoutWidth)}}renderTemplate(e){const r=new q,t=c.append(e,m(".interactive-item-container"));this.rendererOptions.renderStyle==="compact"&&t.classList.add("interactive-item-compact");let n=t,o=t,i,s;if(this.rendererOptions.renderStyle==="minimal"){t.classList.add("interactive-item-compact"),t.classList.add("minimal");const I=c.append(t,m(".column.left")),R=c.append(t,m(".column.right"));n=I,i=R,o=R,s=c.append(t,m(".header"))}const a=c.append(n,m(".header")),d=c.append(a,m(".user")),u=c.append(d,m(".avatar-container")),h=c.append(d,m("h3.username"));h.tabIndex=0;const p=c.append(i??d,m("span.detail-container")),g=c.append(p,m("span.detail"));c.append(p,m("span.chat-animated-ellipsis"));const y=c.append(o,m(".value")),se=new q,F=r.add(this.contextKeyService.createScoped(t)),b=r.add(this.instantiationService.createChild(new Le([oe,F])));let $;this.rendererOptions.noHeader?a.classList.add("hidden"):$=r.add(b.createInstance(G,s??a,z.ChatMessageTitle,{menuOptions:{shouldForwardArgs:!0},toolbarOptions:{shouldInlineSubmenu:I=>I.actions.length<=1}}));const de=c.append(t,m(".chat-footer-toolbar")),ae=r.add(b.createInstance(G,de,z.ChatMessageFooter,{eventDebounceDelay:0,menuOptions:{shouldForwardArgs:!0,renderShortTitle:!0},toolbarOptions:{shouldInlineSubmenu:I=>I.actions.length<=1},actionViewItemProvider:(I,R)=>I instanceof we&&I.item.id===E?b.createInstance(N,I,R):Se(b,I,R)})),W=r.add(this.instantiationService.createInstance(Oe)),V=()=>{if(l(w.currentElement)&&w.currentElement.agent&&!w.currentElement.agent.isDefault)return W.setAgent(w.currentElement.agent.id),W.domNode},U=Me(()=>l(w.currentElement)?w.currentElement.agent:void 0,this.commandService);r.add(this.hoverService.setupManagedHover(ue("element"),d,V,U)),r.add(c.addDisposableListener(d,c.EventType.KEY_DOWN,I=>{const R=new he(I);if(R.equals(10)||R.equals(3)){const K=V();K&&this.hoverService.showInstantHover({content:K,target:d,trapFocus:!0,actions:U.actions},!0)}else R.equals(9)&&this.hoverService.hideHover()}));const w={avatarContainer:u,username:h,detail:g,value:y,rowContainer:t,elementDisposables:se,templateDisposables:r,contextKeyService:F,instantiationService:b,agentHover:W,titleToolbar:$,footerToolbar:ae};return w}renderElement(e,r,t){this.renderChatTreeItem(e.element,r,t)}clearRenderedParts(e){e.renderedParts&&(j(fe(e.renderedParts)),e.renderedParts=void 0,c.clearNode(e.value))}renderChatTreeItem(e,r,t){t.currentElement&&t.currentElement.id!==e.id&&(this.traceLayout("renderChatTreeItem",`Rendering a different element into the template, index=${r}`),this.clearRenderedParts(t)),t.currentElement=e;const n=P(e)?"request":l(e)?"response":"welcome";this.traceLayout("renderElement",`${n}, index=${r}`),k.isResponse.bindTo(t.contextKeyService).set(l(e)),k.itemId.bindTo(t.contextKeyService).set(e.id),k.isRequest.bindTo(t.contextKeyService).set(P(e)),k.responseDetectedAgentCommand.bindTo(t.contextKeyService).set(l(e)&&e.agentOrSlashCommandDetected),l(e)?(k.responseSupportsIssueReporting.bindTo(t.contextKeyService).set(!!e.agent?.metadata.supportIssueReporting),k.responseVote.bindTo(t.contextKeyService).set(e.vote===J.Up?"up":e.vote===J.Down?"down":"")):k.responseVote.bindTo(t.contextKeyService).set(""),t.titleToolbar&&(t.titleToolbar.context=e),t.footerToolbar.context=e,k.responseHasError.bindTo(t.contextKeyService).set(l(e)&&!!e.errorDetails);const o=!!(l(e)&&e.errorDetails?.responseIsFiltered);k.responseIsFiltered.bindTo(t.contextKeyService).set(o);const i=this.chatWidgetService.getWidgetBySessionId(e.sessionId)?.location;t.rowContainer.classList.toggle("editing-session",i===xe.Panel),t.rowContainer.classList.toggle("interactive-request",P(e)),t.rowContainer.classList.toggle("interactive-response",l(e));const s=_(this.delegate.currentChatMode(),this.rendererOptions.progressMessageAtBottomOfResponse);if(t.rowContainer.classList.toggle("show-detail-progress",l(e)&&!e.isComplete&&!e.progressMessages.length&&!e.model.isPaused.get()&&!s),t.username.textContent=e.username,this.rendererOptions.noHeader||this.renderAvatar(e,t),c.clearNode(t.detail),l(e)&&this.renderDetail(e,t),t.rowContainer.classList.toggle(st,r===this.delegate.getListLength()-1),P(e)&&e.confirmation&&this.renderConfirmationAction(e,t),l(e)&&r===this.delegate.getListLength()-1&&(!e.isComplete||e.renderData)){this.traceLayout("renderElement",`start progressive render, index=${r}`);const a=t.elementDisposables.add(new c.WindowIntervalTimer),d=u=>{try{this.doNextProgressiveRender(e,r,t,!!u)&&a.cancel()}catch(h){a.cancel(),this.logService.error(h)}};a.cancelAndSet(d,50,c.getWindow(t.rowContainer)),d(!0)}else l(e)?this.basicRenderElement(e,r,t):P(e)&&this.basicRenderElement(e,r,t)}renderDetail(e,r){r.elementDisposables.add(ke(t=>{this._renderDetail(e,r)}))}_renderDetail(e,r){if(c.clearNode(r.detail),e.agentOrSlashCommandDetected){const t=e.slashCommand?C("usedAgentSlashCommand","used {0} [[(rerun without)]]",`${Ae}${e.slashCommand.name}`):C("usedAgent","[[(rerun without)]]");c.reset(r.detail,ce(t,{className:"agentOrSlashCommandDetected",inline:!0,actionHandler:{disposables:r.elementDisposables,callback:n=>{this._onDidClickRerunWithAgentOrCommandDetection.fire(e)}}}))}else this.rendererOptions.renderStyle!=="minimal"&&!e.isComplete&&!_(this.delegate.currentChatMode(),this.rendererOptions.progressMessageAtBottomOfResponse)&&(e.model.isPaused.get()?r.detail.textContent=C("paused","Paused"):r.detail.textContent=C("working","Working"))}renderConfirmationAction(e,r){c.clearNode(r.detail),e.confirmation&&(r.detail.textContent=C("chatConfirmationAction",'selected "{0}"',e.confirmation))}renderAvatar(e,r){const t=l(e)?this.getAgentIcon(e.agent?.metadata):e.avatarIcon??B.account;if(t instanceof Pe){const n=c.$("img.icon");n.src=Ie.uriToBrowserUri(t).toString(!0),r.avatarContainer.replaceChildren(c.$(".avatar",void 0,n))}else{const n=c.$(re.asCSSSelector(t));r.avatarContainer.replaceChildren(c.$(".avatar.codicon-avatar",void 0,n))}}getAgentIcon(e){return e?.themeIcon?e.themeIcon:e?.iconDark&&this.themeService.getColorTheme().type===_e.DARK?e.iconDark:e?.icon?e.icon:B.copilot}basicRenderElement(e,r,t){t.rowContainer.classList.toggle("chat-response-loading",l(e)&&!e.isComplete);let n=[];if(P(e)&&!e.confirmation){const d="message"in e.message?e.message.message:this.markdownDecorationsRenderer.convertParsedRequestToMarkdown(e.message);n=[{content:new D(d),kind:"markdownContent"}],this.rendererOptions.renderStyle==="minimal"&&!e.isComplete?(t.value.classList.add("inline-progress"),t.elementDisposables.add(L(()=>t.value.classList.remove("inline-progress"))),n.push({content:new D("<span></span>",{supportHtml:!0}),kind:"markdownContent"})):t.value.classList.remove("inline-progress")}else l(e)&&(e.contentReferences.length&&n.push({kind:"references",references:e.contentReferences}),n.push(...Q(e.response.value)),e.codeCitations.length&&n.push({kind:"codeCitations",citations:e.codeCitations}));c.clearNode(t.value),l(e)&&this.renderDetail(e,t);const o=!!(l(e)&&e.errorDetails?.responseIsFiltered),i=[];if(!o){let d=!1;n.forEach((u,h)=>{const p={element:e,contentIndex:h,content:n,preceedingContentParts:i},g=this.renderChatContentPart(u,t,p);if(g){if(this.rendererOptions.renderDetectedCommandsWithRequest&&!d&&P(e)&&e.agentOrSlashCommandDetected&&e.slashCommand&&u.kind==="markdownContent"){g.domNode&&(g.domNode.style.display="inline-flex");const y=this.instantiationService.createInstance(Fe,e.slashCommand,()=>this._onDidClickRerunWithAgentOrCommandDetection.fire({sessionId:e.sessionId,requestId:e.id}));t.value.appendChild(y.domNode),i.push(y),d=!0}g.domNode&&t.value.appendChild(g.domNode),i.push(g)}})}if(t.renderedParts&&j(t.renderedParts),t.renderedParts=i,!o&&P(e)&&e.variables.length){const d=this.renderAttachments(e.variables,e.contentReferences,t);d&&(d.domNode&&t.value.appendChild(d.domNode),t.elementDisposables.add(d))}if(l(e)&&e.errorDetails?.message)if(e.errorDetails.isQuotaExceeded){const d=this.instantiationService.createInstance(Qe,e,this.renderer);t.elementDisposables.add(d),t.value.appendChild(d.domNode),t.elementDisposables.add(d.onDidChangeHeight(()=>this.updateItemHeight(t)))}else{const d=e.errorDetails.level??(e.errorDetails.responseIsFiltered?A.Info:A.Error),u=this.instantiationService.createInstance(Z,d,new D(e.errorDetails.message),this.renderer);t.elementDisposables.add(u),t.value.appendChild(u.domNode)}const s=t.rowContainer.offsetHeight,a=!e.currentRenderedHeight||e.currentRenderedHeight!==s;if(e.currentRenderedHeight=s,a){const d=t.elementDisposables.add(c.scheduleAtNextAnimationFrame(c.getWindow(t.value),()=>{e.currentRenderedHeight=t.rowContainer.offsetHeight,d.dispose(),this._onDidChangeItemHeight.fire({element:e,height:e.currentRenderedHeight})}))}}updateItemHeight(e){if(!e.currentElement)return;const r=Math.max(e.rowContainer.offsetHeight,1);e.currentElement.currentRenderedHeight=r,this._onDidChangeItemHeight.fire({element:e.currentElement,height:r})}doNextProgressiveRender(e,r,t,n){if(!this._isVisible)return!0;if(e.isCanceled)return this.traceLayout("doNextProgressiveRender",`canceled, index=${r}`),e.renderData=void 0,this.basicRenderElement(e,r,t),!0;t.rowContainer.classList.toggle("chat-response-loading",!0),this.traceLayout("doNextProgressiveRender",`START progressive render, index=${r}, renderData=${JSON.stringify(e.renderData)}`);const o=this.getNextProgressiveRenderContent(e),i=this.diff(t.renderedParts??[],o.content,e);if(i.every(d=>d===null)){if(o.moreContentAvailable)return this.traceLayout("doNextProgressiveRender","not rendering any new content this tick, but more available"),!1;if(e.isComplete)return this.traceLayout("doNextProgressiveRender",`END progressive render, index=${r} and clearing renderData, response is complete`),e.renderData=void 0,this.basicRenderElement(e,r,t),!0;if(this.traceLayout("doNextProgressiveRender","caught up with the stream- no new content to render"),!t.renderedParts){const d=t.rowContainer.offsetHeight;e.currentRenderedHeight=d}return!0}this.traceLayout("doNextProgressiveRender",`doing progressive render, ${i.length} parts to render`),this.renderChatContentDiff(i,o.content,e,t);const a=t.rowContainer.offsetHeight;return e.currentRenderedHeight=a,n||this._onDidChangeItemHeight.fire({element:e,height:a}),!1}renderChatContentDiff(e,r,t,n){const o=n.renderedParts??[];n.renderedParts=o,e.forEach((i,s)=>{if(!i)return;const a=n.renderedParts?.[s];a&&a.dispose();const d=o.slice(0,s),u={element:t,content:r,preceedingContentParts:d,contentIndex:s},h=this.renderChatContentPart(i,n,u);if(h){o[s]=h;try{a?.domNode?h.domNode?a.domNode.replaceWith(h.domNode):a.domNode.remove():h.domNode&&n.value.appendChild(h.domNode)}catch(p){this.logService.error("ChatListItemRenderer#renderChatContentDiff: error replacing part",p)}}else a?.domNode?.remove()})}getNextProgressiveRenderContent(e){const r=this.getDataForProgressiveRender(e),t=Q(e.response.value);this.traceLayout("getNextProgressiveRenderContent",`Want to render ${r.numWordsToRender} at ${r.rate} words/s, counting...`);let n=r.numWordsToRender;const o=[];o.push({kind:"references",references:e.contentReferences});let i=!1;for(let u=0;u<t.length;u++){const h=t[u];if(h.kind==="markdownContent"){const p=He(h.content.value,n);if(this.traceLayout("getNextProgressiveRenderContent",`  Chunk ${u}: Want to render ${n} words and found ${p.returnedWordCount} words. Total words in chunk: ${p.totalWordCount}`),n-=p.returnedWordCount,p.isFullString){o.push(h);for(const g of t.slice(u+1))if(g.kind!=="markdownContent")u++,o.push(g);else break}else i=!0,o.push({...h,content:new D(p.value,h.content)});if(n<=0){t.slice(u+1).some(g=>g.kind==="markdownContent")&&(i=!0);break}}else o.push(h)}const s=e.contentUpdateTimings?.lastWordCount??0,a=r.numWordsToRender-n,d=s-a;if(this.traceLayout("getNextProgressiveRenderContent",`Want to render ${r.numWordsToRender} words. Rendering ${a} words. Buffer: ${d} words`),a>0&&a!==e.renderData?.renderedWordCount&&(e.renderData={lastRenderTime:Date.now(),renderedWordCount:a,renderedParts:o}),this.shouldShowWorkingProgress(e,o)){const u=e.model.isPaused.get();o.push({kind:"working",isPaused:u,setPaused:h=>e.model.setPaused(h)})}return{content:o,moreContentAvailable:i}}shouldShowWorkingProgress(e,r){if(e.agentOrSlashCommandDetected||this.rendererOptions.renderStyle==="minimal"||e.isComplete||!_(this.delegate.currentChatMode(),this.rendererOptions.progressMessageAtBottomOfResponse))return!1;if(e.model.isPaused.get())return!0;const t=r.at(-1);return!!(!t||t.kind==="references"||t.kind==="toolInvocation"&&(t.isComplete||t.presentation==="hidden")||(t.kind==="textEditGroup"||t.kind==="notebookEditGroup")&&t.done&&!r.some(n=>n.kind==="toolInvocation"&&!n.isComplete)||t.kind==="progressTask"&&t.deferred.isSettled)}getDataForProgressiveRender(e){const r=e.renderData??{lastRenderTime:0,renderedWordCount:0},t=this.getProgressiveRenderRate(e);return{numWordsToRender:r.lastRenderTime===0?1:r.renderedWordCount+Math.floor((Date.now()-r.lastRenderTime)/1e3*t),rate:t}}diff(e,r,t){const n=[];for(let o=0;o<r.length;o++){const i=r[o],s=e[o];!s||!s.hasSameContent(i,r.slice(o+1),t)?n.push(i):n.push(null)}return n}renderChatContentPart(e,r,t){return e.kind==="treeData"?this.renderTreeData(e,r,t):e.kind==="progressMessage"?this.instantiationService.createInstance(Ge,e,this.renderer,t,void 0,void 0,void 0):e.kind==="progressTask"?this.renderProgressTask(e,r,t):e.kind==="command"?this.instantiationService.createInstance(Ue,e,t):e.kind==="textEditGroup"?this.renderTextEdit(t,e,r):e.kind==="confirmation"?this.renderConfirmation(t,e,r):e.kind==="warning"?this.instantiationService.createInstance(Z,A.Warning,e.content,this.renderer):e.kind==="markdownContent"?this.renderMarkdown(e,r,t):e.kind==="references"?this.renderContentReferencesListData(e,void 0,t,r):e.kind==="codeCitations"?this.renderCodeCitations(e,t,r):e.kind==="toolInvocation"||e.kind==="toolInvocationSerialized"?this.renderToolInvocation(e,t,r):e.kind==="extensions"?this.renderExtensionsContent(e,t,r):e.kind==="working"?this.renderWorkingProgress(e,t):e.kind==="undoStop"?this.renderUndoStop(e):this.renderNoContent(n=>e.kind===n.kind)}renderUndoStop(e){return this.renderNoContent(r=>r.kind===e.kind&&r.id===e.id)}renderNoContent(e){return{dispose:()=>{},domNode:void 0,hasSameContent:e}}renderTreeData(e,r,t){const n=e.treeData,o=t.preceedingContentParts.filter(s=>s instanceof X).length,i=this.instantiationService.createInstance(X,n,t.element,this._treePool,o);if(i.addDisposable(i.onDidChangeHeight(()=>{this.updateItemHeight(r)})),l(t.element)){const s={treeDataId:n.uri.toString(),treeIndex:o,focus(){i.domFocus()}};i.addDisposable(i.onDidFocus(()=>{this.focusedFileTreesByResponseId.set(t.element.id,s.treeIndex)}));const a=this.fileTreesByResponseId.get(t.element.id)??[];a.push(s),this.fileTreesByResponseId.set(t.element.id,ge(a,d=>d.treeDataId)),i.addDisposable(L(()=>this.fileTreesByResponseId.set(t.element.id,a.filter(d=>d.treeDataId!==n.uri.toString()))))}return i}renderContentReferencesListData(e,r,t,n){const o=this.instantiationService.createInstance(Je,e.references,r,t,this._contentReferencesListPool,{expandedWhenEmptyResponse:_(this.delegate.currentChatMode(),this.rendererOptions.referencesExpandedWhenEmptyResponse)});return o.addDisposable(o.onDidChangeHeight(()=>{this.updateItemHeight(n)})),o}renderCodeCitations(e,r,t){return this.instantiationService.createInstance(Ve,e,r)}getCodeBlockStartIndex(e){return e.preceedingContentParts.reduce((r,t)=>r+(t.codeblocks?.length??0),0)}handleRenderedCodeblocks(e,r,t){if(!r.addDisposable||r.codeblocksPartId===void 0)return;const n=this.codeBlocksByResponseId.get(e.id)??[];this.codeBlocksByResponseId.set(e.id,n),r.addDisposable(L(()=>{const o=this.codeBlocksByResponseId.get(e.id);o&&r.codeblocks?.forEach((i,s)=>{o[t+s]?.ownerMarkdownPartId===r.codeblocksPartId&&delete o[t+s]})})),r.codeblocks?.forEach((o,i)=>{n[t+i]=o,r.addDisposable(me(o.uriPromise,s=>{s&&(this.codeBlocksByEditorUri.set(s,o),r.addDisposable(L(()=>{this.codeBlocksByEditorUri.get(s)?.ownerMarkdownPartId===r.codeblocksPartId&&this.codeBlocksByEditorUri.delete(s)})))}))})}renderToolInvocation(e,r,t){const n=this.getCodeBlockStartIndex(r),o=this.instantiationService.createInstance(tt,e,r,this.renderer,this._contentReferencesListPool,this._toolEditorPool,()=>this._currentLayoutWidth,this._toolInvocationCodeBlockCollection,n);return o.addDisposable(o.onDidChangeHeight(()=>{this.updateItemHeight(t)})),this.handleRenderedCodeblocks(r.element,o,n),o}renderExtensionsContent(e,r,t){const n=this.instantiationService.createInstance(qe,e);return n.addDisposable(n.onDidChangeHeight(()=>this.updateItemHeight(t))),n}renderProgressTask(e,r,t){if(!l(t.element))return;const n=this.instantiationService.createInstance(Xe,e,this._contentReferencesListPool,this.renderer,t);return n.addDisposable(n.onDidChangeHeight(()=>{this.updateItemHeight(r)})),n}renderWorkingProgress(e,r){return this.instantiationService.createInstance(ze,e,this.renderer,r)}renderConfirmation(e,r,t){const n=this.instantiationService.createInstance(Ke,r,e);return n.addDisposable(n.onDidChangeHeight(()=>this.updateItemHeight(t))),n}renderAttachments(e,r,t){return this.instantiationService.createInstance($e,e,r,void 0)}renderTextEdit(e,r,t){const n=this.instantiationService.createInstance(Ze,r,e,this.rendererOptions,this._diffEditorPool,this._currentLayoutWidth);return n.addDisposable(n.onDidChangeHeight(()=>{n.layout(this._currentLayoutWidth),this.updateItemHeight(t)})),n}renderMarkdown(e,r,t){const n=t.element,o=l(n)&&(!n.isComplete||n.isCanceled||n.errorDetails?.responseIsFiltered||n.errorDetails?.responseIsIncomplete||!!n.renderData),i=this.getCodeBlockStartIndex(t),s=r.instantiationService.createInstance(je,e,t,this._editorPool,o,i,this.renderer,this._currentLayoutWidth,this.codeBlockModelCollection,{});return s.addDisposable(s.onDidChangeHeight(()=>{s.layout(this._currentLayoutWidth),this.updateItemHeight(r)})),this.handleRenderedCodeblocks(n,s,i),s}disposeElement(e,r,t){this.traceLayout("disposeElement",`Disposing element, index=${r}`),t.elementDisposables.clear(),t.titleToolbar&&(t.titleToolbar.context=void 0),t.footerToolbar.context=void 0}disposeTemplate(e){e.templateDisposables.dispose()}};x=H=O([v(5,De),v(6,be),v(7,M),v(8,oe),v(9,Ee),v(10,ne),v(11,Te),v(12,Ne)],x);let ee=class{constructor(e,r){this.defaultElementHeight=e,this.logService=r}_traceLayout(e,r){ie?this.logService.info(`ChatListDelegate#${e}: ${r}`):this.logService.trace(`ChatListDelegate#${e}: ${r}`)}getHeight(e){const r=P(e)?"request":"response",t=("currentRenderedHeight"in e?e.currentRenderedHeight:void 0)??this.defaultElementHeight;return this._traceLayout("getHeight",`${r}, height=${t}`),t}getTemplateId(e){return x.ID}hasDynamicHeight(e){return!0}};ee=O([v(1,M)],ee);const te={[f.IncorrectCode]:C("incorrectCode","Suggested incorrect code"),[f.DidNotFollowInstructions]:C("didNotFollowInstructions","Didn't follow instructions"),[f.MissingContext]:C("missingContext","Missing context"),[f.OffensiveOrUnsafe]:C("offensiveOrUnsafe","Offensive or unsafe"),[f.PoorlyWrittenOrFormatted]:C("poorlyWrittenOrFormatted","Poorly written or formatted"),[f.RefusedAValidRequest]:C("refusedAValidRequest","Refused a valid request"),[f.IncompleteCode]:C("incompleteCode","Incomplete code"),[f.WillReportIssue]:C("reportIssue","Report an issue"),[f.Other]:C("other","Other")};let N=class extends le{constructor(e,r,t,n,o,i){super(e,{getActions:()=>this.getActions()},i,{...r,classNames:re.asClassNameArray(B.thumbsdown)}),this.commandService=t,this.issueService=n,this.logService=o}getActions(){return[this.getVoteDownDetailAction(f.IncorrectCode),this.getVoteDownDetailAction(f.DidNotFollowInstructions),this.getVoteDownDetailAction(f.IncompleteCode),this.getVoteDownDetailAction(f.MissingContext),this.getVoteDownDetailAction(f.PoorlyWrittenOrFormatted),this.getVoteDownDetailAction(f.RefusedAValidRequest),this.getVoteDownDetailAction(f.OffensiveOrUnsafe),this.getVoteDownDetailAction(f.Other),{id:"reportIssue",label:te[f.WillReportIssue],tooltip:"",enabled:!0,class:void 0,run:async e=>{if(!l(e)){this.logService.error("ChatVoteDownButton#run: invalid context");return}await this.commandService.executeCommand(E,e,f.WillReportIssue),await this.issueService.openReporter({extensionId:e.agent?.extensionId.value})}}]}render(e){super.render(e),this.element?.classList.toggle("checked",this.action.checked)}getVoteDownDetailAction(e){const r=te[e];return{id:E,label:r,tooltip:"",enabled:!0,checked:this._context.voteDownReason===e,class:void 0,run:async t=>{if(!l(t)){this.logService.error("ChatVoteDownButton#getVoteDownDetailAction: invalid context");return}await this.commandService.executeCommand(E,t,e)}}}};N=O([v(2,ne),v(3,We),v(4,M),v(5,ye)],N);export{ee as ChatListDelegate,x as ChatListItemRenderer,N as ChatVoteDownButton};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as dom from "../../../../base/browser/dom.js";
+import { renderFormattedText } from "../../../../base/browser/formattedTextRenderer.js";
+import { StandardKeyboardEvent } from "../../../../base/browser/keyboardEvent.js";
+import { DropdownMenuActionViewItem } from "../../../../base/browser/ui/dropdown/dropdownActionViewItem.js";
+import { getDefaultHoverDelegate } from "../../../../base/browser/ui/hover/hoverDelegateFactory.js";
+import { coalesce, distinct } from "../../../../base/common/arrays.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { Emitter } from "../../../../base/common/event.js";
+import { MarkdownString } from "../../../../base/common/htmlContent.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { Disposable, DisposableStore, dispose, thenIfNotDisposed, toDisposable } from "../../../../base/common/lifecycle.js";
+import { ResourceMap } from "../../../../base/common/map.js";
+import { FileAccess } from "../../../../base/common/network.js";
+import { clamp } from "../../../../base/common/numbers.js";
+import { autorun } from "../../../../base/common/observable.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import { URI } from "../../../../base/common/uri.js";
+import { localize } from "../../../../nls.js";
+import { createActionViewItem } from "../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { MenuWorkbenchToolBar } from "../../../../platform/actions/browser/toolbar.js";
+import { MenuId, MenuItemAction } from "../../../../platform/actions/common/actions.js";
+import { ICommandService } from "../../../../platform/commands/common/commands.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { IContextKeyService } from "../../../../platform/contextkey/common/contextkey.js";
+import { IContextMenuService } from "../../../../platform/contextview/browser/contextView.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { ServiceCollection } from "../../../../platform/instantiation/common/serviceCollection.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { ColorScheme } from "../../../../platform/theme/common/theme.js";
+import { IThemeService } from "../../../../platform/theme/common/themeService.js";
+import { IWorkbenchIssueService } from "../../issue/common/issue.js";
+import { annotateSpecialMarkdownContent } from "../common/annotations.js";
+import { checkModeOption } from "../common/chat.js";
+import { ChatContextKeys } from "../common/chatContextKeys.js";
+import { chatSubcommandLeader } from "../common/chatParserTypes.js";
+import { ChatAgentVoteDirection, ChatAgentVoteDownReason, ChatErrorLevel } from "../common/chatService.js";
+import { isRequestVM, isResponseVM } from "../common/chatViewModel.js";
+import { getNWords } from "../common/chatWordCounter.js";
+import { CodeBlockModelCollection } from "../common/codeBlockModelCollection.js";
+import { ChatAgentLocation } from "../common/constants.js";
+import { MarkUnhelpfulActionId } from "./actions/chatTitleActions.js";
+import { IChatWidgetService } from "./chat.js";
+import { ChatAgentHover, getChatAgentHoverOptions } from "./chatAgentHover.js";
+import { ChatAgentCommandContentPart } from "./chatContentParts/chatAgentCommandContentPart.js";
+import { ChatAttachmentsContentPart } from "./chatContentParts/chatAttachmentsContentPart.js";
+import { ChatCodeCitationContentPart } from "./chatContentParts/chatCodeCitationContentPart.js";
+import { ChatCommandButtonContentPart } from "./chatContentParts/chatCommandContentPart.js";
+import { ChatConfirmationContentPart } from "./chatContentParts/chatConfirmationContentPart.js";
+import { ChatExtensionsContentPart } from "./chatContentParts/chatExtensionsContentPart.js";
+import { ChatMarkdownContentPart, EditorPool } from "./chatContentParts/chatMarkdownContentPart.js";
+import { ChatProgressContentPart, ChatWorkingProgressContentPart } from "./chatContentParts/chatProgressContentPart.js";
+import { ChatQuotaExceededPart } from "./chatContentParts/chatQuotaExceededPart.js";
+import { ChatUsedReferencesListContentPart, CollapsibleListPool } from "./chatContentParts/chatReferencesContentPart.js";
+import { ChatTaskContentPart } from "./chatContentParts/chatTaskContentPart.js";
+import { ChatTextEditContentPart, DiffEditorPool } from "./chatContentParts/chatTextEditContentPart.js";
+import { ChatToolInvocationPart } from "./chatContentParts/chatToolInvocationPart.js";
+import { ChatTreeContentPart, TreePool } from "./chatContentParts/chatTreeContentPart.js";
+import { ChatWarningContentPart } from "./chatContentParts/chatWarningContentPart.js";
+import { ChatMarkdownDecorationsRenderer } from "./chatMarkdownDecorationsRenderer.js";
+import { ChatMarkdownRenderer } from "./chatMarkdownRenderer.js";
+import { ChatCodeBlockContentProvider } from "./codeBlockPart.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatListItemRenderer_1;
+const $ = dom.$;
+const forceVerboseLayoutTracing = false;
+const mostRecentResponseClassName = "chat-most-recent-response";
+let ChatListItemRenderer = class ChatListItemRenderer2 extends Disposable {
+  static {
+    __name(this, "ChatListItemRenderer");
+  }
+  static {
+    ChatListItemRenderer_1 = this;
+  }
+  static {
+    this.ID = "item";
+  }
+  constructor(editorOptions, rendererOptions, delegate, codeBlockModelCollection, overflowWidgetsDomNode, instantiationService, configService, logService, contextKeyService, themeService, commandService, hoverService, chatWidgetService) {
+    super();
+    this.rendererOptions = rendererOptions;
+    this.delegate = delegate;
+    this.codeBlockModelCollection = codeBlockModelCollection;
+    this.instantiationService = instantiationService;
+    this.logService = logService;
+    this.contextKeyService = contextKeyService;
+    this.themeService = themeService;
+    this.commandService = commandService;
+    this.hoverService = hoverService;
+    this.chatWidgetService = chatWidgetService;
+    this.codeBlocksByResponseId = /* @__PURE__ */ new Map();
+    this.codeBlocksByEditorUri = new ResourceMap();
+    this.fileTreesByResponseId = /* @__PURE__ */ new Map();
+    this.focusedFileTreesByResponseId = /* @__PURE__ */ new Map();
+    this._onDidClickFollowup = this._register(new Emitter());
+    this.onDidClickFollowup = this._onDidClickFollowup.event;
+    this._onDidClickRerunWithAgentOrCommandDetection = new Emitter();
+    this.onDidClickRerunWithAgentOrCommandDetection = this._onDidClickRerunWithAgentOrCommandDetection.event;
+    this._onDidChangeItemHeight = this._register(new Emitter());
+    this.onDidChangeItemHeight = this._onDidChangeItemHeight.event;
+    this._currentLayoutWidth = 0;
+    this._isVisible = true;
+    this._onDidChangeVisibility = this._register(new Emitter());
+    this.renderer = this.instantiationService.createInstance(ChatMarkdownRenderer, void 0);
+    this.markdownDecorationsRenderer = this.instantiationService.createInstance(ChatMarkdownDecorationsRenderer);
+    this._editorPool = this._register(this.instantiationService.createInstance(EditorPool, editorOptions, delegate, overflowWidgetsDomNode));
+    this._toolEditorPool = this._register(this.instantiationService.createInstance(EditorPool, editorOptions, delegate, overflowWidgetsDomNode));
+    this._diffEditorPool = this._register(this.instantiationService.createInstance(DiffEditorPool, editorOptions, delegate, overflowWidgetsDomNode));
+    this._treePool = this._register(this.instantiationService.createInstance(TreePool, this._onDidChangeVisibility.event));
+    this._contentReferencesListPool = this._register(this.instantiationService.createInstance(CollapsibleListPool, this._onDidChangeVisibility.event, void 0));
+    this._register(this.instantiationService.createInstance(ChatCodeBlockContentProvider));
+    this._toolInvocationCodeBlockCollection = this._register(this.instantiationService.createInstance(CodeBlockModelCollection, "tools"));
+  }
+  get templateId() {
+    return ChatListItemRenderer_1.ID;
+  }
+  editorsInUse() {
+    return Iterable.concat(this._editorPool.inUse(), this._toolEditorPool.inUse());
+  }
+  traceLayout(method, message) {
+    if (forceVerboseLayoutTracing) {
+      this.logService.info(`ChatListItemRenderer#${method}: ${message}`);
+    } else {
+      this.logService.trace(`ChatListItemRenderer#${method}: ${message}`);
+    }
+  }
+  /**
+   * Compute a rate to render at in words/s.
+   */
+  getProgressiveRenderRate(element) {
+    let Rate;
+    (function(Rate2) {
+      Rate2[Rate2["Min"] = 5] = "Min";
+      Rate2[Rate2["Max"] = 80] = "Max";
+    })(Rate || (Rate = {}));
+    if (element.isComplete || element.isPaused.get()) {
+      return 80;
+    }
+    if (element.contentUpdateTimings && element.contentUpdateTimings.impliedWordLoadRate) {
+      const rate = element.contentUpdateTimings.impliedWordLoadRate;
+      return clamp(
+        rate,
+        5,
+        80
+        /* Rate.Max */
+      );
+    }
+    return 8;
+  }
+  getCodeBlockInfosForResponse(response) {
+    const codeBlocks = this.codeBlocksByResponseId.get(response.id);
+    return codeBlocks ?? [];
+  }
+  getCodeBlockInfoForEditor(uri) {
+    return this.codeBlocksByEditorUri.get(uri);
+  }
+  getFileTreeInfosForResponse(response) {
+    const fileTrees = this.fileTreesByResponseId.get(response.id);
+    return fileTrees ?? [];
+  }
+  getLastFocusedFileTreeForResponse(response) {
+    const fileTrees = this.fileTreesByResponseId.get(response.id);
+    const lastFocusedFileTreeIndex = this.focusedFileTreesByResponseId.get(response.id);
+    if (fileTrees?.length && lastFocusedFileTreeIndex !== void 0 && lastFocusedFileTreeIndex < fileTrees.length) {
+      return fileTrees[lastFocusedFileTreeIndex];
+    }
+    return void 0;
+  }
+  setVisible(visible) {
+    this._isVisible = visible;
+    this._onDidChangeVisibility.fire(visible);
+  }
+  layout(width) {
+    const newWidth = width - 40;
+    if (newWidth !== this._currentLayoutWidth) {
+      this._currentLayoutWidth = newWidth;
+      for (const editor of this._editorPool.inUse()) {
+        editor.layout(this._currentLayoutWidth);
+      }
+      for (const toolEditor of this._toolEditorPool.inUse()) {
+        toolEditor.layout(this._currentLayoutWidth);
+      }
+      for (const diffEditor of this._diffEditorPool.inUse()) {
+        diffEditor.layout(this._currentLayoutWidth);
+      }
+    }
+  }
+  renderTemplate(container) {
+    const templateDisposables = new DisposableStore();
+    const rowContainer = dom.append(container, $(".interactive-item-container"));
+    if (this.rendererOptions.renderStyle === "compact") {
+      rowContainer.classList.add("interactive-item-compact");
+    }
+    let headerParent = rowContainer;
+    let valueParent = rowContainer;
+    let detailContainerParent;
+    let toolbarParent;
+    if (this.rendererOptions.renderStyle === "minimal") {
+      rowContainer.classList.add("interactive-item-compact");
+      rowContainer.classList.add("minimal");
+      const lhsContainer = dom.append(rowContainer, $(".column.left"));
+      const rhsContainer = dom.append(rowContainer, $(".column.right"));
+      headerParent = lhsContainer;
+      detailContainerParent = rhsContainer;
+      valueParent = rhsContainer;
+      toolbarParent = dom.append(rowContainer, $(".header"));
+    }
+    const header = dom.append(headerParent, $(".header"));
+    const user = dom.append(header, $(".user"));
+    const avatarContainer = dom.append(user, $(".avatar-container"));
+    const username = dom.append(user, $("h3.username"));
+    username.tabIndex = 0;
+    const detailContainer = dom.append(detailContainerParent ?? user, $("span.detail-container"));
+    const detail = dom.append(detailContainer, $("span.detail"));
+    dom.append(detailContainer, $("span.chat-animated-ellipsis"));
+    const value = dom.append(valueParent, $(".value"));
+    const elementDisposables = new DisposableStore();
+    const contextKeyService = templateDisposables.add(this.contextKeyService.createScoped(rowContainer));
+    const scopedInstantiationService = templateDisposables.add(this.instantiationService.createChild(new ServiceCollection([IContextKeyService, contextKeyService])));
+    let titleToolbar;
+    if (this.rendererOptions.noHeader) {
+      header.classList.add("hidden");
+    } else {
+      titleToolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, toolbarParent ?? header, MenuId.ChatMessageTitle, {
+        menuOptions: {
+          shouldForwardArgs: true
+        },
+        toolbarOptions: {
+          shouldInlineSubmenu: /* @__PURE__ */ __name((submenu) => submenu.actions.length <= 1, "shouldInlineSubmenu")
+        }
+      }));
+    }
+    const footerToolbarContainer = dom.append(rowContainer, $(".chat-footer-toolbar"));
+    const footerToolbar = templateDisposables.add(scopedInstantiationService.createInstance(MenuWorkbenchToolBar, footerToolbarContainer, MenuId.ChatMessageFooter, {
+      eventDebounceDelay: 0,
+      menuOptions: { shouldForwardArgs: true, renderShortTitle: true },
+      toolbarOptions: { shouldInlineSubmenu: /* @__PURE__ */ __name((submenu) => submenu.actions.length <= 1, "shouldInlineSubmenu") },
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        if (action instanceof MenuItemAction && action.item.id === MarkUnhelpfulActionId) {
+          return scopedInstantiationService.createInstance(ChatVoteDownButton, action, options);
+        }
+        return createActionViewItem(scopedInstantiationService, action, options);
+      }, "actionViewItemProvider")
+    }));
+    const agentHover = templateDisposables.add(this.instantiationService.createInstance(ChatAgentHover));
+    const hoverContent = /* @__PURE__ */ __name(() => {
+      if (isResponseVM(template.currentElement) && template.currentElement.agent && !template.currentElement.agent.isDefault) {
+        agentHover.setAgent(template.currentElement.agent.id);
+        return agentHover.domNode;
+      }
+      return void 0;
+    }, "hoverContent");
+    const hoverOptions = getChatAgentHoverOptions(() => isResponseVM(template.currentElement) ? template.currentElement.agent : void 0, this.commandService);
+    templateDisposables.add(this.hoverService.setupManagedHover(getDefaultHoverDelegate("element"), user, hoverContent, hoverOptions));
+    templateDisposables.add(dom.addDisposableListener(user, dom.EventType.KEY_DOWN, (e) => {
+      const ev = new StandardKeyboardEvent(e);
+      if (ev.equals(
+        10
+        /* KeyCode.Space */
+      ) || ev.equals(
+        3
+        /* KeyCode.Enter */
+      )) {
+        const content = hoverContent();
+        if (content) {
+          this.hoverService.showInstantHover({ content, target: user, trapFocus: true, actions: hoverOptions.actions }, true);
+        }
+      } else if (ev.equals(
+        9
+        /* KeyCode.Escape */
+      )) {
+        this.hoverService.hideHover();
+      }
+    }));
+    const template = { avatarContainer, username, detail, value, rowContainer, elementDisposables, templateDisposables, contextKeyService, instantiationService: scopedInstantiationService, agentHover, titleToolbar, footerToolbar };
+    return template;
+  }
+  renderElement(node, index, templateData) {
+    this.renderChatTreeItem(node.element, index, templateData);
+  }
+  clearRenderedParts(templateData) {
+    if (templateData.renderedParts) {
+      dispose(coalesce(templateData.renderedParts));
+      templateData.renderedParts = void 0;
+      dom.clearNode(templateData.value);
+    }
+  }
+  renderChatTreeItem(element, index, templateData) {
+    if (templateData.currentElement && templateData.currentElement.id !== element.id) {
+      this.traceLayout("renderChatTreeItem", `Rendering a different element into the template, index=${index}`);
+      this.clearRenderedParts(templateData);
+    }
+    templateData.currentElement = element;
+    const kind = isRequestVM(element) ? "request" : isResponseVM(element) ? "response" : "welcome";
+    this.traceLayout("renderElement", `${kind}, index=${index}`);
+    ChatContextKeys.isResponse.bindTo(templateData.contextKeyService).set(isResponseVM(element));
+    ChatContextKeys.itemId.bindTo(templateData.contextKeyService).set(element.id);
+    ChatContextKeys.isRequest.bindTo(templateData.contextKeyService).set(isRequestVM(element));
+    ChatContextKeys.responseDetectedAgentCommand.bindTo(templateData.contextKeyService).set(isResponseVM(element) && element.agentOrSlashCommandDetected);
+    if (isResponseVM(element)) {
+      ChatContextKeys.responseSupportsIssueReporting.bindTo(templateData.contextKeyService).set(!!element.agent?.metadata.supportIssueReporting);
+      ChatContextKeys.responseVote.bindTo(templateData.contextKeyService).set(element.vote === ChatAgentVoteDirection.Up ? "up" : element.vote === ChatAgentVoteDirection.Down ? "down" : "");
+    } else {
+      ChatContextKeys.responseVote.bindTo(templateData.contextKeyService).set("");
+    }
+    if (templateData.titleToolbar) {
+      templateData.titleToolbar.context = element;
+    }
+    templateData.footerToolbar.context = element;
+    ChatContextKeys.responseHasError.bindTo(templateData.contextKeyService).set(isResponseVM(element) && !!element.errorDetails);
+    const isFiltered = !!(isResponseVM(element) && element.errorDetails?.responseIsFiltered);
+    ChatContextKeys.responseIsFiltered.bindTo(templateData.contextKeyService).set(isFiltered);
+    const location = this.chatWidgetService.getWidgetBySessionId(element.sessionId)?.location;
+    templateData.rowContainer.classList.toggle("editing-session", location === ChatAgentLocation.Panel);
+    templateData.rowContainer.classList.toggle("interactive-request", isRequestVM(element));
+    templateData.rowContainer.classList.toggle("interactive-response", isResponseVM(element));
+    const progressMessageAtBottomOfResponse = checkModeOption(this.delegate.currentChatMode(), this.rendererOptions.progressMessageAtBottomOfResponse);
+    templateData.rowContainer.classList.toggle("show-detail-progress", isResponseVM(element) && !element.isComplete && !element.progressMessages.length && !element.model.isPaused.get() && !progressMessageAtBottomOfResponse);
+    templateData.username.textContent = element.username;
+    if (!this.rendererOptions.noHeader) {
+      this.renderAvatar(element, templateData);
+    }
+    dom.clearNode(templateData.detail);
+    if (isResponseVM(element)) {
+      this.renderDetail(element, templateData);
+    }
+    templateData.rowContainer.classList.toggle(mostRecentResponseClassName, index === this.delegate.getListLength() - 1);
+    if (isRequestVM(element) && element.confirmation) {
+      this.renderConfirmationAction(element, templateData);
+    }
+    if (isResponseVM(element) && index === this.delegate.getListLength() - 1 && (!element.isComplete || element.renderData)) {
+      this.traceLayout("renderElement", `start progressive render, index=${index}`);
+      const timer = templateData.elementDisposables.add(new dom.WindowIntervalTimer());
+      const runProgressiveRender = /* @__PURE__ */ __name((initial) => {
+        try {
+          if (this.doNextProgressiveRender(element, index, templateData, !!initial)) {
+            timer.cancel();
+          }
+        } catch (err) {
+          timer.cancel();
+          this.logService.error(err);
+        }
+      }, "runProgressiveRender");
+      timer.cancelAndSet(runProgressiveRender, 50, dom.getWindow(templateData.rowContainer));
+      runProgressiveRender(true);
+    } else {
+      if (isResponseVM(element)) {
+        this.basicRenderElement(element, index, templateData);
+      } else if (isRequestVM(element)) {
+        this.basicRenderElement(element, index, templateData);
+      }
+    }
+  }
+  renderDetail(element, templateData) {
+    templateData.elementDisposables.add(autorun((reader) => {
+      this._renderDetail(element, templateData);
+    }));
+  }
+  _renderDetail(element, templateData) {
+    dom.clearNode(templateData.detail);
+    if (element.agentOrSlashCommandDetected) {
+      const msg = element.slashCommand ? localize("usedAgentSlashCommand", "used {0} [[(rerun without)]]", `${chatSubcommandLeader}${element.slashCommand.name}`) : localize("usedAgent", "[[(rerun without)]]");
+      dom.reset(templateData.detail, renderFormattedText(msg, {
+        className: "agentOrSlashCommandDetected",
+        inline: true,
+        actionHandler: {
+          disposables: templateData.elementDisposables,
+          callback: /* @__PURE__ */ __name((content) => {
+            this._onDidClickRerunWithAgentOrCommandDetection.fire(element);
+          }, "callback")
+        }
+      }));
+    } else if (this.rendererOptions.renderStyle !== "minimal" && !element.isComplete && !checkModeOption(this.delegate.currentChatMode(), this.rendererOptions.progressMessageAtBottomOfResponse)) {
+      if (element.model.isPaused.get()) {
+        templateData.detail.textContent = localize("paused", "Paused");
+      } else {
+        templateData.detail.textContent = localize("working", "Working");
+      }
+    }
+  }
+  renderConfirmationAction(element, templateData) {
+    dom.clearNode(templateData.detail);
+    if (element.confirmation) {
+      templateData.detail.textContent = localize("chatConfirmationAction", 'selected "{0}"', element.confirmation);
+    }
+  }
+  renderAvatar(element, templateData) {
+    const icon = isResponseVM(element) ? this.getAgentIcon(element.agent?.metadata) : element.avatarIcon ?? Codicon.account;
+    if (icon instanceof URI) {
+      const avatarIcon = dom.$("img.icon");
+      avatarIcon.src = FileAccess.uriToBrowserUri(icon).toString(true);
+      templateData.avatarContainer.replaceChildren(dom.$(".avatar", void 0, avatarIcon));
+    } else {
+      const avatarIcon = dom.$(ThemeIcon.asCSSSelector(icon));
+      templateData.avatarContainer.replaceChildren(dom.$(".avatar.codicon-avatar", void 0, avatarIcon));
+    }
+  }
+  getAgentIcon(agent) {
+    if (agent?.themeIcon) {
+      return agent.themeIcon;
+    } else if (agent?.iconDark && this.themeService.getColorTheme().type === ColorScheme.DARK) {
+      return agent.iconDark;
+    } else if (agent?.icon) {
+      return agent.icon;
+    } else {
+      return Codicon.copilot;
+    }
+  }
+  basicRenderElement(element, index, templateData) {
+    templateData.rowContainer.classList.toggle("chat-response-loading", isResponseVM(element) && !element.isComplete);
+    let value = [];
+    if (isRequestVM(element) && !element.confirmation) {
+      const markdown = "message" in element.message ? element.message.message : this.markdownDecorationsRenderer.convertParsedRequestToMarkdown(element.message);
+      value = [{ content: new MarkdownString(markdown), kind: "markdownContent" }];
+      if (this.rendererOptions.renderStyle === "minimal" && !element.isComplete) {
+        templateData.value.classList.add("inline-progress");
+        templateData.elementDisposables.add(toDisposable(() => templateData.value.classList.remove("inline-progress")));
+        value.push({ content: new MarkdownString("<span></span>", { supportHtml: true }), kind: "markdownContent" });
+      } else {
+        templateData.value.classList.remove("inline-progress");
+      }
+    } else if (isResponseVM(element)) {
+      if (element.contentReferences.length) {
+        value.push({ kind: "references", references: element.contentReferences });
+      }
+      value.push(...annotateSpecialMarkdownContent(element.response.value));
+      if (element.codeCitations.length) {
+        value.push({ kind: "codeCitations", citations: element.codeCitations });
+      }
+    }
+    dom.clearNode(templateData.value);
+    if (isResponseVM(element)) {
+      this.renderDetail(element, templateData);
+    }
+    const isFiltered = !!(isResponseVM(element) && element.errorDetails?.responseIsFiltered);
+    const parts = [];
+    if (!isFiltered) {
+      let inlineSlashCommandRendered = false;
+      value.forEach((data, index2) => {
+        const context = {
+          element,
+          contentIndex: index2,
+          content: value,
+          preceedingContentParts: parts
+        };
+        const newPart = this.renderChatContentPart(data, templateData, context);
+        if (newPart) {
+          if (this.rendererOptions.renderDetectedCommandsWithRequest && !inlineSlashCommandRendered && isRequestVM(element) && element.agentOrSlashCommandDetected && element.slashCommand && data.kind === "markdownContent") {
+            if (newPart.domNode) {
+              newPart.domNode.style.display = "inline-flex";
+            }
+            const cmdPart = this.instantiationService.createInstance(ChatAgentCommandContentPart, element.slashCommand, () => this._onDidClickRerunWithAgentOrCommandDetection.fire({ sessionId: element.sessionId, requestId: element.id }));
+            templateData.value.appendChild(cmdPart.domNode);
+            parts.push(cmdPart);
+            inlineSlashCommandRendered = true;
+          }
+          if (newPart.domNode) {
+            templateData.value.appendChild(newPart.domNode);
+          }
+          parts.push(newPart);
+        }
+      });
+    }
+    if (templateData.renderedParts) {
+      dispose(templateData.renderedParts);
+    }
+    templateData.renderedParts = parts;
+    if (!isFiltered) {
+      if (isRequestVM(element) && element.variables.length) {
+        const newPart = this.renderAttachments(element.variables, element.contentReferences, templateData);
+        if (newPart) {
+          if (newPart.domNode) {
+            templateData.value.appendChild(newPart.domNode);
+          }
+          templateData.elementDisposables.add(newPart);
+        }
+      }
+    }
+    if (isResponseVM(element) && element.errorDetails?.message) {
+      if (element.errorDetails.isQuotaExceeded) {
+        const renderedError = this.instantiationService.createInstance(ChatQuotaExceededPart, element, this.renderer);
+        templateData.elementDisposables.add(renderedError);
+        templateData.value.appendChild(renderedError.domNode);
+        templateData.elementDisposables.add(renderedError.onDidChangeHeight(() => this.updateItemHeight(templateData)));
+      } else {
+        const level = element.errorDetails.level ?? (element.errorDetails.responseIsFiltered ? ChatErrorLevel.Info : ChatErrorLevel.Error);
+        const renderedError = this.instantiationService.createInstance(ChatWarningContentPart, level, new MarkdownString(element.errorDetails.message), this.renderer);
+        templateData.elementDisposables.add(renderedError);
+        templateData.value.appendChild(renderedError.domNode);
+      }
+    }
+    const newHeight = templateData.rowContainer.offsetHeight;
+    const fireEvent = !element.currentRenderedHeight || element.currentRenderedHeight !== newHeight;
+    element.currentRenderedHeight = newHeight;
+    if (fireEvent) {
+      const disposable = templateData.elementDisposables.add(dom.scheduleAtNextAnimationFrame(dom.getWindow(templateData.value), () => {
+        element.currentRenderedHeight = templateData.rowContainer.offsetHeight;
+        disposable.dispose();
+        this._onDidChangeItemHeight.fire({ element, height: element.currentRenderedHeight });
+      }));
+    }
+  }
+  updateItemHeight(templateData) {
+    if (!templateData.currentElement) {
+      return;
+    }
+    const newHeight = Math.max(templateData.rowContainer.offsetHeight, 1);
+    templateData.currentElement.currentRenderedHeight = newHeight;
+    this._onDidChangeItemHeight.fire({ element: templateData.currentElement, height: newHeight });
+  }
+  /**
+   *	@returns true if progressive rendering should be considered complete- the element's data is fully rendered or the view is not visible
+   */
+  doNextProgressiveRender(element, index, templateData, isInRenderElement) {
+    if (!this._isVisible) {
+      return true;
+    }
+    if (element.isCanceled) {
+      this.traceLayout("doNextProgressiveRender", `canceled, index=${index}`);
+      element.renderData = void 0;
+      this.basicRenderElement(element, index, templateData);
+      return true;
+    }
+    templateData.rowContainer.classList.toggle("chat-response-loading", true);
+    this.traceLayout("doNextProgressiveRender", `START progressive render, index=${index}, renderData=${JSON.stringify(element.renderData)}`);
+    const contentForThisTurn = this.getNextProgressiveRenderContent(element);
+    const partsToRender = this.diff(templateData.renderedParts ?? [], contentForThisTurn.content, element);
+    const contentIsAlreadyRendered = partsToRender.every((part) => part === null);
+    if (contentIsAlreadyRendered) {
+      if (contentForThisTurn.moreContentAvailable) {
+        this.traceLayout("doNextProgressiveRender", "not rendering any new content this tick, but more available");
+        return false;
+      } else if (element.isComplete) {
+        this.traceLayout("doNextProgressiveRender", `END progressive render, index=${index} and clearing renderData, response is complete`);
+        element.renderData = void 0;
+        this.basicRenderElement(element, index, templateData);
+        return true;
+      } else {
+        this.traceLayout("doNextProgressiveRender", "caught up with the stream- no new content to render");
+        if (!templateData.renderedParts) {
+          const height2 = templateData.rowContainer.offsetHeight;
+          element.currentRenderedHeight = height2;
+        }
+        return true;
+      }
+    }
+    this.traceLayout("doNextProgressiveRender", `doing progressive render, ${partsToRender.length} parts to render`);
+    this.renderChatContentDiff(partsToRender, contentForThisTurn.content, element, templateData);
+    const height = templateData.rowContainer.offsetHeight;
+    element.currentRenderedHeight = height;
+    if (!isInRenderElement) {
+      this._onDidChangeItemHeight.fire({ element, height });
+    }
+    return false;
+  }
+  renderChatContentDiff(partsToRender, contentForThisTurn, element, templateData) {
+    const renderedParts = templateData.renderedParts ?? [];
+    templateData.renderedParts = renderedParts;
+    partsToRender.forEach((partToRender, index) => {
+      if (!partToRender) {
+        return;
+      }
+      const alreadyRenderedPart = templateData.renderedParts?.[index];
+      if (alreadyRenderedPart) {
+        alreadyRenderedPart.dispose();
+      }
+      const preceedingContentParts = renderedParts.slice(0, index);
+      const context = {
+        element,
+        content: contentForThisTurn,
+        preceedingContentParts,
+        contentIndex: index
+      };
+      const newPart = this.renderChatContentPart(partToRender, templateData, context);
+      if (newPart) {
+        renderedParts[index] = newPart;
+        try {
+          if (alreadyRenderedPart?.domNode) {
+            if (newPart.domNode) {
+              alreadyRenderedPart.domNode.replaceWith(newPart.domNode);
+            } else {
+              alreadyRenderedPart.domNode.remove();
+            }
+          } else if (newPart.domNode) {
+            templateData.value.appendChild(newPart.domNode);
+          }
+        } catch (err) {
+          this.logService.error("ChatListItemRenderer#renderChatContentDiff: error replacing part", err);
+        }
+      } else {
+        alreadyRenderedPart?.domNode?.remove();
+      }
+    });
+  }
+  /**
+   * Returns all content parts that should be rendered, and trimmed markdown content. We will diff this with the current rendered set.
+   */
+  getNextProgressiveRenderContent(element) {
+    const data = this.getDataForProgressiveRender(element);
+    const renderableResponse = annotateSpecialMarkdownContent(element.response.value);
+    this.traceLayout("getNextProgressiveRenderContent", `Want to render ${data.numWordsToRender} at ${data.rate} words/s, counting...`);
+    let numNeededWords = data.numWordsToRender;
+    const partsToRender = [];
+    partsToRender.push({ kind: "references", references: element.contentReferences });
+    let moreContentAvailable = false;
+    for (let i = 0; i < renderableResponse.length; i++) {
+      const part = renderableResponse[i];
+      if (part.kind === "markdownContent") {
+        const wordCountResult = getNWords(part.content.value, numNeededWords);
+        this.traceLayout("getNextProgressiveRenderContent", `  Chunk ${i}: Want to render ${numNeededWords} words and found ${wordCountResult.returnedWordCount} words. Total words in chunk: ${wordCountResult.totalWordCount}`);
+        numNeededWords -= wordCountResult.returnedWordCount;
+        if (wordCountResult.isFullString) {
+          partsToRender.push(part);
+          for (const nextPart of renderableResponse.slice(i + 1)) {
+            if (nextPart.kind !== "markdownContent") {
+              i++;
+              partsToRender.push(nextPart);
+            } else {
+              break;
+            }
+          }
+        } else {
+          moreContentAvailable = true;
+          partsToRender.push({ ...part, content: new MarkdownString(wordCountResult.value, part.content) });
+        }
+        if (numNeededWords <= 0) {
+          if (renderableResponse.slice(i + 1).some((part2) => part2.kind === "markdownContent")) {
+            moreContentAvailable = true;
+          }
+          break;
+        }
+      } else {
+        partsToRender.push(part);
+      }
+    }
+    const lastWordCount = element.contentUpdateTimings?.lastWordCount ?? 0;
+    const newRenderedWordCount = data.numWordsToRender - numNeededWords;
+    const bufferWords = lastWordCount - newRenderedWordCount;
+    this.traceLayout("getNextProgressiveRenderContent", `Want to render ${data.numWordsToRender} words. Rendering ${newRenderedWordCount} words. Buffer: ${bufferWords} words`);
+    if (newRenderedWordCount > 0 && newRenderedWordCount !== element.renderData?.renderedWordCount) {
+      element.renderData = { lastRenderTime: Date.now(), renderedWordCount: newRenderedWordCount, renderedParts: partsToRender };
+    }
+    if (this.shouldShowWorkingProgress(element, partsToRender)) {
+      const isPaused = element.model.isPaused.get();
+      partsToRender.push({ kind: "working", isPaused, setPaused: /* @__PURE__ */ __name((p) => element.model.setPaused(p), "setPaused") });
+    }
+    return { content: partsToRender, moreContentAvailable };
+  }
+  shouldShowWorkingProgress(element, partsToRender) {
+    if (element.agentOrSlashCommandDetected || this.rendererOptions.renderStyle === "minimal" || element.isComplete || !checkModeOption(this.delegate.currentChatMode(), this.rendererOptions.progressMessageAtBottomOfResponse)) {
+      return false;
+    }
+    if (element.model.isPaused.get()) {
+      return true;
+    }
+    const lastPart = partsToRender.at(-1);
+    if (!lastPart || lastPart.kind === "references" || lastPart.kind === "toolInvocation" && (lastPart.isComplete || lastPart.presentation === "hidden") || (lastPart.kind === "textEditGroup" || lastPart.kind === "notebookEditGroup") && lastPart.done && !partsToRender.some((part) => part.kind === "toolInvocation" && !part.isComplete) || lastPart.kind === "progressTask" && lastPart.deferred.isSettled) {
+      return true;
+    }
+    return false;
+  }
+  getDataForProgressiveRender(element) {
+    const renderData = element.renderData ?? { lastRenderTime: 0, renderedWordCount: 0 };
+    const rate = this.getProgressiveRenderRate(element);
+    const numWordsToRender = renderData.lastRenderTime === 0 ? 1 : renderData.renderedWordCount + // Additional words to render beyond what's already rendered
+    Math.floor((Date.now() - renderData.lastRenderTime) / 1e3 * rate);
+    return {
+      numWordsToRender,
+      rate
+    };
+  }
+  diff(renderedParts, contentToRender, element) {
+    const diff = [];
+    for (let i = 0; i < contentToRender.length; i++) {
+      const content = contentToRender[i];
+      const renderedPart = renderedParts[i];
+      if (!renderedPart || !renderedPart.hasSameContent(content, contentToRender.slice(i + 1), element)) {
+        diff.push(content);
+      } else {
+        diff.push(null);
+      }
+    }
+    return diff;
+  }
+  renderChatContentPart(content, templateData, context) {
+    if (content.kind === "treeData") {
+      return this.renderTreeData(content, templateData, context);
+    } else if (content.kind === "progressMessage") {
+      return this.instantiationService.createInstance(ChatProgressContentPart, content, this.renderer, context, void 0, void 0, void 0);
+    } else if (content.kind === "progressTask") {
+      return this.renderProgressTask(content, templateData, context);
+    } else if (content.kind === "command") {
+      return this.instantiationService.createInstance(ChatCommandButtonContentPart, content, context);
+    } else if (content.kind === "textEditGroup") {
+      return this.renderTextEdit(context, content, templateData);
+    } else if (content.kind === "confirmation") {
+      return this.renderConfirmation(context, content, templateData);
+    } else if (content.kind === "warning") {
+      return this.instantiationService.createInstance(ChatWarningContentPart, ChatErrorLevel.Warning, content.content, this.renderer);
+    } else if (content.kind === "markdownContent") {
+      return this.renderMarkdown(content, templateData, context);
+    } else if (content.kind === "references") {
+      return this.renderContentReferencesListData(content, void 0, context, templateData);
+    } else if (content.kind === "codeCitations") {
+      return this.renderCodeCitations(content, context, templateData);
+    } else if (content.kind === "toolInvocation" || content.kind === "toolInvocationSerialized") {
+      return this.renderToolInvocation(content, context, templateData);
+    } else if (content.kind === "extensions") {
+      return this.renderExtensionsContent(content, context, templateData);
+    } else if (content.kind === "working") {
+      return this.renderWorkingProgress(content, context);
+    } else if (content.kind === "undoStop") {
+      return this.renderUndoStop(content);
+    }
+    return this.renderNoContent((other) => content.kind === other.kind);
+  }
+  renderUndoStop(content) {
+    return this.renderNoContent((other) => other.kind === content.kind && other.id === content.id);
+  }
+  renderNoContent(equals) {
+    return {
+      dispose: /* @__PURE__ */ __name(() => {
+      }, "dispose"),
+      domNode: void 0,
+      hasSameContent: equals
+    };
+  }
+  renderTreeData(content, templateData, context) {
+    const data = content.treeData;
+    const treeDataIndex = context.preceedingContentParts.filter((part) => part instanceof ChatTreeContentPart).length;
+    const treePart = this.instantiationService.createInstance(ChatTreeContentPart, data, context.element, this._treePool, treeDataIndex);
+    treePart.addDisposable(treePart.onDidChangeHeight(() => {
+      this.updateItemHeight(templateData);
+    }));
+    if (isResponseVM(context.element)) {
+      const fileTreeFocusInfo = {
+        treeDataId: data.uri.toString(),
+        treeIndex: treeDataIndex,
+        focus() {
+          treePart.domFocus();
+        }
+      };
+      treePart.addDisposable(treePart.onDidFocus(() => {
+        this.focusedFileTreesByResponseId.set(context.element.id, fileTreeFocusInfo.treeIndex);
+      }));
+      const fileTrees = this.fileTreesByResponseId.get(context.element.id) ?? [];
+      fileTrees.push(fileTreeFocusInfo);
+      this.fileTreesByResponseId.set(context.element.id, distinct(fileTrees, (v) => v.treeDataId));
+      treePart.addDisposable(toDisposable(() => this.fileTreesByResponseId.set(context.element.id, fileTrees.filter((v) => v.treeDataId !== data.uri.toString()))));
+    }
+    return treePart;
+  }
+  renderContentReferencesListData(references, labelOverride, context, templateData) {
+    const referencesPart = this.instantiationService.createInstance(ChatUsedReferencesListContentPart, references.references, labelOverride, context, this._contentReferencesListPool, { expandedWhenEmptyResponse: checkModeOption(this.delegate.currentChatMode(), this.rendererOptions.referencesExpandedWhenEmptyResponse) });
+    referencesPart.addDisposable(referencesPart.onDidChangeHeight(() => {
+      this.updateItemHeight(templateData);
+    }));
+    return referencesPart;
+  }
+  renderCodeCitations(citations, context, templateData) {
+    const citationsPart = this.instantiationService.createInstance(ChatCodeCitationContentPart, citations, context);
+    return citationsPart;
+  }
+  getCodeBlockStartIndex(context) {
+    return context.preceedingContentParts.reduce((acc, part) => acc + (part.codeblocks?.length ?? 0), 0);
+  }
+  handleRenderedCodeblocks(element, part, codeBlockStartIndex) {
+    if (!part.addDisposable || part.codeblocksPartId === void 0) {
+      return;
+    }
+    const codeBlocksByResponseId = this.codeBlocksByResponseId.get(element.id) ?? [];
+    this.codeBlocksByResponseId.set(element.id, codeBlocksByResponseId);
+    part.addDisposable(toDisposable(() => {
+      const codeBlocksByResponseId2 = this.codeBlocksByResponseId.get(element.id);
+      if (codeBlocksByResponseId2) {
+        part.codeblocks?.forEach((info, i) => {
+          const codeblock = codeBlocksByResponseId2[codeBlockStartIndex + i];
+          if (codeblock?.ownerMarkdownPartId === part.codeblocksPartId) {
+            delete codeBlocksByResponseId2[codeBlockStartIndex + i];
+          }
+        });
+      }
+    }));
+    part.codeblocks?.forEach((info, i) => {
+      codeBlocksByResponseId[codeBlockStartIndex + i] = info;
+      part.addDisposable(thenIfNotDisposed(info.uriPromise, (uri) => {
+        if (!uri) {
+          return;
+        }
+        this.codeBlocksByEditorUri.set(uri, info);
+        part.addDisposable(toDisposable(() => {
+          const codeblock = this.codeBlocksByEditorUri.get(uri);
+          if (codeblock?.ownerMarkdownPartId === part.codeblocksPartId) {
+            this.codeBlocksByEditorUri.delete(uri);
+          }
+        }));
+      }));
+    });
+  }
+  renderToolInvocation(toolInvocation, context, templateData) {
+    const codeBlockStartIndex = this.getCodeBlockStartIndex(context);
+    const part = this.instantiationService.createInstance(ChatToolInvocationPart, toolInvocation, context, this.renderer, this._contentReferencesListPool, this._toolEditorPool, () => this._currentLayoutWidth, this._toolInvocationCodeBlockCollection, codeBlockStartIndex);
+    part.addDisposable(part.onDidChangeHeight(() => {
+      this.updateItemHeight(templateData);
+    }));
+    this.handleRenderedCodeblocks(context.element, part, codeBlockStartIndex);
+    return part;
+  }
+  renderExtensionsContent(extensionsContent, context, templateData) {
+    const part = this.instantiationService.createInstance(ChatExtensionsContentPart, extensionsContent);
+    part.addDisposable(part.onDidChangeHeight(() => this.updateItemHeight(templateData)));
+    return part;
+  }
+  renderProgressTask(task, templateData, context) {
+    if (!isResponseVM(context.element)) {
+      return;
+    }
+    const taskPart = this.instantiationService.createInstance(ChatTaskContentPart, task, this._contentReferencesListPool, this.renderer, context);
+    taskPart.addDisposable(taskPart.onDidChangeHeight(() => {
+      this.updateItemHeight(templateData);
+    }));
+    return taskPart;
+  }
+  renderWorkingProgress(workingProgress, context) {
+    return this.instantiationService.createInstance(ChatWorkingProgressContentPart, workingProgress, this.renderer, context);
+  }
+  renderConfirmation(context, confirmation, templateData) {
+    const part = this.instantiationService.createInstance(ChatConfirmationContentPart, confirmation, context);
+    part.addDisposable(part.onDidChangeHeight(() => this.updateItemHeight(templateData)));
+    return part;
+  }
+  renderAttachments(variables, contentReferences, templateData) {
+    return this.instantiationService.createInstance(ChatAttachmentsContentPart, variables, contentReferences, void 0);
+  }
+  renderTextEdit(context, chatTextEdit, templateData) {
+    const textEditPart = this.instantiationService.createInstance(ChatTextEditContentPart, chatTextEdit, context, this.rendererOptions, this._diffEditorPool, this._currentLayoutWidth);
+    textEditPart.addDisposable(textEditPart.onDidChangeHeight(() => {
+      textEditPart.layout(this._currentLayoutWidth);
+      this.updateItemHeight(templateData);
+    }));
+    return textEditPart;
+  }
+  renderMarkdown(markdown, templateData, context) {
+    const element = context.element;
+    const fillInIncompleteTokens = isResponseVM(element) && (!element.isComplete || element.isCanceled || element.errorDetails?.responseIsFiltered || element.errorDetails?.responseIsIncomplete || !!element.renderData);
+    const codeBlockStartIndex = this.getCodeBlockStartIndex(context);
+    const markdownPart = templateData.instantiationService.createInstance(ChatMarkdownContentPart, markdown, context, this._editorPool, fillInIncompleteTokens, codeBlockStartIndex, this.renderer, this._currentLayoutWidth, this.codeBlockModelCollection, {});
+    markdownPart.addDisposable(markdownPart.onDidChangeHeight(() => {
+      markdownPart.layout(this._currentLayoutWidth);
+      this.updateItemHeight(templateData);
+    }));
+    this.handleRenderedCodeblocks(element, markdownPart, codeBlockStartIndex);
+    return markdownPart;
+  }
+  disposeElement(node, index, templateData) {
+    this.traceLayout("disposeElement", `Disposing element, index=${index}`);
+    templateData.elementDisposables.clear();
+    if (templateData.titleToolbar) {
+      templateData.titleToolbar.context = void 0;
+    }
+    templateData.footerToolbar.context = void 0;
+  }
+  disposeTemplate(templateData) {
+    templateData.templateDisposables.dispose();
+  }
+};
+ChatListItemRenderer = ChatListItemRenderer_1 = __decorate([
+  __param(5, IInstantiationService),
+  __param(6, IConfigurationService),
+  __param(7, ILogService),
+  __param(8, IContextKeyService),
+  __param(9, IThemeService),
+  __param(10, ICommandService),
+  __param(11, IHoverService),
+  __param(12, IChatWidgetService)
+], ChatListItemRenderer);
+let ChatListDelegate = class ChatListDelegate2 {
+  static {
+    __name(this, "ChatListDelegate");
+  }
+  constructor(defaultElementHeight, logService) {
+    this.defaultElementHeight = defaultElementHeight;
+    this.logService = logService;
+  }
+  _traceLayout(method, message) {
+    if (forceVerboseLayoutTracing) {
+      this.logService.info(`ChatListDelegate#${method}: ${message}`);
+    } else {
+      this.logService.trace(`ChatListDelegate#${method}: ${message}`);
+    }
+  }
+  getHeight(element) {
+    const kind = isRequestVM(element) ? "request" : "response";
+    const height = ("currentRenderedHeight" in element ? element.currentRenderedHeight : void 0) ?? this.defaultElementHeight;
+    this._traceLayout("getHeight", `${kind}, height=${height}`);
+    return height;
+  }
+  getTemplateId(element) {
+    return ChatListItemRenderer.ID;
+  }
+  hasDynamicHeight(element) {
+    return true;
+  }
+};
+ChatListDelegate = __decorate([
+  __param(1, ILogService)
+], ChatListDelegate);
+const voteDownDetailLabels = {
+  [ChatAgentVoteDownReason.IncorrectCode]: localize("incorrectCode", "Suggested incorrect code"),
+  [ChatAgentVoteDownReason.DidNotFollowInstructions]: localize("didNotFollowInstructions", "Didn't follow instructions"),
+  [ChatAgentVoteDownReason.MissingContext]: localize("missingContext", "Missing context"),
+  [ChatAgentVoteDownReason.OffensiveOrUnsafe]: localize("offensiveOrUnsafe", "Offensive or unsafe"),
+  [ChatAgentVoteDownReason.PoorlyWrittenOrFormatted]: localize("poorlyWrittenOrFormatted", "Poorly written or formatted"),
+  [ChatAgentVoteDownReason.RefusedAValidRequest]: localize("refusedAValidRequest", "Refused a valid request"),
+  [ChatAgentVoteDownReason.IncompleteCode]: localize("incompleteCode", "Incomplete code"),
+  [ChatAgentVoteDownReason.WillReportIssue]: localize("reportIssue", "Report an issue"),
+  [ChatAgentVoteDownReason.Other]: localize("other", "Other")
+};
+let ChatVoteDownButton = class ChatVoteDownButton2 extends DropdownMenuActionViewItem {
+  static {
+    __name(this, "ChatVoteDownButton");
+  }
+  constructor(action, options, commandService, issueService, logService, contextMenuService) {
+    super(action, { getActions: /* @__PURE__ */ __name(() => this.getActions(), "getActions") }, contextMenuService, {
+      ...options,
+      classNames: ThemeIcon.asClassNameArray(Codicon.thumbsdown)
+    });
+    this.commandService = commandService;
+    this.issueService = issueService;
+    this.logService = logService;
+  }
+  getActions() {
+    return [
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.IncorrectCode),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.DidNotFollowInstructions),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.IncompleteCode),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.MissingContext),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.PoorlyWrittenOrFormatted),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.RefusedAValidRequest),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.OffensiveOrUnsafe),
+      this.getVoteDownDetailAction(ChatAgentVoteDownReason.Other),
+      {
+        id: "reportIssue",
+        label: voteDownDetailLabels[ChatAgentVoteDownReason.WillReportIssue],
+        tooltip: "",
+        enabled: true,
+        class: void 0,
+        run: /* @__PURE__ */ __name(async (context) => {
+          if (!isResponseVM(context)) {
+            this.logService.error("ChatVoteDownButton#run: invalid context");
+            return;
+          }
+          await this.commandService.executeCommand(MarkUnhelpfulActionId, context, ChatAgentVoteDownReason.WillReportIssue);
+          await this.issueService.openReporter({ extensionId: context.agent?.extensionId.value });
+        }, "run")
+      }
+    ];
+  }
+  render(container) {
+    super.render(container);
+    this.element?.classList.toggle("checked", this.action.checked);
+  }
+  getVoteDownDetailAction(reason) {
+    const label = voteDownDetailLabels[reason];
+    return {
+      id: MarkUnhelpfulActionId,
+      label,
+      tooltip: "",
+      enabled: true,
+      checked: this._context.voteDownReason === reason,
+      class: void 0,
+      run: /* @__PURE__ */ __name(async (context) => {
+        if (!isResponseVM(context)) {
+          this.logService.error("ChatVoteDownButton#getVoteDownDetailAction: invalid context");
+          return;
+        }
+        await this.commandService.executeCommand(MarkUnhelpfulActionId, context, reason);
+      }, "run")
+    };
+  }
+};
+ChatVoteDownButton = __decorate([
+  __param(2, ICommandService),
+  __param(3, IWorkbenchIssueService),
+  __param(4, ILogService),
+  __param(5, IContextMenuService)
+], ChatVoteDownButton);
+export {
+  ChatListDelegate,
+  ChatListItemRenderer,
+  ChatVoteDownButton
+};
+//# sourceMappingURL=chatListRenderer.js.map

@@ -1,1 +1,123 @@
-import{importAMDNodeModule as h}from"../../../amdX.js";import{onUnexpectedError as f}from"../../../base/common/errors.js";import{mixin as u}from"../../../base/common/objects.js";import{isWeb as c}from"../../../base/common/platform.js";import{validateTelemetryData as d}from"./telemetryUtils.js";const m="https://mobile.events.data.microsoft.com/OneCollector/1.0",p="https://mobile.events.data.microsoft.com/ping";async function C(a,t,e){const s=c?await h("@microsoft/1ds-core-js","bundle/ms.core.min.js"):await import("@microsoft/1ds-core-js"),r=c?await h("@microsoft/1ds-post-js","bundle/ms.post.min.js"):await import("@microsoft/1ds-post-js"),n=new s.AppInsightsCore,l=new r.PostChannel,o={instrumentationKey:a,endpointUrl:m,loggingLevelTelemetry:0,loggingLevelConsole:0,disableCookiesUsage:!0,disableDbgExt:!0,disableInstrumentationKeyValidation:!0,channels:[[l]]};if(e){o.extensionConfig={};const i={alwaysUseXhrOverride:!0,ignoreMc1Ms0CookieProcessing:!0,httpXHROverride:e};o.extensionConfig[l.identifier]=i}return n.initialize(o,[]),n.addTelemetryInitializer(i=>{i.ext=i.ext??{},i.ext.web=i.ext.web??{},i.ext.web.consentDetails='{"GPC_DataSharingOptIn":false}',t&&(i.ext.utc=i.ext.utc??{},i.ext.utc.flags=8462029)}),n}class b{constructor(t,e,s,r,n){this._isInternalTelemetry=t,this._eventPrefix=e,this._defaultData=s,this._xhrOverride=n,this.endPointUrl=m,this.endPointHealthUrl=p,this._defaultData||(this._defaultData={}),typeof r=="function"?this._aiCoreOrKey=r():this._aiCoreOrKey=r,this._asyncAiCore=null}_withAIClient(t){if(this._aiCoreOrKey){if(typeof this._aiCoreOrKey!="string"){t(this._aiCoreOrKey);return}this._asyncAiCore||(this._asyncAiCore=C(this._aiCoreOrKey,this._isInternalTelemetry,this._xhrOverride)),this._asyncAiCore.then(e=>{t(e)},e=>{f(e)})}}log(t,e){if(!this._aiCoreOrKey)return;e=u(e,this._defaultData),e=d(e);const s=this._eventPrefix+"/"+t;try{this._withAIClient(r=>{r.pluginVersionString=e?.properties.version??"Unknown",r.track({name:s,baseData:{name:s,properties:e?.properties,measurements:e?.measurements}})})}catch{}}flush(){return this._aiCoreOrKey?new Promise(t=>{this._withAIClient(e=>{e.unload(!0,()=>{this._aiCoreOrKey=void 0,t(void 0)})})}):Promise.resolve(void 0)}}export{b as AbstractOneDataSystemAppender};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { importAMDNodeModule } from "../../../amdX.js";
+import { onUnexpectedError } from "../../../base/common/errors.js";
+import { mixin } from "../../../base/common/objects.js";
+import { isWeb } from "../../../base/common/platform.js";
+import { validateTelemetryData } from "./telemetryUtils.js";
+const endpointUrl = "https://mobile.events.data.microsoft.com/OneCollector/1.0";
+const endpointHealthUrl = "https://mobile.events.data.microsoft.com/ping";
+async function getClient(instrumentationKey, addInternalFlag, xhrOverride) {
+  const oneDs = isWeb ? await importAMDNodeModule("@microsoft/1ds-core-js", "bundle/ms.core.min.js") : await import("@microsoft/1ds-core-js");
+  const postPlugin = isWeb ? await importAMDNodeModule("@microsoft/1ds-post-js", "bundle/ms.post.min.js") : await import("@microsoft/1ds-post-js");
+  const appInsightsCore = new oneDs.AppInsightsCore();
+  const collectorChannelPlugin = new postPlugin.PostChannel();
+  const coreConfig = {
+    instrumentationKey,
+    endpointUrl,
+    loggingLevelTelemetry: 0,
+    loggingLevelConsole: 0,
+    disableCookiesUsage: true,
+    disableDbgExt: true,
+    disableInstrumentationKeyValidation: true,
+    channels: [[
+      collectorChannelPlugin
+    ]]
+  };
+  if (xhrOverride) {
+    coreConfig.extensionConfig = {};
+    const channelConfig = {
+      alwaysUseXhrOverride: true,
+      ignoreMc1Ms0CookieProcessing: true,
+      httpXHROverride: xhrOverride
+    };
+    coreConfig.extensionConfig[collectorChannelPlugin.identifier] = channelConfig;
+  }
+  appInsightsCore.initialize(coreConfig, []);
+  appInsightsCore.addTelemetryInitializer((envelope) => {
+    envelope["ext"] = envelope["ext"] ?? {};
+    envelope["ext"]["web"] = envelope["ext"]["web"] ?? {};
+    envelope["ext"]["web"]["consentDetails"] = '{"GPC_DataSharingOptIn":false}';
+    if (addInternalFlag) {
+      envelope["ext"]["utc"] = envelope["ext"]["utc"] ?? {};
+      envelope["ext"]["utc"]["flags"] = 8462029;
+    }
+  });
+  return appInsightsCore;
+}
+__name(getClient, "getClient");
+class AbstractOneDataSystemAppender {
+  static {
+    __name(this, "AbstractOneDataSystemAppender");
+  }
+  constructor(_isInternalTelemetry, _eventPrefix, _defaultData, iKeyOrClientFactory, _xhrOverride) {
+    this._isInternalTelemetry = _isInternalTelemetry;
+    this._eventPrefix = _eventPrefix;
+    this._defaultData = _defaultData;
+    this._xhrOverride = _xhrOverride;
+    this.endPointUrl = endpointUrl;
+    this.endPointHealthUrl = endpointHealthUrl;
+    if (!this._defaultData) {
+      this._defaultData = {};
+    }
+    if (typeof iKeyOrClientFactory === "function") {
+      this._aiCoreOrKey = iKeyOrClientFactory();
+    } else {
+      this._aiCoreOrKey = iKeyOrClientFactory;
+    }
+    this._asyncAiCore = null;
+  }
+  _withAIClient(callback) {
+    if (!this._aiCoreOrKey) {
+      return;
+    }
+    if (typeof this._aiCoreOrKey !== "string") {
+      callback(this._aiCoreOrKey);
+      return;
+    }
+    if (!this._asyncAiCore) {
+      this._asyncAiCore = getClient(this._aiCoreOrKey, this._isInternalTelemetry, this._xhrOverride);
+    }
+    this._asyncAiCore.then((aiClient) => {
+      callback(aiClient);
+    }, (err) => {
+      onUnexpectedError(err);
+      console.error(err);
+    });
+  }
+  log(eventName, data) {
+    if (!this._aiCoreOrKey) {
+      return;
+    }
+    data = mixin(data, this._defaultData);
+    data = validateTelemetryData(data);
+    const name = this._eventPrefix + "/" + eventName;
+    try {
+      this._withAIClient((aiClient) => {
+        aiClient.pluginVersionString = data?.properties.version ?? "Unknown";
+        aiClient.track({
+          name,
+          baseData: { name, properties: data?.properties, measurements: data?.measurements }
+        });
+      });
+    } catch {
+    }
+  }
+  flush() {
+    if (this._aiCoreOrKey) {
+      return new Promise((resolve) => {
+        this._withAIClient((aiClient) => {
+          aiClient.unload(true, () => {
+            this._aiCoreOrKey = void 0;
+            resolve(void 0);
+          });
+        });
+      });
+    }
+    return Promise.resolve(void 0);
+  }
+}
+export {
+  AbstractOneDataSystemAppender
+};
+//# sourceMappingURL=1dsAppender.js.map

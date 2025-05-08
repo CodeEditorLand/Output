@@ -1,1 +1,150 @@
-import{Emitter as i}from"../../../../base/common/event.js";import{Disposable as l}from"../../../../base/common/lifecycle.js";import{ITerminalService as w}from"./terminal.js";var _=function(r,e,t,s){var o=arguments.length,n=o<3?e:s===null?s=Object.getOwnPropertyDescriptor(e,t):s,h;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,e,t,s);else for(var a=r.length-1;a>=0;a--)(h=r[a])&&(n=(o<3?h(n):o>3?h(e,t,n):h(e,t))||n);return o>3&&n&&Object.defineProperty(e,t,n),n},c=function(r,e){return function(t,s){e(t,s,r)}};let d=class extends l{get onProcessReady(){return this._onProcessReady.event}constructor(e,t,s,o){super(),this.instanceId=e,this._cols=t,this._rows=s,this._terminalService=o,this.id=0,this.shouldPersist=!1,this._onProcessData=this._register(new i),this.onProcessData=this._onProcessData.event,this._onProcessReady=this._register(new i),this._onStart=this._register(new i),this.onStart=this._onStart.event,this._onInput=this._register(new i),this.onInput=this._onInput.event,this._onBinary=this._register(new i),this.onBinary=this._onBinary.event,this._onResize=this._register(new i),this.onResize=this._onResize.event,this._onAcknowledgeDataEvent=this._register(new i),this.onAcknowledgeDataEvent=this._onAcknowledgeDataEvent.event,this._onShutdown=this._register(new i),this.onShutdown=this._onShutdown.event,this._onRequestInitialCwd=this._register(new i),this.onRequestInitialCwd=this._onRequestInitialCwd.event,this._onRequestCwd=this._register(new i),this.onRequestCwd=this._onRequestCwd.event,this._onDidChangeProperty=this._register(new i),this.onDidChangeProperty=this._onDidChangeProperty.event,this._onProcessExit=this._register(new i),this.onProcessExit=this._onProcessExit.event,this._pendingInitialCwdRequests=[],this._pendingCwdRequests=[]}emitData(e){this._onProcessData.fire(e)}emitTitle(e){this._onDidChangeProperty.fire({type:"title",value:e})}emitReady(e,t){this._onProcessReady.fire({pid:e,cwd:t,windowsPty:void 0})}emitProcessProperty({type:e,value:t}){switch(e){case"cwd":this.emitCwd(t);break;case"initialCwd":this.emitInitialCwd(t);break;case"title":this.emitTitle(t);break;case"overrideDimensions":this.emitOverrideDimensions(t);break;case"resolvedShellLaunchConfig":this.emitResolvedShellLaunchConfig(t);break}}emitExit(e){this._onProcessExit.fire(e),this.dispose()}emitOverrideDimensions(e){this._onDidChangeProperty.fire({type:"overrideDimensions",value:e})}emitResolvedShellLaunchConfig(e){this._onDidChangeProperty.fire({type:"resolvedShellLaunchConfig",value:e})}emitInitialCwd(e){for(;this._pendingInitialCwdRequests.length>0;)this._pendingInitialCwdRequests.pop()(e)}emitCwd(e){for(;this._pendingCwdRequests.length>0;)this._pendingCwdRequests.pop()(e)}async start(){return this._terminalService.requestStartExtensionTerminal(this,this._cols,this._rows)}shutdown(e){this._onShutdown.fire(e)}input(e){this._onInput.fire(e)}resize(e,t){this._onResize.fire({cols:e,rows:t})}clearBuffer(){}acknowledgeDataEvent(){}async setUnicodeVersion(e){}async processBinary(e){this._onBinary.fire(e)}getInitialCwd(){return new Promise(e=>{this._onRequestInitialCwd.fire(),this._pendingInitialCwdRequests.push(e)})}getCwd(){return new Promise(e=>{this._onRequestCwd.fire(),this._pendingCwdRequests.push(e)})}async refreshProperty(e){}async updateProperty(e,t){}};d=_([c(3,w)],d);export{d as TerminalProcessExtHostProxy};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+import { ITerminalService } from "./terminal.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let TerminalProcessExtHostProxy = class TerminalProcessExtHostProxy2 extends Disposable {
+  static {
+    __name(this, "TerminalProcessExtHostProxy");
+  }
+  get onProcessReady() {
+    return this._onProcessReady.event;
+  }
+  constructor(instanceId, _cols, _rows, _terminalService) {
+    super();
+    this.instanceId = instanceId;
+    this._cols = _cols;
+    this._rows = _rows;
+    this._terminalService = _terminalService;
+    this.id = 0;
+    this.shouldPersist = false;
+    this._onProcessData = this._register(new Emitter());
+    this.onProcessData = this._onProcessData.event;
+    this._onProcessReady = this._register(new Emitter());
+    this._onStart = this._register(new Emitter());
+    this.onStart = this._onStart.event;
+    this._onInput = this._register(new Emitter());
+    this.onInput = this._onInput.event;
+    this._onBinary = this._register(new Emitter());
+    this.onBinary = this._onBinary.event;
+    this._onResize = this._register(new Emitter());
+    this.onResize = this._onResize.event;
+    this._onAcknowledgeDataEvent = this._register(new Emitter());
+    this.onAcknowledgeDataEvent = this._onAcknowledgeDataEvent.event;
+    this._onShutdown = this._register(new Emitter());
+    this.onShutdown = this._onShutdown.event;
+    this._onRequestInitialCwd = this._register(new Emitter());
+    this.onRequestInitialCwd = this._onRequestInitialCwd.event;
+    this._onRequestCwd = this._register(new Emitter());
+    this.onRequestCwd = this._onRequestCwd.event;
+    this._onDidChangeProperty = this._register(new Emitter());
+    this.onDidChangeProperty = this._onDidChangeProperty.event;
+    this._onProcessExit = this._register(new Emitter());
+    this.onProcessExit = this._onProcessExit.event;
+    this._pendingInitialCwdRequests = [];
+    this._pendingCwdRequests = [];
+  }
+  emitData(data) {
+    this._onProcessData.fire(data);
+  }
+  emitTitle(title) {
+    this._onDidChangeProperty.fire({ type: "title", value: title });
+  }
+  emitReady(pid, cwd) {
+    this._onProcessReady.fire({ pid, cwd, windowsPty: void 0 });
+  }
+  emitProcessProperty({ type, value }) {
+    switch (type) {
+      case "cwd":
+        this.emitCwd(value);
+        break;
+      case "initialCwd":
+        this.emitInitialCwd(value);
+        break;
+      case "title":
+        this.emitTitle(value);
+        break;
+      case "overrideDimensions":
+        this.emitOverrideDimensions(value);
+        break;
+      case "resolvedShellLaunchConfig":
+        this.emitResolvedShellLaunchConfig(value);
+        break;
+    }
+  }
+  emitExit(exitCode) {
+    this._onProcessExit.fire(exitCode);
+    this.dispose();
+  }
+  emitOverrideDimensions(dimensions) {
+    this._onDidChangeProperty.fire({ type: "overrideDimensions", value: dimensions });
+  }
+  emitResolvedShellLaunchConfig(shellLaunchConfig) {
+    this._onDidChangeProperty.fire({ type: "resolvedShellLaunchConfig", value: shellLaunchConfig });
+  }
+  emitInitialCwd(initialCwd) {
+    while (this._pendingInitialCwdRequests.length > 0) {
+      this._pendingInitialCwdRequests.pop()(initialCwd);
+    }
+  }
+  emitCwd(cwd) {
+    while (this._pendingCwdRequests.length > 0) {
+      this._pendingCwdRequests.pop()(cwd);
+    }
+  }
+  async start() {
+    return this._terminalService.requestStartExtensionTerminal(this, this._cols, this._rows);
+  }
+  shutdown(immediate) {
+    this._onShutdown.fire(immediate);
+  }
+  input(data) {
+    this._onInput.fire(data);
+  }
+  resize(cols, rows) {
+    this._onResize.fire({ cols, rows });
+  }
+  clearBuffer() {
+  }
+  acknowledgeDataEvent() {
+  }
+  async setUnicodeVersion(version) {
+  }
+  async processBinary(data) {
+    this._onBinary.fire(data);
+  }
+  getInitialCwd() {
+    return new Promise((resolve) => {
+      this._onRequestInitialCwd.fire();
+      this._pendingInitialCwdRequests.push(resolve);
+    });
+  }
+  getCwd() {
+    return new Promise((resolve) => {
+      this._onRequestCwd.fire();
+      this._pendingCwdRequests.push(resolve);
+    });
+  }
+  async refreshProperty(type) {
+  }
+  async updateProperty(type, value) {
+  }
+};
+TerminalProcessExtHostProxy = __decorate([
+  __param(3, ITerminalService)
+], TerminalProcessExtHostProxy);
+export {
+  TerminalProcessExtHostProxy
+};
+//# sourceMappingURL=terminalProcessExtHostProxy.js.map

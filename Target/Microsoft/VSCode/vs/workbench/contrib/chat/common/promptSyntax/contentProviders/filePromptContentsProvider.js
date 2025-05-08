@@ -1,1 +1,116 @@
-import{PROMPT_LANGUAGE_ID as p}from"../constants.js";import{assert as f}from"../../../../../../base/common/assert.js";import{CancellationError as l}from"../../../../../../base/common/errors.js";import{IModelService as d}from"../../../../../../editor/common/services/model.js";import{ILanguageService as v}from"../../../../../../editor/common/languages/language.js";import{PromptContentsProviderBase as g}from"./promptContentsProviderBase.js";import{isPromptOrInstructionsFile as S}from"../../../../../../platform/prompts/common/constants.js";import{OpenFailed as w,NotPromptFile as P,ResolveError as F,FolderReference as _}from"../../promptFileReferenceErrors.js";import{IFileService as C}from"../../../../../../platform/files/common/files.js";var m=function(s,r,e,i){var t=arguments.length,o=t<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,r,e,i);else for(var a=s.length-1;a>=0;a--)(n=s[a])&&(o=(t<3?n(o):t>3?n(r,e,o):n(r,e))||o);return t>3&&o&&Object.defineProperty(r,e,o),o},u=function(s,r){return function(e,i){r(e,i,s)}},c;let h=c=class extends g{get sourceName(){return"file"}get languageId(){const r=this.modelService.getModel(this.uri);if(r!==null)return r.getLanguageId();const e=this.languageService.guessLanguageIdByFilepathOrFirstLine(this.uri);return e!==null?e:p}constructor(r,e={},i,t,o){super(e),this.uri=r,this.fileService=i,this.modelService=t,this.languageService=o,this._register(this.fileService.onDidFilesChange(n=>{if(n.contains(this.uri,1,0))return this.onChangeEmitter.fire("full");if(n.contains(this.uri,2))return this.onChangeEmitter.fire(n)}))}async getContentsStream(r,e){f(!e?.isCancellationRequested,new l);let i;try{const t=await this.fileService.resolve(this.uri);f(!e?.isCancellationRequested,new l),f(t.isFile,new _(this.uri));const{allowNonPromptFiles:o}=this.options;if(o!==!0&&S(this.uri)===!1)throw new P(this.uri);if(i=await this.fileService.readFileStream(this.uri),this.disposed||e?.isCancellationRequested)throw i.value.destroy(),new l;return i.value}catch(t){throw t instanceof F||t instanceof l?t:new w(this.uri,t)}}createNew(r,e={}){return new c(r.uri,e,this.fileService,this.modelService,this.languageService)}toString(){return`file-prompt-contents-provider:${this.uri.path}`}};h=c=m([u(2,C),u(3,d),u(4,v)],h);export{h as FilePromptContentProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { PROMPT_LANGUAGE_ID } from "../constants.js";
+import { assert } from "../../../../../../base/common/assert.js";
+import { CancellationError } from "../../../../../../base/common/errors.js";
+import { IModelService } from "../../../../../../editor/common/services/model.js";
+import { ILanguageService } from "../../../../../../editor/common/languages/language.js";
+import { PromptContentsProviderBase } from "./promptContentsProviderBase.js";
+import { isPromptOrInstructionsFile } from "../../../../../../platform/prompts/common/constants.js";
+import { OpenFailed, NotPromptFile, ResolveError, FolderReference } from "../../promptFileReferenceErrors.js";
+import { IFileService } from "../../../../../../platform/files/common/files.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var FilePromptContentProvider_1;
+let FilePromptContentProvider = FilePromptContentProvider_1 = class FilePromptContentProvider2 extends PromptContentsProviderBase {
+  static {
+    __name(this, "FilePromptContentProvider");
+  }
+  get sourceName() {
+    return "file";
+  }
+  get languageId() {
+    const model = this.modelService.getModel(this.uri);
+    if (model !== null) {
+      return model.getLanguageId();
+    }
+    const inferredId = this.languageService.guessLanguageIdByFilepathOrFirstLine(this.uri);
+    if (inferredId !== null) {
+      return inferredId;
+    }
+    return PROMPT_LANGUAGE_ID;
+  }
+  constructor(uri, options = {}, fileService, modelService, languageService) {
+    super(options);
+    this.uri = uri;
+    this.fileService = fileService;
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this._register(this.fileService.onDidFilesChange((event) => {
+      if (event.contains(
+        this.uri,
+        1,
+        0
+        /* FileChangeType.UPDATED */
+      )) {
+        return this.onChangeEmitter.fire("full");
+      }
+      if (event.contains(
+        this.uri,
+        2
+        /* FileChangeType.DELETED */
+      )) {
+        return this.onChangeEmitter.fire(event);
+      }
+    }));
+  }
+  /**
+   * Creates a stream of lines from the file based on the changes listed in
+   * the provided event.
+   *
+   * @param event - event that describes the changes in the file; `'full'` is
+   * 				  the special value that means that all contents have changed
+   * @param cancellationToken - token that cancels this operation
+   */
+  async getContentsStream(_event, cancellationToken) {
+    assert(!cancellationToken?.isCancellationRequested, new CancellationError());
+    let fileStream;
+    try {
+      const info = await this.fileService.resolve(this.uri);
+      assert(!cancellationToken?.isCancellationRequested, new CancellationError());
+      assert(info.isFile, new FolderReference(this.uri));
+      const { allowNonPromptFiles } = this.options;
+      if (allowNonPromptFiles !== true && isPromptOrInstructionsFile(this.uri) === false) {
+        throw new NotPromptFile(this.uri);
+      }
+      fileStream = await this.fileService.readFileStream(this.uri);
+      if (this.disposed || cancellationToken?.isCancellationRequested) {
+        fileStream.value.destroy();
+        throw new CancellationError();
+      }
+      return fileStream.value;
+    } catch (error) {
+      if (error instanceof ResolveError || error instanceof CancellationError) {
+        throw error;
+      }
+      throw new OpenFailed(this.uri, error);
+    }
+  }
+  createNew(promptContentsSource, options = {}) {
+    return new FilePromptContentProvider_1(promptContentsSource.uri, options, this.fileService, this.modelService, this.languageService);
+  }
+  /**
+   * String representation of this object.
+   */
+  toString() {
+    return `file-prompt-contents-provider:${this.uri.path}`;
+  }
+};
+FilePromptContentProvider = FilePromptContentProvider_1 = __decorate([
+  __param(2, IFileService),
+  __param(3, IModelService),
+  __param(4, ILanguageService)
+], FilePromptContentProvider);
+export {
+  FilePromptContentProvider
+};
+//# sourceMappingURL=filePromptContentsProvider.js.map

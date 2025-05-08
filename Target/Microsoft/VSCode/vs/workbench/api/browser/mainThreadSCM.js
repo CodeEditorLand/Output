@@ -1,1 +1,652 @@
-import{Barrier as Q}from"../../../base/common/async.js";import{isUriComponents as q,URI as u}from"../../../base/common/uri.js";import{Event as O,Emitter as g}from"../../../base/common/event.js";import{observableValue as m,observableValueOpts as I,transaction as N}from"../../../base/common/observable.js";import{DisposableStore as L,combinedDisposable as F,dispose as x,Disposable as j}from"../../../base/common/lifecycle.js";import{ISCMService as A,ISCMViewService as W}from"../../contrib/scm/common/scm.js";import{ExtHostContext as J,MainContext as z}from"../common/extHost.protocol.js";import{extHostNamedCustomer as K}from"../../services/extensions/common/extHostCustomers.js";import{CancellationToken as f}from"../../../base/common/cancellation.js";import{ThemeIcon as D}from"../../../base/common/themables.js";import{IQuickDiffService as X}from"../../contrib/scm/common/quickDiff.js";import{ResourceTree as Y}from"../../../base/common/resourceTree.js";import{IUriIdentityService as Z}from"../../../platform/uriIdentity/common/uriIdentity.js";import{IWorkspaceContextService as ee}from"../../../platform/workspace/common/workspace.js";import{basename as ie}from"../../../base/common/resources.js";import{ILanguageService as te}from"../../../editor/common/languages/language.js";import{IModelService as re}from"../../../editor/common/services/model.js";import{ITextModelService as se}from"../../../editor/common/services/resolverService.js";import{Schemas as oe}from"../../../base/common/network.js";import{structuralEquals as S}from"../../../base/common/equals.js";import{historyItemBaseRefColor as ne,historyItemRefColor as ae,historyItemRemoteRefColor as he}from"../../contrib/scm/browser/scmHistory.js";var E=function(o,e,i,t){var r=arguments.length,s=r<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(o,e,i,t);else for(var h=o.length-1;h>=0;h--)(n=o[h])&&(s=(r<3?n(s):r>3?n(e,i,s):n(e,i))||s);return r>3&&s&&Object.defineProperty(e,i,s),s},p=function(o,e){return function(i,t){e(i,t,o)}};function v(o){if(o!==void 0){if(D.isThemeIcon(o))return o;if(q(o))return u.revive(o);{const e=o;return{light:u.revive(e.light),dark:u.revive(e.dark)}}}}function ue(o){const e=v(o.authorIcon),i=o.references?.map(t=>({...t,icon:v(t.icon)}));return{...o,authorIcon:e,references:i}}function l(o,e){return o?{...o,icon:v(o.icon),color:e}:void 0}class de extends j{constructor(e,i,t){super(),this.modelService=i,this.languageService=t,this._register(e.registerTextModelContentProvider(oe.vscodeSourceControl,this))}async provideTextContent(e){const i=this.modelService.getModel(e);return i||this.modelService.createModel("",this.languageService.createById("scminput"),e)}}class ce{get resourceTree(){if(!this._resourceTree){const e=this.provider.rootUri??u.file("/");this._resourceTree=new Y(this,e,this._uriIdentService.extUri);for(const i of this.resources)this._resourceTree.add(i.sourceUri,i)}return this._resourceTree}get hideWhenEmpty(){return!!this.features.hideWhenEmpty}get contextValue(){return this.features.contextValue}constructor(e,i,t,r,s,n,h,a){this.sourceControlHandle=e,this.handle=i,this.provider=t,this.features=r,this.label=s,this.id=n,this.multiDiffEditorEnableViewChanges=h,this._uriIdentService=a,this.resources=[],this._onDidChange=new g,this.onDidChange=this._onDidChange.event,this._onDidChangeResources=new g,this.onDidChangeResources=this._onDidChangeResources.event}toJSON(){return{$mid:4,sourceControlHandle:this.sourceControlHandle,groupHandle:this.handle}}splice(e,i,t){this.resources.splice(e,i,...t),this._resourceTree=void 0,this._onDidChangeResources.fire()}$updateGroup(e){this.features={...this.features,...e},this._onDidChange.fire()}$updateGroupLabel(e){this.label=e,this._onDidChange.fire()}}class pe{constructor(e,i,t,r,s,n,h,a,c,d,y){this.proxy=e,this.sourceControlHandle=i,this.groupHandle=t,this.handle=r,this.sourceUri=s,this.resourceGroup=n,this.decorations=h,this.contextValue=a,this.command=c,this.multiDiffEditorOriginalUri=d,this.multiDiffEditorModifiedUri=y}open(e){return this.proxy.$executeResourceCommand(this.sourceControlHandle,this.groupHandle,this.handle,e)}toJSON(){return{$mid:3,sourceControlHandle:this.sourceControlHandle,groupHandle:this.groupHandle,handle:this.handle}}}class fe{get historyItemRef(){return this._historyItemRef}get historyItemRemoteRef(){return this._historyItemRemoteRef}get historyItemBaseRef(){return this._historyItemBaseRef}get historyItemRefChanges(){return this._historyItemRefChanges}constructor(e,i){this.proxy=e,this.handle=i,this._historyItemRef=I({owner:this,equalsFn:S},void 0),this._historyItemRemoteRef=I({owner:this,equalsFn:S},void 0),this._historyItemBaseRef=I({owner:this,equalsFn:S},void 0),this._historyItemRefChanges=m(this,{added:[],modified:[],removed:[],silent:!1})}async resolveHistoryItemRefsCommonAncestor(e){return this.proxy.$resolveHistoryItemRefsCommonAncestor(this.handle,e,f.None)}async provideHistoryItemRefs(e){return(await this.proxy.$provideHistoryItemRefs(this.handle,e,f.None))?.map(t=>({...t,icon:v(t.icon)}))}async provideHistoryItems(e){return(await this.proxy.$provideHistoryItems(this.handle,e,f.None))?.map(t=>ue(t))}async provideHistoryItemChanges(e,i){return(await this.proxy.$provideHistoryItemChanges(this.handle,e,i,f.None))?.map(r=>({uri:u.revive(r.uri),originalUri:r.originalUri&&u.revive(r.originalUri),modifiedUri:r.modifiedUri&&u.revive(r.modifiedUri)}))}$onDidChangeCurrentHistoryItemRefs(e,i,t){N(r=>{this._historyItemRef.set(l(e,ae),r),this._historyItemRemoteRef.set(l(i,he),r),this._historyItemBaseRef.set(l(t,ne),r)})}$onDidChangeHistoryItemRefs(e){const i=e.added.map(s=>l(s)),t=e.modified.map(s=>l(s)),r=e.removed.map(s=>l(s));this._historyItemRefChanges.set({added:i,modified:t,removed:r,silent:e.silent},void 0)}}class R{static{this.ID_HANDLE=0}get id(){return this._id}get handle(){return this._handle}get label(){return this._label}get rootUri(){return this._rootUri}get inputBoxTextModel(){return this._inputBoxTextModel}get contextValue(){return this._providerId}get acceptInputCommand(){return this.features.acceptInputCommand}get count(){return this._count}get statusBarCommands(){return this._statusBarCommands}get name(){return this._name??this._label}get commitTemplate(){return this._commitTemplate}get actionButton(){return this._actionButton}get historyProvider(){return this._historyProvider}constructor(e,i,t,r,s,n,h,a,c){if(this.proxy=e,this._handle=i,this._providerId=t,this._label=r,this._rootUri=s,this._inputBoxTextModel=n,this._quickDiffService=h,this._uriIdentService=a,this._workspaceContextService=c,this._id=`scm${R.ID_HANDLE++}`,this.groups=[],this._onDidChangeResourceGroups=new g,this.onDidChangeResourceGroups=this._onDidChangeResourceGroups.event,this._onDidChangeResources=new g,this.onDidChangeResources=this._onDidChangeResources.event,this._groupsByHandle=Object.create(null),this.features={},this._count=m(this,void 0),this._statusBarCommands=m(this,void 0),this._commitTemplate=m(this,""),this._actionButton=m(this,void 0),this._historyProvider=m(this,void 0),s){const d=this._workspaceContextService.getWorkspaceFolder(s);d?.uri.toString()===s.toString()?this._name=d.name:s.path!=="/"&&(this._name=ie(s))}}$updateSourceControl(e){if(this.features={...this.features,...e},typeof e.commitTemplate<"u"&&this._commitTemplate.set(e.commitTemplate,void 0),typeof e.actionButton<"u"&&this._actionButton.set(e.actionButton??void 0,void 0),typeof e.count<"u"&&this._count.set(e.count,void 0),typeof e.statusBarCommands<"u"&&this._statusBarCommands.set(e.statusBarCommands,void 0),e.hasQuickDiffProvider&&!this._quickDiff?this._quickDiff=this._quickDiffService.addQuickDiffProvider({id:`${this._providerId}.quickDiffProvider`,label:e.quickDiffLabel??this.label,rootUri:this.rootUri,kind:"primary",getOriginalResource:async i=>{if(!this.features.hasQuickDiffProvider)return null;const t=await this.proxy.$provideOriginalResource(this.handle,i,f.None);return t&&u.revive(t)}}):e.hasQuickDiffProvider===!1&&this._quickDiff&&(this._quickDiff.dispose(),this._quickDiff=void 0),e.hasSecondaryQuickDiffProvider&&!this._stagedQuickDiff?this._stagedQuickDiff=this._quickDiffService.addQuickDiffProvider({id:`${this._providerId}.secondaryQuickDiffProvider`,label:e.secondaryQuickDiffLabel??this.label,rootUri:this.rootUri,kind:"secondary",getOriginalResource:async i=>{if(!this.features.hasSecondaryQuickDiffProvider)return null;const t=await this.proxy.$provideSecondaryOriginalResource(this.handle,i,f.None);return t&&u.revive(t)}}):e.hasSecondaryQuickDiffProvider===!1&&this._stagedQuickDiff&&(this._stagedQuickDiff.dispose(),this._stagedQuickDiff=void 0),e.hasHistoryProvider&&!this.historyProvider.get()){const i=new fe(this.proxy,this.handle);this._historyProvider.set(i,void 0)}else e.hasHistoryProvider===!1&&this.historyProvider.get()&&this._historyProvider.set(void 0,void 0)}$registerGroups(e){const i=e.map(([t,r,s,n,h])=>{const a=new ce(this.handle,t,this,n,s,r,h,this._uriIdentService);return this._groupsByHandle[t]=a,a});this.groups.splice(this.groups.length,0,...i),this._onDidChangeResourceGroups.fire()}$updateGroup(e,i){const t=this._groupsByHandle[e];t&&t.$updateGroup(i)}$updateGroupLabel(e,i){const t=this._groupsByHandle[e];t&&t.$updateGroupLabel(i)}$spliceGroupResourceStates(e){for(const[i,t]of e){const r=this._groupsByHandle[i];if(r){t.reverse();for(const[s,n,h]of t){const a=h.map(c=>{const[d,y,B,b,k,M,H,P,T,G]=c,[_,C]=B,w=D.isThemeIcon(_)?_:u.revive(_),U=(D.isThemeIcon(C)?C:u.revive(C))||w,V={icon:w,iconDark:U,tooltip:b,strikeThrough:k,faded:M};return new pe(this.proxy,this.handle,i,d,u.revive(y),r,V,H||void 0,P,u.revive(T),u.revive(G))});r.splice(s,n,a)}}}this._onDidChangeResources.fire()}$unregisterGroup(e){const i=this._groupsByHandle[e];i&&(delete this._groupsByHandle[e],this.groups.splice(this.groups.indexOf(i),1),this._onDidChangeResourceGroups.fire())}async getOriginalResource(e){if(!this.features.hasQuickDiffProvider)return null;const i=await this.proxy.$provideOriginalResource(this.handle,e,f.None);return i&&u.revive(i)}$onDidChangeHistoryProviderCurrentHistoryItemRefs(e,i,t){this.historyProvider.get()&&this._historyProvider.get()?.$onDidChangeCurrentHistoryItemRefs(e,i,t)}$onDidChangeHistoryProviderHistoryItemRefs(e){this.historyProvider.get()&&this._historyProvider.get()?.$onDidChangeHistoryItemRefs(e)}toJSON(){return{$mid:5,handle:this.handle}}dispose(){this._stagedQuickDiff?.dispose(),this._quickDiff?.dispose()}}let $=class{constructor(e,i,t,r,s,n,h,a,c){this.scmService=i,this.scmViewService=t,this.languageService=r,this.modelService=s,this.textModelService=n,this.quickDiffService=h,this._uriIdentService=a,this.workspaceContextService=c,this._repositories=new Map,this._repositoryBarriers=new Map,this._repositoryDisposables=new Map,this._disposables=new L,this._proxy=e.getProxy(J.ExtHostSCM),this._disposables.add(new de(this.textModelService,this.modelService,this.languageService))}dispose(){x(this._repositories.values()),this._repositories.clear(),x(this._repositoryDisposables.values()),this._repositoryDisposables.clear(),this._disposables.dispose()}async $registerSourceControl(e,i,t,r,s){this._repositoryBarriers.set(e,new Q);const n=await this.textModelService.createModelReference(u.revive(s)),h=new R(this._proxy,e,i,t,r?u.revive(r):void 0,n.object.textEditorModel,this.quickDiffService,this._uriIdentService,this.workspaceContextService),a=this.scmService.registerSCMProvider(h);this._repositories.set(e,a);const c=F(n,O.filter(this.scmViewService.onDidFocusRepository,d=>d===a)(d=>this._proxy.$setSelectedSourceControl(e)),a.input.onDidChange(({value:d})=>this._proxy.$onInputBoxValueChange(e,d)));this._repositoryDisposables.set(e,c),this.scmViewService.focusedRepository===a&&setTimeout(()=>this._proxy.$setSelectedSourceControl(e),0),a.input.value&&setTimeout(()=>this._proxy.$onInputBoxValueChange(e,a.input.value),0),this._repositoryBarriers.get(e)?.open()}async $updateSourceControl(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);if(!t)return;t.provider.$updateSourceControl(i)}async $unregisterSourceControl(e){await this._repositoryBarriers.get(e)?.wait();const i=this._repositories.get(e);i&&(this._repositoryDisposables.get(e).dispose(),this._repositoryDisposables.delete(e),i.dispose(),this._repositories.delete(e))}async $registerGroups(e,i,t){await this._repositoryBarriers.get(e)?.wait();const r=this._repositories.get(e);if(!r)return;const s=r.provider;s.$registerGroups(i),s.$spliceGroupResourceStates(t)}async $updateGroup(e,i,t){await this._repositoryBarriers.get(e)?.wait();const r=this._repositories.get(e);if(!r)return;r.provider.$updateGroup(i,t)}async $updateGroupLabel(e,i,t){await this._repositoryBarriers.get(e)?.wait();const r=this._repositories.get(e);if(!r)return;r.provider.$updateGroupLabel(i,t)}async $spliceResourceStates(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);if(!t)return;t.provider.$spliceGroupResourceStates(i)}async $unregisterGroup(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);if(!t)return;t.provider.$unregisterGroup(i)}async $setInputBoxValue(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);t&&t.input.setValue(i,!1)}async $setInputBoxPlaceholder(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);t&&(t.input.placeholder=i)}async $setInputBoxEnablement(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);t&&(t.input.enabled=i)}async $setInputBoxVisibility(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);t&&(t.input.visible=i)}async $showValidationMessage(e,i,t){await this._repositoryBarriers.get(e)?.wait();const r=this._repositories.get(e);r&&r.input.showValidationMessage(i,t)}async $setValidationProviderIsEnabled(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);t&&(i?t.input.validateInput=async(r,s)=>{const n=await this._proxy.$validateInput(e,r,s);return n&&{message:n[0],type:n[1]}}:t.input.validateInput=async()=>{})}async $onDidChangeHistoryProviderCurrentHistoryItemRefs(e,i,t,r){await this._repositoryBarriers.get(e)?.wait();const s=this._repositories.get(e);if(!s)return;s.provider.$onDidChangeHistoryProviderCurrentHistoryItemRefs(i,t,r)}async $onDidChangeHistoryProviderHistoryItemRefs(e,i){await this._repositoryBarriers.get(e)?.wait();const t=this._repositories.get(e);if(!t)return;t.provider.$onDidChangeHistoryProviderHistoryItemRefs(i)}};$=E([K(z.MainThreadSCM),p(1,A),p(2,W),p(3,te),p(4,re),p(5,se),p(6,X),p(7,Z),p(8,ee)],$);export{$ as MainThreadSCM};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Barrier } from "../../../base/common/async.js";
+import { isUriComponents, URI } from "../../../base/common/uri.js";
+import { Event, Emitter } from "../../../base/common/event.js";
+import { observableValue, observableValueOpts, transaction } from "../../../base/common/observable.js";
+import { DisposableStore, combinedDisposable, dispose, Disposable } from "../../../base/common/lifecycle.js";
+import { ISCMService, ISCMViewService } from "../../contrib/scm/common/scm.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { ThemeIcon } from "../../../base/common/themables.js";
+import { IQuickDiffService } from "../../contrib/scm/common/quickDiff.js";
+import { ResourceTree } from "../../../base/common/resourceTree.js";
+import { IUriIdentityService } from "../../../platform/uriIdentity/common/uriIdentity.js";
+import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
+import { basename } from "../../../base/common/resources.js";
+import { ILanguageService } from "../../../editor/common/languages/language.js";
+import { IModelService } from "../../../editor/common/services/model.js";
+import { ITextModelService } from "../../../editor/common/services/resolverService.js";
+import { Schemas } from "../../../base/common/network.js";
+import { structuralEquals } from "../../../base/common/equals.js";
+import { historyItemBaseRefColor, historyItemRefColor, historyItemRemoteRefColor } from "../../contrib/scm/browser/scmHistory.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+function getIconFromIconDto(iconDto) {
+  if (iconDto === void 0) {
+    return void 0;
+  } else if (ThemeIcon.isThemeIcon(iconDto)) {
+    return iconDto;
+  } else if (isUriComponents(iconDto)) {
+    return URI.revive(iconDto);
+  } else {
+    const icon = iconDto;
+    return { light: URI.revive(icon.light), dark: URI.revive(icon.dark) };
+  }
+}
+__name(getIconFromIconDto, "getIconFromIconDto");
+function toISCMHistoryItem(historyItemDto) {
+  const authorIcon = getIconFromIconDto(historyItemDto.authorIcon);
+  const references = historyItemDto.references?.map((r) => ({
+    ...r,
+    icon: getIconFromIconDto(r.icon)
+  }));
+  return { ...historyItemDto, authorIcon, references };
+}
+__name(toISCMHistoryItem, "toISCMHistoryItem");
+function toISCMHistoryItemRef(historyItemRefDto, color) {
+  return historyItemRefDto ? { ...historyItemRefDto, icon: getIconFromIconDto(historyItemRefDto.icon), color } : void 0;
+}
+__name(toISCMHistoryItemRef, "toISCMHistoryItemRef");
+class SCMInputBoxContentProvider extends Disposable {
+  static {
+    __name(this, "SCMInputBoxContentProvider");
+  }
+  constructor(textModelService, modelService, languageService) {
+    super();
+    this.modelService = modelService;
+    this.languageService = languageService;
+    this._register(textModelService.registerTextModelContentProvider(Schemas.vscodeSourceControl, this));
+  }
+  async provideTextContent(resource) {
+    const existing = this.modelService.getModel(resource);
+    if (existing) {
+      return existing;
+    }
+    return this.modelService.createModel("", this.languageService.createById("scminput"), resource);
+  }
+}
+class MainThreadSCMResourceGroup {
+  static {
+    __name(this, "MainThreadSCMResourceGroup");
+  }
+  get resourceTree() {
+    if (!this._resourceTree) {
+      const rootUri = this.provider.rootUri ?? URI.file("/");
+      this._resourceTree = new ResourceTree(this, rootUri, this._uriIdentService.extUri);
+      for (const resource of this.resources) {
+        this._resourceTree.add(resource.sourceUri, resource);
+      }
+    }
+    return this._resourceTree;
+  }
+  get hideWhenEmpty() {
+    return !!this.features.hideWhenEmpty;
+  }
+  get contextValue() {
+    return this.features.contextValue;
+  }
+  constructor(sourceControlHandle, handle, provider, features, label, id, multiDiffEditorEnableViewChanges, _uriIdentService) {
+    this.sourceControlHandle = sourceControlHandle;
+    this.handle = handle;
+    this.provider = provider;
+    this.features = features;
+    this.label = label;
+    this.id = id;
+    this.multiDiffEditorEnableViewChanges = multiDiffEditorEnableViewChanges;
+    this._uriIdentService = _uriIdentService;
+    this.resources = [];
+    this._onDidChange = new Emitter();
+    this.onDidChange = this._onDidChange.event;
+    this._onDidChangeResources = new Emitter();
+    this.onDidChangeResources = this._onDidChangeResources.event;
+  }
+  toJSON() {
+    return {
+      $mid: 4,
+      sourceControlHandle: this.sourceControlHandle,
+      groupHandle: this.handle
+    };
+  }
+  splice(start, deleteCount, toInsert) {
+    this.resources.splice(start, deleteCount, ...toInsert);
+    this._resourceTree = void 0;
+    this._onDidChangeResources.fire();
+  }
+  $updateGroup(features) {
+    this.features = { ...this.features, ...features };
+    this._onDidChange.fire();
+  }
+  $updateGroupLabel(label) {
+    this.label = label;
+    this._onDidChange.fire();
+  }
+}
+class MainThreadSCMResource {
+  static {
+    __name(this, "MainThreadSCMResource");
+  }
+  constructor(proxy, sourceControlHandle, groupHandle, handle, sourceUri, resourceGroup, decorations, contextValue, command, multiDiffEditorOriginalUri, multiDiffEditorModifiedUri) {
+    this.proxy = proxy;
+    this.sourceControlHandle = sourceControlHandle;
+    this.groupHandle = groupHandle;
+    this.handle = handle;
+    this.sourceUri = sourceUri;
+    this.resourceGroup = resourceGroup;
+    this.decorations = decorations;
+    this.contextValue = contextValue;
+    this.command = command;
+    this.multiDiffEditorOriginalUri = multiDiffEditorOriginalUri;
+    this.multiDiffEditorModifiedUri = multiDiffEditorModifiedUri;
+  }
+  open(preserveFocus) {
+    return this.proxy.$executeResourceCommand(this.sourceControlHandle, this.groupHandle, this.handle, preserveFocus);
+  }
+  toJSON() {
+    return {
+      $mid: 3,
+      sourceControlHandle: this.sourceControlHandle,
+      groupHandle: this.groupHandle,
+      handle: this.handle
+    };
+  }
+}
+class MainThreadSCMHistoryProvider {
+  static {
+    __name(this, "MainThreadSCMHistoryProvider");
+  }
+  get historyItemRef() {
+    return this._historyItemRef;
+  }
+  get historyItemRemoteRef() {
+    return this._historyItemRemoteRef;
+  }
+  get historyItemBaseRef() {
+    return this._historyItemBaseRef;
+  }
+  get historyItemRefChanges() {
+    return this._historyItemRefChanges;
+  }
+  constructor(proxy, handle) {
+    this.proxy = proxy;
+    this.handle = handle;
+    this._historyItemRef = observableValueOpts({
+      owner: this,
+      equalsFn: structuralEquals
+    }, void 0);
+    this._historyItemRemoteRef = observableValueOpts({
+      owner: this,
+      equalsFn: structuralEquals
+    }, void 0);
+    this._historyItemBaseRef = observableValueOpts({
+      owner: this,
+      equalsFn: structuralEquals
+    }, void 0);
+    this._historyItemRefChanges = observableValue(this, { added: [], modified: [], removed: [], silent: false });
+  }
+  async resolveHistoryItemRefsCommonAncestor(historyItemRefs) {
+    return this.proxy.$resolveHistoryItemRefsCommonAncestor(this.handle, historyItemRefs, CancellationToken.None);
+  }
+  async provideHistoryItemRefs(historyItemsRefs) {
+    const historyItemRefs = await this.proxy.$provideHistoryItemRefs(this.handle, historyItemsRefs, CancellationToken.None);
+    return historyItemRefs?.map((ref) => ({ ...ref, icon: getIconFromIconDto(ref.icon) }));
+  }
+  async provideHistoryItems(options) {
+    const historyItems = await this.proxy.$provideHistoryItems(this.handle, options, CancellationToken.None);
+    return historyItems?.map((historyItem) => toISCMHistoryItem(historyItem));
+  }
+  async provideHistoryItemChanges(historyItemId, historyItemParentId) {
+    const changes = await this.proxy.$provideHistoryItemChanges(this.handle, historyItemId, historyItemParentId, CancellationToken.None);
+    return changes?.map((change) => ({
+      uri: URI.revive(change.uri),
+      originalUri: change.originalUri && URI.revive(change.originalUri),
+      modifiedUri: change.modifiedUri && URI.revive(change.modifiedUri)
+    }));
+  }
+  $onDidChangeCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef) {
+    transaction((tx) => {
+      this._historyItemRef.set(toISCMHistoryItemRef(historyItemRef, historyItemRefColor), tx);
+      this._historyItemRemoteRef.set(toISCMHistoryItemRef(historyItemRemoteRef, historyItemRemoteRefColor), tx);
+      this._historyItemBaseRef.set(toISCMHistoryItemRef(historyItemBaseRef, historyItemBaseRefColor), tx);
+    });
+  }
+  $onDidChangeHistoryItemRefs(historyItemRefs) {
+    const added = historyItemRefs.added.map((ref) => toISCMHistoryItemRef(ref));
+    const modified = historyItemRefs.modified.map((ref) => toISCMHistoryItemRef(ref));
+    const removed = historyItemRefs.removed.map((ref) => toISCMHistoryItemRef(ref));
+    this._historyItemRefChanges.set({ added, modified, removed, silent: historyItemRefs.silent }, void 0);
+  }
+}
+class MainThreadSCMProvider {
+  static {
+    __name(this, "MainThreadSCMProvider");
+  }
+  static {
+    this.ID_HANDLE = 0;
+  }
+  get id() {
+    return this._id;
+  }
+  get handle() {
+    return this._handle;
+  }
+  get label() {
+    return this._label;
+  }
+  get rootUri() {
+    return this._rootUri;
+  }
+  get inputBoxTextModel() {
+    return this._inputBoxTextModel;
+  }
+  get contextValue() {
+    return this._providerId;
+  }
+  get acceptInputCommand() {
+    return this.features.acceptInputCommand;
+  }
+  get count() {
+    return this._count;
+  }
+  get statusBarCommands() {
+    return this._statusBarCommands;
+  }
+  get name() {
+    return this._name ?? this._label;
+  }
+  get commitTemplate() {
+    return this._commitTemplate;
+  }
+  get actionButton() {
+    return this._actionButton;
+  }
+  get historyProvider() {
+    return this._historyProvider;
+  }
+  constructor(proxy, _handle, _providerId, _label, _rootUri, _inputBoxTextModel, _quickDiffService, _uriIdentService, _workspaceContextService) {
+    this.proxy = proxy;
+    this._handle = _handle;
+    this._providerId = _providerId;
+    this._label = _label;
+    this._rootUri = _rootUri;
+    this._inputBoxTextModel = _inputBoxTextModel;
+    this._quickDiffService = _quickDiffService;
+    this._uriIdentService = _uriIdentService;
+    this._workspaceContextService = _workspaceContextService;
+    this._id = `scm${MainThreadSCMProvider.ID_HANDLE++}`;
+    this.groups = [];
+    this._onDidChangeResourceGroups = new Emitter();
+    this.onDidChangeResourceGroups = this._onDidChangeResourceGroups.event;
+    this._onDidChangeResources = new Emitter();
+    this.onDidChangeResources = this._onDidChangeResources.event;
+    this._groupsByHandle = /* @__PURE__ */ Object.create(null);
+    this.features = {};
+    this._count = observableValue(this, void 0);
+    this._statusBarCommands = observableValue(this, void 0);
+    this._commitTemplate = observableValue(this, "");
+    this._actionButton = observableValue(this, void 0);
+    this._historyProvider = observableValue(this, void 0);
+    if (_rootUri) {
+      const folder = this._workspaceContextService.getWorkspaceFolder(_rootUri);
+      if (folder?.uri.toString() === _rootUri.toString()) {
+        this._name = folder.name;
+      } else if (_rootUri.path !== "/") {
+        this._name = basename(_rootUri);
+      }
+    }
+  }
+  $updateSourceControl(features) {
+    this.features = { ...this.features, ...features };
+    if (typeof features.commitTemplate !== "undefined") {
+      this._commitTemplate.set(features.commitTemplate, void 0);
+    }
+    if (typeof features.actionButton !== "undefined") {
+      this._actionButton.set(features.actionButton ?? void 0, void 0);
+    }
+    if (typeof features.count !== "undefined") {
+      this._count.set(features.count, void 0);
+    }
+    if (typeof features.statusBarCommands !== "undefined") {
+      this._statusBarCommands.set(features.statusBarCommands, void 0);
+    }
+    if (features.hasQuickDiffProvider && !this._quickDiff) {
+      this._quickDiff = this._quickDiffService.addQuickDiffProvider({
+        id: `${this._providerId}.quickDiffProvider`,
+        label: features.quickDiffLabel ?? this.label,
+        rootUri: this.rootUri,
+        kind: "primary",
+        getOriginalResource: /* @__PURE__ */ __name(async (uri) => {
+          if (!this.features.hasQuickDiffProvider) {
+            return null;
+          }
+          const result = await this.proxy.$provideOriginalResource(this.handle, uri, CancellationToken.None);
+          return result && URI.revive(result);
+        }, "getOriginalResource")
+      });
+    } else if (features.hasQuickDiffProvider === false && this._quickDiff) {
+      this._quickDiff.dispose();
+      this._quickDiff = void 0;
+    }
+    if (features.hasSecondaryQuickDiffProvider && !this._stagedQuickDiff) {
+      this._stagedQuickDiff = this._quickDiffService.addQuickDiffProvider({
+        id: `${this._providerId}.secondaryQuickDiffProvider`,
+        label: features.secondaryQuickDiffLabel ?? this.label,
+        rootUri: this.rootUri,
+        kind: "secondary",
+        getOriginalResource: /* @__PURE__ */ __name(async (uri) => {
+          if (!this.features.hasSecondaryQuickDiffProvider) {
+            return null;
+          }
+          const result = await this.proxy.$provideSecondaryOriginalResource(this.handle, uri, CancellationToken.None);
+          return result && URI.revive(result);
+        }, "getOriginalResource")
+      });
+    } else if (features.hasSecondaryQuickDiffProvider === false && this._stagedQuickDiff) {
+      this._stagedQuickDiff.dispose();
+      this._stagedQuickDiff = void 0;
+    }
+    if (features.hasHistoryProvider && !this.historyProvider.get()) {
+      const historyProvider = new MainThreadSCMHistoryProvider(this.proxy, this.handle);
+      this._historyProvider.set(historyProvider, void 0);
+    } else if (features.hasHistoryProvider === false && this.historyProvider.get()) {
+      this._historyProvider.set(void 0, void 0);
+    }
+  }
+  $registerGroups(_groups) {
+    const groups = _groups.map(([handle, id, label, features, multiDiffEditorEnableViewChanges]) => {
+      const group = new MainThreadSCMResourceGroup(this.handle, handle, this, features, label, id, multiDiffEditorEnableViewChanges, this._uriIdentService);
+      this._groupsByHandle[handle] = group;
+      return group;
+    });
+    this.groups.splice(this.groups.length, 0, ...groups);
+    this._onDidChangeResourceGroups.fire();
+  }
+  $updateGroup(handle, features) {
+    const group = this._groupsByHandle[handle];
+    if (!group) {
+      return;
+    }
+    group.$updateGroup(features);
+  }
+  $updateGroupLabel(handle, label) {
+    const group = this._groupsByHandle[handle];
+    if (!group) {
+      return;
+    }
+    group.$updateGroupLabel(label);
+  }
+  $spliceGroupResourceStates(splices) {
+    for (const [groupHandle, groupSlices] of splices) {
+      const group = this._groupsByHandle[groupHandle];
+      if (!group) {
+        console.warn(`SCM group ${groupHandle} not found in provider ${this.label}`);
+        continue;
+      }
+      groupSlices.reverse();
+      for (const [start, deleteCount, rawResources] of groupSlices) {
+        const resources = rawResources.map((rawResource) => {
+          const [handle, sourceUri, icons, tooltip, strikeThrough, faded, contextValue, command, multiDiffEditorOriginalUri, multiDiffEditorModifiedUri] = rawResource;
+          const [light, dark] = icons;
+          const icon = ThemeIcon.isThemeIcon(light) ? light : URI.revive(light);
+          const iconDark = (ThemeIcon.isThemeIcon(dark) ? dark : URI.revive(dark)) || icon;
+          const decorations = {
+            icon,
+            iconDark,
+            tooltip,
+            strikeThrough,
+            faded
+          };
+          return new MainThreadSCMResource(this.proxy, this.handle, groupHandle, handle, URI.revive(sourceUri), group, decorations, contextValue || void 0, command, URI.revive(multiDiffEditorOriginalUri), URI.revive(multiDiffEditorModifiedUri));
+        });
+        group.splice(start, deleteCount, resources);
+      }
+    }
+    this._onDidChangeResources.fire();
+  }
+  $unregisterGroup(handle) {
+    const group = this._groupsByHandle[handle];
+    if (!group) {
+      return;
+    }
+    delete this._groupsByHandle[handle];
+    this.groups.splice(this.groups.indexOf(group), 1);
+    this._onDidChangeResourceGroups.fire();
+  }
+  async getOriginalResource(uri) {
+    if (!this.features.hasQuickDiffProvider) {
+      return null;
+    }
+    const result = await this.proxy.$provideOriginalResource(this.handle, uri, CancellationToken.None);
+    return result && URI.revive(result);
+  }
+  $onDidChangeHistoryProviderCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef) {
+    if (!this.historyProvider.get()) {
+      return;
+    }
+    this._historyProvider.get()?.$onDidChangeCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef);
+  }
+  $onDidChangeHistoryProviderHistoryItemRefs(historyItemRefs) {
+    if (!this.historyProvider.get()) {
+      return;
+    }
+    this._historyProvider.get()?.$onDidChangeHistoryItemRefs(historyItemRefs);
+  }
+  toJSON() {
+    return {
+      $mid: 5,
+      handle: this.handle
+    };
+  }
+  dispose() {
+    this._stagedQuickDiff?.dispose();
+    this._quickDiff?.dispose();
+  }
+}
+let MainThreadSCM = class MainThreadSCM2 {
+  static {
+    __name(this, "MainThreadSCM");
+  }
+  constructor(extHostContext, scmService, scmViewService, languageService, modelService, textModelService, quickDiffService, _uriIdentService, workspaceContextService) {
+    this.scmService = scmService;
+    this.scmViewService = scmViewService;
+    this.languageService = languageService;
+    this.modelService = modelService;
+    this.textModelService = textModelService;
+    this.quickDiffService = quickDiffService;
+    this._uriIdentService = _uriIdentService;
+    this.workspaceContextService = workspaceContextService;
+    this._repositories = /* @__PURE__ */ new Map();
+    this._repositoryBarriers = /* @__PURE__ */ new Map();
+    this._repositoryDisposables = /* @__PURE__ */ new Map();
+    this._disposables = new DisposableStore();
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostSCM);
+    this._disposables.add(new SCMInputBoxContentProvider(this.textModelService, this.modelService, this.languageService));
+  }
+  dispose() {
+    dispose(this._repositories.values());
+    this._repositories.clear();
+    dispose(this._repositoryDisposables.values());
+    this._repositoryDisposables.clear();
+    this._disposables.dispose();
+  }
+  async $registerSourceControl(handle, id, label, rootUri, inputBoxDocumentUri) {
+    this._repositoryBarriers.set(handle, new Barrier());
+    const inputBoxTextModelRef = await this.textModelService.createModelReference(URI.revive(inputBoxDocumentUri));
+    const provider = new MainThreadSCMProvider(this._proxy, handle, id, label, rootUri ? URI.revive(rootUri) : void 0, inputBoxTextModelRef.object.textEditorModel, this.quickDiffService, this._uriIdentService, this.workspaceContextService);
+    const repository = this.scmService.registerSCMProvider(provider);
+    this._repositories.set(handle, repository);
+    const disposable = combinedDisposable(inputBoxTextModelRef, Event.filter(this.scmViewService.onDidFocusRepository, (r) => r === repository)((_) => this._proxy.$setSelectedSourceControl(handle)), repository.input.onDidChange(({ value }) => this._proxy.$onInputBoxValueChange(handle, value)));
+    this._repositoryDisposables.set(handle, disposable);
+    if (this.scmViewService.focusedRepository === repository) {
+      setTimeout(() => this._proxy.$setSelectedSourceControl(handle), 0);
+    }
+    if (repository.input.value) {
+      setTimeout(() => this._proxy.$onInputBoxValueChange(handle, repository.input.value), 0);
+    }
+    this._repositoryBarriers.get(handle)?.open();
+  }
+  async $updateSourceControl(handle, features) {
+    await this._repositoryBarriers.get(handle)?.wait();
+    const repository = this._repositories.get(handle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$updateSourceControl(features);
+  }
+  async $unregisterSourceControl(handle) {
+    await this._repositoryBarriers.get(handle)?.wait();
+    const repository = this._repositories.get(handle);
+    if (!repository) {
+      return;
+    }
+    this._repositoryDisposables.get(handle).dispose();
+    this._repositoryDisposables.delete(handle);
+    repository.dispose();
+    this._repositories.delete(handle);
+  }
+  async $registerGroups(sourceControlHandle, groups, splices) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$registerGroups(groups);
+    provider.$spliceGroupResourceStates(splices);
+  }
+  async $updateGroup(sourceControlHandle, groupHandle, features) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$updateGroup(groupHandle, features);
+  }
+  async $updateGroupLabel(sourceControlHandle, groupHandle, label) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$updateGroupLabel(groupHandle, label);
+  }
+  async $spliceResourceStates(sourceControlHandle, splices) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$spliceGroupResourceStates(splices);
+  }
+  async $unregisterGroup(sourceControlHandle, handle) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$unregisterGroup(handle);
+  }
+  async $setInputBoxValue(sourceControlHandle, value) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    repository.input.setValue(value, false);
+  }
+  async $setInputBoxPlaceholder(sourceControlHandle, placeholder) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    repository.input.placeholder = placeholder;
+  }
+  async $setInputBoxEnablement(sourceControlHandle, enabled) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    repository.input.enabled = enabled;
+  }
+  async $setInputBoxVisibility(sourceControlHandle, visible) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    repository.input.visible = visible;
+  }
+  async $showValidationMessage(sourceControlHandle, message, type) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    repository.input.showValidationMessage(message, type);
+  }
+  async $setValidationProviderIsEnabled(sourceControlHandle, enabled) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    if (enabled) {
+      repository.input.validateInput = async (value, pos) => {
+        const result = await this._proxy.$validateInput(sourceControlHandle, value, pos);
+        return result && { message: result[0], type: result[1] };
+      };
+    } else {
+      repository.input.validateInput = async () => void 0;
+    }
+  }
+  async $onDidChangeHistoryProviderCurrentHistoryItemRefs(sourceControlHandle, historyItemRef, historyItemRemoteRef, historyItemBaseRef) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$onDidChangeHistoryProviderCurrentHistoryItemRefs(historyItemRef, historyItemRemoteRef, historyItemBaseRef);
+  }
+  async $onDidChangeHistoryProviderHistoryItemRefs(sourceControlHandle, historyItemRefs) {
+    await this._repositoryBarriers.get(sourceControlHandle)?.wait();
+    const repository = this._repositories.get(sourceControlHandle);
+    if (!repository) {
+      return;
+    }
+    const provider = repository.provider;
+    provider.$onDidChangeHistoryProviderHistoryItemRefs(historyItemRefs);
+  }
+};
+MainThreadSCM = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadSCM),
+  __param(1, ISCMService),
+  __param(2, ISCMViewService),
+  __param(3, ILanguageService),
+  __param(4, IModelService),
+  __param(5, ITextModelService),
+  __param(6, IQuickDiffService),
+  __param(7, IUriIdentityService),
+  __param(8, IWorkspaceContextService)
+], MainThreadSCM);
+export {
+  MainThreadSCM
+};
+//# sourceMappingURL=mainThreadSCM.js.map

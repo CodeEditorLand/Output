@@ -1,1 +1,809 @@
-import*as z from"../../../nls.js";import{URI as w}from"../../../base/common/uri.js";import{generateUuid as G}from"../../../base/common/uuid.js";import*as x from"../../../base/common/types.js";import*as J from"../../../base/common/platform.js";import{Disposable as X}from"../../../base/common/lifecycle.js";import{IWorkspaceContextService as Y}from"../../../platform/workspace/common/workspace.js";import{ContributedTask as W,ConfiguringTask as j,CommandOptions as R,RuntimeType as k,CustomTask as Z,TaskSourceKind as F,TaskDefinition as ee,PresentationOptions as V,RunOptions as q}from"../../contrib/tasks/common/tasks.js";import{ITaskService as re}from"../../contrib/tasks/common/taskService.js";import{extHostNamedCustomer as te}from"../../services/extensions/common/extHostCustomers.js";import{ExtHostContext as ne,MainContext as oe}from"../common/extHost.protocol.js";import{TaskEventKind as p}from"../common/shared/tasks.js";import{IConfigurationResolverService as ie}from"../../services/configurationResolver/common/configurationResolver.js";import{ErrorNoTelemetry as se}from"../../../base/common/errors.js";import{ConfigurationResolverExpression as ce}from"../../services/configurationResolver/common/configurationResolverExpression.js";var U=function(i,o,t,e){var r=arguments.length,n=r<3?o:e===null?e=Object.getOwnPropertyDescriptor(o,t):e,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,o,t,e);else for(var c=i.length-1;c>=0;c--)(s=i[c])&&(n=(r<3?s(n):r>3?s(o,t,n):s(o,t))||n);return r>3&&n&&Object.defineProperty(o,t,n),n},I=function(i,o){return function(t,e){o(t,e,i)}},S;(function(i){function o(t){return{id:t.id,task:d.from(t.task)}}i.from=o})(S||(S={}));var A;(function(i){function o(t){return{execution:{id:t.execution.id,task:d.from(t.execution.task)}}}i.from=o})(A||(A={}));var E;(function(i){function o(t){return{execution:{id:t.execution.id,task:d.from(t.execution.task)},hasErrors:t.hasErrors}}i.from=o})(E||(E={}));var L;(function(i){function o(t,e){return{id:t.id,processId:e}}i.from=o})(L||(L={}));var N;(function(i){function o(t,e){return{id:t.id,exitCode:e}}i.from=o})(N||(N={}));var P;(function(i){function o(e){const r=Object.assign(Object.create(null),e);return delete r._key,r}i.from=o;function t(e,r){let n=ee.createTaskIdentifier(e,console);return n===void 0&&r&&(n={_key:G(),type:"$executeOnly"}),n}i.to=t})(P||(P={}));var y;(function(i){function o(e){if(e!=null)return Object.assign(Object.create(null),e)}i.from=o;function t(e){return e==null?V.defaults:Object.assign(Object.create(null),V.defaults,e)}i.to=t})(y||(y={}));var O;(function(i){function o(e){if(e!=null)return Object.assign(Object.create(null),e)}i.from=o;function t(e){return e==null?q.defaults:Object.assign(Object.create(null),q.defaults,e)}i.to=t})(O||(O={}));var C;(function(i){function o(e){if(e!=null)return{cwd:e.cwd,env:e.env}}i.from=o;function t(e){return e==null?R.defaults:{cwd:e.cwd||R.defaults.cwd,env:e.env}}i.to=t})(C||(C={}));var _;(function(i){function o(r){const n=r;return n&&!!n.process}i.is=o;function t(r){const n=x.isString(r.name)?r.name:r.name.value,s=r.args?r.args.map(f=>x.isString(f)?f:f.value):[],c={process:n,args:s};return r.options&&(c.options=C.from(r.options)),c}i.from=t;function e(r){const n={runtime:k.Process,name:r.process,args:r.args,presentation:void 0};return n.options=C.to(r.options),n}i.to=e})(_||(_={}));var $;(function(i){function o(e){if(e==null)return;const r={cwd:e.cwd||R.defaults.cwd,env:e.env};return e.shell&&(r.executable=e.shell.executable,r.shellArgs=e.shell.args,r.shellQuoting=e.shell.quoting),r}i.from=o;function t(e){if(e==null)return;const r={cwd:e.cwd,env:e.env};return e.executable&&(r.shell={executable:e.executable},e.shellArgs&&(r.shell.args=e.shellArgs),e.shellQuoting&&(r.shell.quoting=e.shellQuoting)),r}i.to=t})($||($={}));var T;(function(i){function o(r){const n=r;return n&&(!!n.commandLine||!!n.command)}i.is=o;function t(r){const n={};return r.name&&x.isString(r.name)&&(r.args===void 0||r.args===null||r.args.length===0)?n.commandLine=r.name:(n.command=r.name,n.args=r.args),r.options&&(n.options=$.from(r.options)),n}i.from=t;function e(r){const n={runtime:k.Shell,name:r.commandLine?r.commandLine:r.command,args:r.args,presentation:void 0};return r.options&&(n.options=$.to(r.options)),n}i.to=e})(T||(T={}));var g;(function(i){function o(r){const n=r;return n&&n.customExecution==="customExecution"}i.is=o;function t(r){return{customExecution:"customExecution"}}i.from=t;function e(r){return{runtime:k.CustomExecution,presentation:void 0}}i.to=e})(g||(g={}));var D;(function(i){function o(e){const r={label:e.label};return e.kind===F.Extension?(r.extensionId=e.extension,e.workspaceFolder?r.scope=e.workspaceFolder.uri:r.scope=e.scope):e.kind===F.Workspace&&(r.extensionId="$core",r.scope=e.config.workspaceFolder?e.config.workspaceFolder.uri:1),r}i.from=o;function t(e,r){let n,s;return e.scope===void 0||typeof e.scope=="number"&&e.scope!==1?r.getWorkspace().folders.length===0?(n=1,s=void 0):(n=3,s=r.getWorkspace().folders[0]):typeof e.scope=="number"?n=e.scope:(n=3,s=r.getWorkspaceFolder(w.revive(e.scope))??void 0),{kind:F.Extension,label:e.label,extension:e.extensionId,scope:n,workspaceFolder:s}}i.to=t})(D||(D={}));var M;(function(i){function o(t){const e=t;return e&&x.isString(e.id)&&!!e.workspaceFolder}i.is=o})(M||(M={}));var d;(function(i){function o(e){if(e==null||!Z.is(e)&&!W.is(e)&&!j.is(e))return;const r={_id:e._id,name:e.configurationProperties.name,definition:P.from(e.getDefinition(!0)),source:D.from(e._source),execution:void 0,presentationOptions:!j.is(e)&&e.command?y.from(e.command.presentation):void 0,isBackground:e.configurationProperties.isBackground,problemMatchers:[],hasDefinedMatchers:W.is(e)?e.hasDefinedMatchers:!1,runOptions:O.from(e.runOptions)};if(r.group=H.from(e.configurationProperties.group),e.configurationProperties.detail&&(r.detail=e.configurationProperties.detail),!j.is(e)&&e.command)switch(e.command.runtime){case k.Process:r.execution=_.from(e.command);break;case k.Shell:r.execution=T.from(e.command);break;case k.CustomExecution:r.execution=g.from(e.command);break}if(e.configurationProperties.problemMatchers)for(const n of e.configurationProperties.problemMatchers)x.isString(n)&&r.problemMatchers.push(n);return r}i.from=o;function t(e,r,n,s,c){if(!e||typeof e.name!="string")return;let f;if(e.execution&&(T.is(e.execution)?f=T.to(e.execution):_.is(e.execution)?f=_.to(e.execution):g.is(e.execution)&&(f=g.to(e.execution))),!f)return;f.presentation=y.to(e.presentationOptions);const a=D.to(e.source,r),u=z.localize("task.label","{0}: {1}",a.label,e.name),m=P.to(e.definition,n),l=g.is(e.execution)&&e._id?e._id:`${e.source.extensionId}.${m._key}`;return new W(l,a,u,m.type,m,f,e.hasDefinedMatchers,O.to(e.runOptions),{name:e.name,identifier:u,group:e.group,isBackground:!!e.isBackground,problemMatchers:e.problemMatchers.slice(),detail:e.detail,icon:s,hide:c})}i.to=t})(d||(d={}));var H;(function(i){function o(t){if(t!==void 0)return{_id:typeof t=="string"?t:t._id,isDefault:typeof t=="string"||typeof t.isDefault=="string"?!1:t.isDefault}}i.from=o})(H||(H={}));var B;(function(i){function o(e){return e}i.from=o;function t(e){return e}i.to=t})(B||(B={}));let K=class extends X{constructor(o,t,e,r){super(),this._taskService=t,this._workspaceContextServer=e,this._configurationResolverService=r,this._proxy=o.getProxy(ne.ExtHostTask),this._providers=new Map,this._register(this._taskService.onDidStateChange(async n=>{if(n.kind===p.Changed)return;const s=n.__task;if(n.kind===p.Start){const c=S.from(s.getTaskExecution());let f=c.task.definition;if(c.task?.execution&&g.is(c.task.execution)&&n.resolvedVariables){const a=ce.parse(c.task.definition);for(const u of a.unresolved()){const m=n.resolvedVariables.get(u.inner);m!==void 0&&a.resolve(u,m)}f=await this._configurationResolverService.resolveAsync(s.getWorkspaceFolder(),a)}this._proxy.$onDidStartTask(c,n.terminalId,f)}else n.kind===p.ProcessStarted?this._proxy.$onDidStartTaskProcess(L.from(s.getTaskExecution(),n.processId)):n.kind===p.ProcessEnded?this._proxy.$onDidEndTaskProcess(N.from(s.getTaskExecution(),n.exitCode)):n.kind===p.End?this._proxy.$OnDidEndTask(S.from(s.getTaskExecution())):n.kind===p.ProblemMatcherStarted?this._proxy.$onDidStartTaskProblemMatchers(A.from({execution:s.getTaskExecution()})):n.kind===p.ProblemMatcherEnded?this._proxy.$onDidEndTaskProblemMatchers(E.from({execution:s.getTaskExecution(),hasErrors:!1})):n.kind===p.ProblemMatcherFoundErrors&&this._proxy.$onDidEndTaskProblemMatchers(E.from({execution:s.getTaskExecution(),hasErrors:!0}))}))}dispose(){for(const o of this._providers.values())o.disposable.dispose();this._providers.clear(),super.dispose()}$createTaskId(o){return new Promise((t,e)=>{const r=d.to(o,this._workspaceContextServer,!0);r?t(r._id):e(new Error("Task could not be created from DTO"))})}$registerTaskProvider(o,t){const e={provideTasks:n=>Promise.resolve(this._proxy.$provideTasks(o,n)).then(s=>{const c=[];for(const a of s.tasks){const u=d.to(a,this._workspaceContextServer,!0);u&&c.push(u)}const f={...s.extension,extensionLocation:w.revive(s.extension.extensionLocation)};return{tasks:c,extension:f}}),resolveTask:n=>{const s=d.from(n);return s?(s.name=s.name===void 0?"":s.name,Promise.resolve(this._proxy.$resolveTask(o,s)).then(c=>{if(c)return d.to(c,this._workspaceContextServer,!0,n.configurationProperties.icon,n.configurationProperties.hide)})):Promise.resolve(void 0)}},r=this._taskService.registerTaskProvider(e,t);return this._providers.set(o,{disposable:r,provider:e}),Promise.resolve(void 0)}$unregisterTaskProvider(o){const t=this._providers.get(o);return t&&(t.disposable.dispose(),this._providers.delete(o)),Promise.resolve(void 0)}$fetchTasks(o){return this._taskService.tasks(B.to(o)).then(t=>{const e=[];for(const r of t){const n=d.from(r);n&&e.push(n)}return e})}getWorkspace(o){let t;if(typeof o=="string")t=o;else{const e=this._workspaceContextServer.getWorkspace(),r=w.revive(o);e.configuration?.toString()===r.toString()?t=e:t=this._workspaceContextServer.getWorkspaceFolder(r)}return t}async $getTaskExecution(o){if(M.is(o)){const t=this.getWorkspace(o.workspaceFolder);if(t){const e=await this._taskService.getTask(t,o.id,!0);if(e)return{id:e._id,task:d.from(e)};throw new Error("Task not found")}else throw new Error("No workspace folder")}else{const t=d.to(o,this._workspaceContextServer,!0);return{id:t._id,task:d.from(t)}}}$executeTask(o){return new Promise((t,e)=>{if(M.is(o)){const r=this.getWorkspace(o.workspaceFolder);r?this._taskService.getTask(r,o.id,!0).then(n=>{if(!n)e(new Error("Task not found"));else{const s={id:o.id,task:d.from(n)};this._taskService.run(n).then(c=>{(c?.exitCode===void 0||c.exitCode!==0)&&this._proxy.$OnDidEndTask(s)},c=>{}),t(s)}},n=>{e(new Error("Task not found"))}):e(new Error("No workspace folder"))}else{const r=d.to(o,this._workspaceContextServer,!0);this._taskService.run(r).then(void 0,s=>{});const n={id:r._id,task:d.from(r)};t(n)}})}$customExecutionComplete(o,t){return new Promise((e,r)=>{this._taskService.getActiveTasks().then(n=>{for(const s of n)if(o===s._id){this._taskService.extensionCallbackTaskComplete(s,t).then(c=>{e(void 0)},c=>{r(c)});return}r(new Error("Task to mark as complete not found"))})})}$terminateTask(o){return new Promise((t,e)=>{this._taskService.getActiveTasks().then(r=>{for(const n of r)if(o===n._id){this._taskService.terminate(n).then(s=>{t(void 0)},s=>{e(void 0)});return}e(new se("Task to terminate not found"))})})}$registerTaskSystem(o,t){let e;switch(t.platform){case"Web":e=0;break;case"win32":e=3;break;case"darwin":e=1;break;case"linux":e=2;break;default:e=J.platform}this._taskService.registerTaskSystem(o,{platform:e,uriProvider:r=>w.from({scheme:t.scheme,authority:t.authority,path:r}),context:this._extHostContext,resolveVariables:(r,n,s)=>{const c=[];return n.variables.forEach(f=>c.push(f)),Promise.resolve(this._proxy.$resolveVariables(r.uri,{process:n.process,variables:c})).then(f=>{const a=Array.from(Object.values(f.variables));return new Promise((u,m)=>{this._configurationResolverService.resolveWithInteraction(r,a,"tasks",void 0,s).then(l=>{l||u(void 0);const b={process:void 0,variables:new Map};for(let h=0;h<a.length;h++){const v=c[h].substring(2,c[h].length-1);if(l&&f.variables[c[h]]===c[h]){const Q=l.get(v);typeof Q=="string"&&b.variables.set(v,Q)}else b.variables.set(v,a[h])}x.isString(f.process)&&(b.process=f.process),u(b)},l=>{m(l)})})})},findExecutable:(r,n,s)=>this._proxy.$findExecutable(r,n,s)})}async $registerSupportedExecutions(o,t,e){return this._taskService.registerSupportedExecutions(o,t,e)}};K=U([te(oe.MainThreadTask),I(1,re),I(2,Y),I(3,ie)],K);export{K as MainThreadTask,E as TaskProblemMatcherEndedDto,A as TaskProblemMatcherStartedDto};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../nls.js";
+import { URI } from "../../../base/common/uri.js";
+import { generateUuid } from "../../../base/common/uuid.js";
+import * as Types from "../../../base/common/types.js";
+import * as Platform from "../../../base/common/platform.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { IWorkspaceContextService } from "../../../platform/workspace/common/workspace.js";
+import { ContributedTask, ConfiguringTask, CommandOptions, RuntimeType, CustomTask, TaskSourceKind, TaskDefinition, PresentationOptions, RunOptions } from "../../contrib/tasks/common/tasks.js";
+import { ITaskService } from "../../contrib/tasks/common/taskService.js";
+import { extHostNamedCustomer } from "../../services/extensions/common/extHostCustomers.js";
+import { ExtHostContext, MainContext } from "../common/extHost.protocol.js";
+import { TaskEventKind } from "../common/shared/tasks.js";
+import { IConfigurationResolverService } from "../../services/configurationResolver/common/configurationResolver.js";
+import { ErrorNoTelemetry } from "../../../base/common/errors.js";
+import { ConfigurationResolverExpression } from "../../services/configurationResolver/common/configurationResolverExpression.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TaskExecutionDTO;
+(function(TaskExecutionDTO2) {
+  function from(value) {
+    return {
+      id: value.id,
+      task: TaskDTO.from(value.task)
+    };
+  }
+  __name(from, "from");
+  TaskExecutionDTO2.from = from;
+})(TaskExecutionDTO || (TaskExecutionDTO = {}));
+var TaskProblemMatcherStartedDto;
+(function(TaskProblemMatcherStartedDto2) {
+  function from(value) {
+    return {
+      execution: {
+        id: value.execution.id,
+        task: TaskDTO.from(value.execution.task)
+      }
+    };
+  }
+  __name(from, "from");
+  TaskProblemMatcherStartedDto2.from = from;
+})(TaskProblemMatcherStartedDto || (TaskProblemMatcherStartedDto = {}));
+var TaskProblemMatcherEndedDto;
+(function(TaskProblemMatcherEndedDto2) {
+  function from(value) {
+    return {
+      execution: {
+        id: value.execution.id,
+        task: TaskDTO.from(value.execution.task)
+      },
+      hasErrors: value.hasErrors
+    };
+  }
+  __name(from, "from");
+  TaskProblemMatcherEndedDto2.from = from;
+})(TaskProblemMatcherEndedDto || (TaskProblemMatcherEndedDto = {}));
+var TaskProcessStartedDTO;
+(function(TaskProcessStartedDTO2) {
+  function from(value, processId) {
+    return {
+      id: value.id,
+      processId
+    };
+  }
+  __name(from, "from");
+  TaskProcessStartedDTO2.from = from;
+})(TaskProcessStartedDTO || (TaskProcessStartedDTO = {}));
+var TaskProcessEndedDTO;
+(function(TaskProcessEndedDTO2) {
+  function from(value, exitCode) {
+    return {
+      id: value.id,
+      exitCode
+    };
+  }
+  __name(from, "from");
+  TaskProcessEndedDTO2.from = from;
+})(TaskProcessEndedDTO || (TaskProcessEndedDTO = {}));
+var TaskDefinitionDTO;
+(function(TaskDefinitionDTO2) {
+  function from(value) {
+    const result = Object.assign(/* @__PURE__ */ Object.create(null), value);
+    delete result._key;
+    return result;
+  }
+  __name(from, "from");
+  TaskDefinitionDTO2.from = from;
+  function to(value, executeOnly) {
+    let result = TaskDefinition.createTaskIdentifier(value, console);
+    if (result === void 0 && executeOnly) {
+      result = {
+        _key: generateUuid(),
+        type: "$executeOnly"
+      };
+    }
+    return result;
+  }
+  __name(to, "to");
+  TaskDefinitionDTO2.to = to;
+})(TaskDefinitionDTO || (TaskDefinitionDTO = {}));
+var TaskPresentationOptionsDTO;
+(function(TaskPresentationOptionsDTO2) {
+  function from(value) {
+    if (value === void 0 || value === null) {
+      return void 0;
+    }
+    return Object.assign(/* @__PURE__ */ Object.create(null), value);
+  }
+  __name(from, "from");
+  TaskPresentationOptionsDTO2.from = from;
+  function to(value) {
+    if (value === void 0 || value === null) {
+      return PresentationOptions.defaults;
+    }
+    return Object.assign(/* @__PURE__ */ Object.create(null), PresentationOptions.defaults, value);
+  }
+  __name(to, "to");
+  TaskPresentationOptionsDTO2.to = to;
+})(TaskPresentationOptionsDTO || (TaskPresentationOptionsDTO = {}));
+var RunOptionsDTO;
+(function(RunOptionsDTO2) {
+  function from(value) {
+    if (value === void 0 || value === null) {
+      return void 0;
+    }
+    return Object.assign(/* @__PURE__ */ Object.create(null), value);
+  }
+  __name(from, "from");
+  RunOptionsDTO2.from = from;
+  function to(value) {
+    if (value === void 0 || value === null) {
+      return RunOptions.defaults;
+    }
+    return Object.assign(/* @__PURE__ */ Object.create(null), RunOptions.defaults, value);
+  }
+  __name(to, "to");
+  RunOptionsDTO2.to = to;
+})(RunOptionsDTO || (RunOptionsDTO = {}));
+var ProcessExecutionOptionsDTO;
+(function(ProcessExecutionOptionsDTO2) {
+  function from(value) {
+    if (value === void 0 || value === null) {
+      return void 0;
+    }
+    return {
+      cwd: value.cwd,
+      env: value.env
+    };
+  }
+  __name(from, "from");
+  ProcessExecutionOptionsDTO2.from = from;
+  function to(value) {
+    if (value === void 0 || value === null) {
+      return CommandOptions.defaults;
+    }
+    return {
+      cwd: value.cwd || CommandOptions.defaults.cwd,
+      env: value.env
+    };
+  }
+  __name(to, "to");
+  ProcessExecutionOptionsDTO2.to = to;
+})(ProcessExecutionOptionsDTO || (ProcessExecutionOptionsDTO = {}));
+var ProcessExecutionDTO;
+(function(ProcessExecutionDTO2) {
+  function is(value) {
+    const candidate = value;
+    return candidate && !!candidate.process;
+  }
+  __name(is, "is");
+  ProcessExecutionDTO2.is = is;
+  function from(value) {
+    const process = Types.isString(value.name) ? value.name : value.name.value;
+    const args = value.args ? value.args.map((value2) => Types.isString(value2) ? value2 : value2.value) : [];
+    const result = {
+      process,
+      args
+    };
+    if (value.options) {
+      result.options = ProcessExecutionOptionsDTO.from(value.options);
+    }
+    return result;
+  }
+  __name(from, "from");
+  ProcessExecutionDTO2.from = from;
+  function to(value) {
+    const result = {
+      runtime: RuntimeType.Process,
+      name: value.process,
+      args: value.args,
+      presentation: void 0
+    };
+    result.options = ProcessExecutionOptionsDTO.to(value.options);
+    return result;
+  }
+  __name(to, "to");
+  ProcessExecutionDTO2.to = to;
+})(ProcessExecutionDTO || (ProcessExecutionDTO = {}));
+var ShellExecutionOptionsDTO;
+(function(ShellExecutionOptionsDTO2) {
+  function from(value) {
+    if (value === void 0 || value === null) {
+      return void 0;
+    }
+    const result = {
+      cwd: value.cwd || CommandOptions.defaults.cwd,
+      env: value.env
+    };
+    if (value.shell) {
+      result.executable = value.shell.executable;
+      result.shellArgs = value.shell.args;
+      result.shellQuoting = value.shell.quoting;
+    }
+    return result;
+  }
+  __name(from, "from");
+  ShellExecutionOptionsDTO2.from = from;
+  function to(value) {
+    if (value === void 0 || value === null) {
+      return void 0;
+    }
+    const result = {
+      cwd: value.cwd,
+      env: value.env
+    };
+    if (value.executable) {
+      result.shell = {
+        executable: value.executable
+      };
+      if (value.shellArgs) {
+        result.shell.args = value.shellArgs;
+      }
+      if (value.shellQuoting) {
+        result.shell.quoting = value.shellQuoting;
+      }
+    }
+    return result;
+  }
+  __name(to, "to");
+  ShellExecutionOptionsDTO2.to = to;
+})(ShellExecutionOptionsDTO || (ShellExecutionOptionsDTO = {}));
+var ShellExecutionDTO;
+(function(ShellExecutionDTO2) {
+  function is(value) {
+    const candidate = value;
+    return candidate && (!!candidate.commandLine || !!candidate.command);
+  }
+  __name(is, "is");
+  ShellExecutionDTO2.is = is;
+  function from(value) {
+    const result = {};
+    if (value.name && Types.isString(value.name) && (value.args === void 0 || value.args === null || value.args.length === 0)) {
+      result.commandLine = value.name;
+    } else {
+      result.command = value.name;
+      result.args = value.args;
+    }
+    if (value.options) {
+      result.options = ShellExecutionOptionsDTO.from(value.options);
+    }
+    return result;
+  }
+  __name(from, "from");
+  ShellExecutionDTO2.from = from;
+  function to(value) {
+    const result = {
+      runtime: RuntimeType.Shell,
+      name: value.commandLine ? value.commandLine : value.command,
+      args: value.args,
+      presentation: void 0
+    };
+    if (value.options) {
+      result.options = ShellExecutionOptionsDTO.to(value.options);
+    }
+    return result;
+  }
+  __name(to, "to");
+  ShellExecutionDTO2.to = to;
+})(ShellExecutionDTO || (ShellExecutionDTO = {}));
+var CustomExecutionDTO;
+(function(CustomExecutionDTO2) {
+  function is(value) {
+    const candidate = value;
+    return candidate && candidate.customExecution === "customExecution";
+  }
+  __name(is, "is");
+  CustomExecutionDTO2.is = is;
+  function from(value) {
+    return {
+      customExecution: "customExecution"
+    };
+  }
+  __name(from, "from");
+  CustomExecutionDTO2.from = from;
+  function to(value) {
+    return {
+      runtime: RuntimeType.CustomExecution,
+      presentation: void 0
+    };
+  }
+  __name(to, "to");
+  CustomExecutionDTO2.to = to;
+})(CustomExecutionDTO || (CustomExecutionDTO = {}));
+var TaskSourceDTO;
+(function(TaskSourceDTO2) {
+  function from(value) {
+    const result = {
+      label: value.label
+    };
+    if (value.kind === TaskSourceKind.Extension) {
+      result.extensionId = value.extension;
+      if (value.workspaceFolder) {
+        result.scope = value.workspaceFolder.uri;
+      } else {
+        result.scope = value.scope;
+      }
+    } else if (value.kind === TaskSourceKind.Workspace) {
+      result.extensionId = "$core";
+      result.scope = value.config.workspaceFolder ? value.config.workspaceFolder.uri : 1;
+    }
+    return result;
+  }
+  __name(from, "from");
+  TaskSourceDTO2.from = from;
+  function to(value, workspace) {
+    let scope;
+    let workspaceFolder;
+    if (value.scope === void 0 || typeof value.scope === "number" && value.scope !== 1) {
+      if (workspace.getWorkspace().folders.length === 0) {
+        scope = 1;
+        workspaceFolder = void 0;
+      } else {
+        scope = 3;
+        workspaceFolder = workspace.getWorkspace().folders[0];
+      }
+    } else if (typeof value.scope === "number") {
+      scope = value.scope;
+    } else {
+      scope = 3;
+      workspaceFolder = workspace.getWorkspaceFolder(URI.revive(value.scope)) ?? void 0;
+    }
+    const result = {
+      kind: TaskSourceKind.Extension,
+      label: value.label,
+      extension: value.extensionId,
+      scope,
+      workspaceFolder
+    };
+    return result;
+  }
+  __name(to, "to");
+  TaskSourceDTO2.to = to;
+})(TaskSourceDTO || (TaskSourceDTO = {}));
+var TaskHandleDTO;
+(function(TaskHandleDTO2) {
+  function is(value) {
+    const candidate = value;
+    return candidate && Types.isString(candidate.id) && !!candidate.workspaceFolder;
+  }
+  __name(is, "is");
+  TaskHandleDTO2.is = is;
+})(TaskHandleDTO || (TaskHandleDTO = {}));
+var TaskDTO;
+(function(TaskDTO2) {
+  function from(task) {
+    if (task === void 0 || task === null || !CustomTask.is(task) && !ContributedTask.is(task) && !ConfiguringTask.is(task)) {
+      return void 0;
+    }
+    const result = {
+      _id: task._id,
+      name: task.configurationProperties.name,
+      definition: TaskDefinitionDTO.from(task.getDefinition(true)),
+      source: TaskSourceDTO.from(task._source),
+      execution: void 0,
+      presentationOptions: !ConfiguringTask.is(task) && task.command ? TaskPresentationOptionsDTO.from(task.command.presentation) : void 0,
+      isBackground: task.configurationProperties.isBackground,
+      problemMatchers: [],
+      hasDefinedMatchers: ContributedTask.is(task) ? task.hasDefinedMatchers : false,
+      runOptions: RunOptionsDTO.from(task.runOptions)
+    };
+    result.group = TaskGroupDTO.from(task.configurationProperties.group);
+    if (task.configurationProperties.detail) {
+      result.detail = task.configurationProperties.detail;
+    }
+    if (!ConfiguringTask.is(task) && task.command) {
+      switch (task.command.runtime) {
+        case RuntimeType.Process:
+          result.execution = ProcessExecutionDTO.from(task.command);
+          break;
+        case RuntimeType.Shell:
+          result.execution = ShellExecutionDTO.from(task.command);
+          break;
+        case RuntimeType.CustomExecution:
+          result.execution = CustomExecutionDTO.from(task.command);
+          break;
+      }
+    }
+    if (task.configurationProperties.problemMatchers) {
+      for (const matcher of task.configurationProperties.problemMatchers) {
+        if (Types.isString(matcher)) {
+          result.problemMatchers.push(matcher);
+        }
+      }
+    }
+    return result;
+  }
+  __name(from, "from");
+  TaskDTO2.from = from;
+  function to(task, workspace, executeOnly, icon, hide) {
+    if (!task || typeof task.name !== "string") {
+      return void 0;
+    }
+    let command;
+    if (task.execution) {
+      if (ShellExecutionDTO.is(task.execution)) {
+        command = ShellExecutionDTO.to(task.execution);
+      } else if (ProcessExecutionDTO.is(task.execution)) {
+        command = ProcessExecutionDTO.to(task.execution);
+      } else if (CustomExecutionDTO.is(task.execution)) {
+        command = CustomExecutionDTO.to(task.execution);
+      }
+    }
+    if (!command) {
+      return void 0;
+    }
+    command.presentation = TaskPresentationOptionsDTO.to(task.presentationOptions);
+    const source = TaskSourceDTO.to(task.source, workspace);
+    const label = nls.localize("task.label", "{0}: {1}", source.label, task.name);
+    const definition = TaskDefinitionDTO.to(task.definition, executeOnly);
+    const id = CustomExecutionDTO.is(task.execution) && task._id ? task._id : `${task.source.extensionId}.${definition._key}`;
+    const result = new ContributedTask(
+      id,
+      // uuidMap.getUUID(identifier)
+      source,
+      label,
+      definition.type,
+      definition,
+      command,
+      task.hasDefinedMatchers,
+      RunOptionsDTO.to(task.runOptions),
+      {
+        name: task.name,
+        identifier: label,
+        group: task.group,
+        isBackground: !!task.isBackground,
+        problemMatchers: task.problemMatchers.slice(),
+        detail: task.detail,
+        icon,
+        hide
+      }
+    );
+    return result;
+  }
+  __name(to, "to");
+  TaskDTO2.to = to;
+})(TaskDTO || (TaskDTO = {}));
+var TaskGroupDTO;
+(function(TaskGroupDTO2) {
+  function from(value) {
+    if (value === void 0) {
+      return void 0;
+    }
+    return {
+      _id: typeof value === "string" ? value : value._id,
+      isDefault: typeof value === "string" ? false : typeof value.isDefault === "string" ? false : value.isDefault
+    };
+  }
+  __name(from, "from");
+  TaskGroupDTO2.from = from;
+})(TaskGroupDTO || (TaskGroupDTO = {}));
+var TaskFilterDTO;
+(function(TaskFilterDTO2) {
+  function from(value) {
+    return value;
+  }
+  __name(from, "from");
+  TaskFilterDTO2.from = from;
+  function to(value) {
+    return value;
+  }
+  __name(to, "to");
+  TaskFilterDTO2.to = to;
+})(TaskFilterDTO || (TaskFilterDTO = {}));
+let MainThreadTask = class MainThreadTask2 extends Disposable {
+  static {
+    __name(this, "MainThreadTask");
+  }
+  constructor(extHostContext, _taskService, _workspaceContextServer, _configurationResolverService) {
+    super();
+    this._taskService = _taskService;
+    this._workspaceContextServer = _workspaceContextServer;
+    this._configurationResolverService = _configurationResolverService;
+    this._proxy = extHostContext.getProxy(ExtHostContext.ExtHostTask);
+    this._providers = /* @__PURE__ */ new Map();
+    this._register(this._taskService.onDidStateChange(async (event) => {
+      if (event.kind === TaskEventKind.Changed) {
+        return;
+      }
+      const task = event.__task;
+      if (event.kind === TaskEventKind.Start) {
+        const execution = TaskExecutionDTO.from(task.getTaskExecution());
+        let resolvedDefinition = execution.task.definition;
+        if (execution.task?.execution && CustomExecutionDTO.is(execution.task.execution) && event.resolvedVariables) {
+          const expr = ConfigurationResolverExpression.parse(execution.task.definition);
+          for (const replacement of expr.unresolved()) {
+            const value = event.resolvedVariables.get(replacement.inner);
+            if (value !== void 0) {
+              expr.resolve(replacement, value);
+            }
+          }
+          resolvedDefinition = await this._configurationResolverService.resolveAsync(task.getWorkspaceFolder(), expr);
+        }
+        this._proxy.$onDidStartTask(execution, event.terminalId, resolvedDefinition);
+      } else if (event.kind === TaskEventKind.ProcessStarted) {
+        this._proxy.$onDidStartTaskProcess(TaskProcessStartedDTO.from(task.getTaskExecution(), event.processId));
+      } else if (event.kind === TaskEventKind.ProcessEnded) {
+        this._proxy.$onDidEndTaskProcess(TaskProcessEndedDTO.from(task.getTaskExecution(), event.exitCode));
+      } else if (event.kind === TaskEventKind.End) {
+        this._proxy.$OnDidEndTask(TaskExecutionDTO.from(task.getTaskExecution()));
+      } else if (event.kind === TaskEventKind.ProblemMatcherStarted) {
+        this._proxy.$onDidStartTaskProblemMatchers(TaskProblemMatcherStartedDto.from({ execution: task.getTaskExecution() }));
+      } else if (event.kind === TaskEventKind.ProblemMatcherEnded) {
+        this._proxy.$onDidEndTaskProblemMatchers(TaskProblemMatcherEndedDto.from({ execution: task.getTaskExecution(), hasErrors: false }));
+      } else if (event.kind === TaskEventKind.ProblemMatcherFoundErrors) {
+        this._proxy.$onDidEndTaskProblemMatchers(TaskProblemMatcherEndedDto.from({ execution: task.getTaskExecution(), hasErrors: true }));
+      }
+    }));
+  }
+  dispose() {
+    for (const value of this._providers.values()) {
+      value.disposable.dispose();
+    }
+    this._providers.clear();
+    super.dispose();
+  }
+  $createTaskId(taskDTO) {
+    return new Promise((resolve, reject) => {
+      const task = TaskDTO.to(taskDTO, this._workspaceContextServer, true);
+      if (task) {
+        resolve(task._id);
+      } else {
+        reject(new Error("Task could not be created from DTO"));
+      }
+    });
+  }
+  $registerTaskProvider(handle, type) {
+    const provider = {
+      provideTasks: /* @__PURE__ */ __name((validTypes) => {
+        return Promise.resolve(this._proxy.$provideTasks(handle, validTypes)).then((value) => {
+          const tasks = [];
+          for (const dto of value.tasks) {
+            const task = TaskDTO.to(dto, this._workspaceContextServer, true);
+            if (task) {
+              tasks.push(task);
+            } else {
+              console.error(`Task System: can not convert task: ${JSON.stringify(dto.definition, void 0, 0)}. Task will be dropped`);
+            }
+          }
+          const processedExtension = {
+            ...value.extension,
+            extensionLocation: URI.revive(value.extension.extensionLocation)
+          };
+          return {
+            tasks,
+            extension: processedExtension
+          };
+        });
+      }, "provideTasks"),
+      resolveTask: /* @__PURE__ */ __name((task) => {
+        const dto = TaskDTO.from(task);
+        if (dto) {
+          dto.name = dto.name === void 0 ? "" : dto.name;
+          return Promise.resolve(this._proxy.$resolveTask(handle, dto)).then((resolvedTask) => {
+            if (resolvedTask) {
+              return TaskDTO.to(resolvedTask, this._workspaceContextServer, true, task.configurationProperties.icon, task.configurationProperties.hide);
+            }
+            return void 0;
+          });
+        }
+        return Promise.resolve(void 0);
+      }, "resolveTask")
+    };
+    const disposable = this._taskService.registerTaskProvider(provider, type);
+    this._providers.set(handle, { disposable, provider });
+    return Promise.resolve(void 0);
+  }
+  $unregisterTaskProvider(handle) {
+    const provider = this._providers.get(handle);
+    if (provider) {
+      provider.disposable.dispose();
+      this._providers.delete(handle);
+    }
+    return Promise.resolve(void 0);
+  }
+  $fetchTasks(filter) {
+    return this._taskService.tasks(TaskFilterDTO.to(filter)).then((tasks) => {
+      const result = [];
+      for (const task of tasks) {
+        const item = TaskDTO.from(task);
+        if (item) {
+          result.push(item);
+        }
+      }
+      return result;
+    });
+  }
+  getWorkspace(value) {
+    let workspace;
+    if (typeof value === "string") {
+      workspace = value;
+    } else {
+      const workspaceObject = this._workspaceContextServer.getWorkspace();
+      const uri = URI.revive(value);
+      if (workspaceObject.configuration?.toString() === uri.toString()) {
+        workspace = workspaceObject;
+      } else {
+        workspace = this._workspaceContextServer.getWorkspaceFolder(uri);
+      }
+    }
+    return workspace;
+  }
+  async $getTaskExecution(value) {
+    if (TaskHandleDTO.is(value)) {
+      const workspace = this.getWorkspace(value.workspaceFolder);
+      if (workspace) {
+        const task = await this._taskService.getTask(workspace, value.id, true);
+        if (task) {
+          return {
+            id: task._id,
+            task: TaskDTO.from(task)
+          };
+        }
+        throw new Error("Task not found");
+      } else {
+        throw new Error("No workspace folder");
+      }
+    } else {
+      const task = TaskDTO.to(value, this._workspaceContextServer, true);
+      return {
+        id: task._id,
+        task: TaskDTO.from(task)
+      };
+    }
+  }
+  // Passing in a TaskHandleDTO will cause the task to get re-resolved, which is important for tasks are coming from the core,
+  // such as those gotten from a fetchTasks, since they can have missing configuration properties.
+  $executeTask(value) {
+    return new Promise((resolve, reject) => {
+      if (TaskHandleDTO.is(value)) {
+        const workspace = this.getWorkspace(value.workspaceFolder);
+        if (workspace) {
+          this._taskService.getTask(workspace, value.id, true).then((task) => {
+            if (!task) {
+              reject(new Error("Task not found"));
+            } else {
+              const result = {
+                id: value.id,
+                task: TaskDTO.from(task)
+              };
+              this._taskService.run(task).then((summary) => {
+                if (summary?.exitCode === void 0 || summary.exitCode !== 0) {
+                  this._proxy.$OnDidEndTask(result);
+                }
+              }, (reason) => {
+              });
+              resolve(result);
+            }
+          }, (_error) => {
+            reject(new Error("Task not found"));
+          });
+        } else {
+          reject(new Error("No workspace folder"));
+        }
+      } else {
+        const task = TaskDTO.to(value, this._workspaceContextServer, true);
+        this._taskService.run(task).then(void 0, (reason) => {
+        });
+        const result = {
+          id: task._id,
+          task: TaskDTO.from(task)
+        };
+        resolve(result);
+      }
+    });
+  }
+  $customExecutionComplete(id, result) {
+    return new Promise((resolve, reject) => {
+      this._taskService.getActiveTasks().then((tasks) => {
+        for (const task of tasks) {
+          if (id === task._id) {
+            this._taskService.extensionCallbackTaskComplete(task, result).then((value) => {
+              resolve(void 0);
+            }, (error) => {
+              reject(error);
+            });
+            return;
+          }
+        }
+        reject(new Error("Task to mark as complete not found"));
+      });
+    });
+  }
+  $terminateTask(id) {
+    return new Promise((resolve, reject) => {
+      this._taskService.getActiveTasks().then((tasks) => {
+        for (const task of tasks) {
+          if (id === task._id) {
+            this._taskService.terminate(task).then((value) => {
+              resolve(void 0);
+            }, (error) => {
+              reject(void 0);
+            });
+            return;
+          }
+        }
+        reject(new ErrorNoTelemetry("Task to terminate not found"));
+      });
+    });
+  }
+  $registerTaskSystem(key, info) {
+    let platform;
+    switch (info.platform) {
+      case "Web":
+        platform = 0;
+        break;
+      case "win32":
+        platform = 3;
+        break;
+      case "darwin":
+        platform = 1;
+        break;
+      case "linux":
+        platform = 2;
+        break;
+      default:
+        platform = Platform.platform;
+    }
+    this._taskService.registerTaskSystem(key, {
+      platform,
+      uriProvider: /* @__PURE__ */ __name((path) => {
+        return URI.from({ scheme: info.scheme, authority: info.authority, path });
+      }, "uriProvider"),
+      context: this._extHostContext,
+      resolveVariables: /* @__PURE__ */ __name((workspaceFolder, toResolve, target) => {
+        const vars = [];
+        toResolve.variables.forEach((item) => vars.push(item));
+        return Promise.resolve(this._proxy.$resolveVariables(workspaceFolder.uri, { process: toResolve.process, variables: vars })).then((values) => {
+          const partiallyResolvedVars = Array.from(Object.values(values.variables));
+          return new Promise((resolve, reject) => {
+            this._configurationResolverService.resolveWithInteraction(workspaceFolder, partiallyResolvedVars, "tasks", void 0, target).then((resolvedVars) => {
+              if (!resolvedVars) {
+                resolve(void 0);
+              }
+              const result = {
+                process: void 0,
+                variables: /* @__PURE__ */ new Map()
+              };
+              for (let i = 0; i < partiallyResolvedVars.length; i++) {
+                const variableName = vars[i].substring(2, vars[i].length - 1);
+                if (resolvedVars && values.variables[vars[i]] === vars[i]) {
+                  const resolved = resolvedVars.get(variableName);
+                  if (typeof resolved === "string") {
+                    result.variables.set(variableName, resolved);
+                  }
+                } else {
+                  result.variables.set(variableName, partiallyResolvedVars[i]);
+                }
+              }
+              if (Types.isString(values.process)) {
+                result.process = values.process;
+              }
+              resolve(result);
+            }, (reason) => {
+              reject(reason);
+            });
+          });
+        });
+      }, "resolveVariables"),
+      findExecutable: /* @__PURE__ */ __name((command, cwd, paths) => {
+        return this._proxy.$findExecutable(command, cwd, paths);
+      }, "findExecutable")
+    });
+  }
+  async $registerSupportedExecutions(custom, shell, process) {
+    return this._taskService.registerSupportedExecutions(custom, shell, process);
+  }
+};
+MainThreadTask = __decorate([
+  extHostNamedCustomer(MainContext.MainThreadTask),
+  __param(1, ITaskService),
+  __param(2, IWorkspaceContextService),
+  __param(3, IConfigurationResolverService)
+], MainThreadTask);
+export {
+  MainThreadTask,
+  TaskProblemMatcherEndedDto,
+  TaskProblemMatcherStartedDto
+};
+//# sourceMappingURL=mainThreadTask.js.map

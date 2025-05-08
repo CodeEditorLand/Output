@@ -1,1 +1,93 @@
-import{StandardWheelEvent as i}from"../../mouseEvent.js";import{AbstractScrollbar as d}from"./abstractScrollbar.js";import{ARROW_IMG_SIZE as a}from"./scrollbarArrow.js";import{ScrollbarState as c}from"./scrollbarState.js";import{Codicon as s}from"../../../common/codicons.js";class f extends d{constructor(r,e,h){const t=r.getScrollDimensions(),n=r.getCurrentScrollPosition();if(super({lazyRender:e.lazyRender,host:h,scrollbarState:new c(e.horizontalHasArrows?e.arrowSize:0,e.horizontal===2?0:e.horizontalScrollbarSize,e.vertical===2?0:e.verticalScrollbarSize,t.width,t.scrollWidth,n.scrollLeft),visibility:e.horizontal,extraScrollbarClassName:"horizontal",scrollable:r,scrollByPage:e.scrollByPage}),e.horizontalHasArrows){const l=(e.arrowSize-a)/2,o=(e.horizontalScrollbarSize-a)/2;this._createArrow({className:"scra",icon:s.scrollbarButtonLeft,top:o,left:l,bottom:void 0,right:void 0,bgWidth:e.arrowSize,bgHeight:e.horizontalScrollbarSize,onActivate:()=>this._host.onMouseWheel(new i(null,1,0))}),this._createArrow({className:"scra",icon:s.scrollbarButtonRight,top:o,left:void 0,bottom:void 0,right:l,bgWidth:e.arrowSize,bgHeight:e.horizontalScrollbarSize,onActivate:()=>this._host.onMouseWheel(new i(null,-1,0))})}this._createSlider(Math.floor((e.horizontalScrollbarSize-e.horizontalSliderSize)/2),0,void 0,e.horizontalSliderSize)}_updateSlider(r,e){this.slider.setWidth(r),this.slider.setLeft(e)}_renderDomNode(r,e){this.domNode.setWidth(r),this.domNode.setHeight(e),this.domNode.setLeft(0),this.domNode.setBottom(0)}onDidScroll(r){return this._shouldRender=this._onElementScrollSize(r.scrollWidth)||this._shouldRender,this._shouldRender=this._onElementScrollPosition(r.scrollLeft)||this._shouldRender,this._shouldRender=this._onElementSize(r.width)||this._shouldRender,this._shouldRender}_pointerDownRelativePosition(r,e){return r}_sliderPointerPosition(r){return r.pageX}_sliderOrthogonalPointerPosition(r){return r.pageY}_updateScrollbarSize(r){this.slider.setHeight(r)}writeScrollPosition(r,e){r.scrollLeft=e}updateOptions(r){this.updateScrollbarSize(r.horizontal===2?0:r.horizontalScrollbarSize),this._scrollbarState.setOppositeScrollbarSize(r.vertical===2?0:r.verticalScrollbarSize),this._visibilityController.setVisibility(r.horizontal),this._scrollByPage=r.scrollByPage}}export{f as HorizontalScrollbar};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { StandardWheelEvent } from "../../mouseEvent.js";
+import { AbstractScrollbar } from "./abstractScrollbar.js";
+import { ARROW_IMG_SIZE } from "./scrollbarArrow.js";
+import { ScrollbarState } from "./scrollbarState.js";
+import { Codicon } from "../../../common/codicons.js";
+class HorizontalScrollbar extends AbstractScrollbar {
+  static {
+    __name(this, "HorizontalScrollbar");
+  }
+  constructor(scrollable, options, host) {
+    const scrollDimensions = scrollable.getScrollDimensions();
+    const scrollPosition = scrollable.getCurrentScrollPosition();
+    super({
+      lazyRender: options.lazyRender,
+      host,
+      scrollbarState: new ScrollbarState(options.horizontalHasArrows ? options.arrowSize : 0, options.horizontal === 2 ? 0 : options.horizontalScrollbarSize, options.vertical === 2 ? 0 : options.verticalScrollbarSize, scrollDimensions.width, scrollDimensions.scrollWidth, scrollPosition.scrollLeft),
+      visibility: options.horizontal,
+      extraScrollbarClassName: "horizontal",
+      scrollable,
+      scrollByPage: options.scrollByPage
+    });
+    if (options.horizontalHasArrows) {
+      const arrowDelta = (options.arrowSize - ARROW_IMG_SIZE) / 2;
+      const scrollbarDelta = (options.horizontalScrollbarSize - ARROW_IMG_SIZE) / 2;
+      this._createArrow({
+        className: "scra",
+        icon: Codicon.scrollbarButtonLeft,
+        top: scrollbarDelta,
+        left: arrowDelta,
+        bottom: void 0,
+        right: void 0,
+        bgWidth: options.arrowSize,
+        bgHeight: options.horizontalScrollbarSize,
+        onActivate: /* @__PURE__ */ __name(() => this._host.onMouseWheel(new StandardWheelEvent(null, 1, 0)), "onActivate")
+      });
+      this._createArrow({
+        className: "scra",
+        icon: Codicon.scrollbarButtonRight,
+        top: scrollbarDelta,
+        left: void 0,
+        bottom: void 0,
+        right: arrowDelta,
+        bgWidth: options.arrowSize,
+        bgHeight: options.horizontalScrollbarSize,
+        onActivate: /* @__PURE__ */ __name(() => this._host.onMouseWheel(new StandardWheelEvent(null, -1, 0)), "onActivate")
+      });
+    }
+    this._createSlider(Math.floor((options.horizontalScrollbarSize - options.horizontalSliderSize) / 2), 0, void 0, options.horizontalSliderSize);
+  }
+  _updateSlider(sliderSize, sliderPosition) {
+    this.slider.setWidth(sliderSize);
+    this.slider.setLeft(sliderPosition);
+  }
+  _renderDomNode(largeSize, smallSize) {
+    this.domNode.setWidth(largeSize);
+    this.domNode.setHeight(smallSize);
+    this.domNode.setLeft(0);
+    this.domNode.setBottom(0);
+  }
+  onDidScroll(e) {
+    this._shouldRender = this._onElementScrollSize(e.scrollWidth) || this._shouldRender;
+    this._shouldRender = this._onElementScrollPosition(e.scrollLeft) || this._shouldRender;
+    this._shouldRender = this._onElementSize(e.width) || this._shouldRender;
+    return this._shouldRender;
+  }
+  _pointerDownRelativePosition(offsetX, offsetY) {
+    return offsetX;
+  }
+  _sliderPointerPosition(e) {
+    return e.pageX;
+  }
+  _sliderOrthogonalPointerPosition(e) {
+    return e.pageY;
+  }
+  _updateScrollbarSize(size) {
+    this.slider.setHeight(size);
+  }
+  writeScrollPosition(target, scrollPosition) {
+    target.scrollLeft = scrollPosition;
+  }
+  updateOptions(options) {
+    this.updateScrollbarSize(options.horizontal === 2 ? 0 : options.horizontalScrollbarSize);
+    this._scrollbarState.setOppositeScrollbarSize(options.vertical === 2 ? 0 : options.verticalScrollbarSize);
+    this._visibilityController.setVisibility(options.horizontal);
+    this._scrollByPage = options.scrollByPage;
+  }
+}
+export {
+  HorizontalScrollbar
+};
+//# sourceMappingURL=horizontalScrollbar.js.map

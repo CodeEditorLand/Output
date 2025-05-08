@@ -1,1 +1,149 @@
-import{getWindow as k}from"../../../../../base/browser/dom.js";import{createFastDomNode as S}from"../../../../../base/browser/fastDomNode.js";import{PixelRatio as L}from"../../../../../base/browser/pixelRatio.js";import{IThemeService as Z,Themable as x}from"../../../../../platform/theme/common/themeService.js";import{NotebookOverviewRulerLane as c}from"../notebookBrowser.js";var H=function(f,t,n,o){var i=arguments.length,e=i<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,n):o,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(f,t,n,o);else for(var u=f.length-1;u>=0;u--)(l=f[u])&&(e=(i<3?l(e):i>3?l(t,n,e):l(t,n))||e);return i>3&&e&&Object.defineProperty(t,n,e),e},E=function(f,t){return function(n,o){t(n,o,f)}};let O=class extends x{constructor(t,n,o){super(o),this.notebookEditor=t,this._lanes=3,this._domNode=S(document.createElement("canvas")),this._domNode.setPosition("relative"),this._domNode.setLayerHinting(!0),this._domNode.setContain("strict"),n.appendChild(this._domNode.domNode),this._register(t.onDidChangeDecorations(()=>{this.layout()})),this._register(L.getInstance(k(this._domNode.domNode)).onDidChange(()=>{this.layout()}))}layout(){const n=this.notebookEditor.getLayoutInfo(),o=n.scrollHeight,i=n.height,e=L.getInstance(k(this._domNode.domNode)).value;this._domNode.setWidth(10),this._domNode.setHeight(i),this._domNode.domNode.width=10*e,this._domNode.domNode.height=i*e;const l=this._domNode.domNode.getContext("2d");l.clearRect(0,0,10*e,i*e),this._render(l,10*e,i*e,o*e,e)}_render(t,n,o,i,e){const l=this.notebookEditor.getViewModel(),u=this.notebookEditor.getLayoutInfo().fontInfo,d=n/this._lanes;let _=0;if(l){for(let a=0;a<l.viewCells.length;a++){const r=l.viewCells[a],w=r.textBuffer,b=r.getCellDecorations(),m=r.layoutInfo.totalHeight/i*e*o;b.filter(g=>g.overviewRuler).forEach(g=>{const h=g.overviewRuler,p=this.getColor(h.color)??"#000000",y=Math.min(u.lineHeight,r.layoutInfo.editorHeight/i/w.getLineCount()*e*o),C=h.modelRanges.map(s=>s.startLineNumber).reduce((s,v)=>((s.length===0||s[s.length-1]!==v)&&s.push(v),s),[]);let N=0;switch(h.position){case c.Left:N=0;break;case c.Center:N=d;break;case c.Right:N=d*2;break;default:break}const D=h.position===c.Full?d*3:d;for(let s=0;s<C.length;s++){t.fillStyle=p;const I=(C[s]-1)*y;t.fillRect(N,_+I,D,y)}if(h.includeOutput){t.fillStyle=p;const s=r.layoutInfo.editorHeight/i*e*o,v=u.lineHeight/i*e*o;t.fillRect(d,_+s,d,v)}}),_+=m}const R=l.getOverviewRulerDecorations();for(let a=0;a<R.length;a++){const r=R[a];if(!r.options.overviewRuler)continue;const w=this.notebookEditor.getViewZoneLayoutInfo(r.viewZoneId);if(!w)continue;const b=this.getColor(r.options.overviewRuler.color)??"#000000";let m=0;switch(r.options.overviewRuler.position){case c.Left:m=0;break;case c.Center:m=d;break;case c.Right:m=d*2;break;default:break}const g=r.options.overviewRuler.position===c.Full?d*3:d;t.fillStyle=b;const h=w.height/i*e*o,p=w.top/i*e*o;t.fillRect(m,p,g,h)}}}};O=H([E(2,Z)],O);export{O as NotebookOverviewRuler};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getWindow } from "../../../../../base/browser/dom.js";
+import { createFastDomNode } from "../../../../../base/browser/fastDomNode.js";
+import { PixelRatio } from "../../../../../base/browser/pixelRatio.js";
+import { IThemeService, Themable } from "../../../../../platform/theme/common/themeService.js";
+import { NotebookOverviewRulerLane } from "../notebookBrowser.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let NotebookOverviewRuler = class NotebookOverviewRuler2 extends Themable {
+  static {
+    __name(this, "NotebookOverviewRuler");
+  }
+  constructor(notebookEditor, container, themeService) {
+    super(themeService);
+    this.notebookEditor = notebookEditor;
+    this._lanes = 3;
+    this._domNode = createFastDomNode(document.createElement("canvas"));
+    this._domNode.setPosition("relative");
+    this._domNode.setLayerHinting(true);
+    this._domNode.setContain("strict");
+    container.appendChild(this._domNode.domNode);
+    this._register(notebookEditor.onDidChangeDecorations(() => {
+      this.layout();
+    }));
+    this._register(PixelRatio.getInstance(getWindow(this._domNode.domNode)).onDidChange(() => {
+      this.layout();
+    }));
+  }
+  layout() {
+    const width = 10;
+    const layoutInfo = this.notebookEditor.getLayoutInfo();
+    const scrollHeight = layoutInfo.scrollHeight;
+    const height = layoutInfo.height;
+    const ratio = PixelRatio.getInstance(getWindow(this._domNode.domNode)).value;
+    this._domNode.setWidth(width);
+    this._domNode.setHeight(height);
+    this._domNode.domNode.width = width * ratio;
+    this._domNode.domNode.height = height * ratio;
+    const ctx = this._domNode.domNode.getContext("2d");
+    ctx.clearRect(0, 0, width * ratio, height * ratio);
+    this._render(ctx, width * ratio, height * ratio, scrollHeight * ratio, ratio);
+  }
+  _render(ctx, width, height, scrollHeight, ratio) {
+    const viewModel = this.notebookEditor.getViewModel();
+    const fontInfo = this.notebookEditor.getLayoutInfo().fontInfo;
+    const laneWidth = width / this._lanes;
+    let currentFrom = 0;
+    if (viewModel) {
+      for (let i = 0; i < viewModel.viewCells.length; i++) {
+        const viewCell = viewModel.viewCells[i];
+        const textBuffer = viewCell.textBuffer;
+        const decorations = viewCell.getCellDecorations();
+        const cellHeight = viewCell.layoutInfo.totalHeight / scrollHeight * ratio * height;
+        decorations.filter((decoration) => decoration.overviewRuler).forEach((decoration) => {
+          const overviewRuler = decoration.overviewRuler;
+          const fillStyle = this.getColor(overviewRuler.color) ?? "#000000";
+          const lineHeight = Math.min(fontInfo.lineHeight, viewCell.layoutInfo.editorHeight / scrollHeight / textBuffer.getLineCount() * ratio * height);
+          const lineNumbers = overviewRuler.modelRanges.map((range) => range.startLineNumber).reduce((previous, current) => {
+            if (previous.length === 0) {
+              previous.push(current);
+            } else {
+              const last = previous[previous.length - 1];
+              if (last !== current) {
+                previous.push(current);
+              }
+            }
+            return previous;
+          }, []);
+          let x = 0;
+          switch (overviewRuler.position) {
+            case NotebookOverviewRulerLane.Left:
+              x = 0;
+              break;
+            case NotebookOverviewRulerLane.Center:
+              x = laneWidth;
+              break;
+            case NotebookOverviewRulerLane.Right:
+              x = laneWidth * 2;
+              break;
+            default:
+              break;
+          }
+          const width2 = overviewRuler.position === NotebookOverviewRulerLane.Full ? laneWidth * 3 : laneWidth;
+          for (let i2 = 0; i2 < lineNumbers.length; i2++) {
+            ctx.fillStyle = fillStyle;
+            const lineNumber = lineNumbers[i2];
+            const offset = (lineNumber - 1) * lineHeight;
+            ctx.fillRect(x, currentFrom + offset, width2, lineHeight);
+          }
+          if (overviewRuler.includeOutput) {
+            ctx.fillStyle = fillStyle;
+            const outputOffset = viewCell.layoutInfo.editorHeight / scrollHeight * ratio * height;
+            const decorationHeight = fontInfo.lineHeight / scrollHeight * ratio * height;
+            ctx.fillRect(laneWidth, currentFrom + outputOffset, laneWidth, decorationHeight);
+          }
+        });
+        currentFrom += cellHeight;
+      }
+      const overviewRulerDecorations = viewModel.getOverviewRulerDecorations();
+      for (let i = 0; i < overviewRulerDecorations.length; i++) {
+        const decoration = overviewRulerDecorations[i];
+        if (!decoration.options.overviewRuler) {
+          continue;
+        }
+        const viewZoneInfo = this.notebookEditor.getViewZoneLayoutInfo(decoration.viewZoneId);
+        if (!viewZoneInfo) {
+          continue;
+        }
+        const fillStyle = this.getColor(decoration.options.overviewRuler.color) ?? "#000000";
+        let x = 0;
+        switch (decoration.options.overviewRuler.position) {
+          case NotebookOverviewRulerLane.Left:
+            x = 0;
+            break;
+          case NotebookOverviewRulerLane.Center:
+            x = laneWidth;
+            break;
+          case NotebookOverviewRulerLane.Right:
+            x = laneWidth * 2;
+            break;
+          default:
+            break;
+        }
+        const width2 = decoration.options.overviewRuler.position === NotebookOverviewRulerLane.Full ? laneWidth * 3 : laneWidth;
+        ctx.fillStyle = fillStyle;
+        const viewZoneHeight = viewZoneInfo.height / scrollHeight * ratio * height;
+        const viewZoneTop = viewZoneInfo.top / scrollHeight * ratio * height;
+        ctx.fillRect(x, viewZoneTop, width2, viewZoneHeight);
+      }
+    }
+  }
+};
+NotebookOverviewRuler = __decorate([
+  __param(2, IThemeService)
+], NotebookOverviewRuler);
+export {
+  NotebookOverviewRuler
+};
+//# sourceMappingURL=notebookOverviewRuler.js.map

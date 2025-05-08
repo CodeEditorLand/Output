@@ -1,1 +1,376 @@
-import{DataTransfers as p}from"../../../../base/browser/dnd.js";import{$ as y,DragAndDropObserver as A}from"../../../../base/browser/dom.js";import{renderLabelWithIcons as R}from"../../../../base/browser/ui/iconLabel/iconLabels.js";import{coalesce as L}from"../../../../base/common/arrays.js";import{CancellationToken as F}from"../../../../base/common/cancellation.js";import{Codicon as D}from"../../../../base/common/codicons.js";import{UriList as I}from"../../../../base/common/dataTransfer.js";import{Mimes as E}from"../../../../base/common/mime.js";import{URI as T}from"../../../../base/common/uri.js";import{ITextModelService as b}from"../../../../editor/common/services/resolverService.js";import{localize as u}from"../../../../nls.js";import{IDialogService as _}from"../../../../platform/dialogs/common/dialogs.js";import{CodeDataTransfers as h,containsDragType as f,extractEditorsDropData as N,extractMarkerDropData as U,extractNotebookCellOutputDropData as M,extractSymbolDropData as w}from"../../../../platform/dnd/browser/dnd.js";import{IFileService as C}from"../../../../platform/files/common/files.js";import{ILogService as B}from"../../../../platform/log/common/log.js";import{IThemeService as P,Themable as k}from"../../../../platform/theme/common/themeService.js";import{ISharedWebContentExtractorService as W}from"../../../../platform/webContentExtractor/common/webContentExtractor.js";import{IEditorService as K}from"../../../services/editor/common/editorService.js";import{IExtensionService as G,isProposedApiEnabled as $}from"../../../services/extensions/common/extensions.js";import{IChatWidgetService as H}from"./chat.js";import{resolveEditorAttachContext as S,resolveImageAttachContext as X,resolveMarkerAttachContext as Y,resolveNotebookOutputAttachContext as j,resolveSymbolsAttachContext as z}from"./chatAttachmentResolve.js";import{convertStringToUInt8Array as q}from"./imageUtils.js";var x=function(a,e,t,r){var n=arguments.length,i=n<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,l;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(a,e,t,r);else for(var m=a.length-1;m>=0;m--)(l=a[m])&&(i=(n<3?l(i):n>3?l(e,t,i):l(e,t))||i);return n>3&&i&&Object.defineProperty(e,t,i),i},d=function(a,e){return function(t,r){e(t,r,a)}},c;(function(a){a[a.FILE_INTERNAL=0]="FILE_INTERNAL",a[a.FILE_EXTERNAL=1]="FILE_EXTERNAL",a[a.FOLDER=2]="FOLDER",a[a.IMAGE=3]="IMAGE",a[a.SYMBOL=4]="SYMBOL",a[a.HTML=5]="HTML",a[a.MARKER=6]="MARKER",a[a.NOTEBOOK_CELL_OUTPUT=7]="NOTEBOOK_CELL_OUTPUT"})(c||(c={}));const J=/^data:image\/[a-z]+;base64,/,Q=/^https?:\/\/.+/;let O=class extends k{constructor(e,t,r,n,i,l,m,g,s,o,v){super(r),this.attachmentModel=e,this.styles=t,this.extensionService=n,this.fileService=i,this.editorService=l,this.dialogService=m,this.textModelService=g,this.webContentExtractorService=s,this.chatWidgetService=o,this.logService=v,this.overlays=new Map,this.overlayTextBackground="",this.currentActiveTarget=void 0,this.updateStyles()}addOverlay(e,t){this.removeOverlay(e);const{overlay:r,disposable:n}=this.createOverlay(e,t);this.overlays.set(e,{overlay:r,disposable:n})}removeOverlay(e){this.currentActiveTarget===e&&(this.currentActiveTarget=void 0);const t=this.overlays.get(e);t&&(t.overlay.remove(),t.disposable.dispose(),this.overlays.delete(e))}createOverlay(e,t){const r=document.createElement("div");r.classList.add("chat-dnd-overlay"),this.updateOverlayStyles(r),t.appendChild(r);const n=new A(e,{onDragOver:i=>{i.stopPropagation(),i.preventDefault(),e!==this.currentActiveTarget&&(this.currentActiveTarget&&this.setOverlay(this.currentActiveTarget,void 0),this.currentActiveTarget=e,this.onDragEnter(i,e))},onDragLeave:i=>{e===this.currentActiveTarget&&(this.currentActiveTarget=void 0),this.onDragLeave(i,e)},onDrop:i=>{i.stopPropagation(),i.preventDefault(),e===this.currentActiveTarget&&(this.currentActiveTarget=void 0,this.onDrop(i,e))}});return{overlay:r,disposable:n}}onDragEnter(e,t){const r=this.guessDropType(e);this.updateDropFeedback(e,t,r)}onDragLeave(e,t){this.updateDropFeedback(e,t,void 0)}onDrop(e,t){this.updateDropFeedback(e,t,void 0),this.drop(e)}async drop(e){const t=await this.resolveAttachmentsFromDragEvent(e);t.length!==0&&this.attachmentModel.addContext(...t)}updateDropFeedback(e,t,r){const n=r!==void 0;e.dataTransfer&&(e.dataTransfer.dropEffect=n?"copy":"none"),this.setOverlay(t,r)}guessDropType(e){if(f(e,h.NOTEBOOK_CELL_OUTPUT))return c.NOTEBOOK_CELL_OUTPUT;if(V(e))return this.extensionService.extensions.some(t=>$(t,"chatReferenceBinaryData"))?c.IMAGE:void 0;if(f(e,"text/html"))return c.HTML;if(f(e,h.SYMBOLS))return c.SYMBOL;if(f(e,h.MARKERS))return c.MARKER;if(f(e,p.FILES))return c.FILE_EXTERNAL;if(f(e,h.EDITORS))return c.FILE_INTERNAL;if(f(e,E.uriList,h.FILES,p.RESOURCES,p.INTERNAL_URI_LIST))return c.FOLDER}isDragEventSupported(e){return this.guessDropType(e)!==void 0}getDropTypeName(e){switch(e){case c.FILE_INTERNAL:return u("file","File");case c.FILE_EXTERNAL:return u("file","File");case c.FOLDER:return u("folder","Folder");case c.IMAGE:return u("image","Image");case c.SYMBOL:return u("symbol","Symbol");case c.MARKER:return u("problem","Problem");case c.HTML:return u("url","URL");case c.NOTEBOOK_CELL_OUTPUT:return u("notebookOutput","Output")}}async resolveAttachmentsFromDragEvent(e){if(!this.isDragEventSupported(e))return[];if(f(e,h.NOTEBOOK_CELL_OUTPUT)){const i=M(e);if(i)return j(i,this.editorService)}const t=U(e);if(t)return Y(t);if(f(e,h.SYMBOLS)){const i=w(e);return z(i)}const r=N(e);if(r.length>0)return L(await Promise.all(r.map(i=>S(i,this.fileService,this.editorService,this.textModelService,this.extensionService,this.dialogService))));const n=e.dataTransfer?.getData(p.INTERNAL_URI_LIST);if(n){const i=I.parse(n);if(i.length)return L(await Promise.all(i.map(l=>S({resource:T.parse(l)},this.fileService,this.editorService,this.textModelService,this.extensionService,this.dialogService))))}return!f(e,p.INTERNAL_URI_LIST)&&f(e,E.uriList)&&(f(e,E.html)||f(e,E.text))?this.resolveHTMLAttachContext(e):[]}async downloadImageAsUint8Array(e){try{const r=await this.webContentExtractorService.readImage(T.parse(e),F.None);if(r)return r.buffer}catch(r){this.logService.warn("Fetch failed:",r)}const t=this.chatWidgetService.lastFocusedWidget?.inputEditor.getSelection();t&&this.chatWidgetService.lastFocusedWidget&&this.chatWidgetService.lastFocusedWidget.inputEditor.executeEdits("chatInsertUrl",[{range:t,text:e}]),this.logService.warn(`Image URLs must end in .jpg, .png, .gif, .webp, or .bmp. Failed to fetch image from this URL: ${e}`)}async resolveHTMLAttachContext(e){const t=new Set(this.attachmentModel.attachments.map(s=>s.name)),r=()=>{const s=u("dragAndDroppedImageName","Image from URL");let o=s,v=1;for(;t.has(o);)o=`${s} ${++v}`;return t.add(o),o},n=async s=>{const o=T.parse(s);if(J.test(s))return{data:q(s),name:r(),resource:o};if(Q.test(s)){const v=await this.downloadImageAsUint8Array(s);if(v)return{data:v,name:r(),resource:o,id:s}}},i=async s=>{try{const o=await s.arrayBuffer();return{data:new Uint8Array(o),name:r()}}catch(o){this.logService.error("Error reading file:",o)}},l=[],m=ee(e);if(m.length){const s=await Promise.all(m.map(o=>i(o)));l.push(...s.filter(o=>!!o))}const g=Z(e);if(g.length){const s=await Promise.all(g.map(n));l.push(...s.filter(o=>!!o))}return await X(l)}setOverlay(e,t){this.overlayText?.remove(),this.overlayText=void 0;const{overlay:r}=this.overlays.get(e);if(t!==void 0){const i=R(`$(${D.attach.id}) ${this.getOverlayText(t)}`).map(l=>typeof l=="string"?y("span.overlay-text",void 0,l):l);this.overlayText=y("span.attach-context-overlay-text",void 0,...i),this.overlayText.style.backgroundColor=this.overlayTextBackground,r.appendChild(this.overlayText)}r.classList.toggle("visible",t!==void 0)}getOverlayText(e){const t=this.getDropTypeName(e);return u("attacAsContext","Attach {0} as Context",t)}updateOverlayStyles(e){e.style.backgroundColor=this.getColor(this.styles.overlayBackground)||"",e.style.color=this.getColor(this.styles.listForeground)||""}updateStyles(){this.overlays.forEach(e=>this.updateOverlayStyles(e.overlay)),this.overlayTextBackground=this.getColor(this.styles.listBackground)||""}};O=x([d(2,P),d(3,G),d(4,C),d(5,K),d(6,_),d(7,b),d(8,W),d(9,H),d(10,B)],O);function V(a){if(f(a,"image"))return!0;if(f(a,p.FILES)){const e=a.dataTransfer?.files;if(e&&e.length>0)return Array.from(e).some(r=>r.type.startsWith("image/"));const t=a.dataTransfer?.items;if(t&&t.length>0)return Array.from(t).some(r=>r.type.startsWith("image/"))}return!1}function Z(a,e){const t=a.dataTransfer?.getData("text/uri-list");if(t)try{const r=I.parse(t);if(r.length>0)return r}catch(r){return e?.error("Error parsing URI list:",r),[]}return[]}function ee(a){const e=a.dataTransfer?.files;return e?Array.from(e).filter(t=>t.type.startsWith("image/")):[]}export{O as ChatDragAndDrop};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DataTransfers } from "../../../../base/browser/dnd.js";
+import { $, DragAndDropObserver } from "../../../../base/browser/dom.js";
+import { renderLabelWithIcons } from "../../../../base/browser/ui/iconLabel/iconLabels.js";
+import { coalesce } from "../../../../base/common/arrays.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { UriList } from "../../../../base/common/dataTransfer.js";
+import { Mimes } from "../../../../base/common/mime.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ITextModelService } from "../../../../editor/common/services/resolverService.js";
+import { localize } from "../../../../nls.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { CodeDataTransfers, containsDragType, extractEditorsDropData, extractMarkerDropData, extractNotebookCellOutputDropData, extractSymbolDropData } from "../../../../platform/dnd/browser/dnd.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { ISharedWebContentExtractorService } from "../../../../platform/webContentExtractor/common/webContentExtractor.js";
+import { IEditorService } from "../../../services/editor/common/editorService.js";
+import { IExtensionService, isProposedApiEnabled } from "../../../services/extensions/common/extensions.js";
+import { IChatWidgetService } from "./chat.js";
+import { resolveEditorAttachContext, resolveImageAttachContext, resolveMarkerAttachContext, resolveNotebookOutputAttachContext, resolveSymbolsAttachContext } from "./chatAttachmentResolve.js";
+import { convertStringToUInt8Array } from "./imageUtils.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatDragAndDropType;
+(function(ChatDragAndDropType2) {
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE_INTERNAL"] = 0] = "FILE_INTERNAL";
+  ChatDragAndDropType2[ChatDragAndDropType2["FILE_EXTERNAL"] = 1] = "FILE_EXTERNAL";
+  ChatDragAndDropType2[ChatDragAndDropType2["FOLDER"] = 2] = "FOLDER";
+  ChatDragAndDropType2[ChatDragAndDropType2["IMAGE"] = 3] = "IMAGE";
+  ChatDragAndDropType2[ChatDragAndDropType2["SYMBOL"] = 4] = "SYMBOL";
+  ChatDragAndDropType2[ChatDragAndDropType2["HTML"] = 5] = "HTML";
+  ChatDragAndDropType2[ChatDragAndDropType2["MARKER"] = 6] = "MARKER";
+  ChatDragAndDropType2[ChatDragAndDropType2["NOTEBOOK_CELL_OUTPUT"] = 7] = "NOTEBOOK_CELL_OUTPUT";
+})(ChatDragAndDropType || (ChatDragAndDropType = {}));
+const IMAGE_DATA_REGEX = /^data:image\/[a-z]+;base64,/;
+const URL_REGEX = /^https?:\/\/.+/;
+let ChatDragAndDrop = class ChatDragAndDrop2 extends Themable {
+  static {
+    __name(this, "ChatDragAndDrop");
+  }
+  constructor(attachmentModel, styles, themeService, extensionService, fileService, editorService, dialogService, textModelService, webContentExtractorService, chatWidgetService, logService) {
+    super(themeService);
+    this.attachmentModel = attachmentModel;
+    this.styles = styles;
+    this.extensionService = extensionService;
+    this.fileService = fileService;
+    this.editorService = editorService;
+    this.dialogService = dialogService;
+    this.textModelService = textModelService;
+    this.webContentExtractorService = webContentExtractorService;
+    this.chatWidgetService = chatWidgetService;
+    this.logService = logService;
+    this.overlays = /* @__PURE__ */ new Map();
+    this.overlayTextBackground = "";
+    this.currentActiveTarget = void 0;
+    this.updateStyles();
+  }
+  addOverlay(target, overlayContainer) {
+    this.removeOverlay(target);
+    const { overlay, disposable } = this.createOverlay(target, overlayContainer);
+    this.overlays.set(target, { overlay, disposable });
+  }
+  removeOverlay(target) {
+    if (this.currentActiveTarget === target) {
+      this.currentActiveTarget = void 0;
+    }
+    const existingOverlay = this.overlays.get(target);
+    if (existingOverlay) {
+      existingOverlay.overlay.remove();
+      existingOverlay.disposable.dispose();
+      this.overlays.delete(target);
+    }
+  }
+  createOverlay(target, overlayContainer) {
+    const overlay = document.createElement("div");
+    overlay.classList.add("chat-dnd-overlay");
+    this.updateOverlayStyles(overlay);
+    overlayContainer.appendChild(overlay);
+    const disposable = new DragAndDropObserver(target, {
+      onDragOver: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (target === this.currentActiveTarget) {
+          return;
+        }
+        if (this.currentActiveTarget) {
+          this.setOverlay(this.currentActiveTarget, void 0);
+        }
+        this.currentActiveTarget = target;
+        this.onDragEnter(e, target);
+      }, "onDragOver"),
+      onDragLeave: /* @__PURE__ */ __name((e) => {
+        if (target === this.currentActiveTarget) {
+          this.currentActiveTarget = void 0;
+        }
+        this.onDragLeave(e, target);
+      }, "onDragLeave"),
+      onDrop: /* @__PURE__ */ __name((e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        if (target !== this.currentActiveTarget) {
+          return;
+        }
+        this.currentActiveTarget = void 0;
+        this.onDrop(e, target);
+      }, "onDrop")
+    });
+    return { overlay, disposable };
+  }
+  onDragEnter(e, target) {
+    const estimatedDropType = this.guessDropType(e);
+    this.updateDropFeedback(e, target, estimatedDropType);
+  }
+  onDragLeave(e, target) {
+    this.updateDropFeedback(e, target, void 0);
+  }
+  onDrop(e, target) {
+    this.updateDropFeedback(e, target, void 0);
+    this.drop(e);
+  }
+  async drop(e) {
+    const contexts = await this.resolveAttachmentsFromDragEvent(e);
+    if (contexts.length === 0) {
+      return;
+    }
+    this.attachmentModel.addContext(...contexts);
+  }
+  updateDropFeedback(e, target, dropType) {
+    const showOverlay = dropType !== void 0;
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = showOverlay ? "copy" : "none";
+    }
+    this.setOverlay(target, dropType);
+  }
+  guessDropType(e) {
+    if (containsDragType(e, CodeDataTransfers.NOTEBOOK_CELL_OUTPUT)) {
+      return ChatDragAndDropType.NOTEBOOK_CELL_OUTPUT;
+    } else if (containsImageDragType(e)) {
+      return this.extensionService.extensions.some((ext) => isProposedApiEnabled(ext, "chatReferenceBinaryData")) ? ChatDragAndDropType.IMAGE : void 0;
+    } else if (containsDragType(e, "text/html")) {
+      return ChatDragAndDropType.HTML;
+    } else if (containsDragType(e, CodeDataTransfers.SYMBOLS)) {
+      return ChatDragAndDropType.SYMBOL;
+    } else if (containsDragType(e, CodeDataTransfers.MARKERS)) {
+      return ChatDragAndDropType.MARKER;
+    } else if (containsDragType(e, DataTransfers.FILES)) {
+      return ChatDragAndDropType.FILE_EXTERNAL;
+    } else if (containsDragType(e, CodeDataTransfers.EDITORS)) {
+      return ChatDragAndDropType.FILE_INTERNAL;
+    } else if (containsDragType(e, Mimes.uriList, CodeDataTransfers.FILES, DataTransfers.RESOURCES, DataTransfers.INTERNAL_URI_LIST)) {
+      return ChatDragAndDropType.FOLDER;
+    }
+    return void 0;
+  }
+  isDragEventSupported(e) {
+    const dropType = this.guessDropType(e);
+    return dropType !== void 0;
+  }
+  getDropTypeName(type) {
+    switch (type) {
+      case ChatDragAndDropType.FILE_INTERNAL:
+        return localize("file", "File");
+      case ChatDragAndDropType.FILE_EXTERNAL:
+        return localize("file", "File");
+      case ChatDragAndDropType.FOLDER:
+        return localize("folder", "Folder");
+      case ChatDragAndDropType.IMAGE:
+        return localize("image", "Image");
+      case ChatDragAndDropType.SYMBOL:
+        return localize("symbol", "Symbol");
+      case ChatDragAndDropType.MARKER:
+        return localize("problem", "Problem");
+      case ChatDragAndDropType.HTML:
+        return localize("url", "URL");
+      case ChatDragAndDropType.NOTEBOOK_CELL_OUTPUT:
+        return localize("notebookOutput", "Output");
+    }
+  }
+  async resolveAttachmentsFromDragEvent(e) {
+    if (!this.isDragEventSupported(e)) {
+      return [];
+    }
+    if (containsDragType(e, CodeDataTransfers.NOTEBOOK_CELL_OUTPUT)) {
+      const notebookOutputData = extractNotebookCellOutputDropData(e);
+      if (notebookOutputData) {
+        return resolveNotebookOutputAttachContext(notebookOutputData, this.editorService);
+      }
+    }
+    const markerData = extractMarkerDropData(e);
+    if (markerData) {
+      return resolveMarkerAttachContext(markerData);
+    }
+    if (containsDragType(e, CodeDataTransfers.SYMBOLS)) {
+      const symbolsData = extractSymbolDropData(e);
+      return resolveSymbolsAttachContext(symbolsData);
+    }
+    const editorDragData = extractEditorsDropData(e);
+    if (editorDragData.length > 0) {
+      return coalesce(await Promise.all(editorDragData.map((editorInput) => {
+        return resolveEditorAttachContext(editorInput, this.fileService, this.editorService, this.textModelService, this.extensionService, this.dialogService);
+      })));
+    }
+    const internal = e.dataTransfer?.getData(DataTransfers.INTERNAL_URI_LIST);
+    if (internal) {
+      const uriList = UriList.parse(internal);
+      if (uriList.length) {
+        return coalesce(await Promise.all(uriList.map((uri) => resolveEditorAttachContext({ resource: URI.parse(uri) }, this.fileService, this.editorService, this.textModelService, this.extensionService, this.dialogService))));
+      }
+    }
+    if (!containsDragType(e, DataTransfers.INTERNAL_URI_LIST) && containsDragType(e, Mimes.uriList) && (containsDragType(e, Mimes.html) || containsDragType(e, Mimes.text))) {
+      return this.resolveHTMLAttachContext(e);
+    }
+    return [];
+  }
+  async downloadImageAsUint8Array(url) {
+    try {
+      const extractedImages = await this.webContentExtractorService.readImage(URI.parse(url), CancellationToken.None);
+      if (extractedImages) {
+        return extractedImages.buffer;
+      }
+    } catch (error) {
+      this.logService.warn("Fetch failed:", error);
+    }
+    const selection = this.chatWidgetService.lastFocusedWidget?.inputEditor.getSelection();
+    if (selection && this.chatWidgetService.lastFocusedWidget) {
+      this.chatWidgetService.lastFocusedWidget.inputEditor.executeEdits("chatInsertUrl", [{ range: selection, text: url }]);
+    }
+    this.logService.warn(`Image URLs must end in .jpg, .png, .gif, .webp, or .bmp. Failed to fetch image from this URL: ${url}`);
+    return void 0;
+  }
+  async resolveHTMLAttachContext(e) {
+    const existingAttachmentNames = new Set(this.attachmentModel.attachments.map((attachment) => attachment.name));
+    const createDisplayName = /* @__PURE__ */ __name(() => {
+      const baseName = localize("dragAndDroppedImageName", "Image from URL");
+      let uniqueName = baseName;
+      let baseNameInstance = 1;
+      while (existingAttachmentNames.has(uniqueName)) {
+        uniqueName = `${baseName} ${++baseNameInstance}`;
+      }
+      existingAttachmentNames.add(uniqueName);
+      return uniqueName;
+    }, "createDisplayName");
+    const getImageTransferDataFromUrl = /* @__PURE__ */ __name(async (url) => {
+      const resource = URI.parse(url);
+      if (IMAGE_DATA_REGEX.test(url)) {
+        return { data: convertStringToUInt8Array(url), name: createDisplayName(), resource };
+      }
+      if (URL_REGEX.test(url)) {
+        const data = await this.downloadImageAsUint8Array(url);
+        if (data) {
+          return { data, name: createDisplayName(), resource, id: url };
+        }
+      }
+      return void 0;
+    }, "getImageTransferDataFromUrl");
+    const getImageTransferDataFromFile = /* @__PURE__ */ __name(async (file) => {
+      try {
+        const buffer = await file.arrayBuffer();
+        return { data: new Uint8Array(buffer), name: createDisplayName() };
+      } catch (error) {
+        this.logService.error("Error reading file:", error);
+      }
+      return void 0;
+    }, "getImageTransferDataFromFile");
+    const imageTransferData = [];
+    const imageFiles = extractImageFilesFromDragEvent(e);
+    if (imageFiles.length) {
+      const imageTransferDataFromFiles = await Promise.all(imageFiles.map((file) => getImageTransferDataFromFile(file)));
+      imageTransferData.push(...imageTransferDataFromFiles.filter((data) => !!data));
+    }
+    const imageUrls = extractUrlsFromDragEvent(e);
+    if (imageUrls.length) {
+      const imageTransferDataFromUrl = await Promise.all(imageUrls.map(getImageTransferDataFromUrl));
+      imageTransferData.push(...imageTransferDataFromUrl.filter((data) => !!data));
+    }
+    return await resolveImageAttachContext(imageTransferData);
+  }
+  setOverlay(target, type) {
+    this.overlayText?.remove();
+    this.overlayText = void 0;
+    const { overlay } = this.overlays.get(target);
+    if (type !== void 0) {
+      const iconAndtextElements = renderLabelWithIcons(`$(${Codicon.attach.id}) ${this.getOverlayText(type)}`);
+      const htmlElements = iconAndtextElements.map((element) => {
+        if (typeof element === "string") {
+          return $("span.overlay-text", void 0, element);
+        }
+        return element;
+      });
+      this.overlayText = $("span.attach-context-overlay-text", void 0, ...htmlElements);
+      this.overlayText.style.backgroundColor = this.overlayTextBackground;
+      overlay.appendChild(this.overlayText);
+    }
+    overlay.classList.toggle("visible", type !== void 0);
+  }
+  getOverlayText(type) {
+    const typeName = this.getDropTypeName(type);
+    return localize("attacAsContext", "Attach {0} as Context", typeName);
+  }
+  updateOverlayStyles(overlay) {
+    overlay.style.backgroundColor = this.getColor(this.styles.overlayBackground) || "";
+    overlay.style.color = this.getColor(this.styles.listForeground) || "";
+  }
+  updateStyles() {
+    this.overlays.forEach((overlay) => this.updateOverlayStyles(overlay.overlay));
+    this.overlayTextBackground = this.getColor(this.styles.listBackground) || "";
+  }
+};
+ChatDragAndDrop = __decorate([
+  __param(2, IThemeService),
+  __param(3, IExtensionService),
+  __param(4, IFileService),
+  __param(5, IEditorService),
+  __param(6, IDialogService),
+  __param(7, ITextModelService),
+  __param(8, ISharedWebContentExtractorService),
+  __param(9, IChatWidgetService),
+  __param(10, ILogService)
+], ChatDragAndDrop);
+function containsImageDragType(e) {
+  if (containsDragType(e, "image")) {
+    return true;
+  }
+  if (containsDragType(e, DataTransfers.FILES)) {
+    const files = e.dataTransfer?.files;
+    if (files && files.length > 0) {
+      return Array.from(files).some((file) => file.type.startsWith("image/"));
+    }
+    const items = e.dataTransfer?.items;
+    if (items && items.length > 0) {
+      return Array.from(items).some((item) => item.type.startsWith("image/"));
+    }
+  }
+  return false;
+}
+__name(containsImageDragType, "containsImageDragType");
+function extractUrlsFromDragEvent(e, logService) {
+  const textUrl = e.dataTransfer?.getData("text/uri-list");
+  if (textUrl) {
+    try {
+      const urls = UriList.parse(textUrl);
+      if (urls.length > 0) {
+        return urls;
+      }
+    } catch (error) {
+      logService?.error("Error parsing URI list:", error);
+      return [];
+    }
+  }
+  return [];
+}
+__name(extractUrlsFromDragEvent, "extractUrlsFromDragEvent");
+function extractImageFilesFromDragEvent(e) {
+  const files = e.dataTransfer?.files;
+  if (!files) {
+    return [];
+  }
+  return Array.from(files).filter((file) => file.type.startsWith("image/"));
+}
+__name(extractImageFilesFromDragEvent, "extractImageFilesFromDragEvent");
+export {
+  ChatDragAndDrop
+};
+//# sourceMappingURL=chatDragAndDrop.js.map

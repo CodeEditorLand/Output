@@ -1,1 +1,43 @@
-import{DeferredPromise as r}from"../../base/common/async.js";import{Emitter as e}from"../../base/common/event.js";import{Disposable as l}from"../../base/common/lifecycle.js";class D extends l{constructor(){super(...arguments),this.dialogs=[],this._onWillShowDialog=this._register(new e),this.onWillShowDialog=this._onWillShowDialog.event,this._onDidShowDialog=this._register(new e),this.onDidShowDialog=this._onDidShowDialog.event}show(t){const o=new r,s={args:t,close:i=>{this.dialogs.splice(0,1),i instanceof Error?o.error(i):o.complete(i),this._onDidShowDialog.fire()}};return this.dialogs.push(s),this._onWillShowDialog.fire(),{item:s,result:o.p}}}export{D as DialogsModel};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { DeferredPromise } from "../../base/common/async.js";
+import { Emitter } from "../../base/common/event.js";
+import { Disposable } from "../../base/common/lifecycle.js";
+class DialogsModel extends Disposable {
+  static {
+    __name(this, "DialogsModel");
+  }
+  constructor() {
+    super(...arguments);
+    this.dialogs = [];
+    this._onWillShowDialog = this._register(new Emitter());
+    this.onWillShowDialog = this._onWillShowDialog.event;
+    this._onDidShowDialog = this._register(new Emitter());
+    this.onDidShowDialog = this._onDidShowDialog.event;
+  }
+  show(dialog) {
+    const promise = new DeferredPromise();
+    const item = {
+      args: dialog,
+      close: /* @__PURE__ */ __name((result) => {
+        this.dialogs.splice(0, 1);
+        if (result instanceof Error) {
+          promise.error(result);
+        } else {
+          promise.complete(result);
+        }
+        this._onDidShowDialog.fire();
+      }, "close")
+    };
+    this.dialogs.push(item);
+    this._onWillShowDialog.fire();
+    return {
+      item,
+      result: promise.p
+    };
+  }
+}
+export {
+  DialogsModel
+};
+//# sourceMappingURL=dialogs.js.map

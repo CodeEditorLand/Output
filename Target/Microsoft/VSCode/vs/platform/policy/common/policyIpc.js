@@ -1,1 +1,69 @@
-import{Event as l}from"../../../base/common/event.js";import{DisposableStore as c}from"../../../base/common/lifecycle.js";import{AbstractPolicyService as r}from"./policy.js";class p{constructor(s){this.service=s,this.disposables=new c}listen(s,e){switch(e){case"onDidChange":return l.map(this.service.onDidChange,i=>i.reduce((n,t)=>({...n,[t]:this.service.getPolicyValue(t)??null}),{}),this.disposables)}throw new Error(`Event not found: ${e}`)}call(s,e,i){switch(e){case"updatePolicyDefinitions":return this.service.updatePolicyDefinitions(i)}throw new Error(`Call not found: ${e}`)}dispose(){this.disposables.dispose()}}class u extends r{constructor(s,e){super(),this.channel=e;for(const i in s){const{definition:n,value:t}=s[i];this.policyDefinitions[i]=n,t!==void 0&&this.policies.set(i,t)}this.channel.listen("onDidChange")(i=>{for(const n in i){const t=i[n];t===null?this.policies.delete(n):this.policies.set(n,t)}this._onDidChange.fire(Object.keys(i))})}async _updatePolicyDefinitions(s){const e=await this.channel.call("updatePolicyDefinitions",s);for(const i in e)this.policies.set(i,e[i])}}export{p as PolicyChannel,u as PolicyChannelClient};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Event } from "../../../base/common/event.js";
+import { DisposableStore } from "../../../base/common/lifecycle.js";
+import { AbstractPolicyService } from "./policy.js";
+class PolicyChannel {
+  static {
+    __name(this, "PolicyChannel");
+  }
+  constructor(service) {
+    this.service = service;
+    this.disposables = new DisposableStore();
+  }
+  listen(_, event) {
+    switch (event) {
+      case "onDidChange":
+        return Event.map(this.service.onDidChange, (names) => names.reduce((r, name) => ({ ...r, [name]: this.service.getPolicyValue(name) ?? null }), {}), this.disposables);
+    }
+    throw new Error(`Event not found: ${event}`);
+  }
+  call(_, command, arg) {
+    switch (command) {
+      case "updatePolicyDefinitions":
+        return this.service.updatePolicyDefinitions(arg);
+    }
+    throw new Error(`Call not found: ${command}`);
+  }
+  dispose() {
+    this.disposables.dispose();
+  }
+}
+class PolicyChannelClient extends AbstractPolicyService {
+  static {
+    __name(this, "PolicyChannelClient");
+  }
+  constructor(policiesData, channel) {
+    super();
+    this.channel = channel;
+    for (const name in policiesData) {
+      const { definition, value } = policiesData[name];
+      this.policyDefinitions[name] = definition;
+      if (value !== void 0) {
+        this.policies.set(name, value);
+      }
+    }
+    this.channel.listen("onDidChange")((policies) => {
+      for (const name in policies) {
+        const value = policies[name];
+        if (value === null) {
+          this.policies.delete(name);
+        } else {
+          this.policies.set(name, value);
+        }
+      }
+      this._onDidChange.fire(Object.keys(policies));
+    });
+  }
+  async _updatePolicyDefinitions(policyDefinitions) {
+    const result = await this.channel.call("updatePolicyDefinitions", policyDefinitions);
+    for (const name in result) {
+      this.policies.set(name, result[name]);
+    }
+  }
+}
+export {
+  PolicyChannel,
+  PolicyChannelClient
+};
+//# sourceMappingURL=policyIpc.js.map

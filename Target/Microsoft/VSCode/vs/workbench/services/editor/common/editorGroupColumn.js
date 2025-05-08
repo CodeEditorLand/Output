@@ -1,1 +1,43 @@
-import{preferredSideBySideGroupDirection as g}from"./editorGroupsService.js";import{ACTIVE_GROUP as u,SIDE_GROUP as e}from"./editorService.js";function G(r,o,t=u){if(t===u||t===e)return t;let f=r.getGroups(2)[t];if(!f&&t<9){for(let p=0;p<=t;p++){const n=r.getGroups(2);n[p]||r.addGroup(n[p-1],g(o))}f=r.getGroups(2)[t]}return f?.id??e}function d(r,o){const t=typeof o=="number"?r.getGroup(o):o;return r.getGroups(2).indexOf(t??r.activeGroup)}export{G as columnToEditorGroup,d as editorGroupToColumn};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { preferredSideBySideGroupDirection } from "./editorGroupsService.js";
+import { ACTIVE_GROUP, SIDE_GROUP } from "./editorService.js";
+function columnToEditorGroup(editorGroupService, configurationService, column = ACTIVE_GROUP) {
+  if (column === ACTIVE_GROUP || column === SIDE_GROUP) {
+    return column;
+  }
+  let groupInColumn = editorGroupService.getGroups(
+    2
+    /* GroupsOrder.GRID_APPEARANCE */
+  )[column];
+  if (!groupInColumn && column < 9) {
+    for (let i = 0; i <= column; i++) {
+      const editorGroups = editorGroupService.getGroups(
+        2
+        /* GroupsOrder.GRID_APPEARANCE */
+      );
+      if (!editorGroups[i]) {
+        editorGroupService.addGroup(editorGroups[i - 1], preferredSideBySideGroupDirection(configurationService));
+      }
+    }
+    groupInColumn = editorGroupService.getGroups(
+      2
+      /* GroupsOrder.GRID_APPEARANCE */
+    )[column];
+  }
+  return groupInColumn?.id ?? SIDE_GROUP;
+}
+__name(columnToEditorGroup, "columnToEditorGroup");
+function editorGroupToColumn(editorGroupService, editorGroup) {
+  const group = typeof editorGroup === "number" ? editorGroupService.getGroup(editorGroup) : editorGroup;
+  return editorGroupService.getGroups(
+    2
+    /* GroupsOrder.GRID_APPEARANCE */
+  ).indexOf(group ?? editorGroupService.activeGroup);
+}
+__name(editorGroupToColumn, "editorGroupToColumn");
+export {
+  columnToEditorGroup,
+  editorGroupToColumn
+};
+//# sourceMappingURL=editorGroupColumn.js.map

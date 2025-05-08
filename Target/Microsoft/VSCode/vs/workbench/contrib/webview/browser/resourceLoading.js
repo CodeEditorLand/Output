@@ -1,1 +1,109 @@
-import{isUNC as m}from"../../../../base/common/extpath.js";import{Schemas as f}from"../../../../base/common/network.js";import{normalize as u,sep as l}from"../../../../base/common/path.js";import{URI as h}from"../../../../base/common/uri.js";import{FileOperationError as p}from"../../../../platform/files/common/files.js";import{getWebviewContentMimeType as g}from"../../../../platform/webview/common/mimeTypes.js";var n;(function(e){let t;(function(o){o[o.Success=0]="Success",o[o.Failed=1]="Failed",o[o.AccessDenied=2]="AccessDenied",o[o.NotModified=3]="NotModified"})(t=e.Type||(e.Type={}));class i{constructor(a,c,s,d){this.stream=a,this.etag=c,this.mtime=s,this.mimeType=d,this.type=t.Success}}e.StreamSuccess=i,e.Failed={type:t.Failed},e.AccessDenied={type:t.AccessDenied};class r{constructor(a,c){this.mimeType=a,this.mtime=c,this.type=t.NotModified}}e.NotModified=r})(n||(n={}));async function R(e,t,i,r,o){r.debug(`loadLocalResource - begin. requestUri=${e}`);const a=S(e,t.roots);if(r.debug(`loadLocalResource - found resource to load. requestUri=${e}, resourceToLoad=${a}`),!a)return n.AccessDenied;const c=g(e);try{const s=await i.readFileStream(a,{etag:t.ifNoneMatch},o);return new n.StreamSuccess(s.value,s.etag,s.mtime,c)}catch(s){return s instanceof p&&s.fileOperationResult===2?new n.NotModified(c,s.options?.mtime):(r.debug(`loadLocalResource - Error using fileReader. requestUri=${e}`),n.Failed)}}function S(e,t){for(const i of t)if(y(i,e))return L(e)}function y(e,t){if(e.scheme!==t.scheme)return!1;let i=u(t.fsPath),r=u(e.fsPath+(e.fsPath.endsWith(l)?"":l));return m(e.fsPath)&&m(t.fsPath)&&(r=r.toLowerCase(),i=i.toLowerCase()),i.startsWith(r)}function L(e){return e.scheme===f.vscodeRemote?h.from({scheme:f.vscodeRemote,authority:e.authority,path:"/vscode-resource",query:JSON.stringify({requestResourcePath:e.path})}):e}export{n as WebviewResourceResponse,R as loadLocalResource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { isUNC } from "../../../../base/common/extpath.js";
+import { Schemas } from "../../../../base/common/network.js";
+import { normalize, sep } from "../../../../base/common/path.js";
+import { URI } from "../../../../base/common/uri.js";
+import { FileOperationError } from "../../../../platform/files/common/files.js";
+import { getWebviewContentMimeType } from "../../../../platform/webview/common/mimeTypes.js";
+var WebviewResourceResponse;
+(function(WebviewResourceResponse2) {
+  let Type;
+  (function(Type2) {
+    Type2[Type2["Success"] = 0] = "Success";
+    Type2[Type2["Failed"] = 1] = "Failed";
+    Type2[Type2["AccessDenied"] = 2] = "AccessDenied";
+    Type2[Type2["NotModified"] = 3] = "NotModified";
+  })(Type = WebviewResourceResponse2.Type || (WebviewResourceResponse2.Type = {}));
+  class StreamSuccess {
+    static {
+      __name(this, "StreamSuccess");
+    }
+    constructor(stream, etag, mtime, mimeType) {
+      this.stream = stream;
+      this.etag = etag;
+      this.mtime = mtime;
+      this.mimeType = mimeType;
+      this.type = Type.Success;
+    }
+  }
+  WebviewResourceResponse2.StreamSuccess = StreamSuccess;
+  WebviewResourceResponse2.Failed = { type: Type.Failed };
+  WebviewResourceResponse2.AccessDenied = { type: Type.AccessDenied };
+  class NotModified {
+    static {
+      __name(this, "NotModified");
+    }
+    constructor(mimeType, mtime) {
+      this.mimeType = mimeType;
+      this.mtime = mtime;
+      this.type = Type.NotModified;
+    }
+  }
+  WebviewResourceResponse2.NotModified = NotModified;
+})(WebviewResourceResponse || (WebviewResourceResponse = {}));
+async function loadLocalResource(requestUri, options, fileService, logService, token) {
+  logService.debug(`loadLocalResource - begin. requestUri=${requestUri}`);
+  const resourceToLoad = getResourceToLoad(requestUri, options.roots);
+  logService.debug(`loadLocalResource - found resource to load. requestUri=${requestUri}, resourceToLoad=${resourceToLoad}`);
+  if (!resourceToLoad) {
+    return WebviewResourceResponse.AccessDenied;
+  }
+  const mime = getWebviewContentMimeType(requestUri);
+  try {
+    const result = await fileService.readFileStream(resourceToLoad, { etag: options.ifNoneMatch }, token);
+    return new WebviewResourceResponse.StreamSuccess(result.value, result.etag, result.mtime, mime);
+  } catch (err) {
+    if (err instanceof FileOperationError) {
+      const result = err.fileOperationResult;
+      if (result === 2) {
+        return new WebviewResourceResponse.NotModified(mime, err.options?.mtime);
+      }
+    }
+    logService.debug(`loadLocalResource - Error using fileReader. requestUri=${requestUri}`);
+    console.log(err);
+    return WebviewResourceResponse.Failed;
+  }
+}
+__name(loadLocalResource, "loadLocalResource");
+function getResourceToLoad(requestUri, roots) {
+  for (const root of roots) {
+    if (containsResource(root, requestUri)) {
+      return normalizeResourcePath(requestUri);
+    }
+  }
+  return void 0;
+}
+__name(getResourceToLoad, "getResourceToLoad");
+function containsResource(root, resource) {
+  if (root.scheme !== resource.scheme) {
+    return false;
+  }
+  let resourceFsPath = normalize(resource.fsPath);
+  let rootPath = normalize(root.fsPath + (root.fsPath.endsWith(sep) ? "" : sep));
+  if (isUNC(root.fsPath) && isUNC(resource.fsPath)) {
+    rootPath = rootPath.toLowerCase();
+    resourceFsPath = resourceFsPath.toLowerCase();
+  }
+  return resourceFsPath.startsWith(rootPath);
+}
+__name(containsResource, "containsResource");
+function normalizeResourcePath(resource) {
+  if (resource.scheme === Schemas.vscodeRemote) {
+    return URI.from({
+      scheme: Schemas.vscodeRemote,
+      authority: resource.authority,
+      path: "/vscode-resource",
+      query: JSON.stringify({
+        requestResourcePath: resource.path
+      })
+    });
+  }
+  return resource;
+}
+__name(normalizeResourcePath, "normalizeResourcePath");
+export {
+  WebviewResourceResponse,
+  loadLocalResource
+};
+//# sourceMappingURL=resourceLoading.js.map

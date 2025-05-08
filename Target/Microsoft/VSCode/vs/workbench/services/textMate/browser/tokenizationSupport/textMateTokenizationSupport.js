@@ -1,1 +1,79 @@
-import{Emitter as m}from"../../../../../base/common/event.js";import{Disposable as _}from"../../../../../base/common/lifecycle.js";import{StopWatch as p}from"../../../../../base/common/stopwatch.js";import{TokenMetadata as T}from"../../../../../editor/common/encodedTokenAttributes.js";import{EncodedTokenizationResult as h}from"../../../../../editor/common/languages.js";class b extends _{constructor(t,o,n,i,a,s,e){super(),this._grammar=t,this._initialState=o,this._containsEmbeddedLanguages=n,this._createBackgroundTokenizer=i,this._backgroundTokenizerShouldOnlyVerifyTokens=a,this._reportTokenizationTime=s,this._reportSlowTokenization=e,this._seenLanguages=[],this._onDidEncounterLanguage=this._register(new m),this.onDidEncounterLanguage=this._onDidEncounterLanguage.event}get backgroundTokenizerShouldOnlyVerifyTokens(){return this._backgroundTokenizerShouldOnlyVerifyTokens()}getInitialState(){return this._initialState}tokenize(t,o,n){throw new Error("Not supported!")}createBackgroundTokenizer(t,o){if(this._createBackgroundTokenizer)return this._createBackgroundTokenizer(t,o)}tokenizeEncoded(t,o,n){const i=Math.random()*1e4<1,a=this._reportSlowTokenization||i,s=a?new p(!0):void 0,e=this._grammar.tokenizeLine2(t,n,500);if(a){const r=s.elapsed();(i||r>32)&&this._reportTokenizationTime(r,t.length,i)}if(e.stoppedEarly)return new h(e.tokens,n);if(this._containsEmbeddedLanguages){const r=this._seenLanguages,c=e.tokens;for(let d=0,k=c.length>>>1;d<k;d++){const l=c[(d<<1)+1],g=T.getLanguageId(l);r[g]||(r[g]=!0,this._onDidEncounterLanguage.fire(g))}}let u;return n.equals(e.ruleStack)?u=n:u=e.ruleStack,new h(e.tokens,u)}}export{b as TextMateTokenizationSupport};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { StopWatch } from "../../../../../base/common/stopwatch.js";
+import { TokenMetadata } from "../../../../../editor/common/encodedTokenAttributes.js";
+import { EncodedTokenizationResult } from "../../../../../editor/common/languages.js";
+class TextMateTokenizationSupport extends Disposable {
+  static {
+    __name(this, "TextMateTokenizationSupport");
+  }
+  constructor(_grammar, _initialState, _containsEmbeddedLanguages, _createBackgroundTokenizer, _backgroundTokenizerShouldOnlyVerifyTokens, _reportTokenizationTime, _reportSlowTokenization) {
+    super();
+    this._grammar = _grammar;
+    this._initialState = _initialState;
+    this._containsEmbeddedLanguages = _containsEmbeddedLanguages;
+    this._createBackgroundTokenizer = _createBackgroundTokenizer;
+    this._backgroundTokenizerShouldOnlyVerifyTokens = _backgroundTokenizerShouldOnlyVerifyTokens;
+    this._reportTokenizationTime = _reportTokenizationTime;
+    this._reportSlowTokenization = _reportSlowTokenization;
+    this._seenLanguages = [];
+    this._onDidEncounterLanguage = this._register(new Emitter());
+    this.onDidEncounterLanguage = this._onDidEncounterLanguage.event;
+  }
+  get backgroundTokenizerShouldOnlyVerifyTokens() {
+    return this._backgroundTokenizerShouldOnlyVerifyTokens();
+  }
+  getInitialState() {
+    return this._initialState;
+  }
+  tokenize(line, hasEOL, state) {
+    throw new Error("Not supported!");
+  }
+  createBackgroundTokenizer(textModel, store) {
+    if (this._createBackgroundTokenizer) {
+      return this._createBackgroundTokenizer(textModel, store);
+    }
+    return void 0;
+  }
+  tokenizeEncoded(line, hasEOL, state) {
+    const isRandomSample = Math.random() * 1e4 < 1;
+    const shouldMeasure = this._reportSlowTokenization || isRandomSample;
+    const sw = shouldMeasure ? new StopWatch(true) : void 0;
+    const textMateResult = this._grammar.tokenizeLine2(line, state, 500);
+    if (shouldMeasure) {
+      const timeMS = sw.elapsed();
+      if (isRandomSample || timeMS > 32) {
+        this._reportTokenizationTime(timeMS, line.length, isRandomSample);
+      }
+    }
+    if (textMateResult.stoppedEarly) {
+      console.warn(`Time limit reached when tokenizing line: ${line.substring(0, 100)}`);
+      return new EncodedTokenizationResult(textMateResult.tokens, state);
+    }
+    if (this._containsEmbeddedLanguages) {
+      const seenLanguages = this._seenLanguages;
+      const tokens = textMateResult.tokens;
+      for (let i = 0, len = tokens.length >>> 1; i < len; i++) {
+        const metadata = tokens[(i << 1) + 1];
+        const languageId = TokenMetadata.getLanguageId(metadata);
+        if (!seenLanguages[languageId]) {
+          seenLanguages[languageId] = true;
+          this._onDidEncounterLanguage.fire(languageId);
+        }
+      }
+    }
+    let endState;
+    if (state.equals(textMateResult.ruleStack)) {
+      endState = state;
+    } else {
+      endState = textMateResult.ruleStack;
+    }
+    return new EncodedTokenizationResult(textMateResult.tokens, endState);
+  }
+}
+export {
+  TextMateTokenizationSupport
+};
+//# sourceMappingURL=textMateTokenizationSupport.js.map

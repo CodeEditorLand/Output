@@ -1,1 +1,104 @@
-import{FloatHorizontalRange as g}from"../../view/renderingContext.js";class _{static _createRange(){return this._handyReadyRange||(this._handyReadyRange=document.createRange()),this._handyReadyRange}static _detachRange(t,i){t.selectNodeContents(i)}static _readClientRects(t,i,l,e,a){const n=this._createRange();try{return n.setStart(t,i),n.setEnd(l,e),n.getClientRects()}catch{return null}finally{this._detachRange(n,a)}}static _mergeAdjacentRanges(t){if(t.length===1)return t;t.sort(g.compare);const i=[];let l=0,e=t[0];for(let a=1,n=t.length;a<n;a++){const r=t[a];e.left+e.width+.9>=r.left?e.width=Math.max(e.width,r.left+r.width-e.left):(i[l++]=e,e=r)}return i[l++]=e,i}static _createHorizontalRangesFromClientRects(t,i,l){if(!t||t.length===0)return null;const e=[];for(let a=0,n=t.length;a<n;a++){const r=t[a];e[a]=new g(Math.max(0,(r.left-i)/l),r.width/l)}return this._mergeAdjacentRanges(e)}static readHorizontalRanges(t,i,l,e,a,n){const R=t.children.length-1;if(0>R)return null;if(i=Math.min(R,Math.max(0,i)),e=Math.min(R,Math.max(0,e)),i===e&&l===a&&l===0&&!t.children[i].firstChild){const o=t.children[i].getClientRects();return n.markDidDomLayout(),this._createHorizontalRangesFromClientRects(o,n.clientRectDeltaLeft,n.clientRectScale)}i!==e&&e>0&&a===0&&(e--,a=1073741824);let c=t.children[i].firstChild,h=t.children[e].firstChild;if((!c||!h)&&(!c&&l===0&&i>0&&(c=t.children[i-1].firstChild,l=1073741824),!h&&a===0&&e>0&&(h=t.children[e-1].firstChild,a=1073741824)),!c||!h)return null;l=Math.min(c.textContent.length,Math.max(0,l)),a=Math.min(h.textContent.length,Math.max(0,a));const m=this._readClientRects(c,l,h,a,n.endNode);return n.markDidDomLayout(),this._createHorizontalRangesFromClientRects(m,n.clientRectDeltaLeft,n.clientRectScale)}}export{_ as RangeUtil};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { FloatHorizontalRange } from "../../view/renderingContext.js";
+class RangeUtil {
+  static {
+    __name(this, "RangeUtil");
+  }
+  static _createRange() {
+    if (!this._handyReadyRange) {
+      this._handyReadyRange = document.createRange();
+    }
+    return this._handyReadyRange;
+  }
+  static _detachRange(range, endNode) {
+    range.selectNodeContents(endNode);
+  }
+  static _readClientRects(startElement, startOffset, endElement, endOffset, endNode) {
+    const range = this._createRange();
+    try {
+      range.setStart(startElement, startOffset);
+      range.setEnd(endElement, endOffset);
+      return range.getClientRects();
+    } catch (e) {
+      return null;
+    } finally {
+      this._detachRange(range, endNode);
+    }
+  }
+  static _mergeAdjacentRanges(ranges) {
+    if (ranges.length === 1) {
+      return ranges;
+    }
+    ranges.sort(FloatHorizontalRange.compare);
+    const result = [];
+    let resultLen = 0;
+    let prev = ranges[0];
+    for (let i = 1, len = ranges.length; i < len; i++) {
+      const range = ranges[i];
+      if (prev.left + prev.width + 0.9 >= range.left) {
+        prev.width = Math.max(prev.width, range.left + range.width - prev.left);
+      } else {
+        result[resultLen++] = prev;
+        prev = range;
+      }
+    }
+    result[resultLen++] = prev;
+    return result;
+  }
+  static _createHorizontalRangesFromClientRects(clientRects, clientRectDeltaLeft, clientRectScale) {
+    if (!clientRects || clientRects.length === 0) {
+      return null;
+    }
+    const result = [];
+    for (let i = 0, len = clientRects.length; i < len; i++) {
+      const clientRect = clientRects[i];
+      result[i] = new FloatHorizontalRange(Math.max(0, (clientRect.left - clientRectDeltaLeft) / clientRectScale), clientRect.width / clientRectScale);
+    }
+    return this._mergeAdjacentRanges(result);
+  }
+  static readHorizontalRanges(domNode, startChildIndex, startOffset, endChildIndex, endOffset, context) {
+    const min = 0;
+    const max = domNode.children.length - 1;
+    if (min > max) {
+      return null;
+    }
+    startChildIndex = Math.min(max, Math.max(min, startChildIndex));
+    endChildIndex = Math.min(max, Math.max(min, endChildIndex));
+    if (startChildIndex === endChildIndex && startOffset === endOffset && startOffset === 0 && !domNode.children[startChildIndex].firstChild) {
+      const clientRects2 = domNode.children[startChildIndex].getClientRects();
+      context.markDidDomLayout();
+      return this._createHorizontalRangesFromClientRects(clientRects2, context.clientRectDeltaLeft, context.clientRectScale);
+    }
+    if (startChildIndex !== endChildIndex) {
+      if (endChildIndex > 0 && endOffset === 0) {
+        endChildIndex--;
+        endOffset = 1073741824;
+      }
+    }
+    let startElement = domNode.children[startChildIndex].firstChild;
+    let endElement = domNode.children[endChildIndex].firstChild;
+    if (!startElement || !endElement) {
+      if (!startElement && startOffset === 0 && startChildIndex > 0) {
+        startElement = domNode.children[startChildIndex - 1].firstChild;
+        startOffset = 1073741824;
+      }
+      if (!endElement && endOffset === 0 && endChildIndex > 0) {
+        endElement = domNode.children[endChildIndex - 1].firstChild;
+        endOffset = 1073741824;
+      }
+    }
+    if (!startElement || !endElement) {
+      return null;
+    }
+    startOffset = Math.min(startElement.textContent.length, Math.max(0, startOffset));
+    endOffset = Math.min(endElement.textContent.length, Math.max(0, endOffset));
+    const clientRects = this._readClientRects(startElement, startOffset, endElement, endOffset, context.endNode);
+    context.markDidDomLayout();
+    return this._createHorizontalRangesFromClientRects(clientRects, context.clientRectDeltaLeft, context.clientRectScale);
+  }
+}
+export {
+  RangeUtil
+};
+//# sourceMappingURL=rangeUtil.js.map

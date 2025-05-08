@@ -1,1 +1,166 @@
-import{localize as u}from"../../../../../nls.js";import{PickerQuickAccessProvider as b,TriggerAction as d}from"../../../../../platform/quickinput/browser/pickerQuickAccess.js";import{matchesFuzzy as k}from"../../../../../base/common/filters.js";import{ITerminalEditorService as E,ITerminalGroupService as w,ITerminalService as $}from"../../../terminal/browser/terminal.js";import{ICommandService as x}from"../../../../../platform/commands/common/commands.js";import{IThemeService as A}from"../../../../../platform/theme/common/themeService.js";import{ThemeIcon as S}from"../../../../../base/common/themables.js";import{killTerminalIcon as N,renameTerminalIcon as O}from"../../../terminal/browser/terminalIcons.js";import{getColorClass as G,getIconId as R,getUriClasses as y}from"../../../terminal/browser/terminalIcon.js";import{terminalStrings as z}from"../../../terminal/common/terminalStrings.js";import{TerminalLocation as g}from"../../../../../platform/terminal/common/terminal.js";import{IEditorService as L}from"../../../../services/editor/common/editorService.js";import{IInstantiationService as F}from"../../../../../platform/instantiation/common/instantiation.js";var P=function(m,e,i,c){var o=arguments.length,r=o<3?e:c===null?c=Object.getOwnPropertyDescriptor(e,i):c,t;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(m,e,i,c);else for(var n=m.length-1;n>=0;n--)(t=m[n])&&(r=(o<3?t(r):o>3?t(e,i,r):t(e,i))||r);return o>3&&r&&Object.defineProperty(e,i,r),r},l=function(m,e){return function(i,c){e(i,c,m)}},v;let a=[],I=class extends b{static{v=this}static{this.PREFIX="term "}constructor(e,i,c,o,r,t,n){super(v.PREFIX,{canAcceptInBackground:!0}),this._commandService=e,this._editorService=i,this._instantiationService=c,this._terminalEditorService=o,this._terminalGroupService=r,this._terminalService=t,this._themeService=n}_getPicks(e){a=[],a.push({type:"separator",label:"panel"});const i=this._terminalGroupService.groups;for(let t=0;t<i.length;t++){const n=i[t];for(let s=0;s<n.terminalInstances.length;s++){const p=n.terminalInstances[s],h=this._createPick(p,s,e,{groupIndex:t,groupSize:n.terminalInstances.length});h&&a.push(h)}}a.length>0&&a.push({type:"separator",label:"editor"});const c=this._terminalEditorService.instances;for(let t=0;t<c.length;t++){const n=c[t];n.target=g.Editor;const s=this._createPick(n,t,e);s&&a.push(s)}a.length>0&&a.push({type:"separator"});const o=u("workbench.action.terminal.newplus","Create New Terminal");a.push({label:`$(plus) ${o}`,ariaLabel:o,accept:()=>this._commandService.executeCommand("workbench.action.terminal.new")});const r=u("workbench.action.terminal.newWithProfilePlus","Create New Terminal With Profile...");return a.push({label:`$(plus) ${r}`,ariaLabel:r,accept:()=>this._commandService.executeCommand("workbench.action.terminal.newWithProfile")}),a}_createPick(e,i,c,o){const r=this._instantiationService.invokeFunction(R,e),t=o?o.groupSize>1?`${o.groupIndex+1}.${i+1}`:`${o.groupIndex+1}`:`${i+1}`,n=`$(${r}) ${t}: ${e.title}`,s=[],p=G(e);p&&s.push(p);const h=y(e,this._themeService.getColorTheme().type);h&&s.push(...h);const f=k(c,n,!0);if(f)return{label:n,description:e.description,highlights:{label:f},buttons:[{iconClass:S.asClassName(O),tooltip:u("renameTerminal","Rename Terminal")},{iconClass:S.asClassName(N),tooltip:z.kill.value}],iconClasses:s,trigger:_=>{switch(_){case 0:return this._commandService.executeCommand("workbench.action.terminal.rename",e),d.NO_ACTION;case 1:return this._terminalService.safeDisposeTerminal(e),d.REMOVE_ITEM}return d.NO_ACTION},accept:(_,T)=>{if(e.target===g.Editor){const C=this._editorService.findEditors(e.resource);this._terminalEditorService.openEditor(e,{viewColumn:C?.[0].groupId}),this._terminalEditorService.setActiveInstance(e)}else this._terminalGroupService.showPanel(!T.inBackground),this._terminalGroupService.setActiveInstance(e)}}}};I=v=P([l(0,x),l(1,L),l(2,F),l(3,E),l(4,w),l(5,$),l(6,A)],I);export{I as TerminalQuickAccessProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../../../nls.js";
+import { PickerQuickAccessProvider, TriggerAction } from "../../../../../platform/quickinput/browser/pickerQuickAccess.js";
+import { matchesFuzzy } from "../../../../../base/common/filters.js";
+import { ITerminalEditorService, ITerminalGroupService, ITerminalService } from "../../../terminal/browser/terminal.js";
+import { ICommandService } from "../../../../../platform/commands/common/commands.js";
+import { IThemeService } from "../../../../../platform/theme/common/themeService.js";
+import { ThemeIcon } from "../../../../../base/common/themables.js";
+import { killTerminalIcon, renameTerminalIcon } from "../../../terminal/browser/terminalIcons.js";
+import { getColorClass, getIconId, getUriClasses } from "../../../terminal/browser/terminalIcon.js";
+import { terminalStrings } from "../../../terminal/common/terminalStrings.js";
+import { TerminalLocation } from "../../../../../platform/terminal/common/terminal.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var TerminalQuickAccessProvider_1;
+let terminalPicks = [];
+let TerminalQuickAccessProvider = class TerminalQuickAccessProvider2 extends PickerQuickAccessProvider {
+  static {
+    __name(this, "TerminalQuickAccessProvider");
+  }
+  static {
+    TerminalQuickAccessProvider_1 = this;
+  }
+  static {
+    this.PREFIX = "term ";
+  }
+  constructor(_commandService, _editorService, _instantiationService, _terminalEditorService, _terminalGroupService, _terminalService, _themeService) {
+    super(TerminalQuickAccessProvider_1.PREFIX, { canAcceptInBackground: true });
+    this._commandService = _commandService;
+    this._editorService = _editorService;
+    this._instantiationService = _instantiationService;
+    this._terminalEditorService = _terminalEditorService;
+    this._terminalGroupService = _terminalGroupService;
+    this._terminalService = _terminalService;
+    this._themeService = _themeService;
+  }
+  _getPicks(filter) {
+    terminalPicks = [];
+    terminalPicks.push({ type: "separator", label: "panel" });
+    const terminalGroups = this._terminalGroupService.groups;
+    for (let groupIndex = 0; groupIndex < terminalGroups.length; groupIndex++) {
+      const terminalGroup = terminalGroups[groupIndex];
+      for (let terminalIndex = 0; terminalIndex < terminalGroup.terminalInstances.length; terminalIndex++) {
+        const terminal = terminalGroup.terminalInstances[terminalIndex];
+        const pick = this._createPick(terminal, terminalIndex, filter, { groupIndex, groupSize: terminalGroup.terminalInstances.length });
+        if (pick) {
+          terminalPicks.push(pick);
+        }
+      }
+    }
+    if (terminalPicks.length > 0) {
+      terminalPicks.push({ type: "separator", label: "editor" });
+    }
+    const terminalEditors = this._terminalEditorService.instances;
+    for (let editorIndex = 0; editorIndex < terminalEditors.length; editorIndex++) {
+      const term = terminalEditors[editorIndex];
+      term.target = TerminalLocation.Editor;
+      const pick = this._createPick(term, editorIndex, filter);
+      if (pick) {
+        terminalPicks.push(pick);
+      }
+    }
+    if (terminalPicks.length > 0) {
+      terminalPicks.push({ type: "separator" });
+    }
+    const createTerminalLabel = localize("workbench.action.terminal.newplus", "Create New Terminal");
+    terminalPicks.push({
+      label: `$(plus) ${createTerminalLabel}`,
+      ariaLabel: createTerminalLabel,
+      accept: /* @__PURE__ */ __name(() => this._commandService.executeCommand(
+        "workbench.action.terminal.new"
+        /* TerminalCommandId.New */
+      ), "accept")
+    });
+    const createWithProfileLabel = localize("workbench.action.terminal.newWithProfilePlus", "Create New Terminal With Profile...");
+    terminalPicks.push({
+      label: `$(plus) ${createWithProfileLabel}`,
+      ariaLabel: createWithProfileLabel,
+      accept: /* @__PURE__ */ __name(() => this._commandService.executeCommand(
+        "workbench.action.terminal.newWithProfile"
+        /* TerminalCommandId.NewWithProfile */
+      ), "accept")
+    });
+    return terminalPicks;
+  }
+  _createPick(terminal, terminalIndex, filter, groupInfo) {
+    const iconId = this._instantiationService.invokeFunction(getIconId, terminal);
+    const index = groupInfo ? groupInfo.groupSize > 1 ? `${groupInfo.groupIndex + 1}.${terminalIndex + 1}` : `${groupInfo.groupIndex + 1}` : `${terminalIndex + 1}`;
+    const label = `$(${iconId}) ${index}: ${terminal.title}`;
+    const iconClasses = [];
+    const colorClass = getColorClass(terminal);
+    if (colorClass) {
+      iconClasses.push(colorClass);
+    }
+    const uriClasses = getUriClasses(terminal, this._themeService.getColorTheme().type);
+    if (uriClasses) {
+      iconClasses.push(...uriClasses);
+    }
+    const highlights = matchesFuzzy(filter, label, true);
+    if (highlights) {
+      return {
+        label,
+        description: terminal.description,
+        highlights: { label: highlights },
+        buttons: [
+          {
+            iconClass: ThemeIcon.asClassName(renameTerminalIcon),
+            tooltip: localize("renameTerminal", "Rename Terminal")
+          },
+          {
+            iconClass: ThemeIcon.asClassName(killTerminalIcon),
+            tooltip: terminalStrings.kill.value
+          }
+        ],
+        iconClasses,
+        trigger: /* @__PURE__ */ __name((buttonIndex) => {
+          switch (buttonIndex) {
+            case 0:
+              this._commandService.executeCommand("workbench.action.terminal.rename", terminal);
+              return TriggerAction.NO_ACTION;
+            case 1:
+              this._terminalService.safeDisposeTerminal(terminal);
+              return TriggerAction.REMOVE_ITEM;
+          }
+          return TriggerAction.NO_ACTION;
+        }, "trigger"),
+        accept: /* @__PURE__ */ __name((keyMod, event) => {
+          if (terminal.target === TerminalLocation.Editor) {
+            const existingEditors = this._editorService.findEditors(terminal.resource);
+            this._terminalEditorService.openEditor(terminal, { viewColumn: existingEditors?.[0].groupId });
+            this._terminalEditorService.setActiveInstance(terminal);
+          } else {
+            this._terminalGroupService.showPanel(!event.inBackground);
+            this._terminalGroupService.setActiveInstance(terminal);
+          }
+        }, "accept")
+      };
+    }
+    return void 0;
+  }
+};
+TerminalQuickAccessProvider = TerminalQuickAccessProvider_1 = __decorate([
+  __param(0, ICommandService),
+  __param(1, IEditorService),
+  __param(2, IInstantiationService),
+  __param(3, ITerminalEditorService),
+  __param(4, ITerminalGroupService),
+  __param(5, ITerminalService),
+  __param(6, IThemeService)
+], TerminalQuickAccessProvider);
+export {
+  TerminalQuickAccessProvider
+};
+//# sourceMappingURL=terminalQuickAccess.js.map

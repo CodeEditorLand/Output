@@ -1,1 +1,62 @@
-import{registerSingleton as m}from"../../instantiation/common/extensions.js";import{IFileService as v}from"../../files/common/files.js";import{IProductService as p}from"../../product/common/productService.js";import{asTextOrError as S,IRequestService as h}from"../../request/common/request.js";import{IStorageService as x}from"../../storage/common/storage.js";import{IEnvironmentService as d}from"../../environment/common/environment.js";import{IConfigurationService as R}from"../../configuration/common/configuration.js";import{CancellationToken as _}from"../../../base/common/cancellation.js";import{AbstractExtensionResourceLoaderService as E,IExtensionResourceLoaderService as I}from"./extensionResourceLoader.js";import{IExtensionGalleryManifestService as g}from"../../extensionManagement/common/extensionGalleryManifest.js";import{ILogService as q}from"../../log/common/log.js";var l=function(s,e,r,t){var i=arguments.length,o=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,r):t,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(s,e,r,t);else for(var a=s.length-1;a>=0;a--)(c=s[a])&&(o=(i<3?c(o):i>3?c(e,r,o):c(e,r))||o);return i>3&&o&&Object.defineProperty(e,r,o),o},n=function(s,e){return function(r,t){e(r,t,s)}};let f=class extends E{constructor(e,r,t,i,o,c,a,u){super(e,r,t,i,o,c,u),this._requestService=a}async readExtensionResource(e){if(await this.isExtensionGalleryResource(e)){const t=await this.getExtensionGalleryRequestHeaders(),i=await this._requestService.request({url:e.toString(),headers:t},_.None);return await S(i)||""}return(await this._fileService.readFile(e)).value.toString()}};f=l([n(0,v),n(1,x),n(2,p),n(3,d),n(4,R),n(5,g),n(6,h),n(7,q)],f);m(I,f,1);export{f as ExtensionResourceLoaderService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { registerSingleton } from "../../instantiation/common/extensions.js";
+import { IFileService } from "../../files/common/files.js";
+import { IProductService } from "../../product/common/productService.js";
+import { asTextOrError, IRequestService } from "../../request/common/request.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { CancellationToken } from "../../../base/common/cancellation.js";
+import { AbstractExtensionResourceLoaderService, IExtensionResourceLoaderService } from "./extensionResourceLoader.js";
+import { IExtensionGalleryManifestService } from "../../extensionManagement/common/extensionGalleryManifest.js";
+import { ILogService } from "../../log/common/log.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ExtensionResourceLoaderService = class ExtensionResourceLoaderService2 extends AbstractExtensionResourceLoaderService {
+  static {
+    __name(this, "ExtensionResourceLoaderService");
+  }
+  constructor(fileService, storageService, productService, environmentService, configurationService, extensionGalleryManifestService, _requestService, logService) {
+    super(fileService, storageService, productService, environmentService, configurationService, extensionGalleryManifestService, logService);
+    this._requestService = _requestService;
+  }
+  async readExtensionResource(uri) {
+    if (await this.isExtensionGalleryResource(uri)) {
+      const headers = await this.getExtensionGalleryRequestHeaders();
+      const requestContext = await this._requestService.request({ url: uri.toString(), headers }, CancellationToken.None);
+      return await asTextOrError(requestContext) || "";
+    }
+    const result = await this._fileService.readFile(uri);
+    return result.value.toString();
+  }
+};
+ExtensionResourceLoaderService = __decorate([
+  __param(0, IFileService),
+  __param(1, IStorageService),
+  __param(2, IProductService),
+  __param(3, IEnvironmentService),
+  __param(4, IConfigurationService),
+  __param(5, IExtensionGalleryManifestService),
+  __param(6, IRequestService),
+  __param(7, ILogService)
+], ExtensionResourceLoaderService);
+registerSingleton(
+  IExtensionResourceLoaderService,
+  ExtensionResourceLoaderService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  ExtensionResourceLoaderService
+};
+//# sourceMappingURL=extensionResourceLoaderService.js.map

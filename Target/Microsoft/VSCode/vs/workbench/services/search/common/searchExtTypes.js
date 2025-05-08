@@ -1,1 +1,123 @@
-class s{constructor(r,t){this.line=r,this.character=t}isBefore(r){return!1}isBeforeOrEqual(r){return!1}isAfter(r){return!1}isAfterOrEqual(r){return!1}isEqual(r){return!1}compareTo(r){return 0}translate(r,t){return new s(0,0)}with(r){return new s(0,0)}}class i{constructor(r,t,n,u){this.isEmpty=!1,this.isSingleLine=!1,this.start=new s(r,t),this.end=new s(n,u)}contains(r){return!1}isEqual(r){return!1}intersection(r){}union(r){return new i(0,0,0,0)}with(r){return new i(0,0,0,0)}}class h{constructor(r,t,n){this.uri=r,this.ranges=t,this.previewText=n}}class c{constructor(r,t,n){this.uri=r,this.text=t,this.lineNumber=n}}class l{constructor(r){this.keyword=r}}var o;(function(e){e[e.None=1]="None",e[e.FilesExclude=2]="FilesExclude",e[e.SearchAndFilesExclude=3]="SearchAndFilesExclude"})(o||(o={}));var a;(function(e){e[e.Information=1]="Information",e[e.Warning=2]="Warning"})(a||(a={}));export{l as AISearchKeyword,o as ExcludeSettingOptions,s as Position,i as Range,a as TextSearchCompleteMessageType,c as TextSearchContext2,h as TextSearchMatch2};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class Position {
+  static {
+    __name(this, "Position");
+  }
+  constructor(line, character) {
+    this.line = line;
+    this.character = character;
+  }
+  isBefore(other) {
+    return false;
+  }
+  isBeforeOrEqual(other) {
+    return false;
+  }
+  isAfter(other) {
+    return false;
+  }
+  isAfterOrEqual(other) {
+    return false;
+  }
+  isEqual(other) {
+    return false;
+  }
+  compareTo(other) {
+    return 0;
+  }
+  translate(_, _2) {
+    return new Position(0, 0);
+  }
+  with(_) {
+    return new Position(0, 0);
+  }
+}
+class Range {
+  static {
+    __name(this, "Range");
+  }
+  constructor(startLine, startCol, endLine, endCol) {
+    this.isEmpty = false;
+    this.isSingleLine = false;
+    this.start = new Position(startLine, startCol);
+    this.end = new Position(endLine, endCol);
+  }
+  contains(positionOrRange) {
+    return false;
+  }
+  isEqual(other) {
+    return false;
+  }
+  intersection(range) {
+    return void 0;
+  }
+  union(other) {
+    return new Range(0, 0, 0, 0);
+  }
+  with(_) {
+    return new Range(0, 0, 0, 0);
+  }
+}
+class TextSearchMatch2 {
+  static {
+    __name(this, "TextSearchMatch2");
+  }
+  /**
+   * @param uri The uri for the matching document.
+   * @param ranges The ranges associated with this match.
+   * @param previewText The text that is used to preview the match. The highlighted range in `previewText` is specified in `ranges`.
+   */
+  constructor(uri, ranges, previewText) {
+    this.uri = uri;
+    this.ranges = ranges;
+    this.previewText = previewText;
+  }
+}
+class TextSearchContext2 {
+  static {
+    __name(this, "TextSearchContext2");
+  }
+  /**
+   * @param uri The uri for the matching document.
+   * @param text The line of context text.
+   * @param lineNumber The line number of this line of context.
+   */
+  constructor(uri, text, lineNumber) {
+    this.uri = uri;
+    this.text = text;
+    this.lineNumber = lineNumber;
+  }
+}
+class AISearchKeyword {
+  static {
+    __name(this, "AISearchKeyword");
+  }
+  /**
+   * @param keyword The keyword associated with the search.
+   */
+  constructor(keyword) {
+    this.keyword = keyword;
+  }
+}
+var ExcludeSettingOptions;
+(function(ExcludeSettingOptions2) {
+  ExcludeSettingOptions2[ExcludeSettingOptions2["None"] = 1] = "None";
+  ExcludeSettingOptions2[ExcludeSettingOptions2["FilesExclude"] = 2] = "FilesExclude";
+  ExcludeSettingOptions2[ExcludeSettingOptions2["SearchAndFilesExclude"] = 3] = "SearchAndFilesExclude";
+})(ExcludeSettingOptions || (ExcludeSettingOptions = {}));
+var TextSearchCompleteMessageType;
+(function(TextSearchCompleteMessageType2) {
+  TextSearchCompleteMessageType2[TextSearchCompleteMessageType2["Information"] = 1] = "Information";
+  TextSearchCompleteMessageType2[TextSearchCompleteMessageType2["Warning"] = 2] = "Warning";
+})(TextSearchCompleteMessageType || (TextSearchCompleteMessageType = {}));
+export {
+  AISearchKeyword,
+  ExcludeSettingOptions,
+  Position,
+  Range,
+  TextSearchCompleteMessageType,
+  TextSearchContext2,
+  TextSearchMatch2
+};
+//# sourceMappingURL=searchExtTypes.js.map

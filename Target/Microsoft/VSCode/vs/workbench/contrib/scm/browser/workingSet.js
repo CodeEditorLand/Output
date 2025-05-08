@@ -1,1 +1,153 @@
-import{Disposable as u,DisposableMap as f,DisposableStore as m}from"../../../../base/common/lifecycle.js";import{autorun as v,autorunWithStore as l,derived as y}from"../../../../base/common/observable.js";import{IConfigurationService as k}from"../../../../platform/configuration/common/configuration.js";import{observableConfigValue as _}from"../../../../platform/observable/common/platformObservableUtils.js";import{IStorageService as I}from"../../../../platform/storage/common/storage.js";import{getProviderKey as w}from"./util.js";import{ISCMService as W}from"../common/scm.js";import{IEditorGroupsService as b}from"../../../services/editor/common/editorGroupsService.js";import{IWorkbenchLayoutService as D}from"../../../services/layout/browser/layoutService.js";var g=function(c,e,o,t){var i=arguments.length,r=i<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,o):t,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(c,e,o,t);else for(var n=c.length-1;n>=0;n--)(s=c[n])&&(r=(i<3?s(r):i>3?s(e,o,r):s(e,o))||r);return i>3&&r&&Object.defineProperty(e,o,r),r},d=function(c,e){return function(o,t){e(o,t,c)}};let a=class extends u{static{this.ID="workbench.contrib.scmWorkingSets"}constructor(e,o,t,i,r){super(),this.configurationService=e,this.editorGroupsService=o,this.scmService=t,this.storageService=i,this.layoutService=r,this._repositoryDisposables=new f,this._enabledConfig=_("scm.workingSets.enabled",!1,this.configurationService),this._store.add(l((s,n)=>{if(!this._enabledConfig.read(s)){this.storageService.remove("scm.workingSets",1),this._repositoryDisposables.clearAndDisposeAll();return}this._workingSets=this._loadWorkingSets(),this.scmService.onDidAddRepository(this._onDidAddRepository,this,n),this.scmService.onDidRemoveRepository(this._onDidRemoveRepository,this,n);for(const p of this.scmService.repositories)this._onDidAddRepository(p)}))}_onDidAddRepository(e){const o=new m,t=y(i=>e.provider.historyProvider.read(i)?.historyItemRef.read(i)?.id);o.add(v(async i=>{const r=t.read(i);if(!r)return;const s=w(e.provider),n=this._workingSets.get(s);if(!n){this._workingSets.set(s,{currentHistoryItemGroupId:r,editorWorkingSets:new Map});return}n.currentHistoryItemGroupId!==r&&(this._saveWorkingSet(s,r,n),await this._restoreWorkingSet(s,r))})),this._repositoryDisposables.set(e,o)}_onDidRemoveRepository(e){this._repositoryDisposables.deleteAndDispose(e)}_loadWorkingSets(){const e=new Map,o=this.storageService.get("scm.workingSets",1);if(!o)return e;for(const t of JSON.parse(o))e.set(t.providerKey,{currentHistoryItemGroupId:t.currentHistoryItemGroupId,editorWorkingSets:new Map(t.editorWorkingSets)});return e}_saveWorkingSet(e,o,t){const i=t.currentHistoryItemGroupId,r=t.editorWorkingSets,s=this.editorGroupsService.saveWorkingSet(i);this._workingSets.set(e,{currentHistoryItemGroupId:o,editorWorkingSets:r.set(i,s)});const n=[];for(const[p,{currentHistoryItemGroupId:S,editorWorkingSets:h}]of this._workingSets)n.push({providerKey:p,currentHistoryItemGroupId:S,editorWorkingSets:[...h]});this.storageService.store("scm.workingSets",JSON.stringify(n),1,1)}async _restoreWorkingSet(e,o){const t=this._workingSets.get(e);if(!t)return;let i=t.editorWorkingSets.get(o);if(!i&&this.configurationService.getValue("scm.workingSets.default")==="empty"&&(i="empty"),i){const r=this.layoutService.hasFocus("workbench.parts.panel");await this.editorGroupsService.applyWorkingSet(i,{preserveFocus:r})}}dispose(){this._repositoryDisposables.dispose(),super.dispose()}};a=g([d(0,k),d(1,b),d(2,W),d(3,I),d(4,D)],a);export{a as SCMWorkingSetController};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableMap, DisposableStore } from "../../../../base/common/lifecycle.js";
+import { autorun, autorunWithStore, derived } from "../../../../base/common/observable.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { observableConfigValue } from "../../../../platform/observable/common/platformObservableUtils.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { getProviderKey } from "./util.js";
+import { ISCMService } from "../common/scm.js";
+import { IEditorGroupsService } from "../../../services/editor/common/editorGroupsService.js";
+import { IWorkbenchLayoutService } from "../../../services/layout/browser/layoutService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let SCMWorkingSetController = class SCMWorkingSetController2 extends Disposable {
+  static {
+    __name(this, "SCMWorkingSetController");
+  }
+  static {
+    this.ID = "workbench.contrib.scmWorkingSets";
+  }
+  constructor(configurationService, editorGroupsService, scmService, storageService, layoutService) {
+    super();
+    this.configurationService = configurationService;
+    this.editorGroupsService = editorGroupsService;
+    this.scmService = scmService;
+    this.storageService = storageService;
+    this.layoutService = layoutService;
+    this._repositoryDisposables = new DisposableMap();
+    this._enabledConfig = observableConfigValue("scm.workingSets.enabled", false, this.configurationService);
+    this._store.add(autorunWithStore((reader, store) => {
+      if (!this._enabledConfig.read(reader)) {
+        this.storageService.remove(
+          "scm.workingSets",
+          1
+          /* StorageScope.WORKSPACE */
+        );
+        this._repositoryDisposables.clearAndDisposeAll();
+        return;
+      }
+      this._workingSets = this._loadWorkingSets();
+      this.scmService.onDidAddRepository(this._onDidAddRepository, this, store);
+      this.scmService.onDidRemoveRepository(this._onDidRemoveRepository, this, store);
+      for (const repository of this.scmService.repositories) {
+        this._onDidAddRepository(repository);
+      }
+    }));
+  }
+  _onDidAddRepository(repository) {
+    const disposables = new DisposableStore();
+    const historyItemRefId = derived((reader) => {
+      const historyProvider = repository.provider.historyProvider.read(reader);
+      const historyItemRef = historyProvider?.historyItemRef.read(reader);
+      return historyItemRef?.id;
+    });
+    disposables.add(autorun(async (reader) => {
+      const historyItemRefIdValue = historyItemRefId.read(reader);
+      if (!historyItemRefIdValue) {
+        return;
+      }
+      const providerKey = getProviderKey(repository.provider);
+      const repositoryWorkingSets = this._workingSets.get(providerKey);
+      if (!repositoryWorkingSets) {
+        this._workingSets.set(providerKey, { currentHistoryItemGroupId: historyItemRefIdValue, editorWorkingSets: /* @__PURE__ */ new Map() });
+        return;
+      }
+      if (repositoryWorkingSets.currentHistoryItemGroupId === historyItemRefIdValue) {
+        return;
+      }
+      this._saveWorkingSet(providerKey, historyItemRefIdValue, repositoryWorkingSets);
+      await this._restoreWorkingSet(providerKey, historyItemRefIdValue);
+    }));
+    this._repositoryDisposables.set(repository, disposables);
+  }
+  _onDidRemoveRepository(repository) {
+    this._repositoryDisposables.deleteAndDispose(repository);
+  }
+  _loadWorkingSets() {
+    const workingSets = /* @__PURE__ */ new Map();
+    const workingSetsRaw = this.storageService.get(
+      "scm.workingSets",
+      1
+      /* StorageScope.WORKSPACE */
+    );
+    if (!workingSetsRaw) {
+      return workingSets;
+    }
+    for (const serializedWorkingSet of JSON.parse(workingSetsRaw)) {
+      workingSets.set(serializedWorkingSet.providerKey, {
+        currentHistoryItemGroupId: serializedWorkingSet.currentHistoryItemGroupId,
+        editorWorkingSets: new Map(serializedWorkingSet.editorWorkingSets)
+      });
+    }
+    return workingSets;
+  }
+  _saveWorkingSet(providerKey, currentHistoryItemGroupId, repositoryWorkingSets) {
+    const previousHistoryItemGroupId = repositoryWorkingSets.currentHistoryItemGroupId;
+    const editorWorkingSets = repositoryWorkingSets.editorWorkingSets;
+    const editorWorkingSet = this.editorGroupsService.saveWorkingSet(previousHistoryItemGroupId);
+    this._workingSets.set(providerKey, { currentHistoryItemGroupId, editorWorkingSets: editorWorkingSets.set(previousHistoryItemGroupId, editorWorkingSet) });
+    const workingSets = [];
+    for (const [providerKey2, { currentHistoryItemGroupId: currentHistoryItemGroupId2, editorWorkingSets: editorWorkingSets2 }] of this._workingSets) {
+      workingSets.push({ providerKey: providerKey2, currentHistoryItemGroupId: currentHistoryItemGroupId2, editorWorkingSets: [...editorWorkingSets2] });
+    }
+    this.storageService.store(
+      "scm.workingSets",
+      JSON.stringify(workingSets),
+      1,
+      1
+      /* StorageTarget.MACHINE */
+    );
+  }
+  async _restoreWorkingSet(providerKey, currentHistoryItemGroupId) {
+    const workingSets = this._workingSets.get(providerKey);
+    if (!workingSets) {
+      return;
+    }
+    let editorWorkingSetId = workingSets.editorWorkingSets.get(currentHistoryItemGroupId);
+    if (!editorWorkingSetId && this.configurationService.getValue("scm.workingSets.default") === "empty") {
+      editorWorkingSetId = "empty";
+    }
+    if (editorWorkingSetId) {
+      const preserveFocus = this.layoutService.hasFocus(
+        "workbench.parts.panel"
+        /* Parts.PANEL_PART */
+      );
+      await this.editorGroupsService.applyWorkingSet(editorWorkingSetId, { preserveFocus });
+    }
+  }
+  dispose() {
+    this._repositoryDisposables.dispose();
+    super.dispose();
+  }
+};
+SCMWorkingSetController = __decorate([
+  __param(0, IConfigurationService),
+  __param(1, IEditorGroupsService),
+  __param(2, ISCMService),
+  __param(3, IStorageService),
+  __param(4, IWorkbenchLayoutService)
+], SCMWorkingSetController);
+export {
+  SCMWorkingSetController
+};
+//# sourceMappingURL=workingSet.js.map

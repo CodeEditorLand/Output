@@ -1,1 +1,91 @@
-import{Emitter as f}from"../../../../base/common/event.js";import{IUpdateService as v,State as a}from"../../../../platform/update/common/update.js";import{registerSingleton as u}from"../../../../platform/instantiation/common/extensions.js";import{IBrowserWorkbenchEnvironmentService as l}from"../../environment/browser/environmentService.js";import{IHostService as m}from"../../host/browser/host.js";import{Disposable as S}from"../../../../base/common/lifecycle.js";var d=function(n,e,t,r){var o=arguments.length,i=o<3?e:r===null?r=Object.getOwnPropertyDescriptor(e,t):r,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(n,e,t,r);else for(var c=n.length-1;c>=0;c--)(s=n[c])&&(i=(o<3?s(i):o>3?s(e,t,i):s(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},h=function(n,e){return function(t,r){e(t,r,n)}};let p=class extends S{get state(){return this._state}set state(e){this._state=e,this._onStateChange.fire(e)}constructor(e,t){super(),this.environmentService=e,this.hostService=t,this._onStateChange=this._register(new f),this.onStateChange=this._onStateChange.event,this._state=a.Uninitialized,this.checkForUpdates(!1)}async isLatestVersion(){const e=await this.doCheckForUpdates(!1);if(e!==void 0)return!!e}async checkForUpdates(e){await this.doCheckForUpdates(e)}async doCheckForUpdates(e){if(this.environmentService.options&&this.environmentService.options.updateProvider){const t=this.environmentService.options.updateProvider;this.state=a.CheckingForUpdates(e);const r=await t.checkForUpdate();return r?this.state=a.Ready({version:r.version,productVersion:r.version}):this.state=a.Idle(1),r}}async downloadUpdate(){}async applyUpdate(){this.hostService.reload()}async quitAndInstall(){this.hostService.reload()}async _applySpecificUpdate(e){}};p=d([h(0,l),h(1,m)],p);u(v,p,0);export{p as BrowserUpdateService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../base/common/event.js";
+import { IUpdateService, State } from "../../../../platform/update/common/update.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { IHostService } from "../../host/browser/host.js";
+import { Disposable } from "../../../../base/common/lifecycle.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let BrowserUpdateService = class BrowserUpdateService2 extends Disposable {
+  static {
+    __name(this, "BrowserUpdateService");
+  }
+  get state() {
+    return this._state;
+  }
+  set state(state) {
+    this._state = state;
+    this._onStateChange.fire(state);
+  }
+  constructor(environmentService, hostService) {
+    super();
+    this.environmentService = environmentService;
+    this.hostService = hostService;
+    this._onStateChange = this._register(new Emitter());
+    this.onStateChange = this._onStateChange.event;
+    this._state = State.Uninitialized;
+    this.checkForUpdates(false);
+  }
+  async isLatestVersion() {
+    const update = await this.doCheckForUpdates(false);
+    if (update === void 0) {
+      return void 0;
+    }
+    return !!update;
+  }
+  async checkForUpdates(explicit) {
+    await this.doCheckForUpdates(explicit);
+  }
+  async doCheckForUpdates(explicit) {
+    if (this.environmentService.options && this.environmentService.options.updateProvider) {
+      const updateProvider = this.environmentService.options.updateProvider;
+      this.state = State.CheckingForUpdates(explicit);
+      const update = await updateProvider.checkForUpdate();
+      if (update) {
+        this.state = State.Ready({ version: update.version, productVersion: update.version });
+      } else {
+        this.state = State.Idle(
+          1
+          /* UpdateType.Archive */
+        );
+      }
+      return update;
+    }
+    return void 0;
+  }
+  async downloadUpdate() {
+  }
+  async applyUpdate() {
+    this.hostService.reload();
+  }
+  async quitAndInstall() {
+    this.hostService.reload();
+  }
+  async _applySpecificUpdate(packagePath) {
+  }
+};
+BrowserUpdateService = __decorate([
+  __param(0, IBrowserWorkbenchEnvironmentService),
+  __param(1, IHostService)
+], BrowserUpdateService);
+registerSingleton(
+  IUpdateService,
+  BrowserUpdateService,
+  0
+  /* InstantiationType.Eager */
+);
+export {
+  BrowserUpdateService
+};
+//# sourceMappingURL=updateService.js.map

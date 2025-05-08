@@ -1,1 +1,35 @@
-import{IPromptsService as f}from"../../../service/types.js";import{ObservableDisposable as l}from"../../../../../../../../base/common/observableDisposable.js";var c=function(s,t,e,i){var o=arguments.length,r=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(s,t,e,i);else for(var p=s.length-1;p>=0;p--)(n=s[p])&&(r=(o<3?n(r):o>3?n(t,e,r):n(t,e))||r);return o>3&&r&&Object.defineProperty(t,e,r),r},h=function(s,t){return function(e,i){t(e,i,s)}};let a=class extends l{constructor(t,e){super(),this.model=t,this.parser=e.getSyntaxParserFor(t),this._register(this.parser.onSettled(this.onPromptSettled.bind(this))),this.parser.onDispose(this.dispose.bind(this)).start(),setTimeout(this.onPromptSettled.bind(this))}};a=c([h(1,f)],a);export{a as ProviderInstanceBase};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IPromptsService } from "../../../service/types.js";
+import { ObservableDisposable } from "../../../../../../../../base/common/observableDisposable.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ProviderInstanceBase = class ProviderInstanceBase2 extends ObservableDisposable {
+  static {
+    __name(this, "ProviderInstanceBase");
+  }
+  constructor(model, promptsService) {
+    super();
+    this.model = model;
+    this.parser = promptsService.getSyntaxParserFor(model);
+    this._register(this.parser.onSettled(this.onPromptSettled.bind(this)));
+    this.parser.onDispose(this.dispose.bind(this)).start();
+    setTimeout(this.onPromptSettled.bind(this));
+  }
+};
+ProviderInstanceBase = __decorate([
+  __param(1, IPromptsService)
+], ProviderInstanceBase);
+export {
+  ProviderInstanceBase
+};
+//# sourceMappingURL=providerInstanceBase.js.map

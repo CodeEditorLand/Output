@@ -1,1 +1,219 @@
-import{getWindow as A,n as S}from"../../../../../../../base/browser/dom.js";import{StandardMouseEvent as P}from"../../../../../../../base/browser/mouseEvent.js";import{Emitter as D}from"../../../../../../../base/common/event.js";import{Disposable as V}from"../../../../../../../base/common/lifecycle.js";import{autorun as z,constObservable as R,derived as T,observableValue as F}from"../../../../../../../base/common/observable.js";import{editorBackground as M}from"../../../../../../../platform/theme/common/colorRegistry.js";import{asCssVariable as j}from"../../../../../../../platform/theme/common/colorUtils.js";import{IThemeService as X}from"../../../../../../../platform/theme/common/themeService.js";import{observableCodeEditor as Y}from"../../../../../../browser/observableCodeEditor.js";import{Rect as $}from"../../../../../../browser/rect.js";import{LineSource as J,renderLines as U,RenderOptions as q}from"../../../../../../browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";import{LineRange as I}from"../../../../../../common/core/lineRange.js";import{ILanguageService as G}from"../../../../../../common/languages/language.js";import{LineTokens as K}from"../../../../../../common/tokens/lineTokens.js";import{TokenArray as Q}from"../../../../../../common/tokens/tokenArray.js";import{InlineEditTabAction as W}from"../inlineEditsViewInterface.js";import{getEditorBlendedColor as Z,inlineEditIndicatorPrimaryBackground as ee,inlineEditIndicatorSecondaryBackground as te,inlineEditIndicatorsuccessfulBackground as ie}from"../theme.js";import{maxContentWidthInRange as x,rectToProps as ne}from"../utils/utils.js";var H=function(m,e,o,n){var s=arguments.length,i=s<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,o):n,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(m,e,o,n);else for(var a=m.length-1;a>=0;a--)(d=m[a])&&(i=(s<3?d(i):s>3?d(e,o,i):d(e,o))||i);return s>3&&i&&Object.defineProperty(e,o,i),i},E=function(m,e){return function(o,n){e(o,n,m)}};let N=class extends V{constructor(e,o,n,s,i){super(),this._editor=e,this._languageService=i,this._onDidClick=this._register(new D),this.onDidClick=this._onDidClick.event,this._isHovered=F(this,!1),this.isHovered=this._isHovered,this._viewRef=S.ref(),this._editorObs=Y(this._editor);const d=n.map((t,c)=>{let f;switch(t){case W.Inactive:f=te;break;case W.Jump:f=ee;break;case W.Accept:f=ie;break}return{border:Z(f,s).read(c).toString(),background:j(M)}}),r=o.map(t=>t?this.getState(t):void 0).map(t=>t?this.getRendering(t,d):void 0),l=S.div({class:"inline-edits-custom-view",style:{position:"absolute",overflow:"visible",top:"0px",left:"0px",display:"block"}},[r]).keepUpdated(this._store);this._register(this._editorObs.createOverlayWidget({domNode:l.element,position:R(null),allowEditorOverflow:!1,minContentWidthInPx:R(0)})),this._register(z(t=>{if(!r.read(t)){this._isHovered.set(!1,void 0);return}this._isHovered.set(l.isHovered.read(t),void 0)}))}getState(e){const o=T(l=>{const t=e.range.startLineNumber,c=e.range.endLineNumber,f=e.range.startColumn,b=e.range.endColumn,p=this._editor.getModel()?.getLineCount()??0,g=x(this._editorObs,new I(t,t+1),l),u=t+1<=p?x(this._editorObs,new I(t+1,t+2),l):void 0,O=t-1>=1?x(this._editorObs,new I(t-1,t),l):void 0,C=this._editor.getOffsetForColumn(t,f),L=this._editor.getOffsetForColumn(c,b);return{lineWidth:g,lineWidthBelow:u,lineWidthAbove:O,startContentLeftOffset:C,endContentLeftOffset:L}}),n=14,s=0,i=4,d=4,a=2;return{rect:T(l=>{const t=this._editorObs.getOption(52).read(l).typicalHalfwidthCharacterWidth,c=e.range.startLineNumber,f=e.range.endLineNumber,{lineWidth:b,lineWidthBelow:p,lineWidthAbove:g,startContentLeftOffset:u,endContentLeftOffset:O}=o.read(l),C=this._editorObs.layoutInfoContentLeft.read(l),L=this._editorObs.getOption(68).read(l),y=this._editorObs.scrollTop.read(l),B=this._editorObs.scrollLeft.read(l);let h;c===f&&O+5*t>=b?h="end":p!==void 0&&p+n-d-i<u?h="below":g!==void 0&&g+n-d-i<u?h="above":h="end";let v,_,w=0,k=0;switch(h){case"end":{v=this._editorObs.editor.getTopForLineNumber(c),_=b,w=i+n;break}case"below":{v=this._editorObs.editor.getTopForLineNumber(c+1),_=u,w=i+d,k=s+a;break}case"above":{v=this._editorObs.editor.getTopForLineNumber(c-1),_=u,w=i+d,k=-s+a;break}}return $.fromLeftTopWidthHeight(C+_-B,v-y,t*e.label.length,L).withMargin(s,i).translateX(w).translateY(k)}),label:e.label}}getRendering(e,o){const n=document.createElement("div"),s=this._editor.getModel().tokenization.tokenizeLinesAt(1,[e.label])?.[0];let i;s?i=Q.fromLineTokens(s).toLineTokens(e.label,this._languageService.languageIdCodec):i=K.createEmpty(e.label,this._languageService.languageIdCodec);const d=U(new J([i]),q.fromEditor(this._editor).withSetWidth(!1).withScrollBeyondLastColumn(0),[],n,!0);n.style.width=`${d.minWidthInPx}px`;const a=e.rect.map(r=>r.withMargin(0,4));return S.div({class:"collapsedView",ref:this._viewRef,style:{position:"absolute",...ne(r=>a.read(r)),overflow:"hidden",boxSizing:"border-box",cursor:"pointer",border:o.map(r=>`1px solid ${r.border}`),borderRadius:"4px",backgroundColor:o.map(r=>r.background),display:"flex",alignItems:"center",justifyContent:"center",whiteSpace:"nowrap"},onclick:r=>{this._onDidClick.fire(new P(A(r),r))}},[n])}};N=H([E(3,X),E(4,G)],N);export{N as InlineEditsCustomView};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { getWindow, n } from "../../../../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../../../../base/browser/mouseEvent.js";
+import { Emitter } from "../../../../../../../base/common/event.js";
+import { Disposable } from "../../../../../../../base/common/lifecycle.js";
+import { autorun, constObservable, derived, observableValue } from "../../../../../../../base/common/observable.js";
+import { editorBackground } from "../../../../../../../platform/theme/common/colorRegistry.js";
+import { asCssVariable } from "../../../../../../../platform/theme/common/colorUtils.js";
+import { IThemeService } from "../../../../../../../platform/theme/common/themeService.js";
+import { observableCodeEditor } from "../../../../../../browser/observableCodeEditor.js";
+import { Rect } from "../../../../../../browser/rect.js";
+import { LineSource, renderLines, RenderOptions } from "../../../../../../browser/widget/diffEditor/components/diffEditorViewZones/renderLines.js";
+import { LineRange } from "../../../../../../common/core/lineRange.js";
+import { ILanguageService } from "../../../../../../common/languages/language.js";
+import { LineTokens } from "../../../../../../common/tokens/lineTokens.js";
+import { TokenArray } from "../../../../../../common/tokens/tokenArray.js";
+import { InlineEditTabAction } from "../inlineEditsViewInterface.js";
+import { getEditorBlendedColor, inlineEditIndicatorPrimaryBackground, inlineEditIndicatorSecondaryBackground, inlineEditIndicatorsuccessfulBackground } from "../theme.js";
+import { maxContentWidthInRange, rectToProps } from "../utils/utils.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let InlineEditsCustomView = class InlineEditsCustomView2 extends Disposable {
+  static {
+    __name(this, "InlineEditsCustomView");
+  }
+  constructor(_editor, displayLocation, tabAction, themeService, _languageService) {
+    super();
+    this._editor = _editor;
+    this._languageService = _languageService;
+    this._onDidClick = this._register(new Emitter());
+    this.onDidClick = this._onDidClick.event;
+    this._isHovered = observableValue(this, false);
+    this.isHovered = this._isHovered;
+    this._viewRef = n.ref();
+    this._editorObs = observableCodeEditor(this._editor);
+    const styles = tabAction.map((v, reader) => {
+      let border;
+      switch (v) {
+        case InlineEditTabAction.Inactive:
+          border = inlineEditIndicatorSecondaryBackground;
+          break;
+        case InlineEditTabAction.Jump:
+          border = inlineEditIndicatorPrimaryBackground;
+          break;
+        case InlineEditTabAction.Accept:
+          border = inlineEditIndicatorsuccessfulBackground;
+          break;
+      }
+      return {
+        border: getEditorBlendedColor(border, themeService).read(reader).toString(),
+        background: asCssVariable(editorBackground)
+      };
+    });
+    const state = displayLocation.map((dl) => dl ? this.getState(dl) : void 0);
+    const view = state.map((s) => s ? this.getRendering(s, styles) : void 0);
+    const overlay = n.div({
+      class: "inline-edits-custom-view",
+      style: {
+        position: "absolute",
+        overflow: "visible",
+        top: "0px",
+        left: "0px",
+        display: "block"
+      }
+    }, [view]).keepUpdated(this._store);
+    this._register(this._editorObs.createOverlayWidget({
+      domNode: overlay.element,
+      position: constObservable(null),
+      allowEditorOverflow: false,
+      minContentWidthInPx: constObservable(0)
+    }));
+    this._register(autorun((reader) => {
+      const v = view.read(reader);
+      if (!v) {
+        this._isHovered.set(false, void 0);
+        return;
+      }
+      this._isHovered.set(overlay.isHovered.read(reader), void 0);
+    }));
+  }
+  getState(displayLocation) {
+    const contentState = derived((reader) => {
+      const startLineNumber = displayLocation.range.startLineNumber;
+      const endLineNumber = displayLocation.range.endLineNumber;
+      const startColumn = displayLocation.range.startColumn;
+      const endColumn = displayLocation.range.endColumn;
+      const lineCount = this._editor.getModel()?.getLineCount() ?? 0;
+      const lineWidth = maxContentWidthInRange(this._editorObs, new LineRange(startLineNumber, startLineNumber + 1), reader);
+      const lineWidthBelow = startLineNumber + 1 <= lineCount ? maxContentWidthInRange(this._editorObs, new LineRange(startLineNumber + 1, startLineNumber + 2), reader) : void 0;
+      const lineWidthAbove = startLineNumber - 1 >= 1 ? maxContentWidthInRange(this._editorObs, new LineRange(startLineNumber - 1, startLineNumber), reader) : void 0;
+      const startContentLeftOffset = this._editor.getOffsetForColumn(startLineNumber, startColumn);
+      const endContentLeftOffset = this._editor.getOffsetForColumn(endLineNumber, endColumn);
+      return {
+        lineWidth,
+        lineWidthBelow,
+        lineWidthAbove,
+        startContentLeftOffset,
+        endContentLeftOffset
+      };
+    });
+    const minEndOfLinePadding = 14;
+    const paddingVertically = 0;
+    const paddingHorizontally = 4;
+    const horizontalOffsetWhenAboveBelow = 4;
+    const verticalOffsetWhenAboveBelow = 2;
+    const rect = derived((reader) => {
+      const w = this._editorObs.getOption(
+        52
+        /* EditorOption.fontInfo */
+      ).read(reader).typicalHalfwidthCharacterWidth;
+      const startLineNumber = displayLocation.range.startLineNumber;
+      const endLineNumber = displayLocation.range.endLineNumber;
+      const { lineWidth, lineWidthBelow, lineWidthAbove, startContentLeftOffset, endContentLeftOffset } = contentState.read(reader);
+      const contentLeft = this._editorObs.layoutInfoContentLeft.read(reader);
+      const lineHeight = this._editorObs.getOption(
+        68
+        /* EditorOption.lineHeight */
+      ).read(reader);
+      const scrollTop = this._editorObs.scrollTop.read(reader);
+      const scrollLeft = this._editorObs.scrollLeft.read(reader);
+      let position;
+      if (startLineNumber === endLineNumber && endContentLeftOffset + 5 * w >= lineWidth) {
+        position = "end";
+      } else if (lineWidthBelow !== void 0 && lineWidthBelow + minEndOfLinePadding - horizontalOffsetWhenAboveBelow - paddingHorizontally < startContentLeftOffset) {
+        position = "below";
+      } else if (lineWidthAbove !== void 0 && lineWidthAbove + minEndOfLinePadding - horizontalOffsetWhenAboveBelow - paddingHorizontally < startContentLeftOffset) {
+        position = "above";
+      } else {
+        position = "end";
+      }
+      let topOfLine;
+      let contentStartOffset;
+      let deltaX = 0;
+      let deltaY = 0;
+      switch (position) {
+        case "end": {
+          topOfLine = this._editorObs.editor.getTopForLineNumber(startLineNumber);
+          contentStartOffset = lineWidth;
+          deltaX = paddingHorizontally + minEndOfLinePadding;
+          break;
+        }
+        case "below": {
+          topOfLine = this._editorObs.editor.getTopForLineNumber(startLineNumber + 1);
+          contentStartOffset = startContentLeftOffset;
+          deltaX = paddingHorizontally + horizontalOffsetWhenAboveBelow;
+          deltaY = paddingVertically + verticalOffsetWhenAboveBelow;
+          break;
+        }
+        case "above": {
+          topOfLine = this._editorObs.editor.getTopForLineNumber(startLineNumber - 1);
+          contentStartOffset = startContentLeftOffset;
+          deltaX = paddingHorizontally + horizontalOffsetWhenAboveBelow;
+          deltaY = -paddingVertically + verticalOffsetWhenAboveBelow;
+          break;
+        }
+      }
+      const textRect = Rect.fromLeftTopWidthHeight(contentLeft + contentStartOffset - scrollLeft, topOfLine - scrollTop, w * displayLocation.label.length, lineHeight);
+      return textRect.withMargin(paddingVertically, paddingHorizontally).translateX(deltaX).translateY(deltaY);
+    });
+    return {
+      rect,
+      label: displayLocation.label
+    };
+  }
+  getRendering(state, styles) {
+    const line = document.createElement("div");
+    const t = this._editor.getModel().tokenization.tokenizeLinesAt(1, [state.label])?.[0];
+    let tokens;
+    if (t) {
+      tokens = TokenArray.fromLineTokens(t).toLineTokens(state.label, this._languageService.languageIdCodec);
+    } else {
+      tokens = LineTokens.createEmpty(state.label, this._languageService.languageIdCodec);
+    }
+    const result = renderLines(new LineSource([tokens]), RenderOptions.fromEditor(this._editor).withSetWidth(false).withScrollBeyondLastColumn(0), [], line, true);
+    line.style.width = `${result.minWidthInPx}px`;
+    const rect = state.rect.map((r) => r.withMargin(0, 4));
+    return n.div({
+      class: "collapsedView",
+      ref: this._viewRef,
+      style: {
+        position: "absolute",
+        ...rectToProps((reader) => rect.read(reader)),
+        overflow: "hidden",
+        boxSizing: "border-box",
+        cursor: "pointer",
+        border: styles.map((s) => `1px solid ${s.border}`),
+        borderRadius: "4px",
+        backgroundColor: styles.map((s) => s.background),
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        whiteSpace: "nowrap"
+      },
+      onclick: /* @__PURE__ */ __name((e) => {
+        this._onDidClick.fire(new StandardMouseEvent(getWindow(e), e));
+      }, "onclick")
+    }, [
+      line
+    ]);
+  }
+};
+InlineEditsCustomView = __decorate([
+  __param(3, IThemeService),
+  __param(4, ILanguageService)
+], InlineEditsCustomView);
+export {
+  InlineEditsCustomView
+};
+//# sourceMappingURL=inlineEditsCustomView.js.map

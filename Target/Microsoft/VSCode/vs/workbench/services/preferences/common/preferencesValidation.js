@@ -1,12 +1,348 @@
-import*as l from"../../../../nls.js";import{Color as x}from"../../../../base/common/color.js";import{isObject as b,isUndefinedOrNull as V,isString as A,isStringArray as h}from"../../../../base/common/types.js";function d(e,...i){return i.some(n=>e.includes(n))}function g(e){return e===""||V(e)}function I(e){const i=Array.isArray(e.type)?e.type:[e.type],n=d(i,"null"),t=(d(i,"number")||d(i,"integer"))&&(i.length===1||i.length===2&&n),a=M(e),r=E(e),o=v(e),s=j(e);return u=>{if(n&&g(u))return"";const m=[];if(o){const c=o(u);c&&m.push(c)}if(s){const c=s(u);c&&m.push(c)}return e.type==="boolean"&&u!==!0&&u!==!1&&m.push(l.localize("validations.booleanIncorrectType",'Incorrect type. Expected "boolean".')),t&&(g(u)||typeof u=="boolean"||Array.isArray(u)||isNaN(+u)?m.push(l.localize("validations.expectedNumeric","Value must be a number.")):m.push(...a.filter(c=>!c.isValid(+u)).map(c=>c.message))),e.type==="string"&&(e.enum&&!h(e.enum)?m.push(l.localize("validations.stringIncorrectEnumOptions","The enum options should be strings, but there is a non-string option. Please file an issue with the extension author.")):A(u)?m.push(...r.filter(c=>!c.isValid(u)).map(c=>c.message)):m.push(l.localize("validations.stringIncorrectType",'Incorrect type. Expected "string".'))),m.length?e.errorMessage?[e.errorMessage,...m].join(" "):m.join(" "):""}}function O(e,i){if(typeof i>"u")return;if(!(Array.isArray(i)?i:[i]).some(t=>z(e,t)))return l.localize("invalidTypeError","Setting has an invalid type, expected {0}. Fix in JSON.",JSON.stringify(i))}function z(e,i){const n=typeof e;return i==="boolean"?n==="boolean":i==="object"?e&&!Array.isArray(e)&&n==="object":i==="null"?e===null:i==="array"?Array.isArray(e):i==="string"?n==="string":i==="number"||i==="integer"?n==="number":!0}function y(e){try{return new RegExp(e,"u")}catch{try{return new RegExp(e)}catch{return/.*/}}}function E(e){const i=/^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;let n;return typeof e.pattern=="string"&&(n=y(e.pattern)),[{enabled:e.maxLength!==void 0,isValid:t=>t.length<=e.maxLength,message:l.localize("validations.maxLength","Value must be {0} or fewer characters long.",e.maxLength)},{enabled:e.minLength!==void 0,isValid:t=>t.length>=e.minLength,message:l.localize("validations.minLength","Value must be {0} or more characters long.",e.minLength)},{enabled:n!==void 0,isValid:t=>n.test(t),message:e.patternErrorMessage||l.localize("validations.regex","Value must match regex `{0}`.",e.pattern)},{enabled:e.format==="color-hex",isValid:t=>x.Format.CSS.parseHex(t),message:l.localize("validations.colorFormat","Invalid color format. Use #RGB, #RGBA, #RRGGBB or #RRGGBBAA.")},{enabled:e.format==="uri"||e.format==="uri-reference",isValid:t=>!!t.length,message:l.localize("validations.uriEmpty","URI expected.")},{enabled:e.format==="uri"||e.format==="uri-reference",isValid:t=>i.test(t),message:l.localize("validations.uriMissing","URI is expected.")},{enabled:e.format==="uri",isValid:t=>{const a=t.match(i);return!!(a&&a[2])},message:l.localize("validations.uriSchemeMissing","URI with a scheme is expected.")},{enabled:e.enum!==void 0,isValid:t=>e.enum.includes(t),message:l.localize("validations.invalidStringEnumValue","Value is not accepted. Valid values: {0}.",e.enum?e.enum.map(t=>`"${t}"`).join(", "):"[]")}].filter(t=>t.enabled)}function M(e){const i=Array.isArray(e.type)?e.type:[e.type],n=d(i,"null"),t=d(i,"integer")&&(i.length===1||i.length===2&&n);if(!(d(i,"number","integer")&&(i.length===1||i.length===2&&n)))return[];let r,o;return typeof e.exclusiveMaximum=="boolean"?r=e.exclusiveMaximum?e.maximum:void 0:r=e.exclusiveMaximum,typeof e.exclusiveMinimum=="boolean"?o=e.exclusiveMinimum?e.minimum:void 0:o=e.exclusiveMinimum,[{enabled:r!==void 0&&(e.maximum===void 0||r<=e.maximum),isValid:s=>s<r,message:l.localize("validations.exclusiveMax","Value must be strictly less than {0}.",r)},{enabled:o!==void 0&&(e.minimum===void 0||o>=e.minimum),isValid:s=>s>o,message:l.localize("validations.exclusiveMin","Value must be strictly greater than {0}.",o)},{enabled:e.maximum!==void 0&&(r===void 0||r>e.maximum),isValid:s=>s<=e.maximum,message:l.localize("validations.max","Value must be less than or equal to {0}.",e.maximum)},{enabled:e.minimum!==void 0&&(o===void 0||o<e.minimum),isValid:s=>s>=e.minimum,message:l.localize("validations.min","Value must be greater than or equal to {0}.",e.minimum)},{enabled:e.multipleOf!==void 0,isValid:s=>s%e.multipleOf===0,message:l.localize("validations.multipleOf","Value must be a multiple of {0}.",e.multipleOf)},{enabled:t,isValid:s=>s%1===0,message:l.localize("validations.expectedInteger","Value must be an integer.")}].filter(s=>s.enabled)}function v(e){if(e.type==="array"&&e.items&&!Array.isArray(e.items)){const i=e.items;if(i&&!Array.isArray(i.type)){const n=t=>"'"+t+"'";return t=>{if(!t)return null;let a="";if(!Array.isArray(t))return a+=l.localize("validations.arrayIncorrectType","Incorrect type. Expected an array."),a+=`
-`,a;const r=t;if(e.uniqueItems&&new Set(r).size<r.length&&(a+=l.localize("validations.stringArrayUniqueItems","Array has duplicate items"),a+=`
-`),e.minItems&&r.length<e.minItems&&(a+=l.localize("validations.stringArrayMinItem","Array must have at least {0} items",e.minItems),a+=`
-`),e.maxItems&&r.length>e.maxItems&&(a+=l.localize("validations.stringArrayMaxItem","Array must have at most {0} items",e.maxItems),a+=`
-`),i.type==="string"){if(!h(r))return a+=l.localize("validations.stringArrayIncorrectType","Incorrect type. Expected a string array."),a+=`
-`,a;if(typeof i.pattern=="string"){const s=y(i.pattern);r.forEach(u=>{s.test(u)||(a+=i.patternErrorMessage||l.localize("validations.stringArrayItemPattern","Value {0} must match regex {1}.",n(u),n(i.pattern)))})}const o=i.enum;o&&r.forEach(s=>{o.indexOf(s)===-1&&(a+=l.localize("validations.stringArrayItemEnum","Value {0} is not one of {1}",n(s),"["+o.map(n).join(", ")+"]"),a+=`
-`)})}else(i.type==="integer"||i.type==="number")&&r.forEach(o=>{const s=f(i,o);s&&(a+=`${o}: ${s}
-`)});return a}}}return null}function j(e){if(e.type==="object"){const{properties:i,patternProperties:n,additionalProperties:t}=e;return a=>{if(!a)return null;const r=[];return b(a)?Object.keys(a).forEach(o=>{const s=a[o];if(i&&o in i){const u=f(i[o],s);u&&r.push(`${o}: ${u}
-`);return}if(n){for(const u in n)if(RegExp(u).test(o)){const m=f(n[u],s);m&&r.push(`${o}: ${m}
-`);return}}if(t===!1)r.push(l.localize("validations.objectPattern",`Property {0} is not allowed.
-`,o));else if(typeof t=="object"){const u=f(t,s);u&&r.push(`${o}: ${u}
-`)}}):r.push(l.localize("validations.objectIncorrectType","Incorrect type. Expected an object.")),r.length?e.errorMessage?[e.errorMessage,...r].join(" "):r.join(" "):""}}return null}function f(e,i){return I(e)(i)}export{I as createValidator,O as getInvalidTypeError};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as nls from "../../../../nls.js";
+import { Color } from "../../../../base/common/color.js";
+import { isObject, isUndefinedOrNull, isString, isStringArray } from "../../../../base/common/types.js";
+function canBeType(propTypes, ...types) {
+  return types.some((t) => propTypes.includes(t));
+}
+__name(canBeType, "canBeType");
+function isNullOrEmpty(value) {
+  return value === "" || isUndefinedOrNull(value);
+}
+__name(isNullOrEmpty, "isNullOrEmpty");
+function createValidator(prop) {
+  const type = Array.isArray(prop.type) ? prop.type : [prop.type];
+  const isNullable = canBeType(type, "null");
+  const isNumeric = (canBeType(type, "number") || canBeType(type, "integer")) && (type.length === 1 || type.length === 2 && isNullable);
+  const numericValidations = getNumericValidators(prop);
+  const stringValidations = getStringValidators(prop);
+  const arrayValidator = getArrayValidator(prop);
+  const objectValidator = getObjectValidator(prop);
+  return (value) => {
+    if (isNullable && isNullOrEmpty(value)) {
+      return "";
+    }
+    const errors = [];
+    if (arrayValidator) {
+      const err = arrayValidator(value);
+      if (err) {
+        errors.push(err);
+      }
+    }
+    if (objectValidator) {
+      const err = objectValidator(value);
+      if (err) {
+        errors.push(err);
+      }
+    }
+    if (prop.type === "boolean" && value !== true && value !== false) {
+      errors.push(nls.localize("validations.booleanIncorrectType", 'Incorrect type. Expected "boolean".'));
+    }
+    if (isNumeric) {
+      if (isNullOrEmpty(value) || typeof value === "boolean" || Array.isArray(value) || isNaN(+value)) {
+        errors.push(nls.localize("validations.expectedNumeric", "Value must be a number."));
+      } else {
+        errors.push(...numericValidations.filter((validator) => !validator.isValid(+value)).map((validator) => validator.message));
+      }
+    }
+    if (prop.type === "string") {
+      if (prop.enum && !isStringArray(prop.enum)) {
+        errors.push(nls.localize("validations.stringIncorrectEnumOptions", "The enum options should be strings, but there is a non-string option. Please file an issue with the extension author."));
+      } else if (!isString(value)) {
+        errors.push(nls.localize("validations.stringIncorrectType", 'Incorrect type. Expected "string".'));
+      } else {
+        errors.push(...stringValidations.filter((validator) => !validator.isValid(value)).map((validator) => validator.message));
+      }
+    }
+    if (errors.length) {
+      return prop.errorMessage ? [prop.errorMessage, ...errors].join(" ") : errors.join(" ");
+    }
+    return "";
+  };
+}
+__name(createValidator, "createValidator");
+function getInvalidTypeError(value, type) {
+  if (typeof type === "undefined") {
+    return;
+  }
+  const typeArr = Array.isArray(type) ? type : [type];
+  if (!typeArr.some((_type) => valueValidatesAsType(value, _type))) {
+    return nls.localize("invalidTypeError", "Setting has an invalid type, expected {0}. Fix in JSON.", JSON.stringify(type));
+  }
+  return;
+}
+__name(getInvalidTypeError, "getInvalidTypeError");
+function valueValidatesAsType(value, type) {
+  const valueType = typeof value;
+  if (type === "boolean") {
+    return valueType === "boolean";
+  } else if (type === "object") {
+    return value && !Array.isArray(value) && valueType === "object";
+  } else if (type === "null") {
+    return value === null;
+  } else if (type === "array") {
+    return Array.isArray(value);
+  } else if (type === "string") {
+    return valueType === "string";
+  } else if (type === "number" || type === "integer") {
+    return valueType === "number";
+  }
+  return true;
+}
+__name(valueValidatesAsType, "valueValidatesAsType");
+function toRegExp(pattern) {
+  try {
+    return new RegExp(pattern, "u");
+  } catch (e) {
+    try {
+      return new RegExp(pattern);
+    } catch (e2) {
+      console.error(nls.localize("regexParsingError", "Error parsing the following regex both with and without the u flag:"), pattern);
+      return /.*/;
+    }
+  }
+}
+__name(toRegExp, "toRegExp");
+function getStringValidators(prop) {
+  const uriRegex = /^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/;
+  let patternRegex;
+  if (typeof prop.pattern === "string") {
+    patternRegex = toRegExp(prop.pattern);
+  }
+  return [
+    {
+      enabled: prop.maxLength !== void 0,
+      isValid: /* @__PURE__ */ __name((value) => value.length <= prop.maxLength, "isValid"),
+      message: nls.localize("validations.maxLength", "Value must be {0} or fewer characters long.", prop.maxLength)
+    },
+    {
+      enabled: prop.minLength !== void 0,
+      isValid: /* @__PURE__ */ __name((value) => value.length >= prop.minLength, "isValid"),
+      message: nls.localize("validations.minLength", "Value must be {0} or more characters long.", prop.minLength)
+    },
+    {
+      enabled: patternRegex !== void 0,
+      isValid: /* @__PURE__ */ __name((value) => patternRegex.test(value), "isValid"),
+      message: prop.patternErrorMessage || nls.localize("validations.regex", "Value must match regex `{0}`.", prop.pattern)
+    },
+    {
+      enabled: prop.format === "color-hex",
+      isValid: /* @__PURE__ */ __name((value) => Color.Format.CSS.parseHex(value), "isValid"),
+      message: nls.localize("validations.colorFormat", "Invalid color format. Use #RGB, #RGBA, #RRGGBB or #RRGGBBAA.")
+    },
+    {
+      enabled: prop.format === "uri" || prop.format === "uri-reference",
+      isValid: /* @__PURE__ */ __name((value) => !!value.length, "isValid"),
+      message: nls.localize("validations.uriEmpty", "URI expected.")
+    },
+    {
+      enabled: prop.format === "uri" || prop.format === "uri-reference",
+      isValid: /* @__PURE__ */ __name((value) => uriRegex.test(value), "isValid"),
+      message: nls.localize("validations.uriMissing", "URI is expected.")
+    },
+    {
+      enabled: prop.format === "uri",
+      isValid: /* @__PURE__ */ __name((value) => {
+        const matches = value.match(uriRegex);
+        return !!(matches && matches[2]);
+      }, "isValid"),
+      message: nls.localize("validations.uriSchemeMissing", "URI with a scheme is expected.")
+    },
+    {
+      enabled: prop.enum !== void 0,
+      isValid: /* @__PURE__ */ __name((value) => {
+        return prop.enum.includes(value);
+      }, "isValid"),
+      message: nls.localize("validations.invalidStringEnumValue", "Value is not accepted. Valid values: {0}.", prop.enum ? prop.enum.map((key) => `"${key}"`).join(", ") : "[]")
+    }
+  ].filter((validation) => validation.enabled);
+}
+__name(getStringValidators, "getStringValidators");
+function getNumericValidators(prop) {
+  const type = Array.isArray(prop.type) ? prop.type : [prop.type];
+  const isNullable = canBeType(type, "null");
+  const isIntegral = canBeType(type, "integer") && (type.length === 1 || type.length === 2 && isNullable);
+  const isNumeric = canBeType(type, "number", "integer") && (type.length === 1 || type.length === 2 && isNullable);
+  if (!isNumeric) {
+    return [];
+  }
+  let exclusiveMax;
+  let exclusiveMin;
+  if (typeof prop.exclusiveMaximum === "boolean") {
+    exclusiveMax = prop.exclusiveMaximum ? prop.maximum : void 0;
+  } else {
+    exclusiveMax = prop.exclusiveMaximum;
+  }
+  if (typeof prop.exclusiveMinimum === "boolean") {
+    exclusiveMin = prop.exclusiveMinimum ? prop.minimum : void 0;
+  } else {
+    exclusiveMin = prop.exclusiveMinimum;
+  }
+  return [
+    {
+      enabled: exclusiveMax !== void 0 && (prop.maximum === void 0 || exclusiveMax <= prop.maximum),
+      isValid: /* @__PURE__ */ __name((value) => value < exclusiveMax, "isValid"),
+      message: nls.localize("validations.exclusiveMax", "Value must be strictly less than {0}.", exclusiveMax)
+    },
+    {
+      enabled: exclusiveMin !== void 0 && (prop.minimum === void 0 || exclusiveMin >= prop.minimum),
+      isValid: /* @__PURE__ */ __name((value) => value > exclusiveMin, "isValid"),
+      message: nls.localize("validations.exclusiveMin", "Value must be strictly greater than {0}.", exclusiveMin)
+    },
+    {
+      enabled: prop.maximum !== void 0 && (exclusiveMax === void 0 || exclusiveMax > prop.maximum),
+      isValid: /* @__PURE__ */ __name((value) => value <= prop.maximum, "isValid"),
+      message: nls.localize("validations.max", "Value must be less than or equal to {0}.", prop.maximum)
+    },
+    {
+      enabled: prop.minimum !== void 0 && (exclusiveMin === void 0 || exclusiveMin < prop.minimum),
+      isValid: /* @__PURE__ */ __name((value) => value >= prop.minimum, "isValid"),
+      message: nls.localize("validations.min", "Value must be greater than or equal to {0}.", prop.minimum)
+    },
+    {
+      enabled: prop.multipleOf !== void 0,
+      isValid: /* @__PURE__ */ __name((value) => value % prop.multipleOf === 0, "isValid"),
+      message: nls.localize("validations.multipleOf", "Value must be a multiple of {0}.", prop.multipleOf)
+    },
+    {
+      enabled: isIntegral,
+      isValid: /* @__PURE__ */ __name((value) => value % 1 === 0, "isValid"),
+      message: nls.localize("validations.expectedInteger", "Value must be an integer.")
+    }
+  ].filter((validation) => validation.enabled);
+}
+__name(getNumericValidators, "getNumericValidators");
+function getArrayValidator(prop) {
+  if (prop.type === "array" && prop.items && !Array.isArray(prop.items)) {
+    const propItems = prop.items;
+    if (propItems && !Array.isArray(propItems.type)) {
+      const withQuotes = /* @__PURE__ */ __name((s) => `'` + s + `'`, "withQuotes");
+      return (value) => {
+        if (!value) {
+          return null;
+        }
+        let message = "";
+        if (!Array.isArray(value)) {
+          message += nls.localize("validations.arrayIncorrectType", "Incorrect type. Expected an array.");
+          message += "\n";
+          return message;
+        }
+        const arrayValue = value;
+        if (prop.uniqueItems) {
+          if (new Set(arrayValue).size < arrayValue.length) {
+            message += nls.localize("validations.stringArrayUniqueItems", "Array has duplicate items");
+            message += "\n";
+          }
+        }
+        if (prop.minItems && arrayValue.length < prop.minItems) {
+          message += nls.localize("validations.stringArrayMinItem", "Array must have at least {0} items", prop.minItems);
+          message += "\n";
+        }
+        if (prop.maxItems && arrayValue.length > prop.maxItems) {
+          message += nls.localize("validations.stringArrayMaxItem", "Array must have at most {0} items", prop.maxItems);
+          message += "\n";
+        }
+        if (propItems.type === "string") {
+          if (!isStringArray(arrayValue)) {
+            message += nls.localize("validations.stringArrayIncorrectType", "Incorrect type. Expected a string array.");
+            message += "\n";
+            return message;
+          }
+          if (typeof propItems.pattern === "string") {
+            const patternRegex = toRegExp(propItems.pattern);
+            arrayValue.forEach((v) => {
+              if (!patternRegex.test(v)) {
+                message += propItems.patternErrorMessage || nls.localize("validations.stringArrayItemPattern", "Value {0} must match regex {1}.", withQuotes(v), withQuotes(propItems.pattern));
+              }
+            });
+          }
+          const propItemsEnum = propItems.enum;
+          if (propItemsEnum) {
+            arrayValue.forEach((v) => {
+              if (propItemsEnum.indexOf(v) === -1) {
+                message += nls.localize("validations.stringArrayItemEnum", "Value {0} is not one of {1}", withQuotes(v), "[" + propItemsEnum.map(withQuotes).join(", ") + "]");
+                message += "\n";
+              }
+            });
+          }
+        } else if (propItems.type === "integer" || propItems.type === "number") {
+          arrayValue.forEach((v) => {
+            const errorMessage = getErrorsForSchema(propItems, v);
+            if (errorMessage) {
+              message += `${v}: ${errorMessage}
+`;
+            }
+          });
+        }
+        return message;
+      };
+    }
+  }
+  return null;
+}
+__name(getArrayValidator, "getArrayValidator");
+function getObjectValidator(prop) {
+  if (prop.type === "object") {
+    const { properties, patternProperties, additionalProperties } = prop;
+    return (value) => {
+      if (!value) {
+        return null;
+      }
+      const errors = [];
+      if (!isObject(value)) {
+        errors.push(nls.localize("validations.objectIncorrectType", "Incorrect type. Expected an object."));
+      } else {
+        Object.keys(value).forEach((key) => {
+          const data = value[key];
+          if (properties && key in properties) {
+            const errorMessage = getErrorsForSchema(properties[key], data);
+            if (errorMessage) {
+              errors.push(`${key}: ${errorMessage}
+`);
+            }
+            return;
+          }
+          if (patternProperties) {
+            for (const pattern in patternProperties) {
+              if (RegExp(pattern).test(key)) {
+                const errorMessage = getErrorsForSchema(patternProperties[pattern], data);
+                if (errorMessage) {
+                  errors.push(`${key}: ${errorMessage}
+`);
+                }
+                return;
+              }
+            }
+          }
+          if (additionalProperties === false) {
+            errors.push(nls.localize("validations.objectPattern", "Property {0} is not allowed.\n", key));
+          } else if (typeof additionalProperties === "object") {
+            const errorMessage = getErrorsForSchema(additionalProperties, data);
+            if (errorMessage) {
+              errors.push(`${key}: ${errorMessage}
+`);
+            }
+          }
+        });
+      }
+      if (errors.length) {
+        return prop.errorMessage ? [prop.errorMessage, ...errors].join(" ") : errors.join(" ");
+      }
+      return "";
+    };
+  }
+  return null;
+}
+__name(getObjectValidator, "getObjectValidator");
+function getErrorsForSchema(propertySchema, data) {
+  const validator = createValidator(propertySchema);
+  const errorMessage = validator(data);
+  return errorMessage;
+}
+__name(getErrorsForSchema, "getErrorsForSchema");
+export {
+  createValidator,
+  getInvalidTypeError
+};
+//# sourceMappingURL=preferencesValidation.js.map

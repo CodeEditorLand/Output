@@ -1,1 +1,110 @@
-import{safeIntl as f}from"../../../base/common/date.js";import{LRUCache as h}from"../../../base/common/map.js";import{CharacterClassifier as l}from"./characterClassifier.js";var i;(function(r){r[r.Regular=0]="Regular",r[r.Whitespace=1]="Whitespace",r[r.WordSeparator=2]="WordSeparator"})(i||(i={}));class c extends l{constructor(e,n){super(0),this._segmenter=null,this._cachedLine=null,this._cachedSegments=[],this.intlSegmenterLocales=n,this.intlSegmenterLocales.length>0?this._segmenter=f.Segmenter(this.intlSegmenterLocales,{granularity:"word"}):this._segmenter=null;for(let t=0,s=e.length;t<s;t++)this.set(e.charCodeAt(t),2);this.set(32,1),this.set(9,1)}findPrevIntlWordBeforeOrAtOffset(e,n){let t=null;for(const s of this._getIntlSegmenterWordsOnLine(e)){if(s.index>n)break;t=s}return t}findNextIntlWordAtOrAfterOffset(e,n){for(const t of this._getIntlSegmenterWordsOnLine(e))if(!(t.index<n))return t;return null}_getIntlSegmenterWordsOnLine(e){return this._segmenter?this._cachedLine===e?this._cachedSegments:(this._cachedLine=e,this._cachedSegments=this._filterWordSegments(this._segmenter.value.segment(e)),this._cachedSegments):[]}_filterWordSegments(e){const n=[];for(const t of e)this._isWordLike(t)&&n.push(t);return n}_isWordLike(e){return!!e.isWordLike}}const o=new h(10);function d(r,e){const n=`${r}/${e.join(",")}`;let t=o.get(n);return t||(t=new c(r,e),o.set(n,t)),t}export{i as WordCharacterClass,c as WordCharacterClassifier,d as getMapForWordSeparators};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { safeIntl } from "../../../base/common/date.js";
+import { LRUCache } from "../../../base/common/map.js";
+import { CharacterClassifier } from "./characterClassifier.js";
+var WordCharacterClass;
+(function(WordCharacterClass2) {
+  WordCharacterClass2[WordCharacterClass2["Regular"] = 0] = "Regular";
+  WordCharacterClass2[WordCharacterClass2["Whitespace"] = 1] = "Whitespace";
+  WordCharacterClass2[WordCharacterClass2["WordSeparator"] = 2] = "WordSeparator";
+})(WordCharacterClass || (WordCharacterClass = {}));
+class WordCharacterClassifier extends CharacterClassifier {
+  static {
+    __name(this, "WordCharacterClassifier");
+  }
+  constructor(wordSeparators, intlSegmenterLocales) {
+    super(
+      0
+      /* WordCharacterClass.Regular */
+    );
+    this._segmenter = null;
+    this._cachedLine = null;
+    this._cachedSegments = [];
+    this.intlSegmenterLocales = intlSegmenterLocales;
+    if (this.intlSegmenterLocales.length > 0) {
+      this._segmenter = safeIntl.Segmenter(this.intlSegmenterLocales, { granularity: "word" });
+    } else {
+      this._segmenter = null;
+    }
+    for (let i = 0, len = wordSeparators.length; i < len; i++) {
+      this.set(
+        wordSeparators.charCodeAt(i),
+        2
+        /* WordCharacterClass.WordSeparator */
+      );
+    }
+    this.set(
+      32,
+      1
+      /* WordCharacterClass.Whitespace */
+    );
+    this.set(
+      9,
+      1
+      /* WordCharacterClass.Whitespace */
+    );
+  }
+  findPrevIntlWordBeforeOrAtOffset(line, offset) {
+    let candidate = null;
+    for (const segment of this._getIntlSegmenterWordsOnLine(line)) {
+      if (segment.index > offset) {
+        break;
+      }
+      candidate = segment;
+    }
+    return candidate;
+  }
+  findNextIntlWordAtOrAfterOffset(lineContent, offset) {
+    for (const segment of this._getIntlSegmenterWordsOnLine(lineContent)) {
+      if (segment.index < offset) {
+        continue;
+      }
+      return segment;
+    }
+    return null;
+  }
+  _getIntlSegmenterWordsOnLine(line) {
+    if (!this._segmenter) {
+      return [];
+    }
+    if (this._cachedLine === line) {
+      return this._cachedSegments;
+    }
+    this._cachedLine = line;
+    this._cachedSegments = this._filterWordSegments(this._segmenter.value.segment(line));
+    return this._cachedSegments;
+  }
+  _filterWordSegments(segments) {
+    const result = [];
+    for (const segment of segments) {
+      if (this._isWordLike(segment)) {
+        result.push(segment);
+      }
+    }
+    return result;
+  }
+  _isWordLike(segment) {
+    if (segment.isWordLike) {
+      return true;
+    }
+    return false;
+  }
+}
+const wordClassifierCache = new LRUCache(10);
+function getMapForWordSeparators(wordSeparators, intlSegmenterLocales) {
+  const key = `${wordSeparators}/${intlSegmenterLocales.join(",")}`;
+  let result = wordClassifierCache.get(key);
+  if (!result) {
+    result = new WordCharacterClassifier(wordSeparators, intlSegmenterLocales);
+    wordClassifierCache.set(key, result);
+  }
+  return result;
+}
+__name(getMapForWordSeparators, "getMapForWordSeparators");
+export {
+  WordCharacterClass,
+  WordCharacterClassifier,
+  getMapForWordSeparators
+};
+//# sourceMappingURL=wordCharacterClassifier.js.map

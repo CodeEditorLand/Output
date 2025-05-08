@@ -1,18 +1,695 @@
-import{Disposable as te,DisposableStore as j,MutableDisposable as K,toDisposable as L}from"../../../../base/common/lifecycle.js";import{$ as a,append as u,clearNode as R}from"../../../../base/browser/dom.js";import{Emitter as ce,Event as J}from"../../../../base/common/event.js";import{ExtensionIdentifier as y}from"../../../../platform/extensions/common/extensions.js";import{Sizing as he,SplitView as me}from"../../../../base/browser/ui/splitview/splitview.js";import{Extensions as ne,IExtensionFeaturesManagementService as U}from"../../../services/extensionManagement/common/extensionFeatures.js";import{Registry as se}from"../../../../platform/registry/common/platform.js";import{IInstantiationService as ie}from"../../../../platform/instantiation/common/instantiation.js";import{localize as f}from"../../../../nls.js";import{WorkbenchList as fe}from"../../../../platform/list/browser/listService.js";import{getExtensionId as N}from"../../../../platform/extensionManagement/common/extensionManagementUtil.js";import{Button as pe}from"../../../../base/browser/ui/button/button.js";import{defaultButtonStyles as ge,defaultKeybindingLabelStyles as be}from"../../../../platform/theme/browser/defaultStyles.js";import{renderMarkdown as re}from"../../../../base/browser/markdownRenderer.js";import{getErrorMessage as xe,onUnexpectedError as ae}from"../../../../base/common/errors.js";import{IOpenerService as oe}from"../../../../platform/opener/common/opener.js";import{PANEL_SECTION_BORDER as ve}from"../../../common/theme.js";import{IThemeService as we,Themable as ye}from"../../../../platform/theme/common/themeService.js";import{DomScrollableElement as Se}from"../../../../base/browser/ui/scrollbar/scrollableElement.js";import{IDialogService as Ee}from"../../../../platform/dialogs/common/dialogs.js";import{ThemeIcon as Ae}from"../../../../base/common/themables.js";import k from"../../../../base/common/severity.js";import{errorIcon as de,infoIcon as Ie,warningIcon as le}from"./extensionsIcons.js";import{SeverityIcon as Ce}from"../../../../base/browser/ui/severityIcon/severityIcon.js";import{KeybindingLabel as De}from"../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";import{OS as $e}from"../../../../base/common/platform.js";import{MarkdownString as F,isMarkdownString as Q}from"../../../../base/common/htmlContent.js";import{Color as G}from"../../../../base/common/color.js";import{IExtensionService as ke}from"../../../services/extensions/common/extensions.js";import{Codicon as _}from"../../../../base/common/codicons.js";import{SyncDescriptor as Me}from"../../../../platform/instantiation/common/descriptors.js";import{ResolvedKeybinding as Fe}from"../../../../base/common/keybindings.js";import{asCssVariable as T}from"../../../../platform/theme/common/colorUtils.js";import{foreground as Te,chartAxis as Z,chartGuide as Re,chartLine as Ve}from"../../../../platform/theme/common/colorRegistry.js";import{IHoverService as _e}from"../../../../platform/hover/browser/hover.js";var B=function(v,e,n,t){var s=arguments.length,i=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,n):t,d;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(v,e,n,t);else for(var r=v.length-1;r>=0;r--)(d=v[r])&&(i=(s<3?d(i):s>3?d(e,n,i):d(e,n))||i);return s>3&&i&&Object.defineProperty(e,n,i),i},x=function(v,e){return function(n,t){e(n,t,v)}};let P=class extends te{static{this.ID="runtimeStatus"}constructor(e,n,t,s){super(),this.extensionService=e,this.openerService=n,this.hoverService=t,this.extensionFeaturesManagementService=s,this.type="element"}shouldRender(e){const n=new y(N(e.publisher,e.name));return this.extensionService.extensions.some(t=>y.equals(t.identifier,n))?!!e.main||!!e.browser:!1}render(e){const n=new j,t=new y(N(e.publisher,e.name)),s=n.add(new ce);return n.add(this.extensionService.onDidChangeExtensionsStatus(i=>{i.some(d=>y.equals(d,t))&&s.fire(this.createElement(e,n))})),n.add(this.extensionFeaturesManagementService.onDidChangeAccessData(i=>s.fire(this.createElement(e,n)))),{onDidChange:s.event,data:this.createElement(e,n),dispose:()=>n.dispose()}}createElement(e,n){const t=a(".runtime-status"),s=new y(N(e.publisher,e.name)),i=this.extensionService.getExtensionsStatus()[s.value];if(this.extensionService.extensions.some(r=>y.equals(r.identifier,s))){const r=new F;r.appendMarkdown(`### ${f("activation","Activation")}
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Disposable, DisposableStore, MutableDisposable, toDisposable } from "../../../../base/common/lifecycle.js";
+import { $, append, clearNode } from "../../../../base/browser/dom.js";
+import { Emitter, Event } from "../../../../base/common/event.js";
+import { ExtensionIdentifier } from "../../../../platform/extensions/common/extensions.js";
+import { Sizing, SplitView } from "../../../../base/browser/ui/splitview/splitview.js";
+import { Extensions, IExtensionFeaturesManagementService } from "../../../services/extensionManagement/common/extensionFeatures.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { IInstantiationService } from "../../../../platform/instantiation/common/instantiation.js";
+import { localize } from "../../../../nls.js";
+import { WorkbenchList } from "../../../../platform/list/browser/listService.js";
+import { getExtensionId } from "../../../../platform/extensionManagement/common/extensionManagementUtil.js";
+import { Button } from "../../../../base/browser/ui/button/button.js";
+import { defaultButtonStyles, defaultKeybindingLabelStyles } from "../../../../platform/theme/browser/defaultStyles.js";
+import { renderMarkdown } from "../../../../base/browser/markdownRenderer.js";
+import { getErrorMessage, onUnexpectedError } from "../../../../base/common/errors.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { PANEL_SECTION_BORDER } from "../../../common/theme.js";
+import { IThemeService, Themable } from "../../../../platform/theme/common/themeService.js";
+import { DomScrollableElement } from "../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+import Severity from "../../../../base/common/severity.js";
+import { errorIcon, infoIcon, warningIcon } from "./extensionsIcons.js";
+import { SeverityIcon } from "../../../../base/browser/ui/severityIcon/severityIcon.js";
+import { KeybindingLabel } from "../../../../base/browser/ui/keybindingLabel/keybindingLabel.js";
+import { OS } from "../../../../base/common/platform.js";
+import { MarkdownString, isMarkdownString } from "../../../../base/common/htmlContent.js";
+import { Color } from "../../../../base/common/color.js";
+import { IExtensionService } from "../../../services/extensions/common/extensions.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { ResolvedKeybinding } from "../../../../base/common/keybindings.js";
+import { asCssVariable } from "../../../../platform/theme/common/colorUtils.js";
+import { foreground, chartAxis, chartGuide, chartLine } from "../../../../platform/theme/common/colorRegistry.js";
+import { IHoverService } from "../../../../platform/hover/browser/hover.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let RuntimeStatusMarkdownRenderer = class RuntimeStatusMarkdownRenderer2 extends Disposable {
+  static {
+    __name(this, "RuntimeStatusMarkdownRenderer");
+  }
+  static {
+    this.ID = "runtimeStatus";
+  }
+  constructor(extensionService, openerService, hoverService, extensionFeaturesManagementService) {
+    super();
+    this.extensionService = extensionService;
+    this.openerService = openerService;
+    this.hoverService = hoverService;
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+    this.type = "element";
+  }
+  shouldRender(manifest) {
+    const extensionId = new ExtensionIdentifier(getExtensionId(manifest.publisher, manifest.name));
+    if (!this.extensionService.extensions.some((e) => ExtensionIdentifier.equals(e.identifier, extensionId))) {
+      return false;
+    }
+    return !!manifest.main || !!manifest.browser;
+  }
+  render(manifest) {
+    const disposables = new DisposableStore();
+    const extensionId = new ExtensionIdentifier(getExtensionId(manifest.publisher, manifest.name));
+    const emitter = disposables.add(new Emitter());
+    disposables.add(this.extensionService.onDidChangeExtensionsStatus((e) => {
+      if (e.some((extension) => ExtensionIdentifier.equals(extension, extensionId))) {
+        emitter.fire(this.createElement(manifest, disposables));
+      }
+    }));
+    disposables.add(this.extensionFeaturesManagementService.onDidChangeAccessData((e) => emitter.fire(this.createElement(manifest, disposables))));
+    return {
+      onDidChange: emitter.event,
+      data: this.createElement(manifest, disposables),
+      dispose: /* @__PURE__ */ __name(() => disposables.dispose(), "dispose")
+    };
+  }
+  createElement(manifest, disposables) {
+    const container = $(".runtime-status");
+    const extensionId = new ExtensionIdentifier(getExtensionId(manifest.publisher, manifest.name));
+    const status = this.extensionService.getExtensionsStatus()[extensionId.value];
+    if (this.extensionService.extensions.some((extension) => ExtensionIdentifier.equals(extension.identifier, extensionId))) {
+      const data = new MarkdownString();
+      data.appendMarkdown(`### ${localize("activation", "Activation")}
 
-`),i.activationTimes?i.activationTimes.activationReason.startup?r.appendMarkdown(`Activated on Startup: \`${i.activationTimes.activateCallTime}ms\``):r.appendMarkdown(`Activated by \`${i.activationTimes.activationReason.activationEvent}\` event: \`${i.activationTimes.activateCallTime}ms\``):r.appendMarkdown("Not yet activated"),this.renderMarkdown(r,t,n)}const d=se.as(ne.ExtensionFeaturesRegistry).getExtensionFeatures();for(const r of d){const o=this.extensionFeaturesManagementService.getAccessData(s,r.id);if(o){if(this.renderMarkdown(new F(`
- ### ${f("label","{0} Usage",r.label)}
+`);
+      if (status.activationTimes) {
+        if (status.activationTimes.activationReason.startup) {
+          data.appendMarkdown(`Activated on Startup: \`${status.activationTimes.activateCallTime}ms\``);
+        } else {
+          data.appendMarkdown(`Activated by \`${status.activationTimes.activationReason.activationEvent}\` event: \`${status.activationTimes.activateCallTime}ms\``);
+        }
+      } else {
+        data.appendMarkdown("Not yet activated");
+      }
+      this.renderMarkdown(data, container, disposables);
+    }
+    const features = Registry.as(Extensions.ExtensionFeaturesRegistry).getExtensionFeatures();
+    for (const feature of features) {
+      const accessData = this.extensionFeaturesManagementService.getAccessData(extensionId, feature.id);
+      if (accessData) {
+        this.renderMarkdown(new MarkdownString(`
+ ### ${localize("label", "{0} Usage", feature.label)}
 
-`),t,n),o.accessTimes.length){const c=u(t,a(".feature-chart-description",void 0,f("chartDescription","There were {0} {1} requests from this extension in the last 30 days.",o?.accessTimes.length,r.accessDataLabel??r.label)));c.style.marginBottom="8px",this.renderRequestsChart(t,o.accessTimes,n)}const l=o?.current?.status;if(l){const c=new F;l?.severity===k.Error&&c.appendMarkdown(`$(${de.id}) ${l.message}
+`), container, disposables);
+        if (accessData.accessTimes.length) {
+          const description = append(container, $(".feature-chart-description", void 0, localize("chartDescription", "There were {0} {1} requests from this extension in the last 30 days.", accessData?.accessTimes.length, feature.accessDataLabel ?? feature.label)));
+          description.style.marginBottom = "8px";
+          this.renderRequestsChart(container, accessData.accessTimes, disposables);
+        }
+        const status2 = accessData?.current?.status;
+        if (status2) {
+          const data = new MarkdownString();
+          if (status2?.severity === Severity.Error) {
+            data.appendMarkdown(`$(${errorIcon.id}) ${status2.message}
 
-`),l?.severity===k.Warning&&c.appendMarkdown(`$(${le.id}) ${l.message}
+`);
+          }
+          if (status2?.severity === Severity.Warning) {
+            data.appendMarkdown(`$(${warningIcon.id}) ${status2.message}
 
-`),c.value&&this.renderMarkdown(c,t,n)}}}if(i.runtimeErrors.length||i.messages.length){const r=new F;if(i.runtimeErrors.length){r.appendMarkdown(`
- ### ${f("uncaught errors","Uncaught Errors ({0})",i.runtimeErrors.length)}
-`);for(const o of i.runtimeErrors)r.appendMarkdown(`$(${_.error.id})&nbsp;${xe(o)}
+`);
+          }
+          if (data.value) {
+            this.renderMarkdown(data, container, disposables);
+          }
+        }
+      }
+    }
+    if (status.runtimeErrors.length || status.messages.length) {
+      const data = new MarkdownString();
+      if (status.runtimeErrors.length) {
+        data.appendMarkdown(`
+ ### ${localize("uncaught errors", "Uncaught Errors ({0})", status.runtimeErrors.length)}
+`);
+        for (const error of status.runtimeErrors) {
+          data.appendMarkdown(`$(${Codicon.error.id})&nbsp;${getErrorMessage(error)}
 
-`)}if(i.messages.length){r.appendMarkdown(`
- ### ${f("messaages","Messages ({0})",i.messages.length)}
-`);for(const o of i.messages)r.appendMarkdown(`$(${(o.type===k.Error?_.error:o.type===k.Warning?_.warning:_.info).id})&nbsp;${o.message}
+`);
+        }
+      }
+      if (status.messages.length) {
+        data.appendMarkdown(`
+ ### ${localize("messaages", "Messages ({0})", status.messages.length)}
+`);
+        for (const message of status.messages) {
+          data.appendMarkdown(`$(${(message.type === Severity.Error ? Codicon.error : message.type === Severity.Warning ? Codicon.warning : Codicon.info).id})&nbsp;${message.message}
 
-`)}r.value&&this.renderMarkdown(r,t,n)}return t}renderMarkdown(e,n,t){const{element:s,dispose:i}=re({value:e.value,isTrusted:e.isTrusted,supportThemeIcons:!0},{actionHandler:{callback:d=>this.openerService.open(d,{allowCommands:!!e.isTrusted}).catch(ae),disposables:t}});t.add(L(i)),u(n,s)}renderRequestsChart(e,n,t){const d={top:0,right:4,bottom:20,left:4},r=450-d.left-d.right,o=250-d.top-d.bottom,l=u(e,a(".feature-chart-container"));l.style.position="relative";const c=u(l,a(".feature-chart-tooltip"));c.style.position="absolute",c.style.width="0px",c.style.height="0px";let S=100;const I=new Map;for(const h of n){const p=`${h.getDate()} ${h.toLocaleString("default",{month:"short"})}`;I.set(p,(I.get(p)??0)+1),S=Math.max(S,I.get(p))}const V=new Date,O=[];for(let h=0;h<=30;h++){const p=new Date(V);p.setDate(V.getDate()-(30-h));const $=`${p.getDate()} ${p.toLocaleString("default",{month:"short"})}`,m=I.get($)??0,g=h/30*r,b=o-m/S*o;O.push({x:g,y:b,date:$,count:m})}const ue=u(l,a(".feature-chart")),E=u(ue,a.SVG("svg"));E.setAttribute("width","450px"),E.setAttribute("height","250px"),E.setAttribute("viewBox","0 0 450 250");const A=a.SVG("g");A.setAttribute("transform",`translate(${d.left},${d.top})`),E.appendChild(A);const C=a.SVG("line");C.setAttribute("x1","0"),C.setAttribute("y1",`${o}`),C.setAttribute("x2",`${r}`),C.setAttribute("y2",`${o}`),C.setAttribute("stroke",T(Z)),C.setAttribute("stroke-width","1px"),A.appendChild(C);for(let h=1;h<=30;h+=7){const p=new Date(V);p.setDate(V.getDate()-(30-h));const $=`${p.getDate()} ${p.toLocaleString("default",{month:"short"})}`,m=h/30*r,g=a.SVG("line");g.setAttribute("x1",`${m}`),g.setAttribute("y1",`${o}`),g.setAttribute("x2",`${m}`),g.setAttribute("y2",`${o+10}`),g.setAttribute("stroke",T(Z)),g.setAttribute("stroke-width","1px"),A.appendChild(g);const b=a.SVG("line");b.setAttribute("x1",`${m}`),b.setAttribute("y1","0"),b.setAttribute("x2",`${m}`),b.setAttribute("y2",`${o}`),b.setAttribute("stroke",T(Re)),b.setAttribute("stroke-width","1px"),A.appendChild(b);const w=a.SVG("text");w.setAttribute("x",`${m}`),w.setAttribute("y","250"),w.setAttribute("text-anchor","middle"),w.setAttribute("fill",T(Te)),w.setAttribute("font-size","10px"),w.textContent=$,A.appendChild(w)}const M=a.SVG("polyline");M.setAttribute("fill","none"),M.setAttribute("stroke",T(Ve)),M.setAttribute("stroke-width","2px"),M.setAttribute("points",O.map(h=>`${h.x},${h.y}`).join(" ")),A.appendChild(M);const D=a.SVG("circle");D.setAttribute("r","4px"),D.style.display="none",A.appendChild(D);const q=t.add(new K),X=h=>{const p=E.getBoundingClientRect(),$=h.clientX-p.left-d.left;let m,g=1/0;O.forEach(b=>{const w=Math.abs(b.x-$);w<g&&(g=w,m=b)}),m?(D.setAttribute("cx",`${m.x}`),D.setAttribute("cy",`${m.y}`),D.style.display="block",c.style.left=`${m.x+24}px`,c.style.top=`${m.y+14}px`,q.value=this.hoverService.showInstantHover({content:new F(`${m.date}: ${m.count} requests`),target:c,appearance:{showPointer:!0,skipFadeInAnimation:!0}})):q.value=void 0};E.addEventListener("mousemove",X),t.add(L(()=>E.removeEventListener("mousemove",X)));const Y=()=>{D.style.display="none",q.value=void 0};E.addEventListener("mouseleave",Y),t.add(L(()=>E.removeEventListener("mouseleave",Y)))}};P=B([x(0,ke),x(1,oe),x(2,_e),x(3,U)],P);const z={id:P.ID,label:f("runtime","Runtime Status"),access:{canToggle:!1},renderer:new Me(P)};let ee=class extends ye{constructor(e,n,t,s){super(t),this.manifest=e,this.feature=n,this.instantiationService=s,this.featureView=this._register(new K),this.layoutParticipants=[],this.extensionId=new y(N(e.publisher,e.name)),this.domNode=a("div.subcontent.feature-contributions"),this.create()}layout(e,n){this.layoutParticipants.forEach(t=>t.layout(e,n))}create(){const e=this.getFeatures();if(e.length===0){u(a(".no-features"),this.domNode).textContent=f("noFeatures","No features contributed.");return}const n=this._register(new me(this.domNode,{orientation:1,proportionalLayout:!0}));this.layoutParticipants.push({layout:(r,o)=>{n.el.style.height=`${r-14}px`,n.layout(o)}});const t=a(".features-list-container"),s=this._register(this.createFeaturesList(t));s.splice(0,s.length,e);const i=a(".feature-view-container");this._register(s.onDidChangeSelection(r=>{const o=r.elements[0];o&&this.showFeatureView(o,i)}));const d=this.feature?e.findIndex(r=>r.id===this.feature):0;s.setSelection([d===-1?0:d]),n.addView({onDidChange:J.None,element:t,minimumSize:100,maximumSize:Number.POSITIVE_INFINITY,layout:(r,o,l)=>{t.style.width=`${r}px`,s.layout(l,r)}},200,void 0,!0),n.addView({onDidChange:J.None,element:i,minimumSize:500,maximumSize:Number.POSITIVE_INFINITY,layout:(r,o,l)=>{i.style.width=`${r}px`,this.featureViewDimension={height:l,width:r},this.layoutFeatureView()}},he.Distribute,void 0,!0),n.style({separatorBorder:this.theme.getColor(ve)})}createFeaturesList(e){const n=this.instantiationService.createInstance(H,this.extensionId),t=new Le;return this.instantiationService.createInstance(fe,"ExtensionFeaturesList",u(e,a(".features-list-wrapper")),t,[n],{multipleSelectionSupport:!1,setRowLineHeight:!1,horizontalScrolling:!1,accessibilityProvider:{getAriaLabel(i){return i?.label??""},getWidgetAriaLabel(){return f("extension features list","Extension Features")}},openOnSingleClick:!0})}layoutFeatureView(){this.featureView.value?.layout(this.featureViewDimension?.height,this.featureViewDimension?.width)}showFeatureView(e,n){this.featureView.value?.feature.id!==e.id&&(R(n),this.featureView.value=this.instantiationService.createInstance(W,this.extensionId,this.manifest,e),n.appendChild(this.featureView.value.domNode),this.layoutFeatureView())}getFeatures(){const e=se.as(ne.ExtensionFeaturesRegistry).getExtensionFeatures().filter(t=>{const s=this.getRenderer(t),i=s?.shouldRender(this.manifest);return s?.dispose(),i}).sort((t,s)=>t.label.localeCompare(s.label)),n=this.getRenderer(z);return n?.shouldRender(this.manifest)&&e.splice(0,0,z),n?.dispose(),e}getRenderer(e){return e.renderer?this.instantiationService.createInstance(e.renderer):void 0}};ee=B([x(2,we),x(3,ie)],ee);class Le{getHeight(){return 22}getTemplateId(){return"extensionFeatureDescriptor"}}let H=class{constructor(e,n){this.extensionId=e,this.extensionFeaturesManagementService=n,this.templateId="extensionFeatureDescriptor"}renderTemplate(e){e.classList.add("extension-feature-list-item");const n=u(e,a(".extension-feature-label")),t=u(e,a(".extension-feature-disabled-label"));t.textContent=f("revoked","No Access");const s=u(e,a(".extension-feature-status"));return{label:n,disabledElement:t,statusElement:s,disposables:new j}}renderElement(e,n,t){t.disposables.clear(),t.label.textContent=e.label,t.disabledElement.style.display=e.id===z.id||this.extensionFeaturesManagementService.isEnabled(this.extensionId,e.id)?"none":"inherit",t.disposables.add(this.extensionFeaturesManagementService.onDidChangeEnablement(({extension:d,featureId:r,enabled:o})=>{y.equals(d,this.extensionId)&&r===e.id&&(t.disabledElement.style.display=o?"none":"inherit")}));const s=t.statusElement.className,i=()=>{const d=this.extensionFeaturesManagementService.getAccessData(this.extensionId,e.id);d?.current?.status?(t.statusElement.style.display="inherit",t.statusElement.className=`${s} ${Ce.className(d.current.status.severity)}`):t.statusElement.style.display="none"};i(),t.disposables.add(this.extensionFeaturesManagementService.onDidChangeAccessData(({extension:d,featureId:r})=>{y.equals(d,this.extensionId)&&r===e.id&&i()}))}disposeElement(e,n,t,s){t.disposables.dispose()}disposeTemplate(e){e.disposables.dispose()}};H=B([x(1,U)],H);let W=class extends te{constructor(e,n,t,s,i,d,r){super(),this.extensionId=e,this.manifest=n,this.feature=t,this.openerService=s,this.instantiationService=i,this.extensionFeaturesManagementService=d,this.dialogService=r,this.layoutParticipants=[],this.domNode=a(".extension-feature-content"),this.create(this.domNode)}create(e){const n=u(e,a(".feature-header")),t=u(n,a(".feature-title"));if(t.textContent=this.feature.label,this.feature.access.canToggle){const l=u(n,a(".feature-actions")),c=new pe(l,ge);this.updateButtonLabel(c),this._register(this.extensionFeaturesManagementService.onDidChangeEnablement(({extension:S,featureId:I})=>{y.equals(S,this.extensionId)&&I===this.feature.id&&this.updateButtonLabel(c)})),this._register(c.onDidClick(async()=>{const S=this.extensionFeaturesManagementService.isEnabled(this.extensionId,this.feature.id);(await this.dialogService.confirm({title:f("accessExtensionFeature","Enable '{0}' Feature",this.feature.label),message:S?f("disableAccessExtensionFeatureMessage","Would you like to revoke '{0}' extension to access '{1}' feature?",this.manifest.displayName??this.extensionId.value,this.feature.label):f("enableAccessExtensionFeatureMessage","Would you like to allow '{0}' extension to access '{1}' feature?",this.manifest.displayName??this.extensionId.value,this.feature.label),custom:!0,primaryButton:S?f("revoke","Revoke Access"):f("grant","Allow Access"),cancelButton:f("cancel","Cancel")})).confirmed&&this.extensionFeaturesManagementService.setEnablement(this.extensionId,this.feature.id,!S)}))}const s=u(e,a(".feature-body")),i=a(".feature-body-content"),d=this._register(new Se(i,{}));if(u(s,d.getDomNode()),this.layoutParticipants.push({layout:()=>d.scanDomNode()}),d.scanDomNode(),this.feature.description){const l=u(i,a(".feature-description"));l.textContent=this.feature.description}const r=this.extensionFeaturesManagementService.getAccessData(this.extensionId,this.feature.id);r?.current?.status&&u(i,a(".feature-status",void 0,a(`span${Ae.asCSSSelector(r.current.status.severity===k.Error?de:r.current.status.severity===k.Warning?le:Ie)}`,void 0),a("span",void 0,r.current.status.message)));const o=u(i,a(".feature-content"));if(this.feature.renderer){const l=this.instantiationService.createInstance(this.feature.renderer);l.type==="table"?this.renderTableData(o,l):l.type==="markdown"?this.renderMarkdownData(o,l):l.type==="markdown+table"?this.renderMarkdownAndTableData(o,l):l.type==="element"&&this.renderElementData(o,l)}}updateButtonLabel(e){e.label=this.extensionFeaturesManagementService.isEnabled(this.extensionId,this.feature.id)?f("revoke","Revoke Access"):f("enable","Allow Access")}renderTableData(e,n){const t=this._register(n.render(this.manifest)),s=this._register(new K);t.onDidChange&&this._register(t.onDidChange(i=>{R(e),s.value=this.renderTable(i,e)})),s.value=this.renderTable(t.data,e)}renderTable(e,n){const t=new j;return u(n,a("table",void 0,a("tr",void 0,...e.headers.map(s=>a("th",void 0,s))),...e.rows.map(s=>a("tr",void 0,...s.map(i=>{if(typeof i=="string")return a("td",void 0,a("p",void 0,i));const d=Array.isArray(i)?i:[i];return a("td",void 0,...d.map(r=>{const o=[];if(Q(i)){const l=a("",void 0);this.renderMarkdown(i,l),o.push(l)}else if(r instanceof Fe){const l=a("");t.add(new De(l,$e,be)).set(r),o.push(l)}else r instanceof G&&(o.push(a("span",{class:"colorBox",style:"background-color: "+G.Format.CSS.format(r)},"")),o.push(a("code",void 0,G.Format.CSS.formatHex(r))));return o}).flat())}))))),t}renderMarkdownAndTableData(e,n){const t=this._register(n.render(this.manifest));t.onDidChange&&this._register(t.onDidChange(s=>{R(e),this.renderMarkdownAndTable(s,e)})),this.renderMarkdownAndTable(t.data,e)}renderMarkdownData(e,n){e.classList.add("markdown");const t=this._register(n.render(this.manifest));t.onDidChange&&this._register(t.onDidChange(s=>{R(e),this.renderMarkdown(s,e)})),this.renderMarkdown(t.data,e)}renderMarkdown(e,n){const{element:t,dispose:s}=re({value:e.value,isTrusted:e.isTrusted,supportThemeIcons:!0},{actionHandler:{callback:i=>this.openerService.open(i,{allowCommands:!!e.isTrusted}).catch(ae),disposables:this._store}});this._register(L(s)),u(n,t)}renderMarkdownAndTable(e,n){for(const t of e)if(Q(t)){const s=a("",void 0);this.renderMarkdown(t,s),u(n,s)}else{const s=u(n,a("table"));this.renderTable(t,s)}}renderElementData(e,n){const t=n.render(this.manifest);t.onDidChange&&this._register(t.onDidChange(s=>{R(e),e.appendChild(s)})),e.appendChild(t.data)}layout(e,n){this.layoutParticipants.forEach(t=>t.layout(e,n))}};W=B([x(3,oe),x(4,ie),x(5,U),x(6,Ee)],W);export{ee as ExtensionFeaturesTab};
+`);
+        }
+      }
+      if (data.value) {
+        this.renderMarkdown(data, container, disposables);
+      }
+    }
+    return container;
+  }
+  renderMarkdown(markdown, container, disposables) {
+    const { element, dispose } = renderMarkdown({
+      value: markdown.value,
+      isTrusted: markdown.isTrusted,
+      supportThemeIcons: true
+    }, {
+      actionHandler: {
+        callback: /* @__PURE__ */ __name((content) => this.openerService.open(content, { allowCommands: !!markdown.isTrusted }).catch(onUnexpectedError), "callback"),
+        disposables
+      }
+    });
+    disposables.add(toDisposable(dispose));
+    append(container, element);
+  }
+  renderRequestsChart(container, accessTimes, disposables) {
+    const width = 450;
+    const height = 250;
+    const margin = { top: 0, right: 4, bottom: 20, left: 4 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+    const chartContainer = append(container, $(".feature-chart-container"));
+    chartContainer.style.position = "relative";
+    const tooltip = append(chartContainer, $(".feature-chart-tooltip"));
+    tooltip.style.position = "absolute";
+    tooltip.style.width = "0px";
+    tooltip.style.height = "0px";
+    let maxCount = 100;
+    const map = /* @__PURE__ */ new Map();
+    for (const accessTime of accessTimes) {
+      const day = `${accessTime.getDate()} ${accessTime.toLocaleString("default", { month: "short" })}`;
+      map.set(day, (map.get(day) ?? 0) + 1);
+      maxCount = Math.max(maxCount, map.get(day));
+    }
+    const now = /* @__PURE__ */ new Date();
+    const points = [];
+    for (let i = 0; i <= 30; i++) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - (30 - i));
+      const dateString = `${date.getDate()} ${date.toLocaleString("default", { month: "short" })}`;
+      const count = map.get(dateString) ?? 0;
+      const x = i / 30 * innerWidth;
+      const y = innerHeight - count / maxCount * innerHeight;
+      points.push({ x, y, date: dateString, count });
+    }
+    const chart = append(chartContainer, $(".feature-chart"));
+    const svg = append(chart, $.SVG("svg"));
+    svg.setAttribute("width", `${width}px`);
+    svg.setAttribute("height", `${height}px`);
+    svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    const g = $.SVG("g");
+    g.setAttribute("transform", `translate(${margin.left},${margin.top})`);
+    svg.appendChild(g);
+    const xAxisLine = $.SVG("line");
+    xAxisLine.setAttribute("x1", "0");
+    xAxisLine.setAttribute("y1", `${innerHeight}`);
+    xAxisLine.setAttribute("x2", `${innerWidth}`);
+    xAxisLine.setAttribute("y2", `${innerHeight}`);
+    xAxisLine.setAttribute("stroke", asCssVariable(chartAxis));
+    xAxisLine.setAttribute("stroke-width", "1px");
+    g.appendChild(xAxisLine);
+    for (let i = 1; i <= 30; i += 7) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - (30 - i));
+      const dateString = `${date.getDate()} ${date.toLocaleString("default", { month: "short" })}`;
+      const x = i / 30 * innerWidth;
+      const tick = $.SVG("line");
+      tick.setAttribute("x1", `${x}`);
+      tick.setAttribute("y1", `${innerHeight}`);
+      tick.setAttribute("x2", `${x}`);
+      tick.setAttribute("y2", `${innerHeight + 10}`);
+      tick.setAttribute("stroke", asCssVariable(chartAxis));
+      tick.setAttribute("stroke-width", "1px");
+      g.appendChild(tick);
+      const ruler = $.SVG("line");
+      ruler.setAttribute("x1", `${x}`);
+      ruler.setAttribute("y1", `0`);
+      ruler.setAttribute("x2", `${x}`);
+      ruler.setAttribute("y2", `${innerHeight}`);
+      ruler.setAttribute("stroke", asCssVariable(chartGuide));
+      ruler.setAttribute("stroke-width", "1px");
+      g.appendChild(ruler);
+      const xAxisDate = $.SVG("text");
+      xAxisDate.setAttribute("x", `${x}`);
+      xAxisDate.setAttribute("y", `${height}`);
+      xAxisDate.setAttribute("text-anchor", "middle");
+      xAxisDate.setAttribute("fill", asCssVariable(foreground));
+      xAxisDate.setAttribute("font-size", "10px");
+      xAxisDate.textContent = dateString;
+      g.appendChild(xAxisDate);
+    }
+    const line = $.SVG("polyline");
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke", asCssVariable(chartLine));
+    line.setAttribute("stroke-width", `2px`);
+    line.setAttribute("points", points.map((p) => `${p.x},${p.y}`).join(" "));
+    g.appendChild(line);
+    const highlightCircle = $.SVG("circle");
+    highlightCircle.setAttribute("r", `4px`);
+    highlightCircle.style.display = "none";
+    g.appendChild(highlightCircle);
+    const hoverDisposable = disposables.add(new MutableDisposable());
+    const mouseMoveListener = /* @__PURE__ */ __name((event) => {
+      const rect = svg.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left - margin.left;
+      let closestPoint;
+      let minDistance = Infinity;
+      points.forEach((point) => {
+        const distance = Math.abs(point.x - mouseX);
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestPoint = point;
+        }
+      });
+      if (closestPoint) {
+        highlightCircle.setAttribute("cx", `${closestPoint.x}`);
+        highlightCircle.setAttribute("cy", `${closestPoint.y}`);
+        highlightCircle.style.display = "block";
+        tooltip.style.left = `${closestPoint.x + 24}px`;
+        tooltip.style.top = `${closestPoint.y + 14}px`;
+        hoverDisposable.value = this.hoverService.showInstantHover({
+          content: new MarkdownString(`${closestPoint.date}: ${closestPoint.count} requests`),
+          target: tooltip,
+          appearance: {
+            showPointer: true,
+            skipFadeInAnimation: true
+          }
+        });
+      } else {
+        hoverDisposable.value = void 0;
+      }
+    }, "mouseMoveListener");
+    svg.addEventListener("mousemove", mouseMoveListener);
+    disposables.add(toDisposable(() => svg.removeEventListener("mousemove", mouseMoveListener)));
+    const mouseLeaveListener = /* @__PURE__ */ __name(() => {
+      highlightCircle.style.display = "none";
+      hoverDisposable.value = void 0;
+    }, "mouseLeaveListener");
+    svg.addEventListener("mouseleave", mouseLeaveListener);
+    disposables.add(toDisposable(() => svg.removeEventListener("mouseleave", mouseLeaveListener)));
+  }
+};
+RuntimeStatusMarkdownRenderer = __decorate([
+  __param(0, IExtensionService),
+  __param(1, IOpenerService),
+  __param(2, IHoverService),
+  __param(3, IExtensionFeaturesManagementService)
+], RuntimeStatusMarkdownRenderer);
+const runtimeStatusFeature = {
+  id: RuntimeStatusMarkdownRenderer.ID,
+  label: localize("runtime", "Runtime Status"),
+  access: {
+    canToggle: false
+  },
+  renderer: new SyncDescriptor(RuntimeStatusMarkdownRenderer)
+};
+let ExtensionFeaturesTab = class ExtensionFeaturesTab2 extends Themable {
+  static {
+    __name(this, "ExtensionFeaturesTab");
+  }
+  constructor(manifest, feature, themeService, instantiationService) {
+    super(themeService);
+    this.manifest = manifest;
+    this.feature = feature;
+    this.instantiationService = instantiationService;
+    this.featureView = this._register(new MutableDisposable());
+    this.layoutParticipants = [];
+    this.extensionId = new ExtensionIdentifier(getExtensionId(manifest.publisher, manifest.name));
+    this.domNode = $("div.subcontent.feature-contributions");
+    this.create();
+  }
+  layout(height, width) {
+    this.layoutParticipants.forEach((participant) => participant.layout(height, width));
+  }
+  create() {
+    const features = this.getFeatures();
+    if (features.length === 0) {
+      append($(".no-features"), this.domNode).textContent = localize("noFeatures", "No features contributed.");
+      return;
+    }
+    const splitView = this._register(new SplitView(this.domNode, {
+      orientation: 1,
+      proportionalLayout: true
+    }));
+    this.layoutParticipants.push({
+      layout: /* @__PURE__ */ __name((height, width) => {
+        splitView.el.style.height = `${height - 14}px`;
+        splitView.layout(width);
+      }, "layout")
+    });
+    const featuresListContainer = $(".features-list-container");
+    const list = this._register(this.createFeaturesList(featuresListContainer));
+    list.splice(0, list.length, features);
+    const featureViewContainer = $(".feature-view-container");
+    this._register(list.onDidChangeSelection((e) => {
+      const feature = e.elements[0];
+      if (feature) {
+        this.showFeatureView(feature, featureViewContainer);
+      }
+    }));
+    const index = this.feature ? features.findIndex((f) => f.id === this.feature) : 0;
+    list.setSelection([index === -1 ? 0 : index]);
+    splitView.addView({
+      onDidChange: Event.None,
+      element: featuresListContainer,
+      minimumSize: 100,
+      maximumSize: Number.POSITIVE_INFINITY,
+      layout: /* @__PURE__ */ __name((width, _, height) => {
+        featuresListContainer.style.width = `${width}px`;
+        list.layout(height, width);
+      }, "layout")
+    }, 200, void 0, true);
+    splitView.addView({
+      onDidChange: Event.None,
+      element: featureViewContainer,
+      minimumSize: 500,
+      maximumSize: Number.POSITIVE_INFINITY,
+      layout: /* @__PURE__ */ __name((width, _, height) => {
+        featureViewContainer.style.width = `${width}px`;
+        this.featureViewDimension = { height, width };
+        this.layoutFeatureView();
+      }, "layout")
+    }, Sizing.Distribute, void 0, true);
+    splitView.style({
+      separatorBorder: this.theme.getColor(PANEL_SECTION_BORDER)
+    });
+  }
+  createFeaturesList(container) {
+    const renderer = this.instantiationService.createInstance(ExtensionFeatureItemRenderer, this.extensionId);
+    const delegate = new ExtensionFeatureItemDelegate();
+    const list = this.instantiationService.createInstance(WorkbenchList, "ExtensionFeaturesList", append(container, $(".features-list-wrapper")), delegate, [renderer], {
+      multipleSelectionSupport: false,
+      setRowLineHeight: false,
+      horizontalScrolling: false,
+      accessibilityProvider: {
+        getAriaLabel(extensionFeature) {
+          return extensionFeature?.label ?? "";
+        },
+        getWidgetAriaLabel() {
+          return localize("extension features list", "Extension Features");
+        }
+      },
+      openOnSingleClick: true
+    });
+    return list;
+  }
+  layoutFeatureView() {
+    this.featureView.value?.layout(this.featureViewDimension?.height, this.featureViewDimension?.width);
+  }
+  showFeatureView(feature, container) {
+    if (this.featureView.value?.feature.id === feature.id) {
+      return;
+    }
+    clearNode(container);
+    this.featureView.value = this.instantiationService.createInstance(ExtensionFeatureView, this.extensionId, this.manifest, feature);
+    container.appendChild(this.featureView.value.domNode);
+    this.layoutFeatureView();
+  }
+  getFeatures() {
+    const features = Registry.as(Extensions.ExtensionFeaturesRegistry).getExtensionFeatures().filter((feature) => {
+      const renderer2 = this.getRenderer(feature);
+      const shouldRender = renderer2?.shouldRender(this.manifest);
+      renderer2?.dispose();
+      return shouldRender;
+    }).sort((a, b) => a.label.localeCompare(b.label));
+    const renderer = this.getRenderer(runtimeStatusFeature);
+    if (renderer?.shouldRender(this.manifest)) {
+      features.splice(0, 0, runtimeStatusFeature);
+    }
+    renderer?.dispose();
+    return features;
+  }
+  getRenderer(feature) {
+    return feature.renderer ? this.instantiationService.createInstance(feature.renderer) : void 0;
+  }
+};
+ExtensionFeaturesTab = __decorate([
+  __param(2, IThemeService),
+  __param(3, IInstantiationService)
+], ExtensionFeaturesTab);
+class ExtensionFeatureItemDelegate {
+  static {
+    __name(this, "ExtensionFeatureItemDelegate");
+  }
+  getHeight() {
+    return 22;
+  }
+  getTemplateId() {
+    return "extensionFeatureDescriptor";
+  }
+}
+let ExtensionFeatureItemRenderer = class ExtensionFeatureItemRenderer2 {
+  static {
+    __name(this, "ExtensionFeatureItemRenderer");
+  }
+  constructor(extensionId, extensionFeaturesManagementService) {
+    this.extensionId = extensionId;
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+    this.templateId = "extensionFeatureDescriptor";
+  }
+  renderTemplate(container) {
+    container.classList.add("extension-feature-list-item");
+    const label = append(container, $(".extension-feature-label"));
+    const disabledElement = append(container, $(".extension-feature-disabled-label"));
+    disabledElement.textContent = localize("revoked", "No Access");
+    const statusElement = append(container, $(".extension-feature-status"));
+    return { label, disabledElement, statusElement, disposables: new DisposableStore() };
+  }
+  renderElement(element, index, templateData) {
+    templateData.disposables.clear();
+    templateData.label.textContent = element.label;
+    templateData.disabledElement.style.display = element.id === runtimeStatusFeature.id || this.extensionFeaturesManagementService.isEnabled(this.extensionId, element.id) ? "none" : "inherit";
+    templateData.disposables.add(this.extensionFeaturesManagementService.onDidChangeEnablement(({ extension, featureId, enabled }) => {
+      if (ExtensionIdentifier.equals(extension, this.extensionId) && featureId === element.id) {
+        templateData.disabledElement.style.display = enabled ? "none" : "inherit";
+      }
+    }));
+    const statusElementClassName = templateData.statusElement.className;
+    const updateStatus = /* @__PURE__ */ __name(() => {
+      const accessData = this.extensionFeaturesManagementService.getAccessData(this.extensionId, element.id);
+      if (accessData?.current?.status) {
+        templateData.statusElement.style.display = "inherit";
+        templateData.statusElement.className = `${statusElementClassName} ${SeverityIcon.className(accessData.current.status.severity)}`;
+      } else {
+        templateData.statusElement.style.display = "none";
+      }
+    }, "updateStatus");
+    updateStatus();
+    templateData.disposables.add(this.extensionFeaturesManagementService.onDidChangeAccessData(({ extension, featureId }) => {
+      if (ExtensionIdentifier.equals(extension, this.extensionId) && featureId === element.id) {
+        updateStatus();
+      }
+    }));
+  }
+  disposeElement(element, index, templateData, height) {
+    templateData.disposables.dispose();
+  }
+  disposeTemplate(templateData) {
+    templateData.disposables.dispose();
+  }
+};
+ExtensionFeatureItemRenderer = __decorate([
+  __param(1, IExtensionFeaturesManagementService)
+], ExtensionFeatureItemRenderer);
+let ExtensionFeatureView = class ExtensionFeatureView2 extends Disposable {
+  static {
+    __name(this, "ExtensionFeatureView");
+  }
+  constructor(extensionId, manifest, feature, openerService, instantiationService, extensionFeaturesManagementService, dialogService) {
+    super();
+    this.extensionId = extensionId;
+    this.manifest = manifest;
+    this.feature = feature;
+    this.openerService = openerService;
+    this.instantiationService = instantiationService;
+    this.extensionFeaturesManagementService = extensionFeaturesManagementService;
+    this.dialogService = dialogService;
+    this.layoutParticipants = [];
+    this.domNode = $(".extension-feature-content");
+    this.create(this.domNode);
+  }
+  create(content) {
+    const header = append(content, $(".feature-header"));
+    const title = append(header, $(".feature-title"));
+    title.textContent = this.feature.label;
+    if (this.feature.access.canToggle) {
+      const actionsContainer = append(header, $(".feature-actions"));
+      const button = new Button(actionsContainer, defaultButtonStyles);
+      this.updateButtonLabel(button);
+      this._register(this.extensionFeaturesManagementService.onDidChangeEnablement(({ extension, featureId }) => {
+        if (ExtensionIdentifier.equals(extension, this.extensionId) && featureId === this.feature.id) {
+          this.updateButtonLabel(button);
+        }
+      }));
+      this._register(button.onDidClick(async () => {
+        const enabled = this.extensionFeaturesManagementService.isEnabled(this.extensionId, this.feature.id);
+        const confirmationResult = await this.dialogService.confirm({
+          title: localize("accessExtensionFeature", "Enable '{0}' Feature", this.feature.label),
+          message: enabled ? localize("disableAccessExtensionFeatureMessage", "Would you like to revoke '{0}' extension to access '{1}' feature?", this.manifest.displayName ?? this.extensionId.value, this.feature.label) : localize("enableAccessExtensionFeatureMessage", "Would you like to allow '{0}' extension to access '{1}' feature?", this.manifest.displayName ?? this.extensionId.value, this.feature.label),
+          custom: true,
+          primaryButton: enabled ? localize("revoke", "Revoke Access") : localize("grant", "Allow Access"),
+          cancelButton: localize("cancel", "Cancel")
+        });
+        if (confirmationResult.confirmed) {
+          this.extensionFeaturesManagementService.setEnablement(this.extensionId, this.feature.id, !enabled);
+        }
+      }));
+    }
+    const body = append(content, $(".feature-body"));
+    const bodyContent = $(".feature-body-content");
+    const scrollableContent = this._register(new DomScrollableElement(bodyContent, {}));
+    append(body, scrollableContent.getDomNode());
+    this.layoutParticipants.push({ layout: /* @__PURE__ */ __name(() => scrollableContent.scanDomNode(), "layout") });
+    scrollableContent.scanDomNode();
+    if (this.feature.description) {
+      const description = append(bodyContent, $(".feature-description"));
+      description.textContent = this.feature.description;
+    }
+    const accessData = this.extensionFeaturesManagementService.getAccessData(this.extensionId, this.feature.id);
+    if (accessData?.current?.status) {
+      append(bodyContent, $(".feature-status", void 0, $(`span${ThemeIcon.asCSSSelector(accessData.current.status.severity === Severity.Error ? errorIcon : accessData.current.status.severity === Severity.Warning ? warningIcon : infoIcon)}`, void 0), $("span", void 0, accessData.current.status.message)));
+    }
+    const featureContentElement = append(bodyContent, $(".feature-content"));
+    if (this.feature.renderer) {
+      const renderer = this.instantiationService.createInstance(this.feature.renderer);
+      if (renderer.type === "table") {
+        this.renderTableData(featureContentElement, renderer);
+      } else if (renderer.type === "markdown") {
+        this.renderMarkdownData(featureContentElement, renderer);
+      } else if (renderer.type === "markdown+table") {
+        this.renderMarkdownAndTableData(featureContentElement, renderer);
+      } else if (renderer.type === "element") {
+        this.renderElementData(featureContentElement, renderer);
+      }
+    }
+  }
+  updateButtonLabel(button) {
+    button.label = this.extensionFeaturesManagementService.isEnabled(this.extensionId, this.feature.id) ? localize("revoke", "Revoke Access") : localize("enable", "Allow Access");
+  }
+  renderTableData(container, renderer) {
+    const tableData = this._register(renderer.render(this.manifest));
+    const tableDisposable = this._register(new MutableDisposable());
+    if (tableData.onDidChange) {
+      this._register(tableData.onDidChange((data) => {
+        clearNode(container);
+        tableDisposable.value = this.renderTable(data, container);
+      }));
+    }
+    tableDisposable.value = this.renderTable(tableData.data, container);
+  }
+  renderTable(tableData, container) {
+    const disposables = new DisposableStore();
+    append(container, $("table", void 0, $("tr", void 0, ...tableData.headers.map((header) => $("th", void 0, header))), ...tableData.rows.map((row) => {
+      return $("tr", void 0, ...row.map((rowData) => {
+        if (typeof rowData === "string") {
+          return $("td", void 0, $("p", void 0, rowData));
+        }
+        const data = Array.isArray(rowData) ? rowData : [rowData];
+        return $("td", void 0, ...data.map((item) => {
+          const result = [];
+          if (isMarkdownString(rowData)) {
+            const element = $("", void 0);
+            this.renderMarkdown(rowData, element);
+            result.push(element);
+          } else if (item instanceof ResolvedKeybinding) {
+            const element = $("");
+            const kbl = disposables.add(new KeybindingLabel(element, OS, defaultKeybindingLabelStyles));
+            kbl.set(item);
+            result.push(element);
+          } else if (item instanceof Color) {
+            result.push($("span", { class: "colorBox", style: "background-color: " + Color.Format.CSS.format(item) }, ""));
+            result.push($("code", void 0, Color.Format.CSS.formatHex(item)));
+          }
+          return result;
+        }).flat());
+      }));
+    })));
+    return disposables;
+  }
+  renderMarkdownAndTableData(container, renderer) {
+    const markdownAndTableData = this._register(renderer.render(this.manifest));
+    if (markdownAndTableData.onDidChange) {
+      this._register(markdownAndTableData.onDidChange((data) => {
+        clearNode(container);
+        this.renderMarkdownAndTable(data, container);
+      }));
+    }
+    this.renderMarkdownAndTable(markdownAndTableData.data, container);
+  }
+  renderMarkdownData(container, renderer) {
+    container.classList.add("markdown");
+    const markdownData = this._register(renderer.render(this.manifest));
+    if (markdownData.onDidChange) {
+      this._register(markdownData.onDidChange((data) => {
+        clearNode(container);
+        this.renderMarkdown(data, container);
+      }));
+    }
+    this.renderMarkdown(markdownData.data, container);
+  }
+  renderMarkdown(markdown, container) {
+    const { element, dispose } = renderMarkdown({
+      value: markdown.value,
+      isTrusted: markdown.isTrusted,
+      supportThemeIcons: true
+    }, {
+      actionHandler: {
+        callback: /* @__PURE__ */ __name((content) => this.openerService.open(content, { allowCommands: !!markdown.isTrusted }).catch(onUnexpectedError), "callback"),
+        disposables: this._store
+      }
+    });
+    this._register(toDisposable(dispose));
+    append(container, element);
+  }
+  renderMarkdownAndTable(data, container) {
+    for (const markdownOrTable of data) {
+      if (isMarkdownString(markdownOrTable)) {
+        const element = $("", void 0);
+        this.renderMarkdown(markdownOrTable, element);
+        append(container, element);
+      } else {
+        const tableElement = append(container, $("table"));
+        this.renderTable(markdownOrTable, tableElement);
+      }
+    }
+  }
+  renderElementData(container, renderer) {
+    const elementData = renderer.render(this.manifest);
+    if (elementData.onDidChange) {
+      this._register(elementData.onDidChange((data) => {
+        clearNode(container);
+        container.appendChild(data);
+      }));
+    }
+    container.appendChild(elementData.data);
+  }
+  layout(height, width) {
+    this.layoutParticipants.forEach((p) => p.layout(height, width));
+  }
+};
+ExtensionFeatureView = __decorate([
+  __param(3, IOpenerService),
+  __param(4, IInstantiationService),
+  __param(5, IExtensionFeaturesManagementService),
+  __param(6, IDialogService)
+], ExtensionFeatureView);
+export {
+  ExtensionFeaturesTab
+};
+//# sourceMappingURL=extensionFeaturesTab.js.map

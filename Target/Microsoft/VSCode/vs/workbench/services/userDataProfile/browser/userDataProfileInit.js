@@ -1,1 +1,193 @@
-import{IStorageService as f}from"../../../../platform/storage/common/storage.js";import{IFileService as m}from"../../../../platform/files/common/files.js";import{ILogService as p}from"../../../../platform/log/common/log.js";import{Barrier as v,Promises as u}from"../../../../base/common/async.js";import{IUriIdentityService as S}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{IUserDataProfileService as z}from"../common/userDataProfile.js";import{SettingsResourceInitializer as g}from"./settingsResource.js";import{GlobalStateResourceInitializer as I}from"./globalStateResource.js";import{KeybindingsResourceInitializer as d}from"./keybindingsResource.js";import{TasksResourceInitializer as P}from"./tasksResource.js";import{SnippetsResourceInitializer as w}from"./snippetsResource.js";import{ExtensionsResourceInitializer as y}from"./extensionsResource.js";import{IBrowserWorkbenchEnvironmentService as D}from"../../environment/browser/environmentService.js";import{isString as T}from"../../../../base/common/types.js";import{IRequestService as R,asJson as U}from"../../../../platform/request/common/request.js";import{CancellationToken as b}from"../../../../base/common/cancellation.js";import{URI as x}from"../../../../base/common/uri.js";var h=function(o,e,i,t){var s=arguments.length,r=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(o,e,i,t);else for(var l=o.length-1;l>=0;l--)(a=o[l])&&(r=(s<3?a(r):s>3?a(e,i,r):a(e,i))||r);return s>3&&r&&Object.defineProperty(e,i,r),r},n=function(o,e){return function(i,t){e(i,t,o)}};let c=class{constructor(e,i,t,s,r,a,l){this.environmentService=e,this.fileService=i,this.userDataProfileService=t,this.storageService=s,this.logService=r,this.uriIdentityService=a,this.requestService=l,this.initialized=[],this.initializationFinished=new v}async whenInitializationFinished(){await this.initializationFinished.wait()}async requiresInitialization(){return!(!this.environmentService.options?.profile?.contents||!this.storageService.isNew(0))}async initializeRequiredResources(){this.logService.trace("UserDataProfileInitializer#initializeRequiredResources");const e=[],i=await this.getProfileTemplate();i?.settings&&e.push(this.initialize(new g(this.userDataProfileService,this.fileService,this.logService),i.settings,"settings")),i?.globalState&&e.push(this.initialize(new I(this.storageService),i.globalState,"globalState")),await Promise.all(e)}async initializeOtherResources(e){try{this.logService.trace("UserDataProfileInitializer#initializeOtherResources");const i=[],t=await this.getProfileTemplate();t?.keybindings&&i.push(this.initialize(new d(this.userDataProfileService,this.fileService,this.logService),t.keybindings,"keybindings")),t?.tasks&&i.push(this.initialize(new P(this.userDataProfileService,this.fileService,this.logService),t.tasks,"tasks")),t?.snippets&&i.push(this.initialize(new w(this.userDataProfileService,this.fileService,this.uriIdentityService),t.snippets,"snippets")),i.push(this.initializeInstalledExtensions(e)),await u.settled(i)}finally{this.initializationFinished.open()}}async initializeInstalledExtensions(e){if(!this.initializeInstalledExtensionsPromise){const i=await this.getProfileTemplate();i?.extensions?this.initializeInstalledExtensionsPromise=this.initialize(e.createInstance(y),i.extensions,"extensions"):this.initializeInstalledExtensionsPromise=Promise.resolve()}return this.initializeInstalledExtensionsPromise}getProfileTemplate(){return this.profileTemplatePromise||(this.profileTemplatePromise=this.doGetProfileTemplate()),this.profileTemplatePromise}async doGetProfileTemplate(){if(!this.environmentService.options?.profile?.contents)return null;if(T(this.environmentService.options.profile.contents))try{return JSON.parse(this.environmentService.options.profile.contents)}catch(e){return this.logService.error(e),null}try{const e=x.revive(this.environmentService.options.profile.contents).toString(!0),i=await this.requestService.request({type:"GET",url:e},b.None);if(i.res.statusCode===200)return await U(i);this.logService.warn(`UserDataProfileInitializer: Failed to get profile from URL: ${e}. Status code: ${i.res.statusCode}.`)}catch(e){this.logService.error(e)}return null}async initialize(e,i,t){try{if(this.initialized.includes(t)){this.logService.info(`UserDataProfileInitializer: ${t} initialized already.`);return}this.initialized.push(t),this.logService.trace(`UserDataProfileInitializer: Initializing ${t}`),await e.initialize(i),this.logService.info(`UserDataProfileInitializer: Initialized ${t}`)}catch(s){this.logService.info(`UserDataProfileInitializer: Error while initializing ${t}`),this.logService.error(s)}}};c=h([n(0,D),n(1,m),n(2,z),n(3,f),n(4,p),n(5,S),n(6,R)],c);export{c as UserDataProfileInitializer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { Barrier, Promises } from "../../../../base/common/async.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { IUserDataProfileService } from "../common/userDataProfile.js";
+import { SettingsResourceInitializer } from "./settingsResource.js";
+import { GlobalStateResourceInitializer } from "./globalStateResource.js";
+import { KeybindingsResourceInitializer } from "./keybindingsResource.js";
+import { TasksResourceInitializer } from "./tasksResource.js";
+import { SnippetsResourceInitializer } from "./snippetsResource.js";
+import { ExtensionsResourceInitializer } from "./extensionsResource.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../environment/browser/environmentService.js";
+import { isString } from "../../../../base/common/types.js";
+import { IRequestService, asJson } from "../../../../platform/request/common/request.js";
+import { CancellationToken } from "../../../../base/common/cancellation.js";
+import { URI } from "../../../../base/common/uri.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let UserDataProfileInitializer = class UserDataProfileInitializer2 {
+  static {
+    __name(this, "UserDataProfileInitializer");
+  }
+  constructor(environmentService, fileService, userDataProfileService, storageService, logService, uriIdentityService, requestService) {
+    this.environmentService = environmentService;
+    this.fileService = fileService;
+    this.userDataProfileService = userDataProfileService;
+    this.storageService = storageService;
+    this.logService = logService;
+    this.uriIdentityService = uriIdentityService;
+    this.requestService = requestService;
+    this.initialized = [];
+    this.initializationFinished = new Barrier();
+  }
+  async whenInitializationFinished() {
+    await this.initializationFinished.wait();
+  }
+  async requiresInitialization() {
+    if (!this.environmentService.options?.profile?.contents) {
+      return false;
+    }
+    if (!this.storageService.isNew(
+      0
+      /* StorageScope.PROFILE */
+    )) {
+      return false;
+    }
+    return true;
+  }
+  async initializeRequiredResources() {
+    this.logService.trace(`UserDataProfileInitializer#initializeRequiredResources`);
+    const promises = [];
+    const profileTemplate = await this.getProfileTemplate();
+    if (profileTemplate?.settings) {
+      promises.push(this.initialize(
+        new SettingsResourceInitializer(this.userDataProfileService, this.fileService, this.logService),
+        profileTemplate.settings,
+        "settings"
+        /* ProfileResourceType.Settings */
+      ));
+    }
+    if (profileTemplate?.globalState) {
+      promises.push(this.initialize(
+        new GlobalStateResourceInitializer(this.storageService),
+        profileTemplate.globalState,
+        "globalState"
+        /* ProfileResourceType.GlobalState */
+      ));
+    }
+    await Promise.all(promises);
+  }
+  async initializeOtherResources(instantiationService) {
+    try {
+      this.logService.trace(`UserDataProfileInitializer#initializeOtherResources`);
+      const promises = [];
+      const profileTemplate = await this.getProfileTemplate();
+      if (profileTemplate?.keybindings) {
+        promises.push(this.initialize(
+          new KeybindingsResourceInitializer(this.userDataProfileService, this.fileService, this.logService),
+          profileTemplate.keybindings,
+          "keybindings"
+          /* ProfileResourceType.Keybindings */
+        ));
+      }
+      if (profileTemplate?.tasks) {
+        promises.push(this.initialize(
+          new TasksResourceInitializer(this.userDataProfileService, this.fileService, this.logService),
+          profileTemplate.tasks,
+          "tasks"
+          /* ProfileResourceType.Tasks */
+        ));
+      }
+      if (profileTemplate?.snippets) {
+        promises.push(this.initialize(
+          new SnippetsResourceInitializer(this.userDataProfileService, this.fileService, this.uriIdentityService),
+          profileTemplate.snippets,
+          "snippets"
+          /* ProfileResourceType.Snippets */
+        ));
+      }
+      promises.push(this.initializeInstalledExtensions(instantiationService));
+      await Promises.settled(promises);
+    } finally {
+      this.initializationFinished.open();
+    }
+  }
+  async initializeInstalledExtensions(instantiationService) {
+    if (!this.initializeInstalledExtensionsPromise) {
+      const profileTemplate = await this.getProfileTemplate();
+      if (profileTemplate?.extensions) {
+        this.initializeInstalledExtensionsPromise = this.initialize(
+          instantiationService.createInstance(ExtensionsResourceInitializer),
+          profileTemplate.extensions,
+          "extensions"
+          /* ProfileResourceType.Extensions */
+        );
+      } else {
+        this.initializeInstalledExtensionsPromise = Promise.resolve();
+      }
+    }
+    return this.initializeInstalledExtensionsPromise;
+  }
+  getProfileTemplate() {
+    if (!this.profileTemplatePromise) {
+      this.profileTemplatePromise = this.doGetProfileTemplate();
+    }
+    return this.profileTemplatePromise;
+  }
+  async doGetProfileTemplate() {
+    if (!this.environmentService.options?.profile?.contents) {
+      return null;
+    }
+    if (isString(this.environmentService.options.profile.contents)) {
+      try {
+        return JSON.parse(this.environmentService.options.profile.contents);
+      } catch (error) {
+        this.logService.error(error);
+        return null;
+      }
+    }
+    try {
+      const url = URI.revive(this.environmentService.options.profile.contents).toString(true);
+      const context = await this.requestService.request({ type: "GET", url }, CancellationToken.None);
+      if (context.res.statusCode === 200) {
+        return await asJson(context);
+      } else {
+        this.logService.warn(`UserDataProfileInitializer: Failed to get profile from URL: ${url}. Status code: ${context.res.statusCode}.`);
+      }
+    } catch (error) {
+      this.logService.error(error);
+    }
+    return null;
+  }
+  async initialize(initializer, content, profileResource) {
+    try {
+      if (this.initialized.includes(profileResource)) {
+        this.logService.info(`UserDataProfileInitializer: ${profileResource} initialized already.`);
+        return;
+      }
+      this.initialized.push(profileResource);
+      this.logService.trace(`UserDataProfileInitializer: Initializing ${profileResource}`);
+      await initializer.initialize(content);
+      this.logService.info(`UserDataProfileInitializer: Initialized ${profileResource}`);
+    } catch (error) {
+      this.logService.info(`UserDataProfileInitializer: Error while initializing ${profileResource}`);
+      this.logService.error(error);
+    }
+  }
+};
+UserDataProfileInitializer = __decorate([
+  __param(0, IBrowserWorkbenchEnvironmentService),
+  __param(1, IFileService),
+  __param(2, IUserDataProfileService),
+  __param(3, IStorageService),
+  __param(4, ILogService),
+  __param(5, IUriIdentityService),
+  __param(6, IRequestService)
+], UserDataProfileInitializer);
+export {
+  UserDataProfileInitializer
+};
+//# sourceMappingURL=userDataProfileInit.js.map

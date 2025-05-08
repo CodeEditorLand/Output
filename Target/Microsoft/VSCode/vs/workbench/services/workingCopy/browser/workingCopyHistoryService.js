@@ -1,1 +1,56 @@
-import{IFileService as v}from"../../../../platform/files/common/files.js";import{IRemoteAgentService as l}from"../../remote/common/remoteAgentService.js";import{IWorkbenchEnvironmentService as u}from"../../environment/common/environmentService.js";import{IUriIdentityService as S}from"../../../../platform/uriIdentity/common/uriIdentity.js";import{ILabelService as a}from"../../../../platform/label/common/label.js";import{ILogService as g}from"../../../../platform/log/common/log.js";import{IConfigurationService as h}from"../../../../platform/configuration/common/configuration.js";import{WorkingCopyHistoryService as y}from"../common/workingCopyHistoryService.js";import{registerSingleton as I}from"../../../../platform/instantiation/common/extensions.js";import{IWorkingCopyHistoryService as _}from"../common/workingCopyHistory.js";var s=function(n,r,o,i){var c=arguments.length,e=c<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,o):i,f;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(n,r,o,i);else for(var m=n.length-1;m>=0;m--)(f=n[m])&&(e=(c<3?f(e):c>3?f(r,o,e):f(r,o))||e);return c>3&&e&&Object.defineProperty(r,o,e),e},t=function(n,r){return function(o,i){r(o,i,n)}};let p=class extends y{constructor(r,o,i,c,e,f,m){super(r,o,i,c,e,f,m)}getModelOptions(){return{flushOnChange:!0}}};p=s([t(0,v),t(1,l),t(2,u),t(3,S),t(4,a),t(5,g),t(6,h)],p);I(_,p,1);export{p as BrowserWorkingCopyHistoryService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IFileService } from "../../../../platform/files/common/files.js";
+import { IRemoteAgentService } from "../../remote/common/remoteAgentService.js";
+import { IWorkbenchEnvironmentService } from "../../environment/common/environmentService.js";
+import { IUriIdentityService } from "../../../../platform/uriIdentity/common/uriIdentity.js";
+import { ILabelService } from "../../../../platform/label/common/label.js";
+import { ILogService } from "../../../../platform/log/common/log.js";
+import { IConfigurationService } from "../../../../platform/configuration/common/configuration.js";
+import { WorkingCopyHistoryService } from "../common/workingCopyHistoryService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { IWorkingCopyHistoryService } from "../common/workingCopyHistory.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let BrowserWorkingCopyHistoryService = class BrowserWorkingCopyHistoryService2 extends WorkingCopyHistoryService {
+  static {
+    __name(this, "BrowserWorkingCopyHistoryService");
+  }
+  constructor(fileService, remoteAgentService, environmentService, uriIdentityService, labelService, logService, configurationService) {
+    super(fileService, remoteAgentService, environmentService, uriIdentityService, labelService, logService, configurationService);
+  }
+  getModelOptions() {
+    return {
+      flushOnChange: true
+      /* because browsers support no long running shutdown */
+    };
+  }
+};
+BrowserWorkingCopyHistoryService = __decorate([
+  __param(0, IFileService),
+  __param(1, IRemoteAgentService),
+  __param(2, IWorkbenchEnvironmentService),
+  __param(3, IUriIdentityService),
+  __param(4, ILabelService),
+  __param(5, ILogService),
+  __param(6, IConfigurationService)
+], BrowserWorkingCopyHistoryService);
+registerSingleton(
+  IWorkingCopyHistoryService,
+  BrowserWorkingCopyHistoryService,
+  1
+  /* InstantiationType.Delayed */
+);
+export {
+  BrowserWorkingCopyHistoryService
+};
+//# sourceMappingURL=workingCopyHistoryService.js.map

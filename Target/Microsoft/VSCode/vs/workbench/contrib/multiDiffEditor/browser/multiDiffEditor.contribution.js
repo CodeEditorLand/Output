@@ -1,1 +1,48 @@
-import{localize as l}from"../../../../nls.js";import{registerAction2 as i}from"../../../../platform/actions/common/actions.js";import{Extensions as p}from"../../../../platform/configuration/common/configurationRegistry.js";import{SyncDescriptor as s}from"../../../../platform/instantiation/common/descriptors.js";import{Registry as r}from"../../../../platform/registry/common/platform.js";import{EditorPaneDescriptor as a}from"../../../browser/editor.js";import{registerWorkbenchContribution2 as f}from"../../../common/contributions.js";import{EditorExtensions as n}from"../../../common/editor.js";import{MultiDiffEditor as o}from"./multiDiffEditor.js";import{MultiDiffEditorInput as m,MultiDiffEditorResolverContribution as t,MultiDiffEditorSerializer as u}from"./multiDiffEditorInput.js";import{CollapseAllAction as c,ExpandAllAction as d,GoToFileAction as E}from"./actions.js";import{IMultiDiffSourceResolverService as D,MultiDiffSourceResolverService as S}from"./multiDiffSourceResolverService.js";import{registerSingleton as g}from"../../../../platform/instantiation/common/extensions.js";import{OpenScmGroupAction as M,ScmMultiDiffSourceResolverContribution as e}from"./scmMultiDiffSourceResolver.js";i(E);i(c);i(d);r.as(p.Configuration).registerConfiguration({properties:{"multiDiffEditor.experimental.enabled":{type:"boolean",default:!0,description:"Enable experimental multi diff editor."}}});g(D,S,1);f(t.ID,t,1);r.as(n.EditorPane).registerEditorPane(a.create(o,o.ID,l("name","Multi Diff Editor")),[new s(m)]);r.as(n.EditorFactory).registerEditorSerializer(m.ID,u);i(M);f(e.ID,e,1);
+import { localize } from "../../../../nls.js";
+import { registerAction2 } from "../../../../platform/actions/common/actions.js";
+import { Extensions } from "../../../../platform/configuration/common/configurationRegistry.js";
+import { SyncDescriptor } from "../../../../platform/instantiation/common/descriptors.js";
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { EditorPaneDescriptor } from "../../../browser/editor.js";
+import { registerWorkbenchContribution2 } from "../../../common/contributions.js";
+import { EditorExtensions } from "../../../common/editor.js";
+import { MultiDiffEditor } from "./multiDiffEditor.js";
+import { MultiDiffEditorInput, MultiDiffEditorResolverContribution, MultiDiffEditorSerializer } from "./multiDiffEditorInput.js";
+import { CollapseAllAction, ExpandAllAction, GoToFileAction } from "./actions.js";
+import { IMultiDiffSourceResolverService, MultiDiffSourceResolverService } from "./multiDiffSourceResolverService.js";
+import { registerSingleton } from "../../../../platform/instantiation/common/extensions.js";
+import { OpenScmGroupAction, ScmMultiDiffSourceResolverContribution } from "./scmMultiDiffSourceResolver.js";
+registerAction2(GoToFileAction);
+registerAction2(CollapseAllAction);
+registerAction2(ExpandAllAction);
+Registry.as(Extensions.Configuration).registerConfiguration({
+  properties: {
+    "multiDiffEditor.experimental.enabled": {
+      type: "boolean",
+      default: true,
+      description: "Enable experimental multi diff editor."
+    }
+  }
+});
+registerSingleton(
+  IMultiDiffSourceResolverService,
+  MultiDiffSourceResolverService,
+  1
+  /* InstantiationType.Delayed */
+);
+registerWorkbenchContribution2(
+  MultiDiffEditorResolverContribution.ID,
+  MultiDiffEditorResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+Registry.as(EditorExtensions.EditorPane).registerEditorPane(EditorPaneDescriptor.create(MultiDiffEditor, MultiDiffEditor.ID, localize("name", "Multi Diff Editor")), [new SyncDescriptor(MultiDiffEditorInput)]);
+Registry.as(EditorExtensions.EditorFactory).registerEditorSerializer(MultiDiffEditorInput.ID, MultiDiffEditorSerializer);
+registerAction2(OpenScmGroupAction);
+registerWorkbenchContribution2(
+  ScmMultiDiffSourceResolverContribution.ID,
+  ScmMultiDiffSourceResolverContribution,
+  1
+  /* WorkbenchPhase.BlockStartup */
+);
+//# sourceMappingURL=multiDiffEditor.contribution.js.map

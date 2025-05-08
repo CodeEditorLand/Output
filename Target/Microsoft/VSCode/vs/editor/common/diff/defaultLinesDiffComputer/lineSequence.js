@@ -1,2 +1,40 @@
-class r{constructor(t,e){this.trimmedHash=t,this.lines=e}getElement(t){return this.trimmedHash[t]}get length(){return this.trimmedHash.length}getBoundaryScore(t){const e=t===0?0:i(this.lines[t-1]),s=t===this.lines.length?0:i(this.lines[t]);return 1e3-(e+s)}getText(t){return this.lines.slice(t.start,t.endExclusive).join(`
-`)}isStronglyEqual(t,e){return this.lines[t]===this.lines[e]}}function i(n){let t=0;for(;t<n.length&&(n.charCodeAt(t)===32||n.charCodeAt(t)===9);)t++;return t}export{r as LineSequence};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+class LineSequence {
+  static {
+    __name(this, "LineSequence");
+  }
+  constructor(trimmedHash, lines) {
+    this.trimmedHash = trimmedHash;
+    this.lines = lines;
+  }
+  getElement(offset) {
+    return this.trimmedHash[offset];
+  }
+  get length() {
+    return this.trimmedHash.length;
+  }
+  getBoundaryScore(length) {
+    const indentationBefore = length === 0 ? 0 : getIndentation(this.lines[length - 1]);
+    const indentationAfter = length === this.lines.length ? 0 : getIndentation(this.lines[length]);
+    return 1e3 - (indentationBefore + indentationAfter);
+  }
+  getText(range) {
+    return this.lines.slice(range.start, range.endExclusive).join("\n");
+  }
+  isStronglyEqual(offset1, offset2) {
+    return this.lines[offset1] === this.lines[offset2];
+  }
+}
+function getIndentation(str) {
+  let i = 0;
+  while (i < str.length && (str.charCodeAt(i) === 32 || str.charCodeAt(i) === 9)) {
+    i++;
+  }
+  return i;
+}
+__name(getIndentation, "getIndentation");
+export {
+  LineSequence
+};
+//# sourceMappingURL=lineSequence.js.map

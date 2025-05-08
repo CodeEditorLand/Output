@@ -1,1 +1,76 @@
-import{ProgressBar as u}from"../../../../../../base/browser/ui/progressbar/progressbar.js";import{defaultProgressBarStyles as l}from"../../../../../../platform/theme/browser/defaultStyles.js";import{CellContentPart as f}from"../cellPart.js";import{NotebookCellExecutionState as c}from"../../../common/notebookCommon.js";import{INotebookExecutionStateService as _}from"../../../common/notebookExecutionStateService.js";var d=function(o,t,e,r){var s=arguments.length,i=s<3?t:r===null?r=Object.getOwnPropertyDescriptor(t,e):r,a;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(o,t,e,r);else for(var n=o.length-1;n>=0;n--)(a=o[n])&&(i=(s<3?a(i):s>3?a(t,e,i):a(t,e))||i);return s>3&&i&&Object.defineProperty(t,e,i),i},h=function(o,t){return function(e,r){t(e,r,o)}};let p=class extends f{constructor(t,e,r){super(),this._notebookExecutionStateService=r,this._progressBar=this._register(new u(t,l)),this._progressBar.hide(),this._collapsedProgressBar=this._register(new u(e,l)),this._collapsedProgressBar.hide()}didRenderCell(t){this._updateForExecutionState(t)}updateForExecutionState(t,e){this._updateForExecutionState(t,e)}updateState(t,e){if((e.metadataChanged||e.internalMetadataChanged)&&this._updateForExecutionState(t),e.inputCollapsedChanged){const r=this._notebookExecutionStateService.getCellExecution(t.uri);t.isInputCollapsed?(this._progressBar.hide(),r?.state===c.Executing&&this._updateForExecutionState(t)):(this._collapsedProgressBar.hide(),r?.state===c.Executing&&this._updateForExecutionState(t))}}_updateForExecutionState(t,e){const r=e?.changed??this._notebookExecutionStateService.getCellExecution(t.uri),s=t.isInputCollapsed?this._collapsedProgressBar:this._progressBar;r?.state===c.Executing&&(!r.didPause||t.isInputCollapsed)?g(s):s.hide()}};p=d([h(2,_)],p);function g(o){o.infinite().show(500)}export{p as CellProgressBar};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ProgressBar } from "../../../../../../base/browser/ui/progressbar/progressbar.js";
+import { defaultProgressBarStyles } from "../../../../../../platform/theme/browser/defaultStyles.js";
+import { CellContentPart } from "../cellPart.js";
+import { NotebookCellExecutionState } from "../../../common/notebookCommon.js";
+import { INotebookExecutionStateService } from "../../../common/notebookExecutionStateService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let CellProgressBar = class CellProgressBar2 extends CellContentPart {
+  static {
+    __name(this, "CellProgressBar");
+  }
+  constructor(editorContainer, collapsedInputContainer, _notebookExecutionStateService) {
+    super();
+    this._notebookExecutionStateService = _notebookExecutionStateService;
+    this._progressBar = this._register(new ProgressBar(editorContainer, defaultProgressBarStyles));
+    this._progressBar.hide();
+    this._collapsedProgressBar = this._register(new ProgressBar(collapsedInputContainer, defaultProgressBarStyles));
+    this._collapsedProgressBar.hide();
+  }
+  didRenderCell(element) {
+    this._updateForExecutionState(element);
+  }
+  updateForExecutionState(element, e) {
+    this._updateForExecutionState(element, e);
+  }
+  updateState(element, e) {
+    if (e.metadataChanged || e.internalMetadataChanged) {
+      this._updateForExecutionState(element);
+    }
+    if (e.inputCollapsedChanged) {
+      const exeState = this._notebookExecutionStateService.getCellExecution(element.uri);
+      if (element.isInputCollapsed) {
+        this._progressBar.hide();
+        if (exeState?.state === NotebookCellExecutionState.Executing) {
+          this._updateForExecutionState(element);
+        }
+      } else {
+        this._collapsedProgressBar.hide();
+        if (exeState?.state === NotebookCellExecutionState.Executing) {
+          this._updateForExecutionState(element);
+        }
+      }
+    }
+  }
+  _updateForExecutionState(element, e) {
+    const exeState = e?.changed ?? this._notebookExecutionStateService.getCellExecution(element.uri);
+    const progressBar = element.isInputCollapsed ? this._collapsedProgressBar : this._progressBar;
+    if (exeState?.state === NotebookCellExecutionState.Executing && (!exeState.didPause || element.isInputCollapsed)) {
+      showProgressBar(progressBar);
+    } else {
+      progressBar.hide();
+    }
+  }
+};
+CellProgressBar = __decorate([
+  __param(2, INotebookExecutionStateService)
+], CellProgressBar);
+function showProgressBar(progressBar) {
+  progressBar.infinite().show(500);
+}
+__name(showProgressBar, "showProgressBar");
+export {
+  CellProgressBar
+};
+//# sourceMappingURL=cellProgressBar.js.map

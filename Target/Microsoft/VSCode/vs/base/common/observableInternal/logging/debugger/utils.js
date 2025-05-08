@@ -1,2 +1,113 @@
-function l(i,t){const e=i.split(`
-`);let s=-1;for(const n of e.slice(1)){if(s++,t&&t.test(n))continue;const o=u(n);if(o)return o}}function u(i){const t=i.match(/\((.*):(\d+):(\d+)\)/);if(t)return{fileName:t[1],line:parseInt(t[2]),column:parseInt(t[3]),id:i};const e=i.match(/at ([^\(\)]*):(\d+):(\d+)/);if(e)return{fileName:e[1],line:parseInt(e[2]),column:parseInt(e[3]),id:i}}class m{constructor(){this._timeout=void 0}debounce(t,e){this._timeout!==void 0&&clearTimeout(this._timeout),this._timeout=setTimeout(()=>{this._timeout=void 0,t()},e)}dispose(){this._timeout!==void 0&&clearTimeout(this._timeout)}}class c{constructor(){this._timeout=void 0}throttle(t,e){this._timeout===void 0&&(this._timeout=setTimeout(()=>{this._timeout=void 0,t()},e))}dispose(){this._timeout!==void 0&&clearTimeout(this._timeout)}}function f(i,t){for(const e in t)i[e]&&typeof i[e]=="object"&&t[e]&&typeof t[e]=="object"?f(i[e],t[e]):i[e]=t[e]}function d(i,t){for(const e in t)t[e]===null?delete i[e]:i[e]&&typeof i[e]=="object"&&t[e]&&typeof t[e]=="object"?d(i[e],t[e]):i[e]=t[e]}export{m as Debouncer,c as Throttler,f as deepAssign,d as deepAssignDeleteNulls,l as getFirstStackFrameOutsideOf};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+function getFirstStackFrameOutsideOf(stack, pattern) {
+  const lines = stack.split("\n");
+  let i = -1;
+  for (const line of lines.slice(1)) {
+    i++;
+    if (pattern && pattern.test(line)) {
+      continue;
+    }
+    const result = parseLine(line);
+    if (result) {
+      return result;
+    }
+  }
+  return void 0;
+}
+__name(getFirstStackFrameOutsideOf, "getFirstStackFrameOutsideOf");
+function parseLine(stackLine) {
+  const match = stackLine.match(/\((.*):(\d+):(\d+)\)/);
+  if (match) {
+    return {
+      fileName: match[1],
+      line: parseInt(match[2]),
+      column: parseInt(match[3]),
+      id: stackLine
+    };
+  }
+  const match2 = stackLine.match(/at ([^\(\)]*):(\d+):(\d+)/);
+  if (match2) {
+    return {
+      fileName: match2[1],
+      line: parseInt(match2[2]),
+      column: parseInt(match2[3]),
+      id: stackLine
+    };
+  }
+  return void 0;
+}
+__name(parseLine, "parseLine");
+class Debouncer {
+  static {
+    __name(this, "Debouncer");
+  }
+  constructor() {
+    this._timeout = void 0;
+  }
+  debounce(fn, timeoutMs) {
+    if (this._timeout !== void 0) {
+      clearTimeout(this._timeout);
+    }
+    this._timeout = setTimeout(() => {
+      this._timeout = void 0;
+      fn();
+    }, timeoutMs);
+  }
+  dispose() {
+    if (this._timeout !== void 0) {
+      clearTimeout(this._timeout);
+    }
+  }
+}
+class Throttler {
+  static {
+    __name(this, "Throttler");
+  }
+  constructor() {
+    this._timeout = void 0;
+  }
+  throttle(fn, timeoutMs) {
+    if (this._timeout === void 0) {
+      this._timeout = setTimeout(() => {
+        this._timeout = void 0;
+        fn();
+      }, timeoutMs);
+    }
+  }
+  dispose() {
+    if (this._timeout !== void 0) {
+      clearTimeout(this._timeout);
+    }
+  }
+}
+function deepAssign(target, source) {
+  for (const key in source) {
+    if (!!target[key] && typeof target[key] === "object" && !!source[key] && typeof source[key] === "object") {
+      deepAssign(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+__name(deepAssign, "deepAssign");
+function deepAssignDeleteNulls(target, source) {
+  for (const key in source) {
+    if (source[key] === null) {
+      delete target[key];
+    } else if (!!target[key] && typeof target[key] === "object" && !!source[key] && typeof source[key] === "object") {
+      deepAssignDeleteNulls(target[key], source[key]);
+    } else {
+      target[key] = source[key];
+    }
+  }
+}
+__name(deepAssignDeleteNulls, "deepAssignDeleteNulls");
+export {
+  Debouncer,
+  Throttler,
+  deepAssign,
+  deepAssignDeleteNulls,
+  getFirstStackFrameOutsideOf
+};
+//# sourceMappingURL=utils.js.map

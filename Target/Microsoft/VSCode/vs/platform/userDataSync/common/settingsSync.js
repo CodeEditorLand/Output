@@ -1,1 +1,359 @@
-import{distinct as I}from"../../../base/common/arrays.js";import{VSBuffer as A}from"../../../base/common/buffer.js";import{Event as R}from"../../../base/common/event.js";import{localize as N}from"../../../nls.js";import{IConfigurationService as q}from"../../configuration/common/configuration.js";import{ConfigurationModelParser as j}from"../../configuration/common/configurationModels.js";import{IEnvironmentService as F}from"../../environment/common/environment.js";import{IExtensionManagementService as J}from"../../extensionManagement/common/extensionManagement.js";import{IFileService as O}from"../../files/common/files.js";import{IStorageService as D}from"../../storage/common/storage.js";import{ITelemetryService as T}from"../../telemetry/common/telemetry.js";import{IUriIdentityService as _}from"../../uriIdentity/common/uriIdentity.js";import{IUserDataProfilesService as P}from"../../userDataProfile/common/userDataProfile.js";import{AbstractInitializer as k,AbstractJsonFileSynchroniser as V}from"./abstractSynchronizer.js";import{getIgnoredSettings as Y,isEmpty as z,merge as w,updateIgnoredSettings as S}from"./settingsMerge.js";import{IUserDataSyncLocalStoreService as B,IUserDataSyncLogService as M,IUserDataSyncEnablementService as G,IUserDataSyncStoreService as H,IUserDataSyncUtilService as K,UserDataSyncError as Q,USER_DATA_SYNC_CONFIGURATION_SCOPE as E,USER_DATA_SYNC_SCHEME as y,getIgnoredSettingsForExtension as x}from"./userDataSync.js";var b=function(a,t,e,i){var n=arguments.length,o=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(a,t,e,i);else for(var c=a.length-1;c>=0;c--)(s=a[c])&&(o=(n<3?s(o):n>3?s(t,e,o):s(t,e))||o);return n>3&&o&&Object.defineProperty(t,e,o),o},r=function(a,t){return function(e,i){t(e,i,a)}};function W(a){return a&&a.settings&&typeof a.settings=="string"&&Object.keys(a).length===1}function $(a){const t=JSON.parse(a);return W(t)?t:{settings:a}}let L=class extends V{constructor(t,e,i,n,o,s,c,u,l,g,h,f,C,d){super(t.settingsResource,{syncResource:"settings",profile:t},e,i,n,o,s,c,h,f,u,l,g,d),this.profile=t,this.extensionManagementService=C,this.version=2,this.previewResource=this.extUri.joinPath(this.syncPreviewFolder,"settings.json"),this.baseResource=this.previewResource.with({scheme:y,authority:"base"}),this.localResource=this.previewResource.with({scheme:y,authority:"local"}),this.remoteResource=this.previewResource.with({scheme:y,authority:"remote"}),this.acceptedResource=this.previewResource.with({scheme:y,authority:"accepted"}),this.coreIgnoredSettings=void 0,this.systemExtensionsIgnoredSettings=void 0,this.userExtensionsIgnoredSettings=void 0}async getRemoteUserDataSyncConfiguration(t){const e=await this.getLastSyncUserData(),i=await this.getLatestRemoteUserData(t,e),n=this.getSettingsSyncContent(i),o=new j(E,this.logService);return n?.settings&&o.parse(n.settings),o.configurationModel.getValue(E)||{}}async generateSyncPreview(t,e,i){const n=await this.getLocalFileContent(),o=await this.getFormattingOptions(),s=this.getSettingsSyncContent(t);e=e===null&&i?t:e;const c=e?this.getSettingsSyncContent(e):null,u=await this.getIgnoredSettings();let l=null,g=!1,h=!1,f=!1;if(s){let p=n?n.value.toString().trim():"{}";p=p||"{}",this.validateContent(p),this.logService.trace(`${this.syncResourceLogLabel}: Merging remote settings with local settings...`);const m=w(p,s.settings,c?c.settings:null,u,[],o);l=m.localContent||m.remoteContent,g=m.localContent!==null,h=m.remoteContent!==null,f=m.hasConflicts}else n&&(this.logService.trace(`${this.syncResourceLogLabel}: Remote settings does not exist. Synchronizing settings for the first time.`),l=n.value.toString().trim()||"{}",this.validateContent(l),h=!0);const C=n?n.value.toString():null,d=c?.settings??null,v={content:f?d:l,localChange:g?2:0,remoteChange:h?2:0,hasConflicts:f};return[{fileContent:n,baseResource:this.baseResource,baseContent:d,localResource:this.localResource,localContent:C,localChange:v.localChange,remoteResource:this.remoteResource,remoteContent:s?s.settings:null,remoteChange:v.remoteChange,previewResource:this.previewResource,previewResult:v,acceptedResource:this.acceptedResource}]}async hasRemoteChanged(t){const e=this.getSettingsSyncContent(t);if(e===null)return!0;const i=await this.getLocalFileContent(),n=i?i.value.toString().trim():"",o=await this.getIgnoredSettings(),s=await this.getFormattingOptions();return w(n||"{}",e.settings,e.settings,o,[],s).remoteContent!==null}async getMergeResult(t,e){const i=await this.getFormattingOptions(),n=await this.getIgnoredSettings();return{...t.previewResult,content:t.previewResult.content?S(t.previewResult.content,"{}",n,i):null}}async getAcceptResult(t,e,i,n){const o=await this.getFormattingOptions(),s=await this.getIgnoredSettings();if(this.extUri.isEqual(e,this.localResource))return{content:t.fileContent?S(t.fileContent.value.toString(),"{}",s,o):null,localChange:0,remoteChange:2};if(this.extUri.isEqual(e,this.remoteResource))return{content:t.remoteContent!==null?S(t.remoteContent,t.fileContent?t.fileContent.value.toString():"{}",s,o):null,localChange:2,remoteChange:0};if(this.extUri.isEqual(e,this.previewResource))return i===void 0?{content:t.previewResult.content,localChange:t.previewResult.localChange,remoteChange:t.previewResult.remoteChange}:{content:i!==null?S(i,t.fileContent?t.fileContent.value.toString():"{}",s,o):null,localChange:2,remoteChange:2};throw new Error(`Invalid Resource: ${e.toString()}`)}async applyResult(t,e,i,n){const{fileContent:o}=i[0][0];let{content:s,localChange:c,remoteChange:u}=i[0][1];if(c===0&&u===0&&this.logService.info(`${this.syncResourceLogLabel}: No changes found during synchronizing settings.`),s=s?s.trim():"{}",s=s||"{}",this.validateContent(s),c!==0&&(this.logService.trace(`${this.syncResourceLogLabel}: Updating local settings...`),o&&await this.backupLocal(JSON.stringify(this.toSettingsSyncContent(o.value.toString()))),await this.updateLocalFileContent(s,o,n),await this.configurationService.reloadConfiguration(3),this.logService.info(`${this.syncResourceLogLabel}: Updated local settings`)),u!==0){const l=await this.getFormattingOptions(),g=this.getSettingsSyncContent(t),h=await this.getIgnoredSettings(s);s=S(s,g?g.settings:"{}",h,l),this.logService.trace(`${this.syncResourceLogLabel}: Updating remote settings...`),t=await this.updateRemoteUserData(JSON.stringify(this.toSettingsSyncContent(s)),n?null:t.ref),this.logService.info(`${this.syncResourceLogLabel}: Updated remote settings`)}try{await this.fileService.del(this.previewResource)}catch{}e?.ref!==t.ref&&(this.logService.trace(`${this.syncResourceLogLabel}: Updating last synchronized settings...`),await this.updateLastSyncUserData(t),this.logService.info(`${this.syncResourceLogLabel}: Updated last synchronized settings`))}async hasLocalData(){try{const t=await this.getLocalFileContent();if(t)return!z(t.value.toString())}catch(t){if(t.fileOperationResult!==1)return!0}return!1}async resolveContent(t){return this.extUri.isEqual(this.remoteResource,t)||this.extUri.isEqual(this.localResource,t)||this.extUri.isEqual(this.acceptedResource,t)||this.extUri.isEqual(this.baseResource,t)?this.resolvePreviewContent(t):null}async resolvePreviewContent(t){let e=await super.resolvePreviewContent(t);if(e){const i=await this.getFormattingOptions(),n=await this.getIgnoredSettings();e=S(e,"{}",n,i)}return e}getSettingsSyncContent(t){return t.syncData?this.parseSettingsSyncContent(t.syncData.content):null}parseSettingsSyncContent(t){try{return $(t)}catch(e){this.logService.error(e)}return null}toSettingsSyncContent(t){return{settings:t}}async getIgnoredSettings(t){if(this.coreIgnoredSettings||(this.coreIgnoredSettings=this.userDataSyncUtilService.resolveDefaultCoreIgnoredSettings()),this.systemExtensionsIgnoredSettings||(this.systemExtensionsIgnoredSettings=this.getIgnoredSettingForSystemExtensions()),!this.userExtensionsIgnoredSettings){this.userExtensionsIgnoredSettings=this.getIgnoredSettingForUserExtensions();const i=this._register(R.any(R.filter(this.extensionManagementService.onDidInstallExtensions,n=>n.some(({local:o})=>!!o)),R.filter(this.extensionManagementService.onDidUninstallExtension,n=>!n.error))(()=>{i.dispose(),this.userExtensionsIgnoredSettings=void 0}))}const e=(await Promise.all([this.coreIgnoredSettings,this.systemExtensionsIgnoredSettings,this.userExtensionsIgnoredSettings])).flat();return Y(e,this.configurationService,t)}async getIgnoredSettingForSystemExtensions(){const t=await this.extensionManagementService.getInstalled(0);return I(t.map(e=>x(e.manifest)).flat())}async getIgnoredSettingForUserExtensions(){const t=await this.extensionManagementService.getInstalled(1,this.profile.extensionsResource);return I(t.map(e=>x(e.manifest)).flat())}validateContent(t){if(this.hasErrors(t,!1))throw new Q(N("errorInvalidSettings","Unable to sync settings as there are errors/warning in settings file."),"LocalInvalidContent",this.resource)}};L=b([r(2,O),r(3,F),r(4,D),r(5,H),r(6,B),r(7,M),r(8,K),r(9,q),r(10,G),r(11,T),r(12,J),r(13,_)],L);let U=class extends k{constructor(t,e,i,n,o,s){super("settings",e,i,n,t,o,s)}async doInitialize(t){const e=t.syncData?this.parseSettingsSyncContent(t.syncData.content):null;if(!e){this.logService.info("Skipping initializing settings because remote settings does not exist.");return}if(!await this.isEmpty()){this.logService.info("Skipping initializing settings because local settings exist.");return}await this.fileService.writeFile(this.userDataProfilesService.defaultProfile.settingsResource,A.fromString(e.settings)),await this.updateLastSyncUserData(t)}async isEmpty(){try{const t=await this.fileService.readFile(this.userDataProfilesService.defaultProfile.settingsResource);return z(t.value.toString().trim())}catch(t){return t.fileOperationResult===1}}parseSettingsSyncContent(t){try{return $(t)}catch(e){this.logService.error(e)}return null}};U=b([r(0,O),r(1,P),r(2,F),r(3,M),r(4,D),r(5,_)],U);export{U as SettingsInitializer,L as SettingsSynchroniser,$ as parseSettingsSyncContent};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { distinct } from "../../../base/common/arrays.js";
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Event } from "../../../base/common/event.js";
+import { localize } from "../../../nls.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { ConfigurationModelParser } from "../../configuration/common/configurationModels.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { IExtensionManagementService } from "../../extensionManagement/common/extensionManagement.js";
+import { IFileService } from "../../files/common/files.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { AbstractInitializer, AbstractJsonFileSynchroniser } from "./abstractSynchronizer.js";
+import { getIgnoredSettings, isEmpty, merge, updateIgnoredSettings } from "./settingsMerge.js";
+import { IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, IUserDataSyncUtilService, UserDataSyncError, USER_DATA_SYNC_CONFIGURATION_SCOPE, USER_DATA_SYNC_SCHEME, getIgnoredSettingsForExtension } from "./userDataSync.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+function isSettingsSyncContent(thing) {
+  return thing && (thing.settings && typeof thing.settings === "string") && Object.keys(thing).length === 1;
+}
+__name(isSettingsSyncContent, "isSettingsSyncContent");
+function parseSettingsSyncContent(syncContent) {
+  const parsed = JSON.parse(syncContent);
+  return isSettingsSyncContent(parsed) ? parsed : (
+    /* migrate */
+    { settings: syncContent }
+  );
+}
+__name(parseSettingsSyncContent, "parseSettingsSyncContent");
+let SettingsSynchroniser = class SettingsSynchroniser2 extends AbstractJsonFileSynchroniser {
+  static {
+    __name(this, "SettingsSynchroniser");
+  }
+  constructor(profile, collection, fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, logService, userDataSyncUtilService, configurationService, userDataSyncEnablementService, telemetryService, extensionManagementService, uriIdentityService) {
+    super(profile.settingsResource, { syncResource: "settings", profile }, collection, fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, userDataSyncUtilService, configurationService, uriIdentityService);
+    this.profile = profile;
+    this.extensionManagementService = extensionManagementService;
+    this.version = 2;
+    this.previewResource = this.extUri.joinPath(this.syncPreviewFolder, "settings.json");
+    this.baseResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" });
+    this.localResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" });
+    this.remoteResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" });
+    this.acceptedResource = this.previewResource.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" });
+    this.coreIgnoredSettings = void 0;
+    this.systemExtensionsIgnoredSettings = void 0;
+    this.userExtensionsIgnoredSettings = void 0;
+  }
+  async getRemoteUserDataSyncConfiguration(manifest) {
+    const lastSyncUserData = await this.getLastSyncUserData();
+    const remoteUserData = await this.getLatestRemoteUserData(manifest, lastSyncUserData);
+    const remoteSettingsSyncContent = this.getSettingsSyncContent(remoteUserData);
+    const parser = new ConfigurationModelParser(USER_DATA_SYNC_CONFIGURATION_SCOPE, this.logService);
+    if (remoteSettingsSyncContent?.settings) {
+      parser.parse(remoteSettingsSyncContent.settings);
+    }
+    return parser.configurationModel.getValue(USER_DATA_SYNC_CONFIGURATION_SCOPE) || {};
+  }
+  async generateSyncPreview(remoteUserData, lastSyncUserData, isRemoteDataFromCurrentMachine) {
+    const fileContent = await this.getLocalFileContent();
+    const formattingOptions = await this.getFormattingOptions();
+    const remoteSettingsSyncContent = this.getSettingsSyncContent(remoteUserData);
+    lastSyncUserData = lastSyncUserData === null && isRemoteDataFromCurrentMachine ? remoteUserData : lastSyncUserData;
+    const lastSettingsSyncContent = lastSyncUserData ? this.getSettingsSyncContent(lastSyncUserData) : null;
+    const ignoredSettings = await this.getIgnoredSettings();
+    let mergedContent = null;
+    let hasLocalChanged = false;
+    let hasRemoteChanged = false;
+    let hasConflicts = false;
+    if (remoteSettingsSyncContent) {
+      let localContent2 = fileContent ? fileContent.value.toString().trim() : "{}";
+      localContent2 = localContent2 || "{}";
+      this.validateContent(localContent2);
+      this.logService.trace(`${this.syncResourceLogLabel}: Merging remote settings with local settings...`);
+      const result = merge(localContent2, remoteSettingsSyncContent.settings, lastSettingsSyncContent ? lastSettingsSyncContent.settings : null, ignoredSettings, [], formattingOptions);
+      mergedContent = result.localContent || result.remoteContent;
+      hasLocalChanged = result.localContent !== null;
+      hasRemoteChanged = result.remoteContent !== null;
+      hasConflicts = result.hasConflicts;
+    } else if (fileContent) {
+      this.logService.trace(`${this.syncResourceLogLabel}: Remote settings does not exist. Synchronizing settings for the first time.`);
+      mergedContent = fileContent.value.toString().trim() || "{}";
+      this.validateContent(mergedContent);
+      hasRemoteChanged = true;
+    }
+    const localContent = fileContent ? fileContent.value.toString() : null;
+    const baseContent = lastSettingsSyncContent?.settings ?? null;
+    const previewResult = {
+      content: hasConflicts ? baseContent : mergedContent,
+      localChange: hasLocalChanged ? 2 : 0,
+      remoteChange: hasRemoteChanged ? 2 : 0,
+      hasConflicts
+    };
+    return [{
+      fileContent,
+      baseResource: this.baseResource,
+      baseContent,
+      localResource: this.localResource,
+      localContent,
+      localChange: previewResult.localChange,
+      remoteResource: this.remoteResource,
+      remoteContent: remoteSettingsSyncContent ? remoteSettingsSyncContent.settings : null,
+      remoteChange: previewResult.remoteChange,
+      previewResource: this.previewResource,
+      previewResult,
+      acceptedResource: this.acceptedResource
+    }];
+  }
+  async hasRemoteChanged(lastSyncUserData) {
+    const lastSettingsSyncContent = this.getSettingsSyncContent(lastSyncUserData);
+    if (lastSettingsSyncContent === null) {
+      return true;
+    }
+    const fileContent = await this.getLocalFileContent();
+    const localContent = fileContent ? fileContent.value.toString().trim() : "";
+    const ignoredSettings = await this.getIgnoredSettings();
+    const formattingOptions = await this.getFormattingOptions();
+    const result = merge(localContent || "{}", lastSettingsSyncContent.settings, lastSettingsSyncContent.settings, ignoredSettings, [], formattingOptions);
+    return result.remoteContent !== null;
+  }
+  async getMergeResult(resourcePreview, token) {
+    const formatUtils = await this.getFormattingOptions();
+    const ignoredSettings = await this.getIgnoredSettings();
+    return {
+      ...resourcePreview.previewResult,
+      // remove ignored settings from the preview content
+      content: resourcePreview.previewResult.content ? updateIgnoredSettings(resourcePreview.previewResult.content, "{}", ignoredSettings, formatUtils) : null
+    };
+  }
+  async getAcceptResult(resourcePreview, resource, content, token) {
+    const formattingOptions = await this.getFormattingOptions();
+    const ignoredSettings = await this.getIgnoredSettings();
+    if (this.extUri.isEqual(resource, this.localResource)) {
+      return {
+        /* Remove ignored settings */
+        content: resourcePreview.fileContent ? updateIgnoredSettings(resourcePreview.fileContent.value.toString(), "{}", ignoredSettings, formattingOptions) : null,
+        localChange: 0,
+        remoteChange: 2
+      };
+    }
+    if (this.extUri.isEqual(resource, this.remoteResource)) {
+      return {
+        /* Update ignored settings from local file content */
+        content: resourcePreview.remoteContent !== null ? updateIgnoredSettings(resourcePreview.remoteContent, resourcePreview.fileContent ? resourcePreview.fileContent.value.toString() : "{}", ignoredSettings, formattingOptions) : null,
+        localChange: 2,
+        remoteChange: 0
+      };
+    }
+    if (this.extUri.isEqual(resource, this.previewResource)) {
+      if (content === void 0) {
+        return {
+          content: resourcePreview.previewResult.content,
+          localChange: resourcePreview.previewResult.localChange,
+          remoteChange: resourcePreview.previewResult.remoteChange
+        };
+      } else {
+        return {
+          /* Add ignored settings from local file content */
+          content: content !== null ? updateIgnoredSettings(content, resourcePreview.fileContent ? resourcePreview.fileContent.value.toString() : "{}", ignoredSettings, formattingOptions) : null,
+          localChange: 2,
+          remoteChange: 2
+        };
+      }
+    }
+    throw new Error(`Invalid Resource: ${resource.toString()}`);
+  }
+  async applyResult(remoteUserData, lastSyncUserData, resourcePreviews, force) {
+    const { fileContent } = resourcePreviews[0][0];
+    let { content, localChange, remoteChange } = resourcePreviews[0][1];
+    if (localChange === 0 && remoteChange === 0) {
+      this.logService.info(`${this.syncResourceLogLabel}: No changes found during synchronizing settings.`);
+    }
+    content = content ? content.trim() : "{}";
+    content = content || "{}";
+    this.validateContent(content);
+    if (localChange !== 0) {
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating local settings...`);
+      if (fileContent) {
+        await this.backupLocal(JSON.stringify(this.toSettingsSyncContent(fileContent.value.toString())));
+      }
+      await this.updateLocalFileContent(content, fileContent, force);
+      await this.configurationService.reloadConfiguration(
+        3
+        /* ConfigurationTarget.USER_LOCAL */
+      );
+      this.logService.info(`${this.syncResourceLogLabel}: Updated local settings`);
+    }
+    if (remoteChange !== 0) {
+      const formatUtils = await this.getFormattingOptions();
+      const remoteSettingsSyncContent = this.getSettingsSyncContent(remoteUserData);
+      const ignoredSettings = await this.getIgnoredSettings(content);
+      content = updateIgnoredSettings(content, remoteSettingsSyncContent ? remoteSettingsSyncContent.settings : "{}", ignoredSettings, formatUtils);
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating remote settings...`);
+      remoteUserData = await this.updateRemoteUserData(JSON.stringify(this.toSettingsSyncContent(content)), force ? null : remoteUserData.ref);
+      this.logService.info(`${this.syncResourceLogLabel}: Updated remote settings`);
+    }
+    try {
+      await this.fileService.del(this.previewResource);
+    } catch (e) {
+    }
+    if (lastSyncUserData?.ref !== remoteUserData.ref) {
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating last synchronized settings...`);
+      await this.updateLastSyncUserData(remoteUserData);
+      this.logService.info(`${this.syncResourceLogLabel}: Updated last synchronized settings`);
+    }
+  }
+  async hasLocalData() {
+    try {
+      const localFileContent = await this.getLocalFileContent();
+      if (localFileContent) {
+        return !isEmpty(localFileContent.value.toString());
+      }
+    } catch (error) {
+      if (error.fileOperationResult !== 1) {
+        return true;
+      }
+    }
+    return false;
+  }
+  async resolveContent(uri) {
+    if (this.extUri.isEqual(this.remoteResource, uri) || this.extUri.isEqual(this.localResource, uri) || this.extUri.isEqual(this.acceptedResource, uri) || this.extUri.isEqual(this.baseResource, uri)) {
+      return this.resolvePreviewContent(uri);
+    }
+    return null;
+  }
+  async resolvePreviewContent(resource) {
+    let content = await super.resolvePreviewContent(resource);
+    if (content) {
+      const formatUtils = await this.getFormattingOptions();
+      const ignoredSettings = await this.getIgnoredSettings();
+      content = updateIgnoredSettings(content, "{}", ignoredSettings, formatUtils);
+    }
+    return content;
+  }
+  getSettingsSyncContent(remoteUserData) {
+    return remoteUserData.syncData ? this.parseSettingsSyncContent(remoteUserData.syncData.content) : null;
+  }
+  parseSettingsSyncContent(syncContent) {
+    try {
+      return parseSettingsSyncContent(syncContent);
+    } catch (e) {
+      this.logService.error(e);
+    }
+    return null;
+  }
+  toSettingsSyncContent(settings) {
+    return { settings };
+  }
+  async getIgnoredSettings(content) {
+    if (!this.coreIgnoredSettings) {
+      this.coreIgnoredSettings = this.userDataSyncUtilService.resolveDefaultCoreIgnoredSettings();
+    }
+    if (!this.systemExtensionsIgnoredSettings) {
+      this.systemExtensionsIgnoredSettings = this.getIgnoredSettingForSystemExtensions();
+    }
+    if (!this.userExtensionsIgnoredSettings) {
+      this.userExtensionsIgnoredSettings = this.getIgnoredSettingForUserExtensions();
+      const disposable = this._register(Event.any(Event.filter(this.extensionManagementService.onDidInstallExtensions, (e) => e.some(({ local }) => !!local)), Event.filter(this.extensionManagementService.onDidUninstallExtension, (e) => !e.error))(() => {
+        disposable.dispose();
+        this.userExtensionsIgnoredSettings = void 0;
+      }));
+    }
+    const defaultIgnoredSettings = (await Promise.all([this.coreIgnoredSettings, this.systemExtensionsIgnoredSettings, this.userExtensionsIgnoredSettings])).flat();
+    return getIgnoredSettings(defaultIgnoredSettings, this.configurationService, content);
+  }
+  async getIgnoredSettingForSystemExtensions() {
+    const systemExtensions = await this.extensionManagementService.getInstalled(
+      0
+      /* ExtensionType.System */
+    );
+    return distinct(systemExtensions.map((e) => getIgnoredSettingsForExtension(e.manifest)).flat());
+  }
+  async getIgnoredSettingForUserExtensions() {
+    const userExtensions = await this.extensionManagementService.getInstalled(1, this.profile.extensionsResource);
+    return distinct(userExtensions.map((e) => getIgnoredSettingsForExtension(e.manifest)).flat());
+  }
+  validateContent(content) {
+    if (this.hasErrors(content, false)) {
+      throw new UserDataSyncError(localize("errorInvalidSettings", "Unable to sync settings as there are errors/warning in settings file."), "LocalInvalidContent", this.resource);
+    }
+  }
+};
+SettingsSynchroniser = __decorate([
+  __param(2, IFileService),
+  __param(3, IEnvironmentService),
+  __param(4, IStorageService),
+  __param(5, IUserDataSyncStoreService),
+  __param(6, IUserDataSyncLocalStoreService),
+  __param(7, IUserDataSyncLogService),
+  __param(8, IUserDataSyncUtilService),
+  __param(9, IConfigurationService),
+  __param(10, IUserDataSyncEnablementService),
+  __param(11, ITelemetryService),
+  __param(12, IExtensionManagementService),
+  __param(13, IUriIdentityService)
+], SettingsSynchroniser);
+let SettingsInitializer = class SettingsInitializer2 extends AbstractInitializer {
+  static {
+    __name(this, "SettingsInitializer");
+  }
+  constructor(fileService, userDataProfilesService, environmentService, logService, storageService, uriIdentityService) {
+    super("settings", userDataProfilesService, environmentService, logService, fileService, storageService, uriIdentityService);
+  }
+  async doInitialize(remoteUserData) {
+    const settingsSyncContent = remoteUserData.syncData ? this.parseSettingsSyncContent(remoteUserData.syncData.content) : null;
+    if (!settingsSyncContent) {
+      this.logService.info("Skipping initializing settings because remote settings does not exist.");
+      return;
+    }
+    const isEmpty2 = await this.isEmpty();
+    if (!isEmpty2) {
+      this.logService.info("Skipping initializing settings because local settings exist.");
+      return;
+    }
+    await this.fileService.writeFile(this.userDataProfilesService.defaultProfile.settingsResource, VSBuffer.fromString(settingsSyncContent.settings));
+    await this.updateLastSyncUserData(remoteUserData);
+  }
+  async isEmpty() {
+    try {
+      const fileContent = await this.fileService.readFile(this.userDataProfilesService.defaultProfile.settingsResource);
+      return isEmpty(fileContent.value.toString().trim());
+    } catch (error) {
+      return error.fileOperationResult === 1;
+    }
+  }
+  parseSettingsSyncContent(syncContent) {
+    try {
+      return parseSettingsSyncContent(syncContent);
+    } catch (e) {
+      this.logService.error(e);
+    }
+    return null;
+  }
+};
+SettingsInitializer = __decorate([
+  __param(0, IFileService),
+  __param(1, IUserDataProfilesService),
+  __param(2, IEnvironmentService),
+  __param(3, IUserDataSyncLogService),
+  __param(4, IStorageService),
+  __param(5, IUriIdentityService)
+], SettingsInitializer);
+export {
+  SettingsInitializer,
+  SettingsSynchroniser,
+  parseSettingsSyncContent
+};
+//# sourceMappingURL=settingsSync.js.map

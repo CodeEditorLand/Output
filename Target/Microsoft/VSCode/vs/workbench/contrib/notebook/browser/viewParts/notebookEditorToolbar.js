@@ -1,1 +1,647 @@
-import*as v from"../../../../../base/browser/dom.js";import{StandardMouseEvent as G}from"../../../../../base/browser/mouseEvent.js";import{DomScrollableElement as z}from"../../../../../base/browser/ui/scrollbar/scrollableElement.js";import{ToolBar as R}from"../../../../../base/browser/ui/toolbar/toolbar.js";import{Separator as b}from"../../../../../base/common/actions.js";import{Emitter as V,Event as W}from"../../../../../base/common/event.js";import{Disposable as U}from"../../../../../base/common/lifecycle.js";import{MenuEntryActionViewItem as T,SubmenuEntryActionViewItem as x}from"../../../../../platform/actions/browser/menuEntryActionViewItem.js";import{IMenuService as K,MenuId as g,MenuItemAction as _,SubmenuItemAction as A}from"../../../../../platform/actions/common/actions.js";import{IConfigurationService as B}from"../../../../../platform/configuration/common/configuration.js";import{IContextMenuService as H}from"../../../../../platform/contextview/browser/contextView.js";import{IInstantiationService as P}from"../../../../../platform/instantiation/common/instantiation.js";import{IKeybindingService as j}from"../../../../../platform/keybinding/common/keybinding.js";import{SELECT_KERNEL_ID as y}from"../controller/coreActions.js";import{NOTEBOOK_EDITOR_ID as F,NotebookSetting as I}from"../../common/notebookCommon.js";import{NotebooKernelActionViewItem as S}from"./notebookKernelView.js";import{ActionViewWithLabel as D,UnifiedSubmenuActionView as k}from"../view/cellParts/cellActionView.js";import{IEditorService as X}from"../../../../services/editor/common/editorService.js";import{IWorkbenchAssignmentService as Y}from"../../../../services/assignment/common/assignmentService.js";import{disposableTimeout as Z}from"../../../../../base/common/async.js";import{WorkbenchToolBar as N}from"../../../../../platform/actions/browser/toolbar.js";import{WorkbenchHoverDelegate as q}from"../../../../../platform/hover/browser/hover.js";var O=function(r,e,o,n){var i=arguments.length,s=i<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,o):n,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,e,o,n);else for(var t=r.length-1;t>=0;t--)(c=r[t])&&(s=(i<3?c(s):i>3?c(e,o,s):c(e,o))||s);return i>3&&s&&Object.defineProperty(e,o,s),s},f=function(r,e){return function(o,n){e(o,n,r)}},d;(function(r){r[r.Always=0]="Always",r[r.Never=1]="Never",r[r.Dynamic=2]="Dynamic"})(d||(d={}));function ye(r){switch(r){case!0:return d.Always;case!1:return d.Never;case"always":return d.Always;case"never":return d.Never;case"dynamic":return d.Dynamic}}const w=21,J=21,u=8;class Q{constructor(e,o,n,i){this.notebookEditor=e,this.editorToolbar=o,this.goToMenu=n,this.instantiationService=i}actionProvider(e,o){if(e.id===y)return this.instantiationService.createInstance(S,e,this.notebookEditor,o);if(e instanceof _)return this.instantiationService.createInstance(D,e,{hoverDelegate:o.hoverDelegate});if(e instanceof A&&e.item.submenu.id===g.NotebookCellExecuteGoTo.id)return this.instantiationService.createInstance(k,e,{hoverDelegate:o.hoverDelegate},!0,{getActions:()=>this.goToMenu.getActions().find(([n])=>n==="navigation/execute")?.[1]??[]},this.actionProvider.bind(this))}calculateActions(e){const o=this.editorToolbar.primaryActions,n=this.editorToolbar.secondaryActions,i=M(o,n,e);return{primaryActions:i.primaryActions.map(s=>s.action),secondaryActions:i.secondaryActions}}}class ${constructor(e,o,n,i){this.notebookEditor=e,this.editorToolbar=o,this.goToMenu=n,this.instantiationService=i}actionProvider(e,o){if(e.id===y)return this.instantiationService.createInstance(S,e,this.notebookEditor,o);if(e instanceof _)return this.instantiationService.createInstance(T,e,{hoverDelegate:o.hoverDelegate});if(e instanceof A)return e.item.submenu.id===g.NotebookCellExecuteGoTo.id?this.instantiationService.createInstance(k,e,{hoverDelegate:o.hoverDelegate},!1,{getActions:()=>this.goToMenu.getActions().find(([n])=>n==="navigation/execute")?.[1]??[]},this.actionProvider.bind(this)):this.instantiationService.createInstance(x,e,{hoverDelegate:o.hoverDelegate})}calculateActions(e){const o=this.editorToolbar.primaryActions,n=this.editorToolbar.secondaryActions,i=M(o,n,e);return{primaryActions:i.primaryActions.map(s=>s.action),secondaryActions:i.secondaryActions}}}class ee{constructor(e,o,n,i){this.notebookEditor=e,this.editorToolbar=o,this.goToMenu=n,this.instantiationService=i}actionProvider(e,o){if(e.id===y)return this.instantiationService.createInstance(S,e,this.notebookEditor,o);const n=this.editorToolbar.primaryActions.find(i=>i.action.id===e.id);return!n||n.renderLabel?e instanceof _?this.instantiationService.createInstance(D,e,{hoverDelegate:o.hoverDelegate}):e instanceof A&&e.item.submenu.id===g.NotebookCellExecuteGoTo.id?this.instantiationService.createInstance(k,e,{hoverDelegate:o.hoverDelegate},!0,{getActions:()=>this.goToMenu.getActions().find(([i])=>i==="navigation/execute")?.[1]??[]},this.actionProvider.bind(this)):void 0:(e instanceof _&&this.instantiationService.createInstance(T,e,{hoverDelegate:o.hoverDelegate}),e instanceof A?e.item.submenu.id===g.NotebookCellExecuteGoTo.id?this.instantiationService.createInstance(k,e,{hoverDelegate:o.hoverDelegate},!1,{getActions:()=>this.goToMenu.getActions().find(([i])=>i==="navigation/execute")?.[1]??[]},this.actionProvider.bind(this)):this.instantiationService.createInstance(x,e,{hoverDelegate:o.hoverDelegate}):void 0)}calculateActions(e){const o=this.editorToolbar.primaryActions,n=this.editorToolbar.secondaryActions,i=te(o,n,e);return{primaryActions:i.primaryActions.map(s=>s.action),secondaryActions:i.secondaryActions}}}let C=class extends U{get primaryActions(){return this._primaryActions}get secondaryActions(){return this._secondaryActions}set visible(e){this._visible!==e&&(this._visible=e,this._onDidChangeVisibility.fire(e))}get useGlobalToolbar(){return this._useGlobalToolbar}constructor(e,o,n,i,s,c,t,a,l,h,m){super(),this.notebookEditor=e,this.contextKeyService=o,this.notebookOptions=n,this.domNode=i,this.instantiationService=s,this.configurationService=c,this.contextMenuService=t,this.menuService=a,this.editorService=l,this.keybindingService=h,this.experimentService=m,this._useGlobalToolbar=!1,this._renderLabel=d.Always,this._visible=!1,this._onDidChangeVisibility=this._register(new V),this.onDidChangeVisibility=this._onDidChangeVisibility.event,this._dimension=null,this._primaryActions=[],this._secondaryActions=[],this._buildBody(),this._register(W.debounce(this.editorService.onDidActiveEditorChange,(E,L)=>E,200)(this._updatePerEditorChange,this)),this._registerNotebookActionsToolbar(),this._register(v.addDisposableListener(this.domNode,v.EventType.CONTEXT_MENU,E=>{const L=new G(v.getWindow(this.domNode),E);this.contextMenuService.showContextMenu({menuId:g.NotebookToolbarContext,getAnchor:()=>L})}))}_buildBody(){this._notebookTopLeftToolbarContainer=document.createElement("div"),this._notebookTopLeftToolbarContainer.classList.add("notebook-toolbar-left"),this._leftToolbarScrollable=new z(this._notebookTopLeftToolbarContainer,{vertical:2,horizontal:3,horizontalScrollbarSize:3,useShadows:!1,scrollYToX:!0}),this._register(this._leftToolbarScrollable),v.append(this.domNode,this._leftToolbarScrollable.getDomNode()),this._notebookTopRightToolbarContainer=document.createElement("div"),this._notebookTopRightToolbarContainer.classList.add("notebook-toolbar-right"),v.append(this.domNode,this._notebookTopRightToolbarContainer)}_updatePerEditorChange(){if(this.editorService.activeEditorPane?.getId()===F&&this.editorService.activeEditorPane.getControl()===this.notebookEditor){this._showNotebookActionsinEditorToolbar();return}}_registerNotebookActionsToolbar(){this._notebookGlobalActionsMenu=this._register(this.menuService.createMenu(this.notebookEditor.creationOptions.menuIds.notebookToolbar,this.contextKeyService)),this._executeGoToActionsMenu=this._register(this.menuService.createMenu(g.NotebookCellExecuteGoTo,this.contextKeyService)),this._useGlobalToolbar=this.notebookOptions.getDisplayOptions().globalToolbar,this._renderLabel=this._convertConfiguration(this.configurationService.getValue(I.globalToolbarShowLabel)),this._updateStrategy();const e={ui:!0,notebookEditor:this.notebookEditor,source:"notebookToolbar"},o=(t,a)=>{if(t.id===y)return this.instantiationService.createInstance(S,t,this.notebookEditor,a);if(this._renderLabel!==d.Never){const l=this._primaryActions.find(h=>h.action.id===t.id);return l&&l.renderLabel?t instanceof _?this.instantiationService.createInstance(D,t,{hoverDelegate:a.hoverDelegate}):void 0:t instanceof _?this.instantiationService.createInstance(T,t,{hoverDelegate:a.hoverDelegate}):void 0}else return t instanceof _?this.instantiationService.createInstance(T,t,{hoverDelegate:a.hoverDelegate}):void 0},n=this._register(this.instantiationService.createInstance(q,"element",{instantHover:!0},{}));n.setInstantHoverTimeLimit(600);const i={hiddenItemStrategy:1,resetMenu:g.NotebookToolbar,actionViewItemProvider:(t,a)=>this._strategy.actionProvider(t,a),getKeyBinding:t=>this.keybindingService.lookupKeybinding(t.id),renderDropdownAsChildElement:!0,hoverDelegate:n};this._notebookLeftToolbar=this.instantiationService.createInstance(N,this._notebookTopLeftToolbarContainer,i),this._register(this._notebookLeftToolbar),this._notebookLeftToolbar.context=e,this._notebookRightToolbar=new R(this._notebookTopRightToolbarContainer,this.contextMenuService,{getKeyBinding:t=>this.keybindingService.lookupKeybinding(t.id),actionViewItemProvider:o,renderDropdownAsChildElement:!0,hoverDelegate:n}),this._register(this._notebookRightToolbar),this._notebookRightToolbar.context=e,this._showNotebookActionsinEditorToolbar();let s=!1,c;this._register(this._notebookGlobalActionsMenu.onDidChange(()=>{if(s){c=()=>this._showNotebookActionsinEditorToolbar();return}this.notebookEditor.isVisible&&this._showNotebookActionsinEditorToolbar()})),this._register(this._notebookLeftToolbar.onDidChangeDropdownVisibility(t=>{s=t,c&&!t&&(setTimeout(()=>{c?.()},0),c=void 0)})),this._register(this.notebookOptions.onDidChangeOptions(t=>{t.globalToolbar!==void 0&&(this._useGlobalToolbar=this.notebookOptions.getDisplayOptions().globalToolbar,this._showNotebookActionsinEditorToolbar())})),this._register(this.configurationService.onDidChangeConfiguration(t=>{if(t.affectsConfiguration(I.globalToolbarShowLabel)){this._renderLabel=this._convertConfiguration(this.configurationService.getValue(I.globalToolbarShowLabel)),this._updateStrategy(),this._notebookLeftToolbar.getElement().remove(),this._notebookLeftToolbar.dispose(),this._notebookLeftToolbar=this.instantiationService.createInstance(N,this._notebookTopLeftToolbarContainer,i),this._register(this._notebookLeftToolbar),this._notebookLeftToolbar.context=e,this._showNotebookActionsinEditorToolbar();return}})),this.experimentService&&this.experimentService.getTreatment("nbtoolbarineditor").then(t=>{t!==void 0&&this._useGlobalToolbar!==t&&(this._useGlobalToolbar=t,this._showNotebookActionsinEditorToolbar())})}_updateStrategy(){switch(this._renderLabel){case d.Always:this._strategy=new Q(this.notebookEditor,this,this._executeGoToActionsMenu,this.instantiationService);break;case d.Never:this._strategy=new $(this.notebookEditor,this,this._executeGoToActionsMenu,this.instantiationService);break;case d.Dynamic:this._strategy=new ee(this.notebookEditor,this,this._executeGoToActionsMenu,this.instantiationService);break}}_convertConfiguration(e){switch(e){case!0:return d.Always;case!1:return d.Never;case"always":return d.Always;case"never":return d.Never;case"dynamic":return d.Dynamic}}_showNotebookActionsinEditorToolbar(){if(!this.notebookEditor.hasModel()){this._deferredActionUpdate?.dispose(),this._deferredActionUpdate=void 0,this.visible=!1;return}this._deferredActionUpdate||(this._useGlobalToolbar?this._deferredActionUpdate=Z(async()=>{await this._setNotebookActions(),this.visible=!0,this._deferredActionUpdate?.dispose(),this._deferredActionUpdate=void 0},50):(this.domNode.style.display="none",this._deferredActionUpdate=void 0,this.visible=!1))}async _setNotebookActions(){const e=this._notebookGlobalActionsMenu.getActions({shouldForwardArgs:!0,renderShortTitle:!0});this.domNode.style.display="flex";const o=e.filter(t=>/^navigation/.test(t[0])),n=[];o.sort((t,a)=>t[0]==="navigation"?1:a[0]==="navigation"?-1:0).forEach((t,a)=>{n.push(...t[1]),a<o.length-1&&n.push(new b)});const i=e.find(t=>/^status/.test(t[0])),s=i?i[1]:[],c=e.filter(t=>!/^navigation/.test(t[0])&&!/^status/.test(t[0])).reduce((t,a)=>(t.push(...a[1]),t),[]);this._notebookLeftToolbar.setActions([],[]),this._primaryActions=n.map(t=>({action:t,size:t instanceof b?1:0,renderLabel:!0,visible:!0})),this._notebookLeftToolbar.setActions(n,c),this._secondaryActions=c,this._notebookRightToolbar.setActions(s,[]),this._secondaryActions=c,this._dimension&&this._dimension.width>=0&&this._dimension.height>=0&&this._cacheItemSizes(this._notebookLeftToolbar),this._computeSizes()}_cacheItemSizes(e){for(let o=0;o<e.getItemsLength();o++){const n=e.getItemAction(o);if(n&&n.id!=="toolbar.toggle.more"){const i=this._primaryActions.find(s=>s.action.id===n.id);i&&(i.size=e.getItemWidth(o))}}}_computeSizes(){const e=this._notebookLeftToolbar,o=this._notebookRightToolbar;if(e&&o&&this._dimension&&this._dimension.height>=0&&this._dimension.width>=0){if(this._primaryActions.length===0&&e.getItemsLength()!==this._primaryActions.length&&this._cacheItemSizes(this._notebookLeftToolbar),this._primaryActions.length===0)return;const n=(o.getItemsLength()?o.getItemWidth(0):0)+u,i=this._dimension.width-n-(u+J)-u-u,s=this._strategy.calculateActions(i);this._notebookLeftToolbar.setActions(s.primaryActions,s.secondaryActions)}}layout(e){this._dimension=e,this._useGlobalToolbar?this.domNode.style.display="flex":this.domNode.style.display="none",this._computeSizes()}dispose(){this._notebookLeftToolbar.context=void 0,this._notebookRightToolbar.context=void 0,this._notebookLeftToolbar.dispose(),this._notebookRightToolbar.dispose(),this._notebookLeftToolbar=null,this._notebookRightToolbar=null,this._deferredActionUpdate?.dispose(),this._deferredActionUpdate=void 0,super.dispose()}};C=O([f(4,P),f(5,B),f(6,H),f(7,K),f(8,X),f(9,j),f(10,Y)],C);function M(r,e,o){return p(r,e,o,!1)}function te(r,e,o){if(r.length===0)return{primaryActions:[],secondaryActions:e};const n=r.filter(t=>t.size!==0).length;if(r.map(t=>t.size).reduce((t,a)=>t+a,0)+(n-1)*u<=o)return r.forEach(t=>{t.renderLabel=!0}),p(r,e,o,!1);if(n*w+(n-1)*u>o)return r.forEach(t=>{t.renderLabel=!1}),p(r,e,o,!0);let s=0,c=-1;for(let t=0;t<r.length;t++)if(s+=r[t].size+u,r[t].action instanceof b){const a=r.slice(t+1).filter(h=>h.size!==0);s+(a.length===0?0:a.length*w+(a.length-1)*u)<=o&&(c=t)}else continue;return c<0?(r.forEach(t=>{t.renderLabel=!1}),p(r,e,o,!0)):(r.slice(0,c+1).forEach(t=>{t.renderLabel=!0}),r.slice(c+1).forEach(t=>{t.renderLabel=!1}),{primaryActions:r,secondaryActions:e})}function p(r,e,o,n){const i=[],s=[];let c=0,t=!1,a=!1;if(r.length===0)return{primaryActions:[],secondaryActions:e};for(let l=0;l<r.length;l++){const h=r[l],m=n?h.size===0?0:w:h.size;if(!(h.action instanceof b&&i.length>0&&i[i.length-1].action instanceof b)&&!(h.action instanceof b&&!t))if(c+m<=o&&!a)c+=u+m,i.push(h),m!==0&&(t=!0),h.action instanceof b&&(t=!1);else if(a=!0,m===0)i.push(h);else{if(h.action instanceof b)continue;s.push(h.action)}}for(let l=i.length-1;l>0;l--){const h=i[l];if(h.size!==0){h.action instanceof b&&i.splice(l,1);break}}if(i.length&&i[i.length-1].action instanceof b&&i.pop(),s.length!==0&&s.push(new b),n){const l=i.findIndex(h=>h.action.id==="notebook.cell.insertMarkdownCellBelow");l!==-1&&i.splice(l,1)}return{primaryActions:i,secondaryActions:[...s,...e]}}export{C as NotebookEditorWorkbenchToolbar,d as RenderLabel,ye as convertConfiguration,M as workbenchCalculateActions,te as workbenchDynamicCalculateActions};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import * as DOM from "../../../../../base/browser/dom.js";
+import { StandardMouseEvent } from "../../../../../base/browser/mouseEvent.js";
+import { DomScrollableElement } from "../../../../../base/browser/ui/scrollbar/scrollableElement.js";
+import { ToolBar } from "../../../../../base/browser/ui/toolbar/toolbar.js";
+import { Separator } from "../../../../../base/common/actions.js";
+import { Emitter, Event } from "../../../../../base/common/event.js";
+import { Disposable } from "../../../../../base/common/lifecycle.js";
+import { MenuEntryActionViewItem, SubmenuEntryActionViewItem } from "../../../../../platform/actions/browser/menuEntryActionViewItem.js";
+import { IMenuService, MenuId, MenuItemAction, SubmenuItemAction } from "../../../../../platform/actions/common/actions.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { IContextMenuService } from "../../../../../platform/contextview/browser/contextView.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IKeybindingService } from "../../../../../platform/keybinding/common/keybinding.js";
+import { SELECT_KERNEL_ID } from "../controller/coreActions.js";
+import { NOTEBOOK_EDITOR_ID, NotebookSetting } from "../../common/notebookCommon.js";
+import { NotebooKernelActionViewItem } from "./notebookKernelView.js";
+import { ActionViewWithLabel, UnifiedSubmenuActionView } from "../view/cellParts/cellActionView.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { IWorkbenchAssignmentService } from "../../../../services/assignment/common/assignmentService.js";
+import { disposableTimeout } from "../../../../../base/common/async.js";
+import { WorkbenchToolBar } from "../../../../../platform/actions/browser/toolbar.js";
+import { WorkbenchHoverDelegate } from "../../../../../platform/hover/browser/hover.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var RenderLabel;
+(function(RenderLabel2) {
+  RenderLabel2[RenderLabel2["Always"] = 0] = "Always";
+  RenderLabel2[RenderLabel2["Never"] = 1] = "Never";
+  RenderLabel2[RenderLabel2["Dynamic"] = 2] = "Dynamic";
+})(RenderLabel || (RenderLabel = {}));
+function convertConfiguration(value) {
+  switch (value) {
+    case true:
+      return RenderLabel.Always;
+    case false:
+      return RenderLabel.Never;
+    case "always":
+      return RenderLabel.Always;
+    case "never":
+      return RenderLabel.Never;
+    case "dynamic":
+      return RenderLabel.Dynamic;
+  }
+}
+__name(convertConfiguration, "convertConfiguration");
+const ICON_ONLY_ACTION_WIDTH = 21;
+const TOGGLE_MORE_ACTION_WIDTH = 21;
+const ACTION_PADDING = 8;
+class WorkbenchAlwaysLabelStrategy {
+  static {
+    __name(this, "WorkbenchAlwaysLabelStrategy");
+  }
+  constructor(notebookEditor, editorToolbar, goToMenu, instantiationService) {
+    this.notebookEditor = notebookEditor;
+    this.editorToolbar = editorToolbar;
+    this.goToMenu = goToMenu;
+    this.instantiationService = instantiationService;
+  }
+  actionProvider(action, options) {
+    if (action.id === SELECT_KERNEL_ID) {
+      return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
+    }
+    if (action instanceof MenuItemAction) {
+      return this.instantiationService.createInstance(ActionViewWithLabel, action, { hoverDelegate: options.hoverDelegate });
+    }
+    if (action instanceof SubmenuItemAction && action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
+      return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, true, {
+        getActions: /* @__PURE__ */ __name(() => {
+          return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+        }, "getActions")
+      }, this.actionProvider.bind(this));
+    }
+    return void 0;
+  }
+  calculateActions(leftToolbarContainerMaxWidth) {
+    const initialPrimaryActions = this.editorToolbar.primaryActions;
+    const initialSecondaryActions = this.editorToolbar.secondaryActions;
+    const actionOutput = workbenchCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth);
+    return {
+      primaryActions: actionOutput.primaryActions.map((a) => a.action),
+      secondaryActions: actionOutput.secondaryActions
+    };
+  }
+}
+class WorkbenchNeverLabelStrategy {
+  static {
+    __name(this, "WorkbenchNeverLabelStrategy");
+  }
+  constructor(notebookEditor, editorToolbar, goToMenu, instantiationService) {
+    this.notebookEditor = notebookEditor;
+    this.editorToolbar = editorToolbar;
+    this.goToMenu = goToMenu;
+    this.instantiationService = instantiationService;
+  }
+  actionProvider(action, options) {
+    if (action.id === SELECT_KERNEL_ID) {
+      return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
+    }
+    if (action instanceof MenuItemAction) {
+      return this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
+    }
+    if (action instanceof SubmenuItemAction) {
+      if (action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
+        return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, false, {
+          getActions: /* @__PURE__ */ __name(() => {
+            return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+          }, "getActions")
+        }, this.actionProvider.bind(this));
+      } else {
+        return this.instantiationService.createInstance(SubmenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
+      }
+    }
+    return void 0;
+  }
+  calculateActions(leftToolbarContainerMaxWidth) {
+    const initialPrimaryActions = this.editorToolbar.primaryActions;
+    const initialSecondaryActions = this.editorToolbar.secondaryActions;
+    const actionOutput = workbenchCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth);
+    return {
+      primaryActions: actionOutput.primaryActions.map((a) => a.action),
+      secondaryActions: actionOutput.secondaryActions
+    };
+  }
+}
+class WorkbenchDynamicLabelStrategy {
+  static {
+    __name(this, "WorkbenchDynamicLabelStrategy");
+  }
+  constructor(notebookEditor, editorToolbar, goToMenu, instantiationService) {
+    this.notebookEditor = notebookEditor;
+    this.editorToolbar = editorToolbar;
+    this.goToMenu = goToMenu;
+    this.instantiationService = instantiationService;
+  }
+  actionProvider(action, options) {
+    if (action.id === SELECT_KERNEL_ID) {
+      return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
+    }
+    const a = this.editorToolbar.primaryActions.find((a2) => a2.action.id === action.id);
+    if (!a || a.renderLabel) {
+      if (action instanceof MenuItemAction) {
+        return this.instantiationService.createInstance(ActionViewWithLabel, action, { hoverDelegate: options.hoverDelegate });
+      }
+      if (action instanceof SubmenuItemAction && action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
+        return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, true, {
+          getActions: /* @__PURE__ */ __name(() => {
+            return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+          }, "getActions")
+        }, this.actionProvider.bind(this));
+      }
+      return void 0;
+    } else {
+      if (action instanceof MenuItemAction) {
+        this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
+      }
+      if (action instanceof SubmenuItemAction) {
+        if (action.item.submenu.id === MenuId.NotebookCellExecuteGoTo.id) {
+          return this.instantiationService.createInstance(UnifiedSubmenuActionView, action, { hoverDelegate: options.hoverDelegate }, false, {
+            getActions: /* @__PURE__ */ __name(() => {
+              return this.goToMenu.getActions().find(([group]) => group === "navigation/execute")?.[1] ?? [];
+            }, "getActions")
+          }, this.actionProvider.bind(this));
+        } else {
+          return this.instantiationService.createInstance(SubmenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate });
+        }
+      }
+      return void 0;
+    }
+  }
+  calculateActions(leftToolbarContainerMaxWidth) {
+    const initialPrimaryActions = this.editorToolbar.primaryActions;
+    const initialSecondaryActions = this.editorToolbar.secondaryActions;
+    const actionOutput = workbenchDynamicCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth);
+    return {
+      primaryActions: actionOutput.primaryActions.map((a) => a.action),
+      secondaryActions: actionOutput.secondaryActions
+    };
+  }
+}
+let NotebookEditorWorkbenchToolbar = class NotebookEditorWorkbenchToolbar2 extends Disposable {
+  static {
+    __name(this, "NotebookEditorWorkbenchToolbar");
+  }
+  get primaryActions() {
+    return this._primaryActions;
+  }
+  get secondaryActions() {
+    return this._secondaryActions;
+  }
+  set visible(visible) {
+    if (this._visible !== visible) {
+      this._visible = visible;
+      this._onDidChangeVisibility.fire(visible);
+    }
+  }
+  get useGlobalToolbar() {
+    return this._useGlobalToolbar;
+  }
+  constructor(notebookEditor, contextKeyService, notebookOptions, domNode, instantiationService, configurationService, contextMenuService, menuService, editorService, keybindingService, experimentService) {
+    super();
+    this.notebookEditor = notebookEditor;
+    this.contextKeyService = contextKeyService;
+    this.notebookOptions = notebookOptions;
+    this.domNode = domNode;
+    this.instantiationService = instantiationService;
+    this.configurationService = configurationService;
+    this.contextMenuService = contextMenuService;
+    this.menuService = menuService;
+    this.editorService = editorService;
+    this.keybindingService = keybindingService;
+    this.experimentService = experimentService;
+    this._useGlobalToolbar = false;
+    this._renderLabel = RenderLabel.Always;
+    this._visible = false;
+    this._onDidChangeVisibility = this._register(new Emitter());
+    this.onDidChangeVisibility = this._onDidChangeVisibility.event;
+    this._dimension = null;
+    this._primaryActions = [];
+    this._secondaryActions = [];
+    this._buildBody();
+    this._register(Event.debounce(this.editorService.onDidActiveEditorChange, (last, _current) => last, 200)(this._updatePerEditorChange, this));
+    this._registerNotebookActionsToolbar();
+    this._register(DOM.addDisposableListener(this.domNode, DOM.EventType.CONTEXT_MENU, (e) => {
+      const event = new StandardMouseEvent(DOM.getWindow(this.domNode), e);
+      this.contextMenuService.showContextMenu({
+        menuId: MenuId.NotebookToolbarContext,
+        getAnchor: /* @__PURE__ */ __name(() => event, "getAnchor")
+      });
+    }));
+  }
+  _buildBody() {
+    this._notebookTopLeftToolbarContainer = document.createElement("div");
+    this._notebookTopLeftToolbarContainer.classList.add("notebook-toolbar-left");
+    this._leftToolbarScrollable = new DomScrollableElement(this._notebookTopLeftToolbarContainer, {
+      vertical: 2,
+      horizontal: 3,
+      horizontalScrollbarSize: 3,
+      useShadows: false,
+      scrollYToX: true
+    });
+    this._register(this._leftToolbarScrollable);
+    DOM.append(this.domNode, this._leftToolbarScrollable.getDomNode());
+    this._notebookTopRightToolbarContainer = document.createElement("div");
+    this._notebookTopRightToolbarContainer.classList.add("notebook-toolbar-right");
+    DOM.append(this.domNode, this._notebookTopRightToolbarContainer);
+  }
+  _updatePerEditorChange() {
+    if (this.editorService.activeEditorPane?.getId() === NOTEBOOK_EDITOR_ID) {
+      const notebookEditor = this.editorService.activeEditorPane.getControl();
+      if (notebookEditor === this.notebookEditor) {
+        this._showNotebookActionsinEditorToolbar();
+        return;
+      }
+    }
+  }
+  _registerNotebookActionsToolbar() {
+    this._notebookGlobalActionsMenu = this._register(this.menuService.createMenu(this.notebookEditor.creationOptions.menuIds.notebookToolbar, this.contextKeyService));
+    this._executeGoToActionsMenu = this._register(this.menuService.createMenu(MenuId.NotebookCellExecuteGoTo, this.contextKeyService));
+    this._useGlobalToolbar = this.notebookOptions.getDisplayOptions().globalToolbar;
+    this._renderLabel = this._convertConfiguration(this.configurationService.getValue(NotebookSetting.globalToolbarShowLabel));
+    this._updateStrategy();
+    const context = {
+      ui: true,
+      notebookEditor: this.notebookEditor,
+      source: "notebookToolbar"
+    };
+    const actionProvider = /* @__PURE__ */ __name((action, options) => {
+      if (action.id === SELECT_KERNEL_ID) {
+        return this.instantiationService.createInstance(NotebooKernelActionViewItem, action, this.notebookEditor, options);
+      }
+      if (this._renderLabel !== RenderLabel.Never) {
+        const a = this._primaryActions.find((a2) => a2.action.id === action.id);
+        if (a && a.renderLabel) {
+          return action instanceof MenuItemAction ? this.instantiationService.createInstance(ActionViewWithLabel, action, { hoverDelegate: options.hoverDelegate }) : void 0;
+        } else {
+          return action instanceof MenuItemAction ? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }) : void 0;
+        }
+      } else {
+        return action instanceof MenuItemAction ? this.instantiationService.createInstance(MenuEntryActionViewItem, action, { hoverDelegate: options.hoverDelegate }) : void 0;
+      }
+    }, "actionProvider");
+    const hoverDelegate = this._register(this.instantiationService.createInstance(WorkbenchHoverDelegate, "element", { instantHover: true }, {}));
+    hoverDelegate.setInstantHoverTimeLimit(600);
+    const leftToolbarOptions = {
+      hiddenItemStrategy: 1,
+      resetMenu: MenuId.NotebookToolbar,
+      actionViewItemProvider: /* @__PURE__ */ __name((action, options) => {
+        return this._strategy.actionProvider(action, options);
+      }, "actionViewItemProvider"),
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+      renderDropdownAsChildElement: true,
+      hoverDelegate
+    };
+    this._notebookLeftToolbar = this.instantiationService.createInstance(WorkbenchToolBar, this._notebookTopLeftToolbarContainer, leftToolbarOptions);
+    this._register(this._notebookLeftToolbar);
+    this._notebookLeftToolbar.context = context;
+    this._notebookRightToolbar = new ToolBar(this._notebookTopRightToolbarContainer, this.contextMenuService, {
+      getKeyBinding: /* @__PURE__ */ __name((action) => this.keybindingService.lookupKeybinding(action.id), "getKeyBinding"),
+      actionViewItemProvider: actionProvider,
+      renderDropdownAsChildElement: true,
+      hoverDelegate
+    });
+    this._register(this._notebookRightToolbar);
+    this._notebookRightToolbar.context = context;
+    this._showNotebookActionsinEditorToolbar();
+    let dropdownIsVisible = false;
+    let deferredUpdate;
+    this._register(this._notebookGlobalActionsMenu.onDidChange(() => {
+      if (dropdownIsVisible) {
+        deferredUpdate = /* @__PURE__ */ __name(() => this._showNotebookActionsinEditorToolbar(), "deferredUpdate");
+        return;
+      }
+      if (this.notebookEditor.isVisible) {
+        this._showNotebookActionsinEditorToolbar();
+      }
+    }));
+    this._register(this._notebookLeftToolbar.onDidChangeDropdownVisibility((visible) => {
+      dropdownIsVisible = visible;
+      if (deferredUpdate && !visible) {
+        setTimeout(() => {
+          deferredUpdate?.();
+        }, 0);
+        deferredUpdate = void 0;
+      }
+    }));
+    this._register(this.notebookOptions.onDidChangeOptions((e) => {
+      if (e.globalToolbar !== void 0) {
+        this._useGlobalToolbar = this.notebookOptions.getDisplayOptions().globalToolbar;
+        this._showNotebookActionsinEditorToolbar();
+      }
+    }));
+    this._register(this.configurationService.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration(NotebookSetting.globalToolbarShowLabel)) {
+        this._renderLabel = this._convertConfiguration(this.configurationService.getValue(NotebookSetting.globalToolbarShowLabel));
+        this._updateStrategy();
+        const oldElement = this._notebookLeftToolbar.getElement();
+        oldElement.remove();
+        this._notebookLeftToolbar.dispose();
+        this._notebookLeftToolbar = this.instantiationService.createInstance(WorkbenchToolBar, this._notebookTopLeftToolbarContainer, leftToolbarOptions);
+        this._register(this._notebookLeftToolbar);
+        this._notebookLeftToolbar.context = context;
+        this._showNotebookActionsinEditorToolbar();
+        return;
+      }
+    }));
+    if (this.experimentService) {
+      this.experimentService.getTreatment("nbtoolbarineditor").then((treatment) => {
+        if (treatment === void 0) {
+          return;
+        }
+        if (this._useGlobalToolbar !== treatment) {
+          this._useGlobalToolbar = treatment;
+          this._showNotebookActionsinEditorToolbar();
+        }
+      });
+    }
+  }
+  _updateStrategy() {
+    switch (this._renderLabel) {
+      case RenderLabel.Always:
+        this._strategy = new WorkbenchAlwaysLabelStrategy(this.notebookEditor, this, this._executeGoToActionsMenu, this.instantiationService);
+        break;
+      case RenderLabel.Never:
+        this._strategy = new WorkbenchNeverLabelStrategy(this.notebookEditor, this, this._executeGoToActionsMenu, this.instantiationService);
+        break;
+      case RenderLabel.Dynamic:
+        this._strategy = new WorkbenchDynamicLabelStrategy(this.notebookEditor, this, this._executeGoToActionsMenu, this.instantiationService);
+        break;
+    }
+  }
+  _convertConfiguration(value) {
+    switch (value) {
+      case true:
+        return RenderLabel.Always;
+      case false:
+        return RenderLabel.Never;
+      case "always":
+        return RenderLabel.Always;
+      case "never":
+        return RenderLabel.Never;
+      case "dynamic":
+        return RenderLabel.Dynamic;
+    }
+  }
+  _showNotebookActionsinEditorToolbar() {
+    if (!this.notebookEditor.hasModel()) {
+      this._deferredActionUpdate?.dispose();
+      this._deferredActionUpdate = void 0;
+      this.visible = false;
+      return;
+    }
+    if (this._deferredActionUpdate) {
+      return;
+    }
+    if (!this._useGlobalToolbar) {
+      this.domNode.style.display = "none";
+      this._deferredActionUpdate = void 0;
+      this.visible = false;
+    } else {
+      this._deferredActionUpdate = disposableTimeout(async () => {
+        await this._setNotebookActions();
+        this.visible = true;
+        this._deferredActionUpdate?.dispose();
+        this._deferredActionUpdate = void 0;
+      }, 50);
+    }
+  }
+  async _setNotebookActions() {
+    const groups = this._notebookGlobalActionsMenu.getActions({ shouldForwardArgs: true, renderShortTitle: true });
+    this.domNode.style.display = "flex";
+    const primaryLeftGroups = groups.filter((group) => /^navigation/.test(group[0]));
+    const primaryActions = [];
+    primaryLeftGroups.sort((a, b) => {
+      if (a[0] === "navigation") {
+        return 1;
+      }
+      if (b[0] === "navigation") {
+        return -1;
+      }
+      return 0;
+    }).forEach((group, index) => {
+      primaryActions.push(...group[1]);
+      if (index < primaryLeftGroups.length - 1) {
+        primaryActions.push(new Separator());
+      }
+    });
+    const primaryRightGroup = groups.find((group) => /^status/.test(group[0]));
+    const primaryRightActions = primaryRightGroup ? primaryRightGroup[1] : [];
+    const secondaryActions = groups.filter((group) => !/^navigation/.test(group[0]) && !/^status/.test(group[0])).reduce((prev, curr) => {
+      prev.push(...curr[1]);
+      return prev;
+    }, []);
+    this._notebookLeftToolbar.setActions([], []);
+    this._primaryActions = primaryActions.map((action) => ({
+      action,
+      size: action instanceof Separator ? 1 : 0,
+      renderLabel: true,
+      visible: true
+    }));
+    this._notebookLeftToolbar.setActions(primaryActions, secondaryActions);
+    this._secondaryActions = secondaryActions;
+    this._notebookRightToolbar.setActions(primaryRightActions, []);
+    this._secondaryActions = secondaryActions;
+    if (this._dimension && this._dimension.width >= 0 && this._dimension.height >= 0) {
+      this._cacheItemSizes(this._notebookLeftToolbar);
+    }
+    this._computeSizes();
+  }
+  _cacheItemSizes(toolbar) {
+    for (let i = 0; i < toolbar.getItemsLength(); i++) {
+      const action = toolbar.getItemAction(i);
+      if (action && action.id !== "toolbar.toggle.more") {
+        const existing = this._primaryActions.find((a) => a.action.id === action.id);
+        if (existing) {
+          existing.size = toolbar.getItemWidth(i);
+        }
+      }
+    }
+  }
+  _computeSizes() {
+    const toolbar = this._notebookLeftToolbar;
+    const rightToolbar = this._notebookRightToolbar;
+    if (toolbar && rightToolbar && this._dimension && this._dimension.height >= 0 && this._dimension.width >= 0) {
+      if (this._primaryActions.length === 0 && toolbar.getItemsLength() !== this._primaryActions.length) {
+        this._cacheItemSizes(this._notebookLeftToolbar);
+      }
+      if (this._primaryActions.length === 0) {
+        return;
+      }
+      const kernelWidth = (rightToolbar.getItemsLength() ? rightToolbar.getItemWidth(0) : 0) + ACTION_PADDING;
+      const leftToolbarContainerMaxWidth = this._dimension.width - kernelWidth - (ACTION_PADDING + TOGGLE_MORE_ACTION_WIDTH) - /** toolbar left margin */
+      ACTION_PADDING - /** toolbar right margin */
+      ACTION_PADDING;
+      const calculatedActions = this._strategy.calculateActions(leftToolbarContainerMaxWidth);
+      this._notebookLeftToolbar.setActions(calculatedActions.primaryActions, calculatedActions.secondaryActions);
+    }
+  }
+  layout(dimension) {
+    this._dimension = dimension;
+    if (!this._useGlobalToolbar) {
+      this.domNode.style.display = "none";
+    } else {
+      this.domNode.style.display = "flex";
+    }
+    this._computeSizes();
+  }
+  dispose() {
+    this._notebookLeftToolbar.context = void 0;
+    this._notebookRightToolbar.context = void 0;
+    this._notebookLeftToolbar.dispose();
+    this._notebookRightToolbar.dispose();
+    this._notebookLeftToolbar = null;
+    this._notebookRightToolbar = null;
+    this._deferredActionUpdate?.dispose();
+    this._deferredActionUpdate = void 0;
+    super.dispose();
+  }
+};
+NotebookEditorWorkbenchToolbar = __decorate([
+  __param(4, IInstantiationService),
+  __param(5, IConfigurationService),
+  __param(6, IContextMenuService),
+  __param(7, IMenuService),
+  __param(8, IEditorService),
+  __param(9, IKeybindingService),
+  __param(10, IWorkbenchAssignmentService)
+], NotebookEditorWorkbenchToolbar);
+function workbenchCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth) {
+  return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, false);
+}
+__name(workbenchCalculateActions, "workbenchCalculateActions");
+function workbenchDynamicCalculateActions(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth) {
+  if (initialPrimaryActions.length === 0) {
+    return { primaryActions: [], secondaryActions: initialSecondaryActions };
+  }
+  const visibleActionLength = initialPrimaryActions.filter((action) => action.size !== 0).length;
+  const totalWidthWithLabels = initialPrimaryActions.map((action) => action.size).reduce((a, b) => a + b, 0) + (visibleActionLength - 1) * ACTION_PADDING;
+  if (totalWidthWithLabels <= leftToolbarContainerMaxWidth) {
+    initialPrimaryActions.forEach((action) => {
+      action.renderLabel = true;
+    });
+    return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, false);
+  }
+  if (visibleActionLength * ICON_ONLY_ACTION_WIDTH + (visibleActionLength - 1) * ACTION_PADDING > leftToolbarContainerMaxWidth) {
+    initialPrimaryActions.forEach((action) => {
+      action.renderLabel = false;
+    });
+    return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, true);
+  }
+  let sum = 0;
+  let lastActionWithLabel = -1;
+  for (let i = 0; i < initialPrimaryActions.length; i++) {
+    sum += initialPrimaryActions[i].size + ACTION_PADDING;
+    if (initialPrimaryActions[i].action instanceof Separator) {
+      const remainingItems = initialPrimaryActions.slice(i + 1).filter((action) => action.size !== 0);
+      const newTotalSum = sum + (remainingItems.length === 0 ? 0 : remainingItems.length * ICON_ONLY_ACTION_WIDTH + (remainingItems.length - 1) * ACTION_PADDING);
+      if (newTotalSum <= leftToolbarContainerMaxWidth) {
+        lastActionWithLabel = i;
+      }
+    } else {
+      continue;
+    }
+  }
+  if (lastActionWithLabel < 0) {
+    initialPrimaryActions.forEach((action) => {
+      action.renderLabel = false;
+    });
+    return actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, true);
+  }
+  initialPrimaryActions.slice(0, lastActionWithLabel + 1).forEach((action) => {
+    action.renderLabel = true;
+  });
+  initialPrimaryActions.slice(lastActionWithLabel + 1).forEach((action) => {
+    action.renderLabel = false;
+  });
+  return {
+    primaryActions: initialPrimaryActions,
+    secondaryActions: initialSecondaryActions
+  };
+}
+__name(workbenchDynamicCalculateActions, "workbenchDynamicCalculateActions");
+function actionOverflowHelper(initialPrimaryActions, initialSecondaryActions, leftToolbarContainerMaxWidth, iconOnly) {
+  const renderActions = [];
+  const overflow = [];
+  let currentSize = 0;
+  let nonZeroAction = false;
+  let containerFull = false;
+  if (initialPrimaryActions.length === 0) {
+    return { primaryActions: [], secondaryActions: initialSecondaryActions };
+  }
+  for (let i = 0; i < initialPrimaryActions.length; i++) {
+    const actionModel = initialPrimaryActions[i];
+    const itemSize = iconOnly ? actionModel.size === 0 ? 0 : ICON_ONLY_ACTION_WIDTH : actionModel.size;
+    if (actionModel.action instanceof Separator && renderActions.length > 0 && renderActions[renderActions.length - 1].action instanceof Separator) {
+      continue;
+    }
+    if (actionModel.action instanceof Separator && !nonZeroAction) {
+      continue;
+    }
+    if (currentSize + itemSize <= leftToolbarContainerMaxWidth && !containerFull) {
+      currentSize += ACTION_PADDING + itemSize;
+      renderActions.push(actionModel);
+      if (itemSize !== 0) {
+        nonZeroAction = true;
+      }
+      if (actionModel.action instanceof Separator) {
+        nonZeroAction = false;
+      }
+    } else {
+      containerFull = true;
+      if (itemSize === 0) {
+        renderActions.push(actionModel);
+      } else {
+        if (actionModel.action instanceof Separator) {
+          continue;
+        }
+        overflow.push(actionModel.action);
+      }
+    }
+  }
+  for (let i = renderActions.length - 1; i > 0; i--) {
+    const temp = renderActions[i];
+    if (temp.size === 0) {
+      continue;
+    }
+    if (temp.action instanceof Separator) {
+      renderActions.splice(i, 1);
+    }
+    break;
+  }
+  if (renderActions.length && renderActions[renderActions.length - 1].action instanceof Separator) {
+    renderActions.pop();
+  }
+  if (overflow.length !== 0) {
+    overflow.push(new Separator());
+  }
+  if (iconOnly) {
+    const markdownIndex = renderActions.findIndex((a) => a.action.id === "notebook.cell.insertMarkdownCellBelow");
+    if (markdownIndex !== -1) {
+      renderActions.splice(markdownIndex, 1);
+    }
+  }
+  return {
+    primaryActions: renderActions,
+    secondaryActions: [...overflow, ...initialSecondaryActions]
+  };
+}
+__name(actionOverflowHelper, "actionOverflowHelper");
+export {
+  NotebookEditorWorkbenchToolbar,
+  RenderLabel,
+  convertConfiguration,
+  workbenchCalculateActions,
+  workbenchDynamicCalculateActions
+};
+//# sourceMappingURL=notebookEditorToolbar.js.map

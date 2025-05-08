@@ -1,1 +1,53 @@
-import{joinPath as h}from"../../../base/common/resources.js";import{localize as m}from"../../../nls.js";import{IEnvironmentService as u}from"../../environment/common/environment.js";import{AbstractLogger as p,ILoggerService as _}from"../../log/common/log.js";import{USER_DATA_SYNC_LOG_ID as l}from"./userDataSync.js";var f=function(o,r,e,i){var n=arguments.length,t=n<3?r:i===null?i=Object.getOwnPropertyDescriptor(r,e):i,g;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(o,r,e,i);else for(var c=o.length-1;c>=0;c--)(g=o[c])&&(t=(n<3?g(t):n>3?g(r,e,t):g(r,e))||t);return n>3&&t&&Object.defineProperty(r,e,t),t},s=function(o,r){return function(e,i){r(e,i,o)}};let a=class extends p{constructor(r,e){super(),this.logger=this._register(r.createLogger(h(e.logsHome,`${l}.log`),{id:l,name:m("userDataSyncLog","Settings Sync")}))}trace(r,...e){this.logger.trace(r,...e)}debug(r,...e){this.logger.debug(r,...e)}info(r,...e){this.logger.info(r,...e)}warn(r,...e){this.logger.warn(r,...e)}error(r,...e){this.logger.error(r,...e)}flush(){this.logger.flush()}};a=f([s(0,_),s(1,u)],a);export{a as UserDataSyncLogService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { joinPath } from "../../../base/common/resources.js";
+import { localize } from "../../../nls.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { AbstractLogger, ILoggerService } from "../../log/common/log.js";
+import { USER_DATA_SYNC_LOG_ID } from "./userDataSync.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let UserDataSyncLogService = class UserDataSyncLogService2 extends AbstractLogger {
+  static {
+    __name(this, "UserDataSyncLogService");
+  }
+  constructor(loggerService, environmentService) {
+    super();
+    this.logger = this._register(loggerService.createLogger(joinPath(environmentService.logsHome, `${USER_DATA_SYNC_LOG_ID}.log`), { id: USER_DATA_SYNC_LOG_ID, name: localize("userDataSyncLog", "Settings Sync") }));
+  }
+  trace(message, ...args) {
+    this.logger.trace(message, ...args);
+  }
+  debug(message, ...args) {
+    this.logger.debug(message, ...args);
+  }
+  info(message, ...args) {
+    this.logger.info(message, ...args);
+  }
+  warn(message, ...args) {
+    this.logger.warn(message, ...args);
+  }
+  error(message, ...args) {
+    this.logger.error(message, ...args);
+  }
+  flush() {
+    this.logger.flush();
+  }
+};
+UserDataSyncLogService = __decorate([
+  __param(0, ILoggerService),
+  __param(1, IEnvironmentService)
+], UserDataSyncLogService);
+export {
+  UserDataSyncLogService
+};
+//# sourceMappingURL=userDataSyncLog.js.map

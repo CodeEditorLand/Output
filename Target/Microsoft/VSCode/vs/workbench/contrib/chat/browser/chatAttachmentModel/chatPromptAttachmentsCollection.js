@@ -1,1 +1,187 @@
-import{Emitter as h}from"../../../../../base/common/event.js";import{basename as l}from"../../../../../base/common/resources.js";import{ChatPromptAttachmentModel as d}from"./chatPromptAttachmentModel.js";import{PromptsConfig as _}from"../../../../../platform/prompts/common/config.js";import{Disposable as v,DisposableMap as P}from"../../../../../base/common/lifecycle.js";import{IInstantiationService as A}from"../../../../../platform/instantiation/common/instantiation.js";import{IConfigurationService as g}from"../../../../../platform/configuration/common/configuration.js";import{isChatRequestFileEntry as b}from"../../common/chatModel.js";var u=function(r,t,e,i){var n=arguments.length,s=n<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")s=Reflect.decorate(r,t,e,i);else for(var a=r.length-1;a>=0;a--)(o=r[a])&&(s=(n<3?o(s):n>3?o(t,e,s):o(t,e))||s);return n>3&&s&&Object.defineProperty(t,e,s),s},c=function(r,t){return function(e,i){t(e,i,r)}};const f="vscode.prompt.instructions",R=(r,t)=>{let e=f;return t&&(e+=".root"),`${e}__${r}`},m=(r,t)=>{const{uri:e,isPromptFile:i}=r;let n=`${e}`;i&&(n=R(e,t));const s=i?`prompt:${l(e)}`:`file:${l(e)}`;return{id:n,name:s,value:e,kind:"file",modelDescription:i?"Prompt instructions file":"File attachment",isRoot:t}};function E(r){return b(r)&&r.id.startsWith(f)}let p=class extends v{get references(){const t=[];for(const e of this.attachments.values())t.push(...e.references);return t}get toolsMetadata(){const t=[];for(const e of this.attachments.values()){const{toolsMetadata:i}=e;i!==null&&t.push(...i)}return[...new Set(t)]}get chatAttachments(){const t=[],e=[...this.attachments.values()];for(const i of e){const{reference:n}=i;t.push(...n.allValidReferences.map(s=>m(s,!1))),t.push(m({uri:n.uri,isPromptFile:!0},!0))}return t}async allSettled(){const t=[...this.attachments.values()];return await Promise.allSettled(t.map(e=>e.allSettled)),this}constructor(t,e){super(),this.initService=t,this.configService=e,this._onUpdate=this._register(new h),this.onUpdate=this._onUpdate.event,this._onAdd=this._register(new h),this.onAdd=this._onAdd.event,this._onRemove=this._register(new h),this.onRemove=this._onRemove.event,this.attachments=this._register(new P),this._onUpdate.fire=this._onUpdate.fire.bind(this._onUpdate)}add(t){const e=Array.isArray(t)?t:[t];if(e.length!==0)for(const i of e){if(this.attachments.has(i.path))continue;const n=this.initService.createInstance(d,i).onUpdate(this._onUpdate.fire).onDispose(()=>{this.attachments.deleteAndLeak(i.path),this._onUpdate.fire(),this._onRemove.fire(n)}).resolve();this.attachments.set(i.path,n),this._onAdd.fire(n),this._onUpdate.fire()}}remove(t){return this.attachments.has(t.path)?(this.attachments.deleteAndDispose(t.path),this):this}get featureEnabled(){return _.enabled(this.configService)}clear(){for(const t of this.attachments.values())this.remove(t.uri);return this._onUpdate.fire(),this}};p=u([c(0,A),c(1,g)],p);export{p as ChatPromptAttachmentsCollection,R as createPromptVariableId,E as isPromptFileChatVariable,m as toChatVariable};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Emitter } from "../../../../../base/common/event.js";
+import { basename } from "../../../../../base/common/resources.js";
+import { ChatPromptAttachmentModel } from "./chatPromptAttachmentModel.js";
+import { PromptsConfig } from "../../../../../platform/prompts/common/config.js";
+import { Disposable, DisposableMap } from "../../../../../base/common/lifecycle.js";
+import { IInstantiationService } from "../../../../../platform/instantiation/common/instantiation.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { isChatRequestFileEntry } from "../../common/chatModel.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const PROMPT_VARIABLE_ID_PREFIX = "vscode.prompt.instructions";
+const createPromptVariableId = /* @__PURE__ */ __name((uri, isRoot) => {
+  let prefix = PROMPT_VARIABLE_ID_PREFIX;
+  if (isRoot) {
+    prefix += ".root";
+  }
+  return `${prefix}__${uri}`;
+}, "createPromptVariableId");
+const toChatVariable = /* @__PURE__ */ __name((reference, isRoot) => {
+  const { uri, isPromptFile } = reference;
+  let id = `${uri}`;
+  if (isPromptFile) {
+    id = createPromptVariableId(uri, isRoot);
+  }
+  const name = isPromptFile ? `prompt:${basename(uri)}` : `file:${basename(uri)}`;
+  const modelDescription = isPromptFile ? "Prompt instructions file" : "File attachment";
+  return {
+    id,
+    name,
+    value: uri,
+    kind: "file",
+    modelDescription,
+    isRoot
+  };
+}, "toChatVariable");
+function isPromptFileChatVariable(variable) {
+  return isChatRequestFileEntry(variable) && variable.id.startsWith(PROMPT_VARIABLE_ID_PREFIX);
+}
+__name(isPromptFileChatVariable, "isPromptFileChatVariable");
+let ChatPromptAttachmentsCollection = class ChatPromptAttachmentsCollection2 extends Disposable {
+  static {
+    __name(this, "ChatPromptAttachmentsCollection");
+  }
+  /**
+   * Get all `URI`s of all valid references, including all
+   * the possible references nested inside the children.
+   */
+  get references() {
+    const result = [];
+    for (const child of this.attachments.values()) {
+      result.push(...child.references);
+    }
+    return result;
+  }
+  /**
+   * Get list of tools associated with all attached prompt files.
+   */
+  get toolsMetadata() {
+    const result = [];
+    for (const child of this.attachments.values()) {
+      const { toolsMetadata } = child;
+      if (toolsMetadata === null) {
+        continue;
+      }
+      result.push(...toolsMetadata);
+    }
+    return [...new Set(result)];
+  }
+  /**
+   * Get the list of all prompt instruction attachment variables, including all
+   * nested child references of each attachment explicitly attached by user.
+   */
+  get chatAttachments() {
+    const result = [];
+    const attachments = [...this.attachments.values()];
+    for (const attachment of attachments) {
+      const { reference } = attachment;
+      result.push(...reference.allValidReferences.map((link) => {
+        return toChatVariable(link, false);
+      }));
+      result.push(toChatVariable({
+        uri: reference.uri,
+        // the attached file must have been a prompt file therefore
+        // we force that assumption here; this makes sure that prompts
+        // in untitled documents can be also attached to the chat input
+        isPromptFile: true
+      }, true));
+    }
+    return result;
+  }
+  /**
+   * Promise that resolves when parsing of all attached prompt instruction
+   * files completes, including parsing of all its possible child references.
+   */
+  async allSettled() {
+    const attachments = [...this.attachments.values()];
+    await Promise.allSettled(attachments.map((attachment) => {
+      return attachment.allSettled;
+    }));
+    return this;
+  }
+  constructor(initService, configService) {
+    super();
+    this.initService = initService;
+    this.configService = configService;
+    this._onUpdate = this._register(new Emitter());
+    this.onUpdate = this._onUpdate.event;
+    this._onAdd = this._register(new Emitter());
+    this.onAdd = this._onAdd.event;
+    this._onRemove = this._register(new Emitter());
+    this.onRemove = this._onRemove.event;
+    this.attachments = this._register(new DisposableMap());
+    this._onUpdate.fire = this._onUpdate.fire.bind(this._onUpdate);
+  }
+  /**
+   * Add a prompt instruction attachment instance with the provided `URI`.
+   * @param uri URI of the prompt instruction attachment to add.
+   */
+  add(uris) {
+    const uriList = Array.isArray(uris) ? uris : [uris];
+    if (uriList.length === 0) {
+      return;
+    }
+    for (const uri of uriList) {
+      if (this.attachments.has(uri.path)) {
+        continue;
+      }
+      const instruction = this.initService.createInstance(ChatPromptAttachmentModel, uri).onUpdate(this._onUpdate.fire).onDispose(() => {
+        this.attachments.deleteAndLeak(uri.path);
+        this._onUpdate.fire();
+        this._onRemove.fire(instruction);
+      }).resolve();
+      this.attachments.set(uri.path, instruction);
+      this._onAdd.fire(instruction);
+      this._onUpdate.fire();
+    }
+  }
+  /**
+   * Remove a prompt instruction attachment instance by provided `URI`.
+   * @param uri URI of the prompt instruction attachment to remove.
+   */
+  remove(uri) {
+    if (!this.attachments.has(uri.path)) {
+      return this;
+    }
+    this.attachments.deleteAndDispose(uri.path);
+    return this;
+  }
+  /**
+   * Checks if the prompt instructions feature is enabled in the user settings.
+   */
+  get featureEnabled() {
+    return PromptsConfig.enabled(this.configService);
+  }
+  /**
+   * Clear all prompt instruction attachments.
+   */
+  clear() {
+    for (const attachment of this.attachments.values()) {
+      this.remove(attachment.uri);
+    }
+    this._onUpdate.fire();
+    return this;
+  }
+};
+ChatPromptAttachmentsCollection = __decorate([
+  __param(0, IInstantiationService),
+  __param(1, IConfigurationService)
+], ChatPromptAttachmentsCollection);
+export {
+  ChatPromptAttachmentsCollection,
+  createPromptVariableId,
+  isPromptFileChatVariable,
+  toChatVariable
+};
+//# sourceMappingURL=chatPromptAttachmentsCollection.js.map

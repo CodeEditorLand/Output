@@ -1,1 +1,73 @@
-import{Registry as E}from"../../../../platform/registry/common/platform.js";import{Extensions as _}from"../../../common/contributions.js";import{IBannerService as u}from"../../../services/banner/browser/bannerService.js";import{IStorageService as p}from"../../../../platform/storage/common/storage.js";import{IBrowserWorkbenchEnvironmentService as h}from"../../../services/environment/browser/environmentService.js";import{URI as b}from"../../../../base/common/uri.js";import{ThemeIcon as I}from"../../../../base/common/themables.js";var l=function(i,o,r,t){var e=arguments.length,n=e<3?o:t===null?t=Object.getOwnPropertyDescriptor(o,r):t,c;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(i,o,r,t);else for(var m=i.length-1;m>=0;m--)(c=i[m])&&(n=(e<3?c(n):e>3?c(o,r,n):c(o,r))||n);return e>3&&n&&Object.defineProperty(o,r,n),n},f=function(i,o){return function(r,t){o(r,t,i)}},s;let a=class{static{s=this}static{this.WELCOME_BANNER_DISMISSED_KEY="workbench.banner.welcome.dismissed"}constructor(o,r,t){const e=t.options?.welcomeBanner;if(!e||r.getBoolean(s.WELCOME_BANNER_DISMISSED_KEY,0,!1))return;let n;typeof e.icon=="string"?n=I.fromId(e.icon):e.icon&&(n=b.revive(e.icon)),o.show({id:"welcome.banner",message:e.message,icon:n,actions:e.actions,onClose:()=>{r.store(s.WELCOME_BANNER_DISMISSED_KEY,!0,0,1)}})}};a=s=l([f(0,u),f(1,p),f(2,h)],a);E.as(_.Workbench).registerWorkbenchContribution(a,3);
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { Registry } from "../../../../platform/registry/common/platform.js";
+import { Extensions as WorkbenchExtensions } from "../../../common/contributions.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IBrowserWorkbenchEnvironmentService } from "../../../services/environment/browser/environmentService.js";
+import { URI } from "../../../../base/common/uri.js";
+import { ThemeIcon } from "../../../../base/common/themables.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var WelcomeBannerContribution_1;
+let WelcomeBannerContribution = class WelcomeBannerContribution2 {
+  static {
+    __name(this, "WelcomeBannerContribution");
+  }
+  static {
+    WelcomeBannerContribution_1 = this;
+  }
+  static {
+    this.WELCOME_BANNER_DISMISSED_KEY = "workbench.banner.welcome.dismissed";
+  }
+  constructor(bannerService, storageService, environmentService) {
+    const welcomeBanner = environmentService.options?.welcomeBanner;
+    if (!welcomeBanner) {
+      return;
+    }
+    if (storageService.getBoolean(WelcomeBannerContribution_1.WELCOME_BANNER_DISMISSED_KEY, 0, false)) {
+      return;
+    }
+    let icon = void 0;
+    if (typeof welcomeBanner.icon === "string") {
+      icon = ThemeIcon.fromId(welcomeBanner.icon);
+    } else if (welcomeBanner.icon) {
+      icon = URI.revive(welcomeBanner.icon);
+    }
+    bannerService.show({
+      id: "welcome.banner",
+      message: welcomeBanner.message,
+      icon,
+      actions: welcomeBanner.actions,
+      onClose: /* @__PURE__ */ __name(() => {
+        storageService.store(
+          WelcomeBannerContribution_1.WELCOME_BANNER_DISMISSED_KEY,
+          true,
+          0,
+          1
+          /* StorageTarget.MACHINE */
+        );
+      }, "onClose")
+    });
+  }
+};
+WelcomeBannerContribution = WelcomeBannerContribution_1 = __decorate([
+  __param(0, IBannerService),
+  __param(1, IStorageService),
+  __param(2, IBrowserWorkbenchEnvironmentService)
+], WelcomeBannerContribution);
+Registry.as(WorkbenchExtensions.Workbench).registerWorkbenchContribution(
+  WelcomeBannerContribution,
+  3
+  /* LifecyclePhase.Restored */
+);
+//# sourceMappingURL=welcomeBanner.contribution.js.map

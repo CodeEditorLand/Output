@@ -1,1 +1,43 @@
-import{ILogService as a}from"../../../../../../platform/log/common/log.js";import{BasePromptParser as l}from"./basePromptParser.js";import{TextModelContentsProvider as u}from"../contentProviders/textModelContentsProvider.js";import{IWorkspaceContextService as P}from"../../../../../../platform/workspace/common/workspace.js";import{IInstantiationService as h}from"../../../../../../platform/instantiation/common/instantiation.js";var m=function(i,t,r,o){var c=arguments.length,e=c<3?t:o===null?o=Object.getOwnPropertyDescriptor(t,r):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")e=Reflect.decorate(i,t,r,o);else for(var p=i.length-1;p>=0;p--)(n=i[p])&&(e=(c<3?n(e):c>3?n(t,r,e):n(t,r))||e);return c>3&&e&&Object.defineProperty(t,r,e),e},s=function(i,t){return function(r,o){t(r,o,i)}};let f=class extends l{constructor(t,r={},o,c,e){const n=o.createInstance(u,t,r);super(n,r,o,c,e),this._register(n)}toString(){return`text-model-prompt:${this.uri.path}`}};f=m([s(2,h),s(3,P),s(4,a)],f);export{f as TextModelPromptParser};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ILogService } from "../../../../../../platform/log/common/log.js";
+import { BasePromptParser } from "./basePromptParser.js";
+import { TextModelContentsProvider } from "../contentProviders/textModelContentsProvider.js";
+import { IWorkspaceContextService } from "../../../../../../platform/workspace/common/workspace.js";
+import { IInstantiationService } from "../../../../../../platform/instantiation/common/instantiation.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let TextModelPromptParser = class TextModelPromptParser2 extends BasePromptParser {
+  static {
+    __name(this, "TextModelPromptParser");
+  }
+  constructor(model, options = {}, initService, workspaceService, logService) {
+    const contentsProvider = initService.createInstance(TextModelContentsProvider, model, options);
+    super(contentsProvider, options, initService, workspaceService, logService);
+    this._register(contentsProvider);
+  }
+  /**
+   * Returns a string representation of this object.
+   */
+  toString() {
+    return `text-model-prompt:${this.uri.path}`;
+  }
+};
+TextModelPromptParser = __decorate([
+  __param(2, IInstantiationService),
+  __param(3, IWorkspaceContextService),
+  __param(4, ILogService)
+], TextModelPromptParser);
+export {
+  TextModelPromptParser
+};
+//# sourceMappingURL=textModelPromptParser.js.map

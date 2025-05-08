@@ -1,3 +1,229 @@
-import{parse as m,getNodeType as S}from"../../../../base/common/json.js";import{localize as c}from"../../../../nls.js";import{extname as _,basename as d}from"../../../../base/common/path.js";import{SnippetParser as b,Variable as x,Placeholder as f,Text as g}from"../../../../editor/contrib/snippet/browser/snippetParser.js";import{KnownSnippetVariableNames as y}from"../../../../editor/contrib/snippet/browser/snippetVariables.js";import{relativePath as v}from"../../../../base/common/resources.js";import{isObject as w}from"../../../../base/common/types.js";import{Iterable as T}from"../../../../base/common/iterator.js";import{WindowIdleValue as I,getActiveWindow as B}from"../../../../base/browser/dom.js";class P{constructor(i){this.isBogous=!1,this.isTrivial=!1,this.usesClipboardVariable=!1,this.usesSelectionVariable=!1,this.codeSnippet=i;const s=new b().parse(i,!1),n=new Map;let t=0;for(const e of s.placeholders)t=Math.max(t,e.index);if(s.placeholders.length===0)this.isTrivial=!0;else if(t===0){const e=s.children.at(-1);this.isTrivial=e instanceof f&&e.isFinalTabstop}const o=[...s.children];for(;o.length>0;){const e=o.shift();if(e instanceof x){if(e.children.length===0&&!y[e.name]){const r=n.has(e.name)?n.get(e.name):++t;n.set(e.name,r);const l=new f(r).appendChild(new g(e.name));s.replace(e,[l]),this.isBogous=!0}switch(e.name){case"CLIPBOARD":this.usesClipboardVariable=!0;break;case"SELECTION":case"TM_SELECTED_TEXT":this.usesSelectionVariable=!0;break}}else o.push(...e.children)}this.isBogous&&(this.codeSnippet=s.toTextmateString())}}class C{constructor(i,s,n,t,o,e,r,l,p,h){this.isFileTemplate=i,this.scopes=s,this.name=n,this.prefix=t,this.description=o,this.body=e,this.source=r,this.snippetSource=l,this.snippetIdentifier=p,this.extensionId=h,this.prefixLow=t.toLowerCase(),this._bodyInsights=new I(B(),()=>new P(this.body))}get codeSnippet(){return this._bodyInsights.value.codeSnippet}get isBogous(){return this._bodyInsights.value.isBogous}get isTrivial(){return this._bodyInsights.value.isTrivial}get needsClipboard(){return this._bodyInsights.value.usesClipboardVariable}get usesSelection(){return this._bodyInsights.value.usesSelectionVariable}}function E(a){return w(a)&&!!a.body}var u;(function(a){a[a.User=1]="User",a[a.Workspace=2]="Workspace",a[a.Extension=3]="Extension"})(u||(u={}));class W{constructor(i,s,n,t,o,e){this.source=i,this.location=s,this.defaultScopes=n,this._extension=t,this._fileService=o,this._extensionResourceLoaderService=e,this.data=[],this.isGlobalSnippets=_(s.path)===".code-snippets",this.isUserSnippets=!this._extension}select(i,s){this.isGlobalSnippets||!this.isUserSnippets?this._scopeSelect(i,s):this._filepathSelect(i,s)}_filepathSelect(i,s){i+".json"===d(this.location.path)&&s.push(...this.data)}_scopeSelect(i,s){for(const t of this.data){const o=t.scopes.length;if(o===0)s.push(t);else for(let e=0;e<o;e++)if(t.scopes[e]===i){s.push(t);break}}const n=i.lastIndexOf(".");n>=0&&this._scopeSelect(i.substring(0,n),s)}async _load(){return this._extension?this._extensionResourceLoaderService.readExtensionResource(this.location):(await this._fileService.readFile(this.location)).value.toString()}load(){return this._loadPromise||(this._loadPromise=Promise.resolve(this._load()).then(i=>{const s=m(i);if(S(s)==="object")for(const[n,t]of Object.entries(s))if(E(t))this._parseSnippet(n,t,this.data);else for(const[o,e]of Object.entries(t))this._parseSnippet(o,e,this.data);return this})),this._loadPromise}reset(){this._loadPromise=void 0,this.data.length=0}_parseSnippet(i,s,n){let{isFileTemplate:t,prefix:o,body:e,description:r}=s;if(o||(o=""),Array.isArray(e)&&(e=e.join(`
-`)),typeof e!="string")return;Array.isArray(r)&&(r=r.join(`
-`));let l;this.defaultScopes?l=this.defaultScopes:typeof s.scope=="string"?l=s.scope.split(",").map(h=>h.trim()).filter(Boolean):l=[];let p;this._extension?p=this._extension.displayName||this._extension.name:this.source===2?p=c("source.workspaceSnippetGlobal","Workspace Snippet"):this.isGlobalSnippets?p=c("source.userSnippetGlobal","Global User Snippet"):p=c("source.userSnippet","User Snippet");for(const h of T.wrap(o))n.push(new C(!!t,l,i,h,r,e,p,this.source,this._extension?`${v(this._extension.extensionLocation,this.location)}/${i}`:`${d(this.location.path)}/${i}`,this._extension?.identifier))}}export{C as Snippet,W as SnippetFile,u as SnippetSource};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { parse as jsonParse, getNodeType } from "../../../../base/common/json.js";
+import { localize } from "../../../../nls.js";
+import { extname, basename } from "../../../../base/common/path.js";
+import { SnippetParser, Variable, Placeholder, Text } from "../../../../editor/contrib/snippet/browser/snippetParser.js";
+import { KnownSnippetVariableNames } from "../../../../editor/contrib/snippet/browser/snippetVariables.js";
+import { relativePath } from "../../../../base/common/resources.js";
+import { isObject } from "../../../../base/common/types.js";
+import { Iterable } from "../../../../base/common/iterator.js";
+import { WindowIdleValue, getActiveWindow } from "../../../../base/browser/dom.js";
+class SnippetBodyInsights {
+  static {
+    __name(this, "SnippetBodyInsights");
+  }
+  constructor(body) {
+    this.isBogous = false;
+    this.isTrivial = false;
+    this.usesClipboardVariable = false;
+    this.usesSelectionVariable = false;
+    this.codeSnippet = body;
+    const textmateSnippet = new SnippetParser().parse(body, false);
+    const placeholders = /* @__PURE__ */ new Map();
+    let placeholderMax = 0;
+    for (const placeholder of textmateSnippet.placeholders) {
+      placeholderMax = Math.max(placeholderMax, placeholder.index);
+    }
+    if (textmateSnippet.placeholders.length === 0) {
+      this.isTrivial = true;
+    } else if (placeholderMax === 0) {
+      const last = textmateSnippet.children.at(-1);
+      this.isTrivial = last instanceof Placeholder && last.isFinalTabstop;
+    }
+    const stack = [...textmateSnippet.children];
+    while (stack.length > 0) {
+      const marker = stack.shift();
+      if (marker instanceof Variable) {
+        if (marker.children.length === 0 && !KnownSnippetVariableNames[marker.name]) {
+          const index = placeholders.has(marker.name) ? placeholders.get(marker.name) : ++placeholderMax;
+          placeholders.set(marker.name, index);
+          const synthetic = new Placeholder(index).appendChild(new Text(marker.name));
+          textmateSnippet.replace(marker, [synthetic]);
+          this.isBogous = true;
+        }
+        switch (marker.name) {
+          case "CLIPBOARD":
+            this.usesClipboardVariable = true;
+            break;
+          case "SELECTION":
+          case "TM_SELECTED_TEXT":
+            this.usesSelectionVariable = true;
+            break;
+        }
+      } else {
+        stack.push(...marker.children);
+      }
+    }
+    if (this.isBogous) {
+      this.codeSnippet = textmateSnippet.toTextmateString();
+    }
+  }
+}
+class Snippet {
+  static {
+    __name(this, "Snippet");
+  }
+  constructor(isFileTemplate, scopes, name, prefix, description, body, source, snippetSource, snippetIdentifier, extensionId) {
+    this.isFileTemplate = isFileTemplate;
+    this.scopes = scopes;
+    this.name = name;
+    this.prefix = prefix;
+    this.description = description;
+    this.body = body;
+    this.source = source;
+    this.snippetSource = snippetSource;
+    this.snippetIdentifier = snippetIdentifier;
+    this.extensionId = extensionId;
+    this.prefixLow = prefix.toLowerCase();
+    this._bodyInsights = new WindowIdleValue(getActiveWindow(), () => new SnippetBodyInsights(this.body));
+  }
+  get codeSnippet() {
+    return this._bodyInsights.value.codeSnippet;
+  }
+  get isBogous() {
+    return this._bodyInsights.value.isBogous;
+  }
+  get isTrivial() {
+    return this._bodyInsights.value.isTrivial;
+  }
+  get needsClipboard() {
+    return this._bodyInsights.value.usesClipboardVariable;
+  }
+  get usesSelection() {
+    return this._bodyInsights.value.usesSelectionVariable;
+  }
+}
+function isJsonSerializedSnippet(thing) {
+  return isObject(thing) && Boolean(thing.body);
+}
+__name(isJsonSerializedSnippet, "isJsonSerializedSnippet");
+var SnippetSource;
+(function(SnippetSource2) {
+  SnippetSource2[SnippetSource2["User"] = 1] = "User";
+  SnippetSource2[SnippetSource2["Workspace"] = 2] = "Workspace";
+  SnippetSource2[SnippetSource2["Extension"] = 3] = "Extension";
+})(SnippetSource || (SnippetSource = {}));
+class SnippetFile {
+  static {
+    __name(this, "SnippetFile");
+  }
+  constructor(source, location, defaultScopes, _extension, _fileService, _extensionResourceLoaderService) {
+    this.source = source;
+    this.location = location;
+    this.defaultScopes = defaultScopes;
+    this._extension = _extension;
+    this._fileService = _fileService;
+    this._extensionResourceLoaderService = _extensionResourceLoaderService;
+    this.data = [];
+    this.isGlobalSnippets = extname(location.path) === ".code-snippets";
+    this.isUserSnippets = !this._extension;
+  }
+  select(selector, bucket) {
+    if (this.isGlobalSnippets || !this.isUserSnippets) {
+      this._scopeSelect(selector, bucket);
+    } else {
+      this._filepathSelect(selector, bucket);
+    }
+  }
+  _filepathSelect(selector, bucket) {
+    if (selector + ".json" === basename(this.location.path)) {
+      bucket.push(...this.data);
+    }
+  }
+  _scopeSelect(selector, bucket) {
+    for (const snippet of this.data) {
+      const len = snippet.scopes.length;
+      if (len === 0) {
+        bucket.push(snippet);
+      } else {
+        for (let i = 0; i < len; i++) {
+          if (snippet.scopes[i] === selector) {
+            bucket.push(snippet);
+            break;
+          }
+        }
+      }
+    }
+    const idx = selector.lastIndexOf(".");
+    if (idx >= 0) {
+      this._scopeSelect(selector.substring(0, idx), bucket);
+    }
+  }
+  async _load() {
+    if (this._extension) {
+      return this._extensionResourceLoaderService.readExtensionResource(this.location);
+    } else {
+      const content = await this._fileService.readFile(this.location);
+      return content.value.toString();
+    }
+  }
+  load() {
+    if (!this._loadPromise) {
+      this._loadPromise = Promise.resolve(this._load()).then((content) => {
+        const data = jsonParse(content);
+        if (getNodeType(data) === "object") {
+          for (const [name, scopeOrTemplate] of Object.entries(data)) {
+            if (isJsonSerializedSnippet(scopeOrTemplate)) {
+              this._parseSnippet(name, scopeOrTemplate, this.data);
+            } else {
+              for (const [name2, template] of Object.entries(scopeOrTemplate)) {
+                this._parseSnippet(name2, template, this.data);
+              }
+            }
+          }
+        }
+        return this;
+      });
+    }
+    return this._loadPromise;
+  }
+  reset() {
+    this._loadPromise = void 0;
+    this.data.length = 0;
+  }
+  _parseSnippet(name, snippet, bucket) {
+    let { isFileTemplate, prefix, body, description } = snippet;
+    if (!prefix) {
+      prefix = "";
+    }
+    if (Array.isArray(body)) {
+      body = body.join("\n");
+    }
+    if (typeof body !== "string") {
+      return;
+    }
+    if (Array.isArray(description)) {
+      description = description.join("\n");
+    }
+    let scopes;
+    if (this.defaultScopes) {
+      scopes = this.defaultScopes;
+    } else if (typeof snippet.scope === "string") {
+      scopes = snippet.scope.split(",").map((s) => s.trim()).filter(Boolean);
+    } else {
+      scopes = [];
+    }
+    let source;
+    if (this._extension) {
+      source = this._extension.displayName || this._extension.name;
+    } else if (this.source === 2) {
+      source = localize("source.workspaceSnippetGlobal", "Workspace Snippet");
+    } else {
+      if (this.isGlobalSnippets) {
+        source = localize("source.userSnippetGlobal", "Global User Snippet");
+      } else {
+        source = localize("source.userSnippet", "User Snippet");
+      }
+    }
+    for (const _prefix of Iterable.wrap(prefix)) {
+      bucket.push(new Snippet(Boolean(isFileTemplate), scopes, name, _prefix, description, body, source, this.source, this._extension ? `${relativePath(this._extension.extensionLocation, this.location)}/${name}` : `${basename(this.location.path)}/${name}`, this._extension?.identifier));
+    }
+  }
+}
+export {
+  Snippet,
+  SnippetFile,
+  SnippetSource
+};
+//# sourceMappingURL=snippetsFile.js.map

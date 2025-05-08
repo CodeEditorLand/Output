@@ -1,1 +1,489 @@
-import{VSBuffer as y}from"../../../base/common/buffer.js";import{Event as U}from"../../../base/common/event.js";import{deepClone as j}from"../../../base/common/objects.js";import{IConfigurationService as F}from"../../configuration/common/configuration.js";import{IEnvironmentService as w}from"../../environment/common/environment.js";import{FileOperationError as L,IFileService as v}from"../../files/common/files.js";import{IStorageService as C}from"../../storage/common/storage.js";import{ITelemetryService as O}from"../../telemetry/common/telemetry.js";import{IUriIdentityService as P}from"../../uriIdentity/common/uriIdentity.js";import{IUserDataProfilesService as k}from"../../userDataProfile/common/userDataProfile.js";import{AbstractInitializer as E,AbstractSynchroniser as I}from"./abstractSynchronizer.js";import{areSame as _,merge as m}from"./snippetsMerge.js";import{IUserDataSyncLocalStoreService as $,IUserDataSyncLogService as S,IUserDataSyncEnablementService as z,IUserDataSyncStoreService as D,USER_DATA_SYNC_SCHEME as a}from"./userDataSync.js";var g=function(u,t,i,n){var r=arguments.length,o=r<3?t:n===null?n=Object.getOwnPropertyDescriptor(t,i):n,e;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")o=Reflect.decorate(u,t,i,n);else for(var s=u.length-1;s>=0;s--)(e=u[s])&&(o=(r<3?e(o):r>3?e(t,i,o):e(t,i))||o);return r>3&&o&&Object.defineProperty(t,i,o),o},h=function(u,t){return function(i,n){t(i,n,u)}};function q(u){return JSON.parse(u.content)}let f=class extends I{constructor(t,i,n,r,o,e,s,c,l,p,R,x){super({syncResource:"snippets",profile:t},i,r,n,o,e,s,p,R,c,l,x),this.version=1,this.snippetsFolder=t.snippetsHome,this._register(this.fileService.watch(n.userRoamingDataHome)),this._register(this.fileService.watch(this.snippetsFolder)),this._register(U.filter(this.fileService.onDidFilesChange,b=>b.affects(this.snippetsFolder))(()=>this.triggerLocalChange()))}async generateSyncPreview(t,i,n){const r=await this.getSnippetsFileContents(),o=this.toSnippetsContents(r),e=t.syncData?this.parseSnippets(t.syncData):null;i=i===null&&n?t:i;const s=i&&i.syncData?this.parseSnippets(i.syncData):null;e?this.logService.trace(`${this.syncResourceLogLabel}: Merging remote snippets with local snippets...`):this.logService.trace(`${this.syncResourceLogLabel}: Remote snippets does not exist. Synchronizing snippets for the first time.`);const c=m(o,e,s);return this.getResourcePreviews(c,r,e||{},s||{})}async hasRemoteChanged(t){const i=t.syncData?this.parseSnippets(t.syncData):null;if(i===null)return!0;const n=await this.getSnippetsFileContents(),r=this.toSnippetsContents(n),o=m(r,i,i);return Object.keys(o.remote.added).length>0||Object.keys(o.remote.updated).length>0||o.remote.removed.length>0||o.conflicts.length>0}async getMergeResult(t,i){return t.previewResult}async getAcceptResult(t,i,n,r){if(this.extUri.isEqualOrParent(i,this.syncPreviewFolder.with({scheme:a,authority:"local"})))return{content:t.fileContent?t.fileContent.value.toString():null,localChange:0,remoteChange:t.fileContent?t.remoteContent!==null?2:1:3};if(this.extUri.isEqualOrParent(i,this.syncPreviewFolder.with({scheme:a,authority:"remote"})))return{content:t.remoteContent,localChange:t.remoteContent!==null?t.fileContent?2:1:3,remoteChange:0};if(this.extUri.isEqualOrParent(i,this.syncPreviewFolder))return n===void 0?{content:t.previewResult.content,localChange:t.previewResult.localChange,remoteChange:t.previewResult.remoteChange}:{content:n,localChange:n===null?t.fileContent!==null?3:0:2,remoteChange:n===null?t.remoteContent!==null?3:0:2};throw new Error(`Invalid Resource: ${i.toString()}`)}async applyResult(t,i,n,r){const o=n.map(([e,s])=>({...e,acceptResult:s}));o.every(({localChange:e,remoteChange:s})=>e===0&&s===0)&&this.logService.info(`${this.syncResourceLogLabel}: No changes found during synchronizing snippets.`),o.some(({localChange:e})=>e!==0)&&(await this.updateLocalBackup(o),await this.updateLocalSnippets(o,r)),o.some(({remoteChange:e})=>e!==0)&&(t=await this.updateRemoteSnippets(o,t,r)),i?.ref!==t.ref&&(this.logService.trace(`${this.syncResourceLogLabel}: Updating last synchronized snippets...`),await this.updateLastSyncUserData(t),this.logService.info(`${this.syncResourceLogLabel}: Updated last synchronized snippets`));for(const{previewResource:e}of o)try{await this.fileService.del(e)}catch{}}getResourcePreviews(t,i,n,r){const o=new Map;for(const e of Object.keys(t.local.added)){const s={content:t.local.added[e],hasConflicts:!1,localChange:1,remoteChange:0};o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:null,fileContent:null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),localContent:null,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:n[e],previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of Object.keys(t.local.updated)){const s={content:t.local.updated[e],hasConflicts:!1,localChange:2,remoteChange:0},c=i[e]?i[e].value.toString():null;o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:i[e],localContent:c,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:n[e],previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of t.local.removed){const s={content:null,hasConflicts:!1,localChange:3,remoteChange:0},c=i[e]?i[e].value.toString():null;o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:i[e],localContent:c,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:null,previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of Object.keys(t.remote.added)){const s={content:t.remote.added[e],hasConflicts:!1,localChange:0,remoteChange:1},c=i[e]?i[e].value.toString():null;o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:i[e],localContent:c,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:null,previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of Object.keys(t.remote.updated)){const s={content:t.remote.updated[e],hasConflicts:!1,localChange:0,remoteChange:2},c=i[e]?i[e].value.toString():null;o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:i[e],localContent:c,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:n[e],previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of t.remote.removed){const s={content:null,hasConflicts:!1,localChange:0,remoteChange:3};o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:null,localContent:null,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:n[e],previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of t.conflicts){const s={content:r[e]??null,hasConflicts:!0,localChange:i[e]?2:1,remoteChange:n[e]?2:1},c=i[e]?i[e].value.toString():null;o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:i[e]||null,localContent:c,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:n[e]||null,previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}for(const e of Object.keys(i))if(!o.has(e)){const s={content:i[e]?i[e].value.toString():null,hasConflicts:!1,localChange:0,remoteChange:0},c=i[e]?i[e].value.toString():null;o.set(e,{baseResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"base"}),baseContent:r[e]??null,localResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"local"}),fileContent:i[e]||null,localContent:c,remoteResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"remote"}),remoteContent:n[e]||null,previewResource:this.extUri.joinPath(this.syncPreviewFolder,e),previewResult:s,localChange:s.localChange,remoteChange:s.remoteChange,acceptedResource:this.extUri.joinPath(this.syncPreviewFolder,e).with({scheme:a,authority:"accepted"})})}return[...o.values()]}async resolveContent(t){return this.extUri.isEqualOrParent(t,this.syncPreviewFolder.with({scheme:a,authority:"remote"}))||this.extUri.isEqualOrParent(t,this.syncPreviewFolder.with({scheme:a,authority:"local"}))||this.extUri.isEqualOrParent(t,this.syncPreviewFolder.with({scheme:a,authority:"base"}))||this.extUri.isEqualOrParent(t,this.syncPreviewFolder.with({scheme:a,authority:"accepted"}))?this.resolvePreviewContent(t):null}async hasLocalData(){try{const t=await this.getSnippetsFileContents();if(Object.keys(t).length)return!0}catch{}return!1}async updateLocalBackup(t){const i={};for(const n of t)n.fileContent&&(i[this.extUri.basename(n.localResource)]=n.fileContent);await this.backupLocal(JSON.stringify(this.toSnippetsContents(i)))}async updateLocalSnippets(t,i){for(const{fileContent:n,acceptResult:r,localResource:o,remoteResource:e,localChange:s}of t)if(s!==0){const c=e?this.extUri.basename(e):this.extUri.basename(o),l=this.extUri.joinPath(this.snippetsFolder,c);s===3?(this.logService.trace(`${this.syncResourceLogLabel}: Deleting snippet...`,this.extUri.basename(l)),await this.fileService.del(l),this.logService.info(`${this.syncResourceLogLabel}: Deleted snippet`,this.extUri.basename(l))):s===1?(this.logService.trace(`${this.syncResourceLogLabel}: Creating snippet...`,this.extUri.basename(l)),await this.fileService.createFile(l,y.fromString(r.content),{overwrite:i}),this.logService.info(`${this.syncResourceLogLabel}: Created snippet`,this.extUri.basename(l))):(this.logService.trace(`${this.syncResourceLogLabel}: Updating snippet...`,this.extUri.basename(l)),await this.fileService.writeFile(l,y.fromString(r.content),i?void 0:n),this.logService.info(`${this.syncResourceLogLabel}: Updated snippet`,this.extUri.basename(l)))}}async updateRemoteSnippets(t,i,n){const r=i.syncData?this.parseSnippets(i.syncData):{},o=j(r);for(const{acceptResult:e,localResource:s,remoteResource:c,remoteChange:l}of t)if(l!==0){const p=s?this.extUri.basename(s):this.extUri.basename(c);l===3?delete o[p]:o[p]=e.content}return _(r,o)||(this.logService.trace(`${this.syncResourceLogLabel}: Updating remote snippets...`),i=await this.updateRemoteUserData(JSON.stringify(o),n?null:i.ref),this.logService.info(`${this.syncResourceLogLabel}: Updated remote snippets`)),i}parseSnippets(t){return q(t)}toSnippetsContents(t){const i={};for(const n of Object.keys(t))i[n]=t[n].value.toString();return i}async getSnippetsFileContents(){const t={};let i;try{i=await this.fileService.resolve(this.snippetsFolder)}catch(n){if(n instanceof L&&n.fileOperationResult===1)return t;throw n}for(const n of i.children||[]){const r=n.resource,o=this.extUri.extname(r);if(o===".json"||o===".code-snippets"){const e=this.extUri.relativePath(this.snippetsFolder,r),s=await this.fileService.readFile(r);t[e]=s}}return t}};f=g([h(2,w),h(3,v),h(4,C),h(5,D),h(6,$),h(7,S),h(8,F),h(9,z),h(10,O),h(11,P)],f);let d=class extends E{constructor(t,i,n,r,o,e){super("snippets",i,n,r,t,o,e)}async doInitialize(t){const i=t.syncData?JSON.parse(t.syncData.content):null;if(!i){this.logService.info("Skipping initializing snippets because remote snippets does not exist.");return}if(!await this.isEmpty()){this.logService.info("Skipping initializing snippets because local snippets exist.");return}for(const r of Object.keys(i)){const o=i[r];if(o){const e=this.extUri.joinPath(this.userDataProfilesService.defaultProfile.snippetsHome,r);await this.fileService.createFile(e,y.fromString(o)),this.logService.info("Created snippet",this.extUri.basename(e))}}await this.updateLastSyncUserData(t)}async isEmpty(){try{return!(await this.fileService.resolve(this.userDataProfilesService.defaultProfile.snippetsHome)).children?.length}catch(t){return t.fileOperationResult===1}}};d=g([h(0,v),h(1,k),h(2,w),h(3,S),h(4,C),h(5,P)],d);export{d as SnippetsInitializer,f as SnippetsSynchroniser,q as parseSnippets};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { VSBuffer } from "../../../base/common/buffer.js";
+import { Event } from "../../../base/common/event.js";
+import { deepClone } from "../../../base/common/objects.js";
+import { IConfigurationService } from "../../configuration/common/configuration.js";
+import { IEnvironmentService } from "../../environment/common/environment.js";
+import { FileOperationError, IFileService } from "../../files/common/files.js";
+import { IStorageService } from "../../storage/common/storage.js";
+import { ITelemetryService } from "../../telemetry/common/telemetry.js";
+import { IUriIdentityService } from "../../uriIdentity/common/uriIdentity.js";
+import { IUserDataProfilesService } from "../../userDataProfile/common/userDataProfile.js";
+import { AbstractInitializer, AbstractSynchroniser } from "./abstractSynchronizer.js";
+import { areSame, merge } from "./snippetsMerge.js";
+import { IUserDataSyncLocalStoreService, IUserDataSyncLogService, IUserDataSyncEnablementService, IUserDataSyncStoreService, USER_DATA_SYNC_SCHEME } from "./userDataSync.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+function parseSnippets(syncData) {
+  return JSON.parse(syncData.content);
+}
+__name(parseSnippets, "parseSnippets");
+let SnippetsSynchroniser = class SnippetsSynchroniser2 extends AbstractSynchroniser {
+  static {
+    __name(this, "SnippetsSynchroniser");
+  }
+  constructor(profile, collection, environmentService, fileService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, logService, configurationService, userDataSyncEnablementService, telemetryService, uriIdentityService) {
+    super({ syncResource: "snippets", profile }, collection, fileService, environmentService, storageService, userDataSyncStoreService, userDataSyncLocalStoreService, userDataSyncEnablementService, telemetryService, logService, configurationService, uriIdentityService);
+    this.version = 1;
+    this.snippetsFolder = profile.snippetsHome;
+    this._register(this.fileService.watch(environmentService.userRoamingDataHome));
+    this._register(this.fileService.watch(this.snippetsFolder));
+    this._register(Event.filter(this.fileService.onDidFilesChange, (e) => e.affects(this.snippetsFolder))(() => this.triggerLocalChange()));
+  }
+  async generateSyncPreview(remoteUserData, lastSyncUserData, isRemoteDataFromCurrentMachine) {
+    const local = await this.getSnippetsFileContents();
+    const localSnippets = this.toSnippetsContents(local);
+    const remoteSnippets = remoteUserData.syncData ? this.parseSnippets(remoteUserData.syncData) : null;
+    lastSyncUserData = lastSyncUserData === null && isRemoteDataFromCurrentMachine ? remoteUserData : lastSyncUserData;
+    const lastSyncSnippets = lastSyncUserData && lastSyncUserData.syncData ? this.parseSnippets(lastSyncUserData.syncData) : null;
+    if (remoteSnippets) {
+      this.logService.trace(`${this.syncResourceLogLabel}: Merging remote snippets with local snippets...`);
+    } else {
+      this.logService.trace(`${this.syncResourceLogLabel}: Remote snippets does not exist. Synchronizing snippets for the first time.`);
+    }
+    const mergeResult = merge(localSnippets, remoteSnippets, lastSyncSnippets);
+    return this.getResourcePreviews(mergeResult, local, remoteSnippets || {}, lastSyncSnippets || {});
+  }
+  async hasRemoteChanged(lastSyncUserData) {
+    const lastSyncSnippets = lastSyncUserData.syncData ? this.parseSnippets(lastSyncUserData.syncData) : null;
+    if (lastSyncSnippets === null) {
+      return true;
+    }
+    const local = await this.getSnippetsFileContents();
+    const localSnippets = this.toSnippetsContents(local);
+    const mergeResult = merge(localSnippets, lastSyncSnippets, lastSyncSnippets);
+    return Object.keys(mergeResult.remote.added).length > 0 || Object.keys(mergeResult.remote.updated).length > 0 || mergeResult.remote.removed.length > 0 || mergeResult.conflicts.length > 0;
+  }
+  async getMergeResult(resourcePreview, token) {
+    return resourcePreview.previewResult;
+  }
+  async getAcceptResult(resourcePreview, resource, content, token) {
+    if (this.extUri.isEqualOrParent(resource, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }))) {
+      return {
+        content: resourcePreview.fileContent ? resourcePreview.fileContent.value.toString() : null,
+        localChange: 0,
+        remoteChange: resourcePreview.fileContent ? resourcePreview.remoteContent !== null ? 2 : 1 : 3
+        /* Change.Deleted */
+      };
+    }
+    if (this.extUri.isEqualOrParent(resource, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }))) {
+      return {
+        content: resourcePreview.remoteContent,
+        localChange: resourcePreview.remoteContent !== null ? resourcePreview.fileContent ? 2 : 1 : 3,
+        remoteChange: 0
+      };
+    }
+    if (this.extUri.isEqualOrParent(resource, this.syncPreviewFolder)) {
+      if (content === void 0) {
+        return {
+          content: resourcePreview.previewResult.content,
+          localChange: resourcePreview.previewResult.localChange,
+          remoteChange: resourcePreview.previewResult.remoteChange
+        };
+      } else {
+        return {
+          content,
+          localChange: content === null ? resourcePreview.fileContent !== null ? 3 : 0 : 2,
+          remoteChange: content === null ? resourcePreview.remoteContent !== null ? 3 : 0 : 2
+          /* Change.Modified */
+        };
+      }
+    }
+    throw new Error(`Invalid Resource: ${resource.toString()}`);
+  }
+  async applyResult(remoteUserData, lastSyncUserData, resourcePreviews, force) {
+    const accptedResourcePreviews = resourcePreviews.map(([resourcePreview, acceptResult]) => ({ ...resourcePreview, acceptResult }));
+    if (accptedResourcePreviews.every(
+      ({ localChange, remoteChange }) => localChange === 0 && remoteChange === 0
+      /* Change.None */
+    )) {
+      this.logService.info(`${this.syncResourceLogLabel}: No changes found during synchronizing snippets.`);
+    }
+    if (accptedResourcePreviews.some(
+      ({ localChange }) => localChange !== 0
+      /* Change.None */
+    )) {
+      await this.updateLocalBackup(accptedResourcePreviews);
+      await this.updateLocalSnippets(accptedResourcePreviews, force);
+    }
+    if (accptedResourcePreviews.some(
+      ({ remoteChange }) => remoteChange !== 0
+      /* Change.None */
+    )) {
+      remoteUserData = await this.updateRemoteSnippets(accptedResourcePreviews, remoteUserData, force);
+    }
+    if (lastSyncUserData?.ref !== remoteUserData.ref) {
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating last synchronized snippets...`);
+      await this.updateLastSyncUserData(remoteUserData);
+      this.logService.info(`${this.syncResourceLogLabel}: Updated last synchronized snippets`);
+    }
+    for (const { previewResource } of accptedResourcePreviews) {
+      try {
+        await this.fileService.del(previewResource);
+      } catch (e) {
+      }
+    }
+  }
+  getResourcePreviews(snippetsMergeResult, localFileContent, remoteSnippets, baseSnippets) {
+    const resourcePreviews = /* @__PURE__ */ new Map();
+    for (const key of Object.keys(snippetsMergeResult.local.added)) {
+      const previewResult = {
+        content: snippetsMergeResult.local.added[key],
+        hasConflicts: false,
+        localChange: 1,
+        remoteChange: 0
+      };
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: null,
+        fileContent: null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        localContent: null,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: remoteSnippets[key],
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of Object.keys(snippetsMergeResult.local.updated)) {
+      const previewResult = {
+        content: snippetsMergeResult.local.updated[key],
+        hasConflicts: false,
+        localChange: 2,
+        remoteChange: 0
+      };
+      const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: baseSnippets[key] ?? null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        fileContent: localFileContent[key],
+        localContent,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: remoteSnippets[key],
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of snippetsMergeResult.local.removed) {
+      const previewResult = {
+        content: null,
+        hasConflicts: false,
+        localChange: 3,
+        remoteChange: 0
+      };
+      const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: baseSnippets[key] ?? null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        fileContent: localFileContent[key],
+        localContent,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: null,
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of Object.keys(snippetsMergeResult.remote.added)) {
+      const previewResult = {
+        content: snippetsMergeResult.remote.added[key],
+        hasConflicts: false,
+        localChange: 0,
+        remoteChange: 1
+      };
+      const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: baseSnippets[key] ?? null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        fileContent: localFileContent[key],
+        localContent,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: null,
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of Object.keys(snippetsMergeResult.remote.updated)) {
+      const previewResult = {
+        content: snippetsMergeResult.remote.updated[key],
+        hasConflicts: false,
+        localChange: 0,
+        remoteChange: 2
+      };
+      const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: baseSnippets[key] ?? null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        fileContent: localFileContent[key],
+        localContent,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: remoteSnippets[key],
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of snippetsMergeResult.remote.removed) {
+      const previewResult = {
+        content: null,
+        hasConflicts: false,
+        localChange: 0,
+        remoteChange: 3
+      };
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: baseSnippets[key] ?? null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        fileContent: null,
+        localContent: null,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: remoteSnippets[key],
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of snippetsMergeResult.conflicts) {
+      const previewResult = {
+        content: baseSnippets[key] ?? null,
+        hasConflicts: true,
+        localChange: localFileContent[key] ? 2 : 1,
+        remoteChange: remoteSnippets[key] ? 2 : 1
+        /* Change.Added */
+      };
+      const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
+      resourcePreviews.set(key, {
+        baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+        baseContent: baseSnippets[key] ?? null,
+        localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+        fileContent: localFileContent[key] || null,
+        localContent,
+        remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+        remoteContent: remoteSnippets[key] || null,
+        previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+        previewResult,
+        localChange: previewResult.localChange,
+        remoteChange: previewResult.remoteChange,
+        acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+      });
+    }
+    for (const key of Object.keys(localFileContent)) {
+      if (!resourcePreviews.has(key)) {
+        const previewResult = {
+          content: localFileContent[key] ? localFileContent[key].value.toString() : null,
+          hasConflicts: false,
+          localChange: 0,
+          remoteChange: 0
+          /* Change.None */
+        };
+        const localContent = localFileContent[key] ? localFileContent[key].value.toString() : null;
+        resourcePreviews.set(key, {
+          baseResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" }),
+          baseContent: baseSnippets[key] ?? null,
+          localResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" }),
+          fileContent: localFileContent[key] || null,
+          localContent,
+          remoteResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" }),
+          remoteContent: remoteSnippets[key] || null,
+          previewResource: this.extUri.joinPath(this.syncPreviewFolder, key),
+          previewResult,
+          localChange: previewResult.localChange,
+          remoteChange: previewResult.remoteChange,
+          acceptedResource: this.extUri.joinPath(this.syncPreviewFolder, key).with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" })
+        });
+      }
+    }
+    return [...resourcePreviews.values()];
+  }
+  async resolveContent(uri) {
+    if (this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "remote" })) || this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "local" })) || this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "base" })) || this.extUri.isEqualOrParent(uri, this.syncPreviewFolder.with({ scheme: USER_DATA_SYNC_SCHEME, authority: "accepted" }))) {
+      return this.resolvePreviewContent(uri);
+    }
+    return null;
+  }
+  async hasLocalData() {
+    try {
+      const localSnippets = await this.getSnippetsFileContents();
+      if (Object.keys(localSnippets).length) {
+        return true;
+      }
+    } catch (error) {
+    }
+    return false;
+  }
+  async updateLocalBackup(resourcePreviews) {
+    const local = {};
+    for (const resourcePreview of resourcePreviews) {
+      if (resourcePreview.fileContent) {
+        local[this.extUri.basename(resourcePreview.localResource)] = resourcePreview.fileContent;
+      }
+    }
+    await this.backupLocal(JSON.stringify(this.toSnippetsContents(local)));
+  }
+  async updateLocalSnippets(resourcePreviews, force) {
+    for (const { fileContent, acceptResult, localResource, remoteResource, localChange } of resourcePreviews) {
+      if (localChange !== 0) {
+        const key = remoteResource ? this.extUri.basename(remoteResource) : this.extUri.basename(localResource);
+        const resource = this.extUri.joinPath(this.snippetsFolder, key);
+        if (localChange === 3) {
+          this.logService.trace(`${this.syncResourceLogLabel}: Deleting snippet...`, this.extUri.basename(resource));
+          await this.fileService.del(resource);
+          this.logService.info(`${this.syncResourceLogLabel}: Deleted snippet`, this.extUri.basename(resource));
+        } else if (localChange === 1) {
+          this.logService.trace(`${this.syncResourceLogLabel}: Creating snippet...`, this.extUri.basename(resource));
+          await this.fileService.createFile(resource, VSBuffer.fromString(acceptResult.content), { overwrite: force });
+          this.logService.info(`${this.syncResourceLogLabel}: Created snippet`, this.extUri.basename(resource));
+        } else {
+          this.logService.trace(`${this.syncResourceLogLabel}: Updating snippet...`, this.extUri.basename(resource));
+          await this.fileService.writeFile(resource, VSBuffer.fromString(acceptResult.content), force ? void 0 : fileContent);
+          this.logService.info(`${this.syncResourceLogLabel}: Updated snippet`, this.extUri.basename(resource));
+        }
+      }
+    }
+  }
+  async updateRemoteSnippets(resourcePreviews, remoteUserData, forcePush) {
+    const currentSnippets = remoteUserData.syncData ? this.parseSnippets(remoteUserData.syncData) : {};
+    const newSnippets = deepClone(currentSnippets);
+    for (const { acceptResult, localResource, remoteResource, remoteChange } of resourcePreviews) {
+      if (remoteChange !== 0) {
+        const key = localResource ? this.extUri.basename(localResource) : this.extUri.basename(remoteResource);
+        if (remoteChange === 3) {
+          delete newSnippets[key];
+        } else {
+          newSnippets[key] = acceptResult.content;
+        }
+      }
+    }
+    if (!areSame(currentSnippets, newSnippets)) {
+      this.logService.trace(`${this.syncResourceLogLabel}: Updating remote snippets...`);
+      remoteUserData = await this.updateRemoteUserData(JSON.stringify(newSnippets), forcePush ? null : remoteUserData.ref);
+      this.logService.info(`${this.syncResourceLogLabel}: Updated remote snippets`);
+    }
+    return remoteUserData;
+  }
+  parseSnippets(syncData) {
+    return parseSnippets(syncData);
+  }
+  toSnippetsContents(snippetsFileContents) {
+    const snippets = {};
+    for (const key of Object.keys(snippetsFileContents)) {
+      snippets[key] = snippetsFileContents[key].value.toString();
+    }
+    return snippets;
+  }
+  async getSnippetsFileContents() {
+    const snippets = {};
+    let stat;
+    try {
+      stat = await this.fileService.resolve(this.snippetsFolder);
+    } catch (e) {
+      if (e instanceof FileOperationError && e.fileOperationResult === 1) {
+        return snippets;
+      } else {
+        throw e;
+      }
+    }
+    for (const entry of stat.children || []) {
+      const resource = entry.resource;
+      const extension = this.extUri.extname(resource);
+      if (extension === ".json" || extension === ".code-snippets") {
+        const key = this.extUri.relativePath(this.snippetsFolder, resource);
+        const content = await this.fileService.readFile(resource);
+        snippets[key] = content;
+      }
+    }
+    return snippets;
+  }
+};
+SnippetsSynchroniser = __decorate([
+  __param(2, IEnvironmentService),
+  __param(3, IFileService),
+  __param(4, IStorageService),
+  __param(5, IUserDataSyncStoreService),
+  __param(6, IUserDataSyncLocalStoreService),
+  __param(7, IUserDataSyncLogService),
+  __param(8, IConfigurationService),
+  __param(9, IUserDataSyncEnablementService),
+  __param(10, ITelemetryService),
+  __param(11, IUriIdentityService)
+], SnippetsSynchroniser);
+let SnippetsInitializer = class SnippetsInitializer2 extends AbstractInitializer {
+  static {
+    __name(this, "SnippetsInitializer");
+  }
+  constructor(fileService, userDataProfilesService, environmentService, logService, storageService, uriIdentityService) {
+    super("snippets", userDataProfilesService, environmentService, logService, fileService, storageService, uriIdentityService);
+  }
+  async doInitialize(remoteUserData) {
+    const remoteSnippets = remoteUserData.syncData ? JSON.parse(remoteUserData.syncData.content) : null;
+    if (!remoteSnippets) {
+      this.logService.info("Skipping initializing snippets because remote snippets does not exist.");
+      return;
+    }
+    const isEmpty = await this.isEmpty();
+    if (!isEmpty) {
+      this.logService.info("Skipping initializing snippets because local snippets exist.");
+      return;
+    }
+    for (const key of Object.keys(remoteSnippets)) {
+      const content = remoteSnippets[key];
+      if (content) {
+        const resource = this.extUri.joinPath(this.userDataProfilesService.defaultProfile.snippetsHome, key);
+        await this.fileService.createFile(resource, VSBuffer.fromString(content));
+        this.logService.info("Created snippet", this.extUri.basename(resource));
+      }
+    }
+    await this.updateLastSyncUserData(remoteUserData);
+  }
+  async isEmpty() {
+    try {
+      const stat = await this.fileService.resolve(this.userDataProfilesService.defaultProfile.snippetsHome);
+      return !stat.children?.length;
+    } catch (error) {
+      return error.fileOperationResult === 1;
+    }
+  }
+};
+SnippetsInitializer = __decorate([
+  __param(0, IFileService),
+  __param(1, IUserDataProfilesService),
+  __param(2, IEnvironmentService),
+  __param(3, IUserDataSyncLogService),
+  __param(4, IStorageService),
+  __param(5, IUriIdentityService)
+], SnippetsInitializer);
+export {
+  SnippetsInitializer,
+  SnippetsSynchroniser,
+  parseSnippets
+};
+//# sourceMappingURL=snippetsSync.js.map

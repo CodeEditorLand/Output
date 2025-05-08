@@ -1,1 +1,92 @@
-import{URI as u}from"../../../../../base/common/uri.js";import{IModelService as g}from"../../../../../editor/common/services/model.js";import{chatEditingSnapshotScheme as p}from"../../common/chatEditingService.js";import{ChatEditingSession as S}from"./chatEditingSession.js";var l=function(r,t,e,i){var o=arguments.length,n=o<3?t:i===null?i=Object.getOwnPropertyDescriptor(t,e):i,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")n=Reflect.decorate(r,t,e,i);else for(var d=r.length-1;d>=0;d--)(s=r[d])&&(n=(o<3?s(n):o>3?s(t,e,n):s(t,e))||n);return o>3&&n&&Object.defineProperty(t,e,n),n},f=function(r,t){return function(e,i){t(e,i,r)}},c;let a=class{static{c=this}static{this.scheme="chat-editing-text-model"}static getFileURI(t,e,i){return u.from({scheme:c.scheme,path:i,query:JSON.stringify({kind:"doc",documentId:e,chatSessionId:t})})}constructor(t,e){this._chatEditingService=t,this._modelService=e}async provideTextContent(t){const e=this._modelService.getModel(t);if(e&&!e.isDisposed())return e;const i=JSON.parse(t.query),n=this._chatEditingService.getEditingSession(i.chatSessionId)?.entries.get().find(s=>s.entryId===i.documentId);return n?this._modelService.getModel(n.originalURI):null}};a=c=l([f(1,g)],a);let h=class{static getSnapshotFileURI(t,e,i,o){return u.from({scheme:p,path:o,query:JSON.stringify({sessionId:t,requestId:e??"",undoStop:i??""})})}constructor(t,e){this._chatEditingService=t,this._modelService=e}async provideTextContent(t){const e=this._modelService.getModel(t);if(e&&!e.isDisposed())return e;const i=JSON.parse(t.query),o=this._chatEditingService.getEditingSession(i.sessionId);return!(o instanceof S)||!i.requestId?null:o.getSnapshotModel(i.requestId,i.undoStop||void 0,t)}};h=l([f(1,g)],h);export{h as ChatEditingSnapshotTextModelContentProvider,a as ChatEditingTextModelContentProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { URI } from "../../../../../base/common/uri.js";
+import { IModelService } from "../../../../../editor/common/services/model.js";
+import { chatEditingSnapshotScheme } from "../../common/chatEditingService.js";
+import { ChatEditingSession } from "./chatEditingSession.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var ChatEditingTextModelContentProvider_1;
+let ChatEditingTextModelContentProvider = class ChatEditingTextModelContentProvider2 {
+  static {
+    __name(this, "ChatEditingTextModelContentProvider");
+  }
+  static {
+    ChatEditingTextModelContentProvider_1 = this;
+  }
+  static {
+    this.scheme = "chat-editing-text-model";
+  }
+  static getFileURI(chatSessionId, documentId, path) {
+    return URI.from({
+      scheme: ChatEditingTextModelContentProvider_1.scheme,
+      path,
+      query: JSON.stringify({ kind: "doc", documentId, chatSessionId })
+    });
+  }
+  constructor(_chatEditingService, _modelService) {
+    this._chatEditingService = _chatEditingService;
+    this._modelService = _modelService;
+  }
+  async provideTextContent(resource) {
+    const existing = this._modelService.getModel(resource);
+    if (existing && !existing.isDisposed()) {
+      return existing;
+    }
+    const data = JSON.parse(resource.query);
+    const session = this._chatEditingService.getEditingSession(data.chatSessionId);
+    const entry = session?.entries.get().find((candidate) => candidate.entryId === data.documentId);
+    if (!entry) {
+      return null;
+    }
+    return this._modelService.getModel(entry.originalURI);
+  }
+};
+ChatEditingTextModelContentProvider = ChatEditingTextModelContentProvider_1 = __decorate([
+  __param(1, IModelService)
+], ChatEditingTextModelContentProvider);
+let ChatEditingSnapshotTextModelContentProvider = class ChatEditingSnapshotTextModelContentProvider2 {
+  static {
+    __name(this, "ChatEditingSnapshotTextModelContentProvider");
+  }
+  static getSnapshotFileURI(chatSessionId, requestId, undoStop, path) {
+    return URI.from({
+      scheme: chatEditingSnapshotScheme,
+      path,
+      query: JSON.stringify({ sessionId: chatSessionId, requestId: requestId ?? "", undoStop: undoStop ?? "" })
+    });
+  }
+  constructor(_chatEditingService, _modelService) {
+    this._chatEditingService = _chatEditingService;
+    this._modelService = _modelService;
+  }
+  async provideTextContent(resource) {
+    const existing = this._modelService.getModel(resource);
+    if (existing && !existing.isDisposed()) {
+      return existing;
+    }
+    const data = JSON.parse(resource.query);
+    const session = this._chatEditingService.getEditingSession(data.sessionId);
+    if (!(session instanceof ChatEditingSession) || !data.requestId) {
+      return null;
+    }
+    return session.getSnapshotModel(data.requestId, data.undoStop || void 0, resource);
+  }
+};
+ChatEditingSnapshotTextModelContentProvider = __decorate([
+  __param(1, IModelService)
+], ChatEditingSnapshotTextModelContentProvider);
+export {
+  ChatEditingSnapshotTextModelContentProvider,
+  ChatEditingTextModelContentProvider
+};
+//# sourceMappingURL=chatEditingTextModelContentProviders.js.map

@@ -1,1 +1,184 @@
-import{IRemoteAgentService as _,remoteConnectionLatencyMeasurer as g}from"../../../services/remote/common/remoteAgentService.js";import{IWorkbenchEnvironmentService as b}from"../../../services/environment/common/environmentService.js";import{localize as a}from"../../../../nls.js";import{isWeb as l}from"../../../../base/common/platform.js";import{ITelemetryService as w}from"../../../../platform/telemetry/common/telemetry.js";import{getRemoteName as u}from"../../../../platform/remote/common/remoteHosts.js";import{IBannerService as y}from"../../../services/banner/browser/bannerService.js";import{IOpenerService as C}from"../../../../platform/opener/common/opener.js";import{IHostService as I}from"../../../services/host/browser/host.js";import{IStorageService as A}from"../../../../platform/storage/common/storage.js";import{IProductService as E}from"../../../../platform/product/common/productService.js";import{IDialogService as O}from"../../../../platform/dialogs/common/dialogs.js";import{Codicon as R}from"../../../../base/common/codicons.js";import L from"../../../../base/common/severity.js";var d=function(c,e,n,o){var r=arguments.length,t=r<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,n):o,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")t=Reflect.decorate(c,e,n,o);else for(var m=c.length-1;m>=0;m--)(s=c[m])&&(t=(r<3?s(t):r>3?s(e,n,t):s(e,n))||t);return r>3&&t&&Object.defineProperty(e,n,t),t},i=function(c,e){return function(n,o){e(n,o,c)}};const h="remote.unsupportedConnectionChoice",v="workbench.banner.remote.unsupportedConnection.dismissed";let p=class{constructor(e,n,o,r,t,s,m,S,f){this._remoteAgentService=e,this._environmentService=n,this._telemetryService=o,this.bannerService=r,this.dialogService=t,this.openerService=s,this.hostService=m,this.storageService=S,this.productService=f,this._environmentService.remoteAuthority&&this._checkInitialRemoteConnectionHealth()}async _confirmConnection(){let e;(function(t){t[t.Allow=1]="Allow",t[t.LearnMore=2]="LearnMore",t[t.Cancel=0]="Cancel"})(e||(e={}));const{result:n,checkboxChecked:o}=await this.dialogService.prompt({type:L.Warning,message:a("unsupportedGlibcWarning","You are about to connect to an OS version that is unsupported by {0}.",this.productService.nameLong),buttons:[{label:a({key:"allow",comment:["&& denotes a mnemonic"]},"&&Allow"),run:()=>1},{label:a({key:"learnMore",comment:["&& denotes a mnemonic"]},"&&Learn More"),run:async()=>(await this.openerService.open("https://aka.ms/vscode-remote/faq/old-linux"),2)}],cancelButton:{run:()=>0},checkbox:{label:a("remember","Do not show again")}});if(n===2)return await this._confirmConnection();const r=n===1;return r&&o&&this.storageService.store(`${h}.${this._environmentService.remoteAuthority}`,r,0,1),r}async _checkInitialRemoteConnectionHealth(){try{const e=await this._remoteAgentService.getRawEnvironment();if(e&&e.isUnsupportedGlibc){let n=this.storageService.getBoolean(`${h}.${this._environmentService.remoteAuthority}`,0);if(n===void 0&&(n=await this._confirmConnection()),n){const o=this.storageService.get(`${v}`,0)??"";if(o.slice(0,o.lastIndexOf("."))!==this.productService.version.slice(0,this.productService.version.lastIndexOf("."))){const t=[{label:a("unsupportedGlibcBannerLearnMore","Learn More"),href:"https://aka.ms/vscode-remote/faq/old-linux"}];this.bannerService.show({id:"unsupportedGlibcWarning.banner",message:a("unsupportedGlibcWarning.banner","You are connected to an OS version that is unsupported by {0}.",this.productService.nameLong),actions:t,icon:R.warning,closeLabel:`Do not show again in v${this.productService.version}`,onClose:()=>{this.storageService.store(`${v}`,this.productService.version,0,1)}})}}else{this.hostService.openWindow({forceReuseWindow:!0,remoteAuthority:null});return}}this._telemetryService.publicLog2("remoteConnectionSuccess",{web:l,connectionTimeMs:await this._remoteAgentService.getConnection()?.getInitialConnectionTimeMs(),remoteName:u(this._environmentService.remoteAuthority)}),await this._measureExtHostLatency()}catch(e){this._telemetryService.publicLog2("remoteConnectionFailure",{web:l,connectionTimeMs:await this._remoteAgentService.getConnection()?.getInitialConnectionTimeMs(),remoteName:u(this._environmentService.remoteAuthority),message:e?e.message:""})}}async _measureExtHostLatency(){const e=await g.measure(this._remoteAgentService);e!==void 0&&this._telemetryService.publicLog2("remoteConnectionLatency",{web:l,remoteName:u(this._environmentService.remoteAuthority),latencyMs:e.current})}};p=d([i(0,_),i(1,b),i(2,w),i(3,y),i(4,O),i(5,C),i(6,I),i(7,A),i(8,E)],p);export{p as InitialRemoteConnectionHealthContribution};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IRemoteAgentService, remoteConnectionLatencyMeasurer } from "../../../services/remote/common/remoteAgentService.js";
+import { IWorkbenchEnvironmentService } from "../../../services/environment/common/environmentService.js";
+import { localize } from "../../../../nls.js";
+import { isWeb } from "../../../../base/common/platform.js";
+import { ITelemetryService } from "../../../../platform/telemetry/common/telemetry.js";
+import { getRemoteName } from "../../../../platform/remote/common/remoteHosts.js";
+import { IBannerService } from "../../../services/banner/browser/bannerService.js";
+import { IOpenerService } from "../../../../platform/opener/common/opener.js";
+import { IHostService } from "../../../services/host/browser/host.js";
+import { IStorageService } from "../../../../platform/storage/common/storage.js";
+import { IProductService } from "../../../../platform/product/common/productService.js";
+import { IDialogService } from "../../../../platform/dialogs/common/dialogs.js";
+import { Codicon } from "../../../../base/common/codicons.js";
+import Severity from "../../../../base/common/severity.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+const REMOTE_UNSUPPORTED_CONNECTION_CHOICE_KEY = "remote.unsupportedConnectionChoice";
+const BANNER_REMOTE_UNSUPPORTED_CONNECTION_DISMISSED_KEY = "workbench.banner.remote.unsupportedConnection.dismissed";
+let InitialRemoteConnectionHealthContribution = class InitialRemoteConnectionHealthContribution2 {
+  static {
+    __name(this, "InitialRemoteConnectionHealthContribution");
+  }
+  constructor(_remoteAgentService, _environmentService, _telemetryService, bannerService, dialogService, openerService, hostService, storageService, productService) {
+    this._remoteAgentService = _remoteAgentService;
+    this._environmentService = _environmentService;
+    this._telemetryService = _telemetryService;
+    this.bannerService = bannerService;
+    this.dialogService = dialogService;
+    this.openerService = openerService;
+    this.hostService = hostService;
+    this.storageService = storageService;
+    this.productService = productService;
+    if (this._environmentService.remoteAuthority) {
+      this._checkInitialRemoteConnectionHealth();
+    }
+  }
+  async _confirmConnection() {
+    let ConnectionChoice;
+    (function(ConnectionChoice2) {
+      ConnectionChoice2[ConnectionChoice2["Allow"] = 1] = "Allow";
+      ConnectionChoice2[ConnectionChoice2["LearnMore"] = 2] = "LearnMore";
+      ConnectionChoice2[ConnectionChoice2["Cancel"] = 0] = "Cancel";
+    })(ConnectionChoice || (ConnectionChoice = {}));
+    const { result, checkboxChecked } = await this.dialogService.prompt({
+      type: Severity.Warning,
+      message: localize("unsupportedGlibcWarning", "You are about to connect to an OS version that is unsupported by {0}.", this.productService.nameLong),
+      buttons: [
+        {
+          label: localize({ key: "allow", comment: ["&& denotes a mnemonic"] }, "&&Allow"),
+          run: /* @__PURE__ */ __name(() => 1, "run")
+          /* ConnectionChoice.Allow */
+        },
+        {
+          label: localize({ key: "learnMore", comment: ["&& denotes a mnemonic"] }, "&&Learn More"),
+          run: /* @__PURE__ */ __name(async () => {
+            await this.openerService.open("https://aka.ms/vscode-remote/faq/old-linux");
+            return 2;
+          }, "run")
+        }
+      ],
+      cancelButton: {
+        run: /* @__PURE__ */ __name(() => 0, "run")
+        /* ConnectionChoice.Cancel */
+      },
+      checkbox: {
+        label: localize("remember", "Do not show again")
+      }
+    });
+    if (result === 2) {
+      return await this._confirmConnection();
+    }
+    const allowed = result === 1;
+    if (allowed && checkboxChecked) {
+      this.storageService.store(
+        `${REMOTE_UNSUPPORTED_CONNECTION_CHOICE_KEY}.${this._environmentService.remoteAuthority}`,
+        allowed,
+        0,
+        1
+        /* StorageTarget.MACHINE */
+      );
+    }
+    return allowed;
+  }
+  async _checkInitialRemoteConnectionHealth() {
+    try {
+      const environment = await this._remoteAgentService.getRawEnvironment();
+      if (environment && environment.isUnsupportedGlibc) {
+        let allowed = this.storageService.getBoolean(
+          `${REMOTE_UNSUPPORTED_CONNECTION_CHOICE_KEY}.${this._environmentService.remoteAuthority}`,
+          0
+          /* StorageScope.PROFILE */
+        );
+        if (allowed === void 0) {
+          allowed = await this._confirmConnection();
+        }
+        if (allowed) {
+          const bannerDismissedVersion = this.storageService.get(
+            `${BANNER_REMOTE_UNSUPPORTED_CONNECTION_DISMISSED_KEY}`,
+            0
+            /* StorageScope.PROFILE */
+          ) ?? "";
+          const shouldShowBanner = bannerDismissedVersion.slice(0, bannerDismissedVersion.lastIndexOf(".")) !== this.productService.version.slice(0, this.productService.version.lastIndexOf("."));
+          if (shouldShowBanner) {
+            const actions = [
+              {
+                label: localize("unsupportedGlibcBannerLearnMore", "Learn More"),
+                href: "https://aka.ms/vscode-remote/faq/old-linux"
+              }
+            ];
+            this.bannerService.show({
+              id: "unsupportedGlibcWarning.banner",
+              message: localize("unsupportedGlibcWarning.banner", "You are connected to an OS version that is unsupported by {0}.", this.productService.nameLong),
+              actions,
+              icon: Codicon.warning,
+              closeLabel: `Do not show again in v${this.productService.version}`,
+              onClose: /* @__PURE__ */ __name(() => {
+                this.storageService.store(
+                  `${BANNER_REMOTE_UNSUPPORTED_CONNECTION_DISMISSED_KEY}`,
+                  this.productService.version,
+                  0,
+                  1
+                  /* StorageTarget.MACHINE */
+                );
+              }, "onClose")
+            });
+          }
+        } else {
+          this.hostService.openWindow({ forceReuseWindow: true, remoteAuthority: null });
+          return;
+        }
+      }
+      this._telemetryService.publicLog2("remoteConnectionSuccess", {
+        web: isWeb,
+        connectionTimeMs: await this._remoteAgentService.getConnection()?.getInitialConnectionTimeMs(),
+        remoteName: getRemoteName(this._environmentService.remoteAuthority)
+      });
+      await this._measureExtHostLatency();
+    } catch (err) {
+      this._telemetryService.publicLog2("remoteConnectionFailure", {
+        web: isWeb,
+        connectionTimeMs: await this._remoteAgentService.getConnection()?.getInitialConnectionTimeMs(),
+        remoteName: getRemoteName(this._environmentService.remoteAuthority),
+        message: err ? err.message : ""
+      });
+    }
+  }
+  async _measureExtHostLatency() {
+    const measurement = await remoteConnectionLatencyMeasurer.measure(this._remoteAgentService);
+    if (measurement === void 0) {
+      return;
+    }
+    this._telemetryService.publicLog2("remoteConnectionLatency", {
+      web: isWeb,
+      remoteName: getRemoteName(this._environmentService.remoteAuthority),
+      latencyMs: measurement.current
+    });
+  }
+};
+InitialRemoteConnectionHealthContribution = __decorate([
+  __param(0, IRemoteAgentService),
+  __param(1, IWorkbenchEnvironmentService),
+  __param(2, ITelemetryService),
+  __param(3, IBannerService),
+  __param(4, IDialogService),
+  __param(5, IOpenerService),
+  __param(6, IHostService),
+  __param(7, IStorageService),
+  __param(8, IProductService)
+], InitialRemoteConnectionHealthContribution);
+export {
+  InitialRemoteConnectionHealthContribution
+};
+//# sourceMappingURL=remoteConnectionHealth.js.map

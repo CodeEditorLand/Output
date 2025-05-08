@@ -1,1 +1,99 @@
-import{localize as l,localize2 as m}from"../../../../../nls.js";import{IQuickInputService as v}from"../../../../../platform/quickinput/common/quickInput.js";import{IEditorService as h}from"../../../../services/editor/common/editorService.js";import{AbstractGotoLineQuickAccessProvider as p}from"../../../../../editor/contrib/quickAccess/browser/gotoLineQuickAccess.js";import{Registry as g}from"../../../../../platform/registry/common/platform.js";import{Extensions as E}from"../../../../../platform/quickinput/common/quickAccess.js";import{IConfigurationService as S}from"../../../../../platform/configuration/common/configuration.js";import{Action2 as P,registerAction2 as k}from"../../../../../platform/actions/common/actions.js";import{IEditorGroupsService as A}from"../../../../services/editor/common/editorGroupsService.js";var f=function(t,e,i,o){var c=arguments.length,r=c<3?e:o===null?o=Object.getOwnPropertyDescriptor(e,i):o,n;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(t,e,i,o);else for(var u=t.length-1;u>=0;u--)(n=t[u])&&(r=(c<3?n(r):c>3?n(e,i,r):n(e,i))||r);return c>3&&r&&Object.defineProperty(e,i,r),r},a=function(t,e){return function(i,o){e(i,o,t)}};let s=class extends p{constructor(e,i,o){super(),this.editorService=e,this.editorGroupService=i,this.configurationService=o,this.onDidActiveTextEditorControlChange=this.editorService.onDidActiveEditorChange}get configuration(){const e=this.configurationService.getValue().workbench?.editor;return{openEditorPinned:!e?.enablePreviewFromQuickOpen||!e?.enablePreview}}get activeTextEditorControl(){return this.editorService.activeTextEditorControl}gotoLocation(e,i){if((i.keyMods.alt||this.configuration.openEditorPinned&&i.keyMods.ctrlCmd||i.forceSideBySide)&&this.editorService.activeEditor){e.restoreViewState?.();const o={selection:i.range,pinned:i.keyMods.ctrlCmd||this.configuration.openEditorPinned,preserveFocus:i.preserveFocus};this.editorGroupService.sideGroup.openEditor(this.editorService.activeEditor,o)}else super.gotoLocation(e,i)}};s=f([a(0,h),a(1,A),a(2,S)],s);class d extends P{static{this.ID="workbench.action.gotoLine"}constructor(){super({id:d.ID,title:m("gotoLine","Go to Line/Column..."),f1:!0,keybinding:{weight:200,when:null,primary:2085,mac:{primary:293}}})}async run(e){e.get(v).quickAccess.show(s.PREFIX)}}k(d);g.as(E.Quickaccess).registerQuickAccessProvider({ctor:s,prefix:p.PREFIX,placeholder:l("gotoLineQuickAccessPlaceholder","Type the line number and optional column to go to (e.g. 42:5 for line 42 and column 5)."),helpEntries:[{description:l("gotoLineQuickAccess","Go to Line/Column"),commandId:d.ID}]});export{s as GotoLineQuickAccessProvider};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize, localize2 } from "../../../../../nls.js";
+import { IQuickInputService } from "../../../../../platform/quickinput/common/quickInput.js";
+import { IEditorService } from "../../../../services/editor/common/editorService.js";
+import { AbstractGotoLineQuickAccessProvider } from "../../../../../editor/contrib/quickAccess/browser/gotoLineQuickAccess.js";
+import { Registry } from "../../../../../platform/registry/common/platform.js";
+import { Extensions as QuickaccesExtensions } from "../../../../../platform/quickinput/common/quickAccess.js";
+import { IConfigurationService } from "../../../../../platform/configuration/common/configuration.js";
+import { Action2, registerAction2 } from "../../../../../platform/actions/common/actions.js";
+import { IEditorGroupsService } from "../../../../services/editor/common/editorGroupsService.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let GotoLineQuickAccessProvider = class GotoLineQuickAccessProvider2 extends AbstractGotoLineQuickAccessProvider {
+  static {
+    __name(this, "GotoLineQuickAccessProvider");
+  }
+  constructor(editorService, editorGroupService, configurationService) {
+    super();
+    this.editorService = editorService;
+    this.editorGroupService = editorGroupService;
+    this.configurationService = configurationService;
+    this.onDidActiveTextEditorControlChange = this.editorService.onDidActiveEditorChange;
+  }
+  get configuration() {
+    const editorConfig = this.configurationService.getValue().workbench?.editor;
+    return {
+      openEditorPinned: !editorConfig?.enablePreviewFromQuickOpen || !editorConfig?.enablePreview
+    };
+  }
+  get activeTextEditorControl() {
+    return this.editorService.activeTextEditorControl;
+  }
+  gotoLocation(context, options) {
+    if ((options.keyMods.alt || this.configuration.openEditorPinned && options.keyMods.ctrlCmd || options.forceSideBySide) && this.editorService.activeEditor) {
+      context.restoreViewState?.();
+      const editorOptions = {
+        selection: options.range,
+        pinned: options.keyMods.ctrlCmd || this.configuration.openEditorPinned,
+        preserveFocus: options.preserveFocus
+      };
+      this.editorGroupService.sideGroup.openEditor(this.editorService.activeEditor, editorOptions);
+    } else {
+      super.gotoLocation(context, options);
+    }
+  }
+};
+GotoLineQuickAccessProvider = __decorate([
+  __param(0, IEditorService),
+  __param(1, IEditorGroupsService),
+  __param(2, IConfigurationService)
+], GotoLineQuickAccessProvider);
+class GotoLineAction extends Action2 {
+  static {
+    __name(this, "GotoLineAction");
+  }
+  static {
+    this.ID = "workbench.action.gotoLine";
+  }
+  constructor() {
+    super({
+      id: GotoLineAction.ID,
+      title: localize2("gotoLine", "Go to Line/Column..."),
+      f1: true,
+      keybinding: {
+        weight: 200,
+        when: null,
+        primary: 2048 | 37,
+        mac: {
+          primary: 256 | 37
+          /* KeyCode.KeyG */
+        }
+      }
+    });
+  }
+  async run(accessor) {
+    accessor.get(IQuickInputService).quickAccess.show(GotoLineQuickAccessProvider.PREFIX);
+  }
+}
+registerAction2(GotoLineAction);
+Registry.as(QuickaccesExtensions.Quickaccess).registerQuickAccessProvider({
+  ctor: GotoLineQuickAccessProvider,
+  prefix: AbstractGotoLineQuickAccessProvider.PREFIX,
+  placeholder: localize("gotoLineQuickAccessPlaceholder", "Type the line number and optional column to go to (e.g. 42:5 for line 42 and column 5)."),
+  helpEntries: [{ description: localize("gotoLineQuickAccess", "Go to Line/Column"), commandId: GotoLineAction.ID }]
+});
+export {
+  GotoLineQuickAccessProvider
+};
+//# sourceMappingURL=gotoLineQuickAccess.js.map

@@ -1,1 +1,82 @@
-import{ContextView as w}from"../../../base/browser/ui/contextview/contextview.js";import{Disposable as f}from"../../../base/common/lifecycle.js";import{ILayoutService as u}from"../../layout/browser/layoutService.js";import{getWindow as x}from"../../../base/browser/dom.js";var c=function(r,e,t,n){var o=arguments.length,i=o<3?e:n===null?n=Object.getOwnPropertyDescriptor(e,t):n,s;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")i=Reflect.decorate(r,e,t,n);else for(var h=r.length-1;h>=0;h--)(s=r[h])&&(i=(o<3?s(i):o>3?s(e,t,i):s(e,t))||i);return o>3&&i&&Object.defineProperty(e,t,i),i},a=function(r,e){return function(t,n){e(t,n,r)}};let l=class extends f{constructor(e){super(),this.layoutService=e,this.contextView=this._register(new w(this.layoutService.mainContainer,1)),this.layout(),this._register(e.onDidLayoutContainer(()=>this.layout()))}showContextView(e,t,n){let o;t?t===this.layoutService.getContainer(x(t))?o=1:n?o=3:o=2:o=1,this.contextView.setContainer(t??this.layoutService.activeContainer,o),this.contextView.show(e);const i={close:()=>{this.openContextView===i&&this.hideContextView()}};return this.openContextView=i,i}layout(){this.contextView.layout()}hideContextView(e){this.contextView.hide(e),this.openContextView=void 0}};l=c([a(0,u)],l);class v extends l{getContextViewElement(){return this.contextView.getViewElement()}}export{l as ContextViewHandler,v as ContextViewService};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { ContextView } from "../../../base/browser/ui/contextview/contextview.js";
+import { Disposable } from "../../../base/common/lifecycle.js";
+import { ILayoutService } from "../../layout/browser/layoutService.js";
+import { getWindow } from "../../../base/browser/dom.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+let ContextViewHandler = class ContextViewHandler2 extends Disposable {
+  static {
+    __name(this, "ContextViewHandler");
+  }
+  constructor(layoutService) {
+    super();
+    this.layoutService = layoutService;
+    this.contextView = this._register(new ContextView(
+      this.layoutService.mainContainer,
+      1
+      /* ContextViewDOMPosition.ABSOLUTE */
+    ));
+    this.layout();
+    this._register(layoutService.onDidLayoutContainer(() => this.layout()));
+  }
+  // ContextView
+  showContextView(delegate, container, shadowRoot) {
+    let domPosition;
+    if (container) {
+      if (container === this.layoutService.getContainer(getWindow(container))) {
+        domPosition = 1;
+      } else if (shadowRoot) {
+        domPosition = 3;
+      } else {
+        domPosition = 2;
+      }
+    } else {
+      domPosition = 1;
+    }
+    this.contextView.setContainer(container ?? this.layoutService.activeContainer, domPosition);
+    this.contextView.show(delegate);
+    const openContextView = {
+      close: /* @__PURE__ */ __name(() => {
+        if (this.openContextView === openContextView) {
+          this.hideContextView();
+        }
+      }, "close")
+    };
+    this.openContextView = openContextView;
+    return openContextView;
+  }
+  layout() {
+    this.contextView.layout();
+  }
+  hideContextView(data) {
+    this.contextView.hide(data);
+    this.openContextView = void 0;
+  }
+};
+ContextViewHandler = __decorate([
+  __param(0, ILayoutService)
+], ContextViewHandler);
+class ContextViewService extends ContextViewHandler {
+  static {
+    __name(this, "ContextViewService");
+  }
+  getContextViewElement() {
+    return this.contextView.getViewElement();
+  }
+}
+export {
+  ContextViewHandler,
+  ContextViewService
+};
+//# sourceMappingURL=contextViewService.js.map

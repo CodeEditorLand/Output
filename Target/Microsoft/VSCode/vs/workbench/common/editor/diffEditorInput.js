@@ -1,1 +1,233 @@
-import{localize as T}from"../../../nls.js";import{AbstractSideBySideEditorInputSerializer as E,SideBySideEditorInput as I}from"./sideBySideEditorInput.js";import{TEXT_DIFF_EDITOR_ID as y,BINARY_DIFF_EDITOR_ID as _,isResourceDiffEditorInput as N}from"../editor.js";import{BaseTextEditorModel as m}from"./textEditorModel.js";import{DiffEditorModel as v}from"./diffEditorModel.js";import{TextDiffEditorModel as O}from"./textDiffEditorModel.js";import{IEditorService as B}from"../../services/editor/common/editorService.js";import{shorten as $}from"../../../base/common/labels.js";import{isResolvedEditorModel as u}from"../../../platform/editor/common/editor.js";var b=function(n,e,i,t){var s=arguments.length,r=s<3?e:t===null?t=Object.getOwnPropertyDescriptor(e,i):t,o;if(typeof Reflect=="object"&&typeof Reflect.decorate=="function")r=Reflect.decorate(n,e,i,t);else for(var d=n.length-1;d>=0;d--)(o=n[d])&&(r=(s<3?o(r):s>3?o(e,i,r):o(e,i))||r);return s>3&&r&&Object.defineProperty(e,i,r),r},M=function(n,e){return function(i,t){e(i,t,n)}},f;let p=class extends I{static{f=this}static{this.ID="workbench.editors.diffEditorInput"}get typeId(){return f.ID}get editorId(){return this.modified.editorId===this.original.editorId?this.modified.editorId:void 0}get capabilities(){let e=super.capabilities;return this.labels.forceDescription&&(e|=64),e}constructor(e,i,t,s,r,o){super(e,i,t,s,o),this.original=t,this.modified=s,this.forceOpenAsBinary=r,this.cachedModel=void 0,this.labels=this.computeLabels()}computeLabels(){let e,i=!1;if(this.preferredName)e=this.preferredName;else{const l=this.original.getName(),a=this.modified.getName();e=T("sideBySideLabels","{0} \u2194 {1}",l,a),i=l===a}let t,s,r;if(this.preferredDescription)t=this.preferredDescription,s=this.preferredDescription,r=this.preferredDescription;else{t=this.computeLabel(this.original.getDescription(0),this.modified.getDescription(0)),r=this.computeLabel(this.original.getDescription(2),this.modified.getDescription(2));const l=this.original.getDescription(1),a=this.modified.getDescription(1);if(typeof l=="string"&&typeof a=="string"&&(l||a)){const[g,D]=$([l,a]);s=this.computeLabel(g,D)}}let o=this.computeLabel(this.original.getTitle(0)??this.original.getName(),this.modified.getTitle(0)??this.modified.getName()," \u2194 "),d=this.computeLabel(this.original.getTitle(1)??this.original.getName(),this.modified.getTitle(1)??this.modified.getName()," \u2194 "),h=this.computeLabel(this.original.getTitle(2)??this.original.getName(),this.modified.getTitle(2)??this.modified.getName()," \u2194 ");const c=this.getPreferredTitle();return c&&(o=`${c} (${o})`,d=`${c} (${d})`,h=`${c} (${h})`),{name:e,shortDescription:t,mediumDescription:s,longDescription:r,forceDescription:i,shortTitle:o,mediumTitle:d,longTitle:h}}computeLabel(e,i,t=" - "){if(!(!e||!i))return e===i?i:`${e}${t}${i}`}getName(){return this.labels.name}getDescription(e=1){switch(e){case 0:return this.labels.shortDescription;case 2:return this.labels.longDescription;case 1:default:return this.labels.mediumDescription}}getTitle(e){switch(e){case 0:return this.labels.shortTitle;case 2:return this.labels.longTitle;default:case 1:return this.labels.mediumTitle}}async resolve(){const e=await this.createModel();return this.cachedModel?.dispose(),this.cachedModel=e,this.cachedModel}prefersEditorPane(e){return this.forceOpenAsBinary?e.find(i=>i.typeId===_):e.find(i=>i.typeId===y)}async createModel(){const[e,i]=await Promise.all([this.original.resolve(),this.modified.resolve()]);return i instanceof m&&e instanceof m?new O(e,i):new v(u(e)?e:void 0,u(i)?i:void 0)}toUntyped(e){const i=super.toUntyped(e);if(i)return{...i,modified:i.primary,original:i.secondary}}matches(e){return this===e?!0:e instanceof f?this.modified.matches(e.modified)&&this.original.matches(e.original)&&e.forceOpenAsBinary===this.forceOpenAsBinary:N(e)?this.modified.matches(e.modified)&&this.original.matches(e.original):!1}dispose(){this.cachedModel&&(this.cachedModel.dispose(),this.cachedModel=void 0),super.dispose()}};p=f=b([M(5,B)],p);class U extends E{createEditorInput(e,i,t,s,r){return e.createInstance(p,i,t,s,r,void 0)}}export{p as DiffEditorInput,U as DiffEditorInputSerializer};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { localize } from "../../../nls.js";
+import { AbstractSideBySideEditorInputSerializer, SideBySideEditorInput } from "./sideBySideEditorInput.js";
+import { TEXT_DIFF_EDITOR_ID, BINARY_DIFF_EDITOR_ID, isResourceDiffEditorInput } from "../editor.js";
+import { BaseTextEditorModel } from "./textEditorModel.js";
+import { DiffEditorModel } from "./diffEditorModel.js";
+import { TextDiffEditorModel } from "./textDiffEditorModel.js";
+import { IEditorService } from "../../services/editor/common/editorService.js";
+import { shorten } from "../../../base/common/labels.js";
+import { isResolvedEditorModel } from "../../../platform/editor/common/editor.js";
+var __decorate = function(decorators, target, key, desc) {
+  var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+  if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+  else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+  return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __param = function(paramIndex, decorator) {
+  return function(target, key) {
+    decorator(target, key, paramIndex);
+  };
+};
+var DiffEditorInput_1;
+let DiffEditorInput = class DiffEditorInput2 extends SideBySideEditorInput {
+  static {
+    __name(this, "DiffEditorInput");
+  }
+  static {
+    DiffEditorInput_1 = this;
+  }
+  static {
+    this.ID = "workbench.editors.diffEditorInput";
+  }
+  get typeId() {
+    return DiffEditorInput_1.ID;
+  }
+  get editorId() {
+    return this.modified.editorId === this.original.editorId ? this.modified.editorId : void 0;
+  }
+  get capabilities() {
+    let capabilities = super.capabilities;
+    if (this.labels.forceDescription) {
+      capabilities |= 64;
+    }
+    return capabilities;
+  }
+  constructor(preferredName, preferredDescription, original, modified, forceOpenAsBinary, editorService) {
+    super(preferredName, preferredDescription, original, modified, editorService);
+    this.original = original;
+    this.modified = modified;
+    this.forceOpenAsBinary = forceOpenAsBinary;
+    this.cachedModel = void 0;
+    this.labels = this.computeLabels();
+  }
+  computeLabels() {
+    let name;
+    let forceDescription = false;
+    if (this.preferredName) {
+      name = this.preferredName;
+    } else {
+      const originalName = this.original.getName();
+      const modifiedName = this.modified.getName();
+      name = localize("sideBySideLabels", "{0} \u2194 {1}", originalName, modifiedName);
+      forceDescription = originalName === modifiedName;
+    }
+    let shortDescription;
+    let mediumDescription;
+    let longDescription;
+    if (this.preferredDescription) {
+      shortDescription = this.preferredDescription;
+      mediumDescription = this.preferredDescription;
+      longDescription = this.preferredDescription;
+    } else {
+      shortDescription = this.computeLabel(this.original.getDescription(
+        0
+        /* Verbosity.SHORT */
+      ), this.modified.getDescription(
+        0
+        /* Verbosity.SHORT */
+      ));
+      longDescription = this.computeLabel(this.original.getDescription(
+        2
+        /* Verbosity.LONG */
+      ), this.modified.getDescription(
+        2
+        /* Verbosity.LONG */
+      ));
+      const originalMediumDescription = this.original.getDescription(
+        1
+        /* Verbosity.MEDIUM */
+      );
+      const modifiedMediumDescription = this.modified.getDescription(
+        1
+        /* Verbosity.MEDIUM */
+      );
+      if (typeof originalMediumDescription === "string" && typeof modifiedMediumDescription === "string" && // we can only `shorten` when both sides are strings...
+      (originalMediumDescription || modifiedMediumDescription)) {
+        const [shortenedOriginalMediumDescription, shortenedModifiedMediumDescription] = shorten([originalMediumDescription, modifiedMediumDescription]);
+        mediumDescription = this.computeLabel(shortenedOriginalMediumDescription, shortenedModifiedMediumDescription);
+      }
+    }
+    let shortTitle = this.computeLabel(this.original.getTitle(
+      0
+      /* Verbosity.SHORT */
+    ) ?? this.original.getName(), this.modified.getTitle(
+      0
+      /* Verbosity.SHORT */
+    ) ?? this.modified.getName(), " \u2194 ");
+    let mediumTitle = this.computeLabel(this.original.getTitle(
+      1
+      /* Verbosity.MEDIUM */
+    ) ?? this.original.getName(), this.modified.getTitle(
+      1
+      /* Verbosity.MEDIUM */
+    ) ?? this.modified.getName(), " \u2194 ");
+    let longTitle = this.computeLabel(this.original.getTitle(
+      2
+      /* Verbosity.LONG */
+    ) ?? this.original.getName(), this.modified.getTitle(
+      2
+      /* Verbosity.LONG */
+    ) ?? this.modified.getName(), " \u2194 ");
+    const preferredTitle = this.getPreferredTitle();
+    if (preferredTitle) {
+      shortTitle = `${preferredTitle} (${shortTitle})`;
+      mediumTitle = `${preferredTitle} (${mediumTitle})`;
+      longTitle = `${preferredTitle} (${longTitle})`;
+    }
+    return { name, shortDescription, mediumDescription, longDescription, forceDescription, shortTitle, mediumTitle, longTitle };
+  }
+  computeLabel(originalLabel, modifiedLabel, separator = " - ") {
+    if (!originalLabel || !modifiedLabel) {
+      return void 0;
+    }
+    if (originalLabel === modifiedLabel) {
+      return modifiedLabel;
+    }
+    return `${originalLabel}${separator}${modifiedLabel}`;
+  }
+  getName() {
+    return this.labels.name;
+  }
+  getDescription(verbosity = 1) {
+    switch (verbosity) {
+      case 0:
+        return this.labels.shortDescription;
+      case 2:
+        return this.labels.longDescription;
+      case 1:
+      default:
+        return this.labels.mediumDescription;
+    }
+  }
+  getTitle(verbosity) {
+    switch (verbosity) {
+      case 0:
+        return this.labels.shortTitle;
+      case 2:
+        return this.labels.longTitle;
+      default:
+      case 1:
+        return this.labels.mediumTitle;
+    }
+  }
+  async resolve() {
+    const resolvedModel = await this.createModel();
+    this.cachedModel?.dispose();
+    this.cachedModel = resolvedModel;
+    return this.cachedModel;
+  }
+  prefersEditorPane(editorPanes) {
+    if (this.forceOpenAsBinary) {
+      return editorPanes.find((editorPane) => editorPane.typeId === BINARY_DIFF_EDITOR_ID);
+    }
+    return editorPanes.find((editorPane) => editorPane.typeId === TEXT_DIFF_EDITOR_ID);
+  }
+  async createModel() {
+    const [originalEditorModel, modifiedEditorModel] = await Promise.all([
+      this.original.resolve(),
+      this.modified.resolve()
+    ]);
+    if (modifiedEditorModel instanceof BaseTextEditorModel && originalEditorModel instanceof BaseTextEditorModel) {
+      return new TextDiffEditorModel(originalEditorModel, modifiedEditorModel);
+    }
+    return new DiffEditorModel(isResolvedEditorModel(originalEditorModel) ? originalEditorModel : void 0, isResolvedEditorModel(modifiedEditorModel) ? modifiedEditorModel : void 0);
+  }
+  toUntyped(options) {
+    const untyped = super.toUntyped(options);
+    if (untyped) {
+      return {
+        ...untyped,
+        modified: untyped.primary,
+        original: untyped.secondary
+      };
+    }
+    return void 0;
+  }
+  matches(otherInput) {
+    if (this === otherInput) {
+      return true;
+    }
+    if (otherInput instanceof DiffEditorInput_1) {
+      return this.modified.matches(otherInput.modified) && this.original.matches(otherInput.original) && otherInput.forceOpenAsBinary === this.forceOpenAsBinary;
+    }
+    if (isResourceDiffEditorInput(otherInput)) {
+      return this.modified.matches(otherInput.modified) && this.original.matches(otherInput.original);
+    }
+    return false;
+  }
+  dispose() {
+    if (this.cachedModel) {
+      this.cachedModel.dispose();
+      this.cachedModel = void 0;
+    }
+    super.dispose();
+  }
+};
+DiffEditorInput = DiffEditorInput_1 = __decorate([
+  __param(5, IEditorService)
+], DiffEditorInput);
+class DiffEditorInputSerializer extends AbstractSideBySideEditorInputSerializer {
+  static {
+    __name(this, "DiffEditorInputSerializer");
+  }
+  createEditorInput(instantiationService, name, description, secondaryInput, primaryInput) {
+    return instantiationService.createInstance(DiffEditorInput, name, description, secondaryInput, primaryInput, void 0);
+  }
+}
+export {
+  DiffEditorInput,
+  DiffEditorInputSerializer
+};
+//# sourceMappingURL=diffEditorInput.js.map

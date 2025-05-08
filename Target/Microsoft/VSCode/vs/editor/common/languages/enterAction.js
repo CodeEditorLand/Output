@@ -1,1 +1,49 @@
-import{IndentAction as d}from"./languageConfiguration.js";import{getIndentationAtPosition as m}from"./languageConfigurationRegistry.js";import{IndentationContextProcessor as C}from"./supports/indentationLineProcessor.js";function I(f,n,t,a){n.tokenization.forceTokenization(t.startLineNumber);const p=n.getLanguageIdAtPosition(t.startLineNumber,t.startColumn),u=a.getLanguageConfiguration(p);if(!u)return null;const s=new C(n,a).getProcessedTokenContextAroundRange(t),x=s.previousLineProcessedTokens.getLineContent(),T=s.beforeRangeProcessedTokens.getLineContent(),g=s.afterRangeProcessedTokens.getLineContent(),o=u.onEnter(f,x,T,g);if(!o)return null;const i=o.indentAction;let e=o.appendText;const c=o.removeText||0;e?i===d.Indent&&(e="	"+e):i===d.Indent||i===d.IndentOutdent?e="	":e="";let r=m(n,t.startLineNumber,t.startColumn);return c&&(r=r.substring(0,r.length-c)),{indentAction:i,appendText:e,removeText:c,indentation:r}}export{I as getEnterAction};
+var __defProp = Object.defineProperty;
+var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+import { IndentAction } from "./languageConfiguration.js";
+import { getIndentationAtPosition } from "./languageConfigurationRegistry.js";
+import { IndentationContextProcessor } from "./supports/indentationLineProcessor.js";
+function getEnterAction(autoIndent, model, range, languageConfigurationService) {
+  model.tokenization.forceTokenization(range.startLineNumber);
+  const languageId = model.getLanguageIdAtPosition(range.startLineNumber, range.startColumn);
+  const richEditSupport = languageConfigurationService.getLanguageConfiguration(languageId);
+  if (!richEditSupport) {
+    return null;
+  }
+  const indentationContextProcessor = new IndentationContextProcessor(model, languageConfigurationService);
+  const processedContextTokens = indentationContextProcessor.getProcessedTokenContextAroundRange(range);
+  const previousLineText = processedContextTokens.previousLineProcessedTokens.getLineContent();
+  const beforeEnterText = processedContextTokens.beforeRangeProcessedTokens.getLineContent();
+  const afterEnterText = processedContextTokens.afterRangeProcessedTokens.getLineContent();
+  const enterResult = richEditSupport.onEnter(autoIndent, previousLineText, beforeEnterText, afterEnterText);
+  if (!enterResult) {
+    return null;
+  }
+  const indentAction = enterResult.indentAction;
+  let appendText = enterResult.appendText;
+  const removeText = enterResult.removeText || 0;
+  if (!appendText) {
+    if (indentAction === IndentAction.Indent || indentAction === IndentAction.IndentOutdent) {
+      appendText = "	";
+    } else {
+      appendText = "";
+    }
+  } else if (indentAction === IndentAction.Indent) {
+    appendText = "	" + appendText;
+  }
+  let indentation = getIndentationAtPosition(model, range.startLineNumber, range.startColumn);
+  if (removeText) {
+    indentation = indentation.substring(0, indentation.length - removeText);
+  }
+  return {
+    indentAction,
+    appendText,
+    removeText,
+    indentation
+  };
+}
+__name(getEnterAction, "getEnterAction");
+export {
+  getEnterAction
+};
+//# sourceMappingURL=enterAction.js.map

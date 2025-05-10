@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../Source/ESBuild/Exclude/Test.ts"],
+  "sourcesContent": ["export default (Prefix: string) => [\n\t`${Prefix}/base/parts/ipc/test/*`,\n\n\t`${Prefix}/base/parts/request/test/*`,\n\n\t`${Prefix}/base/parts/sandbox/test/*`,\n\n\t`${Prefix}/base/parts/storage/test/*`,\n\n\t`${Prefix}/base/test/*`,\n\n\t`${Prefix}/editor/contrib/**/test/*`,\n\n\t`${Prefix}/editor/standalone/test/*`,\n\n\t`${Prefix}/editor/test/*`,\n\n\t`${Prefix}/platform/test/*`,\n\n\t`${Prefix}/platform/**/test/*`,\n\n\t`${Prefix}/server/test/*`,\n\n\t`${Prefix}/workbench/api/test/*`,\n\n\t`${Prefix}/workbench/contrib/**/test/*`,\n\n\t`${Prefix}/workbench/services/**/test/*`,\n\n\t`${Prefix}/workbench/test/*`,\n\n\t// --- 1. Test Files (High Confidence Exclude) ---\n\t// // (Your existing list covers this well)\n\t// `${Prefix}/workbench/services/**/test/*`, // All tests under workbench services\n\t// `${Prefix}/workbench/test/*`,\n];\n"],
+  "mappings": ";;AAAA,IAAO,eAAQ,wBAAC,WAAmB;AAAA,EAClC,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA,EAET,GAAG,MAAM;AAAA;AAAA;AAAA;AAAA;AAMV,GAnCe;",
+  "names": []
+}

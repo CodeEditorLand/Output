@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";const o=e("semanticTokensStylingService");export{o as ISemanticTokensStylingService};
+import{$dj as e}from"../../../platform/instantiation/common/instantiation.js";const t=e("semanticTokensStylingService");export{t as $8qb};

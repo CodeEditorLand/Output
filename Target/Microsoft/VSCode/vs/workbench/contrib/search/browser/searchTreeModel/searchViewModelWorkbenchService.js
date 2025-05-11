@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../../platform/instantiation/common/instantiation.js";const o=e("searchViewModelWorkbenchService");export{o as ISearchViewModelWorkbenchService};
+import{$dj as e}from"../../../../../platform/instantiation/common/instantiation.js";const r=e("searchViewModelWorkbenchService");export{r as $bbc};

@@ -1,1 +1,1 @@
-import*as a from"../../../../nls.js";function n(e){e.pattern=e.pattern||"^(?!.*\\$\\{(env|config|command)\\.)",e.patternErrorMessage=e.patternErrorMessage||a.localize("deprecatedVariables","'env.', 'config.' and 'command.' are deprecated, use 'env:', 'config:' and 'command:' instead.")}export{n as applyDeprecatedVariableMessage};
+import*as n from"../../../../nls.js";function t(r){r.pattern=r.pattern||"^(?!.*\\$\\{(env|config|command)\\.)",r.patternErrorMessage=r.patternErrorMessage||n.localize(13474,null)}export{t as $Olc};

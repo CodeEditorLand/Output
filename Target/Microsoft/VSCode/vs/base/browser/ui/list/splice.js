@@ -1,1 +1,1 @@
-class p{constructor(s){this.spliceables=s}splice(s,e,c){this.spliceables.forEach(l=>l.splice(s,e,c))}}export{p as CombinedSpliceable};
+class o{constructor(s){this.a=s}splice(s,c,t){this.a.forEach(a=>a.splice(s,c,t))}}export{o as $C6};

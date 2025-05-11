@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("viewsService");export{o as IViewsService};
+import{$dj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("viewsService");export{r as $dvb};

@@ -1,1 +1,1 @@
-class i{constructor(t,s=[],r=!1){this.ctor=t,this.staticArguments=s,this.supportsDelayedInstantiation=r}}export{i as SyncDescriptor};
+class o{constructor(t,s=[],a=!1){this.ctor=t,this.staticArguments=s,this.supportsDelayedInstantiation=a}}export{o as $aj};

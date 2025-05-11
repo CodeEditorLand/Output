@@ -1,1 +1,1 @@
-import{createDecorator as r}from"../../../../../../platform/instantiation/common/instantiation.js";const o=r("IPromptsService");export{o as IPromptsService};
+import{$dj as o}from"../../../../../../platform/instantiation/common/instantiation.js";const t=o("IPromptsService");export{t as $qR};

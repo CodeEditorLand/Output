@@ -1,1 +1,1 @@
-function c(n,l){let e=0,t=0;const o=n.length;for(;t<o;){const r=n.charCodeAt(t);if(r===32)e++;else if(r===9)e=e-e%l+l;else break;t++}return t===o?-1:e}export{c as computeIndentLevel};
+function c(n,r){let e=0,t=0;const l=n.length;for(;t<l;){const o=n.charCodeAt(t);if(o===32)e++;else if(o===9)e=e-e%r+r;else break;t++}return t===l?-1:e}export{c as $BG};

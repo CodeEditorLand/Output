@@ -1,1 +1,1 @@
-import{registerSingleton as e}from"../../../platform/instantiation/common/extensions.js";import{createDecorator as r}from"../../../platform/instantiation/common/instantiation.js";import{TreeViewsDnDService as i}from"./treeViewsDnd.js";const o=r("treeViewsDndService");e(o,i,1);export{o as ITreeViewsDnDService};
+import{$GB as r}from"../../../platform/instantiation/common/extensions.js";import{$dj as o}from"../../../platform/instantiation/common/instantiation.js";import{$1lb as e}from"./treeViewsDnd.js";const m=o("treeViewsDndService");r(m,e,1);export{m as $3lb};

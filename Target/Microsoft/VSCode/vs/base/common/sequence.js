@@ -1,1 +1,1 @@
-import{Emitter as c}from"./event.js";class n{constructor(){this.elements=[],this._onDidSplice=new c,this.onDidSplice=this._onDidSplice.event}splice(i,e,s=[]){this.elements.splice(i,e,...s),this._onDidSplice.fire({start:i,deleteCount:e,toInsert:s})}}export{n as Sequence};
+import{$af as t}from"./event.js";class l{constructor(){this.elements=[],this.a=new t,this.onDidSplice=this.a.event}splice(i,s,e=[]){this.elements.splice(i,s,...e),this.a.fire({start:i,deleteCount:s,toInsert:e})}}export{l as $ub};

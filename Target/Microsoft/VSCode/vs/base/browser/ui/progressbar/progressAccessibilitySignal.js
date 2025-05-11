@@ -1,1 +1,1 @@
-const c=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let s=c;function r(e){s=e}function l(e,i){return s(e,i)}export{l as getProgressAcccessibilitySignalScheduler,r as setProgressAcccessibilitySignalScheduler};
+const s=()=>({msLoopTime:-1,msDelayTime:-1,dispose:()=>{}});let i=s;function c(e){i=e}function r(e,o){return i(e,o)}export{c as $A8,r as $B8};

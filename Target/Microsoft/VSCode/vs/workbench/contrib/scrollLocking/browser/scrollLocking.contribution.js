@@ -1,1 +1,1 @@
-import{registerWorkbenchContribution2 as r}from"../../../common/contributions.js";import{SyncScroll as o}from"./scrollLocking.js";r(o.ID,o,4);
+import{$wK as r}from"../../../common/contributions.js";import{$Uvc as o}from"./scrollLocking.js";r(o.ID,o,4);

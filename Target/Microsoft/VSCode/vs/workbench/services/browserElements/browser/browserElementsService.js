@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("browserElementsService");export{o as IBrowserElementsService};
+import{$dj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("browserElementsService");export{o as $zfc};

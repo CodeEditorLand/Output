@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const a=e("webviewManagerService");export{a as IWebviewManagerService};
+import{$dj as e}from"../../instantiation/common/instantiation.js";const o=e("webviewManagerService");export{o as $dy};

@@ -1,1 +1,1 @@
-import{hash as n}from"../../../../base/common/hash.js";function i(t){return{id:e(t),configPath:t}}function o(t){return{id:e(t),uri:t}}function e(t){return n(t.toString()).toString(16)}export{o as getSingleFolderWorkspaceIdentifier,i as getWorkspaceIdentifier};
+import{$Zm as r}from"../../../../base/common/hash.js";function i(t){return{id:n(t),configPath:t}}function u(t){return{id:n(t),uri:t}}function n(t){return r(t.toString()).toString(16)}export{i as $Swc,u as $Twc};

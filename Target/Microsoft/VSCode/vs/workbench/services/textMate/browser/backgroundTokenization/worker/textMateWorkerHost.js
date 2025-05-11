@@ -1,1 +1,1 @@
-class e{static{this.CHANNEL_NAME="textMateWorkerHost"}static getChannel(t){return t.getChannel(e.CHANNEL_NAME)}static setChannel(t,n){t.setChannel(e.CHANNEL_NAME,n)}}export{e as TextMateWorkerHost};
+class e{static{this.CHANNEL_NAME="textMateWorkerHost"}static getChannel(t){return t.getChannel(e.CHANNEL_NAME)}static setChannel(t,a){t.setChannel(e.CHANNEL_NAME,a)}}export{e as $Z6b};

@@ -1,1 +1,1 @@
-const t=new class{constructor(){this._implementations=[]}register(e){return this._implementations.push(e),{dispose:()=>{const s=this._implementations.indexOf(e);s!==-1&&this._implementations.splice(s,1)}}}getImplementations(){return this._implementations}};export{t as AccessibleViewRegistry};
+const i=new class{constructor(){this._implementations=[]}register(t){return this._implementations.push(t),{dispose:()=>{const e=this._implementations.indexOf(t);e!==-1&&this._implementations.splice(e,1)}}}getImplementations(){return this._implementations}};export{i as $Fnb};

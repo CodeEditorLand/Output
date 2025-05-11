@@ -1,1 +1,1 @@
-import{registerSingleton as e}from"../../../../platform/instantiation/common/extensions.js";import{ISpeechService as r}from"../common/speechService.js";import{SpeechService as i}from"./speechService.js";e(r,i,0);
+import{$GB as m}from"../../../../platform/instantiation/common/extensions.js";import{$pV as o}from"../common/speechService.js";import{$fdc as r}from"./speechService.js";m(o,r,0);

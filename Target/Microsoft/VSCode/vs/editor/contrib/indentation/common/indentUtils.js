@@ -1,1 +1,1 @@
-function n(t,o){let r=0;for(let e=0;e<t.length;e++)t.charAt(e)==="	"?r+=o:r++;return r}function i(t,o,r){t=t<0?0:t;let e="";if(!r){const l=Math.floor(t/o);t=t%o;for(let f=0;f<l;f++)e+="	"}for(let l=0;l<t;l++)e+=" ";return e}export{i as generateIndent,n as getSpaceCnt};
+function i(t,l){let o=0;for(let r=0;r<t.length;r++)t.charAt(r)==="	"?o+=l:o++;return o}function u(t,l,o){t=t<0?0:t;let r="";if(!o){const f=Math.floor(t/l);t=t%l;for(let e=0;e<f;e++)r+="	"}for(let f=0;f<t;f++)r+=" ";return r}export{i as $Gpb,u as $Hpb};

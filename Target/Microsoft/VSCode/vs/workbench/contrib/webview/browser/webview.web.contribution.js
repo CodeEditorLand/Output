@@ -1,1 +1,1 @@
-import{registerSingleton as e}from"../../../../platform/instantiation/common/extensions.js";import{IWebviewService as r}from"./webview.js";import{WebviewService as i}from"./webviewService.js";e(r,i,1);
+import{$GB as r}from"../../../../platform/instantiation/common/extensions.js";import{$Axb as m}from"./webview.js";import{$rzc as o}from"./webviewService.js";r(m,o,1);

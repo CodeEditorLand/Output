@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("titleService");export{t as ITitleService};
+import{$dj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("titleService");export{o as $Q2b};

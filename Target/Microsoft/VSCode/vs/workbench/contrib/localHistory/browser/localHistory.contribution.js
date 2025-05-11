@@ -1,1 +1,1 @@
-import"./localHistoryCommands.js";import{registerWorkbenchContribution2 as r}from"../../../common/contributions.js";import{LocalHistoryTimeline as o}from"./localHistoryTimeline.js";r(o.ID,o,2);
+import"./localHistoryCommands.js";import{$wK as o}from"../../../common/contributions.js";import{$svc as m}from"./localHistoryTimeline.js";o(m.ID,m,2);

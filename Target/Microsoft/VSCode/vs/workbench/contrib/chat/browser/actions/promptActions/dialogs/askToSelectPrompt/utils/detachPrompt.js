@@ -1,1 +1,1 @@
-const n=async(e,o)=>{const{widget:t}=o;return t.attachmentModel.promptInstructions.remove(e),t};export{n as detachPrompt};
+const o=async(e,n)=>{const{widget:t}=n;return t.attachmentModel.promptInstructions.remove(e),t};export{o as $GMc};

@@ -1,1 +1,1 @@
-import{localize as o}from"../../../../../nls.js";const r="screenshot-focused-window";function t(e){return{id:r,name:o("screenshot","Screenshot"),value:e.buffer,kind:"image"}}export{r as ScreenshotVariableId,t as convertBufferToScreenshotVariable};
+import{localize as o}from"../../../../../nls.js";const n="screenshot-focused-window";function i(e){return{id:n,name:o(5430,null),value:e.buffer,kind:"image"}}export{n as $COb,i as $DOb};

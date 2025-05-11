@@ -1,1 +1,1 @@
-import{createDecorator as t}from"../../../platform/instantiation/common/instantiation.js";const d=t("textModelService");function c(e){return!!e.textEditorModel}export{d as ITextModelService,c as isResolvedTextEditorModel};
+import{$dj as e}from"../../../platform/instantiation/common/instantiation.js";const r=e("textModelService");function n(t){return!!t.textEditorModel}export{r as $7E,n as $8E};

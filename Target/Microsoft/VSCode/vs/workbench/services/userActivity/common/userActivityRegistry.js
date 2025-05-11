@@ -1,1 +1,1 @@
-class o{constructor(){this.todo=[],this.add=t=>{this.todo.push(t)}}take(t,s){this.add=i=>s.createInstance(i,t),this.todo.forEach(this.add),this.todo=[]}}const e=new o;export{e as userActivityRegistry};
+class i{constructor(){this.a=[],this.add=t=>{this.a.push(t)}}take(t,s){this.add=a=>s.createInstance(a,t),this.a.forEach(this.add),this.a=[]}}const c=new i;export{c as $LZb};

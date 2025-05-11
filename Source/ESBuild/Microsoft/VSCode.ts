@@ -1,7 +1,7 @@
 import type Interface from "@playform/build/Target/Interface/Build/Set.js";
 import type { BuildOptions } from "esbuild";
 
-const Prefix = "out/vs";
+const Prefix = "out-build/vs";
 
 export const On = (await import("../../ESBuild.js")).On;
 

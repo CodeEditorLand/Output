@@ -1,1 +1,1 @@
-import{bootstrapWebWorker as r}from"../../../../base/common/worker/webWorkerBootstrap.js";import{create as o}from"./localFileSearch.js";r(o);
+import{$G9 as m}from"../../../../base/common/worker/webWorkerBootstrap.js";import{$YNc as o}from"./localFileSearch.js";m(o);

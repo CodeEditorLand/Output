@@ -1,1 +1,1 @@
-import{rtrim as t}from"../../../../base/common/strings.js";function s(i){return i.endsWith(".git")&&(i=i.substr(0,i.length-4)),i=t(i,"/"),i.endsWith("/new")&&(i=t(i,"/new")),i.endsWith("/issues")&&(i=t(i,"/issues")),i}export{s as normalizeGitHubUrl};
+import{$Ff as s}from"../../../../base/common/strings.js";function t(i){return i.endsWith(".git")&&(i=i.substr(0,i.length-4)),i=s(i,"/"),i.endsWith("/new")&&(i=s(i,"/new")),i.endsWith("/issues")&&(i=s(i,"/issues")),i}export{t as $yzc};

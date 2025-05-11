@@ -1,1 +1,1 @@
-import{registerSingleton as e}from"../../../../platform/instantiation/common/extensions.js";import{IBrowserElementsService as r}from"./browserElementsService.js";class t{constructor(){}async getElementData(n,m){throw new Error("Not implemented")}}e(r,t,1);
+import{$GB as e}from"../../../../platform/instantiation/common/extensions.js";import{$zfc as r}from"./browserElementsService.js";class t{constructor(){}async getElementData(m,c){throw new Error("Not implemented")}}e(r,t,1);

@@ -1,1 +1,1 @@
-import{createDecorator as t}from"../../instantiation/common/instantiation.js";const o=t("extensionHostStarter"),r="extensionHostStarter";export{o as IExtensionHostStarter,r as ipcExtensionHostStarterChannelName};
+import{$dj as t}from"../../instantiation/common/instantiation.js";const e=t("extensionHostStarter"),r="extensionHostStarter";export{e as $hw,r as $iw};

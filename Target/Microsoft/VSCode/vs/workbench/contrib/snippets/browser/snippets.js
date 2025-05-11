@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("snippetService");export{t as ISnippetsService};
+import{$dj as e}from"../../../../platform/instantiation/common/instantiation.js";const p=e("snippetService");export{p as $PBb};

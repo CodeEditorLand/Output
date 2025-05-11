@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const t=e("externalTerminal"),a="Terminal.app";export{a as DEFAULT_TERMINAL_OSX,t as IExternalTerminalService};
+import{$dj as r}from"../../instantiation/common/instantiation.js";const e=r("externalTerminal"),o="Terminal.app";export{e as $tw,o as $uw};

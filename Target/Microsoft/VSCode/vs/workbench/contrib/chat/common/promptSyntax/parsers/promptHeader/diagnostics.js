@@ -1,1 +1,1 @@
-class r{constructor(e,s){this.range=e,this.message=s}}class a extends r{toString(){return`warning(${this.message})${this.range}`}}class n extends r{toString(){return`error(${this.message})${this.range}`}}export{r as PromptMetadataDiagnostic,n as PromptMetadataError,a as PromptMetadataWarning};
+class e{constructor(t,r){this.range=t,this.message=r}}class n extends e{toString(){return`warning(${this.message})${this.range}`}}class a extends e{toString(){return`error(${this.message})${this.range}`}}export{e as $mP,n as $nP,a as $oP};

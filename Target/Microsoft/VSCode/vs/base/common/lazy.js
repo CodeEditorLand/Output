@@ -1,1 +1,1 @@
-class e{constructor(t){this.executor=t,this._didRun=!1}get hasValue(){return this._didRun}get value(){if(!this._didRun)try{this._value=this.executor()}catch(t){this._error=t}finally{this._didRun=!0}if(this._error)throw this._error;return this._value}get rawValue(){return this._value}}export{e as Lazy};
+class r{constructor(t){this.d=t,this.a=!1}get hasValue(){return this.a}get value(){if(!this.a)try{this.b=this.d()}catch(t){this.c=t}finally{this.a=!0}if(this.c)throw this.c;return this.b}get rawValue(){return this.b}}export{r as $rf};

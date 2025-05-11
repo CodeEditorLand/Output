@@ -1,4 +1,4 @@
-var o;(function(t){t[t.Shapes=0]="Shapes",t[t.LayoutInfoUniform=1]="LayoutInfoUniform",t[t.ScrollOffset=2]="ScrollOffset"})(o||(o={}));const e=`
+var o;(function(t){t[t.Shapes=0]="Shapes",t[t.LayoutInfoUniform=1]="LayoutInfoUniform",t[t.ScrollOffset=2]="ScrollOffset"})(o||(o={}));const s=`
 
 struct Vertex {
 	@location(0) position: vec2f,
@@ -59,4 +59,4 @@ struct VSOutput {
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
 	return vsOut.color;
 }
-`;export{o as RectangleRendererBindingId,e as rectangleRendererWgsl};
+`;export{s as $uab,o as RectangleRendererBindingId};

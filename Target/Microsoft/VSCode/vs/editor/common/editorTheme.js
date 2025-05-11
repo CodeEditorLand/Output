@@ -1,1 +1,1 @@
-class r{get type(){return this._theme.type}get value(){return this._theme}constructor(e){this._theme=e}update(e){this._theme=e}getColor(e){return this._theme.getColor(e)}}export{r as EditorTheme};
+class r{get type(){return this.a.type}get value(){return this.a}constructor(t){this.a=t}update(t){this.a=t}getColor(t){return this.a.getColor(t)}}export{r as $70};

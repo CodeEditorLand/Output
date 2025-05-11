@@ -1,1 +1,1 @@
-import{Range as s}from"../../../core/range.js";import{BaseToken as i}from"../../baseToken.js";class p extends i{static newOnLine(r,e,n){const{range:t}=r;return new n(new s(t.startLineNumber,e,t.startLineNumber,e+n.symbol.length))}}export{p as SimpleToken};
+import{$XB as s}from"../../../core/range.js";import{$pP as i}from"../../baseToken.js";class p extends i{static newOnLine(t,e,n){const{range:r}=t;return new n(new s(r.startLineNumber,e,r.startLineNumber,e+n.symbol.length))}}export{p as $rP};

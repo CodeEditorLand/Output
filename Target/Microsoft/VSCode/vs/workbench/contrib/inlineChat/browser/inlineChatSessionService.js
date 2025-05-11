@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("IInlineChatSessionService");export{r as IInlineChatSessionService};
+import{$dj as e}from"../../../../platform/instantiation/common/instantiation.js";const i=e("IInlineChatSessionService");export{i as $bzb};

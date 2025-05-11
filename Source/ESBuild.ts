@@ -62,7 +62,7 @@ export default {
 		},
 	],
 	loader: {
-		".css,": "copy",
+		".css": "css",
 		".fish": "copy",
 		".html": "copy",
 		".json": "copy",

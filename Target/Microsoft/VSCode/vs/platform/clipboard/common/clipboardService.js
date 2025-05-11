@@ -1,1 +1,1 @@
-import{createDecorator as r}from"../../instantiation/common/instantiation.js";const o=r("clipboardService");export{o as IClipboardService};
+import{$dj as o}from"../../instantiation/common/instantiation.js";const c=o("clipboardService");export{c as $Tdb};

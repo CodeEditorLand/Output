@@ -1,1 +1,1 @@
-import{AbstractOneDataSystemAppender as s}from"../common/1dsAppender.js";class d extends s{constructor(e,t,r,n){super(e,t,r,n),fetch(this.endPointHealthUrl,{method:"GET"}).catch(o=>{this._aiCoreOrKey=void 0})}}export{d as OneDataSystemWebAppender};
+import{$c3 as s}from"../common/1dsAppender.js";class i extends s{constructor(t,e,c,r){super(t,e,c,r),fetch(this.d,{method:"GET"}).catch(d=>{this.a=void 0})}}export{i as $myc};

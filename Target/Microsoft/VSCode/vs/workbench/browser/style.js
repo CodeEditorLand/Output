@@ -1,4 +1,4 @@
-import"./media/style.css";import{registerThemingParticipant as m}from"../../platform/theme/common/themeService.js";import{WORKBENCH_BACKGROUND as a,TITLE_BAR_ACTIVE_BACKGROUND as d}from"../common/theme.js";import{isWeb as l,isIOS as s}from"../../base/common/platform.js";import{createMetaElement as u}from"../../base/browser/dom.js";import{isSafari as f,isStandalone as b}from"../../base/browser/browser.js";import{selectionBackground as g}from"../../platform/theme/common/colorRegistry.js";import{mainWindow as k}from"../../base/browser/window.js";m((t,e)=>{const n=a(t);e.addRule(`.monaco-workbench { background-color: ${n}; }`);const r=t.getColor(g);if(r&&e.addRule(`.monaco-workbench ::selection { background-color: ${r}; }`),l){const i=t.getColor(d);if(i){const c="monaco-workbench-meta-theme-color";let o=k.document.getElementById(c);o||(o=u(),o.name="theme-color",o.id=c),o.content=i.toString()}}f&&e.addRule(`
+import"./media/style.css";import{$Gt as i}from"../../platform/theme/common/themeService.js";import{$Ksb as d,$Oub as a}from"../common/theme.js";import{$r as u,$u as l}from"../../base/common/platform.js";import{$24 as b}from"../../base/browser/dom.js";import{$R3 as f,$V3 as $}from"../../base/browser/browser.js";import{$xp as k}from"../../platform/theme/common/colorRegistry.js";import{$C3 as s}from"../../base/browser/window.js";i((t,e)=>{const n=d(t);e.addRule(`.monaco-workbench { background-color: ${n}; }`);const r=t.getColor(k);if(r&&e.addRule(`.monaco-workbench ::selection { background-color: ${r}; }`),u){const m=t.getColor(a);if(m){const c="monaco-workbench-meta-theme-color";let o=s.document.getElementById(c);o||(o=b(),o.name="theme-color",o.id=c),o.content=m.toString()}}f&&e.addRule(`
 			body.web {
 				touch-action: none;
 			}
@@ -6,4 +6,4 @@ import"./media/style.css";import{registerThemingParticipant as m}from"../../plat
 				user-select: text;
 				-webkit-user-select: text;
 			}
-		`),s&&b()&&e.addRule(`body { background-color: ${n}; }`)});
+		`),l&&$()&&e.addRule(`body { background-color: ${n}; }`)});

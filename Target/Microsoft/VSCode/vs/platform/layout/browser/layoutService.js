@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const r=e("layoutService");export{r as ILayoutService};
+import{$dj as o}from"../../instantiation/common/instantiation.js";const t=o("layoutService");export{t as $7fb};

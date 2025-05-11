@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const t=e("nativeBrowserElementsService");export{t as INativeBrowserElementsService};
+import{$dj as e}from"../../instantiation/common/instantiation.js";const o=e("nativeBrowserElementsService");export{o as $1v};

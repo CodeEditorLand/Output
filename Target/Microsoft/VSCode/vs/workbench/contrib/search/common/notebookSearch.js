@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("notebookSearchService");export{r as INotebookSearchService};
+import{$dj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("notebookSearchService");export{r as $Sac};

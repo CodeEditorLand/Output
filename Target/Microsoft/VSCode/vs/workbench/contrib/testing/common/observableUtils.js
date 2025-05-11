@@ -1,1 +1,1 @@
-function s(e,a){const n={beginUpdate(){},endUpdate(){},handlePossibleChange(r){r.reportChanges()},handleChange(r,o){a(o)}};return e.addObserver(n),{dispose(){e.removeObserver(n)}}}export{s as onObservableChange};
+function o(e,a){const n={beginUpdate(){},endUpdate(){},handlePossibleChange(r){r.reportChanges()},handleChange(r,d){a(d)}};return e.addObserver(n),{dispose(){e.removeObserver(n)}}}export{o as $0hc};

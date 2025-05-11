@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("integrityService");export{t as IIntegrityService};
+import{$dj as r}from"../../../../platform/instantiation/common/instantiation.js";const e=r("integrityService");export{e as $pxc};

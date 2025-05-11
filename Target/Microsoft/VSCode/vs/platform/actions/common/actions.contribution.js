@@ -1,1 +1,1 @@
-import{IMenuService as e,registerAction2 as r}from"./actions.js";import{MenuHiddenStatesReset as i}from"./menuResetAction.js";import{MenuService as t}from"./menuService.js";import{registerSingleton as o}from"../../instantiation/common/extensions.js";o(e,t,1);r(i);
+import{$UH as m,$ZH as o}from"./actions.js";import{$l4b as r}from"./menuResetAction.js";import{$Oeb as $}from"./menuService.js";import{$GB as f}from"../../instantiation/common/extensions.js";f(m,$,1);o(r);

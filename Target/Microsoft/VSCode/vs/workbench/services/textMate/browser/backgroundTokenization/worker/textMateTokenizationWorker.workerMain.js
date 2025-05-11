@@ -1,1 +1,1 @@
-import{create as r}from"./textMateTokenizationWorker.worker.js";import{bootstrapWebWorker as o}from"../../../../../../base/common/worker/webWorkerBootstrap.js";o(r);
+import{$16b as m}from"./textMateTokenizationWorker.worker.js";import{$G9 as o}from"../../../../../../base/common/worker/webWorkerBootstrap.js";o(m);

@@ -1,1 +1,1 @@
-import{getChatWidgetObject as o}from"./attachInstructions.js";import{getPromptCommandName as r}from"../../../../../../common/promptSyntax/service/promptsService.js";const n=async(e,a)=>{const t=await o(a);return t.setInput(`/${r(e.path)}`),await t.acceptInput(),{widget:t}};export{n as runPromptFile};
+import{$hec as e}from"./attachInstructions.js";import{$Jdc as o}from"../../../../../../common/promptSyntax/service/promptsService.js";const i=async(c,a)=>{const t=await e(a);return t.setInput(`/${o(c.path)}`),await t.acceptInput(),{widget:t}};export{i as $iec};

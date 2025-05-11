@@ -1,1 +1,1 @@
-class i{constructor(){this._nativeEditContextMapping=new Map}register(t,e){return this._nativeEditContextMapping.set(t,e),{dispose:()=>{this._nativeEditContextMapping.delete(t)}}}get(t){return this._nativeEditContextMapping.get(t)}}const s=new i;export{s as NativeEditContextRegistry};
+class s{constructor(){this.a=new Map}register(t,e){return this.a.set(t,e),{dispose:()=>{this.a.delete(t)}}}get(t){return this.a.get(t)}}const r=new s;export{r as $Jbb};

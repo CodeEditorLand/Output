@@ -1,1 +1,1 @@
-class r{constructor(){this._discovery=[]}register(s){this._discovery.push(s)}getAll(){return this._discovery}}const t=new r;export{t as mcpDiscoveryRegistry};
+class t{constructor(){this.a=[]}register(s){this.a.push(s)}getAll(){return this.a}}const e=new t;export{e as $lgc};

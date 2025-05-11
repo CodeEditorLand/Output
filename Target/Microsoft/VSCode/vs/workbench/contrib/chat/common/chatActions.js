@@ -1,1 +1,1 @@
-function i(t){return!!t&&typeof t.sessionId=="string"&&t.$mid===19}export{i as isChatViewTitleActionContext};
+function t(n){return!!n&&typeof n.sessionId=="string"&&n.$mid===19}export{t as $aCb};

@@ -1,1 +1,1 @@
-import{createDecorator as o}from"../../../../../platform/instantiation/common/instantiation.js";const r=o("INotebookEditorWidgetService");export{r as INotebookEditorService};
+import{$dj as o}from"../../../../../platform/instantiation/common/instantiation.js";const e=o("INotebookEditorWidgetService");export{e as $tyb};

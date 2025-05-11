@@ -1,1 +1,1 @@
-import{FuzzyScore as t}from"../../../../base/common/filters.js";class a{constructor(e){this.completion=e,this.score=t.Default,this.isInvalid=!1,this.textLabel=typeof e.label=="string"?e.label:e.label?.label,this.labelLow=this.textLabel.toLowerCase()}}export{a as SimpleCompletionItem};
+import{FuzzyScore as e}from"../../../../base/common/filters.js";class a{constructor(t){this.completion=t,this.score=e.Default,this.isInvalid=!1,this.textLabel=typeof t.label=="string"?t.label:t.label?.label,this.labelLow=this.textLabel.toLowerCase()}}export{a as $pZb};

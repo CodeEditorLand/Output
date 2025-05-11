@@ -1,1 +1,1 @@
-import{Emitter as e}from"./event.js";class n{constructor(){this._onDidChange=new e,this.onDidChange=this._onDidChange.event,this._enabled=!0}get enabled(){return this._enabled}enable(){this._enabled=!0,this._onDidChange.fire()}disable(){this._enabled=!1,this._onDidChange.fire()}}const s=new n;export{s as IME,n as IMEImpl};
+import{$af as t}from"./event.js";class e{constructor(){this.a=new t,this.onDidChange=this.a.event,this.b=!0}get enabled(){return this.b}enable(){this.b=!0,this.a.fire()}disable(){this.b=!1,this.a.fire()}}const r=new e;export{e as $l9,r as IME};

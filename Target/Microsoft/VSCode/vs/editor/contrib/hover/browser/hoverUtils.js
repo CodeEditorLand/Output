@@ -1,1 +1,1 @@
-import*as n from"../../../../base/browser/dom.js";function r(i,e,o){const t=n.getDomNodePagePosition(i);return!(e<t.left||e>t.left+t.width||o<t.top||o>t.top+t.height)}export{r as isMousePositionWithinElement};
+import*as n from"../../../../base/browser/dom.js";function o(f,e,r){const t=n.$D4(f);return!(e<t.left||e>t.left+t.width||r<t.top||r>t.top+t.height)}export{o as $Tjb};

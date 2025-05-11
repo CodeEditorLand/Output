@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../platform/instantiation/common/instantiation.js";const a=e("languageService");export{a as ILanguageService};
+import{$dj as e}from"../../../platform/instantiation/common/instantiation.js";const r=e("languageService");export{r as $FD};

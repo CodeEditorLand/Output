@@ -1,1 +1,1 @@
-class o{constructor(){this._frameId=0,this._domFrameLog()}_domFrameLog(){}debug(...a){const s=new Date}}const t=new o;function n(...e){t.debug(...e)}export{n as notebookDebug};
+class e{constructor(){this.a=0,this.b()}b(){}debug(...s){const a=new Date}}const o=new e;function n(...t){o.debug(...t)}export{n as $uyb};

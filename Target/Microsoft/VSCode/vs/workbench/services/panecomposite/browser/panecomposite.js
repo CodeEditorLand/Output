@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("paneCompositePartService");export{r as IPaneCompositePartService};
+import{$dj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("paneCompositePartService");export{r as $8vb};

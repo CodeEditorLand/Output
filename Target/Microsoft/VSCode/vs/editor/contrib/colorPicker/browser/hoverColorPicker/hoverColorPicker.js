@@ -1,1 +1,1 @@
-import{ColorDecorationInjectedTextMarker as o}from"../colorDetector.js";function a(e){const t=e.target;return!!t&&t.type===6&&t.detail.injectedText?.options.attachedData===o}export{a as isOnColorDecorator};
+import{$Ghb as a}from"../colorDetector.js";function r(e){const t=e.target;return!!t&&t.type===6&&t.detail.injectedText?.options.attachedData===a}export{r as $Hlb};

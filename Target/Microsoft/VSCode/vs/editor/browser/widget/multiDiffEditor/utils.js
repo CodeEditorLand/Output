@@ -1,1 +1,1 @@
-import{ActionRunner as e}from"../../../../base/common/actions.js";class s extends e{constructor(t){super(),this._getContext=t}runAction(t,r){const n=this._getContext();return super.runAction(t,n)}}export{s as ActionRunnerWithContext};
+import{$2l as s}from"../../../../base/common/actions.js";class u extends s{constructor(t){super(),this.a=t}u(t,o){const r=this.a();return super.u(t,r)}}export{u as $Yeb};

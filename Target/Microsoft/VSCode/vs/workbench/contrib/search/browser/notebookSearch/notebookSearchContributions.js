@@ -1,1 +1,1 @@
-import{registerSingleton as o}from"../../../../../platform/instantiation/common/extensions.js";import{INotebookSearchService as r}from"../../common/notebookSearch.js";import{NotebookSearchService as e}from"./notebookSearchService.js";function n(){o(r,e,1)}export{n as registerContributions};
+import{$GB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$Sac as r}from"../../common/notebookSearch.js";import{$Mkc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $Nkc};

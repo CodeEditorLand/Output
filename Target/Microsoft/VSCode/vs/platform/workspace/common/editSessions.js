@@ -1,1 +1,1 @@
-import{createDecorator as o}from"../../instantiation/common/instantiation.js";const l=o("editSessionIdentityService");var r;(function(e){e[e.Complete=100]="Complete",e[e.Partial=50]="Partial",e[e.None=0]="None"})(r||(r={}));export{r as EditSessionIdentityMatch,l as IEditSessionIdentityService};
+import{$dj as e}from"../../instantiation/common/instantiation.js";const l=e("editSessionIdentityService");var o;(function(r){r[r.Complete=100]="Complete",r[r.Partial=50]="Partial",r[r.None=0]="None"})(o||(o={}));export{l as $7L,o as EditSessionIdentityMatch};

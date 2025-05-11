@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const o=e("contextViewService"),r=e("contextMenuService");export{r as IContextMenuService,o as IContextViewService};
+import{$dj as e}from"../../instantiation/common/instantiation.js";const o=e("contextViewService"),c=e("contextMenuService");export{o as $Udb,c as $Vdb};

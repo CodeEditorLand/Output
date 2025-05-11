@@ -1,1 +1,1 @@
-import{ViewEventHandler as i}from"../../../common/viewEventHandler.js";class h extends i{get glyphRasterizer(){return this._glyphRasterizer.value}constructor(e,t,r,s){super(),this._context=e,this._viewGpuContext=t,this._device=r,this._glyphRasterizer=s,this._context.addEventHandler(this)}}export{h as BaseRenderStrategy};
+import{$n$ as i}from"../../../common/viewEventHandler.js";class n extends i{get glyphRasterizer(){return this.f.value}constructor(t,s,e,r){super(),this.a=t,this.b=s,this.c=e,this.f=r,this.a.addEventHandler(this)}}export{n as $zab};

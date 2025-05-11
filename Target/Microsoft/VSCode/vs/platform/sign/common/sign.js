@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../instantiation/common/instantiation.js";const r="signService",t=e(r);export{t as ISignService,r as SIGN_SERVICE_ID};
+import{$dj as o}from"../../instantiation/common/instantiation.js";const r="signService",e=o(r);export{r as $Qx,e as $Rx};

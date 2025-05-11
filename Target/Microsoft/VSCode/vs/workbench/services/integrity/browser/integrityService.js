@@ -1,1 +1,1 @@
-import{IIntegrityService as r}from"../common/integrity.js";import{registerSingleton as e}from"../../../../platform/instantiation/common/extensions.js";class t{async isPure(){return{isPure:!0,proof:[]}}}e(r,t,1);export{t as IntegrityService};
+import{$pxc as r}from"../common/integrity.js";import{$GB as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $qxc};

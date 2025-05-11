@@ -1,1 +1,1 @@
-import{isString as t}from"./types.js";const o=Object.create(null);function i(e,n){if(t(n)){const r=o[n];if(r===void 0)throw new Error(`${e} references an unknown codicon: ${n}`);n=r}return o[e]=n,{id:e}}function s(){return o}export{s as getCodiconFontCharacters,i as register};
+import{$Xc as r}from"./types.js";const e=Object.create(null);function i(o,n){if(r(n)){const c=e[n];if(c===void 0)throw new Error(`${o} references an unknown codicon: ${n}`);n=c}return e[o]=n,{id:o}}function t(){return e}export{i as $xj,t as $yj};

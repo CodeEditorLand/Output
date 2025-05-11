@@ -1,1 +1,1 @@
-const o="copilot";export{o as CHAT_PROVIDER_ID};
+const o="copilot";export{o as $8R};

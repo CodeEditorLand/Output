@@ -1,1 +1,1 @@
-import{createDecorator as r}from"../../instantiation/common/instantiation.js";var o;(function(e){e.VSCode="vscode",e.Extension="extension",e.Marketplace="marketplace"})(o||(o={}));const c=r("processService");export{c as IProcessService,o as IssueSource};
+import{$dj as t}from"../../instantiation/common/instantiation.js";var o;(function(e){e.VSCode="vscode",e.Extension="extension",e.Marketplace="marketplace"})(o||(o={}));const n=t("processService");export{n as $Xw,o as IssueSource};

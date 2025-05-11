@@ -1,1 +1,1 @@
-import{createDecorator as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("hostService");export{r as IHostService};
+import{$dj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("hostService");export{t as $C0};

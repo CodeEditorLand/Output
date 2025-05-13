@@ -1,1 +1,1 @@
-import{$GB as r}from"../../../../platform/instantiation/common/extensions.js";import{$Axb as m}from"./webview.js";import{$rzc as o}from"./webviewService.js";r(m,o,1);
+import{$HB as m}from"../../../../platform/instantiation/common/extensions.js";import{$Dxb as o}from"./webview.js";import{$vzc as r}from"./webviewService.js";m(o,r,1);

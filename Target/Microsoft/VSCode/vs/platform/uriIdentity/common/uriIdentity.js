@@ -1,1 +1,1 @@
-import{$dj as o}from"../../instantiation/common/instantiation.js";const t=o("IUriIdentityService");export{t as $no};
+import{$ej as o}from"../../instantiation/common/instantiation.js";const r=o("IUriIdentityService");export{r as $oo};

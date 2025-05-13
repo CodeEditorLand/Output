@@ -1,1 +1,1 @@
-import{$GB as e}from"../../../../platform/instantiation/common/extensions.js";import{$zfc as r}from"./browserElementsService.js";class t{constructor(){}async getElementData(m,c){throw new Error("Not implemented")}}e(r,t,1);
+import{$HB as e}from"../../../../platform/instantiation/common/extensions.js";import{$Dfc as r}from"./browserElementsService.js";class t{constructor(){}async getElementData(m,c){throw new Error("Not implemented")}}e(r,t,1);

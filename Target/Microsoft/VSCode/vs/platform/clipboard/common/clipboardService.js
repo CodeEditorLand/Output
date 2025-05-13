@@ -1,1 +1,1 @@
-import{$dj as o}from"../../instantiation/common/instantiation.js";const c=o("clipboardService");export{c as $Tdb};
+import{$ej as o}from"../../instantiation/common/instantiation.js";const e=o("clipboardService");export{e as $1db};

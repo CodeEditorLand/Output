@@ -1,1 +1,1 @@
-import{$dj as r}from"../../../../platform/instantiation/common/instantiation.js";const e=r("integrityService");export{e as $pxc};
+import{$ej as t}from"../../../../platform/instantiation/common/instantiation.js";const r=t("integrityService");export{r as $txc};

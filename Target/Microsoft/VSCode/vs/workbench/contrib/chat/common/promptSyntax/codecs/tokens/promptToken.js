@@ -1,1 +1,1 @@
-import{$pP as e}from"../../../../../../../editor/common/codecs/baseToken.js";class r extends e{}export{r as $wQ};
+import{$vP as e}from"../../../../../../../editor/common/codecs/baseToken.js";class s extends e{}export{s as $CQ};

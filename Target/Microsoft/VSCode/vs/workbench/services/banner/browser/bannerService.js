@@ -1,1 +1,1 @@
-import{$dj as r}from"../../../../platform/instantiation/common/instantiation.js";const o=r("bannerService");export{o as $j4b};
+import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const n=e("bannerService");export{n as $n4b};

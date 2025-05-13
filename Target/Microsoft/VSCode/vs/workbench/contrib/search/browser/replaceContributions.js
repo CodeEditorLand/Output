@@ -1,1 +1,1 @@
-import{$GB as r}from"../../../../platform/instantiation/common/extensions.js";import{$Tac as m}from"./replace.js";import{$Kkc as t,$Jkc as o}from"./replaceService.js";import{$wK as $}from"../../../common/contributions.js";function k(){r(m,t,1),$(o.ID,o,1)}export{k as $Lkc};
+import{$HB as r}from"../../../../platform/instantiation/common/extensions.js";import{$Xac as m}from"./replace.js";import{$Okc as t,$Nkc as o}from"./replaceService.js";import{$xK as $}from"../../../common/contributions.js";function k(){r(m,t,1),$(o.ID,o,1)}export{k as $Pkc};

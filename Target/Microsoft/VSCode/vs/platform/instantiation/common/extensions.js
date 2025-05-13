@@ -1,1 +1,1 @@
-import{$aj as n}from"./descriptors.js";const a=[];var u;(function(e){e[e.Eager=0]="Eager",e[e.Delayed=1]="Delayed"})(u||(u={}));function l(e,f,o){f instanceof n||(f=new n(f,[],!!o)),a.push([e,f])}function x(){return a}export{l as $GB,x as $HB,u as InstantiationType};
+import{$bj as n}from"./descriptors.js";const o=[];var u;(function(e){e[e.Eager=0]="Eager",e[e.Delayed=1]="Delayed"})(u||(u={}));function l(e,f,a){f instanceof n||(f=new n(f,[],!!a)),o.push([e,f])}function x(){return o}export{l as $HB,x as $IB,u as InstantiationType};

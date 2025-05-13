@@ -1,1 +1,1 @@
-import{$dj as i}from"../../../../platform/instantiation/common/instantiation.js";const r=i("workspaceEditingService");export{r as $ivb};
+import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("workspaceEditingService");export{r as $lvb};

@@ -1,1 +1,1 @@
-import{$tdc as c}from"./decorationBase.js";import{$udc as s}from"./reactiveDecorationBase.js";const o=e=>`var(--vscode-${e.replaceAll(".","-")})`;export{o as $vdc,c as DecorationBase,s as ReactiveDecorationBase};
+import{$xdc as c}from"./decorationBase.js";import{$ydc as s}from"./reactiveDecorationBase.js";const o=e=>`var(--vscode-${e.replaceAll(".","-")})`;export{o as $zdc,c as DecorationBase,s as ReactiveDecorationBase};

@@ -1,1 +1,1 @@
-import{$dj as o}from"../../instantiation/common/instantiation.js";const e=o("productService"),r="vscode://schemas/vscode-product";export{e as $cn,r as $dn};
+import{$ej as o}from"../../instantiation/common/instantiation.js";const c=o("productService"),r="vscode://schemas/vscode-product";export{c as $dn,r as $en};

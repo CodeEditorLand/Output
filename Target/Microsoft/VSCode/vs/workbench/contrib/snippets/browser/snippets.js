@@ -1,1 +1,1 @@
-import{$dj as e}from"../../../../platform/instantiation/common/instantiation.js";const p=e("snippetService");export{p as $PBb};
+import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const p=e("snippetService");export{p as $SBb};

@@ -1,1 +1,1 @@
-import{$Zm as r}from"../../../../base/common/hash.js";function i(t){return{id:n(t),configPath:t}}function u(t){return{id:n(t),uri:t}}function n(t){return r(t.toString()).toString(16)}export{i as $Swc,u as $Twc};
+import{$1m as r}from"../../../../base/common/hash.js";function i(t){return{id:n(t),configPath:t}}function u(t){return{id:n(t),uri:t}}function n(t){return r(t.toString()).toString(16)}export{i as $Wwc,u as $Xwc};

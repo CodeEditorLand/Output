@@ -1,1 +1,1 @@
-import{$r6b as r}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";class s extends r{}export{s as $Guc};
+import{$v6b as e}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";class s extends e{}export{s as $Kuc};

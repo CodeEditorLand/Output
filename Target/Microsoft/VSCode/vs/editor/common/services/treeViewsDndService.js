@@ -1,1 +1,1 @@
-import{$GB as r}from"../../../platform/instantiation/common/extensions.js";import{$dj as o}from"../../../platform/instantiation/common/instantiation.js";import{$1lb as e}from"./treeViewsDnd.js";const m=o("treeViewsDndService");r(m,e,1);export{m as $3lb};
+import{$HB as r}from"../../../platform/instantiation/common/extensions.js";import{$ej as o}from"../../../platform/instantiation/common/instantiation.js";import{$4lb as e}from"./treeViewsDnd.js";const m=o("treeViewsDndService");r(m,e,1);export{m as $6lb};

@@ -1,1 +1,1 @@
-import{$pP as e}from"../../baseToken.js";class r extends e{}export{r as $MQ};
+import{$vP as e}from"../../baseToken.js";class s extends e{}export{s as $SQ};

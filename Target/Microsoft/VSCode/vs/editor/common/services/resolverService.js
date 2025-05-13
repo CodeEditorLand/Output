@@ -1,1 +1,1 @@
-import{$dj as e}from"../../../platform/instantiation/common/instantiation.js";const r=e("textModelService");function n(t){return!!t.textEditorModel}export{r as $7E,n as $8E};
+import{$ej as e}from"../../../platform/instantiation/common/instantiation.js";const d=e("textModelService");function n(t){return!!t.textEditorModel}export{d as $8E,n as $9E};

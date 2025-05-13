@@ -1,1 +1,1 @@
-const o="vscode:contextmenu",e="vscode:onCloseContextMenu";export{o as $Qm,e as $Rm};
+const o="vscode:contextmenu",e="vscode:onCloseContextMenu";export{o as $Rm,e as $Sm};

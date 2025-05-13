@@ -1,1 +1,1 @@
-const e="remote.defaultExtensionsIfInstalledLocally";export{e as $bsc};
+const e="remote.defaultExtensionsIfInstalledLocally";export{e as $fsc};

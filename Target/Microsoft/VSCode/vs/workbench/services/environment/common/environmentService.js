@@ -1,1 +1,1 @@
-import{$ej as o}from"../../../../platform/instantiation/common/instantiation.js";import{$7k as r}from"../../../../platform/environment/common/environment.js";const $=o(r);export{$ as $$V};
+import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";import{$8k as r}from"../../../../platform/environment/common/environment.js";const f=o(r);export{f as $eW};

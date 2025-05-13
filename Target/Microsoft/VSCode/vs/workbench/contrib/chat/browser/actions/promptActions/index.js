@@ -1,1 +1,1 @@
-import{$kec as o}from"./chatRunPromptAction.js";import{$nec as t}from"./chatSaveToPromptAction.js";import{$tec as r}from"./chatAttachInstructionsAction.js";import{$sec as s}from"./chatAttachInstructionsAction.js";const n=()=>{o(),r(),t()};export{n as $oec,s as runAttachInstructionsAction};
+import{$oec as o}from"./chatRunPromptAction.js";import{$rec as r}from"./chatSaveToPromptAction.js";import{$xec as t}from"./chatAttachInstructionsAction.js";import{$wec as s}from"./chatAttachInstructionsAction.js";const i=()=>{o(),t(),r()};export{i as $sec,s as runAttachInstructionsAction};

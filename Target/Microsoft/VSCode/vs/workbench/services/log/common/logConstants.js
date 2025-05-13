@@ -1,1 +1,1 @@
-import{localize as o}from"../../../../nls.js";const r="rendererLog",n={id:r,name:o(13895,null)},t="workbench.action.showWindowLog";export{r as $rFb,n as $sFb,t as $tFb};
+import{localize as o}from"../../../../nls.js";const e="rendererLog",r={id:e,name:o(13915,null)},t="workbench.action.showWindowLog";export{e as $uFb,r as $vFb,t as $wFb};

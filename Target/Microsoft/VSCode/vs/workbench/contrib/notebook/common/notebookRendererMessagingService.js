@@ -1,1 +1,1 @@
-import{$dj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("INotebookRendererMessagingService");export{r as $TRb};
+import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("INotebookRendererMessagingService");export{r as $WRb};

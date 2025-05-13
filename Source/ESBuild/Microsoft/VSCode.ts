@@ -3,7 +3,7 @@ import type { BuildOptions } from "esbuild";
 
 export const On = (await import("../../ESBuild.js")).On;
 
-export const Prefix = `out${!On ? "-build" : ""}/vs`;
+export const Prefix = `out${On ? "" : "-build"}/vs`;
 
 export const Dependency = (await import("../../ESBuild.js")).Dependency;
 

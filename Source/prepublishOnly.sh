@@ -17,6 +17,10 @@ case "$Dependency" in
 	;;
 esac
 
+if [[ "$Dependency" = "Microsoft/VSCode" && "$NODE_ENV" = "development" ]]; then
+	Build="out"
+fi
+
 Build "Source/**/*.{ts,json}" --ESBuild Source/ESBuild/Output.ts
 
 Build "../../Dependency/Microsoft/Dependency/Editor/$Build/**/*.{css,fish,html,js,json,jsx,cjs,mjs,md,mp3,png,ps1,psm1,scm,scpt,sh,svg,ts,tsx,ttf,zsh}" \

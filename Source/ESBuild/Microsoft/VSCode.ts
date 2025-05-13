@@ -1,9 +1,9 @@
 import type Interface from "@playform/build/Target/Interface/Build/Set.js";
 import type { BuildOptions } from "esbuild";
 
-const Prefix = "out-build/vs";
-
 export const On = (await import("../../ESBuild.js")).On;
+
+export const Prefix = `out${!On ? "-build" : ""}/vs`;
 
 export const Dependency = (await import("../../ESBuild.js")).Dependency;
 
@@ -78,7 +78,9 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 				return Array.from(Target).sort();
 			})((await import("browserslist")).default("defaults")),
 
-			entryPoints: (await import("@playform/build/Target/Function/Entry.js")).default(
+			entryPoints: (
+				await import("@playform/build/Target/Function/Entry.js")
+			).default(
 				Current,
 
 				[

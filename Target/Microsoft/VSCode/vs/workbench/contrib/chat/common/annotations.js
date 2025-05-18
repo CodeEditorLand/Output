@@ -2,4 +2,4 @@ import{$Lj as l}from"../../../../base/common/htmlContent.js";import{$dh as w}fro
 `).length-1,u=o.split(`
 `).length-1,m=d.lastIndexOf(`
 `),p=s-(m+1)+1,v=(d+o).lastIndexOf(`
-`),x=s+o.length-(v+1)+1;try{JSON.parse(decodeURIComponent(r)).forEach(({title:h,description:b})=>i.push({title:h,description:b,range:{startLineNumber:a+1,startColumn:p,endLineNumber:a+u+1,endColumn:x}}))}catch{}e=e.substring(0,s)+o+e.substring(s+t.length)}return{newText:e,vulnerabilities:i}}export{$ as $jzb,E as $kzb,N as $lzb,S as $mzb,U as $nzb};
+`),x=s+o.length-(v+1)+1;try{JSON.parse(decodeURIComponent(r)).forEach(({title:h,description:b})=>i.push({title:h,description:b,range:{startLineNumber:a+1,startColumn:p,endLineNumber:a+u+1,endColumn:x}}))}catch{}e=e.substring(0,s)+o+e.substring(s+t.length)}return{newText:e,vulnerabilities:i}}export{$ as $szb,E as $tzb,N as $uzb,S as $vzb,U as $wzb};

@@ -1,1 +1,1 @@
-import{$9_ as e}from"../../view/viewPart.js";class s extends e{}export{s as $Lbb};
+import{$fab as b}from"../../view/viewPart.js";class r extends b{}export{r as $Ubb};

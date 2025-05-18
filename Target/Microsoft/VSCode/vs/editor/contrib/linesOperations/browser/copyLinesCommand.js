@@ -2,4 +2,4 @@ import{$YB as u}from"../../../common/core/range.js";import{$BC as m}from"../../.
 `);r===""&&this.b&&(this.f++,this.g++),this.c?i.addEditOperation(new u(e.endLineNumber,t.getLineMaxColumn(e.endLineNumber),e.endLineNumber+1,1),e.endLineNumber===t.getLineCount()?"":`
 `):this.b?i.addEditOperation(new u(e.startLineNumber,1,e.startLineNumber,1),r+`
 `):i.addEditOperation(new u(e.endLineNumber,t.getLineMaxColumn(e.endLineNumber),e.endLineNumber,t.getLineMaxColumn(e.endLineNumber)),`
-`+r),this.e=i.trackSelection(e),this.d=this.a.getDirection()}computeCursorState(t,i){let e=i.getTrackedSelection(this.e);if(this.f!==0||this.g!==0){let s=e.startLineNumber,r=e.startColumn,n=e.endLineNumber,o=e.endColumn;this.f!==0&&(s=s+this.f,r=1),this.g!==0&&(n=n+this.g,o=1),e=m.createWithDirection(s,r,n,o,this.d)}return e}}export{d as $7pb};
+`+r),this.e=i.trackSelection(e),this.d=this.a.getDirection()}computeCursorState(t,i){let e=i.getTrackedSelection(this.e);if(this.f!==0||this.g!==0){let s=e.startLineNumber,r=e.startColumn,n=e.endLineNumber,o=e.endColumn;this.f!==0&&(s=s+this.f,r=1),this.g!==0&&(n=n+this.g,o=1),e=m.createWithDirection(s,r,n,o,this.d)}return e}}export{d as $dqb};

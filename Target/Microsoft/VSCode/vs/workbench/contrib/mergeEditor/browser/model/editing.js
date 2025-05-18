@@ -1,4 +1,4 @@
 import{$wb as i}from"../../../../../base/common/arrays.js";import{$YB as r}from"../../../../../editor/common/core/range.js";class w{constructor(e,n){this.range=e,this.newLines=n}equals(e){return this.range.equals(e.range)&&i(this.newLines,e.newLines)}toEdits(e){return new a([this]).toEdits(e)}}class E{constructor(e,n){this.range=e,this.newText=n}equals(e){return r.equalsRange(this.range,e.range)&&this.newText===e.newText}}class a{constructor(e){this.edits=e}toEdits(e){return this.edits.map(n=>n.range.endLineNumberExclusive<=e?{range:new r(n.range.startLineNumber,1,n.range.endLineNumberExclusive,1),text:n.newLines.map(t=>t+`
 `).join("")}:n.range.startLineNumber===1?{range:new r(1,1,e,Number.MAX_SAFE_INTEGER),text:n.newLines.join(`
 `)}:{range:new r(n.range.startLineNumber-1,Number.MAX_SAFE_INTEGER,e,Number.MAX_SAFE_INTEGER),text:n.newLines.map(t=>`
-`+t).join("")})}}export{w as $4Pb,E as $5Pb,a as $6Pb};
+`+t).join("")})}}export{w as $7Pb,E as $8Pb,a as $9Pb};

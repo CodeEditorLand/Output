@@ -3041,6 +3041,9 @@
 			"filtered",
 			"filtered.network"
 		],
+		"vs/platform/mcp/common/mcpGalleryService": [
+			"noReadme"
+		],
 		"vs/platform/menubar/electron-main/menubar": [
 			{
 				"key": "miNewWindow",
@@ -7037,6 +7040,7 @@
 		"vs/workbench/contrib/authentication/browser/authentication.contribution": [
 			"authenticationlabel",
 			"authenticationid",
+			"authenticationMcpAuthorizationServers",
 			"authentication",
 			"authentication.Placeholder",
 			"loading"
@@ -7204,10 +7208,12 @@
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatActions": [
 			"switchChat.confirmPhrase",
+			"interactiveSession.history.clear",
 			"interactiveSession.history.editor",
 			"interactiveSession.history.delete",
 			"chat.history.rename",
 			"currentChatLabel",
+			"interactiveSession.history.title",
 			"interactiveSession.history.pick",
 			"newChatTitle",
 			"upgradeChat",
@@ -7471,6 +7477,7 @@
 			"chat.agent.enabled.description",
 			"mcp.discovery.source",
 			"mpc.discovery.enabled",
+			"mcp.gallery.serviceUrl",
 			"chat.reusablePrompts.config.enabled.title",
 			"chat.reusablePrompts.config.enabled.description",
 			"chat.promptFiles.policy",
@@ -7478,6 +7485,7 @@
 			"chat.instructions.config.locations.description",
 			"chat.reusablePrompts.config.locations.title",
 			"chat.reusablePrompts.config.locations.description",
+			"chat.signInWithAlternateProvider",
 			"chat",
 			"chat",
 			"interactiveSessionConfigurationTitle",
@@ -7876,23 +7884,18 @@
 			"installingCopilot",
 			"copilotSetupSuccess",
 			"copilotSetupError",
-			"maybeLater",
-			"setupWithProvider",
-			"setupWithEnterpriseProvider",
-			"setupWithProviderShort",
-			"signInButton",
-			"useCopilotButton",
+			"continueWithProvider",
+			"continueWithProvider",
+			"signInWithProvider",
+			"continueWithProvider",
+			"continueWithProvider",
+			"signInWithProvider",
+			"setupCopilotButton",
 			"signUp",
 			"signUpFree",
 			"copilotProTitle",
 			"copilotTitle",
 			"copilotFreeTitle",
-			{
-				"key": "headerDialog",
-				"comment": [
-					"{Locked=\"[Copilot]({0})\"}"
-				]
-			},
 			{
 				"key": "settings",
 				"comment": [
@@ -8027,17 +8030,14 @@
 			"chat.moreModels.tooltip",
 			"chat.modelPicker.label"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/attachInstructionsCommand": [
-			"attach-instructions.capitalized.ellipses"
-		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/createPromptCommand": [
 			"workbench.command.instructions.create.location.placeholder",
 			"workbench.command.prompt.create.location.placeholder",
 			"workbench.command.prompts.create.user.enable-sync-notification",
 			"enable.capitalized",
 			"learnMore.capitalized",
-			"commands.new.instructions.local.title",
-			"commands.new.prompt.local.title"
+			"commands.new.prompt.local.title",
+			"commands.new.instructions.local.title"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptName": [
 			"askForInstructionsFileName.placeholder",
@@ -8277,9 +8277,8 @@
 			},
 			"fetchWebPage.pastTenseMessageResult.singular",
 			"fetchWebPage.invocationMessage.singular",
-			"fetchWebPage.confirmationTitle.plural",
 			"fetchWebPage.confirmationTitle.singular",
-			"fetchWebPage.confirmationMessageManageTrustedDomains",
+			"fetchWebPage.confirmationTitle.plural",
 			"fetchWebPage.invalidUrl"
 		],
 		"vs/workbench/contrib/codeActions/browser/codeActionsContribution": [
@@ -10791,7 +10790,8 @@
 			"warningIcon",
 			"infoIcon",
 			"trustIcon",
-			"activationtimeIcon"
+			"activationtimeIcon",
+			"extension.border"
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsQuickAccess": [
 			"type",
@@ -12497,6 +12497,11 @@
 			"problems.view.focus.label",
 			"markers.panel.title.problems"
 		],
+		"vs/workbench/contrib/mcp/browser/mcp.contribution": [
+			"mcpServer",
+			"mcp-installed",
+			"mcp"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpCommands": [
 			"mcp.selectServer",
 			"mcp.addServer",
@@ -12523,7 +12528,8 @@
 			"mcp.command.restartServer",
 			"mcp.command.startServer",
 			"mcp.command.stopServer",
-			"mcp.command.installFromActivation"
+			"mcp.command.installFromActivation",
+			"mcp.command.browse"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"mcp.npm.title",
@@ -12544,6 +12550,7 @@
 			"mcp.serverType.http.description",
 			"mcp.serverType.manual",
 			"mcp.serverType.copilot",
+			"mcp.servers.browse",
 			"mcp.serverType.placeholder",
 			"mcp.command.title",
 			"mcp.command.placeholder",
@@ -12588,6 +12595,52 @@
 			"edit",
 			"clear",
 			"clearAll"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
+			"install",
+			"install",
+			"uninstall",
+			"uninstall",
+			"manage",
+			"start",
+			"start",
+			"stop",
+			"stop",
+			"restart",
+			"restart",
+			"output",
+			"output",
+			"config",
+			"config"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerEditor": [
+			"name",
+			"details",
+			"detailstooltip",
+			"noReadme",
+			"Readme title",
+			"repository",
+			"resources",
+			"Install Info",
+			"id",
+			"Version",
+			"Marketplace Info",
+			"id",
+			"Version",
+			"last released"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerEditorInput": [
+			"extensionsEditorLabelIcon",
+			"extensionsInputName"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServersView": [
+			"mcp servers"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerWidgets": [
+			"publisher",
+			"verified publisher",
+			"install count",
+			"ratedLabel"
 		],
 		"vs/workbench/contrib/mcp/common/discovery/extensionMcpDiscovery": [
 			"invalidData",
@@ -12659,7 +12712,8 @@
 			"mcpstate.stopped",
 			"mcpstate.starting",
 			"mcpstate.running",
-			"mcpstate.error"
+			"mcpstate.error",
+			"mcpServer"
 		],
 		"vs/workbench/contrib/mergeEditor/browser/commands/commands": [
 			"mergeEditor.compareWithBase",
@@ -13933,6 +13987,7 @@
 		],
 		"vs/workbench/contrib/preferences/browser/preferences.contribution": [
 			"settingsEditor2",
+			"preferencesEditor",
 			"keybindingsEditor",
 			{
 				"key": "miOpenSettings",
@@ -14003,7 +14058,13 @@
 			"pickLanguage",
 			"configureLanguageBasedSettings"
 		],
+		"vs/workbench/contrib/preferences/browser/preferencesEditor": [
+			"preferencesTabSwitcherBarAriaLabel",
+			"FullTextSearchPlaceholder",
+			"FullTextSearchPlaceholder"
+		],
 		"vs/workbench/contrib/preferences/browser/preferencesIcons": [
+			"preferencesSashBorder",
 			"settingsScopeDropDownIcon",
 			"settingsMoreActionIcon",
 			"keybindingsRecordKeysIcon",
@@ -15189,7 +15250,11 @@
 			"search.defaultViewMode",
 			"search.quickAccess.preserveInput",
 			"search.experimental.closedNotebookResults",
-			"search.experimental.autoAISearchResults",
+			"search.searchView.semanticSearchBehavior",
+			"search.searchView.semanticSearchBehavior.manual",
+			"search.searchView.semanticSearchBehavior.runOnEmpty",
+			"search.searchView.semanticSearchBehavior.auto",
+			"search.searchView.keywordSuggestions",
 			"search",
 			"search"
 		],
@@ -18963,6 +19028,7 @@
 			"argv.useInMemorySecretStorage",
 			"argv.force-renderer-accessibility",
 			"argv.passwordStore",
+			"argv.enableRDPDisplayTracking",
 			"newTab",
 			"showPreviousTab",
 			"showNextWindowTab",
@@ -20033,7 +20099,9 @@
 		],
 		"vs/workbench/services/preferences/common/preferencesEditorInput": [
 			"settingsEditorLabelIcon",
-			"settingsEditor2InputName"
+			"settingsEditor2InputName",
+			"preferencesEditorLabelIcon",
+			"preferencesEditorInputName"
 		],
 		"vs/workbench/services/preferences/common/preferencesModels": [
 			"commonlyUsed",
@@ -23448,6 +23516,9 @@
 			"Problems are paused because: \"{0}\"",
 			"Problems are paused because: \"{0}\" and {1} more"
 		],
+		"vs/platform/mcp/common/mcpGalleryService": [
+			"No README available"
+		],
 		"vs/platform/menubar/electron-main/menubar": [
 			"New &&Window",
 			"&&File",
@@ -26384,6 +26455,7 @@
 		"vs/workbench/contrib/authentication/browser/authentication.contribution": [
 			"Label",
 			"ID",
+			"MCP Authorization Servers",
 			"Authentication",
 			"No accounts requested yet...",
 			"Loading..."
@@ -26526,10 +26598,12 @@
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatActions": [
 			"Switching chats will end your current edit session.",
+			"Clear All Workspace Chats",
 			"Open in Editor",
 			"Delete",
 			"Rename",
 			"current",
+			"Workspace Chat History",
 			"Switch to chat",
 			"New chat title",
 			"Upgrade Copilot Plan",
@@ -26793,6 +26867,7 @@
 			"Enable agent mode for {0}. When this is enabled, agent mode can be activated via the dropdown in the view.",
 			"Enables discovery of {0} servers",
 			"Configures discovery of Model Context Protocol servers on the machine. It may be set to `true` or `false` to disable or enable all sources, and an mapping sources you wish to enable.",
+			"Configure the MCP Gallery service URL to connect to",
 			"Prompt Files",
 			"Enable reusable prompt (`*{0}`) and instruction files in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).",
 			"Enables reusable prompt and instruction files in Chat, Edits, and Inline Chat sessions.",
@@ -26800,6 +26875,7 @@
 			"Specify location(s) of instructions files (`*{0}`) that can be attached in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Prompt File Locations",
 			"Specify location(s) of reusable prompt files (`*{0}`) that can be run in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
+			"Enable alternative sign-in provider.",
 			"Chat",
 			"Chat",
 			"Chat",
@@ -27173,18 +27249,18 @@
 			"Getting Copilot ready.",
 			"Copilot setup finished successfully.",
 			"Copilot setup failed.",
-			"Maybe Later",
-			"Sign in with a {0} Account",
-			"Sign in with a {0} Account",
-			"Sign in with {0}",
-			"Sign in",
-			"Use Copilot",
+			"Continue with {0}",
+			"Continue with {0}",
+			"Sign in with a {0} account",
+			"Continue with {0}",
+			"Continue with {0}",
+			"Sign in with a {0} account",
+			"Set up Copilot",
 			"Sign in to use Copilot",
 			"Sign in to use Copilot for free",
 			"Start using Copilot Pro",
 			"Start using Copilot",
 			"Start using Copilot for free",
-			"[Copilot]({0}) is your AI pair programmer. Write code faster with completions, fix bugs and build new features across multiple files, and learn about your codebase through chat.",
 			"GitHub Copilot Free, Pro and Pro+ may show [public code]({0}) suggestions and we may use your data for product improvement. You can change these [settings]({1}) at any time.",
 			"Copilot setup failed. Would you like to try again?",
 			"Retry",
@@ -27312,17 +27388,14 @@
 			"Add premium models",
 			"Pick Model"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/attachInstructionsCommand": [
-			"Attach Instructions..."
-		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/createPromptCommand": [
 			"Select a location to create the instructions file in...",
 			"Select a location to create the prompt file in...",
 			"Do you want to backup and sync your user prompt and instruction files with Setting Sync?'",
 			"Enable",
 			"Learn More",
-			"New Instructions File...",
-			"New Prompt File..."
+			"New Prompt File...",
+			"New Instructions File..."
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptName": [
 			"Enter the name of the instructions file",
@@ -27552,9 +27625,8 @@
 			"Fetching [web page]({0})",
 			"Fetched {0}",
 			"Fetching {0}",
-			"Fetch untrusted web pages?",
 			"Fetch untrusted web page?",
-			"You can [manage your trusted domains]({0}) to skip this confirmation in the future.",
+			"Fetch untrusted web pages?",
 			"Invalid URL"
 		],
 		"vs/workbench/contrib/codeActions/browser/codeActionsContribution": [
@@ -29456,7 +29528,8 @@
 			"Icon shown with a warning message in the extensions editor.",
 			"Icon shown with an info message in the extensions editor.",
 			"Icon shown with a workspace trust message in the extension editor.",
-			"Icon shown with a activation time message in the extension editor."
+			"Icon shown with a activation time message in the extension editor.",
+			"The border color of an extension."
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsQuickAccess": [
 			"Type an extension name to install or search.",
@@ -30785,6 +30858,11 @@
 			"Focus Problems (Errors, Warnings, Infos)",
 			"Problems"
 		],
+		"vs/workbench/contrib/mcp/browser/mcp.contribution": [
+			"MCP Server",
+			"MCP Servers - Installed",
+			"MCP Servers"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpCommands": [
 			"Select an MCP Server",
 			"Add Server",
@@ -30811,7 +30889,8 @@
 			"Restart Server",
 			"Start Server",
 			"Stop Server",
-			"Install..."
+			"Install...",
+			"MCP Servers"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"Enter NPM Package Name",
@@ -30832,6 +30911,7 @@
 			"Connect to a remote HTTP server that implements the MCP protocol",
 			"Manual Install",
 			"Model-Assisted",
+			"Browse MCP Servers...",
 			"Choose the type of MCP server to add",
 			"Enter Command",
 			"Command to run (with optional arguments)",
@@ -30876,6 +30956,52 @@
 			"Edit",
 			"Clear",
 			"Clear All"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
+			"Install",
+			"Install",
+			"Uninstall",
+			"Uninstall",
+			"Manage",
+			"Start Server",
+			"Start Server",
+			"Stop Server",
+			"Stop Server",
+			"Restart Server",
+			"Restart Server",
+			"Show Output",
+			"Show Output",
+			"Show Configuration",
+			"Show Configuration"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerEditor": [
+			"Extension name",
+			"Details",
+			"Extension details, rendered from the extension's 'README.md' file",
+			"No README available.",
+			"Readme",
+			"Repository",
+			"Resources",
+			"Installation",
+			"Identifier",
+			"Version",
+			"Marketplace",
+			"Identifier",
+			"Version",
+			"Last Released"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerEditorInput": [
+			"Icon of the extensions editor label.",
+			"Extension: {0}"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServersView": [
+			"MCP Servers"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpServerWidgets": [
+			"Publisher ({0})",
+			"This publisher has verified ownership of {0}",
+			"Install count",
+			"Average rating: {0} out of 5"
 		],
 		"vs/workbench/contrib/mcp/common/discovery/extensionMcpDiscovery": [
 			"Expected an array of MCP collections",
@@ -30947,7 +31073,8 @@
 			"Stopped",
 			"Starting",
 			"Running",
-			"Error {0}"
+			"Error {0}",
+			"Icon used for the MCP server."
 		],
 		"vs/workbench/contrib/mergeEditor/browser/commands/commands": [
 			"Compare With Base",
@@ -32078,6 +32205,7 @@
 		],
 		"vs/workbench/contrib/preferences/browser/preferences.contribution": [
 			"Settings Editor 2",
+			"Preferences Editor",
 			"Keybindings Editor",
 			"&&Settings",
 			"Open Folder Settings",
@@ -32128,7 +32256,13 @@
 			"Select Language",
 			"Configure Language Specific Settings..."
 		],
+		"vs/workbench/contrib/preferences/browser/preferencesEditor": [
+			"Preferences Tab Switcher",
+			"Search {0}",
+			"Search {0}"
+		],
 		"vs/workbench/contrib/preferences/browser/preferencesIcons": [
+			"The color of the Preferences editor splitview sash border.",
 			"Icon for the folder dropdown button in the split JSON Settings editor.",
 			"Icon for the 'more actions' action in the Settings UI.",
 			"Icon for the 'record keys' action in the keybinding UI.",
@@ -33129,7 +33263,11 @@
 			"Controls the default search result view mode.",
 			"Controls whether the last typed input to Quick Search should be restored when opening it the next time.",
 			"Show notebook editor rich content results for closed notebooks. Please refresh your search results after changing this setting.",
-			"Automatically request search results from the AI search provider",
+			"Controls the behavior of the semantic search results displayed in the search view.",
+			"Only request semantic search results manually.",
+			"Request semantic results automatically only when text search results are empty.",
+			"Request semantic results automatically with every search.",
+			"Enable keyword suggestions in the search view.",
 			"Search",
 			"Search"
 		],
@@ -33527,9 +33665,9 @@
 			"The task's label or a term to filter by",
 			"The contributed task type",
 			"The task's label or a term to filter by",
-			"Troubleshoot with Chat",
+			"Fix with Chat",
 			"Show Output",
-			"There are task errors. Use chat to resolve them or view the output for details.",
+			"There are task errors. Use chat to fix them or view the output for details.",
 			"There are task errors. See the output for details.",
 			"The folder {0} is ignored since it uses task version 0.1.0",
 			"Warning: {0} tasks are unavailable in the current environment.",
@@ -36328,7 +36466,7 @@
 			"Hide custom titlebar in full screen. When not in full screen, automatically change custom title bar visibility.",
 			"Hide custom titlebar when {0} is set to `native`.",
 			"Adjust when the custom title bar should be shown. The custom title bar can be hidden when in full screen mode with `windowed`. The custom title bar can only be hidden in non full screen mode with `never` when {0} is set to `native`.",
-			"Adjust the appearance of dialog windows.",
+			"Adjust the appearance of dialogs to be native by the OS or custom.",
 			"Enables macOS Sierra window tabs. Note that changes require a full restart to apply and that native tabs will disable a custom title bar style if configured.",
 			"Controls if native full-screen should be used on macOS. Disable this option to prevent macOS from creating a new space when going full-screen.",
 			"If enabled, clicking on an inactive window will both activate the window and trigger the element under the mouse if it is clickable. If disabled, clicking anywhere on an inactive window will activate it only and a second click is required on the element.",
@@ -36353,6 +36491,7 @@
 			"Ensures that an in-memory store will be used for secret storage instead of using the OS's credential store. This is often used when running VS Code extension tests or when you're experiencing difficulties with the credential store.",
 			"Forces the renderer to be accessible. ONLY change this if you are using a screen reader on Linux. On other platforms the renderer will automatically be accessible. This flag is automatically set if you have editor.accessibilitySupport: on.",
 			"Configures the backend used to store secrets on Linux. This argument is ignored on Windows & macOS.",
+			"Ensures that maximized windows gets restored to correct display during RDP reconnection.",
 			"New Window Tab",
 			"Show Previous Window Tab",
 			"Show Next Window Tab",
@@ -37209,7 +37348,9 @@
 		],
 		"vs/workbench/services/preferences/common/preferencesEditorInput": [
 			"Icon of the settings editor label.",
-			"Settings"
+			"Settings",
+			"Icon of the preferences editor label.",
+			"Preferences"
 		],
 		"vs/workbench/services/preferences/common/preferencesModels": [
 			"Commonly Used",

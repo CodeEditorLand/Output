@@ -1,1 +1,1 @@
-const c=" \u203A ";export{c as $5ic};
+const c=" \u203A ";export{c as $skc};

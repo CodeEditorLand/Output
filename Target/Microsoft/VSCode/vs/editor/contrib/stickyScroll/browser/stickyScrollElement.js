@@ -1,1 +1,1 @@
-class n{constructor(t,s){this.startLineNumber=t,this.endLineNumber=s}}class o{constructor(t,s,r){this.range=t,this.children=s,this.parent=r}}class c{constructor(t,s,r,i){this.uri=t,this.version=s,this.element=r,this.outlineProviderId=i}}export{c as $0nb,n as $8nb,o as $9nb};
+class o{constructor(t,s){this.startLineNumber=t,this.endLineNumber=s}}class n{constructor(t,s,r){this.range=t,this.children=s,this.parent=r}}class c{constructor(t,s,r,i){this.uri=t,this.version=s,this.element=r,this.outlineProviderId=i}}export{o as $eob,n as $fob,c as $gob};

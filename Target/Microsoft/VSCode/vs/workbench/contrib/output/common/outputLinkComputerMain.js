@@ -1,1 +1,1 @@
-import{$xoc as o}from"./outputLinkComputer.js";import{$N9 as m}from"../../../../base/common/worker/webWorkerBootstrap.js";m(o);
+import{$apc as m}from"./outputLinkComputer.js";import{$W9 as o}from"../../../../base/common/worker/webWorkerBootstrap.js";o(m);

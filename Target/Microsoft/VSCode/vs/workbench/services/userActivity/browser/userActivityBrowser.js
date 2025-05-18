@@ -1,1 +1,1 @@
-import{$q7b as m}from"./domActivityTracker.js";import{$PZb as o}from"../common/userActivityRegistry.js";o.add(m);
+import{$H7b as m}from"./domActivityTracker.js";import{$6Zb as o}from"../common/userActivityRegistry.js";o.add(m);

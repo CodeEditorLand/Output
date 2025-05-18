@@ -1,1 +1,1 @@
-import{localize as s}from"../../../../../../../nls.js";class o extends Error{}class c extends o{constructor(r){super(s(5456,null,r))}}class l extends o{constructor(r){super(s(5457,null,r))}}export{c as $eec,l as $fec};
+import{localize as s}from"../../../../../../../nls.js";class o extends Error{}class c extends o{constructor(r){super(s(5461,null,r))}}class l extends o{constructor(r){super(s(5462,null,r))}}export{c as $Bec,l as $Cec};

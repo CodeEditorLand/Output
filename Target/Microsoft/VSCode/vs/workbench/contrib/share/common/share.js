@@ -1,1 +1,1 @@
-import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("shareService");export{o as $Y2b};
+import{$fj as r}from"../../../../platform/instantiation/common/instantiation.js";const o=r("shareService");export{o as $82b};

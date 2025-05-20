@@ -1,1 +1,1 @@
-import{$ej as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("ILanguageDetectionService"),a="languageDetection",n="automaticlanguagedetection.likelywrong",c="automaticlanguagedetection.stats";export{o as $aF,a as $bF,n as $cF,c as $dF};
+import{$fj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("ILanguageDetectionService"),a="languageDetection",n="automaticlanguagedetection.likelywrong",c="automaticlanguagedetection.stats";export{o as $bF,a as $cF,n as $dF,c as $eF};

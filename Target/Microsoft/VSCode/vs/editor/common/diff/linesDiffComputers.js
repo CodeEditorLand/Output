@@ -1,1 +1,1 @@
-import{$EL as e}from"./legacyLinesDiffComputer.js";import{$Edb as t}from"./defaultLinesDiffComputer/defaultLinesDiffComputer.js";const m={getLegacy:()=>new e,getDefault:()=>new t};export{m as $Fdb};
+import{$FL as e}from"./legacyLinesDiffComputer.js";import{$Mdb as t}from"./defaultLinesDiffComputer/defaultLinesDiffComputer.js";const m={getLegacy:()=>new e,getDefault:()=>new t};export{m as $Ndb};

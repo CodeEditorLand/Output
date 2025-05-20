@@ -1,1 +1,1 @@
-import{$ej as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("mcpRegistry");export{t as $dV};
+import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("mcpRegistry");export{t as $eV};

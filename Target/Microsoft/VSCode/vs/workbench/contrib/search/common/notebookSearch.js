@@ -1,1 +1,1 @@
-import{$ej as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("notebookSearchService");export{r as $hbc};
+import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("notebookSearchService");export{r as $wbc};

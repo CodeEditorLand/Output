@@ -1,1 +1,1 @@
-import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("paneCompositePartService");export{r as $hwb};
+import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";const p=o("paneCompositePartService");export{p as $pwb};

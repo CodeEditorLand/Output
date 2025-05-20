@@ -1,1 +1,1 @@
-import{$ej as e}from"../../instantiation/common/instantiation.js";const o=e("canonicalUriIdentityService");export{o as $m1b};
+import{$fj as i}from"../../instantiation/common/instantiation.js";const r=i("canonicalUriIdentityService");export{r as $v1b};

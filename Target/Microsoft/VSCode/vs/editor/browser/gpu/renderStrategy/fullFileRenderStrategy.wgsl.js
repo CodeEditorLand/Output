@@ -1,4 +1,4 @@
-import{$Hab as e}from"../atlas/textureAtlas.js";import{$Gab as t}from"../atlas/textureAtlasPage.js";const i=`
+import{$Pab as e}from"../atlas/textureAtlas.js";import{$Oab as t}from"../atlas/textureAtlasPage.js";const i=`
 struct GlyphInfo {
 	position: vec2f,
 	size: vec2f,
@@ -81,4 +81,4 @@ struct VSOutput {
 @fragment fn fs(vsOut: VSOutput) -> @location(0) vec4f {
 	return textureSample(ourTexture, ourSampler, vsOut.texcoord, u32(vsOut.layerIndex));
 }
-`;export{i as $Qab};
+`;export{i as $Yab};

@@ -1,1 +1,1 @@
-import{$ej as t}from"../../../platform/instantiation/common/instantiation.js";const e=t("IExtHostInitDataService");export{e as $c1};
+import{$fj as t}from"../../../platform/instantiation/common/instantiation.js";const r=t("IExtHostInitDataService");export{r as $d1};

@@ -1,1 +1,1 @@
-import{$Whb as a}from"../colorDetector.js";function r(e){const t=e.target;return!!t&&t.type===6&&t.detail.injectedText?.options.attachedData===a}export{r as $Tlb};
+import{$5hb as a}from"../colorDetector.js";function r(e){const t=e.target;return!!t&&t.type===6&&t.detail.injectedText?.options.attachedData===a}export{r as $2lb};

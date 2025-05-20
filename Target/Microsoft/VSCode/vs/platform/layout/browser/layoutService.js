@@ -1,1 +1,1 @@
-import{$ej as o}from"../../instantiation/common/instantiation.js";const r=o("layoutService");export{r as $kgb};
+import{$fj as o}from"../../instantiation/common/instantiation.js";const t=o("layoutService");export{t as $sgb};

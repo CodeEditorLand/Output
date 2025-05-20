@@ -1,1 +1,1 @@
-import{$YB as n}from"../../../../../editor/common/core/range.js";function r(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{r as $yac};
+import{$ZB as n}from"../../../../../editor/common/core/range.js";function r(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{r as $Nac};

@@ -1,1 +1,1 @@
-import{$ej as o}from"../../instantiation/common/instantiation.js";const e="signService",t=o(e);export{e as $Rx,t as $Sx};
+import{$fj as o}from"../../instantiation/common/instantiation.js";const r="signService",e=o(r);export{r as $Sx,e as $Tx};

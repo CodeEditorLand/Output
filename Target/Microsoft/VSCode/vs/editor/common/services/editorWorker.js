@@ -1,1 +1,1 @@
-import{$ej as r}from"../../../platform/instantiation/common/instantiation.js";const o=r("editorWorkerService");export{o as $Pdb};
+import{$fj as r}from"../../../platform/instantiation/common/instantiation.js";const e=r("editorWorkerService");export{e as $Xdb};

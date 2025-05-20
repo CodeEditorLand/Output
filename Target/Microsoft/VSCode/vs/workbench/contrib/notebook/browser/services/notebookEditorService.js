@@ -1,1 +1,1 @@
-import{$ej as o}from"../../../../../platform/instantiation/common/instantiation.js";const t=o("INotebookEditorWidgetService");export{t as $Fyb};
+import{$fj as o}from"../../../../../platform/instantiation/common/instantiation.js";const e=o("INotebookEditorWidgetService");export{e as $Nyb};

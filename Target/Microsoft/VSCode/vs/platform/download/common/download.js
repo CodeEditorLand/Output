@@ -1,1 +1,1 @@
-import{$ej as o}from"../../instantiation/common/instantiation.js";const r=o("downloadService");export{r as $L1};
+import{$fj as o}from"../../instantiation/common/instantiation.js";const e=o("downloadService");export{e as $M1};

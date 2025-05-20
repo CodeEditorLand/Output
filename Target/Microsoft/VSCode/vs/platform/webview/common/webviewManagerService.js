@@ -1,1 +1,1 @@
-import{$ej as e}from"../../instantiation/common/instantiation.js";const o=e("webviewManagerService");export{o as $ey};
+import{$fj as e}from"../../instantiation/common/instantiation.js";const o=e("webviewManagerService");export{o as $fy};

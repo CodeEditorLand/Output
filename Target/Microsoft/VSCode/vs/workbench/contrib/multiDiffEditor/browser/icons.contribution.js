@@ -1,1 +1,1 @@
-import{$Dj as o}from"../../../../base/common/codicons.js";import{localize as i}from"../../../../nls.js";import{$rt as l}from"../../../../platform/theme/common/iconRegistry.js";const m=l("multi-diff-editor-label-icon",o.diffMultiple,i(8755,null));export{m as $4Wb};
+import{$Ej as o}from"../../../../base/common/codicons.js";import{localize as i}from"../../../../nls.js";import{$st as l}from"../../../../platform/theme/common/iconRegistry.js";const m=l("multi-diff-editor-label-icon",o.diffMultiple,i(8808,null));export{m as $aXb};

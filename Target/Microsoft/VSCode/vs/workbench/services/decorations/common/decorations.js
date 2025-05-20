@@ -1,1 +1,1 @@
-import{$ej as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("IFileDecorationsService");export{r as $zBb};
+import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("IFileDecorationsService");export{r as $HBb};

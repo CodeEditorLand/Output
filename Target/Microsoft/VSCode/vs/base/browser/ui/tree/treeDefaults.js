@@ -1,1 +1,1 @@
-import{$2l as e}from"../../../common/actions.js";import*as t from"../../../../nls.js";class c extends e{constructor(s,l){super("vs.tree.collapse",t.localize(43,null),"collapse-all",l),this.a=s}async run(){this.a.collapseAll(),this.a.setSelection([]),this.a.setFocus([])}}export{c as $s9};
+import{$3l as t}from"../../../common/actions.js";import*as e from"../../../../nls.js";class c extends t{constructor(s,l){super("vs.tree.collapse",e.localize(43,null),"collapse-all",l),this.a=s}async run(){this.a.collapseAll(),this.a.setSelection([]),this.a.setFocus([])}}export{c as $t9};

@@ -1,1 +1,1 @@
-class i{static{this.count=0}constructor(t){this._proxyIdentifierBrand=void 0,this.sid=t,this.nid=++i.count}}const s=[];function r(n){const t=new i(n);return s[t.nid]=t,t}function e(n){return s[n].sid}class o{constructor(t){this.value=t}}export{o as $1V,i as $XV,r as $YV,e as $ZV};
+class i{static{this.count=0}constructor(t){this._proxyIdentifierBrand=void 0,this.sid=t,this.nid=++i.count}}const s=[];function r(n){const t=new i(n);return s[t.nid]=t,t}function e(n){return s[n].sid}class o{constructor(t){this.value=t}}export{e as $1V,o as $2V,i as $YV,r as $ZV};

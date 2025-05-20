@@ -1,1 +1,1 @@
-import{$nT as o}from"../../common/testId.js";function c(t,n){n instanceof o||(n=o.fromString(n));let r=t;for(const e of n.path){if(!r.children?.hasOwnProperty(e))return;r=r.children[e]}return r.collapsed}export{c as $nkc};
+import{$oT as e}from"../../common/testId.js";function c(t,r){r instanceof e||(r=e.fromString(r));let n=t;for(const o of r.path){if(!n.children?.hasOwnProperty(o))return;n=n.children[o]}return n.collapsed}export{c as $Fkc};

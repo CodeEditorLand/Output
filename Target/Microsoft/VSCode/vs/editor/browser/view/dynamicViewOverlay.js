@@ -1,1 +1,1 @@
-import{$L$ as o}from"../../common/viewEventHandler.js";class s extends o{}export{s as $obb};
+import{$R$ as e}from"../../common/viewEventHandler.js";class s extends e{}export{s as $ubb};

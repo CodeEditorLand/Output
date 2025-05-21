@@ -1,1 +1,1 @@
-import{$Xec as a}from"./attachInstructions.js";import{$nec as n}from"../../../../../../common/promptSyntax/service/promptsService.js";const r=async(c,e)=>{const t=await a(e);return t.setInput(`/${n(c.path)}`),await t.acceptInput(),{widget:t}};export{r as $9ec};
+import{$6ec as a}from"./attachInstructions.js";import{$vec as o}from"../../../../../../common/promptSyntax/service/promptsService.js";const n=async(c,e)=>{const t=await a(e);return t.setInput(`/${o(c.path)}`),await t.acceptInput(),{widget:t}};export{n as $efc};

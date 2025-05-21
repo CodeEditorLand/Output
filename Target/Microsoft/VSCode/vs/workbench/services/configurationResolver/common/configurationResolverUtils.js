@@ -1,1 +1,1 @@
-import*as n from"../../../../nls.js";function t(r){r.pattern=r.pattern||"^(?!.*\\$\\{(env|config|command)\\.)",r.patternErrorMessage=r.patternErrorMessage||n.localize(13617,null)}export{t as $Anc};
+import*as n from"../../../../nls.js";function t(r){r.pattern=r.pattern||"^(?!.*\\$\\{(env|config|command)\\.)",r.patternErrorMessage=r.patternErrorMessage||n.localize(13637,null)}export{t as $Jnc};

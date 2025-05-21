@@ -1,1 +1,1 @@
-import{$eb as o}from"../common/errors.js";function u(r,t){const n=globalThis.MonacoEnvironment;if(n?.createTrustedTypesPolicy)try{return n.createTrustedTypesPolicy(r,t)}catch(e){o(e);return}try{return globalThis.trustedTypes?.createPolicy(r,t)}catch(e){o(e);return}}export{u as $N7};
+import{$eb as o}from"../common/errors.js";function u(r,t){const n=globalThis.MonacoEnvironment;if(n?.createTrustedTypesPolicy)try{return n.createTrustedTypesPolicy(r,t)}catch(e){o(e);return}try{return globalThis.trustedTypes?.createPolicy(r,t)}catch(e){o(e);return}}export{u as $T7};

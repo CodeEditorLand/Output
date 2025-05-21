@@ -1,1 +1,1 @@
-function e(n){const t=n;return typeof t=="object"&&"markdown"in t&&"markdownNotSupportedFallback"in t}function o(n){const t=n;return typeof t=="object"&&"element"in t}export{e as $t6,o as $u6};
+function e(n){const t=n;return typeof t=="object"&&"markdown"in t&&"markdownNotSupportedFallback"in t}function o(n){const t=n;return typeof t=="object"&&"element"in t}export{o as $A6,e as $z6};

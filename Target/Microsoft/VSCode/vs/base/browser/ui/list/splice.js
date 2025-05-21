@@ -1,1 +1,1 @@
-class o{constructor(s){this.a=s}splice(s,c,t){this.a.forEach(a=>a.splice(s,c,t))}}export{o as $T6};
+class o{constructor(s){this.a=s}splice(s,c,t){this.a.forEach(a=>a.splice(s,c,t))}}export{o as $Z6};

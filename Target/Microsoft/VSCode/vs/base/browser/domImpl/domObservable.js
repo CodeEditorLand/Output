@@ -1,1 +1,1 @@
-import{$sd as e}from"../../common/lifecycle.js";import{autorun as d}from"../../common/observable.js";import{$n4 as m}from"../domStylesheets.js";function i(r){const o=new e,t=o.add(m());return o.add(d(n=>{t.setStyle(r.read(n))})),o}export{i as $s4};
+import{$sd as n}from"../../common/lifecycle.js";import{autorun as d}from"../../common/observable.js";import{$s4 as m}from"../domStylesheets.js";function i(r){const o=new n,t=o.add(m());return o.add(d(e=>{t.setStyle(r.read(e))})),o}export{i as $x4};

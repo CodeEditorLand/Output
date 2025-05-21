@@ -1,1 +1,1 @@
-import{$fj as e}from"../../instantiation/common/instantiation.js";const o=e("keybindingService");export{o as $gx};
+import{$fj as i}from"../../instantiation/common/instantiation.js";const o=i("keybindingService");export{o as $ix};

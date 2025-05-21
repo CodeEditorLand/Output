@@ -1,1 +1,1 @@
-import{$xP as e}from"./simpleToken.js";class t extends e{static{this.symbol=" "}get text(){return t.symbol}toString(){return`space${this.range}`}}export{t as $GP};
+import{$HP as e}from"./simpleToken.js";class t extends e{static{this.symbol=" "}get text(){return t.symbol}toString(){return`space${this.range}`}}export{t as $QP};

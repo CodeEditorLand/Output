@@ -1,1 +1,1 @@
-import{$IB as t}from"../../../../platform/instantiation/common/extensions.js";import{$_fc as o}from"./browserElementsService.js";class n{constructor(){}async getElementData(e,r){throw new Error("Not implemented")}startDebugSession(e,r){throw new Error("Not implemented")}}t(o,n,1);
+import{$KB as t}from"../../../../platform/instantiation/common/extensions.js";import{$hgc as o}from"./browserElementsService.js";class n{constructor(){}async getElementData(e,r){throw new Error("Not implemented")}startDebugSession(e,r){throw new Error("Not implemented")}}t(o,n,1);

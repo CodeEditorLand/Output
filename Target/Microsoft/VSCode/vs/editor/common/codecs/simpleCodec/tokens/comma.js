@@ -1,1 +1,1 @@
-import{$xP as r}from"./simpleToken.js";class t extends r{static{this.symbol=","}get text(){return t.symbol}toString(){return`comma${this.range}`}}export{t as $HP};
+import{$HP as r}from"./simpleToken.js";class t extends r{static{this.symbol=","}get text(){return t.symbol}toString(){return`comma${this.range}`}}export{t as $RP};

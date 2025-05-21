@@ -1,1 +1,1 @@
-import{$xP as r}from"./simpleToken.js";class t extends r{static{this.symbol=":"}get text(){return t.symbol}toString(){return`colon${this.range}`}}export{t as $DP};
+import{$HP as r}from"./simpleToken.js";class t extends r{static{this.symbol=":"}get text(){return t.symbol}toString(){return`colon${this.range}`}}export{t as $NP};

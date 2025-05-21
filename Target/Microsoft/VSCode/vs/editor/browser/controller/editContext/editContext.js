@@ -1,1 +1,1 @@
-import{$nab as b}from"../../view/viewPart.js";class r extends b{}export{r as $3bb};
+import{$tab as t}from"../../view/viewPart.js";class o extends t{}export{o as $9bb};

@@ -1,1 +1,1 @@
-const o="comments";export{o as $iSb};
+const o="comments";export{o as $XSb};

@@ -2517,7 +2517,9 @@
 			"accessibilitySignals.editsKept",
 			"accessibility.signals.editsKept",
 			"accessibilitySignals.editsUndone",
-			"accessibility.signals.editsUndone"
+			"accessibility.signals.editsUndone",
+			"accessibilitySignals.chatUserActionRequired",
+			"accessibility.signals.chatUserActionRequired"
 		],
 		"vs/platform/action/common/actionCommonCategories": [
 			"view",
@@ -6926,6 +6928,12 @@
 			"accessibility.signals.format.announcement.userGesture",
 			"accessibility.signals.format.announcement.always",
 			"accessibility.signals.format.announcement.never",
+			"accessibility.signals.chatUserActionRequired",
+			"accessibility.signals.chatUserActionRequired.sound",
+			"sound.enabled.autoWindow",
+			"sound.enabled.on",
+			"sound.enabled.off",
+			"accessibility.signals.chatUserActionRequired.announcement",
 			"accessibility.underlineLinks",
 			"accessibility.debugWatchVariableAnnouncements",
 			"accessibility.replEditor.readLastExecutedOutput",
@@ -7795,7 +7803,9 @@
 			"chat.expandOverlay",
 			"elementSelectionInProgress",
 			"elementSelectionComplete",
-			"elementCancelMessage"
+			"elementCancelMessage",
+			"connectingWebviewElement",
+			"reopenErrorWebviewElement"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditorInput": [
 			"chatEditorLabelIcon",
@@ -8036,8 +8046,7 @@
 			"editsMessage",
 			"editsTitle",
 			"agentMessage",
-			"input.1",
-			"input.N"
+			"input.1"
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"chat.codeBlockHelp",
@@ -8229,10 +8238,10 @@
 			"prompt.header.metadata.string.diagnostics.invalid-language",
 			"prompt.header.metadata.applyTo.diagnostics.non-valid-glob"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/mode": [
-			"prompt.header.metadata.mode.diagnostics.invalid-value"
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/enum": [
+			"prompt.header.metadata.enum.diagnostics.invalid-value"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/record": [
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/string": [
 			"prompt.header.metadata.string.diagnostics.invalid-value-type"
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/tools": [
@@ -15044,6 +15053,7 @@
 			"open in external terminal",
 			"open in integrated terminal",
 			"quickDiffDecoration",
+			"scmHistoryItemChatContext",
 			"source control",
 			"scmRepositories",
 			"scmChanges",
@@ -15093,7 +15103,9 @@
 		"vs/workbench/contrib/scm/browser/scmHistoryChatContext": [
 			"chatContext.scmHistoryItems",
 			"chatContext.scmHistoryItems.placeholder",
-			"files"
+			"files",
+			"chat.action.scmHistoryItemContext",
+			"chat.action.scmHistoryItemSummarize"
 		],
 		"vs/workbench/contrib/scm/browser/scmHistoryViewPane": [
 			"all",
@@ -15107,13 +15119,6 @@
 			"openChanges",
 			"historyItemChangesEditorTitle",
 			"openFile",
-			"emailLinkTitle",
-			"fileChanged",
-			"filesChanged",
-			"insertion",
-			"insertions",
-			"deletion",
-			"deletions",
 			"loadMore",
 			"scm history",
 			"auto",
@@ -15155,6 +15160,15 @@
 		],
 		"vs/workbench/contrib/scm/browser/scmViewService": [
 			"auto"
+		],
+		"vs/workbench/contrib/scm/browser/util": [
+			"emailLinkTitle",
+			"fileChanged",
+			"filesChanged",
+			"insertion",
+			"insertions",
+			"deletion",
+			"deletions"
 		],
 		"vs/workbench/contrib/scm/common/quickDiff": [
 			"editorGutterModifiedBackground",
@@ -19080,6 +19094,14 @@
 			"window.customTitleBarVisibility.windowed",
 			"window.customTitleBarVisibility.never",
 			"window.customTitleBarVisibility",
+			"window.menuStyle.custom.mac",
+			"window.menuStyle.native.mac",
+			"window.menuStyle.inherit.mac",
+			"window.menuStyle.custom",
+			"window.menuStyle.native",
+			"window.menuStyle.inherit",
+			"window.menuStyle.mac",
+			"window.menuStyle",
 			"dialogStyle",
 			"window.nativeTabs",
 			"window.nativeFullScreen",
@@ -23177,7 +23199,9 @@
 			"Edits Kept",
 			"Edits Kept",
 			"Undo Edits",
-			"Edits Undone"
+			"Edits Undone",
+			"Chat User Action Required",
+			"Chat User Action Required"
 		],
 		"vs/platform/action/common/actionCommonCategories": [
 			"View",
@@ -25728,7 +25752,7 @@
 			"&&Terminal",
 			"&&Help",
 			"Preferences",
-			"Accessibility support is enabled for you. For the most accessible experience, we recommend the custom title bar style.",
+			"Accessibility support is enabled for you. For the most accessible experience, we recommend the custom menu style.",
 			"Open Settings",
 			"Check for &&Updates...",
 			"Checking for Updates...",
@@ -26017,7 +26041,7 @@
 			"Menu is hidden but can be displayed at the top of the window via the Alt key.",
 			"Menu is always hidden.",
 			"Menu is displayed as a compact button in the side bar.",
-			"Menu is displayed as a compact button in the side bar. This value is ignored when {0} is {1}.",
+			"Menu is displayed as a compact button in the side bar. This value is ignored when {0} is {1} and {2} is either {3} or {4}.",
 			"Control the visibility of the menu bar. A setting of 'toggle' means that the menu bar is hidden and executing `Focus Application Menu` will show it. A setting of 'compact' will move the menu into the side bar.",
 			"Control the visibility of the menu bar. A setting of 'toggle' means that the menu bar is hidden and a single press of the Alt key will show it. A setting of 'compact' will move the menu into the side bar.",
 			"Controls whether the main menus can be opened via Alt-key shortcuts. Disabling mnemonics allows to bind these Alt-key shortcuts to editor commands instead.",
@@ -26459,6 +26483,12 @@
 			"Announces when a user explicitly formats a file.",
 			"Announces whenever a file is formatted, including if it is set to format on save, type, or, paste, or run of a cell.",
 			"Never announces.",
+			"Plays a signal - sound (audio cue) and/or announcement (alert) - when user action is required in the chat. Note that {0} will impact the `auto` behavior of this setting.",
+			"Plays a sound when user action is required in the chat.",
+			"Enable sound when a screen reader is attached or when the current window is not focused.",
+			"Enable sound.",
+			"Disable sound.",
+			"Announces when a user action is required in the chat - including information about the action and how to take it.",
 			"Controls whether links should be underlined in the workbench.",
 			"Controls whether variable changes should be announced in the debug watch view.",
 			"Controls whether the output from an execution in the native REPL will be announced.",
@@ -27033,8 +27063,8 @@
 			"Choose a file in the workspace"
 		],
 		"vs/workbench/contrib/chat/browser/chatAccessibilityProvider": [
-			"Action required to confirm tool action: {0}. Press {1} to accept or {2} to cancel.",
-			"Action required to confirm tool action: {0}",
+			"Chat confirmation required: {0}. Press {1} to accept or {2} to cancel.",
+			"Chat confirmation required: {0}",
 			"Chat",
 			"Tool {0} completed.",
 			"1 table ",
@@ -27288,7 +27318,9 @@
 			"Expand Overlay",
 			"Selecting element...",
 			"Element added to chat",
-			"Selection canceled"
+			"Selection canceled",
+			"Connecting to webview...",
+			"Please reopen the preview."
 		],
 		"vs/workbench/contrib/chat/browser/chatEditorInput": [
 			"Icon of the chat editor label.",
@@ -27497,8 +27529,7 @@
 			"Start your editing session by defining a set of files that you want to work with. Then ask Copilot for the changes you want to make.",
 			"Edit with Copilot",
 			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors.",
-			"Follow instructions from ${0}.",
-			"Follow instructions from the prompt files."
+			"Follow instructions from {0}."
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"Code block",
@@ -27690,15 +27721,15 @@
 			"The '{0}' metadata record is only valid in instruction files.",
 			"Invalid glob pattern '{0}'."
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/mode": [
-			"Value of the '{0}' metadata must be one of ({1}), got '{2}'."
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/enum": [
+			"Value of the '{0}' metadata must be one of {1}, got '{2}'."
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/record": [
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/string": [
 			"Value of the '{0}' metadata must be '{1}', got '{2}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/tools": [
-			"Value of the '{0}' metadata must be '{1}', got '{2}'.",
-			"Expected a tool name ({0}), got '{1}'.",
+			"Value of the '{0}' metadata must be an array of strings, got '{2}'.",
+			"Unexpected tool name '{0}', expected '{1}'.",
 			"Tool name cannot be empty.",
 			"Duplicate tool name '{0}'."
 		],
@@ -33195,6 +33226,7 @@
 			"Open in External Terminal",
 			"Open in Integrated Terminal",
 			"Diff Decorations",
+			"Copilot",
 			"Source Control",
 			"Repositories",
 			"Changes",
@@ -33242,9 +33274,11 @@
 			"Source control graph foreground color (5)."
 		],
 		"vs/workbench/contrib/scm/browser/scmHistoryChatContext": [
-			"Source Control History Items...",
-			"Select a source control history item",
-			"file(s)"
+			"Source Control...",
+			"Select a change",
+			"file(s)",
+			"Add History Item to Chat",
+			"Summarize History Item"
 		],
 		"vs/workbench/contrib/scm/browser/scmHistoryViewPane": [
 			"All",
@@ -33258,13 +33292,6 @@
 			"Open Changes",
 			"All Changes ({0} ↔ {1})",
 			"Open File",
-			"Email",
-			"{0} file changed",
-			"{0} files changed",
-			"{0} insertion{1}",
-			"{0} insertions{1}",
-			"{0} deletion{1}",
-			"{0} deletions{1}",
 			"{0} Load More...",
 			"Source Control History",
 			"Auto",
@@ -33306,6 +33333,15 @@
 		],
 		"vs/workbench/contrib/scm/browser/scmViewService": [
 			"Auto"
+		],
+		"vs/workbench/contrib/scm/browser/util": [
+			"Email",
+			"{0} file changed",
+			"{0} files changed",
+			"{0} insertion{1}",
+			"{0} insertions{1}",
+			"{0} deletion{1}",
+			"{0} deletions{1}"
 		],
 		"vs/workbench/contrib/scm/common/quickDiff": [
 			"Editor gutter background color for lines that are modified.",
@@ -36640,12 +36676,20 @@
 			"Controls the dimensions of opening a new window when at least one window is already opened. Note that this setting does not have an impact on the first window that is opened. The first window will always restore the size and location as you left it before closing.",
 			"Controls whether closing the last editor should also close the window. This setting only applies for windows that do not show folders.",
 			"If enabled, this setting will close the window when the application icon in the title bar is double-clicked. The window will not be able to be dragged by the icon. This setting is effective only if {0} is set to `custom`.",
-			"Adjust the appearance of the window title bar to be native by the OS or custom. On Linux and Windows, this setting also affects the application and context menu appearances. Changes require a full restart to apply.",
+			"Adjust the appearance of the window title bar to be native by the OS or custom. Changes require a full restart to apply.",
 			"Adjust the appearance of the window controls to be native by the OS, custom drawn or hidden. Changes require a full restart to apply.",
 			"Automatically changes custom title bar visibility.",
 			"Hide custom titlebar in full screen. When not in full screen, automatically change custom title bar visibility.",
 			"Hide custom titlebar when {0} is set to `native`.",
 			"Adjust when the custom title bar should be shown. The custom title bar can be hidden when in full screen mode with `windowed`. The custom title bar can only be hidden in non full screen mode with `never` when {0} is set to `native`.",
+			"Use the custom context menu.",
+			"Use the native context menu.",
+			"Matches the context menu style to the title bar style defined in {0}.",
+			"Use the custom menu.",
+			"Use the native menu. This is ignored when {0} is set to {1}.",
+			"Matches the menu style to the title bar style defined in {0}.",
+			"Adjust the context menu appearances to either be native by the OS, custom, or inherited from the title bar style defined in {0}.",
+			"Adjust the menu style to either be native by the OS, custom, or inherited from the title bar style defined in {0}. This also affects the context menu appearance. Changes require a full restart to apply.",
 			"Adjust the appearance of dialogs to be native by the OS or custom.",
 			"Enables macOS Sierra window tabs. Note that changes require a full restart to apply and that native tabs will disable a custom title bar style if configured.",
 			"Controls if native full-screen should be used on macOS. Disable this option to prevent macOS from creating a new space when going full-screen.",

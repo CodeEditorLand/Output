@@ -23,7 +23,7 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 			drop: On ? [] : ["debugger", "console"],
 
 			define: {
-				"__DEV__": On ? "true" : "false",
+				__DEV__: On ? "true" : "false",
 			},
 
 			treeShaking: true,
@@ -40,7 +40,7 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 				]);
 
 				const _Map: Record<string, string> = {
-					"ios_saf": "ios",
+					ios_saf: "ios",
 				};
 
 				for (const _Browser of Browser) {

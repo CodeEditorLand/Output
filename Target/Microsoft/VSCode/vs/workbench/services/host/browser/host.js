@@ -1,1 +1,1 @@
-import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("hostService");export{t as $70};
+import{$mj as o}from"../../../../platform/instantiation/common/instantiation.js";const t=o("hostService");export{t as $z$};

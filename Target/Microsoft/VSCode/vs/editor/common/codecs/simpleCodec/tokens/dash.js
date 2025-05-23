@@ -1,1 +1,1 @@
-import{$HP as r}from"./simpleToken.js";class t extends r{static{this.symbol="-"}get text(){return t.symbol}toString(){return`dash${this.range}`}}export{t as $KP};
+import{$5P as r}from"./simpleToken.js";class t extends r{static{this.symbol="-"}get text(){return t.symbol}toString(){return`dash${this.range}`}}export{t as $9P};

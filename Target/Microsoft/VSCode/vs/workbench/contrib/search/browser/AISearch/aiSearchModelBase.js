@@ -1,1 +1,1 @@
-import{$2B as n}from"../../../../../editor/common/core/range.js";function r(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{r as $Vac};
+import{$0B as n}from"../../../../../editor/common/core/range.js";function r(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{r as $Bbc};

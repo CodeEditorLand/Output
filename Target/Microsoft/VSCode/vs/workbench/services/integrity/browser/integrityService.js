@@ -1,1 +1,1 @@
-import{$Ayc as r}from"../common/integrity.js";import{$KB as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $Byc};
+import{$rzc as r}from"../common/integrity.js";import{$SB as o}from"../../../../platform/instantiation/common/extensions.js";class s{async isPure(){return{isPure:!0,proof:[]}}}o(r,s,1);export{s as $szc};

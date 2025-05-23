@@ -1,1 +1,1 @@
-import{$KB as m}from"../../../../platform/instantiation/common/extensions.js";import{$2xb as o}from"./webview.js";import{$CAc as r}from"./webviewService.js";m(o,r,1);
+import{$SB as m}from"../../../../platform/instantiation/common/extensions.js";import{$wyb as o}from"./webview.js";import{$tBc as r}from"./webviewService.js";m(o,r,1);

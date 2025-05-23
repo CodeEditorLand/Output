@@ -1,1 +1,1 @@
-import{$9nb as m}from"../../../../platform/observable/common/wrapInHotClass.js";import{$BK as r}from"../../../common/contributions.js";import{$7wc as o}from"./inlineCompletionLanguageStatusBarContribution.js";r(o.Id,m(o.hot),4);
+import{$Cob as m}from"../../../../platform/observable/common/wrapInHotClass.js";import{$JK as r}from"../../../common/contributions.js";import{$Xxc as o}from"./inlineCompletionLanguageStatusBarContribution.js";r(o.Id,m(o.hot),4);

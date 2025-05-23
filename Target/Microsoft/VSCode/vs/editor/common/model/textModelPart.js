@@ -1,1 +1,1 @@
-import{$td as s}from"../../../base/common/lifecycle.js";class t extends s{constructor(){super(...arguments),this.f=!1}dispose(){super.dispose(),this.f=!0}g(){if(this.f)throw new Error("TextModelPart is disposed!")}}export{t as $FG};
+import{$td as s}from"../../../base/common/lifecycle.js";class t extends s{constructor(){super(...arguments),this.f=!1}dispose(){super.dispose(),this.f=!0}g(){if(this.f)throw new Error("TextModelPart is disposed!")}}export{t as $NG};

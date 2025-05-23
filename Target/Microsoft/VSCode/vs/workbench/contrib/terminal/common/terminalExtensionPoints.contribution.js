@@ -1,1 +1,1 @@
-import{$KB as m}from"../../../../platform/instantiation/common/extensions.js";import{$Kqc as o,$Lqc as r}from"./terminalExtensionPoints.js";m(o,r,1);
+import{$SB as r}from"../../../../platform/instantiation/common/extensions.js";import{$urc as m,$vrc as o}from"./terminalExtensionPoints.js";r(m,o,1);

@@ -1,1 +1,1 @@
-import{$fj as r}from"../../instantiation/common/instantiation.js";const i=r("mainProcessService");class a{constructor(e,t){this.a=e,this.b=t}getChannel(e){return this.a.getChannel(e,this.b)}registerChannel(e,t){this.a.registerChannel(e,t)}}export{i as $$Ac,a as $_Ac};
+import{$mj as r}from"../../instantiation/common/instantiation.js";const i=r("mainProcessService");class a{constructor(e,t){this.a=e,this.b=t}getChannel(e){return this.a.getChannel(e,this.b)}registerChannel(e,t){this.a.registerChannel(e,t)}}export{i as $2Bc,a as $3Bc};

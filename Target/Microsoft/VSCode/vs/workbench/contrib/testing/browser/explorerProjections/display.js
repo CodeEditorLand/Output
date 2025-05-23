@@ -1,1 +1,1 @@
-const c=" \u203A ";export{c as $Tkc};
+const c=" \u203A ";export{c as $Dlc};

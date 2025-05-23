@@ -1,1 +1,1 @@
-import{$gfc as o}from"./chatRunPromptAction.js";import{$jfc as r}from"./chatSaveToPromptAction.js";import{$7ec as f}from"./chatAttachInstructionsAction.js";const p=()=>{o(),f(),r()};export{p as $kfc};
+import{$Xfc as o}from"./chatRunPromptAction.js";import{$1fc as f}from"./chatSaveToPromptAction.js";import{$Lfc as r}from"./chatAttachInstructionsAction.js";import{$2fc as m}from"./chatModeActions.js";const i=()=>{o(),r(),f(),m()};export{i as $3fc};

@@ -1,1 +1,1 @@
-const o="editor.contrib.selectionClipboard";export{o as $bCb};
+const o="editor.contrib.selectionClipboard";export{o as $ICb};

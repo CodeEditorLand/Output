@@ -1,1 +1,1 @@
-import"./en.linux.js";import"./es.linux.js";import"./de.linux.js";import"./fr.linux.js";import"./ru.linux.js";import{$2Oc as b}from"./_.contribution.js";export{b as KeyboardLayoutContribution};
+import"./en.linux.js";import"./es.linux.js";import"./de.linux.js";import"./fr.linux.js";import"./ru.linux.js";import{$UPc as b}from"./_.contribution.js";export{b as KeyboardLayoutContribution};

@@ -1,1 +1,1 @@
-import{$fj as o}from"../../../platform/instantiation/common/instantiation.js";const r=o("modelService");export{r as $dF};
+import{$mj as o}from"../../../platform/instantiation/common/instantiation.js";const m=o("modelService");export{m as $lF};

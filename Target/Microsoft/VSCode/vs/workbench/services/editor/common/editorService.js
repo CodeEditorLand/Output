@@ -1,1 +1,1 @@
-import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";import{$8H as r}from"./editorGroupsService.js";const p=o("editorService"),$=-1,i=-2,a=-3;function d(t){return typeof t=="number"||r(t)}export{$ as $$H,p as $0H,i as $_H,a as $aI,d as $bI};
+import{$mj as o}from"../../../../platform/instantiation/common/instantiation.js";import{$dI as r}from"./editorGroupsService.js";const i=o("editorService"),p=-1,$=-2,d=-3;function m(t){return typeof t=="number"||r(t)}export{i as $fI,p as $gI,$ as $hI,d as $iI,m as $jI};

@@ -1,1 +1,1 @@
-class s extends Error{constructor(r,e){super(`TableError [${r}] ${e}`)}}export{s as $78};
+class s extends Error{constructor(r,e){super(`TableError [${r}] ${e}`)}}export{s as $G9};

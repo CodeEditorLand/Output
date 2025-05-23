@@ -1,1 +1,0 @@
-import{$Ke as u}from"./base.js";import{$Hd as m}from"./debugName.js";import{strictEquals as n}from"./commonFacade/deps.js";import{$Ne as f}from"./lazyObservableValue.js";function q(e,r){return e.lazy?new f(new m(e.owner,e.debugName,void 0),r,e.equalsFn??n):new u(new m(e.owner,e.debugName,void 0),r,e.equalsFn??n)}export{q as $Oe};

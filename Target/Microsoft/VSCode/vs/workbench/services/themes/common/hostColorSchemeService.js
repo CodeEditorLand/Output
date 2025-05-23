@@ -1,1 +1,1 @@
-import{$fj as o}from"../../../../platform/instantiation/common/instantiation.js";const e=o("hostColorSchemeService");export{e as $rOb};
+import{$mj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("hostColorSchemeService");export{r as $7Ob};

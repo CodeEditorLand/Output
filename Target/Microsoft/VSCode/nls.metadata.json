@@ -1138,6 +1138,7 @@
 			"suggestWidget.kind.typeParameter",
 			"suggestWidget.kind.user",
 			"suggestWidget.kind.issue",
+			"suggestWidget.kind.tool",
 			"suggestWidget.kind.snippet",
 			"Array",
 			"Boolean",
@@ -7334,9 +7335,6 @@
 		"vs/workbench/contrib/chat/browser/actions/chatContext": [
 			"chatContext.tools",
 			"chatContext.tools.placeholder",
-			"chatContext.tools.internal",
-			"chatContext.tools.mcp",
-			"chatContext.tools.extension",
 			"chatContext.editors",
 			"chatContext.relatedFiles",
 			"relatedFiles",
@@ -7417,18 +7415,23 @@
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatToolActions": [
 			"label",
+			"placeholder",
+			"chat.accept"
+		],
+		"vs/workbench/contrib/chat/browser/actions/chatToolPicker": [
+			"defaultBucketLabel",
+			"mcp",
+			"userBucket",
 			"addServer",
+			"configToolSet",
 			"addExtension",
 			"addAny",
 			"noTools",
-			"defaultBucketLabel",
 			"configMcpCol",
 			"mcpShowOutput",
 			"mcplabel",
-			"mcpstatus",
-			"placeholder",
-			"noTools",
-			"chat.accept"
+			"editUserBucket",
+			"noTools"
 		],
 		"vs/workbench/contrib/chat/browser/actions/codeBlockOperations": [
 			"insertCodeBlock.noActiveEditor",
@@ -7457,6 +7460,10 @@
 			"placeholder",
 			"attach-instructions.capitalized.ellipses"
 		],
+		"vs/workbench/contrib/chat/browser/actions/promptActions/chatModeActions": [
+			"commands.mode.select-dialog.placeholder",
+			"manage-mode.capitalized"
+		],
 		"vs/workbench/contrib/chat/browser/actions/promptActions/chatRunPromptAction": [
 			"commands.prompt.select-dialog.placeholder",
 			"run-prompt.capitalized",
@@ -7470,6 +7477,7 @@
 			"help",
 			"commands.new-promptfile.select-dialog.label",
 			"commands.new-instructionsfile.select-dialog.label",
+			"commands.new-modefile.select-dialog.label",
 			"commands.prompts.use.select-dialog.open-button.tooltip",
 			"delete",
 			"user-data-dir.capitalized",
@@ -7479,13 +7487,9 @@
 			"cell.lowercase",
 			"file.lowercase",
 			"prompt.lowercase",
-			"chat.fileAttachmentWithRange",
 			"chat.fileAttachment",
 			"openEditor",
-			"enableHint",
-			"hint.label.current",
-			"disable",
-			"enable"
+			"enableHint"
 		],
 		"vs/workbench/contrib/chat/browser/attachments/promptInstructions/promptInstructionsWidget": [
 			"chat.promptAttachment",
@@ -7516,7 +7520,7 @@
 			"chat.experimental.detectParticipant.enabled",
 			"chat.detectParticipant.enabled",
 			"chat.renderRelatedFiles",
-			"chat.focusWindowOnConfirmation",
+			"chat.notifyWindowOnConfirmation",
 			"chat.tools.autoApprove",
 			"chat.sendElementsToChat.enabled",
 			"chat.sendElementsToChat.attachCSS",
@@ -7538,7 +7542,10 @@
 			"chat.instructions.config.locations.description",
 			"chat.reusablePrompts.config.locations.title",
 			"chat.reusablePrompts.config.locations.description",
+			"chat.mode.config.locations.title",
+			"chat.mode.config.locations.description",
 			"chat.signInWithAlternateProvider",
+			"chat.signInDialogVariant",
 			"chat",
 			"chat",
 			"interactiveSessionConfigurationTitle",
@@ -7653,6 +7660,12 @@
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatTreeContentPart": [
 			"treeAriaLabel"
+		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatExtensionsInstallToolSubPart": [
+			"continue",
+			"cancel",
+			"installExtensions",
+			"installExtensionsConfirmation"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatInputOutputMarkdownProgressPart": [
 			"toolResultData"
@@ -7920,9 +7933,11 @@
 		"vs/workbench/contrib/chat/browser/chatPasteProviders": [
 			"pastedImageName",
 			"pastedImageAttachment",
+			"pastedChatAttachments",
 			"pastedCodeAttachment",
 			"pastedAttachment.oneLine",
-			"pastedAttachment.multipleLines"
+			"pastedAttachment.multipleLines",
+			"pastedAttachment.multiple"
 		],
 		"vs/workbench/contrib/chat/browser/chatSetup": [
 			"chatDescription",
@@ -7936,9 +7951,7 @@
 			"copilotUnavailableWarning",
 			"waitingCopilot2",
 			"copilotTookLongWarning",
-			"copilotTookLongWarningOutsidePanel",
 			"copilotFailedWarning",
-			"copilotFailedWarningOutsidePanel",
 			"setupChatSignIn2",
 			"installingCopilot",
 			"copilotSetupSuccess",
@@ -7950,11 +7963,13 @@
 			"continueWithProvider",
 			"signInWithProvider",
 			"setupCopilotButton",
-			"signUp",
-			"signUpFree",
-			"copilotProTitle",
-			"copilotTitle",
-			"copilotFreeTitle",
+			"skipForNow",
+			"signInGH",
+			"signInVSC",
+			"signIn",
+			"startUsingGh",
+			"startUsingVSC",
+			"startUsing",
 			{
 				"key": "settings",
 				"comment": [
@@ -7980,8 +7995,6 @@
 			"enterpriseInstancePlaceholder",
 			"willResolveTo",
 			"invalidEnterpriseInstance",
-			"enterpriseSetupError",
-			"retry",
 			"vscodeAgentDescription",
 			"triggerChatSetup",
 			"triggerChatSetupFromAccounts",
@@ -8045,8 +8058,7 @@
 			"editsTitle",
 			"editsMessage",
 			"editsTitle",
-			"agentMessage",
-			"input.1"
+			"agentMessage"
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"chat.codeBlockHelp",
@@ -8078,7 +8090,7 @@
 			"mcp.prompt.image",
 			"mcp.prompt.image",
 			"fileEntryDescription",
-			"desc"
+			"tool_source_completion"
 		],
 		"vs/workbench/contrib/chat/browser/contrib/chatInputEditorHover": [
 			"hoverAccessibilityChatAgent"
@@ -8095,30 +8107,52 @@
 			"chat.modelPicker.label"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/createPromptCommand": [
-			"workbench.command.instructions.create.location.placeholder",
-			"workbench.command.prompt.create.location.placeholder",
 			"workbench.command.prompts.create.user.enable-sync-notification",
 			"enable.capitalized",
 			"learnMore.capitalized",
 			"commands.new.prompt.local.title",
-			"commands.new.instructions.local.title"
+			"commands.new.instructions.local.title",
+			"commands.new.mode.local.title"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptName": [
-			"askForInstructionsFileName.placeholder",
-			"askForPromptFileName.placeholder",
 			"askForPromptFileName.error.empty",
 			"askForPromptFileName.error.invalid",
-			"askForPromptFileName.error.exists"
+			"askForPromptFileName.error.exists",
+			"askForInstructionsFileName.placeholder",
+			"askForPromptFileName.placeholder",
+			"askForModeFileName.placeholder"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptSourceFolder": [
 			"commands.prompts.create.source-folder.user",
 			"commands.prompts.create.source-folder.current-workspace",
+			"workbench.command.instructions.create.location.placeholder",
+			"workbench.command.prompt.create.location.placeholder",
+			"workbench.command.mode.create.location.placeholder",
 			"commands.prompts.create.ask-folder.empty.docs-label",
-			"commands.prompts.create.ask-folder.empty.placeholder"
+			"commands.instructions.create.ask-folder.empty.docs-label",
+			"commands.mode.create.ask-folder.empty.docs-label",
+			"commands.instructions.create.ask-folder.empty.placeholder",
+			"commands.prompts.create.ask-folder.empty.placeholder",
+			"commands.mode.create.ask-folder.empty.placeholder"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/errors": [
 			"workbench.command.prompts.create.error.folder-exists",
 			"workbench.command.prompts.create.error.invalid-prompt-name"
+		],
+		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
+			"schema.default",
+			"toolsetSchema.json",
+			"schema.tools",
+			"schema.icon",
+			"schema.description",
+			"tooldesc",
+			"toolsetdesc",
+			"chat.configureToolSets.add",
+			"chat.configureToolSets.placeholder",
+			"input.placeholder",
+			"bad_name1",
+			"bad_name2",
+			"chat.configureToolSets"
 		],
 		"vs/workbench/contrib/chat/browser/viewsWelcome/chatViewsWelcomeHandler": [
 			"vscode.extension.contributes.chatViewsWelcome",
@@ -8279,10 +8313,21 @@
 			"icon.dark",
 			"condition",
 			"toolTags",
+			"vscode.extension.contributes.toolSets",
+			"toolSetName",
+			"toolSetReferenceName",
+			"toolSetDescription",
+			"toolSetIcon",
+			"toolSetTools",
 			"toolTableName",
 			"toolTableDisplayName",
 			"toolTableDescription",
-			"langModelTools"
+			"langModelTools",
+			"name",
+			"reference",
+			"tools",
+			"descriptions",
+			"langModelToolSets"
 		],
 		"vs/workbench/contrib/chat/common/voiceChatService": [
 			"voiceChatInProgress"
@@ -11090,6 +11135,14 @@
 			"yes",
 			"no"
 		],
+		"vs/workbench/contrib/extensions/common/installExtensionsTool": [
+			"installExtensionsTool.displayName",
+			"installExtensionsTool.modelDescription",
+			"installExtensionsTool.userDescription",
+			"installExtensionsTool.confirmationTitle",
+			"installExtensionsTool.confirmationMessage",
+			"installExtensionsTool.resultMessage"
+		],
 		"vs/workbench/contrib/extensions/common/reportExtensionIssueAction": [
 			"reportExtensionIssue"
 		],
@@ -12563,8 +12616,14 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcp.contribution": [
 			"mcpServer",
+			"mcp.quickaccess.placeholder",
+			"mcp.quickaccess.add",
 			"mcp-installed",
 			"mcp"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpAddContextContribution": [
+			"mcp.addContext",
+			"mcp.addContext.placeholder"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommands": [
 			"mcp.selectServer",
@@ -12593,7 +12652,8 @@
 			"mcp.command.startServer",
 			"mcp.command.stopServer",
 			"mcp.command.installFromActivation",
-			"mcp.command.browse"
+			"mcp.command.browse",
+			"mcp.browseResources"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"mcp.npm.title",
@@ -12662,6 +12722,13 @@
 			"edit",
 			"clear",
 			"clearAll"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpResourceQuickAccess": [
+			"mcp.resource.template",
+			"mcp.resource.template.placeholder",
+			"mcp.resource.template.optional",
+			"mcp.resource.template.empty",
+			"mcp.quickaccess.attach"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
 			"install",
@@ -13816,9 +13883,6 @@
 		],
 		"vs/workbench/contrib/notebook/browser/viewModel/notebookOutlineEntryFactory": [
 			"empty"
-		],
-		"vs/workbench/contrib/notebook/browser/viewParts/notebookCellOverlays": [
-			"workbench.notebook.developer.addCellOverlays"
 		],
 		"vs/workbench/contrib/notebook/browser/viewParts/notebookKernelQuickPickStrategy": [
 			"current1",
@@ -15116,6 +15180,8 @@
 			"referencePicker",
 			"goToCurrentHistoryItem",
 			"refreshGraph",
+			"setListViewMode",
+			"setTreeViewMode",
 			"openChanges",
 			"historyItemChangesEditorTitle",
 			"openFile",
@@ -22089,6 +22155,7 @@
 			"Type Parameter",
 			"User",
 			"Issue",
+			"Tool",
 			"Snippet",
 			"array",
 			"boolean",
@@ -22665,7 +22732,7 @@
 			"Show Next Inline Suggestion",
 			"Show Previous Inline Suggestion",
 			"Trigger Inline Suggestion",
-			"Trigger Next Edit Suggestion",
+			"Trigger next edit suggestion",
 			"Accept Next Word Of Inline Suggestion",
 			"Accept Next Line Of Inline Suggestion",
 			"Accept Inline Suggestion",
@@ -23153,8 +23220,8 @@
 			"Breakpoint on Line",
 			"Breakpoint",
 			"Inline Suggestion on Line",
-			"Next Edit Suggestion on Line",
-			"Next Edit Suggestion",
+			"Next edit suggestion on Line",
+			"Next edit suggestion",
 			"Terminal Quick Fix",
 			"Quick Fix",
 			"Debugger Stopped on Breakpoint",
@@ -26483,7 +26550,7 @@
 			"Announces when a user explicitly formats a file.",
 			"Announces whenever a file is formatted, including if it is set to format on save, type, or, paste, or run of a cell.",
 			"Never announces.",
-			"Plays a signal - sound (audio cue) and/or announcement (alert) - when user action is required in the chat. Note that {0} will impact the `auto` behavior of this setting.",
+			"Plays a signal - sound (audio cue) and/or announcement (alert) - when user action is required in the chat.",
 			"Plays a sound when user action is required in the chat.",
 			"Enable sound when a screen reader is attached or when the current window is not focused.",
 			"Enable sound.",
@@ -26825,7 +26892,7 @@
 			"Focus Chat Input",
 			"Manage Copilot",
 			"Show Extensions using Copilot",
-			"Configure Code Completions...",
+			"Configure code completions...",
 			"Reset Tool Confirmations"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatClearActions": [
@@ -26849,9 +26916,6 @@
 		"vs/workbench/contrib/chat/browser/actions/chatContext": [
 			"Tools...",
 			"Select a tool",
-			"Built-In",
-			"MCP Servers",
-			"Extensions",
 			"Open Editors",
 			"Related Files",
 			"Add related files to your working set",
@@ -26931,19 +26995,24 @@
 			"Insert into Notebook"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatToolActions": [
-			"Select Tools...",
+			"Configure Tools...",
+			"Select tools that are available to chat",
+			"Accept"
+		],
+		"vs/workbench/contrib/chat/browser/actions/chatToolPicker": [
+			"Built-In",
+			"MCP Servers",
+			"User Defined",
 			"Add MCP Server...",
+			"Configure Tool Sets...",
 			"Install Extension...",
 			"Add More Tools...",
 			"Add tools to chat",
-			"Other Tools",
 			"Configure {0}",
 			"Show Output",
 			"MCP Server: {0}",
-			"from {0}",
-			"Select tools that are available to chat",
-			"Add tools to chat",
-			"Accept"
+			"Edit Tool Set",
+			"Add tools to chat"
 		],
 		"vs/workbench/contrib/chat/browser/actions/codeBlockOperations": [
 			"To insert the code block, open a code editor or notebook editor and set the cursor at the location where to insert the code block.",
@@ -26972,6 +27041,10 @@
 			"Select instructions files to attach",
 			"Attach Instructions..."
 		],
+		"vs/workbench/contrib/chat/browser/actions/promptActions/chatModeActions": [
+			"Select the custom chat mode to edit",
+			"Manage Custom Chat Modes..."
+		],
 		"vs/workbench/contrib/chat/browser/actions/promptActions/chatRunPromptAction": [
 			"Select the prompt file to run (hold {0}-key to use in new chat)",
 			"Run Prompt in Current Chat",
@@ -26985,6 +27058,7 @@
 			"help",
 			"New prompt file...",
 			"Create new instruction file...",
+			"Create new custom chat mode file...",
 			"edit ({0}-key + enter)",
 			"delete",
 			"User data folder",
@@ -26994,13 +27068,9 @@
 			"cell",
 			"file",
 			"prompt",
-			"Attached {0}, {1}, line {2} to line {3}",
 			"Attached {0}, {1}",
 			"Current {0} context",
-			"disabled",
-			"Current {0}",
-			"Disable current {0} context",
-			"Enable current {0} context"
+			"disabled"
 		],
 		"vs/workbench/contrib/chat/browser/attachments/promptInstructions/promptInstructionsWidget": [
 			"Prompt file, {0}",
@@ -27031,7 +27101,7 @@
 			"Enables chat participant autodetection for panel chat.",
 			"Enables chat participant autodetection for panel chat.",
 			"Controls whether related files should be rendered in the chat input.",
-			"Controls whether the Copilot window should be focused when a confirmation is needed.",
+			"Controls whether the Copilot window should notify the user when a confirmation is needed.",
 			"Controls whether tool use should be automatically approved.",
 			"Controls whether elements can be sent to chat from the Simple Browser.",
 			"Controls whether CSS of the selected element will be added to the chat. {0} must be enabled.",
@@ -27053,7 +27123,10 @@
 			"Specify location(s) of instructions files (`*{0}`) that can be attached in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Prompt File Locations",
 			"Specify location(s) of reusable prompt files (`*{0}`) that can be run in Chat, Edits, and Inline Chat sessions. [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
+			"Mode File Locations",
+			"Specify location(s) of custom chat mode files (`*{0}`). [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Enable alternative sign-in provider.",
+			"Control variations of the sign-in dialog.",
 			"Chat",
 			"Chat",
 			"Chat",
@@ -27168,6 +27241,12 @@
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatTreeContentPart": [
 			"File Tree"
+		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatExtensionsInstallToolSubPart": [
+			"Continue",
+			"Cancel",
+			"Install Extensions",
+			"Click the Install button on the extension and then press Continue when finished."
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatInputOutputMarkdownProgressPart": [
 			"Data of type {0} ({1} bytes)"
@@ -27410,9 +27489,11 @@
 		"vs/workbench/contrib/chat/browser/chatPasteProviders": [
 			"Pasted Image",
 			"Pasted Image Attachment",
+			"Insert Prompt & Attachments",
 			"Pasted Code Attachment",
 			"1 line",
-			"{0} lines"
+			"{0} lines",
+			"{0} and {1} more"
 		],
 		"vs/workbench/contrib/chat/browser/chatSetup": [
 			"Ask Copilot",
@@ -27426,9 +27507,7 @@
 			"Copilot failed to get a response. Please try again.",
 			"Copilot is almost ready.",
 			"Copilot took too long to get ready. Please ensure you are signed in to {0} and that the extension `{1}` is installed and enabled.",
-			"Copilot took too long to get ready. Please try again from the Chat view.",
 			"Copilot failed to get ready. Please ensure you are signed in to {0} and that the extension `{1}` is installed and enabled.",
-			"Copilot failed to get ready. Please try again from the Chat view.",
 			"Signing in to {0}.",
 			"Getting Copilot ready.",
 			"Copilot setup finished successfully.",
@@ -27440,12 +27519,14 @@
 			"Continue with {0}",
 			"Sign in with a {0} account",
 			"Set up Copilot",
+			"Skip for now",
+			"Sign in to use {0} Copilot",
+			"Sign in to use AI",
 			"Sign in to use Copilot",
-			"Sign in to use Copilot for free",
-			"Start using Copilot Pro",
+			"Start using {0} Copilot",
+			"Start using AI",
 			"Start using Copilot",
-			"Start using Copilot for free",
-			"GitHub Copilot Free, Pro and Pro+ may show [public code]({0}) suggestions and we may use your data for product improvement. You can change these [settings]({1}) at any time.",
+			"{0} Copilot Free, Pro and Pro+ may show [public code]({1}) suggestions and we may use your data for product improvement. You can change these [settings]({2}) at any time.",
 			"Copilot setup failed. Would you like to try again?",
 			"Retry",
 			"Set up Copilot.",
@@ -27463,8 +27544,6 @@
 			"i.e. \"octocat\" or \"https://octocat.ghe.com\"...",
 			"Will resolve to {0}",
 			"You must enter a valid {0} instance (i.e. \"octocat\" or \"https://octocat.ghe.com\")",
-			"The provided {0} instance is invalid. Would you like to enter it again?",
-			"Retry",
 			"Ask questions about VS Code",
 			"Use AI Features with Copilot for free...",
 			"Sign in to use Copilot...",
@@ -27488,7 +27567,7 @@
 			"Chat quota reached",
 			"Completions quota reached",
 			"Quota reached",
-			"Code Completions Disabled",
+			"Code completions Disabled",
 			"Copilot Status",
 			"Copilot Usage",
 			"Manage Copilot",
@@ -27515,9 +27594,9 @@
 			"{0}%",
 			"Additional paid premium requests enabled.",
 			"Additional paid premium requests disabled.",
-			"Code Completions (all files)",
-			"Code Completions ({0})",
-			"Next Edit Suggestions"
+			"Code completions (all files)",
+			"Code completions ({0})",
+			"Next edit suggestions"
 		],
 		"vs/workbench/contrib/chat/browser/chatWidget": [
 			"Scroll down",
@@ -27528,8 +27607,7 @@
 			"Edit with Copilot",
 			"Start your editing session by defining a set of files that you want to work with. Then ask Copilot for the changes you want to make.",
 			"Edit with Copilot",
-			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors.",
-			"Follow instructions from {0}."
+			"Ask Copilot to edit your files in [agent mode]({0}). Copilot will automatically use multiple requests to pick files to edit, run terminal commands, and iterate on errors."
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"Code block",
@@ -27561,7 +27639,7 @@
 			"Prompt Image",
 			"Prompt Image",
 			"{0} ({1})",
-			"MCP Server: {0}"
+			"{0}: {1}"
 		],
 		"vs/workbench/contrib/chat/browser/contrib/chatInputEditorHover": [
 			"There is a chat agent hover part here."
@@ -27578,30 +27656,52 @@
 			"Pick Model"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/createPromptCommand": [
-			"Select a location to create the instructions file in...",
-			"Select a location to create the prompt file in...",
-			"Do you want to backup and sync your user prompt and instruction files with Setting Sync?'",
+			"Do you want to backup and sync your user prompt, instruction and mode files with Setting Sync?'",
 			"Enable",
 			"Learn More",
 			"New Prompt File...",
-			"New Instructions File..."
+			"New Instructions File...",
+			"New Mode File..."
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptName": [
-			"Enter the name of the instructions file",
-			"Enter the name of the prompt file",
 			"Please enter a name.",
 			"The name contains invalid characters.",
-			"A file for the given name already exists."
+			"A file for the given name already exists.",
+			"Enter the name of the instructions file",
+			"Enter the name of the prompt file",
+			"Enter the name of the custom chat mode file"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptSourceFolder": [
 			"User Data Folder",
 			"Current Workspace",
+			"Select a location to create the instructions file in...",
+			"Select a location to create the prompt file in...",
+			"Select a location to create the mode file in...",
 			"Learn how to configure reusable prompts",
-			"No prompt source folders found."
+			"Learn how to configure reusable instructions",
+			"Learn how to configure custom chat modes",
+			"No instruction source folders found.",
+			"No prompt source folders found.",
+			"No custom chat mode source folders found."
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/errors": [
 			"Folder already exists at '{0}'.",
 			"Invalid prompt file name '{0}'."
+		],
+		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
+			"Empty tool set",
+			"User tool sets configuration",
+			"A list of tools or tool sets to include in this tool set.",
+			"Icon to use for this tool set in the UI. Uses the `\\$(name)`-syntax, like `\\$(zap)`",
+			"A short description of this tool set.",
+			"{0} - {1}",
+			"{0} - {1}",
+			"Add Tool Sets File...",
+			"Select a tool set to configure",
+			"Type tool sets file name",
+			"Invalid file name",
+			"'{0}' is not a valid file name",
+			"Configure Tool Sets..."
 		],
 		"vs/workbench/contrib/chat/browser/viewsWelcome/chatViewsWelcomeHandler": [
 			"Contributes a welcome message to a chat view",
@@ -27712,8 +27812,8 @@
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/header": [
 			"Unexpected token '{0}'.",
-			"Duplicate metadata record '{0}' will be ignored.",
-			"Unknown metadata record '{0}' will be ignored.",
+			"Duplicate metadata '{0}' will be ignored.",
+			"Unknown metadata '{0}' will be ignored.",
 			"Record '{0}' is implied to have the '{1}' value if '{2}' record is present so the specified value will be ignored.",
 			"Failed to parse prompt header: {0}"
 		],
@@ -27722,13 +27822,13 @@
 			"Invalid glob pattern '{0}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/enum": [
-			"Value of the '{0}' metadata must be one of {1}, got '{2}'."
+			"The '{0}' metadata must be one of {1}, got '{2}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/base/string": [
-			"Value of the '{0}' metadata must be '{1}', got '{2}'."
+			"The '{0}' metadata must be a '{1}', got '{2}'."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/tools": [
-			"Value of the '{0}' metadata must be an array of strings, got '{2}'.",
+			"The '{0}' metadata must be an array of tool names, got '{2}'.",
 			"Unexpected tool name '{0}', expected '{1}'.",
 			"Tool name cannot be empty.",
 			"Duplicate tool name '{0}'."
@@ -27762,10 +27862,21 @@
 			"Icon path when a dark theme is used",
 			"Condition which must be true for this tool to be enabled. Note that a tool may still be invoked by another extension even when its `when` condition is false.",
 			"A set of tags that roughly describe the tool's capabilities. A tool user may use these to filter the set of tools to just ones that are relevant for the task at hand, or they may want to pick a tag that can be used to identify just the tools contributed by this extension.",
+			"Contributes a set of language model tools that can be used together.",
+			"A name for this tool set.",
+			"A name that users can use to reference this tool set. Name must not contain whitespace.",
+			"A description of this tool set.",
+			"An icon that represents this tool set, like `$(zap)`",
+			"An array of tool or tool set names that are part of this set.",
 			"Name",
 			"Display Name",
 			"Description",
-			"Language Model Tools"
+			"Language Model Tools",
+			"Name",
+			"Reference Name",
+			"Tools",
+			"Description",
+			"Language Model Tool Sets"
 		],
 		"vs/workbench/contrib/chat/common/voiceChatService": [
 			"A speech-to-text session is in progress for chat."
@@ -29928,6 +30039,14 @@
 			"Yes",
 			"No"
 		],
+		"vs/workbench/contrib/extensions/common/installExtensionsTool": [
+			"Install Extensions",
+			"This is a tool for installing extensions in Visual Studio Code. You should provide the list of extension ids to install, and the confirmation message that is shown to the user. The identifier of an extension is '${ publisher }.${ name }' for example: 'vscode.csharp'.",
+			"Tool for installing extensions",
+			"Install Extensions",
+			"These extensions are recommeded for you by Copilot.",
+			"Following extensions are installed: {0}"
+		],
 		"vs/workbench/contrib/extensions/common/reportExtensionIssueAction": [
 			"Report Issue"
 		],
@@ -31049,8 +31168,14 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcp.contribution": [
 			"MCP Server",
+			"Filter to an MCP resource",
+			"Add Server",
 			"MCP Servers - Installed",
 			"MCP Servers"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpAddContextContribution": [
+			"MCP Resources...",
+			"Select MCP Resource..."
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommands": [
 			"Select an MCP Server",
@@ -31079,7 +31204,8 @@
 			"Start Server",
 			"Stop Server",
 			"Install...",
-			"MCP Servers"
+			"MCP Servers",
+			"Browse Resources..."
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"Enter NPM Package Name",
@@ -31148,6 +31274,13 @@
 			"Edit",
 			"Clear",
 			"Clear All"
+		],
+		"vs/workbench/contrib/mcp/browser/mcpResourceQuickAccess": [
+			"Resource template: {0}",
+			"Value for ${0} in {1}",
+			"Optional",
+			"<Empty>",
+			"Attach to chat"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
 			"Install",
@@ -31670,7 +31803,7 @@
 			"Applying code action '{0}'."
 		],
 		"vs/workbench/contrib/notebook/browser/contrib/troubleshoot/layout": [
-			"Toggle Layout Troubleshoot",
+			"Toggle Notebook Layout Troubleshoot",
 			"Inspect Notebook Layout",
 			"Clear Notebook Editor Type Cache"
 		],
@@ -32186,9 +32319,6 @@
 		],
 		"vs/workbench/contrib/notebook/browser/viewModel/notebookOutlineEntryFactory": [
 			"empty cell"
-		],
-		"vs/workbench/contrib/notebook/browser/viewParts/notebookCellOverlays": [
-			"Toggle Notebook Cell Overlays"
 		],
 		"vs/workbench/contrib/notebook/browser/viewParts/notebookKernelQuickPickStrategy": [
 			"Currently Selected",
@@ -33289,6 +33419,8 @@
 			"History Item Reference Picker",
 			"Go to Current History Item",
 			"Refresh",
+			"View as List",
+			"View as Tree",
 			"Open Changes",
 			"All Changes ({0} ↔ {1})",
 			"Open File",
@@ -36218,7 +36350,7 @@
 			"Could not open markdown preview: {0}.\n\nPlease make sure the markdown extension is enabled."
 		],
 		"vs/workbench/contrib/welcomeGettingStarted/common/gettingStartedContent": [
-			"GitHub Copilot Free, Pro and Pro+ may show [public code]({0}) suggestions and we may use your data for product improvement. You can change these [settings]({1}) at any time.",
+			"{0} Copilot Free, Pro and Pro+ may show [public code]({1}) suggestions and we may use your data for product improvement. You can change these [settings]({2}) at any time.",
 			"Icon used for the setup category of welcome page",
 			"Icon used for the beginner category of welcome page",
 			"New File...",
@@ -36380,7 +36512,7 @@
 			"Set up VS Code",
 			"Agent mode",
 			"Analyzes the problem, plans next steps, and makes changes for you.",
-			"Next Edit Suggestions",
+			"Next edit suggestions",
 			"Get code suggestions that predict your next edit.",
 			"Personalized to how you work",
 			"Swap models, add agent mode tools, and create personalized instructions.\n{0}",

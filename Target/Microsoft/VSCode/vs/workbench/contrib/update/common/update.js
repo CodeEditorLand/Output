@@ -1,1 +1,1 @@
-const e="update.showCurrentReleaseNotes",o="developer.showCurrentFileAsReleaseNotes";export{e as $bic,o as $cic};
+const e="update.showCurrentReleaseNotes",o="developer.showCurrentFileAsReleaseNotes";export{e as $lic,o as $mic};

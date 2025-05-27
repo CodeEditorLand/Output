@@ -1,1 +1,1 @@
-import{$SB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$kcc as r}from"../../common/notebookSearch.js";import{$pnc as m}from"./notebookSearchService.js";function f(){o(r,m,1)}export{f as $qnc};
+import{$UB as o}from"../../../../../platform/instantiation/common/extensions.js";import{$ucc as r}from"../../common/notebookSearch.js";import{$znc as m}from"./notebookSearchService.js";function i(){o(r,m,1)}export{i as $Anc};

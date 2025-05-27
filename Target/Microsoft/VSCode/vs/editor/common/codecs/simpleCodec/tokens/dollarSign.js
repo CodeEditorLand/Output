@@ -1,1 +1,1 @@
-import{$5P as r}from"./simpleToken.js";class t extends r{static{this.symbol="$"}get text(){return t.symbol}toString(){return`dollarSign${this.range}`}}export{t as $fQ};
+import{$bQ as r}from"./simpleToken.js";class t extends r{static{this.symbol="$"}get text(){return t.symbol}toString(){return`dollarSign${this.range}`}}export{t as $oQ};

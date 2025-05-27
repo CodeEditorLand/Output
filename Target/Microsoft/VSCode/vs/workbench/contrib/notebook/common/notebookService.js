@@ -1,1 +1,1 @@
-import{$mj as i}from"../../../../platform/instantiation/common/instantiation.js";const c=i("notebookService");class n{constructor(t,e,o){this.viewType=t,this.serializer=e,this.extensionData=o}}export{c as $gyb,n as $hyb};
+import{$oj as i}from"../../../../platform/instantiation/common/instantiation.js";const c=i("notebookService");class n{constructor(o,t,e){this.viewType=o,this.serializer=t,this.extensionData=e}}export{c as $pyb,n as $qyb};

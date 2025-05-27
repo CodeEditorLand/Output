@@ -1,1 +1,1 @@
-function e(r){return r&&r.hasOwnProperty("folderUri")}function n(r){return r&&r.hasOwnProperty("workspace")}export{e as $fu,n as $gu};
+function e(r){return r&&r.hasOwnProperty("folderUri")}function n(r){return r&&r.hasOwnProperty("workspace")}export{e as $hu,n as $iu};

@@ -1,1 +1,1 @@
-import{$mj as o}from"../../../../../../platform/instantiation/common/instantiation.js";const m=o("IPromptsService");export{m as $fS};
+import{$oj as o}from"../../../../../../platform/instantiation/common/instantiation.js";const t=o("IPromptsService");export{t as $oS};

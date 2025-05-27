@@ -1,1 +1,1 @@
-import{$mj as o}from"../../../platform/instantiation/common/instantiation.js";const e=o("codeEditorService");export{e as $B_};
+import{$oj as o}from"../../../platform/instantiation/common/instantiation.js";const e=o("codeEditorService");export{e as $K_};

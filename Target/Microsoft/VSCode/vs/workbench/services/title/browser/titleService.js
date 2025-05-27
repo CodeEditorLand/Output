@@ -1,1 +1,1 @@
-import{$mj as t}from"../../../../platform/instantiation/common/instantiation.js";const o=t("titleService");export{o as $a4b};
+import{$oj as t}from"../../../../platform/instantiation/common/instantiation.js";const e=t("titleService");export{e as $t4b};

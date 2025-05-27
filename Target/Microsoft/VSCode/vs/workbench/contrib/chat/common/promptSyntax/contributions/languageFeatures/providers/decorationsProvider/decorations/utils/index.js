@@ -1,1 +1,1 @@
-import{$Xec as c}from"./decorationBase.js";import{$Yec as s}from"./reactiveDecorationBase.js";const o=e=>`var(--vscode-${e.replaceAll(".","-")})`;export{o as $Zec,c as DecorationBase,s as ReactiveDecorationBase};
+import{$8ec as c}from"./decorationBase.js";import{$9ec as s}from"./reactiveDecorationBase.js";const o=e=>`var(--vscode-${e.replaceAll(".","-")})`;export{o as $0ec,c as DecorationBase,s as ReactiveDecorationBase};

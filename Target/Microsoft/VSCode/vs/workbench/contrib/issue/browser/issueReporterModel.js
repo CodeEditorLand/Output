@@ -1,4 +1,4 @@
-import{$z4 as i}from"../../../../base/browser/window.js";import{$4v as a}from"../../../../platform/diagnostics/common/diagnostics.js";class h{constructor(s){const e={issueType:0,includeSystemInfo:!0,includeWorkspaceInfo:!0,includeProcessInfo:!0,includeExtensions:!0,includeExperiments:!0,includeExtensionData:!0,allExtensions:[]};this.a=s?Object.assign(e,s):e,i.addEventListener("message",async t=>{t.data&&t.data.sendChannel==="vscode:triggerIssueData"&&i.postMessage({data:{issueBody:this.a.issueDescription,issueTitle:this.a.issueTitle},replyChannel:"vscode:triggerIssueDataResponse"},"*")})}getData(){return this.a}update(s){Object.assign(this.a,s)}serialize(){const s=[];return this.a.restrictedMode&&s.push("Restricted"),this.a.isUnsupported&&s.push("Unsupported"),`
+import{$I4 as i}from"../../../../base/browser/window.js";import{$6v as a}from"../../../../platform/diagnostics/common/diagnostics.js";class h{constructor(s){const e={issueType:0,includeSystemInfo:!0,includeWorkspaceInfo:!0,includeProcessInfo:!0,includeExtensions:!0,includeExperiments:!0,includeExtensionData:!0,allExtensions:[]};this.a=s?Object.assign(e,s):e,i.addEventListener("message",async t=>{t.data&&t.data.sendChannel==="vscode:triggerIssueData"&&i.postMessage({data:{issueBody:this.a.issueDescription,issueTitle:this.a.issueTitle},replyChannel:"vscode:triggerIssueDataResponse"},"*")})}getData(){return this.a}update(s){Object.assign(this.a,s)}serialize(){const s=[];return this.a.restrictedMode&&s.push("Restricted"),this.a.isUnsupported&&s.push("Unsupported"),`
 Type: <b>${this.d()}</b>
 
 ${this.a.issueDescription}
@@ -70,4 +70,4 @@ ${e}
 ${t}
 ${s}
 
-</details>`}}export{h as $BBc};
+</details>`}}export{h as $MBc};

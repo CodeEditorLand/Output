@@ -1,1 +1,1 @@
-import{$JK as r}from"../../../common/contributions.js";import{$Wxc as o}from"./scrollLocking.js";r(o.ID,o,4);
+import{$SK as r}from"../../../common/contributions.js";import{$8xc as o}from"./scrollLocking.js";r(o.ID,o,4);

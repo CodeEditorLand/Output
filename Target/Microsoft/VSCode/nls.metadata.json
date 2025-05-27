@@ -7042,6 +7042,18 @@
 			"manageAccountPreferenceForMcpServer",
 			"accounts"
 		],
+		"vs/workbench/contrib/authentication/browser/actions/manageDynamicAuthenticationProvidersAction": [
+			"noDynamicProviders",
+			"noDynamicProvidersDetail",
+			"clientId",
+			"selectProviderToRemove",
+			"confirmDeleteSingleProvider",
+			"confirmDeleteMultipleProviders",
+			"confirmDeleteDetail",
+			"remove",
+			"removeDynamicAuthProviders",
+			"authenticationCategory"
+		],
 		"vs/workbench/contrib/authentication/browser/actions/manageTrustedExtensionsForAccountAction": [
 			"pickAccount",
 			"noTrustedExtensions",
@@ -7420,16 +7432,15 @@
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatToolPicker": [
 			"defaultBucketLabel",
-			"mcp",
 			"userBucket",
 			"addServer",
 			"configToolSet",
 			"addExtension",
 			"addAny",
 			"noTools",
+			"mcplabel",
 			"configMcpCol",
 			"mcpShowOutput",
-			"mcplabel",
 			"editUserBucket",
 			"noTools"
 		],
@@ -7461,6 +7472,7 @@
 			"attach-instructions.capitalized.ellipses"
 		],
 		"vs/workbench/contrib/chat/browser/actions/promptActions/chatModeActions": [
+			"manage-mode",
 			"commands.mode.select-dialog.placeholder",
 			"manage-mode.capitalized"
 		],
@@ -7940,9 +7952,6 @@
 			"pastedAttachment.multiple"
 		],
 		"vs/workbench/contrib/chat/browser/chatSetup": [
-			"chatDescription",
-			"editsDescription",
-			"agentDescription",
 			"setupToolDisplayName",
 			"setupToolsDescription",
 			"setupToolsDescription",
@@ -7956,12 +7965,21 @@
 			"installingCopilot",
 			"copilotSetupSuccess",
 			"copilotSetupError",
+			"emailOrUserIdPlaceholder",
+			"continueWithEmailOrUserId",
+			"createAccount",
+			"or",
+			"continueWithProvider",
+			"continueWithProvider",
 			"continueWithProvider",
 			"continueWithProvider",
 			"signInWithProvider",
 			"continueWithProvider",
 			"continueWithProvider",
+			"continueWithProvider",
 			"signInWithProvider",
+			"continueWithProvider",
+			"createAccount",
 			"setupCopilotButton",
 			"skipForNow",
 			"signInGH",
@@ -7970,6 +7988,31 @@
 			"startUsingGh",
 			"startUsingVSC",
 			"startUsing",
+			{
+				"key": "settings",
+				"comment": [
+					"{Locked=\"[\"}",
+					"{Locked=\"]({0})\"}",
+					"{Locked=\"]({1})\"}"
+				]
+			},
+			"maybeLater",
+			"setupWithProvider",
+			"setupWithEnterpriseProvider",
+			"setupWithProviderShort",
+			"signInButton",
+			"useCopilotButton",
+			"signUp",
+			"signUpFree",
+			"copilotProTitle",
+			"copilotTitle",
+			"copilotFreeTitle",
+			{
+				"key": "headerDialog",
+				"comment": [
+					"{Locked=\"[Copilot]({0})\"}"
+				]
+			},
 			{
 				"key": "settings",
 				"comment": [
@@ -8083,8 +8126,6 @@
 			"promptFileDescription",
 			"promptFileDescriptionWorkspace",
 			"installLabel",
-			"optional",
-			"loading",
 			"mcp.prompt.error",
 			"mcp.prompt.resource",
 			"mcp.prompt.image",
@@ -8205,7 +8246,8 @@
 			"chatModelsAreUserSelectable",
 			"chatAgentModeDisallowed",
 			"chatEditingHasToolConfirmation",
-			"toolsCount"
+			"toolsCount",
+			"chatHasCustomChatModes"
 		],
 		"vs/workbench/contrib/chat/common/chatEditingService": [
 			"chatEditingWidgetFileState",
@@ -8228,6 +8270,11 @@
 			"editsSummary",
 			"codeCitation",
 			"codeCitations"
+		],
+		"vs/workbench/contrib/chat/common/chatModes": [
+			"chatDescription",
+			"editsDescription",
+			"agentDescription"
 		],
 		"vs/workbench/contrib/chat/common/chatProgressTypes/chatToolInvocation": [
 			"toolInvocationMessage"
@@ -12723,6 +12770,17 @@
 			"clear",
 			"clearAll"
 		],
+		"vs/workbench/contrib/mcp/browser/mcpPromptArgumentPick": [
+			"optional",
+			"loading",
+			"mcp.arg.suggestions",
+			"mcp.arg.files",
+			"mcp.arg.asText",
+			"mcp.arg.asCommand",
+			"mcp.arg.asCommand.description",
+			"mcp.arg.required",
+			"mcp.terminal.name"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpResourceQuickAccess": [
 			"mcp.resource.template",
 			"mcp.resource.template.placeholder",
@@ -14381,7 +14439,9 @@
 			"onlineSettingsSearch",
 			"onlineSettingsSearchTooltip",
 			"policySettingsSearch",
-			"policySettingsSearchTooltip"
+			"policySettingsSearchTooltip",
+			"idSettingsSearch",
+			"idSettingsSearchTooltip"
 		],
 		"vs/workbench/contrib/preferences/browser/settingsTree": [
 			"extensions",
@@ -15881,7 +15941,6 @@
 			"TaskService.instanceToTerminate",
 			"TaskService.noInstanceRunning",
 			"TaskSystem.restartFailed",
-			"unexpectedTaskType",
 			"unexpectedTaskType",
 			"TaskService.providerUnavailable",
 			"TaskService.noConfiguration",
@@ -22732,7 +22791,7 @@
 			"Show Next Inline Suggestion",
 			"Show Previous Inline Suggestion",
 			"Trigger Inline Suggestion",
-			"Trigger next edit suggestion",
+			"Trigger Next Edit Suggestion",
 			"Accept Next Word Of Inline Suggestion",
 			"Accept Next Line Of Inline Suggestion",
 			"Accept Inline Suggestion",
@@ -23220,8 +23279,8 @@
 			"Breakpoint on Line",
 			"Breakpoint",
 			"Inline Suggestion on Line",
-			"Next edit suggestion on Line",
-			"Next edit suggestion",
+			"Next Edit Suggestion on Line",
+			"Next Edit Suggestion",
 			"Terminal Quick Fix",
 			"Quick Fix",
 			"Debugger Stopped on Breakpoint",
@@ -26663,6 +26722,18 @@
 			"Manage MCP Server Account Preferences",
 			"Accounts"
 		],
+		"vs/workbench/contrib/authentication/browser/actions/manageDynamicAuthenticationProvidersAction": [
+			"No dynamic authentication providers",
+			"No dynamic authentication providers have been used yet.",
+			"Client ID: {0}",
+			"Select a dynamic authentication provider to remove",
+			"Are you sure you want to remove the dynamic authentication provider \"{0}\"?",
+			"Are you sure you want to remove {0} dynamic authentication providers: {1}?",
+			"This will remove all stored authentication data for the selected provider(s). You will need to re-authenticate if you use these providers again.",
+			"Remove",
+			"Remove Dynamic Authentication Providers",
+			"Authentication"
+		],
 		"vs/workbench/contrib/authentication/browser/actions/manageTrustedExtensionsForAccountAction": [
 			"Pick an account to manage trusted extensions for",
 			"This account has not been used by any extensions.",
@@ -26892,7 +26963,7 @@
 			"Focus Chat Input",
 			"Manage Copilot",
 			"Show Extensions using Copilot",
-			"Configure code completions...",
+			"Configure Code Completions...",
 			"Reset Tool Confirmations"
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatClearActions": [
@@ -27001,16 +27072,15 @@
 		],
 		"vs/workbench/contrib/chat/browser/actions/chatToolPicker": [
 			"Built-In",
-			"MCP Servers",
-			"User Defined",
+			"User Defined Tool Sets",
 			"Add MCP Server...",
 			"Configure Tool Sets...",
 			"Install Extension...",
 			"Add More Tools...",
 			"Add tools to chat",
+			"MCP Server: {0}",
 			"Configure {0}",
 			"Show Output",
-			"MCP Server: {0}",
 			"Edit Tool Set",
 			"Add tools to chat"
 		],
@@ -27042,6 +27112,7 @@
 			"Attach Instructions..."
 		],
 		"vs/workbench/contrib/chat/browser/actions/promptActions/chatModeActions": [
+			"Manage Modes...",
 			"Select the custom chat mode to edit",
 			"Manage Custom Chat Modes..."
 		],
@@ -27496,9 +27567,6 @@
 			"{0} and {1} more"
 		],
 		"vs/workbench/contrib/chat/browser/chatSetup": [
-			"Ask Copilot",
-			"Edit files in your workspace",
-			"Edit files in your workspace in agent mode",
 			"New Workspace",
 			"Scaffold a new workspace in VS Code",
 			"Scaffold a new workspace in VS Code",
@@ -27512,12 +27580,21 @@
 			"Getting Copilot ready.",
 			"Copilot setup finished successfully.",
 			"Copilot setup failed.",
+			"Enter your email or {0} username",
+			"Continue",
+			"Create a New Account",
+			"Or",
+			"Continue with {0}",
+			"Continue with {0}",
 			"Continue with {0}",
 			"Continue with {0}",
 			"Sign in with a {0} account",
 			"Continue with {0}",
 			"Continue with {0}",
+			"Continue with {0}",
 			"Sign in with a {0} account",
+			"Continue with {0}",
+			"Create a New Account",
 			"Set up Copilot",
 			"Skip for now",
 			"Sign in to use {0} Copilot",
@@ -27526,6 +27603,19 @@
 			"Start using {0} Copilot",
 			"Start using AI",
 			"Start using Copilot",
+			"{0} Copilot Free, Pro and Pro+ may show [public code]({1}) suggestions and we may use your data for product improvement. You can change these [settings]({2}) at any time.",
+			"Maybe Later",
+			"Sign in with a {0} Account",
+			"Sign in with a {0} Account",
+			"Sign in with {0}",
+			"Sign in",
+			"Use Copilot",
+			"Sign in to use Copilot",
+			"Sign in to use Copilot for free",
+			"Start using Copilot Pro",
+			"Start using Copilot",
+			"Start using Copilot for free",
+			"[Copilot]({0}) is your AI pair programmer. Write code faster with completions, fix bugs and build new features across multiple files, and learn about your codebase through chat.",
 			"{0} Copilot Free, Pro and Pro+ may show [public code]({1}) suggestions and we may use your data for product improvement. You can change these [settings]({2}) at any time.",
 			"Copilot setup failed. Would you like to try again?",
 			"Retry",
@@ -27632,8 +27722,6 @@
 			"User Prompt File",
 			"Workspace Prompt File",
 			"Install Chat Extensions...",
-			"Optional",
-			"Loading...",
 			"Error resolving prompt: {0}",
 			"Prompt Resource",
 			"Prompt Image",
@@ -27754,7 +27842,8 @@
 			"True when the chat model can be selected manually by the user.",
 			"True when agent mode is not allowed.",
 			"True when a tool confirmation is present.",
-			"The count of tools available in the chat."
+			"The count of tools available in the chat.",
+			"True when the chat has custom chat modes available."
 		],
 		"vs/workbench/contrib/chat/common/chatEditingService": [
 			"The current state of the file in the chat editing widget",
@@ -27777,6 +27866,11 @@
 			"Made changes.",
 			"Similar code found with 1 license type",
 			"Similar code found with {0} license types"
+		],
+		"vs/workbench/contrib/chat/common/chatModes": [
+			"Ask Copilot",
+			"Edit files in your workspace",
+			"Edit files in your workspace in agent mode"
 		],
 		"vs/workbench/contrib/chat/common/chatProgressTypes/chatToolInvocation": [
 			"Using {0}"
@@ -31275,6 +31369,17 @@
 			"Clear",
 			"Clear All"
 		],
+		"vs/workbench/contrib/mcp/browser/mcpPromptArgumentPick": [
+			"Optional",
+			"Loading...",
+			"Suggestions",
+			"Files",
+			"Insert as text",
+			"Run as Command",
+			"Inserts the command output as the prompt argument",
+			"This argument is required",
+			"MCP Terminal"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpResourceQuickAccess": [
 			"Resource template: {0}",
 			"Value for ${0} in {1}",
@@ -32770,7 +32875,9 @@
 			"Online services",
 			"Show settings for online services",
 			"Policy services",
-			"Show settings for policy services"
+			"Show settings for policy services",
+			"Setting ID",
+			"Add Setting ID filter"
 		],
 		"vs/workbench/contrib/preferences/browser/settingsTree": [
 			"Extensions",
@@ -34050,7 +34157,6 @@
 			"Select an instance to terminate",
 			"No instance is currently running",
 			"Failed to terminate and restart task {0}",
-			"The task provider for \"{0}\" tasks unexpectedly provided a task of type \"{1}\".\n",
 			"The task provider for \"{0}\" tasks unexpectedly provided a task of type \"{1}\".\n",
 			"Warning: {0} tasks are unavailable in the current environment.",
 			"Error: The {0} task detection didn't contribute a task for the following configuration:\n{1}\nThe task will be ignored.",

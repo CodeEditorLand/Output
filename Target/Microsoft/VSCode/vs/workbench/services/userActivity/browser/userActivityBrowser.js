@@ -1,1 +1,1 @@
-import{$J8b as m}from"./domActivityTracker.js";import{$21b as o}from"../common/userActivityRegistry.js";o.add(m);
+import{$S8b as m}from"./domActivityTracker.js";import{$h2b as o}from"../common/userActivityRegistry.js";o.add(m);

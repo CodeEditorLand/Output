@@ -1,1 +1,1 @@
-import{$mj as e}from"../../../../platform/instantiation/common/instantiation.js";const o=e("testingPeekOpener");export{o as $Qkc};
+import{$oj as e}from"../../../../platform/instantiation/common/instantiation.js";const t=e("testingPeekOpener");export{t as $1kc};

@@ -1,1 +1,1 @@
-import{$mj as e}from"../../instantiation/common/instantiation.js";const p=e("editSessionIdentityService");var o;(function(r){r[r.Complete=100]="Complete",r[r.Partial=50]="Partial",r[r.None=0]="None"})(o||(o={}));export{p as $xM,o as EditSessionIdentityMatch};
+import{$oj as e}from"../../instantiation/common/instantiation.js";const l=e("editSessionIdentityService");var r;(function(o){o[o.Complete=100]="Complete",o[o.Partial=50]="Partial",o[o.None=0]="None"})(r||(r={}));export{l as $GM,r as EditSessionIdentityMatch};

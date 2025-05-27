@@ -1,1 +1,1 @@
-import{$SB as t}from"../../../../platform/instantiation/common/extensions.js";import{$Zgc as o}from"./browserElementsService.js";class n{constructor(){}async getElementData(e,r){throw new Error("Not implemented")}startDebugSession(e,r){throw new Error("Not implemented")}}t(o,n,1);
+import{$UB as t}from"../../../../platform/instantiation/common/extensions.js";import{$0gc as o}from"./browserElementsService.js";class n{constructor(){}async getElementData(e,r){throw new Error("Not implemented")}startDebugSession(e,r){throw new Error("Not implemented")}}t(o,n,1);

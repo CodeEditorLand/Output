@@ -1,1 +1,1 @@
-function t(n){return!!n&&typeof n.sessionId=="string"&&n.$mid===19}export{t as $9Cb};
+function t(n){return!!n&&typeof n.sessionId=="string"&&n.$mid===19}export{t as $XDb};

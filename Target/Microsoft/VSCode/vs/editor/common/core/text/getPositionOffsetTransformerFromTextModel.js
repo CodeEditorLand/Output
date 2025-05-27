@@ -1,1 +1,1 @@
-import{$ML as r}from"./positionToOffset.js";function i(e){return new s(e)}class s extends r{constructor(t){super(),this.a=t}getOffset(t){return this.a.getOffsetAt(t)}getPosition(t){return this.a.getPositionAt(t)}}export{i as $Bjb};
+import{$VL as r}from"./positionToOffset.js";function i(e){return new s(e)}class s extends r{constructor(t){super(),this.a=t}getOffset(t){return this.a.getOffsetAt(t)}getPosition(t){return this.a.getPositionAt(t)}}export{i as $Kjb};

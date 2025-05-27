@@ -1,1 +1,1 @@
-const t=[];function n(e){t.push(e)}function o(){return t.slice(0)}export{n as $Kgb,o as $Lgb};
+const t=[];function n(e){t.push(e)}function o(){return t.slice(0)}export{n as $Tgb,o as $Ugb};

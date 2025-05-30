@@ -4,4 +4,4 @@ async function Ke(f){const M=navigator.userAgent.indexOf("Chrome")>=0,_=new Text
 			JSON.parse(decodeURIComponent("${encodeURIComponent(JSON.stringify({style:f,options:V,renderOptions:M,rendererData:_,staticPreloadsData:N,isWorkspaceTrusted:P,nonce:I}))}"))
 		)
 //# sourceURL=notebookWebviewPreloads.js
-`}export{qe as $HTb};
+`}export{qe as $VTb};

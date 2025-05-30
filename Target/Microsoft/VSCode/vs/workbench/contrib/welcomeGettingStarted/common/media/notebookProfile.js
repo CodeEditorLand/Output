@@ -3,15 +3,15 @@ import{$Bf as o}from"../../../../../base/common/strings.js";import{localize as e
 <checklist>
 	<checkbox on-checked="command:notebook.setProfile?${c("default")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'both' && config.notebook.globalToolbar == false && config.notebook.compactView == true && config.notebook.showCellStatusBar == 'visible'">
 		<img width="${n}" src="./notebookThemes/default.png"/>
-		${o(e(13151,null))}
+		${o(e(13203,null))}
 	</checkbox>
 	<checkbox on-checked="command:notebook.setProfile?${c("jupyter")}" checked-on="config.notebook.cellFocusIndicator == 'gutter' && config.notebook.insertToolbarLocation == 'notebookToolbar' && config.notebook.globalToolbar == true && config.notebook.compactView == true  && config.notebook.showCellStatusBar == 'visible'">
 		<img width="${n}" src="./notebookThemes/jupyter.png"/>
-		${o(e(13152,null))}
+		${o(e(13204,null))}
 	</checkbox>
 	<checkbox on-checked="command:notebook.setProfile?${c("colab")}" checked-on="config.notebook.cellFocusIndicator == 'border' && config.notebook.insertToolbarLocation == 'betweenCells' && config.notebook.globalToolbar == false && config.notebook.compactView == false && config.notebook.showCellStatusBar == 'hidden'">
 		<img width="${n}" src="./notebookThemes/colab.png"/>
-		${o(e(13153,null))}
+		${o(e(13205,null))}
 	</checkbox>
 </checklist>
 </vertically-centered>

@@ -1,1 +1,1 @@
-import{$Ufc as o}from"./attachInstructions.js";import{$lfc as p}from"../../../../../../common/promptSyntax/service/promptsService.js";const e=async(c,a)=>{const t=await o(a);return t.setInput(`/${p(c.path)}`),await t.acceptInput(),{widget:t}};export{e as $6fc};
+import{$Zfc as o}from"./attachInstructions.js";import{$qfc as p}from"../../../../../../common/promptSyntax/service/promptsService.js";const e=async(c,a)=>{const t=await o(a);return t.setInput(`/${p(c.path)}`),await t.acceptInput(),{widget:t}};export{e as $$fc};

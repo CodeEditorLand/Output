@@ -1,1 +1,1 @@
-const o="comments";export{o as $WTb};
+const o="comments";export{o as $$Tb};

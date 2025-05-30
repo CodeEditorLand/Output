@@ -1,1 +1,1 @@
-import{$SK as m}from"../../../common/contributions.js";import{$gI as o}from"../../../../platform/actions/common/actions.js";import{$qwc as r,$rwc as $}from"./languageStatus.js";m(r.Id,r,3);o($);
+import{$SK as o}from"../../../common/contributions.js";import{$gI as r}from"../../../../platform/actions/common/actions.js";import{$wwc as m,$xwc as $}from"./languageStatus.js";o(m.Id,m,3);r($);

@@ -708,6 +708,7 @@
 			"inlineSuggest.showToolbar",
 			"inlineSuggest.syntaxHighlightingEnabled",
 			"inlineSuggest.suppressSuggestions",
+			"inlineSuggest.suppressInlineSuggestions",
 			"inlineSuggest.fontFamily",
 			"inlineSuggest.edits.allowCodeShifting",
 			"inlineSuggest.edits.renderSideBySide",
@@ -3989,6 +3990,8 @@
 		],
 		"vs/workbench/api/browser/mainThreadAuthentication": [
 			"signedOut",
+			"yes",
+			"no",
 			"confirmModelAccess",
 			"confirmRelogin",
 			"confirmLogin",
@@ -4002,7 +4005,11 @@
 			"incorrectAccount",
 			"incorrectAccountDetail",
 			"keep",
-			"loginWith"
+			"loginWith",
+			"deviceCodeTitle",
+			"deviceCodeDetail",
+			"copyAndContinue",
+			"failedToOpenUri"
 		],
 		"vs/workbench/api/browser/mainThreadCLICommands": [
 			"cannot be installed"
@@ -4280,6 +4287,13 @@
 			"default",
 			"settings"
 		],
+		"vs/workbench/api/common/extHostAuthentication": [
+			"url handler",
+			"authenticatingTo",
+			"userCanceledContinue",
+			"continueWith",
+			"completeAuth"
+		],
 		"vs/workbench/api/common/extHostDiagnostics": [
 			{
 				"key": "limitHit",
@@ -4341,6 +4355,12 @@
 			"fileMatch",
 			"schema",
 			"jsonValidation"
+		],
+		"vs/workbench/api/node/extHostAuthentication": [
+			"loopback",
+			"device code",
+			"completeAuth",
+			"waitingForAuth"
 		],
 		"vs/workbench/api/node/extHostDebugService": [
 			"debug.terminal.title"
@@ -6422,7 +6442,7 @@
 			"settings.editor.ui",
 			"settings.editor.json",
 			"settings.editor.desc",
-			"settings.showSuggestions",
+			"settings.showAISearchToggle",
 			"workbench.hover.delay",
 			"workbench.reduceMotion",
 			"workbench.reduceMotion.on",
@@ -7441,6 +7461,7 @@
 			"mcplabel",
 			"configMcpCol",
 			"mcpShowOutput",
+			"ext",
 			"editUserBucket",
 			"noTools"
 		],
@@ -7538,6 +7559,11 @@
 			"chat.sendElementsToChat.attachCSS",
 			"chat.sendElementsToChat.attachImages",
 			"chat.mcp.enabled",
+			"chat.mcp.serverSampling",
+			"mcp.list",
+			"chat.mcp.serverSampling.allowedDuringChat",
+			"chat.mcp.serverSampling.allowedOutsideChat",
+			"chat.mcp.serverSampling.model",
 			"workspaceConfig.mcp.description",
 			"chat.useFileStorage",
 			"chat.edits2Enabled",
@@ -7603,6 +7629,9 @@
 			"chat.imageAttachmentWarning",
 			"chat.attachment",
 			"chat.attachment",
+			"chat.attachment",
+			"toolset",
+			"tool",
 			"chat.NotebookImageAttachment",
 			"chat.omittedNotebookImageAttachment",
 			"chat.partiallyOmittedNotebookImageAttachment",
@@ -8180,14 +8209,17 @@
 			"workbench.command.prompts.create.error.folder-exists",
 			"workbench.command.prompts.create.error.invalid-prompt-name"
 		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
+			"eee",
+			"placeholder"
+		],
 		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
 			"schema.default",
 			"toolsetSchema.json",
 			"schema.tools",
 			"schema.icon",
 			"schema.description",
-			"tooldesc",
-			"toolsetdesc",
+			"tool.description",
 			"chat.configureToolSets.add",
 			"chat.configureToolSets.placeholder",
 			"input.placeholder",
@@ -8212,7 +8244,9 @@
 			"chat.slashCommandForeground",
 			"chat.avatarBackground",
 			"chat.avatarForeground",
-			"chat.editedFileForeground"
+			"chat.editedFileForeground",
+			"chat.requestCodeBorder",
+			"chat.requestBubbleBackground"
 		],
 		"vs/workbench/contrib/chat/common/chatContextKeys": [
 			"interactiveSessionResponseVote",
@@ -8300,6 +8334,12 @@
 			"Language Models",
 			"languageModels",
 			"chat"
+		],
+		"vs/workbench/contrib/chat/common/languageModelToolsService": [
+			"builtin",
+			"mcp",
+			"user",
+			"ext"
 		],
 		"vs/workbench/contrib/chat/common/modelPicker/modelPickerWidget": [
 			"chat.modelPicker.other"
@@ -12680,11 +12720,14 @@
 			"mcp.stop",
 			"mcp.restart",
 			"mcp.showOutput",
+			"mcp.configAccess",
+			"mcp.showOutput.description",
 			"mcp.config",
 			"mcp.selectAction",
 			"mcp.newTools",
 			"mcp.toolError",
 			"mcp.toolRefresh",
+			"mcp.configureSamplingModels.ph",
 			"mcp.list",
 			"mcp.options",
 			"mcp.resetTrust",
@@ -12700,7 +12743,8 @@
 			"mcp.command.stopServer",
 			"mcp.command.installFromActivation",
 			"mcp.command.browse",
-			"mcp.browseResources"
+			"mcp.browseResources",
+			"mcp.configureSamplingModels"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"mcp.npm.title",
@@ -12733,6 +12777,8 @@
 			"mcp.target.user.description",
 			"mcp.target.remote",
 			"mcp.target..remote.description",
+			"mcp.target.workspace",
+			"mcp.target.workspace.description.remote",
 			"mcp.target.workspace",
 			"mcp.target.workspace.description",
 			"mcp.target.title",
@@ -12772,6 +12818,7 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcpPromptArgumentPick": [
 			"optional",
+			"mcp.prompt.pick.title",
 			"loading",
 			"mcp.arg.suggestions",
 			"mcp.arg.files",
@@ -12888,6 +12935,19 @@
 			"mcp.trust.no",
 			"mcp.launchError",
 			"mcp.launchError.openConfig"
+		],
+		"vs/workbench/contrib/mcp/common/mcpSamplingService": [
+			"mcp.sampling.allowDuringChat.title",
+			"mcp.sampling.allowDuringChat.desc",
+			"mcp.sampling.allowOutsideChat.title",
+			"mcp.sampling.allowOutsideChat.desc",
+			"mcp.sampling.needsModels",
+			"configure",
+			"cancel",
+			"mcp.sampling.allow.inSession",
+			"mcp.sampling.allow.always",
+			"mcp.sampling.allow.notNow",
+			"mcp.sampling.allow.never"
 		],
 		"vs/workbench/contrib/mcp/common/mcpServer": [
 			"mcp.command.showOutput",
@@ -14237,6 +14297,7 @@
 			"openWorkspaceSettingsFile",
 			"openFolderSettings",
 			"openFolderSettingsFile",
+			"settings.toggleAiSearch",
 			"filterUntrusted",
 			"openRemoteSettings",
 			"openRemoteSettingsJSON",
@@ -14277,6 +14338,7 @@
 			"settingsRemoveIcon",
 			"preferencesDiscardIcon",
 			"preferencesClearInput",
+			"preferencesAiResults",
 			"settingsFilter",
 			"preferencesOpenSettings"
 		],
@@ -14315,12 +14377,12 @@
 		"vs/workbench/contrib/preferences/browser/settingsEditor2": [
 			"SearchSettings.AriaLabel",
 			"clearInput",
+			"showAiResultsDescription",
 			"filterInput",
 			"noResults",
 			"clearSearchFilters",
 			"settings",
 			"settings require trust",
-			"suggestionsPrefix",
 			"noResults",
 			"oneResult",
 			"moreThanOneResult",
@@ -19960,6 +20022,7 @@
 			"main.notFound"
 		],
 		"vs/workbench/services/extensionManagement/common/extensionsIcons": [
+			"extensionDefault",
 			"verifiedPublisher",
 			"extensionIconVerifiedForeground"
 		],
@@ -21813,6 +21876,7 @@
 			"Controls when to show the inline suggestion toolbar.",
 			"Controls whether to show syntax highlighting for inline suggestions in the editor.",
 			"Controls how inline suggestions interact with the suggest widget. If enabled, the suggest widget is not shown automatically when inline suggestions are available.",
+			"Suppresses inline completions for specified extension IDs.",
 			"Controls the font family of the inline suggestions.",
 			"Controls whether showing a suggestion will shift the code to make space for the suggestion inline.",
 			"Controls whether larger suggestions can be shown side by side.",
@@ -24469,6 +24533,8 @@
 		],
 		"vs/workbench/api/browser/mainThreadAuthentication": [
 			"Successfully signed out.",
+			"Yes",
+			"No",
 			"The extension '{0}' wants to access the language models provided by {1}.",
 			"The extension '{0}' wants you to sign in again using {1}.",
 			"The extension '{0}' wants to sign in using {1}.",
@@ -24477,7 +24543,11 @@
 			"Incorrect account detected",
 			"The chosen account, {0}, does not match the requested account, {1}.",
 			"Keep {0}",
-			"Login with {0}"
+			"Login with {0}",
+			"Device Code Authentication",
+			"Your code: {0}\n\nTo complete authentication, navigate to {1} and enter the code above.",
+			"Copy & Continue",
+			"Failed to open {0}"
 		],
 		"vs/workbench/api/browser/mainThreadCLICommands": [
 			"Cannot install the '{0}' extension because it is declared to not run in this setup."
@@ -24535,8 +24605,8 @@
 			"The chosen account, {0}, does not match the requested account, {1}.",
 			"Keep {0}",
 			"Login with {0}",
-			"The MCP Server '{0}' wants you to sign in again using {1}.",
-			"The MCP Server '{0}' wants to sign in using {1}.",
+			"The MCP Server Definition '{0}' wants you to authenticate to {1}.",
+			"The MCP Server Definition '{0}' wants to authenticate to {1}.",
 			"&&Allow"
 		],
 		"vs/workbench/api/browser/mainThreadMessageService": [
@@ -24705,6 +24775,13 @@
 			"Default",
 			"Settings"
 		],
+		"vs/workbench/api/common/extHostAuthentication": [
+			"URL Handler",
+			"Authenticating to '{0}'",
+			"Having trouble authenticating to '{0}'? Would you like to try a different way? ({1})",
+			"You have not yet finished authenticating to '{0}'. Would you like to try a different way? ({1})",
+			"Complete the authentication in the browser window that has opened."
+		],
 		"vs/workbench/api/common/extHostDiagnostics": [
 			"Not showing {0} further errors and warnings."
 		],
@@ -24761,6 +24838,12 @@
 			"File Match",
 			"Schema",
 			"JSON Validation"
+		],
+		"vs/workbench/api/node/extHostAuthentication": [
+			"Loopback Server",
+			"Device Code",
+			"Complete the authentication in the browser window that has opened.",
+			"Open [{0}]({0}) in a new tab and paste your one-time code: {1}"
 		],
 		"vs/workbench/api/node/extHostDebugService": [
 			"Debug Process"
@@ -26122,7 +26205,7 @@
 			"Use the settings UI editor.",
 			"Use the JSON file editor.",
 			"Determines which Settings editor to use by default.",
-			"Controls whether setting suggestions are shown below the search bar in the Settings editor.",
+			"Controls whether the AI search toggle is shown in the search bar in the Settings editor.",
 			"Controls the delay in milliseconds after which the hover is shown for workbench items (ex. some extension provided tree view items). Already visible items may require a refresh before reflecting this setting change.",
 			"Controls whether the workbench should render with fewer animations.",
 			"Always render with reduced motion.",
@@ -27081,6 +27164,7 @@
 			"MCP Server: {0}",
 			"Configure {0}",
 			"Show Output",
+			"Extension: {0}",
 			"Edit Tool Set",
 			"Add tools to chat"
 		],
@@ -27178,6 +27262,11 @@
 			"Controls whether CSS of the selected element will be added to the chat. {0} must be enabled.",
 			"Controls whether a screenshot of the selected element will be added to the chat. {0} must be enabled.",
 			"Enables integration with Model Context Protocol servers to provide additional tools and functionality.",
+			"Configures which models are exposed to MCP servers for sampling (making model requests in the background). This setting can be edited in a graphical way under the `{0}` command.",
+			"List Servers",
+			"Whether this server is make sampling requests during its tool calls in a chat session.",
+			"Whether this server is allowed to make sampling requests outside of a chat session.",
+			"A model the MCP server has access to.",
 			"Model Context Protocol server configurations",
 			"Enables storing chat sessions on disk instead of in the storage service. Enabling this does a one-time per-workspace migration of existing sessions to the new format.",
 			"Enable the new Edits mode that is based on tool-calling. When this is enabled, models that don't support tool-calling are unavailable for Edits mode.",
@@ -27243,6 +27332,9 @@
 			"This GIF was partially omitted - current frame will be sent.",
 			"Attached context, {0}",
 			"Attached context, {0}",
+			"Attached context, {0}",
+			"{0} - {1}",
+			"{0} - {1}",
 			"Attached Notebook output, {0}",
 			"Omitted this Notebook ouput: {0}",
 			"Partially omitted this Notebook output: {0}",
@@ -27776,14 +27868,17 @@
 			"Folder already exists at '{0}'.",
 			"Invalid prompt file name '{0}'."
 		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
+			"Configure Tools...",
+			"Select tools"
+		],
 		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
 			"Empty tool set",
 			"User tool sets configuration",
 			"A list of tools or tool sets to include in this tool set.",
 			"Icon to use for this tool set in the UI. Uses the `\\$(name)`-syntax, like `\\$(zap)`",
 			"A short description of this tool set.",
-			"{0} - {1}",
-			"{0} - {1}",
+			"{1} ({0})\n\n{2}",
 			"Add Tool Sets File...",
 			"Select a tool set to configure",
 			"Type tool sets file name",
@@ -27808,7 +27903,9 @@
 			"The foreground color of a chat slash command.",
 			"The background color of a chat avatar.",
 			"The foreground color of a chat avatar.",
-			"The foreground color of a chat edited file in the edited file list."
+			"The foreground color of a chat edited file in the edited file list.",
+			"Border color of code blocks within the chat request bubble.",
+			"Background color of the chat request bubble."
 		],
 		"vs/workbench/contrib/chat/common/chatContextKeys": [
 			"When the response has been voted up, is set to 'up'. When voted down, is set to 'down'. Otherwise an empty string.",
@@ -27896,6 +27993,12 @@
 			"Copilot",
 			"Language models usage statistics of this extension.",
 			"chat"
+		],
+		"vs/workbench/contrib/chat/common/languageModelToolsService": [
+			"Built-In",
+			"MCP Server: {0}",
+			"User Defined",
+			"Extension: {0}"
 		],
 		"vs/workbench/contrib/chat/common/modelPicker/modelPickerWidget": [
 			"Other Models"
@@ -31279,11 +31382,14 @@
 			"Stop Server",
 			"Restart Server",
 			"Show Output",
+			"Configure Model Access",
+			"Set the models the server can use via MCP sampling",
 			"Show Configuration",
 			"Select Server Action",
 			"New tools available ({0})",
 			"Error loading {0} tool(s)",
 			"Discovering tools...",
+			"Pick the models {0} can access via MCP sampling",
 			"List Servers",
 			"Server Options",
 			"Reset Trust",
@@ -31299,7 +31405,8 @@
 			"Stop Server",
 			"Install...",
 			"MCP Servers",
-			"Browse Resources..."
+			"Browse Resources...",
+			"Configure SamplingModel"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"Enter NPM Package Name",
@@ -31329,11 +31436,13 @@
 			"Enter Server ID",
 			"Unique identifier for this server",
 			"User Settings",
-			"Available in all workspaces",
+			"Available in all workspaces, runs locally",
 			"Remote Settings",
-			"Available on this remote machine",
+			"Available on this remote machine, runs on {0}",
 			"Workspace Settings",
-			"Available in this workspace",
+			"Available in this workspace, runs on {0}",
+			"Workspace Settings",
+			"Available in this workspace, runs locally",
 			"Choose where to save the configuration",
 			"Loading package details...",
 			"Try a different package",
@@ -31371,6 +31480,7 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcpPromptArgumentPick": [
 			"Optional",
+			"Value for: {0}",
 			"Loading...",
 			"Suggestions",
 			"Files",
@@ -31487,6 +31597,19 @@
 			"Do not trust",
 			"Error starting {0}: {1}",
 			"Open Configuration"
+		],
+		"vs/workbench/contrib/mcp/common/mcpSamplingService": [
+			"Allow MCP tools from \"{0}\" to make LLM requests?",
+			"The MCP server \"{0}\" has issued a request to make an language model call. Do you want to allow it to make requests during chat?",
+			"Allow MCP server \"{0}\" to make LLM requests?",
+			"The MCP server \"{0}\" has issued a request to make an language model call. Do you want to allow it to make requests, outside of tool calls during chat?",
+			"MCP server \"{0}\" triggered a language model request, but it has no allowlisted models.",
+			"Configure",
+			"Cancel",
+			"Allow in this Session",
+			"Always",
+			"Now Now",
+			"Never"
 		],
 		"vs/workbench/contrib/mcp/common/mcpServer": [
 			"Show Output",
@@ -32673,6 +32796,7 @@
 			"Open Workspace Settings (JSON)",
 			"Open Folder Settings",
 			"Open Folder Settings (JSON)",
+			"Toggle AI Settings Search",
 			"Show untrusted workspace settings",
 			"Open Remote Settings ({0})",
 			"Open Remote Settings (JSON) ({0})",
@@ -32713,6 +32837,7 @@
 			"Icon for the remove action in the Settings UI.",
 			"Icon for the discard action in the Settings UI.",
 			"Icon for clear input in the Settings and keybinding UI.",
+			"Icon for showing AI results in the Settings UI.",
 			"Icon for the button that suggests filters for the Settings UI.",
 			"Icon for open settings commands."
 		],
@@ -32751,12 +32876,12 @@
 		"vs/workbench/contrib/preferences/browser/settingsEditor2": [
 			"Search settings",
 			"Clear Settings Search Input",
+			"Search settings with AI",
 			"Filter Settings",
 			"No Settings Found",
 			"Clear Filters",
 			"Settings",
 			"Workspace Trust",
-			"Did you mean: ",
 			"No Settings Found",
 			"1 Setting Found",
 			"{0} Settings Found",
@@ -37481,6 +37606,7 @@
 			"Cannot activate because {0} not found"
 		],
 		"vs/workbench/services/extensionManagement/common/extensionsIcons": [
+			"Icon used for the default extension in the extensions view and editor.",
 			"Icon used for the verified extension publisher in the extensions view and editor.",
 			"The icon color for extension verified publisher."
 		],

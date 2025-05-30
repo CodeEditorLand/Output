@@ -1,2 +1,2 @@
 const t=`vscode_lsp_terminal_prompt_tracker= {}
-`,o=`ms-python.python(.["')`,p="python";export{t as $Htc,o as $Itc,p as $Jtc};
+`,o=`ms-python.python(.["')`,p="python";export{t as $Ntc,o as $Otc,p as $Ptc};

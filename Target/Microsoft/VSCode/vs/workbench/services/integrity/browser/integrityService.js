@@ -1,1 +1,1 @@
-import{$Czc as r}from"../common/integrity.js";import{$UB as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $Dzc};
+import{$Izc as r}from"../common/integrity.js";import{$UB as o}from"../../../../platform/instantiation/common/extensions.js";class e{async isPure(){return{isPure:!0,proof:[]}}}o(r,e,1);export{e as $Jzc};

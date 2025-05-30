@@ -1,1 +1,1 @@
-import{$8m as r}from"../common/ipc.mp.js";class a extends r{constructor(s,e){super(s,e)}}export{a as $X0};
+import{$8m as r}from"../common/ipc.mp.js";class a extends r{constructor(e,s){super(e,s)}}export{a as $e$};

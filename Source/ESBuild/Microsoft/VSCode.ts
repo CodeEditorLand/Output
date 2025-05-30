@@ -27,15 +27,21 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 			},
 
 			treeShaking: true,
+
 			target: ((Browser: string[]) => {
 				const Target = new Set<string>();
 
 				const Supported = new Set([
 					"chrome",
+
 					"edge",
+
 					"firefox",
+
 					"ios",
+
 					"safari",
+
 					"opera",
 				]);
 
@@ -127,5 +133,7 @@ export default (async (Current: BuildOptions): Promise<BuildOptions> =>
 					"cgmanifest.json",
 				],
 			),
+
+			platform: "browser",
 		},
 	)) satisfies Interface as Interface;

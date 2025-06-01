@@ -1,1 +1,1 @@
-import{$EQ as s}from"../../compositeToken.js";class t extends s{}class r extends t{}export{t as $PQ,r as $QQ};
+import{$xQ as s}from"../../compositeToken.js";class t extends s{}class o extends t{}export{t as $IQ,o as $JQ};

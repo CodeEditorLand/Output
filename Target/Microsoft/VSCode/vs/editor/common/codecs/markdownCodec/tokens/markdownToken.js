@@ -1,1 +1,1 @@
-import{$dQ as e}from"../../baseToken.js";class s extends e{}export{s as $1R};
+import{$9P as t}from"../../baseToken.js";class r extends t{}export{r as $tR};

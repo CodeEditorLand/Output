@@ -1,1 +1,1 @@
-const e="remote.defaultExtensionsIfInstalledLocally";export{e as $ruc};
+const e="remote.defaultExtensionsIfInstalledLocally";export{e as $xuc};

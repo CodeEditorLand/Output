@@ -1,1 +1,1 @@
-import{$oj as o}from"../../instantiation/common/instantiation.js";const r=o("layoutService");export{r as $thb};
+import{$oj as o}from"../../instantiation/common/instantiation.js";const t=o("layoutService");export{t as $xhb};

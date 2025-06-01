@@ -1,1 +1,1 @@
-import{$EQ as t}from"./compositeToken.js";class s extends t{toString(){return`text(${this.shortText()})${this.range}`}}export{s as $qR};
+import{$xQ as t}from"./compositeToken.js";class s extends t{toString(){return`text(${this.shortText()})${this.range}`}}export{s as $sR};

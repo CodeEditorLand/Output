@@ -1,1 +1,1 @@
-import{$obb as o}from"../../view/viewPart.js";class r extends o{}export{r as $4cb};
+import{$sbb as s}from"../../view/viewPart.js";class o extends s{}export{o as $8cb};

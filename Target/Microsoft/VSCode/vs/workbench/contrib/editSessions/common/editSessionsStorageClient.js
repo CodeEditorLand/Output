@@ -1,1 +1,1 @@
-import{$j8b as e}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";class s extends e{}export{s as $Zwc};
+import{$o8b as o}from"../../../../platform/userDataSync/common/userDataSyncStoreService.js";class s extends o{}export{s as $6wc};

@@ -598,6 +598,7 @@
 			"editor.find.replaceHistory.never",
 			"editor.find.replaceHistory.workspace",
 			"find.replaceHistory",
+			"find.findOnType",
 			"fontLigatures",
 			"fontFeatureSettings",
 			"fontLigaturesGeneral",
@@ -7697,7 +7698,14 @@
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatToolInputOutputContentPart": [
 			"chat.input",
-			"chat.output"
+			"chat.output",
+			"chat.unknownData",
+			"chat.unknownData.full",
+			"chat.saveResources.error",
+			"chat.saveResources.progress",
+			"chat.saveResources.reveal",
+			"chat.saveResources.title",
+			"chat.saveResources"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatTreeContentPart": [
 			"treeAriaLabel"
@@ -8210,7 +8218,7 @@
 			"workbench.command.prompts.create.error.invalid-prompt-name"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
-			"eee",
+			"configure-tools.capitalized.ellipsis",
 			"placeholder"
 		],
 		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
@@ -8348,11 +8356,10 @@
 			"chat.prompt.frontMatter.background.description",
 			"chat.prompt.frontMatter.inactiveBackground.description"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/header": [
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/headerBase": [
 			"prompt.header.diagnostics.unexpected-token",
 			"prompt.header.metadata.diagnostics.duplicate-record",
 			"prompt.header.metadata.diagnostics.unknown-record",
-			"prompt.header.metadata.mode.diagnostics.incompatible-with-tools",
 			"prompt.header.diagnostics.parsing-error"
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/applyTo": [
@@ -8370,6 +8377,9 @@
 			"prompt.header.metadata.tools.diagnostics.invalid-tool-name-type",
 			"prompt.header.metadata.tools.diagnostics.empty-tool-name",
 			"prompt.header.metadata.tools.diagnostics.duplicate-tool-name"
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/promptHeader": [
+			"prompt.header.metadata.mode.diagnostics.incompatible-with-tools"
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/topError": [
 			"workbench.reusable-prompts.top-error.more-issues-label",
@@ -8474,7 +8484,9 @@
 			"fetchWebPage.pastTenseMessageResult.singular",
 			"fetchWebPage.invocationMessage.singular",
 			"fetchWebPage.confirmationTitle.singular",
+			"fetchWebPage.confirmationMessage.singular",
 			"fetchWebPage.confirmationTitle.plural",
+			"fetchWebPage.confirmationMessage.plural",
 			"fetchWebPage.invalidUrl"
 		],
 		"vs/workbench/contrib/codeActions/browser/codeActionsContribution": [
@@ -11055,6 +11067,7 @@
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsViews": [
 			"showingExtensionsForFeature",
+			"showing local extensions only",
 			"no extensions found",
 			"offline error",
 			"error",
@@ -11228,7 +11241,8 @@
 			"installExtensionsTool.userDescription",
 			"installExtensionsTool.confirmationTitle",
 			"installExtensionsTool.confirmationMessage",
-			"installExtensionsTool.resultMessage"
+			"installExtensionsTool.resultMessage",
+			"installExtensionsTool.noResultMessage"
 		],
 		"vs/workbench/contrib/extensions/common/reportExtensionIssueAction": [
 			"reportExtensionIssue"
@@ -12722,8 +12736,12 @@
 			"mcp.showOutput",
 			"mcp.configAccess",
 			"mcp.showOutput.description",
+			"mcp.samplingLog",
+			"mcp.samplingLog.description",
+			"mcp.resources",
 			"mcp.config",
 			"mcp.selectAction",
+			"mcp.samplingLog.title",
 			"mcp.newTools",
 			"mcp.toolError",
 			"mcp.toolRefresh",
@@ -12833,7 +12851,8 @@
 			"mcp.resource.template.placeholder",
 			"mcp.resource.template.optional",
 			"mcp.resource.template.empty",
-			"mcp.quickaccess.attach"
+			"mcp.quickaccess.attach",
+			"mcp.quickaccess.placeholder"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
 			"install",
@@ -12935,6 +12954,9 @@
 			"mcp.trust.no",
 			"mcp.launchError",
 			"mcp.launchError.openConfig"
+		],
+		"vs/workbench/contrib/mcp/common/mcpSamplingLog": [
+			"mcp.sampling.rpd"
 		],
 		"vs/workbench/contrib/mcp/common/mcpSamplingService": [
 			"mcp.sampling.allowDuringChat.title",
@@ -21766,6 +21788,7 @@
 			"Do not store history from the replace widget.",
 			"Store replace history across the active workspace",
 			"Controls how the replace widget history should be stored",
+			"Controls whether the Find Widget should search as you type.",
 			"Enables/Disables font ligatures ('calt' and 'liga' font features). Change this to a string for fine-grained control of the 'font-feature-settings' CSS property.",
 			"Explicit 'font-feature-settings' CSS property. A boolean can be passed instead if one only needs to turn on/off ligatures.",
 			"Configures font ligatures or font features. Can be either a boolean to enable/disable ligatures or a string for the value of the CSS 'font-feature-settings' property.",
@@ -27290,7 +27313,7 @@
 			"Chat",
 			"Chat",
 			"Chat",
-			"The maximum number of requests to allow Copilot Edits to use per-turn in agent mode. When the limit is reached, Copilot will ask the user to confirm that it should keep working.",
+			"The maximum number of requests to allow Copilot to use per-turn in agent mode. When the limit is reached, Copilot will ask the user to confirm that it should continue.",
 			"Start a new chat",
 			"Save chat to a prompt file",
 			"Choose a file in the workspace"
@@ -27400,7 +27423,14 @@
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatToolInputOutputContentPart": [
 			"Input",
-			"Output"
+			"Output",
+			"Unknown Data",
+			"Unknown Data with MIME type {0}",
+			"Failed to save {0}: {1}",
+			"Saving resources...",
+			"Saved resources to {0}",
+			"Pick folder to save resources",
+			"Save As..."
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatTreeContentPart": [
 			"File Tree"
@@ -28007,11 +28037,10 @@
 			"Background color of a Front Matter header block.",
 			"Background color of an inactive Front Matter header block."
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/header": [
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/headerBase": [
 			"Unexpected token '{0}'.",
 			"Duplicate metadata '{0}' will be ignored.",
 			"Unknown metadata '{0}' will be ignored.",
-			"Record '{0}' is implied to have the '{1}' value if '{2}' record is present so the specified value will be ignored.",
 			"Failed to parse prompt header: {0}"
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/metadata/applyTo": [
@@ -28029,6 +28058,9 @@
 			"Unexpected tool name '{0}', expected '{1}'.",
 			"Tool name cannot be empty.",
 			"Duplicate tool name '{0}'."
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/parsers/promptHeader/promptHeader": [
+			"Record '{0}' is implied to have the '{1}' value if '{2}' record is present so the specified value will be ignored."
 		],
 		"vs/workbench/contrib/chat/common/promptSyntax/parsers/topError": [
 			"\n(+{0} more issues)",
@@ -28122,8 +28154,10 @@
 			"Fetching [web page]({0})",
 			"Fetched {0}",
 			"Fetching {0}",
-			"Fetch untrusted web page?",
-			"Fetch untrusted web pages?",
+			"Fetch web page?",
+			"Web content may contain malicious code or attempt prompt injection attacks.",
+			"Fetch web pages?",
+			"Web content may contain malicious code or attempt prompt injection attacks.",
 			"Invalid URL"
 		],
 		"vs/workbench/contrib/codeActions/browser/codeActionsContribution": [
@@ -30089,6 +30123,7 @@
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsViews": [
 			"Extensions using {0} in the last 30 days",
+			"{0} Showing local extensions.",
 			"No extensions found.",
 			"Unable to search the Marketplace when offline, please check your network connection.",
 			"Error while fetching extensions. {0}",
@@ -30238,11 +30273,12 @@
 		],
 		"vs/workbench/contrib/extensions/common/installExtensionsTool": [
 			"Install Extensions",
-			"This is a tool for installing extensions in Visual Studio Code. You should provide the list of extension ids to install, and the confirmation message that is shown to the user. The identifier of an extension is '${ publisher }.${ name }' for example: 'vscode.csharp'.",
+			"This is a tool for installing extensions in Visual Studio Code. You should provide the list of extension ids to install. The identifier of an extension is '${ publisher }.${ name }' for example: 'vscode.csharp'.",
 			"Tool for installing extensions",
 			"Install Extensions",
-			"These extensions are recommeded for you by Copilot.",
-			"Following extensions are installed: {0}"
+			"Review the suggested extensions and click the **Install** button for each extension you wish to add. Once you have finished installing the selected extensions, click **Continue** to proceed.",
+			"Following extensions are installed: {0}",
+			"No extensions were installed."
 		],
 		"vs/workbench/contrib/extensions/common/reportExtensionIssueAction": [
 			"Report Issue"
@@ -30254,7 +30290,7 @@
 		"vs/workbench/contrib/extensions/common/searchExtensionsTool": [
 			"Search Extensions",
 			"This is a tool for browsing Visual Studio Code Extensions Marketplace. It allows the model to search for extensions and retrieve detailed information about them. The model should use this tool whenever it needs to discover extensions or resolve information about known ones. To use the tool, the model has to provide the category of the extensions, relevant search keywords, or known extension IDs. Note that search results may include false positives, so reviewing and filtering is recommended.",
-			"Search for extensions in the Visual Studio Code Extensions Marketplace.",
+			"Search for extensions in the Visual Studio Code Extensions Marketplace",
 			"Please provide a category or keywords or ids to search for."
 		],
 		"vs/workbench/contrib/extensions/electron-sandbox/debugExtensionHostAction": [
@@ -31384,8 +31420,12 @@
 			"Show Output",
 			"Configure Model Access",
 			"Set the models the server can use via MCP sampling",
+			"Show Sampling Requests",
+			"Show the sampling requests for this server",
+			"Browse Resources",
 			"Show Configuration",
 			"Select Server Action",
+			"MCP Sampling: {0}",
 			"New tools available ({0})",
 			"Error loading {0} tool(s)",
 			"Discovering tools...",
@@ -31495,7 +31535,8 @@
 			"Value for ${0} in {1}",
 			"Optional",
 			"<Empty>",
-			"Attach to chat"
+			"Attach to chat",
+			"Search for resources"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpServerActions": [
 			"Install",
@@ -31597,6 +31638,9 @@
 			"Do not trust",
 			"Error starting {0}: {1}",
 			"Open Configuration"
+		],
+		"vs/workbench/contrib/mcp/common/mcpSamplingLog": [
+			"{0} total requests in the last 7 days."
 		],
 		"vs/workbench/contrib/mcp/common/mcpSamplingService": [
 			"Allow MCP tools from \"{0}\" to make LLM requests?",

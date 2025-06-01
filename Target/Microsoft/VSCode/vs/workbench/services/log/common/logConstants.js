@@ -1,1 +1,1 @@
-import{localize as o}from"../../../../nls.js";const e="rendererLog",r={id:e,name:o(14206,null)},t="workbench.action.showWindowLog";export{t as $1Gb,e as $YGb,r as $ZGb};
+import{localize as o}from"../../../../nls.js";const e="rendererLog",r={id:e,name:o(14224,null)},t="workbench.action.showWindowLog";export{e as $5Gb,r as $6Gb,t as $7Gb};

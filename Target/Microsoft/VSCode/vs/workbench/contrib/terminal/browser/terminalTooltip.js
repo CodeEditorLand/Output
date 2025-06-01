@@ -6,13 +6,13 @@ ${n.icon?`$(${n.icon?.id}) `:""}`+(n.detailedTooltip??n.tooltip??"")):n.tooltip&
 
 ---
 
-${n.icon?`$(${n.icon?.id}) `:""}`+(n.tooltip??"")),n.hoverActions&&o.push(...n.hoverActions);o.push({commandId:"toggleDetailedInfo",label:t?i(11590,null):i(11591,null),run(){s.store("terminal.integrated.tabs.showDetailed",(t+1)%2,-1,0)}});const u=f(e,!!t);return{content:new a(e.title+u+l,{supportThemeIcons:!0}),actions:o}}function f(e,s){const t=[];if(e.processId&&e.processId>0&&t.push(i(11592,null,"PID",e.processId)+`
-`),e.shellLaunchConfig.executable){let l="";if(!s&&e.shellLaunchConfig.executable.length>32){const o=h(e.shellLaunchConfig.executable),u=e.shellLaunchConfig.executable.length-o.length-1,p=e.shellLaunchConfig.executable.substring(u,u+1);l+=`\u2026${p}${o}`}else l+=e.shellLaunchConfig.executable;const r=c(e.injectedArgs||e.shellLaunchConfig.args||[]).map(o=>o.match(/\s/)?`'${o}'`:o).join(" ");r&&(l+=` ${r}`),t.push(i(11593,null,l))}return t.length?`
+${n.icon?`$(${n.icon?.id}) `:""}`+(n.tooltip??"")),n.hoverActions&&o.push(...n.hoverActions);o.push({commandId:"toggleDetailedInfo",label:t?i(11608,null):i(11609,null),run(){s.store("terminal.integrated.tabs.showDetailed",(t+1)%2,-1,0)}});const u=f(e,!!t);return{content:new a(e.title+u+l,{supportThemeIcons:!0}),actions:o}}function f(e,s){const t=[];if(e.processId&&e.processId>0&&t.push(i(11610,null,"PID",e.processId)+`
+`),e.shellLaunchConfig.executable){let l="";if(!s&&e.shellLaunchConfig.executable.length>32){const o=h(e.shellLaunchConfig.executable),u=e.shellLaunchConfig.executable.length-o.length-1,p=e.shellLaunchConfig.executable.substring(u,u+1);l+=`\u2026${p}${o}`}else l+=e.shellLaunchConfig.executable;const r=c(e.injectedArgs||e.shellLaunchConfig.args||[]).map(o=>o.match(/\s/)?`'${o}'`:o).join(" ");r&&(l+=` ${r}`),t.push(i(11611,null,l))}return t.length?`
 
 ---
 
 ${t.join(`
-`)}`:""}function L(e){if(!e.xterm)return;const s=e.capabilities.get(2)?.hasRichCommandDetection?i(11594,null):e.capabilities.has(2)?i(11595,null):e.usedShellIntegrationInjection?i(11596,null):i(11597,null),t=[],l=Array.from(e.xterm.shellIntegration.seenSequences);l.length>0&&t.push(`Seen sequences: ${l.map(p=>`\`${p}\``).join(", ")}`);const r=e.capabilities.get(2)?.promptType;r&&t.push(`Prompt type: \`${r}\``);const o=e.capabilities.get(2)?.promptInputModel.getCombinedString();o!==void 0&&t.push(`Prompt input: \`${o}\``);const u=t.length>0?`
+`)}`:""}function L(e){if(!e.xterm)return;const s=e.capabilities.get(2)?.hasRichCommandDetection?i(11612,null):e.capabilities.has(2)?i(11613,null):e.usedShellIntegrationInjection?i(11614,null):i(11615,null),t=[],l=Array.from(e.xterm.shellIntegration.seenSequences);l.length>0&&t.push(`Seen sequences: ${l.map(p=>`\`${p}\``).join(", ")}`);const r=e.capabilities.get(2)?.promptType;r&&t.push(`Prompt type: \`${r}\``);const o=e.capabilities.get(2)?.promptInputModel.getCombinedString();o!==void 0&&t.push(`Prompt input: \`${o}\``);const u=t.length>0?`
 
 `+t.map(p=>`- ${p}`).join(`
-`):"";e.statusList.add({id:"shell-integration-info",severity:d.Info,tooltip:`${i(11598,null)}: ${s}`,detailedTooltip:`${i(11599,null)}: ${s}${u}`})}export{x as $2qc,f as $3qc,L as $4qc};
+`):"";e.statusList.add({id:"shell-integration-info",severity:d.Info,tooltip:`${i(11616,null)}: ${s}`,detailedTooltip:`${i(11617,null)}: ${s}${u}`})}export{L as $0qc,x as $8qc,f as $9qc};

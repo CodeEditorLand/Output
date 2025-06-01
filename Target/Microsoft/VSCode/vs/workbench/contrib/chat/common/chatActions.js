@@ -1,1 +1,1 @@
-function n(e){return!!e&&typeof e.sessionId=="string"&&e.$mid===19}export{n as $eEb};
+function n(i){return!!i&&typeof i.sessionId=="string"&&i.$mid===19}export{n as $iEb};

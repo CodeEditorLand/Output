@@ -1,1 +1,1 @@
-import{$9P as e}from"../../../../../../../editor/common/codecs/baseToken.js";class s extends e{}export{s as $RR};
+import{$mQ as e}from"../base/baseToken.js";class r extends e{}export{r as $RR};

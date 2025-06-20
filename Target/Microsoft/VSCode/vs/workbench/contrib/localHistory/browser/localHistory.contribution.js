@@ -1,1 +1,1 @@
-import"./localHistoryCommands.js";import{$SK as o}from"../../../common/contributions.js";import{$Rxc as m}from"./localHistoryTimeline.js";o(m.ID,m,2);
+import"./localHistoryCommands.js";import{$WK as o}from"../../../common/contributions.js";import{$Pxc as m}from"./localHistoryTimeline.js";o(m.ID,m,2);

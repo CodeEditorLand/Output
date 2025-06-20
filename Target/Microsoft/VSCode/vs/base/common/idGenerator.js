@@ -1,1 +1,1 @@
-class s{constructor(t){this.a=t,this.b=0}nextId(){return this.a+ ++this.b}}const r=new s("id#");export{s as $e2,r as $f2};
+class s{constructor(t){this.a=t,this.b=0}nextId(){return this.a+ ++this.b}}const o=new s("id#");export{s as $n2,o as $o2};

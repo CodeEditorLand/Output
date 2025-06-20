@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../../platform/instantiation/common/instantiation.js";const r=o("editorPaneService");export{r as $QK};
+import{$nj as e}from"../../../../platform/instantiation/common/instantiation.js";const r=e("editorPaneService");export{r as $UK};

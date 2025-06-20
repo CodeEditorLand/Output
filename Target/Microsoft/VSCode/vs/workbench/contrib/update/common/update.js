@@ -1,1 +1,1 @@
-const e="update.showCurrentReleaseNotes",o="developer.showCurrentFileAsReleaseNotes";export{e as $vic,o as $wic};
+const e="update.showCurrentReleaseNotes",o="developer.showCurrentFileAsReleaseNotes";export{e as $5hc,o as $6hc};

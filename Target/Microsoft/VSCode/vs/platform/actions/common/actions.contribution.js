@@ -1,1 +1,1 @@
-import{$bI as m,$gI as o}from"./actions.js";import{$h6b as r}from"./menuResetAction.js";import{$fgb as f}from"./menuService.js";import{$UB as $}from"../../instantiation/common/extensions.js";$(m,f,1);o(r);
+import{$eI as m,$jI as o}from"./actions.js";import{$U4b as r}from"./menuResetAction.js";import{$hgb as $}from"./menuService.js";import{$WB as f}from"../../instantiation/common/extensions.js";f(m,$,1);o(r);

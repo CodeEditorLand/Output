@@ -1,1 +1,1 @@
-import{$oj as e}from"../../instantiation/common/instantiation.js";const n=e("IRemoteExtensionsScannerService"),t="remoteExtensionsScanner";export{n as $I4,t as $J4};
+import{$nj as e}from"../../instantiation/common/instantiation.js";const o=e("IRemoteExtensionsScannerService"),t="remoteExtensionsScanner";export{o as $R4,t as $S4};

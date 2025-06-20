@@ -1,1 +1,1 @@
-import{$sd as t}from"../../../../base/common/lifecycle.js";class i{constructor(){this.a=new Map}get providers(){return[...this.a.values()]}registerProvider(e,r){return this.a.set(r,e),t(()=>this.a.delete(r))}}export{i as $qhc};
+import{$td as e}from"../../../../base/common/lifecycle.js";class i{constructor(){this.a=new Map}get providers(){return[...this.a.values()]}registerProvider(t,r){return this.a.set(r,t),e(()=>this.a.delete(r))}}export{i as $Dgc};

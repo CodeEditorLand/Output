@@ -1,1 +1,1 @@
-var p;(function(c){c.Jump="jump",c.Accept="accept",c.Inactive="inactive"})(p||(p={}));export{p as InlineEditTabAction};
+var t;(function(e){e.Jump="jump",e.Accept="accept",e.Inactive="inactive"})(t||(t={}));var c;(function(e){e.GhostText="ghostText",e.Custom="custom",e.SideBySide="sideBySide",e.Deletion="deletion",e.InsertionInline="insertionInline",e.InsertionMultiLine="insertionMultiLine",e.WordReplacements="wordReplacements",e.LineReplacement="lineReplacement",e.Collapsed="collapsed"})(c||(c={}));export{c as InlineCompletionViewKind,t as InlineEditTabAction};

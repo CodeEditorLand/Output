@@ -1,1 +1,0 @@
-import{$$Oc as c}from"./decorationBase.js";import{$_Oc as s}from"./reactiveDecorationBase.js";const o=e=>`var(--vscode-${e.replaceAll(".","-")})`;export{o as $aPc,c as DecorationBase,s as ReactiveDecorationBase};

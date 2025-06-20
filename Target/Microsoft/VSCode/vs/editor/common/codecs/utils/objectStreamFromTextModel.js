@@ -1,1 +1,0 @@
-import{$qR as r}from"./objectStream.js";import{$Ki as i}from"../../../../base/common/buffer.js";function s(n,t){return new r(o(n),t)}const o=n=>function*(){const t=n.getLineCount();let e=1;for(;e<=t;){if(n.isDisposed())return;yield i.fromString(n.getLineContent(e)),e!==t&&(yield i.fromString(n.getEOL())),e++}}();export{s as $sS};

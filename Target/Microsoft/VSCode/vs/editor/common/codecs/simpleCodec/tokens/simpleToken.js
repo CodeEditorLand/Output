@@ -1,1 +1,0 @@
-import{$_B as i}from"../../../core/range.js";import{$9P as a}from"../../baseToken.js";class m extends a{static newOnLine(s,e,t){const{range:n}=s;return new t(new i(n.startLineNumber,e,n.startLineNumber,e+t.symbol.length))}}class p extends m{}export{m as $$P,p as $_P};

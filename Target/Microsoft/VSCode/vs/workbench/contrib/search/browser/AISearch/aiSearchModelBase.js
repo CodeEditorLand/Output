@@ -1,1 +1,1 @@
-import{$_B as n}from"../../../../../editor/common/core/range.js";function r(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{r as $7bc};
+import{$cC as n}from"../../../../../editor/common/core/range.js";function r(e){return e&&e.getFullRange&&e.getFullRange()instanceof n}export{r as $ibc};

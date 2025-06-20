@@ -1,1 +1,1 @@
-import{$0ib as a}from"../colorDetector.js";function r(e){const t=e.target;return!!t&&t.type===6&&t.detail.injectedText?.options.attachedData===a}export{r as $8mb};
+import{$_ib as a}from"../colorDetector.js";function o(e){const t=e.target;return!!t&&t.type===6&&t.detail.injectedText?.options.attachedData===a}export{o as $dnb};

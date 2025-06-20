@@ -1,1 +1,0 @@
-import{$5fc as o}from"./attachInstructions.js";import{$vfc as p}from"../../../../../../common/promptSyntax/service/promptsService.js";const e=async(c,a)=>{const t=await o(a);return t.setInput(`/${p(c.path)}`),await t.acceptInput(),{widget:t}};export{e as $dgc};

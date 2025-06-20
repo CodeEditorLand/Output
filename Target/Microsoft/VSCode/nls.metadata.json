@@ -822,6 +822,8 @@
 			"editor.autoIndent.advanced",
 			"editor.autoIndent.full",
 			"autoIndent",
+			"autoIndentOnPaste",
+			"autoIndentOnPasteWithinString",
 			"editor.autoSurround.languageDefined",
 			"editor.autoSurround.quotes",
 			"editor.autoSurround.brackets",
@@ -851,7 +853,7 @@
 			"cursorSurroundingLinesStyle",
 			"cursorWidth",
 			"dragAndDrop",
-			"experimentalEditContextEnabled",
+			"editContext",
 			"experimentalGpuAcceleration.off",
 			"experimentalGpuAcceleration.on",
 			"experimentalGpuAcceleration",
@@ -920,6 +922,7 @@
 			"roundedSelection",
 			"scrollBeyondLastColumn",
 			"scrollBeyondLastLine",
+			"scrollOnMiddleClick",
 			"scrollPredominantAxis",
 			"selectionClipboard",
 			"selectionHighlight",
@@ -2129,6 +2132,7 @@
 			"peekViewEditorBackground",
 			"peekViewEditorGutterBackground",
 			"peekViewEditorStickScrollBackground",
+			"peekViewEditorStickyScrollGutterBackground",
 			"peekViewResultsMatchHighlight",
 			"peekViewEditorMatchHighlight",
 			"peekViewEditorMatchHighlightBorder"
@@ -3167,6 +3171,21 @@
 			"cancel",
 			"cantUninstall",
 			"sourceMissing",
+			"openExternalErrorLinkMessage",
+			"openExternalProgramErrorMessage",
+			{
+				"key": "copyLink",
+				"comment": [
+					"&& denotes a mnemonic"
+				]
+			},
+			"cancel",
+			{
+				"key": "ok",
+				"comment": [
+					"&& denotes a mnemonic"
+				]
+			},
 			"trace.message",
 			"trace.detail",
 			{
@@ -3175,6 +3194,11 @@
 					"&& denotes a mnemonic"
 				]
 			}
+		],
+		"vs/platform/notification/common/notification": [
+			"severityPrefix.error",
+			"severityPrefix.warning",
+			"severityPrefix.info"
 		],
 		"vs/platform/process/electron-main/processMainService": [
 			"local"
@@ -3399,6 +3423,7 @@
 			"editorBackground",
 			"editorForeground",
 			"editorStickyScrollBackground",
+			"editorStickyScrollGutterBackground",
 			"editorStickyScrollHoverBackground",
 			"editorStickyScrollBorder",
 			"editorStickyScrollShadow",
@@ -3990,10 +4015,8 @@
 			"remoteExtensionLog"
 		],
 		"vs/workbench/api/browser/mainThreadAuthentication": [
-			"signedOut",
 			"yes",
 			"no",
-			"confirmModelAccess",
 			"confirmRelogin",
 			"confirmLogin",
 			{
@@ -4091,7 +4114,8 @@
 			"label"
 		],
 		"vs/workbench/api/browser/mainThreadLanguageModels": [
-			"languageModelsAccountId"
+			"languageModelsAccountId",
+			"confirmLanguageModelAccess"
 		],
 		"vs/workbench/api/browser/mainThreadMcp": [
 			"incorrectAccount",
@@ -5798,6 +5822,9 @@
 			"manageTrustedExtensions",
 			"manageTrustedMCPServers",
 			"signOut",
+			"authProviderUnavailable",
+			"manageTrustedMCPServers",
+			"signOut",
 			"manage",
 			"manage profile",
 			"hideAccounts",
@@ -5806,7 +5833,6 @@
 		],
 		"vs/workbench/browser/parts/notifications/notificationAccessibleView": [
 			"notification.accessibleViewSrc",
-			"notification.accessibleView",
 			"clearNotification",
 			"clearNotification"
 		],
@@ -6177,14 +6203,9 @@
 				]
 			},
 			"unableToOpenExternal",
+			"unableToOpenWindowDetail",
 			{
-				"key": "open",
-				"comment": [
-					"&& denotes a mnemonic"
-				]
-			},
-			{
-				"key": "learnMore",
+				"key": "retry",
 				"comment": [
 					"&& denotes a mnemonic"
 				]
@@ -7128,9 +7149,7 @@
 			"authenticationlabel",
 			"authenticationid",
 			"authenticationMcpAuthorizationServers",
-			"authentication",
-			"authentication.Placeholder",
-			"loading"
+			"authentication"
 		],
 		"vs/workbench/contrib/bulkEdit/browser/bulkEditService": [
 			"summary.0",
@@ -7326,11 +7345,7 @@
 			"agent.newSession",
 			"agent.newSessionMessage",
 			"agent.newSession.confirm",
-			"chat.startEditing.confirmation.pending.message.default",
-			"chat.startEditing.confirmation.title",
-			"chat.startEditing.confirmation.pending.message.2",
-			"chat.startEditing.confirmation.acceptEdits",
-			"chat.startEditing.confirmation.discardEdits",
+			"copilot",
 			"chat.category",
 			"openChat",
 			"openChatMode",
@@ -7419,7 +7434,22 @@
 			"chat.export.label",
 			"chat.import.label"
 		],
+		"vs/workbench/contrib/chat/browser/actions/chatLanguageModelActions": [
+			"noLanguageModels",
+			"noLanguageModelsDetail",
+			"extensionOwner",
+			"openExtension",
+			"trustedExtension",
+			"noAllowedExtensions",
+			"noAccessDescription",
+			"languageModelAuthTitle",
+			"languageModelAuthPlaceholder",
+			"manageLanguageModelAuthentication"
+		],
 		"vs/workbench/contrib/chat/browser/actions/chatMoveActions": [
+			"interactiveSession.openInSecondarySidebar.label",
+			"interactiveSession.openInPrimarySidebar.label",
+			"interactiveSession.openInPanel.label",
 			"chat.openInEditor.label",
 			"chat.openInNewWindow.label",
 			"interactiveSession.openInSidebar.label"
@@ -7486,53 +7516,16 @@
 			"applyCodeBlock.progress",
 			"applyCodeBlock.error"
 		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatAttachInstructionsAction": [
-			"commands.instructions.select-dialog.placeholder",
-			"chatContext.attach.instructions.label",
-			"user-data-dir.capitalized",
-			"placeholder",
-			"attach-instructions.capitalized.ellipses"
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatModeActions": [
-			"manage-mode",
-			"commands.mode.select-dialog.placeholder",
-			"manage-mode.capitalized"
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatRunPromptAction": [
-			"commands.prompt.select-dialog.placeholder",
-			"run-prompt.capitalized",
-			"run-prompt.capitalized.ellipses",
-			"run-prompt-in-new-chat.capitalized"
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatSaveToPromptAction": [
-			"workbench.actions.save-to-prompt.label"
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/dialogs/askToSelectPrompt/promptFilePickers": [
-			"help",
-			"commands.new-promptfile.select-dialog.label",
-			"commands.new-instructionsfile.select-dialog.label",
-			"commands.new-modefile.select-dialog.label",
-			"commands.prompts.use.select-dialog.open-button.tooltip",
-			"delete",
-			"user-data-dir.capitalized",
-			"commands.prompts.use.select-dialog.delete-prompt.confirm.message"
-		],
 		"vs/workbench/contrib/chat/browser/attachments/implicitContextAttachment": [
 			"cell.lowercase",
 			"file.lowercase",
-			"prompt.lowercase",
+			"chat.fileAttachmentWithRange",
 			"chat.fileAttachment",
 			"openEditor",
-			"enableHint"
-		],
-		"vs/workbench/contrib/chat/browser/attachments/promptInstructions/promptInstructionsWidget": [
-			"chat.promptAttachment",
-			"chat.instructionsAttachment",
-			"prompt",
-			"instructions",
-			"error",
-			"warning",
-			"remove"
+			"enableHint",
+			"hint.label.current",
+			"disable",
+			"enable"
 		],
 		"vs/workbench/contrib/chat/browser/chat.contribution": [
 			"interactiveSessionConfigurationTitle",
@@ -7559,6 +7552,7 @@
 			"chat.sendElementsToChat.enabled",
 			"chat.sendElementsToChat.attachCSS",
 			"chat.sendElementsToChat.attachImages",
+			"chat.undoRequests.restoreInput",
 			"chat.mcp.enabled",
 			"chat.mcp.serverSampling",
 			"mcp.list",
@@ -7585,6 +7579,7 @@
 			"chat.mode.config.locations.description",
 			"chat.signInWithAlternateProvider",
 			"chat.signInDialogVariant",
+			"chat.continueLaterIndicator",
 			"chat",
 			"chat",
 			"interactiveSessionConfigurationTitle",
@@ -7613,7 +7608,7 @@
 			"reservedName",
 			"viewExtensionLabel"
 		],
-		"vs/workbench/contrib/chat/browser/chatAttachmentResolve": [
+		"vs/workbench/contrib/chat/browser/chatAttachmentResolveService": [
 			"imageTooLarge",
 			"imageTooLargeMessage"
 		],
@@ -7626,10 +7621,15 @@
 			"chat.omittedImageAttachment",
 			"chat.partiallyOmittedImageAttachment",
 			"chat.imageAttachment",
-			"chat.fileAttachmentHover",
+			"chat.imageAttachmentHover",
 			"chat.imageAttachmentWarning",
 			"chat.attachment",
 			"chat.attachment",
+			"chat.promptAttachment",
+			"chat.instructionsAttachment",
+			"prompt",
+			"instructions",
+			"instructions.label",
 			"chat.attachment",
 			"toolset",
 			"tool",
@@ -7638,13 +7638,11 @@
 			"chat.partiallyOmittedNotebookImageAttachment",
 			"chat.elementAttachment",
 			"chat.clickToViewContents",
-			"chat.attachment"
+			"chat.attachment",
+			"resource"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatAgentCommandContentPart": [
 			"rerun"
-		],
-		"vs/workbench/contrib/chat/browser/chatContentParts/chatAttachmentsContentPart": [
-			"resource"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatCodeCitationContentPart": [
 			"viewMatches"
@@ -7657,6 +7655,10 @@
 			"commandButtonDisabled"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatConfirmationContentPart": [
+			"accept",
+			"dismiss"
+		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/chatElicitationContentPart": [
 			"accept",
 			"dismiss"
 		],
@@ -7699,8 +7701,6 @@
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatToolInputOutputContentPart": [
 			"chat.input",
 			"chat.output",
-			"chat.unknownData",
-			"chat.unknownData.full",
 			"chat.saveResources.error",
 			"chat.saveResources.progress",
 			"chat.saveResources.reveal",
@@ -7716,9 +7716,6 @@
 			"installExtensions",
 			"installExtensionsConfirmation"
 		],
-		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatInputOutputMarkdownProgressPart": [
-			"toolResultData"
-		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatTerminalToolSubPart": [
 			"continue",
 			"cancel"
@@ -7733,6 +7730,8 @@
 			"allowGlobally",
 			"allowGloballTooltip",
 			"cancel",
+			"chat.input",
+			"seeMore",
 			"seeMore"
 		],
 		"vs/workbench/contrib/chat/browser/chatDragAndDrop": [
@@ -7748,10 +7747,6 @@
 			"attacAsContext"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingActions": [
-			"chat.editing.removeFile.confirmationmanyFiles",
-			"chat.editing.removeFile.confirmation.title",
-			"chat.editing.removeFile.confirmation.message",
-			"chat.editing.removeFile.confirmation.primaryButton",
 			"accept",
 			"acceptAllEdits",
 			"discard",
@@ -7760,8 +7755,6 @@
 			"chat.editing.discardAll.confirmation.oneFile",
 			"chat.editing.discardAll.confirmation.manyFiles",
 			"chat.editing.discardAll.confirmation.primaryButton",
-			"clearWorkingSet",
-			"clearWorkingSet",
 			"chatEditing.viewChanges",
 			"chat.removeLast.confirmation.message2",
 			"chat.removeLast.confirmation.multipleEdits.message",
@@ -7775,7 +7768,6 @@
 			"chat.openSnapshot.label",
 			"chatEditing.snapshot",
 			"chatEditing.viewPreviousEdits",
-			"removeFileFromWorkingSet",
 			"open.fileInDiff",
 			"accept.file",
 			"discard.file",
@@ -7802,7 +7794,9 @@
 			"undo",
 			"diff",
 			"accessibleDiff",
-			"review"
+			"review",
+			"acceptAllEdits",
+			"acceptAllEditsTooltip"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingEditorContextKeys": [
 			"chat.ctxEditSessionIsGlobal",
@@ -7821,7 +7815,8 @@
 			"tooltip_1n",
 			"tooltip_n1",
 			"tooltip_nm",
-			"tooltip_busy"
+			"tooltip_busy",
+			"tooltip"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingModifiedDocumentEntry": [
 			"default",
@@ -7873,7 +7868,12 @@
 			"chatEditorLabelIcon",
 			"chatEditorConfirmTitle",
 			"chat.startEditing.confirmation.pending.message.default",
-			"chatEditorName"
+			"chatEditorName",
+			"chat.startEditing.confirmation.pending.message.default1",
+			"chat.startEditing.confirmation.title",
+			"chat.startEditing.confirmation.pending.message.2",
+			"chat.startEditing.confirmation.acceptEdits",
+			"chat.startEditing.confirmation.discardEdits"
 		],
 		"vs/workbench/contrib/chat/browser/chatFollowups": [
 			"followUpAriaLabel"
@@ -7912,6 +7912,9 @@
 			"goToReferences.label"
 		],
 		"vs/workbench/contrib/chat/browser/chatInputPart": [
+			"chatInput.mode.agent",
+			"chatInput.mode.edit",
+			"chatInput.mode.ask",
 			"actions.chat.accessibiltyHelp",
 			"chatInput.accessibilityHelpNoKb",
 			"chatInput",
@@ -8000,20 +8003,19 @@
 			"copilotFailedWarning",
 			"setupChatSignIn2",
 			"installingCopilot",
-			"copilotSetupSuccess",
 			"copilotSetupError",
 			"emailOrUserIdPlaceholder",
 			"continueWithEmailOrUserId",
 			"createAccount",
 			"or",
-			"continueWithProvider",
-			"continueWithProvider",
-			"continueWithProvider",
-			"continueWithProvider",
+			"continueWith",
+			"continueWith",
+			"continueWith",
+			"continueWith",
 			"signInWithProvider",
 			"continueWithProvider",
-			"continueWithProvider",
-			"continueWithProvider",
+			"continueWith",
+			"continueWith",
 			"signInWithProvider",
 			"continueWithProvider",
 			"createAccount",
@@ -8093,6 +8095,7 @@
 			"gaugeErrorBackground",
 			"gaugeErrorForeground",
 			"chatStatus",
+			"copilotLaterStatus",
 			"copilotDisabledStatus",
 			"notSignedIntoCopilot",
 			"chatQuotaExceededStatus",
@@ -8142,8 +8145,6 @@
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"chat.codeBlockHelp",
-			"chat.codeBlock.toolbarVerbose",
-			"chat.codeBlock.toolbar",
 			"chat.codeBlockLabel",
 			"chat.codeBlockToolbarLabel",
 			"vulnerabilitiesPlural",
@@ -8184,7 +8185,26 @@
 			"chat.moreModels.tooltip",
 			"chat.modelPicker.label"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/createPromptCommand": [
+		"vs/workbench/contrib/chat/browser/modelPicker/modePickerActionItem": [
+			"built-in",
+			"custom"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/attachInstructionsAction": [
+			"commands.instructions.select-dialog.placeholder",
+			"commands.prompt.manage-dialog.placeholder",
+			"chatContext.attach.instructions.label",
+			"user-data-dir.capitalized",
+			"placeholder",
+			"configureInstructions",
+			"attach-instructions.capitalized.ellipses",
+			"configure-instructions"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/chatModeActions": [
+			"manage-mode",
+			"commands.mode.select-dialog.placeholder",
+			"configure-modes"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/newPromptFileActions": [
 			"workbench.command.prompts.create.user.enable-sync-notification",
 			"enable.capitalized",
 			"learnMore.capitalized",
@@ -8192,20 +8212,30 @@
 			"commands.new.instructions.local.title",
 			"commands.new.mode.local.title"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptName": [
+		"vs/workbench/contrib/chat/browser/promptSyntax/pickers/askForPromptName": [
 			"askForPromptFileName.error.empty",
 			"askForPromptFileName.error.invalid",
 			"askForPromptFileName.error.exists",
 			"askForInstructionsFileName.placeholder",
 			"askForPromptFileName.placeholder",
-			"askForModeFileName.placeholder"
+			"askForModeFileName.placeholder",
+			"askForRenamedInstructionsFileName.placeholder",
+			"askForRenamedPromptFileName.placeholder",
+			"askForRenamedModeFileName.placeholder"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptSourceFolder": [
+		"vs/workbench/contrib/chat/browser/promptSyntax/pickers/askForPromptSourceFolder": [
+			"current.folder",
 			"commands.prompts.create.source-folder.user",
 			"commands.prompts.create.source-folder.current-workspace",
 			"workbench.command.instructions.create.location.placeholder",
 			"workbench.command.prompt.create.location.placeholder",
 			"workbench.command.mode.create.location.placeholder",
+			"instructions.move.location.placeholder",
+			"prompt.move.location.placeholder",
+			"mode.move.location.placeholder",
+			"instructions.copy.location.placeholder",
+			"prompt.copy.location.placeholder",
+			"mode.copy.location.placeholder",
 			"commands.prompts.create.ask-folder.empty.docs-label",
 			"commands.instructions.create.ask-folder.empty.docs-label",
 			"commands.mode.create.ask-folder.empty.docs-label",
@@ -8213,13 +8243,33 @@
 			"commands.prompts.create.ask-folder.empty.placeholder",
 			"commands.mode.create.ask-folder.empty.placeholder"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/errors": [
-			"workbench.command.prompts.create.error.folder-exists",
-			"workbench.command.prompts.create.error.invalid-prompt-name"
+		"vs/workbench/contrib/chat/browser/promptSyntax/pickers/promptFilePickers": [
+			"help",
+			"commands.new-promptfile.select-dialog.label",
+			"commands.new-instructionsfile.select-dialog.label",
+			"commands.new-modefile.select-dialog.label",
+			"open",
+			"delete",
+			"rename",
+			"copy",
+			"searching",
+			"user-data-dir.capitalized",
+			"commands.prompts.use.select-dialog.delete-prompt.confirm.message"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
 			"configure-tools.capitalized.ellipsis",
 			"placeholder"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/runPromptAction": [
+			"commands.prompt.select-dialog.placeholder",
+			"commands.prompt.manage-dialog.placeholder",
+			"run-prompt.capitalized",
+			"run-prompt.capitalized.ellipses",
+			"configure-prompts",
+			"run-prompt-in-new-chat.capitalized"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/saveToPromptAction": [
+			"workbench.actions.save-to-prompt.label"
 		],
 		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
 			"schema.default",
@@ -8254,7 +8304,9 @@
 			"chat.avatarForeground",
 			"chat.editedFileForeground",
 			"chat.requestCodeBorder",
-			"chat.requestBubbleBackground"
+			"chat.requestBubbleBackground",
+			"chat.linesAddedForeground",
+			"chat.linesRemovedForeground"
 		],
 		"vs/workbench/contrib/chat/common/chatContextKeys": [
 			"interactiveSessionResponseVote",
@@ -8289,7 +8341,8 @@
 			"chatAgentModeDisallowed",
 			"chatEditingHasToolConfirmation",
 			"toolsCount",
-			"chatHasCustomChatModes"
+			"chatHasCustomChatModes",
+			"chatPanelLocation"
 		],
 		"vs/workbench/contrib/chat/common/chatEditingService": [
 			"chatEditingWidgetFileState",
@@ -8307,8 +8360,6 @@
 			"learnMore"
 		],
 		"vs/workbench/contrib/chat/common/chatModel": [
-			"chat.attachment.problems.all",
-			"chat.attachment.problems.inFile",
 			"editsSummary",
 			"codeCitation",
 			"codeCitations"
@@ -8329,6 +8380,10 @@
 		"vs/workbench/contrib/chat/common/chatSessionStore": [
 			"join.chatSessionStore",
 			"newChat"
+		],
+		"vs/workbench/contrib/chat/common/chatVariableEntries": [
+			"chat.attachment.problems.all",
+			"chat.attachment.problems.inFile"
 		],
 		"vs/workbench/contrib/chat/common/languageModels": [
 			"vscode.extension.contributes.languageModels.vendor",
@@ -8352,7 +8407,12 @@
 		"vs/workbench/contrib/chat/common/modelPicker/modelPickerWidget": [
 			"chat.modelPicker.other"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/contributions/languageFeatures/providers/decorationsProvider/decorations/frontMatterDecoration": [
+		"vs/workbench/contrib/chat/common/promptSyntax/computeAutomaticInstructions": [
+			"instruction.file.reason.allFiles",
+			"instruction.file.reason.specificFile",
+			"instruction.file.reason.referenced"
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/decorationsProvider/decorations/frontMatterDecoration": [
 			"chat.prompt.frontMatter.background.description",
 			"chat.prompt.frontMatter.inactiveBackground.description"
 		],
@@ -8392,7 +8452,7 @@
 			"broken",
 			"workbench.reusable-prompts.top-error.child.final-message"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/service/promptsService": [
+		"vs/workbench/contrib/chat/common/promptSyntax/service/promptsServiceImpl": [
 			"prompt.file.detail",
 			"prompt.file.detail"
 		],
@@ -8412,7 +8472,6 @@
 			"toolTags",
 			"vscode.extension.contributes.toolSets",
 			"toolSetName",
-			"toolSetReferenceName",
 			"toolSetDescription",
 			"toolSetIcon",
 			"toolSetTools",
@@ -8429,10 +8488,10 @@
 		"vs/workbench/contrib/chat/common/voiceChatService": [
 			"voiceChatInProgress"
 		],
-		"vs/workbench/contrib/chat/electron-sandbox/actions/chatDeveloperActions": [
+		"vs/workbench/contrib/chat/electron-browser/actions/chatDeveloperActions": [
 			"workbench.action.chat.openStorageFolder.label"
 		],
-		"vs/workbench/contrib/chat/electron-sandbox/actions/voiceChatActions": [
+		"vs/workbench/contrib/chat/electron-browser/actions/voiceChatActions": [
 			"scopedVoiceChatGettingReady",
 			"scopedVoiceChatInProgress",
 			"listening",
@@ -8461,7 +8520,7 @@
 			"workbench.action.chat.stopReadChatItemAloud",
 			"workbench.action.chat.installProviderForVoiceChat.label"
 		],
-		"vs/workbench/contrib/chat/electron-sandbox/tools/fetchPageTool": [
+		"vs/workbench/contrib/chat/electron-browser/tools/fetchPageTool": [
 			"fetchWebPage.modelDescription",
 			"fetchWebPage.urlsDescription",
 			"fetchWebPage.noValidUrls",
@@ -8694,7 +8753,9 @@
 			"schema.blockComments",
 			"schema.blockComment.begin",
 			"schema.blockComment.end",
-			"schema.lineComment",
+			"schema.lineComment.object",
+			"schema.lineComment.comment",
+			"schema.lineComment.noIndent",
 			"schema.brackets",
 			"schema.colorizedBracketPairs",
 			"schema.autoClosingPairs",
@@ -8750,10 +8811,10 @@
 			"schema.onEnterRules.action.appendText",
 			"schema.onEnterRules.action.removeText"
 		],
-		"vs/workbench/contrib/codeEditor/electron-sandbox/selectionClipboard": [
+		"vs/workbench/contrib/codeEditor/electron-browser/selectionClipboard": [
 			"actions.pasteSelectionClipboard"
 		],
-		"vs/workbench/contrib/codeEditor/electron-sandbox/startDebugTextMate": [
+		"vs/workbench/contrib/codeEditor/electron-browser/startDebugTextMate": [
 			"startDebugTextMate"
 		],
 		"vs/workbench/contrib/commands/common/commands.contribution": [
@@ -10186,6 +10247,7 @@
 			"breakWhenValueIsReadSupported",
 			"terminateDebuggeeSupported",
 			"suspendDebuggeeSupported",
+			"terminateThreadsSupported",
 			"variableEvaluateNamePresent",
 			"variableIsReadonly",
 			"variableValue",
@@ -10631,6 +10693,7 @@
 			"extensions.verifySignature",
 			"autoRestart",
 			"extensions.gallery.serviceUrl",
+			"extensionsSupportNodeGlobalNavigator",
 			"notFound",
 			"workbench.extensions.installExtension.description",
 			"workbench.extensions.installExtension.arg.decription",
@@ -10711,6 +10774,7 @@
 			"extensionInfoVSMarketplaceLink",
 			"download VSIX",
 			"download pre-release",
+			"download specific version",
 			"trustedPublishers",
 			"trustedPublishersPlaceholder",
 			"extensions",
@@ -10835,6 +10899,7 @@
 			"install browser",
 			"uninstallAction",
 			"Uninstalling",
+			"uninstallAll",
 			"uninstallExtensionStart",
 			"uninstallExtensionComplete",
 			"update",
@@ -10906,6 +10971,7 @@
 			"settings",
 			"deprecated with alternate settings tooltip",
 			"deprecated tooltip",
+			"missing from gallery tooltip",
 			"auto update message",
 			"disabled - not allowed",
 			"disabled by environment",
@@ -10998,8 +11064,7 @@
 			"warningIcon",
 			"infoIcon",
 			"trustIcon",
-			"activationtimeIcon",
-			"extension.border"
+			"activationtimeIcon"
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsQuickAccess": [
 			"type",
@@ -11008,6 +11073,10 @@
 			"manage"
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsViewer": [
+			"extension.arialabel.verifiedPublisher",
+			"extension.arialabel.publisher",
+			"extension.arialabel.deprecated",
+			"extension.arialabel.rating",
 			"extensions",
 			"error",
 			"Unknown Extension",
@@ -11071,11 +11140,7 @@
 			"no extensions found",
 			"offline error",
 			"error",
-			"no local extensions",
-			"extension.arialabel.verifiedPublisher",
-			"extension.arialabel.publisher",
-			"extension.arialabel.deprecated",
-			"extension.arialabel.rating"
+			"no local extensions"
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsWidgets": [
 			"install count",
@@ -11146,6 +11211,9 @@
 			"download",
 			"downloading...",
 			"download.completed",
+			"no versions",
+			"pre-release",
+			"selectVersion",
 			"consentRequiredToUpdateRepublishedExtension",
 			"consentRequiredToUpdate",
 			"not an extension",
@@ -11191,6 +11259,9 @@
 				]
 			},
 			"incompatible",
+			"uninstallApplicationScoped",
+			"uninstallApplicationScopedMessage",
+			"uninstallAllProfiles",
 			"uninstallDependents",
 			"uninstallAll",
 			"uninstallingExtension",
@@ -11257,7 +11328,7 @@
 			"searchExtensionsTool.userDescription",
 			"searchExtensionsTool.noInput"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/debugExtensionHostAction": [
+		"vs/workbench/contrib/extensions/electron-browser/debugExtensionHostAction": [
 			"debugExtensionHost",
 			"restart1",
 			"restart2",
@@ -11270,7 +11341,7 @@
 			"debugExtensionHost.progress",
 			"debugExtensionHost.launch.name"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionProfileService": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionProfileService": [
 			"status.profiler",
 			"profilingExtensionHost",
 			"profilingExtensionHost",
@@ -11285,18 +11356,18 @@
 				]
 			}
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensions.contribution": [
+		"vs/workbench/contrib/extensions/electron-browser/extensions.contribution": [
 			"runtimeExtension"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionsActions": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionsActions": [
 			"openExtensionsFolder",
 			"cleanUpExtensionsFolder"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionsAutoProfiler": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionsAutoProfiler": [
 			"unresponsive-exthost",
 			"show"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionsSlowActions": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionsSlowActions": [
 			"cmd.reportOrShow",
 			"cmd.report",
 			"attach.title",
@@ -11305,7 +11376,7 @@
 			"attach.title",
 			"attach.msg2"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/runtimeExtensionsEditor": [
+		"vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor": [
 			"extensionHostProfileStart",
 			"stopExtensionHostProfileStart",
 			"openExtensionHostProfile",
@@ -11317,7 +11388,7 @@
 			"scopedConsoleAction.external",
 			"scopedConsoleAction.wt"
 		],
-		"vs/workbench/contrib/externalTerminal/electron-sandbox/externalTerminal.contribution": [
+		"vs/workbench/contrib/externalTerminal/electron-browser/externalTerminal.contribution": [
 			"terminal.kind.integrated",
 			"terminal.kind.external",
 			"terminal.kind.both",
@@ -12047,7 +12118,7 @@
 			"explorerViewletCompressedLastFocus",
 			"viewHasSomeCollapsibleItem"
 		],
-		"vs/workbench/contrib/files/electron-sandbox/fileActions.contribution": [
+		"vs/workbench/contrib/files/electron-browser/fileActions.contribution": [
 			"miShare",
 			"revealInWindows",
 			"revealInMac",
@@ -12204,7 +12275,7 @@
 			"inlineChatDiff.removed",
 			"editorOverviewRuler.inlineChatRemoved"
 		],
-		"vs/workbench/contrib/inlineChat/electron-sandbox/inlineChatActions": [
+		"vs/workbench/contrib/inlineChat/electron-browser/inlineChatActions": [
 			"holdForSpeech"
 		],
 		"vs/workbench/contrib/inlineCompletions/browser/inlineCompletionLanguageStatusBarContribution": [
@@ -12392,7 +12463,7 @@
 				]
 			}
 		],
-		"vs/workbench/contrib/issue/electron-sandbox/issue.contribution": [
+		"vs/workbench/contrib/issue/electron-browser/issue.contribution": [
 			"tasksQuickAccessPlaceholder",
 			"openIssueReporter",
 			{
@@ -12402,7 +12473,7 @@
 				]
 			}
 		],
-		"vs/workbench/contrib/issue/electron-sandbox/issueReporterService": [
+		"vs/workbench/contrib/issue/electron-browser/issueReporterService": [
 			"updateAvailable",
 			"undefinedPlaceholder",
 			"saveExtensionData",
@@ -12507,7 +12578,7 @@
 		"vs/workbench/contrib/localHistory/browser/localHistoryTimeline": [
 			"localHistory"
 		],
-		"vs/workbench/contrib/localHistory/electron-sandbox/localHistoryCommands": [
+		"vs/workbench/contrib/localHistory/electron-browser/localHistoryCommands": [
 			"revealInWindows",
 			"revealInMac",
 			"openContainer"
@@ -12535,12 +12606,12 @@
 			"configureLocaleDescription",
 			"clearDisplayLanguage"
 		],
-		"vs/workbench/contrib/localization/electron-sandbox/localization.contribution": [
+		"vs/workbench/contrib/localization/electron-browser/localization.contribution": [
 			"updateLocale",
 			"changeAndRestart",
 			"neverAgain"
 		],
-		"vs/workbench/contrib/localization/electron-sandbox/minimalTranslations": [
+		"vs/workbench/contrib/localization/electron-browser/minimalTranslations": [
 			"showLanguagePackExtensions",
 			"searchMarketplace",
 			"installAndRestartMessage",
@@ -12566,7 +12637,7 @@
 			"setLogLevel",
 			"openSessionLogFile"
 		],
-		"vs/workbench/contrib/logs/electron-sandbox/logsActions": [
+		"vs/workbench/contrib/logs/electron-browser/logsActions": [
 			"openLogsFolder",
 			"openExtensionLogsFolder"
 		],
@@ -12730,18 +12801,23 @@
 			"mcp.selectServer",
 			"mcp.addServer",
 			"mcp.addServer.description",
+			"mcp.actions.status",
 			"mcp.start",
 			"mcp.stop",
 			"mcp.restart",
+			"mcp.config",
 			"mcp.showOutput",
+			"mcp.actions.sampling",
 			"mcp.configAccess",
 			"mcp.showOutput.description",
 			"mcp.samplingLog",
 			"mcp.samplingLog.description",
+			"mcp.actions.resources",
 			"mcp.resources",
-			"mcp.config",
 			"mcp.selectAction",
 			"mcp.samplingLog.title",
+			"mcp.disconnect",
+			"mcp.signOut",
 			"mcp.newTools",
 			"mcp.toolError",
 			"mcp.toolRefresh",
@@ -12762,7 +12838,8 @@
 			"mcp.command.installFromActivation",
 			"mcp.command.browse",
 			"mcp.browseResources",
-			"mcp.configureSamplingModels"
+			"mcp.configureSamplingModels",
+			"mcp.startPromptingServer"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"mcp.npm.title",
@@ -12815,6 +12892,28 @@
 			"install.error",
 			"install.newName"
 		],
+		"vs/workbench/contrib/mcp/browser/mcpElicitationService": [
+			"mcp.elicit.enum.none",
+			"mcp.elicit.enum.none.description",
+			"mcp.elicit.title",
+			"msg.subtitle",
+			"mcp.elicit.source",
+			"mcp.elicit.give",
+			"mcp.elicit.cancel",
+			"optional",
+			"optional",
+			"mcp.elicit.validation.minLength",
+			"mcp.elicit.validation.maxLength",
+			"mcp.elicit.validation.email",
+			"mcp.elicit.validation.uri",
+			"mcp.elicit.validation.date",
+			"mcp.elicit.validation.date",
+			"mcp.elicit.validation.dateTime",
+			"mcp.elicit.validation.number",
+			"mcp.elicit.validation.integer",
+			"mcp.elicit.validation.minimum",
+			"mcp.elicit.validation.maximum"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpLanguageFeatures": [
 			"mcp.variableNotFound",
 			"server.error",
@@ -12826,10 +12925,11 @@
 			"mcp.stop",
 			"mcp.restart",
 			"mcp.debug",
-			"server.toolCount",
 			"mcp.start",
 			"mcp.debug",
-			"server.toolCountCached",
+			"server.toolCount",
+			"server.promptcount",
+			"mcp.server.more",
 			"edit",
 			"clear",
 			"clearAll"
@@ -12848,6 +12948,7 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcpResourceQuickAccess": [
 			"mcp.resource.template",
+			"mcp.resource.template.notFound",
 			"mcp.resource.template.placeholder",
 			"mcp.resource.template.optional",
 			"mcp.resource.template.empty",
@@ -12988,10 +13089,10 @@
 			"mcpServer.stopping"
 		],
 		"vs/workbench/contrib/mcp/common/mcpService": [
+			"mcp.toolset",
 			"mcp.tool.warning",
 			"msg.subtitle",
 			"msg.title",
-			"msg.msg",
 			"msg.run",
 			"msg.ran"
 		],
@@ -13235,7 +13336,7 @@
 			"baseUri",
 			"resultUri"
 		],
-		"vs/workbench/contrib/mergeEditor/electron-sandbox/devCommands": [
+		"vs/workbench/contrib/mergeEditor/electron-browser/devCommands": [
 			"mergeEditor.enterJSON",
 			"mergeEditor",
 			"merge.dev.openState",
@@ -13416,10 +13517,7 @@
 			"notebook.indexedChildrenLimitReached"
 		],
 		"vs/workbench/contrib/notebook/browser/contrib/notebookVariables/notebookVariablesTree": [
-			"debugConsole",
-			"notebookVariableAriaLabel"
-		],
-		"vs/workbench/contrib/notebook/browser/contrib/notebookVariables/notebookVariablesView": [
+			"notebookVariableAriaLabel",
 			"notebook.notebookVariables",
 			"notebook.ReplVariables"
 		],
@@ -14174,10 +14272,10 @@
 		"vs/workbench/contrib/performance/browser/perfviewEditor": [
 			"name"
 		],
-		"vs/workbench/contrib/performance/electron-sandbox/performance.contribution": [
+		"vs/workbench/contrib/performance/electron-browser/performance.contribution": [
 			"experimental.rendererProfiling"
 		],
-		"vs/workbench/contrib/performance/electron-sandbox/startupProfiler": [
+		"vs/workbench/contrib/performance/electron-browser/startupProfiler": [
 			"prof.message",
 			"prof.detail",
 			{
@@ -14349,7 +14447,6 @@
 			"FullTextSearchPlaceholder"
 		],
 		"vs/workbench/contrib/preferences/browser/preferencesIcons": [
-			"preferencesSashBorder",
 			"settingsScopeDropDownIcon",
 			"settingsMoreActionIcon",
 			"keybindingsRecordKeysIcon",
@@ -14399,7 +14496,7 @@
 		"vs/workbench/contrib/preferences/browser/settingsEditor2": [
 			"SearchSettings.AriaLabel",
 			"clearInput",
-			"showAiResultsDescription",
+			"showAiResults",
 			"filterInput",
 			"noResults",
 			"clearSearchFilters",
@@ -14667,7 +14764,7 @@
 			"processExplorerEditorLabelIcon",
 			"processExplorerInputName"
 		],
-		"vs/workbench/contrib/processExplorer/electron-sandbox/processExplorer.contribution": [
+		"vs/workbench/contrib/processExplorer/electron-browser/processExplorer.contribution": [
 			"processExplorer"
 		],
 		"vs/workbench/contrib/quickaccess/browser/commandsQuickAccess": [
@@ -15012,14 +15109,14 @@
 			"triggerReconnect",
 			"pauseSocketWriting"
 		],
-		"vs/workbench/contrib/remote/electron-sandbox/remote.contribution": [
+		"vs/workbench/contrib/remote/electron-browser/remote.contribution": [
 			"wslFeatureInstalled",
 			"remote",
 			"remote.downloadExtensionsLocally",
 			"remote.actions.closeUnusedPorts",
 			"remote.category"
 		],
-		"vs/workbench/contrib/remoteTunnel/electron-sandbox/remoteTunnel.contribution": [
+		"vs/workbench/contrib/remoteTunnel/electron-browser/remoteTunnel.contribution": [
 			"remoteTunnel.actions.turnOn",
 			"remoteTunnel.actions.turnOff",
 			"remoteTunnel.actions.showLog",
@@ -16168,7 +16265,6 @@
 			"task.saveBeforeRun.never",
 			"task.SaveBeforeRun.prompt",
 			"task.verboseLogging",
-			"rerunTaskIcon",
 			"workbench.action.tasks.openWorkspaceFileTasks",
 			"ShowLogAction.label",
 			"RunTaskAction.label",
@@ -16512,6 +16608,7 @@
 			"tasks.taskRunningContext",
 			"taskTerminalActive",
 			"TaskDefinition.missingRequiredProperty",
+			"rerunTaskIcon",
 			"tasksCategory"
 		],
 		"vs/workbench/contrib/tasks/common/taskService": [
@@ -16527,7 +16624,7 @@
 			"externalCommand",
 			"Maven"
 		],
-		"vs/workbench/contrib/tasks/electron-sandbox/taskService": [
+		"vs/workbench/contrib/tasks/electron-browser/taskService": [
 			"TaskSystem.runningTask",
 			{
 				"key": "TaskSystem.terminateTask",
@@ -16575,7 +16672,6 @@
 			"terminalLaunchHelp",
 			"workbench.action.terminal.runActiveFile.noFile",
 			"noUnattachedTerminals",
-			"sendSequence",
 			"workbench.action.terminal.newWithCwd.cwd",
 			"workbench.action.terminal.renameWithArg.name",
 			"workbench.action.terminal.renameWithArg.noName",
@@ -17042,8 +17138,7 @@
 			"terminal.integrated.focusAfterRun",
 			"terminal.integrated.focusAfterRun.terminal",
 			"terminal.integrated.focusAfterRun.accessible-buffer",
-			"terminal.integrated.focusAfterRun.none",
-			"terminal.integrated.killGracefully"
+			"terminal.integrated.focusAfterRun.none"
 		],
 		"vs/workbench/contrib/terminal/common/terminalContextKey": [
 			"terminalFocusContextKey",
@@ -17087,13 +17182,12 @@
 			"workbench.action.terminal.rename",
 			"workbench.action.terminal.sizeToContentWidthInstance",
 			"workbench.action.terminal.focusHover",
-			"workbench.action.terminal.sendSequence",
 			"workbench.action.terminal.newWithCwd",
 			"workbench.action.terminal.renameWithArg",
 			"workbench.action.terminal.scrollToPreviousCommand",
 			"workbench.action.terminal.scrollToNextCommand"
 		],
-		"vs/workbench/contrib/terminal/electron-sandbox/terminalRemote": [
+		"vs/workbench/contrib/terminal/electron-browser/terminalRemote": [
 			"workbench.action.terminal.newLocal"
 		],
 		"vs/workbench/contrib/terminalContrib/accessibility/browser/terminal.accessibility.contribution": [
@@ -17331,6 +17425,28 @@
 			"vscode.extension.contributes.terminalQuickFixes.commandExitResult",
 			"vscode.extension.contributes.terminalQuickFixes.kind"
 		],
+		"vs/workbench/contrib/terminalContrib/sendSequence/browser/terminal.sendSequence.contribution": [
+			"workbench.action.terminal.sendSequence.prompt",
+			"sendSequence.text.desc",
+			"sendSequence"
+		],
+		"vs/workbench/contrib/terminalContrib/sendSignal/browser/terminal.sendSignal.contribution": [
+			"sendSignal.signal.desc",
+			"SIGINT",
+			"SIGTERM",
+			"SIGKILL",
+			"SIGSTOP",
+			"SIGCONT",
+			"SIGHUP",
+			"SIGQUIT",
+			"SIGUSR1",
+			"SIGUSR2",
+			"manualSignal",
+			"selectSignal",
+			"manualSignal",
+			"enterSignal",
+			"sendSignal"
+		],
 		"vs/workbench/contrib/terminalContrib/stickyScroll/browser/terminal.stickyScroll.contribution": [
 			"stickyScroll",
 			{
@@ -17374,6 +17490,8 @@
 		"vs/workbench/contrib/terminalContrib/suggest/browser/terminalSuggestAddon": [
 			"file",
 			"folder",
+			"symbolicLinkFile",
+			"symbolicLinkFolder",
 			"method",
 			"alias",
 			"argument",
@@ -17393,6 +17511,8 @@
 			"terminalSymbolIcon.inlineSuggestionForeground",
 			"terminalSymbolIcon.fileForeground",
 			"terminalSymbolIcon.folderForeground",
+			"terminalSymbolIcon.symbolicLinkFileForeground",
+			"terminalSymbolIcon.symbolicLinkFolderForeground",
 			"terminalSymbolFlagIcon",
 			"terminalSymbolAliasIcon",
 			"terminalSymbolOptionValue",
@@ -17401,7 +17521,9 @@
 			"terminalSymbolOptionIcon",
 			"terminalSymbolInlineSuggestionIcon",
 			"terminalSymbolFileIcon",
-			"terminalSymbolFolderIcon"
+			"terminalSymbolFolderIcon",
+			"terminalSymbolSymbolicLinkFileIcon",
+			"terminalSymbolSymbolicLinkFolderIcon"
 		],
 		"vs/workbench/contrib/terminalContrib/suggest/common/terminalSuggestConfiguration": [
 			"suggest.enabled",
@@ -17412,11 +17534,14 @@
 			"suggest.quickSuggestions.unknown",
 			"suggest.suggestOnTriggerCharacters",
 			"suggest.runOnEnter",
-			"runOnEnter.ignore",
 			"runOnEnter.never",
 			"runOnEnter.exactMatch",
 			"runOnEnter.exactMatchIgnoreExtension",
 			"runOnEnter.always",
+			"terminal.integrated.selectionMode",
+			"terminal.integrated.selectionMode.partial",
+			"terminal.integrated.selectionMode.always",
+			"terminal.integrated.selectionMode.never",
 			"terminalWindowsExecutableSuggestionSetting",
 			"suggest.showStatusBar",
 			"suggest.cdPath",
@@ -18468,7 +18593,7 @@
 			"downloaded sync activity title",
 			"troubleshoot"
 		],
-		"vs/workbench/contrib/userDataSync/electron-sandbox/userDataSync.contribution": [
+		"vs/workbench/contrib/userDataSync/electron-browser/userDataSync.contribution": [
 			"no backups",
 			"download sync activity complete",
 			"open",
@@ -18482,7 +18607,7 @@
 		"vs/workbench/contrib/webview/browser/webviewElement": [
 			"fatalErrorMessage"
 		],
-		"vs/workbench/contrib/webview/electron-sandbox/webviewCommands": [
+		"vs/workbench/contrib/webview/electron-browser/webviewCommands": [
 			"openToolsDescription",
 			"iframeWebviewAlert",
 			"openToolsLabel"
@@ -18592,6 +18717,10 @@
 			"gettingStarted.allStepsComplete",
 			"gettingStarted.someStepsComplete",
 			"gettingStarted.keyboardTip",
+			"last",
+			"next",
+			"lastStep",
+			"nextStep",
 			"previousStep",
 			"back",
 			"nextStep",
@@ -18878,10 +19007,7 @@
 			"titleID",
 			"newgettingStarted.findLanguageExts.title",
 			"newgettingStarted.findLanguageExts.description.interpolated",
-			"browseLangExts",
-			"newgettingStarted.settings.title",
-			"newgettingStarted.settingsAndSync.description.interpolated",
-			"tweakSettings"
+			"browseLangExts"
 		],
 		"vs/workbench/contrib/welcomeGettingStarted/common/media/notebookProfile": [
 			"default",
@@ -19191,7 +19317,7 @@
 			"alreadyOpen",
 			"openWorkspace"
 		],
-		"vs/workbench/electron-sandbox/actions/developerActions": [
+		"vs/workbench/electron-browser/actions/developerActions": [
 			"stopTracing.message",
 			{
 				"key": "stopTracing.button",
@@ -19208,14 +19334,14 @@
 			"showGPUInfo",
 			"stopTracing"
 		],
-		"vs/workbench/electron-sandbox/actions/installActions": [
+		"vs/workbench/electron-browser/actions/installActions": [
 			"successIn",
 			"successFrom",
 			"shellCommand",
 			"install",
 			"uninstall"
 		],
-		"vs/workbench/electron-sandbox/actions/windowActions": [
+		"vs/workbench/electron-browser/actions/windowActions": [
 			{
 				"key": "miCloseWindow",
 				"comment": [
@@ -19257,7 +19383,7 @@
 			"quickSwitchWindow",
 			"toggleWindowAlwaysOnTop"
 		],
-		"vs/workbench/electron-sandbox/desktop.contribution": [
+		"vs/workbench/electron-browser/desktop.contribution": [
 			{
 				"key": "miExit",
 				"comment": [
@@ -19344,10 +19470,10 @@
 			"mergeAllWindowTabs",
 			"toggleWindowTabsBar"
 		],
-		"vs/workbench/electron-sandbox/desktop.main": [
+		"vs/workbench/electron-browser/desktop.main": [
 			"join.closeStorage"
 		],
-		"vs/workbench/electron-sandbox/parts/dialogs/dialogHandler": [
+		"vs/workbench/electron-browser/parts/dialogs/dialogHandler": [
 			{
 				"key": "aboutDetail",
 				"comment": [
@@ -19362,7 +19488,7 @@
 			},
 			"okButton"
 		],
-		"vs/workbench/electron-sandbox/window": [
+		"vs/workbench/electron-browser/window": [
 			"sharedProcessCrash",
 			"restart",
 			"restart",
@@ -19491,6 +19617,9 @@
 			"menus.diffEditorGutterToolBarMenus",
 			"searchPanel.aiResultsCommands",
 			"menus.chatModelPicker",
+			"menus.chatExplorer",
+			"menus.chatTextEditor",
+			"menus.chatTerminal",
 			"requirestring",
 			"optstring",
 			"optstring",
@@ -19640,6 +19769,8 @@
 		"vs/workbench/services/authentication/browser/authenticationService": [
 			"authentication.id",
 			"authentication.label",
+			"authentication.authorizationServerGlobs",
+			"authentication.authorizationServerGlobsDescription",
 			{
 				"key": "authenticationExtensionPoint",
 				"comment": [
@@ -19665,7 +19796,7 @@
 				]
 			}
 		],
-		"vs/workbench/services/auxiliaryWindow/electron-sandbox/auxiliaryWindowService": [
+		"vs/workbench/services/auxiliaryWindow/electron-browser/auxiliaryWindowService": [
 			"backupErrorDetails"
 		],
 		"vs/workbench/services/clipboard/browser/clipboardService": [
@@ -20048,7 +20179,7 @@
 			"verifiedPublisher",
 			"extensionIconVerifiedForeground"
 		],
-		"vs/workbench/services/extensionManagement/electron-sandbox/extensionGalleryManifestService": [
+		"vs/workbench/services/extensionManagement/electron-browser/extensionGalleryManifestService": [
 			"extensionGalleryManifestService.accountChange",
 			{
 				"key": "restart",
@@ -20057,11 +20188,11 @@
 				]
 			}
 		],
-		"vs/workbench/services/extensionManagement/electron-sandbox/extensionManagementServerService": [
+		"vs/workbench/services/extensionManagement/electron-browser/extensionManagementServerService": [
 			"local",
 			"remote"
 		],
-		"vs/workbench/services/extensionManagement/electron-sandbox/remoteExtensionManagementService": [
+		"vs/workbench/services/extensionManagement/electron-browser/remoteExtensionManagementService": [
 			"incompatibleAPI",
 			"notFoundReleaseExtension",
 			"notFoundCompatibleDependency"
@@ -20214,17 +20345,19 @@
 			"overwritingWithWorkspaceExtension",
 			"extensionUnderDevelopment"
 		],
-		"vs/workbench/services/extensions/electron-sandbox/cachedExtensionScanner": [
+		"vs/workbench/services/extensions/electron-browser/cachedExtensionScanner": [
+			"extensionUnderDevelopment.invalid",
+			"extensionsUnderDevelopment.invalid",
 			"extensionCache.invalid",
 			"reloadWindow"
 		],
-		"vs/workbench/services/extensions/electron-sandbox/localProcessExtensionHost": [
+		"vs/workbench/services/extensions/electron-browser/localProcessExtensionHost": [
 			"extensionHost.startupFailDebug",
 			"extensionHost.startupFail",
 			"reloadWindow",
 			"join.extensionDevelopment"
 		],
-		"vs/workbench/services/extensions/electron-sandbox/nativeExtensionService": [
+		"vs/workbench/services/extensions/electron-browser/nativeExtensionService": [
 			"extensionService.versionMismatchCrash",
 			"relaunch",
 			"extensionService.autoRestart",
@@ -20242,10 +20375,10 @@
 			"restartExtensionHost.reason",
 			"restartExtensionHost"
 		],
-		"vs/workbench/services/files/electron-sandbox/diskFileSystemProvider": [
+		"vs/workbench/services/files/electron-browser/diskFileSystemProvider": [
 			"fileWatcher"
 		],
-		"vs/workbench/services/files/electron-sandbox/elevatedFileService": [
+		"vs/workbench/services/files/electron-browser/elevatedFileService": [
 			"fileNotTrustedMessageWindows",
 			"fileNotTrustedMessagePosix",
 			"fileNotTrusted"
@@ -20287,15 +20420,17 @@
 			"canReopenClosedEditor"
 		],
 		"vs/workbench/services/host/browser/browserHostService": [
+			"unableToOpenExternalWorkspace",
 			"unableToOpenExternal",
+			"unableToOpenWindowDetail",
 			{
-				"key": "open",
+				"key": "retry",
 				"comment": [
 					"&& denotes a mnemonic"
 				]
 			}
 		],
-		"vs/workbench/services/integrity/electron-sandbox/integrityService": [
+		"vs/workbench/services/integrity/electron-browser/integrityService": [
 			"integrity.prompt",
 			"integrity.moreInformation",
 			"integrity.dontShowAgain"
@@ -20402,7 +20537,7 @@
 				]
 			}
 		],
-		"vs/workbench/services/localization/electron-sandbox/localeService": [
+		"vs/workbench/services/localization/electron-browser/localeService": [
 			"argvInvalid",
 			"openArgv",
 			"installing",
@@ -20521,7 +20656,7 @@
 			"remote.localPortMismatch.single",
 			"tunnel.staticallyForwarded"
 		],
-		"vs/workbench/services/remote/electron-sandbox/remoteAgentService": [
+		"vs/workbench/services/remote/electron-browser/remoteAgentService": [
 			"devTools",
 			"directUrl",
 			"connectionError"
@@ -20529,7 +20664,7 @@
 		"vs/workbench/services/request/browser/requestService": [
 			"network"
 		],
-		"vs/workbench/services/request/electron-sandbox/requestService": [
+		"vs/workbench/services/request/electron-browser/requestService": [
 			"network"
 		],
 		"vs/workbench/services/search/browser/searchService": [
@@ -20539,7 +20674,7 @@
 		"vs/workbench/services/search/common/queryBuilder": [
 			"search.noWorkspaceWithName"
 		],
-		"vs/workbench/services/secrets/electron-sandbox/secretStorageService": [
+		"vs/workbench/services/secrets/electron-browser/secretStorageService": [
 			"troubleshootingButton",
 			"encryptionNotAvailableJustTroubleshootingGuide",
 			"usePlainTextExtraSentence",
@@ -20550,6 +20685,7 @@
 		"vs/workbench/services/suggest/browser/simpleSuggestWidget": [
 			"simpleSuggestWidgetHasFocusedSuggestion",
 			"simpleSuggestWidgetHasNavigated",
+			"simpleSuggestWidgetFirstSuggestionFocused",
 			"suggestWidget.loading",
 			"suggestWidget.noSuggestions",
 			"suggest",
@@ -20605,7 +20741,7 @@
 			"saveParticipants1",
 			"skip"
 		],
-		"vs/workbench/services/textfile/electron-sandbox/nativeTextFileService": [
+		"vs/workbench/services/textfile/electron-browser/nativeTextFileService": [
 			"join.textFiles"
 		],
 		"vs/workbench/services/textMate/browser/textMateTokenizationFeatureImpl": [
@@ -20908,7 +21044,7 @@
 			"invalid.semanticTokenScopes.scopes.value",
 			"invalid.semanticTokenScopes.scopes.selector"
 		],
-		"vs/workbench/services/themes/electron-sandbox/themes.contribution": [
+		"vs/workbench/services/themes/electron-browser/themes.contribution": [
 			"window.systemColorTheme.default",
 			"window.systemColorTheme.auto",
 			"window.systemColorTheme.light",
@@ -21302,10 +21438,10 @@
 		"vs/workbench/services/workingCopy/common/workingCopyHistoryTracker": [
 			"undoRedo.source"
 		],
-		"vs/workbench/services/workingCopy/electron-sandbox/workingCopyBackupService": [
+		"vs/workbench/services/workingCopy/electron-browser/workingCopyBackupService": [
 			"join.workingCopyBackups"
 		],
-		"vs/workbench/services/workingCopy/electron-sandbox/workingCopyBackupTracker": [
+		"vs/workbench/services/workingCopy/electron-browser/workingCopyBackupTracker": [
 			"backupTrackerBackupFailed",
 			"backupTrackerConfirmFailed",
 			"backupErrorDetails",
@@ -21334,7 +21470,7 @@
 			"workspaceTrustEditorLabelIcon",
 			"workspaceTrustEditorInputName"
 		],
-		"vs/workbench/services/workspaces/electron-sandbox/workspaceEditingService": [
+		"vs/workbench/services/workspaces/electron-browser/workspaceEditingService": [
 			"saveWorkspaceMessage",
 			"saveWorkspaceDetail",
 			{
@@ -22012,6 +22148,8 @@
 			"The editor will keep the current line's indentation, honor language defined brackets and invoke special onEnterRules defined by languages.",
 			"The editor will keep the current line's indentation, honor language defined brackets, invoke special onEnterRules defined by languages, and honor indentationRules defined by languages.",
 			"Controls whether the editor should automatically adjust the indentation when users type, paste, move or indent lines.",
+			"Controls whether the editor should automatically auto-indent the pasted content.",
+			"Controls whether the editor should automatically auto-indent the pasted content when pasted within a string. This takes effect when autoIndentOnPaste is true.",
 			"Use language configurations to determine when to automatically surround selections.",
 			"Surround with quotes but not brackets.",
 			"Surround with brackets but not quotes.",
@@ -22041,7 +22179,7 @@
 			"Controls when `#editor.cursorSurroundingLines#` should be enforced.",
 			"Controls the width of the cursor when `#editor.cursorStyle#` is set to `line`.",
 			"Controls whether the editor should allow moving selections via drag and drop.",
-			"Sets whether the new experimental edit context should be used instead of the text area.",
+			"Sets whether the EditContext API should be used instead of the text area to power input in the editor.",
 			"Use regular DOM-based rendering.",
 			"Use GPU acceleration.",
 			"Controls whether to use the experimental GPU acceleration to render the editor.",
@@ -22104,6 +22242,7 @@
 			"Controls whether selections should have rounded corners.",
 			"Controls the number of extra characters beyond which the editor will scroll horizontally.",
 			"Controls whether the editor will scroll beyond the last line.",
+			"Controls whether the editor will scroll when the middle button is pressed.",
 			"Scroll only along the predominant axis when scrolling both vertically and horizontally at the same time. Prevents horizontal drift when scrolling vertically on a trackpad.",
 			"Controls whether the Linux primary clipboard should be supported.",
 			"Controls whether the editor should highlight matches similar to the selection.",
@@ -22374,7 +22513,7 @@
 			"The Debug: Execute Selection command{0} will execute the selected text in the debug console.",
 			"The editor contains pending modifications that have been made by chat.",
 			"The editor is currently waiting for modifications to be made by chat.",
-			"Navigate between edits in the editor with navigate previous{0} and next{1} and accept{2}, reject{3} or view the diff{4} for the current change.",
+			"Navigate between edits in the editor with navigate previous{0} and next{1} and accept{2}, reject{3} or view the diff{4} for the current change. Accept edits across all files{5}.",
 			"Developer: Inspect Tokens",
 			"Go to Line/Column...",
 			"Show all Quick Access Providers",
@@ -23061,6 +23200,7 @@
 			"Background color of the peek view editor.",
 			"Background color of the gutter in the peek view editor.",
 			"Background color of sticky scroll in the peek view editor.",
+			"Background color of the gutter part of sticky scroll in the peek view editor.",
 			"Match highlight color in the peek view result list.",
 			"Match highlight color in the peek view editor.",
 			"Match highlight border in the peek view editor."
@@ -23917,9 +24057,19 @@
 			"Cancel",
 			"Unable to uninstall the shell command '{0}'.",
 			"Unable to find shell script in '{0}'",
+			"An error occurred opening a link in your default browser.",
+			"An error occurred opening an external program.",
+			"&&Copy Link",
+			"Cancel",
+			"&&OK",
 			"Successfully created the trace file",
 			"Please create an issue and manually attach the following file:\n{0}",
 			"&&OK"
+		],
+		"vs/platform/notification/common/notification": [
+			"Error: {0}",
+			"Warning: {0}",
+			"Info: {0}"
 		],
 		"vs/platform/process/electron-main/processMainService": [
 			"Local"
@@ -24119,6 +24269,7 @@
 			"Editor background color.",
 			"Editor default foreground color.",
 			"Background color of sticky scroll in the editor",
+			"Background color of the gutter part of sticky scroll in the editor",
 			"Background color of sticky scroll on hover in the editor",
 			"Border color of sticky scroll in the editor",
 			" Shadow color of sticky scroll in the editor",
@@ -24555,10 +24706,8 @@
 			"Server"
 		],
 		"vs/workbench/api/browser/mainThreadAuthentication": [
-			"Successfully signed out.",
 			"Yes",
 			"No",
-			"The extension '{0}' wants to access the language models provided by {1}.",
 			"The extension '{0}' wants you to sign in again using {1}.",
 			"The extension '{0}' wants to sign in using {1}.",
 			"&&Allow",
@@ -24621,7 +24770,8 @@
 			"Reset choice for 'File operation needs preview'"
 		],
 		"vs/workbench/api/browser/mainThreadLanguageModels": [
-			"Language Models"
+			"Language Models",
+			"The extension '{0}' wants to access the language models provided by {1}."
 		],
 		"vs/workbench/api/browser/mainThreadMcp": [
 			"Incorrect account detected",
@@ -25798,6 +25948,9 @@
 			"Manage Trusted Extensions",
 			"Manage Trusted MCP Servers",
 			"Sign Out",
+			"{0} is currently unavailable",
+			"Manage Trusted MCP Servers",
+			"Sign Out",
 			"Manage",
 			"Manage {0} (Profile)",
 			"Hide Accounts",
@@ -25806,7 +25959,6 @@
 		],
 		"vs/workbench/browser/parts/notifications/notificationAccessibleView": [
 			"{0} Source: {1}",
-			"{0}",
 			"Clear Notification",
 			"Clear Notification"
 		],
@@ -26071,9 +26223,9 @@
 			"An unexpected error occurred that requires a reload of this page.",
 			"The workbench was unexpectedly disposed while running.",
 			"&&Reload",
-			"The browser interrupted the opening of a new tab or window. Press 'Open' to open it anyway.",
-			"&&Open",
-			"&&Learn More",
+			"The browser blocked opening a new tab or window. Press 'Retry' to try again.",
+			"Please allow pop-ups for this website in your [browser settings]({0}).",
+			"&&Retry",
 			"&&Try Again",
 			"We launched {0} on your computer.\n\nIf {1} did not launch, try again or install it below.",
 			"&&Install",
@@ -26228,7 +26380,7 @@
 			"Use the settings UI editor.",
 			"Use the JSON file editor.",
 			"Determines which Settings editor to use by default.",
-			"Controls whether the AI search toggle is shown in the search bar in the Settings editor.",
+			"Controls whether the AI search results toggle is shown in the search bar in the Settings editor after doing a search and once AI search results are available.",
 			"Controls the delay in milliseconds after which the hover is shown for workbench items (ex. some extension provided tree view items). Already visible items may require a refresh before reflecting this setting change.",
 			"Controls whether the workbench should render with fewer animations.",
 			"Always render with reduced motion.",
@@ -26878,9 +27030,7 @@
 			"Label",
 			"ID",
 			"MCP Authorization Servers",
-			"Authentication",
-			"No accounts requested yet...",
-			"Loading..."
+			"Authentication"
 		],
 		"vs/workbench/contrib/bulkEdit/browser/bulkEditService": [
 			"Made no edits",
@@ -27051,11 +27201,7 @@
 			"Start new session?",
 			"Changing the chat mode will end your current edit session. Would you like to change the chat mode?",
 			"Yes",
-			"Starting a new chat will end your current edit session.",
-			"Start new chat?",
-			"Do you want to keep pending edits to {0} files?",
-			"Keep & Continue",
-			"Undo & Continue",
+			"Copilot",
 			"Chat",
 			"Open Chat",
 			"Open Chat ({0})",
@@ -27144,7 +27290,22 @@
 			"Export Chat...",
 			"Import Chat..."
 		],
+		"vs/workbench/contrib/chat/browser/actions/chatLanguageModelActions": [
+			"No language models requiring authentication found.",
+			"There are currently no language models that require authentication.",
+			"{0}",
+			"Open Extension",
+			"Trusted by Microsoft",
+			"No extensions have access",
+			"No extensions are currently allowed to use models from {0}",
+			"Manage Language Model Access",
+			"Choose which extensions can access language models",
+			"Manage Language Model Access..."
+		],
 		"vs/workbench/contrib/chat/browser/actions/chatMoveActions": [
+			"Open Chat in Secondary Side Bar",
+			"Open Chat in Primary Side Bar",
+			"Open Chat in Panel",
 			"Open Chat in Editor",
 			"Open Chat in New Window",
 			"Open Chat in Side Bar"
@@ -27211,53 +27372,16 @@
 			"Applying code block using {0}...",
 			"Failed to apply code block: {0}"
 		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatAttachInstructionsAction": [
-			"Select instructions files to attach",
-			"Instructions...",
-			"User data folder",
-			"Select instructions files to attach",
-			"Attach Instructions..."
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatModeActions": [
-			"Manage Modes...",
-			"Select the custom chat mode to edit",
-			"Manage Custom Chat Modes..."
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatRunPromptAction": [
-			"Select the prompt file to run (hold {0}-key to use in new chat)",
-			"Run Prompt in Current Chat",
-			"Run Prompt...",
-			"Run Prompt In New Chat"
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/chatSaveToPromptAction": [
-			"Save chat session to a prompt file"
-		],
-		"vs/workbench/contrib/chat/browser/actions/promptActions/dialogs/askToSelectPrompt/promptFilePickers": [
-			"help",
-			"New prompt file...",
-			"Create new instruction file...",
-			"Create new custom chat mode file...",
-			"edit ({0}-key + enter)",
-			"delete",
-			"User data folder",
-			"Are you sure you want to delete '{0}'?"
-		],
 		"vs/workbench/contrib/chat/browser/attachments/implicitContextAttachment": [
 			"cell",
 			"file",
-			"prompt",
+			"Attached {0}, {1}, line {2} to line {3}",
 			"Attached {0}, {1}",
 			"Current {0} context",
-			"disabled"
-		],
-		"vs/workbench/contrib/chat/browser/attachments/promptInstructions/promptInstructionsWidget": [
-			"Prompt file, {0}",
-			"Instructions attachment, {0}",
-			"Prompt",
-			"Instructions",
-			"Error",
-			"Warning",
-			"Remove"
+			"disabled",
+			"Current {0}",
+			"Disable current {0} context",
+			"Enable current {0} context"
 		],
 		"vs/workbench/contrib/chat/browser/chat.contribution": [
 			"Chat",
@@ -27284,6 +27408,7 @@
 			"Controls whether elements can be sent to chat from the Simple Browser.",
 			"Controls whether CSS of the selected element will be added to the chat. {0} must be enabled.",
 			"Controls whether a screenshot of the selected element will be added to the chat. {0} must be enabled.",
+			"Controls whether the input of the chat should be restored when an undo request is made. The input will be filled with the text of the request that was restored.",
 			"Enables integration with Model Context Protocol servers to provide additional tools and functionality.",
 			"Configures which models are exposed to MCP servers for sampling (making model requests in the background). This setting can be edited in a graphical way under the `{0}` command.",
 			"List Servers",
@@ -27310,6 +27435,7 @@
 			"Specify location(s) of custom chat mode files (`*{0}`). [Learn More]({1}).\n\nRelative paths are resolved from the root folder(s) of your workspace.",
 			"Enable alternative sign-in provider.",
 			"Control variations of the sign-in dialog.",
+			"Enable indicator in the status bar to finish chat setup.",
 			"Chat",
 			"Chat",
 			"Chat",
@@ -27338,7 +27464,7 @@
 			"This chat extension is using a reserved name.",
 			"View Extension"
 		],
-		"vs/workbench/contrib/chat/browser/chatAttachmentResolve": [
+		"vs/workbench/contrib/chat/browser/chatAttachmentResolveService": [
 			"Image is too large",
 			"The image {0} is too large to be attached."
 		],
@@ -27347,14 +27473,19 @@
 			"Attached file, {0}, line {1} to line {2}",
 			"Attached file, {0}",
 			"Omitted this file: {0}",
-			"{0} does not support this {1} type.",
+			"{0} does not support this file type.",
 			"Omitted this image: {0}",
 			"Partially omitted this image: {0}",
 			"Attached image, {0}",
-			"{0} does not support this {1} type.",
+			"{0} does not support images.",
 			"This GIF was partially omitted - current frame will be sent.",
 			"Attached context, {0}",
 			"Attached context, {0}",
+			"Prompt file, {0}",
+			"Instructions attachment, {0}",
+			"Prompt",
+			"Instructions",
+			"Additional Instructions",
 			"Attached context, {0}",
 			"{0} - {1}",
 			"{0} - {1}",
@@ -27363,13 +27494,11 @@
 			"Partially omitted this Notebook output: {0}",
 			"Attached element, {0}",
 			"Click to view the contents of: {0}",
-			"Attached context, {0}"
+			"Attached context, {0}",
+			"The full value of the chat attachment resource, including scheme and path"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatAgentCommandContentPart": [
 			"Rerun without {0}{1}"
-		],
-		"vs/workbench/contrib/chat/browser/chatContentParts/chatAttachmentsContentPart": [
-			"The full value of the chat attachment resource, including scheme and path"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatCodeCitationContentPart": [
 			"View matches"
@@ -27384,6 +27513,10 @@
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatConfirmationContentPart": [
 			"Accept",
 			"Dismiss"
+		],
+		"vs/workbench/contrib/chat/browser/chatContentParts/chatElicitationContentPart": [
+			"Respond",
+			"Cancel"
 		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatExtensionsContentPart": [
 			"Loading extensions..."
@@ -27424,8 +27557,6 @@
 		"vs/workbench/contrib/chat/browser/chatContentParts/chatToolInputOutputContentPart": [
 			"Input",
 			"Output",
-			"Unknown Data",
-			"Unknown Data with MIME type {0}",
 			"Failed to save {0}: {1}",
 			"Saving resources...",
 			"Saved resources to {0}",
@@ -27441,9 +27572,6 @@
 			"Install Extensions",
 			"Click the Install button on the extension and then press Continue when finished."
 		],
-		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatInputOutputMarkdownProgressPart": [
-			"Data of type {0} ({1} bytes)"
-		],
 		"vs/workbench/contrib/chat/browser/chatContentParts/toolInvocationParts/chatTerminalToolSubPart": [
 			"Continue",
 			"Cancel"
@@ -27458,6 +27586,8 @@
 			"Always Allow",
 			"Always allow this tool to run without confirmation.",
 			"Cancel",
+			"Input",
+			"See more",
 			"See more"
 		],
 		"vs/workbench/contrib/chat/browser/chatDragAndDrop": [
@@ -27473,10 +27603,6 @@
 			"Attach {0} as Context"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingActions": [
-			"{0} files",
-			"Remove {0} from working set?",
-			"This will remove {0} from your working set and undo the edits made to it. Do you want to proceed?",
-			"Yes",
 			"Keep",
 			"Keep All Edits",
 			"Undo",
@@ -27485,8 +27611,6 @@
 			"This will undo changes made by {0} in {1}. Do you want to proceed?",
 			"This will undo changes made by {0} in {1} files. Do you want to proceed?",
 			"Yes",
-			"Clear Working Set",
-			"Clear Working Set",
 			"View All Edits",
 			"This will remove your last request and undo the edits made to {0}. Do you want to proceed?",
 			"This will remove your last request and undo edits made to {0} files in your working set. Do you want to proceed?",
@@ -27500,7 +27624,6 @@
 			"Open File Snapshot",
 			"{0} (Snapshot)",
 			"View Previous Edits",
-			"Remove File",
 			"Open Changes in Diff Editor",
 			"Keep",
 			"Undo",
@@ -27527,7 +27650,9 @@
 			"Undo this Change",
 			"Toggle Diff Editor for Chat Edits",
 			"Show Accessible Diff View for Chat Edits",
-			"Review"
+			"Review",
+			"Keep All Chat Edits",
+			"Keep All Chat Edits in this Session"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingEditorContextKeys": [
 			"The current editor is part of the global edit session",
@@ -27546,7 +27671,8 @@
 			"1 change in {0} files",
 			"{0} changes in 1 file",
 			"{0} changes in {1} files",
-			"{0} - Working..."
+			"{0} - Working...",
+			"{0} ({1})"
 		],
 		"vs/workbench/contrib/chat/browser/chatEditing/chatEditingModifiedDocumentEntry": [
 			"Chat Edits",
@@ -27598,7 +27724,12 @@
 			"Icon of the chat editor label.",
 			"Close Chat Editor",
 			"Closing the chat editor will end your current edit session.",
-			"Chat"
+			"Chat",
+			"Starting a new chat will end your current edit session.",
+			"Start new chat?",
+			"Do you want to keep pending edits to {0} files?",
+			"Keep & Continue",
+			"Undo & Continue"
 		],
 		"vs/workbench/contrib/chat/browser/chatFollowups": [
 			"Follow up question: {0}"
@@ -27617,8 +27748,11 @@
 			"Go to References"
 		],
 		"vs/workbench/contrib/chat/browser/chatInputPart": [
-			"Chat Input,  Type to ask questions or type / for topics, press enter to send out the request. Use {0} for Chat Accessibility Help.",
-			"Chat Input,  Type code here and press Enter to run. Use the Chat Accessibility Help command for more information.",
+			"(Agent Mode), edit files in your workspace.",
+			"(Edit Mode), edit files in your workspace.",
+			"(Ask Mode), ask questions or type / for topics.",
+			"Chat Input {0} Press Enter to send out the request. Use {1} for Chat Accessibility Help.",
+			"Chat Input {0} Press Enter to send out the request. Use the Chat Accessibility Help command for more information.",
 			"Chat Input",
 			"More...",
 			"Search for files and context to add to your request",
@@ -27692,7 +27826,7 @@
 			"New Workspace",
 			"Scaffold a new workspace in VS Code",
 			"Scaffold a new workspace in VS Code",
-			"You need to set up Copilot to use Chat.",
+			"You need to set up Copilot and be signed in to use Chat.",
 			"Getting Copilot ready.",
 			"Copilot failed to get a response. Please try again.",
 			"Copilot is almost ready.",
@@ -27700,7 +27834,6 @@
 			"Copilot failed to get ready. Please ensure you are signed in to {0} and that the extension `{1}` is installed and enabled.",
 			"Signing in to {0}.",
 			"Getting Copilot ready.",
-			"Copilot setup finished successfully.",
 			"Copilot setup failed.",
 			"Enter your email or {0} username",
 			"Continue",
@@ -27774,12 +27907,13 @@
 			"Gauge error background color.",
 			"Gauge error foreground color.",
 			"Copilot Status",
+			"Finish Setup",
 			"Copilot Disabled",
 			"Signed out",
 			"Chat quota reached",
 			"Completions quota reached",
 			"Quota reached",
-			"Code completions Disabled",
+			"Code completions disabled",
 			"Copilot Status",
 			"Copilot Usage",
 			"Manage Copilot",
@@ -27823,8 +27957,6 @@
 		],
 		"vs/workbench/contrib/chat/browser/codeBlockPart": [
 			"Code block",
-			"Toolbar for code block which can be reached via tab",
-			"Code block toolbar",
 			"Code block {0}",
 			"Code block {0}",
 			"{0} vulnerabilities",
@@ -27865,7 +27997,26 @@
 			"Add premium models",
 			"Pick Model"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/createPromptCommand": [
+		"vs/workbench/contrib/chat/browser/modelPicker/modePickerActionItem": [
+			"Built-In",
+			"Custom"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/attachInstructionsAction": [
+			"Select instructions files to attach",
+			"Select the instructions file to open",
+			"Instructions...",
+			"User data folder",
+			"Select instructions files to attach",
+			"Configure Instructions...",
+			"Attach Instructions...",
+			"Configure Instructions..."
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/chatModeActions": [
+			"Configure Modes...",
+			"Select the chat mode file to open",
+			"Configure Chat Modes..."
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/newPromptFileActions": [
 			"Do you want to backup and sync your user prompt, instruction and mode files with Setting Sync?'",
 			"Enable",
 			"Learn More",
@@ -27873,20 +28024,30 @@
 			"New Instructions File...",
 			"New Mode File..."
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptName": [
+		"vs/workbench/contrib/chat/browser/promptSyntax/pickers/askForPromptName": [
 			"Please enter a name.",
 			"The name contains invalid characters.",
 			"A file for the given name already exists.",
 			"Enter the name of the instructions file",
 			"Enter the name of the prompt file",
-			"Enter the name of the custom chat mode file"
+			"Enter the name of the custom chat mode file",
+			"Enter a new name of the instructions file",
+			"Enter a new name of the prompt file",
+			"Enter a new name of the custom chat mode file"
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/dialogs/askForPromptSourceFolder": [
+		"vs/workbench/contrib/chat/browser/promptSyntax/pickers/askForPromptSourceFolder": [
+			"Current Location",
 			"User Data Folder",
 			"Current Workspace",
 			"Select a location to create the instructions file in...",
 			"Select a location to create the prompt file in...",
 			"Select a location to create the mode file in...",
+			"Select a location to move the instructions file to...",
+			"Select a location to move the prompt file to...",
+			"Select a location to move the mode file to...",
+			"Select a location to copy the instructions file to...",
+			"Select a location to copy the prompt file to...",
+			"Select a location to copy the mode file to...",
 			"Learn how to configure reusable prompts",
 			"Learn how to configure reusable instructions",
 			"Learn how to configure custom chat modes",
@@ -27894,22 +28055,42 @@
 			"No prompt source folders found.",
 			"No custom chat mode source folders found."
 		],
-		"vs/workbench/contrib/chat/browser/promptSyntax/contributions/createPromptCommand/errors": [
-			"Folder already exists at '{0}'.",
-			"Invalid prompt file name '{0}'."
+		"vs/workbench/contrib/chat/browser/promptSyntax/pickers/promptFilePickers": [
+			"Help",
+			"New prompt file...",
+			"Create new instruction file...",
+			"Create new custom chat mode file...",
+			"Open in Editor",
+			"Delete",
+			"Rename",
+			"Copy or Move (press {0})",
+			"Searching file system...",
+			"User data folder",
+			"Are you sure you want to delete '{0}'?"
 		],
 		"vs/workbench/contrib/chat/browser/promptSyntax/promptToolsCodeLensProvider": [
 			"Configure Tools...",
 			"Select tools"
 		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/runPromptAction": [
+			"Select the prompt file to run (hold {0}-key to use in new chat)",
+			"Select the prompt file to open",
+			"Run Prompt in Current Chat",
+			"Run Prompt...",
+			"Configure Prompt Files...",
+			"Run Prompt In New Chat"
+		],
+		"vs/workbench/contrib/chat/browser/promptSyntax/saveToPromptAction": [
+			"Save chat session to a prompt file"
+		],
 		"vs/workbench/contrib/chat/browser/tools/toolSetsContribution": [
 			"Empty tool set",
 			"User tool sets configuration",
-			"A list of tools or tool sets to include in this tool set.",
+			"A list of tools or tool sets to include in this tool set. Cannot be empty and must reference tools the way they are referenced in prompts.",
 			"Icon to use for this tool set in the UI. Uses the `\\$(name)`-syntax, like `\\$(zap)`",
 			"A short description of this tool set.",
 			"{1} ({0})\n\n{2}",
-			"Add Tool Sets File...",
+			"Create new tool sets file...",
 			"Select a tool set to configure",
 			"Type tool sets file name",
 			"Invalid file name",
@@ -27935,7 +28116,9 @@
 			"The foreground color of a chat avatar.",
 			"The foreground color of a chat edited file in the edited file list.",
 			"Border color of code blocks within the chat request bubble.",
-			"Background color of the chat request bubble."
+			"Background color of the chat request bubble.",
+			"Foreground color of lines added in chat code block pill.",
+			"Foreground color of lines removed in chat code block pill."
 		],
 		"vs/workbench/contrib/chat/common/chatContextKeys": [
 			"When the response has been voted up, is set to 'up'. When voted down, is set to 'down'. Otherwise an empty string.",
@@ -27970,7 +28153,8 @@
 			"True when agent mode is not allowed.",
 			"True when a tool confirmation is present.",
 			"The count of tools available in the chat.",
-			"True when the chat has custom chat modes available."
+			"True when the chat has custom chat modes available.",
+			"The location of the chat panel."
 		],
 		"vs/workbench/contrib/chat/common/chatEditingService": [
 			"The current state of the file in the chat editing widget",
@@ -27988,8 +28172,6 @@
 			"Learn More"
 		],
 		"vs/workbench/contrib/chat/common/chatModel": [
-			"All Problems",
-			"Problems in {0}",
 			"Made changes.",
 			"Similar code found with 1 license type",
 			"Similar code found with {0} license types"
@@ -28010,6 +28192,10 @@
 		"vs/workbench/contrib/chat/common/chatSessionStore": [
 			"Saving chat history",
 			"New Chat"
+		],
+		"vs/workbench/contrib/chat/common/chatVariableEntries": [
+			"All Problems",
+			"Problems in {0}"
 		],
 		"vs/workbench/contrib/chat/common/languageModels": [
 			"A globally unique vendor of language models.",
@@ -28033,7 +28219,12 @@
 		"vs/workbench/contrib/chat/common/modelPicker/modelPickerWidget": [
 			"Other Models"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/contributions/languageFeatures/providers/decorationsProvider/decorations/frontMatterDecoration": [
+		"vs/workbench/contrib/chat/common/promptSyntax/computeAutomaticInstructions": [
+			"Automatically attached as pattern is **",
+			"Automatically attached as pattern {0} matches {1}",
+			"Referenced by {0}"
+		],
+		"vs/workbench/contrib/chat/common/promptSyntax/languageProviders/decorationsProvider/decorations/frontMatterDecoration": [
 			"Background color of a Front Matter header block.",
 			"Background color of an inactive Front Matter header block."
 		],
@@ -28073,7 +28264,7 @@
 			"broken",
 			"{0} a {1} link to '{2}' that will be ignored.{3}"
 		],
-		"vs/workbench/contrib/chat/common/promptSyntax/service/promptsService": [
+		"vs/workbench/contrib/chat/common/promptSyntax/service/promptsServiceImpl": [
 			"Prompt file: {0}",
 			"Prompt file: {0}"
 		],
@@ -28092,11 +28283,10 @@
 			"Condition which must be true for this tool to be enabled. Note that a tool may still be invoked by another extension even when its `when` condition is false.",
 			"A set of tags that roughly describe the tool's capabilities. A tool user may use these to filter the set of tools to just ones that are relevant for the task at hand, or they may want to pick a tag that can be used to identify just the tools contributed by this extension.",
 			"Contributes a set of language model tools that can be used together.",
-			"A name for this tool set.",
-			"A name that users can use to reference this tool set. Name must not contain whitespace.",
+			"A name for this tool set. Used as reference and should not contain whitespace.",
 			"A description of this tool set.",
 			"An icon that represents this tool set, like `$(zap)`",
-			"An array of tool or tool set names that are part of this set.",
+			"A list of tools or tool sets to include in this tool set. Cannot be empty and must reference tools by their `toolReferenceName`.",
 			"Name",
 			"Display Name",
 			"Description",
@@ -28110,10 +28300,10 @@
 		"vs/workbench/contrib/chat/common/voiceChatService": [
 			"A speech-to-text session is in progress for chat."
 		],
-		"vs/workbench/contrib/chat/electron-sandbox/actions/chatDeveloperActions": [
+		"vs/workbench/contrib/chat/electron-browser/actions/chatDeveloperActions": [
 			"Open Chat Storage Folder"
 		],
-		"vs/workbench/contrib/chat/electron-sandbox/actions/voiceChatActions": [
+		"vs/workbench/contrib/chat/electron-browser/actions/voiceChatActions": [
 			"True when getting ready for receiving voice input from the microphone for voice chat. This key is only defined scoped, per chat context.",
 			"Defined as a location where voice recording from microphone is in progress for voice chat. This key is only defined scoped, per chat context.",
 			"I'm listening",
@@ -28142,7 +28332,7 @@
 			"Stop Reading Aloud",
 			"Start Voice Chat"
 		],
-		"vs/workbench/contrib/chat/electron-sandbox/tools/fetchPageTool": [
+		"vs/workbench/contrib/chat/electron-browser/tools/fetchPageTool": [
 			"Fetches the main content from a web page. This tool is useful for summarizing or analyzing the content of a webpage.",
 			"An array of URLs to fetch content from.",
 			"No valid URLs provided.",
@@ -28303,7 +28493,9 @@
 			"Defines how block comments are marked.",
 			"The character sequence that starts a block comment.",
 			"The character sequence that ends a block comment.",
+			"Configuration for line comments.",
 			"The character sequence that starts a line comment.",
+			"Whether the comment token should not be indented and placed at the first column. Defaults to false.",
 			"Defines the bracket symbols that increase or decrease the indentation. When bracket pair colorization is enabled and {0} is not defined, this also defines the bracket pairs that are colorized by their nesting level.",
 			"Defines the bracket pairs that are colorized by their nesting level if bracket pair colorization is enabled. Any brackets included here that are not included in {0} will be automatically included in {0}.",
 			"Defines the bracket pairs. When a opening bracket is entered, the closing bracket is inserted automatically.",
@@ -28359,10 +28551,10 @@
 			"Describes text to be appended after the new line and after the indentation.",
 			"Describes the number of characters to remove from the new line's indentation."
 		],
-		"vs/workbench/contrib/codeEditor/electron-sandbox/selectionClipboard": [
+		"vs/workbench/contrib/codeEditor/electron-browser/selectionClipboard": [
 			"Paste Selection Clipboard"
 		],
-		"vs/workbench/contrib/codeEditor/electron-sandbox/startDebugTextMate": [
+		"vs/workbench/contrib/codeEditor/electron-browser/startDebugTextMate": [
 			"Start TextMate Syntax Grammar Logging"
 		],
 		"vs/workbench/contrib/commands/common/commands.contribution": [
@@ -29351,6 +29543,7 @@
 			"True when the focused breakpoint supports to break when value is read.",
 			"True when the focused session supports the terminate debuggee capability.",
 			"True when the focused session supports the suspend debuggee capability.",
+			"True when the focused session supports the terminate threads capability.",
 			"True when the focused variable has an 'evalauteName' field set.",
 			"True when the focused variable is read-only.",
 			"Value of the variable, present for debug visualization clauses.",
@@ -29722,6 +29915,7 @@
 			"When enabled, extensions are verified to be signed before getting installed.",
 			"If activated, extensions will automatically restart following an update if the window is not in focus. There can be a data loss if you have open Notebooks or Custom Editors.",
 			"Configure the Marketplace service URL to connect to",
+			"When enabled, Node.js navigator object is exposed on the global scope.",
 			"Extension '{0}' not found.",
 			"Install the given extension",
 			"Extension id or VSIX resource uri",
@@ -29792,6 +29986,7 @@
 			"VS Marketplace Link: {0}",
 			"Download VSIX",
 			"Download Pre-Release VSIX",
+			"Download Specific Version VSIX...",
 			"Manage Trusted Extension Publishers",
 			"Choose which publishers to trust",
 			"Extensions",
@@ -29896,6 +30091,7 @@
 			"Install in Browser",
 			"Uninstall",
 			"Uninstalling",
+			"Uninstall (All Profiles)",
 			"Uninstalling extension {0} started.",
 			"Please reload Visual Studio Code to complete the uninstallation of the extension {0}.",
 			"Update",
@@ -29967,6 +30163,7 @@
 			"settings",
 			"This extension is deprecated as this functionality is now built-in to VS Code. Configure these {0} to use this functionality.",
 			"This extension is deprecated as it is no longer being maintained.",
+			"This extension is no longer available on the Extension Marketplace.",
 			"Please [review the extension]({0}) and update it manually.",
 			"This extension is disabled because {0}",
 			"This extension is disabled by the environment.",
@@ -30059,8 +30256,7 @@
 			"Icon shown with a warning message in the extensions editor.",
 			"Icon shown with an info message in the extensions editor.",
 			"Icon shown with a workspace trust message in the extension editor.",
-			"Icon shown with a activation time message in the extension editor.",
-			"The border color of an extension."
+			"Icon shown with a activation time message in the extension editor."
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsQuickAccess": [
 			"Type an extension name to install or search.",
@@ -30069,6 +30265,10 @@
 			"Press Enter to manage your extensions."
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsViewer": [
+			"Verified Publisher {0}",
+			"Publisher {0}",
+			"Deprecated",
+			"Rated {0} out of 5 stars by {1} users",
 			"Extensions",
 			"Error",
 			"Unknown Extension:",
@@ -30127,11 +30327,7 @@
 			"No extensions found.",
 			"Unable to search the Marketplace when offline, please check your network connection.",
 			"Error while fetching extensions. {0}",
-			"There are no extensions to install.",
-			"Verified Publisher {0}",
-			"Publisher {0}",
-			"Deprecated",
-			"Rated {0} out of 5 stars by {1} users"
+			"There are no extensions to install."
 		],
 		"vs/workbench/contrib/extensions/browser/extensionsWidgets": [
 			"Install count",
@@ -30202,6 +30398,9 @@
 			"Download",
 			"Downloading VSIX...",
 			"Successfully downloaded the VSIX",
+			"This extension has no other versions.",
+			"pre-release",
+			"Select Version to Download",
 			"The marketplace metadata of this extension changed, likely due to a re-publish.",
 			"The update for {0} extension introduces executable code, which is not present in the currently installed version.",
 			"The provided object is not an extension.",
@@ -30227,6 +30426,9 @@
 			"&&Enable Extension",
 			"&&Enable Extension and {0}",
 			"Can't install '{0}' extension because it is not compatible.",
+			"Uninstall Extension",
+			"Would you like to Uninstall {0} from all profiles?",
+			"Uninstall (All Profiles)",
 			"Uninstall Extension with Dependents",
 			"Uninstall All",
 			"Uninstalling extension...",
@@ -30293,7 +30495,7 @@
 			"Search for extensions in the Visual Studio Code Extensions Marketplace",
 			"Please provide a category or keywords or ids to search for."
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/debugExtensionHostAction": [
+		"vs/workbench/contrib/extensions/electron-browser/debugExtensionHostAction": [
 			"Start Debugging Extension Host In New Window",
 			"Debug Extensions",
 			"In order to debug extensions a restart is required. Do you want to restart '{0}' now?",
@@ -30301,7 +30503,7 @@
 			"Attaching Debugger To Extension Host",
 			"Attach Extension Host"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionProfileService": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionProfileService": [
 			"Extension Profiler",
 			"Profiling Extension Host",
 			"Profiling Extension Host",
@@ -30311,18 +30513,18 @@
 			"In order to profile extensions a restart is required. Do you want to restart '{0}' now?",
 			"&&Restart"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensions.contribution": [
+		"vs/workbench/contrib/extensions/electron-browser/extensions.contribution": [
 			"Running Extensions"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionsActions": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionsActions": [
 			"Open Extensions Folder",
 			"Cleanup Extensions Folder"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionsAutoProfiler": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionsAutoProfiler": [
 			"The extension '{0}' took a very long time to complete its last operation and it has prevented other extensions from running.",
 			"Show Extensions"
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/extensionsSlowActions": [
+		"vs/workbench/contrib/extensions/electron-browser/extensionsSlowActions": [
 			"Performance Issue",
 			"Report Issue",
 			"Did you attach the CPU-Profile?",
@@ -30331,7 +30533,7 @@
 			"Did you attach the CPU-Profile?",
 			"This is a reminder to make sure that you have not forgotten to attach '{0}' to an existing performance issue."
 		],
-		"vs/workbench/contrib/extensions/electron-sandbox/runtimeExtensionsEditor": [
+		"vs/workbench/contrib/extensions/electron-browser/runtimeExtensionsEditor": [
 			"Start Extension Host Profile",
 			"Stop Extension Host Profile",
 			"Open Extension Host Profile",
@@ -30343,7 +30545,7 @@
 			"Open in External Terminal",
 			"Open in Windows Terminal"
 		],
-		"vs/workbench/contrib/externalTerminal/electron-sandbox/externalTerminal.contribution": [
+		"vs/workbench/contrib/externalTerminal/electron-browser/externalTerminal.contribution": [
 			"Show the integrated terminal action.",
 			"Show the external terminal action.",
 			"Show both integrated and external terminal actions.",
@@ -30798,7 +31000,7 @@
 			"True when the focus is inside a compact item's last part in the EXPLORER view.",
 			"True when a workspace in the EXPLORER view has some collapsible root child."
 		],
-		"vs/workbench/contrib/files/electron-sandbox/fileActions.contribution": [
+		"vs/workbench/contrib/files/electron-browser/fileActions.contribution": [
 			"Share",
 			"Reveal in File Explorer",
 			"Reveal in Finder",
@@ -30945,7 +31147,7 @@
 			"Background color of removed text in the interactive editor input",
 			"Overview ruler marker color for inline chat removed content."
 		],
-		"vs/workbench/contrib/inlineChat/electron-sandbox/inlineChatActions": [
+		"vs/workbench/contrib/inlineChat/electron-browser/inlineChatActions": [
 			"Hold for Speech"
 		],
 		"vs/workbench/contrib/inlineCompletions/browser/inlineCompletionLanguageStatusBarContribution": [
@@ -31101,12 +31303,12 @@
 			"Report &&Issue",
 			"Report Issue..."
 		],
-		"vs/workbench/contrib/issue/electron-sandbox/issue.contribution": [
+		"vs/workbench/contrib/issue/electron-browser/issue.contribution": [
 			"Type the name of an extension to report on.",
 			"Open Issue Reporter",
 			"Report Performance Issue..."
 		],
-		"vs/workbench/contrib/issue/electron-sandbox/issueReporterService": [
+		"vs/workbench/contrib/issue/electron-browser/issueReporterService": [
 			"A new version of {0} is available.",
 			"Please enter a title",
 			"Save Extension Data",
@@ -31196,7 +31398,7 @@
 		"vs/workbench/contrib/localHistory/browser/localHistoryTimeline": [
 			"Local History"
 		],
-		"vs/workbench/contrib/localHistory/electron-sandbox/localHistoryCommands": [
+		"vs/workbench/contrib/localHistory/electron-browser/localHistoryCommands": [
 			"Reveal in File Explorer",
 			"Reveal in Finder",
 			"Open Containing Folder"
@@ -31224,12 +31426,12 @@
 			"Changes the locale of VS Code based on installed language packs. Common languages include French, Chinese, Spanish, Japanese, German, Korean, and more.",
 			"Clear Display Language Preference"
 		],
-		"vs/workbench/contrib/localization/electron-sandbox/localization.contribution": [
+		"vs/workbench/contrib/localization/electron-browser/localization.contribution": [
 			"Would you like to change {0}'s display language to {1} and restart?",
 			"Change Language and Restart",
 			"Don't Show Again"
 		],
-		"vs/workbench/contrib/localization/electron-sandbox/minimalTranslations": [
+		"vs/workbench/contrib/localization/electron-browser/minimalTranslations": [
 			"Search language packs in the Marketplace to change the display language to {0}.",
 			"Search Marketplace",
 			"Install language pack to change the display language to {0}.",
@@ -31255,7 +31457,7 @@
 			"Set Log Level...",
 			"Open Window Log File (Session)..."
 		],
-		"vs/workbench/contrib/logs/electron-sandbox/logsActions": [
+		"vs/workbench/contrib/logs/electron-browser/logsActions": [
 			"Open Logs Folder",
 			"Open Extension Logs Folder"
 		],
@@ -31402,7 +31604,7 @@
 		"vs/workbench/contrib/mcp/browser/mcp.contribution": [
 			"MCP Server",
 			"Filter to an MCP resource",
-			"Add Server",
+			"MCP Server Resources",
 			"MCP Servers - Installed",
 			"MCP Servers"
 		],
@@ -31414,18 +31616,23 @@
 			"Select an MCP Server",
 			"Add Server",
 			"Add a new server configuration",
+			"Status",
 			"Start Server",
 			"Stop Server",
 			"Restart Server",
+			"Show Configuration",
 			"Show Output",
+			"Sampling",
 			"Configure Model Access",
 			"Set the models the server can use via MCP sampling",
 			"Show Sampling Requests",
 			"Show the sampling requests for this server",
+			"Resources",
 			"Browse Resources",
-			"Show Configuration",
-			"Select Server Action",
+			"Select action for '{0}'",
 			"MCP Sampling: {0}",
+			"Disconnect Account",
+			"Sign Out",
 			"New tools available ({0})",
 			"Error loading {0} tool(s)",
 			"Discovering tools...",
@@ -31446,7 +31653,8 @@
 			"Install...",
 			"MCP Servers",
 			"Browse Resources...",
-			"Configure SamplingModel"
+			"Configure SamplingModel",
+			"Start Prompting Server"
 		],
 		"vs/workbench/contrib/mcp/browser/mcpCommandsAddConfiguration": [
 			"Enter NPM Package Name",
@@ -31499,6 +31707,28 @@
 			"Error installing MCP server {0}: {1}",
 			"Enter new name"
 		],
+		"vs/workbench/contrib/mcp/browser/mcpElicitationService": [
+			"None",
+			"No selection",
+			"Request for Input",
+			"{0} (MCP Server)",
+			"MCP Server ({0})",
+			"Respond",
+			"Cancel",
+			"Optional",
+			"Optional",
+			"Minimum length is {0}",
+			"Maximum length is {0}",
+			"Please enter a valid email address",
+			"Please enter a valid URI",
+			"Please enter a valid date (YYYY-MM-DD)",
+			"Please enter a valid date (YYYY-MM-DD)",
+			"Please enter a valid date-time",
+			"Please enter a valid number",
+			"Please enter a valid integer",
+			"Minimum value is {0}",
+			"Maximum value is {0}"
+		],
 		"vs/workbench/contrib/mcp/browser/mcpLanguageFeatures": [
 			"Variable `{0}` not found, did you mean ${{1}}?",
 			"Error",
@@ -31510,10 +31740,11 @@
 			"Stop",
 			"Restart",
 			"Debug",
-			"{0} tools",
 			"Start",
 			"Debug",
-			"{0} cached tools",
+			"{0} tools",
+			"{0} prompts",
+			"More...",
 			"Edit",
 			"Clear",
 			"Clear All"
@@ -31532,6 +31763,7 @@
 		],
 		"vs/workbench/contrib/mcp/browser/mcpResourceQuickAccess": [
 			"Resource template: {0}",
+			"The resource {0} was not found.",
 			"Value for ${0} in {1}",
 			"Optional",
 			"<Empty>",
@@ -31617,7 +31849,7 @@
 			"The URL must start with 'http://' or 'https://'.",
 			"The URL of the Streamable HTTP or SSE endpoint.",
 			"Additional headers sent to the server.",
-			"Contributes Model Context Protocol servers. Users of this should also use `vscode.lm.registerMcpConfigurationProvider`.",
+			"Contributes Model Context Protocol servers. Users of this should also use `vscode.lm.registerMcpServerDefinitionProvider`.",
 			"Unique ID for the collection.",
 			"Display name for the collection."
 		],
@@ -31652,7 +31884,7 @@
 			"Cancel",
 			"Allow in this Session",
 			"Always",
-			"Now Now",
+			"Not Now",
 			"Never"
 		],
 		"vs/workbench/contrib/mcp/common/mcpServer": [
@@ -31672,10 +31904,10 @@
 			"Stopping server {0}"
 		],
 		"vs/workbench/contrib/mcp/common/mcpService": [
-			"{0} Note that MCP servers or malicious conversation content may attempt to misuse '{1}' through tools.",
+			"{0}: All Tools",
+			"Note that MCP servers or malicious conversation content may attempt to misuse '{0}' through tools.",
 			"{0} (MCP Server)",
 			"Run {0}",
-			"{0}\n\n {1}",
 			"Running {0}",
 			"Ran {0} "
 		],
@@ -31869,7 +32101,7 @@
 			"The uri of the baser of a merge editor",
 			"The uri of the result of a merge editor"
 		],
-		"vs/workbench/contrib/mergeEditor/electron-sandbox/devCommands": [
+		"vs/workbench/contrib/mergeEditor/electron-browser/devCommands": [
 			"Enter JSON",
 			"Merge Editor (Dev)",
 			"Open Merge Editor State from JSON",
@@ -32039,10 +32271,7 @@
 			"Display limit reached"
 		],
 		"vs/workbench/contrib/notebook/browser/contrib/notebookVariables/notebookVariablesTree": [
-			"Notebook Variables",
-			"Variable {0}, value {1}"
-		],
-		"vs/workbench/contrib/notebook/browser/contrib/notebookVariables/notebookVariablesView": [
+			"Variable {0}, value {1}",
 			"Notebook Variables",
 			"REPL Variables"
 		],
@@ -32737,10 +32966,10 @@
 		"vs/workbench/contrib/performance/browser/perfviewEditor": [
 			"Startup Performance"
 		],
-		"vs/workbench/contrib/performance/electron-sandbox/performance.contribution": [
+		"vs/workbench/contrib/performance/electron-browser/performance.contribution": [
 			"When enabled, slow renderers are automatically profiled."
 		],
-		"vs/workbench/contrib/performance/electron-sandbox/startupProfiler": [
+		"vs/workbench/contrib/performance/electron-browser/startupProfiler": [
 			"Successfully created profiles.",
 			"Please create an issue and manually attach the following files:\n{0}",
 			"&&Create Issue and Restart",
@@ -32870,7 +33099,6 @@
 			"Search {0}"
 		],
 		"vs/workbench/contrib/preferences/browser/preferencesIcons": [
-			"The color of the Preferences editor splitview sash border.",
 			"Icon for the folder dropdown button in the split JSON Settings editor.",
 			"Icon for the 'more actions' action in the Settings UI.",
 			"Icon for the 'record keys' action in the keybinding UI.",
@@ -32920,7 +33148,7 @@
 		"vs/workbench/contrib/preferences/browser/settingsEditor2": [
 			"Search settings",
 			"Clear Settings Search Input",
-			"Search settings with AI",
+			"Show AI-recommended results",
 			"Filter Settings",
 			"No Settings Found",
 			"Clear Filters",
@@ -33178,7 +33406,7 @@
 			"Icon of the process explorer editor label.",
 			"Process Explorer"
 		],
-		"vs/workbench/contrib/processExplorer/electron-sandbox/processExplorer.contribution": [
+		"vs/workbench/contrib/processExplorer/electron-browser/processExplorer.contribution": [
 			"Process Explorer"
 		],
 		"vs/workbench/contrib/quickaccess/browser/commandsQuickAccess": [
@@ -33443,14 +33671,14 @@
 			"Connection: Trigger Reconnect",
 			"Connection: Pause socket writing"
 		],
-		"vs/workbench/contrib/remote/electron-sandbox/remote.contribution": [
+		"vs/workbench/contrib/remote/electron-browser/remote.contribution": [
 			"Whether the platform has the WSL feature installed",
 			"Remote",
 			"When enabled extensions are downloaded locally and installed on remote.",
 			"Close Unused Forwarded Ports",
 			"Remote"
 		],
-		"vs/workbench/contrib/remoteTunnel/electron-sandbox/remoteTunnel.contribution": [
+		"vs/workbench/contrib/remoteTunnel/electron-browser/remoteTunnel.contribution": [
 			"Turn on Remote Tunnel Access...",
 			"Turn off Remote Tunnel Access...",
 			"Show Remote Tunnel Service Log",
@@ -33826,8 +34054,8 @@
 			"Configure [glob patterns](https://code.visualstudio.com/docs/editor/codebasics#_advanced-search-options) for excluding files and folders in fulltext searches and file search in quick open. To exclude files from the recently opened list in quick open, patterns must be absolute (for example `**/node_modules/**`). Inherits all glob patterns from the `#files.exclude#` setting.",
 			"The glob pattern to match file paths against. Set to true or false to enable or disable the pattern.",
 			"Additional check on the siblings of a matching file. Use \\$(basename) as variable for the matching file name.",
-			"Controls where new `Search: Find in Files` and `Find in Folder` operations occur: either in the search view, or in a search editor.",
-			"Search in the search view, either in the panel or side bars.",
+			"Controls where new `Search: Find in Files` and `Find in Folder` operations occur: either in the Search view, or in a search editor.",
+			"Search in the Search view, either in the panel or side bars.",
 			"Search in an existing search editor if present, otherwise in a new search editor.",
 			"Search in a new search editor.",
 			"This setting is deprecated and now falls back on \"search.usePCRE2\".",
@@ -33845,7 +34073,7 @@
 			"Controls sorting order of editor history in quick open when filtering.",
 			"Controls whether to follow symlinks while searching.",
 			"Search case-insensitively if the pattern is all lowercase, otherwise, search case-sensitively.",
-			"Controls whether the search view should read or modify the shared find clipboard on macOS.",
+			"Controls whether the Search view should read or modify the shared find clipboard on macOS.",
 			"Controls whether the search will be shown as a view in the sidebar or as a panel in the panel area for more horizontal space.",
 			"This setting is deprecated. You can drag the search icon to a new location instead.",
 			"Controls the maximum number of search results, this can be set to `null` (empty) to return unlimited results.",
@@ -33855,12 +34083,12 @@
 			"Controls whether to show line numbers for search results.",
 			"Whether to use the PCRE2 regex engine in text search. This enables using some advanced regex features like lookahead and backreferences. However, not all PCRE2 features are supported - only features that are also supported by JavaScript.",
 			"Deprecated. PCRE2 will be used automatically when using regex features that are only supported by PCRE2.",
-			"Position the actionbar to the right when the search view is narrow, and immediately after the content when the search view is wide.",
+			"Position the actionbar to the right when the Search view is narrow, and immediately after the content when the Search view is wide.",
 			"Always position the actionbar to the right.",
-			"Controls the positioning of the actionbar on rows in the search view.",
+			"Controls the positioning of the actionbar on rows in the Search view.",
 			"Search all files as you type.",
 			"Enable seeding search from the word nearest the cursor when the active editor has no selection.",
-			"Update the search query to the editor's selected text when focusing the search view. This happens either on click or when triggering the `workbench.views.search.focus` command.",
+			"Update the search query to the editor's selected text when focusing the Search view. This happens either on click or when triggering the `workbench.views.search.focus` command.",
 			"When {0} is enabled, controls the timeout in milliseconds between a character being typed and the search starting. Has no effect when {0} is disabled.",
 			"Double-clicking selects the word under the cursor.",
 			"Double-clicking opens the result in the active editor group.",
@@ -33886,11 +34114,11 @@
 			"Controls the default search result view mode.",
 			"Controls whether the last typed input to Quick Search should be restored when opening it the next time.",
 			"Show notebook editor rich content results for closed notebooks. Please refresh your search results after changing this setting.",
-			"Controls the behavior of the semantic search results displayed in the search view.",
+			"Controls the behavior of the semantic search results displayed in the Search view.",
 			"Only request semantic search results manually.",
 			"Request semantic results automatically only when text search results are empty.",
 			"Request semantic results automatically with every search.",
-			"Enable keyword suggestions in the search view.",
+			"Enable keyword suggestions in the Search view.",
 			"Search",
 			"Search"
 		],
@@ -34288,7 +34516,7 @@
 			"The task's label or a term to filter by",
 			"The contributed task type",
 			"The task's label or a term to filter by",
-			"Fix with Chat",
+			"Fix with {0}",
 			"Show Output",
 			"There are task errors. Use chat to fix them or view the output for details.",
 			"There are task errors. See the output for details.",
@@ -34424,7 +34652,6 @@
 			"Never saves editors before running.",
 			"Prompts whether to save editors before running.",
 			"Enable verbose logging for tasks.",
-			"View icon of the rerun task.",
 			"Open Workspace Tasks",
 			"Show Task Log",
 			"Run Task",
@@ -34736,6 +34963,7 @@
 			"Whether a task is currently running.",
 			"Whether the active terminal is a task terminal.",
 			"Error: the task identifier '{0}' is missing the required property '{1}'. The task identifier will be ignored.",
+			"View icon of the rerun task.",
 			"Tasks"
 		],
 		"vs/workbench/contrib/tasks/common/taskService": [
@@ -34751,7 +34979,7 @@
 			"Example to run an arbitrary external command",
 			"Executes common maven commands"
 		],
-		"vs/workbench/contrib/tasks/electron-sandbox/taskService": [
+		"vs/workbench/contrib/tasks/electron-browser/taskService": [
 			"There is a task running. Do you want to terminate it?",
 			"&&Terminate Task",
 			"The launched task doesn't exist anymore. If the task spawned background processes exiting VS Code might result in orphaned processes. To avoid this start the last background process with a wait flag.",
@@ -34784,7 +35012,6 @@
 			"Open Help",
 			"Only files on disk can be run in the terminal",
 			"There are no unattached terminals to attach to",
-			"The sequence of text to send to the terminal",
 			"The directory to start the terminal at",
 			"The new name for the terminal",
 			"No name argument provided",
@@ -35202,8 +35429,7 @@
 			"Controls whether the terminal, accessible buffer, or neither will be focused after `Terminal: Run Selected Text In Active Terminal` has been run.",
 			"Always focus the terminal.",
 			"Always focus the accessible buffer.",
-			"Do nothing.",
-			"Controls how terminal processes are terminated. When enabled, attempts a graceful shutdown of the process tree. On POSIX, this will send `SIGTERM`. On Windows, it uses `taskkill.exe` without the `/F` (force) flag. Note that this may allow misbehaving processes to remain running. When disabled (default), processes are terminated with: `SIGHUP`."
+			"Do nothing."
 		],
 		"vs/workbench/contrib/terminal/common/terminalContextKey": [
 			"Whether the terminal is focused.",
@@ -35247,13 +35473,12 @@
 			"Rename...",
 			"Toggle Size to Content Width",
 			"Focus Hover",
-			"Send Custom Sequence to Terminal",
 			"Create New Terminal Starting in a Custom Working Directory",
 			"Rename the Currently Active Terminal",
 			"Scroll to Previous Command",
 			"Scroll to Next Command"
 		],
-		"vs/workbench/contrib/terminal/electron-sandbox/terminalRemote": [
+		"vs/workbench/contrib/terminal/electron-browser/terminalRemote": [
 			"Create New Integrated Terminal (Local)"
 		],
 		"vs/workbench/contrib/terminalContrib/accessibility/browser/terminal.accessibility.contribution": [
@@ -35476,6 +35701,28 @@
 			"The command exit result to match on",
 			"The kind of the resulting quick fix. This changes how the quick fix is presented. Defaults to {0}."
 		],
+		"vs/workbench/contrib/terminalContrib/sendSequence/browser/terminal.sendSequence.contribution": [
+			"Enter sequence to send to the terminal",
+			"The sequence of text to send to the terminal",
+			"Send Sequence"
+		],
+		"vs/workbench/contrib/terminalContrib/sendSignal/browser/terminal.sendSignal.contribution": [
+			"The signal to send to the terminal process (e.g., 'SIGTERM', 'SIGINT', 'SIGKILL')",
+			"Interrupt process (Ctrl+C)",
+			"Terminate process gracefully",
+			"Force kill process",
+			"Stop process",
+			"Continue process",
+			"Hangup",
+			"Quit process",
+			"User-defined signal 1",
+			"User-defined signal 2",
+			"Manually enter signal",
+			"Select signal to send to terminal process",
+			"Manually enter signal",
+			"Enter signal name (e.g., SIGTERM, SIGKILL)",
+			"Send Signal"
+		],
 		"vs/workbench/contrib/terminalContrib/stickyScroll/browser/terminal.stickyScroll.contribution": [
 			"Sticky Scroll",
 			"&&Sticky Scroll",
@@ -35514,6 +35761,8 @@
 		"vs/workbench/contrib/terminalContrib/suggest/browser/terminalSuggestAddon": [
 			"File",
 			"Folder",
+			"Symbolic Link File",
+			"Symbolic Link Folder",
 			"Method",
 			"Alias",
 			"Argument",
@@ -35533,6 +35782,8 @@
 			"The foreground color for an inline suggestion icon. These icons will appear in the terminal suggest widget.",
 			"The foreground color for a file icon. These icons will appear in the terminal suggest widget.",
 			"The foreground color for a folder icon. These icons will appear in the terminal suggest widget.",
+			"The foreground color for a symbolic link file icon. These icons will appear in the terminal suggest widget.",
+			"The foreground color for a symbolic link folder icon. These icons will appear in the terminal suggest widget.",
 			"Icon for flags in the terminal suggest widget.",
 			"Icon for aliases in the terminal suggest widget.",
 			"Icon for enum members in the terminal suggest widget.",
@@ -35541,7 +35792,9 @@
 			"Icon for options in the terminal suggest widget.",
 			"Icon for inline suggestions in the terminal suggest widget.",
 			"Icon for files in the terminal suggest widget.",
-			"Icon for folders in the terminal suggest widget."
+			"Icon for folders in the terminal suggest widget.",
+			"Icon for symbolic link files in the terminal suggest widget.",
+			"Icon for symbolic link folders in the terminal suggest widget."
 		],
 		"vs/workbench/contrib/terminalContrib/suggest/common/terminalSuggestConfiguration": [
 			"Enables terminal intellisense suggestions (preview) for supported shells ({0}) when {1} is set to {2}.\n\nIf shell integration is installed manually, {3} needs to be set to {4} before calling the shell integration script.",
@@ -35552,11 +35805,14 @@
 			"Enable quick suggestions when it's unclear what the best suggestion is, if this is on files and folders will be suggested as a fallback.",
 			"Controls whether suggestions should automatically show up when typing trigger characters.",
 			"Controls whether suggestions should run immediately when `Enter` (not `Tab`) is used to accept the result.",
-			"Ignore suggestions and send the enter directly to the shell without completing. This is used as the default value so the suggest widget is as unobtrusive as possible.",
 			"Never run on `Enter`.",
 			"Run on `Enter` when the suggestion is typed in its entirety.",
 			"Run on `Enter` when the suggestion is typed in its entirety or when a file is typed without its extension included.",
 			"Always run on `Enter`.",
+			"Controls how suggestion selection works in the integrated terminal.",
+			"Will show a border and only insert the suggestion via Tab until navigation has occurred. After that, it will show selection and insert via Enter or Tab.",
+			"Always select.",
+			"No selection will occur until the user explicitly navigates the suggestions.",
 			"A set of windows command executable extensions that will be included as suggestions in the terminal.\n\nMany executables are included by default, listed below:\n\n{0}.\n\nTo exclude an extension, set it to `false`\n\n. To include one not in the list, add it and set it to `true`.",
 			"Controls whether the terminal suggestions status bar should be shown.",
 			"Controls whether to enable $CDPATH support which exposes children of the folders in the $CDPATH variable regardless of the current working directory. $CDPATH is expected to be semi colon-separated on Windows and colon-separated on other platforms.",
@@ -36205,7 +36461,7 @@
 			"Delete Profile..."
 		],
 		"vs/workbench/contrib/userDataProfile/browser/userDataProfileActions": [
-			"Create a Temporary Profile",
+			"New Window with Temporary Profile",
 			"Cleanup Profiles",
 			"Reset Workspace Profiles Associations"
 		],
@@ -36453,7 +36709,7 @@
 			"Sync Activity (Developer)",
 			"Troubleshoot"
 		],
-		"vs/workbench/contrib/userDataSync/electron-sandbox/userDataSync.contribution": [
+		"vs/workbench/contrib/userDataSync/electron-browser/userDataSync.contribution": [
 			"Local backups folder does not exist",
 			"Successfully downloaded Settings Sync activity.",
 			"Open Folder",
@@ -36467,7 +36723,7 @@
 		"vs/workbench/contrib/webview/browser/webviewElement": [
 			"Error loading webview: {0}"
 		],
-		"vs/workbench/contrib/webview/electron-sandbox/webviewCommands": [
+		"vs/workbench/contrib/webview/electron-browser/webviewCommands": [
 			"Opens Developer Tools for active webviews",
 			"Using standard dev tools to debug iframe based webview",
 			"Open Webview Developer Tools"
@@ -36537,6 +36793,10 @@
 			"All {0} steps complete!",
 			"{0} of {1} steps complete",
 			"Tip: Use keyboard shortcut ",
+			"Start coding",
+			"Next",
+			"Start coding",
+			"Next",
 			"Previous Step",
 			"Back",
 			"Next",
@@ -36800,10 +37060,7 @@
 			"Browse Color Themes",
 			"Support for all languages",
 			"Install the language extensions you need in your toolkit.\n{0}",
-			"Browse Language Extensions",
-			"Customize every aspect of VS Code",
-			"[Back up and sync](command:workbench.userDataSync.actions.turnOn) settings across all your devices.\n{0}",
-			"Open Settings"
+			"Browse Language Extensions"
 		],
 		"vs/workbench/contrib/welcomeGettingStarted/common/media/notebookProfile": [
 			"Default",
@@ -37017,7 +37274,7 @@
 			"This workspace is already open.",
 			"Open Workspace"
 		],
-		"vs/workbench/electron-sandbox/actions/developerActions": [
+		"vs/workbench/electron-browser/actions/developerActions": [
 			"Tracing requires to launch with a '--trace' argument",
 			"&&Relaunch and Enable Tracing",
 			"Creating trace file...",
@@ -37029,14 +37286,14 @@
 			"Show GPU Info",
 			"Stop Tracing"
 		],
-		"vs/workbench/electron-sandbox/actions/installActions": [
+		"vs/workbench/electron-browser/actions/installActions": [
 			"Shell command '{0}' successfully installed in PATH.",
 			"Shell command '{0}' successfully uninstalled from PATH.",
 			"Shell Command",
 			"Install '{0}' command in PATH",
 			"Uninstall '{0}' command from PATH"
 		],
-		"vs/workbench/electron-sandbox/actions/windowActions": [
+		"vs/workbench/electron-browser/actions/windowActions": [
 			"Clos&&e Window",
 			"&&Zoom In",
 			"&&Zoom Out",
@@ -37058,7 +37315,7 @@
 			"Quick Switch Window...",
 			"Toggle Window Always on Top"
 		],
-		"vs/workbench/electron-sandbox/desktop.contribution": [
+		"vs/workbench/electron-browser/desktop.contribution": [
 			"E&&xit",
 			"Controls the timeout in seconds before giving up resolving the shell environment when the application is not already launched from a terminal. See our [documentation](https://go.microsoft.com/fwlink/?linkid=2149667) for more information.",
 			"Window",
@@ -37130,15 +37387,15 @@
 			"Merge All Windows",
 			"Toggle Window Tabs Bar"
 		],
-		"vs/workbench/electron-sandbox/desktop.main": [
+		"vs/workbench/electron-browser/desktop.main": [
 			"Saving UI state"
 		],
-		"vs/workbench/electron-sandbox/parts/dialogs/dialogHandler": [
+		"vs/workbench/electron-browser/parts/dialogs/dialogHandler": [
 			"Version: {0}\nCommit: {1}\nDate: {2}\nElectron: {3}\nElectronBuildId: {4}\nChromium: {5}\nNode.js: {6}\nV8: {7}\nOS: {8}",
 			"&&Copy",
 			"OK"
 		],
-		"vs/workbench/electron-sandbox/window": [
+		"vs/workbench/electron-browser/window": [
 			"A shared background process terminated unexpectedly. Please restart the application to recover.",
 			"Restart",
 			"Restart",
@@ -37262,6 +37519,9 @@
 			"The gutter toolbar in the diff editor",
 			"The commands that will contribute to the menu rendered as buttons next to the AI search title",
 			"The chat model picker dropdown menu",
+			"The Chat submenu in the explorer context menu.",
+			"The Chat submenu in the text editor context menu.",
+			"The Chat submenu in the terminal context menu.",
 			"property `{0}` is mandatory and must be of type `string`",
 			"property `{0}` can be omitted or must be of type `string`",
 			"property `{0}` can be omitted or must be of type `string`",
@@ -37351,6 +37611,8 @@
 		"vs/workbench/services/authentication/browser/authenticationService": [
 			"The id of the authentication provider.",
 			"The human readable name of the authentication provider.",
+			"A list of globs that match the authorization servers that this provider supports.",
+			"A list of globs that match the authorization servers that this provider supports.",
 			"Contributes authentication",
 			"An authentication contribution must specify an id.",
 			"An authentication contribution must specify a label.",
@@ -37362,11 +37624,11 @@
 		"vs/workbench/services/auxiliaryWindow/browser/auxiliaryWindowService": [
 			"Changes that you made may not be saved. Please check press 'Cancel' and try again.",
 			"Unable to open a new window.",
-			"The browser interrupted the opening of a new window. Press 'Retry' to try again.",
-			"To avoid this problem in the future, please ensure to allow popups for this website.",
+			"The browser blocked opening a new window. Press 'Retry' to try again.",
+			"Please allow pop-ups for this website in your [browser settings]({0}).",
 			"&&Retry"
 		],
-		"vs/workbench/services/auxiliaryWindow/electron-sandbox/auxiliaryWindowService": [
+		"vs/workbench/services/auxiliaryWindow/electron-browser/auxiliaryWindowService": [
 			"Try saving or reverting the editors with unsaved changes first and then try again."
 		],
 		"vs/workbench/services/clipboard/browser/clipboardService": [
@@ -37654,15 +37916,15 @@
 			"Icon used for the verified extension publisher in the extensions view and editor.",
 			"The icon color for extension verified publisher."
 		],
-		"vs/workbench/services/extensionManagement/electron-sandbox/extensionGalleryManifestService": [
+		"vs/workbench/services/extensionManagement/electron-browser/extensionGalleryManifestService": [
 			"{0} is now configured to a different Marketplace. Please restart to apply the changes.",
 			"&&Restart"
 		],
-		"vs/workbench/services/extensionManagement/electron-sandbox/extensionManagementServerService": [
+		"vs/workbench/services/extensionManagement/electron-browser/extensionManagementServerService": [
 			"Local",
 			"Remote"
 		],
-		"vs/workbench/services/extensionManagement/electron-sandbox/remoteExtensionManagementService": [
+		"vs/workbench/services/extensionManagement/electron-browser/remoteExtensionManagementService": [
 			"Can't install '{0}' extension. {1}",
 			"Can't install release version of '{0}' extension because it has no release version.",
 			"Can't install '{0}' extension because it is not compatible with the current version of {1} (version {2})."
@@ -37799,17 +38061,19 @@
 			"Overwriting {0} with Workspace Extension {1}.",
 			"Loading development extension at {0}"
 		],
-		"vs/workbench/services/extensions/electron-sandbox/cachedExtensionScanner": [
+		"vs/workbench/services/extensions/electron-browser/cachedExtensionScanner": [
+			"Failed loading extension '{0}' under development because it is invalid: {1}",
+			"Failed loading extensions {0} under development because they are invalid: {1}",
 			"Extensions have been modified on disk. Please reload the window.",
 			"Reload Window"
 		],
-		"vs/workbench/services/extensions/electron-sandbox/localProcessExtensionHost": [
+		"vs/workbench/services/extensions/electron-browser/localProcessExtensionHost": [
 			"Extension host did not start in 10 seconds, it might be stopped on the first line and needs a debugger to continue.",
 			"Extension host did not start in 10 seconds, that might be a problem.",
 			"Reload Window",
 			"Terminating extension debug session"
 		],
-		"vs/workbench/services/extensions/electron-sandbox/nativeExtensionService": [
+		"vs/workbench/services/extensions/electron-browser/nativeExtensionService": [
 			"Extension host cannot start: version mismatch.",
 			"Relaunch VS Code",
 			"The extension host terminated unexpectedly. Restarting...",
@@ -37827,10 +38091,10 @@
 			"An explicit request",
 			"Restart Extension Host"
 		],
-		"vs/workbench/services/files/electron-sandbox/diskFileSystemProvider": [
+		"vs/workbench/services/files/electron-browser/diskFileSystemProvider": [
 			"File Watcher"
 		],
-		"vs/workbench/services/files/electron-sandbox/elevatedFileService": [
+		"vs/workbench/services/files/electron-browser/elevatedFileService": [
 			"You are about to save '{0}' as admin.",
 			"You are about to save '{0}' as super user.",
 			"Workspace is not trusted."
@@ -37854,10 +38118,12 @@
 			"Whether it is possible to reopen the last closed editor"
 		],
 		"vs/workbench/services/host/browser/browserHostService": [
-			"The browser interrupted the opening of a new tab or window. Press 'Open' to open it anyway.",
-			"&&Open"
+			"The browser blocked opening a new tab or window for '{0}'. Press 'Retry' to try again.",
+			"The browser blocked opening a new tab or window. Press 'Retry' to try again.",
+			"Please allow pop-ups for this website in your [browser settings]({0}).",
+			"&&Retry"
 		],
-		"vs/workbench/services/integrity/electron-sandbox/integrityService": [
+		"vs/workbench/services/integrity/electron-browser/integrityService": [
 			"Your {0} installation appears to be corrupt. Please reinstall.",
 			"More Information",
 			"Don't Show Again"
@@ -37954,7 +38220,7 @@
 			"Press the reload button to refresh the page and use your browser's language.",
 			"&&Reload"
 		],
-		"vs/workbench/services/localization/electron-sandbox/localeService": [
+		"vs/workbench/services/localization/electron-browser/localeService": [
 			"Unable to write display language. Please open the runtime settings, correct errors/warnings in it and try again.",
 			"Open Runtime Settings",
 			"Installing {0} language support...",
@@ -38063,7 +38329,7 @@
 			"Local port {0} could not be used for forwarding to remote port {1}.\n\nThis usually happens when there is already another process using local port {0}.\n\nPort number {2} has been used instead.",
 			"Statically Forwarded"
 		],
-		"vs/workbench/services/remote/electron-sandbox/remoteAgentService": [
+		"vs/workbench/services/remote/electron-browser/remoteAgentService": [
 			"Open Developer Tools",
 			"Open in browser",
 			"Failed to connect to the remote extension host server (Error: {0})"
@@ -38071,7 +38337,7 @@
 		"vs/workbench/services/request/browser/requestService": [
 			"Network"
 		],
-		"vs/workbench/services/request/electron-sandbox/requestService": [
+		"vs/workbench/services/request/electron-browser/requestService": [
 			"Network"
 		],
 		"vs/workbench/services/search/browser/searchService": [
@@ -38081,7 +38347,7 @@
 		"vs/workbench/services/search/common/queryBuilder": [
 			"Workspace folder does not exist: {0}"
 		],
-		"vs/workbench/services/secrets/electron-sandbox/secretStorageService": [
+		"vs/workbench/services/secrets/electron-browser/secretStorageService": [
 			"Open troubleshooting guide",
 			"An OS keyring couldn't be identified for storing the encryption related data in your current desktop environment.",
 			"Open the troubleshooting guide to address this or you can use weaker encryption that doesn't use the OS keyring.",
@@ -38092,6 +38358,7 @@
 		"vs/workbench/services/suggest/browser/simpleSuggestWidget": [
 			"Whether any simple suggestion is focused",
 			"Whether the simple suggestion widget has been navigated downwards",
+			"Whether the first simple suggestion is focused",
 			"Loading...",
 			"No suggestions.",
 			"Suggest",
@@ -38132,7 +38399,7 @@
 			"Running Code Actions and Formatters...",
 			"Skip"
 		],
-		"vs/workbench/services/textfile/electron-sandbox/nativeTextFileService": [
+		"vs/workbench/services/textfile/electron-browser/nativeTextFileService": [
 			"Saving text files"
 		],
 		"vs/workbench/services/textMate/browser/textMateTokenizationFeatureImpl": [
@@ -38380,7 +38647,7 @@
 			"'configuration.semanticTokenScopes.scopes' values must be an array of strings",
 			"configuration.semanticTokenScopes.scopes': Problems parsing selector {0}."
 		],
-		"vs/workbench/services/themes/electron-sandbox/themes.contribution": [
+		"vs/workbench/services/themes/electron-browser/themes.contribution": [
 			"Native widget colors match the system colors.",
 			"Use light native widget colors for light color themes and dark for dark color themes.",
 			"Use light native widget colors.",
@@ -38694,10 +38961,10 @@
 		"vs/workbench/services/workingCopy/common/workingCopyHistoryTracker": [
 			"Undo / Redo"
 		],
-		"vs/workbench/services/workingCopy/electron-sandbox/workingCopyBackupService": [
+		"vs/workbench/services/workingCopy/electron-browser/workingCopyBackupService": [
 			"Backup working copies"
 		],
-		"vs/workbench/services/workingCopy/electron-sandbox/workingCopyBackupTracker": [
+		"vs/workbench/services/workingCopy/electron-browser/workingCopyBackupTracker": [
 			"The following editors with unsaved changes could not be saved to the backup location.",
 			"The following editors with unsaved changes could not be saved or reverted.",
 			"Try saving or reverting the editors with unsaved changes first and then try again.",
@@ -38721,7 +38988,7 @@
 			"Icon of the workspace trust editor label.",
 			"Workspace Trust"
 		],
-		"vs/workbench/services/workspaces/electron-sandbox/workspaceEditingService": [
+		"vs/workbench/services/workspaces/electron-browser/workspaceEditingService": [
 			"Do you want to save your workspace configuration as a file?",
 			"Save your workspace if you plan to open it again.",
 			"&&Save",

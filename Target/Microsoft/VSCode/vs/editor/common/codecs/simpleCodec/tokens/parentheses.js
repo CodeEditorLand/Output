@@ -1,1 +1,0 @@
-import{$$P as t}from"./simpleToken.js";class e extends t{static{this.symbol="("}get text(){return e.symbol}toString(){return`left-parenthesis${this.range}`}}class s extends t{static{this.symbol=")"}get text(){return s.symbol}toString(){return`right-parenthesis${this.range}`}}export{e as $tQ,s as $uQ};

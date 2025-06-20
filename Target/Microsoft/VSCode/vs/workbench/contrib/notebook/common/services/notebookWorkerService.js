@@ -1,1 +1,1 @@
-import{$oj as o}from"../../../../../platform/instantiation/common/instantiation.js";const r="notebookEditorWorkerService",e=o(r);export{r as $fXb,e as $gXb};
+import{$nj as o}from"../../../../../platform/instantiation/common/instantiation.js";const r="notebookEditorWorkerService",e=o(r);export{r as $D0b,e as $E0b};

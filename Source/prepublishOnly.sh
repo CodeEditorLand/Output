@@ -9,12 +9,15 @@ case "$Dependency" in
 	"Microsoft/VSCode")
 		Build="out-build"
 		;;
+
 	"CodeEditorLand/Editor")
 		Build="Source"
 		;;
+
 	*)
 		exit 1
 		;;
+
 esac
 
 if [[ "$Dependency" = "Microsoft/VSCode" && "$NODE_ENV" = "development" ]]; then

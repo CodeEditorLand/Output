@@ -9,12 +9,15 @@ case "$Dependency" in
 	"Microsoft/VSCode")
 		Build="out"
 		;;
+
 	"CodeEditorLand/Editor")
 		Build="Source"
 		;;
+
 	*)
 		exit 1
 		;;
+
 esac
 
 Build "Source/**/*.{ts,json}" \

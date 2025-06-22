@@ -12,25 +12,43 @@ export const Clean = process.env["Clean"] === "true";
  */
 export default {
 	color: true,
+
 	format: "esm",
+
 	logLevel: "debug",
+
 	metafile: true,
+
 	minify: !On,
+
 	outdir: "Configuration",
+
 	platform: "node",
+
 	target: "esnext",
+
 	tsconfig: "tsconfig.json",
+
 	write: true,
+
 	legalComments: On ? "inline" : "none",
+
 	bundle: false,
+
 	assetNames: "Asset/[name]-[hash]",
+
 	sourcemap: On,
+
 	drop: On ? [] : ["debugger"],
+
 	ignoreAnnotations: !On,
+
 	keepNames: On,
+
 	plugins: [
 		{
 			name: "Target",
+
 			// @ts-ignore
 			setup({ onStart, initialOptions: { outdir } }) {
 				switch (true) {
@@ -57,8 +75,10 @@ export default {
 			},
 		},
 	],
+
 	loader: {
 		".json": "copy",
+
 		".sh": "copy",
 	},
 } satisfies BuildOptions as BuildOptions;

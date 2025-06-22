@@ -6,6 +6,7 @@ import type { BuildOptions } from "esbuild";
  */
 export default (await import("deepmerge-ts")).deepmerge(
 	(await import("../../../ESBuild.js")).default,
+
 	{
 		bundle: true,
 
@@ -14,38 +15,66 @@ export default (await import("deepmerge-ts")).deepmerge(
 
 			// Local project files related to terminal functionality and webview messaging
 			"../../../terminal/browser/xterm-private.js",
+
 			"../xterm-private.js",
+
 			"./webviewMessages.js",
 
 			// Microsoft's 1DS (One Data Strategy) telemetry system
 			"@microsoft/1ds-core-js",
+
 			"@microsoft/1ds-post-js",
 
 			// File watcher used by Parcel bundler
 			"@parcel/watcher",
 
 			// VS Code-specific packages for various functionalities
-			"@vscode/iconv-lite-umd", // Character encoding
-			"@vscode/policy-watcher", // Policy watching
-			"@vscode/proxy-agent", // Proxy handling
-			"@vscode/ripgrep", // Text searching
-			"@vscode/sudo-prompt", // Elevated permissions
-			"@vscode/windows-mutex", // Windows-specific utility
-			"@vscode/windows-process-tree", // Windows process management
-			"@vscode/windows-registry", // Windows registry access
+			// Character encoding
+			"@vscode/iconv-lite-umd",
+
+			// Policy watching
+			"@vscode/policy-watcher",
+
+			// Proxy handling
+			"@vscode/proxy-agent",
+
+			// Text searching
+			"@vscode/ripgrep",
+
+			// Elevated permissions
+			"@vscode/sudo-prompt",
+
+			// Windows-specific utility
+			"@vscode/windows-mutex",
+
+			// Windows process management
+			"@vscode/windows-process-tree",
+
+			// Windows registry access
+			"@vscode/windows-registry",
 
 			// Add-ons for xterm.js terminal emulator
-			"@xterm/addon-serialize", // Serialization support
-			"@xterm/addon-unicode11", // Unicode 11 support
-			"@xterm/headless", // Headless functionality
+			// Serialization support
+			"@xterm/addon-serialize",
+
+			// Unicode 11 support
+			"@xterm/addon-unicode11",
+
+			// Headless functionality
+			"@xterm/headless",
 
 			// Framework for building cross-platform desktop applications
 			"electron",
 
 			// Native Node.js addons
-			"native-is-elevated", // Checking elevated permissions
-			"native-keymap", // Handling keymaps
-			"native-watchdog", // Watchdog functionality
+			// Checking elevated permissions
+			"native-is-elevated",
+
+			// Handling keymaps
+			"native-keymap",
+
+			// Watchdog functionality
+			"native-watchdog",
 
 			// Pseudoterminal (pty) support for Node.js
 			"node-pty",
@@ -64,6 +93,7 @@ export default (await import("deepmerge-ts")).deepmerge(
 
 			// Libraries for reading (yauzl) and writing (yazl) ZIP files
 			"yauzl",
+
 			"yazl",
 		],
 	},

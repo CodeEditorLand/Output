@@ -1,5 +1,6 @@
 export default (Prefix: string) => [
-	// // Examples - KEEP core ones like files, preferences, output, terminal UI
+	// Examples - KEEP core ones like files, preferences, output, terminal UI
+	//
 	// `${Prefix}/workbench/contrib/chat`,
 
 	// `${Prefix}/workbench/contrib/notebook`,
@@ -15,10 +16,14 @@ export default (Prefix: string) => [
 	// `${Prefix}/workbench/contrib/comments`,
 
 	// Keep if needed for basic diff view, remove if git ext handles all
-	// // `${Prefix}/workbench/contrib/scm`,
+	// `${Prefix}/workbench/contrib/scm`,
+
+	//
 
 	// Keep common, maybe remove browser UI parts if needed
-	// // `${Prefix}/workbench/contrib/debug`,
+	// `${Prefix}/workbench/contrib/debug`,
+
+	//
 
 	// `${Prefix}/workbench/contrib/callHierarchy`,
 

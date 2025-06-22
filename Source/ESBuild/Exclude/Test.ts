@@ -30,7 +30,10 @@ export default (Prefix: string) => [
 	`${Prefix}/workbench/test/*`,
 
 	// --- 1. Test Files (High Confidence Exclude) ---
-	// // (Your existing list covers this well)
-	// `${Prefix}/workbench/services/**/test/*`, // All tests under workbench services
+	// (Your existing list covers this well)
+	//
+	// All tests under workbench services
+	// `${Prefix}/workbench/services/**/test/*`,
+
 	// `${Prefix}/workbench/test/*`,
 ];
